@@ -45,6 +45,10 @@ export default {
       type: String,
       required: true,
     },
+    clientWidth: {
+      type: Number,
+      required: true,
+    },
   },
   computed: {
     epicStartDateValues() {
@@ -98,13 +102,9 @@ export default {
       return barStyles;
     },
     epicBarInnerStyle() {
-      if (this.$root.$el) {
-        return {
-          maxWidth: `${this.$root.$el.clientWidth - EPIC_DETAILS_CELL_WIDTH}px`,
-        };
-      }
-
-      return {};
+      return {
+        maxWidth: `${this.clientWidth - EPIC_DETAILS_CELL_WIDTH}px`,
+      };
     },
     timelineBarWidth() {
       if (this.hasStartDate) {
@@ -118,11 +118,16 @@ export default {
       }
       return Infinity;
     },
-    isTimelineBarWidthSmall() {
+    showTimelineBarEllipsis() {
       return this.timelineBarWidth < SMALL_TIMELINE_BAR;
     },
-    isTimelineBarWidthVerySmall() {
-      return this.timelineBarWidth < VERY_SMALL_TIMELINE_BAR;
+    timelineBarEllipsis() {
+      if (this.timelineBarWidth < VERY_SMALL_TIMELINE_BAR) {
+        return '.';
+      } else if (this.timelineBarWidth < SMALL_TIMELINE_BAR) {
+        return '...';
+      }
+      return '';
     },
     epicTotalWeight() {
       if (this.epic.descendantWeightSum) {
@@ -167,8 +172,7 @@ export default {
             :value="epicWeightPercentage"
           />
 
-          <div v-if="isTimelineBarWidthVerySmall" class="m-0">.</div>
-          <div v-else-if="isTimelineBarWidthSmall" class="m-0">...</div>
+          <div v-if="showTimelineBarEllipsis" class="m-0">{{ timelineBarEllipsis }}</div>
           <div v-else class="d-flex">
             <span class="flex-grow-1 text-nowrap text-truncate append-right-16">{{
               epic.description

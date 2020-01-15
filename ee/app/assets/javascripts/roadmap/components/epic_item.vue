@@ -30,6 +30,10 @@ export default {
       type: Number,
       required: true,
     },
+    clientWidth: {
+      type: Number,
+      required: true,
+    },
   },
   computed: {
     /**
@@ -126,6 +130,7 @@ export default {
       :timeframe-item="timeframeItem"
       :epic="epic"
       :timeframe-string="timeframeString"
+      :client-width="clientWidth"
     />
   </div>
 </template>
