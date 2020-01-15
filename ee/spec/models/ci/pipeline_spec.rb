@@ -262,7 +262,7 @@ describe Ci::Pipeline do
     subject { pipeline.license_scanning_report }
 
     before do
-      stub_licensed_features(license_management: true)
+      stub_licensed_features(license_scanning: true)
     end
 
     context 'when pipeline has multiple builds with license management reports' do
