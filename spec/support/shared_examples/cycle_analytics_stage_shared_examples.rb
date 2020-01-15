@@ -53,7 +53,7 @@ shared_examples_for 'cycle analytics stage' do
     end
 
     context 'disallows default stage names when creating custom stage' do
-      let(:invalid_params) { valid_params.merge(name: Gitlab::Analytics::CycleAnalytics::DefaultStages.names.first, custom: true) }
+      let(:invalid_params) { valid_params.merge(name: Gitlab::Analytics::ValueStreamAnalytics::DefaultStages.names.first, custom: true) }
       let(:stage) { described_class.new(invalid_params) }
 
       it { expect(stage).not_to be_valid }
@@ -72,7 +72,7 @@ shared_examples_for 'cycle analytics stage' do
     it 'builds start_event object based on start_event_identifier' do
       stage = described_class.new(start_event_identifier: 'merge_request_created')
 
-      expect(stage.start_event).to be_a_kind_of(Gitlab::Analytics::CycleAnalytics::StageEvents::MergeRequestCreated)
+      expect(stage.start_event).to be_a_kind_of(Gitlab::Analytics::ValueStreamAnalytics::StageEvents::MergeRequestCreated)
     end
   end
 
@@ -80,12 +80,12 @@ shared_examples_for 'cycle analytics stage' do
     it 'builds end_event object based on end_event_identifier' do
       stage = described_class.new(end_event_identifier: 'merge_request_merged')
 
-      expect(stage.end_event).to be_a_kind_of(Gitlab::Analytics::CycleAnalytics::StageEvents::MergeRequestMerged)
+      expect(stage.end_event).to be_a_kind_of(Gitlab::Analytics::ValueStreamAnalytics::StageEvents::MergeRequestMerged)
     end
   end
 
   describe '#matches_with_stage_params?' do
-    let(:params) { Gitlab::Analytics::CycleAnalytics::DefaultStages.params_for_test_stage }
+    let(:params) { Gitlab::Analytics::ValueStreamAnalytics::DefaultStages.params_for_test_stage }
 
     it 'matches with default stage params' do
       stage = described_class.new(params)

@@ -11,12 +11,12 @@ describe AnalyticsSummarySerializer do
   let(:user) { create(:user) }
 
   let(:resource) do
-    Gitlab::CycleAnalytics::Summary::Issue
+    Gitlab::ValueStreamAnalytics::Summary::Issue
       .new(project: double, from: 1.day.ago, current_user: user)
   end
 
   before do
-    allow_next_instance_of(Gitlab::CycleAnalytics::Summary::Issue) do |instance|
+    allow_next_instance_of(Gitlab::ValueStreamAnalytics::Summary::Issue) do |instance|
       allow(instance).to receive(:value).and_return(1.12)
     end
   end

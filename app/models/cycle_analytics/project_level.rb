@@ -11,14 +11,14 @@ module CycleAnalytics
     end
 
     def summary
-      @summary ||= ::Gitlab::CycleAnalytics::StageSummary.new(project,
+      @summary ||= ::Gitlab::ValueStreamAnalytics::StageSummary.new(project,
                                                               from: options[:from],
                                                               to: options[:to],
                                                               current_user: options[:current_user]).data
     end
 
     def permissions(user:)
-      Gitlab::CycleAnalytics::Permissions.get(user: user, project: project)
+      Gitlab::ValueStreamAnalytics::Permissions.get(user: user, project: project)
     end
   end
 end

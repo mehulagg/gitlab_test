@@ -21,7 +21,7 @@ module CycleAnalytics
     end
 
     def [](stage_name)
-      Gitlab::CycleAnalytics::Stage[stage_name].new(options: options)
+      Gitlab::ValueStreamAnalytics::Stage[stage_name].new(options: options)
     end
   end
 end
