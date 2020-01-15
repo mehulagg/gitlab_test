@@ -225,7 +225,7 @@ module API
         job = authenticate_job!
         forbidden!('Job is not running') unless job.running?
 
-        max_size = max_artifacts_size(job)
+        max_size = job.max_artifacts_size
 
         if params[:filesize]
           file_size = params[:filesize].to_i
@@ -270,38 +270,15 @@ module API
         job = authenticate_job!
         forbidden!('Job is not running!') unless job.running?
 
-        artifacts = UploadedFile.from_params(params, :file, JobArtifactUploader.workhorse_local_upload_path)
-        metadata = UploadedFile.from_params(params, :metadata, JobArtifactUploader.workhorse_local_upload_path)
-
-        bad_request!('Missing artifacts file!') unless artifacts
-        file_too_large! unless artifacts.size < max_artifacts_size(job)
-
-        expire_in = params['expire_in'] ||
-          Gitlab::CurrentSettings.current_application_settings.default_artifacts_expire_in
-
-        job.job_artifacts.build(
-          project: job.project,
-          file: artifacts,
-          file_type: params['artifact_type'],
-          file_format: params['artifact_format'],
-          file_sha256: artifacts.sha256,
-          expire_in: expire_in)
-
-        if metadata
-          job.job_artifacts.build(
-            project: job.project,
-            file: metadata,
-            file_type: :metadata,
-            file_format: :gzip,
-            file_sha256: metadata.sha256,
-            expire_in: expire_in)
-        end
-
-        if job.update(artifacts_expire_in: expire_in)
+        if Ci::UploadArtifactsService.new.execute(job, params)
           present Ci::BuildRunnerPresenter.new(job), with: Entities::JobRequest::Response
         else
           render_validation_error!(job)
         end
+      rescue Ci::UploadArtifactsService::MissingArtifactsError
+        bad_request!('Missing artifacts file!')
+      rescue Ci::UploadArtifactsService::FileTooLargeError
+        file_too_large!
       end
 
       desc 'Download the artifacts file for job' do

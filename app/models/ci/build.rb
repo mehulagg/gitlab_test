@@ -660,6 +660,74 @@ module Ci
       job_artifacts.any?
     end
 
+    def max_artifacts_size
+      project.closest_setting(:max_artifacts_size).megabytes.to_i
+    end
+
+    def artifacts_expose_as
+      options.dig(:artifacts, :expose_as)
+    end
+
+    def artifacts_paths
+      options.dig(:artifacts, :paths)
+    end
+
+    def browsable_artifacts?
+      artifacts_metadata?
+    end
+
+    def artifacts_metadata_entry(path, **options)
+      artifacts_metadata.open do |metadata_stream|
+        metadata = Gitlab::Ci::Build::Artifacts::Metadata.new(
+          metadata_stream,
+          path,
+          **options)
+
+        metadata.to_entry
+      end
+    end
+
+    # and use that for `ExpireBuildInstanceArtifactsWorker`?
+    def erase_erasable_artifacts!
+      job_artifacts.erasable.destroy_all # rubocop: disable DestroyAll
+    end
+
+    def artifacts_expired?
+      artifacts_expire_at && artifacts_expire_at < Time.now
+    end
+
+    def artifacts_expire_in
+      artifacts_expire_at - Time.now if artifacts_expire_at
+    end
+
+    def artifacts_expire_in=(value)
+      self.artifacts_expire_at =
+        if value
+          ChronicDuration.parse(value)&.seconds&.from_now
+        end
+    end
+
+    def has_expiring_artifacts?
+      artifacts_expire_at.present? && artifacts_expire_at > Time.now
+    end
+
+    def keep_artifacts!
+      self.update(artifacts_expire_at: nil)
+      self.job_artifacts.update_all(expire_at: nil)
+    end
+
+    def artifacts_file_for_type(type)
+      job_artifacts.find_by(file_type: Ci::JobArtifact.file_types[type])&.file
+    end
+
+    def publishes_artifacts_reports?
+      options&.dig(:artifacts, :reports)&.any?
+    end
+
+    def report_artifacts
+      job_artifacts.with_reports
+    end
+
     def has_old_trace?
       old_trace.present?
     end
@@ -676,14 +744,6 @@ module Ci
       return unless has_old_trace?
 
       update_column(:trace, nil)
-    end
-
-    def artifacts_expose_as
-      options.dig(:artifacts, :expose_as)
-    end
-
-    def artifacts_paths
-      options.dig(:artifacts, :paths)
     end
 
     def needs_touch?
@@ -713,26 +773,6 @@ module Ci
       project.execute_services(build_data.dup, :job_hooks) if project.has_active_services?(:job_hooks)
     end
 
-    def browsable_artifacts?
-      artifacts_metadata?
-    end
-
-    def artifacts_metadata_entry(path, **options)
-      artifacts_metadata.open do |metadata_stream|
-        metadata = Gitlab::Ci::Build::Artifacts::Metadata.new(
-          metadata_stream,
-          path,
-          **options)
-
-        metadata.to_entry
-      end
-    end
-
-    # and use that for `ExpireBuildInstanceArtifactsWorker`?
-    def erase_erasable_artifacts!
-      job_artifacts.erasable.destroy_all # rubocop: disable DestroyAll
-    end
-
     def erase(opts = {})
       return false unless erasable?
 
@@ -747,34 +787,6 @@ module Ci
 
     def erased?
       !self.erased_at.nil?
-    end
-
-    def artifacts_expired?
-      artifacts_expire_at && artifacts_expire_at < Time.now
-    end
-
-    def artifacts_expire_in
-      artifacts_expire_at - Time.now if artifacts_expire_at
-    end
-
-    def artifacts_expire_in=(value)
-      self.artifacts_expire_at =
-        if value
-          ChronicDuration.parse(value)&.seconds&.from_now
-        end
-    end
-
-    def has_expiring_artifacts?
-      artifacts_expire_at.present? && artifacts_expire_at > Time.now
-    end
-
-    def keep_artifacts!
-      self.update(artifacts_expire_at: nil)
-      self.job_artifacts.update_all(expire_at: nil)
-    end
-
-    def artifacts_file_for_type(type)
-      job_artifacts.find_by(file_type: Ci::JobArtifact.file_types[type])&.file
     end
 
     def coverage_regex
@@ -872,10 +884,6 @@ module Ci
       end
     end
 
-    def publishes_artifacts_reports?
-      options&.dig(:artifacts, :reports)&.any?
-    end
-
     def hide_secrets(trace)
       return unless trace
 
@@ -899,10 +907,6 @@ module Ci
           Gitlab::Ci::Parsers.fabricate!(file_type).parse!(blob, test_suite)
         end
       end
-    end
-
-    def report_artifacts
-      job_artifacts.with_reports
     end
 
     # Virtual deployment status depending on the environment status.
