@@ -25,6 +25,8 @@
   .settings-content
     = render 'groups/settings/permissions'
 
+= render_if_exists 'groups/timeboxes/timeboxes', expanded: expanded
+
 = render_if_exists 'groups/insights', expanded: expanded
 
 %section.settings.no-animate#js-badge-settings{ class: ('expanded' if expanded) }
