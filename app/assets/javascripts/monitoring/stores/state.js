@@ -29,6 +29,6 @@ export default () => ({
     },
   ],
   loading: false,
-  availableAlertsFromQueries: null,
+  availableAlertsFromQueries: {},
   alertsEndpoint: '',
 });

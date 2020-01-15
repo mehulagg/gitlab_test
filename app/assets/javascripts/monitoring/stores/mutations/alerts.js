@@ -3,7 +3,7 @@ import * as types from '../mutation_types';
 import { OPERATORS } from '../../constants';
 
 export default {
-  [types.REQUEST_ALERTS_SUCCESS](state, alertData) {
+  [types.REQUEST_ALERTS_SUCCESS]() {
     /* Previous implementation
     if (alertData.alertAttributes) {
       Vue.set(state.allAlerts, alertData.alertAttributes.alertPath, alertData.alertAttributes);
@@ -11,11 +11,11 @@ export default {
       Vue.delete(state.allAlerts, alertData.alertAttributes.alertPath);
     }
     */
-    if (state.availableAlertsFromQueries) {
-      Vue.set(state.availableAlertsFromQueries, 0, alertData); // TODO: get the proper index to update
-    } else {
-      state.push(alertData);
-    }
+    // if (state.availableAlertsFromQueries) {
+    //   Vue.set(state.availableAlertsFromQueries, 0, alertData);
+    // } else {
+    //   state.push(alertData);
+    // }
   },
   [types.FILTER_QUERIES_WITH_ALERTS](state, queries) {
     const filteredQueries = queries.filter(query => query.alert_path);
@@ -65,12 +65,14 @@ export default {
     state.alertsVuex.splice(alertIndex, 1);
   },
   [types.FILTER_ALERTS_FROM_GROUPS](state, panelGroups) {
-    // TODO: Maybe use the state instead?
+    // TODO: Maybe use the state for the panelGroups instead?
     panelGroups.forEach(group => {
       group.panels.forEach(panel => {
         panel.metrics.forEach(metric => {
           if (metric.alert_path) {
-            state.availableAlertsFromQueries.push(metric.alert_path);
+            Vue.set(state.availableAlertsFromQueries, metric.metricId, {
+              ...metric,
+            });
           }
         });
       });
