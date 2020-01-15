@@ -89,7 +89,7 @@ describe Analytics::CycleAnalytics::StagesController do
   end
 
   describe 'PUT `update`' do
-    let(:stage) { create(:cycle_analytics_group_stage, parent: group, relative_position: 15) }
+    let(:stage) { create(:value_stream_analytics_group_stage, parent: group, relative_position: 15) }
 
     subject { put :update, params: params.merge(id: stage.id) }
 
@@ -135,7 +135,7 @@ describe Analytics::CycleAnalytics::StagesController do
 
       context 'when positioning parameter is given' do
         before do
-          params[:move_before_id] = create(:cycle_analytics_group_stage, parent: group, relative_position: 10).id
+          params[:move_before_id] = create(:value_stream_analytics_group_stage, parent: group, relative_position: 10).id
         end
 
         it 'moves the stage before the last place' do
@@ -151,7 +151,7 @@ describe Analytics::CycleAnalytics::StagesController do
   end
 
   describe 'DELETE `destroy`' do
-    let(:stage) { create(:cycle_analytics_group_stage, parent: group) }
+    let(:stage) { create(:value_stream_analytics_group_stage, parent: group) }
 
     subject { delete :destroy, params: params }
 
@@ -189,7 +189,7 @@ describe Analytics::CycleAnalytics::StagesController do
   end
 
   describe 'data endpoints' do
-    let(:stage) { create(:cycle_analytics_group_stage, parent: group) }
+    let(:stage) { create(:value_stream_analytics_group_stage, parent: group) }
 
     before do
       params[:id] = stage.id

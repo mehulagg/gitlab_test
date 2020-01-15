@@ -35,7 +35,7 @@ describe Gitlab::Analytics::CycleAnalytics::RecordsFetcher do
       let_it_be(:issue1) { create(:issue, project: project) }
       let_it_be(:issue2) { create(:issue, project: project, confidential: true) }
       let(:stage) do
-        build(:cycle_analytics_project_stage, {
+        build(:value_stream_analytics_project_stage, {
           start_event_identifier: :plan_stage_start,
           end_event_identifier: :issue_first_mentioned_in_commit,
           project: project
@@ -65,7 +65,7 @@ describe Gitlab::Analytics::CycleAnalytics::RecordsFetcher do
       let(:mr1) { create(:merge_request, created_at: 5.days.ago, source_project: project, allow_broken: true) }
       let(:mr2) { create(:merge_request, created_at: 4.days.ago, source_project: project, allow_broken: true) }
       let(:stage) do
-        build(:cycle_analytics_project_stage, {
+        build(:value_stream_analytics_project_stage, {
           start_event_identifier: :merge_request_created,
           end_event_identifier: :merge_request_merged,
           project: project
@@ -86,7 +86,7 @@ describe Gitlab::Analytics::CycleAnalytics::RecordsFetcher do
       let(:ci_build1) { create(:ci_build) }
       let(:ci_build2) { create(:ci_build) }
       let(:default_stages) { Gitlab::Analytics::CycleAnalytics::DefaultStages }
-      let(:stage) { build(:cycle_analytics_project_stage, default_stages.params_for_test_stage.merge(project: project)) }
+      let(:stage) { build(:value_stream_analytics_project_stage, default_stages.params_for_test_stage.merge(project: project)) }
 
       before do
         mr1.metrics.update!({

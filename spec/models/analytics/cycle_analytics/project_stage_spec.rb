@@ -24,7 +24,7 @@ describe Analytics::CycleAnalytics::ProjectStage do
   context 'relative positioning' do
     it_behaves_like 'a class that supports relative positioning' do
       let(:project) { create(:project) }
-      let(:factory) { :cycle_analytics_project_stage }
+      let(:factory) { :value_stream_analytics_project_stage }
       let(:default_params) { { project: project } }
     end
   end
