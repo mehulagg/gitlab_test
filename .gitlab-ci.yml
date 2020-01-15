@@ -13,6 +13,7 @@ variables:
   DOCKER_TLS_CERTDIR: ""
   SAST_BRAKEMAN_LEVEL: 2
   SAST_EXCLUDED_PATHS: qa,spec,doc,ee/spec
+  ANALYZER_ARTIFACT_DIR: /tmp
   # SAST_DEFAULT_ANALYZERS: "brakeman, kubesec"
   # SAST_ANALYZER_IMAGE_TAG: "error-walking-dir" #this does no good for SAST !@#$&*(^#$@%
 
@@ -92,7 +93,7 @@ eslint-sast:
   extends: .sast-analyzer
   before_script:
     #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
-    - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab && chmod 755 /builds/gitlab-org/gitlab
+    - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
   only:
@@ -115,7 +116,7 @@ kubesec-sast:
   extends: .sast-analyzer
   before_script:
     #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
-    - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab && chmod 755 /builds/gitlab-org/gitlab
+    - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
   only:
