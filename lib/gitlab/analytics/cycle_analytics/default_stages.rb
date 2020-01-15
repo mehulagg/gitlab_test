@@ -6,7 +6,7 @@
 # Example:
 #
 # params = Gitlab::Analytics::CycleAnalytics::DefaultStages.params_for_issue_stage
-# Analytics::CycleAnalytics::ProjectStage.new(params)
+# Analytics::ValueStreamAnalytics::ProjectStage.new(params)
 module Gitlab
   module Analytics
     module CycleAnalytics

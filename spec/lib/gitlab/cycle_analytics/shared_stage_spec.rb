@@ -57,7 +57,7 @@ end
 
 shared_examples 'Gitlab::Analytics::CycleAnalytics::DataCollector backend examples' do
   let(:stage_params) { Gitlab::Analytics::CycleAnalytics::DefaultStages.send("params_for_#{stage_name}_stage").merge(project: project) }
-  let(:stage) { Analytics::CycleAnalytics::ProjectStage.new(stage_params) }
+  let(:stage) { Analytics::ValueStreamAnalytics::ProjectStage.new(stage_params) }
   let(:data_collector) { Gitlab::Analytics::CycleAnalytics::DataCollector.new(stage: stage, params: { from: stage_options[:from], current_user: project.creator }) }
   let(:attribute_to_verify) { :title }
 

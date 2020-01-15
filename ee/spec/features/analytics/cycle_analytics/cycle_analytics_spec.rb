@@ -281,7 +281,7 @@ describe 'Group Cycle Analytics', :js do
     end
   end
 
-  describe 'Customizable cycle analytics', :js do
+  describe 'Customizable value stream analytics', :js do
     custom_stage_name = "Cool beans"
     start_event_identifier = :merge_request_created
     end_event_identifier = :merge_request_merged
@@ -292,7 +292,7 @@ describe 'Group Cycle Analytics', :js do
     let(:first_custom_stage) { page.find('.stage-nav-item-cell', text: custom_stage_name).ancestor(".stage-nav-item") }
 
     def create_custom_stage
-      Analytics::CycleAnalytics::Stages::CreateService.new(parent: group, params: params, current_user: user).execute
+      Analytics::ValueStreamAnalytics::Stages::CreateService.new(parent: group, params: params, current_user: user).execute
     end
 
     def toggle_more_options(stage)

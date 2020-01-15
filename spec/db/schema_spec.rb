@@ -125,8 +125,8 @@ describe 'Database schema' do
 
   # These pre-existing enums have limits > 2 bytes
   IGNORED_LIMIT_ENUMS = {
-    'Analytics::CycleAnalytics::GroupStage' => %w[start_event_identifier end_event_identifier],
-    'Analytics::CycleAnalytics::ProjectStage' => %w[start_event_identifier end_event_identifier],
+    'Analytics::ValueStreamAnalytics::GroupStage' => %w[start_event_identifier end_event_identifier],
+    'Analytics::ValueStreamAnalytics::ProjectStage' => %w[start_event_identifier end_event_identifier],
     'Ci::Bridge' => %w[failure_reason],
     'Ci::Build' => %w[failure_reason],
     'Ci::BuildMetadata' => %w[timeout_source],

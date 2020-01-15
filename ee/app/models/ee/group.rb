@@ -41,7 +41,7 @@ module EE
       has_many :project_templates, through: :projects, foreign_key: 'custom_project_templates_group_id'
 
       has_many :managed_users, class_name: 'User', foreign_key: 'managing_group_id', inverse_of: :managing_group
-      has_many :cycle_analytics_stages, class_name: 'Analytics::CycleAnalytics::GroupStage'
+      has_many :cycle_analytics_stages, class_name: 'Analytics::ValueStreamAnalytics::GroupStage'
 
       has_one :deletion_schedule, class_name: 'GroupDeletionSchedule'
       delegate :deleting_user, :marked_for_deletion_on, to: :deletion_schedule, allow_nil: true

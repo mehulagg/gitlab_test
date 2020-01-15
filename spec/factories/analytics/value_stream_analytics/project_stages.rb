@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :value_stream_analytics_project_stage, class: 'Analytics::CycleAnalytics::ProjectStage' do
+  factory :value_stream_analytics_project_stage, class: 'Analytics::ValueStreamAnalytics::ProjectStage' do
     project
     sequence(:name) { |n| "Stage ##{n}" }
     hidden { false }

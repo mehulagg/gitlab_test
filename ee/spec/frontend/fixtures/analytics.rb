@@ -131,7 +131,7 @@ describe 'Analytics (JavaScript fixtures)', :sidekiq_inline do
     end
   end
 
-  describe Analytics::CycleAnalytics::StagesController, type: :controller do
+  describe Analytics::ValueStreamAnalytics::StagesController, type: :controller do
     render_views
 
     let(:params) { { created_after: 3.months.ago, created_before: Time.now, group_id: group.full_path } }
@@ -176,7 +176,7 @@ describe 'Analytics (JavaScript fixtures)', :sidekiq_inline do
     end
   end
 
-  describe Analytics::CycleAnalytics::SummaryController, type: :controller do
+  describe Analytics::ValueStreamAnalytics::SummaryController, type: :controller do
     render_views
 
     let(:params) { { created_after: 3.months.ago, created_before: Time.now, group_id: group.full_path } }
