@@ -41,7 +41,7 @@ describe Gitlab::ImportExport::GroupTreeSaver do
       it 'saves parent of epic' do
         expect_successful_save(group_tree_saver)
 
-        parent = saved_group_json['epics'].first['parent']
+        parent = saved_epic['parent']
 
         expect(parent).not_to be_empty
         expect(parent['id']).to eq(parent_epic.id)
@@ -50,7 +50,7 @@ describe Gitlab::ImportExport::GroupTreeSaver do
       it 'saves epic notes' do
         expect_successful_save(group_tree_saver)
 
-        notes = saved_group_json['epics'].first['notes']
+        notes = saved_epic['notes']
 
         expect(notes).not_to be_empty
         expect(notes.first['note']).to eq(note.note)
@@ -78,6 +78,10 @@ describe Gitlab::ImportExport::GroupTreeSaver do
         expect(labels.first['title']).to eq(label.title)
       end
     end
+  end
+
+  def saved_epic
+    saved_group_json['epics'].find { |e| e['id'] == epic.id }
   end
 
   def expect_successful_save(group_tree_saver)
