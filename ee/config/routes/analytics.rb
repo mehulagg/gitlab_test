@@ -6,8 +6,8 @@ namespace :analytics do
   resource :productivity_analytics, only: :show, constraints: -> (req) { Gitlab::Analytics.productivity_analytics_enabled? }
 
   constraints(-> (req) { Gitlab::Analytics.cycle_analytics_enabled? }) do
-    resource :cycle_analytics, only: :show
-    namespace :cycle_analytics do
+    resource :value_stream_analytics, only: :show
+    namespace :value_stream_analytics do
       resources :stages, only: [:index, :create, :update, :destroy] do
         member do
           get :duration_chart

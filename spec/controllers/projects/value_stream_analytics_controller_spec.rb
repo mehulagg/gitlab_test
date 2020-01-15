@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Projects::CycleAnalyticsController do
+describe Projects::ValueStreamAnalyticsController do
   let(:project) { create(:project, :repository) }
   let(:user) { create(:user) }
 
@@ -25,7 +25,7 @@ describe Projects::CycleAnalyticsController do
     end
   end
 
-  describe 'cycle analytics not set up flag' do
+  describe 'value stream analytics not set up flag' do
     context 'with no data' do
       it 'is true' do
         get(:show,

@@ -88,7 +88,7 @@ describe 'Analytics (JavaScript fixtures)', :sidekiq_inline do
 
   default_stages = %w[issue plan review code test staging production]
 
-  describe Groups::CycleAnalytics::EventsController, type: :controller do
+  describe Groups::ValueStreamAnalytics::EventsController, type: :controller do
     render_views
 
     before do
@@ -109,7 +109,7 @@ describe 'Analytics (JavaScript fixtures)', :sidekiq_inline do
     end
   end
 
-  describe Groups::CycleAnalyticsController, type: :controller do
+  describe Groups::ValueStreamAnalyticsController, type: :controller do
     render_views
 
     before do

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Groups::CycleAnalytics::EventsController < Groups::ApplicationController
+class Groups::ValueStreamAnalytics::EventsController < Groups::ApplicationController
   include ActionView::Helpers::DateHelper
   include ActionView::Helpers::TextHelper
   include CycleAnalyticsParams

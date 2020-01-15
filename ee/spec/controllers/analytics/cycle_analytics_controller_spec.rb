@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Analytics::CycleAnalyticsController do
+describe Analytics::ValueStreamAnalyticsController do
   let(:user) { create(:user) }
 
   before do

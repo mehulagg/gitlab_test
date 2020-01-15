@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  module CycleAnalytics
+  module ValueStreamAnalytics
     class EventsController < Projects::ApplicationController
       include CycleAnalyticsParams
 
