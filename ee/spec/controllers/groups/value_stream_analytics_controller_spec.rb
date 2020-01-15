@@ -6,7 +6,7 @@ RSpec::Matchers.define :nested_hash_including do |path_to_hash, value|
   match { |actual| actual.dig(*path_to_hash) == value }
 end
 
-describe Groups::CycleAnalyticsController do
+describe Groups::ValueStreamAnalyticsController do
   let(:group) { create(:group) }
   let(:project) { create(:project, namespace: group) }
   let(:user) { create(:user) }
@@ -18,7 +18,7 @@ describe Groups::CycleAnalyticsController do
     sign_in(user)
   end
 
-  describe 'cycle analytics' do
+  describe 'value stream analytics' do
     context 'with proper permission' do
       before do
         group.add_owner(user)

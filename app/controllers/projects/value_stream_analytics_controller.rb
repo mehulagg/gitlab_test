@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Projects::CycleAnalyticsController < Projects::ApplicationController
+class Projects::ValueStreamAnalyticsController < Projects::ApplicationController
   include ActionView::Helpers::DateHelper
   include ActionView::Helpers::TextHelper
   include CycleAnalyticsParams

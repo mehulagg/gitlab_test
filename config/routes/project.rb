@@ -203,9 +203,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
-        resource :cycle_analytics, only: [:show]
+        resource :value_stream_analytics, only: [:show]
 
-        namespace :cycle_analytics do
+        namespace :value_stream_analytics do
           scope :events, controller: 'events' do
             get :issue
             get :plan
