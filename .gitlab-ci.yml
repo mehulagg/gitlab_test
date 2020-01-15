@@ -88,6 +88,9 @@ brakeman-sast:
 
 eslint-sast:
   extends: .sast-analyzer
+  before_script:
+    #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
+    - stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab && chmod 755 /builds/gitlab-org/gitlab
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
   only:
@@ -108,6 +111,9 @@ flawfinder-sast:
 
 kubesec-sast:
   extends: .sast-analyzer
+  before_script:
+    #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
+    - stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab && chmod 755 /builds/gitlab-org/gitlab
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
   only:
