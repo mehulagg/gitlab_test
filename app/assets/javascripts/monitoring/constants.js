@@ -118,3 +118,9 @@ export const timeWindowsKeyNames = Object.keys(secondsIn).reduce(
   }),
   {},
 );
+
+export const OPERATORS = {
+  greaterThan: '>',
+  equalTo: '==',
+  lessThan: '<',
+};

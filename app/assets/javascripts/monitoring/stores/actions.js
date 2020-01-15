@@ -157,6 +157,8 @@ export const fetchPrometheusMetrics = ({ state, commit, dispatch, getters }, par
         label: `${dashboardType}_metrics_dashboard`,
         value: getters.metricsWithData().length,
       });
+
+      commit(types.FILTER_ALERTS_FROM_GROUPS, state.dashboard.panel_groups);
     })
     .catch(() => {
       createFlash(s__(`Metrics|There was an error while retrieving metrics`), 'warning');
@@ -237,6 +239,8 @@ export const duplicateSystemDashboard = ({ state }, payload) => {
       }
     });
 };
+
+export * from './actions/alerts';
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
 export default () => {};

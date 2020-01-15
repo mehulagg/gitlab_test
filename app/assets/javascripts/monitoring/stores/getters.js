@@ -58,5 +58,7 @@ export const metricsWithData = state => groupKey => {
   return res;
 };
 
+export * from './getters/alerts';
+
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
 export default () => {};

@@ -1,4 +1,5 @@
 import invalidUrl from '~/lib/utils/invalid_url';
+import { OPERATORS } from '../constants';
 
 export default () => ({
   metricsEndpoint: null,
@@ -18,4 +19,19 @@ export default () => ({
   allDashboards: [],
   currentDashboard: null,
   projectPath: null,
+
+  alertsVuex: [
+    {
+      alert: {},
+      operator: OPERATORS.greaterThan,
+      threshold: null,
+      prometheusMetricId: null,
+      visible: true,
+    },
+  ],
+  loading: false,
+  availableAlertsFromQueries: {},
+  alertsEndpoint: '',
+  alertsToDelete: [],
+  newForm: true,
 });
