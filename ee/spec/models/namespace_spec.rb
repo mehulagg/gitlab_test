@@ -1020,4 +1020,36 @@ describe Namespace do
       end
     end
   end
+
+  describe '#trial_active?' do
+    context 'without a gitlab subscription' do
+      it 'returns false' do
+        expect(namespace.trial_active?).to eq(false)
+      end
+    end
+
+    context 'with a gitlab subscription' do
+      let(:trial_ends_on) { nil }
+
+      before do
+        create(:gitlab_subscription, :bronze, namespace: namespace, trial: true, trial_ends_on: trial_ends_on)
+      end
+
+      context 'when trial is active' do
+        let(:trial_ends_on) { 5.days.from_now }
+
+        it 'returns true' do
+          expect(namespace.trial_active?).to eq(true)
+        end
+      end
+
+      context 'when trial has expired' do
+        let(:trial_ends_on) { 5.days.ago }
+
+        it 'returns true' do
+          expect(namespace.trial_active?).to eq(false)
+        end
+      end
+    end
+  end
 end
