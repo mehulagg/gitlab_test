@@ -22,8 +22,6 @@ sast:
   stage: test
   allow_failure: true
   artifacts:
-    paths:
-      - gl-sast-report.json
     reports:
       sast: gl-sast-report.json
   only:
@@ -93,6 +91,7 @@ eslint-sast:
   extends: .sast-analyzer
   before_script:
     #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
+    - stat . && pwd
     - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
@@ -116,7 +115,9 @@ kubesec-sast:
   extends: .sast-analyzer
   before_script:
     #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
+    - stat . && pwd
     - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
+    - echo "$CI_PROJECT_DIR"
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
   only:
@@ -137,6 +138,10 @@ gosec-sast:
 
 nodejs-scan-sast:
   extends: .sast-analyzer
+  before_script:
+    #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
+    - stat . && pwd
+    - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
   only:
