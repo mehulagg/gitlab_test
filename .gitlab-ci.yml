@@ -146,7 +146,7 @@ nodejs-scan-sast:
     - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
     - echo "$CI_PROJECT_DIR" && echo "$CI_PROJECT_DIR"
   image:
-    name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:35609-fix-for-non-dind"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
