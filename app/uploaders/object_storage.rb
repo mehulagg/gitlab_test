@@ -223,12 +223,15 @@ module ObjectStorage
 
     def object_store
       # We use Store::LOCAL as null value indicates the local storage
-      @object_store ||= model.try(store_serialization_column) || Store::LOCAL
+      #
+      # Don't memoize this in case the serialization column is updated
+      # directly (e.g. in tests) after this method is called.
+      @object_store || model.try(store_serialization_column) || Store::LOCAL # rubocop:disable Gitlab/ModuleWithInstanceVariables
     end
 
     # rubocop:disable Gitlab/ModuleWithInstanceVariables
     def object_store=(value)
-      @object_store = value || Store::LOCAL
+      @object_store = value || object_store
       @storage = storage_for(object_store)
     end
     # rubocop:enable Gitlab/ModuleWithInstanceVariables
@@ -329,10 +332,12 @@ module ObjectStorage
       # when direct upload is enabled, always store on remote storage
       if self.class.object_store_enabled? && self.class.direct_upload_enabled?
         self.object_store = Store::REMOTE
-        persist_object_store!
       end
 
       super
+
+      # Commit updates to the store only after we've uploaded the file
+      persist_object_store!
     end
 
     def exclusive_lease_key

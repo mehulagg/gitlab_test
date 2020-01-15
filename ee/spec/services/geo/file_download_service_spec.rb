@@ -431,7 +431,7 @@ describe Geo::FileDownloadService do
 
     context 'LFS object' do
       it_behaves_like "a service that downloads the file and registers the sync result", 'lfs' do
-        let(:file) { create(:lfs_object) }
+        let(:file) { create(:lfs_object, :with_file) }
       end
     end
 
