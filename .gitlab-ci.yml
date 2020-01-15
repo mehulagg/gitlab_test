@@ -7,7 +7,7 @@ variables:
   SCAN_KUBERNETES_MANIFESTS: "true"
   CI_DEBUG_TRACE: "false"
   SAST_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
-  SAST_DEFAULT_ANALYZERS: "nodejs-scan, eslint, kubesec"
+  SAST_DEFAULT_ANALYZERS: "nodejs-scan, eslint, kubesec, secrets"
   SAST_ANALYZER_IMAGE_TAG: 2
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
@@ -21,6 +21,8 @@ sast:
   stage: test
   allow_failure: true
   artifacts:
+    paths:
+      - gl-sast-report.json
     reports:
       sast: gl-sast-report.json
   only:
@@ -90,7 +92,7 @@ eslint-sast:
   extends: .sast-analyzer
   before_script:
     #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
-    - stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab && chmod 755 /builds/gitlab-org/gitlab
+    - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab && chmod 755 /builds/gitlab-org/gitlab
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
   only:
@@ -113,7 +115,7 @@ kubesec-sast:
   extends: .sast-analyzer
   before_script:
     #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
-    - stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab && chmod 755 /builds/gitlab-org/gitlab
+    - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab && chmod 755 /builds/gitlab-org/gitlab
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
   only:
