@@ -5,7 +5,7 @@ stages:
 variables:
   SAST_DISABLE_DIND: "true"
   SCAN_KUBERNETES_MANIFESTS: "true"
-  CI_DEBUG_TRACE: "false"
+  CI_DEBUG_TRACE: "true"
   SAST_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
   SAST_DEFAULT_ANALYZERS: "nodejs-scan, eslint, kubesec, secrets"
   SAST_ANALYZER_IMAGE_TAG: 2
@@ -13,7 +13,8 @@ variables:
   DOCKER_TLS_CERTDIR: ""
   SAST_BRAKEMAN_LEVEL: 2
   SAST_EXCLUDED_PATHS: qa,spec,doc,ee/spec
-  ANALYZER_ARTIFACT_DIR: /tmp
+  ANALYZER_ARTIFACT_DIR: /tmp/app
+  CI_PROJECT_DIR: /tmp/app
   # SAST_DEFAULT_ANALYZERS: "brakeman, kubesec"
   # SAST_ANALYZER_IMAGE_TAG: "error-walking-dir" #this does no good for SAST !@#$&*(^#$@%
 
@@ -93,6 +94,7 @@ eslint-sast:
     #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
     - stat . && pwd
     - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
+    - echo "$CI_PROJECT_DIR" && echo "$CI_PROJECT_DIR"
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
   only:
@@ -117,7 +119,7 @@ kubesec-sast:
     #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
     - stat . && pwd
     - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
-    - echo "$CI_PROJECT_DIR"
+    - echo "$CI_PROJECT_DIR" && echo "$CI_PROJECT_DIR"
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
   only:
@@ -142,6 +144,7 @@ nodejs-scan-sast:
     #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
     - stat . && pwd
     - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
+    - echo "$CI_PROJECT_DIR" && echo "$CI_PROJECT_DIR"
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
   only:
