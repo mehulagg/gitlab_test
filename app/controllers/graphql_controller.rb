@@ -13,6 +13,7 @@ class GraphqlController < ApplicationController
   protect_from_forgery with: :null_session, only: :execute
 
   before_action :authorize_access_api!
+  before_action :set_user_last_activity
   before_action(only: [:execute]) { authenticate_sessionless_user!(:api) }
 
   def execute
@@ -36,6 +37,12 @@ class GraphqlController < ApplicationController
   end
 
   private
+
+  def set_user_last_activity
+    return unless current_user
+
+    Users::ActivityService.new(current_user).execute
+  end
 
   def execute_multiplex
     GitlabSchema.multiplex(multiplex_queries, context: context)
