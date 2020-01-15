@@ -50,7 +50,7 @@ module Projects
       end
 
       def cycle_analytics
-        @cycle_analytics ||= ::CycleAnalytics::ProjectLevel.new(project, options: options(cycle_analytics_project_params))
+        @cycle_analytics ||= ::ValueStreamAnalytics::ProjectLevel.new(project, options: options(cycle_analytics_project_params))
       end
     end
   end

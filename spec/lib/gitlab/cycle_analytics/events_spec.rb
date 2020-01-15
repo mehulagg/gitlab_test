@@ -9,7 +9,7 @@ describe 'cycle analytics events' do
   let!(:context) { create(:issue, project: project, created_at: 2.days.ago) }
 
   let(:events) do
-    CycleAnalytics::ProjectLevel.new(project, options: { from: from_date, current_user: user })[stage].events
+    ValueStreamAnalytics::ProjectLevel.new(project, options: { from: from_date, current_user: user })[stage].events
   end
 
   before do

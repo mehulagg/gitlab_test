@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module CycleAnalytics
+module ValueStreamAnalytics
   class ProjectLevel
     include LevelBase
     attr_reader :project, :options
