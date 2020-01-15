@@ -7,7 +7,7 @@ variables:
   SCAN_KUBERNETES_MANIFESTS: "true"
   CI_DEBUG_TRACE: "false"
   SAST_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
-  SAST_DEFAULT_ANALYZERS: "bandit, brakeman, gosec, spotbugs, flawfinder, phpcs-security-audit, security-code-scan, nodejs-scan, eslint, tslint, secrets, sobelow, pmd-apex, kubesec"
+  SAST_DEFAULT_ANALYZERS: "nodejs-scan, eslint, kubesec"
   SAST_ANALYZER_IMAGE_TAG: 2
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
@@ -88,9 +88,6 @@ brakeman-sast:
 
 eslint-sast:
   extends: .sast-analyzer
-  before_script:
-    #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
-    - chmod 755 /builds/gitlab-org/gitlab/gl-sast-report.json
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
   only:
@@ -111,10 +108,6 @@ flawfinder-sast:
 
 kubesec-sast:
   extends: .sast-analyzer
-  before_script:
-    #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
-    - chown root:root /builds/gitlab-org/gitlab
-    - chown root:root /builds/gitlab-org/gitlab/gl-sast-report.json
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
   only:
