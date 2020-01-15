@@ -94,7 +94,7 @@ eslint-sast:
     #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
     - stat . && pwd
     - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
-    - echo "$CI_PROJECT_DIR" && echo "$CI_PROJECT_DIR"
+    - echo "$CI_PROJECT_DIR" && echo "$ANALYZER_ARTIFACT_DIR"
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
   only:
@@ -119,7 +119,7 @@ kubesec-sast:
     #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
     - stat . && pwd
     - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
-    - echo "$CI_PROJECT_DIR" && echo "$CI_PROJECT_DIR"
+    - echo "$CI_PROJECT_DIR" && echo "$ANALYZER_ARTIFACT_DIR"
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
   only:
@@ -144,7 +144,7 @@ nodejs-scan-sast:
     #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
     - stat . && pwd
     - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
-    - echo "$CI_PROJECT_DIR" && echo "$CI_PROJECT_DIR"
+    - echo "$CI_PROJECT_DIR" && echo "$ANALYZER_ARTIFACT_DIR"
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:35609-fix-for-non-dind"
   only:
@@ -175,6 +175,11 @@ pmd-apex-sast:
 
 secrets-sast:
   extends: .sast-analyzer
+  before_script:
+    #this is failing with 'permission denied':  open /builds/gitlab-org/gitlab/gl-sast-report.json
+    - stat . && pwd
+    - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
+    - echo "$CI_PROJECT_DIR" && echo "$ANALYZER_ARTIFACT_DIR"
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/secrets:$SAST_ANALYZER_IMAGE_TAG"
   only:
