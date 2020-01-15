@@ -11,7 +11,7 @@ module EE
       approvers
       vulnerability_feedback
       vulnerability
-      license_management
+      license_scanning
       feature_flag
       feature_flags_client
       design
@@ -71,8 +71,8 @@ module EE
       end
 
       with_scope :subject
-      condition(:license_management_enabled) do
-        @subject.feature_available?(:license_management)
+      condition(:license_scanning_enabled) do
+        @subject.feature_available?(:license_scanning)
       end
 
       with_scope :subject
@@ -179,7 +179,7 @@ module EE
 
       rule { dependency_scanning_enabled & can?(:download_code) }.enable :read_dependencies
 
-      rule { license_management_enabled & can?(:download_code) }.enable :read_licenses
+      rule { license_scanning_enabled & can?(:download_code) }.enable :read_licenses
 
       rule { can?(:read_licenses) }.enable :read_software_license_policy
 
@@ -203,7 +203,7 @@ module EE
         enable :admin_feature_flags_client
       end
 
-      rule { license_management_enabled & can?(:maintainer_access) }.enable :admin_software_license_policy
+      rule { license_scanning_enabled & can?(:maintainer_access) }.enable :admin_software_license_policy
 
       rule { pod_logs_enabled & can?(:maintainer_access) }.enable :read_pod_logs
       rule { prometheus_alerts_enabled & can?(:maintainer_access) }.enable :read_prometheus_alerts
