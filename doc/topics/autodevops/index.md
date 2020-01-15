@@ -883,11 +883,10 @@ repo or by specifying a project variable:
 
 You can also override the default values in the `values.yaml` file in the [default Helm chart](https://gitlab.com/gitlab-org/charts/auto-deploy-app).
 This can be achieved by:
-
-  - Adding a file named `.gitlab/auto-deploy-values.yaml` to your repository. It will
-    be automatically used if found.
-  - Adding a file with a different name or path to the repository, and override the value of the
-    `HELM_UPGRADE_VALUES_FILE` variable with the path and name.
+- Adding a file named `.gitlab/auto-deploy-values.yaml` to your repository. It will
+  be automatically used if found.
+- Adding a file with a different name or path to the repository, and override the value of the
+  `HELM_UPGRADE_VALUES_FILE` variable with the path and name.
 
 ### Custom Helm chart per environment
 
