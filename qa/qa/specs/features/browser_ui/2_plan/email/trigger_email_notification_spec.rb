@@ -8,9 +8,7 @@ module QA
       end
 
       let(:project) do
-        Resource::Project.fabricate_via_api! do |resource|
-          resource.name = 'email-notification-test'
-        end
+        Resource::Project.fabricate_via_api!
       end
 
       before do
