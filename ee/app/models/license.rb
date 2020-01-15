@@ -115,7 +115,7 @@ class License < ApplicationRecord
     group_ip_restriction
     incident_management
     insights
-    license_management
+    license_scanning
     personal_access_token_expiration_policy
     pod_logs
     prometheus_alerts
