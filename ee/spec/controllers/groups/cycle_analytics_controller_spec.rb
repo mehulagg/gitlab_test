@@ -10,7 +10,7 @@ describe Groups::CycleAnalyticsController do
   let(:group) { create(:group) }
   let(:project) { create(:project, namespace: group) }
   let(:user) { create(:user) }
-  let(:group_service) { instance_double(::CycleAnalytics::GroupLevel) }
+  let(:group_service) { instance_double(::ValueStreamAnalytics::GroupLevel) }
 
   before do
     stub_licensed_features(cycle_analytics_for_groups: true)
@@ -28,7 +28,7 @@ describe Groups::CycleAnalyticsController do
         expect(group_service).to receive(:summary)
         expect(group_service).to receive(:stats)
         expect(group_service).to receive(:permissions)
-        expect(::CycleAnalytics::GroupLevel).to receive(:new).and_return(group_service)
+        expect(::ValueStreamAnalytics::GroupLevel).to receive(:new).and_return(group_service)
 
         get(:show,
             params: {
@@ -43,7 +43,7 @@ describe Groups::CycleAnalyticsController do
         expect(group_service).to receive(:summary)
         expect(group_service).to receive(:stats)
         expect(group_service).to receive(:permissions)
-        expect(::CycleAnalytics::GroupLevel).to receive(:new)
+        expect(::ValueStreamAnalytics::GroupLevel).to receive(:new)
           .with(nested_hash_including([:options, :projects], [project.id.to_s]))
           .and_return(group_service)
 

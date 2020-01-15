@@ -10,7 +10,7 @@ describe Groups::CycleAnalytics::EventsController do
   let(:group) { create(:group) }
   let(:project) { create(:project, namespace: group) }
   let(:user) { create(:user) }
-  let(:group_service) { instance_double(::CycleAnalytics::GroupLevel) }
+  let(:group_service) { instance_double(::ValueStreamAnalytics::GroupLevel) }
   let(:events_service) { double }
 
   before do
@@ -28,7 +28,7 @@ describe Groups::CycleAnalytics::EventsController do
       it 'calls service' do
         expect(events_service).to receive(:events)
         expect(group_service).to receive(:[]).and_return(events_service)
-        expect(::CycleAnalytics::GroupLevel).to receive(:new).and_return(group_service)
+        expect(::ValueStreamAnalytics::GroupLevel).to receive(:new).and_return(group_service)
 
         get(:issue,
             params: {
@@ -42,7 +42,7 @@ describe Groups::CycleAnalytics::EventsController do
       it 'calls service with specific params' do
         expect(events_service).to receive(:events)
         expect(group_service).to receive(:[]).and_return(events_service)
-        expect(::CycleAnalytics::GroupLevel).to receive(:new)
+        expect(::ValueStreamAnalytics::GroupLevel).to receive(:new)
           .with(nested_hash_including([:options, :projects], [project.id.to_s]))
           .and_return(group_service)
 

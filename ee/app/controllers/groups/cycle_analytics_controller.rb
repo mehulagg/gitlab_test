@@ -25,7 +25,7 @@ class Groups::CycleAnalyticsController < Groups::ApplicationController
   end
 
   def cycle_analytics_stats
-    @cycle_analytics_stats ||= ::CycleAnalytics::GroupLevel.new(group: group, options: options(cycle_analytics_group_params))
+    @cycle_analytics_stats ||= ::ValueStreamAnalytics::GroupLevel.new(group: group, options: options(cycle_analytics_group_params))
   end
 
   def whitelist_query_limiting

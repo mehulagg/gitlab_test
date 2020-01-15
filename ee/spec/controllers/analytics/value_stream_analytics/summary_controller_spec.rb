@@ -26,7 +26,7 @@ describe Analytics::ValueStreamAnalytics::SummaryController do
     end
 
     it 'omits `projects` parameter if it is not given' do
-      expect(CycleAnalytics::GroupLevel).to receive(:new).with(group: group, options: hash_excluding(:projects)).and_call_original
+      expect(ValueStreamAnalytics::GroupLevel).to receive(:new).with(group: group, options: hash_excluding(:projects)).and_call_original
 
       subject
 
@@ -36,7 +36,7 @@ describe Analytics::ValueStreamAnalytics::SummaryController do
     it 'contains `projects` parameter' do
       params[:project_ids] = [-1]
 
-      expect(CycleAnalytics::GroupLevel).to receive(:new).with(group: group, options: hash_including(:projects)).and_call_original
+      expect(ValueStreamAnalytics::GroupLevel).to receive(:new).with(group: group, options: hash_including(:projects)).and_call_original
 
       subject
 

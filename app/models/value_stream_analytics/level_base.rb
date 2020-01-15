@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module CycleAnalytics
+module ValueStreamAnalytics
   module LevelBase
     STAGES = %i[issue plan code test review staging production].freeze
 

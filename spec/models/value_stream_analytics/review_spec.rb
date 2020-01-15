@@ -2,14 +2,14 @@
 
 require 'spec_helper'
 
-describe 'CycleAnalytics#review' do
+describe 'ValueStreamAnalytics#review' do
   extend CycleAnalyticsHelpers::TestGeneration
 
   let_it_be(:project) { create(:project, :repository) }
   let_it_be(:from_date) { 10.days.ago }
   let_it_be(:user) { create(:user, :admin) }
 
-  subject { CycleAnalytics::ProjectLevel.new(project, options: { from: from_date }) }
+  subject { ValueStreamAnalytics::ProjectLevel.new(project, options: { from: from_date }) }
 
   generate_cycle_analytics_spec(
     phase: :review,

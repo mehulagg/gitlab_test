@@ -45,7 +45,7 @@ class Groups::CycleAnalytics::EventsController < Groups::ApplicationController
   end
 
   def cycle_analytics
-    @cycle_analytics ||= ::CycleAnalytics::GroupLevel.new(group: group, options: options(cycle_analytics_group_params))
+    @cycle_analytics ||= ::ValueStreamAnalytics::GroupLevel.new(group: group, options: options(cycle_analytics_group_params))
   end
 
   def authorize_group_cycle_analytics!
