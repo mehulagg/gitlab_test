@@ -77,4 +77,12 @@ logs, and code as it's tough to read otherwise.)
 
 (If you can, link to the line of code that might be responsible for the problem)
 
+
+### Feature Flags Used
+##### Only Engineers should use this section
+
+If applicable, list any feature flags that are created or used while working on this issue and indicate whether the flag is on or off.
+
+- `my_example_flag` off
+
 /label ~bug
