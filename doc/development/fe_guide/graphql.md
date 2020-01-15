@@ -432,6 +432,30 @@ defaultClient.query(query)
   .then(result => console.log(result));
 ```
 
+## Apollo or Vuex?
+
+As the [handbook states](https://about.gitlab.com/handbook/engineering/#graphql-first),
+moving forward we are going GraphQL first. The easiest way to manage state in GraphQL apps is
+with Apollo. All new Vue apps, if the API is already available in GraphQL or not available through
+the internal or public REST APIs, should use Apollo.
+
+New features within a Vue app that use Vuex should continue using Vuex,
+at least until the API is completely available in GraphQL. At that point it should be evaluated as
+to whether there is significant value in refactoring to Apollo.
+Before that, the GraphQL can (and should) still be used. The data will just be managed in Vuex.
+
+When implementing large features in an established Vue with Vuex app,
+tradeoffs need to be evaluated to determine whether it makes sense to continue using Vuex or make
+the move to refactor to Apollo. This [comment in the Architecting Vuex app that uses GraphQL](https://gitlab.com/gitlab-org/frontend/rfcs/issues/7#note_259235376)
+RFC includes items that should be thought through.
+If the APIs that the rest of the app use are not yet available in GraphQL,
+it may make sense to write the feature in Vuex and move to Apollo in the future.
+
+Lastly, when writing a new Vue app or adding state management to an existing Vue app,
+a similar evaluation should take place. If the GraphQL API is already in place,
+Apollo should be used. If not, or if iteratively refactoring is of the highest importance for the
+app, it may be easiest to start with Vuex.
+
 Read more about the [Apollo] client in the [Apollo documentation](https://www.apollographql.com/docs/tutorial/client/).
 
 [Apollo]: https://www.apollographql.com/
