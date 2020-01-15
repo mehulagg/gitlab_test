@@ -737,9 +737,9 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.88.0.tgz#0a9b72e9591264fcac592ebf9944665c70f48de2"
   integrity sha512-ZgepCvZoB/lFdgttHtu8+9YlRZlVc9MnHDbbqcQCFBvrfOjY1wq12ikxnNbwKj8QNA47TRJvSS0TkHgMWYnbsA==
 
-"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/402508977/artifacts/raw/gitlab-ui.limit-modal-footer-buttons.tgz":
+"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/404026373/artifacts/raw/gitlab-ui.limit-modal-footer-buttons.tgz":
   version "8.15.0"
-  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/402508977/artifacts/raw/gitlab-ui.limit-modal-footer-buttons.tgz#bdaa897a9849747cdbc29ce0c3da0b56347d567f"
+  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/404026373/artifacts/raw/gitlab-ui.limit-modal-footer-buttons.tgz#3227395952dec797588adff4835a6245a09f7e55"
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
