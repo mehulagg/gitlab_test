@@ -22,7 +22,7 @@ describe Analytics::ValueStreamAnalytics::StageFinder do
   end
 
   context 'when persisted stage exists' do
-    let(:stage) { create(:cycle_analytics_group_stage, group: group) }
+    let(:stage) { create(:value_stream_analytics_group_stage, group: group) }
 
     before do
       stage_id[:id] = stage.id

@@ -113,9 +113,9 @@ describe Analytics::ValueStreamAnalytics::Stages::UpdateService do
   end
 
   context 'when positioning a stage' do
-    let!(:first_stage) { create(:value_stream_group_stage, group: group, relative_position: 10) }
-    let!(:middle_stage) { create(:value_stream_group_stage, group: group, relative_position: 11) }
-    let!(:last_stage) { create(:value_streams_group_stage, group: group, relative_position: 12) }
+    let!(:first_stage) { create(:value_stream_analytics_group_stage, group: group, relative_position: 10) }
+    let!(:middle_stage) { create(:value_stream_analytics_group_stage, group: group, relative_position: 11) }
+    let!(:last_stage) { create(:value_stream_analytics_group_stage, group: group, relative_position: 12) }
 
     context 'when moving the stage down' do
       before do
