@@ -1811,7 +1811,7 @@ Returned object:
 }
 ```
 
->**Note**: The returned `url` is relative to the project path.
+>**Note**: The returned `url` is relative to the project path. The full path will be `/:namespace_id/:project_id/:url`.
 In Markdown contexts, the link is automatically expanded when the format in
 `markdown` is used.
 
