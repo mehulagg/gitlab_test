@@ -15,7 +15,7 @@ describe Vulnerabilities::HistoryEntity do
 
   before do
     travel_to(time) do
-      pipeline_1 = create(:ci_pipeline, :success, project: project)
+      pipeline_1 = create(:ci_pipeline, :with_secure_reports, project: project)
 
       create_list(:vulnerabilities_occurrence, 2,
         pipelines: [pipeline_1], project: project, report_type: :sast, severity: :high)

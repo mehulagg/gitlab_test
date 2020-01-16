@@ -43,7 +43,7 @@ describe Gitlab::Vulnerabilities::HistoryCache do
 
       def create_vulnerabilities(count, project, options = {})
         report_type = options[:report_type] || :sast
-        pipeline = create(:ci_pipeline, :success, project: project)
+        pipeline = create(:ci_pipeline, :with_secure_reports, project: project)
         create_list(:vulnerabilities_occurrence, count, report_type: report_type, pipelines: [pipeline], project: project)
       end
     end

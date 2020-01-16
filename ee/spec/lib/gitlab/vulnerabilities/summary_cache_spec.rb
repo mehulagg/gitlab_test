@@ -40,7 +40,7 @@ describe Gitlab::Vulnerabilities::SummaryCache do
     end
 
     def create_vulnerabilities(count, project, options = {})
-      pipeline = create(:ci_pipeline, :success, project: project)
+      pipeline = create(:ci_pipeline, :with_secure_reports, project: project)
 
       create_list(
         :vulnerabilities_occurrence,

@@ -15,13 +15,13 @@ shared_examples_for Vulnerable do
   let(:vulnerable_project) { as_vulnerable_project(vulnerable) }
 
   before do
-    pipeline_ran_against_new_sha = create(:ci_pipeline, :success, project: vulnerable_project, sha: '123')
+    pipeline_ran_against_new_sha = create(:ci_pipeline, :with_secure_reports, project: vulnerable_project, sha: '123')
     new_vuln.pipelines << pipeline_ran_against_new_sha
   end
 
   def create_vulnerability(project, pipeline = nil)
     if project
-      pipeline ||= create(:ci_pipeline, :success, project: project)
+      pipeline ||= create(:ci_pipeline, :with_secure_reports, project: project)
       create(:vulnerabilities_occurrence, pipelines: [pipeline], project: project)
     end
   end
@@ -34,7 +34,7 @@ shared_examples_for Vulnerable do
     end
 
     context 'with vulnerabilities from other branches' do
-      let!(:branch_pipeline) { create(:ci_pipeline, :success, project: vulnerable_project, ref: 'feature-x') }
+      let!(:branch_pipeline) { create(:ci_pipeline, :with_secure_reports, project: vulnerable_project, ref: 'feature-x') }
       let!(:branch_vuln) { create(:vulnerabilities_occurrence, pipelines: [branch_pipeline], project: vulnerable_project) }
 
       # TODO: This should actually fail and we must scope vulns
@@ -56,7 +56,7 @@ shared_examples_for Vulnerable do
     it { is_expected.to all(respond_to(:sha)) }
 
     context 'with vulnerabilities from other branches' do
-      let!(:branch_pipeline) { create(:ci_pipeline, :success, project: vulnerable_project, ref: 'feature-x') }
+      let!(:branch_pipeline) { create(:ci_pipeline, :with_secure_reports, project: vulnerable_project, ref: 'feature-x') }
       let!(:branch_vuln) { create(:vulnerabilities_occurrence, pipelines: [branch_pipeline], project: vulnerable_project) }
 
       # TODO: This should actually fail and we must scope vulns
@@ -76,7 +76,7 @@ shared_examples_for Vulnerable do
     end
 
     context 'with vulnerabilities from other branches' do
-      let!(:branch_pipeline) { create(:ci_pipeline, :success, project: vulnerable_project, ref: 'feature-x') }
+      let!(:branch_pipeline) { create(:ci_pipeline, :with_secure_reports, project: vulnerable_project, ref: 'feature-x') }
       let!(:branch_vuln) { create(:vulnerabilities_occurrence, pipelines: [branch_pipeline], project: vulnerable_project) }
 
       # TODO: This should actually fail and we must scope vulns

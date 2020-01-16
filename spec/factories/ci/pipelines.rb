@@ -66,6 +66,14 @@ FactoryBot.define do
         end
       end
 
+      trait :with_secure_reports do
+        status { :success }
+
+        after(:build) do |pipeline|
+          pipeline.builds << build(:ci_build, :dast, pipeline: pipeline, project: pipeline.project)
+        end
+      end
+
       trait :with_exposed_artifacts do
         status { :success }
 

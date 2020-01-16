@@ -60,7 +60,7 @@ describe Gitlab::Vulnerabilities::History do
       def create_vulnerabilities(count, project, options = {})
         report_type = options[:report_type] || :sast
         severity = options[:severity] || :high
-        pipeline = create(:ci_pipeline, :success, project: project)
+        pipeline = create(:ci_pipeline, :with_secure_reports, project: project)
         created_at = options[:created_at] || today
         create_list(:vulnerabilities_occurrence, count, report_type: report_type, severity: severity, pipelines: [pipeline], project: project, created_at: created_at)
       end
