@@ -62,6 +62,7 @@ export const requestCreateProjectSuccess = ({ commit }, selfMonitorData) => {
   });
   commit(types.SET_SHOW_ALERT, true);
   commit(types.SET_PROJECT_CREATED, true);
+  commit(types.SET_ENABLED, true);
 };
 
 export const requestCreateProjectError = ({ commit }, error) => {

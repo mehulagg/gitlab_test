@@ -139,6 +139,7 @@ describe('self monitor actions', () => {
             },
             { type: types.SET_SHOW_ALERT, payload: true },
             { type: types.SET_PROJECT_CREATED, payload: true },
+            { type: types.SET_ENABLED, payload: true },
           ],
           [],
           done,
