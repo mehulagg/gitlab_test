@@ -141,7 +141,16 @@ module EE
     override :render_edit
     def render_edit
       push_frontend_feature_flag(:scoped_approval_rules, project, default_enabled: true)
+      push_protected_branches_data_to_gon
       super
+    end
+
+    def push_protected_branches_data_to_gon
+      data = project.protected_branches.map do |pb|
+        { id: pb.id, name: pb.name }
+      end
+
+      gon.push(protected_branches: data)
     end
   end
 end
