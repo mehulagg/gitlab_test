@@ -12,7 +12,10 @@ module QA
           end
 
           def click_signout_and_register_button
-            click_element :sign_out_and_register_button
+            Support::Retrier.retry_until do
+              click_element :sign_out_and_register_button
+              !has_element?(:sign_out_and_register_button, wait: 0)
+            end
           end
 
           def current_email
