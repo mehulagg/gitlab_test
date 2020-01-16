@@ -442,7 +442,8 @@ the internal or public REST APIs, should use Apollo.
 New features within a Vue app that use Vuex should continue using Vuex,
 at least until the API is completely available in GraphQL. At that point it should be evaluated as
 to whether there is significant value in refactoring to Apollo.
-Before that, the GraphQL can (and should) still be used. The data will just be managed in Vuex.
+Before that, the GraphQL API can (and should) still be used. The data will just be managed in Vuex.
+There's an example of how to do this in [Vuex with GraphQL path](https://gitlab.com/ntepluhina/vuex-to-apollo/blob/master/README.md#vuex-with-graphql-path).
 
 When implementing large features in an established Vue with Vuex app,
 tradeoffs need to be evaluated to determine whether it makes sense to continue using Vuex or make
@@ -454,7 +455,9 @@ it may make sense to write the feature in Vuex and move to Apollo in the future.
 Lastly, when writing a new Vue app or adding state management to an existing Vue app,
 a similar evaluation should take place. If the GraphQL API is already in place,
 Apollo should be used. If not, or if iteratively refactoring is of the highest importance for the
-app, it may be easiest to start with Vuex.
+app, it may be easiest to start with Vuex. If the API is partially available in the REST API,
+[everything can be wrapped in Apollo](https://gitlab.com/ntepluhina/vuex-to-apollo/blob/master/README.md#wrapping-everything-with-apollo-client)
+also. This may be an ideal approach when the there are not a lot of mutations involved.
 
 Read more about the [Apollo] client in the [Apollo documentation](https://www.apollographql.com/docs/tutorial/client/).
 
