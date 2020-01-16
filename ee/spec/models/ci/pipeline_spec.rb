@@ -45,18 +45,37 @@ describe Ci::Pipeline do
     end
   end
 
-  describe '#with_vulnerabilities scope' do
-    let!(:pipeline_1) { create(:ci_pipeline, project: project) }
-    let!(:pipeline_2) { create(:ci_pipeline, project: project) }
-    let!(:pipeline_3) { create(:ci_pipeline, project: project) }
+  describe '#with_security_reports scope' do
+    let!(:pipeline_1) { create(:ci_pipeline) }
+    let!(:pipeline_2) { create(:ci_pipeline) }
+    let!(:pipeline_3) { create(:ci_pipeline) }
 
-    before do
-      create(:vulnerabilities_occurrence, pipelines: [pipeline_1], project: pipeline.project)
-      create(:vulnerabilities_occurrence, pipelines: [pipeline_2], project: pipeline.project)
+    context 'ci_build_metadata_config feature flag disabled' do
+      before do
+        stub_feature_flags(ci_build_metadata_config: false)
+
+        create(:ci_build, :dast, pipeline: pipeline_1)
+        create(:ci_build, :sast, pipeline: pipeline_2)
+        create(:ci_build, pipeline: pipeline_3)
+      end
+
+      it "returns pipelines containing builds with secure reports" do
+        expect(described_class.with_security_reports).to contain_exactly(pipeline_1, pipeline_2)
+      end
     end
 
-    it "returns pipeline with vulnerabilities" do
-      expect(described_class.with_vulnerabilities).to contain_exactly(pipeline_1, pipeline_2)
+    context 'ci_build_metadata_config feature flag enabled' do
+      before do
+        stub_feature_flags(ci_build_metadata_config: true)
+
+        create(:ci_build, :dast, pipeline: pipeline_1)
+        create(:ci_build, :sast, pipeline: pipeline_2)
+        create(:ci_build, pipeline: pipeline_3)
+      end
+
+      it "returns pipelines containing builds with secure reports" do
+        expect(described_class.with_security_reports).to contain_exactly(pipeline_1, pipeline_2)
+      end
     end
   end
 

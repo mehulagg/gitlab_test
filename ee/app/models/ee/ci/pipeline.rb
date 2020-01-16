@@ -32,8 +32,11 @@ module EE
           joins(:artifacts).where(ci_builds: { name: %w[sast dependency_scanning sast:container container_scanning dast] })
         end
 
-        scope :with_vulnerabilities, -> do
-          where('EXISTS (?)', ::Vulnerabilities::OccurrencePipeline.where('ci_pipelines.id=vulnerability_occurrence_pipelines.pipeline_id').select(1))
+        scope :with_security_reports, -> do
+          where('EXISTS (?)', ::Ci::Build.where('ci_pipelines.id=ci_builds.commit_id')
+                                         .with_secure_reports(EE::Ci::JobArtifact::SECURITY_REPORT_FILE_TYPES)
+                                         .latest
+                                         .select(1))
         end
 
         # This structure describes feature levels

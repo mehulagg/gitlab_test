@@ -144,6 +144,12 @@ module Ci
     scope :with_stale_live_trace, -> { with_live_trace.finished_before(12.hours.ago) }
     scope :finished_before, -> (date) { finished.where('finished_at < ?', date) }
 
+    def self.with_secure_reports(job_types)
+      return with_secure_reports_from_config_options(job_types) if Feature.enabled?(:ci_build_metadata_config)
+
+      with_secure_reports_from_options(job_types)
+    end
+
     scope :with_secure_reports_from_options, -> (job_types) do
       job_types.map(&method(:with_secure_report_from_options)).reduce(&:or)
     end
