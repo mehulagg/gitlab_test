@@ -66,7 +66,7 @@ sast:
       - $SAST_DISABLED
       - $SAST_DISABLE_DIND == 'false'
   script:
-    - /analyzer run
+    - cd && /analyzer run
 
 bandit-sast:
   extends: .sast-analyzer
@@ -95,6 +95,7 @@ eslint-sast:
     - stat . && pwd
     - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
     - echo "$CI_PROJECT_DIR" && echo "$ANALYZER_ARTIFACT_DIR"
+    - echo "$CI_PRE_CLONE_SCRIPT"
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
   only:
@@ -120,6 +121,7 @@ kubesec-sast:
     - stat . && pwd
     - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
     - echo "$CI_PROJECT_DIR" && echo "$ANALYZER_ARTIFACT_DIR"
+    - echo "$CI_PRE_CLONE_SCRIPT"
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
   only:
@@ -145,6 +147,7 @@ nodejs-scan-sast:
     - stat . && pwd
     - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
     - echo "$CI_PROJECT_DIR" && echo "$ANALYZER_ARTIFACT_DIR"
+    - echo "$CI_PRE_CLONE_SCRIPT"
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:35609-fix-for-non-dind"
   only:
@@ -180,6 +183,7 @@ secrets-sast:
     - stat . && pwd
     - whoami && stat /builds && stat /builds/gitlab-org && stat /builds/gitlab-org/gitlab
     - echo "$CI_PROJECT_DIR" && echo "$ANALYZER_ARTIFACT_DIR"
+    - echo "$CI_PRE_CLONE_SCRIPT"
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/secrets:$SAST_ANALYZER_IMAGE_TAG"
   only:
