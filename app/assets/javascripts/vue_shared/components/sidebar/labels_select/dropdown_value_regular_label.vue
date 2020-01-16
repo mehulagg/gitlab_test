@@ -10,11 +10,6 @@ export default {
       type: Object,
       required: true,
     },
-    // TODO: update gitlab-ui and remove style and color prop
-    labelStyle: {
-      type: Object,
-      required: true,
-    },
     labelFilterUrl: {
       type: String,
       required: true,

@@ -37,12 +37,6 @@ export default {
     labelFilterUrl(label) {
       return `${this.labelFilterBasePath}?label_name[]=${encodeURIComponent(label.title)}`;
     },
-    labelStyle(label) {
-      return {
-        color: label.textColor,
-        backgroundColor: label.color,
-      };
-    },
     scopedLabelsDescription({ description = '' }) {
       return `<span class="font-weight-bold scoped-label-tooltip-title">Scoped label</span><br />${description}`;
     },
@@ -70,7 +64,6 @@ export default {
         :key="label.id"
         :label="label"
         :label-filter-url="labelFilterUrl(label)"
-        :label-style="labelStyle(label)"
         :scoped-labels-documentation-link="scopedLabelsDocumentationLink"
       />
 
@@ -79,7 +72,6 @@ export default {
         :key="label.id"
         :label="label"
         :label-filter-url="labelFilterUrl(label)"
-        :label-style="labelStyle(label)"
       />
     </template>
   </div>

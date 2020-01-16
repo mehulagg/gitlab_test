@@ -1,7 +1,7 @@
 <script>
 import _ from 'underscore';
 import { mapState } from 'vuex';
-import { GlTooltipDirective } from '@gitlab/ui';
+import { GlLabel, GlTooltipDirective } from '@gitlab/ui';
 import issueCardInner from 'ee_else_ce/boards/mixins/issue_card_inner';
 import { sprintf, __ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
@@ -15,6 +15,7 @@ import { isScopedLabel } from '~/lib/utils/common_utils';
 
 export default {
   components: {
+    GlLabel,
     Icon,
     UserAvatarLink,
     TooltipOnTruncate,
@@ -188,23 +189,19 @@ export default {
           v-if="showScopedLabel(label)"
           :key="label.id"
           :label="label"
-          :label-style="labelStyle(label)"
           :scoped-labels-documentation-link="helpLink"
           @scoped-label-click="filterByLabel($event)"
         />
 
-        <button
+        <gl-label
           v-else
           :key="label.id"
-          v-gl-tooltip
-          :style="labelStyle(label)"
-          :title="label.description"
-          class="badge color-label append-right-4 prepend-top-4"
-          type="button"
+          :background-color="label.color"
+          :title="label.title"
+          :description="label.description"
+          size="sm"
           @click="filterByLabel(label)"
-        >
-          {{ label.title }}
-        </button>
+        />
       </template>
     </div>
     <div class="board-card-footer d-flex justify-content-between align-items-end">

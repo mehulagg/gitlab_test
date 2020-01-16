@@ -155,8 +155,12 @@
     z-index: 251;
   }
 
-  a:not(.btn) {
+  a:not(.btn):not(.gl-link) {
     color: inherit;
+
+    .gl-label-text:hover {
+      color: inherit;
+    }
 
     &:hover {
       color: $blue-800;
@@ -819,7 +823,7 @@
       font-weight: $gl-font-weight-normal;
       color: $gl-text-color-secondary;
 
-      a {
+      a:not(.gl-label-link):not(.gl-label-icon) {
         color: $gl-text-color;
       }
 
@@ -838,6 +842,10 @@
       .gl-label-icon {
         color: $gray-500;
       }
+    }
+
+    .js-labels .gl-label {
+      margin-right: 3px;
     }
 
     @media(max-width: map-get($grid-breakpoints, lg)-1) {
