@@ -13,7 +13,13 @@ module EE
 
         def calculate_reactive_cache_for(environment)
           result = super
-          result[:deployments] = read_deployments(environment.deployment_namespace) if result
+
+          if result
+            deployments = read_deployments(environment.deployment_namespace)
+
+            # extract_relevant_pod_data avoids uploading all the pod info into ReactiveCaching
+            result[:deployments] = extract_relevant_deployment_data(deployments)
+          end
 
           result
         end
@@ -160,6 +166,16 @@ module EE
           kubeclient.get_deployments(namespace: namespace).as_json
         rescue Kubeclient::ResourceNotFoundError
           []
+        end
+
+        def extract_relevant_deployment_data(deployments)
+          deployments.map do |deployment|
+            {
+              'metadata' => deployment.fetch('metadata', {}).slice('name', 'generation', 'labels', 'annotations'),
+              'spec' => deployment.fetch('spec', {}).slice('replicas'),
+              'status' => deployment.fetch('status', {}).slice('observedGeneration')
+            }
+          end
         end
       end
     end

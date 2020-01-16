@@ -518,9 +518,6 @@ module KubernetesHelpers
       "spec" => { "replicas" => 3 },
       "status" => {
         "observedGeneration" => 4,
-        "replicas" => 3,
-        "updatedReplicas" => 3,
-        "availableReplicas" => 3
       }
     }
   end
