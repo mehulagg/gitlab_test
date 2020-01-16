@@ -59,9 +59,7 @@ module Security
     end
 
     def legacy_jobs_query
-      @job_types.map do |job_type|
-        @pipeline.builds.with_secure_reports_from_options(job_type)
-      end.reduce(&:or)
+      @pipeline.builds.with_secure_reports_from_options(@job_types)
     end
 
     def valid_job_types?(job_types)
