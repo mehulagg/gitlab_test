@@ -98,15 +98,18 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
       }
     end
 
-    if Gitlab::CurrentSettings.instance_administration_project_id.present?
-      return render status: :ok, json: self_monitoring_data
-
-    elsif SelfMonitoringProjectCreateWorker.in_progress?(job_id)
+    if SelfMonitoringProjectCreateWorker.in_progress?(job_id)
       ::Gitlab::PollingInterval.set_header(response, interval: 3_000)
 
       return render status: :accepted, json: {
         message: _('Job to create self-monitoring project is in progress')
       }
+    end
+
+    Gitlab::CurrentSettings.expire_current_application_settings
+
+    if Gitlab::CurrentSettings.instance_administration_project_id.present?
+      return render status: :ok, json: self_monitoring_data
     end
 
     render status: :bad_request, json: {
@@ -134,16 +137,19 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
       }
     end
 
-    if Gitlab::CurrentSettings.instance_administration_project_id.nil?
-      return render status: :ok, json: {
-        message: _('Self-monitoring project has been successfully deleted')
-      }
-
-    elsif SelfMonitoringProjectDeleteWorker.in_progress?(job_id)
+    if SelfMonitoringProjectDeleteWorker.in_progress?(job_id)
       ::Gitlab::PollingInterval.set_header(response, interval: 3_000)
 
       return render status: :accepted, json: {
         message: _('Job to delete self-monitoring project is in progress')
+      }
+    end
+
+    Gitlab::CurrentSettings.expire_current_application_settings
+
+    if Gitlab::CurrentSettings.instance_administration_project_id.nil?
+      return render status: :ok, json: {
+        message: _('Self-monitoring project has been successfully deleted')
       }
     end
 
