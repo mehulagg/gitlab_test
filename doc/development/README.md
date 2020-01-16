@@ -98,6 +98,7 @@ description: 'Learn how to contribute to GitLab.'
 
 - [What requires downtime?](what_requires_downtime.md)
 - [SQL guidelines](sql.md) for working with SQL queries
+- [Preparing a merge request for a database review](database_review.md#how-to-prepare-the-merge-request-for-a-database-review)
 - [Migrations style guide](migration_style_guide.md) for creating safe SQL migrations
 - [Testing Rails migrations](testing_guide/testing_migrations_guide.md) guide
 - [Post deployment migrations](post_deployment_migrations.md)
