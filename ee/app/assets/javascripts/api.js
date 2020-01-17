@@ -94,7 +94,7 @@ export default {
    * Returns pods logs for an environment with an optional pod and container
    *
    * @param {Object} params
-   * @param {Objject} param.environment - Environment object
+   * @param {Object} param.environment - Environment object
    * @param {string=} params.podName - Pod name, if not set the backend assumes a default one
    * @param {string=} params.containerName - Container name, if not set the backend assumes a default one
    * @param {string=} params.start - Starting date to query the logs in ISO format
