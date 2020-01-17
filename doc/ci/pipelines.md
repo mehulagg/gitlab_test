@@ -477,6 +477,8 @@ a branch to its remote repository. To illustrate the problem, suppose you've had
 1. A new pipeline starts running on the `example` branch again, however,
    the previous pipeline (2) fails because of `fatal: reference is not a tree:` error.
 
+BLECK!
+
 This is because the previous pipeline cannot find a checkout-SHA (which associated with the pipeline record)
 from the `example` branch that the commit history has already been overwritten by the force-push.
 Similarly, [Pipelines for merged results](merge_request_pipelines/pipelines_for_merged_results/index.md)
