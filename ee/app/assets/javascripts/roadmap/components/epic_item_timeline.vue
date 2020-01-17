@@ -2,6 +2,7 @@
 import { GlPopover, GlProgressBar } from '@gitlab/ui';
 import { __, sprintf } from '~/locale';
 import icon from '~/vue_shared/components/icon.vue';
+import { generateKey } from '../utils/epic_utils';
 
 import QuartersPresetMixin from '../mixins/quarters_preset_mixin';
 import MonthsPresetMixin from '../mixins/months_preset_mixin';
@@ -153,6 +154,9 @@ export default {
       return __('- of - weight completed');
     },
   },
+  methods: {
+    generateKey,
+  }
 };
 </script>
 
@@ -161,10 +165,11 @@ export default {
     <div class="epic-bar-wrapper">
       <a
         v-if="hasStartDate"
-        :id="`epic-bar-${epic.id}`"
+        :id="generateKey(epic)"
         :href="epic.webUrl"
         :style="timelineBarStyles"
         class="epic-bar"
+        :class="{ 'epic-bar-sub-epic': epic.isSubEpic }"
       >
         <div class="epic-bar-inner" :style="epicBarInnerStyle">
           <gl-progress-bar
@@ -185,12 +190,12 @@ export default {
         </div>
       </a>
       <gl-popover
-        :target="`epic-bar-${epic.id}`"
+        :target="generateKey(epic)"
         :title="epic.description"
         triggers="hover focus"
         placement="right"
       >
-        <p class="text-secondary m-0" v-html="timeframeString"></p>
+        <p class="text-secondary m-0">{{ timeframeString }}</p>
         <p class="m-0">{{ popoverWeightText }}</p>
       </gl-popover>
     </div>

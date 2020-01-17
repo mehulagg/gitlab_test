@@ -102,18 +102,23 @@ export const formatEpicDetails = (rawEpic, timeframeStartDate, timeframeEndDate)
   return epicItem;
 };
 
+export const flattenGroupProperty = ({ node, epicNode = node }) => ({
+  ...epicNode,
+  // We can get rid of below two lines
+  // by updating `epic_item_details.vue`
+  // once we move to GraphQL permanently.
+  groupName: epicNode.group.name,
+  groupFullName: epicNode.group.fullName,
+});
+
 /**
  * Returns array of epics extracted from GraphQL response
  * discarding the `edges`->`node` nesting
  *
- * @param {Object} group
+ * @param {Object} edges
  */
-export const extractGroupEpics = edges =>
-  edges.map(({ node, epicNode = node }) => ({
-    ...epicNode,
-    // We can get rid of below two lines
-    // by updating `epic_item_details.vue`
-    // once we move to GraphQL permanently.
-    groupName: epicNode.group.name,
-    groupFullName: epicNode.group.fullName,
-  }));
+export const extractGroupEpics = edges => edges.map(flattenGroupProperty);
+
+export const addIsSubEpicTrueProperty = obj => ({ ...obj, isSubEpic: true });
+
+export const generateKey = epic => `${epic.isSubEpic ? 'subepic-' : 'epic-'}${epic.id}`;

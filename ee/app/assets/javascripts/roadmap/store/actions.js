@@ -57,13 +57,9 @@ export const fetchGroupEpics = (
     })
     .then(({ data }) => {
       const { group } = data;
-      let edges;
-
-      if (epicIid) {
-        edges = (group.epic && group.epic.children.edges) || [];
-      } else {
-        edges = (group.epics && group.epics.edges) || [];
-      }
+      const edges = epicIid
+        ? (group.epic && group.epic.children.edges) || []
+        : (group.epics && group.epics.edges) || [];
 
       return epicUtils.extractGroupEpics(edges);
     });
@@ -81,6 +77,22 @@ export const receiveEpicsSuccess = (
       getters.timeframeStartDate,
       getters.timeframeEndDate,
     );
+
+    formattedEpic.isSubEpic = false;
+    formattedEpic.isSubEpicShowing = false;
+
+    // Format sub-epics
+    if (formattedEpic.children.edges.length > 0) {
+      formattedEpic.children.edges = formattedEpic.children.edges
+        .map(epicUtils.flattenGroupProperty)
+        .map(epicUtils.addIsSubEpicTrueProperty)
+        .map(e => epicUtils.formatEpicDetails(
+          e,
+          getters.timeframeStartDate,
+          getters.timeframeEndDate,
+        ));
+    }
+
     // Exclude any Epic that has invalid dates
     // or is already present in Roadmap timeline
     if (
@@ -168,6 +180,11 @@ export const fetchEpicsForTimeframeGQL = ({ state, dispatch }, { timeframe }) =>
     .catch(() => dispatch('receiveEpicsFailure'));
 };
 
+/**
+ * Adds more EpicItemTimelines to the start or end of the roadmap.
+ *
+ * @param extendAs An EXTEND_AS enum value
+ */
 export const extendTimeframe = ({ commit, state, getters }, { extendAs }) => {
   const isExtendTypePrepend = extendAs === EXTEND_AS.PREPEND;
 
@@ -184,10 +201,19 @@ export const extendTimeframe = ({ commit, state, getters }, { extendAs }) => {
   }
 };
 
+/**
+ * For epics that have no start or end date, this function updates their start and end dates
+ * so that the epic bars are infinitely scrolling.
+ */
 export const refreshEpicDates = ({ commit, state, getters }) => {
-  const epics = state.epics.map(epic =>
-    epicUtils.processEpicDates(epic, getters.timeframeStartDate, getters.timeframeEndDate),
-  );
+  const epics = state.epics.map(epic => {
+    // Update sub-epic dates too
+    if (epic.children.edges.length > 0) {
+      epic.children.edges.map(e =>
+        epicUtils.processEpicDates(e, getters.timeframeStartDate, getters.timeframeEndDate));
+    }
+    return epicUtils.processEpicDates(epic, getters.timeframeStartDate, getters.timeframeEndDate)
+  });
 
   commit(types.SET_EPICS, epics);
 };

@@ -63,11 +63,11 @@ export default {
      */
     timeframeString() {
       if (this.epic.startDateUndefined) {
-        return sprintf(s__('GroupRoadmap|No start date &ndash; %{dateWord}'), {
+        return sprintf(s__('GroupRoadmap|No start date – %{dateWord}'), {
           dateWord: dateInWords(this.endDate, true),
         });
       } else if (this.epic.endDateUndefined) {
-        return sprintf(s__('GroupRoadmap|%{dateWord} &ndash; No end date'), {
+        return sprintf(s__('GroupRoadmap|%{dateWord} – No end date'), {
           dateWord: dateInWords(this.startDate, true),
         });
       }
@@ -81,7 +81,7 @@ export default {
       );
 
       const endDateInWords = dateInWords(this.endDate, true);
-      return sprintf(s__('GroupRoadmap|%{startDateInWords} &ndash; %{endDateInWords}'), {
+      return sprintf(s__('GroupRoadmap|%{startDateInWords} – %{endDateInWords}'), {
         startDateInWords,
         endDateInWords,
       });

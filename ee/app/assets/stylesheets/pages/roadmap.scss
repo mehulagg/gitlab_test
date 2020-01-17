@@ -161,6 +161,7 @@ html.group-epics-roadmap-html {
   position: sticky;
   position: -webkit-sticky;
   top: 0;
+  z-index: 3;
 
   .timeline-header-blank,
   .timeline-header-item {
@@ -295,7 +296,6 @@ html.group-epics-roadmap-html {
 
 .epic-details-cell,
 .epic-timeline-cell {
-  box-sizing: border-box;
   float: left;
   height: $item-height;
   border-bottom: $border-style;
@@ -306,45 +306,30 @@ html.group-epics-roadmap-html {
   position: -webkit-sticky;
   left: 0;
   width: $details-cell-width;
-  padding: $gl-padding-4 $gl-padding;
+  padding: $gl-padding-4 $gl-padding-8;
   background-color: $white-light;
   z-index: 2;
 
   &::after {
     height: $item-height;
   }
+}
 
-  .epic-title,
-  .epic-group-timeframe {
-    will-change: contents;
-  }
+.epic-details-cell-expand-icon {
+  cursor: pointer;
+  height: 20px;
+}
 
-  .epic-title {
-    display: table;
-    table-layout: fixed;
-    width: 100%;
+.epic-title {
+  @include text-truncate;
+}
 
-    .epic-url {
-      display: table-cell;
-      color: $gray-900;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-  }
+.epic-group-timeframe {
+  @include text-truncate;
+}
 
-  .epic-group-timeframe {
-    color: $gray-700;
-    width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .epic-group:hover {
-    cursor: pointer;
-  }
+.epic-group:hover {
+  cursor: pointer;
 }
 
 .epic-timeline-cell {
@@ -373,21 +358,52 @@ html.group-epics-roadmap-html {
   &:hover {
     background-color: $blue-700;
   }
+
+  .epic-bar-inner {
+    position: sticky;
+    position: -webkit-sticky;
+    left: $details-cell-width;
+    padding: $gl-padding-8;
+    color: $white-light;
+  }
+
+  .epic-bar-progress {
+    background-color: $blue-300;
+
+    .progress-bar {
+      background-color: $white-light;
+    }
+  }
 }
 
-.epic-bar-inner {
-  position: sticky;
-  position: -webkit-sticky;
-  left: $details-cell-width;
-  padding: $gl-padding-8;
-  color: $white-light;
-}
+.epic-bar-sub-epic {
+  background-color: $white;
+  border: 1px solid $blue-600;
 
-.epic-bar-progress {
-  background-color: $blue-300;
+  &:hover {
+    background-color: $white;
+    border: 1px solid $blue-700;
+    text-decoration: none;
 
-  .progress-bar {
-    background-color: $white-light;
+    .epic-bar-progress .progress-bar {
+      background-color: $blue-700;
+    }
+  }
+
+  .epic-bar-inner {
+    color: $blue-600;
+
+    &:hover {
+      color: $blue-700;
+    }
+  }
+
+  .epic-bar-progress {
+    background-color: $blue-200;
+
+    .progress-bar {
+      background-color: $blue-600;
+    }
   }
 }
 
