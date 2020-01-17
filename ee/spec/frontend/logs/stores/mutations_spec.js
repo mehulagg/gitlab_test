@@ -26,9 +26,8 @@ describe('Logs Store Mutations', () => {
 
   describe('SET_PROJECT_ENVIRONMENT', () => {
     it('sets the environment', () => {
-      state.environments.options = mockEnvironments;
       mutations[types.SET_PROJECT_ENVIRONMENT](state, mockEnvName);
-      expect(state.environments.current.name).toEqual(mockEnvName);
+      expect(state.environments.current).toEqual(mockEnvName);
     });
   });
 

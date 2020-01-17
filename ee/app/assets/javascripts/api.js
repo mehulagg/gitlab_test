@@ -11,8 +11,8 @@ export default {
   groupEpicsPath:
     '/api/:version/groups/:id/epics?include_ancestor_groups=:includeAncestorGroups&include_descendant_groups=:includeDescendantGroups',
   epicIssuePath: '/api/:version/groups/:id/epics/:epic_iid/issues/:issue_id',
-  k8sPodLogsPath: '/:project_full_path/-/logs/k8s.json',
-  elasticsearchPodLogsPath: '/:project_full_path/-/logs/elasticsearch.json',
+  k8sPodLogsPath: ':project_path/-/logs/k8s.json',
+  elasticsearchPodLogsPath: ':project_path/-/logs/elasticsearch.json',
   groupPackagesPath: '/api/:version/groups/:id/packages',
   projectPackagesPath: '/api/:version/projects/:id/packages',
   projectPackagePath: '/api/:version/projects/:id/packages/:package_id',
@@ -108,8 +108,7 @@ export default {
     } else {
       baseUrl = this.k8sPodLogsPath;
     }
-
-    const url = this.buildUrl(baseUrl).replace(':project_full_path', environment.project_path);
+    const url = this.buildUrl(baseUrl).replace(':project_path', environment.project_path);
 
     const params = {
       environment_name: environment.name,

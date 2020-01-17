@@ -24,10 +24,9 @@ const requestLogsUntilData = params =>
       });
   });
 
-export const setInitData = ({ dispatch, commit }, { environmentName, podName }) => {
+export const setInitData = ({ commit }, { environmentName, podName }) => {
   commit(types.SET_PROJECT_ENVIRONMENT, environmentName);
   commit(types.SET_CURRENT_POD_NAME, podName);
-  dispatch('fetchLogs');
 };
 
 export const showPodLogs = ({ dispatch, commit }, podName) => {
@@ -51,13 +50,14 @@ export const showEnvironment = ({ dispatch, commit }, environmentName) => {
   dispatch('fetchLogs');
 };
 
-export const fetchEnvironments = ({ commit }, environmentsPath) => {
+export const fetchEnvironments = ({ commit, dispatch }, environmentsPath) => {
   commit(types.REQUEST_ENVIRONMENTS_DATA);
 
   axios
     .get(environmentsPath)
     .then(({ data }) => {
       commit(types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS, data.environments);
+      dispatch('fetchLogs');
     })
     .catch(() => {
       commit(types.RECEIVE_ENVIRONMENTS_DATA_ERROR);
@@ -67,10 +67,9 @@ export const fetchEnvironments = ({ commit }, environmentsPath) => {
 
 export const fetchLogs = ({ commit, state }) => {
   const params = {
-    environment: state.environments.current,
+    environment: state.environments.options.find(({ name }) => name === state.environments.current),
     podName: state.pods.current,
     search: state.search,
-
   };
 
   if (state.timeWindow.current) {

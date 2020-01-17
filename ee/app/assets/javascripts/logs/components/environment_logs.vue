@@ -55,7 +55,9 @@ export default {
       return gon.features && gon.features.enableClusterApplicationElasticStack;
     },
     advancedFeaturesEnabled() {
-      const environment = this.environments.current;
+      const environment = this.environments.options.find(
+        ({ name }) => name === this.environments.current,
+      );
       return this.featureElasticEnabled && environment && environment.enable_advanced_logs_querying;
     },
     shouldShowElasticStackCallout() {
@@ -127,7 +129,7 @@ export default {
         >
           <gl-dropdown
             id="environments-dropdown"
-            :text="environments.current && environments.current.name"
+            :text="environments.current"
             :disabled="environments.isLoading"
             class="d-flex gl-h-32 js-environments-dropdown"
             toggle-class="dropdown-menu-toggle"
@@ -152,7 +154,7 @@ export default {
           <gl-dropdown
             id="pods-dropdown"
             :text="pods.current || s__('Environments|No pods to display')"
-            :disabled="logs.isLoading"
+            :disabled="environments.isLoading || logs.isLoading"
             class="d-flex gl-h-32 js-pods-dropdown"
             toggle-class="dropdown-menu-toggle"
           >

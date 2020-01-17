@@ -7,7 +7,6 @@ import { createStore } from 'ee/logs/stores';
 import { scrollDown } from '~/lib/utils/scroll_utils';
 import {
   mockEnvName,
-  mockEnvironment,
   mockEnvironments,
   mockPods,
   mockLogsResult,
@@ -50,7 +49,7 @@ describe('EnvironmentLogs', () => {
 
   const mockSetInitData = () => {
     state.pods.options = mockPods;
-    state.environments.current = mockEnvironment;
+    state.environments.current = mockEnvName;
     [state.pods.current] = state.pods.options;
 
     state.logs.isComplete = false;
@@ -199,7 +198,7 @@ describe('EnvironmentLogs', () => {
       state.logs.isLoading = false;
 
       state.environments.options = mockEnvironments;
-      [, state.environments.current] = mockEnvironments;
+      state.environments.current = 'staging';
       state.environments.isLoading = false;
 
       gon.features = gon.features || {};

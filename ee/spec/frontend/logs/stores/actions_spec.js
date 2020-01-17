@@ -20,7 +20,6 @@ import {
   mockProjectPath,
   mockPodName,
   mockEnvironmentsEndpoint,
-  mockEnvironment,
   mockEnvironments,
   mockPods,
   mockLogsResult,
@@ -60,7 +59,7 @@ describe('Logs Store actions', () => {
           { type: types.SET_PROJECT_ENVIRONMENT, payload: mockEnvName },
           { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
         ],
-        [{ type: 'fetchLogs' }],
+        [],
         done,
       );
     });
@@ -107,7 +106,7 @@ describe('Logs Store actions', () => {
           { type: types.REQUEST_ENVIRONMENTS_DATA },
           { type: types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS, payload: mockEnvironments },
         ],
-        [],
+        [{ type: 'fetchLogs' }],
         done,
       );
     });
@@ -141,7 +140,8 @@ describe('Logs Store actions', () => {
     });
 
     it('should commit logs and pod data when there is pod name defined', done => {
-      state.environments.current = mockEnvironment;
+      state.environments.options = mockEnvironments;
+      state.environments.current = mockEnvName;
       state.pods.current = mockPodName;
 
       const endpoint = `/${mockProjectPath}/-/logs/elasticsearch.json`;
@@ -225,9 +225,9 @@ describe('Logs Store actions', () => {
     });
 
     it('should commit logs and pod data when there is pod name and search', done => {
-      state.environments.current = mockEnvironment;
+      state.environments.options = mockEnvironments;
+      state.environments.current = mockEnvName;
       state.pods.current = mockPodName;
-      state.advancedFeaturesEnabled = true;
       state.search = mockSearch;
 
       const endpoint = `/${mockProjectPath}/-/logs/elasticsearch.json`;
@@ -266,7 +266,8 @@ describe('Logs Store actions', () => {
     });
 
     it('should commit logs and pod data when no pod name defined', done => {
-      state.environments.current = mockEnvironment;
+      state.environments.options = mockEnvironments;
+      state.environments.current = mockEnvName;
 
       const endpoint = `/${mockProjectPath}/-/logs/elasticsearch.json`;
 
@@ -296,7 +297,7 @@ describe('Logs Store actions', () => {
     });
 
     it('should commit logs and pod errors when backend fails', done => {
-      state.environments.current = mockEnvironment;
+      state.environments.current = mockEnvName;
 
       const endpoint = `/${mockProjectPath}/logs.json?environment_name=${mockEnvName}`;
       mock.onGet(endpoint).replyOnce(500);

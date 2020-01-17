@@ -13,9 +13,7 @@ export default {
 
   /** Environments data */
   [types.SET_PROJECT_ENVIRONMENT](state, environmentName) {
-    state.environments.current = state.environments.options.find(
-      ({ name }) => name === environmentName,
-    );
+    state.environments.current = environmentName;
   },
   [types.REQUEST_ENVIRONMENTS_DATA](state) {
     state.environments.options = [];
