@@ -176,6 +176,10 @@ class FileUploader < GitlabUploader
     record_upload # after_store is not triggered
   end
 
+  def secure_url
+    File.join('/uploads', @secret, filename)
+  end
+
   private
 
   def apply_context!(uploader_context)
@@ -200,9 +204,5 @@ class FileUploader < GitlabUploader
 
   def dynamic_segment
     secret
-  end
-
-  def secure_url
-    File.join('/uploads', @secret, filename)
   end
 end
