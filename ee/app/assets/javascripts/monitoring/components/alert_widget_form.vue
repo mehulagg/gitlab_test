@@ -1,6 +1,7 @@
 <script>
 import _ from 'underscore';
 import Vue from 'vue';
+import { mapState, mapActions, mapGetters } from 'vuex';
 import {
   GlLink,
   GlButton,
@@ -17,6 +18,7 @@ import Translate from '~/vue_shared/translate';
 import TrackEventDirective from '~/vue_shared/directives/track_event';
 import Icon from '~/vue_shared/components/icon.vue';
 import { alertsValidator, queriesValidator } from '../validators';
+import AlertWidgetFormGroupTemplate from './alert_widget_form_group_template.vue';
 
 Vue.use(Translate);
 
@@ -24,6 +26,7 @@ const SUBMIT_ACTION_TEXT = {
   create: __('Add'),
   update: __('Save'),
   delete: __('Delete'),
+  save_changes: __('Save changes'),
 };
 
 const SUBMIT_BUTTON_CLASS = {
@@ -49,6 +52,7 @@ export default {
     GlModal,
     GlLink,
     Icon,
+    AlertWidgetFormGroupTemplate,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -91,6 +95,8 @@ export default {
     };
   },
   computed: {
+    ...mapState('monitoringDashboard', ['alertsVuex', 'newForm']),
+    ...mapGetters('monitoringDashboard', ['getVisibleAlerts']),
     isValidQuery() {
       // TODO: Add query validation check (most likely via http request)
       return this.alertQuery.length ? true : null;
@@ -101,7 +107,9 @@ export default {
     formDisabled() {
       // We need a prometheusMetricId to determine whether we're
       // creating/updating/deleting
-      return this.disabled || !(this.prometheusMetricId || this.isValidQuery);
+      const singleAlertForm = this.disabled || !(this.prometheusMetricId || this.isValidQuery);
+      const multipleAlertForm = false; // Create getters to determine validity of the form
+      return this.multipleAlertsEnabled ? multipleAlertForm : singleAlertForm;
     },
     supportsComputedAlerts() {
       return gon.features && gon.features.prometheusComputedAlerts;
@@ -118,8 +126,11 @@ export default {
       );
     },
     submitAction() {
-      if (_.isEmpty(this.selectedAlert)) return 'create';
-      if (this.haveValuesChanged) return 'update';
+      // TODO: Create getters for the multiple alert form
+      if (_.isEmpty(this.selectedAlert) && !this.multipleAlertsEnabled) return 'create';
+      if (this.newForm && this.multipleAlertsEnabled) return 'create';
+      if (this.haveValuesChanged && !this.multipleAlertsEnabled) return 'update';
+      if (!this.newForm && this.multipleAlertsEnabled) return 'save_changes';
       return 'delete';
     },
     submitActionText() {
@@ -136,6 +147,9 @@ export default {
         ? s__('PrometheusAlerts|Add alert')
         : s__('PrometheusAlerts|Edit alert');
     },
+    multipleAlertsEnabled() {
+      return gon.features.dashboardMultipleAlerts;
+    },
   },
   watch: {
     alertsToManage() {
@@ -146,6 +160,12 @@ export default {
     },
   },
   methods: {
+    ...mapActions('monitoringDashboard', [
+      'createAlerts',
+      'addAlertToCreate',
+      'resetAlertForm',
+      'saveChangesAlerts',
+    ]),
     selectQuery(queryId) {
       const existingAlertPath = _.findKey(this.alertsToManage, alert => alert.metricId === queryId);
       const existingAlert = this.alertsToManage[existingAlertPath];
@@ -168,12 +188,18 @@ export default {
     },
     handleSubmit(e) {
       e.preventDefault();
-      this.$emit(this.submitAction, {
-        alert: this.selectedAlert.alert_path,
-        operator: this.operator,
-        threshold: this.threshold,
-        prometheus_metric_id: this.prometheusMetricId,
-      });
+      if (!this.multipleAlertsEnabled) {
+        this.$emit(this.submitAction, {
+          alert: this.selectedAlert.alert_path,
+          operator: this.operator,
+          threshold: this.threshold,
+          prometheus_metric_id: this.prometheusMetricId,
+        });
+      } else if (this.newForm) {
+        this.createAlerts();
+      } else {
+        this.saveChangesAlerts();
+      }
     },
     resetAlertData() {
       this.operator = null;
@@ -212,7 +238,7 @@ export default {
     @hidden="handleHidden"
   >
     <div v-if="errorMessage" class="alert-modal-message danger_message">{{ errorMessage }}</div>
-    <div class="alert-form">
+    <div v-if="!multipleAlertsEnabled" class="alert-form">
       <gl-form-group
         v-if="supportsComputedAlerts"
         :label="$options.alertQueryText.label"
@@ -282,6 +308,22 @@ export default {
           type="number"
         />
       </gl-form-group>
+    </div>
+    <div v-else>
+      <alert-widget-form-group-template
+        v-for="(alert, index) in getVisibleAlerts"
+        :key="index"
+        :disabled="disabled"
+        :template-id="index"
+        :alerts-to-manage="alertsToManage"
+        :relevant-queries="relevantQueries"
+      />
+      <div class="row">
+        <gl-button id="another-metric-group" @click="addAlertToCreate">
+          <icon name="plus" />
+          {{ __('Add another metric group') }}
+        </gl-button>
+      </div>
     </div>
     <template #modal-ok>
       <gl-link

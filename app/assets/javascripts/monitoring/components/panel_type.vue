@@ -1,5 +1,5 @@
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import _ from 'underscore';
 import {
   GlDropdown,
@@ -87,6 +87,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions('monitoringDashboard', ['resetAlertForm']),
     getGraphAlerts(queries) {
       if (!this.allAlerts) return {};
       const metricIdsForChart = queries.map(q => q.metricId);

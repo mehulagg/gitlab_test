@@ -1,5 +1,6 @@
 <script>
 import { GlBadge, GlLoadingIcon, GlModalDirective } from '@gitlab/ui';
+import { mapActions, mapState, mapGetters } from 'vuex';
 import { s__, sprintf } from '~/locale';
 import createFlash from '~/flash';
 import Icon from '~/vue_shared/components/icon.vue';
@@ -51,6 +52,8 @@ export default {
     };
   },
   computed: {
+    ...mapState('monitoringDashboard', ['availableAlertsFromQueries']),
+    ...mapGetters('monitoringDashboard', ['getAlertsForWidget']),
     alertSummary() {
       const alertsToManage = Object.keys(this.alertsToManage);
       const alertCountMsg = sprintf(s__('PrometheusAlerts|%{count} alerts applied'), {
@@ -64,9 +67,25 @@ export default {
   },
   created() {
     this.service = new AlertsService({ alertsEndpoint: this.alertsEndpoint });
+    this.unwatchAvailableAlerts = this.$watch(
+      () => Object.keys(this.availableAlertsFromQueries).length,
+      () => this.didDataChange(),
+    );
     this.fetchAlertData();
   },
   methods: {
+    ...mapActions('monitoringDashboard', ['resetAlertForm', 'fetchAlertsVuex']),
+    // TODO: Change the name of this
+    didDataChange() {
+      const metricIdsForChart = this.relevantQueries.map(q => q.metricId);
+      const alertsWidget = this.getAlertsForWidget(metricIdsForChart);
+
+      this.resetAlertForm();
+
+      if (Object.keys(alertsWidget).length > 0) {
+        this.fetchAlertsVuex(alertsWidget);
+      }
+    },
     fetchAlertData() {
       this.isLoading = true;
 
