@@ -448,6 +448,7 @@ gem 'net-ntp'
 # SSH host key support
 gem 'net-ssh', '~> 5.2'
 gem 'sshkey', '~> 2.0'
+gem 'vault', '~> 0.13.0'
 
 # Required for ED25519 SSH host key support
 group :ed25519 do

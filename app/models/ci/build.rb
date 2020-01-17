@@ -530,7 +530,87 @@ module Ci
           .concat(scoped_variables)
           .concat(job_variables)
           .concat(persisted_environment_variables)
+          .concat(secret_variables)
           .to_runner_variables
+      end
+    end
+
+    def secret_variables
+      @secret_variables ||= VaultVariable.new(self).call
+    end
+
+    class VaultVariable
+      attr_reader :job
+
+      def initialize(job)
+        @job = job
+      end
+
+      # Possible fields
+      #
+      # {
+      #   key: "secret/password",
+      #   expose_as: "VAULT_PASSWORD",
+      #   field: "target",
+      #   prefix: "VAULT"
+      # }
+      #
+      # expose_as and prefix should be exclusive
+      #
+      def call
+        return [] unless vault_configured?
+
+        secrets_definitions.map do |var|
+          secret = read_secret(var[:key])
+          next unless secret
+
+          data = secret.data.compact
+          data.slice!(var[:field].to_sym) if var[:field]
+
+          data.map do |field, value|
+            {
+              key: variable_name(field, var),
+              value: value.to_s,
+              masked: true,
+              public: false
+            }
+          end
+        end.flatten.compact
+      end
+
+      def secrets_definitions
+        job.options.dig(:secrets, :vault).to_a
+      end
+
+      def read_secret(path)
+        # read secrets from AWS and KV1 secrets engine
+        secret = client.logical.read(path)
+        return secret if secret
+
+        # Read KV2 secrets engine
+        mount, key = path.split('/', 2)
+        client.kv(mount).read(key)
+      rescue Vault::HTTPError
+        # log error
+      end
+
+      def variable_name(field, var)
+        return var[:expose_as] if var[:expose_as].present?
+
+        prefix = var[:prefix] || "VAULT_#{var[:key]}".parameterize.underscore.upcase
+        [prefix.presence, field.upcase].compact.join('_')
+      end
+
+      def client
+        job.project.vault_service.client
+      end
+
+      def vault_configured?
+        vault_service&.active?
+      end
+
+      def vault_service
+        job.project.vault_service
       end
     end
 

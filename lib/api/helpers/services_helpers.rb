@@ -717,7 +717,21 @@ module API
               desc: 'The Unify Circuit webhook. e.g. https://circuit.com/rest/v2/webhooks/incoming/…'
             },
             chat_notification_events
-          ].flatten
+          ].flatten,
+          'vault' => [
+            {
+              required: true,
+              name: :vault_url,
+              type: String,
+              desc: 'Vault server root URL like https://vault.example.com'
+            },
+            {
+              required: true,
+              name: :token,
+              type: String,
+              desc: 'Vault access token'
+            }
+          ]
         }
       end
 
@@ -751,7 +765,8 @@ module API
           ::SlackService,
           ::MattermostService,
           ::MicrosoftTeamsService,
-          ::TeamcityService
+          ::TeamcityService,
+          ::VaultService
         ]
       end
 

@@ -81,6 +81,7 @@ module Gitlab
             instance: job[:instance],
             start_in: job[:start_in],
             trigger: job[:trigger],
+            secrets: job[:secrets],
             bridge_needs: job.dig(:needs, :bridge)&.first,
             release: release(job)
           }.compact }.compact

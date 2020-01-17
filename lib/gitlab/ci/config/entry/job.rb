@@ -17,7 +17,7 @@ module Gitlab
                             allow_failure type stage when start_in artifacts cache
                             dependencies before_script needs after_script variables
                             environment coverage retry parallel extends interruptible timeout
-                            resource_group release].freeze
+                            resource_group release secrets].freeze
 
           REQUIRED_BY_NEEDS = %i[stage].freeze
 
@@ -155,14 +155,17 @@ module Gitlab
             description: 'This job will produce a release.',
             inherit: false
 
+          entry :secrets, Entry::Secrets,
+            description: 'List of evaluable rules to determine Pipeline status'
+
           helpers :before_script, :script, :stage, :type, :after_script,
                   :cache, :image, :services, :only, :except, :variables,
                   :artifacts, :environment, :coverage, :retry, :rules,
-                  :parallel, :needs, :interruptible, :release
+                  :parallel, :needs, :interruptible, :release, :secrets
 
           attributes :script, :tags, :allow_failure, :when, :dependencies,
                      :needs, :retry, :parallel, :extends, :start_in, :rules,
-                     :interruptible, :timeout, :resource_group, :release
+                     :interruptible, :timeout, :resource_group, :release, :secrets
 
           def self.matching?(name, config)
             !name.to_s.start_with?('.') &&
@@ -251,6 +254,7 @@ module Gitlab
               after_script: after_script_value,
               ignore: ignored?,
               needs: needs_defined? ? needs_value : nil,
+              secrets: secrets_value,
               resource_group: resource_group }
           end
         end

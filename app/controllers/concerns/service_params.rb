@@ -63,7 +63,8 @@ module ServiceParams
     :url,
     :user_key,
     :username,
-    :webhook
+    :webhook,
+    :vault_url
   ].freeze
 
   # Parameters to ignore if no value is specified

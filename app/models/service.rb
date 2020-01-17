@@ -290,6 +290,7 @@ class Service < ApplicationRecord
       teamcity
       microsoft_teams
       unify_circuit
+      vault
     ]
 
     if Rails.env.development?
