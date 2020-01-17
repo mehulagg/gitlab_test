@@ -108,7 +108,7 @@ export default {
     } else {
       baseUrl = this.k8sPodLogsPath;
     }
-    const url = this.buildUrl(baseUrl).replace(':project_path', environment.project_path);
+    const url = this.buildUrl(baseUrl.replace(':project_path', environment.project_path));
 
     const params = {
       environment_name: environment.name,
