@@ -84,14 +84,12 @@ describe "User browses files" do
       end
 
       it "shows correct files and links" do
-        # rubocop:disable Lint/Void
         # Test the full URLs of links instead of relative paths by `have_link(text: "...", href: "...")`.
-        find("a", text: /^empty$/)["href"]            == project_tree_url(project, "markdown")
-        find("a", text: /^#id$/)["href"]              == project_tree_url(project, "markdown", anchor: "#id")
-        find("a", text: %r{^/#id$})["href"]           == project_tree_url(project, "markdown", anchor: "#id")
-        find("a", text: /^README.md#id$/)["href"]     == project_blob_url(project, "markdown/README.md", anchor: "#id")
-        find("a", text: %r{^d/README.md#id$})["href"] == project_blob_url(project, "d/markdown/README.md", anchor: "#id")
-        # rubocop:enable Lint/Void
+        expect(find("a", text: /^empty$/)[:href]).to eq(project_tree_url(project, "markdown"))
+        expect(find("a", text: /^#id$/)[:href]).to eq(project_tree_url(project, "markdown", anchor: "#id"))
+        expect(find("a", text: %r{^/#id$})[:href]).to eq(project_tree_url(project, "markdown", anchor: "#id"))
+        expect(find("a", text: /^README.md#id$/)[:href]).to eq(project_blob_url(project, "markdown/README.md", anchor: "#id"))
+        expect(find("a", text: %r{^d/README.md#id$})[:href]).to eq(project_blob_url(project, "d/markdown/README.md", anchor: "#id"))
 
         expect(current_path).to eq(project_tree_path(project, "markdown"))
         expect(page).to have_content("README.md")
@@ -145,16 +143,13 @@ describe "User browses files" do
           click_link("d")
         end
 
-        # rubocop:disable Lint/Void
-        # Test the full URLs of links instead of relative paths by `have_link(text: "...", href: "...")`.
-        find("a", text: "..")["href"] == project_tree_url(project, "markdown/d")
-        # rubocop:enable Lint/Void
+        expect(find("a", text: "..")[:href]).to eq(project_tree_url(project, "markdown/d"))
 
         page.within(".tree-table") do
           click_link("README.md")
         end
-        # Test the full URLs of links instead of relative paths by `have_link(text: "...", href: "...")`.
-        find("a", text: /^empty$/)["href"] == project_blob_url(project, "markdown/d/README.md")
+
+        expect(find("a", text: /^empty$/)[:href]).to eq(project_blob_url(project, "markdown/d/README.md"))
       end
 
       it "shows correct content of directory" do
