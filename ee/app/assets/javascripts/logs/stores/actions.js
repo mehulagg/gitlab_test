@@ -24,8 +24,7 @@ const requestLogsUntilData = params =>
       });
   });
 
-export const setInitData = ({ dispatch, commit }, { projectPath, environmentName, podName }) => {
-  commit(types.SET_PROJECT_PATH, projectPath);
+export const setInitData = ({ dispatch, commit }, { environmentName, podName }) => {
   commit(types.SET_PROJECT_ENVIRONMENT, environmentName);
   commit(types.SET_CURRENT_POD_NAME, podName);
   dispatch('fetchLogs');
@@ -68,10 +67,10 @@ export const fetchEnvironments = ({ commit }, environmentsPath) => {
 
 export const fetchLogs = ({ commit, state }) => {
   const params = {
-    projectPath: state.projectPath,
-    environmentName: state.environments.current,
+    environment: state.environments.current,
     podName: state.pods.current,
     search: state.search,
+
   };
 
   if (state.timeWindow.current) {
@@ -87,8 +86,7 @@ export const fetchLogs = ({ commit, state }) => {
 
   return requestLogsUntilData(params)
     .then(({ data }) => {
-      const { pod_name, pods, logs, enable_advanced_querying } = data;
-      commit(types.ENABLE_ADVANCED_QUERYING, enable_advanced_querying);
+      const { pod_name, pods, logs } = data;
       commit(types.SET_CURRENT_POD_NAME, pod_name);
 
       commit(types.RECEIVE_PODS_DATA_SUCCESS, pods);

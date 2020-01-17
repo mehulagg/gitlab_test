@@ -1,20 +1,11 @@
 import * as types from './mutation_types';
 
 export default {
-  /** Project data */
-  [types.SET_PROJECT_PATH](state, projectPath) {
-    state.projectPath = projectPath;
-  },
-
   /** Search data */
   [types.SET_SEARCH](state, searchQuery) {
     state.search = searchQuery;
   },
 
-  /** Log source supports advanced features */
-  [types.ENABLE_ADVANCED_QUERYING](state, enableAdvancedQuerying) {
-    state.enableAdvancedQuerying = enableAdvancedQuerying;
-  },
   /** Time Range data */
   [types.SET_TIME_WINDOW](state, timeWindowKey) {
     state.timeWindow.current = timeWindowKey;
@@ -22,7 +13,9 @@ export default {
 
   /** Environments data */
   [types.SET_PROJECT_ENVIRONMENT](state, environmentName) {
-    state.environments.current = environmentName;
+    state.environments.current = state.environments.options.find(
+      ({ name }) => name === environmentName,
+    );
   },
   [types.REQUEST_ENVIRONMENTS_DATA](state) {
     state.environments.options = [];

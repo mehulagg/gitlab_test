@@ -20,12 +20,12 @@ import {
   mockProjectPath,
   mockPodName,
   mockEnvironmentsEndpoint,
+  mockEnvironment,
   mockEnvironments,
   mockPods,
   mockLogsResult,
   mockEnvName,
   mockSearch,
-  mockEnableAdvancedQuerying,
 } from '../mock_data';
 
 jest.mock('~/flash');
@@ -54,10 +54,9 @@ describe('Logs Store actions', () => {
     it('should commit environment and pod name mutation', done => {
       testAction(
         setInitData,
-        { projectPath: mockProjectPath, environmentName: mockEnvName, podName: mockPodName },
+        { environmentName: mockEnvName, podName: mockPodName },
         state,
         [
-          { type: types.SET_PROJECT_PATH, payload: mockProjectPath },
           { type: types.SET_PROJECT_ENVIRONMENT, payload: mockEnvName },
           { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
         ],
@@ -142,11 +141,10 @@ describe('Logs Store actions', () => {
     });
 
     it('should commit logs and pod data when there is pod name defined', done => {
-      state.projectPath = mockProjectPath;
-      state.environments.current = mockEnvName;
+      state.environments.current = mockEnvironment;
       state.pods.current = mockPodName;
 
-      const endpoint = `/${mockProjectPath}/-/logs/k8s.json`;
+      const endpoint = `/${mockProjectPath}/-/logs/elasticsearch.json`;
 
       mock
         .onGet(endpoint, {
@@ -156,7 +154,6 @@ describe('Logs Store actions', () => {
           pod_name: mockPodName,
           pods: mockPods,
           logs: mockLogsResult,
-          enable_advanced_querying: mockEnableAdvancedQuerying,
         });
 
       mock.onGet(endpoint).replyOnce(202); // mock reactive cache
@@ -168,7 +165,6 @@ describe('Logs Store actions', () => {
         [
           { type: types.REQUEST_PODS_DATA },
           { type: types.REQUEST_LOGS_DATA },
-          { type: types.ENABLE_ADVANCED_QUERYING, payload: mockEnableAdvancedQuerying },
           { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
           { type: types.RECEIVE_PODS_DATA_SUCCESS, payload: mockPods },
           { type: types.RECEIVE_LOGS_DATA_SUCCESS, payload: mockLogsResult },
@@ -229,13 +225,12 @@ describe('Logs Store actions', () => {
     });
 
     it('should commit logs and pod data when there is pod name and search', done => {
-      state.projectPath = mockProjectPath;
-      state.environments.current = mockEnvName;
+      state.environments.current = mockEnvironment;
       state.pods.current = mockPodName;
       state.advancedFeaturesEnabled = true;
       state.search = mockSearch;
 
-      const endpoint = `/${mockProjectPath}/-/logs/k8s.json`;
+      const endpoint = `/${mockProjectPath}/-/logs/elasticsearch.json`;
 
       mock
         .onGet(endpoint, {
@@ -250,7 +245,6 @@ describe('Logs Store actions', () => {
           pod_name: mockPodName,
           pods: mockPods,
           logs: mockLogsResult,
-          enable_advanced_querying: mockEnableAdvancedQuerying,
         });
 
       mock.onGet(endpoint).replyOnce(202); // mock reactive cache
@@ -262,7 +256,6 @@ describe('Logs Store actions', () => {
         [
           { type: types.REQUEST_PODS_DATA },
           { type: types.REQUEST_LOGS_DATA },
-          { type: types.ENABLE_ADVANCED_QUERYING, payload: mockEnableAdvancedQuerying },
           { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
           { type: types.RECEIVE_PODS_DATA_SUCCESS, payload: mockPods },
           { type: types.RECEIVE_LOGS_DATA_SUCCESS, payload: mockLogsResult },
@@ -273,10 +266,9 @@ describe('Logs Store actions', () => {
     });
 
     it('should commit logs and pod data when no pod name defined', done => {
-      state.projectPath = mockProjectPath;
-      state.environments.current = mockEnvName;
+      state.environments.current = mockEnvironment;
 
-      const endpoint = `/${mockProjectPath}/-/logs/k8s.json`;
+      const endpoint = `/${mockProjectPath}/-/logs/elasticsearch.json`;
 
       mock
         .onGet(endpoint, { params: { environment_name: mockEnvName, ...mockThirtyMinutes } })
@@ -284,7 +276,6 @@ describe('Logs Store actions', () => {
           pod_name: mockPodName,
           pods: mockPods,
           logs: mockLogsResult,
-          enable_advanced_querying: mockEnableAdvancedQuerying,
         });
       mock.onGet(endpoint).replyOnce(202); // mock reactive cache
 
@@ -295,7 +286,6 @@ describe('Logs Store actions', () => {
         [
           { type: types.REQUEST_PODS_DATA },
           { type: types.REQUEST_LOGS_DATA },
-          { type: types.ENABLE_ADVANCED_QUERYING, payload: mockEnableAdvancedQuerying },
           { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
           { type: types.RECEIVE_PODS_DATA_SUCCESS, payload: mockPods },
           { type: types.RECEIVE_LOGS_DATA_SUCCESS, payload: mockLogsResult },
@@ -306,8 +296,7 @@ describe('Logs Store actions', () => {
     });
 
     it('should commit logs and pod errors when backend fails', done => {
-      state.projectPath = mockProjectPath;
-      state.environments.current = mockEnvName;
+      state.environments.current = mockEnvironment;
 
       const endpoint = `/${mockProjectPath}/logs.json?environment_name=${mockEnvName}`;
       mock.onGet(endpoint).replyOnce(500);

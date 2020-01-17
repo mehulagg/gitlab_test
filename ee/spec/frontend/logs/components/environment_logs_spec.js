@@ -6,8 +6,8 @@ import EnvironmentLogs from 'ee/logs/components/environment_logs.vue';
 import { createStore } from 'ee/logs/stores';
 import { scrollDown } from '~/lib/utils/scroll_utils';
 import {
-  mockProjectPath,
   mockEnvName,
+  mockEnvironment,
   mockEnvironments,
   mockPods,
   mockLogsResult,
@@ -26,7 +26,6 @@ describe('EnvironmentLogs', () => {
   let state;
 
   const propsData = {
-    projectFullPath: mockProjectPath,
     environmentName: mockEnvName,
     environmentsPath: mockEnvironmentsEndpoint,
     clusterApplicationsDocumentationPath: mockDocumentationPath,
@@ -51,9 +50,8 @@ describe('EnvironmentLogs', () => {
 
   const mockSetInitData = () => {
     state.pods.options = mockPods;
-    state.environments.current = mockEnvName;
+    state.environments.current = mockEnvironment;
     [state.pods.current] = state.pods.options;
-    state.enableAdvancedQuerying = true;
 
     state.logs.isComplete = false;
     state.logs.lines = mockLogsResult;
@@ -133,7 +131,6 @@ describe('EnvironmentLogs', () => {
 
     expect(actionMocks.setInitData).toHaveBeenCalledTimes(1);
     expect(actionMocks.setInitData).toHaveBeenLastCalledWith({
-      projectPath: mockProjectPath,
       environmentName: mockEnvName,
       podName: null,
     });
@@ -179,11 +176,52 @@ describe('EnvironmentLogs', () => {
     });
   });
 
+  describe('elastic stack disabled', () => {
+    beforeEach(() => {
+      gon.features = gon.features || {};
+      gon.features.enableClusterApplicationElasticStack = false;
+
+      initWrapper();
+    });
+
+    it("doesn't display the search bar", () => {
+      expect(findSearchBar().exists()).toEqual(false);
+      expect(wrapper.find('#environments-dropdown-fg').attributes('class')).toEqual('col-6');
+      expect(wrapper.find('#pods-dropdown-fg').attributes('class')).toEqual('col-6');
+    });
+  });
+
+  describe('ES enabled and legacy environment', () => {
+    beforeEach(() => {
+      state.pods.options = [];
+
+      state.logs.lines = [];
+      state.logs.isLoading = false;
+
+      state.environments.options = mockEnvironments;
+      [, state.environments.current] = mockEnvironments;
+      state.environments.isLoading = false;
+
+      gon.features = gon.features || {};
+      gon.features.enableClusterApplicationElasticStack = true;
+
+      initWrapper();
+    });
+
+    it('displays a disabled search bar', () => {
+      expect(findSearchBar().exists()).toEqual(true);
+      expect(findSearchBar().attributes('disabled')).toEqual('true');
+    });
+  });
+
   describe('state with data', () => {
     beforeEach(() => {
       actionMocks.setInitData.mockImplementation(mockSetInitData);
       actionMocks.showPodLogs.mockImplementation(mockShowPodLogs);
       actionMocks.fetchEnvironments.mockImplementation(mockFetchEnvs);
+
+      gon.features = gon.features || {};
+      gon.features.enableClusterApplicationElasticStack = true;
 
       initWrapper();
     });

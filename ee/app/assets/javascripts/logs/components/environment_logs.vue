@@ -14,10 +14,6 @@ export default {
     LogControlButtons,
   },
   props: {
-    projectFullPath: {
-      type: String,
-      required: true,
-    },
     environmentName: {
       type: String,
       required: false,
@@ -50,7 +46,6 @@ export default {
       'timeWindow',
       'logs',
       'pods',
-      'enableAdvancedQuerying',
     ]),
     ...mapGetters('environmentLogs', ['trace']),
     showLoader() {
@@ -60,7 +55,8 @@ export default {
       return gon.features && gon.features.enableClusterApplicationElasticStack;
     },
     advancedFeaturesEnabled() {
-      return this.featureElasticEnabled && this.enableAdvancedQuerying;
+      const environment = this.environments.current;
+      return this.featureElasticEnabled && environment && environment.enable_advanced_logs_querying;
     },
     shouldShowElasticStackCallout() {
       return (
@@ -83,7 +79,6 @@ export default {
   },
   mounted() {
     this.setInitData({
-      projectPath: this.projectFullPath,
       environmentName: this.environmentName,
       podName: this.currentPodName,
     });
@@ -132,7 +127,7 @@ export default {
         >
           <gl-dropdown
             id="environments-dropdown"
-            :text="environments.current"
+            :text="environments.current && environments.current.name"
             :disabled="environments.isLoading"
             class="d-flex gl-h-32 js-environments-dropdown"
             toggle-class="dropdown-menu-toggle"
