@@ -8,6 +8,8 @@ module Gitlab
           class ObjectStorage < Scenario::Template
             include Scenario::CLICommands
 
+            TYPES = %w[artifacts external_diffs lfs uploads packages dependency_proxy].freeze
+
             def perform(release, *rspec_args)
               Component::Gitlab.perform do |gitlab|
                 gitlab.release = release
@@ -16,26 +18,12 @@ module Gitlab
 
                 Component::Minio.perform do |minio|
                   minio.network = 'test'
-                  ['upload-bucket', 'lfs-bucket'].each do |bucket_name|
-                    minio.add_bucket(bucket_name)
+
+                  TYPES.each do |bucket_name|
+                    minio.add_bucket("#{bucket_name}-bucket")
                   end
 
-                  gitlab.omnibus_config = <<~OMNIBUS
-                    gitlab_rails['uploads_object_store_enabled'] = true;
-                    gitlab_rails['uploads_object_store_remote_directory'] = 'upload-bucket';
-                    gitlab_rails['uploads_object_store_background_upload'] = false;
-                    gitlab_rails['uploads_object_store_direct_upload'] = true;
-                    gitlab_rails['uploads_object_store_proxy_download'] = true;
-                    gitlab_rails['uploads_object_store_connection'] = #{minio.to_config};
-                    gitlab_rails['lfs_enabled'] = true;
-                    gitlab_rails['lfs_storage_path'] = '/var/opt/gitlab/gitlab-rails/shared/lfs-objects';
-                    gitlab_rails['lfs_object_store_enabled'] = true;
-                    gitlab_rails['lfs_object_store_direct_upload'] = true;
-                    gitlab_rails['lfs_object_store_background_upload'] = false;
-                    gitlab_rails['lfs_object_store_proxy_download'] = false;
-                    gitlab_rails['lfs_object_store_remote_directory'] = 'lfs-bucket';
-                    gitlab_rails['lfs_object_store_connection'] = #{minio.to_config};
-                  OMNIBUS
+                  gitlab.omnibus_config = object_storage_config(minio)
                   gitlab.exec_commands = git_lfs_install_commands
 
                   minio.instance do
@@ -52,6 +40,21 @@ module Gitlab
                   end
                 end
               end
+            end
+
+            def object_storage_config(minio)
+              TYPES.map do |object_type|
+                <<~OMNIBUS
+                  gitlab_rails['#{object_type}_enabled'] = true;
+                  gitlab_rails['#{object_type}_storage_path'] = '/var/opt/gitlab/gitlab-rails/shared/#{object_type}';
+                  gitlab_rails['#{object_type}_object_store_enabled'] = true;
+                  gitlab_rails['#{object_type}_object_store_remote_directory'] = '#{object_type}-bucket';
+                  gitlab_rails['#{object_type}_object_store_background_upload'] = false;
+                  gitlab_rails['#{object_type}_object_store_direct_upload'] = true;
+                  gitlab_rails['#{object_type}_object_store_proxy_download'] = true;
+                  gitlab_rails['#{object_type}_object_store_connection'] = #{minio.to_config};
+                OMNIBUS
+              end.join("\n")
             end
           end
         end
