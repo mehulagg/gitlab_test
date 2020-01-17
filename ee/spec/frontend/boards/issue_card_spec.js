@@ -33,7 +33,7 @@ describe('Issue card component', () => {
       label: {
         id: 5000,
         title: 'Testing',
-        color: 'red',
+        color: '#ff0000',
         description: 'testing;',
         textColor: 'white',
       },
@@ -62,7 +62,7 @@ describe('Issue card component', () => {
       const label1 = new ListLabel({
         id: 3,
         title: 'testing 123',
-        color: 'blue',
+        color: '#000cff',
         text_color: 'white',
         description: 'test',
       });
@@ -85,7 +85,7 @@ describe('Issue card component', () => {
 
       createComponent({ groupId: 1 });
 
-      expect(wrapper.findAll('.badge').length).toBe(3);
+      expect(wrapper.findAll('.gl-label').length).toBe(3);
       expect(wrapper.text()).toContain(title);
     });
 

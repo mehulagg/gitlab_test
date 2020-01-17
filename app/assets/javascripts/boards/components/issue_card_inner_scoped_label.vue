@@ -3,7 +3,7 @@ import { GlLabel } from '@gitlab/ui';
 
 export default {
   components: {
-    GlLabel
+    GlLabel,
   },
   props: {
     label: {

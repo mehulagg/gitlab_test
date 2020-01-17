@@ -252,8 +252,8 @@ describe 'Issue Boards', :js do
   end
 
   context 'scoped labels' do
-    let!(:scoped_label_1) { create(:label, project: project, name: 'Scoped::Label1') }
-    let!(:scoped_label_2) { create(:label, project: project, name: 'Scoped::Label2') }
+    let!(:scoped_label_1) { create(:label, project: project, name: 'Scoped1::Label1') }
+    let!(:scoped_label_2) { create(:label, project: project, name: 'Scoped2::Label2') }
 
     before do
       stub_licensed_features(scoped_labels: true)
@@ -288,9 +288,11 @@ describe 'Issue Boards', :js do
         end
       end
 
-      expect(card1).to have_selector('.scoped-label-wrapper', count: 1)
-      expect(card1).not_to have_content(scoped_label_1.title)
-      expect(card1).to have_content(scoped_label_2.title)
+      expect(card1).to have_selector('.gl-label-scoped', count: 1)
+      expect(card1).not_to have_content(scoped1.first)
+      expect(card1).not_to have_content(scoped1.last)
+      expect(card1).to have_content(scoped2.first)
+      expect(card1).to have_content(scoped2.last)
     end
   end
 end

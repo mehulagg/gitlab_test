@@ -32,7 +32,7 @@ describe('Board card', () => {
     const label1 = new ListLabel({
       id: 3,
       title: 'testing 123',
-      color: 'blue',
+      color: '#000cff',
       text_color: 'white',
       description: 'test',
     });

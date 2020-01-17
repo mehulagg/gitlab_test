@@ -16828,9 +16828,6 @@ msgstr ""
 msgid "Scoped issue boards"
 msgstr ""
 
-msgid "Scoped label"
-msgstr ""
-
 msgid "Scopes"
 msgstr ""
 
