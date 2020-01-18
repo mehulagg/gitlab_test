@@ -95,7 +95,7 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render provided data', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             removeBreakLine(
               vm.$el.querySelector('.js-sast-widget .report-block-list-issue-description')
@@ -103,7 +103,7 @@ describe('ee merge request widget options', () => {
             ),
           ).toEqual('SAST detected 2 new, and 1 fixed vulnerabilities');
           done();
-        }, 0);
+        });
       });
     });
 
@@ -117,7 +117,7 @@ describe('ee merge request widget options', () => {
       });
 
       it('renders no new vulnerabilities message', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             removeBreakLine(
               vm.$el.querySelector('.js-sast-widget .report-block-list-issue-description')
@@ -125,7 +125,7 @@ describe('ee merge request widget options', () => {
             ),
           ).toEqual('SAST detected no new vulnerabilities');
           done();
-        }, 0);
+        });
       });
     });
 
@@ -139,7 +139,7 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render provided data', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             removeBreakLine(
               vm.$el.querySelector('.js-sast-widget .report-block-list-issue-description')
@@ -147,7 +147,7 @@ describe('ee merge request widget options', () => {
             ).trim(),
           ).toEqual('SAST detected no vulnerabilities');
           done();
-        }, 0);
+        });
       });
     });
 
@@ -161,12 +161,12 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render error indicator', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(removeBreakLine(vm.$el.querySelector('.js-sast-widget').textContent)).toContain(
             'SAST: Loading resulted in an error',
           );
           done();
-        }, 0);
+        });
       });
     });
   });
@@ -207,7 +207,7 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render provided data', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             removeBreakLine(
               vm.$el.querySelector(
@@ -216,7 +216,7 @@ describe('ee merge request widget options', () => {
             ),
           ).toEqual('Dependency scanning detected 2 new, and 1 fixed vulnerabilities');
           done();
-        }, 0);
+        });
       });
     });
 
@@ -230,7 +230,7 @@ describe('ee merge request widget options', () => {
       });
 
       it('renders no new vulnerabilities message', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             removeBreakLine(
               vm.$el.querySelector(
@@ -239,7 +239,7 @@ describe('ee merge request widget options', () => {
             ),
           ).toEqual('Dependency scanning detected no new vulnerabilities');
           done();
-        }, 0);
+        });
       });
     });
 
@@ -253,7 +253,7 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render provided data', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             removeBreakLine(
               vm.$el.querySelector(
@@ -262,7 +262,7 @@ describe('ee merge request widget options', () => {
             ),
           ).toEqual('Dependency scanning detected no vulnerabilities');
           done();
-        }, 0);
+        });
       });
     });
 
@@ -276,12 +276,12 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render error indicator', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             removeBreakLine(vm.$el.querySelector('.js-dependency-scanning-widget').textContent),
           ).toContain('Dependency scanning: Loading resulted in an error');
           done();
-        }, 0);
+        });
       });
     });
   });
@@ -329,7 +329,7 @@ describe('ee merge request widget options', () => {
         vm.mr.codeclimate = gl.mrWidgetData.codeclimate;
 
         // mock worker response
-        spyOn(MRWidgetStore, 'doCodeClimateComparison').and.callFake(() =>
+        jest.spyOn(MRWidgetStore, 'doCodeClimateComparison').mockImplementation(() =>
           Promise.resolve({
             newIssues: filterByKey(parsedHeadIssues, parsedBaseIssues, 'fingerprint'),
             resolvedIssues: filterByKey(parsedBaseIssues, parsedHeadIssues, 'fingerprint'),
@@ -338,19 +338,19 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render provided data', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             removeBreakLine(
               vm.$el.querySelector('.js-codequality-widget .js-code-text').textContent,
             ),
           ).toEqual('Code quality improved on 1 point and degraded on 1 point');
           done();
-        }, 0);
+        });
       });
 
       describe('text connector', () => {
         it('should only render information about fixed issues', done => {
-          setTimeout(() => {
+          setImmediate(() => {
             vm.mr.codeclimateMetrics.newIssues = [];
 
             Vue.nextTick(() => {
@@ -361,11 +361,11 @@ describe('ee merge request widget options', () => {
               ).toEqual('Code quality improved on 1 point');
               done();
             });
-          }, 0);
+          });
         });
 
         it('should only render information about added issues', done => {
-          setTimeout(() => {
+          setImmediate(() => {
             vm.mr.codeclimateMetrics.resolvedIssues = [];
             Vue.nextTick(() => {
               expect(
@@ -375,7 +375,7 @@ describe('ee merge request widget options', () => {
               ).toEqual('Code quality degraded on 1 point');
               done();
             });
-          }, 0);
+          });
         });
       });
     });
@@ -393,7 +393,7 @@ describe('ee merge request widget options', () => {
         vm.mr.codeclimate = gl.mrWidgetData.codeclimate;
 
         // mock worker response
-        spyOn(MRWidgetStore, 'doCodeClimateComparison').and.callFake(() =>
+        jest.spyOn(MRWidgetStore, 'doCodeClimateComparison').mockImplementation(() =>
           Promise.resolve({
             newIssues: filterByKey([], [], 'fingerprint'),
             resolvedIssues: filterByKey([], [], 'fingerprint'),
@@ -406,14 +406,14 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render provided data', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             removeBreakLine(
               vm.$el.querySelector('.js-codequality-widget .js-code-text').textContent,
             ),
           ).toEqual('No changes to code quality');
           done();
-        }, 0);
+        });
       });
     });
 
@@ -430,18 +430,18 @@ describe('ee merge request widget options', () => {
         vm.mr.codeclimate = gl.mrWidgetData.codeclimate;
 
         // mock worker rejection
-        spyOn(MRWidgetStore, 'doCodeClimateComparison').and.callFake(() => Promise.reject());
+        jest.spyOn(MRWidgetStore, 'doCodeClimateComparison').mockImplementation(() => Promise.reject());
       });
 
       it('should render error indicator', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             removeBreakLine(
               vm.$el.querySelector('.js-codequality-widget .js-code-text').textContent,
             ),
           ).toEqual('Failed to load codeclimate report');
           done();
-        }, 0);
+        });
       });
     });
 
@@ -459,14 +459,14 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render error indicator', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             removeBreakLine(
               vm.$el.querySelector('.js-codequality-widget .js-code-text').textContent,
             ),
           ).toContain('Failed to load codeclimate report');
           done();
-        }, 0);
+        });
       });
     });
   });
@@ -514,19 +514,19 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render provided data', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             removeBreakLine(
               vm.$el.querySelector('.js-performance-widget .js-code-text').textContent,
             ),
           ).toEqual('Performance metrics improved on 2 points and degraded on 1 point');
           done();
-        }, 0);
+        });
       });
 
       describe('text connector', () => {
         it('should only render information about fixed issues', done => {
-          setTimeout(() => {
+          setImmediate(() => {
             vm.mr.performanceMetrics.degraded = [];
 
             Vue.nextTick(() => {
@@ -537,11 +537,11 @@ describe('ee merge request widget options', () => {
               ).toEqual('Performance metrics improved on 2 points');
               done();
             });
-          }, 0);
+          });
         });
 
         it('should only render information about added issues', done => {
-          setTimeout(() => {
+          setImmediate(() => {
             vm.mr.performanceMetrics.improved = [];
 
             Vue.nextTick(() => {
@@ -552,7 +552,7 @@ describe('ee merge request widget options', () => {
               ).toEqual('Performance metrics degraded on 1 point');
               done();
             });
-          }, 0);
+          });
         });
       });
     });
@@ -570,7 +570,7 @@ describe('ee merge request widget options', () => {
         vm.mr.performance = gl.mrWidgetData.performance;
 
         // wait for network request from component watch update method
-        setTimeout(done, 0);
+        setImmediate(done);
       });
 
       it('should render provided data', () => {
@@ -606,14 +606,14 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render error indicator', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             removeBreakLine(
               vm.$el.querySelector('.js-performance-widget .js-code-text').textContent,
             ),
           ).toContain('Failed to load performance report');
           done();
-        }, 0);
+        });
       });
     });
   });
@@ -654,7 +654,7 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render provided data', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             removeBreakLine(
               vm.$el.querySelector('.js-sast-container .report-block-list-issue-description')
@@ -662,7 +662,7 @@ describe('ee merge request widget options', () => {
             ),
           ).toEqual('Container scanning detected 1 new, and 1 fixed vulnerabilities');
           done();
-        }, 0);
+        });
       });
     });
 
@@ -676,12 +676,12 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render error indicator', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(vm.$el.querySelector('.js-sast-container').textContent.trim()).toContain(
             'Container scanning: Loading resulted in an error',
           );
           done();
-        }, 0);
+        });
       });
     });
   });
@@ -722,14 +722,14 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render provided data', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(
             vm.$el
               .querySelector('.js-dast-widget .report-block-list-issue-description')
               .textContent.trim(),
           ).toEqual('DAST detected 1 new vulnerability');
           done();
-        }, 0);
+        });
       });
     });
 
@@ -743,12 +743,12 @@ describe('ee merge request widget options', () => {
       });
 
       it('should render error indicator', done => {
-        setTimeout(() => {
+        setImmediate(() => {
           expect(vm.$el.querySelector('.js-dast-widget').textContent.trim()).toContain(
             'DAST: Loading resulted in an error',
           );
           done();
-        }, 0);
+        });
       });
     });
   });
@@ -1061,7 +1061,7 @@ describe('ee merge request widget options', () => {
         },
       });
 
-      expect(vm.service).toEqual(jasmine.objectContaining(convertObjectPropsToCamelCase(paths)));
+      expect(vm.service).toEqual(expect.objectContaining(convertObjectPropsToCamelCase(paths)));
     });
   });
 });
