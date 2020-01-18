@@ -10,7 +10,10 @@ module Types
       field :name, GraphQL::STRING_TYPE, null: true,
             description: 'Name of a license'
 
-      # field :dependencies, ::Types::Security::DependencyType, null: true
+      field :url, GraphQL::STRING_TYPE, null: true,
+            description: 'Path of a license'
+
+      field :dependencies, ::Types::Security::DependencyType, null: true
     end
   end
 end

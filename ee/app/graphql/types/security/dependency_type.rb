@@ -19,10 +19,11 @@ module Types
       field :location, GraphQL::STRING_TYPE, null: true,
             description: 'Location of a dependency in a project'
 
-      # field :licenses, Types::Security::License.connection_type, null: true,
-      #       description: 'Licenses associated with a dependency',
-      #       resolve: -> (dependency, _, _) do
-      #       end
+      field :licenses, [::Types::Security::LicenseType], null: true,
+            description: 'Licenses associated with a dependency',
+            resolve: -> (dependency, _, _) do
+              dependency[:licenses]
+            end
 
       field :vulnerabilities, [::Types::Security::VulnerabilityType], null: true,
             description: 'Vulnerabilities associated with a dependency',
