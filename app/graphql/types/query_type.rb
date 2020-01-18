@@ -40,5 +40,3 @@ module Types
           resolver: Resolvers::EchoResolver
   end
 end
-
-Types::QueryType.prepend_if_ee('EE::Types::QueryType')
