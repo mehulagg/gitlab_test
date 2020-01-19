@@ -368,7 +368,7 @@ describe 'User edit profile' do
 
         expect(page.find('.user-time-preferences .dropdown')).to have_css('.show')
 
-        page.find("a", text: "Nuku'alofa").click
+        page.find("a", text: "Pacific/Tongatapu").click
 
         tz = page.find('.user-time-preferences #user_timezone', visible: false)
 

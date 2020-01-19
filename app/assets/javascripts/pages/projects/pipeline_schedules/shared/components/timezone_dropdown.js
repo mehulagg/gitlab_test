@@ -3,7 +3,7 @@ const defaults = {
   $inputEl: null,
   $dropdownEl: null,
   onSelectTimezone: null,
-  displayFormat: item => item.name,
+  displayFormat: item => item.identifier,
 };
 
 export const formatUtcOffset = offset => {
@@ -15,7 +15,7 @@ export const formatUtcOffset = offset => {
   return `${prefix} ${Math.abs(offset / 3600)}`;
 };
 
-export const formatTimezone = item => `[UTC ${formatUtcOffset(item.offset)}] ${item.name}`;
+export const formatTimezone = item => `[UTC ${formatUtcOffset(item.offset)}] ${item.identifier}`;
 
 export const findTimezoneByIdentifier = (tzList = [], identifier = null) => {
   if (tzList && tzList.length && identifier && identifier.length) {

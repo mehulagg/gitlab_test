@@ -31,12 +31,11 @@ describe('Timezone Dropdown', () => {
       });
 
       it('can take an $inputEl in the constructor', () => {
-        const tzStr = '[UTC + 5.5] Sri Jayawardenepura';
         const tzValue = 'Asia/Colombo';
 
         expect($inputEl.val()).toBe('UTC');
 
-        $(`${tzListSel}:contains('${tzStr}')`, $wrapper).trigger('click');
+        $(`${tzListSel}:contains('${tzValue}')`, $wrapper).trigger('click');
 
         const val = $inputEl.val();
 
@@ -107,7 +106,7 @@ describe('Timezone Dropdown', () => {
           displayFormat: selectedItem => formatTimezone(selectedItem),
         });
 
-        expect($wrapper.find(tzDropdownToggleText).html()).toEqual('[UTC - 2.5] Newfoundland');
+        expect($wrapper.find(tzDropdownToggleText).html()).toEqual('[UTC - 2.5] America/St_Johns');
       });
 
       it('will call a provided `displayFormat` handler to format the dropdown value', () => {
@@ -173,7 +172,7 @@ describe('Timezone Dropdown', () => {
           offset: 49500,
           identifier: 'Pacific/Chatham',
         }),
-      ).toEqual('[UTC + 13.75] Chatham Is.');
+      ).toEqual('[UTC + 13.75] Pacific/Chatham');
     });
 
     it('given name: "Saskatchewan", offset: "-21600", will format for display as "[UTC - 6] Saskatchewan"', () => {
@@ -183,7 +182,7 @@ describe('Timezone Dropdown', () => {
           offset: -21600,
           identifier: 'America/Regina',
         }),
-      ).toEqual('[UTC - 6] Saskatchewan');
+      ).toEqual('[UTC - 6] America/Regina');
     });
 
     it('given name: "Accra", offset: "0", will format for display as "[UTC 0] Accra"', () => {
@@ -193,7 +192,7 @@ describe('Timezone Dropdown', () => {
           offset: 0,
           identifier: 'Africa/Accra',
         }),
-      ).toEqual('[UTC 0] Accra');
+      ).toEqual('[UTC 0] Africa/Accra');
     });
   });
 
