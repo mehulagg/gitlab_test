@@ -38,6 +38,11 @@ module Gitlab
         gon.current_username = current_user.username
         gon.current_user_fullname = current_user.name
         gon.current_user_avatar_url = current_user.avatar_url
+        gon.time_format_in_24h = current_user.time_format_in_24h
+        gon.time_display_relative = current_user.time_display_relative
+        # NOTE: not sure if timezone makes more sense to be returned, rather than offset
+        # we should be able to retrieve the correct, current offset for the specified tz
+        gon.timezone = current_user.timezone
       end
 
       # Initialize gon.features with any flags that should be
