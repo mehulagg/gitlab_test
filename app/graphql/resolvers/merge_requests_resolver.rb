@@ -26,9 +26,9 @@ module Resolvers
     # rubocop: disable CodeReuse/ActiveRecord
     def batch_load(iid)
       BatchLoader::GraphQL.for(iid.to_s).batch(key: project) do |iids, loader, args|
-        arg_key = args[:key].respond_to?(:sync) ? args[:key].sync : args[:key]
+        project = args[:key].respond_to?(:sync) ? args[:key].sync : args[:key]
 
-        arg_key.merge_requests.where(iid: iids).each do |mr|
+        MergeRequestsFinder.new(project_id: project.id, iids: iids).execute.each do |mr|
           loader.call(mr.iid.to_s, mr)
         end
       end
