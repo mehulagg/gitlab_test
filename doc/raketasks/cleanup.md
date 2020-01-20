@@ -37,9 +37,9 @@ later (once a day). If you need to garbage collect them immediately, run
 ## Remove unreferenced LFS files
 
 Unreferenced LFS files are removed on a daily basis but you can remove them immediately if
-you need to.
+you need to. For example:
 
-```
+```shell
 # omnibus-gitlab
 sudo gitlab-rake gitlab:cleanup:orphan_lfs_files
 
