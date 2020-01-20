@@ -5,16 +5,16 @@ disqus_identifier: 'https://docs.gitlab.com/ee/administration/custom_hooks.html'
 
 # Server hooks **(CORE ONLY)**
 
-NOTE: **Note:**
-Server hooks must be configured on the filesystem of the GitLab
-server. Only GitLab server administrators will be able to complete these tasks.
-Please explore [webhooks] and [CI] as an option if you do not
-have filesystem access. For a user configurable Git hook interface, see
-[Push Rules](../push_rules/push_rules.md),
-available in GitLab Enterprise Edition.
-
-NOTE: **Note:**
-Server hooks won't be replicated to secondary nodes if you use [GitLab Geo](geo/replication/index.md)
+> **Notes:**
+>
+> - Server hooks were [introduced](https://gitlab.com/gitlab-org/gitlab/issues/196051)
+> in GitLab 12.8 replacing Custom Hooks.
+> - Server hooks must be configured on the filesystem of the GitLab
+> server. Only GitLab server administrators will be able to complete these tasks.
+> Please explore [webhooks](../user/project/integrations/webhooks.md) and [GitLab CI/CD](../ci/README.md) 
+> as an option if you do not have filesystem access. For a user-configurable Git hook
+> interface, see [Push Rules](../push_rules/push_rules.md), available in GitLab Starter **(STARTER)**.
+> - Server hooks won't be replicated to secondary nodes if you use [GitLab Geo](geo/replication/index.md)
 
 Git natively supports hooks that are executed on different actions.
 Examples of server-side Git hooks include pre-receive, post-receive, and update.
