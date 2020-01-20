@@ -6,8 +6,12 @@ module Projects
       def execute(after_export_strategy = nil, options = {})
         @shared = project.import_export_shared
 
+        project.set_export_state('started')
+
         save_all!
         execute_after_export_action(after_export_strategy)
+
+        project.set_export_state('finished')
       end
 
       private
@@ -16,6 +20,8 @@ module Projects
 
       def execute_after_export_action(after_export_strategy)
         return unless after_export_strategy
+
+        project.set_export_state('after_export')
 
         unless after_export_strategy.execute(current_user, project)
           cleanup_and_notify_error

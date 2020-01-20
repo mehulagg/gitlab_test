@@ -1867,19 +1867,39 @@ class Project < ApplicationRecord
       :started
     elsif after_export_in_progress?
       :after_export_action
-    elsif export_file_exists?
+    elsif export_finished?
       :finished
     else
       :none
     end
   end
 
+  def set_export_state(state)
+    Gitlab::Redis::SharedState.with do |redis|
+      redis.set(project_state_redis_key, state)
+    end
+  end
+
+  def get_export_state
+    Gitlab::Redis::SharedState.with do |redis|
+      redis.get(project_state_redis_key)
+    end
+  end
+
+  def project_state_redis_key
+    "project_export_#{id}"
+  end
+
   def export_in_progress?
-    import_export_shared.active_export_count > 0
+    get_export_state == 'started'
   end
 
   def after_export_in_progress?
-    import_export_shared.after_export_in_progress?
+    get_export_state == 'after_export'
+  end
+
+  def export_finished?
+    get_export_state == 'finished'
   end
 
   def remove_exports
