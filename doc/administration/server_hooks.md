@@ -123,4 +123,3 @@ exit 1
 ```
 
 ![Custom message from custom Git hook](img/custom_hooks_error_msg.png)
-
