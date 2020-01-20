@@ -254,7 +254,7 @@ describe ProjectStatistics do
   end
 
   describe '.increment_statistic' do
-    shared_examples 'a statistic that increases storage_size' do
+    shared_examples 'a statistic that increases storage_size using legacy method' do
       it 'increases the statistic by that amount' do
         expect { described_class.increment_statistic(project.id, stat, 13) }
           .to change { statistics.reload.send(stat) || 0 }
@@ -263,8 +263,42 @@ describe ProjectStatistics do
 
       it 'increases also storage size by that amount' do
         expect { described_class.increment_statistic(project.id, stat, 20) }
-         .to change { statistics.reload.storage_size }
-         .by(20)
+        .to change { statistics.reload.storage_size }
+        .by(20)
+      end
+
+      it 'increases also storage size by that amount' do
+        expect { described_class.increment_statistic(project.id, stat, 20) }
+        .to change { statistics.reload.storage_size }
+        .by(20)
+      end
+    end
+
+    shared_examples 'a statistic that increases storage_size' do
+      context 'when feature flag async_update_project_statistics is disabled' do
+        before do
+          stub_feature_flags(async_update_project_statistics: false)
+        end
+
+        it_behaves_like 'a statistic that increases storage_size using legacy method'
+      end
+
+      it 'increases the statistic if we use the accurate_* method ' do
+        expect { described_class.increment_statistic(project.id, stat, 13) }
+          .to change { statistics.reload.send("accurate_#{stat}") || 0 }
+          .by(13)
+      end
+
+      it 'logs increment events to be consolidated asynchronously' do
+        expect { described_class.increment_statistic(project.id, stat, 13) }
+          .to change { ProjectStatisticsEvent.count }
+          .by(1)
+      end
+
+      it 'increases also storage size by that amount' do
+        expect { described_class.increment_statistic(project.id, stat, 20) }
+        .to change { statistics.reload.storage_size }
+        .by(20)
       end
     end
 
@@ -277,7 +311,7 @@ describe ProjectStatistics do
     context 'when adjusting :packages_size' do
       let(:stat) { :packages_size }
 
-      it_behaves_like 'a statistic that increases storage_size'
+      it_behaves_like 'a statistic that increases storage_size using legacy method'
     end
 
     context 'when the amount is 0' do

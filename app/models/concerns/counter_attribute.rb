@@ -5,8 +5,8 @@
 # is logged to a separate events table. When reading the attribute we can
 # choose whether to:
 # 1. Read the value persisted in the database. This is faster but less
-#    accurate because it can take up to CONSOLIDATION_DELAY to be
-#    updated. Use this unless frequent accuracy is required.
+#    accurate because it can take up to ConsolidateCountersWorker::DELAY
+#    to be updated. Use this unless frequent accuracy is required.
 #
 #   project_statistics.commit_count
 #
@@ -48,20 +48,18 @@
 #
 module CounterAttribute
   UnknownAttributeError = Class.new(StandardError)
+  TransactionForbiddenError = Class.new(StandardError)
 
   extend ActiveSupport::Concern
 
-  CONSOLIDATION_DELAY = 10.minutes
-  CONSOLIDATION_BATCH_SIZE = 1000
+  CONSOLIDATION_BATCH_SIZE = 100
 
   included do |base|
-    base.class_eval do
-      @counter_attribute_events_class = "#{base}Event".constantize
-      @counter_attribute_events_table = @counter_attribute_events_class.table_name
-      @counter_attribute_foreign_key = base.name.underscore + '_id'
+    @counter_attribute_events_class = "#{base}Event".constantize
+    @counter_attribute_events_table = @counter_attribute_events_class.table_name
+    @counter_attribute_foreign_key = base.name.foreign_key
 
-      has_many :counter_events, class_name: "#{@counter_attribute_events_class}"
-    end
+    has_many :counter_events, class_name: "#{@counter_attribute_events_class}"
   end
 
   def counter_attributes_enabled?
@@ -70,7 +68,6 @@ module CounterAttribute
 
   def increment_counter(attribute, increment)
     increment_counter!(attribute, increment)
-    true
 
   rescue ActiveRecord::ActiveRecordError => e
     Gitlab::ErrorTracking.track_exception(e,
@@ -83,12 +80,26 @@ module CounterAttribute
   end
 
   def increment_counter!(attribute, increment)
+    return if increment == 0
+
+    # Forbid running inside transaction because in case of rollback it would
+    # introduce data inconsistency
+    if Gitlab::Database.inside_transaction?
+      raise TransactionForbiddenError, "cannot perform increment inside a transaction because it cannot be rolled back"
+    end
+
     unless self.class.counter_attributes.include?(attribute)
       raise UnknownAttributeError.new("'#{attribute}' is not a counter attribute")
     end
 
-    counter_events.create!(attribute => increment)
-    ConsolidateCountersWorker.perform_exclusively_in(CONSOLIDATION_DELAY, self.class.name)
+    if counter_attributes_enabled?
+      counter_events.create!(attribute => increment)
+      ConsolidateCountersWorker.exclusively_perform_async(self.class.name)
+    else
+      update!(attribute => read_attribute(attribute) + increment)
+    end
+
+    true
   end
 
   class_methods do
@@ -102,19 +113,21 @@ module CounterAttribute
       define_method("accurate_#{attribute}") do
         return read_attribute(attribute) unless counter_attributes_enabled?
 
+        # Example of result query:
+        # SELECT project_statistics.build_artifacts_size + COALESCE(
+        #   SUM(project_statistics_events.build_artifacts_size), 0) AS actual_value
+        # FROM "project_statistics"
+        # LEFT OUTER JOIN "project_statistics_events"
+        #   ON "project_statistics_events"."project_statistics_id" = "project_statistics"."id"
+        # WHERE "project_statistics"."id" = 10
+        # GROUP BY "project_statistics"."build_artifacts_size", "project_statistics"."id"
         results = self.class
+          .select("#{self.class.table_name}.#{attribute} + COALESCE(SUM(#{self.class.counter_attribute_events_table}.#{attribute}), 0) AS actual_value")
           .left_outer_joins(:counter_events)
           .where(self.class.arel_table[:id].eq(id))
-          .select("#{self.class.table_name}.#{attribute} + COALESCE(SUM(#{self.class.counter_attribute_events_table}.#{attribute}), 0) AS actual_value")
           .group(self.class.arel_table[attribute], self.class.arel_table[:id])
 
         results.first['actual_value']
-        # results into:
-        # SELECT project_statistics.build_artifacts_size + COALESCE(SUM(project_statistics_events.build_artifacts_size), 0) AS actual_value
-        # FROM "project_statistics"
-        # LEFT OUTER JOIN "project_statistics_events" ON "project_statistics_events"."project_statistics_id" = "project_statistics"."id"
-        # WHERE "project_statistics"."id" = 10
-        # GROUP BY "project_statistics"."build_artifacts_size", "project_statistics"."id"
       end
     end
 
@@ -122,12 +135,18 @@ module CounterAttribute
       @counter_attributes ||= Set.new
     end
 
+    def counter_events_available?
+      counter_attribute_events_class.exists?
+    end
+
     # This method must only be called by ConsolidateCountersWorker
     # because it should run asynchronously and with exclusive lease.
     def slow_consolidate_counter_attributes!
+      if Gitlab::Database.inside_transaction?
+        raise TransactionForbiddenError, "cannot consolidate counter attributes inside a transaction"
+      end
+
       loop do
-        # because there could be many records to update we
-        # process one batch at the time.
         ids_to_consolidate = counter_attribute_events_class
           .distinct
           .limit(CONSOLIDATION_BATCH_SIZE)
@@ -166,6 +185,8 @@ module CounterAttribute
     # ) AS sums
     # WHERE project_statistics.id = 1
     def slow_consolidate_counter_attributes_for!(id)
+      return if counter_attributes.empty?
+
       consolidate_counters_sql = <<~SQL
         WITH events AS (
           DELETE FROM #{counter_attribute_events_table}

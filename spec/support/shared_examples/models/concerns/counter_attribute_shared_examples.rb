@@ -7,26 +7,26 @@ shared_examples_for CounterAttribute do |counter_attributes|
   end
 
   it 'captures the model for accessing the events' do
-    expect(ProjectStatistics.counter_attribute_events_class).to eq(counter_attribute_events_class)
+    expect(subject.class.counter_attribute_events_class).to eq(counter_attribute_events_class)
   end
 
   it 'captures the table where to save the events' do
-    expect(ProjectStatistics.counter_attribute_events_table).to eq(counter_attribute_table_name)
+    expect(subject.class.counter_attribute_events_table).to eq(counter_attribute_table_name)
   end
 
   it 'captures the foreign key to use in the events table' do
-    expect(ProjectStatistics.counter_attribute_foreign_key).to eq(counter_attribute_foreign_key)
+    expect(subject.class.counter_attribute_foreign_key).to eq(counter_attribute_foreign_key)
   end
 
   it 'captures the counter attributes defined for the model' do
     expect(subject.class.counter_attributes).to contain_exactly(*counter_attributes)
   end
 
-  shared_examples 'logs a new event' do
+  shared_examples 'logs a new event' do |attribute|
     it 'in the events table' do
       expect(ConsolidateCountersWorker).to receive(:perform_in).once.and_return(nil)
-      expect { subject.increment_counter!(:build_artifacts_size, 17) }
-        .to change { ProjectStatisticsEvent.count }.by(1)
+      expect { subject.increment_counter!(attribute, 17) }
+        .to change { counter_attribute_events_class.count }.by(1)
 
       event = counter_attribute_events_class.last
       expect(event.send(counter_attribute_foreign_key)).to eq(subject.id)
@@ -43,7 +43,7 @@ shared_examples_for CounterAttribute do |counter_attributes|
       end
 
       describe "#increment_counter!" do
-        it_behaves_like 'logs a new event'
+        it_behaves_like 'logs a new event', attribute
 
         it 'raises ActiveRecord exception if invalid record' do
           expect(ConsolidateCountersWorker).not_to receive(:perform_in)
@@ -51,10 +51,43 @@ shared_examples_for CounterAttribute do |counter_attributes|
           expect { subject.increment_counter!(attribute, nil) }
             .to raise_error(ActiveRecord::NotNullViolation)
         end
+
+        it 'does nothing if increment is 0' do
+          expect(ConsolidateCountersWorker).not_to receive(:perform_in)
+
+          expect { subject.increment_counter!(attribute, 0) }
+            .not_to change { subject.class.counter_attribute_events_class.count }
+        end
+
+        it 'raises error if runs inside a transaction' do
+          expect do
+            subject.transaction do
+              subject.increment_counter!(attribute, 10)
+            end
+          end.to raise_error(CounterAttribute::TransactionForbiddenError)
+        end
+
+        it 'raises error if non counter attribute is incremented' do
+          expect do
+            subject.increment_counter!(:something_else, 10)
+          end.to raise_error(CounterAttribute::UnknownAttributeError)
+        end
+
+        context 'when feature flag is disabled' do
+          before do
+            stub_feature_flags(efficient_counter_attribute: false)
+          end
+
+          it 'increments the counter inline' do
+            expect(subject).to receive(:update!).with(attribute => 10).and_call_original
+
+            subject.increment_counter(attribute, 10)
+          end
+        end
       end
 
       describe "#increment_counter" do
-        it_behaves_like 'logs a new event'
+        it_behaves_like 'logs a new event', attribute
 
         it 'logs ActiveRecord errors and returns false' do
           expect(ConsolidateCountersWorker).not_to receive(:perform_in)

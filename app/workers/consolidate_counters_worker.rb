@@ -6,17 +6,18 @@ class ConsolidateCountersWorker
 
   feature_category_not_owned!
 
-  LOCK_WAIT_TIME = 5.seconds
-  LOCK_TTL = 10.seconds
-  MAX_RETRIES = 10
+  # This TTL must be lower than the DELAY time
+  # to ensure that we can initiate new processing
+  # every <DELAY> time
+  LOCK_TTL = 9.minutes
+  DELAY = 10.minutes
 
-  # Ensure that for the time being (delay) no other workers are
-  # scheduled.
   class << self
-    def perform_exclusively_in(delay, model_class)
-      unless worker_scheduled?(model_class)
-        schedule_worker_in(delay, model_class)
-      end
+    # Schedule worker if none is scheduled
+    def exclusively_perform_async(model_class, delay: DELAY)
+      return if worker_scheduled?(model_class)
+
+      schedule_worker_in(delay, model_class)
     end
 
     def free_schedule(model_class)
@@ -25,13 +26,13 @@ class ConsolidateCountersWorker
       end
     end
 
-    private
-
     def worker_scheduled?(model_class)
       Gitlab::Redis::SharedState.with do |redis|
         redis.exists(redis_key_for(model_class))
       end
     end
+
+    private
 
     def schedule_worker_in(delay, model_class)
       Gitlab::Redis::SharedState.with do |redis|
@@ -49,13 +50,16 @@ class ConsolidateCountersWorker
   def perform(model_class)
     model = model_class.constantize
 
-    lock_key = "#{self.class.name}:#{model_class}"
+    lock_key = "consolidate-counters:processing:#{model_class}"
 
-    in_lock(lock_key, retries: MAX_RETRIES, ttl: LOCK_TTL, sleep_sec: LOCK_WAIT_TIME) do
+    in_lock(lock_key, ttl: LOCK_TTL) do
       model.slow_consolidate_counter_attributes!
     end
 
-    self.class.free_schedule(model_class)
+    # reschedule self if there are more events
+    if !self.class.worker_scheduled?(model_class) && model.counter_events_available?
+      self.class.exclusively_perform_async(model_class, delay: DELAY)
+    end
   rescue Gitlab::ExclusiveLeaseHelpers::FailedToObtainLockError
     # a worker is already updating the counters
   end
