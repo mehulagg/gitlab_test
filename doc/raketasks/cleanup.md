@@ -49,7 +49,7 @@ bundle exec rake gitlab:cleanup:orphan_lfs_files
 
 Example output:
 
-```
+```shell
 $ sudo gitlab-rake gitlab:cleanup:orphan_lfs_files
 I, [2020-01-08T20:51:17.148765 #43765]  INFO -- : Removed unreferenced LFS files: 12
 ```
