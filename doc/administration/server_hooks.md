@@ -1,3 +1,8 @@
+---
+type: reference, howto
+disqus_identifier: 'https://docs.gitlab.com/ee/administration/custom_hooks.html'
+---
+
 # Server hooks **(CORE ONLY)**
 
 NOTE: **Note:**
