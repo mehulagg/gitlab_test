@@ -1876,17 +1876,17 @@ class Project < ApplicationRecord
 
   def set_export_state(state)
     Gitlab::Redis::SharedState.with do |redis|
-      redis.set(project_state_redis_key, state)
+      redis.set(export_state_redis_key, state)
     end
   end
 
   def get_export_state
     Gitlab::Redis::SharedState.with do |redis|
-      redis.get(project_state_redis_key)
+      redis.get(export_state_redis_key)
     end
   end
 
-  def project_state_redis_key
+  def export_state_redis_key
     "project_export_#{id}"
   end
 
@@ -1895,7 +1895,7 @@ class Project < ApplicationRecord
   end
 
   def after_export_in_progress?
-    get_export_state == 'after_export'
+    get_export_state == 'after_export_action'
   end
 
   def export_finished?

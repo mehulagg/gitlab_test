@@ -21,7 +21,7 @@ module Projects
       def execute_after_export_action(after_export_strategy)
         return unless after_export_strategy
 
-        project.set_export_state('after_export')
+        project.set_export_state('after_export_action')
 
         unless after_export_strategy.execute(current_user, project)
           cleanup_and_notify_error

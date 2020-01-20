@@ -28,15 +28,11 @@ describe API::ProjectExport, :clean_gitlab_redis_cache do
   before do
     allow_any_instance_of(Gitlab::ImportExport).to receive(:storage_path).and_return(export_path)
 
-    # simulate exporting work directory
-    FileUtils.mkdir_p File.join(project_started.export_path, 'securerandom-hex')
+    project_started.set_export_state('started')
 
-    # simulate in after export action
-    FileUtils.touch File.join(project_after_export.import_export_shared.lock_files_path, SecureRandom.hex)
-  end
+    project_after_export.set_export_state('after_export_action')
 
-  after do
-    FileUtils.rm_rf(export_path, secure: true)
+    project_finished.set_export_state('finished')
   end
 
   shared_examples_for 'when project export is disabled' do

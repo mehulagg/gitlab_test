@@ -60,6 +60,20 @@ describe Projects::ImportExport::ExportService do
       service.execute
     end
 
+    context 'export state' do
+      before do
+        allow(after_export_strategy).to receive(:execute).and_return(true)
+      end
+
+      it 'updates to appropriate export state' do
+        %w(started after_export_action finished).each do |state|
+          expect(project).to receive(:set_export_state).with(state)
+        end
+
+        service.execute(after_export_strategy)
+      end
+    end
+
     context 'when all saver services succeed' do
       before do
         allow(service).to receive(:save_services).and_return(true)

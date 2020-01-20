@@ -5566,6 +5566,49 @@ describe Project do
         end
       end
     end
+
+    context 'project export states' do
+      let(:project) { create(:project) }
+
+      it 'updates state in redis store' do
+        project.set_export_state('dummy')
+
+        Gitlab::Redis::SharedState.with do |redis|
+          expect(redis.get(project.export_state_redis_key)).to eq 'dummy'
+        end
+      end
+
+      it 'retrieves state from redis' do
+        Gitlab::Redis::SharedState.with do |redis|
+          redis.set(project.export_state_redis_key, 'random')
+        end
+
+        expect(project.get_export_state).to eq('random')
+      end
+
+      it 'returns the key used to store export state' do
+        expect(project.export_state_redis_key).to eq("project_export_#{project.id}")
+      end
+    end
+
+    context '#export_status' do
+      let(:project) { create(:project) }
+
+      shared_examples 'returns the current state' do |state, expected_state|
+        before do
+          Gitlab::Redis::SharedState.with do |redis|
+            redis.set(project.export_state_redis_key, state)
+          end
+        end
+
+        it { expect(project.export_status).to eq(expected_state) }
+      end
+
+      it_behaves_like 'returns the current state', 'started', :started
+      it_behaves_like 'returns the current state', 'after_export_action', :after_export_action
+      it_behaves_like 'returns the current state', 'finished', :finished
+      it_behaves_like 'returns the current state', nil, :none
+    end
   end
 
   def rugged_config
