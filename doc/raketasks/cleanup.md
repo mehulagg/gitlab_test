@@ -31,7 +31,7 @@ delete. Run the command with `DRY_RUN=false` if you actually want to
 delete the references. You can also use `LIMIT={number}` parameter to limit the number of deleted references.
 
 Note that this rake task only removes the references to LFS files. Unreferenced LFS files will be garbage-collected
-later (once a day). If you need to garbage-collect them immediately, run
+later (once a day). If you need to garbage collect them immediately, run
 `rake gitlab:cleanup:orphan_lfs_files` described below.
 
 ## Remove unreferenced LFS files
