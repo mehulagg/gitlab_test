@@ -2,11 +2,13 @@
 
 ## Remove unreferenced LFS files from filesystem
 
-When you remove LFS files from repository history they become orphan
-and they consume disk space. With this rake task you can remove invalid references from the database
-that will allow to garbage-collect LFS files.
+When you remove LFS files from a repository's history, they become orphaned and consume
+disk space. With this rake task, you can remove invalid references from the database, which
+will allow garbage collection of LFS files.
 
-```
+For example:
+
+```shell
 # omnibus-gitlab
 sudo gitlab-rake gitlab:cleanup:orphan_lfs_file_references PROJECT_PATH="gitlab-org/gitlab-foss"
 
