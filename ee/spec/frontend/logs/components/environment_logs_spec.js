@@ -114,15 +114,15 @@ describe('EnvironmentLogs', () => {
     expect(findPodsDropdown().is(GlDropdown)).toBe(true);
     expect(findLogControlButtons().exists()).toBe(true);
 
-    expect(findSearchBar().exists()).toBe(false); // behind ff
-    expect(findTimeWindowDropdown().exists()).toBe(false); // behind ff
+    expect(findSearchBar().exists()).toBe(true); // behind ff
+    expect(findTimeWindowDropdown().exists()).toBe(true); // behind ff
 
     // log trace
     expect(findLogTrace().isEmpty()).toBe(false);
 
     // layout
-    expect(wrapper.find('#environments-dropdown-fg').attributes('class')).toMatch('col-6');
-    expect(wrapper.find('#pods-dropdown-fg').attributes('class')).toMatch('col-6');
+    expect(wrapper.find('#environments-dropdown-fg').attributes('class')).toMatch('col-3 px-1');
+    expect(wrapper.find('#pods-dropdown-fg').attributes('class')).toMatch('col-3 px-1');
   });
 
   it('mounted inits data', () => {

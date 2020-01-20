@@ -117,7 +117,6 @@ export default {
           label-size="sm"
           label-for="environments-dropdown"
           class="col-3 px-1"
-          :class="featureElasticEnabled ? 'col-3' : 'col-6'"
         >
           <gl-dropdown
             id="environments-dropdown"
@@ -168,7 +167,7 @@ export default {
           <gl-dropdown
             id="time-window-dropdown"
             ref="time-window-dropdown"
-            :disabled="environments.isLoading || !advancedFeaturesEnabled"
+            :disabled="environments.isLoading || !enableAdvancedQuerying"
             :text="timeWindow.options[timeWindow.current].label"
             class="d-flex gl-h-32"
             toggle-class="dropdown-menu-toggle"
@@ -191,14 +190,12 @@ export default {
         >
           <gl-search-box-by-click
             v-model.trim="searchQuery"
-            :disabled="environments.isLoading || !advancedFeaturesEnabled"
+            :disabled="environments.isLoading || !enableAdvancedQuerying"
             :placeholder="s__('Environments|Search')"
             class="js-logs-search"
             type="search"
             autofocus
-            @submit="
-              (environments.isLoading || !advancedFeaturesEnabled) && setSearch(searchQuery)
-            "
+            @submit="(environments.isLoading || !enableAdvancedQuerying) && setSearch(searchQuery)"
           />
         </gl-form-group>
       </div>
