@@ -67,7 +67,7 @@ While this implied a single query update (and probably a fast one), it has some 
 
 ### Attempt B: An update through a CTE
 
-Similar to Attempt A: Model update done through a refresh strategy with a [Common Table Expression](https://www.postgresql.org/docs/9.1/queries-with.html)
+Similar to Attempt A: Model update done through a refresh strategy with a [Common Table Expression](https://www.postgresql.org/docs/current/static/queries-with.html)
 
 ```sql
 WITH refresh AS (
