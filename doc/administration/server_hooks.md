@@ -74,7 +74,7 @@ Follow the steps below to properly set up a server hook for all repositories:
    `#!/usr/bin/env ruby`.
 1. Make the hook file executable and make sure it's owned by Git.
 
-Now test the hook to see that it's functioning properly.
+Now test the hook to check whether it is functioning properly.
 
 ## Chained hooks support
 
