@@ -138,6 +138,7 @@ module API
     mount ::API::Keys
     mount ::API::Labels
     mount ::API::Lint
+    mount ::API::LsifDatabases
     mount ::API::Markdown
     mount ::API::Members
     mount ::API::MergeRequestDiffs

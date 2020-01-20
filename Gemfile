@@ -17,6 +17,7 @@ gem 'default_value_for', '~> 3.3.0'
 
 # Supported DBs
 gem 'pg', '~> 1.1'
+gem 'sqlite3', '~> 1.3.13'
 
 gem 'rugged', '~> 0.28'
 gem 'grape-path-helpers', '~> 1.2'
