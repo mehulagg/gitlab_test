@@ -18,7 +18,7 @@ disqus_identifier: 'https://docs.gitlab.com/ee/administration/custom_hooks.html'
 
 Git natively supports hooks that are executed on different actions.
 Examples of server-side Git hooks include pre-receive, post-receive, and update.
-See [Git SCM Server-Side Hooks][hooks] for more information about each hook type.
+See [Git SCM Server-Side Hooks](https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks#Server-Side-Hooks) for more information about each hook type.
 
 As of GitLab Shell version 2.2.0 (which requires GitLab 7.5+), GitLab
 administrators can add custom Git hooks to any GitLab project.
