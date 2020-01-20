@@ -238,6 +238,7 @@ month's usage and availability. Purchased remaining minutes not used in the
 current month will be rolled out over to the next month.
 
 For example:
+
 - February 15: A group buys 4000 minutes. The count reads 0/4000 minutes.
 - February 28: The group has used 1500 minutes. The count reads 1500/4000 minutes. Thus, there are 2500 minutes remaining.
 - March 1: The counter reads: 0/2500 minutes rolled out from February's remaining quota.
