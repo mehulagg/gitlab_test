@@ -149,7 +149,7 @@ export default {
           <gl-dropdown
             id="pods-dropdown"
             :text="pods.current || s__('Environments|No pods to display')"
-            :disabled="environments.isLoading || logs.isLoading"
+            :disabled="environments.isLoading"
             class="d-flex gl-h-32 js-pods-dropdown"
             toggle-class="dropdown-menu-toggle"
           >
