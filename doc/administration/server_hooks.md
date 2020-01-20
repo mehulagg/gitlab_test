@@ -124,8 +124,3 @@ exit 1
 
 ![Custom message from custom Git hook](img/custom_hooks_error_msg.png)
 
-[CI]: ../ci/README.md
-[hooks]: https://git-scm.com/book/en/v2/Customizing-Git-Git-Hooks#Server-Side-Hooks
-[webhooks]: ../user/project/integrations/webhooks.md
-[5073]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/5073
-[93]: https://gitlab.com/gitlab-org/gitlab-shell/merge_requests/93
