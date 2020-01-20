@@ -185,8 +185,8 @@ describe('EnvironmentLogs', () => {
 
     it("doesn't display the search bar", () => {
       expect(findSearchBar().exists()).toEqual(false);
-      expect(wrapper.find('#environments-dropdown-fg').attributes('class')).toEqual('col-6');
-      expect(wrapper.find('#pods-dropdown-fg').attributes('class')).toEqual('col-6');
+      expect(wrapper.find('#environments-dropdown-fg').attributes('class')).toEqual('px-1 col-6');
+      expect(wrapper.find('#pods-dropdown-fg').attributes('class')).toEqual('px-1 col-6');
     });
   });
 

@@ -187,11 +187,12 @@ describe('Logs Store actions', () => {
       getTimeRange.mockReturnValueOnce(mockOneDay);
 
       state.projectPath = mockProjectPath;
+      state.environments.options = mockEnvironments;
       state.environments.current = mockEnvName;
       state.pods.current = mockPodName;
       state.timeWindow.current = 'oneDay';
 
-      const endpoint = `/${mockProjectPath}/-/logs/k8s.json`;
+      const endpoint = `/${mockProjectPath}/-/logs/elasticsearch.json`;
 
       mock
         .onGet(endpoint, {
@@ -211,7 +212,6 @@ describe('Logs Store actions', () => {
         [
           { type: types.REQUEST_PODS_DATA },
           { type: types.REQUEST_LOGS_DATA },
-          { type: types.ENABLE_ADVANCED_QUERYING, payload: true },
           { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
           { type: types.RECEIVE_PODS_DATA_SUCCESS, payload: mockPods },
           { type: types.RECEIVE_LOGS_DATA_SUCCESS, payload: mockLogsResult },
@@ -297,9 +297,10 @@ describe('Logs Store actions', () => {
     });
 
     it('should commit logs and pod errors when backend fails', done => {
+      state.environments.options = mockEnvironments;
       state.environments.current = mockEnvName;
 
-      const endpoint = `/${mockProjectPath}/logs.json?environment_name=${mockEnvName}`;
+      const endpoint = `/${mockProjectPath}/-/logs/elasticsearch.json?environment_name=${mockEnvName}`;
       mock.onGet(endpoint).replyOnce(500);
 
       testAction(

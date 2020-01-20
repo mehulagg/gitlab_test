@@ -41,12 +41,7 @@ export default {
     };
   },
   computed: {
-    ...mapState('environmentLogs', [
-      'environments',
-      'timeWindow',
-      'logs',
-      'pods',
-    ]),
+    ...mapState('environmentLogs', ['environments', 'timeWindow', 'logs', 'pods']),
     ...mapGetters('environmentLogs', ['trace']),
     showLoader() {
       return this.logs.isLoading || !this.logs.isComplete;
