@@ -95,7 +95,7 @@ The hooks are searched and executed in this order:
 
 1. `gitlab-shell/hooks` directory as known to Gitaly.
 1. `<project>.git/hooks/<hook_name>` -  executed by `git` itself, this is symlinked to `gitlab-shell/hooks/<hook_name>`.
-1. `<project>.git/custom_hooks/<hook_name>` - per project hook (this is already existing behavior)
+1. `<project>.git/custom_hooks/<hook_name>` - per-project hook (this was kept as the already existing behavior).
 1. `<project>.git/custom_hooks/<hook_name>.d/*` - per project hooks
 1. `<project>.git/hooks/<hook_name>.d/*` OR `<custom_hooks_dir>/<hook_name.d>/*` - global hooks: all executable files (minus editor backup files)
 
