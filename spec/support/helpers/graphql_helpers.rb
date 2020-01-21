@@ -138,7 +138,7 @@ module GraphqlHelpers
     allow_high_graphql_recursion
 
     type = GitlabSchema.types[class_name.to_s]
-    return "" unless type
+    return '' unless type
 
     type.fields.map do |name, field|
       # We can't guess arguments, so skip fields that require them
@@ -170,7 +170,7 @@ module GraphqlHelpers
                   end
 
       "#{GraphqlHelpers.fieldnamerize(name.to_s)}: #{value_str}"
-    end.join(", ")
+    end.join(', ')
   end
 
   def post_multiplex(queries, current_user: nil, headers: {})
@@ -229,7 +229,7 @@ module GraphqlHelpers
   def expect_graphql_errors_to_include(regexes_to_match)
     raise "No errors. Was expecting to match #{regexes_to_match}" if graphql_errors.nil? || graphql_errors.empty?
 
-    error_messages = flattened_errors.collect { |error_hash| error_hash["message"] }
+    error_messages = flattened_errors.collect { |error_hash| error_hash['message'] }
     Array.wrap(regexes_to_match).flatten.each do |regex|
       expect(error_messages).to include a_string_matching regex
     end

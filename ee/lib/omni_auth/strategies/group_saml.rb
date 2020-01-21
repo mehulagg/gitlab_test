@@ -19,7 +19,7 @@ module OmniAuth
         end
 
         # Set devise scope for custom callback URL
-        env["devise.mapping"] = Devise.mappings[:user]
+        env['devise.mapping'] = Devise.mappings[:user]
 
         settings = Gitlab::Auth::GroupSaml::DynamicSettings.new(group_lookup.group).to_h
         env['omniauth.strategy'].options.merge!(settings)

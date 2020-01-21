@@ -34,5 +34,5 @@ resource :dashboard, controller: 'dashboard', only: [] do
     end
   end
 
-  root to: "dashboard/projects#index"
+  root to: 'dashboard/projects#index'
 end

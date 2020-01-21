@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Gitlab::ZoomLinkExtractor do
-  describe "#links" do
+  describe '#links' do
     using RSpec::Parameterized::TableSyntax
 
     where(:text, :links) do

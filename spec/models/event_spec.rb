@@ -3,12 +3,12 @@
 require 'spec_helper'
 
 describe Event do
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to(:project) }
     it { is_expected.to belong_to(:target) }
   end
 
-  describe "Respond to" do
+  describe 'Respond to' do
     it { is_expected.to respond_to(:author_name) }
     it { is_expected.to respond_to(:author_email) }
     it { is_expected.to respond_to(:issue_title) }
@@ -84,7 +84,7 @@ describe Event do
     end
   end
 
-  describe "Push event" do
+  describe 'Push event' do
     let(:project) { create(:project, :private) }
     let(:user) { project.owner }
     let(:event) { create_push_event(project, user) }
@@ -94,37 +94,37 @@ describe Event do
       expect(event.visible_to_user?(user)).to be_truthy
       expect(event.visible_to_user?(nil)).to be_falsey
       expect(event.tag?).to be_falsey
-      expect(event.branch_name).to eq("master")
+      expect(event.branch_name).to eq('master')
       expect(event.author).to eq(user)
     end
   end
 
   describe '#membership_changed?' do
-    context "created" do
+    context 'created' do
       subject { build(:event, :created).membership_changed? }
 
       it { is_expected.to be_falsey }
     end
 
-    context "updated" do
+    context 'updated' do
       subject { build(:event, :updated).membership_changed? }
 
       it { is_expected.to be_falsey }
     end
 
-    context "expired" do
+    context 'expired' do
       subject { build(:event, :expired).membership_changed? }
 
       it { is_expected.to be_truthy }
     end
 
-    context "left" do
+    context 'left' do
       subject { build(:event, :left).membership_changed? }
 
       it { is_expected.to be_truthy }
     end
 
-    context "joined" do
+    context 'joined' do
       subject { build(:event, :joined).membership_changed? }
 
       it { is_expected.to be_truthy }

@@ -33,8 +33,8 @@ describe Peek::Views::Rugged, :request_store do
     expect(results[:details].count).to eq(2)
 
     expected = [
-      [project.repository.raw.to_s, "HEAD"],
-      [project.repository.to_s, "refs/heads/master"]
+      [project.repository.raw.to_s, 'HEAD'],
+      [project.repository.to_s, 'refs/heads/master']
     ]
 
     expect(results[:details].map { |data| data[:args] }).to match_array(expected)

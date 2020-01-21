@@ -86,7 +86,7 @@ describe Admin::Clusters::ApplicationsController do
 
     let!(:application) { create(:clusters_applications_cert_manager, :installed, cluster: cluster) }
     let(:application_name) { application.name }
-    let(:params) { { application: application_name, id: cluster.id, email: "new-email@example.com" } }
+    let(:params) { { application: application_name, id: cluster.id, email: 'new-email@example.com' } }
 
     describe 'functionality' do
       let(:admin) { create(:admin) }
@@ -95,8 +95,8 @@ describe Admin::Clusters::ApplicationsController do
         sign_in(admin)
       end
 
-      context "when cluster and app exists" do
-        it "schedules an application update" do
+      context 'when cluster and app exists' do
+        it 'schedules an application update' do
           expect(ClusterPatchAppWorker).to receive(:perform_async).with(application.name, anything).once
 
           is_expected.to have_http_status(:no_content)

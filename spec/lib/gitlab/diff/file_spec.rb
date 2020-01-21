@@ -198,12 +198,12 @@ describe Gitlab::Diff::File do
       File.write(File.join(info_dir_path, 'attributes'), "*.md -diff\n")
     end
 
-    it "returns true for files that do not have attributes" do
+    it 'returns true for files that do not have attributes' do
       diff_file = diffs.diff_file_with_new_path('LICENSE')
       expect(diff_file.diffable?).to be_truthy
     end
 
-    it "returns false for files that have been marked as not being diffable in attributes" do
+    it 'returns false for files that have been marked as not being diffable in attributes' do
       diff_file = diffs.diff_file_with_new_path('README.md')
       expect(diff_file.diffable?).to be_falsey
     end
@@ -873,7 +873,7 @@ describe Gitlab::Diff::File do
 
       context 'when all contents are cleared' do
         it 'returns true' do
-          diff_file = update_file('file.md', "")
+          diff_file = update_file('file.md', '')
 
           expect(diff_file.fully_expanded?).to be_truthy
         end

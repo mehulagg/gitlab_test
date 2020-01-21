@@ -23,7 +23,7 @@ describe Gitlab::Graphql::GenericTracing do
     GitlabSchema.execute(query, context: { tracers: [tracer] })
   end
 
-  context "when labkit tracing is enabled" do
+  context 'when labkit tracing is enabled' do
     before do
       expect(Labkit::Tracing).to receive(:enabled?).and_return(true)
     end
@@ -38,14 +38,14 @@ describe Gitlab::Graphql::GenericTracing do
 
       expect(Labkit::Tracing)
         .to receive(:with_tracing)
-        .with(operation_name: "pkey.key", tags: expected_tags)
+        .with(operation_name: 'pkey.key', tags: expected_tags)
         .and_yield
 
       expect { |b| described_class.new.platform_trace('pkey', 'key', nil, &b) }.to yield_control
     end
   end
 
-  context "when labkit tracing is disabled" do
+  context 'when labkit tracing is disabled' do
     before do
       expect(Labkit::Tracing).to receive(:enabled?).and_return(false)
     end

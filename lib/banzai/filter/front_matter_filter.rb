@@ -26,7 +26,7 @@ module Banzai
         html.sub(PATTERN) do |_match|
           lang = $~[:lang].presence || DELIM_LANG[$~[:delim]]
 
-          ["```#{lang}", $~[:front_matter], "```", "\n"].join("\n")
+          ["```#{lang}", $~[:front_matter], '```', "\n"].join("\n")
         end
       end
     end

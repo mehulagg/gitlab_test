@@ -14,7 +14,7 @@ class MergeRequestUserEntity < CurrentUserEntity
   end
 
   expose :fork_path, if: -> (*) { project } do |user|
-    params = edit_blob_fork_params("Edit")
+    params = edit_blob_fork_params('Edit')
     project_forks_path(project, namespace_key: user.namespace.id, continue: params)
   end
 

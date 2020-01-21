@@ -11,7 +11,7 @@ module EE
 
           params :optional_list_params_ee do
             # Used only by GitLab.com
-            optional :requested_hosted_plan, type: String, desc: "Name of the hosted plan requested by the customer"
+            optional :requested_hosted_plan, type: String, desc: 'Name of the hosted plan requested by the customer'
           end
 
           override :custom_namespace_present_options
@@ -50,10 +50,10 @@ module EE
             success Entities::Namespace
           end
           params do
-            optional :plan, type: String, desc: "Namespace or Group plan"
-            optional :shared_runners_minutes_limit, type: Integer, desc: "Pipeline minutes quota for this namespace"
-            optional :extra_shared_runners_minutes_limit, type: Integer, desc: "Extra pipeline minutes for this namespace"
-            optional :trial_ends_on, type: Date, desc: "Trial expiration date"
+            optional :plan, type: String, desc: 'Namespace or Group plan'
+            optional :shared_runners_minutes_limit, type: Integer, desc: 'Pipeline minutes quota for this namespace'
+            optional :extra_shared_runners_minutes_limit, type: Integer, desc: 'Extra pipeline minutes for this namespace'
+            optional :trial_ends_on, type: Date, desc: 'Trial expiration date'
           end
           put ':id' do
             authenticated_as_admin!
@@ -77,7 +77,7 @@ module EE
 
             use :gitlab_subscription_optional_attributes
           end
-          post ":id/gitlab_subscription" do
+          post ':id/gitlab_subscription' do
             authenticated_as_admin!
 
             namespace = find_namespace!(params[:id])
@@ -95,7 +95,7 @@ module EE
           desc 'Returns the subscription for the namespace' do
             success ::EE::API::Entities::GitlabSubscription
           end
-          get ":id/gitlab_subscription" do
+          get ':id/gitlab_subscription' do
             namespace = find_namespace!(params[:id])
             authorize! :admin_namespace, namespace
 
@@ -110,7 +110,7 @@ module EE
 
             use :gitlab_subscription_optional_attributes
           end
-          put ":id/gitlab_subscription" do
+          put ':id/gitlab_subscription' do
             authenticated_as_admin!
 
             namespace = find_namespace!(params[:id])
@@ -118,7 +118,7 @@ module EE
             trial_ends_on = params[:trial_ends_on]
 
             not_found!('GitlabSubscription') unless subscription
-            bad_request!("Invalid trial expiration date") if trial_ends_on&.past?
+            bad_request!('Invalid trial expiration date') if trial_ends_on&.past?
 
             subscription_params = declared_params(include_missing: false)
             subscription_params[:trial_starts_on] ||= subscription_params[:start_date] if subscription_params[:trial]

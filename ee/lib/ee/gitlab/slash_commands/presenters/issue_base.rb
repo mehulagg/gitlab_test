@@ -12,8 +12,8 @@ module EE
             super.concat(
               [
                 {
-                  title: "Weight",
-                  value: resource.weight? ? resource.weight : "_None_",
+                  title: 'Weight',
+                  value: resource.weight? ? resource.weight : '_None_',
                   short: true
                 }
               ]

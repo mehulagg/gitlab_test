@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe SamlProvider do
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to :group }
     it { is_expected.to have_many :identities }
   end
@@ -69,15 +69,15 @@ describe SamlProvider do
     subject(:saml_provider) { create(:saml_provider, group: group) }
 
     before do
-      stub_default_url_options(protocol: "https")
+      stub_default_url_options(protocol: 'https')
     end
 
     it 'generates callback URL' do
-      expect(settings[:assertion_consumer_service_url]).to eq "https://localhost/groups/foo-group/-/saml/callback"
+      expect(settings[:assertion_consumer_service_url]).to eq 'https://localhost/groups/foo-group/-/saml/callback'
     end
 
     it 'generates issuer from group' do
-      expect(settings[:issuer]).to eq "https://localhost/groups/foo-group"
+      expect(settings[:issuer]).to eq 'https://localhost/groups/foo-group'
     end
 
     it 'includes NameID format' do

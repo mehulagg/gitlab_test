@@ -57,7 +57,7 @@ class GroupsController < Groups::ApplicationController
 
       redirect_to @group, notice: notice
     else
-      render action: "new"
+      render action: 'new'
     end
   end
 
@@ -91,7 +91,7 @@ class GroupsController < Groups::ApplicationController
 
       format.json do
         load_events
-        pager_json("events/_events", @events.count)
+        pager_json('events/_events', @events.count)
       end
     end
   end
@@ -109,7 +109,7 @@ class GroupsController < Groups::ApplicationController
       redirect_to edit_group_path(@group, anchor: params[:update_section]), notice: "Group '#{@group.name}' was successfully updated."
     else
       @group.path = @group.path_before_last_save || @group.path_was
-      render action: "edit"
+      render action: 'edit'
     end
   end
 

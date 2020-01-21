@@ -20,7 +20,7 @@ class Projects::LfsApiController < Projects::GitHttpClientController
     elsif upload_request?
       render json: { objects: upload_objects! }
     else
-      raise "Never reached"
+      raise 'Never reached'
     end
   end
 

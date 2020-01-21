@@ -65,7 +65,7 @@ describe Gitlab::Graphql::Connections::Keyset::OrderInfo do
 
       it 'raises an error' do
         expect { described_class.validate_ordering(relation, order_list) }
-          .to raise_error(ArgumentError, "Column `updated_at` must not allow NULL")
+          .to raise_error(ArgumentError, 'Column `updated_at` must not allow NULL')
       end
     end
 

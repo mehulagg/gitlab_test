@@ -9,8 +9,8 @@ RSpec.shared_examples 'a valid diff positionable note' do |factory_on_commit|
 
     let(:position) do
       Gitlab::Diff::Position.new(
-        old_path: "files/ruby/popen.rb",
-        new_path: "files/ruby/popen.rb",
+        old_path: 'files/ruby/popen.rb',
+        new_path: 'files/ruby/popen.rb',
         old_line: nil,
         new_line: 14,
         diff_refs: diff_refs
@@ -29,8 +29,8 @@ RSpec.shared_examples 'a valid diff positionable note' do |factory_on_commit|
     context 'position diff refs does not match commit diff refs' do
       let(:diff_refs) do
         Gitlab::Diff::DiffRefs.new(
-          base_sha: "not_existing_sha",
-          head_sha: "existing_sha"
+          base_sha: 'not_existing_sha',
+          head_sha: 'existing_sha'
         )
       end
 

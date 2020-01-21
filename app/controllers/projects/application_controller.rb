@@ -76,7 +76,7 @@ class Projects::ApplicationController < ApplicationController
     unless @repository.branch_exists?(@ref)
       redirect_to(
         project_tree_path(@project, @ref),
-        notice: "This action is not allowed unless you are on a branch"
+        notice: 'This action is not allowed unless you are on a branch'
       )
     end
   end

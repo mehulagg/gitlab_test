@@ -6,8 +6,8 @@ describe Import::BitbucketController do
   include ImportSpecHelper
 
   let(:user) { create(:user) }
-  let(:token) { "asdasd12345" }
-  let(:secret) { "sekrettt" }
+  let(:token) { 'asdasd12345' }
+  let(:secret) { 'sekrettt' }
   let(:refresh_token) { SecureRandom.hex(15) }
   let(:access_params) { { token: token, expires_at: nil, expires_in: nil, refresh_token: nil } }
   let(:code) { SecureRandom.hex(8) }
@@ -21,12 +21,12 @@ describe Import::BitbucketController do
     allow(controller).to receive(:bitbucket_import_enabled?).and_return(true)
   end
 
-  describe "GET callback" do
+  describe 'GET callback' do
     before do
       session[:oauth_request_token] = {}
     end
 
-    it "updates access token" do
+    it 'updates access token' do
       expires_at = Time.now + 1.day
       expires_in = 1.day
       access_token = double(token: token,
@@ -54,13 +54,13 @@ describe Import::BitbucketController do
     end
   end
 
-  describe "GET status" do
+  describe 'GET status' do
     before do
-      @repo = double(slug: 'vim', owner: 'asd', full_name: 'asd/vim', "valid?" => true)
+      @repo = double(slug: 'vim', owner: 'asd', full_name: 'asd/vim', 'valid?' => true)
       assign_session_tokens
     end
 
-    it "assigns variables" do
+    it 'assigns variables' do
       @project = create(:project, import_type: 'bitbucket', creator_id: user.id)
       allow_any_instance_of(Bitbucket::Client).to receive(:repos).and_return([@repo])
 
@@ -71,7 +71,7 @@ describe Import::BitbucketController do
       expect(assigns(:incompatible_repos)).to eq([])
     end
 
-    it "does not show already added project" do
+    it 'does not show already added project' do
       @project = create(:project, import_type: 'bitbucket', creator_id: user.id, import_source: 'asd/vim')
       allow_any_instance_of(Bitbucket::Client).to receive(:repos).and_return([@repo])
 
@@ -97,7 +97,7 @@ describe Import::BitbucketController do
     end
   end
 
-  describe "POST create" do
+  describe 'POST create' do
     let(:bitbucket_username) { user.username }
 
     let(:bitbucket_user) do
@@ -105,7 +105,7 @@ describe Import::BitbucketController do
     end
 
     let(:bitbucket_repo) do
-      double(slug: "vim", owner: bitbucket_username, name: 'vim')
+      double(slug: 'vim', owner: bitbucket_username, name: 'vim')
     end
 
     let(:project) { create(:project) }
@@ -136,7 +136,7 @@ describe Import::BitbucketController do
       expect(response).to have_gitlab_http_status(422)
     end
 
-    context "when the repository owner is the Bitbucket user" do
+    context 'when the repository owner is the Bitbucket user' do
       context "when the Bitbucket user and GitLab user's usernames match" do
         it "takes the current user's namespace" do
           expect(Gitlab::BitbucketImport::ProjectCreator)
@@ -148,7 +148,7 @@ describe Import::BitbucketController do
       end
 
       context "when the Bitbucket user and GitLab user's usernames don't match" do
-        let(:bitbucket_username) { "someone_else" }
+        let(:bitbucket_username) { 'someone_else' }
 
         it "takes the current user's namespace" do
           expect(Gitlab::BitbucketImport::ProjectCreator)
@@ -171,8 +171,8 @@ describe Import::BitbucketController do
       end
     end
 
-    context "when the repository owner is not the Bitbucket user" do
-      let(:other_username) { "someone_else" }
+    context 'when the repository owner is not the Bitbucket user' do
+      let(:other_username) { 'someone_else' }
 
       before do
         allow(bitbucket_repo).to receive(:owner).and_return(other_username)
@@ -181,12 +181,12 @@ describe Import::BitbucketController do
       context "when a namespace with the Bitbucket user's username already exists" do
         let!(:existing_namespace) { create(:group, name: other_username) }
 
-        context "when the namespace is owned by the GitLab user" do
+        context 'when the namespace is owned by the GitLab user' do
           before do
             existing_namespace.add_owner(user)
           end
 
-          it "takes the existing namespace" do
+          it 'takes the existing namespace' do
             expect(Gitlab::BitbucketImport::ProjectCreator)
               .to receive(:new).with(bitbucket_repo, bitbucket_repo.name, existing_namespace, user, access_params)
               .and_return(double(execute: project))
@@ -195,7 +195,7 @@ describe Import::BitbucketController do
           end
         end
 
-        context "when the namespace is not owned by the GitLab user" do
+        context 'when the namespace is not owned by the GitLab user' do
           it "doesn't create a project" do
             expect(Gitlab::BitbucketImport::ProjectCreator)
               .not_to receive(:new)
@@ -206,15 +206,15 @@ describe Import::BitbucketController do
       end
 
       context "when a namespace with the Bitbucket user's username doesn't exist" do
-        context "when current user can create namespaces" do
-          it "creates the namespace" do
+        context 'when current user can create namespaces' do
+          it 'creates the namespace' do
             expect(Gitlab::BitbucketImport::ProjectCreator)
               .to receive(:new).and_return(double(execute: project))
 
             expect { post :create, format: :json }.to change(Namespace, :count).by(1)
           end
 
-          it "takes the new namespace" do
+          it 'takes the new namespace' do
             expect(Gitlab::BitbucketImport::ProjectCreator)
               .to receive(:new).with(bitbucket_repo, bitbucket_repo.name, an_instance_of(Group), user, access_params)
               .and_return(double(execute: project))

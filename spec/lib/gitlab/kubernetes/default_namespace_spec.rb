@@ -27,7 +27,7 @@ describe Gitlab::Kubernetes::DefaultNamespace do
   describe '#from_environment_slug' do
     let(:platform) { create(:cluster_platform_kubernetes, namespace: platform_namespace) }
     let(:cluster) { create(:cluster, platform_kubernetes: platform) }
-    let(:project) { create(:project, path: "Path-With-Capitals") }
+    let(:project) { create(:project, path: 'Path-With-Capitals') }
     let(:environment) { create(:environment, project: project) }
 
     subject { generator.from_environment_slug(environment.slug) }

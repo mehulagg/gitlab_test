@@ -54,7 +54,7 @@ describe 'Merge request > User sets approvers', :js do
     end
   end
 
-  context "Group approvers" do
+  context 'Group approvers' do
     context 'when creating an MR' do
       let(:other_user) { create(:user) }
 
@@ -89,10 +89,10 @@ describe 'Merge request > User sets approvers', :js do
           click_button 'Add approval rule'
         end
 
-        click_on("Submit merge request")
+        click_on('Submit merge request')
         wait_for_all_requests
 
-        expect(page).to have_content("Requires approval.")
+        expect(page).to have_content('Requires approval.')
         expect(page).to have_selector("img[alt='#{other_user.name}']")
       end
 
@@ -114,9 +114,9 @@ describe 'Merge request > User sets approvers', :js do
         end
 
         click_button 'Update approval rule'
-        click_on("Submit merge request")
+        click_on('Submit merge request')
         wait_for_all_requests
-        click_on("View eligible approvers") if page.has_button?("View eligible approvers")
+        click_on('View eligible approvers') if page.has_button?('View eligible approvers')
         wait_for_requests
 
         expect(page).not_to have_selector(".js-approvers img[alt='#{other_user.name}']")
@@ -157,10 +157,10 @@ describe 'Merge request > User sets approvers', :js do
           click_button 'Add approval rule'
         end
 
-        click_on("Save changes")
+        click_on('Save changes')
         wait_for_all_requests
 
-        expect(page).to have_content("Requires approval.")
+        expect(page).to have_content('Requires approval.')
         expect(page).to have_selector("img[alt='#{other_user.name}']")
       end
 
@@ -183,15 +183,15 @@ describe 'Merge request > User sets approvers', :js do
         end
 
         click_button 'Update approval rule'
-        click_on("Save changes")
+        click_on('Save changes')
         wait_for_all_requests
 
-        click_on("View eligible approvers")
+        click_on('View eligible approvers')
         wait_for_requests
 
         expect(page).not_to have_selector(".js-approvers img[alt='#{other_user.name}']")
         expect(page).to have_selector(".js-approvers img[alt='#{approver.name}']")
-        expect(page).to have_content("Requires approval.")
+        expect(page).to have_content('Requires approval.')
       end
 
       it 'allows changing approvals number' do
@@ -203,7 +203,7 @@ describe 'Merge request > User sets approvers', :js do
         wait_for_requests
 
         # project setting in the beginning on the show MR page
-        expect(page).to have_content("Requires 2 more approvals")
+        expect(page).to have_content('Requires 2 more approvals')
 
         find('.merge-request').click_on 'Edit'
         open_modal
@@ -217,7 +217,7 @@ describe 'Merge request > User sets approvers', :js do
         wait_for_all_requests
 
         # new MR setting on the show MR page
-        expect(page).to have_content("Requires 3 more approvals")
+        expect(page).to have_content('Requires 3 more approvals')
 
         # new MR setting on the edit MR page
         find('.merge-request').click_on 'Edit'

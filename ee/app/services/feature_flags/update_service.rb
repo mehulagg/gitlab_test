@@ -34,7 +34,7 @@ module FeatureFlags
 
       return if changes.empty?
 
-      "Updated feature flag <strong>#{feature_flag.name}</strong>. " + changes.join(" ")
+      "Updated feature flag <strong>#{feature_flag.name}</strong>. " + changes.join(' ')
     end
 
     def changed_attributes_messages(feature_flag)

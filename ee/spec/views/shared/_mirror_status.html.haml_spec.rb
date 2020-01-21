@@ -25,7 +25,7 @@ describe 'shared/_mirror_status.html.haml' do
 
       render 'shared/mirror_status'
 
-      expect(rendered).to have_content("Updated")
+      expect(rendered).to have_content('Updated')
     end
   end
 
@@ -39,7 +39,7 @@ describe 'shared/_mirror_status.html.haml' do
     it 'renders failure message' do
       render 'shared/mirror_status', raw_message: true
 
-      expect(rendered).to have_content("The repository failed to update")
+      expect(rendered).to have_content('The repository failed to update')
     end
 
     context 'with a previous successful update' do
@@ -48,7 +48,7 @@ describe 'shared/_mirror_status.html.haml' do
 
         render 'shared/mirror_status', raw_message: true
 
-        expect(rendered).to have_content("Last successful update")
+        expect(rendered).to have_content('Last successful update')
       end
     end
 
@@ -58,7 +58,7 @@ describe 'shared/_mirror_status.html.haml' do
 
         render 'shared/mirror_status', raw_message: true
 
-        expect(rendered).to have_content("Repository mirroring has been paused due to too many failed attempts, and can be resumed by a project maintainer.")
+        expect(rendered).to have_content('Repository mirroring has been paused due to too many failed attempts, and can be resumed by a project maintainer.')
       end
     end
   end

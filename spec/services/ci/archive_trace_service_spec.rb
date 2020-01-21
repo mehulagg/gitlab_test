@@ -69,12 +69,12 @@ describe Ci::ArchiveTraceService, '#execute' do
 
       expect(Sidekiq.logger).to receive(:warn).with(
         class: ArchiveTraceWorker.name,
-        message: "Failed to archive trace. message: Job is not finished yet.",
+        message: 'Failed to archive trace. message: Job is not finished yet.',
         job_id: job.id).and_call_original
 
       expect(Gitlab::Metrics)
         .to receive(:counter)
-        .with(:job_trace_archive_failed_total, "Counter of failed attempts of trace archiving")
+        .with(:job_trace_archive_failed_total, 'Counter of failed attempts of trace archiving')
         .and_call_original
 
       expect { subject }.not_to raise_error

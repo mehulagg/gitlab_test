@@ -2,10 +2,10 @@
 
 module IssuesHelper
   def issue_css_classes(issue)
-    classes = ["issue"]
-    classes << "closed" if issue.closed?
-    classes << "today" if issue.today?
-    classes << "user-can-drag" if @sort == 'relative_position'
+    classes = ['issue']
+    classes << 'closed' if issue.closed?
+    classes << 'today' if issue.today?
+    classes << 'user-can-drag' if @sort == 'relative_position'
     classes.join(' ')
   end
 
@@ -100,19 +100,19 @@ module IssuesHelper
 
   def award_state_class(awardable, awards, current_user)
     if !can?(current_user, :award_emoji, awardable)
-      "disabled"
+      'disabled'
     elsif current_user && awards.find { |a| a.user_id == current_user.id }
-      "active"
+      'active'
     else
-      ""
+      ''
     end
   end
 
   def awards_sort(awards)
     awards.sort_by do |award, award_emojis|
-      if award == "thumbsup"
+      if award == 'thumbsup'
         0
-      elsif award == "thumbsdown"
+      elsif award == 'thumbsdown'
         1
       else
         2

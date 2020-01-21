@@ -19,7 +19,7 @@ describe 'Commit diff', :js do
         visit project_commit_path(project, sample_commit.id, view: view)
       end
 
-      it "adds comment to diff" do
+      it 'adds comment to diff' do
         diff_line_num = first('.diff-line-num.new')
 
         diff_line_num.hover

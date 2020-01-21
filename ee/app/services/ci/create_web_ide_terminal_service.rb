@@ -98,7 +98,7 @@ module Ci
 
     def pipeline_created_counter
       @pipeline_created_counter ||= Gitlab::Metrics
-        .counter(:pipelines_created_total, "Counter of pipelines created")
+        .counter(:pipelines_created_total, 'Counter of pipelines created')
     end
 
     def terminal_active?

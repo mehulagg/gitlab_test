@@ -27,7 +27,7 @@ class Todo < ApplicationRecord
     DIRECTLY_ADDRESSED => :directly_addressed
   }.freeze
 
-  belongs_to :author, class_name: "User"
+  belongs_to :author, class_name: 'User'
   belongs_to :note
   belongs_to :project
   belongs_to :group
@@ -132,9 +132,9 @@ class Todo < ApplicationRecord
     # Need to order by created_at last because of differences on Mysql and Postgres when joining by type "Merge_request/Issue"
     def order_by_labels_priority
       params = {
-        target_type_column: "todos.target_type",
-        target_column: "todos.target_id",
-        project_column: "todos.project_id"
+        target_type_column: 'todos.target_type',
+        target_column: 'todos.target_id',
+        project_column: 'todos.project_id'
       }
 
       highest_priority = highest_label_priority(params).to_sql
@@ -178,7 +178,7 @@ class Todo < ApplicationRecord
   end
 
   def for_commit?
-    target_type == "Commit"
+    target_type == 'Commit'
   end
 
   # override to return commits, which are not active record

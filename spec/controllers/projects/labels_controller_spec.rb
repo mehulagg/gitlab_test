@@ -116,7 +116,7 @@ describe Projects::LabelsController do
   end
 
   describe 'POST #promote' do
-    let!(:promoted_label_name) { "Promoted Label" }
+    let!(:promoted_label_name) { 'Promoted Label' }
     let!(:label_1) { create(:label, title: promoted_label_name, project: project) }
 
     context 'not group reporters' do

@@ -37,7 +37,7 @@ end
 module Peek
   module Views
     class RedisDetailed < DetailedView
-      REDACTED_MARKER = "<redacted>"
+      REDACTED_MARKER = '<redacted>'
 
       def key
         'redis'

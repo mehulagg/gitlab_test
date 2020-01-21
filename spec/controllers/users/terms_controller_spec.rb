@@ -56,7 +56,7 @@ describe Users::TermsController do
     end
 
     it 'redirects to the referer when no redirect specified' do
-      request.env["HTTP_REFERER"] = groups_url
+      request.env['HTTP_REFERER'] = groups_url
 
       post :accept, params: { id: term.id }
 
@@ -71,7 +71,7 @@ describe Users::TermsController do
       end
 
       it 'is prevented when redirecting to the referer' do
-        request.env["HTTP_REFERER"] = 'http://example.com/and/a/path'
+        request.env['HTTP_REFERER'] = 'http://example.com/and/a/path'
 
         post :accept, params: { id: term.id }
 

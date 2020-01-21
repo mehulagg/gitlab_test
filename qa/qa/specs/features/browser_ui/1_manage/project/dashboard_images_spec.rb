@@ -33,7 +33,7 @@ module QA
           Page::Main::Login.perform { |login| login.sign_in_using_credentials(user: new_user) }
 
           Page::Dashboard::Welcome.perform do |welcome|
-            expect(welcome).to have_welcome_title("Welcome to GitLab")
+            expect(welcome).to have_welcome_title('Welcome to GitLab')
 
             # This would be better if it were a visual validation test
             expect(welcome).to have_loaded_all_images

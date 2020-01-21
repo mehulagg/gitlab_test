@@ -394,7 +394,7 @@ describe NotificationService, :mailer do
       let(:admin) { create(:admin) }
       let(:confidential_issue) { create(:issue, :confidential, project: project, author: author, assignees: [assignee]) }
       let(:note) { create(:note_on_issue, noteable: confidential_issue, project: project, note: "#{author.to_reference} #{assignee.to_reference} #{non_member.to_reference} #{member.to_reference} #{admin.to_reference}") }
-      let(:guest_watcher) { create_user_with_notification(:watch, "guest-watcher-confidential") }
+      let(:guest_watcher) { create_user_with_notification(:watch, 'guest-watcher-confidential') }
 
       it 'filters out users that can not read the issue' do
         project.add_developer(member)
@@ -659,7 +659,7 @@ describe NotificationService, :mailer do
       end
     end
 
-    context "merge request diff note" do
+    context 'merge request diff note' do
       let(:project) { create(:project, :repository) }
       let(:user) { create(:user) }
       let(:merge_request) { create(:merge_request, source_project: project, assignees: [user], author: create(:user)) }
@@ -672,7 +672,7 @@ describe NotificationService, :mailer do
       end
 
       describe '#new_note' do
-        it "records sent notifications" do
+        it 'records sent notifications' do
           # 3 SentNotification are sent: the MR assignee and author, and the @u_watcher
           expect(SentNotification).to receive(:record_note).with(note, any_args).exactly(3).times.and_call_original
 
@@ -837,7 +837,7 @@ describe NotificationService, :mailer do
         expect(email).to have_header('X-GitLab-NotificationReason', 'assigned')
       end
 
-      it "emails any mentioned users with the mention level" do
+      it 'emails any mentioned users with the mention level' do
         issue.description = @u_mentioned.to_reference
 
         notification.new_issue(issue, @u_disabled)
@@ -1469,7 +1469,7 @@ describe NotificationService, :mailer do
         end
       end
 
-      it "emails any mentioned users with the mention level" do
+      it 'emails any mentioned users with the mention level' do
         merge_request.description = @u_mentioned.to_reference
 
         notification.new_merge_request(merge_request, @u_disabled)
@@ -1712,7 +1712,7 @@ describe NotificationService, :mailer do
     end
 
     describe '#merge_request_unmergeable' do
-      it "sends email to merge request author" do
+      it 'sends email to merge request author' do
         notification.merge_request_unmergeable(merge_request)
 
         should_email(merge_request.author)
@@ -1732,7 +1732,7 @@ describe NotificationService, :mailer do
           )
         end
 
-        it "sends email to merge request author and merge_user" do
+        it 'sends email to merge request author and merge_user' do
           notification.merge_request_unmergeable(merge_request)
 
           should_email(merge_request.author)
@@ -1800,14 +1800,14 @@ describe NotificationService, :mailer do
         should_not_email(@u_lazy_participant)
       end
 
-      it "notifies the merger when the pipeline succeeds is true" do
+      it 'notifies the merger when the pipeline succeeds is true' do
         merge_request.merge_when_pipeline_succeeds = true
         notification.merge_mr(merge_request, @u_watcher)
 
         should_email(@u_watcher)
       end
 
-      it "does not notify the merger when the pipeline succeeds is false" do
+      it 'does not notify the merger when the pipeline succeeds is false' do
         merge_request.merge_when_pipeline_succeeds = false
         notification.merge_mr(merge_request, @u_watcher)
 
@@ -1869,7 +1869,7 @@ describe NotificationService, :mailer do
       end
     end
 
-    describe "#resolve_all_discussions" do
+    describe '#resolve_all_discussions' do
       it do
         notification.resolve_all_discussions(merge_request, @u_disabled)
 
@@ -1908,7 +1908,7 @@ describe NotificationService, :mailer do
 
     describe '#project_was_moved' do
       it 'notifies the expected users' do
-        notification.project_was_moved(project, "gitlab/gitlab")
+        notification.project_was_moved(project, 'gitlab/gitlab')
 
         should_email(@u_watcher)
         should_email(@u_participating)
@@ -1921,7 +1921,7 @@ describe NotificationService, :mailer do
 
       it_behaves_like 'project emails are disabled' do
         let(:notification_target)  { project }
-        let(:notification_trigger) { notification.project_was_moved(project, "gitlab/gitlab") }
+        let(:notification_trigger) { notification.project_was_moved(project, 'gitlab/gitlab') }
       end
 
       context 'users not having access to the new location' do
@@ -1932,7 +1932,7 @@ describe NotificationService, :mailer do
           build_group(project)
           reset_delivered_emails!
 
-          notification.project_was_moved(project, "gitlab/gitlab")
+          notification.project_was_moved(project, 'gitlab/gitlab')
 
           should_email(@g_watcher)
           should_email(@g_global_watcher)

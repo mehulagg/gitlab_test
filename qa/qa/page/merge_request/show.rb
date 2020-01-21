@@ -74,7 +74,7 @@ module QA
 
         def add_comment_to_diff(text)
           wait_until(sleep_interval: 5) do
-            has_text?("No newline at end of file")
+            has_text?('No newline at end of file')
           end
           all_elements(:new_diff_line, minimum: 1).first.hover
           click_element(:diff_comment)
@@ -155,7 +155,7 @@ module QA
         def merge!
           click_element :merge_button if ready_to_merge?
 
-          raise "Merge did not appear to be successful" unless merged?
+          raise 'Merge did not appear to be successful' unless merged?
         end
 
         def merged?
@@ -191,7 +191,7 @@ module QA
             has_text?('Fast-forward merge without a merge commit')
           end
 
-          raise "Rebase did not appear to be successful" unless success
+          raise 'Rebase did not appear to be successful' unless success
         end
 
         def try_to_merge!

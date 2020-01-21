@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe Gitlab::Git::Repository, :seed_helper do
   include Gitlab::EncodingHelper
@@ -30,7 +30,7 @@ describe Gitlab::Git::Repository, :seed_helper do
   let(:storage_path) { TestEnv.repos_path }
   let(:user) { build(:user) }
 
-  describe "Respond to" do
+  describe 'Respond to' do
     subject { repository }
 
     it { is_expected.to respond_to(:root_ref) }
@@ -69,8 +69,8 @@ describe Gitlab::Git::Repository, :seed_helper do
       expect(subject.first).to be_utf8
     end
 
-    it { is_expected.to include("master") }
-    it { is_expected.not_to include("branch-from-space") }
+    it { is_expected.to include('master') }
+    it { is_expected.not_to include('branch-from-space') }
 
     it 'gets the branch names from GitalyClient' do
       expect_any_instance_of(Gitlab::GitalyClient::RefService).to receive(:branch_names)
@@ -96,10 +96,10 @@ describe Gitlab::Git::Repository, :seed_helper do
     describe '#last' do
       subject { super().last }
 
-      it { is_expected.to eq("v1.2.1") }
+      it { is_expected.to eq('v1.2.1') }
     end
-    it { is_expected.to include("v1.0.0") }
-    it { is_expected.not_to include("v5.0.0") }
+    it { is_expected.to include('v1.0.0') }
+    it { is_expected.not_to include('v5.0.0') }
 
     it 'gets the tag names from GitalyClient' do
       expect_any_instance_of(Gitlab::GitalyClient::RefService).to receive(:tag_names)
@@ -155,7 +155,7 @@ describe Gitlab::Git::Repository, :seed_helper do
 
         true  | 'master' | "gitlab-git-test-master-#{sha}"
         true  | sha      | "gitlab-git-test-#{sha}-#{sha}"
-        false | 'master' | "gitlab-git-test-master"
+        false | 'master' | 'gitlab-git-test-master'
         false | sha      | "gitlab-git-test-#{sha}"
         nil   | 'master' | "gitlab-git-test-master-#{sha}"
         nil   | sha      | "gitlab-git-test-#{sha}"
@@ -191,7 +191,7 @@ describe Gitlab::Git::Repository, :seed_helper do
   describe '#to_s' do
     subject { repository.to_s }
 
-    it { is_expected.to eq("<Gitlab::Git::Repository: group/project>") }
+    it { is_expected.to eq('<Gitlab::Git::Repository: group/project>') }
   end
 
   describe '#object_directory_size' do
@@ -274,19 +274,19 @@ describe Gitlab::Git::Repository, :seed_helper do
       urls = repository.submodule_urls_for(ref)
 
       expect(urls).to eq({
-        "deeper/nested/six" => "git://github.com/randx/six.git",
-               "gitlab-grack" => "https://gitlab.com/gitlab-org/gitlab-grack.git",
-       "gitlab-shell" => "https://github.com/gitlabhq/gitlab-shell.git",
-        "nested/six" => "git://github.com/randx/six.git",
-        "six" => "git://github.com/randx/six.git"
+        'deeper/nested/six' => 'git://github.com/randx/six.git',
+               'gitlab-grack' => 'https://gitlab.com/gitlab-org/gitlab-grack.git',
+       'gitlab-shell' => 'https://github.com/gitlabhq/gitlab-shell.git',
+        'nested/six' => 'git://github.com/randx/six.git',
+        'six' => 'git://github.com/randx/six.git'
       })
     end
   end
 
   describe '#commit_count' do
-    it { expect(repository.commit_count("master")).to eq(25) }
-    it { expect(repository.commit_count("feature")).to eq(9) }
-    it { expect(repository.commit_count("does-not-exist")).to eq(0) }
+    it { expect(repository.commit_count('master')).to eq(25) }
+    it { expect(repository.commit_count('feature')).to eq(9) }
+    it { expect(repository.commit_count('does-not-exist')).to eq(0) }
 
     it_behaves_like 'wrapping gRPC errors', Gitlab::GitalyClient::CommitService, :commit_count do
       subject { repository.commit_count('master') }
@@ -420,15 +420,15 @@ describe Gitlab::Git::Repository, :seed_helper do
     end
   end
 
-  describe "#delete_branch" do
+  describe '#delete_branch' do
     let(:repository) { mutable_repository }
 
     after do
       ensure_seeds
     end
 
-    it "removes the branch from the repo" do
-      branch_name = "to-be-deleted-soon"
+    it 'removes the branch from the repo' do
+      branch_name = 'to-be-deleted-soon'
 
       repository.create_branch(branch_name)
       expect(repository_rugged.branches[branch_name]).not_to be_nil
@@ -437,35 +437,35 @@ describe Gitlab::Git::Repository, :seed_helper do
       expect(repository_rugged.branches[branch_name]).to be_nil
     end
 
-    context "when branch does not exist" do
-      it "raises a DeleteBranchError exception" do
-        expect { repository.delete_branch("this-branch-does-not-exist") }.to raise_error(Gitlab::Git::Repository::DeleteBranchError)
+    context 'when branch does not exist' do
+      it 'raises a DeleteBranchError exception' do
+        expect { repository.delete_branch('this-branch-does-not-exist') }.to raise_error(Gitlab::Git::Repository::DeleteBranchError)
       end
     end
   end
 
-  describe "#create_branch" do
+  describe '#create_branch' do
     let(:repository) { mutable_repository }
 
     after do
       ensure_seeds
     end
 
-    it "creates a new branch" do
+    it 'creates a new branch' do
       expect(repository.create_branch('new_branch', 'master')).not_to be_nil
     end
 
-    it "creates a new branch with the right name" do
+    it 'creates a new branch with the right name' do
       expect(repository.create_branch('another_branch', 'master').name).to eq('another_branch')
     end
 
-    it "fails if we create an existing branch" do
+    it 'fails if we create an existing branch' do
       repository.create_branch('duplicated_branch', 'master')
-      expect {repository.create_branch('duplicated_branch', 'master')}.to raise_error("Branch duplicated_branch already exists")
+      expect {repository.create_branch('duplicated_branch', 'master')}.to raise_error('Branch duplicated_branch already exists')
     end
 
-    it "fails if we create a branch from a non existing ref" do
-      expect {repository.create_branch('branch_based_in_wrong_ref', 'master_2_the_revenge')}.to raise_error("Invalid reference master_2_the_revenge")
+    it 'fails if we create a branch from a non existing ref' do
+      expect {repository.create_branch('branch_based_in_wrong_ref', 'master_2_the_revenge')}.to raise_error('Invalid reference master_2_the_revenge')
     end
   end
 
@@ -520,10 +520,10 @@ describe Gitlab::Git::Repository, :seed_helper do
     end
   end
 
-  describe "#refs_hash" do
+  describe '#refs_hash' do
     subject { repository.refs_hash }
 
-    it "has as many entries as branches and tags" do
+    it 'has as many entries as branches and tags' do
       expected_refs = SeedRepo::Repo::BRANCHES + SeedRepo::Repo::TAGS
       # We flatten in case a commit is pointed at by more than one branch and/or tag
       expect(subject.values.flatten.size).to eq(expected_refs.size)
@@ -535,7 +535,7 @@ describe Gitlab::Git::Repository, :seed_helper do
 
     it 'does not error when dereferenced_target is nil' do
       blob_id = repository.blob_at('master', 'README.md').id
-      repository_rugged.tags.create("refs/tags/blob-tag", blob_id)
+      repository_rugged.tags.create('refs/tags/blob-tag', blob_id)
 
       expect { subject }.not_to raise_error
     end
@@ -669,7 +669,7 @@ describe Gitlab::Git::Repository, :seed_helper do
     end
   end
 
-  describe "#log" do
+  describe '#log' do
     shared_examples 'repository log' do
       let(:commit_with_old_name) do
         Gitlab::Git::Commit.find(repository, @commit_with_old_name_id)
@@ -685,20 +685,20 @@ describe Gitlab::Git::Repository, :seed_helper do
         # Add new commits so that there's a renamed file in the commit history
         @commit_with_old_name_id = new_commit_edit_old_file(repository_rugged).oid
         @rename_commit_id = new_commit_move_file(repository_rugged).oid
-        @commit_with_new_name_id = new_commit_edit_new_file(repository_rugged, "encoding/CHANGELOG", "Edit encoding/CHANGELOG", "I'm a new changelog with different text").oid
+        @commit_with_new_name_id = new_commit_edit_new_file(repository_rugged, 'encoding/CHANGELOG', 'Edit encoding/CHANGELOG', "I'm a new changelog with different text").oid
       end
 
       after do
         # Erase our commits so other tests get the original repo
-        repository_rugged.references.update("refs/heads/master", SeedRepo::LastCommit::ID)
+        repository_rugged.references.update('refs/heads/master', SeedRepo::LastCommit::ID)
       end
 
       context "where 'follow' == true" do
-        let(:options) { { ref: "master", follow: true } }
+        let(:options) { { ref: 'master', follow: true } }
 
         context "and 'path' is a directory" do
-          it "does not follow renames" do
-            log_commits = repository.log(options.merge(path: "encoding"))
+          it 'does not follow renames' do
+            log_commits = repository.log(options.merge(path: 'encoding'))
 
             aggregate_failures do
               expect(log_commits).to include(commit_with_new_name)
@@ -710,8 +710,8 @@ describe Gitlab::Git::Repository, :seed_helper do
 
         context "and 'path' is a file that matches the new filename" do
           context 'without offset' do
-            it "follows renames" do
-              log_commits = repository.log(options.merge(path: "encoding/CHANGELOG"))
+            it 'follows renames' do
+              log_commits = repository.log(options.merge(path: 'encoding/CHANGELOG'))
 
               aggregate_failures do
                 expect(log_commits).to include(commit_with_new_name)
@@ -722,8 +722,8 @@ describe Gitlab::Git::Repository, :seed_helper do
           end
 
           context 'with offset=1' do
-            it "follows renames and skip the latest commit" do
-              log_commits = repository.log(options.merge(path: "encoding/CHANGELOG", offset: 1))
+            it 'follows renames and skip the latest commit' do
+              log_commits = repository.log(options.merge(path: 'encoding/CHANGELOG', offset: 1))
 
               aggregate_failures do
                 expect(log_commits).not_to include(commit_with_new_name)
@@ -734,16 +734,16 @@ describe Gitlab::Git::Repository, :seed_helper do
           end
 
           context 'with offset=1', 'and limit=1' do
-            it "follows renames, skip the latest commit and return only one commit" do
-              log_commits = repository.log(options.merge(path: "encoding/CHANGELOG", offset: 1, limit: 1))
+            it 'follows renames, skip the latest commit and return only one commit' do
+              log_commits = repository.log(options.merge(path: 'encoding/CHANGELOG', offset: 1, limit: 1))
 
               expect(log_commits).to contain_exactly(rename_commit)
             end
           end
 
           context 'with offset=1', 'and limit=2' do
-            it "follows renames, skip the latest commit and return only two commits" do
-              log_commits = repository.log(options.merge(path: "encoding/CHANGELOG", offset: 1, limit: 2))
+            it 'follows renames, skip the latest commit and return only two commits' do
+              log_commits = repository.log(options.merge(path: 'encoding/CHANGELOG', offset: 1, limit: 2))
 
               aggregate_failures do
                 expect(log_commits).to contain_exactly(rename_commit, commit_with_old_name)
@@ -752,8 +752,8 @@ describe Gitlab::Git::Repository, :seed_helper do
           end
 
           context 'with offset=2' do
-            it "follows renames and skip the latest commit" do
-              log_commits = repository.log(options.merge(path: "encoding/CHANGELOG", offset: 2))
+            it 'follows renames and skip the latest commit' do
+              log_commits = repository.log(options.merge(path: 'encoding/CHANGELOG', offset: 2))
 
               aggregate_failures do
                 expect(log_commits).not_to include(commit_with_new_name)
@@ -764,16 +764,16 @@ describe Gitlab::Git::Repository, :seed_helper do
           end
 
           context 'with offset=2', 'and limit=1' do
-            it "follows renames, skip the two latest commit and return only one commit" do
-              log_commits = repository.log(options.merge(path: "encoding/CHANGELOG", offset: 2, limit: 1))
+            it 'follows renames, skip the two latest commit and return only one commit' do
+              log_commits = repository.log(options.merge(path: 'encoding/CHANGELOG', offset: 2, limit: 1))
 
               expect(log_commits).to contain_exactly(commit_with_old_name)
             end
           end
 
           context 'with offset=2', 'and limit=2' do
-            it "follows renames, skip the two latest commit and return only one commit" do
-              log_commits = repository.log(options.merge(path: "encoding/CHANGELOG", offset: 2, limit: 2))
+            it 'follows renames, skip the two latest commit and return only one commit' do
+              log_commits = repository.log(options.merge(path: 'encoding/CHANGELOG', offset: 2, limit: 2))
 
               aggregate_failures do
                 expect(log_commits).not_to include(commit_with_new_name)
@@ -785,8 +785,8 @@ describe Gitlab::Git::Repository, :seed_helper do
         end
 
         context "and 'path' is a file that matches the old filename" do
-          it "does not follow renames" do
-            log_commits = repository.log(options.merge(path: "CHANGELOG"))
+          it 'does not follow renames' do
+            log_commits = repository.log(options.merge(path: 'CHANGELOG'))
 
             aggregate_failures do
               expect(log_commits).not_to include(commit_with_new_name)
@@ -796,8 +796,8 @@ describe Gitlab::Git::Repository, :seed_helper do
           end
         end
 
-        context "unknown ref" do
-          it "returns an empty array" do
+        context 'unknown ref' do
+          it 'returns an empty array' do
             log_commits = repository.log(options.merge(ref: 'unknown'))
 
             expect(log_commits).to eq([])
@@ -810,10 +810,10 @@ describe Gitlab::Git::Repository, :seed_helper do
 
         context "and 'path' is a directory" do
           let(:log_commits) do
-            repository.log(options.merge(path: "encoding"))
+            repository.log(options.merge(path: 'encoding'))
           end
 
-          it "does not follow renames" do
+          it 'does not follow renames' do
             expect(log_commits).to include(commit_with_new_name)
             expect(log_commits).to include(rename_commit)
             expect(log_commits).not_to include(commit_with_old_name)
@@ -822,10 +822,10 @@ describe Gitlab::Git::Repository, :seed_helper do
 
         context "and 'path' is a file that matches the new filename" do
           let(:log_commits) do
-            repository.log(options.merge(path: "encoding/CHANGELOG"))
+            repository.log(options.merge(path: 'encoding/CHANGELOG'))
           end
 
-          it "does not follow renames" do
+          it 'does not follow renames' do
             expect(log_commits).to include(commit_with_new_name)
             expect(log_commits).to include(rename_commit)
             expect(log_commits).not_to include(commit_with_old_name)
@@ -834,10 +834,10 @@ describe Gitlab::Git::Repository, :seed_helper do
 
         context "and 'path' is a file that matches the old filename" do
           let(:log_commits) do
-            repository.log(options.merge(path: "CHANGELOG"))
+            repository.log(options.merge(path: 'CHANGELOG'))
           end
 
-          it "does not follow renames" do
+          it 'does not follow renames' do
             expect(log_commits).to include(commit_with_old_name)
             expect(log_commits).to include(rename_commit)
             expect(log_commits).not_to include(commit_with_new_name)
@@ -846,10 +846,10 @@ describe Gitlab::Git::Repository, :seed_helper do
 
         context "and 'path' includes a directory that used to be a file" do
           let(:log_commits) do
-            repository.log(options.merge(ref: "refs/heads/fix-blob-path", path: "files/testdir/file.txt"))
+            repository.log(options.merge(ref: 'refs/heads/fix-blob-path', path: 'files/testdir/file.txt'))
           end
 
-          it "returns a list of commits" do
+          it 'returns a list of commits' do
             expect(log_commits.size).to eq(1)
           end
         end
@@ -858,7 +858,7 @@ describe Gitlab::Git::Repository, :seed_helper do
       context "where provides 'after' timestamp" do
         options = { after: Time.iso8601('2014-03-03T20:15:01+00:00') }
 
-        it "returns commits on or after that timestamp" do
+        it 'returns commits on or after that timestamp' do
           commits = repository.log(options)
 
           expect(commits.size).to be > 0
@@ -871,7 +871,7 @@ describe Gitlab::Git::Repository, :seed_helper do
       context "where provides 'before' timestamp" do
         options = { before: Time.iso8601('2014-03-03T20:15:01+00:00') }
 
-        it "returns commits on or before that timestamp" do
+        it 'returns commits on or before that timestamp' do
           commits = repository.log(options)
 
           expect(commits.size).to be > 0
@@ -1055,8 +1055,8 @@ describe Gitlab::Git::Repository, :seed_helper do
         end
       end
 
-      context "with all" do
-        it "returns the number of commits in the whole repository" do
+      context 'with all' do
+        it 'returns the number of commits in the whole repository' do
           options = { all: true }
 
           expect(repository.count_commits(options)).to eq(34)
@@ -1064,7 +1064,7 @@ describe Gitlab::Git::Repository, :seed_helper do
       end
 
       context 'without all or ref being specified' do
-        it "raises an ArgumentError" do
+        it 'raises an ArgumentError' do
           expect { repository.count_commits({}) }.to raise_error(ArgumentError)
         end
       end
@@ -1096,14 +1096,14 @@ describe Gitlab::Git::Repository, :seed_helper do
     end
 
     it "returns an empty name if the ref doesn't exist" do
-      expect(repository.ref_name_for_sha(ref_path, "000000")).to eq("")
+      expect(repository.ref_name_for_sha(ref_path, '000000')).to eq('')
     end
 
-    it "raise an exception if the ref is empty" do
-      expect { repository.ref_name_for_sha(ref_path, "") }.to raise_error(ArgumentError)
+    it 'raise an exception if the ref is empty' do
+      expect { repository.ref_name_for_sha(ref_path, '') }.to raise_error(ArgumentError)
     end
 
-    it "raise an exception if the ref is nil" do
+    it 'raise an exception if the ref is nil' do
       expect { repository.ref_name_for_sha(ref_path, nil) }.to raise_error(ArgumentError)
     end
   end
@@ -1258,52 +1258,52 @@ describe Gitlab::Git::Repository, :seed_helper do
     end
   end
 
-  describe "#ls_files" do
-    let(:master_file_paths) { repository.ls_files("master") }
-    let(:utf8_file_paths) { repository.ls_files("ls-files-utf8") }
-    let(:not_existed_branch) { repository.ls_files("not_existed_branch") }
+  describe '#ls_files' do
+    let(:master_file_paths) { repository.ls_files('master') }
+    let(:utf8_file_paths) { repository.ls_files('ls-files-utf8') }
+    let(:not_existed_branch) { repository.ls_files('not_existed_branch') }
 
-    it "read every file paths of master branch" do
+    it 'read every file paths of master branch' do
       expect(master_file_paths.length).to equal(40)
     end
 
-    it "reads full file paths of master branch" do
-      expect(master_file_paths).to include("files/html/500.html")
+    it 'reads full file paths of master branch' do
+      expect(master_file_paths).to include('files/html/500.html')
     end
 
-    it "does not read submodule directory and empty directory of master branch" do
-      expect(master_file_paths).not_to include("six")
+    it 'does not read submodule directory and empty directory of master branch' do
+      expect(master_file_paths).not_to include('six')
     end
 
     it "does not include 'nil'" do
       expect(master_file_paths).not_to include(nil)
     end
 
-    it "returns empty array when not existed branch" do
+    it 'returns empty array when not existed branch' do
       expect(not_existed_branch.length).to equal(0)
     end
 
-    it "returns valid utf-8 data" do
+    it 'returns valid utf-8 data' do
       expect(utf8_file_paths.map { |file| file.force_encoding('utf-8') }).to all(be_valid_encoding)
     end
   end
 
-  describe "#copy_gitattributes" do
+  describe '#copy_gitattributes' do
     let(:attributes_path) { File.join(SEED_STORAGE_PATH, TEST_REPO_PATH, 'info/attributes') }
 
     after do
       FileUtils.rm_rf(attributes_path) if Dir.exist?(attributes_path)
     end
 
-    it "raises an error with invalid ref" do
-      expect { repository.copy_gitattributes("invalid") }.to raise_error(Gitlab::Git::Repository::InvalidRef)
+    it 'raises an error with invalid ref' do
+      expect { repository.copy_gitattributes('invalid') }.to raise_error(Gitlab::Git::Repository::InvalidRef)
     end
 
     context 'when forcing encoding issues' do
-      let(:branch_name) { "ʕ•ᴥ•ʔ" }
+      let(:branch_name) { 'ʕ•ᴥ•ʔ' }
 
       before do
-        repository.create_branch(branch_name, "master")
+        repository.create_branch(branch_name, 'master')
       end
 
       after do
@@ -1317,54 +1317,54 @@ describe Gitlab::Git::Repository, :seed_helper do
       end
     end
 
-    context "with no .gitattrbutes" do
+    context 'with no .gitattrbutes' do
       before do
-        repository.copy_gitattributes("master")
+        repository.copy_gitattributes('master')
       end
 
-      it "does not have an info/attributes" do
+      it 'does not have an info/attributes' do
         expect(File.exist?(attributes_path)).to be_falsey
       end
     end
 
-    context "with .gitattrbutes" do
+    context 'with .gitattrbutes' do
       before do
-        repository.copy_gitattributes("gitattributes")
+        repository.copy_gitattributes('gitattributes')
       end
 
-      it "has an info/attributes" do
+      it 'has an info/attributes' do
         expect(File.exist?(attributes_path)).to be_truthy
       end
 
-      it "has the same content in info/attributes as .gitattributes" do
-        contents = File.open(attributes_path, "rb") { |f| f.read }
+      it 'has the same content in info/attributes as .gitattributes' do
+        contents = File.open(attributes_path, 'rb') { |f| f.read }
         expect(contents).to eq("*.md binary\n")
       end
     end
 
-    context "with updated .gitattrbutes" do
+    context 'with updated .gitattrbutes' do
       before do
-        repository.copy_gitattributes("gitattributes")
-        repository.copy_gitattributes("gitattributes-updated")
+        repository.copy_gitattributes('gitattributes')
+        repository.copy_gitattributes('gitattributes-updated')
       end
 
-      it "has an info/attributes" do
+      it 'has an info/attributes' do
         expect(File.exist?(attributes_path)).to be_truthy
       end
 
-      it "has the updated content in info/attributes" do
+      it 'has the updated content in info/attributes' do
         contents = File.read(attributes_path)
         expect(contents).to eq("*.txt binary\n")
       end
     end
 
-    context "with no .gitattrbutes in HEAD but with previous info/attributes" do
+    context 'with no .gitattrbutes in HEAD but with previous info/attributes' do
       before do
-        repository.copy_gitattributes("gitattributes")
-        repository.copy_gitattributes("master")
+        repository.copy_gitattributes('gitattributes')
+        repository.copy_gitattributes('master')
       end
 
-      it "does not have an info/attributes" do
+      it 'does not have an info/attributes' do
         expect(File.exist?(attributes_path)).to be_falsey
       end
     end
@@ -1378,22 +1378,22 @@ describe Gitlab::Git::Repository, :seed_helper do
     end
 
     it 'returns matching language attribute' do
-      expect(repository.gitattribute("custom-highlighting/test.gitlab-custom", 'gitlab-language')).to eq('ruby')
+      expect(repository.gitattribute('custom-highlighting/test.gitlab-custom', 'gitlab-language')).to eq('ruby')
     end
 
     it 'returns matching language attribute with additional options' do
-      expect(repository.gitattribute("custom-highlighting/test.gitlab-cgi", 'gitlab-language')).to eq('erb?parent=json')
+      expect(repository.gitattribute('custom-highlighting/test.gitlab-cgi', 'gitlab-language')).to eq('erb?parent=json')
     end
 
     it 'returns nil if nothing matches' do
-      expect(repository.gitattribute("report.xslt", 'gitlab-language')).to eq(nil)
+      expect(repository.gitattribute('report.xslt', 'gitlab-language')).to eq(nil)
     end
 
     context 'without gitattributes file' do
       let(:repository) { Gitlab::Git::Repository.new('default', TEST_REPO_PATH, '', 'group/project') }
 
       it 'returns nil' do
-        expect(repository.gitattribute("README.md", 'gitlab-language')).to eq(nil)
+        expect(repository.gitattribute('README.md', 'gitlab-language')).to eq(nil)
       end
     end
   end
@@ -1483,10 +1483,10 @@ describe Gitlab::Git::Repository, :seed_helper do
     it 'returns exactly the expected results' do
       languages = repository.languages('4b4918a572fa86f9771e5ba40fbd48e1eb03e2c6')
       expected_languages = [
-        { value: 66.63, label: "Ruby", color: "#701516", highlight: "#701516" },
-        { value: 22.96, label: "JavaScript", color: "#f1e05a", highlight: "#f1e05a" },
-        { value: 7.9, label: "HTML", color: "#e34c26", highlight: "#e34c26" },
-        { value: 2.51, label: "CoffeeScript", color: "#244776", highlight: "#244776" }
+        { value: 66.63, label: 'Ruby', color: '#701516', highlight: '#701516' },
+        { value: 22.96, label: 'JavaScript', color: '#f1e05a', highlight: '#f1e05a' },
+        { value: 7.9, label: 'HTML', color: '#e34c26', highlight: '#e34c26' },
+        { value: 2.51, label: 'CoffeeScript', color: '#244776', highlight: '#244776' }
       ]
 
       expect(languages.size).to eq(expected_languages.size)
@@ -1581,14 +1581,14 @@ describe Gitlab::Git::Repository, :seed_helper do
   describe '#rm_branch' do
     let(:project) { create(:project, :repository) }
     let(:repository) { project.repository.raw }
-    let(:branch_name) { "to-be-deleted-soon" }
+    let(:branch_name) { 'to-be-deleted-soon' }
 
     before do
       project.add_developer(user)
       repository.create_branch(branch_name)
     end
 
-    it "removes the branch from the repo" do
+    it 'removes the branch from the repo' do
       repository.rm_branch(branch_name, user: user)
 
       expect(repository_rugged.branches[branch_name]).to be_nil
@@ -1627,27 +1627,27 @@ describe Gitlab::Git::Repository, :seed_helper do
 
   describe '#write_config' do
     before do
-      repository_rugged.config["gitlab.fullpath"] = repository_path
+      repository_rugged.config['gitlab.fullpath'] = repository_path
     end
 
     context 'is given a path' do
       it 'writes it to disk' do
-        repository.write_config(full_path: "not-the/real-path.git")
+        repository.write_config(full_path: 'not-the/real-path.git')
 
-        config = File.read(File.join(repository_path, "config"))
+        config = File.read(File.join(repository_path, 'config'))
 
-        expect(config).to include("[gitlab]")
-        expect(config).to include("fullpath = not-the/real-path.git")
+        expect(config).to include('[gitlab]')
+        expect(config).to include('fullpath = not-the/real-path.git')
       end
     end
 
     context 'it is given an empty path' do
       it 'does not write it to disk' do
-        repository.write_config(full_path: "")
+        repository.write_config(full_path: '')
 
-        config = File.read(File.join(repository_path, "config"))
+        config = File.read(File.join(repository_path, 'config'))
 
-        expect(config).to include("[gitlab]")
+        expect(config).to include('[gitlab]')
         expect(config).to include("fullpath = #{repository_path}")
       end
     end
@@ -1854,10 +1854,10 @@ describe Gitlab::Git::Repository, :seed_helper do
     let(:repository) { mutable_repository }
 
     before do
-      repository.write_ref("refs/delete/a", "0b4bc9a49b562e85de7cc9e834518ea6828729b9")
-      repository.write_ref("refs/also-delete/b", "12d65c8dd2b2676fa3ac47d955accc085a37a9c1")
-      repository.write_ref("refs/keep/c", "6473c90867124755509e100d0d35ebdc85a0b6ae")
-      repository.write_ref("refs/also-keep/d", "0b4bc9a49b562e85de7cc9e834518ea6828729b9")
+      repository.write_ref('refs/delete/a', '0b4bc9a49b562e85de7cc9e834518ea6828729b9')
+      repository.write_ref('refs/also-delete/b', '12d65c8dd2b2676fa3ac47d955accc085a37a9c1')
+      repository.write_ref('refs/keep/c', '6473c90867124755509e100d0d35ebdc85a0b6ae')
+      repository.write_ref('refs/also-keep/d', '0b4bc9a49b562e85de7cc9e834518ea6828729b9')
     end
 
     after do
@@ -1866,11 +1866,11 @@ describe Gitlab::Git::Repository, :seed_helper do
 
     it 'deletes all refs except those with the specified prefixes' do
       repository.delete_all_refs_except(%w(refs/keep refs/also-keep refs/heads))
-      expect(repository.ref_exists?("refs/delete/a")).to be(false)
-      expect(repository.ref_exists?("refs/also-delete/b")).to be(false)
-      expect(repository.ref_exists?("refs/keep/c")).to be(true)
-      expect(repository.ref_exists?("refs/also-keep/d")).to be(true)
-      expect(repository.ref_exists?("refs/heads/master")).to be(true)
+      expect(repository.ref_exists?('refs/delete/a')).to be(false)
+      expect(repository.ref_exists?('refs/also-delete/b')).to be(false)
+      expect(repository.ref_exists?('refs/keep/c')).to be(true)
+      expect(repository.ref_exists?('refs/also-keep/d')).to be(true)
+      expect(repository.ref_exists?('refs/heads/master')).to be(true)
     end
   end
 
@@ -2224,7 +2224,7 @@ describe Gitlab::Git::Repository, :seed_helper do
     it 'removes the alternates file' do
       object_pool.link(repository)
 
-      alternates_file = File.join(repository_path, "objects", "info", "alternates")
+      alternates_file = File.join(repository_path, 'objects', 'info', 'alternates')
       expect(File.exist?(alternates_file)).to be_truthy
 
       repository.disconnect_alternates
@@ -2249,7 +2249,7 @@ describe Gitlab::Git::Repository, :seed_helper do
 
     it 'moves the repository' do
       checksum = repository.checksum
-      new_relative_path = "rename_test/relative/path"
+      new_relative_path = 'rename_test/relative/path'
       renamed_repository = Gitlab::Git::Repository.new(repository.storage, new_relative_path, nil, nil)
 
       repository.rename(new_relative_path)

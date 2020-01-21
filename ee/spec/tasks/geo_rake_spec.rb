@@ -304,7 +304,7 @@ describe 'geo rake tasks', :geo do
       end
 
       it 'runs with an error' do
-        expect { run_rake_task('geo:status') }.to raise_error("GitLab Geo is not supported with this license. Please contact the sales team: https://about.gitlab.com/sales.")
+        expect { run_rake_task('geo:status') }.to raise_error('GitLab Geo is not supported with this license. Please contact the sales team: https://about.gitlab.com/sales.')
       end
     end
 

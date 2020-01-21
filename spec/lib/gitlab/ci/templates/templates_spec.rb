@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe "CI YML Templates" do
+describe 'CI YML Templates' do
   using RSpec::Parameterized::TableSyntax
 
   subject { Gitlab::Ci::YamlProcessor.new(content) }

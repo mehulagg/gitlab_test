@@ -77,7 +77,7 @@ module Gitlab
           labels = find_label_references(labels_param)
 
           if labels.any?
-            _("Adds %{labels} %{label_text}.") %
+            _('Adds %{labels} %{label_text}.') %
               { labels: labels.join(' '), label_text: 'label'.pluralize(labels.count) }
           end
         end
@@ -96,7 +96,7 @@ module Gitlab
         explanation do |labels_param = nil|
           label_references = labels_param.present? ? find_label_references(labels_param) : []
           if label_references.any?
-            _("Removes %{label_references} %{label_text}.") %
+            _('Removes %{label_references} %{label_text}.') %
               { label_references: label_references.join(' '), label_text: 'label'.pluralize(label_references.count) }
           else
             _('Removes all labels.')
@@ -207,10 +207,10 @@ module Gitlab
 
         desc _('Toggle emoji award')
         explanation do |name|
-          _("Toggles :%{name}: emoji award.") % { name: name } if name
+          _('Toggles :%{name}: emoji award.') % { name: name } if name
         end
         execution_message do |name|
-          _("Toggled :%{name}: emoji award.") % { name: name } if name
+          _('Toggled :%{name}: emoji award.') % { name: name } if name
         end
         params ':emoji:'
         types Issuable
@@ -227,14 +227,14 @@ module Gitlab
           end
         end
 
-        desc _("Append the comment with %{shrug}") % { shrug: SHRUG }
+        desc _('Append the comment with %{shrug}') % { shrug: SHRUG }
         params '<Comment>'
         types Issuable
         substitution :shrug do |comment|
           "#{comment} #{SHRUG}"
         end
 
-        desc _("Append the comment with %{tableflip}") % { tableflip: TABLEFLIP }
+        desc _('Append the comment with %{tableflip}') % { tableflip: TABLEFLIP }
         params '<Comment>'
         types Issuable
         substitution :tableflip do |comment|
@@ -269,7 +269,7 @@ module Gitlab
 
         def remove_label_message(label_references)
           if label_references.any?
-            _("Removed %{label_references} %{label_text}.") %
+            _('Removed %{label_references} %{label_text}.') %
               { label_references: label_references.join(' '), label_text: 'label'.pluralize(label_references.count) }
           else
             _('Removed all labels.')

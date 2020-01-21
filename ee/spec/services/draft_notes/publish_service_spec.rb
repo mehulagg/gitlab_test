@@ -11,8 +11,8 @@ describe DraftNotes::PublishService do
 
   let(:position) do
     Gitlab::Diff::Position.new(
-      old_path: "files/ruby/popen.rb",
-      new_path: "files/ruby/popen.rb",
+      old_path: 'files/ruby/popen.rb',
+      new_path: 'files/ruby/popen.rb',
       old_line: nil,
       new_line: 14,
       diff_refs: commit.diff_refs
@@ -154,7 +154,7 @@ describe DraftNotes::PublishService do
       def update_file(file_path, new_content)
         params = {
           file_path: file_path,
-          commit_message: "Update File",
+          commit_message: 'Update File',
           file_content: new_content,
           start_project: project,
           start_branch: project.default_branch,

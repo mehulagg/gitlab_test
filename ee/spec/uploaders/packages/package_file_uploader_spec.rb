@@ -8,7 +8,7 @@ describe Packages::PackageFileUploader do
 
   subject { uploader }
 
-  it_behaves_like "builds correct paths",
+  it_behaves_like 'builds correct paths',
                   store_dir: %r[\h{2}/\h{2}],
                   cache_dir: %r[/packages/tmp/cache],
                   work_dir: %r[/packages/tmp/work]
@@ -20,7 +20,7 @@ describe Packages::PackageFileUploader do
 
     include_context 'with storage', described_class::Store::REMOTE
 
-    it_behaves_like "builds correct paths",
+    it_behaves_like 'builds correct paths',
                     store_dir: %r[\h{2}/\h{2}]
   end
 

@@ -23,7 +23,7 @@ module Gitlab
     MIN_SCHEMA_GITLAB_VERSION = '11.11.0'
 
     define_histogram :gitlab_database_transaction_seconds do
-      docstring "Time spent in database transactions, in seconds"
+      docstring 'Time spent in database transactions, in seconds'
     end
 
     def self.config
@@ -130,7 +130,7 @@ module Gitlab
     end
 
     def self.random
-      "RANDOM()"
+      'RANDOM()'
     end
 
     def self.true_value
@@ -236,7 +236,7 @@ module Gitlab
     end
 
     def self.database_version
-      row = connection.execute("SELECT VERSION()").first
+      row = connection.execute('SELECT VERSION()').first
 
       row['version']
     end

@@ -14,12 +14,12 @@ module Gitlab
         project_id: 40,
         changes: [
           {
-            before: "8205ea8d81ce0c6b90fbe8280d118cc9fdad6130",
-            after: "4045ea7a3df38697b3730a20fb73c8bed8a3e69e",
-            ref: "refs/heads/master"
+            before: '8205ea8d81ce0c6b90fbe8280d118cc9fdad6130',
+            after: '4045ea7a3df38697b3730a20fb73c8bed8a3e69e',
+            ref: 'refs/heads/master'
           }
         ],
-        "refs": ["refs/heads/master"]
+        "refs": ['refs/heads/master']
       }.freeze
 
       # Produce a hash of post-receive data

@@ -56,19 +56,19 @@ describe VisibilityLevelHelper do
     end
   end
 
-  describe "#project_visibility_level_description" do
-    it "describes private projects" do
+  describe '#project_visibility_level_description' do
+    it 'describes private projects' do
       expect(project_visibility_level_description(Gitlab::VisibilityLevel::PRIVATE))
             .to eq _('Project access must be granted explicitly to each user.')
     end
 
-    it "describes public projects" do
+    it 'describes public projects' do
       expect(project_visibility_level_description(Gitlab::VisibilityLevel::PUBLIC))
             .to eq _('The project can be accessed without any authentication.')
     end
   end
 
-  describe "#snippet_visibility_level_description" do
+  describe '#snippet_visibility_level_description' do
     it 'describes visibility only for me' do
       expect(snippet_visibility_level_description(Gitlab::VisibilityLevel::PRIVATE, personal_snippet))
             .to eq _('The snippet is visible only to me.')
@@ -85,53 +85,53 @@ describe VisibilityLevelHelper do
     end
   end
 
-  describe "disallowed_visibility_level?" do
-    describe "forks" do
+  describe 'disallowed_visibility_level?' do
+    describe 'forks' do
       let(:project) { create(:project, :internal) }
       let(:forked_project) { fork_project(project) }
 
-      it "disallows levels" do
+      it 'disallows levels' do
         expect(disallowed_visibility_level?(forked_project, Gitlab::VisibilityLevel::PUBLIC)).to be_truthy
         expect(disallowed_visibility_level?(forked_project, Gitlab::VisibilityLevel::INTERNAL)).to be_falsey
         expect(disallowed_visibility_level?(forked_project, Gitlab::VisibilityLevel::PRIVATE)).to be_falsey
       end
     end
 
-    describe "non-forked project" do
+    describe 'non-forked project' do
       let(:project) { create(:project, :internal) }
 
-      it "disallows levels" do
+      it 'disallows levels' do
         expect(disallowed_visibility_level?(project, Gitlab::VisibilityLevel::PUBLIC)).to be_falsey
         expect(disallowed_visibility_level?(project, Gitlab::VisibilityLevel::INTERNAL)).to be_falsey
         expect(disallowed_visibility_level?(project, Gitlab::VisibilityLevel::PRIVATE)).to be_falsey
       end
     end
 
-    describe "group" do
+    describe 'group' do
       let(:group) { create(:group, :internal) }
 
-      it "disallows levels" do
+      it 'disallows levels' do
         expect(disallowed_visibility_level?(group, Gitlab::VisibilityLevel::PUBLIC)).to be_falsey
         expect(disallowed_visibility_level?(group, Gitlab::VisibilityLevel::INTERNAL)).to be_falsey
         expect(disallowed_visibility_level?(group, Gitlab::VisibilityLevel::PRIVATE)).to be_falsey
       end
     end
 
-    describe "sub-group" do
+    describe 'sub-group' do
       let(:group) { create(:group, :private) }
       let(:subgroup) { create(:group, :private, parent: group) }
 
-      it "disallows levels" do
+      it 'disallows levels' do
         expect(disallowed_visibility_level?(subgroup, Gitlab::VisibilityLevel::PUBLIC)).to be_truthy
         expect(disallowed_visibility_level?(subgroup, Gitlab::VisibilityLevel::INTERNAL)).to be_truthy
         expect(disallowed_visibility_level?(subgroup, Gitlab::VisibilityLevel::PRIVATE)).to be_falsey
       end
     end
 
-    describe "snippet" do
+    describe 'snippet' do
       let(:snippet) { create(:snippet, :internal) }
 
-      it "disallows levels" do
+      it 'disallows levels' do
         expect(disallowed_visibility_level?(snippet, Gitlab::VisibilityLevel::PUBLIC)).to be_falsey
         expect(disallowed_visibility_level?(snippet, Gitlab::VisibilityLevel::INTERNAL)).to be_falsey
         expect(disallowed_visibility_level?(snippet, Gitlab::VisibilityLevel::PRIVATE)).to be_falsey
@@ -139,7 +139,7 @@ describe VisibilityLevelHelper do
     end
   end
 
-  describe "selected_visibility_level" do
+  describe 'selected_visibility_level' do
     let(:group) { create(:group, :public) }
     let!(:project) { create(:project, :internal, group: group) }
     let!(:forked_project) { fork_project(project) }
@@ -170,13 +170,13 @@ describe VisibilityLevelHelper do
     end
 
     with_them do
-      it "provides correct visibility level for forked project" do
+      it 'provides correct visibility level for forked project' do
         project.update(visibility_level: max_allowed)
 
         expect(selected_visibility_level(forked_project, requested_level)).to eq(expected)
       end
 
-      it "provides correct visibiility level for project in group" do
+      it 'provides correct visibiility level for project in group' do
         project.group.update(visibility_level: max_allowed)
 
         expect(selected_visibility_level(project, requested_level)).to eq(expected)

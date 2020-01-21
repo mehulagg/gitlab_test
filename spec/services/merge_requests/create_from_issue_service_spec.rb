@@ -151,7 +151,7 @@ describe MergeRequests::CreateFromIssueService do
 
       it_behaves_like 'a service that creates a merge request from an issue'
 
-      it "inherits labels" do
+      it 'inherits labels' do
         issue.assign_attributes(label_ids: label_ids)
 
         result = service.execute
@@ -159,7 +159,7 @@ describe MergeRequests::CreateFromIssueService do
         expect(result[:merge_request].label_ids).to eq(label_ids)
       end
 
-      it "inherits milestones" do
+      it 'inherits milestones' do
         result = service.execute
 
         expect(result[:merge_request].milestone_id).to eq(milestone_id)

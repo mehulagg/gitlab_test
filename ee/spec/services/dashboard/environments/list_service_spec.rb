@@ -40,12 +40,12 @@ describe Dashboard::Environments::ListService do
       create(:deployment, :success, project: project, environment: environment_b, deployable: ci_build_c)
 
       expect(CommitStatus).to receive(:instantiate)
-        .with(a_hash_including("id" => ci_build_b.id), anything)
+        .with(a_hash_including('id' => ci_build_b.id), anything)
         .at_least(:once)
         .and_call_original
 
       expect(CommitStatus).to receive(:instantiate)
-        .with(a_hash_including("id" => ci_build_c.id), anything)
+        .with(a_hash_including('id' => ci_build_c.id), anything)
         .at_least(:once)
         .and_call_original
 

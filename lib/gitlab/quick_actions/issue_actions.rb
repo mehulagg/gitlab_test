@@ -10,10 +10,10 @@ module Gitlab
         # Issue only quick actions definition
         desc _('Set due date')
         explanation do |due_date|
-          _("Sets the due date to %{due_date}.") % { due_date: due_date.strftime('%b %-d, %Y') } if due_date
+          _('Sets the due date to %{due_date}.') % { due_date: due_date.strftime('%b %-d, %Y') } if due_date
         end
         execution_message do |due_date|
-          _("Set the due date to %{due_date}.") % { due_date: due_date.strftime('%b %-d, %Y') } if due_date
+          _('Set the due date to %{due_date}.') % { due_date: due_date.strftime('%b %-d, %Y') } if due_date
         end
         params '<in 2 days | this Friday | December 31st>'
         types Issue
@@ -49,7 +49,7 @@ module Gitlab
         desc _('Move issue from one column of the board to another')
         explanation do |target_list_name|
           label = find_label_references(target_list_name).first
-          _("Moves issue to %{label} column in the board.") % { label: label } if label
+          _('Moves issue to %{label} column in the board.') % { label: label } if label
         end
         params '~"Target column"'
         types Issue
@@ -72,7 +72,7 @@ module Gitlab
               quick_action_target.labels.on_project_boards(quick_action_target.project_id).where.not(id: label_id).pluck(:id) # rubocop: disable CodeReuse/ActiveRecord
             @updates[:add_label_ids] = [label_id]
 
-            message = _("Moved issue to %{label} column in the board.") % { label: labels_to_reference(labels).first }
+            message = _('Moved issue to %{label} column in the board.') % { label: labels_to_reference(labels).first }
           end
 
           @execution_message[:board_move] = message
@@ -80,7 +80,7 @@ module Gitlab
 
         desc _('Mark this issue as a duplicate of another issue')
         explanation do |duplicate_reference|
-          _("Marks this issue as a duplicate of %{duplicate_reference}.") % { duplicate_reference: duplicate_reference }
+          _('Marks this issue as a duplicate of %{duplicate_reference}.') % { duplicate_reference: duplicate_reference }
         end
         params '#issue'
         types Issue
@@ -94,7 +94,7 @@ module Gitlab
           if canonical_issue.present?
             @updates[:canonical_issue_id] = canonical_issue.id
 
-            message = _("Marked this issue as a duplicate of %{duplicate_param}.") % { duplicate_param: duplicate_param }
+            message = _('Marked this issue as a duplicate of %{duplicate_param}.') % { duplicate_param: duplicate_param }
           else
             message = _('Failed to mark this issue as a duplicate because referenced issue was not found.')
           end
@@ -104,7 +104,7 @@ module Gitlab
 
         desc _('Move this issue to another project.')
         explanation do |path_to_project|
-          _("Moves this issue to %{path_to_project}.") % { path_to_project: path_to_project }
+          _('Moves this issue to %{path_to_project}.') % { path_to_project: path_to_project }
         end
         params 'path/to/project'
         types Issue
@@ -118,7 +118,7 @@ module Gitlab
           if target_project.present?
             @updates[:target_project] = target_project
 
-            message = _("Moved this issue to %{path_to_project}.") % { path_to_project: target_project_path }
+            message = _('Moved this issue to %{path_to_project}.') % { path_to_project: target_project_path }
           else
             message = _("Failed to move this issue because target project doesn't exist.")
           end
@@ -157,7 +157,7 @@ module Gitlab
             _('Created a branch and a merge request to resolve this issue.')
           end
         end
-        params "<branch name>"
+        params '<branch name>'
         types Issue
         condition do
           current_user.can?(:create_merge_request_in, project) && current_user.can?(:push_code, project)

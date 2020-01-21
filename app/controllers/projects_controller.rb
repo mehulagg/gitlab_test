@@ -187,7 +187,7 @@ class ProjectsController < Projects::ApplicationController
 
     redirect_to(
       project_path(@project),
-      notice: _("Housekeeping successfully started")
+      notice: _('Housekeeping successfully started')
     )
   rescue ::Projects::HousekeepingService::LeaseTaken => ex
     redirect_to(
@@ -201,7 +201,7 @@ class ProjectsController < Projects::ApplicationController
 
     redirect_to(
       edit_project_path(@project, anchor: 'js-export-project'),
-      notice: _("Project export started. A download link will be sent by email.")
+      notice: _('Project export started. A download link will be sent by email.')
     )
   end
 
@@ -211,16 +211,16 @@ class ProjectsController < Projects::ApplicationController
     else
       redirect_to(
         edit_project_path(@project, anchor: 'js-export-project'),
-        alert: _("Project export link has expired. Please generate a new export from your project settings.")
+        alert: _('Project export link has expired. Please generate a new export from your project settings.')
       )
     end
   end
 
   def remove_export
     if @project.remove_exports
-      flash[:notice] = _("Project export has been deleted.")
+      flash[:notice] = _('Project export has been deleted.')
     else
-      flash[:alert] = _("Project export could not be deleted.")
+      flash[:alert] = _('Project export could not be deleted.')
     end
 
     redirect_to(edit_project_path(@project, anchor: 'js-export-project'))
@@ -232,7 +232,7 @@ class ProjectsController < Projects::ApplicationController
     else
       redirect_to(
         edit_project_path(@project, anchor: 'js-export-project'),
-        alert: _("Project export could not be deleted.")
+        alert: _('Project export could not be deleted.')
       )
     end
   end

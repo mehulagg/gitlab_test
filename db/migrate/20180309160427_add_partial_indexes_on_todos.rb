@@ -9,8 +9,8 @@ class AddPartialIndexesOnTodos < ActiveRecord::Migration[4.2]
 
   disable_ddl_transaction!
 
-  INDEX_NAME_PENDING = "index_todos_on_user_id_and_id_pending"
-  INDEX_NAME_DONE = "index_todos_on_user_id_and_id_done"
+  INDEX_NAME_PENDING = 'index_todos_on_user_id_and_id_pending'
+  INDEX_NAME_DONE = 'index_todos_on_user_id_and_id_done'
 
   def up
     unless index_exists?(:todos, [:user_id, :id], name: INDEX_NAME_PENDING)

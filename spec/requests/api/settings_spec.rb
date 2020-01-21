@@ -7,9 +7,9 @@ describe API::Settings, 'Settings' do
 
   set(:admin) { create(:admin) }
 
-  describe "GET /application/settings" do
-    it "returns application settings" do
-      get api("/application/settings", admin)
+  describe 'GET /application/settings' do
+    it 'returns application settings' do
+      get api('/application/settings', admin)
 
       expect(response).to have_gitlab_http_status(200)
       expect(json_response).to be_an Hash
@@ -41,10 +41,10 @@ describe API::Settings, 'Settings' do
     end
   end
 
-  describe "PUT /application/settings" do
+  describe 'PUT /application/settings' do
     let(:group) { create(:group) }
 
-    context "custom repository storage type set in the config" do
+    context 'custom repository storage type set in the config' do
       before do
         # Add a possible storage to the config
         storages = Gitlab.config.repositories.storages
@@ -53,8 +53,8 @@ describe API::Settings, 'Settings' do
         Feature.get(:sourcegraph).enable
       end
 
-      it "updates application settings" do
-        put api("/application/settings", admin),
+      it 'updates application settings' do
+        put api('/application/settings', admin),
           params: {
             default_ci_config_path: 'debian/salsa-ci.yml',
             default_projects_limit: 3,
@@ -128,16 +128,16 @@ describe API::Settings, 'Settings' do
       end
     end
 
-    it "supports legacy performance_bar_allowed_group_id" do
-      put api("/application/settings", admin),
+    it 'supports legacy performance_bar_allowed_group_id' do
+      put api('/application/settings', admin),
         params: { performance_bar_allowed_group_id: group.full_path }
 
       expect(response).to have_gitlab_http_status(200)
       expect(json_response['performance_bar_allowed_group_id']).to eq(group.id)
     end
 
-    it "supports legacy performance_bar_enabled" do
-      put api("/application/settings", admin),
+    it 'supports legacy performance_bar_enabled' do
+      put api('/application/settings', admin),
         params: {
           performance_bar_enabled: false,
           performance_bar_allowed_group_id: group.full_path
@@ -148,7 +148,7 @@ describe API::Settings, 'Settings' do
     end
 
     it 'supports legacy allow_local_requests_from_hooks_and_services' do
-      put api("/application/settings", admin),
+      put api('/application/settings', admin),
           params: { allow_local_requests_from_hooks_and_services: true }
 
       expect(response).to have_gitlab_http_status(200)
@@ -164,14 +164,14 @@ describe API::Settings, 'Settings' do
           external_authorization_service_timeout: 9.99,
           external_auth_client_cert: File.read('spec/fixtures/passphrase_x509_certificate.crt'),
           external_auth_client_key: File.read('spec/fixtures/passphrase_x509_certificate_pk.key'),
-          external_auth_client_key_pass: "5iveL!fe"
+          external_auth_client_key_pass: '5iveL!fe'
         }
       end
 
       let(:attribute_names) { settings.keys.map(&:to_s) }
 
       it 'includes the attributes in the API' do
-        get api("/application/settings", admin)
+        get api('/application/settings', admin)
 
         expect(response).to have_gitlab_http_status(200)
         attribute_names.each do |attribute|
@@ -180,7 +180,7 @@ describe API::Settings, 'Settings' do
       end
 
       it 'allows updating the settings' do
-        put api("/application/settings", admin), params: settings
+        put api('/application/settings', admin), params: settings
 
         expect(response).to have_gitlab_http_status(200)
         settings.each do |attribute, value|
@@ -189,21 +189,21 @@ describe API::Settings, 'Settings' do
       end
     end
 
-    context "snowplow tracking settings" do
+    context 'snowplow tracking settings' do
       let(:settings) do
         {
-          snowplow_collector_hostname: "snowplow.example.com",
-          snowplow_cookie_domain: ".example.com",
+          snowplow_collector_hostname: 'snowplow.example.com',
+          snowplow_cookie_domain: '.example.com',
           snowplow_enabled: true,
-          snowplow_app_id: "app_id",
+          snowplow_app_id: 'app_id',
           snowplow_iglu_registry_url: 'https://example.com'
         }
       end
 
       let(:attribute_names) { settings.keys.map(&:to_s) }
 
-      it "includes the attributes in the API" do
-        get api("/application/settings", admin)
+      it 'includes the attributes in the API' do
+        get api('/application/settings', admin)
 
         expect(response).to have_gitlab_http_status(200)
         attribute_names.each do |attribute|
@@ -211,8 +211,8 @@ describe API::Settings, 'Settings' do
         end
       end
 
-      it "allows updating the settings" do
-        put api("/application/settings", admin), params: settings
+      it 'allows updating the settings' do
+        put api('/application/settings', admin), params: settings
 
         expect(response).to have_gitlab_http_status(200)
         settings.each do |attribute, value|
@@ -220,22 +220,22 @@ describe API::Settings, 'Settings' do
         end
       end
 
-      context "missing snowplow_collector_hostname value when snowplow_enabled is true" do
-        it "returns a blank parameter error message" do
-          put api("/application/settings", admin), params: { snowplow_enabled: true }
+      context 'missing snowplow_collector_hostname value when snowplow_enabled is true' do
+        it 'returns a blank parameter error message' do
+          put api('/application/settings', admin), params: { snowplow_enabled: true }
 
           expect(response).to have_gitlab_http_status(400)
-          expect(json_response["error"]).to eq("snowplow_collector_hostname is missing")
+          expect(json_response['error']).to eq('snowplow_collector_hostname is missing')
         end
 
-        it "handles validation errors" do
-          put api("/application/settings", admin), params: settings.merge({
+        it 'handles validation errors' do
+          put api('/application/settings', admin), params: settings.merge({
             snowplow_collector_hostname: nil
           })
 
           expect(response).to have_gitlab_http_status(400)
-          message = json_response["message"]
-          expect(message["snowplow_collector_hostname"]).to include("can't be blank")
+          message = json_response['message']
+          expect(message['snowplow_collector_hostname']).to include("can't be blank")
         end
       end
     end
@@ -255,7 +255,7 @@ describe API::Settings, 'Settings' do
       end
 
       it 'includes attributes in the API' do
-        get api("/application/settings", admin)
+        get api('/application/settings', admin)
 
         expect(response).to have_gitlab_http_status(200)
         exposed_attributes.each do |attribute|
@@ -264,7 +264,7 @@ describe API::Settings, 'Settings' do
       end
 
       it 'does not include sensitive attributes in the API' do
-        get api("/application/settings", admin)
+        get api('/application/settings', admin)
 
         expect(response).to have_gitlab_http_status(200)
         sensitive_attributes.each do |attribute|
@@ -273,7 +273,7 @@ describe API::Settings, 'Settings' do
       end
 
       it 'allows updating the settings' do
-        put api("/application/settings", admin), params: settings
+        put api('/application/settings', admin), params: settings
 
         expect(response).to have_gitlab_http_status(200)
         settings.each do |attribute, value|
@@ -285,7 +285,7 @@ describe API::Settings, 'Settings' do
         let(:settings) { Hash[eks_integration_enabled: true] }
 
         it 'does not update the settings' do
-          put api("/application/settings", admin), params: settings
+          put api('/application/settings', admin), params: settings
 
           expect(response).to have_gitlab_http_status(400)
           expect(json_response['error']).to include('eks_account_id is missing')
@@ -295,9 +295,9 @@ describe API::Settings, 'Settings' do
       end
     end
 
-    context "missing plantuml_url value when plantuml_enabled is true" do
-      it "returns a blank parameter error message" do
-        put api("/application/settings", admin), params: { plantuml_enabled: true }
+    context 'missing plantuml_url value when plantuml_enabled is true' do
+      it 'returns a blank parameter error message' do
+        put api('/application/settings', admin), params: { plantuml_enabled: true }
 
         expect(response).to have_gitlab_http_status(400)
         expect(json_response['error']).to eq('plantuml_url is missing')
@@ -341,8 +341,8 @@ describe API::Settings, 'Settings' do
           }
 
         expect(response).to have_gitlab_http_status(400)
-        message = json_response["message"]
-        expect(message["domain_blacklist"]).to eq(["Domain blacklist cannot be empty if Blacklist is enabled."])
+        message = json_response['message']
+        expect(message['domain_blacklist']).to eq(['Domain blacklist cannot be empty if Blacklist is enabled.'])
       end
 
       it 'allows array for domain_blacklist' do
@@ -370,9 +370,9 @@ describe API::Settings, 'Settings' do
       end
     end
 
-    context "missing sourcegraph_url value when sourcegraph_enabled is true" do
-      it "returns a blank parameter error message" do
-        put api("/application/settings", admin), params: { sourcegraph_enabled: true }
+    context 'missing sourcegraph_url value when sourcegraph_enabled is true' do
+      it 'returns a blank parameter error message' do
+        put api('/application/settings', admin), params: { sourcegraph_enabled: true }
 
         expect(response).to have_gitlab_http_status(400)
         expect(json_response['error']).to eq('sourcegraph_url is missing')

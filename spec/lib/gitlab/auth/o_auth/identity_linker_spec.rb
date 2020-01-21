@@ -17,7 +17,7 @@ describe Gitlab::Auth::OAuth::IdentityLinker do
       expect { subject.link }.not_to change { Identity.count }
     end
 
-    it "sets #changed? to false" do
+    it 'sets #changed? to false' do
       subject.link
 
       expect(subject).not_to be_changed
@@ -27,7 +27,7 @@ describe Gitlab::Auth::OAuth::IdentityLinker do
   context 'identity already linked to different user' do
     let!(:identity) { create(:identity, provider: provider, extern_uid: uid) }
 
-    it "#changed? returns false" do
+    it '#changed? returns false' do
       subject.link
 
       expect(subject).not_to be_changed

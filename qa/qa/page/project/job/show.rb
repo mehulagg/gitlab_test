@@ -14,8 +14,8 @@ module QA::Page
       end
 
       def successful?(timeout: 60)
-        raise "Timed out waiting for the build trace to load" unless loaded?
-        raise "Timed out waiting for the status to be a valid completed state" unless completed?(timeout: timeout)
+        raise 'Timed out waiting for the build trace to load' unless loaded?
+        raise 'Timed out waiting for the status to be a valid completed state' unless completed?(timeout: timeout)
 
         status_badge == PASSED_STATUS
       end

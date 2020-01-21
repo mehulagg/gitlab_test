@@ -36,7 +36,7 @@ describe API::Helpers::RelatedResourcesHelpers do
       end
 
       it 'returns the existing path' do
-        expect(helpers.expose_path(path)).to eq("/gitlab/root" + path)
+        expect(helpers.expose_path(path)).to eq('/gitlab/root' + path)
       end
     end
   end

@@ -99,7 +99,7 @@ describe 'User searches for code' do
         ref = 'feature'
         find('.js-project-refs-dropdown').click
         link = find_link(ref)[:href]
-        expect(link.include?("repository_ref=" + ref)).to be(true)
+        expect(link.include?('repository_ref=' + ref)).to be(true)
       end
     end
 

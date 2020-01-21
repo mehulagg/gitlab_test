@@ -38,7 +38,7 @@ describe Security::StoreReportsService do
         let(:sast_report) { reports.get_report('sast', sast_artifact) }
         let(:dast_report) { reports.get_report('dast', dast_artifact) }
         let(:success) { { status: :success } }
-        let(:error) { { status: :error, message: "something went wrong" } }
+        let(:error) { { status: :error, message: 'something went wrong' } }
         let(:sast_artifact) { create(:ee_ci_job_artifact, :sast) }
         let(:dast_artifact) { create(:ee_ci_job_artifact, :dast) }
 
@@ -62,7 +62,7 @@ describe Security::StoreReportsService do
     context 'history caching' do
       it 'swallows errors' do
         allow( Gitlab::Vulnerabilities::HistoryCache).to receive(:new)
-          .and_raise("error")
+          .and_raise('error')
 
         expect { subject }.not_to raise_error
       end

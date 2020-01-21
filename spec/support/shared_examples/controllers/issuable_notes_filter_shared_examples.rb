@@ -59,7 +59,7 @@ RSpec.shared_examples 'issuable notes filter' do
     discussions = json_response
 
     expect(discussions.count).to eq(1)
-    expect(discussions.first["notes"].first["system"]).to be(false)
+    expect(discussions.first['notes'].first['system']).to be(false)
   end
 
   it 'returns only activity notes' do
@@ -69,7 +69,7 @@ RSpec.shared_examples 'issuable notes filter' do
     discussions = json_response
 
     expect(discussions.count).to eq(1)
-    expect(discussions.first["notes"].first["system"]).to be(true)
+    expect(discussions.first['notes'].first['system']).to be(true)
   end
 
   context 'when filter is set to "only_comments"' do

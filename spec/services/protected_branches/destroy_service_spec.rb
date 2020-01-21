@@ -22,7 +22,7 @@ describe ProtectedBranches::DestroyService do
         expect(ProtectedBranchPolicy).to receive(:new).and_return(policy)
       end
 
-      it "prevents deletion of the protected branch rule" do
+      it 'prevents deletion of the protected branch rule' do
         expect do
           service.execute(protected_branch)
         end.to raise_error(Gitlab::Access::AccessDeniedError)

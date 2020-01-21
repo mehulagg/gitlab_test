@@ -339,7 +339,7 @@ describe 'Pipelines', :js do
 
           time_diff = [0, delayed_job.scheduled_at - Time.now].max
           expect(page).to have_button('delayed job')
-          expect(page).to have_content(Time.at(time_diff).utc.strftime("%H:%M:%S"))
+          expect(page).to have_content(Time.at(time_diff).utc.strftime('%H:%M:%S'))
         end
 
         context 'when delayed job is expired already' do
@@ -350,10 +350,10 @@ describe 'Pipelines', :js do
               stage: 'test')
           end
 
-          it "shows 00:00:00 as the remaining time" do
+          it 'shows 00:00:00 as the remaining time' do
             find('.js-pipeline-dropdown-manual-actions').click
 
-            expect(page).to have_content("00:00:00")
+            expect(page).to have_content('00:00:00')
           end
         end
 
@@ -688,15 +688,15 @@ describe 'Pipelines', :js do
           context 'when variables are specified' do
             it 'creates a new pipeline with variables' do
               page.within '.ci-variable-row-body' do
-                fill_in "Input variable key", with: "key_name"
-                fill_in "Input variable value", with: "value"
+                fill_in 'Input variable key', with: 'key_name'
+                fill_in 'Input variable value', with: 'value'
               end
 
               expect { click_on 'Run Pipeline' }
                 .to change { Ci::Pipeline.count }.by(1)
 
               expect(Ci::Pipeline.last.variables.map { |var| var.slice(:key, :secret_value) })
-                .to eq [{ key: "key_name", secret_value: "value" }.with_indifferent_access]
+                .to eq [{ key: 'key_name', secret_value: 'value' }.with_indifferent_access]
             end
           end
         end
@@ -821,7 +821,7 @@ describe 'Pipelines', :js do
 
       it 'redirects the user to sign_in and displays the flash alert' do
         expect(page).to have_content 'You need to sign in'
-        expect(page.current_path).to eq("/users/sign_in")
+        expect(page.current_path).to eq('/users/sign_in')
       end
     end
   end

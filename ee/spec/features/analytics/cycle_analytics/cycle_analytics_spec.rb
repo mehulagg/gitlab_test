@@ -3,8 +3,8 @@ require 'spec_helper'
 
 describe 'Group Cycle Analytics', :js do
   let!(:user) { create(:user) }
-  let!(:group) { create(:group, name: "CA-test-group") }
-  let!(:project) { create(:project, :repository, namespace: group, group: group, name: "Cool fun project") }
+  let!(:group) { create(:group, name: 'CA-test-group') }
+  let!(:project) { create(:project, :repository, namespace: group, group: group, name: 'Cool fun project') }
 
   let(:milestone) { create(:milestone, project: project) }
   let(:mr) { create_merge_request_closing_issue(user, project, issue, commit_message: "References #{issue.to_reference}") }
@@ -32,7 +32,7 @@ describe 'Group Cycle Analytics', :js do
   it 'displays an empty state before a group is selected' do
     element = page.find('.row.empty-state')
 
-    expect(element).to have_content("Cycle Analytics can help you determine your team’s velocity")
+    expect(element).to have_content('Cycle Analytics can help you determine your team’s velocity')
     expect(element.find('.svg-content img')['src']).to have_content('illustrations/analytics/cycle-analytics-empty-chart')
   end
 
@@ -101,14 +101,14 @@ describe 'Group Cycle Analytics', :js do
       it 'displays the number of issues' do
         expect(page).to have_content('New Issues')
 
-        issue_count = find(".card .header", match: :first)
+        issue_count = find('.card .header', match: :first)
         expect(issue_count).to have_content('3')
       end
 
       it 'displays the number of deploys' do
         expect(page).to have_content('Deploys')
 
-        deploys_count = page.all(".card .header").last
+        deploys_count = page.all('.card .header').last
         expect(deploys_count).to have_content('-')
       end
     end
@@ -169,17 +169,17 @@ describe 'Group Cycle Analytics', :js do
     end
 
     dummy_stages = [
-      { title: "Issue", description: "Time before an issue gets scheduled", events_count: 1, median: "5 days" },
-      { title: "Plan", description: "Time before an issue starts implementation", events_count: 0, median: "Not enough data" },
-      { title: "Code", description: "Time until first merge request", events_count: 0, median: "Not enough data" },
-      { title: "Test", description: "Total test time for all commits/merges", events_count: 0, median: "Not enough data" },
-      { title: "Review", description: "Time between merge request creation and merge/close", events_count: 0, median: "Not enough data" },
-      { title: "Staging", description: "From merge request merge until deploy to production", events_count: 0, median: "Not enough data" },
-      { title: "Total", description: "From issue creation until deploy to production", events_count: 1, median: "5 days" }
+      { title: 'Issue', description: 'Time before an issue gets scheduled', events_count: 1, median: '5 days' },
+      { title: 'Plan', description: 'Time before an issue starts implementation', events_count: 0, median: 'Not enough data' },
+      { title: 'Code', description: 'Time until first merge request', events_count: 0, median: 'Not enough data' },
+      { title: 'Test', description: 'Total test time for all commits/merges', events_count: 0, median: 'Not enough data' },
+      { title: 'Review', description: 'Time between merge request creation and merge/close', events_count: 0, median: 'Not enough data' },
+      { title: 'Staging', description: 'From merge request merge until deploy to production', events_count: 0, median: 'Not enough data' },
+      { title: 'Total', description: 'From issue creation until deploy to production', events_count: 1, median: '5 days' }
     ]
 
     it 'each stage will have median values', :sidekiq_might_not_need_inline do
-      stages = page.all(".stage-nav .stage-median").collect(&:text)
+      stages = page.all('.stage-nav .stage-median').collect(&:text)
 
       stages.each_with_index do |median, index|
         expect(median).to eq(dummy_stages[index][:median])
@@ -282,14 +282,14 @@ describe 'Group Cycle Analytics', :js do
   end
 
   describe 'Customizable cycle analytics', :js do
-    custom_stage_name = "Cool beans"
+    custom_stage_name = 'Cool beans'
     start_event_identifier = :merge_request_created
     end_event_identifier = :merge_request_merged
 
     let(:button_class) { '.js-add-stage-button' }
     let(:params) { { name: custom_stage_name, start_event_identifier: start_event_identifier, end_event_identifier: end_event_identifier } }
-    let(:first_default_stage) { page.find('.stage-nav-item-cell', text: "Issue").ancestor(".stage-nav-item") }
-    let(:first_custom_stage) { page.find('.stage-nav-item-cell', text: custom_stage_name).ancestor(".stage-nav-item") }
+    let(:first_default_stage) { page.find('.stage-nav-item-cell', text: 'Issue').ancestor('.stage-nav-item') }
+    let(:first_custom_stage) { page.find('.stage-nav-item-cell', text: custom_stage_name).ancestor('.stage-nav-item') }
 
     def create_custom_stage
       Analytics::CycleAnalytics::Stages::CreateService.new(parent: group, params: params, current_user: user).execute
@@ -298,10 +298,10 @@ describe 'Group Cycle Analytics', :js do
     def toggle_more_options(stage)
       stage.hover
 
-      stage.find(".more-actions-toggle").click
+      stage.find('.more-actions-toggle').click
     end
 
-    def select_dropdown_option(name, elem = "option", index = 1)
+    def select_dropdown_option(name, elem = 'option', index = 1)
       page.find("select[name='#{name}']").all(elem)[index].select_option
     end
 
@@ -336,7 +336,7 @@ describe 'Group Cycle Analytics', :js do
       context 'Custom stage form' do
         let(:show_form_button_class) { '.js-add-stage-button' }
 
-        def select_dropdown_option(name, elem = "option", index = 1)
+        def select_dropdown_option(name, elem = 'option', index = 1)
           page.find("select[name='#{name}']").all(elem)[index].select_option
         end
 
@@ -405,14 +405,14 @@ describe 'Group Cycle Analytics', :js do
       context 'Edit stage form' do
         stage_form_class = '.custom-stage-form'
         stage_save_button = '.js-save-stage'
-        name_field = "custom-stage-name"
-        start_event_field = "custom-stage-start-event"
-        end_event_field = "custom-stage-stop-event"
+        name_field = 'custom-stage-name'
+        start_event_field = 'custom-stage-start-event'
+        end_event_field = 'custom-stage-stop-event'
         updated_custom_stage_name = 'Extra uber cool stage'
 
         def select_edit_stage
           toggle_more_options(first_custom_stage)
-          click_button "Edit stage"
+          click_button 'Edit stage'
         end
 
         before do
@@ -438,7 +438,7 @@ describe 'Group Cycle Analytics', :js do
           end
 
           it 'disables the submit form button' do
-            expect(page.find(stage_save_button)[:disabled]).to eq "true"
+            expect(page.find(stage_save_button)[:disabled]).to eq 'true'
           end
         end
 
@@ -463,9 +463,9 @@ describe 'Group Cycle Analytics', :js do
           end
 
           it 'disables the submit form button if incomplete' do
-            fill_in name_field, with: ""
+            fill_in name_field, with: ''
 
-            expect(page.find(stage_save_button)[:disabled]).to eq "true"
+            expect(page.find(stage_save_button)[:disabled]).to eq 'true'
           end
 
           it 'with a default name' do
@@ -487,25 +487,25 @@ describe 'Group Cycle Analytics', :js do
           end
 
           it 'can be hidden' do
-            expect(first_default_stage.find('.more-actions-dropdown')).to have_text "Hide stage"
+            expect(first_default_stage.find('.more-actions-dropdown')).to have_text 'Hide stage'
           end
 
           it 'can not be edited' do
-            expect(first_default_stage.find('.more-actions-dropdown')).not_to have_text "Edit stage"
+            expect(first_default_stage.find('.more-actions-dropdown')).not_to have_text 'Edit stage'
           end
 
           it 'can not be removed' do
-            expect(first_default_stage.find('.more-actions-dropdown')).not_to have_text "Remove stage"
+            expect(first_default_stage.find('.more-actions-dropdown')).not_to have_text 'Remove stage'
           end
 
           it 'will not appear in the stage table after being hidden' do
             nav = page.find(stage_nav_selector)
-            expect(nav).to have_text("Issue")
+            expect(nav).to have_text('Issue')
 
-            click_button "Hide stage"
+            click_button 'Hide stage'
 
             expect(page.find('.flash-notice')).to have_text 'Stage data updated'
-            expect(nav).not_to have_text("Issue")
+            expect(nav).not_to have_text('Issue')
           end
         end
 
@@ -520,22 +520,22 @@ describe 'Group Cycle Analytics', :js do
           end
 
           it 'can not be hidden' do
-            expect(first_custom_stage.find('.more-actions-dropdown')).not_to have_text "Hide stage"
+            expect(first_custom_stage.find('.more-actions-dropdown')).not_to have_text 'Hide stage'
           end
 
           it 'can be edited' do
-            expect(first_custom_stage.find('.more-actions-dropdown')).to have_text "Edit stage"
+            expect(first_custom_stage.find('.more-actions-dropdown')).to have_text 'Edit stage'
           end
 
           it 'can be removed' do
-            expect(first_custom_stage.find('.more-actions-dropdown')).to have_text "Remove stage"
+            expect(first_custom_stage.find('.more-actions-dropdown')).to have_text 'Remove stage'
           end
 
           it 'will not appear in the stage table after being removed' do
             nav = page.find(stage_nav_selector)
             expect(nav).to have_text(custom_stage_name)
 
-            click_button "Remove stage"
+            click_button 'Remove stage'
 
             expect(page.find('.flash-notice')).to have_text 'Stage removed'
             expect(nav).not_to have_text(custom_stage_name)

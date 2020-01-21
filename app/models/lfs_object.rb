@@ -32,7 +32,7 @@ class LfsObject < ApplicationRecord
   def project_allowed_access?(project)
     if project.fork_network_member
       lfs_objects_projects
-        .where("EXISTS(?)", project.fork_network.fork_network_members.select(1).where("fork_network_members.project_id = lfs_objects_projects.project_id"))
+        .where('EXISTS(?)', project.fork_network.fork_network_members.select(1).where('fork_network_members.project_id = lfs_objects_projects.project_id'))
         .exists?
     else
       lfs_objects_projects.where(project_id: project.id).exists?

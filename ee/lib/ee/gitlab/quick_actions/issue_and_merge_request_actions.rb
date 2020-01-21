@@ -24,10 +24,10 @@ module EE
 
           desc _('Set weight')
           explanation do |weight|
-            _("Sets weight to %{weight}.") % { weight: weight } if weight
+            _('Sets weight to %{weight}.') % { weight: weight } if weight
           end
 
-          params "0, 1, 2, …"
+          params '0, 1, 2, …'
           types Issue, MergeRequest
           condition do
             quick_action_target.supports_weight? &&
@@ -39,7 +39,7 @@ module EE
           command :weight do |weight|
             if weight
               @updates[:weight] = weight
-              @execution_message[:weight] = _("Set weight to %{weight}.") % { weight: weight }
+              @execution_message[:weight] = _('Set weight to %{weight}.') % { weight: weight }
             end
           end
 

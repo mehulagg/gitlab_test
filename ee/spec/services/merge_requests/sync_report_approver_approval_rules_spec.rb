@@ -48,7 +48,7 @@ describe MergeRequests::SyncReportApproverApprovalRules do
     context "when a project has a single `#{ApprovalProjectRule::DEFAULT_NAME_FOR_LICENSE_REPORT}` approval rule" do
       let!(:project_rule) { create(:approval_project_rule, :license_management, project: merge_request.target_project) }
 
-      context "when the rule has not been synchronized to the merge request yet" do
+      context 'when the rule has not been synchronized to the merge request yet' do
         let(:result) { merge_request.reload.approval_rules.last }
 
         before do
@@ -63,7 +63,7 @@ describe MergeRequests::SyncReportApproverApprovalRules do
         specify { expect(result.approvals_required).to eql(project_rule.approvals_required) }
       end
 
-      context "when the rule had previously been synchronized" do
+      context 'when the rule had previously been synchronized' do
         let!(:previous_rule) { create(:report_approver_rule, :license_management, merge_request: merge_request) }
 
         before do
@@ -75,11 +75,11 @@ describe MergeRequests::SyncReportApproverApprovalRules do
       end
     end
 
-    context "when a project has multiple report approval rules" do
+    context 'when a project has multiple report approval rules' do
       let!(:vulnerability_project_rule) { create(:approval_project_rule, :security_report, project: merge_request.target_project) }
       let!(:license_compliance_project_rule) { create(:approval_project_rule, :license_management, project: merge_request.target_project) }
 
-      context "when none of the rules have been synchronized to the merge request yet" do
+      context 'when none of the rules have been synchronized to the merge request yet' do
         let(:vulnerability_check_rule) { merge_request.reload.approval_rules.security.last }
         let(:license_check_rule) { merge_request.reload.approval_rules.find_by(name: ApprovalProjectRule::DEFAULT_NAME_FOR_LICENSE_REPORT) }
 
@@ -105,7 +105,7 @@ describe MergeRequests::SyncReportApproverApprovalRules do
         specify { expect(license_check_rule.approval_project_rule).to eq(license_compliance_project_rule) }
       end
 
-      context "when some of the rules have been synchronized to the merge request" do
+      context 'when some of the rules have been synchronized to the merge request' do
         let!(:previous_rule) { create(:report_approver_rule, :license_management, merge_request: merge_request) }
 
         before do

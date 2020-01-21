@@ -64,9 +64,9 @@ describe Gitlab::SSHPublicKey, lib: true do
       end
     end
 
-    context "when key is invalid" do
+    context 'when key is invalid' do
       it 'returns the original content' do
-        unsanitized = "ssh-foo any content=="
+        unsanitized = 'ssh-foo any content=='
         sanitized = described_class.sanitize(unsanitized)
 
         expect(sanitized).to eq(unsanitized)
@@ -184,7 +184,7 @@ describe Gitlab::SSHPublicKey, lib: true do
   end
 
   describe '#fingerprint in SHA256 format' do
-    subject { public_key.fingerprint("SHA256").gsub("SHA256:", "") if public_key.fingerprint("SHA256") }
+    subject { public_key.fingerprint('SHA256').gsub('SHA256:', '') if public_key.fingerprint('SHA256') }
 
     where(:factory, :fingerprint_sha256) do
       [

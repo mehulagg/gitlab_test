@@ -46,7 +46,7 @@ describe Gitlab::CodeOwners::UsersLoader do
     end
 
     it 'returns the user case insensitive for usernames' do
-      user = create(:user, username: "USER-4")
+      user = create(:user, username: 'USER-4')
       project.add_developer(user)
 
       load_users
@@ -76,10 +76,10 @@ describe Gitlab::CodeOwners::UsersLoader do
       let(:text) { super().lines }
 
       it 'is treated as one string' do
-        user_1 = create(:user, username: "USER-1")
+        user_1 = create(:user, username: 'USER-1')
         project.add_guest(user_1)
 
-        user_4 = create(:user, username: "USER-4")
+        user_4 = create(:user, username: 'USER-4')
         project.add_reporter(user_4)
 
         user_email = create(:user, email: 'user@gitlab.org')

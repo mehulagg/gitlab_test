@@ -23,7 +23,7 @@ describe Geo::ContainerRepositorySync, :geo do
     stub_registry_replication_config(enabled: true,
                                      primary_api_url: 'http://primary.registry.gitlab')
 
-    stub_request(:get, "http://registry.gitlab/v2/group/test/my_image/tags/list")
+    stub_request(:get, 'http://registry.gitlab/v2/group/test/my_image/tags/list')
       .with(
         headers: {
           'Accept' => 'application/vnd.docker.distribution.manifest.v2+json, application/vnd.oci.image.manifest.v1+json',
@@ -34,7 +34,7 @@ describe Geo::ContainerRepositorySync, :geo do
         body: JSON.dump(tags: %w(obsolete)),
         headers: { 'Content-Type' => 'application/json' })
 
-    stub_request(:get, "http://primary.registry.gitlab/v2/group/test/my_image/tags/list")
+    stub_request(:get, 'http://primary.registry.gitlab/v2/group/test/my_image/tags/list')
       .with(
         headers: { 'Authorization' => 'bearer pull-token' })
       .to_return(
@@ -42,23 +42,23 @@ describe Geo::ContainerRepositorySync, :geo do
         body: JSON.dump(tags: %w(tag-to-sync)),
         headers: { 'Content-Type' => 'application/json' })
 
-    stub_request(:head, "http://primary.registry.gitlab/v2/group/test/my_image/manifests/tag-to-sync")
+    stub_request(:head, 'http://primary.registry.gitlab/v2/group/test/my_image/manifests/tag-to-sync')
       .with(
         headers: {
           'Accept' => 'application/vnd.docker.distribution.manifest.v2+json, application/vnd.oci.image.manifest.v1+json',
           'Authorization' => 'bearer pull-token'
         })
-      .to_return(status: 200, body: "", headers: { 'docker-content-digest' => 'sha256:ccccc' })
+      .to_return(status: 200, body: '', headers: { 'docker-content-digest' => 'sha256:ccccc' })
 
-    stub_request(:head, "http://registry.gitlab/v2/group/test/my_image/manifests/obsolete")
+    stub_request(:head, 'http://registry.gitlab/v2/group/test/my_image/manifests/obsolete')
       .with(
         headers: {
           'Accept' => 'application/vnd.docker.distribution.manifest.v2+json, application/vnd.oci.image.manifest.v1+json',
           'Authorization' => 'bearer token'
         })
-      .to_return(status: 200, body: "", headers: { 'docker-content-digest' => 'sha256:aaaaa' })
+      .to_return(status: 200, body: '', headers: { 'docker-content-digest' => 'sha256:aaaaa' })
 
-    stub_request(:get, "http://primary.registry.gitlab/v2/group/test/my_image/manifests/tag-to-sync")
+    stub_request(:get, 'http://primary.registry.gitlab/v2/group/test/my_image/manifests/tag-to-sync')
       .with(
         headers: {
           'Accept' => 'application/vnd.docker.distribution.manifest.v2+json, application/vnd.oci.image.manifest.v1+json',
@@ -66,7 +66,7 @@ describe Geo::ContainerRepositorySync, :geo do
         })
       .to_return(status: 200, body: manifest, headers: {})
 
-    stub_request(:put, "http://registry.gitlab/v2/group/test/my_image/manifests/tag-to-sync")
+    stub_request(:put, 'http://registry.gitlab/v2/group/test/my_image/manifests/tag-to-sync')
       .with(
         body: manifest,
         headers: {
@@ -74,7 +74,7 @@ describe Geo::ContainerRepositorySync, :geo do
           'Authorization' => 'bearer token',
           'Content-Type' => 'application/json'
         })
-      .to_return(status: 200, body: "", headers: {})
+      .to_return(status: 200, body: '', headers: {})
   end
 
   describe 'execute' do
@@ -87,7 +87,7 @@ describe Geo::ContainerRepositorySync, :geo do
 
     context 'when primary repository has no tags' do
       it 'considers the primary repository empty and does not fail' do
-        stub_request(:get, "http://primary.registry.gitlab/v2/group/test/my_image/tags/list")
+        stub_request(:get, 'http://primary.registry.gitlab/v2/group/test/my_image/tags/list')
           .with(
             headers: { 'Authorization' => 'bearer pull-token' })
           .to_return(

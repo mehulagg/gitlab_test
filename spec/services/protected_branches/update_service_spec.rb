@@ -20,7 +20,7 @@ describe ProtectedBranches::UpdateService do
     context 'without admin_project permissions' do
       let(:user) { create(:user) }
 
-      it "raises error" do
+      it 'raises error' do
         expect { service.execute(protected_branch) }.to raise_error(Gitlab::Access::AccessDeniedError)
       end
     end
@@ -31,7 +31,7 @@ describe ProtectedBranches::UpdateService do
         expect(ProtectedBranchPolicy).to receive(:new).and_return(policy)
       end
 
-      it "prevents creation of the protected branch rule" do
+      it 'prevents creation of the protected branch rule' do
         expect { service.execute(protected_branch) }.to raise_error(Gitlab::Access::AccessDeniedError)
       end
     end

@@ -288,7 +288,7 @@ describe Backup::Manager do
         subject.unpack
 
         expect(Kernel).to have_received(:system)
-          .with("tar", "-xf", "1451606400_2016_01_01_1.2.3_gitlab_backup.tar")
+          .with('tar', '-xf', '1451606400_2016_01_01_1.2.3_gitlab_backup.tar')
         expect(progress).to have_received(:puts).with(a_string_matching('done'))
       end
     end

@@ -5,7 +5,7 @@ require 'spec_helper'
 describe GithubService::StatusMessage do
   include Rails.application.routes.url_helpers
 
-  let(:project) { double(:project, namespace: "me", to_s: 'example_project') }
+  let(:project) { double(:project, namespace: 'me', to_s: 'example_project') }
   let(:service) { double(:service, static_context?: false) }
 
   before do
@@ -16,7 +16,7 @@ describe GithubService::StatusMessage do
     it 'includes human readable gitlab status' do
       subject = described_class.new(project, service, detailed_status: 'passed')
 
-      expect(subject.description).to eq "Pipeline passed on GitLab"
+      expect(subject.description).to eq 'Pipeline passed on GitLab'
     end
 
     it 'gets truncated to 140 chars' do
@@ -119,11 +119,11 @@ describe GithubService::StatusMessage do
       end
 
       specify 'description' do
-        expect(subject.description).to eq "Pipeline pending on GitLab"
+        expect(subject.description).to eq 'Pipeline pending on GitLab'
       end
 
       specify 'context' do
-        expect(subject.context).to eq "ci/gitlab/some-ref"
+        expect(subject.context).to eq 'ci/gitlab/some-ref'
       end
 
       context 'when pipeline is blocked' do

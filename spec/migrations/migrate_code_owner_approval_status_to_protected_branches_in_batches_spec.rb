@@ -24,7 +24,7 @@ describe MigrateCodeOwnerApprovalStatusToProtectedBranchesInBatches, :migration 
 
   let!(:protected_branch_1) do
     protected_branches.create!(
-      name: "branch name",
+      name: 'branch name',
       project_id: project.id
     )
   end
@@ -48,12 +48,12 @@ describe MigrateCodeOwnerApprovalStatusToProtectedBranchesInBatches, :migration 
 
       let!(:protected_branch_2) do
         protected_branches.create!(
-          name: "branch name",
+          name: 'branch name',
           project_id: project_needing_approval.id
         )
       end
 
-      it "changes N protected branch records" do
+      it 'changes N protected branch records' do
         expect { migrate! }
           .to change { ProtectedBranch.where(code_owner_approval_required: true).count }
           .by(1)

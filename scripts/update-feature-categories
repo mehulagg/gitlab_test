@@ -4,7 +4,7 @@ require 'uri'
 require 'net/http'
 require 'yaml'
 
-url = URI("https://gitlab.com/gitlab-com/www-gitlab-com/raw/master/data/stages.yml")
+url = URI('https://gitlab.com/gitlab-com/www-gitlab-com/raw/master/data/stages.yml')
 
 http = Net::HTTP.new(url.host, url.port)
 http.use_ssl = true
@@ -14,9 +14,9 @@ request = Net::HTTP::Get.new(url)
 response = http.request(request)
 
 stages_doc = YAML.safe_load(response.read_body)
-feature_categories = stages_doc["stages"].values
-  .flat_map { |stage| stage["groups"].values }
-  .flat_map { |group| group["categories"] }
+feature_categories = stages_doc['stages'].values
+  .flat_map { |stage| stage['groups'].values }
+  .flat_map { |group| group['categories'] }
   .select(&:itself)
   .uniq
   .sort

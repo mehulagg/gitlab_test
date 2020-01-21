@@ -49,10 +49,10 @@ describe Ci::CreatePipelineService do
     it 'persists cross_dependencies' do
       deps = build_job.options['cross_dependencies']
       result = [
-        { job: "job-1", ref: "ref-1", project: "project-1", artifacts: true },
-        { job: "job-2", ref: "ref-2", project: "project-2", artifacts: false },
-        { job: "job-3", ref: "ref-3", project: "project-3", artifacts: true },
-        { job: "job-4", ref: "ref-4", project: "project-4", artifacts: true }
+        { job: 'job-1', ref: 'ref-1', project: 'project-1', artifacts: true },
+        { job: 'job-2', ref: 'ref-2', project: 'project-2', artifacts: false },
+        { job: 'job-3', ref: 'ref-3', project: 'project-3', artifacts: true },
+        { job: 'job-4', ref: 'ref-4', project: 'project-4', artifacts: true }
       ]
 
       expect(deps).to match(result)

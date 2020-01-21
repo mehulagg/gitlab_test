@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe EE::Issuable do
-  describe "Validation" do
+  describe 'Validation' do
     context 'general validations' do
       subject { build(:epic) }
 
@@ -57,8 +57,8 @@ describe EE::Issuable do
   end
 
   describe '#matches_cross_reference_regex?' do
-    context "epic description with long path string" do
-      let(:mentionable) { build(:epic, description: "/a" * 50000) }
+    context 'epic description with long path string' do
+      let(:mentionable) { build(:epic, description: '/a' * 50000) }
 
       it_behaves_like 'matches_cross_reference_regex? fails fast'
     end

@@ -143,7 +143,7 @@ describe 'EE Clusters', :js do
           before do
             click_link 'default-cluster'
             fill_in 'cluster_environment_scope', with: 'production/*'
-            within ".cluster_integration_form" do
+            within '.cluster_integration_form' do
               click_button 'Save changes'
             end
           end

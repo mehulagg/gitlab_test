@@ -36,7 +36,7 @@ module Ci
     def failed_archive_counter
       @failed_archive_counter ||=
         Gitlab::Metrics.counter(:job_trace_archive_failed_total,
-                                "Counter of failed attempts of trace archiving")
+                                'Counter of failed attempts of trace archiving')
     end
 
     def archive_error(error, job, worker_name)

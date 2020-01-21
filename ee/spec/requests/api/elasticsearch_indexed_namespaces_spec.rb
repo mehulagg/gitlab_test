@@ -33,7 +33,7 @@ describe API::ElasticsearchIndexedNamespaces do
   end
 
   describe 'PUT /elasticsearch_indexed_namespaces/rollout' do
-    let(:path) { "/elasticsearch_indexed_namespaces/rollout" }
+    let(:path) { '/elasticsearch_indexed_namespaces/rollout' }
 
     include_context 'rollout related'
 
@@ -47,7 +47,7 @@ describe API::ElasticsearchIndexedNamespaces do
   end
 
   describe 'PUT /elasticsearch_indexed_namespaces/rollback' do
-    let(:path) { "/elasticsearch_indexed_namespaces/rollback" }
+    let(:path) { '/elasticsearch_indexed_namespaces/rollback' }
 
     include_context 'rollout related'
 

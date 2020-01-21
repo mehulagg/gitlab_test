@@ -6,7 +6,7 @@ describe 'Dashboard Todos' do
   let(:user)    { create(:user, username: 'john') }
   let(:author)  { create(:user) }
   let(:project) { create(:project, :public) }
-  let(:issue)   { create(:issue, due_date: Date.today, title: "Fix bug") }
+  let(:issue)   { create(:issue, due_date: Date.today, title: 'Fix bug') }
 
   context 'User does not have todos' do
     before do
@@ -183,7 +183,7 @@ describe 'Dashboard Todos' do
     end
 
     context 'approval todo' do
-      let(:merge_request) { create(:merge_request, title: "Fixes issue") }
+      let(:merge_request) { create(:merge_request, title: 'Fixes issue') }
 
       before do
         create(:todo, :approval_required, user: user, project: project, target: merge_request, author: user)

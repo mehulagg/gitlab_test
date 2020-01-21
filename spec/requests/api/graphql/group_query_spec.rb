@@ -15,7 +15,7 @@ describe 'getting group information' do
   let(:private_group) { create(:group, :private) }
 
   # similar to the API "GET /groups/:id"
-  describe "Query group(fullPath)" do
+  describe 'Query group(fullPath)' do
     def group_query(group)
       graphql_query_for('group', 'fullPath' => group.full_path)
     end
@@ -40,7 +40,7 @@ describe 'getting group information' do
       end
     end
 
-    context "when authenticated as user" do
+    context 'when authenticated as user' do
       let!(:group1) { create(:group, avatar: File.open(uploaded_image_temp_path)) }
       let!(:group2) { create(:group, :private) }
 
@@ -69,7 +69,7 @@ describe 'getting group information' do
         expect(graphql_data['group']['parentId']).to eq(group1.parent_id)
       end
 
-      it "does not return a non existing group" do
+      it 'does not return a non existing group' do
         query = graphql_query_for('group', 'fullPath' => '1328')
 
         post_graphql(query, current_user: user1)
@@ -77,7 +77,7 @@ describe 'getting group information' do
         expect(graphql_data['group']).to be_nil
       end
 
-      it "does not return a group not attached to user1" do
+      it 'does not return a group not attached to user1' do
         private_group.add_owner(user2)
 
         post_graphql(group_query(private_group), current_user: user1)
@@ -101,14 +101,14 @@ describe 'getting group information' do
       end
     end
 
-    context "when authenticated as admin" do
-      it "returns any existing group" do
+    context 'when authenticated as admin' do
+      it 'returns any existing group' do
         post_graphql(group_query(private_group), current_user: admin)
 
         expect(graphql_data['group']['name']).to eq(private_group.name)
       end
 
-      it "does not return a non existing group" do
+      it 'does not return a non existing group' do
         query = graphql_query_for('group', 'fullPath' => '1328')
         post_graphql(query, current_user: admin)
 

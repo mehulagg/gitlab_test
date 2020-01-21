@@ -200,7 +200,7 @@ module Gitlab
           signal: signal,
           explanation: explanation,
           wait_time: time,
-          message: "Sending signal and waiting"
+          message: 'Sending signal and waiting'
         )
         Process.kill(signal, pid)
 

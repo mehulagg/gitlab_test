@@ -7,8 +7,8 @@ describe Projects::Prometheus::Metrics::UpdateService do
 
   it 'updates the prometheus metric' do
     expect do
-      described_class.new(metric, { title: "bar" }).execute
-    end.to change { metric.reload.title }.to("bar")
+      described_class.new(metric, { title: 'bar' }).execute
+    end.to change { metric.reload.title }.to('bar')
   end
 
   context 'when metric has a prometheus alert associated' do
@@ -21,7 +21,7 @@ describe Projects::Prometheus::Metrics::UpdateService do
 
     context 'when updating title' do
       it 'schedules a prometheus alert update' do
-        described_class.new(metric, { title: "bar" }).execute
+        described_class.new(metric, { title: 'bar' }).execute
 
         expect(schedule_update_service).to have_received(:execute)
       end
@@ -29,14 +29,14 @@ describe Projects::Prometheus::Metrics::UpdateService do
 
     context 'when updating query' do
       it 'schedules a prometheus alert update' do
-        described_class.new(metric, { query: "sum(bar)" }).execute
+        described_class.new(metric, { query: 'sum(bar)' }).execute
 
         expect(schedule_update_service).to have_received(:execute)
       end
     end
 
     it 'does not schedule a prometheus alert update without title nor query being changed' do
-      described_class.new(metric, { y_label: "bar" }).execute
+      described_class.new(metric, { y_label: 'bar' }).execute
 
       expect(schedule_update_service).not_to have_received(:execute)
     end

@@ -13,15 +13,15 @@ describe Projects::ProtectedBranchesController do
     project.add_maintainer(user)
   end
 
-  describe "GET #index" do
+  describe 'GET #index' do
     let(:project) { create(:project_empty_repo, :public) }
 
-    it "redirects empty repo to projects page" do
+    it 'redirects empty repo to projects page' do
       get(:index, params: { namespace_id: project.namespace.to_param, project_id: project })
     end
   end
 
-  describe "POST #create" do
+  describe 'POST #create' do
     let(:maintainer_access_level) { [{ access_level: Gitlab::Access::MAINTAINER }] }
     let(:access_level_params) do
       { merge_access_levels_attributes: maintainer_access_level,
@@ -45,7 +45,7 @@ describe Projects::ProtectedBranchesController do
         allow(ProtectedBranchPolicy).to receive(:new).and_return(policy)
       end
 
-      it "prevents creation of the protected branch rule" do
+      it 'prevents creation of the protected branch rule' do
         post(:create, params: project_params.merge(protected_branch: create_params))
 
         expect(ProtectedBranch.count).to eq 0
@@ -53,7 +53,7 @@ describe Projects::ProtectedBranchesController do
     end
   end
 
-  describe "PUT #update" do
+  describe 'PUT #update' do
     let(:update_params) { { name: 'new_name' } }
 
     before do
@@ -64,7 +64,7 @@ describe Projects::ProtectedBranchesController do
       put(:update, params: base_params.merge(protected_branch: update_params))
 
       expect(protected_branch.reload.name).to eq('new_name')
-      expect(json_response["name"]).to eq('new_name')
+      expect(json_response['name']).to eq('new_name')
     end
 
     context 'when a policy restricts rule deletion' do
@@ -73,7 +73,7 @@ describe Projects::ProtectedBranchesController do
         allow(ProtectedBranchPolicy).to receive(:new).and_return(policy)
       end
 
-      it "prevents update of the protected branch rule" do
+      it 'prevents update of the protected branch rule' do
         old_name = protected_branch.name
 
         put(:update, params: base_params.merge(protected_branch: update_params))
@@ -83,12 +83,12 @@ describe Projects::ProtectedBranchesController do
     end
   end
 
-  describe "DELETE #destroy" do
+  describe 'DELETE #destroy' do
     before do
       sign_in(user)
     end
 
-    it "deletes the protected branch rule" do
+    it 'deletes the protected branch rule' do
       delete(:destroy, params: base_params)
 
       expect { ProtectedBranch.find(protected_branch.id) }.to raise_error(ActiveRecord::RecordNotFound)
@@ -100,7 +100,7 @@ describe Projects::ProtectedBranchesController do
         allow(ProtectedBranchPolicy).to receive(:new).and_return(policy)
       end
 
-      it "prevents deletion of the protected branch rule" do
+      it 'prevents deletion of the protected branch rule' do
         delete(:destroy, params: base_params)
 
         expect(response.status).to eq(403)

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe "GitLab Flavored Markdown" do
+describe 'GitLab Flavored Markdown' do
   let(:user) { create(:user) }
   let(:project) { create(:project) }
   let(:issue) { create(:issue, project: project) }
@@ -17,7 +17,7 @@ describe "GitLab Flavored Markdown" do
     project.add_developer(user)
   end
 
-  describe "for commits" do
+  describe 'for commits' do
     let(:project) { create(:project, :repository) }
     let(:commit) { project.commit }
 
@@ -25,32 +25,32 @@ describe "GitLab Flavored Markdown" do
       create_commit("fix #{issue.to_reference}\n\nask #{fred.to_reference} for details", project, user, 'master')
     end
 
-    it "renders title in commits#index" do
+    it 'renders title in commits#index' do
       visit project_commits_path(project, 'master', limit: 1)
 
       expect(page).to have_link(issue.to_reference)
     end
 
-    it "renders title in commits#show" do
+    it 'renders title in commits#show' do
       visit project_commit_path(project, commit)
 
       expect(page).to have_link(issue.to_reference)
     end
 
-    it "renders description in commits#show" do
+    it 'renders description in commits#show' do
       visit project_commit_path(project, commit)
 
       expect(page).to have_link(fred.to_reference)
     end
 
-    it "renders title in repositories#branches" do
+    it 'renders title in repositories#branches' do
       visit project_branches_path(project)
 
       expect(page).to have_link(issue.to_reference)
     end
   end
 
-  describe "for issues", :js do
+  describe 'for issues', :js do
     before do
       @other_issue = create(:issue,
                             author: user,
@@ -63,49 +63,49 @@ describe "GitLab Flavored Markdown" do
                       title: "fix #{@other_issue.to_reference}",
                       description: "ask #{fred.to_reference} for details")
 
-      @note = create(:note_on_issue, noteable: @issue, project: @issue.project, note: "Hello world")
+      @note = create(:note_on_issue, noteable: @issue, project: @issue.project, note: 'Hello world')
     end
 
-    it "renders subject in issues#index" do
+    it 'renders subject in issues#index' do
       visit project_issues_path(project)
 
       expect(page).to have_link(@other_issue.to_reference)
     end
 
-    it "renders subject in issues#show" do
+    it 'renders subject in issues#show' do
       visit project_issue_path(project, @issue)
 
       expect(page).to have_link(@other_issue.to_reference)
     end
 
-    it "renders details in issues#show" do
+    it 'renders details in issues#show' do
       visit project_issue_path(project, @issue)
 
       expect(page).to have_link(fred.to_reference)
     end
   end
 
-  describe "for merge requests" do
+  describe 'for merge requests' do
     let(:project) { create(:project, :repository) }
 
     before do
       @merge_request = create(:merge_request, source_project: project, target_project: project, title: "fix #{issue.to_reference}")
     end
 
-    it "renders title in merge_requests#index" do
+    it 'renders title in merge_requests#index' do
       visit project_merge_requests_path(project)
 
       expect(page).to have_link(issue.to_reference)
     end
 
-    it "renders title in merge_requests#show" do
+    it 'renders title in merge_requests#show' do
       visit project_merge_request_path(project, @merge_request)
 
       expect(page).to have_link(issue.to_reference)
     end
   end
 
-  describe "for milestones" do
+  describe 'for milestones' do
     before do
       @milestone = create(:milestone,
                           project: project,
@@ -113,19 +113,19 @@ describe "GitLab Flavored Markdown" do
                           description: "ask #{fred.to_reference} for details")
     end
 
-    it "renders title in milestones#index" do
+    it 'renders title in milestones#index' do
       visit project_milestones_path(project)
 
       expect(page).to have_link(issue.to_reference)
     end
 
-    it "renders title in milestones#show" do
+    it 'renders title in milestones#show' do
       visit project_milestone_path(project, @milestone)
 
       expect(page).to have_link(issue.to_reference)
     end
 
-    it "renders description in milestones#show" do
+    it 'renders description in milestones#show' do
       visit project_milestone_path(project, @milestone)
 
       expect(page).to have_link(fred.to_reference)

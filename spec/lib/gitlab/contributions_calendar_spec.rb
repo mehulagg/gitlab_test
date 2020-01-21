@@ -56,7 +56,7 @@ describe Gitlab::ContributionsCalendar do
   end
 
   describe '#activity_dates' do
-    it "returns a hash of date => count" do
+    it 'returns a hash of date => count' do
       create_event(public_project, last_week)
       create_event(public_project, last_week)
       create_event(public_project, today)
@@ -64,8 +64,8 @@ describe Gitlab::ContributionsCalendar do
       expect(calendar.activity_dates).to eq(last_week => 2, today => 1)
     end
 
-    context "when the user has opted-in for private contributions" do
-      it "shows private and public events to all users" do
+    context 'when the user has opted-in for private contributions' do
+      it 'shows private and public events to all users' do
         user.update_column(:include_private_contributions, true)
         create_event(private_project, today)
         create_event(public_project, today)
@@ -76,20 +76,20 @@ describe Gitlab::ContributionsCalendar do
       end
     end
 
-    it "counts the diff notes on merge request" do
+    it 'counts the diff notes on merge request' do
       create_event(public_project, today, 0, Event::COMMENTED, :diff_note_on_merge_request)
 
       expect(calendar(contributor).activity_dates[today]).to eq(1)
     end
 
-    it "counts the discussions on merge requests and issues" do
+    it 'counts the discussions on merge requests and issues' do
       create_event(public_project, today, 0, Event::COMMENTED, :discussion_note_on_merge_request)
       create_event(public_project, today, 2, Event::COMMENTED, :discussion_note_on_issue)
 
       expect(calendar(contributor).activity_dates[today]).to eq(2)
     end
 
-    context "when events fall under different dates depending on the time zone" do
+    context 'when events fall under different dates depending on the time zone' do
       before do
         create_event(public_project, today, 1)
         create_event(public_project, today, 4)
@@ -98,19 +98,19 @@ describe Gitlab::ContributionsCalendar do
         create_event(public_project, today, 23)
       end
 
-      it "renders correct event counts within the UTC timezone" do
+      it 'renders correct event counts within the UTC timezone' do
         Time.use_zone('UTC') do
           expect(calendar.activity_dates).to eq(today => 5)
         end
       end
 
-      it "renders correct event counts within the Sydney timezone" do
+      it 'renders correct event counts within the Sydney timezone' do
         Time.use_zone('Sydney') do
           expect(calendar.activity_dates).to eq(today => 3, tomorrow => 2)
         end
       end
 
-      it "renders correct event counts within the US Central timezone" do
+      it 'renders correct event counts within the US Central timezone' do
         Time.use_zone('Central Time (US & Canada)') do
           expect(calendar.activity_dates).to eq(yesterday => 2, today => 3)
         end
@@ -119,7 +119,7 @@ describe Gitlab::ContributionsCalendar do
   end
 
   describe '#events_by_date' do
-    it "returns all events for a given date" do
+    it 'returns all events for a given date' do
       e1 = create_event(public_project, today)
       e2 = create_event(public_project, today)
       create_event(public_project, last_week)
@@ -127,7 +127,7 @@ describe Gitlab::ContributionsCalendar do
       expect(calendar.events_by_date(today)).to contain_exactly(e1, e2)
     end
 
-    it "only shows private events to authorized users" do
+    it 'only shows private events to authorized users' do
       e1 = create_event(public_project, today)
       e2 = create_event(private_project, today)
       e3 = create_event(feature_project, today)
@@ -152,13 +152,13 @@ describe Gitlab::ContributionsCalendar do
   end
 
   describe '#starting_year' do
-    it "is the start of last year" do
+    it 'is the start of last year' do
       expect(calendar.starting_year).to eq(last_year.year)
     end
   end
 
   describe '#starting_month' do
-    it "is the start of this month" do
+    it 'is the start of this month' do
       expect(calendar.starting_month).to eq(today.month)
     end
   end

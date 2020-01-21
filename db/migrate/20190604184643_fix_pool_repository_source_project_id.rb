@@ -10,7 +10,7 @@ class FixPoolRepositorySourceProjectId < ActiveRecord::Migration[5.1]
   DOWNTIME = false
 
   def up
-    execute "UPDATE pool_repositories SET source_project_id = (SELECT MIN(id) FROM projects WHERE pool_repository_id = pool_repositories.id) WHERE pool_repositories.source_project_id IS NULL"
+    execute 'UPDATE pool_repositories SET source_project_id = (SELECT MIN(id) FROM projects WHERE pool_repository_id = pool_repositories.id) WHERE pool_repositories.source_project_id IS NULL'
   end
 
   def down

@@ -44,7 +44,7 @@ class MigrateLfsObjectsToSeparateRegistry < ActiveRecord::Migration[5.2]
 
   def down
     execute("DELETE FROM lfs_object_registry WHERE ID IN (SELECT file_id FROM file_registry WHERE file_type = 'lfs')")
-    execute("DROP TRIGGER IF EXISTS replicate_lfs_object_registry ON file_registry")
-    execute("DROP FUNCTION IF EXISTS replicate_lfs_object_registry()")
+    execute('DROP TRIGGER IF EXISTS replicate_lfs_object_registry ON file_registry')
+    execute('DROP FUNCTION IF EXISTS replicate_lfs_object_registry()')
   end
 end

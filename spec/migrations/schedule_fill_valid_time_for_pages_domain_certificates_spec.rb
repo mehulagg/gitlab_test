@@ -14,10 +14,10 @@ describe ScheduleFillValidTimeForPagesDomainCertificates, :migration, :sidekiq d
   end
 
   before do
-    domains_table.create!(domain: "domain1.example.com", verification_code: "123")
-    domains_table.create!(domain: "domain2.example.com", verification_code: "123", certificate: '')
-    domains_table.create!(domain: "domain3.example.com", verification_code: "123", certificate: certificate)
-    domains_table.create!(domain: "domain4.example.com", verification_code: "123", certificate: certificate)
+    domains_table.create!(domain: 'domain1.example.com', verification_code: '123')
+    domains_table.create!(domain: 'domain2.example.com', verification_code: '123', certificate: '')
+    domains_table.create!(domain: 'domain3.example.com', verification_code: '123', certificate: certificate)
+    domains_table.create!(domain: 'domain4.example.com', verification_code: '123', certificate: certificate)
   end
 
   it 'correctly schedules background migrations' do
@@ -25,8 +25,8 @@ describe ScheduleFillValidTimeForPagesDomainCertificates, :migration, :sidekiq d
       Timecop.freeze do
         migrate!
 
-        first_id = domains_table.find_by_domain("domain3.example.com").id
-        last_id = domains_table.find_by_domain("domain4.example.com").id
+        first_id = domains_table.find_by_domain('domain3.example.com').id
+        last_id = domains_table.find_by_domain('domain4.example.com').id
 
         expect(migration_name).to be_scheduled_delayed_migration(5.minutes, first_id, last_id)
         expect(BackgroundMigrationWorker.jobs.size).to eq(1)
@@ -38,11 +38,11 @@ describe ScheduleFillValidTimeForPagesDomainCertificates, :migration, :sidekiq d
     perform_enqueued_jobs do
       migrate!
 
-      domain = domains_table.find_by_domain("domain3.example.com")
+      domain = domains_table.find_by_domain('domain3.example.com')
       expect(domain.certificate_valid_not_before)
-        .to eq(Time.parse("2018-03-23 14:02:08 UTC"))
+        .to eq(Time.parse('2018-03-23 14:02:08 UTC'))
       expect(domain.certificate_valid_not_after)
-        .to eq(Time.parse("2019-03-23 14:02:08 UTC"))
+        .to eq(Time.parse('2019-03-23 14:02:08 UTC'))
     end
   end
 end

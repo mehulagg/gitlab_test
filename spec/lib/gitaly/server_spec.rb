@@ -49,7 +49,7 @@ describe Gitaly::Server do
     end
   end
 
-  describe "#filesystem_type" do
+  describe '#filesystem_type' do
     subject { server.filesystem_type }
 
     it { is_expected.to be_present }

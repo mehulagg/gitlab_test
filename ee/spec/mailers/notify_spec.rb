@@ -12,7 +12,7 @@ describe Notify do
   include_context 'gitlab email notification'
 
   let_it_be(:user) { create(:user) }
-  let_it_be(:current_user) { create(:user, email: "current@email.com") }
+  let_it_be(:current_user) { create(:user, email: 'current@email.com') }
   let_it_be(:assignee) { create(:user, email: 'assignee@example.com', name: 'John Doe') }
   let_it_be(:assignee2) { create(:user, email: 'assignee2@example.com', name: 'Jane Doe') }
 
@@ -136,7 +136,7 @@ describe Notify do
     end
 
     context 'for merge requests' do
-      describe "that are new with approver" do
+      describe 'that are new with approver' do
         before do
           create(:approver, target: merge_request)
         end
@@ -145,7 +145,7 @@ describe Notify do
           described_class.new_merge_request_email(assignee.id, merge_request.id)
         end
 
-        it "contains the approvers list" do
+        it 'contains the approvers list' do
           is_expected.to have_body_text %r[#{merge_request.approvers.first.user.name}]
         end
       end
@@ -423,7 +423,7 @@ describe Notify do
 
     it_behaves_like 'an email sent from GitLab'
     it_behaves_like 'it should not have Gmail Actions links'
-    it_behaves_like "a user cannot unsubscribe through footer link"
+    it_behaves_like 'a user cannot unsubscribe through footer link'
 
     it 'has the correct subject and body' do
       is_expected.to have_subject("#{project.name} | Repository mirroring paused")
@@ -441,7 +441,7 @@ describe Notify do
 
     it_behaves_like 'an email sent from GitLab'
     it_behaves_like 'it should not have Gmail Actions links'
-    it_behaves_like "a user cannot unsubscribe through footer link"
+    it_behaves_like 'a user cannot unsubscribe through footer link'
 
     it 'has the correct subject and body' do
       is_expected.to have_subject("#{project.name} | Mirror user changed")
@@ -457,7 +457,7 @@ describe Notify do
 
     it 'is sent as the author' do
       sender = subject.header[:from].addrs[0]
-      expect(sender.display_name).to eq("GitLab")
+      expect(sender.display_name).to eq('GitLab')
       expect(sender.address).to eq(gitlab_sender)
     end
 

@@ -359,7 +359,7 @@ describe Issues::UpdateService, :mailer do
           issue.save
 
           perform_enqueued_jobs do
-            update_issue(milestone_id: "")
+            update_issue(milestone_id: '')
           end
 
           should_email(subscriber)
@@ -655,7 +655,7 @@ describe Issues::UpdateService, :mailer do
         expect(issue.reload.assignees).to eq([user3])
       end
 
-      context "when issuable feature is private" do
+      context 'when issuable feature is private' do
         levels = [Gitlab::VisibilityLevel::INTERNAL, Gitlab::VisibilityLevel::PUBLIC]
 
         levels.each do |level|

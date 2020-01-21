@@ -3,10 +3,10 @@
 describe QA::Resource::User do
   let(:api_resource) do
     {
-      name: "GitLab QA",
-      username: "gitlab-qa",
-      web_url: "https://staging.gitlab.com/gitlab-qa",
-      public_email: "1614863-gitlab-qa@users.noreply.staging.gitlab.com"
+      name: 'GitLab QA',
+      username: 'gitlab-qa',
+      web_url: 'https://staging.gitlab.com/gitlab-qa',
+      public_email: '1614863-gitlab-qa@users.noreply.staging.gitlab.com'
     }
   end
 

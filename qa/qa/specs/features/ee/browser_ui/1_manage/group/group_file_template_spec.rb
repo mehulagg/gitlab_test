@@ -104,7 +104,7 @@ module QA
             form.commit_changes
             form.finished_loading?
 
-            aggregate_failures "indications of file created" do
+            aggregate_failures 'indications of file created' do
               expect(form).to have_content('The file has been successfully created.')
               expect(form).to have_content(template[:type])
               expect(form).to have_content('Add new file')

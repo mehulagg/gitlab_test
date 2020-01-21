@@ -55,7 +55,7 @@ describe EntityDateHelper do
       let(:milestone_remaining) { date_helper_class.remaining_days_in_words(12.days.from_now.utc.to_date) }
 
       it 'returns days remaining' do
-        expect(milestone_remaining).to eq("<strong>12</strong> days remaining")
+        expect(milestone_remaining).to eq('<strong>12</strong> days remaining')
       end
     end
 
@@ -63,7 +63,7 @@ describe EntityDateHelper do
       let(:milestone_remaining) { date_helper_class.remaining_days_in_words(Date.today) }
 
       it 'returns today' do
-        expect(milestone_remaining).to eq("<strong>Today</strong>")
+        expect(milestone_remaining).to eq('<strong>Today</strong>')
       end
     end
 
@@ -71,12 +71,12 @@ describe EntityDateHelper do
       let(:milestone_remaining) { date_helper_class.remaining_days_in_words(Date.tomorrow) }
 
       it 'returns 1 day remaining' do
-        expect(milestone_remaining).to eq("<strong>1</strong> day remaining")
+        expect(milestone_remaining).to eq('<strong>1</strong> day remaining')
       end
 
       it 'returns 1 day remaining when queried mid-day' do
         Timecop.freeze(Time.utc(2017, 3, 17, 13, 10)) do
-          expect(milestone_remaining).to eq("<strong>1</strong> day remaining")
+          expect(milestone_remaining).to eq('<strong>1</strong> day remaining')
         end
       end
     end
@@ -85,7 +85,7 @@ describe EntityDateHelper do
       let(:milestone_remaining) { date_helper_class.remaining_days_in_words(2.months.from_now.utc.to_date) }
 
       it 'returns months remaining' do
-        expect(milestone_remaining).to eq("<strong>2</strong> months remaining")
+        expect(milestone_remaining).to eq('<strong>2</strong> months remaining')
       end
     end
 
@@ -93,7 +93,7 @@ describe EntityDateHelper do
       let(:milestone_remaining) { date_helper_class.remaining_days_in_words((1.year.from_now + 2.days).utc.to_date) }
 
       it 'returns years remaining' do
-        expect(milestone_remaining).to eq("<strong>1</strong> year remaining")
+        expect(milestone_remaining).to eq('<strong>1</strong> year remaining')
       end
     end
 
@@ -101,7 +101,7 @@ describe EntityDateHelper do
       let(:milestone_remaining) { date_helper_class.remaining_days_in_words(2.days.ago.utc.to_date) }
 
       it 'returns "Past due"' do
-        expect(milestone_remaining).to eq("<strong>Past due</strong>")
+        expect(milestone_remaining).to eq('<strong>Past due</strong>')
       end
     end
 
@@ -109,7 +109,7 @@ describe EntityDateHelper do
       let(:milestone_remaining) { date_helper_class.remaining_days_in_words(nil, 2.days.from_now.utc.to_date) }
 
       it 'returns "Upcoming"' do
-        expect(milestone_remaining).to eq("<strong>Upcoming</strong>")
+        expect(milestone_remaining).to eq('<strong>Upcoming</strong>')
       end
     end
 
@@ -117,7 +117,7 @@ describe EntityDateHelper do
       let(:milestone_remaining) { date_helper_class.remaining_days_in_words(nil, 2.days.ago.utc.to_date) }
 
       it 'returns days elapsed' do
-        expect(milestone_remaining).to eq("<strong>2</strong> days elapsed")
+        expect(milestone_remaining).to eq('<strong>2</strong> days elapsed')
       end
     end
   end

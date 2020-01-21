@@ -32,7 +32,7 @@ describe 'Labels Hierarchy', :js do
 
       labels.each do |label|
         page.within('.filter-dropdown-container') do
-          find('button', text: "Edit board").click
+          find('button', text: 'Edit board').click
         end
 
         page.within('.js-labels-block') do
@@ -43,7 +43,7 @@ describe 'Labels Hierarchy', :js do
 
         find('a.label-item', text: label.title).click
 
-        find('button', text: "Save changes").click
+        find('button', text: 'Save changes').click
 
         wait_for_requests
 

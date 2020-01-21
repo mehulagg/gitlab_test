@@ -338,7 +338,7 @@ describe API::Epics do
         expect_paginated_array_response(epic.id)
       end
 
-      context "#to_reference" do
+      context '#to_reference' do
         it 'exposes reference path' do
           get api(url)
 
@@ -614,7 +614,7 @@ describe API::Epics do
         title: 'new title',
         description: 'new description',
         labels: 'label2',
-        start_date_fixed: "2018-07-17",
+        start_date_fixed: '2018-07-17',
         start_date_is_fixed: true
       }
     end

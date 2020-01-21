@@ -8,7 +8,7 @@ Devise.setup do |config|
 
   # ==> Mailer Configuration
   # Configure the class responsible to send e-mails.
-  config.mailer = "DeviseMailer"
+  config.mailer = 'DeviseMailer'
 
   # ==> ORM configuration
   # Load and configure the ORM. Supports :active_record (default) and
@@ -200,7 +200,7 @@ Devise.setup do |config|
   #
   # The :"*/*" and "*/*" formats below is required to match Internet
   # Explorer requests.
-  config.navigational_formats = [:"*/*", "*/*", :html, :zip]
+  config.navigational_formats = [:"*/*", '*/*', :html, :zip]
 
   # The default HTTP method used to sign out a resource. Default is :delete.
   config.sign_out_via = :post

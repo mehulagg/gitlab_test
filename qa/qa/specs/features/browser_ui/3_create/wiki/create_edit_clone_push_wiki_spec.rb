@@ -16,7 +16,7 @@ module QA
 
         Page::Project::Wiki::Edit.perform(&:click_edit)
         Page::Project::Wiki::New.perform do |wiki|
-          wiki.set_content("My Second Wiki Content")
+          wiki.set_content('My Second Wiki Content')
           wiki.save_changes
         end
 

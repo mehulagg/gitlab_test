@@ -20,11 +20,11 @@ describe 'Service Desk Setting', :js do
   end
 
   it 'shows activation checkbox' do
-    expect(page).to have_selector("#service-desk-checkbox")
+    expect(page).to have_selector('#service-desk-checkbox')
   end
 
   it 'shows incoming email after activating' do
-    find("#service-desk-checkbox").click
+    find('#service-desk-checkbox').click
     wait_for_requests
     project.reload
     expect(project.service_desk_enabled).to be_truthy

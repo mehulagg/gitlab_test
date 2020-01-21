@@ -31,14 +31,14 @@ describe BroadcastMessagesHelper do
     end
 
     it 'allows custom style for banner messages' do
-      broadcast_message = BroadcastMessage.new(color: '#f2dede', font: '#b94a48', broadcast_type: "banner")
+      broadcast_message = BroadcastMessage.new(color: '#f2dede', font: '#b94a48', broadcast_type: 'banner')
 
       expect(helper.broadcast_message_style(broadcast_message))
         .to match('background-color: #f2dede; color: #b94a48')
     end
 
     it 'does not add style for notification messages' do
-      broadcast_message = BroadcastMessage.new(color: '#f2dede', broadcast_type: "notification")
+      broadcast_message = BroadcastMessage.new(color: '#f2dede', broadcast_type: 'notification')
 
       expect(helper.broadcast_message_style(broadcast_message)).to eq ''
     end

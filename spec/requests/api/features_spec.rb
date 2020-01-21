@@ -154,10 +154,10 @@ describe API::Features do
 
             expect(response).to have_gitlab_http_status(201)
             expect(json_response).to eq(
-              "name" => "my_feature",
-              "state" => "off",
-              "gates" => [
-                { "key" => "boolean", "value" => false }
+              'name' => 'my_feature',
+              'state' => 'off',
+              'gates' => [
+                { 'key' => 'boolean', 'value' => false }
               ]
             )
           end
@@ -188,10 +188,10 @@ describe API::Features do
 
             expect(response).to have_gitlab_http_status(201)
             expect(json_response).to eq(
-              "name" => "my_feature",
-              "state" => "off",
-              "gates" => [
-                { "key" => "boolean", "value" => false }
+              'name' => 'my_feature',
+              'state' => 'off',
+              'gates' => [
+                { 'key' => 'boolean', 'value' => false }
               ]
             )
           end

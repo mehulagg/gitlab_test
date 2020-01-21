@@ -65,7 +65,7 @@ describe Gitlab::BackgroundMigration::MigrateFingerprintSha256WithinKeys, :migra
   end
 
   def generate_fingerprints!
-    values = ""
+    values = ''
     (1000..2000).to_a.each do |record|
       key = base_key_for(record)
       fingerprint = fingerprint_for(key)
@@ -76,7 +76,7 @@ describe Gitlab::BackgroundMigration::MigrateFingerprintSha256WithinKeys, :migra
     update_query = <<~SQL
       INSERT INTO keys ( id, user_id, title, key, fingerprint )
       VALUES
-      #{values.chomp(",")};
+      #{values.chomp(',')};
     SQL
 
     ActiveRecord::Base.connection.execute(update_query)
@@ -84,10 +84,10 @@ describe Gitlab::BackgroundMigration::MigrateFingerprintSha256WithinKeys, :migra
 
   def base_key_for(record)
     'ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAIEAiPWx6WM4lhHNedGfBpPJNPpZ7yKu+dnn1SJejgt0000k6YjzGGphH2TUxwKzxcKDKKezwkpfnxPkSMkuEspGRt/aZZ9wa++Oi7Qkr8prgHc4soW6NUlfDzpvZK2H5E7eQaSeP3SAwGmQKUFHCddNaP0L+hM7zhFNzjFvpaMgJw0='
-      .gsub("0000", "%04d" % (record - 1)) # generate arbitrary keys with placeholder 0000 within the key above
+      .gsub('0000', '%04d' % (record - 1)) # generate arbitrary keys with placeholder 0000 within the key above
   end
 
   def fingerprint_for(key)
-    Gitlab::SSHPublicKey.new(key).fingerprint("md5")
+    Gitlab::SSHPublicKey.new(key).fingerprint('md5')
   end
 end

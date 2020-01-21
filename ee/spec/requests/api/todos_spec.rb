@@ -34,7 +34,7 @@ describe API::Todos do
              project: project,
              target: create(:design, issue: issue),
              author: create(:user),
-             note: create(:note, project: project, note: "I am note, hear me roar"))
+             note: create(:note, project: project, note: 'I am note, hear me roar'))
     end
 
     shared_examples 'an endpoint that responds with success' do

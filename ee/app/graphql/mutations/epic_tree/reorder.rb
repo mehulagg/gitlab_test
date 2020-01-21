@@ -3,7 +3,7 @@
 module Mutations
   module EpicTree
     class Reorder < ::Mutations::BaseMutation
-      graphql_name "EpicTreeReorder"
+      graphql_name 'EpicTreeReorder'
 
       authorize :admin_epic
 

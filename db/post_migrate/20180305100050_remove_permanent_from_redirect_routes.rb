@@ -7,8 +7,8 @@ class RemovePermanentFromRedirectRoutes < ActiveRecord::Migration[4.2]
   DOWNTIME = false
   disable_ddl_transaction!
 
-  INDEX_NAME_PERM = "index_redirect_routes_on_path_text_pattern_ops_where_permanent"
-  INDEX_NAME_TEMP = "index_redirect_routes_on_path_text_pattern_ops_where_temporary"
+  INDEX_NAME_PERM = 'index_redirect_routes_on_path_text_pattern_ops_where_permanent'
+  INDEX_NAME_TEMP = 'index_redirect_routes_on_path_text_pattern_ops_where_temporary'
 
   def up
     # These indexes were created on Postgres only in:

@@ -16,8 +16,8 @@ module Gitlab
 
       def subtract_datetimes_diff(query_so_far, start_time_attrs, end_time_attrs)
         Arel::Nodes::Subtraction.new(
-          Arel::Nodes::NamedFunction.new("COALESCE", Array.wrap(end_time_attrs)),
-          Arel::Nodes::NamedFunction.new("COALESCE", Array.wrap(start_time_attrs))
+          Arel::Nodes::NamedFunction.new('COALESCE', Array.wrap(end_time_attrs)),
+          Arel::Nodes::NamedFunction.new('COALESCE', Array.wrap(start_time_attrs))
         )
       end
     end

@@ -40,11 +40,11 @@ class Gitlab::PathLocksFinder
   # This returns hierarchy tokens for path
   # app/models/project.rb => ['app', 'app/models', 'app/models/project.rb']
   def tokenize(path)
-    segments = path.split("/")
+    segments = path.split('/')
 
     tokens = []
     begin
-      tokens << segments.join("/")
+      tokens << segments.join('/')
       segments.pop
     end until segments.empty?
 
@@ -69,7 +69,7 @@ class Gitlab::PathLocksFinder
 
   # rubocop: disable CodeReuse/ActiveRecord
   def find_downstream(path)
-    @project.path_locks.find_by("path LIKE ?", "#{sanitize_sql_like(path)}%")
+    @project.path_locks.find_by('path LIKE ?', "#{sanitize_sql_like(path)}%")
   end
   # rubocop: enable CodeReuse/ActiveRecord
 end

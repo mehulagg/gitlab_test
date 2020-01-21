@@ -12,8 +12,8 @@ describe API::Suggestions do
   end
 
   let(:position) do
-    Gitlab::Diff::Position.new(old_path: "files/ruby/popen.rb",
-                               new_path: "files/ruby/popen.rb",
+    Gitlab::Diff::Position.new(old_path: 'files/ruby/popen.rb',
+                               new_path: 'files/ruby/popen.rb',
                                old_line: nil,
                                new_line: 9,
                                diff_refs: merge_request.diff_refs)
@@ -25,7 +25,7 @@ describe API::Suggestions do
                                         project: project)
   end
 
-  describe "PUT /suggestions/:id/apply" do
+  describe 'PUT /suggestions/:id/apply' do
     let(:url) { "/suggestions/#{suggestion.id}/apply" }
 
     context 'when successfully applies patch' do

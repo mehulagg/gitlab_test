@@ -26,8 +26,8 @@ class DiffNote < Note
 
   NoteDiffFileCreationError = Class.new(StandardError)
 
-  DIFF_LINE_NOT_FOUND_MESSAGE = "Failed to find diff line for: %{file_path}, old_line: %{old_line}, new_line: %{new_line}"
-  DIFF_FILE_NOT_FOUND_MESSAGE = "Failed to find diff file"
+  DIFF_LINE_NOT_FOUND_MESSAGE = 'Failed to find diff line for: %{file_path}, old_line: %{old_line}, new_line: %{new_line}'
+  DIFF_FILE_NOT_FOUND_MESSAGE = 'Failed to find diff file'
 
   after_commit :create_diff_file, on: :create
 
@@ -161,7 +161,7 @@ class DiffNote < Note
   def positions_complete
     return if self.original_position.complete? && self.position.complete?
 
-    errors.add(:position, "is invalid")
+    errors.add(:position, 'is invalid')
   end
 
   def keep_around_commits

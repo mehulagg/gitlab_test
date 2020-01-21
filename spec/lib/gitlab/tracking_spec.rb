@@ -58,7 +58,7 @@ describe Gitlab::Tracking do
     end
 
     before do
-      described_class.instance_variable_set("@snowplow", nil)
+      described_class.instance_variable_set('@snowplow', nil)
     end
 
     let(:tracker) { double }

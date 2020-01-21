@@ -92,10 +92,10 @@ module QA
           capabilities = Selenium::WebDriver::Remote::Capabilities.send(QA::Runtime::Env.browser,
             # This enables access to logs with `page.driver.manage.get_log(:browser)`
             loggingPrefs: {
-              browser: "ALL",
-              client: "ALL",
-              driver: "ALL",
-              server: "ALL"
+              browser: 'ALL',
+              client: 'ALL',
+              driver: 'ALL',
+              server: 'ALL'
             })
 
           if QA::Runtime::Env.accept_insecure_certs?
@@ -107,22 +107,22 @@ module QA
           options = Selenium::WebDriver.const_get(QA::Runtime::Env.browser.capitalize, false)::Options.new
 
           if QA::Runtime::Env.browser == :chrome
-            options.add_argument("window-size=1480,2200")
+            options.add_argument('window-size=1480,2200')
 
             # Chrome won't work properly in a Docker container in sandbox mode
-            options.add_argument("no-sandbox")
+            options.add_argument('no-sandbox')
 
             # Run headless by default unless CHROME_HEADLESS is false
             if QA::Runtime::Env.chrome_headless?
-              options.add_argument("headless")
+              options.add_argument('headless')
 
               # Chrome documentation says this flag is needed for now
               # https://developers.google.com/web/updates/2017/04/headless-chrome#cli
-              options.add_argument("disable-gpu")
+              options.add_argument('disable-gpu')
             end
 
             # Disable /dev/shm use in CI. See https://gitlab.com/gitlab-org/gitlab/issues/4252
-            options.add_argument("disable-dev-shm-usage") if QA::Runtime::Env.running_in_ci?
+            options.add_argument('disable-dev-shm-usage') if QA::Runtime::Env.running_in_ci?
           end
 
           # Use the same profile on QA runs if CHROME_REUSE_PROFILE is true.
@@ -196,8 +196,8 @@ module QA
           if QA::Runtime::Env.qa_cookies
             browser = Capybara.current_session.driver.browser
             QA::Runtime::Env.qa_cookies.each do |cookie|
-              name, value = cookie.split("=")
-              value ||= ""
+              name, value = cookie.split('=')
+              value ||= ''
               browser.manage.add_cookie name: name, value: value
             end
           end
@@ -222,7 +222,7 @@ module QA
           return if @network_conditions_configured
 
           QA::Runtime::Logger.info(
-            <<~MSG.tr("\n", " ")
+            <<~MSG.tr("\n", ' ')
               Simulating a slow connection with additional latency
               of #{Runtime::Env.slow_connection_latency} ms and a maximum
               throughput of #{Runtime::Env.slow_connection_throughput} kbps

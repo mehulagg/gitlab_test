@@ -75,7 +75,7 @@ module EE
         templates_owner = ::Group.find(subgroup_with_templates_id).parent
 
         unless templates_owner.self_and_descendants.exists?(id: project.namespace_id)
-          project.errors.add(:namespace, _("is not a descendant of the Group owning the template"))
+          project.errors.add(:namespace, _('is not a descendant of the Group owning the template'))
         end
       end
       # rubocop: enable CodeReuse/ActiveRecord

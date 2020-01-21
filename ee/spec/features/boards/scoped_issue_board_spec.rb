@@ -51,14 +51,14 @@ describe 'Scoped issue boards', :js do
         it 'creates board filtering by No Milestone' do
           create_board_milestone('No Milestone')
 
-          expect(find('.tokens-container')).to have_content("")
+          expect(find('.tokens-container')).to have_content('')
           expect(page).to have_selector('.board-card', count: 2)
         end
 
         it 'creates board filtering by Any Milestone' do
           create_board_milestone('Any Milestone')
 
-          expect(find('.tokens-container')).to have_content("")
+          expect(find('.tokens-container')).to have_content('')
           expect(page).to have_selector('.board-card', count: 3)
         end
 

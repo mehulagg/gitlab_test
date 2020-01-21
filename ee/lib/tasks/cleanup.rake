@@ -1,6 +1,6 @@
 namespace :gitlab do
   namespace :cleanup do
-    desc "GitLab | Cleanup | Delete moved repositories"
+    desc 'GitLab | Cleanup | Delete moved repositories'
     task moved: :gitlab_environment do
       warn_user_is_not_gitlab
       remove_flag = ENV['REMOVE']
@@ -26,7 +26,7 @@ namespace :gitlab do
       end
 
       unless remove_flag
-        puts "To cleanup these repositories run this command with REMOVE=true".color(:yellow)
+        puts 'To cleanup these repositories run this command with REMOVE=true'.color(:yellow)
       end
     end
   end

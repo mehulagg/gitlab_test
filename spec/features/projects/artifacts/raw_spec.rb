@@ -20,7 +20,7 @@ describe 'Raw artifact', :js do
       visit raw_url.sub('/-/jobs', '/builds')
     end
 
-    it "redirects to new URL" do
+    it 'redirects to new URL' do
       expect(page.current_path).to eq(raw_url)
     end
   end

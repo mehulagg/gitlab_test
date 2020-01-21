@@ -59,7 +59,7 @@ class Projects::GraphsController < Projects::ApplicationController
       @log << {
         author_name: commit.author_name,
         author_email: commit.author_email,
-        date: commit.committed_date.strftime("%Y-%m-%d")
+        date: commit.committed_date.strftime('%Y-%m-%d')
       }
     end
 

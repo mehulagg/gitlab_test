@@ -76,7 +76,7 @@ module NotificationsHelper
       notification_title: title
     }
 
-    content_tag(:li, role: "menuitem") do
+    content_tag(:li, role: 'menuitem') do
       link_to '#', class: "update-notification #{('is-active' if setting.level == level)}", data: data do
         link_output = content_tag(:strong, title, class: 'dropdown-menu-inner-title')
         link_output << content_tag(:span, notification_description(level), class: 'dropdown-menu-inner-content')
@@ -108,8 +108,8 @@ module NotificationsHelper
 
   def notification_setting_icon(notification_setting = nil)
     sprite_icon(
-      !notification_setting.present? || notification_setting.disabled? ? "notifications-off" : "notifications",
-      css_class: "icon notifications-icon js-notifications-icon"
+      !notification_setting.present? || notification_setting.disabled? ? 'notifications-off' : 'notifications',
+      css_class: 'icon notifications-icon js-notifications-icon'
     )
   end
 

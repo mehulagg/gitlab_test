@@ -42,7 +42,7 @@ module Gitlab
           @metrics[:sidekiq_jobs_failed_total].increment(labels, 1) unless job_succeeded
 
           # job_status: done, fail match the job_status attribute in structured logging
-          labels[:job_status] = job_succeeded ? "done" : "fail"
+          labels[:job_status] = job_succeeded ? 'done' : 'fail'
           @metrics[:sidekiq_jobs_cpu_seconds].observe(labels, job_thread_cputime)
           @metrics[:sidekiq_jobs_completion_seconds].observe(labels, monotonic_time)
         end

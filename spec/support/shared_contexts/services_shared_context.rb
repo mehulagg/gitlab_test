@@ -13,7 +13,7 @@ Service.available_services_names.each do |service|
         if k =~ /^(token*|.*_token|.*_key)/
           hash.merge!(k => 'secrettoken')
         elsif k =~ /^(.*_url|url|webhook)/
-          hash.merge!(k => "http://example.com")
+          hash.merge!(k => 'http://example.com')
         elsif service_klass.method_defined?("#{k}?")
           hash.merge!(k => true)
         elsif service == 'irker' && k == :recipients
@@ -23,7 +23,7 @@ Service.available_services_names.each do |service|
         elsif service == 'jira' && k == :jira_issue_transition_id
           hash.merge!(k => '1,2,3')
         else
-          hash.merge!(k => "someword")
+          hash.merge!(k => 'someword')
         end
       end
     end

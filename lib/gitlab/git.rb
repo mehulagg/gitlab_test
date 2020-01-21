@@ -10,8 +10,8 @@ module Gitlab
     EMPTY_TREE_ID = '4b825dc642cb6eb9a060e54bf8d69288fbee4904'
     BLANK_SHA = ('0' * 40).freeze
     COMMIT_ID = /\A[0-9a-f]{40}\z/.freeze
-    TAG_REF_PREFIX = "refs/tags/"
-    BRANCH_REF_PREFIX = "refs/heads/"
+    TAG_REF_PREFIX = 'refs/tags/'
+    BRANCH_REF_PREFIX = 'refs/heads/'
 
     BaseError = Class.new(StandardError)
     CommandError = Class.new(BaseError)

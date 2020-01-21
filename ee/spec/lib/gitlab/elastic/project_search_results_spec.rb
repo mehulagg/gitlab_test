@@ -29,8 +29,8 @@ describe Gitlab::Elastic::ProjectSearchResults, :elastic do
     it { expect(results.query).to eq('hello world') }
   end
 
-  describe "search", :sidekiq_might_not_need_inline do
-    it "returns correct amounts" do
+  describe 'search', :sidekiq_might_not_need_inline do
+    it 'returns correct amounts' do
       project = create :project, :public, :repository, :wiki_repo
       project1 = create :project, :public, :repository, :wiki_repo
 
@@ -76,7 +76,7 @@ describe Gitlab::Elastic::ProjectSearchResults, :elastic do
     end
   end
 
-  describe "search for commits in non-default branch" do
+  describe 'search for commits in non-default branch' do
     let(:project) { create(:project, :public, :repository, visibility) }
     let(:visibility) { :repository_enabled }
     let(:result) { described_class.new(user, 'initial', project.id, 'test') }

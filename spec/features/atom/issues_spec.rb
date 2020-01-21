@@ -62,7 +62,7 @@ describe 'Issues Feed' do
       end
     end
 
-    it "renders atom feed with url parameters for project issues" do
+    it 'renders atom feed with url parameters for project issues' do
       visit project_issues_path(project, :atom, feed_token: user.feed_token, state: 'opened', assignee_id: user.id)
 
       link = find('link[type="application/atom+xml"]')
@@ -73,7 +73,7 @@ describe 'Issues Feed' do
       expect(params).to include('assignee_id' => [user.id.to_s])
     end
 
-    it "renders atom feed with url parameters for group issues" do
+    it 'renders atom feed with url parameters for group issues' do
       visit issues_group_path(group, :atom, feed_token: user.feed_token, state: 'opened', assignee_id: user.id)
 
       link = find('link[type="application/atom+xml"]')

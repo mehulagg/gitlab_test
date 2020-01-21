@@ -19,26 +19,26 @@ describe Gitlab::Ci::YamlProcessor do
       it 'creates jobs with valid specification' do
         expect(subject.builds.size).to eq(2)
         expect(subject.builds[0]).to eq(
-          stage: "build",
+          stage: 'build',
           stage_idx: 1,
-          name: "build",
+          name: 'build',
           only: { refs: %w[branches tags] },
           options: {
-            script: ["test"]
+            script: ['test']
           },
-          when: "on_success",
+          when: 'on_success',
           allow_failure: false,
           yaml_variables: []
         )
         expect(subject.builds[1]).to eq(
-          stage: "test",
+          stage: 'test',
           stage_idx: 2,
-          name: "bridge",
+          name: 'bridge',
           only: { refs: %w[branches tags] },
           options: {
             bridge_needs: { pipeline: 'some/project' }
           },
-          when: "on_success",
+          when: 'on_success',
           allow_failure: false,
           yaml_variables: []
         )
@@ -51,29 +51,29 @@ describe Gitlab::Ci::YamlProcessor do
       it 'creates jobs with valid specification' do
         expect(subject.builds.size).to eq(2)
         expect(subject.builds[0]).to eq(
-          stage: "build",
+          stage: 'build',
           stage_idx: 1,
-          name: "build",
+          name: 'build',
           only: { refs: %w[branches tags] },
           options: {
-            script: ["test"]
+            script: ['test']
           },
-          when: "on_success",
+          when: 'on_success',
           allow_failure: false,
           yaml_variables: []
         )
         expect(subject.builds[1]).to eq(
-          stage: "test",
+          stage: 'test',
           stage_idx: 2,
-          name: "bridge",
+          name: 'bridge',
           only: { refs: %w[branches tags] },
           options: {
             bridge_needs: { pipeline: 'some/project' }
           },
           needs_attributes: [
-            { name: "build", artifacts: true }
+            { name: 'build', artifacts: true }
           ],
-          when: "on_success",
+          when: 'on_success',
           allow_failure: false,
           yaml_variables: []
         )

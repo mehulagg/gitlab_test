@@ -126,7 +126,7 @@ describe Import::GoogleCodeController, 'routing' do
   end
 
   it 'to #callback' do
-    expect(post("/import/google_code/callback")).to route_to("import/google_code#callback")
+    expect(post('/import/google_code/callback')).to route_to('import/google_code#callback')
   end
 
   it 'to #new_user_map' do
@@ -152,7 +152,7 @@ describe Import::FogbugzController, 'routing' do
   end
 
   it 'to #callback' do
-    expect(post("/import/fogbugz/callback")).to route_to("import/fogbugz#callback")
+    expect(post('/import/fogbugz/callback')).to route_to('import/fogbugz#callback')
   end
 
   it 'to #new_user_map' do
@@ -181,10 +181,10 @@ end
 # import_phabricator     POST /import/phabricator(.:format)     import/phabricator#create
 describe Import::PhabricatorController, 'routing' do
   it 'to #create' do
-    expect(post("/import/phabricator")).to route_to("import/phabricator#create")
+    expect(post('/import/phabricator')).to route_to('import/phabricator#create')
   end
 
   it 'to #new' do
-    expect(get("/import/phabricator/new")).to route_to("import/phabricator#new")
+    expect(get('/import/phabricator/new')).to route_to('import/phabricator#new')
   end
 end

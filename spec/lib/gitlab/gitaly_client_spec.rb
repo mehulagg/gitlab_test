@@ -53,7 +53,7 @@ describe Gitlab::GitalyClient do
 
   describe '.filesystem_id' do
     it 'returns an empty string when the storage is not found in the response' do
-      response = double("response")
+      response = double('response')
       allow(response).to receive(:storage_statuses).and_return([])
       allow_next_instance_of(Gitlab::GitalyClient::ServerService) do |instance|
         allow(instance).to receive(:info).and_return(response)
@@ -189,13 +189,13 @@ describe Gitlab::GitalyClient do
   describe 'allow_n_plus_1_calls' do
     context 'when RequestStore is enabled', :request_store do
       it 'returns the result of the allow_n_plus_1_calls block' do
-        expect(described_class.allow_n_plus_1_calls { "result" }).to eq("result")
+        expect(described_class.allow_n_plus_1_calls { 'result' }).to eq('result')
       end
     end
 
     context 'when RequestStore is not active' do
       it 'returns the result of the allow_n_plus_1_calls block' do
-        expect(described_class.allow_n_plus_1_calls { "something" }).to eq("something")
+        expect(described_class.allow_n_plus_1_calls { 'something' }).to eq('something')
       end
     end
   end
@@ -242,14 +242,14 @@ describe Gitlab::GitalyClient do
 
         expect(kword_args[:deadline])
           .to be_within(1).of(real_time + 2)
-        expect(kword_args[:metadata][:deadline_type]).to eq("regular")
+        expect(kword_args[:metadata][:deadline_type]).to eq('regular')
       end
 
       it 'limits the deadline do the request deadline if that is closer', :aggregate_failures do
         kword_args = described_class.request_kwargs('default', timeout: 15)
 
         expect(kword_args[:deadline]).to eq(request_deadline)
-        expect(kword_args[:metadata][:deadline_type]).to eq("limited")
+        expect(kword_args[:metadata][:deadline_type]).to eq('limited')
       end
 
       it 'does not limit calls in sidekiq' do

@@ -120,7 +120,7 @@ describe Gitlab::JsonCache do
     it 'returns the cached value when there is data in the cache with the given key' do
       allow(backend).to receive(:read)
         .with(expanded_key)
-        .and_return("true")
+        .and_return('true')
 
       expect(cache.read(key)).to eq(true)
     end
@@ -140,7 +140,7 @@ describe Gitlab::JsonCache do
           .with(expanded_key)
           .and_return(true)
 
-        expect(ActiveSupport::JSON).to receive(:decode).with("true").and_call_original
+        expect(ActiveSupport::JSON).to receive(:decode).with('true').and_call_original
         expect(cache.read(key, BroadcastMessage)).to eq(true)
       end
     end
@@ -151,7 +151,7 @@ describe Gitlab::JsonCache do
           .with(expanded_key)
           .and_return(false)
 
-        expect(ActiveSupport::JSON).to receive(:decode).with("false").and_call_original
+        expect(ActiveSupport::JSON).to receive(:decode).with('false').and_call_original
         expect(cache.read(key, BroadcastMessage)).to eq(false)
       end
     end
@@ -160,7 +160,7 @@ describe Gitlab::JsonCache do
       it 'parses the cached value' do
         allow(backend).to receive(:read)
           .with(expanded_key)
-          .and_return("true")
+          .and_return('true')
 
         expect(cache.read(key, BroadcastMessage)).to eq(true)
       end
@@ -170,7 +170,7 @@ describe Gitlab::JsonCache do
       it 'parses the cached value' do
         allow(backend).to receive(:read)
           .with(expanded_key)
-          .and_return("false")
+          .and_return('false')
 
         expect(cache.read(key, BroadcastMessage)).to eq(false)
       end
@@ -220,7 +220,7 @@ describe Gitlab::JsonCache do
       it 'gracefully handles excluded fields from attributes during serialization' do
         allow(backend).to receive(:read)
           .with(expanded_key)
-          .and_return(broadcast_message.attributes.except("message_html").to_json)
+          .and_return(broadcast_message.attributes.except('message_html').to_json)
 
         result = cache.read(key, BroadcastMessage)
 
@@ -277,7 +277,7 @@ describe Gitlab::JsonCache do
     it 'writes value to the cache with the given key' do
       cache.write(key, true)
 
-      expect(backend).to have_received(:write).with(expanded_key, "true", nil)
+      expect(backend).to have_received(:write).with(expanded_key, 'true', nil)
     end
 
     it 'writes a string containing a JSON representation of the value to the cache' do
@@ -291,21 +291,21 @@ describe Gitlab::JsonCache do
       cache.write(key, true, expires_in: 15.seconds)
 
       expect(backend).to have_received(:write)
-        .with(expanded_key, "true", expires_in: 15.seconds)
+        .with(expanded_key, 'true', expires_in: 15.seconds)
     end
 
     it 'passes options the underlying cache implementation when options is empty' do
       cache.write(key, true, {})
 
       expect(backend).to have_received(:write)
-        .with(expanded_key, "true", {})
+        .with(expanded_key, 'true', {})
     end
 
     it 'passes options the underlying cache implementation when options is nil' do
       cache.write(key, true, nil)
 
       expect(backend).to have_received(:write)
-        .with(expanded_key, "true", nil)
+        .with(expanded_key, 'true', nil)
     end
   end
 
@@ -318,7 +318,7 @@ describe Gitlab::JsonCache do
 
     it 'passes options the underlying cache implementation' do
       expect(backend).to receive(:write)
-        .with(expanded_key, "true", expires_in: 15.seconds)
+        .with(expanded_key, 'true', expires_in: 15.seconds)
 
       cache.fetch(key, expires_in: 15.seconds) { true }
     end
@@ -332,7 +332,7 @@ describe Gitlab::JsonCache do
         end
 
         it 'caches the value' do
-          expect(backend).to receive(:write).with(expanded_key, "true", {})
+          expect(backend).to receive(:write).with(expanded_key, 'true', {})
 
           cache.fetch(key) { true }
         end
@@ -346,7 +346,7 @@ describe Gitlab::JsonCache do
         end
 
         it 'caches the value' do
-          expect(backend).to receive(:write).with(expanded_key, "false", {})
+          expect(backend).to receive(:write).with(expanded_key, 'false', {})
 
           cache.fetch(key) { false }
         end
@@ -360,7 +360,7 @@ describe Gitlab::JsonCache do
         end
 
         it 'caches the value' do
-          expect(backend).to receive(:write).with(expanded_key, "null", {})
+          expect(backend).to receive(:write).with(expanded_key, 'null', {})
 
           cache.fetch(key) { nil }
         end
@@ -441,7 +441,7 @@ describe Gitlab::JsonCache do
           it 'gracefully handles excluded fields from attributes during serialization' do
             allow(backend).to receive(:read)
               .with(expanded_key)
-              .and_return(broadcast_message.attributes.except("message_html").to_json)
+              .and_return(broadcast_message.attributes.except('message_html').to_json)
 
             result = cache.fetch(key, as: BroadcastMessage) { 'block result' }
 
@@ -490,7 +490,7 @@ describe Gitlab::JsonCache do
 
       context 'when the cached value is true' do
         before do
-          backend.write(expanded_key, "true")
+          backend.write(expanded_key, 'true')
         end
 
         it 'returns the cached value' do
@@ -512,7 +512,7 @@ describe Gitlab::JsonCache do
 
       context 'when the cached value is false' do
         before do
-          backend.write(expanded_key, "false")
+          backend.write(expanded_key, 'false')
         end
 
         it 'returns the cached value' do
@@ -534,7 +534,7 @@ describe Gitlab::JsonCache do
 
       context 'when the cached value is nil' do
         before do
-          backend.write(expanded_key, "null")
+          backend.write(expanded_key, 'null')
         end
 
         it 'returns the result of the block' do

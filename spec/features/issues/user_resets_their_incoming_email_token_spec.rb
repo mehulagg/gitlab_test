@@ -8,7 +8,7 @@ describe 'Issues > User resets their incoming email token' do
   let_it_be(:issue) { create(:issue, project: project) }
 
   before do
-    stub_incoming_email_setting(enabled: true, address: "p+%{key}@gl.ab")
+    stub_incoming_email_setting(enabled: true, address: 'p+%{key}@gl.ab')
     project.add_maintainer(user)
     sign_in(user)
 

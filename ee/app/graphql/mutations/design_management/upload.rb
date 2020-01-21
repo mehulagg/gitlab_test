@@ -3,22 +3,22 @@
 module Mutations
   module DesignManagement
     class Upload < Base
-      graphql_name "DesignManagementUpload"
+      graphql_name 'DesignManagementUpload'
 
       argument :files, [ApolloUploadServer::Upload],
                required: true,
-               description: "The files to upload"
+               description: 'The files to upload'
 
       authorize :create_design
 
       field :designs, [Types::DesignManagement::DesignType],
             null: false,
-            description: "The designs that were uploaded by the mutation"
+            description: 'The designs that were uploaded by the mutation'
 
       field :skipped_designs, [Types::DesignManagement::DesignType],
             null: false,
-            description: "Any designs that were skipped from the upload due to there " \
-                         "being no change to their content since their last version"
+            description: 'Any designs that were skipped from the upload due to there ' \
+                         'being no change to their content since their last version'
 
       def resolve(project_path:, iid:, files:)
         issue = authorized_find!(project_path: project_path, iid: iid)

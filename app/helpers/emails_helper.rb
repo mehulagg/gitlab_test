@@ -9,12 +9,12 @@ module EmailsHelper
     name = action_title(url)
     if name
       data = {
-        "@context" => "http://schema.org",
-        "@type" => "EmailMessage",
-        "action" => {
-          "@type" => "ViewAction",
-          "name" => name,
-          "url" => url
+        '@context' => 'http://schema.org',
+        '@type' => 'EmailMessage',
+        'action' => {
+          '@type' => 'ViewAction',
+          'name' => name,
+          'url' => url
           }
         }
 
@@ -28,7 +28,7 @@ module EmailsHelper
     return unless url
 
     %w(merge_requests issues commit).each do |action|
-      if url.split("/").include?(action)
+      if url.split('/').include?(action)
         return "View #{action.humanize.singularize}"
       end
     end
@@ -90,25 +90,25 @@ module EmailsHelper
     when MergeRequest
       merge_request = MergeRequest.find(closed_via[:id]).present
 
-      return "" unless Ability.allowed?(@recipient, :read_merge_request, merge_request)
+      return '' unless Ability.allowed?(@recipient, :read_merge_request, merge_request)
 
       case format
       when :html
         merge_request_link = link_to(merge_request.to_reference, merge_request.web_url)
-        _("via merge request %{link}").html_safe % { link: merge_request_link }
+        _('via merge request %{link}').html_safe % { link: merge_request_link }
       else
         # If it's not HTML nor text then assume it's text to be safe
-        _("via merge request %{link}") % { link: "#{merge_request.to_reference} (#{merge_request.web_url})" }
+        _('via merge request %{link}') % { link: "#{merge_request.to_reference} (#{merge_request.web_url})" }
       end
     when String
       # Technically speaking this should be Commit but per
       # https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/15610#note_163812339
       # we can't deserialize Commit without custom serializer for ActiveJob
-      return "" unless Ability.allowed?(@recipient, :download_code, @project)
+      return '' unless Ability.allowed?(@recipient, :download_code, @project)
 
-      _("via %{closed_via}") % { closed_via: closed_via }
+      _('via %{closed_via}') % { closed_via: closed_via }
     else
-      ""
+      ''
     end
   end
 
@@ -138,19 +138,19 @@ module EmailsHelper
     max_domain_length = list_id_max_length - Gitlab.config.gitlab.host.length - project.id.to_s.length - 2
 
     if max_domain_length < 3
-      return project.id.to_s + "..." + Gitlab.config.gitlab.host
+      return project.id.to_s + '...' + Gitlab.config.gitlab.host
     end
 
     if project_path_as_domain.length > max_domain_length
       project_path_as_domain = project_path_as_domain.slice(0, max_domain_length)
 
-      last_dot_index = project_path_as_domain[0..-2].rindex(".")
+      last_dot_index = project_path_as_domain[0..-2].rindex('.')
       last_dot_index ||= max_domain_length - 2
 
-      project_path_as_domain = project_path_as_domain.slice(0, last_dot_index).concat("..")
+      project_path_as_domain = project_path_as_domain.slice(0, last_dot_index).concat('..')
     end
 
-    project.id.to_s + "." + project_path_as_domain + "." + Gitlab.config.gitlab.host
+    project.id.to_s + '.' + project_path_as_domain + '.' + Gitlab.config.gitlab.host
   end
 
   def html_header_message

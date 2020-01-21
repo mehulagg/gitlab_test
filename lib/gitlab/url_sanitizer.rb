@@ -38,8 +38,8 @@ module Gitlab
 
     def masked_url
       url = @url.dup
-      url.password = "*****" if url.password.present?
-      url.user = "*****" if url.user.present?
+      url.password = '*****' if url.password.present?
+      url.user = '*****' if url.user.present?
       url.to_s
     end
 

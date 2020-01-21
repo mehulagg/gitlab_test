@@ -5,11 +5,11 @@ require 'spec_helper'
 describe DiscussionOnDiff do
   subject { create(:diff_note_on_merge_request, line_number: 18).to_discussion }
 
-  describe "#truncated_diff_lines" do
+  describe '#truncated_diff_lines' do
     let(:truncated_lines) { subject.truncated_diff_lines }
 
-    context "when diff is greater than allowed number of truncated diff lines " do
-      it "returns fewer lines" do
+    context 'when diff is greater than allowed number of truncated diff lines ' do
+      it 'returns fewer lines' do
         expect(subject.diff_lines.count).to be > DiffDiscussion::NUMBER_OF_TRUNCATED_DIFF_LINES
 
         expect(truncated_lines.count).to be <= DiffDiscussion::NUMBER_OF_TRUNCATED_DIFF_LINES
@@ -44,17 +44,17 @@ describe DiscussionOnDiff do
       end
     end
 
-    context "when some diff lines are meta" do
-      it "returns no meta lines"  do
+    context 'when some diff lines are meta' do
+      it 'returns no meta lines'  do
         expect(subject.diff_lines).to include(be_meta)
         expect(truncated_lines).not_to include(be_meta)
       end
     end
 
-    context "when the diff line does not exist on a legacy diff note" do
+    context 'when the diff line does not exist on a legacy diff note' do
       subject { create(:legacy_diff_note_on_merge_request).to_discussion }
 
-      it "returns an empty array" do
+      it 'returns an empty array' do
         expect(truncated_lines).to eq([])
       end
     end

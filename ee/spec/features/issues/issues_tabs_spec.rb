@@ -29,7 +29,7 @@ describe 'Issue page tabs', :js do
     end
 
     context 'issue with 2 system notes and 1 discussion' do
-      let!(:discussion) { create(:discussion_note_on_issue, noteable: issue, project: project, note: "This is good") }
+      let!(:discussion) { create(:discussion_note_on_issue, noteable: issue, project: project, note: 'This is good') }
 
       before do
         create(:system_note, noteable: issue, project: project, author: user, note: 'description updated')

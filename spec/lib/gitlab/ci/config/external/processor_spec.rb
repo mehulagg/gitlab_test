@@ -21,7 +21,7 @@ describe Gitlab::Ci::Config::External::Processor do
       .to receive(:check_execution_time!)
   end
 
-  describe "#perform" do
+  describe '#perform' do
     subject { processor.perform }
 
     context 'when no external files defined' do
@@ -38,7 +38,7 @@ describe Gitlab::Ci::Config::External::Processor do
       it 'raises an error' do
         expect { processor.perform }.to raise_error(
           described_class::IncludeError,
-          "Local file `/lib/gitlab/ci/templates/non-existent-file.yml` does not exist!"
+          'Local file `/lib/gitlab/ci/templates/non-existent-file.yml` does not exist!'
         )
       end
     end
@@ -176,12 +176,12 @@ describe Gitlab::Ci::Config::External::Processor do
       it 'raises an error' do
         expect { processor.perform }.to raise_error(
           described_class::IncludeError,
-          "Included file `/lib/gitlab/ci/templates/template.yml` does not have valid YAML syntax!"
+          'Included file `/lib/gitlab/ci/templates/template.yml` does not have valid YAML syntax!'
         )
       end
     end
 
-    context "when both external files and values defined the same key" do
+    context 'when both external files and values defined the same key' do
       let(:remote_file) { 'https://gitlab.com/gitlab-org/gitlab-foss/blob/1234/.gitlab-ci-1.yml' }
       let(:values) do
         {
@@ -203,7 +203,7 @@ describe Gitlab::Ci::Config::External::Processor do
       end
     end
 
-    context "when a nested includes are defined" do
+    context 'when a nested includes are defined' do
       let(:values) do
         {
           include: [

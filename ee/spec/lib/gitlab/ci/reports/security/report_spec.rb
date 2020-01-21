@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe Gitlab::Ci::Reports::Security::Report do
   let(:report) { described_class.new('sast', commit_sha, created_at) }
-  let(:commit_sha) { "d8978e74745e18ce44d88814004d4255ac6a65bb" }
+  let(:commit_sha) { 'd8978e74745e18ce44d88814004d4255ac6a65bb' }
   let(:created_at) { 2.weeks.ago }
 
   it { expect(report.type).to eq('sast') }
@@ -122,10 +122,10 @@ describe Gitlab::Ci::Reports::Security::Report do
     end
   end
 
-  describe "#safe?" do
+  describe '#safe?' do
     subject { described_class.new('sast', commit_sha, created_at) }
 
-    context "when the sast report has an unsafe vulnerability" do
+    context 'when the sast report has an unsafe vulnerability' do
       where(severity: %w[unknown Unknown high High critical Critical])
       with_them do
         let(:occurrence) { build(:ci_reports_security_occurrence, severity: severity) }
@@ -139,7 +139,7 @@ describe Gitlab::Ci::Reports::Security::Report do
       end
     end
 
-    context "when the sast report has a medium to low severity vulnerability" do
+    context 'when the sast report has a medium to low severity vulnerability' do
       where(severity: %w[medium Medium low Low])
       with_them do
         let(:occurrence) { build(:ci_reports_security_occurrence, severity: severity) }
@@ -153,7 +153,7 @@ describe Gitlab::Ci::Reports::Security::Report do
       end
     end
 
-    context "when the sast report has a vulnerability with a `nil` severity" do
+    context 'when the sast report has a vulnerability with a `nil` severity' do
       let(:occurrence) { build(:ci_reports_security_occurrence, severity: nil) }
 
       before do
@@ -164,7 +164,7 @@ describe Gitlab::Ci::Reports::Security::Report do
       it { expect(subject).to be_safe }
     end
 
-    context "when the sast report has a vulnerability with a blank severity" do
+    context 'when the sast report has a vulnerability with a blank severity' do
       let(:occurrence) { build(:ci_reports_security_occurrence, severity: '') }
 
       before do
@@ -175,7 +175,7 @@ describe Gitlab::Ci::Reports::Security::Report do
       it { expect(subject).to be_safe }
     end
 
-    context "when the sast report has zero vulnerabilities" do
+    context 'when the sast report has zero vulnerabilities' do
       it { expect(subject.unsafe_severity?).to be(false) }
       it { expect(subject).to be_safe }
     end

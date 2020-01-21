@@ -8,11 +8,11 @@ describe Gitlab::HealthChecks::PumaCheck do
   let(:metrics) { described_class.metrics }
 
   shared_examples 'with state' do |(state, message)|
-    it "does provide readiness" do
+    it 'does provide readiness' do
       expect(readiness).to eq(result_class.new('puma_check', state, message))
     end
 
-    it "does provide metrics" do
+    it 'does provide metrics' do
       expect(metrics).to include(
         an_object_having_attributes(name: 'puma_check_success', value: state ? 1 : 0))
       expect(metrics).to include(
@@ -26,7 +26,7 @@ describe Gitlab::HealthChecks::PumaCheck do
       hide_const('Puma')
     end
 
-    it "does not provide readiness and metrics" do
+    it 'does not provide readiness and metrics' do
       expect(readiness).to be_nil
       expect(metrics).to be_nil
     end

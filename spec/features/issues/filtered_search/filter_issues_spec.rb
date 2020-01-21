@@ -16,8 +16,8 @@ describe 'Filter issues', :js do
 
   let!(:bug_label) { create(:label, project: project, title: 'bug') }
   let!(:caps_sensitive_label) { create(:label, project: project, title: 'CaPs') }
-  let!(:multiple_words_label) { create(:label, project: project, title: "Two words") }
-  let!(:milestone) { create(:milestone, title: "8", project: project, start_date: 2.days.ago) }
+  let!(:multiple_words_label) { create(:label, project: project, title: 'Two words') }
+  let!(:milestone) { create(:milestone, title: '8', project: project, start_date: 2.days.ago) }
 
   def expect_no_issues_list
     page.within '.issues-list' do
@@ -28,14 +28,14 @@ describe 'Filter issues', :js do
   before do
     project.add_maintainer(user)
 
-    create(:issue, project: project, author: user2, title: "Bug report 1")
-    create(:issue, project: project, author: user2, title: "Bug report 2")
+    create(:issue, project: project, author: user2, title: 'Bug report 1')
+    create(:issue, project: project, author: user2, title: 'Bug report 2')
 
-    create(:issue, project: project, author: user,  title: "issue by assignee", milestone: milestone, assignees: [user])
-    create(:issue, project: project, author: user,  title: "issue by assignee with searchTerm", milestone: milestone, assignees: [user])
+    create(:issue, project: project, author: user,  title: 'issue by assignee', milestone: milestone, assignees: [user])
+    create(:issue, project: project, author: user,  title: 'issue by assignee with searchTerm', milestone: milestone, assignees: [user])
 
     create(:labeled_issue,
-      title: "Bug 2",
+      title: 'Bug 2',
       project: project,
       milestone: milestone,
       author: user,
@@ -43,7 +43,7 @@ describe 'Filter issues', :js do
       labels: [bug_label])
 
     create(:labeled_issue,
-      title: "issue by assignee with searchTerm and label",
+      title: 'issue by assignee with searchTerm and label',
       project: project,
       milestone: milestone,
       author: user,
@@ -51,14 +51,14 @@ describe 'Filter issues', :js do
       labels: [caps_sensitive_label])
 
     create(:labeled_issue,
-      title: "Bug report foo was possible",
+      title: 'Bug report foo was possible',
       project: project,
       milestone: milestone,
       author: user,
       assignees: [user],
       labels: [bug_label, caps_sensitive_label])
 
-    create(:labeled_issue, title: "Issue with multiple words label", project: project, labels: [multiple_words_label])
+    create(:labeled_issue, title: 'Issue with multiple words label', project: project, labels: [multiple_words_label])
 
     sign_in(user)
     visit project_issues_path(project)
@@ -193,7 +193,7 @@ describe 'Filter issues', :js do
 
       it 'filters issues by label containing special characters' do
         special_label = create(:label, project: project, title: '!@#{$%^&*()-+[]<>?/:{}|\}')
-        special_issue = create(:issue, title: "Issue with special character label", project: project)
+        special_issue = create(:issue, title: 'Issue with special character label', project: project)
         special_issue.labels << special_label
 
         input_filtered_search("label=~#{special_label.title}")
@@ -205,7 +205,7 @@ describe 'Filter issues', :js do
 
       it 'filters issues by label not containing special characters' do
         special_label = create(:label, project: project, title: '!@#{$%^&*()-+[]<>?/:{}|\}')
-        special_issue = create(:issue, title: "Issue with special character label", project: project)
+        special_issue = create(:issue, title: 'Issue with special character label', project: project)
         special_issue.labels << special_label
 
         input_filtered_search("label!=~#{special_label.title}")
@@ -236,8 +236,8 @@ describe 'Filter issues', :js do
 
     context 'label with multiple words' do
       it 'special characters' do
-        special_multiple_label = create(:label, project: project, title: "Utmost |mp0rt@nce")
-        special_multiple_issue = create(:issue, title: "Issue with special character multiple words label", project: project)
+        special_multiple_label = create(:label, project: project, title: 'Utmost |mp0rt@nce')
+        special_multiple_issue = create(:issue, title: 'Issue with special character multiple words label', project: project)
         special_multiple_issue.labels << special_multiple_label
 
         input_filtered_search("label=~'#{special_multiple_label.title}'")
@@ -269,7 +269,7 @@ describe 'Filter issues', :js do
 
       it 'single quotes containing double quotes' do
         double_quotes_label = create(:label, project: project, title: 'won"t fix')
-        double_quotes_label_issue = create(:issue, title: "Issue with double quotes label", project: project)
+        double_quotes_label_issue = create(:issue, title: 'Issue with double quotes label', project: project)
         double_quotes_label_issue.labels << double_quotes_label
 
         input_filtered_search("label=~'#{double_quotes_label.title}'")
@@ -281,7 +281,7 @@ describe 'Filter issues', :js do
 
       it 'double quotes containing single quotes' do
         single_quotes_label = create(:label, project: project, title: "won't fix")
-        single_quotes_label_issue = create(:issue, title: "Issue with single quotes label", project: project)
+        single_quotes_label_issue = create(:issue, title: 'Issue with single quotes label', project: project)
         single_quotes_label_issue.labels << single_quotes_label
 
         input_filtered_search("label=~\"#{single_quotes_label.title}\"")
@@ -352,7 +352,7 @@ describe 'Filter issues', :js do
       end
 
       it 'filters issues by no milestone' do
-        input_filtered_search("milestone=none")
+        input_filtered_search('milestone=none')
 
         expect_tokens([milestone_token('None', false)])
         expect_issues_list_count(3)
@@ -360,7 +360,7 @@ describe 'Filter issues', :js do
       end
 
       it 'filters issues by negation of no milestone' do
-        input_filtered_search("milestone!=none ")
+        input_filtered_search('milestone!=none ')
 
         expect_tokens([milestone_token('None', false, '!=')])
         expect_issues_list_count(5)
@@ -372,7 +372,7 @@ describe 'Filter issues', :js do
           create(:issue, project: project, milestone: future_milestone, author: user)
         end
 
-        input_filtered_search("milestone=upcoming")
+        input_filtered_search('milestone=upcoming')
 
         expect_tokens([milestone_token('Upcoming', false)])
         expect_issues_list_count(1)
@@ -384,7 +384,7 @@ describe 'Filter issues', :js do
           create(:issue, project: project, milestone: future_milestone, author: user)
         end
 
-        input_filtered_search("milestone!=upcoming")
+        input_filtered_search('milestone!=upcoming')
 
         expect_tokens([milestone_token('Upcoming', false, '!=')])
         expect_issues_list_count(8)
@@ -392,7 +392,7 @@ describe 'Filter issues', :js do
       end
 
       it 'filters issues by started milestones' do
-        input_filtered_search("milestone=started")
+        input_filtered_search('milestone=started')
 
         expect_tokens([milestone_token('Started', false)])
         expect_issues_list_count(5)
@@ -400,7 +400,7 @@ describe 'Filter issues', :js do
       end
 
       it 'filters issues by negation of started milestones' do
-        input_filtered_search("milestone!=started")
+        input_filtered_search('milestone!=started')
 
         expect_tokens([milestone_token('Started', false, '!=')])
         expect_issues_list_count(3)
@@ -489,7 +489,7 @@ describe 'Filter issues', :js do
       end
 
       it 'filters issues by searched text containing double quotes' do
-        issue = create(:issue, project: project, author: user, title: "issue with \"double quotes\"")
+        issue = create(:issue, project: project, author: user, title: 'issue with "double quotes"')
 
         search = '"double quotes"'
         input_filtered_search(search)
@@ -595,7 +595,7 @@ describe 'Filter issues', :js do
     end
 
     it 'milestone dropdown loads milestones' do
-      input_filtered_search("milestone=", submit: false)
+      input_filtered_search('milestone=', submit: false)
 
       within('#js-dropdown-milestone') do
         expect(page).to have_selector('.filter-dropdown .filter-dropdown-item', count: 1)
@@ -603,7 +603,7 @@ describe 'Filter issues', :js do
     end
 
     it 'label dropdown load labels' do
-      input_filtered_search("label=", submit: false)
+      input_filtered_search('label=', submit: false)
 
       within('#js-dropdown-label') do
         expect(page).to have_selector('.filter-dropdown .filter-dropdown-item', count: 3)

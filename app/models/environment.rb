@@ -56,7 +56,7 @@ class Environment < ApplicationRecord
     order(Gitlab::Database.nulls_last_order("(#{max_deployment_id_sql})", 'DESC'))
   end
 
-  scope :in_review_folder, -> { where(environment_type: "review") }
+  scope :in_review_folder, -> { where(environment_type: 'review') }
   scope :for_name, -> (name) { where(name: name) }
   scope :preload_cluster, -> { preload(last_deployment: :cluster) }
 
@@ -136,7 +136,7 @@ class Environment < ApplicationRecord
   end
 
   def update_merge_request_metrics?
-    folder_name == "production"
+    folder_name == 'production'
   end
 
   def first_deployment_for(commit_sha)

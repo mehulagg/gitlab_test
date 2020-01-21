@@ -6,7 +6,7 @@ describe Groups::AvatarsController do
   include ExternalAuthorizationServiceHelpers
 
   let(:user)  { create(:user) }
-  let(:group) { create(:group, avatar: fixture_file_upload("spec/fixtures/dk.png", "image/png")) }
+  let(:group) { create(:group, avatar: fixture_file_upload('spec/fixtures/dk.png', 'image/png')) }
 
   before do
     group.add_owner(user)

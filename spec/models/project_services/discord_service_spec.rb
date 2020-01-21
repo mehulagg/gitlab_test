@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe DiscordService do
-  it_behaves_like "chat service", "Discord notifications" do
+  it_behaves_like 'chat service', 'Discord notifications' do
     let(:client) { Discordrb::Webhooks::Client }
     let(:client_arguments) { { url: webhook_url } }
     let(:content_key) { :content }
@@ -14,7 +14,7 @@ describe DiscordService do
 
     let(:user) { create(:user) }
     let(:project) { create(:project, :repository) }
-    let(:webhook_url) { "https://example.gitlab.com/" }
+    let(:webhook_url) { 'https://example.gitlab.com/' }
 
     let(:sample_data) do
       Gitlab::DataBuilder::Push.build_sample(project, user)

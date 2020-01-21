@@ -11,7 +11,7 @@ describe ProjectsController do
     sign_in(user)
   end
 
-  describe "GET show" do
+  describe 'GET show' do
     let(:public_project) { create(:project, :public, :repository) }
 
     render_views

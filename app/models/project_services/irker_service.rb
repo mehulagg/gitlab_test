@@ -104,7 +104,7 @@ class IrkerService < Service
         new_recipient = URI.join(default_irc_uri, '/', recipient).to_s
         uri = consider_uri(URI.parse(new_recipient))
       rescue
-        log_error("Unable to create a valid URL", default_irc_uri: default_irc_uri, recipient: recipient)
+        log_error('Unable to create a valid URL', default_irc_uri: default_irc_uri, recipient: recipient)
       end
     end
 

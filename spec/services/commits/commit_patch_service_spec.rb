@@ -5,8 +5,8 @@ describe Commits::CommitPatchService do
   describe '#execute' do
     let(:patches) do
       patches_folder = Rails.root.join('spec/fixtures/patchfiles')
-      content_1 = File.read(File.join(patches_folder, "0001-This-does-not-apply-to-the-feature-branch.patch"))
-      content_2 = File.read(File.join(patches_folder, "0001-A-commit-from-a-patch.patch"))
+      content_1 = File.read(File.join(patches_folder, '0001-This-does-not-apply-to-the-feature-branch.patch'))
+      content_2 = File.read(File.join(patches_folder, '0001-A-commit-from-a-patch.patch'))
 
       [content_1, content_2]
     end
@@ -66,7 +66,7 @@ describe Commits::CommitPatchService do
     end
 
     context 'when the patches are not valid' do
-      let(:patches) { "a" * 2.1.megabytes }
+      let(:patches) { 'a' * 2.1.megabytes }
 
       it_behaves_like 'an error response', 'Patches are too big'
     end

@@ -21,7 +21,7 @@ describe GitlabSchema.types['Issue'] do
     end
   end
 
-  describe "issue notes" do
+  describe 'issue notes' do
     let(:user) { create(:user) }
     let(:project) { create(:project, :public) }
     let(:issue) { create(:issue, project: project) }
@@ -57,8 +57,8 @@ describe GitlabSchema.types['Issue'] do
       subject { GitlabSchema.execute(query, context: { current_user: current_user }).as_json }
 
       shared_examples_for 'does not include private notes' do
-        it "does not return private notes" do
-          notes = subject.dig("data", "project", "issue", "notes", 'edges')
+        it 'does not return private notes' do
+          notes = subject.dig('data', 'project', 'issue', 'notes', 'edges')
           notes_body = notes.map {|n| n.dig('node', 'body')}
 
           expect(notes.size).to eq 1
@@ -68,8 +68,8 @@ describe GitlabSchema.types['Issue'] do
       end
 
       shared_examples_for 'includes private notes' do
-        it "returns all notes" do
-          notes = subject.dig("data", "project", "issue", "notes", 'edges')
+        it 'returns all notes' do
+          notes = subject.dig('data', 'project', 'issue', 'notes', 'edges')
           notes_body = notes.map {|n| n.dig('node', 'body')}
 
           expect(notes.size).to eq 2

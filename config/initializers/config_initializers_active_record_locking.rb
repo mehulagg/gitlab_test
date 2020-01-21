@@ -9,7 +9,7 @@ module ActiveRecord
     module Optimistic
       private
 
-      def _update_row(attribute_names, attempted_action = "update")
+      def _update_row(attribute_names, attempted_action = 'update')
         return super unless locking_enabled?
 
         begin

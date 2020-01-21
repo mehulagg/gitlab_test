@@ -19,7 +19,7 @@ module QA
 
       it 'user collapses and expands reply for comments in an issue' do
         Page::Project::Issue::Show.perform do |show|
-          one_reply = "1 reply"
+          one_reply = '1 reply'
 
           show.collapse_replies
           expect(show).to have_content(one_reply)

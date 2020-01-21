@@ -25,7 +25,7 @@ module EE
         end
 
         def add_keys_since(cutoff_datetime)
-          start_key = Key.select(:id).where("created_at >= ?", cutoff_datetime).order('id ASC').take
+          start_key = Key.select(:id).where('created_at >= ?', cutoff_datetime).order('id ASC').take
           if start_key
             batch_add_keys_in_db_starting_from(start_key.id)
           end

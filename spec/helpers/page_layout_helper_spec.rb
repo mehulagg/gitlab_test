@@ -36,7 +36,7 @@ describe PageLayoutHelper do
     end
 
     it 'sanitizes all HTML' do
-      helper.page_description("<b>Bold</b> <h1>Header</h1>")
+      helper.page_description('<b>Bold</b> <h1>Header</h1>')
 
       expect(helper.page_description).to eq 'Bold Header'
     end
@@ -72,7 +72,7 @@ describe PageLayoutHelper do
         end
       end
 
-      context "with no assignments" do
+      context 'with no assignments' do
         it 'falls back to the default' do
           expect(helper.page_image).to match_asset_path 'assets/gitlab_logo.png'
         end

@@ -18,13 +18,13 @@ describe MergeRequest, :elastic do
     end
   end
 
-  it "searches merge requests", :sidekiq_might_not_need_inline do
+  it 'searches merge requests', :sidekiq_might_not_need_inline do
     project = create :project, :public, :repository
 
     Sidekiq::Testing.inline! do
       create :merge_request, title: 'bla-bla term1', source_project: project
-      create :merge_request, description: 'term2 in description', source_project: project, target_branch: "feature2"
-      create :merge_request, source_project: project, target_branch: "feature3"
+      create :merge_request, description: 'term2 in description', source_project: project, target_branch: 'feature2'
+      create :merge_request, source_project: project, target_branch: 'feature3'
 
       # The merge request you have no access to except as an administrator
       create :merge_request, title: 'also with term3', source_project: create(:project, :private)
@@ -40,13 +40,13 @@ describe MergeRequest, :elastic do
     expect(described_class.elastic_search('term3', options: { project_ids: :any, public_and_internal_projects: true }).total_count).to eq(1)
   end
 
-  it "searches by iid and scopes to type: merge_request only", :sidekiq_might_not_need_inline do
+  it 'searches by iid and scopes to type: merge_request only', :sidekiq_might_not_need_inline do
     project = create :project, :public, :repository
     merge_request = nil
 
     Sidekiq::Testing.inline! do
       merge_request = create :merge_request, title: 'bla-bla merge request', source_project: project
-      create :merge_request, description: 'term2 in description', source_project: project, target_branch: "feature2"
+      create :merge_request, description: 'term2 in description', source_project: project, target_branch: 'feature2'
 
       # Issue with the same iid should not be found in MergeRequest search
       create :issue, project: project, iid: merge_request.iid
@@ -61,7 +61,7 @@ describe MergeRequest, :elastic do
     expect(results.first.title).to eq('bla-bla merge request')
   end
 
-  it "returns json with all needed elements" do
+  it 'returns json with all needed elements' do
     merge_request = create :merge_request
 
     expected_hash = merge_request.attributes.extract!(

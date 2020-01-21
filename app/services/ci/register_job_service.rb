@@ -211,11 +211,11 @@ module Ci
     # rubocop: enable CodeReuse/ActiveRecord
 
     def failed_attempt_counter
-      @failed_attempt_counter ||= Gitlab::Metrics.counter(:job_register_attempts_failed_total, "Counts the times a runner tries to register a job")
+      @failed_attempt_counter ||= Gitlab::Metrics.counter(:job_register_attempts_failed_total, 'Counts the times a runner tries to register a job')
     end
 
     def attempt_counter
-      @attempt_counter ||= Gitlab::Metrics.counter(:job_register_attempts_total, "Counts the times a runner tries to register a job")
+      @attempt_counter ||= Gitlab::Metrics.counter(:job_register_attempts_total, 'Counts the times a runner tries to register a job')
     end
 
     def job_queue_duration_seconds

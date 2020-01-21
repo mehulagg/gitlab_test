@@ -33,9 +33,9 @@ describe JSONWebToken::RSAToken do
       it { expect(subject.first).to include('key' => 'value') }
       it do
         expect(subject.second).to eq(
-          "typ" => "JWT",
-          "alg" => "RS256",
-          "kid" => "OGXY:4TR7:FAVO:WEM2:XXEW:E4FP:TKL7:7ACK:TZAF:D54P:SUIA:P3B2")
+          'typ' => 'JWT',
+          'alg' => 'RS256',
+          'kid' => 'OGXY:4TR7:FAVO:WEM2:XXEW:E4FP:TKL7:7ACK:TZAF:D54P:SUIA:P3B2')
       end
     end
 

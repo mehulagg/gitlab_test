@@ -16,7 +16,7 @@ describe 'Merge request > User uses quick actions', :js do
   let(:merge_request) { create(:merge_request, source_project: project) }
   let!(:milestone) { create(:milestone, project: project, title: 'ASAP') }
 
-  context "issuable common quick actions" do
+  context 'issuable common quick actions' do
     let!(:new_url_opts) { { merge_request: { source_branch: 'feature', target_branch: 'master' } } }
     let(:maintainer) { create(:user) }
     let(:project) { create(:project, :public, :repository) }

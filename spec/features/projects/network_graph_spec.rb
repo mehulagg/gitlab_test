@@ -31,8 +31,8 @@ describe 'Project Network Graph', :js do
     end
 
     it 'renders project network' do
-      expect(page).to have_selector ".network-graph"
-      expect(page).to have_selector '.dropdown-menu-toggle', text: "master"
+      expect(page).to have_selector '.network-graph'
+      expect(page).to have_selector '.dropdown-menu-toggle', text: 'master'
       page.within '.network-graph' do
         expect(page).to have_content 'master'
       end
@@ -57,13 +57,13 @@ describe 'Project Network Graph', :js do
     end
 
     it 'renders by commit sha of "v1.0.0"' do
-      page.within ".network-form" do
+      page.within '.network-form' do
         fill_in 'extended_sha1', with: '6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9'
         find('button').click
       end
 
-      expect(page).to have_selector ".network-graph"
-      expect(page).to have_selector '.dropdown-menu-toggle', text: "master"
+      expect(page).to have_selector '.network-graph'
+      expect(page).to have_selector '.dropdown-menu-toggle', text: 'master'
       page.within '.network-graph' do
         expect(page).to have_content 'v1.0.0'
       end
@@ -91,7 +91,7 @@ describe 'Project Network Graph', :js do
     end
 
     it 'renders error message when sha commit not exists' do
-      page.within ".network-form" do
+      page.within '.network-form' do
         fill_in 'extended_sha1', with: ';'
         find('button').click
       end

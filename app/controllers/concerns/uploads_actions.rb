@@ -63,7 +63,7 @@ module UploadsActions
 
     render json: authorized
   rescue SocketError
-    render json: _("Error uploading file"), status: :internal_server_error
+    render json: _('Error uploading file'), status: :internal_server_error
   end
 
   private

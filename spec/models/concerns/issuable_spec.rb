@@ -9,7 +9,7 @@ describe Issuable do
   let(:issue) { create(:issue, title: 'An issue', description: 'A description') }
   let(:user) { create(:user) }
 
-  describe "Associations" do
+  describe 'Associations' do
     subject { build(:issue) }
 
     it { is_expected.to belong_to(:project) }
@@ -35,7 +35,7 @@ describe Issuable do
     it { is_expected.to include_module(Awardable) }
   end
 
-  describe "Validation" do
+  describe 'Validation' do
     context 'general validations' do
       subject { build(:issue) }
 
@@ -55,7 +55,7 @@ describe Issuable do
     end
   end
 
-  describe "Scope" do
+  describe 'Scope' do
     subject { build(:issue) }
 
     it { expect(issuable_class).to respond_to(:opened) }
@@ -104,8 +104,8 @@ describe Issuable do
     end
   end
 
-  describe ".search" do
-    let!(:searchable_issue) { create(:issue, title: "Searchable awesome issue") }
+  describe '.search' do
+    let!(:searchable_issue) { create(:issue, title: 'Searchable awesome issue') }
     let!(:searchable_issue2) { create(:issue, title: 'Aw') }
 
     it 'returns issues with a matching title' do
@@ -131,11 +131,11 @@ describe Issuable do
     end
   end
 
-  describe ".full_search" do
+  describe '.full_search' do
     let!(:searchable_issue) do
-      create(:issue, title: "Searchable awesome issue", description: 'Many cute kittens')
+      create(:issue, title: 'Searchable awesome issue', description: 'Many cute kittens')
     end
-    let!(:searchable_issue2) { create(:issue, title: "Aw", description: "Cu") }
+    let!(:searchable_issue2) { create(:issue, title: 'Aw', description: 'Cu') }
 
     it 'returns issues with a matching title' do
       expect(issuable_class.full_search(searchable_issue.title))
@@ -262,45 +262,45 @@ describe Issuable do
   end
 
   describe '.to_ability_name' do
-    it { expect(Issue.to_ability_name).to eq("issue") }
-    it { expect(MergeRequest.to_ability_name).to eq("merge_request") }
+    it { expect(Issue.to_ability_name).to eq('issue') }
+    it { expect(MergeRequest.to_ability_name).to eq('merge_request') }
   end
 
-  describe "#today?" do
-    it "returns true when created today" do
+  describe '#today?' do
+    it 'returns true when created today' do
       # Avoid timezone differences and just return exactly what we want
       allow(Date).to receive(:today).and_return(issue.created_at.to_date)
       expect(issue.today?).to be_truthy
     end
 
-    it "returns false when not created today" do
+    it 'returns false when not created today' do
       allow(Date).to receive(:today).and_return(Date.yesterday)
       expect(issue.today?).to be_falsey
     end
   end
 
-  describe "#new?" do
+  describe '#new?' do
     it "returns true when created today and record hasn't been updated" do
       allow(issue).to receive(:today?).and_return(true)
       expect(issue.new?).to be_truthy
     end
 
-    it "returns false when not created today" do
+    it 'returns false when not created today' do
       allow(issue).to receive(:today?).and_return(false)
       expect(issue.new?).to be_falsey
     end
 
-    it "returns false when record has been updated" do
+    it 'returns false when record has been updated' do
       allow(issue).to receive(:today?).and_return(true)
       issue.update_attribute(:updated_at, 1.hour.ago)
       expect(issue.new?).to be_falsey
     end
   end
 
-  describe "#sort_by_attribute" do
+  describe '#sort_by_attribute' do
     let(:project) { create(:project) }
 
-    context "by milestone due date" do
+    context 'by milestone due date' do
       # Correct order is:
       # Issues/MRs with milestones ordered by date
       # Issues/MRs with milestones without dates
@@ -313,12 +313,12 @@ describe Issuable do
       let!(:issue2) { create(:issue, project: project, milestone: late_milestone) }
       let!(:issue3) { create(:issue, project: project) }
 
-      it "sorts desc" do
+      it 'sorts desc' do
         issues = project.issues.sort_by_attribute('milestone_due_desc')
         expect(issues).to match_array([issue2, issue1, issue, issue3])
       end
 
-      it "sorts asc" do
+      it 'sorts asc' do
         issues = project.issues.sort_by_attribute('milestone_due_asc')
         expect(issues).to match_array([issue1, issue2, issue, issue3])
       end
@@ -515,7 +515,7 @@ describe Issuable do
     end
   end
 
-  describe "votes" do
+  describe 'votes' do
     let(:project) { issue.project }
 
     before do
@@ -523,7 +523,7 @@ describe Issuable do
       create(:award_emoji, :downvote, awardable: issue)
     end
 
-    it "returns correct values" do
+    it 'returns correct values' do
       expect(issue.upvotes).to eq(1)
       expect(issue.downvotes).to eq(1)
     end
@@ -583,14 +583,14 @@ describe Issuable do
     it { is_expected.to eq(2) }
   end
 
-  describe ".with_label" do
+  describe '.with_label' do
     let(:project) { create(:project, :public) }
     let(:bug) { create(:label, project: project, title: 'bug') }
     let(:feature) { create(:label, project: project, title: 'feature') }
     let(:enhancement) { create(:label, project: project, title: 'enhancement') }
-    let(:issue1) { create(:issue, title: "Bugfix1", project: project) }
-    let(:issue2) { create(:issue, title: "Bugfix2", project: project) }
-    let(:issue3) { create(:issue, title: "Feature1", project: project) }
+    let(:issue1) { create(:issue, title: 'Bugfix1', project: project) }
+    let(:issue2) { create(:issue, title: 'Bugfix2', project: project) }
+    let(:issue3) { create(:issue, title: 'Feature1', project: project) }
 
     before do
       issue1.labels << bug
@@ -688,20 +688,20 @@ describe Issuable do
     let(:open_mr) { create(:merge_request, author: first_time_contributor, target_project: project, source_project: project) }
     let(:merged_mr_other_project) { create(:merge_request, :merged, author: first_time_contributor, target_project: other_project, source_project: other_project) }
 
-    context "for merge requests" do
-      it "is false for MAINTAINER" do
+    context 'for merge requests' do
+      it 'is false for MAINTAINER' do
         mr = create(:merge_request, author: maintainer, target_project: project, source_project: project)
 
         expect(mr).not_to be_first_contribution
       end
 
-      it "is false for OWNER" do
+      it 'is false for OWNER' do
         mr = create(:merge_request, author: owner, target_project: project, source_project: project)
 
         expect(mr).not_to be_first_contribution
       end
 
-      it "is false for REPORTER" do
+      it 'is false for REPORTER' do
         mr = create(:merge_request, author: reporter, target_project: project, source_project: project)
 
         expect(mr).not_to be_first_contribution
@@ -712,17 +712,17 @@ describe Issuable do
         expect(merged_mr).not_to be_first_contribution
       end
 
-      it "handles multiple projects separately" do
+      it 'handles multiple projects separately' do
         expect(open_mr).to be_first_contribution
         expect(merged_mr_other_project).not_to be_first_contribution
       end
     end
 
-    context "for issues" do
+    context 'for issues' do
       let(:contributor_issue) { create(:issue, author: contributor, project: project) }
       let(:first_time_contributor_issue) { create(:issue, author: first_time_contributor, project: project) }
 
-      it "is false even without merged MR" do
+      it 'is false even without merged MR' do
         expect(merged_mr).to be
         expect(first_time_contributor_issue).not_to be_first_contribution
         expect(contributor_issue).not_to be_first_contribution
@@ -731,24 +731,24 @@ describe Issuable do
   end
 
   describe '#matches_cross_reference_regex?' do
-    context "issue description with long path string" do
-      let(:mentionable) { build(:issue, description: "/a" * 50000) }
+    context 'issue description with long path string' do
+      let(:mentionable) { build(:issue, description: '/a' * 50000) }
 
       it_behaves_like 'matches_cross_reference_regex? fails fast'
     end
 
-    context "note with long path string" do
-      let(:mentionable) { build(:note, note: "/a" * 50000) }
+    context 'note with long path string' do
+      let(:mentionable) { build(:note, note: '/a' * 50000) }
 
       it_behaves_like 'matches_cross_reference_regex? fails fast'
     end
 
-    context "note with long path string" do
+    context 'note with long path string' do
       let(:project) { create(:project, :public, :repository) }
       let(:mentionable) { project.commit }
 
       before do
-        expect(mentionable.raw).to receive(:message).and_return("/a" * 50000)
+        expect(mentionable.raw).to receive(:message).and_return('/a' * 50000)
       end
 
       it_behaves_like 'matches_cross_reference_regex? fails fast'

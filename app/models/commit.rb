@@ -116,7 +116,7 @@ class Commit
   attr_accessor :raw
 
   def initialize(raw_commit, project)
-    raise "Nil as raw commit passed" unless raw_commit
+    raise 'Nil as raw commit passed' unless raw_commit
 
     @raw = raw_commit
     @project = project
@@ -168,7 +168,7 @@ class Commit
 
   def self.link_reference_pattern
     @link_reference_pattern ||=
-      super("commit", /(?<commit>#{COMMIT_SHA_PATTERN})?(\.(?<extension>#{LINK_EXTENSION_PATTERN}))?/)
+      super('commit', /(?<commit>#{COMMIT_SHA_PATTERN})?(\.(?<extension>#{LINK_EXTENSION_PATTERN}))?/)
   end
 
   def to_reference(from = nil, full: false)
@@ -340,7 +340,7 @@ class Commit
       commits_in_merge_request = merged_merge_request(user).commits
 
       if commits_in_merge_request.present?
-        message_body << ""
+        message_body << ''
 
         commits_in_merge_request.reverse_each do |commit_in_merge|
           message_body << "#{commit_in_merge.short_id} #{commit_in_merge.title}"

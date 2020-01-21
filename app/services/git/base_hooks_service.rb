@@ -102,7 +102,7 @@ module Git
       return [] unless ci_variables_from_push_options
 
       ci_variables_from_push_options.map do |var_definition, _count|
-        key, value = var_definition.to_s.split("=", 2)
+        key, value = var_definition.to_s.split('=', 2)
 
         # Accept only valid format. We ignore the following formats
         # 1. "=123". In this case, `key` will be an empty string
@@ -111,7 +111,7 @@ module Git
         # being an empty string. This is acceptable.
         next if key.blank? || value.nil?
 
-        { "key" => key, "variable_type" => "env_var", "secret_value" => value }
+        { 'key' => key, 'variable_type' => 'env_var', 'secret_value' => value }
       end.compact
     end
 
@@ -154,7 +154,7 @@ module Git
         correlation_id: Labkit::Correlation::CorrelationId.current_id.to_s,
         project_id: project.id,
         project_path: project.full_path,
-        message: "Error creating pipeline",
+        message: 'Error creating pipeline',
         errors: exception.to_s,
         pipeline_params: pipeline_params
       }

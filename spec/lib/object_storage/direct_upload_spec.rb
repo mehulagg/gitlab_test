@@ -28,7 +28,7 @@ describe ObjectStorage::DirectUpload do
       let(:has_length) { true }
       let(:maximum_size) { nil }
 
-      it "maximum size is not required" do
+      it 'maximum size is not required' do
         expect { direct_upload }.not_to raise_error
       end
     end
@@ -39,7 +39,7 @@ describe ObjectStorage::DirectUpload do
       context 'and maximum size is specified' do
         let(:maximum_size) { 1.gigabyte }
 
-        it "does not raise an error" do
+        it 'does not raise an error' do
           expect { direct_upload }.not_to raise_error
         end
       end
@@ -47,7 +47,7 @@ describe ObjectStorage::DirectUpload do
       context 'and maximum size is not specified' do
         let(:maximum_size) { nil }
 
-        it "raises an error" do
+        it 'raises an error' do
           expect { direct_upload }.to raise_error /maximum_size has to be specified if length is unknown/
         end
       end
@@ -58,7 +58,7 @@ describe ObjectStorage::DirectUpload do
     subject { direct_upload.to_hash }
 
     shared_examples 'a valid upload' do
-      it "returns valid structure" do
+      it 'returns valid structure' do
         expect(subject).to have_key(:Timeout)
         expect(subject[:GetURL]).to start_with(storage_url)
         expect(subject[:StoreURL]).to start_with(storage_url)
@@ -70,12 +70,12 @@ describe ObjectStorage::DirectUpload do
 
     shared_examples 'a valid upload with multipart data' do
       before do
-        stub_object_storage_multipart_init(storage_url, "myUpload")
+        stub_object_storage_multipart_init(storage_url, 'myUpload')
       end
 
       it_behaves_like 'a valid upload'
 
-      it "returns valid structure" do
+      it 'returns valid structure' do
         expect(subject).to have_key(:MultipartUpload)
         expect(subject[:MultipartUpload]).to have_key(:PartSize)
         expect(subject[:MultipartUpload][:PartURLs]).to all(start_with(storage_url))
@@ -100,7 +100,7 @@ describe ObjectStorage::DirectUpload do
     shared_examples 'a valid upload without multipart data' do
       it_behaves_like 'a valid upload'
 
-      it "returns valid structure" do
+      it 'returns valid structure' do
         expect(subject).not_to have_key(:MultipartUpload)
       end
     end

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
-describe "deleting designs" do
+describe 'deleting designs' do
   include GraphqlHelpers
   include DesignManagementTestHelpers
 
@@ -65,26 +65,26 @@ describe "deleting designs" do
     end
   end
 
-  context "when the issue does not exist" do
+  context 'when the issue does not exist' do
     it_behaves_like 'a failed request' do
-      let(:variables) { { iid: "1234567890" } }
+      let(:variables) { { iid: '1234567890' } }
       let(:the_error) { a_string_matching %r/does not exist/ }
     end
   end
 
-  context "when saving the designs raises an error" do
+  context 'when saving the designs raises an error' do
     let(:designs) { create_designs(1) }
 
-    it "responds with errors" do
+    it 'responds with errors' do
       expect_next_instance_of(::DesignManagement::DeleteDesignsService) do |service|
         expect(service)
           .to receive(:execute)
-          .and_return({ status: :error, message: "Something went wrong" })
+          .and_return({ status: :error, message: 'Something went wrong' })
       end
 
       mutate!
 
-      expect(mutation_response).to include('errors' => include(eq "Something went wrong"))
+      expect(mutation_response).to include('errors' => include(eq 'Something went wrong'))
     end
   end
 

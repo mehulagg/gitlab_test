@@ -9,7 +9,7 @@ describe PipelinesFinder do
 
   subject { described_class.new(project, current_user, params).execute }
 
-  describe "#execute" do
+  describe '#execute' do
     context 'when params is empty' do
       let(:params) { {} }
       let!(:pipelines) { create_list(:ci_pipeline, 2, project: project) }
@@ -176,7 +176,7 @@ describe PipelinesFinder do
       end
 
       context 'when yaml_errors is invalid' do
-        let(:params) { { yaml_errors: "invalid-yaml_errors" } }
+        let(:params) { { yaml_errors: 'invalid-yaml_errors' } }
 
         it 'returns all pipelines' do
           is_expected.to match_array([pipeline1, pipeline2])

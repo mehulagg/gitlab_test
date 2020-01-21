@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 describe 'Display system header and footer bar' do
-  let(:header_message) { "Foo" }
-  let(:footer_message) { "Bar" }
+  let(:header_message) { 'Foo' }
+  let(:footer_message) { 'Bar' }
 
   shared_examples 'system header is configured' do
     it 'shows system header' do

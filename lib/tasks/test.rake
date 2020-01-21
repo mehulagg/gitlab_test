@@ -1,6 +1,6 @@
-Rake::Task["test"].clear
+Rake::Task['test'].clear
 
-desc "GitLab | Run all tests"
+desc 'GitLab | Run all tests'
 task :test do
-  Rake::Task["gitlab:test"].invoke
+  Rake::Task['gitlab:test'].invoke
 end

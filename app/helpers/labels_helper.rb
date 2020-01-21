@@ -62,7 +62,7 @@ module LabelsHelper
 
     # Intentionally not using content_tag here so that this method can be called
     # by LabelReferenceFilter
-    span = %(<span class="badge color-label #{"has-tooltip" if tooltip}" ) +
+    span = %(<span class="badge color-label #{'has-tooltip' if tooltip}" ) +
       %(data-html="true" style="background-color: #{label.color}; color: #{text_color}" ) +
       %(title="#{escape_once(title)}" data-container="body">) +
       %(#{escape_once(label.name)}#{label_suffix}</span>)
@@ -102,7 +102,7 @@ module LabelsHelper
 
   def render_suggested_colors
     colors_html = suggested_colors.map do |color_hex_value, color_name|
-      link_to('', '#', class: "has-tooltip", style: "background-color: #{color_hex_value}", data: { color: color_hex_value }, title: color_name)
+      link_to('', '#', class: 'has-tooltip', style: "background-color: #{color_hex_value}", data: { color: color_hex_value }, title: color_name)
     end
 
     content_tag(:div, class: 'suggest-colors') do
@@ -215,10 +215,10 @@ module LabelsHelper
 
   def label_dropdown_data(project, opts = {})
     {
-      toggle: "dropdown",
-      field_name: opts[:field_name] || "label_name[]",
-      show_no: "true",
-      show_any: "true",
+      toggle: 'dropdown',
+      field_name: opts[:field_name] || 'label_name[]',
+      show_no: 'true',
+      show_any: 'true',
       project_id: project&.try(:id),
       namespace_path: project&.try(:namespace)&.try(:full_path),
       project_path: project&.try(:path)
@@ -227,7 +227,7 @@ module LabelsHelper
 
   def sidebar_label_dropdown_data(issuable_type, issuable_sidebar)
     label_dropdown_data(nil, {
-     default_label: "Labels",
+     default_label: 'Labels',
      field_name: "#{issuable_type}[label_names][]",
      ability_name: issuable_type,
      namespace_path: issuable_sidebar[:namespace_path],

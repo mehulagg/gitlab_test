@@ -275,7 +275,7 @@ class Repository
     Gitlab::Git::KeepAround.execute(self, shas)
   end
 
-  def archive_metadata(ref, storage_path, format = "tar.gz", append_sha:, path: nil)
+  def archive_metadata(ref, storage_path, format = 'tar.gz', append_sha:, path: nil)
     raw_repository.archive_metadata(
       ref,
       storage_path,
@@ -484,7 +484,7 @@ class Repository
   def method_missing(msg, *args, &block)
     if msg == :lookup && !block_given?
       lookup_cache[msg] ||= {}
-      lookup_cache[msg][args.join(":")] ||= raw_repository.__send__(msg, *args, &block) # rubocop:disable GitlabSecurity/PublicSend
+      lookup_cache[msg][args.join(':')] ||= raw_repository.__send__(msg, *args, &block) # rubocop:disable GitlabSecurity/PublicSend
     else
       raw_repository.__send__(msg, *args, &block) # rubocop:disable GitlabSecurity/PublicSend
     end

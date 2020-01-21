@@ -24,7 +24,7 @@ module Gitlab
 
         def start_working
           logger = WEBrick::Log.new(log_filename)
-          logger.time_format = "[%Y-%m-%dT%H:%M:%S.%L%z]"
+          logger.time_format = '[%Y-%m-%dT%H:%M:%S.%L%z]'
 
           access_log = [
             [logger, WEBrick::AccessLog::COMBINED_LOG_FORMAT]

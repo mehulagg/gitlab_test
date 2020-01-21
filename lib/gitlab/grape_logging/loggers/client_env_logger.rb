@@ -8,7 +8,7 @@ module Gitlab
     module Loggers
       class ClientEnvLogger < ::GrapeLogging::Loggers::Base
         def parameters(request, _)
-          { remote_ip: request.env["HTTP_X_FORWARDED_FOR"] || request.env["REMOTE_ADDR"], ua: request.env["HTTP_USER_AGENT"] }
+          { remote_ip: request.env['HTTP_X_FORWARDED_FOR'] || request.env['REMOTE_ADDR'], ua: request.env['HTTP_USER_AGENT'] }
         end
       end
     end

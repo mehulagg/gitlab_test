@@ -80,7 +80,7 @@ describe Projects::Environments::PrometheusApiController do
         end
 
         context 'with variables' do
-          let(:pod_name) { "pod1" }
+          let(:pod_name) { 'pod1' }
 
           before do
             expected_params[:query] = %{up{pod_name="#{pod_name}"}}

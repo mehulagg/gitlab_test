@@ -12,7 +12,7 @@ describe SyncSecurityReportsToReportApprovalRulesWorker do
         allow(Ci::Pipeline).to receive(:find_by_id).with(pipeline.id) { pipeline }
       end
 
-      it "executes SyncReportsToApprovalRulesService for given pipeline" do
+      it 'executes SyncReportsToApprovalRulesService for given pipeline' do
         expect(Security::SyncReportsToApprovalRulesService).to receive(:new)
           .with(pipeline).once.and_return(sync_service)
 

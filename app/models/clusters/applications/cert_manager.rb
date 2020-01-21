@@ -93,7 +93,7 @@ module Clusters
       end
 
       def delete_crd(definition)
-        Gitlab::Kubernetes::KubectlCmd.delete("crd", definition, "--ignore-not-found")
+        Gitlab::Kubernetes::KubectlCmd.delete('crd', definition, '--ignore-not-found')
       end
 
       def apply_file(filename)
@@ -115,7 +115,7 @@ module Clusters
       end
 
       def cluster_issue_overlay
-        { "spec" => { "acme" => { "email" => self.email } } }
+        { 'spec' => { 'acme' => { 'email' => self.email } } }
       end
 
       def cluster_issuer_file_path

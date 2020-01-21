@@ -12,7 +12,7 @@ module Flowdock
       def to_hash
         hash = {
           external_thread_id: @external_thread_id,
-          event: "activity",
+          event: 'activity',
           author: {
             name: @commit[:author][:name],
             email: @commit[:author][:email]
@@ -28,7 +28,7 @@ module Flowdock
       private
 
       def encode(hash)
-        return hash unless "".respond_to?(:encode)
+        return hash unless ''.respond_to?(:encode)
 
         encode_as_utf8(hash)
       end
@@ -44,8 +44,8 @@ module Flowdock
             encode_as_utf8(val)
           end
         elsif obj.is_a?(String) && obj.encoding != Encoding::UTF_8
-          unless obj.force_encoding("UTF-8").valid_encoding?
-            obj.force_encoding("ISO-8859-1").encode!(Encoding::UTF_8, invalid: :replace, undef: :replace)
+          unless obj.force_encoding('UTF-8').valid_encoding?
+            obj.force_encoding('ISO-8859-1').encode!(Encoding::UTF_8, invalid: :replace, undef: :replace)
           end
         end
       end
@@ -126,10 +126,10 @@ module Flowdock
       end
 
       def thread_title
-        action = "updated" if permanent?
-        type = @ref =~ %r(^refs/heads/) ? "branch" : "tag"
+        action = 'updated' if permanent?
+        type = @ref =~ %r(^refs/heads/) ? 'branch' : 'tag'
 
-        [@opts[:repo_name], type, ref_name, action].compact.join(" ")
+        [@opts[:repo_name], type, ref_name, action].compact.join(' ')
       end
 
       def external_thread_id

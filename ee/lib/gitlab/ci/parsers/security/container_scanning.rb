@@ -7,7 +7,7 @@ module Gitlab
         class ContainerScanning < Common
           include Security::Concerns::DeprecatedSyntax
 
-          DEPRECATED_REPORT_VERSION = "1.3".freeze
+          DEPRECATED_REPORT_VERSION = '1.3'.freeze
 
           def parse_report(json_data)
             report = super
@@ -33,7 +33,7 @@ module Gitlab
               formatter.format(vulnerability)
             end.compact
 
-            { "vulnerabilities" => vulnerabilities, "version" => DEPRECATED_REPORT_VERSION }
+            { 'vulnerabilities' => vulnerabilities, 'version' => DEPRECATED_REPORT_VERSION }
           end
 
           def deprecated?(data)

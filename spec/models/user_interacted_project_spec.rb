@@ -9,7 +9,7 @@ describe UserInteractedProject do
     let(:event) { build(:event) }
 
     Event::ACTIONS.each do |action|
-      context "for all actions (event types)" do
+      context 'for all actions (event types)' do
         let(:event) { build(:event, action: action) }
 
         it 'creates a record' do

@@ -127,8 +127,8 @@ describe Gitlab::Database::RenameReservedPathsMigration::V1::RenameNamespaces, :
     end
   end
 
-  describe "#child_ids_for_parent" do
-    it "collects child ids for all levels" do
+  describe '#child_ids_for_parent' do
+    it 'collects child ids for all levels' do
       parent = create(:group)
       first_child = create(:group, parent: parent)
       second_child = create(:group, parent: parent)
@@ -141,7 +141,7 @@ describe Gitlab::Database::RenameReservedPathsMigration::V1::RenameNamespaces, :
     end
   end
 
-  describe "#rename_namespace" do
+  describe '#rename_namespace' do
     it 'renames paths & routes for the namespace' do
       expect(subject).to receive(:rename_path_for_routable)
                            .with(namespace)
@@ -168,29 +168,29 @@ describe Gitlab::Database::RenameReservedPathsMigration::V1::RenameNamespaces, :
   end
 
   describe '#rename_namespace_dependencies' do
-    it "moves the repository for a project in the namespace" do
-      create(:project, :repository, :legacy_storage, namespace: namespace, path: "the-path-project")
-      expected_repo = File.join(TestEnv.repos_path, "the-path0", "the-path-project.git")
+    it 'moves the repository for a project in the namespace' do
+      create(:project, :repository, :legacy_storage, namespace: namespace, path: 'the-path-project')
+      expected_repo = File.join(TestEnv.repos_path, 'the-path0', 'the-path-project.git')
 
       subject.rename_namespace_dependencies(namespace, 'the-path', 'the-path0')
 
       expect(File.directory?(expected_repo)).to be(true)
     end
 
-    it "moves the uploads for the namespace" do
-      expect(subject).to receive(:move_uploads).with("the-path", "the-path0")
+    it 'moves the uploads for the namespace' do
+      expect(subject).to receive(:move_uploads).with('the-path', 'the-path0')
 
       subject.rename_namespace_dependencies(namespace, 'the-path', 'the-path0')
     end
 
-    it "moves the pages for the namespace" do
-      expect(subject).to receive(:move_pages).with("the-path", "the-path0")
+    it 'moves the pages for the namespace' do
+      expect(subject).to receive(:move_pages).with('the-path', 'the-path0')
 
       subject.rename_namespace_dependencies(namespace, 'the-path', 'the-path0')
     end
 
     it 'invalidates the markdown cache of related projects' do
-      project = create(:project, :legacy_storage, namespace: namespace, path: "the-path-project")
+      project = create(:project, :legacy_storage, namespace: namespace, path: 'the-path-project')
 
       expect(subject).to receive(:remove_cached_html_for_projects).with([project.id])
 

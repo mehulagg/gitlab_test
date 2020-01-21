@@ -30,11 +30,11 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   # Extend the standard message generation to accept our custom exception
   def failure_message
-    exception = request.env["omniauth.error"]
+    exception = request.env['omniauth.error']
     error = exception.error_reason if exception.respond_to?(:error_reason)
     error ||= exception.error        if exception.respond_to?(:error)
     error ||= exception.message      if exception.respond_to?(:message)
-    error ||= request.env["omniauth.error.type"].to_s
+    error ||= request.env['omniauth.error.type'].to_s
 
     error.to_s.humanize if error
   end
@@ -48,7 +48,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
   def omniauth_error
     @provider = params[:provider]
     @error = params[:error]
-    render 'errors/omniauth_error', layout: "oauth_error", status: :unprocessable_entity
+    render 'errors/omniauth_error', layout: 'oauth_error', status: :unprocessable_entity
   end
 
   def cas3
@@ -124,7 +124,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   def redirect_identity_link_failed(error_message)
-    redirect_to profile_account_path, notice: _("Authentication failed: %{error_message}") % { error_message: error_message }
+    redirect_to profile_account_path, notice: _('Authentication failed: %{error_message}') % { error_message: error_message }
   end
 
   def redirect_identity_linked
@@ -171,10 +171,10 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def handle_signup_error
     label = Gitlab::Auth::OAuth::Provider.label_for(oauth['provider'])
-    message = [_("Signing in using your %{label} account without a pre-existing GitLab account is not allowed.") % { label: label }]
+    message = [_('Signing in using your %{label} account without a pre-existing GitLab account is not allowed.') % { label: label }]
 
     if Gitlab::CurrentSettings.allow_signup?
-      message << _("Create a GitLab account first, and then connect it to your %{label} account.") % { label: label }
+      message << _('Create a GitLab account first, and then connect it to your %{label} account.') % { label: label }
     end
 
     flash[:alert] = message.join(' ')
@@ -211,7 +211,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def handle_disabled_provider
     label = Gitlab::Auth::OAuth::Provider.label_for(oauth['provider'])
-    flash[:alert] = _("Signing in using %{label} has been disabled") % { label: label }
+    flash[:alert] = _('Signing in using %{label} has been disabled') % { label: label }
 
     redirect_to new_user_session_path
   end

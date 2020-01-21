@@ -870,7 +870,7 @@ describe IssuesFinder do
         end
 
         it 'filters by confidentiality' do
-          expect(subject.to_sql).to match("issues.confidential")
+          expect(subject.to_sql).to match('issues.confidential')
         end
       end
 
@@ -887,7 +887,7 @@ describe IssuesFinder do
         end
 
         it 'filters by confidentiality' do
-          expect(subject.to_sql).to match("issues.confidential")
+          expect(subject.to_sql).to match('issues.confidential')
         end
       end
 

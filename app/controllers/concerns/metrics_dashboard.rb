@@ -49,7 +49,7 @@ module MetricsDashboard
   end
 
   def dashboard_project_blob_path(dashboard)
-    project_blob_path(project_for_dashboard, File.join(project_for_dashboard.default_branch, dashboard.fetch(:path, "")))
+    project_blob_path(project_for_dashboard, File.join(project_for_dashboard.default_branch, dashboard.fetch(:path, '')))
   end
 
   def can_edit?(dashboard)

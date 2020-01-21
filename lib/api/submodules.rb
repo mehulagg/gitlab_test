@@ -28,7 +28,7 @@ module API
         requires :branch, type: String, desc: 'Name of the branch to commit into.'
         optional :commit_message, type: String, desc: 'Commit message. If no message is provided a default one will be set.'
       end
-      put ":id/repository/submodules/:submodule", requirements: Files::FILE_ENDPOINT_REQUIREMENTS do
+      put ':id/repository/submodules/:submodule', requirements: Files::FILE_ENDPOINT_REQUIREMENTS do
         authorize! :push_code, user_project
 
         submodule_params = declared_params(include_missing: false)

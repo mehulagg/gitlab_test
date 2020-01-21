@@ -8,9 +8,9 @@ describe Groups::UpdateService do
   let!(:internal_group) { create(:group, :internal) }
   let!(:public_group) { create(:group, :public) }
 
-  describe "#execute" do
-    context "project visibility_level validation" do
-      context "public group with public projects" do
+  describe '#execute' do
+    context 'project visibility_level validation' do
+      context 'public group with public projects' do
         let!(:service) { described_class.new(public_group, user, visibility_level: Gitlab::VisibilityLevel::INTERNAL) }
 
         before do
@@ -20,14 +20,14 @@ describe Groups::UpdateService do
           expect(TodosDestroyer::GroupPrivateWorker).not_to receive(:perform_in)
         end
 
-        it "does not change permission level" do
+        it 'does not change permission level' do
           service.execute
           expect(public_group.errors.count).to eq(1)
 
           expect(TodosDestroyer::GroupPrivateWorker).not_to receive(:perform_in)
         end
 
-        it "returns false if save failed" do
+        it 'returns false if save failed' do
           allow(public_group).to receive(:save).and_return(false)
 
           expect(service.execute).to be_falsey
@@ -71,7 +71,7 @@ describe Groups::UpdateService do
         end
       end
 
-      context "internal group with internal project" do
+      context 'internal group with internal project' do
         let!(:service) { described_class.new(internal_group, user, visibility_level: Gitlab::VisibilityLevel::PRIVATE) }
 
         before do
@@ -81,13 +81,13 @@ describe Groups::UpdateService do
           expect(TodosDestroyer::GroupPrivateWorker).not_to receive(:perform_in)
         end
 
-        it "does not change permission level" do
+        it 'does not change permission level' do
           service.execute
           expect(internal_group.errors.count).to eq(1)
         end
       end
 
-      context "internal group with private project" do
+      context 'internal group with private project' do
         let!(:service) { described_class.new(internal_group, user, visibility_level: Gitlab::VisibilityLevel::PRIVATE) }
 
         before do
@@ -98,7 +98,7 @@ describe Groups::UpdateService do
             .with(Todo::WAIT_FOR_DELETE, internal_group.id)
         end
 
-        it "changes permission level to private" do
+        it 'changes permission level to private' do
           service.execute
           expect(internal_group.visibility_level)
             .to eq(Gitlab::VisibilityLevel::PRIVATE)
@@ -121,14 +121,14 @@ describe Groups::UpdateService do
     end
   end
 
-  context "unauthorized visibility_level validation" do
+  context 'unauthorized visibility_level validation' do
     let!(:service) { described_class.new(internal_group, user, visibility_level: 99) }
 
     before do
       internal_group.add_user(user, Gitlab::Access::MAINTAINER)
     end
 
-    it "does not change permission level" do
+    it 'does not change permission level' do
       service.execute
       expect(internal_group.errors.count).to eq(1)
     end

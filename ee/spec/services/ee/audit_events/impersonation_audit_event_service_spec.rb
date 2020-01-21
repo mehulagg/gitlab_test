@@ -18,7 +18,7 @@ describe EE::AuditEvents::ImpersonationAuditEventService do
       expect(service).to receive(:file_logger).and_return(logger)
       expect(logger).to receive(:info).with(author_id: impersonator.id,
                                             entity_id: impersonator.id,
-                                            entity_type: "User",
+                                            entity_type: 'User',
                                             action: :custom,
                                             ip_address: ip_address,
                                             custom_message: message)

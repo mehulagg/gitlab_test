@@ -5,7 +5,7 @@ require 'spec_helper'
 describe 'Jira authorization requests' do
   let(:user) { create :user }
   let(:application) { create :oauth_application, scopes: 'api' }
-  let(:redirect_uri) { oauth_jira_callback_url(host: "http://www.example.com") }
+  let(:redirect_uri) { oauth_jira_callback_url(host: 'http://www.example.com') }
 
   def generate_access_grant
     create :oauth_access_grant, application: application, resource_owner_id: user.id, redirect_uri: redirect_uri
@@ -53,19 +53,19 @@ describe 'Jira authorization requests' do
       end
 
       context 'when client_id is invalid' do
-        let(:client_id) { "invalid_id" }
+        let(:client_id) { 'invalid_id' }
 
         it_behaves_like 'an unauthorized request'
       end
 
       context 'when client_secret is invalid' do
-        let(:client_secret) { "invalid_secret" }
+        let(:client_secret) { 'invalid_secret' }
 
         it_behaves_like 'an unauthorized request'
       end
 
       context 'when code is invalid' do
-        let(:code) { "invalid_code" }
+        let(:code) { 'invalid_code' }
 
         it_behaves_like 'an unauthorized request'
       end

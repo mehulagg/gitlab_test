@@ -42,7 +42,7 @@ describe 'getting projects' do
       end
     end
 
-    it "includes the packages size if the user can read the statistics" do
+    it 'includes the packages size if the user can read the statistics' do
       post_graphql(query, current_user: user)
 
       count = if include_subgroups

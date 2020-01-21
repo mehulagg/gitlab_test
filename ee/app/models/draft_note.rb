@@ -49,7 +49,7 @@ class DraftNote < ApplicationRecord
   end
 
   def noteable_type
-    "MergeRequest"
+    'MergeRequest'
   end
 
   def for_commit?

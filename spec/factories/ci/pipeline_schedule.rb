@@ -6,7 +6,7 @@ FactoryBot.define do
     cron_timezone { Gitlab::Ci::CronParser::VALID_SYNTAX_SAMPLE_TIME_ZONE }
     ref { 'master' }
     active { true }
-    description { "pipeline schedule" }
+    description { 'pipeline schedule' }
     project
 
     trait :every_minute do

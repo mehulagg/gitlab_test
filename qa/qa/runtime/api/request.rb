@@ -13,7 +13,7 @@ module QA
         end
 
         def mask_url
-          @session_address.address.sub(/private_token=.*/, "private_token=[****]")
+          @session_address.address.sub(/private_token=.*/, 'private_token=[****]')
         end
 
         def url

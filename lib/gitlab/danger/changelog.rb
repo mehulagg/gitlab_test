@@ -19,7 +19,7 @@ module Gitlab
       end
 
       def sanitized_mr_title
-        gitlab.mr_json["title"].gsub(/^WIP: */, '').gsub(/`/, '\\\`')
+        gitlab.mr_json['title'].gsub(/^WIP: */, '').gsub(/`/, '\\\`')
       end
 
       def ee_changelog?(changelog_path)

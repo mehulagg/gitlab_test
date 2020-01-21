@@ -28,7 +28,7 @@ module QA
           end
 
           def click_build_when_change_is_pushed_to_gitlab
-            find('label', text: 'Build when a change is pushed to GitLab').find(:xpath, "..").find('input').click
+            find('label', text: 'Build when a change is pushed to GitLab').find(:xpath, '..').find('input').click
           end
 
           def set_publish_status_to_gitlab
@@ -45,15 +45,15 @@ module QA
           end
 
           def set_repository_url(repository_url)
-            find('.setting-name', text: "Repository URL").find(:xpath, "..").find('input').set repository_url
+            find('.setting-name', text: 'Repository URL').find(:xpath, '..').find('input').set repository_url
           end
 
           def click_add_post_build_action
-            click_on "Add post-build action"
+            click_on 'Add post-build action'
           end
 
           def select_publish_build_status_to_gitlab
-            click_link "Publish build status to GitLab"
+            click_link 'Publish build status to GitLab'
           end
         end
       end

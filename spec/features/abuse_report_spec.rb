@@ -21,6 +21,6 @@ describe 'Abuse reports' do
 
     visit user_path(another_user)
 
-    expect(page).to have_button("Already reported for abuse")
+    expect(page).to have_button('Already reported for abuse')
   end
 end

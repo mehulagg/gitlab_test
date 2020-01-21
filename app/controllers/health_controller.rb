@@ -37,7 +37,7 @@ class HealthController < ActionController::Base
       .execute
 
     # disable static error pages at the gitlab-workhorse level, we want to see this error response even in production
-    headers["X-GitLab-Custom-Error"] = 1 unless result.success?
+    headers['X-GitLab-Custom-Error'] = 1 unless result.success?
 
     render json: result.json, status: result.http_status
   end

@@ -33,7 +33,7 @@ describe Projects::MergeRequestsController do
     end
   end
 
-  describe "GET show" do
+  describe 'GET show' do
     def go(extra_params = {})
       params = {
         namespace_id: project.namespace.to_param,
@@ -62,7 +62,7 @@ describe Projects::MergeRequestsController do
         end
       end
 
-      it "renders merge request page" do
+      it 'renders merge request page' do
         expect(::Gitlab::GitalyClient).to receive(:allow_ref_name_caching).and_call_original
 
         go(format: :html)
@@ -70,10 +70,10 @@ describe Projects::MergeRequestsController do
         expect(response).to be_successful
       end
 
-      context "that is invalid" do
+      context 'that is invalid' do
         let(:merge_request) { create(:invalid_merge_request, target_project: project, source_project: project) }
 
-        it "renders merge request page" do
+        it 'renders merge request page' do
           go(format: :html)
 
           expect(response).to be_successful
@@ -153,10 +153,10 @@ describe Projects::MergeRequestsController do
         end
       end
 
-      context "that is invalid" do
+      context 'that is invalid' do
         let(:merge_request) { create(:invalid_merge_request, target_project: project, source_project: project) }
 
-        it "renders merge request page" do
+        it 'renders merge request page' do
           go(format: :json)
 
           expect(response).to be_successful
@@ -164,19 +164,19 @@ describe Projects::MergeRequestsController do
       end
     end
 
-    describe "as diff" do
-      it "triggers workhorse to serve the request" do
+    describe 'as diff' do
+      it 'triggers workhorse to serve the request' do
         go(format: :diff)
 
-        expect(response.headers[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with("git-diff:")
+        expect(response.headers[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with('git-diff:')
       end
     end
 
-    describe "as patch" do
+    describe 'as patch' do
       it 'triggers workhorse to serve the request' do
         go(format: :patch)
 
-        expect(response.headers[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with("git-format-patch:")
+        expect(response.headers[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with('git-format-patch:')
       end
     end
   end
@@ -194,7 +194,7 @@ describe Projects::MergeRequestsController do
           }
     end
 
-    it_behaves_like "issuables list meta-data", :merge_request
+    it_behaves_like 'issuables list meta-data', :merge_request
 
     it_behaves_like 'set sort order from user preference' do
       let(:sorting_param) { 'updated_asc' }
@@ -218,7 +218,7 @@ describe Projects::MergeRequestsController do
       end
 
       it 'does not redirect to external sites when provided a host field' do
-        external_host = "www.example.com"
+        external_host = 'www.example.com'
         get :index,
           params: {
             namespace_id: project.namespace.to_param,
@@ -594,7 +594,7 @@ describe Projects::MergeRequestsController do
     end
   end
 
-  describe "DELETE destroy" do
+  describe 'DELETE destroy' do
     let(:user) { create(:user) }
 
     it "denies access to users unless they're admin or project owner" do
@@ -603,7 +603,7 @@ describe Projects::MergeRequestsController do
       expect(response).to have_gitlab_http_status(404)
     end
 
-    context "when the user is owner" do
+    context 'when the user is owner' do
       let(:owner)     { create(:user) }
       let(:namespace) { create(:namespace, owner: owner) }
       let(:project)   { create(:project, :repository, namespace: namespace) }
@@ -612,14 +612,14 @@ describe Projects::MergeRequestsController do
         sign_in owner
       end
 
-      it "deletes the merge request" do
+      it 'deletes the merge request' do
         delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: merge_request.iid, destroy_confirm: true }
 
         expect(response).to have_gitlab_http_status(302)
         expect(controller).to set_flash[:notice].to(/The merge request was successfully deleted\./)
       end
 
-      it "prevents deletion if destroy_confirm is not set" do
+      it 'prevents deletion if destroy_confirm is not set' do
         expect(Gitlab::ErrorTracking).to receive(:track_exception).and_call_original
 
         delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: merge_request.iid }
@@ -628,7 +628,7 @@ describe Projects::MergeRequestsController do
         expect(controller).to set_flash[:notice].to('Destroy confirmation not provided for merge request')
       end
 
-      it "prevents deletion in JSON format if destroy_confirm is not set" do
+      it 'prevents deletion in JSON format if destroy_confirm is not set' do
         expect(Gitlab::ErrorTracking).to receive(:track_exception).and_call_original
 
         delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: merge_request.iid, format: 'json' }
@@ -1190,7 +1190,7 @@ describe Projects::MergeRequestsController do
 
         context 'when is merged' do
           let(:source_environment)  { create(:environment, project: project) }
-          let(:merge_commit_sha)    { project.repository.merge(user, forked.commit.id, merge_request, "merged in test") }
+          let(:merge_commit_sha)    { project.repository.merge(user, forked.commit.id, merge_request, 'merged in test') }
           let(:post_merge_pipeline) { create(:ci_pipeline, sha: merge_commit_sha, project: project) }
           let(:post_merge_build)    { create(:ci_build, pipeline: post_merge_pipeline) }
           let!(:source_deployment)  { create(:deployment, :succeed, environment: source_environment, sha: merge_commit_sha, ref: 'master', deployable: post_merge_build) }

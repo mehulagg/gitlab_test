@@ -76,7 +76,7 @@ module Gitlab
           path: path
         )
 
-        raise "Repository or ref not found" if metadata.empty?
+        raise 'Repository or ref not found' if metadata.empty?
 
         params =
           if path_enabled
@@ -245,11 +245,11 @@ module Gitlab
 
       def archive_format(format)
         case format
-        when "tar.bz2", "tbz", "tbz2", "tb2", "bz2"
+        when 'tar.bz2', 'tbz', 'tbz2', 'tb2', 'bz2'
           Gitaly::GetArchiveRequest::Format::TAR_BZ2
-        when "tar"
+        when 'tar'
           Gitaly::GetArchiveRequest::Format::TAR
-        when "zip"
+        when 'zip'
           Gitaly::GetArchiveRequest::Format::ZIP
         else
           Gitaly::GetArchiveRequest::Format::TAR_GZ
@@ -265,7 +265,7 @@ module Gitlab
               commit_id: metadata['CommitId'],
               prefix: metadata['ArchivePrefix'],
               format: format,
-              path: path.presence || ""
+              path: path.presence || ''
             ).to_proto
           )
         }

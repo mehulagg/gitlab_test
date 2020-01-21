@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe ScimOauthAccessToken do
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to :group }
   end
 

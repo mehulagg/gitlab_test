@@ -545,30 +545,30 @@ describe CommitStatus do
 
     subject { commit_status.locking_enabled? }
 
-    context "when changing status" do
+    context 'when changing status' do
       before do
-        commit_status.status = "running"
+        commit_status.status = 'running'
       end
 
-      it "lock" do
+      it 'lock' do
         is_expected.to be_truthy
       end
 
-      it "raise exception when trying to update" do
+      it 'raise exception when trying to update' do
         expect { commit_status.save }.to raise_error(ActiveRecord::StaleObjectError)
       end
     end
 
-    context "when changing description" do
+    context 'when changing description' do
       before do
-        commit_status.description = "test"
+        commit_status.description = 'test'
       end
 
-      it "do not lock" do
+      it 'do not lock' do
         is_expected.to be_falsey
       end
 
-      it "save correctly" do
+      it 'save correctly' do
         expect(commit_status.save).to be true
       end
     end

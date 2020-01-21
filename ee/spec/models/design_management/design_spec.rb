@@ -29,8 +29,8 @@ describe DesignManagement::Design do
     it { is_expected.to validate_presence_of(:filename) }
     it { is_expected.to validate_uniqueness_of(:filename).scoped_to(:issue_id) }
 
-    it "validates that the extension is an image" do
-      design.filename = "thing.txt"
+    it 'validates that the extension is an image' do
+      design.filename = 'thing.txt'
       extensions = described_class::SAFE_IMAGE_EXT + described_class::DANGEROUS_IMAGE_EXT
 
       expect(design).not_to be_valid
@@ -41,16 +41,16 @@ describe DesignManagement::Design do
 
     describe 'validating files with .svg extension' do
       before do
-        design.filename = "thing.svg"
+        design.filename = 'thing.svg'
       end
 
-      it "allows .svg files when feature flag is enabled" do
+      it 'allows .svg files when feature flag is enabled' do
         stub_feature_flags(design_management_allow_dangerous_images: true)
 
         expect(design).to be_valid
       end
 
-      it "does not allow .svg files when feature flag is disabled" do
+      it 'does not allow .svg files when feature flag is disabled' do
         stub_feature_flags(design_management_allow_dangerous_images: false)
 
         expect(design).not_to be_valid
@@ -239,14 +239,14 @@ describe DesignManagement::Design do
     end
   end
 
-  describe "#new_design?" do
+  describe '#new_design?' do
     let(:design) { design1 }
 
-    it "is false when there are versions" do
+    it 'is false when there are versions' do
       expect(design1).not_to be_new_design
     end
 
-    it "is true when there are no versions" do
+    it 'is true when there are no versions' do
       expect(build(:design)).to be_new_design
     end
 
@@ -254,20 +254,20 @@ describe DesignManagement::Design do
       expect(deleted_design).not_to be_new_design
     end
 
-    it "does not cause extra queries when actions are loaded" do
+    it 'does not cause extra queries when actions are loaded' do
       design.actions.map(&:id)
 
       expect { design.new_design? }.not_to exceed_query_limit(0)
     end
 
-    it "implicitly caches values" do
+    it 'implicitly caches values' do
       expect do
         design.new_design?
         design.new_design?
       end.not_to exceed_query_limit(1)
     end
 
-    it "queries again when the clear_version_cache trigger has been called" do
+    it 'queries again when the clear_version_cache trigger has been called' do
       expect do
         design.new_design?
         design.clear_version_cache
@@ -275,16 +275,16 @@ describe DesignManagement::Design do
       end.not_to exceed_query_limit(2)
     end
 
-    it "causes a single query when there versions are not loaded" do
+    it 'causes a single query when there versions are not loaded' do
       design.reload
 
       expect { design.new_design? }.not_to exceed_query_limit(1)
     end
   end
 
-  describe "#full_path" do
-    it "builds the full path for a design" do
-      design = build(:design, filename: "hello.jpg")
+  describe '#full_path' do
+    it 'builds the full path for a design' do
+      design = build(:design, filename: 'hello.jpg')
       expected_path = "#{DesignManagement.designs_directory}/issue-#{design.issue.iid}/hello.jpg"
 
       expect(design.full_path).to eq(expected_path)
@@ -407,7 +407,7 @@ describe DesignManagement::Design do
       let(:reference) { design.to_reference }
 
       it 'uses the simple format' do
-        expect(reference).to eq "#1[homescreen.jpg]"
+        expect(reference).to eq '#1[homescreen.jpg]'
       end
 
       context 'when the filename contains spaces, hyphens, periods, single-quotes, underscores and colons' do
@@ -468,7 +468,7 @@ describe DesignManagement::Design do
 
     context 'when same project argument' do
       it 'returns bare reference' do
-        expect(design.to_reference(project)).to eq("#1[homescreen.jpg]")
+        expect(design.to_reference(project)).to eq('#1[homescreen.jpg]')
       end
     end
   end

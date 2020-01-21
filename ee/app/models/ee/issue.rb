@@ -28,8 +28,8 @@ module EE
       has_one :epic_issue
       has_one :epic, through: :epic_issue
       belongs_to :promoted_to_epic, class_name: 'Epic'
-      has_many :designs, class_name: "DesignManagement::Design", inverse_of: :issue
-      has_many :design_versions, class_name: "DesignManagement::Version", inverse_of: :issue do
+      has_many :designs, class_name: 'DesignManagement::Design', inverse_of: :issue
+      has_many :design_versions, class_name: 'DesignManagement::Version', inverse_of: :issue do
         def most_recent
           ordered.first
         end

@@ -40,9 +40,9 @@ describe ChatMessage::NoteMessage do
 
     context 'without markdown' do
       it 'returns a message regarding notes on commits' do
-        expect(subject.pretext).to eq("Test User (test.user) <http://url.com|commented on " \
-          "commit 5f163b2b> in <http://somewhere.com|project_name>: " \
-          "*Added a commit message*")
+        expect(subject.pretext).to eq('Test User (test.user) <http://url.com|commented on ' \
+          'commit 5f163b2b> in <http://somewhere.com|project_name>: ' \
+          '*Added a commit message*')
         expect(subject.attachments).to eq([{
           text: 'comment on a commit',
           color: color
@@ -83,9 +83,9 @@ describe ChatMessage::NoteMessage do
 
     context 'without markdown' do
       it 'returns a message regarding notes on a merge request' do
-        expect(subject.pretext).to eq("Test User (test.user) <http://url.com|commented on " \
-          "merge request !30> in <http://somewhere.com|project_name>: " \
-          "*merge request title*")
+        expect(subject.pretext).to eq('Test User (test.user) <http://url.com|commented on ' \
+          'merge request !30> in <http://somewhere.com|project_name>: ' \
+          '*merge request title*')
         expect(subject.attachments).to eq([{
           text: 'comment on a merge request',
           color: color
@@ -126,9 +126,9 @@ describe ChatMessage::NoteMessage do
     context 'without markdown' do
       it 'returns a message regarding notes on an issue' do
         expect(subject.pretext).to eq(
-          "Test User (test.user) <http://url.com|commented on " \
-            "issue #20> in <http://somewhere.com|project_name>: " \
-            "*issue title*")
+          'Test User (test.user) <http://url.com|commented on ' \
+            'issue #20> in <http://somewhere.com|project_name>: ' \
+            '*issue title*')
         expect(subject.attachments).to eq([{
           text: 'comment on an issue',
           color: color
@@ -167,9 +167,9 @@ describe ChatMessage::NoteMessage do
 
     context 'without markdown' do
       it 'returns a message regarding notes on a project snippet' do
-        expect(subject.pretext).to eq("Test User (test.user) <http://url.com|commented on " \
-          "snippet $5> in <http://somewhere.com|project_name>: " \
-          "*snippet title*")
+        expect(subject.pretext).to eq('Test User (test.user) <http://url.com|commented on ' \
+          'snippet $5> in <http://somewhere.com|project_name>: ' \
+          '*snippet title*')
         expect(subject.attachments).to eq([{
           text: 'comment on a snippet',
           color: color

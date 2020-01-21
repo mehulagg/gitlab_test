@@ -9,7 +9,7 @@ describe ReactiveCaching, :use_clean_rails_memory_store_caching do
   class CacheTest
     include ReactiveCaching
 
-    self.reactive_cache_key = ->(thing) { ["foo", thing.id] }
+    self.reactive_cache_key = ->(thing) { ['foo', thing.id] }
 
     self.reactive_cache_lifetime = 5.minutes
     self.reactive_cache_refresh_interval = 15.seconds
@@ -37,7 +37,7 @@ describe ReactiveCaching, :use_clean_rails_memory_store_caching do
   end
 
   let(:calculation) { -> { 2 + 2 } }
-  let(:cache_key) { "foo:666" }
+  let(:cache_key) { 'foo:666' }
   let(:instance) { CacheTest.new(666, &calculation) }
 
   describe '#with_reactive_cache' do
@@ -167,7 +167,7 @@ describe ReactiveCaching, :use_clean_rails_memory_store_caching do
 
     context 'when the lease is free and lifetime is not exceeded' do
       before do
-        stub_reactive_cache(instance, "preexisting")
+        stub_reactive_cache(instance, 'preexisting')
       end
 
       it 'takes and releases the lease' do
@@ -183,13 +183,13 @@ describe ReactiveCaching, :use_clean_rails_memory_store_caching do
         expect(read_reactive_cache(instance)).to eq(calculation.call)
       end
 
-      it "enqueues a repeat worker" do
+      it 'enqueues a repeat worker' do
         expect_reactive_cache_update_queued(instance)
 
         go!
       end
 
-      it "calls a reactive_cache_updated only once if content did not change on subsequent update" do
+      it 'calls a reactive_cache_updated only once if content did not change on subsequent update' do
         expect(instance).to receive(:calculate_reactive_cache).twice
         expect(instance).to receive(:reactive_cache_updated).once
 
@@ -204,21 +204,21 @@ describe ReactiveCaching, :use_clean_rails_memory_store_caching do
 
       context 'and #calculate_reactive_cache raises an exception' do
         before do
-          stub_reactive_cache(instance, "preexisting")
+          stub_reactive_cache(instance, 'preexisting')
         end
 
-        let(:calculation) { -> { raise "foo"} }
+        let(:calculation) { -> { raise 'foo'} }
 
         it 'leaves the cache untouched' do
-          expect { go! }.to raise_error("foo")
-          expect(read_reactive_cache(instance)).to eq("preexisting")
+          expect { go! }.to raise_error('foo')
+          expect(read_reactive_cache(instance)).to eq('preexisting')
         end
 
         it 'does not enqueue a repeat worker' do
           expect(ReactiveCachingWorker)
             .not_to receive(:perform_in)
 
-          expect { go! }.to raise_error("foo")
+          expect { go! }.to raise_error('foo')
         end
       end
     end

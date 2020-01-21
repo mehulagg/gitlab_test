@@ -7,49 +7,49 @@ RSpec.describe Quality::TestLevel do
     context 'when level is all' do
       it 'returns a pattern' do
         expect(subject.pattern(:all))
-        .to eq("spec/**{,/**/}*_spec.rb")
+        .to eq('spec/**{,/**/}*_spec.rb')
       end
     end
 
     context 'when level is geo' do
       it 'returns a pattern' do
         expect(subject.pattern(:geo))
-        .to eq("spec/**{,/**/}*_spec.rb")
+        .to eq('spec/**{,/**/}*_spec.rb')
       end
     end
 
     context 'when level is unit' do
       it 'returns a pattern' do
         expect(subject.pattern(:unit))
-          .to eq("spec/{bin,config,db,dependencies,factories,finders,frontend,graphql,haml_lint,helpers,initializers,javascripts,lib,models,policies,presenters,rack_servers,routing,rubocop,serializers,services,sidekiq,tasks,uploaders,validators,views,workers,elastic_integration}{,/**/}*_spec.rb")
+          .to eq('spec/{bin,config,db,dependencies,factories,finders,frontend,graphql,haml_lint,helpers,initializers,javascripts,lib,models,policies,presenters,rack_servers,routing,rubocop,serializers,services,sidekiq,tasks,uploaders,validators,views,workers,elastic_integration}{,/**/}*_spec.rb')
       end
     end
 
     context 'when level is migration' do
       it 'returns a pattern' do
         expect(subject.pattern(:migration))
-          .to eq("spec/{migrations,lib/gitlab/background_migration}{,/**/}*_spec.rb")
+          .to eq('spec/{migrations,lib/gitlab/background_migration}{,/**/}*_spec.rb')
       end
     end
 
     context 'when level is integration' do
       it 'returns a pattern' do
         expect(subject.pattern(:integration))
-          .to eq("spec/{controllers,mailers,requests}{,/**/}*_spec.rb")
+          .to eq('spec/{controllers,mailers,requests}{,/**/}*_spec.rb')
       end
     end
 
     context 'when level is system' do
       it 'returns a pattern' do
         expect(subject.pattern(:system))
-          .to eq("spec/{features}{,/**/}*_spec.rb")
+          .to eq('spec/{features}{,/**/}*_spec.rb')
       end
     end
 
     context 'with a prefix' do
       it 'returns a pattern' do
         expect(described_class.new('ee/').pattern(:system))
-          .to eq("ee/spec/{features}{,/**/}*_spec.rb")
+          .to eq('ee/spec/{features}{,/**/}*_spec.rb')
       end
     end
 

@@ -9,7 +9,7 @@ class Projects::HooksController < Projects::ApplicationController
 
   respond_to :html
 
-  layout "project_settings"
+  layout 'project_settings'
 
   def index
     redirect_to project_settings_integrations_path(@project)

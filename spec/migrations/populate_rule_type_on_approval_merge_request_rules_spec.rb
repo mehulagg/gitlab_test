@@ -22,8 +22,8 @@ describe PopulateRuleTypeOnApprovalMergeRequestRules, :migration do
       projects.create!(id: 101, namespace_id: 11, name: 'gitlab', path: 'gitlab')
       merge_requests.create!(id: 1, target_project_id: 101, source_project_id: 101, target_branch: 'feature', source_branch: 'master')
 
-      approval_rules.create!(id: 1, merge_request_id: 1, name: "Default", code_owner: false, rule_type: regular_rule_type)
-      approval_rules.create!(id: 2, merge_request_id: 1, name: "Code Owners", code_owner: true, rule_type: regular_rule_type)
+      approval_rules.create!(id: 1, merge_request_id: 1, name: 'Default', code_owner: false, rule_type: regular_rule_type)
+      approval_rules.create!(id: 2, merge_request_id: 1, name: 'Code Owners', code_owner: true, rule_type: regular_rule_type)
     end
 
     it 'backfills ApprovalMergeRequestRules code_owner rule_type' do

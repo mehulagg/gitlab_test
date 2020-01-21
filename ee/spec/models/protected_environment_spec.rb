@@ -93,7 +93,7 @@ describe ProtectedEnvironment do
   describe '.sorted_by_name' do
     subject(:protected_environments) { described_class.sorted_by_name }
 
-    it "sorts protected environments by name" do
+    it 'sorts protected environments by name' do
       %w(staging production development).each {|name| create(:protected_environment, name: name)}
 
       expect(protected_environments.map(&:name)).to eq %w(development production staging)
@@ -103,7 +103,7 @@ describe ProtectedEnvironment do
   describe '.with_environment_id' do
     subject(:protected_environments) { described_class.with_environment_id }
 
-    it "sets corresponding environment id if there is environment matching by name and project" do
+    it 'sets corresponding environment id if there is environment matching by name and project' do
       project = create(:project)
       environment = create(:environment, project: project, name: 'production')
 

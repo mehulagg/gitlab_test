@@ -6,11 +6,11 @@ describe Gitlab::ImportExport::ImportFailureService do
   let(:importable) { create(:project, :builds_enabled, :issues_disabled, name: 'project', path: 'project') }
   let(:label) { create(:label) }
   let(:subject) { described_class.new(importable) }
-  let(:relation_key) { "labels" }
+  let(:relation_key) { 'labels' }
   let(:relation_index) { 0 }
 
   describe '#log_import_failure' do
-    let(:standard_error_message) { "StandardError message" }
+    let(:standard_error_message) { 'StandardError message' }
     let(:exception) { StandardError.new(standard_error_message) }
     let(:correlation_id) { 'my-correlation-id' }
     let(:retry_count) { 2 }

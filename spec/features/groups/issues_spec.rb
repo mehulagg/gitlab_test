@@ -16,7 +16,7 @@ describe 'Group issues page' do
   end
 
   context 'with shared examples' do
-    let(:issuable) { create(:issue, project: project, title: "this is my created issuable")}
+    let(:issuable) { create(:issue, project: project, title: 'this is my created issuable')}
 
     include_examples 'project features apply to issuables', Issue
 
@@ -37,8 +37,8 @@ describe 'Group issues page' do
       context 'when signed out' do
         let(:user) { nil }
 
-        it_behaves_like "it has an RSS button without a feed token"
-        it_behaves_like "an autodiscoverable RSS feed without a feed token"
+        it_behaves_like 'it has an RSS button without a feed token'
+        it_behaves_like 'an autodiscoverable RSS feed without a feed token'
       end
     end
 

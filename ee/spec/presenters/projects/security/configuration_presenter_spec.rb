@@ -47,12 +47,12 @@ describe Projects::Security::ConfigurationPresenter do
       end
     end
 
-    context "when the project has no default branch pipeline" do
+    context 'when the project has no default branch pipeline' do
       it 'reports that auto devops is disabled' do
         expect(subject[:auto_devops_enabled]).to be_falsy
       end
 
-      it "includes a link to CI pipeline docs" do
+      it 'includes a link to CI pipeline docs' do
         expect(subject[:latest_pipeline_path]).to eq(help_page_path('ci/pipelines'))
       end
 
@@ -134,10 +134,10 @@ describe Projects::Security::ConfigurationPresenter do
 
   def security_scan(type, configured:)
     {
-      "configured" => configured,
-      "description" => described_class::SCAN_DESCRIPTIONS[type],
-      "link" => help_page_path(described_class::SCAN_DOCS[type]),
-      "name" => described_class::SCAN_NAMES[type]
+      'configured' => configured,
+      'description' => described_class::SCAN_DESCRIPTIONS[type],
+      'link' => help_page_path(described_class::SCAN_DOCS[type]),
+      'name' => described_class::SCAN_NAMES[type]
     }
   end
 end

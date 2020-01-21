@@ -380,14 +380,14 @@ module ApplicationSettingImplementation
 
   def check_repository_storages
     invalid = repository_storages - Gitlab.config.repositories.storages.keys
-    errors.add(:repository_storages, "can't include: #{invalid.join(", ")}") unless
+    errors.add(:repository_storages, "can't include: #{invalid.join(', ')}") unless
       invalid.empty?
   end
 
   def terms_exist
     return unless enforce_terms?
 
-    errors.add(:terms, "You need to set terms to be enforced") unless terms.present?
+    errors.add(:terms, 'You need to set terms to be enforced') unless terms.present?
   end
 
   def expire_performance_bar_allowed_user_ids_cache

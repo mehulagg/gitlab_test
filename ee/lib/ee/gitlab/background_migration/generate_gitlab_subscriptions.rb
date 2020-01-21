@@ -12,7 +12,7 @@ module EE
 
           scope :with_plan, -> { where.not(plan_id: nil) }
           scope :without_subscription, -> do
-            joins("LEFT JOIN gitlab_subscriptions ON namespaces.id = gitlab_subscriptions.namespace_id")
+            joins('LEFT JOIN gitlab_subscriptions ON namespaces.id = gitlab_subscriptions.namespace_id')
             .where(gitlab_subscriptions: { id: nil })
           end
 

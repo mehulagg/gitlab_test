@@ -12,7 +12,7 @@ describe Atlassian::JiraConnect::Client do
   end
 
   describe '#store_dev_info' do
-    it "calls the API with auth headers" do
+    it 'calls the API with auth headers' do
       expected_jwt = Atlassian::Jwt.encode(
         Atlassian::Jwt.build_claims(
           Atlassian::JiraConnect.app_key,

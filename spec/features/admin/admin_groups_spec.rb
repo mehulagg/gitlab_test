@@ -28,7 +28,7 @@ describe 'Admin Groups' do
       visit admin_groups_path
 
       page.within '#content-body' do
-        click_link "New group"
+        click_link 'New group'
       end
       path_component = 'gitlab'
       group_name = 'GitLab group name'
@@ -37,7 +37,7 @@ describe 'Admin Groups' do
       fill_in 'group_path', with: path_component
       fill_in 'group_name', with: group_name
       fill_in 'group_description', with: group_description
-      click_button "Create group"
+      click_button 'Create group'
 
       expect(current_path).to eq admin_group_path(Group.find_by(path: path_component))
       content = page.find('div#content-body')
@@ -57,7 +57,7 @@ describe 'Admin Groups' do
 
     it 'when entered in group name, it auto filled the group path', :js do
       visit admin_groups_path
-      click_link "New group"
+      click_link 'New group'
       group_name = 'gitlab'
       fill_in 'group_name', with: group_name
       path_field = find('input#group_path')
@@ -66,7 +66,7 @@ describe 'Admin Groups' do
 
     it 'auto populates the group path with the group name', :js do
       visit admin_groups_path
-      click_link "New group"
+      click_link 'New group'
       group_name = 'my gitlab project'
       fill_in 'group_name', with: group_name
       path_field = find('input#group_path')
@@ -75,7 +75,7 @@ describe 'Admin Groups' do
 
     it 'when entering in group path, group name does not change anymore', :js do
       visit admin_groups_path
-      click_link "New group"
+      click_link 'New group'
       group_path = 'my-gitlab-project'
       group_name = 'My modified gitlab project'
       fill_in 'group_path', with: group_path
@@ -142,8 +142,8 @@ describe 'Admin Groups' do
         page.within '#new_project_member' do
           select2(Gitlab::Access::REPORTER, from: '#access_level')
         end
-        click_button "Add users to group"
-        page.within ".group-users-list" do
+        click_button 'Add users to group'
+        page.within '.group-users-list' do
           expect(page).to have_content(user.name)
           expect(page).to have_content('Reporter')
         end

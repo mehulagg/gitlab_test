@@ -47,7 +47,7 @@ module Mutations
       private
 
       def ability_name
-        "update"
+        'update'
       end
     end
   end

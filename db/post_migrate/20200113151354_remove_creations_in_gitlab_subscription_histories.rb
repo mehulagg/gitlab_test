@@ -13,7 +13,7 @@ class RemoveCreationsInGitlabSubscriptionHistories < ActiveRecord::Migration[5.2
 
     logger = Gitlab::BackgroundMigration::Logger.build
     records.to_a.each do |record|
-      logger.info record.as_json.merge(message: "gitlab_subscription_histories with change_type=0 was deleted")
+      logger.info record.as_json.merge(message: 'gitlab_subscription_histories with change_type=0 was deleted')
     end
   end
 

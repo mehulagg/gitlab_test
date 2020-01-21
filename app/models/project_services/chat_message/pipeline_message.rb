@@ -59,7 +59,7 @@ module ChatMessage
         author_name: user_combined_name,
         author_icon: user_avatar,
         author_link: author_url,
-        title: s_("ChatMessage|Pipeline #%{pipeline_id} %{humanized_status} in %{duration}") %
+        title: s_('ChatMessage|Pipeline #%{pipeline_id} %{humanized_status} in %{duration}') %
           {
             pipeline_id: pipeline_id,
             humanized_status: humanized_status,
@@ -75,7 +75,7 @@ module ChatMessage
 
     def activity
       {
-        title: s_("ChatMessage|Pipeline %{pipeline_link} of %{ref_type} %{ref_link} by %{user_combined_name} %{humanized_status}") %
+        title: s_('ChatMessage|Pipeline %{pipeline_link} of %{ref_type} %{ref_link} by %{user_combined_name} %{humanized_status}') %
           {
             pipeline_link: pipeline_link,
             ref_type: ref_type,
@@ -83,8 +83,8 @@ module ChatMessage
             user_combined_name: user_combined_name,
             humanized_status: humanized_status
           },
-        subtitle: s_("ChatMessage|in %{project_link}") % { project_link: project_link },
-        text: s_("ChatMessage|in %{duration}") % { duration: pretty_duration(duration) },
+        subtitle: s_('ChatMessage|in %{project_link}') % { project_link: project_link },
+        text: s_('ChatMessage|in %{duration}') % { duration: pretty_duration(duration) },
         image: user_avatar || ''
       }
     end
@@ -97,7 +97,7 @@ module ChatMessage
 
     def failed_stages_field
       {
-        title: s_("ChatMessage|Failed stage").pluralize(failed_stages.length),
+        title: s_('ChatMessage|Failed stage').pluralize(failed_stages.length),
         value: Slack::Notifier::LinkFormatter.format(failed_stages_links),
         short: true
       }
@@ -105,7 +105,7 @@ module ChatMessage
 
     def failed_jobs_field
       {
-        title: s_("ChatMessage|Failed job").pluralize(failed_jobs.length),
+        title: s_('ChatMessage|Failed job').pluralize(failed_jobs.length),
         value: Slack::Notifier::LinkFormatter.format(failed_jobs_links),
         short: true
       }
@@ -113,7 +113,7 @@ module ChatMessage
 
     def yaml_error_field
       {
-        title: s_("ChatMessage|Invalid CI config YAML file"),
+        title: s_('ChatMessage|Invalid CI config YAML file'),
         value: pipeline.yaml_errors,
         short: false
       }
@@ -122,12 +122,12 @@ module ChatMessage
     def attachments_fields
       fields = [
         {
-          title: ref_type == "tag" ? s_("ChatMessage|Tag") : s_("ChatMessage|Branch"),
+          title: ref_type == 'tag' ? s_('ChatMessage|Tag') : s_('ChatMessage|Branch'),
           value: Slack::Notifier::LinkFormatter.format(ref_link),
           short: true
         },
         {
-          title: s_("ChatMessage|Commit"),
+          title: s_('ChatMessage|Commit'),
           value: Slack::Notifier::LinkFormatter.format(commit_link),
           short: true
         }
@@ -141,7 +141,7 @@ module ChatMessage
     end
 
     def message
-      s_("ChatMessage|%{project_link}: Pipeline %{pipeline_link} of %{ref_type} %{ref_link} by %{user_combined_name} %{humanized_status} in %{duration}") %
+      s_('ChatMessage|%{project_link}: Pipeline %{pipeline_link} of %{ref_type} %{ref_link} by %{user_combined_name} %{humanized_status} in %{duration}') %
         {
           project_link: project_link,
           pipeline_link: pipeline_link,
@@ -157,18 +157,18 @@ module ChatMessage
       if fancy_notifications?
         case status
         when 'success'
-          detailed_status == "passed with warnings" ? s_("ChatMessage|has passed with warnings") : s_("ChatMessage|has passed")
+          detailed_status == 'passed with warnings' ? s_('ChatMessage|has passed with warnings') : s_('ChatMessage|has passed')
         when 'failed'
-          s_("ChatMessage|has failed")
+          s_('ChatMessage|has failed')
         else
           status
         end
       else
         case status
         when 'success'
-          s_("ChatMessage|passed")
+          s_('ChatMessage|passed')
         when 'failed'
-          s_("ChatMessage|failed")
+          s_('ChatMessage|failed')
         else
           status
         end
@@ -244,7 +244,7 @@ module ChatMessage
       failed_links = failed.map { |job| job_link(job) }
 
       unless truncated.blank?
-        failed_links << s_("ChatMessage|and [%{count} more](%{pipeline_failed_jobs_url})") % {
+        failed_links << s_('ChatMessage|and [%{count} more](%{pipeline_failed_jobs_url})') % {
           count: truncated.size,
           pipeline_failed_jobs_url: pipeline_failed_jobs_url
         }

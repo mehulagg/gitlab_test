@@ -68,7 +68,7 @@ describe 'layouts/_head' do
   end
 
   it 'adds selected syntax highlight stylesheet' do
-    allow_any_instance_of(PreferencesHelper).to receive(:user_color_scheme).and_return("solarised-light")
+    allow_any_instance_of(PreferencesHelper).to receive(:user_color_scheme).and_return('solarised-light')
 
     render
 

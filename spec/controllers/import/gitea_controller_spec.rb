@@ -14,7 +14,7 @@ describe Import::GiteaController do
     session[:gitea_host_url] = host_url
   end
 
-  describe "GET new" do
+  describe 'GET new' do
     it_behaves_like 'a GitHub-ish import controller: GET new' do
       before do
         assign_host_url
@@ -22,11 +22,11 @@ describe Import::GiteaController do
     end
   end
 
-  describe "POST personal_access_token" do
+  describe 'POST personal_access_token' do
     it_behaves_like 'a GitHub-ish import controller: POST personal_access_token'
   end
 
-  describe "GET status" do
+  describe 'GET status' do
     it_behaves_like 'a GitHub-ish import controller: GET status' do
       before do
         assign_host_url
@@ -43,7 +43,7 @@ describe Import::GiteaController do
     end
   end
 
-  describe "GET realtime_changes" do
+  describe 'GET realtime_changes' do
     it_behaves_like 'a GitHub-ish import controller: GET realtime_changes' do
       before do
         assign_host_url

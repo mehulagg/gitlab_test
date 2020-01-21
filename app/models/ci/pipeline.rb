@@ -42,7 +42,7 @@ module Ci
 
     # Merge requests for which the current pipeline is running against
     # the merge request's latest commit.
-    has_many :merge_requests_as_head_pipeline, foreign_key: "head_pipeline_id", class_name: 'MergeRequest'
+    has_many :merge_requests_as_head_pipeline, foreign_key: 'head_pipeline_id', class_name: 'MergeRequest'
 
     has_many :pending_builds, -> { pending }, foreign_key: :commit_id, class_name: 'Ci::Build'
     has_many :failed_builds, -> { latest.failed }, foreign_key: :commit_id, class_name: 'Ci::Build', inverse_of: :pipeline
@@ -327,7 +327,7 @@ module Ci
     end
 
     def self.internal_sources
-      sources.reject { |source| source == "external" }.values
+      sources.reject { |source| source == 'external' }.values
     end
 
     def self.bridgeable_statuses
@@ -418,7 +418,7 @@ module Ci
 
     def valid_commit_sha
       if self.sha == Gitlab::Git::BLANK_SHA
-        self.errors.add(:sha, " cant be 00000000 (branch removal)")
+        self.errors.add(:sha, ' cant be 00000000 (branch removal)')
       end
     end
 
@@ -841,7 +841,7 @@ module Ci
     end
 
     def error_messages
-      errors ? errors.full_messages.to_sentence : ""
+      errors ? errors.full_messages.to_sentence : ''
     end
 
     def merge_request_event_type

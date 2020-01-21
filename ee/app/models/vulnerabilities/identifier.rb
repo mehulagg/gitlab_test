@@ -4,7 +4,7 @@ module Vulnerabilities
   class Identifier < ApplicationRecord
     include ShaAttribute
 
-    self.table_name = "vulnerability_identifiers"
+    self.table_name = 'vulnerability_identifiers'
 
     sha_attribute :fingerprint
 

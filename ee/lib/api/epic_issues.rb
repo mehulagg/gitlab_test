@@ -45,7 +45,7 @@ module API
             with: EE::API::Entities::EpicIssue,
             current_user: current_user
         else
-          render_api_error!({ error: "Issue could not be moved!" }, 400)
+          render_api_error!({ error: 'Issue could not be moved!' }, 400)
         end
       end
 

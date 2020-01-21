@@ -36,7 +36,7 @@ describe 'Every Sidekiq worker' do
     end
   end
 
-  describe "feature category declarations" do
+  describe 'feature category declarations' do
     let(:feature_categories) do
       YAML.load_file(Rails.root.join('config', 'feature_categories.yml')).map(&:to_sym).to_set
     end

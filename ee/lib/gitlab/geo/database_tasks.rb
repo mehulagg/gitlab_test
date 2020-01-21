@@ -65,7 +65,7 @@ module Gitlab
 
           Gitlab::Geo::DatabaseTasks.with_geo_db do
             filename = ENV['SCHEMA'] || File.join(ActiveRecord::Tasks::DatabaseTasks.db_dir, 'schema.rb')
-            File.open(filename, "w:utf-8") do |file|
+            File.open(filename, 'w:utf-8') do |file|
               ActiveRecord::SchemaDumper.dump(ActiveRecord::Base.connection, file)
             end
           end
@@ -116,7 +116,7 @@ module Gitlab
             # output
             puts "\ndatabase: #{ActiveRecord::Base.connection_config[:database]}\n\n"
             puts "#{'Status'.center(8)}  #{'Migration ID'.ljust(14)}  Migration Name"
-            puts "-" * 50
+            puts '-' * 50
             (db_list + file_list).sort_by { |_, version, _| version }.each do |status, version, name|
               puts "#{status.center(8)}  #{version.ljust(14)}  #{name}"
             end

@@ -76,7 +76,7 @@ describe Clusters::Applications::CheckUninstallProgressService do
 
       context 'an error occurs while destroying' do
         before do
-          expect(application).to receive(:destroy!).once.and_raise("destroy failed")
+          expect(application).to receive(:destroy!).once.and_raise('destroy failed')
         end
 
         it 'still removes the installation POD' do

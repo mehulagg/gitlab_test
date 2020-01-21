@@ -76,7 +76,7 @@ module Banzai
 
       def get_blob_types(paths)
         revision_paths = paths.collect do |path|
-          [current_commit.sha, path.chomp("/")]
+          [current_commit.sha, path.chomp('/')]
         end
 
         Gitlab::GitalyClient::BlobService.new(repository).get_blob_types(revision_paths, 1)
@@ -121,7 +121,7 @@ module Banzai
       end
 
       def cleaned_file_path(uri)
-        unescape_and_scrub_uri(uri.path).delete("\0").chomp("/")
+        unescape_and_scrub_uri(uri.path).delete("\0").chomp('/')
       end
 
       def relative_file_path(uri)
@@ -133,7 +133,7 @@ module Banzai
       def request_path
         return unless context[:requested_path]
 
-        unescape_and_scrub_uri(context[:requested_path]).chomp("/")
+        unescape_and_scrub_uri(context[:requested_path]).chomp('/')
       end
 
       # Convert a relative path into its correct location based on the currently
@@ -181,7 +181,7 @@ module Banzai
       end
 
       def uri_type(path)
-        @uri_types[path] == :unknown ? "" : @uri_types[path]
+        @uri_types[path] == :unknown ? '' : @uri_types[path]
       end
 
       def current_commit

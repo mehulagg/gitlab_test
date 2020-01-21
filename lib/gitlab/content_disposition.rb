@@ -47,7 +47,7 @@ module Gitlab
 
     def percent_escape(string, pattern)
       string.gsub(pattern) do |char|
-        char.bytes.map { |byte| "%%%02X" % byte }.join
+        char.bytes.map { |byte| '%%%02X' % byte }.join
       end
     end
   end

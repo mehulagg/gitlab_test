@@ -53,7 +53,7 @@ module Gitlab
                 rename_namespace_dependencies(namespace, current_path, path_before_rename)
               else
                 say "Couldn't rename namespace from #{current_path} back to #{path_before_rename}, "\
-                    "namespace was renamed, or no longer exists at the expected path"
+                    'namespace was renamed, or no longer exists at the expected path'
               end
             end
           end

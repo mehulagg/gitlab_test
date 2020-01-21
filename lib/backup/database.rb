@@ -22,13 +22,13 @@ module Backup
       compress_rd.close
 
       dump_pid =
-        case config["adapter"]
-        when "postgresql" then
+        case config['adapter']
+        when 'postgresql' then
           progress.print "Dumping PostgreSQL database #{config['database']} ... "
           pg_env
-          pgsql_args = ["--clean"] # Pass '--clean' to include 'DROP TABLE' statements in the DB dump.
+          pgsql_args = ['--clean'] # Pass '--clean' to include 'DROP TABLE' statements in the DB dump.
           if Gitlab.config.backup.pg_schema
-            pgsql_args << "-n"
+            pgsql_args << '-n'
             pgsql_args << Gitlab.config.backup.pg_schema
           end
 
@@ -51,8 +51,8 @@ module Backup
       decompress_wr.close
 
       restore_pid =
-        case config["adapter"]
-        when "postgresql" then
+        case config['adapter']
+        when 'postgresql' then
           progress.print "Restoring PostgreSQL database #{config['database']} ... "
           pg_env
           spawn('psql', config['database'], in: decompress_rd)

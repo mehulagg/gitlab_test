@@ -5,7 +5,7 @@ class ConfirmationsController < Devise::ConfirmationsController
 
   def almost_there
     flash[:notice] = nil
-    render layout: "devise_empty"
+    render layout: 'devise_empty'
   end
 
   protected
@@ -22,7 +22,7 @@ class ConfirmationsController < Devise::ConfirmationsController
       after_sign_in(resource)
     else
       Gitlab::AppLogger.info("Email Confirmed: username=#{resource.username} email=#{resource.email} ip=#{request.remote_ip}")
-      flash[:notice] = flash[:notice] + _(" Please sign in.")
+      flash[:notice] = flash[:notice] + _(' Please sign in.')
       new_session_path(:user, anchor: 'login-pane')
     end
   end

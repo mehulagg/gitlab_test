@@ -38,7 +38,7 @@ describe 'User creates feature flag', :js do
     it 'records audit event' do
       visit(project_audit_events_path(project))
 
-      expect(page).to have_text("Created feature flag ci_live_trace with description \"For live trace\".")
+      expect(page).to have_text('Created feature flag ci_live_trace with description "For live trace".')
     end
   end
 
@@ -74,7 +74,7 @@ describe 'User creates feature flag', :js do
 
       within_scope_row(2) do
         within_environment_spec do
-          find('.js-env-input').set("review/*")
+          find('.js-env-input').set('review/*')
           find('.js-create-button').click
         end
       end

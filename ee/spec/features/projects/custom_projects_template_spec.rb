@@ -48,13 +48,13 @@ describe 'Project' do
         find("label[for='#{projects.first.name}']").click
 
         page.within '.project-fields-form' do
-          fill_in("project_name", with: new_name)
+          fill_in('project_name', with: new_name)
           # Have to reset it to '' so it overwrites rather than appends
           fill_in('project_path', with: '')
-          fill_in("project_path", with: new_path)
+          fill_in('project_path', with: new_path)
 
           Sidekiq::Testing.inline! do
-            click_button "Create project"
+            click_button 'Create project'
           end
         end
 
@@ -73,10 +73,10 @@ describe 'Project' do
         find("label[for='#{projects.first.name}']").click
 
         page.within '.project-fields-form' do
-          fill_in("project_name", with: new_name)
+          fill_in('project_name', with: new_name)
 
           Sidekiq::Testing.inline! do
-            click_button "Create project"
+            click_button 'Create project'
           end
         end
 
@@ -95,10 +95,10 @@ describe 'Project' do
         find("label[for='#{projects.first.name}']").click
 
         page.within '.project-fields-form' do
-          fill_in("project_path", with: new_path)
+          fill_in('project_path', with: new_path)
 
           Sidekiq::Testing.inline! do
-            click_button "Create project"
+            click_button 'Create project'
           end
         end
 

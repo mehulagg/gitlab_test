@@ -17,7 +17,7 @@ describe DependencyListSerializer do
     project.add_developer(user)
   end
 
-  describe "#to_json" do
+  describe '#to_json' do
     subject { serializer.to_json }
 
     it 'matches the schema' do

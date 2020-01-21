@@ -35,15 +35,15 @@ module Banzai
           return extras.unshift(commit_ref_tag)
         end
 
-        path = matches[:path] if matches.names.include?("path")
+        path = matches[:path] if matches.names.include?('path')
 
         case path
         when '/diffs'
-          extras.unshift "diffs"
+          extras.unshift 'diffs'
         when '/commits'
-          extras.unshift "commits"
+          extras.unshift 'commits'
         when '/builds'
-          extras.unshift "builds"
+          extras.unshift 'builds'
         end
 
         extras

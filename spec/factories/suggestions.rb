@@ -8,8 +8,8 @@ FactoryBot.define do
     to_content { "    vars = [\n" }
 
     trait :unappliable do
-      from_content { "foo" }
-      to_content { "foo" }
+      from_content { 'foo' }
+      to_content { 'foo' }
     end
 
     trait :applied do

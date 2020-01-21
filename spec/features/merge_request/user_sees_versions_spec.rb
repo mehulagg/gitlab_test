@@ -33,8 +33,8 @@ describe 'Merge request > User sees versions', :js do
         find(".line_holder[id='#{line_code}'] button").click
 
         page.within("form[data-line-code='#{line_code}']") do
-          fill_in "note[note]", with: comment
-          find(".js-comment-button").click
+          fill_in 'note[note]', with: comment
+          find('.js-comment-button').click
         end
 
         wait_for_requests
@@ -87,8 +87,8 @@ describe 'Merge request > User sees versions', :js do
       expect(page).to have_content '5 files'
 
       position = Gitlab::Diff::Position.new(
-        old_path: ".gitmodules",
-        new_path: ".gitmodules",
+        old_path: '.gitmodules',
+        new_path: '.gitmodules',
         old_line: nil,
         new_line: 4,
         diff_refs: merge_request_diff1.diff_refs
@@ -137,8 +137,8 @@ describe 'Merge request > User sees versions', :js do
       expect(deletions_content).to eq '6'
 
       position = Gitlab::Diff::Position.new(
-        old_path: ".gitmodules",
-        new_path: ".gitmodules",
+        old_path: '.gitmodules',
+        new_path: '.gitmodules',
         old_line: 4,
         new_line: 4,
         diff_refs: merge_request_diff3.compare_with(merge_request_diff1.head_commit_sha).diff_refs

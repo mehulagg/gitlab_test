@@ -20,8 +20,8 @@ describe Gitlab::Highlight do
   end
 
   describe '#highlight' do
-    let(:plain_text_file_name) { "test.txt" }
-    let(:plain_text_content) { "plain text contents" }
+    let(:plain_text_file_name) { 'test.txt' }
+    let(:plain_text_content) { 'plain text contents' }
     let(:file_name) { 'test.lisp' }
     let(:content) { "(make-pathname :defaults name\n:type \"assem\")" }
     let(:multiline_content) do
@@ -90,7 +90,7 @@ describe Gitlab::Highlight do
       end
 
       it 'strips extra LFs' do
-        expect(lines[0]).to eq("<span id=\"LC1\" class=\"line\" lang=\"plaintext\">test  </span>")
+        expect(lines[0]).to eq('<span id="LC1" class="line" lang="plaintext">test  </span>')
       end
     end
 
@@ -107,14 +107,14 @@ describe Gitlab::Highlight do
       it 'utilizes timeout for web' do
         expect(Timeout).to receive(:timeout).with(described_class::TIMEOUT_FOREGROUND).and_call_original
 
-        subject.highlight("Content")
+        subject.highlight('Content')
       end
 
       it 'utilizes longer timeout for sidekiq' do
         allow(Gitlab::Runtime).to receive(:sidekiq?).and_return(true)
         expect(Timeout).to receive(:timeout).with(described_class::TIMEOUT_BACKGROUND).and_call_original
 
-        subject.highlight("Content")
+        subject.highlight('Content')
       end
     end
   end

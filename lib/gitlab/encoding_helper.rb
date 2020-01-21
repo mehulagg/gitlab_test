@@ -21,7 +21,7 @@ module Gitlab
 
       # return message if message type is binary
       detect = CharlockHolmes::EncodingDetector.detect(message)
-      return message.force_encoding("BINARY") if detect_binary?(message, detect)
+      return message.force_encoding('BINARY') if detect_binary?(message, detect)
 
       if detect && detect[:encoding] && detect[:confidence] > ENCODING_CONFIDENCE_THRESHOLD
         # force detected encoding if we have sufficient confidence.
@@ -33,7 +33,7 @@ module Gitlab
     rescue ArgumentError => e
       return unless e.message.include?('unknown encoding name')
 
-      encoding = detect ? detect[:encoding] : "unknown"
+      encoding = detect ? detect[:encoding] : 'unknown'
       "--broken encoding: #{encoding}"
     end
 
@@ -71,7 +71,7 @@ module Gitlab
     end
 
     def encode_binary(str)
-      return "" if str.nil?
+      return '' if str.nil?
 
       str.dup.force_encoding(Encoding::ASCII_8BIT)
     end
@@ -91,13 +91,13 @@ module Gitlab
 
       message = message.dup if message.respond_to?(:frozen?) && message.frozen?
 
-      message.force_encoding("UTF-8")
+      message.force_encoding('UTF-8')
     end
 
     def clean(message)
-      message.encode("UTF-16BE", undef: :replace, invalid: :replace, replace: "".encode("UTF-16BE"))
-        .encode("UTF-8")
-        .gsub("\0".encode("UTF-8"), "")
+      message.encode('UTF-16BE', undef: :replace, invalid: :replace, replace: ''.encode('UTF-16BE'))
+        .encode('UTF-8')
+        .gsub("\0".encode('UTF-8'), '')
     end
   end
 end

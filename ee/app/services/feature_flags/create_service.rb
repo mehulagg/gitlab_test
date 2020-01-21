@@ -28,7 +28,7 @@ module FeatureFlags
         created_scope_message(scope)
       end
 
-      message_parts.join(" ")
+      message_parts.join(' ')
     end
 
     def can_create?

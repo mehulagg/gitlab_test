@@ -2,12 +2,12 @@
 
 require 'spec_helper'
 
-describe "User Feed" do
-  describe "GET /" do
+describe 'User Feed' do
+  describe 'GET /' do
     let!(:user) { create(:user) }
 
     context 'user atom feed via personal access token' do
-      it "renders user atom feed" do
+      it 'renders user atom feed' do
         personal_access_token = create(:personal_access_token, user: user)
 
         visit user_path(user, :atom, private_token: personal_access_token.token)
@@ -16,7 +16,7 @@ describe "User Feed" do
     end
 
     context 'user atom feed via feed token' do
-      it "renders user atom feed" do
+      it 'renders user atom feed' do
         visit user_path(user, :atom, feed_token: user.feed_token)
         expect(body).to have_selector('feed title')
       end
@@ -43,7 +43,7 @@ describe "User Feed" do
                author: user,
                source_project: project,
                target_project: project,
-               description: "Here is the fix: ![an image](image.png)")
+               description: 'Here is the fix: ![an image](image.png)')
       end
       let(:push_event) { create(:push_event, project: project, author: user) }
       let!(:push_event_payload) { create(:push_event_payload, event: push_event) }

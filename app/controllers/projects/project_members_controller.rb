@@ -39,7 +39,7 @@ class Projects::ProjectMembersController < Projects::ApplicationController
 
     if can?(current_user, :read_project_member, source_project)
       status = @project.team.import(source_project, current_user)
-      notice = status ? "Successfully imported" : "Import failed"
+      notice = status ? 'Successfully imported' : 'Import failed'
     else
       return render_404
     end

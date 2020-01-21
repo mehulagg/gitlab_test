@@ -77,63 +77,63 @@ module Clusters
         return {} unless modsecurity_enabled
 
         {
-          "controller" => {
-            "config" => {
-              "enable-modsecurity" => "true",
-              "enable-owasp-modsecurity-crs" => "true",
-              "modsecurity.conf" => modsecurity_config_content
+          'controller' => {
+            'config' => {
+              'enable-modsecurity' => 'true',
+              'enable-owasp-modsecurity-crs' => 'true',
+              'modsecurity.conf' => modsecurity_config_content
             },
-            "extraContainers" => [
+            'extraContainers' => [
               {
-                "name" => "modsecurity-log",
-                "image" => "busybox",
-                "args" => [
-                  "/bin/sh",
-                  "-c",
-                  "tail -f /var/log/modsec/audit.log"
+                'name' => 'modsecurity-log',
+                'image' => 'busybox',
+                'args' => [
+                  '/bin/sh',
+                  '-c',
+                  'tail -f /var/log/modsec/audit.log'
                 ],
-                "volumeMounts" => [
+                'volumeMounts' => [
                   {
-                    "name" => "modsecurity-log-volume",
-                    "mountPath" => "/var/log/modsec",
-                    "readOnly" => true
+                    'name' => 'modsecurity-log-volume',
+                    'mountPath' => '/var/log/modsec',
+                    'readOnly' => true
                   }
                 ],
-                "startupProbe" => {
-                  "exec" => {
-                    "command" => ["ls", "/var/log/modsec"]
+                'startupProbe' => {
+                  'exec' => {
+                    'command' => ['ls', '/var/log/modsec']
                   },
-                  "initialDelaySeconds" => MODSEC_SIDECAR_INITIAL_DELAY_SECONDS
+                  'initialDelaySeconds' => MODSEC_SIDECAR_INITIAL_DELAY_SECONDS
                 }
               }
             ],
-            "extraVolumeMounts" => [
+            'extraVolumeMounts' => [
               {
-                "name" => "modsecurity-template-volume",
-                "mountPath" => "/etc/nginx/modsecurity/modsecurity.conf",
-                "subPath" => "modsecurity.conf"
+                'name' => 'modsecurity-template-volume',
+                'mountPath' => '/etc/nginx/modsecurity/modsecurity.conf',
+                'subPath' => 'modsecurity.conf'
               },
               {
-                "name" => "modsecurity-log-volume",
-                "mountPath" => "/var/log/modsec"
+                'name' => 'modsecurity-log-volume',
+                'mountPath' => '/var/log/modsec'
               }
             ],
-            "extraVolumes" => [
+            'extraVolumes' => [
               {
-                "name" => "modsecurity-template-volume",
-                "configMap" => {
-                  "name" => "ingress-nginx-ingress-controller",
-                  "items" => [
+                'name' => 'modsecurity-template-volume',
+                'configMap' => {
+                  'name' => 'ingress-nginx-ingress-controller',
+                  'items' => [
                     {
-                      "key" => "modsecurity.conf",
-                      "path" => "modsecurity.conf"
+                      'key' => 'modsecurity.conf',
+                      'path' => 'modsecurity.conf'
                     }
                   ]
                 }
               },
               {
-                "name" => "modsecurity-log-volume",
-                "emptyDir" => {}
+                'name' => 'modsecurity-log-volume',
+                'emptyDir' => {}
               }
             ]
           }

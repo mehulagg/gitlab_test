@@ -53,7 +53,7 @@ describe Gitlab::QuickActions::Extractor do
       context 'at the start of content' do
         it_behaves_like 'command with no argument' do
           let(:original_msg) { "/reopen\nworld" }
-          let(:final_msg) { "world" }
+          let(:final_msg) { 'world' }
         end
       end
 
@@ -77,7 +77,7 @@ describe Gitlab::QuickActions::Extractor do
       context 'at the end of content' do
         it_behaves_like 'command with no argument' do
           let(:original_msg) { "hello\n/reopen" }
-          let(:final_msg) { "hello" }
+          let(:final_msg) { 'hello' }
         end
       end
     end
@@ -86,7 +86,7 @@ describe Gitlab::QuickActions::Extractor do
       context 'at the start of content' do
         it_behaves_like 'command with a single argument' do
           let(:original_msg) { "/assign @joe\nworld" }
-          let(:final_msg) { "world" }
+          let(:final_msg) { 'world' }
         end
 
         it 'allows slash in command arguments' do
@@ -118,7 +118,7 @@ describe Gitlab::QuickActions::Extractor do
       context 'at the end of content' do
         it_behaves_like 'command with a single argument' do
           let(:original_msg) { "hello\n/assign @joe" }
-          let(:final_msg) { "hello" }
+          let(:final_msg) { 'hello' }
         end
       end
 
@@ -137,7 +137,7 @@ describe Gitlab::QuickActions::Extractor do
       context 'at the start of content' do
         it_behaves_like 'command with multiple arguments' do
           let(:original_msg) { %(/labels ~foo ~"bar baz" label\nworld) }
-          let(:final_msg) { "world" }
+          let(:final_msg) { 'world' }
         end
       end
 
@@ -161,7 +161,7 @@ describe Gitlab::QuickActions::Extractor do
       context 'at the end of content' do
         it_behaves_like 'command with multiple arguments' do
           let(:original_msg) { %(hello\n/labels ~foo ~"bar baz" label) }
-          let(:final_msg) { "hello" }
+          let(:final_msg) { 'hello' }
         end
       end
 

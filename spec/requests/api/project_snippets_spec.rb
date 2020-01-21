@@ -7,7 +7,7 @@ describe API::ProjectSnippets do
   set(:user) { create(:user) }
   set(:admin) { create(:admin) }
 
-  describe "GET /projects/:project_id/snippets/:id/user_agent_detail" do
+  describe 'GET /projects/:project_id/snippets/:id/user_agent_detail' do
     let(:snippet) { create(:project_snippet, :public, project: project) }
     let!(:user_agent_detail) { create(:user_agent_detail, subject: snippet) }
 
@@ -27,7 +27,7 @@ describe API::ProjectSnippets do
       expect(response).to have_gitlab_http_status(404)
     end
 
-    it "returns unauthorized for non-admin users" do
+    it 'returns unauthorized for non-admin users' do
       get api("/projects/#{snippet.project.id}/snippets/#{snippet.id}/user_agent_detail", user)
 
       expect(response).to have_gitlab_http_status(403)
@@ -197,7 +197,7 @@ describe API::ProjectSnippets do
             .not_to change { Snippet.count }
 
           expect(response).to have_gitlab_http_status(400)
-          expect(json_response['message']).to eq({ "error" => "Spam detected" })
+          expect(json_response['message']).to eq({ 'error' => 'Spam detected' })
         end
 
         it 'creates a spam log' do
@@ -307,7 +307,7 @@ describe API::ProjectSnippets do
             .not_to change { snippet.reload.title }
 
           expect(response).to have_gitlab_http_status(400)
-          expect(json_response['message']).to eq({ "error" => "Spam detected" })
+          expect(json_response['message']).to eq({ 'error' => 'Spam detected' })
         end
 
         it 'creates a spam log' do

@@ -4,7 +4,7 @@ module Types
   class MutationType < BaseObject
     include Gitlab::Graphql::MountMutation
 
-    graphql_name "Mutation"
+    graphql_name 'Mutation'
 
     mount_mutation Mutations::AwardEmojis::Add
     mount_mutation Mutations::AwardEmojis::Remove

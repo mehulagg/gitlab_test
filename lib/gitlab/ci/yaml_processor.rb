@@ -32,7 +32,7 @@ module Gitlab
         return ResultWithErrors.new('', ['Please provide content of .gitlab-ci.yml']) if content.blank?
 
         config = Gitlab::Ci::Config.new(content, **opts)
-        return ResultWithErrors.new("", config.errors) unless config.valid?
+        return ResultWithErrors.new('', config.errors) unless config.valid?
 
         config = Gitlab::Ci::YamlProcessor.new(content, opts)
         ResultWithErrors.new(config, [])
@@ -162,7 +162,7 @@ module Gitlab
         return unless job[:stage]
 
         unless job[:stage].is_a?(String) && job[:stage].in?(@stages)
-          raise ValidationError, "#{name} job: stage parameter should be #{@stages.join(", ")}"
+          raise ValidationError, "#{name} job: stage parameter should be #{@stages.join(', ')}"
         end
       end
 

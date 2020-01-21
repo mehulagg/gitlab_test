@@ -124,7 +124,7 @@ module Banzai
         )
       end
 
-      def link_tag(url, title: "", content: "", data: {})
+      def link_tag(url, title: '', content: '', data: {})
         data_attributes = data_attributes_from_hash(data)
 
         attributes = data_attributes.merge(

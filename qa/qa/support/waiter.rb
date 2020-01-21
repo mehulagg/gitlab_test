@@ -27,7 +27,7 @@ module QA
         ) do
           result = yield
         end
-        QA::Runtime::Logger.debug("ended wait_until")
+        QA::Runtime::Logger.debug('ended wait_until')
 
         result
       end

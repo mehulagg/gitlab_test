@@ -61,7 +61,7 @@ describe Gitlab::Metrics::System do
 
   describe '.thread_cpu_time' do
     it 'returns cpu_time on supported platform' do
-      stub_const("Process::CLOCK_THREAD_CPUTIME_ID", 16)
+      stub_const('Process::CLOCK_THREAD_CPUTIME_ID', 16)
 
       expect(Process).to receive(:clock_gettime)
         .with(16, kind_of(Symbol)) { 0.111222333 }
@@ -70,7 +70,7 @@ describe Gitlab::Metrics::System do
     end
 
     it 'returns nil on unsupported platform' do
-      hide_const("Process::CLOCK_THREAD_CPUTIME_ID")
+      hide_const('Process::CLOCK_THREAD_CPUTIME_ID')
 
       expect(described_class.thread_cpu_time).to be_nil
     end
@@ -80,7 +80,7 @@ describe Gitlab::Metrics::System do
     let(:start_time) { described_class.thread_cpu_time }
 
     it 'returns difference between start and current time' do
-      stub_const("Process::CLOCK_THREAD_CPUTIME_ID", 16)
+      stub_const('Process::CLOCK_THREAD_CPUTIME_ID', 16)
 
       expect(Process).to receive(:clock_gettime)
         .with(16, kind_of(Symbol))
@@ -93,7 +93,7 @@ describe Gitlab::Metrics::System do
     end
 
     it 'returns nil on unsupported platform' do
-      hide_const("Process::CLOCK_THREAD_CPUTIME_ID")
+      hide_const('Process::CLOCK_THREAD_CPUTIME_ID')
 
       expect(described_class.thread_cpu_duration(start_time)).to be_nil
     end

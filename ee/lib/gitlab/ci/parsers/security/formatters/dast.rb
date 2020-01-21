@@ -25,7 +25,7 @@ module Gitlab
                     'type' => 'ZAProxy_PluginId',
                     'name' => vulnerability['name'],
                     'value' => vulnerability['pluginid'],
-                    'url' => "https://github.com/zaproxy/zaproxy/blob/w2019-01-14/docs/scanners.md"
+                    'url' => 'https://github.com/zaproxy/zaproxy/blob/w2019-01-14/docs/scanners.md'
                   },
                   {
                     'type' => 'CWE',
@@ -37,7 +37,7 @@ module Gitlab
                     'type' => 'WASC',
                     'name' => "WASC-#{vulnerability['wascid']}",
                     'value' => vulnerability['wascid'],
-                    'url' => "http://projects.webappsec.org/w/page/13246974/Threat%20Classification%20Reference%20Grid"
+                    'url' => 'http://projects.webappsec.org/w/page/13246974/Threat%20Classification%20Reference%20Grid'
                   }
                 ],
                 'links' => links(vulnerability['reference']),

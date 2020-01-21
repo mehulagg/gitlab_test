@@ -11,7 +11,7 @@ describe EventCreateService do
 
       it { expect(service.open_issue(issue, issue.author)).to be_truthy }
 
-      it "creates new event" do
+      it 'creates new event' do
         expect { service.open_issue(issue, issue.author) }.to change { Event.count }
       end
     end
@@ -21,7 +21,7 @@ describe EventCreateService do
 
       it { expect(service.close_issue(issue, issue.author)).to be_truthy }
 
-      it "creates new event" do
+      it 'creates new event' do
         expect { service.close_issue(issue, issue.author) }.to change { Event.count }
       end
     end
@@ -31,7 +31,7 @@ describe EventCreateService do
 
       it { expect(service.reopen_issue(issue, issue.author)).to be_truthy }
 
-      it "creates new event" do
+      it 'creates new event' do
         expect { service.reopen_issue(issue, issue.author) }.to change { Event.count }
       end
     end
@@ -43,7 +43,7 @@ describe EventCreateService do
 
       it { expect(service.open_mr(merge_request, merge_request.author)).to be_truthy }
 
-      it "creates new event" do
+      it 'creates new event' do
         expect { service.open_mr(merge_request, merge_request.author) }.to change { Event.count }
       end
     end
@@ -53,7 +53,7 @@ describe EventCreateService do
 
       it { expect(service.close_mr(merge_request, merge_request.author)).to be_truthy }
 
-      it "creates new event" do
+      it 'creates new event' do
         expect { service.close_mr(merge_request, merge_request.author) }.to change { Event.count }
       end
     end
@@ -63,7 +63,7 @@ describe EventCreateService do
 
       it { expect(service.merge_mr(merge_request, merge_request.author)).to be_truthy }
 
-      it "creates new event" do
+      it 'creates new event' do
         expect { service.merge_mr(merge_request, merge_request.author) }.to change { Event.count }
       end
     end
@@ -73,7 +73,7 @@ describe EventCreateService do
 
       it { expect(service.reopen_mr(merge_request, merge_request.author)).to be_truthy }
 
-      it "creates new event" do
+      it 'creates new event' do
         expect { service.reopen_mr(merge_request, merge_request.author) }.to change { Event.count }
       end
     end
@@ -87,7 +87,7 @@ describe EventCreateService do
 
       it { expect(service.open_milestone(milestone, user)).to be_truthy }
 
-      it "creates new event" do
+      it 'creates new event' do
         expect { service.open_milestone(milestone, user) }.to change { Event.count }
       end
     end
@@ -97,7 +97,7 @@ describe EventCreateService do
 
       it { expect(service.close_milestone(milestone, user)).to be_truthy }
 
-      it "creates new event" do
+      it 'creates new event' do
         expect { service.close_milestone(milestone, user) }.to change { Event.count }
       end
     end
@@ -107,7 +107,7 @@ describe EventCreateService do
 
       it { expect(service.destroy_milestone(milestone, user)).to be_truthy }
 
-      it "creates new event" do
+      it 'creates new event' do
         expect { service.destroy_milestone(milestone, user) }.to change { Event.count }
       end
     end

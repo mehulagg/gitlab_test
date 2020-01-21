@@ -37,7 +37,7 @@ describe ApplicationSetting, 'TokenAuthenticatable' do
         it { is_expected.not_to be_blank }
       end
 
-      describe "ensure_runners_registration_token" do
+      describe 'ensure_runners_registration_token' do
         subject { settings.send("ensure_#{token_field}") }
 
         it { is_expected.to be_a String }
@@ -223,7 +223,7 @@ describe Ci::Build, 'TokenAuthenticatable' do
         end
       end
 
-      describe "ensure_token" do
+      describe 'ensure_token' do
         subject { build.ensure_token }
 
         it { is_expected.to be_a String }

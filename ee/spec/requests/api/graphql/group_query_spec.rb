@@ -7,7 +7,7 @@ describe 'getting group information' do
 
   let(:user) { create(:user) }
 
-  describe "Query group(fullPath)" do
+  describe 'Query group(fullPath)' do
     def group_query(group)
       graphql_query_for('group', 'fullPath' => group.full_path)
     end

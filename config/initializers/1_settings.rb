@@ -114,8 +114,8 @@ Settings.omniauth.session_tickets['cas3'] = 'ticket'
 
 # Fill out omniauth-gitlab settings. It is needed for easy set up GHE or GH by just specifying url.
 
-github_default_url = "https://github.com"
-github_settings = Settings.omniauth['providers'].find { |provider| provider["name"] == "github" }
+github_default_url = 'https://github.com'
+github_settings = Settings.omniauth['providers'].find { |provider| provider['name'] == 'github' }
 
 if github_settings
   # For compatibility with old config files (before 7.8)
@@ -124,16 +124,16 @@ if github_settings
     github_settings['url'] = github_default_url
   end
 
-  github_settings["args"] ||= Settingslogic.new({})
+  github_settings['args'] ||= Settingslogic.new({})
 
-  github_settings["args"]["client_options"] =
-    if github_settings["url"].include?(github_default_url)
+  github_settings['args']['client_options'] =
+    if github_settings['url'].include?(github_default_url)
       OmniAuth::Strategies::GitHub.default_options[:client_options]
     else
       {
-        "site"          => File.join(github_settings["url"], "api/v3"),
-        "authorize_url" => File.join(github_settings["url"], "login/oauth/authorize"),
-        "token_url"     => File.join(github_settings["url"], "login/oauth/access_token")
+        'site'          => File.join(github_settings['url'], 'api/v3'),
+        'authorize_url' => File.join(github_settings['url'], 'login/oauth/authorize'),
+        'token_url'     => File.join(github_settings['url'], 'login/oauth/access_token')
       }
     end
 end
@@ -148,7 +148,7 @@ if Gitlab.ee? && Rails.env.test? && !saml_provider_enabled
 end
 
 Settings['shared'] ||= Settingslogic.new({})
-Settings.shared['path'] = Settings.absolute(Settings.shared['path'] || "shared")
+Settings.shared['path'] = Settings.absolute(Settings.shared['path'] || 'shared')
 
 Settings['issues_tracker'] ||= {}
 
@@ -169,12 +169,12 @@ Settings.gitlab['port']       ||= ENV['GITLAB_PORT'] || (Settings.gitlab.https ?
 Settings.gitlab['relative_url_root'] ||= ENV['RAILS_RELATIVE_URL_ROOT'] || ''
 # / is not a valid relative URL root
 Settings.gitlab['relative_url_root']   = '' if Settings.gitlab['relative_url_root'] == '/'
-Settings.gitlab['protocol'] ||= Settings.gitlab.https ? "https" : "http"
+Settings.gitlab['protocol'] ||= Settings.gitlab.https ? 'https' : 'http'
 Settings.gitlab['email_enabled'] ||= true if Settings.gitlab['email_enabled'].nil?
 Settings.gitlab['email_from'] ||= ENV['GITLAB_EMAIL_FROM'] || "gitlab@#{Settings.gitlab.host}"
 Settings.gitlab['email_display_name'] ||= ENV['GITLAB_EMAIL_DISPLAY_NAME'] || 'GitLab'
 Settings.gitlab['email_reply_to'] ||= ENV['GITLAB_EMAIL_REPLY_TO'] || "noreply@#{Settings.gitlab.host}"
-Settings.gitlab['email_subject_suffix'] ||= ENV['GITLAB_EMAIL_SUBJECT_SUFFIX'] || ""
+Settings.gitlab['email_subject_suffix'] ||= ENV['GITLAB_EMAIL_SUBJECT_SUFFIX'] || ''
 Settings.gitlab['email_smime'] = SmimeSignatureSettings.parse(Settings.gitlab['email_smime'])
 Settings.gitlab['base_url'] ||= Settings.__send__(:build_base_gitlab_url)
 Settings.gitlab['url'] ||= Settings.__send__(:build_gitlab_url)
@@ -223,7 +223,7 @@ end
 Gitlab.ee do
   Settings['elasticsearch'] ||= Settingslogic.new({})
   Settings.elasticsearch['enabled'] = false if Settings.elasticsearch['enabled'].nil?
-  Settings.elasticsearch['url'] = ENV['ELASTIC_URL'] || "http://localhost:9200"
+  Settings.elasticsearch['url'] = ENV['ELASTIC_URL'] || 'http://localhost:9200'
   Settings.elasticsearch['indexer_path'] ||= Gitlab::Utils.which('gitlab-elasticsearch-indexer')
 end
 
@@ -234,7 +234,7 @@ Settings['gitlab_ci'] ||= Settingslogic.new({})
 Settings.gitlab_ci['shared_runners_enabled'] = true if Settings.gitlab_ci['shared_runners_enabled'].nil?
 Settings.gitlab_ci['all_broken_builds']     = true if Settings.gitlab_ci['all_broken_builds'].nil?
 Settings.gitlab_ci['add_pusher']            = false if Settings.gitlab_ci['add_pusher'].nil?
-Settings.gitlab_ci['builds_path']           = Settings.absolute(Settings.gitlab_ci['builds_path'] || "builds/")
+Settings.gitlab_ci['builds_path']           = Settings.absolute(Settings.gitlab_ci['builds_path'] || 'builds/')
 Settings.gitlab_ci['url']                 ||= Settings.__send__(:build_gitlab_ci_url)
 
 #
@@ -248,7 +248,7 @@ Settings.incoming_email['enabled'] = false if Settings.incoming_email['enabled']
 #
 Settings['artifacts'] ||= Settingslogic.new({})
 Settings.artifacts['enabled']      = true if Settings.artifacts['enabled'].nil?
-Settings.artifacts['storage_path'] = Settings.absolute(Settings.artifacts.values_at('path', 'storage_path').compact.first || File.join(Settings.shared['path'], "artifacts"))
+Settings.artifacts['storage_path'] = Settings.absolute(Settings.artifacts.values_at('path', 'storage_path').compact.first || File.join(Settings.shared['path'], 'artifacts'))
 # Settings.artifact['path'] is deprecated, use `storage_path` instead
 Settings.artifacts['path']         = Settings.artifacts['storage_path']
 Settings.artifacts['max_size'] ||= 100 # in megabytes
@@ -259,9 +259,9 @@ Settings.artifacts['object_store'] = ObjectStoreSettings.parse(Settings.artifact
 #
 Settings['registry'] ||= Settingslogic.new({})
 Settings.registry['enabled'] ||= false
-Settings.registry['host'] ||= "example.com"
+Settings.registry['host'] ||= 'example.com'
 Settings.registry['port'] ||= nil
-Settings.registry['api_url'] ||= "http://localhost:5000/"
+Settings.registry['api_url'] ||= 'http://localhost:5000/'
 Settings.registry['key'] ||= nil
 Settings.registry['issuer'] ||= nil
 Settings.registry['host_port'] ||= [Settings.registry['host'], Settings.registry['port']].compact.join(':')
@@ -283,11 +283,11 @@ Settings.sentry['clientside_dsn'] ||= nil
 Settings['pages'] ||= Settingslogic.new({})
 Settings.pages['enabled']           = false if Settings.pages['enabled'].nil?
 Settings.pages['access_control']    = false if Settings.pages['access_control'].nil?
-Settings.pages['path']              = Settings.absolute(Settings.pages['path'] || File.join(Settings.shared['path'], "pages"))
+Settings.pages['path']              = Settings.absolute(Settings.pages['path'] || File.join(Settings.shared['path'], 'pages'))
 Settings.pages['https']             = false if Settings.pages['https'].nil?
-Settings.pages['host'] ||= "example.com"
+Settings.pages['host'] ||= 'example.com'
 Settings.pages['port'] ||= Settings.pages.https ? 443 : 80
-Settings.pages['protocol'] ||= Settings.pages.https ? "https" : "http"
+Settings.pages['protocol'] ||= Settings.pages.https ? 'https' : 'http'
 Settings.pages['url'] ||= Settings.__send__(:build_pages_url)
 Settings.pages['external_http'] ||= false unless Settings.pages['external_http'].present?
 Settings.pages['external_https'] ||= false unless Settings.pages['external_https'].present?
@@ -330,7 +330,7 @@ Settings.external_diffs['object_store'] = ObjectStoreSettings.parse(Settings.ext
 #
 Settings['lfs'] ||= Settingslogic.new({})
 Settings.lfs['enabled']      = true if Settings.lfs['enabled'].nil?
-Settings.lfs['storage_path'] = Settings.absolute(Settings.lfs['storage_path'] || File.join(Settings.shared['path'], "lfs-objects"))
+Settings.lfs['storage_path'] = Settings.absolute(Settings.lfs['storage_path'] || File.join(Settings.shared['path'], 'lfs-objects'))
 Settings.lfs['object_store'] = ObjectStoreSettings.parse(Settings.lfs['object_store'])
 
 #
@@ -348,7 +348,7 @@ Settings.uploads['object_store']['remote_directory'] ||= 'uploads'
 Gitlab.ee do
   Settings['packages'] ||= Settingslogic.new({})
   Settings.packages['enabled']      = true if Settings.packages['enabled'].nil?
-  Settings.packages['storage_path'] = Settings.absolute(Settings.packages['storage_path'] || File.join(Settings.shared['path'], "packages"))
+  Settings.packages['storage_path'] = Settings.absolute(Settings.packages['storage_path'] || File.join(Settings.shared['path'], 'packages'))
   Settings.packages['object_store'] = ObjectStoreSettings.parse(Settings.packages['object_store'])
 end
 
@@ -358,7 +358,7 @@ end
 Gitlab.ee do
   Settings['dependency_proxy'] ||= Settingslogic.new({})
   Settings.dependency_proxy['enabled']      = true if Settings.dependency_proxy['enabled'].nil?
-  Settings.dependency_proxy['storage_path'] = Settings.absolute(Settings.dependency_proxy['storage_path'] || File.join(Settings.shared['path'], "dependency_proxy"))
+  Settings.dependency_proxy['storage_path'] = Settings.absolute(Settings.dependency_proxy['storage_path'] || File.join(Settings.shared['path'], 'dependency_proxy'))
   Settings.dependency_proxy['object_store'] = ObjectStoreSettings.parse(Settings.dependency_proxy['object_store'])
 
   # For first iteration dependency proxy uses Rails server to download blobs.
@@ -596,7 +596,7 @@ end
 Settings['backup'] ||= Settingslogic.new({})
 Settings.backup['keep_time'] ||= 0
 Settings.backup['pg_schema']    = nil
-Settings.backup['path']         = Settings.absolute(Settings.backup['path'] || "tmp/backups/")
+Settings.backup['path']         = Settings.absolute(Settings.backup['path'] || 'tmp/backups/')
 Settings.backup['archive_permissions'] ||= 0600
 Settings.backup['upload'] ||= Settingslogic.new({ 'remote_directory' => nil, 'connection' => nil })
 Settings.backup['upload']['multipart_chunk_size'] ||= 104857600
@@ -609,7 +609,7 @@ Settings.backup['upload']['storage_class'] ||= nil
 #
 Gitlab.ee do
   Settings['pseudonymizer'] ||= Settingslogic.new({})
-  Settings.pseudonymizer['manifest'] = Settings.absolute(Settings.pseudonymizer['manifest'] || Rails.root.join("config/pseudonymizer.yml"))
+  Settings.pseudonymizer['manifest'] = Settings.absolute(Settings.pseudonymizer['manifest'] || Rails.root.join('config/pseudonymizer.yml'))
   Settings.pseudonymizer['upload'] ||= Settingslogic.new({ 'remote_directory' => nil, 'connection' => nil })
   # Settings.pseudonymizer['upload']['multipart_chunk_size'] ||= 104857600
 end
@@ -624,7 +624,7 @@ Settings.git['bin_path'] ||= '/usr/bin/git'
 # least. This setting is fed to 'rm -rf' in
 # db/migrate/20151023144219_remove_satellites.rb
 Settings['satellites'] ||= Settingslogic.new({})
-Settings.satellites['path'] = Settings.absolute(Settings.satellites['path'] || "tmp/repo_satellites/")
+Settings.satellites['path'] = Settings.absolute(Settings.satellites['path'] || 'tmp/repo_satellites/')
 
 #
 # Kerberos

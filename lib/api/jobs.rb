@@ -163,13 +163,13 @@ module API
       params do
         requires :job_id, type: Integer, desc: 'The ID of a Job'
       end
-      post ":id/jobs/:job_id/play" do
+      post ':id/jobs/:job_id/play' do
         authorize_read_builds!
 
         build = find_build!(params[:job_id])
 
         authorize!(:update_build, build)
-        bad_request!("Unplayable Job") unless build.playable?
+        bad_request!('Unplayable Job') unless build.playable?
 
         build.play(current_user)
 

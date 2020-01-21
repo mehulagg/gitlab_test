@@ -59,7 +59,7 @@ module Avatarable
     asset_host = ActionController::Base.asset_host
     use_asset_host = asset_host.present?
     use_authentication = respond_to?(:public?) && !public?
-    query_params = size&.nonzero? ? "?width=#{size}" : ""
+    query_params = size&.nonzero? ? "?width=#{size}" : ''
 
     # Avatars for private and internal groups and projects require authentication to be viewed,
     # which means they can only be served by Rails, on the regular GitLab host.

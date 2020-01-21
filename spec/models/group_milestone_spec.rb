@@ -6,7 +6,7 @@ describe GroupMilestone do
   let(:group) { create(:group) }
   let(:project) { create(:project, group: group) }
   let(:project_milestone) do
-    create(:milestone, title: "Milestone v1.2", project: project)
+    create(:milestone, title: 'Milestone v1.2', project: project)
   end
 
   describe '.build' do

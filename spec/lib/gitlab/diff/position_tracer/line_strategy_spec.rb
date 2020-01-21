@@ -57,10 +57,10 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
   let(:project) { create(:project, :repository) }
   let(:current_user) { project.owner }
   let(:repository) { project.repository }
-  let(:file_name) { "test-file" }
+  let(:file_name) { 'test-file' }
   let(:new_file_name) { "#{file_name}-new" }
   let(:second_file_name) { "#{file_name}-2" }
-  let(:branch_name) { "position-tracer-test" }
+  let(:branch_name) { 'position-tracer-test' }
 
   let(:old_diff_refs) { raise NotImplementedError }
   let(:new_diff_refs) { raise NotImplementedError }
@@ -83,8 +83,8 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
     project.commit(create_branch(branch_name, 'master')[:branch].name)
   end
 
-  describe "#trace" do
-    describe "diff scenarios" do
+  describe '#trace' do
+    describe 'diff scenarios' do
       let(:create_file_commit) do
         initial_commit
 
@@ -264,9 +264,9 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
         )
       end
 
-      context "when the file was created in the old diff" do
-        context "when the file is created in the new diff" do
-          context "when the position pointed at an added line in the old diff" do
+      context 'when the file was created in the old diff' do
+        context 'when the file is created in the new diff' do
+          context 'when the position pointed at an added line in the old diff' do
             context "when the file's content was unchanged between the old and the new diff" do
               let(:old_diff_refs) { diff_refs(initial_commit, create_file_commit) }
               let(:new_diff_refs) { diff_refs(initial_commit, create_second_file_commit) }
@@ -282,7 +282,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
               #   2 + B
               #   3 + C
 
-              it "returns the new position" do
+              it 'returns the new position' do
                 expect_new_position(
                   new_path: old_position.new_path,
                   new_line: old_position.new_line
@@ -291,7 +291,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
             end
 
             context "when the file's content was changed between the old and the new diff" do
-              context "when that line was unchanged between the old and the new diff" do
+              context 'when that line was unchanged between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, create_file_commit) }
                 let(:new_diff_refs) { diff_refs(initial_commit, update_line_commit) }
                 let(:old_position) { position(new_path: file_name, new_line: 1) }
@@ -306,7 +306,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   2 + BB
                 #   3 + C
 
-                it "returns the new position" do
+                it 'returns the new position' do
                   expect_new_position(
                     new_path: old_position.new_path,
                     new_line: old_position.new_line
@@ -314,7 +314,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was moved between the old and the new diff" do
+              context 'when that line was moved between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, update_line_commit) }
                 let(:new_diff_refs) { diff_refs(initial_commit, move_line_commit) }
                 let(:old_position) { position(new_path: file_name, new_line: 2) }
@@ -329,7 +329,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   2 + A
                 #   3 + C
 
-                it "returns the new position" do
+                it 'returns the new position' do
                   expect_new_position(
                     new_path: old_position.new_path,
                     new_line: 1
@@ -337,7 +337,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was changed between the old and the new diff" do
+              context 'when that line was changed between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, create_file_commit) }
                 let(:new_diff_refs) { diff_refs(initial_commit, update_line_commit) }
                 let(:change_diff_refs) { diff_refs(create_file_commit, update_line_commit) }
@@ -353,7 +353,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   2 + BB
                 #   3 + C
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -363,7 +363,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was deleted between the old and the new diff" do
+              context 'when that line was deleted between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, update_line_commit) }
                 let(:new_diff_refs) { diff_refs(initial_commit, delete_line_commit) }
                 let(:change_diff_refs) { diff_refs(update_line_commit, delete_line_commit) }
@@ -378,7 +378,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   1 + A
                 #   2 + BB
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -391,8 +391,8 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
           end
         end
 
-        context "when the file is changed in the new diff" do
-          context "when the position pointed at an added line in the old diff" do
+        context 'when the file is changed in the new diff' do
+          context 'when the position pointed at an added line in the old diff' do
             context "when the file's content was unchanged between the old and the new diff" do
               let(:old_diff_refs) { diff_refs(initial_commit, update_line_commit) }
               let(:new_diff_refs) { diff_refs(create_file_commit, update_line_commit) }
@@ -409,7 +409,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
               #   2 + BB
               # 3 3   C
 
-              it "returns the new position" do
+              it 'returns the new position' do
                 expect_new_position(
                   new_path: old_position.new_path,
                   new_line: old_position.new_line
@@ -418,7 +418,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
             end
 
             context "when the file's content was changed between the old and the new diff" do
-              context "when that line was unchanged between the old and the new diff" do
+              context 'when that line was unchanged between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, update_line_commit) }
                 let(:new_diff_refs) { diff_refs(update_line_commit, move_line_commit) }
                 let(:old_position) { position(new_path: file_name, new_line: 3) }
@@ -434,7 +434,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   2 + A
                 # 3 3   C
 
-                it "returns the new position" do
+                it 'returns the new position' do
                   expect_new_position(
                     new_path: old_position.new_path,
                     new_line: old_position.new_line
@@ -442,7 +442,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was moved between the old and the new diff" do
+              context 'when that line was moved between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, update_line_commit) }
                 let(:new_diff_refs) { diff_refs(update_line_commit, move_line_commit) }
                 let(:old_position) { position(new_path: file_name, new_line: 2) }
@@ -458,7 +458,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   2 + A
                 # 3 3   C
 
-                it "returns the new position" do
+                it 'returns the new position' do
                   expect_new_position(
                     new_path: old_position.new_path,
                     new_line: 1
@@ -466,7 +466,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was changed between the old and the new diff" do
+              context 'when that line was changed between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, create_file_commit) }
                 let(:new_diff_refs) { diff_refs(create_file_commit, update_line_commit) }
                 let(:change_diff_refs) { diff_refs(create_file_commit, update_line_commit) }
@@ -483,7 +483,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   2 + BB
                 # 3 3   C
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -493,7 +493,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was deleted between the old and the new diff" do
+              context 'when that line was deleted between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, move_line_commit) }
                 let(:new_diff_refs) { diff_refs(move_line_commit, delete_line_commit) }
                 let(:change_diff_refs) { diff_refs(move_line_commit, delete_line_commit) }
@@ -509,7 +509,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 # 2 2   A
                 # 3   - C
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -522,8 +522,8 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
           end
         end
 
-        context "when the file is renamed in the new diff" do
-          context "when the position pointed at an added line in the old diff" do
+        context 'when the file is renamed in the new diff' do
+          context 'when the position pointed at an added line in the old diff' do
             context "when the file's content was unchanged between the old and the new diff" do
               let(:old_diff_refs) { diff_refs(initial_commit, delete_line_commit) }
               let(:new_diff_refs) { diff_refs(delete_line_commit, rename_file_commit) }
@@ -539,7 +539,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
               # 1 1   BB
               # 2 2   A
 
-              it "returns the position of the change" do
+              it 'returns the position of the change' do
                 expect_change_position(
                   old_path: file_name,
                   new_path: file_name,
@@ -550,7 +550,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
             end
 
             context "when the file's content was changed between the old and the new diff" do
-              context "when that line was unchanged between the old and the new diff" do
+              context 'when that line was unchanged between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, delete_line_commit) }
                 let(:new_diff_refs) { diff_refs(delete_line_commit, update_line_again_commit) }
                 let(:old_position) { position(new_path: file_name, new_line: 1) }
@@ -565,7 +565,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 # 2   - A
                 #   2 + AA
 
-                it "returns the new position" do
+                it 'returns the new position' do
                   expect_new_position(
                     old_path: file_name,
                     new_path: new_file_name,
@@ -575,7 +575,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was moved between the old and the new diff" do
+              context 'when that line was moved between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, delete_line_commit) }
                 let(:new_diff_refs) { diff_refs(delete_line_commit, move_line_again_commit) }
                 let(:old_position) { position(new_path: file_name, new_line: 1) }
@@ -590,7 +590,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 # 1 2   BB
                 # 2   - A
 
-                it "returns the new position" do
+                it 'returns the new position' do
                   expect_new_position(
                     old_path: file_name,
                     new_path: new_file_name,
@@ -600,7 +600,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was changed between the old and the new diff" do
+              context 'when that line was changed between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, delete_line_commit) }
                 let(:new_diff_refs) { diff_refs(delete_line_commit, update_line_again_commit) }
                 let(:change_diff_refs) { diff_refs(delete_line_commit, update_line_again_commit) }
@@ -616,7 +616,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 # 2   - A
                 #   2 + AA
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: new_file_name,
@@ -629,8 +629,8 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
           end
         end
 
-        context "when the file is deleted in the new diff" do
-          context "when the position pointed at an added line in the old diff" do
+        context 'when the file is deleted in the new diff' do
+          context 'when the position pointed at an added line in the old diff' do
             context "when the file's content was unchanged between the old and the new diff" do
               let(:old_diff_refs) { diff_refs(initial_commit, delete_line_commit) }
               let(:new_diff_refs) { diff_refs(delete_line_commit, delete_file_commit) }
@@ -645,7 +645,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
               # 1   - BB
               # 2   - A
 
-              it "returns the position of the change" do
+              it 'returns the position of the change' do
                 expect_change_position(
                   old_path: file_name,
                   new_path: file_name,
@@ -656,7 +656,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
             end
 
             context "when the file's content was changed between the old and the new diff" do
-              context "when that line was unchanged between the old and the new diff" do
+              context 'when that line was unchanged between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, move_line_commit) }
                 let(:new_diff_refs) { diff_refs(delete_line_commit, delete_file_commit) }
                 let(:change_diff_refs) { diff_refs(move_line_commit, delete_file_commit) }
@@ -671,7 +671,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 # 1   - BB
                 # 2   - A
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -681,7 +681,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was moved between the old and the new diff" do
+              context 'when that line was moved between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, update_line_commit) }
                 let(:new_diff_refs) { diff_refs(move_line_commit, delete_file_commit) }
                 let(:change_diff_refs) { diff_refs(update_line_commit, delete_file_commit) }
@@ -697,7 +697,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 # 2   - A
                 # 3   - C
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -707,7 +707,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was changed between the old and the new diff" do
+              context 'when that line was changed between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, create_file_commit) }
                 let(:new_diff_refs) { diff_refs(update_line_commit, delete_file_commit) }
                 let(:change_diff_refs) { diff_refs(create_file_commit, delete_file_commit) }
@@ -723,7 +723,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 # 2   - BB
                 # 3   - C
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -733,7 +733,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was deleted between the old and the new diff" do
+              context 'when that line was deleted between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, move_line_commit) }
                 let(:new_diff_refs) { diff_refs(delete_line_commit, delete_file_commit) }
                 let(:change_diff_refs) { diff_refs(move_line_commit, delete_file_commit) }
@@ -748,7 +748,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 # 1   - BB
                 # 2   - A
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -761,8 +761,8 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
           end
         end
 
-        context "when the file is unchanged in the new diff" do
-          context "when the position pointed at an added line in the old diff" do
+        context 'when the file is unchanged in the new diff' do
+          context 'when the position pointed at an added line in the old diff' do
             context "when the file's content was unchanged between the old and the new diff" do
               let(:old_diff_refs) { diff_refs(initial_commit, create_file_commit) }
               let(:new_diff_refs) { diff_refs(create_file_commit, create_second_file_commit) }
@@ -779,7 +779,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
               # 2 2   B
               # 3 3   C
 
-              it "returns the position of the change" do
+              it 'returns the position of the change' do
                 expect_change_position(
                   old_path: file_name,
                   new_path: file_name,
@@ -790,7 +790,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
             end
 
             context "when the file's content was changed between the old and the new diff" do
-              context "when that line was unchanged between the old and the new diff" do
+              context 'when that line was unchanged between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, create_file_commit) }
                 let(:new_diff_refs) { diff_refs(update_line_commit, update_second_file_line_commit) }
                 let(:change_diff_refs) { diff_refs(initial_commit, update_line_commit) }
@@ -806,7 +806,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 # 2 2   BB
                 # 3 3   C
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -816,7 +816,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was moved between the old and the new diff" do
+              context 'when that line was moved between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, update_line_commit) }
                 let(:new_diff_refs) { diff_refs(move_line_commit, move_second_file_line_commit) }
                 let(:change_diff_refs) { diff_refs(initial_commit, move_line_commit) }
@@ -832,7 +832,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 # 2 2   A
                 # 3 3   C
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -842,7 +842,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was changed between the old and the new diff" do
+              context 'when that line was changed between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, create_file_commit) }
                 let(:new_diff_refs) { diff_refs(update_line_commit, update_second_file_line_commit) }
                 let(:change_diff_refs) { diff_refs(create_file_commit, update_second_file_line_commit) }
@@ -858,7 +858,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 # 2 2   BB
                 # 3 3   C
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -868,7 +868,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was deleted between the old and the new diff" do
+              context 'when that line was deleted between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(initial_commit, move_line_commit) }
                 let(:new_diff_refs) { diff_refs(delete_line_commit, delete_second_file_line_commit) }
                 let(:change_diff_refs) { diff_refs(move_line_commit, delete_second_file_line_commit) }
@@ -883,7 +883,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 # 1 1   BB
                 # 2 2   A
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -897,9 +897,9 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
         end
       end
 
-      context "when the file was changed in the old diff" do
-        context "when the file is created in the new diff" do
-          context "when the position pointed at an added line in the old diff" do
+      context 'when the file was changed in the old diff' do
+        context 'when the file is created in the new diff' do
+          context 'when the position pointed at an added line in the old diff' do
             context "when the file's content was unchanged between the old and the new diff" do
               let(:old_diff_refs) { diff_refs(create_file_commit, update_line_commit) }
               let(:new_diff_refs) { diff_refs(initial_commit, update_line_commit) }
@@ -916,7 +916,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
               #   2 + BB
               #   3 + C
 
-              it "returns the new position" do
+              it 'returns the new position' do
                 expect_new_position(
                   new_path: old_position.new_path,
                   old_line: nil,
@@ -926,7 +926,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
             end
 
             context "when the file's content was changed between the old and the new diff" do
-              context "when that line was unchanged between the old and the new diff" do
+              context 'when that line was unchanged between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(create_file_commit, move_line_commit) }
                 let(:new_diff_refs) { diff_refs(initial_commit, move_line_commit) }
                 let(:old_position) { position(old_path: file_name, new_path: file_name, new_line: 1) }
@@ -941,7 +941,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   1 + BB
                 #   2 + A
 
-                it "returns the new position" do
+                it 'returns the new position' do
                   expect_new_position(
                     new_path: old_position.new_path,
                     old_line: nil,
@@ -950,7 +950,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was moved between the old and the new diff" do
+              context 'when that line was moved between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(create_file_commit, update_line_commit) }
                 let(:new_diff_refs) { diff_refs(initial_commit, move_line_commit) }
                 let(:old_position) { position(old_path: file_name, new_path: file_name, new_line: 2) }
@@ -966,7 +966,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   2 + A
                 #   3 + C
 
-                it "returns the new position" do
+                it 'returns the new position' do
                   expect_new_position(
                     new_path: old_position.new_path,
                     old_line: nil,
@@ -975,7 +975,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was changed or deleted between the old and the new diff" do
+              context 'when that line was changed or deleted between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(create_file_commit, move_line_commit) }
                 let(:new_diff_refs) { diff_refs(initial_commit, create_file_commit) }
                 let(:change_diff_refs) { diff_refs(move_line_commit, create_file_commit) }
@@ -992,7 +992,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   2 + B
                 #   3 + C
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -1004,7 +1004,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
             end
           end
 
-          context "when the position pointed at a deleted line in the old diff" do
+          context 'when the position pointed at a deleted line in the old diff' do
             let(:old_diff_refs) { diff_refs(create_file_commit, update_line_commit) }
             let(:new_diff_refs) { diff_refs(initial_commit, update_line_commit) }
             let(:change_diff_refs) { diff_refs(create_file_commit, initial_commit) }
@@ -1021,7 +1021,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
             #   2 + BB
             #   3 + C
 
-            it "returns the position of the change" do
+            it 'returns the position of the change' do
               expect_change_position(
                 old_path: file_name,
                 new_path: file_name,
@@ -1031,7 +1031,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
             end
           end
 
-          context "when the position pointed at an unchanged line in the old diff" do
+          context 'when the position pointed at an unchanged line in the old diff' do
             context "when the file's content was unchanged between the old and the new diff" do
               let(:old_diff_refs) { diff_refs(create_file_commit, update_line_commit) }
               let(:new_diff_refs) { diff_refs(initial_commit, update_line_commit) }
@@ -1048,7 +1048,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
               #   2 + BB
               #   3 + C
 
-              it "returns the new position" do
+              it 'returns the new position' do
                 expect_new_position(
                   new_path: old_position.new_path,
                   old_line: nil,
@@ -1058,7 +1058,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
             end
 
             context "when the file's content was changed between the old and the new diff" do
-              context "when that line was unchanged between the old and the new diff" do
+              context 'when that line was unchanged between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(create_file_commit, move_line_commit) }
                 let(:new_diff_refs) { diff_refs(initial_commit, move_line_commit) }
                 let(:old_position) { position(old_path: file_name, new_path: file_name, old_line: 1, new_line: 2) }
@@ -1073,7 +1073,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   1 + BB
                 #   2 + A
 
-                it "returns the new position" do
+                it 'returns the new position' do
                   expect_new_position(
                     new_path: old_position.new_path,
                     old_line: nil,
@@ -1082,7 +1082,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was moved between the old and the new diff" do
+              context 'when that line was moved between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(move_line_commit, delete_line_commit) }
                 let(:new_diff_refs) { diff_refs(initial_commit, update_line_commit) }
                 let(:old_position) { position(old_path: file_name, new_path: file_name, old_line: 2, new_line: 2) }
@@ -1097,7 +1097,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   2 + BB
                 #   3 + C
 
-                it "returns the new position" do
+                it 'returns the new position' do
                   expect_new_position(
                     new_path: old_position.new_path,
                     old_line: nil,
@@ -1106,7 +1106,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was changed or deleted between the old and the new diff" do
+              context 'when that line was changed or deleted between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(create_file_commit, move_line_commit) }
                 let(:new_diff_refs) { diff_refs(initial_commit, delete_line_commit) }
                 let(:change_diff_refs) { diff_refs(move_line_commit, delete_line_commit) }
@@ -1122,7 +1122,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   1 + A
                 #   2 + B
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -1135,8 +1135,8 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
           end
         end
 
-        context "when the file is changed in the new diff" do
-          context "when the position pointed at an added line in the old diff" do
+        context 'when the file is changed in the new diff' do
+          context 'when the position pointed at an added line in the old diff' do
             context "when the file's content was unchanged between the old and the new diff" do
               let(:old_diff_refs) { diff_refs(create_file_commit, update_line_commit) }
               let(:new_diff_refs) { diff_refs(create_file_commit, update_second_file_line_commit) }
@@ -1154,7 +1154,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
               #   2 + BB
               # 3 3   C
 
-              it "returns the new position" do
+              it 'returns the new position' do
                 expect_new_position(
                   old_path: old_position.old_path,
                   new_path: old_position.new_path,
@@ -1165,7 +1165,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
             end
 
             context "when the file's content was changed between the old and the new diff" do
-              context "when that line was unchanged between the old and the new diff" do
+              context 'when that line was unchanged between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(create_file_commit, move_line_commit) }
                 let(:new_diff_refs) { diff_refs(move_line_commit, delete_line_commit) }
                 let(:old_position) { position(old_path: file_name, new_path: file_name, new_line: 1) }
@@ -1181,7 +1181,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 # 2 2   A
                 # 3   - C
 
-                it "returns the new position" do
+                it 'returns the new position' do
                   expect_new_position(
                     old_path: old_position.old_path,
                     new_path: old_position.new_path,
@@ -1191,7 +1191,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was moved between the old and the new diff" do
+              context 'when that line was moved between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(create_file_commit, update_line_commit) }
                 let(:new_diff_refs) { diff_refs(update_line_commit, move_line_commit) }
                 let(:old_position) { position(old_path: file_name, new_path: file_name, new_line: 2) }
@@ -1208,7 +1208,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   2 + A
                 # 3 3   C
 
-                it "returns the new position" do
+                it 'returns the new position' do
                   expect_new_position(
                     old_path: old_position.old_path,
                     new_path: old_position.new_path,
@@ -1218,7 +1218,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 end
               end
 
-              context "when that line was changed or deleted between the old and the new diff" do
+              context 'when that line was changed or deleted between the old and the new diff' do
                 let(:old_diff_refs) { diff_refs(create_file_commit, move_line_commit) }
                 let(:new_diff_refs) { diff_refs(create_file_commit, update_line_commit) }
                 let(:change_diff_refs) { diff_refs(move_line_commit, update_line_commit) }
@@ -1236,7 +1236,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
                 #   2 + BB
                 # 3 3   C
 
-                it "returns the position of the change" do
+                it 'returns the position of the change' do
                   expect_change_position(
                     old_path: file_name,
                     new_path: file_name,
@@ -1248,7 +1248,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
             end
           end
 
-          context "when the position pointed at a deleted line in the old diff" do
+          context 'when the position pointed at a deleted line in the old diff' do
             context "when the file's content was unchanged between the old and the new diff" do
               let(:old_diff_refs) { diff_refs(create_file_commit, update_line_commit) }
               let(:new_diff_refs) { diff_refs(create_file_commit, update_second_file_line_commit) }
@@ -1266,7 +1266,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
               #   2 + BB
               # 3 3   C
 
-              it "returns the new position" do
+              it 'returns the new position' do
                 expect_new_position(
                   old_path: old_position.old_path,
                   new_path: old_position.new_path,
@@ -1280,7 +1280,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
       end
     end
 
-    describe "typical use scenarios" do
+    describe 'typical use scenarios' do
       let(:second_branch_name) { "#{branch_name}-2" }
 
       def expect_new_positions(old_attrs, new_attrs)
@@ -1377,7 +1377,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
         )
       end
 
-      describe "simple push of new commit" do
+      describe 'simple push of new commit' do
         let(:old_diff_refs) { diff_refs(create_file_commit, update_file_commit) }
         let(:new_diff_refs) { diff_refs(create_file_commit, update_file_again_commit) }
         let(:change_diff_refs) { diff_refs(update_file_commit, update_file_again_commit) }
@@ -1403,7 +1403,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
         #   6 + FF
         #   7 + G
 
-        it "returns the new positions" do
+        it 'returns the new positions' do
           old_position_attrs = [
             { old_path: file_name, new_path: file_name, old_line: 1, new_line: 1 }, #   A
             { old_path: file_name,                      old_line: 2              }, # - B
@@ -1430,7 +1430,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
         end
       end
 
-      describe "force push to overwrite last commit" do
+      describe 'force push to overwrite last commit' do
         let(:second_create_file_commit) do
           create_file_commit
 
@@ -1476,7 +1476,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
         #   6 + FF
         #   7 + G
 
-        it "returns the new positions" do
+        it 'returns the new positions' do
           old_position_attrs = [
             { old_path: file_name, new_path: file_name, old_line: 1, new_line: 1 }, #   A
             { old_path: file_name,                      old_line: 2              }, # - B
@@ -1503,7 +1503,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
         end
       end
 
-      describe "force push to delete last commit" do
+      describe 'force push to delete last commit' do
         let(:old_diff_refs) { diff_refs(create_file_commit, update_file_again_commit) }
         let(:new_diff_refs) { diff_refs(create_file_commit, update_file_commit) }
         let(:change_diff_refs) { diff_refs(update_file_again_commit, update_file_commit) }
@@ -1529,7 +1529,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
         # 6 5   F
         #   6 + G
 
-        it "returns the new positions" do
+        it 'returns the new positions' do
           old_position_attrs = [
             { old_path: file_name, new_path: file_name, old_line: 1, new_line: 1 }, #   A
             { old_path: file_name,                      old_line: 2              }, # - B
@@ -1558,7 +1558,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
         end
       end
 
-      describe "rebase on top of target branch" do
+      describe 'rebase on top of target branch' do
         let(:second_update_file_commit) do
           update_file_commit
 
@@ -1647,7 +1647,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
         #   9 + FF
         #   0 + G
 
-        it "returns the new positions" do
+        it 'returns the new positions' do
           old_position_attrs = [
             { old_path: file_name, new_path: file_name, old_line: 1, new_line: 1 }, #   A
             { old_path: file_name,                      old_line: 2              }, # - B
@@ -1676,13 +1676,13 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
         end
       end
 
-      describe "merge of target branch" do
+      describe 'merge of target branch' do
         let(:merge_commit) do
           second_create_file_commit
 
           merge_request = create(:merge_request, source_branch: second_branch_name, target_branch: branch_name, source_project: project)
 
-          repository.merge(current_user, merge_request.diff_head_sha, merge_request, "Merge branches")
+          repository.merge(current_user, merge_request.diff_head_sha, merge_request, 'Merge branches')
 
           project.commit(branch_name)
         end
@@ -1716,7 +1716,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
         #   9 + FF
         #   0 + G
 
-        it "returns the new positions" do
+        it 'returns the new positions' do
           old_position_attrs = [
             { old_path: file_name, new_path: file_name, old_line: 1, new_line: 1 }, #   A
             { old_path: file_name,                      old_line: 2              }, # - B
@@ -1745,7 +1745,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
         end
       end
 
-      describe "changing target branch" do
+      describe 'changing target branch' do
         let(:old_diff_refs) { diff_refs(create_file_commit, update_file_again_commit) }
         let(:new_diff_refs) { diff_refs(update_file_commit, update_file_again_commit) }
         let(:change_diff_refs) { diff_refs(create_file_commit, update_file_commit) }
@@ -1772,7 +1772,7 @@ describe Gitlab::Diff::PositionTracer::LineStrategy do
         #   6 + FF
         #   7   G
 
-        it "returns the new positions" do
+        it 'returns the new positions' do
           old_position_attrs = [
             { old_path: file_name, new_path: file_name, old_line: 1, new_line: 1 }, #   A
             { old_path: file_name,                      old_line: 2              }, # - B

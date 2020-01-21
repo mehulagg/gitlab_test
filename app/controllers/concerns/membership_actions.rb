@@ -39,9 +39,9 @@ module MembershipActions
           begin
             case membershipable
             when Namespace
-              _("User was successfully removed from group and any subresources.")
+              _('User was successfully removed from group and any subresources.')
             else
-              _("User was successfully removed from project.")
+              _('User was successfully removed from project.')
             end
           end
 
@@ -75,9 +75,9 @@ module MembershipActions
 
     notice =
       if member.request?
-        _("Your access request to the %{source_type} has been withdrawn.") % { source_type: source_type }
+        _('Your access request to the %{source_type} has been withdrawn.') % { source_type: source_type }
       else
-        _("You left the \"%{membershipable_human_name}\" %{source_type}.") % { membershipable_human_name: membershipable.human_name, source_type: source_type }
+        _('You left the "%{membershipable_human_name}" %{source_type}.') % { membershipable_human_name: membershipable.human_name, source_type: source_type }
       end
 
     respond_to do |format|
@@ -136,9 +136,9 @@ module MembershipActions
       begin
         case membershipable
         when Namespace
-          _("group")
+          _('group')
         when Project
-          _("project")
+          _('project')
         else
           raise "Unknown membershipable type: #{membershipable}!"
         end

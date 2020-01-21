@@ -58,7 +58,7 @@ describe API::Internal::Base do
             expect(response).to have_gitlab_http_status(200)
             expect(json_response['messages']).to include({
               'type' => 'basic',
-              'message' => "Current replication lag: 17 seconds"
+              'message' => 'Current replication lag: 17 seconds'
             })
           end
         end
@@ -111,17 +111,17 @@ describe API::Internal::Base do
     end
   end
 
-  describe "POST /internal/allowed" do
+  describe 'POST /internal/allowed' do
     set(:user) { create(:user) }
     set(:key) { create(:key, user: user) }
     let(:secret_token) { Gitlab::Shell.secret_token }
 
-    context "for design repositories" do
+    context 'for design repositories' do
       set(:project) { create(:project) }
       let(:gl_repository) { EE::Gitlab::GlRepository::DESIGN.identifier_for_repositorable(project) }
 
-      it "does not allow access" do
-        post(api("/internal/allowed"),
+      it 'does not allow access' do
+        post(api('/internal/allowed'),
              params: {
                key_id: key.id,
                project: project.full_path,
@@ -134,15 +134,15 @@ describe API::Internal::Base do
       end
     end
 
-    context "project alias" do
+    context 'project alias' do
       let(:project) { create(:project, :public, :repository) }
       let(:project_alias) { create(:project_alias, project: project) }
 
       def check_access_by_alias(alias_name)
         post(
-          api("/internal/allowed"),
+          api('/internal/allowed'),
           params: {
-            action: "git-upload-pack",
+            action: 'git-upload-pack',
             key_id: key.id,
             project: alias_name,
             protocol: 'ssh',
@@ -151,8 +151,8 @@ describe API::Internal::Base do
         )
       end
 
-      context "without premium license" do
-        context "project matches a project alias" do
+      context 'without premium license' do
+        context 'project matches a project alias' do
           before do
             check_access_by_alias(project_alias.name)
           end
@@ -163,17 +163,17 @@ describe API::Internal::Base do
         end
       end
 
-      context "with premium license" do
+      context 'with premium license' do
         before do
           stub_licensed_features(project_aliases: true)
         end
 
-        context "project matches a project alias" do
+        context 'project matches a project alias' do
           before do
             check_access_by_alias(project_alias.name)
           end
 
-          it "allows access" do
+          it 'allows access' do
             expect(response).to have_gitlab_http_status(200)
           end
         end
@@ -195,7 +195,7 @@ describe API::Internal::Base do
 
       subject do
         post(
-          api("/internal/allowed"),
+          api('/internal/allowed'),
           params: { key_id: key.id,
                     project: project.full_path,
                     gl_repository: "project-#{project.id}",
@@ -224,7 +224,7 @@ describe API::Internal::Base do
           end
         end
 
-        it "allows access" do
+        it 'allows access' do
           subject
 
           expect(response).to have_gitlab_http_status(200)
@@ -232,7 +232,7 @@ describe API::Internal::Base do
       end
 
       context 'user without a smartcard session' do
-        it "does not allow access" do
+        it 'does not allow access' do
           subject
 
           expect(response).to have_gitlab_http_status(401)
@@ -245,7 +245,7 @@ describe API::Internal::Base do
           stub_smartcard_setting(required_for_git_access: false)
         end
 
-        it "allows access" do
+        it 'allows access' do
           subject
 
           expect(response).to have_gitlab_http_status(200)
@@ -302,7 +302,7 @@ describe API::Internal::Base do
     end
   end
 
-  describe "POST /internal/lfs_authenticate", :geo do
+  describe 'POST /internal/lfs_authenticate', :geo do
     let(:user) { create(:user) }
     let(:project) { create(:project, :repository) }
     let(:secret_token) { Gitlab::Shell.secret_token }
@@ -325,7 +325,7 @@ describe API::Internal::Base do
 
     def lfs_auth_user(user_id, project)
       post(
-        api("/internal/lfs_authenticate"),
+        api('/internal/lfs_authenticate'),
         params: {
           user_id: user_id,
           secret_token: secret_token,

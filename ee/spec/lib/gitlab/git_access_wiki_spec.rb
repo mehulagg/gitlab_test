@@ -11,7 +11,7 @@ describe Gitlab::GitAccessWiki do
 
   let(:access) { described_class.new(user, project, 'web', authentication_abilities: authentication_abilities, redirected_path: redirected_path) }
 
-  context "when in a read-only GitLab instance" do
+  context 'when in a read-only GitLab instance' do
     subject { access.check('git-receive-pack', changes) }
 
     before do

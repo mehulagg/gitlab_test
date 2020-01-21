@@ -41,7 +41,7 @@ module Ci
       # this check is to not leak the presence of the project if user cannot read it
       return unless can?(job.user, :read_project, project)
 
-      return error("400 Job has to be running", 400) unless job.running?
+      return error('400 Job has to be running', 400) unless job.running?
 
       pipeline = Ci::CreatePipelineService.new(project, job.user, ref: params[:ref])
         .execute(:pipeline, ignore_skip_ci: true) do |pipeline|

@@ -127,7 +127,7 @@ module EE
         attr_reader :route_helper, :operation, :current_version
 
         def incorrect_version_message
-          translation = _("You need git-lfs version %{min_git_lfs_version} (or greater) to continue. Please visit https://git-lfs.github.com")
+          translation = _('You need git-lfs version %{min_git_lfs_version} (or greater) to continue. Please visit https://git-lfs.github.com')
           translation % { min_git_lfs_version: MINIMUM_GIT_LFS_VERSION }
         end
 

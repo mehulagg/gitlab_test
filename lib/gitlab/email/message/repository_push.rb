@@ -125,10 +125,10 @@ module Gitlab
 
           if @action == :push && commits
             if commits.length > 1
-              subject_text << "Deleted " if reverse_compare?
+              subject_text << 'Deleted ' if reverse_compare?
               subject_text << "#{commits.length} commits: #{commits.first.title}"
             else
-              subject_text << "Deleted 1 commit: " if reverse_compare?
+              subject_text << 'Deleted 1 commit: ' if reverse_compare?
               subject_text << commits.first.title
             end
           else

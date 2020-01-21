@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe AdjournedGroupDeletionWorker do
-  describe "#perform" do
+  describe '#perform' do
     subject(:worker) { described_class.new }
 
     let_it_be(:user) { create(:user) }

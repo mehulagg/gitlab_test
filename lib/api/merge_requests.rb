@@ -140,7 +140,7 @@ module API
       params do
         use :merge_requests_params
       end
-      get ":id/merge_requests" do
+      get ':id/merge_requests' do
         merge_requests = find_merge_requests(group_id: user_group.id, include_subgroups: true)
 
         present merge_requests, serializer_options_for(merge_requests).merge(group: user_group)
@@ -192,7 +192,7 @@ module API
         use :merge_requests_params
         optional :iids, type: Array[Integer], desc: 'The IID array of merge requests'
       end
-      get ":id/merge_requests" do
+      get ':id/merge_requests' do
         authorize! :read_merge_request, user_project
 
         merge_requests = find_merge_requests(project_id: user_project.id)
@@ -214,7 +214,7 @@ module API
                                      desc: 'The target project of the merge request defaults to the :id of the project'
         use :optional_params
       end
-      post ":id/merge_requests" do
+      post ':id/merge_requests' do
         Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42316')
 
         authorize! :create_merge_request_from, user_project
@@ -236,7 +236,7 @@ module API
       params do
         requires :merge_request_iid, type: Integer, desc: 'The IID of a merge request'
       end
-      delete ":id/merge_requests/:merge_request_iid" do
+      delete ':id/merge_requests/:merge_request_iid' do
         merge_request = find_project_merge_request(params[:merge_request_iid])
 
         authorize!(:destroy_merge_request, merge_request)

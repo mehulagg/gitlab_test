@@ -20,7 +20,7 @@ describe PagesDomain do
       it { is_expected.to validate_uniqueness_of(:domain).case_insensitive }
     end
 
-    describe "hostname" do
+    describe 'hostname' do
       {
         'my.domain.com'    => true,
         '123.456.789'      => true,
@@ -43,7 +43,7 @@ describe PagesDomain do
       end
     end
 
-    describe "HTTPS-only" do
+    describe 'HTTPS-only' do
       using RSpec::Parameterized::TableSyntax
 
       let(:domain) { 'my.domain.com' }
@@ -83,7 +83,7 @@ describe PagesDomain do
       end
 
       with_them do
-        it "is adds the expected errors" do
+        it 'is adds the expected errors' do
           expect(pages_domain.errors.keys).to eq errors_on
         end
       end
@@ -96,8 +96,8 @@ describe PagesDomain do
     it 'saves validity time' do
       domain.save
 
-      expect(domain.certificate_valid_not_before).to be_like_time(Time.parse("2016-02-12 14:32:00 UTC"))
-      expect(domain.certificate_valid_not_after).to be_like_time(Time.parse("2020-04-12 14:32:00 UTC"))
+      expect(domain.certificate_valid_not_before).to be_like_time(Time.parse('2016-02-12 14:32:00 UTC'))
+      expect(domain.certificate_valid_not_after).to be_like_time(Time.parse('2020-04-12 14:32:00 UTC'))
     end
   end
 
@@ -134,7 +134,7 @@ describe PagesDomain do
       end
 
       context 'when certificate is being changed' do
-        it "adds error to certificate" do
+        it 'adds error to certificate' do
           domain.valid?
 
           expect(domain.errors.keys).to contain_exactly(:key, :certificate)
@@ -153,7 +153,7 @@ describe PagesDomain do
     end
 
     context 'with ecdsa certificate' do
-      it "is valid" do
+      it 'is valid' do
         domain = build(:pages_domain, :ecdsa)
 
         expect(domain).to be_valid
@@ -300,14 +300,14 @@ describe PagesDomain do
     it { is_expected.not_to be_empty }
   end
 
-  describe "#https?" do
-    context "when a certificate is present" do
+  describe '#https?' do
+    context 'when a certificate is present' do
       subject { build(:pages_domain) }
 
       it { is_expected.to be_https }
     end
 
-    context "when no certificate is present" do
+    context 'when no certificate is present' do
       subject { build(:pages_domain, :without_certificate) }
 
       it { is_expected.not_to be_https }

@@ -69,7 +69,7 @@ module Geo
 
       return if fetch_snapshot
 
-      log_info("Attempting to fetch repository via git")
+      log_info('Attempting to fetch repository via git')
 
       # `git fetch` needs an empty bare repository to fetch into
       unless gitlab_shell.create_repository(project.repository_storage, disk_path_temp, project.full_path)
@@ -118,7 +118,7 @@ module Geo
       # be avoided to guard against data loss.
       return if project.pool_repository
 
-      log_info("Attempting to fetch repository via snapshot")
+      log_info('Attempting to fetch repository via snapshot')
 
       temp_repo.create_from_snapshot(
         ::Gitlab::Geo.primary_node.snapshot_url(temp_repo),
@@ -217,7 +217,7 @@ module Geo
 
     def set_temp_repository_as_main
       log_info(
-        "Setting newly downloaded repository as main",
+        'Setting newly downloaded repository as main',
         storage_shard: project.repository_storage,
         temp_path: disk_path_temp,
         deleted_disk_path_temp: deleted_disk_path_temp,

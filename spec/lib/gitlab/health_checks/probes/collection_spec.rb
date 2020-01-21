@@ -35,7 +35,7 @@ describe Gitlab::HealthChecks::Probes::Collection do
       context 'when Redis fails' do
         before do
           allow(Gitlab::HealthChecks::Redis::RedisCheck).to receive(:readiness).and_return(
-            Gitlab::HealthChecks::Result.new('redis_check', false, "check error"))
+            Gitlab::HealthChecks::Result.new('redis_check', false, 'check error'))
         end
 
         it 'responds with failure' do

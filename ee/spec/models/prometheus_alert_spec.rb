@@ -68,7 +68,7 @@ describe PrometheusAlert do
 
   describe '#full_query' do
     before do
-      subject.operator = "gt"
+      subject.operator = 'gt'
       subject.threshold = 1
       subject.prometheus_metric = metric
     end
@@ -80,19 +80,19 @@ describe PrometheusAlert do
 
   describe '#to_param' do
     before do
-      subject.operator = "gt"
+      subject.operator = 'gt'
       subject.threshold = 1
       subject.prometheus_metric = metric
     end
 
     it 'returns the params of the prometheus alert' do
       expect(subject.to_param).to eq(
-        "alert" => metric.title,
-        "expr" => "#{metric.query} > 1.0",
-        "for" => "5m",
-        "labels" => {
-          "gitlab" => "hook",
-          "gitlab_alert_id" => metric.id
+        'alert' => metric.title,
+        'expr' => "#{metric.query} > 1.0",
+        'for' => '5m',
+        'labels' => {
+          'gitlab' => 'hook',
+          'gitlab_alert_id' => metric.id
         })
     end
   end

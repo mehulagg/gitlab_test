@@ -39,7 +39,7 @@ describe MigrateManagedClustersWithNoTokenToUnmanaged, :migration do
 
   context 'kubernetes namespace has a service account token' do
     before do
-      kubernetes_namespace.update!(encrypted_service_account_token: "TOKEN")
+      kubernetes_namespace.update!(encrypted_service_account_token: 'TOKEN')
     end
 
     it 'does not update the cluster' do

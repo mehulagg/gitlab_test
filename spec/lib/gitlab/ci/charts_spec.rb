@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Gitlab::Ci::Charts do
-  context "yearchart" do
+  context 'yearchart' do
     let(:project) { create(:project) }
     let(:chart) { Gitlab::Ci::Charts::YearChart.new(project) }
 
@@ -18,7 +18,7 @@ describe Gitlab::Ci::Charts do
     end
   end
 
-  context "monthchart" do
+  context 'monthchart' do
     let(:project) { create(:project) }
     let(:chart) { Gitlab::Ci::Charts::MonthChart.new(project) }
 
@@ -33,7 +33,7 @@ describe Gitlab::Ci::Charts do
     end
   end
 
-  context "weekchart" do
+  context 'weekchart' do
     let(:project) { create(:project) }
     let(:chart) { Gitlab::Ci::Charts::WeekChart.new(project) }
 
@@ -48,7 +48,7 @@ describe Gitlab::Ci::Charts do
     end
   end
 
-  context "pipeline_times" do
+  context 'pipeline_times' do
     let(:project) { create(:project) }
     let(:chart) { Gitlab::Ci::Charts::PipelineTime.new(project) }
 

@@ -26,7 +26,7 @@ describe DashboardController do
   it_behaves_like 'authenticates sessionless user', :issues, :atom, author_id: User.first
   it_behaves_like 'authenticates sessionless user', :issues_calendar, :ics
 
-  describe "#check_filters_presence!" do
+  describe '#check_filters_presence!' do
     let(:user) { create(:user) }
 
     before do
@@ -34,7 +34,7 @@ describe DashboardController do
       get :merge_requests, params: params
     end
 
-    context "no filters" do
+    context 'no filters' do
       let(:params) { {} }
 
       it 'sets @no_filters_set to false' do
@@ -42,7 +42,7 @@ describe DashboardController do
       end
     end
 
-    context "scalar filters" do
+    context 'scalar filters' do
       let(:params) { { author_id: user.id } }
 
       it 'sets @no_filters_set to false' do
@@ -50,7 +50,7 @@ describe DashboardController do
       end
     end
 
-    context "array filters" do
+    context 'array filters' do
       let(:params) { { label_name: ['bug'] } }
 
       it 'sets @no_filters_set to false' do

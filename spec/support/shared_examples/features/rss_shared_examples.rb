@@ -14,14 +14,14 @@ RSpec.shared_examples "it has an RSS button with current_user's feed token" do
   end
 end
 
-RSpec.shared_examples "an autodiscoverable RSS feed without a feed token" do
-  it "has an RSS autodiscovery link tag without a feed token" do
+RSpec.shared_examples 'an autodiscoverable RSS feed without a feed token' do
+  it 'has an RSS autodiscovery link tag without a feed token' do
     expect(page).to have_css("link[type*='atom+xml']:not([href*='feed_token'])", visible: false)
   end
 end
 
-RSpec.shared_examples "it has an RSS button without a feed token" do
-  it "shows the RSS button without a feed token" do
+RSpec.shared_examples 'it has an RSS button without a feed token' do
+  it 'shows the RSS button without a feed token' do
     expect(page)
       .to have_css("a:has(.fa-rss):not([href*='feed_token'])")
       .or have_css("a.js-rss-button:not([href*='feed_token'])")

@@ -73,7 +73,7 @@ module MergeRequests
       items
         .where(users: { field => values })
         .group('merge_requests.id')
-        .having("COUNT(users.id) = ?", values.size)
+        .having('COUNT(users.id) = ?', values.size)
     end
 
     def with_users_filtered_by_criteria(items)

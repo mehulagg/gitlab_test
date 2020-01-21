@@ -8,7 +8,7 @@ module SoftwareLicensePolicies
     end
 
     def execute(software_license_policy)
-      return error("", 403) unless can?(@current_user, :admin_software_license_policy, @project)
+      return error('', 403) unless can?(@current_user, :admin_software_license_policy, @project)
       return success(software_license_policy: software_license_policy) unless params[:approval_status].present?
 
       software_license_policy.update(classification: SoftwareLicensePolicy.to_classification(params[:approval_status]))

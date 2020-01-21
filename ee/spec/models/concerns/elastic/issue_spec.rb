@@ -56,7 +56,7 @@ describe Issue, :elastic do
     end
   end
 
-  it "searches issues" do
+  it 'searches issues' do
     Sidekiq::Testing.inline! do
       create :issue, title: 'bla-bla term1', project: project
       create :issue, description: 'bla-bla term2', project: project
@@ -75,7 +75,7 @@ describe Issue, :elastic do
     expect(described_class.elastic_search('bla-bla', options: { project_ids: :any, public_and_internal_projects: true }).total_count).to eq(3)
   end
 
-  it "searches by iid and scopes to type: issue only" do
+  it 'searches by iid and scopes to type: issue only' do
     issue = nil
 
     Sidekiq::Testing.inline! do
@@ -97,7 +97,7 @@ describe Issue, :elastic do
     expect(results.first.title).to eq('bla-bla issue')
   end
 
-  it "returns json with all needed elements" do
+  it 'returns json with all needed elements' do
     assignee = create(:user)
     issue = create :issue, project: project, assignees: [assignee]
 

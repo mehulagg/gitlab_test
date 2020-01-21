@@ -21,7 +21,7 @@ module Projects
       return success if project.repository_read_only?
 
       unless can?(current_user, :push_code_to_protected_branches, project)
-        return error("The mirror user is not allowed to push code to all branches on this project.")
+        return error('The mirror user is not allowed to push code to all branches on this project.')
       end
 
       checksum_before = project.repository.checksum

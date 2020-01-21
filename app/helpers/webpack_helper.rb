@@ -27,14 +27,14 @@ module WebpackHelper
     end
 
     if chunks.empty?
-      chunks = webpack_entrypoint_paths("default", extension: 'js')
+      chunks = webpack_entrypoint_paths('default', extension: 'js')
     end
 
     javascript_include_tag(*chunks)
   end
 
   def webpack_entrypoint_paths(source, extension: nil, exclude_duplicates: true)
-    return "" unless source.present?
+    return '' unless source.present?
 
     paths = Gitlab::Webpack::Manifest.entrypoint_paths(source)
     if extension

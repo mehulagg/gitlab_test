@@ -41,7 +41,7 @@ describe Gitlab::Geo::LogCursor::Events::JobArtifactDeletedEvent, :clean_gitlab_
         context 'when the delete fails' do
           before do
             allow(File).to receive(:unlink).and_call_original
-            allow(File).to receive(:unlink).with(job_artifact.file.path).and_raise(SystemCallError, "Cannot delete")
+            allow(File).to receive(:unlink).with(job_artifact.file.path).and_raise(SystemCallError, 'Cannot delete')
           end
 
           it 'does not remove the tracking database entry' do

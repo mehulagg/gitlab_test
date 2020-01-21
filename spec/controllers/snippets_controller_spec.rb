@@ -265,7 +265,7 @@ describe SnippetsController do
       it 'stores the snippet description correctly' do
         snippet = subject
 
-        expected_description = "Description with picture: "\
+        expected_description = 'Description with picture: '\
           "![picture](/uploads/-/system/personal_snippet/#{snippet.id}/secret56/picture.jpg) and "\
           "text: [text.txt](/uploads/-/system/personal_snippet/#{snippet.id}/secret78/text.txt)"
 
@@ -480,7 +480,7 @@ describe SnippetsController do
     end
   end
 
-  describe "GET #raw" do
+  describe 'GET #raw' do
     context 'when the personal snippet is private' do
       let(:personal_snippet) { create(:personal_snippet, :private, author: user) }
 
@@ -518,7 +518,7 @@ describe SnippetsController do
 
           it "sets #{Gitlab::Workhorse::DETECT_HEADER} header" do
             expect(response).to have_gitlab_http_status(200)
-            expect(response.header[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
+            expect(response.header[Gitlab::Workhorse::DETECT_HEADER]).to eq 'true'
           end
         end
       end
@@ -633,19 +633,19 @@ describe SnippetsController do
     end
 
     describe 'POST #toggle_award_emoji' do
-      it "toggles the award emoji" do
+      it 'toggles the award emoji' do
         expect do
-          post(:toggle_award_emoji, params: { id: personal_snippet.to_param, name: "thumbsup" })
+          post(:toggle_award_emoji, params: { id: personal_snippet.to_param, name: 'thumbsup' })
         end.to change { personal_snippet.award_emoji.count }.from(0).to(1)
 
         expect(response.status).to eq(200)
       end
 
-      it "removes the already awarded emoji" do
-        post(:toggle_award_emoji, params: { id: personal_snippet.to_param, name: "thumbsup" })
+      it 'removes the already awarded emoji' do
+        post(:toggle_award_emoji, params: { id: personal_snippet.to_param, name: 'thumbsup' })
 
         expect do
-          post(:toggle_award_emoji, params: { id: personal_snippet.to_param, name: "thumbsup" })
+          post(:toggle_award_emoji, params: { id: personal_snippet.to_param, name: 'thumbsup' })
         end.to change { personal_snippet.award_emoji.count }.from(1).to(0)
 
         expect(response.status).to eq(200)

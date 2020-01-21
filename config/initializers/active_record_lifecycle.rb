@@ -7,7 +7,7 @@ if defined?(ActiveRecord::Base) && !Gitlab::Runtime.sidekiq?
     ActiveSupport.on_load(:active_record) do
       ActiveRecord::Base.establish_connection
 
-      Rails.logger.debug("ActiveRecord connection established") # rubocop:disable Gitlab/RailsLogger
+      Rails.logger.debug('ActiveRecord connection established') # rubocop:disable Gitlab/RailsLogger
     end
   end
 end
@@ -18,6 +18,6 @@ if defined?(ActiveRecord::Base)
     # as there's no need for the master process to hold a connection
     ActiveRecord::Base.connection.disconnect!
 
-    Rails.logger.debug("ActiveRecord connection disconnected") # rubocop:disable Gitlab/RailsLogger
+    Rails.logger.debug('ActiveRecord connection disconnected') # rubocop:disable Gitlab/RailsLogger
   end
 end

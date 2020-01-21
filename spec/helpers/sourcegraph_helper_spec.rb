@@ -46,19 +46,19 @@ describe SourcegraphHelper do
     subject { helper.sourcegraph_experimental_message }
 
     context 'when not limited by feature or public only' do
-      it { is_expected.to eq "This feature is experimental." }
+      it { is_expected.to eq 'This feature is experimental.' }
     end
 
     context 'when limited by feature' do
       let(:feature_conditional) { true }
 
-      it { is_expected.to eq "This feature is experimental and currently limited to certain projects." }
+      it { is_expected.to eq 'This feature is experimental and currently limited to certain projects.' }
     end
 
     context 'when limited by public only' do
       let(:public_only) { true }
 
-      it { is_expected.to eq "This feature is experimental and limited to public projects." }
+      it { is_expected.to eq 'This feature is experimental and limited to public projects.' }
     end
   end
 end

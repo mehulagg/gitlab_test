@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe Projects::UpdatePagesService do
   let_it_be(:project, refind: true) { create(:project, :repository) }
@@ -8,9 +8,9 @@ describe Projects::UpdatePagesService do
   let_it_be(:build) { create(:ci_build, pipeline: pipeline, ref: 'HEAD') }
   let(:invalid_file) { fixture_file_upload('spec/fixtures/dk.png') }
 
-  let(:file) { fixture_file_upload("spec/fixtures/pages.zip") }
-  let(:empty_file) { fixture_file_upload("spec/fixtures/pages_empty.zip") }
-  let(:metadata_filename) { "spec/fixtures/pages.zip.meta" }
+  let(:file) { fixture_file_upload('spec/fixtures/pages.zip') }
+  let(:empty_file) { fixture_file_upload('spec/fixtures/pages_empty.zip') }
+  let(:metadata_filename) { 'spec/fixtures/pages.zip.meta' }
   let(:metadata) { fixture_file_upload(metadata_filename) if File.exist?(metadata_filename) }
 
   subject { described_class.new(project, build) }
@@ -28,7 +28,7 @@ describe Projects::UpdatePagesService do
   end
 
   context 'for new artifacts' do
-    context "for a valid job" do
+    context 'for a valid job' do
       before do
         create(:ci_job_artifact, file: file, job: build)
         create(:ci_job_artifact, file_type: :metadata, file_format: :gzip, file: metadata, job: build)
@@ -94,7 +94,7 @@ describe Projects::UpdatePagesService do
       end
 
       context 'when using pages with non-writeable public' do
-        let(:file) { fixture_file_upload("spec/fixtures/pages_non_writeable.zip") }
+        let(:file) { fixture_file_upload('spec/fixtures/pages_non_writeable.zip') }
 
         context 'when using RubyZip' do
           before do
@@ -177,7 +177,7 @@ describe Projects::UpdatePagesService do
     let(:metadata) { spy('metadata') }
 
     shared_examples 'pages size limit is' do |size_limit|
-      context "when size is below the limit" do
+      context 'when size is below the limit' do
         before do
           allow(metadata).to receive(:total_size).and_return(size_limit - 1.megabyte)
         end
@@ -190,7 +190,7 @@ describe Projects::UpdatePagesService do
         end
       end
 
-      context "when size is above the limit" do
+      context 'when size is above the limit' do
         before do
           allow(metadata).to receive(:total_size).and_return(size_limit + 1.megabyte)
         end

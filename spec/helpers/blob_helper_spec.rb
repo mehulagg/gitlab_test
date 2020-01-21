@@ -15,7 +15,7 @@ describe BlobHelper do
     end
   end
 
-  describe "#sanitize_svg_data" do
+  describe '#sanitize_svg_data' do
     let(:input_svg_path) { File.join(Rails.root, 'spec', 'fixtures', 'unsanitized.svg') }
     let(:data) { File.read(input_svg_path) }
     let(:expected_svg_path) { File.join(Rails.root, 'spec', 'fixtures', 'sanitized.svg') }
@@ -26,7 +26,7 @@ describe BlobHelper do
     end
   end
 
-  describe "#edit_blob_link" do
+  describe '#edit_blob_link' do
     let(:namespace) { create(:namespace, name: 'gitlab' )}
     let(:project) { create(:project, :repository, namespace: namespace) }
 
@@ -226,39 +226,39 @@ describe BlobHelper do
     it 'returns full IDE path' do
       Rails.application.routes.default_url_options[:script_name] = nil
 
-      expect(helper.ide_edit_path(project, "master", "")).to eq("/-/ide/project/#{project.namespace.path}/#{project.path}/edit/master")
+      expect(helper.ide_edit_path(project, 'master', '')).to eq("/-/ide/project/#{project.namespace.path}/#{project.path}/edit/master")
     end
 
     it 'returns full IDE path with second -' do
       Rails.application.routes.default_url_options[:script_name] = nil
 
-      expect(helper.ide_edit_path(project, "testing/slashes", "readme.md")).to eq("/-/ide/project/#{project.namespace.path}/#{project.path}/edit/testing/slashes/-/readme.md")
+      expect(helper.ide_edit_path(project, 'testing/slashes', 'readme.md')).to eq("/-/ide/project/#{project.namespace.path}/#{project.path}/edit/testing/slashes/-/readme.md")
     end
 
     it 'returns IDE path without relative_url_root' do
-      Rails.application.routes.default_url_options[:script_name] = "/gitlab"
+      Rails.application.routes.default_url_options[:script_name] = '/gitlab'
 
-      expect(helper.ide_edit_path(project, "master", "")).to eq("/gitlab/-/ide/project/#{project.namespace.path}/#{project.path}/edit/master")
+      expect(helper.ide_edit_path(project, 'master', '')).to eq("/gitlab/-/ide/project/#{project.namespace.path}/#{project.path}/edit/master")
     end
 
     it 'escapes special characters' do
       Rails.application.routes.default_url_options[:script_name] = nil
 
-      expect(helper.ide_edit_path(project, "testing/#hashes", "readme.md#test")).to eq("/-/ide/project/#{project.namespace.path}/#{project.path}/edit/testing/#hashes/-/readme.md%23test")
-      expect(helper.ide_edit_path(project, "testing/#hashes", "src#/readme.md#test")).to eq("/-/ide/project/#{project.namespace.path}/#{project.path}/edit/testing/#hashes/-/src%23/readme.md%23test")
+      expect(helper.ide_edit_path(project, 'testing/#hashes', 'readme.md#test')).to eq("/-/ide/project/#{project.namespace.path}/#{project.path}/edit/testing/#hashes/-/readme.md%23test")
+      expect(helper.ide_edit_path(project, 'testing/#hashes', 'src#/readme.md#test')).to eq("/-/ide/project/#{project.namespace.path}/#{project.path}/edit/testing/#hashes/-/src%23/readme.md%23test")
     end
 
     it 'does not escape "/" character' do
       Rails.application.routes.default_url_options[:script_name] = nil
 
-      expect(helper.ide_edit_path(project, "testing/slashes", "readme.md/")).to eq("/-/ide/project/#{project.namespace.path}/#{project.path}/edit/testing/slashes/-/readme.md/")
+      expect(helper.ide_edit_path(project, 'testing/slashes', 'readme.md/')).to eq("/-/ide/project/#{project.namespace.path}/#{project.path}/edit/testing/slashes/-/readme.md/")
     end
 
     context 'when user is not logged in' do
       let(:current_user) { nil }
 
       it 'returns IDE path inside the project' do
-        expect(helper.ide_edit_path(project, "master", "")).to eq("/-/ide/project/#{project.namespace.path}/#{project.path}/edit/master")
+        expect(helper.ide_edit_path(project, 'master', '')).to eq("/-/ide/project/#{project.namespace.path}/#{project.path}/edit/master")
       end
     end
 
@@ -266,7 +266,7 @@ describe BlobHelper do
       let(:can_push_code) { false }
 
       it "returns IDE path with the user's fork" do
-        expect(helper.ide_edit_path(project, "master", "")).to eq("/-/ide/project/#{current_user.namespace.full_path}/#{project.path}/edit/master")
+        expect(helper.ide_edit_path(project, 'master', '')).to eq("/-/ide/project/#{current_user.namespace.full_path}/#{project.path}/edit/master")
       end
     end
   end
@@ -282,7 +282,7 @@ describe BlobHelper do
     end
 
     it 'returns path to fork the repo with a redirect param to the full IDE path' do
-      uri = URI(helper.ide_fork_and_edit_path(project, "master", ""))
+      uri = URI(helper.ide_fork_and_edit_path(project, 'master', ''))
       params = CGI.unescape(uri.query)
 
       expect(uri.path).to eq("/#{project.namespace.path}/#{project.path}/-/forks")
@@ -294,7 +294,7 @@ describe BlobHelper do
       let(:current_user) { nil }
 
       it 'returns nil' do
-        expect(helper.ide_fork_and_edit_path(project, "master", "")).to be_nil
+        expect(helper.ide_fork_and_edit_path(project, 'master', '')).to be_nil
       end
     end
   end

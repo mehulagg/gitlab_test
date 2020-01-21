@@ -42,7 +42,7 @@ module EE
       end
 
       if filtered_results.any?
-        logger.error(message: "redacted_search_results", filtered: filtered_results, current_user_id: current_user&.id, query: params[:search])
+        logger.error(message: 'redacted_search_results', filtered: filtered_results, current_user_id: current_user&.id, query: params[:search])
       end
 
       Kaminari.paginate_array(

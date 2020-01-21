@@ -51,7 +51,7 @@ describe ErrorTracking::ListProjectsService do
       end
 
       context 'masked param token' do
-        let(:params) { ActionController::Parameters.new(token: "*********", api_host: new_api_host) }
+        let(:params) { ActionController::Parameters.new(token: '*********', api_host: new_api_host) }
 
         before do
           expect(error_tracking_setting).to receive(:list_sentry_projects)

@@ -4,8 +4,8 @@ require 'pathname'
 
 module QA
   context 'Secure', :docker do
-    let(:approved_license_name) { "MIT" }
-    let(:denied_license_name) { "WTFPL" }
+    let(:approved_license_name) { 'MIT' }
+    let(:denied_license_name) { 'WTFPL' }
 
     describe 'License Compliance settings page' do
       before do

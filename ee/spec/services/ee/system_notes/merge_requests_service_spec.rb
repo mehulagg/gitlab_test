@@ -16,7 +16,7 @@ describe ::SystemNotes::MergeRequestsService do
 
     context 'when merge request approved' do
       it 'sets the note text' do
-        expect(subject.note).to eq "approved this merge request"
+        expect(subject.note).to eq 'approved this merge request'
       end
     end
   end
@@ -30,7 +30,7 @@ describe ::SystemNotes::MergeRequestsService do
 
     context 'when merge request approved' do
       it 'sets the note text' do
-        expect(subject.note).to eq "unapproved this merge request"
+        expect(subject.note).to eq 'unapproved this merge request'
       end
     end
   end

@@ -10,7 +10,7 @@ describe Sentry::Client do
   let(:default_httparty_options) do
     {
       follow_redirects: false,
-      headers: { "Authorization" => "Bearer test-token" }
+      headers: { 'Authorization' => 'Bearer test-token' }
     }
   end
   let(:client) { described_class.new(sentry_url, token) }

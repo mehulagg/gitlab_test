@@ -66,9 +66,9 @@ module Peek
 
       def format_duration(ms)
         if ms >= 1000
-          "%.2fms" % ms
+          '%.2fms' % ms
         else
-          "%.0fms" % ms
+          '%.0fms' % ms
         end
       end
     end

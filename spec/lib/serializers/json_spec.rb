@@ -4,7 +4,7 @@ require 'fast_spec_helper'
 
 describe Serializers::JSON do
   describe '.dump' do
-    let(:obj) { { key: "value" } }
+    let(:obj) { { key: 'value' } }
 
     subject { described_class.dump(obj) }
 
@@ -30,8 +30,8 @@ describe Serializers::JSON do
       end
 
       it 'allows to access with strings' do
-        expect(subject["key"]).to eq('value')
-        expect(subject["variables"].first["key"]).to eq('VAR1')
+        expect(subject['key']).to eq('value')
+        expect(subject['variables'].first['key']).to eq('VAR1')
       end
     end
 

@@ -128,7 +128,7 @@ module Gitlab
 
             # Check for failures
             unless response.status.success?
-              log_error("Unsuccessful download", filename: filename, status_code: response.status.code, reason: response.status.reason, url: url)
+              log_error('Unsuccessful download', filename: filename, status_code: response.status.code, reason: response.status.reason, url: url)
 
               return failure_result(primary_missing_file: primary_missing_file?(response))
             end
@@ -146,7 +146,7 @@ module Gitlab
 
             # Check for checksum mismatch
             if checksum_mismatch?(temp_file.path)
-              log_error("Downloaded file checksum mismatch", expected_checksum: expected_checksum, actual_checksum: @actual_checksum, file_size_bytes: file_size)
+              log_error('Downloaded file checksum mismatch', expected_checksum: expected_checksum, actual_checksum: @actual_checksum, file_size_bytes: file_size)
 
               return failure_result(bytes_downloaded: file_size)
             end
@@ -154,9 +154,9 @@ module Gitlab
             # Move transferred file to the target location
             FileUtils.mv(temp_file.path, filename)
 
-            log_info("Successfully downloaded", filename: filename, file_size_bytes: file_size)
+            log_info('Successfully downloaded', filename: filename, file_size_bytes: file_size)
           rescue StandardError, ::HTTP::Error => e
-            log_error("Error downloading file", error: e, filename: filename, url: url)
+            log_error('Error downloading file', error: e, filename: filename, url: url)
 
             return failure_result
           ensure
@@ -183,7 +183,7 @@ module Gitlab
 
             # Check for failures
             unless response.status.success?
-              log_error("Unsuccessful download", file_type: file_type, file_id: file_id,
+              log_error('Unsuccessful download', file_type: file_type, file_id: file_id,
                         status_code: response.status.code, reason: response.status.reason, url: url)
 
               return failure_result(primary_missing_file: primary_missing_file?(response))
@@ -199,10 +199,10 @@ module Gitlab
             # Upload file to Object Storage
             uploader.replace_file_without_saving!(CarrierWave::SanitizedFile.new(temp_file))
 
-            log_info("Successfully transferred", file_type: file_type, file_id: file_id,
+            log_info('Successfully transferred', file_type: file_type, file_id: file_id,
                      file_size_bytes: file_size)
           rescue => e
-            log_error("Error transferring file", error: e, file_type: file_type, file_id: file_id, url: url)
+            log_error('Error transferring file', error: e, file_type: file_type, file_id: file_id, url: url)
 
             return failure_result
           ensure
@@ -242,7 +242,7 @@ module Gitlab
           temp.binmode
           temp
         rescue => e
-          log_error("Error creating temporary file", error: e, filename: target_filename)
+          log_error('Error creating temporary file', error: e, filename: target_filename)
           nil
         end
 

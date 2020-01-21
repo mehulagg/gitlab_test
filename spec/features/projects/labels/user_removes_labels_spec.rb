@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
-describe "User removes labels" do
+describe 'User removes labels' do
   let(:project) { create(:project_empty_repo, :public) }
   let(:user) { create(:user) }
 
@@ -11,47 +11,47 @@ describe "User removes labels" do
     sign_in(user)
   end
 
-  context "when one label" do
+  context 'when one label' do
     let!(:label) { create(:label, project: project) }
 
     before do
       visit(project_labels_path(project))
     end
 
-    it "removes label" do
-      page.within(".other-labels") do
-        page.first(".label-list-item") do
+    it 'removes label' do
+      page.within('.other-labels') do
+        page.first('.label-list-item') do
           first('.js-label-options-dropdown').click
-          first(".remove-row").click
+          first('.remove-row').click
         end
 
         expect(page).to have_content("#{label.title} will be permanently deleted from #{project.name}. This cannot be undone.")
 
-        first(:link, "Delete label").click
+        first(:link, 'Delete label').click
       end
 
-      expect(page).to have_content("Label was removed").and have_no_content(label.title)
+      expect(page).to have_content('Label was removed').and have_no_content(label.title)
     end
   end
 
-  context "when many labels", :js do
+  context 'when many labels', :js do
     before do
       create_list(:label, 3, project: project)
 
       visit(project_labels_path(project))
     end
 
-    it "removes all labels" do
+    it 'removes all labels' do
       loop do
-        li = page.first(".label-list-item", minimum: 0)
+        li = page.first('.label-list-item', minimum: 0)
         break unless li
 
         li.find('.js-label-options-dropdown').click
-        li.click_button("Delete")
-        click_link("Delete label")
+        li.click_button('Delete')
+        click_link('Delete label')
       end
 
-      expect(page).to have_content("Generate a default set of labels").and have_content("New label")
+      expect(page).to have_content('Generate a default set of labels').and have_content('New label')
     end
   end
 end

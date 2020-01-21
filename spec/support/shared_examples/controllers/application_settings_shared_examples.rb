@@ -17,7 +17,7 @@ RSpec.shared_examples 'renders correct panels' do
     end
 
     referer_path = public_send("#{action}_admin_application_settings_path")
-    request.env["HTTP_REFERER"] = referer_path
+    request.env['HTTP_REFERER'] = referer_path
 
     patch action, params: { application_setting: { unused_param: true } }
 

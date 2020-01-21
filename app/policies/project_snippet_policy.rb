@@ -3,7 +3,7 @@
 class ProjectSnippetPolicy < BasePolicy
   delegate :project
 
-  desc "Snippet is public"
+  desc 'Snippet is public'
   condition(:public_snippet, scope: :subject) { @subject.public? }
   condition(:internal_snippet, scope: :subject) { @subject.internal? }
   condition(:private_snippet, scope: :subject) { @subject.private? }

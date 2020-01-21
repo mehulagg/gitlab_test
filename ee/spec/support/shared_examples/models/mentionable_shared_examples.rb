@@ -25,7 +25,7 @@ RSpec.shared_examples 'a mentionable with EE-specific mentions' do
   include_context 'mentionable context'
   include_context 'mentionable context with EE-specific mentions'
 
-  it "extracts references from its reference property" do
+  it 'extracts references from its reference property' do
     # De-duplicate and omit itself
     refs = subject.referenced_mentionables
 

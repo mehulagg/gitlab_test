@@ -10,14 +10,14 @@ describe API::CommitStatuses do
   let(:developer) { create_user(:developer) }
   let(:sha) { commit.id }
 
-  describe "GET /projects/:id/repository/commits/:sha/statuses" do
+  describe 'GET /projects/:id/repository/commits/:sha/statuses' do
     let(:get_url) { "/projects/#{project.id}/repository/commits/#{sha}/statuses" }
 
     context 'ci commit exists' do
       let!(:master) { project.ci_pipelines.create(source: :push, sha: commit.id, ref: 'master', protected: false) }
       let!(:develop) { project.ci_pipelines.create(source: :push, sha: commit.id, ref: 'develop', protected: false) }
 
-      context "reporter user" do
+      context 'reporter user' do
         let(:statuses_id) { json_response.map { |status| status['id'] } }
 
         def create_status(commit, opts = {})
@@ -102,22 +102,22 @@ describe API::CommitStatuses do
       end
     end
 
-    context "guest user" do
+    context 'guest user' do
       before do
         get api(get_url, guest)
       end
 
-      it "does not return project commits" do
+      it 'does not return project commits' do
         expect(response).to have_gitlab_http_status(403)
       end
     end
 
-    context "unauthorized user" do
+    context 'unauthorized user' do
       before do
         get api(get_url)
       end
 
-      it "does not return project commits" do
+      it 'does not return project commits' do
         expect(response).to have_gitlab_http_status(401)
       end
     end

@@ -4,7 +4,7 @@ module Schedulable
   extend ActiveSupport::Concern
 
   included do
-    scope :runnable_schedules, -> { active.where("next_run_at < ?", Time.zone.now) }
+    scope :runnable_schedules, -> { active.where('next_run_at < ?', Time.zone.now) }
 
     before_save :set_next_run_at
   end

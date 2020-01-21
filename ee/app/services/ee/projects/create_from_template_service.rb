@@ -31,7 +31,7 @@ module EE
 
       def validate_group_template!
         if subgroup_id && !valid_project_namespace?
-          project.errors.add(:namespace, _("is not a descendant of the Group owning the template"))
+          project.errors.add(:namespace, _('is not a descendant of the Group owning the template'))
           return false
         end
 
@@ -39,7 +39,7 @@ module EE
 
         if template_project_id.present?
           project.errors.add(:template_project_id,
-                             _("%{template_project_id} is unknown or invalid" % { template_project_id: template_project_id }))
+                             _('%{template_project_id} is unknown or invalid' % { template_project_id: template_project_id }))
         else
           project.errors.add(:template_name, _("'%{template_name}' is unknown or invalid" % { template_name: template_name }))
         end

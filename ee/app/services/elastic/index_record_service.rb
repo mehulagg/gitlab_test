@@ -19,7 +19,7 @@ module Elastic
 
       initial_index_project(record) if record.class == Project && indexing
 
-      update_issue_notes(record, options["changed_fields"]) if record.class == Issue
+      update_issue_notes(record, options['changed_fields']) if record.class == Issue
 
       true
     rescue Elasticsearch::Transport::Transport::Errors::NotFound, ActiveRecord::RecordNotFound => e

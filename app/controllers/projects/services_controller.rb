@@ -11,7 +11,7 @@ class Projects::ServicesController < Projects::ApplicationController
 
   respond_to :html
 
-  layout "project_settings"
+  layout 'project_settings'
 
   def edit
   end
@@ -68,9 +68,9 @@ class Projects::ServicesController < Projects::ApplicationController
 
   def success_message
     if @service.active?
-      _("%{service_title} activated.") % { service_title: @service.title }
+      _('%{service_title} activated.') % { service_title: @service.title }
     else
-      _("%{service_title} settings saved, but not activated.") % { service_title: @service.title }
+      _('%{service_title} settings saved, but not activated.') % { service_title: @service.title }
     end
   end
 

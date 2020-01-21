@@ -10,7 +10,7 @@ describe Gitlab::CycleAnalytics::GroupStageSummary do
 
   subject { described_class.new(group, options: { from: Time.now, current_user: user }).data }
 
-  describe "#new_issues" do
+  describe '#new_issues' do
     context 'with from date' do
       before do
         Timecop.freeze(5.days.ago) { create(:issue, project: project) }
@@ -19,7 +19,7 @@ describe Gitlab::CycleAnalytics::GroupStageSummary do
         Timecop.freeze(5.days.from_now) { create(:issue, project: project_2) }
       end
 
-      it "finds the number of issues created after it" do
+      it 'finds the number of issues created after it' do
         expect(subject.first[:value]).to eq(2)
       end
 
@@ -28,7 +28,7 @@ describe Gitlab::CycleAnalytics::GroupStageSummary do
           Timecop.freeze(5.days.from_now) { create(:issue, project: create(:project, namespace: create(:group, parent: group))) }
         end
 
-        it "finds issues from them" do
+        it 'finds issues from them' do
           expect(subject.first[:value]).to eq(3)
         end
       end
@@ -67,7 +67,7 @@ describe Gitlab::CycleAnalytics::GroupStageSummary do
     end
   end
 
-  describe "#deploys" do
+  describe '#deploys' do
     context 'with from date' do
       before do
         Timecop.freeze(5.days.ago) { create(:deployment, :success, project: project) }
@@ -76,7 +76,7 @@ describe Gitlab::CycleAnalytics::GroupStageSummary do
         Timecop.freeze(5.days.from_now) { create(:deployment, :success, project: project_2) }
       end
 
-      it "finds the number of deploys made created after it" do
+      it 'finds the number of deploys made created after it' do
         expect(subject.second[:value]).to eq(2)
       end
 
@@ -87,7 +87,7 @@ describe Gitlab::CycleAnalytics::GroupStageSummary do
           end
         end
 
-        it "finds deploys from them" do
+        it 'finds deploys from them' do
           expect(subject.second[:value]).to eq(3)
         end
       end

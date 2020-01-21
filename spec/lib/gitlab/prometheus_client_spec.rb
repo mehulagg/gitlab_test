@@ -11,7 +11,7 @@ describe Gitlab::PrometheusClient do
     it 'issues a "query" request to the API endpoint' do
       req_stub = stub_prometheus_request(prometheus_query_url('1'), body: prometheus_value_body('vector'))
 
-      expect(subject.ping).to eq({ "resultType" => "vector", "result" => [{ "metric" => {}, "value" => [1488772511.004, "0.000041021495238095323"] }] })
+      expect(subject.ping).to eq({ 'resultType' => 'vector', 'result' => [{ 'metric' => {}, 'value' => [1488772511.004, '0.000041021495238095323'] }] })
       expect(req_stub).to have_been_requested
     end
   end
@@ -62,7 +62,7 @@ describe Gitlab::PrometheusClient do
   end
 
   describe 'failure to reach a provided prometheus url' do
-    let(:prometheus_url) {"https://prometheus.invalid.example.com/api/v1/query?query=1"}
+    let(:prometheus_url) {'https://prometheus.invalid.example.com/api/v1/query?query=1'}
 
     shared_examples 'exceptions are raised' do
       it 'raises a Gitlab::PrometheusClient::Error error when a SocketError is rescued' do
@@ -85,7 +85,7 @@ describe Gitlab::PrometheusClient do
         req_stub = stub_prometheus_request_with_exception(prometheus_url, Gitlab::HTTP::ResponseError)
 
         expect { subject }
-          .to raise_error(Gitlab::PrometheusClient::Error, "Network connection error")
+          .to raise_error(Gitlab::PrometheusClient::Error, 'Network connection error')
         expect(req_stub).to have_been_requested
       end
 
@@ -93,7 +93,7 @@ describe Gitlab::PrometheusClient do
         req_stub = stub_prometheus_request_with_exception(prometheus_url, Gitlab::HTTP::ResponseError.new(code: 400))
 
         expect { subject }
-          .to raise_error(Gitlab::PrometheusClient::Error, "Network connection error")
+          .to raise_error(Gitlab::PrometheusClient::Error, 'Network connection error')
         expect(req_stub).to have_been_requested
       end
     end
@@ -123,7 +123,7 @@ describe Gitlab::PrometheusClient do
       it 'returns data from the API call' do
         req_stub = stub_prometheus_request(query_url, body: prometheus_value_body('vector'))
 
-        expect(subject.query(prometheus_query)).to eq [{ "metric" => {}, "value" => [1488772511.004, "0.000041021495238095323"] }]
+        expect(subject.query(prometheus_query)).to eq [{ 'metric' => {}, 'value' => [1488772511.004, '0.000041021495238095323'] }]
         expect(req_stub).to have_been_requested
       end
     end
@@ -190,7 +190,7 @@ describe Gitlab::PrometheusClient do
     end
 
     context 'when non utc time is passed' do
-      let(:time_stop) { Time.now.in_time_zone("Warsaw") }
+      let(:time_stop) { Time.now.in_time_zone('Warsaw') }
       let(:time_start) { time_stop - 8.hours }
 
       let(:query_url) { prometheus_query_range_url(prometheus_query, start: time_start.utc.to_f, stop: time_stop.utc.to_f) }
@@ -229,8 +229,8 @@ describe Gitlab::PrometheusClient do
 
         expect(subject.query_range(prometheus_query)).to eq([
           {
-            "metric" => {},
-            "values" => [[1488758662.506, "0.00002996364761904785"], [1488758722.506, "0.00003090239047619091"]]
+            'metric' => {},
+            'values' => [[1488758662.506, '0.00002996364761904785'], [1488758722.506, '0.00003090239047619091']]
           }
         ])
         expect(req_stub).to have_been_requested
@@ -300,7 +300,7 @@ describe Gitlab::PrometheusClient do
             'status' => 'success',
             'data' => {
               'resultType' => 'vector',
-              'result' => [{ "metric" => {}, "value" => [1488772511.004, "0.000041021495238095323"] }]
+              'result' => [{ 'metric' => {}, 'value' => [1488772511.004, '0.000041021495238095323'] }]
             }
           })
           expect(req_stub).to have_been_requested
@@ -325,7 +325,7 @@ describe Gitlab::PrometheusClient do
           stub_prometheus_request_with_exception(query_url, response_error)
         end
 
-        context "without response code" do
+        context 'without response code' do
           let(:response_error) { Gitlab::HTTP::ResponseError }
 
           it 'raises PrometheusClient::Error' do
@@ -335,7 +335,7 @@ describe Gitlab::PrometheusClient do
           end
         end
 
-        context "with response code" do
+        context 'with response code' do
           let(:response_error) do
             response = Net::HTTPResponse.new(1.1, 400, '{}sumpthin')
             allow(response).to receive(:body) { '{}' }

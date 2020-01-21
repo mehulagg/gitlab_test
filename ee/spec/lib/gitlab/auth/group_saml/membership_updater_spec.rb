@@ -7,7 +7,7 @@ describe Gitlab::Auth::GroupSaml::MembershipUpdater do
   let(:saml_provider) { create(:saml_provider) }
   let(:group) { saml_provider.group }
 
-  it "adds the user to the group" do
+  it 'adds the user to the group' do
     described_class.new(user, saml_provider).execute
 
     expect(group.users).to include(user)

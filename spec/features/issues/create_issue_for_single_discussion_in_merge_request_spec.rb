@@ -80,7 +80,7 @@ describe 'Resolve an open thread in a merge request by creating an issue', :js d
     it 'Shows a notice to ask someone else to resolve the threads' do
       expect(page).to have_content("The thread at #{merge_request.to_reference}"\
                                    " (discussion #{discussion.first_note.id}) will stay unresolved."\
-                                   " Ask someone with permission to resolve it.")
+                                   ' Ask someone with permission to resolve it.')
     end
   end
 end

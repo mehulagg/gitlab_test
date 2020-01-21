@@ -16,11 +16,11 @@ describe Elastic::IndexRecordService, :elastic do
     using RSpec::Parameterized::TableSyntax
 
     where(:type, :name, :attribute) do
-      :project       | "Project"      | :name
-      :issue         | "Issue"        | :title
-      :note          | "Note"         | :note
-      :milestone     | "Milestone"    | :title
-      :merge_request | "MergeRequest" | :title
+      :project       | 'Project'      | :name
+      :issue         | 'Issue'        | :title
+      :note          | 'Note'         | :note
+      :milestone     | 'Milestone'    | :title
+      :merge_request | 'MergeRequest' | :title
     end
 
     with_them do
@@ -42,7 +42,7 @@ describe Elastic::IndexRecordService, :elastic do
         Sidekiq::Testing.disable! do
           object = create(type)
           expect(subject.execute(object, true)).to eq(true)
-          object.update(attribute => "new")
+          object.update(attribute => 'new')
         end
 
         expect do
@@ -132,17 +132,17 @@ describe Elastic::IndexRecordService, :elastic do
     context 'retry indexing record' do
       let(:failure_response) do
         {
-          "_shards" => {
-            "total" => 2,
-            "failed" => 2,
-            "successful" => 0
+          '_shards' => {
+            'total' => 2,
+            'failed' => 2,
+            'successful' => 0
           },
-          "_index" => "foo",
-          "_type" => "_doc",
-          "_id" => "project_1",
-          "_version" => 1,
-          "created" => false,
-          "result" => ""
+          '_index' => 'foo',
+          '_type' => '_doc',
+          '_id' => 'project_1',
+          '_version' => 1,
+          'created' => false,
+          'result' => ''
         }
       end
 
@@ -179,38 +179,38 @@ describe Elastic::IndexRecordService, :elastic do
       let(:issues) { Issue.all.to_a }
       let(:failure_response) do
         {
-          "took" => 30,
-          "errors" => true,
-          "items" => [
+          'took' => 30,
+          'errors' => true,
+          'items' => [
             {
-              "index" => {
-                "error" => 'FAILED',
-                "_index" => "test",
-                "_type" => "_doc",
-                "_id" => issues.first.es_id,
-                "_version" => 1,
-                "result" => "created",
-                "_shards" => {
-                  "total" => 2,
-                  "successful" => 1,
-                  "failed" => 0
+              'index' => {
+                'error' => 'FAILED',
+                '_index' => 'test',
+                '_type' => '_doc',
+                '_id' => issues.first.es_id,
+                '_version' => 1,
+                'result' => 'created',
+                '_shards' => {
+                  'total' => 2,
+                  'successful' => 1,
+                  'failed' => 0
                 },
-                "status" => 400
+                'status' => 400
               }
             },
             {
-              "index" => {
-                "_index" => "test",
-                "_type" => "_doc",
-                "_id" => issues.last.es_id,
-                "_version" => 1,
-                "result" => "created",
-                "_shards" => {
-                  "total" => 2,
-                  "successful" => 1,
-                  "failed" => 0
+              'index' => {
+                '_index' => 'test',
+                '_type' => '_doc',
+                '_id' => issues.last.es_id,
+                '_version' => 1,
+                'result' => 'created',
+                '_shards' => {
+                  'total' => 2,
+                  'successful' => 1,
+                  'failed' => 0
                 },
-                "status" => 201
+                'status' => 201
               }
             }
           ]
@@ -219,22 +219,22 @@ describe Elastic::IndexRecordService, :elastic do
 
       let(:success_response) do
         {
-          "took" => 30,
-          "errors" => false,
-          "items" => [
+          'took' => 30,
+          'errors' => false,
+          'items' => [
             {
-              "index" => {
-                "_index" => "test",
-                "_type" => "_doc",
-                "_id" => issues.first.es_id,
-                "_version" => 1,
-                "result" => "created",
-                "_shards" => {
-                  "total" => 2,
-                  "successful" => 1,
-                  "failed" => 0
+              'index' => {
+                '_index' => 'test',
+                '_type' => '_doc',
+                '_id' => issues.first.es_id,
+                '_version' => 1,
+                'result' => 'created',
+                '_shards' => {
+                  'total' => 2,
+                  'successful' => 1,
+                  'failed' => 0
                 },
-                "status" => 201
+                'status' => 201
               }
             }
           ]

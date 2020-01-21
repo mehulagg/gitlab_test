@@ -17,8 +17,8 @@ module EE
         serialize :yaml_variables, ::Gitlab::Serializer::Ci::Variables
         # rubocop:enable Cop/ActiveRecordSerialize
 
-        belongs_to :upstream_pipeline, class_name: "::Ci::Pipeline"
-        has_many :sourced_pipelines, class_name: "::Ci::Sources::Pipeline",
+        belongs_to :upstream_pipeline, class_name: '::Ci::Pipeline'
+        has_many :sourced_pipelines, class_name: '::Ci::Sources::Pipeline',
                                      foreign_key: :source_job_id
 
         state_machine :status do

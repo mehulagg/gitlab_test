@@ -49,25 +49,25 @@ describe User, :do_not_mock_admin_mode do
     it { is_expected.to have_many(:custom_attributes).class_name('UserCustomAttribute') }
     it { is_expected.to have_many(:releases).dependent(:nullify) }
 
-    describe "#abuse_report" do
+    describe '#abuse_report' do
       let(:current_user) { create(:user) }
       let(:other_user) { create(:user) }
 
       it { is_expected.to have_one(:abuse_report) }
 
-      it "refers to the abuse report whose user_id is the current user" do
+      it 'refers to the abuse report whose user_id is the current user' do
         abuse_report = create(:abuse_report, reporter: other_user, user: current_user)
 
         expect(current_user.abuse_report).to eq(abuse_report)
       end
 
-      it "does not refer to the abuse report whose reporter_id is the current user" do
+      it 'does not refer to the abuse report whose reporter_id is the current user' do
         create(:abuse_report, reporter: current_user, user: other_user)
 
         expect(current_user.abuse_report).to be_nil
       end
 
-      it "does not update the user_id of an abuse report when the user is updated" do
+      it 'does not update the user_id of an abuse report when the user is updated' do
         abuse_report = create(:abuse_report, reporter: current_user, user: other_user)
 
         current_user.block
@@ -294,7 +294,7 @@ describe User, :do_not_mock_admin_mode do
         end
 
         it 'accepts any email' do
-          user = build(:user, email: "info@example.com")
+          user = build(:user, email: 'info@example.com')
           expect(user).to be_valid
         end
       end
@@ -305,17 +305,17 @@ describe User, :do_not_mock_admin_mode do
         end
 
         it 'accepts info@example.com' do
-          user = build(:user, email: "info@example.com")
+          user = build(:user, email: 'info@example.com')
           expect(user).to be_valid
         end
 
         it 'accepts info@test.example.com' do
-          user = build(:user, email: "info@test.example.com")
+          user = build(:user, email: 'info@test.example.com')
           expect(user).to be_valid
         end
 
         it 'rejects example@test.com' do
-          user = build(:user, email: "example@test.com")
+          user = build(:user, email: 'example@test.com')
           expect(user).to be_invalid
         end
       end
@@ -326,22 +326,22 @@ describe User, :do_not_mock_admin_mode do
         end
 
         it 'accepts info@example.com' do
-          user = build(:user, email: "info@example.com")
+          user = build(:user, email: 'info@example.com')
           expect(user).to be_valid
         end
 
         it 'rejects info@test.example.com' do
-          user = build(:user, email: "info@test.example.com")
+          user = build(:user, email: 'info@test.example.com')
           expect(user).to be_invalid
         end
 
         it 'rejects example@test.com' do
-          user = build(:user, email: "example@test.com")
+          user = build(:user, email: 'example@test.com')
           expect(user).to be_invalid
         end
 
         it 'accepts example@test.com when added by another user' do
-          user = build(:user, email: "example@test.com", created_by_id: 1)
+          user = build(:user, email: 'example@test.com', created_by_id: 1)
           expect(user).to be_valid
         end
       end
@@ -400,7 +400,7 @@ describe User, :do_not_mock_admin_mode do
 
       context 'owns_notification_email' do
         it 'accepts temp_oauth_email emails' do
-          user = build(:user, email: "temp-email-for-oauth@example.com")
+          user = build(:user, email: 'temp-email-for-oauth@example.com')
           expect(user).to be_valid
         end
       end
@@ -419,7 +419,7 @@ describe User, :do_not_mock_admin_mode do
         end
 
         it 'reverts to nil when email is not verified' do
-          user = create(:user, commit_email: "foo@bar.com")
+          user = create(:user, commit_email: 'foo@bar.com')
 
           expect(user.read_attribute(:commit_email)).to be_nil
         end
@@ -441,9 +441,9 @@ describe User, :do_not_mock_admin_mode do
     end
   end
 
-  describe "scopes" do
-    describe ".with_two_factor" do
-      it "returns users with 2fa enabled via OTP" do
+  describe 'scopes' do
+    describe '.with_two_factor' do
+      it 'returns users with 2fa enabled via OTP' do
         user_with_2fa = create(:user, :two_factor_via_otp)
         user_without_2fa = create(:user)
         users_with_two_factor = described_class.with_two_factor.pluck(:id)
@@ -452,7 +452,7 @@ describe User, :do_not_mock_admin_mode do
         expect(users_with_two_factor).not_to include(user_without_2fa.id)
       end
 
-      it "returns users with 2fa enabled via U2F" do
+      it 'returns users with 2fa enabled via U2F' do
         user_with_2fa = create(:user, :two_factor_via_u2f)
         user_without_2fa = create(:user)
         users_with_two_factor = described_class.with_two_factor.pluck(:id)
@@ -461,7 +461,7 @@ describe User, :do_not_mock_admin_mode do
         expect(users_with_two_factor).not_to include(user_without_2fa.id)
       end
 
-      it "returns users with 2fa enabled via OTP and U2F" do
+      it 'returns users with 2fa enabled via OTP and U2F' do
         user_with_2fa = create(:user, :two_factor_via_otp, :two_factor_via_u2f)
         user_without_2fa = create(:user)
         users_with_two_factor = described_class.with_two_factor.pluck(:id)
@@ -479,8 +479,8 @@ describe User, :do_not_mock_admin_mode do
       end
     end
 
-    describe ".without_two_factor" do
-      it "excludes users with 2fa enabled via OTP" do
+    describe '.without_two_factor' do
+      it 'excludes users with 2fa enabled via OTP' do
         user_with_2fa = create(:user, :two_factor_via_otp)
         user_without_2fa = create(:user)
         users_without_two_factor = described_class.without_two_factor.pluck(:id)
@@ -489,7 +489,7 @@ describe User, :do_not_mock_admin_mode do
         expect(users_without_two_factor).not_to include(user_with_2fa.id)
       end
 
-      it "excludes users with 2fa enabled via U2F" do
+      it 'excludes users with 2fa enabled via U2F' do
         user_with_2fa = create(:user, :two_factor_via_u2f)
         user_without_2fa = create(:user)
         users_without_two_factor = described_class.without_two_factor.pluck(:id)
@@ -498,7 +498,7 @@ describe User, :do_not_mock_admin_mode do
         expect(users_without_two_factor).not_to include(user_with_2fa.id)
       end
 
-      it "excludes users with 2fa enabled via OTP and U2F" do
+      it 'excludes users with 2fa enabled via OTP and U2F' do
         user_with_2fa = create(:user, :two_factor_via_otp, :two_factor_via_u2f)
         user_without_2fa = create(:user)
         users_without_two_factor = described_class.without_two_factor.pluck(:id)
@@ -656,7 +656,7 @@ describe User, :do_not_mock_admin_mode do
     end
   end
 
-  describe "Respond to" do
+  describe 'Respond to' do
     it { is_expected.to respond_to(:admin?) }
     it { is_expected.to respond_to(:name) }
     it { is_expected.to respond_to(:external?) }
@@ -678,7 +678,7 @@ describe User, :do_not_mock_admin_mode do
       let(:user)          { create(:user) }
       let(:external_user) { create(:user, external: true) }
 
-      it "sets other properties aswell" do
+      it 'sets other properties aswell' do
         expect(external_user.can_create_team).to be_falsey
         expect(external_user.can_create_group).to be_falsey
         expect(external_user.projects_limit).to be 0
@@ -886,7 +886,7 @@ describe User, :do_not_mock_admin_mode do
   end
 
   describe '#update_tracked_fields!', :clean_gitlab_redis_shared_state do
-    let(:request) { OpenStruct.new(remote_ip: "127.0.0.1") }
+    let(:request) { OpenStruct.new(remote_ip: '127.0.0.1') }
     let(:user) { create(:user) }
 
     it 'writes trackable attributes' do
@@ -994,7 +994,7 @@ describe User, :do_not_mock_admin_mode do
   end
 
   describe '#generate_password' do
-    it "does not generate password by default" do
+    it 'does not generate password by default' do
       user = create(:user, password: 'abcdefghe')
 
       expect(user.password).to eq('abcdefghe')
@@ -1248,20 +1248,20 @@ describe User, :do_not_mock_admin_mode do
   describe 'deactivating a user' do
     let(:user) { create(:user, name: 'John Smith') }
 
-    context "an active user" do
-      it "can be deactivated" do
+    context 'an active user' do
+      it 'can be deactivated' do
         user.deactivate
 
         expect(user.deactivated?).to be_truthy
       end
     end
 
-    context "a user who is blocked" do
+    context 'a user who is blocked' do
       before do
         user.block
       end
 
-      it "cannot be deactivated" do
+      it 'cannot be deactivated' do
         user.deactivate
 
         expect(user.reload.deactivated?).to be_falsy
@@ -1352,7 +1352,7 @@ describe User, :do_not_mock_admin_mode do
     describe 'with defaults' do
       let(:user) { described_class.new }
 
-      it "applies defaults to user" do
+      it 'applies defaults to user' do
         expect(user.projects_limit).to eq(Gitlab.config.gitlab.default_projects_limit)
         expect(user.can_create_group).to eq(Gitlab.config.gitlab.default_can_create_group)
         expect(user.theme_id).to eq(Gitlab.config.gitlab.default_theme)
@@ -1364,7 +1364,7 @@ describe User, :do_not_mock_admin_mode do
     describe 'with default overrides' do
       let(:user) { described_class.new(projects_limit: 123, can_create_group: false, can_create_team: true) }
 
-      it "applies defaults to user" do
+      it 'applies defaults to user' do
         expect(user.projects_limit).to eq(123)
         expect(user.can_create_group).to be_falsey
         expect(user.theme_id).to eq(1)
@@ -1383,7 +1383,7 @@ describe User, :do_not_mock_admin_mode do
         stub_application_setting(user_default_external: true)
       end
 
-      it "creates external user by default" do
+      it 'creates external user by default' do
         user = create(:user)
 
         expect(user.external).to be_truthy
@@ -1392,7 +1392,7 @@ describe User, :do_not_mock_admin_mode do
       end
 
       describe 'with default overrides' do
-        it "creates a non-external user" do
+        it 'creates a non-external user' do
           user = create(:user, external: false)
 
           expect(user.external).to be_falsey
@@ -1408,7 +1408,7 @@ describe User, :do_not_mock_admin_mode do
       }
 
       protocol_and_expectation.each do |protocol, expected|
-        it "has correct require_ssh_key?" do
+        it 'has correct require_ssh_key?' do
           stub_application_setting(enabled_git_access_protocol: protocol)
           user = build(:user)
 
@@ -1815,9 +1815,9 @@ describe User, :do_not_mock_admin_mode do
   describe 'all_ssh_keys' do
     it { is_expected.to have_many(:keys).dependent(:destroy) }
 
-    it "has all ssh keys" do
+    it 'has all ssh keys' do
       user = create :user
-      key = create :key, key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD33bWLBxu48Sev9Fert1yzEO4WGcWglWF7K/AwblIUFselOt/QdOL9DSjpQGxLagO1s9wl53STIO8qGS4Ms0EJZyIXOEFMjFJ5xmjSy+S37By4sG7SsltQEHMxtbtFOaW5LV2wCrX+rUsRNqLMamZjgjcPO0/EgGCXIGMAYW4O7cwGZdXWYIhQ1Vwy+CsVMDdPkPgBXqK7nR/ey8KMs8ho5fMNgB5hBw/AL9fNGhRw3QTD6Q12Nkhl4VZES2EsZqlpNnJttnPdp847DUsT6yuLRlfiQfz5Cn9ysHFdXObMN5VYIiPFwHeYCZp1X2S4fDZooRE8uOLTfxWHPXwrhqSH", user_id: user.id
+      key = create :key, key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQD33bWLBxu48Sev9Fert1yzEO4WGcWglWF7K/AwblIUFselOt/QdOL9DSjpQGxLagO1s9wl53STIO8qGS4Ms0EJZyIXOEFMjFJ5xmjSy+S37By4sG7SsltQEHMxtbtFOaW5LV2wCrX+rUsRNqLMamZjgjcPO0/EgGCXIGMAYW4O7cwGZdXWYIhQ1Vwy+CsVMDdPkPgBXqK7nR/ey8KMs8ho5fMNgB5hBw/AL9fNGhRw3QTD6Q12Nkhl4VZES2EsZqlpNnJttnPdp847DUsT6yuLRlfiQfz5Cn9ysHFdXObMN5VYIiPFwHeYCZp1X2S4fDZooRE8uOLTfxWHPXwrhqSH', user_id: user.id
 
       expect(user.all_ssh_keys).to include(a_string_starting_with(key.key))
     end
@@ -2217,7 +2217,7 @@ describe User, :do_not_mock_admin_mode do
     end
   end
 
-  describe "#last_active_at" do
+  describe '#last_active_at' do
     let(:last_activity_on) { 5.days.ago.to_date }
     let(:current_sign_in_at) { 8.days.ago }
 
@@ -2255,7 +2255,7 @@ describe User, :do_not_mock_admin_mode do
     end
   end
 
-  describe "#can_be_deactivated?" do
+  describe '#can_be_deactivated?' do
     let(:activity) { {} }
     let(:user) { create(:user, name: 'John Smith', **activity) }
     let(:day_within_minium_inactive_days_threshold) { User::MINIMUM_INACTIVE_DAYS.pred.days.ago }
@@ -2273,7 +2273,7 @@ describe User, :do_not_mock_admin_mode do
       end
     end
 
-    context "a user who is not active" do
+    context 'a user who is not active' do
       before do
         user.block
       end
@@ -2306,7 +2306,7 @@ describe User, :do_not_mock_admin_mode do
     end
   end
 
-  describe "#contributed_projects" do
+  describe '#contributed_projects' do
     subject { create(:user) }
 
     let!(:project1) { create(:project) }
@@ -2321,11 +2321,11 @@ describe User, :do_not_mock_admin_mode do
       project2.add_maintainer(subject)
     end
 
-    it "includes IDs for projects the user has pushed to" do
+    it 'includes IDs for projects the user has pushed to' do
       expect(subject.contributed_projects).to include(project1)
     end
 
-    it "includes IDs for projects the user has had merge requests merged into" do
+    it 'includes IDs for projects the user has had merge requests merged into' do
       expect(subject.contributed_projects).to include(project3)
     end
 
@@ -2368,7 +2368,7 @@ describe User, :do_not_mock_admin_mode do
     end
   end
 
-  describe "#recent_push" do
+  describe '#recent_push' do
     let(:user) { build(:user) }
     let(:project) { build(:project) }
     let(:event) { build(:push_event) }
@@ -2425,7 +2425,7 @@ describe User, :do_not_mock_admin_mode do
   describe '#authorizations_for_projects' do
     let!(:user) { create(:user) }
 
-    subject { Project.where("EXISTS (?)", user.authorizations_for_projects) }
+    subject { Project.where('EXISTS (?)', user.authorizations_for_projects) }
 
     it 'includes projects that belong to a user, but no other projects' do
       owned = create(:project, :private, namespace: user.namespace)
@@ -2456,7 +2456,7 @@ describe User, :do_not_mock_admin_mode do
         project.add_developer(user)
       end
 
-      subject { Project.where("EXISTS (?)", user.authorizations_for_projects(min_access_level: min_access_level)) }
+      subject { Project.where('EXISTS (?)', user.authorizations_for_projects(min_access_level: min_access_level)) }
 
       context 'when developer access' do
         let(:min_access_level) { Gitlab::Access::DEVELOPER }
@@ -2504,7 +2504,7 @@ describe User, :do_not_mock_admin_mode do
       expect(user.authorized_projects).to include(project)
     end
 
-    it "includes personal projects user has been given access to" do
+    it 'includes personal projects user has been given access to' do
       user1   = create(:user)
       user2   = create(:user)
       project = create(:project, :private, namespace: user1.namespace)
@@ -2514,7 +2514,7 @@ describe User, :do_not_mock_admin_mode do
       expect(user2.authorized_projects).to include(project)
     end
 
-    it "includes projects of groups user has been added to" do
+    it 'includes projects of groups user has been added to' do
       group   = create(:group)
       project = create(:project, group: group)
       user    = create(:user)
@@ -2524,7 +2524,7 @@ describe User, :do_not_mock_admin_mode do
       expect(user.authorized_projects).to include(project)
     end
 
-    it "does not include projects of groups user has been removed from" do
+    it 'does not include projects of groups user has been removed from' do
       group   = create(:group)
       project = create(:project, group: group)
       user    = create(:user)
@@ -2549,7 +2549,7 @@ describe User, :do_not_mock_admin_mode do
       expect(user.authorized_projects).to include(project)
     end
 
-    it "does not include destroyed projects user had access to" do
+    it 'does not include destroyed projects user had access to' do
       user1   = create(:user)
       user2   = create(:user)
       project = create(:project, :private, namespace: user1.namespace)
@@ -2563,7 +2563,7 @@ describe User, :do_not_mock_admin_mode do
       expect(user2.authorized_projects).not_to include(project)
     end
 
-    it "does not include projects of destroyed groups user had access to" do
+    it 'does not include projects of destroyed groups user had access to' do
       group   = create(:group)
       project = create(:project, namespace: group)
       user    = create(:user)
@@ -2935,7 +2935,7 @@ describe User, :do_not_mock_admin_mode do
       expect(user.admin).to be true
     end
 
-    it "accepts string values in addition to symbols" do
+    it 'accepts string values in addition to symbols' do
       user.access_level = 'admin'
 
       expect(user.access_level).to eq(:admin)
@@ -2984,7 +2984,7 @@ describe User, :do_not_mock_admin_mode do
       expect(ghost.namespace).to be_persisted
     end
 
-    it "does not create a second ghost user if one is already present" do
+    it 'does not create a second ghost user if one is already present' do
       expect do
         described_class.ghost
         described_class.ghost
@@ -2993,7 +2993,7 @@ describe User, :do_not_mock_admin_mode do
     end
 
     context "when a regular user exists with the username 'ghost'" do
-      it "creates a ghost user with a non-conflicting username" do
+      it 'creates a ghost user with a non-conflicting username' do
         create(:user, username: 'ghost')
         ghost = described_class.ghost
 
@@ -3003,7 +3003,7 @@ describe User, :do_not_mock_admin_mode do
     end
 
     context "when a regular user exists with the email 'ghost@example.com'" do
-      it "creates a ghost user with a non-conflicting email" do
+      it 'creates a ghost user with a non-conflicting email' do
         create(:user, email: 'ghost@example.com')
         ghost = described_class.ghost
 
@@ -3738,11 +3738,11 @@ describe User, :do_not_mock_admin_mode do
 
     subject { user.required_terms_not_accepted? }
 
-    context "when terms are not enforced" do
+    context 'when terms are not enforced' do
       it { is_expected.to be_falsy }
     end
 
-    context "when terms are enforced and accepted by the user" do
+    context 'when terms are enforced and accepted by the user' do
       before do
         enforce_terms
         accept_terms(user)
@@ -3751,7 +3751,7 @@ describe User, :do_not_mock_admin_mode do
       it { is_expected.to be_falsy }
     end
 
-    context "when terms are enforced but the user has not accepted" do
+    context 'when terms are enforced but the user has not accepted' do
       before do
         enforce_terms
       end

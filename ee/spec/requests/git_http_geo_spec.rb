@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe "Git HTTP requests (Geo)", :geo do
+describe 'Git HTTP requests (Geo)', :geo do
   include TermsHelper
   include ::EE::GeoHelpers
   include GitHttpHelpers
@@ -23,7 +23,7 @@ describe "Git HTTP requests (Geo)", :geo do
   let!(:key_for_user_without_push_access) { create(:key, user: user_without_push_access) }
 
   let(:env) { valid_geo_env }
-  let(:auth_token_with_invalid_scope) { Gitlab::Geo::BaseRequest.new(scope: "invalid").authorization }
+  let(:auth_token_with_invalid_scope) { Gitlab::Geo::BaseRequest.new(scope: 'invalid').authorization }
 
   before do
     project.add_maintainer(user)
@@ -51,7 +51,7 @@ describe "Git HTTP requests (Geo)", :geo do
     end
 
     context 'invalid Geo JWT token' do
-      let(:env) { geo_env("GL-Geo xxyyzz:12345") }
+      let(:env) { geo_env('GL-Geo xxyyzz:12345') }
 
       it { is_expected.to have_gitlab_http_status(:unauthorized) }
     end

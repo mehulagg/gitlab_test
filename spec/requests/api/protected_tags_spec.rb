@@ -185,7 +185,7 @@ describe API::ProtectedTags do
       let(:request) { api("/projects/#{project.id}/protected_tags/#{tag_name}", user) }
     end
 
-    it "returns 404 if tag does not exist" do
+    it 'returns 404 if tag does not exist' do
       delete api("/projects/#{project.id}/protected_tags/barfoo", user)
 
       expect(response).to have_gitlab_http_status(404)

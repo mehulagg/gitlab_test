@@ -83,7 +83,7 @@ describe 'Project settings > [EE] Merge Requests', :js do
 
       open_modal
       remove_approver(group.name)
-      click_button "Update approval rule"
+      click_button 'Update approval rule'
       wait_for_requests
 
       expect_avatar(find('.js-members'), [non_group_approver])

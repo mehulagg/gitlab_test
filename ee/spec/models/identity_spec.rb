@@ -16,7 +16,7 @@ describe Identity do
     end
 
     it "doesn't allow NameID/extern_uid to be blank" do
-      identity = build(:identity, provider: 'group_saml', saml_provider: create(:saml_provider), extern_uid: "")
+      identity = build(:identity, provider: 'group_saml', saml_provider: create(:saml_provider), extern_uid: '')
 
       expect(identity).not_to be_valid
       expect(identity.errors.full_messages.join).to include("NameID can't be blank")

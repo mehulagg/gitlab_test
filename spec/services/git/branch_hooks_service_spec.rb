@@ -19,7 +19,7 @@ describe Git::BranchHooksService do
     described_class.new(project, user, change: { oldrev: oldrev, newrev: newrev, ref: ref })
   end
 
-  describe "Git Push Data" do
+  describe 'Git Push Data' do
     subject(:push_data) { service.send(:push_data) }
 
     it 'has expected push data attributes' do
@@ -34,7 +34,7 @@ describe Git::BranchHooksService do
       )
     end
 
-    context "with repository data" do
+    context 'with repository data' do
       subject { push_data[:repository] }
 
       it 'has expected attributes' do
@@ -47,7 +47,7 @@ describe Git::BranchHooksService do
       end
     end
 
-    context "with commits" do
+    context 'with commits' do
       subject { push_data[:commits] }
 
       it { is_expected.to be_an(Array) }
@@ -56,7 +56,7 @@ describe Git::BranchHooksService do
         expect(subject.size).to eq(1)
       end
 
-      context "the commit" do
+      context 'the commit' do
         subject { push_data[:commits].first }
 
         it { expect(subject[:timestamp].in_time_zone).to eq(commit.date.in_time_zone) }
@@ -75,7 +75,7 @@ describe Git::BranchHooksService do
           )
         end
 
-        context "with a author" do
+        context 'with a author' do
           subject { push_data[:commits].first[:author] }
 
           it 'includes expected author data' do
@@ -96,7 +96,7 @@ describe Git::BranchHooksService do
       service.execute
     end
 
-    context "with an existing branch" do
+    context 'with an existing branch' do
       it 'generates a push event with one commit' do
         expect(event).to be_an_instance_of(PushEvent)
         expect(event.project).to eq(project)
@@ -110,7 +110,7 @@ describe Git::BranchHooksService do
       end
     end
 
-    context "with a new branch" do
+    context 'with a new branch' do
       let(:oldrev) { Gitlab::Git::BLANK_SHA }
 
       it 'generates a push event with more than one commit' do
@@ -282,7 +282,7 @@ describe Git::BranchHooksService do
     let(:newrev) { commit_ids.last }
 
     before do
-      stub_const("::Git::BaseHooksService::PROCESS_COMMIT_LIMIT", 4)
+      stub_const('::Git::BaseHooksService::PROCESS_COMMIT_LIMIT', 4)
     end
 
     context 'creating the default branch' do

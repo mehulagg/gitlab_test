@@ -46,11 +46,11 @@ describe Projects::PathLocksController do
           expect(response).to have_gitlab_http_status(200)
         end
 
-        it "locks the file in LFS" do
+        it 'locks the file in LFS' do
           expect { toggle_lock(file_path) }.to change { LfsFileLock.count }.to(1)
         end
 
-        it "tries to create the PathLock only once" do
+        it 'tries to create the PathLock only once' do
           expect(PathLocks::LockService).to receive(:new).once.and_return(double.as_null_object)
 
           toggle_lock(file_path)
@@ -83,7 +83,7 @@ describe Projects::PathLocksController do
             expect(response).to have_gitlab_http_status(200)
           end
 
-          it "unlocks the file in LFS" do
+          it 'unlocks the file in LFS' do
             expect { toggle_lock(file_path) }.to change { LfsFileLock.count }.to(0)
           end
         end

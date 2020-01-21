@@ -13,7 +13,7 @@ module Gitlab
           return error('LFS object not found') unless matches_checksum?
 
           unless lfs_object.file.present? && lfs_object.file.exists?
-            log_error("Could not upload LFS object because it does not have a file", id: lfs_object.id)
+            log_error('Could not upload LFS object because it does not have a file', id: lfs_object.id)
 
             return file_not_found(lfs_object)
           end

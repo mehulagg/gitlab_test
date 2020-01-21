@@ -174,7 +174,7 @@ RSpec.shared_examples 'group and project milestones' do |route_definition|
     end
 
     it 'removes a due date if nil is passed' do
-      milestone.update!(due_date: "2016-08-05")
+      milestone.update!(due_date: '2016-08-05')
 
       put api(resource_route, user), params: { due_date: nil }
 
@@ -203,7 +203,7 @@ RSpec.shared_examples 'group and project milestones' do |route_definition|
   end
 
   describe "DELETE #{route_definition}/:milestone_id" do
-    it "rejects a member with reporter access from deleting a milestone" do
+    it 'rejects a member with reporter access from deleting a milestone' do
       reporter = create(:user)
       milestone.resource_parent.add_reporter(reporter)
 

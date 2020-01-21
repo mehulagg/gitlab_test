@@ -23,7 +23,7 @@ describe Gitlab::Auth::LDAP::DN do
         let(:given) { '#aa aa' }
 
         it 'raises MalformedError' do
-          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, "Expected the end of an attribute value, but got \"a\"")
+          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, 'Expected the end of an attribute value, but got "a"')
         end
       end
 
@@ -31,7 +31,7 @@ describe Gitlab::Auth::LDAP::DN do
         let(:given) { '#aaXaaa' }
 
         it 'raises MalformedError' do
-          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, "Expected the first character of a hex pair, but got \"X\"")
+          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, 'Expected the first character of a hex pair, but got "X"')
         end
       end
 
@@ -39,7 +39,7 @@ describe Gitlab::Auth::LDAP::DN do
         let(:given) { '#aaaYaa' }
 
         it 'raises MalformedError' do
-          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, "Expected the second character of a hex pair, but got \"Y\"")
+          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, 'Expected the second character of a hex pair, but got "Y"')
         end
       end
 
@@ -47,7 +47,7 @@ describe Gitlab::Auth::LDAP::DN do
         let(:given) { '"Sebasti\\cX\\a1n"' }
 
         it 'raises MalformedError' do
-          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, "Expected the second character of a hex pair inside a double quoted value, but got \"X\"")
+          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, 'Expected the second character of a hex pair inside a double quoted value, but got "X"')
         end
       end
 
@@ -125,7 +125,7 @@ describe Gitlab::Auth::LDAP::DN do
         let(:given) { '0.9.2342.19200300.100.1.25=#aa aa' }
 
         it 'raises MalformedError' do
-          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, "Expected the end of an attribute value, but got \"a\"")
+          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, 'Expected the end of an attribute value, but got "a"')
         end
       end
 
@@ -133,7 +133,7 @@ describe Gitlab::Auth::LDAP::DN do
         let(:given) { '0.9.2342.19200300.100.1.25=#aaXaaa' }
 
         it 'raises MalformedError' do
-          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, "Expected the first character of a hex pair, but got \"X\"")
+          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, 'Expected the first character of a hex pair, but got "X"')
         end
       end
 
@@ -141,7 +141,7 @@ describe Gitlab::Auth::LDAP::DN do
         let(:given) { '0.9.2342.19200300.100.1.25=#aaaYaa' }
 
         it 'raises MalformedError' do
-          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, "Expected the second character of a hex pair, but got \"Y\"")
+          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, 'Expected the second character of a hex pair, but got "Y"')
         end
       end
 
@@ -149,7 +149,7 @@ describe Gitlab::Auth::LDAP::DN do
         let(:given) { 'uid="Sebasti\\cX\\a1n"' }
 
         it 'raises MalformedError' do
-          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, "Expected the second character of a hex pair inside a double quoted value, but got \"X\"")
+          expect { subject }.to raise_error(Gitlab::Auth::LDAP::DN::MalformedError, 'Expected the second character of a hex pair inside a double quoted value, but got "X"')
         end
       end
 

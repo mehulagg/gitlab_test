@@ -31,7 +31,7 @@ module Gitlab
         end
 
         def position_type
-          "image"
+          'image'
         end
 
         def ==(other)

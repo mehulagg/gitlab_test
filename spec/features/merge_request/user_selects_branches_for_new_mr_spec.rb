@@ -29,7 +29,7 @@ describe 'Merge request > User selects branches for new MR', :js do
     first('.js-source-branch').click
     find('.js-source-branch-dropdown .dropdown-content a', match: :first).click
 
-    expect(page).to have_content "b83d6e3"
+    expect(page).to have_content 'b83d6e3'
   end
 
   it 'selects the target branch sha when a tag with the same name exists' do
@@ -45,7 +45,7 @@ describe 'Merge request > User selects branches for new MR', :js do
     first('.js-target-branch').click
     find('.js-target-branch-dropdown .dropdown-content a', text: 'v1.1.0', match: :first).click
 
-    expect(page).to have_content "b83d6e3"
+    expect(page).to have_content 'b83d6e3'
   end
 
   it 'generates a diff for an orphaned branch' do
@@ -53,16 +53,16 @@ describe 'Merge request > User selects branches for new MR', :js do
 
     select_source_branch('orphaned-branch')
 
-    click_button "Compare branches"
-    click_link "Changes"
+    click_button 'Compare branches'
+    click_link 'Changes'
 
-    expect(page).to have_content "README.md"
-    expect(page).to have_content "wm.png"
+    expect(page).to have_content 'README.md'
+    expect(page).to have_content 'wm.png'
 
-    fill_in "merge_request_title", with: "Orphaned MR test"
-    click_button "Submit merge request"
+    fill_in 'merge_request_title', with: 'Orphaned MR test'
+    click_button 'Submit merge request'
 
-    click_button "Check out branch"
+    click_button 'Check out branch'
 
     expect(page).to have_content 'git checkout -b "orphaned-branch" "origin/orphaned-branch"'
   end
@@ -144,9 +144,9 @@ describe 'Merge request > User selects branches for new MR', :js do
     it 'renders the diff successfully' do
       visit project_new_merge_request_path(project, merge_request: { target_branch: 'master', source_branch: 'deleted-image-test' })
 
-      click_link "Changes"
+      click_link 'Changes'
 
-      expect(page).to have_content "6049019_460s.jpg"
+      expect(page).to have_content '6049019_460s.jpg'
     end
   end
 
@@ -198,9 +198,9 @@ describe 'Merge request > User selects branches for new MR', :js do
       visit project_new_merge_request_path(project)
       select_source_branch(special_branch_name)
 
-      click_button "Compare branches"
+      click_button 'Compare branches'
 
-      expect(page).to have_button("Submit merge request")
+      expect(page).to have_button('Submit merge request')
     end
   end
 end

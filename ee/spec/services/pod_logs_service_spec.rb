@@ -79,7 +79,7 @@ describe PodLogsService do
           .with(environment.id, response_pod_name, environment.deployment_namespace, container: container_name, search: search, start_time: start_time, end_time: end_time)
           .and_return({
             status: :success,
-            logs: ["Log 1", "Log 2", "Log 3"],
+            logs: ['Log 1', 'Log 2', 'Log 3'],
             pod_name: response_pod_name,
             container_name: container_name,
             enable_advanced_querying: enable_advanced_querying

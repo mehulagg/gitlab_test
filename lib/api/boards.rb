@@ -108,7 +108,7 @@ module API
         params do
           requires :list_id, type: Integer, desc: 'The ID of a board list'
         end
-        delete "/lists/:list_id" do
+        delete '/lists/:list_id' do
           authorize!(:admin_list, user_project)
           list = board_lists.find(params[:list_id])
 

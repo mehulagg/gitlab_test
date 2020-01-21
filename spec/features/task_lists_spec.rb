@@ -102,7 +102,7 @@ describe 'Task Lists' do
         visit_issue(project, issue)
         wait_for_requests
 
-        expect(page).to have_selector(".md .task-list .task-list-item .task-list-item-checkbox")
+        expect(page).to have_selector('.md .task-list .task-list-item .task-list-item-checkbox')
         expect(page).to have_selector('a.btn-close')
       end
 
@@ -110,19 +110,19 @@ describe 'Task Lists' do
         visit_issue(project, issue)
         wait_for_requests
 
-        expect(page).to have_selector(".md .task-list .task-list-item .task-list-item-checkbox")
+        expect(page).to have_selector('.md .task-list .task-list-item .task-list-item-checkbox')
 
         logout(:user)
         login_as(user2)
         visit current_path
         wait_for_requests
 
-        expect(page).to have_selector(".md .task-list .task-list-item .task-list-item-checkbox")
+        expect(page).to have_selector('.md .task-list .task-list-item .task-list-item-checkbox')
       end
 
       it 'provides a summary on Issues#index' do
         visit project_issues_path(project)
-        expect(page).to have_content("2 of 6 tasks completed")
+        expect(page).to have_content('2 of 6 tasks completed')
       end
     end
 
@@ -141,7 +141,7 @@ describe 'Task Lists' do
       it 'provides a summary on Issues#index' do
         visit project_issues_path(project)
 
-        expect(page).to have_content("0 of 1 task completed")
+        expect(page).to have_content('0 of 1 task completed')
       end
     end
 
@@ -160,7 +160,7 @@ describe 'Task Lists' do
       it 'provides a summary on Issues#index' do
         visit project_issues_path(project)
 
-        expect(page).to have_content("1 of 1 task completed")
+        expect(page).to have_content('1 of 1 task completed')
       end
     end
   end
@@ -274,7 +274,7 @@ describe 'Task Lists' do
 
       it 'provides a summary on MergeRequests#index' do
         visit project_merge_requests_path(project)
-        expect(page).to have_content("2 of 6 tasks completed")
+        expect(page).to have_content('2 of 6 tasks completed')
       end
     end
 
@@ -291,7 +291,7 @@ describe 'Task Lists' do
 
       it 'provides a summary on MergeRequests#index' do
         visit project_merge_requests_path(project)
-        expect(page).to have_content("0 of 1 task completed")
+        expect(page).to have_content('0 of 1 task completed')
       end
     end
 
@@ -308,7 +308,7 @@ describe 'Task Lists' do
 
       it 'provides a summary on MergeRequests#index' do
         visit project_merge_requests_path(project)
-        expect(page).to have_content("1 of 1 task completed")
+        expect(page).to have_content('1 of 1 task completed')
       end
     end
   end

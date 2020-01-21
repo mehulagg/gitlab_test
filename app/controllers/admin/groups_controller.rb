@@ -20,7 +20,7 @@ class Admin::GroupsController < Admin::ApplicationController
     # the Group with statistics).
     @group = Group.with_statistics.find(group&.id)
     @members = present_members(
-      @group.members.order("access_level DESC").page(params[:members_page]))
+      @group.members.order('access_level DESC').page(params[:members_page]))
     @requesters = present_members(
       AccessRequestsFinder.new(@group).execute(current_user))
     @projects = @group.projects.with_statistics.page(params[:projects_page])
@@ -42,7 +42,7 @@ class Admin::GroupsController < Admin::ApplicationController
       @group.add_owner(current_user)
       redirect_to [:admin, @group], notice: _('Group %{group_name} was successfully created.') % { group_name: @group.name }
     else
-      render "new"
+      render 'new'
     end
   end
 
@@ -50,7 +50,7 @@ class Admin::GroupsController < Admin::ApplicationController
     if @group.update(group_params)
       redirect_to [:admin, @group], notice: _('Group was successfully updated.')
     else
-      render "edit"
+      render 'edit'
     end
   end
 

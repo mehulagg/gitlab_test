@@ -5,7 +5,7 @@ require 'spec_helper'
 describe ChatMessage::DeploymentMessage do
   describe '#pretext' do
     it 'returns a message with the data returned by the deployment data builder' do
-      environment = create(:environment, name: "myenvironment")
+      environment = create(:environment, name: 'myenvironment')
       project = create(:project, :repository)
       commit = project.commit('HEAD')
       deployment = create(:deployment, status: :success, environment: environment, project: project, sha: commit.sha)
@@ -13,7 +13,7 @@ describe ChatMessage::DeploymentMessage do
 
       message = described_class.new(data)
 
-      expect(message.pretext).to eq("Deploy to myenvironment succeeded")
+      expect(message.pretext).to eq('Deploy to myenvironment succeeded')
     end
 
     it 'returns a message for a successful deployment' do
@@ -75,33 +75,33 @@ describe ChatMessage::DeploymentMessage do
   describe '#attachments' do
     def deployment_data(params)
       {
-        object_kind: "deployment",
-        status: "success",
+        object_kind: 'deployment',
+        status: 'success',
         deployable_id: 3,
-        deployable_url: "deployable_url",
-        environment: "sandbox",
+        deployable_url: 'deployable_url',
+        environment: 'sandbox',
         project: {
-          name: "greatproject",
-          web_url: "project_web_url",
-          path_with_namespace: "project_path_with_namespace"
+          name: 'greatproject',
+          web_url: 'project_web_url',
+          path_with_namespace: 'project_path_with_namespace'
         },
         user: {
-          name: "Jane Person",
-          username: "jane"
+          name: 'Jane Person',
+          username: 'jane'
         },
-        user_url: "user_url",
-        short_sha: "12345678",
-        commit_url: "commit_url",
-        commit_title: "commit title text"
+        user_url: 'user_url',
+        short_sha: '12345678',
+        commit_url: 'commit_url',
+        commit_title: 'commit title text'
       }.merge(params)
     end
 
     it 'returns attachments with the data returned by the deployment data builder' do
-      user = create(:user, name: "John Smith", username: "smith")
-      namespace = create(:namespace, name: "myspace")
-      project = create(:project, :repository, namespace: namespace, name: "myproject")
+      user = create(:user, name: 'John Smith', username: 'smith')
+      namespace = create(:namespace, name: 'myspace')
+      project = create(:project, :repository, namespace: namespace, name: 'myproject')
       commit = project.commit('HEAD')
-      environment = create(:environment, name: "myenvironment", project: project)
+      environment = create(:environment, name: 'myenvironment', project: project)
       ci_build = create(:ci_build, project: project)
       deployment = create(:deployment, :success, deployable: ci_build, environment: environment, project: project, user: user, sha: commit.sha)
       job_url = Gitlab::Routing.url_helpers.project_job_url(project, ci_build)
@@ -113,7 +113,7 @@ describe ChatMessage::DeploymentMessage do
 
       expect(message.attachments).to eq([{
         text: "[myspace/myproject](#{project.web_url}) with job [##{ci_build.id}](#{job_url}) by [John Smith (smith)](#{user_url})\n[#{deployment.short_sha}](#{commit_url}): #{commit.title}",
-        color: "good"
+        color: 'good'
       }])
     end
 
@@ -124,7 +124,7 @@ describe ChatMessage::DeploymentMessage do
 
       expect(message.attachments).to eq([{
         text: "[project_path_with_namespace](project_web_url) with job [#3](deployable_url) by [Jane Person (jane)](user_url)\n[12345678](commit_url): commit title text",
-        color: "danger"
+        color: 'danger'
       }])
     end
 
@@ -135,7 +135,7 @@ describe ChatMessage::DeploymentMessage do
 
       expect(message.attachments).to eq([{
         text: "[project_path_with_namespace](project_web_url) with job [#3](deployable_url) by [Jane Person (jane)](user_url)\n[12345678](commit_url): commit title text",
-        color: "warning"
+        color: 'warning'
       }])
     end
 
@@ -146,7 +146,7 @@ describe ChatMessage::DeploymentMessage do
 
       expect(message.attachments).to eq([{
         text: "[project_path_with_namespace](project_web_url) with job [#3](deployable_url) by [Jane Person (jane)](user_url)\n[12345678](commit_url): commit title text",
-        color: "#334455"
+        color: '#334455'
       }])
     end
   end

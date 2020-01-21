@@ -62,7 +62,7 @@ module Banzai
       IGNORED_ANCESTOR_TAGS = %w(pre code tt).to_set
 
       def call
-        doc.search(".//text()").each do |node|
+        doc.search('.//text()').each do |node|
           next if has_ancestor?(node, IGNORED_ANCESTOR_TAGS)
 
           # A Gollum ToC tag is `[[_TOC_]]`, but due to MarkdownFilter running

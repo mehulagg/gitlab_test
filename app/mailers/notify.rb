@@ -40,10 +40,10 @@ class Notify < BaseMailer
   # "corp.company.com" and "company.com".
   # Respects set tld length so "company.co.uk" won't match "somethingelse.uk"
   def self.allowed_email_domains
-    domain_parts = Gitlab.config.gitlab.host.split(".")
+    domain_parts = Gitlab.config.gitlab.host.split('.')
     allowed_domains = []
     begin
-      allowed_domains << domain_parts.join(".")
+      allowed_domains << domain_parts.join('.')
       domain_parts.shift
     end while domain_parts.length > ActionDispatch::Http::URL.tld_length
 
@@ -51,7 +51,7 @@ class Notify < BaseMailer
   end
 
   def can_send_from_user_email?(sender)
-    sender_domain = sender.email.split("@").last
+    sender_domain = sender.email.split('@').last
     self.class.allowed_email_domains.include?(sender_domain)
   end
 

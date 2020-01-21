@@ -65,7 +65,7 @@ module AvatarsHelper
     has_tooltip = options[:has_tooltip].nil? ? true : options[:has_tooltip]
     data_attributes = options[:data] || {}
     css_class = %W[avatar s#{avatar_size}].push(*options[:css_class])
-    alt_text = user_name ? "#{user_name}'s avatar" : "default avatar"
+    alt_text = user_name ? "#{user_name}'s avatar" : 'default avatar'
 
     if has_tooltip
       css_class.push('has-tooltip')

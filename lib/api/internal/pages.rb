@@ -23,7 +23,7 @@ module API
           params do
             requires :host, type: String, desc: 'The host to query for'
           end
-          get "/" do
+          get '/' do
             host = Namespace.find_by_pages_host(params[:host]) || PagesDomain.find_by_domain(params[:host])
             no_content! unless host
 

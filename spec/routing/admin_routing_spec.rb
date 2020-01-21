@@ -11,45 +11,45 @@ require 'spec_helper'
 #             admin_user GET    /admin/users/:id(.:format)             admin/users#show
 #                        PUT    /admin/users/:id(.:format)             admin/users#update
 #                        DELETE /admin/users/:id(.:format)             admin/users#destroy
-describe Admin::UsersController, "routing" do
-  it "to #block" do
-    expect(put("/admin/users/1/block")).to route_to('admin/users#block', id: '1')
+describe Admin::UsersController, 'routing' do
+  it 'to #block' do
+    expect(put('/admin/users/1/block')).to route_to('admin/users#block', id: '1')
   end
 
-  it "to #unblock" do
-    expect(put("/admin/users/1/unblock")).to route_to('admin/users#unblock', id: '1')
+  it 'to #unblock' do
+    expect(put('/admin/users/1/unblock')).to route_to('admin/users#unblock', id: '1')
   end
 
-  it "to #index" do
-    expect(get("/admin/users")).to route_to('admin/users#index')
+  it 'to #index' do
+    expect(get('/admin/users')).to route_to('admin/users#index')
   end
 
-  it "to #show" do
-    expect(get("/admin/users/1")).to route_to('admin/users#show', id: '1')
+  it 'to #show' do
+    expect(get('/admin/users/1')).to route_to('admin/users#show', id: '1')
   end
 
-  it "to #create" do
-    expect(post("/admin/users")).to route_to('admin/users#create')
+  it 'to #create' do
+    expect(post('/admin/users')).to route_to('admin/users#create')
   end
 
-  it "to #new" do
-    expect(get("/admin/users/new")).to route_to('admin/users#new')
+  it 'to #new' do
+    expect(get('/admin/users/new')).to route_to('admin/users#new')
   end
 
-  it "to #edit" do
-    expect(get("/admin/users/1/edit")).to route_to('admin/users#edit', id: '1')
+  it 'to #edit' do
+    expect(get('/admin/users/1/edit')).to route_to('admin/users#edit', id: '1')
   end
 
-  it "to #show" do
-    expect(get("/admin/users/1")).to route_to('admin/users#show', id: '1')
+  it 'to #show' do
+    expect(get('/admin/users/1')).to route_to('admin/users#show', id: '1')
   end
 
-  it "to #update" do
-    expect(put("/admin/users/1")).to route_to('admin/users#update', id: '1')
+  it 'to #update' do
+    expect(put('/admin/users/1')).to route_to('admin/users#update', id: '1')
   end
 
-  it "to #destroy" do
-    expect(delete("/admin/users/1")).to route_to('admin/users#destroy', id: '1')
+  it 'to #destroy' do
+    expect(delete('/admin/users/1')).to route_to('admin/users#destroy', id: '1')
   end
 end
 
@@ -62,14 +62,14 @@ end
 #             admin_project GET    /admin/projects/:id(.:format)             admin/projects#show {id: /[^\/]+/}
 #                           PUT    /admin/projects/:id(.:format)             admin/projects#update {id: /[^\/]+/}
 #                           DELETE /admin/projects/:id(.:format)             admin/projects#destroy {id: /[^\/]+/}
-describe Admin::ProjectsController, "routing" do
-  it "to #index" do
-    expect(get("/admin/projects")).to route_to('admin/projects#index')
+describe Admin::ProjectsController, 'routing' do
+  it 'to #index' do
+    expect(get('/admin/projects')).to route_to('admin/projects#index')
   end
 
-  it "to #show" do
-    expect(get("/admin/projects/gitlab/gitlab-ce")).to route_to('admin/projects#show', namespace_id: 'gitlab', id: 'gitlab-ce')
-    expect(get("/admin/projects/gitlab/subgroup/gitlab-ce")).to route_to('admin/projects#show', namespace_id: 'gitlab/subgroup', id: 'gitlab-ce')
+  it 'to #show' do
+    expect(get('/admin/projects/gitlab/gitlab-ce')).to route_to('admin/projects#show', namespace_id: 'gitlab', id: 'gitlab-ce')
+    expect(get('/admin/projects/gitlab/subgroup/gitlab-ce')).to route_to('admin/projects#show', namespace_id: 'gitlab/subgroup', id: 'gitlab-ce')
   end
 end
 
@@ -79,29 +79,29 @@ end
 #      admin_hook DELETE /admin/hooks/:id(.:format)           admin/hooks#destroy
 #                 PUT    /admin/hooks/:id(.:format)           admin/hooks#update
 # edit_admin_hook GET    /admin/hooks/:id(.:format)           admin/hooks#edit
-describe Admin::HooksController, "routing" do
-  it "to #test" do
-    expect(post("/admin/hooks/1/test")).to route_to('admin/hooks#test', id: '1')
+describe Admin::HooksController, 'routing' do
+  it 'to #test' do
+    expect(post('/admin/hooks/1/test')).to route_to('admin/hooks#test', id: '1')
   end
 
-  it "to #index" do
-    expect(get("/admin/hooks")).to route_to('admin/hooks#index')
+  it 'to #index' do
+    expect(get('/admin/hooks')).to route_to('admin/hooks#index')
   end
 
-  it "to #create" do
-    expect(post("/admin/hooks")).to route_to('admin/hooks#create')
+  it 'to #create' do
+    expect(post('/admin/hooks')).to route_to('admin/hooks#create')
   end
 
-  it "to #edit" do
-    expect(get("/admin/hooks/1/edit")).to route_to('admin/hooks#edit', id: '1')
+  it 'to #edit' do
+    expect(get('/admin/hooks/1/edit')).to route_to('admin/hooks#edit', id: '1')
   end
 
-  it "to #update" do
-    expect(put("/admin/hooks/1")).to route_to('admin/hooks#update', id: '1')
+  it 'to #update' do
+    expect(put('/admin/hooks/1')).to route_to('admin/hooks#update', id: '1')
   end
 
-  it "to #destroy" do
-    expect(delete("/admin/hooks/1")).to route_to('admin/hooks#destroy', id: '1')
+  it 'to #destroy' do
+    expect(delete('/admin/hooks/1')).to route_to('admin/hooks#destroy', id: '1')
   end
 end
 
@@ -118,60 +118,60 @@ describe Admin::HookLogsController, 'routing' do
 end
 
 # admin_logs GET    /admin/logs(.:format) admin/logs#show
-describe Admin::LogsController, "routing" do
-  it "to #show" do
-    expect(get("/admin/logs")).to route_to('admin/logs#show')
+describe Admin::LogsController, 'routing' do
+  it 'to #show' do
+    expect(get('/admin/logs')).to route_to('admin/logs#show')
   end
 end
 
 # admin_background_jobs GET    /admin/background_jobs(.:format) admin/background_jobs#show
-describe Admin::BackgroundJobsController, "routing" do
-  it "to #show" do
-    expect(get("/admin/background_jobs")).to route_to('admin/background_jobs#show')
+describe Admin::BackgroundJobsController, 'routing' do
+  it 'to #show' do
+    expect(get('/admin/background_jobs')).to route_to('admin/background_jobs#show')
   end
 end
 
 # admin_root        /admin(.:format) admin/dashboard#index
-describe Admin::DashboardController, "routing" do
-  it "to #index" do
-    expect(get("/admin")).to route_to('admin/dashboard#index')
+describe Admin::DashboardController, 'routing' do
+  it 'to #index' do
+    expect(get('/admin')).to route_to('admin/dashboard#index')
   end
 end
 
 # admin_health_check GET    /admin/health_check(.:format) admin/health_check#show
-describe Admin::HealthCheckController, "routing" do
-  it "to #show" do
-    expect(get("/admin/health_check")).to route_to('admin/health_check#show')
+describe Admin::HealthCheckController, 'routing' do
+  it 'to #show' do
+    expect(get('/admin/health_check')).to route_to('admin/health_check#show')
   end
 end
 
-describe Admin::GroupsController, "routing" do
+describe Admin::GroupsController, 'routing' do
   let(:name) { 'complex.group-namegit' }
 
-  it "to #index" do
-    expect(get("/admin/groups")).to route_to('admin/groups#index')
+  it 'to #index' do
+    expect(get('/admin/groups')).to route_to('admin/groups#index')
   end
 
-  it "to #show" do
+  it 'to #show' do
     expect(get("/admin/groups/#{name}")).to route_to('admin/groups#show', id: name)
     expect(get("/admin/groups/#{name}/subgroup")).to route_to('admin/groups#show', id: "#{name}/subgroup")
   end
 
-  it "to #edit" do
+  it 'to #edit' do
     expect(get("/admin/groups/#{name}/edit")).to route_to('admin/groups#edit', id: name)
   end
 end
 
-describe Admin::SessionsController, "routing" do
-  it "to #new" do
-    expect(get("/admin/session/new")).to route_to('admin/sessions#new')
+describe Admin::SessionsController, 'routing' do
+  it 'to #new' do
+    expect(get('/admin/session/new')).to route_to('admin/sessions#new')
   end
 
-  it "to #create" do
-    expect(post("/admin/session")).to route_to('admin/sessions#create')
+  it 'to #create' do
+    expect(post('/admin/session')).to route_to('admin/sessions#create')
   end
 
-  it "to #destroy" do
-    expect(post("/admin/session/destroy")).to route_to('admin/sessions#destroy')
+  it 'to #destroy' do
+    expect(post('/admin/session/destroy')).to route_to('admin/sessions#destroy')
   end
 end

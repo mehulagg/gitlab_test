@@ -47,10 +47,10 @@ module Clusters
 
       def crossplane_values
         {
-          "clusterStacks" => {
+          'clusterStacks' => {
              self.stack => {
-               "deploy" => true,
-                  "version" => "alpha"
+               'deploy' => true,
+                  'version' => 'alpha'
             }
           }
         }

@@ -23,7 +23,7 @@ REPO_NAME = 'gitlab-git-test.git'
 def main
   Dir.mktmpdir do |dir|
     unless system(*%W[git clone --bare #{SOURCE} #{REPO_NAME}], chdir: dir)
-      abort "git clone failed"
+      abort 'git clone failed'
     end
 
     repo = File.join(dir, REPO_NAME)

@@ -31,13 +31,13 @@ describe 'Issues csv' do
   end
 
   it 'triggers an email export' do
-    expect(ExportCsvWorker).to receive(:perform_async).with(user.id, project.id, hash_including("project_id" => project.id))
+    expect(ExportCsvWorker).to receive(:perform_async).with(user.id, project.id, hash_including('project_id' => project.id))
 
     request_csv
   end
 
   it "doesn't send request params to ExportCsvWorker" do
-    expect(ExportCsvWorker).to receive(:perform_async).with(anything, anything, hash_excluding("controller" => anything, "action" => anything))
+    expect(ExportCsvWorker).to receive(:perform_async).with(anything, anything, hash_excluding('controller' => anything, 'action' => anything))
 
     request_csv
   end
@@ -81,7 +81,7 @@ describe 'Issues csv' do
   it 'uses array filters, such as label_name', :sidekiq_might_not_need_inline do
     issue.update!(labels: [idea_label])
 
-    request_csv("label_name[]" => 'Bug')
+    request_csv('label_name[]' => 'Bug')
 
     expect(csv.count).to eq 0
   end

@@ -21,7 +21,7 @@ module API
     desc 'Get the current application settings' do
       success Entities::ApplicationSetting
     end
-    get "application/settings" do
+    get 'application/settings' do
       present current_settings, with: Entities::ApplicationSetting
     end
 
@@ -166,7 +166,7 @@ module API
       optional(*Helpers::SettingsHelpers.optional_attributes)
       at_least_one_of(*Helpers::SettingsHelpers.optional_attributes)
     end
-    put "application/settings" do
+    put 'application/settings' do
       attrs = declared_params(include_missing: false)
 
       # support legacy names, can be removed in v6

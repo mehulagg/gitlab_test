@@ -16,10 +16,10 @@ module QA
         def initialize
           @file_name = "file-#{SecureRandom.hex(8)}.txt"
           @file_content = '# This is test file'
-          @commit_message = "This is a test commit"
+          @commit_message = 'This is a test commit'
           @branch_name = 'master'
           @new_branch = true
-          @repository_http_uri = ""
+          @repository_http_uri = ''
           @ssh_key = nil
           @use_lfs = false
           @tag_name = nil
@@ -31,7 +31,7 @@ module QA
         end
 
         def directory=(dir)
-          raise "Must set directory as a Pathname" unless dir.is_a?(Pathname)
+          raise 'Must set directory as a Pathname' unless dir.is_a?(Pathname)
 
           @directory = dir
         end

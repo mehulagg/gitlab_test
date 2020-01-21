@@ -14,7 +14,7 @@ module Ci
 
     validates :key, uniqueness: {
       scope: [:project_id, :environment_scope],
-      message: "(%{value}) has already been taken"
+      message: '(%{value}) has already been taken'
     }
 
     scope :unprotected, -> { where(protected: false) }

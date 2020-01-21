@@ -8,49 +8,49 @@ describe DropMergeRequestsRequireCodeOwnerApprovalFromProjects, :migration do
 
   subject(:migration) { described_class.new }
 
-  describe "without running the migration" do
-    it "project_table has a :merge_requests_require_code_owner_approval column" do
+  describe 'without running the migration' do
+    it 'project_table has a :merge_requests_require_code_owner_approval column' do
       expect(projects_table.column_names)
-        .to include("merge_requests_require_code_owner_approval")
+        .to include('merge_requests_require_code_owner_approval')
     end
 
-    it "project_table has a :projects_requiring_code_owner_approval index" do
+    it 'project_table has a :projects_requiring_code_owner_approval index' do
       expect(ActiveRecord::Base.connection.indexes(:projects).collect(&:name))
-        .to include("projects_requiring_code_owner_approval")
+        .to include('projects_requiring_code_owner_approval')
     end
   end
 
   describe '#up' do
-    context "without running "
+    context 'without running '
     before do
       migrate!
     end
 
-    it "drops the :merge_requests_require_code_owner_approval column" do
+    it 'drops the :merge_requests_require_code_owner_approval column' do
       expect(projects_table.column_names)
-        .not_to include("merge_requests_require_code_owner_approval")
+        .not_to include('merge_requests_require_code_owner_approval')
     end
 
-    it "drops the :projects_requiring_code_owner_approval index" do
+    it 'drops the :projects_requiring_code_owner_approval index' do
       expect(ActiveRecord::Base.connection.indexes(:projects).collect(&:name))
-        .not_to include("projects_requiring_code_owner_approval")
+        .not_to include('projects_requiring_code_owner_approval')
     end
   end
 
-  describe "#down" do
+  describe '#down' do
     before do
       migration.up
       migration.down
     end
 
-    it "project_table has a :merge_requests_require_code_owner_approval column" do
+    it 'project_table has a :merge_requests_require_code_owner_approval column' do
       expect(projects_table.column_names)
-        .to include("merge_requests_require_code_owner_approval")
+        .to include('merge_requests_require_code_owner_approval')
     end
 
-    it "project_table has a :projects_requiring_code_owner_approval index" do
+    it 'project_table has a :projects_requiring_code_owner_approval index' do
       expect(ActiveRecord::Base.connection.indexes(:projects).collect(&:name))
-        .to include("projects_requiring_code_owner_approval")
+        .to include('projects_requiring_code_owner_approval')
     end
   end
 end

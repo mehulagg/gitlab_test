@@ -21,7 +21,7 @@ module EE
           # This ID is used by the /internal/post_receive API call
           gl_id = ::Gitlab::GlId.gl_id(user)
           gl_repository = repo_type.identifier_for_repositorable(project)
-          node_id = params["geo_node_id"]
+          node_id = params['geo_node_id']
           ::Gitlab::Geo::GitPushHttp.new(gl_id, gl_repository).cache_referrer_node(node_id)
         end
 
@@ -69,9 +69,9 @@ module EE
         # grant access
         @authentication_result = ::Gitlab::Auth::Result.new(nil, project, :geo, [:download_code, :push_code]) # rubocop:disable Gitlab/ModuleWithInstanceVariables
       rescue ::Gitlab::Geo::InvalidDecryptionKeyError
-        render_bad_geo_jwt("Invalid decryption key")
+        render_bad_geo_jwt('Invalid decryption key')
       rescue ::Gitlab::Geo::InvalidSignatureTimeError
-        render_bad_geo_jwt("Invalid signature time ")
+        render_bad_geo_jwt('Invalid signature time ')
       end
 
       def jwt_scope_valid?

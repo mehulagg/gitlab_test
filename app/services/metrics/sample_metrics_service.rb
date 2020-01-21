@@ -2,7 +2,7 @@
 
 module Metrics
   class SampleMetricsService
-    DIRECTORY = "sample_metrics"
+    DIRECTORY = 'sample_metrics'
 
     attr_reader :identifier, :range_minutes
 

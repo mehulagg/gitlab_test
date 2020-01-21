@@ -16,15 +16,15 @@ describe ErrorTracking::ProjectErrorTrackingSetting do
 
   describe 'Validations' do
     it { is_expected.to validate_length_of(:api_url).is_at_most(255) }
-    it { is_expected.to allow_value("http://gitlab.com/api/0/projects/project1/something").for(:api_url) }
-    it { is_expected.not_to allow_values("http://gitlab.com/api/0/projects/project1/something€").for(:api_url) }
+    it { is_expected.to allow_value('http://gitlab.com/api/0/projects/project1/something').for(:api_url) }
+    it { is_expected.not_to allow_values('http://gitlab.com/api/0/projects/project1/something€').for(:api_url) }
 
     it 'rejects invalid api_urls' do
       is_expected.not_to allow_values(
         "https://replaceme.com/'><script>alert(document.cookie)</script>", # unsafe
-        "http://gitlab.com/project1/something", # missing api/0/projects
-        "http://gitlab.com/api/0/projects/org/proj/something", # extra segments
-        "http://gitlab.com/api/0/projects/org" # too few segments
+        'http://gitlab.com/project1/something', # missing api/0/projects
+        'http://gitlab.com/api/0/projects/org/proj/something', # extra segments
+        'http://gitlab.com/api/0/projects/org' # too few segments
       ).for(:api_url).with_message('is invalid')
     end
 

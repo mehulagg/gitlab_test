@@ -512,7 +512,7 @@ describe Namespace do
       let(:subgroup) { create(:group, parent: namespace) }
       let!(:subproject) { create(:project, namespace: subgroup, shared_runners_enabled: true) }
 
-      it "returns true" do
+      it 'returns true' do
         is_expected.to eq(true)
       end
     end
@@ -520,13 +520,13 @@ describe Namespace do
     context 'group with shared runners enabled project' do
       let!(:project) { create(:project, namespace: namespace, shared_runners_enabled: true) }
 
-      it "returns true" do
+      it 'returns true' do
         is_expected.to eq(true)
       end
     end
 
     context 'group without projects' do
-      it "returns false" do
+      it 'returns false' do
         is_expected.to eq(false)
       end
     end
@@ -554,7 +554,7 @@ describe Namespace do
             namespace.update_attribute(:extra_shared_runners_minutes_limit, 100)
           end
 
-          context "when usage is below the quota" do
+          context 'when usage is below the quota' do
             before do
               allow(namespace).to receive(:extra_shared_runners_minutes).and_return(50)
             end
@@ -562,7 +562,7 @@ describe Namespace do
             it { is_expected.to be_falsey }
           end
 
-          context "when usage is above the quota" do
+          context 'when usage is above the quota' do
             before do
               allow(namespace).to receive(:extra_shared_runners_minutes).and_return(101)
             end

@@ -8,7 +8,7 @@ describe Resolvers::IssuesResolver do
   let_it_be(:current_user) { create(:user) }
   let(:project) { create(:project) }
 
-  context "with a project" do
+  context 'with a project' do
     describe '#resolve' do
       describe 'sorting' do
         context 'when sorting by weight' do

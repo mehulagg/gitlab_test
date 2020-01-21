@@ -6,7 +6,7 @@ module Gitlab
       module Build
         class Retried < Status::Extended
           def status_tooltip
-            @status.status_tooltip + " (retried)"
+            @status.status_tooltip + ' (retried)'
           end
 
           def self.matches?(build, user)

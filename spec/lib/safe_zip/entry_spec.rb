@@ -90,8 +90,8 @@ describe SafeZip::Entry do
       shared_examples 'secured symlinks' do
         context 'when we try to extract entry into symlinked folder' do
           before do
-            FileUtils.mkdir_p(File.join(target_path, "source"))
-            File.symlink("source", File.join(target_path, "public"))
+            FileUtils.mkdir_p(File.join(target_path, 'source'))
+            File.symlink('source', File.join(target_path, 'public'))
           end
 
           it 'raises an exception' do

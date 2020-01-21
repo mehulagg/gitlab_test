@@ -52,7 +52,7 @@ module Geo
         download_time_s: (Time.now - start_time).to_f.round(3)
       }
 
-      log_info("File download", metadata)
+      log_info('File download', metadata)
     end
 
     # rubocop: disable CodeReuse/ActiveRecord

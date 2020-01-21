@@ -19,7 +19,7 @@ module API
       params do
         use :list_params
       end
-      get ":id/milestones" do
+      get ':id/milestones' do
         list_milestones_for(user_group)
       end
 
@@ -29,7 +29,7 @@ module API
       params do
         requires :milestone_id, type: Integer, desc: 'The ID of a group milestone'
       end
-      get ":id/milestones/:milestone_id" do
+      get ':id/milestones/:milestone_id' do
         authorize! :read_group, user_group
 
         get_milestone_for(user_group)
@@ -42,7 +42,7 @@ module API
         requires :title, type: String, desc: 'The title of the milestone'
         use :optional_params
       end
-      post ":id/milestones" do
+      post ':id/milestones' do
         authorize! :admin_milestone, user_group
 
         create_milestone_for(user_group)
@@ -54,14 +54,14 @@ module API
       params do
         use :update_params
       end
-      put ":id/milestones/:milestone_id" do
+      put ':id/milestones/:milestone_id' do
         authorize! :admin_milestone, user_group
 
         update_milestone_for(user_group)
       end
 
       desc 'Remove a project milestone'
-      delete ":id/milestones/:milestone_id" do
+      delete ':id/milestones/:milestone_id' do
         authorize! :admin_milestone, user_group
 
         milestone = user_group.milestones.find(params[:milestone_id])
@@ -77,7 +77,7 @@ module API
         requires :milestone_id, type: Integer, desc: 'The ID of a group milestone'
         use :pagination
       end
-      get ":id/milestones/:milestone_id/issues" do
+      get ':id/milestones/:milestone_id/issues' do
         milestone_issuables_for(user_group, :issue)
       end
 

@@ -11,7 +11,7 @@ module TraceHelpers
 
   def legacy_trace_path(build)
     legacy_trace_dir = File.join(Settings.gitlab_ci.builds_path,
-      build.created_at.utc.strftime("%Y_%m"),
+      build.created_at.utc.strftime('%Y_%m'),
       build.project_id.to_s)
 
     FileUtils.mkdir_p(legacy_trace_dir)

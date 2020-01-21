@@ -53,7 +53,7 @@ class Discussion
 
   # Returns an alphanumeric discussion ID based on `build_discussion_id`
   def self.discussion_id(note)
-    Digest::SHA1.hexdigest(build_discussion_id(note).join("-"))
+    Digest::SHA1.hexdigest(build_discussion_id(note).join('-'))
   end
 
   # Returns an array of discussion ID components

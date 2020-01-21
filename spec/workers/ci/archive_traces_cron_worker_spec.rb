@@ -73,7 +73,7 @@ describe Ci::ArchiveTracesCronWorker do
       it 'puts a log' do
         expect(Sidekiq.logger).to receive(:warn).with(
           class: described_class.name,
-          message: "Failed to archive trace. message: Unexpected error.",
+          message: 'Failed to archive trace. message: Unexpected error.',
           job_id: build.id)
 
         subject

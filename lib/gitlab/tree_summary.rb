@@ -80,7 +80,7 @@ module Gitlab
       # Ensure the path is in "path/" format
       ensured_path =
         if path
-          File.join(*[path, ""])
+          File.join(*[path, ''])
         end
 
       commits_hsh = repository.list_last_commits_for_tree(commit.id, ensured_path, offset: offset, limit: limit)

@@ -78,7 +78,7 @@ module API
     end
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Triggers a pull mirror operation'
-      post ":id/mirror/pull" do
+      post ':id/mirror/pull' do
         authenticate_with_webhook_token!
 
         break render_api_error!('The project is not mirrored', 400) unless project.mirror?

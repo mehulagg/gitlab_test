@@ -79,7 +79,7 @@ describe Emails::ServiceDesk do
     end
 
     context 'when the service_desk_templates directory does not contain correct template' do
-      let(:project) { create(:project, :custom_repo, files: { ".gitlab/service_desk_templates/another_file.md" => template_content }) }
+      let(:project) { create(:project, :custom_repo, files: { '.gitlab/service_desk_templates/another_file.md' => template_content }) }
 
       it 'uses the default template' do
         is_expected.to have_body_text(default_text)
@@ -87,7 +87,7 @@ describe Emails::ServiceDesk do
     end
 
     context 'when the service_desk_templates directory does not exist' do
-      let(:project) { create(:project, :custom_repo, files: { "other_directory/another_file.md" => template_content }) }
+      let(:project) { create(:project, :custom_repo, files: { 'other_directory/another_file.md' => template_content }) }
 
       it 'uses the default template' do
         is_expected.to have_body_text(default_text)
@@ -137,7 +137,7 @@ describe Emails::ServiceDesk do
 
       context 'with unexpected placeholder' do
         let(:template_content) { 'thank you, **your new issue:** %{this is issue}' }
-        let(:expected_body) { "thank you, <strong>your new issue:</strong> %{this is issue}" }
+        let(:expected_body) { 'thank you, <strong>your new issue:</strong> %{this is issue}' }
 
         it_behaves_like 'handle template content', 'thank_you'
       end
@@ -177,7 +177,7 @@ describe Emails::ServiceDesk do
 
       context 'with unexpected placeholder' do
         let(:template_content) { 'thank you, **new note on issue:** %{this is issue}' }
-        let(:expected_body) { "thank you, <strong>new note on issue:</strong> %{this is issue}" }
+        let(:expected_body) { 'thank you, <strong>new note on issue:</strong> %{this is issue}' }
 
         it_behaves_like 'handle template content', 'new_note'
       end

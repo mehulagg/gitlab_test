@@ -10,7 +10,7 @@ describe PipelineSchedulesFinder do
 
   subject { described_class.new(project).execute(params) }
 
-  describe "#execute" do
+  describe '#execute' do
     context 'when the scope is nil' do
       let(:params) { { scope: nil } }
 

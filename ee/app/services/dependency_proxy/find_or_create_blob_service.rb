@@ -35,7 +35,7 @@ module DependencyProxy
 
     def log_failure(result)
       log_error(
-        "Dependency proxy: Failed to download the blob." \
+        'Dependency proxy: Failed to download the blob.' \
         "Blob sha: #{@blob_sha}." \
         "Error message: #{result[:message][0, 100]}" \
         "HTTP status: #{result[:http_status]}"

@@ -245,7 +245,7 @@ describe Projects::NotesController do
 
       context 'the project is publically available' do
         context 'for HTML' do
-          it "returns status 302" do
+          it 'returns status 302' do
             expect(response).to have_gitlab_http_status(302)
           end
         end
@@ -253,7 +253,7 @@ describe Projects::NotesController do
         context 'for JSON' do
           let(:extra_request_params) { { format: :json } }
 
-          it "returns status 200 for json" do
+          it 'returns status 200 for json' do
             expect(response).to have_gitlab_http_status(200)
           end
         end
@@ -264,7 +264,7 @@ describe Projects::NotesController do
           let(:note_text) { '' }
           let(:extra_request_params) { { format: :json } }
 
-          it "returns status 422 for json" do
+          it 'returns status 422 for json' do
             expect(response).to have_gitlab_http_status(422)
           end
         end
@@ -277,7 +277,7 @@ describe Projects::NotesController do
           context "format is #{extra[:format]}" do
             let(:extra_request_params) { extra }
 
-            it "returns status 404" do
+            it 'returns status 404' do
               expect(response).to have_gitlab_http_status(404)
             end
           end
@@ -293,7 +293,7 @@ describe Projects::NotesController do
       end
 
       context 'HTML requests' do
-        it "returns status 302 (redirect)" do
+        it 'returns status 302 (redirect)' do
           create!
 
           expect(response).to have_gitlab_http_status(302)
@@ -303,7 +303,7 @@ describe Projects::NotesController do
       context 'JSON requests' do
         let(:extra_request_params) { { format: :json } }
 
-        it "returns status 200" do
+        it 'returns status 200' do
           create!
 
           expect(response).to have_gitlab_http_status(200)
@@ -396,25 +396,25 @@ describe Projects::NotesController do
 
         # see !60465 for details of the structure of this request
         let(:request_params) do
-          { "utf8" => "✓",
-            "authenticity_token" => "1",
-            "view" => "inline",
-            "line_type" => "",
-            "merge_request_diff_head_sha" => "",
-            "in_reply_to_discussion_id" => discussion.id,
-            "note_project_id" => project.id,
-            "project_id" => project.id,
-            "namespace_id" => project.namespace,
-            "target_type" => "commit",
-            "target_id" => commit.id,
-            "note" => {
-              "noteable_type" => "",
-              "noteable_id" => "",
-              "commit_id" => "",
-              "type" => "",
-              "line_code" => "",
-              "position" => "",
-              "note" => "ThisReplyWillGoToMergeRequest"
+          { 'utf8' => '✓',
+            'authenticity_token' => '1',
+            'view' => 'inline',
+            'line_type' => '',
+            'merge_request_diff_head_sha' => '',
+            'in_reply_to_discussion_id' => discussion.id,
+            'note_project_id' => project.id,
+            'project_id' => project.id,
+            'namespace_id' => project.namespace,
+            'target_type' => 'commit',
+            'target_id' => commit.id,
+            'note' => {
+              'noteable_type' => '',
+              'noteable_id' => '',
+              'commit_id' => '',
+              'type' => '',
+              'line_code' => '',
+              'position' => '',
+              'note' => 'ThisReplyWillGoToMergeRequest'
             } }
         end
 
@@ -464,7 +464,7 @@ describe Projects::NotesController do
         expect(Notes::CreateService).to receive(:new).with(project, user, service_params).and_return(double(execute: true))
       end
 
-      it "returns status 302 for html" do
+      it 'returns status 302 for html' do
         create!
 
         expect(response).to have_gitlab_http_status(302)
@@ -629,7 +629,7 @@ describe Projects::NotesController do
   end
 
   describe 'PUT update' do
-    context "should update the note with a valid issue" do
+    context 'should update the note with a valid issue' do
       let(:request_params) do
         {
           namespace_id: project.namespace,
@@ -637,7 +637,7 @@ describe Projects::NotesController do
           id: note,
           format: :json,
           note: {
-            note: "New comment"
+            note: 'New comment'
           }
         }
       end
@@ -647,11 +647,11 @@ describe Projects::NotesController do
         project.add_developer(note.author)
       end
 
-      it "updates the note" do
+      it 'updates the note' do
         expect { put :update, params: request_params }.to change { note.reload.note }
       end
     end
-    context "doesnt update the note" do
+    context 'doesnt update the note' do
       let(:issue)   { create(:issue, :confidential, project: project) }
       let(:note)    { create(:note, noteable: issue, project: project) }
 
@@ -660,14 +660,14 @@ describe Projects::NotesController do
         project.add_guest(user)
       end
 
-      it "disallows edits when the issue is confidential and the user has guest permissions" do
+      it 'disallows edits when the issue is confidential and the user has guest permissions' do
         request_params = {
           namespace_id: project.namespace,
           project_id: project,
           id: note,
           format: :json,
           note: {
-            note: "New comment"
+            note: 'New comment'
           }
         }
         expect { put :update, params: request_params }.not_to change { note.reload.note }
@@ -692,13 +692,13 @@ describe Projects::NotesController do
         project.add_developer(note.author)
       end
 
-      it "returns status 200 for html" do
+      it 'returns status 200 for html' do
         delete :destroy, params: request_params
 
         expect(response).to have_gitlab_http_status(200)
       end
 
-      it "deletes the note" do
+      it 'deletes the note' do
         expect { delete :destroy, params: request_params }.to change { Note.count }.from(1).to(0)
       end
     end
@@ -709,7 +709,7 @@ describe Projects::NotesController do
         project.add_developer(user)
       end
 
-      it "returns status 404" do
+      it 'returns status 404' do
         delete :destroy, params: request_params
 
         expect(response).to have_gitlab_http_status(404)
@@ -727,7 +727,7 @@ describe Projects::NotesController do
 
     let(:emoji_name) { 'thumbsup' }
 
-    it "toggles the award emoji" do
+    it 'toggles the award emoji' do
       expect do
         subject
       end.to change { note.award_emoji.count }.by(1)
@@ -735,7 +735,7 @@ describe Projects::NotesController do
       expect(response).to have_gitlab_http_status(200)
     end
 
-    it "removes the already awarded emoji" do
+    it 'removes the already awarded emoji' do
       create(:award_emoji, awardable: note, name: emoji_name, user: user)
 
       expect { subject }.to change { AwardEmoji.count }.by(-1)
@@ -752,7 +752,7 @@ describe Projects::NotesController do
     end
   end
 
-  describe "resolving and unresolving" do
+  describe 'resolving and unresolving' do
     let(:project) { create(:project, :repository) }
     let(:merge_request) { create(:merge_request, source_project: project) }
     let(:note) { create(:diff_note_on_merge_request, noteable: merge_request, project: project) }
@@ -762,40 +762,40 @@ describe Projects::NotesController do
         sign_in user
       end
 
-      context "when the user is not authorized to resolve the note" do
-        it "returns status 404" do
+      context 'when the user is not authorized to resolve the note' do
+        it 'returns status 404' do
           post :resolve, params: request_params
 
           expect(response).to have_gitlab_http_status(404)
         end
       end
 
-      context "when the user is authorized to resolve the note" do
+      context 'when the user is authorized to resolve the note' do
         before do
           project.add_developer(user)
         end
 
-        context "when the note is not resolvable" do
+        context 'when the note is not resolvable' do
           before do
             note.update(system: true)
           end
 
-          it "returns status 404" do
+          it 'returns status 404' do
             post :resolve, params: request_params
 
             expect(response).to have_gitlab_http_status(404)
           end
         end
 
-        context "when the note is resolvable" do
-          it "resolves the note" do
+        context 'when the note is resolvable' do
+          it 'resolves the note' do
             post :resolve, params: request_params
 
             expect(note.reload.resolved?).to be true
             expect(note.reload.resolved_by).to eq(user)
           end
 
-          it "sends notifications if all discussions are resolved" do
+          it 'sends notifications if all discussions are resolved' do
             expect_next_instance_of(MergeRequests::ResolvedDiscussionNotificationService) do |instance|
               expect(instance).to receive(:execute).with(merge_request)
             end
@@ -803,13 +803,13 @@ describe Projects::NotesController do
             post :resolve, params: request_params
           end
 
-          it "returns the name of the resolving user" do
+          it 'returns the name of the resolving user' do
             post :resolve, params: request_params.merge(html: true)
 
-            expect(json_response["resolved_by"]).to eq(user.name)
+            expect(json_response['resolved_by']).to eq(user.name)
           end
 
-          it "returns status 200" do
+          it 'returns status 200' do
             post :resolve, params: request_params
 
             expect(response).to have_gitlab_http_status(200)
@@ -825,39 +825,39 @@ describe Projects::NotesController do
         note.resolve!(user)
       end
 
-      context "when the user is not authorized to resolve the note" do
-        it "returns status 404" do
+      context 'when the user is not authorized to resolve the note' do
+        it 'returns status 404' do
           delete :unresolve, params: request_params
 
           expect(response).to have_gitlab_http_status(404)
         end
       end
 
-      context "when the user is authorized to resolve the note" do
+      context 'when the user is authorized to resolve the note' do
         before do
           project.add_developer(user)
         end
 
-        context "when the note is not resolvable" do
+        context 'when the note is not resolvable' do
           before do
             note.update(system: true)
           end
 
-          it "returns status 404" do
+          it 'returns status 404' do
             delete :unresolve, params: request_params
 
             expect(response).to have_gitlab_http_status(404)
           end
         end
 
-        context "when the note is resolvable" do
-          it "unresolves the note" do
+        context 'when the note is resolvable' do
+          it 'unresolves the note' do
             delete :unresolve, params: request_params
 
             expect(note.reload.resolved?).to be false
           end
 
-          it "returns status 200" do
+          it 'returns status 200' do
             delete :unresolve, params: request_params
 
             expect(response).to have_gitlab_http_status(200)

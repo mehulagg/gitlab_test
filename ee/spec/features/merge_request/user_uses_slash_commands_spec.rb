@@ -21,7 +21,7 @@ describe 'Merge request > User uses quick actions', :js do
       end
 
       it 'does not recognize the command nor create a note' do
-        add_note("/weight 5")
+        add_note('/weight 5')
 
         expect(page).not_to have_content '/weight 5'
       end

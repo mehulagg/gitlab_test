@@ -5,13 +5,13 @@ require 'spec_helper'
 describe Ldap::OmniauthCallbacksController do
   include_context 'Ldap::OmniauthCallbacksController'
 
-  it "displays LDAP sync flash on first sign in" do
+  it 'displays LDAP sync flash on first sign in' do
     post provider
 
     expect(flash[:notice]).to match(/LDAP sync in progress*/)
   end
 
-  it "skips LDAP sync flash on subsequent sign ins" do
+  it 'skips LDAP sync flash on subsequent sign ins' do
     user.update!(sign_in_count: 1)
 
     post provider

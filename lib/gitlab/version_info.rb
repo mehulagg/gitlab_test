@@ -43,9 +43,9 @@ module Gitlab
 
     def to_s
       if valid?
-        "%d.%d.%d" % [@major, @minor, @patch]
+        '%d.%d.%d' % [@major, @minor, @patch]
       else
-        "Unknown"
+        'Unknown'
       end
     end
 

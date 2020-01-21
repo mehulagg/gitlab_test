@@ -14,7 +14,7 @@ describe AuditEventService do
       expect(service).to receive(:file_logger).and_return(logger)
       expect(logger).to receive(:info).with(author_id: user.id,
                                             entity_id: project.id,
-                                            entity_type: "Project",
+                                            entity_type: 'Project',
                                             action: :destroy)
 
       expect { service.security_event }.to change(SecurityEvent, :count).by(1)

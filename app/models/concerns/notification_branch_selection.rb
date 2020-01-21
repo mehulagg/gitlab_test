@@ -24,13 +24,13 @@ module NotificationBranchSelection
     is_protected_branch = ProtectedBranch.protected?(project, ref)
 
     case branches_to_be_notified
-    when "all"
+    when 'all'
       true
-    when  "default"
+    when  'default'
       is_default_branch
-    when  "protected"
+    when  'protected'
       is_protected_branch
-    when  "default_and_protected"
+    when  'default_and_protected'
       is_default_branch || is_protected_branch
     else
       false

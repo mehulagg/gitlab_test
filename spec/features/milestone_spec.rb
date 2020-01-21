@@ -18,9 +18,9 @@ describe 'Milestone' do
       visit new_project_milestone_path(project)
 
       page.within '.milestone-form' do
-        fill_in "milestone_title", with: '8.7'
-        fill_in "milestone_start_date", with: '2016-11-16'
-        fill_in "milestone_due_date", with: '2016-12-16'
+        fill_in 'milestone_title', with: '8.7'
+        fill_in 'milestone_start_date', with: '2016-11-16'
+        fill_in 'milestone_due_date', with: '2016-12-16'
       end
 
       find('input[name="commit"]').click
@@ -34,7 +34,7 @@ describe 'Milestone' do
     it 'shows an informative message' do
       milestone = create(:milestone, project: project, title: 8.7)
 
-      create(:issue, title: "Bugfix1", project: project, milestone: milestone, state: "closed")
+      create(:issue, title: 'Bugfix1', project: project, milestone: milestone, state: 'closed')
       visit project_milestone_path(project, milestone)
 
       expect(find('.alert-success')).to have_content('All issues for this milestone are closed. You may close this milestone now.')
@@ -47,7 +47,7 @@ describe 'Milestone' do
 
       visit new_project_milestone_path(project)
       page.within '.milestone-form' do
-        fill_in "milestone_title", with: milestone.title
+        fill_in 'milestone_title', with: milestone.title
       end
       find('input[name="commit"]').click
 
@@ -60,7 +60,7 @@ describe 'Milestone' do
       visit new_group_milestone_path(project.group)
 
       page.within '.milestone-form' do
-        fill_in "milestone_title", with: milestone.title
+        fill_in 'milestone_title', with: milestone.title
       end
       find('input[name="commit"]').click
 
@@ -101,7 +101,7 @@ describe 'Milestone' do
   end
 
   describe 'Deleting a milestone' do
-    it "The delete milestone button does not show for unauthorized users" do
+    it 'The delete milestone button does not show for unauthorized users' do
       create(:milestone, project: project, title: 8.7)
       sign_out(user)
 

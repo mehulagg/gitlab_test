@@ -96,21 +96,21 @@ describe BroadcastMessage do
     end
   end
 
-  shared_examples "matches with current path" do |broadcast_type|
+  shared_examples 'matches with current path' do |broadcast_type|
     it 'returns message if it matches the target path' do
-      message = create(:broadcast_message, target_path: "*/onboarding_completed", broadcast_type: broadcast_type)
+      message = create(:broadcast_message, target_path: '*/onboarding_completed', broadcast_type: broadcast_type)
 
       expect(subject.call('/users/onboarding_completed')).to include(message)
     end
 
     it 'returns message if part of the target path matches' do
-      create(:broadcast_message, target_path: "/users/*/issues", broadcast_type: broadcast_type)
+      create(:broadcast_message, target_path: '/users/*/issues', broadcast_type: broadcast_type)
 
       expect(subject.call('/users/name/issues').length).to eq(1)
     end
 
     it 'returns the message for empty target path' do
-      create(:broadcast_message, target_path: "", broadcast_type: broadcast_type)
+      create(:broadcast_message, target_path: '', broadcast_type: broadcast_type)
 
       expect(subject.call('/users/name/issues').length).to eq(1)
     end
@@ -122,13 +122,13 @@ describe BroadcastMessage do
     end
 
     it 'does not return message if target path does not match' do
-      create(:broadcast_message, target_path: "/onboarding_completed", broadcast_type: broadcast_type)
+      create(:broadcast_message, target_path: '/onboarding_completed', broadcast_type: broadcast_type)
 
       expect(subject.call('/welcome').length).to eq(0)
     end
 
     it 'does not return message if target path does not match when using wildcard' do
-      create(:broadcast_message, target_path: "/users/*/issues", broadcast_type: broadcast_type)
+      create(:broadcast_message, target_path: '/users/*/issues', broadcast_type: broadcast_type)
 
       expect(subject.call('/group/groupname/issues').length).to eq(0)
     end
@@ -181,7 +181,7 @@ describe BroadcastMessage do
 
   describe '#attributes' do
     it 'includes message_html field' do
-      expect(subject.attributes.keys).to include("cached_markdown_version", "message_html")
+      expect(subject.attributes.keys).to include('cached_markdown_version', 'message_html')
     end
   end
 

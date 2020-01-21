@@ -4,7 +4,7 @@ module Gitlab
   module ExternalAuthorization
     class Logger < ::Gitlab::Logger
       def self.log_access(access, project_path)
-        status = access.has_access? ? "GRANTED" : "DENIED"
+        status = access.has_access? ? 'GRANTED' : 'DENIED'
         message = ["#{status} #{access.user.email} access to '#{access.label}'"]
 
         message << "(#{project_path})" if project_path.present?

@@ -25,13 +25,13 @@ class ProjectPolicy < BasePolicy
     release
   ].freeze
 
-  desc "User is a project owner"
+  desc 'User is a project owner'
   condition :owner do
     (project.owner.present? && project.owner == @user) ||
       project.group&.has_owner?(@user)
   end
 
-  desc "Project has public builds enabled"
+  desc 'Project has public builds enabled'
   condition(:public_builds, scope: :subject, score: 0) { project.public_builds? }
 
   # For guest access we use #team_member? so we can use
@@ -39,46 +39,46 @@ class ProjectPolicy < BasePolicy
   # This is safe because team_access_level is guaranteed
   # by ProjectAuthorization's validation to be at minimum
   # GUEST
-  desc "User has guest access"
+  desc 'User has guest access'
   condition(:guest) { team_member? }
 
-  desc "User has reporter access"
+  desc 'User has reporter access'
   condition(:reporter) { team_access_level >= Gitlab::Access::REPORTER }
 
-  desc "User has developer access"
+  desc 'User has developer access'
   condition(:developer) { team_access_level >= Gitlab::Access::DEVELOPER }
 
-  desc "User has maintainer access"
+  desc 'User has maintainer access'
   condition(:maintainer) { team_access_level >= Gitlab::Access::MAINTAINER }
 
-  desc "Project is public"
+  desc 'Project is public'
   condition(:public_project, scope: :subject, score: 0) { project.public? }
 
-  desc "Project is visible to internal users"
+  desc 'Project is visible to internal users'
   condition(:internal_access) do
     project.internal? && !user.external?
   end
 
-  desc "User is a member of the group"
+  desc 'User is a member of the group'
   condition(:group_member, scope: :subject) { project_group_member? }
 
-  desc "Project is archived"
+  desc 'Project is archived'
   condition(:archived, scope: :subject, score: 0) { project.archived? }
 
   condition(:default_issues_tracker, scope: :subject) { project.default_issues_tracker? }
 
-  desc "Container registry is disabled"
+  desc 'Container registry is disabled'
   condition(:container_registry_disabled, scope: :subject) do
     !project.container_registry_enabled
   end
 
-  desc "Project has an external wiki"
+  desc 'Project has an external wiki'
   condition(:has_external_wiki, scope: :subject, score: 0) { project.has_external_wiki? }
 
-  desc "Project has request access enabled"
+  desc 'Project has request access enabled'
   condition(:request_access_enabled, scope: :subject, score: 0) { project.request_access_enabled }
 
-  desc "Has merge requests allowing pushes to user"
+  desc 'Has merge requests allowing pushes to user'
   condition(:has_merge_requests_allowing_pushes) do
     project.merge_requests_allowing_push_to_user(user).any?
   end

@@ -58,7 +58,7 @@ module ClusterCleanupMethods
   def cluster_applications_and_status(cluster)
     cluster.persisted_applications
       .map { |application| "#{application.name}:#{application.status_name}" }
-      .join(",")
+      .join(',')
   end
 
   def log_exceeded_execution_limit_error(cluster)

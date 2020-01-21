@@ -14,7 +14,7 @@ describe AttachmentUploader do
                   upload_path: %r[uploads/-/system/note/attachment/],
                   absolute_path: %r[#{CarrierWave.root}/uploads/-/system/note/attachment/]
 
-  context "object_store is REMOTE" do
+  context 'object_store is REMOTE' do
     before do
       stub_uploads_object_storage
     end
@@ -26,13 +26,13 @@ describe AttachmentUploader do
                     upload_path: %r[note/attachment/]
   end
 
-  describe "#migrate!" do
+  describe '#migrate!' do
     before do
       uploader.store!(fixture_file_upload(File.join('spec/fixtures/doc_sample.txt')))
       stub_uploads_object_storage
     end
 
-    it_behaves_like "migrates", to_store: described_class::Store::REMOTE
-    it_behaves_like "migrates", from_store: described_class::Store::REMOTE, to_store: described_class::Store::LOCAL
+    it_behaves_like 'migrates', to_store: described_class::Store::REMOTE
+    it_behaves_like 'migrates', from_store: described_class::Store::REMOTE, to_store: described_class::Store::LOCAL
   end
 end

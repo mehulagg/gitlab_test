@@ -35,7 +35,7 @@ class RunPipelineScheduleWorker
   def error(schedule, error)
     failed_creation_counter.increment
 
-    Rails.logger.error "Failed to create a scheduled pipeline. " \
+    Rails.logger.error 'Failed to create a scheduled pipeline. ' \
                        "schedule_id: #{schedule.id} message: #{error.message}"
 
     Gitlab::ErrorTracking
@@ -48,6 +48,6 @@ class RunPipelineScheduleWorker
   def failed_creation_counter
     @failed_creation_counter ||=
       Gitlab::Metrics.counter(:pipeline_schedule_creation_failed_total,
-                              "Counter of failed attempts of pipeline schedule creation")
+                              'Counter of failed attempts of pipeline schedule creation')
   end
 end

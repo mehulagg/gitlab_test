@@ -90,7 +90,7 @@ module EE
         class MergeRequest < ActiveRecord::Base
           self.table_name = 'merge_requests'
 
-          belongs_to :target_project, class_name: "Project"
+          belongs_to :target_project, class_name: 'Project'
           has_many :approval_rules, class_name: 'ApprovalMergeRequestRule'
 
           def approvals_required

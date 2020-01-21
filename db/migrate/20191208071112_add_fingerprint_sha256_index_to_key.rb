@@ -8,10 +8,10 @@ class AddFingerprintSha256IndexToKey < ActiveRecord::Migration[5.0]
   disable_ddl_transaction!
 
   def up
-    add_concurrent_index(:keys, "fingerprint_sha256")
+    add_concurrent_index(:keys, 'fingerprint_sha256')
   end
 
   def down
-    remove_concurrent_index(:keys, "fingerprint_sha256")
+    remove_concurrent_index(:keys, 'fingerprint_sha256')
   end
 end

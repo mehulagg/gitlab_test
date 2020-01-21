@@ -425,9 +425,9 @@ describe SessionsController do
         end
       end
 
-      it "creates an audit log record" do
+      it 'creates an audit log record' do
         expect { authenticate_2fa(login: user.username, otp_attempt: user.current_otp) }.to change { SecurityEvent.count }.by(1)
-        expect(SecurityEvent.last.details[:with]).to eq("two-factor")
+        expect(SecurityEvent.last.details[:with]).to eq('two-factor')
       end
     end
 
@@ -445,7 +445,7 @@ describe SessionsController do
           expect(controller)
             .to receive(:remember_me).with(user).and_call_original
 
-          authenticate_2fa_u2f(remember_me: '1', login: user.username, device_response: "{}")
+          authenticate_2fa_u2f(remember_me: '1', login: user.username, device_response: '{}')
 
           expect(response.cookies['remember_user_token']).to be_present
         end
@@ -455,28 +455,28 @@ describe SessionsController do
           allow(controller).to receive(:find_user).and_return(user)
           expect(controller).not_to receive(:remember_me)
 
-          authenticate_2fa_u2f(remember_me: '0', login: user.username, device_response: "{}")
+          authenticate_2fa_u2f(remember_me: '0', login: user.username, device_response: '{}')
 
           expect(response.cookies['remember_user_token']).to be_nil
         end
       end
 
-      it "creates an audit log record" do
+      it 'creates an audit log record' do
         allow(U2fRegistration).to receive(:authenticate).and_return(true)
-        expect { authenticate_2fa_u2f(login: user.username, device_response: "{}") }.to change { SecurityEvent.count }.by(1)
-        expect(SecurityEvent.last.details[:with]).to eq("two-factor-via-u2f-device")
+        expect { authenticate_2fa_u2f(login: user.username, device_response: '{}') }.to change { SecurityEvent.count }.by(1)
+        expect(SecurityEvent.last.details[:with]).to eq('two-factor-via-u2f-device')
       end
     end
   end
 
-  describe "#new" do
+  describe '#new' do
     before do
       set_devise_mapping(context: @request)
     end
 
-    it "redirects correctly for referer on same host with params" do
-      host = "test.host"
-      search_path = "/search?search=seed_project"
+    it 'redirects correctly for referer on same host with params' do
+      host = 'test.host'
+      search_path = '/search?search=seed_project'
       request.headers[:HTTP_REFERER] = "http://#{host}#{search_path}"
 
       get(:new, params: { redirect_to_referer: :yes })
@@ -488,7 +488,7 @@ describe SessionsController do
   context 'when login fails' do
     before do
       set_devise_mapping(context: @request)
-      @request.env["warden.options"] = { action:  'unauthenticated' }
+      @request.env['warden.options'] = { action:  'unauthenticated' }
     end
 
     it 'does increment failed login counts for session' do

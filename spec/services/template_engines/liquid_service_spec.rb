@@ -50,7 +50,7 @@ describe TemplateEngines::LiquidService do
       let(:template) { 'up{env={{env_slug}}}' }
 
       it 'does not substitute unknown variables' do
-        expect(result).to eq("up{env=}")
+        expect(result).to eq('up{env=}')
       end
     end
 

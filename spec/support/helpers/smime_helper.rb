@@ -20,7 +20,7 @@ module SmimeHelper
     public_key = key.public_key
 
     subject = if certificate_authority
-                X509::Name.parse("/CN=EU")
+                X509::Name.parse('/CN=EU')
               else
                 X509::Name.parse("/CN=#{email_address}")
               end

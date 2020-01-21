@@ -13,7 +13,7 @@ describe Gitlab::Git::LfsPointerFile do
     end
 
     it 'handles non ascii data' do
-      expect(described_class.new("ääää").size).to eq 8
+      expect(described_class.new('ääää').size).to eq 8
     end
   end
 

@@ -37,7 +37,7 @@ describe ContainerRepositoriesFinder do
       end
 
       context 'with invalid subject_type' do
-        let(:subject_object) { "invalid type" }
+        let(:subject_object) { 'invalid type' }
 
         it { expect { subject }.to raise_exception('invalid subject_type') }
       end

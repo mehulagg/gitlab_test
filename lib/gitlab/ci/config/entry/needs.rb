@@ -32,7 +32,7 @@ module Gitlab
               [@config].flatten.each_with_index do |need, index|
                 @entries[index] = ::Gitlab::Config::Entry::Factory.new(Entry::Need)
                   .value(need)
-                  .with(key: "need", parent: self, description: "need definition.") # rubocop:disable CodeReuse/ActiveRecord
+                  .with(key: 'need', parent: self, description: 'need definition.') # rubocop:disable CodeReuse/ActiveRecord
                   .create!
               end
 

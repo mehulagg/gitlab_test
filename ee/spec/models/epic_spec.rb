@@ -16,7 +16,7 @@ describe Epic do
     it { is_expected.to belong_to(:parent) }
     it { is_expected.to have_many(:epic_issues) }
     it { is_expected.to have_many(:children) }
-    it { is_expected.to have_many(:user_mentions).class_name("EpicUserMention") }
+    it { is_expected.to have_many(:user_mentions).class_name('EpicUserMention') }
   end
 
   describe 'validations' do
@@ -502,7 +502,7 @@ describe Epic do
     let(:project) { create(:project, :repository, :public) }
     let(:mentioned_issue) { create(:issue, project: project) }
     let(:mentioned_mr)     { create(:merge_request, source_project: project) }
-    let(:mentioned_commit) { project.commit("HEAD~1") }
+    let(:mentioned_commit) { project.commit('HEAD~1') }
 
     let(:backref_text) { "epic #{epic.to_reference}" }
     let(:ref_text) do
@@ -532,8 +532,8 @@ describe Epic do
     end
   end
 
-  context "relative positioning" do
-    it_behaves_like "a class that supports relative positioning" do
+  context 'relative positioning' do
+    it_behaves_like 'a class that supports relative positioning' do
       let(:factory) { :epic }
       let(:default_params) { {} }
     end

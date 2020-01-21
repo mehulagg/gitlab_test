@@ -20,7 +20,7 @@ module Security
         source: "#{__FILE__}:#{__LINE__}",
         backtrace: error.backtrace
       )
-      error("Failed to update approval rules")
+      error('Failed to update approval rules')
     end
 
     private

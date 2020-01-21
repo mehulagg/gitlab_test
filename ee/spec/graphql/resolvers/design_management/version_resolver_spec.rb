@@ -10,7 +10,7 @@ describe Resolvers::DesignManagement::VersionResolver do
     enable_design_management
   end
 
-  describe "#resolve" do
+  describe '#resolve' do
     let_it_be(:issue) { create(:issue) }
     let_it_be(:project) { issue.project }
     let_it_be(:first_version) { create(:design_version) }
@@ -21,10 +21,10 @@ describe Resolvers::DesignManagement::VersionResolver do
       project.add_developer(current_user)
     end
 
-    context "for a design collection" do
+    context 'for a design collection' do
       let(:collection) { DesignManagement::DesignCollection.new(issue) }
 
-      it "returns the ordered versions" do
+      it 'returns the ordered versions' do
         second_version = create(:design_version)
         create(:design, issue: issue, versions: [second_version])
 
@@ -32,22 +32,22 @@ describe Resolvers::DesignManagement::VersionResolver do
       end
     end
 
-    context "for a design" do
-      it "returns the versions" do
+    context 'for a design' do
+      it 'returns the versions' do
         expect(resolve_versions(first_design)).to eq([first_version])
       end
     end
 
-    context "when the user is anonymous" do
+    context 'when the user is anonymous' do
       let(:current_user) { nil }
 
-      it "returns nothing" do
+      it 'returns nothing' do
         expect(resolve_versions(first_design)).to be_empty
       end
     end
 
-    context "when the user cannot see designs" do
-      it "returns nothing" do
+    context 'when the user cannot see designs' do
+      it 'returns nothing' do
         expect(resolve_versions(first_design, {}, current_user: create(:user))).to be_empty
       end
     end

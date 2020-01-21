@@ -83,7 +83,7 @@ describe EE::Gitlab::Ci::Pipeline::Quota::Activity do
 
       it 'returns info about pipeline activity limit exceeded' do
         expect(subject.message)
-          .to eq "Active pipelines limit exceeded by 2 pipelines!"
+          .to eq 'Active pipelines limit exceeded by 2 pipelines!'
       end
     end
   end

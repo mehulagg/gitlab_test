@@ -9,7 +9,7 @@ class AddPartialIndexForLegacySuccessfulDeployments < ActiveRecord::Migration[4.
   disable_ddl_transaction!
 
   def up
-    add_concurrent_index(:deployments, :id, where: "finished_at IS NULL AND status = 2", name: INDEX_NAME)
+    add_concurrent_index(:deployments, :id, where: 'finished_at IS NULL AND status = 2', name: INDEX_NAME)
   end
 
   def down

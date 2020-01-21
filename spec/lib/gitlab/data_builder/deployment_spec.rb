@@ -13,7 +13,7 @@ describe Gitlab::DataBuilder::Deployment do
     end
 
     it 'returns data for the given build' do
-      environment = create(:environment, name: "somewhere")
+      environment = create(:environment, name: 'somewhere')
       project = create(:project, :repository, name: 'myproj')
       commit = project.commit('HEAD')
       deployment = create(:deployment, status: :failed, environment: environment, sha: commit.sha, project: project)
@@ -27,7 +27,7 @@ describe Gitlab::DataBuilder::Deployment do
       expect(data[:status]).to eq('failed')
       expect(data[:deployable_id]).to eq(deployable.id)
       expect(data[:deployable_url]).to eq(expected_deployable_url)
-      expect(data[:environment]).to eq("somewhere")
+      expect(data[:environment]).to eq('somewhere')
       expect(data[:project]).to eq(project.hook_attrs)
       expect(data[:short_sha]).to eq(deployment.short_sha)
       expect(data[:user]).to eq(deployment.user.hook_attrs)

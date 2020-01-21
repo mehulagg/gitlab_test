@@ -52,12 +52,12 @@ module Gitlab
 
       # @return [Boolean]
       def out_of_office?
-        status&.dig("message")&.match?(/OOO/i) || false
+        status&.dig('message')&.match?(/OOO/i) || false
       end
 
       # @return [Boolean]
       def has_capacity?
-        status&.dig("emoji") != 'red_circle'
+        status&.dig('emoji') != 'red_circle'
       end
 
       def has_capability?(project, category, kind, labels)

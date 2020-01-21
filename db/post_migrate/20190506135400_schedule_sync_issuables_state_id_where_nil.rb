@@ -53,8 +53,8 @@ class ScheduleSyncIssuablesStateIdWhereNil < ActiveRecord::Migration[5.1]
     )
 
     # Remove temporary indexes added on "AddTemporaryIndexesToStateId"
-    remove_concurrent_index_by_name(:issues, "idx_on_issues_where_state_id_is_null")
-    remove_concurrent_index_by_name(:merge_requests, "idx_on_merge_requests_where_state_id_is_null")
+    remove_concurrent_index_by_name(:issues, 'idx_on_issues_where_state_id_is_null')
+    remove_concurrent_index_by_name(:merge_requests, 'idx_on_merge_requests_where_state_id_is_null')
   end
 
   def down

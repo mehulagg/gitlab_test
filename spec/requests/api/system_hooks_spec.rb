@@ -7,32 +7,32 @@ describe API::SystemHooks do
 
   let(:user) { create(:user) }
   let(:admin) { create(:admin) }
-  let!(:hook) { create(:system_hook, url: "http://example.com") }
+  let!(:hook) { create(:system_hook, url: 'http://example.com') }
 
   before do
     stub_full_request(hook.url, method: :post)
   end
 
-  describe "GET /hooks" do
-    context "when no user" do
-      it "returns authentication error" do
-        get api("/hooks")
+  describe 'GET /hooks' do
+    context 'when no user' do
+      it 'returns authentication error' do
+        get api('/hooks')
 
         expect(response).to have_gitlab_http_status(401)
       end
     end
 
-    context "when not an admin" do
-      it "returns forbidden error" do
-        get api("/hooks", user)
+    context 'when not an admin' do
+      it 'returns forbidden error' do
+        get api('/hooks', user)
 
         expect(response).to have_gitlab_http_status(403)
       end
     end
 
-    context "when authenticated as admin" do
-      it "returns an array of hooks" do
-        get api("/hooks", admin)
+    context 'when authenticated as admin' do
+      it 'returns an array of hooks' do
+        get api('/hooks', admin)
 
         expect(response).to have_gitlab_http_status(200)
         expect(response).to include_pagination_headers
@@ -46,28 +46,28 @@ describe API::SystemHooks do
     end
   end
 
-  describe "POST /hooks" do
-    it "creates new hook" do
+  describe 'POST /hooks' do
+    it 'creates new hook' do
       expect do
-        post api("/hooks", admin), params: { url: 'http://example.com' }
+        post api('/hooks', admin), params: { url: 'http://example.com' }
       end.to change { SystemHook.count }.by(1)
     end
 
-    it "responds with 400 if url not given" do
-      post api("/hooks", admin)
+    it 'responds with 400 if url not given' do
+      post api('/hooks', admin)
 
       expect(response).to have_gitlab_http_status(400)
     end
 
-    it "responds with 400 if url is invalid" do
-      post api("/hooks", admin), params: { url: 'hp://mep.mep' }
+    it 'responds with 400 if url is invalid' do
+      post api('/hooks', admin), params: { url: 'hp://mep.mep' }
 
       expect(response).to have_gitlab_http_status(400)
     end
 
-    it "does not create new hook without url" do
+    it 'does not create new hook without url' do
       expect do
-        post api("/hooks", admin)
+        post api('/hooks', admin)
       end.not_to change { SystemHook.count }
     end
 
@@ -103,21 +103,21 @@ describe API::SystemHooks do
     end
   end
 
-  describe "GET /hooks/:id" do
-    it "returns hook by id" do
+  describe 'GET /hooks/:id' do
+    it 'returns hook by id' do
       get api("/hooks/#{hook.id}", admin)
       expect(response).to have_gitlab_http_status(200)
       expect(json_response['event_name']).to eq('project_create')
     end
 
-    it "returns 404 on failure" do
-      get api("/hooks/404", admin)
+    it 'returns 404 on failure' do
+      get api('/hooks/404', admin)
       expect(response).to have_gitlab_http_status(404)
     end
   end
 
-  describe "DELETE /hooks/:id" do
-    it "deletes a hook" do
+  describe 'DELETE /hooks/:id' do
+    it 'deletes a hook' do
       expect do
         delete api("/hooks/#{hook.id}", admin)
 

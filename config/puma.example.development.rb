@@ -45,7 +45,7 @@ bind 'unix:///home/git/gitlab.socket'
 
 workers 2
 
-require_relative "/home/git/gitlab/lib/gitlab/cluster/lifecycle_events"
+require_relative '/home/git/gitlab/lib/gitlab/cluster/lifecycle_events'
 
 on_restart do
   # Signal application hooks that we're about to restart
@@ -80,7 +80,7 @@ tag 'gitlab-puma-worker'
 worker_timeout 60
 
 # Use json formatter
-require_relative "/home/git/gitlab/lib/gitlab/puma_logging/json_formatter"
+require_relative '/home/git/gitlab/lib/gitlab/puma_logging/json_formatter'
 
 json_formatter = Gitlab::PumaLogging::JSONFormatter.new
 log_formatter do |str|

@@ -29,7 +29,7 @@ namespace :gitlab do
       css_files.each do |file|
         # replace url(/assets/*) with url(./*)
         puts "Fixing #{file}"
-        system "sed", "-i", "-e", 's/url(\([\"\']\?\)\/assets\//url(\1.\//g', file
+        system 'sed', '-i', '-e', 's/url(\([\"\']\?\)\/assets\//url(\1.\//g', file
 
         # rewrite the corresponding gzip file (if it exists)
         gzip = "#{file}.gz"

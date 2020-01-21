@@ -36,7 +36,7 @@ RSpec.configure do |config|
       tables_with_more_than_allowed_columns.each do |result|
         puts "The #{result['table']} table has #{result['column_count']} columns."
       end
-      puts "Recreating the database"
+      puts 'Recreating the database'
       start = Gitlab::Metrics::System.monotonic_time
 
       ActiveRecord::Tasks::DatabaseTasks.drop_current

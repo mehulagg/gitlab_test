@@ -15,7 +15,7 @@ describe Profiles::PersonalAccessTokensController do
       PersonalAccessToken.order(:created_at).last
     end
 
-    it "allows creation of a token with scopes" do
+    it 'allows creation of a token with scopes' do
       name = 'My PAT'
       scopes = %w[api read_user]
 
@@ -27,7 +27,7 @@ describe Profiles::PersonalAccessTokensController do
       expect(PersonalAccessToken.active).to include(created_token)
     end
 
-    it "allows creation of a token with an expiry date" do
+    it 'allows creation of a token with an expiry date' do
       expires_at = 5.days.from_now.to_date
 
       post :create, params: { personal_access_token: token_attributes.merge(expires_at: expires_at) }
@@ -48,20 +48,20 @@ describe Profiles::PersonalAccessTokensController do
       get :index
     end
 
-    it "retrieves active personal access tokens" do
+    it 'retrieves active personal access tokens' do
       expect(assigns(:active_personal_access_tokens)).to include(active_personal_access_token)
     end
 
-    it "retrieves inactive personal access tokens" do
+    it 'retrieves inactive personal access tokens' do
       expect(assigns(:inactive_personal_access_tokens)).to include(inactive_personal_access_token)
     end
 
-    it "does not retrieve impersonation personal access tokens" do
+    it 'does not retrieve impersonation personal access tokens' do
       expect(assigns(:active_personal_access_tokens)).not_to include(impersonation_personal_access_token)
       expect(assigns(:inactive_personal_access_tokens)).not_to include(impersonation_personal_access_token)
     end
 
-    it "retrieves newly created personal access token value" do
+    it 'retrieves newly created personal access token value' do
       expect(assigns(:new_personal_access_token)).to eql(token_value)
     end
   end

@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Ci::GroupVariable do
   subject { build(:ci_group_variable) }
 
-  it_behaves_like "CI variable"
+  it_behaves_like 'CI variable'
 
   it { is_expected.to include_module(Presentable) }
   it { is_expected.to include_module(Maskable) }

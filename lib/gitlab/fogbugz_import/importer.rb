@@ -185,7 +185,7 @@ module Gitlab
 
             note = Note.create!(
               project_id:     project.id,
-              noteable_type:  "Issue",
+              noteable_type:  'Issue',
               noteable_id:    issue.id,
               author_id:      author_id,
               note:           body
@@ -204,9 +204,9 @@ module Gitlab
       end
 
       def escape_for_markdown(str)
-        str = str.gsub(/^#/, "\\#")
-        str = str.gsub(/^-/, "\\-")
-        str = str.gsub("`", "\\~")
+        str = str.gsub(/^#/, '\\#')
+        str = str.gsub(/^-/, '\\-')
+        str = str.gsub('`', '\\~')
         str = str.delete("\r")
         str = str.gsub("\n", "  \n")
         str
@@ -284,7 +284,7 @@ module Gitlab
         body << '---'
 
         if content.blank?
-          content = "*(No comment has been entered for this change)*"
+          content = '*(No comment has been entered for this change)*'
         end
 
         body << content

@@ -54,8 +54,8 @@ class User < ApplicationRecord
   devise :lockable, :recoverable, :rememberable, :trackable,
          :validatable, :omniauthable, :confirmable, :registerable
 
-  BLOCKED_MESSAGE = "Your account has been blocked. Please contact your GitLab " \
-                    "administrator if you think this is an error."
+  BLOCKED_MESSAGE = 'Your account has been blocked. Please contact your GitLab ' \
+                    'administrator if you think this is an error.'
 
   MINIMUM_INACTIVE_DAYS = 180
 
@@ -139,7 +139,7 @@ class User < ApplicationRecord
   has_many :subscriptions,            dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_many :oauth_applications, class_name: 'Doorkeeper::Application', as: :owner, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one  :abuse_report,             dependent: :destroy, foreign_key: :user_id # rubocop:disable Cop/ActiveRecordDependent
-  has_many :reported_abuse_reports,   dependent: :destroy, foreign_key: :reporter_id, class_name: "AbuseReport" # rubocop:disable Cop/ActiveRecordDependent
+  has_many :reported_abuse_reports,   dependent: :destroy, foreign_key: :reporter_id, class_name: 'AbuseReport' # rubocop:disable Cop/ActiveRecordDependent
   has_many :spam_logs,                dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_many :builds,                   dependent: :nullify, class_name: 'Ci::Build' # rubocop:disable Cop/ActiveRecordDependent
   has_many :pipelines,                dependent: :nullify, class_name: 'Ci::Pipeline' # rubocop:disable Cop/ActiveRecordDependent
@@ -149,8 +149,8 @@ class User < ApplicationRecord
   has_many :triggers,                 dependent: :destroy, class_name: 'Ci::Trigger', foreign_key: :owner_id # rubocop:disable Cop/ActiveRecordDependent
 
   has_many :issue_assignees
-  has_many :assigned_issues, class_name: "Issue", through: :issue_assignees, source: :issue
-  has_many :assigned_merge_requests, dependent: :nullify, foreign_key: :assignee_id, class_name: "MergeRequest" # rubocop:disable Cop/ActiveRecordDependent
+  has_many :assigned_issues, class_name: 'Issue', through: :issue_assignees, source: :issue
+  has_many :assigned_merge_requests, dependent: :nullify, foreign_key: :assignee_id, class_name: 'MergeRequest' # rubocop:disable Cop/ActiveRecordDependent
 
   has_many :custom_attributes, class_name: 'UserCustomAttribute'
   has_many :callouts, class_name: 'UserCallout'
@@ -381,8 +381,8 @@ class User < ApplicationRecord
   end
 
   def self.without_two_factor
-    joins("LEFT OUTER JOIN u2f_registrations AS u2f ON u2f.user_id = users.id")
-      .where("u2f.id IS NULL AND users.otp_required_for_login = ?", false)
+    joins('LEFT OUTER JOIN u2f_registrations AS u2f ON u2f.user_id = users.id')
+      .where('u2f.id IS NULL AND users.otp_required_for_login = ?', false)
   end
 
   #
@@ -398,7 +398,7 @@ class User < ApplicationRecord
     def find_for_database_authentication(warden_conditions)
       conditions = warden_conditions.dup
       if login = conditions.delete(:login)
-        where(conditions).find_by("lower(username) = :value OR lower(email) = :value", value: login.downcase.strip)
+        where(conditions).find_by('lower(username) = :value OR lower(email) = :value', value: login.downcase.strip)
       else
         find_by(conditions)
       end
@@ -712,19 +712,19 @@ class User < ApplicationRecord
   def owns_notification_email
     return if temp_oauth_email?
 
-    errors.add(:notification_email, _("is not an email you own")) unless all_emails.include?(notification_email)
+    errors.add(:notification_email, _('is not an email you own')) unless all_emails.include?(notification_email)
   end
 
   def owns_public_email
     return if public_email.blank?
 
-    errors.add(:public_email, _("is not an email you own")) unless all_emails.include?(public_email)
+    errors.add(:public_email, _('is not an email you own')) unless all_emails.include?(public_email)
   end
 
   def owns_commit_email
     return if read_attribute(:commit_email).blank?
 
-    errors.add(:commit_email, _("is not an email you own")) unless verified_emails.include?(commit_email)
+    errors.add(:commit_email, _('is not an email you own')) unless verified_emails.include?(commit_email)
   end
 
   # Define commit_email-related attribute methods explicitly instead of relying
@@ -864,7 +864,7 @@ class User < ApplicationRecord
       [
         Project.where(namespace: namespace),
         Project.joins(:project_authorizations)
-          .where("projects.namespace_id <> ?", namespace.id)
+          .where('projects.namespace_id <> ?', namespace.id)
           .where(project_authorizations: { user_id: id, access_level: Gitlab::Access::OWNER })
       ],
       remove_duplicates: false
@@ -997,7 +997,7 @@ class User < ApplicationRecord
     if identities.loaded?
       identities.find { |identity| Gitlab::Auth::OAuth::Provider.ldap_provider?(identity.provider) && !identity.extern_uid.nil? }
     else
-      identities.exists?(["provider LIKE ? AND extern_uid IS NOT NULL", "ldap%"])
+      identities.exists?(['provider LIKE ? AND extern_uid IS NOT NULL', 'ldap%'])
     end
   end
 
@@ -1005,12 +1005,12 @@ class User < ApplicationRecord
     if identities.loaded?
       identities.find { |identity| Gitlab::Auth::OAuth::Provider.ultraauth_provider?(identity.provider) && !identity.extern_uid.nil? }
     else
-      identities.exists?(["provider = ? AND extern_uid IS NOT NULL", "ultraauth"])
+      identities.exists?(['provider = ? AND extern_uid IS NOT NULL', 'ultraauth'])
     end
   end
 
   def ldap_identity
-    @ldap_identity ||= identities.find_by(["provider LIKE ?", "ldap%"])
+    @ldap_identity ||= identities.find_by(['provider LIKE ?', 'ldap%'])
   end
 
   def matches_identity?(provider, extern_uid)
@@ -1316,7 +1316,7 @@ class User < ApplicationRecord
   def contributed_projects
     events = Event.select(:project_id)
       .contributions.where(author_id: self)
-      .where("created_at > ?", Time.now - 1.year)
+      .where('created_at > ?', Time.now - 1.year)
       .distinct
       .reorder(nil)
 
@@ -1690,7 +1690,7 @@ class User < ApplicationRecord
       if domain_matches?(allowed_domains, email)
         valid = true
       else
-        error = "domain is not authorized for sign-up"
+        error = 'domain is not authorized for sign-up'
         valid = false
       end
     end

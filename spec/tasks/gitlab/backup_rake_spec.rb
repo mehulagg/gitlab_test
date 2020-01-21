@@ -56,7 +56,7 @@ describe 'gitlab:app namespace rake task' do
         allow(Kernel).to receive(:system).and_return(true)
         allow(FileUtils).to receive(:cp_r).and_return(true)
         allow(FileUtils).to receive(:mv).and_return(true)
-        allow(Rake::Task["gitlab:shell:setup"])
+        allow(Rake::Task['gitlab:shell:setup'])
           .to receive(:invoke).and_return(true)
       end
 
@@ -174,7 +174,7 @@ describe 'gitlab:app namespace rake task' do
           File.join(project.repository.path_to_repo, 'custom_hooks')
         end
         FileUtils.mkdir_p(path)
-        FileUtils.touch(File.join(path, "dummy.txt"))
+        FileUtils.touch(File.join(path, 'dummy.txt'))
       end
 
       context 'project uses custom_hooks and successfully creates backup' do
@@ -196,7 +196,7 @@ describe 'gitlab:app namespace rake task' do
           repo_path = Gitlab::GitalyClient::StorageSettings.allow_disk_access do
             project.repository.path
           end
-          expect(Dir.entries(File.join(repo_path, 'custom_hooks'))).to include("dummy.txt")
+          expect(Dir.entries(File.join(repo_path, 'custom_hooks'))).to include('dummy.txt')
         end
       end
 
@@ -337,12 +337,12 @@ describe 'gitlab:app namespace rake task' do
     end
   end # backup_create task
 
-  describe "Skipping items" do
+  describe 'Skipping items' do
     before do
       stub_env('SKIP', 'repositories,uploads')
     end
 
-    it "does not contain skipped item" do
+    it 'does not contain skipped item' do
       expect { run_rake_task('gitlab:backup:create') }.to output.to_stdout
 
       tar_contents, _exit_status = Gitlab::Popen.popen(
@@ -379,7 +379,7 @@ describe 'gitlab:app namespace rake task' do
     end
   end
 
-  describe "Human Readable Backup Name" do
+  describe 'Human Readable Backup Name' do
     it 'name has human readable time' do
       expect { run_rake_task('gitlab:backup:create') }.to output.to_stdout
 

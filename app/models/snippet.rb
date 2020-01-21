@@ -41,7 +41,7 @@ class Snippet < ApplicationRecord
   belongs_to :project
 
   has_many :notes, as: :noteable, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
-  has_many :user_mentions, class_name: "SnippetUserMention"
+  has_many :user_mentions, class_name: 'SnippetUserMention'
 
   delegate :name, :email, to: :author, prefix: true, allow_nil: true
 
@@ -58,7 +58,7 @@ class Snippet < ApplicationRecord
                 current_value = ActiveSupport::NumberHelper.number_to_human_size(data[:value].size)
                 max_size = ActiveSupport::NumberHelper.number_to_human_size(Gitlab::CurrentSettings.snippet_size_limit)
 
-                _("is too long (%{current_value}). The maximum size is %{max_size}.") % { current_value: current_value, max_size: max_size }
+                _('is too long (%{current_value}). The maximum size is %{max_size}.') % { current_value: current_value, max_size: max_size }
               end
             },
             if: :content_changed?
@@ -70,7 +70,7 @@ class Snippet < ApplicationRecord
   scope :are_private, -> { where(visibility_level: Snippet::PRIVATE) }
   scope :are_public, -> { public_only }
   scope :are_secret, -> { public_only.where(secret: true) }
-  scope :fresh, -> { order("created_at DESC") }
+  scope :fresh, -> { order('created_at DESC') }
   scope :inc_author, -> { includes(:author) }
   scope :inc_relations_for_view, -> { includes(author: :status) }
 
@@ -155,7 +155,7 @@ class Snippet < ApplicationRecord
   end
 
   def self.link_reference_pattern
-    @link_reference_pattern ||= super("snippets", /(?<snippet>\d+)/)
+    @link_reference_pattern ||= super('snippets', /(?<snippet>\d+)/)
   end
 
   def initialize(attributes = {})
@@ -188,9 +188,9 @@ class Snippet < ApplicationRecord
 
   def self.content_types
     [
-      ".rb", ".py", ".pl", ".scala", ".c", ".cpp", ".java",
-      ".haml", ".html", ".sass", ".scss", ".xml", ".php", ".erb",
-      ".js", ".sh", ".coffee", ".yml", ".md"
+      '.rb', '.py', '.pl', '.scala', '.c', '.cpp', '.java',
+      '.haml', '.html', '.sass', '.scss', '.xml', '.php', '.erb',
+      '.js', '.sh', '.coffee', '.yml', '.md'
     ]
   end
 

@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe MergeRequestsFinder do
-  context "multiple projects with merge requests" do
+  context 'multiple projects with merge requests' do
     include_context 'MergeRequestsFinder multiple projects with merge requests context'
 
     describe '#execute' do
@@ -387,7 +387,7 @@ describe MergeRequestsFinder do
       let(:project) { create(:project, :repository, :public, :merge_requests_private) }
       let!(:merge_request) { create(:merge_request, source_project: project) }
 
-      it "returns nothing to to non members" do
+      it 'returns nothing to to non members' do
         merge_requests = described_class.new(
           non_member,
           project_id: project.id

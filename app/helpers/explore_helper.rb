@@ -24,7 +24,7 @@ module ExploreHelper
   end
 
   def explore_controller?
-    controller.class.name.split("::").first == "Explore"
+    controller.class.name.split('::').first == 'Explore'
   end
 
   def explore_nav_links

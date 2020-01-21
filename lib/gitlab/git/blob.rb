@@ -43,7 +43,7 @@ module Gitlab
           entry = Gitlab::GitalyClient::CommitService.new(repository).tree_entry(sha, path, req_limit)
           return unless entry
 
-          entry.data = "" if limit == 0
+          entry.data = '' if limit == 0
 
           case entry.type
           when :COMMIT
@@ -178,7 +178,7 @@ module Gitlab
       private
 
       def has_lfs_version_key?
-        !empty? && text_in_repo? && data.start_with?("version https://git-lfs.github.com/spec")
+        !empty? && text_in_repo? && data.start_with?('version https://git-lfs.github.com/spec')
       end
     end
   end

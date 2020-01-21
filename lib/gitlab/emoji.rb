@@ -25,11 +25,11 @@ module Gitlab
     end
 
     def emoji_filename(name)
-      emojis[name]["unicode"]
+      emojis[name]['unicode']
     end
 
     def emoji_unicode_filename(moji)
-      emojis_by_moji[moji]["unicode"]
+      emojis_by_moji[moji]['unicode']
     end
 
     def emoji_unicode_version(name)

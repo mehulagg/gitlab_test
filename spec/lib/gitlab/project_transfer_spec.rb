@@ -4,14 +4,14 @@ require 'spec_helper'
 
 describe Gitlab::ProjectTransfer do
   before do
-    @root_dir = File.join(Rails.root, "public", "uploads")
+    @root_dir = File.join(Rails.root, 'public', 'uploads')
     @project_transfer = described_class.new
     allow(@project_transfer).to receive(:root_dir).and_return(@root_dir)
 
-    @project_path_was = "test_project_was"
-    @project_path = "test_project"
-    @namespace_path_was = "test_namespace_was"
-    @namespace_path = "test_namespace"
+    @project_path_was = 'test_project_was'
+    @project_path = 'test_project'
+    @namespace_path_was = 'test_namespace_was'
+    @namespace_path = 'test_namespace'
   end
 
   after do
@@ -22,7 +22,7 @@ describe Gitlab::ProjectTransfer do
   end
 
   describe '#move_project' do
-    it "moves project upload to another namespace" do
+    it 'moves project upload to another namespace' do
       path_to_be_moved = File.join(@root_dir, @namespace_path_was, @project_path)
       expected_path = File.join(@root_dir, @namespace_path, @project_path)
       FileUtils.mkdir_p(path_to_be_moved)
@@ -75,7 +75,7 @@ describe Gitlab::ProjectTransfer do
   end
 
   describe '#rename_project' do
-    it "renames project" do
+    it 'renames project' do
       path_to_be_moved = File.join(@root_dir, @namespace_path, @project_path_was)
       expected_path = File.join(@root_dir, @namespace_path, @project_path)
       FileUtils.mkdir_p(path_to_be_moved)
@@ -87,7 +87,7 @@ describe Gitlab::ProjectTransfer do
   end
 
   describe '#rename_namespace' do
-    it "renames namespace" do
+    it 'renames namespace' do
       path_to_be_moved = File.join(@root_dir, @namespace_path_was, @project_path)
       expected_path = File.join(@root_dir, @namespace_path, @project_path)
       FileUtils.mkdir_p(path_to_be_moved)

@@ -131,7 +131,7 @@ describe 'Dashboard > User filters projects' do
 
         list = page.all('.projects-list .project-name').map(&:text)
 
-        expect(list).to contain_exactly("Private project", "Treasure", "Victorialand")
+        expect(list).to contain_exactly('Private project', 'Treasure', 'Victorialand')
       end
 
       it 'filters internal projects only' do
@@ -148,7 +148,7 @@ describe 'Dashboard > User filters projects' do
         select_dropdown_option '#filtered-search-visibility-dropdown', 'Any'
         list = page.all('.projects-list .project-name').map(&:text)
 
-        expect(list).to contain_exactly("Internal project", "Private project", "Treasure", "Victorialand")
+        expect(list).to contain_exactly('Internal project', 'Private project', 'Treasure', 'Victorialand')
       end
     end
 

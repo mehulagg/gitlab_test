@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe AuthHelper do
-  describe "button_based_providers" do
+  describe 'button_based_providers' do
     it 'returns all enabled providers from devise' do
       allow(helper).to receive(:auth_providers) { [:twitter, :github] }
       expect(helper.button_based_providers).to include(*[:twitter, :github])
@@ -20,7 +20,7 @@ describe AuthHelper do
     end
   end
 
-  describe "providers_for_base_controller" do
+  describe 'providers_for_base_controller' do
     it 'returns all enabled providers from devise' do
       allow(helper).to receive(:auth_providers) { [:twitter, :github] }
       expect(helper.providers_for_base_controller).to include(*[:twitter, :github])
@@ -32,7 +32,7 @@ describe AuthHelper do
     end
   end
 
-  describe "form_based_providers" do
+  describe 'form_based_providers' do
     it 'includes LDAP providers' do
       allow(helper).to receive(:auth_providers) { [:twitter, :ldapmain] }
       expect(helper.form_based_providers).to eq %i(ldapmain)

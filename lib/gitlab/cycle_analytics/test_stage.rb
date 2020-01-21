@@ -22,11 +22,11 @@ module Gitlab
       end
 
       def legend
-        _("Related Jobs")
+        _('Related Jobs')
       end
 
       def description
-        _("Total test time for all commits/merges")
+        _('Total test time for all commits/merges')
       end
     end
   end

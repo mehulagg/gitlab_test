@@ -29,7 +29,7 @@ module QA
           # We set it to `true` so that it doesn't repeat if there's no exception
           true
         end
-        QA::Runtime::Logger.debug("ended retry_on_exception")
+        QA::Runtime::Logger.debug('ended retry_on_exception')
 
         result
       end
@@ -38,7 +38,7 @@ module QA
         # For backwards-compatibility
         max_attempts = 3 if max_attempts.nil? && max_duration.nil?
 
-        start_msg ||= ["with retry_until:"]
+        start_msg ||= ['with retry_until:']
         start_msg << "max_attempts: #{max_attempts};" if max_attempts
         start_msg << "max_duration: #{max_duration};" if max_duration
         start_msg << "reload_page: #{reload_page}; sleep_interval: #{sleep_interval}; raise_on_failure: #{raise_on_failure}; retry_on_exception: #{retry_on_exception}"
@@ -55,7 +55,7 @@ module QA
         ) do
           result = yield
         end
-        QA::Runtime::Logger.debug("ended retry_until")
+        QA::Runtime::Logger.debug('ended retry_until')
 
         result
       end

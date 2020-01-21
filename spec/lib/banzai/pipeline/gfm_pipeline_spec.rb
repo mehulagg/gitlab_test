@@ -94,29 +94,29 @@ describe Banzai::Pipeline::GfmPipeline do
     let(:project) { create(:project, :public) }
 
     it 'rewrites links with spaces in url' do
-      markdown = "[Link to Page](page slug)"
+      markdown = '[Link to Page](page slug)'
       output = described_class.to_html(markdown, project: project)
 
-      expect(output).to include("href=\"page%20slug\"")
+      expect(output).to include('href="page%20slug"')
     end
 
     it 'rewrites images with spaces in url' do
-      markdown = "![My Image](test image.png)"
+      markdown = '![My Image](test image.png)'
       output = described_class.to_html(markdown, project: project)
 
-      expect(output).to include("src=\"test%20image.png\"")
+      expect(output).to include('src="test%20image.png"')
     end
 
     it 'sanitizes the fixed link' do
-      markdown_xss = "[xss](javascript: alert%28document.domain%29)"
+      markdown_xss = '[xss](javascript: alert%28document.domain%29)'
       output = described_class.to_html(markdown_xss, project: project)
 
-      expect(output).not_to include("javascript")
+      expect(output).not_to include('javascript')
 
       markdown_xss = "<invalidtag>\n[xss](javascript:alert%28document.domain%29)"
       output = described_class.to_html(markdown_xss, project: project)
 
-      expect(output).not_to include("javascript")
+      expect(output).not_to include('javascript')
     end
   end
 

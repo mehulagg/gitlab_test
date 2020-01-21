@@ -11,8 +11,8 @@ module EE
     end
 
     def admin_email_select_tag(id, opts = {})
-      css_class = ["ajax-admin-email-select"]
-      css_class << "multiselect" if opts[:multiple]
+      css_class = ['ajax-admin-email-select']
+      css_class << 'multiselect' if opts[:multiple]
       css_class << opts[:class] if opts[:class]
       value = opts[:selected] || ''
 

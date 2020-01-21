@@ -745,13 +745,6 @@ Style/StderrPuts:
   Exclude:
     - 'config/initializers/rspec_profiling.rb'
 
-# Offense count: 75
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: single_quotes, double_quotes
-Style/StringLiteralsInInterpolation:
-  Enabled: false
-
 # Offense count: 216
 # Cop supports --auto-correct.
 # Configuration parameters: IgnoredMethods.

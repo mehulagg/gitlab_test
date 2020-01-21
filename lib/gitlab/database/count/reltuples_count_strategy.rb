@@ -74,7 +74,7 @@ module Gitlab
         def get_statistics(table_names, check_statistics: true)
           time = 1.hour.ago
 
-          query = PgClass.joins("LEFT JOIN pg_stat_user_tables USING (relname)")
+          query = PgClass.joins('LEFT JOIN pg_stat_user_tables USING (relname)')
             .where(relname: table_names)
             .select('pg_class.relname AS table_name, reltuples::bigint AS estimate')
 

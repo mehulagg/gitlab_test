@@ -16,7 +16,7 @@ module GettextI18nRails
     #
     # Overwrites: https://github.com/grosser/gettext_i18n_rails/blob/8396387a431e0f8ead72fc1cd425cad2fa4992f2/lib/gettext_i18n_rails/haml_parser.rb#L9
     def self.convert_to_code(text)
-      text.gsub!(VUE_TRANSLATE_REGEX, "\\2= \\3_(\\4)")
+      text.gsub!(VUE_TRANSLATE_REGEX, '\\2= \\3_(\\4)')
 
       old_convert_to_code(text)
     end
@@ -32,9 +32,9 @@ module GettextI18nRailsJs
       # Overwrites: https://github.com/webhippie/gettext_i18n_rails_js/blob/46c58db6d2053a4f5f36a0eb024ea706ff5707cb/lib/gettext_i18n_rails_js/parser/javascript.rb#L36
       def target?(file)
         [
-          ".js",
-          ".jsx",
-          ".vue"
+          '.js',
+          '.jsx',
+          '.vue'
         ].include? ::File.extname(file)
       end
 
@@ -65,6 +65,6 @@ class PoToJson
     generated = build_json_for(build_jed_for(@parsed))
     [
       "window.translations = #{generated};"
-    ].join(" ")
+    ].join(' ')
   end
 end

@@ -11,7 +11,7 @@ describe 'Database config initializer' do
     allow(ActiveRecord::Base).to receive(:establish_connection)
   end
 
-  context "when using multi-threaded runtime" do
+  context 'when using multi-threaded runtime' do
     let(:max_threads) { 8 }
 
     before do
@@ -19,39 +19,39 @@ describe 'Database config initializer' do
       allow(Gitlab::Runtime).to receive(:max_threads).and_return(max_threads)
     end
 
-    context "and no existing pool size is set" do
+    context 'and no existing pool size is set' do
       before do
         stub_database_config(pool_size: nil)
       end
 
-      it "sets it to the max number of worker threads" do
+      it 'sets it to the max number of worker threads' do
         expect { subject }.to change { Gitlab::Database.config['pool'] }.from(nil).to(max_threads)
       end
     end
 
-    context "and the existing pool size is smaller than the max number of worker threads" do
+    context 'and the existing pool size is smaller than the max number of worker threads' do
       before do
         stub_database_config(pool_size: max_threads - 1)
       end
 
-      it "sets it to the max number of worker threads" do
+      it 'sets it to the max number of worker threads' do
         expect { subject }.to change { Gitlab::Database.config['pool'] }.by(1)
       end
     end
 
-    context "and the existing pool size is larger than the max number of worker threads" do
+    context 'and the existing pool size is larger than the max number of worker threads' do
       before do
         stub_database_config(pool_size: max_threads + 1)
       end
 
-      it "keeps the configured pool size" do
+      it 'keeps the configured pool size' do
         expect { subject }.not_to change { Gitlab::Database.config['pool'] }
       end
     end
   end
 
-  context "when using single-threaded runtime" do
-    it "does nothing" do
+  context 'when using single-threaded runtime' do
+    it 'does nothing' do
       expect { subject }.not_to change { Gitlab::Database.config['pool'] }
     end
   end

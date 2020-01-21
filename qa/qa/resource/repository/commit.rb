@@ -51,7 +51,7 @@ module QA
 
         def api_post_body
           {
-            branch: @branch || "master",
+            branch: @branch || 'master',
             author_email: @author_email || Runtime::User.default_email,
             author_name: @author_name || Runtime::User.username,
             commit_message: commit_message,
@@ -61,8 +61,8 @@ module QA
 
         def actions
           pending_actions = []
-          pending_actions << @add_files.map { |file| file.merge({ action: "create" }) } if @add_files
-          pending_actions << @update_files.map { |file| file.merge({ action: "update" }) } if @update_files
+          pending_actions << @add_files.map { |file| file.merge({ action: 'create' }) } if @add_files
+          pending_actions << @update_files.map { |file| file.merge({ action: 'update' }) } if @update_files
           pending_actions.flatten
         end
 

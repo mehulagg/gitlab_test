@@ -37,7 +37,7 @@ describe DesignManagement::DesignAction do
       context 'content is forbidden' do
         let(:fail_validation) { raise_error(/forbids content/i) }
 
-        it "must not be nil if the action is delete" do
+        it 'must not be nil if the action is delete' do
           expect { described_class.new(double, :delete, :foo) }.to fail_validation
         end
       end

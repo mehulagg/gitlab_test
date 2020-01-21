@@ -48,7 +48,7 @@ describe 'Multi-file editor new directory', :js do
 
     fill_in('commit-message', with: 'commit message ide')
 
-    find(:css, ".js-ide-commit-new-mr input").set(false)
+    find(:css, '.js-ide-commit-new-mr input').set(false)
 
     wait_for_requests
 

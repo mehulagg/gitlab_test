@@ -101,7 +101,7 @@ describe Projects::ImportsController do
           end
 
           it 'does not redirect to external params[:to]' do
-            params[:to] = "//google.com"
+            params[:to] = '//google.com'
 
             get :show, params: { namespace_id: project.namespace.to_param, project_id: project, continue: params }
             expect(response).not_to redirect_to params[:to]

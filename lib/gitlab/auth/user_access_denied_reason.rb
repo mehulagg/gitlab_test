@@ -10,15 +10,15 @@ module Gitlab
       def rejection_message
         case rejection_type
         when :internal
-          "This action cannot be performed by internal users"
+          'This action cannot be performed by internal users'
         when :terms_not_accepted
           "You (#{@user.to_reference}) must accept the Terms of Service in order to perform this action. "\
-          "Please access GitLab from a web browser to accept these terms."
+          'Please access GitLab from a web browser to accept these terms.'
         when :deactivated
-          "Your account has been deactivated by your administrator. "\
+          'Your account has been deactivated by your administrator. '\
           "Please log back in from a web browser to reactivate your account at #{Gitlab.config.gitlab.url}"
         else
-          "Your account has been blocked."
+          'Your account has been blocked.'
         end
       end
 

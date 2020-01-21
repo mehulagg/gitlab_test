@@ -14,7 +14,7 @@ module BlameHelper
 
   def age_map_class(commit_date, duration)
     if duration[:started_days_ago] == 0
-      "blame-commit-age-0"
+      'blame-commit-age-0'
     else
       commit_date_days_ago = (duration[:now] - commit_date).to_i / 1.day
       # Numbers 0 to 10 come from this calculation, but only commits on the oldest

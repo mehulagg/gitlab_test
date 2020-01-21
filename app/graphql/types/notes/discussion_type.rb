@@ -8,7 +8,7 @@ module Types
       authorize :read_note
 
       field :id, GraphQL::ID_TYPE, null: false,
-            description: "ID of this discussion"
+            description: 'ID of this discussion'
       field :reply_id, GraphQL::ID_TYPE, null: false,
             description: 'ID used to reply to this discussion'
       field :created_at, Types::TimeType, null: false,

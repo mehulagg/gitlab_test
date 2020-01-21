@@ -11,9 +11,9 @@
 RSpec.shared_examples 'rate-limited token-authenticated requests' do
   let(:throttle_types) do
     {
-      "throttle_protected_paths" => "throttle_authenticated_protected_paths_api",
-      "throttle_authenticated_api" => "throttle_authenticated_api",
-      "throttle_authenticated_web" => "throttle_authenticated_web"
+      'throttle_protected_paths' => 'throttle_authenticated_protected_paths_api',
+      'throttle_authenticated_api' => 'throttle_authenticated_api',
+      'throttle_authenticated_web' => 'throttle_authenticated_web'
     }
   end
 
@@ -137,8 +137,8 @@ end
 RSpec.shared_examples 'rate-limited web authenticated requests' do
   let(:throttle_types) do
     {
-      "throttle_protected_paths" => "throttle_authenticated_protected_paths_web",
-      "throttle_authenticated_web" => "throttle_authenticated_web"
+      'throttle_protected_paths' => 'throttle_authenticated_protected_paths_web',
+      'throttle_authenticated_web' => 'throttle_authenticated_web'
     }
   end
 

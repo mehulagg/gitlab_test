@@ -17,7 +17,7 @@ describe Gitlab::ImportExport::WikiRepoSaver do
         allow(instance).to receive(:storage_path).and_return(export_path)
       end
       project_wiki.wiki
-      project_wiki.create_page("index", "test content")
+      project_wiki.create_page('index', 'test content')
     end
 
     after do

@@ -150,7 +150,7 @@ module API
       params do
         requires :id, type: Integer, desc: 'The ID of a snippet'
       end
-      get ":id/raw" do
+      get ':id/raw' do
         snippet = snippets.find_by_id(params.delete(:id))
         break not_found!('Snippet') unless snippet
 
@@ -166,7 +166,7 @@ module API
       params do
         requires :id, type: Integer, desc: 'The ID of a snippet'
       end
-      get ":id/user_agent_detail" do
+      get ':id/user_agent_detail' do
         authenticated_as_admin!
 
         snippet = Snippet.find_by_id!(params[:id])

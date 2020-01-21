@@ -15,7 +15,7 @@ module Gitlab
         return 'Geo database is not configured to use Foreign Data Wrapper.' unless Gitlab::Geo::Fdw.enabled?
 
         unless Gitlab::Geo::Fdw.foreign_tables_up_to_date?
-          output = "Geo database has an outdated FDW remote schema."
+          output = 'Geo database has an outdated FDW remote schema.'
           output = "#{output} It contains #{foreign_schema_tables_count} of #{gitlab_schema_tables_count} expected tables." unless schema_tables_match?
           return output
         end
@@ -93,7 +93,7 @@ module Gitlab
         strong_memoize(:migration_version) do
           latest_migration = nil
 
-          Dir[File.join(db_migrate_path, "[0-9]*_*.rb"), File.join(db_post_migrate_path, "[0-9]*_*.rb")].each do |f|
+          Dir[File.join(db_migrate_path, '[0-9]*_*.rb'), File.join(db_post_migrate_path, '[0-9]*_*.rb')].each do |f|
             timestamp = f.scan(/0*([0-9]+)_[_.a-zA-Z0-9]*.rb/).first.first rescue -1
 
             if latest_migration.nil? || timestamp.to_i > latest_migration.to_i

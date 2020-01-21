@@ -12,7 +12,7 @@ module WorkhorseHelper
     # If enabled, this will override the values set above
     workhorse_set_content_type!
 
-    render plain: ""
+    render plain: ''
   end
 
   # Send a Git diff through Workhorse
@@ -46,6 +46,6 @@ module WorkhorseHelper
   end
 
   def workhorse_set_content_type!
-    headers[Gitlab::Workhorse::DETECT_HEADER] = "true"
+    headers[Gitlab::Workhorse::DETECT_HEADER] = 'true'
   end
 end

@@ -8,7 +8,7 @@ describe Notes::ResolveService do
   let(:user) { merge_request.author }
 
   describe '#execute' do
-    it "resolves the note" do
+    it 'resolves the note' do
       described_class.new(merge_request.project, user).execute(note)
       note.reload
 
@@ -16,7 +16,7 @@ describe Notes::ResolveService do
       expect(note.resolved_by).to eq(user)
     end
 
-    it "sends notifications if all discussions are resolved" do
+    it 'sends notifications if all discussions are resolved' do
       expect_next_instance_of(MergeRequests::ResolvedDiscussionNotificationService) do |instance|
         expect(instance).to receive(:execute).with(merge_request)
       end

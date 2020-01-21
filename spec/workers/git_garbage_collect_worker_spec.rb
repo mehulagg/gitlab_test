@@ -14,7 +14,7 @@ describe GitGarbageCollectWorker do
 
   subject { described_class.new }
 
-  describe "#perform" do
+  describe '#perform' do
     context 'with active lease_uuid' do
       before do
         allow(subject).to receive(:get_lease_uuid).and_return(lease_uuid)
@@ -102,12 +102,12 @@ describe GitGarbageCollectWorker do
       end
     end
 
-    context "repack_full" do
+    context 'repack_full' do
       before do
         expect(subject).to receive(:get_lease_uuid).and_return(lease_uuid)
       end
 
-      it "calls Gitaly" do
+      it 'calls Gitaly' do
         expect_any_instance_of(Gitlab::GitalyClient::RepositoryService).to receive(:repack_full)
           .and_return(nil)
 
@@ -115,12 +115,12 @@ describe GitGarbageCollectWorker do
       end
     end
 
-    context "pack_refs" do
+    context 'pack_refs' do
       before do
         expect(subject).to receive(:get_lease_uuid).and_return(lease_uuid)
       end
 
-      it "calls Gitaly" do
+      it 'calls Gitaly' do
         expect_any_instance_of(Gitlab::GitalyClient::RefService).to receive(:pack_refs)
           .and_return(nil)
 
@@ -128,12 +128,12 @@ describe GitGarbageCollectWorker do
       end
     end
 
-    context "repack_incremental" do
+    context 'repack_incremental' do
       before do
         expect(subject).to receive(:get_lease_uuid).and_return(lease_uuid)
       end
 
-      it "calls Gitaly" do
+      it 'calls Gitaly' do
         expect_any_instance_of(Gitlab::GitalyClient::RepositoryService).to receive(:repack_incremental)
           .and_return(nil)
 

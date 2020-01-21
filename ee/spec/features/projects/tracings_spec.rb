@@ -45,7 +45,7 @@ describe 'Tracings Content Security Policy' do
       it 'overwrites frame-src' do
         visit project_tracing_path(project)
 
-        is_expected.to eq("frame-src https://example.com")
+        is_expected.to eq('frame-src https://example.com')
       end
     end
 
@@ -53,7 +53,7 @@ describe 'Tracings Content Security Policy' do
       it 'uses global policy' do
         visit project_tracing_path(project)
 
-        is_expected.to eq("frame-src https://global-policy.com")
+        is_expected.to eq('frame-src https://global-policy.com')
       end
     end
   end

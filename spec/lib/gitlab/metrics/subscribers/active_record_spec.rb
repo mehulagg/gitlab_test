@@ -66,7 +66,7 @@ describe Gitlab::Metrics::Subscribers::ActiveRecord do
             :event,
             name: 'sql.active_record',
             payload: {
-              sql: "BEGIN",
+              sql: 'BEGIN',
               name: nil,
               connection_id: 231,
               statement_name: nil,
@@ -81,7 +81,7 @@ describe Gitlab::Metrics::Subscribers::ActiveRecord do
             :event,
             name: 'sql.active_record',
             payload: {
-              sql: "COMMIT",
+              sql: 'COMMIT',
               name: nil,
               connection_id: 212,
               statement_name: nil,

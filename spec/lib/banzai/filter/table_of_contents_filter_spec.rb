@@ -56,7 +56,7 @@ describe Banzai::Filter::TableOfContentsFilter do
       end
 
       it 'removes punctuation' do
-        doc = filter(header(1, "This, header! is, filled. with @ punctuation?"))
+        doc = filter(header(1, 'This, header! is, filled. with @ punctuation?'))
         expect(doc.css('h1 a').first.attr('href')).to eq '#this-header-is-filled-with-punctuation'
       end
 
@@ -73,7 +73,7 @@ describe Banzai::Filter::TableOfContentsFilter do
       end
 
       it 'prepends a prefix to digits-only ids' do
-        doc = filter(header(1, "123") + header(2, "1.0"))
+        doc = filter(header(1, '123') + header(2, '1.0'))
 
         expect(doc.css('h1 a').first.attr('href')).to eq '#anchor-123'
         expect(doc.css('h2 a').first.attr('href')).to eq '#anchor-10'

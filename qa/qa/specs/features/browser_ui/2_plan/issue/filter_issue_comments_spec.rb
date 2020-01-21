@@ -11,8 +11,8 @@ module QA
 
       it 'user filters comments and activities in an issue' do
         Page::Project::Issue::Show.perform do |show|
-          my_own_comment = "My own comment"
-          made_the_issue_confidential = "made the issue confidential"
+          my_own_comment = 'My own comment'
+          made_the_issue_confidential = 'made the issue confidential'
 
           show.comment('/confidential', filter: :comments_only)
           show.comment(my_own_comment, filter: :comments_only)

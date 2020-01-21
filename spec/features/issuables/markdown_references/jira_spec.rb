@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe "Jira", :js do
+describe 'Jira', :js do
   let(:user) { create(:user) }
   let(:actual_project) { create(:project, :public, :repository) }
   let(:merge_request) { create(:merge_request, target_project: actual_project, source_project: actual_project) }
@@ -11,12 +11,12 @@ describe "Jira", :js do
   let!(:issue_other_project) { create(:issue, project: other_project) }
   let(:issues) { [issue_actual_project, issue_other_project] }
 
-  shared_examples "correct references" do
+  shared_examples 'correct references' do
     before do
       remotelink = double(:remotelink, all: [], build: double(save!: true))
 
-      stub_request(:get, "https://jira.example.com/rest/api/2/issue/JIRA-5")
-      stub_request(:post, "https://jira.example.com/rest/api/2/issue/JIRA-5/comment")
+      stub_request(:get, 'https://jira.example.com/rest/api/2/issue/JIRA-5')
+      stub_request(:post, 'https://jira.example.com/rest/api/2/issue/JIRA-5/comment')
       allow_next_instance_of(JIRA::Resource::Issue) do |instance|
         allow(instance).to receive(:remotelink).and_return(remotelink)
       end
@@ -28,35 +28,35 @@ describe "Jira", :js do
       build_note
     end
 
-    it "creates a link to the referenced issue on the preview" do
-      find(".js-md-preview-button").click
+    it 'creates a link to the referenced issue on the preview' do
+      find('.js-md-preview-button').click
 
       wait_for_requests
 
-      page.within(".md-preview-holder") do
+      page.within('.md-preview-holder') do
         links_expectations
       end
     end
 
-    it "creates a link to the referenced issue after submit" do
-      click_button("Comment")
+    it 'creates a link to the referenced issue after submit' do
+      click_button('Comment')
 
       wait_for_requests
 
-      page.within("#diff-notes-app") do
+      page.within('#diff-notes-app') do
         links_expectations
       end
     end
 
-    it "creates a note on the referenced issues", :sidekiq_might_not_need_inline do
-      click_button("Comment")
+    it 'creates a note on the referenced issues', :sidekiq_might_not_need_inline do
+      click_button('Comment')
 
       wait_for_requests
 
       if referenced_issues.include?(issue_actual_project)
         visit(issue_path(issue_actual_project))
 
-        page.within("#notes") do
+        page.within('#notes') do
           expect(page).to have_content("#{user.to_reference} mentioned in merge request #{merge_request.to_reference}")
         end
       end
@@ -64,46 +64,46 @@ describe "Jira", :js do
       if referenced_issues.include?(issue_other_project)
         visit(issue_path(issue_other_project))
 
-        page.within("#notes") do
+        page.within('#notes') do
           expect(page).to have_content("#{user.to_reference} mentioned in merge request #{merge_request.to_reference(other_project)}")
         end
       end
     end
   end
 
-  context "when internal issues tracker is enabled for the other project" do
-    context "when only internal issues tracker is enabled for the actual project" do
-      include_examples "correct references" do
+  context 'when internal issues tracker is enabled for the other project' do
+    context 'when only internal issues tracker is enabled for the actual project' do
+      include_examples 'correct references' do
         let(:referenced_issues) { [issue_actual_project, issue_other_project] }
         let(:jira_referenced) { false }
       end
     end
 
-    context "when both external and internal issues trackers are enabled for the actual project" do
+    context 'when both external and internal issues trackers are enabled for the actual project' do
       before do
         create(:jira_service, project: actual_project)
       end
 
-      include_examples "correct references" do
+      include_examples 'correct references' do
         let(:referenced_issues) { [issue_actual_project, issue_other_project] }
         let(:jira_referenced) { true }
       end
     end
 
-    context "when only external issues tracker is enabled for the actual project" do
+    context 'when only external issues tracker is enabled for the actual project' do
       let(:actual_project) { create(:project, :public, :repository, :issues_disabled) }
 
       before do
         create(:jira_service, project: actual_project)
       end
 
-      include_examples "correct references" do
+      include_examples 'correct references' do
         let(:referenced_issues) { [issue_other_project] }
         let(:jira_referenced) { true }
       end
     end
 
-    context "when no tracker is enabled for the actual project" do
+    context 'when no tracker is enabled for the actual project' do
       let(:actual_project) { create(:project, :public, :repository, :issues_disabled) }
 
       include_examples 'correct references' do
@@ -113,44 +113,44 @@ describe "Jira", :js do
     end
   end
 
-  context "when internal issues tracker is disabled for the other project" do
+  context 'when internal issues tracker is disabled for the other project' do
     let(:other_project) { create(:project, :public, :repository, :issues_disabled) }
 
-    context "when only internal issues tracker is enabled for the actual project" do
-      include_examples "correct references" do
+    context 'when only internal issues tracker is enabled for the actual project' do
+      include_examples 'correct references' do
         let(:referenced_issues) { [issue_actual_project] }
         let(:jira_referenced) { false }
       end
     end
 
-    context "when both external and internal issues trackers are enabled for the actual project" do
+    context 'when both external and internal issues trackers are enabled for the actual project' do
       before do
         create(:jira_service, project: actual_project)
       end
 
-      include_examples "correct references" do
+      include_examples 'correct references' do
         let(:referenced_issues) { [issue_actual_project] }
         let(:jira_referenced) { true }
       end
     end
 
-    context "when only external issues tracker is enabled for the actual project" do
+    context 'when only external issues tracker is enabled for the actual project' do
       let(:actual_project) { create(:project, :public, :repository, :issues_disabled) }
 
       before do
         create(:jira_service, project: actual_project)
       end
 
-      include_examples "correct references" do
+      include_examples 'correct references' do
         let(:referenced_issues) { [] }
         let(:jira_referenced) { true }
       end
     end
 
-    context "when no issues tracker is enabled for the actual project" do
+    context 'when no issues tracker is enabled for the actual project' do
       let(:actual_project) { create(:project, :public, :repository, :issues_disabled) }
 
-      include_examples "correct references" do
+      include_examples 'correct references' do
         let(:referenced_issues) { [] }
         let(:jira_referenced) { false }
       end
@@ -166,8 +166,8 @@ describe "Jira", :js do
       and non existing #999
     HEREDOC
 
-    page.within("#diff-notes-app") do
-      fill_in("note-body", with: markdown)
+    page.within('#diff-notes-app') do
+      fill_in('note-body', with: markdown)
     end
   end
 
@@ -181,11 +181,11 @@ describe "Jira", :js do
     end
 
     if jira_referenced
-      expect(page).to have_link("JIRA-5", href: "https://jira.example.com/browse/JIRA-5")
+      expect(page).to have_link('JIRA-5', href: 'https://jira.example.com/browse/JIRA-5')
     else
-      expect(page).not_to have_link("JIRA-5", href: "https://jira.example.com/browse/JIRA-5")
+      expect(page).not_to have_link('JIRA-5', href: 'https://jira.example.com/browse/JIRA-5')
     end
 
-    expect(page).not_to have_link("#999")
+    expect(page).not_to have_link('#999')
   end
 end

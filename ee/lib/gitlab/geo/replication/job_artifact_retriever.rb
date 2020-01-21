@@ -14,7 +14,7 @@ module Gitlab
           end
 
           unless job_artifact.file.present? && job_artifact.file.exists?
-            log_error("Could not upload job artifact because it does not have a file", id: job_artifact.id)
+            log_error('Could not upload job artifact because it does not have a file', id: job_artifact.id)
 
             return file_not_found(job_artifact)
           end

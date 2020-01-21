@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Gitlab::OtherMarkup do
   let(:context) { {} }
 
-  context "XSS Checks" do
+  context 'XSS Checks' do
     links = {
       'links' => {
         file: 'file.rdoc',

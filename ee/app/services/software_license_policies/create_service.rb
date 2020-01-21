@@ -8,7 +8,7 @@ module SoftwareLicensePolicies
     end
 
     def execute
-      return error("", 403) unless can?(@current_user, :admin_software_license_policy, @project)
+      return error('', 403) unless can?(@current_user, :admin_software_license_policy, @project)
 
       success(software_license_policy: create_software_license_policy)
     rescue ActiveRecord::RecordInvalid => exception

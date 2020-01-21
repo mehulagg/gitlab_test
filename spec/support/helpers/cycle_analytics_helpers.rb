@@ -17,7 +17,7 @@ module CycleAnalyticsHelpers
     end
 
     commit_shas = Array.new(count) do |index|
-      commit_sha = repository.create_file(user, generate(:branch), "content", message: message, branch_name: branch_name)
+      commit_sha = repository.create_file(user, generate(:branch), 'content', message: message, branch_name: branch_name)
       repository.commit(commit_sha)
 
       commit_sha

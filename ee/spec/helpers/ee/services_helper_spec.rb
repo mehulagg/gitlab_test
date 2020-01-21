@@ -8,7 +8,7 @@ describe EE::ServicesHelper do
       include EE::ServicesHelper
 
       def slack_auth_project_settings_slack_url(project)
-        "http://some-path/project/1"
+        'http://some-path/project/1'
       end
     end
   end

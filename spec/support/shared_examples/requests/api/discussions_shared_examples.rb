@@ -56,7 +56,7 @@ end
 
 RSpec.shared_examples 'discussions API' do |parent_type, noteable_type, id_name, can_reply_to_individual_notes: false|
   describe "GET /#{parent_type}/:id/#{noteable_type}/:noteable_id/discussions" do
-    it "returns an array of discussions" do
+    it 'returns an array of discussions' do
       get api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", user)
 
       expect(response).to have_gitlab_http_status(:ok)
@@ -65,13 +65,13 @@ RSpec.shared_examples 'discussions API' do |parent_type, noteable_type, id_name,
       expect(json_response.first['id']).to eq(note.discussion_id)
     end
 
-    it "returns a 404 error when noteable id not found" do
+    it 'returns a 404 error when noteable id not found' do
       get api("/#{parent_type}/#{parent.id}/#{noteable_type}/12345/discussions", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it "returns 404 when not authorized" do
+    it 'returns 404 when not authorized' do
       parent.update!(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
 
       get api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", private_user)
@@ -81,7 +81,7 @@ RSpec.shared_examples 'discussions API' do |parent_type, noteable_type, id_name,
   end
 
   describe "GET /#{parent_type}/:id/#{noteable_type}/:noteable_id/discussions/:discussion_id" do
-    it "returns a discussion by id" do
+    it 'returns a discussion by id' do
       get api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions/#{note.discussion_id}", user)
 
       expect(response).to have_gitlab_http_status(:ok)
@@ -89,7 +89,7 @@ RSpec.shared_examples 'discussions API' do |parent_type, noteable_type, id_name,
       expect(json_response['notes'].first['body']).to eq(note.note)
     end
 
-    it "returns a 404 error if discussion not found" do
+    it 'returns a 404 error if discussion not found' do
       get api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions/12345", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
@@ -97,7 +97,7 @@ RSpec.shared_examples 'discussions API' do |parent_type, noteable_type, id_name,
   end
 
   describe "POST /#{parent_type}/:id/#{noteable_type}/:noteable_id/discussions" do
-    it "creates a new note" do
+    it 'creates a new note' do
       post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", user), params: { body: 'hi!' }
 
       expect(response).to have_gitlab_http_status(:created)
@@ -105,13 +105,13 @@ RSpec.shared_examples 'discussions API' do |parent_type, noteable_type, id_name,
       expect(json_response['notes'].first['author']['username']).to eq(user.username)
     end
 
-    it "returns a 400 bad request error if body not given" do
+    it 'returns a 400 bad request error if body not given' do
       post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", user)
 
       expect(response).to have_gitlab_http_status(:bad_request)
     end
 
-    it "returns a 401 unauthorized error if user not authenticated" do
+    it 'returns a 401 unauthorized error if user not authenticated' do
       post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions"), params: { body: 'hi!' }
 
       expect(response).to have_gitlab_http_status(:unauthorized)
@@ -175,7 +175,7 @@ RSpec.shared_examples 'discussions API' do |parent_type, noteable_type, id_name,
           project.team.truncate
         end
 
-        context "creating a new note" do
+        context 'creating a new note' do
           before do
             post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", user_without_access), params: { body: 'hi!' }
           end
@@ -185,7 +185,7 @@ RSpec.shared_examples 'discussions API' do |parent_type, noteable_type, id_name,
           end
         end
 
-        context "fetching a discussion" do
+        context 'fetching a discussion' do
           before do
             get api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions/#{note.discussion_id}", user_without_access)
           end

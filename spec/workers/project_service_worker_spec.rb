@@ -18,7 +18,7 @@ describe ProjectServiceWorker, '#perform' do
 
   it 'logs error messages' do
     allow(service).to receive(:execute).and_raise(StandardError, 'invalid URL')
-    expect(Sidekiq.logger).to receive(:error).with({ class: described_class.name, service_class: service.class.name, message: "invalid URL" })
+    expect(Sidekiq.logger).to receive(:error).with({ class: described_class.name, service_class: service.class.name, message: 'invalid URL' })
 
     worker.perform(1, {})
   end

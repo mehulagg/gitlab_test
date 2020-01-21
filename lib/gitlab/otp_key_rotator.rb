@@ -32,8 +32,8 @@ module Gitlab
     def rotate!(old_key:, new_key:)
       old_key ||= Gitlab::Application.secrets.otp_key_base
 
-      raise ArgumentError.new("Old key is the same as the new key") if old_key == new_key
-      raise ArgumentError.new("New key is too short! Must be 256 bits") if new_key.size < 64
+      raise ArgumentError.new('Old key is the same as the new key') if old_key == new_key
+      raise ArgumentError.new('New key is too short! Must be 256 bits') if new_key.size < 64
 
       write_csv do |csv|
         ActiveRecord::Base.transaction do
@@ -71,21 +71,21 @@ module Gitlab
     end
 
     def reencrypt(user, old_key, new_key)
-      original = user[:ciphertext].unpack("m").join
+      original = user[:ciphertext].unpack('m').join
       opts = {
-        iv: user[:iv].unpack("m").join,
-        salt: user[:salt].unpack("m").join,
+        iv: user[:iv].unpack('m').join,
+        salt: user[:salt].unpack('m').join,
         algorithm: otp_secret_settings[:algorithm],
         insecure_mode: otp_secret_settings[:insecure_mode]
       }
 
       decrypted = Encryptor.decrypt(original, opts.merge(key: old_key))
       encrypted = Encryptor.encrypt(decrypted, opts.merge(key: new_key))
-      [encrypted].pack("m")
+      [encrypted].pack('m')
     end
 
     def write_csv(&blk)
-      File.open(filename, "w") do |file|
+      File.open(filename, 'w') do |file|
         yield CSV.new(file, headers: HEADERS, write_headers: false)
       end
     end

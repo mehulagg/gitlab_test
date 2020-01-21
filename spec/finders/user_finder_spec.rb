@@ -42,7 +42,7 @@ describe UserFinder do
 
     context 'when the user does not exist' do
       it 'returns nil' do
-        found = described_class.new("non_existent_username").find_by_username
+        found = described_class.new('non_existent_username').find_by_username
 
         expect(found).to be_nil
       end
@@ -76,7 +76,7 @@ describe UserFinder do
 
     context 'when the user does not exist (username)' do
       it 'returns nil' do
-        found = described_class.new("non_existent_username").find_by_id_or_username
+        found = described_class.new('non_existent_username').find_by_id_or_username
 
         expect(found).to be_nil
       end
@@ -128,7 +128,7 @@ describe UserFinder do
 
     context 'when the user does not exist' do
       it 'raises ActiveRecord::RecordNotFound' do
-        finder = described_class.new("non_existent_username")
+        finder = described_class.new('non_existent_username')
 
         expect { finder.find_by_username! }.to raise_error(ActiveRecord::RecordNotFound)
       end
@@ -162,7 +162,7 @@ describe UserFinder do
 
     context 'when the user does not exist (username)' do
       it 'raises ActiveRecord::RecordNotFound' do
-        finder = described_class.new("non_existent_username")
+        finder = described_class.new('non_existent_username')
 
         expect { finder.find_by_id_or_username! }.to raise_error(ActiveRecord::RecordNotFound)
       end

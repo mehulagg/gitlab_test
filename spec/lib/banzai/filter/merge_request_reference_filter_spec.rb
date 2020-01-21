@@ -37,15 +37,15 @@ describe Banzai::Filter::MergeRequestReferenceFilter do
     let(:tag_el) { doc.css('a').first }
 
     it 'adds merge request iid' do
-      expect(tag_el["data-iid"]).to eq(merge.iid.to_s)
+      expect(tag_el['data-iid']).to eq(merge.iid.to_s)
     end
 
     it 'adds project data attribute with project id' do
-      expect(tag_el["data-project-path"]).to eq(project.full_path)
+      expect(tag_el['data-project-path']).to eq(project.full_path)
     end
 
     it 'does not add `has-tooltip` class' do
-      expect(tag_el["class"]).not_to include('has-tooltip')
+      expect(tag_el['class']).not_to include('has-tooltip')
     end
   end
 
@@ -78,7 +78,7 @@ describe Banzai::Filter::MergeRequestReferenceFilter do
 
     it 'has no title' do
       doc = reference_filter("Merge #{reference}")
-      expect(doc.css('a').first.attr('title')).to eq ""
+      expect(doc.css('a').first.attr('title')).to eq ''
     end
 
     it 'escapes the title attribute' do
@@ -250,7 +250,7 @@ describe Banzai::Filter::MergeRequestReferenceFilter do
 
     it 'ignores invalid commit short_ids on link text' do
       invalidate_commit_reference =
-        urls.project_merge_request_url(mr.project, mr) + "/diffs?commit_id=12345678"
+        urls.project_merge_request_url(mr.project, mr) + '/diffs?commit_id=12345678'
       doc = reference_filter("See #{invalidate_commit_reference}")
 
       expect(doc.text).to eq("See #{mr.to_reference(full: true)} (diffs)")

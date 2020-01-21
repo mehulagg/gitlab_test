@@ -53,7 +53,7 @@ describe Users::CreateService do
         end
 
         it 'logs the user creation' do
-          expect(service).to receive(:log_info).with("User \"John Doe\" (jd@example.com) was created")
+          expect(service).to receive(:log_info).with('User "John Doe" (jd@example.com) was created')
 
           service.execute
         end

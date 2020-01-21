@@ -93,7 +93,7 @@ describe Gitlab::Ci::Status::Build::Failed do
           build.failure_reason = failure_reason
         end
 
-        it "is a valid status" do
+        it 'is a valid status' do
           expect { tooltip }.not_to raise_error
         end
       end
@@ -104,7 +104,7 @@ describe Gitlab::Ci::Status::Build::Failed do
         expect(build).to receive(:failure_reason) { 'invalid failure message' }
       end
 
-      it "is an invalid status" do
+      it 'is an invalid status' do
         expect { tooltip }.to raise_error(/key not found:/)
       end
     end

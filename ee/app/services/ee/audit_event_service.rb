@@ -14,41 +14,41 @@ module EE
         case action
         when :destroy
           {
-            remove: "user_access",
+            remove: 'user_access',
             author_name: @author.name,
             target_id: user_id,
-            target_type: "User",
+            target_type: 'User',
             target_details: user_name
           }
         when :expired
           {
-            remove: "user_access",
+            remove: 'user_access',
             author_name: member.created_by ? member.created_by.name : 'Deleted User',
             target_id: user_id,
-            target_type: "User",
+            target_type: 'User',
             target_details: user_name,
             system_event: true,
             reason: "access expired on #{member.expires_at}"
           }
         when :create
           {
-            add: "user_access",
+            add: 'user_access',
             as: ::Gitlab::Access.options_with_owner.key(member.access_level.to_i),
             author_name: @author.name,
             target_id: user_id,
-            target_type: "User",
+            target_type: 'User',
             target_details: user_name
           }
         when :update, :override
           {
-            change: "access_level",
+            change: 'access_level',
             from: old_access_level,
             to: member.human_access,
             expiry_from: @details[:old_expiry],
             expiry_to: member.expires_at,
             author_name: @author.name,
             target_id: user_id,
-            target_type: "User",
+            target_type: 'User',
             target_details: user_name
           }
         end

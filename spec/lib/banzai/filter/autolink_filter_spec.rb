@@ -202,12 +202,12 @@ describe Banzai::Filter::AutolinkFilter do
       evil_link = "#{link}evil\u202E3pm.exe"
       doc = filter("#{evil_link}")
 
-      expect(doc.at_css('a')['href']).to eq "http://about.gitlab.com/evil%E2%80%AE3pm.exe"
+      expect(doc.at_css('a')['href']).to eq 'http://about.gitlab.com/evil%E2%80%AE3pm.exe'
     end
 
     it 'encodes international domains' do
-      link     = "http://one😄two.com"
-      expected = "http://one%F0%9F%98%84two.com"
+      link     = 'http://one😄two.com'
+      expected = 'http://one%F0%9F%98%84two.com'
       doc      = filter(link)
 
       expect(doc.at_css('a')['href']).to eq expected

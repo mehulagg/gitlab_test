@@ -17,7 +17,7 @@ describe Import::FogbugzController do
     let(:xml_response) { %Q(<?xml version=\"1.0\" encoding=\"UTF-8\"?><response><token><![CDATA[#{token}]]></token></response>) }
 
     it 'attempts to contact Fogbugz server' do
-      stub_request(:post, "https://example.com/api.asp").to_return(status: 200, body: xml_response, headers: {})
+      stub_request(:post, 'https://example.com/api.asp').to_return(status: 200, body: xml_response, headers: {})
 
       post :callback, params: { uri: uri, email: 'test@example.com', password: 'mypassword' }
 
@@ -30,10 +30,10 @@ describe Import::FogbugzController do
   describe 'POST #create_user_map' do
     let(:user_map) do
       {
-        "2" => {
-          "name" => "Test User",
-          "email" => "testuser@example.com",
-          "gitlab_user" => "3"
+        '2' => {
+          'name' => 'Test User',
+          'email' => 'testuser@example.com',
+          'gitlab_user' => '3'
         }
       }
     end

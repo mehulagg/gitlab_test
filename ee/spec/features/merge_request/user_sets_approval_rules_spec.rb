@@ -11,8 +11,8 @@ describe 'Merge request > User sets approval rules', :js do
     page.all('.js-approval-rules table .js-name')
   end
 
-  context "with project approval rules" do
-    context "from a fork" do
+  context 'with project approval rules' do
+    context 'from a fork' do
       let(:forked_project) { fork_project(project, nil, repository: true) }
 
       before do
@@ -24,7 +24,7 @@ describe 'Merge request > User sets approval rules', :js do
         wait_for_requests
       end
 
-      it "shows approval rules from target project", :sidekiq_might_not_need_inline do
+      it 'shows approval rules from target project', :sidekiq_might_not_need_inline do
         names = page_rule_names
         regular_rules.each_with_index do |rule, idx|
           expect(names[idx]).to have_text(rule.name)
@@ -32,7 +32,7 @@ describe 'Merge request > User sets approval rules', :js do
       end
     end
 
-    context "with a private group rule" do
+    context 'with a private group rule' do
       let!(:private_group) { create(:group, :private) }
       let!(:private_rule) { create(:approval_project_rule, project: project, groups: [private_group], name: 'Private Rule') }
       let!(:rules) { regular_rules + [private_rule] }
@@ -45,18 +45,18 @@ describe 'Merge request > User sets approval rules', :js do
         wait_for_requests
       end
 
-      it "shows approval rules" do
+      it 'shows approval rules' do
         names = page_rule_names
         rules.each.with_index do |rule, idx|
           expect(names[idx]).to have_text(rule.name)
         end
       end
 
-      it "persists hidden groups that author has no access to when creating MR" do
-        click_on("Submit merge request")
+      it 'persists hidden groups that author has no access to when creating MR' do
+        click_on('Submit merge request')
         wait_for_requests
 
-        click_on("View eligible approvers")
+        click_on('View eligible approvers')
         wait_for_requests
 
         tr = page.find(:css, 'tr', text: private_rule.name)

@@ -10,7 +10,7 @@ module Gitlab
       include ::Gitlab::Utils::StrongMemoize
 
       FIND_BATCH_SIZE = 500
-      RELATIVE_UPLOAD_DIR = "uploads"
+      RELATIVE_UPLOAD_DIR = 'uploads'
       ABSOLUTE_UPLOAD_DIR = File.join(
         Gitlab.config.uploads.storage_path,
         RELATIVE_UPLOAD_DIR
@@ -81,7 +81,7 @@ module Gitlab
         Open3.popen2(*cmd) do |stdin, stdout, status_thread|
           yield_paths_in_batches(stdout, batch_size, &block)
 
-          raise "Find command failed" unless status_thread.value.success?
+          raise 'Find command failed' unless status_thread.value.success?
         end
       end
 
@@ -135,7 +135,7 @@ module Gitlab
           "INSERT INTO #{table_columns_and_values_for_insert(file_paths)};"
         else
           "INSERT INTO #{table_columns_and_values_for_insert(file_paths)}"\
-            " ON CONFLICT DO NOTHING;"
+            ' ON CONFLICT DO NOTHING;'
         end
       end
 

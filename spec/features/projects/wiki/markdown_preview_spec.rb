@@ -22,12 +22,12 @@ describe 'Projects > Wiki > User previews markdown changes', :js do
     sign_in(user)
   end
 
-  context "while creating a new wiki page" do
-    context "when there are no spaces or hyphens in the page name" do
-      it "rewrites relative links as expected" do
+  context 'while creating a new wiki page' do
+    context 'when there are no spaces or hyphens in the page name' do
+      it 'rewrites relative links as expected' do
         create_wiki_page('a/b/c/d', content: wiki_content)
 
-        expect(page).to have_content("regular link")
+        expect(page).to have_content('regular link')
 
         expect(page.html).to include("<a href=\"/#{project.full_path}/-/wikis/regular\">regular link</a>")
         expect(page.html).to include("<a href=\"/#{project.full_path}/-/wikis/a/b/relative\">relative link 1</a>")
@@ -37,11 +37,11 @@ describe 'Projects > Wiki > User previews markdown changes', :js do
       end
     end
 
-    context "when there are spaces in the page name" do
-      it "rewrites relative links as expected" do
+    context 'when there are spaces in the page name' do
+      it 'rewrites relative links as expected' do
         create_wiki_page('a page/b page/c page/d page', content: wiki_content)
 
-        expect(page).to have_content("regular link")
+        expect(page).to have_content('regular link')
 
         expect(page.html).to include("<a href=\"/#{project.full_path}/-/wikis/regular\">regular link</a>")
         expect(page.html).to include("<a href=\"/#{project.full_path}/-/wikis/a-page/b-page/relative\">relative link 1</a>")
@@ -51,11 +51,11 @@ describe 'Projects > Wiki > User previews markdown changes', :js do
       end
     end
 
-    context "when there are hyphens in the page name" do
-      it "rewrites relative links as expected" do
+    context 'when there are hyphens in the page name' do
+      it 'rewrites relative links as expected' do
         create_wiki_page('a-page/b-page/c-page/d-page', content: wiki_content)
 
-        expect(page).to have_content("regular link")
+        expect(page).to have_content('regular link')
 
         expect(page.html).to include("<a href=\"/#{project.full_path}/-/wikis/regular\">regular link</a>")
         expect(page.html).to include("<a href=\"/#{project.full_path}/-/wikis/a-page/b-page/relative\">relative link 1</a>")
@@ -66,16 +66,16 @@ describe 'Projects > Wiki > User previews markdown changes', :js do
     end
   end
 
-  context "while editing a wiki page" do
-    context "when there are no spaces or hyphens in the page name" do
-      it "rewrites relative links as expected" do
+  context 'while editing a wiki page' do
+    context 'when there are no spaces or hyphens in the page name' do
+      it 'rewrites relative links as expected' do
         create_wiki_page('a/b/c/d')
         click_link 'Edit'
 
         fill_in :wiki_content, with: wiki_content
-        click_on "Preview"
+        click_on 'Preview'
 
-        expect(page).to have_content("regular link")
+        expect(page).to have_content('regular link')
 
         expect(page.html).to include("<a href=\"/#{project.full_path}/-/wikis/regular\">regular link</a>")
         expect(page.html).to include("<a href=\"/#{project.full_path}/-/wikis/a/b/relative\">relative link 1</a>")
@@ -85,15 +85,15 @@ describe 'Projects > Wiki > User previews markdown changes', :js do
       end
     end
 
-    context "when there are spaces in the page name" do
-      it "rewrites relative links as expected" do
+    context 'when there are spaces in the page name' do
+      it 'rewrites relative links as expected' do
         create_wiki_page('a page/b page/c page/d page')
         click_link 'Edit'
 
         fill_in :wiki_content, with: wiki_content
-        click_on "Preview"
+        click_on 'Preview'
 
-        expect(page).to have_content("regular link")
+        expect(page).to have_content('regular link')
 
         expect(page.html).to include("<a href=\"/#{project.full_path}/-/wikis/regular\">regular link</a>")
         expect(page.html).to include("<a href=\"/#{project.full_path}/-/wikis/a-page/b-page/relative\">relative link 1</a>")
@@ -103,15 +103,15 @@ describe 'Projects > Wiki > User previews markdown changes', :js do
       end
     end
 
-    context "when there are hyphens in the page name" do
-      it "rewrites relative links as expected" do
+    context 'when there are hyphens in the page name' do
+      it 'rewrites relative links as expected' do
         create_wiki_page('a-page/b-page/c-page/d-page')
         click_link 'Edit'
 
         fill_in :wiki_content, with: wiki_content
-        click_on "Preview"
+        click_on 'Preview'
 
-        expect(page).to have_content("regular link")
+        expect(page).to have_content('regular link')
 
         expect(page.html).to include("<a href=\"/#{project.full_path}/-/wikis/regular\">regular link</a>")
         expect(page.html).to include("<a href=\"/#{project.full_path}/-/wikis/a-page/b-page/relative\">relative link 1</a>")
@@ -127,16 +127,16 @@ describe 'Projects > Wiki > User previews markdown changes', :js do
         click_link 'Edit'
 
         fill_in :wiki_content, with: "1. one\n  - sublist\n"
-        click_on "Preview"
+        click_on 'Preview'
 
         # the above generates two separate lists (not embedded) in CommonMark
-        expect(page).to have_content("sublist")
-        expect(page).not_to have_xpath("//ol//li//ul")
+        expect(page).to have_content('sublist')
+        expect(page).not_to have_xpath('//ol//li//ul')
       end
     end
   end
 
-  it "does not linkify double brackets inside code blocks as expected" do
+  it 'does not linkify double brackets inside code blocks as expected' do
     wiki_content = <<-HEREDOC
       `[[do_not_linkify]]`
       ```
@@ -146,7 +146,7 @@ describe 'Projects > Wiki > User previews markdown changes', :js do
 
     create_wiki_page('linkify_test', wiki_content)
 
-    expect(page).to have_content("do_not_linkify")
+    expect(page).to have_content('do_not_linkify')
 
     expect(page.html).to include('[[do_not_linkify]]')
     expect(page.html).to include('[[also_do_not_linkify]]')

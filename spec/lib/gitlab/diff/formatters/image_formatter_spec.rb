@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Gitlab::Diff::Formatters::ImageFormatter do
-  it_behaves_like "position formatter" do
+  it_behaves_like 'position formatter' do
     let(:base_attrs) do
       {
         base_sha: 123,

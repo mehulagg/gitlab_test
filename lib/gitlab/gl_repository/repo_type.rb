@@ -31,7 +31,7 @@ module Gitlab
       end
 
       def path_suffix
-        project? ? "" : ".#{name}"
+        project? ? '' : ".#{name}"
       end
 
       def repository_for(repositorable)

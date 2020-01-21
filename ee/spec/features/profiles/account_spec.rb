@@ -9,7 +9,7 @@ describe 'Profile > Account' do
     sign_in(user)
   end
 
-  describe "Disconnect Group SAML", :js do
+  describe 'Disconnect Group SAML', :js do
     let(:group) { create(:group, :private, name: 'Test Group') }
     let(:saml_provider) { create(:saml_provider, group: group) }
 
@@ -33,10 +33,10 @@ describe 'Profile > Account' do
     it 'unlinks account' do
       visit profile_account_path
 
-      unlink_label = "SAML for Test Group"
+      unlink_label = 'SAML for Test Group'
 
       expect(page).to have_content unlink_label
-      click_link "Disconnect"
+      click_link 'Disconnect'
 
       expect(current_path).to eq profile_account_path
       expect(page).not_to have_content(unlink_label)

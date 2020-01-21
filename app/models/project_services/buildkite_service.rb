@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require "addressable/uri"
+require 'addressable/uri'
 
 class BuildkiteService < CiService
   include ReactiveService
 
-  ENDPOINT = "https://buildkite.com"
+  ENDPOINT = 'https://buildkite.com'
 
   prop_accessor :project_url, :token
   boolean_accessor :enable_ssl_verification
@@ -68,7 +68,7 @@ class BuildkiteService < CiService
 
       { type: 'checkbox',
         name: 'enable_ssl_verification',
-        title: "Enable SSL verification" }
+        title: 'Enable SSL verification' }
     ]
   end
 

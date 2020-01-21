@@ -59,7 +59,7 @@ module EE
             return unless external_url_previous_change
             return unless external_url_previous_change[0].blank? && external_url_previous_change[1].present?
 
-            ::Gitlab::Tracking.event('project:operations:tracing', "external_url_populated")
+            ::Gitlab::Tracking.event('project:operations:tracing', 'external_url_populated')
           end
         end
 

@@ -34,7 +34,7 @@ describe 'GraphQL' do
 
     context 'with variables' do
       let(:variables) do
-        { "foo" => "bar" }
+        { 'foo' => 'bar' }
       end
 
       it_behaves_like 'logging a graphql query'
@@ -42,7 +42,7 @@ describe 'GraphQL' do
 
     context 'when there is an error in the logger' do
       before do
-        allow_any_instance_of(Gitlab::Graphql::QueryAnalyzers::LoggerAnalyzer).to receive(:process_variables).and_raise(StandardError.new("oh noes!"))
+        allow_any_instance_of(Gitlab::Graphql::QueryAnalyzers::LoggerAnalyzer).to receive(:process_variables).and_raise(StandardError.new('oh noes!'))
       end
 
       it 'logs the exception in Sentry and continues with the request' do
@@ -56,7 +56,7 @@ describe 'GraphQL' do
 
   context 'invalid variables' do
     it 'returns an error' do
-      post_graphql(query, variables: "This is not JSON")
+      post_graphql(query, variables: 'This is not JSON')
 
       expect(response).to have_gitlab_http_status(422)
       expect(json_response['errors'].first['message']).not_to be_nil

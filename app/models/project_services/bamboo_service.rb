@@ -69,7 +69,7 @@ class BambooService < CiService
   def execute(data)
     return unless supported_events.include?(data[:object_kind])
 
-    get_path("updateAndBuild.action", { buildKey: build_key })
+    get_path('updateAndBuild.action', { buildKey: build_key })
   end
 
   def calculate_reactive_cache(sha, ref)

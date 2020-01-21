@@ -13,9 +13,9 @@ class MergeRequestPresenter < Gitlab::View::Presenter::Delegated
   def ci_status
     if pipeline
       status = pipeline.status
-      status = "success-with-warnings" if pipeline.success? && pipeline.has_warnings?
+      status = 'success-with-warnings' if pipeline.success? && pipeline.has_warnings?
 
-      status || "preparing"
+      status || 'preparing'
     else
       ci_service = source_project.try(:ci_service)
       ci_service&.commit_status(diff_head_sha, source_branch)

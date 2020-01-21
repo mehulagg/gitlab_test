@@ -69,7 +69,7 @@ describe API::Events do
   end
 
   describe 'GET /users/:id/events' do
-    context "as a user that cannot see another user" do
+    context 'as a user that cannot see another user' do
       it 'returns a "404" response' do
         allow(Ability).to receive(:allowed?).and_call_original
         allow(Ability).to receive(:allowed?).with(non_member, :read_user, user).and_return(false)
@@ -81,7 +81,7 @@ describe API::Events do
       end
     end
 
-    context "as a user token that cannot see another user" do
+    context 'as a user token that cannot see another user' do
       let(:non_member_token) { create(:personal_access_token, scopes: ['read_user'], user: non_member) }
 
       it 'returns a "404" response' do

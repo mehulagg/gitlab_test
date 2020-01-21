@@ -18,7 +18,7 @@ describe TodoService do
   describe 'Epics' do
     let(:users) { [author, non_member, member, guest, admin, john_doe, skipped] }
     let(:mentions) { users.map(&:to_reference).join(' ') }
-    let(:combined_mentions) { member.to_reference + ", what do you think? cc: " + [guest, admin, skipped].map(&:to_reference).join(' ') }
+    let(:combined_mentions) { member.to_reference + ', what do you think? cc: ' + [guest, admin, skipped].map(&:to_reference).join(' ') }
 
     let(:description_mentions) { "- [ ] Task 1\n- [ ] Task 2 FYI: #{mentions}" }
     let(:description_directly_addressed) { "#{mentions}\n- [ ] Task 1\n- [ ] Task 2" }

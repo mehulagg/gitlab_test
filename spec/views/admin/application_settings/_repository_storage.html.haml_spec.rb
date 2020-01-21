@@ -6,8 +6,8 @@ describe 'admin/application_settings/_repository_storage.html.haml' do
   let(:app_settings) { build(:application_setting) }
   let(:storages) do
     {
-      "mepmep" => { "path" => "/tmp" },
-      "foobar" => { "path" => "/tmp" }
+      'mepmep' => { 'path' => '/tmp' },
+      'foobar' => { 'path' => '/tmp' }
     }
   end
 

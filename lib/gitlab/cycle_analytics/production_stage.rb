@@ -22,11 +22,11 @@ module Gitlab
       end
 
       def legend
-        _("Related Issues")
+        _('Related Issues')
       end
 
       def description
-        _("From issue creation until deploy to production")
+        _('From issue creation until deploy to production')
       end
 
       def query

@@ -154,7 +154,7 @@ module ExtractsPath
   # overridden in subclasses, do not remove
   def get_id
     id = [params[:id] || params[:ref]]
-    id << "/" + params[:path] unless params[:path].blank?
+    id << '/' + params[:path] unless params[:path].blank?
     id.join
   end
 

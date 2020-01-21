@@ -128,10 +128,10 @@ describe Gitlab::Ci::Pipeline::Seed::Stage do
   describe '#seeds_errors' do
     it 'returns all errors from seeds' do
       expect(subject.seeds.first)
-        .to receive(:errors) { ["build error"] }
+        .to receive(:errors) { ['build error'] }
 
       expect(subject.errors).to contain_exactly(
-        "build error")
+        'build error')
     end
   end
 

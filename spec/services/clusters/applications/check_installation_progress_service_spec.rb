@@ -162,7 +162,7 @@ describe Clusters::Applications::CheckInstallationProgressService, '#execute' do
       end
 
       it 'tracks application install' do
-        expect(Gitlab::Tracking).to receive(:event).with('cluster:applications', "cluster_application_helm_installed")
+        expect(Gitlab::Tracking).to receive(:event).with('cluster:applications', 'cluster_application_helm_installed')
 
         service.execute
       end

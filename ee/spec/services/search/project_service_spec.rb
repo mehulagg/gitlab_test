@@ -42,7 +42,7 @@ describe Search::ProjectService do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           [project, project2].each do |project|
             update_feature_access_level(project, feature_access_level)
           end
@@ -70,7 +70,7 @@ describe Search::ProjectService do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           [project, project2].each do |project|
             update_feature_access_level(project, feature_access_level)
             ElasticCommitIndexerWorker.new.perform(project.id)
@@ -103,7 +103,7 @@ describe Search::ProjectService do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           [project, project2].each do |project|
             update_feature_access_level(project, feature_access_level)
           end
@@ -128,7 +128,7 @@ describe Search::ProjectService do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           project.wiki.create_page('test.md', '# term')
           project.wiki.index_wiki_blobs
           update_feature_access_level(project, feature_access_level)
@@ -149,7 +149,7 @@ describe Search::ProjectService do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           project.update!(
             'issues_access_level' => issues_access_level,
             'merge_requests_access_level' => merge_requests_access_level

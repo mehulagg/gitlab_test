@@ -1,6 +1,6 @@
 require 'logger'
 
-desc "GitLab | Migrate packages files to remote storage"
+desc 'GitLab | Migrate packages files to remote storage'
 namespace :gitlab do
   namespace :packages do
     task migrate: :environment do

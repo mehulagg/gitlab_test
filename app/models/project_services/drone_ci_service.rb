@@ -15,7 +15,7 @@ class DroneCiService < CiService
   def compose_service_hook
     hook = service_hook || build_service_hook
     # If using a service template, project may not be available
-    hook.url = [drone_url, "/api/hook", "?owner=#{project.namespace.full_path}", "&name=#{project.path}", "&access_token=#{token}"].join if project
+    hook.url = [drone_url, '/api/hook', "?owner=#{project.namespace.full_path}", "&name=#{project.path}", "&access_token=#{token}"].join if project
     hook.enable_ssl_verification = !!enable_ssl_verification
     hook.save
   end
@@ -61,7 +61,7 @@ class DroneCiService < CiService
           # Because drone return error if some test env failed
           :failed
         else
-          response["status"]
+          response['status']
         end
       else
         :error
@@ -94,7 +94,7 @@ class DroneCiService < CiService
     [
       { type: 'text', name: 'token', placeholder: 'Drone CI project specific token', required: true },
       { type: 'text', name: 'drone_url', placeholder: 'http://drone.example.com', required: true },
-      { type: 'checkbox', name: 'enable_ssl_verification', title: "Enable SSL verification" }
+      { type: 'checkbox', name: 'enable_ssl_verification', title: 'Enable SSL verification' }
     ]
   end
 end

@@ -25,17 +25,17 @@ module Gitlab
         explanation do
           noun = quick_action_target.to_ability_name.humanize(capitalize: false)
           if quick_action_target.work_in_progress?
-            _("Unmarks this %{noun} as Work In Progress.")
+            _('Unmarks this %{noun} as Work In Progress.')
           else
-            _("Marks this %{noun} as Work In Progress.")
+            _('Marks this %{noun} as Work In Progress.')
           end % { noun: noun }
         end
         execution_message do
           noun = quick_action_target.to_ability_name.humanize(capitalize: false)
           if quick_action_target.work_in_progress?
-            _("Unmarked this %{noun} as Work In Progress.")
+            _('Unmarked this %{noun} as Work In Progress.')
           else
-            _("Marked this %{noun} as Work In Progress.")
+            _('Marked this %{noun} as Work In Progress.')
           end % { noun: noun }
         end
 

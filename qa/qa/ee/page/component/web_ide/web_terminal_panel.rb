@@ -36,7 +36,7 @@ module QA
                   # clicks the Start Web Terminal button. If it loads succesfully
                   # an element with the class `xterm` is added to the DOM.
                   # The xterm is a third-party library, so we can't add a selector
-                  find(".xterm")
+                  find('.xterm')
                 end
               end
             end
@@ -48,7 +48,7 @@ module QA
 
               click_element :start_web_terminal_button
 
-              has_element? :loading_container, text: "Starting"
+              has_element? :loading_container, text: 'Starting'
             end
           end
         end

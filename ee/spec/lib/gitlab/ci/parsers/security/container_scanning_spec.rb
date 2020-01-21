@@ -25,7 +25,7 @@ describe Gitlab::Ci::Parsers::Security::ContainerScanning do
     with_them do
       let(:artifact) { create(:ee_ci_job_artifact, report_type) }
 
-      it "parses all identifiers and occurrences for unapproved vulnerabilities" do
+      it 'parses all identifiers and occurrences for unapproved vulnerabilities' do
         expect(report.occurrences.length).to eq(8)
         expect(report.identifiers.length).to eq(8)
         expect(report.scanners.length).to eq(1)
@@ -43,7 +43,7 @@ describe Gitlab::Ci::Parsers::Security::ContainerScanning do
         )
       end
 
-      it "generates expected metadata_version" do
+      it 'generates expected metadata_version' do
         expect(report.occurrences.first.metadata_version).to eq(version)
       end
 

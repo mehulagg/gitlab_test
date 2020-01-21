@@ -61,7 +61,7 @@ class Projects::IssuesController < Projects::ApplicationController
       format.atom { render layout: 'xml.atom' }
       format.json do
         render json: {
-          html: view_to_html_string("projects/issues/_issues"),
+          html: view_to_html_string('projects/issues/_issues'),
           labels: @labels.as_json(methods: :text_color)
         }
       end
@@ -74,7 +74,7 @@ class Projects::IssuesController < Projects::ApplicationController
 
   def new
     params[:issue] ||= ActionController::Parameters.new(
-      assignee_ids: ""
+      assignee_ids: ''
     )
     build_params = issue_params.merge(
       merge_request_to_resolve_discussions_of: params[:merge_request_to_resolve_discussions_of],
@@ -104,9 +104,9 @@ class Projects::IssuesController < Projects::ApplicationController
 
     if service.discussions_to_resolve.count(&:resolved?) > 0
       flash[:notice] = if service.discussion_to_resolve_id
-                         _("Resolved 1 discussion.")
+                         _('Resolved 1 discussion.')
                        else
-                         _("Resolved all discussions.")
+                         _('Resolved all discussions.')
                        end
     end
 
@@ -192,7 +192,7 @@ class Projects::IssuesController < Projects::ApplicationController
 
       flash[:notice] = _("Your issues are being imported. Once finished, you'll get a confirmation email.")
     else
-      flash[:alert] = _("File upload error.")
+      flash[:alert] = _('File upload error.')
     end
 
     redirect_to project_issues_path(project)

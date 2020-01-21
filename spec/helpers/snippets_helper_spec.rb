@@ -107,7 +107,7 @@ describe SnippetsHelper do
       let(:visibility) { :private }
 
       it 'returns the snippet badge' do
-        expect(subject).to eq "<span class=\"badge badge-gray\"><i class=\"fa fa-lock\"></i> private</span>"
+        expect(subject).to eq '<span class="badge badge-gray"><i class="fa fa-lock"></i> private</span>'
       end
     end
 

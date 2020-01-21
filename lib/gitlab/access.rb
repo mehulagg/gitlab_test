@@ -42,22 +42,22 @@ module Gitlab
 
       def options
         {
-          "Guest"      => GUEST,
-          "Reporter"   => REPORTER,
-          "Developer"  => DEVELOPER,
-          "Maintainer" => MAINTAINER
+          'Guest'      => GUEST,
+          'Reporter'   => REPORTER,
+          'Developer'  => DEVELOPER,
+          'Maintainer' => MAINTAINER
         }
       end
 
       def options_with_owner
         options.merge(
-          "Owner" => OWNER
+          'Owner' => OWNER
         )
       end
 
       def options_with_none
         options_with_owner.merge(
-          "None" => NO_ACCESS
+          'None' => NO_ACCESS
         )
       end
 
@@ -76,10 +76,10 @@ module Gitlab
 
       def protection_options
         {
-          "Not protected: Both developers and maintainers can push new commits, force push, or delete the branch." => PROTECTION_NONE,
-          "Protected against pushes: Developers cannot push new commits, but are allowed to accept merge requests to the branch. Maintainers can push to the branch." => PROTECTION_DEV_CAN_MERGE,
-          "Partially protected: Both developers and maintainers can push new commits, but cannot force push or delete the branch." => PROTECTION_DEV_CAN_PUSH,
-          "Fully protected: Developers cannot push new commits, but maintainers can. No-one can force push or delete the branch." => PROTECTION_FULL
+          'Not protected: Both developers and maintainers can push new commits, force push, or delete the branch.' => PROTECTION_NONE,
+          'Protected against pushes: Developers cannot push new commits, but are allowed to accept merge requests to the branch. Maintainers can push to the branch.' => PROTECTION_DEV_CAN_MERGE,
+          'Partially protected: Both developers and maintainers can push new commits, but cannot force push or delete the branch.' => PROTECTION_DEV_CAN_PUSH,
+          'Fully protected: Developers cannot push new commits, but maintainers can. No-one can force push or delete the branch.' => PROTECTION_FULL
         }
       end
 

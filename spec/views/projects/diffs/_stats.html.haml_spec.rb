@@ -7,7 +7,7 @@ describe 'projects/diffs/_stats.html.haml' do
   let(:commit) { project.commit('570e7b2abdd848b95f2f578043fc23bd6f6fd24d') }
 
   def render_view
-    render partial: "projects/diffs/stats", locals: { diff_files: commit.diffs.diff_files }
+    render partial: 'projects/diffs/stats', locals: { diff_files: commit.diffs.diff_files }
   end
 
   context 'when the commit contains several changes' do

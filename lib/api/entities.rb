@@ -547,7 +547,7 @@ module API
 
       expose :mode do |obj, options|
         filemode = obj.mode
-        filemode = "0" + filemode if filemode.length < 6
+        filemode = '0' + filemode if filemode.length < 6
         filemode
       end
     end
@@ -1634,7 +1634,7 @@ module API
       expose :id, :name, :revoked, :created_at, :scopes
       expose :active?, as: :active
       expose :expires_at do |personal_access_token|
-        personal_access_token.expires_at ? personal_access_token.expires_at.strftime("%Y-%m-%d") : nil
+        personal_access_token.expires_at ? personal_access_token.expires_at.strftime('%Y-%m-%d') : nil
       end
     end
 

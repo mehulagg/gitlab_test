@@ -8,7 +8,7 @@ describe Gitlab::Git::WrapsGitalyErrors do
     klazz.new
   end
 
-  describe "#wrapped_gitaly_errors" do
+  describe '#wrapped_gitaly_errors' do
     mapping = {
       GRPC::NotFound => Gitlab::Git::Repository::NoRepository,
       GRPC::InvalidArgument => ArgumentError,

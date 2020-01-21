@@ -30,7 +30,7 @@ describe Clusters::Platforms::Kubernetes do
     let(:service) { create(:cluster_platform_kubernetes, :configured) }
     let!(:cluster) { create(:cluster, :project, enabled: true, platform_kubernetes: service) }
     let(:project) { cluster.project }
-    let(:environment) { build(:environment, project: project, name: "env", slug: "env-000000") }
+    let(:environment) { build(:environment, project: project, name: 'env', slug: 'env-000000') }
     let(:cache_data) { Hash(deployments: deployments, pods: pods) }
 
     subject(:rollout_status) { service.rollout_status(environment, cache_data) }
@@ -144,9 +144,9 @@ describe Clusters::Platforms::Kubernetes do
     let(:enable_advanced_querying) { false }
     let(:expected_logs) do
       [
-        { message: "Log 1", timestamp: "2019-12-13T14:04:22.123456Z" },
-        { message: "Log 2", timestamp: "2019-12-13T14:04:23.123456Z" },
-        { message: "Log 3", timestamp: "2019-12-13T14:04:24.123456Z" }
+        { message: 'Log 1', timestamp: '2019-12-13T14:04:22.123456Z' },
+        { message: 'Log 2', timestamp: '2019-12-13T14:04:23.123456Z' },
+        { message: 'Log 3', timestamp: '2019-12-13T14:04:24.123456Z' }
       ]
     end
 

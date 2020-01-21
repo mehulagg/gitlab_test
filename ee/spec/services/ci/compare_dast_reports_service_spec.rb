@@ -62,7 +62,7 @@ describe Ci::CompareDastReportsService do
             {
               'identifiers' => a_collection_including(
                 a_hash_including(
-                  "name" => "CWE-352"
+                  'name' => 'CWE-352'
                 )
               )
             })

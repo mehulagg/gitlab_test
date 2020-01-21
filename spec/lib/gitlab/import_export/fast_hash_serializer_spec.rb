@@ -186,9 +186,9 @@ describe Gitlab::ImportExport::FastHashSerializer do
   it 'has project feature' do
     project_feature = subject['project_feature']
     expect(project_feature).not_to be_empty
-    expect(project_feature["issues_access_level"]).to eq(ProjectFeature::DISABLED)
-    expect(project_feature["wiki_access_level"]).to eq(ProjectFeature::ENABLED)
-    expect(project_feature["builds_access_level"]).to eq(ProjectFeature::PRIVATE)
+    expect(project_feature['issues_access_level']).to eq(ProjectFeature::DISABLED)
+    expect(project_feature['wiki_access_level']).to eq(ProjectFeature::ENABLED)
+    expect(project_feature['builds_access_level']).to eq(ProjectFeature::PRIVATE)
   end
 
   it 'has custom attributes' do
@@ -207,7 +207,7 @@ describe Gitlab::ImportExport::FastHashSerializer do
 
   context 'project attributes' do
     it 'does not contain the runners token' do
-      expect(subject).not_to include("runners_token" => 'token')
+      expect(subject).not_to include('runners_token' => 'token')
     end
   end
 

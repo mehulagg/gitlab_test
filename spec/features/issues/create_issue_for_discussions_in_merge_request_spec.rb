@@ -9,7 +9,7 @@ describe 'Resolving all open threads in a merge request from an issue', :js do
   let!(:discussion) { create(:diff_note_on_merge_request, noteable: merge_request, project: project).to_discussion }
 
   def resolve_all_discussions_link_selector
-    text = "Resolve all threads in new issue"
+    text = 'Resolve all threads in new issue'
     url = new_project_issue_path(project, merge_request_to_resolve_discussions_of: merge_request.iid)
     %Q{a[data-original-title="#{text}"][href="#{url}"]}
   end

@@ -27,7 +27,7 @@ class MattermostService < ChatNotificationService
   end
 
   def default_channel_placeholder
-    "Channel handle (e.g. town-square)"
+    'Channel handle (e.g. town-square)'
   end
 
   def webhook_placeholder

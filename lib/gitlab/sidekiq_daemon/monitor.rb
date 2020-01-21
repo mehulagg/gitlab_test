@@ -27,7 +27,7 @@ module Gitlab
 
       override :thread_name
       def thread_name
-        "job_monitor"
+        'job_monitor'
       end
 
       def within_job(worker_class, jid, queue)
@@ -191,7 +191,7 @@ module Gitlab
       end
 
       def notification_channel_enabled?
-        ENV.fetch("SIDEKIQ_MONITOR_WORKER", 0).to_i.nonzero?
+        ENV.fetch('SIDEKIQ_MONITOR_WORKER', 0).to_i.nonzero?
       end
     end
   end

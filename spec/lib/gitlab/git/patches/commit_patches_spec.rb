@@ -5,8 +5,8 @@ describe Gitlab::Git::Patches::CommitPatches do
   describe '#commit' do
     let(:patches) do
       patches_folder = Rails.root.join('spec/fixtures/patchfiles')
-      content_1 = File.read(File.join(patches_folder, "0001-This-does-not-apply-to-the-feature-branch.patch"))
-      content_2 = File.read(File.join(patches_folder, "0001-A-commit-from-a-patch.patch"))
+      content_1 = File.read(File.join(patches_folder, '0001-This-does-not-apply-to-the-feature-branch.patch'))
+      content_2 = File.read(File.join(patches_folder, '0001-A-commit-from-a-patch.patch'))
 
       Gitlab::Git::Patches::Collection.new([content_1, content_2])
     end

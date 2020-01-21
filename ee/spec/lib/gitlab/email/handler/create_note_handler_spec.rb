@@ -6,7 +6,7 @@ describe Gitlab::Email::Handler::CreateNoteHandler do
   include_context :email_shared_context
 
   before do
-    stub_incoming_email_setting(enabled: true, address: "reply+%{key}@appmail.adventuretime.ooo")
+    stub_incoming_email_setting(enabled: true, address: 'reply+%{key}@appmail.adventuretime.ooo')
     stub_config_setting(host: 'localhost')
     stub_licensed_features(epics: true)
   end
@@ -21,18 +21,18 @@ describe Gitlab::Email::Handler::CreateNoteHandler do
     SentNotification.record_note(note, user.id, mail_key)
   end
 
-  context "when the note could not be saved" do
+  context 'when the note could not be saved' do
     before do
       allow_any_instance_of(Note).to receive(:persisted?).and_return(false)
     end
 
-    it "raises an InvalidNoteError" do
+    it 'raises an InvalidNoteError' do
       expect { receiver.execute }.to raise_error(Gitlab::Email::InvalidNoteError)
     end
   end
 
   context 'when the note contains quick actions' do
-    let!(:email_raw) { fixture_file("emails/commands_in_reply.eml") }
+    let!(:email_raw) { fixture_file('emails/commands_in_reply.eml') }
 
     context 'and current user cannot update the noteable' do
       it 'only executes the commands that the user can perform' do
@@ -55,36 +55,36 @@ describe Gitlab::Email::Handler::CreateNoteHandler do
     end
   end
 
-  context "when the reply is blank" do
-    let!(:email_raw) { fixture_file("emails/no_content_reply.eml") }
+  context 'when the reply is blank' do
+    let!(:email_raw) { fixture_file('emails/no_content_reply.eml') }
 
-    it "raises an EmptyEmailError" do
+    it 'raises an EmptyEmailError' do
       expect { receiver.execute }.to raise_error(Gitlab::Email::EmptyEmailError)
     end
   end
 
-  context "when everything is fine" do
+  context 'when everything is fine' do
     before do
       setup_attachment
     end
 
-    it "creates a comment" do
+    it 'creates a comment' do
       expect { receiver.execute }.to change { noteable.notes.count }.by(1)
       new_note = noteable.notes.last
 
       expect(new_note.author).to eq(sent_notification.recipient)
       expect(new_note.position).to eq(note.position)
-      expect(new_note.note).to include("I could not disagree more.")
+      expect(new_note.note).to include('I could not disagree more.')
       expect(new_note.in_reply_to?(note)).to be_truthy
     end
 
-    it "adds all attachments" do
+    it 'adds all attachments' do
       expect_next_instance_of(Gitlab::Email::AttachmentUploader) do |uploader|
         expect(uploader).to receive(:execute).with(upload_parent: group, uploader_class: NamespaceFileUploader).and_return(
           [
             {
-              url: "uploads/image.png",
-              alt: "image",
+              url: 'uploads/image.png',
+              alt: 'image',
               markdown: markdown
             }
           ]

@@ -6,8 +6,8 @@ module RunnersHelper
     case status
     when :not_connected
       content_tag :i, nil,
-                  class: "fa fa-warning",
-                  title: "New runner. Has not connected yet"
+                  class: 'fa fa-warning',
+                  title: 'New runner. Has not connected yet'
 
     when :online, :offline, :paused
       content_tag :i, nil,

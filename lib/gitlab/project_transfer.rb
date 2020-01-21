@@ -11,7 +11,7 @@ module Gitlab
       FileUtils.mkdir_p(new_parent_folder)
       from = File.join(root_dir, parent_path_was, path)
       to = File.join(root_dir, parent_path, path)
-      move(from, to, "")
+      move(from, to, '')
     end
 
     alias_method :move_project, :move_namespace

@@ -62,7 +62,7 @@ describe Projects::PagesDomainsController do
   end
 
   describe 'POST create' do
-    it "creates a new pages domain" do
+    it 'creates a new pages domain' do
       expect do
         post(:create, params: request_params.merge(pages_domain: pages_domain_params))
       end.to change { PagesDomain.count }.by(1)
@@ -182,7 +182,7 @@ describe Projects::PagesDomainsController do
   end
 
   describe 'DELETE destroy' do
-    it "deletes the pages domain" do
+    it 'deletes the pages domain' do
       expect do
         delete(:destroy, params: request_params.merge(id: pages_domain.domain))
       end.to change { PagesDomain.count }.by(-1)
@@ -214,7 +214,7 @@ describe Projects::PagesDomainsController do
 
       expect do
         subject
-      end.to change { pages_domain.reload.certificate_source }.from("gitlab_provided").to("user_provided")
+      end.to change { pages_domain.reload.certificate_source }.from('gitlab_provided').to('user_provided')
     end
 
     context 'when pages_https_only is set' do
@@ -263,7 +263,7 @@ describe Projects::PagesDomainsController do
     end
 
     describe 'POST create' do
-      it "returns 404 status" do
+      it 'returns 404 status' do
         post(:create, params: request_params.merge(pages_domain: pages_domain_params))
 
         expect(response).to have_gitlab_http_status(404)
@@ -271,7 +271,7 @@ describe Projects::PagesDomainsController do
     end
 
     describe 'DELETE destroy' do
-      it "deletes the pages domain" do
+      it 'deletes the pages domain' do
         delete(:destroy, params: request_params.merge(id: pages_domain.domain))
 
         expect(response).to have_gitlab_http_status(404)

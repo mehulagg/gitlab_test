@@ -40,7 +40,7 @@ module Routable
       return found if found
 
       if follow_redirects
-        joins(:redirect_routes).find_by("LOWER(redirect_routes.path) = LOWER(?)", path)
+        joins(:redirect_routes).find_by('LOWER(redirect_routes.path) = LOWER(?)', path)
       end
     end
 

@@ -21,16 +21,16 @@ describe API::LdapGroupLinks, api: true do
     group_with_ldap_links.add_user user, Gitlab::Access::DEVELOPER
   end
 
-  describe "POST /groups/:id/ldap_group_links" do
-    context "when unauthenticated" do
-      it "returns authentication error" do
+  describe 'POST /groups/:id/ldap_group_links' do
+    context 'when unauthenticated' do
+      it 'returns authentication error' do
         post api("/groups/#{group_with_ldap_links.id}/ldap_group_links")
         expect(response.status).to eq 401
       end
     end
 
-    context "when a less priviledged user" do
-      it "does not allow less priviledged user to add LDAP group link" do
+    context 'when a less priviledged user' do
+      it 'does not allow less priviledged user to add LDAP group link' do
         expect do
           post api("/groups/#{group_with_ldap_links.id}/ldap_group_links", user),
           params: { cn: 'ldap-group4', group_access: GroupMember::GUEST, provider: 'ldap3' }
@@ -40,8 +40,8 @@ describe API::LdapGroupLinks, api: true do
       end
     end
 
-    context "when owner of the group" do
-      it "returns ok and add ldap group link" do
+    context 'when owner of the group' do
+      it 'returns ok and add ldap group link' do
         expect do
           post api("/groups/#{group_with_ldap_links.id}/ldap_group_links", owner),
           params: { cn: 'ldap-group3', group_access: GroupMember::GUEST, provider: 'ldap3' }
@@ -54,7 +54,7 @@ describe API::LdapGroupLinks, api: true do
       end
 
       # TODO: Correct and activate this test once issue #329 is fixed
-      xit "returns ok and add ldap group link even if no provider specified" do
+      xit 'returns ok and add ldap group link even if no provider specified' do
         expect do
           post api("/groups/#{group_with_ldap_links.id}/ldap_group_links", owner),
           params: { cn: 'ldap-group3', group_access: GroupMember::GUEST }
@@ -66,22 +66,22 @@ describe API::LdapGroupLinks, api: true do
         expect(json_response['provider']).to eq('ldapmain')
       end
 
-      it "returns error if LDAP group link already exists" do
+      it 'returns error if LDAP group link already exists' do
         post api("//groups/#{group_with_ldap_links.id}/ldap_group_links", owner), params: { provider: 'ldap1', cn: 'ldap-group1', group_access: GroupMember::GUEST }
         expect(response.status).to eq(409)
       end
 
-      it "returns a 400 error when cn is not given" do
+      it 'returns a 400 error when cn is not given' do
         post api("//groups/#{group_with_ldap_links.id}/ldap_group_links", owner), params: { group_access: GroupMember::GUEST }
         expect(response.status).to eq(400)
       end
 
-      it "returns a 400 error when group access is not given" do
+      it 'returns a 400 error when group access is not given' do
         post api("//groups/#{group_with_ldap_links.id}/ldap_group_links", owner), params: { cn: 'ldap-group3' }
         expect(response.status).to eq(400)
       end
 
-      it "returns a 422 error when group access is not known" do
+      it 'returns a 422 error when group access is not known' do
         post api("//groups/#{group_with_ldap_links.id}/ldap_group_links", owner), params: { cn: 'ldap-group3', group_access: 11, provider: 'ldap1' }
 
         expect(response.status).to eq(400)
@@ -91,15 +91,15 @@ describe API::LdapGroupLinks, api: true do
   end
 
   describe 'DELETE /groups/:id/ldap_group_links/:cn' do
-    context "when unauthenticated" do
-      it "returns authentication error" do
+    context 'when unauthenticated' do
+      it 'returns authentication error' do
         delete api("/groups/#{group_with_ldap_links.id}/ldap_group_links/ldap-group1")
         expect(response.status).to eq 401
       end
     end
 
-    context "when a less priviledged user" do
-      it "does not remove the LDAP group link" do
+    context 'when a less priviledged user' do
+      it 'does not remove the LDAP group link' do
         expect do
           delete api("/groups/#{group_with_ldap_links.id}/ldap_group_links/ldap-group1", user)
         end.not_to change { group_with_ldap_links.ldap_group_links.count }
@@ -108,8 +108,8 @@ describe API::LdapGroupLinks, api: true do
       end
     end
 
-    context "when owner of the group" do
-      it "removes ldap group link" do
+    context 'when owner of the group' do
+      it 'removes ldap group link' do
         expect do
           delete api("/groups/#{group_with_ldap_links.id}/ldap_group_links/ldap-group1", owner)
 
@@ -117,7 +117,7 @@ describe API::LdapGroupLinks, api: true do
         end.to change { group_with_ldap_links.ldap_group_links.count }.by(-1)
       end
 
-      it "returns 404 if LDAP group cn not used for a LDAP group link" do
+      it 'returns 404 if LDAP group cn not used for a LDAP group link' do
         expect do
           delete api("/groups/#{group_with_ldap_links.id}/ldap_group_links/ldap-group1356", owner)
         end.not_to change { group_with_ldap_links.ldap_group_links.count }
@@ -128,15 +128,15 @@ describe API::LdapGroupLinks, api: true do
   end
 
   describe 'DELETE /groups/:id/ldap_group_links/:provider/:cn' do
-    context "when unauthenticated" do
-      it "returns authentication error" do
+    context 'when unauthenticated' do
+      it 'returns authentication error' do
         delete api("/groups/#{group_with_ldap_links.id}/ldap_group_links/ldap2/ldap-group2")
         expect(response.status).to eq 401
       end
     end
 
-    context "when a less priviledged user" do
-      it "does not remove the LDAP group link" do
+    context 'when a less priviledged user' do
+      it 'does not remove the LDAP group link' do
         expect do
           delete api("/groups/#{group_with_ldap_links.id}/ldap_group_links/ldap2/ldap-group2", user)
         end.not_to change { group_with_ldap_links.ldap_group_links.count }
@@ -145,8 +145,8 @@ describe API::LdapGroupLinks, api: true do
       end
     end
 
-    context "when owner of the group" do
-      it "returns 404 if LDAP group cn not used for a LDAP group link for the specified provider" do
+    context 'when owner of the group' do
+      it 'returns 404 if LDAP group cn not used for a LDAP group link for the specified provider' do
         expect do
           delete api("/groups/#{group_with_ldap_links.id}/ldap_group_links/ldap1/ldap-group2", owner)
         end.not_to change { group_with_ldap_links.ldap_group_links.count }
@@ -154,7 +154,7 @@ describe API::LdapGroupLinks, api: true do
         expect(response.status).to eq(404)
       end
 
-      it "removes ldap group link" do
+      it 'removes ldap group link' do
         expect do
           delete api("/groups/#{group_with_ldap_links.id}/ldap_group_links/ldap2/ldap-group2", owner)
 

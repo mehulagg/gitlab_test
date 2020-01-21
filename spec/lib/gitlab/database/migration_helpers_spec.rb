@@ -162,21 +162,21 @@ describe Gitlab::Database::MigrationHelpers do
 
         describe 'by index name' do
           before do
-            allow(model).to receive(:index_exists_by_name?).with(:users, "index_x_by_y").and_return(true)
+            allow(model).to receive(:index_exists_by_name?).with(:users, 'index_x_by_y').and_return(true)
           end
 
           it 'removes the index concurrently by index name' do
             expect(model).to receive(:remove_index)
-              .with(:users, { algorithm: :concurrently, name: "index_x_by_y" })
+              .with(:users, { algorithm: :concurrently, name: 'index_x_by_y' })
 
-            model.remove_concurrent_index_by_name(:users, "index_x_by_y")
+            model.remove_concurrent_index_by_name(:users, 'index_x_by_y')
           end
 
           it 'does nothing if the index does not exist' do
-            expect(model).to receive(:index_exists_by_name?).with(:users, "index_x_by_y").and_return(false)
+            expect(model).to receive(:index_exists_by_name?).with(:users, 'index_x_by_y').and_return(false)
             expect(model).not_to receive(:remove_index)
 
-            model.remove_concurrent_index_by_name(:users, "index_x_by_y")
+            model.remove_concurrent_index_by_name(:users, 'index_x_by_y')
           end
         end
       end
@@ -672,7 +672,7 @@ describe Gitlab::Database::MigrationHelpers do
         allow(model).to receive(:transaction).and_yield
         expect(model).to receive(:update_column_in_batches).with(:projects, :foo, '[{"foo":"json"}]').and_call_original
 
-        model.add_column_with_default(:projects, :foo, :jsonb, default: [{ foo: "json" }])
+        model.add_column_with_default(:projects, :foo, :jsonb, default: [{ foo: 'json' }])
       end
 
       it 'adds a column with an object default value for a jsonb type' do
@@ -681,7 +681,7 @@ describe Gitlab::Database::MigrationHelpers do
         allow(model).to receive(:transaction).and_yield
         expect(model).to receive(:update_column_in_batches).with(:projects, :foo, '{"foo":"json"}').and_call_original
 
-        model.add_column_with_default(:projects, :foo, :jsonb, default: { foo: "json" })
+        model.add_column_with_default(:projects, :foo, :jsonb, default: { foo: 'json' })
       end
     end
 
@@ -1140,7 +1140,7 @@ describe Gitlab::Database::MigrationHelpers do
 
   describe '#replace_sql' do
     it 'builds the sql with correct functions' do
-      expect(model.replace_sql(Arel::Table.new(:users)[:first_name], "Alice", "Eve").to_s)
+      expect(model.replace_sql(Arel::Table.new(:users)[:first_name], 'Alice', 'Eve').to_s)
         .to include('regexp_replace')
     end
 

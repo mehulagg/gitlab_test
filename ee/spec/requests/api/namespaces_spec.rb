@@ -9,10 +9,10 @@ describe API::Namespaces do
   let!(:group2) { create(:group, :nested) }
   let!(:gold_plan) { create(:gold_plan) }
 
-  describe "GET /namespaces" do
-    context "when authenticated as admin" do
-      it "returns correct attributes" do
-        get api("/namespaces", admin)
+  describe 'GET /namespaces' do
+    context 'when authenticated as admin' do
+      it 'returns correct attributes' do
+        get api('/namespaces', admin)
 
         group_kind_json_response = json_response.find { |resource| resource['kind'] == 'group' }
         user_kind_json_response = json_response.find { |resource| resource['kind'] == 'user' }
@@ -32,11 +32,11 @@ describe API::Namespaces do
       end
     end
 
-    context "when authenticated as a regular user" do
-      it "returns correct attributes when user can admin group" do
+    context 'when authenticated as a regular user' do
+      it 'returns correct attributes when user can admin group' do
         group1.add_owner(user)
 
-        get api("/namespaces", user)
+        get api('/namespaces', user)
 
         owned_group_response = json_response.find { |resource| resource['id'] == group1.id }
 
@@ -45,10 +45,10 @@ describe API::Namespaces do
                                                              'avatar_url', 'web_url', 'billable_members_count')
       end
 
-      it "returns correct attributes when user cannot admin group" do
+      it 'returns correct attributes when user cannot admin group' do
         group1.add_guest(user)
 
-        get api("/namespaces", user)
+        get api('/namespaces', user)
 
         guest_group_response = json_response.find { |resource| resource['id'] == group1.id }
 
@@ -57,7 +57,7 @@ describe API::Namespaces do
       end
     end
 
-    context "when passing the requested hosted plan" do
+    context 'when passing the requested hosted plan' do
       before do
         user1 = create(:user)
         user2 = create(:user)
@@ -70,7 +70,7 @@ describe API::Namespaces do
 
       context 'without a requested plan' do
         it 'counts guest members' do
-          get api("/namespaces", user)
+          get api('/namespaces', user)
 
           expect(json_response.first['billable_members_count']).to eq(3)
         end
@@ -78,7 +78,7 @@ describe API::Namespaces do
 
       context 'when requesting an invalid plan' do
         it 'counts guest members' do
-          get api("/namespaces?requested_hosted_plan=unknown", user)
+          get api('/namespaces?requested_hosted_plan=unknown', user)
 
           expect(json_response.first['billable_members_count']).to eq(3)
         end
@@ -86,7 +86,7 @@ describe API::Namespaces do
 
       context 'when requesting bronze plan' do
         it 'counts guest members' do
-          get api("/namespaces?requested_hosted_plan=bronze", user)
+          get api('/namespaces?requested_hosted_plan=bronze', user)
 
           expect(json_response.first['billable_members_count']).to eq(3)
         end
@@ -94,7 +94,7 @@ describe API::Namespaces do
 
       context 'when requesting silver plan' do
         it 'counts guest members' do
-          get api("/namespaces?requested_hosted_plan=silver", user)
+          get api('/namespaces?requested_hosted_plan=silver', user)
 
           expect(json_response.first['billable_members_count']).to eq(3)
         end
@@ -102,7 +102,7 @@ describe API::Namespaces do
 
       context 'when requesting gold plan' do
         it 'does not count guest members' do
-          get api("/namespaces?requested_hosted_plan=gold", user)
+          get api('/namespaces?requested_hosted_plan=gold', user)
 
           expect(json_response.first['billable_members_count']).to eq(2)
         end
@@ -145,7 +145,7 @@ describe API::Namespaces do
 
     context 'when namespace not found' do
       it 'returns 404' do
-        put api("/namespaces/12345", admin), params: { plan: 'silver' }
+        put api('/namespaces/12345', admin), params: { plan: 'silver' }
 
         expect(response).to have_gitlab_http_status(404)
         expect(json_response).to eq('message' => '404 Namespace Not Found')
@@ -175,8 +175,8 @@ describe API::Namespaces do
       end
     end
 
-    context "when customer purchases extra CI minutes" do
-      it "ticks instance runners" do
+    context 'when customer purchases extra CI minutes' do
+      it 'ticks instance runners' do
         runners = Ci::Runner.instance_type
 
         put api("/namespaces/#{group1.full_path}", admin), params: { plan: 'silver', extra_shared_runners_minutes_limit: 1000 }

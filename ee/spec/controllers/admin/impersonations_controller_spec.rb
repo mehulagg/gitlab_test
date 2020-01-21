@@ -6,13 +6,13 @@ describe Admin::ImpersonationsController do
   let(:impersonator) { create(:admin) }
   let(:user) { create(:user) }
 
-  describe "DELETE destroy" do
-    context "when signed in" do
+  describe 'DELETE destroy' do
+    context 'when signed in' do
       before do
         sign_in(user)
       end
 
-      context "when impersonating" do
+      context 'when impersonating' do
         before do
           session[:impersonator_id] = impersonator.id
           stub_licensed_features(extended_audit_events: true)

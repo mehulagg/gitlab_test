@@ -8,7 +8,7 @@ describe Resolvers::EpicResolver do
   let_it_be(:current_user) { create(:user) }
   let_it_be(:user2) { create(:user) }
 
-  context "with a group" do
+  context 'with a group' do
     let(:group)   { create(:group) }
     let(:project) { create(:project, :public, group: group) }
     let(:epic1)   { create(:epic, group: group, state: :closed, created_at: 3.days.ago, updated_at: 2.days.ago) }
@@ -61,8 +61,8 @@ describe Resolvers::EpicResolver do
       end
 
       context 'within timeframe' do
-        let!(:epic1) { create(:epic, group: group, state: :closed, start_date: "2019-08-13", end_date: "2019-08-20") }
-        let!(:epic2) { create(:epic, group: group, state: :closed, start_date: "2019-08-13", end_date: "2019-08-21") }
+        let!(:epic1) { create(:epic, group: group, state: :closed, start_date: '2019-08-13', end_date: '2019-08-20') }
+        let!(:epic2) { create(:epic, group: group, state: :closed, start_date: '2019-08-13', end_date: '2019-08-21') }
 
         context 'when start_date and end_date are present' do
           it 'returns epics within timeframe' do
@@ -86,8 +86,8 @@ describe Resolvers::EpicResolver do
       end
 
       context 'with state' do
-        let!(:epic1) { create(:epic, group: group, state: :opened, start_date: "2019-08-13", end_date: "2019-08-20") }
-        let!(:epic2) { create(:epic, group: group, state: :closed, start_date: "2019-08-13", end_date: "2019-08-21") }
+        let!(:epic1) { create(:epic, group: group, state: :opened, start_date: '2019-08-13', end_date: '2019-08-20') }
+        let!(:epic2) { create(:epic, group: group, state: :closed, start_date: '2019-08-13', end_date: '2019-08-21') }
 
         it 'lists epics with opened state' do
           epics = resolve_epics(state: 'opened')
@@ -197,15 +197,15 @@ describe Resolvers::EpicResolver do
     end
   end
 
-  context "when passing a non existent, batch loaded group" do
+  context 'when passing a non existent, batch loaded group' do
     let(:group) do
-      BatchLoader::GraphQL.for("non-existent-path").batch do |_fake_paths, loader, _|
-        loader.call("non-existent-path", nil)
+      BatchLoader::GraphQL.for('non-existent-path').batch do |_fake_paths, loader, _|
+        loader.call('non-existent-path', nil)
       end
     end
 
-    it "returns nil without breaking" do
-      expect(resolve_epics(iids: ["don't", "break"])).to be_empty
+    it 'returns nil without breaking' do
+      expect(resolve_epics(iids: ["don't", 'break'])).to be_empty
     end
   end
 

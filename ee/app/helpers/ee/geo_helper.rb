@@ -66,7 +66,7 @@ module EE
     end
 
     def status_loading_icon
-      icon "spinner spin fw", class: 'js-geo-node-loading'
+      icon 'spinner spin fw', class: 'js-geo-node-loading'
     end
 
     def node_class(node)

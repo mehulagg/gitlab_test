@@ -100,7 +100,7 @@ module Gitlab
             )
           else
             Gitlab::AppLogger.info(
-              "Account is not provided by LDAP, " \
+              'Account is not provided by LDAP, ' \
               "blocking GitLab user \"#{user.name}\" (#{user.email})"
             )
           end

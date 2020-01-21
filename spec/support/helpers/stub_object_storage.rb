@@ -70,7 +70,7 @@ module StubObjectStorage
                                  **params)
   end
 
-  def stub_object_storage_multipart_init(endpoint, upload_id = "upload_id")
+  def stub_object_storage_multipart_init(endpoint, upload_id = 'upload_id')
     stub_request(:post, %r{\A#{endpoint}tmp/uploads/[a-z0-9-]*\?uploads\z})
       .to_return status: 200, body: <<-EOS.strip_heredoc
         <?xml version="1.0" encoding="UTF-8"?>

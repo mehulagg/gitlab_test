@@ -34,7 +34,7 @@ module Gitlab
           if was_embedded?(markdown)
             moved_markdown
           else
-            moved_markdown.sub(/\A!/, "")
+            moved_markdown.sub(/\A!/, '')
           end
         end
       end
@@ -52,7 +52,7 @@ module Gitlab
       end
 
       def was_embedded?(markdown)
-        markdown.starts_with?("!")
+        markdown.starts_with?('!')
       end
 
       private

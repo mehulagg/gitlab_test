@@ -25,7 +25,7 @@ class Gitlab::Seeder::CustomizableCycleAnalytics
 
         seed_merge_request_based_stages!
 
-        puts "."
+        puts '.'
       end
     end
   end
@@ -161,7 +161,7 @@ class Gitlab::Seeder::CustomizableCycleAnalytics
     @merge_requests ||= Array.new(MERGE_REQUEST_COUNT).map do |i|
       opts = {
         title: 'Customized Cycle Analytics merge_request',
-        description: "some description",
+        description: 'some description',
         source_branch: "#{FFaker::Lorem.word}-#{i}-#{SecureRandom.hex(5)}",
         target_branch: 'master'
       }

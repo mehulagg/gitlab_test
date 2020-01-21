@@ -14,29 +14,29 @@ module Ci
 
     describe '#execute' do
       context 'runner follow tag list' do
-        it "picks build with the same tag" do
-          pending_job.update(tag_list: ["linux"])
-          specific_runner.update(tag_list: ["linux"])
+        it 'picks build with the same tag' do
+          pending_job.update(tag_list: ['linux'])
+          specific_runner.update(tag_list: ['linux'])
           expect(execute(specific_runner)).to eq(pending_job)
         end
 
-        it "does not pick build with different tag" do
-          pending_job.update(tag_list: ["linux"])
-          specific_runner.update(tag_list: ["win32"])
+        it 'does not pick build with different tag' do
+          pending_job.update(tag_list: ['linux'])
+          specific_runner.update(tag_list: ['win32'])
           expect(execute(specific_runner)).to be_falsey
         end
 
-        it "picks build without tag" do
+        it 'picks build without tag' do
           expect(execute(specific_runner)).to eq(pending_job)
         end
 
-        it "does not pick build with tag" do
-          pending_job.update(tag_list: ["linux"])
+        it 'does not pick build with tag' do
+          pending_job.update(tag_list: ['linux'])
           expect(execute(specific_runner)).to be_falsey
         end
 
-        it "pick build without tag" do
-          specific_runner.update(tag_list: ["win32"])
+        it 'pick build without tag' do
+          specific_runner.update(tag_list: ['win32'])
           expect(execute(specific_runner)).to eq(pending_job)
         end
       end
@@ -261,7 +261,7 @@ module Ci
               .and_return(Ci::Build.where(id: [pending_job, other_build]))
           end
 
-          it "receives second build from the queue" do
+          it 'receives second build from the queue' do
             expect(subject).to be_valid
             expect(subject.build).to eq(other_build)
           end
@@ -273,7 +273,7 @@ module Ci
               .and_return(Ci::Build.where(id: pending_job))
           end
 
-          it "does not receive any valid result" do
+          it 'does not receive any valid result' do
             expect(subject).not_to be_valid
           end
         end
@@ -284,7 +284,7 @@ module Ci
               .and_return(Ci::Build.none)
           end
 
-          it "does not receive builds but result is valid" do
+          it 'does not receive builds but result is valid' do
             expect(subject).to be_valid
             expect(subject.build).to be_nil
           end
@@ -466,7 +466,7 @@ module Ci
         let!(:pending_job) do
           create(:ci_build, :pending,
             pipeline: pipeline, stage_idx: 1,
-            options: { script: ["bash"], dependencies: ['test'] })
+            options: { script: ['bash'], dependencies: ['test'] })
         end
 
         subject { execute(specific_runner) }
@@ -508,7 +508,7 @@ module Ci
         end
 
         before do
-          pending_job.update_columns(options: "string")
+          pending_job.update_columns(options: 'string')
         end
 
         subject { execute(specific_runner, {}) }

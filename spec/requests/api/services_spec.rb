@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe API::Services do
   set(:user) { create(:user) }
@@ -10,14 +10,14 @@ describe API::Services do
     create(:project, creator_id: user.id, namespace: user.namespace)
   end
 
-  describe "GET /projects/:id/services" do
+  describe 'GET /projects/:id/services' do
     it 'returns authentication error when unauthenticated' do
       get api("/projects/#{project.id}/services")
 
       expect(response).to have_gitlab_http_status(401)
     end
 
-    it "returns error when authenticated but user is not a project owner" do
+    it 'returns error when authenticated but user is not a project owner' do
       project.add_developer(user2)
       get api("/projects/#{project.id}/services", user2)
 
@@ -28,7 +28,7 @@ describe API::Services do
       let!(:active_service) { create(:emails_on_push_service, project: project, active: true) }
       let!(:service) { create(:custom_issue_tracker_service, project: project, active: false) }
 
-      it "returns a list of all active services" do
+      it 'returns a list of all active services' do
         get api("/projects/#{project.id}/services", user)
 
         aggregate_failures 'expect successful response with all active services' do
@@ -52,7 +52,7 @@ describe API::Services do
         expect(response).to have_gitlab_http_status(200)
 
         current_service = project.services.first
-        events = current_service.event_names.empty? ? ["foo"].freeze : current_service.event_names
+        events = current_service.event_names.empty? ? ['foo'].freeze : current_service.event_names
         query_strings = []
         events.each do |event|
           query_strings << "#{event}=#{!current_service[event]}"
@@ -64,14 +64,14 @@ describe API::Services do
         expect(response).to have_gitlab_http_status(200)
         expect(json_response['slug']).to eq(dashed_service)
         events.each do |event|
-          next if event == "foo"
+          next if event == 'foo'
 
           expect(project.services.first[event]).not_to eq(current_service[event]),
             "expected #{!current_service[event]} for event #{event} for service #{current_service.title}, got #{current_service[event]}"
         end
       end
 
-      it "returns if required fields missing" do
+      it 'returns if required fields missing' do
         attrs = service_attrs
 
         required_attributes = service_attrs_list.select do |attr|
@@ -127,7 +127,7 @@ describe API::Services do
         expect(json_response['properties'].keys).to match_array(service_instance.api_field_names)
       end
 
-      it "returns empty hash or nil values if properties and data fields are empty" do
+      it 'returns empty hash or nil values if properties and data fields are empty' do
         # deprecated services are not valid for update
         initialized_service.update_attribute(:properties, {})
 
@@ -142,7 +142,7 @@ describe API::Services do
         expect(json_response['properties'].values.compact).to be_empty
       end
 
-      it "returns error when authenticated but not a project owner" do
+      it 'returns error when authenticated but not a project owner' do
         project.add_developer(user2)
         get api("/projects/#{project.id}/services/#{dashed_service}", user2)
 
@@ -160,7 +160,7 @@ describe API::Services do
           post api("/projects/#{project.id}/services/idonotexist/trigger")
 
           expect(response).to have_gitlab_http_status(404)
-          expect(json_response["error"]).to eq("404 Not Found")
+          expect(json_response['error']).to eq('404 Not Found')
         end
       end
 
@@ -202,7 +202,7 @@ describe API::Services do
             post api("/projects/404/services/#{service_name}/trigger"), params: params
 
             expect(response).to have_gitlab_http_status(404)
-            expect(json_response["message"]).to eq("404 Service Not Found")
+            expect(json_response['message']).to eq('404 Service Not Found')
           end
         end
       end
@@ -222,7 +222,7 @@ describe API::Services do
         post api("/projects/#{project.id}/services/#{service_name}/trigger"), params: { token: 'token', text: 'help' }
 
         expect(response).to have_gitlab_http_status(200)
-        expect(json_response['response_type']).to eq("ephemeral")
+        expect(json_response['response_type']).to eq('ephemeral')
       end
     end
   end

@@ -24,7 +24,7 @@ module ActiveRecord
 
       if values[:cached] && skip_cached
         @cached << values[:sql]
-      elsif !values[:name]&.include?("SCHEMA")
+      elsif !values[:name]&.include?('SCHEMA')
         @log << values[:sql]
       end
     end

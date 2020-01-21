@@ -12,25 +12,25 @@ describe Gitlab::BitbucketImport::Importer do
 
   let(:statuses) do
     [
-      "open",
-      "resolved",
-      "on hold",
-      "invalid",
-      "duplicate",
-      "wontfix",
-      "closed" # undocumented status
+      'open',
+      'resolved',
+      'on hold',
+      'invalid',
+      'duplicate',
+      'wontfix',
+      'closed' # undocumented status
     ]
   end
 
   let(:reporters) do
     [
       nil,
-      { "nickname" => "reporter1" },
+      { 'nickname' => 'reporter1' },
       nil,
-      { "nickname" => "reporter2" },
-      { "nickname" => "reporter1" },
+      { 'nickname' => 'reporter2' },
+      { 'nickname' => 'reporter1' },
       nil,
-      { "nickname" => "reporter3" }
+      { 'nickname' => 'reporter3' }
     ]
   end
 
@@ -45,7 +45,7 @@ describe Gitlab::BitbucketImport::Importer do
         kind: 'bug',
         content: {
             raw: "Some content to issue #{index}",
-            markup: "markdown",
+            markup: 'markdown',
             html: "Some content to issue #{index}"
         }
       }
@@ -63,8 +63,8 @@ describe Gitlab::BitbucketImport::Importer do
   let(:data) do
     {
       'bb_session' => {
-        'bitbucket_token' => "123456",
-        'bitbucket_refresh_token' => "secret"
+        'bitbucket_token' => '123456',
+        'bitbucket_refresh_token' => 'secret'
       }
     }
   end
@@ -231,19 +231,19 @@ describe Gitlab::BitbucketImport::Importer do
         :get,
         "https://api.bitbucket.org/2.0/repositories/#{project_identifier}"
       ).to_return(status: 200,
-                  headers: { "Content-Type" => "application/json" },
+                  headers: { 'Content-Type' => 'application/json' },
                   body: { has_issues: true, full_name: project_identifier }.to_json)
 
       stub_request(
         :get,
         "https://api.bitbucket.org/2.0/repositories/#{project_identifier}/issues?pagelen=50&sort=created_on"
       ).to_return(status: 200,
-                  headers: { "Content-Type" => "application/json" },
+                  headers: { 'Content-Type' => 'application/json' },
                   body: issues_statuses_sample_data.to_json)
 
-      stub_request(:get, "https://api.bitbucket.org/2.0/repositories/namespace/repo?pagelen=50&sort=created_on")
+      stub_request(:get, 'https://api.bitbucket.org/2.0/repositories/namespace/repo?pagelen=50&sort=created_on')
         .with(headers: { 'Accept' => '*/*', 'Accept-Encoding' => 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'Authorization' => 'Bearer', 'User-Agent' => 'Faraday v0.9.2' })
-        .to_return(status: 200, body: "", headers: {})
+        .to_return(status: 200, body: '', headers: {})
 
       sample_issues_statuses.each_with_index do |issue, index|
         stub_request(
@@ -251,8 +251,8 @@ describe Gitlab::BitbucketImport::Importer do
           "https://api.bitbucket.org/2.0/repositories/#{project_identifier}/issues/#{issue[:id]}/comments?pagelen=50&sort=created_on"
         ).to_return(
           status: 200,
-          headers: { "Content-Type" => "application/json" },
-          body: { author_info: { username: "username" }, utc_created_on: index }.to_json
+          headers: { 'Content-Type' => 'application/json' },
+          body: { author_info: { username: 'username' }, utc_created_on: index }.to_json
         )
       end
 
@@ -260,7 +260,7 @@ describe Gitlab::BitbucketImport::Importer do
         :get,
         "https://api.bitbucket.org/2.0/repositories/#{project_identifier}/pullrequests?pagelen=50&sort=created_on&state=ALL"
       ).to_return(status: 200,
-                  headers: { "Content-Type" => "application/json" },
+                  headers: { 'Content-Type' => 'application/json' },
                   body: {}.to_json)
     end
 
@@ -339,10 +339,10 @@ describe Gitlab::BitbucketImport::Importer do
         importer.execute
 
         expect(project.issues.size).to eq(7)
-        expect(project.issues.where("description LIKE ?", '%Anonymous%').size).to eq(3)
-        expect(project.issues.where("description LIKE ?", '%reporter1%').size).to eq(2)
-        expect(project.issues.where("description LIKE ?", '%reporter2%').size).to eq(1)
-        expect(project.issues.where("description LIKE ?", '%reporter3%').size).to eq(1)
+        expect(project.issues.where('description LIKE ?', '%Anonymous%').size).to eq(3)
+        expect(project.issues.where('description LIKE ?', '%reporter1%').size).to eq(2)
+        expect(project.issues.where('description LIKE ?', '%reporter2%').size).to eq(1)
+        expect(project.issues.where('description LIKE ?', '%reporter3%').size).to eq(1)
         expect(importer.errors).to be_empty
       end
     end

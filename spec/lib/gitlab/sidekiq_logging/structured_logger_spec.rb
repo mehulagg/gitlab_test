@@ -10,15 +10,15 @@ describe Gitlab::SidekiqLogging::StructuredLogger do
 
     let(:job) do
       {
-        "class" => "TestWorker",
-        "args" => [1234, 'hello'],
-        "retry" => false,
-        "queue" => "cronjob:test_queue",
-        "queue_namespace" => "cronjob",
-        "jid" => "da883554ee4fe414012f5f42",
-        "created_at" => created_at.to_f,
-        "enqueued_at" => created_at.to_f,
-        "correlation_id" => 'cid'
+        'class' => 'TestWorker',
+        'args' => [1234, 'hello'],
+        'retry' => false,
+        'queue' => 'cronjob:test_queue',
+        'queue_namespace' => 'cronjob',
+        'jid' => 'da883554ee4fe414012f5f42',
+        'created_at' => created_at.to_f,
+        'enqueued_at' => created_at.to_f,
+        'correlation_id' => 'cid'
       }
     end
 
@@ -141,7 +141,7 @@ describe Gitlab::SidekiqLogging::StructuredLogger do
           expect(subject).to receive(:log_job_start).and_call_original
           expect(subject).to receive(:log_job_done).and_call_original
 
-          subject.call(job.except("created_at", "enqueued_at"), 'test_queue') { }
+          subject.call(job.except('created_at', 'enqueued_at'), 'test_queue') { }
         end
       end
     end

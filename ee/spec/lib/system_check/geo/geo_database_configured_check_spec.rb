@@ -11,14 +11,14 @@ describe SystemCheck::Geo::GeoDatabaseConfiguredCheck do
   subject { described_class.new }
 
   describe '#multi_check' do
-    it "checks database configuration" do
+    it 'checks database configuration' do
       stub_configuration_check(false)
 
       expect(subject).to receive(:try_fixing_it).with(described_class::WRONG_CONFIGURATION_MESSAGE)
       expect(subject.multi_check).to be_falsey
     end
 
-    it "checks database configuration" do
+    it 'checks database configuration' do
       stub_configuration_check(true)
       stub_connection_state(false)
 
@@ -27,7 +27,7 @@ describe SystemCheck::Geo::GeoDatabaseConfiguredCheck do
       expect(subject.multi_check).to be_falsey
     end
 
-    it "checks table existence" do
+    it 'checks table existence' do
       stub_configuration_check(true)
       stub_connection_state(true)
       stub_tables_existence(false)
@@ -37,7 +37,7 @@ describe SystemCheck::Geo::GeoDatabaseConfiguredCheck do
       expect(subject.multi_check).to be_falsey
     end
 
-    it "checks if existing database is being reused" do
+    it 'checks if existing database is being reused' do
       stub_configuration_check(true)
       stub_connection_state(true)
       stub_tables_existence(true)
@@ -48,7 +48,7 @@ describe SystemCheck::Geo::GeoDatabaseConfiguredCheck do
       expect(subject.multi_check).to be_falsey
     end
 
-    it "returns true when all checks passed" do
+    it 'returns true when all checks passed' do
       stub_configuration_check(true)
       stub_connection_state(true)
       stub_tables_existence(true)

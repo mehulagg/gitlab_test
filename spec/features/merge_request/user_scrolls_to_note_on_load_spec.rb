@@ -20,7 +20,7 @@ describe 'Merge request > User scrolls to note on load', :js do
     wait_for_requests
 
     page_height = page.current_window.size[1]
-    page_scroll_y = page.evaluate_script("window.scrollY")
+    page_scroll_y = page.evaluate_script('window.scrollY')
     fragment_position_top = page.evaluate_script("Math.round($('#{fragment_id}').offset().top)")
 
     expect(find(fragment_id).visible?).to eq true
@@ -33,7 +33,7 @@ describe 'Merge request > User scrolls to note on load', :js do
 
     visit "#{project_merge_request_path(project, merge_request)}#{fragment_id}"
 
-    page.execute_script "window.scrollTo(0,0)"
+    page.execute_script 'window.scrollTo(0,0)'
 
     note_element = find(fragment_id)
     note_container = note_element.ancestor('.js-discussion-container')

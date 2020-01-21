@@ -79,7 +79,7 @@ describe Gitlab::Utils do
 
   describe '.nlbr' do
     it 'replaces new lines with <br>' do
-      expect(described_class.nlbr("<b>hello</b>\n<i>world</i>".freeze)).to eq("hello<br>world")
+      expect(described_class.nlbr("<b>hello</b>\n<i>world</i>".freeze)).to eq('hello<br>world')
     end
   end
 
@@ -87,13 +87,13 @@ describe Gitlab::Utils do
     using RSpec::Parameterized::TableSyntax
 
     where(:original, :expected) do
-      "foo\nbar\nbaz"     | "foobarbaz"
-      "foo\r\nbar\r\nbaz" | "foobarbaz"
-      "foobar"            | "foobar"
+      "foo\nbar\nbaz"     | 'foobarbaz'
+      "foo\r\nbar\r\nbaz" | 'foobarbaz'
+      'foobar'            | 'foobar'
     end
 
     with_them do
-      it "replace line breaks with an empty string" do
+      it 'replace line breaks with an empty string' do
         expect(described_class.remove_line_breaks(original)).to eq(expected)
       end
     end
@@ -233,7 +233,7 @@ describe Gitlab::Utils do
 
   describe '.deep_indifferent_access' do
     let(:hash) do
-      { "variables" => [{ "key" => "VAR1", "value" => "VALUE2" }] }
+      { 'variables' => [{ 'key' => 'VAR1', 'value' => 'VALUE2' }] }
     end
 
     subject { described_class.deep_indifferent_access(hash) }

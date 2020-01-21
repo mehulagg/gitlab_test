@@ -13,7 +13,7 @@ module EE
       INSTANCE_REVIEW_MIN_USERS = 100
       DEFAULT_NUMBER_OF_DAYS_BEFORE_REMOVAL = 7
 
-      belongs_to :file_template_project, class_name: "Project"
+      belongs_to :file_template_project, class_name: 'Project'
 
       validates :shared_runners_minutes,
                 numericality: { greater_than_or_equal_to: 0 }

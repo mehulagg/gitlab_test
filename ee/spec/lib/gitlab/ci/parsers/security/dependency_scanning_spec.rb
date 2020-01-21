@@ -27,7 +27,7 @@ describe Gitlab::Ci::Parsers::Security::DependencyScanning do
         end
       end
 
-      it "parses all identifiers and occurrences" do
+      it 'parses all identifiers and occurrences' do
         expect(report.occurrences.length).to eq(occurrence_count)
         expect(report.identifiers.length).to eq(identifier_count)
         expect(report.scanners.length).to eq(scanner_count)
@@ -44,12 +44,12 @@ describe Gitlab::Ci::Parsers::Security::DependencyScanning do
         )
       end
 
-      it "generates expected metadata_version" do
+      it 'generates expected metadata_version' do
         expect(report.occurrences.first.metadata_version).to eq(version)
       end
     end
 
-    context "when parsing a vulnerability with a missing location" do
+    context 'when parsing a vulnerability with a missing location' do
       let(:report_hash) { JSON.parse(fixture_file('security_reports/master/gl-sast-report.json', dir: 'ee'), symbolize_names: true) }
 
       before do
@@ -59,7 +59,7 @@ describe Gitlab::Ci::Parsers::Security::DependencyScanning do
       it { expect { parser.parse!(report_hash.to_json, report) }.not_to raise_error }
     end
 
-    context "when parsing a vulnerability with a missing cve" do
+    context 'when parsing a vulnerability with a missing cve' do
       let(:report_hash) { JSON.parse(fixture_file('security_reports/master/gl-sast-report.json', dir: 'ee'), symbolize_names: true) }
 
       before do
@@ -69,7 +69,7 @@ describe Gitlab::Ci::Parsers::Security::DependencyScanning do
       it { expect { parser.parse!(report_hash.to_json, report) }.not_to raise_error }
     end
 
-    context "when vulnerabilities have remediations" do
+    context 'when vulnerabilities have remediations' do
       let(:artifact) { create(:ee_ci_job_artifact, :dependency_scanning_remediation) }
 
       before do
@@ -78,13 +78,13 @@ describe Gitlab::Ci::Parsers::Security::DependencyScanning do
         end
       end
 
-      it "generates occurrence with expected remediation" do
+      it 'generates occurrence with expected remediation' do
         occurrence = report.occurrences.last
         raw_metadata = JSON.parse!(occurrence.raw_metadata)
 
-        expect(occurrence.name).to eq("Authentication bypass via incorrect DOM traversal and canonicalization in saml2-js")
-        expect(raw_metadata["remediations"].first["summary"]).to eq("Upgrade saml2-js")
-        expect(raw_metadata["remediations"].first["diff"]).to start_with("ZGlmZiAtLWdpdCBhL3lhcm4")
+        expect(occurrence.name).to eq('Authentication bypass via incorrect DOM traversal and canonicalization in saml2-js')
+        expect(raw_metadata['remediations'].first['summary']).to eq('Upgrade saml2-js')
+        expect(raw_metadata['remediations'].first['diff']).to start_with('ZGlmZiAtLWdpdCBhL3lhcm4')
       end
     end
   end

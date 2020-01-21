@@ -253,7 +253,7 @@ module Gitlab
       limited_deadline = [regular_deadline, Gitlab::RequestContext.instance.request_deadline].compact.min
       limited = limited_deadline < regular_deadline
 
-      { deadline: limited_deadline, deadline_type: limited ? "limited" : "regular" }
+      { deadline: limited_deadline, deadline_type: limited ? 'limited' : 'regular' }
     end
     private_class_method :request_deadline
 
@@ -302,7 +302,7 @@ module Gitlab
       # enforce request limits.
       return true if Feature::Gitaly.enabled?('enforce_requests_limits')
 
-      !(Rails.env.production? || ENV["GITALY_DISABLE_REQUEST_LIMITS"])
+      !(Rails.env.production? || ENV['GITALY_DISABLE_REQUEST_LIMITS'])
     end
     private_class_method :enforce_gitaly_request_limits?
 
@@ -355,14 +355,14 @@ module Gitlab
 
     # Returns the of the number of Gitaly calls made for this request
     def self.get_request_count
-      get_call_count("gitaly_call_actual")
+      get_call_count('gitaly_call_actual')
     end
 
     def self.reset_counts
       return unless Gitlab::SafeRequestStore.active?
 
-      Gitlab::SafeRequestStore["gitaly_call_actual"] = 0
-      Gitlab::SafeRequestStore["gitaly_call_permitted"] = 0
+      Gitlab::SafeRequestStore['gitaly_call_actual'] = 0
+      Gitlab::SafeRequestStore['gitaly_call_permitted'] = 0
     end
 
     def self.add_call_details(details)

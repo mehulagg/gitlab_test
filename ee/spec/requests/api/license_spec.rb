@@ -83,7 +83,7 @@ describe API::License, api: true do
     end
 
     it "returns an error if the license doesn't exist" do
-      delete api("/license/0", admin)
+      delete api('/license/0', admin)
 
       expect(response.status).to eq(404)
       expect(json_response['message']).to eq('404 Not found')

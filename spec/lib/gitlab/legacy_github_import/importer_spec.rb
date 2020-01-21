@@ -169,7 +169,7 @@ describe Gitlab::LegacyGithubImport::Importer do
         errors: [
           { type: :label, url: "#{api_root}/repos/octocat/Hello-World/labels/bug", errors: "Validation failed: Title can't be blank, Title is invalid" },
           { type: :issue, url: "#{api_root}/repos/octocat/Hello-World/issues/1348", errors: "Validation failed: Title can't be blank" },
-          { type: :wiki, errors: "Gitlab::Shell::Error" }
+          { type: :wiki, errors: 'Gitlab::Shell::Error' }
         ]
       }
 

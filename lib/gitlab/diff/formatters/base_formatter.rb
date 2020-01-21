@@ -32,7 +32,7 @@ module Gitlab
         end
 
         def key
-          [base_sha, start_sha, head_sha, Digest::SHA1.hexdigest(old_path || ""), Digest::SHA1.hexdigest(new_path || "")]
+          [base_sha, start_sha, head_sha, Digest::SHA1.hexdigest(old_path || ''), Digest::SHA1.hexdigest(new_path || '')]
         end
 
         def to_h

@@ -145,7 +145,7 @@ module PrometheusHelpers
 
   def prometheus_empty_body(type)
     {
-      "status": "success",
+      "status": 'success',
       "data": {
         "resultType": type,
         "result": []
@@ -155,7 +155,7 @@ module PrometheusHelpers
 
   def prometheus_value_body(type = 'vector')
     {
-      "status": "success",
+      "status": 'success',
       "data": {
         "resultType": type,
         "result": [
@@ -163,7 +163,7 @@ module PrometheusHelpers
             "metric": {},
             "value": [
               1488772511.004,
-              "0.000041021495238095323"
+              '0.000041021495238095323'
             ]
           }
         ]
@@ -173,15 +173,15 @@ module PrometheusHelpers
 
   def prometheus_values_body(type = 'matrix')
     {
-      "status": "success",
+      "status": 'success',
       "data": {
         "resultType": type,
         "result": [
           {
             "metric": {},
             "values": [
-              [1488758662.506, "0.00002996364761904785"],
-              [1488758722.506, "0.00003090239047619091"]
+              [1488758662.506, '0.00002996364761904785'],
+              [1488758722.506, '0.00003090239047619091']
             ]
           }
         ]

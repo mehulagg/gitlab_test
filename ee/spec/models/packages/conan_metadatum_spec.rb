@@ -13,18 +13,18 @@ RSpec.describe Packages::ConanMetadatum, type: :model do
     it { is_expected.to validate_presence_of(:package_channel) }
 
     describe '#package_username' do
-      it { is_expected.to allow_value("my-package+username").for(:package_username) }
-      it { is_expected.not_to allow_value("my/package").for(:package_username) }
-      it { is_expected.not_to allow_value("my(package)").for(:package_username) }
-      it { is_expected.not_to allow_value("my@package").for(:package_username) }
+      it { is_expected.to allow_value('my-package+username').for(:package_username) }
+      it { is_expected.not_to allow_value('my/package').for(:package_username) }
+      it { is_expected.not_to allow_value('my(package)').for(:package_username) }
+      it { is_expected.not_to allow_value('my@package').for(:package_username) }
     end
 
     describe '#package_channel' do
-      it { is_expected.to allow_value("beta").for(:package_channel) }
-      it { is_expected.to allow_value("stable+1.0").for(:package_channel) }
-      it { is_expected.not_to allow_value("my/channel").for(:package_channel) }
-      it { is_expected.not_to allow_value("my(channel)").for(:package_channel) }
-      it { is_expected.not_to allow_value("my@channel").for(:package_channel) }
+      it { is_expected.to allow_value('beta').for(:package_channel) }
+      it { is_expected.to allow_value('stable+1.0').for(:package_channel) }
+      it { is_expected.not_to allow_value('my/channel').for(:package_channel) }
+      it { is_expected.not_to allow_value('my(channel)').for(:package_channel) }
+      it { is_expected.not_to allow_value('my@channel').for(:package_channel) }
     end
   end
 

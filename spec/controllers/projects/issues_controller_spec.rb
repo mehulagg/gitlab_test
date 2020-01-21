@@ -9,7 +9,7 @@ describe Projects::IssuesController do
   let(:user)    { create(:user) }
   let(:issue)   { create(:issue, project: project) }
 
-  describe "GET #index" do
+  describe 'GET #index' do
     context 'external issue tracker' do
       before do
         sign_in(user)
@@ -69,13 +69,13 @@ describe Projects::IssuesController do
         project.add_developer(user)
       end
 
-      it_behaves_like "issuables list meta-data", :issue
+      it_behaves_like 'issuables list meta-data', :issue
 
       it_behaves_like 'set sort order from user preference' do
         let(:sorting_param) { 'updated_asc' }
       end
 
-      it "returns index" do
+      it 'returns index' do
         get :index, params: { namespace_id: project.namespace, project_id: project }
 
         expect(response).to have_gitlab_http_status(200)
@@ -87,7 +87,7 @@ describe Projects::IssuesController do
         expect(response).to redirect_to(project_issues_path(project))
       end
 
-      it "returns 404 when issues are disabled" do
+      it 'returns 404 when issues are disabled' do
         project.issues_enabled = false
         project.save!
 
@@ -929,7 +929,7 @@ describe Projects::IssuesController do
         expect(flash[:notice]).to eq(_('Resolved all discussions.'))
       end
 
-      describe "resolving a single discussion" do
+      describe 'resolving a single discussion' do
         before do
           post_issue({ title: 'Hello' }, other_params: { discussion_to_resolve: discussion.id })
         end
@@ -1123,19 +1123,19 @@ describe Projects::IssuesController do
     end
   end
 
-  describe "DELETE #destroy" do
-    context "when the user is a developer" do
+  describe 'DELETE #destroy' do
+    context 'when the user is a developer' do
       before do
         sign_in(user)
       end
 
-      it "rejects a developer to destroy an issue" do
+      it 'rejects a developer to destroy an issue' do
         delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: issue.iid }
         expect(response).to have_gitlab_http_status(404)
       end
     end
 
-    context "when the user is owner" do
+    context 'when the user is owner' do
       let(:owner)     { create(:user) }
       let(:namespace) { create(:namespace, owner: owner) }
       let(:project)   { create(:project, namespace: namespace) }
@@ -1144,21 +1144,21 @@ describe Projects::IssuesController do
         sign_in(owner)
       end
 
-      it "deletes the issue" do
+      it 'deletes the issue' do
         delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: issue.iid, destroy_confirm: true }
 
         expect(response).to have_gitlab_http_status(302)
         expect(controller).to set_flash[:notice].to(/The issue was successfully deleted\./)
       end
 
-      it "deletes the issue" do
+      it 'deletes the issue' do
         delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: issue.iid, destroy_confirm: true }
 
         expect(response).to have_gitlab_http_status(302)
         expect(controller).to set_flash[:notice].to(/The issue was successfully deleted\./)
       end
 
-      it "prevents deletion if destroy_confirm is not set" do
+      it 'prevents deletion if destroy_confirm is not set' do
         expect(Gitlab::ErrorTracking).to receive(:track_exception).and_call_original
 
         delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: issue.iid }
@@ -1167,7 +1167,7 @@ describe Projects::IssuesController do
         expect(controller).to set_flash[:notice].to('Destroy confirmation not provided for issue')
       end
 
-      it "prevents deletion in JSON format if destroy_confirm is not set" do
+      it 'prevents deletion in JSON format if destroy_confirm is not set' do
         expect(Gitlab::ErrorTracking).to receive(:track_exception).and_call_original
 
         delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: issue.iid, format: 'json' }
@@ -1201,7 +1201,7 @@ describe Projects::IssuesController do
 
     let(:emoji_name) { 'thumbsup' }
 
-    it "toggles the award emoji" do
+    it 'toggles the award emoji' do
       expect do
         subject
       end.to change { issue.award_emoji.count }.by(1)
@@ -1209,7 +1209,7 @@ describe Projects::IssuesController do
       expect(response).to have_gitlab_http_status(200)
     end
 
-    it "removes the already awarded emoji" do
+    it 'removes the already awarded emoji' do
       create(:award_emoji, awardable: issue, name: emoji_name, user: user)
 
       expect { subject }.to change { AwardEmoji.count }.by(-1)
@@ -1329,14 +1329,14 @@ describe Projects::IssuesController do
         project.add_developer(user)
       end
 
-      it "returns 302 for project members with developer role" do
+      it 'returns 302 for project members with developer role' do
         import_csv
 
         expect(flash[:notice]).to eq(_("Your issues are being imported. Once finished, you'll get a confirmation email."))
         expect(response).to redirect_to(project_issues_path(project))
       end
 
-      it "shows error when upload fails" do
+      it 'shows error when upload fails' do
         expect_next_instance_of(UploadService) do |upload_service|
           expect(upload_service).to receive(:execute).and_return(nil)
         end
@@ -1458,8 +1458,8 @@ describe Projects::IssuesController do
       context 'private project' do
         let!(:branch_note) { create(:discussion_note_on_issue, :system, noteable: issue, project: project) }
         let!(:commit_note) { create(:discussion_note_on_issue, :system, noteable: issue, project: project) }
-        let!(:branch_note_meta) { create(:system_note_metadata, note: branch_note, action: "branch") }
-        let!(:commit_note_meta) { create(:system_note_metadata, note: commit_note, action: "commit") }
+        let!(:branch_note_meta) { create(:system_note_metadata, note: branch_note, action: 'branch') }
+        let!(:commit_note_meta) { create(:system_note_metadata, note: commit_note, action: 'commit') }
 
         context 'user is allowed access' do
           before do
@@ -1475,8 +1475,8 @@ describe Projects::IssuesController do
 
         context 'user is a guest' do
           let(:json_response_note_ids) do
-            json_response.collect { |discussion| discussion["notes"] }.flatten
-              .collect { |note| note["id"].to_i }
+            json_response.collect { |discussion| discussion['notes'] }.flatten
+              .collect { |note| note['id'].to_i }
           end
 
           before do

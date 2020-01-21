@@ -14,33 +14,33 @@ describe ProjectFeaturesCompatibility do
 
   it "converts fields from 'true' to ProjectFeature::ENABLED" do
     features_except_repository.each do |feature|
-      project.update_attribute("#{feature}_enabled".to_sym, "true")
+      project.update_attribute("#{feature}_enabled".to_sym, 'true')
       expect(project.project_feature.public_send("#{feature}_access_level")).to eq(ProjectFeature::ENABLED)
     end
   end
 
   it "converts fields from 'false' to ProjectFeature::DISABLED" do
     features_except_repository.each do |feature|
-      project.update_attribute("#{feature}_enabled".to_sym, "false")
+      project.update_attribute("#{feature}_enabled".to_sym, 'false')
       expect(project.project_feature.public_send("#{feature}_access_level")).to eq(ProjectFeature::DISABLED)
     end
   end
 
-  it "converts fields from true to ProjectFeature::ENABLED" do
+  it 'converts fields from true to ProjectFeature::ENABLED' do
     features_except_repository.each do |feature|
       project.update_attribute("#{feature}_enabled".to_sym, true)
       expect(project.project_feature.public_send("#{feature}_access_level")).to eq(ProjectFeature::ENABLED)
     end
   end
 
-  it "converts fields from false to ProjectFeature::DISABLED" do
+  it 'converts fields from false to ProjectFeature::DISABLED' do
     features_except_repository.each do |feature|
       project.update_attribute("#{feature}_enabled".to_sym, false)
       expect(project.project_feature.public_send("#{feature}_access_level")).to eq(ProjectFeature::DISABLED)
     end
   end
 
-  it "accepts private as ProjectFeature::PRIVATE" do
+  it 'accepts private as ProjectFeature::PRIVATE' do
     features.each do |feature|
       project.update!("#{feature}_access_level".to_sym => 'private')
       expect(project.project_feature.public_send("#{feature}_access_level")).to eq(ProjectFeature::PRIVATE)

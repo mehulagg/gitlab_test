@@ -44,10 +44,10 @@ describe Gitlab::Database do
       described_class.instance_variable_set(:@version, nil)
     end
 
-    context "on postgresql" do
-      it "extracts the version number" do
+    context 'on postgresql' do
+      it 'extracts the version number' do
         allow(described_class).to receive(:database_version)
-          .and_return("PostgreSQL 9.4.4 on x86_64-apple-darwin14.3.0")
+          .and_return('PostgreSQL 9.4.4 on x86_64-apple-darwin14.3.0')
 
         expect(described_class.version).to eq '9.4.4'
       end
@@ -434,25 +434,25 @@ describe Gitlab::Database do
     end
 
     it 'detects a read only database' do
-      allow(ActiveRecord::Base.connection).to receive(:execute).with('SELECT pg_is_in_recovery()').and_return([{ "pg_is_in_recovery" => "t" }])
+      allow(ActiveRecord::Base.connection).to receive(:execute).with('SELECT pg_is_in_recovery()').and_return([{ 'pg_is_in_recovery' => 't' }])
 
       expect(described_class.db_read_only?).to be_truthy
     end
 
     it 'detects a read only database' do
-      allow(ActiveRecord::Base.connection).to receive(:execute).with('SELECT pg_is_in_recovery()').and_return([{ "pg_is_in_recovery" => true }])
+      allow(ActiveRecord::Base.connection).to receive(:execute).with('SELECT pg_is_in_recovery()').and_return([{ 'pg_is_in_recovery' => true }])
 
       expect(described_class.db_read_only?).to be_truthy
     end
 
     it 'detects a read write database' do
-      allow(ActiveRecord::Base.connection).to receive(:execute).with('SELECT pg_is_in_recovery()').and_return([{ "pg_is_in_recovery" => "f" }])
+      allow(ActiveRecord::Base.connection).to receive(:execute).with('SELECT pg_is_in_recovery()').and_return([{ 'pg_is_in_recovery' => 'f' }])
 
       expect(described_class.db_read_only?).to be_falsey
     end
 
     it 'detects a read write database' do
-      allow(ActiveRecord::Base.connection).to receive(:execute).with('SELECT pg_is_in_recovery()').and_return([{ "pg_is_in_recovery" => false }])
+      allow(ActiveRecord::Base.connection).to receive(:execute).with('SELECT pg_is_in_recovery()').and_return([{ 'pg_is_in_recovery' => false }])
 
       expect(described_class.db_read_only?).to be_falsey
     end

@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
-describe "Admin interacts with push rules" do
+describe 'Admin interacts with push rules' do
   let_it_be(:user) { create(:admin) }
 
   before do
@@ -10,8 +10,8 @@ describe "Admin interacts with push rules" do
   end
 
   push_rules_with_titles = {
-    reject_unsigned_commits: "Reject unsigned commits",
-    commit_committer_check: "Committer restriction"
+    reject_unsigned_commits: 'Reject unsigned commits',
+    commit_committer_check: 'Committer restriction'
   }
 
   push_rules_with_titles.each do |rule_attr, title|
@@ -36,14 +36,14 @@ describe "Admin interacts with push rules" do
     end
   end
 
-  context "when creating push rule" do
+  context 'when creating push rule' do
     before do
       visit(admin_push_rule_path)
     end
 
-    it "creates new rule" do
-      fill_in("Commit message", with: "my_string")
-      click_button("Save Push Rules")
+    it 'creates new rule' do
+      fill_in('Commit message', with: 'my_string')
+      click_button('Save Push Rules')
 
       expect(page).to have_selector("input[value='my_string']")
     end

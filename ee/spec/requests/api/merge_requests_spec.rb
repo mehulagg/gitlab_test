@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe API::MergeRequests do
   include ProjectForksHelper
@@ -11,7 +11,7 @@ describe API::MergeRequests do
   let!(:project)    { create(:project, :public, :repository, creator: user, namespace: user.namespace, only_allow_merge_if_pipeline_succeeds: false) }
   let(:milestone)   { create(:milestone, title: '1.0.0', project: project) }
   let(:milestone1) { create(:milestone, title: '0.9', project: project) }
-  let!(:merge_request) { create(:merge_request, :simple, milestone: milestone1, author: user, assignees: [user, user2], source_project: project, target_project: project, title: "Test", created_at: base_time) }
+  let!(:merge_request) { create(:merge_request, :simple, milestone: milestone1, author: user, assignees: [user, user2], source_project: project, target_project: project, title: 'Test', created_at: base_time) }
   let!(:label) do
     create(:label, title: 'label', color: '#FFAABB', project: project)
   end
@@ -69,7 +69,7 @@ describe API::MergeRequests do
 
       it 'is successful' do
         update_merge_request(
-          title: "New title",
+          title: 'New title',
           approval_rules_attributes: [
             { id: rule.id, approvals_required: 2 }
           ]
@@ -85,7 +85,7 @@ describe API::MergeRequests do
     end
   end
 
-  describe "POST /projects/:id/merge_requests" do
+  describe 'POST /projects/:id/merge_requests' do
     def create_merge_request(args)
       defaults = {
           title: 'Test merge_request',
@@ -133,7 +133,7 @@ describe API::MergeRequests do
     end
 
     context 'between branches projects' do
-      it "returns merge_request" do
+      it 'returns merge_request' do
         create_merge_request(squash: true)
 
         expect(response).to have_gitlab_http_status(201)
@@ -172,7 +172,7 @@ describe API::MergeRequests do
     end
   end
 
-  describe "PUT /projects/:id/merge_requests/:merge_request_iid/merge" do
+  describe 'PUT /projects/:id/merge_requests/:merge_request_iid/merge' do
     it 'returns 405 if merge request was not approved' do
       project.add_developer(create(:user))
       project.update(approvals_before_merge: 1)
@@ -195,8 +195,8 @@ describe API::MergeRequests do
     end
   end
 
-  describe "DELETE /projects/:id/merge_requests/:merge_request_iid" do
-    context "when the merge request is on the merge train" do
+  describe 'DELETE /projects/:id/merge_requests/:merge_request_iid' do
+    context 'when the merge request is on the merge train' do
       let!(:merge_request) { create(:merge_request, :on_train, source_project: project, target_project: project) }
 
       before do

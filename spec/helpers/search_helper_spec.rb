@@ -9,45 +9,45 @@ describe SearchHelper do
   end
 
   describe 'search_autocomplete_opts' do
-    context "with no current user" do
+    context 'with no current user' do
       before do
         allow(self).to receive(:current_user).and_return(nil)
       end
 
-      it "returns nil" do
-        expect(search_autocomplete_opts("q")).to be_nil
+      it 'returns nil' do
+        expect(search_autocomplete_opts('q')).to be_nil
       end
     end
 
-    context "with a standard user" do
+    context 'with a standard user' do
       let(:user) { create(:user) }
 
       before do
         allow(self).to receive(:current_user).and_return(user)
       end
 
-      it "includes Help sections" do
-        expect(search_autocomplete_opts("hel").size).to eq(9)
+      it 'includes Help sections' do
+        expect(search_autocomplete_opts('hel').size).to eq(9)
       end
 
-      it "includes default sections" do
-        expect(search_autocomplete_opts("dash").size).to eq(1)
+      it 'includes default sections' do
+        expect(search_autocomplete_opts('dash').size).to eq(1)
       end
 
-      it "does not include admin sections" do
-        expect(search_autocomplete_opts("admin").size).to eq(0)
+      it 'does not include admin sections' do
+        expect(search_autocomplete_opts('admin').size).to eq(0)
       end
 
-      it "does not allow regular expression in search term" do
-        expect(search_autocomplete_opts("(webhooks|api)").size).to eq(0)
+      it 'does not allow regular expression in search term' do
+        expect(search_autocomplete_opts('(webhooks|api)').size).to eq(0)
       end
 
       it "includes the user's groups" do
         create(:group).add_owner(user)
-        expect(search_autocomplete_opts("gro").size).to eq(1)
+        expect(search_autocomplete_opts('gro').size).to eq(1)
       end
 
-      it "includes nested group" do
+      it 'includes nested group' do
         create(:group, :nested, name: 'foo').add_owner(user)
         expect(search_autocomplete_opts('foo').size).to eq(1)
       end
@@ -57,33 +57,33 @@ describe SearchHelper do
         expect(search_autocomplete_opts(project.name).size).to eq(1)
       end
 
-      it "includes the required project attrs" do
+      it 'includes the required project attrs' do
         project = create(:project, namespace: create(:namespace, owner: user))
         result = search_autocomplete_opts(project.name).first
 
         expect(result.keys).to match_array(%i[category id value label url avatar_url])
       end
 
-      it "includes the required group attrs" do
+      it 'includes the required group attrs' do
         create(:group).add_owner(user)
-        result = search_autocomplete_opts("gro").first
+        result = search_autocomplete_opts('gro').first
 
         expect(result.keys).to match_array(%i[category id label url avatar_url])
       end
 
-      it "does not include the public group" do
+      it 'does not include the public group' do
         group = create(:group)
         expect(search_autocomplete_opts(group.name).size).to eq(0)
       end
 
-      context "with a current project" do
+      context 'with a current project' do
         before do
           @project = create(:project, :repository)
         end
 
-        it "includes project-specific sections" do
-          expect(search_autocomplete_opts("Files").size).to eq(1)
-          expect(search_autocomplete_opts("Commits").size).to eq(1)
+        it 'includes project-specific sections' do
+          expect(search_autocomplete_opts('Files').size).to eq(1)
+          expect(search_autocomplete_opts('Commits').size).to eq(1)
         end
       end
     end
@@ -95,8 +95,8 @@ describe SearchHelper do
         allow(self).to receive(:current_user).and_return(admin)
       end
 
-      it "includes admin sections" do
-        expect(search_autocomplete_opts("admin").size).to eq(1)
+      it 'includes admin sections' do
+        expect(search_autocomplete_opts('admin').size).to eq(1)
       end
     end
   end
@@ -224,7 +224,7 @@ describe SearchHelper do
 
     context 'dashboard' do
       it 'returns dashboard' do
-        expect(search_history_storage_prefix).to eq("dashboard")
+        expect(search_history_storage_prefix).to eq('dashboard')
       end
     end
   end

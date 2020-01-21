@@ -24,7 +24,7 @@ describe 'User page' do
     it 'does not show private profile message' do
       visit(user_path(user))
 
-      expect(page).not_to have_content("This user has a private profile")
+      expect(page).not_to have_content('This user has a private profile')
     end
   end
 
@@ -34,14 +34,14 @@ describe 'User page' do
     it 'shows no tab' do
       visit(user_path(user))
 
-      expect(page).to have_css("div.profile-header")
-      expect(page).not_to have_css("ul.nav-links")
+      expect(page).to have_css('div.profile-header')
+      expect(page).not_to have_css('ul.nav-links')
     end
 
     it 'shows private profile message' do
       visit(user_path(user))
 
-      expect(page).to have_content("This user has a private profile")
+      expect(page).to have_content('This user has a private profile')
     end
 
     it 'shows own tabs' do
@@ -65,27 +65,27 @@ describe 'User page' do
     it 'shows no tab' do
       visit(user_path(user))
 
-      expect(page).to have_css("div.profile-header")
-      expect(page).not_to have_css("ul.nav-links")
+      expect(page).to have_css('div.profile-header')
+      expect(page).not_to have_css('ul.nav-links')
     end
 
     it 'shows blocked message' do
       visit(user_path(user))
 
-      expect(page).to have_content("This user is blocked")
+      expect(page).to have_content('This user is blocked')
     end
 
     it 'shows user name as blocked' do
       visit(user_path(user))
 
-      expect(page).to have_css(".cover-title", text: 'Blocked user')
+      expect(page).to have_css('.cover-title', text: 'Blocked user')
     end
 
     it 'shows no additional fields' do
       visit(user_path(user))
 
-      expect(page).not_to have_css(".profile-user-bio")
-      expect(page).not_to have_css(".profile-link-holder")
+      expect(page).not_to have_css('.profile-user-bio')
+      expect(page).not_to have_css('.profile-link-holder')
     end
 
     it 'shows username' do
@@ -96,11 +96,11 @@ describe 'User page' do
   end
 
   it 'shows the status if there was one' do
-    create(:user_status, user: user, message: "Working hard!")
+    create(:user_status, user: user, message: 'Working hard!')
 
     visit(user_path(user))
 
-    expect(page).to have_content("Working hard!")
+    expect(page).to have_content('Working hard!')
   end
 
   context 'signup disabled' do

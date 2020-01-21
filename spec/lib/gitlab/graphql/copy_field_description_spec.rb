@@ -8,7 +8,7 @@ describe Gitlab::Graphql::CopyFieldDescription do
   describe '.copy_field_description' do
     let(:type) do
       Class.new(Types::BaseObject) do
-        graphql_name "TestType"
+        graphql_name 'TestType'
 
         field :field_name, GraphQL::STRING_TYPE, null: true, description: 'Foo'
       end

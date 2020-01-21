@@ -110,7 +110,7 @@ describe IssuableCollections do
     end
 
     context 'search using an issue iid' do
-      let(:params) { { search: "#5" } }
+      let(:params) { { search: '#5' } }
 
       it 'mutates the search into a filter by iid' do
         is_expected.to include({

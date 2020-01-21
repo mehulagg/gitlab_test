@@ -15,7 +15,7 @@ describe 'Project-level Cluster Applications', :js do
   end
 
   describe 'Installing applications' do
-    include_examples "installing applications on a cluster" do
+    include_examples 'installing applications on a cluster' do
       let(:cluster_path) { project_cluster_path(project, cluster) }
       let(:cluster_factory_args) { [projects: [project]] }
     end

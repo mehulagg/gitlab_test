@@ -64,7 +64,7 @@ class NotesFinder
     return @target = nil unless target_id || target_iid
 
     @target =
-      if target_type == "commit"
+      if target_type == 'commit'
         if Ability.allowed?(@current_user, :download_code, @project)
           @project.commit(target_id)
         end
@@ -110,13 +110,13 @@ class NotesFinder
 
   def noteables_for_type(noteable_type)
     case noteable_type
-    when "issue"
+    when 'issue'
       IssuesFinder.new(@current_user, project_id: @project.id).execute # rubocop: disable CodeReuse/Finder
-    when "merge_request"
+    when 'merge_request'
       MergeRequestsFinder.new(@current_user, project_id: @project.id).execute # rubocop: disable CodeReuse/Finder
-    when "snippet", "project_snippet"
+    when 'snippet', 'project_snippet'
       SnippetsFinder.new(@current_user, project: @project).execute # rubocop: disable CodeReuse/Finder
-    when "personal_snippet"
+    when 'personal_snippet'
       PersonalSnippet.all
     else
       raise "invalid target_type '#{noteable_type}'"
@@ -125,7 +125,7 @@ class NotesFinder
 
   # rubocop: disable CodeReuse/ActiveRecord
   def notes_for_type(noteable_type)
-    if noteable_type == "commit"
+    if noteable_type == 'commit'
       if Ability.allowed?(@current_user, :download_code, @project)
         @project.notes.where(noteable_type: 'Commit')
       else

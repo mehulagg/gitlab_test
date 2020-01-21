@@ -27,7 +27,7 @@ describe ProtectedBranch do
 
         first_protected_branch.send(association_name) << build(factory_name, access_level: Gitlab::Access::MASTER)
         expect(first_protected_branch).to be_invalid
-        expect(first_protected_branch.errors.full_messages.first).to match("access level has already been taken")
+        expect(first_protected_branch.errors.full_messages.first).to match('access level has already been taken')
       end
 
       it "does not count a user-based #{human_association_name} with an `access_level` set" do
@@ -68,7 +68,7 @@ describe ProtectedBranch do
 
         first_protected_branch.send(association_name) << build(factory_name, user: user)
         expect(first_protected_branch).to be_invalid
-        expect(first_protected_branch.errors.full_messages.first).to match("user has already been taken")
+        expect(first_protected_branch.errors.full_messages.first).to match('user has already been taken')
       end
 
       it "ignores the `access_level` while validating a user-based #{human_association_name}" do
@@ -100,7 +100,7 @@ describe ProtectedBranch do
 
         first_protected_branch.send(association_name) << build(factory_name, group: group)
         expect(first_protected_branch).to be_invalid
-        expect(first_protected_branch.errors.full_messages.first).to match("group has already been taken")
+        expect(first_protected_branch.errors.full_messages.first).to match('group has already been taken')
       end
 
       it "ignores the `access_level` while validating a group-based #{human_association_name}" do
@@ -118,11 +118,11 @@ describe ProtectedBranch do
   it_behaves_like 'uniqueness validation', ProtectedBranch::MergeAccessLevel
   it_behaves_like 'uniqueness validation', ProtectedBranch::PushAccessLevel
 
-  describe "#code_owner_approval_required" do
-    context "when the attr code_owner_approval_required is true" do
+  describe '#code_owner_approval_required' do
+    context 'when the attr code_owner_approval_required is true' do
       let(:subject_branch) { create(:protected_branch, code_owner_approval_required: true) }
 
-      it "returns true" do
+      it 'returns true' do
         expect(subject_branch.project)
           .to receive(:code_owner_approval_required_available?).once.and_return(true)
         expect(subject_branch.code_owner_approval_required).to be_truthy
@@ -135,10 +135,10 @@ describe ProtectedBranch do
       end
     end
 
-    context "when the attr code_owner_approval_required is false" do
+    context 'when the attr code_owner_approval_required is false' do
       let(:subject_branch) { create(:protected_branch, code_owner_approval_required: false) }
 
-      it "returns false" do
+      it 'returns false' do
         expect(subject_branch.code_owner_approval_required).to be_falsy
       end
     end

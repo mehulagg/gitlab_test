@@ -6,7 +6,7 @@ describe API::Files do
   let(:user) { create(:user) }
   let!(:project) { create(:project, :repository, namespace: user.namespace ) }
   let(:guest) { create(:user) { |u| project.add_guest(u) } }
-  let(:file_path) { "files%2Fruby%2Fpopen%2Erb" }
+  let(:file_path) { 'files%2Fruby%2Fpopen%2Erb' }
   let(:params) do
     {
       ref: 'master'
@@ -53,7 +53,7 @@ describe API::Files do
     end
   end
 
-  describe "HEAD /projects/:id/repository/files/:file_path" do
+  describe 'HEAD /projects/:id/repository/files/:file_path' do
     shared_examples_for 'repository files' do
       it 'returns file attributes in headers' do
         head api(route(file_path), current_user), params: params
@@ -67,8 +67,8 @@ describe API::Files do
 
       it 'returns file by commit sha' do
         # This file is deleted on HEAD
-        file_path = "files%2Fjs%2Fcommit%2Ejs%2Ecoffee"
-        params[:ref] = "6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9"
+        file_path = 'files%2Fjs%2Fcommit%2Ejs%2Ecoffee'
+        params[:ref] = '6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9'
 
         head api(route(file_path), current_user), params: params
 
@@ -78,15 +78,15 @@ describe API::Files do
       end
 
       context 'when mandatory params are not given' do
-        it "responds with a 400 status" do
-          head api(route("any%2Ffile"), current_user)
+        it 'responds with a 400 status' do
+          head api(route('any%2Ffile'), current_user)
 
           expect(response).to have_gitlab_http_status(400)
         end
       end
 
       context 'when file_path does not exist' do
-        it "responds with a 404 status" do
+        it 'responds with a 404 status' do
           params[:ref] = 'master'
 
           head api(route('app%2Fmodels%2Fapplication%2Erb'), current_user), params: params
@@ -98,7 +98,7 @@ describe API::Files do
       context 'when file_path does not exist' do
         include_context 'disabled repository'
 
-        it "responds with a 403 status" do
+        it 'responds with a 403 status' do
           head api(route(file_path), current_user), params: params
 
           expect(response).to have_gitlab_http_status(403)
@@ -114,7 +114,7 @@ describe API::Files do
     end
 
     context 'when unauthenticated', 'and project is private' do
-      it "responds with a 404 status" do
+      it 'responds with a 404 status' do
         current_user = nil
 
         head api(route(file_path), current_user), params: params
@@ -143,7 +143,7 @@ describe API::Files do
     end
   end
 
-  describe "GET /projects/:id/repository/files/:file_path" do
+  describe 'GET /projects/:id/repository/files/:file_path' do
     shared_examples_for 'repository files' do
       it 'returns file attributes as json' do
         get api(route(file_path), current_user), params: params
@@ -157,7 +157,7 @@ describe API::Files do
       end
 
       it 'returns json when file has txt extension' do
-        file_path = "bar%2Fbranch-test.txt"
+        file_path = 'bar%2Fbranch-test.txt'
 
         get api(route(file_path), current_user), params: params
 
@@ -167,8 +167,8 @@ describe API::Files do
 
       it 'returns file by commit sha' do
         # This file is deleted on HEAD
-        file_path = "files%2Fjs%2Fcommit%2Ejs%2Ecoffee"
-        params[:ref] = "6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9"
+        file_path = 'files%2Fjs%2Fcommit%2Ejs%2Ecoffee'
+        params[:ref] = '6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9'
 
         get api(route(file_path), current_user), params: params
 
@@ -179,13 +179,13 @@ describe API::Files do
       end
 
       it 'returns raw file info' do
-        url = route(file_path) + "/raw"
+        url = route(file_path) + '/raw'
         expect(Gitlab::Workhorse).to receive(:send_git_blob)
 
         get api(url, current_user), params: params
 
         expect(response).to have_gitlab_http_status(200)
-        expect(headers[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
+        expect(headers[Gitlab::Workhorse::DETECT_HEADER]).to eq 'true'
       end
 
       it 'returns blame file info' do
@@ -197,7 +197,7 @@ describe API::Files do
       end
 
       it 'sets inline content disposition by default' do
-        url = route(file_path) + "/raw"
+        url = route(file_path) + '/raw'
 
         get api(url, current_user), params: params
 
@@ -206,7 +206,7 @@ describe API::Files do
 
       context 'when mandatory params are not given' do
         it_behaves_like '400 response' do
-          let(:request) { get api(route("any%2Ffile"), current_user) }
+          let(:request) { get api(route('any%2Ffile'), current_user) }
         end
       end
 
@@ -416,10 +416,10 @@ describe API::Files do
     end
   end
 
-  describe "GET /projects/:id/repository/files/:file_path/raw" do
+  describe 'GET /projects/:id/repository/files/:file_path/raw' do
     shared_examples_for 'repository raw files' do
       it 'returns raw file info' do
-        url = route(file_path) + "/raw"
+        url = route(file_path) + '/raw'
         expect(Gitlab::Workhorse).to receive(:send_git_blob)
 
         get api(url, current_user), params: params
@@ -428,7 +428,7 @@ describe API::Files do
       end
 
       it 'returns raw file info for files with dots' do
-        url = route('.gitignore') + "/raw"
+        url = route('.gitignore') + '/raw'
         expect(Gitlab::Workhorse).to receive(:send_git_blob)
 
         get api(url, current_user), params: params
@@ -438,18 +438,18 @@ describe API::Files do
 
       it 'returns file by commit sha' do
         # This file is deleted on HEAD
-        file_path = "files%2Fjs%2Fcommit%2Ejs%2Ecoffee"
-        params[:ref] = "6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9"
+        file_path = 'files%2Fjs%2Fcommit%2Ejs%2Ecoffee'
+        params[:ref] = '6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9'
         expect(Gitlab::Workhorse).to receive(:send_git_blob)
 
-        get api(route(file_path) + "/raw", current_user), params: params
+        get api(route(file_path) + '/raw', current_user), params: params
 
         expect(response).to have_gitlab_http_status(200)
       end
 
       context 'when mandatory params are not given' do
         it_behaves_like '400 response' do
-          let(:request) { get api(route("any%2Ffile"), current_user) }
+          let(:request) { get api(route('any%2Ffile'), current_user) }
         end
       end
 
@@ -502,39 +502,39 @@ describe API::Files do
         token = create(:personal_access_token, scopes: ['read_repository'], user: user)
 
         # This file is deleted on HEAD
-        file_path = "files%2Fjs%2Fcommit%2Ejs%2Ecoffee"
-        params[:ref] = "6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9"
+        file_path = 'files%2Fjs%2Fcommit%2Ejs%2Ecoffee'
+        params[:ref] = '6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9'
         expect(Gitlab::Workhorse).to receive(:send_git_blob)
 
-        get api(route(file_path) + "/raw", personal_access_token: token), params: params
+        get api(route(file_path) + '/raw', personal_access_token: token), params: params
 
         expect(response).to have_gitlab_http_status(200)
       end
     end
   end
 
-  describe "POST /projects/:id/repository/files/:file_path" do
-    let!(:file_path) { "new_subfolder%2Fnewfile%2Erb" }
+  describe 'POST /projects/:id/repository/files/:file_path' do
+    let!(:file_path) { 'new_subfolder%2Fnewfile%2Erb' }
     let(:params) do
       {
-        branch: "master",
-        content: "puts 8",
-        commit_message: "Added newfile"
+        branch: 'master',
+        content: 'puts 8',
+        commit_message: 'Added newfile'
       }
     end
 
-    it "creates a new file in project repo" do
+    it 'creates a new file in project repo' do
       post api(route(file_path), user), params: params
 
       expect(response).to have_gitlab_http_status(201)
-      expect(json_response["file_path"]).to eq(CGI.unescape(file_path))
+      expect(json_response['file_path']).to eq(CGI.unescape(file_path))
       last_commit = project.repository.commit.raw
       expect(last_commit.author_email).to eq(user.email)
       expect(last_commit.author_name).to eq(user.name)
     end
 
-    it "returns a 400 bad request if no mandatory params given" do
-      post api(route("any%2Etxt"), user)
+    it 'returns a 400 bad request if no mandatory params given' do
+      post api(route('any%2Etxt'), user)
 
       expect(response).to have_gitlab_http_status(400)
     end
@@ -547,12 +547,12 @@ describe API::Files do
       expect(response).to have_gitlab_http_status(400)
     end
 
-    it "returns a 400 if editor fails to create file" do
+    it 'returns a 400 if editor fails to create file' do
       allow_next_instance_of(Repository) do |instance|
         allow(instance).to receive(:create_file).and_raise(Gitlab::Git::CommitError, 'Cannot create file')
       end
 
-      post api(route("any%2Etxt"), user), params: params
+      post api(route('any%2Etxt'), user), params: params
 
       expect(response).to have_gitlab_http_status(400)
     end
@@ -575,11 +575,11 @@ describe API::Files do
       end
     end
 
-    context "when specifying an author" do
-      it "creates a new file with the specified author" do
+    context 'when specifying an author' do
+      it 'creates a new file with the specified author' do
         params.merge!(author_email: author_email, author_name: author_name)
 
-        post api(route("new_file_with_author%2Etxt"), user), params: params
+        post api(route('new_file_with_author%2Etxt'), user), params: params
 
         expect(response).to have_gitlab_http_status(201)
         expect(response.content_type).to eq('application/json')
@@ -592,8 +592,8 @@ describe API::Files do
     context 'when the repo is empty' do
       let!(:project) { create(:project_empty_repo, namespace: user.namespace ) }
 
-      it "creates a new file in project repo" do
-        post api(route("newfile%2Erb"), user), params: params
+      it 'creates a new file in project repo' do
+        post api(route('newfile%2Erb'), user), params: params
 
         expect(response).to have_gitlab_http_status(201)
         expect(json_response['file_path']).to eq('newfile.rb')
@@ -604,7 +604,7 @@ describe API::Files do
     end
   end
 
-  describe "PUT /projects/:id/repository/files" do
+  describe 'PUT /projects/:id/repository/files' do
     let(:params) do
       {
         branch: 'master',
@@ -613,7 +613,7 @@ describe API::Files do
       }
     end
 
-    it "updates existing file in project repo" do
+    it 'updates existing file in project repo' do
       put api(route(file_path), user), params: params
 
       expect(response).to have_gitlab_http_status(200)
@@ -631,7 +631,7 @@ describe API::Files do
       expect(response).to have_gitlab_http_status(400)
     end
 
-    it "returns a 400 bad request if update existing file with stale last commit id" do
+    it 'returns a 400 bad request if update existing file with stale last commit id' do
       params_with_stale_id = params.merge(last_commit_id: 'stale')
 
       put api(route(file_path), user), params: params_with_stale_id
@@ -640,7 +640,7 @@ describe API::Files do
       expect(json_response['message']).to eq(_('You are attempting to update a file that has changed since you started editing it.'))
     end
 
-    it "updates existing file in project repo with accepts correct last commit id" do
+    it 'updates existing file in project repo with accepts correct last commit id' do
       last_commit = Gitlab::Git::Commit
                         .last_for_path(project.repository, 'master', URI.unescape(file_path))
       params_with_correct_id = params.merge(last_commit_id: last_commit.id)
@@ -650,15 +650,15 @@ describe API::Files do
       expect(response).to have_gitlab_http_status(200)
     end
 
-    it "returns a 400 bad request if no params given" do
+    it 'returns a 400 bad request if no params given' do
       put api(route(file_path), user)
 
       expect(response).to have_gitlab_http_status(400)
     end
 
-    context "when specifying an author" do
-      it "updates a file with the specified author" do
-        params.merge!(author_email: author_email, author_name: author_name, content: "New content")
+    context 'when specifying an author' do
+      it 'updates a file with the specified author' do
+        params.merge!(author_email: author_email, author_name: author_name, content: 'New content')
 
         put api(route(file_path), user), params: params
 
@@ -670,7 +670,7 @@ describe API::Files do
     end
   end
 
-  describe "DELETE /projects/:id/repository/files" do
+  describe 'DELETE /projects/:id/repository/files' do
     let(:params) do
       {
         branch: 'master',
@@ -678,13 +678,13 @@ describe API::Files do
       }
     end
 
-    it "deletes existing file in project repo" do
+    it 'deletes existing file in project repo' do
       delete api(route(file_path), user), params: params
 
       expect(response).to have_gitlab_http_status(204)
     end
 
-    it "returns a 400 bad request if no params given" do
+    it 'returns a 400 bad request if no params given' do
       delete api(route(file_path), user)
 
       expect(response).to have_gitlab_http_status(400)
@@ -698,7 +698,7 @@ describe API::Files do
       expect(response).to have_gitlab_http_status(400)
     end
 
-    it "returns a 400 if fails to delete file" do
+    it 'returns a 400 if fails to delete file' do
       allow_next_instance_of(Repository) do |instance|
         allow(instance).to receive(:delete_file).and_raise(Gitlab::Git::CommitError, 'Cannot delete file')
       end
@@ -708,8 +708,8 @@ describe API::Files do
       expect(response).to have_gitlab_http_status(400)
     end
 
-    context "when specifying an author" do
-      it "removes a file with the specified author" do
+    context 'when specifying an author' do
+      it 'removes a file with the specified author' do
         params.merge!(author_email: author_email, author_name: author_name)
 
         delete api(route(file_path), user), params: params
@@ -719,7 +719,7 @@ describe API::Files do
     end
   end
 
-  describe "POST /projects/:id/repository/files with binary file" do
+  describe 'POST /projects/:id/repository/files with binary file' do
     let(:file_path) { 'test%2Ebin' }
     let(:put_params) do
       {
@@ -739,7 +739,7 @@ describe API::Files do
       post api(route(file_path), user), params: put_params
     end
 
-    it "remains unchanged" do
+    it 'remains unchanged' do
       get api(route(file_path), user), params: get_params
 
       expect(response).to have_gitlab_http_status(200)

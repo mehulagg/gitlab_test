@@ -15,13 +15,13 @@ describe 'Project' do
       visit new_project_path
     end
 
-    it "allows creation from templates", :js do
+    it 'allows creation from templates', :js do
       find('#create-from-template-tab').click
       find("label[for=#{template.name}]").click
-      fill_in("project_name", with: template.name)
+      fill_in('project_name', with: template.name)
 
       page.within '#content-body' do
-        click_button "Create project"
+        click_button 'Create project'
       end
 
       expect(page).to have_content template.name
@@ -220,7 +220,7 @@ describe 'Project' do
 
         visit project_path(fork_of_fork)
 
-        expect(page).to have_content("Forked from")
+        expect(page).to have_content('Forked from')
         expect(page).to have_link(base_project.full_name)
       end
     end

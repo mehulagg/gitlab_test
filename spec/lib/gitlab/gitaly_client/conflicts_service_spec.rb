@@ -48,7 +48,7 @@ describe Gitlab::GitalyClient::ConflictsService do
 
     it 'sends an RPC request' do
       expect_any_instance_of(Gitaly::ConflictsService::Stub).to receive(:resolve_conflicts)
-        .with(kind_of(Enumerator), kind_of(Hash)).and_return(double(resolution_error: ""))
+        .with(kind_of(Enumerator), kind_of(Hash)).and_return(double(resolution_error: ''))
 
       subject
     end
@@ -74,7 +74,7 @@ describe Gitlab::GitalyClient::ConflictsService do
 
     it 'raises a relevant exception if resolution_error is present' do
       expect_any_instance_of(Gitaly::ConflictsService::Stub).to receive(:resolve_conflicts)
-        .with(kind_of(Enumerator), kind_of(Hash)).and_return(double(resolution_error: "something happened"))
+        .with(kind_of(Enumerator), kind_of(Hash)).and_return(double(resolution_error: 'something happened'))
 
       expect { subject }.to raise_error(Gitlab::Git::Conflict::Resolver::ResolutionError)
     end

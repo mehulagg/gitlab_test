@@ -410,14 +410,14 @@ describe 'Billing plan pages', :feature do
     let(:plans_data) do
       [
         {
-          name: "Superhero",
+          name: 'Superhero',
           price_per_month: 999.0,
           free: true,
-          code: "not-found",
+          code: 'not-found',
           price_per_year: 111.0,
           purchase_link: {
-            action: "upgrade",
-            href: "http://customers.test.host/subscriptions/new?plan_id=super_hero_id"
+            action: 'upgrade',
+            href: 'http://customers.test.host/subscriptions/new?plan_id=super_hero_id'
           },
           features: []
         }

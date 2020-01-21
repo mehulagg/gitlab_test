@@ -2,7 +2,7 @@
 
 require_relative File.expand_path('../../lib/gitlab/danger/commit_linter', __dir__)
 
-URL_GIT_COMMIT = "https://chris.beams.io/posts/git-commit/"
+URL_GIT_COMMIT = 'https://chris.beams.io/posts/git-commit/'
 MAX_COMMITS_COUNT = 10
 
 def gitlab_danger
@@ -56,7 +56,7 @@ def lint_commit(commit)
   # Fail if a suggestion commit is used and squash is not enabled
   if linter.suggestion?
     unless squash_mr?
-      fail_commit(commit, "If you are applying suggestions, enable squash in the merge request and re-run the `danger-review` job")
+      fail_commit(commit, 'If you are applying suggestions, enable squash in the merge request and re-run the `danger-review` job')
     end
 
     return linter
@@ -68,7 +68,7 @@ end
 def lint_mr_title(mr_title)
   commit = Struct.new(:message, :sha).new(mr_title)
 
-  Gitlab::Danger::CommitLinter.new(commit).lint_subject("merge request title")
+  Gitlab::Danger::CommitLinter.new(commit).lint_subject('merge request title')
 end
 
 def count_non_fixup_commits(commit_linters)

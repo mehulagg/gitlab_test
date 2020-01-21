@@ -5,7 +5,7 @@ require 'spec_helper'
 describe API::Repositories do
   let(:project) { create(:project, :repository) }
 
-  describe "GET /projects/:id/repository/archive(.:format)?:sha" do
+  describe 'GET /projects/:id/repository/archive(.:format)?:sha' do
     shared_examples 'logs the audit event' do
       let(:route) { "/projects/#{project.id}/repository/archive" }
 

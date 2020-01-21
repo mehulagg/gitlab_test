@@ -194,7 +194,7 @@ describe 'GFM autocomplete', :js do
       expect_to_wrap(true, label_item, note, label.title)
     end
 
-    it "shows dropdown after a new line" do
+    it 'shows dropdown after a new line' do
       note = find('#note-body')
       page.within '.timeline-content-form' do
         note.native.send_keys('test')
@@ -206,22 +206,22 @@ describe 'GFM autocomplete', :js do
       expect(page).to have_selector('.atwho-container')
     end
 
-    it "does not show dropdown when preceded with a special character" do
+    it 'does not show dropdown when preceded with a special character' do
       note = find('#note-body')
       page.within '.timeline-content-form' do
-        note.native.send_keys("@")
+        note.native.send_keys('@')
       end
 
       expect(page).to have_selector('.atwho-container')
 
       page.within '.timeline-content-form' do
-        note.native.send_keys("@")
+        note.native.send_keys('@')
       end
 
       expect(page).to have_selector('.atwho-container', visible: false)
     end
 
-    it "does not throw an error if no labels exist" do
+    it 'does not throw an error if no labels exist' do
       note = find('#note-body')
       page.within '.timeline-content-form' do
         note.native.send_keys('~')
@@ -244,7 +244,7 @@ describe 'GFM autocomplete', :js do
     it 'doesn\'t wrap for emoji values' do
       note = find('#note-body')
       page.within '.timeline-content-form' do
-        note.native.send_keys(":cartwheel_")
+        note.native.send_keys(':cartwheel_')
       end
 
       emoji_item = find('.atwho-view li', text: 'cartwheel_tone1')

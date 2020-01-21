@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe WikiPage do
   let(:project) { create(:project, :wiki_repo) }
@@ -44,7 +44,7 @@ describe WikiPage do
         WikiDirectory.new('dir_2', pages)
       end
 
-      context "#list_pages" do
+      context '#list_pages' do
         context 'sort by title' do
           let(:grouped_entries) { described_class.group_by_directory(wiki.list_pages) }
           let(:expected_grouped_entries) { [dir_1_1, dir_1, page_dir_2, dir_2, page_1, page_6] }
@@ -98,125 +98,125 @@ describe WikiPage do
     end
   end
 
-  describe "#initialize" do
-    context "when initialized with an existing page" do
+  describe '#initialize' do
+    context 'when initialized with an existing page' do
       before do
-        create_page("test page", "test content")
-        @page = wiki.wiki.page(title: "test page")
+        create_page('test page', 'test content')
+        @page = wiki.wiki.page(title: 'test page')
         @wiki_page = described_class.new(wiki, @page, true)
       end
 
-      it "sets the slug attribute" do
-        expect(@wiki_page.slug).to eq("test-page")
+      it 'sets the slug attribute' do
+        expect(@wiki_page.slug).to eq('test-page')
       end
 
-      it "sets the title attribute" do
-        expect(@wiki_page.title).to eq("test page")
+      it 'sets the title attribute' do
+        expect(@wiki_page.title).to eq('test page')
       end
 
-      it "sets the formatted content attribute" do
-        expect(@wiki_page.content).to eq("test content")
+      it 'sets the formatted content attribute' do
+        expect(@wiki_page.content).to eq('test content')
       end
 
-      it "sets the format attribute" do
+      it 'sets the format attribute' do
         expect(@wiki_page.format).to eq(:markdown)
       end
 
-      it "sets the message attribute" do
-        expect(@wiki_page.message).to eq("test commit")
+      it 'sets the message attribute' do
+        expect(@wiki_page.message).to eq('test commit')
       end
 
-      it "sets the version attribute" do
+      it 'sets the version attribute' do
         expect(@wiki_page.version).to be_a Gitlab::Git::WikiPageVersion
       end
     end
   end
 
-  describe "validations" do
+  describe 'validations' do
     before do
       subject.attributes = { title: 'title', content: 'content' }
     end
 
-    it "validates presence of title" do
+    it 'validates presence of title' do
       subject.attributes.delete(:title)
       expect(subject.valid?).to be_falsey
     end
 
-    it "validates presence of content" do
+    it 'validates presence of content' do
       subject.attributes.delete(:content)
       expect(subject.valid?).to be_falsey
     end
   end
 
-  describe "#create" do
+  describe '#create' do
     let(:wiki_attr) do
       {
-        title: "Index",
-        content: "Home Page",
-        format: "markdown",
+        title: 'Index',
+        content: 'Home Page',
+        format: 'markdown',
         message: 'Custom Commit Message'
       }
     end
 
     after do
-      destroy_page("Index")
+      destroy_page('Index')
     end
 
-    context "with valid attributes" do
-      it "saves the wiki page" do
+    context 'with valid attributes' do
+      it 'saves the wiki page' do
         subject.create(wiki_attr)
-        expect(wiki.find_page("Index")).not_to be_nil
+        expect(wiki.find_page('Index')).not_to be_nil
       end
 
-      it "returns true" do
+      it 'returns true' do
         expect(subject.create(wiki_attr)).to eq(true)
       end
 
       it 'saves the wiki page with message' do
         subject.create(wiki_attr)
 
-        expect(wiki.find_page("Index").message).to eq 'Custom Commit Message'
+        expect(wiki.find_page('Index').message).to eq 'Custom Commit Message'
       end
     end
   end
 
-  describe "dot in the title" do
+  describe 'dot in the title' do
     let(:title) { 'Index v1.2.3' }
 
     before do
-      @wiki_attr = { title: title, content: "Home Page", format: "markdown" }
+      @wiki_attr = { title: title, content: 'Home Page', format: 'markdown' }
     end
 
-    describe "#create" do
+    describe '#create' do
       after do
         destroy_page(title)
       end
 
-      context "with valid attributes" do
-        it "saves the wiki page" do
+      context 'with valid attributes' do
+        it 'saves the wiki page' do
           subject.create(@wiki_attr)
           expect(wiki.find_page(title)).not_to be_nil
         end
 
-        it "returns true" do
+        it 'returns true' do
           expect(subject.create(@wiki_attr)).to eq(true)
         end
       end
     end
 
-    describe "#update" do
+    describe '#update' do
       before do
-        create_page(title, "content")
+        create_page(title, 'content')
         @page = wiki.find_page(title)
       end
 
-      it "updates the content of the page" do
-        @page.update(content: "new content")
+      it 'updates the content of the page' do
+        @page.update(content: 'new content')
         @page = wiki.find_page(title)
       end
 
-      it "returns true" do
-        expect(@page.update(content: "more content")).to be_truthy
+      it 'returns true' do
+        expect(@page.update(content: 'more content')).to be_truthy
       end
     end
   end
@@ -243,28 +243,28 @@ describe WikiPage do
     end
   end
 
-  describe "#update" do
+  describe '#update' do
     before do
-      create_page("Update", "content")
-      @page = wiki.find_page("Update")
+      create_page('Update', 'content')
+      @page = wiki.find_page('Update')
     end
 
     after do
       destroy_page(@page.title, @page.directory)
     end
 
-    context "with valid attributes" do
-      it "updates the content of the page" do
-        new_content = "new content"
+    context 'with valid attributes' do
+      it 'updates the content of the page' do
+        new_content = 'new content'
 
         @page.update(content: new_content)
-        @page = wiki.find_page("Update")
+        @page = wiki.find_page('Update')
 
-        expect(@page.content).to eq("new content")
+        expect(@page.content).to eq('new content')
       end
 
-      it "updates the title of the page" do
-        new_title = "Index v.1.2.4"
+      it 'updates the title of the page' do
+        new_title = 'Index v.1.2.4'
 
         @page.update(title: new_title)
         @page = wiki.find_page(new_title)
@@ -272,8 +272,8 @@ describe WikiPage do
         expect(@page.title).to eq(new_title)
       end
 
-      it "returns true" do
-        expect(@page.update(content: "more content")).to be_truthy
+      it 'returns true' do
+        expect(@page.update(content: 'more content')).to be_truthy
       end
     end
 
@@ -366,7 +366,7 @@ describe WikiPage do
       end
     end
 
-    context "with invalid attributes" do
+    context 'with invalid attributes' do
       it 'aborts update if title blank' do
         expect(@page.update(title: '', content: 'new_content')).to be_falsey
         expect(@page.content).to eq 'new_content'
@@ -379,34 +379,34 @@ describe WikiPage do
     end
   end
 
-  describe "#destroy" do
+  describe '#destroy' do
     before do
-      create_page("Delete Page", "content")
-      @page = wiki.find_page("Delete Page")
+      create_page('Delete Page', 'content')
+      @page = wiki.find_page('Delete Page')
     end
 
-    it "deletes the page" do
+    it 'deletes the page' do
       @page.delete
       expect(wiki.list_pages).to be_empty
     end
 
-    it "returns true" do
+    it 'returns true' do
       expect(@page.delete).to eq(true)
     end
   end
 
-  describe "#versions" do
-    let(:page) { wiki.find_page("Update") }
+  describe '#versions' do
+    let(:page) { wiki.find_page('Update') }
 
     before do
-      create_page("Update", "content")
+      create_page('Update', 'content')
     end
 
     after do
-      destroy_page("Update")
+      destroy_page('Update')
     end
 
-    it "returns an array of all commits for the page" do
+    it 'returns an array of all commits for the page' do
       3.times { |i| page.update(content: "content #{i}") }
 
       expect(page.versions.count).to eq(4)
@@ -417,19 +417,19 @@ describe WikiPage do
     end
   end
 
-  describe "#title" do
+  describe '#title' do
     before do
-      create_page("Title", "content")
-      @page = wiki.find_page("Title")
+      create_page('Title', 'content')
+      @page = wiki.find_page('Title')
     end
 
     after do
-      destroy_page("Title")
+      destroy_page('Title')
     end
 
-    it "replaces a hyphen to a space" do
-      @page.title = "Import-existing-repositories-into-GitLab"
-      expect(@page.title).to eq("Import existing repositories into GitLab")
+    it 'replaces a hyphen to a space' do
+      @page.title = 'Import-existing-repositories-into-GitLab'
+      expect(@page.title).to eq('Import existing repositories into GitLab')
     end
 
     it 'unescapes html' do
@@ -534,19 +534,19 @@ describe WikiPage do
     end
 
     it 'returns false for updated wiki page' do
-      updated_wiki_page = original_wiki_page.update(content: "Updated content")
+      updated_wiki_page = original_wiki_page.update(content: 'Updated content')
       expect(original_wiki_page).not_to eq(updated_wiki_page)
     end
   end
 
   describe '#last_commit_sha' do
     before do
-      create_page("Update", "content")
-      @page = wiki.find_page("Update")
+      create_page('Update', 'content')
+      @page = wiki.find_page('Update')
     end
 
     after do
-      destroy_page("Update")
+      destroy_page('Update')
     end
 
     it 'returns commit sha' do
@@ -556,8 +556,8 @@ describe WikiPage do
     it 'is changed after page updated' do
       last_commit_sha_before_update = @page.last_commit_sha
 
-      @page.update(content: "new content")
-      @page = wiki.find_page("Update")
+      @page.update(content: 'new content')
+      @page = wiki.find_page('Update')
 
       expect(@page.last_commit_sha).not_to eq last_commit_sha_before_update
     end
@@ -565,8 +565,8 @@ describe WikiPage do
 
   describe '#hook_attrs' do
     it 'adds absolute urls for images in the content' do
-      create_page("test page", "test![WikiPage_Image](/uploads/abc/WikiPage_Image.png)")
-      page = wiki.wiki.page(title: "test page")
+      create_page('test page', 'test![WikiPage_Image](/uploads/abc/WikiPage_Image.png)')
+      page = wiki.wiki.page(title: 'test page')
       wiki_page = described_class.new(wiki, page, true)
 
       expect(wiki_page.hook_attrs['content']).to eq("test![WikiPage_Image](#{Settings.gitlab.url}/uploads/abc/WikiPage_Image.png)")
@@ -580,7 +580,7 @@ describe WikiPage do
   end
 
   def commit_details
-    Gitlab::Git::Wiki::CommitDetails.new(user.id, user.username, user.name, user.email, "test commit")
+    Gitlab::Git::Wiki::CommitDetails.new(user.id, user.username, user.name, user.email, 'test commit')
   end
 
   def create_page(name, content)
@@ -589,7 +589,7 @@ describe WikiPage do
 
   def destroy_page(title, dir = '')
     page = wiki.wiki.page(title: title, dir: dir)
-    wiki.delete_page(page, "test commit")
+    wiki.delete_page(page, 'test commit')
   end
 
   def get_slugs(page_or_dir)

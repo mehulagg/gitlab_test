@@ -24,7 +24,7 @@ module EE
                   required: true,
                   name: :repository_url,
                   type: String,
-                  desc: "GitHub repository URL"
+                  desc: 'GitHub repository URL'
                 },
                 {
                   required: false,

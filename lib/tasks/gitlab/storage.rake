@@ -10,8 +10,8 @@ namespace :gitlab do
       helper = Gitlab::HashedStorage::RakeHelper
 
       if storage_migrator.rollback_pending?
-        abort "There is already a rollback operation in progress, " \
-             "running a migration at the same time may have unexpected consequences."
+        abort 'There is already a rollback operation in progress, ' \
+             'running a migration at the same time may have unexpected consequences.'
       end
 
       if helper.range_single_item?
@@ -56,8 +56,8 @@ namespace :gitlab do
       helper = Gitlab::HashedStorage::RakeHelper
 
       if storage_migrator.migration_pending?
-        abort "There is already a migration operation in progress, " \
-             "running a rollback at the same time may have unexpected consequences."
+        abort 'There is already a migration operation in progress, ' \
+             'running a rollback at the same time may have unexpected consequences.'
       end
 
       if helper.range_single_item?

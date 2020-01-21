@@ -22,7 +22,7 @@ module Gitlab
         SQL
 
         select_from = relation
-          .select("projects.id", "COALESCE((#{successful_pages_deploy}), FALSE)")
+          .select('projects.id', "COALESCE((#{successful_pages_deploy}), FALSE)")
           .to_sql
 
         ActiveRecord::Base.connection_pool.with_connection do |connection|

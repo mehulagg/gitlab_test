@@ -63,7 +63,7 @@ module API
           detail 'This feature was introduced in GitLab 8.12'
           success Entities::NotificationSetting
         end
-        get ":id/notification_settings" do
+        get ':id/notification_settings' do
           source = find_source(source_type, params[:id])
 
           notification_setting = current_user.notification_settings_for(source)
@@ -81,7 +81,7 @@ module API
             optional event, type: Boolean, desc: 'Enable/disable this notification'
           end
         end
-        put ":id/notification_settings" do
+        put ':id/notification_settings' do
           source = find_source(source_type, params.delete(:id))
           notification_setting = current_user.notification_settings_for(source)
 

@@ -14,7 +14,7 @@ describe TagsFinder do
 
         result = tags_finder.execute
 
-        expect(result.first.name).to eq("v1.0.0")
+        expect(result.first.name).to eq('v1.0.0')
       end
 
       it 'sorts by recently_updated' do

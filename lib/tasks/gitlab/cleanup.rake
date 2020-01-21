@@ -3,7 +3,7 @@ require 'set'
 
 namespace :gitlab do
   namespace :cleanup do
-    desc "GitLab | Cleanup | Block users that have been removed in LDAP"
+    desc 'GitLab | Cleanup | Block users that have been removed in LDAP'
     task block_removed_ldap_users: :gitlab_environment do
       warn_user_is_not_gitlab
       block_flag = ENV['BLOCK']
@@ -14,23 +14,23 @@ namespace :gitlab do
         print "#{user.name} (#{user.ldap_identity.extern_uid}) ..."
 
         if Gitlab::Auth::LDAP::Access.allowed?(user)
-          puts " [OK]".color(:green)
+          puts ' [OK]'.color(:green)
         else
           if block_flag
             user.block! unless user.blocked?
-            puts " [BLOCKED]".color(:red)
+            puts ' [BLOCKED]'.color(:red)
           else
-            puts " [NOT IN LDAP]".color(:yellow)
+            puts ' [NOT IN LDAP]'.color(:yellow)
           end
         end
       end
 
       unless block_flag
-        puts "To block these users run this command with BLOCK=true".color(:yellow)
+        puts 'To block these users run this command with BLOCK=true'.color(:yellow)
       end
     end
 
-    desc "GitLab | Cleanup | Clean orphaned project uploads"
+    desc 'GitLab | Cleanup | Clean orphaned project uploads'
     task project_uploads: :gitlab_environment do
       warn_user_is_not_gitlab
 
@@ -38,7 +38,7 @@ namespace :gitlab do
       cleaner.run!(dry_run: dry_run?)
 
       if dry_run?
-        logger.info "To clean up these files run this command with DRY_RUN=false".color(:yellow)
+        logger.info 'To clean up these files run this command with DRY_RUN=false'.color(:yellow)
       end
     end
 
@@ -48,7 +48,7 @@ namespace :gitlab do
       cleaner.run!(dry_run: dry_run?)
 
       if dry_run?
-        logger.info "To cleanup these files run this command with DRY_RUN=false".color(:yellow)
+        logger.info 'To cleanup these files run this command with DRY_RUN=false'.color(:yellow)
       end
     end
 
@@ -60,12 +60,12 @@ namespace :gitlab do
       cleaner.run!
 
       if dry_run?
-        logger.info "To clean up these files run this command with DRY_RUN=false".color(:yellow)
+        logger.info 'To clean up these files run this command with DRY_RUN=false'.color(:yellow)
       end
     end
 
     namespace :sessions do
-      desc "GitLab | Cleanup | Sessions | Clean ActiveSession lookup keys"
+      desc 'GitLab | Cleanup | Sessions | Clean ActiveSession lookup keys'
       task active_sessions_lookup_keys: :gitlab_environment do
         session_key_pattern = "#{Gitlab::Redis::SharedState::USER_SESSIONS_LOOKUP_NAMESPACE}:*"
         last_save_check = Time.at(0)

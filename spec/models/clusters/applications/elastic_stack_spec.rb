@@ -110,7 +110,7 @@ describe Clusters::Applications::ElasticStack do
         client = subject.elasticsearch_client
         faraday_connection = client.transport.connections.first.connection
 
-        expect(faraday_connection.headers["Authorization"]).to eq(kube_client.headers[:Authorization])
+        expect(faraday_connection.headers['Authorization']).to eq(kube_client.headers[:Authorization])
         expect(faraday_connection.ssl.cert_store).to be_instance_of(OpenSSL::X509::Store)
         expect(faraday_connection.ssl.verify).to eq(1)
       end

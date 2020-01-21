@@ -70,11 +70,11 @@ module QA
       end
 
       def get_next_ip_address(current_ip_address)
-        current_last_part = current_ip_address.split(".").pop.to_i
+        current_last_part = current_ip_address.split('.').pop.to_i
 
         updated_last_part = current_last_part < 255 ? current_last_part + 1 : 1
 
-        current_ip_address.split(".")[0...-1].push(updated_last_part).join(".")
+        current_ip_address.split('.')[0...-1].push(updated_last_part).join('.')
       end
     end
   end

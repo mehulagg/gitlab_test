@@ -77,7 +77,7 @@ module Gitlab
         # @return [Boolean] whether any foreign server exists
         def has_foreign_server?
           ::Geo::TrackingBase.connection.execute(
-            "SELECT 1 FROM pg_foreign_server"
+            'SELECT 1 FROM pg_foreign_server'
           ).count.positive?
         end
 

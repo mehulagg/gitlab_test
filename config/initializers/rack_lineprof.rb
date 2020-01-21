@@ -9,9 +9,9 @@ if Rails.env.development? && RUBY_ENGINE == 'ruby' && ENV['ENABLE_LINEPROF']
       class Sample < Rack::Lineprof::Sample.superclass
         def format(*)
           formatted = if level == CONTEXT
-                        sprintf "                 | % 3i  %s", line, code
+                        sprintf '                 | % 3i  %s', line, code
                       else
-                        sprintf "% 8.1fms %5i | % 3i  %s", ms, calls, line, code
+                        sprintf '% 8.1fms %5i | % 3i  %s', ms, calls, line, code
                       end
 
           case level

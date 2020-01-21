@@ -23,11 +23,11 @@ module Gitlab
       end
 
       def legend
-        _("Related Issues")
+        _('Related Issues')
       end
 
       def description
-        _("Time before an issue gets scheduled")
+        _('Time before an issue gets scheduled')
       end
     end
   end

@@ -20,7 +20,7 @@ describe Profiles::AccountsController do
       describe "#{provider} provider" do
         let(:user) { create(:omniauth_user, provider: provider.to_s) }
 
-        it "does not allow to unlink connected account" do
+        it 'does not allow to unlink connected account' do
           identity = user.identities.last
 
           delete :unlink, params: { provider: provider.to_s }

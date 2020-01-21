@@ -307,7 +307,7 @@ shared_examples 'pages settings editing' do
 
     it 'tries to change the setting' do
       visit project_pages_path(project)
-      expect(page).to have_content("Force HTTPS (requires valid certificates)")
+      expect(page).to have_content('Force HTTPS (requires valid certificates)')
 
       uncheck :project_pages_https_only
 

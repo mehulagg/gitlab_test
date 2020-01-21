@@ -38,7 +38,7 @@ describe 'Multi-file editor new file', :js do
 
     fill_in('commit-message', with: 'commit message ide')
 
-    find(:css, ".js-ide-commit-new-mr input").set(false)
+    find(:css, '.js-ide-commit-new-mr input').set(false)
 
     page.within '.multi-file-commit-form' do
       click_button('Commit')

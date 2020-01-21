@@ -63,7 +63,7 @@ describe Gitlab::GitalyClient::RemoteService do
         .with(gitaly_request_with_path(storage_name, relative_path), kind_of(Hash))
         .and_return(double(ref: "an_invalid_ref_\xE5"))
 
-      expect(client.find_remote_root_ref('origin')).to eq "an_invalid_ref_å"
+      expect(client.find_remote_root_ref('origin')).to eq 'an_invalid_ref_å'
     end
   end
 

@@ -18,9 +18,9 @@ module Gitlab
           .join(issue_metrics_table).on(issue_table[:id].eq(issue_metrics_table[:issue_id]))
           .join(projects_table).on(issue_table[:project_id].eq(projects_table[:id]))
           .join(routes_table).on(projects_table[:namespace_id].eq(routes_table[:source_id]))
-          .project(issue_table[:project_id].as("project_id"))
-          .project(projects_table[:path].as("project_path"))
-          .project(routes_table[:path].as("namespace_path"))
+          .project(issue_table[:project_id].as('project_id'))
+          .project(projects_table[:path].as('project_path'))
+          .project(routes_table[:path].as('namespace_path'))
 
         query = limit_query(query, project_ids)
         query = limit_query_by_date_range(query)

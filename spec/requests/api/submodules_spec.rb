@@ -28,7 +28,7 @@ describe API::Submodules do
     "/projects/#{project.id}/repository/submodules/#{submodule}"
   end
 
-  describe "PUT /projects/:id/repository/submodule/:submodule" do
+  describe 'PUT /projects/:id/repository/submodule/:submodule' do
     context 'when unauthenticated' do
       it 'returns 401' do
         put api(route(submodule)), params: params

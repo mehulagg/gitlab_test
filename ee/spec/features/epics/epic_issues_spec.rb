@@ -145,7 +145,7 @@ describe 'Epic Issues', :js do
       add_issues("#{issue_invalid.to_reference(full: true)}")
 
       expect(page).to have_selector('.gl-field-error')
-      expect(find('.gl-field-error')).to have_text("Issue cannot be found.")
+      expect(find('.gl-field-error')).to have_text('Issue cannot be found.')
     end
 
     it 'user can add new issues to the epic' do
@@ -154,7 +154,7 @@ describe 'Epic Issues', :js do
       add_issues(references)
 
       expect(page).not_to have_selector('.gl-field-error')
-      expect(page).not_to have_content("Issue cannot be found.")
+      expect(page).not_to have_content('Issue cannot be found.')
 
       within('.related-items-tree-container ul.related-items-list') do
         expect(page).to have_selector('li.js-item-type-issue', count: 3)
@@ -162,17 +162,17 @@ describe 'Epic Issues', :js do
     end
 
     it 'user cannot add new issue that does not exist' do
-      add_issues("&123")
+      add_issues('&123')
 
       expect(page).to have_selector('.gl-field-error')
-      expect(find('.gl-field-error')).to have_text("Issue cannot be found.")
+      expect(find('.gl-field-error')).to have_text('Issue cannot be found.')
     end
 
     it 'user cannot add new epic that does not exist' do
-      add_epics("&123")
+      add_epics('&123')
 
       expect(page).to have_selector('.gl-field-error')
-      expect(find('.gl-field-error')).to have_text("Epic cannot be found.")
+      expect(find('.gl-field-error')).to have_text('Epic cannot be found.')
     end
 
     context 'when epics are nested too deep' do
@@ -199,7 +199,7 @@ describe 'Epic Issues', :js do
         add_epics(references)
 
         expect(page).to have_selector('.gl-field-error')
-        expect(find('.gl-field-error')).to have_text("This epic already has the maximum number of child epics.")
+        expect(find('.gl-field-error')).to have_text('This epic already has the maximum number of child epics.')
       end
     end
 
@@ -215,7 +215,7 @@ describe 'Epic Issues', :js do
         add_issues(references, button_selector: '.js-issue-actions-split-button')
 
         expect(page).not_to have_selector('.gl-field-error')
-        expect(page).not_to have_content("Issue cannot be found.")
+        expect(page).not_to have_content('Issue cannot be found.')
 
         within('.related-items-tree-container ul.related-items-list') do
           expect(page).to have_selector('li.js-item-type-issue', count: 3)
@@ -228,7 +228,7 @@ describe 'Epic Issues', :js do
       add_epics(references)
 
       expect(page).not_to have_selector('.gl-field-error')
-      expect(page).not_to have_content("Epic cannot be found.")
+      expect(page).not_to have_content('Epic cannot be found.')
 
       within('.related-items-tree-container ul.related-items-list') do
         expect(page).to have_selector('li.js-item-type-epic', count: 3)

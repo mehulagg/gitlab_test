@@ -42,8 +42,8 @@ describe Projects::CompareController do
 
     context 'when the refs exist' do
       context 'when we set the white space param' do
-        let(:source_ref) { "08f22f25" }
-        let(:target_ref) { "66eceea0" }
+        let(:source_ref) { '08f22f25' }
+        let(:target_ref) { '66eceea0' }
         let(:whitespace) { 1 }
 
         it 'shows some diffs with ignore whitespace change option' do
@@ -60,8 +60,8 @@ describe Projects::CompareController do
       end
 
       context 'when we do not set the white space param' do
-        let(:source_ref) { "improve%2Fawesome" }
-        let(:target_ref) { "feature" }
+        let(:source_ref) { 'improve%2Fawesome' }
+        let(:target_ref) { 'feature' }
         let(:whitespace) { nil }
 
         it 'sets the diffs and commits ivars' do
@@ -76,7 +76,7 @@ describe Projects::CompareController do
 
     context 'when the source ref does not exist' do
       let(:source_ref) { 'non-existent-source-ref' }
-      let(:target_ref) { "feature" }
+      let(:target_ref) { 'feature' }
 
       it 'sets empty diff and commit ivars' do
         show_request
@@ -89,7 +89,7 @@ describe Projects::CompareController do
 
     context 'when the target ref does not exist' do
       let(:target_ref) { 'non-existent-target-ref' }
-      let(:source_ref) { "improve%2Fawesome" }
+      let(:source_ref) { 'improve%2Fawesome' }
 
       it 'sets empty diff and commit ivars' do
         show_request
@@ -102,7 +102,7 @@ describe Projects::CompareController do
 
     context 'when the target ref is invalid' do
       let(:target_ref) { "master%' AND 2554=4423 AND '%'='" }
-      let(:source_ref) { "improve%2Fawesome" }
+      let(:source_ref) { 'improve%2Fawesome' }
 
       it 'shows a flash message and redirects' do
         show_request
@@ -114,7 +114,7 @@ describe Projects::CompareController do
 
     context 'when the source ref is invalid' do
       let(:source_ref) { "master%' AND 2554=4423 AND '%'='" }
-      let(:target_ref) { "improve%2Fawesome" }
+      let(:target_ref) { 'improve%2Fawesome' }
 
       it 'shows a flash message and redirects' do
         show_request
@@ -136,8 +136,8 @@ describe Projects::CompareController do
     end
 
     let(:existing_path) { 'files/ruby/feature.rb' }
-    let(:source_ref) { "improve%2Fawesome" }
-    let(:target_ref) { "feature" }
+    let(:source_ref) { 'improve%2Fawesome' }
+    let(:target_ref) { 'feature' }
 
     context 'when the source and target refs exist' do
       context 'when the user has access target the project' do
@@ -215,8 +215,8 @@ describe Projects::CompareController do
     end
 
     context 'when sending valid params' do
-      let(:source_ref) { "improve%2Fawesome" }
-      let(:target_ref) { "feature" }
+      let(:source_ref) { 'improve%2Fawesome' }
+      let(:target_ref) { 'feature' }
 
       it 'redirects back to show' do
         create_request
@@ -275,14 +275,14 @@ describe Projects::CompareController do
     end
 
     context 'when the source and target refs exist' do
-      let(:source_ref) { "improve%2Fawesome" }
-      let(:target_ref) { "feature" }
+      let(:source_ref) { 'improve%2Fawesome' }
+      let(:target_ref) { 'feature' }
 
       context 'when the user has access to the project' do
         render_views
 
-        let(:signature_commit) { build(:commit, project: project, safe_message: "message", sha: 'signature_commit') }
-        let(:non_signature_commit) { build(:commit, project: project, safe_message: "message", sha: 'non_signature_commit') }
+        let(:signature_commit) { build(:commit, project: project, safe_message: 'message', sha: 'signature_commit') }
+        let(:non_signature_commit) { build(:commit, project: project, safe_message: 'message', sha: 'non_signature_commit') }
 
         before do
           escaped_source_ref = Addressable::URI.unescape(source_ref)
@@ -325,7 +325,7 @@ describe Projects::CompareController do
 
     context 'when the source ref does not exist' do
       let(:source_ref) { 'non-existent-ref-source' }
-      let(:target_ref) { "feature" }
+      let(:target_ref) { 'feature' }
 
       it 'returns no signatures' do
         signatures_request
@@ -337,7 +337,7 @@ describe Projects::CompareController do
 
     context 'when the target ref does not exist' do
       let(:target_ref) { 'non-existent-ref-target' }
-      let(:source_ref) { "improve%2Fawesome" }
+      let(:source_ref) { 'improve%2Fawesome' }
 
       it 'returns no signatures' do
         signatures_request

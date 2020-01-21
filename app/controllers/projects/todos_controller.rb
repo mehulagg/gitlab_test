@@ -11,9 +11,9 @@ class Projects::TodosController < Projects::ApplicationController
   def issuable
     strong_memoize(:issuable) do
       case params[:issuable_type]
-      when "issue"
+      when 'issue'
         IssuesFinder.new(current_user, project_id: @project.id).find(params[:issuable_id])
-      when "merge_request"
+      when 'merge_request'
         MergeRequestsFinder.new(current_user, project_id: @project.id).find(params[:issuable_id])
       end
     end

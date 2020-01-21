@@ -54,7 +54,7 @@ describe Projects::AutocompleteSourcesController do
 
       get :milestones, format: :json, params: { namespace_id: group.path, project_id: project.path }
 
-      milestone_titles = json_response.map { |milestone| milestone["title"] }
+      milestone_titles = json_response.map { |milestone| milestone['title'] }
       expect(milestone_titles).to match_array([project_milestone.title, group_milestone.title])
     end
 

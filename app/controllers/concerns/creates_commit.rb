@@ -31,7 +31,7 @@ module CreatesCommit
 
       respond_to do |format|
         format.html { redirect_to success_path }
-        format.json { render json: { message: _("success"), filePath: success_path } }
+        format.json { render json: { message: _('success'), filePath: success_path } }
       end
     else
       flash[:alert] = result[:message]
@@ -45,7 +45,7 @@ module CreatesCommit
             redirect_to failure_path
           end
         end
-        format.json { render json: { message: _("failed"), filePath: failure_path } }
+        format.json { render json: { message: _('failed'), filePath: failure_path } }
       end
     end
   end
@@ -60,7 +60,7 @@ module CreatesCommit
   private
 
   def update_flash_notice(success_notice)
-    flash[:notice] = success_notice || _("Your changes have been successfully committed.")
+    flash[:notice] = success_notice || _('Your changes have been successfully committed.')
 
     if create_merge_request?
       flash[:notice] =
@@ -69,12 +69,12 @@ module CreatesCommit
         else
           mr_message =
             if different_project?
-              _("You can now submit a merge request to get this change into the original project.")
+              _('You can now submit a merge request to get this change into the original project.')
             else
-              _("You can now submit a merge request to get this change into the original branch.")
+              _('You can now submit a merge request to get this change into the original branch.')
             end
 
-          flash[:notice] += " " + mr_message
+          flash[:notice] += ' ' + mr_message
         end
     end
   end

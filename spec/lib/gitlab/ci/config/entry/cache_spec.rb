@@ -110,7 +110,7 @@ describe Gitlab::Ci::Config::Entry::Cache do
         end
 
         context 'when policy is unknown' do
-          let(:config) { { policy: "unknown" } }
+          let(:config) { { policy: 'unknown' } }
 
           it 'reports error' do
             is_expected.to include('cache policy should be pull-push, push, or pull')

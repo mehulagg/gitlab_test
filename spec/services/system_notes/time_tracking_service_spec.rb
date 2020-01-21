@@ -45,7 +45,7 @@ describe ::SystemNotes::TimeTrackingService do
       it 'sets the note text' do
         noteable.update_attribute(:time_estimate, 277200)
 
-        expect(subject.note).to eq "changed time estimate to 1w 4d 5h"
+        expect(subject.note).to eq 'changed time estimate to 1w 4d 5h'
       end
 
       context 'when time_tracking_limit_to_hours setting is true' do
@@ -56,14 +56,14 @@ describe ::SystemNotes::TimeTrackingService do
         it 'sets the note text' do
           noteable.update_attribute(:time_estimate, 277200)
 
-          expect(subject.note).to eq "changed time estimate to 77h"
+          expect(subject.note).to eq 'changed time estimate to 77h'
         end
       end
     end
 
     context 'without a time estimate' do
       it 'sets the note text' do
-        expect(subject.note).to eq "removed time estimate"
+        expect(subject.note).to eq 'removed time estimate'
       end
     end
   end
@@ -89,7 +89,7 @@ describe ::SystemNotes::TimeTrackingService do
       it 'sets the note text' do
         spend_time!(277200)
 
-        expect(subject.note).to eq "added 1w 4d 5h of time spent"
+        expect(subject.note).to eq 'added 1w 4d 5h of time spent'
       end
     end
 
@@ -97,7 +97,7 @@ describe ::SystemNotes::TimeTrackingService do
       it 'sets the note text' do
         spend_time!(-277200)
 
-        expect(subject.note).to eq "subtracted 1w 4d 5h of time spent"
+        expect(subject.note).to eq 'subtracted 1w 4d 5h of time spent'
       end
     end
 
@@ -105,7 +105,7 @@ describe ::SystemNotes::TimeTrackingService do
       it 'sets the note text' do
         spend_time!(:reset)
 
-        expect(subject.note).to eq "removed time spent"
+        expect(subject.note).to eq 'removed time spent'
       end
     end
 
@@ -117,7 +117,7 @@ describe ::SystemNotes::TimeTrackingService do
       it 'sets the note text' do
         spend_time!(277200)
 
-        expect(subject.note).to eq "added 77h of time spent"
+        expect(subject.note).to eq 'added 77h of time spent'
       end
     end
 

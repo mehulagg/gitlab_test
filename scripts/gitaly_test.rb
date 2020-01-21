@@ -20,13 +20,13 @@ module GitalyTest
       'HOME' => File.expand_path('tmp/tests'),
       'GEM_PATH' => Gem.path.join(':'),
       'BUNDLE_APP_CONFIG' => File.join(File.dirname(gemfile), '.bundle/config'),
-      'BUNDLE_FLAGS' => "--jobs=4 --retry=3",
+      'BUNDLE_FLAGS' => '--jobs=4 --retry=3',
       'BUNDLE_INSTALL_FLAGS' => nil,
       'BUNDLE_GEMFILE' => gemfile,
       'RUBYOPT' => nil,
 
       # Git hooks can't run during tests as the internal API is not running.
-      'GITALY_TESTING_NO_GIT_HOOKS' => "1"
+      'GITALY_TESTING_NO_GIT_HOOKS' => '1'
     }
 
     if ENV['CI']
@@ -56,7 +56,7 @@ module GitalyTest
   end
 
   def check_gitaly_config!
-    puts "Checking gitaly-ruby Gemfile..."
+    puts 'Checking gitaly-ruby Gemfile...'
 
     unless File.exist?(gemfile)
       message = "#{gemfile} does not exist."
@@ -84,7 +84,7 @@ module GitalyTest
   end
 
   def try_connect!
-    print "Trying to connect to gitaly: "
+    print 'Trying to connect to gitaly: '
     timeout = 20
     delay = 0.1
     socket = read_socket_path

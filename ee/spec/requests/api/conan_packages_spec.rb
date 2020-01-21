@@ -45,7 +45,7 @@ describe API::ConanPackages do
       get api('/packages/conan/v1/ping'), headers: build_token_auth_header(jwt.encoded)
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(response.headers['X-Conan-Server-Capabilities']).to eq("")
+      expect(response.headers['X-Conan-Server-Capabilities']).to eq('')
     end
 
     it 'responds with 200 OK when valid job token is provided' do
@@ -53,7 +53,7 @@ describe API::ConanPackages do
       get api('/packages/conan/v1/ping'), headers: build_token_auth_header(jwt.encoded)
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(response.headers['X-Conan-Server-Capabilities']).to eq("")
+      expect(response.headers['X-Conan-Server-Capabilities']).to eq('')
     end
 
     it 'responds with 401 Unauthorized when invalid access token ID is provided' do
@@ -115,7 +115,7 @@ describe API::ConanPackages do
     end
 
     context 'does not return non-matching packages' do
-      let(:params) { { q: "foo" } }
+      let(:params) { { q: 'foo' } }
 
       it { is_expected.to be_blank }
     end
@@ -248,7 +248,7 @@ describe API::ConanPackages do
         subject
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(response.body).to eq("{}")
+        expect(response.body).to eq('{}')
       end
     end
   end
@@ -337,9 +337,9 @@ describe API::ConanPackages do
       context 'with existing package' do
         it 'returns a hash of md5 values for the files' do
           expected_response = {
-            'conaninfo.txt'     => "md5hash1",
-            'conanmanifest.txt' => "md5hash2",
-            'conan_package.tgz' => "md5hash3"
+            'conaninfo.txt'     => 'md5hash1',
+            'conanmanifest.txt' => 'md5hash2',
+            'conan_package.tgz' => 'md5hash3'
           }
 
           allow(presenter).to receive(:package_snapshot) { expected_response }

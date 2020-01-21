@@ -124,14 +124,14 @@ describe 'Projects > Files > User edits files', :js do
       expect(page).to have_button('Cancel')
       expect(page).to have_content(
         "You're not allowed to edit files in this project directly. "\
-        "Please fork this project, make your changes there, and submit a merge request."
+        'Please fork this project, make your changes there, and submit a merge request.'
       )
     end
 
     def expect_fork_status
       expect(page).to have_content(
         "You're not allowed to make changes to this project directly. "\
-        "A fork of this project has been created that you can make changes in, so you can submit a merge request."
+        'A fork of this project has been created that you can make changes in, so you can submit a merge request.'
       )
     end
 

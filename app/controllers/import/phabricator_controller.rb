@@ -17,7 +17,7 @@ class Import::PhabricatorController < Import::BaseController
     else
       @name = params[:name]
       @path = params[:path]
-      @errors = @project&.errors&.full_messages || [_("Invalid import params")]
+      @errors = @project&.errors&.full_messages || [_('Invalid import params')]
 
       render :new
     end

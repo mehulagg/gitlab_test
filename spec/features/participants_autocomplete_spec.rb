@@ -13,7 +13,7 @@ describe 'Member autocomplete', :js do
     sign_in(user)
   end
 
-  shared_examples "open suggestions when typing @" do |resource_name|
+  shared_examples 'open suggestions when typing @' do |resource_name|
     before do
       page.within('.new-note') do
         if resource_name == 'commit'
@@ -39,7 +39,7 @@ describe 'Member autocomplete', :js do
       visit project_issue_path(project, noteable)
     end
 
-    include_examples "open suggestions when typing @", 'issue'
+    include_examples 'open suggestions when typing @', 'issue'
   end
 
   context 'adding a new note on a Merge Request' do
@@ -53,7 +53,7 @@ describe 'Member autocomplete', :js do
       visit project_merge_request_path(project, noteable)
     end
 
-    include_examples "open suggestions when typing @", 'merge_request'
+    include_examples 'open suggestions when typing @', 'merge_request'
   end
 
   context 'adding a new note on a Commit' do
@@ -68,6 +68,6 @@ describe 'Member autocomplete', :js do
       visit project_commit_path(project, noteable)
     end
 
-    include_examples "open suggestions when typing @", 'commit'
+    include_examples 'open suggestions when typing @', 'commit'
   end
 end

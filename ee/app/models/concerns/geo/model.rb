@@ -6,7 +6,7 @@ module Geo
 
     included do
       def self.table_name_prefix
-        "geo_"
+        'geo_'
       end
     end
   end

@@ -116,7 +116,7 @@ describe API::Releases do
     end
 
     context 'when tag contains a slash' do
-      let!(:release) { create(:release, project: project, tag: 'debian/2.4.0-1', description: "debian/2.4.0-1") }
+      let!(:release) { create(:release, project: project, tag: 'debian/2.4.0-1', description: 'debian/2.4.0-1') }
 
       it 'returns 200 HTTP status' do
         get api("/projects/#{project.id}/releases", maintainer)
@@ -140,7 +140,7 @@ describe API::Releases do
         expect(response).to have_gitlab_http_status(:ok)
       end
 
-      it "does not expose tag, commit, source code or helper paths" do
+      it 'does not expose tag, commit, source code or helper paths' do
         get api("/projects/#{project.id}/releases", guest)
 
         expect(response).to match_response_schema('public_api/v4/release/releases_for_guest')
@@ -158,7 +158,7 @@ describe API::Releases do
           expect(response).to have_gitlab_http_status(:ok)
         end
 
-        it "exposes tag, commit, source code and helper paths" do
+        it 'exposes tag, commit, source code and helper paths' do
           get api("/projects/#{project.id}/releases", guest)
 
           expect(response).to match_response_schema('public_api/v4/releases')
@@ -283,7 +283,7 @@ describe API::Releases do
         context 'when link is internal' do
           let(:url) do
             "#{project.web_url}/-/jobs/artifacts/v11.6.0-rc4/download?" \
-            "job=rspec-mysql+41%2F50"
+            'job=rspec-mysql+41%2F50'
           end
 
           it 'has external false' do
@@ -311,7 +311,7 @@ describe API::Releases do
             expect(response).to have_gitlab_http_status(:ok)
           end
 
-          it "exposes tag and commit" do
+          it 'exposes tag and commit' do
             create(:release,
                    project: project,
                    tag: 'v0.1',

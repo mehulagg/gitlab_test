@@ -30,7 +30,7 @@ describe Gitlab::Ci::Config::Entry::Artifacts do
       end
 
       context "when value includes 'expose_as' keyword" do
-        let(:config) { { paths: %w[results.txt], expose_as: "Test results" } }
+        let(:config) { { paths: %w[results.txt], expose_as: 'Test results' } }
 
         it 'returns general artifact and report-type artifacts configuration' do
           expect(entry.value).to eq config

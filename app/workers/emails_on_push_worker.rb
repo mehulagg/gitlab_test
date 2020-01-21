@@ -19,10 +19,10 @@ class EmailsOnPushWorker
     disable_diffs = options[:disable_diffs]
 
     project = Project.find(project_id)
-    before_sha = push_data["before"]
-    after_sha = push_data["after"]
-    ref = push_data["ref"]
-    author_id = push_data["user_id"]
+    before_sha = push_data['before']
+    after_sha = push_data['after']
+    ref = push_data['ref']
+    author_id = push_data['user_id']
 
     action =
       if Gitlab::Git.blank_ref?(before_sha)

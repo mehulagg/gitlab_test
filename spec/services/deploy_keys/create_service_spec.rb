@@ -8,7 +8,7 @@ describe DeployKeys::CreateService do
 
   subject { described_class.new(user, params) }
 
-  it "creates a deploy key" do
+  it 'creates a deploy key' do
     expect { subject.execute }.to change { DeployKey.where(params.merge(user: user)).count }.by(1)
   end
 end

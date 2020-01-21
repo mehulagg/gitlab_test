@@ -45,7 +45,7 @@ describe Gitlab::ImportExport::AfterExportStrategies::WebUploadStrategy do
 
         errors = project.import_export_shared.errors
         expect(errors).not_to be_empty
-        expect(errors.first).to eq "Error uploading the project. Code 404: Page not found"
+        expect(errors.first).to eq 'Error uploading the project. Code 404: Page not found'
       end
     end
   end

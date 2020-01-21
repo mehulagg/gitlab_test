@@ -28,9 +28,9 @@ module Gitlab
         # NOTE: We currently don't support empty quotes.
         # EmailReplyTrimmer allows this as a special case,
         # so we detect it manually here.
-        return "" if body.lines.all? { |l| l.strip.empty? || l.start_with?('>') }
+        return '' if body.lines.all? { |l| l.strip.empty? || l.start_with?('>') }
 
-        body.force_encoding(encoding).encode("UTF-8")
+        body.force_encoding(encoding).encode('UTF-8')
       end
 
       private
@@ -45,11 +45,11 @@ module Gitlab
 
         decoded = fix_charset(part)
 
-        return "" unless decoded
+        return '' unless decoded
 
         # Certain trigger phrases that means we didn't parse correctly
         if decoded =~ %r{(Content\-Type\:|multipart/alternative|text/plain)}
-          return ""
+          return ''
         end
 
         if (part.content_type || '').include? 'text/html'
@@ -64,7 +64,7 @@ module Gitlab
         return if object.nil?
 
         if object.charset
-          object.body.decoded.force_encoding(object.charset.gsub(/utf8/i, "UTF-8")).encode("UTF-8").to_s
+          object.body.decoded.force_encoding(object.charset.gsub(/utf8/i, 'UTF-8')).encode('UTF-8').to_s
         else
           object.body.to_s
         end

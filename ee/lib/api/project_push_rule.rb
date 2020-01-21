@@ -35,7 +35,7 @@ module API
       desc 'Get project push rule' do
         success EE::API::Entities::ProjectPushRule
       end
-      get ":id/push_rule" do
+      get ':id/push_rule' do
         push_rule = user_project.push_rule
         present push_rule, with: EE::API::Entities::ProjectPushRule, user: current_user
       end
@@ -46,9 +46,9 @@ module API
       params do
         use :push_rule_params
       end
-      post ":id/push_rule" do
+      post ':id/push_rule' do
         if user_project.push_rule
-          error!("Project push rule exists", 422)
+          error!('Project push rule exists', 422)
         else
           push_rule = user_project.create_push_rule(declared_params(include_missing: false))
           present push_rule, with: EE::API::Entities::ProjectPushRule, user: current_user
@@ -61,7 +61,7 @@ module API
       params do
         use :push_rule_params
       end
-      put ":id/push_rule" do
+      put ':id/push_rule' do
         push_rule = user_project.push_rule
         not_found!('Push Rule') unless push_rule
 
@@ -73,7 +73,7 @@ module API
       end
 
       desc 'Deletes project push rule'
-      delete ":id/push_rule" do
+      delete ':id/push_rule' do
         push_rule = user_project.push_rule
         not_found!('Push Rule') unless push_rule
 

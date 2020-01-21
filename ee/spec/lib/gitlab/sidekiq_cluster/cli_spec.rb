@@ -95,8 +95,8 @@ describe Gitlab::SidekiqCluster::CLI do
       expect(Gitlab::SidekiqCluster).to receive(:signal_processes)
         .with([], :KILL)
 
-      stub_const("Gitlab::SidekiqCluster::CLI::CHECK_TERMINATE_INTERVAL_SECONDS", 0.1)
-      stub_const("Gitlab::SidekiqCluster::CLI::TERMINATE_TIMEOUT_SECONDS", 1)
+      stub_const('Gitlab::SidekiqCluster::CLI::CHECK_TERMINATE_INTERVAL_SECONDS', 0.1)
+      stub_const('Gitlab::SidekiqCluster::CLI::TERMINATE_TIMEOUT_SECONDS', 1)
       cli.wait_for_termination
     end
 
@@ -124,8 +124,8 @@ describe Gitlab::SidekiqCluster::CLI do
 
         cli.run(%w(foo))
 
-        stub_const("Gitlab::SidekiqCluster::CLI::CHECK_TERMINATE_INTERVAL_SECONDS", 0.1)
-        stub_const("Gitlab::SidekiqCluster::CLI::TERMINATE_TIMEOUT_SECONDS", 1)
+        stub_const('Gitlab::SidekiqCluster::CLI::CHECK_TERMINATE_INTERVAL_SECONDS', 0.1)
+        stub_const('Gitlab::SidekiqCluster::CLI::TERMINATE_TIMEOUT_SECONDS', 1)
         cli.wait_for_termination
       end
     end

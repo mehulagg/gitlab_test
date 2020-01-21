@@ -201,7 +201,7 @@ module Gitlab
         response = GitalyClient.call(@storage, :repository_service, :fsck, request, timeout: GitalyClient.long_timeout)
 
         if response.error.empty?
-          return "", 0
+          return '', 0
         else
           return response.error.b, 1
         end
@@ -363,7 +363,7 @@ module Gitlab
 
       def search_results_from_response(gitaly_response)
         matches = []
-        current_match = +""
+        current_match = +''
 
         gitaly_response.each do |message|
           next if message.nil?
@@ -372,7 +372,7 @@ module Gitlab
 
           if message.end_of_match
             matches << current_match
-            current_match = +""
+            current_match = +''
           end
         end
 

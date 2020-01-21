@@ -76,7 +76,7 @@ describe Gitlab::DatabaseImporters::SelfMonitoring::Project::CreateService do
 
       it_behaves_like 'has prometheus service', 'http://localhost:9090'
 
-      it "tracks successful install" do
+      it 'tracks successful install' do
         expect(::Gitlab::Tracking).to receive(:event).twice
         expect(::Gitlab::Tracking).to receive(:event).with('self_monitoring', 'project_created')
 
@@ -237,7 +237,7 @@ describe Gitlab::DatabaseImporters::SelfMonitoring::Project::CreateService do
         let(:project) { build(:project) }
 
         before do
-          project.errors.add(:base, "Test error")
+          project.errors.add(:base, 'Test error')
 
           expect_next_instance_of(::Projects::CreateService) do |project_create_service|
             expect(project_create_service).to receive(:execute)

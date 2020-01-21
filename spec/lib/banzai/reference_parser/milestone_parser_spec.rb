@@ -18,7 +18,7 @@ describe Banzai::ReferenceParser::MilestoneParser do
         link['data-milestone'] = milestone.id.to_s
       end
 
-      it_behaves_like "referenced feature visibility", "issues", "merge_requests"
+      it_behaves_like 'referenced feature visibility', 'issues', 'merge_requests'
     end
   end
 

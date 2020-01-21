@@ -22,7 +22,7 @@ describe JenkinsService do
     }
   end
 
-  let(:jenkins_authorization) { "Basic " + ::Base64.strict_encode64(jenkins_username + ':' + jenkins_password) }
+  let(:jenkins_authorization) { 'Basic ' + ::Base64.strict_encode64(jenkins_username + ':' + jenkins_password) }
 
   describe 'Associations' do
     it { is_expected.to belong_to :project }

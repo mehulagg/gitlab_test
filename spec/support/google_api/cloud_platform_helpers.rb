@@ -29,7 +29,7 @@ module GoogleApi
 
     def stub_cloud_platform_get_zone_cluster_error(project_id, zone, cluster_id)
       WebMock.stub_request(:get, cloud_platform_get_zone_cluster_url(project_id, zone, cluster_id))
-        .to_return(status: [500, "Internal Server Error"])
+        .to_return(status: [500, 'Internal Server Error'])
     end
 
     def stub_cloud_platform_create_cluster(project_id, zone, **options)
@@ -39,7 +39,7 @@ module GoogleApi
 
     def stub_cloud_platform_create_cluster_error(project_id, zone)
       WebMock.stub_request(:post, cloud_platform_create_cluster_url(project_id, zone))
-        .to_return(status: [500, "Internal Server Error"])
+        .to_return(status: [500, 'Internal Server Error'])
     end
 
     def stub_cloud_platform_get_zone_operation(project_id, zone, operation_id, **options)
@@ -49,11 +49,11 @@ module GoogleApi
 
     def stub_cloud_platform_get_zone_operation_error(project_id, zone, operation_id)
       WebMock.stub_request(:get, cloud_platform_get_zone_operation_url(project_id, zone, operation_id))
-        .to_return(status: [500, "Internal Server Error"])
+        .to_return(status: [500, 'Internal Server Error'])
     end
 
     def cloud_platform_projects_list_url
-      "https://cloudresourcemanager.googleapis.com/v1/projects"
+      'https://cloudresourcemanager.googleapis.com/v1/projects'
     end
 
     def cloud_platform_projects_get_billing_info_url(project_id)
@@ -140,14 +140,14 @@ module GoogleApi
       {
         "projects": [
           {
-            "projectNumber": options[:project_number] || "1234",
-            "projectId": options[:project_id] || "test-project-1234",
-            "lifecycleState": "ACTIVE",
-            "name": options[:name] || "test-project",
-            "createTime": "2017-12-16T01:48:29.129Z",
+            "projectNumber": options[:project_number] || '1234',
+            "projectId": options[:project_id] || 'test-project-1234',
+            "lifecycleState": 'ACTIVE',
+            "name": options[:name] || 'test-project',
+            "createTime": '2017-12-16T01:48:29.129Z',
             "parent": {
-              "type": "organization",
-              "id": "12345"
+              "type": 'organization',
+              "id": '12345'
             }
           }
         ]
@@ -158,7 +158,7 @@ module GoogleApi
       {
         "name": "projects/#{project_id}/billingInfo",
         "projectId": "#{project_id}",
-        "billingAccountName": "account-name",
+        "billingAccountName": 'account-name',
         "billingEnabled": billing_enabled
       }
     end

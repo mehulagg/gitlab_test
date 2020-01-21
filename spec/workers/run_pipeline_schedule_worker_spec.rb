@@ -52,7 +52,7 @@ describe RunPipelineScheduleWorker do
       it 'increments Prometheus counter' do
         expect(Gitlab::Metrics)
           .to receive(:counter)
-          .with(:pipeline_schedule_creation_failed_total, "Counter of failed attempts of pipeline schedule creation")
+          .with(:pipeline_schedule_creation_failed_total, 'Counter of failed attempts of pipeline schedule creation')
           .and_call_original
 
         worker.perform(pipeline_schedule.id, user.id)

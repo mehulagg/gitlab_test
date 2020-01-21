@@ -36,7 +36,7 @@ RSpec.shared_examples 'move quick action' do
 
     context 'when the project is invalid' do
       it 'does not move the issue' do
-        add_note("/move not/valid")
+        add_note('/move not/valid')
 
         wait_for_requests
 
@@ -55,7 +55,7 @@ RSpec.shared_examples 'move quick action' do
       end
 
       shared_examples 'applies the commands to issues in both projects, target and source' do
-        it "applies quick actions" do
+        it 'applies quick actions' do
           expect(page).to have_content "Moved this issue to #{target_project.full_path}."
           expect(issue.reload).to be_closed
 

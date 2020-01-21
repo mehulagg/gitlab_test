@@ -44,7 +44,7 @@ describe ProtectedBranches::CreateService do
         expect(ProtectedBranchPolicy).to receive(:new).and_return(policy)
       end
 
-      it "prevents creation of the protected branch rule" do
+      it 'prevents creation of the protected branch rule' do
         expect do
           service.execute
         end.to raise_error(Gitlab::Access::AccessDeniedError)

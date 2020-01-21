@@ -3,7 +3,7 @@
 # `pg_replication_slots` is a PostgreSQL view
 class PgReplicationSlot
   def self.count
-    ApplicationRecord.connection.execute("SELECT COUNT(*) FROM pg_replication_slots;")
+    ApplicationRecord.connection.execute('SELECT COUNT(*) FROM pg_replication_slots;')
     .first.fetch('count').to_i
   end
 

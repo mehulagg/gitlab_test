@@ -2,7 +2,7 @@
 
 RSpec.shared_examples 'resolvable discussions API' do |parent_type, noteable_type, id_name|
   describe "PUT /#{parent_type}/:id/#{noteable_type}/:noteable_id/discussions/:discussion_id" do
-    it "resolves discussion if resolved is true" do
+    it 'resolves discussion if resolved is true' do
       put api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/"\
               "discussions/#{note.discussion_id}", user), params: { resolved: true }
 
@@ -11,7 +11,7 @@ RSpec.shared_examples 'resolvable discussions API' do |parent_type, noteable_typ
       expect(json_response['notes'][0]['resolved']).to eq(true)
     end
 
-    it "unresolves discussion if resolved is false" do
+    it 'unresolves discussion if resolved is false' do
       put api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/"\
               "discussions/#{note.discussion_id}", user), params: { resolved: false }
 
@@ -20,21 +20,21 @@ RSpec.shared_examples 'resolvable discussions API' do |parent_type, noteable_typ
       expect(json_response['notes'][0]['resolved']).to eq(false)
     end
 
-    it "returns a 400 bad request error if resolved parameter is not passed" do
+    it 'returns a 400 bad request error if resolved parameter is not passed' do
       put api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/"\
               "discussions/#{note.discussion_id}", user)
 
       expect(response).to have_gitlab_http_status(:bad_request)
     end
 
-    it "returns a 401 unauthorized error if user is not authenticated" do
+    it 'returns a 401 unauthorized error if user is not authenticated' do
       put api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/"\
               "discussions/#{note.discussion_id}"), params: { resolved: true }
 
       expect(response).to have_gitlab_http_status(:unauthorized)
     end
 
-    it "returns a 403 error if user resolves discussion of someone else" do
+    it 'returns a 403 error if user resolves discussion of someone else' do
       put api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/"\
               "discussions/#{note.discussion_id}", private_user), params: { resolved: true }
 
@@ -79,7 +79,7 @@ RSpec.shared_examples 'resolvable discussions API' do |parent_type, noteable_typ
       expect(response).to have_gitlab_http_status(:bad_request)
     end
 
-    it "returns a 403 error if user resolves note of someone else" do
+    it 'returns a 403 error if user resolves note of someone else' do
       put api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/"\
               "discussions/#{note.discussion_id}/notes/#{note.id}", private_user), params: { resolved: true }
 

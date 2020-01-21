@@ -106,7 +106,7 @@ describe Security::StoreReportService, '#execute' do
     it 'skips report' do
       expect(subject).to eq({
         status: :error,
-        message: "sast report already stored for this pipeline, skipping..."
+        message: 'sast report already stored for this pipeline, skipping...'
       })
     end
   end

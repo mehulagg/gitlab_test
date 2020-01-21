@@ -5,7 +5,7 @@
 cmd = ENV['SPRING'] ? 'spring rspec' : 'bundle exec rspec'
 
 guard :rspec, cmd: cmd do
-  require "guard/rspec/dsl"
+  require 'guard/rspec/dsl'
   dsl = Guard::RSpec::Dsl.new(self)
 
   directories %w(app ee lib spec)

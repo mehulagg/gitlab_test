@@ -14,7 +14,7 @@ describe Geo::FileRegistryRemovalService do
 
   describe '#execute' do
     it 'delegates log_error to the Geo logger' do
-      stub_exclusive_lease_taken("file_registry_removal_service:lfs:99")
+      stub_exclusive_lease_taken('file_registry_removal_service:lfs:99')
 
       expect(Gitlab::Geo::Logger).to receive(:error)
 

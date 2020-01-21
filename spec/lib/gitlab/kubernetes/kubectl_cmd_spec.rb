@@ -16,8 +16,8 @@ describe Gitlab::Kubernetes::KubectlCmd do
   describe '.apply_file' do
     context 'without optional args' do
       it 'requires filename to be present' do
-        expect { described_class.apply_file(nil) }.to raise_error(ArgumentError, "filename is not present")
-        expect { described_class.apply_file("  ") }.to raise_error(ArgumentError, "filename is not present")
+        expect { described_class.apply_file(nil) }.to raise_error(ArgumentError, 'filename is not present')
+        expect { described_class.apply_file('  ') }.to raise_error(ArgumentError, 'filename is not present')
       end
 
       it 'constructs string properly' do
@@ -37,7 +37,7 @@ describe Gitlab::Kubernetes::KubectlCmd do
       end
 
       it 'constructs command properly with single arg' do
-        args = "arg-1"
+        args = 'arg-1'
 
         expected_command = 'kubectl apply -f filename arg-1'
 
@@ -50,7 +50,7 @@ describe Gitlab::Kubernetes::KubectlCmd do
     it 'constructs string properly' do
       expected_command = 'kubectl api-resources -o name --api-group foo'
 
-      expect(described_class.api_resources("-o", "name", "--api-group", "foo")).to eq expected_command
+      expect(described_class.api_resources('-o', 'name', '--api-group', 'foo')).to eq expected_command
     end
   end
 
@@ -58,7 +58,7 @@ describe Gitlab::Kubernetes::KubectlCmd do
     it 'constructs string properly' do
       expected_command = 'kubectl api-resources -o name --api-group foo | xargs kubectl delete --ignore-not-found crd'
 
-      expect(described_class.delete_crds_from_group("foo")).to eq expected_command
+      expect(described_class.delete_crds_from_group('foo')).to eq expected_command
     end
   end
 end

@@ -11,21 +11,21 @@ describe QA::Resource::Events::Project do
   let(:all_events) do
     [
       {
-        "action_name": "pushed",
+        "action_name": 'pushed',
         "push_data": {
-          "commit_title": "foo commit"
+          "commit_title": 'foo commit'
         }
       },
       {
-        "action_name": "pushed",
+        "action_name": 'pushed',
         "push_data": {
-          "ref": "master"
+          "ref": 'master'
         }
       },
       {
-        "action_name": "pushed",
+        "action_name": 'pushed',
         "push_data": {
-          "ref": "another-branch"
+          "ref": 'another-branch'
         }
       }
     ]
@@ -39,7 +39,7 @@ describe QA::Resource::Events::Project do
 
   subject { resource.tap { |f| f.include(described_class) }.new }
 
-  describe "#wait_for_push" do
+  describe '#wait_for_push' do
     it 'waits for a push with a specified commit message' do
       expect(subject).to receive(:api_get_from).with('/foo/events?action=pushed')
       expect { subject.wait_for_push('foo commit') }.not_to raise_error
@@ -51,7 +51,7 @@ describe QA::Resource::Events::Project do
     end
   end
 
-  describe "#wait_for_push_new_branch" do
+  describe '#wait_for_push_new_branch' do
     it 'waits for a push to master if no branch is given' do
       expect(subject).to receive(:api_get_from).with('/foo/events?action=pushed')
       expect { subject.wait_for_push_new_branch }.not_to raise_error

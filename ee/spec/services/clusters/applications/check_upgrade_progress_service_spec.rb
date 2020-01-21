@@ -46,7 +46,7 @@ describe Clusters::Applications::CheckUpgradeProgressService do
           service.execute
 
           expect(application).to be_update_errored
-          expect(application.status_reason).to eq("Update timed out")
+          expect(application.status_reason).to eq('Update timed out')
         end
       end
     end

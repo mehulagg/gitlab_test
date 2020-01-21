@@ -141,9 +141,9 @@ describe 'Merge request > User sees merge widget', :js do
     end
 
     it 'shows information about blocked pipeline' do
-      expect(page).to have_content("Pipeline blocked")
+      expect(page).to have_content('Pipeline blocked')
       expect(page).to have_content(
-        "The pipeline for this merge request requires a manual action")
+        'The pipeline for this merge request requires a manual action')
       expect(page).to have_css('.ci-status-icon-manual')
     end
   end
@@ -282,7 +282,7 @@ describe 'Merge request > User sees merge widget', :js do
       # Wait for the `ci_status` and `merge_check` requests
       wait_for_requests
 
-      expect(page).to have_text("Could not retrieve the pipeline status. For troubleshooting steps, read the documentation.")
+      expect(page).to have_text('Could not retrieve the pipeline status. For troubleshooting steps, read the documentation.')
     end
   end
 
@@ -457,10 +457,10 @@ describe 'Merge request > User sees merge widget', :js do
           allow_any_instance_of(MergeRequest).to receive(:find_exposed_artifacts).and_return(
             status: :parsed, data: [
               {
-                text: "the artifact",
-                url: "/namespace1/project1/-/jobs/1/artifacts/file/ci_artifacts.txt",
-                job_path: "/namespace1/project1/-/jobs/1",
-                job_name: "test"
+                text: 'the artifact',
+                url: '/namespace1/project1/-/jobs/1/artifacts/file/ci_artifacts.txt',
+                job_path: '/namespace1/project1/-/jobs/1',
+                job_name: 'test'
               }
             ])
         end
@@ -582,11 +582,11 @@ describe 'Merge request > User sees merge widget', :js do
         end
 
         it 'shows test reports summary which includes the new failure' do
-          within(".js-reports-container") do
+          within('.js-reports-container') do
             click_button 'Expand'
 
             expect(page).to have_content('Test summary contained 1 failed/error test result out of 2 total tests')
-            within(".js-report-section-container") do
+            within('.js-report-section-container') do
               expect(page).to have_content('rspec found no changed test results out of 1 total test')
               expect(page).to have_content('junit found 1 failed/error test result out of 1 total test')
               expect(page).to have_content('New')
@@ -597,10 +597,10 @@ describe 'Merge request > User sees merge widget', :js do
 
         context 'when user clicks the new failure' do
           it 'shows the test report detail' do
-            within(".js-reports-container") do
+            within('.js-reports-container') do
               click_button 'Expand'
 
-              within(".js-report-section-container") do
+              within('.js-report-section-container') do
                 click_button 'addTest'
 
                 expect(page).to have_content('6.66')
@@ -627,11 +627,11 @@ describe 'Merge request > User sees merge widget', :js do
         end
 
         it 'shows test reports summary which includes the existing failure' do
-          within(".js-reports-container") do
+          within('.js-reports-container') do
             click_button 'Expand'
 
             expect(page).to have_content('Test summary contained 1 failed/error test result out of 2 total tests')
-            within(".js-report-section-container") do
+            within('.js-report-section-container') do
               expect(page).to have_content('rspec found 1 failed/error test result out of 1 total test')
               expect(page).to have_content('junit found no changed test results out of 1 total test')
               expect(page).not_to have_content('New')
@@ -642,10 +642,10 @@ describe 'Merge request > User sees merge widget', :js do
 
         context 'when user clicks the existing failure' do
           it 'shows test report detail of it' do
-            within(".js-reports-container") do
+            within('.js-reports-container') do
               click_button 'Expand'
 
-              within(".js-report-section-container") do
+              within('.js-report-section-container') do
                 click_button 'Test#sum when a is 1 and b is 3 returns summary'
 
                 expect(page).to have_content('2.22')
@@ -672,11 +672,11 @@ describe 'Merge request > User sees merge widget', :js do
         end
 
         it 'shows test reports summary which includes the resolved failure' do
-          within(".js-reports-container") do
+          within('.js-reports-container') do
             click_button 'Expand'
 
             expect(page).to have_content('Test summary contained 1 fixed test result out of 2 total tests')
-            within(".js-report-section-container") do
+            within('.js-report-section-container') do
               expect(page).to have_content('rspec found no changed test results out of 1 total test')
               expect(page).to have_content('junit found 1 fixed test result out of 1 total test')
               expect(page).to have_content('addTest')
@@ -686,10 +686,10 @@ describe 'Merge request > User sees merge widget', :js do
 
         context 'when user clicks the resolved failure' do
           it 'shows test report detail of it' do
-            within(".js-reports-container") do
+            within('.js-reports-container') do
               click_button 'Expand'
 
-              within(".js-report-section-container") do
+              within('.js-report-section-container') do
                 click_button 'addTest'
 
                 expect(page).to have_content('5.55')
@@ -723,11 +723,11 @@ describe 'Merge request > User sees merge widget', :js do
         end
 
         it 'shows test reports summary which includes the resolved failure' do
-          within(".js-reports-container") do
+          within('.js-reports-container') do
             click_button 'Expand'
 
             expect(page).to have_content('Test summary contained 20 failed/error test results out of 20 total tests')
-            within(".js-report-section-container") do
+            within('.js-report-section-container') do
               expect(page).to have_content('rspec found 10 failed/error test results out of 10 total tests')
               expect(page).to have_content('junit found 10 failed/error test results out of 10 total tests')
 

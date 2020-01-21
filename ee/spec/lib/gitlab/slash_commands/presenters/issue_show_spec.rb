@@ -10,7 +10,7 @@ describe Gitlab::SlashCommands::Presenters::IssueShow do
 
   context 'issue with issue weight' do
     let(:issue) { create(:issue, project: project, weight: 3) }
-    let(:weight_attachment) { attachment[:fields].find { |a| a[:title] == "Weight" } }
+    let(:weight_attachment) { attachment[:fields].find { |a| a[:title] == 'Weight' } }
 
     it 'shows the weight' do
       expect(weight_attachment).not_to be_nil

@@ -246,19 +246,19 @@ describe Gitlab::Auth, :use_clean_rails_memory_store_caching do
       let(:application) { Doorkeeper::Application.create!(name: 'MyApp', redirect_uri: 'https://app.com', owner: user) }
 
       it 'succeeds for OAuth tokens with the `api` scope' do
-        expect(gl_auth.find_for_git_client("oauth2", token_w_api_scope.token, project: nil, ip: 'ip')).to eq(Gitlab::Auth::Result.new(user, nil, :oauth, described_class.full_authentication_abilities))
+        expect(gl_auth.find_for_git_client('oauth2', token_w_api_scope.token, project: nil, ip: 'ip')).to eq(Gitlab::Auth::Result.new(user, nil, :oauth, described_class.full_authentication_abilities))
       end
 
       it 'fails for OAuth tokens with other scopes' do
         token = Doorkeeper::AccessToken.create!(application_id: application.id, resource_owner_id: user.id, scopes: 'read_user')
 
-        expect(gl_auth.find_for_git_client("oauth2", token.token, project: nil, ip: 'ip')).to eq(Gitlab::Auth::Result.new(nil, nil))
+        expect(gl_auth.find_for_git_client('oauth2', token.token, project: nil, ip: 'ip')).to eq(Gitlab::Auth::Result.new(nil, nil))
       end
 
       it 'does not try password auth before oauth' do
         expect(gl_auth).not_to receive(:find_with_user_password)
 
-        gl_auth.find_for_git_client("oauth2", token_w_api_scope.token, project: nil, ip: 'ip')
+        gl_auth.find_for_git_client('oauth2', token_w_api_scope.token, project: nil, ip: 'ip')
       end
     end
 
@@ -529,7 +529,7 @@ describe Gitlab::Auth, :use_clean_rails_memory_store_caching do
     let(:username) { 'John' } # username isn't lowercase, test this
     let(:password) { 'my-secret' }
 
-    it "finds user by valid login/password" do
+    it 'finds user by valid login/password' do
       expect( gl_auth.find_with_user_password(username, password) ).to eql user
     end
 
@@ -541,12 +541,12 @@ describe Gitlab::Auth, :use_clean_rails_memory_store_caching do
       expect(gl_auth.find_with_user_password(username.upcase, password)).to eql user
     end
 
-    it "does not find user with invalid password" do
+    it 'does not find user with invalid password' do
       password = 'wrong'
       expect( gl_auth.find_with_user_password(username, password) ).not_to eql user
     end
 
-    it "does not find user with invalid login" do
+    it 'does not find user with invalid login' do
       user = 'wrong'
       expect( gl_auth.find_with_user_password(username, password) ).not_to eql user
     end
@@ -563,57 +563,57 @@ describe Gitlab::Auth, :use_clean_rails_memory_store_caching do
       expect( gl_auth.find_with_user_password(username, password) ).to eql user
     end
 
-    it "does not find user in blocked state" do
+    it 'does not find user in blocked state' do
       user.block
 
       expect( gl_auth.find_with_user_password(username, password) ).not_to eql user
     end
 
-    it "does not find user in ldap_blocked state" do
+    it 'does not find user in ldap_blocked state' do
       user.ldap_block
 
       expect( gl_auth.find_with_user_password(username, password) ).not_to eql user
     end
 
-    context "with ldap enabled" do
+    context 'with ldap enabled' do
       before do
         allow(Gitlab::Auth::LDAP::Config).to receive(:enabled?).and_return(true)
       end
 
-      it "tries to autheticate with db before ldap" do
+      it 'tries to autheticate with db before ldap' do
         expect(Gitlab::Auth::LDAP::Authentication).not_to receive(:login)
 
         expect(gl_auth.find_with_user_password(username, password)).to eq(user)
       end
 
-      it "does not find user by using ldap as fallback to for authentication" do
+      it 'does not find user by using ldap as fallback to for authentication' do
         expect(Gitlab::Auth::LDAP::Authentication).to receive(:login).and_return(nil)
 
         expect(gl_auth.find_with_user_password('ldap_user', 'password')).to be_nil
       end
 
-      it "find new user by using ldap as fallback to for authentication" do
+      it 'find new user by using ldap as fallback to for authentication' do
         expect(Gitlab::Auth::LDAP::Authentication).to receive(:login).and_return(user)
 
         expect(gl_auth.find_with_user_password('ldap_user', 'password')).to eq(user)
       end
     end
 
-    context "with password authentication disabled for Git" do
+    context 'with password authentication disabled for Git' do
       before do
         stub_application_setting(password_authentication_enabled_for_git: false)
       end
 
-      it "does not find user by valid login/password" do
+      it 'does not find user by valid login/password' do
         expect(gl_auth.find_with_user_password(username, password)).to be_nil
       end
 
-      context "with ldap enabled" do
+      context 'with ldap enabled' do
         before do
           allow(Gitlab::Auth::LDAP::Config).to receive(:enabled?).and_return(true)
         end
 
-        it "does not find non-ldap user by valid login/password" do
+        it 'does not find non-ldap user by valid login/password' do
           expect(gl_auth.find_with_user_password(username, password)).to be_nil
         end
       end

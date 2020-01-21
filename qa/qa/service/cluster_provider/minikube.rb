@@ -5,7 +5,7 @@ module QA
     module ClusterProvider
       class Minikube < Base
         def validate_dependencies
-          find_executable('minikube') || raise("You must first install `minikube` executable to run these tests.")
+          find_executable('minikube') || raise('You must first install `minikube` executable to run these tests.')
         end
 
         def set_credentials(admin_user)

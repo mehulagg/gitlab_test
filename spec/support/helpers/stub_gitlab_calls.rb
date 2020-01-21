@@ -134,13 +134,13 @@ module StubGitlabCalls
   def stub_projects_owned
     stub_request(:get, "#{gitlab_url}api/v4/projects?owned=true&archived=false&ci_enabled_first=true&private_token=Wvjy2Krpb7y8xi93owUz")
       .with(headers: { 'Content-Type' => 'application/json' })
-      .to_return(status: 200, body: "", headers: {})
+      .to_return(status: 200, body: '', headers: {})
   end
 
   def stub_ci_enable
     stub_request(:put, "#{gitlab_url}api/v4/projects/2/services/gitlab-ci.json?private_token=Wvjy2Krpb7y8xi93owUz")
       .with(headers: { 'Content-Type' => 'application/json' })
-      .to_return(status: 200, body: "", headers: {})
+      .to_return(status: 200, body: '', headers: {})
   end
 
   def project_hash_array

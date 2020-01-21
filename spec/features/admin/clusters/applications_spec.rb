@@ -13,7 +13,7 @@ describe 'Instance-level Cluster Applications', :js do
   end
 
   describe 'Installing applications' do
-    include_examples "installing applications on a cluster" do
+    include_examples 'installing applications on a cluster' do
       let(:cluster_path) { admin_cluster_path(cluster) }
       let(:cluster_factory_args) { [:instance] }
     end

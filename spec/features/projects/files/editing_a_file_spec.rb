@@ -9,11 +9,11 @@ describe 'Projects > Files > User wants to edit a file' do
     {
       start_branch: project.default_branch,
       branch_name: project.default_branch,
-      commit_message: "Committing First Update",
-      file_path: ".gitignore",
-      file_content: "First Update",
+      commit_message: 'Committing First Update',
+      file_path: '.gitignore',
+      file_content: 'First Update',
       last_commit_sha: Gitlab::Git::Commit.last_for_path(project.repository, project.default_branch,
-                                                         ".gitignore").sha
+                                                         '.gitignore').sha
     }
   end
 

@@ -53,7 +53,7 @@ module Labels
     end
 
     def parent_is_group?
-      parent_type == "group"
+      parent_type == 'group'
     end
 
     def include_ancestor_groups?

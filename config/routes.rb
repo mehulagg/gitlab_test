@@ -204,7 +204,7 @@ Rails.application.routes.draw do
   draw :user
   draw :project
 
-  root to: "root#index"
+  root to: 'root#index'
 
   get '*unmatched_route', to: 'application#route_not_found'
 end

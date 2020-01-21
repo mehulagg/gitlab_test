@@ -120,7 +120,7 @@ describe Groups::Settings::CiCdController do
 
         it 'returns a flash alert' do
           expect(response).to set_flash[:alert]
-            .to eq("There was a problem updating Auto DevOps pipeline: [\"Error 1\"].")
+            .to eq('There was a problem updating Auto DevOps pipeline: ["Error 1"].')
         end
       end
 
@@ -196,7 +196,7 @@ describe Groups::Settings::CiCdController do
 
         it 'returns a flash alert' do
           expect(response).to set_flash[:alert]
-            .to eq("There was a problem updating the pipeline settings: [\"Error 1\"].")
+            .to eq('There was a problem updating the pipeline settings: ["Error 1"].')
         end
       end
 

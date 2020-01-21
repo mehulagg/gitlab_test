@@ -16,27 +16,27 @@ FactoryBot.define do
     #
     # See also RepoHelpers.sample_compare
     #
-    source_branch { "master" }
-    target_branch { "feature" }
+    source_branch { 'master' }
+    target_branch { 'feature' }
 
-    merge_status { "can_be_merged" }
+    merge_status { 'can_be_merged' }
 
     trait :with_diffs do
     end
 
     trait :with_image_diffs do
-      source_branch { "add_images_and_changes" }
-      target_branch { "master" }
+      source_branch { 'add_images_and_changes' }
+      target_branch { 'master' }
     end
 
     trait :without_diffs do
-      source_branch { "improve/awesome" }
-      target_branch { "master" }
+      source_branch { 'improve/awesome' }
+      target_branch { 'master' }
     end
 
     trait :conflict do
-      source_branch { "feature_conflict" }
-      target_branch { "feature" }
+      source_branch { 'feature_conflict' }
+      target_branch { 'feature' }
     end
 
     trait :merged do
@@ -44,8 +44,8 @@ FactoryBot.define do
     end
 
     trait :merged_target do
-      source_branch { "merged-target" }
-      target_branch { "improve/awesome" }
+      source_branch { 'merged-target' }
+      target_branch { 'improve/awesome' }
     end
 
     trait :merged_last_month do
@@ -73,8 +73,8 @@ FactoryBot.define do
     end
 
     trait :invalid do
-      source_branch { "feature_one" }
-      target_branch { "feature_two" }
+      source_branch { 'feature_one' }
+      target_branch { 'feature_two' }
     end
 
     trait :locked do
@@ -82,18 +82,18 @@ FactoryBot.define do
     end
 
     trait :simple do
-      source_branch { "feature" }
-      target_branch { "master" }
+      source_branch { 'feature' }
+      target_branch { 'master' }
     end
 
     trait :rebased do
-      source_branch { "markdown" }
-      target_branch { "improve/awesome" }
+      source_branch { 'markdown' }
+      target_branch { 'improve/awesome' }
     end
 
     trait :diverged do
-      source_branch { "feature" }
-      target_branch { "master" }
+      source_branch { 'feature' }
+      target_branch { 'master' }
     end
 
     trait :merge_when_pipeline_succeeds do

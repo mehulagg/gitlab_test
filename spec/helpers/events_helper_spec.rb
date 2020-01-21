@@ -9,7 +9,7 @@ describe EventsHelper do
     subject { helper.event_commit_title(message) }
 
     it 'returns the first line, truncated to 70 chars' do
-      is_expected.to eq(message[0..66] + "...")
+      is_expected.to eq(message[0..66] + '...')
     end
 
     it 'is not html-safe' do
@@ -17,7 +17,7 @@ describe EventsHelper do
     end
 
     it 'handles empty strings' do
-      expect(helper.event_commit_title("")).to eq("")
+      expect(helper.event_commit_title('')).to eq('')
     end
 
     it 'handles nil values' do

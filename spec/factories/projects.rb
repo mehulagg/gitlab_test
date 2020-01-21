@@ -55,7 +55,7 @@ FactoryBot.define do
       }
 
       if ActiveRecord::Migrator.current_version >= PAGES_ACCESS_LEVEL_SCHEMA_VERSION
-        hash.store("pages_access_level", evaluator.pages_access_level)
+        hash.store('pages_access_level', evaluator.pages_access_level)
       end
 
       project.project_feature.update(hash)
@@ -158,7 +158,7 @@ FactoryBot.define do
       end
 
       after :create do |project, evaluator|
-        raise "Failed to create repository!" unless project.create_repository
+        raise 'Failed to create repository!' unless project.create_repository
 
         evaluator.files.each do |filename, content|
           project.repository.create_file(
@@ -208,14 +208,14 @@ FactoryBot.define do
 
     trait :empty_repo do
       after(:create) do |project|
-        raise "Failed to create repository!" unless project.create_repository
+        raise 'Failed to create repository!' unless project.create_repository
       end
     end
 
     trait :remote_mirror do
       transient do
         remote_name { "remote_mirror_#{SecureRandom.hex}" }
-        url { "http://foo.com" }
+        url { 'http://foo.com' }
         enabled { true }
       end
       after(:create) do |project, evaluator|

@@ -50,7 +50,7 @@ module QA
           Page::Group::Menu.perform(&:click_group_general_settings_item)
         end
 
-        it_behaves_like 'group audit event logs', ["Add group"]
+        it_behaves_like 'group audit event logs', ['Add group']
       end
 
       context 'Change repository size limit', :requires_admin do
@@ -63,7 +63,7 @@ module QA
             settings.click_save_name_visibility_settings_button
           end
         end
-        it_behaves_like 'group audit event logs', ["Change repository size limit"]
+        it_behaves_like 'group audit event logs', ['Change repository size limit']
       end
 
       context 'Update group name' do
@@ -78,7 +78,7 @@ module QA
           end
         end
 
-        it_behaves_like 'group audit event logs', ["Change name"]
+        it_behaves_like 'group audit event logs', ['Change name']
       end
 
       context 'Add user, change access level, remove user' do
@@ -88,12 +88,12 @@ module QA
           Page::Group::Menu.perform(&:click_group_members_item)
           Page::Group::SubMenus::Members.perform do |members_page|
             members_page.add_member(user.username)
-            members_page.update_access_level(user.username, "Developer")
+            members_page.update_access_level(user.username, 'Developer')
             members_page.remove_member(user.username)
           end
         end
 
-        it_behaves_like 'group audit event logs', ["Add user access as guest", "Change access level", "Remove user access"]
+        it_behaves_like 'group audit event logs', ['Add user access as guest', 'Change access level', 'Remove user access']
       end
 
       context 'Add and remove project access' do
@@ -114,7 +114,7 @@ module QA
           @group.visit!
         end
 
-        it_behaves_like 'group audit event logs', ["Add project access", "Remove project access"]
+        it_behaves_like 'group audit event logs', ['Add project access', 'Remove project access']
       end
     end
 

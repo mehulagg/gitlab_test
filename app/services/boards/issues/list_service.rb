@@ -110,7 +110,7 @@ module Boards
       # rubocop: disable CodeReuse/ActiveRecord
       def with_list_label(issues)
         issues.where('EXISTS (?)', LabelLink.where("label_links.target_type = 'Issue' AND label_links.target_id = issues.id")
-                                            .where("label_links.label_id = ?", list.label_id).limit(1))
+                                            .where('label_links.label_id = ?', list.label_id).limit(1))
       end
       # rubocop: enable CodeReuse/ActiveRecord
     end

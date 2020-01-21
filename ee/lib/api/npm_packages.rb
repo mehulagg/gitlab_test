@@ -48,7 +48,7 @@ module API
 
     params do
       requires :package_name, type: String, desc: 'Package name'
-      requires :tag, type: String, desc: "Package dist-tag"
+      requires :tag, type: String, desc: 'Package dist-tag'
     end
     namespace 'packages/npm/-/package/*package_name/dist-tags/:tag', requirements: NPM_ENDPOINT_REQUIREMENTS do
       desc 'Create or Update the given tag for the given NPM package and version' do

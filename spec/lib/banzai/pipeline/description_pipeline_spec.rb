@@ -42,7 +42,7 @@ describe Banzai::Pipeline::DescriptionPipeline do
   end
 
   it "still allows 'p' elements" do
-    exp = act = "<p dir=\"auto\">Description</p>"
+    exp = act = '<p dir="auto">Description</p>'
 
     expect(parse(act).strip).to eq exp
   end

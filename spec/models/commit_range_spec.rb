@@ -10,7 +10,7 @@ describe CommitRange do
   end
 
   let!(:project) { create(:project, :public, :repository) }
-  let!(:commit1) { project.commit("HEAD~2") }
+  let!(:commit1) { project.commit('HEAD~2') }
   let!(:commit2) { project.commit }
 
   let(:sha_from) { commit1.short_id }
@@ -23,7 +23,7 @@ describe CommitRange do
   let(:range2) { described_class.new("#{sha_from}..#{sha_to}", project) }
 
   it 'raises ArgumentError when given an invalid range string' do
-    expect { described_class.new("Foo", project) }.to raise_error(ArgumentError)
+    expect { described_class.new('Foo', project) }.to raise_error(ArgumentError)
   end
 
   describe '#initialize' do

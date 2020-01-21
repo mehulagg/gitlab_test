@@ -15,7 +15,7 @@ describe 'Group-level Cluster Applications', :js do
   end
 
   describe 'Installing applications' do
-    include_examples "installing applications on a cluster" do
+    include_examples 'installing applications on a cluster' do
       let(:cluster_path) { group_cluster_path(group, cluster) }
       let(:cluster_factory_args) { [:group, groups: [group]] }
     end

@@ -12,7 +12,7 @@ describe 'User activates GitHub Service' do
   end
 
   context 'without a license' do
-    it "is excluded from the integrations index" do
+    it 'is excluded from the integrations index' do
       visit project_settings_integrations_path(project)
 
       expect(page).not_to have_link('GitHub')
@@ -37,8 +37,8 @@ describe 'User activates GitHub Service' do
 
     def fill_in_details
       check('Active')
-      fill_in "Token", with: "aaaaaaaaaa"
-      fill_in "Repository URL", with: 'https://github.com/h5bp/html5-boilerplate'
+      fill_in 'Token', with: 'aaaaaaaaaa'
+      fill_in 'Repository URL', with: 'https://github.com/h5bp/html5-boilerplate'
     end
 
     it 'activates service' do

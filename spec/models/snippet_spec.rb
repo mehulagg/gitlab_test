@@ -18,7 +18,7 @@ describe Snippet do
     it { is_expected.to belong_to(:project) }
     it { is_expected.to have_many(:notes).dependent(:destroy) }
     it { is_expected.to have_many(:award_emoji).dependent(:destroy) }
-    it { is_expected.to have_many(:user_mentions).class_name("SnippetUserMention") }
+    it { is_expected.to have_many(:user_mentions).class_name('SnippetUserMention') }
   end
 
   describe 'validation' do
@@ -39,7 +39,7 @@ describe Snippet do
       is_expected
         .to validate_length_of(:content)
               .is_at_most(Gitlab::CurrentSettings.snippet_size_limit)
-              .with_message("is too long (2 Bytes). The maximum size is 1 Byte.")
+              .with_message('is too long (2 Bytes). The maximum size is 1 Byte.')
     end
 
     context 'content validations' do
@@ -59,7 +59,7 @@ describe Snippet do
         end
 
         it 'raises and error if the content is changed and the size is bigger than limit' do
-          snippet.content = snippet.content + "test"
+          snippet.content = snippet.content + 'test'
 
           expect(snippet).not_to be_valid
         end
@@ -96,12 +96,12 @@ describe Snippet do
       let(:snippet) { build(:snippet, id: 1, project: project) }
 
       it 'returns a String reference to the object' do
-        expect(snippet.to_reference).to eq "$1"
+        expect(snippet.to_reference).to eq '$1'
       end
 
       it 'supports a cross-project reference' do
         another_project = build(:project, name: 'another-project', namespace: project.namespace)
-        expect(snippet.to_reference(another_project)).to eq "sample-project$1"
+        expect(snippet.to_reference(another_project)).to eq 'sample-project$1'
       end
     end
 
@@ -109,12 +109,12 @@ describe Snippet do
       let(:snippet) { build(:snippet, id: 1, project: nil) }
 
       it 'returns a String reference to the object' do
-        expect(snippet.to_reference).to eq "$1"
+        expect(snippet.to_reference).to eq '$1'
       end
 
       it 'still returns shortest reference when project arg present' do
         another_project = build(:project, name: 'another-project')
-        expect(snippet.to_reference(another_project)).to eq "$1"
+        expect(snippet.to_reference(another_project)).to eq '$1'
       end
     end
   end
@@ -139,11 +139,11 @@ describe Snippet do
     end
   end
 
-  describe "#content_html_invalidated?" do
-    let(:snippet) { create(:snippet, content: "md", content_html: "html", file_name: "foo.md") }
+  describe '#content_html_invalidated?' do
+    let(:snippet) { create(:snippet, content: 'md', content_html: 'html', file_name: 'foo.md') }
 
-    it "invalidates the HTML cache of content when the filename changes" do
-      expect { snippet.file_name = "foo.rb" }.to change { snippet.content_html_invalidated? }.from(false).to(true)
+    it 'invalidates the HTML cache of content when the filename changes' do
+      expect { snippet.file_name = 'foo.rb' }.to change { snippet.content_html_invalidated? }.from(false).to(true)
     end
   end
 
@@ -514,11 +514,11 @@ describe Snippet do
     let(:snippet) { build(:snippet) }
 
     it 'excludes secret_token from generated json' do
-      expect(JSON.parse(to_json).keys).not_to include("secret_token")
+      expect(JSON.parse(to_json).keys).not_to include('secret_token')
     end
 
     it 'does not override existing exclude option value' do
-      expect(JSON.parse(to_json(except: [:id])).keys).not_to include("secret_token", "id")
+      expect(JSON.parse(to_json(except: [:id])).keys).not_to include('secret_token', 'id')
     end
 
     def to_json(params = {})

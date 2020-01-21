@@ -64,7 +64,7 @@ describe SessionsController, :geo do
         it 'redirects to new trial sign in page' do
           post :create, params: { trial: true, user: { login: 'foo@bar.com', password: '11111' } }
 
-          expect(response).to render_template("trial_registrations/new")
+          expect(response).to render_template('trial_registrations/new')
         end
       end
 
@@ -72,7 +72,7 @@ describe SessionsController, :geo do
         it 'redirects to the regular sign in page' do
           post :create, params: { user: { login: 'foo@bar.com', password: '11111' } }
 
-          expect(response).to render_template("devise/sessions/new")
+          expect(response).to render_template('devise/sessions/new')
         end
       end
     end

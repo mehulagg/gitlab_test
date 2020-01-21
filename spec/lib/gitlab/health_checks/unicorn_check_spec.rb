@@ -12,11 +12,11 @@ describe Gitlab::HealthChecks::UnicornCheck do
   end
 
   shared_examples 'with state' do |(state, message)|
-    it "does provide readiness" do
+    it 'does provide readiness' do
       expect(readiness).to eq(result_class.new('unicorn_check', state, message))
     end
 
-    it "does provide metrics" do
+    it 'does provide metrics' do
       expect(metrics).to include(
         an_object_having_attributes(name: 'unicorn_check_success', value: state ? 1 : 0))
       expect(metrics).to include(
@@ -30,7 +30,7 @@ describe Gitlab::HealthChecks::UnicornCheck do
       hide_const('Unicorn')
     end
 
-    it "does not provide readiness and metrics" do
+    it 'does not provide readiness and metrics' do
       expect(readiness).to be_nil
       expect(metrics).to be_nil
     end

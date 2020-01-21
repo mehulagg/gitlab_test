@@ -229,7 +229,7 @@ describe Gitlab::Ci::Ansi2json do
         expect(convert_json(trace)).to eq([
           {
             offset: 0,
-            content: [{ text: "section_end:1:2<div>hello</div>" }],
+            content: [{ text: 'section_end:1:2<div>hello</div>' }],
             section: 'prepare-script',
             section_header: true
           },
@@ -339,7 +339,7 @@ describe Gitlab::Ci::Ansi2json do
 
       context 'with split word' do
         let(:pre_text) { "\e[1mHello " }
-        let(:text) { "World" }
+        let(:text) { 'World' }
 
         let(:lines) do
           [
@@ -355,7 +355,7 @@ describe Gitlab::Ci::Ansi2json do
 
       context 'with split word on second line' do
         let(:pre_text) { "Good\nmorning " }
-        let(:text) { "World" }
+        let(:text) { 'World' }
 
         let(:lines) do
           [
@@ -387,7 +387,7 @@ describe Gitlab::Ci::Ansi2json do
 
       context 'with split partial sequence' do
         let(:pre_text) { "hello\e" }
-        let(:text) { "[1m world" }
+        let(:text) { '[1m world' }
 
         let(:lines) do
           [
@@ -514,7 +514,7 @@ describe Gitlab::Ci::Ansi2json do
     end
 
     describe 'trucates' do
-      let(:text) { "Hello World" }
+      let(:text) { 'Hello World' }
       let(:stream) { StringIO.new(text) }
       let(:subject) { described_class.convert(stream) }
 
@@ -522,11 +522,11 @@ describe Gitlab::Ci::Ansi2json do
         stream.seek(3, IO::SEEK_SET)
       end
 
-      it "returns truncated output" do
+      it 'returns truncated output' do
         expect(subject.truncated).to be_truthy
       end
 
-      it "does not append output" do
+      it 'does not append output' do
         expect(subject.append).to be_falsey
       end
     end

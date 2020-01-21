@@ -24,7 +24,7 @@ module Geo
       delegate :disk_path, to: :storage
 
       def hashed_storage?(feature)
-        raise ArgumentError, _("Invalid feature") unless ::Project::HASHED_STORAGE_FEATURES.include?(feature)
+        raise ArgumentError, _('Invalid feature') unless ::Project::HASHED_STORAGE_FEATURES.include?(feature)
 
         self.storage_version && self.storage_version >= ::Project::HASHED_STORAGE_FEATURES[feature]
       end

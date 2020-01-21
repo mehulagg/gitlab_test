@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 describe QA::Resource::User do
-  describe "#fabricate_via_api!" do
+  describe '#fabricate_via_api!' do
     Response = Struct.new(:code, :body)
 
     it 'fetches an existing user' do
@@ -16,8 +16,8 @@ describe QA::Resource::User do
       users_response = Response.new('200', JSON.dump(existing_users))
       single_user_response = Response.new('200', JSON.dump(existing_users.first))
 
-      expect(subject).to receive(:api_get_from).with("/users?username=name").and_return(users_response)
-      expect(subject).to receive(:api_get_from).with("/users/0").and_return(single_user_response)
+      expect(subject).to receive(:api_get_from).with('/users?username=name').and_return(users_response)
+      expect(subject).to receive(:api_get_from).with('/users/0').and_return(single_user_response)
 
       subject.username = 'name'
       subject.fabricate_via_api!
@@ -26,7 +26,7 @@ describe QA::Resource::User do
     end
 
     it 'tries to create a user if it does not exist' do
-      expect(subject).to receive(:api_get_from).with("/users?username=foo").and_return(Response.new('200', '[]'))
+      expect(subject).to receive(:api_get_from).with('/users?username=foo').and_return(Response.new('200', '[]'))
       expect(subject).to receive(:api_post).and_return({ web_url: '' })
 
       subject.username = 'foo'

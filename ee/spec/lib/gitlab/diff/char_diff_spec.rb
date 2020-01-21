@@ -30,11 +30,11 @@ describe Gitlab::Diff::CharDiff do
       changes = subject.generate_diff
 
       expect(changes).to eq([
-        [:equal, "Hel"],
-        [:insert, "l"],
+        [:equal, 'Hel'],
+        [:insert, 'l'],
         [:equal, "o \n Worl"],
-        [:delete, "l"],
-        [:equal, "d"]
+        [:delete, 'l'],
+        [:equal, 'd']
       ])
     end
   end

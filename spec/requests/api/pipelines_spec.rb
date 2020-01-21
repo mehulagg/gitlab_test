@@ -455,7 +455,7 @@ describe API::Pipelines do
         it 'exposes the coverage' do
           get api("/projects/#{project.id}/pipelines/#{pipeline.id}", user)
 
-          expect(json_response["coverage"].to_i).to eq(30)
+          expect(json_response['coverage'].to_i).to eq(30)
         end
       end
     end
@@ -539,7 +539,7 @@ describe API::Pipelines do
           subject
 
           expect(response).to have_gitlab_http_status(200)
-          expect(json_response).to contain_exactly({ "variable_type" => "env_var", "key" => "foo", "value" => "bar" })
+          expect(json_response).to contain_exactly({ 'variable_type' => 'env_var', 'key' => 'foo', 'value' => 'bar' })
         end
       end
     end
@@ -560,7 +560,7 @@ describe API::Pipelines do
           subject
 
           expect(response).to have_gitlab_http_status(200)
-          expect(json_response).to contain_exactly({ "variable_type" => "env_var", "key" => "foo", "value" => "bar" })
+          expect(json_response).to contain_exactly({ 'variable_type' => 'env_var', 'key' => 'foo', 'value' => 'bar' })
         end
       end
 

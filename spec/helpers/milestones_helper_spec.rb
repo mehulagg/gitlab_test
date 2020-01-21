@@ -39,7 +39,7 @@ describe MilestonesHelper do
     end
   end
 
-  describe "#milestone_date_range" do
+  describe '#milestone_date_range' do
     def result_for(*args)
       milestone_date_range(build(:milestone, *args))
     end

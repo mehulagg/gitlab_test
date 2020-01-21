@@ -45,7 +45,7 @@ describe Gitlab::Ci::Config::External::File::Template do
     end
   end
 
-  describe "#valid?" do
+  describe '#valid?' do
     context 'when is a valid template name' do
       let(:template) { 'Auto-DevOps.gitlab-ci.yml' }
 

@@ -193,7 +193,7 @@ describe Gitlab::Patch::Prependable do
     end
 
     context 'class methods' do
-      it "has a method" do
+      it 'has a method' do
         expect(subject).to respond_to(:class_value)
       end
 
@@ -203,7 +203,7 @@ describe Gitlab::Patch::Prependable do
     end
 
     context 'instance methods' do
-      it "has a method" do
+      it 'has a method' do
         expect(subject.new).to respond_to(:value)
       end
 
@@ -226,7 +226,7 @@ describe Gitlab::Patch::Prependable do
       end
     end
 
-    it "raises an error" do
+    it 'raises an error' do
       expect { subject }
         .to raise_error(described_class::MultiplePrependedBlocks)
     end

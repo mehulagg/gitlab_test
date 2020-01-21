@@ -35,7 +35,7 @@ describe Branches::CreateService do
         result = service.execute('my-feature', 'master')
 
         expect(result[:status]).to eq(:error)
-        expect(result[:message]).to eq("Invalid reference name: my-feature")
+        expect(result[:message]).to eq('Invalid reference name: my-feature')
       end
     end
   end

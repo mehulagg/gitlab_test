@@ -54,12 +54,12 @@ module Elastic
                 name: 'light_english'
               },
               code: {
-                type: "pattern_capture",
+                type: 'pattern_capture',
                 preserve_original: true,
                 patterns: [
-                  "(\\p{Ll}+|\\p{Lu}\\p{Ll}+|\\p{Lu}+)",
-                  "(\\d+)",
-                  "(?=([\\p{Lu}]+[\\p{L}]+))",
+                  '(\\p{Ll}+|\\p{Lu}\\p{Ll}+|\\p{Lu}+)',
+                  '(\\d+)',
+                  '(?=([\\p{Lu}]+[\\p{L}]+))',
                   '"((?:\\"|[^"]|\\")*)"', # capture terms inside quotes, removing the quotes
                   "'((?:\\'|[^']|\\')*)'", # same as above, for single quotes
                   '\.([^.]+)(?=\.|\s|\Z)', # separate terms on periods
@@ -80,7 +80,7 @@ module Elastic
                 token_chars: %w(letter digit)
               },
               sha_tokenizer: {
-                type: "edgeNGram",
+                type: 'edgeNGram',
                 min_gram: 5,
                 max_gram: 40,
                 token_chars: %w(letter digit)

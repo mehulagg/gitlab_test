@@ -92,7 +92,7 @@ describe Clusters::Kubernetes::CreateOrUpdateServiceAccountService do
       it 'creates a cluster role binding with cluster-admin access' do
         subject
 
-        expect(WebMock).to have_requested(:post, api_url + "/apis/rbac.authorization.k8s.io/v1/clusterrolebindings").with(
+        expect(WebMock).to have_requested(:post, api_url + '/apis/rbac.authorization.k8s.io/v1/clusterrolebindings').with(
           body: hash_including(
             kind: 'ClusterRoleBinding',
             metadata: { name: 'gitlab-admin' },
@@ -116,7 +116,7 @@ describe Clusters::Kubernetes::CreateOrUpdateServiceAccountService do
 
   describe '.namespace_creator' do
     let(:namespace) { "#{project.path}-#{project.id}" }
-    let(:namespace_labels) { { app: project.full_path_slug, env: "staging" } }
+    let(:namespace_labels) { { app: project.full_path_slug, env: 'staging' } }
     let(:service_account_name) { "#{namespace}-service-account" }
     let(:token_name) { "#{namespace}-token" }
 

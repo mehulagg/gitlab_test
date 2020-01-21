@@ -68,7 +68,7 @@ describe 'Groups > Usage Quotas' do
       visit_pipeline_quota_page
 
       page.within('.pipeline-quota') do
-        expect(page).to have_content("400 / Unlimited minutes")
+        expect(page).to have_content('400 / Unlimited minutes')
         expect(page).to have_selector('.bg-success')
       end
     end
@@ -84,7 +84,7 @@ describe 'Groups > Usage Quotas' do
       visit_pipeline_quota_page
 
       page.within('.pipeline-quota') do
-        expect(page).to have_content("0%")
+        expect(page).to have_content('0%')
         expect(page).to have_selector('.bg-success')
       end
 
@@ -103,8 +103,8 @@ describe 'Groups > Usage Quotas' do
       visit_pipeline_quota_page
 
       page.within('.pipeline-quota') do
-        expect(page).to have_content("300 / 500 minutes")
-        expect(page).to have_content("60% used")
+        expect(page).to have_content('300 / 500 minutes')
+        expect(page).to have_content('60% used')
         expect(page).to have_selector('.bg-success')
       end
     end
@@ -132,8 +132,8 @@ describe 'Groups > Usage Quotas' do
       expect(page).to have_content('Buy additional minutes')
 
       page.within('.pipeline-quota') do
-        expect(page).to have_content("1000 / 500 minutes")
-        expect(page).to have_content("200% used")
+        expect(page).to have_content('1000 / 500 minutes')
+        expect(page).to have_content('200% used')
         expect(page).to have_selector('.bg-danger')
       end
 

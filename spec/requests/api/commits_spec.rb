@@ -23,7 +23,7 @@ describe API::Commits do
     let(:route) { "/projects/#{project_id}/repository/commits" }
 
     shared_examples_for 'project commits' do |schema: 'public_api/v4/commits'|
-      it "returns project commits" do
+      it 'returns project commits' do
         commit = project.repository.commit
 
         get api(route, current_user)
@@ -64,20 +64,20 @@ describe API::Commits do
 
       it_behaves_like 'project commits'
 
-      context "since optional parameter" do
-        it "returns project commits since provided parameter" do
-          commits = project.repository.commits("master", limit: 2)
+      context 'since optional parameter' do
+        it 'returns project commits since provided parameter' do
+          commits = project.repository.commits('master', limit: 2)
           after = commits.second.created_at
 
           get api("/projects/#{project_id}/repository/commits?since=#{after.utc.iso8601}", user)
 
           expect(json_response.size).to eq 2
-          expect(json_response.first["id"]).to eq(commits.first.id)
-          expect(json_response.second["id"]).to eq(commits.second.id)
+          expect(json_response.first['id']).to eq(commits.first.id)
+          expect(json_response.second['id']).to eq(commits.second.id)
         end
 
         it 'include correct pagination headers' do
-          commits = project.repository.commits("master", limit: 2)
+          commits = project.repository.commits('master', limit: 2)
           after = commits.second.created_at
           commit_count = project.repository.count_commits(ref: 'master', after: after).to_s
 
@@ -89,9 +89,9 @@ describe API::Commits do
         end
       end
 
-      context "until optional parameter" do
-        it "returns project commits until provided parameter" do
-          commits = project.repository.commits("master", limit: 20)
+      context 'until optional parameter' do
+        it 'returns project commits until provided parameter' do
+          commits = project.repository.commits('master', limit: 20)
           before = commits.second.created_at
 
           get api("/projects/#{project_id}/repository/commits?until=#{before.utc.iso8601}", user)
@@ -102,12 +102,12 @@ describe API::Commits do
             expect(json_response.size).to eq(commits.size - 1)
           end
 
-          expect(json_response.first["id"]).to eq(commits.second.id)
-          expect(json_response.second["id"]).to eq(commits.third.id)
+          expect(json_response.first['id']).to eq(commits.second.id)
+          expect(json_response.second['id']).to eq(commits.third.id)
         end
 
         it 'include correct pagination headers' do
-          commits = project.repository.commits("master", limit: 2)
+          commits = project.repository.commits('master', limit: 2)
           before = commits.second.created_at
           commit_count = project.repository.count_commits(ref: 'master', before: before).to_s
 
@@ -119,8 +119,8 @@ describe API::Commits do
         end
       end
 
-      context "invalid xmlschema date parameters" do
-        it "returns an invalid parameter error message" do
+      context 'invalid xmlschema date parameters' do
+        it 'returns an invalid parameter error message' do
           get api("/projects/#{project_id}/repository/commits?since=invalid-date", user)
 
           expect(response).to have_gitlab_http_status(400)
@@ -128,21 +128,21 @@ describe API::Commits do
         end
       end
 
-      context "with empty ref_name parameter" do
+      context 'with empty ref_name parameter' do
         let(:route) { "/projects/#{project_id}/repository/commits?ref_name=" }
 
         it_behaves_like 'project commits'
       end
 
-      context "path optional parameter" do
-        it "returns project commits matching provided path parameter" do
+      context 'path optional parameter' do
+        it 'returns project commits matching provided path parameter' do
           path = 'files/ruby/popen.rb'
           commit_count = project.repository.count_commits(ref: 'master', path: path).to_s
 
           get api("/projects/#{project_id}/repository/commits?path=#{path}", user)
 
           expect(json_response.size).to eq(3)
-          expect(json_response.first["id"]).to eq("570e7b2abdd848b95f2f578043fc23bd6f6fd24d")
+          expect(json_response.first['id']).to eq('570e7b2abdd848b95f2f578043fc23bd6f6fd24d')
           expect(response).to include_pagination_headers
           expect(response.headers['X-Total']).to eq(commit_count)
         end
@@ -243,7 +243,7 @@ describe API::Commits do
     end
   end
 
-  describe "POST /projects/:id/repository/commits" do
+  describe 'POST /projects/:id/repository/commits' do
     let!(:url) { "/projects/#{project_id}/repository/commits" }
 
     it 'returns a 403 unauthorized for user without permissions' do
@@ -712,7 +712,7 @@ describe API::Commits do
       context "when the file doesn't exists" do
         let(:file_path) { 'foo/bar.baz' }
 
-        it "responds with 400" do
+        it 'responds with 400' do
           post api(url, user), params: params
 
           expect(response).to have_gitlab_http_status(400)
@@ -974,14 +974,14 @@ describe API::Commits do
         expect(json_response).to include 'stats'
       end
 
-      it "is false it does not include stats" do
+      it 'is false it does not include stats' do
         get api(route, user), params: { stats: false }
 
         expect(response).to have_gitlab_http_status(200)
         expect(json_response).not_to include 'stats'
       end
 
-      it "is true it includes stats" do
+      it 'is true it includes stats' do
         get api(route, user), params: { stats: true }
 
         expect(response).to have_gitlab_http_status(200)

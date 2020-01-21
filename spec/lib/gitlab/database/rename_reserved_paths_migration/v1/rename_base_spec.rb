@@ -21,12 +21,12 @@ describe Gitlab::Database::RenameReservedPathsMigration::V1::RenameBase, :delete
       Project.find(project.id)
   end
 
-  describe "#remove_last_occurrence" do
-    it "removes only the last occurrence of a string" do
-      input = "this/is/a-word-to-replace/namespace/with/a-word-to-replace"
+  describe '#remove_last_occurrence' do
+    it 'removes only the last occurrence of a string' do
+      input = 'this/is/a-word-to-replace/namespace/with/a-word-to-replace'
 
-      expect(subject.remove_last_occurrence(input, "a-word-to-replace"))
-        .to eq("this/is/a-word-to-replace/namespace/with/")
+      expect(subject.remove_last_occurrence(input, 'a-word-to-replace'))
+        .to eq('this/is/a-word-to-replace/namespace/with/')
     end
   end
 
@@ -84,24 +84,24 @@ describe Gitlab::Database::RenameReservedPathsMigration::V1::RenameBase, :delete
     context 'for namespaces' do
       let(:namespace) { create(:namespace, path: 'the-path') }
 
-      it "renames namespaces called the-path" do
+      it 'renames namespaces called the-path' do
         subject.rename_path_for_routable(migration_namespace(namespace))
 
-        expect(namespace.reload.path).to eq("the-path0")
+        expect(namespace.reload.path).to eq('the-path0')
       end
 
-      it "renames the route to the namespace" do
+      it 'renames the route to the namespace' do
         subject.rename_path_for_routable(migration_namespace(namespace))
 
-        expect(Namespace.find(namespace.id).full_path).to eq("the-path0")
+        expect(Namespace.find(namespace.id).full_path).to eq('the-path0')
       end
 
-      it "renames the route for projects of the namespace" do
-        project = create(:project, :repository, path: "project-path", namespace: namespace)
+      it 'renames the route for projects of the namespace' do
+        project = create(:project, :repository, path: 'project-path', namespace: namespace)
 
         subject.rename_path_for_routable(migration_namespace(namespace))
 
-        expect(project.route.reload.path).to eq("the-path0/project-path")
+        expect(project.route.reload.path).to eq('the-path0/project-path')
       end
 
       it 'returns the old & the new path' do
@@ -120,14 +120,14 @@ describe Gitlab::Database::RenameReservedPathsMigration::V1::RenameBase, :delete
         expect(project.route.reload.path).to eq('the-path-but-not-really/the-project')
       end
 
-      context "the-path namespace -> subgroup -> the-path0 project" do
-        it "updates the route of the project correctly" do
-          subgroup = create(:group, path: "subgroup", parent: namespace)
-          project = create(:project, :repository, path: "the-path0", namespace: subgroup)
+      context 'the-path namespace -> subgroup -> the-path0 project' do
+        it 'updates the route of the project correctly' do
+          subgroup = create(:group, path: 'subgroup', parent: namespace)
+          project = create(:project, :repository, path: 'the-path0', namespace: subgroup)
 
           subject.rename_path_for_routable(migration_namespace(namespace))
 
-          expect(project.route.reload.path).to eq("the-path0/subgroup/the-path0")
+          expect(project.route.reload.path).to eq('the-path0/subgroup/the-path0')
         end
       end
     end
@@ -191,7 +191,7 @@ describe Gitlab::Database::RenameReservedPathsMigration::V1::RenameBase, :delete
     end
   end
 
-  describe "#move_uploads" do
+  describe '#move_uploads' do
     let(:test_dir) { File.join(Rails.root, 'tmp', 'tests', 'rename_reserved_paths') }
     let(:uploads_dir) { File.join(test_dir, 'public', 'uploads') }
 

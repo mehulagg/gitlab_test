@@ -11,13 +11,13 @@ module EE
       #
       # Returns the created Note object
       def approve_mr
-        body = "approved this merge request"
+        body = 'approved this merge request'
 
         create_note(NoteSummary.new(noteable, project, author, body, action: 'approved'))
       end
 
       def unapprove_mr
-        body = "unapproved this merge request"
+        body = 'unapproved this merge request'
 
         create_note(NoteSummary.new(noteable, project, author, body, action: 'unapproved'))
       end

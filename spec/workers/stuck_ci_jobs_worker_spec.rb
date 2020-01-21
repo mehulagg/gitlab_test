@@ -18,7 +18,7 @@ describe StuckCiJobsWorker do
   end
 
   shared_examples 'job is dropped' do
-    it "changes status" do
+    it 'changes status' do
       worker.perform
       job.reload
 
@@ -27,7 +27,7 @@ describe StuckCiJobsWorker do
     end
 
     context 'when job have data integrity problem' do
-      it "does drop the job and logs the reason" do
+      it 'does drop the job and logs the reason' do
         job.update_columns(yaml_variables: '[{"key" => "value"}]')
 
         expect(Gitlab::ErrorTracking).to receive(:track_exception)

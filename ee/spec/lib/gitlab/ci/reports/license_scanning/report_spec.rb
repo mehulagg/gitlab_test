@@ -81,7 +81,7 @@ describe Gitlab::Ci::Reports::LicenseScanning::Report do
 
     let(:project) { create(:project) }
 
-    context "when checking for violations using v1 license scan report" do
+    context 'when checking for violations using v1 license scan report' do
       let(:report) { build(:license_scan_report) }
 
       let(:mit_license) { build(:software_license, :mit, spdx_identifier: nil) }
@@ -125,10 +125,10 @@ describe Gitlab::Ci::Reports::LicenseScanning::Report do
       end
     end
 
-    context "when checking for violations using the v2 license scan reports" do
+    context 'when checking for violations using the v2 license scan reports' do
       let(:report) { build(:license_scan_report) }
 
-      context "when a denied license with a SPDX identifier is also in the report" do
+      context 'when a denied license with a SPDX identifier is also in the report' do
         let(:mit_spdx_id) { 'MIT' }
         let(:mit_license) { build(:software_license, :mit, spdx_identifier: mit_spdx_id) }
         let(:mit_policy) { build(:software_license_policy, :denied, software_license: mit_license) }
@@ -141,7 +141,7 @@ describe Gitlab::Ci::Reports::LicenseScanning::Report do
         it { is_expected.to be_truthy }
       end
 
-      context "when a denied license does not have an SPDX identifier because it was provided by an end user" do
+      context 'when a denied license does not have an SPDX identifier because it was provided by an end user' do
         let(:custom_license) { build(:software_license, name: 'custom', spdx_identifier: nil) }
         let(:custom_policy) { build(:software_license_policy, :denied, software_license: custom_license) }
 
@@ -153,7 +153,7 @@ describe Gitlab::Ci::Reports::LicenseScanning::Report do
         it { is_expected.to be_truthy }
       end
 
-      context "when none of the licenses discovered match any of the denied software policies" do
+      context 'when none of the licenses discovered match any of the denied software policies' do
         let(:apache_license) { build(:software_license, :apache_2_0, spdx_identifier: 'Apache-2.0') }
         let(:apache_policy) { build(:software_license_policy, :denied, software_license: apache_license) }
 

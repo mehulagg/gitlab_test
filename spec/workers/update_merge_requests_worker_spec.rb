@@ -11,9 +11,9 @@ describe UpdateMergeRequestsWorker do
   subject { described_class.new }
 
   describe '#perform' do
-    let(:oldrev) { "123456" }
-    let(:newrev) { "789012" }
-    let(:ref)    { "refs/heads/test" }
+    let(:oldrev) { '123456' }
+    let(:newrev) { '789012' }
+    let(:ref)    { 'refs/heads/test' }
 
     def perform
       subject.perform(project.id, user.id, oldrev, newrev, ref)
@@ -29,7 +29,7 @@ describe UpdateMergeRequestsWorker do
 
     context 'when slow' do
       before do
-        stub_const("UpdateMergeRequestsWorker::LOG_TIME_THRESHOLD", -1)
+        stub_const('UpdateMergeRequestsWorker::LOG_TIME_THRESHOLD', -1)
       end
 
       it 'logs debug info' do

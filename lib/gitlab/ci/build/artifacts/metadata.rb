@@ -109,7 +109,7 @@ module Gitlab
           end
 
           def gzip(&block)
-            raise InvalidStreamError, "Invalid stream" unless @stream
+            raise InvalidStreamError, 'Invalid stream' unless @stream
 
             # restart gzip reading
             @stream.seek(0)

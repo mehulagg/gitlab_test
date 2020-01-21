@@ -7,7 +7,7 @@ describe Gitlab::PathLocksFinder do
   let(:user) { create :user }
   let(:finder) { described_class.new(project) }
 
-  it "returns correct lock information" do
+  it 'returns correct lock information' do
     lock1 = create :path_lock, project: project, path: 'app'
     lock2 = create :path_lock, project: project, path: 'lib/gitlab/repo.rb'
 

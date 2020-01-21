@@ -5,7 +5,7 @@ module Ci
     extend Gitlab::Ci::Model
     include NewHasVariable
 
-    belongs_to :job, class_name: "Ci::Build", foreign_key: :job_id
+    belongs_to :job, class_name: 'Ci::Build', foreign_key: :job_id
 
     alias_attribute :secret_value, :value
 

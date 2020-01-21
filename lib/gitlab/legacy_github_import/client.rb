@@ -47,7 +47,7 @@ module Gitlab
       def authorize_url(redirect_uri)
         client.auth_code.authorize_url({
           redirect_uri: redirect_uri,
-          scope: "repo, user, user:email"
+          scope: 'repo, user, user:email'
         })
       end
 
@@ -90,7 +90,7 @@ module Gitlab
 
       def github_options
         if config
-          config["args"]["client_options"].deep_symbolize_keys
+          config['args']['client_options'].deep_symbolize_keys
         else
           OmniAuth::Strategies::GitHub.default_options[:client_options].symbolize_keys
         end

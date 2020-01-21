@@ -43,7 +43,7 @@ describe Clusters::Gcp::VerifyProvisionStatusService do
           gcp_project_id, zone, operation_id,
           {
             "status": 'RUNNING',
-            "startTime": 1.minute.ago.strftime("%FT%TZ")
+            "startTime": 1.minute.ago.strftime('%FT%TZ')
           } )
       end
 
@@ -55,7 +55,7 @@ describe Clusters::Gcp::VerifyProvisionStatusService do
             gcp_project_id, zone, operation_id,
             {
               "status": 'RUNNING',
-              "startTime": 30.minutes.ago.strftime("%FT%TZ")
+              "startTime": 30.minutes.ago.strftime('%FT%TZ')
             } )
         end
 
@@ -69,7 +69,7 @@ describe Clusters::Gcp::VerifyProvisionStatusService do
           gcp_project_id, zone, operation_id,
           {
             "status": 'PENDING',
-            "startTime": 1.minute.ago.strftime("%FT%TZ")
+            "startTime": 1.minute.ago.strftime('%FT%TZ')
           } )
       end
 

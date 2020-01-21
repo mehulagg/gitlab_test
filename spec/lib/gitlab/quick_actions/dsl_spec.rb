@@ -9,7 +9,7 @@ describe Gitlab::QuickActions::Dsl do
 
       desc 'A command with no args'
       command :no_args, :none do
-        "Hello World!"
+        'Hello World!'
       end
 
       params 'The first argument'
@@ -58,7 +58,7 @@ describe Gitlab::QuickActions::Dsl do
       desc 'A command with types'
       types Issue, Commit
       command :has_types do
-        "Has Issue and Commit types"
+        'Has Issue and Commit types'
       end
     end
   end

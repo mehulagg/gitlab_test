@@ -36,7 +36,7 @@ module Projects
         project_serverless_metrics_path(
           request.project,
           service.dig('environment_scope'),
-          service.dig('metadata', 'name')) + ".json"
+          service.dig('metadata', 'name')) + '.json'
       end
 
       expose :created_at do |service|

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe Files::CreateService do
   let(:project) { create(:project, :repository) }
@@ -13,9 +13,9 @@ describe Files::CreateService do
   let(:commit_params) do
     {
       file_path: file_path,
-      commit_message: "Update File",
+      commit_message: 'Update File',
       file_content: file_content,
-      file_content_encoding: "text",
+      file_content_encoding: 'text',
       start_project: project,
       start_branch: start_branch,
       branch_name: branch_name
@@ -30,7 +30,7 @@ describe Files::CreateService do
     project.add_maintainer(user)
   end
 
-  describe "#execute" do
+  describe '#execute' do
     context 'when file matches LFS filter' do
       let(:file_path) { 'test_file.lfs' }
       let(:branch_name) { 'lfs' }

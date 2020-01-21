@@ -278,7 +278,7 @@ describe Banzai::Filter::IssueReferenceFilter do
     let(:namespace) { create(:namespace, name: 'cross-reference') }
     let(:project2)  { create(:project, :public, namespace: namespace) }
     let(:issue)     { create(:issue, project: project2) }
-    let(:reference) { helper.url_for_issue(issue.iid, project2) + "#note_123" }
+    let(:reference) { helper.url_for_issue(issue.iid, project2) + '#note_123' }
 
     it 'links to a valid reference' do
       doc = reference_filter("See #{reference}")
@@ -335,14 +335,14 @@ describe Banzai::Filter::IssueReferenceFilter do
     let(:namespace) { create(:namespace, name: 'cross-reference') }
     let(:project2)  { create(:project, :public, namespace: namespace) }
     let(:issue)     { create(:issue, project: project2) }
-    let(:reference) { "#{helper.url_for_issue(issue.iid, project2) + "#note_123"}" }
+    let(:reference) { "#{helper.url_for_issue(issue.iid, project2) + '#note_123'}" }
     let(:reference_link) { %{<a href="#{reference}">Reference</a>} }
 
     it 'links to a valid reference' do
       doc = reference_filter("See #{reference_link}")
 
       expect(doc.css('a').first.attr('href'))
-        .to eq helper.url_for_issue(issue.iid, project2) + "#note_123"
+        .to eq helper.url_for_issue(issue.iid, project2) + '#note_123'
     end
 
     it 'links with adjacent text' do
@@ -397,23 +397,23 @@ describe Banzai::Filter::IssueReferenceFilter do
     end
 
     it 'links to a valid reference for url cross-reference' do
-      reference = helper.url_for_issue(issue.iid, project) + "#note_123"
+      reference = helper.url_for_issue(issue.iid, project) + '#note_123'
 
       doc = reference_filter("See #{reference}", context)
 
       link = doc.css('a').first
-      expect(link.attr('href')).to eq(helper.url_for_issue(issue.iid, project) + "#note_123")
+      expect(link.attr('href')).to eq(helper.url_for_issue(issue.iid, project) + '#note_123')
       expect(link.text).to include("#{project.full_path}##{issue.iid}")
     end
 
     it 'links to a valid reference for cross-reference in link href' do
-      reference = "#{helper.url_for_issue(issue.iid, project) + "#note_123"}"
+      reference = "#{helper.url_for_issue(issue.iid, project) + '#note_123'}"
       reference_link = %{<a href="#{reference}">Reference</a>}
 
       doc = reference_filter("See #{reference_link}", context)
 
       link = doc.css('a').first
-      expect(link.attr('href')).to eq(helper.url_for_issue(issue.iid, project) + "#note_123")
+      expect(link.attr('href')).to eq(helper.url_for_issue(issue.iid, project) + '#note_123')
       expect(link.text).to include('Reference')
     end
 

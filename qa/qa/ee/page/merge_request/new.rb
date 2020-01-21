@@ -42,7 +42,7 @@ module QA
               # add a data attribute to the 'Ok' button without overriding it
               # So we break the rules and use a CSS selector instead of an element
               def click_approvers_modal_ok_button
-                find("#mr-edit-approvals-create-modal footer button.btn-success").click
+                find('#mr-edit-approvals-create-modal footer button.btn-success').click
               end
 
               # Select2 is an external library, so we can't add our own selector
@@ -60,7 +60,7 @@ module QA
 
               def enter_member(name)
                 within_element(:member_select_field) do
-                  find(".select2-input").set(name)
+                  find('.select2-input').set(name)
                 end
               end
             end

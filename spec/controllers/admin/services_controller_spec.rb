@@ -28,7 +28,7 @@ describe Admin::ServicesController do
     end
   end
 
-  describe "#update" do
+  describe '#update' do
     let(:project) { create(:project) }
     let!(:service) do
       RedmineService.create(

@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Gitlab::GrapeLogging::Loggers::QueueDurationLogger do
   subject { described_class.new }
 
-  describe ".parameters" do
+  describe '.parameters' do
     let(:start_time) { Time.new(2018, 01, 01) }
 
     describe 'when no proxy time is available' do

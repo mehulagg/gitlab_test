@@ -50,7 +50,7 @@ class IssuesFinder < IssuableFinder
           OR EXISTS (SELECT TRUE FROM issue_assignees WHERE user_id = :user_id AND issue_id = issues.id)
           OR EXISTS (:authorizations)))',
       user_id: current_user.id,
-      authorizations: current_user.authorizations_for_projects(min_access_level: CONFIDENTIAL_ACCESS_LEVEL, related_project_column: "issues.project_id"))
+      authorizations: current_user.authorizations_for_projects(min_access_level: CONFIDENTIAL_ACCESS_LEVEL, related_project_column: 'issues.project_id'))
   end
   # rubocop: enable CodeReuse/ActiveRecord
 

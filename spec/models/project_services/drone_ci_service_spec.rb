@@ -66,7 +66,7 @@ describe DroneCiService, :use_clean_rails_memory_store_caching do
     end
   end
 
-  describe "service page/path methods" do
+  describe 'service page/path methods' do
     include_context :drone_ci_service
 
     it { expect(drone.build_page(sha, branch)).to eq(build_page) }
@@ -111,10 +111,10 @@ describe DroneCiService, :use_clean_rails_memory_store_caching do
       end
 
       {
-        "killed"  => :canceled,
-        "failure" => :failed,
-        "error"   => :failed,
-        "success" => "success"
+        'killed'  => :canceled,
+        'failure' => :failed,
+        'error'   => :failed,
+        'success' => 'success'
       }.each do |drone_status, our_status|
         it "sets commit status to #{our_status.inspect} when returned status is #{drone_status.inspect}" do
           stub_request(body: %Q({"status":"#{drone_status}"}))
@@ -125,7 +125,7 @@ describe DroneCiService, :use_clean_rails_memory_store_caching do
     end
   end
 
-  describe "execute" do
+  describe 'execute' do
     include_context :drone_ci_service
 
     let(:user) { create(:user, username: 'username') }

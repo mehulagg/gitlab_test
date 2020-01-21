@@ -42,7 +42,7 @@ describe 'Developer creates tag' do
         project_tag_path(project, 'v3.0'))
       expect(page).to have_content 'v3.0'
       page.within 'pre.wrap' do
-        expect(page).to have_content "Awesome tag message - hello - world"
+        expect(page).to have_content 'Awesome tag message - hello - world'
       end
     end
 

@@ -22,7 +22,7 @@ module Banzai
       def call
         return doc if context[:no_header_anchors]
 
-        result[:toc] = +""
+        result[:toc] = +''
 
         headers = Hash.new(0)
         header_root = current_header = HeaderNode.new

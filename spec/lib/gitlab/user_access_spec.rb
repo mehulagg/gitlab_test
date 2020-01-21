@@ -76,7 +76,7 @@ describe Gitlab::UserAccess do
     end
 
     describe 'push to protected branch' do
-      let(:branch) { create :protected_branch, project: project, name: "test" }
+      let(:branch) { create :protected_branch, project: project, name: 'test' }
       let(:not_existing_branch) { create :protected_branch, :developers_can_merge, project: project }
 
       it 'returns true for admins' do
@@ -214,7 +214,7 @@ describe Gitlab::UserAccess do
     end
 
     describe 'push to protected tag' do
-      let(:tag) { create(:protected_tag, project: project, name: "test") }
+      let(:tag) { create(:protected_tag, project: project, name: 'test') }
       let(:not_existing_tag) { create :protected_tag, project: project }
 
       it 'returns true if user is a maintainer' do
@@ -283,7 +283,7 @@ describe Gitlab::UserAccess do
     end
 
     describe 'delete protected branch' do
-      let(:branch) { create(:protected_branch, project: project, name: "test") }
+      let(:branch) { create(:protected_branch, project: project, name: 'test') }
 
       it 'returns true if user is a maintainer' do
         project.add_user(user, :maintainer)

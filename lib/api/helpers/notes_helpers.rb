@@ -36,7 +36,7 @@ module API
 
         authorize! :resolve_note, note
 
-        bad_request!("Note is not resolvable") unless note.resolvable?
+        bad_request!('Note is not resolvable') unless note.resolvable?
 
         if resolved
           parent = noteable_parent(noteable)
@@ -67,7 +67,7 @@ module API
         if can_read_note
           present note, with: Entities::Note
         else
-          not_found!("Note")
+          not_found!('Note')
         end
       end
 

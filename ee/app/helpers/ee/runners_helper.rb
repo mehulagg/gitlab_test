@@ -18,16 +18,16 @@ module EE
     private
 
     def purchase_shared_runner_minutes_link
-      link = link_to(_("Click here"), EE::SUBSCRIPTIONS_PLANS_URL, target: '_blank', rel: 'noopener')
+      link = link_to(_('Click here'), EE::SUBSCRIPTIONS_PLANS_URL, target: '_blank', rel: 'noopener')
 
-      link + s_("Pipelines| to purchase more minutes.")
+      link + s_('Pipelines| to purchase more minutes.')
     end
 
     def ci_usage_base_message(namespace)
       if namespace.shared_runners_minutes_used?
-        s_("Pipelines|%{namespace_name} has exceeded its pipeline minutes quota.") % { namespace_name: namespace.name }
+        s_('Pipelines|%{namespace_name} has exceeded its pipeline minutes quota.') % { namespace_name: namespace.name }
       elsif namespace.shared_runners_remaining_minutes_below_threshold?
-        s_("Pipelines|%{namespace_name} has less than %{notification_level}%% of CI minutes available.") % { namespace_name: namespace.name, notification_level: namespace.last_ci_minutes_usage_notification_level }
+        s_('Pipelines|%{namespace_name} has less than %{notification_level}%% of CI minutes available.') % { namespace_name: namespace.name, notification_level: namespace.last_ci_minutes_usage_notification_level }
       end
     end
   end

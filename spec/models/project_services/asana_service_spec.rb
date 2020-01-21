@@ -21,7 +21,7 @@ describe AsanaService do
   describe 'Execute' do
     let(:user) { create(:user) }
     let(:project) { create(:project) }
-    let(:gid) { "123456789ABCD" }
+    let(:gid) { '123456789ABCD' }
 
     def create_data_for_commits(*messages)
       {

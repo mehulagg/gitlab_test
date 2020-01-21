@@ -95,7 +95,7 @@ describe EE::Gitlab::Ci::Pipeline::Quota::Size do
 
       it 'returns infor about pipeline size limit exceeded' do
         expect(subject.message)
-          .to eq "Pipeline size limit exceeded by 1 job!"
+          .to eq 'Pipeline size limit exceeded by 1 job!'
       end
     end
   end

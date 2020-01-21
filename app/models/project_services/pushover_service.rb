@@ -73,15 +73,15 @@ class PushoverService < Service
 
     message =
       if Gitlab::Git.blank_ref?(before)
-        s_("PushoverService|%{user_name} pushed new branch \"%{ref}\".") % { user_name: data[:user_name], ref: ref }
+        s_('PushoverService|%{user_name} pushed new branch "%{ref}".') % { user_name: data[:user_name], ref: ref }
       elsif Gitlab::Git.blank_ref?(after)
-        s_("PushoverService|%{user_name} deleted branch \"%{ref}\".") % { user_name: data[:user_name], ref: ref }
+        s_('PushoverService|%{user_name} deleted branch "%{ref}".') % { user_name: data[:user_name], ref: ref }
       else
-        s_("PushoverService|%{user_name} push to branch \"%{ref}\".") % { user_name: data[:user_name], ref: ref }
+        s_('PushoverService|%{user_name} push to branch "%{ref}".') % { user_name: data[:user_name], ref: ref }
       end
 
     if data[:total_commits_count] > 0
-      message = [message, s_("PushoverService|Total commits count: %{total_commits_count}") % { total_commits_count: data[:total_commits_count] }].join("\n")
+      message = [message, s_('PushoverService|Total commits count: %{total_commits_count}') % { total_commits_count: data[:total_commits_count] }].join("\n")
     end
 
     pushover_data = {
@@ -92,7 +92,7 @@ class PushoverService < Service
       title: "#{project.full_name}",
       message: message,
       url: data[:project][:web_url],
-      url_title: s_("PushoverService|See project %{project_full_name}") % { project_full_name: project.full_name }
+      url_title: s_('PushoverService|See project %{project_full_name}') % { project_full_name: project.full_name }
     }
 
     # Sound parameter MUST NOT be sent to API if not selected

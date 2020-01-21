@@ -20,23 +20,23 @@ describe 'CycleAnalytics#plan' do
         branch_name: context.generate(:branch)
       }
     end,
-    start_time_conditions: [["issue associated with a milestone",
+    start_time_conditions: [['issue associated with a milestone',
                              -> (context, data) do
                                data[:issue].update(milestone: context.create(:milestone, project: context.project))
                              end],
-                            ["list label added to issue",
+                            ['list label added to issue',
                              -> (context, data) do
                                data[:issue].update(label_ids: [context.create(:list).label_id])
                              end]],
-    end_time_conditions:   [["issue mentioned in a commit",
+    end_time_conditions:   [['issue mentioned in a commit',
                              -> (context, data) do
                                context.create_commit_referencing_issue(data[:issue], branch_name: data[:branch_name])
                              end]],
     post_fn: -> (context, data) do
     end)
 
-  context "when a regular label (instead of a list label) is added to the issue" do
-    it "returns nil" do
+  context 'when a regular label (instead of a list label) is added to the issue' do
+    it 'returns nil' do
       branch_name = generate(:branch)
       label = create(:label)
       issue = create(:issue, project: project)

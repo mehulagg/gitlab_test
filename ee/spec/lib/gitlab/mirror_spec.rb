@@ -17,31 +17,31 @@ describe Gitlab::Mirror do
         expect(subject).to receive(:destroy_cron_job!)
         expect(Sidekiq::Cron::Job).to receive(:create)
 
-        expect { subject.configure_cron_job! }.to change { Sidekiq::Cron::Job.find("update_all_mirrors_worker") }
+        expect { subject.configure_cron_job! }.to change { Sidekiq::Cron::Job.find('update_all_mirrors_worker') }
       end
     end
 
     describe 'without jobs already running' do
       before do
-        Sidekiq::Cron::Job.find("update_all_mirrors_worker")&.destroy
+        Sidekiq::Cron::Job.find('update_all_mirrors_worker')&.destroy
       end
 
       it 'creates update_all_mirrors_worker' do
-        expect { described_class.configure_cron_job! }.to change { Sidekiq::Cron::Job.find("update_all_mirrors_worker") }.from(nil).to(Sidekiq::Cron::Job)
-        expect(Sidekiq::Cron::Job.find("update_all_mirrors_worker").cron).to eq(cron)
+        expect { described_class.configure_cron_job! }.to change { Sidekiq::Cron::Job.find('update_all_mirrors_worker') }.from(nil).to(Sidekiq::Cron::Job)
+        expect(Sidekiq::Cron::Job.find('update_all_mirrors_worker').cron).to eq(cron)
       end
 
       describe 'when Geo is enabled' do
         it 'disables mirror cron job' do
           described_class.configure_cron_job!
 
-          expect(Sidekiq::Cron::Job.find("update_all_mirrors_worker")).to be_enabled
+          expect(Sidekiq::Cron::Job.find('update_all_mirrors_worker')).to be_enabled
 
           allow(Gitlab::Geo).to receive(:connected?).and_return(true)
           allow(Gitlab::Geo).to receive(:secondary?).and_return(true)
           described_class.configure_cron_job!
 
-          expect(Sidekiq::Cron::Job.find("update_all_mirrors_worker")).to be_nil
+          expect(Sidekiq::Cron::Job.find('update_all_mirrors_worker')).to be_nil
         end
       end
     end

@@ -86,8 +86,8 @@ describe Gitlab::I18n::TranslationEntry do
       data = {
         msgid: 'hello world',
         msgid_plural: 'hello worlds',
-        "msgstr[0]" => 'hello world',
-        "msgstr[1]" => 'hello worlds'
+        'msgstr[0]' => 'hello world',
+        'msgstr[1]' => 'hello worlds'
       }
       entry = described_class.new(data, 2)
 
@@ -98,7 +98,7 @@ describe Gitlab::I18n::TranslationEntry do
       data = {
         msgid: 'hello world',
         msgid_plural: 'hello worlds',
-        "msgstr[0]" => 'hello worlds'
+        'msgstr[0]' => 'hello worlds'
       }
       entry = described_class.new(data, 1)
 

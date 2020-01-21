@@ -17,12 +17,12 @@ RSpec.shared_examples 'string of domains' do |attribute|
   end
 
   it 'sets multiple domains with commas' do
-    setting.method("#{attribute}_raw=").call("example.com, *.example.com")
+    setting.method("#{attribute}_raw=").call('example.com, *.example.com')
     expect(setting.method(attribute).call).to eq(['example.com', '*.example.com'])
   end
 
   it 'sets multiple domains with semicolon' do
-    setting.method("#{attribute}_raw=").call("example.com; *.example.com")
+    setting.method("#{attribute}_raw=").call('example.com; *.example.com')
     expect(setting.method(attribute).call).to contain_exactly('example.com', '*.example.com')
   end
 
@@ -32,12 +32,12 @@ RSpec.shared_examples 'string of domains' do |attribute|
   end
 
   it 'removes duplicates' do
-    setting.method("#{attribute}_raw=").call("example.com; example.com; 127.0.0.1; 127.0.0.1")
+    setting.method("#{attribute}_raw=").call('example.com; example.com; 127.0.0.1; 127.0.0.1')
     expect(setting.method(attribute).call).to contain_exactly('example.com', '127.0.0.1')
   end
 
   it 'does not fail with garbage values' do
-    setting.method("#{attribute}_raw=").call("example;34543:garbage:fdh5654;")
+    setting.method("#{attribute}_raw=").call('example;34543:garbage:fdh5654;')
     expect(setting.method(attribute).call).to contain_exactly('example', '34543:garbage:fdh5654')
   end
 

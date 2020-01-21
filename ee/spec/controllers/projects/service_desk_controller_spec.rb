@@ -24,8 +24,8 @@ describe Projects::ServiceDeskController do
     it 'returns service_desk JSON data' do
       get :show, params: { namespace_id: project.namespace.to_param, project_id: project }, format: :json
 
-      expect(json_response["service_desk_address"]).to match(/\A[^@]+@[^@]+\z/)
-      expect(json_response["service_desk_enabled"]).to be_truthy
+      expect(json_response['service_desk_address']).to match(/\A[^@]+@[^@]+\z/)
+      expect(json_response['service_desk_enabled']).to be_truthy
       expect(response.status).to eq(200)
     end
 
@@ -73,8 +73,8 @@ describe Projects::ServiceDeskController do
                              project_id: project,
                              service_desk_enabled: true }, format: :json
 
-      expect(json_response["service_desk_address"]).to be_present
-      expect(json_response["service_desk_enabled"]).to be_truthy
+      expect(json_response['service_desk_address']).to be_present
+      expect(json_response['service_desk_enabled']).to be_truthy
       expect(response.status).to eq(200)
     end
 

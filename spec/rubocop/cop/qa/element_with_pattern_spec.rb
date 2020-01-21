@@ -19,7 +19,7 @@ describe RuboCop::Cop::QA::ElementWithPattern do
       allow(cop).to receive(:in_qa_file?).and_return(true)
     end
 
-    it "registers an offense for elements with a pattern" do
+    it 'registers an offense for elements with a pattern' do
       expect_offense(<<-RUBY)
       view 'app/views/shared/groups/_search_form.html.haml' do
         element :groups_filter, 'search_field_tag :filter'
@@ -30,7 +30,7 @@ describe RuboCop::Cop::QA::ElementWithPattern do
       RUBY
     end
 
-    it "does not register an offense for element without a pattern" do
+    it 'does not register an offense for element without a pattern' do
       expect_no_offenses(<<-RUBY)
       view 'app/views/shared/groups/_search_form.html.haml' do
         element :groups_filter
@@ -48,7 +48,7 @@ describe RuboCop::Cop::QA::ElementWithPattern do
   end
 
   context 'outside of a migration spec file' do
-    it "does not register an offense" do
+    it 'does not register an offense' do
       expect_no_offenses(<<-RUBY)
         describe 'foo' do
           let(:user) { create(:user) }

@@ -6,9 +6,9 @@ module Gitlab
       attr_reader :raw_data
 
       def self.mask_email(author)
-        parts = author.split("@", 2)
+        parts = author.split('@', 2)
         parts[0] = "#{parts[0][0...-3]}..."
-        parts.join("@")
+        parts.join('@')
       end
 
       def initialize(raw_data)
@@ -16,15 +16,15 @@ module Gitlab
       end
 
       def valid?
-        raw_data.is_a?(Hash) && raw_data["kind"] == "projecthosting#user" && raw_data.key?("projects")
+        raw_data.is_a?(Hash) && raw_data['kind'] == 'projecthosting#user' && raw_data.key?('projects')
       end
 
       def repos
-        @repos ||= raw_data["projects"].map { |raw_repo| GoogleCodeImport::Repository.new(raw_repo) }.select(&:git?)
+        @repos ||= raw_data['projects'].map { |raw_repo| GoogleCodeImport::Repository.new(raw_repo) }.select(&:git?)
       end
 
       def incompatible_repos
-        @incompatible_repos ||= raw_data["projects"].map { |raw_repo| GoogleCodeImport::Repository.new(raw_repo) }.reject(&:git?)
+        @incompatible_repos ||= raw_data['projects'].map { |raw_repo| GoogleCodeImport::Repository.new(raw_repo) }.reject(&:git?)
       end
 
       def repo(id)
@@ -39,10 +39,10 @@ module Gitlab
 
           repo.issues.each do |raw_issue|
             # Touching is enough to add the entry and masked email.
-            user_map[raw_issue["author"]["name"]]
+            user_map[raw_issue['author']['name']]
 
-            raw_issue["comments"]["items"].each do |raw_comment|
-              user_map[raw_comment["author"]["name"]]
+            raw_issue['comments']['items'].each do |raw_comment|
+              user_map[raw_comment['author']['name']]
             end
           end
         end

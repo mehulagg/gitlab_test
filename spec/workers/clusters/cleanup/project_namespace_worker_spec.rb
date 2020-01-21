@@ -27,10 +27,10 @@ describe Clusters::Cleanup::ProjectNamespaceWorker do
                 exception: 'ClusterCleanupMethods::ExceededExecutionLimitError',
                 cluster_id: kind_of(Integer),
                 class_name: described_class.name,
-                applications: "",
+                applications: '',
                 cleanup_status: cluster.cleanup_status_name,
                 event: :failed_to_remove_cluster_and_resources,
-                message: "exceeded execution limit of 10 tries"
+                message: 'exceeded execution limit of 10 tries'
               )
             )
 

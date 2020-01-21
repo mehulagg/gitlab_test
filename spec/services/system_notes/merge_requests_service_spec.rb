@@ -35,7 +35,7 @@ describe ::SystemNotes::MergeRequestsService do
     end
 
     it "posts the 'merge when pipeline succeeds' system note" do
-      expect(subject.note).to eq "canceled the automatic merge"
+      expect(subject.note).to eq 'canceled the automatic merge'
     end
   end
 
@@ -47,7 +47,7 @@ describe ::SystemNotes::MergeRequestsService do
     end
 
     it "posts the 'merge when pipeline succeeds' system note" do
-      expect(subject.note).to eq "aborted the automatic merge because merge request was closed"
+      expect(subject.note).to eq 'aborted the automatic merge because merge request was closed'
     end
   end
 
@@ -192,7 +192,7 @@ describe ::SystemNotes::MergeRequestsService do
 
     context 'when source branch deleted' do
       it 'sets the note text' do
-        expect(subject.note).to eq "deleted source branch `feature`"
+        expect(subject.note).to eq 'deleted source branch `feature`'
       end
     end
   end

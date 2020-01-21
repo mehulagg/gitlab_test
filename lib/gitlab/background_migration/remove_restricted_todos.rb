@@ -112,7 +112,7 @@ module Gitlab
         sql = []
         sql << with_all_todos_sql(project_id, target_types)
         sql << as_deleted_sql
-        sql << "SELECT count(*) FROM deleted"
+        sql << 'SELECT count(*) FROM deleted'
 
         result = Todo.connection.exec_query(sql.join(' '))
         result.rows[0][0].to_i

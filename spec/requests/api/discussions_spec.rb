@@ -50,8 +50,8 @@ describe API::Discussions do
     it_behaves_like 'diff discussions API', 'projects', 'merge_requests', 'iid'
     it_behaves_like 'resolvable discussions API', 'projects', 'merge_requests', 'iid'
 
-    context "when position is for a previous commit on the merge request" do
-      it "returns a 400 bad request error because the line_code is old" do
+    context 'when position is for a previous commit on the merge request' do
+      it 'returns a 400 bad request error because the line_code is old' do
         # SHA taken from an earlier commit listed in spec/factories/merge_requests.rb
         position = diff_note.position.to_h.merge(new_line: 'c1acaa58bbcbc3eafe538cb8274ba387047b69f8')
 

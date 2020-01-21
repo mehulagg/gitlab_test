@@ -47,7 +47,7 @@ module Projects
       @old_namespace = project.namespace
 
       if Project.where(namespace_id: @new_namespace.try(:id)).where('path = ? or name = ?', project.path, project.name).exists?
-        raise TransferError.new(s_("TransferProject|Project with same name or path in target namespace already exists"))
+        raise TransferError.new(s_('TransferProject|Project with same name or path in target namespace already exists'))
       end
 
       if project.has_container_registry_tags?
@@ -149,7 +149,7 @@ module Projects
 
       # Move main repository
       unless move_repo_folder(@old_path, @new_path)
-        raise TransferError.new(s_("TransferProject|Cannot move project"))
+        raise TransferError.new(s_('TransferProject|Cannot move project'))
       end
 
       # Disk path is changed; we need to ensure we reload it

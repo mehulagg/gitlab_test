@@ -11,10 +11,10 @@ describe Git::TagPushService do
   let(:service) { described_class.new(project, user, change: { oldrev: oldrev, newrev: newrev, ref: ref }) }
 
   let(:oldrev) { Gitlab::Git::BLANK_SHA }
-  let(:newrev) { "8a2a6eb295bb170b34c24c76c49ed0e9b2eaf34b" } # gitlab-test: git rev-parse refs/tags/v1.1.0
+  let(:newrev) { '8a2a6eb295bb170b34c24c76c49ed0e9b2eaf34b' } # gitlab-test: git rev-parse refs/tags/v1.1.0
   let(:ref) { 'refs/tags/v1.1.0' }
 
-  describe "Push tags" do
+  describe 'Push tags' do
     subject do
       service.execute
       service

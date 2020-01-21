@@ -190,14 +190,14 @@ describe GitlabSchema do
       it 'falls back to a regular find' do
         result = TestGlobalId.new(123)
 
-        expect(TestGlobalId).to receive(:find).with("123").and_return(result)
+        expect(TestGlobalId).to receive(:find).with('123').and_return(result)
 
         expect(described_class.object_from_id(result.to_global_id)).to eq(result)
       end
     end
 
     it 'raises the correct error on invalid input' do
-      expect { described_class.object_from_id("bogus id") }.to raise_error(Gitlab::Graphql::Errors::ArgumentError)
+      expect { described_class.object_from_id('bogus id') }.to raise_error(Gitlab::Graphql::Errors::ArgumentError)
     end
   end
 

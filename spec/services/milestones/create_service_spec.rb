@@ -7,7 +7,7 @@ describe Milestones::CreateService do
   let(:user) { create(:user) }
 
   describe '#execute' do
-    context "valid params" do
+    context 'valid params' do
       before do
         project.add_maintainer(user)
 

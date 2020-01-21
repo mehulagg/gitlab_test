@@ -35,10 +35,10 @@ describe Geo::JobArtifactDeletedEventStore do
         subject = described_class.new(invalid_job_artifact)
 
         expected_message = {
-          class: "Geo::JobArtifactDeletedEventStore",
+          class: 'Geo::JobArtifactDeletedEventStore',
           job_artifact_id: invalid_job_artifact.id,
           file_path: nil,
-          message: "Job artifact deleted event could not be created",
+          message: 'Job artifact deleted event could not be created',
           error: "Validation failed: File path can't be blank"
         }
 

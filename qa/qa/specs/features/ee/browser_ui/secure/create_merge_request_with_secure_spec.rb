@@ -8,8 +8,8 @@ module QA
       let(:sast_vuln_count) { 5 }
       let(:dependency_scan_vuln_count) { 4 }
       let(:container_scan_vuln_count) { 8 }
-      let(:vuln_name) { "Regular Expression Denial of Service in debug" }
-      let(:remediable_vuln_name) { "Authentication bypass via incorrect DOM traversal and canonicalization in saml2-js" }
+      let(:vuln_name) { 'Regular Expression Denial of Service in debug' }
+      let(:remediable_vuln_name) { 'Authentication bypass via incorrect DOM traversal and canonicalization in saml2-js' }
 
       after do
         Service::DockerRun::GitlabRunner.new(@executor).remove!

@@ -4,12 +4,12 @@ require_relative '../../app/models/concerns/token_authenticatable_strategies/ins
 require_relative '../../app/models/concerns/token_authenticatable_strategies/digest.rb'
 
 namespace :tokens do
-  desc "Reset all GitLab incoming email tokens"
+  desc 'Reset all GitLab incoming email tokens'
   task reset_all_email: :environment do
     reset_all_users_token(:reset_incoming_email_token!)
   end
 
-  desc "Reset all GitLab feed tokens"
+  desc 'Reset all GitLab feed tokens'
   task reset_all_feed: :environment do
     reset_all_users_token(:reset_feed_token!)
   end

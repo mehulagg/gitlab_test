@@ -11,12 +11,12 @@ module Gitlab
       allow_any_instance_of(ApplicationSetting).to receive(:current).and_return(::ApplicationSetting.create_from_defaults)
     end
 
-    context "without project" do
+    context 'without project' do
       let(:input) { '<b>ascii</b>' }
       let(:context) { {} }
       let(:html) { 'H<sub>2</sub>O' }
 
-      it "converts the input using Asciidoctor and default options" do
+      it 'converts the input using Asciidoctor and default options' do
         expected_asciidoc_opts = {
             safe: :secure,
             backend: :gitlab_html5,
@@ -30,8 +30,8 @@ module Gitlab
         expect(render(input, context)).to eq(html)
       end
 
-      context "with asciidoc_opts" do
-        it "merges the options with default ones" do
+      context 'with asciidoc_opts' do
+        it 'merges the options with default ones' do
           expected_asciidoc_opts = {
               safe: :secure,
               backend: :gitlab_html5,
@@ -46,7 +46,7 @@ module Gitlab
         end
       end
 
-      context "XSS" do
+      context 'XSS' do
         items = {
           'link with extra attribute' => {
             input: 'link:mylink"onmouseover="alert(1)[Click Here]',
@@ -73,14 +73,14 @@ module Gitlab
         end
       end
 
-      context "images" do
-        it "does lazy load and link image" do
+      context 'images' do
+        it 'does lazy load and link image' do
           input = 'image:https://localhost.com/image.png[]'
           output = "<div>\n<p><span><a class=\"no-attachment-icon\" href=\"https://localhost.com/image.png\" target=\"_blank\" rel=\"noopener noreferrer\"><img src=\"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\" alt=\"image\" class=\"lazy\" data-src=\"https://localhost.com/image.png\"></a></span></p>\n</div>"
           expect(render(input, context)).to include(output)
         end
 
-        it "does not automatically link image if link is explicitly defined" do
+        it 'does not automatically link image if link is explicitly defined' do
           input = 'image:https://localhost.com/image.png[link=https://gitlab.com]'
           output = "<div>\n<p><span><a href=\"https://gitlab.com\" rel=\"nofollow noreferrer noopener\" target=\"_blank\"><img src=\"data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==\" alt=\"image\" class=\"lazy\" data-src=\"https://localhost.com/image.png\"></a></span></p>\n</div>"
           expect(render(input, context)).to include(output)
@@ -392,9 +392,9 @@ module Gitlab
 
       context 'outfilesuffix' do
         it 'defaults to adoc' do
-          output = render("Inter-document reference <<README.adoc#>>", context)
+          output = render('Inter-document reference <<README.adoc#>>', context)
 
-          expect(output).to include("a href=\"README.adoc\"")
+          expect(output).to include('a href="README.adoc"')
         end
       end
     end

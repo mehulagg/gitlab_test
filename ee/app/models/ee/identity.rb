@@ -31,7 +31,7 @@ module EE
       end
 
       def group_saml?
-        provider.to_s == "group_saml"
+        provider.to_s == 'group_saml'
       end
     end
 
@@ -41,7 +41,7 @@ module EE
       override :human_attribute_name
       def human_attribute_name(name, *args)
         if name.to_sym == :name_id
-          "SAML NameID"
+          'SAML NameID'
         else
           super
         end

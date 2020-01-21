@@ -79,7 +79,7 @@ describe ElasticNamespaceRolloutWorker do
 
     expect(logger).to receive(:info).with(
       hash_including(
-        message: "rollout_elasticsearch_indexed_namespaces",
+        message: 'rollout_elasticsearch_indexed_namespaces',
         changes: 3,
         expected_count: 3,
         current_count: 0,
@@ -91,7 +91,7 @@ describe ElasticNamespaceRolloutWorker do
 
     expect(logger).to receive(:info).with(
       hash_including(
-        message: "rollback_elasticsearch_indexed_namespaces",
+        message: 'rollback_elasticsearch_indexed_namespaces',
         changes: 2,
         expected_count: 1,
         current_count: 3,

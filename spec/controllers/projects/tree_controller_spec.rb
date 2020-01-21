@@ -13,7 +13,7 @@ describe Projects::TreeController do
     controller.instance_variable_set(:@project, project)
   end
 
-  describe "GET show" do
+  describe 'GET show' do
     # Make sure any errors accessing the tree in our views bubble up to this spec
     render_views
 
@@ -28,19 +28,19 @@ describe Projects::TreeController do
           })
     end
 
-    context "valid branch, no path" do
+    context 'valid branch, no path' do
       let(:id) { 'master' }
 
       it { is_expected.to respond_with(:success) }
     end
 
-    context "valid branch, valid path" do
+    context 'valid branch, valid path' do
       let(:id) { 'master/encoding/' }
 
       it { is_expected.to respond_with(:success) }
     end
 
-    context "valid branch, invalid path" do
+    context 'valid branch, invalid path' do
       let(:id) { 'master/invalid-path/' }
 
       it 'redirects' do
@@ -49,13 +49,13 @@ describe Projects::TreeController do
       end
     end
 
-    context "invalid branch, valid path" do
+    context 'invalid branch, valid path' do
       let(:id) { 'invalid-branch/encoding/' }
 
       it { is_expected.to respond_with(:not_found) }
     end
 
-    context "valid empty branch, invalid path" do
+    context 'valid empty branch, invalid path' do
       let(:id) { 'empty-branch/invalid-path/' }
 
       it 'redirects' do
@@ -64,32 +64,32 @@ describe Projects::TreeController do
       end
     end
 
-    context "valid empty branch" do
+    context 'valid empty branch' do
       let(:id) { 'empty-branch' }
 
       it { is_expected.to respond_with(:success) }
     end
 
-    context "invalid SHA commit ID" do
+    context 'invalid SHA commit ID' do
       let(:id) { 'ff39438/.gitignore' }
 
       it { is_expected.to respond_with(:not_found) }
     end
 
-    context "valid SHA commit ID" do
+    context 'valid SHA commit ID' do
       let(:id) { '6d39438' }
 
       it { is_expected.to respond_with(:success) }
     end
 
-    context "valid SHA commit ID with path" do
+    context 'valid SHA commit ID with path' do
       let(:id) { '6d39438/.gitignore' }
 
       it { expect(response).to have_gitlab_http_status(302) }
     end
   end
 
-  describe "GET show" do
+  describe 'GET show' do
     context 'lfs_blob_ids instance variable' do
       let(:id) { 'master' }
 
@@ -120,7 +120,7 @@ describe Projects::TreeController do
   describe 'GET show with whitespace in ref' do
     render_views
 
-    let(:id) { "this ref/api/responses" }
+    let(:id) { 'this ref/api/responses' }
 
     it 'does not call make a Gitaly request' do
       allow(::Gitlab::GitalyClient).to receive(:call).and_call_original

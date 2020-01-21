@@ -21,7 +21,7 @@ module Gitlab
               @config.each do |config|
                 @entries << ::Gitlab::Config::Entry::Factory.new(Entry::Service)
                   .value(config || {})
-                  .with(key: "service", parent: self, description: "service definition.") # rubocop:disable CodeReuse/ActiveRecord
+                  .with(key: 'service', parent: self, description: 'service definition.') # rubocop:disable CodeReuse/ActiveRecord
                   .create!
               end
 

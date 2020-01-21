@@ -21,7 +21,7 @@ describe 'getting notes for a merge request' do
   end
   let(:noteable_data) { graphql_data['project']['mergeRequest'] }
 
-  it_behaves_like "exposing regular notes on a noteable in GraphQL"
+  it_behaves_like 'exposing regular notes on a noteable in GraphQL'
 
   context 'diff notes on a merge request' do
     let(:project) { noteable.project }

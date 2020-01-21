@@ -117,22 +117,22 @@ describe UsersHelper do
     end
 
     context 'with a blocked user' do
-      it "returns the blocked badge" do
+      it 'returns the blocked badge' do
         blocked_user = create(:user, state: 'blocked')
 
         badges = helper.user_badges_in_admin_section(blocked_user)
 
-        expect(filter_ee_badges(badges)).to eq([text: "Blocked", variant: "danger"])
+        expect(filter_ee_badges(badges)).to eq([text: 'Blocked', variant: 'danger'])
       end
     end
 
     context 'with an admin user' do
-      it "returns the admin badge" do
+      it 'returns the admin badge' do
         admin_user = create(:admin)
 
         badges = helper.user_badges_in_admin_section(admin_user)
 
-        expect(filter_ee_badges(badges)).to eq([text: "Admin", variant: "success"])
+        expect(filter_ee_badges(badges)).to eq([text: 'Admin', variant: 'success'])
       end
     end
 
@@ -142,7 +142,7 @@ describe UsersHelper do
 
         badges = helper.user_badges_in_admin_section(external_user)
 
-        expect(filter_ee_badges(badges)).to eq([text: "External", variant: "secondary"])
+        expect(filter_ee_badges(badges)).to eq([text: 'External', variant: 'secondary'])
       end
     end
 
@@ -161,9 +161,9 @@ describe UsersHelper do
         badges = helper.user_badges_in_admin_section(user)
 
         expect(badges).to eq([
-          { text: "Blocked", variant: "danger" },
-          { text: "Admin", variant: "success" },
-          { text: "External", variant: "secondary" }
+          { text: 'Blocked', variant: 'danger' },
+          { text: 'Admin', variant: 'success' },
+          { text: 'External', variant: 'secondary' }
         ])
       end
     end

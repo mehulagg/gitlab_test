@@ -3,7 +3,7 @@
 require_dependency 'declarative_policy'
 
 class BasePolicy < DeclarativePolicy::Base
-  desc "User is an instance admin"
+  desc 'User is an instance admin'
   with_options scope: :user, score: 0
   condition(:admin) do
     if Feature.enabled?(:user_mode_in_session)
@@ -13,11 +13,11 @@ class BasePolicy < DeclarativePolicy::Base
     end
   end
 
-  desc "User is blocked"
+  desc 'User is blocked'
   with_options scope: :user, score: 0
   condition(:blocked) { @user&.blocked? }
 
-  desc "User is deactivated"
+  desc 'User is deactivated'
   with_options scope: :user, score: 0
   condition(:deactivated) { @user&.deactivated? }
 
@@ -27,7 +27,7 @@ class BasePolicy < DeclarativePolicy::Base
   with_options scope: :user, score: 0
   condition(:can_create_group) { @user&.can_create_group }
 
-  desc "The application is restricted from public visibility"
+  desc 'The application is restricted from public visibility'
   condition(:restricted_public_level, scope: :global) do
     Gitlab::CurrentSettings.current_application_settings.restricted_visibility_levels.include?(Gitlab::VisibilityLevel::PUBLIC)
   end

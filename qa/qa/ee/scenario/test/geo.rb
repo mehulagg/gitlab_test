@@ -120,7 +120,7 @@ module QA
                 slot = QA::Runtime::Scenario.geo_primary_name.tr('-', '_')
 
                 gitlab_ctl "replicate-geo-database --host=#{host} --slot-name=#{slot} " \
-                           "--sslmode=disable --no-wait --force", input: 'echo mypass'
+                           '--sslmode=disable --no-wait --force', input: 'echo mypass'
               end
             end
 

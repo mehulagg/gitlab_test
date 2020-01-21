@@ -35,17 +35,17 @@ module Pseudonymizer
 
     private
 
-    def output_filename(basename = nil, ext = "csv.gz")
+    def output_filename(basename = nil, ext = 'csv.gz')
       File.join(output_dir, "#{basename}.#{ext}")
     end
 
     def schema_to_yml
-      file_path = output_filename("schema", "yml")
+      file_path = output_filename('schema', 'yml')
       File.write(file_path, @schema.to_yaml)
     end
 
     def file_list_to_json
-      file_path = output_filename("file_list", "json")
+      file_path = output_filename('file_list', 'json')
       relative_files = @output_files.map(&File.method(:basename))
       File.write(file_path, relative_files.to_json)
     end
@@ -89,7 +89,7 @@ module Pseudonymizer
         data_type = c.sql_type
 
         if table_config[:pseudo]&.include?(c.name)
-          data_type = "character varying"
+          data_type = 'character varying'
         end
 
         { name: c.name, data_type: data_type }
@@ -99,7 +99,7 @@ module Pseudonymizer
     end
 
     def set_schema_column_types(table, type_results)
-      has_id = type_results.any? {|c| c[:name] == "id" }
+      has_id = type_results.any? {|c| c[:name] == 'id' }
 
       type_results.each do |type_result|
         @schema[table.to_s][type_result[:name]] = type_result[:data_type]
@@ -107,7 +107,7 @@ module Pseudonymizer
 
       if has_id
         # if there is an ID, it is the mapping_key
-        @schema[table.to_s]["gl_mapping_key"] = "id"
+        @schema[table.to_s]['gl_mapping_key'] = 'id'
       end
     end
 

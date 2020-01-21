@@ -152,7 +152,7 @@ module ApplicationHelper
     css_classes = [short_format ? 'js-short-timeago' : 'js-timeago']
     css_classes << html_class unless html_class.blank?
 
-    element = content_tag :time, l(time, format: "%b %d, %Y"),
+    element = content_tag :time, l(time, format: '%b %d, %Y'),
       class: css_classes.join(' '),
       title: l(time.to_time.in_time_zone, format: :timeago_tooltip),
       datetime: time.to_time.getutc.iso8601,
@@ -304,7 +304,7 @@ module ApplicationHelper
   end
 
   def collapsed_sidebar?
-    cookies["sidebar_collapsed"] == "true"
+    cookies['sidebar_collapsed'] == 'true'
   end
 
   def locale_path

@@ -15,7 +15,7 @@ describe ElasticNamespaceIndexerWorker, :elastic do
 
     expect(ElasticIndexerWorker).not_to receive(:perform_async)
 
-    expect(subject.perform(1, "index")).to be_truthy
+    expect(subject.perform(1, 'index')).to be_truthy
   end
 
   it 'returns true if limited indexing is not enabled' do
@@ -23,7 +23,7 @@ describe ElasticNamespaceIndexerWorker, :elastic do
 
     expect(ElasticIndexerWorker).not_to receive(:perform_async)
 
-    expect(subject.perform(1, "index")).to be_truthy
+    expect(subject.perform(1, 'index')).to be_truthy
   end
 
   describe 'indexing and deleting' do

@@ -275,9 +275,9 @@ describe Commit do
   end
 
   describe '#title' do
-    it "returns no_commit_message when safe_message is blank" do
+    it 'returns no_commit_message when safe_message is blank' do
       allow(commit).to receive(:safe_message).and_return('')
-      expect(commit.title).to eq("No commit message")
+      expect(commit.title).to eq('No commit message')
     end
 
     it 'truncates a message without a newline at natural break to 80 characters' do
@@ -287,14 +287,14 @@ describe Commit do
       expect(commit.title).to eq('Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sodales id...')
     end
 
-    it "truncates a message with a newline before 80 characters at the newline" do
-      message = commit.safe_message.split(" ").first
+    it 'truncates a message with a newline before 80 characters at the newline' do
+      message = commit.safe_message.split(' ').first
 
       allow(commit).to receive(:safe_message).and_return(message + "\n" + message)
       expect(commit.title).to eq(message)
     end
 
-    it "does not truncates a message with a newline after 80 but less 100 characters" do
+    it 'does not truncates a message with a newline after 80 but less 100 characters' do
       message = <<eos
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sodales id felis id blandit.
 Vivamus egestas lacinia lacus, sed rutrum mauris.
@@ -306,20 +306,20 @@ eos
   end
 
   describe '#full_title' do
-    it "returns no_commit_message when safe_message is blank" do
+    it 'returns no_commit_message when safe_message is blank' do
       allow(commit).to receive(:safe_message).and_return('')
-      expect(commit.full_title).to eq("No commit message")
+      expect(commit.full_title).to eq('No commit message')
     end
 
-    it "returns entire message if there is no newline" do
+    it 'returns entire message if there is no newline' do
       message = 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec sodales id felis id blandit. Vivamus egestas lacinia lacus, sed rutrum mauris.'
 
       allow(commit).to receive(:safe_message).and_return(message)
       expect(commit.full_title).to eq(message)
     end
 
-    it "returns first line of message if there is a newLine" do
-      message = commit.safe_message.split(" ").first
+    it 'returns first line of message if there is a newLine' do
+      message = commit.safe_message.split(' ').first
 
       allow(commit).to receive(:safe_message).and_return(message + "\n" + message)
       expect(commit.full_title).to eq(message)
@@ -354,7 +354,7 @@ eos
     end
   end
 
-  describe "delegation" do
+  describe 'delegation' do
     subject { commit }
 
     it { is_expected.to respond_to(:message) }
@@ -422,7 +422,7 @@ eos
     it { expect(data).to be_a(Hash) }
     it { expect(data[:message]).to include('adds bar folder and branch-test text file to check Repository merged_to_root_ref method') }
     it { expect(data[:timestamp]).to eq('2016-09-27T14:37:46+00:00') }
-    it { expect(data[:added]).to contain_exactly("bar/branch-test.txt") }
+    it { expect(data[:added]).to contain_exactly('bar/branch-test.txt') }
     it { expect(data[:modified]).to eq([]) }
     it { expect(data[:removed]).to eq([]) }
   end
@@ -475,7 +475,7 @@ eos
         end
       end
 
-      context "that is existing but not found" do
+      context 'that is existing but not found' do
         it 'does not include details of the merged commits' do
           expect(merge_commit.cherry_pick_message(user)).to end_with("(cherry picked from commit #{merge_commit.sha})")
         end
@@ -499,7 +499,7 @@ eos
 
     context "another_commit's description does not revert commit" do
       before do
-        allow(commit).to receive(:description).and_return("Foo Bar")
+        allow(commit).to receive(:description).and_return('Foo Bar')
       end
 
       it { expect(commit.reverts_commit?(another_commit, user)).to be_falsy }
@@ -515,7 +515,7 @@ eos
 
     context "another_commit's description reverts merged merge request" do
       before do
-        revert_description = "This reverts merge request !foo123"
+        revert_description = 'This reverts merge request !foo123'
         allow(another_commit).to receive(:revert_description).and_return(revert_description)
         allow(commit).to receive(:description).and_return("Foo #{another_commit.revert_description} Bar")
       end
@@ -578,12 +578,12 @@ eos
 
     it 'is nil if the path is nil or empty' do
       expect(commit.uri_type(nil)).to be_nil
-      expect(commit.uri_type("")).to be_nil
+      expect(commit.uri_type('')).to be_nil
     end
   end
 
   describe '#uri_type with Gitaly enabled' do
-    it_behaves_like "#uri_type"
+    it_behaves_like '#uri_type'
   end
 
   describe '#uri_type with Rugged enabled', :enable_rugged do
@@ -623,7 +623,7 @@ eos
     end
 
     it "detects WIP for a commit just saying 'wip'" do
-      commit.message = "wip"
+      commit.message = 'wip'
 
       expect(commit).to be_work_in_progress
     end

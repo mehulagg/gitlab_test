@@ -2,7 +2,7 @@
 
 RSpec.shared_examples 'diff discussions API' do |parent_type, noteable_type, id_name|
   describe "GET /#{parent_type}/:id/#{noteable_type}/:noteable_id/discussions" do
-    it "includes diff discussions" do
+    it 'includes diff discussions' do
       get api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", user)
 
       discussion = json_response.find { |record| record['id'] == diff_note.discussion_id }
@@ -15,7 +15,7 @@ RSpec.shared_examples 'diff discussions API' do |parent_type, noteable_type, id_
   end
 
   describe "GET /#{parent_type}/:id/#{noteable_type}/:noteable_id/discussions/:discussion_id" do
-    it "returns a discussion by id" do
+    it 'returns a discussion by id' do
       get api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions/#{diff_note.discussion_id}", user)
 
       expect(response).to have_gitlab_http_status(:ok)
@@ -26,7 +26,7 @@ RSpec.shared_examples 'diff discussions API' do |parent_type, noteable_type, id_
   end
 
   describe "POST /#{parent_type}/:id/#{noteable_type}/:noteable_id/discussions" do
-    it "creates a new diff note" do
+    it 'creates a new diff note' do
       position = diff_note.position.to_h
 
       post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", user),
@@ -38,8 +38,8 @@ RSpec.shared_examples 'diff discussions API' do |parent_type, noteable_type, id_
       expect(json_response['notes'].first['position']).to eq(position.stringify_keys)
     end
 
-    context "when position is invalid" do
-      it "returns a 400 bad request error when position is not plausible" do
+    context 'when position is invalid' do
+      it 'returns a 400 bad request error when position is not plausible' do
         position = diff_note.position.to_h.merge(new_line: '100000')
 
         post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", user),
@@ -48,7 +48,7 @@ RSpec.shared_examples 'diff discussions API' do |parent_type, noteable_type, id_
         expect(response).to have_gitlab_http_status(:bad_request)
       end
 
-      it "returns a 400 bad request error when the position is not valid for this discussion" do
+      it 'returns a 400 bad request error when the position is not valid for this discussion' do
         position = diff_note.position.to_h.merge(new_line: '588440f66559714280628a4f9799f0c4eb880a4a')
 
         post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", user),

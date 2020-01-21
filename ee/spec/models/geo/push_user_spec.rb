@@ -64,7 +64,7 @@ describe Geo::PushUser do
 
   describe '#user' do
     context 'with a junk gl_id' do
-      let(:gl_id) { "test" }
+      let(:gl_id) { 'test' }
 
       it 'returns nil' do
         expect(subject.user).to be_nil

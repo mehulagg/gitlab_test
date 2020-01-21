@@ -89,7 +89,7 @@ describe NamespacesHelper do
 
       expect(options).to include(user_group.name)
       expect(options).not_to include(admin_group.name)
-      expect(options).to include("selected=\"selected\" value=\"-1\"")
+      expect(options).to include('selected="selected" value="-1"')
     end
 
     it 'falls back to current user selection' do

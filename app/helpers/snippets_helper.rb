@@ -16,7 +16,7 @@ module SnippetsHelper
             gitlab_raw_snippet_path(snippet, inline: false),
             target: '_blank',
             rel: 'noopener noreferrer',
-            class: "btn btn-sm has-tooltip",
+            class: 'btn btn-sm has-tooltip',
             title: 'Download',
             data: { container: 'body' })
   end

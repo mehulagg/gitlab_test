@@ -111,7 +111,7 @@ describe Projects::LfsPointers::LfsDownloadLinkListService do
 
   describe '#parse_response_links' do
     it 'does not add oid entry if href not found' do
-      expect(subject).to receive(:log_error).with("Link for Lfs Object with oid whatever not found or invalid.")
+      expect(subject).to receive(:log_error).with('Link for Lfs Object with oid whatever not found or invalid.')
 
       result = subject.send(:parse_response_links, invalid_object_response)
 

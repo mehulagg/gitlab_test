@@ -246,7 +246,7 @@ describe AvatarsHelper do
           alt: "#{user.name}'s avatar",
           src: options[:url],
           data: { container: 'body' },
-          class: "avatar s16 has-tooltip",
+          class: 'avatar s16 has-tooltip',
           title: user.name
         )
       end
@@ -261,7 +261,7 @@ describe AvatarsHelper do
           alt: "#{user.name}'s avatar",
           src: LazyImageTagHelper.placeholder_image,
           data: { container: 'body', src: avatar_icon_for_user(user, 16) },
-          class: "avatar s16 has-tooltip lazy",
+          class: 'avatar s16 has-tooltip lazy',
           title: user.name
         )
       end
@@ -277,7 +277,7 @@ describe AvatarsHelper do
             alt: "#{user.name}'s avatar",
             src: avatar_icon_for_user(user, 16),
             data: { container: 'body' },
-            class: "avatar s16 has-tooltip",
+            class: 'avatar s16 has-tooltip',
             title: user.name
           )
         end
@@ -291,7 +291,7 @@ describe AvatarsHelper do
             :img,
             alt: "#{user.name}'s avatar",
             src: avatar_icon_for_user(user, 16),
-            class: "avatar s16",
+            class: 'avatar s16',
             title: user.name
           )
         end
@@ -310,7 +310,7 @@ describe AvatarsHelper do
             alt: "#{user.name}'s avatar",
             src: avatar_icon_for_user(user, 16),
             data: { container: 'body' },
-            class: "avatar s16 has-tooltip",
+            class: 'avatar s16 has-tooltip',
             title: user.name
           )
         end
@@ -322,7 +322,7 @@ describe AvatarsHelper do
           alt: "#{options[:user_name]}'s avatar",
           src: avatar_icon_for_email(options[:user_email], 16),
           data: { container: 'body' },
-          class: "avatar s16 has-tooltip",
+          class: 'avatar s16 has-tooltip',
           title: options[:user_name]
         )
       end
@@ -340,7 +340,7 @@ describe AvatarsHelper do
             alt: "#{user_with_avatar.name}'s avatar",
             src: avatar_icon_for_user(user_with_avatar, 16, only_path: false),
             data: { container: 'body' },
-            class: "avatar s16 has-tooltip",
+            class: 'avatar s16 has-tooltip',
             title: user_with_avatar.name
           )
         end
@@ -355,7 +355,7 @@ describe AvatarsHelper do
             alt: "#{user_with_avatar.username}'s avatar",
             src: avatar_icon_for_email(user_with_avatar.email, 16, only_path: false),
             data: { container: 'body' },
-            class: "avatar s16 has-tooltip",
+            class: 'avatar s16 has-tooltip',
             title: user_with_avatar.username
           )
         end
@@ -363,10 +363,10 @@ describe AvatarsHelper do
     end
 
     context 'with unregistered email address' do
-      let(:options) { { user_email: "unregistered_email@example.com" } }
+      let(:options) { { user_email: 'unregistered_email@example.com' } }
 
       it 'will return default alt text for avatar' do
-        expect(subject).to include("default avatar")
+        expect(subject).to include('default avatar')
       end
     end
   end

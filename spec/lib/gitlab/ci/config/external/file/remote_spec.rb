@@ -52,7 +52,7 @@ describe Gitlab::Ci::Config::External::File::Remote do
     end
   end
 
-  describe "#valid?" do
+  describe '#valid?' do
     context 'when is a valid remote url' do
       before do
         stub_full_request(location).to_return(body: remote_file_content)
@@ -98,7 +98,7 @@ describe Gitlab::Ci::Config::External::File::Remote do
     end
   end
 
-  describe "#content" do
+  describe '#content' do
     context 'with a valid remote file' do
       before do
         stub_full_request(location).to_return(body: remote_file_content)
@@ -140,7 +140,7 @@ describe Gitlab::Ci::Config::External::File::Remote do
     end
   end
 
-  describe "#error_message" do
+  describe '#error_message' do
     subject { remote_file.error_message }
 
     context 'when remote file location is not valid' do

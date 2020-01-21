@@ -1,5 +1,5 @@
 namespace :gitlab do
-  desc "GitLab | Setup production application"
+  desc 'GitLab | Setup production application'
   task setup: :gitlab_environment do
     check_gitaly_connection
     setup_db
@@ -10,7 +10,7 @@ namespace :gitlab do
       Gitlab::GitalyClient::ServerService.new(name).info
     end
   rescue GRPC::Unavailable => ex
-    puts "Failed to connect to Gitaly...".color(:red)
+    puts 'Failed to connect to Gitaly...'.color(:red)
     puts "Error: #{ex}"
     exit 1
   end
@@ -19,10 +19,10 @@ namespace :gitlab do
     warn_user_is_not_gitlab
 
     unless ENV['force'] == 'yes'
-      puts "This will create the necessary database tables and seed the database."
-      puts "You will lose any previous data stored in the database."
+      puts 'This will create the necessary database tables and seed the database.'
+      puts 'You will lose any previous data stored in the database.'
       ask_to_continue
-      puts ""
+      puts ''
     end
 
     # In production, we might want to prevent ourselves from shooting
@@ -30,10 +30,10 @@ namespace :gitlab do
     # development environment.
     terminate_all_connections unless Rails.env.production?
 
-    Rake::Task["db:reset"].invoke
-    Rake::Task["db:seed_fu"].invoke
+    Rake::Task['db:reset'].invoke
+    Rake::Task['db:seed_fu'].invoke
   rescue Gitlab::TaskAbortedByUserError
-    puts "Quitting...".color(:red)
+    puts 'Quitting...'.color(:red)
     exit 1
   end
 

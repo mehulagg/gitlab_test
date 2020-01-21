@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'tag quick action' do
-  context "post note to existing commit" do
+  context 'post note to existing commit' do
     it 'tags this commit' do
       add_note("/tag #{tag_name} #{tag_message}")
 

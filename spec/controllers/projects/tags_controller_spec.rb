@@ -27,13 +27,13 @@ describe Projects::TagsController do
       get :show, params: { namespace_id: project.namespace.to_param, project_id: project, id: id }
     end
 
-    context "valid tag" do
+    context 'valid tag' do
       let(:id) { 'v1.0.0' }
 
       it { is_expected.to respond_with(:success) }
     end
 
-    context "invalid tag" do
+    context 'invalid tag' do
       let(:id) { 'latest' }
 
       it { is_expected.to respond_with(:not_found) }

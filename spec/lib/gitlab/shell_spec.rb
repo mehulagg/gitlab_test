@@ -22,7 +22,7 @@ describe Gitlab::Shell do
   it { is_expected.to respond_to :remove_repository }
   it { is_expected.to respond_to :fork_repository }
 
-  it { expect(gitlab_shell.url_to_repo('diaspora')).to eq(Gitlab.config.gitlab_shell.ssh_path_prefix + "diaspora.git") }
+  it { expect(gitlab_shell.url_to_repo('diaspora')).to eq(Gitlab.config.gitlab_shell.ssh_path_prefix + 'diaspora.git') }
 
   describe 'memoized secret_token' do
     let(:secret_file) { 'tmp/tests/.secret_shell_test' }
@@ -330,7 +330,7 @@ describe Gitlab::Shell do
 
       it 'returns true when the command succeeds' do
         old_path = project2.disk_path
-        new_path = "project/new_path"
+        new_path = 'project/new_path'
 
         expect(TestEnv.storage_dir_exists?(project2.repository_storage, "#{old_path}.git")).to be(true)
         expect(TestEnv.storage_dir_exists?(project2.repository_storage, "#{new_path}.git")).to be(false)
@@ -388,7 +388,7 @@ describe Gitlab::Shell do
 
           expect do
             gitlab_shell.import_repository(project.repository_storage, project.disk_path, import_url, project.full_path)
-          end.to raise_error(Gitlab::Shell::Error, "error")
+          end.to raise_error(Gitlab::Shell::Error, 'error')
         end
       end
     end
@@ -401,16 +401,16 @@ describe Gitlab::Shell do
 
     describe '#add_namespace' do
       it 'creates a namespace' do
-        Gitlab::GitalyClient::NamespaceService.allow { subject.add_namespace(storage, "mepmep") }
+        Gitlab::GitalyClient::NamespaceService.allow { subject.add_namespace(storage, 'mepmep') }
 
-        expect(TestEnv.storage_dir_exists?(storage, "mepmep")).to be(true)
+        expect(TestEnv.storage_dir_exists?(storage, 'mepmep')).to be(true)
       end
     end
 
     describe '#repository_exists?' do
       context 'when the repository does not exist' do
         it 'returns false' do
-          expect(subject.repository_exists?(storage, "non-existing.git")).to be(false)
+          expect(subject.repository_exists?(storage, 'non-existing.git')).to be(false)
         end
       end
 
@@ -418,7 +418,7 @@ describe Gitlab::Shell do
         it 'returns true' do
           project = create(:project, :repository, :legacy_storage)
 
-          expect(subject.repository_exists?(storage, project.repository.disk_path + ".git")).to be(true)
+          expect(subject.repository_exists?(storage, project.repository.disk_path + '.git')).to be(true)
         end
       end
     end
@@ -426,23 +426,23 @@ describe Gitlab::Shell do
     describe '#remove' do
       it 'removes the namespace' do
         Gitlab::GitalyClient::NamespaceService.allow do
-          subject.add_namespace(storage, "mepmep")
-          subject.rm_namespace(storage, "mepmep")
+          subject.add_namespace(storage, 'mepmep')
+          subject.rm_namespace(storage, 'mepmep')
         end
 
-        expect(TestEnv.storage_dir_exists?(storage, "mepmep")).to be(false)
+        expect(TestEnv.storage_dir_exists?(storage, 'mepmep')).to be(false)
       end
     end
 
     describe '#mv_namespace' do
       it 'renames the namespace' do
         Gitlab::GitalyClient::NamespaceService.allow do
-          subject.add_namespace(storage, "mepmep")
-          subject.mv_namespace(storage, "mepmep", "2mep")
+          subject.add_namespace(storage, 'mepmep')
+          subject.mv_namespace(storage, 'mepmep', '2mep')
         end
 
-        expect(TestEnv.storage_dir_exists?(storage, "mepmep")).to be(false)
-        expect(TestEnv.storage_dir_exists?(storage, "2mep")).to be(true)
+        expect(TestEnv.storage_dir_exists?(storage, 'mepmep')).to be(false)
+        expect(TestEnv.storage_dir_exists?(storage, '2mep')).to be(true)
       end
     end
   end

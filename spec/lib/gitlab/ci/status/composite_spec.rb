@@ -27,7 +27,7 @@ describe Gitlab::Ci::Status::Composite do
 
     shared_examples 'validate all combinations' do |perms|
       HasStatus::STATUSES_ENUM.keys.combination(perms).each do |statuses|
-        context "with #{statuses.join(",")}" do
+        context "with #{statuses.join(',')}" do
           it_behaves_like 'compares composite with SQL status' do
             let(:all_statuses) do
               statuses.map { |status| @statuses[status] }

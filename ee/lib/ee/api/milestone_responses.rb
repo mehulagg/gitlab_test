@@ -14,7 +14,7 @@ module EE
               issues = milestone.issues_visible_to_user(current_user)
               present Burndown.new(issues, milestone.start_date, milestone.due_date).as_json
             else
-              render_api_error!("Milestone does not support burndown chart", 405)
+              render_api_error!('Milestone does not support burndown chart', 405)
             end
           end
         end

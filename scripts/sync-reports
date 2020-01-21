@@ -78,7 +78,7 @@ def usage!(error: 'action')
     puts "Please specify one or more file paths as third argument!\n\n"
   end
   puts "Usage: #{__FILE__} [get|put] bucket report_path ...\n\n"
-  puts "Note: the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment "\
+  puts 'Note: the AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment '\
        "variables need to be set\n\n"
   exit 1
 end

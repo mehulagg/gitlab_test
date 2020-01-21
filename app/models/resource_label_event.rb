@@ -46,7 +46,7 @@ class ResourceLabelEvent < ApplicationRecord
 
   def discussion_id(resource = nil)
     strong_memoize(:discussion_id) do
-      Digest::SHA1.hexdigest(discussion_id_key.join("-"))
+      Digest::SHA1.hexdigest(discussion_id_key.join('-'))
     end
   end
 

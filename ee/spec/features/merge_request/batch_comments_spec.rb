@@ -108,7 +108,7 @@ describe 'Merge request > Batch comments', :js do
       find('.js-note-edit').click
 
       # make sure comment form is in view
-      execute_script("window.scrollBy(0, 200)")
+      execute_script('window.scrollBy(0, 200)')
 
       page.within('.js-discussion-note-form') do
         fill_in('note_note', with: 'Testing update')
@@ -130,7 +130,7 @@ describe 'Merge request > Batch comments', :js do
         write_parallel_comment('2f6fcd96b88b36ce98c38da085c795a27d92a3dd_10_9')
 
         # make sure line 9 is in the view
-        execute_script("window.scrollBy(0, -200)")
+        execute_script('window.scrollBy(0, -200)')
 
         write_parallel_comment('2f6fcd96b88b36ce98c38da085c795a27d92a3dd_9_9', button_text: 'Add to review', text: 'Another wrong line')
 
@@ -241,7 +241,7 @@ describe 'Merge request > Batch comments', :js do
 
   def write_parallel_comment(line, button_text: 'Start a review', text: 'Line is wrong')
     find("td[id='#{line}']").hover
-    find(".is-over button").click
+    find('.is-over button').click
 
     page.within("form[data-line-code='#{line}']") do
       fill_in('note_note', with: text)

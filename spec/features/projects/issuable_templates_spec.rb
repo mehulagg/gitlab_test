@@ -192,7 +192,7 @@ describe 'issuable templates', :js do
   end
 
   def save_changes(expected_content = template_content)
-    click_button "Save changes"
+    click_button 'Save changes'
     expect(page).to have_content expected_content
   end
 

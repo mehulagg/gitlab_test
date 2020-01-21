@@ -15,7 +15,7 @@ class ProfilesController < Profiles::ApplicationController
       result = Users::UpdateService.new(current_user, user_params.merge(user: @user)).execute
 
       if result[:status] == :success
-        message = s_("Profiles|Profile was successfully updated")
+        message = s_('Profiles|Profile was successfully updated')
 
         format.html { redirect_back_or_default(default: { action: 'show' }, options: { notice: message }) }
         format.json { render json: { message: message } }
@@ -31,7 +31,7 @@ class ProfilesController < Profiles::ApplicationController
       user.reset_incoming_email_token!
     end
 
-    flash[:notice] = s_("Profiles|Incoming email token was successfully reset")
+    flash[:notice] = s_('Profiles|Incoming email token was successfully reset')
 
     redirect_to profile_personal_access_tokens_path
   end
@@ -57,8 +57,8 @@ class ProfilesController < Profiles::ApplicationController
 
   # rubocop: disable CodeReuse/ActiveRecord
   def audit_log
-    @events = AuditEvent.where(entity_type: "User", entity_id: current_user.id)
-      .order("created_at DESC")
+    @events = AuditEvent.where(entity_type: 'User', entity_id: current_user.id)
+      .order('created_at DESC')
       .page(params[:page])
   end
   # rubocop: enable CodeReuse/ActiveRecord
@@ -68,12 +68,12 @@ class ProfilesController < Profiles::ApplicationController
 
     respond_to do |format|
       if result[:status] == :success
-        message = s_("Profiles|Username successfully changed")
+        message = s_('Profiles|Username successfully changed')
 
         format.html { redirect_back_or_default(default: { action: 'show' }, options: { notice: message }) }
         format.json { render json: { message: message }, status: :ok }
       else
-        message = s_("Profiles|Username change failed - %{message}") % { message: result[:message] }
+        message = s_('Profiles|Username change failed - %{message}') % { message: result[:message] }
 
         format.html { redirect_back_or_default(default: { action: 'show' }, options: { alert: message }) }
         format.json { render json: { message: message }, status: :unprocessable_entity }

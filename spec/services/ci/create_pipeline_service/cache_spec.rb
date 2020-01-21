@@ -160,7 +160,7 @@ describe Ci::CreatePipelineService do
 
       it 'has errors' do
         expect(pipeline).to be_persisted
-        expect(pipeline.yaml_errors).to eq("jobs:job:cache:key:files config has too many items (maximum is 2)")
+        expect(pipeline.yaml_errors).to eq('jobs:job:cache:key:files config has too many items (maximum is 2)')
         expect(job).to be_nil
       end
     end

@@ -30,7 +30,7 @@ describe Analytics::TasksByTypeController do
     it 'returns valid count' do
       subject
 
-      date, count = json_response.first["series"].first
+      date, count = json_response.first['series'].first
       expect(Date.parse(date)).to eq(issue.created_at.to_date)
       expect(count).to eq(1)
     end

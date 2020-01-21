@@ -27,7 +27,7 @@ module Gitlab
         true
 
       # Treat blank files as text
-      elsif data == ""
+      elsif data == ''
         false
 
       # Charlock doesn't know what to think
@@ -114,14 +114,14 @@ module Gitlab
       # rubocop:disable Style/MultilineTernaryOperator
       # rubocop:disable Style/NestedTernaryOperator
       @content_type ||= binary_mime_type? || binary_in_repo? ? mime_type :
-                          (encoding ? "text/plain; charset=#{encoding.downcase}" : "text/plain")
+                          (encoding ? "text/plain; charset=#{encoding.downcase}" : 'text/plain')
       # rubocop:enable Style/NestedTernaryOperator
       # rubocop:enable Style/MultilineTernaryOperator
     end
 
     def encoded_newlines_re
       @encoded_newlines_re ||=
-        Regexp.union(["\r\n", "\r", "\n"].map { |nl| nl.encode(ruby_encoding, "ASCII-8BIT").force_encoding(data.encoding) })
+        Regexp.union(["\r\n", "\r", "\n"].map { |nl| nl.encode(ruby_encoding, 'ASCII-8BIT').force_encoding(data.encoding) })
     end
 
     def ruby_encoding
@@ -141,7 +141,7 @@ module Gitlab
     end
 
     def empty?
-      data.nil? || data == ""
+      data.nil? || data == ''
     end
   end
 end

@@ -2,7 +2,7 @@
 
 module LazyImageTagHelper
   def placeholder_image
-    "data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+    'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
   end
 
   # Override the default ActionView `image_tag` helper to support lazy-loading
@@ -15,7 +15,7 @@ module LazyImageTagHelper
 
       # options[:class] can be either String or Array.
       klass_opts = Array.wrap(options[:class])
-      klass_opts << "lazy"
+      klass_opts << 'lazy'
 
       options[:class] = klass_opts.join(' ')
       source = placeholder_image

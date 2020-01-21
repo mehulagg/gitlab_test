@@ -7,7 +7,7 @@ class AddIndexOnIdAndTypeAndPublicToKeys < ActiveRecord::Migration[5.2]
 
   disable_ddl_transaction!
 
-  INDEX_NAME = "index_on_deploy_keys_id_and_type_and_public"
+  INDEX_NAME = 'index_on_deploy_keys_id_and_type_and_public'
 
   def up
     add_concurrent_index(:keys,

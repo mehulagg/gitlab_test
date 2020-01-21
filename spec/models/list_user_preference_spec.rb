@@ -16,7 +16,7 @@ describe ListUserPreference do
 
     it do
       is_expected.to validate_uniqueness_of(:user_id).scoped_to(:list_id)
-                       .with_message("should have only one list preference per user")
+                       .with_message('should have only one list preference per user')
     end
   end
 end

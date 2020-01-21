@@ -22,7 +22,7 @@ describe Gitlab::Gfm::UploadsRewriter do
       "Text and #{image_uploader.markdown_link} and #{zip_uploader.markdown_link}"
     end
 
-    shared_examples "files are accessible" do
+    shared_examples 'files are accessible' do
       describe '#rewrite' do
         let!(:new_text) { rewriter.rewrite(new_project) }
 
@@ -59,7 +59,7 @@ describe Gitlab::Gfm::UploadsRewriter do
 
     it 'does not rewrite plain links as embedded' do
       embedded_link = image_uploader.markdown_link
-      plain_image_link = embedded_link.sub(/\A!/, "")
+      plain_image_link = embedded_link.sub(/\A!/, '')
       text = "#{plain_image_link} and #{embedded_link}"
 
       moved_text = described_class.new(text, old_project, user).rewrite(new_project)
@@ -68,11 +68,11 @@ describe Gitlab::Gfm::UploadsRewriter do
       expect(moved_text.scan(/\A\[.*?\]/).count).to eq(1)
     end
 
-    context "file are stored locally" do
-      include_examples "files are accessible"
+    context 'file are stored locally' do
+      include_examples 'files are accessible'
     end
 
-    context "files are stored remotely" do
+    context 'files are stored remotely' do
       before do
         stub_uploads_object_storage(FileUploader)
 
@@ -81,7 +81,7 @@ describe Gitlab::Gfm::UploadsRewriter do
         end
       end
 
-      include_examples "files are accessible"
+      include_examples 'files are accessible'
     end
 
     describe '#needs_rewrite?' do

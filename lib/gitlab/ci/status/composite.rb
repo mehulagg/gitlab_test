@@ -9,7 +9,7 @@ module Gitlab
         # This class accepts an array of arrays/hashes/or objects
         def initialize(all_statuses, with_allow_failure: true)
           unless all_statuses.respond_to?(:pluck)
-            raise ArgumentError, "all_statuses needs to respond to `.pluck`"
+            raise ArgumentError, 'all_statuses needs to respond to `.pluck`'
           end
 
           @status_set = Set.new

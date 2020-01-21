@@ -7,7 +7,7 @@ module API
     helpers ::RendersNotes
 
     params do
-      requires :id, type: String, desc: "The ID of a Project"
+      requires :id, type: String, desc: 'The ID of a Project'
     end
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Create a new merge request discussion from visual review without authentication' do
@@ -31,7 +31,7 @@ module API
           optional :y, type: Integer, desc: 'Y coordinate in the image'
         end
       end
-      post ":id/merge_requests/:merge_request_iid/visual_review_discussions" do
+      post ':id/merge_requests/:merge_request_iid/visual_review_discussions' do
         unless Feature.enabled?(:anonymous_visual_review_feedback)
           forbidden!('Anonymous visual review feedback is disabled')
         end

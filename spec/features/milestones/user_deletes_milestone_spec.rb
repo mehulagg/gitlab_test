@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe "User deletes milestone", :js do
+describe 'User deletes milestone', :js do
   let(:user) { create(:user) }
   let(:group) { create(:group) }
   let(:project) { create(:project, namespace: group) }
@@ -11,17 +11,17 @@ describe "User deletes milestone", :js do
     sign_in(user)
   end
 
-  context "when milestone belongs to project" do
-    let!(:milestone) { create(:milestone, resource_parent: project, title: "project milestone") }
+  context 'when milestone belongs to project' do
+    let!(:milestone) { create(:milestone, resource_parent: project, title: 'project milestone') }
 
-    it "deletes milestone" do
+    it 'deletes milestone' do
       project.add_developer(user)
       visit(project_milestones_path(project))
       click_link(milestone.title)
-      click_button("Delete")
-      click_button("Delete milestone")
+      click_button('Delete')
+      click_button('Delete milestone')
 
-      expect(page).to have_content("No milestones to show")
+      expect(page).to have_content('No milestones to show')
 
       visit(activity_project_path(project))
 
@@ -29,17 +29,17 @@ describe "User deletes milestone", :js do
     end
   end
 
-  context "when milestone belongs to group" do
-    let!(:milestone_to_be_deleted) { create(:milestone, resource_parent: group, title: "group milestone 1") }
-    let!(:milestone) { create(:milestone, resource_parent: group, title: "group milestone 2") }
+  context 'when milestone belongs to group' do
+    let!(:milestone_to_be_deleted) { create(:milestone, resource_parent: group, title: 'group milestone 1') }
+    let!(:milestone) { create(:milestone, resource_parent: group, title: 'group milestone 2') }
 
-    it "deletes milestone" do
+    it 'deletes milestone' do
       group.add_developer(user)
       visit(group_milestones_path(group))
 
       click_link(milestone_to_be_deleted.title)
-      click_button("Delete")
-      click_button("Delete milestone")
+      click_button('Delete')
+      click_button('Delete milestone')
 
       expect(page).to have_content(milestone.title)
       expect(page).not_to have_content(milestone_to_be_deleted)

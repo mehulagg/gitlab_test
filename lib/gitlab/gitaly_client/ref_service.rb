@@ -166,7 +166,7 @@ module Gitlab
           target_commit = Gitlab::Git::Commit.decorate(@repository, branch.target_commit)
           Gitlab::Git::Branch.new(@repository, branch.name, branch.target_commit.id, target_commit)
         when :ERR_INVALID
-          invalid_ref!("Invalid ref name")
+          invalid_ref!('Invalid ref name')
         when :ERR_EXISTS
           invalid_ref!("Branch #{ref} already exists")
         when :ERR_INVALID_START_POINT

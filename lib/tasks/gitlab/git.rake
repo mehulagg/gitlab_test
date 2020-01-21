@@ -15,9 +15,9 @@ namespace :gitlab do
       end
 
       if failures.empty?
-        puts "Done".color(:green)
+        puts 'Done'.color(:green)
       else
-        puts "The following repositories reported errors:".color(:red)
+        puts 'The following repositories reported errors:'.color(:red)
         failures.each { |f| puts "- #{f}" }
       end
     end

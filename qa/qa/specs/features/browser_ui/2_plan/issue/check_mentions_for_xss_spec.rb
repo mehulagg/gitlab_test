@@ -11,8 +11,8 @@ module QA
         end
 
         user = Resource::User.fabricate_via_api! do |user|
-          user.name = "eve <img src=x onerror=alert(2)&lt;img src=x onerror=alert(1)&gt;"
-          user.password = "test1234"
+          user.name = 'eve <img src=x onerror=alert(2)&lt;img src=x onerror=alert(1)&gt;'
+          user.password = 'test1234'
         end
 
         QA::Runtime::Env.personal_access_token = nil
@@ -36,7 +36,7 @@ module QA
           show.comment("cc-ing you here @#{user.username}")
 
           expect do
-            expect(show).to have_comment("cc-ing you here")
+            expect(show).to have_comment('cc-ing you here')
           end.not_to raise_error # Selenium::WebDriver::Error::UnhandledAlertError
         end
       end

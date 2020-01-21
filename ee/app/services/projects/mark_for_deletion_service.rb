@@ -29,7 +29,7 @@ module Projects
         current_user,
         project,
         action: :custom,
-        custom_message: "Project marked for deletion"
+        custom_message: 'Project marked for deletion'
       ).for_project.security_event
     end
   end

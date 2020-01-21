@@ -35,7 +35,7 @@ describe Gitlab::Checks::ProjectMoved, :clean_gitlab_redis_shared_state do
   describe '#add_message' do
     it 'queues a redirect message' do
       project_moved = described_class.new(project, user, 'http', 'foo/bar')
-      expect(project_moved.add_message).to eq("OK")
+      expect(project_moved.add_message).to eq('OK')
     end
 
     it 'handles anonymous clones' do

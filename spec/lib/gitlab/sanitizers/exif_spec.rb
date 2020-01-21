@@ -60,18 +60,18 @@ describe Gitlab::Sanitizers::Exif do
   describe '#clean' do
     let(:uploader) { create(:upload, :with_file, :issuable_upload).retrieve_uploader }
 
-    context "no dry run" do
-      it "removes exif from the image" do
+    context 'no dry run' do
+      it 'removes exif from the image' do
         uploader.store!(fixture_file_upload('spec/fixtures/rails_sample.jpg'))
 
         original_upload = uploader.upload
-        expected_args = ["exiftool", "-all=", "-tagsFromFile", "@", *Gitlab::Sanitizers::Exif::EXCLUDE_PARAMS, "--IPTC:all", "--XMP-iptcExt:all", kind_of(String)]
+        expected_args = ['exiftool', '-all=', '-tagsFromFile', '@', *Gitlab::Sanitizers::Exif::EXCLUDE_PARAMS, '--IPTC:all', '--XMP-iptcExt:all', kind_of(String)]
 
-        expect(sanitizer).to receive(:extra_tags).and_return(["", 0])
+        expect(sanitizer).to receive(:extra_tags).and_return(['', 0])
         expect(sanitizer).to receive(:exec_remove_exif!).once.and_call_original
         expect(uploader).to receive(:store!).and_call_original
         expect(Gitlab::Popen).to receive(:popen).with(expected_args) do |args|
-          File.write("#{args.last}_original", "foo") if args.last.start_with?(Dir.tmpdir)
+          File.write("#{args.last}_original", 'foo') if args.last.start_with?(Dir.tmpdir)
 
           [expected_args, 0]
         end
@@ -82,24 +82,24 @@ describe Gitlab::Sanitizers::Exif do
         expect(uploader.upload.path).to eq(original_upload.path)
       end
 
-      it "ignores image without exif" do
-        expected_args = ["exiftool", "-all", "-j", "-sort", "--IPTC:all", "--XMP-iptcExt:all", kind_of(String)]
+      it 'ignores image without exif' do
+        expected_args = ['exiftool', '-all', '-j', '-sort', '--IPTC:all', '--XMP-iptcExt:all', kind_of(String)]
 
-        expect(Gitlab::Popen).to receive(:popen).with(expected_args).and_return(["[{}]", 0])
+        expect(Gitlab::Popen).to receive(:popen).with(expected_args).and_return(['[{}]', 0])
         expect(sanitizer).not_to receive(:exec_remove_exif!)
         expect(uploader).not_to receive(:store!)
 
         sanitizer.clean(uploader, dry_run: false)
       end
 
-      it "raises an error if the exiftool fails with an error" do
-        expect(Gitlab::Popen).to receive(:popen).and_return(["error", 1])
+      it 'raises an error if the exiftool fails with an error' do
+        expect(Gitlab::Popen).to receive(:popen).and_return(['error', 1])
 
-        expect { sanitizer.clean(uploader, dry_run: false) }.to raise_exception(RuntimeError, "failed to get exif tags: error")
+        expect { sanitizer.clean(uploader, dry_run: false) }.to raise_exception(RuntimeError, 'failed to get exif tags: error')
       end
     end
 
-    context "dry run" do
+    context 'dry run' do
       it "doesn't change the image" do
         expect(sanitizer).to receive(:extra_tags).and_return({ 'foo' => 'bar' })
         expect(sanitizer).not_to receive(:exec_remove_exif!)
@@ -110,8 +110,8 @@ describe Gitlab::Sanitizers::Exif do
     end
   end
 
-  describe "#extra_tags" do
-    it "returns a list of keys for exif file" do
+  describe '#extra_tags' do
+    it 'returns a list of keys for exif file' do
       tags = '[{
                 "DigitalSourceType": "some source",
                 "ImageHeight": 654
@@ -122,7 +122,7 @@ describe Gitlab::Sanitizers::Exif do
       expect(sanitizer.extra_tags('filename')).not_to be_empty
     end
 
-    it "returns an empty list for file with only whitelisted and ignored tags" do
+    it 'returns an empty list for file with only whitelisted and ignored tags' do
       tags = '[{
                 "ImageHeight": 654,
                 "Megapixels": 0.641

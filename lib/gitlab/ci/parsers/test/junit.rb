@@ -15,9 +15,9 @@ module Gitlab
               test_suite.add_test_case(test_case)
             end
           rescue Nokogiri::XML::SyntaxError
-            raise JunitParserError, "XML parsing failed"
+            raise JunitParserError, 'XML parsing failed'
           rescue
-            raise JunitParserError, "JUnit parsing failed"
+            raise JunitParserError, 'JUnit parsing failed'
           end
 
           private

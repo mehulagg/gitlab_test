@@ -68,7 +68,7 @@ module Gitlab
               missing_needs = dependencies - needs_value[:job].pluck(:name) # rubocop:disable CodeReuse/ActiveRecord (Array#pluck)
 
               if missing_needs.any?
-                errors.add(:dependencies, "the #{missing_needs.join(", ")} should be part of needs")
+                errors.add(:dependencies, "the #{missing_needs.join(', ')} should be part of needs")
               end
             end
           end

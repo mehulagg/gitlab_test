@@ -18,7 +18,7 @@ describe Search::GlobalService do
   describe '#execute' do
     context 'unauthenticated' do
       it 'returns public projects only' do
-        results = described_class.new(nil, search: "searchable").execute
+        results = described_class.new(nil, search: 'searchable').execute
 
         expect(results.objects('projects')).to match_array [public_project]
       end
@@ -26,13 +26,13 @@ describe Search::GlobalService do
 
     context 'authenticated' do
       it 'returns public, internal and private projects' do
-        results = described_class.new(user, search: "searchable").execute
+        results = described_class.new(user, search: 'searchable').execute
 
         expect(results.objects('projects')).to match_array [public_project, found_project, internal_project]
       end
 
       it 'returns only public & internal projects' do
-        results = described_class.new(internal_user, search: "searchable").execute
+        results = described_class.new(internal_user, search: 'searchable').execute
 
         expect(results.objects('projects')).to match_array [internal_project, public_project]
       end
@@ -46,7 +46,7 @@ describe Search::GlobalService do
       it 'does not return archived projects' do
         archived_project = create(:project, :public, archived: true, name: 'archived_project')
 
-        results = described_class.new(user, search: "archived").execute
+        results = described_class.new(user, search: 'archived').execute
 
         expect(results.objects('projects')).not_to include(archived_project)
       end

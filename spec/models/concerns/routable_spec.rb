@@ -37,7 +37,7 @@ describe Group, 'Routable' do
     end
 
     context 'for a user' do
-      let(:user) { create(:user, username: 'jane', name: "Jane Doe") }
+      let(:user) { create(:user, username: 'jane', name: 'Jane Doe') }
 
       it 'creates the route for a record on create' do
         expect(user.namespace.name).to eq('Jane Doe')

@@ -411,7 +411,7 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
       context 'when job has trace' do
         let(:job) { create(:ci_build, :running, :trace_live, pipeline: pipeline) }
 
-        it "has_trace is true" do
+        it 'has_trace is true' do
           get_show_json
 
           expect(response).to match_response_schema('job/job_details')
@@ -477,8 +477,8 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
           it 'exposes correct variable properties' do
             first_variable = json_response['trigger']['variables'].first
 
-            expect(first_variable['key']).to eq "TRIGGER_KEY_1"
-            expect(first_variable['value']).to eq "TRIGGER_VALUE_1"
+            expect(first_variable['key']).to eq 'TRIGGER_KEY_1'
+            expect(first_variable['value']).to eq 'TRIGGER_VALUE_1'
             expect(first_variable['public']).to eq false
           end
         end
@@ -501,7 +501,7 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
           it 'exposes correct variable properties' do
             first_variable = json_response['trigger']['variables'].first
 
-            expect(first_variable['key']).to eq "TRIGGER_KEY_1"
+            expect(first_variable['key']).to eq 'TRIGGER_KEY_1'
             expect(first_variable['value']).to be_nil
             expect(first_variable['public']).to eq false
           end
@@ -584,7 +584,7 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
         expect(response).to match_response_schema('job/build_trace')
         expect(json_response['id']).to eq job.id
         expect(json_response['status']).to eq job.status
-        expect(json_response['lines'].flat_map {|l| l['content'].map { |c| c['text'] } }).to include("ヾ(´༎ຶД༎ຶ`)ﾉ")
+        expect(json_response['lines'].flat_map {|l| l['content'].map { |c| c['text'] } }).to include('ヾ(´༎ຶД༎ຶ`)ﾉ')
       end
     end
 
@@ -687,7 +687,7 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['id']).to eq job.id
         expect(json_response['status']).to eq job.status
-        expect(json_response['html']).to include("ヾ(´༎ຶД༎ຶ`)ﾉ")
+        expect(json_response['html']).to include('ヾ(´༎ຶД༎ຶ`)ﾉ')
       end
     end
 
@@ -1034,37 +1034,37 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
                  }
     end
 
-    context "when job has a trace artifact" do
+    context 'when job has a trace artifact' do
       let(:job) { create(:ci_build, :trace_artifact, pipeline: pipeline) }
 
       it "sets #{Gitlab::Workhorse::DETECT_HEADER} header" do
         response = subject
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(response.headers["Content-Type"]).to eq("text/plain; charset=utf-8")
+        expect(response.headers['Content-Type']).to eq('text/plain; charset=utf-8')
         expect(response.body).to eq(job.job_artifacts_trace.open.read)
-        expect(response.header[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
+        expect(response.header[Gitlab::Workhorse::DETECT_HEADER]).to eq 'true'
       end
     end
 
-    context "when job has a trace file" do
+    context 'when job has a trace file' do
       let(:job) { create(:ci_build, :trace_live, pipeline: pipeline) }
 
       it 'sends a trace file' do
         response = subject
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(response.headers["Content-Type"]).to eq("text/plain; charset=utf-8")
-        expect(response.headers["Content-Disposition"]).to match(/^inline/)
-        expect(response.body).to eq("BUILD TRACE")
+        expect(response.headers['Content-Type']).to eq('text/plain; charset=utf-8')
+        expect(response.headers['Content-Disposition']).to match(/^inline/)
+        expect(response.body).to eq('BUILD TRACE')
       end
     end
 
-    context "when job has a trace in database" do
+    context 'when job has a trace in database' do
       let(:job) { create(:ci_build, pipeline: pipeline) }
 
       before do
-        job.update_column(:trace, "Sample trace")
+        job.update_column(:trace, 'Sample trace')
       end
 
       it 'sends a trace file' do
@@ -1184,7 +1184,7 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
           get_terminal_websocket(id: job.id)
 
           expect(response).to have_gitlab_http_status(200)
-          expect(response.headers["Content-Type"]).to eq(Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE)
+          expect(response.headers['Content-Type']).to eq(Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE)
           expect(response.body).to eq('{"workhorse":"response"}')
         end
       end

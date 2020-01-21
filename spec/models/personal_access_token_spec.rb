@@ -33,20 +33,20 @@ describe PersonalAccessToken do
     end
   end
 
-  describe ".active?" do
+  describe '.active?' do
     let(:active_personal_access_token) { build(:personal_access_token) }
     let(:revoked_personal_access_token) { build(:personal_access_token, :revoked) }
     let(:expired_personal_access_token) { build(:personal_access_token, :expired) }
 
-    it "returns false if the personal_access_token is revoked" do
+    it 'returns false if the personal_access_token is revoked' do
       expect(revoked_personal_access_token).not_to be_active
     end
 
-    it "returns false if the personal_access_token is expired" do
+    it 'returns false if the personal_access_token is expired' do
       expect(expired_personal_access_token).not_to be_active
     end
 
-    it "returns true if the personal_access_token is not revoked and not expired" do
+    it 'returns true if the personal_access_token is not revoked and not expired' do
       expect(active_personal_access_token).to be_active
     end
   end
@@ -102,17 +102,17 @@ describe PersonalAccessToken do
     end
   end
 
-  context "validations" do
+  context 'validations' do
     let(:personal_access_token) { build(:personal_access_token) }
 
-    it "requires at least one scope" do
+    it 'requires at least one scope' do
       personal_access_token.scopes = []
 
       expect(personal_access_token).not_to be_valid
       expect(personal_access_token.errors[:scopes].first).to eq "can't be blank"
     end
 
-    it "allows creating a token with API scopes" do
+    it 'allows creating a token with API scopes' do
       personal_access_token.scopes = [:api, :read_user]
 
       expect(personal_access_token).to be_valid
@@ -123,14 +123,14 @@ describe PersonalAccessToken do
         stub_container_registry_config(enabled: false)
       end
 
-      it "rejects creating a token with read_registry scope" do
+      it 'rejects creating a token with read_registry scope' do
         personal_access_token.scopes = [:read_registry]
 
         expect(personal_access_token).not_to be_valid
-        expect(personal_access_token.errors[:scopes].first).to eq "can only contain available scopes"
+        expect(personal_access_token.errors[:scopes].first).to eq 'can only contain available scopes'
       end
 
-      it "allows revoking a token with read_registry scope" do
+      it 'allows revoking a token with read_registry scope' do
         personal_access_token.scopes = [:read_registry]
 
         personal_access_token.revoke!
@@ -144,18 +144,18 @@ describe PersonalAccessToken do
         stub_container_registry_config(enabled: true)
       end
 
-      it "allows creating a token with read_registry scope" do
+      it 'allows creating a token with read_registry scope' do
         personal_access_token.scopes = [:read_registry]
 
         expect(personal_access_token).to be_valid
       end
     end
 
-    it "rejects creating a token with unavailable scopes" do
+    it 'rejects creating a token with unavailable scopes' do
       personal_access_token.scopes = [:openid, :api]
 
       expect(personal_access_token).not_to be_valid
-      expect(personal_access_token.errors[:scopes].first).to eq "can only contain available scopes"
+      expect(personal_access_token.errors[:scopes].first).to eq 'can only contain available scopes'
     end
   end
 

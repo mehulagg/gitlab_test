@@ -163,7 +163,7 @@ module Mattermost
     end
 
     def lease_key
-      "mattermost:session"
+      'mattermost:session'
     end
 
     def lease_try_obtain

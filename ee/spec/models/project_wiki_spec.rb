@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe ProjectWiki do
   let(:user) { create(:user, :commit_email) }
@@ -9,7 +9,7 @@ describe ProjectWiki do
 
   subject { project_wiki }
 
-  describe "#kerberos_url_to_repo" do
+  describe '#kerberos_url_to_repo' do
     it 'returns valid kerberos url for this repo' do
       gitlab_kerberos_url = Gitlab.config.build_gitlab_kerberos_url
       repo_kerberos_url = "#{gitlab_kerberos_url}/#{subject.full_path}.git"

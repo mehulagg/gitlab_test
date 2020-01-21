@@ -7,7 +7,7 @@ module QA
         Flow::Login.sign_in
 
         project = Resource::Project.fabricate! do |project|
-          project.name = "squash-before-merge"
+          project.name = 'squash-before-merge'
         end
 
         merge_request = Resource::MergeRequest.fabricate! do |merge_request|
@@ -21,7 +21,7 @@ module QA
           push.branch_name = merge_request.source_branch
           push.new_branch = false
           push.file_name = 'other.txt'
-          push.file_content = "Test with unicode characters ❤✓€❄"
+          push.file_content = 'Test with unicode characters ❤✓€❄'
         end
 
         merge_request.visit!

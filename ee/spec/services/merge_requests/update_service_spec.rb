@@ -69,7 +69,7 @@ describe MergeRequests::UpdateService, :mailer do
       with_them do
         let(:project) { create(:project, :repository, approvals_before_merge: project_value) }
 
-        it "does not update" do
+        it 'does not update' do
           merge_request.update(approvals_before_merge: mr_before_value)
           rule = create(:approval_merge_request_rule, merge_request: merge_request)
 

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "redis_shared_examples" do
+RSpec.shared_examples 'redis_shared_examples' do
   include StubENV
 
   let(:test_redis_url) { "redis://redishost:#{redis_port}"}
@@ -204,7 +204,7 @@ RSpec.shared_examples "redis_shared_examples" do
     end
 
     it 'returns false when config file is present but has invalid YAML' do
-      allow(described_class).to receive(:_raw_config) { "# development: true" }
+      allow(described_class).to receive(:_raw_config) { '# development: true' }
 
       expect(subject.send(:fetch_config)).to eq false
     end

@@ -27,13 +27,13 @@ module Projects
     rescue Gitlab::UrlBlocker::BlockedUrlError => e
       Gitlab::ErrorTracking.track_exception(e, project_path: project.full_path, importer: project.import_type)
 
-      error(s_("ImportProjects|Error importing repository %{project_safe_import_url} into %{project_full_path} - %{message}") % { project_safe_import_url: project.safe_import_url, project_full_path: project.full_path, message: e.message })
+      error(s_('ImportProjects|Error importing repository %{project_safe_import_url} into %{project_full_path} - %{message}') % { project_safe_import_url: project.safe_import_url, project_full_path: project.full_path, message: e.message })
     rescue => e
       message = Projects::ImportErrorFilter.filter_message(e.message)
 
       Gitlab::ErrorTracking.track_exception(e, project_path: project.full_path, importer: project.import_type)
 
-      error(s_("ImportProjects|Error importing repository %{project_safe_import_url} into %{project_full_path} - %{message}") % { project_safe_import_url: project.safe_import_url, project_full_path: project.full_path, message: message })
+      error(s_('ImportProjects|Error importing repository %{project_safe_import_url} into %{project_full_path} - %{message}') % { project_safe_import_url: project.safe_import_url, project_full_path: project.full_path, message: message })
     end
 
     private
@@ -43,7 +43,7 @@ module Projects
         begin
           Gitlab::UrlBlocker.validate!(project.import_url, ports: Project::VALID_IMPORT_PORTS)
         rescue Gitlab::UrlBlocker::BlockedUrlError => e
-          raise e, s_("ImportProjects|Blocked import URL: %{message}") % { message: e.message }
+          raise e, s_('ImportProjects|Blocked import URL: %{message}') % { message: e.message }
         end
       end
 

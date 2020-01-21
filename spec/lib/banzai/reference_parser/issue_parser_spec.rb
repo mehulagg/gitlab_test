@@ -18,7 +18,7 @@ describe Banzai::ReferenceParser::IssueParser do
         link['data-issue'] = issue.id.to_s
       end
 
-      it_behaves_like "referenced feature visibility", "issues"
+      it_behaves_like 'referenced feature visibility', 'issues'
 
       it 'returns the nodes when the user can read the issue' do
         expect(Ability).to receive(:issues_readable_by_user)

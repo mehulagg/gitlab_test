@@ -14,7 +14,7 @@ class CreateDeployTokens < ActiveRecord::Migration[4.2]
       t.string :name, null: false
       t.string :token, index: { unique: true }, null: false
 
-      t.index [:token, :expires_at, :id], where: "(revoked IS FALSE)"
+      t.index [:token, :expires_at, :id], where: '(revoked IS FALSE)'
     end
     # rubocop:enable Migration/AddLimitToStringColumns
   end

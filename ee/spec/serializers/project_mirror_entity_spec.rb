@@ -40,7 +40,7 @@ describe ProjectMirrorEntity do
 
     context 'SSH public-key authentication' do
       before do
-        project.import_url = "ssh://example.com"
+        project.import_url = 'ssh://example.com'
         import_data.update!(auth_method: 'ssh_public_key', ssh_known_hosts: "example.com #{SSHKeygen.generate}")
       end
 

@@ -186,7 +186,7 @@ describe Deployments::AfterCreateService do
     end
   end
 
-  describe "merge request metrics" do
+  describe 'merge request metrics' do
     let(:merge_request) { create(:merge_request, target_branch: 'master', source_branch: 'feature', source_project: project) }
 
     context "while updating the 'first_deployed_to_production_at' time" do
@@ -194,7 +194,7 @@ describe Deployments::AfterCreateService do
         merge_request.metrics.update!(merged_at: 1.hour.ago)
       end
 
-      context "for merge requests merged before the current deploy" do
+      context 'for merge requests merged before the current deploy' do
         it "sets the time if the deploy's environment is 'production'" do
           service.execute
 
@@ -228,7 +228,7 @@ describe Deployments::AfterCreateService do
         end
       end
 
-      context "for merge requests merged before the previous deploy" do
+      context 'for merge requests merged before the previous deploy' do
         context "if the 'first_deployed_to_production_at' time is already set" do
           it "does not overwrite the older 'first_deployed_to_production_at' time" do
             # Previous deploy

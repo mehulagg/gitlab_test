@@ -24,14 +24,14 @@ describe DataFields do
       end
 
       it 'returns true when the property has been assigned a different value' do
-        service.url = "http://example.com"
+        service.url = 'http://example.com'
         service.validate
         expect(service.url_changed?).to be_truthy
       end
 
       it 'returns true when the property has been assigned a different value twice' do
-        service.url = "http://example.com"
-        service.url = "http://example.com"
+        service.url = 'http://example.com'
+        service.url = 'http://example.com'
         service.validate
         expect(service.url_changed?).to be_truthy
       end
@@ -51,14 +51,14 @@ describe DataFields do
       end
 
       it 'returns true when the property has been assigned a different value' do
-        service.url = "http://example.com"
+        service.url = 'http://example.com'
         service.validate
         expect(service.url_changed?).to be_truthy
       end
 
       it 'returns true when the property has been assigned a different value twice' do
-        service.url = "http://example.com"
-        service.url = "http://example.com"
+        service.url = 'http://example.com'
+        service.url = 'http://example.com'
         service.validate
         expect(service.url_changed?).to be_truthy
       end

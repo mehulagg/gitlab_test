@@ -25,18 +25,18 @@ module Backup
 
         if !empty_repo?(project)
           backup_project(project)
-          progress.puts "[DONE]".color(:green)
+          progress.puts '[DONE]'.color(:green)
         else
-          progress.puts "[SKIPPED]".color(:cyan)
+          progress.puts '[SKIPPED]'.color(:cyan)
         end
 
         wiki = ProjectWiki.new(project)
 
         if !empty_repo?(wiki)
           backup_project(wiki)
-          progress.puts "[DONE] Wiki".color(:green)
+          progress.puts '[DONE] Wiki'.color(:green)
         else
-          progress.puts "[SKIPPED] Wiki".color(:cyan)
+          progress.puts '[SKIPPED] Wiki'.color(:cyan)
         end
       end
     end
@@ -90,7 +90,7 @@ module Backup
         end
 
         if restore_repo_success
-          progress.puts "[DONE]".color(:green)
+          progress.puts '[DONE]'.color(:green)
         else
           progress.puts "[Failed] restoring #{project.full_path} repository".color(:red)
         end
@@ -104,7 +104,7 @@ module Backup
             wiki.repository.create_from_bundle(path_to_wiki_bundle)
             restore_custom_hooks(wiki)
 
-            progress.puts "[DONE]".color(:green)
+            progress.puts '[DONE]'.color(:green)
           rescue => e
             progress.puts "[Failed] restoring #{wiki.full_path} wiki".color(:red)
             progress.puts "Error #{e}".color(:red)
@@ -126,7 +126,7 @@ module Backup
     end
 
     def custom_hooks_tar(project)
-      File.join(project_backup_path(project), "custom_hooks.tar")
+      File.join(project_backup_path(project), 'custom_hooks.tar')
     end
 
     def backup_repos_path

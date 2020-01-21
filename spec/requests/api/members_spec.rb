@@ -27,7 +27,7 @@ describe API::Members do
   shared_examples 'GET /:source_type/:id/members/(all)' do |source_type, all|
     let(:members_url) do
       (+"/#{source_type.pluralize}/#{source.id}/members").tap do |url|
-        url << "/all" if all
+        url << '/all' if all
       end
     end
 
@@ -285,7 +285,7 @@ describe API::Members do
         end
       end
 
-      it "returns 409 if member already exists" do
+      it 'returns 409 if member already exists' do
         post api("/#{source_type.pluralize}/#{source.id}/members", maintainer),
              params: { user_id: maintainer.id, access_level: Member::MAINTAINER }
 

@@ -1,25 +1,25 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
-describe "User creates issue" do
+describe 'User creates issue' do
   include DropzoneHelper
 
   let_it_be(:project) { create(:project_empty_repo, :public) }
   let_it_be(:user) { create(:user) }
 
-  context "when unauthenticated" do
+  context 'when unauthenticated' do
     before do
       sign_out(:user)
     end
 
-    it "redirects to signin then back to new issue after signin" do
+    it 'redirects to signin then back to new issue after signin' do
       create(:issue, project: project)
 
       visit project_issues_path(project)
 
-      page.within ".nav-controls" do
-        click_link "New issue"
+      page.within '.nav-controls' do
+        click_link 'New issue'
       end
 
       expect(current_path).to eq new_user_session_path
@@ -30,7 +30,7 @@ describe "User creates issue" do
     end
   end
 
-  context "when signed in as guest" do
+  context 'when signed in as guest' do
     before do
       project.add_guest(user)
       sign_in(user)
@@ -38,23 +38,23 @@ describe "User creates issue" do
       visit(new_project_issue_path(project))
     end
 
-    it "creates issue", :js do
-      page.within(".issue-form") do
-        expect(page).to have_no_content("Assign to")
-        .and have_no_content("Labels")
-        .and have_no_content("Milestone")
+    it 'creates issue', :js do
+      page.within('.issue-form') do
+        expect(page).to have_no_content('Assign to')
+        .and have_no_content('Labels')
+        .and have_no_content('Milestone')
 
         expect(page.find('#issue_title')['placeholder']).to eq 'Title'
         expect(page.find('#issue_description')['placeholder']).to eq 'Write a comment or drag your files here…'
       end
 
-      issue_title = "500 error on profile"
+      issue_title = '500 error on profile'
 
-      fill_in("Title", with: issue_title)
+      fill_in('Title', with: issue_title)
       first('.js-md').click
       first('.rspec-issuable-form-description').native.send_keys('Description')
 
-      click_button("Submit issue")
+      click_button('Submit issue')
 
       expect(page).to have_content(issue_title)
         .and have_content(user.name)
@@ -63,7 +63,7 @@ describe "User creates issue" do
     end
   end
 
-  context "when signed in as developer", :js do
+  context 'when signed in as developer', :js do
     before do
       project.add_developer(user)
       sign_in(user)
@@ -71,29 +71,29 @@ describe "User creates issue" do
       visit(new_project_issue_path(project))
     end
 
-    context "when previewing" do
-      it "previews content" do
-        form = first(".gfm-form")
-        textarea = first(".gfm-form textarea")
+    context 'when previewing' do
+      it 'previews content' do
+        form = first('.gfm-form')
+        textarea = first('.gfm-form textarea')
 
         page.within(form) do
-          click_button("Preview")
+          click_button('Preview')
 
-          preview = find(".js-md-preview") # this element is findable only when the "Preview" link is clicked.
+          preview = find('.js-md-preview') # this element is findable only when the "Preview" link is clicked.
 
-          expect(preview).to have_content("Nothing to preview.")
+          expect(preview).to have_content('Nothing to preview.')
 
-          click_button("Write")
-          fill_in("Description", with: "Bug fixed :smile:")
-          click_button("Preview")
+          click_button('Write')
+          fill_in('Description', with: 'Bug fixed :smile:')
+          click_button('Preview')
 
-          expect(preview).to have_css("gl-emoji")
+          expect(preview).to have_css('gl-emoji')
           expect(textarea).not_to be_visible
         end
       end
     end
 
-    context "with labels" do
+    context 'with labels' do
       let(:label_titles) { %w(bug feature enhancement) }
 
       before do
@@ -102,13 +102,13 @@ describe "User creates issue" do
         end
       end
 
-      it "creates issue" do
-        issue_title = "500 error on profile"
+      it 'creates issue' do
+        issue_title = '500 error on profile'
 
-        fill_in("Title", with: issue_title)
-        click_button("Label")
+        fill_in('Title', with: issue_title)
+        click_button('Label')
         click_link(label_titles.first)
-        click_button("Submit issue")
+        click_button('Submit issue')
 
         expect(page).to have_content(issue_title)
           .and have_content(user.name)
@@ -147,16 +147,16 @@ describe "User creates issue" do
       it 'uploads file when dragging into textarea' do
         dropzone_file Rails.root.join('spec', 'fixtures', 'banana_sample.gif')
 
-        expect(page.find_field("issue_description").value).to have_content 'banana_sample'
+        expect(page.find_field('issue_description').value).to have_content 'banana_sample'
       end
 
       it "doesn't add double newline to end of a single attachment markdown" do
         dropzone_file Rails.root.join('spec', 'fixtures', 'banana_sample.gif')
 
-        expect(page.find_field("issue_description").value).not_to match /\n\n$/
+        expect(page.find_field('issue_description').value).not_to match /\n\n$/
       end
 
-      it "cancels a file upload correctly" do
+      it 'cancels a file upload correctly' do
         slow_requests do
           dropzone_file([Rails.root.join('spec', 'fixtures', 'dk.png')], 0, false)
 
@@ -216,7 +216,7 @@ describe "User creates issue" do
     end
   end
 
-  context "when signed in as user with special characters in their name" do
+  context 'when signed in as user with special characters in their name' do
     let(:user_special) { create(:user, name: "Jon O'Shea") }
 
     before do

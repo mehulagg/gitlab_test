@@ -90,7 +90,7 @@ module QA
 
       def all_elements(name, **kwargs)
         if kwargs.keys.none? { |key| [:minimum, :maximum, :count, :between].include?(key) }
-          raise ArgumentError, "Please use :minimum, :maximum, :count, or :between so that all is more reliable"
+          raise ArgumentError, 'Please use :minimum, :maximum, :count, or :between so that all is more reliable'
         end
 
         wait_for_requests
@@ -168,7 +168,7 @@ module QA
       end
 
       def has_normalized_ws_text?(text, wait: Capybara.default_max_wait_time)
-        has_text?(text.gsub(/\s+/, " "), wait: wait)
+        has_text?(text.gsub(/\s+/, ' '), wait: wait)
       end
 
       def finished_loading?
@@ -192,7 +192,7 @@ module QA
         # images to start loading.
         previous_total_images = 0
         wait_until(sleep_interval: 1) do
-          current_total_images = all("img").size
+          current_total_images = all('img').size
           result = previous_total_images == current_total_images
           previous_total_images = current_total_images
           result
@@ -212,7 +212,7 @@ module QA
         # The user's avatar is an img, which could be a gravatar image,
         # so we skip that by only checking for images hosted internally
         retry_until(sleep_interval: 1) do
-          all("img").all? do |image|
+          all('img').all? do |image|
             next true unless URI(image['src']).host == URI(page.current_url).host
 
             asset_exists?(image['src']) && image['naturalWidth'].to_i > 0
@@ -275,7 +275,7 @@ module QA
 
       def self.errors
         if views.empty?
-          return ["Page class does not have views / elements defined!"]
+          return ['Page class does not have views / elements defined!']
         end
 
         views.flat_map(&:errors)

@@ -21,7 +21,7 @@ module Banzai
           next if !can_read_cross_project? && cross_reference?(issuable)
 
           if VISIBLE_STATES.include?(issuable.state) && issuable_reference?(node.inner_html, issuable)
-            state = moved_issue?(issuable) ? s_("IssuableStatus|moved") : issuable.state
+            state = moved_issue?(issuable) ? s_('IssuableStatus|moved') : issuable.state
             node.content += " (#{state})"
           end
         end

@@ -13,7 +13,7 @@ describe RolloutStatusEntity do
 
   subject { entity.as_json }
 
-  it "exposes status" do
+  it 'exposes status' do
     is_expected.to include(:status)
   end
 
@@ -22,7 +22,7 @@ describe RolloutStatusEntity do
   end
 
   context 'when kube deployment is valid' do
-    it "exposes deployment data" do
+    it 'exposes deployment data' do
       is_expected.to include(:instances, :completion, :is_completed)
     end
   end
@@ -30,11 +30,11 @@ describe RolloutStatusEntity do
   context 'when kube deployment is empty' do
     let(:rollout_status) { empty_deployment_rollout_status }
 
-    it "exposes status" do
+    it 'exposes status' do
       is_expected.to include(:status)
     end
 
-    it "does not expose deployment data" do
+    it 'does not expose deployment data' do
       is_expected.not_to include(:instances, :completion, :is_completed)
     end
   end

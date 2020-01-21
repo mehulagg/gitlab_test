@@ -215,7 +215,7 @@ describe Gitlab::Ci::Config do
         end
 
         it 'raises an error' do
-          expect(config.errors).to include("image config contains disallowed keys: ports")
+          expect(config.errors).to include('image config contains disallowed keys: ports')
         end
       end
 
@@ -234,7 +234,7 @@ describe Gitlab::Ci::Config do
         end
 
         it 'raises an error' do
-          expect(config.errors).to include("jobs:test:image config contains disallowed keys: ports")
+          expect(config.errors).to include('jobs:test:image config contains disallowed keys: ports')
         end
       end
 
@@ -255,7 +255,7 @@ describe Gitlab::Ci::Config do
         end
 
         it 'raises an error' do
-          expect(config.errors).to include("jobs:test:services:service config contains disallowed keys: ports")
+          expect(config.errors).to include('jobs:test:services:service config contains disallowed keys: ports')
         end
       end
     end
@@ -304,20 +304,20 @@ describe Gitlab::Ci::Config do
     context "when gitlab_ci_yml has valid 'include' defined" do
       it 'returns a composed hash' do
         before_script_values = [
-          "apt-get update -qq && apt-get install -y -qq sqlite3 libsqlite3-dev nodejs", "ruby -v",
-          "which ruby",
-          "bundle install --jobs $(nproc)  \"${FLAGS[@]}\""
+          'apt-get update -qq && apt-get install -y -qq sqlite3 libsqlite3-dev nodejs', 'ruby -v',
+          'which ruby',
+          'bundle install --jobs $(nproc)  "${FLAGS[@]}"'
         ]
         variables = {
-          POSTGRES_USER: "user",
-          POSTGRES_PASSWORD: "testing-password",
-          POSTGRES_ENABLED: "true",
-          POSTGRES_DB: "$CI_ENVIRONMENT_SLUG"
+          POSTGRES_USER: 'user',
+          POSTGRES_PASSWORD: 'testing-password',
+          POSTGRES_ENABLED: 'true',
+          POSTGRES_DB: '$CI_ENVIRONMENT_SLUG'
         }
         composed_hash = {
           before_script: before_script_values,
-          image: "ruby:2.2",
-          rspec: { script: ["bundle exec rspec"] },
+          image: 'ruby:2.2',
+          rspec: { script: ['bundle exec rspec'] },
           variables: variables
         }
 
@@ -335,7 +335,7 @@ describe Gitlab::Ci::Config do
       it 'raises error YamlProcessor validationError' do
         expect { config }.to raise_error(
           described_class::ConfigError,
-          "Included file `invalid` does not have YAML extension!"
+          'Included file `invalid` does not have YAML extension!'
         )
       end
     end
@@ -357,7 +357,7 @@ describe Gitlab::Ci::Config do
       end
     end
 
-    context "when it takes too long to evaluate includes" do
+    context 'when it takes too long to evaluate includes' do
       before do
         allow_next_instance_of(Gitlab::Ci::Config::External::Context) do |instance|
           allow(instance).to receive(:check_execution_time!).and_call_original
@@ -412,7 +412,7 @@ describe Gitlab::Ci::Config do
       end
     end
 
-    context "when both external files and gitlab_ci.yml defined the same key" do
+    context 'when both external files and gitlab_ci.yml defined the same key' do
       let(:gitlab_ci_yml) do
         <<~HEREDOC
         include:
@@ -433,7 +433,7 @@ describe Gitlab::Ci::Config do
       end
     end
 
-    context "when both external files and gitlab_ci.yml define a dictionary of distinct variables" do
+    context 'when both external files and gitlab_ci.yml define a dictionary of distinct variables' do
       let(:remote_file_content) do
         <<~HEREDOC
         variables:
@@ -458,7 +458,7 @@ describe Gitlab::Ci::Config do
       end
     end
 
-    context "when both external files and gitlab_ci.yml define a dictionary of overlapping variables" do
+    context 'when both external files and gitlab_ci.yml define a dictionary of overlapping variables' do
       let(:remote_file_content) do
         <<~HEREDOC
         variables:

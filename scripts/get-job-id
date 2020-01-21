@@ -14,7 +14,7 @@ end
 
 options = {}
 OptionParser.new do |opts|
-  opts.on("-s", "--scope=SCOPE", "Find job with matching scope") do |scope|
+  opts.on('-s', '--scope=SCOPE', 'Find job with matching scope') do |scope|
     options[:scope] = scope
   end
 end.parse!

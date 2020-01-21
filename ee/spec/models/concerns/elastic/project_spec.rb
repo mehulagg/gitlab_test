@@ -112,7 +112,7 @@ describe Project, :elastic do
     end
   end
 
-  it "finds projects" do
+  it 'finds projects' do
     project_ids = []
 
     Sidekiq::Testing.inline! do
@@ -136,7 +136,7 @@ describe Project, :elastic do
     expect(described_class.elastic_search('someone_elses_project', options: { project_ids: project_ids }).total_count).to eq(0)
   end
 
-  it "finds partial matches in project names" do
+  it 'finds partial matches in project names' do
     project_ids = []
 
     Sidekiq::Testing.inline! do
@@ -150,7 +150,7 @@ describe Project, :elastic do
     expect(described_class.elastic_search('tesla', options: { project_ids: project_ids }).total_count).to eq(2)
   end
 
-  it "returns json with all needed elements" do
+  it 'returns json with all needed elements' do
     project = create :project
 
     expected_hash = project.attributes.extract!(

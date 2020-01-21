@@ -24,7 +24,7 @@ describe Gitlab::Graphql::Connections::ExternallyPaginatedArrayConnection do
   describe '#paged_nodes' do
     let(:paged_nodes) { connection.send(:paged_nodes) }
 
-    it_behaves_like "connection with paged nodes" do
+    it_behaves_like 'connection with paged nodes' do
       let(:paged_nodes_size) { values.size }
     end
   end

@@ -21,7 +21,7 @@ describe API::GeoReplication, :geo, :geo_fdw, api: true do
 
   describe 'GET /geo_replication/designs' do
     it 'retrieves the designs if admin is logged in' do
-      get api("/geo_replication/designs", admin)
+      get api('/geo_replication/designs', admin)
 
       expect(response).to have_gitlab_http_status(200)
       expect(response).to match_response_schema('public_api/v4/geo_designs', dir: 'ee')
@@ -36,7 +36,7 @@ describe API::GeoReplication, :geo, :geo_fdw, api: true do
       create(:design, project: project1)
       create(:geo_design_registry, project: project1)
 
-      get api("/geo_replication/designs", admin), params: { search: 'bla' }
+      get api('/geo_replication/designs', admin), params: { search: 'bla' }
 
       expect(response).to have_gitlab_http_status(200)
       expect(response).to match_response_schema('public_api/v4/geo_designs', dir: 'ee')
@@ -75,7 +75,7 @@ describe API::GeoReplication, :geo, :geo_fdw, api: true do
       create(:geo_design_registry, :synced)
       create(:geo_design_registry, :synced)
 
-      post api("/geo_replication/designs/resync", admin)
+      post api('/geo_replication/designs/resync', admin)
 
       expect(response).to have_gitlab_http_status(201)
 

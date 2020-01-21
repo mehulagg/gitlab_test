@@ -35,7 +35,7 @@ describe Projects::PropagateServiceTemplate do
         properties: {
           bamboo_url: 'http://gitlab.com',
           username: 'mic',
-          password: "password",
+          password: 'password',
           build_key: 'build'
         }
       )
@@ -54,7 +54,7 @@ describe Projects::PropagateServiceTemplate do
         properties: {
           bamboo_url: 'http://gitlab.com',
           username: 'mic',
-          password: "password",
+          password: 'password',
           build_key: 'build'
         }
       )

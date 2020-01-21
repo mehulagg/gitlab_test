@@ -8,21 +8,21 @@ describe Projects::Licenses::UpdatePolicyService do
   let(:project) { create(:project, :repository, :private) }
   let(:user) { create(:user) }
 
-  describe "#execute" do
+  describe '#execute' do
     let(:policy) { create(:software_license_policy, :denied, project: project, software_license: mit_license) }
     let(:mit_license) { create(:software_license, :mit) }
 
-    context "when the user is authorized" do
+    context 'when the user is authorized' do
       before do
         allow(RefreshLicenseComplianceChecksWorker).to receive(:perform_async)
         stub_licensed_features(license_management: true)
         project.add_maintainer(user)
       end
 
-      context "when updating a policy" do
-        let(:params) { { classification: "allowed" } }
+      context 'when updating a policy' do
+        let(:params) { { classification: 'allowed' } }
 
-        it "updates the policy" do
+        it 'updates the policy' do
           result = subject.execute(policy.id)
 
           expect(result[:status]).to eq(:success)
@@ -32,10 +32,10 @@ describe Projects::Licenses::UpdatePolicyService do
         end
       end
 
-      context "when the classification is invalid" do
+      context 'when the classification is invalid' do
         let(:params) { { classification: 'invalid' } }
 
-        it "returns an error" do
+        it 'returns an error' do
           result = subject.execute(policy.id)
 
           expect(result[:status]).to eq(:error)
@@ -46,11 +46,11 @@ describe Projects::Licenses::UpdatePolicyService do
       end
     end
 
-    context "when the user is not authorized" do
-      context "when updating a policy" do
-        let(:params) { { classification: "approved" } }
+    context 'when the user is not authorized' do
+      context 'when updating a policy' do
+        let(:params) { { classification: 'approved' } }
 
-        it "returns an error" do
+        it 'returns an error' do
           result = subject.execute(policy.id)
 
           expect(result[:status]).to eq(:error)

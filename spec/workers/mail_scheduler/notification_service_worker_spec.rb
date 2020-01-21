@@ -66,8 +66,8 @@ describe MailScheduler::NotificationServiceWorker do
 
       let(:hash) do
         {
-          "nested" => {
-            "hash" => true
+          'nested' => {
+            'hash' => true
           }
         }
       end

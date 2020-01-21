@@ -6,7 +6,7 @@ describe RepositoryArchiveCleanUpService do
   subject(:service) { described_class.new }
 
   describe '#execute (new archive locations)' do
-    let(:sha) { "0" * 40 }
+    let(:sha) { '0' * 40 }
 
     it 'removes outdated archives and directories in a new-style path' do
       in_directory_with_files("project-999/#{sha}", %w[tar tar.bz2 tar.gz zip], 3.hours) do |dirname, files|

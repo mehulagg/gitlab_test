@@ -57,7 +57,7 @@ module Vulnerabilities
       @vulnerability.errors.add(
         :base,
         :finding_dismissal_error,
-        message: _("failed to dismiss associated finding(id=%{finding_id}): %{message}") %
+        message: _('failed to dismiss associated finding(id=%{finding_id}): %{message}') %
           {
             finding_id: finding.id,
             message: message

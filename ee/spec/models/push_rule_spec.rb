@@ -10,11 +10,11 @@ describe PushRule do
   let(:user) { create(:user) }
   let(:project) { Projects::CreateService.new(user, { name: 'test', namespace: user.namespace }).execute }
 
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to(:project) }
   end
 
-  describe "Validation" do
+  describe 'Validation' do
     it { is_expected.to validate_presence_of(:project) }
     it { is_expected.to validate_numericality_of(:max_file_size).is_greater_than_or_equal_to(0).only_integer }
 
@@ -110,12 +110,12 @@ describe PushRule do
     end
 
     with_them do
-      context "when rule is enabled at global level" do
+      context 'when rule is enabled at global level' do
         before do
           global_push_rule.update_column(setting, value)
         end
 
-        it "returns the default value at project level" do
+        it 'returns the default value at project level' do
           rule = project.push_rule
 
           if settings_with_global_default.include?(setting)

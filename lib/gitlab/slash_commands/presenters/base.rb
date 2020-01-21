@@ -11,7 +11,7 @@ module Gitlab
         end
 
         def display_errors
-          message = header_with_list("The action was not successful, because:", @resource.errors.full_messages)
+          message = header_with_list('The action was not successful, because:', @resource.errors.full_messages)
 
           ephemeral_response(text: message)
         end

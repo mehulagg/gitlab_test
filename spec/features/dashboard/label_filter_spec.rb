@@ -6,7 +6,7 @@ describe 'Dashboard > label filter', :js do
   include FilteredSearchHelpers
 
   let(:filtered_search) { find('.filtered-search') }
-  let(:filter_dropdown) { find("#js-dropdown-label .filter-dropdown") }
+  let(:filter_dropdown) { find('#js-dropdown-label .filter-dropdown') }
 
   let(:user) { create(:user) }
   let(:project) { create(:project, name: 'test', namespace: user.namespace) }

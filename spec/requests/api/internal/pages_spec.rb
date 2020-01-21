@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe API::Internal::Pages do
-  describe "GET /internal/pages" do
+  describe 'GET /internal/pages' do
     let(:pages_secret) { SecureRandom.random_bytes(Gitlab::Pages::SECRET_LENGTH) }
 
     before do
@@ -11,7 +11,7 @@ describe API::Internal::Pages do
     end
 
     def query_host(host, headers = {})
-      get api("/internal/pages"), headers: headers, params: { host: host }
+      get api('/internal/pages'), headers: headers, params: { host: host }
     end
 
     context 'feature flag disabled' do
@@ -104,7 +104,7 @@ describe API::Internal::Pages do
 
           before do
             allow(Settings.pages).to receive(:host).and_return('gitlab-pages.io')
-            allow(Gitlab.config.pages).to receive(:url).and_return("http://gitlab-pages.io")
+            allow(Gitlab.config.pages).to receive(:url).and_return('http://gitlab-pages.io')
           end
 
           context 'regular project' do

@@ -8,7 +8,7 @@ describe Gitlab::Git::KeepAround do
   let(:repository) { create(:project, :repository).repository }
   let(:service) { described_class.new(repository) }
 
-  it "does not fail if we attempt to reference bad commit" do
+  it 'does not fail if we attempt to reference bad commit' do
     expect(service.kept_around?('abc1234')).to be_falsey
   end
 
@@ -18,7 +18,7 @@ describe Gitlab::Git::KeepAround do
     expect(service.kept_around?(sample_commit.id)).to be_truthy
   end
 
-  it "attempting to call keep around on truncated ref does not fail" do
+  it 'attempting to call keep around on truncated ref does not fail' do
     service.execute([sample_commit.id])
     ref = service.send(:keep_around_ref_name, sample_commit.id)
 

@@ -14,9 +14,9 @@ module GoogleApi
       CLUSTER_MASTER_AUTH_USERNAME = 'admin'
       CLUSTER_IPV4_CIDR_BLOCK = '/16'
       CLUSTER_OAUTH_SCOPES = [
-        "https://www.googleapis.com/auth/devstorage.read_only",
-        "https://www.googleapis.com/auth/logging.write",
-        "https://www.googleapis.com/auth/monitoring"
+        'https://www.googleapis.com/auth/devstorage.read_only',
+        'https://www.googleapis.com/auth/logging.write',
+        'https://www.googleapis.com/auth/monitoring'
       ].freeze
 
       class << self

@@ -88,7 +88,7 @@ describe Gitlab::AuthorizedKeys do
         delete_authorized_keys_file
       end
 
-      it "adds a line at the end of the file and strips trailing garbage" do
+      it 'adds a line at the end of the file and strips trailing garbage' do
         auth_line = "command=\"#{Gitlab.config.gitlab_shell.path}/bin/gitlab-shell key-741\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-rsa AAAAB3NzaDAxx2E"
 
         expect(logger).to receive(:info).with('Adding key (key-741): ssh-rsa AAAAB3NzaDAxx2E')
@@ -130,7 +130,7 @@ describe Gitlab::AuthorizedKeys do
         delete_authorized_keys_file
       end
 
-      it "adds lines at the end of the file" do
+      it 'adds lines at the end of the file' do
         auth_line1 = "command=\"#{Gitlab.config.gitlab_shell.path}/bin/gitlab-shell key-12\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-dsa ASDFASGADG"
         auth_line2 = "command=\"#{Gitlab.config.gitlab_shell.path}/bin/gitlab-shell key-123\",no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty ssh-rsa GFDGDFSGSDFG"
 
@@ -140,7 +140,7 @@ describe Gitlab::AuthorizedKeys do
         expect(File.read(tmp_authorized_keys_path)).to eq("existing content\n#{auth_line1}\n#{auth_line2}\n")
       end
 
-      context "invalid key" do
+      context 'invalid key' do
         let(:keys) { [double(shell_id: 'key-123', key: "ssh-rsa A\tSDFA\nSGADG")] }
 
         it "doesn't add keys" do
@@ -184,7 +184,7 @@ describe Gitlab::AuthorizedKeys do
         delete_authorized_keys_file
       end
 
-      it "removes the right line" do
+      it 'removes the right line' do
         erased_line = delete_line.gsub(/./, '#')
 
         expect(logger).to receive(:info).with('Removing key (key-741)')

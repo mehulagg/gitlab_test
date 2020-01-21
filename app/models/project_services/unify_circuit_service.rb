@@ -36,7 +36,7 @@ class UnifyCircuitService < ChatNotificationService
 
   def default_fields
     [
-      { type: 'text', name: 'webhook', placeholder: "e.g. https://circuit.com/rest/v2/webhooks/incoming/…", required: true },
+      { type: 'text', name: 'webhook', placeholder: 'e.g. https://circuit.com/rest/v2/webhooks/incoming/…', required: true },
       { type: 'checkbox', name: 'notify_only_broken_pipelines' },
       { type: 'select', name: 'branches_to_be_notified', choices: BRANCH_CHOICES }
     ]

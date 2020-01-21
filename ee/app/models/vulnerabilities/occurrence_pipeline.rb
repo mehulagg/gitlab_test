@@ -2,7 +2,7 @@
 
 module Vulnerabilities
   class OccurrencePipeline < ApplicationRecord
-    self.table_name = "vulnerability_occurrence_pipelines"
+    self.table_name = 'vulnerability_occurrence_pipelines'
 
     belongs_to :occurrence, class_name: 'Vulnerabilities::Occurrence'
     belongs_to :pipeline, class_name: '::Ci::Pipeline'

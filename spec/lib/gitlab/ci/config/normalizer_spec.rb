@@ -9,11 +9,11 @@ describe Gitlab::Ci::Config::Normalizer do
 
   let(:expanded_job_names) do
     [
-      "rspec 1/5",
-      "rspec 2/5",
-      "rspec 3/5",
-      "rspec 4/5",
-      "rspec 5/5"
+      'rspec 1/5',
+      'rspec 2/5',
+      'rspec 3/5',
+      'rspec 4/5',
+      'rspec 5/5'
     ]
   end
 
@@ -64,7 +64,7 @@ describe Gitlab::Ci::Config::Normalizer do
     end
 
     context 'for dependencies' do
-      context "when job has dependencies on parallelized jobs" do
+      context 'when job has dependencies on parallelized jobs' do
         let(:config) do
           {
             job_name => job_config,
@@ -72,7 +72,7 @@ describe Gitlab::Ci::Config::Normalizer do
           }
         end
 
-        it "parallelizes dependencies" do
+        it 'parallelizes dependencies' do
           expect(subject[:other_job][:dependencies]).to eq(expanded_job_names)
         end
 
@@ -81,22 +81,22 @@ describe Gitlab::Ci::Config::Normalizer do
         end
       end
 
-      context "when there are dependencies which are both parallelized and not" do
+      context 'when there are dependencies which are both parallelized and not' do
         let(:config) do
           {
             job_name => job_config,
             other_job: { script: 'echo 1' },
-            final_job: { script: 'echo 1', dependencies: [job_name.to_s, "other_job"] }
+            final_job: { script: 'echo 1', dependencies: [job_name.to_s, 'other_job'] }
           }
         end
 
-        it "parallelizes dependencies" do
-          job_names = ["rspec 1/5", "rspec 2/5", "rspec 3/5", "rspec 4/5", "rspec 5/5"]
+        it 'parallelizes dependencies' do
+          job_names = ['rspec 1/5', 'rspec 2/5', 'rspec 3/5', 'rspec 4/5', 'rspec 5/5']
 
           expect(subject[:final_job][:dependencies]).to include(*job_names)
         end
 
-        it "includes the regular job in dependencies" do
+        it 'includes the regular job in dependencies' do
           expect(subject[:final_job][:dependencies]).to include('other_job')
         end
       end
@@ -109,7 +109,7 @@ describe Gitlab::Ci::Config::Normalizer do
         end
       end
 
-      context "when job has needs on parallelized jobs" do
+      context 'when job has needs on parallelized jobs' do
         let(:config) do
           {
             job_name => job_config,
@@ -124,12 +124,12 @@ describe Gitlab::Ci::Config::Normalizer do
           }
         end
 
-        it "parallelizes needs" do
+        it 'parallelizes needs' do
           expect(subject.dig(:other_job, :needs, :job)).to eq(expanded_job_attributes)
         end
       end
 
-      context "when there are dependencies which are both parallelized and not" do
+      context 'when there are dependencies which are both parallelized and not' do
         let(:config) do
           {
             job_name => job_config,
@@ -141,18 +141,18 @@ describe Gitlab::Ci::Config::Normalizer do
               needs: {
                 job: [
                   { name: job_name.to_s, extra: :key },
-                  { name: "other_job", extra: :key }
+                  { name: 'other_job', extra: :key }
                 ]
               }
             }
           }
         end
 
-        it "parallelizes dependencies" do
+        it 'parallelizes dependencies' do
           expect(subject.dig(:final_job, :needs, :job)).to include(*expanded_job_attributes)
         end
 
-        it "includes the regular job in dependencies" do
+        it 'includes the regular job in dependencies' do
           expect(subject.dig(:final_job, :needs, :job)).to include(name: 'other_job', extra: :key)
         end
       end

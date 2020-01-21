@@ -15,7 +15,7 @@ describe Gitlab::Kubernetes::Helm::BaseCommand do
       end
 
       def name
-        "test-class-name"
+        'test-class-name'
       end
 
       def rbac?

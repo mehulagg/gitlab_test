@@ -26,7 +26,7 @@ Rails.application.config.action_dispatch.trusted_proxies = (
 # Remove this monkey patch when upstream is fixed.
 module TrustedProxyMonkeyPatch
   def ip
-    @ip ||= (get_header("action_dispatch.remote_ip") || super).to_s
+    @ip ||= (get_header('action_dispatch.remote_ip') || super).to_s
   end
 end
 

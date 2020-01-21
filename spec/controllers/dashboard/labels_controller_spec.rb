@@ -12,7 +12,7 @@ describe Dashboard::LabelsController do
     project.add_reporter(user)
   end
 
-  describe "#index" do
+  describe '#index' do
     let!(:unrelated_label) { create(:label, project: create(:project, :public)) }
 
     subject { get :index, format: :json }
@@ -22,8 +22,8 @@ describe Dashboard::LabelsController do
 
       expect(json_response).to be_kind_of(Array)
       expect(json_response.size).to eq(1)
-      expect(json_response[0]["id"]).to be_nil
-      expect(json_response[0]["title"]).to eq(label.title)
+      expect(json_response[0]['id']).to be_nil
+      expect(json_response[0]['title']).to eq(label.title)
     end
 
     it_behaves_like 'disabled when using an external authorization service'

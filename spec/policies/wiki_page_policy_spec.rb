@@ -18,7 +18,7 @@ describe WikiPagePolicy do
   end
 
   with_them do
-    it "grants permission" do
+    it 'grants permission' do
       update_feature_access_level(project, feature_access_level)
 
       if expected_count == 1

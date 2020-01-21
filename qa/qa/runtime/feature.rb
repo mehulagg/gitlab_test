@@ -42,8 +42,8 @@ module QA
       end
 
       def enabled?(key)
-        feature = JSON.parse(get_features).find { |flag| flag["name"] == key }
-        feature && feature["state"] == "on"
+        feature = JSON.parse(get_features).find { |flag| flag['name'] == key }
+        feature && feature['state'] == 'on'
       end
 
       private
@@ -76,7 +76,7 @@ module QA
       end
 
       def get_features
-        request = Runtime::API::Request.new(api_client, "/features")
+        request = Runtime::API::Request.new(api_client, '/features')
         response = get(request.url)
         response.body
       end

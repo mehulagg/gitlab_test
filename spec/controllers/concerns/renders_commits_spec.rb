@@ -31,7 +31,7 @@ describe RendersCommits do
   end
 
   it 'sets instance variables for counts' do
-    stub_const("MergeRequestDiff::COMMITS_SAFE_SIZE", 10)
+    stub_const('MergeRequestDiff::COMMITS_SAFE_SIZE', 10)
 
     go
 
@@ -44,13 +44,13 @@ describe RendersCommits do
     render_views
 
     it 'avoids N + 1' do
-      stub_const("MergeRequestDiff::COMMITS_SAFE_SIZE", 5)
+      stub_const('MergeRequestDiff::COMMITS_SAFE_SIZE', 5)
 
       control_count = ActiveRecord::QueryRecorder.new(skip_cached: false) do
         go
       end.count
 
-      stub_const("MergeRequestDiff::COMMITS_SAFE_SIZE", 15)
+      stub_const('MergeRequestDiff::COMMITS_SAFE_SIZE', 15)
 
       expect do
         go

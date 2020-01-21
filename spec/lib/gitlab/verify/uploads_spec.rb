@@ -76,7 +76,7 @@ describe Gitlab::Verify::Uploads do
           allow(CarrierWave::Storage::Fog::File).to receive(:new).and_return(file)
         end
 
-        it "avoids N+1 queries" do
+        it 'avoids N+1 queries' do
           control_count = ActiveRecord::QueryRecorder.new { perform_task }
 
           # Create additional uploads in object storage

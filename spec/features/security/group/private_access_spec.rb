@@ -13,7 +13,7 @@ describe 'Private Group access' do
     end
   end
 
-  describe "Group should be private" do
+  describe 'Group should be private' do
     describe '#private?' do
       subject { group.private? }
 

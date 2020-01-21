@@ -63,7 +63,7 @@ describe Projects::Serverless::FunctionsController do
           .and_return(knative_services_finder)
         synchronous_reactive_cache(knative_services_finder)
         stub_kubeclient_service_pods(
-          kube_response({ "kind" => "PodList", "items" => [] }),
+          kube_response({ 'kind' => 'PodList', 'items' => [] }),
           namespace: namespace.namespace
         )
       end
@@ -74,7 +74,7 @@ describe Projects::Serverless::FunctionsController do
         before do
           stub_kubeclient_knative_services(
             namespace: namespace.namespace,
-            response: kube_response({ "kind" => "ServiceList", "items" => [] })
+            response: kube_response({ 'kind' => 'ServiceList', 'items' => [] })
           )
           get :index, params: params({ format: :json })
         end
@@ -87,7 +87,7 @@ describe Projects::Serverless::FunctionsController do
       end
 
       context 'when functions were found' do
-        let(:functions) { ["asdf"] }
+        let(:functions) { ['asdf'] }
 
         before do
           stub_kubeclient_knative_services(namespace: namespace.namespace)
@@ -95,7 +95,7 @@ describe Projects::Serverless::FunctionsController do
         end
 
         it 'returns functions' do
-          expect(json_response["functions"]).not_to be_empty
+          expect(json_response['functions']).not_to be_empty
         end
 
         it { expect(response).to have_gitlab_http_status(200) }
@@ -106,7 +106,7 @@ describe Projects::Serverless::FunctionsController do
   describe 'GET #show' do
     context 'invalid data' do
       it 'has a bad function name' do
-        get :show, params: params({ format: :json, environment_id: "*", id: "foo" })
+        get :show, params: params({ format: :json, environment_id: '*', id: 'foo' })
         expect(response).to have_gitlab_http_status(404)
       end
     end
@@ -114,7 +114,7 @@ describe Projects::Serverless::FunctionsController do
     context 'with valid data', :use_clean_rails_memory_store_caching do
       shared_examples 'GET #show with valid data' do
         it 'has a valid function name' do
-          get :show, params: params({ format: :json, environment_id: "*", id: cluster.project.name })
+          get :show, params: params({ format: :json, environment_id: '*', id: cluster.project.name })
           expect(response).to have_gitlab_http_status(200)
 
           expect(json_response).to include(
@@ -163,7 +163,7 @@ describe Projects::Serverless::FunctionsController do
   describe 'GET #metrics' do
     context 'invalid data' do
       it 'has a bad function name' do
-        get :metrics, params: params({ format: :json, environment_id: "*", id: "foo" })
+        get :metrics, params: params({ format: :json, environment_id: '*', id: 'foo' })
         expect(response).to have_gitlab_http_status(204)
       end
     end
@@ -233,7 +233,7 @@ describe Projects::Serverless::FunctionsController do
     stub_reactive_cache(knative_services_finder,
                         {
                           services: [knative_service],
-                          pods: kube_knative_pods_body(cluster.project.name, namespace.namespace)["items"]
+                          pods: kube_knative_pods_body(cluster.project.name, namespace.namespace)['items']
                         },
                         *knative_services_finder.cache_args)
   end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe EE::RunnersHelper do
   describe '.ci_usage_warning_message' do
@@ -21,7 +21,7 @@ describe EE::RunnersHelper do
       allow(helper).to receive(:current_user).and_return(user)
       allow(helper).to receive(:can?).with(user, :admin_project, project) { false }
 
-      stub_const("EE::Namespace::CI_USAGE_ALERT_LEVELS", [50])
+      stub_const('EE::Namespace::CI_USAGE_ALERT_LEVELS', [50])
     end
 
     subject { helper.ci_usage_warning_message(namespace, project) }

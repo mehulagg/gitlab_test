@@ -4,7 +4,7 @@ module API
   class API < Grape::API
     include APIGuard
 
-    LOG_FILENAME = Rails.root.join("log", "api_json.log")
+    LOG_FILENAME = Rails.root.join('log', 'api_json.log')
 
     NO_SLASH_URL_PART_REGEX = %r{[^/]+}.freeze
     NAMESPACE_OR_PROJECT_REQUIREMENTS = { id: NO_SLASH_URL_PART_REGEX }.freeze
@@ -96,7 +96,7 @@ module API
     end
 
     format :json
-    content_type :txt, "text/plain"
+    content_type :txt, 'text/plain'
 
     # Ensure the namespace is right, otherwise we might load Grape::API::Helpers
     helpers ::API::Helpers

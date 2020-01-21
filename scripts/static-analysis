@@ -30,7 +30,7 @@ ALLOWED_WARNINGS = [
   # https://github.com/browserslist/browserslist/blob/d0ec62eb48c41c218478cd3ac28684df051cc865/node.js#L329
   # warns if caniuse-lite package is older than 6 months. Ignore this
   # warning message so that GitLab backports don't fail.
-  "Browserslist: caniuse-lite is outdated. Please run next command `yarn upgrade`"
+  'Browserslist: caniuse-lite is outdated. Please run next command `yarn upgrade`'
 ].freeze
 
 def warning_count(static_analysis)

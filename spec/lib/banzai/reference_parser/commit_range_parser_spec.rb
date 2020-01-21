@@ -17,7 +17,7 @@ describe Banzai::ReferenceParser::CommitRangeParser do
         link['data-commit-range'] = '123..456'
       end
 
-      it_behaves_like "referenced feature visibility", "repository"
+      it_behaves_like 'referenced feature visibility', 'repository'
     end
   end
 

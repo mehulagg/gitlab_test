@@ -30,7 +30,7 @@ class Settings < Settingslogic
 
       [
         gitlab.protocol,
-        "://",
+        '://',
         gitlab.host,
         custom_port,
         gitlab.relative_url_root
@@ -64,7 +64,7 @@ class Settings < Settingslogic
     end
 
     def kerberos_protocol
-      kerberos.https ? "https" : "http"
+      kerberos.https ? 'https' : 'http'
     end
 
     def kerberos_port
@@ -77,7 +77,7 @@ class Settings < Settingslogic
     def build_gitlab_kerberos_url
       [
         kerberos_protocol,
-        "://:@",
+        '://:@',
         gitlab.host,
         ":#{kerberos_port}",
         gitlab.relative_url_root
@@ -150,7 +150,7 @@ class Settings < Settingslogic
 
       [
         config.protocol,
-        "://",
+        '://',
         config.host,
         custom_port
       ]

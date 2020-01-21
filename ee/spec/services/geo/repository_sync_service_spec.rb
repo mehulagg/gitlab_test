@@ -431,7 +431,7 @@ describe Geo::RepositorySyncService do
       allow(subject).to receive(:redownload_repository).and_return(nil)
     end
 
-    it "indicates the repository is new" do
+    it 'indicates the repository is new' do
       expect(Geo::ProjectHousekeepingService).to receive(:new).with(project, new_repository: true).and_call_original
 
       subject.execute
@@ -444,7 +444,7 @@ describe Geo::RepositorySyncService do
       allow(subject).to receive(:fetch_geo_mirror).and_return(nil)
     end
 
-    it "indicates the repository is new" do
+    it 'indicates the repository is new' do
       expect(Geo::ProjectHousekeepingService).to receive(:new).with(project, new_repository: true).and_call_original
 
       subject.execute
@@ -452,7 +452,7 @@ describe Geo::RepositorySyncService do
   end
 
   context 'when repository already existed' do
-    it "indicates the repository is not new" do
+    it 'indicates the repository is not new' do
       expect(Geo::ProjectHousekeepingService).to receive(:new).with(project, new_repository: false).and_call_original
 
       subject.execute

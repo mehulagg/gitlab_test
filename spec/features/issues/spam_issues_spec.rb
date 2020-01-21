@@ -25,7 +25,7 @@ describe 'New issue', :js do
 
   context 'when identified as a spam' do
     before do
-      WebMock.stub_request(:any, /.*akismet.com.*/).to_return(body: "true", status: 200)
+      WebMock.stub_request(:any, /.*akismet.com.*/).to_return(body: 'true', status: 200)
 
       visit new_project_issue_path(project)
     end

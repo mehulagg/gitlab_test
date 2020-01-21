@@ -118,7 +118,7 @@ describe HealthController do
 
         it 'responds with readiness checks data when a failure happens' do
           allow(Gitlab::HealthChecks::Redis::RedisCheck).to receive(:readiness).and_return(
-            Gitlab::HealthChecks::Result.new('redis_check', false, "check error"))
+            Gitlab::HealthChecks::Result.new('redis_check', false, 'check error'))
 
           subject
 

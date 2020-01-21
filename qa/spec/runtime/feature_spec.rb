@@ -14,7 +14,7 @@ describe QA::Runtime::Feature do
     it 'enables a feature flag' do
       expect(QA::Runtime::API::Request)
         .to receive(:new)
-        .with(api_client, "/features/a-flag")
+        .with(api_client, '/features/a-flag')
         .and_return(request)
       expect(described_class)
         .to receive(:post)
@@ -29,7 +29,7 @@ describe QA::Runtime::Feature do
     it 'disables a feature flag' do
       expect(QA::Runtime::API::Request)
         .to receive(:new)
-        .with(api_client, "/features/a-flag")
+        .with(api_client, '/features/a-flag')
         .and_return(request)
       expect(described_class)
         .to receive(:post)
@@ -44,7 +44,7 @@ describe QA::Runtime::Feature do
     it 'returns a feature flag state' do
       expect(QA::Runtime::API::Request)
         .to receive(:new)
-        .with(api_client, "/features")
+        .with(api_client, '/features')
         .and_return(request)
       expect(described_class)
         .to receive(:get)

@@ -74,7 +74,7 @@ class Groups::OmniauthCallbacksController < OmniauthCallbacksController
   end
 
   def redirect_unverified_saml_initiation
-    flash[:notice] = "Request to link SAML account must be authorized"
+    flash[:notice] = 'Request to link SAML account must be authorized'
 
     redirect_to sso_group_saml_providers_path(@unauthenticated_group)
   end
@@ -103,7 +103,7 @@ class Groups::OmniauthCallbacksController < OmniauthCallbacksController
   end
 
   def redirect_to_login_or_register
-    notice = "Login to a GitLab account to link with your SAML identity"
+    notice = 'Login to a GitLab account to link with your SAML identity'
 
     after_gitlab_sign_in = sso_group_saml_providers_path(@unauthenticated_group)
 

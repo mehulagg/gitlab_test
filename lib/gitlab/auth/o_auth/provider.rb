@@ -5,9 +5,9 @@ module Gitlab
     module OAuth
       class Provider
         LABELS = {
-          "github"         => "GitHub",
-          "gitlab"         => "GitLab.com",
-          "google_oauth2"  => "Google"
+          'github'         => 'GitHub',
+          'gitlab'         => 'GitLab.com',
+          'google_oauth2'  => 'Google'
         }.freeze
 
         def self.authentication(user, provider)

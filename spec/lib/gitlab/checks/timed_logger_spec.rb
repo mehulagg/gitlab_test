@@ -5,11 +5,11 @@ require 'spec_helper'
 describe Gitlab::Checks::TimedLogger do
   let!(:timeout) { 50.seconds }
   let!(:start) { Time.now }
-  let!(:ref) { "bar" }
+  let!(:ref) { 'bar' }
   let!(:logger) { described_class.new(start_time: start, timeout: timeout) }
   let!(:log_messages) do
     {
-      foo: "Foo message..."
+      foo: 'Foo message...'
     }
   end
 

@@ -39,7 +39,7 @@ module Bitbucket
     end
 
     def repos(filter: nil)
-      path = "/repositories?role=member"
+      path = '/repositories?role=member'
       path += "&q=name~\"#{filter}\"" if filter
 
       get_collection(path, :repo)

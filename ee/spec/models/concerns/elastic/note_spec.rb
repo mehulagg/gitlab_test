@@ -22,10 +22,10 @@ describe Note, :elastic do
 
       it 'also works on diff notes' do
         notes = []
-        notes << create(:diff_note_on_merge_request, note: "term")
-        notes << create(:diff_note_on_commit, note: "term")
-        notes << create(:legacy_diff_note_on_merge_request, note: "term")
-        notes << create(:legacy_diff_note_on_commit, note: "term")
+        notes << create(:diff_note_on_merge_request, note: 'term')
+        notes << create(:diff_note_on_commit, note: 'term')
+        notes << create(:legacy_diff_note_on_merge_request, note: 'term')
+        notes << create(:legacy_diff_note_on_commit, note: 'term')
 
         notes.each do |note|
           create :elasticsearch_indexed_project, project: note.noteable.project
@@ -36,7 +36,7 @@ describe Note, :elastic do
     end
   end
 
-  it "searches notes", :sidekiq_inline do
+  it 'searches notes', :sidekiq_inline do
     project = create :project, :public
     issue = create :issue, project: project
 
@@ -55,14 +55,14 @@ describe Note, :elastic do
     expect(described_class.elastic_search('bla-bla', options: { project_ids: :any }).records).to contain_exactly(outside_note)
   end
 
-  it "indexes && searches diff notes" do
+  it 'indexes && searches diff notes' do
     notes = []
 
     Sidekiq::Testing.inline! do
-      notes << create(:diff_note_on_merge_request, note: "term")
-      notes << create(:diff_note_on_commit, note: "term")
-      notes << create(:legacy_diff_note_on_merge_request, note: "term")
-      notes << create(:legacy_diff_note_on_commit, note: "term")
+      notes << create(:diff_note_on_merge_request, note: 'term')
+      notes << create(:diff_note_on_commit, note: 'term')
+      notes << create(:legacy_diff_note_on_merge_request, note: 'term')
+      notes << create(:legacy_diff_note_on_commit, note: 'term')
 
       notes.each do |note|
         note.project.update!(visibility: Gitlab::VisibilityLevel::PUBLIC)
@@ -77,7 +77,7 @@ describe Note, :elastic do
     expect(described_class.elastic_search('term', options: options).total_count).to eq(4)
   end
 
-  it "returns json with all needed elements" do
+  it 'returns json with all needed elements' do
     assignee = create(:user)
     issue = create(:issue, assignees: [assignee])
     note = create(:note, noteable: issue, project: issue.project)
@@ -106,7 +106,7 @@ describe Note, :elastic do
     expect(note.__elasticsearch__.as_indexed_json).to eq(expected_hash)
   end
 
-  it "does not create ElasticIndexerWorker job for system messages" do
+  it 'does not create ElasticIndexerWorker job for system messages' do
     project = create :project, :repository
     # We have to set one minute delay because of https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/15682
     issue = create :issue, project: project, updated_at: 1.minute.ago
@@ -125,7 +125,7 @@ describe Note, :elastic do
   end
 
   context 'notes to confidential issues' do
-    it "does not find note" do
+    it 'does not find note' do
       issue = create :issue, :confidential
 
       Sidekiq::Testing.inline! do
@@ -138,7 +138,7 @@ describe Note, :elastic do
       expect(Note.elastic_search('term', options: options).total_count).to eq(0)
     end
 
-    it "finds note when user is authorized to see it", :sidekiq_might_not_need_inline do
+    it 'finds note when user is authorized to see it', :sidekiq_might_not_need_inline do
       user = create :user
       issue = create :issue, :confidential, author: user
       issue.project.add_guest user
@@ -169,7 +169,7 @@ describe Note, :elastic do
       end
     end
 
-    it "return notes with matching content for project members", :sidekiq_might_not_need_inline do
+    it 'return notes with matching content for project members', :sidekiq_might_not_need_inline do
       user = create :user
       issue = create :issue, :confidential, author: user
 
@@ -186,7 +186,7 @@ describe Note, :elastic do
       expect(Note.elastic_search('term', options: options).total_count).to eq(1)
     end
 
-    it "does not return notes with matching content for project members with guest role" do
+    it 'does not return notes with matching content for project members with guest role' do
       user = create :user
       issue = create :issue, :confidential, author: user
 

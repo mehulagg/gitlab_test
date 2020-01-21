@@ -13,7 +13,7 @@
 class NamedEcdsaKeyValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     if explicit_ec?(value)
-      record.errors.add(attribute, "ECDSA keys with explicit curves are not supported")
+      record.errors.add(attribute, 'ECDSA keys with explicit curves are not supported')
     end
   end
 

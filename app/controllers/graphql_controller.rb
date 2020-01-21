@@ -24,7 +24,7 @@ class GraphqlController < ApplicationController
   rescue_from StandardError do |exception|
     log_exception(exception)
 
-    render_error("Internal server error")
+    render_error('Internal server error')
   end
 
   rescue_from Gitlab::Graphql::Variables::Invalid do |exception|
@@ -76,13 +76,13 @@ class GraphqlController < ApplicationController
   end
 
   def authorize_access_api!
-    access_denied!("API not accessible for user.") unless can?(current_user, :access_api)
+    access_denied!('API not accessible for user.') unless can?(current_user, :access_api)
   end
 
   # Overridden from the ApplicationController to make the response look like
   # a GraphQL response. That is nicely picked up in Graphiql.
   def render_404
-    render_error("Not found!", status: :not_found)
+    render_error('Not found!', status: :not_found)
   end
 
   def render_error(message, status: 500)

@@ -11,8 +11,8 @@ describe 'epics list', :js do
   let!(:epic) { create(:epic, group: group, start_date: 10.days.ago, due_date: 5.days.ago) }
 
   let(:filtered_search) { find('.filtered-search') }
-  let(:filter_author_dropdown) { find("#js-dropdown-author .filter-dropdown") }
-  let(:filter_label_dropdown) { find("#js-dropdown-label .filter-dropdown") }
+  let(:filter_author_dropdown) { find('#js-dropdown-author .filter-dropdown') }
+  let(:filter_label_dropdown) { find('#js-dropdown-label .filter-dropdown') }
 
   before do
     stub_licensed_features(epics: true)

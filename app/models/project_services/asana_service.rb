@@ -73,7 +73,7 @@ https://app.asana.com/0/developer-console'
     project_name = project.full_name
 
     data[:commits].each do |commit|
-      push_msg = s_("AsanaService|%{user} pushed to branch %{branch} of %{project_name} ( %{commit_url} ):") % { user: user, branch: branch, project_name: project_name, commit_url: commit[:url] }
+      push_msg = s_('AsanaService|%{user} pushed to branch %{branch} of %{project_name} ( %{commit_url} ):') % { user: user, branch: branch, project_name: project_name, commit_url: commit[:url] }
       check_commit(commit[:message], push_msg)
     end
   end

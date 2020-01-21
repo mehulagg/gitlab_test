@@ -6,7 +6,7 @@ module Emails
       @current_user = @user = User.find(user_id)
       @target_url = user_url(@user)
       @token = token
-      mail(to: @user.notification_email, subject: subject("Account was created for you"))
+      mail(to: @user.notification_email, subject: subject('Account was created for you'))
     end
 
     # rubocop: disable CodeReuse/ActiveRecord
@@ -17,7 +17,7 @@ module Emails
 
       @current_user = @user = @key.user
       @target_url = user_url(@user)
-      mail(to: @user.notification_email, subject: subject("SSH key was added to your account"))
+      mail(to: @user.notification_email, subject: subject('SSH key was added to your account'))
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
@@ -29,7 +29,7 @@ module Emails
 
       @current_user = @user = @gpg_key.user
       @target_url = user_url(@user)
-      mail(to: @user.notification_email, subject: subject("GPG key was added to your account"))
+      mail(to: @user.notification_email, subject: subject('GPG key was added to your account'))
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
@@ -41,7 +41,7 @@ module Emails
       @days_to_expire = PersonalAccessToken::DAYS_TO_EXPIRE
 
       Gitlab::I18n.with_locale(@user.preferred_language) do
-        mail(to: @user.notification_email, subject: subject(_("Your Personal Access Tokens will expire in %{days_to_expire} days or less") % { days_to_expire: @days_to_expire }))
+        mail(to: @user.notification_email, subject: subject(_('Your Personal Access Tokens will expire in %{days_to_expire} days or less') % { days_to_expire: @days_to_expire }))
       end
     end
   end

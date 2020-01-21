@@ -10,7 +10,7 @@ describe ::TodosHelper do
   let_it_be(:note) do
     create(:note,
            project: issue.project,
-           note: "I am note, hear me roar")
+           note: 'I am note, hear me roar')
   end
   let_it_be(:design_todo) do
     create(:todo, :mentioned,

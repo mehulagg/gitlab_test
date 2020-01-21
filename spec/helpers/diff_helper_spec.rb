@@ -130,11 +130,11 @@ describe DiffHelper do
     end
   end
 
-  describe "#mark_inline_diffs" do
+  describe '#mark_inline_diffs' do
     let(:old_line) { %{abc 'def'} }
     let(:new_line) { %{abc "def"} }
 
-    it "returns strings with marked inline diffs" do
+    it 'returns strings with marked inline diffs' do
       marked_old_line, marked_new_line = mark_inline_diffs(old_line, new_line)
 
       expect(marked_old_line).to eq(%q{abc <span class="idiff left right deletion">&#39;def&#39;</span>})
@@ -206,12 +206,12 @@ describe DiffHelper do
     end
   end
 
-  describe "#diff_match_line" do
+  describe '#diff_match_line' do
     let(:old_pos) { 40 }
     let(:new_pos) { 50 }
     let(:text) { 'some_text' }
 
-    it "generates foldable top match line for inline view with empty text by default" do
+    it 'generates foldable top match line for inline view with empty text by default' do
       output = diff_match_line old_pos, new_pos
 
       expect(output).to be_html_safe
@@ -220,7 +220,7 @@ describe DiffHelper do
       expect(output).to have_css 'td:nth-child(3):not(.parallel).line_content.match', text: ''
     end
 
-    it "allows to define text and bottom option" do
+    it 'allows to define text and bottom option' do
       output = diff_match_line old_pos, new_pos, text: text, bottom: true
 
       expect(output).to be_html_safe
@@ -229,7 +229,7 @@ describe DiffHelper do
       expect(output).to have_css 'td:nth-child(3):not(.parallel).line_content.match', text: text
     end
 
-    it "generates match line for parallel view" do
+    it 'generates match line for parallel view' do
       output = diff_match_line old_pos, new_pos, text: text, view: :parallel
 
       expect(output).to be_html_safe
@@ -239,7 +239,7 @@ describe DiffHelper do
       expect(output).to have_css 'td:nth-child(4).line_content.match.parallel', text: text
     end
 
-    it "allows to generate only left match line for parallel view" do
+    it 'allows to generate only left match line for parallel view' do
       output = diff_match_line old_pos, nil, text: text, view: :parallel
 
       expect(output).to be_html_safe
@@ -248,7 +248,7 @@ describe DiffHelper do
       expect(output).not_to have_css 'td:nth-child(3)'
     end
 
-    it "allows to generate only right match line for parallel view" do
+    it 'allows to generate only right match line for parallel view' do
       output = diff_match_line nil, new_pos, text: text, view: :parallel
 
       expect(output).to be_html_safe
@@ -309,7 +309,7 @@ describe DiffHelper do
     end
 
     it 'returns truncated path' do
-      expect(diff_file_path_text(diff_file, max: 10)).to eq("...open.rb")
+      expect(diff_file_path_text(diff_file, max: 10)).to eq('...open.rb')
     end
   end
 end

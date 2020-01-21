@@ -28,7 +28,7 @@ class Groups::MilestonesController < Groups::ApplicationController
     if @milestone.persisted?
       redirect_to milestone_path
     else
-      render "new"
+      render 'new'
     end
   end
 

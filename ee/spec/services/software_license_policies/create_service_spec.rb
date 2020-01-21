@@ -61,7 +61,7 @@ describe SoftwareLicensePolicies::CreateService do
         end
       end
 
-      context "when an argument error is raised" do
+      context 'when an argument error is raised' do
         before do
           allow_any_instance_of(Project).to receive(:software_license_policies).and_raise(ArgumentError)
         end
@@ -71,7 +71,7 @@ describe SoftwareLicensePolicies::CreateService do
         specify { expect(subject.execute[:http_status]).to be(400) }
       end
 
-      context "when invalid input is provided" do
+      context 'when invalid input is provided' do
         before do
           params[:approval_status] = nil
         end

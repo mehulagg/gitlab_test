@@ -15,7 +15,7 @@ describe Gitlab::Checks::LfsIntegrity do
 
     # Create a commit not pointed at by any ref to emulate being in the
     # pre-receive hook so that `--not --all` returns some objects
-    operations.commit_tree('8856a329dd38ca86dfb9ce5aa58a16d88cc119bd', "New LFS objects")
+    operations.commit_tree('8856a329dd38ca86dfb9ce5aa58a16d88cc119bd', 'New LFS objects')
   end
 
   subject { described_class.new(project, newrev, time_left) }

@@ -34,7 +34,7 @@ class MigrateDiscussionIdOnPromotedEpics < ActiveRecord::Migration[5.2]
         .where(system: true)
         .where(noteable_type: 'Epic')
         .where(system_note_metadata: { action: 'moved' })
-        .select("DISTINCT noteable_id")
+        .select('DISTINCT noteable_id')
 
       Note.where(noteable_type: 'Epic')
         .where(noteable_id: promoted_epics_query)

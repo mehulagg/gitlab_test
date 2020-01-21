@@ -5,7 +5,7 @@ module QA
     module ClusterProvider
       class K3d < Base
         def validate_dependencies
-          find_executable('k3d') || raise("You must first install `k3d` executable to run these tests.")
+          find_executable('k3d') || raise('You must first install `k3d` executable to run these tests.')
           Runtime::Env.require_admin_access_token!
           Runtime::ApplicationSettings.set_application_settings(allow_local_requests_from_web_hooks_and_services: true)
         end
@@ -18,7 +18,7 @@ module QA
 
           @old_kubeconfig = ENV['KUBECONFIG']
           ENV['KUBECONFIG'] = fetch_kubeconfig
-          raise "Could not fetch kubeconfig" unless ENV['KUBECONFIG']
+          raise 'Could not fetch kubeconfig' unless ENV['KUBECONFIG']
 
           install_local_storage
         end

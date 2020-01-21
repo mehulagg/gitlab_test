@@ -28,7 +28,7 @@ describe 'notify/pipeline_success_email.html.haml' do
     it 'renders the email correctly' do
       render
 
-      expect(rendered).to have_content "Your pipeline has passed"
+      expect(rendered).to have_content 'Your pipeline has passed'
       expect(rendered).to have_content pipeline.project.name
       expect(rendered).to have_content pipeline.git_commit_message.truncate(50).gsub(/\s+/, ' ')
       expect(rendered).to have_content pipeline.commit.author_name
@@ -47,12 +47,12 @@ describe 'notify/pipeline_success_email.html.haml' do
     it 'renders the email correctly' do
       render
 
-      expect(rendered).to have_content "Your pipeline has passed"
+      expect(rendered).to have_content 'Your pipeline has passed'
       expect(rendered).to have_content pipeline.project.name
       expect(rendered).to have_content pipeline.git_commit_message.truncate(50).gsub(/\s+/, ' ')
       expect(rendered).to have_content pipeline.commit.author_name
       expect(rendered).to have_content "##{pipeline.id}"
-      expect(rendered).to have_content "by API"
+      expect(rendered).to have_content 'by API'
     end
   end
 end

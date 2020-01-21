@@ -52,7 +52,7 @@ describe Projects::DesignsController do
         it 'serves files with Workhorse' do
           subject
 
-          expect(response.header[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
+          expect(response.header[Gitlab::Workhorse::DETECT_HEADER]).to eq 'true'
           expect(response.header[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with('git-blob:')
         end
       end

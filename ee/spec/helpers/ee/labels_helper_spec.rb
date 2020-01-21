@@ -36,16 +36,16 @@ describe LabelsHelper do
   describe '#label_dropdown_data' do
     subject { label_dropdown_data(edit_context, opts) }
 
-    let(:opts) { { default_label: "Labels" } }
+    let(:opts) { { default_label: 'Labels' } }
     let(:data) do
       {
-        toggle: "dropdown",
-        field_name: opts[:field_name] || "label_name[]",
-        show_no: "true",
-        show_any: "true",
-        default_label: "Labels",
-        scoped_labels: "false",
-        scoped_labels_documentation_link: "/help/user/project/labels.md#scoped-labels"
+        toggle: 'dropdown',
+        field_name: opts[:field_name] || 'label_name[]',
+        show_no: 'true',
+        show_any: 'true',
+        default_label: 'Labels',
+        scoped_labels: 'false',
+        scoped_labels_documentation_link: '/help/user/project/labels.md#scoped-labels'
       }
     end
 

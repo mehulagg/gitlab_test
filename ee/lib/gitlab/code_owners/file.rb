@@ -35,7 +35,7 @@ module Gitlab
         if @blob && !@blob.binary?
           @blob.data
         else
-          ""
+          ''
         end
       end
 

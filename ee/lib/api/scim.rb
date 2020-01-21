@@ -139,7 +139,7 @@ module API
           when :conflict
             scim_conflict!(message: "Error saving user with #{params.inspect}: #{result.message}")
           when :error
-            scim_error!(message: ["Error saving user with #{params.inspect}", result.message].compact.join(": "))
+            scim_error!(message: ["Error saving user with #{params.inspect}", result.message].compact.join(': '))
           end
         end
 

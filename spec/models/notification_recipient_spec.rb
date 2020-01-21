@@ -165,7 +165,7 @@ describe NotificationRecipient do
       end
 
       context 'with custom action' do
-        context "when action is failed_pipeline" do
+        context 'when action is failed_pipeline' do
           let(:recipient) do
             described_class.new(
               user,
@@ -185,7 +185,7 @@ describe NotificationRecipient do
           end
         end
 
-        context "when action is not failed_pipeline" do
+        context 'when action is not failed_pipeline' do
           let(:recipient) do
             described_class.new(
               user,

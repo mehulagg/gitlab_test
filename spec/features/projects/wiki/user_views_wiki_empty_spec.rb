@@ -12,8 +12,8 @@ describe 'User views empty wiki' do
       element = page.find('.row.empty-state')
 
       expect(element).to have_content('This project has no wiki pages')
-      expect(element).to have_link("issue tracker", href: project_issues_path(project))
-      expect(element).to have_link("Suggest wiki improvement", href: new_project_issue_path(project))
+      expect(element).to have_link('issue tracker', href: project_issues_path(project))
+      expect(element).to have_link('Suggest wiki improvement', href: new_project_issue_path(project))
     end
   end
 

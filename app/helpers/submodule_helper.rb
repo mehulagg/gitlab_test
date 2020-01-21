@@ -80,7 +80,7 @@ module SubmoduleHelper
 
   def relative_self_links(relative_path, commit, project)
     relative_path = relative_path.rstrip
-    absolute_project_path = "/" + project.full_path
+    absolute_project_path = '/' + project.full_path
 
     # Resolve `relative_path` to target path
     # Assuming `absolute_project_path` is `/g1/p1`:

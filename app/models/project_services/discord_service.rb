@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
-require "discordrb/webhooks"
+require 'discordrb/webhooks'
 
 class DiscordService < ChatNotificationService
   def title
-    s_("DiscordService|Discord Notifications")
+    s_('DiscordService|Discord Notifications')
   end
 
   def description
-    s_("DiscordService|Receive event notifications in Discord")
+    s_('DiscordService|Receive event notifications in Discord')
   end
 
   def self.to_param
-    "discord"
+    'discord'
   end
 
   def help
@@ -40,8 +40,8 @@ class DiscordService < ChatNotificationService
 
   def default_fields
     [
-      { type: "text", name: "webhook", placeholder: "e.g. https://discordapp.com/api/webhooks/…" },
-      { type: "checkbox", name: "notify_only_broken_pipelines" },
+      { type: 'text', name: 'webhook', placeholder: 'e.g. https://discordapp.com/api/webhooks/…' },
+      { type: 'checkbox', name: 'notify_only_broken_pipelines' },
       { type: 'select', name: 'branches_to_be_notified', choices: BRANCH_CHOICES }
     ]
   end

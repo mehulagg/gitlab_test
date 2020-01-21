@@ -27,7 +27,7 @@ class EmailsOnPushService < Service
   def initialize_properties
     if properties.nil?
       self.properties = {}
-      self.branches_to_be_notified ||= "all"
+      self.branches_to_be_notified ||= 'all'
     end
   end
 
@@ -61,11 +61,11 @@ class EmailsOnPushService < Service
   end
 
   def fields
-    domains = Notify.allowed_email_domains.map { |domain| "user@#{domain}" }.join(", ")
+    domains = Notify.allowed_email_domains.map { |domain| "user@#{domain}" }.join(', ')
     [
-      { type: 'checkbox', name: 'send_from_committer_email', title: s_("EmailsOnPushService|Send from committer"),
+      { type: 'checkbox', name: 'send_from_committer_email', title: s_('EmailsOnPushService|Send from committer'),
         help: s_("EmailsOnPushService|Send notifications from the committer's email address if the domain is part of the domain GitLab is running on (e.g. %{domains}).") % { domains: domains } },
-      { type: 'checkbox', name: 'disable_diffs', title: s_("EmailsOnPushService|Disable code diffs"),
+      { type: 'checkbox', name: 'disable_diffs', title: s_('EmailsOnPushService|Disable code diffs'),
         help: s_("EmailsOnPushService|Don't include possibly sensitive code diffs in notification body.") },
       { type: 'select', name: 'branches_to_be_notified', choices: BRANCH_CHOICES },
       { type: 'textarea', name: 'recipients', placeholder: s_('EmailsOnPushService|Emails separated by whitespace') }

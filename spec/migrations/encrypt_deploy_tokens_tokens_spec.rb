@@ -7,7 +7,7 @@ require Rails.root.join('db', 'post_migrate', '20190711201818_encrypt_deploy_tok
 describe EncryptDeployTokensTokens, :migration do
   let(:migration) { described_class.new }
   let(:deployment_tokens) { table(:deploy_tokens) }
-  let(:plaintext) { "secret-token" }
+  let(:plaintext) { 'secret-token' }
   let(:expires_at) { DateTime.now + 1.year }
   let(:ciphertext) { Gitlab::CryptoHelper.aes256_gcm_encrypt(plaintext) }
 

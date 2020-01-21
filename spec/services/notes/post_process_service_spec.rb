@@ -36,7 +36,7 @@ describe Notes::PostProcessService do
         described_class.new(@note).execute
       end
 
-      it "calls confidential-note hooks/services" do
+      it 'calls confidential-note hooks/services' do
         expect(project).to receive(:execute_hooks).with(anything, :confidential_note_hooks)
         expect(project).to receive(:execute_services).with(anything, :confidential_note_hooks)
 

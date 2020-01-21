@@ -203,7 +203,7 @@ class Project < ApplicationRecord
   has_many :hooks, class_name: 'ProjectHook'
   has_many :protected_branches
   has_many :protected_tags
-  has_many :repository_languages, -> { order "share DESC" }
+  has_many :repository_languages, -> { order 'share DESC' }
 
   has_many :project_authorizations
   has_many :authorized_users, through: :project_authorizations, source: :user, class_name: 'User'
@@ -547,7 +547,7 @@ class Project < ApplicationRecord
   scope :excluding_project, ->(project) { where.not(id: project) }
 
   # We require an alias to the project_mirror_data_table in order to use import_state in our queries
-  scope :joins_import_state, -> { joins("INNER JOIN project_mirror_data import_state ON import_state.project_id = projects.id") }
+  scope :joins_import_state, -> { joins('INNER JOIN project_mirror_data import_state ON import_state.project_id = projects.id') }
   scope :for_group, -> (group) { where(group: group) }
   scope :for_group_and_its_subgroups, ->(group) { where(namespace_id: group.self_and_descendants.select(:id)) }
 
@@ -1008,14 +1008,14 @@ class Project < ApplicationRecord
 
     level_name = Gitlab::VisibilityLevel.level_name(self.visibility_level).downcase
     group_level_name = Gitlab::VisibilityLevel.level_name(self.group.visibility_level).downcase
-    self.errors.add(:visibility_level, _("%{level_name} is not allowed in a %{group_level_name} group.") % { level_name: level_name, group_level_name: group_level_name })
+    self.errors.add(:visibility_level, _('%{level_name} is not allowed in a %{group_level_name} group.') % { level_name: level_name, group_level_name: group_level_name })
   end
 
   def visibility_level_allowed_as_fork
     return if visibility_level_allowed_as_fork?
 
     level_name = Gitlab::VisibilityLevel.level_name(self.visibility_level).downcase
-    self.errors.add(:visibility_level, _("%{level_name} is not allowed since the fork source project has lower visibility.") % { level_name: level_name })
+    self.errors.add(:visibility_level, _('%{level_name} is not allowed since the fork source project has lower visibility.') % { level_name: level_name })
   end
 
   def check_wiki_path_conflict
@@ -1044,7 +1044,7 @@ class Project < ApplicationRecord
     return unless pages_https_only?
 
     unless pages_domains.all?(&:https?)
-      errors.add(:pages_https_only, _("cannot be enabled unless all domains have TLS certificates"))
+      errors.add(:pages_https_only, _('cannot be enabled unless all domains have TLS certificates'))
     end
   end
 
@@ -2127,7 +2127,7 @@ class Project < ApplicationRecord
   #
   # @param [Symbol] feature that needs to be rolled out for the project (:repository, :attachments)
   def hashed_storage?(feature)
-    raise ArgumentError, _("Invalid feature") unless HASHED_STORAGE_FEATURES.include?(feature)
+    raise ArgumentError, _('Invalid feature') unless HASHED_STORAGE_FEATURES.include?(feature)
 
     self.storage_version && self.storage_version >= HASHED_STORAGE_FEATURES[feature]
   end
@@ -2156,13 +2156,13 @@ class Project < ApplicationRecord
 
   def merge_method=(method)
     case method.to_s
-    when "ff"
+    when 'ff'
       self.merge_requests_ff_only_enabled = true
       self.merge_requests_rebase_enabled = true
-    when "rebase_merge"
+    when 'rebase_merge'
       self.merge_requests_ff_only_enabled = false
       self.merge_requests_rebase_enabled = true
-    when "merge"
+    when 'merge'
       self.merge_requests_ff_only_enabled = false
       self.merge_requests_rebase_enabled = false
     end
@@ -2436,7 +2436,7 @@ class Project < ApplicationRecord
       errors.delete(error)
     end
 
-    errors.add(:base, _("The project is still being deleted. Please try again later."))
+    errors.add(:base, _('The project is still being deleted. Please try again later.'))
   end
 
   def pending_delete_twin

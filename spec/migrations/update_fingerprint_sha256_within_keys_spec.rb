@@ -23,8 +23,8 @@ describe UpdateFingerprintSha256WithinKeys, :sidekiq, :migration do
       described_class.new.up
 
       expect(BackgroundMigrationWorker.jobs.size).to eq(1)
-      expect(BackgroundMigrationWorker.jobs.first["args"][0]).to eq("MigrateFingerprintSha256WithinKeys")
-      expect(BackgroundMigrationWorker.jobs.first["args"][1]).to eq([1, 1])
+      expect(BackgroundMigrationWorker.jobs.first['args'][0]).to eq('MigrateFingerprintSha256WithinKeys')
+      expect(BackgroundMigrationWorker.jobs.first['args'][1]).to eq([1, 1])
     end
   end
 end

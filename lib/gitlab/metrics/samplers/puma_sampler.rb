@@ -40,7 +40,7 @@ module Gitlab
         def puma_stats
           Puma.stats
         rescue NoMethodError
-          Rails.logger.info "PumaSampler: stats are not available yet, waiting for Puma to boot" # rubocop:disable Gitlab/RailsLogger
+          Rails.logger.info 'PumaSampler: stats are not available yet, waiting for Puma to boot' # rubocop:disable Gitlab/RailsLogger
           nil
         end
 
@@ -67,7 +67,7 @@ module Gitlab
         end
 
         def set_master_metrics(stats)
-          labels = { worker: "master" }
+          labels = { worker: 'master' }
 
           metrics[:puma_workers].set(labels, stats['workers'])
           metrics[:puma_running_workers].set(labels, stats['booted_workers'])

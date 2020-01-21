@@ -27,7 +27,7 @@ module EE
         # rubocop: disable CodeReuse/ActiveRecord
         def issues_label_links
           if has_valid_milestone?
-            super.where("issues.milestone_id = ?", board.milestone_id)
+            super.where('issues.milestone_id = ?', board.milestone_id)
           else
             super
           end
@@ -62,7 +62,7 @@ module EE
 
           matching_assignee = ::IssueAssignee
                                 .where(user_id: all_assignee_lists.reorder(nil).select(:user_id))
-                                .where("issue_id = issues.id")
+                                .where('issue_id = issues.id')
                                 .select(1)
 
           issues.where('NOT EXISTS (?)', matching_assignee)
@@ -78,7 +78,7 @@ module EE
         def without_milestones_from_lists(issues)
           return issues if all_milestone_lists.empty?
 
-          issues.where("milestone_id NOT IN (?) OR milestone_id IS NULL",
+          issues.where('milestone_id NOT IN (?) OR milestone_id IS NULL',
                        all_milestone_lists.select(:milestone_id))
         end
         # rubocop: enable CodeReuse/ActiveRecord

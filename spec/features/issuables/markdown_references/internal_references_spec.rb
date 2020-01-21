@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe "Internal references", :js do
+describe 'Internal references', :js do
   include Spec::Support::Helpers::Features::NotesHelpers
 
   let(:private_project_user) { private_project.owner }
@@ -14,9 +14,9 @@ describe "Internal references", :js do
   let(:public_project_issue) { create(:issue, project: public_project) }
   let(:public_project_merge_request) { create(:merge_request, source_project: public_project) }
 
-  context "when referencing to open issue" do
-    context "from private project" do
-      context "from issue" do
+  context 'when referencing to open issue' do
+    context 'from private project' do
+      context 'from issue' do
         before do
           sign_in(private_project_user)
 
@@ -32,11 +32,11 @@ describe "Internal references", :js do
             visit(project_issue_path(public_project, public_project_issue))
           end
 
-          it { expect(page).not_to have_css(".note") }
+          it { expect(page).not_to have_css('.note') }
         end
       end
 
-      context "from merge request" do
+      context 'from merge request' do
         before do
           sign_in(private_project_user)
 
@@ -53,26 +53,26 @@ describe "Internal references", :js do
           end
 
           it "doesn't show any references" do
-            page.within(".issue-details") do
-              expect(page).not_to have_content("#merge-requests .merge-requests-title")
+            page.within('.issue-details') do
+              expect(page).not_to have_content('#merge-requests .merge-requests-title')
             end
           end
         end
 
-        context "when user has access to private project" do
+        context 'when user has access to private project' do
           before do
             visit(project_issue_path(public_project, public_project_issue))
           end
 
-          it "shows references", :sidekiq_might_not_need_inline do
-            page.within("#merge-requests .merge-requests-title") do
-              expect(page).to have_content("Related merge requests")
-              expect(page).to have_css(".mr-count-badge")
+          it 'shows references', :sidekiq_might_not_need_inline do
+            page.within('#merge-requests .merge-requests-title') do
+              expect(page).to have_content('Related merge requests')
+              expect(page).to have_css('.mr-count-badge')
             end
 
-            page.within("#merge-requests ul") do
+            page.within('#merge-requests ul') do
               expect(page).to have_content(private_project_merge_request.title)
-              expect(page).to have_css(".ic-issue-open-m")
+              expect(page).to have_css('.ic-issue-open-m')
             end
 
             expect(page).to have_content("mentioned in merge request #{private_project_merge_request.to_reference(public_project)}")
@@ -83,9 +83,9 @@ describe "Internal references", :js do
     end
   end
 
-  context "when referencing to open merge request" do
-    context "from private project" do
-      context "from issue" do
+  context 'when referencing to open merge request' do
+    context 'from private project' do
+      context 'from issue' do
         before do
           sign_in(private_project_user)
 
@@ -101,11 +101,11 @@ describe "Internal references", :js do
             visit(project_merge_request_path(public_project, public_project_merge_request))
           end
 
-          it { expect(page).not_to have_css(".note") }
+          it { expect(page).not_to have_css('.note') }
         end
       end
 
-      context "from merge request" do
+      context 'from merge request' do
         before do
           sign_in(private_project_user)
 
@@ -122,18 +122,18 @@ describe "Internal references", :js do
           end
 
           it "doesn't show any references" do
-            page.within(".merge-request-details") do
-              expect(page).not_to have_content("#merge-requests .merge-requests-title")
+            page.within('.merge-request-details') do
+              expect(page).not_to have_content('#merge-requests .merge-requests-title')
             end
           end
         end
 
-        context "when user has access to private project" do
+        context 'when user has access to private project' do
           before do
             visit(project_merge_request_path(public_project, public_project_merge_request))
           end
 
-          it "shows references", :sidekiq_might_not_need_inline do
+          it 'shows references', :sidekiq_might_not_need_inline do
             expect(page).to have_content("mentioned in merge request #{private_project_merge_request.to_reference(public_project)}")
                        .and have_content(private_project_user.name)
           end

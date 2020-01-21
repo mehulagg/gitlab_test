@@ -9,7 +9,7 @@ describe EventCreateService do
     let(:epic) { create(:epic) }
 
     describe '#open_epic' do
-      it "creates new event" do
+      it 'creates new event' do
         event = service.open_epic(epic, epic.author)
 
         expect_event(event, Event::CREATED)
@@ -17,7 +17,7 @@ describe EventCreateService do
     end
 
     describe '#close_epic' do
-      it "creates new event" do
+      it 'creates new event' do
         event = service.close_epic(epic, epic.author)
 
         expect_event(event, Event::CLOSED)
@@ -25,7 +25,7 @@ describe EventCreateService do
     end
 
     describe '#reopen_epic' do
-      it "creates new event" do
+      it 'creates new event' do
         event = service.reopen_epic(epic, epic.author)
 
         expect_event(event, Event::REOPENED)
@@ -33,7 +33,7 @@ describe EventCreateService do
     end
 
     describe '#leave_note' do
-      it "creates new event" do
+      it 'creates new event' do
         note = create(:note, noteable: epic)
 
         event = service.leave_note(note, epic.author)

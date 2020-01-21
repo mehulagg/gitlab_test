@@ -5,8 +5,8 @@ require 'spec_helper'
 describe Banzai::Filter::WikiLinkFilter do
   include FilterSpecHelper
 
-  let(:namespace) { build_stubbed(:namespace, name: "wiki_link_ns") }
-  let(:project)   { build_stubbed(:project, :public, name: "wiki_link_project", namespace: namespace) }
+  let(:namespace) { build_stubbed(:namespace, name: 'wiki_link_ns') }
+  let(:project)   { build_stubbed(:project, :public, name: 'wiki_link_project', namespace: namespace) }
   let(:user) { double }
   let(:wiki) { ProjectWiki.new(project, user) }
   let(:repository_upload_folder) { Wikis::CreateAttachmentService::ATTACHMENT_PATH }
@@ -70,8 +70,8 @@ describe Banzai::Filter::WikiLinkFilter do
     end
   end
 
-  describe "invalid links" do
-    invalid_links = ["http://:8080", "http://", "http://:8080/path"]
+  describe 'invalid links' do
+    invalid_links = ['http://:8080', 'http://', 'http://:8080/path']
 
     invalid_links.each do |invalid_link|
       it "doesn't rewrite invalid invalid_links like #{invalid_link}" do

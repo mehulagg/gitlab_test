@@ -34,7 +34,7 @@ describe Gitlab::ImportExport::WikiRestorer do
       expect(restorer.restore).to be true
     end
 
-    describe "no wiki in the bundle" do
+    describe 'no wiki in the bundle' do
       let(:bundler) { Gitlab::ImportExport::WikiRepoSaver.new(project: project_without_wiki, shared: shared) }
 
       it 'creates an empty wiki' do

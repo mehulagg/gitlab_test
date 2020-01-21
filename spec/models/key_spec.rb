@@ -3,11 +3,11 @@
 require 'spec_helper'
 
 describe Key, :mailer do
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to(:user) }
   end
 
-  describe "Validation" do
+  describe 'Validation' do
     it { is_expected.to validate_presence_of(:title) }
     it { is_expected.to validate_length_of(:title).is_at_most(255) }
 
@@ -23,19 +23,19 @@ describe Key, :mailer do
     it { is_expected.not_to allow_value('foo-bar').for(:key) }
   end
 
-  describe "Methods" do
+  describe 'Methods' do
     let(:user) { create(:user) }
 
     it { is_expected.to respond_to :projects }
     it { is_expected.to respond_to :publishable_key }
 
-    describe "#publishable_keys" do
+    describe '#publishable_keys' do
       it 'replaces SSH key comment with simple identifier of username + hostname' do
         expect(build(:key, user: user).publishable_key).to include("#{user.name} (#{Gitlab.config.gitlab.host})")
       end
     end
 
-    describe "#update_last_used_at" do
+    describe '#update_last_used_at' do
       it 'updates the last used timestamp' do
         key = build(:key)
         service = double(:service)
@@ -77,20 +77,20 @@ describe Key, :mailer do
     end
   end
 
-  context "validation of uniqueness (based on fingerprint uniqueness)" do
+  context 'validation of uniqueness (based on fingerprint uniqueness)' do
     let(:user) { create(:user) }
 
-    it "accepts the key once" do
+    it 'accepts the key once' do
       expect(build(:key, user: user)).to be_valid
     end
 
-    it "does not accept the exact same key twice" do
+    it 'does not accept the exact same key twice' do
       first_key = create(:key, user: user)
 
       expect(build(:key, user: user, key: first_key.key)).not_to be_valid
     end
 
-    it "does not accept a duplicate key with a different comment" do
+    it 'does not accept a duplicate key with a different comment' do
       first_key = create(:key, user: user)
       duplicate = build(:key, user: user, key: first_key.key)
       duplicate.key << ' extra comment'
@@ -99,8 +99,8 @@ describe Key, :mailer do
     end
   end
 
-  context "validate it is a fingerprintable key" do
-    it "accepts the fingerprintable key" do
+  context 'validate it is a fingerprintable key' do
+    it 'accepts the fingerprintable key' do
       expect(build(:key)).to be_valid
     end
 
@@ -196,7 +196,7 @@ describe Key, :mailer do
 
   describe '#key=' do
     let(:valid_key) do
-      "ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAIEAiPWx6WM4lhHNedGfBpPJNPpZ7yKu+dnn1SJejgt4596k6YjzGGphH2TUxwKzxcKDKKezwkpfnxPkSMkuEspGRt/aZZ9wa++Oi7Qkr8prgHc4soW6NUlfDzpvZK2H5E7eQaSeP3SAwGmQKUFHCddNaP0L+hM7zhFNzjFvpaMgJw0= dummy@gitlab.com"
+      'ssh-rsa AAAAB3NzaC1yc2EAAAABJQAAAIEAiPWx6WM4lhHNedGfBpPJNPpZ7yKu+dnn1SJejgt4596k6YjzGGphH2TUxwKzxcKDKKezwkpfnxPkSMkuEspGRt/aZZ9wa++Oi7Qkr8prgHc4soW6NUlfDzpvZK2H5E7eQaSeP3SAwGmQKUFHCddNaP0L+hM7zhFNzjFvpaMgJw0= dummy@gitlab.com'
     end
 
     it 'strips white spaces' do

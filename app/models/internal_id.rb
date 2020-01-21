@@ -91,7 +91,7 @@ class InternalId < ApplicationRecord
     # A filter condition has to be provided to not accidentally flush
     # records for all projects.
     def flush_records!(filter)
-      raise ArgumentError, "filter cannot be empty" if filter.blank?
+      raise ArgumentError, 'filter cannot be empty' if filter.blank?
 
       where(filter).delete_all
     end

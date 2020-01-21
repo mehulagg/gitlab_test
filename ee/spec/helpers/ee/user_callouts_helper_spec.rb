@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe EE::UserCalloutsHelper do
   describe '.render_enable_hashed_storage_warning' do

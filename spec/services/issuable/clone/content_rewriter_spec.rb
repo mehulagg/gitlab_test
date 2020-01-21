@@ -166,9 +166,9 @@ describe Issuable::Clone::ContentRewriter do
       end
     end
 
-    context "discussion notes" do
-      let(:note) { create(:note, noteable: original_issue, note: "sample note", project: project1) }
-      let!(:discussion) { create(:discussion_note_on_issue, in_reply_to: note, note: "reply to sample note") }
+    context 'discussion notes' do
+      let(:note) { create(:note, noteable: original_issue, note: 'sample note', project: project1) }
+      let!(:discussion) { create(:discussion_note_on_issue, in_reply_to: note, note: 'reply to sample note') }
 
       it 'rewrites discussion correctly' do
         subject.execute

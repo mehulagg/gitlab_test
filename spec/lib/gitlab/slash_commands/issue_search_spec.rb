@@ -9,7 +9,7 @@ describe Gitlab::SlashCommands::IssueSearch do
     let(:project) { create(:project) }
     let(:user) { create(:user) }
     let(:chat_name) { double(:chat_name, user: user) }
-    let(:regex_match) { described_class.match("issue search find") }
+    let(:regex_match) { described_class.match('issue search find') }
 
     subject do
       described_class.new(project, chat_name).execute(regex_match)
@@ -18,7 +18,7 @@ describe Gitlab::SlashCommands::IssueSearch do
     context 'when the user has no access' do
       it 'only returns the open issues' do
         expect(subject[:response_type]).to be(:ephemeral)
-        expect(subject[:text]).to match("not found")
+        expect(subject[:text]).to match('not found')
       end
     end
 
@@ -29,19 +29,19 @@ describe Gitlab::SlashCommands::IssueSearch do
 
       it 'returns all results' do
         expect(subject).to have_key(:attachments)
-        expect(subject[:text]).to eq("Here are the 2 issues I found:")
+        expect(subject[:text]).to eq('Here are the 2 issues I found:')
       end
     end
 
     context 'without hits on the query' do
       it 'returns an empty collection' do
-        expect(subject[:text]).to match("not found")
+        expect(subject[:text]).to match('not found')
       end
     end
   end
 
   describe 'self.match' do
-    let(:query) { "my search keywords" }
+    let(:query) { 'my search keywords' }
 
     it 'matches the query' do
       match = described_class.match("issue search #{query}")

@@ -5,8 +5,8 @@ require 'spec_helper'
 describe Gitlab::GitalyClient::Diff do
   let(:diff_fields) do
     {
-      to_path: ".gitmodules",
-      from_path: ".gitmodules",
+      to_path: '.gitmodules',
+      from_path: '.gitmodules',
       old_mode: 0100644,
       new_mode: 0100644,
       from_id: '357406f3075a57708d0163752905cc1576fceacc',

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe Files::MultiService do
   subject { described_class.new(project, user, commit_params) }

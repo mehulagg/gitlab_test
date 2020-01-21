@@ -21,12 +21,12 @@ describe Snippets::NotesController do
         get :index, params: { snippet_id: public_snippet }
       end
 
-      it "returns status 200" do
+      it 'returns status 200' do
         expect(response).to have_gitlab_http_status(200)
       end
 
-      it "returns not empty array of notes" do
-        expect(json_response["notes"].empty?).to be_falsey
+      it 'returns not empty array of notes' do
+        expect(json_response['notes'].empty?).to be_falsey
       end
     end
 
@@ -36,7 +36,7 @@ describe Snippets::NotesController do
       end
 
       context 'when user not logged in' do
-        it "returns status 404" do
+        it 'returns status 404' do
           get :index, params: { snippet_id: internal_snippet }
 
           expect(response).to have_gitlab_http_status(404)
@@ -48,7 +48,7 @@ describe Snippets::NotesController do
           sign_in(user)
         end
 
-        it "returns status 200" do
+        it 'returns status 200' do
           get :index, params: { snippet_id: internal_snippet }
 
           expect(response).to have_gitlab_http_status(200)
@@ -62,7 +62,7 @@ describe Snippets::NotesController do
       end
 
       context 'when user not logged in' do
-        it "returns status 404" do
+        it 'returns status 404' do
           get :index, params: { snippet_id: private_snippet }
 
           expect(response).to have_gitlab_http_status(404)
@@ -74,7 +74,7 @@ describe Snippets::NotesController do
           sign_in(user)
         end
 
-        it "returns status 404" do
+        it 'returns status 404' do
           get :index, params: { snippet_id: private_snippet }
 
           expect(response).to have_gitlab_http_status(404)
@@ -88,13 +88,13 @@ describe Snippets::NotesController do
           sign_in(private_snippet.author)
         end
 
-        it "returns status 200" do
+        it 'returns status 200' do
           get :index, params: { snippet_id: private_snippet }
 
           expect(response).to have_gitlab_http_status(200)
         end
 
-        it "returns 1 note" do
+        it 'returns 1 note' do
           get :index, params: { snippet_id: private_snippet }
 
           expect(json_response['notes'].count).to eq(1)
@@ -111,7 +111,7 @@ describe Snippets::NotesController do
         expect_any_instance_of(Note).to receive(:cross_reference_not_visible_for?).and_return(true)
       end
 
-      it "does not return any note" do
+      it 'does not return any note' do
         get :index, params: { snippet_id: public_snippet }
 
         expect(json_response['notes'].count).to eq(0)
@@ -246,13 +246,13 @@ describe Snippets::NotesController do
         sign_in(note_on_public.author)
       end
 
-      it "returns status 200" do
+      it 'returns status 200' do
         delete :destroy, params: request_params
 
         expect(response).to have_gitlab_http_status(200)
       end
 
-      it "deletes the note" do
+      it 'deletes the note' do
         expect { delete :destroy, params: request_params }.to change { Note.count }.from(1).to(0)
       end
 
@@ -261,7 +261,7 @@ describe Snippets::NotesController do
           expect_any_instance_of(Note).to receive(:system?).and_return(true)
         end
 
-        it "does not delete the note" do
+        it 'does not delete the note' do
           expect { delete :destroy, params: request_params }.not_to change { Note.count }
         end
       end
@@ -274,13 +274,13 @@ describe Snippets::NotesController do
         note_on_public
       end
 
-      it "returns status 404" do
+      it 'returns status 404' do
         delete :destroy, params: request_params
 
         expect(response).to have_gitlab_http_status(404)
       end
 
-      it "does not update the note" do
+      it 'does not update the note' do
         expect { delete :destroy, params: request_params }.not_to change { Note.count }
       end
     end
@@ -296,13 +296,13 @@ describe Snippets::NotesController do
 
     subject { post(:toggle_award_emoji, params: { snippet_id: public_snippet, id: note.id, name: emoji_name }) }
 
-    it "toggles the award emoji" do
+    it 'toggles the award emoji' do
       expect { subject }.to change { note.award_emoji.count }.by(1)
 
       expect(response).to have_gitlab_http_status(200)
     end
 
-    it "removes the already awarded emoji when it exists" do
+    it 'removes the already awarded emoji when it exists' do
       create(:award_emoji, awardable: note, name: emoji_name, user: user)
 
       expect { subject }.to change { AwardEmoji.count }.by(-1)

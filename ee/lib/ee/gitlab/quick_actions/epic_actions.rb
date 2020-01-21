@@ -12,7 +12,7 @@ module EE
           explanation do |epic_param|
             child_epic = extract_epic(epic_param)
 
-            _("Adds %{epic_ref} as child epic.") % { epic_ref: child_epic.to_reference(quick_action_target) } if child_epic
+            _('Adds %{epic_ref} as child epic.') % { epic_ref: child_epic.to_reference(quick_action_target) } if child_epic
           end
           types Epic
           condition { action_allowed? }
@@ -27,7 +27,7 @@ module EE
           explanation do |epic_param|
             child_epic = extract_epic(epic_param)
 
-            _("Removes %{epic_ref} from child epics.") % { epic_ref: child_epic.to_reference(quick_action_target) } if child_epic
+            _('Removes %{epic_ref} from child epics.') % { epic_ref: child_epic.to_reference(quick_action_target) } if child_epic
           end
           types Epic
           condition { action_allowed? }
@@ -39,9 +39,9 @@ module EE
               if child_epic && quick_action_target.child?(child_epic.id)
                 EpicLinks::DestroyService.new(child_epic, current_user).execute
 
-                _("Removed %{epic_ref} from child epics.") % { epic_ref: child_epic.to_reference(quick_action_target) }
+                _('Removed %{epic_ref} from child epics.') % { epic_ref: child_epic.to_reference(quick_action_target) }
               else
-                _("Child epic does not exist.")
+                _('Child epic does not exist.')
               end
           end
 
@@ -49,7 +49,7 @@ module EE
           explanation do |epic_param|
             parent_epic = extract_epic(epic_param)
 
-            _("Sets %{epic_ref} as parent epic.") % { epic_ref: parent_epic.to_reference(quick_action_target) } if parent_epic
+            _('Sets %{epic_ref} as parent epic.') % { epic_ref: parent_epic.to_reference(quick_action_target) } if parent_epic
           end
           types Epic
           condition { action_allowed? }
@@ -77,7 +77,7 @@ module EE
 
                 _('Removed parent epic %{epic_ref}.') % { epic_ref: parent_epic.to_reference(quick_action_target) }
               else
-                _("Parent epic is not present.")
+                _('Parent epic is not present.')
               end
           end
 
@@ -105,7 +105,7 @@ module EE
 
             EpicLinks::CreateService.new(target_epic, current_user, { target_issuable: child_epic }).execute
 
-            _("Added %{epic_ref} as a child epic.") % { epic_ref: child_epic.to_reference(target_epic) }
+            _('Added %{epic_ref} as a child epic.') % { epic_ref: child_epic.to_reference(target_epic) }
           end
 
           def set_parent_epic(target_epic, parent_epic)
@@ -115,7 +115,7 @@ module EE
 
             EpicLinks::CreateService.new(parent_epic, current_user, { target_issuable: target_epic }).execute
 
-            _("Set %{epic_ref} as the parent epic.") % { epic_ref: parent_epic.to_reference(target_epic) }
+            _('Set %{epic_ref} as the parent epic.') % { epic_ref: parent_epic.to_reference(target_epic) }
           end
 
           def parent_error_message(reason)
@@ -123,7 +123,7 @@ module EE
             when :not_present
               _("Parent epic doesn't exist.")
             when :already_related
-              _("Given epic is already related to this epic.")
+              _('Given epic is already related to this epic.')
             when :no_permission
               _("You don't have sufficient permission to perform this action.")
             end
@@ -134,7 +134,7 @@ module EE
             when :not_present
               _("Child epic doesn't exist.")
             when :already_related
-              _("Given epic is already related to this epic.")
+              _('Given epic is already related to this epic.')
             when :no_permission
               _("You don't have sufficient permission to perform this action.")
             end

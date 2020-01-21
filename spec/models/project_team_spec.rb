@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe ProjectTeam do
   let(:maintainer) { create(:user) }
@@ -219,7 +219,7 @@ describe ProjectTeam do
     end
   end
 
-  describe "#human_max_access" do
+  describe '#human_max_access' do
     it 'returns Maintainer role' do
       user = create(:user)
       group = create(:group)

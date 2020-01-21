@@ -19,7 +19,7 @@ describe CountryStatesController do
       get :index, params: { country: country }
 
       expect(response.status).to eq(404)
-      expect(response.body).to eq("null")
+      expect(response.body).to eq('null')
     end
   end
 end

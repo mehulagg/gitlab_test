@@ -11,7 +11,7 @@ module EE
           redirect_to [:admin, @group], notice: _('Group pipeline minutes were successfully reset.')
         else
           flash.now[:error] = _('There was an error resetting group pipeline minutes.')
-          render "edit"
+          render 'edit'
         end
       end
 

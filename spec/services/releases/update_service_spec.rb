@@ -75,7 +75,7 @@ describe Releases::UpdateService do
       context 'an identical milestone' do
         let(:new_title) { 'v1.0' }
 
-        it "raises an error" do
+        it 'raises an error' do
           expect { service.execute }.to raise_error(ActiveRecord::RecordInvalid)
         end
       end
@@ -100,7 +100,7 @@ describe Releases::UpdateService do
       end
     end
 
-    context "when multiple new milestones are passed in" do
+    context 'when multiple new milestones are passed in' do
       let(:new_title_1) { 'v2.0' }
       let(:new_title_2) { 'v2.0-rc' }
       let(:milestone) { create(:milestone, project: project, title: 'v1.0') }

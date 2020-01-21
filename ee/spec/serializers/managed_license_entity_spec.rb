@@ -13,7 +13,7 @@ describe ManagedLicenseEntity do
       expect(subject).to include(:id, :name, :approval_status)
     end
 
-    describe "#approval_status" do
+    describe '#approval_status' do
       where(:classification, :approval_status) do
         [
           %w[allowed approved],

@@ -19,7 +19,7 @@ module API
         use :sort_params
       end
 
-      get ":id/events" do
+      get ':id/events' do
         events = find_events(user_project)
 
         present_events(events)

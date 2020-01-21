@@ -10,7 +10,7 @@ class AddMergeRequestsIndexOnTargetProjectAndBranch < ActiveRecord::Migration[5.
 
   def up
     add_concurrent_index :merge_requests, [:target_project_id, :target_branch],
-      where: "state_id = 1 AND merge_when_pipeline_succeeds = true"
+      where: 'state_id = 1 AND merge_when_pipeline_succeeds = true'
   end
 
   def down

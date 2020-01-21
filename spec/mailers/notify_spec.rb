@@ -14,7 +14,7 @@ describe Notify do
   let(:current_user_sanitized) { 'www_example_com' }
 
   set(:user) { create(:user) }
-  set(:current_user) { create(:user, email: "current@email.com", name: 'www.example.com') }
+  set(:current_user) { create(:user, email: 'current@email.com', name: 'www.example.com') }
   set(:assignee) { create(:user, email: 'assignee@example.com', name: 'John Doe') }
 
   set(:merge_request) do
@@ -345,7 +345,7 @@ describe Notify do
           let(:model) { merge_request }
         end
         it_behaves_like 'it should show Gmail Actions View Merge request link'
-        it_behaves_like "an unsubscribeable thread"
+        it_behaves_like 'an unsubscribeable thread'
         it_behaves_like 'appearance header and footer enabled'
         it_behaves_like 'appearance header and footer not enabled'
 
@@ -393,7 +393,7 @@ describe Notify do
         subject { described_class.new_merge_request_email(merge_request.assignee_ids.first, merge_request.id) }
 
         it_behaves_like 'it should show Gmail Actions View Merge request link'
-        it_behaves_like "an unsubscribeable thread"
+        it_behaves_like 'an unsubscribeable thread'
         it_behaves_like 'appearance header and footer enabled'
         it_behaves_like 'appearance header and footer not enabled'
 
@@ -705,12 +705,12 @@ describe Notify do
     describe 'project was moved' do
       let(:recipient) { user }
 
-      subject { described_class.project_was_moved_email(project.id, user.id, "gitlab/gitlab") }
+      subject { described_class.project_was_moved_email(project.id, user.id, 'gitlab/gitlab') }
 
       it_behaves_like 'an email sent to a user'
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'a user cannot unsubscribe through footer link'
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
@@ -737,7 +737,7 @@ describe Notify do
 
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'a user cannot unsubscribe through footer link'
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
@@ -763,7 +763,7 @@ describe Notify do
 
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'a user cannot unsubscribe through footer link'
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
@@ -783,7 +783,7 @@ describe Notify do
 
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'a user cannot unsubscribe through footer link'
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
@@ -817,7 +817,7 @@ describe Notify do
 
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'a user cannot unsubscribe through footer link'
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
@@ -844,7 +844,7 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'an email sent to a user'
       it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'a user cannot unsubscribe through footer link'
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
@@ -870,7 +870,7 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'an email sent to a user'
       it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'a user cannot unsubscribe through footer link'
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
@@ -1206,7 +1206,7 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'an email sent to a user'
       it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'a user cannot unsubscribe through footer link'
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
@@ -1233,7 +1233,7 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'an email sent to a user'
       it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'a user cannot unsubscribe through footer link'
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
@@ -1253,7 +1253,7 @@ describe Notify do
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'an email sent to a user'
       it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'a user cannot unsubscribe through footer link'
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
@@ -1287,7 +1287,7 @@ describe Notify do
 
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'a user cannot unsubscribe through footer link'
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
@@ -1313,7 +1313,7 @@ describe Notify do
 
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'a user cannot unsubscribe through footer link'
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
@@ -1338,7 +1338,7 @@ describe Notify do
 
       it_behaves_like 'an email sent from GitLab'
       it_behaves_like 'it should not have Gmail Actions links'
-      it_behaves_like "a user cannot unsubscribe through footer link"
+      it_behaves_like 'a user cannot unsubscribe through footer link'
       it_behaves_like 'appearance header and footer enabled'
       it_behaves_like 'appearance header and footer not enabled'
 
@@ -1358,7 +1358,7 @@ describe Notify do
     before do
       stub_config_setting(email_subject_suffix: 'A Nice Suffix')
       perform_enqueued_jobs do
-        user.email = "new-email@mail.com"
+        user.email = 'new-email@mail.com'
         user.save
       end
     end
@@ -1366,7 +1366,7 @@ describe Notify do
     subject { ActionMailer::Base.deliveries.last }
 
     it_behaves_like 'an email sent from GitLab'
-    it_behaves_like "a user cannot unsubscribe through footer link"
+    it_behaves_like 'a user cannot unsubscribe through footer link'
 
     it 'is sent to the new user' do
       is_expected.to deliver_to 'new-email@mail.com'
@@ -1382,7 +1382,7 @@ describe Notify do
 
   describe 'email on push for a created branch' do
     let(:example_site_path) { root_path }
-    let(:tree_path) { project_tree_path(project, "empty-branch") }
+    let(:tree_path) { project_tree_path(project, 'empty-branch') }
 
     subject { described_class.repository_push_email(project.id, author_id: user.id, ref: 'refs/heads/empty-branch', action: :create) }
 
@@ -1409,12 +1409,12 @@ describe Notify do
 
   describe 'email on push for a created tag' do
     let(:example_site_path) { root_path }
-    let(:tree_path) { project_tree_path(project, "v1.0") }
+    let(:tree_path) { project_tree_path(project, 'v1.0') }
 
     subject { described_class.repository_push_email(project.id, author_id: user.id, ref: 'refs/tags/v1.0', action: :create) }
 
     it_behaves_like 'it should not have Gmail Actions links'
-    it_behaves_like "a user cannot unsubscribe through footer link"
+    it_behaves_like 'a user cannot unsubscribe through footer link'
     it_behaves_like 'an email with X-GitLab headers containing project details'
     it_behaves_like 'an email that contains a header with author username'
     it_behaves_like 'appearance header and footer enabled'
@@ -1514,20 +1514,20 @@ describe Notify do
       end
     end
 
-    context "when set to send from committer email if domain matches" do
+    context 'when set to send from committer email if domain matches' do
       let(:send_from_committer_email) { true }
 
       before do
-        allow(Gitlab.config.gitlab).to receive(:host).and_return("gitlab.corp.company.com")
+        allow(Gitlab.config.gitlab).to receive(:host).and_return('gitlab.corp.company.com')
       end
 
-      context "when the committer email domain is within the GitLab domain" do
+      context 'when the committer email domain is within the GitLab domain' do
         before do
-          user.update_attribute(:email, "user@company.com")
+          user.update_attribute(:email, 'user@company.com')
           user.confirm
         end
 
-        it "is sent from the committer email" do
+        it 'is sent from the committer email' do
           from  = subject.header[:from].addrs.first
           reply = subject.header[:reply_to].addrs.first
 
@@ -1538,13 +1538,13 @@ describe Notify do
         end
       end
 
-      context "when the committer email domain is not completely within the GitLab domain" do
+      context 'when the committer email domain is not completely within the GitLab domain' do
         before do
-          user.update_attribute(:email, "user@something.company.com")
+          user.update_attribute(:email, 'user@something.company.com')
           user.confirm
         end
 
-        it "is sent from the default email" do
+        it 'is sent from the default email' do
           from  = subject.header[:from].addrs.first
           reply = subject.header[:reply_to].addrs.first
 
@@ -1555,13 +1555,13 @@ describe Notify do
         end
       end
 
-      context "when the committer email domain is outside the GitLab domain" do
+      context 'when the committer email domain is outside the GitLab domain' do
         before do
-          user.update_attribute(:email, "user@mpany.com")
+          user.update_attribute(:email, 'user@mpany.com')
           user.confirm
         end
 
-        it "is sent from the default email" do
+        it 'is sent from the default email' do
           from = subject.header[:from].addrs.first
           reply = subject.header[:reply_to].addrs.first
 
@@ -1608,7 +1608,7 @@ describe Notify do
   end
 
   describe 'HTML emails setting' do
-    let(:multipart_mail) { described_class.project_was_moved_email(project.id, user.id, "gitlab/gitlab") }
+    let(:multipart_mail) { described_class.project_was_moved_email(project.id, user.id, 'gitlab/gitlab') }
 
     subject { multipart_mail }
 

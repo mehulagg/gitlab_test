@@ -45,7 +45,7 @@ module EE
         blob_url = "/v2/#{name}/blobs/#{digest}"
 
         response = HTTP
-          .headers({ "Authorization" => "Bearer #{@options[:token]}" }) # rubocop:disable Gitlab/ModuleWithInstanceVariables
+          .headers({ 'Authorization' => "Bearer #{@options[:token]}" }) # rubocop:disable Gitlab/ModuleWithInstanceVariables
           .get(::Gitlab::Utils.append_path(@base_uri, blob_url)) # rubocop:disable Gitlab/ModuleWithInstanceVariables
 
         if response.status.redirect?

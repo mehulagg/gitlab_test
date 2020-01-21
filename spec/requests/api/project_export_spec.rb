@@ -290,7 +290,7 @@ describe API::ProjectExport, :clean_gitlab_redis_cache do
         project_after_export.add_maintainer(user)
 
         upload = ImportExportUpload.new(project: project)
-        upload.export_file = fixture_file_upload('spec/fixtures/project_export.tar.gz', "`/tar.gz")
+        upload.export_file = fixture_file_upload('spec/fixtures/project_export.tar.gz', '`/tar.gz')
         upload.save!
       end
 
@@ -398,7 +398,7 @@ describe API::ProjectExport, :clean_gitlab_redis_cache do
 
       context 'when overriding description' do
         it 'starts', :sidekiq_might_not_need_inline do
-          params = { description: "Foo" }
+          params = { description: 'Foo' }
 
           expect_any_instance_of(Projects::ImportExport::ExportService).to receive(:execute)
           post api(path, project.owner), params: params

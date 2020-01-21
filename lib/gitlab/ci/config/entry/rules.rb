@@ -17,7 +17,7 @@ module Gitlab
               @config.each_with_index do |rule, index|
                 @entries[index] = ::Gitlab::Config::Entry::Factory.new(Entry::Rules::Rule)
                   .value(rule)
-                  .with(key: "rule", parent: self, description: "rule definition.") # rubocop:disable CodeReuse/ActiveRecord
+                  .with(key: 'rule', parent: self, description: 'rule definition.') # rubocop:disable CodeReuse/ActiveRecord
                   .create!
               end
 

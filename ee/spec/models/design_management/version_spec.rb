@@ -35,12 +35,12 @@ describe DesignManagement::Version do
     it { is_expected.to validate_uniqueness_of(:sha).scoped_to(:issue_id).case_insensitive }
   end
 
-  describe "scopes" do
+  describe 'scopes' do
     let_it_be(:version_1) { create(:design_version) }
     let_it_be(:version_2) { create(:design_version) }
 
-    describe ".for_designs" do
-      it "only returns versions related to the specified designs" do
+    describe '.for_designs' do
+      it 'only returns versions related to the specified designs' do
         _other_version = create(:design_version)
         designs = [create(:design, versions: [version_1]),
                    create(:design, versions: [version_2])]
@@ -72,7 +72,7 @@ describe DesignManagement::Version do
     end
   end
 
-  describe ".create_for_designs" do
+  describe '.create_for_designs' do
     def current_version_id(design)
       design.send(:head_version).try(:id)
     end
@@ -318,7 +318,7 @@ describe DesignManagement::Version do
 
     context 'there is no commit in the repo by the SHA' do
       let(:commit) { nil }
-      let(:sha) { Digest::SHA1.hexdigest("points to nothing") }
+      let(:sha) { Digest::SHA1.hexdigest('points to nothing') }
 
       it { is_expected.to have_attributes(diff_refs: be_nil) }
     end

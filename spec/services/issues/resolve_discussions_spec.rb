@@ -19,19 +19,19 @@ describe Issues::ResolveDiscussions do
     project.add_developer(user)
   end
 
-  describe "for resolving discussions" do
-    let(:discussion) { create(:diff_note_on_merge_request, project: project, note: "Almost done").to_discussion }
+  describe 'for resolving discussions' do
+    let(:discussion) { create(:diff_note_on_merge_request, project: project, note: 'Almost done').to_discussion }
     let(:merge_request) { discussion.noteable }
-    let(:other_merge_request) { create(:merge_request, source_project: project, source_branch: "fix") }
+    let(:other_merge_request) { create(:merge_request, source_project: project, source_branch: 'fix') }
 
-    describe "#merge_request_for_resolving_discussion" do
+    describe '#merge_request_for_resolving_discussion' do
       let(:service) { DummyService.new(project, user, merge_request_to_resolve_discussions_of: merge_request.iid) }
 
-      it "finds the merge request" do
+      it 'finds the merge request' do
         expect(service.merge_request_to_resolve_discussions_of).to eq(merge_request)
       end
 
-      it "only queries for the merge request once" do
+      it 'only queries for the merge request once' do
         fake_finder = double
 
         expect(fake_finder).to receive(:find_by).exactly(1)
@@ -41,8 +41,8 @@ describe Issues::ResolveDiscussions do
       end
     end
 
-    describe "#discussions_to_resolve" do
-      it "contains a single discussion when matching merge request and discussion are passed" do
+    describe '#discussions_to_resolve' do
+      it 'contains a single discussion when matching merge request and discussion are passed' do
         service = DummyService.new(
           project,
           user,
@@ -56,7 +56,7 @@ describe Issues::ResolveDiscussions do
         expect(discussion_ids).to contain_exactly(discussion.id)
       end
 
-      it "contains all discussions when only a merge request is passed" do
+      it 'contains all discussions when only a merge request is passed' do
         second_discussion = Discussion.new([create(:diff_note_on_merge_request,
                                                   noteable: merge_request,
                                                   project: merge_request.target_project,
@@ -73,7 +73,7 @@ describe Issues::ResolveDiscussions do
         expect(discussion_ids).to contain_exactly(discussion.id, second_discussion.id)
       end
 
-      it "contains only unresolved discussions" do
+      it 'contains only unresolved discussions' do
         _second_discussion = Discussion.new([create(:diff_note_on_merge_request, :resolved,
                                                    noteable: merge_request,
                                                    project: merge_request.target_project,
@@ -91,7 +91,7 @@ describe Issues::ResolveDiscussions do
         expect(discussion_ids).to contain_exactly(discussion.id)
       end
 
-      it "is empty when a discussion and another merge request are passed" do
+      it 'is empty when a discussion and another merge request are passed' do
         service = DummyService.new(
           project,
           user,

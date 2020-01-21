@@ -14,7 +14,7 @@ describe Gitlab::DependencyLinker::CargoTomlLinker do
   end
 
   describe '#link' do
-    let(:file_name) { "Cargo.toml" }
+    let(:file_name) { 'Cargo.toml' }
 
     let(:file_content) do
       <<-CONTENT.strip_heredoc

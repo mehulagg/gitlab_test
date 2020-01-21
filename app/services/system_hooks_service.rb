@@ -72,9 +72,9 @@ class SystemHooksService
   def build_event_name(model, event)
     case model
     when ProjectMember
-      return "user_add_to_team"      if event == :create
-      return "user_remove_from_team" if event == :destroy
-      return "user_update_for_team"  if event == :update
+      return 'user_add_to_team'      if event == :create
+      return 'user_remove_from_team' if event == :destroy
+      return 'user_update_for_team'  if event == :update
     when GroupMember
       return 'user_add_to_group'      if event == :create
       return 'user_remove_from_group' if event == :destroy
@@ -93,7 +93,7 @@ class SystemHooksService
       path_with_namespace: model.full_path,
       project_id: model.id,
       owner_name: owner.name,
-      owner_email: owner.respond_to?(:email) ? owner.email : "",
+      owner_email: owner.respond_to?(:email) ? owner.email : '',
       project_visibility: model.visibility.downcase
     }
   end

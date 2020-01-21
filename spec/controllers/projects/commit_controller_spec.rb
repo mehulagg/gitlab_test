@@ -6,7 +6,7 @@ describe Projects::CommitController do
   let_it_be(:project)  { create(:project, :repository) }
   let_it_be(:user)     { create(:user) }
 
-  let(:commit) { project.commit("master") }
+  let(:commit) { project.commit('master') }
   let(:master_pickable_sha) { '7d3b0f7cff5f37573aea97cebfd5692ea1689924' }
   let(:master_pickable_commit) { project.commit(master_pickable_sha) }
 
@@ -49,26 +49,26 @@ describe Projects::CommitController do
       expect(response).to be_successful
     end
 
-    shared_examples "export as" do |format|
-      it "does generally work" do
+    shared_examples 'export as' do |format|
+      it 'does generally work' do
         go(id: commit.id, format: format)
 
         expect(response).to be_successful
       end
 
-      it "generates it" do
+      it 'generates it' do
         expect_any_instance_of(Commit).to receive(:"to_#{format}")
 
         go(id: commit.id, format: format)
       end
 
-      it "renders it" do
+      it 'renders it' do
         go(id: commit.id, format: format)
 
         expect(response.body).to eq(commit.send(:"to_#{format}"))
       end
 
-      it "does not escape Html" do
+      it 'does not escape Html' do
         allow_any_instance_of(Commit).to receive(:"to_#{format}")
           .and_return('HTML entities &<>" ')
 
@@ -81,19 +81,19 @@ describe Projects::CommitController do
       end
     end
 
-    describe "as diff" do
-      it "triggers workhorse to serve the request" do
+    describe 'as diff' do
+      it 'triggers workhorse to serve the request' do
         go(id: commit.id, format: :diff)
 
-        expect(response.headers[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with("git-diff:")
+        expect(response.headers[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with('git-diff:')
       end
     end
 
-    describe "as patch" do
-      it "contains a git diff" do
+    describe 'as patch' do
+      it 'contains a git diff' do
         go(id: commit.id, format: :patch)
 
-        expect(response.headers[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with("git-format-patch:")
+        expect(response.headers[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with('git-format-patch:')
       end
     end
 

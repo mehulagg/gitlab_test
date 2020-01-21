@@ -77,7 +77,7 @@ module API
 
         {
           size: @blob.size,
-          encoding: "base64",
+          encoding: 'base64',
           content: Base64.strict_encode64(@blob.data),
           sha: @blob.id
         }
@@ -146,7 +146,7 @@ module API
         if merge_base.commit
           present merge_base.commit, with: Entities::Commit
         else
-          not_found!("Merge Base")
+          not_found!('Merge Base')
         end
       end
     end

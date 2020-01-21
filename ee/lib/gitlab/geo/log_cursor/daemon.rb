@@ -77,7 +77,7 @@ module Gitlab
         end
 
         def handle_events(batch, previous_batch_last_id)
-          logger.info("#handle_events:", first_id: batch.first.id, last_id: batch.last.id)
+          logger.info('#handle_events:', first_id: batch.first.id, last_id: batch.last.id)
 
           gap_tracking.previous_id = previous_batch_last_id
 
@@ -94,7 +94,7 @@ module Gitlab
           # If a project is deleted, the event log and its associated event data
           # could be purged from the log. We ignore this and move along.
           unless event
-            logger.warn("#handle_single_event: unknown event", event_log_id: event_log.id)
+            logger.warn('#handle_single_event: unknown event', event_log_id: event_log.id)
             return
           end
 

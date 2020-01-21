@@ -7,7 +7,7 @@ describe BitbucketServer::Client do
   let(:options) { { base_uri: base_uri, user: 'bitbucket', password: 'mypassword' } }
   let(:project) { 'SOME-PROJECT' }
   let(:repo_slug) { 'my-repo' }
-  let(:headers) { { "Content-Type" => "application/json" } }
+  let(:headers) { { 'Content-Type' => 'application/json' } }
 
   subject { described_class.new(options) }
 
@@ -45,7 +45,7 @@ describe BitbucketServer::Client do
   end
 
   describe '#repos' do
-    let(:path) { "/repos" }
+    let(:path) { '/repos' }
 
     it 'requests a collection' do
       expect(BitbucketServer::Paginator).to receive(:new).with(anything, path, :repo, page_offset: 0, limit: nil)

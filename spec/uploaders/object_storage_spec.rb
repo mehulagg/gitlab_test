@@ -28,12 +28,12 @@ describe ObjectStorage do
       allow(uploader_class).to receive(:object_store_enabled?).and_return(true)
     end
 
-    it "reload the local storage" do
+    it 'reload the local storage' do
       uploader.object_store = described_class::Store::LOCAL
       expect(uploader.file_storage?).to be_truthy
     end
 
-    it "reload the REMOTE storage" do
+    it 'reload the REMOTE storage' do
       uploader.object_store = described_class::Store::REMOTE
       expect(uploader.file_storage?).to be_falsey
     end
@@ -45,7 +45,7 @@ describe ObjectStorage do
 
       describe '#store_dir' do
         it 'is the composition of (base_dir, dynamic_segment)' do
-          expect(uploader.store_dir).to start_with("uploads/-/system/user/")
+          expect(uploader.store_dir).to start_with('uploads/-/system/user/')
         end
       end
     end
@@ -57,7 +57,7 @@ describe ObjectStorage do
 
       describe '#store_dir' do
         it 'is the composition of (dynamic_segment)' do
-          expect(uploader.store_dir).to start_with("user/")
+          expect(uploader.store_dir).to start_with('user/')
         end
       end
     end
@@ -66,7 +66,7 @@ describe ObjectStorage do
   describe '#object_store' do
     subject { uploader.object_store }
 
-    it "delegates to <mount>_store on model" do
+    it 'delegates to <mount>_store on model' do
       expect(object).to receive(:file_store)
 
       subject
@@ -77,7 +77,7 @@ describe ObjectStorage do
         expect(object).to receive(:file_store).and_return(nil)
       end
 
-      it "uses Store::LOCAL" do
+      it 'uses Store::LOCAL' do
         is_expected.to eq(described_class::Store::LOCAL)
       end
     end
@@ -87,7 +87,7 @@ describe ObjectStorage do
         expect(object).to receive(:file_store).and_return(described_class::Store::REMOTE)
       end
 
-      it "returns the given value" do
+      it 'returns the given value' do
         is_expected.to eq(described_class::Store::REMOTE)
       end
     end
@@ -152,10 +152,10 @@ describe ObjectStorage do
         it 'is handled gracefully' do
           store = uploader.object_store
           expect_next_instance_of(Upload) do |instance|
-            expect(instance).to receive(:save!).and_raise("An error")
+            expect(instance).to receive(:save!).and_raise('An error')
           end
 
-          expect { subject }.to raise_error("An error")
+          expect { subject }.to raise_error('An error')
           expect(uploader.exists?).to be_truthy
           expect(uploader.upload.store).to eq(store)
         end
@@ -173,14 +173,14 @@ describe ObjectStorage do
       let(:uploader) { object.file }
 
       context 'checking described_class' do
-        it "uploader include described_class::Concern" do
+        it 'uploader include described_class::Concern' do
           expect(uploader).to be_a(described_class::Concern)
         end
       end
 
       describe '#use_file' do
         context 'when file is stored locally' do
-          it "calls a regular path" do
+          it 'calls a regular path' do
             expect { |b| uploader.use_file(&b) }.not_to yield_with_args(%r[tmp/cache])
           end
         end
@@ -192,11 +192,11 @@ describe ObjectStorage do
             stub_artifacts_object_storage
           end
 
-          it "calls a cache path" do
+          it 'calls a cache path' do
             expect { |b| uploader.use_file(&b) }.to yield_with_args(%r[tmp/cache])
           end
 
-          it "cleans up the cached file" do
+          it 'cleans up the cached file' do
             cached_path = ''
 
             uploader.use_file do |path|
@@ -213,7 +213,7 @@ describe ObjectStorage do
       describe '#migrate!' do
         subject { uploader.migrate!(new_store) }
 
-        shared_examples "updates the underlying <mounted>_store" do
+        shared_examples 'updates the underlying <mounted>_store' do
           it do
             subject
 
@@ -224,7 +224,7 @@ describe ObjectStorage do
         context 'when using the same storage' do
           let(:new_store) { store }
 
-          it "to not migrate the storage" do
+          it 'to not migrate the storage' do
             subject
 
             expect(uploader).not_to receive(:store!)
@@ -240,17 +240,17 @@ describe ObjectStorage do
             stub_artifacts_object_storage
           end
 
-          include_examples "updates the underlying <mounted>_store"
+          include_examples 'updates the underlying <mounted>_store'
 
-          it "local file does not exist" do
+          it 'local file does not exist' do
             expect(File.exist?(uploader.path)).to eq(false)
           end
 
-          it "remote file exist" do
+          it 'remote file exist' do
             expect(uploader.file.exists?).to be_truthy
           end
 
-          it "does migrate the file" do
+          it 'does migrate the file' do
             subject
 
             expect(uploader.object_store).to eq(new_store)
@@ -262,7 +262,7 @@ describe ObjectStorage do
           let(:new_store) { described_class::Store::REMOTE }
           let!(:current_path) { uploader.path }
 
-          it "file does exist" do
+          it 'file does exist' do
             expect(File.exist?(current_path)).to eq(true)
           end
 
@@ -271,7 +271,7 @@ describe ObjectStorage do
               stub_artifacts_object_storage(enabled: false)
             end
 
-            it "to raise an error" do
+            it 'to raise an error' do
               expect { subject }.to raise_error(/Object Storage is not enabled/)
             end
           end
@@ -281,15 +281,15 @@ describe ObjectStorage do
               stub_artifacts_object_storage
             end
 
-            include_examples "updates the underlying <mounted>_store"
+            include_examples 'updates the underlying <mounted>_store'
 
-            it "does migrate the file" do
+            it 'does migrate the file' do
               subject
 
               expect(uploader.object_store).to eq(new_store)
             end
 
-            it "does delete original file" do
+            it 'does delete original file' do
               subject
 
               expect(File.exist?(current_path)).to eq(false)
@@ -297,10 +297,10 @@ describe ObjectStorage do
 
             context 'when subject save fails' do
               before do
-                expect(uploader).to receive(:persist_object_store!).and_raise(RuntimeError, "exception")
+                expect(uploader).to receive(:persist_object_store!).and_raise(RuntimeError, 'exception')
               end
 
-              it "original file is not removed" do
+              it 'original file is not removed' do
                 expect { subject }.to raise_error(/exception/)
 
                 expect(File.exist?(current_path)).to eq(true)
@@ -363,7 +363,7 @@ describe ObjectStorage do
   end
 
   describe '#fog_credentials' do
-    let(:connection) { Settingslogic.new("provider" => "AWS") }
+    let(:connection) { Settingslogic.new('provider' => 'AWS') }
 
     before do
       allow(uploader_class).to receive(:options) do
@@ -389,7 +389,7 @@ describe ObjectStorage do
     subject { uploader_class.workhorse_authorize(has_length: has_length, maximum_size: maximum_size) }
 
     shared_examples 'uses local storage' do
-      it "returns temporary path" do
+      it 'returns temporary path' do
         is_expected.to have_key(:TempPath)
 
         expect(subject[:TempPath]).to start_with(uploader_class.root)
@@ -398,7 +398,7 @@ describe ObjectStorage do
     end
 
     shared_examples 'uses remote storage' do
-      it "returns remote store" do
+      it 'returns remote store' do
         is_expected.to have_key(:RemoteObject)
 
         expect(subject[:RemoteObject]).to have_key(:ID)
@@ -415,7 +415,7 @@ describe ObjectStorage do
 
     shared_examples 'uses remote storage with multipart uploads' do
       it_behaves_like 'uses remote storage' do
-        it "returns multipart upload" do
+        it 'returns multipart upload' do
           is_expected.to have_key(:RemoteObject)
 
           expect(subject[:RemoteObject]).to have_key(:MultipartUpload)
@@ -432,7 +432,7 @@ describe ObjectStorage do
 
     shared_examples 'uses remote storage without multipart uploads' do
       it_behaves_like 'uses remote storage' do
-        it "does not return multipart upload" do
+        it 'does not return multipart upload' do
           is_expected.to have_key(:RemoteObject)
           expect(subject[:RemoteObject]).not_to have_key(:MultipartUpload)
         end
@@ -458,14 +458,14 @@ describe ObjectStorage do
         end
 
         context 'uses AWS' do
-          let(:storage_url) { "https://uploads.s3-eu-central-1.amazonaws.com/" }
+          let(:storage_url) { 'https://uploads.s3-eu-central-1.amazonaws.com/' }
 
           before do
             expect(uploader_class).to receive(:object_store_credentials) do
-              { provider: "AWS",
-                aws_access_key_id: "AWS_ACCESS_KEY_ID",
-                aws_secret_access_key: "AWS_SECRET_ACCESS_KEY",
-                region: "eu-central-1" }
+              { provider: 'AWS',
+                aws_access_key_id: 'AWS_ACCESS_KEY_ID',
+                aws_secret_access_key: 'AWS_SECRET_ACCESS_KEY',
+                region: 'eu-central-1' }
             end
           end
 
@@ -501,11 +501,11 @@ describe ObjectStorage do
         end
 
         context 'uses Google' do
-          let(:storage_url) { "https://storage.googleapis.com/uploads/" }
+          let(:storage_url) { 'https://storage.googleapis.com/uploads/' }
 
           before do
             expect(uploader_class).to receive(:object_store_credentials) do
-              { provider: "Google",
+              { provider: 'Google',
                 google_storage_access_key_id: 'ACCESS_KEY_ID',
                 google_storage_secret_access_key: 'SECRET_ACCESS_KEY' }
             end
@@ -536,16 +536,16 @@ describe ObjectStorage do
         end
 
         context 'uses GDK/minio' do
-          let(:storage_url) { "http://minio:9000/uploads/" }
+          let(:storage_url) { 'http://minio:9000/uploads/' }
 
           before do
             expect(uploader_class).to receive(:object_store_credentials) do
-              { provider: "AWS",
-                aws_access_key_id: "AWS_ACCESS_KEY_ID",
-                aws_secret_access_key: "AWS_SECRET_ACCESS_KEY",
+              { provider: 'AWS',
+                aws_access_key_id: 'AWS_ACCESS_KEY_ID',
+                aws_secret_access_key: 'AWS_SECRET_ACCESS_KEY',
                 endpoint: 'http://minio:9000',
                 path_style: true,
-                region: "gdk" }
+                region: 'gdk' }
             end
           end
 
@@ -602,7 +602,7 @@ describe ObjectStorage do
           fixture_file_upload('spec/fixtures/rails_sample.jpg', 'image/jpg')
         end
 
-        it "properly caches the file" do
+        it 'properly caches the file' do
           subject
 
           expect(uploader).to be_exists
@@ -613,7 +613,7 @@ describe ObjectStorage do
     end
 
     context 'when local file is used' do
-      let(:temp_file) { Tempfile.new("test") }
+      let(:temp_file) { Tempfile.new('test') }
 
       before do
         FileUtils.touch(temp_file)
@@ -679,7 +679,7 @@ describe ObjectStorage do
     end
 
     context 'when remote file is used' do
-      let(:temp_file) { Tempfile.new("test") }
+      let(:temp_file) { Tempfile.new('test') }
 
       let!(:fog_connection) do
         stub_uploads_object_storage(uploader_class)
@@ -696,7 +696,7 @@ describe ObjectStorage do
       context 'when valid file is used' do
         context 'when invalid file is specified' do
           let(:uploaded_file) do
-            UploadedFile.new(temp_file.path, remote_id: "../test/123123")
+            UploadedFile.new(temp_file.path, remote_id: '../test/123123')
           end
 
           it 'raises an error' do
@@ -706,7 +706,7 @@ describe ObjectStorage do
 
         context 'when non existing file is specified' do
           let(:uploaded_file) do
-            UploadedFile.new(temp_file.path, remote_id: "test/123123")
+            UploadedFile.new(temp_file.path, remote_id: 'test/123123')
           end
 
           it 'raises an error' do
@@ -716,7 +716,7 @@ describe ObjectStorage do
 
         context 'when valid file is specified' do
           let(:uploaded_file) do
-            UploadedFile.new(temp_file.path, filename: "my_file.txt", remote_id: "test/123123")
+            UploadedFile.new(temp_file.path, filename: 'my_file.txt', remote_id: 'test/123123')
           end
 
           let!(:fog_file) do

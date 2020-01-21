@@ -60,9 +60,9 @@ module Banzai
       def object_link_text_extras(object, matches)
         extras = super
 
-        path = matches[:path] if matches.names.include?("path")
+        path = matches[:path] if matches.names.include?('path')
         if path == '/builds'
-          extras.unshift "builds"
+          extras.unshift 'builds'
         end
 
         extras

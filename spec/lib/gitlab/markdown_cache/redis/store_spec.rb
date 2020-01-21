@@ -14,7 +14,7 @@ describe Gitlab::MarkdownCache::Redis::Store, :clean_gitlab_redis_cache do
       attr_accessor :field_1, :field_2, :field_1_html, :field_2_html, :cached_markdown_version
 
       def cache_key
-        "cache-key"
+        'cache-key'
       end
     end
   end
@@ -39,18 +39,18 @@ describe Gitlab::MarkdownCache::Redis::Store, :clean_gitlab_redis_cache do
 
   describe '#save' do
     it 'stores updates to html fields and version' do
-      values_to_store = { field_1_html: "hello", field_2_html: "world", cached_markdown_version: 1 }
+      values_to_store = { field_1_html: 'hello', field_2_html: 'world', cached_markdown_version: 1 }
 
       store.save(values_to_store)
 
       expect(read_values)
-        .to eq({ field_1_html: "hello", field_2_html: "world", cached_markdown_version: "1" })
+        .to eq({ field_1_html: 'hello', field_2_html: 'world', cached_markdown_version: '1' })
     end
   end
 
   describe '#read' do
     it 'reads the html fields and version from redis if they were stored' do
-      stored_values = { field_1_html: "hello", field_2_html: "world", cached_markdown_version: 1 }
+      stored_values = { field_1_html: 'hello', field_2_html: 'world', cached_markdown_version: 1 }
 
       store_values(stored_values)
 

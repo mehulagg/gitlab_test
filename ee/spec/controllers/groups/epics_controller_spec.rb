@@ -45,7 +45,7 @@ describe Groups::EpicsController do
       stub_licensed_features(epics: true)
     end
 
-    describe "GET #index" do
+    describe 'GET #index' do
       let!(:epic_list) { create_list(:epic, 2, group: group) }
 
       before do
@@ -53,7 +53,7 @@ describe Groups::EpicsController do
         group.add_developer(user)
       end
 
-      it "returns index" do
+      it 'returns index' do
         get :index, params: { group_id: group }
 
         expect(response).to have_gitlab_http_status(200)
@@ -118,7 +118,7 @@ describe Groups::EpicsController do
         end
       end
 
-      context "when epic has multiple labels" do
+      context 'when epic has multiple labels' do
         render_views
 
         let(:label) { create(:label) }
@@ -211,7 +211,7 @@ describe Groups::EpicsController do
         end
 
         shared_examples 'issue link presence' do
-          let(:issue) { create(:issue, project: project, description: "Project Issue") }
+          let(:issue) { create(:issue, project: project, description: 'Project Issue') }
 
           it 'the link to the issue is included' do
             get :discussions, params: { group_id: group, id: epic.to_param }
@@ -219,9 +219,9 @@ describe Groups::EpicsController do
             expect(response).to have_gitlab_http_status(200)
             expect(json_response.size).to eq(1)
             discussion = json_response[0]
-            notes = discussion["notes"]
+            notes = discussion['notes']
             expect(notes.size).to eq(1)
-            expect(notes[0]["note_html"]).to include(project_issue_path(project, issue))
+            expect(notes[0]['note_html']).to include(project_issue_path(project, issue))
           end
         end
 
@@ -454,19 +454,19 @@ describe Groups::EpicsController do
       end
     end
 
-    describe "DELETE #destroy" do
+    describe 'DELETE #destroy' do
       before do
         sign_in(user)
       end
 
-      it "rejects a developer to destroy an epic" do
+      it 'rejects a developer to destroy an epic' do
         group.add_developer(user)
         delete :destroy, params: { group_id: group, id: epic.to_param, destroy_confirm: true }
 
         expect(response).to have_gitlab_http_status(404)
       end
 
-      it "deletes the epic" do
+      it 'deletes the epic' do
         group.add_owner(user)
         delete :destroy, params: { group_id: group, id: epic.to_param, destroy_confirm: true }
 

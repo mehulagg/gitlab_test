@@ -26,7 +26,7 @@ describe 'groups/edit.html.haml' do
           expect(rendered).to render_template('groups/settings/_ip_restriction')
           expect(rendered).to(have_field('group_ip_restriction_ranges',
                                          { disabled: false,
-                                           with: ranges.join(",") }))
+                                           with: ranges.join(',') }))
         end
       end
 
@@ -57,7 +57,7 @@ describe 'groups/edit.html.haml' do
           expect(rendered).to render_template('groups/settings/_ip_restriction')
           expect(rendered).to(have_field('group_ip_restriction_ranges',
                                          { disabled: true,
-                                           with: ranges.join(",") }))
+                                           with: ranges.join(',') }))
         end
       end
 

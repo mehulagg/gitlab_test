@@ -59,8 +59,8 @@ module QA
 
           login_to_idp_if_required('user2', 'user2pass')
 
-          expect(page).to have_content("Verify SAML Configuration")
-          expect(page).to have_content("Fingerprint mismatch")
+          expect(page).to have_content('Verify SAML Configuration')
+          expect(page).to have_content('Fingerprint mismatch')
           expect(page).to have_content("<saml:Issuer>#{QA::EE::Runtime::Saml.idp_issuer}</saml:Issuer>")
 
           EE::Page::Group::Settings::SamlSSO.perform do |saml_sso|
@@ -70,8 +70,8 @@ module QA
             saml_sso.click_test_button
           end
 
-          expect(page).to have_content("Verify SAML Configuration")
-          expect(page).not_to have_content("Fingerprint mismatch")
+          expect(page).to have_content('Verify SAML Configuration')
+          expect(page).not_to have_content('Fingerprint mismatch')
         end
       end
 
@@ -101,7 +101,7 @@ module QA
           let(:sub_group) do
             Resource::Group.fabricate_via_api! do |group|
               group.sandbox = @group
-              group.path = "saml-sub-group"
+              group.path = 'saml-sub-group'
             end
           end
 
@@ -171,7 +171,7 @@ module QA
           expect do
             Resource::Repository::ProjectPush.fabricate! do |project_push|
               project_push.project = @project
-              project_push.branch_name = "new_branch"
+              project_push.branch_name = 'new_branch'
               project_push.user = developer_user
             end
           end.not_to raise_error
@@ -190,7 +190,7 @@ module QA
           end
 
           it 'removes existing users from the group, forces existing users to create a new account and allows to leave group' do
-            expect(@group.list_members.map { |item| item["username"] }).not_to include(developer_user.username)
+            expect(@group.list_members.map { |item| item['username'] }).not_to include(developer_user.username)
 
             visit_managed_group_url
 
@@ -198,7 +198,7 @@ module QA
 
             login_to_idp_if_required('user3', 'user3pass')
 
-            expect(page).to have_text("uses group managed accounts. You need to create a new GitLab account which will be managed by")
+            expect(page).to have_text('uses group managed accounts. You need to create a new GitLab account which will be managed by')
 
             @idp_user_email = EE::Page::Group::SamlSSOSignUp.perform(&:current_email)
 
@@ -208,7 +208,7 @@ module QA
 
             EE::Page::Group::SamlSSOSignUp.perform(&:click_register_button)
 
-            expect(page).to have_text("Sign up was successful! Please confirm your email to sign in.")
+            expect(page).to have_text('Sign up was successful! Please confirm your email to sign in.')
 
             confirm_user(new_username)
 
@@ -216,11 +216,11 @@ module QA
 
             EE::Page::Group::SamlSSOSignIn.perform(&:click_sign_in)
 
-            expect(page).to have_text("Signed in with SAML")
+            expect(page).to have_text('Signed in with SAML')
 
             Page::Group::Show.perform(&:leave_group)
 
-            expect(page).to have_text("You left")
+            expect(page).to have_text('You left')
 
             Page::Main::Menu.perform(&:sign_out)
 
@@ -228,7 +228,7 @@ module QA
 
             EE::Page::Group::SamlSSOSignIn.perform(&:click_sign_in)
 
-            expect(page).to have_text("uses group managed accounts. You need to create a new GitLab account which will be managed by")
+            expect(page).to have_text('uses group managed accounts. You need to create a new GitLab account which will be managed by')
           end
 
           after do

@@ -45,9 +45,9 @@ module Pseudonymizer
 
       progress_output.print "Deleting tmp directory #{@output_dir} ... "
       FileUtils.rm_rf(@output_dir)
-      progress_output.puts "done"
+      progress_output.puts 'done'
     rescue
-      progress_output.puts "failed"
+      progress_output.puts 'failed'
     end
 
     private
@@ -60,9 +60,9 @@ module Pseudonymizer
       if directory.files.create(key: File.join(@upload_dir, File.basename(file)),
                                 body: File.open(file),
                                 public: false)
-        progress_output.puts "done"
+        progress_output.puts 'done'
       else
-        progress_output.puts "failed"
+        progress_output.puts 'failed'
       end
     end
 
@@ -89,7 +89,7 @@ module Pseudonymizer
     end
 
     def file_list
-      Dir[File.join(@output_dir, "*")]
+      Dir[File.join(@output_dir, '*')]
     end
   end
 end

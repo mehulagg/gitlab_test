@@ -99,9 +99,9 @@ describe Projects::PipelineSchedulesController do
           expect(response).to have_gitlab_http_status(:found)
 
           Ci::PipelineScheduleVariable.last.tap do |v|
-            expect(v.key).to eq("AAA")
-            expect(v.value).to eq("AAA123")
-            expect(v.variable_type).to eq("file")
+            expect(v.key).to eq('AAA')
+            expect(v.value).to eq('AAA123')
+            expect(v.variable_type).to eq('file')
           end
         end
       end

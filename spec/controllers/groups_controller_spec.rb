@@ -148,7 +148,7 @@ describe GroupsController do
       sign_in(user)
 
       expect do
-        post :create, params: { group: { name: 'new_group', path: "new_group" } }
+        post :create, params: { group: { name: 'new_group', path: 'new_group' } }
       end.to change { Group.count }.by(1)
 
       expect(response).to have_gitlab_http_status(302)
@@ -159,7 +159,7 @@ describe GroupsController do
         sign_in(create(:admin))
 
         expect do
-          post :create, params: { group: { name: 'new_group', path: "new_group" } }
+          post :create, params: { group: { name: 'new_group', path: 'new_group' } }
         end.to change { Group.count }.by(1)
 
         expect(response).to have_gitlab_http_status(302)
@@ -671,7 +671,7 @@ describe GroupsController do
       end
 
       it 'returns an alert' do
-        expect(flash[:alert]).to eq "Transfer failed: namespace directory cannot be moved"
+        expect(flash[:alert]).to eq 'Transfer failed: namespace directory cannot be moved'
       end
 
       it 'redirects to the current path' do

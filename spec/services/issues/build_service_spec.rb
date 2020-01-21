@@ -16,8 +16,8 @@ describe Issues::BuildService do
 
   context 'for a single discussion' do
     describe '#execute' do
-      let(:merge_request) { create(:merge_request, title: "Hello world", source_project: project) }
-      let(:discussion) { create(:diff_note_on_merge_request, project: project, noteable: merge_request, note: "Almost done").to_discussion }
+      let(:merge_request) { create(:merge_request, title: 'Hello world', source_project: project) }
+      let(:discussion) { create(:diff_note_on_merge_request, project: project, noteable: merge_request, note: 'Almost done').to_discussion }
 
       subject { build_issue(merge_request_to_resolve_discussions_of: merge_request.iid, discussion_to_resolve: discussion.id) }
 

@@ -47,7 +47,7 @@ describe MicrosoftTeams::Notifier do
 
   describe '#ping' do
     before do
-      stub_request(:post, webhook_url).with(body: JSON(body), headers: { 'Content-Type' => 'application/json' }).to_return(status: 200, body: "", headers: {})
+      stub_request(:post, webhook_url).with(body: JSON(body), headers: { 'Content-Type' => 'application/json' }).to_return(status: 200, body: '', headers: {})
     end
 
     it 'expects to receive successful answer' do

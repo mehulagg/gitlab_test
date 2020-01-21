@@ -88,7 +88,7 @@ describe Gitlab::SidekiqCluster do
     let(:options) do
       { env: :production, directory: 'foo/bar', max_concurrency: 20, worker_id: first_worker_id, dryrun: false }
     end
-    let(:env) { { "ENABLE_SIDEKIQ_CLUSTER" => "1", "SIDEKIQ_WORKER_ID" => first_worker_id.to_s } }
+    let(:env) { { 'ENABLE_SIDEKIQ_CLUSTER' => '1', 'SIDEKIQ_WORKER_ID' => first_worker_id.to_s } }
     let(:args) { ['bundle', 'exec', 'sidekiq', anything, '-eproduction', *([anything] * 5)] }
 
     it 'starts a Sidekiq process' do

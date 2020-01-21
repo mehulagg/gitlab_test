@@ -44,7 +44,7 @@ gem 'omniauth-twitter', '~> 1.4'
 gem 'omniauth_crowd', '~> 2.2.0'
 gem 'omniauth-authentiq', '~> 0.3.3'
 gem 'omniauth_openid_connect', '~> 0.3.3'
-gem "omniauth-ultraauth", '~> 0.0.2'
+gem 'omniauth-ultraauth', '~> 0.0.2'
 gem 'omniauth-salesforce', '~> 1.0.5'
 gem 'rack-oauth2', '~> 1.9.3'
 gem 'jwt', '~> 2.1.0'
@@ -291,7 +291,7 @@ gem 'gon', '~> 6.2'
 gem 'request_store', '~> 1.3'
 gem 'base32', '~> 0.3.0'
 
-gem "gitlab-license", "~> 1.0"
+gem 'gitlab-license', '~> 1.0'
 
 # Protect against bruteforcing
 gem 'rack-attack', '~> 6.2.0'

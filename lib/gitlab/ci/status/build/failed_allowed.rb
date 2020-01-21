@@ -28,7 +28,7 @@ module Gitlab
           private
 
           def allowed_to_fail_title
-            "(allowed to fail)"
+            '(allowed to fail)'
           end
         end
       end

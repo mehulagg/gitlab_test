@@ -107,7 +107,7 @@ describe 'Profile > Password' do
 
     it 'changes user password' do
       page.within '.update-password' do
-        fill_in "user_current_password", with: user.password
+        fill_in 'user_current_password', with: user.password
         fill_passwords('22233344', '22233344')
       end
 

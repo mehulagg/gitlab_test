@@ -695,7 +695,7 @@ describe Ci::Build do
   end
 
   describe '#cache' do
-    let(:options) { { cache: { key: "key", paths: ["public"], policy: "pull-push" } } }
+    let(:options) { { cache: { key: 'key', paths: ['public'], policy: 'pull-push' } } }
 
     subject { build.cache }
 
@@ -709,7 +709,7 @@ describe Ci::Build do
           allow_any_instance_of(Project).to receive(:jobs_cache_index).and_return(1)
         end
 
-        it { is_expected.to be_an(Array).and all(include(key: "key-1")) }
+        it { is_expected.to be_an(Array).and all(include(key: 'key-1')) }
       end
 
       context 'when project does not have jobs_cache_index' do
@@ -930,7 +930,7 @@ describe Ci::Build do
         build.trace.set('Coverage 1033 / 1051 LOC (98.29%) covered')
       end
 
-      it "saves the correct extracted coverage value" do
+      it 'saves the correct extracted coverage value' do
         expect(build.update_coverage).to be(true)
         expect(build.coverage).to eq(98.29)
       end
@@ -957,7 +957,7 @@ describe Ci::Build do
   describe '#has_trace?' do
     subject { build.has_trace? }
 
-    it "expect to call exist? method" do
+    it 'expect to call exist? method' do
       expect_any_instance_of(Gitlab::Ci::Trace).to receive(:exist?)
         .and_return(true)
 
@@ -1020,8 +1020,8 @@ describe Ci::Build do
   end
 
   describe '#trace=' do
-    it "expect to fail trace=" do
-      expect { build.trace = "new" }.to raise_error(NotImplementedError)
+    it 'expect to fail trace=' do
+      expect { build.trace = 'new' }.to raise_error(NotImplementedError)
     end
   end
 
@@ -1032,7 +1032,7 @@ describe Ci::Build do
       build.update_column(:trace, 'old trace')
     end
 
-    it "expect to receive data from database" do
+    it 'expect to receive data from database' do
       is_expected.to eq('old trace')
     end
   end
@@ -1045,13 +1045,13 @@ describe Ci::Build do
         build.update_column(:trace, 'old trace')
       end
 
-      it "erases old trace" do
+      it 'erases old trace' do
         subject
 
         expect(build.old_trace).to be_nil
       end
 
-      it "executes UPDATE query" do
+      it 'executes UPDATE query' do
         recorded = ActiveRecord::QueryRecorder.new { subject }
 
         expect(recorded.log.select { |l| l.match?(/UPDATE.*ci_builds/) }.count).to eq(1)
@@ -1537,13 +1537,13 @@ describe Ci::Build do
       end
     end
 
-    it "erases erasable artifacts" do
+    it 'erases erasable artifacts' do
       subject
 
       expect(build.job_artifacts.erasable).to be_empty
     end
 
-    it "keeps non erasable artifacts" do
+    it 'keeps non erasable artifacts' do
       subject
 
       Ci::JobArtifact::NON_ERASABLE_FILE_TYPES.each do |file_type|
@@ -1870,14 +1870,14 @@ describe Ci::Build do
       subject { build.retry_failure? }
 
       where(:description, :retry_count, :options, :failure_reason, :result) do
-        "retries are disabled" | 0 | { max: 0 } | nil | false
-        "max equals count" | 2 | { max: 2 } | nil | false
-        "max is higher than count" | 1 | { max: 2 } | nil | true
-        "matching failure reason" | 0 | { when: %w[api_failure], max: 2 } | :api_failure | true
-        "not matching with always" | 0 | { when: %w[always], max: 2 } | :api_failure | true
-        "not matching reason" | 0 | { when: %w[script_error], max: 2 } | :api_failure | false
-        "scheduler failure override" | 1 | { when: %w[scheduler_failure], max: 1 } | :scheduler_failure | false
-        "default for scheduler failure" | 1 | {} | :scheduler_failure | true
+        'retries are disabled' | 0 | { max: 0 } | nil | false
+        'max equals count' | 2 | { max: 2 } | nil | false
+        'max is higher than count' | 1 | { max: 2 } | nil | true
+        'matching failure reason' | 0 | { when: %w[api_failure], max: 2 } | :api_failure | true
+        'not matching with always' | 0 | { when: %w[always], max: 2 } | :api_failure | true
+        'not matching reason' | 0 | { when: %w[script_error], max: 2 } | :api_failure | false
+        'scheduler failure override' | 1 | { when: %w[scheduler_failure], max: 1 } | :scheduler_failure | false
+        'default for scheduler failure' | 1 | {} | :scheduler_failure | true
       end
 
       with_them do
@@ -1993,9 +1993,9 @@ describe Ci::Build do
   describe '#options' do
     let(:options) do
       {
-        image: "ruby:2.1",
-        services: ["postgres"],
-        script: ["ls -a"]
+        image: 'ruby:2.1',
+        services: ['postgres'],
+        script: ['ls -a']
       }
     end
 
@@ -2142,7 +2142,7 @@ describe Ci::Build do
 
     context 'when referenced with a variable' do
       let(:build) do
-        create(:ci_build, pipeline: pipeline, environment: "foo-$CI_COMMIT_REF_NAME")
+        create(:ci_build, pipeline: pipeline, environment: 'foo-$CI_COMMIT_REF_NAME')
       end
 
       it { is_expected.to eq(environment) }
@@ -2294,7 +2294,7 @@ describe Ci::Build do
       end
 
       it { is_expected.to be_a(String) }
-      it { is_expected.to end_with(".git") }
+      it { is_expected.to end_with('.git') }
       it { is_expected.to start_with(project.web_url[0..6]) }
       it { is_expected.to include(build.token) }
       it { is_expected.to include('gitlab-ci-token') }
@@ -2313,14 +2313,14 @@ describe Ci::Build do
   describe '#stuck?' do
     subject { build.stuck? }
 
-    context "when commit_status.status is pending" do
+    context 'when commit_status.status is pending' do
       before do
         build.status = 'pending'
       end
 
       it { is_expected.to be_truthy }
 
-      context "and there are specific runner" do
+      context 'and there are specific runner' do
         let!(:runner) { create(:ci_runner, :project, projects: [build.project], contacted_at: 1.second.ago) }
 
         it { is_expected.to be_falsey }
@@ -3487,7 +3487,7 @@ describe Ci::Build do
     end
 
     context 'when build is configured to be retried' do
-      subject { create(:ci_build, :running, options: { script: ["ls -al"], retry: 3 }, project: project, user: user) }
+      subject { create(:ci_build, :running, options: { script: ['ls -al'], retry: 3 }, project: project, user: user) }
 
       it 'retries build and assigns the same user to it' do
         expect(described_class).to receive(:retry)
@@ -3612,7 +3612,7 @@ describe Ci::Build do
       let(:build_tag_list) { %w(A B) }
       let(:tag_list) { %w(C D) }
 
-      it "does not match a build" do
+      it 'does not match a build' do
         is_expected.not_to contain_exactly(build)
       end
     end
@@ -3621,7 +3621,7 @@ describe Ci::Build do
       let(:build_tag_list) { %w(A B) }
       let(:tag_list) { %w(A B C D) }
 
-      it "does match a build" do
+      it 'does match a build' do
         is_expected.to contain_exactly(build)
       end
     end
@@ -3630,7 +3630,7 @@ describe Ci::Build do
       let(:build_tag_list) { [] }
       let(:tag_list) { %w(C D) }
 
-      it "does match a build" do
+      it 'does match a build' do
         is_expected.to contain_exactly(build)
       end
     end
@@ -3639,7 +3639,7 @@ describe Ci::Build do
       let(:build_tag_list) { %w(A B C) }
       let(:tag_list) { %w(C D) }
 
-      it "does not match a build" do
+      it 'does not match a build' do
         is_expected.not_to contain_exactly(build)
       end
     end
@@ -3657,7 +3657,7 @@ describe Ci::Build do
     context 'when does have tags' do
       let(:tag_list) { %w(A B) }
 
-      it "does match a build" do
+      it 'does match a build' do
         is_expected.to contain_exactly(build)
       end
     end
@@ -3665,7 +3665,7 @@ describe Ci::Build do
     context 'when does not have tags' do
       let(:tag_list) { [] }
 
-      it "does not match a build" do
+      it 'does not match a build' do
         is_expected.not_to contain_exactly(build)
       end
     end
@@ -3689,7 +3689,7 @@ describe Ci::Build do
         end
 
         context 'job succeeds' do
-          it "calls pages worker" do
+          it 'calls pages worker' do
             expect(PagesWorker).to receive(:perform_async).with(:deploy, build.id)
 
             build.success!
@@ -3697,7 +3697,7 @@ describe Ci::Build do
         end
 
         context 'job fails' do
-          it "does not call pages worker" do
+          it 'does not call pages worker' do
             expect(PagesWorker).not_to receive(:perform_async)
 
             build.drop!
@@ -3715,7 +3715,7 @@ describe Ci::Build do
         end
 
         context 'job succeeds' do
-          it "does not call pages worker" do
+          it 'does not call pages worker' do
             expect(PagesWorker).not_to receive(:perform_async)
 
             build.success!
@@ -3734,7 +3734,7 @@ describe Ci::Build do
       end
 
       context 'job succeeds' do
-        it "does not call pages worker" do
+        it 'does not call pages worker' do
           expect(PagesWorker).not_to receive(:perform_async)
 
           build.success
@@ -3899,7 +3899,7 @@ describe Ci::Build do
 
     context 'when artifacts reports are defined' do
       let(:options) do
-        { artifacts: { reports: { junit: "junit.xml" } } }
+        { artifacts: { reports: { junit: 'junit.xml' } } }
       end
 
       it { is_expected.to be_truthy }
@@ -3907,7 +3907,7 @@ describe Ci::Build do
 
     context 'when artifacts reports missing defined' do
       let(:options) do
-        { artifacts: { paths: ["file.txt"] } }
+        { artifacts: { paths: ['file.txt'] } }
       end
 
       it { is_expected.to be_falsey }
@@ -3927,7 +3927,7 @@ describe Ci::Build do
 
     context 'when artifacts reports are defined' do
       let(:options) do
-        { artifacts: { reports: { junit: "junit.xml" } } }
+        { artifacts: { reports: { junit: 'junit.xml' } } }
       end
 
       it { is_expected.to include(:upload_multiple_artifacts) }
@@ -4092,9 +4092,9 @@ describe Ci::Build do
 
   describe '#read_metadata_attribute' do
     let(:build) { create(:ci_build, :degenerated) }
-    let(:build_options) { { "key" => "build" } }
-    let(:metadata_options) { { "key" => "metadata" } }
-    let(:default_options) { { "key" => "default" } }
+    let(:build_options) { { 'key' => 'build' } }
+    let(:metadata_options) { { 'key' => 'metadata' } }
+    let(:default_options) { { 'key' => 'default' } }
 
     subject { build.send(:read_metadata_attribute, :options, :config_options, default_options) }
 
@@ -4129,8 +4129,8 @@ describe Ci::Build do
 
   describe '#write_metadata_attribute' do
     let(:build) { create(:ci_build, :degenerated) }
-    let(:options) { { "key" => "new options" } }
-    let(:existing_options) { { "key" => "existing options" } }
+    let(:options) { { 'key' => 'new options' } }
+    let(:existing_options) { { 'key' => 'existing options' } }
 
     subject { build.send(:write_metadata_attribute, :options, :config_options, options) }
 

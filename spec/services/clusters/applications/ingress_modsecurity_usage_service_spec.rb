@@ -35,8 +35,8 @@ describe Clusters::Applications::IngressModsecurityUsageService do
       end
 
       context 'mixed data' do
-        let!(:ci_variable) { create(:ci_variable, project: project_with_ci_var, key: ADO_MODSEC_KEY, value: "On") }
-        let!(:pipeline_variable) { create(:ci_pipeline_variable, pipeline: pipeline1, key: ADO_MODSEC_KEY, value: "Off") }
+        let!(:ci_variable) { create(:ci_variable, project: project_with_ci_var, key: ADO_MODSEC_KEY, value: 'On') }
+        let!(:pipeline_variable) { create(:ci_pipeline_variable, pipeline: pipeline1, key: ADO_MODSEC_KEY, value: 'Off') }
 
         it 'gathers variable data' do
           expect(subject[:ingress_modsecurity_blocking]).to eq(1)
@@ -45,7 +45,7 @@ describe Clusters::Applications::IngressModsecurityUsageService do
       end
 
       context 'blocking' do
-        let(:modsec_values) { { key: ADO_MODSEC_KEY, value: "On" } }
+        let(:modsec_values) { { key: ADO_MODSEC_KEY, value: 'On' } }
 
         let!(:ci_variable) { create(:ci_variable, project: project_with_ci_var, **modsec_values) }
         let!(:pipeline_variable) { create(:ci_pipeline_variable, pipeline: pipeline1, **modsec_values) }
@@ -57,7 +57,7 @@ describe Clusters::Applications::IngressModsecurityUsageService do
       end
 
       context 'disabled' do
-        let(:modsec_values) { { key: ADO_MODSEC_KEY, value: "Off" } }
+        let(:modsec_values) { { key: ADO_MODSEC_KEY, value: 'Off' } }
 
         let!(:ci_variable) { create(:ci_variable, project: project_with_ci_var, **modsec_values) }
         let!(:pipeline_variable) { create(:ci_pipeline_variable, pipeline: pipeline1, **modsec_values) }
@@ -70,7 +70,7 @@ describe Clusters::Applications::IngressModsecurityUsageService do
     end
 
     context 'when set as both ci and pipeline variables' do
-      let(:modsec_values) { { key: ADO_MODSEC_KEY, value: "Off" } }
+      let(:modsec_values) { { key: ADO_MODSEC_KEY, value: 'Off' } }
 
       let(:pipeline) { create(:ci_pipeline, :with_job, project: project_with_ci_var) }
       let!(:deployment) do
@@ -92,7 +92,7 @@ describe Clusters::Applications::IngressModsecurityUsageService do
       end
 
       it 'gives precedence to pipeline variable' do
-        pipeline_variable.update(value: "On")
+        pipeline_variable.update(value: 'On')
 
         expect(subject[:ingress_modsecurity_blocking]).to eq(1)
         expect(subject[:ingress_modsecurity_disabled]).to eq(0)
@@ -100,7 +100,7 @@ describe Clusters::Applications::IngressModsecurityUsageService do
     end
 
     context 'when a project has multiple environments' do
-      let(:modsec_values) { { key: ADO_MODSEC_KEY, value: "On" } }
+      let(:modsec_values) { { key: ADO_MODSEC_KEY, value: 'On' } }
 
       let!(:env1) { project_with_pipeline_var.environments.first }
       let!(:env2) { create(:environment, project: project_with_pipeline_var) }
@@ -183,8 +183,8 @@ describe Clusters::Applications::IngressModsecurityUsageService do
       end
 
       context 'when set as pipeline variable' do
-        let!(:first_pipeline_variable) { create(:ci_pipeline_variable, pipeline: pipeline_first, key: ADO_MODSEC_KEY, value: "On") }
-        let!(:last_pipeline_variable) { create(:ci_pipeline_variable, pipeline: pipeline_last, key: ADO_MODSEC_KEY, value: "Off") }
+        let!(:first_pipeline_variable) { create(:ci_pipeline_variable, pipeline: pipeline_first, key: ADO_MODSEC_KEY, value: 'On') }
+        let!(:last_pipeline_variable) { create(:ci_pipeline_variable, pipeline: pipeline_last, key: ADO_MODSEC_KEY, value: 'Off') }
 
         it 'gives precedence to latest deployment' do
           expect(subject[:ingress_modsecurity_blocking]).to eq(0)

@@ -14,7 +14,7 @@ module Gitlab
     # descendants_base - An instance of ActiveRecord::Relation for which to
     #                    get child objects. If omitted, ancestors_base is used.
     def initialize(ancestors_base, descendants_base = ancestors_base)
-      raise ArgumentError.new("Model of ancestors_base does not match model of descendants_base") if ancestors_base.model != descendants_base.model
+      raise ArgumentError.new('Model of ancestors_base does not match model of descendants_base') if ancestors_base.model != descendants_base.model
 
       @ancestors_base = ancestors_base
       @descendants_base = descendants_base
@@ -127,7 +127,7 @@ module Gitlab
       cte = SQL::RecursiveCTE.new(:base_and_ancestors)
 
       base_query = ancestors_base.except(:order)
-      base_query = base_query.select("1 as #{DEPTH_COLUMN}", "ARRAY[id] AS tree_path", "false AS tree_cycle", objects_table[Arel.star]) if hierarchy_order
+      base_query = base_query.select("1 as #{DEPTH_COLUMN}", 'ARRAY[id] AS tree_path', 'false AS tree_cycle', objects_table[Arel.star]) if hierarchy_order
 
       cte << base_query
 
@@ -160,7 +160,7 @@ module Gitlab
       cte = SQL::RecursiveCTE.new(:base_and_descendants)
 
       base_query = descendants_base.except(:order)
-      base_query = base_query.select("1 AS #{DEPTH_COLUMN}", "ARRAY[id] AS tree_path", "false AS tree_cycle", objects_table[Arel.star]) if with_depth
+      base_query = base_query.select("1 AS #{DEPTH_COLUMN}", 'ARRAY[id] AS tree_path', 'false AS tree_cycle', objects_table[Arel.star]) if with_depth
 
       cte << base_query
 

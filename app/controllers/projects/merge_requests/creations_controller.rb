@@ -28,7 +28,7 @@ class Projects::MergeRequests::CreationsController < Projects::MergeRequests::Ap
       @target_project = @merge_request.target_project
 
       define_new_vars
-      render action: "new"
+      render action: 'new'
     end
   end
 

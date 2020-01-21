@@ -34,7 +34,7 @@ module Groups
     end
 
     def remember_sorting_key
-      @remember_sorting_key ||= "roadmap_sort"
+      @remember_sorting_key ||= 'roadmap_sort'
     end
 
     def persist_roadmap_layout

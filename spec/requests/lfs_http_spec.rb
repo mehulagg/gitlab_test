@@ -216,7 +216,7 @@ describe 'Git LFS API and storage' do
                 it_behaves_like 'LFS http 200 response'
 
                 it 'responds with the workhorse send-url' do
-                  expect(response.headers[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with("send-url:")
+                  expect(response.headers[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with('send-url:')
                 end
               end
 

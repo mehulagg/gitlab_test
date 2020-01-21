@@ -78,7 +78,7 @@ describe ApprovalProjectRule do
     end
   end
 
-  describe "#apply_report_approver_rules_to" do
+  describe '#apply_report_approver_rules_to' do
     let(:project) { merge_request.target_project }
     let(:merge_request) { create(:merge_request) }
     let(:user) { create(:user) }
@@ -102,18 +102,18 @@ describe ApprovalProjectRule do
     end
   end
 
-  describe "validation" do
+  describe 'validation' do
     let(:project_approval_rule) { create(:approval_project_rule) }
     let(:license_compliance_rule) { create(:approval_project_rule, :license_management) }
     let(:vulnerability_check_rule) { create(:approval_project_rule, :security) }
 
-    context "when creating a new rule" do
+    context 'when creating a new rule' do
       specify { expect(project_approval_rule).to be_valid }
       specify { expect(license_compliance_rule).to be_valid }
       specify { expect(vulnerability_check_rule).to be_valid }
     end
 
-    context "when attempting to edit the name of the rule" do
+    context 'when attempting to edit the name of the rule' do
       subject { project_approval_rule }
 
       before do
@@ -122,14 +122,14 @@ describe ApprovalProjectRule do
 
       specify { expect(subject).to be_valid }
 
-      context "with a `License-Check` rule" do
+      context 'with a `License-Check` rule' do
         subject { license_compliance_rule }
 
         specify { expect(subject).not_to be_valid }
         specify { expect { subject.valid? }.to change { subject.errors[:name].present? } }
       end
 
-      context "with a `Vulnerability-Check` rule" do
+      context 'with a `Vulnerability-Check` rule' do
         subject { vulnerability_check_rule }
 
         specify { expect(subject).to be_valid }

@@ -14,7 +14,7 @@ module DesignManagement
     end
 
     def execute
-      return error("Not allowed!") unless can_create_designs?
+      return error('Not allowed!') unless can_create_designs?
       return error("Only #{MAX_FILES} files are allowed simultaneously") if files.size > MAX_FILES
 
       repository.create_if_not_exists

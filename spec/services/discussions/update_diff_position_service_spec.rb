@@ -5,11 +5,11 @@ require 'spec_helper'
 describe Discussions::UpdateDiffPositionService do
   let(:project) { create(:project, :repository) }
   let(:current_user) { project.owner }
-  let(:create_commit) { project.commit("913c66a37b4a45b9769037c55c2d238bd0942d2e") }
-  let(:modify_commit) { project.commit("874797c3a73b60d2187ed6e2fcabd289ff75171e") }
-  let(:edit_commit) { project.commit("570e7b2abdd848b95f2f578043fc23bd6f6fd24d") }
+  let(:create_commit) { project.commit('913c66a37b4a45b9769037c55c2d238bd0942d2e') }
+  let(:modify_commit) { project.commit('874797c3a73b60d2187ed6e2fcabd289ff75171e') }
+  let(:edit_commit) { project.commit('570e7b2abdd848b95f2f578043fc23bd6f6fd24d') }
 
-  let(:path) { "files/ruby/popen.rb" }
+  let(:path) { 'files/ruby/popen.rb' }
 
   let(:old_diff_refs) do
     Gitlab::Diff::DiffRefs.new(
@@ -139,7 +139,7 @@ describe Discussions::UpdateDiffPositionService do
   # 24 31        @cmd_output << stderr.read
   # .. ..
 
-  describe "#execute" do
+  describe '#execute' do
     let(:discussion) { create(:diff_note_on_merge_request, project: project, position: old_position).to_discussion }
 
     let(:old_position) do
@@ -178,10 +178,10 @@ describe Discussions::UpdateDiffPositionService do
       end
     end
 
-    context "when the diff line is the same" do
+    context 'when the diff line is the same' do
       let(:line) { 16 }
 
-      it "updates the position" do
+      it 'updates the position' do
         subject.execute(discussion)
 
         expect(discussion.original_position).to eq(old_position)
@@ -203,7 +203,7 @@ describe Discussions::UpdateDiffPositionService do
       end
     end
 
-    context "when the diff line has changed" do
+    context 'when the diff line has changed' do
       let(:line) { 9 }
 
       include_examples 'outdated diff note'

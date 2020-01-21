@@ -22,7 +22,7 @@ describe Issue do
 
           context 'when the author is Alert Bot' do
             it 'updates issue title with the IID' do
-              expect { issue.save }.to change { issue.title }.to("New: Incident 503503")
+              expect { issue.save }.to change { issue.title }.to('New: Incident 503503')
             end
           end
 
@@ -213,18 +213,18 @@ describe Issue do
   describe '#sort' do
     let(:project) { create(:project) }
 
-    context "by weight" do
+    context 'by weight' do
       let!(:issue)  { create(:issue, project: project) }
       let!(:issue2) { create(:issue, weight: 1, project: project) }
       let!(:issue3) { create(:issue, weight: 2, project: project) }
       let!(:issue4) { create(:issue, weight: 3, project: project) }
 
-      it "sorts desc" do
+      it 'sorts desc' do
         issues = project.issues.sort_by_attribute('weight_desc')
         expect(issues).to eq([issue4, issue3, issue2, issue])
       end
 
-      it "sorts asc" do
+      it 'sorts asc' do
         issues = project.issues.sort_by_attribute('weight_asc')
         expect(issues).to eq([issue2, issue3, issue4, issue])
       end
@@ -489,8 +489,8 @@ describe Issue do
     end
   end
 
-  describe "#design_collection" do
-    it "returns a design collection" do
+  describe '#design_collection' do
+    it 'returns a design collection' do
       issue = build(:issue)
       collection = issue.design_collection
 
@@ -533,7 +533,7 @@ describe Issue do
     end
   end
 
-  describe "#issue_link_type" do
+  describe '#issue_link_type' do
     let(:issue) { build(:issue) }
 
     it 'returns nil for a regular issue' do

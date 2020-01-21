@@ -32,7 +32,7 @@ describe Gitlab::Ci::Trace::Stream, :clean_gitlab_redis_cache do
       it 'if size is smaller we start from the end' do
         stream.limit(2)
 
-        expect(stream.raw).to eq("8")
+        expect(stream.raw).to eq('8')
       end
 
       context 'when the trace contains ANSI sequence and Unicode' do
@@ -67,9 +67,9 @@ describe Gitlab::Ci::Trace::Stream, :clean_gitlab_redis_cache do
           result = stream.html
 
           expect(result).to eq(
-            "<span>ヾ(´༎ຶД༎ຶ`)ﾉ<br/></span>"\
-            "<span class=\"term-fg-green\">許功蓋</span>"\
-            "<span><br/></span>")
+            '<span>ヾ(´༎ຶД༎ຶ`)ﾉ<br/></span>'\
+            '<span class="term-fg-green">許功蓋</span>'\
+            '<span><br/></span>')
           expect(result.encoding).to eq(Encoding.default_external)
         end
       end
@@ -101,12 +101,12 @@ describe Gitlab::Ci::Trace::Stream, :clean_gitlab_redis_cache do
 
   describe '#append' do
     shared_examples_for 'appends' do
-      it "truncates and append content" do
-        stream.append(+"89", 4)
+      it 'truncates and append content' do
+        stream.append(+'89', 4)
         stream.seek(0)
 
         expect(stream.size).to eq(6)
-        expect(stream.raw).to eq("123489")
+        expect(stream.raw).to eq('123489')
       end
 
       it 'appends in binary mode' do
@@ -126,7 +126,7 @@ describe Gitlab::Ci::Trace::Stream, :clean_gitlab_redis_cache do
 
       let(:stream) do
         described_class.new do
-          tempfile.write("12345678")
+          tempfile.write('12345678')
           tempfile.rewind
           tempfile
         end
@@ -156,21 +156,21 @@ describe Gitlab::Ci::Trace::Stream, :clean_gitlab_redis_cache do
   describe '#set' do
     shared_examples_for 'sets' do
       before do
-        stream.set(+"8901")
+        stream.set(+'8901')
       end
 
-      it "overwrite content" do
+      it 'overwrite content' do
         stream.seek(0)
 
         expect(stream.size).to eq(4)
-        expect(stream.raw).to eq("8901")
+        expect(stream.raw).to eq('8901')
       end
     end
 
     context 'when stream is StringIO' do
       let(:stream) do
         described_class.new do
-          StringIO.new(+"12345678")
+          StringIO.new(+'12345678')
         end
       end
 
@@ -252,12 +252,12 @@ describe Gitlab::Ci::Trace::Stream, :clean_gitlab_redis_cache do
 
   describe '#html' do
     shared_examples_for 'htmls' do
-      it "returns html" do
-        expect(stream.html).to eq("<span>12<br/>34<br/>56</span>")
+      it 'returns html' do
+        expect(stream.html).to eq('<span>12<br/>34<br/>56</span>')
       end
 
-      it "returns html for last line only" do
-        expect(stream.html(last_lines: 1)).to eq("<span>56</span>")
+      it 'returns html for last line only' do
+        expect(stream.html(last_lines: 1)).to eq('<span>56</span>')
       end
     end
 
@@ -291,7 +291,7 @@ describe Gitlab::Ci::Trace::Stream, :clean_gitlab_redis_cache do
         let(:data) { 'Coverage 1033 / 1051 LOC (98.29%) covered' }
         let(:regex) { '\(\d+.\d+\%\) covered' }
 
-        it { is_expected.to eq("98.29") }
+        it { is_expected.to eq('98.29') }
       end
 
       context 'valid content & bad regex' do
@@ -319,7 +319,7 @@ describe Gitlab::Ci::Trace::Stream, :clean_gitlab_redis_cache do
         let(:regex) { '\(\d+.\d+\%\) covered' }
 
         it 'returns the last matched coverage' do
-          is_expected.to eq("98.29")
+          is_expected.to eq('98.29')
         end
       end
 
@@ -331,7 +331,7 @@ describe Gitlab::Ci::Trace::Stream, :clean_gitlab_redis_cache do
           stub_const('Gitlab::Ci::Trace::Stream::BUFFER_SIZE', 5)
         end
 
-        it { is_expected.to eq("98.29") }
+        it { is_expected.to eq('98.29') }
       end
 
       context 'when regex is multi-byte char' do
@@ -353,14 +353,14 @@ describe Gitlab::Ci::Trace::Stream, :clean_gitlab_redis_cache do
           stub_const('Gitlab::Ci::Trace::Stream::BUFFER_SIZE', data.length)
         end
 
-        it { is_expected.to eq("98.29") }
+        it { is_expected.to eq('98.29') }
       end
 
       context 'using a regex capture' do
         let(:data) { 'TOTAL      9926   3489    65%' }
         let(:regex) { 'TOTAL\s+\d+\s+\d+\s+(\d{1,3}\%)' }
 
-        it { is_expected.to eq("65") }
+        it { is_expected.to eq('65') }
       end
 
       context 'malicious regexp' do

@@ -40,7 +40,7 @@ describe 'Issue Boards new issue', :js do
       wait_for_requests
 
       page.within(first('.board-card')) do
-        expect(find('.board-card-weight .board-card-info-text').text).to eq("10")
+        expect(find('.board-card-weight .board-card-info-text').text).to eq('10')
       end
     end
   end

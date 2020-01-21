@@ -9,7 +9,7 @@ def join_csv_files(output_path, input_paths)
     CSV.read(input_path, headers: true)
   end
 
-  CSV.open(output_path, "w", headers: input_csvs.first.headers, write_headers: true) do |output_csv|
+  CSV.open(output_path, 'w', headers: input_csvs.first.headers, write_headers: true) do |output_csv|
     input_csvs.each do |input_csv|
       input_csv.each do |line|
         output_csv << line

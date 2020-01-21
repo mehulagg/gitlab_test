@@ -7,7 +7,7 @@ describe Oauth::AuthorizationsController do
   let!(:application) { create(:oauth_application, scopes: 'api read_user', redirect_uri: 'http://example.com') }
   let(:params) do
     {
-      response_type: "code",
+      response_type: 'code',
       client_id: application.uid,
       redirect_uri: application.redirect_uri,
       state: 'state'

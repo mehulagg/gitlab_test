@@ -47,7 +47,7 @@ describe RuboCop::Cop::Migration::UpdateLargeTable do
     end
 
     it 'registers no offense for non-blacklisted tables' do
-      inspect_source("add_column_with_default :table, :column, default: true")
+      inspect_source('add_column_with_default :table, :column, default: true')
 
       expect(cop.offenses).to be_empty
     end

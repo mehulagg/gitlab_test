@@ -42,7 +42,7 @@ describe Gitlab::Metrics::RackMiddleware do
       expect(transaction.values[:request_uri]).to eq('/foo')
     end
 
-    context "when URI includes sensitive parameters" do
+    context 'when URI includes sensitive parameters' do
       let(:env) do
         {
           'REQUEST_METHOD' => 'GET',

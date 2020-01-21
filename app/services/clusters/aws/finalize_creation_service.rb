@@ -65,7 +65,7 @@ module Clusters
       end
 
       def build_kube_client!(api_url, ca_pem)
-        raise "Incomplete settings" unless api_url
+        raise 'Incomplete settings' unless api_url
 
         Gitlab::Kubernetes::KubeClient.new(
           api_url,

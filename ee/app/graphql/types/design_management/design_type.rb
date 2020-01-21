@@ -16,7 +16,7 @@ module Types
       field :versions,
             Types::DesignManagement::VersionType.connection_type,
             resolver: Resolvers::DesignManagement::VersionResolver,
-            description: "All versions related to this design ordered newest first",
+            description: 'All versions related to this design ordered newest first',
             extras: [:parent]
 
       # Returns a `DesignManagement::Version` for this query based on the

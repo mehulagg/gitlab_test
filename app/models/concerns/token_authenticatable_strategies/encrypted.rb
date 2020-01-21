@@ -13,7 +13,7 @@ module TokenAuthenticatableStrategies
       elsif migrating?
         find_by_plaintext_token(token, unscoped)
       else
-        raise ArgumentError, _("Unknown encryption strategy: %{encrypted_strategy}!") % { encrypted_strategy: encrypted_strategy }
+        raise ArgumentError, _('Unknown encryption strategy: %{encrypted_strategy}!') % { encrypted_strategy: encrypted_strategy }
       end
     end
 

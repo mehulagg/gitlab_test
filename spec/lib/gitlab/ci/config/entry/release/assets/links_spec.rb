@@ -10,12 +10,12 @@ describe Gitlab::Ci::Config::Entry::Release::Assets::Links do
       let(:config) do
         [
           {
-            name: "cool-app.zip",
-            url: "http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.zip"
+            name: 'cool-app.zip',
+            url: 'http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.zip'
           },
           {
-            name: "cool-app.exe",
-            url: "http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.exe"
+            name: 'cool-app.exe',
+            url: 'http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.exe'
           }
         ]
       end
@@ -49,7 +49,7 @@ describe Gitlab::Ci::Config::Entry::Release::Assets::Links do
 
           it 'reports error' do
             expect(entry.errors)
-              .to include "links config should be a array"
+              .to include 'links config should be a array'
           end
         end
 

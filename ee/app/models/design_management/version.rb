@@ -33,7 +33,7 @@ module DesignManagement
     has_many :actions
     has_many :designs,
              through: :actions,
-             class_name: "DesignManagement::Design",
+             class_name: 'DesignManagement::Design',
              source: :design,
              inverse_of: :versions
 

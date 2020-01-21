@@ -83,15 +83,15 @@ describe 'Help Pages' do
     end
 
     it 'displays custom help page text' do
-      expect(page).to have_text "My Custom Text"
+      expect(page).to have_text 'My Custom Text'
     end
 
     it 'hides marketing content when enabled' do
-      expect(page).not_to have_link "Get a support subscription"
+      expect(page).not_to have_link 'Get a support subscription'
     end
 
     it 'uses a custom support url' do
-      expect(page).to have_link "See our website for getting help", href: "http://example.com/help"
+      expect(page).to have_link 'See our website for getting help', href: 'http://example.com/help'
     end
   end
 end

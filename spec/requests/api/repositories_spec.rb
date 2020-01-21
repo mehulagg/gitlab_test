@@ -12,7 +12,7 @@ describe API::Repositories do
   let!(:project) { create(:project, :repository, creator: user) }
   let!(:maintainer) { create(:project_member, :maintainer, user: user, project: project) }
 
-  describe "GET /projects/:id/repository/tree" do
+  describe 'GET /projects/:id/repository/tree' do
     let(:route) { "/projects/#{project.id}/repository/tree" }
 
     shared_examples_for 'repository tree' do
@@ -101,7 +101,7 @@ describe API::Repositories do
     end
   end
 
-  describe "GET /projects/:id/repository/blobs/:sha" do
+  describe 'GET /projects/:id/repository/blobs/:sha' do
     let(:route) { "/projects/#{project.id}/repository/blobs/#{sample_blob.oid}" }
 
     shared_examples_for 'repository blob' do
@@ -110,7 +110,7 @@ describe API::Repositories do
 
         expect(response).to have_gitlab_http_status(200)
         expect(json_response['size']).to eq(111)
-        expect(json_response['encoding']).to eq("base64")
+        expect(json_response['encoding']).to eq('base64')
         expect(Base64.decode64(json_response['content']).lines.first).to eq("class Commit\n")
         expect(json_response['sha']).to eq(sample_blob.oid)
       end
@@ -158,7 +158,7 @@ describe API::Repositories do
     end
   end
 
-  describe "GET /projects/:id/repository/blobs/:sha/raw" do
+  describe 'GET /projects/:id/repository/blobs/:sha/raw' do
     let(:route) { "/projects/#{project.id}/repository/blobs/#{sample_blob.oid}/raw" }
 
     shared_examples_for 'repository raw blob' do
@@ -168,7 +168,7 @@ describe API::Repositories do
         get api(route, current_user)
 
         expect(response).to have_gitlab_http_status(200)
-        expect(headers[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
+        expect(headers[Gitlab::Workhorse::DETECT_HEADER]).to eq 'true'
       end
 
       it 'sets inline content disposition by default' do
@@ -220,7 +220,7 @@ describe API::Repositories do
     end
   end
 
-  describe "GET /projects/:id/repository/archive(.:format)?:sha" do
+  describe 'GET /projects/:id/repository/archive(.:format)?:sha' do
     let(:route) { "/projects/#{project.id}/repository/archive" }
 
     shared_examples_for 'repository archive' do
@@ -296,7 +296,7 @@ describe API::Repositories do
     let(:route) { "/projects/#{project.id}/repository/compare" }
 
     shared_examples_for 'repository compare' do
-      it "compares branches" do
+      it 'compares branches' do
         expect(::Gitlab::Git::Compare).to receive(:new).with(anything, anything, anything, {
           straight: false
         }).and_call_original
@@ -307,7 +307,7 @@ describe API::Repositories do
         expect(json_response['diffs']).to be_present
       end
 
-      it "compares branches with explicit merge-base mode" do
+      it 'compares branches with explicit merge-base mode' do
         expect(::Gitlab::Git::Compare).to receive(:new).with(anything, anything, anything, {
           straight: false
         }).and_call_original
@@ -318,7 +318,7 @@ describe API::Repositories do
         expect(json_response['diffs']).to be_present
       end
 
-      it "compares branches with explicit straight mode" do
+      it 'compares branches with explicit straight mode' do
         expect(::Gitlab::Git::Compare).to receive(:new).with(anything, anything, anything, {
           straight: true
         }).and_call_original
@@ -329,7 +329,7 @@ describe API::Repositories do
         expect(json_response['diffs']).to be_present
       end
 
-      it "compares tags" do
+      it 'compares tags' do
         get api(route, current_user), params: { from: 'v1.0.0', to: 'v1.1.0' }
 
         expect(response).to have_gitlab_http_status(200)
@@ -337,7 +337,7 @@ describe API::Repositories do
         expect(json_response['diffs']).to be_present
       end
 
-      it "compares commits" do
+      it 'compares commits' do
         get api(route, current_user), params: { from: sample_commit.id, to: sample_commit.parent_id }
 
         expect(response).to have_gitlab_http_status(200)
@@ -346,7 +346,7 @@ describe API::Repositories do
         expect(json_response['compare_same_ref']).to be_falsey
       end
 
-      it "compares commits in reverse order" do
+      it 'compares commits in reverse order' do
         get api(route, current_user), params: { from: sample_commit.parent_id, to: sample_commit.id }
 
         expect(response).to have_gitlab_http_status(200)
@@ -354,7 +354,7 @@ describe API::Repositories do
         expect(json_response['diffs']).to be_present
       end
 
-      it "compares same refs" do
+      it 'compares same refs' do
         get api(route, current_user), params: { from: 'master', to: 'master' }
 
         expect(response).to have_gitlab_http_status(200)

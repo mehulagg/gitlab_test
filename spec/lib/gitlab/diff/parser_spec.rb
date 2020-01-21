@@ -94,7 +94,7 @@ eos
   end
 
   describe '\ No newline at end of file' do
-    it "parses nonewline in one file correctly" do
+    it 'parses nonewline in one file correctly' do
       first_nonewline_diff = <<~END
         --- a/test
         +++ b/test
@@ -114,7 +114,7 @@ eos
       expect(lines[1].new_pos).to eq(2)
     end
 
-    it "parses nonewline in two files correctly" do
+    it 'parses nonewline in two files correctly' do
       both_nonewline_diff = <<~END
         --- a/test
         +++ b/test
@@ -147,7 +147,7 @@ eos
   end
 
   describe 'tolerates special diff markers in a content' do
-    it "counts lines correctly" do
+    it 'counts lines correctly' do
       diff = <<~END
         --- a/test
         +++ b/test

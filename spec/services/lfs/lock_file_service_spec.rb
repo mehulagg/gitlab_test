@@ -41,11 +41,11 @@ describe Lfs::LockFileService do
       end
 
       context 'without an existent lock' do
-        it "succeeds" do
+        it 'succeeds' do
           expect(subject.execute[:status]).to eq(:success)
         end
 
-        it "creates the Lock" do
+        it 'creates the Lock' do
           expect do
             subject.execute
           end.to change { LfsFileLock.count }.by(1)

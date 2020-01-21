@@ -25,17 +25,17 @@ module Gitlab
 
           it 'returns valid build attributes' do
             expect(subject).to eq({
-              stage: "test",
+              stage: 'test',
               stage_idx: 2,
-              name: "rspec",
+              name: 'rspec',
               only: { refs: %w[branches tags] },
               options: {
-                before_script: ["pwd"],
-                script: ["rspec"]
+                before_script: ['pwd'],
+                script: ['rspec']
               },
               interruptible: true,
               allow_failure: false,
-              when: "on_success",
+              when: 'on_success',
               yaml_variables: []
             })
           end
@@ -110,22 +110,22 @@ module Gitlab
             it { expect(subject[:interruptible]).to be_falsy }
           end
 
-          it "returns interruptible when overridden for job" do
+          it 'returns interruptible when overridden for job' do
             config = YAML.dump({ default: { interruptible: true },
-                                 rspec: { script: "rspec" } })
+                                 rspec: { script: 'rspec' } })
 
             config_processor = Gitlab::Ci::YamlProcessor.new(config)
 
-            expect(config_processor.stage_builds_attributes("test").size).to eq(1)
-            expect(config_processor.stage_builds_attributes("test").first).to eq({
-              stage: "test",
+            expect(config_processor.stage_builds_attributes('test').size).to eq(1)
+            expect(config_processor.stage_builds_attributes('test').first).to eq({
+              stage: 'test',
               stage_idx: 2,
-              name: "rspec",
+              name: 'rspec',
               only: { refs: %w[branches tags] },
-              options: { script: ["rspec"] },
+              options: { script: ['rspec'] },
               interruptible: true,
               allow_failure: false,
-              when: "on_success",
+              when: 'on_success',
               yaml_variables: []
             })
           end
@@ -267,35 +267,35 @@ module Gitlab
         end
 
         let(:attributes) do
-          [{ name: ".pre",
+          [{ name: '.pre',
              index: 0,
              builds: [] },
-           { name: "build",
+           { name: 'build',
              index: 1,
              builds: [] },
-           { name: "test",
+           { name: 'test',
              index: 2,
              builds:
                [{ stage_idx: 2,
-                  stage: "test",
-                  name: "rspec",
+                  stage: 'test',
+                  name: 'rspec',
                   allow_failure: false,
-                  when: "on_success",
+                  when: 'on_success',
                   yaml_variables: [],
-                  options: { script: ["rspec"] },
-                  only: { refs: ["branches"] } }] },
-           { name: "deploy",
+                  options: { script: ['rspec'] },
+                  only: { refs: ['branches'] } }] },
+           { name: 'deploy',
              index: 3,
              builds:
                [{ stage_idx: 3,
-                  stage: "deploy",
-                  name: "prod",
+                  stage: 'deploy',
+                  name: 'prod',
                   allow_failure: false,
-                  when: "on_success",
+                  when: 'on_success',
                   yaml_variables: [],
-                  options: { script: ["cap prod"] },
-                  only: { refs: ["tags"] } }] },
-           { name: ".post",
+                  options: { script: ['cap prod'] },
+                  only: { refs: ['tags'] } }] },
+           { name: '.post',
              index: 4,
              builds: [] }]
         end
@@ -409,7 +409,7 @@ module Gitlab
 
       describe 'only / except policies validations' do
         context 'when `only` has an invalid value' do
-          let(:config) { { rspec: { script: "rspec", type: "test", only: only } } }
+          let(:config) { { rspec: { script: 'rspec', type: 'test', only: only } } }
           let(:processor) { Gitlab::Ci::YamlProcessor.new(YAML.dump(config)) }
 
           context 'when it is integer' do
@@ -431,7 +431,7 @@ module Gitlab
           end
 
           context 'when it is invalid regex' do
-            let(:only) { ["/*invalid/"] }
+            let(:only) { ['/*invalid/'] }
 
             it do
               expect { processor }.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError,
@@ -441,7 +441,7 @@ module Gitlab
         end
 
         context 'when `except` has an invalid value' do
-          let(:config) { { rspec: { script: "rspec", except: except } } }
+          let(:config) { { rspec: { script: 'rspec', except: except } } }
           let(:processor) { Gitlab::Ci::YamlProcessor.new(YAML.dump(config)) }
 
           context 'when it is integer' do
@@ -463,7 +463,7 @@ module Gitlab
           end
 
           context 'when it is invalid regex' do
-            let(:except) { ["/*invalid/"] }
+            let(:except) { ['/*invalid/'] }
 
             it do
               expect { processor }.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError,
@@ -473,261 +473,261 @@ module Gitlab
         end
       end
 
-      describe "Scripts handling" do
+      describe 'Scripts handling' do
         let(:config_data) { YAML.dump(config) }
         let(:config_processor) { Gitlab::Ci::YamlProcessor.new(config_data) }
 
         subject { config_processor.stage_builds_attributes('test').first }
 
-        describe "before_script" do
-          context "in global context" do
+        describe 'before_script' do
+          context 'in global context' do
             let(:config) do
               {
-                before_script: ["global script"],
-                test: { script: ["script"] }
+                before_script: ['global script'],
+                test: { script: ['script'] }
               }
             end
 
-            it "return commands with scripts concatenated" do
-              expect(subject[:options][:before_script]).to eq(["global script"])
+            it 'return commands with scripts concatenated' do
+              expect(subject[:options][:before_script]).to eq(['global script'])
             end
           end
 
-          context "in default context" do
+          context 'in default context' do
             let(:config) do
               {
-                default: { before_script: ["global script"] },
-                test: { script: ["script"] }
+                default: { before_script: ['global script'] },
+                test: { script: ['script'] }
               }
             end
 
-            it "return commands with scripts concatenated" do
-              expect(subject[:options][:before_script]).to eq(["global script"])
+            it 'return commands with scripts concatenated' do
+              expect(subject[:options][:before_script]).to eq(['global script'])
             end
           end
 
-          context "overwritten in local context" do
+          context 'overwritten in local context' do
             let(:config) do
               {
-                before_script: ["global script"],
-                test: { before_script: ["local script"], script: ["script"] }
+                before_script: ['global script'],
+                test: { before_script: ['local script'], script: ['script'] }
               }
             end
 
-            it "return commands with scripts concatenated" do
-              expect(subject[:options][:before_script]).to eq(["local script"])
+            it 'return commands with scripts concatenated' do
+              expect(subject[:options][:before_script]).to eq(['local script'])
             end
           end
 
           context 'when script is array of arrays of strings' do
             let(:config) do
               {
-                before_script: [["global script", "echo 1"], ["ls"], "pwd"],
-                test: { script: ["script"] }
+                before_script: [['global script', 'echo 1'], ['ls'], 'pwd'],
+                test: { script: ['script'] }
               }
             end
 
-            it "return commands with scripts concatenated" do
-              expect(subject[:options][:before_script]).to eq(["global script", "echo 1", "ls", "pwd"])
+            it 'return commands with scripts concatenated' do
+              expect(subject[:options][:before_script]).to eq(['global script', 'echo 1', 'ls', 'pwd'])
             end
           end
         end
 
-        describe "script" do
+        describe 'script' do
           context 'when script is array of strings' do
             let(:config) do
               {
-                test: { script: ["script"] }
+                test: { script: ['script'] }
               }
             end
 
-            it "return commands with scripts concatenated" do
-              expect(subject[:options][:script]).to eq(["script"])
+            it 'return commands with scripts concatenated' do
+              expect(subject[:options][:script]).to eq(['script'])
             end
           end
 
           context 'when script is array of arrays of strings' do
             let(:config) do
               {
-                test: { script: [["script"], ["echo 1"], "ls"] }
+                test: { script: [['script'], ['echo 1'], 'ls'] }
               }
             end
 
-            it "return commands with scripts concatenated" do
-              expect(subject[:options][:script]).to eq(["script", "echo 1", "ls"])
+            it 'return commands with scripts concatenated' do
+              expect(subject[:options][:script]).to eq(['script', 'echo 1', 'ls'])
             end
           end
         end
 
-        describe "after_script" do
-          context "in global context" do
+        describe 'after_script' do
+          context 'in global context' do
             let(:config) do
               {
-                after_script: ["after_script"],
-                test: { script: ["script"] }
+                after_script: ['after_script'],
+                test: { script: ['script'] }
               }
             end
 
-            it "return after_script in options" do
-              expect(subject[:options][:after_script]).to eq(["after_script"])
+            it 'return after_script in options' do
+              expect(subject[:options][:after_script]).to eq(['after_script'])
             end
           end
 
-          context "in default context" do
+          context 'in default context' do
             let(:config) do
               {
-                after_script: ["after_script"],
-                test: { script: ["script"] }
+                after_script: ['after_script'],
+                test: { script: ['script'] }
               }
             end
 
-            it "return after_script in options" do
-              expect(subject[:options][:after_script]).to eq(["after_script"])
+            it 'return after_script in options' do
+              expect(subject[:options][:after_script]).to eq(['after_script'])
             end
           end
 
-          context "overwritten in local context" do
+          context 'overwritten in local context' do
             let(:config) do
               {
-                after_script: ["local after_script"],
-                test: { after_script: ["local after_script"], script: ["script"] }
+                after_script: ['local after_script'],
+                test: { after_script: ['local after_script'], script: ['script'] }
               }
             end
 
-            it "return after_script in options" do
-              expect(subject[:options][:after_script]).to eq(["local after_script"])
+            it 'return after_script in options' do
+              expect(subject[:options][:after_script]).to eq(['local after_script'])
             end
           end
 
           context 'when script is array of arrays of strings' do
             let(:config) do
               {
-                after_script: [["global script", "echo 1"], ["ls"], "pwd"],
-                test: { script: ["script"] }
+                after_script: [['global script', 'echo 1'], ['ls'], 'pwd'],
+                test: { script: ['script'] }
               }
             end
 
-            it "return after_script in options" do
-              expect(subject[:options][:after_script]).to eq(["global script", "echo 1", "ls", "pwd"])
+            it 'return after_script in options' do
+              expect(subject[:options][:after_script]).to eq(['global script', 'echo 1', 'ls', 'pwd'])
             end
           end
         end
       end
 
-      describe "Image and service handling" do
-        context "when extended docker configuration is used" do
-          it "returns image and service when defined" do
-            config = YAML.dump({ image: { name: "ruby:2.1", entrypoint: ["/usr/local/bin/init", "run"] },
-                                 services: ["mysql", { name: "docker:dind", alias: "docker",
-                                                       entrypoint: ["/usr/local/bin/init", "run"],
-                                                       command: ["/usr/local/bin/init", "run"] }],
-                                 before_script: ["pwd"],
-                                 rspec: { script: "rspec" } })
+      describe 'Image and service handling' do
+        context 'when extended docker configuration is used' do
+          it 'returns image and service when defined' do
+            config = YAML.dump({ image: { name: 'ruby:2.1', entrypoint: ['/usr/local/bin/init', 'run'] },
+                                 services: ['mysql', { name: 'docker:dind', alias: 'docker',
+                                                       entrypoint: ['/usr/local/bin/init', 'run'],
+                                                       command: ['/usr/local/bin/init', 'run'] }],
+                                 before_script: ['pwd'],
+                                 rspec: { script: 'rspec' } })
 
             config_processor = Gitlab::Ci::YamlProcessor.new(config)
 
-            expect(config_processor.stage_builds_attributes("test").size).to eq(1)
-            expect(config_processor.stage_builds_attributes("test").first).to eq({
-              stage: "test",
+            expect(config_processor.stage_builds_attributes('test').size).to eq(1)
+            expect(config_processor.stage_builds_attributes('test').first).to eq({
+              stage: 'test',
               stage_idx: 2,
-              name: "rspec",
+              name: 'rspec',
               only: { refs: %w[branches tags] },
               options: {
-                before_script: ["pwd"],
-                script: ["rspec"],
-                image: { name: "ruby:2.1", entrypoint: ["/usr/local/bin/init", "run"] },
-                services: [{ name: "mysql" },
-                           { name: "docker:dind", alias: "docker", entrypoint: ["/usr/local/bin/init", "run"],
-                             command: ["/usr/local/bin/init", "run"] }]
+                before_script: ['pwd'],
+                script: ['rspec'],
+                image: { name: 'ruby:2.1', entrypoint: ['/usr/local/bin/init', 'run'] },
+                services: [{ name: 'mysql' },
+                           { name: 'docker:dind', alias: 'docker', entrypoint: ['/usr/local/bin/init', 'run'],
+                             command: ['/usr/local/bin/init', 'run'] }]
               },
               allow_failure: false,
-              when: "on_success",
+              when: 'on_success',
               yaml_variables: []
             })
           end
 
-          it "returns image and service when overridden for job" do
-            config = YAML.dump({ image: "ruby:2.1",
-                                 services: ["mysql"],
-                                 before_script: ["pwd"],
-                                 rspec: { image: { name: "ruby:2.5", entrypoint: ["/usr/local/bin/init", "run"] },
-                                          services: [{ name: "postgresql", alias: "db-pg",
-                                                       entrypoint: ["/usr/local/bin/init", "run"],
-                                                       command: ["/usr/local/bin/init", "run"] }, "docker:dind"],
-                                          script: "rspec" } })
+          it 'returns image and service when overridden for job' do
+            config = YAML.dump({ image: 'ruby:2.1',
+                                 services: ['mysql'],
+                                 before_script: ['pwd'],
+                                 rspec: { image: { name: 'ruby:2.5', entrypoint: ['/usr/local/bin/init', 'run'] },
+                                          services: [{ name: 'postgresql', alias: 'db-pg',
+                                                       entrypoint: ['/usr/local/bin/init', 'run'],
+                                                       command: ['/usr/local/bin/init', 'run'] }, 'docker:dind'],
+                                          script: 'rspec' } })
 
             config_processor = Gitlab::Ci::YamlProcessor.new(config)
 
-            expect(config_processor.stage_builds_attributes("test").size).to eq(1)
-            expect(config_processor.stage_builds_attributes("test").first).to eq({
-              stage: "test",
+            expect(config_processor.stage_builds_attributes('test').size).to eq(1)
+            expect(config_processor.stage_builds_attributes('test').first).to eq({
+              stage: 'test',
               stage_idx: 2,
-              name: "rspec",
+              name: 'rspec',
               only: { refs: %w[branches tags] },
               options: {
-                before_script: ["pwd"],
-                script: ["rspec"],
-                image: { name: "ruby:2.5", entrypoint: ["/usr/local/bin/init", "run"] },
-                services: [{ name: "postgresql", alias: "db-pg", entrypoint: ["/usr/local/bin/init", "run"],
-                             command: ["/usr/local/bin/init", "run"] },
-                           { name: "docker:dind" }]
+                before_script: ['pwd'],
+                script: ['rspec'],
+                image: { name: 'ruby:2.5', entrypoint: ['/usr/local/bin/init', 'run'] },
+                services: [{ name: 'postgresql', alias: 'db-pg', entrypoint: ['/usr/local/bin/init', 'run'],
+                             command: ['/usr/local/bin/init', 'run'] },
+                           { name: 'docker:dind' }]
               },
               allow_failure: false,
-              when: "on_success",
+              when: 'on_success',
               yaml_variables: []
             })
           end
         end
 
-        context "when etended docker configuration is not used" do
-          it "returns image and service when defined" do
-            config = YAML.dump({ image: "ruby:2.1",
-                                 services: ["mysql", "docker:dind"],
-                                 before_script: ["pwd"],
-                                 rspec: { script: "rspec" } })
+        context 'when etended docker configuration is not used' do
+          it 'returns image and service when defined' do
+            config = YAML.dump({ image: 'ruby:2.1',
+                                 services: ['mysql', 'docker:dind'],
+                                 before_script: ['pwd'],
+                                 rspec: { script: 'rspec' } })
 
             config_processor = Gitlab::Ci::YamlProcessor.new(config)
 
-            expect(config_processor.stage_builds_attributes("test").size).to eq(1)
-            expect(config_processor.stage_builds_attributes("test").first).to eq({
-              stage: "test",
+            expect(config_processor.stage_builds_attributes('test').size).to eq(1)
+            expect(config_processor.stage_builds_attributes('test').first).to eq({
+              stage: 'test',
               stage_idx: 2,
-              name: "rspec",
+              name: 'rspec',
               only: { refs: %w[branches tags] },
               options: {
-                before_script: ["pwd"],
-                script: ["rspec"],
-                image: { name: "ruby:2.1" },
-                services: [{ name: "mysql" }, { name: "docker:dind" }]
+                before_script: ['pwd'],
+                script: ['rspec'],
+                image: { name: 'ruby:2.1' },
+                services: [{ name: 'mysql' }, { name: 'docker:dind' }]
               },
               allow_failure: false,
-              when: "on_success",
+              when: 'on_success',
               yaml_variables: []
             })
           end
 
-          it "returns image and service when overridden for job" do
-            config = YAML.dump({ image: "ruby:2.1",
-                                 services: ["mysql"],
-                                 before_script: ["pwd"],
-                                 rspec: { image: "ruby:2.5", services: ["postgresql", "docker:dind"], script: "rspec" } })
+          it 'returns image and service when overridden for job' do
+            config = YAML.dump({ image: 'ruby:2.1',
+                                 services: ['mysql'],
+                                 before_script: ['pwd'],
+                                 rspec: { image: 'ruby:2.5', services: ['postgresql', 'docker:dind'], script: 'rspec' } })
 
             config_processor = Gitlab::Ci::YamlProcessor.new(config)
 
-            expect(config_processor.stage_builds_attributes("test").size).to eq(1)
-            expect(config_processor.stage_builds_attributes("test").first).to eq({
-              stage: "test",
+            expect(config_processor.stage_builds_attributes('test').size).to eq(1)
+            expect(config_processor.stage_builds_attributes('test').first).to eq({
+              stage: 'test',
               stage_idx: 2,
-              name: "rspec",
+              name: 'rspec',
               only: { refs: %w[branches tags] },
               options: {
-                before_script: ["pwd"],
-                script: ["rspec"],
-                image: { name: "ruby:2.5" },
-                services: [{ name: "postgresql" }, { name: "docker:dind" }]
+                before_script: ['pwd'],
+                script: ['rspec'],
+                image: { name: 'ruby:2.5' },
+                services: [{ name: 'postgresql' }, { name: 'docker:dind' }]
               },
               allow_failure: false,
-              when: "on_success",
+              when: 'on_success',
               yaml_variables: []
             })
           end
@@ -894,7 +894,7 @@ module Gitlab
 
           it 'correctly extends rspec job' do
             expect(config_processor.builds).to be_one
-            expect(subject.dig(:options, :before_script)).to eq ["bundle install"]
+            expect(subject.dig(:options, :before_script)).to eq ['bundle install']
             expect(subject.dig(:options, :script)).to eq %w(rspec)
             expect(subject.dig(:options, :image, :name)).to eq 'image:test'
             expect(subject.dig(:when)).to eq 'always'
@@ -902,44 +902,44 @@ module Gitlab
         end
       end
 
-      describe "Include" do
+      describe 'Include' do
         let(:opts) { {} }
 
         let(:config) do
           {
             include: include_content,
-            rspec: { script: "test" }
+            rspec: { script: 'test' }
           }
         end
 
         subject { Gitlab::Ci::YamlProcessor.new(YAML.dump(config), opts) }
 
-        context "when validating a ci config file with no project context" do
-          context "when a single string is provided" do
-            let(:include_content) { "/local.gitlab-ci.yml" }
+        context 'when validating a ci config file with no project context' do
+          context 'when a single string is provided' do
+            let(:include_content) { '/local.gitlab-ci.yml' }
 
-            it "returns a validation error" do
+            it 'returns a validation error' do
               expect { subject }.to raise_error /does not have project/
             end
           end
 
-          context "when an array is provided" do
-            let(:include_content) { ["/local.gitlab-ci.yml"] }
+          context 'when an array is provided' do
+            let(:include_content) { ['/local.gitlab-ci.yml'] }
 
-            it "returns a validation error" do
+            it 'returns a validation error' do
               expect { subject }.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, /does not have project/)
             end
           end
 
-          context "when an array of wrong keyed object is provided" do
-            let(:include_content) { [{ yolo: "/local.gitlab-ci.yml" }] }
+          context 'when an array of wrong keyed object is provided' do
+            let(:include_content) { [{ yolo: '/local.gitlab-ci.yml' }] }
 
-            it "returns a validation error" do
+            it 'returns a validation error' do
               expect { subject }.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError)
             end
           end
 
-          context "when an array of mixed typed objects is provided" do
+          context 'when an array of mixed typed objects is provided' do
             let(:include_content) do
               [
                 'https://gitlab.com/awesome-project/raw/master/.before-script-template.yml',
@@ -955,38 +955,38 @@ module Gitlab
                   body: 'prepare: { script: ls -al }')
             end
 
-            it "does not return any error" do
+            it 'does not return any error' do
               expect { subject }.not_to raise_error
             end
           end
 
-          context "when the include type is incorrect" do
-            let(:include_content) { { name: "/local.gitlab-ci.yml" } }
+          context 'when the include type is incorrect' do
+            let(:include_content) { { name: '/local.gitlab-ci.yml' } }
 
-            it "returns an invalid configuration error" do
+            it 'returns an invalid configuration error' do
               expect { subject }.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError)
             end
           end
         end
 
-        context "when validating a ci config file within a project" do
-          let(:include_content) { "/local.gitlab-ci.yml" }
+        context 'when validating a ci config file within a project' do
+          let(:include_content) { '/local.gitlab-ci.yml' }
           let(:project) { create(:project, :repository) }
           let(:opts) { { project: project, sha: project.commit.sha } }
 
-          context "when the included internal file is present" do
+          context 'when the included internal file is present' do
             before do
               expect(project.repository).to receive(:blob_data_at)
                 .and_return(YAML.dump({ job1: { script: 'hello' } }))
             end
 
-            it "does not return an error" do
+            it 'does not return an error' do
               expect { subject }.not_to raise_error
             end
           end
 
-          context "when the included internal file is not present" do
-            it "returns an error with missing file details" do
+          context 'when the included internal file is not present' do
+            it 'returns an error with missing file details' do
               expect { subject }.to raise_error(
                 Gitlab::Ci::YamlProcessor::ValidationError,
                 "Local file `#{include_content}` does not exist!"
@@ -1004,7 +1004,7 @@ module Gitlab
             })
 
             config_processor = Gitlab::Ci::YamlProcessor.new(config)
-            builds = config_processor.stage_builds_attributes("test")
+            builds = config_processor.stage_builds_attributes('test')
 
             expect(builds.size).to eq(1)
             expect(builds.first[:when]).to eq(when_state)
@@ -1019,7 +1019,7 @@ module Gitlab
               })
 
               config_processor = Gitlab::Ci::YamlProcessor.new(config)
-              builds = config_processor.stage_builds_attributes("test")
+              builds = config_processor.stage_builds_attributes('test')
 
               expect(builds.size).to eq(1)
               expect(builds.first[:when]).to eq('delayed')
@@ -1082,41 +1082,41 @@ module Gitlab
           end
         end
 
-        it "returns cache when defined globally" do
+        it 'returns cache when defined globally' do
           config = YAML.dump({
-                               cache: { paths: ["logs/", "binaries/"], untracked: true, key: 'key' },
+                               cache: { paths: ['logs/', 'binaries/'], untracked: true, key: 'key' },
                                rspec: {
-                                 script: "rspec"
+                                 script: 'rspec'
                                }
                              })
 
           config_processor = Gitlab::Ci::YamlProcessor.new(config)
 
-          expect(config_processor.stage_builds_attributes("test").size).to eq(1)
-          expect(config_processor.stage_builds_attributes("test").first[:cache]).to eq(
-            paths: ["logs/", "binaries/"],
+          expect(config_processor.stage_builds_attributes('test').size).to eq(1)
+          expect(config_processor.stage_builds_attributes('test').first[:cache]).to eq(
+            paths: ['logs/', 'binaries/'],
             untracked: true,
             key: 'key',
             policy: 'pull-push'
           )
         end
 
-        it "returns cache when defined in default context" do
+        it 'returns cache when defined in default context' do
           config = YAML.dump(
             {
               default: {
-                cache: { paths: ["logs/", "binaries/"], untracked: true, key: { files: ['file'] } }
+                cache: { paths: ['logs/', 'binaries/'], untracked: true, key: { files: ['file'] } }
               },
               rspec: {
-                script: "rspec"
+                script: 'rspec'
               }
             })
 
           config_processor = Gitlab::Ci::YamlProcessor.new(config)
 
-          expect(config_processor.stage_builds_attributes("test").size).to eq(1)
-          expect(config_processor.stage_builds_attributes("test").first[:cache]).to eq(
-            paths: ["logs/", "binaries/"],
+          expect(config_processor.stage_builds_attributes('test').size).to eq(1)
+          expect(config_processor.stage_builds_attributes('test').first[:cache]).to eq(
+            paths: ['logs/', 'binaries/'],
             untracked: true,
             key: { files: ['file'] },
             policy: 'pull-push'
@@ -1188,20 +1188,20 @@ module Gitlab
           )
         end
 
-        it "overwrite cache when defined for a job and globally" do
+        it 'overwrite cache when defined for a job and globally' do
           config = YAML.dump({
-                               cache: { paths: ["logs/", "binaries/"], untracked: true, key: 'global' },
+                               cache: { paths: ['logs/', 'binaries/'], untracked: true, key: 'global' },
                                rspec: {
-                                 script: "rspec",
-                                 cache: { paths: ["test/"], untracked: false, key: 'local' }
+                                 script: 'rspec',
+                                 cache: { paths: ['test/'], untracked: false, key: 'local' }
                                }
                              })
 
           config_processor = Gitlab::Ci::YamlProcessor.new(config)
 
-          expect(config_processor.stage_builds_attributes("test").size).to eq(1)
-          expect(config_processor.stage_builds_attributes("test").first[:cache]).to eq(
-            paths: ["test/"],
+          expect(config_processor.stage_builds_attributes('test').size).to eq(1)
+          expect(config_processor.stage_builds_attributes('test').first[:cache]).to eq(
+            paths: ['test/'],
             untracked: false,
             key: 'local',
             policy: 'pull-push'
@@ -1209,46 +1209,46 @@ module Gitlab
         end
       end
 
-      describe "Artifacts" do
-        it "returns artifacts when defined" do
+      describe 'Artifacts' do
+        it 'returns artifacts when defined' do
           config = YAML.dump({
-                               image:         "ruby:2.1",
-                               services:      ["mysql"],
-                               before_script: ["pwd"],
+                               image:         'ruby:2.1',
+                               services:      ['mysql'],
+                               before_script: ['pwd'],
                                rspec:         {
                                  artifacts: {
-                                   paths: ["logs/", "binaries/"],
-                                   expose_as: "Exposed artifacts",
+                                   paths: ['logs/', 'binaries/'],
+                                   expose_as: 'Exposed artifacts',
                                    untracked: true,
-                                   name: "custom_name",
-                                   expire_in: "7d"
+                                   name: 'custom_name',
+                                   expire_in: '7d'
                                  },
-                                 script: "rspec"
+                                 script: 'rspec'
                                }
                              })
 
           config_processor = Gitlab::Ci::YamlProcessor.new(config)
 
-          expect(config_processor.stage_builds_attributes("test").size).to eq(1)
-          expect(config_processor.stage_builds_attributes("test").first).to eq({
-            stage: "test",
+          expect(config_processor.stage_builds_attributes('test').size).to eq(1)
+          expect(config_processor.stage_builds_attributes('test').first).to eq({
+            stage: 'test',
             stage_idx: 2,
-            name: "rspec",
+            name: 'rspec',
             only: { refs: %w[branches tags] },
             options: {
-              before_script: ["pwd"],
-              script: ["rspec"],
-              image: { name: "ruby:2.1" },
-              services: [{ name: "mysql" }],
+              before_script: ['pwd'],
+              script: ['rspec'],
+              image: { name: 'ruby:2.1' },
+              services: [{ name: 'mysql' }],
               artifacts: {
-                name: "custom_name",
-                paths: ["logs/", "binaries/"],
-                expose_as: "Exposed artifacts",
+                name: 'custom_name',
+                paths: ['logs/', 'binaries/'],
+                expose_as: 'Exposed artifacts',
                 untracked: true,
-                expire_in: "7d"
+                expire_in: '7d'
               }
             },
-            when: "on_success",
+            when: 'on_success',
             allow_failure: false,
             yaml_variables: []
           })
@@ -1258,20 +1258,20 @@ module Gitlab
           it "returns artifacts for when #{when_state}  defined" do
             config = YAML.dump({
                                  rspec: {
-                                   script: "rspec",
-                                   artifacts: { paths: ["logs/", "binaries/"], when: when_state }
+                                   script: 'rspec',
+                                   artifacts: { paths: ['logs/', 'binaries/'], when: when_state }
                                  }
                                })
 
             config_processor = Gitlab::Ci::YamlProcessor.new(config)
-            builds = config_processor.stage_builds_attributes("test")
+            builds = config_processor.stage_builds_attributes('test')
 
             expect(builds.size).to eq(1)
             expect(builds.first[:options][:artifacts][:when]).to eq(when_state)
           end
         end
 
-        it "gracefully handles errors in artifacts type" do
+        it 'gracefully handles errors in artifacts type' do
           config = <<~YAML
           test:
             script:
@@ -1285,28 +1285,28 @@ module Gitlab
         end
       end
 
-      describe "release" do
+      describe 'release' do
         let(:processor) { Gitlab::Ci::YamlProcessor.new(YAML.dump(config)) }
         let(:config) do
           {
-            stages: ["build", "test", "release"], # rubocop:disable Style/WordArray
+            stages: ['build', 'test', 'release'], # rubocop:disable Style/WordArray
             release: {
-              stage: "release",
-              only: ["tags"],
-              script: ["make changelog | tee release_changelog.txt"],
+              stage: 'release',
+              only: ['tags'],
+              script: ['make changelog | tee release_changelog.txt'],
               release: {
-                tag_name: "$CI_COMMIT_TAG",
-                name: "Release $CI_TAG_NAME",
-                description: "./release_changelog.txt",
+                tag_name: '$CI_COMMIT_TAG',
+                name: 'Release $CI_TAG_NAME',
+                description: './release_changelog.txt',
                 assets: {
                   links: [
                     {
-                      name: "cool-app.zip",
-                      url: "http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.zip"
+                      name: 'cool-app.zip',
+                      url: 'http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.zip'
                     },
                     {
-                      name: "cool-app.exe",
-                      url: "http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.exe"
+                      name: 'cool-app.exe',
+                      url: 'http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.exe'
                     }
                   ]
                 }
@@ -1320,7 +1320,7 @@ module Gitlab
             stub_feature_flags(ci_release_generation: true)
           end
 
-          it "returns release info" do
+          it 'returns release info' do
             expect(processor.stage_builds_attributes('release').first[:options])
               .to eq(config[:release].except(:stage, :only))
           end
@@ -1354,7 +1354,7 @@ module Gitlab
           it 'does return production' do
             expect(builds.size).to eq(1)
             expect(builds.first[:environment]).to eq(environment)
-            expect(builds.first[:options]).to include(environment: { name: environment, action: "start" })
+            expect(builds.first[:options]).to include(environment: { name: environment, action: 'start' })
           end
         end
 
@@ -1457,7 +1457,7 @@ module Gitlab
         end
       end
 
-      describe "Timeout" do
+      describe 'Timeout' do
         let(:config) do
           {
             deploy_to_production: {
@@ -1499,7 +1499,7 @@ module Gitlab
         end
       end
 
-      describe "Dependencies" do
+      describe 'Dependencies' do
         let(:config) do
           {
             build1: { stage: 'build', script: 'test' },
@@ -1545,21 +1545,21 @@ module Gitlab
         context 'when a job depends on another job that references a not-yet defined stage' do
           let(:config) do
             {
-              "stages" => [
-                "version"
+              'stages' => [
+                'version'
               ],
-              "version" => {
-                "stage" => "version",
-                "dependencies" => ["release:components:versioning"],
-                "script" => ["./versioning/versioning"]
+              'version' => {
+                'stage' => 'version',
+                'dependencies' => ['release:components:versioning'],
+                'script' => ['./versioning/versioning']
               },
-              ".release_go" => {
-                "stage" => "build",
-                "script" => ["cd versioning"]
+              '.release_go' => {
+                'stage' => 'build',
+                'script' => ['cd versioning']
               },
-              "release:components:versioning" => {
-                "stage" => "build",
-                "script" => ["cd versioning"]
+              'release:components:versioning' => {
+                'stage' => 'build',
+                'script' => ['cd versioning']
               }
             }
           end
@@ -1568,7 +1568,7 @@ module Gitlab
         end
       end
 
-      describe "Job Needs" do
+      describe 'Job Needs' do
         let(:needs) { }
         let(:dependencies) { }
 
@@ -1592,31 +1592,31 @@ module Gitlab
         context 'needs two builds' do
           let(:needs) { %w(build1 build2) }
 
-          it "does create jobs with valid specification" do
+          it 'does create jobs with valid specification' do
             expect(subject.builds.size).to eq(7)
             expect(subject.builds[0]).to eq(
-              stage: "build",
+              stage: 'build',
               stage_idx: 1,
-              name: "build1",
+              name: 'build1',
               only: { refs: %w[branches tags] },
               options: {
-                script: ["test"]
+                script: ['test']
               },
-              when: "on_success",
+              when: 'on_success',
               allow_failure: false,
               yaml_variables: []
             )
             expect(subject.builds[4]).to eq(
-              stage: "test",
+              stage: 'test',
               stage_idx: 2,
-              name: "test1",
+              name: 'test1',
               only: { refs: %w[branches tags] },
-              options: { script: ["test"] },
+              options: { script: ['test'] },
               needs_attributes: [
-                { name: "build1", artifacts: true },
-                { name: "build2", artifacts: true }
+                { name: 'build1', artifacts: true },
+                { name: 'build2', artifacts: true }
               ],
-              when: "on_success",
+              when: 'on_success',
               allow_failure: false,
               yaml_variables: []
             )
@@ -1632,33 +1632,33 @@ module Gitlab
             ]
           end
 
-          it "does create jobs with valid specification" do
+          it 'does create jobs with valid specification' do
             expect(subject.builds.size).to eq(7)
             expect(subject.builds[0]).to eq(
-              stage: "build",
+              stage: 'build',
               stage_idx: 1,
-              name: "build1",
+              name: 'build1',
               only: { refs: %w[branches tags] },
               options: {
-                script: ["test"]
+                script: ['test']
               },
-              when: "on_success",
+              when: 'on_success',
               allow_failure: false,
               yaml_variables: []
             )
             expect(subject.builds[4]).to eq(
-              stage: "test",
+              stage: 'test',
               stage_idx: 2,
-              name: "test1",
+              name: 'test1',
               only: { refs: %w[branches tags] },
-              options: { script: ["test"] },
+              options: { script: ['test'] },
               needs_attributes: [
-                { name: "parallel 1/2", artifacts: false },
-                { name: "parallel 2/2", artifacts: false },
-                { name: "build1", artifacts: true },
-                { name: "build2", artifacts: true }
+                { name: 'parallel 1/2', artifacts: false },
+                { name: 'parallel 2/2', artifacts: false },
+                { name: 'build1', artifacts: true },
+                { name: 'build2', artifacts: true }
               ],
-              when: "on_success",
+              when: 'on_success',
               allow_failure: false,
               yaml_variables: []
             )
@@ -1668,19 +1668,19 @@ module Gitlab
         context 'needs parallel job' do
           let(:needs) { %w(parallel) }
 
-          it "does create jobs with valid specification" do
+          it 'does create jobs with valid specification' do
             expect(subject.builds.size).to eq(7)
             expect(subject.builds[4]).to eq(
-              stage: "test",
+              stage: 'test',
               stage_idx: 2,
-              name: "test1",
+              name: 'test1',
               only: { refs: %w[branches tags] },
-              options: { script: ["test"] },
+              options: { script: ['test'] },
               needs_attributes: [
-                { name: "parallel 1/2", artifacts: true },
-                { name: "parallel 2/2", artifacts: true }
+                { name: 'parallel 1/2', artifacts: true },
+                { name: 'parallel 2/2', artifacts: true }
               ],
-              when: "on_success",
+              when: 'on_success',
               allow_failure: false,
               yaml_variables: []
             )
@@ -1690,27 +1690,27 @@ module Gitlab
         context 'needs dependencies artifacts' do
           let(:needs) do
             [
-              "build1",
-              { job: "build2" },
-              { job: "parallel", artifacts: true }
+              'build1',
+              { job: 'build2' },
+              { job: 'parallel', artifacts: true }
             ]
           end
 
-          it "does create jobs with valid specification" do
+          it 'does create jobs with valid specification' do
             expect(subject.builds.size).to eq(7)
             expect(subject.builds[4]).to eq(
-              stage: "test",
+              stage: 'test',
               stage_idx: 2,
-              name: "test1",
+              name: 'test1',
               only: { refs: %w[branches tags] },
-              options: { script: ["test"] },
+              options: { script: ['test'] },
               needs_attributes: [
-                { name: "build1", artifacts: true },
-                { name: "build2", artifacts: true },
-                { name: "parallel 1/2", artifacts: true },
-                { name: "parallel 2/2", artifacts: true }
+                { name: 'build1', artifacts: true },
+                { name: 'build2', artifacts: true },
+                { name: 'parallel 1/2', artifacts: true },
+                { name: 'parallel 2/2', artifacts: true }
               ],
-              when: "on_success",
+              when: 'on_success',
               allow_failure: false,
               yaml_variables: []
             )
@@ -1739,8 +1739,8 @@ module Gitlab
         context 'needs with a Hash type and dependencies with a string type that are mismatching' do
           let(:needs) do
             [
-              "build1",
-              { job: "build2" }
+              'build1',
+              { job: 'build2' }
             ]
           end
           let(:dependencies) { %w(build3) }
@@ -1831,23 +1831,23 @@ module Gitlab
         end
       end
 
-      describe "Hidden jobs" do
+      describe 'Hidden jobs' do
         let(:config_processor) { Gitlab::Ci::YamlProcessor.new(config) }
 
-        subject { config_processor.stage_builds_attributes("test") }
+        subject { config_processor.stage_builds_attributes('test') }
 
         shared_examples 'hidden_job_handling' do
           it "doesn't create jobs that start with dot" do
             expect(subject.size).to eq(1)
             expect(subject.first).to eq({
-              stage: "test",
+              stage: 'test',
               stage_idx: 2,
-              name: "normal_job",
+              name: 'normal_job',
               only: { refs: %w[branches tags] },
               options: {
-                script: ["test"]
+                script: ['test']
               },
-              when: "on_success",
+              when: 'on_success',
               allow_failure: false,
               yaml_variables: []
             })
@@ -1877,35 +1877,35 @@ module Gitlab
         end
       end
 
-      describe "YAML Alias/Anchor" do
+      describe 'YAML Alias/Anchor' do
         let(:config_processor) { Gitlab::Ci::YamlProcessor.new(config) }
 
-        subject { config_processor.stage_builds_attributes("build") }
+        subject { config_processor.stage_builds_attributes('build') }
 
         shared_examples 'job_templates_handling' do
-          it "is correctly supported for jobs" do
+          it 'is correctly supported for jobs' do
             expect(subject.size).to eq(2)
             expect(subject.first).to eq({
-              stage: "build",
+              stage: 'build',
               stage_idx: 1,
-              name: "job1",
+              name: 'job1',
               only: { refs: %w[branches tags] },
               options: {
-                script: ["execute-script-for-job"]
+                script: ['execute-script-for-job']
               },
-              when: "on_success",
+              when: 'on_success',
               allow_failure: false,
               yaml_variables: []
             })
             expect(subject.second).to eq({
-              stage: "build",
+              stage: 'build',
               stage_idx: 1,
-              name: "job2",
+              name: 'job2',
               only: { refs: %w[branches tags] },
               options: {
-                script: ["execute-script-for-job"]
+                script: ['execute-script-for-job']
               },
-              when: "on_success",
+              when: 'on_success',
               allow_failure: false,
               yaml_variables: []
             })
@@ -1962,332 +1962,332 @@ module Gitlab
         end
       end
 
-      describe "Error handling" do
-        it "fails to parse YAML" do
+      describe 'Error handling' do
+        it 'fails to parse YAML' do
           expect do
-            Gitlab::Ci::YamlProcessor.new("invalid: yaml: test")
+            Gitlab::Ci::YamlProcessor.new('invalid: yaml: test')
           end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError)
         end
 
-        it "indicates that object is invalid" do
+        it 'indicates that object is invalid' do
           expect do
-            Gitlab::Ci::YamlProcessor.new("invalid_yaml")
+            Gitlab::Ci::YamlProcessor.new('invalid_yaml')
           end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError)
         end
 
-        it "returns errors if tags parameter is invalid" do
-          config = YAML.dump({ rspec: { script: "test", tags: "mysql" } })
+        it 'returns errors if tags parameter is invalid' do
+          config = YAML.dump({ rspec: { script: 'test', tags: 'mysql' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:tags config should be an array of strings")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:tags config should be an array of strings')
         end
 
-        it "returns errors if before_script parameter is invalid" do
-          config = YAML.dump({ before_script: "bundle update", rspec: { script: "test" } })
+        it 'returns errors if before_script parameter is invalid' do
+          config = YAML.dump({ before_script: 'bundle update', rspec: { script: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "before_script config should be an array containing strings and arrays of strings")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'before_script config should be an array containing strings and arrays of strings')
         end
 
-        it "returns errors if job before_script parameter is not an array of strings" do
-          config = YAML.dump({ rspec: { script: "test", before_script: [10, "test"] } })
+        it 'returns errors if job before_script parameter is not an array of strings' do
+          config = YAML.dump({ rspec: { script: 'test', before_script: [10, 'test'] } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:before_script config should be an array containing strings and arrays of strings")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:before_script config should be an array containing strings and arrays of strings')
         end
 
-        it "returns errors if job before_script parameter is multi-level nested array of strings" do
-          config = YAML.dump({ rspec: { script: "test", before_script: [["ls", ["pwd"]], "test"] } })
+        it 'returns errors if job before_script parameter is multi-level nested array of strings' do
+          config = YAML.dump({ rspec: { script: 'test', before_script: [['ls', ['pwd']], 'test'] } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:before_script config should be an array containing strings and arrays of strings")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:before_script config should be an array containing strings and arrays of strings')
         end
 
-        it "returns errors if after_script parameter is invalid" do
-          config = YAML.dump({ after_script: "bundle update", rspec: { script: "test" } })
+        it 'returns errors if after_script parameter is invalid' do
+          config = YAML.dump({ after_script: 'bundle update', rspec: { script: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "after_script config should be an array containing strings and arrays of strings")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'after_script config should be an array containing strings and arrays of strings')
         end
 
-        it "returns errors if job after_script parameter is not an array of strings" do
-          config = YAML.dump({ rspec: { script: "test", after_script: [10, "test"] } })
+        it 'returns errors if job after_script parameter is not an array of strings' do
+          config = YAML.dump({ rspec: { script: 'test', after_script: [10, 'test'] } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:after_script config should be an array containing strings and arrays of strings")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:after_script config should be an array containing strings and arrays of strings')
         end
 
-        it "returns errors if job after_script parameter is multi-level nested array of strings" do
-          config = YAML.dump({ rspec: { script: "test", after_script: [["ls", ["pwd"]], "test"] } })
+        it 'returns errors if job after_script parameter is multi-level nested array of strings' do
+          config = YAML.dump({ rspec: { script: 'test', after_script: [['ls', ['pwd']], 'test'] } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:after_script config should be an array containing strings and arrays of strings")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:after_script config should be an array containing strings and arrays of strings')
         end
 
-        it "returns errors if image parameter is invalid" do
-          config = YAML.dump({ image: ["test"], rspec: { script: "test" } })
+        it 'returns errors if image parameter is invalid' do
+          config = YAML.dump({ image: ['test'], rspec: { script: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "image config should be a hash or a string")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'image config should be a hash or a string')
         end
 
-        it "returns errors if job name is blank" do
-          config = YAML.dump({ '' => { script: "test" } })
+        it 'returns errors if job name is blank' do
+          config = YAML.dump({ '' => { script: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
           end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:job name can't be blank")
         end
 
-        it "returns errors if job name is non-string" do
-          config = YAML.dump({ 10 => { script: "test" } })
+        it 'returns errors if job name is non-string' do
+          config = YAML.dump({ 10 => { script: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:10 name should be a symbol")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:10 name should be a symbol')
         end
 
-        it "returns errors if job image parameter is invalid" do
-          config = YAML.dump({ rspec: { script: "test", image: ["test"] } })
+        it 'returns errors if job image parameter is invalid' do
+          config = YAML.dump({ rspec: { script: 'test', image: ['test'] } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:image config should be a hash or a string")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:image config should be a hash or a string')
         end
 
-        it "returns errors if services parameter is not an array" do
-          config = YAML.dump({ services: "test", rspec: { script: "test" } })
+        it 'returns errors if services parameter is not an array' do
+          config = YAML.dump({ services: 'test', rspec: { script: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "services config should be a array")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'services config should be a array')
         end
 
-        it "returns errors if services parameter is not an array of strings" do
-          config = YAML.dump({ services: [10, "test"], rspec: { script: "test" } })
+        it 'returns errors if services parameter is not an array of strings' do
+          config = YAML.dump({ services: [10, 'test'], rspec: { script: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "services:service config should be a hash or a string")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'services:service config should be a hash or a string')
         end
 
-        it "returns errors if job services parameter is not an array" do
-          config = YAML.dump({ rspec: { script: "test", services: "test" } })
+        it 'returns errors if job services parameter is not an array' do
+          config = YAML.dump({ rspec: { script: 'test', services: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:services config should be a array")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:services config should be a array')
         end
 
-        it "returns errors if job services parameter is not an array of strings" do
-          config = YAML.dump({ rspec: { script: "test", services: [10, "test"] } })
+        it 'returns errors if job services parameter is not an array of strings' do
+          config = YAML.dump({ rspec: { script: 'test', services: [10, 'test'] } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:services:service config should be a hash or a string")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:services:service config should be a hash or a string')
         end
 
-        it "returns error if job configuration is invalid" do
-          config = YAML.dump({ extra: "bundle update" })
+        it 'returns error if job configuration is invalid' do
+          config = YAML.dump({ extra: 'bundle update' })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "root config contains unknown keys: extra")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'root config contains unknown keys: extra')
         end
 
-        it "returns errors if services configuration is not correct" do
-          config = YAML.dump({ extra: { script: 'rspec', services: "test" } })
+        it 'returns errors if services configuration is not correct' do
+          config = YAML.dump({ extra: { script: 'rspec', services: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:extra:services config should be a array")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:extra:services config should be a array')
         end
 
-        it "returns errors if there are no jobs defined" do
-          config = YAML.dump({ before_script: ["bundle update"] })
+        it 'returns errors if there are no jobs defined' do
+          config = YAML.dump({ before_script: ['bundle update'] })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs config should contain at least one visible job")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs config should contain at least one visible job')
         end
 
-        it "returns errors if there are no visible jobs defined" do
-          config = YAML.dump({ before_script: ["bundle update"], '.hidden'.to_sym => { script: 'ls' } })
+        it 'returns errors if there are no visible jobs defined' do
+          config = YAML.dump({ before_script: ['bundle update'], '.hidden'.to_sym => { script: 'ls' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs config should contain at least one visible job")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs config should contain at least one visible job')
         end
 
-        it "returns errors if job allow_failure parameter is not an boolean" do
-          config = YAML.dump({ rspec: { script: "test", allow_failure: "string" } })
+        it 'returns errors if job allow_failure parameter is not an boolean' do
+          config = YAML.dump({ rspec: { script: 'test', allow_failure: 'string' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec allow failure should be a boolean value")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec allow failure should be a boolean value')
         end
 
-        it "returns errors if job stage is not a string" do
-          config = YAML.dump({ rspec: { script: "test", type: 1 } })
+        it 'returns errors if job stage is not a string' do
+          config = YAML.dump({ rspec: { script: 'test', type: 1 } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:type config should be a string")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:type config should be a string')
         end
 
-        it "returns errors if job stage is not a pre-defined stage" do
-          config = YAML.dump({ rspec: { script: "test", type: "acceptance" } })
+        it 'returns errors if job stage is not a pre-defined stage' do
+          config = YAML.dump({ rspec: { script: 'test', type: 'acceptance' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "rspec job: stage parameter should be .pre, build, test, deploy, .post")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'rspec job: stage parameter should be .pre, build, test, deploy, .post')
         end
 
-        it "returns errors if job stage is not a defined stage" do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", type: "acceptance" } })
+        it 'returns errors if job stage is not a defined stage' do
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', type: 'acceptance' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "rspec job: stage parameter should be .pre, build, test, .post")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'rspec job: stage parameter should be .pre, build, test, .post')
         end
 
-        it "returns errors if stages is not an array" do
-          config = YAML.dump({ stages: "test", rspec: { script: "test" } })
+        it 'returns errors if stages is not an array' do
+          config = YAML.dump({ stages: 'test', rspec: { script: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "stages config should be an array of strings")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'stages config should be an array of strings')
         end
 
-        it "returns errors if stages is not an array of strings" do
-          config = YAML.dump({ stages: [true, "test"], rspec: { script: "test" } })
+        it 'returns errors if stages is not an array of strings' do
+          config = YAML.dump({ stages: [true, 'test'], rspec: { script: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "stages config should be an array of strings")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'stages config should be an array of strings')
         end
 
-        it "returns errors if variables is not a map" do
-          config = YAML.dump({ variables: "test", rspec: { script: "test" } })
+        it 'returns errors if variables is not a map' do
+          config = YAML.dump({ variables: 'test', rspec: { script: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "variables config should be a hash of key value pairs")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'variables config should be a hash of key value pairs')
         end
 
-        it "returns errors if variables is not a map of key-value strings" do
-          config = YAML.dump({ variables: { test: false }, rspec: { script: "test" } })
+        it 'returns errors if variables is not a map of key-value strings' do
+          config = YAML.dump({ variables: { test: false }, rspec: { script: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "variables config should be a hash of key value pairs")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'variables config should be a hash of key value pairs')
         end
 
-        it "returns errors if job when is not on_success, on_failure or always" do
-          config = YAML.dump({ rspec: { script: "test", when: 1 } })
+        it 'returns errors if job when is not on_success, on_failure or always' do
+          config = YAML.dump({ rspec: { script: 'test', when: 1 } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
           end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec when should be one of: #{Gitlab::Ci::Config::Entry::Job::ALLOWED_WHEN.join(', ')}")
         end
 
-        it "returns errors if job artifacts:name is not an a string" do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", artifacts: { name: 1 } } })
+        it 'returns errors if job artifacts:name is not an a string' do
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', artifacts: { name: 1 } } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:artifacts name should be a string")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:artifacts name should be a string')
         end
 
-        it "returns errors if job artifacts:when is not an a predefined value" do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", artifacts: { when: 1 } } })
+        it 'returns errors if job artifacts:when is not an a predefined value' do
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', artifacts: { when: 1 } } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:artifacts when should be on_success, on_failure or always")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:artifacts when should be on_success, on_failure or always')
         end
 
-        it "returns errors if job artifacts:expire_in is not an a string" do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", artifacts: { expire_in: 1 } } })
+        it 'returns errors if job artifacts:expire_in is not an a string' do
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', artifacts: { expire_in: 1 } } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:artifacts expire in should be a duration")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:artifacts expire in should be a duration')
         end
 
-        it "returns errors if job artifacts:expire_in is not an a valid duration" do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", artifacts: { expire_in: "7 elephants" } } })
+        it 'returns errors if job artifacts:expire_in is not an a valid duration' do
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', artifacts: { expire_in: '7 elephants' } } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:artifacts expire in should be a duration")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:artifacts expire in should be a duration')
         end
 
-        it "returns errors if job artifacts:untracked is not an array of strings" do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", artifacts: { untracked: "string" } } })
+        it 'returns errors if job artifacts:untracked is not an array of strings' do
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', artifacts: { untracked: 'string' } } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:artifacts untracked should be a boolean value")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:artifacts untracked should be a boolean value')
         end
 
-        it "returns errors if job artifacts:paths is not an array of strings" do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", artifacts: { paths: "string" } } })
+        it 'returns errors if job artifacts:paths is not an array of strings' do
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', artifacts: { paths: 'string' } } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:artifacts paths should be an array of strings")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:artifacts paths should be an array of strings')
         end
 
-        it "returns errors if cache:untracked is not an array of strings" do
-          config = YAML.dump({ cache: { untracked: "string" }, rspec: { script: "test" } })
+        it 'returns errors if cache:untracked is not an array of strings' do
+          config = YAML.dump({ cache: { untracked: 'string' }, rspec: { script: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "cache:untracked config should be a boolean value")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'cache:untracked config should be a boolean value')
         end
 
-        it "returns errors if cache:paths is not an array of strings" do
-          config = YAML.dump({ cache: { paths: "string" }, rspec: { script: "test" } })
+        it 'returns errors if cache:paths is not an array of strings' do
+          config = YAML.dump({ cache: { paths: 'string' }, rspec: { script: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "cache:paths config should be an array of strings")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'cache:paths config should be an array of strings')
         end
 
-        it "returns errors if cache:key is not a string" do
-          config = YAML.dump({ cache: { key: 1 }, rspec: { script: "test" } })
+        it 'returns errors if cache:key is not a string' do
+          config = YAML.dump({ cache: { key: 1 }, rspec: { script: 'test' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "cache:key should be a hash, a string or a symbol")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'cache:key should be a hash, a string or a symbol')
         end
 
-        it "returns errors if job cache:key is not an a string" do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", cache: { key: 1 } } })
+        it 'returns errors if job cache:key is not an a string' do
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', cache: { key: 1 } } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:cache:key should be a hash, a string or a symbol")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:cache:key should be a hash, a string or a symbol')
         end
 
         it 'returns errors if job cache:key:files is not an array of strings' do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", cache: { key: { files: [1] } } } })
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', cache: { key: { files: [1] } } } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
           end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:cache:key:files config should be an array of strings')
         end
 
         it 'returns errors if job cache:key:files is an empty array' do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", cache: { key: { files: [] } } } })
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', cache: { key: { files: [] } } } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
           end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:cache:key:files config requires at least 1 item')
         end
 
         it 'returns errors if job defines only cache:key:prefix' do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", cache: { key: { prefix: 'prefix-key' } } } })
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', cache: { key: { prefix: 'prefix-key' } } } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
           end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:cache:key config missing required keys: files')
         end
 
         it 'returns errors if job cache:key:prefix is not an a string' do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", cache: { key: { prefix: 1, files: ['file'] } } } })
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', cache: { key: { prefix: 1, files: ['file'] } } } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
           end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:cache:key:prefix config should be a string or symbol')
         end
 
-        it "returns errors if job cache:untracked is not an array of strings" do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", cache: { untracked: "string" } } })
+        it 'returns errors if job cache:untracked is not an array of strings' do
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', cache: { untracked: 'string' } } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:cache:untracked config should be a boolean value")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:cache:untracked config should be a boolean value')
         end
 
-        it "returns errors if job cache:paths is not an array of strings" do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", cache: { paths: "string" } } })
+        it 'returns errors if job cache:paths is not an array of strings' do
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', cache: { paths: 'string' } } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec:cache:paths config should be an array of strings")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec:cache:paths config should be an array of strings')
         end
 
-        it "returns errors if job dependencies is not an array of strings" do
-          config = YAML.dump({ types: %w(build test), rspec: { script: "test", dependencies: "string" } })
+        it 'returns errors if job dependencies is not an array of strings' do
+          config = YAML.dump({ types: %w(build test), rspec: { script: 'test', dependencies: 'string' } })
           expect do
             Gitlab::Ci::YamlProcessor.new(config)
-          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, "jobs:rspec dependencies should be an array of strings")
+          end.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:rspec dependencies should be an array of strings')
         end
 
         it 'returns errors if pipeline variables expression policy is invalid' do
@@ -2315,34 +2315,34 @@ module Gitlab
         end
       end
 
-      describe "#validation_message" do
+      describe '#validation_message' do
         subject { Gitlab::Ci::YamlProcessor.validation_message(content) }
 
-        context "when the YAML could not be parsed" do
-          let(:content) { YAML.dump("invalid: yaml: test") }
+        context 'when the YAML could not be parsed' do
+          let(:content) { YAML.dump('invalid: yaml: test') }
 
-          it { is_expected.to eq "Invalid configuration format" }
+          it { is_expected.to eq 'Invalid configuration format' }
         end
 
-        context "when the tags parameter is invalid" do
-          let(:content) { YAML.dump({ rspec: { script: "test", tags: "mysql" } }) }
+        context 'when the tags parameter is invalid' do
+          let(:content) { YAML.dump({ rspec: { script: 'test', tags: 'mysql' } }) }
 
-          it { is_expected.to eq "jobs:rspec:tags config should be an array of strings" }
+          it { is_expected.to eq 'jobs:rspec:tags config should be an array of strings' }
         end
 
-        context "when YAML content is empty" do
+        context 'when YAML content is empty' do
           let(:content) { '' }
 
-          it { is_expected.to eq "Please provide content of .gitlab-ci.yml" }
+          it { is_expected.to eq 'Please provide content of .gitlab-ci.yml' }
         end
 
         context 'when the YAML contains an unknown alias' do
           let(:content) { 'steps: *bad_alias' }
 
-          it { is_expected.to eq "Unknown alias: bad_alias" }
+          it { is_expected.to eq 'Unknown alias: bad_alias' }
         end
 
-        context "when the YAML is valid" do
+        context 'when the YAML is valid' do
           let(:content) { File.read(Rails.root.join('spec/support/gitlab_stubs/gitlab_ci.yml')) }
 
           it { is_expected.to be_nil }

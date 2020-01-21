@@ -1,13 +1,13 @@
 class MigrateCiJobArtifactsToSeparateRegistry < ActiveRecord::Migration[4.2]
   def up
     tracking_db.create_table :job_artifact_registry, force: :cascade do |t|
-      t.datetime_with_timezone "created_at"
-      t.datetime_with_timezone "retry_at"
-      t.integer "bytes", limit: 8
-      t.integer "artifact_id", unique: true
-      t.integer "retry_count"
-      t.boolean "success"
-      t.string "sha256" # rubocop:disable Migration/AddLimitToStringColumns
+      t.datetime_with_timezone 'created_at'
+      t.datetime_with_timezone 'retry_at'
+      t.integer 'bytes', limit: 8
+      t.integer 'artifact_id', unique: true
+      t.integer 'retry_count'
+      t.boolean 'success'
+      t.string 'sha256' # rubocop:disable Migration/AddLimitToStringColumns
     end
 
     Geo::TrackingBase.transaction do

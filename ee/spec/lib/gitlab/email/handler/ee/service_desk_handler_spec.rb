@@ -6,12 +6,12 @@ describe Gitlab::Email::Handler::EE::ServiceDeskHandler do
   include_context :email_shared_context
 
   before do
-    stub_incoming_email_setting(enabled: true, address: "incoming+%{key}@appmail.adventuretime.ooo")
+    stub_incoming_email_setting(enabled: true, address: 'incoming+%{key}@appmail.adventuretime.ooo')
     stub_config_setting(host: 'localhost')
   end
 
   let(:email_raw) { email_fixture('emails/service_desk.eml', dir: 'ee') }
-  let_it_be(:namespace) { create(:namespace, name: "email") }
+  let_it_be(:namespace) { create(:namespace, name: 'email') }
   let(:expected_description) { "Service desk stuff!\n\n```\na = b\n```\n\n![image](uploads/image.png)" }
 
   context 'service desk is enabled for the project' do
@@ -35,7 +35,7 @@ describe Gitlab::Email::Handler::EE::ServiceDeskHandler do
         expect(new_issue.author).to eql(User.support_bot)
         expect(new_issue.confidential?).to be true
         expect(new_issue.all_references.all).to be_empty
-        expect(new_issue.title).to eq("Service Desk (from jake@adventuretime.ooo): The message subject! @all")
+        expect(new_issue.title).to eq('Service Desk (from jake@adventuretime.ooo): The message subject! @all')
         expect(new_issue.description).to eq(expected_description.strip)
       end
 
@@ -135,7 +135,7 @@ describe Gitlab::Email::Handler::EE::ServiceDeskHandler do
 
             note = Note.last
 
-            expect(note.note).to include("WARNING: The template file unknown.md used for service desk issues is empty or could not be found.")
+            expect(note.note).to include('WARNING: The template file unknown.md used for service desk issues is empty or could not be found.')
             expect(note.author).to eq(User.support_bot)
           end
 
@@ -147,7 +147,7 @@ describe Gitlab::Email::Handler::EE::ServiceDeskHandler do
             end
 
             # Only sends created issue email
-            expect(ActionMailer::Base.deliveries.last.text_part.body).to include("Thank you for your support request!")
+            expect(ActionMailer::Base.deliveries.last.text_part.body).to include('Thank you for your support request!')
           end
         end
       end
@@ -164,14 +164,14 @@ describe Gitlab::Email::Handler::EE::ServiceDeskHandler do
       end
 
       it 'handles the legacy email key format' do
-        handler = described_class.new(mail, "h5bp/html5-boilerplate")
+        handler = described_class.new(mail, 'h5bp/html5-boilerplate')
 
         expect(handler.instance_variable_get(:@project_path)).to eq 'h5bp/html5-boilerplate'
         expect(handler.can_handle?).to be_truthy
       end
 
       it "doesn't handle invalid email key" do
-        handler = described_class.new(mail, "h5bp-html5-boilerplate-invalid")
+        handler = described_class.new(mail, 'h5bp-html5-boilerplate-invalid')
 
         expect(handler.can_handle?).to be_falsey
       end
@@ -183,7 +183,7 @@ describe Gitlab::Email::Handler::EE::ServiceDeskHandler do
           .and_return(nil)
       end
 
-      it "creates a new issue" do
+      it 'creates a new issue' do
         expect { receiver.execute }.to change { Issue.count }.by(1)
       end
 

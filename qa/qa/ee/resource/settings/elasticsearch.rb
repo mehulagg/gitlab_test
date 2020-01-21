@@ -39,11 +39,11 @@ module QA
           end
 
           def api_get_path
-            "/application/settings"
+            '/application/settings'
           end
 
           def api_put_path
-            "/application/settings"
+            '/application/settings'
           end
 
           def api_put_body

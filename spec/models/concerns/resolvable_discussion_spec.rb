@@ -11,72 +11,72 @@ describe Discussion, ResolvableDiscussion do
   let(:second_note) { create(:discussion_note_on_merge_request, noteable: merge_request, project: project, in_reply_to: first_note) }
   let(:third_note) { create(:discussion_note_on_merge_request, noteable: merge_request, project: project) }
 
-  describe "#resolvable?" do
-    context "when potentially resolvable" do
+  describe '#resolvable?' do
+    context 'when potentially resolvable' do
       before do
         allow(subject).to receive(:potentially_resolvable?).and_return(true)
       end
 
-      context "when all notes are unresolvable" do
+      context 'when all notes are unresolvable' do
         before do
           allow(first_note).to receive(:resolvable?).and_return(false)
           allow(second_note).to receive(:resolvable?).and_return(false)
           allow(third_note).to receive(:resolvable?).and_return(false)
         end
 
-        it "returns false" do
+        it 'returns false' do
           expect(subject.resolvable?).to be false
         end
       end
 
-      context "when some notes are unresolvable and some notes are resolvable" do
+      context 'when some notes are unresolvable and some notes are resolvable' do
         before do
           allow(first_note).to receive(:resolvable?).and_return(true)
           allow(second_note).to receive(:resolvable?).and_return(false)
           allow(third_note).to receive(:resolvable?).and_return(true)
         end
 
-        it "returns true" do
+        it 'returns true' do
           expect(subject.resolvable?).to be true
         end
       end
 
-      context "when all notes are resolvable" do
+      context 'when all notes are resolvable' do
         before do
           allow(first_note).to receive(:resolvable?).and_return(true)
           allow(second_note).to receive(:resolvable?).and_return(true)
           allow(third_note).to receive(:resolvable?).and_return(true)
         end
 
-        it "returns true" do
+        it 'returns true' do
           expect(subject.resolvable?).to be true
         end
       end
     end
 
-    context "when not potentially resolvable" do
+    context 'when not potentially resolvable' do
       before do
         allow(subject).to receive(:potentially_resolvable?).and_return(false)
       end
 
-      it "returns false" do
+      it 'returns false' do
         expect(subject.resolvable?).to be false
       end
     end
   end
 
-  describe "#resolved?" do
-    context "when not resolvable" do
+  describe '#resolved?' do
+    context 'when not resolvable' do
       before do
         allow(subject).to receive(:resolvable?).and_return(false)
       end
 
-      it "returns false" do
+      it 'returns false' do
         expect(subject.resolved?).to be false
       end
     end
 
-    context "when resolvable" do
+    context 'when resolvable' do
       before do
         allow(subject).to receive(:resolvable?).and_return(true)
 
@@ -85,42 +85,42 @@ describe Discussion, ResolvableDiscussion do
         allow(third_note).to receive(:resolvable?).and_return(true)
       end
 
-      context "when all resolvable notes are resolved" do
+      context 'when all resolvable notes are resolved' do
         before do
           allow(first_note).to receive(:resolved?).and_return(true)
           allow(third_note).to receive(:resolved?).and_return(true)
         end
 
-        it "returns true" do
+        it 'returns true' do
           expect(subject.resolved?).to be true
         end
       end
 
-      context "when some resolvable notes are not resolved" do
+      context 'when some resolvable notes are not resolved' do
         before do
           allow(first_note).to receive(:resolved?).and_return(true)
           allow(third_note).to receive(:resolved?).and_return(false)
         end
 
-        it "returns false" do
+        it 'returns false' do
           expect(subject.resolved?).to be false
         end
       end
     end
   end
 
-  describe "#to_be_resolved?" do
-    context "when not resolvable" do
+  describe '#to_be_resolved?' do
+    context 'when not resolvable' do
       before do
         allow(subject).to receive(:resolvable?).and_return(false)
       end
 
-      it "returns false" do
+      it 'returns false' do
         expect(subject.to_be_resolved?).to be false
       end
     end
 
-    context "when resolvable" do
+    context 'when resolvable' do
       before do
         allow(subject).to receive(:resolvable?).and_return(true)
 
@@ -129,79 +129,79 @@ describe Discussion, ResolvableDiscussion do
         allow(third_note).to receive(:resolvable?).and_return(true)
       end
 
-      context "when all resolvable notes are resolved" do
+      context 'when all resolvable notes are resolved' do
         before do
           allow(first_note).to receive(:resolved?).and_return(true)
           allow(third_note).to receive(:resolved?).and_return(true)
         end
 
-        it "returns false" do
+        it 'returns false' do
           expect(subject.to_be_resolved?).to be false
         end
       end
 
-      context "when some resolvable notes are not resolved" do
+      context 'when some resolvable notes are not resolved' do
         before do
           allow(first_note).to receive(:resolved?).and_return(true)
           allow(third_note).to receive(:resolved?).and_return(false)
         end
 
-        it "returns true" do
+        it 'returns true' do
           expect(subject.to_be_resolved?).to be true
         end
       end
     end
   end
 
-  describe "#can_resolve?" do
+  describe '#can_resolve?' do
     let(:current_user) { create(:user) }
 
-    context "when not resolvable" do
+    context 'when not resolvable' do
       before do
         allow(subject).to receive(:resolvable?).and_return(false)
       end
 
-      it "returns false" do
+      it 'returns false' do
         expect(subject.can_resolve?(current_user)).to be false
       end
     end
 
-    context "when resolvable" do
+    context 'when resolvable' do
       before do
         allow(subject).to receive(:resolvable?).and_return(true)
       end
 
-      context "when not signed in" do
+      context 'when not signed in' do
         let(:current_user) { nil }
 
-        it "returns false" do
+        it 'returns false' do
           expect(subject.can_resolve?(current_user)).to be false
         end
       end
 
-      context "when signed in" do
-        context "when the signed in user is the noteable author" do
+      context 'when signed in' do
+        context 'when the signed in user is the noteable author' do
           before do
             subject.noteable.author = current_user
           end
 
-          it "returns true" do
+          it 'returns true' do
             expect(subject.can_resolve?(current_user)).to be true
           end
         end
 
-        context "when the signed in user can push to the project" do
+        context 'when the signed in user can push to the project' do
           before do
             subject.project.add_maintainer(current_user)
           end
 
-          it "returns true" do
+          it 'returns true' do
             expect(subject.can_resolve?(current_user)).to be true
           end
         end
 
-        context "when the signed in user is a random user" do
-          it "returns false" do
+        context 'when the signed in user is a random user' do
+          it 'returns false' do
             expect(subject.can_resolve?(current_user)).to be false
           end
         end
@@ -209,15 +209,15 @@ describe Discussion, ResolvableDiscussion do
     end
   end
 
-  describe "#resolve!" do
+  describe '#resolve!' do
     let(:current_user) { create(:user) }
 
-    context "when not resolvable" do
+    context 'when not resolvable' do
       before do
         allow(subject).to receive(:resolvable?).and_return(false)
       end
 
-      it "returns nil" do
+      it 'returns nil' do
         expect(subject.resolve!(current_user)).to be_nil
       end
 
@@ -240,7 +240,7 @@ describe Discussion, ResolvableDiscussion do
       end
     end
 
-    context "when resolvable" do
+    context 'when resolvable' do
       let(:user) { create(:user) }
       let(:second_note) { create(:diff_note_on_commit) } # unresolvable
 
@@ -248,7 +248,7 @@ describe Discussion, ResolvableDiscussion do
         allow(subject).to receive(:resolvable?).and_return(true)
       end
 
-      context "when all resolvable notes are resolved" do
+      context 'when all resolvable notes are resolved' do
         before do
           first_note.resolve!(user)
           third_note.resolve!(user)
@@ -300,7 +300,7 @@ describe Discussion, ResolvableDiscussion do
         end
       end
 
-      context "when some resolvable notes are resolved" do
+      context 'when some resolvable notes are resolved' do
         before do
           first_note.resolve!(user)
         end
@@ -326,48 +326,48 @@ describe Discussion, ResolvableDiscussion do
             .not_to change { first_note.reload && first_note.resolved? }
         end
 
-        it "sets resolved_at on the unresolved note" do
+        it 'sets resolved_at on the unresolved note' do
           subject.resolve!(current_user)
           third_note.reload
 
           expect(third_note.resolved_at).not_to be_nil
         end
 
-        it "sets resolved_by on the unresolved note" do
+        it 'sets resolved_by on the unresolved note' do
           subject.resolve!(current_user)
           third_note.reload
 
           expect(third_note.resolved_by).to eq(current_user)
         end
 
-        it "marks the unresolved note as resolved" do
+        it 'marks the unresolved note as resolved' do
           subject.resolve!(current_user)
           third_note.reload
 
           expect(third_note.resolved?).to be true
         end
 
-        it "sets resolved_at" do
+        it 'sets resolved_at' do
           subject.resolve!(current_user)
 
           expect(subject.resolved_at).not_to be_nil
         end
 
-        it "sets resolved_by" do
+        it 'sets resolved_by' do
           subject.resolve!(current_user)
 
           expect(subject.resolved_by).to eq(current_user)
         end
 
-        it "marks as resolved" do
+        it 'marks as resolved' do
           subject.resolve!(current_user)
 
           expect(subject.resolved?).to be true
         end
       end
 
-      context "when no resolvable notes are resolved" do
-        it "sets resolved_at on the unresolved notes" do
+      context 'when no resolvable notes are resolved' do
+        it 'sets resolved_at on the unresolved notes' do
           subject.resolve!(current_user)
           first_note.reload
           third_note.reload
@@ -376,7 +376,7 @@ describe Discussion, ResolvableDiscussion do
           expect(third_note.resolved_at).not_to be_nil
         end
 
-        it "sets resolved_by on the unresolved notes" do
+        it 'sets resolved_by on the unresolved notes' do
           subject.resolve!(current_user)
           first_note.reload
           third_note.reload
@@ -385,7 +385,7 @@ describe Discussion, ResolvableDiscussion do
           expect(third_note.resolved_by).to eq(current_user)
         end
 
-        it "marks the unresolved notes as resolved" do
+        it 'marks the unresolved notes as resolved' do
           subject.resolve!(current_user)
           first_note.reload
           third_note.reload
@@ -394,7 +394,7 @@ describe Discussion, ResolvableDiscussion do
           expect(third_note.resolved?).to be true
         end
 
-        it "sets resolved_at" do
+        it 'sets resolved_at' do
           subject.resolve!(current_user)
           first_note.reload
           third_note.reload
@@ -402,7 +402,7 @@ describe Discussion, ResolvableDiscussion do
           expect(subject.resolved_at).not_to be_nil
         end
 
-        it "sets resolved_by" do
+        it 'sets resolved_by' do
           subject.resolve!(current_user)
           first_note.reload
           third_note.reload
@@ -410,7 +410,7 @@ describe Discussion, ResolvableDiscussion do
           expect(subject.resolved_by).to eq(current_user)
         end
 
-        it "marks as resolved" do
+        it 'marks as resolved' do
           subject.resolve!(current_user)
           first_note.reload
           third_note.reload
@@ -421,18 +421,18 @@ describe Discussion, ResolvableDiscussion do
     end
   end
 
-  describe "#unresolve!" do
-    context "when not resolvable" do
+  describe '#unresolve!' do
+    context 'when not resolvable' do
       before do
         allow(subject).to receive(:resolvable?).and_return(false)
       end
 
-      it "returns nil" do
+      it 'returns nil' do
         expect(subject.unresolve!).to be_nil
       end
     end
 
-    context "when resolvable" do
+    context 'when resolvable' do
       let(:user) { create(:user) }
 
       before do
@@ -443,13 +443,13 @@ describe Discussion, ResolvableDiscussion do
         allow(third_note).to receive(:resolvable?).and_return(true)
       end
 
-      context "when all resolvable notes are resolved" do
+      context 'when all resolvable notes are resolved' do
         before do
           first_note.resolve!(user)
           third_note.resolve!(user)
         end
 
-        it "unsets resolved_at on the resolved notes" do
+        it 'unsets resolved_at on the resolved notes' do
           subject.unresolve!
           first_note.reload
           third_note.reload
@@ -458,7 +458,7 @@ describe Discussion, ResolvableDiscussion do
           expect(third_note.resolved_at).to be_nil
         end
 
-        it "unsets resolved_by on the resolved notes" do
+        it 'unsets resolved_by on the resolved notes' do
           subject.unresolve!
           first_note.reload
           third_note.reload
@@ -467,7 +467,7 @@ describe Discussion, ResolvableDiscussion do
           expect(third_note.resolved_by).to be_nil
         end
 
-        it "unmarks the resolved notes as resolved" do
+        it 'unmarks the resolved notes as resolved' do
           subject.unresolve!
           first_note.reload
           third_note.reload
@@ -476,7 +476,7 @@ describe Discussion, ResolvableDiscussion do
           expect(third_note.resolved?).to be false
         end
 
-        it "unsets resolved_at" do
+        it 'unsets resolved_at' do
           subject.unresolve!
           first_note.reload
           third_note.reload
@@ -484,7 +484,7 @@ describe Discussion, ResolvableDiscussion do
           expect(subject.resolved_at).to be_nil
         end
 
-        it "unsets resolved_by" do
+        it 'unsets resolved_by' do
           subject.unresolve!
           first_note.reload
           third_note.reload
@@ -492,31 +492,31 @@ describe Discussion, ResolvableDiscussion do
           expect(subject.resolved_by).to be_nil
         end
 
-        it "unmarks as resolved" do
+        it 'unmarks as resolved' do
           subject.unresolve!
 
           expect(subject.resolved?).to be false
         end
       end
 
-      context "when some resolvable notes are resolved" do
+      context 'when some resolvable notes are resolved' do
         before do
           first_note.resolve!(user)
         end
 
-        it "unsets resolved_at on the resolved note" do
+        it 'unsets resolved_at on the resolved note' do
           subject.unresolve!
 
           expect(subject.first_note.resolved_at).to be_nil
         end
 
-        it "unsets resolved_by on the resolved note" do
+        it 'unsets resolved_by on the resolved note' do
           subject.unresolve!
 
           expect(subject.first_note.resolved_by).to be_nil
         end
 
-        it "unmarks the resolved note as resolved" do
+        it 'unmarks the resolved note as resolved' do
           subject.unresolve!
 
           expect(subject.first_note.resolved?).to be false
@@ -525,8 +525,8 @@ describe Discussion, ResolvableDiscussion do
     end
   end
 
-  describe "#first_note_to_resolve" do
-    it "returns the first note that still needs to be resolved" do
+  describe '#first_note_to_resolve' do
+    it 'returns the first note that still needs to be resolved' do
       allow(first_note).to receive(:to_be_resolved?).and_return(false)
       allow(second_note).to receive(:to_be_resolved?).and_return(true)
 
@@ -534,7 +534,7 @@ describe Discussion, ResolvableDiscussion do
     end
   end
 
-  describe "#last_resolved_note" do
+  describe '#last_resolved_note' do
     let(:current_user) { create(:user) }
     let(:time) { Time.now.utc }
 
@@ -550,7 +550,7 @@ describe Discussion, ResolvableDiscussion do
       end
     end
 
-    it "returns the last note that was resolved" do
+    it 'returns the last note that was resolved' do
       expect(subject.last_resolved_note).to eq(second_note)
     end
   end

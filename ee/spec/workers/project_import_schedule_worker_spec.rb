@@ -20,7 +20,7 @@ describe ProjectImportScheduleWorker do
 
       expect do
         subject.perform(import_state.project_id)
-      end.to change { import_state.reload.status }.from("none").to("scheduled")
+      end.to change { import_state.reload.status }.from('none').to('scheduled')
     end
 
     context 'when project is not found' do

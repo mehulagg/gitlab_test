@@ -14,8 +14,8 @@ describe OmniAuth::Strategies::Jwt do
     let(:claims) do
       {
         id: 123,
-        name: "user_example",
-        email: "user@example.com",
+        name: 'user_example',
+        email: 'user@example.com',
         iat: timestamp
       }
     end
@@ -76,7 +76,7 @@ describe OmniAuth::Strategies::Jwt do
       let(:claims) do
         {
           id: 123,
-          email: "user@example.com",
+          email: 'user@example.com',
           iat: timestamp
         }
       end
@@ -90,8 +90,8 @@ describe OmniAuth::Strategies::Jwt do
       let(:claims) do
         {
           id: 123,
-          name: "user_example",
-          email: "user@example.com"
+          name: 'user_example',
+          email: 'user@example.com'
         }
       end
 
@@ -109,8 +109,8 @@ describe OmniAuth::Strategies::Jwt do
       let(:claims) do
         {
           id: 123,
-          name: "user_example",
-          email: "user@example.com",
+          name: 'user_example',
+          email: 'user@example.com',
           iat: timestamp - 10.minutes.to_i
         }
       end

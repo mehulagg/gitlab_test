@@ -81,14 +81,14 @@ class Gitlab::Seeder::ProductivityAnalytics
       Timecop.travel 12.hours.from_now do
         issue.project.repository.add_branch(@user, branch_name, 'master')
 
-        commit_sha = issue.project.repository.create_file(@user, filename, "content", message: "Commit for #{issue.to_reference}", branch_name: branch_name)
+        commit_sha = issue.project.repository.create_file(@user, filename, 'content', message: "Commit for #{issue.to_reference}", branch_name: branch_name)
         issue.project.repository.commit(commit_sha)
 
         ::Git::BranchPushService.new(
           issue.project,
           @user,
           change: {
-            oldrev: issue.project.repository.commit("master").sha,
+            oldrev: issue.project.repository.commit('master').sha,
             newrev: commit_sha,
             ref: 'refs/heads/master'
           }

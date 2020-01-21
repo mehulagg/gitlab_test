@@ -5,8 +5,8 @@ require 'spec_helper'
 describe UnsubscribesController do
   let!(:user) { create :user, email: 'me@example.com' }
 
-  describe "show" do
-    it "responds with success" do
+  describe 'show' do
+    it 'responds with success' do
       get :show, params: { email: Base64.urlsafe_encode64('me@example.com') }
 
       assert_response :success
@@ -19,8 +19,8 @@ describe UnsubscribesController do
     end
   end
 
-  describe "create" do
-    it "unsubscribes the connected user" do
+  describe 'create' do
+    it 'unsubscribes the connected user' do
       post :create, params: { email: Base64.urlsafe_encode64('me@example.com') }
 
       assert user.reload.admin_email_unsubscribed_at

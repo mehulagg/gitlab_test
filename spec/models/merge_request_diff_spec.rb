@@ -363,7 +363,7 @@ describe MergeRequestDiff do
 
       context 'with diffs that contain a null byte' do
         let(:filename) { 'test-null.txt' }
-        let(:content) { "a" * 10000 + "\x00" }
+        let(:content) { 'a' * 10000 + "\x00" }
         let(:project) { create(:project, :repository) }
         let(:branch) { 'null-data' }
         let(:target_branch) { 'master' }

@@ -44,7 +44,7 @@ describe 'Merge request > User creates image diff notes', :js do
     end
 
     describe 'render commit diff notes' do
-      let(:path) { "files/images/6049019_460s.jpg" }
+      let(:path) { 'files/images/6049019_460s.jpg' }
       let(:commit) { project.commit('2f63565e7aac07bcdadb654e253078b727143ec4') }
 
       let(:note1_position) do
@@ -55,7 +55,7 @@ describe 'Merge request > User creates image diff notes', :js do
           height: 100,
           x: 10,
           y: 10,
-          position_type: "image",
+          position_type: 'image',
           diff_refs: commit.diff_refs
         )
       end
@@ -68,7 +68,7 @@ describe 'Merge request > User creates image diff notes', :js do
           height: 100,
           x: 20,
           y: 20,
-          position_type: "image",
+          position_type: 'image',
           diff_refs: commit.diff_refs
         )
       end
@@ -100,7 +100,7 @@ describe 'Merge request > User creates image diff notes', :js do
           height: 100,
           x: 1,
           y: 1,
-          position_type: "image",
+          position_type: 'image',
           diff_refs: merge_request.diff_refs
         )
       end
@@ -164,7 +164,7 @@ describe 'Merge request > User creates image diff notes', :js do
 
   describe 'discussion tab polling' do
     let(:merge_request) { create(:merge_request_with_diffs, :with_image_diffs, source_project: project, author: user) }
-    let(:path)          { "files/images/ee_repo_logo.png" }
+    let(:path)          { 'files/images/ee_repo_logo.png' }
 
     let(:position) do
       Gitlab::Diff::Position.new(
@@ -174,7 +174,7 @@ describe 'Merge request > User creates image diff notes', :js do
         height: 100,
         x: 50,
         y: 50,
-        position_type: "image",
+        position_type: 'image',
         diff_refs: merge_request.diff_refs
       )
     end
@@ -228,7 +228,7 @@ describe 'Merge request > User creates image diff notes', :js do
 
     before do
       visit diffs_project_merge_request_path(project, merge_request)
-      click_link "Changes"
+      click_link 'Changes'
     end
 
     def set_image_diff_sources

@@ -33,15 +33,15 @@ describe WebHook do
     end
 
     describe 'token' do
-      it { is_expected.to allow_value("foobar").for(:token) }
+      it { is_expected.to allow_value('foobar').for(:token) }
 
       it { is_expected.not_to allow_values("foo\nbar", "foo\r\nbar").for(:token) }
     end
 
     describe 'push_events_branch_filter' do
-      it { is_expected.to allow_values("good_branch_name", "another/good-branch_name").for(:push_events_branch_filter) }
-      it { is_expected.to allow_values("").for(:push_events_branch_filter) }
-      it { is_expected.not_to allow_values("bad branch name", "bad~branchname").for(:push_events_branch_filter) }
+      it { is_expected.to allow_values('good_branch_name', 'another/good-branch_name').for(:push_events_branch_filter) }
+      it { is_expected.to allow_values('').for(:push_events_branch_filter) }
+      it { is_expected.not_to allow_values('bad branch name', 'bad~branchname').for(:push_events_branch_filter) }
 
       it 'gets rid of whitespace' do
         hook.push_events_branch_filter = ' branch '

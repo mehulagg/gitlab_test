@@ -54,8 +54,8 @@ FactoryBot.define do
 
       position do
         Gitlab::Diff::Position.new(
-          old_path: "files/ruby/popen.rb",
-          new_path: "files/ruby/popen.rb",
+          old_path: 'files/ruby/popen.rb',
+          new_path: 'files/ruby/popen.rb',
           old_line: nil,
           new_line: line_number,
           diff_refs: diff_refs
@@ -65,8 +65,8 @@ FactoryBot.define do
       trait :folded_position do
         position do
           Gitlab::Diff::Position.new(
-            old_path: "files/ruby/popen.rb",
-            new_path: "files/ruby/popen.rb",
+            old_path: 'files/ruby/popen.rb',
+            new_path: 'files/ruby/popen.rb',
             old_line: 1,
             new_line: 1,
             diff_refs: diff_refs
@@ -82,14 +82,14 @@ FactoryBot.define do
       factory :image_diff_note_on_merge_request do
         position do
           Gitlab::Diff::Position.new(
-            old_path: "files/images/any_image.png",
-            new_path: "files/images/any_image.png",
+            old_path: 'files/images/any_image.png',
+            new_path: 'files/images/any_image.png',
             width: 10,
             height: 10,
             x: 1,
             y: 1,
             diff_refs: diff_refs,
-            position_type: "image"
+            position_type: 'image'
           )
         end
       end
@@ -105,8 +105,8 @@ FactoryBot.define do
 
       position do
         Gitlab::Diff::Position.new(
-          old_path: "files/ruby/popen.rb",
-          new_path: "files/ruby/popen.rb",
+          old_path: 'files/ruby/popen.rb',
+          new_path: 'files/ruby/popen.rb',
           old_line: nil,
           new_line: line_number,
           diff_refs: diff_refs
@@ -123,7 +123,7 @@ FactoryBot.define do
     end
 
     trait :legacy_diff_note do
-      line_code { "0_184_184" }
+      line_code { '0_184_184' }
     end
 
     trait :on_issue do
@@ -152,23 +152,23 @@ FactoryBot.define do
     end
 
     trait :downvote do
-      note { "thumbsdown" }
+      note { 'thumbsdown' }
     end
 
     trait :upvote do
-      note { "thumbsup" }
+      note { 'thumbsup' }
     end
 
     trait :with_attachment do
-      attachment { fixture_file_upload("spec/fixtures/dk.png", "image/png") }
+      attachment { fixture_file_upload('spec/fixtures/dk.png', 'image/png') }
     end
 
     trait :with_svg_attachment do
-      attachment { fixture_file_upload("spec/fixtures/unsanitized.svg", "image/svg+xml") }
+      attachment { fixture_file_upload('spec/fixtures/unsanitized.svg', 'image/svg+xml') }
     end
 
     trait :with_pdf_attachment do
-      attachment { fixture_file_upload("spec/fixtures/git-cheat-sheet.pdf", "application/pdf") }
+      attachment { fixture_file_upload('spec/fixtures/git-cheat-sheet.pdf', 'application/pdf') }
     end
 
     transient do

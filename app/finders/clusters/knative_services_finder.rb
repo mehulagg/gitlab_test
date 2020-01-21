@@ -92,7 +92,7 @@ module Clusters
     end
 
     def filter_pods(pod, service)
-      pod["metadata"]["labels"]["serving.knative.dev/service"] == service
+      pod['metadata']['labels']['serving.knative.dev/service'] == service
     end
 
     def read_services

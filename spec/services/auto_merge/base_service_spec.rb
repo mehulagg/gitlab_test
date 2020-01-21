@@ -37,10 +37,10 @@ describe AutoMerge::BaseService do
       let(:params) do
         {
           'commit_message' => "Merge branch 'patch-12' into 'master'",
-          'sha' => "200fcc9c260f7219eaf0daba87d818f0922c5b18",
+          'sha' => '200fcc9c260f7219eaf0daba87d818f0922c5b18',
           'should_remove_source_branch' => false,
           'squash' => false,
-          'squash_commit_message' => "Update README.md"
+          'squash_commit_message' => 'Update README.md'
         }
       end
 
@@ -106,9 +106,9 @@ describe AutoMerge::BaseService do
       let(:params) do
         {
           'commit_message' => "Merge branch 'patch-12' into 'master'",
-          'sha' => "200fcc9c260f7219eaf0daba87d818f0922c5b18",
+          'sha' => '200fcc9c260f7219eaf0daba87d818f0922c5b18',
           'should_remove_source_branch' => false,
-          'squash_commit_message' => "Update README.md"
+          'squash_commit_message' => 'Update README.md'
         }
       end
 
@@ -144,7 +144,7 @@ describe AutoMerge::BaseService do
           {
             'should_remove_source_branch' => false,
             'commit_message' => "Merge branch 'patch-12' into 'master'",
-            'squash_commit_message' => "Update README.md",
+            'squash_commit_message' => 'Update README.md',
             'auto_merge_strategy' => 'merge_when_pipeline_succeeds'
           })
       end

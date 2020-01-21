@@ -17,7 +17,7 @@ describe EE::Milestoneable do
     let(:group)   { create(:group) }
     let(:project) { create(:project, group: group) }
 
-    context "for epics" do
+    context 'for epics' do
       let(:epic) { build(:epic) }
 
       it 'returns false' do

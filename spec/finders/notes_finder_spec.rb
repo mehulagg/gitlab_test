@@ -233,27 +233,27 @@ describe NotesFinder do
       expect(described_class.new(create(:user), project: note.project, search: note.note).execute).to eq([note])
     end
 
-    context "confidential issues" do
+    context 'confidential issues' do
       let(:user) { create(:user) }
       let(:confidential_issue) { create(:issue, :confidential, project: project, author: user) }
-      let(:confidential_note) { create(:note, note: "Random", noteable: confidential_issue, project: confidential_issue.project) }
+      let(:confidential_note) { create(:note, note: 'Random', noteable: confidential_issue, project: confidential_issue.project) }
 
-      it "returns notes with matching content if user can see the issue" do
+      it 'returns notes with matching content if user can see the issue' do
         expect(described_class.new(user, project: confidential_note.project, search: confidential_note.note).execute).to eq([confidential_note])
       end
 
-      it "does not return notes with matching content if user can not see the issue" do
+      it 'does not return notes with matching content if user can not see the issue' do
         user = create(:user)
         expect(described_class.new(user, project: confidential_note.project, search: confidential_note.note).execute).to be_empty
       end
 
-      it "does not return notes with matching content for project members with guest role" do
+      it 'does not return notes with matching content for project members with guest role' do
         user = create(:user)
         project.add_guest(user)
         expect(described_class.new(user, project: confidential_note.project, search: confidential_note.note).execute).to be_empty
       end
 
-      it "does not return notes with matching content for unauthenticated users" do
+      it 'does not return notes with matching content for unauthenticated users' do
         expect(described_class.new(nil, project: confidential_note.project, search: confidential_note.note).execute).to be_empty
       end
     end

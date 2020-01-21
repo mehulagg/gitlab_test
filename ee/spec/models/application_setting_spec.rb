@@ -42,15 +42,15 @@ describe ApplicationSetting do
     it { is_expected.not_to allow_value(-1).for(:elasticsearch_replicas) }
 
     it { is_expected.to allow_value(nil).for(:required_instance_ci_template) }
-    it { is_expected.not_to allow_value("").for(:required_instance_ci_template) }
-    it { is_expected.not_to allow_value("  ").for(:required_instance_ci_template) }
-    it { is_expected.to allow_value("template_name").for(:required_instance_ci_template) }
+    it { is_expected.not_to allow_value('').for(:required_instance_ci_template) }
+    it { is_expected.not_to allow_value('  ').for(:required_instance_ci_template) }
+    it { is_expected.to allow_value('template_name').for(:required_instance_ci_template) }
 
     it { is_expected.to allow_value(1).for(:max_personal_access_token_lifetime) }
     it { is_expected.to allow_value(nil).for(:max_personal_access_token_lifetime) }
     it { is_expected.to allow_value(10).for(:max_personal_access_token_lifetime) }
     it { is_expected.to allow_value(365).for(:max_personal_access_token_lifetime) }
-    it { is_expected.not_to allow_value("value").for(:max_personal_access_token_lifetime) }
+    it { is_expected.not_to allow_value('value').for(:max_personal_access_token_lifetime) }
     it { is_expected.not_to allow_value(2.5).for(:max_personal_access_token_lifetime) }
     it { is_expected.not_to allow_value(-5).for(:max_personal_access_token_lifetime) }
     it { is_expected.not_to allow_value(366).for(:max_personal_access_token_lifetime) }
@@ -60,20 +60,20 @@ describe ApplicationSetting do
         stub_licensed_features(email_additional_text: true)
       end
 
-      it { is_expected.to allow_value("a" * subject.email_additional_text_character_limit).for(:email_additional_text) }
-      it { is_expected.not_to allow_value("a" * (subject.email_additional_text_character_limit + 1)).for(:email_additional_text) }
+      it { is_expected.to allow_value('a' * subject.email_additional_text_character_limit).for(:email_additional_text) }
+      it { is_expected.not_to allow_value('a' * (subject.email_additional_text_character_limit + 1)).for(:email_additional_text) }
     end
 
     context 'when validating allowed_ips' do
       where(:allowed_ips, :is_valid) do
-        "192.1.1.1"                   | true
-        "192.1.1.0/24"                | true
-        "192.1.1.0/24, 192.1.20.23"   | true
-        "192.1.1.0/24, 192.23.0.0/16" | true
-        "192.1.1.0/34"                | false
-        "192.1.1.257"                 | false
-        "192.1.1.257, 192.1.1.1"      | false
-        "300.1.1.0/34"                | false
+        '192.1.1.1'                   | true
+        '192.1.1.0/24'                | true
+        '192.1.1.0/24, 192.1.20.23'   | true
+        '192.1.1.0/24, 192.23.0.0/16' | true
+        '192.1.1.0/34'                | false
+        '192.1.1.257'                 | false
+        '192.1.1.257, 192.1.1.1'      | false
+        '300.1.1.0/34'                | false
       end
 
       with_them do

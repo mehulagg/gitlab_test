@@ -65,10 +65,10 @@ describe Projects::ContainerRepository::DeleteTagsService do
           stub_upload("{\n  \"config\": {\n  }\n}", 'sha256:4435000728ee66e6a80e55637fc22725c256b61de344a2ecdeaac6bdb36e8bc3')
 
           stub_request(:put, "http://registry.gitlab/v2/#{repository.path}/manifests/A")
-            .to_return(status: 200, body: "", headers: { 'docker-content-digest' => 'sha256:dummy' })
+            .to_return(status: 200, body: '', headers: { 'docker-content-digest' => 'sha256:dummy' })
 
           stub_request(:put, "http://registry.gitlab/v2/#{repository.path}/manifests/Ba")
-            .to_return(status: 200, body: "", headers: { 'docker-content-digest' => 'sha256:dummy' })
+            .to_return(status: 200, body: '', headers: { 'docker-content-digest' => 'sha256:dummy' })
 
           expect_delete_tag('sha256:dummy')
 
@@ -79,13 +79,13 @@ describe Projects::ContainerRepository::DeleteTagsService do
           stub_upload("{\n  \"config\": {\n  }\n}", 'sha256:4435000728ee66e6a80e55637fc22725c256b61de344a2ecdeaac6bdb36e8bc3')
 
           stub_request(:put, "http://registry.gitlab/v2/#{repository.path}/manifests/A")
-            .to_return(status: 200, body: "", headers: { 'docker-content-digest' => 'sha256:dummy' })
+            .to_return(status: 200, body: '', headers: { 'docker-content-digest' => 'sha256:dummy' })
 
           stub_request(:put, "http://registry.gitlab/v2/#{repository.path}/manifests/Ba")
-            .to_return(status: 200, body: "", headers: { 'docker-content-digest' => 'sha256:dummy' })
+            .to_return(status: 200, body: '', headers: { 'docker-content-digest' => 'sha256:dummy' })
 
           stub_request(:delete, "http://registry.gitlab/v2/#{repository.path}/manifests/sha256:dummy")
-            .to_return(status: 404, body: "", headers: {})
+            .to_return(status: 404, body: '', headers: {})
 
           is_expected.to include(status: :success)
         end
@@ -104,13 +104,13 @@ describe Projects::ContainerRepository::DeleteTagsService do
               stub_upload("{\n  \"config\": {\n  }\n}", 'sha256:4435000728ee66e6a80e55637fc22725c256b61de344a2ecdeaac6bdb36e8bc3')
 
               stub_request(:put, "http://registry.gitlab/v2/#{repository.path}/manifests/A")
-                .to_return(status: 500, body: "", headers: { 'docker-content-digest' => 'sha256:dummy' })
+                .to_return(status: 500, body: '', headers: { 'docker-content-digest' => 'sha256:dummy' })
 
               stub_request(:put, "http://registry.gitlab/v2/#{repository.path}/manifests/Ba")
-                .to_return(status: 500, body: "", headers: { 'docker-content-digest' => 'sha256:dummy' })
+                .to_return(status: 500, body: '', headers: { 'docker-content-digest' => 'sha256:dummy' })
 
               stub_request(:delete, "http://registry.gitlab/v2/#{repository.path}/manifests/sha256:4435000728ee66e6a80e55637fc22725c256b61de344a2ecdeaac6bdb36e8bc3")
-                .to_return(status: 200, body: "", headers: {})
+                .to_return(status: 200, body: '', headers: {})
             end
 
             it { is_expected.to include(status: :error) }
@@ -124,7 +124,7 @@ describe Projects::ContainerRepository::DeleteTagsService do
 
   def stub_tag_digest(tag, digest)
     stub_request(:head, "http://registry.gitlab/v2/#{repository.path}/manifests/#{tag}")
-      .to_return(status: 200, body: "", headers: { 'docker-content-digest' => digest })
+      .to_return(status: 200, body: '', headers: { 'docker-content-digest' => digest })
   end
 
   def stub_digest_config(digest, created_at)

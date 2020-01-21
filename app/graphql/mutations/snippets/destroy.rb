@@ -26,7 +26,7 @@ module Mutations
       private
 
       def ability_name
-        "admin"
+        'admin'
       end
     end
   end

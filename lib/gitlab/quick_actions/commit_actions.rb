@@ -11,16 +11,16 @@ module Gitlab
         desc _('Tag this commit.')
         explanation do |tag_name, message|
           if message.present?
-            _("Tags this commit to %{tag_name} with \"%{message}\".") % { tag_name: tag_name, message: message }
+            _('Tags this commit to %{tag_name} with "%{message}".') % { tag_name: tag_name, message: message }
           else
-            _("Tags this commit to %{tag_name}.") % { tag_name: tag_name }
+            _('Tags this commit to %{tag_name}.') % { tag_name: tag_name }
           end
         end
         execution_message do |tag_name, message|
           if message.present?
-            _("Tagged this commit to %{tag_name} with \"%{message}\".") % { tag_name: tag_name, message: message }
+            _('Tagged this commit to %{tag_name} with "%{message}".') % { tag_name: tag_name, message: message }
           else
-            _("Tagged this commit to %{tag_name}.") % { tag_name: tag_name }
+            _('Tagged this commit to %{tag_name}.') % { tag_name: tag_name }
           end
         end
         params 'v1.2.3 <message>'

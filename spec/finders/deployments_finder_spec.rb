@@ -8,7 +8,7 @@ describe DeploymentsFinder do
   let(:project) { create(:project, :public, :test_repo) }
   let(:params) { {} }
 
-  describe "#execute" do
+  describe '#execute' do
     it 'returns all deployments by default' do
       deployments = create_list(:deployment, 2, :success, project: project)
       is_expected.to match_array(deployments)

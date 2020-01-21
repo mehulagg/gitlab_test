@@ -5,14 +5,14 @@ require 'spec_helper'
 describe Issue do
   include ExternalAuthorizationServiceHelpers
 
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to(:milestone) }
     it { is_expected.to belong_to(:project) }
     it { is_expected.to belong_to(:moved_to).class_name('Issue') }
     it { is_expected.to belong_to(:duplicated_to).class_name('Issue') }
     it { is_expected.to belong_to(:closed_by).class_name('User') }
     it { is_expected.to have_many(:assignees) }
-    it { is_expected.to have_many(:user_mentions).class_name("IssueUserMention") }
+    it { is_expected.to have_many(:user_mentions).class_name('IssueUserMention') }
     it { is_expected.to have_one(:sentry_issue) }
   end
 
@@ -67,7 +67,7 @@ describe Issue do
     where(:lock_version) do
       [
         [0],
-        ["0"]
+        ['0']
       ]
     end
 
@@ -102,12 +102,12 @@ describe Issue do
   describe '#sort' do
     let(:project) { create(:project) }
 
-    context "by relative_position" do
+    context 'by relative_position' do
       let!(:issue)  { create(:issue, project: project) }
       let!(:issue2) { create(:issue, project: project, relative_position: 2) }
       let!(:issue3) { create(:issue, project: project, relative_position: 1) }
 
-      it "sorts asc with nulls at the end" do
+      it 'sorts asc with nulls at the end' do
         issues = project.issues.sort_by_attribute('relative_position')
         expect(issues).to eq([issue3, issue2, issue])
       end
@@ -172,7 +172,7 @@ describe Issue do
 
     context 'when nil argument' do
       it 'returns issue id' do
-        expect(issue.to_reference).to eq "#1"
+        expect(issue.to_reference).to eq '#1'
       end
     end
 
@@ -186,7 +186,7 @@ describe Issue do
 
     context 'when same project argument' do
       it 'returns issue id' do
-        expect(issue.to_reference(project)).to eq("#1")
+        expect(issue.to_reference(project)).to eq('#1')
       end
     end
 
@@ -200,7 +200,7 @@ describe Issue do
 
     it 'supports a cross-project reference' do
       another_project = build(:project, name: 'another-project', namespace: project.namespace)
-      expect(issue.to_reference(another_project)).to eq "sample-project#1"
+      expect(issue.to_reference(another_project)).to eq 'sample-project#1'
     end
 
     context 'when same namespace / cross-project argument' do
@@ -383,13 +383,13 @@ describe Issue do
   end
 
   describe '#has_related_branch?' do
-    let(:issue) { create(:issue, title: "Blue Bell Knoll") }
+    let(:issue) { create(:issue, title: 'Blue Bell Knoll') }
 
     subject { issue.has_related_branch? }
 
     context 'branch found' do
       before do
-        allow(issue.project.repository).to receive(:branch_names).and_return(["iceblink-luck", issue.to_branch_name])
+        allow(issue.project.repository).to receive(:branch_names).and_return(['iceblink-luck', issue.to_branch_name])
       end
 
       it { is_expected.to eq true }
@@ -397,7 +397,7 @@ describe Issue do
 
     context 'branch not found' do
       before do
-        allow(issue.project.repository).to receive(:branch_names).and_return(["lazy-calm"])
+        allow(issue.project.repository).to receive(:branch_names).and_return(['lazy-calm'])
       end
 
       it { is_expected.to eq false }
@@ -415,18 +415,18 @@ describe Issue do
     let(:subject) { create :issue }
   end
 
-  describe "#to_branch_name" do
+  describe '#to_branch_name' do
     let(:issue) { create(:issue, title: 'testing-issue') }
 
     it 'starts with the issue iid' do
       expect(issue.to_branch_name).to match /\A#{issue.iid}-[A-Za-z\-]+\z/
     end
 
-    it "contains the issue title if not confidential" do
+    it 'contains the issue title if not confidential' do
       expect(issue.to_branch_name).to match /testing-issue\z/
     end
 
-    it "does not contain the issue title if confidential" do
+    it 'does not contain the issue title if confidential' do
       issue = create(:issue, title: 'testing-issue', confidential: true)
       expect(issue.to_branch_name).to match /confidential-issue\z/
     end
@@ -434,13 +434,13 @@ describe Issue do
     context 'issue title longer than 100 characters' do
       let(:issue) { create(:issue, iid: 999, title: 'Lorem ipsum dolor sit amet consectetur adipiscing elit Mauris sit amet ipsum id lacus custom fringilla convallis') }
 
-      it "truncates branch name to at most 100 characters" do
+      it 'truncates branch name to at most 100 characters' do
         expect(issue.to_branch_name.length).to be <= 100
       end
 
-      it "truncates dangling parts of the branch name" do
+      it 'truncates dangling parts of the branch name' do
         # 100 characters would've got us "999-lorem...lacus-custom-fri".
-        expect(issue.to_branch_name).to eq("999-lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit-mauris-sit-amet-ipsum-id-lacus-custom")
+        expect(issue.to_branch_name).to eq('999-lorem-ipsum-dolor-sit-amet-consectetur-adipiscing-elit-mauris-sit-amet-ipsum-id-lacus-custom')
       end
     end
   end
@@ -908,17 +908,17 @@ describe Issue do
     end
   end
 
-  describe "#labels_hook_attrs" do
+  describe '#labels_hook_attrs' do
     let(:label) { create(:label) }
     let(:issue) { create(:labeled_issue, labels: [label]) }
 
-    it "returns a list of label hook attributes" do
+    it 'returns a list of label hook attributes' do
       expect(issue.labels_hook_attrs).to eq([label.hook_attrs])
     end
   end
 
-  context "relative positioning" do
-    it_behaves_like "a class that supports relative positioning" do
+  context 'relative positioning' do
+    it_behaves_like 'a class that supports relative positioning' do
       let(:project) { create(:project) }
       let(:factory) { :issue }
       let(:default_params) { { project: project } }

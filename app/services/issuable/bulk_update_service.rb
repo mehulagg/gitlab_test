@@ -14,7 +14,7 @@ module Issuable
       model_class = type.classify.constantize
       update_class = type.classify.pluralize.constantize::UpdateService
 
-      ids = params.delete(:issuable_ids).split(",")
+      ids = params.delete(:issuable_ids).split(',')
       items = find_issuables(parent, model_class, ids)
 
       permitted_attrs(type).each do |key|

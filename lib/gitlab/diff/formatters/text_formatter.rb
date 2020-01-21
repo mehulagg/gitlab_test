@@ -37,7 +37,7 @@ module Gitlab
         end
 
         def position_type
-          "text"
+          'text'
         end
 
         def ==(other)

@@ -7,10 +7,10 @@ module QA
         @api_client = Runtime::API::Client.new(:gitlab)
         @group_id = Resource::Group.fabricate_via_api!.id
         @project_id = create_project
-        @milestone_start_date = (Date.today.to_date + 100).strftime("%Y-%m-%d")
-        @milestone_due_date = (Date.today.to_date + 120).strftime("%Y-%m-%d")
-        @fixed_start_date = Date.today.to_date.strftime("%Y-%m-%d")
-        @fixed_due_date = (Date.today.to_date + 90).strftime("%Y-%m-%d")
+        @milestone_start_date = (Date.today.to_date + 100).strftime('%Y-%m-%d')
+        @milestone_due_date = (Date.today.to_date + 120).strftime('%Y-%m-%d')
+        @fixed_start_date = Date.today.to_date.strftime('%Y-%m-%d')
+        @fixed_due_date = (Date.today.to_date + 90).strftime('%Y-%m-%d')
       end
 
       def create_epic_issue_milestone
@@ -81,8 +81,8 @@ module QA
 
       it 'Updating milestones changes epic dates' do
         epic_iid, milestone_id = create_epic_issue_milestone
-        milestone_start_date = Date.today.to_date.strftime("%Y-%m-%d")
-        milestone_due_date = (Date.today.to_date + 30).strftime("%Y-%m-%d")
+        milestone_start_date = Date.today.to_date.strftime('%Y-%m-%d')
+        milestone_due_date = (Date.today.to_date + 30).strftime('%Y-%m-%d')
 
         # Update Milestone to different dates and see it reflecting in the epics
         request = create_request("/projects/#{@project_id}/milestones/#{milestone_id}")
@@ -102,8 +102,8 @@ module QA
 
       it 'Adding another issue updates epic dates' do
         epic_iid = create_epic_issue_milestone[0]
-        milestone_start_date = Date.today.to_date.strftime("%Y-%m-%d")
-        milestone_due_date = (Date.today.to_date + 150).strftime("%Y-%m-%d")
+        milestone_start_date = Date.today.to_date.strftime('%Y-%m-%d')
+        milestone_due_date = (Date.today.to_date + 150).strftime('%Y-%m-%d')
 
         # Add another Issue and milestone
         second_milestone_id = create_milestone(milestone_start_date, milestone_due_date)

@@ -11,7 +11,7 @@ describe Gitlab::DeviseFailure do
       'warden.options' => { scope: :user },
       'rack.session' => {},
       'rack.session.options' => {},
-      'rack.input' => "",
+      'rack.input' => '',
       'warden' => OpenStruct.new(message: nil)
     }
   end

@@ -6,7 +6,7 @@ module Vulnerabilities
     include ::Gitlab::Utils::StrongMemoize
     include Presentable
 
-    self.table_name = "vulnerability_occurrences"
+    self.table_name = 'vulnerability_occurrences'
 
     OCCURRENCES_PER_PAGE = 20
 
@@ -95,7 +95,7 @@ module Vulnerabilities
     def self.for_pipelines_with_sha(pipelines)
       joins(:pipelines)
         .where(ci_pipelines: { id: pipelines })
-        .select("vulnerability_occurrences.*, ci_pipelines.sha")
+        .select('vulnerability_occurrences.*, ci_pipelines.sha')
     end
 
     def self.for_pipelines(pipelines)
@@ -151,7 +151,7 @@ module Vulnerabilities
 
     def self.undismissed
       where(
-        "NOT EXISTS (?)",
+        'NOT EXISTS (?)',
         Feedback.select(1)
         .where("#{table_name}.report_type = vulnerability_feedback.category")
         .where("#{table_name}.project_id = vulnerability_feedback.project_id")

@@ -23,7 +23,7 @@ class GithubService < Service
   end
 
   def description
-    "See pipeline statuses on GitHub for your commits and pull requests"
+    'See pipeline statuses on GitHub for your commits and pull requests'
   end
 
   def detailed_description
@@ -39,17 +39,17 @@ class GithubService < Service
   def fields
     [
       { type: 'text',
-        name: "token",
+        name: 'token',
         required: true,
-        placeholder: "e.g. 8d3f016698e...",
+        placeholder: 'e.g. 8d3f016698e...',
         help: 'Create a <a href="https://github.com/settings/tokens">personal access token</a> with  <code>repo:status</code> access granted and paste it here.'.html_safe },
       { type: 'text',
-        name: "repository_url",
+        name: 'repository_url',
         title: 'Repository URL',
         required: true,
         placeholder: 'e.g. https://github.com/owner/repository' },
       { type: 'checkbox',
-        name: "static_context",
+        name: 'static_context',
         title: 'Static status check names',
         help: 'GitHub status checks need static name in order to be marked as "required".' }
     ]

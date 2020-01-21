@@ -4,7 +4,7 @@ module Packages
     attr_reader :package_tag
 
     def initialize(package_tag)
-      raise ArgumentError, "Package tag must be set" if package_tag.blank?
+      raise ArgumentError, 'Package tag must be set' if package_tag.blank?
 
       @package_tag = package_tag
     end

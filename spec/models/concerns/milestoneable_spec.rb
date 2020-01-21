@@ -120,7 +120,7 @@ describe Milestoneable do
     let(:group)   { create(:group) }
     let(:project) { create(:project, group: group) }
 
-    context "for issues" do
+    context 'for issues' do
       let(:issue) { build(:issue, project: project) }
 
       it 'returns true' do
@@ -128,7 +128,7 @@ describe Milestoneable do
       end
     end
 
-    context "for merge requests" do
+    context 'for merge requests' do
       let(:merge_request) { build(:merge_request, target_project: project, source_project: project) }
 
       it 'returns true' do

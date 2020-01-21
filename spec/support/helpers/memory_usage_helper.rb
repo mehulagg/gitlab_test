@@ -14,7 +14,7 @@ module MemoryUsageHelper
   end
 
   def write_csv_entry(path, entry)
-    CSV.open(path, "a", headers: entry.keys, write_headers: !File.exist?(path)) do |file|
+    CSV.open(path, 'a', headers: entry.keys, write_headers: !File.exist?(path)) do |file|
       file << entry.values
     end
   end
@@ -23,7 +23,7 @@ module MemoryUsageHelper
     output, status = Gitlab::Popen.popen(%w(free -m))
     abort "`free -m` return code is #{status}: #{output}" unless status.zero?
 
-    result = output.split("\n")[1].split(" ")[1..-1]
+    result = output.split("\n")[1].split(' ')[1..-1]
     attrs = %i(m_total m_used m_free m_shared m_buffers_cache m_available).freeze
 
     attrs.zip(result).to_h

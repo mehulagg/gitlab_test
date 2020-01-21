@@ -4,7 +4,7 @@ module Gitlab
   module Ci
     module Model
       def table_name_prefix
-        "ci_"
+        'ci_'
       end
 
       def model_name

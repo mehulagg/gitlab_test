@@ -36,7 +36,7 @@ describe 'Setting weight of an issue' do
   end
 
   it 'returns an error if the user is not allowed to update the issue' do
-    error = "The resource that you are attempting to access does not exist or you "\
+    error = 'The resource that you are attempting to access does not exist or you '\
             "don't have permission to perform this action"
 
     post_graphql_mutation(mutation, current_user: create(:user))
@@ -52,10 +52,10 @@ describe 'Setting weight of an issue' do
   end
 
   context 'when weight is not an integer' do
-    let(:input) { { weight: "2" } }
+    let(:input) { { weight: '2' } }
 
     it 'raises invalid value error' do
-      error = "Variable issueSetWeightInput of type IssueSetWeightInput! was provided "\
+      error = 'Variable issueSetWeightInput of type IssueSetWeightInput! was provided '\
               "invalid value for weight (Could not coerce value \"#{input[:weight]}\" to Int)"
 
       post_graphql_mutation(mutation, current_user: current_user)

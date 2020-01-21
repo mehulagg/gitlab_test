@@ -7,7 +7,7 @@ describe Projects::BlobController do
 
   let(:project) { create(:project, :public, :repository) }
 
-  describe "GET show" do
+  describe 'GET show' do
     render_views
 
     context 'with file path' do
@@ -22,13 +22,13 @@ describe Projects::BlobController do
             })
       end
 
-      context "valid branch, valid file" do
+      context 'valid branch, valid file' do
         let(:id) { 'master/README.md' }
 
         it { is_expected.to respond_with(:success) }
       end
 
-      context "valid branch, invalid file" do
+      context 'valid branch, invalid file' do
         let(:id) { 'master/invalid-path.rb' }
 
         it 'redirects' do
@@ -37,19 +37,19 @@ describe Projects::BlobController do
         end
       end
 
-      context "invalid branch, valid file" do
+      context 'invalid branch, valid file' do
         let(:id) { 'invalid-branch/README.md' }
 
         it { is_expected.to respond_with(:not_found) }
       end
 
-      context "binary file" do
+      context 'binary file' do
         let(:id) { 'binary-encoding/encoding/binary-1.bin' }
 
         it { is_expected.to respond_with(:success) }
       end
 
-      context "Markdown file" do
+      context 'Markdown file' do
         let(:id) { 'master/README.md' }
 
         it { is_expected.to respond_with(:success) }
@@ -57,7 +57,7 @@ describe Projects::BlobController do
     end
 
     context 'with file path and JSON format' do
-      context "valid branch, valid file" do
+      context 'valid branch, valid file' do
         let(:id) { 'master/README.md' }
 
         before do
@@ -77,7 +77,7 @@ describe Projects::BlobController do
         end
       end
 
-      context "with viewer=none" do
+      context 'with viewer=none' do
         let(:id) { 'master/README.md' }
 
         before do
@@ -298,7 +298,7 @@ describe Projects::BlobController do
           merge_request.update!(source_project: other_project, target_project: other_project)
         end
 
-        it "redirects to blob" do
+        it 'redirects to blob' do
           put :update, params: mr_params
 
           expect(response).to redirect_to(blob_after_edit_path)
@@ -328,8 +328,8 @@ describe Projects::BlobController do
       end
 
       context 'when editing on the original repository' do
-        it "redirects to forked project new merge request", :sidekiq_might_not_need_inline do
-          default_params[:branch_name] = "fork-test-1"
+        it 'redirects to forked project new merge request', :sidekiq_might_not_need_inline do
+          default_params[:branch_name] = 'fork-test-1'
           default_params[:create_merge_request] = 1
 
           put :update, params: default_params
@@ -340,8 +340,8 @@ describe Projects::BlobController do
               merge_request: {
                 source_project_id: forked_project.id,
                 target_project_id: project.id,
-                source_branch: "fork-test-1",
-                target_branch: "master"
+                source_branch: 'fork-test-1',
+                target_branch: 'master'
               }
             )
           )

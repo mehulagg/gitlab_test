@@ -93,7 +93,7 @@ describe Ci::Runner do
         build(:ci_runner, access_level: nil)
       end
 
-      it "object is invalid" do
+      it 'object is invalid' do
         expect(runner).not_to be_valid
       end
     end
@@ -103,13 +103,13 @@ describe Ci::Runner do
         build(:ci_runner, access_level: :not_protected)
       end
 
-      it "object is valid" do
+      it 'object is valid' do
         expect(runner).to be_valid
       end
     end
 
     context 'when creating new runner and access_level is not defined in enum' do
-      it "raises an error" do
+      it 'raises an error' do
         expect { build(:ci_runner, access_level: :this_is_not_defined) }.to raise_error(ArgumentError)
       end
     end
@@ -248,7 +248,7 @@ describe Ci::Runner do
     before do
       allow_any_instance_of(described_class).to receive(:cached_attribute).and_call_original
       allow_any_instance_of(described_class).to receive(:cached_attribute)
-        .with(:platform).and_return("darwin")
+        .with(:platform).and_return('darwin')
     end
 
     context 'no cache value' do
@@ -666,8 +666,8 @@ describe Ci::Runner do
     end
   end
 
-  describe "belongs_to_one_project?" do
-    it "returns false if there are two projects runner assigned to" do
+  describe 'belongs_to_one_project?' do
+    it 'returns false if there are two projects runner assigned to' do
       project1 = create(:project)
       project2 = create(:project)
       runner = create(:ci_runner, :project, projects: [project1, project2])
@@ -675,7 +675,7 @@ describe Ci::Runner do
       expect(runner.belongs_to_one_project?).to be_falsey
     end
 
-    it "returns true" do
+    it 'returns true' do
       project = create(:project)
       runner = create(:ci_runner, :project, projects: [project])
 

@@ -49,7 +49,7 @@ module Projects
       end
 
       if changing_default_branch?
-        raise ValidationError.new(s_("UpdateProject|Could not set the default branch")) unless project.change_head(params[:default_branch])
+        raise ValidationError.new(s_('UpdateProject|Could not set the default branch')) unless project.change_head(params[:default_branch])
       end
     end
 

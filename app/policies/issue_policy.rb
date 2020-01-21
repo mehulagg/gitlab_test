@@ -7,12 +7,12 @@ class IssuePolicy < IssuablePolicy
 
   extend ProjectPolicy::ClassMethods
 
-  desc "User can read confidential issues"
+  desc 'User can read confidential issues'
   condition(:can_read_confidential) do
     @user && IssueCollection.new([@subject]).visible_to(@user).any?
   end
 
-  desc "Issue is confidential"
+  desc 'Issue is confidential'
   condition(:confidential, scope: :subject) { @subject.confidential? }
 
   rule { confidential & ~can_read_confidential }.policy do

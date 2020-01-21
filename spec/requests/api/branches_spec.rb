@@ -18,7 +18,7 @@ describe API::Branches do
     project.add_maintainer(user)
   end
 
-  describe "GET /projects/:id/repository/branches" do
+  describe 'GET /projects/:id/repository/branches' do
     let(:route) { "/projects/#{project_id}/repository/branches" }
 
     shared_examples_for 'repository branches' do
@@ -147,7 +147,7 @@ describe API::Branches do
     end
   end
 
-  describe "GET /projects/:id/repository/branches/:branch" do
+  describe 'GET /projects/:id/repository/branches/:branch' do
     let(:route) { "/projects/#{project_id}/repository/branches/#{branch_name}" }
 
     shared_examples_for 'repository branch' do

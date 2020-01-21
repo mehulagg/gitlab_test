@@ -29,7 +29,7 @@ module Commits
 
       error_msg = "Sorry, we cannot #{act} this #{type} automatically. " \
         "This #{type} may already have been #{act}ed, or a more recent " \
-        "commit may have updated some of its content."
+        'commit may have updated some of its content.'
 
       raise ChangeError.new(error_msg, ex.error_code)
     end

@@ -33,6 +33,6 @@ describe 'New issue breadcrumb' do
     visit project_issues_path(project, assignee_id: user.id)
 
     expect(page).to have_content 'foobar'
-    expect(page.all('.no-comments').first.text).to eq "0"
+    expect(page.all('.no-comments').first.text).to eq '0'
   end
 end

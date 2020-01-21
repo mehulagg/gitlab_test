@@ -6,7 +6,7 @@ unless Rails.env.production?
 
     desc 'GitLab | Karma | Run JavaScript tests'
     task tests: ['yarn:check'] do
-      sh "yarn run karma" do |ok, res|
+      sh 'yarn run karma' do |ok, res|
         abort('rake karma:tests failed') unless ok
       end
     end

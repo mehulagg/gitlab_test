@@ -21,7 +21,7 @@ class CleanupDeployAccessLevelsForRemovedGroups < ActiveRecord::Migration[5.2]
 
     logger = Gitlab::BackgroundMigration::Logger.build
     records.to_a.each do |record|
-      logger.info record.as_json.merge(message: "protected_environments_deploy_access_levels was deleted")
+      logger.info record.as_json.merge(message: 'protected_environments_deploy_access_levels was deleted')
     end
   end
 

@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Users::DestroyService do
-  describe "Deletes a user and all their personal projects" do
+  describe 'Deletes a user and all their personal projects' do
     let!(:user)      { create(:user) }
     let!(:admin)     { create(:admin) }
     let!(:namespace) { user.namespace }
@@ -69,7 +69,7 @@ describe Users::DestroyService do
         project.add_developer(user)
       end
 
-      context "for an issue the user was assigned to" do
+      context 'for an issue the user was assigned to' do
         let!(:issue) { create(:issue, project: project, assignees: [user]) }
 
         before do
@@ -95,7 +95,7 @@ describe Users::DestroyService do
         project.add_developer(user)
       end
 
-      context "for an merge request the user was assigned to" do
+      context 'for an merge request the user was assigned to' do
         let!(:merge_request) { create(:merge_request, source_project: project, assignees: [user]) }
 
         before do
@@ -114,7 +114,7 @@ describe Users::DestroyService do
       end
     end
 
-    context "solo owned groups present" do
+    context 'solo owned groups present' do
       let(:solo_owned)  { create(:group) }
       let(:member)      { create(:group_member) }
       let(:user)        { member.user }
@@ -129,7 +129,7 @@ describe Users::DestroyService do
       end
     end
 
-    context "deletions with solo owned groups" do
+    context 'deletions with solo owned groups' do
       let(:solo_owned)      { create(:group) }
       let(:member)          { create(:group_member) }
       let(:user)            { member.user }
@@ -148,7 +148,7 @@ describe Users::DestroyService do
       end
     end
 
-    context "deletion permission checks" do
+    context 'deletion permission checks' do
       it 'does not delete the user when user is not an admin' do
         other_user = create(:user)
 
@@ -169,7 +169,7 @@ describe Users::DestroyService do
       end
     end
 
-    context "migrating associated records" do
+    context 'migrating associated records' do
       let!(:issue)     { create(:issue, author: user) }
 
       it 'delegates to the `MigrateToGhostUser` service to move associated records to the ghost user' do
@@ -224,7 +224,7 @@ describe Users::DestroyService do
       end
     end
 
-    describe "calls the before/after callbacks" do
+    describe 'calls the before/after callbacks' do
       it 'of project_members' do
         expect_any_instance_of(ProjectMember).to receive(:run_callbacks).with(:find).once
         expect_any_instance_of(ProjectMember).to receive(:run_callbacks).with(:initialize).once

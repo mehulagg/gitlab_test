@@ -74,7 +74,7 @@ describe API::Issues do
 
   shared_examples 'issues statistics' do
     it 'returns issues statistics' do
-      get api("/issues_statistics", user), params: params
+      get api('/issues_statistics', user), params: params
 
       expect(response).to have_gitlab_http_status(200)
       expect(json_response['statistics']).not_to be_nil
@@ -751,36 +751,36 @@ describe API::Issues do
         let!(:issue3) { create(:issue, author: user2, assignees: [assignee, another_assignee], project: project, created_at: 1.day.ago) }
 
         it 'returns issues with by assignee_username' do
-          get api("/issues", user), params: { assignee_username: [assignee.username], scope: 'all' }
+          get api('/issues', user), params: { assignee_username: [assignee.username], scope: 'all' }
 
           expect(issue3.reload.assignees.pluck(:id)).to match_array([assignee.id, another_assignee.id])
           expect_paginated_array_response([confidential_issue.id, issue3.id])
         end
 
         it 'returns issues by assignee_username as string' do
-          get api("/issues", user), params: { assignee_username: assignee.username, scope: 'all' }
+          get api('/issues', user), params: { assignee_username: assignee.username, scope: 'all' }
 
           expect(issue3.reload.assignees.pluck(:id)).to match_array([assignee.id, another_assignee.id])
           expect_paginated_array_response([confidential_issue.id, issue3.id])
         end
 
         it 'returns error when multiple assignees are passed' do
-          get api("/issues", user), params: { assignee_username: [assignee.username, another_assignee.username], scope: 'all' }
+          get api('/issues', user), params: { assignee_username: [assignee.username, another_assignee.username], scope: 'all' }
 
           expect(response).to have_gitlab_http_status(400)
-          expect(json_response["error"]).to include("allows one value, but found 2")
+          expect(json_response['error']).to include('allows one value, but found 2')
         end
 
         it 'returns error when assignee_username and assignee_id are passed together' do
-          get api("/issues", user), params: { assignee_username: [assignee.username], assignee_id: another_assignee.id, scope: 'all' }
+          get api('/issues', user), params: { assignee_username: [assignee.username], assignee_id: another_assignee.id, scope: 'all' }
 
           expect(response).to have_gitlab_http_status(400)
-          expect(json_response["error"]).to include("mutually exclusive")
+          expect(json_response['error']).to include('mutually exclusive')
         end
       end
     end
 
-    context "when returns issue merge_requests_count for different access levels" do
+    context 'when returns issue merge_requests_count for different access levels' do
       let!(:merge_request1) do
         create(:merge_request,
                :simple,
@@ -799,7 +799,7 @@ describe API::Issues do
       end
 
       it_behaves_like 'accessible merge requests count' do
-        let(:api_url) { "/issues" }
+        let(:api_url) { '/issues' }
         let(:target_issue) { issue }
       end
     end

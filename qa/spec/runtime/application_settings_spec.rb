@@ -3,7 +3,7 @@
 describe QA::Runtime::ApplicationSettings do
   let(:api_client) { double('QA::Runtime::API::Client') }
   let(:request) { Struct.new(:url).new('http://api') }
-  let(:get_response) { Struct.new(:body).new("{}") }
+  let(:get_response) { Struct.new(:body).new('{}') }
 
   before do
     allow(described_class).to receive(:api_client).and_return(api_client)

@@ -37,7 +37,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
       format.html
       format.json do
         render json: {
-          html: view_to_html_string("projects/merge_requests/_merge_requests")
+          html: view_to_html_string('projects/merge_requests/_merge_requests')
         }
       end
     end
@@ -202,9 +202,9 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
 
     case result[:count]
     when 0
-      flash[:error] = "Failed to assign you issues related to the merge request"
+      flash[:error] = 'Failed to assign you issues related to the merge request'
     when 1
-      flash[:notice] = "1 issue has been assigned to you"
+      flash[:notice] = '1 issue has been assigned to you'
     else
       flash[:notice] = "#{result[:count]} issues have been assigned to you"
     end

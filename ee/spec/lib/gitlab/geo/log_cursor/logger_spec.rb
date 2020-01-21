@@ -34,7 +34,7 @@ describe Gitlab::Geo::LogCursor::Logger, :geo do
   describe '.event_info' do
     it 'logs an info event' do
       expect(::Gitlab::Logger).to receive(:info).with(pid: 111,
-                                                      class: "LoggerSpec",
+                                                      class: 'LoggerSpec',
                                                       message: 'Test',
                                                       cursor_delay_s: 0.0)
 

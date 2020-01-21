@@ -12,8 +12,8 @@ module Gitlab
 
         def value
           strong_memoize(:value) do
-            query = @project.deployments.success.where("created_at >= ?", @from)
-            query = query.where("created_at <= ?", @to) if @to
+            query = @project.deployments.success.where('created_at >= ?', @from)
+            query = query.where('created_at <= ?', @to) if @to
             query.count
           end
         end

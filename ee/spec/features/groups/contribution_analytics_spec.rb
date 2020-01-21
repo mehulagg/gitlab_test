@@ -18,7 +18,7 @@ describe 'Groups > Contribution Analytics', :js do
 
       find('a', text: 'Contribution Analytics').click
 
-      expect(page).to have_content "Contribution analytics for issues, merge requests and push"
+      expect(page).to have_content 'Contribution analytics for issues, merge requests and push'
     end
   end
 end

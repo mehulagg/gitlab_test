@@ -20,14 +20,14 @@ describe 'admin/dashboard/index.html.haml' do
     allow(view).to receive(:show_license_breakdown?).and_return(false)
   end
 
-  it "shows version of GitLab Workhorse" do
+  it 'shows version of GitLab Workhorse' do
     render
 
     expect(rendered).to have_content 'GitLab Workhorse'
     expect(rendered).to have_content Gitlab::Workhorse.version
   end
 
-  it "includes revision of GitLab" do
+  it 'includes revision of GitLab' do
     render
 
     expect(rendered).to have_content "#{Gitlab::VERSION} (#{Gitlab.revision})"

@@ -223,15 +223,15 @@ describe 'admin Geo Nodes', :js, :geo do
       it '`/new` uses the Vue form instead of the HAML partial' do
         visit new_admin_geo_node_path
 
-        expect(page).to have_css(".geo-node-form-container")
-        expect(page).not_to have_css(".js-geo-node-form")
+        expect(page).to have_css('.geo-node-form-container')
+        expect(page).not_to have_css('.js-geo-node-form')
       end
 
       it '`/edit` uses the Vue form instead of the HAML partial' do
         visit edit_admin_geo_node_path(geo_node)
 
-        expect(page).to have_css(".geo-node-form-container")
-        expect(page).not_to have_css(".js-geo-node-form")
+        expect(page).to have_css('.geo-node-form-container')
+        expect(page).not_to have_css('.js-geo-node-form')
       end
     end
 
@@ -243,15 +243,15 @@ describe 'admin Geo Nodes', :js, :geo do
       it '`/new` uses the HAML partial instead of the Vue form' do
         visit new_admin_geo_node_path
 
-        expect(page).not_to have_css(".geo-node-form-container")
-        expect(page).to have_css(".js-geo-node-form")
+        expect(page).not_to have_css('.geo-node-form-container')
+        expect(page).to have_css('.js-geo-node-form')
       end
 
       it '`/edit` uses the HAML partial instead of the Vue form' do
         visit edit_admin_geo_node_path(geo_node)
 
-        expect(page).not_to have_css(".geo-node-form-container")
-        expect(page).to have_css(".js-geo-node-form")
+        expect(page).not_to have_css('.geo-node-form-container')
+        expect(page).to have_css('.js-geo-node-form')
       end
     end
   end

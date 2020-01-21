@@ -40,9 +40,9 @@ describe Gitlab::SubmoduleLinks do
       it 'returns links and caches the by ref' do
         expect(subject).to eq(['https://gitlab.com/gitlab-org/gitlab-foss', 'https://gitlab.com/gitlab-org/gitlab-foss/tree/hash'])
 
-        cache_store = links.instance_variable_get("@cache_store")
+        cache_store = links.instance_variable_get('@cache_store')
 
-        expect(cache_store[ref]).to eq({ "gitlab-foss" => "git@gitlab.com:gitlab-org/gitlab-foss.git" })
+        expect(cache_store[ref]).to eq({ 'gitlab-foss' => 'git@gitlab.com:gitlab-org/gitlab-foss.git' })
       end
 
       context 'when ref name contains a dash' do

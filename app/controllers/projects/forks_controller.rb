@@ -29,7 +29,7 @@ class Projects::ForksController < Projects::ApplicationController
 
       format.json do
         render json: {
-          html: view_to_html_string("projects/forks/_projects", projects: @forks)
+          html: view_to_html_string('projects/forks/_projects', projects: @forks)
         }
       end
     end

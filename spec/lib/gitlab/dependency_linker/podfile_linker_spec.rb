@@ -14,7 +14,7 @@ describe Gitlab::DependencyLinker::PodfileLinker do
   end
 
   describe '#link' do
-    let(:file_name) { "Podfile" }
+    let(:file_name) { 'Podfile' }
 
     let(:file_content) do
       <<-CONTENT.strip_heredoc

@@ -12,8 +12,8 @@ describe Backup::Files do
     allow(FileUtils).to receive(:mkdir_p).and_return(true)
     allow(FileUtils).to receive(:mv).and_return(true)
     allow(File).to receive(:exist?).and_return(true)
-    allow(File).to receive(:realpath).with("/var/gitlab-registry").and_return("/var/gitlab-registry")
-    allow(File).to receive(:realpath).with("/var/gitlab-registry/..").and_return("/var")
+    allow(File).to receive(:realpath).with('/var/gitlab-registry').and_return('/var/gitlab-registry')
+    allow(File).to receive(:realpath).with('/var/gitlab-registry/..').and_return('/var')
 
     allow_any_instance_of(String).to receive(:color) do |string, _color|
       string
@@ -35,12 +35,12 @@ describe Backup::Files do
       before do
         allow(subject).to receive(:run_pipeline!).and_return(true)
         allow(subject).to receive(:backup_existing_files).and_return(true)
-        allow(Dir).to receive(:glob).with("/var/gitlab-registry/*", File::FNM_DOTMATCH).and_return(["/var/gitlab-registry/.", "/var/gitlab-registry/..", "/var/gitlab-registry/sample1"])
+        allow(Dir).to receive(:glob).with('/var/gitlab-registry/*', File::FNM_DOTMATCH).and_return(['/var/gitlab-registry/.', '/var/gitlab-registry/..', '/var/gitlab-registry/sample1'])
       end
 
       it 'moves all necessary files' do
         allow(subject).to receive(:backup_existing_files).and_call_original
-        expect(FileUtils).to receive(:mv).with(["/var/gitlab-registry/sample1"], File.join(Gitlab.config.backup.path, "tmp", "registry.#{Time.now.to_i}"))
+        expect(FileUtils).to receive(:mv).with(['/var/gitlab-registry/sample1'], File.join(Gitlab.config.backup.path, 'tmp', "registry.#{Time.now.to_i}"))
         subject.restore
       end
 
@@ -63,7 +63,7 @@ describe Backup::Files do
       end
 
       it 'shows error message' do
-        expect(subject).to receive(:access_denied_error).with("/var/gitlab-registry")
+        expect(subject).to receive(:access_denied_error).with('/var/gitlab-registry')
         subject.restore
       end
     end
@@ -75,7 +75,7 @@ describe Backup::Files do
       end
 
       it 'shows error message' do
-        expect(subject).to receive(:resource_busy_error).with("/var/gitlab-registry")
+        expect(subject).to receive(:resource_busy_error).with('/var/gitlab-registry')
                              .and_call_original
 
         expect { subject.restore }.to raise_error(/is a mountpoint/)

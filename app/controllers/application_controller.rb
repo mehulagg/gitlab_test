@@ -59,7 +59,7 @@ class ApplicationController < ActionController::Base
 
   rescue_from Encoding::CompatibilityError do |exception|
     log_exception(exception)
-    render "errors/encoding", layout: "errors", status: :internal_server_error
+    render 'errors/encoding', layout: 'errors', status: :internal_server_error
   end
 
   rescue_from ActiveRecord::RecordNotFound do |exception|
@@ -135,7 +135,7 @@ class ApplicationController < ActionController::Base
   def append_info_to_payload(payload)
     super
 
-    payload[:ua] = request.env["HTTP_USER_AGENT"]
+    payload[:ua] = request.env['HTTP_USER_AGENT']
     payload[:remote_ip] = request.remote_ip
     payload[Labkit::Correlation::CorrelationId::LOG_KEY] = Labkit::Correlation::CorrelationId.current_id
 
@@ -168,7 +168,7 @@ class ApplicationController < ActionController::Base
   def log_exception(exception)
     Gitlab::ErrorTracking.track_exception(exception)
 
-    backtrace_cleaner = request.env["action_dispatch.backtrace_cleaner"]
+    backtrace_cleaner = request.env['action_dispatch.backtrace_cleaner']
     application_trace = ActionDispatch::ExceptionWrapper.new(backtrace_cleaner, exception).application_trace
     application_trace.map! { |t| "  #{t}\n" }
     logger.error "\n#{exception.class.name} (#{exception.message}):\n#{application_trace.join}"
@@ -193,16 +193,16 @@ class ApplicationController < ActionController::Base
     status ||= message.present? ? :forbidden : :not_found
     template =
       if status == :not_found
-        "errors/not_found"
+        'errors/not_found'
       else
-        "errors/access_denied"
+        'errors/access_denied'
       end
 
     respond_to do |format|
       format.any { head status }
       format.html do
         render template,
-               layout: "errors",
+               layout: 'errors',
                status: status,
                locals: { message: message }
       end
@@ -210,19 +210,19 @@ class ApplicationController < ActionController::Base
   end
 
   def git_not_found!
-    render "errors/git_not_found.html", layout: "errors", status: :not_found
+    render 'errors/git_not_found.html', layout: 'errors', status: :not_found
   end
 
   def render_403
     respond_to do |format|
       format.any { head :forbidden }
-      format.html { render "errors/access_denied", layout: "errors", status: :forbidden }
+      format.html { render 'errors/access_denied', layout: 'errors', status: :forbidden }
     end
   end
 
   def render_404
     respond_to do |format|
-      format.html { render "errors/not_found", layout: "errors", status: :not_found }
+      format.html { render 'errors/not_found', layout: 'errors', status: :not_found }
       # Prevent the Rails CSRF protector from thinking a missing .js file is a JavaScript file
       format.js { render json: '', status: :not_found, content_type: 'application/json' }
       format.any { head :not_found }
@@ -237,7 +237,7 @@ class ApplicationController < ActionController::Base
     respond_to do |format|
       format.html do
         render(
-          file: Rails.root.join("public", "503"),
+          file: Rails.root.join('public', '503'),
           layout: false,
           status: :service_unavailable
         )
@@ -298,7 +298,7 @@ class ApplicationController < ActionController::Base
     return unless current_user && current_user.deactivated?
 
     sign_out current_user
-    flash[:alert] = _("Your account has been deactivated by your administrator. Please log back in to reactivate your account.")
+    flash[:alert] = _('Your account has been deactivated by your administrator. Please log back in to reactivate your account.')
     redirect_to new_user_session_path
   end
 
@@ -308,7 +308,7 @@ class ApplicationController < ActionController::Base
 
       unless Gitlab::Auth::LDAP::Access.allowed?(current_user)
         sign_out current_user
-        flash[:alert] = _("Access denied for your LDAP account.")
+        flash[:alert] = _('Access denied for your LDAP account.')
         redirect_to new_user_session_path
       end
     end
@@ -363,7 +363,7 @@ class ApplicationController < ActionController::Base
     return unless current_user
     return if current_user.terms_accepted?
 
-    message = _("Please accept the Terms of Service before continuing.")
+    message = _('Please accept the Terms of Service before continuing.')
 
     if sessionless_user?
       access_denied!(message)

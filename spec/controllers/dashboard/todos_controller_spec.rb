@@ -44,7 +44,7 @@ describe Dashboard::TodosController do
       end
     end
 
-    context "with render_views" do
+    context 'with render_views' do
       render_views
 
       it 'avoids N+1 queries', :request_store do
@@ -131,7 +131,7 @@ describe Dashboard::TodosController do
 
       expect(todo.reload).to be_pending
       expect(response).to have_gitlab_http_status(200)
-      expect(json_response).to eq({ "count" => 1, "done_count" => 0 })
+      expect(json_response).to eq({ 'count' => 1, 'done_count' => 0 })
     end
   end
 

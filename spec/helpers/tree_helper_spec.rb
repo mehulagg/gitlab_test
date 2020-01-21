@@ -20,7 +20,7 @@ describe TreeHelper do
   describe '.render_tree' do
     before do
       @id = sha
-      @path = ""
+      @path = ''
       @project = project
       @lfs_blob_ids = []
     end
@@ -112,25 +112,25 @@ describe TreeHelper do
 
     subject { flatten_tree(root_path, tree_item) }
 
-    context "on a directory containing more than one file/directory" do
+    context 'on a directory containing more than one file/directory' do
       let(:path) { 'files/html' }
 
-      it "returns the directory name" do
+      it 'returns the directory name' do
         expect(subject).to match('html')
       end
     end
 
-    context "on a directory containing only one directory" do
+    context 'on a directory containing only one directory' do
       let(:path) { 'files/flat' }
 
-      it "returns the flattened path" do
+      it 'returns the flattened path' do
         expect(subject).to match('flat/path/correct')
       end
 
-      context "with a nested root path" do
+      context 'with a nested root path' do
         let(:root_path) { 'files/flat' }
 
-        it "returns the flattened path with the root path suffix removed" do
+        it 'returns the flattened path with the root path suffix removed' do
           expect(subject).to match('path/correct')
         end
       end

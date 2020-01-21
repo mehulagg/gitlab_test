@@ -33,12 +33,12 @@ describe Types::PermissionTypes::BasePermissionType do
         name: :resolve_using_hash,
         hash_key: :the_key,
         type: GraphQL::BOOLEAN_TYPE,
-        description: "custom description",
+        description: 'custom description',
         null: false
       }
       expect(test_type).to receive(:field).with(expected_keywords)
 
-      test_type.ability_field :resolve_using_hash, hash_key: :the_key, description: "custom description"
+      test_type.ability_field :resolve_using_hash, hash_key: :the_key, description: 'custom description'
     end
   end
 

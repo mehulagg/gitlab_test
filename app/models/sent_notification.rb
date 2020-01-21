@@ -5,7 +5,7 @@ class SentNotification < ApplicationRecord
 
   belongs_to :project
   belongs_to :noteable, polymorphic: true # rubocop:disable Cop/PolymorphicAssociations
-  belongs_to :recipient, class_name: "User"
+  belongs_to :recipient, class_name: 'User'
 
   validates :recipient, presence: true
   validates :reply_key, presence: true, uniqueness: true
@@ -59,7 +59,7 @@ class SentNotification < ApplicationRecord
   end
 
   def for_commit?
-    noteable_type == "Commit"
+    noteable_type == 'Commit'
   end
 
   def for_snippet?

@@ -29,7 +29,7 @@ namespace :admin do
   # using `only: []` to keep duplicate routes from being created
   resource :application_settings, only: [] do
     match :templates, via: [:get, :patch]
-    get :geo, to: "application_settings#geo_redirection"
+    get :geo, to: 'application_settings#geo_redirection'
   end
 
   namespace :geo do

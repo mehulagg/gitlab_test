@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe "Admin > Admin sees project statistics" do
+describe 'Admin > Admin sees project statistics' do
   let(:current_user) { create(:admin) }
 
   before do
@@ -14,8 +14,8 @@ describe "Admin > Admin sees project statistics" do
   context 'when project has statistics' do
     let(:project) { create(:project, :repository) }
 
-    it "shows project statistics" do
-      expect(page).to have_content("Storage: 0 Bytes (Repository: 0 Bytes / Wikis: 0 Bytes / Build Artifacts: 0 Bytes / LFS: 0 Bytes)")
+    it 'shows project statistics' do
+      expect(page).to have_content('Storage: 0 Bytes (Repository: 0 Bytes / Wikis: 0 Bytes / Build Artifacts: 0 Bytes / LFS: 0 Bytes)')
     end
   end
 
@@ -23,7 +23,7 @@ describe "Admin > Admin sees project statistics" do
     let(:project) { create(:project, :repository) { |project| project.statistics.destroy } }
 
     it "shows 'Storage: Unknown'" do
-      expect(page).to have_content("Storage: Unknown")
+      expect(page).to have_content('Storage: Unknown')
     end
   end
 end

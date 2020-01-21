@@ -8,7 +8,7 @@ describe Projects::CreateService, '#execute' do
   let(:user) { create :user }
   let(:opts) do
     {
-      name: "GitLab",
+      name: 'GitLab',
       namespace: user.namespace
     }
   end

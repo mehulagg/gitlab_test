@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe ProjectWiki do
   let(:user) { create(:user, :commit_email) }
@@ -16,8 +16,8 @@ describe ProjectWiki do
   it { is_expected.to delegate_method(:repository_storage).to :project }
   it { is_expected.to delegate_method(:hashed_storage?).to :project }
 
-  describe "#full_path" do
-    it "returns the project path with namespace with the .wiki extension" do
+  describe '#full_path' do
+    it 'returns the project path with namespace with the .wiki extension' do
       expect(subject.full_path).to eq(project.full_path + '.wiki')
     end
 
@@ -32,19 +32,19 @@ describe ProjectWiki do
     end
   end
 
-  describe "#url_to_repo" do
-    it "returns the correct ssh url to the repo" do
+  describe '#url_to_repo' do
+    it 'returns the correct ssh url to the repo' do
       expect(subject.url_to_repo).to eq(gitlab_shell.url_to_repo(subject.full_path))
     end
   end
 
-  describe "#ssh_url_to_repo" do
-    it "equals #url_to_repo" do
+  describe '#ssh_url_to_repo' do
+    it 'equals #url_to_repo' do
       expect(subject.ssh_url_to_repo).to eq(subject.url_to_repo)
     end
   end
 
-  describe "#http_url_to_repo" do
+  describe '#http_url_to_repo' do
     let(:project) { create :project }
 
     context 'when a custom HTTP clone URL root is not set' do
@@ -69,25 +69,25 @@ describe ProjectWiki do
     end
   end
 
-  describe "#wiki_base_path" do
-    it "returns the wiki base path" do
+  describe '#wiki_base_path' do
+    it 'returns the wiki base path' do
       wiki_base_path = "#{Gitlab.config.gitlab.relative_url_root}/#{project.full_path}/-/wikis"
 
       expect(subject.wiki_base_path).to eq(wiki_base_path)
     end
   end
 
-  describe "#wiki" do
-    it "contains a Gitlab::Git::Wiki instance" do
+  describe '#wiki' do
+    it 'contains a Gitlab::Git::Wiki instance' do
       expect(subject.wiki).to be_a Gitlab::Git::Wiki
     end
 
-    it "creates a new wiki repo if one does not yet exist" do
-      expect(project_wiki.create_page("index", "test content")).to be_truthy
+    it 'creates a new wiki repo if one does not yet exist' do
+      expect(project_wiki.create_page('index', 'test content')).to be_truthy
     end
 
-    it "creates a new wiki repo with a default commit message" do
-      expect(project_wiki.create_page("index", "test content", :markdown, "")).to be_truthy
+    it 'creates a new wiki repo with a default commit message' do
+      expect(project_wiki.create_page('index', 'test content', :markdown, '')).to be_truthy
 
       page = project_wiki.find_page('index')
 
@@ -105,8 +105,8 @@ describe ProjectWiki do
     end
   end
 
-  describe "#empty?" do
-    context "when the wiki repository is empty" do
+  describe '#empty?' do
+    context 'when the wiki repository is empty' do
       describe '#empty?' do
         subject { super().empty? }
 
@@ -114,10 +114,10 @@ describe ProjectWiki do
       end
     end
 
-    context "when the wiki has pages" do
+    context 'when the wiki has pages' do
       before do
-        project_wiki.create_page("index", "This is an awesome new Gollum Wiki")
-        project_wiki.create_page("another-page", "This is another page")
+        project_wiki.create_page('index', 'This is an awesome new Gollum Wiki')
+        project_wiki.create_page('another-page', 'This is another page')
       end
 
       describe '#empty?' do
@@ -134,13 +134,13 @@ describe ProjectWiki do
     end
   end
 
-  describe "#list_pages" do
+  describe '#list_pages' do
     let(:wiki_pages) { subject.list_pages }
 
     before do
-      create_page("index", "This is an index")
-      create_page("index2", "This is an index2")
-      create_page("an index3", "This is an index3")
+      create_page('index', 'This is an index')
+      create_page('index2', 'This is an index2')
+      create_page('an index3', 'This is an index3')
     end
 
     after do
@@ -149,7 +149,7 @@ describe ProjectWiki do
       end
     end
 
-    it "returns an array of WikiPage instances" do
+    it 'returns an array of WikiPage instances' do
       expect(wiki_pages.first).to be_a WikiPage
     end
 
@@ -163,86 +163,86 @@ describe ProjectWiki do
       expect(wiki_pages.count).to eq(3)
     end
 
-    context "with limit option" do
+    context 'with limit option' do
       it 'returns limited set of pages' do
         expect(subject.list_pages(limit: 1).count).to eq(1)
       end
     end
 
-    context "with sorting options" do
+    context 'with sorting options' do
       it 'returns pages sorted by title by default' do
         pages = ['an index3', 'index', 'index2']
 
         expect(subject.list_pages.map(&:title)).to eq(pages)
-        expect(subject.list_pages(direction: "desc").map(&:title)).to eq(pages.reverse)
+        expect(subject.list_pages(direction: 'desc').map(&:title)).to eq(pages.reverse)
       end
 
       it 'returns pages sorted by created_at' do
         pages = ['index', 'index2', 'an index3']
 
         expect(subject.list_pages(sort: 'created_at').map(&:title)).to eq(pages)
-        expect(subject.list_pages(sort: 'created_at', direction: "desc").map(&:title)).to eq(pages.reverse)
+        expect(subject.list_pages(sort: 'created_at', direction: 'desc').map(&:title)).to eq(pages.reverse)
       end
     end
 
-    context "with load_content option" do
+    context 'with load_content option' do
       let(:pages) { subject.list_pages(load_content: true) }
 
       it 'loads WikiPage content' do
-        expect(pages.first.content).to eq("This is an index3")
-        expect(pages.second.content).to eq("This is an index")
-        expect(pages.third.content).to eq("This is an index2")
+        expect(pages.first.content).to eq('This is an index3')
+        expect(pages.second.content).to eq('This is an index')
+        expect(pages.third.content).to eq('This is an index2')
       end
     end
   end
 
-  describe "#find_page" do
+  describe '#find_page' do
     before do
-      create_page("index page", "This is an awesome Gollum Wiki")
+      create_page('index page', 'This is an awesome Gollum Wiki')
     end
 
     after do
       subject.list_pages.each { |page| destroy_page(page.page) }
     end
 
-    it "returns the latest version of the page if it exists" do
-      page = subject.find_page("index page")
-      expect(page.title).to eq("index page")
+    it 'returns the latest version of the page if it exists' do
+      page = subject.find_page('index page')
+      expect(page.title).to eq('index page')
     end
 
-    it "returns nil if the page does not exist" do
-      expect(subject.find_page("non-existent")).to eq(nil)
+    it 'returns nil if the page does not exist' do
+      expect(subject.find_page('non-existent')).to eq(nil)
     end
 
-    it "can find a page by slug" do
-      page = subject.find_page("index-page")
-      expect(page.title).to eq("index page")
+    it 'can find a page by slug' do
+      page = subject.find_page('index-page')
+      expect(page.title).to eq('index page')
     end
 
-    it "returns a WikiPage instance" do
-      page = subject.find_page("index page")
+    it 'returns a WikiPage instance' do
+      page = subject.find_page('index page')
       expect(page).to be_a WikiPage
     end
 
     context 'pages with multibyte-character title' do
       before do
-        create_page("autre pagé", "C'est un génial Gollum Wiki")
+        create_page('autre pagé', "C'est un génial Gollum Wiki")
       end
 
-      it "can find a page by slug" do
-        page = subject.find_page("autre pagé")
-        expect(page.title).to eq("autre pagé")
+      it 'can find a page by slug' do
+        page = subject.find_page('autre pagé')
+        expect(page.title).to eq('autre pagé')
       end
     end
 
     context 'pages with invalidly-encoded content' do
       before do
-        create_page("encoding is fun", "f\xFCr".b)
+        create_page('encoding is fun', "f\xFCr".b)
       end
 
-      it "can find the page" do
-        page = subject.find_page("encoding is fun")
-        expect(page.content).to eq("fr")
+      it 'can find the page' do
+        page = subject.find_page('encoding is fun')
+        expect(page.content).to eq('fr')
       end
     end
   end
@@ -298,29 +298,29 @@ describe ProjectWiki do
     end
   end
 
-  describe "#create_page" do
+  describe '#create_page' do
     after do
       destroy_page(subject.list_pages.first.page)
     end
 
-    it "creates a new wiki page" do
-      expect(subject.create_page("test page", "this is content")).not_to eq(false)
+    it 'creates a new wiki page' do
+      expect(subject.create_page('test page', 'this is content')).not_to eq(false)
       expect(subject.list_pages.count).to eq(1)
     end
 
-    it "returns false when a duplicate page exists" do
-      subject.create_page("test page", "content")
-      expect(subject.create_page("test page", "content")).to eq(false)
+    it 'returns false when a duplicate page exists' do
+      subject.create_page('test page', 'content')
+      expect(subject.create_page('test page', 'content')).to eq(false)
     end
 
-    it "stores an error message when a duplicate page exists" do
-      2.times { subject.create_page("test page", "content") }
+    it 'stores an error message when a duplicate page exists' do
+      2.times { subject.create_page('test page', 'content') }
       expect(subject.error_message).to match(/Duplicate page:/)
     end
 
-    it "sets the correct commit message" do
-      subject.create_page("test page", "some content", :markdown, "commit message")
-      expect(subject.list_pages.first.page.version.message).to eq("commit message")
+    it 'sets the correct commit message' do
+      subject.create_page('test page', 'some content', :markdown, 'commit message')
+      expect(subject.list_pages.first.page.version.message).to eq('commit message')
     end
 
     it 'sets the correct commit email' do
@@ -341,15 +341,15 @@ describe ProjectWiki do
     end
   end
 
-  describe "#update_page" do
+  describe '#update_page' do
     before do
-      create_page("update-page", "some content")
-      @gitlab_git_wiki_page = subject.wiki.page(title: "update-page")
+      create_page('update-page', 'some content')
+      @gitlab_git_wiki_page = subject.wiki.page(title: 'update-page')
       subject.update_page(
         @gitlab_git_wiki_page,
-        content: "some other content",
+        content: 'some other content',
         format: :markdown,
-        message: "updated page"
+        message: 'updated page'
       )
       @page = subject.list_pages(load_content: true).first.page
     end
@@ -358,12 +358,12 @@ describe ProjectWiki do
       destroy_page(@page)
     end
 
-    it "updates the content of the page" do
-      expect(@page.raw_data).to eq("some other content")
+    it 'updates the content of the page' do
+      expect(@page.raw_data).to eq('some other content')
     end
 
-    it "sets the correct commit message" do
-      expect(@page.version.message).to eq("updated page")
+    it 'sets the correct commit message' do
+      expect(@page.version.message).to eq('updated page')
     end
 
     it 'sets the correct commit email' do
@@ -387,13 +387,13 @@ describe ProjectWiki do
     end
   end
 
-  describe "#delete_page" do
+  describe '#delete_page' do
     before do
-      create_page("index", "some content")
-      @page = subject.wiki.page(title: "index")
+      create_page('index', 'some content')
+      @page = subject.wiki.page(title: 'index')
     end
 
-    it "deletes the page" do
+    it 'deletes the page' do
       subject.delete_page(@page)
       expect(subject.list_pages.count).to eq(0)
     end
@@ -470,7 +470,7 @@ describe ProjectWiki do
   end
 
   def commit_details
-    Gitlab::Git::Wiki::CommitDetails.new(user.id, user.username, user.name, user.commit_email, "test commit")
+    Gitlab::Git::Wiki::CommitDetails.new(user.id, user.username, user.name, user.commit_email, 'test commit')
   end
 
   def create_page(name, content)
@@ -478,6 +478,6 @@ describe ProjectWiki do
   end
 
   def destroy_page(page)
-    subject.delete_page(page, "test commit")
+    subject.delete_page(page, 'test commit')
   end
 end

@@ -11,8 +11,8 @@ module SystemCheck
 
       def show_error
         try_fixing_it(
-          "Please enable the setting",
-          "`Use hashed storage paths for newly created and renamed projects`",
+          'Please enable the setting',
+          '`Use hashed storage paths for newly created and renamed projects`',
           "in GitLab's Admin panel to avoid security issues and ensure data integrity."
         )
 

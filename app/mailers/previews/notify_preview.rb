@@ -49,8 +49,8 @@ class NotifyPreview < ActionMailer::Preview
       MD
 
       position = Gitlab::Diff::Position.new(
-        old_path: "files/ruby/popen.rb",
-        new_path: "files/ruby/popen.rb",
+        old_path: 'files/ruby/popen.rb',
+        new_path: 'files/ruby/popen.rb',
         old_line: nil,
         new_line: 14,
         diff_refs: merge_request.diff_refs

@@ -11,7 +11,7 @@ describe SentNotification do
       context "when the project doesn't match the noteable's project" do
         subject { build(:sent_notification, noteable: create(:issue)) }
 
-        it "is invalid" do
+        it 'is invalid' do
           expect(subject).not_to be_valid
         end
       end
@@ -21,19 +21,19 @@ describe SentNotification do
 
         subject { build(:sent_notification, in_reply_to_discussion_id: discussion_id) }
 
-        it "is invalid" do
+        it 'is invalid' do
           expect(subject).not_to be_valid
         end
       end
 
-      context "when the noteable project and discussion project match" do
+      context 'when the noteable project and discussion project match' do
         let(:project) { create(:project, :repository) }
         let(:issue) { create(:issue, project: project) }
         let(:discussion_id) { create(:note, project: project, noteable: issue).discussion_id }
 
         subject { build(:sent_notification, project: project, noteable: issue, in_reply_to_discussion_id: discussion_id) }
 
-        it "is valid" do
+        it 'is valid' do
           expect(subject).to be_valid
         end
       end

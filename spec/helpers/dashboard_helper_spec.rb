@@ -25,26 +25,26 @@ describe DashboardHelper do
   end
 
   describe '#feature_entry' do
-    shared_examples "a feature is enabled" do
+    shared_examples 'a feature is enabled' do
       it { is_expected.to include('<p aria-label="Demo: status on">') }
     end
 
-    shared_examples "a feature is disabled" do
+    shared_examples 'a feature is disabled' do
       it { is_expected.to include('<p aria-label="Demo: status off">') }
     end
 
-    shared_examples "a feature without link" do
+    shared_examples 'a feature without link' do
       it do
         is_expected.not_to have_link('Demo')
         is_expected.not_to have_link('Documentation')
       end
     end
 
-    shared_examples "a feature with configuration" do
+    shared_examples 'a feature with configuration' do
       it { is_expected.to have_link('Demo', href: 'demo.link') }
     end
 
-    shared_examples "a feature with documentation" do
+    shared_examples 'a feature with documentation' do
       it { is_expected.to have_link('Documentation', href: 'doc.link') }
     end
 

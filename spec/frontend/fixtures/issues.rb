@@ -88,8 +88,8 @@ describe API::Issues, '(JavaScript fixtures)', type: :request do
       author: user,
       source_project: project,
       target_project: project,
-      source_branch: "master",
-      target_branch: "test",
+      source_branch: 'master',
+      target_branch: 'test',
       assignee: user,
       description: "See #{issue.to_reference}"
     }
@@ -122,7 +122,7 @@ describe API::Issues, '(JavaScript fixtures)', type: :request do
            author: user,
            source_project: project,
            target_project: project,
-           description: "Some description")
+           description: 'Some description')
     project2 = create(:project, :public, creator_id: user.id, namespace: user.namespace)
     create_referencing_mr(user, project2, issue).update!(head_pipeline: create(:ci_pipeline))
 

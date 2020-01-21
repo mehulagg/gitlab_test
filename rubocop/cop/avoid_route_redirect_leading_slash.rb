@@ -28,7 +28,7 @@ module RuboCop
       end
 
       def has_leading_slash?(str)
-        str.start_with?("/")
+        str.start_with?('/')
       end
 
       def in_routes?(node)

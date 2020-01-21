@@ -23,7 +23,7 @@ describe 'shared/billings/_trial_status.html.haml' do
   context 'when not eligible for trial' do
     it 'offers to learn more about plans' do
       render 'shared/billings/trial_status', namespace: group
-      expect(rendered).to have_content("Learn more about each plan by visiting our")
+      expect(rendered).to have_content('Learn more about each plan by visiting our')
     end
   end
 
@@ -71,7 +71,7 @@ describe 'shared/billings/_trial_status.html.haml' do
     it 'offers a trial' do
       render 'shared/billings/trial_status', namespace: group
 
-      expect(rendered).to have_content("start a free 30-day trial of GitLab.com Gold")
+      expect(rendered).to have_content('start a free 30-day trial of GitLab.com Gold')
     end
   end
 end

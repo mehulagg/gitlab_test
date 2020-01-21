@@ -84,9 +84,9 @@ module Clusters
 
       def specification
         {
-          "gitlabUrl" => gitlab_url,
-          "runnerToken" => ensure_runner.token,
-          "runners" => { "privileged" => privileged }
+          'gitlabUrl' => gitlab_url,
+          'runnerToken' => ensure_runner.token,
+          'runners' => { 'privileged' => privileged }
         }
       end
 

@@ -43,7 +43,7 @@ describe API::Search do
     context 'for wiki_blobs scope', :sidekiq_might_not_need_inline do
       before do
         wiki = create(:project_wiki, project: project)
-        create(:wiki_page, wiki: wiki, attrs: { title: 'home', content: "Awesome page" })
+        create(:wiki_page, wiki: wiki, attrs: { title: 'home', content: 'Awesome page' })
 
         project.wiki.index_wiki_blobs
         Gitlab::Elastic::Helper.refresh_index
@@ -123,7 +123,7 @@ describe API::Search do
     end
   end
 
-  describe "GET /groups/:id/-/search" do
+  describe 'GET /groups/:id/-/search' do
     context 'with correct params' do
       context 'when elasticsearch is disabled' do
         it_behaves_like 'elasticsearch disabled' do

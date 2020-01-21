@@ -30,7 +30,7 @@ module API
         params do
           use :pagination
         end
-        get ":id/badges" do
+        get ':id/badges' do
           source = find_source(source_type, params[:id])
 
           badges = source.badges
@@ -48,7 +48,7 @@ module API
           requires :link_url, type: String, desc: 'URL of the badge link'
           requires :image_url, type: String, desc: 'URL of the badge image'
         end
-        get ":id/badges/render" do
+        get ':id/badges/render' do
           authenticate!
 
           source = find_source_if_admin(source_type)
@@ -70,7 +70,7 @@ module API
         params do
           requires :badge_id, type: Integer, desc: 'The badge ID'
         end
-        get ":id/badges/:badge_id" do
+        get ':id/badges/:badge_id' do
           source = find_source(source_type, params[:id])
           badge = find_badge(source)
 
@@ -86,7 +86,7 @@ module API
           requires :image_url, type: String, desc: 'URL of the badge image'
           optional :name, type: String, desc: 'Name for the badge'
         end
-        post ":id/badges" do
+        post ':id/badges' do
           source = find_source_if_admin(source_type)
 
           badge = ::Badges::CreateService.new(declared_params(include_missing: false)).execute(source)
@@ -107,7 +107,7 @@ module API
           optional :image_url, type: String, desc: 'URL of the badge image'
           optional :name, type: String, desc: 'Name for the badge'
         end
-        put ":id/badges/:badge_id" do
+        put ':id/badges/:badge_id' do
           source = find_source_if_admin(source_type)
 
           badge = ::Badges::UpdateService.new(declared_params(include_missing: false))
@@ -126,7 +126,7 @@ module API
         params do
           requires :badge_id, type: Integer, desc: 'The badge ID'
         end
-        delete ":id/badges/:badge_id" do
+        delete ':id/badges/:badge_id' do
           source = find_source_if_admin(source_type)
           badge = find_badge(source)
 

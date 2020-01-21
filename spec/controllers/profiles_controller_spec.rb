@@ -23,7 +23,7 @@ describe ProfilesController, :request_store do
       sign_in(user)
 
       put :update,
-          params: { user: { email: "john@gmail.com", name: "John" } }
+          params: { user: { email: 'john@gmail.com', name: 'John' } }
 
       user.reload
 
@@ -31,13 +31,13 @@ describe ProfilesController, :request_store do
       expect(user.unconfirmed_email).to eq('john@gmail.com')
     end
 
-    it "allows an email update without confirmation if existing verified email" do
+    it 'allows an email update without confirmation if existing verified email' do
       user = create(:user)
       create(:email, :confirmed, user: user, email: 'john@gmail.com')
       sign_in(user)
 
       put :update,
-          params: { user: { email: "john@gmail.com", name: "John" } }
+          params: { user: { email: 'john@gmail.com', name: 'John' } }
 
       user.reload
 
@@ -54,7 +54,7 @@ describe ProfilesController, :request_store do
       sign_in(ldap_user)
 
       put :update,
-          params: { user: { email: "john@gmail.com", name: "John" } }
+          params: { user: { email: 'john@gmail.com', name: 'John' } }
 
       ldap_user.reload
 
@@ -71,7 +71,7 @@ describe ProfilesController, :request_store do
       sign_in(ldap_user)
 
       put :update,
-          params: { user: { email: "john@gmail.com", name: "John", location: "City, Country" } }
+          params: { user: { email: 'john@gmail.com', name: 'John', location: 'City, Country' } }
 
       ldap_user.reload
 

@@ -13,8 +13,8 @@ FactoryBot.define do
 
       position do
         Gitlab::Diff::Position.new(
-          old_path: "files/ruby/popen.rb",
-          new_path: "files/ruby/popen.rb",
+          old_path: 'files/ruby/popen.rb',
+          new_path: 'files/ruby/popen.rb',
           old_line: nil,
           new_line: line_number,
           diff_refs: diff_refs

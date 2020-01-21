@@ -5,7 +5,7 @@ require 'spec_helper'
 describe 'Projects > Files > User creates files', :js do
   let(:fork_message) do
     "You're not allowed to make changes to this project directly. "\
-    "A fork of this project has been created that you can make changes in, so you can submit a merge request."
+    'A fork of this project has been created that you can make changes in, so you can submit a merge request.'
   end
   let(:project) { create(:project, :repository, name: 'Shop') }
   let(:project2) { create(:project, :repository, name: 'Another Project', path: 'another-project') }
@@ -167,7 +167,7 @@ describe 'Projects > Files > User creates files', :js do
       end
 
       it 'shows a message saying the file will be committed in a fork' do
-        message = "A new branch will be created in your fork and a new merge request will be started."
+        message = 'A new branch will be created in your fork and a new merge request will be started.'
 
         expect(page).to have_content(message)
       end

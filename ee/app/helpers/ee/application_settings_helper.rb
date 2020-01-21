@@ -5,15 +5,15 @@ module EE
     extend ::Gitlab::Utils::Override
 
     def pseudonymizer_enabled_help_text
-      _("Enable Pseudonymizer data collection")
+      _('Enable Pseudonymizer data collection')
     end
 
     def pseudonymizer_description_text
-      _("GitLab will run a background job that will produce pseudonymized CSVs of the GitLab database that will be uploaded to your configured object storage directory.")
+      _('GitLab will run a background job that will produce pseudonymized CSVs of the GitLab database that will be uploaded to your configured object storage directory.')
     end
 
     def pseudonymizer_disabled_description_text
-      _("The pseudonymizer data collection is disabled. When enabled, GitLab will run a background job that will produce pseudonymized CSVs of the GitLab database that will be uploaded to your configured object storage directory.")
+      _('The pseudonymizer data collection is disabled. When enabled, GitLab will run a background job that will produce pseudonymized CSVs of the GitLab database that will be uploaded to your configured object storage directory.')
     end
 
     override :visible_attributes

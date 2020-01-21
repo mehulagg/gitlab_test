@@ -10,7 +10,7 @@ describe Gitlab::BitbucketImport::ProjectCreator do
            slug: 'vim',
            description: 'Test repo',
            is_private: true,
-           owner: "asd",
+           owner: 'asd',
            full_name: 'Vim repo',
            visibility_level: Gitlab::VisibilityLevel::PRIVATE,
            clone_url: 'http://bitbucket.org/asd/vim.git',
@@ -18,8 +18,8 @@ describe Gitlab::BitbucketImport::ProjectCreator do
   end
 
   let(:namespace) { create(:group) }
-  let(:token) { "asdasd12345" }
-  let(:secret) { "sekrettt" }
+  let(:token) { 'asdasd12345' }
+  let(:secret) { 'sekrettt' }
   let(:access_params) { { bitbucket_access_token: token, bitbucket_access_token_secret: secret } }
 
   before do
@@ -34,7 +34,7 @@ describe Gitlab::BitbucketImport::ProjectCreator do
     project_creator = described_class.new(repo, 'vim', namespace, user, access_params)
     project = project_creator.execute
 
-    expect(project.import_url).to eq("http://bitbucket.org/asd/vim.git")
+    expect(project.import_url).to eq('http://bitbucket.org/asd/vim.git')
     expect(project.visibility_level).to eq(Gitlab::VisibilityLevel::PRIVATE)
   end
 end

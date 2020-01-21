@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-RSpec.describe "projects/artifacts/_artifact.html.haml" do
+RSpec.describe 'projects/artifacts/_artifact.html.haml' do
   let(:project) { create(:project) }
 
   describe 'delete button' do

@@ -16,10 +16,10 @@ describe Projects::BranchesController do
     controller.instance_variable_set(:@project, project)
   end
 
-  describe "POST create with HTML format" do
+  describe 'POST create with HTML format' do
     render_views
 
-    context "on creation of a new branch" do
+    context 'on creation of a new branch' do
       before do
         sign_in(user)
 
@@ -32,9 +32,9 @@ describe Projects::BranchesController do
              }
       end
 
-      context "valid branch name, valid source" do
-        let(:branch) { "merge_branch" }
-        let(:ref) { "master" }
+      context 'valid branch name, valid source' do
+        let(:branch) { 'merge_branch' }
+        let(:ref) { 'master' }
 
         it 'redirects' do
           expect(subject)
@@ -42,9 +42,9 @@ describe Projects::BranchesController do
         end
       end
 
-      context "invalid branch name, valid ref" do
+      context 'invalid branch name, valid ref' do
         let(:branch) { "<script>alert('merge');</script>" }
-        let(:ref) { "master" }
+        let(:ref) { 'master' }
 
         it 'redirects' do
           expect(subject)
@@ -52,22 +52,22 @@ describe Projects::BranchesController do
         end
       end
 
-      context "valid branch name, invalid ref" do
-        let(:branch) { "merge_branch" }
+      context 'valid branch name, invalid ref' do
+        let(:branch) { 'merge_branch' }
         let(:ref) { "<script>alert('ref');</script>" }
 
         it { is_expected.to render_template('new') }
       end
 
-      context "invalid branch name, invalid ref" do
+      context 'invalid branch name, invalid ref' do
         let(:branch) { "<script>alert('merge');</script>" }
         let(:ref) { "<script>alert('ref');</script>" }
 
         it { is_expected.to render_template('new') }
       end
 
-      context "valid branch name with encoded slashes" do
-        let(:branch) { "feature%2Ftest" }
+      context 'valid branch name with encoded slashes' do
+        let(:branch) { 'feature%2Ftest' }
         let(:ref) { "<script>alert('ref');</script>" }
 
         it { is_expected.to render_template('new') }
@@ -75,8 +75,8 @@ describe Projects::BranchesController do
       end
     end
 
-    describe "created from the new branch button on issues" do
-      let(:branch) { "1-feature-branch" }
+    describe 'created from the new branch button on issues' do
+      let(:branch) { '1-feature-branch' }
       let(:issue) { create(:issue, project: project) }
 
       before do
@@ -97,7 +97,7 @@ describe Projects::BranchesController do
       end
 
       it 'posts a system note' do
-        expect(SystemNoteService).to receive(:new_issue_branch).with(issue, project, user, "1-feature-branch", branch_project: project)
+        expect(SystemNoteService).to receive(:new_issue_branch).with(issue, project, user, '1-feature-branch', branch_project: project)
 
         post :create,
              params: {
@@ -148,7 +148,7 @@ describe Projects::BranchesController do
               let(:issue) { create(:issue, project: confidential_issue_project) }
 
               it 'posts a system note' do
-                expect(SystemNoteService).to receive(:new_issue_branch).with(issue, confidential_issue_project, user, "1-feature-branch", branch_project: project)
+                expect(SystemNoteService).to receive(:new_issue_branch).with(issue, confidential_issue_project, user, '1-feature-branch', branch_project: project)
 
                 create_branch_with_confidential_issue_project
               end
@@ -170,7 +170,7 @@ describe Projects::BranchesController do
           end
 
           it 'posts a system note on project' do
-            expect(SystemNoteService).to receive(:new_issue_branch).with(issue, project, user, "1-feature-branch", branch_project: project)
+            expect(SystemNoteService).to receive(:new_issue_branch).with(issue, project, user, '1-feature-branch', branch_project: project)
 
             create_branch_with_confidential_issue_project
           end
@@ -243,7 +243,7 @@ describe Projects::BranchesController do
       end
 
       context 'when create branch service fails' do
-        let(:branch) { "./invalid-branch-name" }
+        let(:branch) { './invalid-branch-name' }
 
         it "doesn't post a system note" do
           expect(SystemNoteService).not_to receive(:new_issue_branch)
@@ -319,7 +319,7 @@ describe Projects::BranchesController do
     end
   end
 
-  describe "POST destroy with HTML format" do
+  describe 'POST destroy with HTML format' do
     render_views
 
     before do
@@ -339,7 +339,7 @@ describe Projects::BranchesController do
     end
   end
 
-  describe "POST destroy" do
+  describe 'POST destroy' do
     render_views
 
     before do
@@ -355,32 +355,32 @@ describe Projects::BranchesController do
     end
 
     context 'as JS' do
-      let(:branch) { "feature" }
+      let(:branch) { 'feature' }
       let(:format) { :js }
 
-      context "valid branch name, valid source" do
-        let(:branch) { "feature" }
+      context 'valid branch name, valid source' do
+        let(:branch) { 'feature' }
 
         it { expect(response).to have_gitlab_http_status(200) }
         it { expect(response.body).to be_blank }
       end
 
-      context "valid branch name with unencoded slashes" do
-        let(:branch) { "improve/awesome" }
+      context 'valid branch name with unencoded slashes' do
+        let(:branch) { 'improve/awesome' }
 
         it { expect(response).to have_gitlab_http_status(200) }
         it { expect(response.body).to be_blank }
       end
 
-      context "valid branch name with encoded slashes" do
-        let(:branch) { "improve%2Fawesome" }
+      context 'valid branch name with encoded slashes' do
+        let(:branch) { 'improve%2Fawesome' }
 
         it { expect(response).to have_gitlab_http_status(200) }
         it { expect(response.body).to be_blank }
       end
 
-      context "invalid branch name, valid ref" do
-        let(:branch) { "no-branch" }
+      context 'invalid branch name, valid ref' do
+        let(:branch) { 'no-branch' }
 
         it { expect(response).to have_gitlab_http_status(404) }
         it { expect(response.body).to be_blank }
@@ -388,21 +388,11 @@ describe Projects::BranchesController do
     end
 
     context 'as JSON' do
-      let(:branch) { "feature" }
+      let(:branch) { 'feature' }
       let(:format) { :json }
 
       context 'valid branch name, valid source' do
-        let(:branch) { "feature" }
-
-        it 'returns JSON response with message' do
-          expect(json_response).to eql("message" => 'Branch was deleted')
-        end
-
-        it { expect(response).to have_gitlab_http_status(200) }
-      end
-
-      context 'valid branch name with unencoded slashes' do
-        let(:branch) { "improve/awesome" }
+        let(:branch) { 'feature' }
 
         it 'returns JSON response with message' do
           expect(json_response).to eql('message' => 'Branch was deleted')
@@ -411,7 +401,17 @@ describe Projects::BranchesController do
         it { expect(response).to have_gitlab_http_status(200) }
       end
 
-      context "valid branch name with encoded slashes" do
+      context 'valid branch name with unencoded slashes' do
+        let(:branch) { 'improve/awesome' }
+
+        it 'returns JSON response with message' do
+          expect(json_response).to eql('message' => 'Branch was deleted')
+        end
+
+        it { expect(response).to have_gitlab_http_status(200) }
+      end
+
+      context 'valid branch name with encoded slashes' do
         let(:branch) { 'improve%2Fawesome' }
 
         it 'returns JSON response with message' do
@@ -433,7 +433,7 @@ describe Projects::BranchesController do
     end
 
     context 'as HTML' do
-      let(:branch) { "feature" }
+      let(:branch) { 'feature' }
       let(:format) { :html }
 
       it 'redirects to branches path' do
@@ -443,7 +443,7 @@ describe Projects::BranchesController do
     end
   end
 
-  describe "DELETE destroy_all_merged" do
+  describe 'DELETE destroy_all_merged' do
     def destroy_all_merged
       delete :destroy_all_merged,
              params: {
@@ -483,7 +483,7 @@ describe Projects::BranchesController do
     end
   end
 
-  describe "GET index" do
+  describe 'GET index' do
     render_views
 
     before do
@@ -596,9 +596,9 @@ describe Projects::BranchesController do
 
       expect(response).to have_gitlab_http_status(200)
       expect(json_response).to eq(
-        "fix" => { "behind" => 29, "ahead" => 2 },
-        "branch-merged" => { "behind" => 1, "ahead" => 0 },
-        "add-pdf-file" => { "behind" => 0, "ahead" => 3 }
+        'fix' => { 'behind' => 29, 'ahead' => 2 },
+        'branch-merged' => { 'behind' => 1, 'ahead' => 0 },
+        'add-pdf-file' => { 'behind' => 0, 'ahead' => 3 }
       )
     end
 

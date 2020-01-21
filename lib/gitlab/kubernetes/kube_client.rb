@@ -179,7 +179,7 @@ module Gitlab
         url = URI.parse(api_prefix)
         prefix = url.path.sub(%r{/+\z}, '')
 
-        url.path = [prefix, api_path].join("/")
+        url.path = [prefix, api_path].join('/')
 
         url.to_s
       end

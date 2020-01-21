@@ -21,7 +21,7 @@ describe EE::IpRestrictions::UpdateService do
 
         it 'builds new ip_restriction records with the provided ranges' do
           expect { subject }
-            .to(change { group.ip_restrictions.map(&:range) }.from([]).to(comma_separated_ranges.split(",")))
+            .to(change { group.ip_restrictions.map(&:range) }.from([]).to(comma_separated_ranges.split(',')))
         end
       end
     end
@@ -65,7 +65,7 @@ describe EE::IpRestrictions::UpdateService do
             it 'builds new ip_restriction records with all of the specified ranges' do
               newly_built_ip_restriction_records = group.ip_restrictions.select { |ip_restriction| ip_restriction.id.nil? }
 
-              expect(newly_built_ip_restriction_records.map(&:range)).to eq(comma_separated_ranges.split(","))
+              expect(newly_built_ip_restriction_records.map(&:range)).to eq(comma_separated_ranges.split(','))
             end
           end
 
@@ -77,7 +77,7 @@ describe EE::IpRestrictions::UpdateService do
             it 'builds new ip_restriction records with only the unique ranges in the specified ranges' do
               newly_built_ip_restriction_records = group.ip_restrictions.select { |ip_restriction| ip_restriction.id.nil? }
 
-              expect(newly_built_ip_restriction_records.map(&:range)).to eq(comma_separated_ranges.split(",").uniq)
+              expect(newly_built_ip_restriction_records.map(&:range)).to eq(comma_separated_ranges.split(',').uniq)
             end
           end
         end

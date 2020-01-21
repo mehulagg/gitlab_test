@@ -152,7 +152,7 @@ describe Feature do
     it 'caches the status in L1 and L2 caches',
        :request_store, :use_clean_rails_memory_store_caching do
       described_class.enable(:enabled_feature_flag)
-      flipper_key = "flipper/v1/feature/enabled_feature_flag"
+      flipper_key = 'flipper/v1/feature/enabled_feature_flag'
 
       expect(described_class.l2_cache_backend)
         .to receive(:fetch)
@@ -173,7 +173,7 @@ describe Feature do
 
     it 'returns the default value when the database does not exist' do
       fake_default = double('fake default')
-      expect(ActiveRecord::Base).to receive(:connection) { raise ActiveRecord::NoDatabaseError, "No database" }
+      expect(ActiveRecord::Base).to receive(:connection) { raise ActiveRecord::NoDatabaseError, 'No database' }
 
       expect(described_class.enabled?(:a_feature, default_enabled: fake_default)).to eq(fake_default)
     end

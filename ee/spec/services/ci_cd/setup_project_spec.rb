@@ -48,7 +48,7 @@ describe CiCd::SetupProject do
 
   describe '#setup_external_service' do
     context 'when import_type is missing' do
-      it "does not invoke the service class" do
+      it 'does not invoke the service class' do
         project.update_attribute(:import_type, nil)
 
         expect(CiCd::GithubSetupService).not_to receive(:new)
@@ -58,7 +58,7 @@ describe CiCd::SetupProject do
     end
 
     context "when importer doesn't require extra setup" do
-      it "does not invoke the service class" do
+      it 'does not invoke the service class' do
         allow(Gitlab::GithubImport::ParallelImporter).to receive(:requires_ci_cd_setup?).and_return(false)
 
         expect(CiCd::GithubSetupService).not_to receive(:new)

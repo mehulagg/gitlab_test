@@ -4,7 +4,7 @@ module Mattermost
   class Team < Client
     # Returns all teams that the current user is a member of
     def all
-      session_get("/api/v4/users/me/teams")
+      session_get('/api/v4/users/me/teams')
     end
 
     # Creates a team on the linked Mattermost instance, the team admin will be the

@@ -30,7 +30,7 @@ describe Dashboard::MilestonesController do
 
   it_behaves_like 'milestone tabs'
 
-  describe "#show" do
+  describe '#show' do
     render_views
 
     def view_milestone
@@ -44,7 +44,7 @@ describe Dashboard::MilestonesController do
     end
   end
 
-  describe "#index" do
+  describe '#index' do
     let(:public_group) { create(:group, :public) }
     let!(:public_milestone) { create(:milestone, group: public_group) }
     let!(:closed_group_milestone) { create(:milestone, group: group, state: 'closed') }
@@ -57,8 +57,8 @@ describe Dashboard::MilestonesController do
 
       expect(response).to have_gitlab_http_status(200)
       expect(json_response.size).to eq(2)
-      expect(json_response.map { |i| i["name"] }).to match_array([group_milestone.name, project_milestone.name])
-      expect(json_response.map { |i| i["group_name"] }.compact).to match_array(group.name)
+      expect(json_response.map { |i| i['name'] }).to match_array([group_milestone.name, project_milestone.name])
+      expect(json_response.map { |i| i['group_name'] }.compact).to match_array(group.name)
     end
 
     it 'returns closed group and project milestones to which the user belongs' do
@@ -66,8 +66,8 @@ describe Dashboard::MilestonesController do
 
       expect(response).to have_gitlab_http_status(200)
       expect(json_response.size).to eq(2)
-      expect(json_response.map { |i| i["name"] }).to match_array([closed_group_milestone.name, closed_project_milestone.name])
-      expect(json_response.map { |i| i["group_name"] }.compact).to match_array(group.name)
+      expect(json_response.map { |i| i['name'] }).to match_array([closed_group_milestone.name, closed_project_milestone.name])
+      expect(json_response.map { |i| i['group_name'] }.compact).to match_array(group.name)
     end
 
     it 'searches legacy project milestones by title when search_title is given' do

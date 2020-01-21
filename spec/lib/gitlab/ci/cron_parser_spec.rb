@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Gitlab::Ci::CronParser do
-  shared_examples_for "returns time in the future" do
+  shared_examples_for 'returns time in the future' do
     it { is_expected.to be > Time.now }
   end
 
@@ -15,7 +15,7 @@ describe Gitlab::Ci::CronParser do
         let(:cron) { '3 4 5 6 *' }
         let(:cron_timezone) { 'UTC' }
 
-        it_behaves_like "returns time in the future"
+        it_behaves_like 'returns time in the future'
 
         it 'returns exact time' do
           expect(subject.min).to eq(3)
@@ -29,7 +29,7 @@ describe Gitlab::Ci::CronParser do
         let(:cron) { '* * * * 0' }
         let(:cron_timezone) { 'UTC' }
 
-        it_behaves_like "returns time in the future"
+        it_behaves_like 'returns time in the future'
 
         it 'returns exact day of week' do
           expect(subject.wday).to eq(0)
@@ -40,7 +40,7 @@ describe Gitlab::Ci::CronParser do
         let(:cron) { '*/10 */6 */10 */10 *' }
         let(:cron_timezone) { 'UTC' }
 
-        it_behaves_like "returns time in the future"
+        it_behaves_like 'returns time in the future'
 
         it 'returns specific time' do
           expect(subject.min).to be_in([0, 10, 20, 30, 40, 50])
@@ -54,7 +54,7 @@ describe Gitlab::Ci::CronParser do
         let(:cron) { '0,20,40 * 1-5 * *' }
         let(:cron_timezone) { 'UTC' }
 
-        it_behaves_like "returns time in the future"
+        it_behaves_like 'returns time in the future'
 
         it 'returns specific time' do
           expect(subject.min).to be_in([0, 20, 40])
@@ -77,7 +77,7 @@ describe Gitlab::Ci::CronParser do
           let(:cron) { '* 0 * * *' }
           let(:cron_timezone) { 'US/Pacific' }
 
-          it_behaves_like "returns time in the future"
+          it_behaves_like 'returns time in the future'
 
           context 'when PST (Pacific Standard Time)' do
             it 'converts time in server time zone' do
@@ -112,7 +112,7 @@ describe Gitlab::Ci::CronParser do
           let(:cron) { '* 0 * * *' }
           let(:cron_timezone) { 'Berlin' }
 
-          it_behaves_like "returns time in the future"
+          it_behaves_like 'returns time in the future'
 
           context 'when CET (Central European Time)' do
             it 'converts time in server time zone' do
@@ -135,7 +135,7 @@ describe Gitlab::Ci::CronParser do
           let(:cron) { '* 0 * * *' }
           let(:cron_timezone) { 'Eastern Time (US & Canada)' }
 
-          it_behaves_like "returns time in the future"
+          it_behaves_like 'returns time in the future'
 
           context 'when EST (Eastern Standard Time)' do
             it 'converts time in server time zone' do

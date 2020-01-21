@@ -10,15 +10,15 @@ describe GlobalPolicy do
 
   subject { described_class.new(current_user, [user]) }
 
-  describe "reading the list of users" do
-    context "for a logged in user" do
+  describe 'reading the list of users' do
+    context 'for a logged in user' do
       it { is_expected.to be_allowed(:read_users_list) }
     end
 
-    context "for an anonymous user" do
+    context 'for an anonymous user' do
       let(:current_user) { nil }
 
-      context "when the public level is restricted" do
+      context 'when the public level is restricted' do
         before do
           stub_application_setting(restricted_visibility_levels: [Gitlab::VisibilityLevel::PUBLIC])
         end
@@ -26,7 +26,7 @@ describe GlobalPolicy do
         it { is_expected.not_to be_allowed(:read_users_list) }
       end
 
-      context "when the public level is not restricted" do
+      context 'when the public level is not restricted' do
         before do
           stub_application_setting(restricted_visibility_levels: [])
         end
@@ -35,10 +35,10 @@ describe GlobalPolicy do
       end
     end
 
-    context "for an admin" do
+    context 'for an admin' do
       let(:current_user) { create(:admin) }
 
-      context "when the public level is restricted" do
+      context 'when the public level is restricted' do
         before do
           stub_application_setting(restricted_visibility_levels: [Gitlab::VisibilityLevel::PUBLIC])
         end
@@ -46,7 +46,7 @@ describe GlobalPolicy do
         it { is_expected.to be_allowed(:read_users_list) }
       end
 
-      context "when the public level is not restricted" do
+      context 'when the public level is not restricted' do
         before do
           stub_application_setting(restricted_visibility_levels: [])
         end
@@ -56,18 +56,18 @@ describe GlobalPolicy do
     end
   end
 
-  describe "create fork" do
-    context "when user has not exceeded project limit" do
+  describe 'create fork' do
+    context 'when user has not exceeded project limit' do
       it { is_expected.to be_allowed(:create_fork) }
     end
 
-    context "when user has exceeded project limit" do
+    context 'when user has exceeded project limit' do
       let(:current_user) { create(:user, projects_limit: 0) }
 
       it { is_expected.not_to be_allowed(:create_fork) }
     end
 
-    context "when user is a maintainer in a group" do
+    context 'when user is a maintainer in a group' do
       let(:group) { create(:group) }
       let(:current_user) { create(:user, projects_limit: 0) }
 

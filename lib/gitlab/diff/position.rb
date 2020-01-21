@@ -166,7 +166,7 @@ module Gitlab
       end
 
       def get_formatter_class(type)
-        type ||= "text"
+        type ||= 'text'
 
         case type
         when 'image'

@@ -192,7 +192,7 @@ describe Admin::UsersController do
 
   describe 'PUT unlock/:id' do
     before do
-      request.env["HTTP_REFERER"] = "/"
+      request.env['HTTP_REFERER'] = '/'
       user.lock_access!
     end
 
@@ -207,7 +207,7 @@ describe Admin::UsersController do
     let(:user) { create(:user, confirmed_at: nil) }
 
     before do
-      request.env["HTTP_REFERER"] = "/"
+      request.env['HTTP_REFERER'] = '/'
     end
 
     it 'confirms user' do
@@ -340,13 +340,13 @@ describe Admin::UsersController do
     end
   end
 
-  describe "POST impersonate" do
-    context "when the user is blocked" do
+  describe 'POST impersonate' do
+    context 'when the user is blocked' do
       before do
         user.block!
       end
 
-      it "shows a notice" do
+      it 'shows a notice' do
         post :impersonate, params: { id: user.username }
 
         expect(flash[:alert]).to eq(_('You cannot impersonate a blocked user'))
@@ -359,14 +359,14 @@ describe Admin::UsersController do
       end
     end
 
-    context "when the user is not blocked" do
-      it "stores the impersonator in the session" do
+    context 'when the user is not blocked' do
+      it 'stores the impersonator in the session' do
         post :impersonate, params: { id: user.username }
 
         expect(session[:impersonator_id]).to eq(admin.id)
       end
 
-      it "signs us in as the user" do
+      it 'signs us in as the user' do
         post :impersonate, params: { id: user.username }
 
         expect(warden.user).to eq(user)
@@ -378,25 +378,25 @@ describe Admin::UsersController do
         post :impersonate, params: { id: user.username }
       end
 
-      it "redirects to root" do
+      it 'redirects to root' do
         post :impersonate, params: { id: user.username }
 
         expect(response).to redirect_to(root_path)
       end
 
-      it "shows a notice" do
+      it 'shows a notice' do
         post :impersonate, params: { id: user.username }
 
         expect(flash[:alert]).to eq("You are now impersonating #{user.username}")
       end
     end
 
-    context "when impersonation is disabled" do
+    context 'when impersonation is disabled' do
       before do
         stub_config_setting(impersonation_enabled: false)
       end
 
-      it "shows error page" do
+      it 'shows error page' do
         post :impersonate, params: { id: user.username }
 
         expect(response).to have_gitlab_http_status(404)

@@ -168,7 +168,7 @@ describe Gitlab::BackgroundMigration::MigrateApproverToApprovalRules do
       end
 
       context 'when approvals_before_merge is too big' do
-        it "caps at allowed maximum" do
+        it 'caps at allowed maximum' do
           target.target_project.update(approvals_before_merge: ::ApprovalRuleLike::APPROVALS_REQUIRED_MAX + 1)
           target.update(approvals_before_merge: nil)
           create_member_in(create(:user), :old_schema)
@@ -271,7 +271,7 @@ describe Gitlab::BackgroundMigration::MigrateApproverToApprovalRules do
     let(:target) { create(:project) }
     let(:target_type) { 'Project' }
 
-    it "does not err" do
+    it 'does not err' do
       target.destroy
 
       expect do
@@ -285,7 +285,7 @@ describe Gitlab::BackgroundMigration::MigrateApproverToApprovalRules do
     let(:target) { create(:merge_request, target_project: project_without_repository, source_project: project_without_repository) }
     let(:target_type) { 'MergeRequest' }
 
-    it "does not err" do
+    it 'does not err' do
       expect do
         described_class.new.perform(target_type, target.id)
       end.not_to raise_error

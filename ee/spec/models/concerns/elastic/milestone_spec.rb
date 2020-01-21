@@ -16,7 +16,7 @@ describe Milestone, :elastic do
     end
   end
 
-  it "searches milestones", :sidekiq_might_not_need_inline do
+  it 'searches milestones', :sidekiq_might_not_need_inline do
     project = create :project
 
     Sidekiq::Testing.inline! do
@@ -36,7 +36,7 @@ describe Milestone, :elastic do
     expect(described_class.elastic_search('bla-bla', options: { project_ids: :any }).total_count).to eq(3)
   end
 
-  it "returns json with all needed elements" do
+  it 'returns json with all needed elements' do
     milestone = create :milestone
 
     expected_hash = milestone.attributes.extract!(

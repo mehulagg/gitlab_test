@@ -164,9 +164,9 @@ class ProjectWiki
   def page_title_and_dir(title)
     return unless title
 
-    title_array = title.split("/")
+    title_array = title.split('/')
     title = title_array.pop
-    [title, title_array.join("/")]
+    [title, title_array.join('/')]
   end
 
   def repository

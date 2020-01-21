@@ -28,7 +28,7 @@ class ChatNotificationService < Service
     if properties.nil?
       self.properties = {}
       self.notify_only_broken_pipelines = true
-      self.branches_to_be_notified = "default"
+      self.branches_to_be_notified = 'default'
     elsif !self.notify_only_default_branch.nil?
       # In older versions, there was only a boolean property named
       # `notify_only_default_branch`. Now we have a string property named
@@ -37,7 +37,7 @@ class ChatNotificationService < Service
       # users hasn't specified one already. When users edit the service and
       # selects a value for this new property, it will override everything.
 
-      self.branches_to_be_notified ||= notify_only_default_branch? ? "default" : "all"
+      self.branches_to_be_notified ||= notify_only_default_branch? ? 'default' : 'all'
     end
   end
 
@@ -124,19 +124,19 @@ class ChatNotificationService < Service
 
   def get_message(object_kind, data)
     case object_kind
-    when "push", "tag_push"
+    when 'push', 'tag_push'
       ChatMessage::PushMessage.new(data) if notify_for_ref?(data)
-    when "issue"
+    when 'issue'
       ChatMessage::IssueMessage.new(data) unless update?(data)
-    when "merge_request"
+    when 'merge_request'
       ChatMessage::MergeMessage.new(data) unless update?(data)
-    when "note"
+    when 'note'
       ChatMessage::NoteMessage.new(data)
-    when "pipeline"
+    when 'pipeline'
       ChatMessage::PipelineMessage.new(data) if should_pipeline_be_notified?(data)
-    when "wiki_page"
+    when 'wiki_page'
       ChatMessage::WikiPageMessage.new(data)
-    when "deployment"
+    when 'deployment'
       ChatMessage::DeploymentMessage.new(data)
     end
   end

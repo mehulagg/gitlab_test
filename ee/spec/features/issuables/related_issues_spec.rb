@@ -392,7 +392,7 @@ describe 'Related issues', :js do
 
         it 'add invalid related issue' do
           find('.js-issue-count-badge-add-button').click
-          find('.js-add-issuable-form-input').set "#9999999 "
+          find('.js-add-issuable-form-input').set '#9999999 '
           find('.js-add-issuable-form-add-button').click
 
           wait_for_requests
@@ -439,14 +439,14 @@ describe 'Related issues', :js do
 
         context 'when adding a "relates_to" issue' do
           before do
-            add_linked_issue(issue_b, "relates_to")
+            add_linked_issue(issue_b, 'relates_to')
           end
 
           it 'shows "Relates to" heading' do
             headings = all('.linked-issues-card-body h4')
 
             expect(headings.count).to eq(1)
-            expect(headings[0].text).to eq("Relates to")
+            expect(headings[0].text).to eq('Relates to')
           end
 
           it 'shows the added issue' do
@@ -459,14 +459,14 @@ describe 'Related issues', :js do
 
         context 'when adding a "blocks" issue' do
           before do
-            add_linked_issue(issue_b, "blocks")
+            add_linked_issue(issue_b, 'blocks')
           end
 
           it 'shows "Blocks" heading' do
             headings = all('.linked-issues-card-body h4')
 
             expect(headings.count).to eq(1)
-            expect(headings[0].text).to eq("Blocks")
+            expect(headings[0].text).to eq('Blocks')
           end
 
           it 'shows the added issue' do
@@ -479,14 +479,14 @@ describe 'Related issues', :js do
 
         context 'when adding an "is_blocked_by" issue' do
           before do
-            add_linked_issue(issue_b, "is_blocked_by")
+            add_linked_issue(issue_b, 'is_blocked_by')
           end
 
           it 'shows "Is blocked by" heading' do
             headings = all('.linked-issues-card-body h4')
 
             expect(headings.count).to eq(1)
-            expect(headings[0].text).to eq("Is blocked by")
+            expect(headings[0].text).to eq('Is blocked by')
           end
 
           it 'shows the added issue' do
@@ -499,18 +499,18 @@ describe 'Related issues', :js do
 
         context 'when adding "relates_to", "blocks", and "is_blocked_by" issues' do
           before do
-            add_linked_issue(issue_b, "relates_to")
-            add_linked_issue(issue_c, "blocks")
-            add_linked_issue(issue_d, "is_blocked_by")
+            add_linked_issue(issue_b, 'relates_to')
+            add_linked_issue(issue_c, 'blocks')
+            add_linked_issue(issue_d, 'is_blocked_by')
           end
 
           it 'shows "Blocks", "Is blocked by", and "Relates to" headings' do
             headings = all('.linked-issues-card-body h4')
 
             expect(headings.count).to eq(3)
-            expect(headings[0].text).to eq("Blocks")
-            expect(headings[1].text).to eq("Is blocked by")
-            expect(headings[2].text).to eq("Relates to")
+            expect(headings[0].text).to eq('Blocks')
+            expect(headings[1].text).to eq('Is blocked by')
+            expect(headings[2].text).to eq('Relates to')
           end
 
           it 'shows all added issues' do

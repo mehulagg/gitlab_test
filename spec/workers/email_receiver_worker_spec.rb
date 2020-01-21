@@ -1,23 +1,23 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe EmailReceiverWorker, :mailer do
   let(:raw_message) { fixture_file('emails/valid_reply.eml') }
 
-  context "when reply by email is enabled" do
+  context 'when reply by email is enabled' do
     before do
       allow(Gitlab::IncomingEmail).to receive(:enabled?).and_return(true)
     end
 
-    it "calls the email receiver" do
+    it 'calls the email receiver' do
       expect(Gitlab::Email::Receiver).to receive(:new).with(raw_message).and_call_original
       expect_any_instance_of(Gitlab::Email::Receiver).to receive(:execute)
 
       described_class.new.perform(raw_message)
     end
 
-    context "when an error occurs" do
+    context 'when an error occurs' do
       before do
         allow_any_instance_of(Gitlab::Email::Receiver).to receive(:execute).and_raise(error)
       end
@@ -32,8 +32,8 @@ describe EmailReceiverWorker, :mailer do
 
           email = ActionMailer::Base.deliveries.last
           expect(email).not_to be_nil
-          expect(email.to).to eq(["jake@adventuretime.ooo"])
-          expect(email.subject).to include("Rejected")
+          expect(email.to).to eq(['jake@adventuretime.ooo'])
+          expect(email.subject).to include('Rejected')
         end
       end
 
@@ -50,7 +50,7 @@ describe EmailReceiverWorker, :mailer do
       end
 
       context 'when the error is Gitlab::Email::InvalidAttachment' do
-        let(:error) { Gitlab::Email::InvalidAttachment.new("Could not deal with that") }
+        let(:error) { Gitlab::Email::InvalidAttachment.new('Could not deal with that') }
 
         it 'reports the error to the sender' do
           perform_enqueued_jobs do
@@ -59,14 +59,14 @@ describe EmailReceiverWorker, :mailer do
 
           email = ActionMailer::Base.deliveries.last
           expect(email).not_to be_nil
-          expect(email.to).to eq(["jake@adventuretime.ooo"])
-          expect(email.body.parts.last.to_s).to include("Could not deal with that")
+          expect(email.to).to eq(['jake@adventuretime.ooo'])
+          expect(email.body.parts.last.to_s).to include('Could not deal with that')
         end
       end
     end
   end
 
-  context "when reply by email is disabled" do
+  context 'when reply by email is disabled' do
     before do
       allow(Gitlab::IncomingEmail).to receive(:enabled?).and_return(false)
     end

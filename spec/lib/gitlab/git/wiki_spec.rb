@@ -115,6 +115,6 @@ describe Gitlab::Git::Wiki do
 
   def destroy_page(title, dir = '')
     page = wiki.page(title: title, dir: dir)
-    project_wiki.delete_page(page, "test commit")
+    project_wiki.delete_page(page, 'test commit')
   end
 end

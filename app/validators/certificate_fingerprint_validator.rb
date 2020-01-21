@@ -5,7 +5,7 @@ class CertificateFingerprintValidator < ActiveModel::EachValidator
 
   def validate_each(record, attribute, value)
     unless value.try(:match, FINGERPRINT_PATTERN)
-      record.errors.add(attribute, "must be a hash containing only letters, numbers, spaces, : and -")
+      record.errors.add(attribute, 'must be a hash containing only letters, numbers, spaces, : and -')
     end
   end
 end

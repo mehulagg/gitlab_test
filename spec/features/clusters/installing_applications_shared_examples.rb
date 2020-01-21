@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-shared_examples "installing applications on a cluster" do
+shared_examples 'installing applications on a cluster' do
   before do
     visit cluster_path
   end
@@ -97,7 +97,7 @@ shared_examples "installing applications on a cluster" do
             page.within('.js-cluster-application-row-knative') do
               expect(page).to have_css('.js-cluster-application-install-button:not([disabled])')
 
-              page.find('.js-knative-domainname').set("domain.example.org")
+              page.find('.js-knative-domainname').set('domain.example.org')
 
               click_button 'Install'
 
@@ -127,7 +127,7 @@ shared_examples "installing applications on a cluster" do
 
               expect(domainname_form_value).to eq('domain.example.org')
 
-              page.find('.js-knative-domainname').set("new.domain.example.org")
+              page.find('.js-knative-domainname').set('new.domain.example.org')
 
               click_button 'Save changes'
 
@@ -162,7 +162,7 @@ shared_examples "installing applications on a cluster" do
           expect(email_form_value).to eq(cluster.user.email)
           expect(page).to have_css('.js-cluster-application-install-button', exact_text: 'Installing')
 
-          page.find('.js-email').set("new_email@example.org")
+          page.find('.js-email').set('new_email@example.org')
           Clusters::Cluster.last.application_cert_manager.make_installing!
 
           expect(email_form_value).to eq('new_email@example.org')

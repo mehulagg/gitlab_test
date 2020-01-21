@@ -93,7 +93,7 @@ describe SubmoduleHelper do
     end
 
     context 'in-repository submodule' do
-      let(:group) { create(:group, name: "Master Project", path: "master-project") }
+      let(:group) { create(:group, name: 'Master Project', path: 'master-project') }
       let(:project) { create(:project, group: group) }
 
       it 'in-repository' do
@@ -163,7 +163,7 @@ describe SubmoduleHelper do
     end
 
     context 'submodules with relative links' do
-      let(:group) { create(:group, name: "top group", path: "top-group") }
+      let(:group) { create(:group, name: 'top group', path: 'top-group') }
       let(:project) { create(:project, group: group) }
       let(:repo) { double(:repo, project: project) }
 
@@ -183,7 +183,7 @@ describe SubmoduleHelper do
       end
 
       it 'handles project under another top group' do
-        expect_relative_link_to_resolve_to('../../baz/test.git ', "/baz/test")
+        expect_relative_link_to_resolve_to('../../baz/test.git ', '/baz/test')
       end
 
       context 'repo path resolves to be located at root (namespace absent)' do
@@ -207,7 +207,7 @@ describe SubmoduleHelper do
       end
 
       context 'subgroup' do
-        let(:sub_group) { create(:group, parent: group, name: "sub group", path: "sub-group") }
+        let(:sub_group) { create(:group, parent: group, name: 'sub group', path: 'sub-group') }
         let(:sub_project) { create(:project, group: sub_group) }
 
         context 'project in sub group' do
@@ -219,11 +219,11 @@ describe SubmoduleHelper do
         end
 
         it "handles referencing descendent group's project" do
-          expect_relative_link_to_resolve_to('../sub-group/test.git', "/top-group/sub-group/test")
+          expect_relative_link_to_resolve_to('../sub-group/test.git', '/top-group/sub-group/test')
         end
 
         it "handles referencing another top group's project" do
-          expect_relative_link_to_resolve_to('../../frontend/css/test.git', "/frontend/css/test")
+          expect_relative_link_to_resolve_to('../../frontend/css/test.git', '/frontend/css/test')
         end
       end
 

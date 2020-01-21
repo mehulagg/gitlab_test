@@ -123,7 +123,7 @@ describe Groups::ClustersController do
         get_cluster_environments
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(response.headers['Poll-Interval']).to eq("5000")
+        expect(response.headers['Poll-Interval']).to eq('5000')
       end
     end
 

@@ -4,18 +4,18 @@ require 'spec_helper'
 
 describe Groups::CreateService, '#execute' do
   let!(:user) { create(:user) }
-  let!(:group_params) { { path: "group_path", visibility_level: Gitlab::VisibilityLevel::PUBLIC } }
+  let!(:group_params) { { path: 'group_path', visibility_level: Gitlab::VisibilityLevel::PUBLIC } }
 
   subject { service.execute }
 
   describe 'visibility level restrictions' do
     let!(:service) { described_class.new(user, group_params) }
 
-    context "create groups without restricted visibility level" do
+    context 'create groups without restricted visibility level' do
       it { is_expected.to be_persisted }
     end
 
-    context "cannot create group with restricted visibility level" do
+    context 'cannot create group with restricted visibility level' do
       before do
         allow_any_instance_of(ApplicationSetting).to receive(:restricted_visibility_levels).and_return([Gitlab::VisibilityLevel::PUBLIC])
       end
@@ -82,11 +82,11 @@ describe Groups::CreateService, '#execute' do
     end
   end
 
-  describe "when visibility level is passed as a string" do
+  describe 'when visibility level is passed as a string' do
     let(:service) { described_class.new(user, group_params) }
     let(:group_params) { { path: 'group_path', visibility: 'public' } }
 
-    it "assigns the correct visibility level" do
+    it 'assigns the correct visibility level' do
       group = service.execute
 
       expect(group.visibility_level).to eq(Gitlab::VisibilityLevel::PUBLIC)
@@ -94,7 +94,7 @@ describe Groups::CreateService, '#execute' do
   end
 
   describe 'creating a mattermost team' do
-    let!(:params) { group_params.merge(create_chat_team: "true") }
+    let!(:params) { group_params.merge(create_chat_team: 'true') }
     let!(:service) { described_class.new(user, params) }
 
     before do

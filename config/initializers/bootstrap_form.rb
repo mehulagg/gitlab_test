@@ -1,6 +1,6 @@
 module BootstrapFormBuilderCustomization
   def label_class
-    "label-bold"
+    'label-bold'
   end
 end
 

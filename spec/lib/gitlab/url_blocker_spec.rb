@@ -396,7 +396,7 @@ describe Gitlab::UrlBlocker do
             it_behaves_like 'allows local requests', { allow_localhost: false, allow_local_network: false }
 
             it 'whitelists IP when dns_rebind_protection is disabled' do
-              url = "http://example.com"
+              url = 'http://example.com'
               attrs = url_blocker_attributes.merge(dns_rebind_protection: false)
 
               stub_domain_resolv('example.com', '192.168.1.2') do
@@ -546,10 +546,10 @@ describe Gitlab::UrlBlocker do
             end
 
             it 'blocks IPs outside the range' do
-              expect(described_class).to be_blocked_url("http://[fd84:6d02:f6d8:c89e:0:0:1:f]",
+              expect(described_class).to be_blocked_url('http://[fd84:6d02:f6d8:c89e:0:0:1:f]',
                 url_blocker_attributes)
 
-              expect(described_class).to be_blocked_url("http://127.0.1.15",
+              expect(described_class).to be_blocked_url('http://127.0.1.15',
                 url_blocker_attributes)
             end
           end

@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Gitlab::DatabaseImporters::CommonMetrics::Importer do
   subject { described_class.new }
 
-  context "does import common_metrics.yml" do
+  context 'does import common_metrics.yml' do
     let(:groups) { subject.content['panel_groups'] }
     let(:panels) { groups.flat_map { |group| group['panels'] } }
     let(:metrics) { panels.flat_map { |group| group['metrics'] } }
@@ -15,29 +15,29 @@ describe Gitlab::DatabaseImporters::CommonMetrics::Importer do
       subject.execute
     end
 
-    it "has the same amount of groups" do
+    it 'has the same amount of groups' do
       expect(PrometheusMetric.common.group(:group).count.count).to eq(groups.count)
     end
 
-    it "has the same amount of panels" do
+    it 'has the same amount of panels' do
       expect(PrometheusMetric.common.group(:group, :title).count.count).to eq(panels.count)
     end
 
-    it "has the same amount of metrics" do
+    it 'has the same amount of metrics' do
       expect(PrometheusMetric.common.count).to eq(metrics.count)
     end
 
-    it "does not have duplicate IDs" do
+    it 'does not have duplicate IDs' do
       expect(metric_ids).to eq(metric_ids.uniq)
     end
 
-    it "imports all IDs" do
+    it 'imports all IDs' do
       expect(PrometheusMetric.common.pluck(:identifier)).to contain_exactly(*metric_ids)
     end
   end
 
-  context "does import common_metrics.yml" do
-    it "when executed from outside of the Rails.root" do
+  context 'does import common_metrics.yml' do
+    it 'when executed from outside of the Rails.root' do
       Dir.chdir(Dir.tmpdir) do
         expect { subject.execute }.not_to raise_error
       end
@@ -53,8 +53,8 @@ describe Gitlab::DatabaseImporters::CommonMetrics::Importer do
         panel_groups: [{
           group: 'Response metrics (NGINX Ingress)',
           panels: [{
-            title: "Throughput",
-            y_label: "Requests / Sec",
+            title: 'Throughput',
+            y_label: 'Requests / Sec',
             metrics: [{
               id: query_identifier,
               query_range: 'my-query',

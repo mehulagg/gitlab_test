@@ -37,7 +37,7 @@ module EE
           params do
             requires :epic_iid, type: Integer, desc: 'The IID of an epic'
           end
-          post ":id/epics/:epic_iid/todo" do
+          post ':id/epics/:epic_iid/todo' do
             authorize_can_read!
             todo = ::TodoService.new.mark_todo(epic, current_user).first
 

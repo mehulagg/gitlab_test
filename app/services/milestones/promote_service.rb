@@ -85,7 +85,7 @@ module Milestones
     end
 
     def raise_error(message)
-      raise PromoteMilestoneError, s_("PromoteMilestone|Promotion failed - %{message}") % { message: message }
+      raise PromoteMilestoneError, s_('PromoteMilestone|Promotion failed - %{message}') % { message: message }
     end
   end
 end

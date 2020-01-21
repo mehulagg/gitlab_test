@@ -59,7 +59,7 @@ describe 'Admin Broadcast Messages' do
   end
 
   it 'updates a preview of a customized broadcast banner message', :js do
-    fill_in 'broadcast_message_message', with: "Live **Markdown** previews. :tada:"
+    fill_in 'broadcast_message_message', with: 'Live **Markdown** previews. :tada:'
 
     page.within('.js-broadcast-banner-message-preview') do
       expect(page).to have_selector('strong', text: 'Markdown')
@@ -68,7 +68,7 @@ describe 'Admin Broadcast Messages' do
   end
 
   it 'updates a preview of a customized broadcast notification message', :js do
-    fill_in 'broadcast_message_message', with: "Live **Markdown** previews. :tada:"
+    fill_in 'broadcast_message_message', with: 'Live **Markdown** previews. :tada:'
     select 'Notification', from: 'broadcast_message_broadcast_type'
 
     page.within('.js-broadcast-notification-message-preview') do

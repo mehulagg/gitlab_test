@@ -105,7 +105,7 @@ module NotesActions
 
   def note_html(note)
     render_to_string(
-      "shared/notes/_note",
+      'shared/notes/_note',
       layout: false,
       formats: [:html],
       locals: { note: note }
@@ -162,7 +162,7 @@ module NotesActions
     on_image = discussion.on_image?
 
     if params[:view] == 'parallel' && !on_image
-      template = "discussions/_parallel_diff_discussion"
+      template = 'discussions/_parallel_diff_discussion'
       locals =
         if params[:line_type] == 'old'
           { discussions_left: [discussion], discussions_right: nil }
@@ -170,7 +170,7 @@ module NotesActions
           { discussions_left: nil, discussions_right: [discussion] }
         end
     else
-      template = "discussions/_diff_discussion"
+      template = 'discussions/_diff_discussion'
       @fresh_discussion = true # rubocop:disable Gitlab/ModuleWithInstanceVariables
 
       locals = { discussions: [discussion], on_image: on_image }
@@ -188,7 +188,7 @@ module NotesActions
     return if discussion.individual_note?
 
     render_to_string(
-      "discussions/_discussion",
+      'discussions/_discussion',
       layout: false,
       formats: [:html],
       locals: { discussion: discussion }

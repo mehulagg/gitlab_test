@@ -561,7 +561,7 @@ describe GeoNode, :geo, type: :model do
     end
 
     it 'adds ?wiki=1 to the snapshot URL when the repository is a wiki' do
-      expect(new_node.snapshot_url(project.wiki.repository)).to eq(snapshot_url + "?wiki=1")
+      expect(new_node.snapshot_url(project.wiki.repository)).to eq(snapshot_url + '?wiki=1')
     end
   end
 

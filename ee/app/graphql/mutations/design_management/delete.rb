@@ -5,11 +5,11 @@ module Mutations
     class Delete < Base
       Errors = ::Gitlab::Graphql::Errors
 
-      graphql_name "DesignManagementDelete"
+      graphql_name 'DesignManagementDelete'
 
       argument :filenames, [GraphQL::STRING_TYPE],
                required: true,
-               description: "The filenames of the designs to delete",
+               description: 'The filenames of the designs to delete',
                prepare: ->(names, _ctx) do
                  names.presence || (raise Errors::ArgumentError, 'no filenames')
                end

@@ -72,7 +72,7 @@ class FeatureFlagStrategiesValidator < ActiveModel::EachValidator
 
   def user_with_id_parameters_validation(record, attribute, strategy)
     user_ids = strategy.dig('parameters', 'userIds')
-    unless user_ids.is_a?(String) && !user_ids.match(/[\n\r\t]|,,/) && valid_ids?(user_ids.split(","))
+    unless user_ids.is_a?(String) && !user_ids.match(/[\n\r\t]|,,/) && valid_ids?(user_ids.split(','))
       error(record, attribute, "userIds must be a string of unique comma separated values each #{USERID_MAX_LENGTH} characters or less")
     end
   end

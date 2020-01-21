@@ -44,10 +44,10 @@ RSpec.describe Gitlab::Insights::Finders::IssuableFinder do
     it 'raises an error for an invalid :period_limit option' do
       expect do
         find(build(:project), query: { issuable_type: 'issue', group_by: 'months', period_limit: 'many' })
-      end.to raise_error(described_class::InvalidPeriodLimitError, "Invalid `:period_limit` option: `many`. Expected an integer!")
+      end.to raise_error(described_class::InvalidPeriodLimitError, 'Invalid `:period_limit` option: `many`. Expected an integer!')
     end
 
-    shared_examples_for "insights issuable finder" do
+    shared_examples_for 'insights issuable finder' do
       let(:label_bug) { create(label_type, label_entity_association_key => entity, name: 'Bug') }
       let(:label_manage) { create(label_type, label_entity_association_key => entity, name: 'Manage') }
       let(:label_plan) { create(label_type, label_entity_association_key => entity, name: 'Plan') }
@@ -251,24 +251,24 @@ RSpec.describe Gitlab::Insights::Finders::IssuableFinder do
       let(:label_entity_association_key) { :group }
 
       context 'issues' do
-        include_examples "insights issuable finder" do
+        include_examples 'insights issuable finder' do
           let(:issuable_type) { 'issue' }
           let(:project_association_key) { :project }
         end
       end
 
       context 'merge requests' do
-        include_examples "insights issuable finder" do
+        include_examples 'insights issuable finder' do
           let(:issuable_type) { 'merge_request' }
           let(:project_association_key) { :source_project }
           let(:extra_issuable_attrs) do
             [
-              { source_branch: "add_images_and_changes" },
-              { source_branch: "improve/awesome" },
-              { source_branch: "feature_conflict" },
-              { source_branch: "markdown" },
-              { source_branch: "feature_one" },
-              { source_branch: "merged-target" }
+              { source_branch: 'add_images_and_changes' },
+              { source_branch: 'improve/awesome' },
+              { source_branch: 'feature_conflict' },
+              { source_branch: 'markdown' },
+              { source_branch: 'feature_one' },
+              { source_branch: 'merged-target' }
             ]
           end
         end
@@ -297,24 +297,24 @@ RSpec.describe Gitlab::Insights::Finders::IssuableFinder do
       let(:label_entity_association_key) { :project }
 
       context 'issues' do
-        include_examples "insights issuable finder" do
+        include_examples 'insights issuable finder' do
           let(:issuable_type) { 'issue' }
           let(:project_association_key) { :project }
         end
       end
 
       context 'merge requests' do
-        include_examples "insights issuable finder" do
+        include_examples 'insights issuable finder' do
           let(:issuable_type) { 'merge_request' }
           let(:project_association_key) { :source_project }
           let(:extra_issuable_attrs) do
             [
-              { source_branch: "add_images_and_changes" },
-              { source_branch: "improve/awesome" },
-              { source_branch: "feature_conflict" },
-              { source_branch: "markdown" },
-              { source_branch: "feature_one" },
-              { source_branch: "merged-target" }
+              { source_branch: 'add_images_and_changes' },
+              { source_branch: 'improve/awesome' },
+              { source_branch: 'feature_conflict' },
+              { source_branch: 'markdown' },
+              { source_branch: 'feature_one' },
+              { source_branch: 'merged-target' }
             ]
           end
         end
@@ -364,7 +364,7 @@ RSpec.describe Gitlab::Insights::Finders::IssuableFinder do
         let(:query) { base_query.merge!(period_limit: 'many') }
 
         it 'raises an error' do
-          expect { subject }.to raise_error(described_class::InvalidPeriodLimitError, "Invalid `:period_limit` option: `many`. Expected an integer!")
+          expect { subject }.to raise_error(described_class::InvalidPeriodLimitError, 'Invalid `:period_limit` option: `many`. Expected an integer!')
         end
       end
     end

@@ -103,7 +103,7 @@ describe ApplicationHelper do
     end
 
     it 'includes the date string' do
-      expect(element.text).to eq @time.strftime("%b %d, %Y")
+      expect(element.text).to eq @time.strftime('%b %d, %Y')
     end
 
     it 'has a datetime attribute' do

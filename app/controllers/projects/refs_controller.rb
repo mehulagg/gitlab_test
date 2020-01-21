@@ -16,19 +16,19 @@ class Projects::RefsController < Projects::ApplicationController
       format.html do
         new_path =
           case params[:destination]
-          when "tree"
+          when 'tree'
             project_tree_path(@project, @id)
-          when "blob"
+          when 'blob'
             project_blob_path(@project, @id)
-          when "graph"
+          when 'graph'
             project_network_path(@project, @id, @options)
-          when "graphs"
+          when 'graphs'
             project_graph_path(@project, @id)
-          when "find_file"
+          when 'find_file'
             project_find_file_path(@project, @id)
-          when "graphs_commits"
+          when 'graphs_commits'
             commits_project_graph_path(@project, @id)
-          when "badges"
+          when 'badges'
             project_settings_ci_cd_path(@project, ref: @id)
           else
             project_commits_path(@project, @id)
@@ -54,8 +54,8 @@ class Projects::RefsController < Projects::ApplicationController
     respond_to do |format|
       format.html { render_404 }
       format.json do
-        response.headers["More-Logs-Url"] = @more_log_url if summary.more?
-        response.headers["More-Logs-Offset"] = summary.next_offset if summary.more?
+        response.headers['More-Logs-Url'] = @more_log_url if summary.more?
+        response.headers['More-Logs-Offset'] = summary.next_offset if summary.more?
         render json: @logs
       end
 

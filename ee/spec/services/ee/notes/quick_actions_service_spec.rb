@@ -62,7 +62,7 @@ describe Notes::QuickActionsService do
   end
 
   describe '/remove_epic' do
-    let(:note_text) { "/remove_epic" }
+    let(:note_text) { '/remove_epic' }
     let(:note) { create(:note_on_issue, noteable: issue, project: project, note: note_text) }
 
     before do
@@ -108,7 +108,7 @@ describe Notes::QuickActionsService do
 
   describe 'Epics' do
     describe '/close' do
-      let(:note_text) { "/close" }
+      let(:note_text) { '/close' }
       let(:note) { create(:note, noteable: epic, note: note_text) }
 
       before do
@@ -137,7 +137,7 @@ describe Notes::QuickActionsService do
     end
 
     describe '/reopen' do
-      let(:note_text) { "/reopen" }
+      let(:note_text) { '/reopen' }
       let(:note) { create(:note, noteable: epic, note: note_text) }
 
       before do
@@ -170,7 +170,7 @@ describe Notes::QuickActionsService do
       let(:project) { nil }
       let!(:bug) { create(:group_label, title: 'bug', group: group)}
       let!(:project_label) { create(:label, title: 'project_label', project: create(:project, group: group))}
-      let(:note_text) { "/label ~bug ~project_label" }
+      let(:note_text) { '/label ~bug ~project_label' }
       let(:note) { create(:note, noteable: epic, note: note_text) }
 
       before do
@@ -202,7 +202,7 @@ describe Notes::QuickActionsService do
       let(:project) { nil }
       let!(:bug) { create(:group_label, title: 'bug', group: group)}
       let!(:feature) { create(:group_label, title: 'feature', group: group)}
-      let(:note_text) { "/unlabel ~bug" }
+      let(:note_text) { '/unlabel ~bug' }
       let(:note) { create(:note, noteable: epic, note: note_text) }
 
       before do

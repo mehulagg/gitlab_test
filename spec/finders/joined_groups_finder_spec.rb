@@ -25,14 +25,14 @@ describe JoinedGroupsFinder do
       end
     end
 
-    context "with a user" do
+    context 'with a user' do
       before do
         private_group.add_maintainer(profile_owner)
         internal_group.add_maintainer(profile_owner)
         public_group.add_maintainer(profile_owner)
       end
 
-      context "when the profile visitor is in the private group" do
+      context 'when the profile visitor is in the private group' do
         before do
           private_group.add_developer(profile_visitor)
         end
@@ -59,17 +59,17 @@ describe JoinedGroupsFinder do
         end
 
         context 'if not a member' do
-          it "does not show internal groups" do
+          it 'does not show internal groups' do
             expect(finder.execute(profile_visitor)).to eq([public_group])
           end
         end
 
-        context "if authorized" do
+        context 'if authorized' do
           before do
             internal_group.add_maintainer(profile_visitor)
           end
 
-          it "shows internal groups if authorized" do
+          it 'shows internal groups if authorized' do
             expect(finder.execute(profile_visitor)).to eq([public_group, internal_group])
           end
         end

@@ -36,7 +36,7 @@ module Gitlab
           key = OpenSSL::PKey::RSA.new(4096)
           public_key = key.public_key
 
-          subject = OpenSSL::X509::Name.parse("/C=US")
+          subject = OpenSSL::X509::Name.parse('/C=US')
 
           cert = OpenSSL::X509::Certificate.new
           cert.subject = subject

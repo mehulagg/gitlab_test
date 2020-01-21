@@ -4,10 +4,10 @@ require 'spec_helper'
 
 describe Issues::CloseService do
   let(:project) { create(:project, :repository) }
-  let(:user) { create(:user, email: "user@example.com") }
-  let(:user2) { create(:user, email: "user2@example.com") }
+  let(:user) { create(:user, email: 'user@example.com') }
+  let(:user2) { create(:user, email: 'user2@example.com') }
   let(:guest) { create(:user) }
-  let(:issue) { create(:issue, title: "My issue", project: project, assignees: [user2], author: create(:user)) }
+  let(:issue) { create(:issue, title: 'My issue', project: project, assignees: [user2], author: create(:user)) }
   let(:external_issue) { ExternalIssue.new('JIRA-123', project) }
   let(:closing_merge_request) { create(:merge_request, source_project: project) }
   let(:closing_commit) { create(:commit, project: project) }
@@ -70,7 +70,7 @@ describe Issues::CloseService do
   end
 
   describe '#close_issue' do
-    context "closed by a merge request", :sidekiq_might_not_need_inline do
+    context 'closed by a merge request', :sidekiq_might_not_need_inline do
       it 'mentions closure via a merge request' do
         perform_enqueued_jobs do
           described_class.new(project, user).close_issue(issue, closed_via: closing_merge_request)
@@ -91,7 +91,7 @@ describe Issues::CloseService do
           end
 
           email = ActionMailer::Base.deliveries.last
-          body_text = email.body.parts.map(&:body).join(" ")
+          body_text = email.body.parts.map(&:body).join(' ')
 
           expect(email.to.first).to eq(user2.email)
           expect(email.subject).to include(issue.title)
@@ -100,7 +100,7 @@ describe Issues::CloseService do
       end
     end
 
-    context "closed by a commit", :sidekiq_might_not_need_inline do
+    context 'closed by a commit', :sidekiq_might_not_need_inline do
       it 'mentions closure via a commit' do
         perform_enqueued_jobs do
           described_class.new(project, user).close_issue(issue, closed_via: closing_commit)
@@ -121,7 +121,7 @@ describe Issues::CloseService do
           end
 
           email = ActionMailer::Base.deliveries.last
-          body_text = email.body.parts.map(&:body).join(" ")
+          body_text = email.body.parts.map(&:body).join(' ')
 
           expect(email.to.first).to eq(user2.email)
           expect(email.subject).to include(issue.title)
@@ -130,7 +130,7 @@ describe Issues::CloseService do
       end
     end
 
-    context "valid params" do
+    context 'valid params' do
       before do
         perform_enqueued_jobs do
           described_class.new(project, user).close_issue(issue)
@@ -154,7 +154,7 @@ describe Issues::CloseService do
 
       it 'creates system note about issue reassign' do
         note = issue.notes.last
-        expect(note.note).to include "closed"
+        expect(note.note).to include 'closed'
       end
 
       it 'marks todos as done' do

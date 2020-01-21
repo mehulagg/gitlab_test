@@ -121,7 +121,7 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
 
         aggregate_failures do
           expect(timelog.time_spent).to eq(72000)
-          expect(timelog.spent_at).to eq("2019-12-27T00:00:00.000Z")
+          expect(timelog.spent_at).to eq('2019-12-27T00:00:00.000Z')
         end
       end
 
@@ -286,9 +286,9 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
         setting = @project.error_tracking_setting
 
         aggregate_failures do
-          expect(setting.api_url).to eq("https://gitlab.example.com/api/0/projects/sentry-org/sentry-project")
-          expect(setting.project_name).to eq("Sentry Project")
-          expect(setting.organization_name).to eq("Sentry Org")
+          expect(setting.api_url).to eq('https://gitlab.example.com/api/0/projects/sentry-org/sentry-project')
+          expect(setting.project_name).to eq('Sentry Project')
+          expect(setting.organization_name).to eq('Sentry Org')
         end
       end
 
@@ -297,9 +297,9 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
 
         aggregate_failures do
           expect(external_pr.pull_request_iid).to eq(4)
-          expect(external_pr.source_branch).to eq("feature")
-          expect(external_pr.target_branch).to eq("master")
-          expect(external_pr.status).to eq("open")
+          expect(external_pr.source_branch).to eq('feature')
+          expect(external_pr.target_branch).to eq('master')
+          expect(external_pr.status).to eq('open')
         end
       end
 
@@ -434,7 +434,7 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
   shared_examples 'restores group correctly' do |**results|
     it 'has group label' do
       expect(project.group.labels.size).to eq(results.fetch(:labels, 0))
-      expect(project.group.labels.where(type: "GroupLabel").where.not(project_id: nil).count).to eq(0)
+      expect(project.group.labels.where(type: 'GroupLabel').where.not(project_id: nil).count).to eq(0)
     end
 
     it 'has group milestone' do
@@ -516,10 +516,10 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
       end
 
       it 'overwrites the params stored in the JSON' do
-        project.create_import_data(data: { override_params: { description: "Overridden" } })
+        project.create_import_data(data: { override_params: { description: 'Overridden' } })
 
         expect(restored_project_json).to eq(true)
-        expect(project.description).to eq("Overridden")
+        expect(project.description).to eq('Overridden')
       end
 
       it 'does not allow setting params that are excluded from import_export settings' do
@@ -654,17 +654,17 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
       end
 
       it 'converts empty external classification authorization labels to nil' do
-        project.create_import_data(data: { override_params: { external_authorization_classification_label: "" } })
+        project.create_import_data(data: { override_params: { external_authorization_classification_label: '' } })
 
         expect(restored_project_json).to eq(true)
         expect(project.external_authorization_classification_label).to be_nil
       end
 
       it 'preserves valid external classification authorization labels' do
-        project.create_import_data(data: { override_params: { external_authorization_classification_label: "foobar" } })
+        project.create_import_data(data: { override_params: { external_authorization_classification_label: 'foobar' } })
 
         expect(restored_project_json).to eq(true)
-        expect(project.external_authorization_classification_label).to eq("foobar")
+        expect(project.external_authorization_classification_label).to eq('foobar')
       end
     end
   end

@@ -58,7 +58,7 @@ module Gitlab
         event_type = note.confidential? ? 'confidential_note' : 'note'
 
         base_data = {
-          object_kind: "note",
+          object_kind: 'note',
           event_type: event_type,
           user: user.hook_attrs,
           project_id: project.id,

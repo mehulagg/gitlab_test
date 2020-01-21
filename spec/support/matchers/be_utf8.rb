@@ -6,6 +6,6 @@ RSpec::Matchers.define :be_utf8 do |_|
   end
 
   description do
-    "be a String with encoding UTF-8"
+    'be a String with encoding UTF-8'
   end
 end

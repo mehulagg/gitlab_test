@@ -243,7 +243,7 @@ describe Gitlab::Auth::LDAP::Person do
         .to be_nil
     end
 
-    it "supports dashes in the group cn" do
+    it 'supports dashes in the group cn' do
       person = described_class.new(entry, 'ldapmain')
 
       expect(person.cn_from_memberof('CN=Group-Policy-Creator-Owners,CN=Users,DC=Vosmaer,DC=com'))

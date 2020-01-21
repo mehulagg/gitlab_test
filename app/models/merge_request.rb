@@ -27,9 +27,9 @@ class MergeRequest < ApplicationRecord
 
   SORTING_PREFERENCE_FIELD = :merge_requests_sort
 
-  belongs_to :target_project, class_name: "Project"
-  belongs_to :source_project, class_name: "Project"
-  belongs_to :merge_user, class_name: "User"
+  belongs_to :target_project, class_name: 'Project'
+  belongs_to :source_project, class_name: 'Project'
+  belongs_to :merge_user, class_name: 'User'
 
   has_internal_id :iid, scope: :target_project, track_if: -> { !importing? }, init: ->(s) { s&.target_project&.merge_requests&.maximum(:iid) }
 
@@ -59,7 +59,7 @@ class MergeRequest < ApplicationRecord
     fallback || super
   end
 
-  belongs_to :head_pipeline, foreign_key: "head_pipeline_id", class_name: "Ci::Pipeline"
+  belongs_to :head_pipeline, foreign_key: 'head_pipeline_id', class_name: 'Ci::Pipeline'
 
   has_many :events, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
@@ -73,8 +73,8 @@ class MergeRequest < ApplicationRecord
   has_many :unresolved_notes, -> { unresolved }, as: :noteable, class_name: 'Note'
 
   has_many :merge_request_assignees
-  has_many :assignees, class_name: "User", through: :merge_request_assignees
-  has_many :user_mentions, class_name: "MergeRequestUserMention"
+  has_many :assignees, class_name: 'User', through: :merge_request_assignees
+  has_many :user_mentions, class_name: 'MergeRequestUserMention'
 
   has_many :deployment_merge_requests
 
@@ -205,7 +205,7 @@ class MergeRequest < ApplicationRecord
   validate :validate_target_project, on: :create
 
   scope :by_source_or_target_branch, ->(branch_name) do
-    where("source_branch = :branch OR target_branch = :branch", branch: branch_name)
+    where('source_branch = :branch OR target_branch = :branch', branch: branch_name)
   end
   scope :by_milestone, ->(milestone) { where(milestone_id: milestone) }
   scope :of_projects, ->(ids) { where(target_project_id: ids) }
@@ -233,7 +233,7 @@ class MergeRequest < ApplicationRecord
             source_project: [:route, { namespace: :route }])
   }
   scope :by_target_branch_wildcard, ->(wildcard_branch_name) do
-    where("target_branch LIKE ?", ApplicationRecord.sanitize_sql_like(wildcard_branch_name).tr('*', '%'))
+    where('target_branch LIKE ?', ApplicationRecord.sanitize_sql_like(wildcard_branch_name).tr('*', '%'))
   end
   scope :by_target_branch, ->(branch_name) { where(target_branch: branch_name) }
   scope :preload_source_project, -> { preload(:source_project) }
@@ -310,7 +310,7 @@ class MergeRequest < ApplicationRecord
   end
 
   def self.link_reference_pattern
-    @link_reference_pattern ||= super("merge_requests", /(?<merge_request>\d+)/)
+    @link_reference_pattern ||= super('merge_requests', /(?<merge_request>\d+)/)
   end
 
   def self.reference_valid?(reference)
@@ -363,7 +363,7 @@ class MergeRequest < ApplicationRecord
   end
 
   def self.wipless_title(title)
-    title.sub(WIP_REGEX, "")
+    title.sub(WIP_REGEX, '')
   end
 
   def self.wip_title(title)
@@ -826,11 +826,11 @@ class MergeRequest < ApplicationRecord
   end
 
   def merge_event
-    @merge_event ||= target_project.events.where(target_id: self.id, target_type: "MergeRequest", action: Event::MERGED).last
+    @merge_event ||= target_project.events.where(target_id: self.id, target_type: 'MergeRequest', action: Event::MERGED).last
   end
 
   def closed_event
-    @closed_event ||= target_project.events.where(target_id: self.id, target_type: "MergeRequest", action: Event::CLOSED).last
+    @closed_event ||= target_project.events.where(target_id: self.id, target_type: 'MergeRequest', action: Event::CLOSED).last
   end
 
   def work_in_progress?
@@ -1005,7 +1005,7 @@ class MergeRequest < ApplicationRecord
     if target_project
       target_project.full_path
     else
-      "(removed)"
+      '(removed)'
     end
   end
 
@@ -1013,7 +1013,7 @@ class MergeRequest < ApplicationRecord
     if source_project
       source_project.full_path
     else
-      "(removed)"
+      '(removed)'
     end
   end
 
@@ -1021,7 +1021,7 @@ class MergeRequest < ApplicationRecord
     if source_project && source_project.namespace
       source_project.namespace.full_path
     else
-      "(removed)"
+      '(removed)'
     end
   end
 
@@ -1029,7 +1029,7 @@ class MergeRequest < ApplicationRecord
     if target_project && target_project.namespace
       target_project.namespace.full_path
     else
-      "(removed)"
+      '(removed)'
     end
   end
 

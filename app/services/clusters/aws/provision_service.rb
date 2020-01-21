@@ -55,7 +55,7 @@ module Clusters
           stack_name: provider.cluster.name,
           template_body: stack_template,
           parameters: parameters,
-          capabilities: ["CAPABILITY_IAM"]
+          capabilities: ['CAPABILITY_IAM']
         )
       end
 

@@ -7,7 +7,7 @@ describe User do
 
   describe 'user creation' do
     describe 'with defaults' do
-      it "applies defaults to user" do
+      it 'applies defaults to user' do
         expect(user.group_view).to eq('details')
       end
     end
@@ -40,13 +40,13 @@ describe User do
     end
   end
 
-  describe "scopes" do
-    describe ".non_ldap" do
-      it "retuns non-ldap user" do
+  describe 'scopes' do
+    describe '.non_ldap' do
+      it 'retuns non-ldap user' do
         described_class.delete_all
         create(:user)
-        ldap_user = create(:omniauth_user, provider: "ldapmain")
-        create(:omniauth_user, provider: "gitlub")
+        ldap_user = create(:omniauth_user, provider: 'ldapmain')
+        create(:omniauth_user, provider: 'gitlub')
 
         users = described_class.non_ldap
 
@@ -129,13 +129,13 @@ describe User do
         expect(build(:user, :auditor)).to be_invalid
       end
 
-      it "does not allow creating an auditor user if no license is present" do
+      it 'does not allow creating an auditor user if no license is present' do
         allow(License).to receive(:current).and_return nil
 
         expect(build(:user, :auditor)).to be_invalid
       end
 
-      it "allows creating an auditor user if the addon is enabled" do
+      it 'allows creating an auditor user if the addon is enabled' do
         stub_licensed_features(auditor_user: true)
 
         expect(build(:user, :auditor)).to be_valid
@@ -149,25 +149,25 @@ describe User do
     end
 
     context '#auditor?' do
-      it "returns true for an auditor user if the addon is enabled" do
+      it 'returns true for an auditor user if the addon is enabled' do
         stub_licensed_features(auditor_user: true)
 
         expect(build(:user, :auditor)).to be_auditor
       end
 
-      it "returns false for an auditor user if the addon is not enabled" do
+      it 'returns false for an auditor user if the addon is not enabled' do
         stub_licensed_features(auditor_user: false)
 
         expect(build(:user, :auditor)).not_to be_auditor
       end
 
-      it "returns false for an auditor user if a license is not present" do
+      it 'returns false for an auditor user if a license is not present' do
         stub_licensed_features(auditor_user: false)
 
         expect(build(:user, :auditor)).not_to be_auditor
       end
 
-      it "returns false for a non-auditor user even if the addon is present" do
+      it 'returns false for a non-auditor user even if the addon is present' do
         stub_licensed_features(auditor_user: true)
 
         expect(build(:user)).not_to be_auditor
@@ -727,7 +727,7 @@ describe User do
       let(:max_attempts) { described_class::MAX_USERNAME_SUGGESTION_ATTEMPTS }
 
       before do
-        allow(::Namespace).to receive(:find_by_path_or_name).with("disney").and_return(true)
+        allow(::Namespace).to receive(:find_by_path_or_name).with('disney').and_return(true)
         max_attempts.times { |count| allow(::Namespace).to receive(:find_by_path_or_name).with("disney#{count}").and_return(true) }
       end
 

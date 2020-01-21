@@ -27,7 +27,7 @@ module Groups
 
     rescue TransferError, ActiveRecord::RecordInvalid, Gitlab::UpdatePathError => e
       @group.errors.clear
-      @error = s_("TransferGroup|Transfer failed: %{error_message}") % { error_message: e.message }
+      @error = s_('TransferGroup|Transfer failed: %{error_message}') % { error_message: e.message }
       false
     end
 
@@ -96,7 +96,7 @@ module Groups
 
     # rubocop: disable CodeReuse/ActiveRecord
     def update_children_and_projects_visibility
-      descendants = @group.descendants.where("visibility_level > ?", @new_parent_group.visibility_level)
+      descendants = @group.descendants.where('visibility_level > ?', @new_parent_group.visibility_level)
 
       Group
         .where(id: descendants.select(:id))
@@ -104,7 +104,7 @@ module Groups
 
       projects_to_update = @group
         .all_projects
-        .where("visibility_level > ?", @new_parent_group.visibility_level)
+        .where('visibility_level > ?', @new_parent_group.visibility_level)
 
       # Used in post_update_hooks in EE. Must use pluck (and not select)
       # here as after we perform the update below we won't be able to find

@@ -9,14 +9,14 @@ describe Banzai::Pipeline::BroadcastMessagePipeline do
 
   subject { described_class.to_html(exp, project: spy) }
 
-  context "allows `a` elements" do
-    let(:exp) { "<a>Link</a>" }
+  context 'allows `a` elements' do
+    let(:exp) { '<a>Link</a>' }
 
     it { is_expected.to eq("<p>#{exp}</p>") }
   end
 
-  context "allows `br` elements" do
-    let(:exp) { "Hello<br>World" }
+  context 'allows `br` elements' do
+    let(:exp) { 'Hello<br>World' }
 
     it { is_expected.to eq("<p>#{exp}</p>") }
   end

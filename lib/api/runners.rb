@@ -187,7 +187,7 @@ module API
         not_found!('Runner') unless runner_project
 
         runner = runner_project.runner
-        forbidden!("Only one project associated with the runner. Please remove the runner instead") if runner.projects.count == 1
+        forbidden!('Only one project associated with the runner. Please remove the runner instead') if runner.projects.count == 1
 
         destroy_conditionally!(runner_project)
       end
@@ -219,35 +219,35 @@ module API
       def authenticate_show_runner!(runner)
         return if runner.instance_type? || current_user.admin?
 
-        forbidden!("No access granted") unless can?(current_user, :read_runner, runner)
+        forbidden!('No access granted') unless can?(current_user, :read_runner, runner)
       end
 
       def authenticate_update_runner!(runner)
         return if current_user.admin?
 
-        forbidden!("No access granted") unless can?(current_user, :update_runner, runner)
+        forbidden!('No access granted') unless can?(current_user, :update_runner, runner)
       end
 
       def authenticate_delete_runner!(runner)
         return if current_user.admin?
 
-        forbidden!("Runner associated with more than one project") if runner.projects.count > 1
-        forbidden!("No access granted") unless can?(current_user, :delete_runner, runner)
+        forbidden!('Runner associated with more than one project') if runner.projects.count > 1
+        forbidden!('No access granted') unless can?(current_user, :delete_runner, runner)
       end
 
       def authenticate_enable_runner!(runner)
-        forbidden!("Runner is a group runner") if runner.group_type?
+        forbidden!('Runner is a group runner') if runner.group_type?
 
         return if current_user.admin?
 
-        forbidden!("Runner is locked") if runner.locked?
-        forbidden!("No access granted") unless can?(current_user, :assign_runner, runner)
+        forbidden!('Runner is locked') if runner.locked?
+        forbidden!('No access granted') unless can?(current_user, :assign_runner, runner)
       end
 
       def authenticate_list_runners_jobs!(runner)
         return if current_user.admin?
 
-        forbidden!("No access granted") unless can?(current_user, :read_runner, runner)
+        forbidden!('No access granted') unless can?(current_user, :read_runner, runner)
       end
     end
   end

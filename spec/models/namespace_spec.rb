@@ -52,8 +52,8 @@ describe Namespace do
         end
       end
 
-      context "is case insensitive" do
-        let(:group) { build(:group, path: "Groups") }
+      context 'is case insensitive' do
+        let(:group) { build(:group, path: 'Groups') }
 
         it { expect(group).not_to be_valid }
       end
@@ -71,7 +71,7 @@ describe Namespace do
     it { is_expected.to delegate_method(:avatar_url).to(:owner).with_arguments(allow_nil: true) }
   end
 
-  describe "Respond to" do
+  describe 'Respond to' do
     it { is_expected.to respond_to(:human_name) }
     it { is_expected.to respond_to(:to_param) }
     it { is_expected.to respond_to(:has_parent?) }
@@ -167,7 +167,7 @@ describe Namespace do
                                packages_size:        40))
     end
 
-    it "sums all project storage counters in the namespace" do
+    it 'sums all project storage counters in the namespace' do
       project1
       project2
       statistics = described_class.with_statistics.find(namespace.id)
@@ -180,7 +180,7 @@ describe Namespace do
       expect(statistics.packages_size).to eq 444
     end
 
-    it "correctly handles namespaces without projects" do
+    it 'correctly handles namespaces without projects' do
       statistics = described_class.with_statistics.find(namespace.id)
 
       expect(statistics.storage_size).to eq 0
@@ -201,9 +201,9 @@ describe Namespace do
       expect(described_class.find_by_pages_host(host)).to eq(namespace)
     end
 
-    it "returns no result if the provided host is not subdomain of the Pages host" do
+    it 'returns no result if the provided host is not subdomain of the Pages host' do
       create(:namespace, name: 'namespace.io')
-      host = "namespace.io"
+      host = 'namespace.io'
 
       expect(described_class.find_by_pages_host(host)).to eq(nil)
     end
@@ -224,8 +224,8 @@ describe Namespace do
   end
 
   describe '#move_dir', :request_store do
-    shared_examples "namespace restrictions" do
-      context "when any project has container images" do
+    shared_examples 'namespace restrictions' do
+      context 'when any project has container images' do
         let(:container_repository) { create(:container_repository) }
 
         before do
@@ -251,11 +251,11 @@ describe Namespace do
 
       it_behaves_like 'namespace restrictions'
 
-      it "raises error when directory exists" do
-        expect { namespace.move_dir }.to raise_error("namespace directory cannot be moved")
+      it 'raises error when directory exists' do
+        expect { namespace.move_dir }.to raise_error('namespace directory cannot be moved')
       end
 
-      it "moves dir if path changed" do
+      it 'moves dir if path changed' do
         namespace.update(path: namespace.full_path + '_new')
 
         expect(gitlab_shell.repository_exists?(project.repository_storage, "#{namespace.path}/#{project.path}.git")).to be_truthy
@@ -399,7 +399,7 @@ describe Namespace do
 
       it_behaves_like 'namespace restrictions'
 
-      it "repository directory remains unchanged if path changed" do
+      it 'repository directory remains unchanged if path changed' do
         before_disk_path = project.disk_path
         namespace.update(path: namespace.full_path + '_new')
 
@@ -521,13 +521,13 @@ describe Namespace do
     it { expect(described_class.find_by_path_or_name('unknown')).to eq(nil) }
   end
 
-  describe ".clean_path" do
-    let!(:user)       { create(:user, username: "johngitlab-etc") }
-    let!(:namespace)  { create(:namespace, path: "JohnGitLab-etc1") }
+  describe '.clean_path' do
+    let!(:user)       { create(:user, username: 'johngitlab-etc') }
+    let!(:namespace)  { create(:namespace, path: 'JohnGitLab-etc1') }
 
     it "cleans the path and makes sure it's available" do
-      expect(described_class.clean_path("-john+gitlab-ETC%.git@gmail.com")).to eq("johngitlab-ETC2")
-      expect(described_class.clean_path("--%+--valid_*&%name=.git.%.atom.atom.@email.com")).to eq("valid_name")
+      expect(described_class.clean_path('-john+gitlab-ETC%.git@gmail.com')).to eq('johngitlab-ETC2')
+      expect(described_class.clean_path('--%+--valid_*&%name=.git.%.atom.atom.@email.com')).to eq('valid_name')
     end
   end
 

@@ -22,6 +22,6 @@ describe Gitlab::SlashCommands::Presenters::IssueSearch do
   it 'shows a list of results' do
     expect(subject[:response_type]).to be(:ephemeral)
 
-    expect(message).to start_with("Here are the 2 issues I found")
+    expect(message).to start_with('Here are the 2 issues I found')
   end
 end

@@ -6,8 +6,8 @@ module API
     include Helpers::Pagination
     include Helpers::PaginationStrategies
 
-    SUDO_HEADER = "HTTP_SUDO"
-    GITLAB_SHARED_SECRET_HEADER = "Gitlab-Shared-Secret"
+    SUDO_HEADER = 'HTTP_SUDO'
+    GITLAB_SHARED_SECRET_HEADER = 'Gitlab-Shared-Secret'
     SUDO_PARAM = :sudo
     API_USER_ENV = 'gitlab.api.user'
     API_EXCEPTION_ENV = 'gitlab.api.exception'
@@ -106,7 +106,7 @@ module API
 
       if id.is_a?(Integer) || id =~ /^\d+$/
         projects.find_by(id: id)
-      elsif id.include?("/")
+      elsif id.include?('/')
         projects.find_by_full_path(id)
       end
     end
@@ -254,7 +254,7 @@ module API
     end
 
     def require_repository_enabled!(subject = :global)
-      not_found!("Repository") unless user_project.feature_available?(:repository, current_user)
+      not_found!('Repository') unless user_project.feature_available?(:repository, current_user)
     end
 
     def require_gitlab_workhorse!
@@ -329,15 +329,15 @@ module API
     end
 
     def bad_request!(attribute)
-      message = ["400 (Bad request)"]
-      message << "\"" + attribute.to_s + "\" not given" if attribute
+      message = ['400 (Bad request)']
+      message << '"' + attribute.to_s + '" not given' if attribute
       render_api_error!(message.join(' '), 400)
     end
 
     def not_found!(resource = nil)
-      message = ["404"]
+      message = ['404']
       message << resource if resource
-      message << "Not Found"
+      message << 'Not Found'
       render_api_error!(message.join(' '), 404)
     end
 
@@ -403,7 +403,7 @@ module API
 
       message = ["\n#{exception.class} (#{exception.message}):\n"]
       message << exception.annoted_source_code.to_s if exception.respond_to?(:annoted_source_code)
-      message << "  " << trace.join("\n  ")
+      message << '  ' << trace.join("\n  ")
       message = message.join
 
       API.logger.add Logger::FATAL, message
@@ -464,7 +464,7 @@ module API
 
     def track_event(action = action_name, **args)
       category = args.delete(:category) || self.options[:for].name
-      raise "invalid category" unless category
+      raise 'invalid category' unless category
 
       ::Gitlab::Tracking.event(category, action.to_s, **args)
     rescue => error
@@ -545,7 +545,7 @@ module API
       header['Content-Disposition'] = ::Gitlab::ContentDisposition.format(disposition: 'inline', filename: blob.name)
 
       # Let Workhorse examine the content and determine the better content disposition
-      header[Gitlab::Workhorse::DETECT_HEADER] = "true"
+      header[Gitlab::Workhorse::DETECT_HEADER] = 'true'
 
       header(*Gitlab::Workhorse.send_git_blob(repository, blob))
     end
@@ -581,7 +581,7 @@ module API
     end
 
     def ip_address
-      env["action_dispatch.remote_ip"].to_s || request.ip
+      env['action_dispatch.remote_ip'].to_s || request.ip
     end
   end
 end

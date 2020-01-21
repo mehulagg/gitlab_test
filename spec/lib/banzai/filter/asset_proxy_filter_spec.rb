@@ -78,28 +78,28 @@ describe Banzai::Filter::AssetProxyFilter do
     end
 
     it 'skip relative urls' do
-      src = "/test.png"
+      src = '/test.png'
       doc = filter(image(src), @context)
 
       expect(doc.at_css('img')['src']).to eq src
     end
 
     it 'skips single domain' do
-      src = "http://gitlab.com/test.png"
+      src = 'http://gitlab.com/test.png'
       doc = filter(image(src), @context)
 
       expect(doc.at_css('img')['src']).to eq src
     end
 
     it 'skips single domain and ignores url in query string' do
-      src = "http://gitlab.com/test.png?url=http://example.com/test.png"
+      src = 'http://gitlab.com/test.png?url=http://example.com/test.png'
       doc = filter(image(src), @context)
 
       expect(doc.at_css('img')['src']).to eq src
     end
 
     it 'skips wildcarded domain' do
-      src = "http://images.mydomain.com/test.png"
+      src = 'http://images.mydomain.com/test.png'
       doc = filter(image(src), @context)
 
       expect(doc.at_css('img')['src']).to eq src

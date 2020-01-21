@@ -14,7 +14,7 @@ describe 'Edit Project Settings' do
       sign_in(member)
     end
 
-    tools = { builds: "pipelines", issues: "issues", wiki: "wiki", snippets: "snippets", merge_requests: "merge_requests" }
+    tools = { builds: 'pipelines', issues: 'issues', wiki: 'wiki', snippets: 'snippets', merge_requests: 'merge_requests' }
 
     tools.each do |tool_name, shortcut_name|
       describe "feature #{tool_name}" do
@@ -68,20 +68,20 @@ describe 'Edit Project Settings' do
       end
     end
 
-    context "pipelines subtabs" do
-      it "shows builds when enabled" do
+    context 'pipelines subtabs' do
+      it 'shows builds when enabled' do
         visit project_pipelines_path(project)
 
-        expect(page).to have_selector(".shortcuts-builds")
+        expect(page).to have_selector('.shortcuts-builds')
       end
 
-      it "hides builds when disabled" do
+      it 'hides builds when disabled' do
         allow(Ability).to receive(:allowed?).and_return(true)
         allow(Ability).to receive(:allowed?).with(member, :read_build, project).and_return(false)
 
         visit project_pipelines_path(project)
 
-        expect(page).not_to have_selector(".shortcuts-builds")
+        expect(page).not_to have_selector('.shortcuts-builds')
       end
     end
   end
@@ -179,57 +179,57 @@ describe 'Edit Project Settings' do
       visit edit_project_path(project)
     end
 
-    it "disables repository related features" do
+    it 'disables repository related features' do
       toggle_feature_off('project[project_feature_attributes][repository_access_level]')
 
       page.within('.sharing-permissions') do
-        click_button "Save changes"
+        click_button 'Save changes'
       end
 
-      expect(find(".sharing-permissions")).to have_selector(".project-feature-toggle.is-disabled", count: 3)
+      expect(find('.sharing-permissions')).to have_selector('.project-feature-toggle.is-disabled', count: 3)
     end
 
-    it "shows empty features project homepage" do
+    it 'shows empty features project homepage' do
       toggle_feature_off('project[project_feature_attributes][repository_access_level]')
       toggle_feature_off('project[project_feature_attributes][issues_access_level]')
       toggle_feature_off('project[project_feature_attributes][wiki_access_level]')
 
       page.within('.sharing-permissions') do
-        click_button "Save changes"
+        click_button 'Save changes'
       end
       wait_for_requests
 
       visit project_path(project)
 
-      expect(page).to have_content "Customize your workflow!"
+      expect(page).to have_content 'Customize your workflow!'
     end
 
-    it "hides project activity tabs" do
+    it 'hides project activity tabs' do
       toggle_feature_off('project[project_feature_attributes][repository_access_level]')
       toggle_feature_off('project[project_feature_attributes][issues_access_level]')
       toggle_feature_off('project[project_feature_attributes][wiki_access_level]')
 
       page.within('.sharing-permissions') do
-        click_button "Save changes"
+        click_button 'Save changes'
       end
       wait_for_requests
 
       visit activity_project_path(project)
 
-      page.within(".event-filter") do
-        expect(page).to have_content("All")
-        expect(page).not_to have_content("Push events")
-        expect(page).not_to have_content("Merge events")
-        expect(page).not_to have_content("Comments")
+      page.within('.event-filter') do
+        expect(page).to have_content('All')
+        expect(page).not_to have_content('Push events')
+        expect(page).not_to have_content('Merge events')
+        expect(page).not_to have_content('Comments')
       end
     end
 
     # Regression spec for https://gitlab.com/gitlab-org/gitlab-foss/issues/25272
-    it "hides comments activity tab only on disabled issues, merge requests and repository" do
+    it 'hides comments activity tab only on disabled issues, merge requests and repository' do
       toggle_feature_off('project[project_feature_attributes][issues_access_level]')
 
       save_changes_and_check_activity_tab do
-        expect(page).to have_content("Comments")
+        expect(page).to have_content('Comments')
       end
 
       visit edit_project_path(project)
@@ -237,7 +237,7 @@ describe 'Edit Project Settings' do
       toggle_feature_off('project[project_feature_attributes][merge_requests_access_level]')
 
       save_changes_and_check_activity_tab do
-        expect(page).to have_content("Comments")
+        expect(page).to have_content('Comments')
       end
 
       visit edit_project_path(project)
@@ -245,7 +245,7 @@ describe 'Edit Project Settings' do
       toggle_feature_off('project[project_feature_attributes][repository_access_level]')
 
       save_changes_and_check_activity_tab do
-        expect(page).not_to have_content("Comments")
+        expect(page).not_to have_content('Comments')
       end
 
       visit edit_project_path(project)
@@ -253,13 +253,13 @@ describe 'Edit Project Settings' do
 
     def save_changes_and_check_activity_tab
       page.within('.sharing-permissions') do
-        click_button "Save changes"
+        click_button 'Save changes'
       end
       wait_for_requests
 
       visit activity_project_path(project)
 
-      page.within(".event-filter") do
+      page.within('.event-filter') do
         yield
       end
     end
@@ -275,7 +275,7 @@ describe 'Edit Project Settings' do
       visit project_path(project)
     end
 
-    it "does not show project statistic for guest" do
+    it 'does not show project statistic for guest' do
       expect(page).not_to have_selector('.project-stats')
     end
   end

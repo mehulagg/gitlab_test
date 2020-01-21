@@ -17,7 +17,7 @@ module EE
       relation = self.class.where(project: project)
 
       if project.actual_limits.exceeded?(limit_name, relation)
-        errors.add(:base, _("Maximum number of %{name} (%{count}) exceeded") %
+        errors.add(:base, _('Maximum number of %{name} (%{count}) exceeded') %
           { name: limit_name.humanize(capitalize: false), count: project.actual_limits.public_send(limit_name) }) # rubocop:disable GitlabSecurity/PublicSend
       end
     end

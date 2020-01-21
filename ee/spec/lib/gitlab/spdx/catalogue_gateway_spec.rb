@@ -5,12 +5,12 @@ require 'spec_helper'
 describe Gitlab::SPDX::CatalogueGateway do
   include StubRequests
 
-  describe "#fetch" do
+  describe '#fetch' do
     let(:result) { subject.fetch }
     let(:url) { described_class::URL }
 
-    context "when the licenses.json endpoint is healthy" do
-      let(:spdx_json) { IO.read(Rails.root.join("spec", "fixtures", "spdx.json")) }
+    context 'when the licenses.json endpoint is healthy' do
+      let(:spdx_json) { IO.read(Rails.root.join('spec', 'fixtures', 'spdx.json')) }
       let(:catalogue_hash) { JSON.parse(spdx_json, symbolize_names: true) }
 
       before do
@@ -20,7 +20,7 @@ describe Gitlab::SPDX::CatalogueGateway do
       it { expect(result.count).to be(catalogue_hash[:licenses].count) }
     end
 
-    context "when the licenses.json endpoint is not reachable" do
+    context 'when the licenses.json endpoint is not reachable' do
       before do
         allow(Gitlab::Metrics).to receive(:add_event)
         stub_full_request(url, method: :get).to_return(status: 404)

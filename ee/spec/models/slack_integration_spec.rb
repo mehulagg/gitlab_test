@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe SlackIntegration do
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to(:service) }
   end
 

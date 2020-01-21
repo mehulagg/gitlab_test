@@ -28,7 +28,7 @@ module Gitlab
         current_value = redis.decr(key)
         if current_value < 0
           Rails.logger.warn("Reference counter for #{gl_repository} decreased" \
-            " when its value was less than 1. Reseting the counter.")
+            ' when its value was less than 1. Reseting the counter.')
           redis.del(key)
         end
       end

@@ -182,7 +182,7 @@ describe MergeRequestPresenter do
             .to match("#{project.full_path}/-/merge_requests/#{resource.iid}/assign_related_issues")
 
           is_expected
-            .to match("Assign yourself to this issue")
+            .to match('Assign yourself to this issue')
         end
       end
 
@@ -195,7 +195,7 @@ describe MergeRequestPresenter do
             .to match("#{project.full_path}/-/merge_requests/#{resource.iid}/assign_related_issues")
 
           is_expected
-            .to match("Assign yourself to these issues")
+            .to match('Assign yourself to these issues')
         end
       end
 

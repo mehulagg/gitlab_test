@@ -22,10 +22,10 @@ module EpicsHelper
 
   def epic_state_title(state)
     titles = {
-      "opened" => "Open"
+      'opened' => 'Open'
     }
 
-    _("%{state} epics") % { state: (titles[state.to_s] || state.to_s.humanize) }
+    _('%{state} epics') % { state: (titles[state.to_s] || state.to_s.humanize) }
   end
 
   def epic_timeframe(epic)
@@ -39,7 +39,7 @@ module EpicsHelper
     elsif epic.start_date.present?
       s_('GroupRoadmap|From %{dateWord}') % { dateWord: epic.start_date.strftime(long_format) }
     elsif epic.end_date.present?
-      s_("GroupRoadmap|Until %{dateWord}") % { dateWord: epic.end_date.strftime(long_format) }
+      s_('GroupRoadmap|Until %{dateWord}') % { dateWord: epic.end_date.strftime(long_format) }
     end
   end
 end

@@ -42,13 +42,13 @@ describe Issuable::CommonSystemNotesService do
 
     context 'with merge requests WIP note' do
       context 'adding WIP note' do
-        let(:issuable) { create(:merge_request, title: "merge request") }
+        let(:issuable) { create(:merge_request, title: 'merge request') }
 
-        it_behaves_like 'system note creation', { title: "WIP merge request" }, 'marked as a **Work In Progress**'
+        it_behaves_like 'system note creation', { title: 'WIP merge request' }, 'marked as a **Work In Progress**'
 
         context 'and changing title' do
           before do
-            issuable.update_attribute(:title, "WIP changed title")
+            issuable.update_attribute(:title, 'WIP changed title')
           end
 
           it_behaves_like 'WIP notes creation', 'marked'
@@ -56,13 +56,13 @@ describe Issuable::CommonSystemNotesService do
       end
 
       context 'removing WIP note' do
-        let(:issuable) { create(:merge_request, title: "WIP merge request") }
+        let(:issuable) { create(:merge_request, title: 'WIP merge request') }
 
-        it_behaves_like 'system note creation', { title: "merge request" }, 'unmarked as a **Work In Progress**'
+        it_behaves_like 'system note creation', { title: 'merge request' }, 'unmarked as a **Work In Progress**'
 
         context 'and changing title' do
           before do
-            issuable.update_attribute(:title, "changed title")
+            issuable.update_attribute(:title, 'changed title')
           end
 
           it_behaves_like 'WIP notes creation', 'unmarked'

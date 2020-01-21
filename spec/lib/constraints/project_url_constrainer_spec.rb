@@ -14,7 +14,7 @@ describe Constraints::ProjectUrlConstrainer do
     end
 
     context 'invalid request' do
-      context "non-existing project" do
+      context 'non-existing project' do
         let(:request) { build_request('foo', 'bar') }
 
         it { expect(subject.matches?(request)).to be_falsey }
@@ -24,7 +24,7 @@ describe Constraints::ProjectUrlConstrainer do
         end
       end
 
-      context "project id ending with .git" do
+      context 'project id ending with .git' do
         let(:request) { build_request(namespace.full_path, project.path + '.git') }
 
         it { expect(subject.matches?(request)).to be_falsey }

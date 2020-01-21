@@ -24,7 +24,7 @@ module Gitlab
         end
         command :assign do |users|
           if users.empty?
-            @execution_message[:assign] = _("Failed to assign a user because no user was found.")
+            @execution_message[:assign] = _('Failed to assign a user because no user was found.')
             next
           end
 
@@ -47,12 +47,12 @@ module Gitlab
         end
         explanation do |users = nil|
           assignees = assignees_for_removal(users)
-          _("Removes %{assignee_text} %{assignee_references}.") %
+          _('Removes %{assignee_text} %{assignee_references}.') %
             { assignee_text: 'assignee'.pluralize(assignees.size), assignee_references: assignees.map(&:to_reference).to_sentence }
         end
         execution_message do |users = nil|
           assignees = assignees_for_removal(users)
-          _("Removed %{assignee_text} %{assignee_references}.") %
+          _('Removed %{assignee_text} %{assignee_references}.') %
             { assignee_text: 'assignee'.pluralize(assignees.size), assignee_references: assignees.map(&:to_reference).to_sentence }
         end
         params do
@@ -79,10 +79,10 @@ module Gitlab
 
         desc _('Set milestone')
         explanation do |milestone|
-          _("Sets the milestone to %{milestone_reference}.") % { milestone_reference: milestone.to_reference } if milestone
+          _('Sets the milestone to %{milestone_reference}.') % { milestone_reference: milestone.to_reference } if milestone
         end
         execution_message do |milestone|
-          _("Set the milestone to %{milestone_reference}.") % { milestone_reference: milestone.to_reference } if milestone
+          _('Set the milestone to %{milestone_reference}.') % { milestone_reference: milestone.to_reference } if milestone
         end
         params '%"milestone"'
         types Issue, MergeRequest
@@ -100,10 +100,10 @@ module Gitlab
 
         desc _('Remove milestone')
         explanation do
-          _("Removes %{milestone_reference} milestone.") % { milestone_reference: quick_action_target.milestone.to_reference(format: :name) }
+          _('Removes %{milestone_reference} milestone.') % { milestone_reference: quick_action_target.milestone.to_reference(format: :name) }
         end
         execution_message do
-          _("Removed %{milestone_reference} milestone.") % { milestone_reference: quick_action_target.milestone.to_reference(format: :name) }
+          _('Removed %{milestone_reference} milestone.') % { milestone_reference: quick_action_target.milestone.to_reference(format: :name) }
         end
         types Issue, MergeRequest
         condition do
@@ -117,7 +117,7 @@ module Gitlab
 
         desc _('Copy labels and milestone from other issue or merge request in this project')
         explanation do |source_issuable|
-          _("Copy labels and milestone from %{source_issuable_reference}.") % { source_issuable_reference: source_issuable.to_reference }
+          _('Copy labels and milestone from %{source_issuable_reference}.') % { source_issuable_reference: source_issuable.to_reference }
         end
         params '#issue | !merge_request'
         types Issue, MergeRequest
@@ -133,18 +133,18 @@ module Gitlab
             @updates[:add_label_ids] = source_issuable.labels.map(&:id)
             @updates[:milestone_id] = source_issuable.milestone.id if source_issuable.milestone
 
-            @execution_message[:copy_metadata] = _("Copied labels and milestone from %{source_issuable_reference}.") % { source_issuable_reference: source_issuable.to_reference }
+            @execution_message[:copy_metadata] = _('Copied labels and milestone from %{source_issuable_reference}.') % { source_issuable_reference: source_issuable.to_reference }
           end
         end
 
         desc _('Set time estimate')
         explanation do |time_estimate|
           formatted_time_estimate = format_time_estimate(time_estimate)
-          _("Sets time estimate to %{time_estimate}.") % { time_estimate: formatted_time_estimate } if formatted_time_estimate
+          _('Sets time estimate to %{time_estimate}.') % { time_estimate: formatted_time_estimate } if formatted_time_estimate
         end
         execution_message do |time_estimate|
           formatted_time_estimate = format_time_estimate(time_estimate)
-          _("Set time estimate to %{time_estimate}.") % { time_estimate: formatted_time_estimate } if formatted_time_estimate
+          _('Set time estimate to %{time_estimate}.') % { time_estimate: formatted_time_estimate } if formatted_time_estimate
         end
         params '<1w 3d 2h 14m>'
         types Issue, MergeRequest
@@ -210,9 +210,9 @@ module Gitlab
           @updates[:spend_time] = { duration: :reset, user_id: current_user.id }
         end
 
-        desc _("Lock the discussion")
-        explanation _("Locks the discussion.")
-        execution_message _("Locked the discussion.")
+        desc _('Lock the discussion')
+        explanation _('Locks the discussion.')
+        execution_message _('Locked the discussion.')
         types Issue, MergeRequest
         condition do
           quick_action_target.persisted? &&
@@ -223,9 +223,9 @@ module Gitlab
           @updates[:discussion_locked] = true
         end
 
-        desc _("Unlock the discussion")
-        explanation _("Unlocks the discussion.")
-        execution_message _("Unlocked the discussion.")
+        desc _('Unlock the discussion')
+        explanation _('Unlocks the discussion.')
+        execution_message _('Unlocked the discussion.')
         types Issue, MergeRequest
         condition do
           quick_action_target.persisted? &&
@@ -274,7 +274,7 @@ module Gitlab
             value = -time_spent
           end
 
-          _("%{verb} %{time_spent_value} spent time.") % { verb: verb, time_spent_value: format_time_estimate(value) }
+          _('%{verb} %{time_spent_value} spent time.') % { verb: verb, time_spent_value: format_time_estimate(value) }
         end
       end
     end

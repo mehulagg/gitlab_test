@@ -32,7 +32,7 @@ describe 'Update of user activity' do
 
   context 'without an authenticated user' do
     it 'does not set the last activity cookie' do
-      get "/group/project"
+      get '/group/project'
 
       expect(response.cookies['user_last_activity_on']).to be_nil
     end
@@ -45,7 +45,7 @@ describe 'Update of user activity' do
 
     context 'with a POST request' do
       it 'does not set the last activity cookie' do
-        post "/group/project/archive"
+        post '/group/project/archive'
 
         expect(response.cookies['user_last_activity_on']).to be_nil
       end

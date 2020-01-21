@@ -59,7 +59,7 @@ module Gitlab
         relation = relation.where(uploader: uploader) if uploader
         relation = relation.where('created_at > ?', since) if since
 
-        logger.info "running in dry run mode, no images will be rewritten" if dry_run
+        logger.info 'running in dry run mode, no images will be rewritten' if dry_run
 
         find_params = {
           start: start_id.present? ? start_id.to_i : nil,
@@ -111,7 +111,7 @@ module Gitlab
       def exec_remove_exif!(path)
         # IPTC and XMP-iptcExt groups may keep copyright information so
         # we always preserve them
-        cmd = ["exiftool", "-all=", "-tagsFromFile", "@", *EXCLUDE_PARAMS, "--IPTC:all", "--XMP-iptcExt:all", path]
+        cmd = ['exiftool', '-all=', '-tagsFromFile', '@', *EXCLUDE_PARAMS, '--IPTC:all', '--XMP-iptcExt:all', path]
         output, status = Gitlab::Popen.popen(cmd)
 
         if status != 0
@@ -119,13 +119,13 @@ module Gitlab
         end
 
         if File.size(path) == 0
-          raise "size of file is 0"
+          raise 'size of file is 0'
         end
 
         # exiftool creates backup of the original file in filename_original
         old_path = "#{path}_original"
         if File.size(path) == File.size(old_path)
-          raise "size of sanitized file is same as original size"
+          raise 'size of sanitized file is same as original size'
         end
       end
 
@@ -147,7 +147,7 @@ module Gitlab
       end
 
       def exif_tags(path)
-        cmd = ["exiftool", "-all", "-j", "-sort", "--IPTC:all", "--XMP-iptcExt:all", path]
+        cmd = ['exiftool', '-all', '-j', '-sort', '--IPTC:all', '--XMP-iptcExt:all', path]
         output, status = Gitlab::Popen.popen(cmd)
 
         raise "failed to get exif tags: #{output}" if status != 0

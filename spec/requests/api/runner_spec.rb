@@ -478,8 +478,8 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
                'paths' => %w(out/),
                'when' => 'always',
                'expire_in' => '7d',
-               "artifact_type" => "archive",
-               "artifact_format" => "zip" }]
+               'artifact_type' => 'archive',
+               'artifact_format' => 'zip' }]
           end
 
           let(:expected_cache) do
@@ -673,7 +673,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
             expect(runner.reload.ip_address).to eq('123.222.123.222')
           end
 
-          it "handles multiple X-Forwarded-For addresses" do
+          it 'handles multiple X-Forwarded-For addresses' do
             post api('/jobs/request'),
               params: { token: runner.token },
               headers: { 'User-Agent' => user_agent, 'X-Forwarded-For' => '123.222.123.222, 127.0.0.1' }
@@ -1248,7 +1248,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
             context 'when we perform partial patch' do
               before do
-                patch_the_trace('hello', headers.merge({ 'Content-Range' => "28-32/5" }))
+                patch_the_trace('hello', headers.merge({ 'Content-Range' => '28-32/5' }))
               end
 
               it 'returns an error' do
@@ -1259,7 +1259,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
             context 'when we resend full trace' do
               before do
-                patch_the_trace('BUILD TRACE appended appended hello', headers.merge({ 'Content-Range' => "0-34/35" }))
+                patch_the_trace('BUILD TRACE appended appended hello', headers.merge({ 'Content-Range' => '0-34/35' }))
               end
 
               it 'succeeds with updating trace' do
@@ -1634,7 +1634,7 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
 
                   it 'responds with bad request' do
                     expect(response).to have_gitlab_http_status(500)
-                    expect(json_response['message']).to eq("Missing file")
+                    expect(json_response['message']).to eq('Missing file')
                   end
                 end
               end

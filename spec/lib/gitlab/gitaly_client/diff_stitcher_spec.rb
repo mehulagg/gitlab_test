@@ -6,8 +6,8 @@ describe Gitlab::GitalyClient::DiffStitcher do
   describe 'enumeration' do
     it 'combines segregated diff messages together' do
       diff_1 = OpenStruct.new(
-        to_path: ".gitmodules",
-        from_path: ".gitmodules",
+        to_path: '.gitmodules',
+        from_path: '.gitmodules',
         old_mode: 0100644,
         new_mode: 0100644,
         from_id: '357406f3075a57708d0163752905cc1576fceacc',
@@ -15,8 +15,8 @@ describe Gitlab::GitalyClient::DiffStitcher do
         patch: 'a' * 100
       )
       diff_2 = OpenStruct.new(
-        to_path: ".gitignore",
-        from_path: ".gitignore",
+        to_path: '.gitignore',
+        from_path: '.gitignore',
         old_mode: 0100644,
         new_mode: 0100644,
         from_id: '357406f3075a57708d0163752905cc1576fceacc',
@@ -24,8 +24,8 @@ describe Gitlab::GitalyClient::DiffStitcher do
         patch: 'a' * 200
       )
       diff_3 = OpenStruct.new(
-        to_path: "README",
-        from_path: "README",
+        to_path: 'README',
+        from_path: 'README',
         old_mode: 0100644,
         new_mode: 0100644,
         from_id: '357406f3075a57708d0163752905cc1576fceacc',

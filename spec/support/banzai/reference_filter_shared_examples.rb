@@ -33,7 +33,7 @@ RSpec.shared_examples 'user reference or project reference' do
     it_behaves_like 'a reference containing an element node'
     it_behaves_like 'it contains a data- attribute'
 
-    it "links to a resource" do
+    it 'links to a resource' do
       doc = reference_filter("Hey #{reference}")
       expect(doc.css('a').first.attr('href')).to eq urls.send("#{subject_name}_url", subject)
     end

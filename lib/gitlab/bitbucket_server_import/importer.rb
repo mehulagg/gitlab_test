@@ -44,7 +44,7 @@ module Gitlab
         delete_temp_branches
         handle_errors
 
-        log_info(stage: "complete")
+        log_info(stage: 'complete')
 
         true
       end
@@ -120,7 +120,7 @@ module Gitlab
             client.create_branch(project_key, repository_slug, branch_name, sha)
             branches_created << temp_branch
           rescue BitbucketServer::Connection::ConnectionError => e
-            log_warn(message: "Unable to recreate branch", sha: sha, error: e.message)
+            log_warn(message: 'Unable to recreate branch', sha: sha, error: e.message)
           end
         end
       end
@@ -308,7 +308,7 @@ module Gitlab
 
       def create_fallback_diff_note(merge_request, comment, position)
         attributes = pull_request_comment_attributes(comment)
-        note = "*Comment on"
+        note = '*Comment on'
 
         note += " #{position.old_path}:#{position.old_line} -->" if position.old_line
         note += " #{position.new_path}:#{position.new_line}" if position.new_line

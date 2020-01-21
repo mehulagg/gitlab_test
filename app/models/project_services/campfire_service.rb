@@ -56,10 +56,10 @@ class CampfireService < Service
   # Returns nil otherwise.
   # https://github.com/basecamp/campfire-api/blob/master/sections/messages.md#create-message
   def speak(room_name, message, auth)
-    room = rooms(auth).find { |r| r["name"] == room_name }
+    room = rooms(auth).find { |r| r['name'] == room_name }
     return unless room
 
-    path = "/room/#{room["id"]}/speak.json"
+    path = "/room/#{room['id']}/speak.json"
     body = {
       body: {
         message: {
@@ -75,8 +75,8 @@ class CampfireService < Service
   # Returns a list of rooms, or [].
   # https://github.com/basecamp/campfire-api/blob/master/sections/rooms.md#get-rooms
   def rooms(auth)
-    res = Gitlab::HTTP.get("/rooms.json", base_uri: base_uri, **auth)
-    res.code == 200 ? res["rooms"] : []
+    res = Gitlab::HTTP.get('/rooms.json', base_uri: base_uri, **auth)
+    res.code == 200 ? res['rooms'] : []
   end
 
   def build_message(push)

@@ -2,7 +2,7 @@
 
 RSpec.shared_context 'a GitHub-ish import controller' do
   let(:user) { create(:user) }
-  let(:token) { "asdasd12345" }
+  let(:token) { 'asdasd12345' }
   let(:access_params) { { github_access_token: token } }
 
   before do

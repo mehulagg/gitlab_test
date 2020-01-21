@@ -18,7 +18,7 @@ RSpec.describe Packages::ConanFileMetadatum, type: :model do
     it { is_expected.to validate_presence_of(:recipe_revision) }
 
     describe '#recipe_revision' do
-      it { is_expected.to allow_value("0").for(:recipe_revision) }
+      it { is_expected.to allow_value('0').for(:recipe_revision) }
       it { is_expected.not_to allow_value(nil).for(:recipe_revision) }
     end
 

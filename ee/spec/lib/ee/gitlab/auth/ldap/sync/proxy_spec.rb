@@ -35,7 +35,7 @@ describe EE::Gitlab::Auth::LDAP::Sync::Proxy do
         ldap_group = ldap_group_entry(dns)
         stub_ldap_group_find_by_cn('ldap_group1', ldap_group, adapter)
 
-        expect(sync_proxy.dns_for_group_cn('ldap_group1').first).to include("uid=méräy")
+        expect(sync_proxy.dns_for_group_cn('ldap_group1').first).to include('uid=méräy')
       end
     end
 

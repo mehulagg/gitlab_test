@@ -24,15 +24,15 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
     sign_in(user)
   end
 
-  describe "GET /:project/jobs" do
+  describe 'GET /:project/jobs' do
     let!(:job) { create(:ci_build, pipeline: pipeline) }
 
-    context "Pending scope" do
+    context 'Pending scope' do
       before do
         visit project_jobs_path(project, scope: :pending)
       end
 
-      it "shows Pending tab jobs" do
+      it 'shows Pending tab jobs' do
         expect(page).to have_selector('.nav-links li.active', text: 'Pending')
         expect(page).to have_content job.short_sha
         expect(page).to have_content job.ref
@@ -40,13 +40,13 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
       end
     end
 
-    context "Running scope" do
+    context 'Running scope' do
       before do
         job.run!
         visit project_jobs_path(project, scope: :running)
       end
 
-      it "shows Running tab jobs" do
+      it 'shows Running tab jobs' do
         expect(page).to have_selector('.nav-links li.active', text: 'Running')
         expect(page).to have_content job.short_sha
         expect(page).to have_content job.ref
@@ -54,25 +54,25 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
       end
     end
 
-    context "Finished scope" do
+    context 'Finished scope' do
       before do
         job.run!
         visit project_jobs_path(project, scope: :finished)
       end
 
-      it "shows Finished tab jobs" do
+      it 'shows Finished tab jobs' do
         expect(page).to have_selector('.nav-links li.active', text: 'Finished')
         expect(page).to have_content 'No jobs to show'
       end
     end
 
-    context "All jobs" do
+    context 'All jobs' do
       before do
         project.builds.running_or_pending.each(&:success)
         visit project_jobs_path(project)
       end
 
-      it "shows All tab jobs" do
+      it 'shows All tab jobs' do
         expect(page).to have_selector('.nav-links li.active', text: 'All')
         expect(page).to have_content job.short_sha
         expect(page).to have_content job.ref
@@ -80,7 +80,7 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
       end
     end
 
-    context "when visiting old URL" do
+    context 'when visiting old URL' do
       let(:jobs_url) do
         project_jobs_path(project)
       end
@@ -89,14 +89,14 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
         visit jobs_url.sub('/-/jobs', '/builds')
       end
 
-      it "redirects to new URL" do
+      it 'redirects to new URL' do
         expect(page.current_path).to eq(jobs_url)
       end
     end
   end
 
-  describe "GET /:project/jobs/:id" do
-    context "Job from project" do
+  describe 'GET /:project/jobs/:id' do
+    context 'Job from project' do
       let(:job) { create(:ci_build, :success, :trace_live, pipeline: pipeline) }
 
       it 'shows status name', :js do
@@ -317,11 +317,11 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
 
       it 'shows correct UI components' do
         expect(page).to have_content("This job is waiting for resource: #{resource_group.key}")
-        expect(page).to have_link("Cancel this job")
+        expect(page).to have_link('Cancel this job')
       end
     end
 
-    context "Job from other project" do
+    context 'Job from other project' do
       before do
         visit project_job_path(project, job2)
       end
@@ -329,7 +329,7 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
       it { expect(page.status_code).to eq(404) }
     end
 
-    context "Download artifacts", :js do
+    context 'Download artifacts', :js do
       before do
         create(:ci_job_artifact, :archive, file: artifacts_file, job: job)
         visit project_job_path(project, job)
@@ -346,9 +346,9 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
 
         artifact_request = requests.find { |req| req.url.match(%r{artifacts/download}) }
 
-        expect(artifact_request.response_headers["Content-Disposition"]).to eq(%Q{attachment; filename*=UTF-8''#{job.artifacts_file.filename}; filename="#{job.artifacts_file.filename}"})
-        expect(artifact_request.response_headers['Content-Transfer-Encoding']).to eq("binary")
-        expect(artifact_request.response_headers['Content-Type']).to eq("image/gif")
+        expect(artifact_request.response_headers['Content-Disposition']).to eq(%Q{attachment; filename*=UTF-8''#{job.artifacts_file.filename}; filename="#{job.artifacts_file.filename}"})
+        expect(artifact_request.response_headers['Content-Transfer-Encoding']).to eq('binary')
+        expect(artifact_request.response_headers['Content-Type']).to eq('image/gif')
         expect(artifact_request.body).to eq(job.artifacts_file.file.read.b)
       end
     end
@@ -402,7 +402,7 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
       end
     end
 
-    context "when visiting old URL" do
+    context 'when visiting old URL' do
       let(:job_url) do
         project_job_path(project, job)
       end
@@ -411,7 +411,7 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
         visit job_url.sub('/-/jobs', '/builds')
       end
 
-      it "redirects to new URL" do
+      it 'redirects to new URL' do
         expect(page.current_path).to eq(job_url)
       end
     end
@@ -772,7 +772,7 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
 
       it 'shows delayed job', :js do
         expect(page).to have_content('This is a delayed job to run in')
-        expect(page).to have_content("This job will automatically run after its timer finishes.")
+        expect(page).to have_content('This job will automatically run after its timer finishes.')
         expect(page).to have_link('Unschedule job')
       end
 
@@ -975,8 +975,8 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
     end
   end
 
-  describe "POST /:project/jobs/:id/cancel", :js do
-    context "Job from project" do
+  describe 'POST /:project/jobs/:id/cancel', :js do
+    context 'Job from project' do
       before do
         job.run!
         visit project_job_path(project, job)
@@ -989,8 +989,8 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
     end
   end
 
-  describe "POST /:project/jobs/:id/retry", :js do
-    context "Job from project", :js do
+  describe 'POST /:project/jobs/:id/retry', :js do
+    context 'Job from project', :js do
       before do
         job.run!
         job.cancel!
@@ -1007,7 +1007,7 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
       end
     end
 
-    context "Job that current user is not allowed to retry" do
+    context 'Job that current user is not allowed to retry' do
       before do
         job.run!
         job.cancel!
@@ -1026,7 +1026,7 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
     end
   end
 
-  describe "GET /:project/jobs/:id/download", :js do
+  describe 'GET /:project/jobs/:id/download', :js do
     before do
       create(:ci_job_artifact, :archive, file: artifacts_file, job: job)
       visit project_job_path(project, job)
@@ -1034,7 +1034,7 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
       click_link 'Download'
     end
 
-    context "Build from other project" do
+    context 'Build from other project' do
       before do
         create(:ci_job_artifact, :archive, file: artifacts_file, job: job2)
       end
@@ -1097,7 +1097,7 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
       end
     end
 
-    context "when visiting old URL" do
+    context 'when visiting old URL' do
       let(:raw_job_url) do
         raw_project_job_path(project, job)
       end
@@ -1106,14 +1106,14 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
         visit raw_job_url.sub('/-/jobs', '/builds')
       end
 
-      it "redirects to new URL" do
+      it 'redirects to new URL' do
         expect(page.current_path).to eq(raw_job_url)
       end
     end
   end
 
-  describe "GET /:project/jobs/:id/trace.json" do
-    context "Job from project" do
+  describe 'GET /:project/jobs/:id/trace.json' do
+    context 'Job from project' do
       before do
         visit trace_project_job_path(project, job, format: :json)
       end
@@ -1121,7 +1121,7 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
       it { expect(page.status_code).to eq(200) }
     end
 
-    context "Job from other project" do
+    context 'Job from other project' do
       before do
         visit trace_project_job_path(project, job2, format: :json)
       end
@@ -1130,8 +1130,8 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
     end
   end
 
-  describe "GET /:project/jobs/:id/status" do
-    context "Job from project" do
+  describe 'GET /:project/jobs/:id/status' do
+    context 'Job from project' do
       before do
         visit status_project_job_path(project, job)
       end
@@ -1139,7 +1139,7 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
       it { expect(page.status_code).to eq(200) }
     end
 
-    context "Job from other project" do
+    context 'Job from other project' do
       before do
         visit status_project_job_path(project, job2)
       end

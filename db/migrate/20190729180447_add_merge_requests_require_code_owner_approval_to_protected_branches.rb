@@ -19,12 +19,12 @@ class AddMergeRequestsRequireCodeOwnerApprovalToProtectedBranches < ActiveRecord
     add_concurrent_index(
       :protected_branches,
       [:project_id, :code_owner_approval_required],
-      name: "code_owner_approval_required",
+      name: 'code_owner_approval_required',
       where: "code_owner_approval_required = #{Gitlab::Database.true_value}")
   end
 
   def down
-    remove_concurrent_index(:protected_branches, name: "code_owner_approval_required")
+    remove_concurrent_index(:protected_branches, name: 'code_owner_approval_required')
 
     remove_column(:protected_branches, :code_owner_approval_required)
   end

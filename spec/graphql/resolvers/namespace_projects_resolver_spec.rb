@@ -7,7 +7,7 @@ describe Resolvers::NamespaceProjectsResolver do
 
   let(:current_user) { create(:user) }
 
-  context "with a group" do
+  context 'with a group' do
     let(:group) { create(:group) }
     let(:namespace) { group }
     let(:project1) { create(:project, namespace: namespace) }
@@ -44,14 +44,14 @@ describe Resolvers::NamespaceProjectsResolver do
     end
   end
 
-  context "when passing a non existent, batch loaded namespace" do
+  context 'when passing a non existent, batch loaded namespace' do
     let(:namespace) do
-      BatchLoader::GraphQL.for("non-existent-path").batch do |_fake_paths, loader, _|
-        loader.call("non-existent-path", nil)
+      BatchLoader::GraphQL.for('non-existent-path').batch do |_fake_paths, loader, _|
+        loader.call('non-existent-path', nil)
       end
     end
 
-    it "returns nil without breaking" do
+    it 'returns nil without breaking' do
       expect(resolve_projects).to be_empty
     end
   end

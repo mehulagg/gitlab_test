@@ -59,7 +59,7 @@ module EE
       end
 
       def current_ranges
-        comma_separated_ranges.split(",").map(&:strip).uniq
+        comma_separated_ranges.split(',').map(&:strip).uniq
       end
     end
   end

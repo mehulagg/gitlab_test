@@ -79,18 +79,18 @@ module QA
             show.has_content?(/Pipeline #\d+ passed/)
           end
 
-          expect(pipeline_passed).to be_truthy, "The pipeline did not pass."
+          expect(pipeline_passed).to be_truthy, 'The pipeline did not pass.'
 
           show.click_pipeline_link
         end
 
         Page::Project::Pipeline::Show.perform do |show|
           expect(show).to be_successful
-          expect(show).to have_no_job("downstream_job")
+          expect(show).to have_no_job('downstream_job')
 
           show.click_linked_job(downstream_project_name)
 
-          expect(show).to have_job("downstream_job")
+          expect(show).to have_job('downstream_job')
         end
       end
     end

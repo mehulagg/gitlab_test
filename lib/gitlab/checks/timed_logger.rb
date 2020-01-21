@@ -7,7 +7,7 @@ module Gitlab
 
       attr_reader :start_time, :header, :log, :timeout
 
-      def initialize(start_time: Time.now, log: [], header: "", timeout:)
+      def initialize(start_time: Time.now, log: [], header: '', timeout:)
         @start_time = start_time
         @timeout = timeout
         @header = header
@@ -67,7 +67,7 @@ module Gitlab
         if start
           " (cancelled after #{elapsed_time(start)}ms)"
         else
-          " (cancelled)"
+          ' (cancelled)'
         end
       end
 

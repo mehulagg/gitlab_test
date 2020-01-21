@@ -9,7 +9,7 @@ describe Mattermost::Client do
 
   context 'JSON parse error' do
     before do
-      Struct.new("Request", :body, :success?)
+      Struct.new('Request', :body, :success?)
     end
 
     it 'yields an error on malformed JSON' do
@@ -18,7 +18,7 @@ describe Mattermost::Client do
     end
 
     it 'shows a client error if the request was unsuccessful' do
-      bad_request = Struct::Request.new("true", false)
+      bad_request = Struct::Request.new('true', false)
 
       expect { subject.send(:json_response, bad_request) }.to raise_error(Mattermost::ClientError)
     end

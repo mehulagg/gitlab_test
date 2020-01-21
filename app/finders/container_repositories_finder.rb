@@ -9,7 +9,7 @@ class ContainerRepositoriesFinder
   end
 
   def execute
-    raise ArgumentError, "invalid subject_type" unless valid_subject_type?
+    raise ArgumentError, 'invalid subject_type' unless valid_subject_type?
     return unless authorized?
 
     return project_repositories if @subject.is_a?(Project)

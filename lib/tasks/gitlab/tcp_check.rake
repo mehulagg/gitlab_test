@@ -1,8 +1,8 @@
 namespace :gitlab do
-  desc "GitLab | Check TCP connectivity to a specific host and port"
+  desc 'GitLab | Check TCP connectivity to a specific host and port'
   task :tcp_check, [:host, :port] => :environment do |_t, args|
     unless args.host && args.port
-      puts "Please specify a host and port: `rake gitlab:tcp_check[example.com,80]`".color(:red)
+      puts 'Please specify a host and port: `rake gitlab:tcp_check[example.com,80]`'.color(:red)
       exit 1
     end
 

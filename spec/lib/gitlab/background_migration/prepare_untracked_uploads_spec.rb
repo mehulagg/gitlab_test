@@ -129,7 +129,7 @@ describe Gitlab::BackgroundMigration::PrepareUntrackedUploads, :sidekiq, :migrat
 
   # If running on Postgres 9.2 (like on CI), this whole context is skipped
   # since we're unable to use ON CONFLICT DO NOTHING or IGNORE.
-  context "test bulk insert with ON CONFLICT DO NOTHING or IGNORE", if: described_class.new.send(:can_bulk_insert_and_ignore_duplicates?) do
+  context 'test bulk insert with ON CONFLICT DO NOTHING or IGNORE', if: described_class.new.send(:can_bulk_insert_and_ignore_duplicates?) do
     it_behaves_like 'prepares the untracked_files_for_uploads table'
   end
 

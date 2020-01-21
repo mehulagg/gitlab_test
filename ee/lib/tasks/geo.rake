@@ -63,7 +63,7 @@ namespace :geo do
         Gitlab::Geo::GeoTasks.refresh_foreign_tables!
         puts 'Done!'
       else
-        puts "Error: Cannot refresh foreign tables, there is no foreign server configured."
+        puts 'Error: Cannot refresh foreign tables, there is no foreign server configured.'
         exit 1
       end
     end
@@ -71,7 +71,7 @@ namespace :geo do
     # IMPORTANT: This task won't dump the schema if ActiveRecord::Base.dump_schema_after_migration is set to false
     task _dump: [:environment] do
       if Gitlab::Geo::DatabaseTasks.dump_schema_after_migration?
-        ns["schema:dump"].invoke
+        ns['schema:dump'].invoke
       end
 
       # Allow this task to be called as many times as required. An example is the
@@ -386,7 +386,7 @@ namespace :geo do
     else
       # Only primary node can create a status record in the database so if it does not exist
       # we get unsaved record where updated_at is nil
-      puts "Never"
+      puts 'Never'
     end
 
     puts

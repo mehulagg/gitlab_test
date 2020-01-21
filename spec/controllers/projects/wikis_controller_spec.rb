@@ -153,7 +153,7 @@ describe Projects::WikisController do
 
         it 'delivers the image' do
           expect(response.headers['Content-Disposition']).to match(/^inline/)
-          expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
+          expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq 'true'
         end
 
         context 'when file is a svg' do
@@ -161,7 +161,7 @@ describe Projects::WikisController do
 
           it 'delivers the image' do
             expect(response.headers['Content-Disposition']).to match(/^inline/)
-            expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
+            expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq 'true'
           end
         end
       end
@@ -171,7 +171,7 @@ describe Projects::WikisController do
 
         it 'sets the content type to sets the content response headers' do
           expect(response.headers['Content-Disposition']).to match(/^inline/)
-          expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
+          expect(response.headers[Gitlab::Workhorse::DETECT_HEADER]).to eq 'true'
         end
       end
     end
@@ -257,6 +257,6 @@ describe Projects::WikisController do
 
   def destroy_page(title, dir = '')
     page = wiki.page(title: title, dir: dir)
-    project_wiki.delete_page(page, "test commit")
+    project_wiki.delete_page(page, 'test commit')
   end
 end

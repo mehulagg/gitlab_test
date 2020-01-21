@@ -19,7 +19,7 @@ describe Banzai::ReferenceParser::MergeRequestParser do
         link['data-merge-request'] = merge_request.id.to_s
       end
 
-      it_behaves_like "referenced feature visibility", "merge_requests"
+      it_behaves_like 'referenced feature visibility', 'merge_requests'
     end
   end
 

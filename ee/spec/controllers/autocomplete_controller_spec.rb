@@ -16,7 +16,7 @@ describe AutocompleteController do
         sign_in(user)
       end
 
-      describe "GET #users that can push to protected branches" do
+      describe 'GET #users that can push to protected branches' do
         before do
           get(:users, params: { project_id: project.id, push_code_to_protected_branches: 'true' })
         end
@@ -24,11 +24,11 @@ describe AutocompleteController do
         it 'returns authorized users', :aggregate_failures do
           expect(json_response).to be_kind_of(Array)
           expect(json_response.size).to eq(1)
-          expect(json_response.map { |u| u["username"] }).to match_array([user.username])
+          expect(json_response.map { |u| u['username'] }).to match_array([user.username])
         end
       end
 
-      describe "GET #users that can push code" do
+      describe 'GET #users that can push code' do
         let(:reporter_user) { create(:user) }
 
         before do
@@ -39,11 +39,11 @@ describe AutocompleteController do
         it 'returns authorized users', :aggregate_failures do
           expect(json_response).to be_kind_of(Array)
           expect(json_response.size).to eq(2)
-          expect(json_response.map { |user| user["username"] }).to match_array([user.username, user2.username])
+          expect(json_response.map { |user| user['username'] }).to match_array([user.username, user2.username])
         end
       end
 
-      describe "GET #users that can push to protected branches, including the current user" do
+      describe 'GET #users that can push to protected branches, including the current user' do
         before do
           get(:users, params: { project_id: project.id, push_code_to_protected_branches: true, current_user: true })
         end
@@ -51,13 +51,13 @@ describe AutocompleteController do
         it 'returns authorized users', :aggregate_failures do
           expect(json_response).to be_kind_of(Array)
           expect(json_response.size).to eq(1)
-          expect(json_response.map { |u| u["username"] }).to match_array([user.username])
+          expect(json_response.map { |u| u['username'] }).to match_array([user.username])
         end
       end
     end
   end
 
-  context "groups" do
+  context 'groups' do
     let(:matching_group) { create(:group) }
     let(:non_matching_group) { create(:group) }
     let(:user2) { create(:user) }
@@ -66,7 +66,7 @@ describe AutocompleteController do
       project.invited_groups << matching_group
     end
 
-    context "while fetching all groups belonging to a project" do
+    context 'while fetching all groups belonging to a project' do
       before do
         sign_in(user)
         get(:project_groups, params: { project_id: project.id })
@@ -79,7 +79,7 @@ describe AutocompleteController do
       end
     end
 
-    context "while fetching all groups belonging to a project the current user cannot access" do
+    context 'while fetching all groups belonging to a project the current user cannot access' do
       before do
         sign_in(user2)
         get(:project_groups, params: { project_id: project.id })
@@ -88,7 +88,7 @@ describe AutocompleteController do
       it { expect(response).to be_not_found }
     end
 
-    context "while fetching all groups belonging to an invalid project ID" do
+    context 'while fetching all groups belonging to an invalid project ID' do
       before do
         sign_in(user)
         get(:project_groups, params: { project_id: 'invalid' })

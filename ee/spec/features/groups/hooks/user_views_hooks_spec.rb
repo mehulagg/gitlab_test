@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
-describe "User views hooks" do
+describe 'User views hooks' do
   let_it_be(:group) { create(:group) }
   let_it_be(:hook) { create(:group_hook, group: group) }
   let_it_be(:user) { create(:user) }

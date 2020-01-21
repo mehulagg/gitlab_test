@@ -12,7 +12,7 @@ describe API::ProjectMilestones do
     project.add_developer(user)
   end
 
-  it_behaves_like 'group and project milestones', "/projects/:id/milestones" do
+  it_behaves_like 'group and project milestones', '/projects/:id/milestones' do
     let(:route) { "/projects/#{project.id}/milestones" }
   end
 
@@ -36,7 +36,7 @@ describe API::ProjectMilestones do
       expect(response).to have_gitlab_http_status(404)
     end
 
-    it "returns 404 from guest user deleting a milestone" do
+    it 'returns 404 from guest user deleting a milestone' do
       delete api("/projects/#{project.id}/milestones/#{milestone.id}", guest)
 
       expect(response).to have_gitlab_http_status(404)

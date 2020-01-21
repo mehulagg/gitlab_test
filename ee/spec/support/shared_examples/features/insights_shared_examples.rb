@@ -38,7 +38,7 @@ RSpec.shared_examples 'Insights page' do
         end
 
         it 'loads the correct page' do
-          page.within(".insights-container") do
+          page.within('.insights-container') do
             expect(page).to have_content(non_default_tab_title)
           end
         end

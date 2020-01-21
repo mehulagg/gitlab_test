@@ -6,7 +6,7 @@ describe API::Dependencies do
   set(:project) { create(:project, :public) }
   set(:user) { create(:user) }
 
-  describe "GET /projects/:id/dependencies" do
+  describe 'GET /projects/:id/dependencies' do
     subject(:request) { get api("/projects/#{project.id}/dependencies", user), params: params }
 
     let(:params) { {} }

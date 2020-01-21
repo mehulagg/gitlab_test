@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Resolvers::TimelogResolver do
   include GraphqlHelpers
 
-  context "within a group" do
+  context 'within a group' do
     let(:current_user) { create(:user) }
     let(:user)         { create(:user) }
     let(:group)        { create(:group) }
@@ -87,7 +87,7 @@ describe Resolvers::TimelogResolver do
           it_behaves_like 'validation fails with error'
         end
 
-        context "when user has insufficient permissions" do
+        context 'when user has insufficient permissions' do
           before do
             group.add_guest(current_user)
           end

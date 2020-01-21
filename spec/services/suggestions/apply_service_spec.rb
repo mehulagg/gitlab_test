@@ -6,8 +6,8 @@ describe Suggestions::ApplyService do
   include ProjectForksHelper
 
   def build_position(args = {})
-    default_args = { old_path: "files/ruby/popen.rb",
-                     new_path: "files/ruby/popen.rb",
+    default_args = { old_path: 'files/ruby/popen.rb',
+                     new_path: 'files/ruby/popen.rb',
                      old_line: nil,
                      new_line: 9,
                      diff_refs: merge_request.diff_refs }
@@ -60,7 +60,7 @@ describe Suggestions::ApplyService do
         let(:message) { nil }
 
         it 'sets default commit message' do
-          expect(project.repository.commit.message).to eq("Apply suggestion to files/ruby/popen.rb")
+          expect(project.repository.commit.message).to eq('Apply suggestion to files/ruby/popen.rb')
         end
       end
 
@@ -68,7 +68,7 @@ describe Suggestions::ApplyService do
         let(:message) { 'refactor: %{project_path} %{project_name} %{file_path} %{branch_name} %{username} %{user_full_name}' }
 
         it 'sets custom commit message' do
-          expect(project.repository.commit.message).to eq("refactor: project-1 Project_1 files/ruby/popen.rb master test.user Test User")
+          expect(project.repository.commit.message).to eq('refactor: project-1 Project_1 files/ruby/popen.rb master test.user Test User')
         end
       end
     end
@@ -407,7 +407,7 @@ describe Suggestions::ApplyService do
 
         let(:position) { build_position(new_line: 13) }
         let(:suggestion) do
-          create(:suggestion, :content_from_repo, note: diff_note, to_content: "")
+          create(:suggestion, :content_from_repo, note: diff_note, to_content: '')
         end
 
         it_behaves_like 'successfully creates commit and updates suggestion'
@@ -465,7 +465,7 @@ describe Suggestions::ApplyService do
       it 'returns error' do
         result = subject.execute(suggestion)
 
-        expect(result).to eq(message: "You are not allowed to push into this branch",
+        expect(result).to eq(message: 'You are not allowed to push into this branch',
                              status: :error)
       end
     end

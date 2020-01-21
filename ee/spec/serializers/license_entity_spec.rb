@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe LicenseEntity do
-  describe "#as_json" do
+  describe '#as_json' do
     subject { described_class.represent(license_policy).as_json }
 
     let(:license) { build(:license_scanning_license, :mit) }
@@ -16,7 +16,7 @@ describe LicenseEntity do
       allow(license.dependencies.first).to receive(:path).and_return(path)
     end
 
-    it "produces the correct representation" do
+    it 'produces the correct representation' do
       is_expected.to eq({
         id: license_policy.id,
         name: license_policy.name,
@@ -27,7 +27,7 @@ describe LicenseEntity do
       })
     end
 
-    context "when the url is blank" do
+    context 'when the url is blank' do
       where(url: ['', nil])
 
       with_them do

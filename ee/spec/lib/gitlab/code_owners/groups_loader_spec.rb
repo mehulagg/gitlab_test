@@ -48,8 +48,8 @@ describe Gitlab::CodeOwners::GroupsLoader do
       let(:project) { create(:project, :private) }
 
       it 'returns the groups case insensitive for names' do
-        group = create(:group, path: "GROUP-1")
-        create(:group, path: "GROUP-2")
+        group = create(:group, path: 'GROUP-1')
+        create(:group, path: 'GROUP-2')
         project.invited_groups << group
 
         load_groups

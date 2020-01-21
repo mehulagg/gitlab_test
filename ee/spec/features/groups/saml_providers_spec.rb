@@ -10,7 +10,7 @@ describe 'SAML provider settings' do
   let(:callback_path) { "/groups/#{group.path}/-/saml/callback" }
 
   before do
-    stub_default_url_options(protocol: "https")
+    stub_default_url_options(protocol: 'https')
     stub_saml_config
     group.add_owner(user)
   end
@@ -54,7 +54,7 @@ describe 'SAML provider settings' do
       end
 
       expect(page.body).to include(callback_path)
-      expect(response_headers['Content-Type']).to have_content("application/xml")
+      expect(response_headers['Content-Type']).to have_content('application/xml')
     end
 
     it 'allows creation of new provider' do
@@ -169,8 +169,8 @@ describe 'SAML provider settings' do
         test_sso
 
         expect(current_path).to eq group_saml_providers_path(group)
-        expect(page).to have_content("Fingerprint mismatch")
-        expect(page).to have_content("The attributes have expired, based on the SessionNotOnOrAfter")
+        expect(page).to have_content('Fingerprint mismatch')
+        expect(page).to have_content('The attributes have expired, based on the SessionNotOnOrAfter')
       end
 
       it 'displays SAML Response XML' do
@@ -178,7 +178,7 @@ describe 'SAML provider settings' do
 
         test_sso
 
-        expect(page).to have_content("<saml:Issuer>")
+        expect(page).to have_content('<saml:Issuer>')
       end
     end
   end
@@ -209,7 +209,7 @@ describe 'SAML provider settings' do
       let!(:saml_provider) { create(:saml_provider, group: group) }
 
       context 'when not signed in' do
-        it "shows the sso page so user can sign in" do
+        it 'shows the sso page so user can sign in' do
           visit sso_group_saml_providers_path(group)
 
           expect(page).to have_content('SAML SSO')
@@ -269,7 +269,7 @@ describe 'SAML provider settings' do
             expect(current_path).to eq(new_user_session_path)
           end
 
-          it "shows the sso page if the token is given" do
+          it 'shows the sso page if the token is given' do
             visit sso_group_saml_providers_path(group, token: group.saml_discovery_token)
 
             expect(current_path).to eq sso_group_saml_providers_path(group)

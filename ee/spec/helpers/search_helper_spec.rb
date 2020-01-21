@@ -59,7 +59,7 @@ describe SearchHelper do
       stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
     end
 
-    it "returns parsed result", :sidekiq_might_not_need_inline do
+    it 'returns parsed result', :sidekiq_might_not_need_inline do
       project = create :project, :repository
 
       project.repository.index_commits_and_blobs
@@ -76,7 +76,7 @@ describe SearchHelper do
       expect(parsed_result.ref). to eq('b83d6e391c22777fca1ed3012fce84f633d7fed0')
       expect(parsed_result.path).to eq('files/ruby/popen.rb')
       expect(parsed_result.startline).to eq(2)
-      expect(parsed_result.data).to include("Popen")
+      expect(parsed_result.data).to include('Popen')
     end
   end
 
@@ -119,8 +119,8 @@ describe SearchHelper do
     let(:show_snippets) { true }
     let(:collection) { Kaminari.paginate_array([:foo]).page(1).per(10) }
     let(:user) { create(:user) }
-    let(:message) { "Showing %{count} %{scope} for%{term_element}" }
-    let(:new_message) { message + " in your personal and project snippets" }
+    let(:message) { 'Showing %{count} %{scope} for%{term_element}' }
+    let(:new_message) { message + ' in your personal and project snippets' }
 
     subject { search_entries_info_template(collection) }
 

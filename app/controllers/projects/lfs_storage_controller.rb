@@ -14,7 +14,7 @@ class Projects::LfsStorageController < Projects::GitHttpClientController
       return
     end
 
-    send_upload(lfs_object.file, send_params: { content_type: "application/octet-stream" })
+    send_upload(lfs_object.file, send_params: { content_type: 'application/octet-stream' })
   end
 
   def upload_authorize

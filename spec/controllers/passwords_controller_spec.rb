@@ -5,7 +5,7 @@ require 'spec_helper'
 describe PasswordsController do
   describe '#check_password_authentication_available' do
     before do
-      @request.env["devise.mapping"] = Devise.mappings[:user]
+      @request.env['devise.mapping'] = Devise.mappings[:user]
     end
 
     context 'when password authentication is disabled for the web interface and Git' do

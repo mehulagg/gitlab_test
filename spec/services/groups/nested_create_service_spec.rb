@@ -31,7 +31,7 @@ describe Groups::NestedCreateService do
   describe 'with subgroups' do
     let(:params) { { group_path: 'a-group/a-sub-group' } }
 
-    describe "#execute" do
+    describe '#execute' do
       it 'returns the group if it already existed' do
         parent = create(:group, path: 'a-group')
         child = create(:group, path: 'a-sub-group', parent: parent)

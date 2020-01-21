@@ -62,7 +62,7 @@ describe 'projects/pipelines/_stage' do
     it 'shows them in order' do
       render
 
-      expect(rendered).to have_text(HasStatus::ORDERED_STATUSES.join(" "))
+      expect(rendered).to have_text(HasStatus::ORDERED_STATUSES.join(' '))
     end
 
     def create_build(status)

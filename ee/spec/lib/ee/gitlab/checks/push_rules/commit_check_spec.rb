@@ -119,7 +119,7 @@ describe EE::Gitlab::Checks::PushRules::CommitCheck do
           end
 
           it 'returns an error' do
-            expect { subject.validate! }.to raise_error(Gitlab::GitAccess::UnauthorizedError, "Commit must be signed with a GPG key")
+            expect { subject.validate! }.to raise_error(Gitlab::GitAccess::UnauthorizedError, 'Commit must be signed with a GPG key')
           end
         end
       end
@@ -131,7 +131,7 @@ describe EE::Gitlab::Checks::PushRules::CommitCheck do
           end
 
           it 'returns an error' do
-            expect { subject.validate! }.to raise_error(Gitlab::GitAccess::UnauthorizedError, "Commit must be signed with a GPG key")
+            expect { subject.validate! }.to raise_error(Gitlab::GitAccess::UnauthorizedError, 'Commit must be signed with a GPG key')
           end
 
           context 'but the change is made in the web application' do
@@ -232,7 +232,7 @@ describe EE::Gitlab::Checks::PushRules::CommitCheck do
 
       context 'for an ff merge request' do
         # the signed-commits branch fast-forwards onto master
-        let(:newrev) { "2d1096e3a0ecf1d2baf6dee036cc80775d4940ba" }
+        let(:newrev) { '2d1096e3a0ecf1d2baf6dee036cc80775d4940ba' }
 
         before do
           allow(project.repository).to receive(:new_commits).and_call_original

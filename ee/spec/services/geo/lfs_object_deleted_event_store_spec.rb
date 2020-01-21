@@ -36,10 +36,10 @@ describe Geo::LfsObjectDeletedEventStore do
         subject = described_class.new(invalid_lfs_object)
 
         expected_message = {
-          class: "Geo::LfsObjectDeletedEventStore",
+          class: 'Geo::LfsObjectDeletedEventStore',
           lfs_object_id: invalid_lfs_object.id,
           file_path: nil,
-          message: "Lfs object deleted event could not be created",
+          message: 'Lfs object deleted event could not be created',
           error: "Validation failed: File path can't be blank"
         }
 

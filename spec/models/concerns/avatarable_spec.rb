@@ -5,8 +5,8 @@ require 'spec_helper'
 describe Avatarable do
   let(:project) { create(:project, :with_avatar) }
 
-  let(:gitlab_host) { "https://gitlab.example.com" }
-  let(:relative_url_root) { "/gitlab" }
+  let(:gitlab_host) { 'https://gitlab.example.com' }
+  let(:relative_url_root) { '/gitlab' }
   let(:asset_host) { 'https://gitlab-assets.example.com' }
 
   before do
@@ -58,7 +58,7 @@ describe Avatarable do
         expect(project.avatar).to receive(:local_url).exactly(2).times.and_call_original
 
         expect(project.avatar_path).to eq(avatar_path)
-        expect(project.avatar_path(size: 40)).to eq(avatar_path + "?width=40")
+        expect(project.avatar_path(size: 40)).to eq(avatar_path + '?width=40')
       end
 
       it 'handles unpersisted objects' do
@@ -103,10 +103,10 @@ describe Avatarable do
       end
 
       it 'returns the expected avatar path with width parameter' do
-        expect(project.avatar_path(only_path: only_path, size: 128)).to eq(avatar_path + "?width=128")
+        expect(project.avatar_path(only_path: only_path, size: 128)).to eq(avatar_path + '?width=128')
       end
 
-      context "when avatar is stored remotely" do
+      context 'when avatar is stored remotely' do
         before do
           stub_uploads_object_storage(AvatarUploader)
 

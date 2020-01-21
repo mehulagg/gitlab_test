@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'pages size limit is' do |size_limit|
-  context "when size is below the limit" do
+  context 'when size is below the limit' do
     before do
       allow(metadata).to receive(:total_size).and_return(size_limit - 1.megabyte)
     end
@@ -14,7 +14,7 @@ RSpec.shared_examples 'pages size limit is' do |size_limit|
     end
   end
 
-  context "when size is above the limit" do
+  context 'when size is above the limit' do
     before do
       allow(metadata).to receive(:total_size).and_return(size_limit + 1.megabyte)
     end

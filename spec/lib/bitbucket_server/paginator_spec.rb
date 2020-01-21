@@ -33,7 +33,7 @@ describe BitbucketServer::Paginator do
     end
 
     it 'does not stop if limit is unspecified' do
-      stub_const("BitbucketServer::Paginator::PAGE_LENGTH", 1)
+      stub_const('BitbucketServer::Paginator::PAGE_LENGTH', 1)
       paginator = described_class.new(connection, 'http://more-data', :pull_request, page_offset: 0, limit: nil)
       allow(paginator).to receive(:fetch_next_page).and_return(first_page, last_page)
 

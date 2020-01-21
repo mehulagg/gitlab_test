@@ -18,7 +18,7 @@ describe Gitlab::DependencyLinker::CartfileLinker do
   end
 
   describe '#link' do
-    let(:file_name) { "Cartfile" }
+    let(:file_name) { 'Cartfile' }
 
     let(:file_content) do
       <<-CONTENT.strip_heredoc

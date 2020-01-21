@@ -204,7 +204,7 @@ describe Issues::CreateService do
           expect(issue.assignees).to eq([assignee])
         end
 
-        context "when issuable feature is private" do
+        context 'when issuable feature is private' do
           before do
             project.project_feature.update(issues_access_level: ProjectFeature::PRIVATE,
                                            merge_requests_access_level: ProjectFeature::PRIVATE)

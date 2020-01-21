@@ -20,7 +20,7 @@ describe 'Path Locks', :js do
 
   it 'Locking folders' do
     within '.tree-content-holder' do
-      click_link "encoding"
+      click_link 'encoding'
     end
 
     find('.js-path-lock').click
@@ -32,11 +32,11 @@ describe 'Path Locks', :js do
     page_tree = find('.tree-content-holder')
 
     within page_tree do
-      click_link "VERSION"
+      click_link 'VERSION'
     end
 
     within '.file-actions' do
-      click_link "Lock"
+      click_link 'Lock'
 
       expect(page).to have_link('Unlock')
     end
@@ -44,17 +44,17 @@ describe 'Path Locks', :js do
 
   it 'Unlocking files' do
     within find('.tree-content-holder') do
-      click_link "VERSION"
+      click_link 'VERSION'
     end
 
     within '.file-actions' do
-      click_link "Lock"
+      click_link 'Lock'
 
       expect(page).to have_link('Unlock')
     end
 
     within '.file-actions' do
-      click_link "Unlock"
+      click_link 'Unlock'
 
       expect(page).to have_link('Lock')
     end
@@ -63,12 +63,12 @@ describe 'Path Locks', :js do
   it 'Managing of lock list' do
     create :path_lock, path: 'encoding', user: user, project: project
 
-    click_link "Locked Files"
+    click_link 'Locked Files'
 
     within '.locks' do
       expect(page).to have_content('encoding')
 
-      accept_confirm { click_link "Unlock" }
+      accept_confirm { click_link 'Unlock' }
 
       expect(page).not_to have_content('encoding')
     end

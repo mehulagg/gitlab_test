@@ -31,7 +31,7 @@ module Gitlab
             method.wait_time,                    # wait
             method.children_time,                # children
             method.called,                       # calls
-            method.recursive? ? "*" : " ",       # cycle
+            method.recursive? ? '*' : ' ',       # cycle
             method_name(method)                  # name
           ]
         end

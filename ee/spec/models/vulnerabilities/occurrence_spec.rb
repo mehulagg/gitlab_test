@@ -39,7 +39,7 @@ describe Vulnerabilities::Occurrence do
     let(:occurrence) { create(:vulnerabilities_occurrence) }
     let(:new_occurrence) { occurrence.dup.tap { |o| o.uuid = SecureRandom.uuid } }
 
-    it "when all index attributes are identical" do
+    it 'when all index attributes are identical' do
       expect { new_occurrence.save! }.to raise_error(ActiveRecord::RecordNotUnique)
     end
 
@@ -54,7 +54,7 @@ describe Vulnerabilities::Occurrence do
       end
 
       with_them do
-        it "is valid" do
+        it 'is valid' do
           expect { new_occurrence.update!({ key => create(factory_name) }) }.not_to raise_error
         end
       end

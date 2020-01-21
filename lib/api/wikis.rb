@@ -120,7 +120,7 @@ module API
         requires :file, types: [::API::Validations::Types::SafeFile, ::API::Validations::Types::WorkhorseFile], desc: 'The attachment file to be uploaded'
         optional :branch, type: String, desc: 'The name of the branch'
       end
-      post ":id/wikis/attachments" do
+      post ':id/wikis/attachments' do
         authorize! :create_wiki, user_project
 
         result = ::Wikis::CreateAttachmentService.new(user_project,

@@ -56,7 +56,7 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
     let(:results) { described_class.new(user, 'hello world', limit_project_ids) }
 
     it 'does not explode when given a page as a string' do
-      expect { results.objects(object_type, "2") }.not_to raise_error
+      expect { results.objects(object_type, '2') }.not_to raise_error
     end
 
     it 'paginates' do
@@ -476,8 +476,8 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
   end
 
   describe 'project scoping' do
-    it "returns items for project" do
-      project = create :project, :repository, name: "term"
+    it 'returns items for project' do
+      project = create :project, :repository, name: 'term'
       project.add_developer(user)
 
       # Create issue
@@ -489,8 +489,8 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
 
       # Create Merge Request
       create :merge_request, title: 'bla-bla term', source_project: project
-      create :merge_request, description: 'term in description', source_project: project, target_branch: "feature2"
-      create :merge_request, source_project: project, target_branch: "feature3"
+      create :merge_request, description: 'term in description', source_project: project, target_branch: 'feature2'
+      create :merge_request, source_project: project, target_branch: 'feature3'
       # The merge request you have no access to
       create :merge_request, title: 'also with term'
 
@@ -656,7 +656,7 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
     it 'finds wiki blobs' do
       blobs = results.objects('wiki_blobs')
 
-      expect(blobs.first['_source']['blob']['content']).to include("term")
+      expect(blobs.first['_source']['blob']['content']).to include('term')
       expect(results.wiki_blobs_count).to eq 1
     end
 
@@ -664,7 +664,7 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
       project_1.add_guest(user)
       blobs = results.objects('wiki_blobs')
 
-      expect(blobs.first['_source']['blob']['content']).to include("term")
+      expect(blobs.first['_source']['blob']['content']).to include('term')
       expect(results.wiki_blobs_count).to eq 1
     end
 
@@ -736,7 +736,7 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
       results = described_class.new(user, 'add', limit_project_ids)
       commits = results.objects('commits')
 
-      expect(commits.first.message.downcase).to include("add")
+      expect(commits.first.message.downcase).to include('add')
       expect(results.commits_count).to eq 24
     end
 
@@ -761,10 +761,10 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
   end
 
   describe 'Visibility levels' do
-    let(:internal_project) { create(:project, :internal, :repository, :wiki_repo, description: "Internal project") }
-    let(:private_project1) { create(:project, :private, :repository, :wiki_repo, description: "Private project") }
+    let(:internal_project) { create(:project, :internal, :repository, :wiki_repo, description: 'Internal project') }
+    let(:private_project1) { create(:project, :private, :repository, :wiki_repo, description: 'Private project') }
     let(:private_project2) { create(:project, :private, :repository, :wiki_repo, description: "Private project where I'm a member") }
-    let(:public_project) { create(:project, :public, :repository, :wiki_repo, description: "Public project") }
+    let(:public_project) { create(:project, :public, :repository, :wiki_repo, description: 'Public project') }
     let(:limit_project_ids) { [private_project2.id] }
 
     before do
@@ -773,10 +773,10 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
 
     context 'Issues' do
       it 'finds right set of issues' do
-        issue_1 = create :issue, project: internal_project, title: "Internal project"
-        create :issue, project: private_project1, title: "Private project"
+        issue_1 = create :issue, project: internal_project, title: 'Internal project'
+        create :issue, project: private_project1, title: 'Private project'
         issue_3 = create :issue, project: private_project2, title: "Private project where I'm a member"
-        issue_4 = create :issue, project: public_project, title: "Public project"
+        issue_4 = create :issue, project: public_project, title: 'Public project'
 
         Gitlab::Elastic::Helper.refresh_index
 
@@ -799,10 +799,10 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
     end
 
     context 'Milestones' do
-      let!(:milestone_1) { create(:milestone, project: internal_project, title: "Internal project") }
-      let!(:milestone_2) { create(:milestone, project: private_project1, title: "Private project") }
-      let!(:milestone_3) { create(:milestone, project: private_project2, title: "Private project which user is member") }
-      let!(:milestone_4) { create(:milestone, project: public_project, title: "Public project") }
+      let!(:milestone_1) { create(:milestone, project: internal_project, title: 'Internal project') }
+      let!(:milestone_2) { create(:milestone, project: private_project1, title: 'Private project') }
+      let!(:milestone_3) { create(:milestone, project: private_project2, title: 'Private project which user is member') }
+      let!(:milestone_4) { create(:milestone, project: public_project, title: 'Public project') }
 
       before do
         Gitlab::Elastic::Helper.refresh_index
@@ -949,10 +949,10 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
 
     context 'Merge Requests' do
       it 'finds right set of merge requests' do
-        merge_request_1 = create :merge_request, target_project: internal_project, source_project: internal_project, title: "Internal project"
-        create :merge_request, target_project: private_project1, source_project: private_project1, title: "Private project"
+        merge_request_1 = create :merge_request, target_project: internal_project, source_project: internal_project, title: 'Internal project'
+        create :merge_request, target_project: private_project1, source_project: private_project1, title: 'Private project'
         merge_request_3 = create :merge_request, target_project: private_project2, source_project: private_project2, title: "Private project where I'm a member"
-        merge_request_4 = create :merge_request, target_project: public_project, source_project: public_project, title: "Public project"
+        merge_request_4 = create :merge_request, target_project: public_project, source_project: public_project, title: 'Public project'
 
         Gitlab::Elastic::Helper.refresh_index
 

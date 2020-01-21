@@ -8,7 +8,7 @@ describe Gitlab::Cache::Ci::ProjectPipelineStatus, :clean_gitlab_redis_cache do
   let(:cache_key) { pipeline_status.cache_key }
 
   describe '.load_for_project' do
-    it "loads the status" do
+    it 'loads the status' do
       expect_next_instance_of(described_class) do |instance|
         expect(instance).to receive(:load_status)
       end
@@ -116,7 +116,7 @@ describe Gitlab::Cache::Ci::ProjectPipelineStatus, :clean_gitlab_redis_cache do
     end
   end
 
-  describe "#load_from_project", :clean_gitlab_redis_cache do
+  describe '#load_from_project', :clean_gitlab_redis_cache do
     let!(:pipeline) { create(:ci_pipeline, :success, project: project, sha: project.commit.sha) }
 
     it 'reads the status from the pipeline for the commit' do
@@ -138,8 +138,8 @@ describe Gitlab::Cache::Ci::ProjectPipelineStatus, :clean_gitlab_redis_cache do
     end
   end
 
-  describe "#store_in_cache", :clean_gitlab_redis_cache do
-    it "sets the object in caching" do
+  describe '#store_in_cache', :clean_gitlab_redis_cache do
+    it 'sets the object in caching' do
       pipeline_status.sha = '123456'
       pipeline_status.status = 'failed'
 
@@ -167,7 +167,7 @@ describe Gitlab::Cache::Ci::ProjectPipelineStatus, :clean_gitlab_redis_cache do
     it "doesn't store the status in redis_cache when the sha is not the head of the project" do
       other_status = described_class.new(
         project,
-        pipeline_info: { sha: "123456", status: "failed" }
+        pipeline_info: { sha: '123456', status: 'failed' }
       )
 
       other_status.store_in_cache_if_needed
@@ -186,7 +186,7 @@ describe Gitlab::Cache::Ci::ProjectPipelineStatus, :clean_gitlab_redis_cache do
 
       other_status = described_class.new(empty_project,
                                          pipeline_info: {
-                                           sha: "123456", status: "failed"
+                                           sha: '123456', status: 'failed'
                                          })
 
       other_status.store_in_cache_if_needed
@@ -198,7 +198,7 @@ describe Gitlab::Cache::Ci::ProjectPipelineStatus, :clean_gitlab_redis_cache do
     end
   end
 
-  describe "with a status in caching", :clean_gitlab_redis_cache do
+  describe 'with a status in caching', :clean_gitlab_redis_cache do
     let(:status) { 'success' }
     let(:sha) { '424d1b73bc0d3cb726eb7dc4ce17a4d48552f8c6' }
     let(:ref) { 'master' }

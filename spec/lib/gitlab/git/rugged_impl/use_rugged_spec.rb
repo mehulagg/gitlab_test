@@ -73,7 +73,7 @@ describe Gitlab::Git::RuggedImpl::UseRugged, :seed_helper do
       end
 
       it 'returns false when disk access fails' do
-        allow(Gitlab::GitalyClient).to receive(:storage_metadata_file_path).and_return("/fake/path/doesnt/exist")
+        allow(Gitlab::GitalyClient).to receive(:storage_metadata_file_path).and_return('/fake/path/doesnt/exist')
 
         expect(subject.use_rugged?(repository, feature_flag_name)).to be false
       end
@@ -107,7 +107,7 @@ describe Gitlab::Git::RuggedImpl::UseRugged, :seed_helper do
       expect(subject.use_rugged?(repository, feature_flag_name)).to be_falsey
     end
 
-    it "returns true when feature flag is on" do
+    it 'returns true when feature flag is on' do
       allow(feature_flag).to receive(:enabled?).and_return(true)
       allow(Gitlab::GitalyClient).to receive(:can_use_disk?).and_return(false)
 
@@ -149,7 +149,7 @@ describe Gitlab::Git::RuggedImpl::UseRugged, :seed_helper do
   def create_temporary_gitaly_metadata_file
     tmp = Tempfile.new('.gitaly-metadata')
     gitaly_metadata = {
-      "gitaly_filesystem_id" => "some-value"
+      'gitaly_filesystem_id' => 'some-value'
     }
     tmp.write(gitaly_metadata.to_json)
     tmp.flush
@@ -160,7 +160,7 @@ describe Gitlab::Git::RuggedImpl::UseRugged, :seed_helper do
   def create_gitaly_metadata_file
     File.open(File.join(SEED_STORAGE_PATH, '.gitaly-metadata'), 'w+') do |f|
       gitaly_metadata = {
-        "gitaly_filesystem_id" => SecureRandom.uuid
+        'gitaly_filesystem_id' => SecureRandom.uuid
       }
       f.write(gitaly_metadata.to_json)
     end

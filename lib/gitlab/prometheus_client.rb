@@ -36,7 +36,7 @@ module Gitlab
       path = api_path(type)
       get(path, args)
     rescue Gitlab::HTTP::ResponseError => ex
-      raise PrometheusClient::Error, "Network connection error" unless ex.response && ex.response.try(:code)
+      raise PrometheusClient::Error, 'Network connection error' unless ex.response && ex.response.try(:code)
 
       handle_response(ex.response)
     end
@@ -90,7 +90,7 @@ module Gitlab
       response = get(path, args)
       handle_response(response)
     rescue Gitlab::HTTP::ResponseError => ex
-      raise PrometheusClient::Error, "Network connection error" unless ex.response && ex.response.try(:code)
+      raise PrometheusClient::Error, 'Network connection error' unless ex.response && ex.response.try(:code)
 
       handle_response(ex.response)
     end

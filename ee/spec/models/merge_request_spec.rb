@@ -136,13 +136,13 @@ describe MergeRequest do
         stub_licensed_features({ report_type => true })
       end
 
-      context "when head pipeline has reports" do
+      context 'when head pipeline has reports' do
         let(:merge_request) { create(:ee_merge_request, with_reports, source_project: project) }
 
         it { is_expected.to be_truthy }
       end
 
-      context "when head pipeline does not have reports" do
+      context 'when head pipeline does not have reports' do
         let(:merge_request) { create(:ee_merge_request, source_project: project) }
 
         it { is_expected.to be_falsy }

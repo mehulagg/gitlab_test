@@ -22,11 +22,11 @@ module Gitlab
       end
 
       def legend
-        _("Related Deployed Jobs")
+        _('Related Deployed Jobs')
       end
 
       def description
-        _("From merge request merge until deploy to production")
+        _('From merge request merge until deploy to production')
       end
     end
   end

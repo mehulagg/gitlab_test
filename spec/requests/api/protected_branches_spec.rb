@@ -11,7 +11,7 @@ describe API::ProtectedBranches do
     create(:protected_branch, project: project, name: protected_name)
   end
 
-  describe "GET /projects/:id/protected_branches" do
+  describe 'GET /projects/:id/protected_branches' do
     let(:route) { "/projects/#{project.id}/protected_branches" }
 
     shared_examples_for 'protected branches' do
@@ -47,7 +47,7 @@ describe API::ProtectedBranches do
     end
   end
 
-  describe "GET /projects/:id/protected_branches/:branch" do
+  describe 'GET /projects/:id/protected_branches/:branch' do
     let(:route) { "/projects/#{project.id}/protected_branches/#{branch_name}" }
 
     shared_examples_for 'protected branch' do
@@ -187,7 +187,7 @@ describe API::ProtectedBranches do
       context 'when branch has a wildcard in its name' do
         let(:branch_name) { 'feature/*' }
 
-        it "protects multiple branches with a wildcard in the name" do
+        it 'protects multiple branches with a wildcard in the name' do
           post post_endpoint, params: { name: branch_name }
 
           expect_protection_to_be_successful
@@ -202,7 +202,7 @@ describe API::ProtectedBranches do
           expect(ProtectedBranchPolicy).to receive(:new).and_return(policy)
         end
 
-        it "prevents deletion of the protected branch rule" do
+        it 'prevents deletion of the protected branch rule' do
           post post_endpoint, params: { name: branch_name }
 
           expect(response).to have_gitlab_http_status(403)
@@ -215,7 +215,7 @@ describe API::ProtectedBranches do
         project.add_guest(user)
       end
 
-      it "returns a 403 error if guest" do
+      it 'returns a 403 error if guest' do
         post post_endpoint, params: { name: branch_name }
 
         expect(response).to have_gitlab_http_status(403)
@@ -223,14 +223,14 @@ describe API::ProtectedBranches do
     end
   end
 
-  describe "DELETE /projects/:id/protected_branches/unprotect/:branch" do
+  describe 'DELETE /projects/:id/protected_branches/unprotect/:branch' do
     let(:delete_endpoint) { api("/projects/#{project.id}/protected_branches/#{branch_name}", user) }
 
     before do
       project.add_maintainer(user)
     end
 
-    it "unprotects a single branch" do
+    it 'unprotects a single branch' do
       delete delete_endpoint
 
       expect(response).to have_gitlab_http_status(204)
@@ -240,7 +240,7 @@ describe API::ProtectedBranches do
       let(:request) { delete_endpoint }
     end
 
-    it "returns 404 if branch does not exist" do
+    it 'returns 404 if branch does not exist' do
       delete api("/projects/#{project.id}/protected_branches/barfoo", user)
 
       expect(response).to have_gitlab_http_status(404)
@@ -252,7 +252,7 @@ describe API::ProtectedBranches do
         expect(ProtectedBranchPolicy).to receive(:new).and_return(policy)
       end
 
-      it "prevents deletion of the protected branch rule" do
+      it 'prevents deletion of the protected branch rule' do
         delete delete_endpoint
 
         expect(response).to have_gitlab_http_status(403)
@@ -262,7 +262,7 @@ describe API::ProtectedBranches do
     context 'when branch has a wildcard in its name' do
       let(:protected_name) { 'feature*' }
 
-      it "unprotects a wildcard branch" do
+      it 'unprotects a wildcard branch' do
         delete delete_endpoint
 
         expect(response).to have_gitlab_http_status(204)

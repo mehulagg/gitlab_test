@@ -34,7 +34,7 @@ describe MergeRequests::FfMergeService do
         allow(service).to receive(:execute_hooks)
       end
 
-      it "does not create merge commit" do
+      it 'does not create merge commit' do
         execute_ff_merge
 
         source_branch_sha = merge_request.source_project.repository.commit(merge_request.source_branch).sha
@@ -93,7 +93,7 @@ describe MergeRequests::FfMergeService do
       it 'logs and saves error if there is an exception' do
         error_message = 'error message'
 
-        allow(service).to receive(:repository).and_raise("error message")
+        allow(service).to receive(:repository).and_raise('error message')
         allow(service).to receive(:execute_hooks)
 
         service.execute(merge_request)

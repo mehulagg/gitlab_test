@@ -9,7 +9,7 @@ class PagesDomain < ApplicationRecord
   enum domain_type: { instance: 0, group: 1, project: 2 }, _prefix: :domain_type
 
   belongs_to :project
-  has_many :acme_orders, class_name: "PagesDomainAcmeOrder"
+  has_many :acme_orders, class_name: 'PagesDomainAcmeOrder'
 
   validates :domain, hostname: { allow_numeric_hostname: true }
   validates :domain, uniqueness: { case_sensitive: false }
@@ -58,7 +58,7 @@ class PagesDomain < ApplicationRecord
     where(auto_ssl_enabled: true).merge(user_provided_or_expiring)
   end
 
-  scope :for_removal, -> { where("remove_at < ?", Time.now) }
+  scope :for_removal, -> { where('remove_at < ?', Time.now) }
 
   def verified?
     !!verified_at

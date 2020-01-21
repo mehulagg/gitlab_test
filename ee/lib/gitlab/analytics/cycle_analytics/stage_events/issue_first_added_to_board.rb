@@ -6,7 +6,7 @@ module Gitlab
       module StageEvents
         class IssueFirstAddedToBoard < MetricsBasedStageEvent
           def self.name
-            s_("CycleAnalyticsEvent|Issue first added to a board")
+            s_('CycleAnalyticsEvent|Issue first added to a board')
           end
 
           def self.identifier

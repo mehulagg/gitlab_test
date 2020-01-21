@@ -126,10 +126,10 @@ describe 'Groups > Members > Manage members' do
   end
 
   def add_user(id, role)
-    page.within ".invite-users-form" do
-      select2(id, from: "#user_ids", multiple: true)
-      select(role, from: "access_level")
-      click_button "Invite"
+    page.within '.invite-users-form' do
+      select2(id, from: '#user_ids', multiple: true)
+      select(role, from: 'access_level')
+      click_button 'Invite'
     end
   end
 end

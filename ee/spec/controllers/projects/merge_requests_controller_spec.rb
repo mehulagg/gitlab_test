@@ -441,7 +441,7 @@ describe Projects::MergeRequestsController do
         subject
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response).to eq({ "added" => [], "fixed" => [], "existing" => [] })
+        expect(json_response).to eq({ 'added' => [], 'fixed' => [], 'existing' => [] })
       end
     end
 
@@ -524,7 +524,7 @@ describe Projects::MergeRequestsController do
         subject
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response).to eq({ "added" => [], "fixed" => [], "existing" => [] })
+        expect(json_response).to eq({ 'added' => [], 'fixed' => [], 'existing' => [] })
       end
     end
 
@@ -607,7 +607,7 @@ describe Projects::MergeRequestsController do
         subject
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response).to eq({ "added" => [], "fixed" => [], "existing" => [] })
+        expect(json_response).to eq({ 'added' => [], 'fixed' => [], 'existing' => [] })
       end
     end
 
@@ -690,7 +690,7 @@ describe Projects::MergeRequestsController do
         subject
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response).to eq({ "added" => [], "fixed" => [], "existing" => [] })
+        expect(json_response).to eq({ 'added' => [], 'fixed' => [], 'existing' => [] })
       end
     end
 
@@ -779,7 +779,7 @@ describe Projects::MergeRequestsController do
         subject
 
         expect(response).to have_gitlab_http_status(:ok)
-        expect(json_response).to eq({ "new_licenses" => [], "existing_licenses" => [], "removed_licenses" => [] })
+        expect(json_response).to eq({ 'new_licenses' => [], 'existing_licenses' => [], 'removed_licenses' => [] })
       end
     end
 

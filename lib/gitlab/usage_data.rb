@@ -248,7 +248,7 @@ module Gitlab
         if Rails.env.production?
           Gitlab::INSTALLATION_TYPE
         else
-          "gitlab-development-kit"
+          'gitlab-development-kit'
         end
       end
     end

@@ -1,7 +1,7 @@
 namespace :gitlab do
   namespace :seed do
     namespace :insights do
-      desc "GitLab | Seed | Insights | Seeds issues for Insights charts"
+      desc 'GitLab | Seed | Insights | Seeds issues for Insights charts'
       task :issues, [:project_full_path] => :environment do |t, args|
         projects =
           if args.project_full_path

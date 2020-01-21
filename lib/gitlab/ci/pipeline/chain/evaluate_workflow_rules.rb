@@ -11,7 +11,7 @@ module Gitlab
           def perform!
             unless feature_enabled?
               if has_workflow_rules?
-                error("Workflow rules are disabled", config_error: true)
+                error('Workflow rules are disabled', config_error: true)
               end
 
               return

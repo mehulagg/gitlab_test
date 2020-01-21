@@ -96,11 +96,11 @@ namespace :gemojione do
     end
 
     # Copy the Gemojione assets to the temporary folder for renaming
-    emoji_dir = "app/assets/images/emoji"
+    emoji_dir = 'app/assets/images/emoji'
     FileUtils.rm_rf(emoji_dir)
     FileUtils.mkdir_p(emoji_dir, mode: 0700)
     FileUtils.cp_r(File.join(Gemojione.images_path, '.'), emoji_dir)
-    Dir[File.join(emoji_dir, "**/*.png")].each do |png|
+    Dir[File.join(emoji_dir, '**/*.png')].each do |png|
       image_path = png
       rename_to_named_emoji_image!(emoji_unicode_string_to_name_map, image_path)
     end
@@ -109,7 +109,7 @@ namespace :gemojione do
       FileUtils.cp_r(File.join(emoji_dir, '.'), tmpdir)
 
       Dir.chdir(tmpdir) do
-        Dir["**/*.png"].each do |png|
+        Dir['**/*.png'].each do |png|
           tmp_image_path = File.join(tmpdir, png)
           resize!(tmp_image_path, SIZE)
         end
@@ -121,7 +121,7 @@ namespace :gemojione do
       SpriteFactory.cssurl = "image-url('$IMAGE')"
       SpriteFactory.run!(tmpdir, {
         output_style: style_path,
-        output_image: "app/assets/images/emoji.png",
+        output_image: 'app/assets/images/emoji.png',
         selector:     '.emoji-',
         style:        :scss,
         nocomments:   true,
@@ -167,7 +167,7 @@ namespace :gemojione do
       FileUtils.cp_r(File.join(emoji_dir, '.'), tmpdir)
 
       Dir.chdir(tmpdir) do
-        Dir["**/*.png"].each do |png|
+        Dir['**/*.png'].each do |png|
           tmp_image_path = File.join(tmpdir, png)
           resize!(tmp_image_path, RETINA)
         end
@@ -175,7 +175,7 @@ namespace :gemojione do
 
       # Combine the resized assets into a packed sprite and re-generate the SCSS
       SpriteFactory.run!(tmpdir, {
-        output_image: "app/assets/images/emoji@2x.png",
+        output_image: 'app/assets/images/emoji@2x.png',
         style:        false,
         nocomments:   true,
         pngcrush:     true,

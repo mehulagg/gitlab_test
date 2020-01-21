@@ -13,8 +13,8 @@ module QA
       include Support::Api
 
       def initialize
-        raise ArgumentError, "Please provide GITLAB_ADDRESS" unless ENV['GITLAB_ADDRESS']
-        raise ArgumentError, "Please provide GITLAB_QA_ACCESS_TOKEN" unless ENV['GITLAB_QA_ACCESS_TOKEN']
+        raise ArgumentError, 'Please provide GITLAB_ADDRESS' unless ENV['GITLAB_ADDRESS']
+        raise ArgumentError, 'Please provide GITLAB_QA_ACCESS_TOKEN' unless ENV['GITLAB_QA_ACCESS_TOKEN']
 
         @api_client = Runtime::API::Client.new(ENV['GITLAB_ADDRESS'], personal_access_token: ENV['GITLAB_QA_ACCESS_TOKEN'])
       end
@@ -25,7 +25,7 @@ module QA
         # Fetch group's id
         group_id = fetch_group_id
 
-        sub_groups_head_response = head Runtime::API::Request.new(@api_client, "/groups/#{group_id}/subgroups", per_page: "100").url
+        sub_groups_head_response = head Runtime::API::Request.new(@api_client, "/groups/#{group_id}/subgroups", per_page: '100').url
         total_sub_groups = sub_groups_head_response.headers[:x_total]
         total_sub_group_pages = sub_groups_head_response.headers[:x_total_pages]
 
@@ -34,9 +34,9 @@ module QA
 
         total_sub_group_pages.to_i.times do |page_no|
           # Fetch all subgroups for the top level group
-          sub_groups_response = get Runtime::API::Request.new(@api_client, "/groups/#{group_id}/subgroups", per_page: "100").url
+          sub_groups_response = get Runtime::API::Request.new(@api_client, "/groups/#{group_id}/subgroups", per_page: '100').url
 
-          sub_group_ids = JSON.parse(sub_groups_response.body).map { |subgroup| subgroup["id"] }
+          sub_group_ids = JSON.parse(sub_groups_response.body).map { |subgroup| subgroup['id'] }
 
           if sub_group_ids.any?
             STDOUT.puts "\n==== Current Page: #{page_no + 1} ====\n"
@@ -58,8 +58,8 @@ module QA
       end
 
       def fetch_group_id
-        group_search_response = get Runtime::API::Request.new(@api_client, "/groups", search: ENV['GROUP_NAME_OR_PATH'] || 'gitlab-qa-sandbox-group').url
-        JSON.parse(group_search_response.body).first["id"]
+        group_search_response = get Runtime::API::Request.new(@api_client, '/groups', search: ENV['GROUP_NAME_OR_PATH'] || 'gitlab-qa-sandbox-group').url
+        JSON.parse(group_search_response.body).first['id']
       end
     end
   end

@@ -64,7 +64,7 @@ describe API::ManagedLicenses do
       end
 
       it 'responses with 404 Not Found for not existing project' do
-        get api("/projects/0/managed_licenses")
+        get api('/projects/0/managed_licenses')
 
         expect(response).to have_gitlab_http_status(404)
       end

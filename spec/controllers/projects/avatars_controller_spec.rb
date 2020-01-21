@@ -34,7 +34,7 @@ describe Projects::AvatarsController do
           expect(response).to have_gitlab_http_status(200)
           expect(response.header['Content-Disposition']).to eq('inline')
           expect(response.header[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with('git-blob:')
-          expect(response.header[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
+          expect(response.header[Gitlab::Workhorse::DETECT_HEADER]).to eq 'true'
         end
       end
 

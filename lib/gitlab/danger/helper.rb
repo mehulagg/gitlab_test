@@ -90,10 +90,10 @@ module Gitlab
       end
 
       CATEGORY_LABELS = {
-        docs: "~documentation", # Docs are reviewed along DevOps stages, so don't need roulette for now.
-        none: "",
-        qa: "~QA",
-        test: "~test ~Quality for `spec/features/*`",
+        docs: '~documentation', # Docs are reviewed along DevOps stages, so don't need roulette for now.
+        none: '',
+        qa: '~QA',
+        test: '~test ~Quality for `spec/features/*`',
         engineering_productivity: '~"Engineering Productivity" for CI, Danger'
       }.freeze
       CATEGORIES = {

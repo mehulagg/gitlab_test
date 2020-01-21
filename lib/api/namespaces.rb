@@ -24,7 +24,7 @@ module API
         success Entities::Namespace
       end
       params do
-        optional :search, type: String, desc: "Search query for namespaces"
+        optional :search, type: String, desc: 'Search query for namespaces'
 
         use :pagination
         use :optional_list_params_ee

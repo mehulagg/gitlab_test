@@ -103,7 +103,7 @@ module Gitlab
           query = redis_uri.query
           unless query.nil?
             queries = CGI.parse(redis_uri.query)
-            db_numbers = queries["db"] if queries.key?("db")
+            db_numbers = queries['db'] if queries.key?('db')
             config[:db] = db_numbers[0].to_i if db_numbers.any?
           end
 

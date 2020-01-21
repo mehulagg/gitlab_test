@@ -20,7 +20,7 @@ describe MetricsDashboard do
     end
 
     let(:json_response) do
-      routes.draw { get "metrics_dashboard" => "anonymous#metrics_dashboard" }
+      routes.draw { get 'metrics_dashboard' => 'anonymous#metrics_dashboard' }
       response = get :metrics_dashboard, format: :json
 
       JSON.parse(response.parsed_body)
@@ -67,8 +67,8 @@ describe MetricsDashboard do
         end
 
         context 'in all_dashboard list' do
-          let(:system_dashboard) { json_response['all_dashboards'].find { |dashboard| dashboard["system_dashboard"] == true } }
-          let(:project_dashboard) { json_response['all_dashboards'].find { |dashboard| dashboard["system_dashboard"] == false } }
+          let(:system_dashboard) { json_response['all_dashboards'].find { |dashboard| dashboard['system_dashboard'] == true } }
+          let(:project_dashboard) { json_response['all_dashboards'].find { |dashboard| dashboard['system_dashboard'] == false } }
 
           it 'includes project_blob_path only for project dashboards' do
             expect(system_dashboard['project_blob_path']).to be_nil
@@ -88,9 +88,9 @@ describe MetricsDashboard do
                 allow(controller).to receive(:can_collaborate_with_project?).and_return(can_collaborate)
               end
 
-              it "sets can_edit appropriately" do
-                expect(system_dashboard["can_edit"]).to eq(system_can_edit)
-                expect(project_dashboard["can_edit"]).to eq(project_can_edit)
+              it 'sets can_edit appropriately' do
+                expect(system_dashboard['can_edit']).to eq(system_can_edit)
+                expect(project_dashboard['can_edit']).to eq(project_can_edit)
               end
             end
           end

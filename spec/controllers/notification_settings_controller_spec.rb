@@ -51,10 +51,10 @@ describe NotificationSettingsController do
                }
 
           expect(response.status).to eq 200
-          expect(notification_setting.level).to eq("participating")
+          expect(notification_setting.level).to eq('participating')
           expect(notification_setting.user_id).to eq(user.id)
           expect(notification_setting.source_id).to eq(project.id)
-          expect(notification_setting.source_type).to eq("Project")
+          expect(notification_setting.source_type).to eq('Project')
         end
 
         context 'with custom settings' do
@@ -66,7 +66,7 @@ describe NotificationSettingsController do
                  }
 
             expect(response.status).to eq 200
-            expect(notification_setting.level).to eq("custom")
+            expect(notification_setting.level).to eq('custom')
 
             custom_events.each do |event, value|
               expect(notification_setting.event_enabled?(event)).to eq(value)
@@ -86,10 +86,10 @@ describe NotificationSettingsController do
                }
 
           expect(response.status).to eq 200
-          expect(notification_setting.level).to eq("watch")
+          expect(notification_setting.level).to eq('watch')
           expect(notification_setting.user_id).to eq(user.id)
           expect(notification_setting.source_id).to eq(group.id)
-          expect(notification_setting.source_type).to eq("Namespace")
+          expect(notification_setting.source_type).to eq('Namespace')
         end
 
         context 'with custom settings' do
@@ -101,7 +101,7 @@ describe NotificationSettingsController do
                  }
 
             expect(response.status).to eq 200
-            expect(notification_setting.level).to eq("custom")
+            expect(notification_setting.level).to eq('custom')
 
             custom_events.each do |event, value|
               expect(notification_setting.event_enabled?(event)).to eq(value)
@@ -165,7 +165,7 @@ describe NotificationSettingsController do
           events = {}
 
           notification_setting.email_events.each do |event|
-            events[event] = "true"
+            events[event] = 'true'
           end
         end
 

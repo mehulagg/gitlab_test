@@ -22,13 +22,13 @@ describe 'CycleAnalytics#test' do
       pipeline = context.create(:ci_pipeline, ref: merge_request.source_branch, sha: merge_request.diff_head_sha, project: context.project, head_pipeline_of: merge_request)
       { pipeline: pipeline, issue: issue }
     end,
-    start_time_conditions: [["pipeline is started", -> (context, data) { data[:pipeline].run! }]],
-    end_time_conditions:   [["pipeline is finished", -> (context, data) { data[:pipeline].succeed! }]],
+    start_time_conditions: [['pipeline is started', -> (context, data) { data[:pipeline].run! }]],
+    end_time_conditions:   [['pipeline is finished', -> (context, data) { data[:pipeline].succeed! }]],
     post_fn: -> (context, data) do
     end)
 
   context "when the pipeline is for a regular merge request (that doesn't close an issue)" do
-    it "returns nil" do
+    it 'returns nil' do
       pipeline = create(:ci_pipeline, ref: "refs/heads/#{merge_request.source_branch}", sha: merge_request.diff_head_sha)
 
       pipeline.run!
@@ -38,9 +38,9 @@ describe 'CycleAnalytics#test' do
     end
   end
 
-  context "when the pipeline is not for a merge request" do
-    it "returns nil" do
-      pipeline = create(:ci_pipeline, ref: "refs/heads/master", sha: project.repository.commit('master').sha)
+  context 'when the pipeline is not for a merge request' do
+    it 'returns nil' do
+      pipeline = create(:ci_pipeline, ref: 'refs/heads/master', sha: project.repository.commit('master').sha)
 
       pipeline.run!
       pipeline.succeed!
@@ -49,8 +49,8 @@ describe 'CycleAnalytics#test' do
     end
   end
 
-  context "when the pipeline is dropped (failed)" do
-    it "returns nil" do
+  context 'when the pipeline is dropped (failed)' do
+    it 'returns nil' do
       pipeline = create(:ci_pipeline, ref: "refs/heads/#{merge_request.source_branch}", sha: merge_request.diff_head_sha)
 
       pipeline.run!
@@ -60,8 +60,8 @@ describe 'CycleAnalytics#test' do
     end
   end
 
-  context "when the pipeline is cancelled" do
-    it "returns nil" do
+  context 'when the pipeline is cancelled' do
+    it 'returns nil' do
       pipeline = create(:ci_pipeline, ref: "refs/heads/#{merge_request.source_branch}", sha: merge_request.diff_head_sha)
 
       pipeline.run!

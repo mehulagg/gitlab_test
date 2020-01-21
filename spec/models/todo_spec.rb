@@ -6,7 +6,7 @@ describe Todo do
   let(:issue) { create(:issue) }
 
   describe 'relationships' do
-    it { is_expected.to belong_to(:author).class_name("User") }
+    it { is_expected.to belong_to(:author).class_name('User') }
     it { is_expected.to belong_to(:note) }
     it { is_expected.to belong_to(:project) }
     it { is_expected.to belong_to(:group) }

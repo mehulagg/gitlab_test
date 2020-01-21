@@ -94,7 +94,7 @@ RSpec.shared_examples 'cycle analytics stage' do
       expect(stage).to be_matches_with_stage_params(params)
     end
 
-    it "mismatches when the stage is custom" do
+    it 'mismatches when the stage is custom' do
       stage = described_class.new(params.merge(custom: true))
 
       expect(stage).not_to be_default_stage

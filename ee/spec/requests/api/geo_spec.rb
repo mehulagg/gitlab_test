@@ -95,7 +95,7 @@ describe API::Geo do
 
       context 'attachment does not exist' do
         it 'responds with 404' do
-          get api("/geo/transfers/attachment/100000"), headers: not_found_req_header
+          get api('/geo/transfers/attachment/100000'), headers: not_found_req_header
 
           expect(response).to have_gitlab_http_status(404)
         end
@@ -134,7 +134,7 @@ describe API::Geo do
 
       context 'avatar does not exist' do
         it 'responds with 404' do
-          get api("/geo/transfers/avatar/100000"), headers: not_found_req_header
+          get api('/geo/transfers/avatar/100000'), headers: not_found_req_header
 
           expect(response).to have_gitlab_http_status(404)
         end
@@ -187,7 +187,7 @@ describe API::Geo do
 
       context 'when the Upload record does not exist' do
         it 'responds with 404' do
-          get api("/geo/transfers/file/100000"), headers: not_found_req_header
+          get api('/geo/transfers/file/100000'), headers: not_found_req_header
 
           expect(response).to have_gitlab_http_status(404)
         end
@@ -238,7 +238,7 @@ describe API::Geo do
 
       context 'LFS object does not exist' do
         it 'responds with 404' do
-          get api("/geo/transfers/lfs/100000"), headers: not_found_req_header
+          get api('/geo/transfers/lfs/100000'), headers: not_found_req_header
 
           expect(response).to have_gitlab_http_status(404)
         end

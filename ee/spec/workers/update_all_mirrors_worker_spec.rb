@@ -168,7 +168,7 @@ describe UpdateAllMirrorsWorker do
       let(:unlicensed_projects) { [unlicensed_project1, unlicensed_project2, unlicensed_project3, unlicensed_project4] }
 
       context 'when capacity is in excess' do
-        it "schedules all available mirrors" do
+        it 'schedules all available mirrors' do
           schedule_mirrors!(capacity: 4)
 
           expect_import_scheduled(licensed_project1, licensed_project2, licensed_project3)
@@ -185,7 +185,7 @@ describe UpdateAllMirrorsWorker do
       end
 
       context 'when capacity is exacly sufficient' do
-        it "schedules all available mirrors" do
+        it 'schedules all available mirrors' do
           schedule_mirrors!(capacity: 3)
 
           expect_import_scheduled(licensed_project1, licensed_project2, licensed_project3)

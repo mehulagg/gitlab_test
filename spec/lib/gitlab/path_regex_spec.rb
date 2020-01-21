@@ -14,7 +14,7 @@ describe Gitlab::PathRegex do
   # `/*namespace_id/:project_id/builds/artifacts/*ref_name_and_path`
   #    -> 'builds/artifacts'
   def path_before_wildcard(path)
-    path = path.gsub(STARTING_WITH_NAMESPACE, "")
+    path = path.gsub(STARTING_WITH_NAMESPACE, '')
     path_segments = path.split('/').reject(&:empty?)
     wildcard_index = path_segments.index { |segment| parameter?(segment) }
 
@@ -40,7 +40,7 @@ describe Gitlab::PathRegex do
   def failure_message(constant_name, migration_helper, missing_words: [], additional_words: [])
     missing_words = Array(missing_words)
     additional_words = Array(additional_words)
-    message = ""
+    message = ''
     if missing_words.any?
       message += <<-MISSING
       Found new routes that could cause conflicts with existing namespaced routes

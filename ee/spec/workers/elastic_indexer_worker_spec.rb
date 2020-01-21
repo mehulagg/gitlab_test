@@ -17,18 +17,18 @@ describe ElasticIndexerWorker, :elastic do
 
     expect_any_instance_of(Elasticsearch::Model).not_to receive(:__elasticsearch__)
 
-    expect(subject.perform("index", "Milestone", 1, 1)).to be_truthy
+    expect(subject.perform('index', 'Milestone', 1, 1)).to be_truthy
   end
 
   describe 'Indexing, updating, and deleting records' do
     using RSpec::Parameterized::TableSyntax
 
     where(:type, :name, :attribute) do
-      :project       | "Project"      | :name
-      :issue         | "Issue"        | :title
-      :note          | "Note"         | :note
-      :milestone     | "Milestone"    | :title
-      :merge_request | "MergeRequest" | :title
+      :project       | 'Project'      | :name
+      :issue         | 'Issue'        | :title
+      :note          | 'Note'         | :note
+      :milestone     | 'Milestone'    | :title
+      :merge_request | 'MergeRequest' | :title
     end
 
     with_them do
@@ -39,7 +39,7 @@ describe ElasticIndexerWorker, :elastic do
           expect(service).to receive(:execute).with(object, true, {}).and_return(true)
         end
 
-        subject.perform("index", name, object.id, object.es_id)
+        subject.perform('index', name, object.id, object.es_id)
       end
 
       it 'deletes from index when an object is deleted' do
@@ -47,13 +47,13 @@ describe ElasticIndexerWorker, :elastic do
 
         Sidekiq::Testing.disable! do
           object = create(type)
-          subject.perform("index", name, object.id, object.es_id)
+          subject.perform('index', name, object.id, object.es_id)
           Gitlab::Elastic::Helper.refresh_index
           object.destroy
         end
 
         expect do
-          subject.perform("delete", name, object.id, object.es_id, { 'es_parent' => object.es_parent })
+          subject.perform('delete', name, object.id, object.es_id, { 'es_parent' => object.es_parent })
           Gitlab::Elastic::Helper.refresh_index
         end.to change { Elasticsearch::Model.search('*').total_count }.by(-1)
       end
@@ -65,19 +65,19 @@ describe ElasticIndexerWorker, :elastic do
 
     Sidekiq::Testing.disable! do
       project = create :project, :repository
-      subject.perform("index", "Project", project.id, project.es_id)
+      subject.perform('index', 'Project', project.id, project.es_id)
 
       issue = create :issue, project: project
-      subject.perform("index", "Issue", issue.id, issue.es_id)
+      subject.perform('index', 'Issue', issue.id, issue.es_id)
 
       milestone = create :milestone, project: project
-      subject.perform("index", "Milestone", milestone.id, milestone.es_id)
+      subject.perform('index', 'Milestone', milestone.id, milestone.es_id)
 
       note = create :note, project: project
-      subject.perform("index", "Note", note.id, note.es_id)
+      subject.perform('index', 'Note', note.id, note.es_id)
 
       merge_request = create :merge_request, target_project: project, source_project: project
-      subject.perform("index", "MergeRequest", merge_request.id, merge_request.es_id)
+      subject.perform('index', 'MergeRequest', merge_request.id, merge_request.es_id)
     end
 
     ElasticCommitIndexerWorker.new.perform(project.id)
@@ -86,7 +86,7 @@ describe ElasticIndexerWorker, :elastic do
     ## All database objects + data from repository. The absolute value does not matter
     expect(Elasticsearch::Model.search('*').total_count).to be > 40
 
-    subject.perform("delete", "Project", project.id, project.es_id)
+    subject.perform('delete', 'Project', project.id, project.es_id)
     Gitlab::Elastic::Helper.refresh_index
 
     expect(Elasticsearch::Model.search('*').total_count).to be(0)
@@ -100,7 +100,7 @@ describe ElasticIndexerWorker, :elastic do
     end
 
     expect do
-      subject.perform("index", 'Project', object.id, object.es_id)
+      subject.perform('index', 'Project', object.id, object.es_id)
     end.to raise_error
   end
 
@@ -111,10 +111,10 @@ describe ElasticIndexerWorker, :elastic do
       allow(service).to receive(:execute).and_raise(Elasticsearch::Transport::Transport::Errors::NotFound)
     end
 
-    expect(subject.perform("index", 'Project', object.id, object.es_id)).to eq(true)
+    expect(subject.perform('index', 'Project', object.id, object.es_id)).to eq(true)
   end
 
   it 'ignores missing records' do
-    expect(subject.perform("index", 'Project', -1, 'project_-1')).to eq(true)
+    expect(subject.perform('index', 'Project', -1, 'project_-1')).to eq(true)
   end
 end

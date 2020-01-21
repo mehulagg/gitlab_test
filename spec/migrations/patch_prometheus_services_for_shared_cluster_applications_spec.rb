@@ -54,10 +54,10 @@ describe PatchPrometheusServicesForSharedClusterApplications, :migration, :sidek
 
           Sidekiq::Testing.fake! do
             Timecop.freeze do
-              background_migrations = [["ActivatePrometheusServicesForSharedClusterApplications", project_with_missing_service.id],
-                                       ["ActivatePrometheusServicesForSharedClusterApplications", project_with_inactive_service.id],
-                                       ["ActivatePrometheusServicesForSharedClusterApplications", project_with_active_not_prometheus_service.id],
-                                       ["ActivatePrometheusServicesForSharedClusterApplications", project_with_inactive_not_prometheus_service.id]]
+              background_migrations = [['ActivatePrometheusServicesForSharedClusterApplications', project_with_missing_service.id],
+                                       ['ActivatePrometheusServicesForSharedClusterApplications', project_with_inactive_service.id],
+                                       ['ActivatePrometheusServicesForSharedClusterApplications', project_with_active_not_prometheus_service.id],
+                                       ['ActivatePrometheusServicesForSharedClusterApplications', project_with_inactive_not_prometheus_service.id]]
 
               migrate!
 
@@ -74,10 +74,10 @@ describe PatchPrometheusServicesForSharedClusterApplications, :migration, :sidek
 
           Sidekiq::Testing.fake! do
             Timecop.freeze do
-              background_migrations = [["ActivatePrometheusServicesForSharedClusterApplications", project_with_missing_service.id],
-                                       ["ActivatePrometheusServicesForSharedClusterApplications", project_with_inactive_service.id],
-                                       ["ActivatePrometheusServicesForSharedClusterApplications", project_with_active_not_prometheus_service.id],
-                                       ["ActivatePrometheusServicesForSharedClusterApplications", project_with_inactive_not_prometheus_service.id]]
+              background_migrations = [['ActivatePrometheusServicesForSharedClusterApplications', project_with_missing_service.id],
+                                       ['ActivatePrometheusServicesForSharedClusterApplications', project_with_inactive_service.id],
+                                       ['ActivatePrometheusServicesForSharedClusterApplications', project_with_active_not_prometheus_service.id],
+                                       ['ActivatePrometheusServicesForSharedClusterApplications', project_with_inactive_not_prometheus_service.id]]
 
               migrate!
 

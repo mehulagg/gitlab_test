@@ -179,7 +179,7 @@ module Gitlab
         def xterm_color_class(command_stack, prefix)
           # the 38 and 48 commands have to be followed by "5" and the color index
           return unless command_stack.length >= 2
-          return unless command_stack[0] == "5"
+          return unless command_stack[0] == '5'
 
           command_stack.shift # ignore the "5" command
           color_index = command_stack.shift.to_i
@@ -187,7 +187,7 @@ module Gitlab
           return unless color_index >= 0
           return unless color_index <= 255
 
-          color_class(["xterm", prefix, color_index])
+          color_class(['xterm', prefix, color_index])
         end
 
         def color_class(segments)

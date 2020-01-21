@@ -50,14 +50,14 @@ describe DesignManagement::DeleteDesignsService do
     project.add_developer(user)
   end
 
-  describe "#execute" do
-    context "when the feature is not available" do
+  describe '#execute' do
+    context 'when the feature is not available' do
       let(:enabled) { false }
 
-      it_behaves_like "a service error"
+      it_behaves_like 'a service error'
     end
 
-    context "when the feature is available" do
+    context 'when the feature is available' do
       let(:enabled) { true }
 
       it 'is able to delete designs' do
@@ -67,7 +67,7 @@ describe DesignManagement::DeleteDesignsService do
       context 'no designs were passed' do
         let(:designs) { [] }
 
-        it_behaves_like "a top-level error"
+        it_behaves_like 'a top-level error'
 
         it 'does not log any events' do
           counter = ::Gitlab::UsageCounters::DesignsCounter
@@ -110,7 +110,7 @@ describe DesignManagement::DeleteDesignsService do
           expect(version).to eq(DesignManagement::Version.for_issue(issue).ordered.first)
         end
 
-        it_behaves_like "a success"
+        it_behaves_like 'a success'
 
         it 'removes the design from the current design list' do
           run_service
@@ -141,7 +141,7 @@ describe DesignManagement::DeleteDesignsService do
           expect { run_service }.to change { counter.read(:delete) }.by(2)
         end
 
-        it_behaves_like "a success"
+        it_behaves_like 'a success'
 
         context 'after executing the service' do
           let(:deleted_designs) { designs.map(&:reset) }

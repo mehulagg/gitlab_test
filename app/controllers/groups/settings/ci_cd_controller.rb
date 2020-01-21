@@ -15,7 +15,7 @@ module Groups
         if update_group_service.execute
           flash[:notice] = s_('GroupSettings|Pipeline settings was updated for the group')
         else
-          flash[:alert] = s_("GroupSettings|There was a problem updating the pipeline settings: %{error_messages}." % { error_messages: group.errors.full_messages })
+          flash[:alert] = s_('GroupSettings|There was a problem updating the pipeline settings: %{error_messages}.' % { error_messages: group.errors.full_messages })
         end
 
         redirect_to group_settings_ci_cd_path
@@ -32,7 +32,7 @@ module Groups
         if auto_devops_service.execute
           flash[:notice] = s_('GroupSettings|Auto DevOps pipeline was updated for the group')
         else
-          flash[:alert] = s_("GroupSettings|There was a problem updating Auto DevOps pipeline: %{error_messages}." % { error_messages: group.errors.full_messages })
+          flash[:alert] = s_('GroupSettings|There was a problem updating Auto DevOps pipeline: %{error_messages}.' % { error_messages: group.errors.full_messages })
         end
 
         redirect_to group_settings_ci_cd_path

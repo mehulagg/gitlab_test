@@ -9,8 +9,8 @@ class AddConcurrentIndexToBuildsMetadata < ActiveRecord::Migration[5.0]
 
   def up
     add_concurrent_index :ci_builds_metadata, [:build_id],
-                         where: "interruptible = false",
-                         name: "index_ci_builds_metadata_on_build_id_and_interruptible_false"
+                         where: 'interruptible = false',
+                         name: 'index_ci_builds_metadata_on_build_id_and_interruptible_false'
   end
 
   def down

@@ -6,7 +6,7 @@ describe Admin::DashboardController do
   describe '#index' do
     render_views
 
-    it "allows an admin user to access the page" do
+    it 'allows an admin user to access the page' do
       sign_in(create(:user, :admin))
 
       get :index
@@ -14,7 +14,7 @@ describe Admin::DashboardController do
       expect(response).to have_gitlab_http_status(200)
     end
 
-    it "does not allow an auditor user to access the page" do
+    it 'does not allow an auditor user to access the page' do
       sign_in(create(:user, :auditor))
 
       get :index
@@ -22,7 +22,7 @@ describe Admin::DashboardController do
       expect(response).to have_gitlab_http_status(404)
     end
 
-    it "does not allow a regular user to access the page" do
+    it 'does not allow a regular user to access the page' do
       sign_in(create(:user))
 
       get :index

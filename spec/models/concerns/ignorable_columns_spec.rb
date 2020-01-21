@@ -28,7 +28,7 @@ describe IgnorableColumns do
   end
 
   it 'requires remove_after attribute to be set' do
-    expect { subject.ignore_columns(:name, remove_after: "not a date", remove_with: 12.6) }.to raise_error(ArgumentError, /Please indicate/)
+    expect { subject.ignore_columns(:name, remove_after: 'not a date', remove_with: 12.6) }.to raise_error(ArgumentError, /Please indicate/)
   end
 
   it 'requires remove_with attribute to be set' do

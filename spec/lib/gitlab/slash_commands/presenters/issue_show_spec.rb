@@ -24,7 +24,7 @@ describe Gitlab::SlashCommands::Presenters::IssueShow do
 
     it 'shows the upvote count' do
       expect(subject[:response_type]).to be(:in_channel)
-      expect(attachment[:text]).to start_with("**Open** · :+1: 1")
+      expect(attachment[:text]).to start_with('**Open** · :+1: 1')
     end
   end
 
@@ -39,7 +39,7 @@ describe Gitlab::SlashCommands::Presenters::IssueShow do
     it 'shows the labels' do
       labels = attachment[:fields].find { |f| f[:title] == 'Labels' }
 
-      expect(labels[:value]).to eq("mep, mop")
+      expect(labels[:value]).to eq('mep, mop')
     end
   end
 
@@ -48,7 +48,7 @@ describe Gitlab::SlashCommands::Presenters::IssueShow do
 
     it 'shows an ephemeral response' do
       expect(subject[:response_type]).to be(:in_channel)
-      expect(attachment[:text]).to start_with("**Open**")
+      expect(attachment[:text]).to start_with('**Open**')
     end
   end
 end

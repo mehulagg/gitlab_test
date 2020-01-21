@@ -34,7 +34,7 @@ module Gitlab
       end
 
       def find_for_git_client(login, password, project:, ip:)
-        raise "Must provide an IP for rate limiting" if ip.nil?
+        raise 'Must provide an IP for rate limiting' if ip.nil?
 
         rate_limiter = Gitlab::Auth::IpRateLimiter.new(ip)
 
@@ -166,7 +166,7 @@ module Gitlab
 
       # rubocop: disable CodeReuse/ActiveRecord
       def oauth_access_token_check(login, password)
-        if login == "oauth2" && password.present?
+        if login == 'oauth2' && password.present?
           token = Doorkeeper::AccessToken.by_token(password)
 
           if valid_oauth_token?(token)

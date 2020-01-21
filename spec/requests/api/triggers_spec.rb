@@ -58,7 +58,7 @@ describe API::Triggers do
         post api("/projects/#{project.id}/trigger/pipeline"), params: options.merge(ref: 'other-branch')
 
         expect(response).to have_gitlab_http_status(400)
-        expect(json_response['message']).to eq('base' => ["Reference not found"])
+        expect(json_response['message']).to eq('base' => ['Reference not found'])
       end
 
       context 'Validates variables' do

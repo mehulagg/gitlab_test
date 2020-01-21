@@ -15,9 +15,9 @@ RSpec.shared_examples 'update invalid issuable' do |klass|
 
   before do
     if klass == Issue
-      params.merge!(issue: { title: "any" })
+      params.merge!(issue: { title: 'any' })
     else
-      params.merge!(merge_request: { title: "any" })
+      params.merge!(merge_request: { title: 'any' })
     end
   end
 
@@ -35,7 +35,7 @@ RSpec.shared_examples 'update invalid issuable' do |klass|
     end
 
     it 'renders json error message when format is json' do
-      params[:format] = "json"
+      params[:format] = 'json'
 
       put :update, params: params
 
@@ -47,7 +47,7 @@ RSpec.shared_examples 'update invalid issuable' do |klass|
   context 'when updating an invalid issuable' do
     before do
       key = klass == Issue ? :issue : :merge_request
-      params[key][:title] = ""
+      params[key][:title] = ''
     end
 
     it 'renders edit when merge request is invalid' do

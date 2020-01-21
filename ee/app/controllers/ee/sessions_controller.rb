@@ -25,7 +25,7 @@ module EE
     override :auth_options
     def auth_options
       if params[:trial]
-        { scope: resource_name, recall: "trial_registrations#new" }
+        { scope: resource_name, recall: 'trial_registrations#new' }
       else
         super
       end

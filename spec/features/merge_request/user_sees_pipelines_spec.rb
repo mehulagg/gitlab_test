@@ -43,7 +43,7 @@ describe 'Merge request > User sees pipelines', :js do
         visit project_merge_request_path(project, merge_request)
         wait_for_requests
 
-        expect(page.find('.ci-widget')).to have_text("Could not retrieve the pipeline status. For troubleshooting steps, read the documentation.")
+        expect(page.find('.ci-widget')).to have_text('Could not retrieve the pipeline status. For troubleshooting steps, read the documentation.')
       end
 
       context 'with a detached merge request pipeline' do
@@ -98,8 +98,8 @@ describe 'Merge request > User sees pipelines', :js do
     let(:build_push_data) { { ref: 'feature', checkout_sha: TestEnv::BRANCH_SHA['feature'] } }
 
     let(:merge_request_params) do
-      { "source_branch" => "feature", "source_project_id" => project.id,
-        "target_branch" => "master", "target_project_id" => project.id, "title" => "A" }
+      { 'source_branch' => 'feature', 'source_project_id' => project.id,
+        'target_branch' => 'master', 'target_project_id' => project.id, 'title' => 'A' }
     end
 
     before do
@@ -127,8 +127,8 @@ describe 'Merge request > User sees pipelines', :js do
       it 'user sees pipeline in merge request widget', :sidekiq_might_not_need_inline do
         visit project_merge_request_path(project, @merge_request)
 
-        expect(page.find(".ci-widget")).to have_content(TestEnv::BRANCH_SHA['feature'])
-        expect(page.find(".ci-widget")).to have_content("##{@pipeline.id}")
+        expect(page.find('.ci-widget')).to have_content(TestEnv::BRANCH_SHA['feature'])
+        expect(page.find('.ci-widget')).to have_content("##{@pipeline.id}")
       end
     end
   end

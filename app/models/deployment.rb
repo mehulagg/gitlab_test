@@ -153,10 +153,10 @@ class Deployment < ApplicationRecord
     merge_requests = project.merge_requests
                      .joins(:metrics)
                      .where(target_branch: self.ref, merge_request_metrics: { first_deployed_to_production_at: nil })
-                     .where("merge_request_metrics.merged_at <= ?", finished_at)
+                     .where('merge_request_metrics.merged_at <= ?', finished_at)
 
     if previous_deployment
-      merge_requests = merge_requests.where("merge_request_metrics.merged_at >= ?", previous_deployment.finished_at)
+      merge_requests = merge_requests.where('merge_request_metrics.merged_at >= ?', previous_deployment.finished_at)
     end
 
     MergeRequest::Metrics

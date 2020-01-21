@@ -43,11 +43,11 @@ module Projects
         # HTTParty does not know this is actually JSON.
         data = JSON.parse(response.body)
 
-        raise DownloadLinksError, "LFS Batch API did return any objects" unless data.is_a?(Hash) && data.key?('objects')
+        raise DownloadLinksError, 'LFS Batch API did return any objects' unless data.is_a?(Hash) && data.key?('objects')
 
         parse_response_links(data['objects'])
       rescue JSON::ParserError
-        raise DownloadLinksError, "LFS Batch API response is not JSON"
+        raise DownloadLinksError, 'LFS Batch API response is not JSON'
       end
 
       def parse_response_links(objects_response)

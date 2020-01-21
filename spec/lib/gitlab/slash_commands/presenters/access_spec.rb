@@ -48,7 +48,7 @@ describe Gitlab::SlashCommands::Presenters::Access do
     it { is_expected.to be_a(Hash) }
 
     it 'tells the user the resource was not found' do
-      expect(subject[:text]).to match("not found!")
+      expect(subject[:text]).to match('not found!')
       expect(subject[:response_type]).to be(:ephemeral)
     end
   end
@@ -60,7 +60,7 @@ describe Gitlab::SlashCommands::Presenters::Access do
       it { is_expected.to be_a(Hash) }
 
       it 'tells the user to authorize' do
-        expect(subject[:text]).to match("connect your GitLab account")
+        expect(subject[:text]).to match('connect your GitLab account')
         expect(subject[:response_type]).to be(:ephemeral)
       end
     end

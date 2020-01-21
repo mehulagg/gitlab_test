@@ -21,15 +21,15 @@ module Gitlab
 
   def self.revision
     @_revision ||= begin
-      if File.exist?(root.join("REVISION"))
-        File.read(root.join("REVISION")).strip.freeze
+      if File.exist?(root.join('REVISION'))
+        File.read(root.join('REVISION')).strip.freeze
       else
         result = Gitlab::Popen.popen_with_detail(%W[#{config.git.bin_path} log --pretty=format:%h --abbrev=11 -n 1])
 
         if result.status.success?
           result.stdout.chomp.freeze
         else
-          "Unknown"
+          'Unknown'
         end
       end
     end
@@ -38,8 +38,8 @@ module Gitlab
   COM_URL = 'https://gitlab.com'
   APP_DIRS_PATTERN = %r{^/?(app|config|ee|lib|spec|\(\w*\))}.freeze
   SUBDOMAIN_REGEX = %r{\Ahttps://[a-z0-9]+\.gitlab\.com\z}.freeze
-  VERSION = File.read(root.join("VERSION")).strip.freeze
-  INSTALLATION_TYPE = File.read(root.join("INSTALLATION_TYPE")).strip.freeze
+  VERSION = File.read(root.join('VERSION')).strip.freeze
+  INSTALLATION_TYPE = File.read(root.join('INSTALLATION_TYPE')).strip.freeze
   HTTP_PROXY_ENV_VARS = %w(http_proxy https_proxy HTTP_PROXY HTTPS_PROXY).freeze
 
   def self.com?

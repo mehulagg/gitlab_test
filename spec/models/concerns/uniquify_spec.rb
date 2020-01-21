@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Uniquify do
   let(:uniquify) { described_class.new }
 
-  describe "#string" do
+  describe '#string' do
     it 'returns the given string if it does not exist' do
       result = uniquify.string('test_string') { |s| false }
 

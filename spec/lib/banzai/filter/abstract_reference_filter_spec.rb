@@ -49,13 +49,13 @@ describe Banzai::Filter::AbstractReferenceFilter do
           .to eq([project])
       end
 
-      context "when no project with that path exists" do
-        it "returns no value" do
+      context 'when no project with that path exists' do
+        it 'returns no value' do
           expect(filter.find_for_paths(['nonexistent/project']))
             .to eq([])
         end
 
-        it "adds the ref to the project refs cache" do
+        it 'adds the ref to the project refs cache' do
           project_refs_cache = {}
           allow(filter).to receive(:refs_cache).and_return(project_refs_cache)
 

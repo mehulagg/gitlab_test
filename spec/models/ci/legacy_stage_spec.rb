@@ -25,7 +25,7 @@ describe Ci::LegacyStage do
 
     subject { stage.statuses }
 
-    it "returns only matching statuses" do
+    it 'returns only matching statuses' do
       is_expected.to contain_exactly(stage_build, commit_status)
     end
   end
@@ -78,7 +78,7 @@ describe Ci::LegacyStage do
 
     subject { stage.statuses_count }
 
-    it "counts statuses only from current stage" do
+    it 'counts statuses only from current stage' do
       is_expected.to eq(1)
     end
   end
@@ -89,7 +89,7 @@ describe Ci::LegacyStage do
 
     subject { stage.builds }
 
-    it "returns only builds" do
+    it 'returns only builds' do
       is_expected.to contain_exactly(stage_build)
     end
   end
@@ -100,7 +100,7 @@ describe Ci::LegacyStage do
     context 'if status is already defined' do
       let(:stage) { build(:ci_stage, status: 'success') }
 
-      it "returns defined status" do
+      it 'returns defined status' do
         is_expected.to eq('success')
       end
     end
@@ -108,7 +108,7 @@ describe Ci::LegacyStage do
     context 'if status has to be calculated' do
       let!(:stage_build) { create_job(:ci_build, status: :failed) }
 
-      it "returns status of a build" do
+      it 'returns status of a build' do
         is_expected.to eq('failed')
       end
 
@@ -119,7 +119,7 @@ describe Ci::LegacyStage do
           stage_build.update(retried: true)
         end
 
-        it "returns status of latest build" do
+        it 'returns status of latest build' do
           is_expected.to eq('success')
         end
       end

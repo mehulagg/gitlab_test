@@ -22,7 +22,7 @@ describe ProjectImportOptions do
 
   describe '.sidekiq_retries_exhausted' do
     it 'marks fork as failed' do
-      expect { worker_class.sidekiq_retries_exhausted_block.call(job) }.to change { project.reload.import_status }.from("started").to("failed")
+      expect { worker_class.sidekiq_retries_exhausted_block.call(job) }.to change { project.reload.import_status }.from('started').to('failed')
     end
 
     it 'logs the appropriate error message for forked projects' do
@@ -30,13 +30,13 @@ describe ProjectImportOptions do
 
       worker_class.sidekiq_retries_exhausted_block.call(job)
 
-      expect(project.import_state.reload.last_error).to include("fork")
+      expect(project.import_state.reload.last_error).to include('fork')
     end
 
     it 'logs the appropriate error message for forked projects' do
       worker_class.sidekiq_retries_exhausted_block.call(job)
 
-      expect(project.import_state.reload.last_error).to include("import")
+      expect(project.import_state.reload.last_error).to include('import')
     end
 
     context 'when project does not have import_state' do

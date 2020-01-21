@@ -295,11 +295,11 @@ describe SystemNoteService do
     let(:author)          { create(:user) }
     let(:issue)           { create(:issue, project: project) }
     let(:merge_request)   { create(:merge_request, :simple, target_project: project, source_project: project) }
-    let(:jira_issue)      { ExternalIssue.new("JIRA-1", project)}
+    let(:jira_issue)      { ExternalIssue.new('JIRA-1', project)}
     let(:jira_tracker)    { project.jira_service }
     let(:commit)          { project.commit }
     let(:comment_url)     { jira_api_comment_url(jira_issue.id) }
-    let(:success_message) { "SUCCESS: Successfully posted to http://jira.example.net." }
+    let(:success_message) { 'SUCCESS: Successfully posted to http://jira.example.net.' }
 
     before do
       stub_jira_urls(jira_issue.id)
@@ -362,7 +362,7 @@ describe SystemNoteService do
       end
     end
 
-    describe "new reference" do
+    describe 'new reference' do
       let(:favicon_path) { "http://localhost/assets/#{find_asset('favicon.png').digest_path}" }
 
       before do
@@ -370,23 +370,23 @@ describe SystemNoteService do
       end
 
       context 'for commits' do
-        it "creates comment" do
+        it 'creates comment' do
           result = described_class.cross_reference(jira_issue, commit, author)
 
           expect(result).to eq(success_message)
         end
 
-        it "creates remote link" do
+        it 'creates remote link' do
           described_class.cross_reference(jira_issue, commit, author)
 
           expect(WebMock).to have_requested(:post, jira_api_remote_link_url(jira_issue)).with(
             body: hash_including(
-              GlobalID: "GitLab",
+              GlobalID: 'GitLab',
               relationship: 'mentioned on',
               object: {
                 url: project_commit_url(project, commit),
                 title: "Commit - #{commit.title}",
-                icon: { title: "GitLab", url16x16: favicon_path },
+                icon: { title: 'GitLab', url16x16: favicon_path },
                 status: { resolved: false }
               }
             )
@@ -397,23 +397,23 @@ describe SystemNoteService do
       context 'for issues' do
         let(:issue) { create(:issue, project: project) }
 
-        it "creates comment" do
+        it 'creates comment' do
           result = described_class.cross_reference(jira_issue, issue, author)
 
           expect(result).to eq(success_message)
         end
 
-        it "creates remote link" do
+        it 'creates remote link' do
           described_class.cross_reference(jira_issue, issue, author)
 
           expect(WebMock).to have_requested(:post, jira_api_remote_link_url(jira_issue)).with(
             body: hash_including(
-              GlobalID: "GitLab",
+              GlobalID: 'GitLab',
               relationship: 'mentioned on',
               object: {
                 url: project_issue_url(project, issue),
                 title: "Issue - #{issue.title}",
-                icon: { title: "GitLab", url16x16: favicon_path },
+                icon: { title: 'GitLab', url16x16: favicon_path },
                 status: { resolved: false }
               }
             )
@@ -424,23 +424,23 @@ describe SystemNoteService do
       context 'for snippets' do
         let(:snippet) { create(:snippet, project: project) }
 
-        it "creates comment" do
+        it 'creates comment' do
           result = described_class.cross_reference(jira_issue, snippet, author)
 
           expect(result).to eq(success_message)
         end
 
-        it "creates remote link" do
+        it 'creates remote link' do
           described_class.cross_reference(jira_issue, snippet, author)
 
           expect(WebMock).to have_requested(:post, jira_api_remote_link_url(jira_issue)).with(
             body: hash_including(
-              GlobalID: "GitLab",
+              GlobalID: 'GitLab',
               relationship: 'mentioned on',
               object: {
                 url: project_snippet_url(project, snippet),
                 title: "Snippet - #{snippet.title}",
-                icon: { title: "GitLab", url16x16: favicon_path },
+                icon: { title: 'GitLab', url16x16: favicon_path },
                 status: { resolved: false }
               }
             )
@@ -449,7 +449,7 @@ describe SystemNoteService do
       end
     end
 
-    describe "existing reference" do
+    describe 'existing reference' do
       before do
         allow(JIRA::Resource::Remotelink).to receive(:all).and_return([])
         message = "[#{author.name}|http://localhost/#{author.username}] mentioned this issue in [a commit of #{project.full_path}|http://localhost/#{project.full_path}/commit/#{commit.id}]:\n'#{commit.title.chomp}'"
@@ -458,7 +458,7 @@ describe SystemNoteService do
         end
       end
 
-      it "does not return success message" do
+      it 'does not return success message' do
         result = described_class.cross_reference(jira_issue, commit, author)
 
         expect(result).not_to eq(success_message)

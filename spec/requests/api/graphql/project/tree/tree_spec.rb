@@ -6,8 +6,8 @@ describe 'getting a tree in a project' do
 
   let(:project) { create(:project, :repository) }
   let(:current_user) { project.owner }
-  let(:path) { "" }
-  let(:ref) { "master" }
+  let(:path) { '' }
+  let(:ref) { 'master' }
   let(:fields) do
     <<~QUERY
       tree(path:"#{path}", ref:"#{ref}") {
@@ -24,7 +24,7 @@ describe 'getting a tree in a project' do
   end
 
   context 'when path does not exist' do
-    let(:path) { "testing123" }
+    let(:path) { 'testing123' }
 
     it 'returns empty tree' do
       post_graphql(query, current_user: current_user)
@@ -42,7 +42,7 @@ describe 'getting a tree in a project' do
   end
 
   context 'when ref does not exist' do
-    let(:ref) { "testing123" }
+    let(:ref) { 'testing123' }
 
     it 'returns empty tree' do
       post_graphql(query, current_user: current_user)

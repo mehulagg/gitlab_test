@@ -184,7 +184,7 @@ describe ApprovalState do
         end
       end
 
-      context "when overall approvals required is zero, and there is no rule" do
+      context 'when overall approvals required is zero, and there is no rule' do
         it 'returns false' do
           expect(subject.approval_needed?).to eq(false)
         end
@@ -895,7 +895,7 @@ describe ApprovalState do
         end
       end
 
-      context "when overall approvals required is zero, and there is no rule" do
+      context 'when overall approvals required is zero, and there is no rule' do
         it 'returns false' do
           expect(subject.approval_needed?).to eq(false)
         end

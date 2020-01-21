@@ -7,7 +7,7 @@ describe EpicPresenter do
   include Gitlab::Routing.url_helpers
 
   let(:user) { create(:user) }
-  let(:group) { create(:group, path: "pukeko_parent_group") }
+  let(:group) { create(:group, path: 'pukeko_parent_group') }
   let(:parent_epic) { create(:epic, group: group, start_date: Date.new(2000, 1, 10), due_date: Date.new(2000, 1, 20), iid: 10) }
   let(:epic) { create(:epic, group: group, author: user, parent: parent_epic) }
 
@@ -73,7 +73,7 @@ describe EpicPresenter do
     end
 
     context 'when in subgroups' do
-      let!(:subgroup) { create(:group, parent: group, path: "hedgehogs_subgroup") }
+      let!(:subgroup) { create(:group, parent: group, path: 'hedgehogs_subgroup') }
       let(:child_epic) { create(:epic, group: subgroup, iid: 1, parent: epic) }
 
       subject(:presenter) { described_class.new(child_epic, current_user: user) }

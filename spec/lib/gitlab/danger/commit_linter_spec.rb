@@ -83,7 +83,7 @@ describe Gitlab::Danger::CommitLinter do
 
   describe '#multi_line?' do
     where(:commit_message, :is_multi_line) do
-      "A commit message" | false
+      'A commit message' | false
       "A commit message\n" | false
       "A commit message\n\n" | false
       "A commit message\n\nWith details" | true
@@ -267,7 +267,7 @@ describe Gitlab::Danger::CommitLinter do
 
     describe 'message' do
       context 'when message includes a text emoji' do
-        let(:commit_message) { "A commit message :+1:" }
+        let(:commit_message) { 'A commit message :+1:' }
 
         it 'adds a problem' do
           expect(commit_linter).to receive(:add_problem).with(:message_contains_text_emoji)
@@ -277,7 +277,7 @@ describe Gitlab::Danger::CommitLinter do
       end
 
       context 'when message includes a unicode emoji' do
-        let(:commit_message) { "A commit message 🚀" }
+        let(:commit_message) { 'A commit message 🚀' }
 
         it 'adds a problem' do
           expect(commit_linter).to receive(:add_problem).with(:message_contains_unicode_emoji)

@@ -9,7 +9,7 @@ describe PrometheusService, :use_clean_rails_memory_store_caching do
   let(:project) { create(:prometheus_project) }
   let(:service) { project.prometheus_service }
 
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to :project }
   end
 
@@ -291,8 +291,8 @@ describe PrometheusService, :use_clean_rails_memory_store_caching do
       allow(service).to receive(:prometheus_available?).and_return(true)
     end
 
-    context "enabling manual_configuration" do
-      it "tracks enable event" do
+    context 'enabling manual_configuration' do
+      it 'tracks enable event' do
         service.update!(manual_configuration: false)
 
         expect(Gitlab::Tracking).to receive(:event).with('cluster:services:prometheus', 'enabled_manual_prometheus')
@@ -300,7 +300,7 @@ describe PrometheusService, :use_clean_rails_memory_store_caching do
         service.update!(manual_configuration: true)
       end
 
-      it "tracks disable event" do
+      it 'tracks disable event' do
         service.update!(manual_configuration: true)
 
         expect(Gitlab::Tracking).to receive(:event).with('cluster:services:prometheus', 'disabled_manual_prometheus')

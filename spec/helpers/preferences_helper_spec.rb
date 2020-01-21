@@ -29,10 +29,10 @@ describe PreferencesHelper do
         ['Starred Projects',        'stars'],
         ["Your Projects' Activity", 'project_activity'],
         ["Starred Projects' Activity", 'starred_project_activity'],
-        ["Your Groups", 'groups'],
-        ["Your To-Do List", 'todos'],
-        ["Assigned Issues", 'issues'],
-        ["Assigned Merge Requests", 'merge_requests']
+        ['Your Groups', 'groups'],
+        ['Your To-Do List', 'todos'],
+        ['Assigned Issues', 'issues'],
+        ['Assigned Merge Requests', 'merge_requests']
       ]
     end
   end

@@ -23,7 +23,7 @@ module API
           use :pagination
         end
 
-        get ":id/members" do
+        get ':id/members' do
           source = find_source(source_type, params[:id])
 
           members = paginate(retrieve_members(source, params: params))
@@ -40,7 +40,7 @@ module API
           use :pagination
         end
 
-        get ":id/members/all" do
+        get ':id/members/all' do
           source = find_source(source_type, params[:id])
 
           members = paginate(retrieve_members(source, params: params, deep: true))
@@ -55,7 +55,7 @@ module API
           requires :user_id, type: Integer, desc: 'The user ID of the member'
         end
         # rubocop: disable CodeReuse/ActiveRecord
-        get ":id/members/:user_id" do
+        get ':id/members/:user_id' do
           source = find_source(source_type, params[:id])
 
           members = source.members
@@ -72,7 +72,7 @@ module API
           requires :user_id, type: Integer, desc: 'The user ID of the member'
         end
         # rubocop: disable CodeReuse/ActiveRecord
-        get ":id/members/all/:user_id" do
+        get ':id/members/all/:user_id' do
           source = find_source(source_type, params[:id])
 
           members = find_all_members(source)
@@ -91,7 +91,7 @@ module API
           optional :expires_at, type: DateTime, desc: 'Date string in the format YEAR-MONTH-DAY'
         end
         # rubocop: disable CodeReuse/ActiveRecord
-        post ":id/members" do
+        post ':id/members' do
           source = find_source(source_type, params[:id])
           authorize_admin_source!(source_type, source)
 
@@ -122,7 +122,7 @@ module API
           optional :expires_at, type: DateTime, desc: 'Date string in the format YEAR-MONTH-DAY'
         end
         # rubocop: disable CodeReuse/ActiveRecord
-        put ":id/members/:user_id" do
+        put ':id/members/:user_id' do
           source = find_source(source_type, params.delete(:id))
           authorize_admin_source!(source_type, source)
 
@@ -145,7 +145,7 @@ module API
           requires :user_id, type: Integer, desc: 'The user ID of the member'
         end
         # rubocop: disable CodeReuse/ActiveRecord
-        delete ":id/members/:user_id" do
+        delete ':id/members/:user_id' do
           source = find_source(source_type, params[:id])
           member = source.members.find_by!(user_id: params[:user_id])
 

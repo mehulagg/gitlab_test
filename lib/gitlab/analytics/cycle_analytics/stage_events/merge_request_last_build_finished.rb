@@ -6,7 +6,7 @@ module Gitlab
       module StageEvents
         class MergeRequestLastBuildFinished < MetricsBasedStageEvent
           def self.name
-            s_("CycleAnalyticsEvent|Merge request last build finish time")
+            s_('CycleAnalyticsEvent|Merge request last build finish time')
           end
 
           def self.identifier

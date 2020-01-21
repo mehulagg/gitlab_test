@@ -6,7 +6,7 @@ module Gitlab
       module StageEvents
         class IssueFirstAssociatedWithMilestone < MetricsBasedStageEvent
           def self.name
-            s_("CycleAnalyticsEvent|Issue first associated with a milestone")
+            s_('CycleAnalyticsEvent|Issue first associated with a milestone')
           end
 
           def self.identifier

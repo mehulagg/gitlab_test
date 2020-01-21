@@ -37,9 +37,9 @@ describe 'Timelogs through GroupQuery' do
       }
       NODE
 
-      graphql_query_for("group", { "fullPath" => group.full_path },
+      graphql_query_for('group', { 'fullPath' => group.full_path },
         ['groupTimelogsEnabled', query_graphql_field(
-          "timelogs",
+          'timelogs',
           { startDate: "#{13.days.ago.to_date}", endDate: "#{2.days.ago.to_date}" },
           timelog_node
         )]

@@ -60,7 +60,7 @@ module BoardsHelper
     include_descendant_groups = @group&.present?
 
     {
-      toggle: "dropdown",
+      toggle: 'dropdown',
       list_labels_path: labels_filter_path_with_defaults(only_group_labels: true, include_ancestor_groups: true),
       labels: labels_filter_path_with_defaults(only_group_labels: true, include_descendant_groups: include_descendant_groups),
       labels_endpoint: @labels_endpoint,
@@ -89,9 +89,9 @@ module BoardsHelper
 
   def boards_link_text
     if current_board_parent.multiple_issue_boards_available?
-      s_("IssueBoards|Boards")
+      s_('IssueBoards|Boards')
     else
-      s_("IssueBoards|Board")
+      s_('IssueBoards|Board')
     end
   end
 

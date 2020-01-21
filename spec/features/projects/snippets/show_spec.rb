@@ -61,7 +61,7 @@ describe 'Projects > Snippets > Project snippet', :js do
           expect(page).to have_selector('.blob-viewer[data-type="rich"]')
 
           # shows rendered Markdown
-          expect(page).to have_link("PEP-8")
+          expect(page).to have_link('PEP-8')
 
           # shows a viewer switcher
           expect(page).to have_selector('.js-blob-viewer-switcher')
@@ -91,7 +91,7 @@ describe 'Projects > Snippets > Project snippet', :js do
             expect(page).to have_selector('.blob-viewer[data-type="rich"]', visible: false)
 
             # shows highlighted Markdown code
-            expect(page).to have_content("[PEP-8](http://www.python.org/dev/peps/pep-0008/)")
+            expect(page).to have_content('[PEP-8](http://www.python.org/dev/peps/pep-0008/)')
 
             # shows an enabled copy button
             expect(page).to have_selector('.js-copy-blob-source-btn:not(.disabled)')
@@ -136,7 +136,7 @@ describe 'Projects > Snippets > Project snippet', :js do
           expect(page).to have_selector('#LC1.hll')
 
           # shows highlighted Markdown code
-          expect(page).to have_content("[PEP-8](http://www.python.org/dev/peps/pep-0008/)")
+          expect(page).to have_content('[PEP-8](http://www.python.org/dev/peps/pep-0008/)')
 
           # shows an enabled copy button
           expect(page).to have_selector('.js-copy-blob-source-btn:not(.disabled)')

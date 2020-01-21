@@ -11,7 +11,7 @@ describe QA::Resource::Events::Base do
 
   subject { resource.tap { |f| f.include(described_class) }.new }
 
-  describe "#events" do
+  describe '#events' do
     it 'fetches all events when called without parameters' do
       allow(subject).to receive(:parse_body).and_return('returned')
 

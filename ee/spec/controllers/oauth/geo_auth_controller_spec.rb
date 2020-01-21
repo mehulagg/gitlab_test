@@ -193,7 +193,7 @@ describe Oauth::GeoAuthController, :geo do
 
         get :logout, params: { state: logout_state }
 
-        expect(response.body).to include("There is a problem with the OAuth access_token: Token has expired")
+        expect(response.body).to include('There is a problem with the OAuth access_token: Token has expired')
       end
     end
   end

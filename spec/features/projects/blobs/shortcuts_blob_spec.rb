@@ -9,7 +9,7 @@ describe 'Blob shortcuts', :js do
   let(:sha) { project.repository.commit.sha }
 
   describe 'On a file(blob)', :js do
-    def get_absolute_url(path = "")
+    def get_absolute_url(path = '')
       "http://#{page.server.host}:#{page.server.port}#{path}"
     end
 
@@ -28,7 +28,7 @@ describe 'Blob shortcuts', :js do
       end
 
       it 'maintains fragment hash when redirecting' do
-        fragment = "L1"
+        fragment = 'L1'
         visit_blob(fragment)
         wait_for_requests
 

@@ -42,7 +42,7 @@ describe Lfs::UnlockFileService do
         let(:current_user) { lock_author }
         let(:params) { { id: lock.id } }
 
-        it "succeeds" do
+        it 'succeeds' do
           result = subject.execute
 
           expect(result[:status]).to eq(:success)
@@ -95,7 +95,7 @@ describe Lfs::UnlockFileService do
               force: true }
           end
 
-          it "succeeds" do
+          it 'succeeds' do
             result = subject.execute
 
             expect(result[:status]).to eq(:success)

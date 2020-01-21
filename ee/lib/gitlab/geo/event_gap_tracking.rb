@@ -67,7 +67,7 @@ module Gitlab
       private
 
       def track_gaps(current_id)
-        log_info("Event log gap detected", previous_event_id: previous_id, current_event_id: current_id)
+        log_info('Event log gap detected', previous_event_id: previous_id, current_event_id: current_id)
 
         with_redis do |redis|
           expire_time = Time.now.to_i

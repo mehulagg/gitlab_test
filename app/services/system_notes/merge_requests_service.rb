@@ -27,7 +27,7 @@ module SystemNotes
     end
 
     def handle_merge_request_wip
-      prefix = noteable.work_in_progress? ? "marked" : "unmarked"
+      prefix = noteable.work_in_progress? ? 'marked' : 'unmarked'
 
       body = "#{prefix} as a **Work In Progress**"
 
@@ -41,7 +41,7 @@ module SystemNotes
     end
 
     def resolve_all_discussions
-      body = "resolved all threads"
+      body = 'resolved all threads'
 
       create_note(NoteSummary.new(noteable, project, author, body, action: 'discussion'))
     end

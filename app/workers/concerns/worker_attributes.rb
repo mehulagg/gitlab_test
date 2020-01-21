@@ -9,7 +9,7 @@ module WorkerAttributes
 
   class_methods do
     def feature_category(value)
-      raise "Invalid category. Use `feature_category_not_owned!` to mark a worker as not owned" if value == :not_owned
+      raise 'Invalid category. Use `feature_category_not_owned!` to mark a worker as not owned' if value == :not_owned
 
       worker_attributes[:feature_category] = value
     end
@@ -61,7 +61,7 @@ module WorkerAttributes
     end
 
     def worker_resource_boundary(boundary)
-      raise "Invalid boundary" unless VALID_RESOURCE_BOUNDARIES.include? boundary
+      raise 'Invalid boundary' unless VALID_RESOURCE_BOUNDARIES.include? boundary
 
       worker_attributes[:resource_boundary] = boundary
     end

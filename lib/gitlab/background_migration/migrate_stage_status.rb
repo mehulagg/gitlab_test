@@ -26,7 +26,7 @@ module Gitlab
         end
 
         scope :exclude_ignored, -> do
-          where("allow_failure = ? OR status IN (?)",
+          where('allow_failure = ? OR status IN (?)',
             false, %w[created pending running success skipped])
         end
 

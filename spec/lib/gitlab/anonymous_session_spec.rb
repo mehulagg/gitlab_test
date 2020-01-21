@@ -17,7 +17,7 @@ describe Gitlab::AnonymousSession, :clean_gitlab_redis_shared_state do
       subject.store_session_id_per_ip
 
       Gitlab::Redis::SharedState.with do |redis|
-        expect(redis.smembers("session:lookup:ip:gitlab:127.0.0.1")).to eq [default_session_id]
+        expect(redis.smembers('session:lookup:ip:gitlab:127.0.0.1')).to eq [default_session_id]
       end
     end
 
@@ -26,7 +26,7 @@ describe Gitlab::AnonymousSession, :clean_gitlab_redis_shared_state do
         subject.store_session_id_per_ip
 
         Gitlab::Redis::SharedState.with do |redis|
-          expect(redis.ttl("session:lookup:ip:gitlab:127.0.0.1")).to eq(24.hours.to_i)
+          expect(redis.ttl('session:lookup:ip:gitlab:127.0.0.1')).to eq(24.hours.to_i)
         end
       end
     end
@@ -36,7 +36,7 @@ describe Gitlab::AnonymousSession, :clean_gitlab_redis_shared_state do
       subject.store_session_id_per_ip
 
       Gitlab::Redis::SharedState.with do |redis|
-        expect(redis.smembers("session:lookup:ip:gitlab:127.0.0.1")).to eq [default_session_id]
+        expect(redis.smembers('session:lookup:ip:gitlab:127.0.0.1')).to eq [default_session_id]
       end
     end
 
@@ -46,7 +46,7 @@ describe Gitlab::AnonymousSession, :clean_gitlab_redis_shared_state do
         new_anonymous_session(additional_session_id).store_session_id_per_ip
 
         Gitlab::Redis::SharedState.with do |redis|
-          expect(redis.smembers("session:lookup:ip:gitlab:127.0.0.1")).to contain_exactly(default_session_id, additional_session_id)
+          expect(redis.smembers('session:lookup:ip:gitlab:127.0.0.1')).to contain_exactly(default_session_id, additional_session_id)
         end
       end
     end
@@ -55,8 +55,8 @@ describe Gitlab::AnonymousSession, :clean_gitlab_redis_shared_state do
   describe '#stored_sessions' do
     it 'returns all anonymous sessions per ip' do
       Gitlab::Redis::SharedState.with do |redis|
-        redis.sadd("session:lookup:ip:gitlab:127.0.0.1", default_session_id)
-        redis.sadd("session:lookup:ip:gitlab:127.0.0.1", additional_session_id)
+        redis.sadd('session:lookup:ip:gitlab:127.0.0.1', default_session_id)
+        redis.sadd('session:lookup:ip:gitlab:127.0.0.1', additional_session_id)
       end
 
       expect(subject.stored_sessions).to eq(2)
@@ -65,14 +65,14 @@ describe Gitlab::AnonymousSession, :clean_gitlab_redis_shared_state do
 
   it 'removes obsolete lookup through ip entries' do
     Gitlab::Redis::SharedState.with do |redis|
-      redis.sadd("session:lookup:ip:gitlab:127.0.0.1", default_session_id)
-      redis.sadd("session:lookup:ip:gitlab:127.0.0.1", additional_session_id)
+      redis.sadd('session:lookup:ip:gitlab:127.0.0.1', default_session_id)
+      redis.sadd('session:lookup:ip:gitlab:127.0.0.1', additional_session_id)
     end
 
     subject.cleanup_session_per_ip_entries
 
     Gitlab::Redis::SharedState.with do |redis|
-      expect(redis.smembers("session:lookup:ip:gitlab:127.0.0.1")).to eq [additional_session_id]
+      expect(redis.smembers('session:lookup:ip:gitlab:127.0.0.1')).to eq [additional_session_id]
     end
   end
 end

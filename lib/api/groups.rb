@@ -37,7 +37,7 @@ module API
         groups = groups.search(params[:search]) if params[:search].present?
         groups = groups.where.not(id: params[:skip_groups]) if params[:skip_groups].present?
         order_options = { params[:order_by] => params[:sort] }
-        order_options["id"] ||= "asc"
+        order_options['id'] ||= 'asc'
         groups = groups.reorder(order_options)
 
         groups
@@ -168,7 +168,7 @@ module API
         use :with_custom_attributes
         optional :with_projects, type: Boolean, default: true, desc: 'Omit project details'
       end
-      get ":id" do
+      get ':id' do
         group = find_group!(params[:id])
 
         options = {
@@ -183,7 +183,7 @@ module API
       end
 
       desc 'Remove a group.'
-      delete ":id" do
+      delete ':id' do
         group = find_group!(params[:id])
         authorize! :admin_group, group
 
@@ -221,7 +221,7 @@ module API
         use :with_custom_attributes
         use :optional_projects_params
       end
-      get ":id/projects" do
+      get ':id/projects' do
         projects = find_group_projects(params)
 
         options = {
@@ -241,7 +241,7 @@ module API
         use :group_list_params
         use :with_custom_attributes
       end
-      get ":id/subgroups" do
+      get ':id/subgroups' do
         groups = find_groups(declared_params(include_missing: false), params[:id])
         present_groups params, groups
       end
@@ -252,7 +252,7 @@ module API
       params do
         requires :project_id, type: String, desc: 'The ID or path of the project'
       end
-      post ":id/projects/:project_id", requirements: { project_id: /.+/ } do
+      post ':id/projects/:project_id', requirements: { project_id: /.+/ } do
         authenticated_as_admin!
         group = find_group!(params[:id])
         project = find_project!(params[:project_id])

@@ -33,9 +33,9 @@ describe 'Epics through GroupQuery' do
       }
       NODE
 
-      graphql_query_for("group", { "fullPath" => group.full_path },
+      graphql_query_for('group', { 'fullPath' => group.full_path },
                         ['epicsEnabled',
-                         query_graphql_field("epics", {}, epic_node)]
+                         query_graphql_field('epics', {}, epic_node)]
       )
     end
 

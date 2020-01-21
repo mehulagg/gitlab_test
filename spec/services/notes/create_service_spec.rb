@@ -15,7 +15,7 @@ describe Notes::CreateService do
       project.add_maintainer(user)
     end
 
-    context "valid params" do
+    context 'valid params' do
       it 'returns a valid note' do
         note = described_class.new(project, user, opts).execute
 
@@ -67,8 +67,8 @@ describe Notes::CreateService do
       end
 
       let(:position) do
-        Gitlab::Diff::Position.new(old_path: "files/ruby/popen.rb",
-                                   new_path: "files/ruby/popen.rb",
+        Gitlab::Diff::Position.new(old_path: 'files/ruby/popen.rb',
+                                   new_path: 'files/ruby/popen.rb',
                                    old_line: nil,
                                    new_line: 14,
                                    diff_refs: merge_request.diff_refs)
@@ -137,8 +137,8 @@ describe Notes::CreateService do
       end
       let(:line_number) { 14 }
       let(:position) do
-        Gitlab::Diff::Position.new(old_path: "files/ruby/popen.rb",
-                                   new_path: "files/ruby/popen.rb",
+        Gitlab::Diff::Position.new(old_path: 'files/ruby/popen.rb',
+                                   new_path: 'files/ruby/popen.rb',
                                    old_line: nil,
                                    new_line: line_number,
                                    diff_refs: merge_request.diff_refs)
@@ -186,8 +186,8 @@ describe Notes::CreateService do
 
         context 'when DiffNote from an image' do
           let(:image_position) do
-            Gitlab::Diff::Position.new(old_path: "files/images/6049019_460s.jpg",
-                                       new_path: "files/images/6049019_460s.jpg",
+            Gitlab::Diff::Position.new(old_path: 'files/images/6049019_460s.jpg',
+                                       new_path: 'files/images/6049019_460s.jpg',
                                        width: 100,
                                        height: 100,
                                        x: 1,
@@ -216,7 +216,7 @@ describe Notes::CreateService do
 
     context 'note with commands' do
       context 'all quick actions' do
-        let_it_be(:milestone) { create(:milestone, project: project, title: "sprint") }
+        let_it_be(:milestone) { create(:milestone, project: project, title: 'sprint') }
         let_it_be(:bug_label) { create(:label, project: project, title: 'bug') }
         let_it_be(:to_be_copied_label) { create(:label, project: project, title: 'to be copied') }
         let_it_be(:feature_label) { create(:label, project: project, title: 'feature') }
@@ -278,16 +278,16 @@ describe Notes::CreateService do
           let(:merge_request_quick_actions) do
             [
               QuickAction.new(
-                action_text: "/target_branch fix",
+                action_text: '/target_branch fix',
                 expectation: ->(noteable, can_use_quick_action) {
-                  expect(noteable.target_branch == "fix").to eq(can_use_quick_action)
+                  expect(noteable.target_branch == 'fix').to eq(can_use_quick_action)
                 }
               ),
               # Set WIP status
               QuickAction.new(
-                action_text: "/wip",
+                action_text: '/wip',
                 before_action: -> {
-                  issuable.reload.update(title: "title")
+                  issuable.reload.update(title: 'title')
                 },
                 expectation: ->(issuable, can_use_quick_action) {
                   expect(issuable.work_in_progress?).to eq(can_use_quick_action)
@@ -295,9 +295,9 @@ describe Notes::CreateService do
               ),
               # Remove WIP status
               QuickAction.new(
-                action_text: "/wip",
+                action_text: '/wip',
                 before_action: -> {
-                  issuable.reload.update(title: "WIP: title")
+                  issuable.reload.update(title: 'WIP: title')
                 },
                 expectation: ->(noteable, can_use_quick_action) {
                   expect(noteable.work_in_progress?).not_to eq(can_use_quick_action)
@@ -397,7 +397,7 @@ describe Notes::CreateService do
       end
     end
 
-    describe "usage counter" do
+    describe 'usage counter' do
       let(:counter) { Gitlab::UsageDataCounters::NoteCounter }
 
       context 'snippet note' do

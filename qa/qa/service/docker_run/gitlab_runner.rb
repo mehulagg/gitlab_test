@@ -47,7 +47,7 @@ module QA
 
         def register_command
           <<~CMD
-            printf '#{config.chomp.gsub(/\n/, "\\n").gsub('"', '\"')}' > /etc/gitlab-runner/config.toml &&
+            printf '#{config.chomp.gsub(/\n/, '\\n').gsub('"', '\"')}' > /etc/gitlab-runner/config.toml &&
             gitlab-runner register --run-untagged=#{@run_untagged} &&
             gitlab-runner run
           CMD

@@ -21,7 +21,7 @@ describe SearchService do
       let(:note_on_unauthorized_issue) { create(:note, project: unauthorized_project, noteable: issue1_in_unauthorized_project) }
       let(:merge_request_in_unauthorized_project) { create(:merge_request_with_diffs, target_project: unauthorized_project, source_project: unauthorized_project) }
       let(:milestone_in_unauthorized_project) { create(:milestone, project: unauthorized_project) }
-      let(:wiki_page) { WikiPages::CreateService.new(unauthorized_project, user, { title: "foo", content: "wiki_blobs" }).execute }
+      let(:wiki_page) { WikiPages::CreateService.new(unauthorized_project, user, { title: 'foo', content: 'wiki_blobs' }).execute }
       let(:commit) { unauthorized_project.repository.commit(SeedRepo::FirstCommit::ID) }
 
       let(:search_service) { described_class.new(user, search: 'some-search-string', page: 1) }
@@ -53,11 +53,11 @@ describe SearchService do
         expect(search_service.send(:logger))
           .to receive(:error)
           .with(hash_including(
-                  message: "redacted_search_results",
+                  message: 'redacted_search_results',
                   current_user_id: user.id,
                   query: 'some-search-string',
                   filtered: array_including([
-                    { class_name: "Project", id: unauthorized_project.id, ability: :read_project }
+                    { class_name: 'Project', id: unauthorized_project.id, ability: :read_project }
                   ])))
 
         expect(subject).to be_kind_of(Kaminari::PaginatableArray)
@@ -82,12 +82,12 @@ describe SearchService do
         expect(search_service.send(:logger))
           .to receive(:error)
           .with(hash_including(
-                  message: "redacted_search_results",
+                  message: 'redacted_search_results',
                   current_user_id: user.id,
                   query: 'some-search-string',
                   filtered: array_including([
-                    { class_name: "Issue", id: issue1_in_unauthorized_project.id, ability: :read_issue },
-                    { class_name: "Issue", id: issue2_in_unauthorized_project.id, ability: :read_issue }
+                    { class_name: 'Issue', id: issue1_in_unauthorized_project.id, ability: :read_issue },
+                    { class_name: 'Issue', id: issue2_in_unauthorized_project.id, ability: :read_issue }
                   ])))
 
         expect(subject).to be_kind_of(Kaminari::PaginatableArray)

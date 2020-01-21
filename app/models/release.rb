@@ -25,7 +25,7 @@ class Release < ApplicationRecord
   accepts_nested_attributes_for :links, allow_destroy: true
 
   validates :description, :project, :tag, presence: true
-  validates_associated :milestone_releases, message: -> (_, obj) { obj[:value].map(&:errors).map(&:full_messages).join(",") }
+  validates_associated :milestone_releases, message: -> (_, obj) { obj[:value].map(&:errors).map(&:full_messages).join(',') }
 
   scope :sorted, -> { order(released_at: :desc) }
   scope :preloaded, -> { includes(project: :namespace) }
@@ -83,7 +83,7 @@ class Release < ApplicationRecord
   end
 
   def milestone_titles
-    self.milestones.map {|m| m.title }.sort.join(", ")
+    self.milestones.map {|m| m.title }.sort.join(', ')
   end
 
   private

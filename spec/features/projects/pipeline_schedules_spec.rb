@@ -26,7 +26,7 @@ describe 'Pipeline Schedules', :js do
         it 'displays the required information description' do
           page.within('.pipeline-schedule-table-row') do
             expect(page).to have_content('pipeline schedule')
-            expect(find(".next-run-cell time")['data-original-title'])
+            expect(find('.next-run-cell time')['data-original-title'])
               .to include(pipeline_schedule.real_next_run.strftime('%b %-d, %Y'))
             expect(page).to have_link('master')
             expect(page).to have_link("##{pipeline.id}")
@@ -58,7 +58,7 @@ describe 'Pipeline Schedules', :js do
         it 'deletes the pipeline' do
           accept_confirm { click_link 'Delete' }
 
-          expect(page).not_to have_css(".pipeline-schedule-table-row")
+          expect(page).not_to have_css('.pipeline-schedule-table-row')
         end
       end
 
@@ -171,10 +171,10 @@ describe 'Pipeline Schedules', :js do
       it 'user sees the new variable in edit window' do
         find(".content-list .pipeline-schedule-table-row:nth-child(1) .btn-group a[title='Edit']").click
         page.within('.ci-variable-list') do
-          expect(find(".ci-variable-row:nth-child(1) .js-ci-variable-input-key").value).to eq('AAA')
-          expect(find(".ci-variable-row:nth-child(1) .js-ci-variable-input-value", visible: false).value).to eq('AAA123')
-          expect(find(".ci-variable-row:nth-child(2) .js-ci-variable-input-key").value).to eq('BBB')
-          expect(find(".ci-variable-row:nth-child(2) .js-ci-variable-input-value", visible: false).value).to eq('BBB123')
+          expect(find('.ci-variable-row:nth-child(1) .js-ci-variable-input-key').value).to eq('AAA')
+          expect(find('.ci-variable-row:nth-child(1) .js-ci-variable-input-value', visible: false).value).to eq('AAA123')
+          expect(find('.ci-variable-row:nth-child(2) .js-ci-variable-input-key').value).to eq('BBB')
+          expect(find('.ci-variable-row:nth-child(2) .js-ci-variable-input-value', visible: false).value).to eq('BBB123')
         end
       end
     end
@@ -197,8 +197,8 @@ describe 'Pipeline Schedules', :js do
       it 'user sees the updated variable in edit window' do
         find(".content-list .pipeline-schedule-table-row:nth-child(1) .btn-group a[title='Edit']").click
         page.within('.ci-variable-list') do
-          expect(find(".ci-variable-row:nth-child(1) .js-ci-variable-input-key").value).to eq('foo')
-          expect(find(".ci-variable-row:nth-child(1) .js-ci-variable-input-value", visible: false).value).to eq('bar')
+          expect(find('.ci-variable-row:nth-child(1) .js-ci-variable-input-key').value).to eq('foo')
+          expect(find('.ci-variable-row:nth-child(1) .js-ci-variable-input-value', visible: false).value).to eq('bar')
         end
       end
     end
@@ -218,8 +218,8 @@ describe 'Pipeline Schedules', :js do
       it 'user does not see the removed variable in edit window' do
         find(".content-list .pipeline-schedule-table-row:nth-child(1) .btn-group a[title='Edit']").click
         page.within('.ci-variable-list') do
-          expect(find(".ci-variable-row:nth-child(1) .js-ci-variable-input-key").value).to eq('')
-          expect(find(".ci-variable-row:nth-child(1) .js-ci-variable-input-value", visible: false).value).to eq('')
+          expect(find('.ci-variable-row:nth-child(1) .js-ci-variable-input-key').value).to eq('')
+          expect(find('.ci-variable-row:nth-child(1) .js-ci-variable-input-value', visible: false).value).to eq('')
         end
       end
     end
@@ -238,7 +238,7 @@ describe 'Pipeline Schedules', :js do
         click_button 'Save pipeline schedule'
 
         page.within('.pipeline-schedule-table-row:nth-child(1)') do
-          expect(page).to have_css(".next-run-cell time")
+          expect(page).to have_css('.next-run-cell time')
         end
       end
     end

@@ -10,7 +10,7 @@ module Pseudonymizer
     end
 
     def pages(&block)
-      if @columns.include?("id")
+      if @columns.include?('id')
         # optimize the pagination using WHERE id > ?
         pages_per_id(&block)
       else
@@ -25,7 +25,7 @@ module Pseudonymizer
       loop do
         # a page of results
         results = ActiveRecord::Base.connection.exec_query(<<-SQL.squish)
-          SELECT #{@columns.join(",")}
+          SELECT #{@columns.join(',')}
           FROM #{@table}
           WHERE id > #{id_offset}
           ORDER BY id
@@ -34,7 +34,7 @@ module Pseudonymizer
         Rails.logger.debug("#{self.class.name} fetch ids [#{id_offset}..+#{PAGE_SIZE}]") # rubocop:disable Gitlab/RailsLogger
         break if results.empty?
 
-        id_offset = results.last["id"].to_i
+        id_offset = results.last['id'].to_i
         yield results
 
         break if results.count < PAGE_SIZE
@@ -47,9 +47,9 @@ module Pseudonymizer
       loop do
         # a page of results
         results = ActiveRecord::Base.connection.exec_query(<<-SQL.squish)
-          SELECT #{@columns.join(",")}
+          SELECT #{@columns.join(',')}
           FROM #{@table}
-          ORDER BY #{@columns.join(",")}
+          ORDER BY #{@columns.join(',')}
           LIMIT #{PAGE_SIZE} OFFSET #{offset}
         SQL
         Rails.logger.debug("#{self.class.name} fetching offset [#{offset}..#{offset + PAGE_SIZE}]") # rubocop:disable Gitlab/RailsLogger

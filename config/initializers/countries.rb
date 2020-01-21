@@ -9,29 +9,29 @@ end
 # To be removed after https://gitlab.com/gitlab-org/gitlab/issues/14784 is implemented
 # Data fetched is based on https://github.com/hexorx/countries/blob/master/lib/countries/data/countries/UA.yaml
 ISO3166::Data.register(
-  continent: "Europe",
+  continent: 'Europe',
   address_format: "|-
   {{recipient}}
   {{street}}
   {{city}} {{region_short}}
   {{postalcode}}
   {{country}}",
-  alpha2: "UA",
-  alpha3: "UKR",
+  alpha2: 'UA',
+  alpha3: 'UKR',
   country_code: '380',
   international_prefix: '810',
-  ioc: "UKR",
-  gec: "UP",
-  name: "Ukraine (except Crimean Region)",
+  ioc: 'UKR',
+  gec: 'UP',
+  name: 'Ukraine (except Crimean Region)',
   national_destination_code_lengths: [2],
   national_number_lengths: [8, 9],
   national_prefix: '8',
   number: '804',
-  region: "Europe",
-  subregion: "Eastern Europe",
-  world_region: "EMEA",
-  un_locode: "UA",
-  nationality: "Ukrainian",
+  region: 'Europe',
+  subregion: 'Eastern Europe',
+  world_region: 'EMEA',
+  un_locode: 'UA',
+  nationality: 'Ukrainian',
   vat_rates: {
     standard: 20
   },
@@ -40,8 +40,8 @@ ISO3166::Data.register(
     parking: { postal_code: true }
   },
   unofficial_names: %w(Ukraine Ucrania ウクライナ Oekraïne Украина Україна Украіна),
-  languages_official: ["uk"],
-  languages_spoken: ["uk"],
+  languages_official: ['uk'],
+  languages_spoken: ['uk'],
   geo: {
     latitude: 48.379433,
     latitude_dec: '48.92656326293945',
@@ -56,6 +56,6 @@ ISO3166::Data.register(
       southwest: { lat: 44.2924, lng: 22.137159 }
     }
   },
-  currency_code: "UAH",
-  start_of_week: "monday"
+  currency_code: 'UAH',
+  start_of_week: 'monday'
 )

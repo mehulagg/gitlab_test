@@ -93,7 +93,7 @@ module Gitlab
 
       coder = {}
       klass.new(raw).encode_with(coder)
-      coder["new_record"] = new_record?(raw, klass)
+      coder['new_record'] = new_record?(raw, klass)
       coder
     end
 

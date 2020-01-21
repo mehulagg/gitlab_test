@@ -38,7 +38,7 @@ describe EE::NotificationService, :mailer do
 
       it 'sends a mail to the developer' do
         expect(Notify)
-          .to receive(:note_design_email).with(dev.id, note.id, "mentioned")
+          .to receive(:note_design_email).with(dev.id, note.id, 'mentioned')
 
         subject.new_note(note)
       end
@@ -159,7 +159,7 @@ describe EE::NotificationService, :mailer do
              noteable: merge_request,
              author: reviewer,
              review: review,
-             note: "cc @mention")
+             note: 'cc @mention')
     end
 
     it 'sends emails' do

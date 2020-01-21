@@ -10,14 +10,14 @@ describe Issues::RelatedBranchesService do
 
   describe '#execute' do
     before do
-      allow(issue.project.repository).to receive(:branch_names).and_return(["mpempe", "#{issue.iid}mepmep", issue.to_branch_name, "#{issue.iid}-branch"])
+      allow(issue.project.repository).to receive(:branch_names).and_return(['mpempe', "#{issue.iid}mepmep", issue.to_branch_name, "#{issue.iid}-branch"])
     end
 
-    it "selects the right branches when there are no referenced merge requests" do
+    it 'selects the right branches when there are no referenced merge requests' do
       expect(subject.execute(issue)).to eq([issue.to_branch_name, "#{issue.iid}-branch"])
     end
 
-    it "selects the right branches when there is a referenced merge request" do
+    it 'selects the right branches when there is a referenced merge request' do
       merge_request = create(:merge_request, { description: "Closes ##{issue.iid}",
                                                source_project: issue.project,
                                                source_branch: "#{issue.iid}-branch" })

@@ -6,7 +6,7 @@ describe Search::GroupService do
   shared_examples_for 'group search' do
     context 'finding projects by name' do
       let(:user) { create(:user) }
-      let(:term) { "Project Name" }
+      let(:term) { 'Project Name' }
       let(:nested_group) { create(:group, :nested) }
 
       # These projects shouldn't be found

@@ -299,7 +299,7 @@ module API
 
         presenter = ::Packages::Conan::PackagePresenter.new(recipe, current_user, project)
 
-        render_api_error!("No recipe manifest found", 404) if presenter.package_urls.empty?
+        render_api_error!('No recipe manifest found', 404) if presenter.package_urls.empty?
 
         present presenter, with: EE::API::Entities::ConanPackage::ConanPackageManifest
       end
@@ -309,7 +309,7 @@ module API
 
         presenter = ::Packages::Conan::PackagePresenter.new(recipe, current_user, project)
 
-        render_api_error!("No recipe manifest found", 404) if presenter.recipe_urls.empty?
+        render_api_error!('No recipe manifest found', 404) if presenter.recipe_urls.empty?
 
         present presenter, with: EE::API::Entities::ConanPackage::ConanRecipeManifest
       end
@@ -359,7 +359,7 @@ module API
       end
 
       def recipe
-        "%{package_name}/%{package_version}@%{package_username}/%{package_channel}" % params.symbolize_keys
+        '%{package_name}/%{package_version}@%{package_username}/%{package_channel}' % params.symbolize_keys
       end
 
       def project

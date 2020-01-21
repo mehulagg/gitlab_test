@@ -22,27 +22,27 @@ describe MarkupHelper do
     allow(helper).to receive(:current_user).and_return(user)
   end
 
-  describe "#markdown" do
-    describe "referencing multiple objects" do
+  describe '#markdown' do
+    describe 'referencing multiple objects' do
       let(:actual) { "#{merge_request.to_reference} -> #{commit.to_reference} -> #{issue.to_reference}" }
 
-      it "links to the merge request" do
+      it 'links to the merge request' do
         expected = urls.project_merge_request_path(project, merge_request)
         expect(helper.markdown(actual)).to match(expected)
       end
 
-      it "links to the commit" do
+      it 'links to the commit' do
         expected = urls.project_commit_path(project, commit)
         expect(helper.markdown(actual)).to match(expected)
       end
 
-      it "links to the issue" do
+      it 'links to the issue' do
         expected = urls.project_issue_path(project, issue)
         expect(helper.markdown(actual)).to match(expected)
       end
     end
 
-    describe "override default project" do
+    describe 'override default project' do
       let(:actual) { issue.to_reference }
 
       set(:second_project) { create(:project, :public) }
@@ -55,7 +55,7 @@ describe MarkupHelper do
     end
 
     describe 'uploads' do
-      let(:text) { "![ImageTest](/uploads/test.png)" }
+      let(:text) { '![ImageTest](/uploads/test.png)' }
 
       set(:group) { create(:group) }
 
@@ -78,7 +78,7 @@ describe MarkupHelper do
         end
       end
 
-      describe "with a group in the context" do
+      describe 'with a group in the context' do
         set(:project_in_group) { create(:project, group: group) }
 
         before do
@@ -93,7 +93,7 @@ describe MarkupHelper do
     end
 
     context 'when text contains a relative link to an image in the repository' do
-      let(:image_file) { "logo-white.png" }
+      let(:image_file) { 'logo-white.png' }
       let(:text_with_relative_path) { "![](./#{image_file})\n" }
       let(:generated_html) { helper.markdown(text_with_relative_path, requested_path: requested_path) }
 
@@ -226,7 +226,7 @@ describe MarkupHelper do
       end
     end
 
-    it "escapes HTML passed in as the body" do
+    it 'escapes HTML passed in as the body' do
       actual = "This is a <h1>test</h1> - see #{issues[0].to_reference}"
       expect(helper.link_to_markdown(actual, link))
         .to match('&lt;h1&gt;test&lt;/h1&gt;')
@@ -264,7 +264,7 @@ describe MarkupHelper do
       expect(doc.css('a')[0].text).to eq 'This should finally fix '
     end
 
-    it "escapes HTML passed as an emoji" do
+    it 'escapes HTML passed as an emoji' do
       rendered = '<gl-emoji>&lt;div class="test"&gt;test&lt;/div&gt;</gl-emoji>'
       expect(helper.link_to_html(rendered, '/foo'))
         .to eq '<a href="/foo"><gl-emoji>&lt;div class="test"&gt;test&lt;/div&gt;</gl-emoji></a>'
@@ -383,7 +383,7 @@ describe MarkupHelper do
 
       context 'when renderer returns an error' do
         before do
-          allow(Banzai).to receive(:render).and_raise(StandardError, "An error")
+          allow(Banzai).to receive(:render).and_raise(StandardError, 'An error')
         end
 
         it 'returns html (rendered by ActionView:TextHelper)' do
@@ -481,17 +481,17 @@ describe MarkupHelper do
 
       it 'preserves code color scheme' do
         object = create_object("```ruby\ndef test\n  'hello world'\nend\n```")
-        expected = "<pre class=\"code highlight js-syntax-highlight ruby\">" \
+        expected = '<pre class="code highlight js-syntax-highlight ruby">' \
           "<code><span class=\"line\"><span class=\"k\">def</span> <span class=\"nf\">test</span>...</span>\n" \
-          "</code></pre>"
+          '</code></pre>'
 
         expect(first_line_in_markdown(object, attribute, 150, project: project)).to eq(expected)
       end
 
       context 'when images are allowed' do
         it 'preserves data-src for lazy images' do
-          object    = create_object("![ImageTest](/uploads/test.png)")
-          image_url = "data-src=\".*/uploads/test.png\""
+          object    = create_object('![ImageTest](/uploads/test.png)')
+          image_url = 'data-src=".*/uploads/test.png"'
           text      = first_line_in_markdown(object, attribute, 150, project: project, allow_images: true)
 
           expect(text).to match(image_url)
@@ -501,7 +501,7 @@ describe MarkupHelper do
 
       context 'when images are not allowed' do
         it 'removes any images' do
-          object = create_object("![ImageTest](/uploads/test.png)")
+          object = create_object('![ImageTest](/uploads/test.png)')
           text   = first_line_in_markdown(object, attribute, 150, project: project)
 
           expect(text).not_to match('<img')

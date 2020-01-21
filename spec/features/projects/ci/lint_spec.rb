@@ -31,7 +31,7 @@ describe 'CI Lint', :js do
       end
 
       it 'parses Yaml' do
-        within "table" do
+        within 'table' do
           expect(page).to have_content('Job - rspec')
           expect(page).to have_content('Job - spinach')
           expect(page).to have_content('Deploy Job - staging')

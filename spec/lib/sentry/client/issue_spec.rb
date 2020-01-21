@@ -30,7 +30,7 @@ describe Sentry::Client::Issue do
     let(:default_httparty_options) do
       {
         follow_redirects: false,
-        headers: { 'Content-Type' => 'application/json', 'Authorization' => "Bearer test-token" }
+        headers: { 'Content-Type' => 'application/json', 'Authorization' => 'Bearer test-token' }
       }
     end
 
@@ -121,7 +121,7 @@ describe Sentry::Client::Issue do
       it 'calls the sentry api with sort params' do
         expect(Gitlab::HTTP).to receive(:get).with(
           URI("#{sentry_url}/issues/"),
-          default_httparty_options.merge(query: { limit: 20, query: "is:unresolved", sort: "freq" })
+          default_httparty_options.merge(query: { limit: 20, query: 'is:unresolved', sort: 'freq' })
         ).and_call_original
 
         subject

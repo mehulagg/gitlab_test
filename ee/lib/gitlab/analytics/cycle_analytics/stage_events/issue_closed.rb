@@ -6,7 +6,7 @@ module Gitlab
       module StageEvents
         class IssueClosed < StageEvent
           def self.name
-            s_("CycleAnalyticsEvent|Issue closed")
+            s_('CycleAnalyticsEvent|Issue closed')
           end
 
           def self.identifier

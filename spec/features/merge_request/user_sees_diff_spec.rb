@@ -49,7 +49,7 @@ describe 'Merge request > User sees diff', :js do
       visit diffs_project_merge_request_path(project, merge_request)
 
       page.within('.alert') do
-        expect(page).to have_text("Too many changes to show. Plain diff Email patch To preserve performance only 3 of 3+ files are displayed.")
+        expect(page).to have_text('Too many changes to show. Plain diff Email patch To preserve performance only 3 of 3+ files are displayed.')
       end
     end
   end
@@ -59,7 +59,7 @@ describe 'Merge request > User sees diff', :js do
     let(:user) { create(:user) }
     let(:forked_project) { fork_project(project, author_user, repository: true) }
     let(:merge_request) { create(:merge_request_with_diffs, source_project: forked_project, target_project: project, author: author_user) }
-    let(:changelog_id) { Digest::SHA1.hexdigest("CHANGELOG") }
+    let(:changelog_id) { Digest::SHA1.hexdigest('CHANGELOG') }
 
     before do
       forked_project.repository.after_import
@@ -90,7 +90,7 @@ describe 'Merge request > User sees diff', :js do
 
     context 'when file contains html' do
       let(:current_user) { project.owner }
-      let(:branch_name) {"test_branch"}
+      let(:branch_name) {'test_branch'}
 
       it 'escapes any HTML special characters in the diff chunk header' do
         file_content =
@@ -123,7 +123,7 @@ describe 'Merge request > User sees diff', :js do
 
         visit diffs_project_merge_request_path(project, merge_request)
 
-        expect(page).to have_text("function foo<input> {")
+        expect(page).to have_text('function foo<input> {')
         expect(page).to have_css(".line[lang='rust'] .k")
       end
     end
@@ -176,7 +176,7 @@ describe 'Merge request > User sees diff', :js do
         current_user,
         start_branch: branch_name,
         branch_name: branch_name,
-        commit_message: "Create file",
+        commit_message: 'Create file',
         file_path: file_name,
         file_content: content
       ).execute

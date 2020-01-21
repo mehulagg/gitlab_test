@@ -9,7 +9,7 @@ describe Banzai::Filter::ExternalIssueReferenceFilter do
     IssuesHelper
   end
 
-  shared_examples_for "external issue tracker" do
+  shared_examples_for 'external issue tracker' do
     it_behaves_like 'a reference containing an element node'
 
     it 'requires project context' do
@@ -33,7 +33,7 @@ describe Banzai::Filter::ExternalIssueReferenceFilter do
 
     it 'links to a valid reference' do
       doc = filter("Issue #{reference}")
-      issue_id = doc.css('a').first.attr("data-external-issue")
+      issue_id = doc.css('a').first.attr('data-external-issue')
 
       expect(doc.css('a').first.attr('href'))
         .to eq helper.url_for_issue(issue_id, project)
@@ -43,7 +43,7 @@ describe Banzai::Filter::ExternalIssueReferenceFilter do
       doc = filter("Issue #{reference}")
 
       link = doc.css('a').first.attr('href')
-      issue_id = doc.css('a').first.attr("data-external-issue")
+      issue_id = doc.css('a').first.attr('data-external-issue')
 
       expect(link).to eq(helper.url_for_issue(issue_id, project))
     end
@@ -76,7 +76,7 @@ describe Banzai::Filter::ExternalIssueReferenceFilter do
       doc = filter("Issue #{reference}", only_path: true)
 
       link = doc.css('a').first.attr('href')
-      issue_id = doc.css('a').first["data-external-issue"]
+      issue_id = doc.css('a').first['data-external-issue']
 
       expect(link).to eq helper.url_for_issue(issue_id, project, only_path: true)
     end
@@ -101,94 +101,94 @@ describe Banzai::Filter::ExternalIssueReferenceFilter do
     end
   end
 
-  context "redmine project" do
+  context 'redmine project' do
     let(:project) { create(:redmine_project) }
 
     before do
       project.update!(issues_enabled: false)
     end
 
-    context "with a hash prefix" do
-      let(:issue) { ExternalIssue.new("#123", project) }
+    context 'with a hash prefix' do
+      let(:issue) { ExternalIssue.new('#123', project) }
       let(:reference) { issue.to_reference }
 
-      it_behaves_like "external issue tracker"
+      it_behaves_like 'external issue tracker'
     end
 
-    context "with a single-letter prefix" do
-      let(:issue) { ExternalIssue.new("T-123", project) }
+    context 'with a single-letter prefix' do
+      let(:issue) { ExternalIssue.new('T-123', project) }
       let(:reference) { issue.to_reference }
 
-      it_behaves_like "external issue tracker"
+      it_behaves_like 'external issue tracker'
     end
   end
 
-  context "youtrack project" do
+  context 'youtrack project' do
     let(:project) { create(:youtrack_project) }
 
     before do
       project.update!(issues_enabled: false)
     end
 
-    context "with right markdown" do
-      let(:issue) { ExternalIssue.new("YT-123", project) }
+    context 'with right markdown' do
+      let(:issue) { ExternalIssue.new('YT-123', project) }
       let(:reference) { issue.to_reference }
 
-      it_behaves_like "external issue tracker"
+      it_behaves_like 'external issue tracker'
     end
 
-    context "with underscores in the prefix" do
-      let(:issue) { ExternalIssue.new("PRJ_1-123", project) }
+    context 'with underscores in the prefix' do
+      let(:issue) { ExternalIssue.new('PRJ_1-123', project) }
       let(:reference) { issue.to_reference }
 
-      it_behaves_like "external issue tracker"
+      it_behaves_like 'external issue tracker'
     end
 
-    context "with lowercase letters in the prefix" do
-      let(:issue) { ExternalIssue.new("YTkPrj-123", project) }
+    context 'with lowercase letters in the prefix' do
+      let(:issue) { ExternalIssue.new('YTkPrj-123', project) }
       let(:reference) { issue.to_reference }
 
-      it_behaves_like "external issue tracker"
+      it_behaves_like 'external issue tracker'
     end
 
-    context "with a single-letter prefix" do
-      let(:issue) { ExternalIssue.new("T-123", project) }
+    context 'with a single-letter prefix' do
+      let(:issue) { ExternalIssue.new('T-123', project) }
       let(:reference) { issue.to_reference }
 
-      it_behaves_like "external issue tracker"
+      it_behaves_like 'external issue tracker'
     end
 
-    context "with a lowercase prefix" do
-      let(:issue) { ExternalIssue.new("gl-030", project) }
+    context 'with a lowercase prefix' do
+      let(:issue) { ExternalIssue.new('gl-030', project) }
       let(:reference) { issue.to_reference }
 
-      it_behaves_like "external issue tracker"
+      it_behaves_like 'external issue tracker'
     end
   end
 
-  context "jira project" do
+  context 'jira project' do
     let(:project) { create(:jira_project) }
     let(:reference) { issue.to_reference }
 
-    context "with right markdown" do
-      let(:issue) { ExternalIssue.new("JIRA-123", project) }
+    context 'with right markdown' do
+      let(:issue) { ExternalIssue.new('JIRA-123', project) }
 
-      it_behaves_like "external issue tracker"
+      it_behaves_like 'external issue tracker'
     end
 
-    context "with a single-letter prefix" do
-      let(:issue) { ExternalIssue.new("J-123", project) }
+    context 'with a single-letter prefix' do
+      let(:issue) { ExternalIssue.new('J-123', project) }
 
-      it "ignores reference" do
+      it 'ignores reference' do
         exp = act = "Issue #{reference}"
         expect(filter(act).to_html).to eq exp
       end
     end
 
-    context "with wrong markdown" do
-      let(:issue) { ExternalIssue.new("#123", project) }
+    context 'with wrong markdown' do
+      let(:issue) { ExternalIssue.new('#123', project) }
 
-      it "ignores reference" do
+      it 'ignores reference' do
         exp = act = "Issue #{reference}"
         expect(filter(act).to_html).to eq exp
       end

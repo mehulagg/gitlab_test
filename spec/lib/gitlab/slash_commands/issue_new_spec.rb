@@ -7,7 +7,7 @@ describe Gitlab::SlashCommands::IssueNew do
     let(:project) { create(:project) }
     let(:user) { create(:user) }
     let(:chat_name) { double(:chat_name, user: user) }
-    let(:regex_match) { described_class.match("issue create bird is the word") }
+    let(:regex_match) { described_class.match('issue create bird is the word') }
 
     before do
       project.add_maintainer(user)
@@ -26,7 +26,7 @@ describe Gitlab::SlashCommands::IssueNew do
     end
 
     context 'with description' do
-      let(:description) { "Surfin bird" }
+      let(:description) { 'Surfin bird' }
       let(:regex_match) { described_class.match("issue create bird is the word\n#{description}") }
 
       it 'creates the issue with description' do
@@ -36,8 +36,8 @@ describe Gitlab::SlashCommands::IssueNew do
       end
     end
 
-    context "with more newlines between the title and the description" do
-      let(:description) { "Surfin bird" }
+    context 'with more newlines between the title and the description' do
+      let(:description) { 'Surfin bird' }
       let(:regex_match) { described_class.match("issue create bird is the word\n\n#{description}\n") }
 
       it 'creates the issue' do
@@ -51,17 +51,17 @@ describe Gitlab::SlashCommands::IssueNew do
 
       it 'displays the errors' do
         expect(subject[:response_type]).to be(:ephemeral)
-        expect(subject[:text]).to match("- Title is too long")
+        expect(subject[:text]).to match('- Title is too long')
       end
     end
   end
 
   describe '.match' do
     it 'matches the title without description' do
-      match = described_class.match("issue create my title")
+      match = described_class.match('issue create my title')
 
       expect(match[:title]).to eq('my title')
-      expect(match[:description]).to eq("")
+      expect(match[:description]).to eq('')
     end
 
     it 'matches the title with description' do
@@ -72,7 +72,7 @@ describe Gitlab::SlashCommands::IssueNew do
     end
 
     it 'matches the alias new' do
-      match = described_class.match("issue new my title")
+      match = described_class.match('issue new my title')
 
       expect(match).not_to be_nil
       expect(match[:title]).to eq('my title')

@@ -10,7 +10,7 @@ describe ProjectFeature do
     let(:features) { %w(issues wiki builds merge_requests snippets repository pages) }
 
     context 'when features are enabled only for team members' do
-      it "returns true if user is an auditor" do
+      it 'returns true if user is an auditor' do
         user.update_attribute(:auditor, true)
 
         features.each do |feature|

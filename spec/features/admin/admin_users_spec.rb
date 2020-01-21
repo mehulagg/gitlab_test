@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe "Admin::Users" do
+describe 'Admin::Users' do
   include Spec::Support::Helpers::Features::ResponsiveTableHelpers
 
   let!(:user) do
@@ -15,20 +15,20 @@ describe "Admin::Users" do
     sign_in(current_user)
   end
 
-  describe "GET /admin/users" do
+  describe 'GET /admin/users' do
     before do
       visit admin_users_path
     end
 
-    it "is ok" do
+    it 'is ok' do
       expect(current_path).to eq(admin_users_path)
     end
 
-    it "has users list" do
+    it 'has users list' do
       expect(page).to have_content(current_user.email)
       expect(page).to have_content(current_user.name)
-      expect(page).to have_content(current_user.created_at.strftime("%e %b, %Y"))
-      expect(page).to have_content(current_user.last_activity_on.strftime("%e %b, %Y"))
+      expect(page).to have_content(current_user.created_at.strftime('%e %b, %Y'))
+      expect(page).to have_content(current_user.last_activity_on.strftime('%e %b, %Y'))
       expect(page).to have_content(user.email)
       expect(page).to have_content(user.name)
       expect(page).to have_button('Block')
@@ -37,7 +37,7 @@ describe "Admin::Users" do
       expect(page).to have_button('Delete user and contributions')
     end
 
-    describe "view extra user information" do
+    describe 'view extra user information' do
       it 'shows the user popover on hover', :js, :quarantine do
         expect(page).not_to have_selector('#__BV_popover_1__')
 
@@ -148,22 +148,22 @@ describe "Admin::Users" do
     end
   end
 
-  describe "GET /admin/users/new" do
+  describe 'GET /admin/users/new' do
     let(:user_username) { 'bang' }
 
     before do
       visit new_admin_user_path
-      fill_in "user_name", with: "Big Bang"
-      fill_in "user_username", with: user_username
-      fill_in "user_email", with: "bigbang@mail.com"
+      fill_in 'user_name', with: 'Big Bang'
+      fill_in 'user_username', with: user_username
+      fill_in 'user_email', with: 'bigbang@mail.com'
     end
 
-    it "creates new user" do
-      expect { click_button "Create user" }.to change {User.count}.by(1)
+    it 'creates new user' do
+      expect { click_button 'Create user' }.to change {User.count}.by(1)
     end
 
-    it "applies defaults to user" do
-      click_button "Create user"
+    it 'applies defaults to user' do
+      click_button 'Create user'
       user = User.find_by(username: 'bang')
       expect(user.projects_limit)
         .to eq(Gitlab.config.gitlab.default_projects_limit)
@@ -171,24 +171,24 @@ describe "Admin::Users" do
         .to eq(Gitlab.config.gitlab.default_can_create_group)
     end
 
-    it "creates user with valid data" do
-      click_button "Create user"
+    it 'creates user with valid data' do
+      click_button 'Create user'
       user = User.find_by(username: 'bang')
       expect(user.name).to eq('Big Bang')
       expect(user.email).to eq('bigbang@mail.com')
     end
 
-    it "calls send mail" do
+    it 'calls send mail' do
       expect_next_instance_of(NotificationService) do |instance|
         expect(instance).to receive(:new_user)
       end
 
-      click_button "Create user"
+      click_button 'Create user'
     end
 
-    it "sends valid email to user with email & password" do
+    it 'sends valid email to user with email & password' do
       perform_enqueued_jobs do
-        click_button "Create user"
+        click_button 'Create user'
       end
 
       user = User.find_by(username: 'bang')
@@ -202,7 +202,7 @@ describe "Admin::Users" do
       let(:user_username) { 'Bing bang' }
 
       it "doesn't create the user and shows an error message" do
-        expect { click_button "Create user" }.to change {User.count}.by(0)
+        expect { click_button 'Create user' }.to change {User.count}.by(0)
 
         expect(page).to have_content('The form contains the following error')
         expect(page).to have_content('Username can contain only letters, digits')
@@ -272,8 +272,8 @@ describe "Admin::Users" do
     end
   end
 
-  describe "GET /admin/users/:id" do
-    it "has user info" do
+  describe 'GET /admin/users/:id' do
+    it 'has user info' do
       visit admin_users_path
       click_link user.name
 
@@ -453,33 +453,33 @@ describe "Admin::Users" do
     end
   end
 
-  describe "GET /admin/users/:id/edit" do
+  describe 'GET /admin/users/:id/edit' do
     before do
       visit admin_users_path
       click_link "edit_user_#{user.id}"
     end
 
-    it "has user edit page" do
+    it 'has user edit page' do
       expect(page).to have_content('Name')
       expect(page).to have_content('Password')
     end
 
-    describe "Update user" do
+    describe 'Update user' do
       before do
-        fill_in "user_name", with: "Big Bang"
-        fill_in "user_email", with: "bigbang@mail.com"
-        fill_in "user_password", with: "AValidPassword1"
-        fill_in "user_password_confirmation", with: "AValidPassword1"
-        choose "user_access_level_admin"
-        click_button "Save changes"
+        fill_in 'user_name', with: 'Big Bang'
+        fill_in 'user_email', with: 'bigbang@mail.com'
+        fill_in 'user_password', with: 'AValidPassword1'
+        fill_in 'user_password_confirmation', with: 'AValidPassword1'
+        choose 'user_access_level_admin'
+        click_button 'Save changes'
       end
 
-      it "shows page with new data" do
+      it 'shows page with new data' do
         expect(page).to have_content('bigbang@mail.com')
         expect(page).to have_content('Big Bang')
       end
 
-      it "changes user entry" do
+      it 'changes user entry' do
         user.reload
         expect(user.name).to eq('Big Bang')
         expect(user.admin?).to be_truthy
@@ -501,7 +501,7 @@ describe "Admin::Users" do
     end
   end
 
-  describe "GET /admin/users/:id/projects" do
+  describe 'GET /admin/users/:id/projects' do
     let(:group) { create(:group) }
     let!(:project) { create(:project, group: group) }
 
@@ -511,7 +511,7 @@ describe "Admin::Users" do
       visit projects_admin_user_path(user)
     end
 
-    it "lists group projects" do
+    it 'lists group projects' do
       within(:css, '.append-bottom-default + .card') do
         expect(page).to have_content 'Group projects'
         expect(page).to have_link group.name, href: admin_group_path(group)
@@ -568,13 +568,13 @@ describe "Admin::Users" do
 
       visit new_admin_user_identity_path(user)
 
-      check_breadcrumb("New Identity")
+      check_breadcrumb('New Identity')
 
       visit admin_user_identities_path(user)
 
       find('.table').find(:link, 'Edit').click
 
-      check_breadcrumb("Edit Identity")
+      check_breadcrumb('Edit Identity')
     end
   end
 
@@ -607,11 +607,11 @@ describe "Admin::Users" do
 
   describe 'show user keys' do
     let!(:key1) do
-      create(:key, user: user, title: "ssh-rsa Key1", key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC4FIEBXGi4bPU8kzxMefudPIJ08/gNprdNTaO9BR/ndy3+58s2HCTw2xCHcsuBmq+TsAqgEidVq4skpqoTMB+Uot5Uzp9z4764rc48dZiI661izoREoKnuRQSsRqUTHg5wrLzwxlQbl1MVfRWQpqiz/5KjBC7yLEb9AbusjnWBk8wvC1bQPQ1uLAauEA7d836tgaIsym9BrLsMVnR4P1boWD3Xp1B1T/ImJwAGHvRmP/ycIqmKdSpMdJXwxcb40efWVj0Ibbe7ii9eeoLdHACqevUZi6fwfbymdow+FeqlkPoHyGg3Cu4vD/D8+8cRc7mE/zGCWcQ15Var83Tczour Key1")
+      create(:key, user: user, title: 'ssh-rsa Key1', key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC4FIEBXGi4bPU8kzxMefudPIJ08/gNprdNTaO9BR/ndy3+58s2HCTw2xCHcsuBmq+TsAqgEidVq4skpqoTMB+Uot5Uzp9z4764rc48dZiI661izoREoKnuRQSsRqUTHg5wrLzwxlQbl1MVfRWQpqiz/5KjBC7yLEb9AbusjnWBk8wvC1bQPQ1uLAauEA7d836tgaIsym9BrLsMVnR4P1boWD3Xp1B1T/ImJwAGHvRmP/ycIqmKdSpMdJXwxcb40efWVj0Ibbe7ii9eeoLdHACqevUZi6fwfbymdow+FeqlkPoHyGg3Cu4vD/D8+8cRc7mE/zGCWcQ15Var83Tczour Key1')
     end
 
     let!(:key2) do
-      create(:key, user: user, title: "ssh-rsa Key2", key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDQSTWXhJAX/He+nG78MiRRRn7m0Pb0XbcgTxE0etArgoFoh9WtvDf36HG6tOSg/0UUNcp0dICsNAmhBKdncp6cIyPaXJTURPRAGvhI0/VDk4bi27bRnccGbJ/hDaUxZMLhhrzY0r22mjVf8PF6dvv5QUIQVm1/LeaWYsHHvLgiIjwrXirUZPnFrZw6VLREoBKG8uWvfSXw1L5eapmstqfsME8099oi+vWLR8MgEysZQmD28M73fgW4zek6LDQzKQyJx9nB+hJkKUDvcuziZjGmRFlNgSA2mguERwL1OXonD8WYUrBDGKroIvBT39zS5d9tQDnidEJZ9Y8gv5ViYP7x Key2")
+      create(:key, user: user, title: 'ssh-rsa Key2', key: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDQSTWXhJAX/He+nG78MiRRRn7m0Pb0XbcgTxE0etArgoFoh9WtvDf36HG6tOSg/0UUNcp0dICsNAmhBKdncp6cIyPaXJTURPRAGvhI0/VDk4bi27bRnccGbJ/hDaUxZMLhhrzY0r22mjVf8PF6dvv5QUIQVm1/LeaWYsHHvLgiIjwrXirUZPnFrZw6VLREoBKG8uWvfSXw1L5eapmstqfsME8099oi+vWLR8MgEysZQmD28M73fgW4zek6LDQzKQyJx9nB+hJkKUDvcuziZjGmRFlNgSA2mguERwL1OXonD8WYUrBDGKroIvBT39zS5d9tQDnidEJZ9Y8gv5ViYP7x Key2')
     end
 
     it do

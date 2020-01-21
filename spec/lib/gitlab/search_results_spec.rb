@@ -69,7 +69,7 @@ describe Gitlab::SearchResults do
       end
     end
 
-    context "when count_limit is lower than total amount" do
+    context 'when count_limit is lower than total amount' do
       before do
         allow(results).to receive(:count_limit).and_return(1)
       end
@@ -110,7 +110,7 @@ describe Gitlab::SearchResults do
       end
     end
 
-    context "when count_limit is higher than total amount" do
+    context 'when count_limit is higher than total amount' do
       describe '#limited_issues_count' do
         it 'runs multiple queries to get the limited amount of issues' do
           expect(results).to receive(:issues).with(public_only: true).and_call_original

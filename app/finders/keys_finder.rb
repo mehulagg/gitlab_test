@@ -53,7 +53,7 @@ class KeysFinder
   end
 
   def valid_fingerprint_param?
-    if fingerprint_type == "sha256"
+    if fingerprint_type == 'sha256'
       Base64.decode64(fingerprint).length == 32
     else
       fingerprint =~ /^(\h{2}:){15}\h{2}/
@@ -68,15 +68,15 @@ class KeysFinder
 
   def fingerprint_type
     if params[:fingerprint].start_with?(/sha256:|SHA256:/)
-      "sha256"
+      'sha256'
     else
-      "md5"
+      'md5'
     end
   end
 
   def fingerprint
-    if fingerprint_type == "sha256"
-      params[:fingerprint].gsub(/sha256:|SHA256:/, "")
+    if fingerprint_type == 'sha256'
+      params[:fingerprint].gsub(/sha256:|SHA256:/, '')
     else
       params[:fingerprint]
     end

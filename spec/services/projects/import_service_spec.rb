@@ -248,7 +248,7 @@ describe Projects::ImportService do
       end
 
       it 'fails with port 25' do
-        project.import_url = "https://github.com:25/vim/vim.git"
+        project.import_url = 'https://github.com:25/vim/vim.git'
 
         result = described_class.new(project, user).execute
 

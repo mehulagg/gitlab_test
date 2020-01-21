@@ -157,7 +157,7 @@ describe MergeRequests::UpdateService, :mailer do
         it 'maintains the original options' do
           update_merge_request(opts)
 
-          expect(@merge_request.merge_params["force_remove_source_branch"]).to eq("1")
+          expect(@merge_request.merge_params['force_remove_source_branch']).to eq('1')
         end
       end
     end
@@ -338,7 +338,7 @@ describe MergeRequests::UpdateService, :mailer do
           merge_request.save
 
           perform_enqueued_jobs do
-            update_merge_request(milestone_id: "")
+            update_merge_request(milestone_id: '')
           end
 
           should_email(subscriber)
@@ -550,7 +550,7 @@ describe MergeRequests::UpdateService, :mailer do
         issue_ids = MergeRequestsClosingIssues.where(merge_request: merge_request).pluck(:issue_id)
         expect(issue_ids).to match_array([first_issue.id, second_issue.id])
 
-        service = described_class.new(project, user, description: "not closing any issues")
+        service = described_class.new(project, user, description: 'not closing any issues')
         allow(service).to receive(:execute_hooks)
         service.execute(merge_request.reload)
 
@@ -591,7 +591,7 @@ describe MergeRequests::UpdateService, :mailer do
         expect(merge_request.reload.assignees).to eq(original_assignees)
       end
 
-      context "when issuable feature is private" do
+      context 'when issuable feature is private' do
         levels = [Gitlab::VisibilityLevel::INTERNAL, Gitlab::VisibilityLevel::PUBLIC]
 
         levels.each do |level|

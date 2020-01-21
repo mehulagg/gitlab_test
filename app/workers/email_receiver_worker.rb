@@ -38,11 +38,11 @@ class EmailReceiverWorker
       when Gitlab::Email::UserNotFoundError
         s_("EmailError|We couldn't figure out what user corresponds to the email. Please create your comment through the web interface.")
       when Gitlab::Email::UserBlockedError
-        s_("EmailError|Your account has been blocked. If you believe this is in error, contact a staff member.")
+        s_('EmailError|Your account has been blocked. If you believe this is in error, contact a staff member.')
       when Gitlab::Email::UserNotAuthorizedError
-        s_("EmailError|You are not allowed to perform this action. If you believe this is in error, contact a staff member.")
+        s_('EmailError|You are not allowed to perform this action. If you believe this is in error, contact a staff member.')
       when Gitlab::Email::NoteableNotFoundError
-        s_("EmailError|The thread you are replying to no longer exists, perhaps it was deleted? If you believe this is in error, contact a staff member.")
+        s_('EmailError|The thread you are replying to no longer exists, perhaps it was deleted? If you believe this is in error, contact a staff member.')
       when Gitlab::Email::InvalidAttachment
         error.message
       when Gitlab::Email::InvalidRecordError

@@ -4,10 +4,10 @@ require 'spec_helper'
 describe Gitlab::Git::Patches::Collection do
   let(:patches_folder) { Rails.root.join('spec/fixtures/patchfiles') }
   let(:patch_content1) do
-    File.read(File.join(patches_folder, "0001-This-does-not-apply-to-the-feature-branch.patch"))
+    File.read(File.join(patches_folder, '0001-This-does-not-apply-to-the-feature-branch.patch'))
   end
   let(:patch_content2) do
-    File.read(File.join(patches_folder, "0001-A-commit-from-a-patch.patch"))
+    File.read(File.join(patches_folder, '0001-A-commit-from-a-patch.patch'))
   end
 
   subject(:collection) { described_class.new([patch_content1, patch_content2]) }

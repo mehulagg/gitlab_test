@@ -13,7 +13,7 @@ describe Projects::FindFileController do
     controller.instance_variable_set(:@project, project)
   end
 
-  describe "GET #show" do
+  describe 'GET #show' do
     # Make sure any errors accessing the tree in our views bubble up to this spec
     render_views
 
@@ -26,20 +26,20 @@ describe Projects::FindFileController do
           })
     end
 
-    context "valid branch" do
+    context 'valid branch' do
       let(:id) { 'master' }
 
       it { is_expected.to respond_with(:success) }
     end
 
-    context "invalid branch" do
+    context 'invalid branch' do
       let(:id) { 'invalid-branch' }
 
       it { is_expected.to respond_with(:not_found) }
     end
   end
 
-  describe "GET #list" do
+  describe 'GET #list' do
     def go(format: 'json')
       get :list,
           params: {
@@ -50,7 +50,7 @@ describe Projects::FindFileController do
           format: format
     end
 
-    context "valid branch" do
+    context 'valid branch' do
       let(:id) { 'master' }
 
       it 'returns an array of file path list' do
@@ -62,7 +62,7 @@ describe Projects::FindFileController do
       end
     end
 
-    context "invalid branch" do
+    context 'invalid branch' do
       let(:id) { 'invalid-branch' }
 
       it 'responds with status 404' do

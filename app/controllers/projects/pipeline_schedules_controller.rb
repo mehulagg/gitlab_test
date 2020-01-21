@@ -51,7 +51,7 @@ class Projects::PipelineSchedulesController < Projects::ApplicationController
 
     if job_id
       pipelines_link_start = "<a href=\"#{project_pipelines_path(@project)}\">"
-      message = _("Successfully scheduled a pipeline to run. Go to the %{pipelines_link_start}Pipelines page%{pipelines_link_end} for details.") % { pipelines_link_start: pipelines_link_start, pipelines_link_end: "</a>" }
+      message = _('Successfully scheduled a pipeline to run. Go to the %{pipelines_link_start}Pipelines page%{pipelines_link_end} for details.') % { pipelines_link_start: pipelines_link_start, pipelines_link_end: '</a>' }
       flash[:notice] = message.html_safe
     else
       flash[:alert] = _('Unable to schedule a pipeline to run immediately')
@@ -64,7 +64,7 @@ class Projects::PipelineSchedulesController < Projects::ApplicationController
     if schedule.update(owner: current_user)
       redirect_to pipeline_schedules_path(@project)
     else
-      redirect_to pipeline_schedules_path(@project), alert: _("Failed to change the owner")
+      redirect_to pipeline_schedules_path(@project), alert: _('Failed to change the owner')
     end
   end
 
@@ -74,7 +74,7 @@ class Projects::PipelineSchedulesController < Projects::ApplicationController
     else
       redirect_to pipeline_schedules_path(@project),
                   status: :forbidden,
-                  alert: _("Failed to remove the pipeline schedule")
+                  alert: _('Failed to remove the pipeline schedule')
     end
   end
 

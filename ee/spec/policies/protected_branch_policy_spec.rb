@@ -22,7 +22,7 @@ describe ProtectedBranchPolicy do
     end
 
     context 'when unprotection restriction feature is unlicensed' do
-      it "users can remove protections" do
+      it 'users can remove protections' do
         is_expected.to be_allowed(:update_protected_branch)
         is_expected.to be_allowed(:destroy_protected_branch)
       end
@@ -38,7 +38,7 @@ describe ProtectedBranchPolicy do
         is_expected.not_to be_allowed(:destroy_protected_branch)
       end
 
-      context "and access levels grant the user control" do
+      context 'and access levels grant the user control' do
         before do
           allowed_group.add_user(user, :guest)
         end
@@ -69,7 +69,7 @@ describe ProtectedBranchPolicy do
         allowed_group.add_user(user, :guest)
       end
 
-      it "is allowed" do
+      it 'is allowed' do
         is_expected.to be_allowed(:create_protected_branch)
       end
     end

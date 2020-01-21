@@ -133,7 +133,7 @@ describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state do
         let(:shas) { project.repository.commits(opts[:source_branch], limit: 2).map(&:id) }
         let!(:pipeline_1) { create(:ci_pipeline, project: project, ref: opts[:source_branch], project_id: project.id, sha: shas[1]) }
         let!(:pipeline_2) { create(:ci_pipeline, project: project, ref: opts[:source_branch], project_id: project.id, sha: shas[0]) }
-        let!(:pipeline_3) { create(:ci_pipeline, project: project, ref: "other_branch", project_id: project.id) }
+        let!(:pipeline_3) { create(:ci_pipeline, project: project, ref: 'other_branch', project_id: project.id) }
 
         before do
           # rubocop: disable DestroyAll
@@ -180,7 +180,7 @@ describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state do
           stub_ci_pipeline_yaml_file(YAML.dump(config))
         end
 
-        context "when .gitlab-ci.yml has merge_requests keywords" do
+        context 'when .gitlab-ci.yml has merge_requests keywords' do
           let(:config) do
             {
               test: {
@@ -251,7 +251,7 @@ describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state do
             end
           end
 
-          context "when branch pipeline was created before a merge request pipline has been created" do
+          context 'when branch pipeline was created before a merge request pipline has been created' do
             before do
               create(:ci_pipeline, project: merge_request.source_project,
                                    sha: merge_request.diff_head_sha,
@@ -267,7 +267,7 @@ describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state do
           end
         end
 
-        context "when .gitlab-ci.yml does not have merge_requests keywords" do
+        context 'when .gitlab-ci.yml does not have merge_requests keywords' do
           let(:config) do
             {
               test: {
@@ -384,7 +384,7 @@ describe MergeRequests::CreateService, :clean_gitlab_redis_shared_state do
           end
         end
 
-        context "when issuable feature is private" do
+        context 'when issuable feature is private' do
           before do
             project.project_feature.update(issues_access_level: ProjectFeature::PRIVATE,
                                            merge_requests_access_level: ProjectFeature::PRIVATE)

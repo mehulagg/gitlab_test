@@ -18,21 +18,21 @@ describe API::Statistics, 'Statistics' do
     milestones
   ].freeze
 
-  let(:path) { "/application/statistics" }
+  let(:path) { '/application/statistics' }
 
-  describe "GET /application/statistics" do
+  describe 'GET /application/statistics' do
     context 'when no user' do
-      it "returns authentication error" do
+      it 'returns authentication error' do
         get api(path, nil)
 
         expect(response).to have_gitlab_http_status(401)
       end
     end
 
-    context "when not an admin" do
+    context 'when not an admin' do
       let(:user) { create(:user) }
 
-      it "returns forbidden error" do
+      it 'returns forbidden error' do
         get api(path, user)
 
         expect(response).to have_gitlab_http_status(403)

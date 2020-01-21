@@ -12,7 +12,7 @@ namespace :gitlab do
   end
 
   namespace :gitlab_shell do
-    desc "GitLab | Check the configuration of GitLab Shell"
+    desc 'GitLab | Check the configuration of GitLab Shell'
     task check: :gitlab_environment do
       SystemCheck::RakeTask::GitlabShellTask.run!
     end
@@ -26,14 +26,14 @@ namespace :gitlab do
   end
 
   namespace :sidekiq do
-    desc "GitLab | Check the configuration of Sidekiq"
+    desc 'GitLab | Check the configuration of Sidekiq'
     task check: :gitlab_environment do
       SystemCheck::RakeTask::SidekiqTask.run!
     end
   end
 
   namespace :incoming_email do
-    desc "GitLab | Check the configuration of Reply by email"
+    desc 'GitLab | Check the configuration of Reply by email'
     task check: :gitlab_environment do
       SystemCheck::RakeTask::IncomingEmailTask.run!
     end

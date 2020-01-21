@@ -31,7 +31,7 @@ module API
       optional :popular, type: Boolean, desc: 'If passed, returns only popular licenses'
       use :pagination
     end
-    get "templates/licenses" do
+    get 'templates/licenses' do
       popular = declared(params)[:popular]
       popular = to_boolean(popular) if popular.present?
 
@@ -47,7 +47,7 @@ module API
     params do
       requires :name, type: String, desc: 'The name of the template'
     end
-    get "templates/licenses/:name", requirements: { name: /[\w\.-]+/ } do
+    get 'templates/licenses/:name', requirements: { name: /[\w\.-]+/ } do
       template = TemplateFinder.build(:licenses, nil, name: params[:name]).execute
 
       not_found!('License') unless template.present?

@@ -6,6 +6,6 @@ RSpec::Matchers.define :be_a_binary_string do |_|
   end
 
   description do
-    "be a String with binary encoding"
+    'be a String with binary encoding'
   end
 end

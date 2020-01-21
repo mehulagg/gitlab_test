@@ -34,7 +34,7 @@ class GithubImport
 
   def show_warning!
     puts "This will import GitHub #{@repo.full_name.bright} into GitLab #{@project_path.bright} as #{@current_user.name}"
-    puts "Permission checks are ignored. Press any key to continue.".color(:red)
+    puts 'Permission checks are ignored. Press any key to continue.'.color(:red)
 
     STDIN.getch
 
@@ -56,7 +56,7 @@ class GithubImport
       @project.after_import
       puts "Import finished. Timings: #{timings}".color(:green)
     else
-      puts "Import was not successful. Errors were as follows:"
+      puts 'Import was not successful. Errors were as follows:'
       puts @project.import_state.last_error
     end
   end

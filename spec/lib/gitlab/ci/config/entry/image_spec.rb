@@ -88,7 +88,7 @@ describe Gitlab::Ci::Config::Entry::Image do
         describe '#valid?' do
           it 'is not valid' do
             expect(entry).not_to be_valid
-            expect(entry.errors).to include("image config contains disallowed keys: ports")
+            expect(entry.errors).to include('image config contains disallowed keys: ports')
           end
         end
       end

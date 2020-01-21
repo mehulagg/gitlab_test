@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Gitlab::SidekiqMiddleware::ServerMetrics do
-  context "with worker attribution" do
+  context 'with worker attribution' do
     subject { described_class.new }
 
     let(:queue) { :test }
@@ -11,10 +11,10 @@ describe Gitlab::SidekiqMiddleware::ServerMetrics do
     let(:job) { {} }
     let(:job_status) { :done }
     let(:labels_with_job_status) { labels.merge(job_status: job_status.to_s) }
-    let(:default_labels) { { queue: queue.to_s, boundary: "", external_dependencies: "no", feature_category: "", latency_sensitive: "no" } }
+    let(:default_labels) { { queue: queue.to_s, boundary: '', external_dependencies: 'no', feature_category: '', latency_sensitive: 'no' } }
 
-    shared_examples "a metrics middleware" do
-      context "with mocked prometheus" do
+    shared_examples 'a metrics middleware' do
+      context 'with mocked prometheus' do
         let(:concurrency_metric) { double('concurrency metric') }
 
         let(:queue_duration_seconds) { double('queue duration seconds metric') }
@@ -92,7 +92,7 @@ describe Gitlab::SidekiqMiddleware::ServerMetrics do
             it 'sets sidekiq_jobs_failed_total and reraises' do
               expect(failed_total_metric).to receive(:increment).with(labels, 1)
 
-              expect { subject.call(worker, job, :test) { raise StandardError, "Failed" } }.to raise_error(StandardError, "Failed")
+              expect { subject.call(worker, job, :test) { raise StandardError, 'Failed' } }.to raise_error(StandardError, 'Failed')
             end
           end
 
@@ -108,7 +108,7 @@ describe Gitlab::SidekiqMiddleware::ServerMetrics do
         end
       end
 
-      context "with prometheus integrated" do
+      context 'with prometheus integrated' do
         describe '#call' do
           it 'yields block' do
             expect { |b| subject.call(worker, job, :test, &b) }.to yield_control.once
@@ -118,24 +118,24 @@ describe Gitlab::SidekiqMiddleware::ServerMetrics do
             let(:job_status) { :fail }
 
             it 'sets sidekiq_jobs_failed_total and reraises' do
-              expect { subject.call(worker, job, :test) { raise StandardError, "Failed" } }.to raise_error(StandardError, "Failed")
+              expect { subject.call(worker, job, :test) { raise StandardError, 'Failed' } }.to raise_error(StandardError, 'Failed')
             end
           end
         end
       end
     end
 
-    context "when workers are not attributed" do
+    context 'when workers are not attributed' do
       class TestNonAttributedWorker
         include Sidekiq::Worker
       end
       let(:worker) { TestNonAttributedWorker.new }
       let(:labels) { default_labels }
 
-      it_behaves_like "a metrics middleware"
+      it_behaves_like 'a metrics middleware'
     end
 
-    context "when workers are attributed" do
+    context 'when workers are attributed' do
       def create_attributed_worker_class(latency_sensitive, external_dependencies, resource_boundary, category)
         Class.new do
           include Sidekiq::Worker
@@ -155,49 +155,49 @@ describe Gitlab::SidekiqMiddleware::ServerMetrics do
       let(:worker_class) { create_attributed_worker_class(latency_sensitive, external_dependencies, resource_boundary, feature_category) }
       let(:worker) { worker_class.new }
 
-      context "latency sensitive" do
+      context 'latency sensitive' do
         let(:latency_sensitive) { true }
-        let(:labels) { default_labels.merge(latency_sensitive: "yes") }
+        let(:labels) { default_labels.merge(latency_sensitive: 'yes') }
 
-        it_behaves_like "a metrics middleware"
+        it_behaves_like 'a metrics middleware'
       end
 
-      context "external dependencies" do
+      context 'external dependencies' do
         let(:external_dependencies) { true }
-        let(:labels) { default_labels.merge(external_dependencies: "yes") }
+        let(:labels) { default_labels.merge(external_dependencies: 'yes') }
 
-        it_behaves_like "a metrics middleware"
+        it_behaves_like 'a metrics middleware'
       end
 
-      context "cpu boundary" do
+      context 'cpu boundary' do
         let(:resource_boundary) { :cpu }
-        let(:labels) { default_labels.merge(boundary: "cpu") }
+        let(:labels) { default_labels.merge(boundary: 'cpu') }
 
-        it_behaves_like "a metrics middleware"
+        it_behaves_like 'a metrics middleware'
       end
 
-      context "memory boundary" do
+      context 'memory boundary' do
         let(:resource_boundary) { :memory }
-        let(:labels) { default_labels.merge(boundary: "memory") }
+        let(:labels) { default_labels.merge(boundary: 'memory') }
 
-        it_behaves_like "a metrics middleware"
+        it_behaves_like 'a metrics middleware'
       end
 
-      context "feature category" do
+      context 'feature category' do
         let(:feature_category) { :authentication }
-        let(:labels) { default_labels.merge(feature_category: "authentication") }
+        let(:labels) { default_labels.merge(feature_category: 'authentication') }
 
-        it_behaves_like "a metrics middleware"
+        it_behaves_like 'a metrics middleware'
       end
 
-      context "combined" do
+      context 'combined' do
         let(:latency_sensitive) { true }
         let(:external_dependencies) { true }
         let(:resource_boundary) { :cpu }
         let(:feature_category) { :authentication }
-        let(:labels) { default_labels.merge(latency_sensitive: "yes", external_dependencies: "yes", boundary: "cpu", feature_category: "authentication") }
+        let(:labels) { default_labels.merge(latency_sensitive: 'yes', external_dependencies: 'yes', boundary: 'cpu', feature_category: 'authentication') }
 
-        it_behaves_like "a metrics middleware"
+        it_behaves_like 'a metrics middleware'
       end
     end
   end

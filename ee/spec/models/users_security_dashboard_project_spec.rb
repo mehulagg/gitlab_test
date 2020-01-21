@@ -17,7 +17,7 @@ describe UsersSecurityDashboardProject do
 
     context 'when validating the number of projects a user can add to their dashboard' do
       before do
-        stub_const("UsersSecurityDashboardProject::SECURITY_DASHBOARD_PROJECTS_LIMIT", 1)
+        stub_const('UsersSecurityDashboardProject::SECURITY_DASHBOARD_PROJECTS_LIMIT', 1)
       end
 
       it 'limits the number of projects per user' do

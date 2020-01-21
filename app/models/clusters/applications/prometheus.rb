@@ -123,8 +123,8 @@ module Clusters
 
         [
           Gitlab::Kubernetes::KubectlCmd.delete(
-            "-f", Clusters::Applications::Knative::METRICS_CONFIG,
-            "--ignore-not-found"
+            '-f', Clusters::Applications::Knative::METRICS_CONFIG,
+            '--ignore-not-found'
           )
         ]
       end

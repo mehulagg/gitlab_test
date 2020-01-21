@@ -5,7 +5,7 @@ require 'spec_helper'
 describe JenkinsDeprecatedService, use_clean_rails_memory_store_caching: true do
   include ReactiveCachingHelpers
 
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to :project }
     it { is_expected.to have_one :service_hook }
   end
@@ -38,7 +38,7 @@ ICON_STATUS_HTML
       statuses = { 'blue.png' => 'success', 'yellow.png' => 'failed', 'red.png' => 'failed', 'aborted.png' => 'failed', 'blue-anime.gif' => 'running', 'grey.png' => 'pending' }
       statuses.each do |icon, state|
         it "has a commit_status of #{state} when the icon #{icon} exists." do
-          stub_request(:get, "http://jenkins.gitlab.org/job/2/scm/bySHA1/2ab7834c").to_return(status: 200, body: status_body_for_icon(icon), headers: {})
+          stub_request(:get, 'http://jenkins.gitlab.org/job/2/scm/bySHA1/2ab7834c').to_return(status: 200, body: status_body_for_icon(icon), headers: {})
 
           expect(@service.calculate_reactive_cache('2ab7834c', 'master')).to eq(commit_status: state)
         end
@@ -48,7 +48,7 @@ ICON_STATUS_HTML
         let(:pass_unstable) { '1' }
 
         it 'has a commit_status of success when the icon yellow exists' do
-          stub_request(:get, "http://jenkins.gitlab.org/job/2/scm/bySHA1/2ab7834c").to_return(status: 200, body: status_body_for_icon('yellow.png'), headers: {})
+          stub_request(:get, 'http://jenkins.gitlab.org/job/2/scm/bySHA1/2ab7834c').to_return(status: 200, body: status_body_for_icon('yellow.png'), headers: {})
 
           expect(@service.calculate_reactive_cache('2ab7834c', 'master')).to eq(commit_status: 'success')
         end
@@ -56,7 +56,7 @@ ICON_STATUS_HTML
 
       context 'with bad response' do
         it 'has a commit_status of error' do
-          stub_request(:get, "http://jenkins.gitlab.org/job/2/scm/bySHA1/2ab7834c").to_return(status: 200, body: '<h1>404</h1>', headers: {})
+          stub_request(:get, 'http://jenkins.gitlab.org/job/2/scm/bySHA1/2ab7834c').to_return(status: 200, body: '<h1>404</h1>', headers: {})
           expect(@service.calculate_reactive_cache('2ab7834c', 'master')).to eq(commit_status: :error)
         end
       end
@@ -87,7 +87,7 @@ ICON_STATUS_HTML
       end
 
       describe '#build_page' do
-        it { expect(@service.build_page("2ab7834c", 'feature/my-branch')).to eq("http://jenkins.gitlab.org/job/#{project.name}_feature_my-branch/scm/bySHA1/2ab7834c") }
+        it { expect(@service.build_page('2ab7834c', 'feature/my-branch')).to eq("http://jenkins.gitlab.org/job/#{project.name}_feature_my-branch/scm/bySHA1/2ab7834c") }
       end
     end
 
@@ -103,11 +103,11 @@ ICON_STATUS_HTML
       end
 
       describe '#build_page' do
-        it { expect(@service.build_page("2ab7834c", 'master')).to eq("http://jenkins.gitlab.org/job/2/scm/bySHA1/2ab7834c") }
+        it { expect(@service.build_page('2ab7834c', 'master')).to eq('http://jenkins.gitlab.org/job/2/scm/bySHA1/2ab7834c') }
       end
 
       describe '#build_page with branch' do
-        it { expect(@service.build_page("2ab7834c", 'test_branch')).to eq("http://jenkins.gitlab.org/job/2/scm/bySHA1/2ab7834c") }
+        it { expect(@service.build_page('2ab7834c', 'test_branch')).to eq('http://jenkins.gitlab.org/job/2/scm/bySHA1/2ab7834c') }
       end
     end
   end

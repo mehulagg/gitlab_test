@@ -25,7 +25,7 @@ module ContainerRegistry
     end
 
     def latest?
-      name == "latest"
+      name == 'latest'
     end
 
     def v1?

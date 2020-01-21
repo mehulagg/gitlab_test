@@ -37,7 +37,7 @@ describe Gitlab::Geo::Replication::JobArtifactRetriever, :geo do
         end
 
         it 'logs the missing file' do
-          expect(retriever).to receive(:log_error).with("Could not upload job artifact because it does not have a file", id: job_artifact.id)
+          expect(retriever).to receive(:log_error).with('Could not upload job artifact because it does not have a file', id: job_artifact.id)
 
           subject
         end
@@ -48,7 +48,7 @@ describe Gitlab::Geo::Replication::JobArtifactRetriever, :geo do
       let(:job_artifact) { double(id: 10000) }
 
       it 'returns an error hash' do
-        expect(subject).to eq(code: :not_found, message: "Job artifact not found")
+        expect(subject).to eq(code: :not_found, message: 'Job artifact not found')
       end
     end
   end

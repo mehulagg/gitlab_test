@@ -165,7 +165,7 @@ describe Auth::ContainerRegistryAuthenticationService do
 
     context 'for registry catalog' do
       let(:current_params) do
-        { scopes: ["registry:catalog:*"] }
+        { scopes: ['registry:catalog:*'] }
       end
 
       context 'disallow browsing for users without GitLab admin rights' do
@@ -647,7 +647,7 @@ describe Auth::ContainerRegistryAuthenticationService do
     let(:project) { create(:project, :public) }
 
     let(:current_params) do
-      { scopes: ["registry:catalog:*"] }
+      { scopes: ['registry:catalog:*'] }
     end
 
     it_behaves_like 'a browsable'
@@ -753,7 +753,7 @@ describe Auth::ContainerRegistryAuthenticationService do
 
     context 'for registry catalog' do
       let(:current_params) do
-        { scopes: ["registry:catalog:*"] }
+        { scopes: ['registry:catalog:*'] }
       end
 
       it_behaves_like 'a forbidden'

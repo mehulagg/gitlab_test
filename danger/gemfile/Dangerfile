@@ -19,8 +19,8 @@ bundle update <the-added-or-updated-gem>
 and commit the %<gemfile_lock>s changes.
 MSG
 
-gemfile_modified = git.modified_files.include?("Gemfile")
-gemfile_lock_modified = git.modified_files.include?("Gemfile.lock")
+gemfile_modified = git.modified_files.include?('Gemfile')
+gemfile_lock_modified = git.modified_files.include?('Gemfile.lock')
 
 if gemfile_modified && !gemfile_lock_modified
   gitlab_danger = GitlabDanger.new(helper.gitlab_helper)
@@ -28,8 +28,8 @@ if gemfile_modified && !gemfile_lock_modified
   format_str = gitlab_danger.ci? ? GEMFILE_LOCK_NOT_UPDATED_MESSAGE_FULL : GEMFILE_LOCK_NOT_UPDATED_MESSAGE_SHORT
 
   message = format(format_str,
-    gemfile: gitlab_danger.html_link("Gemfile"),
-    gemfile_lock: gitlab_danger.html_link("Gemfile.lock")
+    gemfile: gitlab_danger.html_link('Gemfile'),
+    gemfile_lock: gitlab_danger.html_link('Gemfile.lock')
   )
 
   warn(message)

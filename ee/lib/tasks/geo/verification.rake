@@ -3,14 +3,14 @@
 namespace :geo do
   namespace :verification do
     namespace :repository do
-      desc "GitLab | Verification | Repository | Reset | Resync repositories where verification has failed"
+      desc 'GitLab | Verification | Repository | Reset | Resync repositories where verification has failed'
       task reset: :gitlab_environment do
         flag_for_resync(:repository)
       end
     end
 
     namespace :wiki do
-      desc "GitLab | Verification | Wiki | Reset | Resync wiki repositories where verification has failed"
+      desc 'GitLab | Verification | Wiki | Reset | Resync wiki repositories where verification has failed'
       task reset: :gitlab_environment do
         flag_for_resync(:wiki)
       end
@@ -20,7 +20,7 @@ namespace :geo do
       abort GEO_LICENSE_ERROR_TEXT unless Gitlab::Geo.license_allows?
 
       unless Gitlab::Geo.secondary?
-        puts "This command is only available on a secondary node".color(:red)
+        puts 'This command is only available on a secondary node'.color(:red)
         exit
       end
 

@@ -24,7 +24,7 @@ describe CommitStatusPresenter do
           build.failure_reason = failure_reason
         end
 
-        it "is a valid status" do
+        it 'is a valid status' do
           expect { message }.not_to raise_error
         end
       end
@@ -35,7 +35,7 @@ describe CommitStatusPresenter do
         expect(build).to receive(:failure_reason) { 'invalid failure message' }
       end
 
-      it "is an invalid status" do
+      it 'is an invalid status' do
         expect { message }.to raise_error(/key not found:/)
       end
     end

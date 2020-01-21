@@ -165,7 +165,7 @@ class ProjectFeature < ApplicationRecord
     validator = lambda do |field|
       level = public_send(field) || ProjectFeature::ENABLED # rubocop:disable GitlabSecurity/PublicSend
       not_allowed = level > repository_access_level
-      self.errors.add(field, "cannot have higher visibility level than repository access level") if not_allowed
+      self.errors.add(field, 'cannot have higher visibility level than repository access level') if not_allowed
     end
 
     %i(merge_requests_access_level builds_access_level).each(&validator)
@@ -176,7 +176,7 @@ class ProjectFeature < ApplicationRecord
     validator = lambda do |field|
       level = public_send(field) || ProjectFeature::ENABLED # rubocop:disable GitlabSecurity/PublicSend
       not_allowed = level > ProjectFeature::ENABLED
-      self.errors.add(field, "cannot have public visibility level") if not_allowed
+      self.errors.add(field, 'cannot have public visibility level') if not_allowed
     end
 
     (FEATURES - %i(pages)).each {|f| validator.call("#{f}_access_level")}

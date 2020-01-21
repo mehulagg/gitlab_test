@@ -6,5 +6,5 @@ class ListUserPreference < ApplicationRecord
 
   validates :user, presence: true
   validates :list, presence: true
-  validates :user_id, uniqueness: { scope: :list_id, message: "should have only one list preference per user" }
+  validates :user_id, uniqueness: { scope: :list_id, message: 'should have only one list preference per user' }
 end

@@ -19,7 +19,7 @@ module Awardable
           SELECT TRUE
           FROM award_emoji
           WHERE user_id = :user_id AND
-                #{"name = :name AND" if name.present?}
+                #{'name = :name AND' if name.present?}
                 awardable_type = :awardable_type AND
                 awardable_id = #{self.arel_table.name}.id
         )

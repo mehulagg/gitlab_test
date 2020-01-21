@@ -90,7 +90,7 @@ module EE
                   if parsed_dn.count > 2
                     dn_obj.to_normalized_s
                   elsif parsed_dn.count == 0
-                    logger.warn { "Found null DN. Skipping." }
+                    logger.warn { 'Found null DN. Skipping.' }
                     nil
                   elsif parsed_dn[0] == 'uid'
                     dn_for_uid(parsed_dn[1])

@@ -16,12 +16,12 @@ describe 'Issues > User sees live update', :js do
 
       visit project_issue_path(project, issue)
 
-      expect(page).to have_text("new title")
+      expect(page).to have_text('new title')
 
-      issue.update(title: "updated title")
+      issue.update(title: 'updated title')
 
       wait_for_requests
-      expect(page).to have_text("updated title")
+      expect(page).to have_text('updated title')
     end
   end
 

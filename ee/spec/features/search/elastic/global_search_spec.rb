@@ -82,7 +82,7 @@ describe 'Global elastic search', :elastic, :sidekiq_inline do
       Gitlab::Elastic::Helper.refresh_index
     end
 
-    it "has a pagination" do
+    it 'has a pagination' do
       visit dashboard_projects_path
 
       submit_search('initial')
@@ -100,7 +100,7 @@ describe 'Global elastic search', :elastic, :sidekiq_inline do
       Gitlab::Elastic::Helper.refresh_index
     end
 
-    it "has a pagination" do
+    it 'has a pagination' do
       visit dashboard_projects_path
 
       submit_search('foo')
@@ -119,7 +119,7 @@ describe 'Global elastic search', :elastic, :sidekiq_inline do
       Gitlab::Elastic::Helper.refresh_index
     end
 
-    it "finds files" do
+    it 'finds files' do
       visit dashboard_projects_path
 
       submit_search('application.js')
@@ -160,7 +160,7 @@ describe 'Global elastic search', :elastic, :sidekiq_inline do
       Gitlab::Elastic::Helper.refresh_index
     end
 
-    it "finds files" do
+    it 'finds files' do
       visit dashboard_projects_path
 
       submit_search('term')
@@ -178,7 +178,7 @@ describe 'Global elastic search', :elastic, :sidekiq_inline do
       Gitlab::Elastic::Helper.refresh_index
     end
 
-    it "finds commits" do
+    it 'finds commits' do
       visit dashboard_projects_path
 
       submit_search('add')
@@ -194,7 +194,7 @@ describe 'Global elastic search', :elastic, :sidekiq_inline do
       submit_search('add')
       select_search_scope('Commits')
 
-      expected_message = "Add directory structure for tree_helper spec"
+      expected_message = 'Add directory structure for tree_helper spec'
 
       expect(page).not_to have_content(expected_message)
 

@@ -65,7 +65,7 @@ describe Projects::EnvironmentsController do
 
         it 'sets the polling interval header' do
           expect(response).to have_gitlab_http_status(:ok)
-          expect(response.headers['Poll-Interval']).to eq("3000")
+          expect(response.headers['Poll-Interval']).to eq('3000')
         end
       end
 
@@ -322,7 +322,7 @@ describe Projects::EnvironmentsController do
           get :terminal_websocket_authorize, params: environment_params
 
           expect(response).to have_gitlab_http_status(200)
-          expect(response.headers["Content-Type"]).to eq(Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE)
+          expect(response.headers['Content-Type']).to eq(Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE)
           expect(response.body).to eq('{"workhorse":"response"}')
         end
       end

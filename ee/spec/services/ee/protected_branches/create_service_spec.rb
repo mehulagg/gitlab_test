@@ -12,46 +12,46 @@ describe ProtectedBranches::CreateService do
 
   let(:params) do
     {
-      name: "feature",
+      name: 'feature',
       merge_access_levels_attributes: [{ access_level: Gitlab::Access::MAINTAINER }],
       push_access_levels_attributes: [{ access_level: Gitlab::Access::MAINTAINER }]
     }
   end
 
-  describe "#execute" do
+  describe '#execute' do
     subject(:service) { described_class.new(target_project, user, params) }
 
     before do
       target_project.add_user(user, :developer)
     end
 
-    context "code_owner_approval_required" do
-      context "when unavailable" do
+    context 'code_owner_approval_required' do
+      context 'when unavailable' do
         before do
           stub_licensed_features(code_owner_approval_required: false)
 
           params[:code_owner_approval_required] = true
         end
 
-        it "ignores incoming params and sets code_owner_approval_required to false" do
+        it 'ignores incoming params and sets code_owner_approval_required to false' do
           expect { service.execute }.to change(ProtectedBranch, :count).by(1)
           expect(ProtectedBranch.last.code_owner_approval_required).to be_falsy
         end
       end
 
-      context "when available" do
+      context 'when available' do
         before do
           stub_licensed_features(code_owner_approval_required: true)
         end
 
-        it "sets code_owner_approval_required to true when param is true" do
+        it 'sets code_owner_approval_required to true when param is true' do
           params[:code_owner_approval_required] = true
 
           expect { service.execute }.to change(ProtectedBranch, :count).by(1)
           expect(ProtectedBranch.last.code_owner_approval_required).to be_truthy
         end
 
-        it "sets code_owner_approval_required to false when param is false" do
+        it 'sets code_owner_approval_required to false when param is false' do
           params[:code_owner_approval_required] = false
 
           expect { service.execute }.to change(ProtectedBranch, :count).by(1)
@@ -60,7 +60,7 @@ describe ProtectedBranches::CreateService do
       end
     end
 
-    context "when there are open merge requests" do
+    context 'when there are open merge requests' do
       let!(:merge_request) do
         create(:merge_request,
           source_project: source_project,
@@ -69,12 +69,12 @@ describe ProtectedBranches::CreateService do
         )
       end
 
-      it "calls MergeRequest::SyncCodeOwnerApprovalRules to update open MRs" do
+      it 'calls MergeRequest::SyncCodeOwnerApprovalRules to update open MRs' do
         expect(::MergeRequests::SyncCodeOwnerApprovalRules).to receive(:new).with(merge_request).and_call_original
         expect { service.execute }.to change(ProtectedBranch, :count).by(1)
       end
 
-      context "when the branch is a wildcard" do
+      context 'when the branch is a wildcard' do
         %w(*ture *eatur* feat*).each do |wildcard|
           before do
             params[:name] = wildcard

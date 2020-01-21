@@ -1,25 +1,25 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
-describe "User views issues" do
+describe 'User views issues' do
   let!(:closed_issue) { create(:closed_issue, project: project) }
   let!(:open_issue1) { create(:issue, project: project) }
   let!(:open_issue2) { create(:issue, project: project) }
 
   set(:user) { create(:user) }
 
-  shared_examples "opens issue from list" do
-    it "opens issue" do
+  shared_examples 'opens issue from list' do
+    it 'opens issue' do
       click_link(issue.title)
 
       expect(page).to have_content(issue.title)
     end
   end
 
-  shared_examples "open issues" do
-    context "open issues" do
-      let(:label) { create(:label, project: project, title: "bug") }
+  shared_examples 'open issues' do
+    context 'open issues' do
+      let(:label) { create(:label, project: project, title: 'bug') }
 
       before do
         open_issue1.labels << label
@@ -27,16 +27,16 @@ describe "User views issues" do
         visit(project_issues_path(project, state: :opened))
       end
 
-      it "shows open issues" do
+      it 'shows open issues' do
         expect(page).to have_content(project.name)
           .and have_content(open_issue1.title)
           .and have_content(open_issue2.title)
           .and have_no_content(closed_issue.title)
-          .and have_no_selector(".js-new-board-list")
+          .and have_no_selector('.js-new-board-list')
       end
 
-      it "opens issues by label" do
-        page.within(".issues-list") do
+      it 'opens issues by label' do
+        page.within('.issues-list') do
           click_link(label.title)
         end
 
@@ -45,47 +45,47 @@ describe "User views issues" do
           .and have_no_content(closed_issue.title)
       end
 
-      include_examples "opens issue from list" do
+      include_examples 'opens issue from list' do
         let(:issue) { open_issue1 }
       end
     end
   end
 
-  shared_examples "closed issues" do
-    context "closed issues" do
+  shared_examples 'closed issues' do
+    context 'closed issues' do
       before do
         visit(project_issues_path(project, state: :closed))
       end
 
-      it "shows closed issues" do
+      it 'shows closed issues' do
         expect(page).to have_content(project.name)
           .and have_content(closed_issue.title)
           .and have_no_content(open_issue1.title)
           .and have_no_content(open_issue2.title)
-          .and have_no_selector(".js-new-board-list")
+          .and have_no_selector('.js-new-board-list')
       end
 
-      include_examples "opens issue from list" do
+      include_examples 'opens issue from list' do
         let(:issue) { closed_issue }
       end
     end
   end
 
-  shared_examples "all issues" do
-    context "all issues" do
+  shared_examples 'all issues' do
+    context 'all issues' do
       before do
         visit(project_issues_path(project, state: :all))
       end
 
-      it "shows all issues" do
+      it 'shows all issues' do
         expect(page).to have_content(project.name)
           .and have_content(closed_issue.title)
           .and have_content(open_issue1.title)
           .and have_content(open_issue2.title)
-          .and have_no_selector(".js-new-board-list")
+          .and have_no_selector('.js-new-board-list')
       end
 
-      include_examples "opens issue from list" do
+      include_examples 'opens issue from list' do
         let(:issue) { closed_issue }
       end
     end
@@ -96,24 +96,24 @@ describe "User views issues" do
       context "when project is #{visibility}" do
         let(:project) { create(:project_empty_repo, :"#{visibility}") }
 
-        include_examples "open issues"
-        include_examples "closed issues"
-        include_examples "all issues"
+        include_examples 'open issues'
+        include_examples 'closed issues'
+        include_examples 'all issues'
       end
     end
   end
 
-  context "when signed in as developer" do
+  context 'when signed in as developer' do
     before do
       project.add_developer(user)
       sign_in(user)
     end
 
-    include_examples "public project"
-    include_examples "internal project"
+    include_examples 'public project'
+    include_examples 'internal project'
   end
 
-  context "when not signed in" do
-    include_examples "public project"
+  context 'when not signed in' do
+    include_examples 'public project'
   end
 end

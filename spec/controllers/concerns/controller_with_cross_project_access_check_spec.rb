@@ -46,8 +46,8 @@ describe ControllerWithCrossProjectAccessCheck do
       end
 
       it 'renders a 403 with trying to access a cross project page' do
-        message = "This page is unavailable because you are not allowed to read "\
-                  "information across multiple projects."
+        message = 'This page is unavailable because you are not allowed to read '\
+                  'information across multiple projects.'
 
         get :index
 

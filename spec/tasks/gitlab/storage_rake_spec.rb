@@ -9,7 +9,7 @@ describe 'rake gitlab:storage:*', :sidekiq do
     stub_warn_user_is_not_gitlab
   end
 
-  shared_examples "rake listing entities" do |entity_name, storage_type|
+  shared_examples 'rake listing entities' do |entity_name, storage_type|
     context 'limiting to 2' do
       before do
         stub_env('LIMIT' => 2)
@@ -29,7 +29,7 @@ describe 'rake gitlab:storage:*', :sidekiq do
     end
   end
 
-  shared_examples "rake entities summary" do |entity_name, storage_type|
+  shared_examples 'rake entities summary' do |entity_name, storage_type|
     context "with existing 3 #{storage_type.downcase} #{entity_name}" do
       it "reports 3 #{storage_type.downcase} #{entity_name}" do
         create_collection
@@ -45,7 +45,7 @@ describe 'rake gitlab:storage:*', :sidekiq do
     end
   end
 
-  shared_examples "make sure database is writable" do
+  shared_examples 'make sure database is writable' do
     context 'read-only database' do
       it 'does nothing' do
         expect(Gitlab::Database).to receive(:read_only?).and_return(true)
@@ -57,7 +57,7 @@ describe 'rake gitlab:storage:*', :sidekiq do
     end
   end
 
-  shared_examples "handles custom BATCH env var" do |worker_klass|
+  shared_examples 'handles custom BATCH env var' do |worker_klass|
     context 'in batches of 1' do
       before do
         stub_env('BATCH' => 1)
@@ -189,7 +189,7 @@ describe 'rake gitlab:storage:*', :sidekiq do
         expect { run_rake_task(task) }.to output(/Enqueuing rollback of 2 projects in batches/).to_stdout
       end
 
-      it_behaves_like "handles custom BATCH env var", ::HashedStorage::RollbackerWorker
+      it_behaves_like 'handles custom BATCH env var', ::HashedStorage::RollbackerWorker
     end
   end
 

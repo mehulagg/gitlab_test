@@ -10,11 +10,11 @@ RSpec.shared_examples 'issuable quick actions' do
     end
 
     def skip_access_check
-      action_text["/todo"] ||
-        action_text["/done"] ||
-        action_text["/subscribe"] ||
-        action_text["/shrug"] ||
-        action_text["/tableflip"]
+      action_text['/todo'] ||
+        action_text['/done'] ||
+        action_text['/subscribe'] ||
+        action_text['/shrug'] ||
+        action_text['/tableflip']
     end
   end
 
@@ -22,7 +22,7 @@ RSpec.shared_examples 'issuable quick actions' do
   let(:issuable_quick_actions) do
     [
       QuickAction.new(
-        action_text: "/subscribe",
+        action_text: '/subscribe',
         expectation: ->(noteable, can_use_quick_action) {
           if can_use_quick_action
             expect(noteable).to be_subscribed(note_author, issuable.project)
@@ -32,31 +32,31 @@ RSpec.shared_examples 'issuable quick actions' do
         }
       ),
       QuickAction.new(
-        action_text: "/unsubscribe",
+        action_text: '/unsubscribe',
         expectation: ->(noteable, can_use_quick_action) {
           expect(noteable).not_to be_subscribed(note_author, issuable.project)
         }
       ),
       QuickAction.new(
-        action_text: "/todo",
+        action_text: '/todo',
         expectation: ->(noteable, can_use_quick_action) {
           expect(noteable.todos.count == 1).to eq(can_use_quick_action)
         }
       ),
       QuickAction.new(
-        action_text: "/done",
+        action_text: '/done',
         expectation: ->(noteable, can_use_quick_action) {
           expect(noteable.todos.last.done?).to eq(can_use_quick_action)
         }
       ),
       QuickAction.new(
-        action_text: "/close",
+        action_text: '/close',
         expectation: ->(noteable, can_use_quick_action) {
           expect(noteable.closed?).to eq(can_use_quick_action)
         }
       ),
       QuickAction.new(
-        action_text: "/reopen",
+        action_text: '/reopen',
         before_action: -> {
           issuable.close
         },
@@ -75,7 +75,7 @@ RSpec.shared_examples 'issuable quick actions' do
         }
       ),
       QuickAction.new(
-        action_text: "/unassign",
+        action_text: '/unassign',
         expectation: ->(noteable, can_use_quick_action) {
           if can_use_quick_action
             expect(noteable.assignees).to be_empty
@@ -85,19 +85,19 @@ RSpec.shared_examples 'issuable quick actions' do
         }
       ),
       QuickAction.new(
-        action_text: "/title new title",
+        action_text: '/title new title',
         expectation: ->(noteable, can_use_quick_action) {
-          expect(noteable.title == "new title").to eq(can_use_quick_action)
+          expect(noteable.title == 'new title').to eq(can_use_quick_action)
         }
       ),
       QuickAction.new(
-        action_text: "/lock",
+        action_text: '/lock',
         expectation: ->(noteable, can_use_quick_action) {
           expect(noteable.discussion_locked?).to eq(can_use_quick_action)
         }
       ),
       QuickAction.new(
-        action_text: "/unlock",
+        action_text: '/unlock',
         before_action: -> {
           issuable.update(discussion_locked: true)
         },
@@ -110,13 +110,13 @@ RSpec.shared_examples 'issuable quick actions' do
         }
       ),
       QuickAction.new(
-        action_text: "/milestone %\"sprint\"",
+        action_text: '/milestone %"sprint"',
         expectation: ->(noteable, can_use_quick_action) {
           expect(noteable.milestone == milestone).to eq(can_use_quick_action)
         }
       ),
       QuickAction.new(
-        action_text: "/remove_milestone",
+        action_text: '/remove_milestone',
         before_action: -> {
           issuable.update(milestone_id: milestone.id)
         },
@@ -129,13 +129,13 @@ RSpec.shared_examples 'issuable quick actions' do
         }
       ),
       QuickAction.new(
-        action_text: "/label ~feature",
+        action_text: '/label ~feature',
         expectation: ->(noteable, can_use_quick_action) {
           expect(noteable.labels&.last&.id == feature_label.id).to eq(can_use_quick_action)
         }
       ),
       QuickAction.new(
-        action_text: "/unlabel",
+        action_text: '/unlabel',
         expectation: ->(noteable, can_use_quick_action) {
           if can_use_quick_action
             expect(noteable.labels).to be_empty
@@ -145,23 +145,23 @@ RSpec.shared_examples 'issuable quick actions' do
         }
       ),
       QuickAction.new(
-        action_text: "/award :100:",
+        action_text: '/award :100:',
         expectation: ->(noteable, can_use_quick_action) {
           if can_use_quick_action
-            expect(noteable.award_emoji.last.name).to eq("100")
+            expect(noteable.award_emoji.last.name).to eq('100')
           else
             expect(noteable.award_emoji).to be_empty
           end
         }
       ),
       QuickAction.new(
-        action_text: "/estimate 1d 2h 3m",
+        action_text: '/estimate 1d 2h 3m',
         expectation: ->(noteable, can_use_quick_action) {
           expect(noteable.time_estimate == 36180).to eq(can_use_quick_action)
         }
       ),
       QuickAction.new(
-        action_text: "/remove_estimate",
+        action_text: '/remove_estimate',
         before_action: -> {
           issuable.update(time_estimate: 30000)
         },
@@ -174,13 +174,13 @@ RSpec.shared_examples 'issuable quick actions' do
         }
       ),
       QuickAction.new(
-        action_text: "/spend 1d 2h 3m",
+        action_text: '/spend 1d 2h 3m',
         expectation: ->(noteable, can_use_quick_action) {
           expect(noteable.total_time_spent == 36180).to eq(can_use_quick_action)
         }
       ),
       QuickAction.new(
-        action_text: "/remove_time_spent",
+        action_text: '/remove_time_spent',
         expectation: ->(noteable, can_use_quick_action) {
           if can_use_quick_action
             expect(noteable.total_time_spent == 0)
@@ -190,13 +190,13 @@ RSpec.shared_examples 'issuable quick actions' do
         }
       ),
       QuickAction.new(
-        action_text: "/shrug oops",
+        action_text: '/shrug oops',
         expectation: ->(noteable, can_use_quick_action) {
           expect(noteable.notes&.last&.note == "HELLO\noops ¯\\＿(ツ)＿/¯\nWORLD").to eq(can_use_quick_action)
         }
       ),
       QuickAction.new(
-        action_text: "/tableflip oops",
+        action_text: '/tableflip oops',
         expectation: ->(noteable, can_use_quick_action) {
           expect(noteable.notes&.last&.note == "HELLO\noops (╯°□°)╯︵ ┻━┻\nWORLD").to eq(can_use_quick_action)
         }
@@ -241,7 +241,7 @@ RSpec.shared_examples 'issuable quick actions' do
 
         # shrug and tablefip quick actions modifies the note text
         # on these cases we need to skip this assertion
-        if !quick_action.action_text["shrug"] && !quick_action.action_text["tableflip"]
+        if !quick_action.action_text['shrug'] && !quick_action.action_text['tableflip']
           expect(note.note).to eq "HELLO\nWORLD"
         end
 

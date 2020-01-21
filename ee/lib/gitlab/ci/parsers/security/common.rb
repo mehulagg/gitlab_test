@@ -9,10 +9,10 @@ module Gitlab
 
           def parse!(json_data, report)
             report_data = parse_report(json_data)
-            raise SecurityReportParserError, "Invalid report format" unless report_data.is_a?(Hash)
+            raise SecurityReportParserError, 'Invalid report format' unless report_data.is_a?(Hash)
 
             collate_remediations(report_data).each do |vulnerability|
-              create_vulnerability(report, vulnerability, report_data["version"])
+              create_vulnerability(report, vulnerability, report_data['version'])
             end
           rescue JSON::ParserError
             raise SecurityReportParserError, 'JSON parsing failed'
@@ -29,15 +29,15 @@ module Gitlab
 
           # map remediations to relevant vulnerabilities
           def collate_remediations(report_data)
-            return report_data["vulnerabilities"] || [] unless report_data["remediations"]
+            return report_data['vulnerabilities'] || [] unless report_data['remediations']
 
-            report_data["vulnerabilities"].map do |vulnerability|
+            report_data['vulnerabilities'].map do |vulnerability|
               # Grab the first available remediation.
-              remediation = report_data["remediations"].find do |remediation|
-                remediation["fixes"].any? { |fix| fix["cve"] == vulnerability["cve"] }
+              remediation = report_data['remediations'].find do |remediation|
+                remediation['fixes'].any? { |fix| fix['cve'] == vulnerability['cve'] }
               end
 
-              vulnerability.merge("remediations" => [remediation])
+              vulnerability.merge('remediations' => [remediation])
             end
           end
 

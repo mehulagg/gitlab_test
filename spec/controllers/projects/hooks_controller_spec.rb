@@ -25,8 +25,8 @@ describe Projects::HooksController do
     it 'sets all parameters' do
       hook_params = {
         enable_ssl_verification: true,
-        token: "TEST TOKEN",
-        url: "http://example.com",
+        token: 'TEST TOKEN',
+        url: 'http://example.com',
 
         push_events: true,
         tag_push_events: true,

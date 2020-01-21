@@ -101,7 +101,7 @@ module Gitlab
             if @needs_attributes.size > max_needs_allowed
               return [
                 "#{name}: one job can only need #{max_needs_allowed} others, but you have listed #{@needs_attributes.size}. " \
-                  "See needs keyword documentation for more details"
+                  'See needs keyword documentation for more details'
               ]
             end
 

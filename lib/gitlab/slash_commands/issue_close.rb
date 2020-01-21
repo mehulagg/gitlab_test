@@ -8,7 +8,7 @@ module Gitlab
       end
 
       def self.help_message
-        "issue close <id>"
+        'issue close <id>'
       end
 
       def self.allowed?(project, user)

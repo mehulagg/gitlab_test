@@ -14,7 +14,7 @@ module Clusters
     # NOTE: this service is an approximation as it does not yet take into account `environment_scope` or `ci_group_variables`.
     ##
     class IngressModsecurityUsageService
-      ADO_MODSEC_KEY = "AUTO_DEVOPS_MODSECURITY_SEC_RULE_ENGINE"
+      ADO_MODSEC_KEY = 'AUTO_DEVOPS_MODSECURITY_SEC_RULE_ENGINE'
 
       def initialize(blocking_count: 0, disabled_count: 0)
         @blocking_count = blocking_count
@@ -58,8 +58,8 @@ module Clusters
       def sum_modsec_config_counts(dataset)
         dataset.each do |var|
           case var.value
-          when "On" then @blocking_count += 1
-          when "Off" then @disabled_count += 1
+          when 'On' then @blocking_count += 1
+          when 'Off' then @disabled_count += 1
             # `else` could be default or any unsupported user input
           end
         end

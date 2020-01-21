@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
-describe "Issues > User edits issue", :js do
+describe 'Issues > User edits issue', :js do
   let_it_be(:project) { create(:project_empty_repo, :public) }
   let_it_be(:user) { create(:user) }
   let_it_be(:issue) { create(:issue, project: project, author: user, assignees: [user]) }
@@ -14,20 +14,20 @@ describe "Issues > User edits issue", :js do
     sign_in(user)
   end
 
-  context "from edit page" do
+  context 'from edit page' do
     before do
       visit edit_project_issue_path(project, issue)
     end
 
-    it "previews content" do
-      form = first(".gfm-form")
+    it 'previews content' do
+      form = first('.gfm-form')
 
       page.within(form) do
-        fill_in("Description", with: "Bug fixed :smile:")
-        click_button("Preview")
+        fill_in('Description', with: 'Bug fixed :smile:')
+        click_button('Preview')
       end
 
-      expect(form).to have_button("Write")
+      expect(form).to have_button('Write')
     end
 
     it 'allows user to select unassigned' do
@@ -71,7 +71,7 @@ describe "Issues > User edits issue", :js do
       end
 
       it 'warns about version conflict' do
-        issue.update(title: "New title")
+        issue.update(title: 'New title')
 
         fill_in 'issue_title', with: 'bug 345'
         fill_in 'issue_description', with: 'bug description'
@@ -83,7 +83,7 @@ describe "Issues > User edits issue", :js do
     end
   end
 
-  context "from issue#show" do
+  context 'from issue#show' do
     before do
       visit project_issue_path(project, issue)
     end
@@ -126,7 +126,7 @@ describe "Issues > User edits issue", :js do
           visit project_issue_path(project, issue2)
 
           page.within('.assignee') do
-            expect(page).to have_content "None"
+            expect(page).to have_content 'None'
           end
 
           page.within '.assignee' do
@@ -163,7 +163,7 @@ describe "Issues > User edits issue", :js do
             close_dropdown_menu_if_visible
 
             page.within '.value .assign-yourself' do
-              expect(page).to have_content "None"
+              expect(page).to have_content 'None'
             end
           end
         end
@@ -192,7 +192,7 @@ describe "Issues > User edits issue", :js do
           visit project_issue_path(project, issue)
 
           page.within('.milestone') do
-            expect(page).to have_content "None"
+            expect(page).to have_content 'None'
           end
 
           find('.block.milestone .edit-link').click

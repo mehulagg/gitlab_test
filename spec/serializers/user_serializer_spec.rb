@@ -23,8 +23,8 @@ describe UserSerializer do
     it 'returns a user with can_merge option' do
       serialized_user1, serialized_user2 = serializer.represent([user1, user2], project: project).as_json
 
-      expect(serialized_user1).to include("id" => user1.id, "can_merge" => true)
-      expect(serialized_user2).to include("id" => user2.id, "can_merge" => false)
+      expect(serialized_user1).to include('id' => user1.id, 'can_merge' => true)
+      expect(serialized_user2).to include('id' => user2.id, 'can_merge' => false)
     end
   end
 end

@@ -25,18 +25,18 @@ module Gitlab
         def fields
           [
             {
-              title: "Assignee",
-              value: resource.assignees.any? ? resource.assignees.first.name : "_None_",
+              title: 'Assignee',
+              value: resource.assignees.any? ? resource.assignees.first.name : '_None_',
               short: true
             },
             {
-              title: "Milestone",
-              value: resource.milestone ? resource.milestone.title : "_None_",
+              title: 'Milestone',
+              value: resource.milestone ? resource.milestone.title : '_None_',
               short: true
             },
             {
-              title: "Labels",
-              value: resource.labels.any? ? resource.label_names.join(', ') : "_None_",
+              title: 'Labels',
+              value: resource.labels.any? ? resource.label_names.join(', ') : '_None_',
               short: true
             }
           ]

@@ -32,7 +32,7 @@ describe 'Projects > Members > Groups with access list', :js do
   it 'updates expiry date' do
     tomorrow = Date.today + 3
 
-    fill_in "member_expires_at_#{group.id}", with: tomorrow.strftime("%F")
+    fill_in "member_expires_at_#{group.id}", with: tomorrow.strftime('%F')
     find('body').click
     wait_for_requests
 

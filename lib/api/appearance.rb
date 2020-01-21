@@ -13,7 +13,7 @@ module API
     desc 'Get the current appearance' do
       success Entities::Appearance
     end
-    get "application/appearance" do
+    get 'application/appearance' do
       present current_appearance, with: Entities::Appearance
     end
 
@@ -34,7 +34,7 @@ module API
       optional :message_font_color, type: String, desc: 'Font color for the system header / footer bar'
       optional :email_header_and_footer_enabled, type: Boolean, desc: 'Add header and footer to all outgoing emails if enabled'
     end
-    put "application/appearance" do
+    put 'application/appearance' do
       attrs = declared_params(include_missing: false)
 
       if current_appearance.update(attrs)

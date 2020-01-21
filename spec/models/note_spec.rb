@@ -105,30 +105,30 @@ describe Note do
     end
   end
 
-  describe "Commit notes" do
+  describe 'Commit notes' do
     before do
       allow(Gitlab::Git::KeepAround).to receive(:execute).and_call_original
     end
 
-    let!(:note) { create(:note_on_commit, note: "+1 from me") }
+    let!(:note) { create(:note_on_commit, note: '+1 from me') }
     let!(:commit) { note.noteable }
 
-    it "is accessible through #noteable" do
+    it 'is accessible through #noteable' do
       expect(note.commit_id).to eq(commit.id)
       expect(note.noteable).to be_a(Commit)
       expect(note.noteable).to eq(commit)
     end
 
-    it "saves a valid note" do
+    it 'saves a valid note' do
       expect(note.commit_id).to eq(commit.id)
       note.noteable == commit
     end
 
-    it "is recognized by #for_commit?" do
+    it 'is recognized by #for_commit?' do
       expect(note).to be_for_commit
     end
 
-    it "keeps the commit around" do
+    it 'keeps the commit around' do
       repo = note.project.repository
 
       expect(repo.ref_exists?("refs/keep-around/#{commit.id}")).to be_truthy
@@ -204,18 +204,18 @@ describe Note do
     let(:set_mentionable_text) { ->(txt) { subject.note = txt } }
   end
 
-  describe "#all_references" do
+  describe '#all_references' do
     let!(:note1) { create(:note_on_issue) }
     let!(:note2) { create(:note_on_issue) }
 
-    it "reads the rendered note body from the cache" do
+    it 'reads the rendered note body from the cache' do
       expect(Banzai::Renderer).to receive(:cache_collection_render)
         .with([{
           text: note1.note,
           context: {
             skip_project_check: false,
             pipeline: :note,
-            cache_key: [note1, "note"],
+            cache_key: [note1, 'note'],
             project: note1.project,
             rendered: note1.note_html,
             author: note1.author
@@ -228,7 +228,7 @@ describe Note do
           context: {
             skip_project_check: false,
             pipeline: :note,
-            cache_key: [note2, "note"],
+            cache_key: [note2, 'note'],
             project: note2.project,
             rendered: note2.note_html,
             author: note2.author
@@ -240,38 +240,38 @@ describe Note do
     end
   end
 
-  describe "editable?" do
-    it "returns true" do
+  describe 'editable?' do
+    it 'returns true' do
       note = build(:note)
       expect(note.editable?).to be_truthy
     end
 
-    it "returns false" do
+    it 'returns false' do
       note = build(:note, system: true)
       expect(note.editable?).to be_falsy
     end
   end
 
-  describe "edited?" do
+  describe 'edited?' do
     let(:note) { build(:note, updated_by_id: nil, created_at: Time.now, updated_at: Time.now + 5.hours) }
 
-    context "with updated_by" do
-      it "returns true" do
+    context 'with updated_by' do
+      it 'returns true' do
         note.updated_by = build(:user)
 
         expect(note.edited?).to be_truthy
       end
     end
 
-    context "without updated_by" do
-      it "returns false" do
+    context 'without updated_by' do
+      it 'returns false' do
         expect(note.edited?).to be_falsy
       end
     end
   end
 
-  describe "confidential?" do
-    it "delegates to noteable" do
+  describe 'confidential?' do
+    it 'delegates to noteable' do
       issue_note = build(:note, :on_issue)
       confidential_note = build(:note, noteable: create(:issue, confidential: true))
 
@@ -285,7 +285,7 @@ describe Note do
     end
   end
 
-  describe "#visible_for?" do
+  describe '#visible_for?' do
     using RSpec::Parameterized::TableSyntax
 
     let_it_be(:note) { create(:note) }
@@ -298,7 +298,7 @@ describe Note do
     end
 
     with_them do
-      it "returns expected result" do
+      it 'returns expected result' do
         expect(note).to receive(:cross_reference_not_visible_for?).and_return(cross_reference_visible)
 
         unless cross_reference_visible
@@ -311,13 +311,13 @@ describe Note do
     end
   end
 
-  describe "#system_note_viewable_by?(user)" do
+  describe '#system_note_viewable_by?(user)' do
     let_it_be(:note) { create(:note) }
     let_it_be(:user) { create(:user) }
-    let!(:metadata) { create(:system_note_metadata, note: note, action: "branch") }
+    let!(:metadata) { create(:system_note_metadata, note: note, action: 'branch') }
 
-    context "when system_note_metadata is not present" do
-      it "returns true" do
+    context 'when system_note_metadata is not present' do
+      it 'returns true' do
         expect(note).to receive(:system_note_metadata).and_return(nil)
 
         expect(note.send(:system_note_viewable_by?, user)).to be_truthy
@@ -326,22 +326,22 @@ describe Note do
 
     context "system_note_metadata isn't of type 'branch'" do
       before do
-        metadata.action = "not_a_branch"
+        metadata.action = 'not_a_branch'
       end
 
-      it "returns true" do
+      it 'returns true' do
         expect(note.send(:system_note_viewable_by?, user)).to be_truthy
       end
     end
 
     context "user doesn't have :download_code ability" do
-      it "returns false" do
+      it 'returns false' do
         expect(note.send(:system_note_viewable_by?, user)).to be_falsey
       end
     end
 
-    context "user has the :download_code ability" do
-      it "returns true" do
+    context 'user has the :download_code ability' do
+      it 'returns true' do
         expect(Ability).to receive(:allowed?).with(user, :download_code, note.project).and_return(true)
 
         expect(note.send(:system_note_viewable_by?, user)).to be_truthy
@@ -349,7 +349,7 @@ describe Note do
     end
   end
 
-  describe "cross_reference_not_visible_for?" do
+  describe 'cross_reference_not_visible_for?' do
     let(:private_user)    { create(:user) }
     let(:private_project) { create(:project, namespace: private_user.namespace) { |p| p.add_maintainer(private_user) } }
     let(:private_issue)   { create(:issue, project: private_project) }
@@ -357,16 +357,16 @@ describe Note do
     let(:ext_proj)  { create(:project, :public) }
     let(:ext_issue) { create(:issue, project: ext_proj) }
 
-    shared_examples "checks references" do
-      it "returns true" do
+    shared_examples 'checks references' do
+      it 'returns true' do
         expect(note.cross_reference_not_visible_for?(ext_issue.author)).to be_truthy
       end
 
-      it "returns false" do
+      it 'returns false' do
         expect(note.cross_reference_not_visible_for?(private_user)).to be_falsy
       end
 
-      it "returns false if user visible reference count set" do
+      it 'returns false if user visible reference count set' do
         note.user_visible_reference_count = 1
         note.total_reference_count = 1
 
@@ -374,7 +374,7 @@ describe Note do
         expect(note.cross_reference_not_visible_for?(ext_issue.author)).to be_falsy
       end
 
-      it "returns true if ref count is 0" do
+      it 'returns true if ref count is 0' do
         note.user_visible_reference_count = 0
 
         expect(note).not_to receive(:reference_mentionables)
@@ -382,7 +382,7 @@ describe Note do
       end
     end
 
-    context "when there is one reference in note" do
+    context 'when there is one reference in note' do
       let(:note) do
         create :note,
           noteable: ext_issue, project: ext_proj,
@@ -390,10 +390,10 @@ describe Note do
           system: true
       end
 
-      it_behaves_like "checks references"
+      it_behaves_like 'checks references'
     end
 
-    context "when there are two references in note" do
+    context 'when there are two references in note' do
       let(:note) do
         create :note,
           noteable: ext_issue, project: ext_proj,
@@ -402,9 +402,9 @@ describe Note do
           system: true
       end
 
-      it_behaves_like "checks references"
+      it_behaves_like 'checks references'
 
-      it "returns true if user visible reference count set and there is a private reference" do
+      it 'returns true if user visible reference count set and there is a private reference' do
         note.user_visible_reference_count = 1
         note.total_reference_count = 2
 
@@ -460,7 +460,7 @@ describe Note do
 
     context 'with a system note' do
       let(:issue)     { create(:issue, project: create(:project, :repository)) }
-      let(:note)      { create(:system_note, note: "test", noteable: issue, project: issue.project) }
+      let(:note)      { create(:system_note, note: 'test', noteable: issue, project: issue.project) }
 
       shared_examples 'system_note_metadata includes note action' do
         it 'delegates to the cross-reference regex' do
@@ -547,7 +547,7 @@ describe Note do
     end
   end
 
-  describe ".grouped_diff_discussions" do
+  describe '.grouped_diff_discussions' do
     let!(:merge_request) { create(:merge_request) }
     let(:project) { merge_request.project }
     let!(:active_diff_note1) { create(:diff_note_on_merge_request, project: project, noteable: merge_request) }
@@ -558,8 +558,8 @@ describe Note do
 
     let(:active_position2) do
       Gitlab::Diff::Position.new(
-        old_path: "files/ruby/popen.rb",
-        new_path: "files/ruby/popen.rb",
+        old_path: 'files/ruby/popen.rb',
+        new_path: 'files/ruby/popen.rb',
         old_line: nil,
         new_line: 13,
         diff_refs: project.commit(sample_commit.id).diff_refs
@@ -568,18 +568,18 @@ describe Note do
 
     let(:outdated_position) do
       Gitlab::Diff::Position.new(
-        old_path: "files/ruby/popen.rb",
-        new_path: "files/ruby/popen.rb",
+        old_path: 'files/ruby/popen.rb',
+        new_path: 'files/ruby/popen.rb',
         old_line: nil,
         new_line: 9,
-        diff_refs: project.commit("874797c3a73b60d2187ed6e2fcabd289ff75171e").diff_refs
+        diff_refs: project.commit('874797c3a73b60d2187ed6e2fcabd289ff75171e').diff_refs
       )
     end
 
     context 'active diff discussions' do
       subject { merge_request.notes.grouped_diff_discussions }
 
-      it "includes active discussions" do
+      it 'includes active discussions' do
         discussions = subject.values.flatten
 
         expect(discussions.count).to eq(2)
@@ -594,15 +594,15 @@ describe Note do
         expect(subject.values.flatten.map(&:id)).not_to include(outdated_diff_note1.discussion_id)
       end
 
-      it "groups the discussions by line code" do
+      it 'groups the discussions by line code' do
         expect(subject[active_diff_note1.line_code].first.id).to eq(active_diff_note1.discussion_id)
         expect(subject[active_diff_note3.line_code].first.id).to eq(active_diff_note3.discussion_id)
       end
 
       context 'with image discussions' do
-        let(:merge_request2) { create(:merge_request_with_diffs, :with_image_diffs, source_project: project, title: "Added images and changes") }
-        let(:image_path) { "files/images/ee_repo_logo.png" }
-        let(:text_path) { "bar/branch-test.txt" }
+        let(:merge_request2) { create(:merge_request_with_diffs, :with_image_diffs, source_project: project, title: 'Added images and changes') }
+        let(:image_path) { 'files/images/ee_repo_logo.png' }
+        let(:text_path) { 'bar/branch-test.txt' }
         let!(:image_note) { create(:diff_note_on_merge_request, project: project, noteable: merge_request2, position: image_position) }
         let!(:text_note) { create(:diff_note_on_merge_request, project: project, noteable: merge_request2, position: text_position) }
 
@@ -614,7 +614,7 @@ describe Note do
             height: 100,
             x: 1,
             y: 1,
-            position_type: "image",
+            position_type: 'image',
             diff_refs: merge_request2.diff_refs
           )
         end
@@ -625,12 +625,12 @@ describe Note do
             new_path: text_path,
             old_line: nil,
             new_line: 2,
-            position_type: "text",
+            position_type: 'text',
             diff_refs: merge_request2.diff_refs
           )
         end
 
-        it "groups image discussions by file identifier" do
+        it 'groups image discussions by file identifier' do
           diff_discussion = DiffDiscussion.new([image_note])
 
           discussions = merge_request2.notes.grouped_diff_discussions
@@ -639,7 +639,7 @@ describe Note do
           expect(discussions[image_note.diff_file.new_path]).to include(diff_discussion)
         end
 
-        it "groups text discussions by line code" do
+        it 'groups text discussions by line code' do
           diff_discussion = DiffDiscussion.new([text_note])
 
           discussions = merge_request2.notes.grouped_diff_discussions
@@ -656,7 +656,7 @@ describe Note do
       context 'for diff refs a discussion was created at' do
         let(:diff_refs) { active_position2.diff_refs }
 
-        it "includes discussions that were created then" do
+        it 'includes discussions that were created then' do
           discussions = subject.values.flatten
 
           expect(discussions.count).to eq(1)
@@ -671,7 +671,7 @@ describe Note do
           expect(discussion.notes).to eq([active_diff_note3])
         end
 
-        it "groups the discussions by original line code" do
+        it 'groups the discussions by original line code' do
           expect(subject[active_diff_note3.original_line_code].first.id).to eq(active_diff_note3.discussion_id)
         end
       end
@@ -679,7 +679,7 @@ describe Note do
       context 'for diff refs a discussion was last active at' do
         let(:diff_refs) { outdated_position.diff_refs }
 
-        it "includes discussions that were last active" do
+        it 'includes discussions that were last active' do
           discussions = subject.values.flatten
 
           expect(discussions.count).to eq(1)
@@ -694,7 +694,7 @@ describe Note do
           expect(discussion.notes).to eq([outdated_diff_note1, outdated_diff_note2])
         end
 
-        it "groups the discussions by line code" do
+        it 'groups the discussions by line code' do
           expect(subject[outdated_diff_note1.line_code].first.id).to eq(outdated_diff_note1.discussion_id)
         end
       end
@@ -848,11 +848,11 @@ describe Note do
     end
   end
 
-  describe "#discussion_id" do
+  describe '#discussion_id' do
     let(:note) { create(:note_on_commit) }
 
-    context "when it is newly created" do
-      it "has a discussion id" do
+    context 'when it is newly created' do
+      it 'has a discussion id' do
         expect(note.discussion_id).not_to be_nil
         expect(note.discussion_id).to match(/\A\h{40}\z/)
       end
@@ -863,7 +863,7 @@ describe Note do
         note.update_column(:discussion_id, nil)
       end
 
-      it "has a discussion id" do
+      it 'has a discussion id' do
         # The discussion_id is set in `after_initialize`, so `reload` won't work
         reloaded_note = described_class.find(note.id)
 
@@ -886,7 +886,7 @@ describe Note do
 
     let!(:note2) { create(:discussion_note_on_merge_request, project: subject.project, noteable: subject.noteable, in_reply_to: subject) }
 
-    it "returns a discussion with just this note" do
+    it 'returns a discussion with just this note' do
       discussion = subject.to_discussion
 
       expect(discussion.id).to eq(subject.discussion_id)
@@ -894,14 +894,14 @@ describe Note do
     end
   end
 
-  describe "#discussion" do
+  describe '#discussion' do
     let!(:note1) { create(:discussion_note_on_merge_request) }
     let!(:note2) { create(:diff_note_on_merge_request, project: note1.project, noteable: note1.noteable) }
 
     context 'when the note is part of a discussion' do
       subject { create(:discussion_note_on_merge_request, project: note1.project, noteable: note1.noteable, in_reply_to: note1) }
 
-      it "returns the discussion this note is in" do
+      it 'returns the discussion this note is in' do
         discussion = subject.discussion
 
         expect(discussion.id).to eq(subject.discussion_id)
@@ -912,7 +912,7 @@ describe Note do
     context 'when the note is not part of a discussion' do
       subject { create(:note) }
 
-      it "returns a discussion with just this note" do
+      it 'returns a discussion with just this note' do
         discussion = subject.discussion
 
         expect(discussion.id).to eq(subject.discussion_id)
@@ -921,7 +921,7 @@ describe Note do
     end
   end
 
-  describe "#part_of_discussion?" do
+  describe '#part_of_discussion?' do
     context 'for a regular note' do
       let(:note) { build(:note) }
 

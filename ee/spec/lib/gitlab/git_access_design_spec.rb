@@ -13,29 +13,29 @@ describe Gitlab::GitAccessDesign do
     described_class.new(actor, project, protocol, authentication_abilities: [:read_project, :download_code, :push_code])
   end
 
-  describe "#check!" do
+  describe '#check!' do
     subject { access.check('git-receive-pack', ::Gitlab::GitAccess::ANY) }
 
     before do
       enable_design_management
     end
 
-    context "when the user is allowed to manage designs" do
+    context 'when the user is allowed to manage designs' do
       it { is_expected.to be_a(::Gitlab::GitAccessResult::Success) }
     end
 
-    context "when the user is not allowed to manage designs" do
+    context 'when the user is not allowed to manage designs' do
       set(:user) { create(:user) }
 
-      it "raises an error " do
+      it 'raises an error ' do
         expect { subject }.to raise_error(::Gitlab::GitAccess::UnauthorizedError)
       end
     end
 
-    context "when the protocol is not web" do
+    context 'when the protocol is not web' do
       let(:protocol) { 'https' }
 
-      it "raises an error " do
+      it 'raises an error ' do
         expect { subject }.to raise_error(::Gitlab::GitAccess::UnauthorizedError)
       end
     end

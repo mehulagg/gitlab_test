@@ -17,7 +17,7 @@ JS_CONSOLE_FILTER = Regexp.union([
   '"[HMR] Waiting for update signal from WDS..."',
   '"[WDS] Hot Module Replacement enabled."',
   '"[WDS] Live Reloading enabled."',
-  "Download the Vue Devtools extension"
+  'Download the Vue Devtools extension'
 ])
 
 CAPYBARA_WINDOW_SIZE = [1366, 768].freeze
@@ -26,10 +26,10 @@ Capybara.register_driver :chrome do |app|
   capabilities = Selenium::WebDriver::Remote::Capabilities.chrome(
     # This enables access to logs with `page.driver.manage.get_log(:browser)`
     loggingPrefs: {
-      browser: "ALL",
-      client: "ALL",
-      driver: "ALL",
-      server: "ALL"
+      browser: 'ALL',
+      client: 'ALL',
+      driver: 'ALL',
+      server: 'ALL'
     }
   )
 
@@ -37,16 +37,16 @@ Capybara.register_driver :chrome do |app|
   options.add_argument("window-size=#{CAPYBARA_WINDOW_SIZE.join(',')}")
 
   # Chrome won't work properly in a Docker container in sandbox mode
-  options.add_argument("no-sandbox")
+  options.add_argument('no-sandbox')
 
   # Run headless by default unless CHROME_HEADLESS specified
-  options.add_argument("headless") unless ENV['CHROME_HEADLESS'] =~ /^(false|no|0)$/i
+  options.add_argument('headless') unless ENV['CHROME_HEADLESS'] =~ /^(false|no|0)$/i
 
   # Disable /dev/shm use in CI. See https://gitlab.com/gitlab-org/gitlab/issues/4252
-  options.add_argument("disable-dev-shm-usage") if ENV['CI'] || ENV['CI_SERVER']
+  options.add_argument('disable-dev-shm-usage') if ENV['CI'] || ENV['CI_SERVER']
 
   # Explicitly set user-data-dir to prevent crashes. See https://gitlab.com/gitlab-org/gitlab-foss/issues/58882#note_179811508
-  options.add_argument("user-data-dir=/tmp/chrome") if ENV['CI'] || ENV['CI_SERVER']
+  options.add_argument('user-data-dir=/tmp/chrome') if ENV['CI'] || ENV['CI_SERVER']
 
   # Chrome 75 defaults to W3C mode which doesn't allow console log access
   options.add_option(:w3c, false)
@@ -116,7 +116,7 @@ RSpec.configure do |config|
 
     # prevent localStorage from introducing side effects based on test order
     unless ['', 'about:blank', 'data:,'].include? Capybara.current_session.driver.browser.current_url
-      execute_script("localStorage.clear();")
+      execute_script('localStorage.clear();')
     end
 
     # capybara/rspec already calls Capybara.reset_sessions! in an `after` hook,

@@ -118,7 +118,7 @@ describe 'Update Epic', :js do
         link_match = %r{/groups/#{Regexp.escape(group.full_path)}/-/uploads/\h{32}/banana_sample\.gif\z}
         dropzone_file Rails.root.join('spec', 'fixtures', 'banana_sample.gif')
 
-        expect(page.find_field("issue-description").value).to have_content('banana_sample')
+        expect(page.find_field('issue-description').value).to have_content('banana_sample')
 
         page.within('.detail-page-description') do
           click_button('Preview')

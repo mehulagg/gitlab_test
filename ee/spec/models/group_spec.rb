@@ -112,7 +112,7 @@ describe Group do
         subgroup = create(:group, parent: group)
         group.update!(custom_project_templates_group_id: subgroup.id)
 
-        group.custom_project_templates_group_id = ""
+        group.custom_project_templates_group_id = ''
 
         expect(group).to be_valid
       end
@@ -576,7 +576,7 @@ describe Group do
     end
   end
 
-  describe "#insights_config" do
+  describe '#insights_config' do
     context 'when group has no Insights project configured' do
       it 'returns the default config' do
         expect(group.insights_config).to eq(group.default_insights_config)

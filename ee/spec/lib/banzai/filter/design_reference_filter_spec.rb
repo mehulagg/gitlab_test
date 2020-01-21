@@ -174,7 +174,7 @@ describe Banzai::Filter::DesignReferenceFilter do
   context 'internal reference' do
     it_behaves_like 'a reference containing an element node'
 
-    context "the reference is valid" do
+    context 'the reference is valid' do
       context 'the user does not have permission to read this project' do
         let(:current_user) { build_stubbed(:user) }
 
@@ -204,7 +204,7 @@ describe Banzai::Filter::DesignReferenceFilter do
       end
     end
 
-    context "the reference is to a non-existant design" do
+    context 'the reference is to a non-existant design' do
       let(:reference) { build(:design).to_reference }
 
       it 'ignores it' do

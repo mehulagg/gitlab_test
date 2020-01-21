@@ -57,7 +57,7 @@ describe SlashCommands::GlobalSlackHandler do
       slack_integration = create(:slack_integration, service: project.gitlab_slack_application_service)
 
       handler_with_valid_token(
-        text: "fake/fake issue new title",
+        text: 'fake/fake issue new title',
         team_id: slack_integration.team_id
       ).trigger
     end
@@ -81,7 +81,7 @@ describe SlashCommands::GlobalSlackHandler do
       expect_any_instance_of(Gitlab::SlashCommands::ApplicationHelp).to receive(:execute)
 
       handler_with_valid_token(
-        text: "help"
+        text: 'help'
       ).trigger
     end
   end

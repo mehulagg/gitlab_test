@@ -35,8 +35,8 @@ describe 'Getting issues for an epic' do
   end
 
   def epic_query(params = {})
-    graphql_query_for("group", { "fullPath" => group.full_path },
-                       query_graphql_field("epics", params, epic_node)
+    graphql_query_for('group', { 'fullPath' => group.full_path },
+                       query_graphql_field('epics', params, epic_node)
     )
   end
 

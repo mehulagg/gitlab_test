@@ -41,14 +41,14 @@ describe Gitlab::Ci::Pipeline::Expression::Statement do
       'null == $UNDEFINED_VARIABLE'                                 | true
       '$PRESENT_VARIABLE'                                           | 'my variable'
       '$UNDEFINED_VARIABLE'                                         | nil
-      "$PRESENT_VARIABLE =~ /var.*e$/"                              | true
+      '$PRESENT_VARIABLE =~ /var.*e$/'                              | true
       '$PRESENT_VARIABLE =~ /va\r.*e$/'                             | false
       '$PRESENT_VARIABLE =~ /va\/r.*e$/'                            | false
-      "$PRESENT_VARIABLE =~ /var.*e$/"                              | true
-      "$PRESENT_VARIABLE =~ /^var.*/"                               | false
-      "$EMPTY_VARIABLE =~ /var.*/"                                  | false
-      "$UNDEFINED_VARIABLE =~ /var.*/"                              | false
-      "$PRESENT_VARIABLE =~ /VAR.*/i"                               | true
+      '$PRESENT_VARIABLE =~ /var.*e$/'                              | true
+      '$PRESENT_VARIABLE =~ /^var.*/'                               | false
+      '$EMPTY_VARIABLE =~ /var.*/'                                  | false
+      '$UNDEFINED_VARIABLE =~ /var.*/'                              | false
+      '$PRESENT_VARIABLE =~ /VAR.*/i'                               | true
       '$PATH_VARIABLE =~ /path\/variable/'                          | true
       '$FULL_PATH_VARIABLE =~ /^\/a\/full\/path\/variable\/value$/' | true
       '$FULL_PATH_VARIABLE =~ /\\/path\\/variable\\/value$/'        | true
@@ -59,13 +59,13 @@ describe Gitlab::Ci::Pipeline::Expression::Statement do
       '"" != $EMPTY_VARIABLE'                                       | false
       '$UNDEFINED_VARIABLE != null'                                 | false
       'null != $UNDEFINED_VARIABLE'                                 | false
-      "$PRESENT_VARIABLE !~ /var.*e$/"                              | false
-      "$PRESENT_VARIABLE !~ /^var.*/"                               | true
+      '$PRESENT_VARIABLE !~ /var.*e$/'                              | false
+      '$PRESENT_VARIABLE !~ /^var.*/'                               | true
       '$PRESENT_VARIABLE !~ /^v\ar.*/'                              | true
       '$PRESENT_VARIABLE !~ /^v\/ar.*/'                             | true
-      "$EMPTY_VARIABLE !~ /var.*/"                                  | true
-      "$UNDEFINED_VARIABLE !~ /var.*/"                              | true
-      "$PRESENT_VARIABLE !~ /VAR.*/i"                               | false
+      '$EMPTY_VARIABLE !~ /var.*/'                                  | true
+      '$UNDEFINED_VARIABLE !~ /var.*/'                              | true
+      '$PRESENT_VARIABLE !~ /VAR.*/i'                               | false
 
       '$PRESENT_VARIABLE && "string"'          | 'string'
       '$PRESENT_VARIABLE && $PRESENT_VARIABLE' | 'my variable'
@@ -131,10 +131,10 @@ describe Gitlab::Ci::Pipeline::Expression::Statement do
       '$UNDEFINED_VARIABLE'                | false
       '$EMPTY_VARIABLE'                    | false
       '$INVALID = 1'                       | false
-      "$PRESENT_VARIABLE =~ /var.*/"       | true
-      "$UNDEFINED_VARIABLE =~ /var.*/"     | false
-      "$PRESENT_VARIABLE !~ /var.*/"       | false
-      "$UNDEFINED_VARIABLE !~ /var.*/"     | true
+      '$PRESENT_VARIABLE =~ /var.*/'       | true
+      '$UNDEFINED_VARIABLE =~ /var.*/'     | false
+      '$PRESENT_VARIABLE !~ /var.*/'       | false
+      '$UNDEFINED_VARIABLE !~ /var.*/'     | true
     end
 
     with_them do

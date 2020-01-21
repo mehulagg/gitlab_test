@@ -22,13 +22,13 @@ describe Gitlab::Auth::AuthFinders do
     context 'when route is allowed to be authenticated' do
       let(:route_authentication_setting) { { job_token_allowed: true } }
 
-      it "returns an Unauthorized exception for an invalid token" do
+      it 'returns an Unauthorized exception for an invalid token' do
         set_token('invalid token')
 
         expect { subject }.to raise_error(Gitlab::Auth::UnauthorizedError)
       end
 
-      it "return user if token is valid" do
+      it 'return user if token is valid' do
         set_token(job.token)
 
         expect(subject).to eq(user)

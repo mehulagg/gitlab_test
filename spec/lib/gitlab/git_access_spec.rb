@@ -200,7 +200,7 @@ describe Gitlab::GitAccess do
 
     context 'when the project is nil' do
       let(:project) { nil }
-      let(:project_path) { "new-project" }
+      let(:project_path) { 'new-project' }
 
       it 'blocks push and pull with "not found"' do
         aggregate_failures do
@@ -435,7 +435,7 @@ describe Gitlab::GitAccess do
       let(:cmd) { 'git-receive-pack' }
 
       context 'when project does not exist' do
-        let(:project_path) { "nonexistent" }
+        let(:project_path) { 'nonexistent' }
         let(:project) { nil }
 
         context 'when changes is _any' do
@@ -496,7 +496,7 @@ describe Gitlab::GitAccess do
       context 'when deploy key is used' do
         let(:key) { create(:deploy_key, user: user) }
         let(:actor) { key }
-        let(:project_path) { "nonexistent" }
+        let(:project_path) { 'nonexistent' }
         let(:project) { nil }
         let(:namespace_path) { user.namespace.path }
         let(:changes) { Gitlab::GitAccess::ANY }
@@ -512,7 +512,7 @@ describe Gitlab::GitAccess do
       let(:changes) { Gitlab::GitAccess::ANY }
 
       context 'when project does not exist' do
-        let(:project_path) { "new-project" }
+        let(:project_path) { 'new-project' }
         let(:namespace_path) { user.namespace.path }
         let(:project) { nil }
 
@@ -770,10 +770,10 @@ describe Gitlab::GitAccess do
           'This is the file content',
           message: 'This is a good commit message',
           branch_name: unprotected_branch)
-        author = { email: "email@example.com", time: Time.now, name: "Example Git User" }
+        author = { email: 'email@example.com', time: Time.now, name: 'Example Git User' }
 
         merge_index = rugged.merge_commits(target_branch, source_branch)
-        Rugged::Commit.create(rugged, author: author, committer: author, message: "commit message", parents: [target_branch, source_branch], tree: merge_index.write_tree(rugged))
+        Rugged::Commit.create(rugged, author: author, committer: author, message: 'commit message', parents: [target_branch, source_branch], tree: merge_index.write_tree(rugged))
       end
     end
 
@@ -889,8 +889,8 @@ describe Gitlab::GitAccess do
       context "developers are allowed to merge into the #{protected_branch_type} protected branch" do
         let(:protected_branch) { create(:protected_branch, :developers_can_merge, name: protected_branch_name, project: project) }
 
-        context "when a merge request exists for the given source/target branch" do
-          context "when the merge request is in progress" do
+        context 'when a merge request exists for the given source/target branch' do
+          context 'when the merge request is in progress' do
             before do
               create(:merge_request, source_project: project, source_branch: unprotected_branch, target_branch: 'feature',
                                      state: 'locked', in_progress_merge_commit_sha: merge_into_protected_branch)
@@ -899,7 +899,7 @@ describe Gitlab::GitAccess do
             run_permission_checks(permissions_matrix.deep_merge(developer: { merge_into_protected_branch: true }))
           end
 
-          context "when the merge request is not in progress" do
+          context 'when the merge request is not in progress' do
             before do
               create(:merge_request, source_project: project, source_branch: unprotected_branch, target_branch: 'feature', in_progress_merge_commit_sha: nil)
             end
@@ -907,7 +907,7 @@ describe Gitlab::GitAccess do
             run_permission_checks(permissions_matrix.deep_merge(developer: { merge_into_protected_branch: false }))
           end
 
-          context "when a merge request does not exist for the given source/target branch" do
+          context 'when a merge request does not exist for the given source/target branch' do
             run_permission_checks(permissions_matrix.deep_merge(developer: { merge_into_protected_branch: false }))
           end
         end

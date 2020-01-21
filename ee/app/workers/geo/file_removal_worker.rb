@@ -17,12 +17,12 @@ module Geo
         begin
           File.unlink(file_path)
         rescue => ex
-          log_error("Failed to remove file", ex, file_path: file_path)
+          log_error('Failed to remove file', ex, file_path: file_path)
         end
 
-        log_info("Removed file", file_path: file_path)
+        log_info('Removed file', file_path: file_path)
       else
-        log_info("Tried to remove file, but it was not found", file_path: file_path)
+        log_info('Tried to remove file, but it was not found', file_path: file_path)
       end
     end
   end

@@ -283,7 +283,7 @@ describe Issuable::BulkUpdateService do
       end
 
       context "when the new assignee ID is #{IssuableFinder::NONE}" do
-        it "unassigns the issues" do
+        it 'unassigns the issues' do
           expect { bulk_update(issue, assignee_ids: [IssuableFinder::NONE.to_s]) }
             .to change { issue.reload.assignees.count }.from(1).to(0)
         end

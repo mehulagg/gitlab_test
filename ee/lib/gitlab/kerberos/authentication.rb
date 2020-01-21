@@ -21,7 +21,7 @@ module Gitlab
 
       def self.krb5_class
         @krb5_class ||= begin
-          require "krb5_auth"
+          require 'krb5_auth'
           Krb5Auth::Krb5
         end
       end

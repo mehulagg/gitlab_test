@@ -11,7 +11,7 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
      .and_return(double(:slack_service).as_null_object)
   end
 
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to :project }
     it { is_expected.to have_one :service_hook }
   end
@@ -65,7 +65,7 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
     end
   end
 
-  describe "#execute" do
+  describe '#execute' do
     let(:user)    { create(:user) }
     let(:project) { create(:project, :repository, :wiki_repo) }
     let(:username) { 'slack_username' }
@@ -106,10 +106,10 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
                                                    'open')
 
       opts = {
-        title: "Awesome wiki_page",
-        content: "Some text describing some thing or another",
-        format: "md",
-        message: "user created page: Awesome wiki_page"
+        title: 'Awesome wiki_page',
+        content: 'Some text describing some thing or another',
+        format: 'md',
+        message: 'user created page: Awesome wiki_page'
       }
 
       @wiki_page = create(:wiki_page, wiki: project.wiki, attrs: opts)
@@ -170,12 +170,12 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
       chat_service.execute(data)
     end
 
-    context "event channels" do
-      it "uses the right channel for push event" do
-        chat_service.update(push_channel: "random")
+    context 'event channels' do
+      it 'uses the right channel for push event' do
+        chat_service.update(push_channel: 'random')
 
         expect(Slack::Notifier).to receive(:new)
-         .with(webhook_url, channel: "random", http_client: SlackService::Notifier::HTTPClient)
+         .with(webhook_url, channel: 'random', http_client: SlackService::Notifier::HTTPClient)
          .and_return(
            double(:slack_service).as_null_object
          )
@@ -183,11 +183,11 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
         chat_service.execute(data)
       end
 
-      it "uses the right channel for merge request event" do
-        chat_service.update(merge_request_channel: "random")
+      it 'uses the right channel for merge request event' do
+        chat_service.update(merge_request_channel: 'random')
 
         expect(Slack::Notifier).to receive(:new)
-         .with(webhook_url, channel: "random", http_client: SlackService::Notifier::HTTPClient)
+         .with(webhook_url, channel: 'random', http_client: SlackService::Notifier::HTTPClient)
          .and_return(
            double(:slack_service).as_null_object
          )
@@ -195,11 +195,11 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
         chat_service.execute(@merge_sample_data)
       end
 
-      it "uses the right channel for issue event" do
-        chat_service.update(issue_channel: "random")
+      it 'uses the right channel for issue event' do
+        chat_service.update(issue_channel: 'random')
 
         expect(Slack::Notifier).to receive(:new)
-         .with(webhook_url, channel: "random", http_client: SlackService::Notifier::HTTPClient)
+         .with(webhook_url, channel: 'random', http_client: SlackService::Notifier::HTTPClient)
          .and_return(
            double(:slack_service).as_null_object
          )
@@ -210,7 +210,7 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
       context 'for confidential issues' do
         let(:issue_service_options) { { title: 'Secret', confidential: true } }
 
-        it "uses confidential issue channel" do
+        it 'uses confidential issue channel' do
           chat_service.update(confidential_issue_channel: 'confidential')
 
           expect(Slack::Notifier).to execute_with_options(channel: 'confidential')
@@ -227,11 +227,11 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
         end
       end
 
-      it "uses the right channel for wiki event" do
-        chat_service.update(wiki_page_channel: "random")
+      it 'uses the right channel for wiki event' do
+        chat_service.update(wiki_page_channel: 'random')
 
         expect(Slack::Notifier).to receive(:new)
-         .with(webhook_url, channel: "random", http_client: SlackService::Notifier::HTTPClient)
+         .with(webhook_url, channel: 'random', http_client: SlackService::Notifier::HTTPClient)
          .and_return(
            double(:slack_service).as_null_object
          )
@@ -239,18 +239,18 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
         chat_service.execute(@wiki_page_sample_data)
       end
 
-      context "note event" do
+      context 'note event' do
         let(:issue_note) do
-          create(:note_on_issue, project: project, note: "issue note")
+          create(:note_on_issue, project: project, note: 'issue note')
         end
 
-        it "uses the right channel" do
-          chat_service.update(note_channel: "random")
+        it 'uses the right channel' do
+          chat_service.update(note_channel: 'random')
 
           note_data = Gitlab::DataBuilder::Note.build(issue_note, user)
 
           expect(Slack::Notifier).to receive(:new)
-           .with(webhook_url, channel: "random", http_client: SlackService::Notifier::HTTPClient)
+           .with(webhook_url, channel: 'random', http_client: SlackService::Notifier::HTTPClient)
            .and_return(
              double(:slack_service).as_null_object
            )
@@ -263,8 +263,8 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
             issue_note.noteable.update!(confidential: true)
           end
 
-          it "uses confidential channel" do
-            chat_service.update(confidential_note_channel: "confidential")
+          it 'uses confidential channel' do
+            chat_service.update(confidential_note_channel: 'confidential')
 
             note_data = Gitlab::DataBuilder::Note.build(issue_note, user)
 
@@ -274,7 +274,7 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
           end
 
           it 'falls back to note channel' do
-            chat_service.update(note_channel: "fallback_channel")
+            chat_service.update(note_channel: 'fallback_channel')
 
             note_data = Gitlab::DataBuilder::Note.build(issue_note, user)
 
@@ -319,23 +319,23 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
           )
         end
 
-        it_behaves_like "triggered #{service_name} service", event_type: "push"
+        it_behaves_like "triggered #{service_name} service", event_type: 'push'
       end
 
       context 'notification enabled only for default branch' do
-        it_behaves_like "triggered #{service_name} service", event_type: "push", branches_to_be_notified: "default"
+        it_behaves_like "triggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'default'
       end
 
       context 'notification enabled only for protected branches' do
-        it_behaves_like "untriggered #{service_name} service", event_type: "push", branches_to_be_notified: "protected"
+        it_behaves_like "untriggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'protected'
       end
 
       context 'notification enabled only for default and protected branches' do
-        it_behaves_like "triggered #{service_name} service", event_type: "push", branches_to_be_notified: "default_and_protected"
+        it_behaves_like "triggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'default_and_protected'
       end
 
       context 'notification enabled for all branches' do
-        it_behaves_like "triggered #{service_name} service", event_type: "push", branches_to_be_notified: "all"
+        it_behaves_like "triggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'all'
       end
     end
 
@@ -361,23 +361,23 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
           )
         end
 
-        it_behaves_like "triggered #{service_name} service", event_type: "push"
+        it_behaves_like "triggered #{service_name} service", event_type: 'push'
       end
 
       context 'notification enabled only for default branch' do
-        it_behaves_like "untriggered #{service_name} service", event_type: "push", branches_to_be_notified: "default"
+        it_behaves_like "untriggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'default'
       end
 
       context 'notification enabled only for protected branches' do
-        it_behaves_like "triggered #{service_name} service", event_type: "push", branches_to_be_notified: "protected"
+        it_behaves_like "triggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'protected'
       end
 
       context 'notification enabled only for default and protected branches' do
-        it_behaves_like "triggered #{service_name} service", event_type: "push", branches_to_be_notified: "default_and_protected"
+        it_behaves_like "triggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'default_and_protected'
       end
 
       context 'notification enabled for all branches' do
-        it_behaves_like "triggered #{service_name} service", event_type: "push", branches_to_be_notified: "all"
+        it_behaves_like "triggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'all'
       end
     end
 
@@ -403,23 +403,23 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
           )
         end
 
-        it_behaves_like "triggered #{service_name} service", event_type: "push"
+        it_behaves_like "triggered #{service_name} service", event_type: 'push'
       end
 
       context 'notification enabled only for default branch' do
-        it_behaves_like "untriggered #{service_name} service", event_type: "push", branches_to_be_notified: "default"
+        it_behaves_like "untriggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'default'
       end
 
       context 'notification enabled only for protected branches' do
-        it_behaves_like "triggered #{service_name} service", event_type: "push", branches_to_be_notified: "protected"
+        it_behaves_like "triggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'protected'
       end
 
       context 'notification enabled only for default and protected branches' do
-        it_behaves_like "triggered #{service_name} service", event_type: "push", branches_to_be_notified: "default_and_protected"
+        it_behaves_like "triggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'default_and_protected'
       end
 
       context 'notification enabled for all branches' do
-        it_behaves_like "triggered #{service_name} service", event_type: "push", branches_to_be_notified: "all"
+        it_behaves_like "triggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'all'
       end
     end
 
@@ -441,23 +441,23 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
           )
         end
 
-        it_behaves_like "triggered #{service_name} service", event_type: "push"
+        it_behaves_like "triggered #{service_name} service", event_type: 'push'
       end
 
       context 'notification enabled only for default branch' do
-        it_behaves_like "untriggered #{service_name} service", event_type: "push", branches_to_be_notified: "default"
+        it_behaves_like "untriggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'default'
       end
 
       context 'notification enabled only for protected branches' do
-        it_behaves_like "untriggered #{service_name} service", event_type: "push", branches_to_be_notified: "protected"
+        it_behaves_like "untriggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'protected'
       end
 
       context 'notification enabled only for default and protected branches' do
-        it_behaves_like "untriggered #{service_name} service", event_type: "push", branches_to_be_notified: "default_and_protected"
+        it_behaves_like "untriggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'default_and_protected'
       end
 
       context 'notification enabled for all branches' do
-        it_behaves_like "triggered #{service_name} service", event_type: "push", branches_to_be_notified: "all"
+        it_behaves_like "triggered #{service_name} service", event_type: 'push', branches_to_be_notified: 'all'
       end
     end
   end
@@ -488,7 +488,7 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
         Gitlab::DataBuilder::Note.build(commit_note, user)
       end
 
-      it_behaves_like "triggered #{service_name} service", event_type: "commit comment"
+      it_behaves_like "triggered #{service_name} service", event_type: 'commit comment'
     end
 
     context 'when merge request comment event executed' do
@@ -501,7 +501,7 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
         Gitlab::DataBuilder::Note.build(merge_request_note, user)
       end
 
-      it_behaves_like "triggered #{service_name} service", event_type: "merge request comment"
+      it_behaves_like "triggered #{service_name} service", event_type: 'merge request comment'
     end
 
     context 'when issue comment event executed' do
@@ -514,7 +514,7 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
         Gitlab::DataBuilder::Note.build(issue_note, user)
       end
 
-      it_behaves_like "triggered #{service_name} service", event_type: "issue comment"
+      it_behaves_like "triggered #{service_name} service", event_type: 'issue comment'
     end
 
     context 'when snippet comment event executed' do
@@ -527,7 +527,7 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
         Gitlab::DataBuilder::Note.build(snippet_note, user)
       end
 
-      it_behaves_like "triggered #{service_name} service", event_type: "snippet comment"
+      it_behaves_like "triggered #{service_name} service", event_type: 'snippet comment'
     end
   end
 
@@ -555,7 +555,7 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
       let(:data) { Gitlab::DataBuilder::Pipeline.build(pipeline) }
 
       context 'with default to notify_only_broken_pipelines' do
-        it_behaves_like "untriggered #{service_name} service", event_type: "pipeline"
+        it_behaves_like "untriggered #{service_name} service", event_type: 'pipeline'
       end
 
       context 'with setting notify_only_broken_pipelines to false' do
@@ -563,7 +563,7 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
           chat_service.notify_only_broken_pipelines = false
         end
 
-        it_behaves_like "triggered #{service_name} service", event_type: "pipeline"
+        it_behaves_like "triggered #{service_name} service", event_type: 'pipeline'
       end
     end
 
@@ -578,19 +578,19 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
         let(:data) { Gitlab::DataBuilder::Pipeline.build(pipeline) }
 
         context 'notification enabled only for default branch' do
-          it_behaves_like "triggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "default"
+          it_behaves_like "triggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'default'
         end
 
         context 'notification enabled only for protected branches' do
-          it_behaves_like "untriggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "protected"
+          it_behaves_like "untriggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'protected'
         end
 
         context 'notification enabled only for default and protected branches' do
-          it_behaves_like "triggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "default_and_protected"
+          it_behaves_like "triggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'default_and_protected'
         end
 
         context 'notification enabled for all branches' do
-          it_behaves_like "triggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "all"
+          it_behaves_like "triggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'all'
         end
       end
 
@@ -608,19 +608,19 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
         let(:data) { Gitlab::DataBuilder::Pipeline.build(pipeline) }
 
         context 'notification enabled only for default branch' do
-          it_behaves_like "untriggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "default"
+          it_behaves_like "untriggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'default'
         end
 
         context 'notification enabled only for protected branches' do
-          it_behaves_like "triggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "protected"
+          it_behaves_like "triggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'protected'
         end
 
         context 'notification enabled only for default and protected branches' do
-          it_behaves_like "triggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "default_and_protected"
+          it_behaves_like "triggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'default_and_protected'
         end
 
         context 'notification enabled for all branches' do
-          it_behaves_like "triggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "all"
+          it_behaves_like "triggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'all'
         end
       end
 
@@ -638,19 +638,19 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
         let(:data) { Gitlab::DataBuilder::Pipeline.build(pipeline) }
 
         context 'notification enabled only for default branch' do
-          it_behaves_like "untriggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "default"
+          it_behaves_like "untriggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'default'
         end
 
         context 'notification enabled only for protected branches' do
-          it_behaves_like "triggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "protected"
+          it_behaves_like "triggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'protected'
         end
 
         context 'notification enabled only for default and protected branches' do
-          it_behaves_like "triggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "default_and_protected"
+          it_behaves_like "triggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'default_and_protected'
         end
 
         context 'notification enabled for all branches' do
-          it_behaves_like "triggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "all"
+          it_behaves_like "triggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'all'
         end
       end
 
@@ -664,19 +664,19 @@ RSpec.shared_examples 'slack or mattermost notifications' do |service_name|
         let(:data) { Gitlab::DataBuilder::Pipeline.build(pipeline) }
 
         context 'notification enabled only for default branch' do
-          it_behaves_like "untriggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "default"
+          it_behaves_like "untriggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'default'
         end
 
         context 'notification enabled only for protected branches' do
-          it_behaves_like "untriggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "protected"
+          it_behaves_like "untriggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'protected'
         end
 
         context 'notification enabled only for default and protected branches' do
-          it_behaves_like "untriggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "default_and_protected"
+          it_behaves_like "untriggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'default_and_protected'
         end
 
         context 'notification enabled for all branches' do
-          it_behaves_like "triggered #{service_name} service", event_type: "pipeline", branches_to_be_notified: "all"
+          it_behaves_like "triggered #{service_name} service", event_type: 'pipeline', branches_to_be_notified: 'all'
         end
       end
     end

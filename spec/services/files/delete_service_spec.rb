@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe Files::DeleteService do
   subject { described_class.new(project, user, commit_params) }
@@ -15,7 +15,7 @@ describe Files::DeleteService do
   let(:commit_params) do
     {
       file_path: file_path,
-      commit_message: "Delete File",
+      commit_message: 'Delete File',
       last_commit_sha: last_commit_sha,
       start_project: project,
       start_branch: project.default_branch,
@@ -51,14 +51,14 @@ describe Files::DeleteService do
     project.add_maintainer(user)
   end
 
-  describe "#execute" do
+  describe '#execute' do
     context "when the file's last commit sha does not match the supplied last_commit_sha" do
-      let(:last_commit_sha) { "foo" }
+      let(:last_commit_sha) { 'foo' }
 
-      it "returns a hash with the correct error message and a :error status " do
+      it 'returns a hash with the correct error message and a :error status ' do
         expect { subject.execute }
           .to raise_error(Files::UpdateService::FileChangedError,
-                         "You are attempting to delete a file that has been previously updated.")
+                         'You are attempting to delete a file that has been previously updated.')
       end
     end
 
@@ -68,7 +68,7 @@ describe Files::DeleteService do
       it_behaves_like 'successfully deletes the file'
     end
 
-    context "when the last_commit_sha is not supplied" do
+    context 'when the last_commit_sha is not supplied' do
       it_behaves_like 'successfully deletes the file'
     end
   end

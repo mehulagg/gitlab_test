@@ -91,7 +91,7 @@ describe API::Analytics::CodeReviewAnalytics do
     end
 
     context 'when project_id is not specified' do
-      subject(:api_call) { get api("/analytics/code_review", current_user) }
+      subject(:api_call) { get api('/analytics/code_review', current_user) }
 
       it 'is not found' do
         api_call

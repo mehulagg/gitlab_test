@@ -16,10 +16,10 @@ module EE
           # Ex.
           #   groups("dev*") # return all groups start with 'dev'
           #
-          def groups(cn = "*", size = nil)
+          def groups(cn = '*', size = nil)
             options = {
               base: config.group_base,
-              filter: Net::LDAP::Filter.eq("cn", cn),
+              filter: Net::LDAP::Filter.eq('cn', cn),
               attributes: %w(dn cn memberuid member submember uniquemember memberof)
             }
 

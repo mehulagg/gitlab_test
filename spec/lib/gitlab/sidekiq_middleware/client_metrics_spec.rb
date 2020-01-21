@@ -3,16 +3,16 @@
 require 'spec_helper'
 
 describe Gitlab::SidekiqMiddleware::ClientMetrics do
-  context "with worker attribution" do
+  context 'with worker attribution' do
     subject { described_class.new }
 
     let(:queue) { :test }
     let(:worker_class) { worker.class }
     let(:job) { {} }
-    let(:default_labels) { { queue: queue.to_s, boundary: "", external_dependencies: "no", feature_category: "", latency_sensitive: "no" } }
+    let(:default_labels) { { queue: queue.to_s, boundary: '', external_dependencies: 'no', feature_category: '', latency_sensitive: 'no' } }
 
-    shared_examples "a metrics client middleware" do
-      context "with mocked prometheus" do
+    shared_examples 'a metrics client middleware' do
+      context 'with mocked prometheus' do
         let(:enqueued_jobs_metric) { double('enqueued jobs metric', increment: true) }
 
         before do
@@ -33,18 +33,18 @@ describe Gitlab::SidekiqMiddleware::ClientMetrics do
       end
     end
 
-    context "when workers are not attributed" do
+    context 'when workers are not attributed' do
       class TestNonAttributedWorker
         include Sidekiq::Worker
       end
 
-      it_behaves_like "a metrics client middleware" do
+      it_behaves_like 'a metrics client middleware' do
         let(:worker) { TestNonAttributedWorker.new }
         let(:labels) { default_labels }
       end
     end
 
-    context "when workers are attributed" do
+    context 'when workers are attributed' do
       def create_attributed_worker_class(latency_sensitive, external_dependencies, resource_boundary, category)
         Class.new do
           include Sidekiq::Worker
@@ -64,48 +64,48 @@ describe Gitlab::SidekiqMiddleware::ClientMetrics do
       let(:worker_class) { create_attributed_worker_class(latency_sensitive, external_dependencies, resource_boundary, feature_category) }
       let(:worker) { worker_class.new }
 
-      context "latency sensitive" do
-        it_behaves_like "a metrics client middleware" do
+      context 'latency sensitive' do
+        it_behaves_like 'a metrics client middleware' do
           let(:latency_sensitive) { true }
-          let(:labels) { default_labels.merge(latency_sensitive: "yes") }
+          let(:labels) { default_labels.merge(latency_sensitive: 'yes') }
         end
       end
 
-      context "external dependencies" do
-        it_behaves_like "a metrics client middleware" do
+      context 'external dependencies' do
+        it_behaves_like 'a metrics client middleware' do
           let(:external_dependencies) { true }
-          let(:labels) { default_labels.merge(external_dependencies: "yes") }
+          let(:labels) { default_labels.merge(external_dependencies: 'yes') }
         end
       end
 
-      context "cpu boundary" do
-        it_behaves_like "a metrics client middleware" do
+      context 'cpu boundary' do
+        it_behaves_like 'a metrics client middleware' do
           let(:resource_boundary) { :cpu }
-          let(:labels) { default_labels.merge(boundary: "cpu") }
+          let(:labels) { default_labels.merge(boundary: 'cpu') }
         end
       end
 
-      context "memory boundary" do
-        it_behaves_like "a metrics client middleware" do
+      context 'memory boundary' do
+        it_behaves_like 'a metrics client middleware' do
           let(:resource_boundary) { :memory }
-          let(:labels) { default_labels.merge(boundary: "memory") }
+          let(:labels) { default_labels.merge(boundary: 'memory') }
         end
       end
 
-      context "feature category" do
-        it_behaves_like "a metrics client middleware" do
+      context 'feature category' do
+        it_behaves_like 'a metrics client middleware' do
           let(:feature_category) { :authentication }
-          let(:labels) { default_labels.merge(feature_category: "authentication") }
+          let(:labels) { default_labels.merge(feature_category: 'authentication') }
         end
       end
 
-      context "combined" do
-        it_behaves_like "a metrics client middleware" do
+      context 'combined' do
+        it_behaves_like 'a metrics client middleware' do
           let(:latency_sensitive) { true }
           let(:external_dependencies) { true }
           let(:resource_boundary) { :cpu }
           let(:feature_category) { :authentication }
-          let(:labels) { default_labels.merge(latency_sensitive: "yes", external_dependencies: "yes", boundary: "cpu", feature_category: "authentication") }
+          let(:labels) { default_labels.merge(latency_sensitive: 'yes', external_dependencies: 'yes', boundary: 'cpu', feature_category: 'authentication') }
         end
       end
     end

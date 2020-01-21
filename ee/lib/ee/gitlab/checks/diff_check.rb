@@ -29,7 +29,7 @@ module EE
 
         def assemble_error_msg_for_codeowner_matches(loader)
           matched_rules = loader.entries.collect { |e| "- #{e.pattern}" }
-          code_owner_path = project.repository.code_owners_blob(ref: branch_name).path || "CODEOWNERS"
+          code_owner_path = project.repository.code_owners_blob(ref: branch_name).path || 'CODEOWNERS'
 
           "Pushes to protected branches that contain changes to files that\n" \
             "match patterns defined in `#{code_owner_path}` are disabled for\n" \

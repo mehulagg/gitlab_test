@@ -9,7 +9,7 @@ describe Gitlab::Diff::InlineDiffMarker do
 
     subject { described_class.new(raw, rich).mark(inline_diffs) }
 
-    context "when the rich text is html safe" do
+    context 'when the rich text is html safe' do
       let(:rich) { %{<span class="abc">abc</span><span class="space"> </span><span class="def">&#39;def&#39;</span>}.html_safe }
 
       it 'marks the range' do
@@ -18,7 +18,7 @@ describe Gitlab::Diff::InlineDiffMarker do
       end
     end
 
-    context "when the text is not html safe" do
+    context 'when the text is not html safe' do
       let(:rich) { "abc 'def' differs" }
 
       it 'marks the range' do

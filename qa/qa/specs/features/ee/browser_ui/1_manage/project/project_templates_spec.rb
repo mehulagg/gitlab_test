@@ -60,7 +60,7 @@ module QA
           Page::Project::Show.perform(&:wait_for_import_success)
 
           expect(page).to have_content("Initialized from '#{built_in}' project template")
-          expect(page).to have_content(".ruby-version")
+          expect(page).to have_content('.ruby-version')
         end
       end
 
@@ -92,7 +92,7 @@ module QA
 
         it 'successfully imports the project using template' do
           Page::Project::New.perform do |new_page|
-            expect(new_page.instance_template_tab_badge_text).to eq "1"
+            expect(new_page.instance_template_tab_badge_text).to eq '1'
             expect(new_page).to have_text(@template_project.name)
           end
 
@@ -135,7 +135,7 @@ module QA
 
         it 'successfully imports the project using template' do
           Page::Project::New.perform do |new_page|
-            expect(new_page.group_template_tab_badge_text).to eq "1"
+            expect(new_page.group_template_tab_badge_text).to eq '1'
             expect(new_page).to have_text(@template_container_group_name)
             expect(new_page).to have_text(@template_project.name)
           end

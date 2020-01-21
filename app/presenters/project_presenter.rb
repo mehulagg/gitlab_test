@@ -63,14 +63,14 @@ class ProjectPresenter < Gitlab::View::Presenter::Delegated
 
     if can?(current_user, :download_code, project)
       user_view
-    elsif user_view == "activity"
-      "activity"
+    elsif user_view == 'activity'
+      'activity'
     elsif can?(current_user, :read_wiki, project)
-      "wiki"
+      'wiki'
     elsif feature_available?(:issues, current_user)
-      "projects/issues/issues"
+      'projects/issues/issues'
     else
-      "customize_workflow"
+      'customize_workflow'
     end
   end
 
@@ -382,7 +382,7 @@ class ProjectPresenter < Gitlab::View::Presenter::Delegated
   end
 
   def add_special_file_path(file_name:, commit_message: nil, branch_name: nil)
-    commit_message ||= s_("CommitMessage|Add %{file_name}") % { file_name: file_name }
+    commit_message ||= s_('CommitMessage|Add %{file_name}') % { file_name: file_name }
     project_new_blob_path(
       project,
       project.default_branch || 'master',

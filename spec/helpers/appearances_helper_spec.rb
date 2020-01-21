@@ -33,7 +33,7 @@ describe AppearancesHelper do
 
     context 'when header message is set' do
       it 'includes current message' do
-        message = "Foo bar"
+        message = 'Foo bar'
         create(:appearance, header_message: message)
 
         expect(helper.header_message).to include(message)
@@ -50,7 +50,7 @@ describe AppearancesHelper do
 
     context 'when footer message is set' do
       it 'includes current message' do
-        message = "Foo bar"
+        message = 'Foo bar'
         create(:appearance, footer_message: message)
 
         expect(helper.footer_message).to include(message)

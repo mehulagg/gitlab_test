@@ -20,7 +20,7 @@ describe Gitlab::Ci::Build::Step do
     end
 
     context 'when script option is specified' do
-      let(:job) { create(:ci_build, :no_options, options: { script: ["ls -la\necho aaa", "date"] }) }
+      let(:job) { create(:ci_build, :no_options, options: { script: ["ls -la\necho aaa", 'date'] }) }
       let(:script) { ["ls -la\necho aaa", 'date'] }
 
       it_behaves_like 'has correct script'
@@ -30,7 +30,7 @@ describe Gitlab::Ci::Build::Step do
       let(:job) do
         create(:ci_build, options: {
           before_script: ["ls -la\necho aaa"],
-          script: ["date"]
+          script: ['date']
         })
       end
 

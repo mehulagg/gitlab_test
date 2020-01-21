@@ -39,10 +39,10 @@ module EE
       return super.merge(scoped_labels_fields) unless edit_context.is_a?(Group)
 
       {
-        toggle: "dropdown",
-        field_name: opts[:field_name] || "label_name[]",
-        show_no: "true",
-        show_any: "true",
+        toggle: 'dropdown',
+        field_name: opts[:field_name] || 'label_name[]',
+        show_no: 'true',
+        show_any: 'true',
         group_id: edit_context&.try(:id)
       }.merge(scoped_labels_fields, opts)
     end

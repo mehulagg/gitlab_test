@@ -53,19 +53,19 @@ describe Gitlab::Gfm::ReferenceRewriter do
         end
 
         context 'code' do
-          let(:text) { "#1, but not `[#1]`" }
+          let(:text) { '#1, but not `[#1]`' }
 
           it { is_expected.to eq "#{issue_first.to_reference(new_project)}, but not `[#1]`" }
         end
 
         context 'code reverse' do
-          let(:text) { "not `#1`, but #1" }
+          let(:text) { 'not `#1`, but #1' }
 
           it { is_expected.to eq "not `#1`, but #{issue_first.to_reference(new_project)}" }
         end
 
         context 'code in random order' do
-          let(:text) { "#1, `#1`, #1, `#1`" }
+          let(:text) { '#1, `#1`, #1, `#1`' }
           let(:ref) { issue_first.to_reference(new_project) }
 
           it { is_expected.to eq "#{ref}, `#1`, #{ref}, `#1`" }

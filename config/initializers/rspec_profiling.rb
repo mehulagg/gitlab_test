@@ -21,7 +21,7 @@ module RspecProfilingExt
       private
 
       def output
-        @output ||= ::CSV.open(path, "w").tap { |csv| csv << HEADERS }
+        @output ||= ::CSV.open(path, 'w').tap { |csv| csv << HEADERS }
       end
     end
   end

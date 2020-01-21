@@ -17,7 +17,7 @@ describe Banzai::ReferenceParser::CommitParser do
         link['data-commit'] = 123
       end
 
-      it_behaves_like "referenced feature visibility", "repository"
+      it_behaves_like 'referenced feature visibility', 'repository'
     end
   end
 

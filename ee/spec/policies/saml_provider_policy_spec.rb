@@ -40,7 +40,7 @@ describe SamlProviderPolicy do
     end
 
     context 'invalid or missing token' do
-      let(:token_actor) { Gitlab::Auth::GroupSaml::TokenActor.new("xyz") }
+      let(:token_actor) { Gitlab::Auth::GroupSaml::TokenActor.new('xyz') }
 
       it 'allows anonymous access to public groups' do
         is_expected.to be_allowed(:sign_in_with_saml_provider)

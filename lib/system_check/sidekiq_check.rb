@@ -13,18 +13,18 @@ module SystemCheck
     private
 
     def check_sidekiq_running
-      $stdout.print "Running? ... "
+      $stdout.print 'Running? ... '
 
       if sidekiq_process_count > 0
-        $stdout.puts "yes".color(:green)
+        $stdout.puts 'yes'.color(:green)
       else
-        $stdout.puts "no".color(:red)
+        $stdout.puts 'no'.color(:red)
         try_fixing_it(
-          sudo_gitlab("RAILS_ENV=production bin/background_jobs start")
+          sudo_gitlab('RAILS_ENV=production bin/background_jobs start')
         )
         for_more_information(
-          see_installation_guide_section("Install Init Script"),
-          "see log/sidekiq.log for possible errors"
+          see_installation_guide_section('Install Init Script'),
+          'see log/sidekiq.log for possible errors'
         )
         fix_and_rerun
       end

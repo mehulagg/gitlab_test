@@ -109,7 +109,7 @@ module EE
     override :extra_default_clone_protocol
     def extra_default_clone_protocol
       if alternative_kerberos_url? && current_user
-        "krb5"
+        'krb5'
       else
         super
       end
@@ -125,7 +125,7 @@ module EE
       return super unless project.feature_available?(:marking_project_for_deletion)
 
       date = permanent_deletion_date(Time.now.utc)
-      _("Removing a project places it into a read-only state until %{date}, at which point the project will be permanantly removed. Are you ABSOLUTELY sure?") %
+      _('Removing a project places it into a read-only state until %{date}, at which point the project will be permanantly removed. Are you ABSOLUTELY sure?') %
         { date: date }
     end
 
@@ -200,14 +200,14 @@ module EE
         {
           empty_state_illustration_path: image_path('illustrations/security-dashboard_empty.svg'),
           security_dashboard_help_path: help_page_path('user/application_security/security_dashboard/index'),
-          has_pipeline_data: "false"
+          has_pipeline_data: 'false'
         }
       else
         {
           project: { id: project.id, name: project.name },
           vulnerabilities_endpoint: project_security_vulnerability_findings_path(project),
           vulnerabilities_summary_endpoint: summary_project_security_vulnerability_findings_path(project),
-          vulnerability_feedback_help_path: help_page_path("user/application_security/index", anchor: "interacting-with-the-vulnerabilities"),
+          vulnerability_feedback_help_path: help_page_path('user/application_security/index', anchor: 'interacting-with-the-vulnerabilities'),
           empty_state_svg_path: image_path('illustrations/security-dashboard-empty-state.svg'),
           dashboard_documentation: help_page_path('user/application_security/security_dashboard/index'),
           security_dashboard_help_path: help_page_path('user/application_security/security_dashboard/index'),
@@ -221,7 +221,7 @@ module EE
           ref_path: project_commits_url(project, pipeline.ref),
           pipeline_path: pipeline_url(pipeline),
           pipeline_created: pipeline.created_at.to_s(:iso8601),
-          has_pipeline_data: "true"
+          has_pipeline_data: 'true'
         }
       end
     end

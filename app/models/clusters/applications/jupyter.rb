@@ -61,38 +61,38 @@ module Clusters
 
       def specification
         {
-          "ingress" => {
-            "hosts" => [hostname],
-            "tls" => [{
-              "hosts" => [hostname],
-              "secretName" => "jupyter-cert"
+          'ingress' => {
+            'hosts' => [hostname],
+            'tls' => [{
+              'hosts' => [hostname],
+              'secretName' => 'jupyter-cert'
             }]
           },
-          "hub" => {
-            "extraEnv" => {
-              "GITLAB_HOST" => gitlab_url
+          'hub' => {
+            'extraEnv' => {
+              'GITLAB_HOST' => gitlab_url
             },
-            "cookieSecret" => cookie_secret
+            'cookieSecret' => cookie_secret
           },
-          "proxy" => {
-            "secretToken" => secret_token
+          'proxy' => {
+            'secretToken' => secret_token
           },
-          "auth" => {
-            "state" => {
-              "cryptoKey" => crypto_key
+          'auth' => {
+            'state' => {
+              'cryptoKey' => crypto_key
             },
-            "gitlab" => {
-              "clientId" => oauth_application.uid,
-              "clientSecret" => oauth_application.secret,
-              "callbackUrl" => callback_url,
-              "gitlabProjectIdWhitelist" => cluster.projects.ids,
-              "gitlabGroupWhitelist" => cluster.groups.map(&:to_param)
+            'gitlab' => {
+              'clientId' => oauth_application.uid,
+              'clientSecret' => oauth_application.secret,
+              'callbackUrl' => callback_url,
+              'gitlabProjectIdWhitelist' => cluster.projects.ids,
+              'gitlabGroupWhitelist' => cluster.groups.map(&:to_param)
             }
           },
-          "singleuser" => {
-            "extraEnv" => {
-              "GITLAB_CLUSTER_ID" => cluster.id.to_s,
-              "GITLAB_HOST" => gitlab_host
+          'singleuser' => {
+            'extraEnv' => {
+              'GITLAB_CLUSTER_ID' => cluster.id.to_s,
+              'GITLAB_HOST' => gitlab_host
             }
           }
         }

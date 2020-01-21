@@ -32,7 +32,7 @@ describe Elastic::MultiVersionClassProxy do
     let(:old_target) { double(:old_target) }
     let(:new_target) { double(:new_target) }
     let(:response) do
-      { "_index" => "gitlab-test", "_type" => "doc", "_id" => "snippet_1", "_version" => 3, "result" => "updated", "_shards" => { "total" => 2, "successful" => 1, "failed" => 0 }, "created" => false }
+      { '_index' => 'gitlab-test', '_type' => 'doc', '_id' => 'snippet_1', '_version' => 3, 'result' => 'updated', '_shards' => { 'total' => 2, 'successful' => 1, 'failed' => 0 }, 'created' => false }
     end
 
     before do

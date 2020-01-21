@@ -51,29 +51,29 @@ describe Gitlab::I18n::PoLinter do
       let(:po_path) { 'spec/fixtures/newlines.po' }
 
       it 'has an error for a normal string' do
-        message_id = "You are going to remove %{group_name}.\\nRemoved groups CANNOT be restored!\\nAre you ABSOLUTELY sure?"
-        expected_message = "is defined over multiple lines, this breaks some tooling."
+        message_id = 'You are going to remove %{group_name}.\\nRemoved groups CANNOT be restored!\\nAre you ABSOLUTELY sure?'
+        expected_message = 'is defined over multiple lines, this breaks some tooling.'
 
         expect(errors[message_id]).to include(expected_message)
       end
 
       it 'has an error when a translation is defined over multiple lines' do
-        message_id = "You are going to remove %{group_name}.\\nRemoved groups CANNOT be restored!\\nAre you ABSOLUTELY sure?"
-        expected_message = "has translations defined over multiple lines, this breaks some tooling."
+        message_id = 'You are going to remove %{group_name}.\\nRemoved groups CANNOT be restored!\\nAre you ABSOLUTELY sure?'
+        expected_message = 'has translations defined over multiple lines, this breaks some tooling.'
 
         expect(errors[message_id]).to include(expected_message)
       end
 
       it 'raises an error when a plural translation is defined over multiple lines' do
         message_id = 'With plural'
-        expected_message = "has translations defined over multiple lines, this breaks some tooling."
+        expected_message = 'has translations defined over multiple lines, this breaks some tooling.'
 
         expect(errors[message_id]).to include(expected_message)
       end
 
       it 'raises an error when the plural id is defined over multiple lines' do
         message_id = 'multiline plural id'
-        expected_message = "plural is defined over multiple lines, this breaks some tooling."
+        expected_message = 'plural is defined over multiple lines, this breaks some tooling.'
 
         expect(errors[message_id]).to include(expected_message)
       end
@@ -178,15 +178,15 @@ describe Gitlab::I18n::PoLinter do
 
   describe '#validate_entries' do
     it 'keeps track of errors for entries' do
-      fake_invalid_entry = fake_translation(msgid: "Hello %{world}",
-                                            translation: "Bonjour %{monde}")
+      fake_invalid_entry = fake_translation(msgid: 'Hello %{world}',
+                                            translation: 'Bonjour %{monde}')
       allow(linter).to receive(:translation_entries) { [fake_invalid_entry] }
 
       expect(linter).to receive(:validate_entry)
                           .with(fake_invalid_entry)
                           .and_call_original
 
-      expect(linter.validate_entries).to include("Hello %{world}" => an_instance_of(Array))
+      expect(linter.validate_entries).to include('Hello %{world}' => an_instance_of(Array))
     end
   end
 
@@ -344,22 +344,22 @@ describe Gitlab::I18n::PoLinter do
       expect(errors).to include('Failure translating to en: broken')
     end
 
-    it "adds an error when trying to translate with incorrect variables when using unnamed variables" do
+    it 'adds an error when trying to translate with incorrect variables when using unnamed variables' do
       entry = fake_translation(msgid: 'Hello %s', translation: 'Hello %d')
       errors = []
 
       linter.validate_translation(errors, entry)
 
-      expect(errors.first).to start_with("Failure translating to en")
+      expect(errors.first).to start_with('Failure translating to en')
     end
 
-    it "adds an error when trying to translate with named variables when unnamed variables are expected" do
+    it 'adds an error when trying to translate with named variables when unnamed variables are expected' do
       entry = fake_translation(msgid: 'Hello %s', translation: 'Hello %{thing}')
       errors = []
 
       linter.validate_translation(errors, entry)
 
-      expect(errors.first).to start_with("Failure translating to en")
+      expect(errors.first).to start_with('Failure translating to en')
     end
 
     it 'tests translation for all given forms' do

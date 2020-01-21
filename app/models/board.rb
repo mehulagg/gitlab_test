@@ -5,7 +5,7 @@ class Board < ApplicationRecord
   belongs_to :project
 
   has_many :lists, -> { ordered }, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
-  has_many :destroyable_lists, -> { destroyable.ordered }, class_name: "List"
+  has_many :destroyable_lists, -> { destroyable.ordered }, class_name: 'List'
 
   validates :project, presence: true, if: :project_needed?
   validates :group, presence: true, unless: :project

@@ -18,7 +18,7 @@ module ObjectStorage
     end
 
     def message
-      *lease_key_group, _ = *@lease_key.split(":")
+      *lease_key_group, _ = *@lease_key.split(':')
       "Exclusive lease for #{lease_key_group.join(':')} is already taken."
     end
   end
@@ -365,7 +365,7 @@ module ObjectStorage
         # We store file internally and force it to be considered as `cached`
         # This makes CarrierWave to store file in permament location (copy/delete)
         # once this object is saved, but not sooner
-        @cache_id = "force-to-use-cache" # rubocop:disable Gitlab/ModuleWithInstanceVariables
+        @cache_id = 'force-to-use-cache' # rubocop:disable Gitlab/ModuleWithInstanceVariables
         @file = file # rubocop:disable Gitlab/ModuleWithInstanceVariables
         @filename = original_filename # rubocop:disable Gitlab/ModuleWithInstanceVariables
       end

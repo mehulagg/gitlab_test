@@ -12,7 +12,7 @@ describe HelpController do
   describe 'GET #index' do
     context 'with absolute url' do
       it 'keeps the URL absolute' do
-        stub_readme("[API](/api/README.md)")
+        stub_readme('[API](/api/README.md)')
 
         get :index
 
@@ -22,7 +22,7 @@ describe HelpController do
 
     context 'with relative url' do
       it 'prefixes it with /help/' do
-        stub_readme("[API](api/README.md)")
+        stub_readme('[API](api/README.md)')
 
         get :index
 
@@ -32,7 +32,7 @@ describe HelpController do
 
     context 'when url is an external link' do
       it 'does not change it' do
-        stub_readme("[external](https://some.external.link)")
+        stub_readme('[external](https://some.external.link)')
 
         get :index
 
@@ -42,7 +42,7 @@ describe HelpController do
 
     context 'when relative url with external on same line' do
       it 'prefix it with /help/' do
-        stub_readme("[API](api/README.md) [external](https://some.external.link)")
+        stub_readme('[API](api/README.md) [external](https://some.external.link)')
 
         get :index
 
@@ -52,7 +52,7 @@ describe HelpController do
 
     context 'when relative url with http:// in query' do
       it 'prefix it with /help/' do
-        stub_readme("[API](api/README.md?go=https://example.com/)")
+        stub_readme('[API](api/README.md?go=https://example.com/)')
 
         get :index
 
@@ -62,7 +62,7 @@ describe HelpController do
 
     context 'when mailto URL' do
       it 'do not change it' do
-        stub_readme("[report bug](mailto:bugs@example.com)")
+        stub_readme('[report bug](mailto:bugs@example.com)')
 
         get :index
 
@@ -72,7 +72,7 @@ describe HelpController do
 
     context 'when protocol-relative link' do
       it 'do not change it' do
-        stub_readme("[protocol-relative](//example.com)")
+        stub_readme('[protocol-relative](//example.com)')
 
         get :index
 

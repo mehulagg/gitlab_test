@@ -10,9 +10,9 @@ if license_file.exist?
     puts "License Added:\n\nFilePath: #{license_file}".color(:green)
   else
     puts "License Invalid:\n\nFilePath: #{license_file}".color(:red)
-    raise "License Invalid"
+    raise 'License Invalid'
   end
 elsif !ENV['GITLAB_LICENSE_FILE'].blank?
   puts "License File Missing:\n\nFilePath: #{license_file}".color(:red)
-  raise "License File Missing"
+  raise 'License File Missing'
 end

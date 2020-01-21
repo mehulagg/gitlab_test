@@ -411,7 +411,7 @@ class IssuableBaseService < BaseService
   end
 
   def update_timestamp?(issuable)
-    issuable.changes.keys != ["relative_position"]
+    issuable.changes.keys != ['relative_position']
   end
 end
 

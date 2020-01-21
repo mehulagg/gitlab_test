@@ -255,7 +255,7 @@ describe QuickActions::InterpretService do
         end
 
         context 'when epic does not exist' do
-          let(:content) { "/epic none" }
+          let(:content) { '/epic none' }
 
           it 'does not assign an issue to an epic' do
             _, updates, message = service.execute(content, issue)
@@ -293,7 +293,7 @@ describe QuickActions::InterpretService do
     end
 
     context 'promote command' do
-      let(:content) { "/promote" }
+      let(:content) { '/promote' }
 
       context 'when epics are enabled' do
         context 'when a user does not have permissions to promote an issue' do
@@ -774,7 +774,7 @@ describe QuickActions::InterpretService do
 
         context 'when weight is negative' do
           it 'does not populate weight' do
-            content = "/weight -10"
+            content = '/weight -10'
             _, updates = service.execute(content, issuable)
 
             expect(updates).to be_empty
@@ -817,7 +817,7 @@ describe QuickActions::InterpretService do
 
     context 'not persisted merge request can not be merged' do
       it_behaves_like 'empty command' do
-        let(:content) { "/merge" }
+        let(:content) { '/merge' }
         let(:issuable) { build(:merge_request, source_project: project) }
       end
     end
@@ -828,7 +828,7 @@ describe QuickActions::InterpretService do
       end
 
       it_behaves_like 'empty command' do
-        let(:content) { "/merge" }
+        let(:content) { '/merge' }
         let(:issuable) { build(:merge_request, source_project: project) }
       end
     end
@@ -840,7 +840,7 @@ describe QuickActions::InterpretService do
       end
 
       it_behaves_like 'empty command' do
-        let(:content) { "/merge" }
+        let(:content) { '/merge' }
         let(:issuable) { build(:merge_request, source_project: project) }
       end
     end
@@ -923,7 +923,7 @@ describe QuickActions::InterpretService do
 
           context 'relate a non-existing issue' do
             let(:issues_related) { [] }
-            let(:content) { "/relate imaginary#1234" }
+            let(:content) { '/relate imaginary#1234' }
 
             it_behaves_like 'relate command'
           end
@@ -1038,7 +1038,7 @@ describe QuickActions::InterpretService do
           _, _, message = service.execute(content, epic)
 
           expect(message)
-            .to eq("Given epic is already related to this epic.")
+            .to eq('Given epic is already related to this epic.')
         end
       end
 
@@ -1075,7 +1075,7 @@ describe QuickActions::InterpretService do
         end
 
         context 'when epic does not exist' do
-          let(:content) { "/child_epic none" }
+          let(:content) { '/child_epic none' }
 
           it_behaves_like 'target epic does not exist', :child
         end
@@ -1116,7 +1116,7 @@ describe QuickActions::InterpretService do
         end
 
         context 'when epic reference is wrong' do
-          let(:content) { "/child_epic qwe" }
+          let(:content) { '/child_epic qwe' }
 
           it 'returns empty explain message' do
             _, explanations = service.explain(content, epic)
@@ -1135,7 +1135,7 @@ describe QuickActions::InterpretService do
             _, _, message = service.execute(content, epic)
 
             expect(message)
-              .to eq("Child epic does not exist.")
+              .to eq('Child epic does not exist.')
           end
         end
       end
@@ -1164,7 +1164,7 @@ describe QuickActions::InterpretService do
         end
 
         context 'when epic does not exist' do
-          let(:content) { "/parent_epic none" }
+          let(:content) { '/parent_epic none' }
 
           it_behaves_like 'target epic does not exist', :parent
         end
@@ -1189,13 +1189,13 @@ describe QuickActions::InterpretService do
           end
 
           it 'returns explain message with epic reference' do
-            _, explanations = service.explain("/remove_parent_epic", epic)
+            _, explanations = service.explain('/remove_parent_epic', epic)
 
             expect(explanations).to eq(["Removes parent epic #{epic2.group.name}&#{epic2.iid}."])
           end
 
           it 'returns successful execution message' do
-            _, _, message = service.execute("/remove_parent_epic", epic)
+            _, _, message = service.execute('/remove_parent_epic', epic)
 
             expect(message)
               .to eq("Removed parent epic #{epic2.group.name}&#{epic2.iid}.")
@@ -1208,16 +1208,16 @@ describe QuickActions::InterpretService do
           end
 
           it 'returns empty explain message' do
-            _, explanations = service.explain("/remove_parent_epic", epic)
+            _, explanations = service.explain('/remove_parent_epic', epic)
 
             expect(explanations).to eq([])
           end
 
           it 'returns unsuccessful execution message' do
-            _, _, message = service.execute("/remove_parent_epic", epic)
+            _, _, message = service.execute('/remove_parent_epic', epic)
 
             expect(message)
-              .to eq("Parent epic is not present.")
+              .to eq('Parent epic is not present.')
           end
         end
       end

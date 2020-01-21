@@ -79,13 +79,13 @@ namespace :pngquant do
     uncompressed_files = Parallel.map(files) do |file|
       is_uncompressed, _ = compress_image(file, false)
       if is_uncompressed
-        puts "Uncompressed file detected: ".color(:red) + file
+        puts 'Uncompressed file detected: '.color(:red) + file
         file
       end
     end.compact
 
     if uncompressed_files.empty?
-      puts "All documentation images are optimally compressed!".color(:green)
+      puts 'All documentation images are optimally compressed!'.color(:green)
     else
       warn(
         "The #{uncompressed_files.size} image(s) above have not been optimally compressed using pngquant.".color(:red),

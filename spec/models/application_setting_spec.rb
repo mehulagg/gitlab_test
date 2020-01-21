@@ -30,14 +30,14 @@ describe ApplicationSetting do
     it { is_expected.to allow_value(https).for(:after_sign_out_path) }
     it { is_expected.not_to allow_value(ftp).for(:after_sign_out_path) }
 
-    it { is_expected.to allow_value("dev.gitlab.com").for(:commit_email_hostname) }
-    it { is_expected.not_to allow_value("@dev.gitlab").for(:commit_email_hostname) }
+    it { is_expected.to allow_value('dev.gitlab.com').for(:commit_email_hostname) }
+    it { is_expected.not_to allow_value('@dev.gitlab').for(:commit_email_hostname) }
 
-    it { is_expected.to allow_value("myemail@gitlab.com").for(:lets_encrypt_notification_email) }
+    it { is_expected.to allow_value('myemail@gitlab.com').for(:lets_encrypt_notification_email) }
     it { is_expected.to allow_value(nil).for(:lets_encrypt_notification_email) }
-    it { is_expected.not_to allow_value("notanemail").for(:lets_encrypt_notification_email) }
-    it { is_expected.not_to allow_value("myemail@example.com").for(:lets_encrypt_notification_email) }
-    it { is_expected.to allow_value("myemail@test.example.com").for(:lets_encrypt_notification_email) }
+    it { is_expected.not_to allow_value('notanemail').for(:lets_encrypt_notification_email) }
+    it { is_expected.not_to allow_value('myemail@example.com').for(:lets_encrypt_notification_email) }
+    it { is_expected.to allow_value('myemail@test.example.com').for(:lets_encrypt_notification_email) }
 
     it { is_expected.to allow_value(['192.168.1.1'] * 1_000).for(:outbound_local_requests_whitelist) }
     it { is_expected.not_to allow_value(['192.168.1.1'] * 1_001).for(:outbound_local_requests_whitelist) }
@@ -87,7 +87,7 @@ describe ApplicationSetting do
       end
 
       it { is_expected.not_to allow_value(nil).for(:snowplow_collector_hostname) }
-      it { is_expected.to allow_value("snowplow.gitlab.com").for(:snowplow_collector_hostname) }
+      it { is_expected.to allow_value('snowplow.gitlab.com').for(:snowplow_collector_hostname) }
       it { is_expected.not_to allow_value('/example').for(:snowplow_collector_hostname) }
       it { is_expected.to allow_value('https://example.org').for(:snowplow_iglu_registry_url) }
       it { is_expected.not_to allow_value('not-a-url').for(:snowplow_iglu_registry_url) }
@@ -281,7 +281,7 @@ describe ApplicationSetting do
 
       describe 'presence' do
         it { is_expected.not_to allow_value([]).for(:repository_storages) }
-        it { is_expected.not_to allow_value("").for(:repository_storages) }
+        it { is_expected.not_to allow_value('').for(:repository_storages) }
         it { is_expected.not_to allow_value(nil).for(:repository_storages) }
       end
     end
@@ -319,7 +319,7 @@ describe ApplicationSetting do
     end
 
     context 'gitaly timeouts' do
-      it "validates that the default_timeout is lower than the max_request_duration" do
+      it 'validates that the default_timeout is lower than the max_request_duration' do
         is_expected.to validate_numericality_of(:gitaly_timeout_default)
           .is_less_than_or_equal_to(Settings.gitlab.max_request_duration_seconds)
       end
@@ -501,7 +501,7 @@ describe ApplicationSetting do
           end
 
           it 'sets multiple domains with commas' do
-            setting.asset_proxy_whitelist = "example.com, *.example.com"
+            setting.asset_proxy_whitelist = 'example.com, *.example.com'
             expect(setting.asset_proxy_whitelist).to eq(['example.com', '*.example.com', 'localhost'])
           end
         end

@@ -146,7 +146,7 @@ describe Clusters::Applications::Knative do
 
     it { is_expected.to be_an_instance_of(Gitlab::Kubernetes::Helm::DeleteCommand) }
 
-    it "removes knative deployed services before uninstallation" do
+    it 'removes knative deployed services before uninstallation' do
       2.times do |i|
         cluster_project = create(:cluster_project, cluster: knative.cluster)
 
@@ -165,12 +165,12 @@ describe Clusters::Applications::Knative do
       expect(subject.predelete).to match_array(remove_namespaced_services_script)
     end
 
-    it "initializes command with all necessary postdelete script" do
+    it 'initializes command with all necessary postdelete script' do
       api_groups = YAML.safe_load(File.read(Rails.root.join(Clusters::Applications::Knative::API_GROUPS_PATH)))
 
       remove_knative_istio_leftovers_script = [
-        "kubectl delete --ignore-not-found ns knative-serving",
-        "kubectl delete --ignore-not-found ns knative-build"
+        'kubectl delete --ignore-not-found ns knative-serving',
+        'kubectl delete --ignore-not-found ns knative-build'
       ]
 
       full_delete_commands_size = api_groups.size + remove_knative_istio_leftovers_script.size

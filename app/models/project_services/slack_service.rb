@@ -24,7 +24,7 @@ class SlackService < ChatNotificationService
   end
 
   def default_channel_placeholder
-    "Channel name (e.g. general)"
+    'Channel name (e.g. general)'
   end
 
   def webhook_placeholder

@@ -91,7 +91,7 @@ describe Admin::UsersController do
     end
   end
 
-  describe "POST #impersonate" do
+  describe 'POST #impersonate' do
     before do
       stub_licensed_features(extended_audit_events: true)
     end

@@ -14,9 +14,9 @@ module QA
           def visit_and_setup_gitlab_connection(gitlab_host, token_description)
             visit!
             fill_in '_.name', with: 'GitLab'
-            find('.setting-name', text: "Gitlab host URL").find(:xpath, "..").find('input').set gitlab_host
+            find('.setting-name', text: 'Gitlab host URL').find(:xpath, '..').find('input').set gitlab_host
 
-            dropdown_element = find('.setting-name', text: "Credentials").find(:xpath, "..").find('select')
+            dropdown_element = find('.setting-name', text: 'Credentials').find(:xpath, '..').find('select')
 
             QA::Support::Retrier.retry_until(raise_on_failure: true) do
               dropdown_element.select "GitLab API token (#{token_description})"
@@ -33,7 +33,7 @@ module QA
           end
 
           def has_success?
-            has_css?('div.ok', text: "Success")
+            has_css?('div.ok', text: 'Success')
           end
 
           private

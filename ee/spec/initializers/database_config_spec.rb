@@ -11,7 +11,7 @@ describe 'Database config initializer for GitLab EE' do
     stub_geo_database_config(pool_size: 1)
   end
 
-  context "when using multi-threaded runtime" do
+  context 'when using multi-threaded runtime' do
     let(:max_threads) { 8 }
 
     before do
@@ -22,19 +22,19 @@ describe 'Database config initializer for GitLab EE' do
       expect(Geo::TrackingBase).to receive(:establish_connection)
     end
 
-    context "and the runtime is Sidekiq" do
+    context 'and the runtime is Sidekiq' do
       before do
         allow(Gitlab::Runtime).to receive(:sidekiq?).and_return(true)
       end
 
-      it "sets Geo DB connection pool size to the max number of worker threads" do
+      it 'sets Geo DB connection pool size to the max number of worker threads' do
         expect { subject }.to change { Rails.configuration.geo_database['pool'] }.from(1).to(max_threads)
       end
     end
   end
 
-  context "when using single-threaded runtime" do
-    it "does nothing" do
+  context 'when using single-threaded runtime' do
+    it 'does nothing' do
       expect { subject }.not_to change { Rails.configuration.geo_database['pool'] }
     end
   end

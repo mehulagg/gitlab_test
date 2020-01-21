@@ -13,7 +13,7 @@ describe 'Internal Group access' do
     end
   end
 
-  describe "Group should be internal" do
+  describe 'Group should be internal' do
     describe '#internal?' do
       subject { group.internal? }
 

@@ -233,7 +233,7 @@ class License < ApplicationRecord
 
     def plans_with_feature(feature)
       if global_feature?(feature)
-        raise ArgumentError, "Use `License.feature_available?` for features that cannot be restricted to only a subset of projects or namespaces"
+        raise ArgumentError, 'Use `License.feature_available?` for features that cannot be restricted to only a subset of projects or namespaces'
       end
 
       PLANS_BY_FEATURE.fetch(feature, [])
@@ -281,8 +281,8 @@ class License < ApplicationRecord
   end
 
   def data_filename
-    company_name = self.licensee["Company"] || self.licensee.values.first
-    clean_company_name = company_name.gsub(/[^A-Za-z0-9]/, "")
+    company_name = self.licensee['Company'] || self.licensee.values.first
+    clean_company_name = company_name.gsub(/[^A-Za-z0-9]/, '')
     "#{clean_company_name}.gitlab-license"
   end
 
@@ -472,7 +472,7 @@ class License < ApplicationRecord
   def valid_license
     return if license?
 
-    self.errors.add(:base, "The license key is invalid. Make sure it is exactly as you received it from GitLab Inc.")
+    self.errors.add(:base, 'The license key is invalid. Make sure it is exactly as you received it from GitLab Inc.')
   end
 
   def prior_historical_max
@@ -514,9 +514,9 @@ class License < ApplicationRecord
         add_limit_error(user_count: current_active_users_count)
       end
     else
-      message = ["You have applied a True-up for #{trueup_qty} #{"user".pluralize(trueup_qty)}"]
-      message << "but you need one for #{expected_trueup_qty} #{"user".pluralize(expected_trueup_qty)}."
-      message << "Please contact sales at renewals@gitlab.com"
+      message = ["You have applied a True-up for #{trueup_qty} #{'user'.pluralize(trueup_qty)}"]
+      message << "but you need one for #{expected_trueup_qty} #{'user'.pluralize(expected_trueup_qty)}."
+      message << 'Please contact sales at renewals@gitlab.com'
 
       self.errors.add(:base, message.join(' '))
     end
@@ -525,12 +525,12 @@ class License < ApplicationRecord
   def add_limit_error(current_period: true, user_count:)
     overage_count = overage(user_count)
 
-    message =  [current_period ? "This GitLab installation currently has" : "During the year before this license started, this GitLab installation had"]
-    message << "#{number_with_delimiter(user_count)} active #{"user".pluralize(user_count)},"
+    message =  [current_period ? 'This GitLab installation currently has' : 'During the year before this license started, this GitLab installation had']
+    message << "#{number_with_delimiter(user_count)} active #{'user'.pluralize(user_count)},"
     message << "exceeding this license's limit of #{number_with_delimiter(restricted_user_count)} by"
-    message << "#{number_with_delimiter(overage_count)} #{"user".pluralize(overage_count)}."
-    message << "Please upload a license for at least"
-    message << "#{number_with_delimiter(user_count)} #{"user".pluralize(user_count)} or contact sales at renewals@gitlab.com"
+    message << "#{number_with_delimiter(overage_count)} #{'user'.pluralize(overage_count)}."
+    message << 'Please upload a license for at least'
+    message << "#{number_with_delimiter(user_count)} #{'user'.pluralize(user_count)} or contact sales at renewals@gitlab.com"
 
     self.errors.add(:base, message.join(' '))
   end
@@ -538,6 +538,6 @@ class License < ApplicationRecord
   def not_expired
     return unless self.license? && self.expired?
 
-    self.errors.add(:base, "This license has already expired.")
+    self.errors.add(:base, 'This license has already expired.')
   end
 end

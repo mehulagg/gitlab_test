@@ -11,14 +11,14 @@ describe EE::AuditEvents::ReleaseCreatedAuditEventService do
       end
     end
 
-    context "with one milestone" do
+    context 'with one milestone' do
       include_examples 'logs the release audit event' do
         let(:release) { create(:release, :with_milestones, milestones_count: 1, project: entity) }
         let(:custom_message) { "Created Release #{release.tag} with Milestone #{Milestone.first.title}" }
       end
     end
 
-    context "with multiple milestones" do
+    context 'with multiple milestones' do
       include_examples 'logs the release audit event' do
         let(:release) { create(:release, :with_milestones, milestones_count: 2, project: entity) }
         let(:custom_message) { "Created Release #{release.tag} with Milestones #{Milestone.first.title}, #{Milestone.second.title}" }

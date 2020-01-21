@@ -19,7 +19,7 @@ describe GithubService::RemoteProject do
     context 'when git repo mirror URL is used' do
       let(:project_url) { "https://00000000000000@github.com/#{repo_full_path}.git" }
 
-      it "excludes auth token set as username" do
+      it 'excludes auth token set as username' do
         expect(subject.api_url).to eq 'https://api.github.com'
       end
     end
@@ -55,7 +55,7 @@ describe GithubService::RemoteProject do
     context 'when project sub-route accidentally used' do
       let(:project_url) { "#{project_url_base}/issues" }
 
-      it "ignores the sub-route" do
+      it 'ignores the sub-route' do
         expect(subject.repository_name).to eq repository_name
       end
     end

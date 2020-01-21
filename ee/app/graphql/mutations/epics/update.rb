@@ -9,7 +9,7 @@ module Mutations
 
       argument :iid, GraphQL::STRING_TYPE,
                required: true,
-               description: "The iid of the epic to mutate"
+               description: 'The iid of the epic to mutate'
 
       argument :state_event,
                 Types::EpicStateEventEnum,

@@ -194,7 +194,7 @@ describe API::GroupClusters do
         end
 
         it 'creates a new Cluster::Cluster' do
-          cluster_result = Clusters::Cluster.find(json_response["id"])
+          cluster_result = Clusters::Cluster.find(json_response['id'])
           platform_kubernetes = cluster_result.platform
 
           expect(cluster_result).to be_user

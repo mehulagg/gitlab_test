@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe API::AuditEvents do
   describe 'GET /audit_events' do
-    let(:url) { "/audit_events" }
+    let(:url) { '/audit_events' }
 
     context 'when authenticated, as a user' do
       let(:user) { create(:user) }
@@ -50,11 +50,11 @@ describe API::AuditEvents do
 
         context 'parameters' do
           context 'entity_type parameter' do
-            it "returns audit events of the provided entity type" do
+            it 'returns audit events of the provided entity type' do
               get api(url, admin), params: { entity_type: 'User' }
 
               expect(json_response.size).to eq 1
-              expect(json_response.first["id"]).to eq(user_audit_event.id)
+              expect(json_response.first['id']).to eq(user_audit_event.id)
             end
           end
 
@@ -69,31 +69,31 @@ describe API::AuditEvents do
               get api(url, admin), params: { entity_type: 'User', entity_id: user_audit_event.entity_id }
 
               expect(json_response.size).to eq 1
-              expect(json_response.first["id"]).to eq(user_audit_event.id)
+              expect(json_response.first['id']).to eq(user_audit_event.id)
             end
           end
 
           context 'created_before parameter' do
-            it "returns audit events created before the given parameter" do
+            it 'returns audit events created before the given parameter' do
               created_before = '2000-01-20T00:00:00.060Z'
 
               get api(url, admin), params: { created_before: created_before }
 
               expect(json_response.size).to eq 3
-              expect(json_response.first["id"]).to eq(group_audit_event.id)
-              expect(json_response.last["id"]).to eq(user_audit_event.id)
+              expect(json_response.first['id']).to eq(group_audit_event.id)
+              expect(json_response.last['id']).to eq(user_audit_event.id)
             end
           end
 
           context 'created_after parameter' do
-            it "returns audit events created after the given parameter" do
+            it 'returns audit events created after the given parameter' do
               created_after = '2000-01-12T00:00:00.060Z'
 
               get api(url, admin), params: { created_after: created_after }
 
               expect(json_response.size).to eq 2
-              expect(json_response.first["id"]).to eq(group_audit_event.id)
-              expect(json_response.last["id"]).to eq(project_audit_event.id)
+              expect(json_response.first['id']).to eq(group_audit_event.id)
+              expect(json_response.last['id']).to eq(project_audit_event.id)
             end
           end
         end
@@ -105,11 +105,11 @@ describe API::AuditEvents do
             response = json_response.first
             details = response['details']
 
-            expect(response["id"]).to eq(user_audit_event.id)
-            expect(response["author_id"]).to eq(user_audit_event.user.id)
-            expect(response["entity_id"]).to eq(user_audit_event.user.id)
-            expect(response["entity_type"]).to eq('User')
-            expect(Time.parse(response["created_at"])).to be_like_time(user_audit_event.created_at)
+            expect(response['id']).to eq(user_audit_event.id)
+            expect(response['author_id']).to eq(user_audit_event.user.id)
+            expect(response['entity_id']).to eq(user_audit_event.user.id)
+            expect(response['entity_type']).to eq('User')
+            expect(Time.parse(response['created_at'])).to be_like_time(user_audit_event.created_at)
             expect(details).to eq user_audit_event.formatted_details.with_indifferent_access
           end
         end
@@ -155,11 +155,11 @@ describe API::AuditEvents do
               get api(url, admin)
               details = json_response['details']
 
-              expect(json_response["id"]).to eq(user_audit_event.id)
-              expect(json_response["author_id"]).to eq(user_audit_event.user.id)
-              expect(json_response["entity_id"]).to eq(user_audit_event.user.id)
-              expect(json_response["entity_type"]).to eq('User')
-              expect(Time.parse(json_response["created_at"])).to be_like_time(user_audit_event.created_at)
+              expect(json_response['id']).to eq(user_audit_event.id)
+              expect(json_response['author_id']).to eq(user_audit_event.user.id)
+              expect(json_response['entity_id']).to eq(user_audit_event.user.id)
+              expect(json_response['entity_type']).to eq('User')
+              expect(Time.parse(json_response['created_at'])).to be_like_time(user_audit_event.created_at)
               expect(details).to eq user_audit_event.formatted_details.with_indifferent_access
             end
           end
@@ -167,7 +167,7 @@ describe API::AuditEvents do
 
         context 'audit event does not exist' do
           it_behaves_like '404 response' do
-            let(:url) { "/audit_events/10001" }
+            let(:url) { '/audit_events/10001' }
             let(:request) { get api(url, admin) }
           end
         end

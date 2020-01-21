@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe API::Services do
   set(:user) { create(:user) }
@@ -22,7 +22,7 @@ describe API::Services do
       post api('/slack/trigger'), params: { token: 'token', text: 'help' }
 
       expect(response).to have_gitlab_http_status(200)
-      expect(json_response['response_type']).to eq("ephemeral")
+      expect(json_response['response_type']).to eq('ephemeral')
     end
   end
 end

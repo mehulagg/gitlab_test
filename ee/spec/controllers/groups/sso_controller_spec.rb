@@ -133,7 +133,7 @@ describe Groups::SsoController do
     subject do
       get :sign_up_form,
           params: { group_id: group },
-          session: { "oauth_data" => oauth_data, "oauth_group_id" => oauth_group_id }
+          session: { 'oauth_data' => oauth_data, 'oauth_group_id' => oauth_group_id }
     end
 
     let(:oauth_data) { nil }
@@ -144,7 +144,7 @@ describe Groups::SsoController do
 
       context 'and group managed accounts enforced' do
         context 'and oauth data available' do
-          let(:oauth_data) { { "info" => { name: 'Test', email: 'testuser@email.com' } } }
+          let(:oauth_data) { { 'info' => { name: 'Test', email: 'testuser@email.com' } } }
 
           it 'has status 200' do
             expect(subject).to have_gitlab_http_status(200)
@@ -188,11 +188,11 @@ describe Groups::SsoController do
     subject do
       post :sign_up,
            params: { group_id: group, new_user: new_user_data },
-           session: { "oauth_data" => oauth_data, "oauth_group_id" => group.id }
+           session: { 'oauth_data' => oauth_data, 'oauth_group_id' => group.id }
     end
 
-    let(:new_user_data) { { username: "myusername" } }
-    let(:oauth_data) { { "info" => { name: 'Test', email: 'testuser@email.com' } } }
+    let(:new_user_data) { { username: 'myusername' } }
+    let(:oauth_data) { { 'info' => { name: 'Test', email: 'testuser@email.com' } } }
 
     let!(:saml_provider) { create(:saml_provider, :enforced_group_managed_accounts, group: group) }
 
@@ -227,7 +227,7 @@ describe Groups::SsoController do
       it 'redirects to sign in' do
         subject
 
-        expect(flash[:notice]).to eq "Sign up was successful! Please confirm your email to sign in."
+        expect(flash[:notice]).to eq 'Sign up was successful! Please confirm your email to sign in.'
         expect(response).to redirect_to sso_group_saml_providers_url(group, token: group.saml_discovery_token)
       end
 

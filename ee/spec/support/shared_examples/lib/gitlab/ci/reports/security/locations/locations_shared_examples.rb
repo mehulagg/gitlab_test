@@ -32,7 +32,7 @@ RSpec.shared_examples 'vulnerability location' do
   describe '#fingerprint' do
     subject { described_class.new(**params).fingerprint }
 
-    it "generates expected fingerprint" do
+    it 'generates expected fingerprint' do
       expect(subject).to eq(expected_fingerprint)
     end
   end
@@ -43,14 +43,14 @@ RSpec.shared_examples 'vulnerability location' do
 
     subject { location_1 == location_2 }
 
-    it "returns true when fingerprints are equal" do
+    it 'returns true when fingerprints are equal' do
       allow(location_1).to receive(:fingerprint).and_return('fingerprint')
       allow(location_2).to receive(:fingerprint).and_return('fingerprint')
 
       expect(subject).to eq(true)
     end
 
-    it "returns false when fingerprints are different" do
+    it 'returns false when fingerprints are different' do
       allow(location_1).to receive(:fingerprint).and_return('fingerprint')
       allow(location_2).to receive(:fingerprint).and_return('another_fingerprint')
 

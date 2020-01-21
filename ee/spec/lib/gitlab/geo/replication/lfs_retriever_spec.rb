@@ -27,7 +27,7 @@ describe Gitlab::Geo::Replication::LfsRetriever, :geo do
           let(:message) { { checksum: 'foo' } }
 
           it 'returns an error hash' do
-            expect(subject).to include(code: :not_found, message: "LFS object not found")
+            expect(subject).to include(code: :not_found, message: 'LFS object not found')
           end
         end
       end
@@ -41,7 +41,7 @@ describe Gitlab::Geo::Replication::LfsRetriever, :geo do
         end
 
         it 'logs the missing file' do
-          expect(retriever).to receive(:log_error).with("Could not upload LFS object because it does not have a file", id: lfs_object.id)
+          expect(retriever).to receive(:log_error).with('Could not upload LFS object because it does not have a file', id: lfs_object.id)
 
           subject
         end

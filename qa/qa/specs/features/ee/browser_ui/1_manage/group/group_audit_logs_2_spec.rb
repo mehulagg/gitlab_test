@@ -31,7 +31,7 @@ module QA
           Page::Group::Settings::General.perform(&:set_lfs_enabled)
         end
 
-        it_behaves_like 'group audit event logs', ["Change lfs enabled from false to true", "Change lfs enabled from true to false"]
+        it_behaves_like 'group audit event logs', ['Change lfs enabled from false to true', 'Change lfs enabled from true to false']
       end
 
       context 'Enable and disable LFS' do
@@ -45,7 +45,7 @@ module QA
           Page::Group::Settings::General.perform(&:set_membership_lock_disabled)
         end
 
-        it_behaves_like 'group audit event logs', ["Change membership lock from true to false", "Change membership lock from false to true"]
+        it_behaves_like 'group audit event logs', ['Change membership lock from true to false', 'Change membership lock from false to true']
       end
 
       context 'Enable and disable allow user request access' do
@@ -59,7 +59,7 @@ module QA
           Page::Group::Settings::General.perform(&:toggle_request_access)
         end
 
-        it_behaves_like 'group audit event logs', ["Change request access enabled from true to false", "Change request access enabled from false to true"]
+        it_behaves_like 'group audit event logs', ['Change request access enabled from true to false', 'Change request access enabled from false to true']
       end
 
       # Bug issue: https://gitlab.com/gitlab-org/gitlab/issues/31764
@@ -76,7 +76,7 @@ module QA
           Page::Group::Settings::General.perform(&:set_require_2fa_disabled)
         end
 
-        it_behaves_like 'group audit event logs', ["Change require two factor authentication from true to false", "Change require two factor authentication from false to true"]
+        it_behaves_like 'group audit event logs', ['Change require two factor authentication from true to false', 'Change require two factor authentication from false to true']
       end
 
       context 'Change project creation level' do
@@ -85,11 +85,11 @@ module QA
           @group.visit!
           Page::Group::Menu.perform(&:click_group_general_settings_item)
           Page::Group::Settings::General.perform do |settings|
-            settings.set_project_creation_level("Maintainers")
+            settings.set_project_creation_level('Maintainers')
           end
         end
 
-        it_behaves_like 'group audit event logs', ["Change project creation level"]
+        it_behaves_like 'group audit event logs', ['Change project creation level']
       end
     end
 

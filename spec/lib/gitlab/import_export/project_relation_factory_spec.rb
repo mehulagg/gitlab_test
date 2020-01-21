@@ -103,18 +103,18 @@ describe Gitlab::ImportExport::ProjectRelationFactory do
 
     let(:exported_member) do
       {
-        "id" => 111,
-        "access_level" => 30,
-        "source_id" => 1,
-        "source_type" => "Project",
-        "user_id" => 3,
-        "notification_level" => 3,
-        "created_at" => "2016-11-18T09:29:42.634Z",
-        "updated_at" => "2016-11-18T09:29:42.634Z",
-        "user" => {
-          "id" => user.id,
-          "email" => user.email,
-          "username" => user.username
+        'id' => 111,
+        'access_level' => 30,
+        'source_id' => 1,
+        'source_type' => 'Project',
+        'user_id' => 3,
+        'notification_level' => 3,
+        'created_at' => '2016-11-18T09:29:42.634Z',
+        'updated_at' => '2016-11-18T09:29:42.634Z',
+        'user' => {
+          'id' => user.id,
+          'email' => user.email,
+          'username' => user.username
         }
       }
     end
@@ -129,22 +129,22 @@ describe Gitlab::ImportExport::ProjectRelationFactory do
     let(:relation_hash) do
       {
         'id' => 27,
-        'target_branch' => "feature",
-        'source_branch' => "feature_conflict",
+        'target_branch' => 'feature',
+        'source_branch' => 'feature_conflict',
         'source_project_id' => project.id,
         'target_project_id' => project.id,
         'author_id' => user.id,
         'assignee_id' => user.id,
         'updated_by_id' => user.id,
-        'title' => "MR1",
-        'created_at' => "2016-06-14T15:02:36.568Z",
-        'updated_at' => "2016-06-14T15:02:56.815Z",
-        'state' => "opened",
-        'merge_status' => "unchecked",
-        'description' => "Description",
+        'title' => 'MR1',
+        'created_at' => '2016-06-14T15:02:36.568Z',
+        'updated_at' => '2016-06-14T15:02:56.815Z',
+        'state' => 'opened',
+        'merge_status' => 'unchecked',
+        'description' => 'Description',
         'position' => 0,
-        'source_branch_sha' => "ABCD",
-        'target_branch_sha' => "DCBA",
+        'source_branch_sha' => 'ABCD',
+        'target_branch_sha' => 'DCBA',
         'merge_when_pipeline_succeeds' => true
       }
     end
@@ -171,15 +171,15 @@ describe Gitlab::ImportExport::ProjectRelationFactory do
     let(:relation_hash) do
       {
         "id": 3,
-        "title": "test3",
-        "color": "#428bca",
+        "title": 'test3',
+        "color": '#428bca',
         "group_id": project.group.id,
-        "created_at": "2016-07-22T08:55:44.161Z",
-        "updated_at": "2016-07-22T08:55:44.161Z",
+        "created_at": '2016-07-22T08:55:44.161Z',
+        "updated_at": '2016-07-22T08:55:44.161Z',
         "template": false,
-        "description": "",
+        "description": '',
         "project_id": project.id,
-        "type": "GroupLabel"
+        "type": 'GroupLabel'
       }
     end
 
@@ -266,40 +266,40 @@ describe Gitlab::ImportExport::ProjectRelationFactory do
     let(:new_user) { create(:user) }
     let(:exported_member) do
       {
-        "id" => 111,
-        "access_level" => 30,
-        "source_id" => 1,
-        "source_type" => "Project",
-        "user_id" => 3,
-        "notification_level" => 3,
-        "created_at" => "2016-11-18T09:29:42.634Z",
-        "updated_at" => "2016-11-18T09:29:42.634Z",
-        "user" => {
-          "id" => 999,
-          "email" => new_user.email,
-          "username" => new_user.username
+        'id' => 111,
+        'access_level' => 30,
+        'source_id' => 1,
+        'source_type' => 'Project',
+        'user_id' => 3,
+        'notification_level' => 3,
+        'created_at' => '2016-11-18T09:29:42.634Z',
+        'updated_at' => '2016-11-18T09:29:42.634Z',
+        'user' => {
+          'id' => 999,
+          'email' => new_user.email,
+          'username' => new_user.username
         }
       }
     end
 
     let(:relation_hash) do
       {
-        "id" => 4947,
-        "note" => "merged",
-        "noteable_type" => "MergeRequest",
-        "author_id" => 999,
-        "created_at" => "2016-11-18T09:29:42.634Z",
-        "updated_at" => "2016-11-18T09:29:42.634Z",
-        "project_id" => 1,
-        "attachment" => {
-          "url" => nil
+        'id' => 4947,
+        'note' => 'merged',
+        'noteable_type' => 'MergeRequest',
+        'author_id' => 999,
+        'created_at' => '2016-11-18T09:29:42.634Z',
+        'updated_at' => '2016-11-18T09:29:42.634Z',
+        'project_id' => 1,
+        'attachment' => {
+          'url' => nil
         },
-        "noteable_id" => 377,
-        "system" => true,
-        "author" => {
-          "name" => "Administrator"
+        'noteable_id' => 377,
+        'system' => true,
+        'author' => {
+          'name' => 'Administrator'
         },
-        "events" => []
+        'events' => []
       }
     end
 

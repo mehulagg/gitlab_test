@@ -529,7 +529,7 @@ describe Projects::ClustersController do
     end
 
     describe 'functionality' do
-      it "responds with matching schema" do
+      it 'responds with matching schema' do
         go
 
         expect(response).to have_gitlab_http_status(:ok)
@@ -568,7 +568,7 @@ describe Projects::ClustersController do
     end
 
     describe 'functionality' do
-      it "renders view" do
+      it 'renders view' do
         go
 
         expect(response).to have_gitlab_http_status(:ok)
@@ -616,7 +616,7 @@ describe Projects::ClustersController do
       }
     end
 
-    it "updates and redirects back to show page" do
+    it 'updates and redirects back to show page' do
       go
 
       cluster.reload
@@ -644,7 +644,7 @@ describe Projects::ClustersController do
             }
           end
 
-          it "updates and redirects back to show page" do
+          it 'updates and redirects back to show page' do
             go(format: :json)
 
             cluster.reload
@@ -668,7 +668,7 @@ describe Projects::ClustersController do
             }
           end
 
-          it "rejects changes" do
+          it 'rejects changes' do
             go(format: :json)
 
             expect(response).to have_http_status(:bad_request)
@@ -706,7 +706,7 @@ describe Projects::ClustersController do
     describe 'functionality' do
       context 'when cluster is provided by GCP' do
         context 'when cluster is created' do
-          it "destroys and redirects back to clusters list" do
+          it 'destroys and redirects back to clusters list' do
             expect { go }
               .to change { Clusters::Cluster.count }.by(-1)
               .and change { Clusters::Platforms::Kubernetes.count }.by(-1)
@@ -720,7 +720,7 @@ describe Projects::ClustersController do
         context 'when cluster is being created' do
           let!(:cluster) { create(:cluster, :providing_by_gcp, :production_environment, projects: [project]) }
 
-          it "destroys and redirects back to clusters list" do
+          it 'destroys and redirects back to clusters list' do
             expect { go }
               .to change { Clusters::Cluster.count }.by(-1)
               .and change { Clusters::Providers::Gcp.count }.by(-1)
@@ -734,7 +734,7 @@ describe Projects::ClustersController do
       context 'when cluster is provided by user' do
         let!(:cluster) { create(:cluster, :provided_by_user, :production_environment, projects: [project]) }
 
-        it "destroys and redirects back to clusters list" do
+        it 'destroys and redirects back to clusters list' do
           expect { go }
             .to change { Clusters::Cluster.count }.by(-1)
             .and change { Clusters::Platforms::Kubernetes.count }.by(-1)

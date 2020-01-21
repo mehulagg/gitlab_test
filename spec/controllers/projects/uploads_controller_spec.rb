@@ -40,13 +40,13 @@ describe Projects::UploadsController do
     end
   end
 
-  context "when exception occurs" do
+  context 'when exception occurs' do
     before do
       allow(FileUploader).to receive(:workhorse_authorize).and_raise(SocketError.new)
       sign_in(create(:user))
     end
 
-    it "responds with status internal_server_error" do
+    it 'responds with status internal_server_error' do
       post_authorize
 
       expect(response).to have_gitlab_http_status(500)

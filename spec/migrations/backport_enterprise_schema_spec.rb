@@ -23,7 +23,7 @@ describe BackportEnterpriseSchema, :migration, schema: 20190329085614 do
       before do
         drop_if_exists(:epics)
 
-        active_record_base.connection.create_table "epics" do |t|
+        active_record_base.connection.create_table 'epics' do |t|
           t.integer :group_id, null: false, index: true
           t.integer :author_id, null: false, index: true
         end

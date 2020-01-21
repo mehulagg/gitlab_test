@@ -15,7 +15,7 @@ describe Gitlab::SlashCommands::Presenters::Deploy do
 
     it 'messages the channel of the deploy' do
       expect(subject[:response_type]).to be(:in_channel)
-      expect(subject[:text]).to start_with("Deployment started from staging to prod")
+      expect(subject[:text]).to start_with('Deployment started from staging to prod')
     end
   end
 

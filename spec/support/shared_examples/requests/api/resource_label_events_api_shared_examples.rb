@@ -2,10 +2,10 @@
 
 RSpec.shared_examples 'resource_label_events API' do |parent_type, eventable_type, id_name|
   describe "GET /#{parent_type}/:id/#{eventable_type}/:noteable_id/resource_label_events" do
-    context "with local label reference" do
+    context 'with local label reference' do
       let!(:event) { create_event(label) }
 
-      it "returns an array of resource label events" do
+      it 'returns an array of resource label events' do
         get api("/#{parent_type}/#{parent.id}/#{eventable_type}/#{eventable[id_name]}/resource_label_events", user)
 
         expect(response).to have_gitlab_http_status(:ok)
@@ -14,13 +14,13 @@ RSpec.shared_examples 'resource_label_events API' do |parent_type, eventable_typ
         expect(json_response.first['id']).to eq(event.id)
       end
 
-      it "returns a 404 error when eventable id not found" do
+      it 'returns a 404 error when eventable id not found' do
         get api("/#{parent_type}/#{parent.id}/#{eventable_type}/12345/resource_label_events", user)
 
         expect(response).to have_gitlab_http_status(:not_found)
       end
 
-      it "returns 404 when not authorized" do
+      it 'returns 404 when not authorized' do
         parent.update!(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
         private_user = create(:user)
 
@@ -30,12 +30,12 @@ RSpec.shared_examples 'resource_label_events API' do |parent_type, eventable_typ
       end
     end
 
-    context "with cross-project label reference" do
+    context 'with cross-project label reference' do
       let(:private_project) { create(:project, :private) }
       let(:project_label) { create(:label, project: private_project) }
       let!(:event) { create_event(project_label) }
 
-      it "returns cross references accessible by user" do
+      it 'returns cross references accessible by user' do
         private_project.add_guest(user)
 
         get api("/#{parent_type}/#{parent.id}/#{eventable_type}/#{eventable[id_name]}/resource_label_events", user)
@@ -44,7 +44,7 @@ RSpec.shared_examples 'resource_label_events API' do |parent_type, eventable_typ
         expect(json_response.first['id']).to eq(event.id)
       end
 
-      it "does not return cross references not accessible by user" do
+      it 'does not return cross references not accessible by user' do
         get api("/#{parent_type}/#{parent.id}/#{eventable_type}/#{eventable[id_name]}/resource_label_events", user)
 
         expect(json_response).to be_an Array
@@ -54,17 +54,17 @@ RSpec.shared_examples 'resource_label_events API' do |parent_type, eventable_typ
   end
 
   describe "GET /#{parent_type}/:id/#{eventable_type}/:noteable_id/resource_label_events/:event_id" do
-    context "with local label reference" do
+    context 'with local label reference' do
       let!(:event) { create_event(label) }
 
-      it "returns a resource label event by id" do
+      it 'returns a resource label event by id' do
         get api("/#{parent_type}/#{parent.id}/#{eventable_type}/#{eventable[id_name]}/resource_label_events/#{event.id}", user)
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['id']).to eq(event.id)
       end
 
-      it "returns 404 when not authorized" do
+      it 'returns 404 when not authorized' do
         parent.update!(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
         private_user = create(:user)
 
@@ -73,19 +73,19 @@ RSpec.shared_examples 'resource_label_events API' do |parent_type, eventable_typ
         expect(response).to have_gitlab_http_status(:not_found)
       end
 
-      it "returns a 404 error if resource label event not found" do
+      it 'returns a 404 error if resource label event not found' do
         get api("/#{parent_type}/#{parent.id}/#{eventable_type}/#{eventable[id_name]}/resource_label_events/12345", user)
 
         expect(response).to have_gitlab_http_status(:not_found)
       end
     end
 
-    context "with cross-project label reference" do
+    context 'with cross-project label reference' do
       let(:private_project) { create(:project, :private) }
       let(:project_label) { create(:label, project: private_project) }
       let!(:event) { create_event(project_label) }
 
-      it "returns a 404 error if cross-reference project is not accessible" do
+      it 'returns a 404 error if cross-reference project is not accessible' do
         get api("/#{parent_type}/#{parent.id}/#{eventable_type}/#{eventable[id_name]}/resource_label_events/#{event.id}", user)
 
         expect(response).to have_gitlab_http_status(:not_found)

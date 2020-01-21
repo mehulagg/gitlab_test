@@ -21,7 +21,7 @@ describe Projects::ForkService do
       before do
         @from_user = create(:user)
         @from_namespace = @from_user.namespace
-        avatar = fixture_file_upload("spec/fixtures/dk.png", "image/png")
+        avatar = fixture_file_upload('spec/fixtures/dk.png', 'image/png')
         @from_project = create(:project,
                                :repository,
                                creator_id: @from_user.id,
@@ -55,7 +55,7 @@ describe Projects::ForkService do
           let(:to_user) { @to_user }
         end
 
-        describe "successfully creates project in the user namespace" do
+        describe 'successfully creates project in the user namespace' do
           let(:to_project) { fork_project(@from_project, @to_user, namespace: @to_user.namespace) }
 
           it { expect(to_project).to be_persisted }
@@ -70,7 +70,7 @@ describe Projects::ForkService do
           # This test is here because we had a bug where the from-project lost its
           # avatar after being forked.
           # https://gitlab.com/gitlab-org/gitlab-foss/issues/26158
-          it "after forking the from-project still has its avatar" do
+          it 'after forking the from-project still has its avatar' do
             # If we do not fork the project first we cannot detect the bug.
             expect(to_project).to be_persisted
 
@@ -123,7 +123,7 @@ describe Projects::ForkService do
       end
 
       context 'project already exists' do
-        it "fails due to validation, not transaction failure" do
+        it 'fails due to validation, not transaction failure' do
           @existing_project = create(:project, :repository, creator_id: @to_user.id, name: @from_project.name, namespace: @to_namespace)
           @to_project = fork_project(@from_project, @to_user, namespace: @to_namespace)
           expect(@existing_project).to be_persisted
@@ -167,57 +167,57 @@ describe Projects::ForkService do
       end
 
       context 'GitLab CI is enabled' do
-        it "forks and enables CI for fork" do
+        it 'forks and enables CI for fork' do
           @from_project.enable_ci
           @to_project = fork_project(@from_project, @to_user)
           expect(@to_project.builds_enabled?).to be_truthy
         end
       end
 
-      context "CI/CD settings" do
+      context 'CI/CD settings' do
         let(:to_project) { fork_project(@from_project, @to_user) }
 
-        context "when origin has git depth specified" do
+        context 'when origin has git depth specified' do
           before do
             @from_project.update(ci_default_git_depth: 42)
           end
 
-          it "inherits default_git_depth from the origin project" do
+          it 'inherits default_git_depth from the origin project' do
             expect(to_project.ci_default_git_depth).to eq(42)
           end
         end
 
-        context "when origin does not define git depth" do
+        context 'when origin does not define git depth' do
           before do
             @from_project.update!(ci_default_git_depth: nil)
           end
 
-          it "the fork has git depth set to 0" do
+          it 'the fork has git depth set to 0' do
             expect(to_project.ci_default_git_depth).to eq(0)
           end
         end
       end
 
-      context "when project has restricted visibility level" do
-        context "and only one visibility level is restricted" do
+      context 'when project has restricted visibility level' do
+        context 'and only one visibility level is restricted' do
           before do
             @from_project.update(visibility_level: Gitlab::VisibilityLevel::INTERNAL)
             stub_application_setting(restricted_visibility_levels: [Gitlab::VisibilityLevel::INTERNAL])
           end
 
-          it "creates fork with lowest level" do
+          it 'creates fork with lowest level' do
             forked_project = fork_project(@from_project, @to_user)
 
             expect(forked_project.visibility_level).to eq(Gitlab::VisibilityLevel::PRIVATE)
           end
         end
 
-        context "and all visibility levels are restricted" do
+        context 'and all visibility levels are restricted' do
           before do
             stub_application_setting(restricted_visibility_levels: [Gitlab::VisibilityLevel::PUBLIC, Gitlab::VisibilityLevel::INTERNAL, Gitlab::VisibilityLevel::PRIVATE])
           end
 
-          it "creates fork with private visibility levels" do
+          it 'creates fork with private visibility levels' do
             forked_project = fork_project(@from_project, @to_user)
 
             expect(forked_project.visibility_level).to eq(Gitlab::VisibilityLevel::PRIVATE)

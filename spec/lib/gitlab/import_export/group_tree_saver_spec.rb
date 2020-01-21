@@ -154,7 +154,7 @@ describe Gitlab::ImportExport::GroupTreeSaver do
 
       context 'group attributes' do
         it 'does not contain the runners token' do
-          expect(saved_group_json).not_to include("runners_token" => 'token')
+          expect(saved_group_json).not_to include('runners_token' => 'token')
         end
       end
     end

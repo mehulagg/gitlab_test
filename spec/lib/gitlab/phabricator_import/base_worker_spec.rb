@@ -27,7 +27,7 @@ describe Gitlab::PhabricatorImport::BaseWorker do
   end
 
   describe '#perform' do
-    let(:project) { create(:project, :import_started, import_url: "https://a.phab.instance") }
+    let(:project) { create(:project, :import_started, import_url: 'https://a.phab.instance') }
     let(:worker) { subclass.new }
     let(:state) { Gitlab::PhabricatorImport::WorkerState.new(project.id) }
 

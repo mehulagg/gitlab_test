@@ -33,7 +33,7 @@ describe API::ProjectAliases, api: true do
       let(:project) { create(:project) }
 
       before do
-        post api("/project_aliases", admin), params: { project_id: project.id, name: 'some-project' }
+        post api('/project_aliases', admin), params: { project_id: project.id, name: 'some-project' }
       end
 
       it 'returns 403' do
@@ -131,7 +131,7 @@ describe API::ProjectAliases, api: true do
       let(:alias_name) { project_alias.name }
 
       before do
-        post api("/project_aliases", user), params: { project_id: project.id, name: alias_name }
+        post api('/project_aliases', user), params: { project_id: project.id, name: alias_name }
       end
 
       it_behaves_like 'GitLab administrator only API endpoint'

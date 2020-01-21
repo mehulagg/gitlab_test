@@ -50,7 +50,7 @@ describe RuboCop::Cop::Migration::SaferBooleanColumn do
 
         inoffensive_sources.each do |source|
           context "given the source \"#{source}\"" do
-            it "registers no offense" do
+            it 'registers no offense' do
               inspect_source(source)
 
               aggregate_failures do
@@ -63,7 +63,7 @@ describe RuboCop::Cop::Migration::SaferBooleanColumn do
     end
 
     it 'registers no offense for tables not listed in SMALL_TABLES' do
-      inspect_source("add_column :large_table, :column, :boolean")
+      inspect_source('add_column :large_table, :column, :boolean')
 
       expect(cop.offenses).to be_empty
     end

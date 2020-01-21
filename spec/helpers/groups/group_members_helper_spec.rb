@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe Groups::GroupMembersHelper do
   describe '.group_member_select_options' do

@@ -31,15 +31,15 @@ class Projects::TriggersController < Projects::ApplicationController
     if trigger.update(trigger_params)
       redirect_to project_settings_ci_cd_path(@project, anchor: 'js-pipeline-triggers'), notice: _('Trigger was successfully updated.')
     else
-      render action: "edit"
+      render action: 'edit'
     end
   end
 
   def destroy
     if trigger.destroy
-      flash[:notice] = _("Trigger removed.")
+      flash[:notice] = _('Trigger removed.')
     else
-      flash[:alert] = _("Could not remove the trigger.")
+      flash[:alert] = _('Could not remove the trigger.')
     end
 
     redirect_to project_settings_ci_cd_path(@project, anchor: 'js-pipeline-triggers'), status: :found

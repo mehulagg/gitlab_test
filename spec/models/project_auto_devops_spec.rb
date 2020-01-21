@@ -38,7 +38,7 @@ describe ProjectAutoDevops do
 
       it do
         expect(auto_devops.predefined_variables.map { |var| var[:key] })
-          .not_to include("STAGING_ENABLED", "INCREMENTAL_ROLLOUT_ENABLED")
+          .not_to include('STAGING_ENABLED', 'INCREMENTAL_ROLLOUT_ENABLED')
       end
     end
 
@@ -51,7 +51,7 @@ describe ProjectAutoDevops do
 
       it do
         expect(auto_devops.predefined_variables.map { |var| var[:key] })
-          .not_to include("STAGING_ENABLED", "INCREMENTAL_ROLLOUT_ENABLED")
+          .not_to include('STAGING_ENABLED', 'INCREMENTAL_ROLLOUT_ENABLED')
       end
     end
 

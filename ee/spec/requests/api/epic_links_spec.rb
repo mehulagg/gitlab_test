@@ -57,7 +57,7 @@ describe API::EpicLinks do
 
         expect(response).to have_gitlab_http_status(200)
         expect(response).to match_response_schema('public_api/v4/epics', dir: 'ee')
-        expect(epics.map { |epic| epic["id"] }).to eq([child_epic2.id, child_epic1.id])
+        expect(epics.map { |epic| epic['id'] }).to eq([child_epic2.id, child_epic1.id])
       end
     end
   end
@@ -150,7 +150,7 @@ describe API::EpicLinks do
         context 'and epic has errors' do
           it 'returns 400 error' do
             child_epic = Epic.new(title: 'with errors')
-            errors = ActiveModel::Errors.new(child_epic).tap { |e| e.add(:parent_id, "error message") }
+            errors = ActiveModel::Errors.new(child_epic).tap { |e| e.add(:parent_id, 'error message') }
             allow(child_epic).to receive(:errors).and_return(errors)
             allow_next_instance_of(Epics::CreateService) do |service|
               allow(service).to receive(:execute).and_return(child_epic)

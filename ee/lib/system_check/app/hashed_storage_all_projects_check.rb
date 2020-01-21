@@ -12,7 +12,7 @@ module SystemCheck
       def show_error
         try_fixing_it(
           "Please migrate all projects to hashed storage#{' on the primary' if Gitlab::Geo.secondary?}",
-          "to avoid security issues and ensure data integrity."
+          'to avoid security issues and ensure data integrity.'
         )
 
         for_more_information('doc/administration/repository_storage_types.md')

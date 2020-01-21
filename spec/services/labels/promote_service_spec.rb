@@ -19,10 +19,10 @@ describe Labels::PromoteService do
     end
 
     context 'project with group' do
-      let!(:promoted_label_name)  { "Promoted Label" }
-      let!(:untouched_label_name) { "Untouched Label" }
-      let!(:promoted_description) { "Promoted Description" }
-      let!(:promoted_color)       { "#0000FF" }
+      let!(:promoted_label_name)  { 'Promoted Label' }
+      let!(:untouched_label_name) { 'Untouched Label' }
+      let!(:promoted_description) { 'Promoted Description' }
+      let!(:promoted_color)       { '#0000FF' }
       let!(:label_2_1_priority)   { 1 }
       let!(:label_3_1_priority)   { 2 }
 
@@ -38,7 +38,7 @@ describe Labels::PromoteService do
       # all other objects too since we use them inside
       let!(:project_label_1_1)  { create(:label, project: project_1, name: promoted_label_name, color: promoted_color, description: promoted_description) }
       let!(:project_label_1_2)  { create(:label, project: project_1, name: untouched_label_name) }
-      let!(:project_label_2_1)  { create(:label, project: project_2, priority: label_2_1_priority, name: promoted_label_name, color: "#FF0000") }
+      let!(:project_label_2_1)  { create(:label, project: project_2, priority: label_2_1_priority, name: promoted_label_name, color: '#FF0000') }
       let!(:project_label_3_1)  { create(:label, project: project_3, priority: label_3_1_priority, name: promoted_label_name) }
       let!(:project_label_3_2)  { create(:label, project: project_3, priority: 1, name: untouched_label_name) }
       let!(:project_label_4_1)  { create(:label, project: project_4, name: promoted_label_name) }

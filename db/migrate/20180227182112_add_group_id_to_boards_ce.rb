@@ -24,7 +24,7 @@ class AddGroupIdToBoardsCe < ActiveRecord::Migration[4.2]
     remove_index :boards, :group_id if index_exists? :boards, :group_id
     remove_column :boards, :group_id
 
-    execute "DELETE from boards WHERE project_id IS NULL"
+    execute 'DELETE from boards WHERE project_id IS NULL'
     change_column_null :boards, :project_id, false
   end
 

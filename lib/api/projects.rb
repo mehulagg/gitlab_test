@@ -78,8 +78,8 @@ module API
       params :create_params do
         optional :namespace_id, type: Integer, desc: 'Namespace ID for the new project. Default to the user namespace.'
         optional :import_url, type: String, desc: 'URL from which the project is imported'
-        optional :template_name, type: String, desc: "Name of template from which to create project"
-        optional :template_project_id, type: Integer, desc: "Project ID of template from which to create project"
+        optional :template_name, type: String, desc: 'Name of template from which to create project'
+        optional :template_project_id, type: Integer, desc: 'Project ID of template from which to create project'
         mutually_exclusive :import_url, :template_name, :template_project_id
       end
 
@@ -124,7 +124,7 @@ module API
         use :statistics_params
         use :with_custom_attributes
       end
-      get ":user_id/projects" do
+      get ':user_id/projects' do
         user = find_user(params[:user_id])
         not_found!('User') unless user
 
@@ -141,7 +141,7 @@ module API
         use :collection_params
         use :statistics_params
       end
-      get ":user_id/starred_projects" do
+      get ':user_id/starred_projects' do
         user = find_user(params[:user_id])
         not_found!('User') unless user
 
@@ -207,7 +207,7 @@ module API
         use :create_params
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      post "user/:user_id" do
+      post 'user/:user_id' do
         authenticated_as_admin!
         user = User.find_by(id: params.delete(:user_id))
         not_found!('User') unless user
@@ -242,7 +242,7 @@ module API
         optional :license, type: Boolean, default: false,
                            desc: 'Include project license data'
       end
-      get ":id" do
+      get ':id' do
         options = {
           with: current_user ? Entities::ProjectWithAccess : Entities::BasicProjectDetails,
           current_user: current_user,
@@ -413,7 +413,7 @@ module API
       end
 
       desc 'Remove a project'
-      delete ":id" do
+      delete ':id' do
         authorize! :remove_project, user_project
 
         delete_project(user_project)
@@ -423,24 +423,24 @@ module API
       params do
         requires :forked_from_id, type: String, desc: 'The ID of the project it was forked from'
       end
-      post ":id/fork/:forked_from_id" do
+      post ':id/fork/:forked_from_id' do
         authorize! :admin_project, user_project
 
         fork_from_project = find_project!(params[:forked_from_id])
 
-        not_found!("Source Project") unless fork_from_project
+        not_found!('Source Project') unless fork_from_project
 
         result = ::Projects::ForkService.new(fork_from_project, current_user).execute(user_project)
 
         if result
           present user_project.reset, with: Entities::Project, current_user: current_user
         else
-          render_api_error!("Project already forked", 409) if user_project.forked?
+          render_api_error!('Project already forked', 409) if user_project.forked?
         end
       end
 
       desc 'Remove a forked_from relationship'
-      delete ":id/fork" do
+      delete ':id/fork' do
         authorize! :remove_fork_project, user_project
 
         result = destroy_conditionally!(user_project) do
@@ -458,12 +458,12 @@ module API
         requires :group_access, type: Integer, values: Gitlab::Access.values, as: :link_group_access, desc: 'The group access level'
         optional :expires_at, type: Date, desc: 'Share expiration date'
       end
-      post ":id/share" do
+      post ':id/share' do
         authorize! :admin_project, user_project
         group = Group.find_by_id(params[:group_id])
 
         unless user_project.allowed_to_share_with_group?
-          break render_api_error!("The project sharing with group is disabled", 400)
+          break render_api_error!('The project sharing with group is disabled', 400)
         end
 
         result = ::Projects::GroupLinks::CreateService.new(user_project, current_user, declared_params(include_missing: false))
@@ -480,7 +480,7 @@ module API
         requires :group_id, type: Integer, desc: 'The ID of the group'
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      delete ":id/share/:group_id" do
+      delete ':id/share/:group_id' do
         authorize! :admin_project, user_project
 
         link = user_project.project_group_links.find_by(group_id: params[:group_id])
@@ -495,7 +495,7 @@ module API
         # TODO: remove rubocop disable - https://gitlab.com/gitlab-org/gitlab/issues/14960
         requires :file, type: File, desc: 'The file to be uploaded' # rubocop:disable Scalability/FileUploads
       end
-      post ":id/uploads" do
+      post ':id/uploads' do
         UploadService.new(user_project, params[:file]).execute.to_h
       end
 
@@ -532,7 +532,7 @@ module API
       params do
         requires :namespace, type: String, desc: 'The ID or path of the new namespace'
       end
-      put ":id/transfer" do
+      put ':id/transfer' do
         authorize! :change_namespace, user_project
 
         namespace = find_namespace!(params[:namespace])

@@ -7,15 +7,15 @@ describe SubscriptionsHelper do
     let_it_be(:raw_plan_data) do
       [
         {
-          "name" => "Free Plan",
-          "free" => true
+          'name' => 'Free Plan',
+          'free' => true
         },
         {
-          "id" => "bronze_id",
-          "name" => "Bronze Plan",
-          "free" => false,
-          "code" => "bronze",
-          "price_per_year" => 48.0
+          'id' => 'bronze_id',
+          'name' => 'Bronze Plan',
+          'free' => false,
+          'code' => 'bronze',
+          'price_per_year' => 48.0
         }
       ]
     end

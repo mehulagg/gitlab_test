@@ -8,7 +8,7 @@ describe CreateMissingNamespaceForInternalUsers, :migration do
   let(:namespaces) { table(:namespaces) }
   let(:routes) { table(:routes) }
 
-  context "for ghost user" do
+  context 'for ghost user' do
     let(:internal_user) do
       users.create!(email: 'test@example.com', projects_limit: 100, username: 'test', ghost: true)
     end

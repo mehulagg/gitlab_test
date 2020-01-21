@@ -32,18 +32,18 @@ class ChaosController < ActionController::Base
       Gitlab::Chaos.public_send(method, *args) # rubocop: disable GitlabSecurity/PublicSend
     end
 
-    render plain: "OK"
+    render plain: 'OK'
   end
 
   def validate_chaos_secret
     unless chaos_secret_configured
-      render plain: "chaos misconfigured: please configure GITLAB_CHAOS_SECRET",
+      render plain: 'chaos misconfigured: please configure GITLAB_CHAOS_SECRET',
              status: :internal_server_error
       return
     end
 
     unless Devise.secure_compare(chaos_secret_configured, chaos_secret_request)
-      render plain: "To experience chaos, please set a valid `X-Chaos-Secret` header or `token` param",
+      render plain: 'To experience chaos, please set a valid `X-Chaos-Secret` header or `token` param',
              status: :unauthorized
       return
     end
@@ -54,7 +54,7 @@ class ChaosController < ActionController::Base
   end
 
   def chaos_secret_request
-    request.headers["HTTP_X_CHAOS_SECRET"] || params[:token]
+    request.headers['HTTP_X_CHAOS_SECRET'] || params[:token]
   end
 
   def interval_s

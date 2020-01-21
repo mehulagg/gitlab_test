@@ -71,7 +71,7 @@ module Clusters
 
       def post_delete_script
         [
-          Gitlab::Kubernetes::KubectlCmd.delete("pvc", "--selector", "release=elastic-stack")
+          Gitlab::Kubernetes::KubectlCmd.delete('pvc', '--selector', 'release=elastic-stack')
         ].compact
       end
 

@@ -15,16 +15,16 @@ module Spec
     module Helpers
       module Features
         module BranchesHelpers
-          def create_branch(branch_name, source_branch_name = "master")
-            fill_in("branch_name", with: branch_name)
+          def create_branch(branch_name, source_branch_name = 'master')
+            fill_in('branch_name', with: branch_name)
             select_branch(source_branch_name)
-            click_button("Create branch")
+            click_button('Create branch')
           end
 
           def select_branch(branch_name)
-            find(".js-branch-select").click
+            find('.js-branch-select').click
 
-            page.within("#new-branch-form .dropdown-menu") do
+            page.within('#new-branch-form .dropdown-menu') do
               click_link(branch_name)
             end
           end

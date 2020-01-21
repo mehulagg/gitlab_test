@@ -17,7 +17,7 @@ module Milestones
     # rubocop: disable CodeReuse/ActiveRecord
     def find_milestone
       groups = project.group&.self_and_ancestors_ids
-      Milestone.for_projects_and_groups([project.id], groups).find_by(title: params["title"])
+      Milestone.for_projects_and_groups([project.id], groups).find_by(title: params['title'])
     end
     # rubocop: enable CodeReuse/ActiveRecord
 

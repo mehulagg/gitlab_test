@@ -18,8 +18,8 @@ describe 'Diff file viewer', :js do
 
     it 'shows highlighted Ruby code' do
       within('.diff-file[id="2f6fcd96b88b36ce98c38da085c795a27d92a3dd"]') do
-        expect(page).to have_css(".js-syntax-highlight")
-        expect(page).to have_content("def popen(cmd, path=nil)")
+        expect(page).to have_css('.js-syntax-highlight')
+        expect(page).to have_content('def popen(cmd, path=nil)')
       end
     end
   end
@@ -33,7 +33,7 @@ describe 'Diff file viewer', :js do
         project.creator,
         start_branch: 'master',
         branch_name: 'master',
-        commit_message: "Add Ruby file in LFS",
+        commit_message: 'Add Ruby file in LFS',
         file_path: 'files/lfs/ruby.rb',
         file_content: project.repository.blob_at('master', 'files/lfs/lfs_object.iso').data
       ).execute[:result]

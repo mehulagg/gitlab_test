@@ -2,9 +2,9 @@
 
 module GitHelper
   def strip_signature(text)
-    text = text.gsub(/-----BEGIN PGP SIGNATURE-----(.*)-----END PGP SIGNATURE-----/m, "")
-    text = text.gsub(/-----BEGIN PGP MESSAGE-----(.*)-----END PGP MESSAGE-----/m, "")
-    text = text.gsub(/-----BEGIN SIGNED MESSAGE-----(.*)-----END SIGNED MESSAGE-----/m, "")
+    text = text.gsub(/-----BEGIN PGP SIGNATURE-----(.*)-----END PGP SIGNATURE-----/m, '')
+    text = text.gsub(/-----BEGIN PGP MESSAGE-----(.*)-----END PGP MESSAGE-----/m, '')
+    text = text.gsub(/-----BEGIN SIGNED MESSAGE-----(.*)-----END SIGNED MESSAGE-----/m, '')
     text
   end
 

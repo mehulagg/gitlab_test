@@ -93,7 +93,7 @@ class WikiPage
     if @attributes[:title]
       CGI.unescape_html(self.class.unhyphenize(@attributes[:title]))
     else
-      ""
+      ''
     end
   end
 

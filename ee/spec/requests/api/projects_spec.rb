@@ -387,7 +387,7 @@ describe API::Projects do
       let(:import_url) { generate(:url) }
       let(:mirror_params) do
         {
-          name: "Foo",
+          name: 'Foo',
           mirror: true,
           import_url: import_url,
           mirror_trigger_builds: true
@@ -611,7 +611,7 @@ describe API::Projects do
         put(api("/projects/#{project.id}", user), params: mirror_params)
 
         expect(response).to have_gitlab_http_status(400)
-        expect(json_response["message"]["mirror_user_id"].first).to eq("is invalid")
+        expect(json_response['message']['mirror_user_id'].first).to eq('is invalid')
       end
 
       it 'returns 403 when the user does not have access to mirror settings' do
@@ -695,7 +695,7 @@ describe API::Projects do
         post api("/projects/#{project.id}/restore", user)
 
         expect(response).to have_gitlab_http_status(400)
-        expect(json_response["message"]).to eq(message)
+        expect(json_response['message']).to eq(message)
       end
     end
 
@@ -732,7 +732,7 @@ describe API::Projects do
         delete api("/projects/#{project.id}", user)
 
         expect(response).to have_gitlab_http_status(400)
-        expect(json_response["message"]).to eq(message)
+        expect(json_response['message']).to eq(message)
       end
 
       context 'when instance setting is set to 0 days' do

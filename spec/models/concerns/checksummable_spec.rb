@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Checksummable do
-  describe ".hexdigest" do
+  describe '.hexdigest' do
     let(:fake_class) do
       Class.new do
         include Checksummable

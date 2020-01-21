@@ -27,7 +27,7 @@ class MigrateCodeOwnerApprovalStatusToProtectedBranchesInBatches < ActiveRecord:
   end
 
   def up
-    add_concurrent_index :projects, :id, name: "temp_active_projects_with_prot_branches", where: 'archived = false and pending_delete = false and merge_requests_require_code_owner_approval = true'
+    add_concurrent_index :projects, :id, name: 'temp_active_projects_with_prot_branches', where: 'archived = false and pending_delete = false and merge_requests_require_code_owner_approval = true'
 
     ProtectedBranch
       .joins(:project)
@@ -36,7 +36,7 @@ class MigrateCodeOwnerApprovalStatusToProtectedBranchesInBatches < ActiveRecord:
         batch.update_all(code_owner_approval_required: true)
       end
 
-    remove_concurrent_index_by_name(:projects, "temp_active_projects_with_prot_branches")
+    remove_concurrent_index_by_name(:projects, 'temp_active_projects_with_prot_branches')
   end
 
   def down

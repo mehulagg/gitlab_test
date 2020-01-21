@@ -48,9 +48,9 @@ describe Gitlab::HookData::IssuableBuilder do
             assignees: [
               [],
               [{
-                name: "Foo Bar",
-                username: "foobar",
-                avatar_url: "http://www.example.com/my-avatar.jpg"
+                name: 'Foo Bar',
+                username: 'foobar',
+                avatar_url: 'http://www.example.com/my-avatar.jpg'
               }]
             ]
           }
@@ -72,9 +72,9 @@ describe Gitlab::HookData::IssuableBuilder do
             assignees: {
               previous: [],
                 current: [{
-                  name: "Foo Bar",
-                  username: "foobar",
-                  avatar_url: "http://www.example.com/my-avatar.jpg"
+                  name: 'Foo Bar',
+                  username: 'foobar',
+                  avatar_url: 'http://www.example.com/my-avatar.jpg'
                 }]
             }
           }))

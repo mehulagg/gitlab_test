@@ -62,7 +62,7 @@ class ProductivityAnalytics
   def scatterplot_query(column)
     MergeRequest::Metrics.joins(:merge_request).where(merge_request_id: merge_requests)
       .select("#{column} as metric, merge_requests.id, merge_request_metrics.merged_at")
-      .order("merge_request_metrics.merged_at ASC, id ASC")
+      .order('merge_request_metrics.merged_at ASC, id ASC')
   end
 
   def sorting

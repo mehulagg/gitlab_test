@@ -113,11 +113,11 @@ module Gitlab
       end
 
       def self.parse_search_result(result)
-        ref = result["_source"]["blob"]["commit_sha"]
-        path = result["_source"]["blob"]["path"]
+        ref = result['_source']['blob']['commit_sha']
+        path = result['_source']['blob']['path']
         extname = File.extname(path)
         basename = path.sub(/#{extname}$/, '')
-        content = result["_source"]["blob"]["content"]
+        content = result['_source']['blob']['content']
         project_id = result['_source']['project_id'].to_i
         total_lines = content.lines.size
 
@@ -303,7 +303,7 @@ module Gitlab
 
         conditions =
           if project_ids == :any
-            [{ exists: { field: "id" } }]
+            [{ exists: { field: 'id' } }]
           else
             project_ids = Project
               .id_in(project_ids)

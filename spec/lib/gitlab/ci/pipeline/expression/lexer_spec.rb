@@ -23,7 +23,7 @@ describe Gitlab::Ci::Pipeline::Expression::Lexer do
     end
 
     it 'returns multiple values of the same token' do
-      tokens = described_class.new("$VARIABLE1 $VARIABLE2").tokens
+      tokens = described_class.new('$VARIABLE1 $VARIABLE2').tokens
 
       expect(tokens.size).to eq 2
       expect(tokens).to all(be_an_instance_of(token_class))
@@ -48,7 +48,7 @@ describe Gitlab::Ci::Pipeline::Expression::Lexer do
     end
 
     it 'limits statement to specified amount of tokens' do
-      lexer = described_class.new("$V1 $V2 $V3 $V4", max_tokens: 3)
+      lexer = described_class.new('$V1 $V2 $V3 $V4', max_tokens: 3)
 
       expect { lexer.tokens }
         .to raise_error described_class::SyntaxError

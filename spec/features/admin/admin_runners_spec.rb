@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe "Admin Runners" do
+describe 'Admin Runners' do
   include StubENV
   include FilteredSearchHelpers
   include SortingHelper
@@ -12,17 +12,17 @@ describe "Admin Runners" do
     sign_in(create(:admin))
   end
 
-  describe "Runners page" do
+  describe 'Runners page' do
     let(:pipeline) { create(:ci_pipeline) }
 
-    context "when there are runners" do
+    context 'when there are runners' do
       it 'has all necessary texts' do
         runner = create(:ci_runner, contacted_at: Time.now)
         create(:ci_build, pipeline: pipeline, runner_id: runner.id)
         visit admin_runners_path
 
-        expect(page).to have_text "Set up a shared Runner manually"
-        expect(page).to have_text "Runners currently online: 1"
+        expect(page).to have_text 'Set up a shared Runner manually'
+        expect(page).to have_text 'Runners currently online: 1'
       end
 
       describe 'search', :js do
@@ -36,8 +36,8 @@ describe "Admin Runners" do
         it 'shows correct runner when description matches' do
           input_filtered_search_keys('runner-foo')
 
-          expect(page).to have_content("runner-foo")
-          expect(page).not_to have_content("runner-bar")
+          expect(page).to have_content('runner-foo')
+          expect(page).not_to have_content('runner-bar')
         end
 
         it 'shows no runner when description does not match' do
@@ -219,14 +219,14 @@ describe "Admin Runners" do
       end
     end
 
-    context "when there are no runners" do
+    context 'when there are no runners' do
       before do
         visit admin_runners_path
       end
 
       it 'has all necessary texts including no runner message' do
-        expect(page).to have_text "Set up a shared Runner manually"
-        expect(page).to have_text "Runners currently online: 0"
+        expect(page).to have_text 'Set up a shared Runner manually'
+        expect(page).to have_text 'Runners currently online: 0'
         expect(page).to have_text 'No runners found'
       end
     end
@@ -273,7 +273,7 @@ describe "Admin Runners" do
     end
   end
 
-  describe "Runner show page" do
+  describe 'Runner show page' do
     let(:runner) { create(:ci_runner) }
 
     before do

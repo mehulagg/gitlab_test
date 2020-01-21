@@ -70,7 +70,7 @@ class Milestone < ApplicationRecord
   validate :milestone_type_check
   validate :start_date_should_be_less_than_due_date, if: proc { |m| m.start_date.present? && m.due_date.present? }
   validate :dates_within_4_digits
-  validates_associated :milestone_releases, message: -> (_, obj) { obj[:value].map(&:errors).map(&:full_messages).join(",") }
+  validates_associated :milestone_releases, message: -> (_, obj) { obj[:value].map(&:errors).map(&:full_messages).join(',') }
 
   strip_attributes :title
 
@@ -157,7 +157,7 @@ class Milestone < ApplicationRecord
   end
 
   def self.link_reference_pattern
-    @link_reference_pattern ||= super("milestones", /(?<milestone>\d+)/)
+    @link_reference_pattern ||= super('milestones', /(?<milestone>\d+)/)
   end
 
   def self.upcoming_ids(projects, groups)
@@ -168,7 +168,7 @@ class Milestone < ApplicationRecord
   end
 
   def participants
-    User.joins(assigned_issues: :milestone).where("milestones.id = ?", id).distinct
+    User.joins(assigned_issues: :milestone).where('milestones.id = ?', id).distinct
   end
 
   def self.sort_by_attribute(method)
@@ -299,14 +299,14 @@ class Milestone < ApplicationRecord
     end
 
     title_exists = relation.find_by_title(title)
-    errors.add(:title, _("already being used for another group or project milestone.")) if title_exists
+    errors.add(:title, _('already being used for another group or project milestone.')) if title_exists
   end
 
   # Milestone should be either a project milestone or a group milestone
   def milestone_type_check
     if group_id && project_id
       field = project_id_changed? ? :project_id : :group_id
-      errors.add(field, _("milestone should belong either to a project or a group."))
+      errors.add(field, _('milestone should belong either to a project or a group.'))
     end
   end
 
@@ -330,17 +330,17 @@ class Milestone < ApplicationRecord
 
   def start_date_should_be_less_than_due_date
     if due_date <= start_date
-      errors.add(:due_date, _("must be greater than start date"))
+      errors.add(:due_date, _('must be greater than start date'))
     end
   end
 
   def dates_within_4_digits
     if start_date && start_date > Date.new(9999, 12, 31)
-      errors.add(:start_date, _("date must not be after 9999-12-31"))
+      errors.add(:start_date, _('date must not be after 9999-12-31'))
     end
 
     if due_date && due_date > Date.new(9999, 12, 31)
-      errors.add(:due_date, _("date must not be after 9999-12-31"))
+      errors.add(:due_date, _('date must not be after 9999-12-31'))
     end
   end
 

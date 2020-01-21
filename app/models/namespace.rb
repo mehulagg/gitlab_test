@@ -27,15 +27,15 @@ class Namespace < ApplicationRecord
 
   # This should _not_ be `inverse_of: :namespace`, because that would also set
   # `user.namespace` when this user creates a group with themselves as `owner`.
-  belongs_to :owner, class_name: "User"
+  belongs_to :owner, class_name: 'User'
 
-  belongs_to :parent, class_name: "Namespace"
-  has_many :children, class_name: "Namespace", foreign_key: :parent_id
+  belongs_to :parent, class_name: 'Namespace'
+  has_many :children, class_name: 'Namespace', foreign_key: :parent_id
   has_one :chat_team, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one :root_storage_statistics, class_name: 'Namespace::RootStorageStatistics'
   has_one :aggregation_schedule, class_name: 'Namespace::AggregationSchedule'
 
-  validates :owner, presence: true, unless: ->(n) { n.type == "Group" }
+  validates :owner, presence: true, unless: ->(n) { n.type == 'Group' }
   validates :name,
     presence: true,
     length: { maximum: 255 }
@@ -90,7 +90,7 @@ class Namespace < ApplicationRecord
 
     # Case insensitive search for namespace by path or name
     def find_by_path_or_name(path)
-      find_by("lower(path) = :path OR lower(name) = :path", path: path.downcase)
+      find_by('lower(path) = :path OR lower(name) = :path', path: path.downcase)
     end
 
     # Searches for namespaces matching the given query.
@@ -107,24 +107,24 @@ class Namespace < ApplicationRecord
     def clean_path(path)
       path = path.dup
       # Get the email username by removing everything after an `@` sign.
-      path.gsub!(/@.*\z/,                "")
+      path.gsub!(/@.*\z/,                '')
       # Remove everything that's not in the list of allowed characters.
-      path.gsub!(/[^a-zA-Z0-9_\-\.]/,    "")
+      path.gsub!(/[^a-zA-Z0-9_\-\.]/,    '')
       # Remove trailing violations ('.atom', '.git', or '.')
-      path.gsub!(/(\.atom|\.git|\.)*\z/, "")
+      path.gsub!(/(\.atom|\.git|\.)*\z/, '')
       # Remove leading violations ('-')
-      path.gsub!(/\A\-+/,                "")
+      path.gsub!(/\A\-+/,                '')
 
       # Users with the great usernames of "." or ".." would end up with a blank username.
       # Work around that by setting their username to "blank", followed by a counter.
-      path = "blank" if path.blank?
+      path = 'blank' if path.blank?
 
       uniquify = Uniquify.new
       uniquify.string(path) { |s| Namespace.find_by_path_or_name(s) }
     end
 
     def find_by_pages_host(host)
-      gitlab_host = "." + Settings.pages.host.downcase
+      gitlab_host = '.' + Settings.pages.host.downcase
       host = host.downcase
       return unless host.ends_with?(gitlab_host)
 
@@ -363,7 +363,7 @@ class Namespace < ApplicationRecord
 
   def nesting_level_allowed
     if ancestors.count > Group::NUMBER_OF_ANCESTORS_ALLOWED
-      errors.add(:parent_id, "has too deep level of nesting")
+      errors.add(:parent_id, 'has too deep level of nesting')
     end
   end
 

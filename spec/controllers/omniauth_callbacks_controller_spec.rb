@@ -85,7 +85,7 @@ describe OmniauthCallbacksController, type: :controller, do_not_mock_admin_mode:
       end
 
       it 'calls through to the failure handler' do
-        request.env['omniauth.error'] = OneLogin::RubySaml::ValidationError.new("Fingerprint mismatch")
+        request.env['omniauth.error'] = OneLogin::RubySaml::ValidationError.new('Fingerprint mismatch')
         request.env['omniauth.error.strategy'] = OmniAuth::Strategies::SAML.new(nil)
         stub_route_as('/users/auth/saml/callback')
 

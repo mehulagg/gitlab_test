@@ -12,7 +12,7 @@ end
 cookie_key = if Rails.env.development?
                "_gitlab_session_#{Digest::SHA256.hexdigest(Rails.root.to_s)}"
              else
-               "_gitlab_session"
+               '_gitlab_session'
              end
 
 sessions_config = Gitlab::Redis::SharedState.params

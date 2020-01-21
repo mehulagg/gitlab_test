@@ -36,7 +36,7 @@ describe 'getting a detailed sentry error' do
       post_graphql(query, current_user: current_user)
     end
 
-    it "is expected to return an empty error" do
+    it 'is expected to return an empty error' do
       expect(error_data).to eq nil
     end
   end
@@ -50,7 +50,7 @@ describe 'getting a detailed sentry error' do
       post_graphql(query, current_user: current_user)
     end
 
-    it "is expected to return a valid error" do
+    it 'is expected to return a valid error' do
       expect(error_data['id']).to eql sentry_gid
       expect(error_data['sentryId']).to eql sentry_detailed_error.id.to_s
       expect(error_data['status']).to eql sentry_detailed_error.status.upcase

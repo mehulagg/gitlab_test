@@ -66,7 +66,7 @@ describe Gitlab::Ci::Config::Entry::Jobs do
           let(:config) { { rspec: nil } }
 
           it 'reports error' do
-            expect(entry.errors).to include "jobs config should contain valid jobs"
+            expect(entry.errors).to include 'jobs config should contain valid jobs'
           end
         end
 

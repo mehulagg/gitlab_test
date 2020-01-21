@@ -32,7 +32,7 @@ describe API::GroupExport do
 
     context 'when export file exists' do
       before do
-        upload.export_file = fixture_file_upload('spec/fixtures/group_export.tar.gz', "`/tar.gz")
+        upload.export_file = fixture_file_upload('spec/fixtures/group_export.tar.gz', '`/tar.gz')
         upload.save!
       end
 

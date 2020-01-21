@@ -58,13 +58,13 @@ module QA
           end
 
           def archive_project
-            page.accept_alert("Are you sure that you want to archive this project?") do
+            page.accept_alert('Are you sure that you want to archive this project?') do
               click_element :archive_project_link
             end
           end
 
           def unarchive_project
-            page.accept_alert("Are you sure that you want to unarchive this project?") do
+            page.accept_alert('Are you sure that you want to unarchive this project?') do
               click_element :unarchive_project_link
             end
           end

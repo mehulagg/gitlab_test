@@ -7,7 +7,7 @@ describe Gitlab::Ci::Config::Entry::Release do
 
   describe 'validation' do
     context 'when entry config value is correct' do
-      let(:config) { { tag_name: 'v0.06', description: "./release_changelog.txt" } }
+      let(:config) { { tag_name: 'v0.06', description: './release_changelog.txt' } }
 
       describe '#value' do
         it 'returns release configuration' do
@@ -26,11 +26,11 @@ describe Gitlab::Ci::Config::Entry::Release do
       let(:config) do
         {
           tag_name: 'v0.06',
-          description: "./release_changelog.txt",
+          description: './release_changelog.txt',
           assets: [
             {
-              name: "cool-app.zip",
-              url: "http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.zip"
+              name: 'cool-app.zip',
+              url: 'http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.zip'
             }
           ]
         }
@@ -53,8 +53,8 @@ describe Gitlab::Ci::Config::Entry::Release do
       let(:config) do
         {
           tag_name: 'v0.06',
-          description: "./release_changelog.txt",
-          name: "Release $CI_TAG_NAME"
+          description: './release_changelog.txt',
+          name: 'Release $CI_TAG_NAME'
         }
       end
 
@@ -92,7 +92,7 @@ describe Gitlab::Ci::Config::Entry::Release do
         end
 
         context 'when release tag_name is missing' do
-          let(:config) { { description: "./release_changelog.txt" } }
+          let(:config) { { description: './release_changelog.txt' } }
 
           it 'reports error' do
             expect(entry.errors)

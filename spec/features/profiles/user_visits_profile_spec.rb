@@ -18,7 +18,7 @@ describe 'User visits their profile' do
   it 'shows profile info' do
     visit(profile_path)
 
-    expect(page).to have_content "This information will appear on your profile"
+    expect(page).to have_content 'This information will appear on your profile'
   end
 
   context 'when user has groups' do
@@ -38,8 +38,8 @@ describe 'User visits their profile' do
     def click_on_profile_picture
       find(:css, '.header-user-dropdown-toggle').click
 
-      page.within ".header-user" do
-        click_link "Profile"
+      page.within '.header-user' do
+        click_link 'Profile'
       end
     end
 
@@ -47,16 +47,16 @@ describe 'User visits their profile' do
       visit(profile_path)
       click_on_profile_picture
 
-      page.within ".cover-block" do
+      page.within '.cover-block' do
         expect(page).to have_content user.name
         expect(page).to have_content user.username
       end
 
-      page.within ".content" do
-        click_link "Groups"
+      page.within '.content' do
+        click_link 'Groups'
       end
 
-      page.within "#groups" do
+      page.within '#groups' do
         expect(page).to have_content group.name
       end
     end

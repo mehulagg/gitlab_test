@@ -62,7 +62,7 @@ describe 'Functions', :js do
       let(:stub_get_services_options) do
         {
           namespace: namespace.namespace,
-          response: kube_response({ "kind" => "ServiceList", "items" => [] })
+          response: kube_response({ 'kind' => 'ServiceList', 'items' => [] })
         }
       end
 

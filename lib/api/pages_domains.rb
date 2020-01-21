@@ -40,13 +40,13 @@ module API
         authenticated_with_can_read_all_resources!
       end
 
-      desc "Get all pages domains" do
+      desc 'Get all pages domains' do
         success Entities::PagesDomainBasic
       end
       params do
         use :pagination
       end
-      get "domains" do
+      get 'domains' do
         present paginate(PagesDomain.all), with: Entities::PagesDomainBasic
       end
     end
@@ -66,7 +66,7 @@ module API
         use :pagination
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      get ":id/pages/domains" do
+      get ':id/pages/domains' do
         authorize! :read_pages, user_project
 
         present paginate(user_project.pages_domains.order(:domain)), with: Entities::PagesDomain
@@ -79,7 +79,7 @@ module API
       params do
         requires :domain, type: String, desc: 'The domain'
       end
-      get ":id/pages/domains/:domain", requirements: PAGES_DOMAINS_ENDPOINT_REQUIREMENTS do
+      get ':id/pages/domains/:domain', requirements: PAGES_DOMAINS_ENDPOINT_REQUIREMENTS do
         authorize! :read_pages, user_project
 
         present pages_domain, with: Entities::PagesDomain
@@ -99,7 +99,7 @@ module API
         # rubocop:enable Scalability/FileUploads
         all_or_none_of :user_provided_certificate, :user_provided_key
       end
-      post ":id/pages/domains" do
+      post ':id/pages/domains' do
         authorize! :update_pages, user_project
 
         pages_domain_params = declared(params, include_parent_namespaces: false)
@@ -124,7 +124,7 @@ module API
                  desc: "Enables automatic generation of SSL certificates issued by Let's Encrypt for custom domains."
         # rubocop:enable Scalability/FileUploads
       end
-      put ":id/pages/domains/:domain", requirements: PAGES_DOMAINS_ENDPOINT_REQUIREMENTS do
+      put ':id/pages/domains/:domain', requirements: PAGES_DOMAINS_ENDPOINT_REQUIREMENTS do
         authorize! :update_pages, user_project
 
         pages_domain_params = declared(params, include_parent_namespaces: false, include_missing: false)
@@ -145,7 +145,7 @@ module API
       params do
         requires :domain, type: String, desc: 'The domain'
       end
-      delete ":id/pages/domains/:domain", requirements: PAGES_DOMAINS_ENDPOINT_REQUIREMENTS do
+      delete ':id/pages/domains/:domain', requirements: PAGES_DOMAINS_ENDPOINT_REQUIREMENTS do
         authorize! :update_pages, user_project
 
         pages_domain.destroy

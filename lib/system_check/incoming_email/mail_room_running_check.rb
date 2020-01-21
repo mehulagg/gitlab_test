@@ -38,7 +38,7 @@ module SystemCheck
 
       def mail_room_running?
         ps_ux, _ = Gitlab::Popen.popen(%w(ps uxww))
-        ps_ux.include?("mail_room")
+        ps_ux.include?('mail_room')
       end
     end
   end

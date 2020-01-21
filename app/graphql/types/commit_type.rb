@@ -39,7 +39,7 @@ module Types
     field :latest_pipeline,
           type: Types::Ci::PipelineType,
           null: true,
-          description: "Latest pipeline of the commit",
+          description: 'Latest pipeline of the commit',
           deprecation_reason: 'use pipelines',
           resolver: Resolvers::CommitPipelinesResolver.last
   end

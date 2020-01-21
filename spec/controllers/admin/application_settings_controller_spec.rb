@@ -42,7 +42,7 @@ describe Admin::ApplicationSettingsController do
       get :usage_data, format: :json
 
       body = json_response
-      expect(body["version"]).to eq(Gitlab::VERSION)
+      expect(body['version']).to eq(Gitlab::VERSION)
       expect(body).to include('counts')
       expect(response.status).to eq(200)
     end
@@ -54,14 +54,14 @@ describe Admin::ApplicationSettingsController do
     end
 
     it 'updates the password_authentication_enabled_for_git setting' do
-      put :update, params: { application_setting: { password_authentication_enabled_for_git: "0" } }
+      put :update, params: { application_setting: { password_authentication_enabled_for_git: '0' } }
 
       expect(response).to redirect_to(admin_application_settings_path)
       expect(ApplicationSetting.current.password_authentication_enabled_for_git).to eq(false)
     end
 
     it 'updates the default_project_visibility for string value' do
-      put :update, params: { application_setting: { default_project_visibility: "20" } }
+      put :update, params: { application_setting: { default_project_visibility: '20' } }
 
       expect(response).to redirect_to(admin_application_settings_path)
       expect(ApplicationSetting.current.default_project_visibility).to eq(Gitlab::VisibilityLevel::PUBLIC)
@@ -75,14 +75,14 @@ describe Admin::ApplicationSettingsController do
     end
 
     it 'updates the restricted_visibility_levels when empty array is passed' do
-      put :update, params: { application_setting: { restricted_visibility_levels: [""] } }
+      put :update, params: { application_setting: { restricted_visibility_levels: [''] } }
 
       expect(response).to redirect_to(admin_application_settings_path)
       expect(ApplicationSetting.current.restricted_visibility_levels).to be_empty
     end
 
     it 'updates the receive_max_input_size setting' do
-      put :update, params: { application_setting: { receive_max_input_size: "1024" } }
+      put :update, params: { application_setting: { receive_max_input_size: '1024' } }
 
       expect(response).to redirect_to(admin_application_settings_path)
       expect(ApplicationSetting.current.receive_max_input_size).to eq(1024)
@@ -111,7 +111,7 @@ describe Admin::ApplicationSettingsController do
           external_authorization_service_timeout: 3,
           external_auth_client_cert: File.read('spec/fixtures/passphrase_x509_certificate.crt'),
           external_auth_client_key: File.read('spec/fixtures/passphrase_x509_certificate_pk.key'),
-          external_auth_client_key_pass: "5iveL!fe"
+          external_auth_client_key_pass: '5iveL!fe'
         }
       end
 
@@ -165,7 +165,7 @@ describe Admin::ApplicationSettingsController do
     it 'redirects the user to the terms of service page' do
       subject
 
-      expect(response).to redirect_to("https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf")
+      expect(response).to redirect_to('https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf')
     end
   end
 end

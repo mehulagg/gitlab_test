@@ -27,13 +27,13 @@ module QA
           # You can't start a review immediately, so we have to add a
           # comment (or start a thread) first
           show.start_discussion("I'm starting a new discussion")
-          show.type_reply_to_discussion(1, "Could you please check this?")
+          show.type_reply_to_discussion(1, 'Could you please check this?')
           show.start_review
           show.submit_pending_reviews
 
           expect(show).to have_content("I'm starting a new discussion")
-          expect(show).to have_content("Could you please check this?")
-          expect(show).to have_content("0/1 thread resolved")
+          expect(show).to have_content('Could you please check this?')
+          expect(show).to have_content('0/1 thread resolved')
         end
       end
 
@@ -44,7 +44,7 @@ module QA
 
         Page::MergeRequest::Show.perform do |show|
           show.click_diffs_tab
-          show.add_comment_to_diff("Can you check this line of code?")
+          show.add_comment_to_diff('Can you check this line of code?')
           show.start_review
           show.submit_pending_reviews
         end
@@ -60,7 +60,7 @@ module QA
             [
               {
                 file_path: merge_request.file_name,
-                content: "File updated"
+                content: 'File updated'
               }
             ]
           )
@@ -71,8 +71,8 @@ module QA
           show.click_discussions_tab
           show.resolve_discussion_at_index(0)
 
-          expect(show).to have_content("Can you check this line of code?")
-          expect(show).to have_content("1/1 thread resolved")
+          expect(show).to have_content('Can you check this line of code?')
+          expect(show).to have_content('1/1 thread resolved')
         end
       end
     end

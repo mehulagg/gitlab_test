@@ -15,7 +15,7 @@ describe TodoService do
   let(:project) { create(:project, :repository) }
   let(:mentions) { 'FYI: ' + [author, assignee, john_doe, member, guest, non_member, admin, skipped].map(&:to_reference).join(' ') }
   let(:directly_addressed) { [author, assignee, john_doe, member, guest, non_member, admin, skipped].map(&:to_reference).join(' ') }
-  let(:directly_addressed_and_mentioned) { member.to_reference + ", what do you think? cc: " + [guest, admin, skipped].map(&:to_reference).join(' ') }
+  let(:directly_addressed_and_mentioned) { member.to_reference + ', what do you think? cc: ' + [guest, admin, skipped].map(&:to_reference).join(' ') }
   let(:service) { described_class.new }
 
   before do

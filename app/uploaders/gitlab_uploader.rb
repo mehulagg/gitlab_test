@@ -84,7 +84,7 @@ class GitlabUploader < CarrierWave::Uploader::Base
   def open
     stream =
       if file_storage?
-        File.open(path, "rb") if path
+        File.open(path, 'rb') if path
       else
         ::Gitlab::HttpIO.new(url, cached_size) if url
       end

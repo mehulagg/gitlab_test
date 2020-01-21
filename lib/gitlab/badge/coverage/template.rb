@@ -27,7 +27,7 @@ module Gitlab
         end
 
         def value_text
-          @status ? ("%.2f%%" % @status) : 'unknown'
+          @status ? ('%.2f%%' % @status) : 'unknown'
         end
 
         def key_width

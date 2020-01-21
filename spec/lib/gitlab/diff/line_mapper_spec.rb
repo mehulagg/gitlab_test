@@ -15,7 +15,7 @@ describe Gitlab::Diff::LineMapper do
   subject { described_class.new(diff_file) }
 
   describe '#old_to_new' do
-    context "with a diff file" do
+    context 'with a diff file' do
       let(:mapping) do
         {
           1 => 1,
@@ -66,17 +66,17 @@ describe Gitlab::Diff::LineMapper do
       end
     end
 
-    context "without a diff file" do
+    context 'without a diff file' do
       let(:diff_file) { nil }
 
-      it "returns the same line number" do
+      it 'returns the same line number' do
         expect(subject.old_to_new(100)).to eq(100)
       end
     end
   end
 
   describe '#new_to_old' do
-    context "with a diff file" do
+    context 'with a diff file' do
       let(:mapping) do
         {
           1 => 1,
@@ -129,10 +129,10 @@ describe Gitlab::Diff::LineMapper do
       end
     end
 
-    context "without a diff file" do
+    context 'without a diff file' do
       let(:diff_file) { nil }
 
-      it "returns the same line number" do
+      it 'returns the same line number' do
         expect(subject.new_to_old(100)).to eq(100)
       end
     end

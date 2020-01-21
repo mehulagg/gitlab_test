@@ -6,7 +6,7 @@ describe Projects::UpdatePagesConfigurationService do
   let(:project) { create(:project) }
   let(:service) { described_class.new(project) }
 
-  describe "#update" do
+  describe '#update' do
     let(:file) { Tempfile.new('pages-test') }
 
     subject { service.execute }

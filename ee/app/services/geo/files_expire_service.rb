@@ -26,7 +26,7 @@ module Geo
       return unless Gitlab::Geo.secondary?
 
       uploads = Geo::Fdw::Upload.for_model(project)
-      log_info("Expiring replicated attachments after project rename", count: uploads.count)
+      log_info('Expiring replicated attachments after project rename', count: uploads.count)
 
       schedule_file_removal(uploads)
       mark_for_resync!
@@ -49,7 +49,7 @@ module Geo
         if File.exist?(file_path)
           to_remove << [file_path]
 
-          log_info("Scheduled to remove file", file_path: file_path)
+          log_info('Scheduled to remove file', file_path: file_path)
         end
       end
 

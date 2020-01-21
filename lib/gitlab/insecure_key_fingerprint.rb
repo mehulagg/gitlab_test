@@ -24,7 +24,7 @@ module Gitlab
     end
 
     def fingerprint_sha256
-      Digest::SHA256.base64digest(Base64.decode64(@key)).scan(/../).join('').delete("=")
+      Digest::SHA256.base64digest(Base64.decode64(@key)).scan(/../).join('').delete('=')
     end
   end
 end

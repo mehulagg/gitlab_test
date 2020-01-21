@@ -178,9 +178,9 @@ module EE
 
     def change_epics_relation(epic, child_epic, user, type)
       note_body = if type == 'relate_epic'
-                    "added epic %{target_epic_ref} as %{direction} epic"
+                    'added epic %{target_epic_ref} as %{direction} epic'
                   else
-                    "removed %{direction} epic %{target_epic_ref}"
+                    'removed %{direction} epic %{target_epic_ref}'
                   end
 
       change_epics_relation_act(epic, user, type, note_body,

@@ -131,7 +131,7 @@ describe 'User browses commits' do
 
       commit = project.repository.commit
 
-      expect(response_headers['Content-Type']).to have_content("application/atom+xml")
+      expect(response_headers['Content-Type']).to have_content('application/atom+xml')
       expect(body).to have_selector('title', text: "#{project.name}:master commits")
         .and have_selector('author email', text: commit.author_email)
         .and have_selector('entry summary', text: commit.description[0..10].delete("\r\n"))

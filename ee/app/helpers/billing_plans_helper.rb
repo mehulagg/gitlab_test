@@ -6,7 +6,7 @@ module BillingPlansHelper
   end
 
   def number_to_plan_currency(value)
-    number_to_currency(value, unit: '$', strip_insignificant_zeros: true, format: "%u%n")
+    number_to_currency(value, unit: '$', strip_insignificant_zeros: true, format: '%u%n')
   end
 
   def current_plan?(plan)

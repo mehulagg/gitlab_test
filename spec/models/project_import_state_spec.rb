@@ -40,7 +40,7 @@ describe ProjectImportState, type: :model do
       it 'returns the humanized status name' do
         import_state = build(:import_state, :started)
 
-        expect(import_state.human_status_name).to eq("started")
+        expect(import_state.human_status_name).to eq('started')
       end
     end
   end

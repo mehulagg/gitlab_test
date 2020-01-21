@@ -26,7 +26,7 @@ module EE
         end
 
         def scim_request?
-          current_request.path.starts_with?("/api/scim/")
+          current_request.path.starts_with?('/api/scim/')
         end
 
         private

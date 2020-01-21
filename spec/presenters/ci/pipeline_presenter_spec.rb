@@ -195,7 +195,7 @@ describe Ci::PipelinePresenter do
       let!(:mr_1) { create(:merge_request, project: project, source_project: project) }
 
       it {
-        is_expected.to eq("1 related merge request: " \
+        is_expected.to eq('1 related merge request: ' \
           "<a class=\"mr-iid\" href=\"#{merge_request_path(mr_1)}\">#{mr_1.to_reference} #{mr_1.title}</a>")
       }
     end
@@ -205,7 +205,7 @@ describe Ci::PipelinePresenter do
       let!(:mr_2) { create(:merge_request, project: project, source_project: project, target_branch: 'feature') }
 
       it {
-        is_expected.to eq("2 related merge requests: " \
+        is_expected.to eq('2 related merge requests: ' \
           "<a class=\"mr-iid\" href=\"#{merge_request_path(mr_2)}\">#{mr_2.to_reference} #{mr_2.title}</a>, " \
           "<a class=\"mr-iid\" href=\"#{merge_request_path(mr_1)}\">#{mr_1.to_reference} #{mr_1.title}</a>")
       }

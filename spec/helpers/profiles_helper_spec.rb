@@ -38,14 +38,14 @@ describe ProfilesHelper do
   end
 
   describe '#email_provider_label' do
-    it "returns nil for users without external email" do
+    it 'returns nil for users without external email' do
       user = create(:user)
       allow(helper).to receive(:current_user).and_return(user)
 
       expect(helper.attribute_provider_label(:email)).to be_nil
     end
 
-    it "returns omniauth provider label for users with external attributes" do
+    it 'returns omniauth provider label for users with external attributes' do
       stub_omniauth_setting(sync_profile_from_provider: ['cas3'])
       stub_omniauth_setting(sync_profile_attributes: true)
       stub_cas_omniauth_provider
@@ -58,7 +58,7 @@ describe ProfilesHelper do
       expect(helper.attribute_provider_label(:location)).to eq('CAS')
     end
 
-    it "returns the correct omniauth provider label for users with some external attributes" do
+    it 'returns the correct omniauth provider label for users with some external attributes' do
       stub_omniauth_setting(sync_profile_from_provider: ['cas3'])
       stub_omniauth_setting(sync_profile_attributes: true)
       stub_cas_omniauth_provider

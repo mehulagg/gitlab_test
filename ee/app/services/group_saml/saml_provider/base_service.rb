@@ -33,7 +33,7 @@ module GroupSaml
       def require_linked_saml_to_enable_group_managed!
         return if saml_provider.identities.for_user(current_user).exists?
 
-        add_error!(_("Group Owner must have signed in with SAML before enabling Group Managed Accounts"))
+        add_error!(_('Group Owner must have signed in with SAML before enabling Group Managed Accounts'))
       end
 
       def cleanup_members!

@@ -49,7 +49,7 @@ describe LicenseTemplate do
     it 'updates placeholders in a copy of the template content' do
       expect(template.content.object_id).to eq(content.object_id)
 
-      template.resolve!(project_name: "Foo Project", fullname: "Nick Thomas", year: "1985")
+      template.resolve!(project_name: 'Foo Project', fullname: 'Nick Thomas', year: '1985')
 
       expect(template.content).to eq(expected)
       expect(template.content.object_id).not_to eq(content.object_id)

@@ -76,9 +76,9 @@ module Geo
 
         if job_id
           @scheduled_jobs << { job_id: job_id }
-          log_info("Repository scheduled for backfilling", project_id: project_id, job_id: job_id)
+          log_info('Repository scheduled for backfilling', project_id: project_id, job_id: job_id)
         else
-          log_info("Repository could not be scheduled for backfilling", project_id: project_id)
+          log_info('Repository could not be scheduled for backfilling', project_id: project_id)
         end
       end
 

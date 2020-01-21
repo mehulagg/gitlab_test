@@ -10,7 +10,7 @@ describe Gitlab::Git do
     it 'ensure ref is a valid UTF-8 string' do
       utf8_invalid_ref = Gitlab::Git::BRANCH_REF_PREFIX + "an_invalid_ref_\xE5"
 
-      expect(described_class.ref_name(utf8_invalid_ref)).to eq("an_invalid_ref_å")
+      expect(described_class.ref_name(utf8_invalid_ref)).to eq('an_invalid_ref_å')
     end
   end
 

@@ -53,7 +53,7 @@ module RuboCop
         end
 
         def file_node_pattern
-          @file_node_pattern ||= RuboCop::NodePattern.new("(const nil? :File)")
+          @file_node_pattern ||= RuboCop::NodePattern.new('(const nil? :File)')
         end
       end
     end

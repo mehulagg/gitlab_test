@@ -3,7 +3,7 @@
 class ProjectImportState < ApplicationRecord
   include AfterCommitQueue
 
-  self.table_name = "project_mirror_data"
+  self.table_name = 'project_mirror_data'
 
   belongs_to :project, inverse_of: :import_state
 

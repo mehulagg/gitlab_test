@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'multiple and scoped issue boards' do |route_definition|
-  let(:root_url) { route_definition.gsub(":id", board_parent.id.to_s) }
+  let(:root_url) { route_definition.gsub(':id', board_parent.id.to_s) }
 
   context 'multiple issue boards' do
     before do
@@ -11,11 +11,11 @@ RSpec.shared_examples 'multiple and scoped issue boards' do |route_definition|
 
     describe "POST #{route_definition}" do
       it 'creates a board' do
-        post api(root_url, user), params: { name: "new board" }
+        post api(root_url, user), params: { name: 'new board' }
 
         expect(response).to have_gitlab_http_status(201)
 
-        expect(response).to match_response_schema('public_api/v4/board', dir: "ee")
+        expect(response).to match_response_schema('public_api/v4/board', dir: 'ee')
       end
     end
 
@@ -27,7 +27,7 @@ RSpec.shared_examples 'multiple and scoped issue boards' do |route_definition|
 
         expect(response).to have_gitlab_http_status(200)
 
-        expect(response).to match_response_schema('public_api/v4/board', dir: "ee")
+        expect(response).to match_response_schema('public_api/v4/board', dir: 'ee')
 
         board.reload
 
@@ -44,14 +44,14 @@ RSpec.shared_examples 'multiple and scoped issue boards' do |route_definition|
           .and not_change { board.reload.labels.map(&:title).sort }
 
         expect(response).to have_gitlab_http_status(200)
-        expect(response).to match_response_schema('public_api/v4/board', dir: "ee")
+        expect(response).to match_response_schema('public_api/v4/board', dir: 'ee')
       end
 
       it 'allows removing optional attributes' do
         put api(url, user), params: { name: 'new name', assignee_id: nil, milestone_id: nil, weight: nil, labels: nil }
 
         expect(response).to have_gitlab_http_status(200)
-        expect(response).to match_response_schema('public_api/v4/board', dir: "ee")
+        expect(response).to match_response_schema('public_api/v4/board', dir: 'ee')
 
         board.reload
 
@@ -80,7 +80,7 @@ RSpec.shared_examples 'multiple and scoped issue boards' do |route_definition|
 
       get api(root_url, user)
 
-      expect(json_response.first["milestone"]).not_to be_nil
+      expect(json_response.first['milestone']).not_to be_nil
     end
 
     it 'hides the milestone when the `scoped_issue_board` feature is disabled' do
@@ -88,7 +88,7 @@ RSpec.shared_examples 'multiple and scoped issue boards' do |route_definition|
 
       get api(root_url, user)
 
-      expect(json_response.first["milestone"]).to be_nil
+      expect(json_response.first['milestone']).to be_nil
     end
   end
 end

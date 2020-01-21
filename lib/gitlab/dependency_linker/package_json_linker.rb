@@ -15,8 +15,8 @@ module Gitlab
       end
 
       def link_packages
-        link_packages_at_key("dependencies")
-        link_packages_at_key("devDependencies")
+        link_packages_at_key('dependencies')
+        link_packages_at_key('devDependencies')
       end
 
       def link_packages_at_key(key)

@@ -10,7 +10,7 @@ describe 'Blob button line permalinks (BlobLinePermalinkUpdater)', :js do
   let(:sha) { project.repository.commit.sha }
 
   describe 'On a file(blob)' do
-    def get_absolute_url(path = "")
+    def get_absolute_url(path = '')
       "http://#{page.server.host}:#{page.server.port}#{path}"
     end
 
@@ -26,7 +26,7 @@ describe 'Blob button line permalinks (BlobLinePermalinkUpdater)', :js do
       end
 
       it 'maintains intitial fragment hash' do
-        fragment = "L3"
+        fragment = 'L3'
 
         visit_blob(fragment)
 
@@ -34,7 +34,7 @@ describe 'Blob button line permalinks (BlobLinePermalinkUpdater)', :js do
       end
 
       it 'changes fragment hash if line number clicked' do
-        ending_fragment = "L5"
+        ending_fragment = 'L5'
 
         visit_blob
 
@@ -45,8 +45,8 @@ describe 'Blob button line permalinks (BlobLinePermalinkUpdater)', :js do
       end
 
       it 'with initial fragment hash, changes fragment hash if line number clicked' do
-        fragment = "L1"
-        ending_fragment = "L5"
+        fragment = 'L1'
+        ending_fragment = 'L5'
 
         visit_blob(fragment)
 
@@ -65,7 +65,7 @@ describe 'Blob button line permalinks (BlobLinePermalinkUpdater)', :js do
       end
 
       it 'maintains intitial fragment hash' do
-        fragment = "L3"
+        fragment = 'L3'
 
         visit_blob(fragment)
 
@@ -73,7 +73,7 @@ describe 'Blob button line permalinks (BlobLinePermalinkUpdater)', :js do
       end
 
       it 'changes fragment hash if line number clicked' do
-        ending_fragment = "L5"
+        ending_fragment = 'L5'
 
         visit_blob
 
@@ -84,8 +84,8 @@ describe 'Blob button line permalinks (BlobLinePermalinkUpdater)', :js do
       end
 
       it 'with initial fragment hash, changes fragment hash if line number clicked' do
-        fragment = "L1"
-        ending_fragment = "L5"
+        fragment = 'L1'
+        ending_fragment = 'L5'
 
         visit_blob(fragment)
 

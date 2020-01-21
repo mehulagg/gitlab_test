@@ -9,15 +9,15 @@ describe ProjectWiki, :elastic do
     stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
 
     Sidekiq::Testing.inline! do
-      project.wiki.create_page("index_page", "Bla bla term1")
-      project.wiki.create_page("omega_page", "Bla bla term2")
+      project.wiki.create_page('index_page', 'Bla bla term1')
+      project.wiki.create_page('omega_page', 'Bla bla term2')
       project.wiki.index_wiki_blobs
 
       Gitlab::Elastic::Helper.refresh_index
     end
   end
 
-  it "searches wiki page" do
+  it 'searches wiki page' do
     expect(project.wiki.elastic_search('term1', type: :wiki_blob)[:wiki_blobs][:total_count]).to eq(1)
     expect(project.wiki.elastic_search('term1 | term2', type: :wiki_blob)[:wiki_blobs][:total_count]).to eq(2)
   end

@@ -50,7 +50,7 @@ module Gitlab
       private
 
       def generate_ssh_public_key(regular_key)
-        Gitlab::SSHPublicKey.new(regular_key).fingerprint("SHA256")&.gsub("SHA256:", "")
+        Gitlab::SSHPublicKey.new(regular_key).fingerprint('SHA256')&.gsub('SHA256:', '')
       end
 
       def execute(query)

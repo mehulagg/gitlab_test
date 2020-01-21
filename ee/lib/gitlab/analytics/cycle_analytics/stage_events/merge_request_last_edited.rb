@@ -6,7 +6,7 @@ module Gitlab
       module StageEvents
         class MergeRequestLastEdited < StageEvent
           def self.name
-            s_("CycleAnalyticsEvent|Merge request last edited")
+            s_('CycleAnalyticsEvent|Merge request last edited')
           end
 
           def self.identifier

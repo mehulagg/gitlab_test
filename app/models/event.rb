@@ -51,7 +51,7 @@ class Event < ApplicationRecord
   delegate :title, to: :merge_request, prefix: true, allow_nil: true
   delegate :title, to: :note, prefix: true, allow_nil: true
 
-  belongs_to :author, class_name: "User"
+  belongs_to :author, class_name: 'User'
   belongs_to :project
   belongs_to :group
 
@@ -84,7 +84,7 @@ class Event < ApplicationRecord
       .preload(:target, :push_event_payload)
   end
 
-  scope :for_milestone_id, ->(milestone_id) { where(target_type: "Milestone", target_id: milestone_id) }
+  scope :for_milestone_id, ->(milestone_id) { where(target_type: 'Milestone', target_id: milestone_id) }
 
   # Authors are required as they're used to display who pushed data.
   #
@@ -109,10 +109,10 @@ class Event < ApplicationRecord
 
     # Update Gitlab::ContributionsCalendar#activity_dates if this changes
     def contributions
-      where("action = ? OR (target_type IN (?) AND action IN (?)) OR (target_type = ? AND action = ?)",
+      where('action = ? OR (target_type IN (?) AND action IN (?)) OR (target_type = ? AND action = ?)',
             Event::PUSHED,
             %w(MergeRequest Issue), [Event::CREATED, Event::CLOSED, Event::MERGED],
-            "Note", Event::COMMENTED)
+            'Note', Event::COMMENTED)
     end
 
     def limit_recent(limit = 20, offset = nil)
@@ -219,7 +219,7 @@ class Event < ApplicationRecord
   end
 
   def milestone?
-    target_type == "Milestone"
+    target_type == 'Milestone'
   end
 
   def note?
@@ -227,11 +227,11 @@ class Event < ApplicationRecord
   end
 
   def issue?
-    target_type == "Issue"
+    target_type == 'Issue'
   end
 
   def merge_request?
-    target_type == "MergeRequest"
+    target_type == 'MergeRequest'
   end
 
   def milestone
@@ -254,9 +254,9 @@ class Event < ApplicationRecord
     if push_action?
       push_action_name
     elsif closed_action?
-      "closed"
+      'closed'
     elsif merged_action?
-      "accepted"
+      'accepted'
     elsif joined_action?
       'joined'
     elsif left_action?
@@ -266,11 +266,11 @@ class Event < ApplicationRecord
     elsif destroyed_action?
       'destroyed'
     elsif commented_action?
-      "commented on"
+      'commented on'
     elsif created_project_action?
       created_project_action_name
     else
-      "opened"
+      'opened'
     end
   end
 
@@ -325,7 +325,7 @@ class Event < ApplicationRecord
     if target.noteable_type.present?
       target.noteable_type.titleize
     else
-      "Wall"
+      'Wall'
     end.downcase
   end
 
@@ -367,19 +367,19 @@ class Event < ApplicationRecord
 
   def push_action_name
     if new_ref?
-      "pushed new"
+      'pushed new'
     elsif rm_ref?
-      "deleted"
+      'deleted'
     else
-      "pushed to"
+      'pushed to'
     end
   end
 
   def created_project_action_name
     if project.external_import?
-      "imported"
+      'imported'
     else
-      "created"
+      'created'
     end
   end
 
@@ -389,7 +389,7 @@ class Event < ApplicationRecord
 
   def set_last_repository_updated_at
     Project.unscoped.where(id: project_id)
-      .where("last_repository_updated_at < ? OR last_repository_updated_at IS NULL", REPOSITORY_UPDATED_AT_INTERVAL.ago)
+      .where('last_repository_updated_at < ? OR last_repository_updated_at IS NULL', REPOSITORY_UPDATED_AT_INTERVAL.ago)
       .update_all(last_repository_updated_at: created_at)
   end
 

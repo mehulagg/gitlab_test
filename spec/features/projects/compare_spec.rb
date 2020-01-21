@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
-describe "Compare", :js do
+describe 'Compare', :js do
   let(:user)    { create(:user) }
   let(:project) { create(:project, :repository) }
 
@@ -11,7 +11,7 @@ describe "Compare", :js do
     sign_in user
   end
 
-  describe "branches" do
+  describe 'branches' do
     shared_examples 'compares branches' do
       it 'compares branches' do
         visit project_compare_index_path(project, from: 'master', to: 'master')
@@ -29,11 +29,11 @@ describe "Compare", :js do
       end
     end
 
-    it "pre-populates fields" do
-      visit project_compare_index_path(project, from: "master", to: "master")
+    it 'pre-populates fields' do
+      visit project_compare_index_path(project, from: 'master', to: 'master')
 
-      expect(find(".js-compare-from-dropdown .dropdown-toggle-text")).to have_content("master")
-      expect(find(".js-compare-to-dropdown .dropdown-toggle-text")).to have_content("master")
+      expect(find('.js-compare-from-dropdown .dropdown-toggle-text')).to have_content('master')
+      expect(find('.js-compare-to-dropdown .dropdown-toggle-text')).to have_content('master')
     end
 
     it_behaves_like 'compares branches'
@@ -54,14 +54,14 @@ describe "Compare", :js do
 
       click_button 'Compare'
       expect(page).to have_content 'Commits (1)'
-      expect(page).to have_content "Showing 2 changed files"
+      expect(page).to have_content 'Showing 2 changed files'
 
       diff = first('.js-unfold')
       diff.click
       wait_for_requests
 
       page.within diff.query_scope do
-        expect(first('.new_line').text).not_to have_content "..."
+        expect(first('.new_line').text).not_to have_content '...'
       end
     end
 
@@ -92,19 +92,19 @@ describe "Compare", :js do
       end
     end
 
-    it "filters branches" do
-      visit project_compare_index_path(project, from: "master", to: "master")
+    it 'filters branches' do
+      visit project_compare_index_path(project, from: 'master', to: 'master')
 
-      select_using_dropdown("from", "wip")
+      select_using_dropdown('from', 'wip')
 
-      find(".js-compare-from-dropdown .compare-dropdown-toggle").click
+      find('.js-compare-from-dropdown .compare-dropdown-toggle').click
 
-      expect(find(".js-compare-from-dropdown .dropdown-content")).to have_selector("li", count: 3)
+      expect(find('.js-compare-from-dropdown .dropdown-content')).to have_selector('li', count: 3)
     end
 
     context 'when commit has overflow', :js do
       it 'displays warning' do
-        visit project_compare_index_path(project, from: "feature", to: "master")
+        visit project_compare_index_path(project, from: 'feature', to: 'master')
 
         allow(Commit).to receive(:max_diff_options).and_return(max_files: 3)
         allow_next_instance_of(DiffHelper) do |instance|
@@ -114,33 +114,33 @@ describe "Compare", :js do
         click_button('Compare')
 
         page.within('.alert') do
-          expect(page).to have_text("Too many changes to show. To preserve performance only 3 of 3+ files are displayed.")
+          expect(page).to have_text('Too many changes to show. To preserve performance only 3 of 3+ files are displayed.')
         end
       end
     end
   end
 
-  describe "tags" do
-    it "compares tags" do
-      visit project_compare_index_path(project, from: "master", to: "master")
+  describe 'tags' do
+    it 'compares tags' do
+      visit project_compare_index_path(project, from: 'master', to: 'master')
 
-      select_using_dropdown "from", "v1.0.0"
-      expect(find(".js-compare-from-dropdown .dropdown-toggle-text")).to have_content("v1.0.0")
+      select_using_dropdown 'from', 'v1.0.0'
+      expect(find('.js-compare-from-dropdown .dropdown-toggle-text')).to have_content('v1.0.0')
 
-      select_using_dropdown "to", "v1.1.0"
-      expect(find(".js-compare-to-dropdown .dropdown-toggle-text")).to have_content("v1.1.0")
+      select_using_dropdown 'to', 'v1.1.0'
+      expect(find('.js-compare-to-dropdown .dropdown-toggle-text')).to have_content('v1.1.0')
 
-      click_button "Compare"
-      expect(page).to have_content "Commits"
+      click_button 'Compare'
+      expect(page).to have_content 'Commits'
     end
   end
 
   def select_using_dropdown(dropdown_type, selection, commit: false)
     dropdown = find(".js-compare-#{dropdown_type}-dropdown")
-    dropdown.find(".compare-dropdown-toggle").click
+    dropdown.find('.compare-dropdown-toggle').click
     # find input before using to wait for the inputs visibility
     dropdown.find('.dropdown-menu')
-    dropdown.fill_in("Filter by Git revision", with: selection)
+    dropdown.fill_in('Filter by Git revision', with: selection)
     wait_for_requests
 
     if commit

@@ -61,12 +61,12 @@ describe Security::SyncReportsToApprovalRulesService, '#execute' do
         end
       end
 
-      context "license compliance policy" do
+      context 'license compliance policy' do
         let!(:software_license_policy) { create(:software_license_policy, :denied, project: project, software_license: denied_license) }
         let!(:license_compliance_rule) { create(:report_approver_rule, :license_management, merge_request: merge_request, approvals_required: 1) }
         let!(:denied_license) { create(:software_license) }
 
-        context "when a license violates the license compliance policy" do
+        context 'when a license violates the license compliance policy' do
           let!(:denied_license) { create(:software_license, name: license_name) }
           let!(:ci_build) { create(:ee_ci_build, :success, :license_management, pipeline: pipeline, project: project) }
           let!(:license_name) { ci_build.pipeline.license_scanning_report.license_names[0] }
@@ -75,20 +75,20 @@ describe Security::SyncReportsToApprovalRulesService, '#execute' do
           specify { expect(subject[:status]).to be(:success) }
         end
 
-        context "when no licenses violate the license compliance policy" do
+        context 'when no licenses violate the license compliance policy' do
           let!(:ci_build) { create(:ee_ci_build, :success, :license_management, pipeline: pipeline, project: project) }
 
           specify { expect { subject }.to change { license_compliance_rule.reload.approvals_required }.from(1).to(0) }
           specify { expect(subject[:status]).to be(:success) }
         end
 
-        context "when an unexpected error occurs" do
+        context 'when an unexpected error occurs' do
           before do
             allow_any_instance_of(Gitlab::Ci::Reports::LicenseScanning::Report).to receive(:violates?).and_raise('heck')
           end
 
           specify { expect(subject[:status]).to be(:error) }
-          specify { expect(subject[:message]).to eql("Failed to update approval rules") }
+          specify { expect(subject[:message]).to eql('Failed to update approval rules') }
         end
       end
     end
@@ -138,7 +138,7 @@ describe Security::SyncReportsToApprovalRulesService, '#execute' do
         .not_to change { report_approver_rule.reload.approvals_required }
     end
 
-    context "license compliance policy" do
+    context 'license compliance policy' do
       let!(:software_license_policy) { create(:software_license_policy, :denied, project: project, software_license: denied_license) }
       let!(:license_compliance_rule) { create(:report_approver_rule, :license_management, merge_request: merge_request, approvals_required: 1) }
       let!(:denied_license) { create(:software_license) }

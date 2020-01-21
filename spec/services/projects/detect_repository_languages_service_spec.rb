@@ -32,8 +32,8 @@ describe Projects::DetectRepositoryLanguagesService, :clean_gitlab_redis_shared_
         subject.execute
 
         allow(project.repository).to receive(:languages).and_return(
-          [{ value: 99.63, label: "Ruby", color: "#701516", highlight: "#701516" },
-           { value: 0.3, label: "D", color: "#701516", highlight: "#701516" }]
+          [{ value: 99.63, label: 'Ruby', color: '#701516', highlight: '#701516' },
+           { value: 0.3, label: 'D', color: '#701516', highlight: '#701516' }]
         )
       end
 

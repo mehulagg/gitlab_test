@@ -14,7 +14,7 @@ describe Geo::FileDownloadDispatchWorker, :geo, :geo_fdw do
     stub_exclusive_lease(renew: true)
     allow_any_instance_of(described_class).to receive(:over_time?).and_return(false)
 
-    WebMock.stub_request(:get, /primary-geo-node/).to_return(status: 200, body: "", headers: {})
+    WebMock.stub_request(:get, /primary-geo-node/).to_return(status: 200, body: '', headers: {})
   end
 
   it 'does not schedule anything when tracking database is not configured' do

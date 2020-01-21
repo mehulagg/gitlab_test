@@ -130,7 +130,7 @@ describe Gitlab::MarkdownCache::ActiveRecord::Extension do
     subject { thing.cached_html_up_to_date?(:title) }
 
     it 'returns false if markdown has been changed but html has not' do
-      thing.title = "changed!"
+      thing.title = 'changed!'
 
       is_expected.to be_falsy
     end
@@ -171,9 +171,9 @@ describe Gitlab::MarkdownCache::ActiveRecord::Extension do
       expect(thing).to receive(:persisted?).and_return(true)
 
       expect(thing).to receive(:update_columns)
-                         .with("title_html" => updated_html,
-                               "description_html" => "",
-                               "cached_markdown_version" => cache_version)
+                         .with('title_html' => updated_html,
+                               'description_html' => '',
+                               'cached_markdown_version' => cache_version)
 
       thing.refresh_markdown_cache!
     end

@@ -68,7 +68,7 @@ module Gitlab
       end
 
       def archive_directory
-        Rails.root.join("vendor/project_templates")
+        Rails.root.join('vendor/project_templates')
       end
     end
   end

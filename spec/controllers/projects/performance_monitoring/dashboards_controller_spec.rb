@@ -91,14 +91,14 @@ describe Projects::PerformanceMonitoring::DashboardsController do
                 end
               end
 
-              context "param branch_name is missing" do
+              context 'param branch_name is missing' do
                 let(:branch_name) { nil }
 
                 it 'responds with bad request status and error message', :aggregate_failures do
                   post :create, params: params
 
                   expect(response).to have_gitlab_http_status :bad_request
-                  expect(json_response).to eq('error' => "Request parameter branch is missing.")
+                  expect(json_response).to eq('error' => 'Request parameter branch is missing.')
                 end
               end
             end

@@ -8,7 +8,7 @@ describe RemoteMirrorNotificationWorker, :mailer do
 
   describe '#execute' do
     it 'calls NotificationService#remote_mirror_update_failed when the mirror exists' do
-      mirror.update_column(:last_error, "There was a problem fetching")
+      mirror.update_column(:last_error, 'There was a problem fetching')
 
       expect(NotificationService).to receive_message_chain(:new, :remote_mirror_update_failed)
 
@@ -30,7 +30,7 @@ describe RemoteMirrorNotificationWorker, :mailer do
     end
 
     it 'does nothing when a notification has already been sent' do
-      mirror.update_columns(last_error: "There was a problem fetching",
+      mirror.update_columns(last_error: 'There was a problem fetching',
                             error_notification_sent: true)
 
       expect(NotificationService).not_to receive(:new)

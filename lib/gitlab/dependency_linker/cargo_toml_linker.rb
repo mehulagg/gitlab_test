@@ -14,9 +14,9 @@ module Gitlab
       private
 
       def link_dependencies
-        link_dependencies_at("dependencies")
-        link_dependencies_at("dev-dependencies")
-        link_dependencies_at("build-dependencies")
+        link_dependencies_at('dependencies')
+        link_dependencies_at('dev-dependencies')
+        link_dependencies_at('build-dependencies')
       end
 
       def link_dependencies_at(type)

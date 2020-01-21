@@ -46,7 +46,7 @@ module Gitlab
           if categories.any?
             categories.keys.flat_map { |cat| by_category(cat, project) }
           else
-            by_category("", project)
+            by_category('', project)
           end
         end
 

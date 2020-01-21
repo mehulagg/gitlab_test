@@ -11,7 +11,7 @@ module Operations
 
     validates :environment_scope, uniqueness: {
       scope: :feature_flag,
-      message: "(%{value}) has already been taken"
+      message: '(%{value}) has already been taken'
     }
 
     validates :environment_scope,
@@ -56,7 +56,7 @@ module Operations
     end
 
     def prevent_destroy_default_scope
-      raise ActiveRecord::ReadOnlyRecord, "default scope cannot be destroyed"
+      raise ActiveRecord::ReadOnlyRecord, 'default scope cannot be destroyed'
     end
   end
 end

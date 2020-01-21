@@ -11,7 +11,7 @@ describe API::Notes do
     project.add_reporter(user)
   end
 
-  context "when noteable is an Epic" do
+  context 'when noteable is an Epic' do
     let(:group) { create(:group, :public) }
     let(:epic) { create(:epic, group: group, author: user) }
     let!(:epic_note) { create(:note, noteable: epic, project: project, author: user) }
@@ -21,7 +21,7 @@ describe API::Notes do
       stub_licensed_features(epics: true)
     end
 
-    it_behaves_like "noteable API", 'groups', 'epics', 'id' do
+    it_behaves_like 'noteable API', 'groups', 'epics', 'id' do
       let(:parent) { group }
       let(:noteable) { epic }
       let(:note) { epic_note }

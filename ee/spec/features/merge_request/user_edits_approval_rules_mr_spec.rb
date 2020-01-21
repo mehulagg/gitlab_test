@@ -40,18 +40,18 @@ describe 'Merge request > User edits MR with approval rules', :js do
     wait_for_requests
   end
 
-  it "shows approval rules" do
+  it 'shows approval rules' do
     names = page_rule_names.map(&:text)
 
     expect(names).to eq(mr_rule_names)
   end
 
-  it "allows user to create approval rule" do
-    rule_name = "Custom Approval Rule"
+  it 'allows user to create approval rule' do
+    rule_name = 'Custom Approval Rule'
 
-    click_button "Add approval rule"
+    click_button 'Add approval rule'
 
-    fill_in "Rule name", with: rule_name
+    fill_in 'Rule name', with: rule_name
 
     add_approval_rule_member('user', approver.name)
 
@@ -61,23 +61,23 @@ describe 'Merge request > User edits MR with approval rules', :js do
     expect(page_rule_names.last).to have_text(rule_name)
   end
 
-  context "with public group" do
+  context 'with public group' do
     let!(:group) { create(:group, :public) }
 
     before do
       group.add_developer create(:user)
 
-      click_button "Add approval rule"
+      click_button 'Add approval rule'
     end
 
-    it "with empty search, does not show public group" do
+    it 'with empty search, does not show public group' do
       open_select2 members_selector
       wait_for_requests
 
       expect(page).not_to have_selector('.select2-result-label .group-result', text: group.name)
     end
 
-    it "with non-empty search, shows public group" do
+    it 'with non-empty search, shows public group' do
       find(members_search_selector).set group.name
       wait_for_requests
 

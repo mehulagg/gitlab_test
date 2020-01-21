@@ -42,11 +42,11 @@ describe Gitlab::Ci::Config::Entry::Root do
             stage: 'release',
             before_script: [],
             after_script: [],
-            script: ["make changelog | tee release_changelog.txt"],
+            script: ['make changelog | tee release_changelog.txt'],
             release: {
               tag_name: 'v0.06',
-              name: "Release $CI_TAG_NAME",
-              description: "./release_changelog.txt"
+              name: 'Release $CI_TAG_NAME',
+              description: './release_changelog.txt'
             }
           }
         }
@@ -149,11 +149,11 @@ describe Gitlab::Ci::Config::Entry::Root do
               { name: :release,
                          stage: 'release',
                          before_script: [],
-                         script: ["make changelog | tee release_changelog.txt"],
-                         release: { name: "Release $CI_TAG_NAME", tag_name: 'v0.06', description: "./release_changelog.txt" },
-                         image: { name: "ruby:2.2" },
-                         services: [{ name: "postgres:9.1" }, { name: "mysql:5.5" }],
-                         cache: { key: "k", untracked: true, paths: ["public/"], policy: "pull-push" },
+                         script: ['make changelog | tee release_changelog.txt'],
+                         release: { name: 'Release $CI_TAG_NAME', tag_name: 'v0.06', description: './release_changelog.txt' },
+                         image: { name: 'ruby:2.2' },
+                         services: [{ name: 'postgres:9.1' }, { name: 'mysql:5.5' }],
+                         cache: { key: 'k', untracked: true, paths: ['public/'], policy: 'pull-push' },
                          only: { refs: %w(branches tags) },
                          variables: {},
                          after_script: [],
@@ -199,7 +199,7 @@ describe Gitlab::Ci::Config::Entry::Root do
                        image: { name: 'ruby:2.1' },
                        services: [{ name: 'postgres:9.1' }, { name: 'mysql:5.5' }],
                        stage: 'test',
-                       cache: { key: 'k', untracked: true, paths: ['public/'], policy: "pull-push" },
+                       cache: { key: 'k', untracked: true, paths: ['public/'], policy: 'pull-push' },
                        variables: {},
                        ignore: false,
                        after_script: ['make clean'],
@@ -210,7 +210,7 @@ describe Gitlab::Ci::Config::Entry::Root do
                          image: { name: 'ruby:2.1' },
                          services: [{ name: 'postgres:9.1' }, { name: 'mysql:5.5' }],
                          stage: 'test',
-                         cache: { key: 'k', untracked: true, paths: ['public/'], policy: "pull-push" },
+                         cache: { key: 'k', untracked: true, paths: ['public/'], policy: 'pull-push' },
                          variables: { 'VAR' => 'AA' },
                          ignore: false,
                          after_script: ['make clean'],
@@ -267,14 +267,14 @@ describe Gitlab::Ci::Config::Entry::Root do
 
       let(:hash) do
         {
-          variables: { script: "ENV_VALUE" },
-          rspec: { script: "echo Hello World" }
+          variables: { script: 'ENV_VALUE' },
+          rspec: { script: 'echo Hello World' }
         }
       end
 
       describe '#variables_value' do
         it 'returns root value for variables' do
-          expect(root.variables_value).to eq("script" => "ENV_VALUE")
+          expect(root.variables_value).to eq('script' => 'ENV_VALUE')
         end
       end
 
@@ -340,7 +340,7 @@ describe Gitlab::Ci::Config::Entry::Root do
       describe '#errors' do
         it 'reports errors about missing script' do
           expect(root.errors)
-            .to include "root config contains unknown keys: rspec"
+            .to include 'root config contains unknown keys: rspec'
         end
       end
     end

@@ -19,7 +19,7 @@ describe Gitlab::SlashCommands::IssueClose do
 
       it 'does not allow the user to close the issue' do
         expect(subject[:response_type]).to be(:ephemeral)
-        expect(subject[:text]).to match("not found")
+        expect(subject[:text]).to match('not found')
         expect(issue.reload).to be_open
       end
     end
@@ -45,11 +45,11 @@ describe Gitlab::SlashCommands::IssueClose do
     end
 
     context 'the issue does not exist' do
-      let(:regex_match) { described_class.match("issue close 2343242") }
+      let(:regex_match) { described_class.match('issue close 2343242') }
 
-      it "returns not found" do
+      it 'returns not found' do
         expect(subject[:response_type]).to be(:ephemeral)
-        expect(subject[:text]).to match("not found")
+        expect(subject[:text]).to match('not found')
       end
     end
 
@@ -59,22 +59,22 @@ describe Gitlab::SlashCommands::IssueClose do
       it 'shows the issue' do
         expect(subject[:response_type]).to be(:ephemeral)
         expect(issue.reload).to be_closed
-        expect(subject[:text]).to match("already closed")
+        expect(subject[:text]).to match('already closed')
       end
     end
   end
 
   describe '.match' do
     it 'matches the iid' do
-      match = described_class.match("issue close 123")
+      match = described_class.match('issue close 123')
 
-      expect(match[:iid]).to eq("123")
+      expect(match[:iid]).to eq('123')
     end
 
     it 'accepts a reference' do
       match = described_class.match("issue close #{Issue.reference_prefix}123")
 
-      expect(match[:iid]).to eq("123")
+      expect(match[:iid]).to eq('123')
     end
   end
 end

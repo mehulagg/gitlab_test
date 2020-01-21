@@ -373,7 +373,7 @@ describe Projects::SnippetsController do
     end
   end
 
-  describe "GET #show for embeddable content" do
+  describe 'GET #show for embeddable content' do
     let(:project_snippet) { create(:project_snippet, snippet_permission, project: project, author: user) }
 
     before do

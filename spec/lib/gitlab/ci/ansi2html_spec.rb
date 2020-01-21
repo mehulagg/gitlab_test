@@ -5,188 +5,188 @@ require 'spec_helper'
 describe Gitlab::Ci::Ansi2html do
   subject { described_class }
 
-  it "prints non-ansi as-is" do
-    expect(convert_html("Hello")).to eq('<span>Hello</span>')
+  it 'prints non-ansi as-is' do
+    expect(convert_html('Hello')).to eq('<span>Hello</span>')
   end
 
-  it "strips non-color-changing control sequences" do
+  it 'strips non-color-changing control sequences' do
     expect(convert_html("Hello \e[2Kworld")).to eq('<span>Hello world</span>')
   end
 
-  it "prints simply red" do
+  it 'prints simply red' do
     expect(convert_html("\e[31mHello\e[0m")).to eq('<span class="term-fg-red">Hello</span>')
   end
 
-  it "prints simply red without trailing reset" do
+  it 'prints simply red without trailing reset' do
     expect(convert_html("\e[31mHello")).to eq('<span class="term-fg-red">Hello</span>')
   end
 
-  it "prints simply yellow" do
+  it 'prints simply yellow' do
     expect(convert_html("\e[33mHello\e[0m")).to eq('<span class="term-fg-yellow">Hello</span>')
   end
 
-  it "prints default on blue" do
+  it 'prints default on blue' do
     expect(convert_html("\e[39;44mHello")).to eq('<span class="term-bg-blue">Hello</span>')
   end
 
-  it "prints red on blue" do
+  it 'prints red on blue' do
     expect(convert_html("\e[31;44mHello")).to eq('<span class="term-fg-red term-bg-blue">Hello</span>')
   end
 
-  it "resets colors after red on blue" do
+  it 'resets colors after red on blue' do
     expect(convert_html("\e[31;44mHello\e[0m world")).to eq('<span class="term-fg-red term-bg-blue">Hello</span><span> world</span>')
   end
 
-  it "performs color change from red/blue to yellow/blue" do
+  it 'performs color change from red/blue to yellow/blue' do
     expect(convert_html("\e[31;44mHello \e[33mworld")).to eq('<span class="term-fg-red term-bg-blue">Hello </span><span class="term-fg-yellow term-bg-blue">world</span>')
   end
 
-  it "performs color change from red/blue to yellow/green" do
+  it 'performs color change from red/blue to yellow/green' do
     expect(convert_html("\e[31;44mHello \e[33;42mworld")).to eq('<span class="term-fg-red term-bg-blue">Hello </span><span class="term-fg-yellow term-bg-green">world</span>')
   end
 
-  it "performs color change from red/blue to reset to yellow/green" do
+  it 'performs color change from red/blue to reset to yellow/green' do
     expect(convert_html("\e[31;44mHello\e[0m \e[33;42mworld")).to eq('<span class="term-fg-red term-bg-blue">Hello</span><span> </span><span class="term-fg-yellow term-bg-green">world</span>')
   end
 
-  it "ignores unsupported codes" do
+  it 'ignores unsupported codes' do
     expect(convert_html("\e[51mHello\e[0m")).to eq('<span>Hello</span>')
   end
 
-  it "prints light red" do
+  it 'prints light red' do
     expect(convert_html("\e[91mHello\e[0m")).to eq('<span class="term-fg-l-red">Hello</span>')
   end
 
-  it "prints default on light red" do
+  it 'prints default on light red' do
     expect(convert_html("\e[101mHello\e[0m")).to eq('<span class="term-bg-l-red">Hello</span>')
   end
 
-  it "performs color change from red/blue to default/blue" do
+  it 'performs color change from red/blue to default/blue' do
     expect(convert_html("\e[31;44mHello \e[39mworld")).to eq('<span class="term-fg-red term-bg-blue">Hello </span><span class="term-bg-blue">world</span>')
   end
 
-  it "performs color change from light red/blue to default/blue" do
+  it 'performs color change from light red/blue to default/blue' do
     expect(convert_html("\e[91;44mHello \e[39mworld")).to eq('<span class="term-fg-l-red term-bg-blue">Hello </span><span class="term-bg-blue">world</span>')
   end
 
-  it "prints bold text" do
+  it 'prints bold text' do
     expect(convert_html("\e[1mHello")).to eq('<span class="term-bold">Hello</span>')
   end
 
-  it "resets bold text" do
+  it 'resets bold text' do
     expect(convert_html("\e[1mHello\e[21m world")).to eq('<span class="term-bold">Hello</span><span> world</span>')
     expect(convert_html("\e[1mHello\e[22m world")).to eq('<span class="term-bold">Hello</span><span> world</span>')
   end
 
-  it "prints italic text" do
+  it 'prints italic text' do
     expect(convert_html("\e[3mHello")).to eq('<span class="term-italic">Hello</span>')
   end
 
-  it "resets italic text" do
+  it 'resets italic text' do
     expect(convert_html("\e[3mHello\e[23m world")).to eq('<span class="term-italic">Hello</span><span> world</span>')
   end
 
-  it "prints underlined text" do
+  it 'prints underlined text' do
     expect(convert_html("\e[4mHello")).to eq('<span class="term-underline">Hello</span>')
   end
 
-  it "resets underlined text" do
+  it 'resets underlined text' do
     expect(convert_html("\e[4mHello\e[24m world")).to eq('<span class="term-underline">Hello</span><span> world</span>')
   end
 
-  it "prints concealed text" do
+  it 'prints concealed text' do
     expect(convert_html("\e[8mHello")).to eq('<span class="term-conceal">Hello</span>')
   end
 
-  it "resets concealed text" do
+  it 'resets concealed text' do
     expect(convert_html("\e[8mHello\e[28m world")).to eq('<span class="term-conceal">Hello</span><span> world</span>')
   end
 
-  it "prints crossed-out text" do
+  it 'prints crossed-out text' do
     expect(convert_html("\e[9mHello")).to eq('<span class="term-cross">Hello</span>')
   end
 
-  it "resets crossed-out text" do
+  it 'resets crossed-out text' do
     expect(convert_html("\e[9mHello\e[29m world")).to eq('<span class="term-cross">Hello</span><span> world</span>')
   end
 
-  it "can print 256 xterm fg colors" do
+  it 'can print 256 xterm fg colors' do
     expect(convert_html("\e[38;5;16mHello")).to eq('<span class="xterm-fg-16">Hello</span>')
   end
 
-  it "can print 256 xterm fg colors on normal magenta background" do
+  it 'can print 256 xterm fg colors on normal magenta background' do
     expect(convert_html("\e[38;5;16;45mHello")).to eq('<span class="xterm-fg-16 term-bg-magenta">Hello</span>')
   end
 
-  it "can print 256 xterm bg colors" do
+  it 'can print 256 xterm bg colors' do
     expect(convert_html("\e[48;5;240mHello")).to eq('<span class="xterm-bg-240">Hello</span>')
   end
 
-  it "can print 256 xterm fg bold colors" do
+  it 'can print 256 xterm fg bold colors' do
     expect(convert_html("\e[38;5;16;1mHello")).to eq('<span class="xterm-fg-16 term-bold">Hello</span>')
   end
 
-  it "can print 256 xterm bg colors on normal magenta foreground" do
+  it 'can print 256 xterm bg colors on normal magenta foreground' do
     expect(convert_html("\e[48;5;16;35mHello")).to eq('<span class="term-fg-magenta xterm-bg-16">Hello</span>')
   end
 
-  it "prints bold colored text vividly" do
+  it 'prints bold colored text vividly' do
     expect(convert_html("\e[1;31mHello\e[0m")).to eq('<span class="term-fg-l-red term-bold">Hello</span>')
   end
 
-  it "prints bold light colored text correctly" do
+  it 'prints bold light colored text correctly' do
     expect(convert_html("\e[1;91mHello\e[0m")).to eq('<span class="term-fg-l-red term-bold">Hello</span>')
   end
 
-  it "prints &lt;" do
-    expect(convert_html("<")).to eq('<span>&lt;</span>')
+  it 'prints &lt;' do
+    expect(convert_html('<')).to eq('<span>&lt;</span>')
   end
 
-  it "replaces newlines with line break tags" do
+  it 'replaces newlines with line break tags' do
     expect(convert_html("\n")).to eq('<span><br/></span>')
   end
 
-  it "groups carriage returns with newlines" do
+  it 'groups carriage returns with newlines' do
     expect(convert_html("\r\n")).to eq('<span><br/></span>')
   end
 
-  describe "incremental update" do
+  describe 'incremental update' do
     shared_examples 'stateable converter' do
       let(:pass1_stream) { StringIO.new(pre_text) }
       let(:pass2_stream) { StringIO.new(pre_text + text) }
       let(:pass1) { subject.convert(pass1_stream) }
       let(:pass2) { subject.convert(pass2_stream, pass1.state) }
 
-      it "to returns html to append" do
+      it 'to returns html to append' do
         expect(pass2.append).to be_truthy
         expect(pass2.html).to eq(html)
         expect(pass1.html + pass2.html).to eq(pre_html + html)
       end
     end
 
-    context "with split word" do
+    context 'with split word' do
       let(:pre_text) { "\e[1mHello" }
-      let(:pre_html) { "<span class=\"term-bold\">Hello</span>" }
+      let(:pre_html) { '<span class="term-bold">Hello</span>' }
       let(:text) { "\e[1mWorld" }
-      let(:html) { "<span class=\"term-bold\">World</span>" }
+      let(:html) { '<span class="term-bold">World</span>' }
 
       it_behaves_like 'stateable converter'
     end
 
-    context "with split sequence" do
+    context 'with split sequence' do
       let(:pre_text) { "\e[1m" }
-      let(:pre_html) { "" }
-      let(:text) { "Hello" }
-      let(:html) { "<span class=\"term-bold\">Hello</span>" }
+      let(:pre_html) { '' }
+      let(:text) { 'Hello' }
+      let(:html) { '<span class="term-bold">Hello</span>' }
 
       it_behaves_like 'stateable converter'
     end
 
-    context "with partial sequence" do
+    context 'with partial sequence' do
       let(:pre_text) { "Hello\e" }
-      let(:pre_html) { "<span>Hello</span>" }
-      let(:text) { "[1m World" }
-      let(:html) { "<span class=\"term-bold\"> World</span>" }
+      let(:pre_html) { '<span>Hello</span>' }
+      let(:text) { '[1m World' }
+      let(:html) { '<span class="term-bold"> World</span>' }
 
       it_behaves_like 'stateable converter'
     end
@@ -195,13 +195,13 @@ describe Gitlab::Ci::Ansi2html do
       let(:pre_text) { "Hello\r" }
       let(:pre_html) { "<span>Hello\r</span>" }
       let(:text) { "\nWorld" }
-      let(:html) { "<span><br/>World</span>" }
+      let(:html) { '<span><br/>World</span>' }
 
       it_behaves_like 'stateable converter'
     end
   end
 
-  context "with section markers" do
+  context 'with section markers' do
     let(:section_name) { 'test_section' }
     let(:section_start_time) { Time.new(2017, 9, 20).utc }
     let(:section_duration) { 3.seconds }
@@ -277,8 +277,8 @@ describe Gitlab::Ci::Ansi2html do
     end
   end
 
-  describe "truncates" do
-    let(:text) { "Hello World" }
+  describe 'truncates' do
+    let(:text) { 'Hello World' }
     let(:stream) { StringIO.new(text) }
     let(:subject) { described_class.convert(stream) }
 
@@ -286,11 +286,11 @@ describe Gitlab::Ci::Ansi2html do
       stream.seek(3, IO::SEEK_SET)
     end
 
-    it "returns truncated output" do
+    it 'returns truncated output' do
       expect(subject.truncated).to be_truthy
     end
 
-    it "does not append output" do
+    it 'does not append output' do
       expect(subject.append).to be_falsey
     end
   end

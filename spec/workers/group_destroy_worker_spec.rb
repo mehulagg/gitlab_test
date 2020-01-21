@@ -9,8 +9,8 @@ describe GroupDestroyWorker do
 
   subject { described_class.new }
 
-  describe "#perform" do
-    it "deletes the project" do
+  describe '#perform' do
+    it 'deletes the project' do
       subject.perform(group.id, user.id)
 
       expect(Group.all).not_to include(group)

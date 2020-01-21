@@ -21,11 +21,11 @@ module Elastic
         response_count = response.total_count
 
         # Avoid one SELECT per result by loading all projects into a hash
-        project_ids = response.map {|result| result["_source"]["commit"]["rid"] }.uniq
+        project_ids = response.map {|result| result['_source']['commit']['rid'] }.uniq
         projects = Project.with_route.id_in(project_ids).index_by(&:id)
 
         commits = response.map do |result|
-          project_id = result["_source"]["commit"]["rid"].to_i
+          project_id = result['_source']['commit']['rid'].to_i
           project = projects[project_id]
 
           if project.nil? || project.pending_delete?

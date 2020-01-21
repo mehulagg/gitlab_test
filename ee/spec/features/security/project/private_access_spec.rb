@@ -26,43 +26,43 @@ describe '[EE] Private Project Access' do
     it { is_expected.to be_denied_for(:visitor) }
   end
 
-  describe "GET /:project_path" do
+  describe 'GET /:project_path' do
     subject { project_path(project) }
 
     it { is_expected.to be_allowed_for(:auditor) }
   end
 
-  describe "GET /:project_path/tree/master" do
+  describe 'GET /:project_path/tree/master' do
     subject { project_tree_path(project, project.repository.root_ref) }
 
     it { is_expected.to be_allowed_for(:auditor) }
   end
 
-  describe "GET /:project_path/commits/master" do
+  describe 'GET /:project_path/commits/master' do
     subject { project_commits_path(project, project.repository.root_ref, limit: 1) }
 
     it { is_expected.to be_allowed_for(:auditor) }
   end
 
-  describe "GET /:project_path/commit/:sha" do
+  describe 'GET /:project_path/commit/:sha' do
     subject { project_commit_path(project, project.repository.commit) }
 
     it { is_expected.to be_allowed_for(:auditor) }
   end
 
-  describe "GET /:project_path/compare" do
+  describe 'GET /:project_path/compare' do
     subject { project_compare_index_path(project) }
 
     it { is_expected.to be_allowed_for(:auditor) }
   end
 
-  describe "GET /:project_path/-/settings/members" do
+  describe 'GET /:project_path/-/settings/members' do
     subject { project_settings_members_path(project) }
 
     it { is_expected.to be_allowed_for(:auditor) }
   end
 
-  describe "GET /:project_path/blob" do
+  describe 'GET /:project_path/blob' do
     let(:commit) { project.repository.commit }
 
     subject { project_blob_path(project, File.join(commit.id, '.gitignore')) }
@@ -70,37 +70,37 @@ describe '[EE] Private Project Access' do
     it { is_expected.to be_allowed_for(:auditor) }
   end
 
-  describe "GET /:project_path/edit" do
+  describe 'GET /:project_path/edit' do
     subject { edit_project_path(project) }
 
     it { is_expected.to be_denied_for(:auditor) }
   end
 
-  describe "GET /:project_path/deploy_keys" do
+  describe 'GET /:project_path/deploy_keys' do
     subject { project_deploy_keys_path(project) }
 
     it { is_expected.to be_denied_for(:auditor) }
   end
 
-  describe "GET /:project_path/issues" do
+  describe 'GET /:project_path/issues' do
     subject { project_issues_path(project) }
 
     it { is_expected.to be_allowed_for(:auditor) }
   end
 
-  describe "GET /:project_path/snippets" do
+  describe 'GET /:project_path/snippets' do
     subject { project_snippets_path(project) }
 
     it { is_expected.to be_allowed_for(:auditor) }
   end
 
-  describe "GET /:project_path/merge_requests" do
+  describe 'GET /:project_path/merge_requests' do
     subject { project_merge_requests_path(project) }
 
     it { is_expected.to be_allowed_for(:auditor) }
   end
 
-  describe "GET /:project_path/branches" do
+  describe 'GET /:project_path/branches' do
     subject { project_branches_path(project) }
 
     before do
@@ -111,7 +111,7 @@ describe '[EE] Private Project Access' do
     it { is_expected.to be_allowed_for(:auditor) }
   end
 
-  describe "GET /:project_path/tags" do
+  describe 'GET /:project_path/tags' do
     subject { project_tags_path(project) }
 
     before do
@@ -122,19 +122,19 @@ describe '[EE] Private Project Access' do
     it { is_expected.to be_allowed_for(:auditor) }
   end
 
-  describe "GET /:project_path/-/settings/integrations" do
+  describe 'GET /:project_path/-/settings/integrations' do
     subject { project_settings_integrations_path(project) }
 
     it { is_expected.to be_denied_for(:auditor) }
   end
 
-  describe "GET /:project_path/-/environments" do
+  describe 'GET /:project_path/-/environments' do
     subject { project_environments_path(project) }
 
     it { is_expected.to be_allowed_for(:auditor) }
   end
 
-  describe "GET /:project_path/-/environments/:id" do
+  describe 'GET /:project_path/-/environments/:id' do
     let(:environment) { create(:environment, project: project) }
 
     subject { project_environment_path(project, environment) }
@@ -142,18 +142,18 @@ describe '[EE] Private Project Access' do
     it { is_expected.to be_allowed_for(:auditor) }
   end
 
-  describe "GET /:project_path/-/environments/new" do
+  describe 'GET /:project_path/-/environments/new' do
     subject { new_project_environment_path(project) }
 
     it { is_expected.to be_denied_for(:auditor) }
   end
 
-  context "when license blocks changes" do
+  context 'when license blocks changes' do
     before do
       allow(License).to receive(:block_changes?).and_return(true)
     end
 
-    describe "GET /:project_path/issues/new" do
+    describe 'GET /:project_path/issues/new' do
       subject { new_project_issue_path(project) }
 
       it { is_expected.to be_denied_for(:maintainer).of(project) }
@@ -165,7 +165,7 @@ describe '[EE] Private Project Access' do
       it { is_expected.to be_denied_for(:visitor) }
     end
 
-    describe "GET /:project_path/merge_requests/new" do
+    describe 'GET /:project_path/merge_requests/new' do
       subject { project_new_merge_request_path(project) }
 
       it { is_expected.to be_denied_for(:maintainer).of(project) }
@@ -178,7 +178,7 @@ describe '[EE] Private Project Access' do
     end
   end
 
-  describe "GET /:project_path/container_registry" do
+  describe 'GET /:project_path/container_registry' do
     let(:container_repository) { create(:container_repository) }
 
     before do

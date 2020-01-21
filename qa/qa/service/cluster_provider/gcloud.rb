@@ -7,7 +7,7 @@ module QA
     module ClusterProvider
       class Gcloud < Base
         def validate_dependencies
-          find_executable('gcloud') || raise("You must first install `gcloud` executable to run these tests.")
+          find_executable('gcloud') || raise('You must first install `gcloud` executable to run these tests.')
         end
 
         def initialize(rbac:)
@@ -51,7 +51,7 @@ module QA
           else
             account = `gcloud auth list --filter=status:ACTIVE --format="value(account)"`
             if account.empty?
-              raise "Failed to login to gcloud. No credentials provided in environment and no credentials found locally."
+              raise 'Failed to login to gcloud. No credentials provided in environment and no credentials found locally.'
             else
               puts "gcloud account found. Using: #{account} for creating K8s cluster."
             end
@@ -59,7 +59,7 @@ module QA
         end
 
         def attempt_login_with_env_vars
-          puts "No gcloud account. Attempting to login from env vars GCLOUD_ACCOUNT_EMAIL and GCLOUD_ACCOUNT_KEY."
+          puts 'No gcloud account. Attempting to login from env vars GCLOUD_ACCOUNT_EMAIL and GCLOUD_ACCOUNT_KEY.'
           gcloud_account_key = Tempfile.new('gcloud-account-key')
           gcloud_account_key.write(Runtime::Env.gcloud_account_key)
           gcloud_account_key.close
@@ -70,7 +70,7 @@ module QA
         end
 
         def auth_options
-          "--enable-legacy-authorization" unless rbac
+          '--enable-legacy-authorization' unless rbac
         end
 
         def create_cluster
@@ -94,7 +94,7 @@ module QA
 
           retry unless @attempts > 1
 
-          raise $!, "Tried and failed to provision the cluster #{@attempts} #{"time".pluralize(@attempts)}.", $!.backtrace
+          raise $!, "Tried and failed to provision the cluster #{@attempts} #{'time'.pluralize(@attempts)}.", $!.backtrace
         end
 
         def delete_cluster

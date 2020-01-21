@@ -19,7 +19,7 @@ describe RuboCop::Cop::QA::AmbiguousPageObjectName do
       allow(cop).to receive(:in_qa_file?).and_return(true)
     end
 
-    it "registers an offense for pages named `page`" do
+    it 'registers an offense for pages named `page`' do
       expect_offense(<<-RUBY)
       Page::Layout::Bar.perform do |page|
                                     ^^^^ Don't use 'page' as a name for a Page Object. Use `bar` instead.
@@ -29,7 +29,7 @@ describe RuboCop::Cop::QA::AmbiguousPageObjectName do
       RUBY
     end
 
-    it "doesnt offend if the page object is named otherwise" do
+    it 'doesnt offend if the page object is named otherwise' do
       expect_no_offenses(<<-RUBY)
         Page::Object.perform do |obj|
           obj.whatever
@@ -43,7 +43,7 @@ describe RuboCop::Cop::QA::AmbiguousPageObjectName do
       allow(cop).to receive(:in_qa_file?).and_return(false)
     end
 
-    it "does not register an offense" do
+    it 'does not register an offense' do
       expect_no_offenses(<<-RUBY)
         Page::Object.perform do |page|
           page.do_something

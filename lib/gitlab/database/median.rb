@@ -52,7 +52,7 @@ module Gitlab
         #           2 |         10 |     1 |  3
         #           2 |         15 |     2 |  3
         #           2 |         20 |     3 |  3
-        cte_table = Arel::Table.new("ordered_records")
+        cte_table = Arel::Table.new('ordered_records')
 
         cte = Arel::Nodes::As.new(
           cte_table,
@@ -91,7 +91,7 @@ module Gitlab
       end
 
       def average(args, as)
-        Arel::Nodes::NamedFunction.new("AVG", args, as)
+        Arel::Nodes::NamedFunction.new('AVG', args, as)
       end
 
       def rank_rows(arel_table, column_sym, partition_column)
@@ -119,7 +119,7 @@ module Gitlab
               Arel::Nodes::Window.new.order(arel_table[column_sym])
             ).as('row_id')
 
-          count = arel_table.where(arel_table[column_sym].gteq(zero_interval)).project("COUNT(1)").as('ct')
+          count = arel_table.where(arel_table[column_sym].gteq(zero_interval)).project('COUNT(1)').as('ct')
 
           [column_row, row_id, count]
         end
@@ -128,7 +128,7 @@ module Gitlab
       def median_projections(table, column_sym, partition_column)
         projections = []
         projections << table[partition_column] if partition_column
-        projections << average([extract_epoch(table[column_sym])], "median")
+        projections << average([extract_epoch(table[column_sym])], 'median')
         projections
       end
 
@@ -142,7 +142,7 @@ module Gitlab
 
       # Need to cast '0' to an INTERVAL before we can check if the interval is positive
       def zero_interval
-        Arel::Nodes::NamedFunction.new("CAST", [Arel.sql("'0' AS INTERVAL")])
+        Arel::Nodes::NamedFunction.new('CAST', [Arel.sql("'0' AS INTERVAL")])
       end
     end
   end

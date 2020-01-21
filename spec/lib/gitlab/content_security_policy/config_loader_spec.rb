@@ -13,8 +13,8 @@ describe Gitlab::ContentSecurityPolicy::ConfigLoader do
         child_src: "'self' https://child.example.com",
         default_src: "'self' https://other.example.com",
         script_src: "'self'  https://script.exammple.com ",
-        worker_src: "data:  https://worker.example.com",
-        report_uri: "http://example.com"
+        worker_src: 'data:  https://worker.example.com',
+        report_uri: 'http://example.com'
       }
     }
   end

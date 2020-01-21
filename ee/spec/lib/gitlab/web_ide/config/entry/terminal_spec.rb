@@ -34,8 +34,8 @@ describe Gitlab::WebIde::Config::Entry::Terminal do
       context 'when the same port is not duplicated' do
         let(:config) do
           {
-            image: { name: "ruby", ports: [80] },
-            services: [{ name: "mysql", alias: "service1", ports: [81] }, { name: "mysql", alias: "service2", ports: [82] }]
+            image: { name: 'ruby', ports: [80] },
+            services: [{ name: 'mysql', alias: 'service1', ports: [81] }, { name: 'mysql', alias: 'service2', ports: [82] }]
           }
         end
 
@@ -49,8 +49,8 @@ describe Gitlab::WebIde::Config::Entry::Terminal do
       context 'when unknown port keys detected' do
         let(:config) do
           {
-            image: { name: "ruby", ports: [80] },
-            services: [{ name: "mysql", alias: "service2", ports: [{ number: 81, invalid_key: 'foobar' }] }]
+            image: { name: 'ruby', ports: [80] },
+            services: [{ name: 'mysql', alias: 'service2', ports: [{ number: 81, invalid_key: 'foobar' }] }]
           }
         end
 
@@ -97,8 +97,8 @@ describe Gitlab::WebIde::Config::Entry::Terminal do
       context 'when the same port is duplicated' do
         let(:config) do
           {
-            image: { name: "ruby", ports: [80] },
-            services: [{ name: "mysql", ports: [80] }, { name: "mysql", ports: [81] }]
+            image: { name: 'ruby', ports: [80] },
+            services: [{ name: 'mysql', ports: [80] }, { name: 'mysql', ports: [81] }]
           }
         end
 
@@ -106,7 +106,7 @@ describe Gitlab::WebIde::Config::Entry::Terminal do
           it 'is invalid' do
             expect(entry).not_to be_valid
             expect(entry.errors.count).to eq 1
-            expect(entry.errors.first).to match "each port number can only be referenced once"
+            expect(entry.errors.first).to match 'each port number can only be referenced once'
           end
         end
       end
@@ -143,8 +143,8 @@ describe Gitlab::WebIde::Config::Entry::Terminal do
               tag_list: ['webide'],
               yaml_variables: [{ key: 'KEY', value: 'value', public: true }],
               options: {
-                image: { name: "ruby:2.5" },
-                services: [{ name: "mysql" }],
+                image: { name: 'ruby:2.5' },
+                services: [{ name: 'mysql' }],
                 before_script: %w[ls pwd],
                 script: ['sleep 100']
               }

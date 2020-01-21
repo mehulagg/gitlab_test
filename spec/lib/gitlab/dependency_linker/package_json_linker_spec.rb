@@ -14,7 +14,7 @@ describe Gitlab::DependencyLinker::PackageJsonLinker do
   end
 
   describe '#link' do
-    let(:file_name) { "package.json" }
+    let(:file_name) { 'package.json' }
 
     let(:file_content) do
       <<-CONTENT.strip_heredoc

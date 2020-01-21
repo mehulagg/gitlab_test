@@ -10,7 +10,7 @@ module API
     desc 'Get the current application statistics' do
       success Entities::ApplicationStatistics
     end
-    get "application/statistics" do
+    get 'application/statistics' do
       counts = Gitlab::Database::Count.approximate_counts(COUNTED_ITEMS)
       present counts, with: Entities::ApplicationStatistics
     end

@@ -16,7 +16,7 @@ describe Banzai::Filter::ProjectReferenceFilter do
   let(:project) { create(:project, :public) }
   subject { project }
 
-  let(:subject_name) { "project" }
+  let(:subject_name) { 'project' }
   let(:reference) { get_reference(project) }
 
   it_behaves_like 'user reference or project reference'

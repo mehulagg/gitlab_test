@@ -14,7 +14,7 @@ class AddNameToGeoNodes < ActiveRecord::Migration[5.0]
 
     # url is also unique, and its type and size is identical to the name column,
     # so this is safe.
-    execute "UPDATE geo_nodes SET name = url;"
+    execute 'UPDATE geo_nodes SET name = url;'
 
     # url is also `null: false`, so this is safe.
     change_column :geo_nodes, :name, :string, null: false

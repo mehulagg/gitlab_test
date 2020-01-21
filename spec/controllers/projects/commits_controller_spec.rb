@@ -15,8 +15,8 @@ describe Projects::CommitsController do
       sign_in(user)
     end
 
-    describe "GET commits_root" do
-      context "no ref is provided" do
+    describe 'GET commits_root' do
+      context 'no ref is provided' do
         it 'redirects to the default branch of the project' do
           get(:commits_root,
               params: {
@@ -29,7 +29,7 @@ describe Projects::CommitsController do
       end
     end
 
-    describe "GET show" do
+    describe 'GET show' do
       render_views
 
       context 'with file path' do
@@ -42,43 +42,43 @@ describe Projects::CommitsController do
               })
         end
 
-        context "valid branch, valid file" do
+        context 'valid branch, valid file' do
           let(:id) { 'master/README.md' }
 
           it { is_expected.to respond_with(:success) }
         end
 
-        context "valid branch, invalid file" do
+        context 'valid branch, invalid file' do
           let(:id) { 'master/invalid-path.rb' }
 
           it { is_expected.to respond_with(:not_found) }
         end
 
-        context "invalid branch, valid file" do
+        context 'invalid branch, valid file' do
           let(:id) { 'invalid-branch/README.md' }
 
           it { is_expected.to respond_with(:not_found) }
         end
 
-        context "branch with invalid format, valid file" do
+        context 'branch with invalid format, valid file' do
           let(:id) { 'branch with space/README.md' }
 
           it { is_expected.to respond_with(:not_found) }
         end
       end
 
-      context "when the ref name ends in .atom" do
-        context "when the ref does not exist with the suffix" do
+      context 'when the ref name ends in .atom' do
+        context 'when the ref does not exist with the suffix' do
           before do
             get(:show,
                 params: {
                   namespace_id: project.namespace,
                   project_id: project,
-                  id: "master.atom"
+                  id: 'master.atom'
                 })
           end
 
-          it "renders as atom" do
+          it 'renders as atom' do
             expect(response).to be_successful
             expect(response.content_type).to eq('application/atom+xml')
           end
@@ -88,7 +88,7 @@ describe Projects::CommitsController do
           end
         end
 
-        context "when the ref exists with the suffix" do
+        context 'when the ref exists with the suffix' do
           before do
             commit = project.repository.commit('master')
 
@@ -99,11 +99,11 @@ describe Projects::CommitsController do
                 params: {
                   namespace_id: project.namespace,
                   project_id: project,
-                  id: "master.atom"
+                  id: 'master.atom'
                 })
           end
 
-          it "renders as HTML" do
+          it 'renders as HTML' do
             expect(response).to be_successful
             expect(response.content_type).to eq('text/html')
           end
@@ -111,7 +111,7 @@ describe Projects::CommitsController do
       end
     end
 
-    describe "GET /commits/:id/signatures" do
+    describe 'GET /commits/:id/signatures' do
       render_views
 
       before do
@@ -126,13 +126,13 @@ describe Projects::CommitsController do
             format: :json)
       end
 
-      context "valid branch" do
+      context 'valid branch' do
         let(:id) { 'master' }
 
         it { is_expected.to respond_with(:success) }
       end
 
-      context "invalid branch format" do
+      context 'invalid branch format' do
         let(:id) { 'some branch' }
 
         it { is_expected.to respond_with(:not_found) }
@@ -146,7 +146,7 @@ describe Projects::CommitsController do
         before do
           public_project = create(:project, :repository, :public)
 
-          default_params.merge!(namespace_id: public_project.namespace, project_id: public_project, id: "master.atom")
+          default_params.merge!(namespace_id: public_project.namespace, project_id: public_project, id: 'master.atom')
         end
       end
     end
@@ -157,7 +157,7 @@ describe Projects::CommitsController do
           private_project = create(:project, :repository, :private)
           private_project.add_maintainer(user)
 
-          default_params.merge!(namespace_id: private_project.namespace, project_id: private_project, id: "master.atom")
+          default_params.merge!(namespace_id: private_project.namespace, project_id: private_project, id: 'master.atom')
         end
       end
     end

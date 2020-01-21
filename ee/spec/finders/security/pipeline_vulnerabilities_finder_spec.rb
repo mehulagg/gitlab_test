@@ -127,8 +127,8 @@ describe Security::PipelineVulnerabilitiesFinder do
       end
 
       context 'by scope' do
-        let(:ds_occurrence) { pipeline.security_reports.reports["dependency_scanning"].occurrences.first }
-        let(:sast_occurrence) { pipeline.security_reports.reports["sast"].occurrences.first }
+        let(:ds_occurrence) { pipeline.security_reports.reports['dependency_scanning'].occurrences.first }
+        let(:sast_occurrence) { pipeline.security_reports.reports['sast'].occurrences.first }
 
         let!(:feedback) do
           [

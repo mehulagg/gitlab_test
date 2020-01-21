@@ -66,13 +66,13 @@ describe Banzai::Filter::EpicReferenceFilter do
     end
 
     it 'ignores invalid epic IDs' do
-      text = "Check &9999"
+      text = 'Check &9999'
 
       expect(doc(text).to_s).to eq(ERB::Util.html_escape_once(text))
     end
 
     it 'ignores out of range epic IDs' do
-      text = "Check &1161452270761535925900804973910297"
+      text = 'Check &1161452270761535925900804973910297'
 
       expect(doc(text).to_s).to eq(ERB::Util.html_escape_once(text))
     end
@@ -101,7 +101,7 @@ describe Banzai::Filter::EpicReferenceFilter do
     end
 
     it 'ignores invalid epic IDs' do
-      text = "Check &amp;9999"
+      text = 'Check &amp;9999'
 
       expect(doc(text).to_s).to eq(ERB::Util.html_escape_once(text))
     end

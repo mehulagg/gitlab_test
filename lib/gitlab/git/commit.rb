@@ -53,7 +53,7 @@ module Gitlab
         #   Commit.find(repo, 'master')
         #
         # Gitaly migration: https://gitlab.com/gitlab-org/gitaly/issues/321
-        def find(repo, commit_id = "HEAD")
+        def find(repo, commit_id = 'HEAD')
           # Already a commit?
           return commit_id if commit_id.is_a?(Gitlab::Git::Commit)
 
@@ -181,7 +181,7 @@ module Gitlab
       end
 
       def initialize(repository, raw_commit, head = nil, lazy_load_parents: false)
-        raise "Nil as raw commit passed" unless raw_commit
+        raise 'Nil as raw commit passed' unless raw_commit
 
         @repository = repository
         @head = head
@@ -254,7 +254,7 @@ module Gitlab
       end
 
       def no_commit_message
-        "No commit message"
+        'No commit message'
       end
 
       def to_hash
@@ -286,7 +286,7 @@ module Gitlab
       #
       def ref_names(repo)
         refs(repo).map do |ref|
-          ref.sub(%r{^refs/(heads|remotes|tags)/}, "")
+          ref.sub(%r{^refs/(heads|remotes|tags)/}, '')
         end
       end
 
@@ -345,7 +345,7 @@ module Gitlab
         message_split = raw_commit.message.split("\n", 2)
         Gitaly::GitCommit.new(
           id: raw_commit.oid,
-          subject: message_split[0] ? message_split[0].chomp.b : "",
+          subject: message_split[0] ? message_split[0].chomp.b : '',
           body: raw_commit.message.b,
           parent_ids: raw_commit.parent_ids,
           author: gitaly_commit_author_from_raw(raw_commit.author),

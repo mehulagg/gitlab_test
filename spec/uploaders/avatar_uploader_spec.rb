@@ -14,7 +14,7 @@ describe AvatarUploader do
                   upload_path: %r[uploads/-/system/user/avatar/],
                   absolute_path: %r[#{CarrierWave.root}/uploads/-/system/user/avatar/]
 
-  context "object_store is REMOTE" do
+  context 'object_store is REMOTE' do
     before do
       stub_uploads_object_storage
     end
@@ -26,7 +26,7 @@ describe AvatarUploader do
                     upload_path: %r[user/avatar/]
   end
 
-  context "with a file" do
+  context 'with a file' do
     let(:project) { create(:project, :with_avatar) }
     let(:uploader) { project.avatar }
     let(:upload) { uploader.upload }
@@ -35,8 +35,8 @@ describe AvatarUploader do
       stub_uploads_object_storage
     end
 
-    it_behaves_like "migrates", to_store: described_class::Store::REMOTE
-    it_behaves_like "migrates", from_store: described_class::Store::REMOTE, to_store: described_class::Store::LOCAL
+    it_behaves_like 'migrates', to_store: described_class::Store::REMOTE
+    it_behaves_like 'migrates', from_store: described_class::Store::REMOTE, to_store: described_class::Store::LOCAL
 
     it 'sets the right absolute path' do
       storage_path = Gitlab.config.uploads.storage_path

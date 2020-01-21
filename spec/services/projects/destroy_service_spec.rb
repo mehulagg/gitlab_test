@@ -158,7 +158,7 @@ describe Projects::DestroyService do
 
     context 'async delete of project with private issue visibility' do
       before do
-        project.project_feature.update_attribute("issues_access_level", ProjectFeature::PRIVATE)
+        project.project_feature.update_attribute('issues_access_level', ProjectFeature::PRIVATE)
         # Run sidekiq immediately to check that renamed repository will be removed
         perform_enqueued_jobs { destroy_project(project, user, {}) }
       end
@@ -175,7 +175,7 @@ describe Projects::DestroyService do
             .to receive(:remove_legacy_registry_tags).and_return(false)
         end
 
-        it_behaves_like 'handles errors thrown during async destroy', "Failed to remove some tags"
+        it_behaves_like 'handles errors thrown during async destroy', 'Failed to remove some tags'
       end
 
       context 'when `remove_repository` fails' do
@@ -184,16 +184,16 @@ describe Projects::DestroyService do
             .to receive(:remove_repository).and_return(false)
         end
 
-        it_behaves_like 'handles errors thrown during async destroy', "Failed to remove project repository"
+        it_behaves_like 'handles errors thrown during async destroy', 'Failed to remove project repository'
       end
 
       context 'when `execute` raises expected error' do
         before do
           expect_any_instance_of(Project)
-            .to receive(:destroy!).and_raise(StandardError.new("Other error message"))
+            .to receive(:destroy!).and_raise(StandardError.new('Other error message'))
         end
 
-        it_behaves_like 'handles errors thrown during async destroy', "Other error message"
+        it_behaves_like 'handles errors thrown during async destroy', 'Other error message'
       end
 
       context 'when `execute` raises unexpected error' do
@@ -208,7 +208,7 @@ describe Projects::DestroyService do
           end.to raise_error(Exception, 'Other error message')
 
           expect(project.reload.pending_delete).to be(false)
-          expect(project.delete_error).to include("Other error message")
+          expect(project.delete_error).to include('Other error message')
         end
       end
     end

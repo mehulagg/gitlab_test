@@ -11,7 +11,7 @@ module Gitlab
     end
 
     def author_line(author)
-      author ||= "Anonymous"
+      author ||= 'Anonymous'
       "*Created by: #{author}*\n\n"
     end
   end

@@ -22,7 +22,7 @@ module Gitlab
       def authorize_url(redirect_uri)
         client.auth_code.authorize_url({
           redirect_uri: redirect_uri,
-          scope: "api"
+          scope: 'api'
         })
       end
 
@@ -31,7 +31,7 @@ module Gitlab
       end
 
       def user
-        api.get("/api/v4/user").parsed
+        api.get('/api/v4/user').parsed
       end
 
       def issues(project_identifier, **kwargs)

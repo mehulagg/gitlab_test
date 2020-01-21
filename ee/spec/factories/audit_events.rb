@@ -48,9 +48,9 @@ FactoryBot.define do
           author_name: 'Administrator',
           target_id: 1,
           target_type: 'Group',
-          target_details: "gitlab-org",
+          target_details: 'gitlab-org',
           ip_address: '127.0.0.1',
-          entity_path: "gitlab-org"
+          entity_path: 'gitlab-org'
         }
       end
     end

@@ -20,7 +20,7 @@ describe ProtectedTags::UpdateService do
     context 'without admin_project permissions' do
       let(:user) { create(:user) }
 
-      it "raises error" do
+      it 'raises error' do
         expect { service.execute(protected_tag) }.to raise_error(Gitlab::Access::AccessDeniedError)
       end
     end

@@ -13,7 +13,7 @@ describe SoftwareLicensePolicy do
     it { is_expected.to validate_uniqueness_of(:software_license).scoped_to(:project_id).with_message(/has already been taken/) }
   end
 
-  describe ".with_license_by_name" do
+  describe '.with_license_by_name' do
     subject { described_class }
 
     let!(:mit_policy) { create(:software_license_policy, software_license: mit) }
@@ -34,7 +34,7 @@ describe SoftwareLicensePolicy do
     end
   end
 
-  describe ".by_spdx" do
+  describe '.by_spdx' do
     let_it_be(:mit) { create(:software_license, :mit) }
     let_it_be(:mit_policy) { create(:software_license_policy, software_license: mit) }
     let_it_be(:apache) { create(:software_license, :apache_2_0) }
@@ -45,11 +45,11 @@ describe SoftwareLicensePolicy do
     it { expect(described_class.by_spdx(SecureRandom.uuid)).to be_empty }
   end
 
-  describe "#name" do
+  describe '#name' do
     specify { expect(subject.name).to eql(subject.software_license.name) }
   end
 
-  describe "#approval_status" do
+  describe '#approval_status' do
     where(:classification, :approval_status) do
       [
         %w[allowed approved],
@@ -64,7 +64,7 @@ describe SoftwareLicensePolicy do
     end
   end
 
-  describe ".to_classification" do
+  describe '.to_classification' do
     where(:approval_status, :classification) do
       [
         %w[approved allowed],

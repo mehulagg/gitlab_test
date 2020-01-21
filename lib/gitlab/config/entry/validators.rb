@@ -9,7 +9,7 @@ module Gitlab
             unknown_keys = value.try(:keys).to_a - options[:in]
 
             if unknown_keys.any?
-              record.errors.add(attribute, "contains unknown keys: " +
+              record.errors.add(attribute, 'contains unknown keys: ' +
                                             unknown_keys.join(', '))
             end
           end
@@ -20,7 +20,7 @@ module Gitlab
             present_keys = value.try(:keys).to_a & options[:in]
 
             if present_keys.any?
-              message = options[:message] || "contains disallowed keys"
+              message = options[:message] || 'contains disallowed keys'
               message += ": #{present_keys.join(', ')}"
 
               record.errors.add(attribute, message)
@@ -33,7 +33,7 @@ module Gitlab
             present_keys = options[:in] - value.try(:keys).to_a
 
             if present_keys.any?
-              record.errors.add(attribute, "missing required keys: " +
+              record.errors.add(attribute, 'missing required keys: ' +
                 present_keys.join(', '))
             end
           end
@@ -51,7 +51,7 @@ module Gitlab
           def validate_each(record, attribute, value)
             unknown_values = value - options[:in]
             unless unknown_values.empty?
-              record.errors.add(attribute, "contains unknown values: " +
+              record.errors.add(attribute, 'contains unknown values: ' +
                                             unknown_values.join(', '))
             end
           end

@@ -50,23 +50,23 @@ module Ci
 
     def ref_text
       if pipeline.detached_merge_request_pipeline?
-        _("for %{link_to_merge_request} with %{link_to_merge_request_source_branch}")
+        _('for %{link_to_merge_request} with %{link_to_merge_request_source_branch}')
           .html_safe % {
             link_to_merge_request: link_to_merge_request,
             link_to_merge_request_source_branch: link_to_merge_request_source_branch
           }
       elsif pipeline.merge_request_pipeline?
-        _("for %{link_to_merge_request} with %{link_to_merge_request_source_branch} into %{link_to_merge_request_target_branch}")
+        _('for %{link_to_merge_request} with %{link_to_merge_request_source_branch} into %{link_to_merge_request_target_branch}')
           .html_safe % {
             link_to_merge_request: link_to_merge_request,
             link_to_merge_request_source_branch: link_to_merge_request_source_branch,
             link_to_merge_request_target_branch: link_to_merge_request_target_branch
           }
       elsif pipeline.ref && pipeline.ref_exists?
-        _("for %{link_to_pipeline_ref}")
+        _('for %{link_to_pipeline_ref}')
         .html_safe % { link_to_pipeline_ref: link_to_pipeline_ref }
       elsif pipeline.ref
-        _("for %{ref}").html_safe % { ref: plain_ref_name }
+        _('for %{ref}').html_safe % { ref: plain_ref_name }
       end
     end
 
@@ -74,7 +74,7 @@ module Ci
       if all_related_merge_requests.none?
         'No related merge requests found.'
       else
-        _("%{count} related %{pluralized_subject}: %{links}" % {
+        _('%{count} related %{pluralized_subject}: %{links}' % {
           count: all_related_merge_requests.count,
           pluralized_subject: 'merge request'.pluralize(all_related_merge_requests.count),
           links: all_related_merge_request_links.join(', ')
@@ -85,7 +85,7 @@ module Ci
     def link_to_pipeline_ref
       link_to(pipeline.ref,
         project_commits_path(pipeline.project, pipeline.ref),
-        class: "ref-name")
+        class: 'ref-name')
     end
 
     def link_to_merge_request

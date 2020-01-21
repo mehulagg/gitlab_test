@@ -63,6 +63,6 @@ end
 
 def create_and_edit_file(file_name)
   visit project_new_blob_path(project, 'master', file_name: file_name)
-  click_button "Commit changes"
+  click_button 'Commit changes'
   visit project_edit_blob_path(project, File.join(project.default_branch, file_name))
 end

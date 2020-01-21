@@ -1,5 +1,5 @@
 namespace :gitlab do
-  desc "GitLab | Generate Sample Prometheus Data"
+  desc 'GitLab | Generate Sample Prometheus Data'
   task :generate_sample_prometheus_data, [:environment_id] => :gitlab_environment do |_, args|
     environment = Environment.find(args[:environment_id])
     metrics = PrometheusMetric.where(project_id: [environment.project.id, nil])

@@ -17,11 +17,11 @@ module SourcegraphHelper
 
   def sourcegraph_experimental_message
     if Gitlab::Sourcegraph.feature_conditional?
-      s_("SourcegraphPreferences|This feature is experimental and currently limited to certain projects.")
+      s_('SourcegraphPreferences|This feature is experimental and currently limited to certain projects.')
     elsif Gitlab::CurrentSettings.sourcegraph_public_only
-      s_("SourcegraphPreferences|This feature is experimental and limited to public projects.")
+      s_('SourcegraphPreferences|This feature is experimental and limited to public projects.')
     else
-      s_("SourcegraphPreferences|This feature is experimental.")
+      s_('SourcegraphPreferences|This feature is experimental.')
     end
   end
 end

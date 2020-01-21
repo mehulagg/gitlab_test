@@ -21,7 +21,7 @@ describe Submodules::UpdateService do
 
   subject { described_class.new(project, user, commit_params) }
 
-  describe "#execute" do
+  describe '#execute' do
     shared_examples 'returns error result' do
       it do
         result = subject.execute

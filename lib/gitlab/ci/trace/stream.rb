@@ -75,7 +75,7 @@ module Gitlab
 
           regex = Gitlab::UntrustedRegexp.new(regex)
 
-          match = ""
+          match = ''
 
           reverse_line do |line|
             line.chomp!

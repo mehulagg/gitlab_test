@@ -6,13 +6,13 @@ describe Pseudonymizer::Pager do
   let(:page_size) { 1 }
   let!(:projects) { create_list(:project, 10) }
 
-  subject { described_class.new("projects", whitelisted_columns) }
+  subject { described_class.new('projects', whitelisted_columns) }
 
   before do
-    stub_const("Pseudonymizer::Pager::PAGE_SIZE", page_size)
+    stub_const('Pseudonymizer::Pager::PAGE_SIZE', page_size)
   end
 
-  shared_examples "yield results in page" do
+  shared_examples 'yield results in page' do
     it do
       page_count = 0
       result_count = 0
@@ -27,31 +27,31 @@ describe Pseudonymizer::Pager do
     end
   end
 
-  context "`id` column is present" do
+  context '`id` column is present' do
     let(:whitelisted_columns) { %w(id name) }
 
-    describe "#pages" do
-      it "delegates to #pages_per_id" do
+    describe '#pages' do
+      it 'delegates to #pages_per_id' do
         expect(subject).to receive(:pages_per_id)
 
         subject.pages {|page| nil}
       end
 
-      include_examples "yield results in page"
+      include_examples 'yield results in page'
     end
   end
 
-  context "`id` column is missing" do
+  context '`id` column is missing' do
     let(:whitelisted_columns) { %w(name) }
 
-    describe "#pages" do
-      it "delegates to #pages_per_offset" do
+    describe '#pages' do
+      it 'delegates to #pages_per_offset' do
         expect(subject).to receive(:pages_per_offset)
 
         subject.pages {|page| nil}
       end
 
-      include_examples "yield results in page"
+      include_examples 'yield results in page'
     end
   end
 end

@@ -17,10 +17,10 @@ RSpec.shared_examples 'normalizes a DN' do
     'properly preserves escaped trailing space after unescaped trailing spaces'                    | 'uid=John Smith  \\  ,ou=People,dc=example,dc=com'                                                    | 'uid=john smith  \\ ,ou=people,dc=example,dc=com'
     'preserves multiple inner spaces in an attribute value'                                        | 'uid=John   Smith,ou=People,dc=example,dc=com'                                                        | 'uid=john   smith,ou=people,dc=example,dc=com'
     'preserves inner spaces after an escaped space'                                                | 'uid=John\\   Smith,ou=People,dc=example,dc=com'                                                      | 'uid=john   smith,ou=people,dc=example,dc=com'
-    'hex-escapes an escaped leading newline in an attribute value'                                 | "uid=\\\nJohn Smith,ou=People,dc=example,dc=com"                                                      | "uid=\\0ajohn smith,ou=people,dc=example,dc=com"
-    'hex-escapes and does not strip an escaped trailing newline in an attribute value'             | "uid=John Smith\\\n,ou=People,dc=example,dc=com"                                                      | "uid=john smith\\0a,ou=people,dc=example,dc=com"
-    'hex-escapes an unescaped leading newline (actually an invalid DN?)'                           | "uid=\nJohn Smith,ou=People,dc=example,dc=com"                                                        | "uid=\\0ajohn smith,ou=people,dc=example,dc=com"
-    'strips an unescaped trailing newline (actually an invalid DN?)'                               | "uid=John Smith\n,ou=People,dc=example,dc=com"                                                        | "uid=john smith,ou=people,dc=example,dc=com"
+    'hex-escapes an escaped leading newline in an attribute value'                                 | "uid=\\\nJohn Smith,ou=People,dc=example,dc=com"                                                      | 'uid=\\0ajohn smith,ou=people,dc=example,dc=com'
+    'hex-escapes and does not strip an escaped trailing newline in an attribute value'             | "uid=John Smith\\\n,ou=People,dc=example,dc=com"                                                      | 'uid=john smith\\0a,ou=people,dc=example,dc=com'
+    'hex-escapes an unescaped leading newline (actually an invalid DN?)'                           | "uid=\nJohn Smith,ou=People,dc=example,dc=com"                                                        | 'uid=\\0ajohn smith,ou=people,dc=example,dc=com'
+    'strips an unescaped trailing newline (actually an invalid DN?)'                               | "uid=John Smith\n,ou=People,dc=example,dc=com"                                                        | 'uid=john smith,ou=people,dc=example,dc=com'
     'does not strip if no extraneous whitespace'                                                   | 'uid=John Smith,ou=People,dc=example,dc=com'                                                          | 'uid=john smith,ou=people,dc=example,dc=com'
     'does not modify an escaped equal sign in an attribute value'                                  | 'uid= foo  \\=  bar'                                                                                  | 'uid=foo  \\=  bar'
     'converts an escaped hex equal sign to an escaped equal sign in an attribute value'            | 'uid= foo  \\3D  bar'                                                                                 | 'uid=foo  \\=  bar'
@@ -49,10 +49,10 @@ RSpec.shared_examples 'normalizes a DN attribute value' do
     'downcases the whole string'                                                        | 'JoHn C. Smith'                    | 'john c. smith'
     'does not strip an escaped leading space in an attribute value'                     | '\\ John Smith'                    | '\\ john smith'
     'does not strip an escaped trailing space in an attribute value'                    | 'John Smith\\ '                    | 'john smith\\ '
-    'hex-escapes an escaped leading newline in an attribute value'                      | "\\\nJohn Smith"                   | "\\0ajohn smith"
-    'hex-escapes and does not strip an escaped trailing newline in an attribute value'  | "John Smith\\\n"                   | "john smith\\0a"
-    'hex-escapes an unescaped leading newline (actually an invalid DN value?)'          | "\nJohn Smith"                     | "\\0ajohn smith"
-    'strips an unescaped trailing newline (actually an invalid DN value?)'              | "John Smith\n"                     | "john smith"
+    'hex-escapes an escaped leading newline in an attribute value'                      | "\\\nJohn Smith"                   | '\\0ajohn smith'
+    'hex-escapes and does not strip an escaped trailing newline in an attribute value'  | "John Smith\\\n"                   | 'john smith\\0a'
+    'hex-escapes an unescaped leading newline (actually an invalid DN value?)'          | "\nJohn Smith"                     | '\\0ajohn smith'
+    'strips an unescaped trailing newline (actually an invalid DN value?)'              | "John Smith\n"                     | 'john smith'
     'does not strip if no extraneous whitespace'                                        | 'John Smith'                       | 'john smith'
     'does not modify an escaped equal sign in an attribute value'                       | ' foo  \\=  bar'                   | 'foo  \\=  bar'
     'converts an escaped hex equal sign to an escaped equal sign in an attribute value' | ' foo  \\3D  bar'                  | 'foo  \\=  bar'

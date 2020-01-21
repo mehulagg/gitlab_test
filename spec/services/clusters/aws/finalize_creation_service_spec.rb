@@ -85,7 +85,7 @@ describe Clusters::Aws::FinalizeCreationService do
 
     describe 'error handling' do
       shared_examples 'provision error' do |message|
-        it "sets the status to :errored with an appropriate error message" do
+        it 'sets the status to :errored with an appropriate error message' do
           subject
 
           expect(provider).to be_errored
@@ -96,7 +96,7 @@ describe Clusters::Aws::FinalizeCreationService do
       context 'failed to request stack details from AWS' do
         before do
           allow(provider.api_client).to receive(:describe_stacks)
-            .and_raise(Aws::CloudFormation::Errors::ServiceError.new(double, "Error message"))
+            .and_raise(Aws::CloudFormation::Errors::ServiceError.new(double, 'Error message'))
         end
 
         include_examples 'provision error', 'Failed to fetch CloudFormation stack'

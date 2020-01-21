@@ -4,7 +4,7 @@ class DeleteKubernetesServices < ActiveRecord::Migration[5.2]
   DOWNTIME = false
 
   def up
-    Service.where(type: "KubernetesService").delete_all
+    Service.where(type: 'KubernetesService').delete_all
   end
 
   def down

@@ -37,21 +37,21 @@ module EE
         update(state: :closed, closed_at: Time.zone.now)
       end
 
-      belongs_to :assignee, class_name: "User"
+      belongs_to :assignee, class_name: 'User'
       belongs_to :group
       belongs_to :start_date_sourcing_milestone, class_name: 'Milestone'
       belongs_to :due_date_sourcing_milestone, class_name: 'Milestone'
       belongs_to :start_date_sourcing_epic, class_name: 'Epic'
       belongs_to :due_date_sourcing_epic, class_name: 'Epic'
-      belongs_to :parent, class_name: "Epic"
-      has_many :children, class_name: "Epic", foreign_key: :parent_id
+      belongs_to :parent, class_name: 'Epic'
+      has_many :children, class_name: 'Epic', foreign_key: :parent_id
       has_many :events, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
       has_internal_id :iid, scope: :group, init: ->(s) { s&.group&.epics&.maximum(:iid) }
 
       has_many :epic_issues
       has_many :issues, through: :epic_issues
-      has_many :user_mentions, class_name: "EpicUserMention"
+      has_many :user_mentions, class_name: 'EpicUserMention'
 
       validates :group, presence: true
       validate :validate_parent, on: :create
@@ -68,7 +68,7 @@ module EE
       scope :has_parent, -> { where.not(parent_id: nil) }
 
       scope :order_start_or_end_date_asc, -> do
-        reorder(Arel.sql("COALESCE(start_date, end_date) ASC NULLS FIRST"))
+        reorder(Arel.sql('COALESCE(start_date, end_date) ASC NULLS FIRST'))
       end
 
       scope :order_start_date_asc, -> do

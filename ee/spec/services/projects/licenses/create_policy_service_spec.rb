@@ -8,14 +8,14 @@ describe Projects::Licenses::CreatePolicyService do
   let_it_be(:project) { create(:project, :repository, :private) }
   let_it_be(:user) { create(:user) }
 
-  describe "#execute" do
+  describe '#execute' do
     let_it_be(:mit_license) { create(:software_license, :mit) }
 
     before do
       allow(RefreshLicenseComplianceChecksWorker).to receive(:perform_async)
     end
 
-    context "when creating a policy for a software license by the software license database id" do
+    context 'when creating a policy for a software license by the software license database id' do
       let(:params) do
         {
           software_license_id: mit_license.id,
@@ -38,7 +38,7 @@ describe Projects::Licenses::CreatePolicyService do
       end
     end
 
-    context "when creating a policy for a software license by the software license SPDX identifier" do
+    context 'when creating a policy for a software license by the software license SPDX identifier' do
       let(:params) do
         {
           spdx_identifier: mit_license.spdx_identifier,
@@ -61,7 +61,7 @@ describe Projects::Licenses::CreatePolicyService do
       end
     end
 
-    context "when the software license is not specified" do
+    context 'when the software license is not specified' do
       let(:params) do
         {
           spdx_identifier: nil,
@@ -79,7 +79,7 @@ describe Projects::Licenses::CreatePolicyService do
       end
     end
 
-    context "when the classification is invalid" do
+    context 'when the classification is invalid' do
       let(:params) do
         {
           spdx_identifier: mit_license.spdx_identifier,

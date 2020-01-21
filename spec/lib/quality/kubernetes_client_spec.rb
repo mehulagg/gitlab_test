@@ -5,7 +5,7 @@ require 'fast_spec_helper'
 RSpec.describe Quality::KubernetesClient do
   let(:namespace) { 'review-apps-ee' }
   let(:release_name) { 'my-release' }
-  let(:pod_for_release) { "pod-my-release-abcd" }
+  let(:pod_for_release) { 'pod-my-release-abcd' }
   let(:raw_resource_names_str) { "NAME\nfoo\n#{pod_for_release}\nbar" }
   let(:raw_resource_names) { raw_resource_names_str.lines.map(&:strip) }
 

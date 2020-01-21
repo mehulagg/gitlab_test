@@ -77,7 +77,7 @@ module Banzai
       def media_node(doc, element)
         container_element_attrs = { class: "#{media_type}-container" }
 
-        doc.document.create_element( "div", container_element_attrs).tap do |container|
+        doc.document.create_element( 'div', container_element_attrs).tap do |container|
           container.add_child(media_element(doc, element))
           container.add_child(download_paragraph(doc, element))
         end

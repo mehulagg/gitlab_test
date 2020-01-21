@@ -104,7 +104,7 @@ describe Gitlab::Middleware::ReadOnly do
       end
 
       it 'expects a graphql request to be allowed' do
-        response = request.post("/api/graphql")
+        response = request.post('/api/graphql')
 
         expect(response).not_to be_redirect
         expect(subject).not_to disallow_request

@@ -90,7 +90,7 @@ describe Route do
           route.update_column(:name, nil)
         end
 
-        it "does not fail" do
+        it 'does not fail' do
           expect(route.update(path: 'bar')).to be_truthy
         end
       end
@@ -195,7 +195,7 @@ describe Route do
           let!(:redirect2) { route.create_redirect("#{route.path}/foo") }
           let!(:redirect3) { route.create_redirect("#{route.path}/foo/bar") }
           let!(:redirect4) { route.create_redirect("#{route.path}/baz/quz") }
-          let!(:other_redirect) { route.create_redirect("other") }
+          let!(:other_redirect) { route.create_redirect('other') }
 
           it 'deletes all redirects with paths that descend from the route path' do
             expect do
@@ -247,7 +247,7 @@ describe Route do
           let!(:redirect2) { route.create_redirect("#{route.path}/foo") }
           let!(:redirect3) { route.create_redirect("#{route.path}/foo/bar") }
           let!(:redirect4) { route.create_redirect("#{route.path}/baz/quz") }
-          let!(:other_redirect) { route.create_redirect("other") }
+          let!(:other_redirect) { route.create_redirect('other') }
 
           it 'returns the redirect routes' do
             expect(route.conflicting_redirects).to match_array([redirect1, redirect2, redirect3, redirect4])

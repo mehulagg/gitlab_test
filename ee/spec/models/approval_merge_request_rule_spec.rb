@@ -362,7 +362,7 @@ describe ApprovalMergeRequestRule do
     end
   end
 
-  describe "#refresh_required_approvals!" do
+  describe '#refresh_required_approvals!' do
     before do
       stub_licensed_features(license_management: true)
     end
@@ -380,14 +380,14 @@ describe ApprovalMergeRequestRule do
         subject.refresh_required_approvals!(project_approval_rule)
       end
 
-      context "when the latest license report violates the compliance policy" do
+      context 'when the latest license report violates the compliance policy' do
         let(:license) { create(:software_license, name: license_report.license_names[0]) }
         let(:license_report) { open_pipeline.license_scanning_report }
 
         specify { expect(subject.approvals_required).to be(project_approval_rule.approvals_required) }
       end
 
-      context "when the latest license report adheres to the compliance policy" do
+      context 'when the latest license report adheres to the compliance policy' do
         let(:license) { create(:software_license, name: SecureRandom.uuid) }
 
         specify { expect(subject.approvals_required).to be_zero }

@@ -19,8 +19,8 @@ module Gitlab
 
               if report.is_a?(Array)
                 report = {
-                  "version" => self.class::DEPRECATED_REPORT_VERSION,
-                  "vulnerabilities" => report
+                  'version' => self.class::DEPRECATED_REPORT_VERSION,
+                  'vulnerabilities' => report
                 }
               end
 

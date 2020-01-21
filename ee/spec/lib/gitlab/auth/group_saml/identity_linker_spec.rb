@@ -21,7 +21,7 @@ describe Gitlab::Auth::GroupSaml::IdentityLinker do
       expect { subject.link }.not_to change { Identity.count }
     end
 
-    it "sets #changed? to false" do
+    it 'sets #changed? to false' do
       subject.link
 
       expect(subject).not_to be_changed

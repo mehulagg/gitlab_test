@@ -2,7 +2,7 @@
 
 module Vulnerabilities
   class OccurrenceIdentifier < ApplicationRecord
-    self.table_name = "vulnerability_occurrence_identifiers"
+    self.table_name = 'vulnerability_occurrence_identifiers'
 
     belongs_to :occurrence, class_name: 'Vulnerabilities::Occurrence'
     belongs_to :identifier, class_name: 'Vulnerabilities::Identifier'

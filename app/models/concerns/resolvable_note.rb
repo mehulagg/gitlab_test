@@ -7,7 +7,7 @@ module ResolvableNote
   RESOLVABLE_TYPES = %w(DiffNote DiscussionNote).freeze
 
   included do
-    belongs_to :resolved_by, class_name: "User"
+    belongs_to :resolved_by, class_name: 'User'
 
     validates :resolved_by, presence: true, if: :resolved?
 

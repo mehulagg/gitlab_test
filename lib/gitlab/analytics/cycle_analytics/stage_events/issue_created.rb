@@ -6,7 +6,7 @@ module Gitlab
       module StageEvents
         class IssueCreated < StageEvent
           def self.name
-            s_("CycleAnalyticsEvent|Issue created")
+            s_('CycleAnalyticsEvent|Issue created')
           end
 
           def self.identifier

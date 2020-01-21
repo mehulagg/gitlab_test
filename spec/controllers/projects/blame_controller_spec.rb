@@ -13,7 +13,7 @@ describe Projects::BlameController do
     controller.instance_variable_set(:@project, project)
   end
 
-  describe "GET show" do
+  describe 'GET show' do
     render_views
 
     before do
@@ -25,13 +25,13 @@ describe Projects::BlameController do
           })
     end
 
-    context "valid branch, valid file" do
+    context 'valid branch, valid file' do
       let(:id) { 'master/files/ruby/popen.rb' }
 
       it { is_expected.to respond_with(:success) }
     end
 
-    context "valid branch, invalid file" do
+    context 'valid branch, invalid file' do
       let(:id) { 'master/files/ruby/invalid-path.rb' }
 
       it 'redirects' do
@@ -40,7 +40,7 @@ describe Projects::BlameController do
       end
     end
 
-    context "invalid branch, valid file" do
+    context 'invalid branch, valid file' do
       let(:id) { 'invalid-branch/files/ruby/missing_file.rb'}
 
       it { is_expected.to respond_with(:not_found) }

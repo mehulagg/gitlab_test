@@ -22,5 +22,5 @@ describe 'getting notes for an epic' do
   end
   let(:noteable_data) { graphql_data['group']['epic'] }
 
-  it_behaves_like "exposing regular notes on a noteable in GraphQL"
+  it_behaves_like 'exposing regular notes on a noteable in GraphQL'
 end

@@ -22,7 +22,7 @@ describe 'User views a wiki page' do
   context 'when wiki is empty' do
     before do
       visit(project_wikis_path(project))
-      click_link "Create your first page"
+      click_link 'Create your first page'
 
       fill_in(:wiki_title, with: 'one/two/three-test')
 
@@ -153,7 +153,7 @@ describe 'User views a wiki page' do
     visit(project_path(project))
 
     find('.shortcuts-wiki').click
-    click_link "Create your first page"
+    click_link 'Create your first page'
 
     expect(page).to have_content('Create New Page')
   end

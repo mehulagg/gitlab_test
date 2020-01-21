@@ -16,8 +16,8 @@ module Gitlab
     # Filters an array of pods (as returned by the kubernetes API) by their labels
     def filter_by_label(items, labels = {})
       items.select do |item|
-        metadata = item.fetch("metadata", {})
-        item_labels = metadata.fetch("labels", nil)
+        metadata = item.fetch('metadata', {})
+        item_labels = metadata.fetch('labels', nil)
         next unless item_labels
 
         labels.all? { |k, v| item_labels[k.to_s] == v }
@@ -27,8 +27,8 @@ module Gitlab
     # Filters an array of pods (as returned by the kubernetes API) by their annotations
     def filter_by_annotation(items, annotations = {})
       items.select do |item|
-        metadata = item.fetch("metadata", {})
-        item_annotations = metadata.fetch("annotations", nil)
+        metadata = item.fetch('metadata', {})
+        item_annotations = metadata.fetch('annotations', nil)
         next unless item_annotations
 
         annotations.all? { |k, v| item_annotations[k.to_s] == v }
@@ -53,22 +53,22 @@ module Gitlab
 
     # Converts a pod (as returned by the kubernetes API) into a terminal
     def terminals_for_pod(api_url, namespace, pod)
-      metadata = pod.fetch("metadata", {})
-      status   = pod.fetch("status", {})
-      spec     = pod.fetch("spec", {})
+      metadata = pod.fetch('metadata', {})
+      status   = pod.fetch('status', {})
+      spec     = pod.fetch('spec', {})
 
-      containers = spec["containers"]
-      pod_name   = metadata["name"]
-      phase      = status["phase"]
+      containers = spec['containers']
+      pod_name   = metadata['name']
+      phase      = status['phase']
 
-      return unless containers.present? && pod_name.present? && phase == "Running"
+      return unless containers.present? && pod_name.present? && phase == 'Running'
 
-      created_at = DateTime.parse(metadata["creationTimestamp"]) rescue nil
+      created_at = DateTime.parse(metadata['creationTimestamp']) rescue nil
 
       containers.map do |container|
         {
-          selectors:    { pod: pod_name, container: container["name"] },
-          url:          container_exec_url(api_url, namespace, pod_name, container["name"]),
+          selectors:    { pod: pod_name, container: container['name'] },
+          url:          container_exec_url(api_url, namespace, pod_name, container['name']),
           subprotocols: ['channel.k8s.io'],
           headers:      ::Gitlab::Kubernetes.build_header_hash,
           created_at:   created_at

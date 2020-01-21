@@ -201,7 +201,7 @@ describe Environment, :use_clean_rails_memory_store_caching do
 
   describe '#nullify_external_url' do
     it 'replaces a blank url with nil' do
-      env = build(:environment, external_url: "")
+      env = build(:environment, external_url: '')
 
       expect(env.save).to be true
       expect(env.external_url).to be_nil
@@ -212,7 +212,7 @@ describe Environment, :use_clean_rails_memory_store_caching do
     let(:project) { create(:project, :repository) }
 
     context 'without a last deployment' do
-      it "returns false" do
+      it 'returns false' do
         expect(environment.includes_commit?('HEAD')).to be false
       end
     end
@@ -1036,18 +1036,18 @@ describe Environment, :use_clean_rails_memory_store_caching do
   end
 
   describe '#slug' do
-    it "is automatically generated" do
+    it 'is automatically generated' do
       expect(environment.slug).not_to be_nil
     end
 
-    it "is not regenerated if name changes" do
+    it 'is not regenerated if name changes' do
       original_slug = environment.slug
       environment.update!(name: environment.name.reverse)
 
       expect(environment.slug).to eq(original_slug)
     end
 
-    it "regenerates the slug if nil" do
+    it 'regenerates the slug if nil' do
       environment = build(:environment, slug: nil)
 
       new_slug = environment.slug

@@ -40,7 +40,7 @@ describe 'viewing an issue with cross project references' do
   end
   let(:confidential_issue) do
     create(:issue, :confidential, :closed,
-           title: "I am in the same project and confidential",
+           title: 'I am in the same project and confidential',
            project: project)
   end
 

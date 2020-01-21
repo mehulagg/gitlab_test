@@ -30,7 +30,7 @@ module Prometheus
       if matches = process_name.match(/unicorn.*worker\[([0-9]+)\]/)
         "unicorn_#{matches[1]}"
       elsif process_name =~ /unicorn/
-        "unicorn_master"
+        'unicorn_master'
       else
         unknown_process_id
       end
@@ -40,7 +40,7 @@ module Prometheus
       if matches = process_name.match(/puma.*cluster worker ([0-9]+):/)
         "puma_#{matches[1]}"
       elsif process_name =~ /puma/
-        "puma_master"
+        'puma_master'
       else
         unknown_process_id
       end

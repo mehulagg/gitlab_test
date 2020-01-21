@@ -71,70 +71,70 @@ describe 'Protected Branches', :js do
       sign_in(admin)
     end
 
-    describe "explicit protected branches" do
-      it "allows creating explicit protected branches" do
+    describe 'explicit protected branches' do
+      it 'allows creating explicit protected branches' do
         visit project_protected_branches_path(project)
         set_defaults
         set_protected_branch_name('some-branch')
-        click_on "Protect"
+        click_on 'Protect'
 
-        within(".protected-branches-list") { expect(page).to have_content('some-branch') }
+        within('.protected-branches-list') { expect(page).to have_content('some-branch') }
         expect(ProtectedBranch.count).to eq(1)
         expect(ProtectedBranch.last.name).to eq('some-branch')
       end
 
-      it "displays the last commit on the matching branch if it exists" do
+      it 'displays the last commit on the matching branch if it exists' do
         commit = create(:commit, project: project)
         project.repository.add_branch(admin, 'some-branch', commit.id)
 
         visit project_protected_branches_path(project)
         set_defaults
         set_protected_branch_name('some-branch')
-        click_on "Protect"
+        click_on 'Protect'
 
-        within(".protected-branches-list") do
-          expect(page).not_to have_content("matching")
-          expect(page).not_to have_content("was deleted")
+        within('.protected-branches-list') do
+          expect(page).not_to have_content('matching')
+          expect(page).not_to have_content('was deleted')
         end
       end
 
-      it "displays an error message if the named branch does not exist" do
+      it 'displays an error message if the named branch does not exist' do
         visit project_protected_branches_path(project)
         set_defaults
         set_protected_branch_name('some-branch')
-        click_on "Protect"
+        click_on 'Protect'
 
-        within(".protected-branches-list") { expect(page).to have_content('Branch was deleted') }
+        within('.protected-branches-list') { expect(page).to have_content('Branch was deleted') }
       end
     end
 
-    describe "wildcard protected branches" do
-      it "allows creating protected branches with a wildcard" do
+    describe 'wildcard protected branches' do
+      it 'allows creating protected branches with a wildcard' do
         visit project_protected_branches_path(project)
         set_defaults
         set_protected_branch_name('*-stable')
-        click_on "Protect"
+        click_on 'Protect'
 
-        within(".protected-branches-list") { expect(page).to have_content('*-stable') }
+        within('.protected-branches-list') { expect(page).to have_content('*-stable') }
         expect(ProtectedBranch.count).to eq(1)
         expect(ProtectedBranch.last.name).to eq('*-stable')
       end
 
-      it "displays the number of matching branches" do
+      it 'displays the number of matching branches' do
         project.repository.add_branch(admin, 'production-stable', 'master')
         project.repository.add_branch(admin, 'staging-stable', 'master')
 
         visit project_protected_branches_path(project)
         set_defaults
         set_protected_branch_name('*-stable')
-        click_on "Protect"
+        click_on 'Protect'
 
-        within(".protected-branches-list") do
-          expect(page).to have_content("2 matching branches")
+        within('.protected-branches-list') do
+          expect(page).to have_content('2 matching branches')
         end
       end
 
-      it "displays all the branches matching the wildcard" do
+      it 'displays all the branches matching the wildcard' do
         project.repository.add_branch(admin, 'production-stable', 'master')
         project.repository.add_branch(admin, 'staging-stable', 'master')
         project.repository.add_branch(admin, 'development', 'master')
@@ -142,25 +142,25 @@ describe 'Protected Branches', :js do
         visit project_protected_branches_path(project)
         set_protected_branch_name('*-stable')
         set_defaults
-        click_on "Protect"
+        click_on 'Protect'
 
         visit project_protected_branches_path(project)
-        click_on "2 matching branches"
+        click_on '2 matching branches'
 
-        within(".protected-branches-list") do
-          expect(page).to have_content("production-stable")
-          expect(page).to have_content("staging-stable")
-          expect(page).not_to have_content("development")
+        within('.protected-branches-list') do
+          expect(page).to have_content('production-stable')
+          expect(page).to have_content('staging-stable')
+          expect(page).not_to have_content('development')
         end
       end
     end
 
-    describe "access control" do
+    describe 'access control' do
       before do
         stub_licensed_features(protected_refs_for_users: false)
       end
 
-      include_examples "protected branches > access control > CE"
+      include_examples 'protected branches > access control > CE'
     end
   end
 end

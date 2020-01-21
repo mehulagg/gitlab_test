@@ -122,7 +122,7 @@ describe ::Gitlab::LetsEncrypt::Client do
     subject { client.terms_of_service_url }
 
     it 'returns valid url' do
-      is_expected.to eq("https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf")
+      is_expected.to eq('https://letsencrypt.org/documents/LE-SA-v1.2-November-15-2017.pdf')
     end
   end
 end

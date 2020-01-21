@@ -36,7 +36,7 @@ RSpec.describe Gitlab::Insights::Reducers::CountPerLabelReducer do
   end
 
   it 'raises an error for an unknown :issuable_type option' do
-    expect { reduce(issuable_relation, nil) }.to raise_error(described_class::InvalidLabelsError, "Invalid value for `labels`: `[]`. It must be a non-empty array!")
+    expect { reduce(issuable_relation, nil) }.to raise_error(described_class::InvalidLabelsError, 'Invalid value for `labels`: `[]`. It must be a non-empty array!')
   end
 
   it 'returns issuables with only the needed fields' do

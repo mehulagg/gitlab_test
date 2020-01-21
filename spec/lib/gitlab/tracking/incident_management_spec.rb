@@ -56,13 +56,13 @@ describe Gitlab::Tracking::IncidentManagement do
       context 'param with label' do
         let(:params) { { issue_template_key: '1' } }
 
-        it_behaves_like 'a tracked event', "enabled_issue_template_on_alerts", { label: 'Template name', property: '1' }
+        it_behaves_like 'a tracked event', 'enabled_issue_template_on_alerts', { label: 'Template name', property: '1' }
       end
 
       context 'param without label' do
         let(:params) { { create_issue: '1' } }
 
-        it_behaves_like 'a tracked event', "enabled_issue_auto_creation_on_alerts", {}
+        it_behaves_like 'a tracked event', 'enabled_issue_auto_creation_on_alerts', {}
       end
     end
 

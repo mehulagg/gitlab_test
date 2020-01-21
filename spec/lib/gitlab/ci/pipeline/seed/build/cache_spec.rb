@@ -31,7 +31,7 @@ describe Gitlab::Ci::Pipeline::Seed::Build::Cache do
         }
       end
 
-      it { is_expected.to include(options: { cache: config.merge(key: "a_key") }) }
+      it { is_expected.to include(options: { cache: config.merge(key: 'a_key') }) }
     end
 
     context 'with cache:key:files' do

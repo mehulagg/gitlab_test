@@ -119,7 +119,7 @@ describe Projects::JobsController do
           make_request
 
           expect(response).to have_gitlab_http_status(200)
-          expect(response.headers["Content-Type"]).to eq(Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE)
+          expect(response.headers['Content-Type']).to eq(Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE)
           expect(response.body).to eq(expected_data)
         end
       end
@@ -163,7 +163,7 @@ describe Projects::JobsController do
     let(:expected_data) do
       {
         'Channel' => {
-          'Subprotocols' => ["terminal.gitlab.com"],
+          'Subprotocols' => ['terminal.gitlab.com'],
           'Url' => 'wss://localhost/proxy/build/default_port/',
           'Header' => {
             'Authorization' => [nil]
@@ -183,7 +183,7 @@ describe Projects::JobsController do
       allow(Gitlab::Workhorse).to receive(:verify_api_request!).and_return(nil)
 
       expect(job.runner_session_url).to start_with('https://')
-      expect(Gitlab::Workhorse).to receive(:channel_websocket).with(a_hash_including(url: "wss://localhost/proxy/build/default_port/"))
+      expect(Gitlab::Workhorse).to receive(:channel_websocket).with(a_hash_including(url: 'wss://localhost/proxy/build/default_port/'))
 
       make_request
     end

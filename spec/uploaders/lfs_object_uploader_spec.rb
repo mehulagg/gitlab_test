@@ -9,25 +9,25 @@ describe LfsObjectUploader do
 
   subject { uploader }
 
-  it_behaves_like "builds correct paths",
+  it_behaves_like 'builds correct paths',
                   store_dir: %r[\h{2}/\h{2}],
                   cache_dir: %r[/lfs-objects/tmp/cache],
                   work_dir: %r[/lfs-objects/tmp/work]
 
-  context "object store is REMOTE" do
+  context 'object store is REMOTE' do
     before do
       stub_lfs_object_storage
     end
 
     include_context 'with storage', described_class::Store::REMOTE
 
-    it_behaves_like "builds correct paths",
+    it_behaves_like 'builds correct paths',
                     store_dir: %r[\h{2}/\h{2}]
   end
 
   describe 'migration to object storage' do
     context 'with object storage disabled' do
-      it "is skipped" do
+      it 'is skipped' do
         expect(ObjectStorage::BackgroundMoveWorker).not_to receive(:perform_async)
 
         lfs_object

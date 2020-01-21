@@ -19,7 +19,7 @@ describe 'Issue Sidebar on Mobile' do
       visit project_merge_request_path(merge_request.project, merge_request)
     end
 
-    it_behaves_like "issue sidebar stays collapsed on mobile"
+    it_behaves_like 'issue sidebar stays collapsed on mobile'
   end
 
   context 'mobile sidebar on issues', :js do
@@ -27,6 +27,6 @@ describe 'Issue Sidebar on Mobile' do
       visit project_issue_path(project, issue)
     end
 
-    it_behaves_like "issue sidebar stays collapsed on mobile"
+    it_behaves_like 'issue sidebar stays collapsed on mobile'
   end
 end

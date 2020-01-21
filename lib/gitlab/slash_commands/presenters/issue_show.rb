@@ -27,7 +27,7 @@ module Gitlab
             return message.join
           end
 
-          message << " · "
+          message << ' · '
           message << ":+1: #{resource.upvotes} " unless resource.upvotes.zero?
           message << ":-1: #{resource.downvotes} " unless resource.downvotes.zero?
           message << ":speech_balloon: #{resource.user_notes_count}" unless resource.user_notes_count.zero?

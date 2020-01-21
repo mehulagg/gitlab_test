@@ -10,7 +10,7 @@ describe 'Issues > User sees empty state' do
     it 'user sees empty state with filters' do
       create(:issue, author: user, project: project)
 
-      visit project_issues_path(project, milestone_title: "1.0")
+      visit project_issues_path(project, milestone_title: '1.0')
 
       expect(page).to have_content('Sorry, your filter produced no results')
       expect(page).to have_content('To widen your search, change or remove filters above')

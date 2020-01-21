@@ -17,7 +17,7 @@ describe Gitlab::Diff::Formatters::TextFormatter do
     base.merge(old_line: 1, new_line: 2)
   end
 
-  it_behaves_like "position formatter" do
+  it_behaves_like 'position formatter' do
     let(:base_attrs) { base }
 
     let(:attrs) { complete }

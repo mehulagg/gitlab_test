@@ -5,8 +5,8 @@ require 'pathname'
 module QA
   context 'Secure', :docker do
     describe 'License merge request widget' do
-      let(:approved_license_name) { "MIT" }
-      let(:blacklisted_license_name) { "Zlib" }
+      let(:approved_license_name) { 'MIT' }
+      let(:blacklisted_license_name) { 'Zlib' }
       let(:executor) {"qa-runner-#{Time.now.to_i}"}
 
       after do

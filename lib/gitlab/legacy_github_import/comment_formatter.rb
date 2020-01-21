@@ -29,7 +29,7 @@ module Gitlab
       end
 
       def body
-        raw_data.body || ""
+        raw_data.body || ''
       end
 
       def line_code

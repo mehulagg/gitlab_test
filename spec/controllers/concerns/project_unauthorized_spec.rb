@@ -39,7 +39,7 @@ describe ProjectUnauthorized do
       get :show, params: { namespace_id: project.namespace.to_param, id: project.to_param }
 
       expect(response).to have_gitlab_http_status(403)
-      expect(response.body).to match("External authorization denied access to this project")
+      expect(response.body).to match('External authorization denied access to this project')
     end
 
     it 'renders a 404 when the user cannot see the project at all' do

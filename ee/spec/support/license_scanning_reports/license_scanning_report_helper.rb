@@ -5,7 +5,7 @@ module LicenseScanningReportHelper
     Gitlab::Ci::Reports::LicenseScanning::Report.new.tap do |report|
       dependencies.each do |license_name, dependencies|
         dependencies.each do |dependency_name|
-          report.add_license(id: nil, name: license_name.to_s, url: "https://opensource.org/licenses/license1").add_dependency(dependency_name)
+          report.add_license(id: nil, name: license_name.to_s, url: 'https://opensource.org/licenses/license1').add_dependency(dependency_name)
         end
       end
     end
@@ -32,7 +32,7 @@ module LicenseScanningReportHelper
   end
 
   def create_license
-    Gitlab::Ci::Reports::LicenseScanning::License.new(id: nil, name: 'License1', url: "https://opensource.org/licenses/license1").tap do |license|
+    Gitlab::Ci::Reports::LicenseScanning::License.new(id: nil, name: 'License1', url: 'https://opensource.org/licenses/license1').tap do |license|
       license.add_dependency('Dependency1')
       license.add_dependency('Dependency2')
     end

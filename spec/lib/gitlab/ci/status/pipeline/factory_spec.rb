@@ -42,10 +42,10 @@ describe Gitlab::Ci::Status::Pipeline::Factory do
       end
     end
 
-    context "when core status is manual" do
+    context 'when core status is manual' do
       let(:pipeline) { create(:ci_pipeline, status: :manual) }
 
-      it "matches manual core status" do
+      it 'matches manual core status' do
         expect(factory.core_status)
           .to be_a Gitlab::Ci::Status::Manual
       end
@@ -63,10 +63,10 @@ describe Gitlab::Ci::Status::Pipeline::Factory do
       end
     end
 
-    context "when core status is scheduled" do
+    context 'when core status is scheduled' do
       let(:pipeline) { create(:ci_pipeline, status: :scheduled) }
 
-      it "matches scheduled core status" do
+      it 'matches scheduled core status' do
         expect(factory.core_status)
           .to be_a Gitlab::Ci::Status::Scheduled
       end

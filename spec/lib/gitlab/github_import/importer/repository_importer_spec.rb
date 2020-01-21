@@ -55,7 +55,7 @@ describe Gitlab::GithubImport::Importer::RepositoryImporter do
         .and_return(false)
       expect(Gitlab::GitalyClient::RemoteService)
         .to receive(:exists?)
-        .with("foo.wiki.git")
+        .with('foo.wiki.git')
         .and_return(true)
 
       expect(importer.import_wiki?).to be(true)

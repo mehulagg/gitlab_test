@@ -41,7 +41,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
 
   describe 'GET /geo_nodes' do
     it 'retrieves the Geo nodes if admin is logged in' do
-      get api("/geo_nodes", admin)
+      get api('/geo_nodes', admin)
 
       expect(response).to have_gitlab_http_status(:ok)
       expect(response).to match_response_schema('public_api/v4/geo_nodes', dir: 'ee')
@@ -83,7 +83,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
     it 'retrieves all Geo nodes statuses if admin is logged in' do
       create(:geo_node_status, :healthy, geo_node: primary)
 
-      get api("/geo_nodes/status", admin)
+      get api('/geo_nodes/status', admin)
 
       expect(response).to have_gitlab_http_status(:ok)
       expect(response).to match_response_schema('public_api/v4/geo_node_statuses', dir: 'ee')
@@ -91,7 +91,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
     end
 
     it 'returns only one record if only one record exists' do
-      get api("/geo_nodes/status", admin)
+      get api('/geo_nodes/status', admin)
 
       expect(response).to have_gitlab_http_status(:ok)
       expect(response).to match_response_schema('public_api/v4/geo_node_statuses', dir: 'ee')
@@ -308,7 +308,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
       end
 
       it 'forbids requests' do
-        get api("/geo_nodes/current/failures", admin)
+        get api('/geo_nodes/current/failures', admin)
 
         expect(response).to have_gitlab_http_status(:forbidden)
       end
@@ -323,7 +323,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
         create(:geo_project_registry, :sync_failed)
         create(:geo_project_registry, :sync_failed)
 
-        get api("/geo_nodes/current/failures", admin)
+        get api('/geo_nodes/current/failures', admin)
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(response).to match_response_schema('public_api/v4/geo_project_registry', dir: 'ee')
@@ -332,7 +332,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
       it 'does not show any registry when there is no failure' do
         create(:geo_project_registry, :synced)
 
-        get api("/geo_nodes/current/failures", admin)
+        get api('/geo_nodes/current/failures', admin)
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response.count).to be_zero
@@ -343,7 +343,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
           create(:geo_project_registry, :wiki_sync_failed)
           create(:geo_project_registry, :repository_sync_failed)
 
-          get api("/geo_nodes/current/failures", admin), params: { type: :wiki }
+          get api('/geo_nodes/current/failures', admin), params: { type: :wiki }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response.count).to eq(1)
@@ -356,7 +356,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
           create(:geo_project_registry, :wiki_sync_failed)
           create(:geo_project_registry, :repository_sync_failed)
 
-          get api("/geo_nodes/current/failures", admin), params: { type: :repository }
+          get api('/geo_nodes/current/failures', admin), params: { type: :repository }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response.count).to eq(1)
@@ -368,14 +368,14 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
         it 'returns a bad request' do
           create(:geo_project_registry, :repository_sync_failed)
 
-          get api("/geo_nodes/current/failures", admin), params: { type: :nonexistent }
+          get api('/geo_nodes/current/failures', admin), params: { type: :nonexistent }
 
           expect(response).to have_gitlab_http_status(:bad_request)
         end
       end
 
       it 'denies access if not admin' do
-        get api("/geo_nodes/current/failures", user)
+        get api('/geo_nodes/current/failures', user)
 
         expect(response).to have_gitlab_http_status(:forbidden)
       end
@@ -389,7 +389,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
           create(:geo_project_registry, :repository_verification_failed)
           create(:geo_project_registry, :wiki_verification_failed)
 
-          get api("/geo_nodes/current/failures", admin), params: { failure_type: 'verification' }
+          get api('/geo_nodes/current/failures', admin), params: { failure_type: 'verification' }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(response).to match_response_schema('public_api/v4/geo_project_registry', dir: 'ee')
@@ -398,7 +398,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
         it 'does not show any registry when there is no failure' do
           create(:geo_project_registry, :repository_verified)
 
-          get api("/geo_nodes/current/failures", admin), params: { failure_type: 'verification' }
+          get api('/geo_nodes/current/failures', admin), params: { failure_type: 'verification' }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response.count).to be_zero
@@ -409,7 +409,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
             create(:geo_project_registry, :repository_verification_failed)
             create(:geo_project_registry, :wiki_verification_failed)
 
-            get api("/geo_nodes/current/failures", admin), params: { failure_type: 'verification', type: :wiki }
+            get api('/geo_nodes/current/failures', admin), params: { failure_type: 'verification', type: :wiki }
 
             expect(response).to have_gitlab_http_status(:ok)
             expect(json_response.count).to eq(1)
@@ -422,7 +422,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
             create(:geo_project_registry, :repository_verification_failed)
             create(:geo_project_registry, :wiki_verification_failed)
 
-            get api("/geo_nodes/current/failures", admin), params: { failure_type: 'verification', type: :repository }
+            get api('/geo_nodes/current/failures', admin), params: { failure_type: 'verification', type: :repository }
 
             expect(response).to have_gitlab_http_status(:ok)
             expect(json_response.count).to eq(1)
@@ -440,7 +440,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
           create(:geo_project_registry, :repository_checksum_mismatch)
           create(:geo_project_registry, :wiki_checksum_mismatch)
 
-          get api("/geo_nodes/current/failures", admin), params: { failure_type: 'checksum_mismatch' }
+          get api('/geo_nodes/current/failures', admin), params: { failure_type: 'checksum_mismatch' }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(response).to match_response_schema('public_api/v4/geo_project_registry', dir: 'ee')
@@ -449,7 +449,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
         it 'does not show any registry when there is no failure' do
           create(:geo_project_registry, :repository_verified)
 
-          get api("/geo_nodes/current/failures", admin), params: { failure_type: 'checksum_mismatch' }
+          get api('/geo_nodes/current/failures', admin), params: { failure_type: 'checksum_mismatch' }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response.count).to be_zero
@@ -460,7 +460,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
             create(:geo_project_registry, :repository_checksum_mismatch)
             create(:geo_project_registry, :wiki_checksum_mismatch)
 
-            get api("/geo_nodes/current/failures", admin), params: { failure_type: 'checksum_mismatch', type: :wiki }
+            get api('/geo_nodes/current/failures', admin), params: { failure_type: 'checksum_mismatch', type: :wiki }
 
             expect(response).to have_gitlab_http_status(:ok)
             expect(json_response.count).to eq(1)
@@ -473,7 +473,7 @@ describe API::GeoNodes, :geo, :prometheus, api: true do
             create(:geo_project_registry, :repository_checksum_mismatch)
             create(:geo_project_registry, :wiki_checksum_mismatch)
 
-            get api("/geo_nodes/current/failures", admin), params: { failure_type: 'checksum_mismatch', type: :repository }
+            get api('/geo_nodes/current/failures', admin), params: { failure_type: 'checksum_mismatch', type: :repository }
 
             expect(response).to have_gitlab_http_status(:ok)
             expect(json_response.count).to eq(1)

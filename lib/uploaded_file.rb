@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "tempfile"
-require "tmpdir"
-require "fileutils"
+require 'tempfile'
+require 'tmpdir'
+require 'fileutils'
 
 class UploadedFile
   InvalidPathError = Class.new(StandardError)
@@ -21,7 +21,7 @@ class UploadedFile
   attr_reader :sha256
   attr_reader :size
 
-  def initialize(path, filename: nil, content_type: "application/octet-stream", sha256: nil, remote_id: nil, size: nil)
+  def initialize(path, filename: nil, content_type: 'application/octet-stream', sha256: nil, remote_id: nil, size: nil)
     if path.present?
       raise InvalidPathError, "#{path} file does not exist" unless ::File.exist?(path)
 
@@ -73,11 +73,11 @@ class UploadedFile
 
   # copy-pasted from CarrierWave::SanitizedFile
   def sanitize_filename(name)
-    name = name.tr("\\", "/") # work-around for IE
+    name = name.tr('\\', '/') # work-around for IE
     name = ::File.basename(name)
-    name = name.gsub(CarrierWave::SanitizedFile.sanitize_regexp, "_")
+    name = name.gsub(CarrierWave::SanitizedFile.sanitize_regexp, '_')
     name = "_#{name}" if name =~ /\A\.+\z/
-    name = "unnamed" if name.empty?
+    name = 'unnamed' if name.empty?
     name.mb_chars.to_s
   end
 

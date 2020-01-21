@@ -120,7 +120,7 @@ module Gitlab
           else
             "#{obj.class.model_name.to_s.underscore}:#{obj.id}"
           end
-        end.join(":")
+        end.join(':')
 
         "application_rate_limiter:#{serialized}"
       end

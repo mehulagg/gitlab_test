@@ -7,7 +7,7 @@ describe Resolvers::IssuesResolver do
 
   let(:current_user) { create(:user) }
 
-  context "with a project" do
+  context 'with a project' do
     set(:project) { create(:project) }
     set(:issue1) { create(:issue, project: project, state: :opened, created_at: 3.hours.ago, updated_at: 3.hours.ago) }
     set(:issue2) { create(:issue, project: project, state: :closed, title: 'foo', created_at: 1.hour.ago, updated_at: 1.hour.ago, closed_at: 1.hour.ago) }
@@ -162,15 +162,15 @@ describe Resolvers::IssuesResolver do
     end
   end
 
-  context "when passing a non existent, batch loaded project" do
+  context 'when passing a non existent, batch loaded project' do
     let(:project) do
-      BatchLoader::GraphQL.for("non-existent-path").batch do |_fake_paths, loader, _|
-        loader.call("non-existent-path", nil)
+      BatchLoader::GraphQL.for('non-existent-path').batch do |_fake_paths, loader, _|
+        loader.call('non-existent-path', nil)
       end
     end
 
-    it "returns nil without breaking" do
-      expect(resolve_issues(iids: ["don't", "break"])).to be_empty
+    it 'returns nil without breaking' do
+      expect(resolve_issues(iids: ["don't", 'break'])).to be_empty
     end
   end
 

@@ -12,10 +12,10 @@ describe Gitlab::Kerberos::Authentication do
   end
 
   describe '.kerberos_default_realm' do
-    it "returns the default realm exposed by the Kerberos library" do
-      allow_any_instance_of(::Krb5Auth::Krb5).to receive_messages(get_default_realm: "FOO.COM")
+    it 'returns the default realm exposed by the Kerberos library' do
+      allow_any_instance_of(::Krb5Auth::Krb5).to receive_messages(get_default_realm: 'FOO.COM')
 
-      expect(described_class.kerberos_default_realm).to eq("FOO.COM")
+      expect(described_class.kerberos_default_realm).to eq('FOO.COM')
     end
   end
 
@@ -25,20 +25,20 @@ describe Gitlab::Kerberos::Authentication do
       user # make sure user is instanciated
     end
 
-    it "finds the user if authentication is successful (login without kerberos realm)" do
+    it 'finds the user if authentication is successful (login without kerberos realm)' do
       allow_any_instance_of(::Krb5Auth::Krb5).to receive_messages(get_init_creds_password: true, get_default_principal: 'gitlab@FOO.COM')
 
       expect(described_class.login('gitlab', password)).to be_truthy
     end
 
-    it "finds the user if authentication is successful (login with a kerberos realm)" do
+    it 'finds the user if authentication is successful (login with a kerberos realm)' do
       allow_any_instance_of(::Krb5Auth::Krb5).to receive_messages(get_init_creds_password: true, get_default_principal: 'gitlab@FOO.COM')
 
       expect(described_class.login('gitlab@FOO.COM', password)).to be_truthy
     end
 
-    it "returns false if there is no such user in kerberos" do
-      kerberos_login = "some-login"
+    it 'returns false if there is no such user in kerberos' do
+      kerberos_login = 'some-login'
       allow_any_instance_of(::Krb5Auth::Krb5).to receive_messages(get_init_creds_password: true, get_default_principal: 'some-login@FOO.COM')
 
       expect(described_class.login(kerberos_login, password)).to be_falsy

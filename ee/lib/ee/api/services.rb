@@ -6,7 +6,7 @@ module EE
       extend ActiveSupport::Concern
 
       prepended do
-        desc "Trigger a global slack command" do
+        desc 'Trigger a global slack command' do
           detail 'Added in GitLab 9.4'
         end
         post 'slack/trigger' do

@@ -35,7 +35,7 @@ describe BitbucketServer::Representation::Comment do
   describe '#comments' do
     it { expect(subject.comments.count).to eq(4) }
     it { expect(subject.comments).to all( be_a(described_class) ) }
-    it { expect(subject.comments.map(&:note)).to match_array(["Hello world", "Ok", "hello", "hi"]) }
+    it { expect(subject.comments.map(&:note)).to match_array(['Hello world', 'Ok', 'hello', 'hi']) }
 
     # The thread should look like:
     #

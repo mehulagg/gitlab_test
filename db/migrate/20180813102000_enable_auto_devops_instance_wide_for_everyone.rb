@@ -6,7 +6,7 @@ class EnableAutoDevopsInstanceWideForEveryone < ActiveRecord::Migration[4.2]
   DOWNTIME = false
 
   def up
-    execute "UPDATE application_settings SET auto_devops_enabled = true"
+    execute 'UPDATE application_settings SET auto_devops_enabled = true'
   end
 
   def down

@@ -272,11 +272,11 @@ describe Epics::UpdateDatesService do
       end
     end
 
-    context "when epic dates are inherited" do
+    context 'when epic dates are inherited' do
       let(:epic) { create(:epic, group: group) }
 
       context 'when epic has no issues' do
-        it "epic dates are nil" do
+        it 'epic dates are nil' do
           described_class.new([epic]).execute
 
           epic.reload
@@ -293,7 +293,7 @@ describe Epics::UpdateDatesService do
         let!(:issue1) { create(:issue, epic: epic, project: project, milestone: milestone1) }
         let!(:issue2) { create(:issue, epic: epic, project: project, milestone: milestone2) }
 
-        it "returns inherited milestone dates" do
+        it 'returns inherited milestone dates' do
           described_class.new([epic]).execute
           epic.reload
 
@@ -305,10 +305,10 @@ describe Epics::UpdateDatesService do
           expect(epic.due_date_sourcing_epic).to be_nil
         end
 
-        context "when epic has child epics" do
+        context 'when epic has child epics' do
           let!(:child_epic) { create(:epic, group: group, parent: epic, start_date: Date.new(1998, 1, 1), end_date: Date.new(1999, 1, 1)) }
 
-          it "returns inherited dates from child epics and milestones" do
+          it 'returns inherited dates from child epics and milestones' do
             expect(Epics::UpdateEpicsDatesWorker).not_to receive(:perform_async)
             described_class.new([epic]).execute
             epic.reload
@@ -321,7 +321,7 @@ describe Epics::UpdateDatesService do
             expect(epic.due_date_sourcing_epic).to be_nil
           end
 
-          context "when epic dates are propagated upwards", :sidekiq_inline do
+          context 'when epic dates are propagated upwards', :sidekiq_inline do
             let(:top_level_parent_epic) { create(:epic, group: group) }
             let(:parent_epic) { create(:epic, group: group, parent: top_level_parent_epic) }
 
@@ -329,7 +329,7 @@ describe Epics::UpdateDatesService do
               epic.update(parent: parent_epic)
             end
 
-            it "propagates date changes to parent epics" do
+            it 'propagates date changes to parent epics' do
               expect(Epics::UpdateEpicsDatesWorker).to receive(:perform_async)
                 .with([epic.parent_id])
                 .and_call_original

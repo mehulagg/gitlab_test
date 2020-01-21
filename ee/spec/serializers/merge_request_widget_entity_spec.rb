@@ -116,18 +116,18 @@ describe MergeRequestWidgetEntity do
           allow(pipeline).to receive(:available_licensed_report_type?).and_return(true)
         end
 
-        context "with new report artifacts" do
+        context 'with new report artifacts' do
           before do
             create(:ee_ci_build, artifact_type, pipeline: pipeline)
           end
 
-          it "has data entry" do
+          it 'has data entry' do
             expect(subject.as_json).to include(json_entry)
           end
         end
 
-        context "without artifacts" do
-          it "does not have data entry" do
+        context 'without artifacts' do
+          it 'does not have data entry' do
             expect(subject.as_json).not_to include(json_entry)
           end
         end

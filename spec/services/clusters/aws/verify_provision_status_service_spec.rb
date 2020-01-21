@@ -18,7 +18,7 @@ describe Clusters::Aws::VerifyProvisionStatusService do
     end
 
     shared_examples 'provision error' do |message|
-      it "sets the status to :errored with an appropriate error message" do
+      it 'sets the status to :errored with an appropriate error message' do
         subject
 
         expect(provider).to be_errored

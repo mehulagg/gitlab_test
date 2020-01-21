@@ -13,7 +13,7 @@ describe 'Dashboard todos' do
 
   context 'User has a todo regarding a design' do
     let_it_be(:target) { create(:design, issue: issue) }
-    let_it_be(:note) { create(:note, project: project, note: "I am note, hear me roar") }
+    let_it_be(:note) { create(:note, project: project, note: 'I am note, hear me roar') }
     let_it_be(:todo) do
       create(:todo, :mentioned,
              user: user,

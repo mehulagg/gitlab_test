@@ -14,7 +14,7 @@ describe Operations::FeatureFlagsClient do
   end
 
   describe '#token' do
-    it "ensures that token is always set" do
+    it 'ensures that token is always set' do
       expect(subject.token).not_to be_empty
     end
   end

@@ -18,14 +18,14 @@ describe Review do
 
   describe '#all_references' do
     it 'returns an extractor with the correct referenced users' do
-      user1 = create(:user, username: "foo")
-      user2 = create(:user, username: "bar")
+      user1 = create(:user, username: 'foo')
+      user2 = create(:user, username: 'bar')
       review = create(:review)
       project = review.project
       author = review.author
 
-      create(:note, review: review, project: project, author: author, note: "cc @foo @non_existent")
-      create(:note, review: review, project: project, author: author, note: "cc @bar")
+      create(:note, review: review, project: project, author: author, note: 'cc @foo @non_existent')
+      create(:note, review: review, project: project, author: author, note: 'cc @bar')
 
       expect(review.all_references(author).users).to match_array([user1, user2])
     end

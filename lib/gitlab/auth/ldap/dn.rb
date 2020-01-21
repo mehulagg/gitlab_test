@@ -59,7 +59,7 @@ module Gitlab
           state = :key
           key = StringIO.new
           value = StringIO.new
-          hex_buffer = ""
+          hex_buffer = ''
 
           @dn.each_char.with_index do |char, dn_index|
             case state
@@ -111,7 +111,7 @@ module Gitlab
                 yield key.string.strip, rstrip_except_escaped(value.string, dn_index)
                 key = StringIO.new
                 value = StringIO.new
-              when '+' then raise(UnsupportedError, "Multivalued RDNs are not supported")
+              when '+' then raise(UnsupportedError, 'Multivalued RDNs are not supported')
               else value << char
               end
             when :value_normal_escape then
@@ -182,7 +182,7 @@ module Gitlab
                 value = StringIO.new
               else raise(MalformedError, "Expected the end of an attribute value, but got \"#{char}\"")
               end
-            else raise "Fell out of state machine"
+            else raise 'Fell out of state machine'
             end
           end
 
@@ -247,18 +247,18 @@ module Gitlab
         # Compiled character class regexp using the keys from the above hash, and
         # checking for a space or # at the start, or space at the end, of the
         # string.
-        ESCAPE_RE = Regexp.new("(^ |^#| $|[" +
+        ESCAPE_RE = Regexp.new('(^ |^#| $|[' +
                               NORMAL_ESCAPES.map { |e| Regexp.escape(e) }.join +
-                              "])")
+                              '])')
 
-        HEX_ESCAPE_RE = Regexp.new("([" +
+        HEX_ESCAPE_RE = Regexp.new('([' +
                               HEX_ESCAPES.keys.map { |e| Regexp.escape(e) }.join +
-                              "])")
+                              '])')
 
         ##
         # Escape a string for use in a DN value
         def self.escape(string)
-          escaped = string.gsub(ESCAPE_RE) { |char| "\\" + char }
+          escaped = string.gsub(ESCAPE_RE) { |char| '\\' + char }
           escaped.gsub(HEX_ESCAPE_RE) { |char| HEX_ESCAPES[char] }
         end
 
@@ -269,10 +269,10 @@ module Gitlab
 
           args.each_with_index do |arg, index|
             if index.even? # key
-              buffer << "," if index > 0
+              buffer << ',' if index > 0
               buffer << arg
             else # value
-              buffer << "="
+              buffer << '='
               buffer << self.class.escape(arg)
             end
           end

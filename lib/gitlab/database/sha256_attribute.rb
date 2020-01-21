@@ -12,7 +12,7 @@ module Gitlab
       def deserialize(value)
         value = super(value)
         if value.present?
-          Base64.encode64(value).delete("=").chomp("\n")
+          Base64.encode64(value).delete('=').chomp("\n")
         else
           nil
         end

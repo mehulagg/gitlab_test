@@ -125,12 +125,12 @@ class BuildDetailsEntity < JobEntity
   def callout_message
     return super unless build.failure_reason.to_sym == :missing_dependency_failure
 
-    docs_url = "https://docs.gitlab.com/ce/ci/yaml/README.html#dependencies"
+    docs_url = 'https://docs.gitlab.com/ce/ci/yaml/README.html#dependencies'
 
     [
       failure_message.html_safe,
       help_message(docs_url).html_safe
-    ].join("<br />")
+    ].join('<br />')
   end
 
   def invalid_dependencies
@@ -138,11 +138,11 @@ class BuildDetailsEntity < JobEntity
   end
 
   def failure_message
-    _("This job depends on other jobs with expired/erased artifacts: %{invalid_dependencies}") %
+    _('This job depends on other jobs with expired/erased artifacts: %{invalid_dependencies}') %
       { invalid_dependencies: invalid_dependencies }
   end
 
   def help_message(docs_url)
-    _("Please refer to <a href=\"%{docs_url}\">%{docs_url}</a>") % { docs_url: docs_url }
+    _('Please refer to <a href="%{docs_url}">%{docs_url}</a>') % { docs_url: docs_url }
   end
 end

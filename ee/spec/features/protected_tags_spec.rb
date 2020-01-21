@@ -37,8 +37,8 @@ describe 'Protected Tags', :js do
 
           visit project_settings_repository_path(project)
 
-          expect(page).to have_content("The following user can also create tags: "\
-                                       "Jane")
+          expect(page).to have_content('The following user can also create tags: '\
+                                       'Jane')
         end
 
         it 'shows groups that can create to the branch' do
@@ -47,8 +47,8 @@ describe 'Protected Tags', :js do
 
           visit project_settings_repository_path(project)
 
-          expect(page).to have_content("Members of this group can also create tags: "\
-                                       "Team Awesome")
+          expect(page).to have_content('Members of this group can also create tags: '\
+                                       'Team Awesome')
         end
       end
     end

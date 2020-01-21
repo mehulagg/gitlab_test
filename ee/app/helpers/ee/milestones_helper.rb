@@ -31,23 +31,23 @@ module EE
 
       message =
         if burndown.empty?
-          "The burndown chart can’t be shown, as all issues assigned to this milestone were closed on an older GitLab version before data was recorded. "
+          'The burndown chart can’t be shown, as all issues assigned to this milestone were closed on an older GitLab version before data was recorded. '
         elsif !burndown.accurate?
-          "Some issues can’t be shown in the burndown chart, as they were closed on an older GitLab version before data was recorded. "
+          'Some issues can’t be shown in the burndown chart, as they were closed on an older GitLab version before data was recorded. '
         end
 
       if message
-        link = link_to "About burndown charts", help_page_path('user/project/milestones/index', anchor: 'burndown-charts'), class: 'burndown-docs-link'
+        link = link_to 'About burndown charts', help_page_path('user/project/milestones/index', anchor: 'burndown-charts'), class: 'burndown-docs-link'
 
-        content_tag(:div, (message + link).html_safe, id: "data-warning", class: "settings-message prepend-top-20")
+        content_tag(:div, (message + link).html_safe, id: 'data-warning', class: 'settings-message prepend-top-20')
       end
     end
 
     def milestone_weight_tooltip_text(weight)
       if weight.zero?
-        _("Weight")
+        _('Weight')
       else
-        _("Weight %{weight}") % { weight: weight }
+        _('Weight %{weight}') % { weight: weight }
       end
     end
   end

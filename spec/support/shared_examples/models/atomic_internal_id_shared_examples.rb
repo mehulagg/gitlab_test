@@ -76,7 +76,7 @@ RSpec.shared_examples 'AtomicInternalId' do |validate_presence: true|
       end
     end
 
-    describe "#reset_scope_internal_id_attribute" do
+    describe '#reset_scope_internal_id_attribute' do
       it 'rewinds the allocated IID' do
         expect { ensure_scope_attribute! }.not_to raise_error
         expect(read_internal_id).not_to be_nil

@@ -42,7 +42,7 @@ RSpec.shared_examples "migrating a deleted user's associated records to the ghos
       end
     end
 
-    context "race conditions" do
+    context 'race conditions' do
       context "when #{record_class_name} migration fails and is rolled back" do
         before do
           expect_any_instance_of(ActiveRecord::Associations::CollectionProxy)

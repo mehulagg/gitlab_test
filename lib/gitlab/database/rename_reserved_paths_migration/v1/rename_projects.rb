@@ -46,7 +46,7 @@ module Gitlab
               else
                 say "Couldn't rename project from #{current_path} back to "\
                     "#{path_before_rename}, project was renamed or no longer "\
-                    "exists at the expected path."
+                    'exists at the expected path.'
 
               end
             end

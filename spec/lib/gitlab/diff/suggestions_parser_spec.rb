@@ -7,8 +7,8 @@ describe Gitlab::Diff::SuggestionsParser do
     let(:merge_request) { create(:merge_request) }
     let(:project) { merge_request.project }
     let(:position) do
-      Gitlab::Diff::Position.new(old_path: "files/ruby/popen.rb",
-                                 new_path: "files/ruby/popen.rb",
+      Gitlab::Diff::Position.new(old_path: 'files/ruby/popen.rb',
+                                 new_path: 'files/ruby/popen.rb',
                                  old_line: nil,
                                  new_line: 9,
                                  diff_refs: merge_request.diff_refs)

@@ -30,7 +30,7 @@ describe 'Merge request > User sees empty state' do
     end
 
     it 'shows empty state when filter results empty' do
-      visit project_merge_requests_path(project, milestone_title: "1.0")
+      visit project_merge_requests_path(project, milestone_title: '1.0')
 
       expect(page).to have_selector('.empty-state')
       expect(page).to have_content('Sorry, your filter produced no results')

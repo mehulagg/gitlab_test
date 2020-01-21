@@ -8,6 +8,6 @@ class FakeRenameReservedPathMigrationV1 < ActiveRecord::Migration[4.2]
   end
 
   def name
-    "FakeRenameReservedPathMigrationV1"
+    'FakeRenameReservedPathMigrationV1'
   end
 end

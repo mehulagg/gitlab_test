@@ -12,7 +12,7 @@ describe ReactiveCachingWorker do
       it 'calls #exclusively_update_reactive_cache!' do
         expect_any_instance_of(Environment).to receive(:exclusively_update_reactive_cache!)
 
-        described_class.new.perform("Environment", environment.id)
+        described_class.new.perform('Environment', environment.id)
       end
     end
   end

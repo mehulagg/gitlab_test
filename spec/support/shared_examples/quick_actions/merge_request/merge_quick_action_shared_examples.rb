@@ -8,7 +8,7 @@ RSpec.shared_examples 'merge quick action' do
     end
 
     it 'merges the MR', :sidekiq_might_not_need_inline do
-      add_note("/merge")
+      add_note('/merge')
 
       expect(page).to have_content 'Scheduled to merge this merge request when the pipeline succeeds.'
 
@@ -25,7 +25,7 @@ RSpec.shared_examples 'merge quick action' do
     end
 
     it 'does not merge the MR' do
-      add_note("/merge")
+      add_note('/merge')
 
       expect(page).not_to have_content 'Your commands have been executed!'
 
@@ -41,7 +41,7 @@ RSpec.shared_examples 'merge quick action' do
     end
 
     it 'does not merge the MR' do
-      add_note("/merge")
+      add_note('/merge')
 
       expect(page).not_to have_content 'Your commands have been executed!'
 

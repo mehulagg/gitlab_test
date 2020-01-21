@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
-describe "Licenses app", :js do
+describe 'Licenses app', :js do
   let(:admin) { create(:admin) }
   let!(:licenses) do
     [

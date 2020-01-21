@@ -9,13 +9,13 @@ class ReworkRedirectRoutesIndexes < ActiveRecord::Migration[4.2]
 
   disable_ddl_transaction!
 
-  INDEX_NAME_UNIQUE = "index_redirect_routes_on_path_unique_text_pattern_ops"
+  INDEX_NAME_UNIQUE = 'index_redirect_routes_on_path_unique_text_pattern_ops'
 
-  INDEX_NAME_PERM = "index_redirect_routes_on_path_text_pattern_ops_where_permanent"
-  INDEX_NAME_TEMP = "index_redirect_routes_on_path_text_pattern_ops_where_temporary"
+  INDEX_NAME_PERM = 'index_redirect_routes_on_path_text_pattern_ops_where_permanent'
+  INDEX_NAME_TEMP = 'index_redirect_routes_on_path_text_pattern_ops_where_temporary'
 
-  OLD_INDEX_NAME_PATH_TPOPS = "index_redirect_routes_on_path_text_pattern_ops"
-  OLD_INDEX_NAME_PATH_LOWER = "index_on_redirect_routes_lower_path"
+  OLD_INDEX_NAME_PATH_TPOPS = 'index_redirect_routes_on_path_text_pattern_ops'
+  OLD_INDEX_NAME_PATH_LOWER = 'index_on_redirect_routes_lower_path'
 
   def up
     disable_statement_timeout do
@@ -25,7 +25,7 @@ class ReworkRedirectRoutesIndexes < ActiveRecord::Migration[4.2]
         remove_concurrent_index(:redirect_routes, :permanent)
       end
 
-      if_not_exists = Gitlab::Database.version.to_f >= 9.5 ? "IF NOT EXISTS" : ""
+      if_not_exists = Gitlab::Database.version.to_f >= 9.5 ? 'IF NOT EXISTS' : ''
 
       # Unique index on lower(path) across both types of redirect_routes:
       execute("CREATE UNIQUE INDEX CONCURRENTLY #{if_not_exists} #{INDEX_NAME_UNIQUE} ON redirect_routes (lower(path) varchar_pattern_ops);")

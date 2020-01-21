@@ -21,7 +21,7 @@ module API
           use :pagination
         end
         # rubocop: disable CodeReuse/ActiveRecord
-        get ":id/access_requests" do
+        get ':id/access_requests' do
           source = find_source(source_type, params[:id])
 
           access_requesters = AccessRequestsFinder.new(source).execute!(current_user)
@@ -35,7 +35,7 @@ module API
           detail 'This feature was introduced in GitLab 8.11.'
           success Entities::AccessRequester
         end
-        post ":id/access_requests" do
+        post ':id/access_requests' do
           source = find_source(source_type, params[:id])
           access_requester = source.request_access(current_user)
 
@@ -75,7 +75,7 @@ module API
           requires :user_id, type: Integer, desc: 'The user ID of the access requester'
         end
         # rubocop: disable CodeReuse/ActiveRecord
-        delete ":id/access_requests/:user_id" do
+        delete ':id/access_requests/:user_id' do
           source = find_source(source_type, params[:id])
           member = source.requesters.find_by!(user_id: params[:user_id])
 

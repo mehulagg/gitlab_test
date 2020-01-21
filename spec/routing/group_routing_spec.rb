@@ -2,44 +2,44 @@
 
 require 'spec_helper'
 
-describe "Groups", "routing" do
+describe 'Groups', 'routing' do
   let(:group_path) { 'complex.group-namegit' }
   let!(:group) { create(:group, path: group_path) }
 
-  it "to #show" do
+  it 'to #show' do
     expect(get("/groups/#{group_path}")).to route_to('groups#show', id: group_path)
   end
 
-  it "also supports nested groups" do
+  it 'also supports nested groups' do
     nested_group = create(:group, parent: group)
     expect(get("/#{group_path}/#{nested_group.path}")).to route_to('groups#show', id: "#{group_path}/#{nested_group.path}")
   end
 
-  it "also display group#show on the short path" do
+  it 'also display group#show on the short path' do
     expect(get("/#{group_path}")).to route_to('groups#show', id: group_path)
   end
 
-  it "to #details" do
+  it 'to #details' do
     expect(get("/groups/#{group_path}/-/details")).to route_to('groups#details', id: group_path)
   end
 
-  it "to #activity" do
+  it 'to #activity' do
     expect(get("/groups/#{group_path}/-/activity")).to route_to('groups#activity', id: group_path)
   end
 
-  it "to #issues" do
+  it 'to #issues' do
     expect(get("/groups/#{group_path}/-/issues")).to route_to('groups#issues', id: group_path)
   end
 
-  it "to #members" do
+  it 'to #members' do
     expect(get("/groups/#{group_path}/-/group_members")).to route_to('groups/group_members#index', group_id: group_path)
   end
 
-  it "to #labels" do
+  it 'to #labels' do
     expect(get("/groups/#{group_path}/-/labels")).to route_to('groups/labels#index', group_id: group_path)
   end
 
-  it "to #milestones" do
+  it 'to #milestones' do
     expect(get("/groups/#{group_path}/-/milestones")).to route_to('groups/milestones#index', group_id: group_path)
   end
 

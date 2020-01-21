@@ -7,17 +7,17 @@ RSpec.shared_examples 'members notifications' do |entity_type|
     allow(member).to receive(:notification_service).and_return(notification_service)
   end
 
-  describe "#after_create" do
+  describe '#after_create' do
     let(:member) { build(:"#{entity_type}_member") }
 
-    it "sends email to user" do
+    it 'sends email to user' do
       expect(notification_service).to receive(:"new_#{entity_type}_member").with(member)
 
       member.save
     end
   end
 
-  describe "#after_update" do
+  describe '#after_update' do
     let(:member) { create(:"#{entity_type}_member", :developer) }
 
     it "calls NotificationService.update_#{entity_type}_member" do
@@ -26,7 +26,7 @@ RSpec.shared_examples 'members notifications' do |entity_type|
       member.update_attribute(:access_level, Member::MAINTAINER)
     end
 
-    it "does not send an email when the access level has not changed" do
+    it 'does not send an email when the access level has not changed' do
       expect(notification_service).not_to receive(:"update_#{entity_type}_member")
 
       member.touch
@@ -43,7 +43,7 @@ RSpec.shared_examples 'members notifications' do |entity_type|
     end
   end
 
-  describe "#accept_invite!" do
+  describe '#accept_invite!' do
     let(:member) { create(:"#{entity_type}_member", :invited) }
 
     it "calls NotificationService.accept_#{entity_type}_invite" do
@@ -53,7 +53,7 @@ RSpec.shared_examples 'members notifications' do |entity_type|
     end
   end
 
-  describe "#decline_invite!" do
+  describe '#decline_invite!' do
     let(:member) { create(:"#{entity_type}_member", :invited) }
 
     it "calls NotificationService.decline_#{entity_type}_invite" do

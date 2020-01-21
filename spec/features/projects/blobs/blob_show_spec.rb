@@ -23,7 +23,7 @@ describe 'File blob', :js do
     it 'displays the blob' do
       aggregate_failures do
         # shows highlighted Ruby code
-        expect(page).to have_css(".js-syntax-highlight")
+        expect(page).to have_css('.js-syntax-highlight')
         expect(page).to have_content("require 'fileutils'")
 
         # does not show a viewer switcher
@@ -63,7 +63,7 @@ describe 'File blob', :js do
           expect(page).to have_selector('.blob-viewer[data-type="rich"]')
 
           # shows rendered Markdown
-          expect(page).to have_link("PEP-8")
+          expect(page).to have_link('PEP-8')
 
           # shows a viewer switcher
           expect(page).to have_selector('.js-blob-viewer-switcher')
@@ -90,8 +90,8 @@ describe 'File blob', :js do
             expect(page).to have_selector('.blob-viewer[data-type="rich"]', visible: false)
 
             # shows highlighted Markdown code
-            expect(page).to have_css(".js-syntax-highlight")
-            expect(page).to have_content("[PEP-8](http://www.python.org/dev/peps/pep-0008/)")
+            expect(page).to have_css('.js-syntax-highlight')
+            expect(page).to have_content('[PEP-8](http://www.python.org/dev/peps/pep-0008/)')
 
             # shows an enabled copy button
             expect(page).to have_selector('.js-copy-blob-source-btn:not(.disabled)')
@@ -134,8 +134,8 @@ describe 'File blob', :js do
           expect(page).to have_selector('#LC1.hll')
 
           # shows highlighted Markdown code
-          expect(page).to have_css(".js-syntax-highlight")
-          expect(page).to have_content("[PEP-8](http://www.python.org/dev/peps/pep-0008/)")
+          expect(page).to have_css('.js-syntax-highlight')
+          expect(page).to have_content('[PEP-8](http://www.python.org/dev/peps/pep-0008/)')
 
           # shows an enabled copy button
           expect(page).to have_selector('.js-copy-blob-source-btn:not(.disabled)')
@@ -153,7 +153,7 @@ describe 'File blob', :js do
         project.creator,
         start_branch: 'master',
         branch_name: 'master',
-        commit_message: "Add RedCarpet and CommonMark Markdown ",
+        commit_message: 'Add RedCarpet and CommonMark Markdown ',
         file_path: 'files/commonmark/file.md',
         file_content: "1. one\n  - sublist\n"
       ).execute
@@ -168,8 +168,8 @@ describe 'File blob', :js do
 
       it 'renders using CommonMark' do
         aggregate_failures do
-          expect(page).to have_content("sublist")
-          expect(page).not_to have_xpath("//ol//li//ul")
+          expect(page).to have_content('sublist')
+          expect(page).not_to have_xpath('//ol//li//ul')
         end
       end
     end
@@ -184,7 +184,7 @@ describe 'File blob', :js do
         project.creator,
         start_branch: 'master',
         branch_name: 'master',
-        commit_message: "Add Markdown in LFS",
+        commit_message: 'Add Markdown in LFS',
         file_path: 'files/lfs/file.md',
         file_content: project.repository.blob_at('master', 'files/lfs/lfs_object.iso').data
       ).execute
@@ -277,7 +277,7 @@ describe 'File blob', :js do
         project.creator,
         start_branch: 'master',
         branch_name: 'master',
-        commit_message: "Add PDF",
+        commit_message: 'Add PDF',
         file_path: 'files/test.pdf',
         file_content: project.repository.blob_at('add-pdf-file', 'files/pdf/test.pdf').data
       ).execute
@@ -390,7 +390,7 @@ describe 'File blob', :js do
         project.creator,
         start_branch: 'master',
         branch_name: 'master',
-        commit_message: "Add empty file",
+        commit_message: 'Add empty file',
         file_path: 'files/empty.md',
         file_content: ''
       ).execute
@@ -458,7 +458,7 @@ describe 'File blob', :js do
         project.creator,
         start_branch: 'master',
         branch_name: 'master',
-        commit_message: "Add .gitlab-ci.yml",
+        commit_message: 'Add .gitlab-ci.yml',
         file_path: '.gitlab-ci.yml',
         file_content: File.read(Rails.root.join('spec/support/gitlab_stubs/gitlab_ci.yml'))
       ).execute
@@ -486,7 +486,7 @@ describe 'File blob', :js do
         project.creator,
         start_branch: 'master',
         branch_name: 'master',
-        commit_message: "Add .gitlab/route-map.yml",
+        commit_message: 'Add .gitlab/route-map.yml',
         file_path: '.gitlab/route-map.yml',
         file_content: <<-MAP.strip_heredoc
           # Team data
@@ -534,7 +534,7 @@ describe 'File blob', :js do
         project.creator,
         start_branch: 'master',
         branch_name: 'master',
-        commit_message: "Add activerecord.gemspec",
+        commit_message: 'Add activerecord.gemspec',
         file_path: 'activerecord.gemspec',
         file_content: <<-SPEC.strip_heredoc
           Gem::Specification.new do |s|
@@ -565,9 +565,9 @@ describe 'File blob', :js do
         project.creator,
         start_branch: 'feature',
         branch_name: 'feature',
-        commit_message: "Add ruby file",
+        commit_message: 'Add ruby file',
         file_path: 'files/ruby/test.rb',
-        file_content: "# Awesome content"
+        file_content: '# Awesome content'
       ).execute
 
       create(:ci_pipeline, status: 'running', project: project, ref: 'feature', sha: project.commit('feature').sha)

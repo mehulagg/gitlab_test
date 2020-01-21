@@ -17,7 +17,7 @@ module RendersBlob
     return unless viewer
 
     {
-      html: view_to_html_string("projects/blob/_viewer", viewer: viewer, load_async: false)
+      html: view_to_html_string('projects/blob/_viewer', viewer: viewer, load_async: false)
     }
   end
 

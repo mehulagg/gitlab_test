@@ -85,7 +85,7 @@ module Gitlab
 
       if class_name.match(full_class_name_prefix_regexp)
         Gitlab::ErrorTracking.track_and_raise_for_dev_exception(
-          StandardError.new("Full class name is used"),
+          StandardError.new('Full class name is used'),
           class_name: class_name
         )
 

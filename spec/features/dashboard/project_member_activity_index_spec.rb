@@ -21,9 +21,9 @@ describe 'Project member activity', :js do
       visit_activities_and_wait_with_event(Event::JOINED)
     end
 
-    it "presents the correct message" do
+    it 'presents the correct message' do
       expect(page.find('.event-user-info').text).to eq("#{user.name} #{user.to_reference}")
-      expect(page.find('.event-title').text).to eq("joined project")
+      expect(page.find('.event-title').text).to eq('joined project')
     end
   end
 
@@ -32,9 +32,9 @@ describe 'Project member activity', :js do
       visit_activities_and_wait_with_event(Event::LEFT)
     end
 
-    it "presents the correct message" do
+    it 'presents the correct message' do
       expect(page.find('.event-user-info').text).to eq("#{user.name} #{user.to_reference}")
-      expect(page.find('.event-title').text).to eq("left project")
+      expect(page.find('.event-title').text).to eq('left project')
     end
   end
 
@@ -43,9 +43,9 @@ describe 'Project member activity', :js do
       visit_activities_and_wait_with_event(Event::EXPIRED)
     end
 
-    it "presents the correct message" do
+    it 'presents the correct message' do
       expect(page.find('.event-user-info').text).to eq("#{user.name} #{user.to_reference}")
-      expect(page.find('.event-title').text).to eq("removed due to membership expiration from project")
+      expect(page.find('.event-title').text).to eq('removed due to membership expiration from project')
     end
   end
 end

@@ -13,7 +13,7 @@ end
 RSpec.shared_examples 'a GitHub-ish import controller: POST personal_access_token' do
   let(:status_import_url) { public_send("status_import_#{provider}_url") }
 
-  it "updates access token" do
+  it 'updates access token' do
     token = 'asdfasdf9876'
 
     allow_any_instance_of(Gitlab::LegacyGithubImport::Client)
@@ -25,7 +25,7 @@ RSpec.shared_examples 'a GitHub-ish import controller: POST personal_access_toke
     expect(controller).to redirect_to(status_import_url)
   end
 
-  it "strips access token with spaces" do
+  it 'strips access token with spaces' do
     token = 'asdfasdf9876'
 
     allow_any_instance_of(Gitlab::LegacyGithubImport::Client)
@@ -41,7 +41,7 @@ end
 RSpec.shared_examples 'a GitHub-ish import controller: GET new' do
   let(:status_import_url) { public_send("status_import_#{provider}_url") }
 
-  it "redirects to status if we already have a token" do
+  it 'redirects to status if we already have a token' do
     assign_session_token(provider)
     allow(controller).to receive(:logged_in_with_provider?).and_return(false)
 
@@ -50,7 +50,7 @@ RSpec.shared_examples 'a GitHub-ish import controller: GET new' do
     expect(controller).to redirect_to(status_import_url)
   end
 
-  it "renders the :new page if no token is present in session" do
+  it 'renders the :new page if no token is present in session' do
     get :new
 
     expect(response).to render_template(:new)
@@ -68,7 +68,7 @@ RSpec.shared_examples 'a GitHub-ish import controller: GET status' do
     assign_session_token(provider)
   end
 
-  it "returns variables for json request" do
+  it 'returns variables for json request' do
     project = create(:project, import_type: provider, namespace: user.namespace, import_status: :finished, import_source: 'example/repo')
     group = create(:group)
     group.add_owner(user)
@@ -77,23 +77,23 @@ RSpec.shared_examples 'a GitHub-ish import controller: GET status' do
     get :status, format: :json
 
     expect(response).to have_gitlab_http_status(:ok)
-    expect(json_response.dig("imported_projects", 0, "id")).to eq(project.id)
-    expect(json_response.dig("provider_repos", 0, "id")).to eq(repo.id)
-    expect(json_response.dig("provider_repos", 1, "id")).to eq(org_repo.id)
-    expect(json_response.dig("namespaces", 0, "id")).to eq(group.id)
+    expect(json_response.dig('imported_projects', 0, 'id')).to eq(project.id)
+    expect(json_response.dig('provider_repos', 0, 'id')).to eq(repo.id)
+    expect(json_response.dig('provider_repos', 1, 'id')).to eq(org_repo.id)
+    expect(json_response.dig('namespaces', 0, 'id')).to eq(group.id)
   end
 
-  it "does not show already added project" do
+  it 'does not show already added project' do
     project = create(:project, import_type: provider, namespace: user.namespace, import_status: :finished, import_source: 'asd/vim')
     stub_client(repos: [repo], orgs: [])
 
     get :status, format: :json
 
-    expect(json_response.dig("imported_projects", 0, "id")).to eq(project.id)
-    expect(json_response.dig("provider_repos")).to eq([])
+    expect(json_response.dig('imported_projects', 0, 'id')).to eq(project.id)
+    expect(json_response.dig('provider_repos')).to eq([])
   end
 
-  it "touches the etag cache store" do
+  it 'touches the etag cache store' do
     expect(stub_client(repos: [], orgs: [])).to receive(:repos)
     expect_next_instance_of(Gitlab::EtagCaching::Store) do |store|
       expect(store).to receive(:touch) { "realtime_changes_import_#{provider}_path" }
@@ -102,7 +102,7 @@ RSpec.shared_examples 'a GitHub-ish import controller: GET status' do
     get :status, format: :json
   end
 
-  it "requests provider repos list" do
+  it 'requests provider repos list' do
     expect(stub_client(repos: [], orgs: [])).to receive(:repos)
 
     get :status
@@ -110,7 +110,7 @@ RSpec.shared_examples 'a GitHub-ish import controller: GET status' do
     expect(response).to have_gitlab_http_status(:ok)
   end
 
-  it "handles an invalid access token" do
+  it 'handles an invalid access token' do
     allow_any_instance_of(Gitlab::LegacyGithubImport::Client)
       .to receive(:repos).and_raise(Octokit::Unauthorized)
 
@@ -121,7 +121,7 @@ RSpec.shared_examples 'a GitHub-ish import controller: GET status' do
     expect(flash[:alert]).to eq("Access denied to your #{Gitlab::ImportSources.title(provider.to_s)} account.")
   end
 
-  it "does not produce N+1 database queries" do
+  it 'does not produce N+1 database queries' do
     stub_client(repos: [repo], orgs: [])
     group_a = create(:group)
     group_a.add_owner(user)
@@ -154,10 +154,10 @@ RSpec.shared_examples 'a GitHub-ish import controller: GET status' do
       get :status, params: { filter: 'emacs' }, format: :json
 
       expect(response).to have_gitlab_http_status(:ok)
-      expect(json_response.dig("imported_projects").count).to eq(0)
-      expect(json_response.dig("provider_repos").count).to eq(1)
-      expect(json_response.dig("provider_repos", 0, "id")).to eq(repo_2.id)
-      expect(json_response.dig("namespaces", 0, "id")).to eq(group.id)
+      expect(json_response.dig('imported_projects').count).to eq(0)
+      expect(json_response.dig('provider_repos').count).to eq(1)
+      expect(json_response.dig('provider_repos', 0, 'id')).to eq(repo_2.id)
+      expect(json_response.dig('namespaces', 0, 'id')).to eq(group.id)
     end
 
     context 'when user input contains html' do
@@ -216,7 +216,7 @@ RSpec.shared_examples 'a GitHub-ish import controller: POST create' do
     expect(json_response['errors']).to eq('Name is invalid, Path is old')
   end
 
-  it "touches the etag cache store" do
+  it 'touches the etag cache store' do
     allow(Gitlab::LegacyGithubImport::ProjectCreator)
       .to receive(:new).with(provider_repo, provider_repo.name, user.namespace, user, access_params, type: provider)
         .and_return(double(execute: project))
@@ -227,7 +227,7 @@ RSpec.shared_examples 'a GitHub-ish import controller: POST create' do
     post :create, format: :json
   end
 
-  context "when the repository owner is the provider user" do
+  context 'when the repository owner is the provider user' do
     context "when the provider user and GitLab user's usernames match" do
       it "takes the current user's namespace" do
         expect(Gitlab::LegacyGithubImport::ProjectCreator)
@@ -239,7 +239,7 @@ RSpec.shared_examples 'a GitHub-ish import controller: POST create' do
     end
 
     context "when the provider user and GitLab user's usernames don't match" do
-      let(:provider_username) { "someone_else" }
+      let(:provider_username) { 'someone_else' }
 
       it "takes the current user's namespace" do
         expect(Gitlab::LegacyGithubImport::ProjectCreator)
@@ -251,8 +251,8 @@ RSpec.shared_examples 'a GitHub-ish import controller: POST create' do
     end
   end
 
-  context "when the repository owner is not the provider user" do
-    let(:other_username) { "someone_else" }
+  context 'when the repository owner is not the provider user' do
+    let(:other_username) { 'someone_else' }
 
     before do
       provider_repo.owner = OpenStruct.new(login: other_username)
@@ -262,13 +262,13 @@ RSpec.shared_examples 'a GitHub-ish import controller: POST create' do
     context "when a namespace with the provider user's username already exists" do
       let!(:existing_namespace) { user.namespace }
 
-      context "when the namespace is owned by the GitLab user" do
+      context 'when the namespace is owned by the GitLab user' do
         before do
           user.username = other_username
           user.save
         end
 
-        it "takes the existing namespace" do
+        it 'takes the existing namespace' do
           expect(Gitlab::LegacyGithubImport::ProjectCreator)
             .to receive(:new).with(provider_repo, provider_repo.name, existing_namespace, user, access_params, type: provider)
               .and_return(double(execute: project))
@@ -277,7 +277,7 @@ RSpec.shared_examples 'a GitHub-ish import controller: POST create' do
         end
       end
 
-      context "when the namespace is not owned by the GitLab user" do
+      context 'when the namespace is not owned by the GitLab user' do
         it "creates a project using user's namespace" do
           create(:user, username: other_username)
 
@@ -291,15 +291,15 @@ RSpec.shared_examples 'a GitHub-ish import controller: POST create' do
     end
 
     context "when a namespace with the provider user's username doesn't exist" do
-      context "when current user can create namespaces" do
-        it "creates the namespace" do
+      context 'when current user can create namespaces' do
+        it 'creates the namespace' do
           expect(Gitlab::LegacyGithubImport::ProjectCreator)
             .to receive(:new).and_return(double(execute: project))
 
           expect { post :create, params: { target_namespace: provider_repo.name }, format: :json }.to change(Namespace, :count).by(1)
         end
 
-        it "takes the new namespace" do
+        it 'takes the new namespace' do
           expect(Gitlab::LegacyGithubImport::ProjectCreator)
             .to receive(:new).with(provider_repo, provider_repo.name, an_instance_of(Group), user, access_params, type: provider)
               .and_return(double(execute: project))
@@ -502,7 +502,7 @@ RSpec.shared_examples 'a GitHub-ish import controller: GET realtime_changes' do
 
     get :realtime_changes
 
-    expect(json_response).to eq([{ "id" => project.id, "import_status" => project.import_status }])
+    expect(json_response).to eq([{ 'id' => project.id, 'import_status' => project.import_status }])
     expect(Integer(response.headers['Poll-Interval'])).to be > -1
   end
 end

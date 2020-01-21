@@ -512,7 +512,7 @@ describe QuickActions::InterpretService do
       it 'toggle award 100 emoji if content contains /award :100:' do
         _, updates, _ = service.execute(content, issuable)
 
-        expect(updates).to eq(emoji_award: "100")
+        expect(updates).to eq(emoji_award: '100')
       end
 
       it 'returns the award message' do
@@ -684,7 +684,7 @@ describe QuickActions::InterpretService do
         let(:service) { described_class.new(project, create(:user)) }
 
         it_behaves_like 'empty command' do
-          let(:content) { "/merge" }
+          let(:content) { '/merge' }
           let(:issuable) { merge_request }
         end
       end
@@ -693,7 +693,7 @@ describe QuickActions::InterpretService do
         let(:service) { described_class.new(project, developer, { merge_request_diff_head_sha: 'othersha' }) }
 
         it_behaves_like 'empty command' do
-          let(:content) { "/merge" }
+          let(:content) { '/merge' }
           let(:issuable) { merge_request }
         end
       end
@@ -711,21 +711,21 @@ describe QuickActions::InterpretService do
 
       context 'issue can not be merged' do
         it_behaves_like 'empty command' do
-          let(:content) { "/merge" }
+          let(:content) { '/merge' }
           let(:issuable) { issue }
         end
       end
 
       context 'non persisted merge request  cant be merged' do
         it_behaves_like 'empty command' do
-          let(:content) { "/merge" }
+          let(:content) { '/merge' }
           let(:issuable) { build(:merge_request) }
         end
       end
 
       context 'not persisted merge request can not be merged' do
         it_behaves_like 'empty command' do
-          let(:content) { "/merge" }
+          let(:content) { '/merge' }
           let(:issuable) { build(:merge_request, source_project: project) }
         end
       end
@@ -799,7 +799,7 @@ describe QuickActions::InterpretService do
       end
     end
 
-    it_behaves_like 'empty command', "Failed to assign a user because no user was found." do
+    it_behaves_like 'empty command', 'Failed to assign a user because no user was found.' do
       let(:content) { '/assign @abcd1234' }
       let(:issuable) { issue }
     end
@@ -1218,7 +1218,7 @@ describe QuickActions::InterpretService do
         end
 
         it_behaves_like 'empty command' do
-          let(:content) { "/copy_metadata imaginary#1234" }
+          let(:content) { '/copy_metadata imaginary#1234' }
           let(:issuable) { issue }
         end
 
@@ -1253,7 +1253,7 @@ describe QuickActions::InterpretService do
         end
 
         it_behaves_like 'empty command', _('Failed to mark this issue as a duplicate because referenced issue was not found.') do
-          let(:content) { "/duplicate imaginary#1234" }
+          let(:content) { '/duplicate imaginary#1234' }
           let(:issuable) { issue }
         end
 
@@ -1578,7 +1578,7 @@ describe QuickActions::InterpretService do
         it_behaves_like 'empty command'
       end
 
-      context "when logged user cannot create_merge_requests in the project" do
+      context 'when logged user cannot create_merge_requests in the project' do
         let(:project) { create(:project, :archived) }
 
         it_behaves_like 'empty command'
@@ -1817,7 +1817,7 @@ describe QuickActions::InterpretService do
       it 'includes the project name' do
         _, explanations = service.explain(content, issue)
 
-        expect(explanations).to eq(["Moves this issue to test/project."])
+        expect(explanations).to eq(['Moves this issue to test/project.'])
       end
     end
 
@@ -1829,7 +1829,7 @@ describe QuickActions::InterpretService do
           it 'includes the tag name only' do
             _, explanations = service.explain(content, commit)
 
-            expect(explanations).to eq(["Tags this commit to v1.2.3."])
+            expect(explanations).to eq(['Tags this commit to v1.2.3.'])
           end
         end
 
@@ -1839,7 +1839,7 @@ describe QuickActions::InterpretService do
           it 'includes the tag name only' do
             _, explanations = service.explain(content, commit)
 
-            expect(explanations).to eq(["Tags this commit to v1.2.3."])
+            expect(explanations).to eq(['Tags this commit to v1.2.3.'])
           end
         end
       end
@@ -1850,7 +1850,7 @@ describe QuickActions::InterpretService do
         it 'includes the tag name and message' do
           _, explanations = service.explain(content, commit)
 
-          expect(explanations).to eq(["Tags this commit to v1.2.3 with \"Stable release\"."])
+          expect(explanations).to eq(['Tags this commit to v1.2.3 with "Stable release".'])
         end
       end
     end
@@ -1889,7 +1889,7 @@ describe QuickActions::InterpretService do
       end
     end
 
-    context "#commands_executed_count" do
+    context '#commands_executed_count' do
       it 'counts commands executed' do
         content = "/close and \n/assign me and \n/title new title"
 

@@ -31,7 +31,7 @@ FactoryBot.define do
 
   factory :any_approver_rule, parent: :approval_merge_request_rule do
     rule_type { :any_approver }
-    name { "All Members" }
+    name { 'All Members' }
   end
 
   factory :approval_project_rule do

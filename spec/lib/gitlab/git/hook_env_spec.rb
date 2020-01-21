@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Gitlab::Git::HookEnv do
   let(:gl_repository) { 'project-123' }
 
-  describe ".set" do
+  describe '.set' do
     context 'with RequestStore disabled' do
       it 'does not store anything' do
         described_class.set(gl_repository, GIT_OBJECT_DIRECTORY_RELATIVE: 'foo')
@@ -34,7 +34,7 @@ describe Gitlab::Git::HookEnv do
     end
   end
 
-  describe ".all" do
+  describe '.all' do
     context 'with RequestStore enabled', :request_store do
       before do
         described_class.set(
@@ -52,7 +52,7 @@ describe Gitlab::Git::HookEnv do
     end
   end
 
-  describe ".to_env_hash" do
+  describe '.to_env_hash' do
     context 'with RequestStore enabled', :request_store do
       using RSpec::Parameterized::TableSyntax
 

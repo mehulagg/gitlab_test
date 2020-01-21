@@ -16,7 +16,7 @@ describe 'Import/Export Project configuration' do
     relation_paths_for(:project).map do |relation_names|
       next if relation_names.last == :author
 
-      [relation_names.join("."), relation_names.last]
+      [relation_names.join('.'), relation_names.last]
     end.compact
   end
 

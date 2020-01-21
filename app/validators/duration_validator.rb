@@ -17,7 +17,7 @@ class DurationValidator < ActiveModel::EachValidator
     if options[:message]
       record.errors.add(:base, options[:message])
     else
-      record.errors.add(attribute, "is not a correct duration")
+      record.errors.add(attribute, 'is not a correct duration')
     end
   end
 end

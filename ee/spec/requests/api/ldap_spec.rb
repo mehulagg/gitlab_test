@@ -22,17 +22,17 @@ describe API::Ldap do
     stub_application_setting(allow_group_owners_to_manage_ldap: false)
   end
 
-  describe "GET /ldap/groups" do
-    context "when unauthenticated" do
-      it "returns authentication error" do
-        get api("/ldap/groups")
+  describe 'GET /ldap/groups' do
+    context 'when unauthenticated' do
+      it 'returns authentication error' do
+        get api('/ldap/groups')
         expect(response.status).to eq 401
       end
     end
 
-    context "when authenticated as user" do
-      it "returns authentication error" do
-        get api("/ldap/groups", user)
+    context 'when authenticated as user' do
+      it 'returns authentication error' do
+        get api('/ldap/groups', user)
         expect(response.status).to eq 403
       end
     end
@@ -42,8 +42,8 @@ describe API::Ldap do
         stub_application_setting(allow_group_owners_to_manage_ldap: true)
       end
 
-      it "returns an array of ldap groups" do
-        get api("/ldap/groups", user)
+      it 'returns an array of ldap groups' do
+        get api('/ldap/groups', user)
         expect(response.status).to eq 200
         expect(json_response).to be_an Array
         expect(json_response.length).to eq 2
@@ -51,9 +51,9 @@ describe API::Ldap do
       end
     end
 
-    context "when authenticated as admin" do
-      it "returns an array of ldap groups" do
-        get api("/ldap/groups", admin)
+    context 'when authenticated as admin' do
+      it 'returns an array of ldap groups' do
+        get api('/ldap/groups', admin)
         expect(response.status).to eq 200
         expect(json_response).to be_an Array
         expect(json_response.length).to eq 2
@@ -62,17 +62,17 @@ describe API::Ldap do
     end
   end
 
-  describe "GET /ldap/ldapmain/groups" do
-    context "when unauthenticated" do
-      it "returns authentication error" do
-        get api("/ldap/ldapmain/groups")
+  describe 'GET /ldap/ldapmain/groups' do
+    context 'when unauthenticated' do
+      it 'returns authentication error' do
+        get api('/ldap/ldapmain/groups')
         expect(response.status).to eq 401
       end
     end
 
-    context "when authenticated as user" do
-      it "returns authentication error" do
-        get api("/ldap/ldapmain/groups", user)
+    context 'when authenticated as user' do
+      it 'returns authentication error' do
+        get api('/ldap/ldapmain/groups', user)
         expect(response.status).to eq 403
       end
     end
@@ -82,8 +82,8 @@ describe API::Ldap do
         stub_application_setting(allow_group_owners_to_manage_ldap: true)
       end
 
-      it "returns an array of ldap groups" do
-        get api("/ldap/ldapmain/groups", admin)
+      it 'returns an array of ldap groups' do
+        get api('/ldap/ldapmain/groups', admin)
         expect(response.status).to eq 200
         expect(json_response).to be_an Array
         expect(json_response.length).to eq 2
@@ -91,9 +91,9 @@ describe API::Ldap do
       end
     end
 
-    context "when authenticated as admin" do
-      it "returns an array of ldap groups" do
-        get api("/ldap/ldapmain/groups", admin)
+    context 'when authenticated as admin' do
+      it 'returns an array of ldap groups' do
+        get api('/ldap/ldapmain/groups', admin)
         expect(response.status).to eq 200
         expect(json_response).to be_an Array
         expect(json_response.length).to eq 2

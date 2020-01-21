@@ -15,7 +15,7 @@ describe Gitlab::Metrics::Methods do
       end
 
       context 'metrics access method not defined' do
-        it "defines metrics accessing method" do
+        it 'defines metrics accessing method' do
           expect(subject).not_to respond_to(metric_name)
 
           call_define_metric_method(docstring: docstring)
@@ -121,7 +121,7 @@ describe Gitlab::Metrics::Methods do
             Feature.get(feature_name).disable
           end
 
-          it "returns NullMetric" do
+          it 'returns NullMetric' do
             allow(Gitlab::Metrics).to receive(metric_type)
 
             expect(metric).to be_instance_of(Gitlab::Metrics::NullMetric)

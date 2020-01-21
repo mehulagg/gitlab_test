@@ -28,7 +28,7 @@ describe Mentionable do
   end
 end
 
-describe Issue, "Mentionable" do
+describe Issue, 'Mentionable' do
   describe '#mentioned_users' do
     let!(:user) { create(:user, username: 'stranger') }
     let!(:user2) { create(:user, username: 'john') }
@@ -189,25 +189,25 @@ describe Commit, 'Mentionable' do
 
   describe '#matches_cross_reference_regex?' do
     it "is false when message doesn't reference anything" do
-      allow(commit.raw).to receive(:message).and_return "WIP: Do something"
+      allow(commit.raw).to receive(:message).and_return 'WIP: Do something'
 
       expect(commit.matches_cross_reference_regex?).to be_falsey
     end
 
     it 'is true if issue #number mentioned in title' do
-      allow(commit.raw).to receive(:message).and_return "#1"
+      allow(commit.raw).to receive(:message).and_return '#1'
 
       expect(commit.matches_cross_reference_regex?).to be_truthy
     end
 
     it 'is true if references an MR' do
-      allow(commit.raw).to receive(:message).and_return "See merge request !12"
+      allow(commit.raw).to receive(:message).and_return 'See merge request !12'
 
       expect(commit.matches_cross_reference_regex?).to be_truthy
     end
 
     it 'is true if references a commit' do
-      allow(commit.raw).to receive(:message).and_return "a1b2c3d4"
+      allow(commit.raw).to receive(:message).and_return 'a1b2c3d4'
 
       expect(commit.matches_cross_reference_regex?).to be_truthy
     end

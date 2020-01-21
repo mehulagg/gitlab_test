@@ -32,7 +32,7 @@ describe 'Multi Select Issue', :js do
     script = "var el = document.querySelector('#{selector}');"
     script += "var mousedown = new MouseEvent('mousedown', { button: 0, bubbles: true });"
     script += "var mouseup = new MouseEvent('mouseup', { ctrlKey: true, button: 0, bubbles:true });"
-    script += "el.dispatchEvent(mousedown); el.dispatchEvent(mouseup);"
+    script += 'el.dispatchEvent(mousedown); el.dispatchEvent(mouseup);'
     script += "Sortable.utils.#{action}(el);"
 
     page.execute_script(script, element)

@@ -79,7 +79,7 @@ describe Prometheus::ProxyVariableSubstitutionService do
     end
 
     context 'with custom variables' do
-      let(:pod_name) { "pod1" }
+      let(:pod_name) { 'pod1' }
 
       let(:params_keys) do
         {
@@ -102,7 +102,7 @@ describe Prometheus::ProxyVariableSubstitutionService do
 
         it_behaves_like 'success' do
           # Custom variables cannot be used with the Ruby interpolation format.
-          let(:expected_query) { "up{pod_name=\"%{pod_name}\"}" }
+          let(:expected_query) { 'up{pod_name="%{pod_name}"}' }
         end
       end
 

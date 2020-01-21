@@ -5,15 +5,15 @@ module Gitlab
     class Client
       class << self
         def generate_trial(params)
-          http_post("trials", admin_headers, params)
+          http_post('trials', admin_headers, params)
         end
 
         def create_customer(params)
-          http_post("api/customers", admin_headers, params)
+          http_post('api/customers', admin_headers, params)
         end
 
         def create_subscription(params, email, token)
-          http_post("subscriptions", customer_headers(email, token), params)
+          http_post('subscriptions', customer_headers(email, token), params)
         end
 
         def payment_form_params(payment_type)

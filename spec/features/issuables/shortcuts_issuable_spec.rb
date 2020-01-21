@@ -14,8 +14,8 @@ describe 'Blob shortcuts', :js do
     sign_in(user)
   end
 
-  shared_examples "quotes the selected text" do
-    it "quotes the selected text", :quarantine do
+  shared_examples 'quotes the selected text' do
+    it 'quotes the selected text', :quarantine do
       select_element('.note-text')
       find('body').native.send_key('r')
 

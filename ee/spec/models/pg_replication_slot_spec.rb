@@ -15,7 +15,7 @@ describe PgReplicationSlot do
           skip('max_replication_slots too small') if skip_examples
 
           @current_slot_count =
-            ActiveRecord::Base.connection.execute("SELECT COUNT(*) FROM pg_replication_slots;")
+            ActiveRecord::Base.connection.execute('SELECT COUNT(*) FROM pg_replication_slots;')
             .first.fetch('count').to_i
           @current_unused_count =
             ActiveRecord::Base.connection.execute("SELECT COUNT(*) FROM pg_replication_slots WHERE active = 'f';")

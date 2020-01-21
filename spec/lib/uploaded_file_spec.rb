@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe UploadedFile do
   let(:temp_dir) { Dir.tmpdir }
-  let(:temp_file) { Tempfile.new("test", temp_dir) }
+  let(:temp_file) { Tempfile.new('test', temp_dir) }
 
   before do
     FileUtils.touch(temp_file)
@@ -14,7 +14,7 @@ describe UploadedFile do
     FileUtils.rm_f(temp_file)
   end
 
-  describe ".from_params" do
+  describe '.from_params' do
     let(:upload_path) { nil }
 
     after do
@@ -31,11 +31,11 @@ describe UploadedFile do
           { 'file.path' => temp_file.path }
         end
 
-        it "succeeds" do
+        it 'succeeds' do
           is_expected.not_to be_nil
         end
 
-        it "generates filename from path" do
+        it 'generates filename from path' do
           expect(subject.original_filename).to eq(::File.basename(temp_file.path))
         end
       end
@@ -49,11 +49,11 @@ describe UploadedFile do
             'file.remote_id' => 'remote_id' }
         end
 
-        it "succeeds" do
+        it 'succeeds' do
           is_expected.not_to be_nil
         end
 
-        it "generates filename from path" do
+        it 'generates filename from path' do
           expect(subject.original_filename).to eq('my_file_.txt')
           expect(subject.content_type).to eq('my/type')
           expect(subject.sha256).to eq('sha256')
@@ -67,7 +67,7 @@ describe UploadedFile do
         {}
       end
 
-      it "does not return an object" do
+      it 'does not return an object' do
         is_expected.to be_nil
       end
     end
@@ -80,7 +80,7 @@ describe UploadedFile do
       context 'when file is stored in system temporary folder' do
         let(:temp_dir) { Dir.tmpdir }
 
-        it "succeeds" do
+        it 'succeeds' do
           is_expected.not_to be_nil
         end
       end
@@ -89,7 +89,7 @@ describe UploadedFile do
         let(:upload_path) { Dir.mktmpdir }
         let(:temp_dir) { upload_path }
 
-        it "succeeds" do
+        it 'succeeds' do
           is_expected.not_to be_nil
         end
       end
@@ -103,7 +103,7 @@ describe UploadedFile do
           allow(Dir).to receive(:tmpdir).and_return(generated_dir)
         end
 
-        it "raises an error" do
+        it 'raises an error' do
           expect { subject }.to raise_error(UploadedFile::InvalidPathError, /insecure path used/)
         end
       end

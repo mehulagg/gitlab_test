@@ -5,7 +5,7 @@ require 'spec_helper'
 describe BitbucketServer::Connection do
   let(:options) { { base_uri: 'https://test:7990', user: 'bitbucket', password: 'mypassword' } }
   let(:payload) { { 'test' => 1 } }
-  let(:headers) { { "Content-Type" => "application/json" } }
+  let(:headers) { { 'Content-Type' => 'application/json' } }
   let(:url) { 'https://test:7990/rest/api/1.0/test?something=1' }
 
   subject { described_class.new(options) }

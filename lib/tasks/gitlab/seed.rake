@@ -1,6 +1,6 @@
 namespace :gitlab do
   namespace :seed do
-    desc "GitLab | Seed | Seeds issues"
+    desc 'GitLab | Seed | Seeds issues'
     task :issues, [:project_full_path, :backfill_weeks, :average_issues_per_week] => :environment do |t, args|
       args.with_defaults(backfill_weeks: 5, average_issues_per_week: 2)
 

@@ -4,7 +4,7 @@ module SearchResultHelpers
   # @param target [Symbol] search target, e.g. "merge_requests", "blobs"
   def expect_search_results(users, target, expected_count: nil, expected_objects: nil, pending: false)
     # TODO: https://gitlab.com/gitlab-org/gitlab/issues/32645
-    pending("https://gitlab.com/gitlab-org/gitlab/issues/32645") if pending
+    pending('https://gitlab.com/gitlab-org/gitlab/issues/32645') if pending
 
     users = Array(users)
     target = target.to_s

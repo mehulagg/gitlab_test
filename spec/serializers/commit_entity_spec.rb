@@ -106,8 +106,8 @@ describe CommitEntity do
     end
 
     it 'adds commit_url_params to url and path' do
-      expect(subject[:commit_path]).to include "?merge_request_iid=3"
-      expect(subject[:commit_url]).to include "?merge_request_iid=3"
+      expect(subject[:commit_path]).to include '?merge_request_iid=3'
+      expect(subject[:commit_url]).to include '?merge_request_iid=3'
     end
   end
 end

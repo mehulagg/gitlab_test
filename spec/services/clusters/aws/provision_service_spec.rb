@@ -60,7 +60,7 @@ describe Clusters::Aws::ProvisionService do
         stack_name: provider.cluster.name,
         template_body: cloudformation_template,
         parameters: parameters,
-        capabilities: ["CAPABILITY_IAM"]
+        capabilities: ['CAPABILITY_IAM']
       )
 
       subject
@@ -75,7 +75,7 @@ describe Clusters::Aws::ProvisionService do
 
     describe 'error handling' do
       shared_examples 'provision error' do |message|
-        it "sets the status to :errored with an appropriate error message" do
+        it 'sets the status to :errored with an appropriate error message' do
           subject
 
           expect(provider).to be_errored

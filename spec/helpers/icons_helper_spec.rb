@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe IconsHelper do
-  let(:icons_path) { ActionController::Base.helpers.image_path("icons.svg") }
+  let(:icons_path) { ActionController::Base.helpers.image_path('icons.svg') }
 
   describe 'icon' do
     it 'returns aria-hidden by default' do
@@ -35,7 +35,7 @@ describe IconsHelper do
 
       it 'returns an absolute URL on that asset host' do
         expect(sprite_icon_path)
-          .to eq ActionController::Base.helpers.image_path("icons.svg", host: Gitlab.config.gitlab.url)
+          .to eq ActionController::Base.helpers.image_path('icons.svg', host: Gitlab.config.gitlab.url)
       end
     end
   end
@@ -232,7 +232,7 @@ describe IconsHelper do
   describe '#external_snippet_icon' do
     it 'returns external snippet icon' do
       expect(external_snippet_icon('download').to_s)
-        .to eq("<span class=\"gl-snippet-icon gl-snippet-icon-download\"></span>")
+        .to eq('<span class="gl-snippet-icon gl-snippet-icon-download"></span>')
     end
   end
 end

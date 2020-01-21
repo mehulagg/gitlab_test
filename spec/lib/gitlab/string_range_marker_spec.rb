@@ -13,7 +13,7 @@ describe Gitlab::StringRangeMarker do
       end
     end
 
-    context "when the rich text is html safe" do
+    context 'when the rich text is html safe' do
       let(:rich) { %{<span class="abc">abc</span><span class="space"> </span><span class="def">&lt;def&gt;</span>}.html_safe }
 
       it 'marks the inline diffs' do
@@ -22,7 +22,7 @@ describe Gitlab::StringRangeMarker do
       end
     end
 
-    context "when the rich text is not html safe" do
+    context 'when the rich text is not html safe' do
       context 'when rich text equals raw text' do
         it 'marks the inline diffs' do
           expect(mark_diff).to eq(%{abLEFTc <dRIGHTef>})
@@ -31,7 +31,7 @@ describe Gitlab::StringRangeMarker do
       end
 
       context 'when rich text doeas not equal raw text' do
-        let(:rich)  { "abc <def> differs" }
+        let(:rich)  { 'abc <def> differs' }
 
         it 'marks the inline diffs' do
           expect(mark_diff(rich)).to eq(%{abLEFTc &lt;dRIGHTef&gt; differs})

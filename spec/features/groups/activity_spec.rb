@@ -41,7 +41,7 @@ describe 'Group activity page' do
       visit path
     end
 
-    it_behaves_like "it has an RSS button without a feed token"
-    it_behaves_like "an autodiscoverable RSS feed without a feed token"
+    it_behaves_like 'it has an RSS button without a feed token'
+    it_behaves_like 'an autodiscoverable RSS feed without a feed token'
   end
 end

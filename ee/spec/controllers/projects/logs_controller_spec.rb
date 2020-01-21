@@ -12,7 +12,7 @@ describe Projects::LogsController do
     create(:environment, name: 'production', project: project)
   end
 
-  let(:pod_name) { "foo" }
+  let(:pod_name) { 'foo' }
   let(:container) { 'container-1' }
 
   before do
@@ -58,7 +58,7 @@ describe Projects::LogsController do
     end
   end
 
-  describe "GET #k8s" do
+  describe 'GET #k8s' do
     let(:service_result) do
       {
         status: :success,
@@ -92,8 +92,8 @@ describe Projects::LogsController do
       get :k8s, params: environment_params(pod_name: pod_name, format: :json)
 
       expect(response).to have_gitlab_http_status(:success)
-      expect(json_response["logs"]).to match_array(["Log 1", "Log 2", "Log 3"])
-      expect(json_response["pods"]).to match_array([pod_name])
+      expect(json_response['logs']).to match_array(['Log 1', 'Log 2', 'Log 3'])
+      expect(json_response['pods']).to match_array([pod_name])
       expect(json_response['message']).to eq(service_result[:message])
       expect(json_response['pod_name']).to eq(pod_name)
       expect(json_response['container_name']).to eq(container)
@@ -120,9 +120,9 @@ describe Projects::LogsController do
         get :k8s, params: environment_params(pod_name: pod_name, format: :json)
 
         expect(response).to have_gitlab_http_status(:bad_request)
-        expect(json_response["logs"]).to eq(nil)
-        expect(json_response["pods"]).to match_array([pod_name])
-        expect(json_response["message"]).to eq('Kubernetes API returned status code: 400')
+        expect(json_response['logs']).to eq(nil)
+        expect(json_response['pods']).to match_array([pod_name])
+        expect(json_response['message']).to eq('Kubernetes API returned status code: 400')
         expect(json_response['pod_name']).to eq(pod_name)
         expect(json_response['container_name']).to eq(container)
       end

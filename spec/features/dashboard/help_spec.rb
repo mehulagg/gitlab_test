@@ -9,7 +9,7 @@ RSpec.describe 'Dashboard Help' do
 
   context 'documentation' do
     it 'renders correctly markdown' do
-      visit help_page_path("administration/raketasks/maintenance")
+      visit help_page_path('administration/raketasks/maintenance')
 
       expect(page).to have_content('Gather information about GitLab and the system it runs on')
 

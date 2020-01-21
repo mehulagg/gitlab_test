@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'HTML text with references' do
-  let(:markdown_prepend) { "&lt;img src=\"\" onerror=alert(`bug`)&gt;" }
+  let(:markdown_prepend) { '&lt;img src="" onerror=alert(`bug`)&gt;' }
 
   it 'preserves escaped HTML text and adds valid references' do
     reference = resource.to_reference(format: :name)

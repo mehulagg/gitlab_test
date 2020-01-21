@@ -11,11 +11,11 @@ module Serverless
     end
 
     def id
-      @project.id.to_s + "/" + @name + "/" + @namespace
+      @project.id.to_s + '/' + @name + '/' + @namespace
     end
 
     def self.find_by_id(id)
-      array = id.split("/")
+      array = id.split('/')
       project = Project.find_by_id(array[0])
       name = array[1]
       namespace = array[2]

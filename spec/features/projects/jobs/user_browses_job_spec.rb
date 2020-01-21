@@ -25,7 +25,7 @@ describe 'User browses a job', :js do
     expect(page).to have_css('.job-log')
 
     # scroll to the top of the page first
-    execute_script "window.scrollTo(0,0)"
+    execute_script 'window.scrollTo(0,0)'
     accept_confirm { find('.js-erase-link').click }
 
     expect(page).to have_no_css('.artifacts')

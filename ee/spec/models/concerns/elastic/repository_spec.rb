@@ -15,7 +15,7 @@ describe Repository, :elastic do
     end
   end
 
-  it "searches blobs and commits" do
+  it 'searches blobs and commits' do
     project = create :project, :repository
     index!(project)
 
@@ -113,8 +113,8 @@ describe Repository, :elastic do
     end
   end
 
-  describe "find_commits_by_message_with_elastic" do
-    it "returns commits" do
+  describe 'find_commits_by_message_with_elastic' do
+    it 'returns commits' do
       project = create :project, :repository
 
       Gitlab::Elastic::Indexer.new(project).run

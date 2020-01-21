@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Types::PermissionTypes::Project do
-  it "exposes design permissions" do
+  it 'exposes design permissions' do
     expected_permissions = [
       :read_design, :create_design, :destroy_design
     ]

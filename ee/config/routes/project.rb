@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-scope "/-/push_from_secondary/:geo_node_id" do
+scope '/-/push_from_secondary/:geo_node_id' do
   draw :git_http
 end
 

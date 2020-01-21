@@ -188,13 +188,13 @@ describe 'User edit profile' do
       def open_user_status_modal
         find('.header-user-dropdown-toggle').click
 
-        page.within ".header-user" do
+        page.within '.header-user' do
           click_button 'Set status'
         end
       end
 
       def set_user_status_in_modal
-        page.within "#set-user-status-modal" do
+        page.within '#set-user-status-modal' do
           click_button 'Set status'
         end
         wait_for_requests
@@ -207,7 +207,7 @@ describe 'User edit profile' do
       it 'shows the "Set status" menu item in the user menu' do
         find('.header-user-dropdown-toggle').click
 
-        page.within ".header-user" do
+        page.within '.header-user' do
           expect(page).to have_content('Set status')
         end
       end
@@ -218,7 +218,7 @@ describe 'User edit profile' do
 
         find('.header-user-dropdown-toggle').click
 
-        page.within ".header-user" do
+        page.within '.header-user' do
           expect(page).to have_emoji(user_status.emoji)
           expect(page).to have_content user_status.message
           expect(page).to have_content('Edit status')
@@ -299,7 +299,7 @@ describe 'User edit profile' do
 
         find('.header-user-dropdown-toggle').click
 
-        page.within ".header-user" do
+        page.within '.header-user' do
           click_button 'Edit status'
         end
 
@@ -325,11 +325,11 @@ describe 'User edit profile' do
 
         find('.header-user-dropdown-toggle').click
 
-        page.within ".header-user" do
+        page.within '.header-user' do
           click_button 'Edit status'
         end
 
-        page.within "#set-user-status-modal" do
+        page.within '#set-user-status-modal' do
           click_button 'Remove status'
         end
 
@@ -368,7 +368,7 @@ describe 'User edit profile' do
 
         expect(page.find('.user-time-preferences .dropdown')).to have_css('.show')
 
-        page.find("a", text: "Nuku'alofa").click
+        page.find('a', text: "Nuku'alofa").click
 
         tz = page.find('.user-time-preferences #user_timezone', visible: false)
 

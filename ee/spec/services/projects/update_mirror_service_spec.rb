@@ -9,7 +9,7 @@ describe Projects::UpdateMirrorService do
 
   subject(:service) { described_class.new(project, project.owner) }
 
-  describe "#execute" do
+  describe '#execute' do
     context 'unlicensed' do
       before do
         stub_licensed_features(repository_mirrors: false)
@@ -24,7 +24,7 @@ describe Projects::UpdateMirrorService do
       end
     end
 
-    it "fetches the upstream repository" do
+    it 'fetches the upstream repository' do
       expect(project).to receive(:fetch_mirror)
 
       service.execute
@@ -38,7 +38,7 @@ describe Projects::UpdateMirrorService do
       expect { service.execute }.not_to raise_error
     end
 
-    it "returns success when updated succeeds" do
+    it 'returns success when updated succeeds' do
       stub_fetch_mirror(project)
 
       result = service.execute
@@ -46,7 +46,7 @@ describe Projects::UpdateMirrorService do
       expect(result[:status]).to eq(:success)
     end
 
-    it "disables mirroring protected branches only by default" do
+    it 'disables mirroring protected branches only by default' do
       new_project = create(:project, :repository, :mirror, import_url: Project::UNKNOWN_IMPORT_URL)
 
       expect(new_project.only_mirror_protected_branches).to be_falsey
@@ -62,8 +62,8 @@ describe Projects::UpdateMirrorService do
       end
     end
 
-    context "updating tags" do
-      it "creates new tags" do
+    context 'updating tags' do
+      it 'creates new tags' do
         stub_fetch_mirror(project)
 
         service.execute
@@ -71,7 +71,7 @@ describe Projects::UpdateMirrorService do
         expect(project.repository.tag_names).to include('new-tag')
       end
 
-      it "only invokes Git::TagPushService for tags pointing to commits" do
+      it 'only invokes Git::TagPushService for tags pointing to commits' do
         stub_fetch_mirror(project)
 
         expect(Git::TagPushService).to receive(:new)
@@ -135,7 +135,7 @@ describe Projects::UpdateMirrorService do
       end
 
       context 'when mirror_overwrites_diverged_branches is false' do
-        let(:error_message) { "Fetching remote upstream failed" }
+        let(:error_message) { 'Fetching remote upstream failed' }
 
         before do
           project.mirror_overwrites_diverged_branches = false
@@ -406,13 +406,13 @@ describe Projects::UpdateMirrorService do
       expect(result[:status]).to eq(:error)
     end
 
-    it "fails when no user is present" do
+    it 'fails when no user is present' do
       result = described_class.new(project, nil).execute
 
       expect(result[:status]).to eq(:error)
     end
 
-    it "returns success when there is no mirror" do
+    it 'returns success when there is no mirror' do
       project = build_stubbed(:project)
       user    = create(:user)
 

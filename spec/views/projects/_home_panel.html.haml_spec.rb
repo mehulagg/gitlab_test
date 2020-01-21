@@ -174,7 +174,7 @@ describe 'projects/_home_panel' do
 
         render
 
-        expect(rendered).to have_content("Forked from an inaccessible project")
+        expect(rendered).to have_content('Forked from an inaccessible project')
       end
     end
   end

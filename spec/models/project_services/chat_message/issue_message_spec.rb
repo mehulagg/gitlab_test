@@ -47,9 +47,9 @@ describe ChatMessage::IssueMessage do
           '[<http://somewhere.com|project_name>] Issue opened by Test User (test.user)')
         expect(subject.attachments).to eq([
           {
-            title: "#100 Issue title",
-            title_link: "http://url.com",
-            text: "issue description",
+            title: '#100 Issue title',
+            title_link: 'http://url.com',
+            text: 'issue description',
             color: color
           }
         ])

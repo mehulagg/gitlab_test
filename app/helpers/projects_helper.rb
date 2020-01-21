@@ -26,7 +26,7 @@ module ProjectsHelper
     avatar = avatar_icon_for_user(author, opts[:size])
     src = opts[:lazy_load] ? nil : avatar
 
-    image_tag(src, width: opts[:size], class: classes, alt: '', "data-src" => avatar)
+    image_tag(src, width: opts[:size], class: classes, alt: '', 'data-src' => avatar)
   end
 
   def author_content_tag(author, opts = {})
@@ -49,7 +49,7 @@ module ProjectsHelper
   end
 
   def link_to_member(project, author, opts = {}, &block)
-    default_opts = { avatar: true, name: true, title: ":name" }
+    default_opts = { avatar: true, name: true, title: ':name' }
     opts = default_opts.merge(opts)
 
     data_attrs = {
@@ -58,7 +58,7 @@ module ProjectsHelper
       name: author.name
     }
 
-    return "(deleted)" unless author
+    return '(deleted)' unless author
 
     author_html = []
 
@@ -75,8 +75,8 @@ module ProjectsHelper
     if opts[:name]
       link_to(author_html, user_path(author), class: "author-link js-user-link #{"#{opts[:extra_class]}" if opts[:extra_class]} #{"#{opts[:mobile_classes]}" if opts[:mobile_classes]}", data: data_attrs).html_safe
     else
-      title = opts[:title].sub(":name", sanitize(author.name))
-      link_to(author_html, user_path(author), class: "author-link has-tooltip", title: title, data: { container: 'body', qa_selector: 'assignee_link' }).html_safe
+      title = opts[:title].sub(':name', sanitize(author.name))
+      link_to(author_html, user_path(author), class: 'author-link has-tooltip', title: title, data: { container: 'body', qa_selector: 'assignee_link' }).html_safe
     end
   end
 
@@ -91,7 +91,7 @@ module ProjectsHelper
 
     project_link = link_to project_path(project) do
       icon = project_icon(project, alt: project.name, class: 'avatar-tile', width: 15, height: 15) if project.avatar_url && !Rails.env.test?
-      [icon, content_tag("span", simple_sanitize(project.name), class: "breadcrumb-item-text js-breadcrumb-item-text")].join.html_safe
+      [icon, content_tag('span', simple_sanitize(project.name), class: 'breadcrumb-item-text js-breadcrumb-item-text')].join.html_safe
     end
 
     namespace_link = breadcrumb_list_item(namespace_link) unless project.group
@@ -101,12 +101,12 @@ module ProjectsHelper
   end
 
   def remove_project_message(project)
-    _("You are going to remove %{project_full_name}. Removed project CANNOT be restored! Are you ABSOLUTELY sure?") %
+    _('You are going to remove %{project_full_name}. Removed project CANNOT be restored! Are you ABSOLUTELY sure?') %
       { project_full_name: project.full_name }
   end
 
   def transfer_project_message(project)
-    _("You are going to transfer %{project_full_name} to another owner. Are you ABSOLUTELY sure?") %
+    _('You are going to transfer %{project_full_name} to another owner. Are you ABSOLUTELY sure?') %
       { project_full_name: project.full_name }
   end
 
@@ -124,7 +124,7 @@ module ProjectsHelper
   end
 
   def remove_fork_project_warning_message(project)
-    _("You are going to remove the fork relationship from %{project_full_name}. Are you ABSOLUTELY sure?") %
+    _('You are going to remove the fork relationship from %{project_full_name}. Are you ABSOLUTELY sure?') %
       { project_full_name: project.full_name }
   end
 
@@ -181,7 +181,7 @@ module ProjectsHelper
   end
 
   def autodeploy_flash_notice(branch_name)
-    translation = _("Branch <strong>%{branch_name}</strong> was created. To set up auto deploy, choose a GitLab CI Yaml template and commit your changes. %{link_to_autodeploy_doc}") %
+    translation = _('Branch <strong>%{branch_name}</strong> was created. To set up auto deploy, choose a GitLab CI Yaml template and commit your changes. %{link_to_autodeploy_doc}') %
       { branch_name: truncate(sanitize(branch_name)), link_to_autodeploy_doc: link_to_autodeploy_doc }
     translation.html_safe
   end
@@ -327,8 +327,8 @@ module ProjectsHelper
                       .external_authorization_service_default_label
 
     s_(
-      "ExternalAuthorizationService|When no classification label is set the "\
-        "default label `%{default_label}` will be used."
+      'ExternalAuthorizationService|When no classification label is set the '\
+        'default label `%{default_label}` will be used.'
     ) % { default_label: default_label }
   end
 
@@ -350,11 +350,11 @@ module ProjectsHelper
 
     description =
       if share_with_group && share_with_members
-        _("You can invite a new member to <strong>%{project_name}</strong> or invite another group.")
+        _('You can invite a new member to <strong>%{project_name}</strong> or invite another group.')
       elsif share_with_group
-        _("You can invite another group to <strong>%{project_name}</strong>.")
+        _('You can invite another group to <strong>%{project_name}</strong>.')
       elsif share_with_members
-        _("You can invite a new member to <strong>%{project_name}</strong>.")
+        _('You can invite a new member to <strong>%{project_name}</strong>.')
       end
 
     description.html_safe % { project_name: project.name }
@@ -464,7 +464,7 @@ module ProjectsHelper
     if current_user
       current_user.name.gsub('"', '\"')
     else
-      _("Your name")
+      _('Your name')
     end
   end
 
@@ -472,7 +472,7 @@ module ProjectsHelper
     if current_user
       current_user.commit_email
     else
-      "your@email.com"
+      'your@email.com'
     end
   end
 
@@ -486,7 +486,7 @@ module ProjectsHelper
   end
 
   def default_clone_label
-    _("Copy %{protocol} clone URL") % { protocol: default_clone_protocol.upcase }
+    _('Copy %{protocol} clone URL') % { protocol: default_clone_protocol.upcase }
   end
 
   def default_clone_protocol
@@ -513,7 +513,7 @@ module ProjectsHelper
     if project.last_activity_at
       time_ago_with_tooltip(project.last_activity_at, placement: 'bottom', html_class: 'last_activity_time_ago')
     else
-      s_("ProjectLastActivity|Never")
+      s_('ProjectLastActivity|Never')
     end
   end
 
@@ -524,18 +524,18 @@ module ProjectsHelper
 
   def project_status_css_class(status)
     case status
-    when "started"
-      "table-active"
-    when "failed"
-      "table-danger"
-    when "finished"
-      "table-success"
+    when 'started'
+      'table-active'
+    when 'failed'
+      'table-danger'
+    when 'finished'
+      'table-success'
     end
   end
 
   def readme_cache_key
     sha = @project.commit.try(:sha) || 'nil'
-    [@project.full_path, sha, "readme"].join('-')
+    [@project.full_path, sha, 'readme'].join('-')
   end
 
   def current_ref
@@ -543,7 +543,7 @@ module ProjectsHelper
   end
 
   def project_child_container_class(view_path)
-    view_path == "projects/issues/issues" ? "prepend-top-default" : "project-show-#{view_path}"
+    view_path == 'projects/issues/issues' ? 'prepend-top-default' : "project-show-#{view_path}"
   end
 
   def project_issues(project)
@@ -622,14 +622,14 @@ module ProjectsHelper
   def pages_https_only_title
     return unless pages_https_only_disabled?
 
-    "You must enable HTTPS for all your domains first"
+    'You must enable HTTPS for all your domains first'
   end
 
   def pages_https_only_label_class
     if pages_https_only_disabled?
-      "list-label disabled"
+      'list-label disabled'
     else
-      "list-label"
+      'list-label'
     end
   end
 

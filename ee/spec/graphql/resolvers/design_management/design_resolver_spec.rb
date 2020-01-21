@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe Resolvers::DesignManagement::DesignResolver do
   include GraphqlHelpers
@@ -10,7 +10,7 @@ describe Resolvers::DesignManagement::DesignResolver do
     enable_design_management
   end
 
-  describe "#resolve" do
+  describe '#resolve' do
     let_it_be(:issue) { create(:issue) }
     let_it_be(:project) { issue.project }
     let_it_be(:first_version) { create(:design_version) }
@@ -21,18 +21,18 @@ describe Resolvers::DesignManagement::DesignResolver do
       project.add_developer(current_user)
     end
 
-    context "when the user cannot see designs" do
-      it "returns nothing" do
+    context 'when the user cannot see designs' do
+      it 'returns nothing' do
         expect(resolve_designs(issue.design_collection, {}, current_user: create(:user))).to be_empty
       end
     end
 
-    context "for a design collection" do
-      it "returns designs" do
+    context 'for a design collection' do
+      it 'returns designs' do
         expect(resolve_designs(issue.design_collection, {}, current_user: current_user)).to contain_exactly(first_design)
       end
 
-      it "returns all designs" do
+      it 'returns all designs' do
         second_version = create(:design_version)
         second_design = create(:design, issue: issue, versions: [second_version])
 

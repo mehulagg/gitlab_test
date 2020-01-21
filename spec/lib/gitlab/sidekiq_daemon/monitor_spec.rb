@@ -10,10 +10,10 @@ describe Gitlab::SidekiqDaemon::Monitor do
       blk = proc do
         expect(monitor.jobs.dig('jid', :thread)).not_to be_nil
 
-        "OK"
+        'OK'
       end
 
-      expect(monitor.within_job('worker_class', 'jid', 'queue', &blk)).to eq("OK")
+      expect(monitor.within_job('worker_class', 'jid', 'queue', &blk)).to eq('OK')
     end
 
     context 'when job is canceled' do
@@ -283,13 +283,13 @@ describe Gitlab::SidekiqDaemon::Monitor do
     end
 
     it 'return nil when SIDEKIQ_MONITOR_WORKER set to 0' do
-      allow(ENV).to receive(:fetch).with('SIDEKIQ_MONITOR_WORKER', 0).and_return("0")
+      allow(ENV).to receive(:fetch).with('SIDEKIQ_MONITOR_WORKER', 0).and_return('0')
 
       expect(subject).to be nil
     end
 
     it 'return 1 when SIDEKIQ_MONITOR_WORKER set to 1' do
-      allow(ENV).to receive(:fetch).with('SIDEKIQ_MONITOR_WORKER', 0).and_return("1")
+      allow(ENV).to receive(:fetch).with('SIDEKIQ_MONITOR_WORKER', 0).and_return('1')
 
       expect(subject).to be 1
     end

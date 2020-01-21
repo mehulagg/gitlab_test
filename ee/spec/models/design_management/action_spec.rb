@@ -26,7 +26,7 @@ describe DesignManagement::Action do
 
         expected = designs
           .map(&:id)
-          .zip(dvs.order("version_id DESC").pluck(:version_id).uniq)
+          .zip(dvs.order('version_id DESC').pluck(:version_id).uniq)
 
         actual = dvs.most_recent.map { |dv| [dv.design_id, dv.version_id] }
 

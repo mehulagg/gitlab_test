@@ -23,19 +23,19 @@ module MergeRequestsHelper
   end
 
   def mr_css_classes(mr)
-    classes = ["merge-request"]
-    classes << "closed" if mr.closed?
-    classes << "merged" if mr.merged?
+    classes = ['merge-request']
+    classes << 'closed' if mr.closed?
+    classes << 'merged' if mr.merged?
     classes.join(' ')
   end
 
   def state_name_with_icon(merge_request)
     if merge_request.merged?
-      [_("Merged"), "git-merge"]
+      [_('Merged'), 'git-merge']
     elsif merge_request.closed?
-      [_("Closed"), "close"]
+      [_('Closed'), 'close']
     else
-      [_("Open"), "issue-open-m"]
+      [_('Open'), 'issue-open-m']
     end
   end
 

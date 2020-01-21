@@ -11,7 +11,7 @@ describe RepositoryForkWorker do
     end
   end
 
-  describe "#perform" do
+  describe '#perform' do
     let(:project) { create(:project, :public, :repository) }
     let(:shell) { Gitlab::Shell.new }
     let(:forked_project) { create(:project, :repository, :import_scheduled) }
@@ -41,7 +41,7 @@ describe RepositoryForkWorker do
         end
       end
 
-      it "creates a new repository from a fork" do
+      it 'creates a new repository from a fork' do
         expect_fork_repository.and_return(true)
 
         perform!
@@ -72,7 +72,7 @@ describe RepositoryForkWorker do
         perform!
       end
 
-      it "handles bad fork" do
+      it 'handles bad fork' do
         error_message = "Unable to fork project #{forked_project.id} for repository #{project.disk_path} -> #{forked_project.disk_path}"
 
         expect_fork_repository.and_return(false)

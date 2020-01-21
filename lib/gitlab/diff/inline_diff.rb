@@ -29,7 +29,7 @@ module Gitlab
 
       def inline_diffs
         # Skip inline diff if empty line was replaced with content
-        return if old_line == ""
+        return if old_line == ''
 
         lcp = longest_common_prefix(old_line, new_line)
         lcs = longest_common_suffix(old_line[lcp..-1], new_line[lcp..-1])
@@ -73,7 +73,7 @@ module Gitlab
         def find_changed_line_pairs(lines)
           # Prefixes of all diff lines, indicating their types
           # For example: `" - +  -+  ---+++ --+  -++"`
-          line_prefixes = lines.each_with_object(+"") { |line, s| s << (line[0] || ' ') }.gsub(/[^ +-]/, ' ')
+          line_prefixes = lines.each_with_object(+'') { |line, s| s << (line[0] || ' ') }.gsub(/[^ +-]/, ' ')
 
           changed_line_pairs = []
           line_prefixes.scan(LINE_PAIRS_PATTERN) do

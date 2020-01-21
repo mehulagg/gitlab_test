@@ -239,7 +239,7 @@ describe API::Issues do
           end
         end
 
-        context "when returns issue merge_requests_count for different access levels" do
+        context 'when returns issue merge_requests_count for different access levels' do
           let!(:merge_request1) do
             create(:merge_request,
                    :simple,
@@ -677,19 +677,19 @@ describe API::Issues do
           get api(base_url, user), params: { assignee_username: [assignee.username, another_assignee.username], scope: 'all' }
 
           expect(response).to have_gitlab_http_status(400)
-          expect(json_response["error"]).to include("allows one value, but found 2")
+          expect(json_response['error']).to include('allows one value, but found 2')
         end
 
         it 'returns error when assignee_username and assignee_id are passed together' do
           get api(base_url, user), params: { assignee_username: [assignee.username], assignee_id: another_assignee.id, scope: 'all' }
 
           expect(response).to have_gitlab_http_status(400)
-          expect(json_response["error"]).to include("mutually exclusive")
+          expect(json_response['error']).to include('mutually exclusive')
         end
       end
     end
 
-    context "#to_reference" do
+    context '#to_reference' do
       it 'exposes reference path in context of group' do
         get api(base_url, user)
 

@@ -91,7 +91,7 @@ describe Gitlab::LfsToken, :clean_gitlab_redis_shared_state do
         end
       end
 
-      context "because it was generated with a different secret" do
+      context 'because it was generated with a different secret' do
         it 'returns false' do
           different_actor = create(:user, username: 'test_user_lfs_2')
           different_secret_token = described_class.new(different_actor).token

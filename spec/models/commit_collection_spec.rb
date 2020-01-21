@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe CommitCollection do
   let(:project) { create(:project, :repository) }
-  let(:commit) { project.commit("c1c67abbaf91f624347bb3ae96eabe3a1b742478") }
+  let(:commit) { project.commit('c1c67abbaf91f624347bb3ae96eabe3a1b742478') }
 
   describe '#each' do
     it 'yields every commit' do
@@ -29,7 +29,7 @@ describe CommitCollection do
     end
 
     it 'excludes authors of merge commits' do
-      commit = project.commit("60ecb67744cb56576c30214ff52294f8ce2def98")
+      commit = project.commit('60ecb67744cb56576c30214ff52294f8ce2def98')
       create(:user, email: commit.committer_email.upcase)
       collection = described_class.new(project, [commit])
 
@@ -39,7 +39,7 @@ describe CommitCollection do
 
   describe '#without_merge_commits' do
     it 'returns all commits except merge commits' do
-      merge_commit = project.commit("60ecb67744cb56576c30214ff52294f8ce2def98")
+      merge_commit = project.commit('60ecb67744cb56576c30214ff52294f8ce2def98')
       expect(merge_commit).to receive(:merge_commit?).and_return(true)
 
       collection = described_class.new(project, [

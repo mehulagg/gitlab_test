@@ -27,7 +27,7 @@ module Projects
         current_user,
         project,
         action: :custom,
-        custom_message: "Project restored"
+        custom_message: 'Project restored'
       ).for_project.security_event
     end
   end

@@ -50,10 +50,10 @@ describe Clusters::KnativeServicesFinder do
         before do
           stub_kubeclient_knative_services(
             namespace: namespace.namespace,
-            response: kube_response({ "kind" => "ServiceList", "items" => [] })
+            response: kube_response({ 'kind' => 'ServiceList', 'items' => [] })
           )
           stub_kubeclient_service_pods(
-            kube_response({ "kind" => "PodList", "items" => [] }),
+            kube_response({ 'kind' => 'PodList', 'items' => [] }),
             namespace: namespace.namespace
           )
         end
@@ -88,7 +88,7 @@ describe Clusters::KnativeServicesFinder do
       end
 
       it { is_expected.to be_truthy }
-      it "discovers knative installation" do
+      it 'discovers knative installation' do
         expect { subject }
           .to change { finder.cluster.kubeclient.knative_client.discovered }
           .from(false)
@@ -102,7 +102,7 @@ describe Clusters::KnativeServicesFinder do
       end
 
       it { is_expected.to be_falsy }
-      it "does not discover knative installation" do
+      it 'does not discover knative installation' do
         expect { subject }.not_to change { cluster.kubeclient.knative_client.discovered }
       end
     end

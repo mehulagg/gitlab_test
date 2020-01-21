@@ -105,8 +105,8 @@ module EE
         mirror
           .joins_import_state
           .where.not(import_state: { status: [:scheduled, :started] })
-          .where("import_state.next_execution_timestamp <= ?", freeze_at)
-          .where("import_state.retry_count <= ?", ::Gitlab::Mirror::MAX_RETRY)
+          .where('import_state.next_execution_timestamp <= ?', freeze_at)
+          .where('import_state.retry_count <= ?', ::Gitlab::Mirror::MAX_RETRY)
           .limit(limit)
       end
 
@@ -143,7 +143,7 @@ module EE
       scope :with_prometheus_service, -> { joins(:prometheus_service) }
       scope :aimed_for_deletion, -> (date) { where('marked_for_deletion_at <= ?', date).without_deleted }
       scope :with_repos_templates, -> { where(namespace_id: ::Gitlab::CurrentSettings.current_application_settings.custom_project_templates_group_id) }
-      scope :with_groups_level_repos_templates, -> { joins("INNER JOIN namespaces ON projects.namespace_id = namespaces.custom_project_templates_group_id") }
+      scope :with_groups_level_repos_templates, -> { joins('INNER JOIN namespaces ON projects.namespace_id = namespaces.custom_project_templates_group_id') }
       scope :with_designs, -> { where(id: DesignManagement::Design.select(:project_id)) }
 
       delegate :shared_runners_minutes, :shared_runners_seconds, :shared_runners_seconds_last_reset,

@@ -13,7 +13,7 @@ module Emails
     def send_unsubscribed_notification(user_id)
       user = User.find(user_id)
       email = user.notification_email
-      mail to: email, subject: "Unsubscribed from GitLab administrator notifications"
+      mail to: email, subject: 'Unsubscribed from GitLab administrator notifications'
     end
   end
 end

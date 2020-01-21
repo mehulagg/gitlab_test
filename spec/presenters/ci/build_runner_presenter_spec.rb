@@ -16,14 +16,14 @@ describe Ci::BuildRunnerPresenter do
   end
 
   describe '#artifacts' do
-    context "when option contains archive-type artifacts" do
+    context 'when option contains archive-type artifacts' do
       let(:build) { create(:ci_build, options: { artifacts: archive } ) }
 
       it 'presents correct hash' do
         expect(presenter.artifacts.first).to include(archive_expectation)
       end
 
-      context "when untracked is specified" do
+      context 'when untracked is specified' do
         let(:archive) { { untracked: true } }
 
         it 'presents correct hash' do
@@ -31,7 +31,7 @@ describe Ci::BuildRunnerPresenter do
         end
       end
 
-      context "when untracked and paths are missing" do
+      context 'when untracked and paths are missing' do
         let(:archive) { { when: 'always' } }
 
         it 'does not present hash' do
@@ -40,7 +40,7 @@ describe Ci::BuildRunnerPresenter do
       end
     end
 
-    context "with reports" do
+    context 'with reports' do
       Ci::JobArtifact::DEFAULT_FILE_NAMES.each do |file_type, filename|
         context file_type.to_s do
           let(:report) { { "#{file_type}": [filename] } }
@@ -63,7 +63,7 @@ describe Ci::BuildRunnerPresenter do
       end
     end
 
-    context "when option has both archive and reports specification" do
+    context 'when option has both archive and reports specification' do
       let(:report) { { junit: ['junit.xml'] } }
       let(:build) { create(:ci_build, options: { script: 'echo', artifacts: { **archive, reports: report } } ) }
 
@@ -92,7 +92,7 @@ describe Ci::BuildRunnerPresenter do
       end
     end
 
-    context "when option has no artifact keywords" do
+    context 'when option has no artifact keywords' do
       let(:build) { create(:ci_build, :no_options) }
 
       it 'does not present hash' do

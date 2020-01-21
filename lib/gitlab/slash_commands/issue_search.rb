@@ -8,7 +8,7 @@ module Gitlab
       end
 
       def self.help_message
-        "issue search <your query>"
+        'issue search <your query>'
       end
 
       # rubocop: disable CodeReuse/ActiveRecord

@@ -2,7 +2,7 @@
 
 module Vulnerabilities
   class Scanner < ApplicationRecord
-    self.table_name = "vulnerability_scanners"
+    self.table_name = 'vulnerability_scanners'
 
     has_many :occurrences, class_name: 'Vulnerabilities::Occurrence'
 

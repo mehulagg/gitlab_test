@@ -5,95 +5,95 @@ require 'spec_helper'
 describe Gitlab::QuickActions::CommandDefinition do
   subject { described_class.new(:command) }
 
-  describe "#all_names" do
-    context "when the command has aliases" do
+  describe '#all_names' do
+    context 'when the command has aliases' do
       before do
         subject.aliases = [:alias1, :alias2]
       end
 
-      it "returns an array with the name and aliases" do
+      it 'returns an array with the name and aliases' do
         expect(subject.all_names).to eq([:command, :alias1, :alias2])
       end
     end
 
     context "when the command doesn't have aliases" do
-      it "returns an array with the name" do
+      it 'returns an array with the name' do
         expect(subject.all_names).to eq([:command])
       end
     end
   end
 
-  describe "#noop?" do
-    context "when the command has an action block" do
+  describe '#noop?' do
+    context 'when the command has an action block' do
       before do
         subject.action_block = proc { }
       end
 
-      it "returns false" do
+      it 'returns false' do
         expect(subject.noop?).to be false
       end
     end
 
     context "when the command doesn't have an action block" do
-      it "returns true" do
+      it 'returns true' do
         expect(subject.noop?).to be true
       end
     end
   end
 
-  describe "#available?" do
+  describe '#available?' do
     let(:opts) { OpenStruct.new(go: false) }
 
-    context "when the command has a condition block" do
+    context 'when the command has a condition block' do
       before do
         subject.condition_block = proc { go }
       end
 
-      context "when the condition block returns true" do
+      context 'when the condition block returns true' do
         before do
           opts[:go] = true
         end
 
-        it "returns true" do
+        it 'returns true' do
           expect(subject.available?(opts)).to be true
         end
       end
 
-      context "when the condition block returns false" do
-        it "returns false" do
+      context 'when the condition block returns false' do
+        it 'returns false' do
           expect(subject.available?(opts)).to be false
         end
       end
     end
 
     context "when the command doesn't have a condition block" do
-      it "returns true" do
+      it 'returns true' do
         expect(subject.available?(opts)).to be true
       end
     end
 
-    context "when the command has types" do
+    context 'when the command has types' do
       before do
         subject.types = [Issue, Commit]
       end
 
-      context "when the command target type is allowed" do
-        it "returns true" do
+      context 'when the command target type is allowed' do
+        it 'returns true' do
           opts[:quick_action_target] = Issue.new
           expect(subject.available?(opts)).to be true
         end
       end
 
-      context "when the command target type is not allowed" do
-        it "returns true" do
+      context 'when the command target type is not allowed' do
+        it 'returns true' do
           opts[:quick_action_target] = MergeRequest.new
           expect(subject.available?(opts)).to be false
         end
       end
     end
 
-    context "when the command has no types" do
-      it "any target type is allowed" do
+    context 'when the command has no types' do
+      it 'any target type is allowed' do
         opts[:quick_action_target] = Issue.new
         expect(subject.available?(opts)).to be true
 
@@ -103,10 +103,10 @@ describe Gitlab::QuickActions::CommandDefinition do
     end
   end
 
-  describe "#execute" do
+  describe '#execute' do
     let(:context) { OpenStruct.new(run: false, commands_executed_count: nil) }
 
-    context "when the command is a noop" do
+    context 'when the command is a noop' do
       it "doesn't execute the command" do
         expect(context).not_to receive(:instance_exec)
 
@@ -117,12 +117,12 @@ describe Gitlab::QuickActions::CommandDefinition do
       end
     end
 
-    context "when the command is not a noop" do
+    context 'when the command is not a noop' do
       before do
         subject.action_block = proc { self.run = true }
       end
 
-      context "when the command is not available" do
+      context 'when the command is not available' do
         before do
           subject.condition_block = proc { false }
         end
@@ -135,14 +135,14 @@ describe Gitlab::QuickActions::CommandDefinition do
         end
       end
 
-      context "when the command is available" do
-        context "when the commnd has no arguments" do
+      context 'when the command is available' do
+        context 'when the commnd has no arguments' do
           before do
             subject.action_block = proc { self.run = true }
           end
 
-          context "when the command is provided an argument" do
-            it "executes the command" do
+          context 'when the command is provided an argument' do
+            it 'executes the command' do
               subject.execute(context, true)
 
               expect(context.run).to be true
@@ -150,8 +150,8 @@ describe Gitlab::QuickActions::CommandDefinition do
             end
           end
 
-          context "when the command is not provided an argument" do
-            it "executes the command" do
+          context 'when the command is not provided an argument' do
+            it 'executes the command' do
               subject.execute(context, nil)
 
               expect(context.run).to be true
@@ -160,13 +160,13 @@ describe Gitlab::QuickActions::CommandDefinition do
           end
         end
 
-        context "when the command has 1 required argument" do
+        context 'when the command has 1 required argument' do
           before do
             subject.action_block = ->(arg) { self.run = arg }
           end
 
-          context "when the command is provided an argument" do
-            it "executes the command" do
+          context 'when the command is provided an argument' do
+            it 'executes the command' do
               subject.execute(context, true)
 
               expect(context.run).to be true
@@ -174,7 +174,7 @@ describe Gitlab::QuickActions::CommandDefinition do
             end
           end
 
-          context "when the command is not provided an argument" do
+          context 'when the command is not provided an argument' do
             it "doesn't execute the command" do
               subject.execute(context, nil)
 
@@ -183,21 +183,21 @@ describe Gitlab::QuickActions::CommandDefinition do
           end
         end
 
-        context "when the command has 1 optional argument" do
+        context 'when the command has 1 optional argument' do
           before do
             subject.action_block = proc { |arg = nil| self.run = arg || true }
           end
 
-          context "when the command is provided an argument" do
-            it "executes the command" do
+          context 'when the command is provided an argument' do
+            it 'executes the command' do
               subject.execute(context, true)
 
               expect(context.run).to be true
             end
           end
 
-          context "when the command is not provided an argument" do
-            it "executes the command" do
+          context 'when the command is not provided an argument' do
+            it 'executes the command' do
               subject.execute(context, nil)
 
               expect(context.run).to be true
@@ -221,19 +221,19 @@ describe Gitlab::QuickActions::CommandDefinition do
     end
   end
 
-  describe "#execute_message" do
-    context "when the command is a noop" do
+  describe '#execute_message' do
+    context 'when the command is a noop' do
       it 'returns nil' do
         expect(subject.execute_message({}, nil)).to be_nil
       end
     end
 
-    context "when the command is not a noop" do
+    context 'when the command is not a noop' do
       before do
         subject.action_block = proc { self.run = true }
       end
 
-      context "when the command is not available" do
+      context 'when the command is not available' do
         before do
           subject.condition_block = proc { false }
         end
@@ -243,7 +243,7 @@ describe Gitlab::QuickActions::CommandDefinition do
         end
       end
 
-      context "when the command is available" do
+      context 'when the command is available' do
         context 'when the execution_message is a static string' do
           before do
             subject.execution_message = 'Assigned jacopo'

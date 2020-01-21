@@ -55,26 +55,26 @@ describe ProjectsHelper do
     end
   end
 
-  describe "#project_status_css_class" do
-    it "returns appropriate class" do
-      expect(project_status_css_class("started")).to eq("table-active")
-      expect(project_status_css_class("failed")).to eq("table-danger")
-      expect(project_status_css_class("finished")).to eq("table-success")
+  describe '#project_status_css_class' do
+    it 'returns appropriate class' do
+      expect(project_status_css_class('started')).to eq('table-active')
+      expect(project_status_css_class('failed')).to eq('table-danger')
+      expect(project_status_css_class('finished')).to eq('table-success')
     end
   end
 
-  describe "can_change_visibility_level?" do
+  describe 'can_change_visibility_level?' do
     let(:project) { create(:project) }
     let(:user) { create(:project_member, :reporter, user: create(:user), project: project).user }
     let(:forked_project) { fork_project(project, user) }
 
-    it "returns false if there are no appropriate permissions" do
+    it 'returns false if there are no appropriate permissions' do
       allow(helper).to receive(:can?) { false }
 
       expect(helper.can_change_visibility_level?(project, user)).to be_falsey
     end
 
-    it "returns true if there are permissions and it is not fork" do
+    it 'returns true if there are permissions and it is not fork' do
       allow(helper).to receive(:can?) { true }
 
       expect(helper.can_change_visibility_level?(project, user)).to be_truthy
@@ -88,8 +88,8 @@ describe ProjectsHelper do
       expect(helper.can_change_visibility_level?(project, user)).to be_truthy
     end
 
-    context "forks" do
-      it "returns false if there are permissions and origin project is PRIVATE" do
+    context 'forks' do
+      it 'returns false if there are permissions and origin project is PRIVATE' do
         allow(helper).to receive(:can?) { true }
 
         project.update(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
@@ -97,7 +97,7 @@ describe ProjectsHelper do
         expect(helper.can_change_visibility_level?(forked_project, user)).to be_falsey
       end
 
-      it "returns true if there are permissions and origin project is INTERNAL" do
+      it 'returns true if there are permissions and origin project is INTERNAL' do
         allow(helper).to receive(:can?) { true }
 
         project.update(visibility_level: Gitlab::VisibilityLevel::INTERNAL)
@@ -131,25 +131,25 @@ describe ProjectsHelper do
     end
   end
 
-  describe "readme_cache_key" do
+  describe 'readme_cache_key' do
     let(:project) { create(:project, :repository) }
 
     before do
       helper.instance_variable_set(:@project, project)
     end
 
-    it "returns a valid cach key" do
+    it 'returns a valid cach key' do
       expect(helper.send(:readme_cache_key)).to eq("#{project.full_path}-#{project.commit.id}-readme")
     end
 
-    it "returns a valid cache key if HEAD does not exist" do
+    it 'returns a valid cache key if HEAD does not exist' do
       allow(project).to receive(:commit) { nil }
 
       expect(helper.send(:readme_cache_key)).to eq("#{project.full_path}-nil-readme")
     end
   end
 
-  describe "#project_list_cache_key", :clean_gitlab_redis_shared_state do
+  describe '#project_list_cache_key', :clean_gitlab_redis_shared_state do
     let(:project) { create(:project, :repository) }
     let(:user) { create(:user) }
 
@@ -160,37 +160,37 @@ describe ProjectsHelper do
       allow(Gitlab::I18n).to receive(:locale).and_return('es')
     end
 
-    it "includes the route" do
+    it 'includes the route' do
       expect(helper.project_list_cache_key(project)).to include(project.route.cache_key)
     end
 
-    it "includes the project" do
+    it 'includes the project' do
       expect(helper.project_list_cache_key(project)).to include(project.cache_key)
     end
 
-    it "includes the last activity date" do
+    it 'includes the last activity date' do
       expect(helper.project_list_cache_key(project)).to include(project.last_activity_date)
     end
 
-    it "includes the controller name" do
-      expect(helper.controller).to receive(:controller_name).and_return("testcontroller")
+    it 'includes the controller name' do
+      expect(helper.controller).to receive(:controller_name).and_return('testcontroller')
 
-      expect(helper.project_list_cache_key(project)).to include("testcontroller")
+      expect(helper.project_list_cache_key(project)).to include('testcontroller')
     end
 
-    it "includes the controller action" do
-      expect(helper.controller).to receive(:action_name).and_return("testaction")
+    it 'includes the controller action' do
+      expect(helper.controller).to receive(:action_name).and_return('testaction')
 
-      expect(helper.project_list_cache_key(project)).to include("testaction")
+      expect(helper.project_list_cache_key(project)).to include('testaction')
     end
 
-    it "includes the application settings" do
+    it 'includes the application settings' do
       settings = Gitlab::CurrentSettings.current_application_settings
 
       expect(helper.project_list_cache_key(project)).to include(settings.cache_key)
     end
 
-    it "includes a version" do
+    it 'includes a version' do
       expect(helper.project_list_cache_key(project).last).to start_with('v')
     end
 
@@ -198,17 +198,17 @@ describe ProjectsHelper do
       expect(helper.project_list_cache_key(project)).to include('cross-project:true')
     end
 
-    it "includes the pipeline status when there is a status" do
+    it 'includes the pipeline status when there is a status' do
       create(:ci_pipeline, :success, project: project, sha: project.commit.sha)
 
       expect(helper.project_list_cache_key(project)).to include("pipeline-status/#{project.commit.sha}-success")
     end
 
-    it "includes the user locale" do
+    it 'includes the user locale' do
       expect(helper.project_list_cache_key(project)).to include('es')
     end
 
-    it "includes the user max member access" do
+    it 'includes the user max member access' do
       expect(helper.project_list_cache_key(project)).to include('access:40')
     end
   end
@@ -332,15 +332,15 @@ describe ProjectsHelper do
     end
 
     it 'returns image tag for member avatar' do
-      expect(helper).to receive(:image_tag).with(expected, { width: 16, class: %w[avatar avatar-inline s16], alt: "", "data-src" => anything })
+      expect(helper).to receive(:image_tag).with(expected, { width: 16, class: %w[avatar avatar-inline s16], alt: '', 'data-src' => anything })
 
       helper.link_to_member_avatar(user)
     end
 
     it 'returns image tag with avatar class' do
-      expect(helper).to receive(:image_tag).with(expected, { width: 16, class: %w[avatar avatar-inline s16 any-avatar-class], alt: "", "data-src" => anything })
+      expect(helper).to receive(:image_tag).with(expected, { width: 16, class: %w[avatar avatar-inline s16 any-avatar-class], alt: '', 'data-src' => anything })
 
-      helper.link_to_member_avatar(user, avatar_class: "any-avatar-class")
+      helper.link_to_member_avatar(user, avatar_class: 'any-avatar-class')
     end
   end
 
@@ -426,7 +426,7 @@ describe ProjectsHelper do
         allow(project).to receive(:builds_enabled?).and_return(true)
       end
 
-      it "does include pipelines tab" do
+      it 'does include pipelines tab' do
         is_expected.to include(:pipelines)
       end
     end
@@ -437,7 +437,7 @@ describe ProjectsHelper do
       end
 
       context 'when user has access to builds' do
-        it "does include pipelines tab" do
+        it 'does include pipelines tab' do
           is_expected.to include(:pipelines)
         end
       end
@@ -447,7 +447,7 @@ describe ProjectsHelper do
           allow(helper).to receive(:can?) { false }
         end
 
-        it "does not include pipelines tab" do
+        it 'does not include pipelines tab' do
           is_expected.not_to include(:pipelines)
         end
       end

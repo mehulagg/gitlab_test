@@ -74,7 +74,7 @@ describe Pseudonymizer::Dumper do
 
         # grab the first table it outputs. There would only be 1.
         project_table_file = pseudo.tables_to_csv[0]
-        expect(project_table_file).to end_with("projects.csv.gz")
+        expect(project_table_file).to end_with('projects.csv.gz')
 
         columns, project_data = decode_project_csv(project_table_file)
 
@@ -83,10 +83,10 @@ describe Pseudonymizer::Dumper do
 
         # is it pseudonymous
         # sha 256 is 64 chars in length
-        expect(project_data["id"].length).to eq(64)
+        expect(project_data['id'].length).to eq(64)
       end
 
-      it "warns when pseudonymized fields are extraneous" do
+      it 'warns when pseudonymized fields are extraneous' do
         column_names = %w(id name path description)
         pseudo.config[:tables] = {
           projects: {
@@ -102,15 +102,15 @@ describe Pseudonymizer::Dumper do
     end
   end
 
-  describe "manifest is valid" do
-    it "all tables exist" do
+  describe 'manifest is valid' do
+    it 'all tables exist' do
       existing_tables = ActiveRecord::Base.connection.tables
       tables = options.config['tables'].keys
 
       expect(existing_tables).to include(*tables)
     end
 
-    it "all whitelisted attributes exist" do
+    it 'all whitelisted attributes exist' do
       options.config['tables'].each do |table, table_def|
         whitelisted = table_def.fetch('whitelist', [])
         existing_columns = ActiveRecord::Base.connection.columns(table.to_sym).map(&:name)
@@ -120,7 +120,7 @@ describe Pseudonymizer::Dumper do
       end
     end
 
-    it "all pseudonymized attributes are whitelisted" do
+    it 'all pseudonymized attributes are whitelisted' do
       options.config['tables'].each do |table, table_def|
         whitelisted = table_def.fetch('whitelist', [])
         pseudonymized = table_def.fetch('pseudo', [])

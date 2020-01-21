@@ -193,13 +193,13 @@ describe Projects::MirrorsController do
         do_put(project, { mirror_user_id: other_user.id }, format: :json)
 
         expect(response).to have_gitlab_http_status(422)
-        expect(json_response['mirror_user_id'].first).to eq("is invalid")
+        expect(json_response['mirror_user_id'].first).to eq('is invalid')
       end
     end
 
     context 'with a valid URL for a pull' do
       it 'processes a successful update' do
-        do_put(project, username_only_import_url: "https://updated.example.com")
+        do_put(project, username_only_import_url: 'https://updated.example.com')
 
         expect(response).to redirect_to(project_settings_repository_path(project, anchor: 'js-push-remote-settings'))
         expect(flash[:notice]).to match(/successfully updated/)

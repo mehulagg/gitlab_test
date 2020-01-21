@@ -130,7 +130,7 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
 
     before do
       errored_provider = create(:cluster_provider_aws)
-      errored_provider.make_errored!("Error message")
+      errored_provider.make_errored!('Error message')
     end
 
     it { is_expected.to contain_exactly(cluster) }
@@ -880,11 +880,11 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
             .from(state).to(:cleanup_errored)
         end
 
-        it "sets error message" do
+        it 'sets error message' do
           cluster = create(:cluster, state)
 
-          expect { cluster.make_cleanup_errored!("Error Message") }.to change { cluster.cleanup_status_reason }
-            .from(nil).to("Error Message")
+          expect { cluster.make_cleanup_errored!('Error Message') }.to change { cluster.cleanup_status_reason }
+            .from(nil).to('Error Message')
         end
       end
     end
@@ -965,7 +965,7 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
       context 'cluster cannot be authenticated to' do
         before do
           allow(cluster.kubeclient.core_client).to receive(:discover)
-            .and_raise(OpenSSL::X509::CertificateError.new("Certificate error"))
+            .and_raise(OpenSSL::X509::CertificateError.new('Certificate error'))
         end
 
         it { is_expected.to eq(connection_status: :authentication_failure) }
@@ -973,7 +973,7 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
 
       describe 'Kubeclient::HttpError' do
         let(:error_code) { 403 }
-        let(:error_message) { "Forbidden" }
+        let(:error_message) { 'Forbidden' }
 
         before do
           allow(cluster.kubeclient.core_client).to receive(:discover)

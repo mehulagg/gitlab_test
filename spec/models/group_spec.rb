@@ -305,7 +305,7 @@ describe Group do
       group.add_users([user.id], GroupMember::GUEST)
     end
 
-    it "updates the group permission" do
+    it 'updates the group permission' do
       expect(group.group_members.guests.map(&:user)).to include(user)
       group.add_users([user.id], GroupMember::DEVELOPER)
       expect(group.group_members.developers.map(&:user)).to include(user)
@@ -320,14 +320,14 @@ describe Group do
       group.add_user(user, GroupMember::MAINTAINER)
     end
 
-    it "is true if avatar is image" do
+    it 'is true if avatar is image' do
       group.update_attribute(:avatar, 'uploads/avatar.png')
       expect(group.avatar_type).to be_truthy
     end
 
-    it "is false if avatar is html page" do
+    it 'is false if avatar is html page' do
       group.update_attribute(:avatar, 'uploads/avatar.html')
-      expect(group.avatar_type).to eq(["file format is not supported. Please try one of the following supported formats: png, jpg, jpeg, gif, bmp, tiff, ico"])
+      expect(group.avatar_type).to eq(['file format is not supported. Please try one of the following supported formats: png, jpg, jpeg, gif, bmp, tiff, ico'])
     end
   end
 

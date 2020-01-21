@@ -8,17 +8,17 @@ describe API::Namespaces do
   let!(:group1) { create(:group, name: 'group.one') }
   let!(:group2) { create(:group, :nested) }
 
-  describe "GET /namespaces" do
-    context "when unauthenticated" do
-      it "returns authentication error" do
-        get api("/namespaces")
+  describe 'GET /namespaces' do
+    context 'when unauthenticated' do
+      it 'returns authentication error' do
+        get api('/namespaces')
         expect(response).to have_gitlab_http_status(401)
       end
     end
 
-    context "when authenticated as admin" do
-      it "returns correct attributes" do
-        get api("/namespaces", admin)
+    context 'when authenticated as admin' do
+      it 'returns correct attributes' do
+        get api('/namespaces', admin)
 
         group_kind_json_response = json_response.find { |resource| resource['kind'] == 'group' }
         user_kind_json_response = json_response.find { |resource| resource['kind'] == 'user' }
@@ -31,8 +31,8 @@ describe API::Namespaces do
         expect(user_kind_json_response.keys).to include('id', 'kind', 'name', 'path', 'full_path', 'parent_id')
       end
 
-      it "admin: returns an array of all namespaces" do
-        get api("/namespaces", admin)
+      it 'admin: returns an array of all namespaces' do
+        get api('/namespaces', admin)
 
         expect(response).to have_gitlab_http_status(200)
         expect(response).to include_pagination_headers
@@ -40,7 +40,7 @@ describe API::Namespaces do
         expect(json_response.length).to eq(Namespace.count)
       end
 
-      it "admin: returns an array of matched namespaces" do
+      it 'admin: returns an array of matched namespaces' do
         get api("/namespaces?search=#{group2.name}", admin)
 
         expect(response).to have_gitlab_http_status(200)
@@ -52,11 +52,11 @@ describe API::Namespaces do
       end
     end
 
-    context "when authenticated as a regular user" do
-      it "returns correct attributes when user can admin group" do
+    context 'when authenticated as a regular user' do
+      it 'returns correct attributes when user can admin group' do
         group1.add_owner(user)
 
-        get api("/namespaces", user)
+        get api('/namespaces', user)
 
         owned_group_response = json_response.find { |resource| resource['id'] == group1.id }
 
@@ -64,18 +64,18 @@ describe API::Namespaces do
                                                      'parent_id', 'members_count_with_descendants')
       end
 
-      it "returns correct attributes when user cannot admin group" do
+      it 'returns correct attributes when user cannot admin group' do
         group1.add_guest(user)
 
-        get api("/namespaces", user)
+        get api('/namespaces', user)
 
         guest_group_response = json_response.find { |resource| resource['id'] == group1.id }
 
         expect(guest_group_response.keys).to include('id', 'kind', 'name', 'path', 'full_path', 'parent_id')
       end
 
-      it "user: returns an array of namespaces" do
-        get api("/namespaces", user)
+      it 'user: returns an array of namespaces' do
+        get api('/namespaces', user)
 
         expect(response).to have_gitlab_http_status(200)
         expect(response).to include_pagination_headers
@@ -83,7 +83,7 @@ describe API::Namespaces do
         expect(json_response.length).to eq(1)
       end
 
-      it "admin: returns an array of matched namespaces" do
+      it 'admin: returns an array of matched namespaces' do
         get api("/namespaces?search=#{user.username}", user)
 
         expect(response).to have_gitlab_http_status(200)

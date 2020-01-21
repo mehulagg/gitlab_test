@@ -216,13 +216,13 @@ describe 'Analytics (JavaScript fixtures)', :sidekiq_inline do
       end
     end
 
-    it "analytics/cycle_analytics/stages/label-based-stage/records.json" do
+    it 'analytics/cycle_analytics/stages/label-based-stage/records.json' do
       get(:records, params: params.merge({ id: label_based_stage.id }), format: :json)
 
       expect(response).to be_successful
     end
 
-    it "analytics/cycle_analytics/stages/label-based-stage/median.json" do
+    it 'analytics/cycle_analytics/stages/label-based-stage/median.json' do
       get(:median, params: params.merge({ id: label_based_stage.id }), format: :json)
 
       expect(response).to be_successful

@@ -13,7 +13,7 @@ unless Rails.env.production?
 
     desc 'GitLab | Frontend | Run JavaScript tests'
     task tests: ['yarn:check'] do
-      sh "yarn test" do |ok, res|
+      sh 'yarn test' do |ok, res|
         abort('rake frontend:tests failed') unless ok
       end
     end

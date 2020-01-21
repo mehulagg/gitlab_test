@@ -6,7 +6,7 @@ module EE
       module PushRules
         class BranchCheck < ::Gitlab::Checks::BaseChecker
           ERROR_MESSAGE = "Branch name does not follow the pattern '%{branch_name_regex}'".freeze
-          LOG_MESSAGE = "Checking if branch follows the naming patterns defined by the project...".freeze
+          LOG_MESSAGE = 'Checking if branch follows the naming patterns defined by the project...'.freeze
 
           def validate!
             return unless push_rule

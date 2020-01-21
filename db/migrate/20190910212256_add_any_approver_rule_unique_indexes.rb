@@ -15,11 +15,11 @@ class AddAnyApproverRuleUniqueIndexes < ActiveRecord::Migration[5.2]
 
   def up
     add_concurrent_index(:approval_project_rules, [:project_id],
-      where: "rule_type = 3",
+      where: 'rule_type = 3',
       name: PROJECT_RULE_UNIQUE_INDEX, unique: true)
 
     add_concurrent_index(:approval_merge_request_rules, [:merge_request_id, :rule_type],
-      where: "rule_type = 4",
+      where: 'rule_type = 4',
       name: MERGE_REQUEST_RULE_UNIQUE_INDEX, unique: true)
   end
 

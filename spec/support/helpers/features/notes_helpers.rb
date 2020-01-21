@@ -16,9 +16,9 @@ module Spec
         module NotesHelpers
           def add_note(text)
             perform_enqueued_jobs do
-              page.within(".js-main-target-form") do
-                fill_in("note[note]", with: text)
-                find(".js-comment-submit-button").click
+              page.within('.js-main-target-form') do
+                fill_in('note[note]', with: text)
+                find('.js-comment-submit-button').click
               end
             end
           end

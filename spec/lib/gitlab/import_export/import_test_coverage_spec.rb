@@ -78,7 +78,7 @@ describe 'Test coverage of the Project Import' do
 
   def relations_from_config
     relation_paths_for(:project)
-      .map { |relation_names| relation_names.join(".") }
+      .map { |relation_names| relation_names.join('.') }
       .to_set
   end
 

@@ -60,7 +60,7 @@ describe Epics::ReopenService do
             subject.execute(epic)
           end
 
-          it "creates new event" do
+          it 'creates new event' do
             expect { subject.execute(epic) }.to change { Event.count }
           end
         end
@@ -92,7 +92,7 @@ describe Epics::ReopenService do
             subject.execute(epic)
           end
 
-          it "does not create an event" do
+          it 'does not create an event' do
             expect { subject.execute(epic) }.not_to change { Event.count }
           end
         end

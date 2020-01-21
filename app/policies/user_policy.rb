@@ -1,16 +1,16 @@
 # frozen_string_literal: true
 
 class UserPolicy < BasePolicy
-  desc "The current user is the user in question"
+  desc 'The current user is the user in question'
   condition(:user_is_self, score: 0) { @subject == @user }
 
-  desc "This is the ghost user"
+  desc 'This is the ghost user'
   condition(:subject_ghost, scope: :subject, score: 0) { @subject.ghost? }
 
-  desc "The profile is private"
+  desc 'The profile is private'
   condition(:private_profile, scope: :subject, score: 0) { @subject.private_profile? }
 
-  desc "The user is blocked"
+  desc 'The user is blocked'
   condition(:blocked_user, scope: :subject, score: 0) { @subject.blocked? }
 
   rule { ~restricted_public_level }.enable :read_user

@@ -39,8 +39,8 @@ module EE
             'namespace' => namespace,
             'container' => container,
             'search' => search,
-            "start_time" => start_time,
-            "end_time" => end_time
+            'start_time' => start_time,
+            'end_time' => end_time
           ) do |result|
             result
           end

@@ -51,7 +51,7 @@ class Gitlab::Seeder::Vulnerabilities
 
   def create_identifier(rank)
     project.vulnerability_identifiers.create!(
-      external_type: "SECURITY_ID",
+      external_type: 'SECURITY_ID',
       external_id: "SECURITY_#{rank}",
       fingerprint: random_fingerprint,
       name: "SECURITY_IDENTIFIER #{rank}",
@@ -92,19 +92,19 @@ class Gitlab::Seeder::Vulnerabilities
 
   def metadata(line)
     {
-      description: "The cipher does not provide data integrity update 1",
-      solution: "GCM mode introduces an HMAC into the resulting encrypted data, providing integrity of the result.",
+      description: 'The cipher does not provide data integrity update 1',
+      solution: 'GCM mode introduces an HMAC into the resulting encrypted data, providing integrity of the result.',
       location: {
-        file: "maven/src/main/java//App.java",
+        file: 'maven/src/main/java//App.java',
         start_line: line,
         end_line: line,
-        class: "com.gitlab..App",
-        method: "insecureCypher"
+        class: 'com.gitlab..App',
+        method: 'insecureCypher'
       },
       links: [
         {
-          name: "Cipher does not check for integrity first?",
-          url: "https://crypto.stackexchange.com/questions/31428/pbewithmd5anddes-cipher-does-not-check-for-integrity-first"
+          name: 'Cipher does not check for integrity first?',
+          url: 'https://crypto.stackexchange.com/questions/31428/pbewithmd5anddes-cipher-does-not-check-for-integrity-first'
         }
       ]
     }

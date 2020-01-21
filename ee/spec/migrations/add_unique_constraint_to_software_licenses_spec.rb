@@ -9,7 +9,7 @@ describe AddUniqueConstraintToSoftwareLicenses, :migration do
   let(:licenses) { table(:software_licenses) }
   let(:policies) { table(:software_license_policies) }
 
-  describe "#up" do
+  describe '#up' do
     it 'adds a unique constraint to the name column' do
       migrate!
 
@@ -40,7 +40,7 @@ describe AddUniqueConstraintToSoftwareLicenses, :migration do
       expect { mit_duplicate.reload }.to raise_error(ActiveRecord::RecordNotFound)
     end
 
-    context "when a duplicate record is inserted before adding the unique index" do
+    context 'when a duplicate record is inserted before adding the unique index' do
       let!(:mit) { licenses.create!(name: 'MIT') }
       let!(:mit_duplicate) { licenses.create!(name: 'MIT') }
       let!(:original_method) { migration.method(:remove_redundant_software_licenses!) }
@@ -67,7 +67,7 @@ describe AddUniqueConstraintToSoftwareLicenses, :migration do
     end
   end
 
-  describe "#down" do
+  describe '#down' do
     it 'correctly migrates up and down' do
       reversible_migration do |x|
         x.before -> { expect(migration.index_exists?(:software_licenses, :name, unique: true)).to be_falsey }

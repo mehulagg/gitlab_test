@@ -13,7 +13,7 @@ describe Groups::RoadmapController do
     end
 
     context 'when epics feature is disabled' do
-      it "returns 404 status" do
+      it 'returns 404 status' do
         get :show, params: { group_id: group }
 
         expect(response).to have_gitlab_http_status(404)
@@ -25,7 +25,7 @@ describe Groups::RoadmapController do
         stub_licensed_features(epics: true)
       end
 
-      it "returns 200 status" do
+      it 'returns 200 status' do
         get :show, params: { group_id: group }
 
         expect(response).to have_gitlab_http_status(200)

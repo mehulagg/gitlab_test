@@ -28,13 +28,13 @@ describe 'Resource weight events', :js do
       before do
         target_project.add_maintainer(user)
 
-        add_note("/weight 2")
+        add_note('/weight 2')
         wait_for_requests
 
         add_note("/weight 3\n/move #{target_project.full_path}")
       end
 
-      it "creates expected weight events on the moved issue" do
+      it 'creates expected weight events on the moved issue' do
         expect(page).to have_content "Moved this issue to #{target_project.full_path}."
         expect(issue.reload).to be_closed
 

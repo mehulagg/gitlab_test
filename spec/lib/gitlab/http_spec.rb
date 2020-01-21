@@ -77,7 +77,7 @@ describe Gitlab::HTTP do
 
   describe 'handle redirect loops' do
     before do
-      stub_full_request("http://example.org", method: :any).to_raise(HTTParty::RedirectionTooDeep.new("Redirection Too Deep"))
+      stub_full_request('http://example.org', method: :any).to_raise(HTTParty::RedirectionTooDeep.new('Redirection Too Deep'))
     end
 
     it 'handles GET requests' do

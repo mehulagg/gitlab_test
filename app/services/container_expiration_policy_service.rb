@@ -8,7 +8,7 @@ class ContainerExpirationPolicyService < BaseService
       CleanupContainerRepositoryWorker.perform_async(
         current_user.id,
         container_repository.id,
-        container_expiration_policy.attributes.except("created_at", "updated_at")
+        container_expiration_policy.attributes.except('created_at', 'updated_at')
       )
     end
   end

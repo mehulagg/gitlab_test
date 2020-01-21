@@ -44,7 +44,7 @@ describe 'Projects > Snippets > Create Snippet', :js do
       fill_form
       dropzone_file Rails.root.join('spec', 'fixtures', 'banana_sample.gif')
 
-      expect(page.find_field("project_snippet_description").value).to have_content('banana_sample')
+      expect(page.find_field('project_snippet_description').value).to have_content('banana_sample')
 
       click_button('Create snippet')
       wait_for_requests

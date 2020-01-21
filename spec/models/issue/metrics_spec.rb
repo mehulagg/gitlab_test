@@ -34,9 +34,9 @@ describe Issue::Metrics do
     end
   end
 
-  describe "when recording the default set of issue metrics on issue save" do
-    context "milestones" do
-      it "records the first time an issue is associated with a milestone" do
+  describe 'when recording the default set of issue metrics on issue save' do
+    context 'milestones' do
+      it 'records the first time an issue is associated with a milestone' do
         time = Time.now
         Timecop.freeze(time) { subject.update(milestone: create(:milestone, project: project)) }
         metrics = subject.metrics
@@ -45,7 +45,7 @@ describe Issue::Metrics do
         expect(metrics.first_associated_with_milestone_at).to be_like_time(time)
       end
 
-      it "does not record the second time an issue is associated with a milestone" do
+      it 'does not record the second time an issue is associated with a milestone' do
         time = Time.now
         Timecop.freeze(time) { subject.update(milestone: create(:milestone, project: project)) }
         Timecop.freeze(time + 2.hours) { subject.update(milestone: nil) }
@@ -57,8 +57,8 @@ describe Issue::Metrics do
       end
     end
 
-    context "list labels" do
-      it "records the first time an issue is associated with a list label" do
+    context 'list labels' do
+      it 'records the first time an issue is associated with a list label' do
         list_label = create(:list).label
         time = Time.now
         Timecop.freeze(time) { subject.update(label_ids: [list_label.id]) }
@@ -68,7 +68,7 @@ describe Issue::Metrics do
         expect(metrics.first_added_to_board_at).to be_like_time(time)
       end
 
-      it "does not record the second time an issue is associated with a list label" do
+      it 'does not record the second time an issue is associated with a list label' do
         time = Time.now
         first_list_label = create(:list).label
         Timecop.freeze(time) { subject.update(label_ids: [first_list_label.id]) }

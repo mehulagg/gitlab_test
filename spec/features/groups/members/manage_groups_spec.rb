@@ -66,10 +66,10 @@ describe 'Groups > Members > Manage groups', :js do
 
     def add_group(id, role)
       page.click_link 'Invite group'
-      page.within ".invite-group-form" do
-        select2(id, from: "#shared_with_group_id")
-        select(role, from: "shared_group_access")
-        click_button "Invite"
+      page.within '.invite-group-form' do
+        select2(id, from: '#shared_with_group_id')
+        select(role, from: 'shared_group_access')
+        click_button 'Invite'
       end
     end
   end

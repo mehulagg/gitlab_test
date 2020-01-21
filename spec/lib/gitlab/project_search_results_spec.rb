@@ -83,7 +83,7 @@ describe Gitlab::ProjectSearchResults do
       expect(results.map(&:path)).to include(expected_file_by_path)
     end
 
-    it "loads all blobs for path matches in single batch" do
+    it 'loads all blobs for path matches in single batch' do
       expect(Gitlab::Git::Blob).to receive(:batch).once.and_call_original
 
       results.map(&:data)

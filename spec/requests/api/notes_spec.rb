@@ -18,11 +18,11 @@ describe API::Notes do
     it_behaves_like 'with cross-reference system notes'
   end
 
-  context "when noteable is an Issue" do
+  context 'when noteable is an Issue' do
     let!(:issue) { create(:issue, project: project, author: user) }
     let!(:issue_note) { create(:note, noteable: issue, project: project, author: user) }
 
-    it_behaves_like "noteable API", 'projects', 'issues', 'iid' do
+    it_behaves_like 'noteable API', 'projects', 'issues', 'iid' do
       let(:parent) { project }
       let(:noteable) { issue }
       let(:note) { issue_note }
@@ -49,7 +49,7 @@ describe API::Notes do
       end
     end
 
-    context "when referencing other project" do
+    context 'when referencing other project' do
       # For testing the cross-reference of a private issue in a public project
       let(:private_project) do
         create(:project, namespace: private_user.namespace)
@@ -67,9 +67,9 @@ describe API::Notes do
         system: true
       end
 
-      describe "GET /projects/:id/noteable/:noteable_id/notes" do
-        context "current user cannot view the notes" do
-          it "returns an empty array" do
+      describe 'GET /projects/:id/noteable/:noteable_id/notes' do
+        context 'current user cannot view the notes' do
+          it 'returns an empty array' do
             get api("/projects/#{ext_proj.id}/issues/#{ext_issue.iid}/notes", user)
 
             expect(response).to have_gitlab_http_status(200)
@@ -78,12 +78,12 @@ describe API::Notes do
             expect(json_response).to be_empty
           end
 
-          context "issue is confidential" do
+          context 'issue is confidential' do
             before do
               ext_issue.update(confidential: true)
             end
 
-            it "returns 404" do
+            it 'returns 404' do
               get api("/projects/#{ext_proj.id}/issues/#{ext_issue.iid}/notes", user)
 
               expect(response).to have_gitlab_http_status(404)
@@ -91,8 +91,8 @@ describe API::Notes do
           end
         end
 
-        context "current user can view the note" do
-          it "returns a non-empty array" do
+        context 'current user can view the note' do
+          it 'returns a non-empty array' do
             get api("/projects/#{ext_proj.id}/issues/#{ext_issue.iid}/notes", private_user)
 
             expect(response).to have_gitlab_http_status(200)
@@ -102,11 +102,11 @@ describe API::Notes do
           end
         end
 
-        context "activity filters" do
+        context 'activity filters' do
           let!(:user_reference_note) do
             create :note,
                    noteable: ext_issue, project: ext_proj,
-                   note: "Hello there general!",
+                   note: 'Hello there general!',
                    system: false
           end
 
@@ -120,7 +120,7 @@ describe API::Notes do
             end
           end
 
-          context "when not provided" do
+          context 'when not provided' do
             let(:count) { 2 }
 
             before do
@@ -134,11 +134,11 @@ describe API::Notes do
             end
           end
 
-          context "when all_notes provided" do
+          context 'when all_notes provided' do
             let(:count) { 2 }
 
             before do
-              get api(test_url + "?activity_filter=all_notes", private_user)
+              get api(test_url + '?activity_filter=all_notes', private_user)
             end
 
             it_behaves_like 'a notes request'
@@ -148,12 +148,12 @@ describe API::Notes do
             end
           end
 
-          context "when provided" do
+          context 'when provided' do
             using RSpec::Parameterized::TableSyntax
 
             where(:filter, :count, :system_notable) do
-              "only_comments" | 1  | false
-              "only_activity" | 1  | true
+              'only_comments' | 1  | false
+              'only_activity' | 1  | true
             end
 
             with_them do
@@ -163,29 +163,29 @@ describe API::Notes do
 
               it_behaves_like 'a notes request'
 
-              it "properly filters the returned notables" do
+              it 'properly filters the returned notables' do
                 expect(json_response.count).to eq(count)
-                expect(json_response.first["system"]).to be system_notable
+                expect(json_response.first['system']).to be system_notable
               end
             end
           end
         end
       end
 
-      describe "GET /projects/:id/noteable/:noteable_id/notes/:note_id" do
-        context "current user cannot view the notes" do
-          it "returns a 404 error" do
+      describe 'GET /projects/:id/noteable/:noteable_id/notes/:note_id' do
+        context 'current user cannot view the notes' do
+          it 'returns a 404 error' do
             get api("/projects/#{ext_proj.id}/issues/#{ext_issue.iid}/notes/#{cross_reference_note.id}", user)
 
             expect(response).to have_gitlab_http_status(404)
           end
 
-          context "when issue is confidential" do
+          context 'when issue is confidential' do
             before do
               issue.update(confidential: true)
             end
 
-            it "returns 404" do
+            it 'returns 404' do
               get api("/projects/#{project.id}/issues/#{issue.iid}/notes/#{issue_note.id}", private_user)
 
               expect(response).to have_gitlab_http_status(404)
@@ -193,8 +193,8 @@ describe API::Notes do
           end
         end
 
-        context "current user can view the note" do
-          it "returns an issue note by id" do
+        context 'current user can view the note' do
+          it 'returns an issue note by id' do
             get api("/projects/#{ext_proj.id}/issues/#{ext_issue.iid}/notes/#{cross_reference_note.id}", private_user)
 
             expect(response).to have_gitlab_http_status(200)
@@ -205,22 +205,22 @@ describe API::Notes do
     end
   end
 
-  context "when noteable is a Snippet" do
+  context 'when noteable is a Snippet' do
     let!(:snippet) { create(:project_snippet, project: project, author: user) }
     let!(:snippet_note) { create(:note, noteable: snippet, project: project, author: user) }
 
-    it_behaves_like "noteable API", 'projects', 'snippets', 'id' do
+    it_behaves_like 'noteable API', 'projects', 'snippets', 'id' do
       let(:parent) { project }
       let(:noteable) { snippet }
       let(:note) { snippet_note }
     end
   end
 
-  context "when noteable is a Merge Request" do
+  context 'when noteable is a Merge Request' do
     let!(:merge_request) { create(:merge_request, source_project: project, target_project: project, author: user) }
     let!(:merge_request_note) { create(:note, noteable: merge_request, project: project, author: user) }
 
-    it_behaves_like "noteable API", 'projects', 'merge_requests', 'iid' do
+    it_behaves_like 'noteable API', 'projects', 'merge_requests', 'iid' do
       let(:parent) { project }
       let(:noteable) { merge_request }
       let(:note) { merge_request_note }

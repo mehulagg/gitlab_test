@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe Gitlab::Git::Diff, :seed_helper do
   let(:repository) { Gitlab::Git::Repository.new('default', TEST_REPO_PATH, '', 'group/project') }
@@ -21,7 +21,7 @@ describe Gitlab::Git::Diff, :seed_helper do
 
   before do
     @raw_diff_hash = {
-      diff: <<EOT.gsub(/^ {8}/, "").sub(/\n$/, ""),
+      diff: <<EOT.gsub(/^ {8}/, '').sub(/\n$/, ''),
         @@ -4,3 +4,6 @@
          [submodule "gitlab-shell"]
          \tpath = gitlab-shell
@@ -31,8 +31,8 @@ describe Gitlab::Git::Diff, :seed_helper do
         +	url = https://gitlab.com/gitlab-org/gitlab-grack.git
 
 EOT
-      new_path: ".gitmodules",
-      old_path: ".gitmodules",
+      new_path: '.gitmodules',
+      old_path: '.gitmodules',
       a_mode: '100644',
       b_mode: '100644',
       new_file: false,
@@ -69,8 +69,8 @@ EOT
     context 'using a GitalyClient::Diff' do
       let(:gitaly_diff) do
         Gitlab::GitalyClient::Diff.new(
-          to_path: ".gitmodules",
-          from_path: ".gitmodules",
+          to_path: '.gitmodules',
+          from_path: '.gitmodules',
           old_mode: 0100644,
           new_mode: 0100644,
           from_id: '357406f3075a57708d0163752905cc1576fceacc',
@@ -182,30 +182,30 @@ EOT
   describe '.filter_diff_options' do
     let(:options) { { max_files: 100, invalid_opt: true } }
 
-    context "without default options" do
+    context 'without default options' do
       let(:filtered_options) { described_class.filter_diff_options(options) }
 
-      it "filters invalid options" do
+      it 'filters invalid options' do
         expect(filtered_options).not_to have_key(:invalid_opt)
       end
     end
 
-    context "with default options" do
+    context 'with default options' do
       let(:filtered_options) do
         default_options = { max_files: 5, bad_opt: 1, ignore_whitespace_change: true }
         described_class.filter_diff_options(options, default_options)
       end
 
-      it "filters invalid options" do
+      it 'filters invalid options' do
         expect(filtered_options).not_to have_key(:invalid_opt)
         expect(filtered_options).not_to have_key(:bad_opt)
       end
 
-      it "merges with default options" do
+      it 'merges with default options' do
         expect(filtered_options).to have_key(:ignore_whitespace_change)
       end
 
-      it "overrides default options" do
+      it 'overrides default options' do
         expect(filtered_options).to have_key(:max_files)
         expect(filtered_options[:max_files]).to eq(100)
       end

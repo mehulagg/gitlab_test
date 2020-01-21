@@ -31,14 +31,14 @@ describe Gitlab::Diff::SuggestionDiff do
 
     let(:expected_diff_lines) do
       [
-        { old_pos: 12, new_pos: 12, type: "match", text: "@@ -12 +12" },
-        { old_pos: 12, new_pos: 12, type: "old", text: "-\"tags\": [\"devel\", \"development\", \"nightly\"]," },
-        { old_pos: 13, new_pos: 12, type: "old", text: "-\"desktop-file-name-prefix\": \"(Development) \"," },
-        { old_pos: 14, new_pos: 12, type: "old", text: "-\"finish-args\": \"foo\"," },
-        { old_pos: 15, new_pos: 12, type: "new", text: "+\"buildsystem\": \"meson\"," },
-        { old_pos: 15, new_pos: 13, type: "new", text: "+\"builddir\": true," },
-        { old_pos: 15, new_pos: 14, type: "new", text: "+\"name\": \"nautilus\"," },
-        { old_pos: 15, new_pos: 15, type: "new", text: "+\"bar\": \"bar\"," }
+        { old_pos: 12, new_pos: 12, type: 'match', text: '@@ -12 +12' },
+        { old_pos: 12, new_pos: 12, type: 'old', text: '-"tags": ["devel", "development", "nightly"],' },
+        { old_pos: 13, new_pos: 12, type: 'old', text: '-"desktop-file-name-prefix": "(Development) ",' },
+        { old_pos: 14, new_pos: 12, type: 'old', text: '-"finish-args": "foo",' },
+        { old_pos: 15, new_pos: 12, type: 'new', text: '+"buildsystem": "meson",' },
+        { old_pos: 15, new_pos: 13, type: 'new', text: '+"builddir": true,' },
+        { old_pos: 15, new_pos: 14, type: 'new', text: '+"name": "nautilus",' },
+        { old_pos: 15, new_pos: 15, type: 'new', text: '+"bar": "bar",' }
       ]
     end
 

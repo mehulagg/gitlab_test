@@ -6,7 +6,7 @@ describe Gitlab::Ci::Trace, :clean_gitlab_redis_shared_state do
   let(:build) { create(:ci_build) }
   let(:trace) { described_class.new(build) }
 
-  describe "associations" do
+  describe 'associations' do
     it { expect(trace).to respond_to(:job) }
     it { expect(trace).to delegate_method(:old_trace).to(:job) }
   end

@@ -103,7 +103,7 @@ describe Banzai::Filter::ExternalLinkFilter do
     end
 
     it 'skips internal links' do
-      internal_link = Gitlab.config.gitlab.url + "/sign_in"
+      internal_link = Gitlab.config.gitlab.url + '/sign_in'
       url = internal_link.gsub(/\Ahttp/, 'HtTp')
       act = %Q(<a href="#{url}">Login</a>)
       exp = %Q(<a href="#{internal_link}">Login</a>)

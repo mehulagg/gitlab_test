@@ -8,8 +8,8 @@ describe AutoMerge::MergeWhenPipelineSucceedsService do
 
   let(:mr_merge_if_green_enabled) do
     create(:merge_request, merge_when_pipeline_succeeds: true, merge_user: user,
-                           source_branch: "master", target_branch: 'feature',
-                           source_project: project, target_project: project, state: "opened")
+                           source_branch: 'master', target_branch: 'feature',
+                           source_project: project, target_project: project, state: 'opened')
   end
 
   let(:pipeline) do
@@ -20,7 +20,7 @@ describe AutoMerge::MergeWhenPipelineSucceedsService do
     described_class.new(project, user, commit_message: 'Awesome message')
   end
 
-  describe "#available_for?" do
+  describe '#available_for?' do
     subject { service.available_for?(mr_merge_if_green_enabled) }
 
     let(:pipeline_status) { :running }
@@ -41,10 +41,10 @@ describe AutoMerge::MergeWhenPipelineSucceedsService do
     end
   end
 
-  describe "#execute" do
+  describe '#execute' do
     let(:merge_request) do
       create(:merge_request, target_project: project, source_project: project,
-                             source_branch: "feature", target_branch: 'master')
+                             source_branch: 'feature', target_branch: 'master')
     end
 
     context 'first time enabling' do
@@ -95,7 +95,7 @@ describe AutoMerge::MergeWhenPipelineSucceedsService do
     end
   end
 
-  describe "#process" do
+  describe '#process' do
     let(:merge_request_ref) { mr_merge_if_green_enabled.source_branch }
     let(:merge_request_head) do
       project.commit(mr_merge_if_green_enabled.source_branch).id
@@ -108,7 +108,7 @@ describe AutoMerge::MergeWhenPipelineSucceedsService do
                              head_pipeline_of: mr_merge_if_green_enabled)
       end
 
-      it "merges all merge requests with merge when the pipeline succeeds enabled" do
+      it 'merges all merge requests with merge when the pipeline succeeds enabled' do
         allow(mr_merge_if_green_enabled)
           .to receive_messages(head_pipeline: triggering_pipeline, actual_head_pipeline: triggering_pipeline)
 
@@ -160,12 +160,12 @@ describe AutoMerge::MergeWhenPipelineSucceedsService do
     end
   end
 
-  describe "#cancel" do
+  describe '#cancel' do
     before do
       service.cancel(mr_merge_if_green_enabled)
     end
 
-    it "resets all the pipeline succeeds params" do
+    it 'resets all the pipeline succeeds params' do
       expect(mr_merge_if_green_enabled.merge_when_pipeline_succeeds).to be_falsey
       expect(mr_merge_if_green_enabled.merge_params).to eq({})
       expect(mr_merge_if_green_enabled.merge_user).to be nil
@@ -177,7 +177,7 @@ describe AutoMerge::MergeWhenPipelineSucceedsService do
     end
   end
 
-  describe "#abort" do
+  describe '#abort' do
     before do
       service.abort(mr_merge_if_green_enabled, 'an error')
     end

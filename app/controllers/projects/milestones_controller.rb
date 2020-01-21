@@ -60,7 +60,7 @@ class Projects::MilestonesController < Projects::ApplicationController
     if @milestone.valid?
       redirect_to project_milestone_path(@project, @milestone)
     else
-      render "new"
+      render 'new'
     end
   end
 

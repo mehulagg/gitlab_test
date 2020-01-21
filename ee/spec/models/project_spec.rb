@@ -430,7 +430,7 @@ describe Project do
     end
 
     it 'retrieves all project environments when using the * wildcard' do
-      expect(project.environments_for_scope("*")).to eq(project.environments)
+      expect(project.environments_for_scope('*')).to eq(project.environments)
     end
 
     it 'retrieves a specific project environment when using the name of that environment' do
@@ -469,7 +469,7 @@ describe Project do
   end
 
   describe '#has_active_hooks?' do
-    context "with group hooks" do
+    context 'with group hooks' do
       let(:group) { create(:group) }
       let(:project) { create(:project, namespace: group) }
       let!(:group_hook) { create(:group_hook, group: group, push_events: true) }
@@ -492,8 +492,8 @@ describe Project do
     end
   end
 
-  describe "#execute_hooks" do
-    context "group hooks" do
+  describe '#execute_hooks' do
+    context 'group hooks' do
       let(:group) { create(:group) }
       let(:project) { create(:project, namespace: group) }
       let(:group_hook) { create(:group_hook, group: group, push_events: true) }
@@ -521,7 +521,7 @@ describe Project do
   end
 
   describe '#execute_hooks' do
-    it "triggers project and group hooks" do
+    it 'triggers project and group hooks' do
       group = create :group, name: 'gitlab'
       project = create(:project, name: 'gitlabhq', namespace: group)
       project_hook = create(:project_hook, push_events: true, project: project)
@@ -540,11 +540,11 @@ describe Project do
   describe '#allowed_to_share_with_group?' do
     let(:project) { create(:project) }
 
-    it "returns true" do
+    it 'returns true' do
       expect(project.allowed_to_share_with_group?).to be_truthy
     end
 
-    it "returns false" do
+    it 'returns false' do
       project.namespace.update(share_with_group_lock: true)
       expect(project.allowed_to_share_with_group?).to be_falsey
     end
@@ -700,7 +700,7 @@ describe Project do
 
       expect(RepositoryRemoveRemoteWorker).to receive(:perform_async).with(project.id, ::Repository::MIRROR_REMOTE).and_call_original
 
-      project.update(import_url: "http://test.com")
+      project.update(import_url: 'http://test.com')
     end
   end
 
@@ -930,7 +930,7 @@ describe Project do
     before do
       allow(::EE::Gitlab::ServiceDesk).to receive(:enabled?).and_return(true)
       allow(Gitlab.config.incoming_email).to receive(:enabled).and_return(true)
-      allow(Gitlab.config.incoming_email).to receive(:address).and_return("test+%{key}@mail.com")
+      allow(Gitlab.config.incoming_email).to receive(:address).and_return('test+%{key}@mail.com')
     end
 
     it 'uses project full path as service desk address key' do
@@ -959,7 +959,7 @@ describe Project do
     end
   end
 
-  describe "#reset_approvals_on_push?" do
+  describe '#reset_approvals_on_push?' do
     where(:license_value, :db_value, :expected) do
       true  | true  | true
       true  | false | false
@@ -1077,7 +1077,7 @@ describe Project do
     let(:protected_branch) { create(:protected_branch, code_owner_approval_required: false) }
     let(:protected_branch_needing_approval) { create(:protected_branch, code_owner_approval_required: true) }
 
-    context "when feature is enabled" do
+    context 'when feature is enabled' do
       before do
         stub_licensed_features(code_owner_approval_required: true)
       end
@@ -1095,7 +1095,7 @@ describe Project do
       end
     end
 
-    context "when feature is not enabled" do
+    context 'when feature is not enabled' do
       before do
         stub_licensed_features(code_owner_approval_required: false)
       end
@@ -1395,7 +1395,7 @@ describe Project do
         create(:ee_ci_build, :legacy_sast, pipeline: pipeline_2)
       end
 
-      it "returns the latest pipeline with security reports" do
+      it 'returns the latest pipeline with security reports' do
         is_expected.to eq(pipeline_2)
       end
     end
@@ -1406,7 +1406,7 @@ describe Project do
         create(:ee_ci_build, :sast, pipeline: pipeline_2)
       end
 
-      it "returns the latest pipeline with security reports" do
+      it 'returns the latest pipeline with security reports' do
         is_expected.to eq(pipeline_2)
       end
 
@@ -1415,7 +1415,7 @@ describe Project do
           create(:ee_ci_build, :legacy_sast, pipeline: pipeline_3)
         end
 
-        it "prefers the new reports" do
+        it 'prefers the new reports' do
           is_expected.to eq(pipeline_2)
         end
       end
@@ -1433,7 +1433,7 @@ describe Project do
     context 'when reports are found' do
       let(:reports) { ::Ci::JobArtifact.sast_reports }
 
-      it "returns the latest pipeline with reports of right type" do
+      it 'returns the latest pipeline with reports of right type' do
         is_expected.to eq(pipeline_2)
       end
     end
@@ -1736,7 +1736,7 @@ describe Project do
     subject { project.feature_flags_client_token }
 
     context 'when there is no access token' do
-      it "creates a new one" do
+      it 'creates a new one' do
         is_expected.not_to be_empty
       end
     end
@@ -1745,7 +1745,7 @@ describe Project do
       let(:token_encrypted) { Gitlab::CryptoHelper.aes256_gcm_encrypt('token') }
       let!(:instance) { create(:operations_feature_flags_client, project: project, token_encrypted: token_encrypted) }
 
-      it "provides an existing one" do
+      it 'provides an existing one' do
         is_expected.to eq('token')
       end
     end
@@ -1800,7 +1800,7 @@ describe Project do
     end
   end
 
-  describe "#insights_config" do
+  describe '#insights_config' do
     context 'when project has no Insights config file' do
       let(:project) { create(:project) }
 
@@ -1940,8 +1940,8 @@ describe Project do
     end
   end
 
-  describe "#kerberos_url_to_repo" do
-    let(:project) { create(:project, path: "somewhere") }
+  describe '#kerberos_url_to_repo' do
+    let(:project) { create(:project, path: 'somewhere') }
 
     it 'returns valid kerberos url for this repo' do
       expect(project.kerberos_url_to_repo).to eq("#{Gitlab.config.build_gitlab_kerberos_url}/#{project.namespace.path}/somewhere.git")

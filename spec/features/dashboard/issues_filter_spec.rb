@@ -28,7 +28,7 @@ describe 'Dashboard Issues filtering', :js do
 
   context 'filtering by milestone' do
     it 'shows all issues with no milestone' do
-      input_filtered_search("milestone=none")
+      input_filtered_search('milestone=none')
 
       expect(page).to have_issuable_counts(open: 1, closed: 0, all: 1)
       expect(page).to have_selector('.issue', count: 1)

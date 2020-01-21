@@ -12,7 +12,7 @@ describe 'Projects > Files > Template Undo Button', :js do
 
   context 'editing a matching file and applying a template' do
     before do
-      visit project_edit_blob_path(project, File.join(project.default_branch, "LICENSE"))
+      visit project_edit_blob_path(project, File.join(project.default_branch, 'LICENSE'))
       select_file_template_type('LICENSE')
       select_file_template('.js-license-selector', 'Apache License 2.0')
     end

@@ -36,7 +36,7 @@ module Gitlab
     end
 
     def self.full_log_path
-      Rails.root.join("log", file_name)
+      Rails.root.join('log', file_name)
     end
 
     def self.cache_key

@@ -21,8 +21,8 @@ describe ::Packages::Conan::PackagePresenter do
 
       let(:expected_result) do
         {
-          "conanfile.py" => "#{Settings.build_base_gitlab_url}/api/v4/packages/conan/v1/files/#{package.conan_recipe_path}/0/export/conanfile.py",
-          "conanmanifest.txt" => "#{Settings.build_base_gitlab_url}/api/v4/packages/conan/v1/files/#{package.conan_recipe_path}/0/export/conanmanifest.txt"
+          'conanfile.py' => "#{Settings.build_base_gitlab_url}/api/v4/packages/conan/v1/files/#{package.conan_recipe_path}/0/export/conanfile.py",
+          'conanmanifest.txt' => "#{Settings.build_base_gitlab_url}/api/v4/packages/conan/v1/files/#{package.conan_recipe_path}/0/export/conanmanifest.txt"
         }
       end
 
@@ -45,8 +45,8 @@ describe ::Packages::Conan::PackagePresenter do
 
       let(:expected_result) do
         {
-          "conanfile.py" => '12345abcde',
-          "conanmanifest.txt" => '12345abcde'
+          'conanfile.py' => '12345abcde',
+          'conanmanifest.txt' => '12345abcde'
         }
       end
 
@@ -69,9 +69,9 @@ describe ::Packages::Conan::PackagePresenter do
 
       let(:expected_result) do
         {
-          "conaninfo.txt" => "#{Settings.build_base_gitlab_url}/api/v4/packages/conan/v1/files/#{package.conan_recipe_path}/0/package/123456789/0/conaninfo.txt",
-          "conanmanifest.txt" => "#{Settings.build_base_gitlab_url}/api/v4/packages/conan/v1/files/#{package.conan_recipe_path}/0/package/123456789/0/conanmanifest.txt",
-          "conan_package.tgz" => "#{Settings.build_base_gitlab_url}/api/v4/packages/conan/v1/files/#{package.conan_recipe_path}/0/package/123456789/0/conan_package.tgz"
+          'conaninfo.txt' => "#{Settings.build_base_gitlab_url}/api/v4/packages/conan/v1/files/#{package.conan_recipe_path}/0/package/123456789/0/conaninfo.txt",
+          'conanmanifest.txt' => "#{Settings.build_base_gitlab_url}/api/v4/packages/conan/v1/files/#{package.conan_recipe_path}/0/package/123456789/0/conanmanifest.txt",
+          'conan_package.tgz' => "#{Settings.build_base_gitlab_url}/api/v4/packages/conan/v1/files/#{package.conan_recipe_path}/0/package/123456789/0/conan_package.tgz"
         }
       end
 
@@ -94,9 +94,9 @@ describe ::Packages::Conan::PackagePresenter do
 
       let(:expected_result) do
         {
-          "conaninfo.txt" => '12345abcde',
-          "conanmanifest.txt" => '12345abcde',
-          "conan_package.tgz" => '12345abcde'
+          'conaninfo.txt' => '12345abcde',
+          'conanmanifest.txt' => '12345abcde',
+          'conan_package.tgz' => '12345abcde'
         }
       end
 

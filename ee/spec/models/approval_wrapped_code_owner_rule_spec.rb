@@ -26,7 +26,7 @@ describe ApprovalWrappedCodeOwnerRule do
 
       let(:branch) { subject.project.repository.branches.find { |b| b.name == merge_request.target_branch } }
 
-      context "when project.code_owner_approval_required_available? is true" do
+      context 'when project.code_owner_approval_required_available? is true' do
         before do
           allow(subject.project)
             .to receive(:code_owner_approval_required_available?).and_return(true)
@@ -44,8 +44,8 @@ describe ApprovalWrappedCodeOwnerRule do
         end
       end
 
-      context "when project.code_owner_approval_required_available? is falsy" do
-        it "returns nil" do
+      context 'when project.code_owner_approval_required_available? is falsy' do
+        it 'returns nil' do
           allow(subject.project)
             .to receive(:code_owner_approval_required_available?).and_return(false)
 

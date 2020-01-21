@@ -36,7 +36,7 @@ class Projects::CompareController < Projects::ApplicationController
 
   def create
     if params[:from].blank? || params[:to].blank?
-      flash[:alert] = "You must select a Source and a Target revision"
+      flash[:alert] = 'You must select a Source and a Target revision'
       from_to_vars = {
         from: params[:from].presence,
         to: params[:to].presence
@@ -70,7 +70,7 @@ class Projects::CompareController < Projects::ApplicationController
 
     return if valid.all?
 
-    flash[:alert] = "Invalid branch name"
+    flash[:alert] = 'Invalid branch name'
     redirect_to project_compare_index_path(@project)
   end
 

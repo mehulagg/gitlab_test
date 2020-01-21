@@ -111,7 +111,7 @@ class NotificationService
     recipients = NotificationRecipientService.build_recipients(
       issue,
       current_user,
-      action: "reassign",
+      action: 'reassign',
       previous_assignees: previous_assignees
     )
 
@@ -161,7 +161,7 @@ class NotificationService
   def push_to_merge_request(merge_request, current_user, new_commits: [], existing_commits: [])
     new_commits = new_commits.map { |c| { short_id: c.short_id, title: c.title } }
     existing_commits = existing_commits.map { |c| { short_id: c.short_id, title: c.title } }
-    recipients = NotificationRecipientService.build_recipients(merge_request, current_user, action: "push_to")
+    recipients = NotificationRecipientService.build_recipients(merge_request, current_user, action: 'push_to')
 
     recipients.each do |recipient|
       mailer.send(:push_to_merge_request_email, recipient.user.id, merge_request.id, current_user.id, recipient.reason, new_commits: new_commits, existing_commits: existing_commits).deliver_later
@@ -200,7 +200,7 @@ class NotificationService
     recipients = NotificationRecipientService.build_recipients(
       merge_request,
       current_user,
-      action: "reassign",
+      action: 'reassign',
       previous_assignees: previous_assignees
     )
 
@@ -263,7 +263,7 @@ class NotificationService
     recipients = NotificationRecipientService.build_recipients(
       merge_request,
       current_user,
-      action: "resolve_all_discussions")
+      action: 'resolve_all_discussions')
 
     recipients.each do |recipient|
       mailer.resolved_all_discussions_email(recipient.user.id, merge_request.id, current_user.id, recipient.reason).deliver_later
@@ -525,7 +525,7 @@ class NotificationService
   protected
 
   def new_resource_email(target, method)
-    recipients = NotificationRecipientService.build_recipients(target, target.author, action: "new")
+    recipients = NotificationRecipientService.build_recipients(target, target.author, action: 'new')
 
     recipients.each do |recipient|
       mailer.send(method, recipient.user.id, target.id, recipient.reason).deliver_later
@@ -533,7 +533,7 @@ class NotificationService
   end
 
   def new_mentions_in_resource_email(target, new_mentioned_users, current_user, method)
-    recipients = NotificationRecipientService.build_recipients(target, current_user, action: "new")
+    recipients = NotificationRecipientService.build_recipients(target, current_user, action: 'new')
     recipients = recipients.select {|r| new_mentioned_users.include?(r.user) }
 
     recipients.each do |recipient|
@@ -542,7 +542,7 @@ class NotificationService
   end
 
   def close_resource_email(target, current_user, method, skip_current_user: true, closed_via: nil)
-    action = method == :merged_merge_request_email ? "merge" : "close"
+    action = method == :merged_merge_request_email ? 'merge' : 'close'
 
     recipients = NotificationRecipientService.build_recipients(
       target,
@@ -596,7 +596,7 @@ class NotificationService
   end
 
   def reopen_resource_email(target, current_user, method, status)
-    recipients = NotificationRecipientService.build_recipients(target, current_user, action: "reopen")
+    recipients = NotificationRecipientService.build_recipients(target, current_user, action: 'reopen')
 
     recipients.each do |recipient|
       mailer.send(method, recipient.user.id, target.id, status, current_user.id, recipient.reason).deliver_later

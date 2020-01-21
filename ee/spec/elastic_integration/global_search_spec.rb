@@ -20,12 +20,12 @@ describe 'GlobalSearch', :elastic do
     project.add_guest(guest)
   end
 
-  context "Respect feature visibility levels" do
-    context "Private projects" do
+  context 'Respect feature visibility levels' do
+    context 'Private projects' do
       let(:project) { create(:project, :private, :repository, :wiki_repo) }
 
       # The feature can be disabled but the data may actually exist
-      it "does not find items if features are disabled" do
+      it 'does not find items if features are disabled' do
         create_items(project, feature_settings(:disabled))
 
         expect_no_items_to_be_found(admin)
@@ -38,7 +38,7 @@ describe 'GlobalSearch', :elastic do
         expect_no_items_to_be_found(nil)
       end
 
-      it "shows items to member only if features are enabled" do
+      it 'shows items to member only if features are enabled' do
         create_items(project, feature_settings(:enabled))
 
         expect_items_to_be_found(admin)
@@ -52,11 +52,11 @@ describe 'GlobalSearch', :elastic do
       end
     end
 
-    context "Internal projects" do
+    context 'Internal projects' do
       let(:project) { create(:project, :internal, :repository, :wiki_repo) }
 
       # The feature can be disabled but the data may actually exist
-      it "does not find items if features are disabled" do
+      it 'does not find items if features are disabled' do
         create_items(project, feature_settings(:disabled))
 
         expect_no_items_to_be_found(admin)
@@ -69,7 +69,7 @@ describe 'GlobalSearch', :elastic do
         expect_no_items_to_be_found(nil)
       end
 
-      it "shows items to member only if features are enabled" do
+      it 'shows items to member only if features are enabled' do
         create_items(project, feature_settings(:enabled))
 
         expect_items_to_be_found(admin)
@@ -82,7 +82,7 @@ describe 'GlobalSearch', :elastic do
         expect_no_items_to_be_found(nil)
       end
 
-      it "shows items to member only if features are private" do
+      it 'shows items to member only if features are private' do
         create_items(project, feature_settings(:private))
 
         expect_items_to_be_found(admin)
@@ -96,11 +96,11 @@ describe 'GlobalSearch', :elastic do
       end
     end
 
-    context "Public projects" do
+    context 'Public projects' do
       let(:project) { create(:project, :public, :repository, :wiki_repo) }
 
       # The feature can be disabled but the data may actually exist
-      it "does not find items if features are disabled" do
+      it 'does not find items if features are disabled' do
         create_items(project, feature_settings(:disabled))
 
         expect_no_items_to_be_found(admin)
@@ -113,7 +113,7 @@ describe 'GlobalSearch', :elastic do
         expect_no_items_to_be_found(nil)
       end
 
-      it "finds items if features are enabled" do
+      it 'finds items if features are enabled' do
         create_items(project, feature_settings(:enabled))
 
         expect_items_to_be_found(admin)
@@ -126,7 +126,7 @@ describe 'GlobalSearch', :elastic do
         expect_items_to_be_found(nil)
       end
 
-      it "shows items to member only if features are private" do
+      it 'shows items to member only if features are private' do
         create_items(project, feature_settings(:private))
 
         expect_items_to_be_found(admin)

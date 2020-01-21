@@ -8,8 +8,8 @@ describe DesignManagement::DesignCollection do
 
   subject(:collection) { described_class.new(issue) }
 
-  describe ".find_or_create_design!" do
-    it "finds an existing design" do
+  describe '.find_or_create_design!' do
+    it 'finds an existing design' do
       design = create(:design, issue: issue, filename: 'world.png')
 
       expect(collection.find_or_create_design!(filename: 'world.png')).to eq(design)
@@ -25,7 +25,7 @@ describe DesignManagement::DesignCollection do
       expect(new_design.issue).to eq(issue)
     end
 
-    it "only queries the designs once" do
+    it 'only queries the designs once' do
       create(:design, issue: issue, filename: 'hello.png')
       create(:design, issue: issue, filename: 'world.jpg')
 
@@ -36,8 +36,8 @@ describe DesignManagement::DesignCollection do
     end
   end
 
-  describe "#versions" do
-    it "includes versions for all designs" do
+  describe '#versions' do
+    it 'includes versions for all designs' do
       version_1 = create(:design_version)
       version_2 = create(:design_version)
       other_version = create(:design_version)
@@ -49,8 +49,8 @@ describe DesignManagement::DesignCollection do
     end
   end
 
-  describe "#repository" do
-    it "builds a design repository" do
+  describe '#repository' do
+    it 'builds a design repository' do
       expect(collection.repository).to be_a(DesignManagement::Repository)
     end
   end

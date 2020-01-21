@@ -72,8 +72,8 @@ module Elastic
           end
 
           query_hash[:highlight] = {
-            pre_tags: ["gitlabelasticsearch→"],
-            post_tags: ["←gitlabelasticsearch"],
+            pre_tags: ['gitlabelasticsearch→'],
+            post_tags: ['←gitlabelasticsearch'],
             fields: es_fields
           }
         end
@@ -146,12 +146,12 @@ module Elastic
 
         if options[:highlight]
           query_hash[:highlight] = {
-            pre_tags: ["gitlabelasticsearch→"],
-            post_tags: ["←gitlabelasticsearch"],
-            order: "score",
+            pre_tags: ['gitlabelasticsearch→'],
+            post_tags: ['←gitlabelasticsearch'],
+            order: 'score',
             fields: {
-              "blob.content" => {},
-              "blob.file_name" => {}
+              'blob.content' => {},
+              'blob.file_name' => {}
             }
           }
         end

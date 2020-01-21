@@ -18,7 +18,7 @@ module Security
       cache_vulnerabilities
 
       if errors.any?
-        error(errors.join(", "))
+        error(errors.join(', '))
       else
         success
       end

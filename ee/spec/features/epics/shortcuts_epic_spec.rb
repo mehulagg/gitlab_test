@@ -27,7 +27,7 @@ describe 'Epic shortcuts', :js do
   end
 
   describe 'pressing "l"' do
-    it "opens labels dropdown for editing" do
+    it 'opens labels dropdown for editing' do
       find('body').native.send_key('l')
 
       expect(find('.js-labels-block')).to have_selector('.dropdown-menu-labels.show')
@@ -41,7 +41,7 @@ describe 'Epic shortcuts', :js do
       wait_for_requests
     end
 
-    it "quotes the selected text", :quarantine do
+    it 'quotes the selected text', :quarantine do
       select_element('.note-text')
       find('body').native.send_key('r')
 
@@ -50,7 +50,7 @@ describe 'Epic shortcuts', :js do
   end
 
   describe 'pressing "e"' do
-    it "starts editing mode for epic" do
+    it 'starts editing mode for epic' do
       find('body').native.send_key('e')
 
       expect(find('.detail-page-description')).to have_selector('form input#issuable-title')

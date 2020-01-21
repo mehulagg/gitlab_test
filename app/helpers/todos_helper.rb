@@ -40,7 +40,7 @@ module TodosHelper
     if todo.target
       "\"#{todo.target.title}\""
     else
-      ""
+      ''
     end
   end
 
@@ -180,7 +180,7 @@ module TodosHelper
       end
 
     content = content_tag(:span, class: css_class) do
-      "Due #{is_due_today ? "today" : todo.target.due_date.to_s(:medium)}"
+      "Due #{is_due_today ? 'today' : todo.target.due_date.to_s(:medium)}"
     end
 
     "&middot; #{content}".html_safe

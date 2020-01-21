@@ -5,7 +5,7 @@ class MergeTrain < ApplicationRecord
 
   ACTIVE_STATUSES = %w[created stale fresh].freeze
 
-  belongs_to :target_project, class_name: "Project"
+  belongs_to :target_project, class_name: 'Project'
   belongs_to :merge_request, inverse_of: :merge_train
   belongs_to :user
   belongs_to :pipeline, class_name: 'Ci::Pipeline'

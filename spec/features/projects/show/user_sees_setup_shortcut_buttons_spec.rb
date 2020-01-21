@@ -219,7 +219,7 @@ describe 'Projects > Show > User sees setup shortcut buttons' do
               project.creator,
               start_branch: 'master',
               branch_name: 'master',
-              commit_message: "Add .gitlab-ci.yml",
+              commit_message: 'Add .gitlab-ci.yml',
               file_path: '.gitlab-ci.yml',
               file_content: File.read(Rails.root.join('spec/support/gitlab_stubs/gitlab_ci.yml'))
             ).execute
@@ -276,7 +276,7 @@ describe 'Projects > Show > User sees setup shortcut buttons' do
               project.creator,
               start_branch: 'master',
               branch_name: 'master',
-              commit_message: "Add .gitlab-ci.yml",
+              commit_message: 'Add .gitlab-ci.yml',
               file_path: '.gitlab-ci.yml',
               file_content: File.read(Rails.root.join('spec/support/gitlab_stubs/gitlab_ci.yml'))
             ).execute

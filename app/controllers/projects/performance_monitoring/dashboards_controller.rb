@@ -39,7 +39,7 @@ module Projects
 
       def set_web_ide_link_notice(new_dashboard_path)
         web_ide_link_start = "<a href=\"#{ide_edit_path(project, redirect_safe_branch_name, new_dashboard_path)}\">"
-        message = _("Your dashboard has been copied. You can %{web_ide_link_start}edit it here%{web_ide_link_end}.") % { web_ide_link_start: web_ide_link_start, web_ide_link_end: "</a>" }
+        message = _('Your dashboard has been copied. You can %{web_ide_link_start}edit it here%{web_ide_link_end}.') % { web_ide_link_start: web_ide_link_start, web_ide_link_end: '</a>' }
         flash[:notice] = message.html_safe
       end
 

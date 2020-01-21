@@ -13,11 +13,11 @@ FactoryBot.define do
     end
 
     trait :active do
-      state { "active" }
+      state { 'active' }
     end
 
     trait :closed do
-      state { "closed" }
+      state { 'closed' }
     end
 
     trait :with_dates do

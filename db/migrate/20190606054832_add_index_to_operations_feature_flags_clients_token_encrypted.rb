@@ -9,10 +9,10 @@ class AddIndexToOperationsFeatureFlagsClientsTokenEncrypted < ActiveRecord::Migr
 
   def up
     add_concurrent_index :operations_feature_flags_clients, [:project_id, :token_encrypted],
-      unique: true, name: "index_feature_flags_clients_on_project_id_and_token_encrypted"
+      unique: true, name: 'index_feature_flags_clients_on_project_id_and_token_encrypted'
   end
 
   def down
-    remove_concurrent_index_by_name :operations_feature_flags_clients, "index_feature_flags_clients_on_project_id_and_token_encrypted"
+    remove_concurrent_index_by_name :operations_feature_flags_clients, 'index_feature_flags_clients_on_project_id_and_token_encrypted'
   end
 end

@@ -11,8 +11,8 @@ module Gitlab
       }.freeze
 
       LOG_MESSAGES = {
-        tag_checks: "Checking if you are allowed to change existing tags...",
-        protected_tag_checks: "Checking if you are creating, updating or deleting a protected tag..."
+        tag_checks: 'Checking if you are allowed to change existing tags...',
+        protected_tag_checks: 'Checking if you are creating, updating or deleting a protected tag...'
       }.freeze
 
       def validate!

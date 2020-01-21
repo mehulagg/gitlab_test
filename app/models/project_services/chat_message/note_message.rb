@@ -15,13 +15,13 @@ module ChatMessage
       @note = obj_attr[:note]
       @note_url = obj_attr[:url]
       @target, @title = case obj_attr[:noteable_type]
-                        when "Commit"
+                        when 'Commit'
                           create_commit_note(params[:commit])
-                        when "Issue"
+                        when 'Issue'
                           create_issue_note(params[:issue])
-                        when "MergeRequest"
+                        when 'MergeRequest'
                           create_merge_note(params[:merge_request])
-                        when "Snippet"
+                        when 'Snippet'
                           create_snippet_note(params[:snippet])
                         end
     end

@@ -30,8 +30,8 @@ module AtomicInternalId
     def has_internal_id(column, scope:, init:, ensure_if: nil, track_if: nil, presence: true) # rubocop:disable Naming/PredicateName
       # We require init here to retain the ability to recalculate in the absence of a
       # InternalId record (we may delete records in `internal_ids` for example).
-      raise "has_internal_id requires a init block, none given." unless init
-      raise "has_internal_id needs to be defined on association." unless self.reflect_on_association(scope)
+      raise 'has_internal_id requires a init block, none given.' unless init
+      raise 'has_internal_id needs to be defined on association.' unless self.reflect_on_association(scope)
 
       before_validation :"track_#{scope}_#{column}!", on: :create, if: track_if
       before_validation :"ensure_#{scope}_#{column}!", on: :create, if: ensure_if

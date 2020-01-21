@@ -18,10 +18,10 @@ module ChatMessage
 
       @action =
         case obj_attr[:action]
-        when "create"
-          "created"
-        when "update"
-          "edited"
+        when 'create'
+          'created'
+        when 'update'
+          'edited'
         end
     end
 

@@ -8,8 +8,8 @@ module SendFileUpload
       # Response-Content-Type will not override an existing Content-Type in
       # Google Cloud Storage, so the metadata needs to be cleared on GCS for
       # this to work. However, this override works with AWS.
-      redirect_params[:query] = { "response-content-disposition" => response_disposition,
-                                  "response-content-type" => guess_content_type(attachment) }
+      redirect_params[:query] = { 'response-content-disposition' => response_disposition,
+                                  'response-content-type' => guess_content_type(attachment) }
       # By default, Rails will send uploads with an extension of .js with a
       # content-type of text/javascript, which will trigger Rails'
       # cross-origin JavaScript protection.
@@ -46,7 +46,7 @@ module SendFileUpload
     if types.present?
       types.first.content_type
     else
-      "application/octet-stream"
+      'application/octet-stream'
     end
   end
 end

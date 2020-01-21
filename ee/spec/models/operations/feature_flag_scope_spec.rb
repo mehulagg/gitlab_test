@@ -24,7 +24,7 @@ describe Operations::FeatureFlagScope do
 
         expect(new_feature_flag_scope.errors[:environment_scope])
           .to include("(#{existing_feature_flag_scope.environment_scope})" \
-                      " has already been taken")
+                      ' has already been taken')
       end
     end
 
@@ -36,7 +36,7 @@ describe Operations::FeatureFlagScope do
         default_scope.update(environment_scope: 'review/*')
 
         expect(default_scope.errors[:environment_scope])
-          .to include("cannot be changed from default scope")
+          .to include('cannot be changed from default scope')
       end
     end
 
@@ -63,14 +63,14 @@ describe Operations::FeatureFlagScope do
       it 'validates multiple strategies' do
         feature_flag = create(:operations_feature_flag)
         scope = described_class.create(feature_flag: feature_flag,
-                                       strategies: [{ name: "default", parameters: {} },
-                                                    { name: "invalid", parameters: {} }])
+                                       strategies: [{ name: 'default', parameters: {} },
+                                                    { name: 'invalid', parameters: {} }])
 
         expect(scope.errors[:strategies]).not_to be_empty
       end
 
       where(:invalid_value) do
-        [{}, 600, "bad", [{ name: 'default', parameters: {} }, 300]]
+        [{}, 600, 'bad', [{ name: 'default', parameters: {} }, 300]]
       end
       with_them do
         it 'must be an array of strategy hashes' do
@@ -92,8 +92,8 @@ describe Operations::FeatureFlagScope do
           'userWithId'           | { userIds: 'sam' }                       | []
           5                      | nil                                      | ['strategy name is invalid']
           nil                    | nil                                      | ['strategy name is invalid']
-          "nothing"              | nil                                      | ['strategy name is invalid']
-          ""                     | nil                                      | ['strategy name is invalid']
+          'nothing'              | nil                                      | ['strategy name is invalid']
+          ''                     | nil                                      | ['strategy name is invalid']
           40.0                   | nil                                      | ['strategy name is invalid']
           {}                     | nil                                      | ['strategy name is invalid']
           []                     | nil                                      | ['strategy name is invalid']
@@ -144,8 +144,8 @@ describe Operations::FeatureFlagScope do
 
           describe 'percentage' do
             where(:invalid_value) do
-              [50, 40.0, { key: "value" }, "garbage", "00", "01", "101", "-1", "-10", "0100",
-               "1000", "10.0", "5%", "25%", "100hi", "e100", "30m", " ", "\r\n", "\n", "\t",
+              [50, 40.0, { key: 'value' }, 'garbage', '00', '01', '101', '-1', '-10', '0100',
+               '1000', '10.0', '5%', '25%', '100hi', 'e100', '30m', ' ', "\r\n", "\n", "\t",
                "\n10", "20\n", "\n100", "100\n", "\n  ", nil]
             end
             with_them do
@@ -177,7 +177,7 @@ describe Operations::FeatureFlagScope do
           describe 'groupId' do
             where(:invalid_value) do
               [nil, 4, 50.0, {}, 'spaces bad', 'bad$', '%bad', '<bad', 'bad>', '!bad',
-               '.bad', 'Bad', 'bad1', "", " ", "b" * 33, "ba_d", "ba\nd"]
+               '.bad', 'Bad', 'bad1', '', ' ', 'b' * 33, 'ba_d', "ba\nd"]
             end
             with_them do
               it 'must be a string value of up to 32 lowercase characters' do
@@ -191,7 +191,7 @@ describe Operations::FeatureFlagScope do
             end
 
             where(:valid_value) do
-              ["somegroup", "anothergroup", "okay", "g", "a" * 32]
+              ['somegroup', 'anothergroup', 'okay', 'g', 'a' * 32]
             end
             with_them do
               it 'must be a string value of up to 32 lowercase characters' do
@@ -229,10 +229,10 @@ describe Operations::FeatureFlagScope do
 
           describe 'userIds' do
             where(:valid_value) do
-              ["", "sam", "1", "a", "uuid-of-some-kind", "sam,fred,tom,jane,joe,mike",
-               "gitlab@example.com", "123,4", "UPPER,Case,charActeRS", "0",
-               "$valid$email#2345#$%..{}+=-)?\\/@example.com", "spaces allowed",
-               "a" * 256, "a,#{'b' * 256},ccc", "many    spaces"]
+              ['', 'sam', '1', 'a', 'uuid-of-some-kind', 'sam,fred,tom,jane,joe,mike',
+               'gitlab@example.com', '123,4', 'UPPER,Case,charActeRS', '0',
+               "$valid$email#2345\#$%..{}+=-)?\\/@example.com", 'spaces allowed',
+               'a' * 256, "a,#{'b' * 256},ccc", 'many    spaces']
             end
             with_them do
               it 'is valid with a string of comma separated values' do
@@ -246,8 +246,8 @@ describe Operations::FeatureFlagScope do
 
             where(:invalid_value) do
               [1, 2.5, {}, [], nil, "123\n456", "1,2,3,12\t3", "\n", "\n\r",
-               "joe\r,sam", "1,2,2", "1,,2", "1,2,,,,", "b" * 257, "1, ,2", "tim,    ,7", " ",
-               "    ", " ,1", "1,  ", " leading,1", "1,trailing  ", "1, both ,2"]
+               "joe\r,sam", '1,2,2', '1,,2', '1,2,,,,', 'b' * 257, '1, ,2', 'tim,    ,7', ' ',
+               '    ', ' ,1', '1,  ', ' leading,1', '1,trailing  ', '1, both ,2']
             end
             with_them do
               it 'is invalid' do
@@ -272,7 +272,7 @@ describe Operations::FeatureFlagScope do
           end
 
           where(:invalid_value) do
-            [{ groupId: "hi", percentage: "7" }, "", "nothing", 7, nil, [], 2.5]
+            [{ groupId: 'hi', percentage: '7' }, '', 'nothing', 7, nil, [], 2.5]
           end
           with_them do
             it 'must be empty' do

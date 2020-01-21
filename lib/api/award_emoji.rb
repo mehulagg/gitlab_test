@@ -20,7 +20,7 @@ module API
         awardable_id_string = "#{awardable_params[:type]}_#{awardable_params[:find_by]}"
 
         params do
-          requires :"#{awardable_id_string}", type: Integer, desc: "The ID of an Issue, Merge Request or Snippet"
+          requires :"#{awardable_id_string}", type: Integer, desc: 'The ID of an Issue, Merge Request or Snippet'
         end
 
         [
@@ -39,7 +39,7 @@ module API
               awards = awardable.award_emoji
               present paginate(awards), with: Entities::AwardEmoji
             else
-              not_found!("Award Emoji")
+              not_found!('Award Emoji')
             end
           end
 
@@ -54,7 +54,7 @@ module API
             if can_read_awardable?
               present awardable.award_emoji.find(params[:award_id]), with: Entities::AwardEmoji
             else
-              not_found!("Award Emoji")
+              not_found!('Award Emoji')
             end
           end
 

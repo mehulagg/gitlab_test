@@ -48,8 +48,8 @@ describe API::Users do
   end
 
   context 'extended audit events' do
-    describe "PUT /users/:id" do
-      it "creates audit event when updating user with new password" do
+    describe 'PUT /users/:id' do
+      it 'creates audit event when updating user with new password' do
         stub_licensed_features(extended_audit_events: true)
 
         put api("/users/#{user.id}", admin), params: { password: '12345678' }
@@ -60,9 +60,9 @@ describe API::Users do
   end
 
   context 'shared_runners_minutes_limit' do
-    describe "PUT /users/:id" do
+    describe 'PUT /users/:id' do
       context 'when user is an admin' do
-        it "updates shared_runners_minutes_limit" do
+        it 'updates shared_runners_minutes_limit' do
           expect do
             put api("/users/#{user.id}", admin), params: { shared_runners_minutes_limit: 133 }
           end.to change { user.reload.shared_runners_minutes_limit }
@@ -74,7 +74,7 @@ describe API::Users do
       end
 
       context 'when user is not an admin' do
-        it "cannot update their own shared_runners_minutes_limit" do
+        it 'cannot update their own shared_runners_minutes_limit' do
           expect do
             put api("/users/#{user.id}", user), params: { shared_runners_minutes_limit: 133 }
           end.not_to change { user.reload.shared_runners_minutes_limit }
@@ -89,7 +89,7 @@ describe API::Users do
     let(:saml_provider) { create(:saml_provider) }
 
     it 'creates user with new identity' do
-      post api("/users", admin), params: attributes_for(:user, provider: 'group_saml', extern_uid: '67890', group_id_for_saml: saml_provider.group.id)
+      post api('/users', admin), params: attributes_for(:user, provider: 'group_saml', extern_uid: '67890', group_id_for_saml: saml_provider.group.id)
 
       expect(response).to have_gitlab_http_status(201)
       expect(json_response['identities'].first['extern_uid']).to eq('67890')
@@ -98,7 +98,7 @@ describe API::Users do
     end
 
     it 'creates user with new identity without sending reset password email' do
-      post api("/users", admin), params: attributes_for(:user, reset_password: false, provider: 'group_saml', extern_uid: '67890', group_id_for_saml: saml_provider.group.id)
+      post api('/users', admin), params: attributes_for(:user, reset_password: false, provider: 'group_saml', extern_uid: '67890', group_id_for_saml: saml_provider.group.id)
 
       expect(response).to have_gitlab_http_status(201)
 
@@ -118,13 +118,13 @@ describe API::Users do
     it 'fails to update user with nonexistent identity' do
       put api("/users/#{user.id}", admin), params: { provider: 'group_saml', extern_uid: '67890', group_id_for_saml: 15 }
       expect(response).to have_gitlab_http_status(400)
-      expect(json_response['message']).to eq({ "identities.saml_provider_id" => ["can't be blank"] })
+      expect(json_response['message']).to eq({ 'identities.saml_provider_id' => ["can't be blank"] })
     end
 
     it 'fails to update user with nonexistent provider' do
       put api("/users/#{user.id}", admin), params: { provider: nil, extern_uid: '67890', group_id_for_saml: saml_provider.group.id }
       expect(response).to have_gitlab_http_status(400)
-      expect(json_response['message']).to eq({ "identities.provider" => ["can't be blank"] })
+      expect(json_response['message']).to eq({ 'identities.provider' => ["can't be blank"] })
     end
   end
 
@@ -161,9 +161,9 @@ describe API::Users do
       end
     end
 
-    describe "PUT /users/:id" do
+    describe 'PUT /users/:id' do
       context 'when user is an admin' do
-        it "updates note of the user" do
+        it 'updates note of the user' do
           new_note = '2019-07-07 | Email changed | user requested | www.gitlab.com'
 
           expect do
@@ -178,7 +178,7 @@ describe API::Users do
       end
 
       context 'when user is not an admin' do
-        it "cannot update their own note" do
+        it 'cannot update their own note' do
           expect do
             put api("/users/#{user.id}", user), params: { note: 'new note' }
           end.not_to change { user.reload.note }
@@ -190,8 +190,8 @@ describe API::Users do
 
     describe 'GET /users/' do
       context 'when unauthenticated' do
-        it "does not contain the note of users" do
-          get api("/users"), params: { username: user.username }
+        it 'does not contain the note of users' do
+          get api('/users'), params: { username: user.username }
 
           expect(json_response.first).not_to have_key('note')
         end
@@ -200,7 +200,7 @@ describe API::Users do
       context 'when authenticated' do
         context 'as a regular user' do
           it 'does not contain the note of users' do
-            get api("/users", user), params: { username: user.username }
+            get api('/users', user), params: { username: user.username }
 
             expect(json_response.first).not_to have_key('note')
           end
@@ -208,7 +208,7 @@ describe API::Users do
 
         context 'as an admin' do
           it 'contains the note of users' do
-            get api("/users", admin), params: { username: user.username }
+            get api('/users', admin), params: { username: user.username }
 
             expect(response).to have_gitlab_http_status(:success)
             expect(json_response.first).to have_key('note')
@@ -223,7 +223,7 @@ describe API::Users do
         context 'as an admin' do
           context 'accesses their own profile' do
             it 'contains the note of the user' do
-              get api("/user", admin)
+              get api('/user', admin)
 
               expect(json_response).to have_key('note')
               expect(json_response['note']).to eq(admin.note)
@@ -258,7 +258,7 @@ describe API::Users do
 
         context 'as a regular user' do
           it 'does not contain the note of the user' do
-            get api("/user", user)
+            get api('/user', user)
 
             expect(json_response).not_to have_key('note')
           end

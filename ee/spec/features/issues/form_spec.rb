@@ -160,7 +160,7 @@ describe 'New/edit issue', :js do
 
       page.within '.issuable-sidebar' do
         page.within '.assignee' do
-          expect(page).to have_content "2 Assignees"
+          expect(page).to have_content '2 Assignees'
         end
 
         page.within '.milestone' do

@@ -30,7 +30,7 @@ module Trigger
         pipeline_variables)
 
       puts "Triggered downstream pipeline: #{pipeline.web_url}\n"
-      puts "Waiting for downstream pipeline status"
+      puts 'Waiting for downstream pipeline status'
 
       Trigger::CommitComment.post!(pipeline, access_token) if post_comment
       downstream_job =
@@ -97,7 +97,7 @@ module Trigger
 
     # Read version files from all components
     def version_file_variables
-      Dir.glob("*_VERSION").each_with_object({}) do |version_file, params|
+      Dir.glob('*_VERSION').each_with_object({}) do |version_file, params|
         params[version_file] = version_param_value(version_file)
       end
     end
@@ -164,10 +164,10 @@ module Trigger
       {
         # Back-compatibility until https://gitlab.com/gitlab-org/build/CNG/merge_requests/189 is merged
         "GITLAB_#{edition}_VERSION" => ENV['CI_COMMIT_REF_NAME'],
-        "GITLAB_VERSION" => ENV['CI_COMMIT_REF_NAME'],
-        "GITLAB_TAG" => ENV['CI_COMMIT_TAG'],
-        "GITLAB_ASSETS_TAG" => ENV['CI_COMMIT_TAG'] ? ENV['CI_COMMIT_REF_NAME'] : ENV['CI_COMMIT_REF_SLUG'],
-        "FORCE_RAILS_IMAGE_BUILDS" => 'true',
+        'GITLAB_VERSION' => ENV['CI_COMMIT_REF_NAME'],
+        'GITLAB_TAG' => ENV['CI_COMMIT_TAG'],
+        'GITLAB_ASSETS_TAG' => ENV['CI_COMMIT_TAG'] ? ENV['CI_COMMIT_REF_NAME'] : ENV['CI_COMMIT_REF_SLUG'],
+        'FORCE_RAILS_IMAGE_BUILDS' => 'true',
         "#{edition}_PIPELINE" => 'true'
       }
     end
@@ -228,7 +228,7 @@ module Trigger
 
         case status
         when :created, :pending, :running
-          print "."
+          print '.'
           sleep INTERVAL
         when :success
           puts "#{self.class.unscoped_class_name} succeeded in #{duration} minutes!"

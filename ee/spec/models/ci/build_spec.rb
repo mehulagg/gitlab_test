@@ -159,7 +159,7 @@ describe Ci::Build do
       let!(:artifact) { create(:ee_ci_job_artifact, :codequality, job: job, project: job.project) }
 
       before do
-        stub_const("Ci::JobArtifact::SECURITY_REPORT_FILE_TYPES", %w[codequality])
+        stub_const('Ci::JobArtifact::SECURITY_REPORT_FILE_TYPES', %w[codequality])
       end
 
       it 'stores an error' do
@@ -191,7 +191,7 @@ describe Ci::Build do
           expect { subject }.not_to raise_error
 
           expect(license_scanning_report.licenses.count).to eq(4)
-          expect(license_scanning_report.licenses.map(&:name)).to contain_exactly("Apache 2.0", "MIT", "New BSD", "unknown")
+          expect(license_scanning_report.licenses.map(&:name)).to contain_exactly('Apache 2.0', 'MIT', 'New BSD', 'unknown')
           expect(license_scanning_report.licenses.find { |x| x.name == 'MIT' }.dependencies.count).to eq(52)
         end
       end
@@ -353,7 +353,7 @@ describe Ci::Build do
     end
   end
 
-  describe ".license_scan" do
+  describe '.license_scan' do
     it 'returns only license artifacts' do
       create(:ci_build, job_artifacts: [create(:ci_job_artifact, :zip)])
       build_with_license_scan = create(:ci_build, job_artifacts: [create(:ci_job_artifact, file_type: :license_management, file_format: :raw)])

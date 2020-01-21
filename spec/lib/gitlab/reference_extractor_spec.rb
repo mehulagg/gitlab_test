@@ -205,7 +205,7 @@ describe Gitlab::ReferenceExtractor do
       end
 
       it 'returns only Jira issues if the internal one does not exists' do
-        subject.analyze("JIRA-123 and FOOBAR-4567 and #999")
+        subject.analyze('JIRA-123 and FOOBAR-4567 and #999')
         expect(subject.issues).to eq [ExternalIssue.new('JIRA-123', project),
                                       ExternalIssue.new('FOOBAR-4567', project)]
       end

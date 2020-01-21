@@ -12,13 +12,13 @@ describe GroupProjectsFinder do
       group.add_maintainer(current_user)
     end
 
-    context "only shared" do
+    context 'only shared' do
       let(:options) { { only_shared: true } }
 
       it { is_expected.to match_array([shared_project_3, shared_project_2, shared_project_1]) }
     end
 
-    context "only owned" do
+    context 'only owned' do
       let(:options) { { only_owned: true } }
 
       context 'with subgroups projects' do
@@ -34,7 +34,7 @@ describe GroupProjectsFinder do
       end
     end
 
-    context "all" do
+    context 'all' do
       context 'with subgroups projects' do
         before do
           options[:include_subgroups] = true
@@ -55,14 +55,14 @@ describe GroupProjectsFinder do
       current_user.reload
     end
 
-    context "only shared" do
+    context 'only shared' do
       let(:options) { { only_shared: true } }
 
-      context "without external user" do
+      context 'without external user' do
         it { is_expected.to match_array([shared_project_3, shared_project_2, shared_project_1]) }
       end
 
-      context "with external user" do
+      context 'with external user' do
         before do
           current_user.update(external: true)
         end
@@ -71,10 +71,10 @@ describe GroupProjectsFinder do
       end
     end
 
-    context "only owned" do
+    context 'only owned' do
       let(:options) { { only_owned: true } }
 
-      context "without external user" do
+      context 'without external user' do
         before do
           private_project.add_maintainer(current_user)
           subgroup_private_project.add_maintainer(current_user)
@@ -93,7 +93,7 @@ describe GroupProjectsFinder do
         end
       end
 
-      context "with external user" do
+      context 'with external user' do
         before do
           current_user.update(external: true)
         end
@@ -112,7 +112,7 @@ describe GroupProjectsFinder do
       end
     end
 
-    context "all" do
+    context 'all' do
       context 'with subgroups projects' do
         before do
           options[:include_subgroups] = true
@@ -130,31 +130,31 @@ describe GroupProjectsFinder do
   describe 'with an admin current user' do
     let(:current_user) { create(:admin) }
 
-    context "only shared" do
+    context 'only shared' do
       let(:options) { { only_shared: true } }
 
       it            { is_expected.to eq([shared_project_3, shared_project_2, shared_project_1]) }
     end
 
-    context "only owned" do
+    context 'only owned' do
       let(:options) { { only_owned: true } }
 
       it            { is_expected.to eq([private_project, public_project]) }
     end
 
-    context "all" do
+    context 'all' do
       it { is_expected.to eq([shared_project_3, shared_project_2, shared_project_1, private_project, public_project]) }
     end
   end
 
-  describe "no user" do
-    context "only shared" do
+  describe 'no user' do
+    context 'only shared' do
       let(:options) { { only_shared: true } }
 
       it { is_expected.to match_array([shared_project_3, shared_project_1]) }
     end
 
-    context "only owned" do
+    context 'only owned' do
       let(:options) { { only_owned: true } }
 
       context 'with subgroups projects' do

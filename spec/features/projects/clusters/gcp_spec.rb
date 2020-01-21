@@ -209,7 +209,7 @@ describe 'Gcp Cluster', :js, :do_not_mock_admin_mode do
         click_button 'Save changes'
       end
 
-      expect(page).to have_content "Application settings saved successfully"
+      expect(page).to have_content 'Application settings saved successfully'
 
       visit project_clusters_path(project)
 

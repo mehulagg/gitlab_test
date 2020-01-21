@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe MattermostSlashCommandsService do
-  it_behaves_like "chat slash commands service"
+  it_behaves_like 'chat slash commands service'
 
   context 'Mattermost API' do
     let(:project) { create(:project) }
@@ -117,7 +117,7 @@ describe MattermostSlashCommandsService do
         end
 
         it 'shows error messages' do
-          expect(subject).to eq([[], "Failed to get team list."])
+          expect(subject).to eq([[], 'Failed to get team list.'])
         end
       end
     end

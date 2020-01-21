@@ -7,7 +7,7 @@ describe Projects::CommitController, '(JavaScript fixtures)', type: :controller 
 
   set(:project)  { create(:project, :repository) }
   set(:user)     { create(:user) }
-  let(:commit)   { project.commit("master") }
+  let(:commit)   { project.commit('master') }
 
   render_views
 

@@ -14,10 +14,10 @@ describe MergeRequest do
   describe 'associations' do
     it { is_expected.to belong_to(:target_project).class_name('Project') }
     it { is_expected.to belong_to(:source_project).class_name('Project') }
-    it { is_expected.to belong_to(:merge_user).class_name("User") }
+    it { is_expected.to belong_to(:merge_user).class_name('User') }
     it { is_expected.to have_many(:assignees).through(:merge_request_assignees) }
     it { is_expected.to have_many(:merge_request_diffs) }
-    it { is_expected.to have_many(:user_mentions).class_name("MergeRequestUserMention") }
+    it { is_expected.to have_many(:user_mentions).class_name('MergeRequestUserMention') }
 
     context 'for forks' do
       let!(:project) { create(:project) }
@@ -55,7 +55,7 @@ describe MergeRequest do
     where(:lock_version) do
       [
         [0],
-        ["0"]
+        ['0']
       ]
     end
 
@@ -78,7 +78,7 @@ describe MergeRequest do
         subject.source_project.repository.path
       end
     end
-    let(:squash_path) { File.join(repo_path, "gitlab-worktree", "squash-#{subject.id}") }
+    let(:squash_path) { File.join(repo_path, 'gitlab-worktree', "squash-#{subject.id}") }
 
     before do
       system(*%W(#{Gitlab.config.git.bin_path} -C #{repo_path} worktree add --detach #{squash_path} master))
@@ -190,17 +190,17 @@ describe MergeRequest do
     it { is_expected.to validate_presence_of(:target_branch) }
     it { is_expected.to validate_presence_of(:source_branch) }
 
-    context "Validation of merge user with Merge When Pipeline Succeeds" do
-      it "allows user to be nil when the feature is disabled" do
+    context 'Validation of merge user with Merge When Pipeline Succeeds' do
+      it 'allows user to be nil when the feature is disabled' do
         expect(subject).to be_valid
       end
 
-      it "is invalid without merge user" do
+      it 'is invalid without merge user' do
         subject.merge_when_pipeline_succeeds = true
         expect(subject).not_to be_valid
       end
 
-      it "is valid with merge user" do
+      it 'is valid with merge user' do
         subject.merge_when_pipeline_succeeds = true
         subject.merge_user = build(:user)
 
@@ -226,14 +226,14 @@ describe MergeRequest do
       end
 
       with_them do
-        it "validates source_branch" do
+        it 'validates source_branch' do
           subject = build(:merge_request, source_branch: branch_name, target_branch: 'master')
           subject.valid?
 
           expect(subject.errors.added?(:source_branch)).to eq(!valid)
         end
 
-        it "validates target_branch" do
+        it 'validates target_branch' do
           subject = build(:merge_request, source_branch: 'master', target_branch: branch_name)
           subject.valid?
 
@@ -417,7 +417,7 @@ describe MergeRequest do
       allow(subject).to receive(:assignees).and_return([])
 
       expect(subject.card_attributes)
-        .to eq({ 'Author' => 'Robert', 'Assignee' => "" })
+        .to eq({ 'Author' => 'Robert', 'Assignee' => '' })
     end
 
     it 'includes the assignees name' do
@@ -633,12 +633,12 @@ describe MergeRequest do
     let(:merge_request) { build(:merge_request, target_project: project, iid: 1) }
 
     it 'returns a String reference to the object' do
-      expect(merge_request.to_reference).to eq "!1"
+      expect(merge_request.to_reference).to eq '!1'
     end
 
     it 'supports a cross-project reference' do
       another_project = build(:project, name: 'another-project', namespace: project.namespace)
-      expect(merge_request.to_reference(another_project)).to eq "sample-project!1"
+      expect(merge_request.to_reference(another_project)).to eq 'sample-project!1'
     end
 
     it 'returns a String reference with the full path' do
@@ -890,7 +890,7 @@ describe MergeRequest do
     end
   end
 
-  describe "#related_notes" do
+  describe '#related_notes' do
     let!(:merge_request) { create(:merge_request) }
 
     before do
@@ -900,12 +900,12 @@ describe MergeRequest do
       create(:note, noteable: merge_request, project: merge_request.project)
     end
 
-    it "includes notes for commits" do
+    it 'includes notes for commits' do
       expect(merge_request.commits).not_to be_empty
       expect(merge_request.related_notes.count).to eq(2)
     end
 
-    it "includes notes for commits from target project as well" do
+    it 'includes notes for commits from target project as well' do
       create(:note_on_commit, commit_id: merge_request.commits.first.id,
                               project: merge_request.target_project)
 
@@ -913,7 +913,7 @@ describe MergeRequest do
       expect(merge_request.related_notes.count).to eq(3)
     end
 
-    it "excludes system notes for commits" do
+    it 'excludes system notes for commits' do
       system_note = create(:note_on_commit, :system, commit_id: merge_request.commits.first.id,
                                                      project: merge_request.project)
 
@@ -1012,7 +1012,7 @@ describe MergeRequest do
     end
   end
 
-  describe "#work_in_progress?" do
+  describe '#work_in_progress?' do
     ['WIP ', 'WIP:', 'WIP: ', '[WIP]', '[WIP] ', ' [WIP] WIP [WIP] WIP: WIP '].each do |wip_prefix|
       it "detects the '#{wip_prefix}' prefix" do
         subject.title = "#{wip_prefix}#{subject.title}"
@@ -1035,7 +1035,7 @@ describe MergeRequest do
     end
   end
 
-  describe "#wipless_title" do
+  describe '#wipless_title' do
     ['WIP ', 'WIP:', 'WIP: ', '[WIP]', '[WIP] ', '[WIP] WIP [WIP] WIP: WIP '].each do |wip_prefix|
       it "removes the '#{wip_prefix}' prefix" do
         wipless_title = subject.title
@@ -1044,7 +1044,7 @@ describe MergeRequest do
         expect(subject.wipless_title).to eq wipless_title
       end
 
-      it "is satisfies the #work_in_progress? method" do
+      it 'is satisfies the #work_in_progress? method' do
         subject.title = "#{wip_prefix}#{subject.title}"
         subject.title = subject.wipless_title
 
@@ -1053,14 +1053,14 @@ describe MergeRequest do
     end
   end
 
-  describe "#wip_title" do
-    it "adds the WIP: prefix to the title" do
+  describe '#wip_title' do
+    it 'adds the WIP: prefix to the title' do
       wip_title = "WIP: #{subject.title}"
 
       expect(subject.wip_title).to eq wip_title
     end
 
-    it "does not add the WIP: prefix multiple times" do
+    it 'does not add the WIP: prefix multiple times' do
       wip_title = "WIP: #{subject.title}"
       subject.title = subject.wip_title
       subject.title = subject.wip_title
@@ -1068,7 +1068,7 @@ describe MergeRequest do
       expect(subject.wip_title).to eq wip_title
     end
 
-    it "is satisfies the #work_in_progress? method" do
+    it 'is satisfies the #work_in_progress? method' do
       subject.title = subject.wip_title
 
       expect(subject.work_in_progress?).to eq true
@@ -1097,21 +1097,21 @@ describe MergeRequest do
       expect(subject.can_remove_source_branch?(user)).to be_falsey
     end
 
-    it "is unable to remove the source branch for a project the user cannot push to" do
+    it 'is unable to remove the source branch for a project the user cannot push to' do
       user2 = create(:user)
 
       expect(subject.can_remove_source_branch?(user2)).to be_falsey
     end
 
-    it "can be removed if the last commit is the head of the source branch" do
+    it 'can be removed if the last commit is the head of the source branch' do
       allow(subject).to receive(:source_branch_head).and_return(subject.diff_head_commit)
 
       expect(subject.can_remove_source_branch?(user)).to be_truthy
     end
 
-    it "cannot be removed if the last commit is not also the head of the source branch" do
+    it 'cannot be removed if the last commit is not also the head of the source branch' do
       subject.clear_memoized_shas
-      subject.source_branch = "lfs"
+      subject.source_branch = 'lfs'
 
       expect(subject.can_remove_source_branch?(user)).to be_falsey
     end
@@ -1172,7 +1172,7 @@ describe MergeRequest do
     end
   end
 
-  describe "#auto_merge_strategy" do
+  describe '#auto_merge_strategy' do
     subject { merge_request.auto_merge_strategy }
 
     let(:merge_request) { create(:merge_request, :merge_when_pipeline_succeeds) }
@@ -2053,7 +2053,7 @@ describe MergeRequest do
       expect { execute }.to raise_error(ActiveRecord::StaleObjectError)
     end
 
-    it "raises ActiveRecord::LockWaitTimeout after 6 tries" do
+    it 'raises ActiveRecord::LockWaitTimeout after 6 tries' do
       expect(merge_request).to receive(:with_lock).exactly(6).times.and_raise(ActiveRecord::LockWaitTimeout)
       expect(RebaseWorker).not_to receive(:perform_async)
 
@@ -2194,7 +2194,7 @@ describe MergeRequest do
     end
   end
 
-  describe "#head_pipeline_active? " do
+  describe '#head_pipeline_active? ' do
     it do
       is_expected
         .to delegate_method(:active?)
@@ -2204,7 +2204,7 @@ describe MergeRequest do
     end
   end
 
-  describe "#actual_head_pipeline_success? " do
+  describe '#actual_head_pipeline_success? ' do
     it do
       is_expected
         .to delegate_method(:success?)
@@ -2214,7 +2214,7 @@ describe MergeRequest do
     end
   end
 
-  describe "#actual_head_pipeline_active? " do
+  describe '#actual_head_pipeline_active? ' do
     it do
       is_expected
         .to delegate_method(:active?)
@@ -2341,7 +2341,7 @@ describe MergeRequest do
     end
   end
 
-  describe "#environments_for" do
+  describe '#environments_for' do
     let(:project)       { create(:project, :repository) }
     let(:user)          { project.creator }
     let(:merge_request) { create(:merge_request, source_project: project) }
@@ -2419,7 +2419,7 @@ describe MergeRequest do
     end
   end
 
-  describe "#environments" do
+  describe '#environments' do
     subject { merge_request.environments }
 
     let(:merge_request) { create(:merge_request, source_branch: 'feature', target_branch: 'master') }
@@ -2463,7 +2463,7 @@ describe MergeRequest do
     end
   end
 
-  describe "#reload_diff" do
+  describe '#reload_diff' do
     it 'calls MergeRequests::ReloadDiffsService#execute with correct params' do
       user = create(:user)
       service = instance_double(MergeRequests::ReloadDiffsService, execute: nil)
@@ -2506,7 +2506,7 @@ describe MergeRequest do
       end
     end
 
-    it "updates diff discussion positions" do
+    it 'updates diff discussion positions' do
       expect(Discussions::UpdateDiffPositionService).to receive(:new).with(
         subject.project,
         subject.author,
@@ -2559,8 +2559,8 @@ describe MergeRequest do
     end
   end
 
-  describe "#diff_refs" do
-    context "with diffs" do
+  describe '#diff_refs' do
+    context 'with diffs' do
       subject { create(:merge_request, :with_diffs) }
 
       let(:expected_diff_refs) do
@@ -2571,7 +2571,7 @@ describe MergeRequest do
         )
       end
 
-      it "does not touch the repository" do
+      it 'does not touch the repository' do
         subject # Instantiate the object
 
         expect_any_instance_of(Repository).not_to receive(:commit)
@@ -2579,7 +2579,7 @@ describe MergeRequest do
         subject.diff_refs
       end
 
-      it "returns expected diff_refs" do
+      it 'returns expected diff_refs' do
         expect(subject.diff_refs).to eq(expected_diff_refs)
       end
 
@@ -2588,20 +2588,20 @@ describe MergeRequest do
           subject.importing = true
         end
 
-        it "returns MR diff_refs" do
+        it 'returns MR diff_refs' do
           expect(subject.diff_refs).to eq(expected_diff_refs)
         end
       end
     end
   end
 
-  describe "#source_project_missing?" do
+  describe '#source_project_missing?' do
     let(:project) { create(:project) }
     let(:forked_project) { fork_project(project) }
     let(:user) { create(:user) }
     let(:unlink_project) { Projects::UnlinkForkService.new(forked_project, user) }
 
-    context "when the fork exists" do
+    context 'when the fork exists' do
       let(:merge_request) do
         create(:merge_request,
           source_project: forked_project,
@@ -2611,20 +2611,20 @@ describe MergeRequest do
       it { expect(merge_request.source_project_missing?).to be_falsey }
     end
 
-    context "when the source project is the same as the target project" do
+    context 'when the source project is the same as the target project' do
       let(:merge_request) { create(:merge_request, source_project: project) }
 
       it { expect(merge_request.source_project_missing?).to be_falsey }
     end
 
-    context "when the fork does not exist" do
+    context 'when the fork does not exist' do
       let!(:merge_request) do
         create(:merge_request,
           source_project: forked_project,
           target_project: project)
       end
 
-      it "returns true" do
+      it 'returns true' do
         unlink_project.execute
         merge_request.reload
 
@@ -2667,24 +2667,24 @@ describe MergeRequest do
     end
   end
 
-  describe "#closed_without_fork?" do
+  describe '#closed_without_fork?' do
     let(:project) { create(:project) }
     let(:forked_project) { fork_project(project) }
     let(:user) { create(:user) }
     let(:unlink_project) { Projects::UnlinkForkService.new(forked_project, user) }
 
-    context "when the merge request is closed" do
+    context 'when the merge request is closed' do
       let(:closed_merge_request) do
         create(:closed_merge_request,
           source_project: forked_project,
           target_project: project)
       end
 
-      it "returns false if the fork exist" do
+      it 'returns false if the fork exist' do
         expect(closed_merge_request.closed_without_fork?).to be_falsey
       end
 
-      it "returns true if the fork does not exist" do
+      it 'returns true if the fork does not exist' do
         unlink_project.execute
         closed_merge_request.reload
 
@@ -2692,14 +2692,14 @@ describe MergeRequest do
       end
     end
 
-    context "when the merge request is open" do
+    context 'when the merge request is open' do
       let(:open_merge_request) do
         create(:merge_request,
           source_project: forked_project,
           target_project: project)
       end
 
-      it "returns false" do
+      it 'returns false' do
         expect(open_merge_request.closed_without_fork?).to be_falsey
       end
     end

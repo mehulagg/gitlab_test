@@ -13,7 +13,7 @@ describe Metrics::Dashboard::CloneDashboardService, :use_clean_rails_memory_stor
     subject(:service_call) { described_class.new(project, user, params).execute }
 
     let(:commit_message) { 'test' }
-    let(:branch) { "dashboard_new_branch" }
+    let(:branch) { 'dashboard_new_branch' }
     let(:dashboard) { 'config/prometheus/common_metrics.yml' }
     let(:file_name) { 'custom_dashboard.yml' }
     let(:params) do
@@ -71,7 +71,7 @@ describe Metrics::Dashboard::CloneDashboardService, :use_clean_rails_memory_stor
             branch_name: branch,
             start_branch: project.default_branch,
             encoding: 'text',
-            file_path: ".gitlab/dashboards/custom_dashboard.yml",
+            file_path: '.gitlab/dashboards/custom_dashboard.yml',
             file_content: File.read(dashboard)
           }
         end
@@ -101,7 +101,7 @@ describe Metrics::Dashboard::CloneDashboardService, :use_clean_rails_memory_stor
             project.repository.add_branch(user, branch, 'master')
           end
 
-          it_behaves_like 'misconfigured dashboard service response', :bad_request, "There was an error creating the dashboard, branch named: existing_branch already exists."
+          it_behaves_like 'misconfigured dashboard service response', :bad_request, 'There was an error creating the dashboard, branch named: existing_branch already exists.'
 
           # temporary not available function for first iteration
           # follow up issue https://gitlab.com/gitlab-org/gitlab/issues/196237 which
@@ -133,7 +133,7 @@ describe Metrics::Dashboard::CloneDashboardService, :use_clean_rails_memory_stor
               commit_message: 'Create custom dashboard custom_dashboard.yml',
               branch_name: 'master',
               start_branch: 'master',
-              file_path: ".gitlab/dashboards/custom_dashboard.yml",
+              file_path: '.gitlab/dashboards/custom_dashboard.yml',
               file_content: File.read('config/prometheus/common_metrics.yml')
             ).execute
           end

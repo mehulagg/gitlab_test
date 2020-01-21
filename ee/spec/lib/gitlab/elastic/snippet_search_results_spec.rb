@@ -79,7 +79,7 @@ describe Gitlab::Elastic::SnippetSearchResults, :elastic, :sidekiq_might_not_nee
   end
 
   context 'when content is too long' do
-    let(:content) { "abc" + (" " * Elastic::Latest::SnippetInstanceProxy::MAX_INDEX_SIZE) + "xyz" }
+    let(:content) { 'abc' + (' ' * Elastic::Latest::SnippetInstanceProxy::MAX_INDEX_SIZE) + 'xyz' }
     let(:snippet) { create(:personal_snippet, :public, content: content) }
 
     it 'indexes up to a limit' do

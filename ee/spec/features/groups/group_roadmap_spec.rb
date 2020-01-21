@@ -105,7 +105,7 @@ describe 'group epic roadmap', :js do
         visit group_roadmap_path(group)
         wait_for_requests
 
-        expect(state_dropdown.find('.dropdown-toggle')).to have_text("Open epics")
+        expect(state_dropdown.find('.dropdown-toggle')).to have_text('Open epics')
         page.within('.roadmap-container .epics-list-section') do
           expect(page).to have_selector('.epics-list-item .epic-title', count: 2)
         end
@@ -191,8 +191,8 @@ describe 'group epic roadmap', :js do
         page.within('.js-epics-limit-callout') do
           find('#js-learn-more').click
           wait_for_requests
-          expect(URI.parse(current_url).host).to eq("docs.gitlab.com")
-          expect(URI.parse(current_url).path).to eq("/ee/user/group/roadmap/")
+          expect(URI.parse(current_url).host).to eq('docs.gitlab.com')
+          expect(URI.parse(current_url).path).to eq('/ee/user/group/roadmap/')
         end
       end
     end

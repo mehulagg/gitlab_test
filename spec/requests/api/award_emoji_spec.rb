@@ -16,9 +16,9 @@ describe API::AwardEmoji do
     project.add_maintainer(user)
   end
 
-  describe "GET /projects/:id/awardable/:awardable_id/award_emoji" do
+  describe 'GET /projects/:id/awardable/:awardable_id/award_emoji' do
     context 'on an issue' do
-      it "returns an array of award_emoji" do
+      it 'returns an array of award_emoji' do
         get api("/projects/#{project.id}/issues/#{issue.iid}/award_emoji", user)
 
         expect(response).to have_gitlab_http_status(200)
@@ -26,7 +26,7 @@ describe API::AwardEmoji do
         expect(json_response.first['name']).to eq(award_emoji.name)
       end
 
-      it "returns a 404 error when issue id not found" do
+      it 'returns a 404 error when issue id not found' do
         get api("/projects/#{project.id}/issues/12345/award_emoji", user)
 
         expect(response).to have_gitlab_http_status(404)
@@ -34,7 +34,7 @@ describe API::AwardEmoji do
     end
 
     context 'on a merge request' do
-      it "returns an array of award_emoji" do
+      it 'returns an array of award_emoji' do
         get api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/award_emoji", user)
 
         expect(response).to have_gitlab_http_status(200)
@@ -80,18 +80,18 @@ describe API::AwardEmoji do
     end
   end
 
-  describe "GET /projects/:id/awardable/:awardable_id/award_emoji/:award_id" do
+  describe 'GET /projects/:id/awardable/:awardable_id/award_emoji/:award_id' do
     context 'on an issue' do
-      it "returns the award emoji" do
+      it 'returns the award emoji' do
         get api("/projects/#{project.id}/issues/#{issue.iid}/award_emoji/#{award_emoji.id}", user)
 
         expect(response).to have_gitlab_http_status(200)
         expect(json_response['name']).to eq(award_emoji.name)
         expect(json_response['awardable_id']).to eq(issue.id)
-        expect(json_response['awardable_type']).to eq("Issue")
+        expect(json_response['awardable_type']).to eq('Issue')
       end
 
-      it "returns a 404 error if the award is not found" do
+      it 'returns a 404 error if the award is not found' do
         get api("/projects/#{project.id}/issues/#{issue.iid}/award_emoji/12345", user)
 
         expect(response).to have_gitlab_http_status(404)
@@ -105,7 +105,7 @@ describe API::AwardEmoji do
         expect(response).to have_gitlab_http_status(200)
         expect(json_response['name']).to eq(downvote.name)
         expect(json_response['awardable_id']).to eq(merge_request.id)
-        expect(json_response['awardable_type']).to eq("MergeRequest")
+        expect(json_response['awardable_type']).to eq('MergeRequest')
       end
     end
 
@@ -119,7 +119,7 @@ describe API::AwardEmoji do
         expect(response).to have_gitlab_http_status(200)
         expect(json_response['name']).to eq(award.name)
         expect(json_response['awardable_id']).to eq(snippet.id)
-        expect(json_response['awardable_type']).to eq("Snippet")
+        expect(json_response['awardable_type']).to eq('Snippet')
       end
     end
 
@@ -146,11 +146,11 @@ describe API::AwardEmoji do
     end
   end
 
-  describe "POST /projects/:id/awardable/:awardable_id/award_emoji" do
+  describe 'POST /projects/:id/awardable/:awardable_id/award_emoji' do
     let(:issue2) { create(:issue, project: project, author: user) }
 
-    context "on an issue" do
-      it "creates a new award emoji" do
+    context 'on an issue' do
+      it 'creates a new award emoji' do
         post api("/projects/#{project.id}/issues/#{issue.iid}/award_emoji", user), params: { name: 'blowfish' }
 
         expect(response).to have_gitlab_http_status(201)
@@ -166,22 +166,22 @@ describe API::AwardEmoji do
         expect(todo.reload).to be_done
       end
 
-      it "returns a 400 bad request error if the name is not given" do
+      it 'returns a 400 bad request error if the name is not given' do
         post api("/projects/#{project.id}/issues/#{issue.iid}/award_emoji", user)
 
         expect(response).to have_gitlab_http_status(400)
       end
 
-      it "returns a 401 unauthorized error if the user is not authenticated" do
+      it 'returns a 401 unauthorized error if the user is not authenticated' do
         post api("/projects/#{project.id}/issues/#{issue.iid}/award_emoji"), params: { name: 'thumbsup' }
 
         expect(response).to have_gitlab_http_status(401)
       end
 
-      it "normalizes +1 as thumbsup award" do
+      it 'normalizes +1 as thumbsup award' do
         post api("/projects/#{project.id}/issues/#{issue.iid}/award_emoji", user), params: { name: '+1' }
 
-        expect(issue.award_emoji.last.name).to eq("thumbsup")
+        expect(issue.award_emoji.last.name).to eq('thumbsup')
       end
 
       context 'when the emoji already has been awarded' do
@@ -190,7 +190,7 @@ describe API::AwardEmoji do
           post api("/projects/#{project.id}/issues/#{issue.iid}/award_emoji", user), params: { name: 'thumbsup' }
 
           expect(response).to have_gitlab_http_status(404)
-          expect(json_response["message"]).to match("has already been taken")
+          expect(json_response['message']).to match('has already been taken')
         end
       end
     end
@@ -208,7 +208,7 @@ describe API::AwardEmoji do
     end
   end
 
-  describe "POST /projects/:id/awardable/:awardable_id/notes/:note_id/award_emoji" do
+  describe 'POST /projects/:id/awardable/:awardable_id/notes/:note_id/award_emoji' do
     let(:note2)  { create(:note, project: project, noteable: issue, author: user) }
 
     it 'creates a new award emoji' do
@@ -228,10 +228,10 @@ describe API::AwardEmoji do
       expect(todo.reload).to be_done
     end
 
-    it "normalizes +1 as thumbsup award" do
+    it 'normalizes +1 as thumbsup award' do
       post api("/projects/#{project.id}/issues/#{issue.iid}/notes/#{note.id}/award_emoji", user), params: { name: '+1' }
 
-      expect(note.award_emoji.last.name).to eq("thumbsup")
+      expect(note.award_emoji.last.name).to eq('thumbsup')
     end
 
     context 'when the emoji already has been awarded' do
@@ -240,7 +240,7 @@ describe API::AwardEmoji do
         post api("/projects/#{project.id}/issues/#{issue.iid}/notes/#{note.id}/award_emoji", user), params: { name: 'rocket' }
 
         expect(response).to have_gitlab_http_status(404)
-        expect(json_response["message"]).to match("has already been taken")
+        expect(json_response['message']).to match('has already been taken')
       end
     end
   end

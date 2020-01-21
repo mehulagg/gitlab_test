@@ -119,7 +119,7 @@ describe Banzai::Filter::CommitTrailersFilter do
     end
   end
 
-  context "ignores" do
+  context 'ignores' do
     it 'commit messages without trailers' do
       exp = message = commit_html(FFaker::Lorem.sentence)
       doc = filter(message)
@@ -138,7 +138,7 @@ describe Banzai::Filter::CommitTrailersFilter do
     end
   end
 
-  context "structure" do
+  context 'structure' do
     it 'preserves the commit trailer structure' do
       doc = filter(commit_message_html)
 

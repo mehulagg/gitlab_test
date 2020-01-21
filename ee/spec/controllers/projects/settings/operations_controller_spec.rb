@@ -312,7 +312,7 @@ describe Projects::Settings::OperationsController do
 
         it 'fails validation with invalid url' do
           expect do
-            update_project(project, tracing_params: { external_url: "invalid" })
+            update_project(project, tracing_params: { external_url: 'invalid' })
           end.not_to change(project.tracing_setting, :external_url)
         end
 
@@ -331,7 +331,7 @@ describe Projects::Settings::OperationsController do
         end
 
         it 'fails validation with invalid url' do
-          update_project(project, tracing_params: { external_url: "invalid" })
+          update_project(project, tracing_params: { external_url: 'invalid' })
 
           expect(project.tracing_setting).to be_nil
         end
@@ -419,7 +419,7 @@ describe Projects::Settings::OperationsController do
 
         it 'creates a gitlab tracking event' do
           expect(Gitlab::Tracking).to receive(:event).with('project:operations:tracing', 'external_url_populated')
-          update_project(project, tracing_params: { external_url: "http://example.com" } )
+          update_project(project, tracing_params: { external_url: 'http://example.com' } )
         end
       end
     end

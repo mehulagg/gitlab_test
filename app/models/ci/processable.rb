@@ -13,7 +13,7 @@ module Ci
 
       aggregated_needs_names = Ci::BuildNeed
         .scoped_build
-        .select("ARRAY_AGG(name)")
+        .select('ARRAY_AGG(name)')
         .to_sql
 
       all.select(

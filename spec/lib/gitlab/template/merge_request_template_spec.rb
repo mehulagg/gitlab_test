@@ -41,7 +41,7 @@ describe Gitlab::Template::MergeRequestTemplate do
     context 'when repo is bare or empty' do
       let(:empty_project) { create(:project) }
 
-      it "returns empty array" do
+      it 'returns empty array' do
         templates = described_class.by_category('', empty_project)
 
         expect(templates).to be_empty
@@ -62,10 +62,10 @@ describe Gitlab::Template::MergeRequestTemplate do
       expect { issue_template.content }.to raise_error(Gitlab::Template::Finders::RepoTemplateFinder::FileNotFoundError)
     end
 
-    context "when repo is empty" do
+    context 'when repo is empty' do
       let(:empty_project) { create(:project) }
 
-      it "raises file not found" do
+      it 'raises file not found' do
         issue_template = described_class.new('.gitlab/merge_request_templates/not_existent.md', empty_project)
 
         expect { issue_template.content }.to raise_error(Gitlab::Template::Finders::RepoTemplateFinder::FileNotFoundError)

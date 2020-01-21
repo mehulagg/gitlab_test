@@ -9,30 +9,30 @@ describe HistoricalData do
     end
   end
 
-  describe ".during" do
-    it "returns the historical data during the specified period" do
+  describe '.during' do
+    it 'returns the historical data during the specified period' do
       expect(described_class.during(Date.new(2014, 1, 1)..Date.new(2014, 12, 31)).average(:active_user_count)).to eq(650)
     end
   end
 
-  describe ".up_until" do
-    it "returns the historical data up until the specified date" do
+  describe '.up_until' do
+    it 'returns the historical data up until the specified date' do
       expect(described_class.up_until(Date.new(2014, 6, 1)).average(:active_user_count)).to eq(350)
     end
   end
 
-  describe ".at" do
-    it "returns the historical data at the specified date" do
+  describe '.at' do
+    it 'returns the historical data at the specified date' do
       expect(described_class.at(Date.new(2014, 8, 1)).active_user_count).to eq(800)
     end
   end
 
-  describe ".track!" do
+  describe '.track!' do
     before do
       allow(User).to receive(:active).and_return([1, 2, 3, 4, 5])
     end
 
-    it "creates a new historical data record" do
+    it 'creates a new historical data record' do
       described_class.track!
 
       data = described_class.last

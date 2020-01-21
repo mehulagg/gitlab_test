@@ -53,11 +53,11 @@ describe FixAnyApproverRuleForProjects, :migration do
     end
 
     expect(rows).to eq([
-      { "id" => 1, "project_id" => 1 },
-      { "id" => 2, "project_id" => 2 },
-      { "id" => 3, "project_id" => 3 },
-      { "id" => 5, "project_id" => 4 },
-      { "id" => 7, "project_id" => 5 }
+      { 'id' => 1, 'project_id' => 1 },
+      { 'id' => 2, 'project_id' => 2 },
+      { 'id' => 3, 'project_id' => 3 },
+      { 'id' => 5, 'project_id' => 4 },
+      { 'id' => 7, 'project_id' => 5 }
     ])
   end
 end

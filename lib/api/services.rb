@@ -25,7 +25,7 @@ module API
     SERVICE_CLASSES.each do |service|
       event_names = service.try(:event_names) || next
       event_names.each do |event_name|
-        SERVICES[service.to_param.tr("_", "-")] << {
+        SERVICES[service.to_param.tr('_', '-')] << {
           required: false,
           name: event_name.to_sym,
           type: String,
@@ -69,7 +69,7 @@ module API
       desc 'Get all active project services' do
         success Entities::ProjectServiceBasic
       end
-      get ":id/services" do
+      get ':id/services' do
         services = user_project.services.active
 
         present services, with: Entities::ProjectServiceBasic
@@ -98,11 +98,11 @@ module API
         end
       end
 
-      desc "Delete a service for project"
+      desc 'Delete a service for project'
       params do
         requires :service_slug, type: String, values: SERVICES.keys, desc: 'The name of the service'
       end
-      delete ":id/services/:service_slug" do
+      delete ':id/services/:service_slug' do
         service = user_project.find_or_initialize_service(params[:service_slug].underscore)
 
         destroy_conditionally!(service) do
@@ -122,7 +122,7 @@ module API
       params do
         requires :service_slug, type: String, values: SERVICES.keys, desc: 'The name of the service'
       end
-      get ":id/services/:service_slug" do
+      get ':id/services/:service_slug' do
         service = user_project.find_or_initialize_service(params[:service_slug].underscore)
         present service, with: Entities::ProjectService
       end

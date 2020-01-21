@@ -87,34 +87,34 @@ module TreeHelper
 
   def edit_in_new_fork_notice_now
     _("You're not allowed to make changes to this project directly. "\
-      "A fork of this project is being created that you can make changes in, so you can submit a merge request.")
+      'A fork of this project is being created that you can make changes in, so you can submit a merge request.')
   end
 
   def edit_in_new_fork_notice
     _("You're not allowed to make changes to this project directly. "\
-      "A fork of this project has been created that you can make changes in, so you can submit a merge request.")
+      'A fork of this project has been created that you can make changes in, so you can submit a merge request.')
   end
 
   def edit_in_new_fork_notice_action(action)
-    edit_in_new_fork_notice + _(" Try to %{action} this file again.") % { action: action }
+    edit_in_new_fork_notice + _(' Try to %{action} this file again.') % { action: action }
   end
 
   def commit_in_fork_help
-    _("A new branch will be created in your fork and a new merge request will be started.")
+    _('A new branch will be created in your fork and a new merge request will be started.')
   end
 
   def commit_in_single_accessible_branch
     branch_name = ERB::Util.html_escape(selected_branch)
 
-    message = _("Your changes can be committed to %{branch_name} because a merge "\
-                "request is open.") % { branch_name: "<strong>#{branch_name}</strong>" }
+    message = _('Your changes can be committed to %{branch_name} because a merge '\
+                'request is open.') % { branch_name: "<strong>#{branch_name}</strong>" }
 
     message.html_safe
   end
 
   def path_breadcrumbs(max_links = 6)
     if @path.present?
-      part_path = ""
+      part_path = ''
       parts = @path.split('/')
 
       yield('..', File.join(*parts.first(parts.count - 2))) if parts.count > max_links
@@ -131,7 +131,7 @@ module TreeHelper
   end
 
   def up_dir_path
-    file = File.join(@path, "..")
+    file = File.join(@path, '..')
     tree_join(@ref, file)
   end
 
@@ -151,7 +151,7 @@ module TreeHelper
   # project and path are used on the EE version
   def tree_content_data(logs_path, project, path)
     {
-      "logs-path" => logs_path
+      'logs-path' => logs_path
     }
   end
 
@@ -177,11 +177,11 @@ module TreeHelper
         fork_new_blob_path: project_forks_path(@project, namespace_key: current_user.namespace.id, continue: continue_param),
         fork_new_directory_path: project_forks_path(@project, namespace_key: current_user.namespace.id, continue: continue_param.merge({
           to: request.fullpath,
-          notice: _("%{edit_in_new_fork_notice} Try to create a new directory again.") % { edit_in_new_fork_notice: edit_in_new_fork_notice }
+          notice: _('%{edit_in_new_fork_notice} Try to create a new directory again.') % { edit_in_new_fork_notice: edit_in_new_fork_notice }
         })),
         fork_upload_blob_path: project_forks_path(@project, namespace_key: current_user.namespace.id, continue: continue_param.merge({
           to: request.fullpath,
-          notice: _("%{edit_in_new_fork_notice} Try to upload a file again.") % { edit_in_new_fork_notice: edit_in_new_fork_notice }
+          notice: _('%{edit_in_new_fork_notice} Try to upload a file again.') % { edit_in_new_fork_notice: edit_in_new_fork_notice }
         }))
       )
     end

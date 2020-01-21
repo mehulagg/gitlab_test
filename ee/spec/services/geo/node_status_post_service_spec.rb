@@ -47,7 +47,7 @@ describe Geo::NodeStatusPostService, :geo do
       allow_any_instance_of(GeoNode).to receive(:secret_access_key).and_raise(OpenSSL::Cipher::CipherError)
 
       expect(subject).to receive(:log_error).with(
-        "Error decrypting the Geo secret from the database. Check that the primary uses the correct db_key_base.",
+        'Error decrypting the Geo secret from the database. Check that the primary uses the correct db_key_base.',
         kind_of(OpenSSL::Cipher::CipherError)
       )
 

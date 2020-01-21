@@ -11,11 +11,11 @@ describe 'Milestones sorting', :js do
     create(:milestone,
       due_date: 10.days.from_now,
       created_at:  2.hours.ago,
-      title: "aaa", project: project)
+      title: 'aaa', project: project)
     create(:milestone,
       due_date: 11.days.from_now,
       created_at:  1.hour.ago,
-      title: "bbb", project: project)
+      title: 'bbb', project: project)
     sign_in(user)
   end
 

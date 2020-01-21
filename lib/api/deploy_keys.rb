@@ -22,7 +22,7 @@ module API
     params do
       use :pagination
     end
-    get "deploy_keys" do
+    get 'deploy_keys' do
       authenticated_as_admin!
 
       present paginate(DeployKey.all), with: Entities::SSHKey
@@ -41,7 +41,7 @@ module API
         use :pagination
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      get ":id/deploy_keys" do
+      get ':id/deploy_keys' do
         keys = user_project.deploy_keys_projects.preload(:deploy_key)
 
         present paginate(keys), with: Entities::DeployKeysProject
@@ -54,7 +54,7 @@ module API
       params do
         requires :key_id, type: Integer, desc: 'The ID of the deploy key'
       end
-      get ":id/deploy_keys/:key_id" do
+      get ':id/deploy_keys/:key_id' do
         key = find_by_deploy_key(user_project, params[:key_id])
 
         present key, with: Entities::DeployKeysProject
@@ -69,7 +69,7 @@ module API
         optional :can_push, type: Boolean, desc: "Can deploy key push to the project's repository"
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      post ":id/deploy_keys" do
+      post ':id/deploy_keys' do
         params[:key].strip!
 
         # Check for an existing key joined to this project
@@ -112,7 +112,7 @@ module API
         optional :can_push, type: Boolean, desc: "Can deploy key push to the project's repository"
         at_least_one_of :title, :can_push
       end
-      put ":id/deploy_keys/:key_id" do
+      put ':id/deploy_keys/:key_id' do
         deploy_keys_project = find_by_deploy_key(user_project, params[:key_id])
 
         if !can?(current_user, :update_deploy_key, deploy_keys_project.deploy_key) &&
@@ -144,7 +144,7 @@ module API
       params do
         requires :key_id, type: Integer, desc: 'The ID of the deploy key'
       end
-      post ":id/deploy_keys/:key_id/enable" do
+      post ':id/deploy_keys/:key_id/enable' do
         key = ::Projects::EnableDeployKeyService.new(user_project,
                                                       current_user, declared_params).execute
 
@@ -162,7 +162,7 @@ module API
         requires :key_id, type: Integer, desc: 'The ID of the deploy key'
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      delete ":id/deploy_keys/:key_id" do
+      delete ':id/deploy_keys/:key_id' do
         deploy_key_project = user_project.deploy_keys_projects.find_by(deploy_key_id: params[:key_id])
         not_found!('Deploy Key') unless deploy_key_project
 

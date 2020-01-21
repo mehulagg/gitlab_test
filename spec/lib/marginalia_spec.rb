@@ -56,11 +56,11 @@ describe 'Marginalia spec' do
 
     let(:component_map) do
       {
-        "application"       => "test",
-        "controller"        => "marginalia_test",
-        "action"            => "first_user",
-        "line"              => "/spec/support/helpers/query_recorder.rb",
-        "correlation_id"    => correlation_id
+        'application'       => 'test',
+        'controller'        => 'marginalia_test',
+        'action'            => 'first_user',
+        'line'              => '/spec/support/helpers/query_recorder.rb',
+        'correlation_id'    => correlation_id
       }
     end
 
@@ -82,8 +82,8 @@ describe 'Marginalia spec' do
       end
 
       it 'excludes annotations in generated queries' do
-        expect(recorded.log.last).not_to include("/*")
-        expect(recorded.log.last).not_to include("*/")
+        expect(recorded.log.last).not_to include('/*')
+        expect(recorded.log.last).not_to include('*/')
       end
     end
   end
@@ -93,7 +93,7 @@ describe 'Marginalia spec' do
       add_sidekiq_middleware
 
       # Because of faking, 'Sidekiq.server?' does not work so implicitly set application name which is done in config/initializers/0_marginalia.rb
-      Marginalia.application_name = "sidekiq"
+      Marginalia.application_name = 'sidekiq'
     end
 
     after(:all) do
@@ -114,11 +114,11 @@ describe 'Marginalia spec' do
 
     let(:component_map) do
       {
-        "application"       => "sidekiq",
-        "job_class"         => "MarginaliaTestJob",
-        "line"              => "/spec/support/sidekiq_middleware.rb",
-        "correlation_id"    => sidekiq_job['correlation_id'],
-        "jid"               => sidekiq_job['jid']
+        'application'       => 'sidekiq',
+        'job_class'         => 'MarginaliaTestJob',
+        'line'              => '/spec/support/sidekiq_middleware.rb',
+        'correlation_id'    => sidekiq_job['correlation_id'],
+        'jid'               => sidekiq_job['jid']
       }
     end
 
@@ -144,10 +144,10 @@ describe 'Marginalia spec' do
 
         let(:component_map) do
           {
-            "application"  => "sidekiq",
-            "line"         => "/lib/gitlab/i18n.rb",
-            "jid"          => delivery_job.job_id,
-            "job_class"    => delivery_job.arguments.first
+            'application'  => 'sidekiq',
+            'line'         => '/lib/gitlab/i18n.rb',
+            'jid'          => delivery_job.job_id,
+            'job_class'    => delivery_job.arguments.first
           }
         end
 
@@ -165,8 +165,8 @@ describe 'Marginalia spec' do
       end
 
       it 'excludes annotations in generated queries' do
-        expect(recorded.log.last).not_to include("/*")
-        expect(recorded.log.last).not_to include("*/")
+        expect(recorded.log.last).not_to include('/*')
+        expect(recorded.log.last).not_to include('*/')
       end
     end
   end

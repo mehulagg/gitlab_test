@@ -36,7 +36,7 @@ describe API::ProjectApprovals do
       get api(url, user)
 
       expect(response).to match_response_schema('public_api/v4/project_approvers', dir: 'ee')
-      expect(json_response["approver_groups"]).to be_empty
+      expect(json_response['approver_groups']).to be_empty
     end
   end
 
@@ -91,7 +91,7 @@ describe API::ProjectApprovals do
           post api(url, current_user), params: { approvals_before_merge: 3 }
 
           expect(response).to match_response_schema('public_api/v4/project_approvers', dir: 'ee')
-          expect(json_response["approver_groups"].size).to eq(visible_approver_groups_count)
+          expect(json_response['approver_groups'].size).to eq(visible_approver_groups_count)
         end
       end
     end
@@ -174,7 +174,7 @@ describe API::ProjectApprovals do
         end.to change { project.approver_groups.count }.from(0).to(1)
 
         expect(response).to match_response_schema('public_api/v4/project_approvers', dir: 'ee')
-        expect(json_response["approver_groups"].size).to eq(visible_approver_groups_count)
+        expect(json_response['approver_groups'].size).to eq(visible_approver_groups_count)
       end
     end
 

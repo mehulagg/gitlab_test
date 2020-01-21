@@ -7,7 +7,7 @@ require 'gitlab'
 #
 Gitlab.configure do |config|
   config.endpoint      = 'https://gitlab.com/api/v4'
-  config.private_token = ENV["DOCS_API_TOKEN"] # GitLab Docs bot access token with Developer access to gitlab-docs
+  config.private_token = ENV['DOCS_API_TOKEN'] # GitLab Docs bot access token with Developer access to gitlab-docs
 end
 
 #
@@ -21,7 +21,7 @@ GITLAB_DOCS_REPO = 'gitlab-org/gitlab-docs'.freeze
 # kicked the review app.
 #
 def docs_branch
-  "docs-preview-#{slug}-#{ENV["CI_MERGE_REQUEST_IID"]}"
+  "docs-preview-#{slug}-#{ENV['CI_MERGE_REQUEST_IID']}"
 end
 
 #
@@ -40,7 +40,7 @@ def create_remote_branch
   # Wait until the pipeline is started
   loop do
     sleep 1
-    puts "=> Waiting for pipeline to start..."
+    puts '=> Waiting for pipeline to start...'
     pipelines = Gitlab.pipelines(GITLAB_DOCS_REPO, { ref: docs_branch })
     break if pipelines.any?
   end
@@ -66,7 +66,7 @@ end
 # Define suffix in review app URL based on project
 #
 def slug
-  case ENV["CI_PROJECT_NAME"]
+  case ENV['CI_PROJECT_NAME']
   when 'gitlab-foss'
     'ce'
   when 'gitlab'
@@ -90,24 +90,24 @@ end
 #
 def trigger_pipeline
   # The review app URL
-  app_url = "http://#{docs_branch}.#{ENV["DOCS_REVIEW_APPS_DOMAIN"]}/#{slug}"
+  app_url = "http://#{docs_branch}.#{ENV['DOCS_REVIEW_APPS_DOMAIN']}/#{slug}"
 
   # Create the cross project pipeline using CI_JOB_TOKEN
-  pipeline = Gitlab.run_trigger(GITLAB_DOCS_REPO, ENV["CI_JOB_TOKEN"], docs_branch, { param_name => ENV["CI_COMMIT_REF_NAME"] })
+  pipeline = Gitlab.run_trigger(GITLAB_DOCS_REPO, ENV['CI_JOB_TOKEN'], docs_branch, { param_name => ENV['CI_COMMIT_REF_NAME'] })
 
-  puts "=> Follow the status of the triggered pipeline:"
-  puts ""
+  puts '=> Follow the status of the triggered pipeline:'
+  puts ''
   puts pipeline.web_url
-  puts ""
-  puts "=> In a few minutes, you will be able to preview your changes under the following URL:"
-  puts ""
+  puts ''
+  puts '=> In a few minutes, you will be able to preview your changes under the following URL:'
+  puts ''
   puts app_url
-  puts ""
-  puts "=> For more information, see the documentation"
-  puts "=> https://docs.gitlab.com/ee/development/documentation/index.html#previewing-the-changes-live"
-  puts ""
+  puts ''
+  puts '=> For more information, see the documentation'
+  puts '=> https://docs.gitlab.com/ee/development/documentation/index.html#previewing-the-changes-live'
+  puts ''
   puts "=> If something doesn't work, drop a line in the #docs chat channel."
-  puts ""
+  puts ''
 end
 
 #

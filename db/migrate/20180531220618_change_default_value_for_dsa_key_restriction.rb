@@ -6,7 +6,7 @@ class ChangeDefaultValueForDsaKeyRestriction < ActiveRecord::Migration[4.2]
     change_column :application_settings, :dsa_key_restriction, :integer, null: false,
                                                                          default: -1
 
-    execute("UPDATE application_settings SET dsa_key_restriction = -1")
+    execute('UPDATE application_settings SET dsa_key_restriction = -1')
   end
 
   def down

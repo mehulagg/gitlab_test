@@ -112,8 +112,8 @@ module EE
 
       link_to sprite_icon(sort_icon, size: 16),
               page_filter_path(sort: opposite_sorting_param),
-              class: "btn btn-default has-tooltip qa-reverse-sort btn-sort-direction",
-              title: _("Sort direction")
+              class: 'btn btn-default has-tooltip qa-reverse-sort btn-sort-direction',
+              title: _('Sort direction')
     end
 
     def sort_title_start_date

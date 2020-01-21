@@ -36,7 +36,7 @@ module Gitlab
             { "offset": { order: :desc } }
           ],
           # only return these fields in the response
-          _source: ["@timestamp", "message"],
+          _source: ['@timestamp', 'message'],
           # fixed limit for now, we should support paginated queries
           size: ::Gitlab::Elasticsearch::Logs::LOGS_LIMIT
         }
@@ -45,7 +45,7 @@ module Gitlab
       def filter_pod_name(query, pod_name)
         query[:bool][:must] << {
           match_phrase: {
-            "kubernetes.pod.name" => {
+            'kubernetes.pod.name' => {
               query: pod_name
             }
           }
@@ -55,7 +55,7 @@ module Gitlab
       def filter_namespace(query, namespace)
         query[:bool][:must] << {
           match_phrase: {
-            "kubernetes.namespace" => {
+            'kubernetes.namespace' => {
               query: namespace
             }
           }
@@ -69,7 +69,7 @@ module Gitlab
 
         query[:bool][:must] << {
           match_phrase: {
-            "kubernetes.container.name" => {
+            'kubernetes.container.name' => {
               query: container_name
             }
           }
@@ -100,10 +100,10 @@ module Gitlab
       end
 
       def format_response(response)
-        result = response.fetch("hits", {}).fetch("hits", []).map do |hit|
+        result = response.fetch('hits', {}).fetch('hits', []).map do |hit|
           {
-            timestamp: hit["_source"]["@timestamp"],
-            message: hit["_source"]["message"]
+            timestamp: hit['_source']['@timestamp'],
+            message: hit['_source']['message']
           }
         end
 

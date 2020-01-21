@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe NewNoteWorker do
   context 'when Note found' do
     let(:note) { create(:note) }
 
-    it "calls NotificationService#new_note" do
+    it 'calls NotificationService#new_note' do
       expect_next_instance_of(NotificationService) do |service|
         expect(service).to receive(:new_note).with(note)
       end
@@ -14,7 +14,7 @@ describe NewNoteWorker do
       described_class.new.perform(note.id)
     end
 
-    it "calls Notes::PostProcessService#execute" do
+    it 'calls Notes::PostProcessService#execute' do
       expect_next_instance_of(Notes::PostProcessService) do |service|
         expect(service).to receive(:execute)
       end
@@ -37,13 +37,13 @@ describe NewNoteWorker do
       expect { described_class.new.perform(unexistent_note_id) }.not_to raise_error
     end
 
-    it "does not call NotificationService" do
+    it 'does not call NotificationService' do
       expect(NotificationService).not_to receive(:new)
 
       described_class.new.perform(unexistent_note_id)
     end
 
-    it "does not call Notes::PostProcessService" do
+    it 'does not call Notes::PostProcessService' do
       expect(Notes::PostProcessService).not_to receive(:new)
 
       described_class.new.perform(unexistent_note_id)

@@ -54,7 +54,7 @@ describe Gitlab::DatabaseImporters::InstanceAdministrators::CreateGroup do
         )
       end
 
-      it "tracks successful install" do
+      it 'tracks successful install' do
         expect(::Gitlab::Tracking).to receive(:event).with(
           'instance_administrators_group', 'group_created'
         )
@@ -127,7 +127,7 @@ describe Gitlab::DatabaseImporters::InstanceAdministrators::CreateGroup do
         let(:group) { build(:group) }
 
         before do
-          group.errors.add(:base, "Test error")
+          group.errors.add(:base, 'Test error')
 
           expect_next_instance_of(::Groups::CreateService) do |group_create_service|
             expect(group_create_service).to receive(:execute)

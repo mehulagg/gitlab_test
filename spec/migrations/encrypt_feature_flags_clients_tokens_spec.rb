@@ -7,7 +7,7 @@ describe EncryptFeatureFlagsClientsTokens, :migration do
   let(:migration) { described_class.new }
   let(:feature_flags_clients) { table(:operations_feature_flags_clients) }
   let(:projects) { table(:projects) }
-  let(:plaintext) { "secret-token" }
+  let(:plaintext) { 'secret-token' }
   let(:ciphertext) { Gitlab::CryptoHelper.aes256_gcm_encrypt(plaintext) }
 
   describe '#up' do

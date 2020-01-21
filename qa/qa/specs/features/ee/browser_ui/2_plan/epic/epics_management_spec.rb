@@ -63,7 +63,7 @@ module QA
           Page::Project::Issue::Show.perform do |show|
             show.wait_for_related_issues_to_load
             show.comment("/epic #{issue.project.group.web_url}/-/epics/#{epic.iid}")
-            show.comment("/remove_epic")
+            show.comment('/remove_epic')
           end
 
           epic.visit!

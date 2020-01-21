@@ -53,7 +53,7 @@ module Gitlab
           if result[:group].persisted?
             success(result)
           else
-            log_error("Could not create instance administrators group. Errors: %{errors}" % { errors: result[:group].errors.full_messages })
+            log_error('Could not create instance administrators group. Errors: %{errors}' % { errors: result[:group].errors.full_messages })
             error(_('Could not create group'))
           end
         end
@@ -68,7 +68,7 @@ module Gitlab
           if response
             success(result)
           else
-            log_error("Could not save instance administrators group ID, errors: %{errors}" % { errors: application_settings.errors.full_messages })
+            log_error('Could not save instance administrators group ID, errors: %{errors}' % { errors: application_settings.errors.full_messages })
             error(_('Could not save group ID'))
           end
         end
@@ -87,7 +87,7 @@ module Gitlab
         end
 
         def track_event(result)
-          ::Gitlab::Tracking.event("instance_administrators_group", "group_created")
+          ::Gitlab::Tracking.event('instance_administrators_group', 'group_created')
 
           success(result)
         end

@@ -8,8 +8,8 @@ describe Mattermost::Session, type: :request do
 
   let(:user) { create(:user) }
 
-  let(:gitlab_url) { "http://gitlab.com" }
-  let(:mattermost_url) { "http://mattermost.com" }
+  let(:gitlab_url) { 'http://gitlab.com' }
+  let(:mattermost_url) { 'http://mattermost.com' }
 
   subject { described_class.new(user) }
 
@@ -54,9 +54,9 @@ describe Mattermost::Session, type: :request do
       end
 
       context 'with token_uri' do
-        let(:state) { "state" }
+        let(:state) { 'state' }
         let(:params) do
-          { response_type: "code",
+          { response_type: 'code',
             client_id: doorkeeper.uid,
             redirect_uri: "#{mattermost_url}/signup/gitlab/complete",
             state: state }
@@ -69,7 +69,7 @@ describe Mattermost::Session, type: :request do
           stub_full_request("#{mattermost_url}/signup/gitlab/complete")
             .with(query: hash_including({ 'state' => state }))
             .to_return do |request|
-              post "/oauth/token",
+              post '/oauth/token',
                 params: {
                   client_id: doorkeeper.uid,
                   client_secret: doorkeeper.secret,
@@ -96,10 +96,10 @@ describe Mattermost::Session, type: :request do
 
         it 'returns the value of the block' do
           result = subject.with_session do |session|
-            "value"
+            'value'
           end
 
-          expect(result).to eq("value")
+          expect(result).to eq('value')
         end
       end
     end

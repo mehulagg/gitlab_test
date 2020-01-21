@@ -70,40 +70,40 @@ describe Projects::DiscussionsController do
       sign_in user
     end
 
-    context "when the user is not authorized to resolve the discussion" do
-      it "returns status 404" do
+    context 'when the user is not authorized to resolve the discussion' do
+      it 'returns status 404' do
         post :resolve, params: request_params
 
         expect(response).to have_gitlab_http_status(404)
       end
     end
 
-    context "when the user is authorized to resolve the discussion" do
+    context 'when the user is authorized to resolve the discussion' do
       before do
         project.add_developer(user)
       end
 
-      context "when the discussion is not resolvable" do
+      context 'when the discussion is not resolvable' do
         before do
           note.update(system: true)
         end
 
-        it "returns status 404" do
+        it 'returns status 404' do
           post :resolve, params: request_params
 
           expect(response).to have_gitlab_http_status(404)
         end
       end
 
-      context "when the discussion is resolvable" do
-        it "resolves the discussion" do
+      context 'when the discussion is resolvable' do
+        it 'resolves the discussion' do
           post :resolve, params: request_params
 
           expect(note.reload.discussion.resolved?).to be true
           expect(note.reload.discussion.resolved_by).to eq(user)
         end
 
-        it "sends notifications if all discussions are resolved" do
+        it 'sends notifications if all discussions are resolved' do
           expect_next_instance_of(MergeRequests::ResolvedDiscussionNotificationService) do |instance|
             expect(instance).to receive(:execute).with(merge_request)
           end
@@ -111,19 +111,19 @@ describe Projects::DiscussionsController do
           post :resolve, params: request_params
         end
 
-        it "returns the name of the resolving user" do
+        it 'returns the name of the resolving user' do
           post :resolve, params: request_params
 
           expect(json_response['resolved_by']['name']).to eq(user.name)
         end
 
-        it "returns status 200" do
+        it 'returns status 200' do
           post :resolve, params: request_params
 
           expect(response).to have_gitlab_http_status(200)
         end
 
-        it "renders discussion with serializer" do
+        it 'renders discussion with serializer' do
           expect_next_instance_of(DiscussionSerializer) do |instance|
             expect(instance).to receive(:represent)
               .with(instance_of(Discussion), { context: instance_of(described_class), render_truncated_diff_lines: true })
@@ -136,7 +136,7 @@ describe Projects::DiscussionsController do
           let(:note) { create(:diff_note_on_merge_request, noteable: merge_request, project: project) }
           let(:discussion) { note.discussion }
 
-          it "returns truncated diff lines" do
+          it 'returns truncated diff lines' do
             post :resolve, params: request_params
 
             expect(json_response['truncated_diff_lines']).to be_present
@@ -153,50 +153,50 @@ describe Projects::DiscussionsController do
       note.discussion.resolve!(user)
     end
 
-    context "when the user is not authorized to resolve the discussion" do
-      it "returns status 404" do
+    context 'when the user is not authorized to resolve the discussion' do
+      it 'returns status 404' do
         delete :unresolve, params: request_params
 
         expect(response).to have_gitlab_http_status(404)
       end
     end
 
-    context "when the user is authorized to resolve the discussion" do
+    context 'when the user is authorized to resolve the discussion' do
       before do
         project.add_developer(user)
       end
 
-      context "when the discussion is not resolvable" do
+      context 'when the discussion is not resolvable' do
         before do
           note.update(system: true)
         end
 
-        it "returns status 404" do
+        it 'returns status 404' do
           delete :unresolve, params: request_params
 
           expect(response).to have_gitlab_http_status(404)
         end
       end
 
-      context "when the discussion is resolvable" do
-        it "unresolves the discussion" do
+      context 'when the discussion is resolvable' do
+        it 'unresolves the discussion' do
           delete :unresolve, params: request_params
 
           expect(note.reload.discussion.resolved?).to be false
         end
 
-        it "returns status 200" do
+        it 'returns status 200' do
           delete :unresolve, params: request_params
 
           expect(response).to have_gitlab_http_status(200)
         end
 
-        context "when vue_mr_discussions cookie is present" do
+        context 'when vue_mr_discussions cookie is present' do
           before do
             cookies[:vue_mr_discussions] = 'true'
           end
 
-          it "renders discussion with serializer" do
+          it 'renders discussion with serializer' do
             expect_next_instance_of(DiscussionSerializer) do |instance|
               expect(instance).to receive(:represent)
                 .with(instance_of(Discussion), { context: instance_of(described_class), render_truncated_diff_lines: true })

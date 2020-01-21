@@ -4,7 +4,7 @@ RSpec.shared_examples ::Security::JobsFinder do |default_job_types|
   let(:pipeline) { create(:ci_pipeline) }
 
   describe '#new' do
-    it "does not get initialized for unsupported job types" do
+    it 'does not get initialized for unsupported job types' do
       expect { described_class.new(pipeline: pipeline, job_types: [:abcd]) }.to raise_error(
         ArgumentError,
         "job_types must be from the following: #{default_job_types}"

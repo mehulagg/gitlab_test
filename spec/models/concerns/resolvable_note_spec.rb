@@ -41,7 +41,7 @@ describe Note, ResolvableNote do
     end
   end
 
-  describe ".resolve!" do
+  describe '.resolve!' do
     let(:current_user) { create(:user) }
     let!(:commit_note) { create(:diff_note_on_commit, project: project) }
     let!(:resolved_note) { create(:discussion_note_on_merge_request, :resolved, noteable: merge_request, project: project) }
@@ -63,7 +63,7 @@ describe Note, ResolvableNote do
     end
   end
 
-  describe ".unresolve!" do
+  describe '.unresolve!' do
     let!(:resolved_note) { create(:discussion_note_on_merge_request, :resolved, noteable: merge_request, project: project) }
 
     before do
@@ -79,78 +79,78 @@ describe Note, ResolvableNote do
   end
 
   describe '#resolvable?' do
-    context "when potentially resolvable" do
+    context 'when potentially resolvable' do
       before do
         allow(subject).to receive(:potentially_resolvable?).and_return(true)
       end
 
-      context "when a system note" do
+      context 'when a system note' do
         before do
           subject.system = true
         end
 
-        it "returns false" do
+        it 'returns false' do
           expect(subject.resolvable?).to be false
         end
       end
 
-      context "when a regular note" do
-        it "returns true" do
+      context 'when a regular note' do
+        it 'returns true' do
           expect(subject.resolvable?).to be true
         end
       end
     end
 
-    context "when not potentially resolvable" do
+    context 'when not potentially resolvable' do
       before do
         allow(subject).to receive(:potentially_resolvable?).and_return(false)
       end
 
-      it "returns false" do
+      it 'returns false' do
         expect(subject.resolvable?).to be false
       end
     end
   end
 
-  describe "#to_be_resolved?" do
-    context "when not resolvable" do
+  describe '#to_be_resolved?' do
+    context 'when not resolvable' do
       before do
         allow(subject).to receive(:resolvable?).and_return(false)
       end
 
-      it "returns false" do
+      it 'returns false' do
         expect(subject.to_be_resolved?).to be false
       end
     end
 
-    context "when resolvable" do
+    context 'when resolvable' do
       before do
         allow(subject).to receive(:resolvable?).and_return(true)
       end
 
-      context "when resolved" do
+      context 'when resolved' do
         before do
           allow(subject).to receive(:resolved?).and_return(true)
         end
 
-        it "returns false" do
+        it 'returns false' do
           expect(subject.to_be_resolved?).to be false
         end
       end
 
-      context "when not resolved" do
+      context 'when not resolved' do
         before do
           allow(subject).to receive(:resolved?).and_return(false)
         end
 
-        it "returns true" do
+        it 'returns true' do
           expect(subject.to_be_resolved?).to be true
         end
       end
     end
   end
 
-  describe "#resolved?" do
+  describe '#resolved?' do
     let(:current_user) { create(:user) }
 
     context 'when not resolvable' do
@@ -184,15 +184,15 @@ describe Note, ResolvableNote do
     end
   end
 
-  describe "#resolve!" do
+  describe '#resolve!' do
     let(:current_user) { create(:user) }
 
-    context "when not resolvable" do
+    context 'when not resolvable' do
       before do
         allow(subject).to receive(:resolvable?).and_return(false)
       end
 
-      it "returns false" do
+      it 'returns false' do
         expect(subject.resolve!(current_user)).to be_falsey
       end
 
@@ -215,19 +215,19 @@ describe Note, ResolvableNote do
       end
     end
 
-    context "when resolvable" do
+    context 'when resolvable' do
       before do
         allow(subject).to receive(:resolvable?).and_return(true)
       end
 
-      context "when already resolved" do
+      context 'when already resolved' do
         let(:user) { create(:user) }
 
         before do
           subject.resolve!(user)
         end
 
-        it "returns false" do
+        it 'returns false' do
           expect(subject.resolve!(current_user)).to be_falsey
         end
 
@@ -250,24 +250,24 @@ describe Note, ResolvableNote do
         end
       end
 
-      context "when not yet resolved" do
-        it "returns true" do
+      context 'when not yet resolved' do
+        it 'returns true' do
           expect(subject.resolve!(current_user)).to be true
         end
 
-        it "sets resolved_at" do
+        it 'sets resolved_at' do
           subject.resolve!(current_user)
 
           expect(subject.resolved_at).not_to be_nil
         end
 
-        it "sets resolved_by" do
+        it 'sets resolved_by' do
           subject.resolve!(current_user)
 
           expect(subject.resolved_by).to eq(current_user)
         end
 
-        it "marks as resolved" do
+        it 'marks as resolved' do
           subject.resolve!(current_user)
 
           expect(subject.resolved?).to be true
@@ -276,61 +276,61 @@ describe Note, ResolvableNote do
     end
   end
 
-  describe "#unresolve!" do
-    context "when not resolvable" do
+  describe '#unresolve!' do
+    context 'when not resolvable' do
       before do
         allow(subject).to receive(:resolvable?).and_return(false)
       end
 
-      it "returns false" do
+      it 'returns false' do
         expect(subject.unresolve!).to be_falsey
       end
     end
 
-    context "when resolvable" do
+    context 'when resolvable' do
       before do
         allow(subject).to receive(:resolvable?).and_return(true)
       end
 
-      context "when resolved" do
+      context 'when resolved' do
         let(:user) { create(:user) }
 
         before do
           subject.resolve!(user)
         end
 
-        it "returns true" do
+        it 'returns true' do
           expect(subject.unresolve!).to be true
         end
 
-        it "unsets resolved_at" do
+        it 'unsets resolved_at' do
           subject.unresolve!
 
           expect(subject.resolved_at).to be_nil
         end
 
-        it "unsets resolved_by" do
+        it 'unsets resolved_by' do
           subject.unresolve!
 
           expect(subject.resolved_by).to be_nil
         end
 
-        it "unmarks as resolved" do
+        it 'unmarks as resolved' do
           subject.unresolve!
 
           expect(subject.resolved?).to be false
         end
       end
 
-      context "when not resolved" do
-        it "returns false" do
+      context 'when not resolved' do
+        it 'returns false' do
           expect(subject.unresolve!).to be_falsey
         end
       end
     end
   end
 
-  describe "#potentially_resolvable?" do
+  describe '#potentially_resolvable?' do
     it 'returns false if noteable could not be found' do
       allow(subject).to receive(:noteable).and_return(nil)
 

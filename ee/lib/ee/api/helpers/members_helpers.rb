@@ -9,7 +9,7 @@ module EE
 
         prepended do
           params :optional_filter_params_ee do
-            optional :with_saml_identity, type: Grape::API::Boolean, desc: "List only members with linked SAML identity"
+            optional :with_saml_identity, type: Grape::API::Boolean, desc: 'List only members with linked SAML identity'
           end
         end
 

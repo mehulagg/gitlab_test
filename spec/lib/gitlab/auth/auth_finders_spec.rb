@@ -31,7 +31,7 @@ describe Gitlab::Auth::AuthFinders do
 
       context 'with valid credentials' do
         it 'returns the user' do
-          env['warden'] = double("warden", authenticate: user)
+          env['warden'] = double('warden', authenticate: user)
 
           expect(find_user_from_warden).to eq user
         end
@@ -41,7 +41,7 @@ describe Gitlab::Auth::AuthFinders do
     context 'without CSRF token' do
       it 'returns nil' do
         allow(Gitlab::RequestForgeryProtection).to receive(:verified?).and_return(false)
-        env['warden'] = double("warden", authenticate: user)
+        env['warden'] = double('warden', authenticate: user)
 
         expect(find_user_from_warden).to be_nil
       end
@@ -329,7 +329,7 @@ describe Gitlab::Auth::AuthFinders do
     end
 
     it 'returns exception if invalid oauth_access_token' do
-      env['HTTP_AUTHORIZATION'] = "Bearer invalid_token"
+      env['HTTP_AUTHORIZATION'] = 'Bearer invalid_token'
 
       expect { find_oauth_access_token }.to raise_error(Gitlab::Auth::UnauthorizedError)
     end

@@ -1,10 +1,10 @@
 namespace :gitlab do
-  desc "GitLab | Update templates"
+  desc 'GitLab | Update templates'
   task :update_templates do
     TEMPLATE_DATA.each { |template| update(template) }
   end
 
-  desc "GitLab | Update project templates"
+  desc 'GitLab | Update project templates'
   task :update_project_templates, [] => :environment do |_task, args|
     # we need an instance method from Gitlab::ImportExport::CommandLineUtil and don't
     # want to include it in the task, as this would affect subsequent tasks as well
@@ -19,13 +19,13 @@ namespace :gitlab do
     template_names = args.extras.to_set
 
     if Rails.env.production?
-      raise "This rake task is not meant for production instances"
+      raise 'This rake task is not meant for production instances'
     end
 
     admin = User.find_by(admin: true)
 
     unless admin
-      raise "No admin user could be found"
+      raise 'No admin user could be found'
     end
 
     tmp_namespace_path = "tmp-project-import-#{Time.now.to_i}"
@@ -109,7 +109,7 @@ namespace :gitlab do
       tmp_namespace.destroy
     end
 
-    puts "Done".green if success
+    puts 'Done'.green if success
   end
 
   def update(template)
@@ -122,7 +122,7 @@ namespace :gitlab do
     end
 
     remove_unneeded_files(dir, template.cleanup_regex)
-    puts "Done".green
+    puts 'Done'.green
   end
 
   def clone_repository(url, directory)
@@ -147,11 +147,11 @@ namespace :gitlab do
   Template = Struct.new(:repo_url, :cleanup_regex)
   TEMPLATE_DATA = [
     Template.new(
-      "https://github.com/github/gitignore.git",
+      'https://github.com/github/gitignore.git',
       /(\.{1,2}|LICENSE|Global|\.gitignore)\z/
     ),
     Template.new(
-      "https://gitlab.com/gitlab-org/Dockerfile.git",
+      'https://gitlab.com/gitlab-org/Dockerfile.git',
       /(\.{1,2}|LICENSE|CONTRIBUTING.md|\.Dockerfile)\z/
     )
   ].freeze

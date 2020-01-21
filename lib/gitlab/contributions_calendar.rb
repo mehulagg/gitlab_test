@@ -26,9 +26,9 @@ module Gitlab
       repo_events = event_counts(date_from, :repository)
         .having(action: Event::PUSHED)
       issue_events = event_counts(date_from, :issues)
-        .having(action: [Event::CREATED, Event::CLOSED], target_type: "Issue")
+        .having(action: [Event::CREATED, Event::CLOSED], target_type: 'Issue')
       mr_events = event_counts(date_from, :merge_requests)
-        .having(action: [Event::MERGED, Event::CREATED, Event::CLOSED], target_type: "MergeRequest")
+        .having(action: [Event::MERGED, Event::CREATED, Event::CLOSED], target_type: 'MergeRequest')
       note_events = event_counts(date_from, :merge_requests)
         .having(action: [Event::COMMENTED])
 
@@ -37,7 +37,7 @@ module Gitlab
         .map(&:attributes)
 
       @activity_dates = events.each_with_object(Hash.new {|h, k| h[k] = 0 }) do |event, activities|
-        activities[event["date"]] += event["total_amount"]
+        activities[event['date']] += event['total_amount']
       end
     end
     # rubocop: enable CodeReuse/ActiveRecord

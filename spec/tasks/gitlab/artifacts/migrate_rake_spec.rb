@@ -26,7 +26,7 @@ describe 'gitlab:artifacts namespace rake task' do
         let(:object_storage_enabled) { true }
         let(:store) { nil }
 
-        it "migrates file to remote storage" do
+        it 'migrates file to remote storage' do
           subject
 
           expect(artifact.reload.file_store).to eq(ObjectStorage::Store::REMOTE)
@@ -37,7 +37,7 @@ describe 'gitlab:artifacts namespace rake task' do
       context 'and remote storage is defined' do
         let(:object_storage_enabled) { true }
 
-        it "migrates file to remote storage" do
+        it 'migrates file to remote storage' do
           subject
 
           expect(artifact.reload.file_store).to eq(ObjectStorage::Store::REMOTE)
@@ -46,7 +46,7 @@ describe 'gitlab:artifacts namespace rake task' do
       end
 
       context 'and remote storage is not defined' do
-        it "fails to migrate to remote storage" do
+        it 'fails to migrate to remote storage' do
           subject
 
           expect(artifact.reload.file_store).to eq(ObjectStorage::Store::LOCAL)
@@ -59,7 +59,7 @@ describe 'gitlab:artifacts namespace rake task' do
       let(:object_storage_enabled) { true }
       let(:store) { ObjectStorage::Store::REMOTE }
 
-      it "file stays on remote storage" do
+      it 'file stays on remote storage' do
         subject
 
         expect(artifact.reload.file_store).to eq(ObjectStorage::Store::REMOTE)
@@ -80,7 +80,7 @@ describe 'gitlab:artifacts namespace rake task' do
       let(:store) { ObjectStorage::Store::REMOTE }
 
       context 'and job has remote file store defined' do
-        it "migrates file to local storage" do
+        it 'migrates file to local storage' do
           subject
 
           expect(artifact.reload.file_store).to eq(ObjectStorage::Store::LOCAL)

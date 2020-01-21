@@ -9,11 +9,11 @@ describe ScimOauthAccessTokenEntity do
 
   subject { entity.as_json }
 
-  it "exposes the URL" do
+  it 'exposes the URL' do
     is_expected.to include(:scim_api_url)
   end
 
-  it "exposes the token" do
+  it 'exposes the token' do
     is_expected.to include(:scim_token)
   end
 end

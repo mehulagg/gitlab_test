@@ -172,7 +172,7 @@ describe Gitlab::Kubernetes::Deployment do
     )
   end
 
-  def named(name = "foo", labels = {})
+  def named(name = 'foo', labels = {})
     make('metadata', 'name' => name, 'labels' => labels)
   end
 

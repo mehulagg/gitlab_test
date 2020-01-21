@@ -102,7 +102,7 @@ describe API::BroadcastMessages do
       end
 
       it 'accepts a target path' do
-        attrs = attributes_for(:broadcast_message, target_path: "*/welcome")
+        attrs = attributes_for(:broadcast_message, target_path: '*/welcome')
 
         post api('/broadcast_messages', admin), params: attrs
 

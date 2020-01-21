@@ -44,7 +44,7 @@ describe Projects::MattermostsController do
     context 'no request can be made to mattermost' do
       it 'shows the error' do
         allow_next_instance_of(MattermostSlashCommandsService) do |instance|
-          allow(instance).to receive(:configure).and_return([false, "error message"])
+          allow(instance).to receive(:configure).and_return([false, 'error message'])
         end
 
         expect(subject).to redirect_to(new_project_mattermost_url(project))

@@ -54,12 +54,12 @@ module Backup
     end
 
     def backup_existing_files_dir
-      timestamped_files_path = File.join(Gitlab.config.backup.path, "tmp", "#{name}.#{Time.now.to_i}")
+      timestamped_files_path = File.join(Gitlab.config.backup.path, 'tmp', "#{name}.#{Time.now.to_i}")
       if File.exist?(app_files_dir)
         # Move all files in the existing repos directory except . and .. to
         # repositories.old.<timestamp> directory
         FileUtils.mkdir_p(timestamped_files_path, mode: 0700)
-        files = Dir.glob(File.join(app_files_dir, "*"), File::FNM_DOTMATCH) - [File.join(app_files_dir, "."), File.join(app_files_dir, "..")]
+        files = Dir.glob(File.join(app_files_dir, '*'), File::FNM_DOTMATCH) - [File.join(app_files_dir, '.'), File.join(app_files_dir, '..')]
         begin
           FileUtils.mv(files, timestamped_files_path)
         rescue Errno::EACCES

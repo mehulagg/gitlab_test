@@ -37,26 +37,26 @@ describe Gitlab::SlashCommands::IssueShow do
     end
 
     context 'the issue does not exist' do
-      let(:regex_match) { described_class.match("issue show 2343242") }
+      let(:regex_match) { described_class.match('issue show 2343242') }
 
-      it "returns not found" do
+      it 'returns not found' do
         expect(subject[:response_type]).to be(:ephemeral)
-        expect(subject[:text]).to match("not found")
+        expect(subject[:text]).to match('not found')
       end
     end
   end
 
   describe '.match' do
     it 'matches the iid' do
-      match = described_class.match("issue show 123")
+      match = described_class.match('issue show 123')
 
-      expect(match[:iid]).to eq("123")
+      expect(match[:iid]).to eq('123')
     end
 
     it 'accepts a reference' do
       match = described_class.match("issue show #{Issue.reference_prefix}123")
 
-      expect(match[:iid]).to eq("123")
+      expect(match[:iid]).to eq('123')
     end
   end
 end

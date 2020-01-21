@@ -21,7 +21,7 @@ describe ClusterWaitForAppUpdateWorker do
     expect(check_upgrade_progress_service).not_to receive(:execute)
 
     expect do
-      subject.perform("prometheus", -1)
+      subject.perform('prometheus', -1)
     end.to raise_error(ActiveRecord::RecordNotFound)
   end
 end

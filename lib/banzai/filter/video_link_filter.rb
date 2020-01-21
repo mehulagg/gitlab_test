@@ -7,7 +7,7 @@ module Banzai
       private
 
       def media_type
-        "video"
+        'video'
       end
 
       def safe_media_ext
@@ -15,7 +15,7 @@ module Banzai
       end
 
       def extra_element_attrs
-        { width: "400" }
+        { width: '400' }
       end
     end
   end

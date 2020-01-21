@@ -12,15 +12,15 @@ class SnippetPresenter < Gitlab::View::Presenter::Delegated
   end
 
   def can_read_snippet?
-    can_access_resource?("read")
+    can_access_resource?('read')
   end
 
   def can_update_snippet?
-    can_access_resource?("update")
+    can_access_resource?('update')
   end
 
   def can_admin_snippet?
-    can_access_resource?("admin")
+    can_access_resource?('admin')
   end
 
   def can_report_as_spam?

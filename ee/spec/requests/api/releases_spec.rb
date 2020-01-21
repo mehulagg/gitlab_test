@@ -53,7 +53,7 @@ describe API::Releases do
 
           release = project.releases.last
 
-          expect(subject[:custom_message]).to eq("Created Release v0.1 with Milestone v1.0")
+          expect(subject[:custom_message]).to eq('Created Release v0.1 with Milestone v1.0')
           expect(subject[:target_type]).to eq('Release')
           expect(subject[:target_id]).to eq(release.id)
           expect(subject[:target_details]).to eq(release.name)
@@ -105,7 +105,7 @@ describe API::Releases do
 
         context 'add single milestone' do
           let(:params) { { milestones: ['v1.0'] } }
-          let(:milestone_message) { "Milestones associated with release changed to v1.0" }
+          let(:milestone_message) { 'Milestones associated with release changed to v1.0' }
 
           it_behaves_like 'update with milestones'
         end
@@ -113,7 +113,7 @@ describe API::Releases do
         context 'add multiple milestones' do
           let!(:milestone2) { create(:milestone, project: project, title: 'v2.0') }
           let(:params) { { milestones: ['v1.0', 'v2.0'] } }
-          let(:milestone_message) { "Milestones associated with release changed to v1.0, v2.0" }
+          let(:milestone_message) { 'Milestones associated with release changed to v1.0, v2.0' }
 
           it_behaves_like 'update with milestones'
         end
@@ -129,21 +129,21 @@ describe API::Releases do
 
         context 'add milestone' do
           let(:params) { { milestones: ['v0.1', 'v1.0'] } }
-          let(:milestone_message) { "Milestones associated with release changed to v0.1, v1.0" }
+          let(:milestone_message) { 'Milestones associated with release changed to v0.1, v1.0' }
 
           it_behaves_like 'update with milestones'
         end
 
         context 'replace milestone' do
           let(:params) { { milestones: ['v1.0'] } }
-          let(:milestone_message) { "Milestones associated with release changed to v1.0" }
+          let(:milestone_message) { 'Milestones associated with release changed to v1.0' }
 
           it_behaves_like 'update with milestones'
         end
 
         context 'remove all milestones' do
           let(:params) { { milestones: [] } }
-          let(:milestone_message) { "Milestones associated with release changed to [none]" }
+          let(:milestone_message) { 'Milestones associated with release changed to [none]' }
 
           it_behaves_like 'update with milestones'
         end

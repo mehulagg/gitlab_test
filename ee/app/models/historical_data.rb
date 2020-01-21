@@ -6,7 +6,7 @@ class HistoricalData < ApplicationRecord
   # HistoricalData.during((Date.today - 1.year)..Date.today).average(:active_user_count)
   scope :during, ->(range) { where(date: range) }
   # HistoricalData.up_until(Date.today - 1.month).average(:active_user_count)
-  scope :up_until, ->(date) { where("date <= :date", date: date) }
+  scope :up_until, ->(date) { where('date <= :date', date: date) }
 
   class << self
     def track!

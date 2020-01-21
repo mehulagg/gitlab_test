@@ -37,7 +37,7 @@ describe SshHostKey do
 
   let(:compare_host_keys) { nil }
 
-  def stub_ssh_keyscan(args, status: true, stdout: "", stderr: "")
+  def stub_ssh_keyscan(args, status: true, stdout: '', stderr: '')
     stdin = StringIO.new
     stdout = double(:stdout, read: stdout)
     stderr = double(:stderr, read: stderr)

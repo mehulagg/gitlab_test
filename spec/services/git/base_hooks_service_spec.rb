@@ -9,7 +9,7 @@ describe Git::BaseHooksService do
   let(:user) { create(:user) }
   let(:project) { create(:project, :repository) }
   let(:oldrev) { Gitlab::Git::BLANK_SHA }
-  let(:newrev) { "8a2a6eb295bb170b34c24c76c49ed0e9b2eaf34b" } # gitlab-test: git rev-parse refs/tags/v1.1.0
+  let(:newrev) { '8a2a6eb295bb170b34c24c76c49ed0e9b2eaf34b' } # gitlab-test: git rev-parse refs/tags/v1.1.0
   let(:ref) { 'refs/tags/v1.1.0' }
   let(:checkout_sha) { '5937ac0a7beb003549fc5fd26fc247adbce4a52e' }
 
@@ -194,9 +194,9 @@ describe Git::BaseHooksService do
       end
       let(:variables_attributes) do
         [
-          { "key" => "FOO", "variable_type" => "env_var", "secret_value" => "123" },
-          { "key" => "BAR", "variable_type" => "env_var", "secret_value" => "456" },
-          { "key" => "MNO", "variable_type" => "env_var", "secret_value" => "890=ABC" }
+          { 'key' => 'FOO', 'variable_type' => 'env_var', 'secret_value' => '123' },
+          { 'key' => 'BAR', 'variable_type' => 'env_var', 'secret_value' => '456' },
+          { 'key' => 'MNO', 'variable_type' => 'env_var', 'secret_value' => '890=ABC' }
         ]
       end
 
@@ -221,7 +221,7 @@ describe Git::BaseHooksService do
       end
       let(:variables_attributes) do
         [
-          { "key" => "FOO", "variable_type" => "env_var", "secret_value" => "123" }
+          { 'key' => 'FOO', 'variable_type' => 'env_var', 'secret_value' => '123' }
         ]
       end
 

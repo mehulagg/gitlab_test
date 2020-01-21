@@ -67,7 +67,7 @@ describe Gitlab::SidekiqMiddleware do
       end
     end
 
-    context "all optional middlewares off" do
+    context 'all optional middlewares off' do
       let(:metrics) { false }
       let(:arguments_logger) { false }
       let(:memory_killer) { false }
@@ -81,19 +81,19 @@ describe Gitlab::SidekiqMiddleware do
         ]
       end
 
-      it "passes through server middlewares" do
+      it 'passes through server middlewares' do
         worker_class.perform_async(*job_args)
       end
     end
 
-    context "all optional middlewares on" do
+    context 'all optional middlewares on' do
       let(:metrics) { true }
       let(:arguments_logger) { true }
       let(:memory_killer) { true }
       let(:request_store) { true }
       let(:disabled_sidekiq_middlewares) { [] }
 
-      it "passes through server middlewares" do
+      it 'passes through server middlewares' do
         worker_class.perform_async(*job_args)
       end
     end
@@ -114,11 +114,11 @@ describe Gitlab::SidekiqMiddleware do
       described_class.client_configurator.call(chain)
     end
 
-    shared_examples "a client middleware chain" do
+    shared_examples 'a client middleware chain' do
       # Its possible that a middleware could accidentally omit a yield call
       # this will prevent the full middleware chain from being executed.
       # This test ensures that this does not happen
-      it "invokes the chain" do
+      it 'invokes the chain' do
         expect_any_instance_of(Gitlab::SidekiqStatus::ClientMiddleware).to receive(:call).with(*middleware_expected_args).once.and_call_original
         expect_any_instance_of(Labkit::Middleware::Sidekiq::Client).to receive(:call).with(*middleware_expected_args).once.and_call_original
 
@@ -128,16 +128,16 @@ describe Gitlab::SidekiqMiddleware do
 
     # Sidekiq documentation states that the worker class could be a string
     # or a class reference. We should test for both
-    context "handles string worker_class values" do
+    context 'handles string worker_class values' do
       let(:worker_class_arg) { worker_class.to_s }
 
-      it_behaves_like "a client middleware chain"
+      it_behaves_like 'a client middleware chain'
     end
 
-    context "handles string worker_class values" do
+    context 'handles string worker_class values' do
       let(:worker_class_arg) { worker_class }
 
-      it_behaves_like "a client middleware chain"
+      it_behaves_like 'a client middleware chain'
     end
   end
 end

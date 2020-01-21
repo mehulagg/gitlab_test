@@ -81,7 +81,7 @@ module GroupsHelper
       end
     end
 
-    full_title << render("layouts/nav/breadcrumbs/collapsed_dropdown", location: :before, title: _("Show parent subgroups"))
+    full_title << render('layouts/nav/breadcrumbs/collapsed_dropdown', location: :before, title: _('Show parent subgroups'))
 
     full_title << breadcrumb_list_item(group_title_link(group))
     full_title << ' &middot; '.html_safe + link_to(simple_sanitize(name), url, class: 'group-path breadcrumb-item-text js-breadcrumb-item-text') if name
@@ -115,7 +115,7 @@ module GroupsHelper
   end
 
   def remove_group_message(group)
-    _("You are going to remove %{group_name}, this will also remove all of its subgroups and projects. Removed groups CANNOT be restored! Are you ABSOLUTELY sure?") %
+    _('You are going to remove %{group_name}, this will also remove all of its subgroups and projects. Removed groups CANNOT be restored! Are you ABSOLUTELY sure?') %
       { group_name: group.name }
   end
 
@@ -167,7 +167,7 @@ module GroupsHelper
 
   def group_title_link(group, hidable: false, show_avatar: false, for_dropdown: false)
     link_to(group_path(group), class: "group-path #{'breadcrumb-item-text' unless for_dropdown} js-breadcrumb-item-text #{'hidable' if hidable}") do
-      icon = group_icon(group, class: "avatar-tile", width: 15, height: 15) if (group.try(:avatar_url) || show_avatar) && !Rails.env.test?
+      icon = group_icon(group, class: 'avatar-tile', width: 15, height: 15) if (group.try(:avatar_url) || show_avatar) && !Rails.env.test?
       [icon, simple_sanitize(group.name)].join.html_safe
     end
   end
@@ -183,7 +183,7 @@ module GroupsHelper
 
   def remove_the_share_with_group_lock_from_ancestor(group)
     ancestor = oldest_consecutively_locked_ancestor(group)
-    text = s_("GroupSettings|remove the share with group lock from %{ancestor_group_name}") % { ancestor_group_name: ancestor.name }
+    text = s_('GroupSettings|remove the share with group lock from %{ancestor_group_name}') % { ancestor_group_name: ancestor.name }
     if can?(current_user, :admin_group, ancestor)
       link_to text, edit_group_path(ancestor)
     else
@@ -198,19 +198,19 @@ module GroupsHelper
   end
 
   def default_help
-    s_("GroupSettings|This setting will be applied to all subgroups unless overridden by a group owner. Groups that already have access to the project will continue to have access unless removed manually.")
+    s_('GroupSettings|This setting will be applied to all subgroups unless overridden by a group owner. Groups that already have access to the project will continue to have access unless removed manually.')
   end
 
   def ancestor_locked_but_you_can_override(group)
-    s_("GroupSettings|This setting is applied on %{ancestor_group}. You can override the setting or %{remove_ancestor_share_with_group_lock}.").html_safe % { ancestor_group: ancestor_group(group), remove_ancestor_share_with_group_lock: remove_the_share_with_group_lock_from_ancestor(group) }
+    s_('GroupSettings|This setting is applied on %{ancestor_group}. You can override the setting or %{remove_ancestor_share_with_group_lock}.').html_safe % { ancestor_group: ancestor_group(group), remove_ancestor_share_with_group_lock: remove_the_share_with_group_lock_from_ancestor(group) }
   end
 
   def ancestor_locked_so_ask_the_owner(group)
-    s_("GroupSettings|This setting is applied on %{ancestor_group}. To share projects in this group with another group, ask the owner to override the setting or %{remove_ancestor_share_with_group_lock}.").html_safe % { ancestor_group: ancestor_group(group), remove_ancestor_share_with_group_lock: remove_the_share_with_group_lock_from_ancestor(group) }
+    s_('GroupSettings|This setting is applied on %{ancestor_group}. To share projects in this group with another group, ask the owner to override the setting or %{remove_ancestor_share_with_group_lock}.').html_safe % { ancestor_group: ancestor_group(group), remove_ancestor_share_with_group_lock: remove_the_share_with_group_lock_from_ancestor(group) }
   end
 
   def ancestor_locked_and_has_been_overridden(group)
-    s_("GroupSettings|This setting is applied on %{ancestor_group} and has been overridden on this subgroup.").html_safe % { ancestor_group: ancestor_group(group) }
+    s_('GroupSettings|This setting is applied on %{ancestor_group} and has been overridden on this subgroup.').html_safe % { ancestor_group: ancestor_group(group) }
   end
 end
 

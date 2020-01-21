@@ -3,11 +3,11 @@
 require 'spec_helper'
 
 describe API::ImportGithub do
-  let(:token) { "asdasd12345" }
+  let(:token) { 'asdasd12345' }
   let(:provider) { :github }
   let(:access_params) { { github_access_token: token } }
 
-  describe "POST /import/github" do
+  describe 'POST /import/github' do
     let(:user) { create(:user) }
     let(:project) { create(:project) }
     let(:provider_username) { user.username }
@@ -31,7 +31,7 @@ describe API::ImportGithub do
         .to receive(:new).with(provider_repo, provider_repo.name, user.namespace, user, access_params, type: provider)
           .and_return(double(execute: project))
 
-      post api("/import/github", user), params: {
+      post api('/import/github', user), params: {
         target_namespace: user.namespace_path,
         personal_access_token: token,
         repo_id: 1234
@@ -44,7 +44,7 @@ describe API::ImportGithub do
     it 'returns 422 response when user can not create projects in the chosen namespace' do
       other_namespace = create(:group, name: 'other_namespace')
 
-      post api("/import/github", user), params: {
+      post api('/import/github', user), params: {
         target_namespace: other_namespace.name,
         personal_access_token: token,
         repo_id: 1234

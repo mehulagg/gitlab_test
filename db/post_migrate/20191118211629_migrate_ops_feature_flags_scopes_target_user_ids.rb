@@ -25,7 +25,7 @@ class MigrateOpsFeatureFlagsScopesTargetUserIds < ActiveRecord::Migration[5.2]
   #
   ###
   def up
-    OperationsFeatureFlagScope.where("strategies @> ?", [{ 'name': 'userWithId' }].to_json).each_batch do |scopes|
+    OperationsFeatureFlagScope.where('strategies @> ?', [{ 'name': 'userWithId' }].to_json).each_batch do |scopes|
       scopes.each do |scope|
         if scope.active
           default_strategy = scope.strategies.find { |s| s['name'] == 'default' }

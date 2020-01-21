@@ -71,7 +71,7 @@ module MergeRequests
 
         # The analyzer will only return references the current user can see
         analyzer = ::Gitlab::ReferenceExtractor.new(merge_request.target_project, current_user)
-        analyzer.analyze(references.join(" "))
+        analyzer.analyze(references.join(' '))
 
         analyzer.merge_requests.map(&:id)
       end

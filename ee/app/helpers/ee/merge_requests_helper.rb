@@ -2,7 +2,7 @@
 
 module EE
   module MergeRequestsHelper
-    def render_items_list(items, separator = "and")
+    def render_items_list(items, separator = 'and')
       items_cnt = items.size
 
       case items_cnt
@@ -12,7 +12,7 @@ module EE
         "#{items.first} #{separator} #{items.last}"
       else
         last_item = items.pop
-        "#{items.join(", ")} #{separator} #{last_item}"
+        "#{items.join(', ')} #{separator} #{last_item}"
       end
     end
   end

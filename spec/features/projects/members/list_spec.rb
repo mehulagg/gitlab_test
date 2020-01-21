@@ -87,12 +87,12 @@ describe 'Project members list' do
   end
 
   def add_user(id, role)
-    page.within ".invite-users-form" do
-      select2(id, from: "#user_ids", multiple: true)
-      select(role, from: "access_level")
+    page.within '.invite-users-form' do
+      select2(id, from: '#user_ids', multiple: true)
+      select(role, from: 'access_level')
     end
 
-    click_button "Invite"
+    click_button 'Invite'
   end
 
   def visit_members_page

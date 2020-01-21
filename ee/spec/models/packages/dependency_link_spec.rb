@@ -24,7 +24,7 @@ RSpec.describe Packages::DependencyLink, type: :model do
         )
 
         expect(link).not_to be_valid
-        expect(link.errors.to_a).to include("Dependency type has already been taken")
+        expect(link.errors.to_a).to include('Dependency type has already been taken')
       end
     end
   end

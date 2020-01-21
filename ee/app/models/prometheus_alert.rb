@@ -4,9 +4,9 @@ class PrometheusAlert < ApplicationRecord
   include Sortable
 
   OPERATORS_MAP = {
-    lt: "<",
-    eq: "==",
-    gt: ">"
+    lt: '<',
+    eq: '==',
+    gt: '>'
   }.freeze
 
   belongs_to :environment, required: true, validate: true, inverse_of: :prometheus_alerts
@@ -49,12 +49,12 @@ class PrometheusAlert < ApplicationRecord
 
   def to_param
     {
-      "alert" => title,
-      "expr" => full_query,
-      "for" => "5m",
-      "labels" => {
-        "gitlab" => "hook",
-        "gitlab_alert_id" => prometheus_metric_id
+      'alert' => title,
+      'expr' => full_query,
+      'for' => '5m',
+      'labels' => {
+        'gitlab' => 'hook',
+        'gitlab_alert_id' => prometheus_metric_id
       }
     }
   end
@@ -68,13 +68,13 @@ class PrometheusAlert < ApplicationRecord
   def require_valid_environment_project!
     return if project == environment&.project
 
-    errors.add(:environment, "invalid project")
+    errors.add(:environment, 'invalid project')
   end
 
   def require_valid_metric_project!
     return if prometheus_metric&.common?
     return if project == prometheus_metric&.project
 
-    errors.add(:prometheus_metric, "invalid project")
+    errors.add(:prometheus_metric, 'invalid project')
   end
 end

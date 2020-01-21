@@ -35,7 +35,7 @@ describe Geo::Scheduler::PerShardSchedulerWorker do
     end
 
     describe '#schedule_job' do
-      it "raises a NotImplementedError exception" do
+      it 'raises a NotImplementedError exception' do
         expect do
           per_shard_scheduler_worker.schedule_job(default_shard_name)
         end.to raise_exception(NotImplementedError)
@@ -45,7 +45,7 @@ describe Geo::Scheduler::PerShardSchedulerWorker do
     describe '#ready_shards' do
       let(:ready_shards) { [default_shard, other_shard, unhealthy_shard] }
 
-      it "returns an array of ready shards" do
+      it 'returns an array of ready shards' do
         expect(per_shard_scheduler_worker.ready_shards).to eq(ready_shards)
       end
     end
@@ -53,13 +53,13 @@ describe Geo::Scheduler::PerShardSchedulerWorker do
     describe '#healthy_ready_shards' do
       let(:healthy_ready_shards) { [default_shard, other_shard] }
 
-      it "returns an array of healthy shard names" do
+      it 'returns an array of healthy shard names' do
         expect(per_shard_scheduler_worker.healthy_ready_shards).to eq(healthy_ready_shards)
       end
     end
 
     describe '#healthy_shard_names' do
-      it "returns an array of healthy shard names" do
+      it 'returns an array of healthy shard names' do
         expect(per_shard_scheduler_worker.healthy_shard_names).to eq([default_shard_name, other_shard_name])
       end
     end

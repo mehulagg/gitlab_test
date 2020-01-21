@@ -17,7 +17,7 @@ describe API::Branches do
           project.repository.add_branch(user, protected_branch.name, 'master')
         end
 
-        context "when no one can push" do
+        context 'when no one can push' do
           let(:protected_branch) { create(:protected_branch, :no_one_can_push, project: project, name: 'protected_branch') }
 
           it "updates 'developers_can_push' without removing the 'no_one' access level" do

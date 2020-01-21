@@ -57,7 +57,7 @@ describe 'projects/commit/show.html.haml' do
 
     it 'shows that it is in the context of a merge request' do
       merge_request_url = diffs_project_merge_request_path(project, merge_request, commit_id: commit.id)
-      expect(rendered).to have_content("This commit is part of merge request")
+      expect(rendered).to have_content('This commit is part of merge request')
       expect(rendered).to have_link(merge_request.to_reference, href: merge_request_url)
     end
   end

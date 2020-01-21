@@ -28,33 +28,33 @@ describe Mutations::DesignManagement::Delete do
       { errors: [], version: DesignManagement::Version.for_issue(issue).ordered.first }
     end
 
-    shared_examples "failures" do |error: Errors::ResourceNotAvailable|
+    shared_examples 'failures' do |error: Errors::ResourceNotAvailable|
       it "raises #{error.name}" do
         expect { run_mutation }.to raise_error(error)
       end
     end
 
-    shared_examples "resource not available" do
-      it_behaves_like "failures"
+    shared_examples 'resource not available' do
+      it_behaves_like 'failures'
     end
 
-    context "when the feature is not available" do
+    context 'when the feature is not available' do
       before do
         enable_design_management(false)
       end
 
-      it_behaves_like "resource not available"
+      it_behaves_like 'resource not available'
     end
 
-    context "when the feature is available" do
+    context 'when the feature is available' do
       before do
         enable_design_management(true)
       end
 
-      context "when the user is not allowed to delete designs" do
+      context 'when the user is not allowed to delete designs' do
         let(:user) { create(:user) }
 
-        it_behaves_like "resource not available"
+        it_behaves_like 'resource not available'
       end
 
       context 'deleting an already deleted file' do
@@ -67,10 +67,10 @@ describe Mutations::DesignManagement::Delete do
         end
       end
 
-      context "when deleting all the designs" do
+      context 'when deleting all the designs' do
         let(:response) { run_mutation }
 
-        it "returns a new version, and no errors" do
+        it 'returns a new version, and no errors' do
           expect(response).to include(expected_response)
         end
 
@@ -120,11 +120,11 @@ describe Mutations::DesignManagement::Delete do
         end
       end
 
-      context "when deleting a design" do
+      context 'when deleting a design' do
         let(:filenames) { [design_a.filename] }
         let(:response) { run_mutation }
 
-        it "returns the expected response" do
+        it 'returns the expected response' do
           expect(response).to include(expected_response)
         end
 

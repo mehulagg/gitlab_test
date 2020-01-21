@@ -7,7 +7,7 @@ describe Projects::UpdateRepositoryStorageService do
 
   subject { described_class.new(project) }
 
-  describe "#execute" do
+  describe '#execute' do
     let(:time) { Time.now }
 
     before do

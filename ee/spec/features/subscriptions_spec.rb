@@ -11,7 +11,7 @@ describe 'Subscriptions Content Security Policy' do
   before do
     stub_experiment_for_user(paid_signup_flow: true, signup_flow: true)
 
-    stub_request(:get, /.*gitlab_plans.*/).to_return(status: 200, body: "{}")
+    stub_request(:get, /.*gitlab_plans.*/).to_return(status: 200, body: '{}')
 
     expect_next_instance_of(SubscriptionsController) do |controller|
       expect(controller).to receive(:current_content_security_policy).and_return(csp)

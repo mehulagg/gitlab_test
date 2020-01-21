@@ -7,7 +7,7 @@ module Mutations
     prepended do
       argument :group_path, GraphQL::ID_TYPE,
                required: true,
-               description: "The group the epic to mutate is in"
+               description: 'The group the epic to mutate is in'
 
       argument :title,
                 GraphQL::STRING_TYPE,

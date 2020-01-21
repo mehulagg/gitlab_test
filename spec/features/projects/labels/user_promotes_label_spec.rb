@@ -15,7 +15,7 @@ describe 'User promotes label' do
       visit(project_labels_path(project))
     end
 
-    it "shows label promote button" do
+    it 'shows label promote button' do
       expect(page).to have_selector('.js-promote-project-label-button')
     end
   end
@@ -27,7 +27,7 @@ describe 'User promotes label' do
       visit(project_labels_path(project))
     end
 
-    it "does not show label promote button" do
+    it 'does not show label promote button' do
       expect(page).not_to have_selector('.js-promote-project-label-button')
     end
   end

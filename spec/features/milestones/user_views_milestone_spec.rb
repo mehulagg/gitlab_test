@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe "User views milestone" do
+describe 'User views milestone' do
   set(:user) { create(:user) }
   set(:project) { create(:project) }
   set(:milestone) { create(:milestone, project: project) }
@@ -13,7 +13,7 @@ describe "User views milestone" do
     sign_in(user)
   end
 
-  it "avoids N+1 database queries" do
+  it 'avoids N+1 database queries' do
     ISSUE_PARAMS = { project: project, assignees: [user], author: user, milestone: milestone, labels: labels }.freeze
 
     create(:labeled_issue, ISSUE_PARAMS)

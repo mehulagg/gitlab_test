@@ -24,12 +24,12 @@ describe Gitlab::Elastic::Client do
   end
 
   def stub_instance_credentials(creds_response)
-    stub_request(:get, "http://169.254.169.254/latest/meta-data/iam/security-credentials/")
-      .to_return(status: 200, body: "RoleName", headers: {})
-    stub_request(:get, "http://169.254.169.254/latest/meta-data/iam/security-credentials/RoleName")
+    stub_request(:get, 'http://169.254.169.254/latest/meta-data/iam/security-credentials/')
+      .to_return(status: 200, body: 'RoleName', headers: {})
+    stub_request(:get, 'http://169.254.169.254/latest/meta-data/iam/security-credentials/RoleName')
       .to_return(status: 200, body: creds_response, headers: {})
-    stub_request(:put, "http://169.254.169.254/latest/api/token")
-      .to_return(status: 200, body: "", headers: {})
+    stub_request(:put, 'http://169.254.169.254/latest/api/token')
+      .to_return(status: 200, body: '', headers: {})
   end
 
   describe '.build' do

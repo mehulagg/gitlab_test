@@ -14,7 +14,7 @@ describe Gitlab::DependencyLinker::GemspecLinker do
   end
 
   describe '#link' do
-    let(:file_name) { "gitlab_git.gemspec" }
+    let(:file_name) { 'gitlab_git.gemspec' }
 
     let(:file_content) do
       <<-CONTENT.strip_heredoc

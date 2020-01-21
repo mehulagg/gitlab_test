@@ -13,7 +13,7 @@ module Types
     present_using IssuePresenter
 
     field :iid, GraphQL::ID_TYPE, null: false,
-          description: "Internal ID of the issue"
+          description: 'Internal ID of the issue'
     field :title, GraphQL::STRING_TYPE, null: false,
           description: 'Title of the issue'
     markdown_field :title_html, null: true

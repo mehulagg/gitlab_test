@@ -29,10 +29,10 @@ describe 'projects/merge_requests/diffs/_diffs.html.haml' do
       assign(:commit, commit)
     end
 
-    it "shows the commit scope" do
+    it 'shows the commit scope' do
       render
 
-      expect(rendered).to have_content "Only comments from the following commit are shown below"
+      expect(rendered).to have_content 'Only comments from the following commit are shown below'
     end
   end
 end

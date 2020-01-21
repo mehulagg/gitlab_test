@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe Gitlab::Git::Tree, :seed_helper do
   let(:repository) { Gitlab::Git::Repository.new('default', TEST_REPO_PATH, '', 'group/project') }
@@ -89,14 +89,14 @@ describe Gitlab::Git::Tree, :seed_helper do
         options = {}
         options[:tree] = index.write_tree(repo)
         options[:author] = {
-          email: "test@example.com",
-          name: "Test Author",
-          time: Time.gm(2014, "mar", 3, 20, 15, 1)
+          email: 'test@example.com',
+          name: 'Test Author',
+          time: Time.gm(2014, 'mar', 3, 20, 15, 1)
         }
         options[:committer] = {
-          email: "test@example.com",
-          name: "Test Author",
-          time: Time.gm(2014, "mar", 3, 20, 15, 1)
+          email: 'test@example.com',
+          name: 'Test Author',
+          time: Time.gm(2014, 'mar', 3, 20, 15, 1)
         }
         options[:message] ||= message
         options[:parents] = repo.empty? ? [] : [target].compact

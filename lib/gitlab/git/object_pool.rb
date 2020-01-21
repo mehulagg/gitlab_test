@@ -5,7 +5,7 @@ module Gitlab
     class ObjectPool
       # GL_REPOSITORY has to be passed for Gitlab::Git::Repositories, but not
       # used for ObjectPools.
-      GL_REPOSITORY = ""
+      GL_REPOSITORY = ''
 
       delegate :exists?, :size, to: :repository
       delegate :delete, to: :object_pool_service

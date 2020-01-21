@@ -31,7 +31,7 @@ class UsersController < ApplicationController
 
       format.json do
         load_events
-        pager_json("events/_events", @events.count, events: @events)
+        pager_json('events/_events', @events.count, events: @events)
       end
     end
   end
@@ -49,7 +49,7 @@ class UsersController < ApplicationController
       format.html { render 'show' }
       format.json do
         render json: {
-          html: view_to_html_string("shared/groups/_list", groups: @groups)
+          html: view_to_html_string('shared/groups/_list', groups: @groups)
         }
       end
     end
@@ -81,7 +81,7 @@ class UsersController < ApplicationController
     respond_to do |format|
       format.html { render 'show' }
       format.json do
-        pager_json("shared/projects/_list", projects.count, projects: projects, skip_pagination: skip_pagination, skip_namespace: skip_namespace, compact_mode: compact_mode)
+        pager_json('shared/projects/_list', projects.count, projects: projects, skip_pagination: skip_pagination, skip_namespace: skip_namespace, compact_mode: compact_mode)
       end
     end
   end
@@ -93,7 +93,7 @@ class UsersController < ApplicationController
       format.html { render 'show' }
       format.json do
         render json: {
-          html: view_to_html_string("snippets/_snippets", collection: @snippets)
+          html: view_to_html_string('snippets/_snippets', collection: @snippets)
         }
       end
     end

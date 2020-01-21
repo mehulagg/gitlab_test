@@ -24,7 +24,7 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
       end
       format.json do
         render json: {
-          html: view_to_html_string("dashboard/projects/_projects", projects: @projects)
+          html: view_to_html_string('dashboard/projects/_projects', projects: @projects)
         }
       end
     end
@@ -41,7 +41,7 @@ class Dashboard::ProjectsController < Dashboard::ApplicationController
       format.html
       format.json do
         render json: {
-          html: view_to_html_string("dashboard/projects/_projects", projects: @projects)
+          html: view_to_html_string('dashboard/projects/_projects', projects: @projects)
         }
       end
     end

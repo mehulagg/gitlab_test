@@ -67,7 +67,7 @@ RSpec.shared_examples 'authenticates sessionless user' do |path, format, params|
   end
 
   context "when the 'feed_token' param is populated with the feed token", if: format == :rss do
-    it "logs the user in" do
+    it 'logs the user in' do
       expect(authentication_metrics)
         .to increment(:user_authenticated_counter)
               .and increment(:user_session_override_counter)
@@ -80,7 +80,7 @@ RSpec.shared_examples 'authenticates sessionless user' do |path, format, params|
   end
 
   context "when the 'feed_token' param is populated with an invalid feed token", if: format == :rss, unless: params[:public] do
-    it "logs the user" do
+    it 'logs the user' do
       expect(authentication_metrics)
         .to increment(:user_unauthenticated_counter)
 

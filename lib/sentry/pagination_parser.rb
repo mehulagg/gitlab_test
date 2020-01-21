@@ -14,7 +14,7 @@ module Sentry
       match = link.match(PATTERN)
 
       return unless match
-      return if match['results'] != "true"
+      return if match['results'] != 'true'
 
       [match['direction'], { 'cursor' => match['cursor'] }]
     end

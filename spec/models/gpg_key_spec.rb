@@ -3,12 +3,12 @@
 require 'spec_helper'
 
 describe GpgKey do
-  describe "associations" do
+  describe 'associations' do
     it { is_expected.to belong_to(:user) }
     it { is_expected.to have_many(:subkeys) }
   end
 
-  describe "validation" do
+  describe 'validation' do
     it { is_expected.to validate_presence_of(:user) }
 
     it { is_expected.to validate_presence_of(:key) }
@@ -18,9 +18,9 @@ describe GpgKey do
 
     it { is_expected.not_to allow_value("-----BEGIN PGP PUBLIC KEY BLOCK-----\nkey").for(:key) }
     it { is_expected.not_to allow_value("-----BEGIN PGP PUBLIC KEY BLOCK-----\nkey\n-----BEGIN PGP PUBLIC KEY BLOCK-----").for(:key) }
-    it { is_expected.not_to allow_value("-----BEGIN PGP PUBLIC KEY BLOCK----------END PGP PUBLIC KEY BLOCK-----").for(:key) }
-    it { is_expected.not_to allow_value("-----BEGIN PGP PUBLIC KEY BLOCK-----").for(:key) }
-    it { is_expected.not_to allow_value("-----END PGP PUBLIC KEY BLOCK-----").for(:key) }
+    it { is_expected.not_to allow_value('-----BEGIN PGP PUBLIC KEY BLOCK----------END PGP PUBLIC KEY BLOCK-----').for(:key) }
+    it { is_expected.not_to allow_value('-----BEGIN PGP PUBLIC KEY BLOCK-----').for(:key) }
+    it { is_expected.not_to allow_value('-----END PGP PUBLIC KEY BLOCK-----').for(:key) }
     it { is_expected.not_to allow_value("key\n-----END PGP PUBLIC KEY BLOCK-----").for(:key) }
     it { is_expected.not_to allow_value('BEGIN PGP').for(:key) }
   end

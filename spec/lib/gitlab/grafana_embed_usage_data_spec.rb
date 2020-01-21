@@ -11,8 +11,8 @@ describe Gitlab::GrafanaEmbedUsageData do
     let(:description_with_unintegrated_embed) { "Some comment\n\nhttps://grafana.exp.com/d/xvAk4q0Wk/go-processes?orgId=1&from=1573238522762&to=1573240322762&var-job=prometheus&var-interval=10m&panelId=1&fullscreen" }
     let(:description_with_non_grafana_inline_metric) { "Some comment\n\n#{Gitlab::Routing.url_helpers.metrics_namespace_project_environment_url(*['foo', 'bar', 12])}" }
 
-    shared_examples "zero count" do
-      it "does not count the issue" do
+    shared_examples 'zero count' do
+      it 'does not count the issue' do
         expect(subject).to eq(0)
       end
     end

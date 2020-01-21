@@ -79,7 +79,7 @@ describe 'User creates branch and merge request on issue page', :js do
 
           visit project_issue_path(project, issue)
 
-          expect(page).to have_content("created merge request !1 to address this issue")
+          expect(page).to have_content('created merge request !1 to address this issue')
           expect(page).to have_content('mentioned in merge request !1')
         end
 
@@ -109,7 +109,7 @@ describe 'User creates branch and merge request on issue page', :js do
 
           visit project_issue_path(project, issue)
 
-          expect(page).to have_content("created merge request !1 to address this issue")
+          expect(page).to have_content('created merge request !1 to address this issue')
           expect(page).to have_content('mentioned in merge request !1')
         end
 
@@ -124,7 +124,7 @@ describe 'User creates branch and merge request on issue page', :js do
       end
     end
 
-    context "when there is a referenced merge request" do
+    context 'when there is a referenced merge request' do
       let!(:note) do
         create(:note, :on_issue, :system, project: project, noteable: issue,
                                           note: "mentioned in #{referenced_mr.to_reference}")

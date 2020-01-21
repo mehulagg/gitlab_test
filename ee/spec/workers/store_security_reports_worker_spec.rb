@@ -29,7 +29,7 @@ describe StoreSecurityReportsWorker do
       end
     end
 
-    context "when security reports feature is not available" do
+    context 'when security reports feature is not available' do
       let(:default_branch) { pipeline.ref }
 
       it 'does not execute StoreReportsService' do

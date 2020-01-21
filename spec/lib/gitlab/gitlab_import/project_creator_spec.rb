@@ -10,12 +10,12 @@ describe Gitlab::GitlabImport::ProjectCreator do
       path: 'vim',
       visibility_level: Gitlab::VisibilityLevel::PRIVATE,
       path_with_namespace: 'asd/vim',
-      http_url_to_repo: "https://gitlab.com/asd/vim.git",
-      owner: { name: "john" }
+      http_url_to_repo: 'https://gitlab.com/asd/vim.git',
+      owner: { name: 'john' }
     }.with_indifferent_access
   end
   let(:namespace) { create(:group) }
-  let(:token) { "asdffg" }
+  let(:token) { 'asdffg' }
   let(:access_params) { { gitlab_access_token: token } }
 
   before do
@@ -30,7 +30,7 @@ describe Gitlab::GitlabImport::ProjectCreator do
     project_creator = described_class.new(repo, namespace, user, access_params)
     project = project_creator.execute
 
-    expect(project.import_url).to eq("https://oauth2:asdffg@gitlab.com/asd/vim.git")
+    expect(project.import_url).to eq('https://oauth2:asdffg@gitlab.com/asd/vim.git')
     expect(project.visibility_level).to eq(Gitlab::VisibilityLevel::PRIVATE)
   end
 end

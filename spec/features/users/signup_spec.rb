@@ -67,16 +67,16 @@ shared_examples 'Signup' do
       fill_in 'new_user_username', with: 'u' * 256
       wait_for_requests
 
-      expect(page).to have_content("Username is too long (maximum is 255 characters).")
+      expect(page).to have_content('Username is too long (maximum is 255 characters).')
     end
 
     it 'shows an error message on submit if the username contains special characters' do
       fill_in 'new_user_username', with: 'new$user!username'
       wait_for_requests
 
-      click_button "Register"
+      click_button 'Register'
 
-      expect(page).to have_content("Please create a username with only alphanumeric characters.")
+      expect(page).to have_content('Please create a username with only alphanumeric characters.')
     end
 
     it 'shows an error border if the username contains emojis' do
@@ -88,7 +88,7 @@ shared_examples 'Signup' do
     it 'shows an error message if the username contains emojis' do
       simulate_input('#new_user_username', 'ehsan😀')
 
-      expect(page).to have_content("Invalid input, please avoid emojis")
+      expect(page).to have_content('Invalid input, please avoid emojis')
     end
 
     it 'shows a pending message if the username availability is being fetched', :quarantine do
@@ -119,7 +119,7 @@ shared_examples 'Signup' do
       fill_in 'new_user_username', with: 'new-user'
       wait_for_requests
 
-      expect(page).to have_content("Username is available.")
+      expect(page).to have_content('Username is available.')
     end
   end
 
@@ -190,8 +190,8 @@ shared_examples 'Signup' do
       end
     end
 
-    context "when sigining up with different cased emails" do
-      it "creates the user successfully" do
+    context 'when sigining up with different cased emails' do
+      it 'creates the user successfully' do
         visit new_user_registration_path
 
         fill_in 'new_user_username', with: new_user.username
@@ -206,18 +206,18 @@ shared_examples 'Signup' do
         end
 
         fill_in 'new_user_password', with: new_user.password
-        click_button "Register"
+        click_button 'Register'
 
         if Gitlab::Experimentation.enabled?(:signup_flow)
           expect(current_path).to eq users_sign_up_welcome_path
         else
           expect(current_path).to eq dashboard_projects_path
-          expect(page).to have_content("Welcome! You have signed up successfully.")
+          expect(page).to have_content('Welcome! You have signed up successfully.')
         end
       end
     end
 
-    context "when not sending confirmation email" do
+    context 'when not sending confirmation email' do
       before do
         stub_application_setting(send_user_confirmation_email: false)
       end
@@ -237,20 +237,20 @@ shared_examples 'Signup' do
         end
 
         fill_in 'new_user_password', with: new_user.password
-        click_button "Register"
+        click_button 'Register'
 
         if Gitlab::Experimentation.enabled?(:signup_flow)
           expect(current_path).to eq users_sign_up_welcome_path
         else
           expect(current_path).to eq dashboard_projects_path
-          expect(page).to have_content("Welcome! You have signed up successfully.")
+          expect(page).to have_content('Welcome! You have signed up successfully.')
         end
       end
     end
   end
 
   context 'with errors' do
-    it "displays the errors" do
+    it 'displays the errors' do
       existing_user = create(:user)
 
       visit new_user_registration_path
@@ -265,18 +265,18 @@ shared_examples 'Signup' do
       fill_in 'new_user_username', with: new_user.username
       fill_in 'new_user_email', with: existing_user.email
       fill_in 'new_user_password', with: new_user.password
-      click_button "Register"
+      click_button 'Register'
 
       expect(current_path).to eq user_registration_path
 
       if Gitlab::Experimentation.enabled?(:signup_flow)
-        expect(page).to have_content("error prohibited this user from being saved")
+        expect(page).to have_content('error prohibited this user from being saved')
       else
-        expect(page).to have_content("errors prohibited this user from being saved")
+        expect(page).to have_content('errors prohibited this user from being saved')
         expect(page).to have_content("Email confirmation doesn't match")
       end
 
-      expect(page).to have_content("Email has already been taken")
+      expect(page).to have_content('Email has already been taken')
     end
 
     it 'does not redisplay the password' do
@@ -294,7 +294,7 @@ shared_examples 'Signup' do
       fill_in 'new_user_username', with: new_user.username
       fill_in 'new_user_email', with: existing_user.email
       fill_in 'new_user_password', with: new_user.password
-      click_button "Register"
+      click_button 'Register'
 
       expect(current_path).to eq user_registration_path
       expect(page.body).not_to match(/#{new_user.password}/)
@@ -345,7 +345,7 @@ shared_examples 'Signup' do
       fill_in 'new_user_password', with: new_user.password
       check :terms_opt_in
 
-      click_button "Register"
+      click_button 'Register'
 
       if Gitlab::Experimentation.enabled?(:signup_flow)
         expect(current_path).to eq users_sign_up_welcome_path
@@ -428,7 +428,7 @@ shared_examples 'Signup name validation' do |field, max_length|
     it 'shows an error message if the username contains emojis' do
       simulate_input("##{field}", 'Ehsan 🦋')
 
-      expect(page).to have_content("Invalid input, please avoid emojis")
+      expect(page).to have_content('Invalid input, please avoid emojis')
     end
   end
 end

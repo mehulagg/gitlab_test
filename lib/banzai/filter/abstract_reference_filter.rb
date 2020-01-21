@@ -226,7 +226,7 @@ module Banzai
             data = data_attribute(data_attributes)
 
             url =
-              if matches.names.include?("url") && matches[:url]
+              if matches.names.include?('url') && matches[:url]
                 matches[:url]
               else
                 url_for_object_cached(object, parent)
@@ -264,11 +264,11 @@ module Banzai
       def object_link_text_extras(object, matches)
         extras = []
 
-        if matches.names.include?("anchor") && matches[:anchor] && matches[:anchor] =~ /\A\#note_(\d+)\z/
+        if matches.names.include?('anchor') && matches[:anchor] && matches[:anchor] =~ /\A\#note_(\d+)\z/
           extras << "comment #{$1}"
         end
 
-        extension = matches[:extension] if matches.names.include?("extension")
+        extension = matches[:extension] if matches.names.include?('extension')
 
         extras << extension if extension
 
@@ -284,7 +284,7 @@ module Banzai
         text = object.reference_link_text(parent)
 
         extras = object_link_text_extras(object, matches)
-        text += " (#{extras.join(", ")})" if extras.any?
+        text += " (#{extras.join(', ')})" if extras.any?
 
         text
       end

@@ -501,7 +501,7 @@ describe API::Jobs do
             let(:proxy_download) { true }
 
             it 'responds with the workhorse send-url' do
-              expect(response.headers[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with("send-url:")
+              expect(response.headers[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with('send-url:')
             end
           end
 
@@ -1023,7 +1023,7 @@ describe API::Jobs do
     context 'on a non-playable job' do
       it 'returns a status code 400, Bad Request' do
         expect(response).to have_gitlab_http_status 400
-        expect(response.body).to match("Unplayable Job")
+        expect(response.body).to match('Unplayable Job')
       end
     end
   end

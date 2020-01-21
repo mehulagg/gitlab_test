@@ -39,7 +39,7 @@ class ClearSharedRunnersMinutesWorker
   # rubocop: enable CodeReuse/ActiveRecord
 
   def extra_minutes_left_sql
-    "GREATEST((namespaces.shared_runners_minutes_limit + namespaces.extra_shared_runners_minutes_limit) - ROUND(namespace_statistics.shared_runners_seconds / 60.0), 0)"
+    'GREATEST((namespaces.shared_runners_minutes_limit + namespaces.extra_shared_runners_minutes_limit) - ROUND(namespace_statistics.shared_runners_seconds / 60.0), 0)'
   end
 
   def try_obtain_lease

@@ -167,7 +167,7 @@ describe Banzai::Filter::ReferenceRedactorFilter do
     end
   end
 
-  context "for user references" do
+  context 'for user references' do
     context 'with data-group' do
       it 'removes unpermitted Group references' do
         user = create(:user)

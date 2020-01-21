@@ -11,7 +11,7 @@ describe Gitlab::Pagination::OffsetPagination do
     stub_config_setting(port: custom_port)
   end
 
-  let(:request_context) { double("request_context") }
+  let(:request_context) { double('request_context') }
 
   subject do
     described_class.new(request_context)
@@ -87,7 +87,7 @@ describe Gitlab::Pagination::OffsetPagination do
 
           context 'when resources count is less than MAX_COUNT_LIMIT' do
             before do
-              stub_const("::Kaminari::ActiveRecordRelationMethods::MAX_COUNT_LIMIT", 4)
+              stub_const('::Kaminari::ActiveRecordRelationMethods::MAX_COUNT_LIMIT', 4)
             end
 
             it_behaves_like 'paginated response'
@@ -96,7 +96,7 @@ describe Gitlab::Pagination::OffsetPagination do
 
           context 'when resources count is more than MAX_COUNT_LIMIT' do
             before do
-              stub_const("::Kaminari::ActiveRecordRelationMethods::MAX_COUNT_LIMIT", 2)
+              stub_const('::Kaminari::ActiveRecordRelationMethods::MAX_COUNT_LIMIT', 2)
             end
 
             it_behaves_like 'paginated response'

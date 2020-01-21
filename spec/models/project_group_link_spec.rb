@@ -3,12 +3,12 @@
 require 'spec_helper'
 
 describe ProjectGroupLink do
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to(:group) }
     it { is_expected.to belong_to(:project) }
   end
 
-  describe "Validation" do
+  describe 'Validation' do
     let(:parent_group) { create(:group) }
     let(:group) { create(:group, parent: parent_group) }
     let(:project) { create(:project, group: group) }
@@ -32,7 +32,7 @@ describe ProjectGroupLink do
     end
   end
 
-  describe "destroying a record", :delete do
+  describe 'destroying a record', :delete do
     it "refreshes group users' authorized projects" do
       project     = create(:project, :private)
       group       = create(:group)

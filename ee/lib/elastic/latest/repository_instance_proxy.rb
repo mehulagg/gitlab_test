@@ -12,7 +12,7 @@ module Elastic
         response = elastic_search(query, type: :commit, page: page, per: per_page)[:commits][:results]
 
         commits = response.map do |result|
-          commit result["_source"]["commit"]["sha"]
+          commit result['_source']['commit']['sha']
         end.compact
 
         # Before "map" we had a paginated array so we need to recover it

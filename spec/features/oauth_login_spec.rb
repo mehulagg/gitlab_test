@@ -11,7 +11,7 @@ describe 'OAuth Login', :js, :allow_forgery_protection do
   end
 
   def stub_omniauth_config(provider)
-    OmniAuth.config.add_mock(provider, OmniAuth::AuthHash.new(provider: provider.to_s, uid: "12345"))
+    OmniAuth.config.add_mock(provider, OmniAuth::AuthHash.new(provider: provider.to_s, uid: '12345'))
     stub_omniauth_provider(provider)
   end
 

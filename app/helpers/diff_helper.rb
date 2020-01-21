@@ -58,7 +58,7 @@ module DiffHelper
 
   def diff_line_content(line)
     if line.blank?
-      "&nbsp;".html_safe
+      '&nbsp;'.html_safe
     else
       # `sub` and substring-ing would destroy HTML-safeness of `line`
       if line.start_with?('+', '-', ' ')
@@ -145,19 +145,19 @@ module DiffHelper
 
   def diff_file_changed_icon(diff_file)
     if diff_file.deleted_file?
-      "file-deletion"
+      'file-deletion'
     elsif diff_file.new_file?
-      "file-addition"
+      'file-addition'
     else
-      "file-modified"
+      'file-modified'
     end
   end
 
   def diff_file_changed_icon_color(diff_file)
     if diff_file.deleted_file?
-      "cred"
+      'cred'
     elsif diff_file.new_file?
-      "cgreen"
+      'cgreen'
     end
   end
 

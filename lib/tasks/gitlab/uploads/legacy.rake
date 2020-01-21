@@ -3,7 +3,7 @@
 namespace :gitlab do
   namespace :uploads do
     namespace :legacy do
-      desc "GitLab | Uploads | Migrate all legacy attachments"
+      desc 'GitLab | Uploads | Migrate all legacy attachments'
       task migrate: :environment do
         class Upload < ApplicationRecord
           self.table_name = 'uploads'

@@ -9,7 +9,7 @@ describe UserCalloutsController do
     sign_in(user)
   end
 
-  describe "POST #create" do
+  describe 'POST #create' do
     subject { post :create, params: { feature_name: feature_name }, format: :json }
 
     context 'with valid feature name' do

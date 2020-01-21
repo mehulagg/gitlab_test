@@ -425,7 +425,7 @@ describe Ci::Pipeline, :mailer do
         build(:ci_empty_pipeline, status: :created, project: project, source: nil)
       end
 
-      it "prevents from creating an object" do
+      it 'prevents from creating an object' do
         expect(pipeline).not_to be_valid
       end
     end
@@ -435,7 +435,7 @@ describe Ci::Pipeline, :mailer do
         pipeline.update_attribute(:source, nil)
       end
 
-      it "object is valid" do
+      it 'object is valid' do
         expect(pipeline).to be_valid
       end
     end
@@ -494,31 +494,31 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
-  describe "coverage" do
-    let(:project) { create(:project, build_coverage_regex: "/.*/") }
+  describe 'coverage' do
+    let(:project) { create(:project, build_coverage_regex: '/.*/') }
     let(:pipeline) { create(:ci_empty_pipeline, project: project) }
 
-    it "calculates average when there are two builds with coverage" do
-      create(:ci_build, name: "rspec", coverage: 30, pipeline: pipeline)
-      create(:ci_build, name: "rubocop", coverage: 40, pipeline: pipeline)
-      expect(pipeline.coverage).to eq("35.00")
+    it 'calculates average when there are two builds with coverage' do
+      create(:ci_build, name: 'rspec', coverage: 30, pipeline: pipeline)
+      create(:ci_build, name: 'rubocop', coverage: 40, pipeline: pipeline)
+      expect(pipeline.coverage).to eq('35.00')
     end
 
-    it "calculates average when there are two builds with coverage and one with nil" do
-      create(:ci_build, name: "rspec", coverage: 30, pipeline: pipeline)
-      create(:ci_build, name: "rubocop", coverage: 40, pipeline: pipeline)
+    it 'calculates average when there are two builds with coverage and one with nil' do
+      create(:ci_build, name: 'rspec', coverage: 30, pipeline: pipeline)
+      create(:ci_build, name: 'rubocop', coverage: 40, pipeline: pipeline)
       create(:ci_build, pipeline: pipeline)
-      expect(pipeline.coverage).to eq("35.00")
+      expect(pipeline.coverage).to eq('35.00')
     end
 
-    it "calculates average when there are two builds with coverage and one is retried" do
-      create(:ci_build, name: "rspec", coverage: 30, pipeline: pipeline)
-      create(:ci_build, name: "rubocop", coverage: 30, pipeline: pipeline, retried: true)
-      create(:ci_build, name: "rubocop", coverage: 40, pipeline: pipeline)
-      expect(pipeline.coverage).to eq("35.00")
+    it 'calculates average when there are two builds with coverage and one is retried' do
+      create(:ci_build, name: 'rspec', coverage: 30, pipeline: pipeline)
+      create(:ci_build, name: 'rubocop', coverage: 30, pipeline: pipeline, retried: true)
+      create(:ci_build, name: 'rubocop', coverage: 40, pipeline: pipeline)
+      expect(pipeline.coverage).to eq('35.00')
     end
 
-    it "calculates average when there is one build without coverage" do
+    it 'calculates average when there is one build without coverage' do
       FactoryBot.create(:ci_build, pipeline: pipeline)
       expect(pipeline.coverage).to be_nil
     end
@@ -1325,7 +1325,7 @@ describe Ci::Pipeline, :mailer do
           create(:ci_empty_pipeline, project: project, tag: tag, ref: ref)
         end
 
-        it "correctly detects ref" do
+        it 'correctly detects ref' do
           expect(pipeline.ref_exists?).to be result
         end
       end
@@ -2321,7 +2321,7 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
-  describe "#merge_requests_as_head_pipeline" do
+  describe '#merge_requests_as_head_pipeline' do
     let(:project) { create(:project) }
     let(:pipeline) { create(:ci_empty_pipeline, status: 'created', project: project, ref: 'master', sha: 'a288a022a53a5a944fae87bcec6efc87b7061808') }
 
@@ -2350,13 +2350,13 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
-  describe "#all_merge_requests" do
+  describe '#all_merge_requests' do
     let(:project) { create(:project) }
 
     shared_examples 'a method that returns all merge requests for a given pipeline' do
       let(:pipeline) { create(:ci_empty_pipeline, status: 'created', project: pipeline_project, ref: 'master') }
 
-      it "returns all merge requests having the same source branch" do
+      it 'returns all merge requests having the same source branch' do
         merge_request = create(:merge_request, source_project: pipeline_project, target_project: project, source_branch: pipeline.ref)
 
         expect(pipeline.all_merge_requests).to eq([merge_request])
@@ -2702,7 +2702,7 @@ describe Ci::Pipeline, :mailer do
         build(:ci_empty_pipeline, status: :created, project: project, ref: default_branch)
       end
 
-      it "returns true" do
+      it 'returns true' do
         expect(subject).to be_truthy
       end
     end
@@ -2712,7 +2712,7 @@ describe Ci::Pipeline, :mailer do
         build(:ci_empty_pipeline, status: :created, project: project, ref: 'another_branch')
       end
 
-      it "returns false" do
+      it 'returns false' do
         expect(subject).to be_falsey
       end
     end

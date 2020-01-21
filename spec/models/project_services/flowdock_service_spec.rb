@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe FlowdockService do
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to :project }
     it { is_expected.to have_one :service_hook }
   end
@@ -26,7 +26,7 @@ describe FlowdockService do
     end
   end
 
-  describe "Execute" do
+  describe 'Execute' do
     let(:user)    { create(:user) }
     let(:project) { create(:project, :repository) }
 
@@ -43,7 +43,7 @@ describe FlowdockService do
       WebMock.stub_request(:post, @api_url)
     end
 
-    it "calls FlowDock API" do
+    it 'calls FlowDock API' do
       @flowdock_service.execute(@sample_data)
       @sample_data[:commits].each do |commit|
         # One request to Flowdock per new commit

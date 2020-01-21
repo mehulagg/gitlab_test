@@ -17,7 +17,7 @@ describe ImportExportUploader do
     end
   end
 
-  context "object_store is REMOTE" do
+  context 'object_store is REMOTE' do
     before do
       stub_uploads_object_storage
     end

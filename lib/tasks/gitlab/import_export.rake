@@ -1,11 +1,11 @@
 namespace :gitlab do
   namespace :import_export do
-    desc "GitLab | Show Import/Export version"
+    desc 'GitLab | Show Import/Export version'
     task version: :environment do
       puts "Import/Export v#{Gitlab::ImportExport.version}"
     end
 
-    desc "GitLab | Display exported DB structure"
+    desc 'GitLab | Display exported DB structure'
     task data: :environment do
       puts Gitlab::ImportExport::Config.new.to_h['project_tree'].to_yaml(SortKeys: true)
     end

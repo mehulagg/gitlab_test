@@ -20,7 +20,7 @@ module Gitlab
           end
 
         rescue ObjectStorage::RemoteStoreError
-          ::Gitlab::Geo::Logger.warn "Error trying to transfer a remote object as a local object."
+          ::Gitlab::Geo::Logger.warn 'Error trying to transfer a remote object as a local object.'
         end
 
         private

@@ -9,7 +9,7 @@ if app.config.public_file_server.enabled
   app.config.middleware.swap(
     ActionDispatch::Static,
     Gitlab::Middleware::Static,
-    app.paths["public"].first,
+    app.paths['public'].first,
     headers: app.config.public_file_server.headers
   )
 

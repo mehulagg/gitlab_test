@@ -27,7 +27,7 @@ describe SystemNotes::CommitService do
 
       describe 'comparison diff link line' do
         it 'adds the comparison text' do
-          expect(note_lines[2]).to match "[Compare with previous version]"
+          expect(note_lines[2]).to match '[Compare with previous version]'
         end
       end
 

@@ -1,17 +1,17 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe Gitlab::EncodingHelper do
   let(:ext_class) { Class.new { extend Gitlab::EncodingHelper } }
-  let(:binary_string) { File.read(Rails.root + "spec/fixtures/dk.png") }
+  let(:binary_string) { File.read(Rails.root + 'spec/fixtures/dk.png') }
 
   describe '#encode!' do
     [
-      ["nil", nil, nil],
-      ["empty string", "".encode("ASCII-8BIT"), "".encode("UTF-8")],
-      ["invalid utf-8 encoded string", (+"my bad string\xE5").force_encoding("UTF-8"), "my bad string"],
-      ["frozen non-ascii string", (+"é").force_encoding("ASCII-8BIT").freeze, "é".encode("UTF-8")],
+      ['nil', nil, nil],
+      ['empty string', ''.encode('ASCII-8BIT'), ''.encode('UTF-8')],
+      ['invalid utf-8 encoded string', (+"my bad string\xE5").force_encoding('UTF-8'), 'my bad string'],
+      ['frozen non-ascii string', (+'é').force_encoding('ASCII-8BIT').freeze, 'é'.encode('UTF-8')],
       [
         'leaves ascii only string as is',
         'ascii only string',
@@ -30,7 +30,7 @@ describe Gitlab::EncodingHelper do
       [
         'string with detected encoding that is not supported in Ruby',
         "\xFFe,i\xFF,\xB8oi,'\xB8,\xFF,-",
-        "--broken encoding: IBM420_ltr"
+        '--broken encoding: IBM420_ltr'
       ]
     ].each do |description, test_string, xpect|
       it description do
@@ -92,29 +92,29 @@ describe Gitlab::EncodingHelper do
 
   describe '#encode_utf8' do
     [
-      ["nil", nil, nil],
-      ["empty string", "".encode("ASCII-8BIT"), "".encode("UTF-8")],
-      ["invalid utf-8 encoded string", (+"my bad string\xE5").force_encoding("UTF-8"), "my bad stringå"],
+      ['nil', nil, nil],
+      ['empty string', ''.encode('ASCII-8BIT'), ''.encode('UTF-8')],
+      ['invalid utf-8 encoded string', (+"my bad string\xE5").force_encoding('UTF-8'), 'my bad stringå'],
       [
-        "encodes valid utf8 encoded string to utf8",
-        "λ, λ, λ".encode("UTF-8"),
-        "λ, λ, λ".encode("UTF-8")
+        'encodes valid utf8 encoded string to utf8',
+        'λ, λ, λ'.encode('UTF-8'),
+        'λ, λ, λ'.encode('UTF-8')
       ],
       [
-        "encodes valid ASCII-8BIT encoded string to utf8",
-        "ascii only".encode("ASCII-8BIT"),
-        "ascii only".encode("UTF-8")
+        'encodes valid ASCII-8BIT encoded string to utf8',
+        'ascii only'.encode('ASCII-8BIT'),
+        'ascii only'.encode('UTF-8')
       ],
       [
-        "encodes valid ISO-8859-1 encoded string to utf8",
-        "Rüby ist eine Programmiersprache. Wir verlängern den text damit ICU die Sprache erkennen kann.".encode("ISO-8859-1", "UTF-8"),
-        "Rüby ist eine Programmiersprache. Wir verlängern den text damit ICU die Sprache erkennen kann.".encode("UTF-8")
+        'encodes valid ISO-8859-1 encoded string to utf8',
+        'Rüby ist eine Programmiersprache. Wir verlängern den text damit ICU die Sprache erkennen kann.'.encode('ISO-8859-1', 'UTF-8'),
+        'Rüby ist eine Programmiersprache. Wir verlängern den text damit ICU die Sprache erkennen kann.'.encode('UTF-8')
       ],
       [
         # Test case from https://gitlab.com/gitlab-org/gitlab-foss/issues/39227
-        "Equifax branch name",
-        "refs/heads/Equifax".encode("UTF-8"),
-        "refs/heads/Equifax".encode("UTF-8")
+        'Equifax branch name',
+        'refs/heads/Equifax'.encode('UTF-8'),
+        'refs/heads/Equifax'.encode('UTF-8')
       ]
     ].each do |description, test_string, xpect|
       it description do
@@ -130,10 +130,10 @@ describe Gitlab::EncodingHelper do
 
     context 'with strings that can be forcefully encoded into utf8' do
       let(:test_string) do
-        "refs/heads/FixSymbolsTitleDropdown".encode("ASCII-8BIT")
+        'refs/heads/FixSymbolsTitleDropdown'.encode('ASCII-8BIT')
       end
       let(:expected_string) do
-        "refs/heads/FixSymbolsTitleDropdown".encode("UTF-8")
+        'refs/heads/FixSymbolsTitleDropdown'.encode('UTF-8')
       end
 
       subject { ext_class.encode_utf8(test_string) }
@@ -178,11 +178,11 @@ describe Gitlab::EncodingHelper do
 
   describe 'encode_binary' do
     [
-      [nil, ""],
-      ["", ""],
-      ["  ", "  "],
+      [nil, ''],
+      ['', ''],
+      ['  ', '  '],
       %w(a1 a1),
-      ["编码", "\xE7\xBC\x96\xE7\xA0\x81".b]
+      ['编码', "\xE7\xBC\x96\xE7\xA0\x81".b]
     ].each do |input, result|
       it "encodes #{input.inspect} to #{result.inspect}" do
         expect(ext_class.encode_binary(input)).to eq(result)

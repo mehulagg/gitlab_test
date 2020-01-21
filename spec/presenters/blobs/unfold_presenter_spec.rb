@@ -231,7 +231,7 @@ describe Blobs::UnfoldPresenter do
       let(:params) { { since: 2, to: 3, bottom: false } }
 
       it 'returns match line string' do
-        expect(subject.match_line_text).to eq("@@ -2,1+2,1 @@")
+        expect(subject.match_line_text).to eq('@@ -2,1+2,1 @@')
       end
     end
   end

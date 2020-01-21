@@ -27,7 +27,7 @@ describe 'Admin Appearance' do
     sign_in(create(:admin))
 
     visit admin_appearances_path
-    click_link "Sign-in page"
+    click_link 'Sign-in page'
 
     expect_custom_sign_in_appearance(appearance)
   end
@@ -36,7 +36,7 @@ describe 'Admin Appearance' do
     sign_in(create(:admin))
 
     visit admin_appearances_path
-    click_link "New project page"
+    click_link 'New project page'
 
     expect_custom_new_project_appearance(appearance)
   end

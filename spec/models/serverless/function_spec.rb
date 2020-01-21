@@ -8,14 +8,14 @@ describe Serverless::Function do
 
   it 'has a proper id' do
     expect(func.id).to eql("#{project.id}/test/test-ns")
-    expect(func.name).to eql("test")
-    expect(func.namespace).to eql("test-ns")
+    expect(func.name).to eql('test')
+    expect(func.namespace).to eql('test-ns')
   end
 
   it 'can decode an identifier' do
     f = described_class.find_by_id("#{project.id}/testfunc/dummy-ns")
 
-    expect(f.name).to eql("testfunc")
-    expect(f.namespace).to eql("dummy-ns")
+    expect(f.name).to eql('testfunc')
+    expect(f.namespace).to eql('dummy-ns')
   end
 end

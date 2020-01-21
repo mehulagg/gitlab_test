@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class GlobalPolicy < BasePolicy
-  desc "User is an internal user"
+  desc 'User is an internal user'
   with_options scope: :user, score: 0
   condition(:internal) { @user&.internal? }
 

@@ -9,10 +9,10 @@ shared_examples 'languages and percentages JSON response' do
     allow(DetectRepositoryLanguagesWorker).to receive(:perform_async).and_call_original
 
     allow(project.repository).to receive(:languages).and_return(
-      [{ value: 66.69, label: "Ruby", color: "#701516", highlight: "#701516" },
-       { value: 22.98, label: "JavaScript", color: "#f1e05a", highlight: "#f1e05a" },
-       { value: 7.91, label: "HTML", color: "#e34c26", highlight: "#e34c26" },
-       { value: 2.42, label: "CoffeeScript", color: "#244776", highlight: "#244776" }]
+      [{ value: 66.69, label: 'Ruby', color: '#701516', highlight: '#701516' },
+       { value: 22.98, label: 'JavaScript', color: '#f1e05a', highlight: '#f1e05a' },
+       { value: 7.91, label: 'HTML', color: '#e34c26', highlight: '#e34c26' },
+       { value: 2.42, label: 'CoffeeScript', color: '#244776', highlight: '#244776' }]
     )
   end
 
@@ -241,7 +241,7 @@ describe API::Projects do
         end
       end
 
-      it "does not include statistics by default" do
+      it 'does not include statistics by default' do
         get api('/projects', user)
 
         expect(response).to have_gitlab_http_status(200)
@@ -250,7 +250,7 @@ describe API::Projects do
         expect(json_response.first).not_to include('statistics')
       end
 
-      it "includes statistics if requested" do
+      it 'includes statistics if requested' do
         get api('/projects', user), params: { statistics: true }
 
         expect(response).to have_gitlab_http_status(200)
@@ -259,7 +259,7 @@ describe API::Projects do
         expect(json_response.first).to include 'statistics'
       end
 
-      it "does not include license by default" do
+      it 'does not include license by default' do
         get api('/projects', user)
 
         expect(response).to have_gitlab_http_status(200)
@@ -268,7 +268,7 @@ describe API::Projects do
         expect(json_response.first).not_to include('license', 'license_url')
       end
 
-      it "does not include license if requested" do
+      it 'does not include license if requested' do
         get api('/projects', user), params: { license: true }
 
         expect(response).to have_gitlab_http_status(200)
@@ -722,7 +722,7 @@ describe API::Projects do
       expect(response).to have_gitlab_http_status(400)
     end
 
-    it "assigns attributes to project" do
+    it 'assigns attributes to project' do
       project = attributes_for(:project, {
         path: 'camelCasePath',
         issues_enabled: false,
@@ -1240,18 +1240,18 @@ describe API::Projects do
     end
   end
 
-  describe "POST /projects/:id/uploads" do
+  describe 'POST /projects/:id/uploads' do
     before do
       project
     end
 
-    it "uploads the file and returns its info" do
-      post api("/projects/#{project.id}/uploads", user), params: { file: fixture_file_upload("spec/fixtures/dk.png", "image/png") }
+    it 'uploads the file and returns its info' do
+      post api("/projects/#{project.id}/uploads", user), params: { file: fixture_file_upload('spec/fixtures/dk.png', 'image/png') }
 
       expect(response).to have_gitlab_http_status(201)
-      expect(json_response['alt']).to eq("dk")
-      expect(json_response['url']).to start_with("/uploads/")
-      expect(json_response['url']).to end_with("/dk.png")
+      expect(json_response['alt']).to eq('dk')
+      expect(json_response['url']).to start_with('/uploads/')
+      expect(json_response['url']).to end_with('/dk.png')
     end
   end
 
@@ -1408,7 +1408,7 @@ describe API::Projects do
         expect(json_response['creator_id']).to be_present
         expect(json_response['namespace']).to be_present
         expect(json_response['import_status']).to be_present
-        expect(json_response).to include("import_error")
+        expect(json_response).to include('import_error')
         expect(json_response['avatar_url']).to be_nil
         expect(json_response['star_count']).to be_present
         expect(json_response['forks_count']).to be_present
@@ -1487,7 +1487,7 @@ describe API::Projects do
         })
       end
 
-      it "does not include license fields by default" do
+      it 'does not include license fields by default' do
         get api("/projects/#{project.id}", user)
 
         expect(response).to have_gitlab_http_status(200)
@@ -1507,31 +1507,31 @@ describe API::Projects do
         })
       end
 
-      it "does not include statistics by default" do
+      it 'does not include statistics by default' do
         get api("/projects/#{project.id}", user)
 
         expect(response).to have_gitlab_http_status(200)
         expect(json_response).not_to include 'statistics'
       end
 
-      it "includes statistics if requested" do
+      it 'includes statistics if requested' do
         get api("/projects/#{project.id}", user), params: { statistics: true }
 
         expect(response).to have_gitlab_http_status(200)
         expect(json_response).to include 'statistics'
       end
 
-      context "and the project has a private repository" do
+      context 'and the project has a private repository' do
         let(:project) { create(:project, :public, :repository, :repository_private) }
 
-        it "does not include statistics if user is not a member" do
+        it 'does not include statistics if user is not a member' do
           get api("/projects/#{project.id}", user), params: { statistics: true }
 
           expect(response).to have_gitlab_http_status(200)
           expect(json_response).not_to include 'statistics'
         end
 
-        it "includes statistics if user is a member" do
+        it 'includes statistics if user is a member' do
           project.add_developer(user)
 
           get api("/projects/#{project.id}", user), params: { statistics: true }
@@ -1540,7 +1540,7 @@ describe API::Projects do
           expect(json_response).to include 'statistics'
         end
 
-        it "includes statistics also when repository is disabled" do
+        it 'includes statistics also when repository is disabled' do
           project.add_developer(user)
           project.project_feature.update_attribute(:repository_access_level, ProjectFeature::DISABLED)
 
@@ -1551,18 +1551,18 @@ describe API::Projects do
         end
       end
 
-      it "includes import_error if user can admin project" do
+      it 'includes import_error if user can admin project' do
         get api("/projects/#{project.id}", user)
 
         expect(response).to have_gitlab_http_status(200)
-        expect(json_response).to include("import_error")
+        expect(json_response).to include('import_error')
       end
 
-      it "does not include import_error if user cannot admin project" do
+      it 'does not include import_error if user cannot admin project' do
         get api("/projects/#{project.id}", user3)
 
         expect(response).to have_gitlab_http_status(200)
-        expect(json_response).not_to include("import_error")
+        expect(json_response).not_to include('import_error')
       end
 
       it 'returns 404 when project is marked for deletion' do
@@ -1635,7 +1635,7 @@ describe API::Projects do
           end
 
           it 'contains permission information' do
-            get api("/projects", user)
+            get api('/projects', user)
 
             expect(response).to have_gitlab_http_status(200)
             expect(json_response.first['permissions']['project_access']['access_level'])
@@ -1898,7 +1898,7 @@ describe API::Projects do
     end
 
     describe 'DELETE /projects/:id/fork' do
-      it "is not visible to users outside group" do
+      it 'is not visible to users outside group' do
         delete api("/projects/#{project_fork_target.id}/fork", user)
         expect(response).to have_gitlab_http_status(404)
       end
@@ -2001,14 +2001,14 @@ describe API::Projects do
     end
   end
 
-  describe "POST /projects/:id/share" do
+  describe 'POST /projects/:id/share' do
     let(:group) { create(:group) }
 
     before do
       group.add_developer(user)
     end
 
-    it "shares project with group" do
+    it 'shares project with group' do
       expires_at = 10.days.from_now.to_date
 
       expect do
@@ -2021,17 +2021,17 @@ describe API::Projects do
       expect(json_response['expires_at']).to eq(expires_at.to_s)
     end
 
-    it "returns a 400 error when group id is not given" do
+    it 'returns a 400 error when group id is not given' do
       post api("/projects/#{project.id}/share", user), params: { group_access: Gitlab::Access::DEVELOPER }
       expect(response).to have_gitlab_http_status(400)
     end
 
-    it "returns a 400 error when access level is not given" do
+    it 'returns a 400 error when access level is not given' do
       post api("/projects/#{project.id}/share", user), params: { group_id: group.id }
       expect(response).to have_gitlab_http_status(400)
     end
 
-    it "returns a 400 error when sharing is disabled" do
+    it 'returns a 400 error when sharing is disabled' do
       project.namespace.update(share_with_group_lock: true)
       post api("/projects/#{project.id}/share", user), params: { group_id: group.id, group_access: Gitlab::Access::DEVELOPER }
       expect(response).to have_gitlab_http_status(400)
@@ -2051,14 +2051,14 @@ describe API::Projects do
       expect(response).to have_gitlab_http_status(404)
     end
 
-    it "returns a 400 error when wrong params passed" do
+    it 'returns a 400 error when wrong params passed' do
       post api("/projects/#{project.id}/share", user), params: { group_id: group.id, group_access: 1234 }
 
       expect(response).to have_gitlab_http_status(400)
       expect(json_response['error']).to eq 'group_access does not have a valid value'
     end
 
-    it "returns a 409 error when link is not saved" do
+    it 'returns a 409 error when link is not saved' do
       allow(::Projects::GroupLinks::CreateService).to receive_message_chain(:new, :execute)
         .and_return({ status: :error, http_status: 409, message: 'error' })
 
@@ -2101,7 +2101,7 @@ describe API::Projects do
     end
 
     it 'returns a 404 error when project does not exist' do
-      delete api("/projects/123/share/1234", user)
+      delete api('/projects/123/share/1234', user)
 
       expect(response).to have_gitlab_http_status(404)
     end
@@ -2528,7 +2528,7 @@ describe API::Projects do
     end
 
     it 'returns not_found(404) for not existing project' do
-      get api("/projects/9999999999/starrers", user)
+      get api('/projects/9999999999/starrers', user)
 
       expect(response).to have_gitlab_http_status(:not_found)
     end
@@ -2586,7 +2586,7 @@ describe API::Projects do
       end
 
       it 'returns not_found(404) for not existing project' do
-        get api("/projects/0/languages", user)
+        get api('/projects/0/languages', user)
 
         expect(response).to have_gitlab_http_status(:not_found)
       end
@@ -2705,7 +2705,7 @@ describe API::Projects do
         expect(json_response['namespace']['id']).to eq(user2.namespace.id)
         expect(json_response['forked_from_project']['id']).to eq(project.id)
         expect(json_response['import_status']).to eq('scheduled')
-        expect(json_response).to include("import_error")
+        expect(json_response).to include('import_error')
       end
 
       it 'forks if user is admin' do
@@ -2718,7 +2718,7 @@ describe API::Projects do
         expect(json_response['namespace']['id']).to eq(admin.namespace.id)
         expect(json_response['forked_from_project']['id']).to eq(project.id)
         expect(json_response['import_status']).to eq('scheduled')
-        expect(json_response).to include("import_error")
+        expect(json_response).to include('import_error')
       end
 
       it 'fails on missing project access for the project to fork' do
@@ -2817,7 +2817,7 @@ describe API::Projects do
         expect(json_response['namespace']['id']).to eq(user2.namespace.id)
         expect(json_response['forked_from_project']['id']).to eq(project.id)
         expect(json_response['import_status']).to eq('scheduled')
-        expect(json_response).to include("import_error")
+        expect(json_response).to include('import_error')
       end
 
       it 'fails to fork if path is already taken' do
@@ -2838,7 +2838,7 @@ describe API::Projects do
         expect(json_response['namespace']['id']).to eq(user2.namespace.id)
         expect(json_response['forked_from_project']['id']).to eq(project.id)
         expect(json_response['import_status']).to eq('scheduled')
-        expect(json_response).to include("import_error")
+        expect(json_response).to include('import_error')
       end
 
       it 'fails to fork if name is already taken' do

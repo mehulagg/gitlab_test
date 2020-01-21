@@ -28,11 +28,11 @@ describe GithubService do
     stub_licensed_features(github_project_service_integration: true)
   end
 
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to :project }
   end
 
-  describe "Validations" do
+  describe 'Validations' do
     context 'when base_url is a localhost url' do
       let(:base_url) { 'http://127.0.0.1' }
 
@@ -44,28 +44,28 @@ describe GithubService do
     end
   end
 
-  describe "#owner" do
+  describe '#owner' do
     it 'is determined from the repo URL' do
       expect(subject.owner).to eq owner
     end
   end
 
-  describe "#repository_name" do
+  describe '#repository_name' do
     it 'is determined from the repo URL' do
       expect(subject.repository_name).to eq repository_name
     end
   end
 
-  describe "#api_url" do
+  describe '#api_url' do
     it 'uses github.com by default' do
-      expect(subject.api_url).to eq "https://api.github.com"
+      expect(subject.api_url).to eq 'https://api.github.com'
     end
 
-    context "with GitHub Enterprise repo URL" do
+    context 'with GitHub Enterprise repo URL' do
       let(:base_url) { 'https://my.code-repo.com' }
 
       it 'is set to the Enterprise API URL' do
-        expect(subject.api_url).to eq "https://my.code-repo.com/api/v3"
+        expect(subject.api_url).to eq 'https://my.code-repo.com/api/v3'
       end
     end
   end
@@ -131,7 +131,7 @@ describe GithubService do
   describe '#execute' do
     let(:remote_repo_path) { "#{owner}/#{repository_name}" }
     let(:sha) { pipeline.sha }
-    let(:status_options) { { context: 'security', target_url: 'https://localhost.pipeline.example.com', description: "SAST passed" } }
+    let(:status_options) { { context: 'security', target_url: 'https://localhost.pipeline.example.com', description: 'SAST passed' } }
     let(:status_message) { double(sha: sha, status: :success, status_options: status_options) }
     let(:notifier) { instance_double(GithubService::StatusNotifier) }
 
@@ -318,7 +318,7 @@ describe GithubService do
 
   describe '#test' do
     it 'mentions creator in success message' do
-      dummy_response = { context: "default", creator: { login: "YourUser" } }
+      dummy_response = { context: 'default', creator: { login: 'YourUser' } }
       allow(subject).to receive(:update_status).and_return(dummy_response)
 
       result = subject.test(pipeline_sample_data)

@@ -100,7 +100,7 @@ module QA
       end
 
       def validate_dependencies
-        find_executable('kubectl') || raise("You must first install `kubectl` executable to run these tests.")
+        find_executable('kubectl') || raise('You must first install `kubectl` executable to run these tests.')
       end
     end
   end

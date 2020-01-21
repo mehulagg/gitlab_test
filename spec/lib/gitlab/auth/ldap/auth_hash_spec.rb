@@ -35,19 +35,19 @@ describe Gitlab::Auth::LDAP::AuthHash do
     }
   end
 
-  context "without overridden attributes" do
+  context 'without overridden attributes' do
     let(:given_uid) { 'uid=John Smith,ou=People,dc=example,dc=com' }
 
-    it "has the correct username" do
-      expect(auth_hash.username).to eq("123456")
+    it 'has the correct username' do
+      expect(auth_hash.username).to eq('123456')
     end
 
-    it "has the correct name" do
-      expect(auth_hash.name).to eq("Smith, J.")
+    it 'has the correct name' do
+      expect(auth_hash.name).to eq('Smith, J.')
     end
   end
 
-  context "with overridden attributes" do
+  context 'with overridden attributes' do
     let(:given_uid) { 'uid=John Smith,ou=People,dc=example,dc=com' }
 
     let(:attributes) do
@@ -63,12 +63,12 @@ describe Gitlab::Auth::LDAP::AuthHash do
       end
     end
 
-    it "has the correct username" do
-      expect(auth_hash.username).to eq("johnsmith@example.com")
+    it 'has the correct username' do
+      expect(auth_hash.username).to eq('johnsmith@example.com')
     end
 
-    it "has the correct name" do
-      expect(auth_hash.name).to eq("John Smith")
+    it 'has the correct name' do
+      expect(auth_hash.name).to eq('John Smith')
     end
   end
 

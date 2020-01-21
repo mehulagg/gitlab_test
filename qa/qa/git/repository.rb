@@ -37,7 +37,7 @@ module QA
       def password=(password)
         @password = password
 
-        raise InvalidCredentialsError, "Please provide a username when setting a password" unless username
+        raise InvalidCredentialsError, 'Please provide a username when setting a password' unless username
 
         try_add_credentials_to_netrc
       end
@@ -156,7 +156,7 @@ module QA
       end
 
       def git_protocol=(value)
-        raise ArgumentError, "Please specify the protocol you would like to use: 0, 1, or 2" unless %w[0 1 2].include?(value.to_s)
+        raise ArgumentError, 'Please specify the protocol you would like to use: 0, 1, or 2' unless %w[0 1 2].include?(value.to_s)
 
         run("git config protocol.version #{value}")
       end
@@ -164,7 +164,7 @@ module QA
       def fetch_supported_git_protocol
         # ls-remote is one command known to respond to Git protocol v2 so we use
         # it to get output including the version reported via Git tracing
-        output = run("git ls-remote #{uri}", "GIT_TRACE_PACKET=1")
+        output = run("git ls-remote #{uri}", 'GIT_TRACE_PACKET=1')
         output[/git< version (\d+)/, 1] || 'unknown'
       end
 
@@ -250,7 +250,7 @@ module QA
       end
 
       def tmp_home_dir
-        @tmp_home_dir ||= File.join(Dir.tmpdir, "qa-netrc-credentials", $$.to_s)
+        @tmp_home_dir ||= File.join(Dir.tmpdir, 'qa-netrc-credentials', $$.to_s)
       end
 
       def netrc_file_path

@@ -54,7 +54,7 @@ module Gitlab
           return [] unless @commit
 
           # Insert root as directory
-          directories = ["", *@categories.keys]
+          directories = ['', *@categories.keys]
 
           directories.find do |category|
             path = File.join(category_directory(category), file_name)

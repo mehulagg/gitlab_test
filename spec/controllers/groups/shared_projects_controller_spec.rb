@@ -42,7 +42,7 @@ describe Groups::SharedProjectsController do
     end
 
     it 'allows filtering shared projects' do
-      project = create(:project, namespace: user.namespace, name: "Searching for")
+      project = create(:project, namespace: user.namespace, name: 'Searching for')
       share_project(project)
 
       get_shared_projects(filter: 'search')

@@ -17,7 +17,7 @@ module API
                                  desc: 'Level of permissions for the linked LDAP group'
         requires 'provider', type: String, desc: 'The LDAP provider for this LDAP group'
       end
-      post ":id/ldap_group_links" do
+      post ':id/ldap_group_links' do
         group = find_group(params[:id])
         authorize! :admin_group, group
 
@@ -34,7 +34,7 @@ module API
         requires 'cn', type: String, desc: 'The CN of a LDAP group'
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      delete ":id/ldap_group_links/:cn" do
+      delete ':id/ldap_group_links/:cn' do
         group = find_group(params[:id])
         authorize! :admin_group, group
 
@@ -54,7 +54,7 @@ module API
         requires 'provider', type: String, desc: 'The LDAP provider for this LDAP group'
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      delete ":id/ldap_group_links/:provider/:cn" do
+      delete ':id/ldap_group_links/:provider/:cn' do
         group = find_group(params[:id])
         authorize! :admin_group, group
 

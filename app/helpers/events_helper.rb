@@ -36,14 +36,14 @@ module EventsHelper
                 'project'
               end
 
-    [event.action_name, target].join(" ")
+    [event.action_name, target].join(' ')
   end
 
   def event_filter_link(key, text, tooltip)
     key = key.to_s
     active = 'active' if @event_filter.active?(key)
     link_opts = {
-      class: "event-filter-link",
+      class: 'event-filter-link',
       id:    "#{key}_event_filter",
       title: tooltip
     }
@@ -69,9 +69,9 @@ module EventsHelper
 
   def event_preposition(event)
     if event.push_action? || event.commented_action? || event.target
-      "at"
+      'at'
     elsif event.milestone?
-      "in"
+      'in'
     end
   end
 
@@ -83,13 +83,13 @@ module EventsHelper
     if event.push_action?
       words << event.ref_type
       words << event.ref_name
-      words << "at"
+      words << 'at'
     elsif event.commented_action?
       words << event.note_target_reference
-      words << "at"
+      words << 'at'
     elsif event.milestone?
       words << "##{event.target_iid}" if event.target_iid
-      words << "in"
+      words << 'in'
     elsif event.target
       prefix =
         if event.merge_request?
@@ -100,12 +100,12 @@ module EventsHelper
 
       words << "#{prefix}#{event.target_iid}:" if event.target_iid
       words << event.target.title if event.target.respond_to?(:title)
-      words << "at"
+      words << 'at'
     end
 
     words << event.resource_parent_name
 
-    words.join(" ")
+    words.join(' ')
   end
 
   def event_feed_url(event)
@@ -146,13 +146,13 @@ module EventsHelper
 
   def event_feed_summary(event)
     if event.issue?
-      render "events/event_issue", issue: event.issue
+      render 'events/event_issue', issue: event.issue
     elsif event.push_action?
-      render "events/event_push", event: event
+      render 'events/event_push', event: event
     elsif event.merge_request?
-      render "events/event_merge_request", merge_request: event.merge_request
+      render 'events/event_merge_request', merge_request: event.merge_request
     elsif event.note?
-      render "events/event_note", note: event.note
+      render 'events/event_note', note: event.note
     end
   end
 
@@ -175,7 +175,7 @@ module EventsHelper
   def event_note_title_html(event)
     if event.note_target
       capture do
-        concat content_tag(:span, event.note_target_type, class: "event-target-type append-right-4")
+        concat content_tag(:span, event.note_target_type, class: 'event-target-type append-right-4')
         concat link_to(event.note_target_reference, event_note_target_url(event), title: event.target_title, class: 'has-tooltip event-target-link append-right-4')
       end
     else
@@ -185,9 +185,9 @@ module EventsHelper
 
   def event_commit_title(message)
     message ||= ''
-    (message.split("\n").first || "").truncate(70)
+    (message.split("\n").first || '').truncate(70)
   rescue
-    "--broken encoding"
+    '--broken encoding'
   end
 
   def icon_for_event(note, size: 24)
@@ -216,10 +216,10 @@ module EventsHelper
   end
 
   def event_user_info(event)
-    content_tag(:div, class: "event-user-info") do
-      concat content_tag(:span, link_to_author(event), class: "author_name")
-      concat "&nbsp;".html_safe
-      concat content_tag(:span, event.author.to_reference, class: "username")
+    content_tag(:div, class: 'event-user-info') do
+      concat content_tag(:span, link_to_author(event), class: 'author_name')
+      concat '&nbsp;'.html_safe
+      concat content_tag(:span, event.author.to_reference, class: 'username')
     end
   end
 end

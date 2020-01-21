@@ -72,7 +72,7 @@ describe 'Artifact file', :js do
       visit file_url.sub('/-/jobs', '/builds')
     end
 
-    it "redirects to new URL" do
+    it 'redirects to new URL' do
       expect(page.current_path).to eq(file_url)
     end
   end

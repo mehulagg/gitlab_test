@@ -39,10 +39,10 @@ module Issues
     end
 
     def detect_col_sep(header)
-      if header.include?(",")
-        ","
-      elsif header.include?(";")
-        ";"
+      if header.include?(',')
+        ','
+      elsif header.include?(';')
+        ';'
       elsif header.include?("\t")
         "\t"
       else

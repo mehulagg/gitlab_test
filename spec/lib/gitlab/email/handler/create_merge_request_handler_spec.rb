@@ -7,7 +7,7 @@ describe Gitlab::Email::Handler::CreateMergeRequestHandler do
   it_behaves_like :reply_processing_shared_examples
 
   before do
-    stub_incoming_email_setting(enabled: true, address: "incoming+%{key}@appmail.adventuretime.ooo")
+    stub_incoming_email_setting(enabled: true, address: 'incoming+%{key}@appmail.adventuretime.ooo')
     stub_config_setting(host: 'localhost')
   end
 
@@ -27,10 +27,10 @@ describe Gitlab::Email::Handler::CreateMergeRequestHandler do
     )
   end
 
-  context "when email key" do
+  context 'when email key' do
     let(:mail) { Mail::Message.new(email_raw) }
 
-    it "matches the new format" do
+    it 'matches the new format' do
       handler = described_class.new(mail, "gitlabhq-gitlabhq-#{project.project_id}-#{user.incoming_email_token}-merge-request")
 
       expect(handler.instance_variable_get(:@project_id)).to eq project.project_id
@@ -39,7 +39,7 @@ describe Gitlab::Email::Handler::CreateMergeRequestHandler do
       expect(handler.can_handle?).to be_truthy
     end
 
-    it "matches the legacy format" do
+    it 'matches the legacy format' do
       handler = described_class.new(mail, "h5bp/html5-boilerplate+merge-request+#{user.incoming_email_token}")
 
       expect(handler.instance_variable_get(:@project_path)).to eq 'h5bp/html5-boilerplate'
@@ -48,30 +48,30 @@ describe Gitlab::Email::Handler::CreateMergeRequestHandler do
     end
 
     it "doesn't match either format" do
-      handler = described_class.new(mail, "h5bp-html5-boilerplate+merge-request")
+      handler = described_class.new(mail, 'h5bp-html5-boilerplate+merge-request')
 
       expect(handler.can_handle?).to be_falsey
     end
   end
 
-  context "as a non-developer" do
+  context 'as a non-developer' do
     before do
       project.add_guest(user)
     end
 
-    it "raises UserNotAuthorizedError if the user is not a member" do
+    it 'raises UserNotAuthorizedError if the user is not a member' do
       expect { receiver.execute }.to raise_error(Gitlab::Email::UserNotAuthorizedError)
     end
   end
 
-  context "as a developer" do
+  context 'as a developer' do
     before do
       project.add_developer(user)
     end
 
-    context "when everything is fine" do
-      shared_examples "a new merge request" do
-        it "creates a new merge request" do
+    context 'when everything is fine' do
+      shared_examples 'a new merge request' do
+        it 'creates a new merge request' do
           expect { receiver.execute }.to change { project.merge_requests.count }.by(1)
           merge_request = project.merge_requests.last
 
@@ -83,48 +83,48 @@ describe Gitlab::Email::Handler::CreateMergeRequestHandler do
         end
       end
 
-      it_behaves_like "a new merge request"
+      it_behaves_like 'a new merge request'
 
-      context "creates a new merge request with legacy email address" do
+      context 'creates a new merge request with legacy email address' do
         let(:email_raw) { fixture_file('emails/valid_new_merge_request_legacy.eml') }
 
-        it_behaves_like "a new merge request"
+        it_behaves_like 'a new merge request'
       end
     end
 
-    context "something is wrong" do
-      context "when the merge request could not be saved" do
+    context 'something is wrong' do
+      context 'when the merge request could not be saved' do
         before do
           allow_next_instance_of(MergeRequest) do |instance|
             allow(instance).to receive(:save).and_return(false)
           end
         end
 
-        it "raises an InvalidMergeRequestError" do
+        it 'raises an InvalidMergeRequestError' do
           expect { receiver.execute }.to raise_error(Gitlab::Email::InvalidMergeRequestError)
         end
       end
 
       context "when we can't find the incoming_email_token" do
-        let(:email_raw) { email_fixture("emails/wrong_merge_request_incoming_email_token.eml") }
+        let(:email_raw) { email_fixture('emails/wrong_merge_request_incoming_email_token.eml') }
 
-        it "raises an UserNotFoundError" do
+        it 'raises an UserNotFoundError' do
           expect { receiver.execute }.to raise_error(Gitlab::Email::UserNotFoundError)
         end
       end
 
-      context "when the subject is blank" do
-        let(:email_raw) { email_fixture("emails/valid_new_merge_request_no_subject.eml") }
+      context 'when the subject is blank' do
+        let(:email_raw) { email_fixture('emails/valid_new_merge_request_no_subject.eml') }
 
-        it "raises an InvalidMergeRequestError" do
+        it 'raises an InvalidMergeRequestError' do
           expect { receiver.execute }.to raise_error(Gitlab::Email::InvalidMergeRequestError)
         end
       end
 
-      context "when the message body is blank" do
-        let(:email_raw) { email_fixture("emails/valid_new_merge_request_no_description.eml") }
+      context 'when the message body is blank' do
+        let(:email_raw) { email_fixture('emails/valid_new_merge_request_no_description.eml') }
 
-        it "creates a new merge request with description set from the last commit" do
+        it 'creates a new merge request with description set from the last commit' do
           expect { receiver.execute }.to change { project.merge_requests.count }.by(1)
           merge_request = project.merge_requests.last
 
@@ -134,7 +134,7 @@ describe Gitlab::Email::Handler::CreateMergeRequestHandler do
     end
 
     context 'when the email contains patch attachments' do
-      let(:email_raw) { email_fixture("emails/valid_merge_request_with_patch.eml") }
+      let(:email_raw) { email_fixture('emails/valid_merge_request_with_patch.eml') }
 
       it 'creates the source branch and applies the patches' do
         receiver.execute
@@ -159,7 +159,7 @@ describe Gitlab::Email::Handler::CreateMergeRequestHandler do
       end
 
       context 'when the patch could not be applied' do
-        let(:email_raw) { email_fixture("emails/merge_request_with_conflicting_patch.eml") }
+        let(:email_raw) { email_fixture('emails/merge_request_with_conflicting_patch.eml') }
 
         it 'raises an error' do
           expect { receiver.execute }.to raise_error(Gitlab::Email::InvalidAttachment)
@@ -195,8 +195,8 @@ describe Gitlab::Email::Handler::CreateMergeRequestHandler do
     subject(:handler) { described_class.new(mail, mail_key) }
 
     it 'orders attachments ending in `.patch` by name' do
-      expected_filenames = ["0001-A-commit-from-a-patch.patch",
-                            "0002-This-does-not-apply-to-the-feature-branch.patch"]
+      expected_filenames = ['0001-A-commit-from-a-patch.patch',
+                            '0002-This-does-not-apply-to-the-feature-branch.patch']
 
       attachments = handler.__send__(:patch_attachments).map(&:filename)
 

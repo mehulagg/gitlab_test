@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
-describe "User views labels" do
+describe 'User views labels' do
   set(:project) { create(:project_empty_repo, :public) }
   set(:user) { create(:user) }
 
@@ -18,7 +18,7 @@ describe "User views labels" do
     visit(project_labels_path(project))
   end
 
-  it "shows all labels" do
+  it 'shows all labels' do
     page.within('.prioritized-labels .manage-labels-list') do
       expect(page).to have_content('prioritized-label-name')
     end

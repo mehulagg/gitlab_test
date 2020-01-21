@@ -19,7 +19,7 @@ describe 'GEO Nodes', :geo do
       sign_in(user)
     end
 
-    describe "showing Flash Info Message" do
+    describe 'showing Flash Info Message' do
       it 'on dashboard' do
         visit root_dashboard_path
         expect(page).to have_content 'You are on a secondary, read-only Geo node. If you want to make changes, you must visit this page on the primary node.'

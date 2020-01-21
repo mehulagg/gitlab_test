@@ -51,11 +51,11 @@ describe API::Issues, :mailer do
         subject
 
         expect(response).to have_gitlab_http_status(:success)
-        expect(epic_issue_response_for(epic_issue)['epic']).to eq({ "id" => epic.id,
-                                                                    "iid" => epic.iid,
-                                                                    "group_id" => epic.group_id,
-                                                                    "title" => epic.title,
-                                                                    "url" => group_epic_path(epic.group, epic) })
+        expect(epic_issue_response_for(epic_issue)['epic']).to eq({ 'id' => epic.id,
+                                                                    'iid' => epic.iid,
+                                                                    'group_id' => epic.group_id,
+                                                                    'title' => epic.title,
+                                                                    'url' => group_epic_path(epic.group, epic) })
       end
     end
 
@@ -80,8 +80,8 @@ describe API::Issues, :mailer do
     end
   end
 
-  describe "GET /issues" do
-    context "when authenticated" do
+  describe 'GET /issues' do
+    context 'when authenticated' do
       it 'matches V4 response schema' do
         get api('/issues', user)
 
@@ -89,7 +89,7 @@ describe API::Issues, :mailer do
         expect(response).to match_response_schema('public_api/v4/issues', dir: 'ee')
       end
 
-      context "filtering by weight" do
+      context 'filtering by weight' do
         let!(:issue1) { create(:issue, author: user2, project: project, weight: 1, created_at: 3.days.ago) }
         let!(:issue2) { create(:issue, author: user2, project: project, weight: 5, created_at: 2.days.ago) }
         let!(:issue3) { create(:issue, author: user2, project: project, weight: 3, created_at: 1.day.ago) }
@@ -120,7 +120,7 @@ describe API::Issues, :mailer do
         let!(:issue3) { create(:issue, author: user2, assignees: [assignee, another_assignee], project: project, weight: 3, created_at: 1.day.ago) }
 
         it 'returns issues with multiple assignees' do
-          get api("/issues", user), params: { assignee_username: [assignee.username, another_assignee.username], scope: 'all' }
+          get api('/issues', user), params: { assignee_username: [assignee.username, another_assignee.username], scope: 'all' }
 
           expect_paginated_array_response(issue3.id)
         end
@@ -154,7 +154,7 @@ describe API::Issues, :mailer do
     end
   end
 
-  describe "GET /projects/:id/issues" do
+  describe 'GET /projects/:id/issues' do
     subject { get api("/projects/#{project.id}/issues", user) }
 
     context 'filtering by assignee_username' do
@@ -301,7 +301,7 @@ describe API::Issues, :mailer do
     end
   end
 
-  describe "POST /projects/:id/issues" do
+  describe 'POST /projects/:id/issues' do
     it 'creates a new project issue' do
       post api("/projects/#{project.id}/issues", user),
         params: { title: 'new issue', labels: 'label, label2', weight: 101, assignee_ids: [user2.id] }

@@ -27,7 +27,7 @@ RSpec.shared_examples 'issuables list meta-data' do |issuable_type, action = nil
 
   let(:issuable_ids) { issuables.map(&:id) }
 
-  it "creates indexed meta-data object for issuable notes and votes count" do
+  it 'creates indexed meta-data object for issuable notes and votes count' do
     get_action(action, project)
 
     meta_data = assigns(:issuable_meta_data)
@@ -57,7 +57,7 @@ RSpec.shared_examples 'issuables list meta-data' do |issuable_type, action = nil
     end
   end
 
-  it "avoids N+1 queries" do
+  it 'avoids N+1 queries' do
     control = ActiveRecord::QueryRecorder.new { get_action(action, project) }
     issuable = create_issuable(issuable_type, project, source_branch: 'csv')
 
@@ -68,7 +68,7 @@ RSpec.shared_examples 'issuables list meta-data' do |issuable_type, action = nil
     expect { get_action(action, project) }.not_to exceed_query_limit(control.count)
   end
 
-  describe "when given empty collection" do
+  describe 'when given empty collection' do
     let(:project2) { create(:project, :public) }
 
     it "doesn't execute any queries with false conditions" do

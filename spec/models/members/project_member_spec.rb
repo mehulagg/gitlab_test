@@ -38,18 +38,18 @@ describe ProjectMember do
     it { is_expected.to eq 'Project' }
   end
 
-  describe "#destroy" do
+  describe '#destroy' do
     let(:owner)   { create(:project_member, access_level: ProjectMember::MAINTAINER) }
     let(:project) { owner.project }
     let(:maintainer) { create(:project_member, project: project) }
 
-    it "creates an expired event when left due to expiry" do
+    it 'creates an expired event when left due to expiry' do
       expired = create(:project_member, project: project, expires_at: Time.now - 6.days)
       expired.destroy
       expect(Event.recent.first.action).to eq(Event::EXPIRED)
     end
 
-    it "creates a left event when left due to leave" do
+    it 'creates a left event when left due to leave' do
       maintainer.destroy
       expect(Event.recent.first.action).to eq(Event::LEFT)
     end

@@ -53,8 +53,8 @@ describe DraftNotes::CreateService do
     diff_refs = project.commit(RepoHelpers.sample_commit.id).try(:diff_refs)
 
     position = Gitlab::Diff::Position.new(
-      old_path: "files/ruby/popen.rb",
-      new_path: "files/ruby/popen.rb",
+      old_path: 'files/ruby/popen.rb',
+      new_path: 'files/ruby/popen.rb',
       old_line: nil,
       new_line: 14,
       diff_refs: diff_refs

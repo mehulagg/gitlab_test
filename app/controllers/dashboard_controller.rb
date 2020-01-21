@@ -19,7 +19,7 @@ class DashboardController < Dashboard::ApplicationController
 
       format.json do
         load_events
-        pager_json("events/_events", @events.count)
+        pager_json('events/_events', @events.count)
       end
     end
   end
@@ -28,7 +28,7 @@ class DashboardController < Dashboard::ApplicationController
 
   def load_events
     projects =
-      if params[:filter] == "starred"
+      if params[:filter] == 'starred'
         ProjectsFinder.new(current_user: current_user, params: { starred: true }).execute
       else
         current_user.authorized_projects

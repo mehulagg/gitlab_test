@@ -24,14 +24,14 @@ describe Git::BranchPushService do
 
     before do
       allow(project.repository).to receive(:commit).and_call_original
-      allow(project.repository).to receive(:commit).with("master").and_return(nil)
+      allow(project.repository).to receive(:commit).with('master').and_return(nil)
     end
 
     context 'deleted branch' do
       let(:newrev) { blankrev }
 
       it 'handles when remote branch exists' do
-        expect(project.repository).to receive(:commit).with("refs/remotes/upstream/master").and_return(sample_commit)
+        expect(project.repository).to receive(:commit).with('refs/remotes/upstream/master').and_return(sample_commit)
 
         subject.execute
       end
@@ -60,7 +60,7 @@ describe Git::BranchPushService do
         subject.execute
       end
 
-      it "triggers indexer when push to default branch", :sidekiq_might_not_need_inline do
+      it 'triggers indexer when push to default branch', :sidekiq_might_not_need_inline do
         expect_any_instance_of(Gitlab::Elastic::Indexer).to receive(:run)
 
         subject.execute

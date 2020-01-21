@@ -194,7 +194,7 @@ describe ::SystemNotes::IssuablesService do
 
       it 'sets the note text' do
         expect(subject.note)
-          .to eq "changed title from **{-Old title-}** to **{+Lorem ipsum+}**"
+          .to eq 'changed title from **{-Old title-}** to **{+Lorem ipsum+}**'
       end
     end
   end
@@ -440,7 +440,7 @@ describe ::SystemNotes::IssuablesService do
     end
 
     it "posts the 'marked the task as complete' system note" do
-      expect(subject.note).to eq("marked the task **task** as completed")
+      expect(subject.note).to eq('marked the task **task** as completed')
     end
   end
 

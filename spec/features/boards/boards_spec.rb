@@ -35,7 +35,7 @@ describe 'Issue Boards', :js do
     it 'shows tooltip on add issues button' do
       button = page.find('.filter-dropdown-container button', text: 'Add issues')
 
-      expect(button[:"data-original-title"]).to eq("Please add a list to your board first")
+      expect(button[:"data-original-title"]).to eq('Please add a list to your board first')
     end
 
     it 'hides the blank state when clicking nevermind button' do
@@ -288,10 +288,10 @@ describe 'Issue Boards', :js do
         end
 
         context 'list header' do
-          let(:total_planning_issues) { "8" }
+          let(:total_planning_issues) { '8' }
 
           it 'shows issue count on the list' do
-            page.within(find(".board:nth-child(2)")) do
+            page.within(find('.board:nth-child(2)')) do
               expect(page.find('.js-issue-size')).to have_text(total_planning_issues)
               expect(page).not_to have_selector('.js-max-issue-size')
             end
@@ -386,7 +386,7 @@ describe 'Issue Boards', :js do
 
     context 'filtering' do
       it 'filters by author' do
-        set_filter("author", user2.username)
+        set_filter('author', user2.username)
         click_filter_link(user2.username)
         submit_filter
 
@@ -396,7 +396,7 @@ describe 'Issue Boards', :js do
       end
 
       it 'filters by assignee' do
-        set_filter("assignee", user.username)
+        set_filter('assignee', user.username)
         click_filter_link(user.username)
         submit_filter
 
@@ -407,7 +407,7 @@ describe 'Issue Boards', :js do
       end
 
       it 'filters by milestone' do
-        set_filter("milestone", "\"#{milestone.title}")
+        set_filter('milestone', "\"#{milestone.title}")
         click_filter_link(milestone.title)
         submit_filter
 
@@ -418,7 +418,7 @@ describe 'Issue Boards', :js do
       end
 
       it 'filters by label' do
-        set_filter("label", testing.title)
+        set_filter('label', testing.title)
         click_filter_link(testing.title)
         submit_filter
 
@@ -428,7 +428,7 @@ describe 'Issue Boards', :js do
       end
 
       it 'filters by label with encoded character' do
-        set_filter("label", a_plus.title)
+        set_filter('label', a_plus.title)
         click_filter_link(a_plus.title)
         submit_filter
 
@@ -437,7 +437,7 @@ describe 'Issue Boards', :js do
       end
 
       it 'filters by label with space after reload', :quarantine do
-        set_filter("label", "\"#{accepting.title}")
+        set_filter('label', "\"#{accepting.title}")
         click_filter_link(accepting.title)
         submit_filter
 
@@ -460,7 +460,7 @@ describe 'Issue Boards', :js do
       end
 
       it 'removes filtered labels' do
-        set_filter("label", testing.title)
+        set_filter('label', testing.title)
         click_filter_link(testing.title)
         submit_filter
 
@@ -475,7 +475,7 @@ describe 'Issue Boards', :js do
       it 'infinite scrolls list with label filter' do
         create_list(:labeled_issue, 50, project: project, labels: [planning, testing])
 
-        set_filter("label", testing.title)
+        set_filter('label', testing.title)
         click_filter_link(testing.title)
         submit_filter
 
@@ -501,10 +501,10 @@ describe 'Issue Boards', :js do
       end
 
       it 'filters by multiple labels', :quarantine do
-        set_filter("label", testing.title)
+        set_filter('label', testing.title)
         click_filter_link(testing.title)
 
-        set_filter("label", bug.title)
+        set_filter('label', bug.title)
         click_filter_link(bug.title)
 
         submit_filter

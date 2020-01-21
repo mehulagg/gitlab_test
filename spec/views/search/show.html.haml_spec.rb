@@ -6,8 +6,8 @@ describe 'search/show' do
   let(:search_term) { nil }
 
   before do
-    stub_template "search/_category.html.haml" => 'Category Partial'
-    stub_template "search/_results.html.haml" => 'Results Partial'
+    stub_template 'search/_category.html.haml' => 'Category Partial'
+    stub_template 'search/_results.html.haml' => 'Results Partial'
 
     @search_term = search_term
 

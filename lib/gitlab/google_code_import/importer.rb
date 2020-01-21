@@ -25,7 +25,7 @@ module Gitlab
         @project = project
 
         import_data = project.import_data.try(:data)
-        repo_data = import_data["repo"] if import_data
+        repo_data = import_data['repo'] if import_data
         @repo = GoogleCodeImport::Repository.new(repo_data)
 
         @closed_statuses = []
@@ -50,11 +50,11 @@ module Gitlab
         @user_map ||= begin
           user_map = Hash.new do |hash, user|
             # Replace ... by \.\.\., so `johnsm...@gmail.com` isn't autolinked.
-            Client.mask_email(user).sub("...", "\\.\\.\\.")
+            Client.mask_email(user).sub('...', '\\.\\.\\.')
           end
 
           import_data = project.import_data.try(:data)
-          stored_user_map = import_data["user_map"] if import_data
+          stored_user_map = import_data['user_map'] if import_data
           user_map.update(stored_user_map) if stored_user_map
 
           user_map
@@ -62,19 +62,19 @@ module Gitlab
       end
 
       def import_status_labels
-        repo.raw_data["issuesConfig"]["statuses"].each do |status|
-          closed = !status["meansOpen"]
-          @closed_statuses << status["status"] if closed
+        repo.raw_data['issuesConfig']['statuses'].each do |status|
+          closed = !status['meansOpen']
+          @closed_statuses << status['status'] if closed
 
-          name = nice_status_name(status["status"])
+          name = nice_status_name(status['status'])
           create_label(name)
           @known_labels << name
         end
       end
 
       def import_labels
-        repo.raw_data["issuesConfig"]["labels"].each do |label|
-          name = nice_label_name(label["label"])
+        repo.raw_data['issuesConfig']['labels'].each do |label|
+          name = nice_label_name(label['label'])
           create_label(name)
           @known_labels << name
         end
@@ -85,23 +85,23 @@ module Gitlab
         return unless repo.issues
 
         while raw_issue = repo.issues.shift
-          author  = user_map[raw_issue["author"]["name"]]
-          date    = DateTime.parse(raw_issue["published"]).to_formatted_s(:long)
+          author  = user_map[raw_issue['author']['name']]
+          date    = DateTime.parse(raw_issue['published']).to_formatted_s(:long)
 
-          comments = raw_issue["comments"]["items"]
+          comments = raw_issue['comments']['items']
           issue_comment = comments.shift
 
-          content     = format_content(issue_comment["content"])
-          attachments = format_attachments(raw_issue["id"], 0, issue_comment["attachments"])
+          content     = format_content(issue_comment['content'])
+          attachments = format_attachments(raw_issue['id'], 0, issue_comment['attachments'])
 
           body = format_issue_body(author, date, content, attachments)
           labels = import_issue_labels(raw_issue)
 
           assignee_id = nil
-          if raw_issue.key?("owner")
-            username = user_map[raw_issue["owner"]["name"]]
+          if raw_issue.key?('owner')
+            username = user_map[raw_issue['owner']['name']]
 
-            if username.start_with?("@")
+            if username.start_with?('@')
               username = username[1..-1]
 
               if user = UserFinder.new(username).find_by_username
@@ -131,7 +131,7 @@ module Gitlab
       def import_issue_labels(raw_issue)
         labels = []
 
-        raw_issue["labels"].each do |label|
+        raw_issue['labels'].each do |label|
           name = nice_label_name(label)
           labels << name
 
@@ -141,26 +141,26 @@ module Gitlab
           end
         end
 
-        labels << nice_status_name(raw_issue["status"])
+        labels << nice_status_name(raw_issue['status'])
         labels
       end
 
       def import_issue_comments(issue, comments)
         Note.transaction do
           while raw_comment = comments.shift
-            next if raw_comment.key?("deletedBy")
+            next if raw_comment.key?('deletedBy')
 
-            content     = format_content(raw_comment["content"])
-            updates     = format_updates(raw_comment["updates"])
-            attachments = format_attachments(issue.iid, raw_comment["id"], raw_comment["attachments"])
+            content     = format_content(raw_comment['content'])
+            updates     = format_updates(raw_comment['updates'])
+            attachments = format_attachments(issue.iid, raw_comment['id'], raw_comment['attachments'])
 
             next if content.blank? && updates.blank? && attachments.blank?
 
-            author  = user_map[raw_comment["author"]["name"]]
-            date    = DateTime.parse(raw_comment["published"]).to_formatted_s(:long)
+            author  = user_map[raw_comment['author']['name']]
+            date    = DateTime.parse(raw_comment['published']).to_formatted_s(:long)
 
             body = format_issue_comment_body(
-              raw_comment["id"],
+              raw_comment['id'],
               author,
               date,
               content,
@@ -171,7 +171,7 @@ module Gitlab
             # Needs to match order of `comment_columns` below.
             Note.create!(
               project_id:     project.id,
-              noteable_type:  "Issue",
+              noteable_type:  'Issue',
               noteable_id:    issue.id,
               author_id:      project.creator_id,
               note:           body
@@ -197,7 +197,7 @@ module Gitlab
       end
 
       def nice_label_name(name)
-        name.sub("-", ": ")
+        name.sub('-', ': ')
       end
 
       def nice_status_name(name)
@@ -212,11 +212,11 @@ module Gitlab
 
       def escape_for_markdown(str)
         # No headings and lists
-        str = str.gsub(/^#/, "\\#")
-        str = str.gsub(/^-/, "\\-")
+        str = str.gsub(/^#/, '\\#')
+        str = str.gsub(/^-/, '\\-')
 
         # No inline code
-        str = str.gsub("`", "\\`")
+        str = str.gsub('`', '\\`')
 
         # Carriage returns make me sad
         str = str.delete("\r")
@@ -239,65 +239,65 @@ module Gitlab
       def format_updates(raw_updates)
         updates = []
 
-        if raw_updates.key?("status")
-          updates << "*Status: #{raw_updates["status"]}*"
+        if raw_updates.key?('status')
+          updates << "*Status: #{raw_updates['status']}*"
         end
 
-        if raw_updates.key?("owner")
-          updates << "*Owner: #{user_map[raw_updates["owner"]]}*"
+        if raw_updates.key?('owner')
+          updates << "*Owner: #{user_map[raw_updates['owner']]}*"
         end
 
-        if raw_updates.key?("cc")
-          cc = raw_updates["cc"].map do |l|
-            deleted = l.start_with?("-")
+        if raw_updates.key?('cc')
+          cc = raw_updates['cc'].map do |l|
+            deleted = l.start_with?('-')
             l = l[1..-1] if deleted
             l = user_map[l]
             l = "~~#{l}~~" if deleted
             l
           end
 
-          updates << "*Cc: #{cc.join(", ")}*"
+          updates << "*Cc: #{cc.join(', ')}*"
         end
 
-        if raw_updates.key?("labels")
-          labels = raw_updates["labels"].map do |l|
-            deleted = l.start_with?("-")
+        if raw_updates.key?('labels')
+          labels = raw_updates['labels'].map do |l|
+            deleted = l.start_with?('-')
             l = l[1..-1] if deleted
             l = nice_label_name(l)
             l = "~~#{l}~~" if deleted
             l
           end
 
-          updates << "*Labels: #{labels.join(", ")}*"
+          updates << "*Labels: #{labels.join(', ')}*"
         end
 
-        if raw_updates.key?("mergedInto")
-          updates << "*Merged into: ##{raw_updates["mergedInto"]}*"
+        if raw_updates.key?('mergedInto')
+          updates << "*Merged into: ##{raw_updates['mergedInto']}*"
         end
 
-        if raw_updates.key?("blockedOn")
-          blocked_ons = raw_updates["blockedOn"].map do |raw_blocked_on|
+        if raw_updates.key?('blockedOn')
+          blocked_ons = raw_updates['blockedOn'].map do |raw_blocked_on|
             format_blocking_updates(raw_blocked_on)
           end
 
-          updates << "*Blocked on: #{blocked_ons.join(", ")}*"
+          updates << "*Blocked on: #{blocked_ons.join(', ')}*"
         end
 
-        if raw_updates.key?("blocking")
-          blockings = raw_updates["blocking"].map do |raw_blocked_on|
+        if raw_updates.key?('blocking')
+          blockings = raw_updates['blocking'].map do |raw_blocked_on|
             format_blocking_updates(raw_blocked_on)
           end
 
-          updates << "*Blocking: #{blockings.join(", ")}*"
+          updates << "*Blocking: #{blockings.join(', ')}*"
         end
 
         updates
       end
 
       def format_blocking_updates(raw_blocked_on)
-        name, id = raw_blocked_on.split(":", 2)
+        name, id = raw_blocked_on.split(':', 2)
 
-        deleted = name.start_with?("-")
+        deleted = name.start_with?('-')
         name = name[1..-1] if deleted
 
         text =
@@ -315,9 +315,9 @@ module Gitlab
         return [] unless raw_attachments
 
         raw_attachments.map do |attachment|
-          next if attachment["isDeleted"]
+          next if attachment['isDeleted']
 
-          filename = attachment["fileName"]
+          filename = attachment['fileName']
           link = "https://storage.googleapis.com/google-code-attachments/#{@repo.name}/issue-#{issue_id}/comment-#{comment_id}/#{filename}"
 
           text = "[#{filename}](#{link})"
@@ -329,21 +329,21 @@ module Gitlab
       def format_issue_comment_body(id, author, date, content, updates, attachments)
         body = []
         body << "*Comment #{id} by #{author} on #{date}*"
-        body << "---"
+        body << '---'
 
         if content.blank?
-          content = "*(No comment has been entered for this change)*"
+          content = '*(No comment has been entered for this change)*'
         end
 
         body << content
 
         if updates.any?
-          body << "---"
+          body << '---'
           body += updates
         end
 
         if attachments.any?
-          body << "---"
+          body << '---'
           body += attachments
         end
 
@@ -353,16 +353,16 @@ module Gitlab
       def format_issue_body(author, date, content, attachments)
         body = []
         body << "*By #{author} on #{date} (imported from Google Code)*"
-        body << "---"
+        body << '---'
 
         if content.blank?
-          content = "*(No description has been entered for this issue)*"
+          content = '*(No description has been entered for this issue)*'
         end
 
         body << content
 
         if attachments.any?
-          body << "---"
+          body << '---'
           body += attachments
         end
 

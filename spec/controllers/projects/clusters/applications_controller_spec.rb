@@ -94,7 +94,7 @@ describe Projects::Clusters::ApplicationsController do
     let(:project) { cluster.project }
     let!(:application) { create(:clusters_applications_knative, :installed, cluster: cluster) }
     let(:application_name) { application.name }
-    let(:params) { { application: application_name, id: cluster.id, hostname: "new.example.com" } }
+    let(:params) { { application: application_name, id: cluster.id, hostname: 'new.example.com' } }
 
     describe 'functionality' do
       let(:user) { create(:user) }
@@ -104,8 +104,8 @@ describe Projects::Clusters::ApplicationsController do
         sign_in(user)
       end
 
-      context "when cluster and app exists" do
-        it "schedules an application update" do
+      context 'when cluster and app exists' do
+        it 'schedules an application update' do
           expect(ClusterPatchAppWorker).to receive(:perform_async).with(application.name, anything).once
 
           is_expected.to have_http_status(:no_content)
@@ -166,8 +166,8 @@ describe Projects::Clusters::ApplicationsController do
         sign_in(user)
       end
 
-      context "when cluster and app exists" do
-        it "schedules an application update" do
+      context 'when cluster and app exists' do
+        it 'schedules an application update' do
           expect(worker_class).to receive(:perform_async).with(application.name, application.id).once
 
           is_expected.to have_http_status(:no_content)

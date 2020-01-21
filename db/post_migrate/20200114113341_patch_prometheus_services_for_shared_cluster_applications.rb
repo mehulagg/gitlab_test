@@ -28,8 +28,8 @@ class PatchPrometheusServicesForSharedClusterApplications < ActiveRecord::Migrat
       include ::EachBatch
 
       scope :with_application_on_group_clusters, -> {
-        joins("INNER JOIN namespaces ON namespaces.id = projects.namespace_id")
-          .joins("INNER JOIN cluster_groups ON cluster_groups.group_id = namespaces.id")
+        joins('INNER JOIN namespaces ON namespaces.id = projects.namespace_id')
+          .joins('INNER JOIN cluster_groups ON cluster_groups.group_id = namespaces.id')
           .joins("INNER JOIN clusters ON clusters.id = cluster_groups.cluster_id AND clusters.cluster_type = #{Cluster.cluster_types['group_type']}")
           .joins("INNER JOIN clusters_applications_prometheus ON clusters_applications_prometheus.cluster_id = clusters.id
                       AND clusters_applications_prometheus.status IN (#{Applications::Prometheus.statuses[:installed]}, #{Applications::Prometheus.statuses[:updated]})")

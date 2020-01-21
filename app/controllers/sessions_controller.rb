@@ -151,7 +151,7 @@ class SessionsController < Devise::SessionsController
   end
 
   def failed_login?
-    (options = request.env["warden.options"]) && options[:action] == "unauthenticated"
+    (options = request.env['warden.options']) && options[:action] == 'unauthenticated'
   end
 
   # storing sessions per IP lets us check if there are associated multiple
@@ -178,7 +178,7 @@ class SessionsController < Devise::SessionsController
     end
 
     redirect_to edit_user_password_path(reset_password_token: @token),
-      notice: _("Please create a password for your new account.")
+      notice: _('Please create a password for your new account.')
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
@@ -293,11 +293,11 @@ class SessionsController < Devise::SessionsController
 
   def authentication_method
     if user_params[:otp_attempt]
-      "two-factor"
+      'two-factor'
     elsif user_params[:device_response]
-      "two-factor-via-u2f-device"
+      'two-factor-via-u2f-device'
     else
-      "standard"
+      'standard'
     end
   end
 

@@ -10,7 +10,7 @@ describe 'Groups > Billing', :js do
   let!(:bronze_plan) { create(:bronze_plan) }
 
   def formatted_date(date)
-    date.strftime("%B %-d, %Y")
+    date.strftime('%B %-d, %Y')
   end
 
   def subscription_table
@@ -40,8 +40,8 @@ describe 'Groups > Billing', :js do
       expect(page).to have_content("#{group.name} is currently using the Free plan")
       within subscription_table do
         expect(page).to have_content("start date #{formatted_date(subscription.start_date)}")
-        expect(page).to have_link("Upgrade", href: "#{EE::SUBSCRIPTIONS_URL}/subscriptions")
-        expect(page).not_to have_link("Manage")
+        expect(page).to have_link('Upgrade', href: "#{EE::SUBSCRIPTIONS_URL}/subscriptions")
+        expect(page).not_to have_link('Manage')
       end
     end
   end
@@ -62,8 +62,8 @@ describe 'Groups > Billing', :js do
       expect(page).to have_content("#{group.name} is currently using the Bronze plan")
       within subscription_table do
         expect(page).to have_content("start date #{formatted_date(subscription.start_date)}")
-        expect(page).to have_link("Upgrade", href: upgrade_url)
-        expect(page).to have_link("Manage", href: "#{EE::SUBSCRIPTIONS_URL}/subscriptions")
+        expect(page).to have_link('Upgrade', href: upgrade_url)
+        expect(page).to have_link('Manage', href: "#{EE::SUBSCRIPTIONS_URL}/subscriptions")
       end
     end
   end
@@ -80,8 +80,8 @@ describe 'Groups > Billing', :js do
 
       expect(page).to have_content("#{group.name} is currently using the Bronze plan")
       within subscription_table do
-        expect(page).not_to have_link("Upgrade")
-        expect(page).to have_link("Manage", href: "#{EE::SUBSCRIPTIONS_URL}/subscriptions")
+        expect(page).not_to have_link('Upgrade')
+        expect(page).to have_link('Manage', href: "#{EE::SUBSCRIPTIONS_URL}/subscriptions")
       end
     end
   end

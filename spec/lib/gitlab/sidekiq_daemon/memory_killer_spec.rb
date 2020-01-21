@@ -40,7 +40,7 @@ describe Gitlab::SidekiqDaemon::MemoryKiller do
           .with(
             class: described_class.to_s,
             pid: pid,
-            message: "Exception from run_thread: My Exception")
+            message: 'Exception from run_thread: My Exception')
 
         expect(memory_killer).to receive(:rss_within_range?)
           .twice
@@ -54,7 +54,7 @@ describe Gitlab::SidekiqDaemon::MemoryKiller do
           .with(
             class: described_class.to_s,
             pid: pid,
-            message: "Exception from run_thread: My Exception")
+            message: 'Exception from run_thread: My Exception')
 
         expect(memory_killer).to receive(:rss_within_range?)
           .once
@@ -458,7 +458,7 @@ describe Gitlab::SidekiqDaemon::MemoryKiller do
     subject { memory_killer.send(:get_job_options, job, key, default) }
 
     it 'return default if key is not defined' do
-      expect(worker_class).to receive(:sidekiq_options).and_return({ "retry" => 5 })
+      expect(worker_class).to receive(:sidekiq_options).and_return({ 'retry' => 5 })
 
       expect(subject).to eq(default)
     end

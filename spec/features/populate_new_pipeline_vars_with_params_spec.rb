@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe "Populate new pipeline CI variables with url params", :js do
+describe 'Populate new pipeline CI variables with url params', :js do
   let(:user) { create(:user) }
   let(:project) { create(:project) }
   let(:page_path) { new_project_pipeline_path(project) }
@@ -14,7 +14,7 @@ describe "Populate new pipeline CI variables with url params", :js do
     visit "#{page_path}?var[key1]=value1&file_var[key2]=value2"
   end
 
-  it "var[key1]=value1 populates env_var variable correctly" do
+  it 'var[key1]=value1 populates env_var variable correctly' do
     page.within('.ci-variable-list .js-row:nth-child(1)') do
       expect(find('.js-ci-variable-input-variable-type').value).to eq('env_var')
       expect(find('.js-ci-variable-input-key').value).to eq('key1')
@@ -22,7 +22,7 @@ describe "Populate new pipeline CI variables with url params", :js do
     end
   end
 
-  it "file_var[key2]=value2 populates file variable correctly" do
+  it 'file_var[key2]=value2 populates file variable correctly' do
     page.within('.ci-variable-list .js-row:nth-child(2)') do
       expect(find('.js-ci-variable-input-variable-type').value).to eq('file')
       expect(find('.js-ci-variable-input-key').value).to eq('key2')

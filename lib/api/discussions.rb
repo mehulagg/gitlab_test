@@ -46,7 +46,7 @@ module API
           notes = readable_discussion_notes(noteable, params[:discussion_id])
 
           if notes.empty?
-            break not_found!("Discussion")
+            break not_found!('Discussion')
           end
 
           discussion = Discussion.build(notes, noteable)
@@ -111,7 +111,7 @@ module API
           notes = readable_discussion_notes(noteable, params[:discussion_id])
 
           if notes.empty?
-            break not_found!("Notes")
+            break not_found!('Notes')
           end
 
           present notes, with: Entities::Note
@@ -131,10 +131,10 @@ module API
           notes = readable_discussion_notes(noteable, params[:discussion_id])
           first_note = notes.first
 
-          break not_found!("Discussion") if notes.empty?
+          break not_found!('Discussion') if notes.empty?
 
           unless first_note.part_of_discussion? || first_note.to_discussion.can_convert_to_discussion?
-            break bad_request!("Discussion can not be replied to.")
+            break bad_request!('Discussion can not be replied to.')
           end
 
           opts = {

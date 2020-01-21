@@ -6,7 +6,7 @@ describe MicrosoftTeamsService do
   let(:chat_service) { described_class.new }
   let(:webhook_url) { 'https://example.gitlab.com/' }
 
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to :project }
     it { is_expected.to have_one :service_hook }
   end
@@ -36,7 +36,7 @@ describe MicrosoftTeamsService do
     end
   end
 
-  describe "#execute" do
+  describe '#execute' do
     let(:user)    { create(:user) }
 
     set(:project) { create(:project, :repository, :wiki_repo) }
@@ -57,7 +57,7 @@ describe MicrosoftTeamsService do
         Gitlab::DataBuilder::Push.build_sample(project, user)
       end
 
-      it "calls Microsoft Teams API for push events" do
+      it 'calls Microsoft Teams API for push events' do
         chat_service.execute(push_sample_data)
 
         expect(WebMock).to have_requested(:post, webhook_url).once
@@ -78,7 +78,7 @@ describe MicrosoftTeamsService do
         service.hook_data(issue, 'open')
       end
 
-      it "calls Microsoft Teams API" do
+      it 'calls Microsoft Teams API' do
         chat_service.execute(issues_sample_data)
 
         expect(WebMock).to have_requested(:post, webhook_url).once
@@ -105,7 +105,7 @@ describe MicrosoftTeamsService do
         project.add_developer(user)
       end
 
-      it "calls Microsoft Teams API" do
+      it 'calls Microsoft Teams API' do
         chat_service.execute(merge_sample_data)
 
         expect(WebMock).to have_requested(:post, webhook_url).once
@@ -115,16 +115,16 @@ describe MicrosoftTeamsService do
     context 'with wiki page events' do
       let(:opts) do
         {
-          title: "Awesome wiki_page",
-          content: "Some text describing some thing or another",
-          format: "md",
-          message: "user created page: Awesome wiki_page"
+          title: 'Awesome wiki_page',
+          content: 'Some text describing some thing or another',
+          format: 'md',
+          message: 'user created page: Awesome wiki_page'
         }
       end
       let(:wiki_page) { create(:wiki_page, wiki: project.wiki, attrs: opts) }
       let(:wiki_page_sample_data) { Gitlab::DataBuilder::WikiPage.build(wiki_page, user, 'create') }
 
-      it "calls Microsoft Teams API" do
+      it 'calls Microsoft Teams API' do
         chat_service.execute(wiki_page_sample_data)
 
         expect(WebMock).to have_requested(:post, webhook_url).once
@@ -132,7 +132,7 @@ describe MicrosoftTeamsService do
     end
   end
 
-  describe "Note events" do
+  describe 'Note events' do
     let(:user) { create(:user) }
     let(:project) { create(:project, :repository, creator: user) }
 
@@ -155,7 +155,7 @@ describe MicrosoftTeamsService do
                                 note: 'a comment on a commit')
       end
 
-      it "calls Microsoft Teams API for commit comment events" do
+      it 'calls Microsoft Teams API for commit comment events' do
         data = Gitlab::DataBuilder::Note.build(commit_note, user)
 
         chat_service.execute(data)
@@ -167,10 +167,10 @@ describe MicrosoftTeamsService do
     context 'when merge request comment event executed' do
       let(:merge_request_note) do
         create(:note_on_merge_request, project: project,
-                                       note: "merge request note")
+                                       note: 'merge request note')
       end
 
-      it "calls Microsoft Teams API for merge request comment events" do
+      it 'calls Microsoft Teams API for merge request comment events' do
         data = Gitlab::DataBuilder::Note.build(merge_request_note, user)
 
         chat_service.execute(data)
@@ -181,10 +181,10 @@ describe MicrosoftTeamsService do
 
     context 'when issue comment event executed' do
       let(:issue_note) do
-        create(:note_on_issue, project: project, note: "issue note")
+        create(:note_on_issue, project: project, note: 'issue note')
       end
 
-      it "calls Microsoft Teams API for issue comment events" do
+      it 'calls Microsoft Teams API for issue comment events' do
         data = Gitlab::DataBuilder::Note.build(issue_note, user)
 
         chat_service.execute(data)
@@ -196,10 +196,10 @@ describe MicrosoftTeamsService do
     context 'when snippet comment event executed' do
       let(:snippet_note) do
         create(:note_on_project_snippet, project: project,
-                                         note: "snippet note")
+                                         note: 'snippet note')
       end
 
-      it "calls Microsoft Teams API for snippet comment events" do
+      it 'calls Microsoft Teams API for snippet comment events' do
         data = Gitlab::DataBuilder::Note.build(snippet_note, user)
 
         chat_service.execute(data)
@@ -292,19 +292,19 @@ describe MicrosoftTeamsService do
       end
 
       context 'only notify for the default branch' do
-        it_behaves_like 'call Microsoft Teams API', branches_to_be_notified: "default"
+        it_behaves_like 'call Microsoft Teams API', branches_to_be_notified: 'default'
       end
 
       context 'notify for only protected branches' do
-        it_behaves_like 'does not call Microsoft Teams API', branches_to_be_notified: "protected"
+        it_behaves_like 'does not call Microsoft Teams API', branches_to_be_notified: 'protected'
       end
 
       context 'notify for only default and protected branches' do
-        it_behaves_like 'call Microsoft Teams API', branches_to_be_notified: "default_and_protected"
+        it_behaves_like 'call Microsoft Teams API', branches_to_be_notified: 'default_and_protected'
       end
 
       context 'notify for all branches' do
-        it_behaves_like 'call Microsoft Teams API', branches_to_be_notified: "all"
+        it_behaves_like 'call Microsoft Teams API', branches_to_be_notified: 'all'
       end
     end
 
@@ -318,19 +318,19 @@ describe MicrosoftTeamsService do
       end
 
       context 'only notify for the default branch' do
-        it_behaves_like 'does not call Microsoft Teams API', branches_to_be_notified: "default"
+        it_behaves_like 'does not call Microsoft Teams API', branches_to_be_notified: 'default'
       end
 
       context 'notify for only protected branches' do
-        it_behaves_like 'call Microsoft Teams API', branches_to_be_notified: "protected"
+        it_behaves_like 'call Microsoft Teams API', branches_to_be_notified: 'protected'
       end
 
       context 'notify for only default and protected branches' do
-        it_behaves_like 'call Microsoft Teams API', branches_to_be_notified: "default_and_protected"
+        it_behaves_like 'call Microsoft Teams API', branches_to_be_notified: 'default_and_protected'
       end
 
       context 'notify for all branches' do
-        it_behaves_like 'call Microsoft Teams API', branches_to_be_notified: "all"
+        it_behaves_like 'call Microsoft Teams API', branches_to_be_notified: 'all'
       end
     end
 
@@ -340,19 +340,19 @@ describe MicrosoftTeamsService do
       end
 
       context 'only notify for the default branch' do
-        it_behaves_like 'does not call Microsoft Teams API', branches_to_be_notified: "default"
+        it_behaves_like 'does not call Microsoft Teams API', branches_to_be_notified: 'default'
       end
 
       context 'notify for only protected branches' do
-        it_behaves_like 'does not call Microsoft Teams API', branches_to_be_notified: "protected"
+        it_behaves_like 'does not call Microsoft Teams API', branches_to_be_notified: 'protected'
       end
 
       context 'notify for only default and protected branches' do
-        it_behaves_like 'does not call Microsoft Teams API', branches_to_be_notified: "default_and_protected"
+        it_behaves_like 'does not call Microsoft Teams API', branches_to_be_notified: 'default_and_protected'
       end
 
       context 'notify for all branches' do
-        it_behaves_like 'call Microsoft Teams API', branches_to_be_notified: "all"
+        it_behaves_like 'call Microsoft Teams API', branches_to_be_notified: 'all'
       end
     end
   end

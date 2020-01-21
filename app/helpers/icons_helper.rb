@@ -50,21 +50,21 @@ module IconsHelper
     css_classes = []
     css_classes << "s#{size}" if size
     css_classes << "#{css_class}" unless css_class.blank?
-    content_tag(:svg, content_tag(:use, "", { "xlink:href" => "#{sprite_icon_path}##{icon_name}" } ), class: css_classes.empty? ? nil : css_classes.join(' '))
+    content_tag(:svg, content_tag(:use, '', { 'xlink:href' => "#{sprite_icon_path}##{icon_name}" } ), class: css_classes.empty? ? nil : css_classes.join(' '))
   end
 
   def external_snippet_icon(name)
-    content_tag(:span, "", class: "gl-snippet-icon gl-snippet-icon-#{name}")
+    content_tag(:span, '', class: "gl-snippet-icon gl-snippet-icon-#{name}")
   end
 
   def audit_icon(names, options = {})
     case names
-    when "standard"
-      names = "key"
-    when "two-factor"
-      names = "key"
-    when "google_oauth2"
-      names = "google"
+    when 'standard'
+      names = 'key'
+    when 'two-factor'
+      names = 'key'
+    when 'google_oauth2'
+      names = 'google'
     end
 
     options.include?(:base) ? fa_stacked_icon(names, options) : fa_icon(names, options)
@@ -99,7 +99,7 @@ module IconsHelper
       end
 
     name = [name]
-    name << "fw" if fw
+    name << 'fw' if fw
 
     icon(name.join(' '), options)
   end

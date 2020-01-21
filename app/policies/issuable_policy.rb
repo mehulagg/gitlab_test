@@ -6,7 +6,7 @@ class IssuablePolicy < BasePolicy
   condition(:locked, scope: :subject, score: 0) { @subject.discussion_locked? }
   condition(:is_project_member) { @user && @subject.project && @subject.project.team.member?(@user) }
 
-  desc "User is the assignee or author"
+  desc 'User is the assignee or author'
   condition(:assignee_or_author) do
     @user && @subject.assignee_or_author?(@user)
   end

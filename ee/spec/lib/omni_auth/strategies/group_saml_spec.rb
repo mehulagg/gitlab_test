@@ -32,11 +32,11 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
     let(:callback_path) { OmniAuth::Strategies::GroupSaml.default_options[:callback_path] }
 
     def check(path)
-      callback_path.call( "PATH_INFO" => path )
+      callback_path.call( 'PATH_INFO' => path )
     end
 
     it 'dynamically detects /groups/:group_path/-/saml/callback' do
-      expect(check("/groups/some-group/-/saml/callback")).to be_truthy
+      expect(check('/groups/some-group/-/saml/callback')).to be_truthy
     end
 
     it 'rejects default callback paths' do
@@ -58,13 +58,13 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
       end
 
       it 'sets the auth hash based on the response' do
-        post "/groups/my-group/-/saml/callback", SAMLResponse: saml_response
+        post '/groups/my-group/-/saml/callback', SAMLResponse: saml_response
 
-        expect(auth_hash[:info]['email']).to eq("user@example.com")
+        expect(auth_hash[:info]['email']).to eq('user@example.com')
       end
 
       it 'sets omniauth setings from configured settings' do
-        post "/groups/my-group/-/saml/callback", SAMLResponse: saml_response
+        post '/groups/my-group/-/saml/callback', SAMLResponse: saml_response
 
         options = last_request.env['omniauth.strategy'].options
         expect(options['idp_cert_fingerprint']).to eq fingerprint
@@ -74,7 +74,7 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
         saml_provider.update!(enabled: false)
 
         expect do
-          post "/groups/my-group/-/saml/callback", SAMLResponse: saml_response
+          post '/groups/my-group/-/saml/callback', SAMLResponse: saml_response
         end.to raise_error(ActionController::RoutingError)
       end
 
@@ -84,11 +84,11 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
         it 'stores the saml response for retrieval after redirect' do
           expect_any_instance_of(::Gitlab::Auth::GroupSaml::ResponseStore).to receive(:set_raw).with(saml_response)
 
-          post "/groups/my-group/-/saml/callback", SAMLResponse: saml_response, RelayState: relay_state
+          post '/groups/my-group/-/saml/callback', SAMLResponse: saml_response, RelayState: relay_state
         end
 
         it 'redirects back to the settings page' do
-          post "/groups/my-group/-/saml/callback", SAMLResponse: saml_response, RelayState: relay_state
+          post '/groups/my-group/-/saml/callback', SAMLResponse: saml_response, RelayState: relay_state
 
           expect(last_response.location).to eq(group_saml_providers_path(group, anchor: 'response'))
         end
@@ -97,7 +97,7 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
 
     context 'with invalid SAMLResponse' do
       it 'redirects somewhere so failure messages can be displayed' do
-        post "/groups/my-group/-/saml/callback", SAMLResponse: saml_response
+        post '/groups/my-group/-/saml/callback', SAMLResponse: saml_response
 
         expect(last_response.location).to include('failure')
       end
@@ -105,7 +105,7 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
 
     it 'returns 404 when the group is not found' do
       expect do
-        post "/groups/not-a-group/-/saml/callback", SAMLResponse: saml_response
+        post '/groups/not-a-group/-/saml/callback', SAMLResponse: saml_response
       end.to raise_error(ActionController::RoutingError)
     end
 
@@ -116,7 +116,7 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
 
       it 'returns 404' do
         expect do
-          post "/groups/my-group/-/saml/callback", SAMLResponse: saml_response
+          post '/groups/my-group/-/saml/callback', SAMLResponse: saml_response
         end.to raise_error(ActionController::RoutingError)
       end
     end
@@ -147,7 +147,7 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
       end.to raise_error(ActionController::RoutingError)
     end
 
-    it "stores request ID during request phase" do
+    it 'stores request ID during request phase' do
       request_id = double
       allow_any_instance_of(OneLogin::RubySaml::Authrequest).to receive(:uuid).and_return(request_id)
 
@@ -175,7 +175,7 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
 
       expect(last_response.status).to eq 200
       expect(last_response.body).to start_with('<?xml')
-      expect(last_response.header["Content-Type"]).to eq "application/xml"
+      expect(last_response.header['Content-Type']).to eq 'application/xml'
     end
 
     it 'returns 404 when an invalid token is provided' do
@@ -194,7 +194,7 @@ describe OmniAuth::Strategies::GroupSaml, type: :strategy do
       post '/users/auth/group_saml/metadata', group_path: 'my-group', token: group.saml_discovery_token
 
       options = last_request.env['omniauth.strategy'].options
-      expect(options['assertion_consumer_service_url']).to end_with "/groups/my-group/-/saml/callback"
+      expect(options['assertion_consumer_service_url']).to end_with '/groups/my-group/-/saml/callback'
     end
   end
 

@@ -7,16 +7,16 @@ module Gitlab
       private
 
       def jid
-        bg_job["jid"] if bg_job.present?
+        bg_job['jid'] if bg_job.present?
       end
 
       def job_class
-        bg_job["class"] if bg_job.present?
+        bg_job['class'] if bg_job.present?
       end
 
       def correlation_id
         if bg_job.present?
-          bg_job["correlation_id"]
+          bg_job['correlation_id']
         else
           Labkit::Correlation::CorrelationId.current_id
         end
@@ -30,8 +30,8 @@ module Gitlab
         # So below condition is used to return metadata for such jobs.
         if job && job.is_a?(ActionMailer::DeliveryJob)
           {
-            "class" => job.arguments.first,
-            "jid"   => job.job_id
+            'class' => job.arguments.first,
+            'jid'   => job.job_id
           }
         else
           job

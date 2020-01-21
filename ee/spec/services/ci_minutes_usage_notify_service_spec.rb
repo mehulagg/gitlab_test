@@ -169,7 +169,7 @@ describe CiMinutesUsageNotifyService do
     end
 
     before do
-      stub_const("EE::Namespace::CI_USAGE_ALERT_LEVELS", [30, 5])
+      stub_const('EE::Namespace::CI_USAGE_ALERT_LEVELS', [30, 5])
 
       namespace.add_owner(user)
       namespace.add_owner(user_2)

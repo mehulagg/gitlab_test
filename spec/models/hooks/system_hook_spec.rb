@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe SystemHook do
   context 'default attributes' do
@@ -16,7 +16,7 @@ describe SystemHook do
     end
   end
 
-  describe "execute", :sidekiq_might_not_need_inline do
+  describe 'execute', :sidekiq_might_not_need_inline do
     let(:system_hook) { create(:system_hook) }
     let(:user)        { create(:user) }
     let(:project)     { create(:project, namespace: user.namespace) }
@@ -29,7 +29,7 @@ describe SystemHook do
       WebMock.stub_request(:post, system_hook.url)
     end
 
-    it "project_create hook" do
+    it 'project_create hook' do
       Projects::CreateService.new(user, name: 'empty').execute
       expect(WebMock).to have_requested(:post, system_hook.url).with(
         body: /project_create/,
@@ -37,7 +37,7 @@ describe SystemHook do
       ).once
     end
 
-    it "project_destroy hook" do
+    it 'project_destroy hook' do
       Projects::DestroyService.new(project, user, {}).async_execute
 
       expect(WebMock).to have_requested(:post, system_hook.url).with(
@@ -46,7 +46,7 @@ describe SystemHook do
       ).once
     end
 
-    it "user_create hook" do
+    it 'user_create hook' do
       Users::CreateService.new(nil, params).execute
 
       expect(WebMock).to have_requested(:post, system_hook.url).with(
@@ -55,7 +55,7 @@ describe SystemHook do
       ).once
     end
 
-    it "user_destroy hook" do
+    it 'user_destroy hook' do
       user.destroy
 
       expect(WebMock).to have_requested(:post, system_hook.url).with(
@@ -64,7 +64,7 @@ describe SystemHook do
       ).once
     end
 
-    it "project member create hook" do
+    it 'project member create hook' do
       project.add_maintainer(user)
 
       expect(WebMock).to have_requested(:post, system_hook.url).with(
@@ -73,7 +73,7 @@ describe SystemHook do
       ).once
     end
 
-    it "project member destroy hook" do
+    it 'project member destroy hook' do
       project.add_maintainer(user)
       project.project_members.destroy_all # rubocop: disable DestroyAll
 
@@ -83,7 +83,7 @@ describe SystemHook do
       ).once
     end
 
-    it "project member update hook" do
+    it 'project member update hook' do
       project.add_guest(user)
 
       expect(WebMock).to have_requested(:post, system_hook.url).with(

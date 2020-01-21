@@ -218,7 +218,7 @@ describe SmartcardController, type: :request do
         expect(request.env['warden']).to be_authenticated
       end
 
-      context "user has a different identity" do
+      context 'user has a different identity' do
         let(:ldap_email) { user.email }
 
         before do

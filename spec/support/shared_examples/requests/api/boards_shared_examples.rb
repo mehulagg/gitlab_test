@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'group and project boards' do |route_definition, ee = false|
-  let(:root_url) { route_definition.gsub(":id", board_parent.id.to_s) }
+  let(:root_url) { route_definition.gsub(':id', board_parent.id.to_s) }
 
   before do
     board_parent.add_reporter(user)
@@ -10,7 +10,7 @@ RSpec.shared_examples 'group and project boards' do |route_definition, ee = fals
 
   def expect_schema_match_for(response, schema_file, ee)
     if ee
-      expect(response).to match_response_schema(schema_file, dir: "ee")
+      expect(response).to match_response_schema(schema_file, dir: 'ee')
     else
       expect(response).to match_response_schema(schema_file)
     end
@@ -27,16 +27,16 @@ RSpec.shared_examples 'group and project boards' do |route_definition, ee = fals
   end
 
   describe "GET #{route_definition}" do
-    context "when unauthenticated" do
-      it "returns authentication error" do
+    context 'when unauthenticated' do
+      it 'returns authentication error' do
         get api(root_url)
 
         expect(response).to have_gitlab_http_status(:unauthorized)
       end
     end
 
-    context "when authenticated" do
-      it "returns the issue boards" do
+    context 'when authenticated' do
+      it 'returns the issue boards' do
         get api(root_url, user)
 
         expect(response).to have_gitlab_http_status(:ok)
@@ -123,20 +123,20 @@ RSpec.shared_examples 'group and project boards' do |route_definition, ee = fals
   describe "PUT #{route_definition}/:board_id/lists/:list_id to update only position" do
     let(:url) { "#{root_url}/#{board.id}/lists" }
 
-    it "updates a list" do
+    it 'updates a list' do
       put api("#{url}/#{test_list.id}", user), params: { position: 1 }
 
       expect(response).to have_gitlab_http_status(:ok)
       expect(json_response['position']).to eq(1)
     end
 
-    it "returns 404 error if list id not found" do
+    it 'returns 404 error if list id not found' do
       put api("#{url}/44444", user), params: { position: 1 }
 
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    it "returns 403 for members with guest role" do
+    it 'returns 403 for members with guest role' do
       put api("#{url}/#{test_list.id}", guest), params: { position: 1 }
 
       expect(response).to have_gitlab_http_status(:forbidden)
@@ -146,25 +146,25 @@ RSpec.shared_examples 'group and project boards' do |route_definition, ee = fals
   describe "DELETE #{route_definition}/lists/:list_id" do
     let(:url) { "#{root_url}/#{board.id}/lists" }
 
-    it "rejects a non member from deleting a list" do
+    it 'rejects a non member from deleting a list' do
       delete api("#{url}/#{dev_list.id}", non_member)
 
       expect(response).to have_gitlab_http_status(:forbidden)
     end
 
-    it "rejects a user with guest role from deleting a list" do
+    it 'rejects a user with guest role from deleting a list' do
       delete api("#{url}/#{dev_list.id}", guest)
 
       expect(response).to have_gitlab_http_status(:forbidden)
     end
 
-    it "returns 404 error if list id not found" do
+    it 'returns 404 error if list id not found' do
       delete api("#{url}/44444", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
     end
 
-    context "when the user is parent owner" do
+    context 'when the user is parent owner' do
       set(:owner) { create(:user) }
 
       before do
@@ -175,7 +175,7 @@ RSpec.shared_examples 'group and project boards' do |route_definition, ee = fals
         end
       end
 
-      it "deletes the list if an admin requests it" do
+      it 'deletes the list if an admin requests it' do
         delete api("#{url}/#{dev_list.id}", owner)
 
         expect(response).to have_gitlab_http_status(:no_content)

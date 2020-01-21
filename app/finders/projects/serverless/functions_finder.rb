@@ -51,7 +51,7 @@ module Projects
         finders_for_scope(environment_scope).map do |finder|
           services = finder
             .services
-            .select { |svc| svc["metadata"]["name"] == name }
+            .select { |svc| svc['metadata']['name'] == name }
 
           add_metadata(finder, services).first unless services.nil?
         end
@@ -69,12 +69,12 @@ module Projects
         add_pod_count = services.one?
 
         services.each do |s|
-          s["environment_scope"] = finder.cluster.environment_scope
-          s["cluster_id"] = finder.cluster.id
+          s['environment_scope'] = finder.cluster.environment_scope
+          s['cluster_id'] = finder.cluster.id
 
           if add_pod_count
-            s["podcount"] = finder
-              .service_pod_details(s["metadata"]["name"])
+            s['podcount'] = finder
+              .service_pod_details(s['metadata']['name'])
               .length
           end
         end

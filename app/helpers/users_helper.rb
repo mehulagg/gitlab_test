@@ -64,7 +64,7 @@ module UsersHelper
     return unless user
 
     unless user.association(:status).loaded?
-      exception = RuntimeError.new("Status was not preloaded")
+      exception = RuntimeError.new('Status was not preloaded')
       Gitlab::ErrorTracking.track_and_raise_for_dev_exception(exception, user: user.inspect)
     end
 

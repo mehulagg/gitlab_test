@@ -129,11 +129,11 @@ describe PagesDomains::ObtainLetsEncryptCertificateService do
       ef.subject_certificate = cert
       ef.issuer_certificate = cert
       cert.extensions = [
-        ef.create_extension("basicConstraints", "CA:TRUE", true),
-        ef.create_extension("subjectKeyIdentifier", "hash")
+        ef.create_extension('basicConstraints', 'CA:TRUE', true),
+        ef.create_extension('subjectKeyIdentifier', 'hash')
       ]
-      cert.add_extension ef.create_extension("authorityKeyIdentifier",
-                                             "keyid:always,issuer:always")
+      cert.add_extension ef.create_extension('authorityKeyIdentifier',
+                                             'keyid:always,issuer:always')
 
       cert.sign key, OpenSSL::Digest::SHA1.new
 
@@ -154,7 +154,7 @@ describe PagesDomains::ObtainLetsEncryptCertificateService do
     it 'marks certificate as gitlab_provided' do
       service.execute
 
-      expect(pages_domain.certificate_source).to eq("gitlab_provided")
+      expect(pages_domain.certificate_source).to eq('gitlab_provided')
     end
 
     it 'removes order from database' do

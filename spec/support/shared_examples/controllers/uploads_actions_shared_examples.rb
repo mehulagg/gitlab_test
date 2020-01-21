@@ -9,7 +9,7 @@ RSpec.shared_examples 'handle uploads' do
 
   it_behaves_like 'handle uploads authorize'
 
-  describe "POST #create" do
+  describe 'POST #create' do
     context 'when a user is not authorized to upload a file' do
       it 'returns 404 status' do
         post :create, params: params.merge(file: jpg), format: :json
@@ -24,7 +24,7 @@ RSpec.shared_examples 'handle uploads' do
       end
 
       context "without params['file']" do
-        it "returns an error" do
+        it 'returns an error' do
           post :create, params: params, format: :json
 
           expect(response).to have_gitlab_http_status(:unprocessable_entity)
@@ -38,7 +38,7 @@ RSpec.shared_examples 'handle uploads' do
 
         it 'returns a content with original filename, new link, and correct type.' do
           expect(response.body).to match '\"alt\":\"rails_sample\"'
-          expect(response.body).to match "\"url\":\"/uploads"
+          expect(response.body).to match '"url":"/uploads'
         end
 
         # NOTE: This is as close as we're getting to an Integration test for this
@@ -62,15 +62,15 @@ RSpec.shared_examples 'handle uploads' do
 
         it 'returns a content with original filename, new link, and correct type.' do
           expect(response.body).to match '\"alt\":\"doc_sample.txt\"'
-          expect(response.body).to match "\"url\":\"/uploads"
+          expect(response.body).to match '"url":"/uploads'
         end
       end
     end
   end
 
-  describe "GET #show" do
+  describe 'GET #show' do
     let(:show_upload) do
-      get :show, params: params.merge(secret: secret, filename: "rails_sample.jpg")
+      get :show, params: params.merge(secret: secret, filename: 'rails_sample.jpg')
     end
 
     before do
@@ -100,27 +100,27 @@ RSpec.shared_examples 'handle uploads' do
       end
     end
 
-    context "when the model is public" do
+    context 'when the model is public' do
       before do
         model.update_attribute(:visibility_level, Gitlab::VisibilityLevel::PUBLIC)
       end
 
-      context "when not signed in" do
-        context "when the file exists" do
-          it "responds with status 200" do
+      context 'when not signed in' do
+        context 'when the file exists' do
+          it 'responds with status 200' do
             show_upload
 
             expect(response).to have_gitlab_http_status(:ok)
           end
         end
 
-        context "when neither the uploader nor the model exists" do
+        context 'when neither the uploader nor the model exists' do
           before do
             allow_any_instance_of(Upload).to receive(:retrieve_uploader).and_return(nil)
             allow(controller).to receive(:find_model).and_return(nil)
           end
 
-          it "responds with status 404" do
+          it 'responds with status 404' do
             show_upload
 
             expect(response).to have_gitlab_http_status(:not_found)
@@ -132,7 +132,7 @@ RSpec.shared_examples 'handle uploads' do
             allow_any_instance_of(FileUploader).to receive(:exists?).and_return(false)
           end
 
-          it "responds with status 404" do
+          it 'responds with status 404' do
             show_upload
 
             expect(response).to have_gitlab_http_status(:not_found)
@@ -140,13 +140,13 @@ RSpec.shared_examples 'handle uploads' do
         end
       end
 
-      context "when signed in" do
+      context 'when signed in' do
         before do
           sign_in(user)
         end
 
-        context "when the file exists" do
-          it "responds with status 200" do
+        context 'when the file exists' do
+          it 'responds with status 200' do
             show_upload
 
             expect(response).to have_gitlab_http_status(:ok)
@@ -158,7 +158,7 @@ RSpec.shared_examples 'handle uploads' do
             allow_any_instance_of(FileUploader).to receive(:exists?).and_return(false)
           end
 
-          it "responds with status 404" do
+          it 'responds with status 404' do
             show_upload
 
             expect(response).to have_gitlab_http_status(:not_found)
@@ -167,31 +167,31 @@ RSpec.shared_examples 'handle uploads' do
       end
     end
 
-    context "when the model is private" do
+    context 'when the model is private' do
       before do
         model.update_attribute(:visibility_level, Gitlab::VisibilityLevel::PRIVATE)
       end
 
-      context "when not signed in" do
-        context "when the file exists" do
-          context "when the file is an image" do
+      context 'when not signed in' do
+        context 'when the file exists' do
+          context 'when the file is an image' do
             before do
               allow_any_instance_of(FileUploader).to receive(:image?).and_return(true)
             end
 
-            it "responds with status 200" do
+            it 'responds with status 200' do
               show_upload
 
               expect(response).to have_gitlab_http_status(:ok)
             end
           end
 
-          context "when the file is not an image" do
+          context 'when the file is not an image' do
             before do
               allow_any_instance_of(FileUploader).to receive(:image?).and_return(false)
             end
 
-            it "redirects to the sign in page" do
+            it 'redirects to the sign in page' do
               show_upload
 
               expect(response).to redirect_to(new_user_session_path)
@@ -204,7 +204,7 @@ RSpec.shared_examples 'handle uploads' do
             allow_any_instance_of(FileUploader).to receive(:exists?).and_return(false)
           end
 
-          it "redirects to the sign in page" do
+          it 'redirects to the sign in page' do
             show_upload
 
             expect(response).to redirect_to(new_user_session_path)
@@ -212,18 +212,18 @@ RSpec.shared_examples 'handle uploads' do
         end
       end
 
-      context "when signed in" do
+      context 'when signed in' do
         before do
           sign_in(user)
         end
 
-        context "when the user has access to the project" do
+        context 'when the user has access to the project' do
           before do
             model.add_developer(user)
           end
 
-          context "when the file exists" do
-            it "responds with status 200" do
+          context 'when the file exists' do
+            it 'responds with status 200' do
               show_upload
 
               expect(response).to have_gitlab_http_status(:ok)
@@ -235,7 +235,7 @@ RSpec.shared_examples 'handle uploads' do
               allow_any_instance_of(FileUploader).to receive(:exists?).and_return(false)
             end
 
-            it "responds with status 404" do
+            it 'responds with status 404' do
               show_upload
 
               expect(response).to have_gitlab_http_status(:not_found)
@@ -244,25 +244,25 @@ RSpec.shared_examples 'handle uploads' do
         end
 
         context "when the user doesn't have access to the model" do
-          context "when the file exists" do
-            context "when the file is an image" do
+          context 'when the file exists' do
+            context 'when the file is an image' do
               before do
                 allow_any_instance_of(FileUploader).to receive(:image?).and_return(true)
               end
 
-              it "responds with status 200" do
+              it 'responds with status 200' do
                 show_upload
 
                 expect(response).to have_gitlab_http_status(:ok)
               end
             end
 
-            context "when the file is not an image" do
+            context 'when the file is not an image' do
               before do
                 allow_any_instance_of(FileUploader).to receive(:image?).and_return(false)
               end
 
-              it "responds with status 404" do
+              it 'responds with status 404' do
                 show_upload
 
                 expect(response).to have_gitlab_http_status(:not_found)
@@ -275,7 +275,7 @@ RSpec.shared_examples 'handle uploads' do
               allow_any_instance_of(FileUploader).to receive(:exists?).and_return(false)
             end
 
-            it "responds with status 404" do
+            it 'responds with status 404' do
               show_upload
 
               expect(response).to have_gitlab_http_status(:not_found)
@@ -288,7 +288,7 @@ RSpec.shared_examples 'handle uploads' do
 end
 
 RSpec.shared_examples 'handle uploads authorize' do
-  describe "POST #authorize" do
+  describe 'POST #authorize' do
     context 'when a user is not authorized to upload a file' do
       it 'returns 404 status' do
         post_authorize
@@ -325,7 +325,7 @@ RSpec.shared_examples 'handle uploads authorize' do
           end
 
           it 'uses the gitlab-workhorse content type' do
-            expect(response.headers["Content-Type"]).to eq(Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE)
+            expect(response.headers['Content-Type']).to eq(Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE)
           end
         end
 

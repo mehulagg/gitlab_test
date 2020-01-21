@@ -53,7 +53,7 @@ describe 'Environments page', :js do
           wait_for_requests
 
           expect(page).to have_selector('.gl-pagination .page-link', count: 4)
-          expect(find('.gl-pagination .page-link.active').text).to eq("2")
+          expect(find('.gl-pagination .page-link.active').text).to eq('2')
         end
       end
 
@@ -317,10 +317,10 @@ describe 'Environments page', :js do
                    stage: 'test')
           end
 
-          it "shows 00:00:00 as the remaining time" do
+          it 'shows 00:00:00 as the remaining time' do
             find('.js-environment-actions-dropdown').click
 
-            expect(page).to have_content("00:00:00")
+            expect(page).to have_content('00:00:00')
           end
         end
 
@@ -370,7 +370,7 @@ describe 'Environments page', :js do
       let(:role) { :developer }
 
       it 'developer creates a new environment with a valid name' do
-        within(".top-area") { click_link 'New environment' }
+        within('.top-area') { click_link 'New environment' }
         fill_in('Name', with: 'production')
         click_on 'Save'
 
@@ -378,7 +378,7 @@ describe 'Environments page', :js do
       end
 
       it 'developer creates a new environmetn with invalid name' do
-        within(".top-area") { click_link 'New environment' }
+        within('.top-area') { click_link 'New environment' }
         fill_in('Name', with: 'name,with,commas')
         click_on 'Save'
 

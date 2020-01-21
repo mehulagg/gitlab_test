@@ -195,7 +195,7 @@ describe Search::SnippetService do
         end
 
         with_them do
-          it "respects visibility" do
+          it 'respects visibility' do
             update_feature_access_level(project, feature_access_level)
             Gitlab::Elastic::Helper.refresh_index
 
@@ -240,7 +240,7 @@ describe Search::SnippetService do
         end
 
         with_them do
-          it "respects visibility" do
+          it 'respects visibility' do
             Gitlab::Elastic::Helper.refresh_index
             expected_objects = expected_count == 0 ? [] : [snippet]
 

@@ -18,7 +18,7 @@ describe UpdateBuildMinutesService do
     context 'with shared runner' do
       let(:runner) { create(:ci_runner, :instance) }
 
-      it "creates a statistics and sets duration" do
+      it 'creates a statistics and sets duration' do
         subject
 
         expect(project.statistics.reload.shared_runners_seconds)
@@ -34,7 +34,7 @@ describe UpdateBuildMinutesService do
           namespace.create_namespace_statistics(shared_runners_seconds: 100)
         end
 
-        it "updates statistics and adds duration" do
+        it 'updates statistics and adds duration' do
           subject
 
           expect(project.statistics.reload.shared_runners_seconds)
@@ -61,7 +61,7 @@ describe UpdateBuildMinutesService do
     context 'for specific runner' do
       let(:runner) { create(:ci_runner, :project) }
 
-      it "does not create statistics" do
+      it 'does not create statistics' do
         subject
 
         expect(namespace.namespace_statistics).to be_nil

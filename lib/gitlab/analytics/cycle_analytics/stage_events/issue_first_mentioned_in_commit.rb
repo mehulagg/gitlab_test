@@ -6,7 +6,7 @@ module Gitlab
       module StageEvents
         class IssueFirstMentionedInCommit < MetricsBasedStageEvent
           def self.name
-            s_("CycleAnalyticsEvent|Issue first mentioned in a commit")
+            s_('CycleAnalyticsEvent|Issue first mentioned in a commit')
           end
 
           def self.identifier

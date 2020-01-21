@@ -116,7 +116,7 @@ describe Gitlab::Auth::LDAP::Access do
   end
 
   describe '#update_user' do
-    let(:entry) { Net::LDAP::Entry.from_single_ldif_string("dn: cn=foo, dc=bar, dc=com") }
+    let(:entry) { Net::LDAP::Entry.from_single_ldif_string('dn: cn=foo, dc=bar, dc=com') }
 
     context 'email address' do
       before do
@@ -311,7 +311,7 @@ describe Gitlab::Auth::LDAP::Access do
         end
 
         it 'removes a SSH key if the ldap attribute was removed' do
-          entry = Net::LDAP::Entry.from_single_ldif_string("dn: cn=foo, dc=bar, dc=com")
+          entry = Net::LDAP::Entry.from_single_ldif_string('dn: cn=foo, dc=bar, dc=com')
           stub_ldap_person_find_by_dn(entry, provider)
 
           expect { access.update_user }.to change(user.keys, :count).from(1).to(0)

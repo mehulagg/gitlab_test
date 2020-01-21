@@ -8,7 +8,7 @@ module Gitlab
 
       LOG_MESSAGES = {
         validate_file_paths: "Validating diffs' file paths...",
-        diff_content_check: "Validating diff contents..."
+        diff_content_check: 'Validating diff contents...'
       }.freeze
 
       def validate!

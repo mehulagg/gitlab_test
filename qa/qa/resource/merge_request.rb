@@ -50,12 +50,12 @@ module QA
         @title = 'QA test - merge request'
         @description = 'This is a test merge request'
         @source_branch = "qa-test-feature-#{SecureRandom.hex(8)}"
-        @target_branch = "master"
+        @target_branch = 'master'
         @assignee = nil
         @milestone = nil
         @labels = []
         @file_name = "added_file-#{SecureRandom.hex(8)}.txt"
-        @file_content = "File Added"
+        @file_content = 'File Added'
         @target_new_branch = true
         @no_preparation = false
       end

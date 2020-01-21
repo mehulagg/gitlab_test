@@ -6,7 +6,7 @@
 module Metrics
   module Dashboard
     class ProjectDashboardService < ::Metrics::Dashboard::BaseService
-      DASHBOARD_ROOT = ".gitlab/dashboards"
+      DASHBOARD_ROOT = '.gitlab/dashboards'
 
       class << self
         def all_dashboard_paths(project)

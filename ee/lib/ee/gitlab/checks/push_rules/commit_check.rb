@@ -10,7 +10,7 @@ module EE
             committer_not_allowed: "You cannot push commits for '%{committer_email}'. You can only push commits that were committed with one of your own verified emails."
           }.freeze
 
-          LOG_MESSAGE = "Checking if commits follow defined push rules...".freeze
+          LOG_MESSAGE = 'Checking if commits follow defined push rules...'.freeze
 
           def validate!
             return unless push_rule
@@ -61,7 +61,7 @@ module EE
             return committer_error_message if committer_error_message
 
             if !updated_from_web? && !push_rule.commit_signature_allowed?(commit)
-              return "Commit must be signed with a GPG key"
+              return 'Commit must be signed with a GPG key'
             end
 
             # Check whether author is a GitLab member

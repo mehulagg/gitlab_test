@@ -6,7 +6,7 @@ module Gitlab
 
     # Ensure that the relative path will not traverse outside the base directory
     def check_path_traversal!(path)
-      raise StandardError.new("Invalid path") if path.start_with?("..#{File::SEPARATOR}") ||
+      raise StandardError.new('Invalid path') if path.start_with?("..#{File::SEPARATOR}") ||
           path.include?("#{File::SEPARATOR}..#{File::SEPARATOR}") ||
           path.end_with?("#{File::SEPARATOR}..")
 

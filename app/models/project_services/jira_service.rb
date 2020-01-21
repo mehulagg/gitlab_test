@@ -11,7 +11,7 @@ class JiraService < IssueTrackerService
   validates :password, presence: true, if: :activated?
 
   validates :jira_issue_transition_id,
-            format: { with: Gitlab::Regex.jira_transition_id_regex, message: s_("JiraService|transition ids can have only numbers which can be split with , or ;") },
+            format: { with: Gitlab::Regex.jira_transition_id_regex, message: s_('JiraService|transition ids can have only numbers which can be split with , or ;') },
             allow_blank: true
 
   # Jira Cloud version is deprecating authentication via username and password.
@@ -161,7 +161,7 @@ class JiraService < IssueTrackerService
 
   def create_cross_reference_note(mentioned, noteable, author)
     unless can_cross_reference?(noteable)
-      return s_("JiraService|Events for %{noteable_model_name} are disabled.") % { noteable_model_name: noteable.model_name.plural.humanize(capitalize: false) }
+      return s_('JiraService|Events for %{noteable_model_name} are disabled.') % { noteable_model_name: noteable.model_name.plural.humanize(capitalize: false) }
     end
 
     jira_issue = jira_request { client.Issue.find(mentioned.id) }
@@ -229,7 +229,7 @@ class JiraService < IssueTrackerService
     jira_issue_transition_id.scan(Gitlab::Regex.jira_transition_id_regex).each do |transition_id|
       issue.transitions.build.save!(transition: { id: transition_id })
     rescue => error
-      log_error("Issue transition failed", error: error.message, client_url: client_url)
+      log_error('Issue transition failed', error: error.message, client_url: client_url)
       return false
     end
   end
@@ -275,7 +275,7 @@ class JiraService < IssueTrackerService
       create_issue_link(issue, remote_link_props)
       create_issue_comment(issue, message)
 
-      log_info("Successfully posted", client_url: client_url)
+      log_info('Successfully posted', client_url: client_url)
       "SUCCESS: Successfully posted to #{client_url}."
     end
   end
@@ -297,7 +297,7 @@ class JiraService < IssueTrackerService
     links = jira_request { issue.remotelink.all }
     return unless links
 
-    links.find { |link| link.object["url"] == url }
+    links.find { |link| link.object['url'] == url }
   end
 
   def build_remote_link_props(url:, title:, resolved: false)
@@ -320,7 +320,7 @@ class JiraService < IssueTrackerService
   end
 
   def resource_url(resource)
-    "#{Settings.gitlab.base_url.chomp("/")}#{resource}"
+    "#{Settings.gitlab.base_url.chomp('/')}#{resource}"
   end
 
   def build_entity_url(noteable_type, entity_id)
@@ -340,7 +340,7 @@ class JiraService < IssueTrackerService
 
     # ProjectSnippet inherits from Snippet class so it causes
     # routing error building the URL.
-    name == "project_snippet" ? "snippet" : name
+    name == 'project_snippet' ? 'snippet' : name
   end
 
   # Handle errors when doing Jira API calls
@@ -348,7 +348,7 @@ class JiraService < IssueTrackerService
     yield
   rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, Errno::ECONNREFUSED, URI::InvalidURIError, JIRA::HTTPError, OpenSSL::SSL::SSLError => e
     @error = e.message
-    log_error("Error sending message", client_url: client_url, error: @error)
+    log_error('Error sending message', client_url: client_url, error: @error)
     nil
   end
 
@@ -367,10 +367,10 @@ class JiraService < IssueTrackerService
 
   def self.event_description(event)
     case event
-    when "merge_request", "merge_request_events"
-      s_("JiraService|Jira comments will be created when an issue gets referenced in a merge request.")
-    when "commit", "commit_events"
-      s_("JiraService|Jira comments will be created when an issue gets referenced in a commit.")
+    when 'merge_request', 'merge_request_events'
+      s_('JiraService|Jira comments will be created when an issue gets referenced in a merge request.')
+    when 'commit', 'commit_events'
+      s_('JiraService|Jira comments will be created when an issue gets referenced in a commit.')
     end
   end
 end

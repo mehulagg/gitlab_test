@@ -61,11 +61,11 @@ describe 'User comments on a diff', :js do
 
       page.within('.md-suggestion-diff') do
         expected_changing_content = [
-          "6 url = https://github.com/gitlabhq/gitlab-shell.git"
+          '6 url = https://github.com/gitlabhq/gitlab-shell.git'
         ]
 
         expected_suggested_content = [
-          "6 # change to a comment"
+          '6 # change to a comment'
         ]
 
         expect_suggestion_has_content(page, expected_changing_content, expected_suggested_content)
@@ -168,20 +168,20 @@ describe 'User comments on a diff', :js do
         suggestion_2 = page.all(:css, '.md-suggestion-diff')[1]
 
         suggestion_1_expected_changing_content = [
-          "6 url = https://github.com/gitlabhq/gitlab-shell.git"
+          '6 url = https://github.com/gitlabhq/gitlab-shell.git'
         ]
         suggestion_1_expected_suggested_content = [
-          "6 # change to a comment"
+          '6 # change to a comment'
         ]
 
         suggestion_2_expected_changing_content = [
-          "4 [submodule \"gitlab-shell\"]",
-          "5 path = gitlab-shell",
-          "6 url = https://github.com/gitlabhq/gitlab-shell.git"
+          '4 [submodule "gitlab-shell"]',
+          '5 path = gitlab-shell',
+          '6 url = https://github.com/gitlabhq/gitlab-shell.git'
         ]
         suggestion_2_expected_suggested_content = [
-          "4 # or that",
-          "5 # heh"
+          '4 # or that',
+          '5 # heh'
         ]
 
         expect_suggestion_has_content(suggestion_1,
@@ -215,21 +215,21 @@ describe 'User comments on a diff', :js do
 
       page.within('.md-suggestion-diff') do
         expected_changing_content = [
-          "3 url = git://github.com/randx/six.git",
-          "4 [submodule \"gitlab-shell\"]",
-          "5 path = gitlab-shell",
-          "6 url = https://github.com/gitlabhq/gitlab-shell.git",
-          "7 [submodule \"gitlab-grack\"]",
-          "8 path = gitlab-grack",
-          "9 url = https://gitlab.com/gitlab-org/gitlab-grack.git"
+          '3 url = git://github.com/randx/six.git',
+          '4 [submodule "gitlab-shell"]',
+          '5 path = gitlab-shell',
+          '6 url = https://github.com/gitlabhq/gitlab-shell.git',
+          '7 [submodule "gitlab-grack"]',
+          '8 path = gitlab-grack',
+          '9 url = https://gitlab.com/gitlab-org/gitlab-grack.git'
         ]
 
         expected_suggested_content = [
-          "3 # change to a",
-          "4 # comment",
-          "5 # with",
-          "6 # broken",
-          "7 # lines"
+          '3 # change to a',
+          '4 # comment',
+          '5 # with',
+          '6 # broken',
+          '7 # lines'
         ]
 
         expect_suggestion_has_content(page, expected_changing_content, expected_suggested_content)

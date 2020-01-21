@@ -19,7 +19,7 @@ describe ObjectStorage::MigrateUploadsWorker, :sidekiq do
     # swallow
   end
 
-  shared_examples "uploads migration worker" do
+  shared_examples 'uploads migration worker' do
     describe '.enqueue!' do
       def enqueue!
         described_class.enqueue!(uploads, Project, mounted_as, to_store)
@@ -114,7 +114,7 @@ describe ObjectStorage::MigrateUploadsWorker, :sidekiq do
       context 'migration is unsuccessful' do
         before do
           allow_any_instance_of(ObjectStorage::Concern)
-            .to receive(:migrate!).and_raise(CarrierWave::UploadError, "I am a teapot.")
+            .to receive(:migrate!).and_raise(CarrierWave::UploadError, 'I am a teapot.')
         end
 
         it_behaves_like 'outputs correctly', failures: 10
@@ -122,7 +122,7 @@ describe ObjectStorage::MigrateUploadsWorker, :sidekiq do
     end
   end
 
-  context "for AvatarUploader" do
+  context 'for AvatarUploader' do
     let!(:projects) { create_list(:project, 10, :with_avatar) }
     let(:mounted_as) { :avatar }
 
@@ -130,10 +130,10 @@ describe ObjectStorage::MigrateUploadsWorker, :sidekiq do
       stub_uploads_object_storage(AvatarUploader)
     end
 
-    it_behaves_like "uploads migration worker"
+    it_behaves_like 'uploads migration worker'
 
-    describe "limits N+1 queries" do
-      it "to N*5" do
+    describe 'limits N+1 queries' do
+      it 'to N*5' do
         query_count = ActiveRecord::QueryRecorder.new { perform(uploads) }
 
         more_projects = create_list(:project, 3, :with_avatar)
@@ -144,7 +144,7 @@ describe ObjectStorage::MigrateUploadsWorker, :sidekiq do
     end
   end
 
-  context "for FileUploader" do
+  context 'for FileUploader' do
     let!(:projects) { create_list(:project, 10) }
     let(:secret) { SecureRandom.hex }
     let(:mounted_as) { nil }
@@ -160,10 +160,10 @@ describe ObjectStorage::MigrateUploadsWorker, :sidekiq do
       projects.map(&method(:upload_file))
     end
 
-    it_behaves_like "uploads migration worker"
+    it_behaves_like 'uploads migration worker'
 
-    describe "limits N+1 queries" do
-      it "to N*5" do
+    describe 'limits N+1 queries' do
+      it 'to N*5' do
         query_count = ActiveRecord::QueryRecorder.new { perform(uploads) }
 
         more_projects = create_list(:project, 3)

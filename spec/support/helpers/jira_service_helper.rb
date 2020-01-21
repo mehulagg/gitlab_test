@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module JiraServiceHelper
-  JIRA_URL = "http://jira.example.net".freeze
-  JIRA_API = JIRA_URL + "/rest/api/2"
+  JIRA_URL = 'http://jira.example.net'.freeze
+  JIRA_API = JIRA_URL + '/rest/api/2'
 
   def jira_service_settings
-    title = "Jira tracker"
+    title = 'Jira tracker'
     url = JIRA_URL
     username = 'jira-user'
     password = 'my-secret-password'
@@ -55,7 +55,7 @@ module JiraServiceHelper
   end
 
   def jira_project_url
-    JIRA_API + "/project"
+    JIRA_API + '/project'
   end
 
   def jira_api_comment_url(issue_id)
@@ -71,7 +71,7 @@ module JiraServiceHelper
   end
 
   def jira_api_test_url
-    JIRA_API + "/myself"
+    JIRA_API + '/myself'
   end
 
   def jira_issue_url(issue_id)

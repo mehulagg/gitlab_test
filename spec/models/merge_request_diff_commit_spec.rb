@@ -30,27 +30,27 @@ describe MergeRequestDiffCommit do
       [
         {
           "message": "Add submodule from gitlab.com\n\nSigned-off-by: Dmitriy Zaporozhets \u003cdmitriy.zaporozhets@gmail.com\u003e\n",
-          "authored_date": "2014-02-27T10:01:38.000+01:00".to_time,
-          "author_name": "Dmitriy Zaporozhets",
-          "author_email": "dmitriy.zaporozhets@gmail.com",
-          "committed_date": "2014-02-27T10:01:38.000+01:00".to_time,
-          "committer_name": "Dmitriy Zaporozhets",
-          "committer_email": "dmitriy.zaporozhets@gmail.com",
+          "authored_date": '2014-02-27T10:01:38.000+01:00'.to_time,
+          "author_name": 'Dmitriy Zaporozhets',
+          "author_email": 'dmitriy.zaporozhets@gmail.com',
+          "committed_date": '2014-02-27T10:01:38.000+01:00'.to_time,
+          "committer_name": 'Dmitriy Zaporozhets',
+          "committer_email": 'dmitriy.zaporozhets@gmail.com',
           "merge_request_diff_id": merge_request_diff_id,
           "relative_order": 0,
-          "sha": sha_attribute.serialize("5937ac0a7beb003549fc5fd26fc247adbce4a52e")
+          "sha": sha_attribute.serialize('5937ac0a7beb003549fc5fd26fc247adbce4a52e')
         },
         {
           "message": "Change some files\n\nSigned-off-by: Dmitriy Zaporozhets \u003cdmitriy.zaporozhets@gmail.com\u003e\n",
-          "authored_date": "2014-02-27T09:57:31.000+01:00".to_time,
-          "author_name": "Dmitriy Zaporozhets",
-          "author_email": "dmitriy.zaporozhets@gmail.com",
-          "committed_date": "2014-02-27T09:57:31.000+01:00".to_time,
-          "committer_name": "Dmitriy Zaporozhets",
-          "committer_email": "dmitriy.zaporozhets@gmail.com",
+          "authored_date": '2014-02-27T09:57:31.000+01:00'.to_time,
+          "author_name": 'Dmitriy Zaporozhets',
+          "author_email": 'dmitriy.zaporozhets@gmail.com',
+          "committed_date": '2014-02-27T09:57:31.000+01:00'.to_time,
+          "committer_name": 'Dmitriy Zaporozhets',
+          "committer_email": 'dmitriy.zaporozhets@gmail.com',
           "merge_request_diff_id": merge_request_diff_id,
           "relative_order": 1,
-          "sha": sha_attribute.serialize("570e7b2abdd848b95f2f578043fc23bd6f6fd24d")
+          "sha": sha_attribute.serialize('570e7b2abdd848b95f2f578043fc23bd6f6fd24d')
         }
       ]
     end
@@ -74,14 +74,14 @@ describe MergeRequestDiffCommit do
         [{
           "message": "Weird commit date\n",
           "authored_date": timestamp,
-          "author_name": "Alejandro Rodríguez",
-          "author_email": "alejorro70@gmail.com",
+          "author_name": 'Alejandro Rodríguez',
+          "author_email": 'alejorro70@gmail.com',
           "committed_date": timestamp,
-          "committer_name": "Alejandro Rodríguez",
-          "committer_email": "alejorro70@gmail.com",
+          "committer_name": 'Alejandro Rodríguez',
+          "committer_email": 'alejorro70@gmail.com',
           "merge_request_diff_id": merge_request_diff_id,
           "relative_order": 0,
-          "sha": sha_attribute.serialize("ba3343bc4fa403a8dfbfcab7fc1a8c29ee34bd69")
+          "sha": sha_attribute.serialize('ba3343bc4fa403a8dfbfcab7fc1a8c29ee34bd69')
         }]
       end
 

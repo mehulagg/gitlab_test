@@ -30,7 +30,7 @@ describe Import::BitbucketServerController do
   end
 
   describe 'POST create' do
-    let(:project_name) { "my-project_123" }
+    let(:project_name) { 'my-project_123' }
 
     before do
       allow(controller).to receive(:bitbucket_client).and_return(client)
@@ -139,9 +139,9 @@ describe Import::BitbucketServerController do
     before do
       allow(controller).to receive(:bitbucket_client).and_return(client)
 
-      @repo = double(slug: 'vim', project_key: 'asd', full_name: 'asd/vim', "valid?" => true, project_name: 'asd', browse_url: 'http://test', name: 'vim')
-      @invalid_repo = double(slug: 'invalid', project_key: 'foobar', full_name: 'asd/foobar', "valid?" => false, browse_url: 'http://bad-repo')
-      @created_repo = double(slug: 'created', project_key: 'existing', full_name: 'group/created', "valid?" => true, browse_url: 'http://existing')
+      @repo = double(slug: 'vim', project_key: 'asd', full_name: 'asd/vim', 'valid?' => true, project_name: 'asd', browse_url: 'http://test', name: 'vim')
+      @invalid_repo = double(slug: 'invalid', project_key: 'foobar', full_name: 'asd/foobar', 'valid?' => false, browse_url: 'http://bad-repo')
+      @created_repo = double(slug: 'created', project_key: 'existing', full_name: 'group/created', 'valid?' => true, browse_url: 'http://existing')
       assign_session_tokens
     end
 

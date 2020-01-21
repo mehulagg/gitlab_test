@@ -9,7 +9,7 @@ describe DiffNote do
   let_it_be(:project) { merge_request.project }
   let_it_be(:commit) { project.commit(sample_commit.id) }
 
-  let_it_be(:path) { "files/ruby/popen.rb" }
+  let_it_be(:path) { 'files/ruby/popen.rb' }
 
   let(:diff_refs) { merge_request.diff_refs }
   let!(:position) do
@@ -38,25 +38,25 @@ describe DiffNote do
     it_behaves_like 'a valid diff positionable note', :diff_note_on_commit
   end
 
-  describe "#position=" do
-    context "when provided a string" do
-      it "sets the position" do
+  describe '#position=' do
+    context 'when provided a string' do
+      it 'sets the position' do
         subject.position = new_position.to_json
 
         expect(subject.position).to eq(new_position)
       end
     end
 
-    context "when provided a hash" do
-      it "sets the position" do
+    context 'when provided a hash' do
+      it 'sets the position' do
         subject.position = new_position.to_h
 
         expect(subject.position).to eq(new_position)
       end
     end
 
-    context "when provided a position object" do
-      it "sets the position" do
+    context 'when provided a position object' do
+      it 'sets the position' do
         subject.position = new_position
 
         expect(subject.position).to eq(new_position)
@@ -64,25 +64,25 @@ describe DiffNote do
     end
   end
 
-  describe "#original_position=" do
-    context "when provided a string" do
-      it "sets the original position" do
+  describe '#original_position=' do
+    context 'when provided a string' do
+      it 'sets the original position' do
         subject.original_position = new_position.to_json
 
         expect(subject.original_position).to eq(new_position)
       end
     end
 
-    context "when provided a hash" do
-      it "sets the original position" do
+    context 'when provided a hash' do
+      it 'sets the original position' do
         subject.original_position = new_position.to_h
 
         expect(subject.original_position).to eq(new_position)
       end
     end
 
-    context "when provided a position object" do
-      it "sets the original position" do
+    context 'when provided a position object' do
+      it 'sets the original position' do
         subject.original_position = new_position
 
         expect(subject.original_position).to eq(new_position)
@@ -93,8 +93,8 @@ describe DiffNote do
   describe '#create_diff_file callback' do
     context 'merge request' do
       let(:position) do
-        Gitlab::Diff::Position.new(old_path: "files/ruby/popen.rb",
-                                   new_path: "files/ruby/popen.rb",
+        Gitlab::Diff::Position.new(old_path: 'files/ruby/popen.rb',
+                                   new_path: 'files/ruby/popen.rb',
                                    old_line: nil,
                                    new_line: 9,
                                    diff_refs: merge_request.diff_refs)
@@ -251,8 +251,8 @@ describe DiffNote do
       let(:diff_refs) { project.commit(sample_commit.id).diff_refs }
       let(:position) do
         Gitlab::Diff::Position.new(
-          old_path: "files/ruby/popen.rb",
-          new_path: "files/ruby/popen.rb",
+          old_path: 'files/ruby/popen.rb',
+          new_path: 'files/ruby/popen.rb',
           old_line: nil,
           new_line: 14,
           diff_refs: diff_refs
@@ -289,36 +289,36 @@ describe DiffNote do
     end
   end
 
-  describe "#diff_line" do
-    it "returns the correct diff line" do
+  describe '#diff_line' do
+    it 'returns the correct diff line' do
       diff_line = subject.diff_line
 
       expect(diff_line.added?).to be true
       expect(diff_line.new_line).to eq(position.formatter.new_line)
-      expect(diff_line.text).to eq("+    vars = {")
+      expect(diff_line.text).to eq('+    vars = {')
     end
   end
 
-  describe "#line_code" do
-    it "returns the correct line code" do
+  describe '#line_code' do
+    it 'returns the correct line code' do
       line_code = Gitlab::Git.diff_line_code(position.file_path, position.formatter.new_line, 15)
 
       expect(subject.line_code).to eq(line_code)
     end
   end
 
-  describe "#active?" do
-    context "when noteable is a commit" do
+  describe '#active?' do
+    context 'when noteable is a commit' do
       subject { build(:diff_note_on_commit, project: project, position: position) }
 
-      it "returns true" do
+      it 'returns true' do
         expect(subject.active?).to be true
       end
     end
 
-    context "when noteable is a merge request" do
+    context 'when noteable is a merge request' do
       context "when the merge request's diff refs match that of the diff note" do
-        it "returns true" do
+        it 'returns true' do
           expect(subject.active?).to be true
         end
       end
@@ -328,16 +328,16 @@ describe DiffNote do
           allow(subject.noteable).to receive(:diff_refs).and_return(commit.diff_refs)
         end
 
-        it "returns false" do
+        it 'returns false' do
           expect(subject.active?).to be false
         end
       end
     end
   end
 
-  describe "creation" do
-    describe "updating of position" do
-      context "when noteable is a commit" do
+  describe 'creation' do
+    describe 'updating of position' do
+      context 'when noteable is a commit' do
         let(:diff_refs) { commit.diff_refs }
 
         subject { create(:diff_note_on_commit, project: project, position: position, commit_id: commit.id) }
@@ -348,20 +348,20 @@ describe DiffNote do
         end
       end
 
-      context "when noteable is a merge request" do
-        context "when the note is active" do
+      context 'when noteable is a merge request' do
+        context 'when the note is active' do
           it "doesn't update the position" do
             expect(subject.original_position).to eq(position)
             expect(subject.position).to eq(position)
           end
         end
 
-        context "when the note is outdated" do
+        context 'when the note is outdated' do
           before do
             allow(merge_request).to receive(:diff_refs).and_return(commit.diff_refs)
           end
 
-          it "updates the position" do
+          it 'updates the position' do
             expect(subject.original_position).to eq(position)
             expect(subject.position).not_to eq(position)
           end
@@ -370,11 +370,11 @@ describe DiffNote do
     end
   end
 
-  describe "#discussion_id" do
+  describe '#discussion_id' do
     let(:note) { create(:diff_note_on_merge_request) }
 
-    context "when it is newly created" do
-      it "has a discussion id" do
+    context 'when it is newly created' do
+      it 'has a discussion id' do
         expect(note.discussion_id).not_to be_nil
         expect(note.discussion_id).to match(/\A\h{40}\z/)
       end
@@ -385,7 +385,7 @@ describe DiffNote do
         note.update_column(:discussion_id, nil)
       end
 
-      it "has a discussion id" do
+      it 'has a discussion id' do
         # The discussion_id is set in `after_initialize`, so `reload` won't work
         reloaded_note = Note.find(note.id)
 
@@ -399,31 +399,31 @@ describe DiffNote do
     let(:diff_refs) { project.commit(sample_commit.id).diff_refs }
     let(:position) do
       Gitlab::Diff::Position.new(
-        old_path: "files/ruby/popen.rb",
-        new_path: "files/ruby/popen.rb",
+        old_path: 'files/ruby/popen.rb',
+        new_path: 'files/ruby/popen.rb',
         old_line: nil,
         new_line: 14,
         diff_refs: diff_refs
       )
     end
 
-    context "when noteable is a commit" do
+    context 'when noteable is a commit' do
       subject { build(:diff_note_on_commit, project: project, position: position) }
 
-      it "returns true" do
+      it 'returns true' do
         expect(subject.created_at_diff?(diff_refs)).to be true
       end
     end
 
-    context "when noteable is a merge request" do
-      context "when the diff refs match the original one of the diff note" do
-        it "returns true" do
+    context 'when noteable is a merge request' do
+      context 'when the diff refs match the original one of the diff note' do
+        it 'returns true' do
           expect(subject.created_at_diff?(diff_refs)).to be true
         end
       end
 
       context "when the diff refs don't match the original one of the diff note" do
-        it "returns false" do
+        it 'returns false' do
           expect(subject.created_at_diff?(merge_request.diff_refs)).to be false
         end
       end
@@ -468,27 +468,27 @@ describe DiffNote do
     end
   end
 
-  describe "image diff notes" do
+  describe 'image diff notes' do
     subject { build(:image_diff_note_on_merge_request, project: project, noteable: merge_request) }
 
-    describe "validations" do
+    describe 'validations' do
       it { is_expected.not_to validate_presence_of(:line_code) }
 
-      it "does not validate diff line" do
+      it 'does not validate diff line' do
         diff_line = subject.diff_line
 
         expect(diff_line).to be nil
         expect(subject).to be_valid
       end
 
-      it "does not update the position" do
+      it 'does not update the position' do
         expect(subject).not_to receive(:update_position)
 
         subject.save
       end
     end
 
-    it "returns true for on_image?" do
+    it 'returns true for on_image?' do
       expect(subject.on_image?).to be_truthy
     end
   end

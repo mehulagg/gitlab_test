@@ -23,23 +23,23 @@ module Gitlab
     end
 
     def project_filename
-      "project.json"
+      'project.json'
     end
 
     def project_bundle_filename
-      "project.bundle"
+      'project.bundle'
     end
 
     def lfs_objects_filename
-      "lfs-objects.json"
+      'lfs-objects.json'
     end
 
     def lfs_objects_storage
-      "lfs-objects"
+      'lfs-objects'
     end
 
     def wiki_repo_bundle_filename
-      "project.wiki.bundle"
+      'project.wiki.bundle'
     end
 
     def config_file

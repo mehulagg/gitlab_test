@@ -94,10 +94,10 @@ module BlobHelper
       project,
       ref,
       path,
-      label:      _("Replace"),
-      action:     "replace",
-      btn_class:  "default",
-      modal_type: "upload"
+      label:      _('Replace'),
+      action:     'replace',
+      btn_class:  'default',
+      modal_type: 'upload'
     )
   end
 
@@ -106,10 +106,10 @@ module BlobHelper
       project,
       ref,
       path,
-      label:      _("Delete"),
-      action:     "delete",
-      btn_class:  "default",
-      modal_type: "remove"
+      label:      _('Delete'),
+      action:     'delete',
+      btn_class:  'default',
+      modal_type: 'remove'
     )
   end
 
@@ -118,7 +118,7 @@ module BlobHelper
   end
 
   def leave_edit_message
-    _("Leave edit mode? All unsaved changes will be lost.")
+    _('Leave edit mode? All unsaved changes will be lost.')
   end
 
   def editing_preview_title(filename)
@@ -207,7 +207,7 @@ module BlobHelper
   def copy_blob_source_button(blob)
     return unless blob.rendered_as_text?(ignore_errors: false)
 
-    clipboard_button(target: ".blob-content[data-blob-id='#{blob.id}']", class: "btn btn-sm js-copy-blob-source-btn", title: _("Copy file contents"))
+    clipboard_button(target: ".blob-content[data-blob-id='#{blob.id}']", class: 'btn btn-sm js-copy-blob-source-btn', title: _('Copy file contents'))
   end
 
   def open_raw_blob_button(blob)
@@ -281,12 +281,12 @@ module BlobHelper
     options = []
 
     if can?(current_user, :create_issue, project)
-      options << link_to("submit an issue", new_project_issue_path(project))
+      options << link_to('submit an issue', new_project_issue_path(project))
     end
 
     merge_project = merge_request_source_project_for_project(@project)
     if merge_project
-      options << link_to("create a merge request", project_new_merge_request_path(project))
+      options << link_to('create a merge request', project_new_merge_request_path(project))
     end
 
     options

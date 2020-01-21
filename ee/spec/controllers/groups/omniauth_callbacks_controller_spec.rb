@@ -28,11 +28,11 @@ describe Groups::OmniauthCallbacksController do
   end
 
   def stub_last_request_id(id)
-    session["last_authn_request_id"] = id
+    session['last_authn_request_id'] = id
   end
 
   context "when request hasn't been validated by omniauth middleware" do
-    it "prevents authentication" do
+    it 'prevents authentication' do
       sign_in(user)
 
       expect do
@@ -41,7 +41,7 @@ describe Groups::OmniauthCallbacksController do
     end
   end
 
-  context "valid credentials" do
+  context 'valid credentials' do
     before do
       @original_env_config_omniauth_auth = mock_auth_hash(provider, uid, user.email, response_object: saml_response)
       stub_omniauth_provider(provider, context: request)
@@ -61,8 +61,8 @@ describe Groups::OmniauthCallbacksController do
       end
     end
 
-    shared_examples "SAML session initiated" do
-      it "redirects to RelayState" do
+    shared_examples 'SAML session initiated' do
+      it 'redirects to RelayState' do
         post provider, params: { group_id: group, RelayState: '/explore' }
 
         expect(response).to redirect_to('/explore')
@@ -71,12 +71,12 @@ describe Groups::OmniauthCallbacksController do
       include_examples 'works with session enforcement'
     end
 
-    shared_examples "and identity already linked" do
+    shared_examples 'and identity already linked' do
       let!(:user) { create_linked_user }
 
-      it_behaves_like "SAML session initiated"
+      it_behaves_like 'SAML session initiated'
 
-      it "displays a flash message verifying group sign in" do
+      it 'displays a flash message verifying group sign in' do
         post provider, params: { group_id: group }
 
         expect(flash[:notice]).to match(/Signed in with SAML/i)
@@ -104,12 +104,12 @@ describe Groups::OmniauthCallbacksController do
       end
     end
 
-    context "when signed in" do
+    context 'when signed in' do
       before do
         sign_in(user)
       end
 
-      it_behaves_like "and identity already linked"
+      it_behaves_like 'and identity already linked'
 
       context 'oauth linked with different NameID' do
         before do
@@ -136,15 +136,15 @@ describe Groups::OmniauthCallbacksController do
       end
 
       context "and identity hasn't been linked" do
-        it "links the identity" do
+        it 'links the identity' do
           post provider, params: { group_id: group }
 
           expect(group).to be_member(user)
         end
 
-        it_behaves_like "SAML session initiated"
+        it_behaves_like 'SAML session initiated'
 
-        it "displays a flash indicating the account has been linked" do
+        it 'displays a flash indicating the account has been linked' do
           post provider, params: { group_id: group }
 
           expect(flash[:notice]).to match(/SAML for .* was added/)
@@ -178,7 +178,7 @@ describe Groups::OmniauthCallbacksController do
       end
     end
 
-    context "when not signed in" do
+    context 'when not signed in' do
       context "and identity hasn't been linked" do
         let!(:saml_provider) { create(:saml_provider, :enforced_group_managed_accounts, group: group) }
 
@@ -187,11 +187,11 @@ describe Groups::OmniauthCallbacksController do
             stub_feature_flags(sign_up_on_sso: false)
           end
 
-          it "redirects to sign in page with flash notice" do
+          it 'redirects to sign in page with flash notice' do
             post provider, params: { group_id: group }
 
             expect(response).to redirect_to(new_user_session_path)
-            expect(flash[:notice]).to start_with("Login to a GitLab account to link with your SAML identity")
+            expect(flash[:notice]).to start_with('Login to a GitLab account to link with your SAML identity')
           end
         end
 
@@ -202,11 +202,11 @@ describe Groups::OmniauthCallbacksController do
         end
       end
 
-      it_behaves_like "and identity already linked"
+      it_behaves_like 'and identity already linked'
     end
   end
 
-  describe "#failure" do
+  describe '#failure' do
     include RoutesHelpers
 
     def fake_error_callback_route
@@ -217,7 +217,7 @@ describe Groups::OmniauthCallbacksController do
 
     def stub_certificate_error
       strategy = OmniAuth::Strategies::GroupSaml.new(nil)
-      exception = OneLogin::RubySaml::ValidationError.new("Fingerprint mismatch")
+      exception = OneLogin::RubySaml::ValidationError.new('Fingerprint mismatch')
       stub_omniauth_failure(strategy, :invalid_ticket, exception)
     end
 
@@ -227,7 +227,7 @@ describe Groups::OmniauthCallbacksController do
       set_devise_mapping(context: @request)
     end
 
-    context "not signed in" do
+    context 'not signed in' do
       it "doesn't disclose group existence" do
         expect do
           post :failure, params: { group_id: group }
@@ -243,26 +243,26 @@ describe Groups::OmniauthCallbacksController do
       end
     end
 
-    context "with access" do
+    context 'with access' do
       before do
         sign_in(user)
       end
 
-      it "has descriptive error flash" do
+      it 'has descriptive error flash' do
         post :failure, params: { group_id: group }
 
-        expect(flash[:alert]).to start_with("Unable to sign you in to the group with SAML due to")
-        expect(flash[:alert]).to include("Fingerprint mismatch")
+        expect(flash[:alert]).to start_with('Unable to sign you in to the group with SAML due to')
+        expect(flash[:alert]).to include('Fingerprint mismatch')
       end
 
-      it "redirects back go the SSO page" do
+      it 'redirects back go the SSO page' do
         post :failure, params: { group_id: group }
 
         expect(response).to redirect_to(sso_group_saml_providers_path)
       end
     end
 
-    context "with access to SAML settings for the group" do
+    context 'with access to SAML settings for the group' do
       let(:user) { create_linked_user }
 
       before do
@@ -270,7 +270,7 @@ describe Groups::OmniauthCallbacksController do
         sign_in(user)
       end
 
-      it "redirects to the settings page" do
+      it 'redirects to the settings page' do
         post :failure, params: { group_id: group }
 
         expect(response).to redirect_to(group_saml_providers_path)

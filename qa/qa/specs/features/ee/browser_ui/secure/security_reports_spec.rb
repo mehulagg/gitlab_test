@@ -56,19 +56,19 @@ module QA
         Page::Project::Pipeline::Show.perform do |pipeline|
           pipeline.click_on_security
 
-          filter_report_and_perform(pipeline, "Dependency Scanning") do
+          filter_report_and_perform(pipeline, 'Dependency Scanning') do
             expect(pipeline).to have_vulnerability dependency_scan_example_vuln
           end
 
-          filter_report_and_perform(pipeline, "Container Scanning") do
+          filter_report_and_perform(pipeline, 'Container Scanning') do
             expect(pipeline).to have_vulnerability container_scan_example_vuln
           end
 
-          filter_report_and_perform(pipeline, "SAST") do
+          filter_report_and_perform(pipeline, 'SAST') do
             expect(pipeline).to have_vulnerability sast_scan_example_vuln
           end
 
-          filter_report_and_perform(pipeline, "DAST") do
+          filter_report_and_perform(pipeline, 'DAST') do
             expect(pipeline).to have_vulnerability dast_scan_example_vuln
           end
         end
@@ -79,19 +79,19 @@ module QA
         Page::Project::Menu.perform(&:click_on_security_dashboard)
 
         EE::Page::Project::Secure::Show.perform do |dashboard|
-          filter_report_and_perform(dashboard, "Dependency Scanning") do
+          filter_report_and_perform(dashboard, 'Dependency Scanning') do
             expect(dashboard).to have_vulnerability dependency_scan_example_vuln
           end
 
-          filter_report_and_perform(dashboard, "Container Scanning") do
+          filter_report_and_perform(dashboard, 'Container Scanning') do
             expect(dashboard).to have_vulnerability container_scan_example_vuln
           end
 
-          filter_report_and_perform(dashboard, "SAST") do
+          filter_report_and_perform(dashboard, 'SAST') do
             expect(dashboard).to have_vulnerability sast_scan_example_vuln
           end
 
-          filter_report_and_perform(dashboard, "DAST") do
+          filter_report_and_perform(dashboard, 'DAST') do
             expect(dashboard).to have_vulnerability dast_scan_example_vuln
           end
         end
@@ -107,19 +107,19 @@ module QA
         EE::Page::Group::Secure::Show.perform do |dashboard|
           dashboard.filter_project(@project.name)
 
-          filter_report_and_perform(dashboard, "Dependency Scanning") do
+          filter_report_and_perform(dashboard, 'Dependency Scanning') do
             expect(dashboard).to have_vulnerability dependency_scan_example_vuln
           end
 
-          filter_report_and_perform(dashboard, "Container Scanning") do
+          filter_report_and_perform(dashboard, 'Container Scanning') do
             expect(dashboard).to have_vulnerability container_scan_example_vuln
           end
 
-          filter_report_and_perform(dashboard, "SAST") do
+          filter_report_and_perform(dashboard, 'SAST') do
             expect(dashboard).to have_vulnerability sast_scan_example_vuln
           end
 
-          filter_report_and_perform(dashboard, "DAST") do
+          filter_report_and_perform(dashboard, 'DAST') do
             expect(dashboard).to have_vulnerability dast_scan_example_vuln
           end
         end

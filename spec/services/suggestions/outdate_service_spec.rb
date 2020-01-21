@@ -28,7 +28,7 @@ describe Suggestions::OutdateService do
     def commit_changes(file_path, new_content)
       params = {
         file_path: file_path,
-        commit_message: "Update File",
+        commit_message: 'Update File',
         file_content: new_content,
         start_project: project,
         start_branch: project.default_branch,

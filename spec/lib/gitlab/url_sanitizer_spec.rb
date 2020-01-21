@@ -198,10 +198,10 @@ describe Gitlab::UrlSanitizer do
 
   context 'when credentials contains special chars' do
     it 'parses the URL without errors' do
-      url_sanitizer = described_class.new("https://foo:b?r@github.com/me/project.git")
+      url_sanitizer = described_class.new('https://foo:b?r@github.com/me/project.git')
 
-      expect(url_sanitizer.sanitized_url).to eq("https://github.com/me/project.git")
-      expect(url_sanitizer.full_url).to eq("https://foo:b%3Fr@github.com/me/project.git")
+      expect(url_sanitizer.sanitized_url).to eq('https://github.com/me/project.git')
+      expect(url_sanitizer.full_url).to eq('https://foo:b%3Fr@github.com/me/project.git')
     end
   end
 end

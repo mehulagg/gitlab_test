@@ -4,8 +4,8 @@ require 'spec_helper'
 
 describe Burndown do
   set(:user) { create(:user) }
-  let(:start_date) { "2017-03-01" }
-  let(:due_date) { "2017-03-03" }
+  let(:start_date) { '2017-03-01' }
+  let(:due_date) { '2017-03-03' }
 
   shared_examples 'burndown for milestone' do
     before do
@@ -55,31 +55,31 @@ describe Burndown do
       end
     end
 
-    it "returns empty array if milestone start date is nil" do
+    it 'returns empty array if milestone start date is nil' do
       milestone.update(start_date: nil)
 
       expect(subject).to eq([])
     end
 
-    it "returns empty array if milestone due date is nil" do
+    it 'returns empty array if milestone due date is nil' do
       milestone.update(due_date: nil)
 
       expect(subject).to eq([])
     end
 
-    it "counts until today if milestone due date > Date.today" do
+    it 'counts until today if milestone due date > Date.today' do
       Timecop.travel(milestone.due_date - 1.day) do
         expect(subject.max_by { |event| event[:created_at] }[:created_at].to_date).to eq(Date.today)
       end
     end
 
-    it "sets attribute accurate to true" do
+    it 'sets attribute accurate to true' do
       burndown = described_class.new(milestone.issues_visible_to_user(user), milestone.start_date, milestone.due_date)
 
       expect(burndown).to be_accurate
     end
 
-    it "is accurate with no issues" do
+    it 'is accurate with no issues' do
       new_milestone = create(:milestone)
       burndown = described_class.new(new_milestone.issues_visible_to_user(user), new_milestone.start_date, new_milestone.due_date)
 
@@ -88,20 +88,20 @@ describe Burndown do
       expect(burndown).to be_accurate
     end
 
-    context "when there are no closed issues" do
+    context 'when there are no closed issues' do
       before do
         milestone.issues.delete_all
         create(:issue, issue_params.merge(created_at: milestone.start_date.end_of_day))
       end
 
-      it "sets attribute empty to false" do
+      it 'sets attribute empty to false' do
         burndown = described_class.new(milestone.issues_visible_to_user(user), milestone.start_date, milestone.due_date)
 
         expect(burndown).not_to be_empty
       end
     end
 
-    it "ignores follow-up events with the same action" do
+    it 'ignores follow-up events with the same action' do
       create(:event, target: milestone.issues.first, created_at: milestone.start_date + 1.minute, action: Event::REOPENED)
       event1 = create(:closed_issue_event, target: milestone.issues.first, created_at: milestone.start_date + 2.minutes)
       event2 = create(:closed_issue_event, target: milestone.issues.first, created_at: milestone.start_date + 3.minutes)
@@ -110,12 +110,12 @@ describe Burndown do
       expect(closed_at_time(subject, event2.created_at).size).to eq(0)
     end
 
-    context "when all closed issues do not have closed events" do
+    context 'when all closed issues do not have closed events' do
       before do
         Event.where(target: milestone.issues, action: Event::CLOSED).destroy_all # rubocop: disable DestroyAll
       end
 
-      it "considers closed_at as milestone start date" do
+      it 'considers closed_at as milestone start date' do
         expect(subject).to match_array([
           { created_at: Date.new(2017, 2, 28).beginning_of_day, weight: 2, action: 'created' },
           { created_at: Date.new(2017, 3, 1).beginning_of_day,  weight: 2, action: 'created' },
@@ -128,15 +128,15 @@ describe Burndown do
         ])
       end
 
-      it "sets attribute empty to true" do
+      it 'sets attribute empty to true' do
         burndown = described_class.new(milestone.issues_visible_to_user(user), milestone.start_date, milestone.due_date)
 
         expect(burndown).to be_empty
       end
     end
 
-    context "when one but not all closed issues does not have a closed event" do
-      it "sets attribute accurate to false" do
+    context 'when one but not all closed issues does not have a closed event' do
+      it 'sets attribute accurate to false' do
         Event.where(target: milestone.issues.closed.first, action: Event::CLOSED).destroy_all # rubocop: disable DestroyAll
         burndown = described_class.new(milestone.issues_visible_to_user(user), milestone.start_date, milestone.due_date)
 

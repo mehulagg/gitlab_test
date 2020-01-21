@@ -30,8 +30,8 @@ describe 'OAuth tokens' do
       end
     end
 
-    context "when user is blocked" do
-      it "does not create an access token" do
+    context 'when user is blocked' do
+      it 'does not create an access token' do
         user = create(:user)
         user.block
 
@@ -41,8 +41,8 @@ describe 'OAuth tokens' do
       end
     end
 
-    context "when user is ldap_blocked" do
-      it "does not create an access token" do
+    context 'when user is ldap_blocked' do
+      it 'does not create an access token' do
         user = create(:user)
         user.ldap_block
 

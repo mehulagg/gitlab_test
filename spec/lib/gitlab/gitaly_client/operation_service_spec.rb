@@ -39,18 +39,18 @@ describe Gitlab::GitalyClient::OperationService do
       expect(subject.dereferenced_target).to eq(commit)
     end
 
-    context "when pre_receive_error is present" do
+    context 'when pre_receive_error is present' do
       let(:response) do
-        Gitaly::UserCreateBranchResponse.new(pre_receive_error: "GitLab: something failed")
+        Gitaly::UserCreateBranchResponse.new(pre_receive_error: 'GitLab: something failed')
       end
 
-      it "throws a PreReceive exception" do
+      it 'throws a PreReceive exception' do
         expect_any_instance_of(Gitaly::OperationService::Stub)
           .to receive(:user_create_branch).with(request, kind_of(Hash))
           .and_return(response)
 
         expect { subject }.to raise_error(
-          Gitlab::Git::PreReceiveError, "something failed")
+          Gitlab::Git::PreReceiveError, 'something failed')
       end
     end
   end
@@ -98,18 +98,18 @@ describe Gitlab::GitalyClient::OperationService do
       end
     end
 
-    context "when pre_receive_error is present" do
+    context 'when pre_receive_error is present' do
       let(:response) do
-        Gitaly::UserUpdateBranchResponse.new(pre_receive_error: "GitLab: something failed")
+        Gitaly::UserUpdateBranchResponse.new(pre_receive_error: 'GitLab: something failed')
       end
 
-      it "throws a PreReceive exception" do
+      it 'throws a PreReceive exception' do
         expect_any_instance_of(Gitaly::OperationService::Stub)
           .to receive(:user_update_branch).with(request, kind_of(Hash))
           .and_return(response)
 
         expect { subject }.to raise_error(
-          Gitlab::Git::PreReceiveError, "something failed")
+          Gitlab::Git::PreReceiveError, 'something failed')
       end
     end
   end
@@ -135,18 +135,18 @@ describe Gitlab::GitalyClient::OperationService do
       subject
     end
 
-    context "when pre_receive_error is present" do
+    context 'when pre_receive_error is present' do
       let(:response) do
-        Gitaly::UserDeleteBranchResponse.new(pre_receive_error: "GitLab: something failed")
+        Gitaly::UserDeleteBranchResponse.new(pre_receive_error: 'GitLab: something failed')
       end
 
-      it "throws a PreReceive exception" do
+      it 'throws a PreReceive exception' do
         expect_any_instance_of(Gitaly::OperationService::Stub)
           .to receive(:user_delete_branch).with(request, kind_of(Hash))
           .and_return(response)
 
         expect { subject }.to raise_error(
-          Gitlab::Git::PreReceiveError, "something failed")
+          Gitlab::Git::PreReceiveError, 'something failed')
       end
     end
   end
@@ -195,23 +195,23 @@ describe Gitlab::GitalyClient::OperationService do
 
   shared_examples 'cherry pick and revert errors' do
     context 'when a pre_receive_error is present' do
-      let(:response) { response_class.new(pre_receive_error: "GitLab: something failed") }
+      let(:response) { response_class.new(pre_receive_error: 'GitLab: something failed') }
 
       it 'raises a PreReceiveError' do
-        expect { subject }.to raise_error(Gitlab::Git::PreReceiveError, "something failed")
+        expect { subject }.to raise_error(Gitlab::Git::PreReceiveError, 'something failed')
       end
     end
 
     context 'when a commit_error is present' do
-      let(:response) { response_class.new(commit_error: "something failed") }
+      let(:response) { response_class.new(commit_error: 'something failed') }
 
       it 'raises a CommitError' do
-        expect { subject }.to raise_error(Gitlab::Git::CommitError, "something failed")
+        expect { subject }.to raise_error(Gitlab::Git::CommitError, 'something failed')
       end
     end
 
     context 'when a create_tree_error is present' do
-      let(:response) { response_class.new(create_tree_error: "something failed", create_tree_error_code: 'EMPTY') }
+      let(:response) { response_class.new(create_tree_error: 'something failed', create_tree_error_code: 'EMPTY') }
 
       it 'raises a CreateTreeError' do
         expect { subject }.to raise_error(Gitlab::Git::Repository::CreateTreeError) do |error|
@@ -306,18 +306,18 @@ describe Gitlab::GitalyClient::OperationService do
       expect(subject).to eq(squash_sha)
     end
 
-    context "when git_error is present" do
+    context 'when git_error is present' do
       let(:response) do
-        Gitaly::UserSquashResponse.new(git_error: "something failed")
+        Gitaly::UserSquashResponse.new(git_error: 'something failed')
       end
 
-      it "raises a GitError exception" do
+      it 'raises a GitError exception' do
         expect_any_instance_of(Gitaly::OperationService::Stub)
           .to receive(:user_squash).with(request, kind_of(Hash))
           .and_return(response)
 
         expect { subject }.to raise_error(
-          Gitlab::Git::Repository::GitError, "something failed")
+          Gitlab::Git::Repository::GitError, 'something failed')
       end
     end
 
@@ -335,18 +335,18 @@ describe Gitlab::GitalyClient::OperationService do
       end
 
       context 'when a pre_receive_error is present' do
-        let(:response) { Gitaly::UserCommitFilesResponse.new(pre_receive_error: "GitLab: something failed") }
+        let(:response) { Gitaly::UserCommitFilesResponse.new(pre_receive_error: 'GitLab: something failed') }
 
         it 'raises a PreReceiveError' do
-          expect { subject }.to raise_error(Gitlab::Git::PreReceiveError, "something failed")
+          expect { subject }.to raise_error(Gitlab::Git::PreReceiveError, 'something failed')
         end
       end
 
       context 'when an index_error is present' do
-        let(:response) { Gitaly::UserCommitFilesResponse.new(index_error: "something failed") }
+        let(:response) { Gitaly::UserCommitFilesResponse.new(index_error: 'something failed') }
 
         it 'raises a PreReceiveError' do
-          expect { subject }.to raise_error(Gitlab::Git::Index::IndexError, "something failed")
+          expect { subject }.to raise_error(Gitlab::Git::Index::IndexError, 'something failed')
         end
       end
 

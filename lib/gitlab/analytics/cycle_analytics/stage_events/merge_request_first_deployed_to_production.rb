@@ -6,7 +6,7 @@ module Gitlab
       module StageEvents
         class MergeRequestFirstDeployedToProduction < MetricsBasedStageEvent
           def self.name
-            s_("CycleAnalyticsEvent|Merge request first deployed to production")
+            s_('CycleAnalyticsEvent|Merge request first deployed to production')
           end
 
           def self.identifier

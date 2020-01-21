@@ -44,7 +44,7 @@ module Projects
 
       def disable_lfs!
         unless project.update(lfs_enabled: false)
-          raise LfsDownloadLinkListService::DownloadLinksError, "Invalid project state"
+          raise LfsDownloadLinkListService::DownloadLinksError, 'Invalid project state'
         end
       end
 

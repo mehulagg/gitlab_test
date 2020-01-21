@@ -39,9 +39,9 @@ describe Gitlab::Cluster::Mixins::UnicornHttpServer do
   def with_unicorn(workers:, timeout: UNICORN_STARTUP_TIMEOUT)
     with_unicorn_configs(workers: workers) do |unicorn_rb, config_ru|
       cmdline = [
-        "bundle", "exec", "unicorn",
-        "-I", Rails.root.to_s,
-        "-c", unicorn_rb,
+        'bundle', 'exec', 'unicorn',
+        '-I', Rails.root.to_s,
+        '-c', unicorn_rb,
         config_ru
       ]
 

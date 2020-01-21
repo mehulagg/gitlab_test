@@ -3,7 +3,7 @@
 module Ci
   module Subscriptions
     class Project < ApplicationRecord
-      self.table_name = "ci_subscriptions_projects"
+      self.table_name = 'ci_subscriptions_projects'
 
       belongs_to :downstream_project, class_name: '::Project', optional: false
       belongs_to :upstream_project, class_name: '::Project', optional: false

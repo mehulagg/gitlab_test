@@ -104,14 +104,14 @@ describe Gitlab::Geo::Replication::JobArtifactTransfer, :geo do
       end
     end
 
-    context "invalid path" do
+    context 'invalid path' do
       it 'logs an error if the destination directory could not be created' do
         allow(job_artifact).to receive(:file).and_return(double(path: '/foo/bar'))
 
         allow(FileUtils).to receive(:mkdir_p) { raise Errno::EEXIST }
 
-        expect(subject).to receive(:log_error).with("Unable to create directory /foo: File exists").once
-        expect(subject).to receive(:log_error).with("Skipping transfer as we cannot create the destination directory").once
+        expect(subject).to receive(:log_error).with('Unable to create directory /foo: File exists').once
+        expect(subject).to receive(:log_error).with('Skipping transfer as we cannot create the destination directory').once
         result = subject.download_from_primary
 
         expect(result.success).to eq(false)

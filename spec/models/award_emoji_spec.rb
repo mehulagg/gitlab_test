@@ -12,14 +12,14 @@ describe AwardEmoji do
     it { is_expected.to include_module(Participable) }
   end
 
-  describe "validations" do
+  describe 'validations' do
     it { is_expected.to validate_presence_of(:awardable) }
     it { is_expected.to validate_presence_of(:user) }
     it { is_expected.to validate_presence_of(:name) }
 
     # To circumvent a bug in the shoulda matchers
-    describe "scoped uniqueness validation" do
-      it "rejects duplicate award emoji" do
+    describe 'scoped uniqueness validation' do
+      it 'rejects duplicate award emoji' do
         user  = create(:user)
         issue = create(:issue)
         create(:award_emoji, user: user, awardable: issue)
@@ -33,7 +33,7 @@ describe AwardEmoji do
       # is moved to the ghost user. When User B is deleted, User B's award emoji
       # also needs to be moved to the ghost user - this cannot happen unless
       # the uniqueness validation is disabled for ghost users.
-      it "allows duplicate award emoji for ghost users" do
+      it 'allows duplicate award emoji for ghost users' do
         user  = create(:user, :ghost)
         issue = create(:issue)
         create(:award_emoji, user: user, awardable: issue)

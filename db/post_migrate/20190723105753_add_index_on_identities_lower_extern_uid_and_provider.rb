@@ -7,7 +7,7 @@ class AddIndexOnIdentitiesLowerExternUidAndProvider < ActiveRecord::Migration[5.
 
   disable_ddl_transaction!
 
-  INDEX_NAME = "index_on_identities_lower_extern_uid_and_provider"
+  INDEX_NAME = 'index_on_identities_lower_extern_uid_and_provider'
 
   def up
     add_concurrent_index(:identities, 'lower(extern_uid), provider', name: INDEX_NAME)

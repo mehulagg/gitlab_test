@@ -10,8 +10,8 @@ describe Suggestions::CreateService do
   end
 
   def build_position(args = {})
-    default_args = { old_path: "files/ruby/popen.rb",
-                     new_path: "files/ruby/popen.rb",
+    default_args = { old_path: 'files/ruby/popen.rb',
+                     new_path: 'files/ruby/popen.rb',
                      old_line: nil,
                      new_line: 14,
                      diff_refs: merge_request.diff_refs }
@@ -168,7 +168,7 @@ describe Suggestions::CreateService do
 
           expect(suggestion).to be_appliable
           expect(suggestion.from_content).to eq("\n")
-          expect(suggestion.to_content).to eq("")
+          expect(suggestion.to_content).to eq('')
         end
       end
     end

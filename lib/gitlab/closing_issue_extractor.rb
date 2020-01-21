@@ -24,7 +24,7 @@ module Gitlab
         closing_statements << Regexp.last_match[0]
       end
 
-      @extractor.analyze(closing_statements.join(" "))
+      @extractor.analyze(closing_statements.join(' '))
 
       @extractor.issues.reject do |issue|
         # Don't extract issues from the project this project was forked from

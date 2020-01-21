@@ -3,7 +3,7 @@ namespace :gitlab do
     desc 'GitLab | Manually insert schema migration version'
     task :mark_migration_complete, [:version] => :environment do |_, args|
       unless args[:version]
-        puts "Must specify a migration version as an argument".color(:red)
+        puts 'Must specify a migration version as an argument'.color(:red)
         exit 1
       end
 

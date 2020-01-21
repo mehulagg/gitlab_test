@@ -105,8 +105,8 @@ describe 'GitlabSchema configurations' do
     subject do
       queries = [
         { query: graphql_query_for('project', { 'fullPath' => '$fullPath' }, %w(id name description)) },
-        { query: graphql_query_for('echo', { 'text' => "$test" }, []), variables: { "test" => "Hello world" } },
-        { query: graphql_query_for('project', { 'fullPath' => project.full_path }, "userPermissions { createIssue }") }
+        { query: graphql_query_for('echo', { 'text' => '$test' }, []), variables: { 'test' => 'Hello world' } },
+        { query: graphql_query_for('project', { 'fullPath' => project.full_path }, 'userPermissions { createIssue }') }
       ]
 
       post_multiplex(queries, current_user: current_user)
@@ -119,7 +119,7 @@ describe 'GitlabSchema configurations' do
     end
 
     it_behaves_like 'imposing query limits' do
-      it "fails all queries when only one of the queries is too complex" do
+      it 'fails all queries when only one of the queries is too complex' do
         # The `project` query above has a complexity of 5
         allow(GitlabSchema).to receive(:max_query_complexity).and_return 4
 

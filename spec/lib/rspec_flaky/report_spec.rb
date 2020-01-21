@@ -62,7 +62,7 @@ describe RspecFlaky::Report, :aggregate_failures do
     end
 
     it 'does not accept anything else' do
-      expect { described_class.new([1, 2, 3]) }.to raise_error(ArgumentError, "`flaky_examples` must be a RspecFlaky::FlakyExamplesCollection, Array given!")
+      expect { described_class.new([1, 2, 3]) }.to raise_error(ArgumentError, '`flaky_examples` must be a RspecFlaky::FlakyExamplesCollection, Array given!')
     end
   end
 

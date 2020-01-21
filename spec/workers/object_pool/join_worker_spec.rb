@@ -10,7 +10,7 @@ describe ObjectPool::JoinWorker do
   subject { described_class.new }
 
   describe '#perform' do
-    context "when the pool is not joinable" do
+    context 'when the pool is not joinable' do
       let(:pool) { create(:pool_repository, :scheduled) }
 
       it "doesn't raise an error" do

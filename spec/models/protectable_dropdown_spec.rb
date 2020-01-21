@@ -9,7 +9,7 @@ describe ProtectableDropdown do
   describe 'initialize' do
     it 'raises ArgumentError for invalid ref type' do
       expect { described_class.new(double, :foo) }
-        .to raise_error(ArgumentError, "invalid ref type `foo`")
+        .to raise_error(ArgumentError, 'invalid ref type `foo`')
     end
   end
 
@@ -21,7 +21,7 @@ describe ProtectableDropdown do
     it { expect(subject.protectable_ref_names).to include('feature') }
     it { expect(subject.protectable_ref_names).not_to include('master') }
 
-    it "includes branches matching a protected branch wildcard" do
+    it 'includes branches matching a protected branch wildcard' do
       expect(subject.protectable_ref_names).to include('feature')
 
       create(:protected_branch, name: 'feat*', project: project)

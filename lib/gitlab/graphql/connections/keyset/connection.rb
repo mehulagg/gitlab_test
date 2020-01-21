@@ -61,7 +61,7 @@ module Gitlab
 
           def load_paged_nodes
             if first && last
-              raise Gitlab::Graphql::Errors::ArgumentError.new("Can only provide either `first` or `last`, not both")
+              raise Gitlab::Graphql::Errors::ArgumentError.new('Can only provide either `first` or `last`, not both')
             end
 
             if last
@@ -130,7 +130,7 @@ module Gitlab
           def ordering_from_encoded_json(cursor)
             JSON.parse(decode(cursor))
           rescue JSON::ParserError
-            raise Gitlab::Graphql::Errors::ArgumentError, "Please provide a valid cursor"
+            raise Gitlab::Graphql::Errors::ArgumentError, 'Please provide a valid cursor'
           end
         end
       end

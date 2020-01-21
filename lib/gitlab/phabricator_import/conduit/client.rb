@@ -21,7 +21,7 @@ module Gitlab
         attr_reader :phabricator_url, :api_token
 
         def headers
-          { "Accept" => 'application/json' }
+          { 'Accept' => 'application/json' }
         end
 
         def build_url(path)
@@ -31,7 +31,7 @@ module Gitlab
         def build_params(params)
           params = params.dup
           params.compact!
-          params.reverse_merge!("api.token" => api_token)
+          params.reverse_merge!('api.token' => api_token)
 
           CGI.unescape(params.to_query)
         end

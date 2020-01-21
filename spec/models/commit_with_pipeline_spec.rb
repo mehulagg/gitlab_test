@@ -92,7 +92,7 @@ describe CommitWithPipeline do
     end
   end
 
-  describe "#status" do
+  describe '#status' do
     it 'returns the status of the latest pipeline for the given ref' do
       expect(commit)
         .to receive(:latest_pipeline)

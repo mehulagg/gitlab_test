@@ -47,7 +47,7 @@ describe API::Triggers do
             subject
 
             expect(response).to have_http_status(400)
-            expect(json_response['message']).to eq("base" => ["Insufficient permissions to create a new pipeline"])
+            expect(json_response['message']).to eq('base' => ['Insufficient permissions to create a new pipeline'])
           end
         end
 

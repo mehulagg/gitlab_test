@@ -174,12 +174,12 @@ describe 'Rack Attack global throttles' do
 
   describe 'API requests authenticated with OAuth token', :api do
     let(:user) { create(:user) }
-    let(:application) { Doorkeeper::Application.create!(name: "MyApp", redirect_uri: "https://app.com", owner: user) }
-    let(:token) { Doorkeeper::AccessToken.create!(application_id: application.id, resource_owner_id: user.id, scopes: "api") }
+    let(:application) { Doorkeeper::Application.create!(name: 'MyApp', redirect_uri: 'https://app.com', owner: user) }
+    let(:token) { Doorkeeper::AccessToken.create!(application_id: application.id, resource_owner_id: user.id, scopes: 'api') }
 
     let(:other_user) { create(:user) }
-    let(:other_user_application) { Doorkeeper::Application.create!(name: "MyApp", redirect_uri: "https://app.com", owner: other_user) }
-    let(:other_user_token) { Doorkeeper::AccessToken.create!(application_id: application.id, resource_owner_id: other_user.id, scopes: "api") }
+    let(:other_user_application) { Doorkeeper::Application.create!(name: 'MyApp', redirect_uri: 'https://app.com', owner: other_user) }
+    let(:other_user_token) { Doorkeeper::AccessToken.create!(application_id: application.id, resource_owner_id: other_user.id, scopes: 'api') }
 
     let(:throttle_setting_prefix) { 'throttle_authenticated_api' }
     let(:api_partial_url) { '/todos' }

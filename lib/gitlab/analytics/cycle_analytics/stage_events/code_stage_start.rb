@@ -6,7 +6,7 @@ module Gitlab
       module StageEvents
         class CodeStageStart < StageEvent
           def self.name
-            s_("CycleAnalyticsEvent|Issue first mentioned in a commit")
+            s_('CycleAnalyticsEvent|Issue first mentioned in a commit')
           end
 
           def self.identifier

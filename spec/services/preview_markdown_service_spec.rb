@@ -34,7 +34,7 @@ describe PreviewMarkdownService do
     let(:service) { described_class.new(project, user, params) }
 
     context 'when preview markdown param is present' do
-      let(:path) { "files/ruby/popen.rb" }
+      let(:path) { 'files/ruby/popen.rb' }
       let(:line) { 10 }
       let(:diff_refs) { merge_request.diff_refs }
 

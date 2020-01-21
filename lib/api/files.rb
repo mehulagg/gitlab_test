@@ -7,7 +7,7 @@ module API
     FILE_ENDPOINT_REQUIREMENTS = API::NAMESPACE_OR_PROJECT_REQUIREMENTS.merge(file_path: API::NO_SLASH_URL_PART_REGEX)
 
     # Prevents returning plain/text responses for files with .txt extension
-    after_validation { content_type "application/json" }
+    after_validation { content_type 'application/json' }
 
     helpers ::API::Helpers::HeadersHelpers
 
@@ -51,7 +51,7 @@ module API
           file_name: @blob.name,
           file_path: @blob.path,
           size: @blob.size,
-          encoding: "base64",
+          encoding: 'base64',
           content_sha256: Digest::SHA256.hexdigest(@blob.data),
           ref: params[:ref],
           blob_id: @blob.id,
@@ -88,7 +88,7 @@ module API
         requires :file_path, type: String, desc: 'The url encoded path to the file. Ex. lib%2Fclass%2Erb'
         requires :ref, type: String, desc: 'The name of branch, tag or commit', allow_blank: false
       end
-      head ":id/repository/files/:file_path/blame", requirements: FILE_ENDPOINT_REQUIREMENTS do
+      head ':id/repository/files/:file_path/blame', requirements: FILE_ENDPOINT_REQUIREMENTS do
         assign_file_vars!
 
         set_http_headers(blob_data)
@@ -99,7 +99,7 @@ module API
         requires :file_path, type: String, desc: 'The url encoded path to the file. Ex. lib%2Fclass%2Erb'
         requires :ref, type: String, desc: 'The name of branch, tag or commit', allow_blank: false
       end
-      get ":id/repository/files/:file_path/blame", requirements: FILE_ENDPOINT_REQUIREMENTS do
+      get ':id/repository/files/:file_path/blame', requirements: FILE_ENDPOINT_REQUIREMENTS do
         assign_file_vars!
 
         set_http_headers(blob_data)
@@ -113,7 +113,7 @@ module API
         requires :file_path, type: String, desc: 'The url encoded path to the file. Ex. lib%2Fclass%2Erb'
         requires :ref, type: String, desc: 'The name of branch, tag or commit', allow_blank: false
       end
-      head ":id/repository/files/:file_path/raw", requirements: FILE_ENDPOINT_REQUIREMENTS do
+      head ':id/repository/files/:file_path/raw', requirements: FILE_ENDPOINT_REQUIREMENTS do
         assign_file_vars!
 
         set_http_headers(blob_data)
@@ -124,7 +124,7 @@ module API
         requires :file_path, type: String, desc: 'The url encoded path to the file. Ex. lib%2Fclass%2Erb'
         requires :ref, type: String, desc: 'The name of branch, tag commit', allow_blank: false
       end
-      get ":id/repository/files/:file_path/raw", requirements: FILE_ENDPOINT_REQUIREMENTS do
+      get ':id/repository/files/:file_path/raw', requirements: FILE_ENDPOINT_REQUIREMENTS do
         assign_file_vars!
 
         set_http_headers(blob_data)
@@ -137,7 +137,7 @@ module API
         requires :file_path, type: String, desc: 'The url encoded path to the file. Ex. lib%2Fclass%2Erb'
         requires :ref, type: String, desc: 'The name of branch, tag or commit', allow_blank: false
       end
-      head ":id/repository/files/:file_path", requirements: FILE_ENDPOINT_REQUIREMENTS do
+      head ':id/repository/files/:file_path', requirements: FILE_ENDPOINT_REQUIREMENTS do
         assign_file_vars!
 
         set_http_headers(blob_data)
@@ -148,7 +148,7 @@ module API
         requires :file_path, type: String, desc: 'The url encoded path to the file. Ex. lib%2Fclass%2Erb'
         requires :ref, type: String, desc: 'The name of branch, tag or commit', allow_blank: false
       end
-      get ":id/repository/files/:file_path", requirements: FILE_ENDPOINT_REQUIREMENTS do
+      get ':id/repository/files/:file_path', requirements: FILE_ENDPOINT_REQUIREMENTS do
         assign_file_vars!
 
         data = blob_data
@@ -162,7 +162,7 @@ module API
       params do
         use :extended_file_params
       end
-      post ":id/repository/files/:file_path", requirements: FILE_ENDPOINT_REQUIREMENTS do
+      post ':id/repository/files/:file_path', requirements: FILE_ENDPOINT_REQUIREMENTS do
         authorize! :push_code, user_project
 
         file_params = declared_params(include_missing: false)
@@ -180,7 +180,7 @@ module API
       params do
         use :extended_file_params
       end
-      put ":id/repository/files/:file_path", requirements: FILE_ENDPOINT_REQUIREMENTS do
+      put ':id/repository/files/:file_path', requirements: FILE_ENDPOINT_REQUIREMENTS do
         authorize! :push_code, user_project
 
         file_params = declared_params(include_missing: false)
@@ -204,7 +204,7 @@ module API
       params do
         use :simple_file_params
       end
-      delete ":id/repository/files/:file_path", requirements: FILE_ENDPOINT_REQUIREMENTS do
+      delete ':id/repository/files/:file_path', requirements: FILE_ENDPOINT_REQUIREMENTS do
         authorize! :push_code, user_project
 
         file_params = declared_params(include_missing: false)

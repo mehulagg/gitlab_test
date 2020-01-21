@@ -32,9 +32,9 @@ module Backup
 
     def gzip_cmd
       @gzip_cmd ||= if ENV['GZIP_RSYNCABLE'] == 'yes'
-                      "gzip --rsyncable -c -1"
+                      'gzip --rsyncable -c -1'
                     else
-                      "gzip -c -1"
+                      'gzip -c -1'
                     end
     end
   end

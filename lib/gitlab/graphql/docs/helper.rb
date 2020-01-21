@@ -39,9 +39,9 @@ module Gitlab
         # they should be added when queries are generated.
         def objects
           graphql_object_types.select do |object_type|
-            !object_type[:name]["Connection"] &&
-              !object_type[:name]["Edge"] &&
-              !object_type[:name]["__"]
+            !object_type[:name]['Connection'] &&
+              !object_type[:name]['Edge'] &&
+              !object_type[:name]['__']
           end
         end
       end

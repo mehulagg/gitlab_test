@@ -46,7 +46,7 @@ module Clusters
       end
 
       def values
-        { "domain" => hostname }.to_yaml
+        { 'domain' => hostname }.to_yaml
       end
 
       def allowed_to_uninstall?
@@ -95,7 +95,7 @@ module Clusters
 
       def delete_knative_services
         cluster.kubernetes_namespaces.map do |kubernetes_namespace|
-          Gitlab::Kubernetes::KubectlCmd.delete("ksvc", "--all", "-n", kubernetes_namespace.namespace)
+          Gitlab::Kubernetes::KubectlCmd.delete('ksvc', '--all', '-n', kubernetes_namespace.namespace)
         end
       end
 
@@ -105,8 +105,8 @@ module Clusters
 
       def delete_knative_namespaces
         [
-          Gitlab::Kubernetes::KubectlCmd.delete("--ignore-not-found", "ns", "knative-serving"),
-          Gitlab::Kubernetes::KubectlCmd.delete("--ignore-not-found", "ns", "knative-build")
+          Gitlab::Kubernetes::KubectlCmd.delete('--ignore-not-found', 'ns', 'knative-serving'),
+          Gitlab::Kubernetes::KubectlCmd.delete('--ignore-not-found', 'ns', 'knative-build')
         ]
       end
 
@@ -131,7 +131,7 @@ module Clusters
       def delete_knative_istio_metrics
         return [] unless cluster.application_prometheus_available?
 
-        [Gitlab::Kubernetes::KubectlCmd.delete("--ignore-not-found", "-f", METRICS_CONFIG)]
+        [Gitlab::Kubernetes::KubectlCmd.delete('--ignore-not-found', '-f', METRICS_CONFIG)]
       end
     end
   end

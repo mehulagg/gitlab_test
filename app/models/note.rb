@@ -69,8 +69,8 @@ class Note < ApplicationRecord
 
   belongs_to :project
   belongs_to :noteable, polymorphic: true # rubocop:disable Cop/PolymorphicAssociations
-  belongs_to :author, class_name: "User"
-  belongs_to :updated_by, class_name: "User"
+  belongs_to :author, class_name: 'User'
+  belongs_to :updated_by, class_name: 'User'
   belongs_to :last_edited_by, class_name: 'User'
 
   has_many :todos
@@ -114,10 +114,10 @@ class Note < ApplicationRecord
   mount_uploader :attachment, AttachmentUploader
 
   # Scopes
-  scope :for_commit_id, ->(commit_id) { where(noteable_type: "Commit", commit_id: commit_id) }
+  scope :for_commit_id, ->(commit_id) { where(noteable_type: 'Commit', commit_id: commit_id) }
   scope :system, -> { where(system: true) }
   scope :user, -> { where(system: false) }
-  scope :common, -> { where(noteable_type: ["", nil]) }
+  scope :common, -> { where(noteable_type: ['', nil]) }
   scope :fresh, -> { order(created_at: :asc, id: :asc) }
   scope :updated_after, ->(time) { where('updated_at > ?', time) }
   scope :inc_author_project, -> { includes(:project, :author) }
@@ -254,19 +254,19 @@ class Note < ApplicationRecord
   end
 
   def for_commit?
-    noteable_type == "Commit"
+    noteable_type == 'Commit'
   end
 
   def for_issue?
-    noteable_type == "Issue"
+    noteable_type == 'Issue'
   end
 
   def for_merge_request?
-    noteable_type == "MergeRequest"
+    noteable_type == 'MergeRequest'
   end
 
   def for_snippet?
-    noteable_type == "Snippet"
+    noteable_type == 'Snippet'
   end
 
   def for_personal_snippet?

@@ -79,24 +79,24 @@ describe Groups::ContributionAnalyticsController do
     expect(stats[:push][:data]).to eq([1, 0, 1])
   end
 
-  it "returns member contributions JSON when format is JSON" do
+  it 'returns member contributions JSON when format is JSON' do
     get :show, params: { group_id: group.path }, format: :json
 
     expect(json_response.length).to eq(3)
 
     first_user = json_response.at(0)
-    expect(first_user["username"]).to eq(user.username)
-    expect(first_user["user_web_url"]).to eq("/#{user.username}")
-    expect(first_user["fullname"]).to eq(user.name)
-    expect(first_user["push"]).to eq(1)
-    expect(first_user["issues_created"]).to eq(0)
-    expect(first_user["issues_closed"]).to eq(1)
-    expect(first_user["merge_requests_created"]).to eq(0)
-    expect(first_user["merge_requests_merged"]).to eq(0)
-    expect(first_user["total_events"]).to eq(2)
+    expect(first_user['username']).to eq(user.username)
+    expect(first_user['user_web_url']).to eq("/#{user.username}")
+    expect(first_user['fullname']).to eq(user.name)
+    expect(first_user['push']).to eq(1)
+    expect(first_user['issues_created']).to eq(0)
+    expect(first_user['issues_closed']).to eq(1)
+    expect(first_user['merge_requests_created']).to eq(0)
+    expect(first_user['merge_requests_merged']).to eq(0)
+    expect(first_user['total_events']).to eq(2)
   end
 
-  it "includes projects in subgroups" do
+  it 'includes projects in subgroups' do
     subgroup = create(:group, parent: group)
     subproject = create(:project, :repository, group: subgroup)
 
@@ -106,11 +106,11 @@ describe Groups::ContributionAnalyticsController do
     get :show, params: { group_id: group.path }, format: :json
 
     first_user = json_response.first
-    expect(first_user["issues_closed"]).to eq(2)
-    expect(first_user["push"]).to eq(2)
+    expect(first_user['issues_closed']).to eq(2)
+    expect(first_user['push']).to eq(2)
   end
 
-  it "excludes projects outside of the group" do
+  it 'excludes projects outside of the group' do
     empty_group = create(:group)
     other_project = create(:project, :repository)
 

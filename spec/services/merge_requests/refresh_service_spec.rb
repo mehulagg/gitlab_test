@@ -98,7 +98,7 @@ describe MergeRequests::RefreshService do
         refresh_service.execute(@oldrev, @newrev, 'refs/heads/master')
 
         expect { refresh_service.execute(@oldrev, @newrev, 'refs/heads/master') }.to change {
-          refresh_service.instance_variable_get("@source_merge_requests").first.merge_request_diff
+          refresh_service.instance_variable_get('@source_merge_requests').first.merge_request_diff
         }
       end
 
@@ -156,7 +156,7 @@ describe MergeRequests::RefreshService do
       let(:ref) { 'refs/heads/master' }
       let(:project) { @project }
 
-      context "when .gitlab-ci.yml has merge_requests keywords" do
+      context 'when .gitlab-ci.yml has merge_requests keywords' do
         let(:config) do
           {
             test: {
@@ -222,7 +222,7 @@ describe MergeRequests::RefreshService do
           end
         end
 
-        context "when branch pipeline was created before a detaced merge request pipeline has been created" do
+        context 'when branch pipeline was created before a detaced merge request pipeline has been created' do
           before do
             create(:ci_pipeline, project: @merge_request.source_project,
                                  sha: @merge_request.diff_head_sha,
@@ -244,7 +244,7 @@ describe MergeRequests::RefreshService do
           end
         end
 
-        context "when MergeRequestUpdateWorker is retried by an exception" do
+        context 'when MergeRequestUpdateWorker is retried by an exception' do
           it 'does not re-create a duplicate detached merge request pipeline' do
             expect do
               service.new(@project, @user).execute(@oldrev, @newrev, 'refs/heads/master')
@@ -257,7 +257,7 @@ describe MergeRequests::RefreshService do
         end
       end
 
-      context "when .gitlab-ci.yml does not have merge_requests keywords" do
+      context 'when .gitlab-ci.yml does not have merge_requests keywords' do
         let(:config) do
           {
             test: {
@@ -653,7 +653,7 @@ describe MergeRequests::RefreshService do
 
       it 'does not mark as WIP based on commits that do not belong to an MR' do
         allow(refresh_service).to receive(:find_new_commits)
-        refresh_service.instance_variable_set("@commits", [
+        refresh_service.instance_variable_set('@commits', [
           double(
             id: 'aaaaaaa',
             sha: 'aaaaaaa',
@@ -745,7 +745,7 @@ describe MergeRequests::RefreshService do
         stub_feature_flags(branch_push_merge_commit_analyze: false)
       end
 
-      it "does not trigger analysis" do
+      it 'does not trigger analysis' do
         expect(Gitlab::BranchPushMergeCommitAnalyzer).not_to receive(:new)
 
         subject

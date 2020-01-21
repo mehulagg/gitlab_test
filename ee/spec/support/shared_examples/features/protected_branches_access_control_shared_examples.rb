@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "protected branches > access control > EE" do
+RSpec.shared_examples 'protected branches > access control > EE' do
   %w[merge push].each do |git_operation|
     # Need to set a default for the `git_operation` access level that _isn't_ being tested
     other_git_operation = git_operation == 'merge' ? 'push' : 'merge'
@@ -27,9 +27,9 @@ RSpec.shared_examples "protected branches > access control > EE" do
       roles_except_noone.each { |(_, access_type_name)| set_allowed_to(git_operation, access_type_name) }
       set_allowed_to(other_git_operation)
 
-      click_on "Protect"
+      click_on 'Protect'
 
-      within(".protected-branches-list") { expect(page).to have_content('master') }
+      within('.protected-branches-list') { expect(page).to have_content('master') }
       expect(ProtectedBranch.count).to eq(1)
 
       access_levels = last_access_levels(git_operation)
@@ -44,11 +44,11 @@ RSpec.shared_examples "protected branches > access control > EE" do
       set_allowed_to('merge')
       set_allowed_to('push')
 
-      click_on "Protect"
+      click_on 'Protect'
 
-      set_allowed_to(git_operation, users.map(&:name), form: ".js-protected-branch-edit-form")
-      set_allowed_to(git_operation, groups.map(&:name), form: ".js-protected-branch-edit-form")
-      roles_except_noone.each { |(_, access_type_name)| set_allowed_to(git_operation, access_type_name, form: ".js-protected-branch-edit-form") }
+      set_allowed_to(git_operation, users.map(&:name), form: '.js-protected-branch-edit-form')
+      set_allowed_to(git_operation, groups.map(&:name), form: '.js-protected-branch-edit-form')
+      roles_except_noone.each { |(_, access_type_name)| set_allowed_to(git_operation, access_type_name, form: '.js-protected-branch-edit-form') }
 
       wait_for_requests
 
@@ -69,11 +69,11 @@ RSpec.shared_examples "protected branches > access control > EE" do
       groups.each { |group| set_allowed_to(git_operation, group.name) }
       set_allowed_to(other_git_operation)
 
-      click_on "Protect"
+      click_on 'Protect'
 
-      users.each { |user| set_allowed_to(git_operation, user.name, form: ".js-protected-branch-edit-form") }
-      groups.each { |group| set_allowed_to(git_operation, group.name, form: ".js-protected-branch-edit-form") }
-      roles_except_noone.each { |(_, access_type_name)| set_allowed_to(git_operation, access_type_name, form: ".js-protected-branch-edit-form") }
+      users.each { |user| set_allowed_to(git_operation, user.name, form: '.js-protected-branch-edit-form') }
+      groups.each { |group| set_allowed_to(git_operation, group.name, form: '.js-protected-branch-edit-form') }
+      roles_except_noone.each { |(_, access_type_name)| set_allowed_to(git_operation, access_type_name, form: '.js-protected-branch-edit-form') }
 
       wait_for_requests
 
@@ -97,9 +97,9 @@ RSpec.shared_examples "protected branches > access control > EE" do
       click_on 'Protect'
 
       # Update Protected Branch
-      within(".protected-branches-list") do
+      within('.protected-branches-list') do
         find(".js-allowed-to-#{git_operation}").click
-        find(".dropdown-input-field").set(users.last.name) # Find a user that is not loaded
+        find('.dropdown-input-field').set(users.last.name) # Find a user that is not loaded
         wait_for_requests
 
         %w{Roles Groups Users}.each do |header|
@@ -131,7 +131,7 @@ RSpec.shared_examples "protected branches > access control > EE" do
       set_protected_branch_name('fix')
       set_allowed_to('merge')
       set_allowed_to('push', roles.values)
-      click_on "Protect"
+      click_on 'Protect'
       wait_for_requests
 
       roles.each do |(access_type_id, _)|
@@ -158,7 +158,7 @@ RSpec.shared_examples "protected branches > access control > EE" do
       set_protected_branch_name('master')
       set_allowed_to('merge')
       set_allowed_to('push', ProtectedRefAccess::HUMAN_ACCESS_LEVELS.values) # Last item (No one) should deselect the other ones
-      click_on "Protect"
+      click_on 'Protect'
       wait_for_requests
 
       access_levels = last_access_levels('push')

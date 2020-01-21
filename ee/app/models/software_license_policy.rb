@@ -33,7 +33,7 @@ class SoftwareLicensePolicy < ApplicationRecord
   # A license is unique for its project since it can't be approved and denied.
   validates :software_license, uniqueness: { scope: :project_id }
 
-  scope :ordered, -> { SoftwareLicensePolicy.includes(:software_license).order("software_licenses.name ASC") }
+  scope :ordered, -> { SoftwareLicensePolicy.includes(:software_license).order('software_licenses.name ASC') }
   scope :for_project, -> (project) { where(project: project) }
   scope :with_license, -> { joins(:software_license) }
   scope :including_license, -> { includes(:software_license) }

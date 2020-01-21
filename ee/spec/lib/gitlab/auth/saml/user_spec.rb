@@ -135,11 +135,11 @@ describe Gitlab::Auth::Saml::User do
           end
 
           it 'blocks non-members' do
-            orig_groups = auth_hash.extra.raw_info["groups"]
-            auth_hash.extra.raw_info.add("groups", "ArchitectureAstronauts")
+            orig_groups = auth_hash.extra.raw_info['groups']
+            auth_hash.extra.raw_info.add('groups', 'ArchitectureAstronauts')
             stub_saml_required_group_config(%w(ArchitectureAstronauts))
             saml_user.save
-            auth_hash.extra.raw_info.set("groups", orig_groups)
+            auth_hash.extra.raw_info.set('groups', orig_groups)
 
             expect(saml_user.find_user).to be_ldap_blocked
           end

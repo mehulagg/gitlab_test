@@ -6,13 +6,13 @@ describe Gitlab::SidekiqLogging::ExceptionHandler do
   describe '#call' do
     let(:job) do
       {
-        "class" => "TestWorker",
-        "args" => [1234, 'hello'],
-        "retry" => false,
-        "queue" => "cronjob:test_queue",
-        "queue_namespace" => "cronjob",
-        "jid" => "da883554ee4fe414012f5f42",
-        "correlation_id" => 'cid'
+        'class' => 'TestWorker',
+        'args' => [1234, 'hello'],
+        'retry' => false,
+        'queue' => 'cronjob:test_queue',
+        'queue_namespace' => 'cronjob',
+        'jid' => 'da883554ee4fe414012f5f42',
+        'correlation_id' => 'cid'
       }
     end
 

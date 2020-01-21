@@ -15,7 +15,7 @@ describe 'User promotes milestone' do
       visit(project_milestones_path(project))
     end
 
-    it "shows milestone promote button" do
+    it 'shows milestone promote button' do
       expect(page).to have_selector('.js-promote-project-milestone-button')
     end
   end
@@ -27,7 +27,7 @@ describe 'User promotes milestone' do
       visit(project_milestones_path(project))
     end
 
-    it "does not show milestone promote button" do
+    it 'does not show milestone promote button' do
       expect(page).not_to have_selector('.js-promote-project-milestone-button')
     end
   end

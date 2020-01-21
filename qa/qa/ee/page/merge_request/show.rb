@@ -10,7 +10,7 @@ module QA
           def self.prepended(page)
             page.module_eval do
               view 'app/assets/javascripts/vue_merge_request_widget/components/states/sha_mismatch.vue' do
-                element :head_mismatch, "The source branch HEAD has recently changed." # rubocop:disable QA/ElementWithPattern
+                element :head_mismatch, 'The source branch HEAD has recently changed.' # rubocop:disable QA/ElementWithPattern
               end
 
               view 'ee/app/assets/javascripts/batch_comments/components/publish_button.vue' do
@@ -111,7 +111,7 @@ module QA
           def click_approve
             click_element :approve_button
 
-            find_element :approve_button, text: "Revoke approval"
+            find_element :approve_button, text: 'Revoke approval'
           end
 
           def start_review
@@ -165,7 +165,7 @@ module QA
 
           def license_report_expanded?
             within_element(:license_report_widget) do
-              has_element?(:expand_report_button, text: "Collapse")
+              has_element?(:expand_report_button, text: 'Collapse')
             end
           end
 
@@ -236,7 +236,7 @@ module QA
               finished_loading?
               has_element?(:vulnerability_report_grouped, wait: 10)
             end
-            find_element(:vulnerability_report_grouped).has_no_content?("is loading")
+            find_element(:vulnerability_report_grouped).has_no_content?('is loading')
           end
 
           def has_vulnerability_count?
@@ -287,9 +287,9 @@ module QA
           end
 
           def merge_via_merge_train
-            raise ElementNotFound, "Not ready to merge" unless ready_to_merge?
+            raise ElementNotFound, 'Not ready to merge' unless ready_to_merge?
 
-            click_element(:merge_button, text: "Start merge train")
+            click_element(:merge_button, text: 'Start merge train')
           end
 
           private

@@ -34,7 +34,7 @@ describe Search::GlobalService do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           update_feature_access_level(project, feature_access_level)
           Gitlab::Elastic::Helper.refresh_index
 
@@ -64,7 +64,7 @@ describe Search::GlobalService do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           update_feature_access_level(project, feature_access_level)
           ElasticCommitIndexerWorker.new.perform(project.id)
           Gitlab::Elastic::Helper.refresh_index
@@ -93,7 +93,7 @@ describe Search::GlobalService do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           update_feature_access_level(project, feature_access_level)
           Gitlab::Elastic::Helper.refresh_index
 
@@ -116,7 +116,7 @@ describe Search::GlobalService do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           project.wiki.create_page('test.md', '# term')
           project.wiki.index_wiki_blobs
           update_feature_access_level(project, feature_access_level)
@@ -137,7 +137,7 @@ describe Search::GlobalService do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           project.update!(
             'issues_access_level' => issues_access_level,
             'merge_requests_access_level' => merge_requests_access_level
@@ -157,7 +157,7 @@ describe Search::GlobalService do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           ElasticCommitIndexerWorker.new.perform(project.id)
           Gitlab::Elastic::Helper.refresh_index
 

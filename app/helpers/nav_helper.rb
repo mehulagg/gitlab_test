@@ -35,7 +35,7 @@ module NavHelper
   end
 
   def nav_control_class
-    "nav-control" if current_user
+    'nav-control' if current_user
   end
 
   def user_dropdown_class

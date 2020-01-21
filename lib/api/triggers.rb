@@ -16,7 +16,7 @@ module API
         requires :token, type: String, desc: 'The unique token of trigger or job token'
         optional :variables, type: Hash, desc: 'The list of variables to be injected into build'
       end
-      post ":id/(ref/:ref/)trigger/pipeline", requirements: { ref: /.+/ } do
+      post ':id/(ref/:ref/)trigger/pipeline', requirements: { ref: /.+/ } do
         Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42283')
 
         # validate variables

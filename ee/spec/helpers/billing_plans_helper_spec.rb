@@ -18,7 +18,7 @@ describe BillingPlansHelper do
   end
 
   describe '#subscription_plan_data_attributes' do
-    let(:customer_portal_url) { "https://customers.gitlab.com/subscriptions" }
+    let(:customer_portal_url) { 'https://customers.gitlab.com/subscriptions' }
 
     let(:group) { build(:group) }
     let(:plan) do

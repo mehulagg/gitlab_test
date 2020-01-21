@@ -9,7 +9,7 @@ describe Gitlab::Metrics::Dashboard::ServiceSelector do
     subject { described_class.call(arguments) }
 
     context 'when cluster is provided' do
-      let(:arguments) { { cluster: "some cluster" } }
+      let(:arguments) { { cluster: 'some cluster' } }
 
       it { is_expected.to be Metrics::Dashboard::ClusterDashboardService }
     end

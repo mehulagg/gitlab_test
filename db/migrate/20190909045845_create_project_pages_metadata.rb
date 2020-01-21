@@ -8,7 +8,7 @@ class CreateProjectPagesMetadata < ActiveRecord::Migration[5.2]
       t.references :project, null: false, index: { unique: true }, foreign_key: { on_delete: :cascade }
       t.boolean :deployed, null: false, default: false
 
-      t.index :project_id, name: 'index_project_pages_metadata_on_project_id_and_deployed_is_true', where: "deployed = TRUE"
+      t.index :project_id, name: 'index_project_pages_metadata_on_project_id_and_deployed_is_true', where: 'deployed = TRUE'
     end
   end
 end

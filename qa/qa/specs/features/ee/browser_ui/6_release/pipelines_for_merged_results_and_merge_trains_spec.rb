@@ -72,7 +72,7 @@ module QA
             show.has_pipeline_status?(/Merged result pipeline #\d+ passed/)
           end
 
-          expect(pipeline_passed).to be_truthy, "Expected the merged result pipeline to pass."
+          expect(pipeline_passed).to be_truthy, 'Expected the merged result pipeline to pass.'
 
           # The default option is to merge via merge train,
           # but that is covered by the 'merges via a merge train' test
@@ -93,7 +93,7 @@ module QA
           project_push.new_branch = true
           project_push.branch_name = branch_name
           project_push.file_name = "file-#{SecureRandom.hex(8)}.txt"
-          project_push.file_content = "merge me"
+          project_push.file_content = 'merge me'
         end
 
         # Create a merge request to merge the branch we just created
@@ -108,7 +108,7 @@ module QA
             show.has_pipeline_status?(/Merged result pipeline #\d+ passed/)
           end
 
-          expect(pipeline_passed).to be_truthy, "Expected the merged result pipeline to pass."
+          expect(pipeline_passed).to be_truthy, 'Expected the merged result pipeline to pass.'
 
           show.merge_via_merge_train
 

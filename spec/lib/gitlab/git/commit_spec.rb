@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe Gitlab::Git::Commit, :seed_helper do
   include GitHelpers
@@ -12,18 +12,18 @@ describe Gitlab::Git::Commit, :seed_helper do
   let(:commit) { described_class.find(repository, SeedRepo::Commit::ID) }
   let(:rugged_commit) { rugged_repo.lookup(SeedRepo::Commit::ID) }
 
-  describe "Commit info" do
+  describe 'Commit info' do
     before do
       @committer = {
         email: 'mike@smith.com',
-        name: "Mike Smith",
-        time: Time.new(2000, 1, 1, 0, 0, 0, "+08:00")
+        name: 'Mike Smith',
+        time: Time.new(2000, 1, 1, 0, 0, 0, '+08:00')
       }
 
       @author = {
         email: 'john@smith.com',
-        name: "John Smith",
-        time: Time.new(2000, 1, 1, 0, 0, 0, "-08:00")
+        name: 'John Smith',
+        time: Time.new(2000, 1, 1, 0, 0, 0, '-08:00')
       }
 
       @parents = [rugged_repo.head.target]
@@ -36,8 +36,8 @@ describe Gitlab::Git::Commit, :seed_helper do
         committer: @committer,
         tree: @tree,
         parents: @parents,
-        message: "Refactoring specs",
-        update_ref: "HEAD"
+        message: 'Refactoring specs',
+        update_ref: 'HEAD'
       )
 
       @raw_commit = rugged_repo.lookup(sha)
@@ -57,17 +57,17 @@ describe Gitlab::Git::Commit, :seed_helper do
     it { expect(@commit.different_committer?).to be_truthy }
     it { expect(@commit.parents).to eq(@gitlab_parents) }
     it { expect(@commit.parent_id).to eq(@parents.first.oid) }
-    it { expect(@commit.no_commit_message).to eq("No commit message") }
+    it { expect(@commit.no_commit_message).to eq('No commit message') }
 
     after do
       # Erase the new commit so other tests get the original repo
-      rugged_repo.references.update("refs/heads/master", SeedRepo::LastCommit::ID)
+      rugged_repo.references.update('refs/heads/master', SeedRepo::LastCommit::ID)
     end
   end
 
-  describe "Commit info from gitaly commit" do
-    let(:subject) { (+"My commit").force_encoding('ASCII-8BIT') }
-    let(:body) { subject + (+"My body").force_encoding('ASCII-8BIT') }
+  describe 'Commit info from gitaly commit' do
+    let(:subject) { (+'My commit').force_encoding('ASCII-8BIT') }
+    let(:body) { subject + (+'My body').force_encoding('ASCII-8BIT') }
     let(:body_size) { body.length }
     let(:gitaly_commit) { build(:gitaly_commit, subject: subject, body: body, body_size: body_size) }
     let(:id) { gitaly_commit.id }
@@ -101,7 +101,7 @@ describe Gitlab::Git::Commit, :seed_helper do
     end
 
     context 'body_size != body.size' do
-      let(:body) { (+"").force_encoding('ASCII-8BIT') }
+      let(:body) { (+'').force_encoding('ASCII-8BIT') }
 
       context 'zero body_size' do
         it { expect(commit.safe_message).to eq(subject) }
@@ -129,36 +129,36 @@ describe Gitlab::Git::Commit, :seed_helper do
 
   context 'Class methods' do
     shared_examples '.find' do
-      it "returns first head commit if without params" do
+      it 'returns first head commit if without params' do
         expect(described_class.last(repository).id).to eq(
           rugged_repo.head.target.oid
         )
       end
 
-      it "returns valid commit" do
+      it 'returns valid commit' do
         expect(described_class.find(repository, SeedRepo::Commit::ID)).to be_valid_commit
       end
 
-      it "returns an array of parent ids" do
+      it 'returns an array of parent ids' do
         expect(described_class.find(repository, SeedRepo::Commit::ID).parent_ids).to be_an(Array)
       end
 
-      it "returns valid commit for tag" do
+      it 'returns valid commit for tag' do
         expect(described_class.find(repository, 'v1.0.0').id).to eq('6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9')
       end
 
-      it "returns nil for non-commit ids" do
-        blob = Gitlab::Git::Blob.find(repository, SeedRepo::Commit::ID, "files/ruby/popen.rb")
+      it 'returns nil for non-commit ids' do
+        blob = Gitlab::Git::Blob.find(repository, SeedRepo::Commit::ID, 'files/ruby/popen.rb')
         expect(described_class.find(repository, blob.id)).to be_nil
       end
 
-      it "returns nil for parent of non-commit object" do
-        blob = Gitlab::Git::Blob.find(repository, SeedRepo::Commit::ID, "files/ruby/popen.rb")
+      it 'returns nil for parent of non-commit object' do
+        blob = Gitlab::Git::Blob.find(repository, SeedRepo::Commit::ID, 'files/ruby/popen.rb')
         expect(described_class.find(repository, "#{blob.id}^")).to be_nil
       end
 
-      it "returns nil for nonexisting ids" do
-        expect(described_class.find(repository, "+123_4532530XYZ")).to be_nil
+      it 'returns nil for nonexisting ids' do
+        expect(described_class.find(repository, '+123_4532530XYZ')).to be_nil
       end
 
       context 'with broken repo' do
@@ -270,15 +270,15 @@ describe Gitlab::Git::Commit, :seed_helper do
       it 'has 3 elements' do
         expect(subject.size).to eq(3)
       end
-      it { is_expected.to include("d14d6c0abdd253381df51a723d58691b2ee1ab08") }
-      it { is_expected.not_to include("eb49186cfa5c4338011f5f590fac11bd66c5c631") }
+      it { is_expected.to include('d14d6c0abdd253381df51a723d58691b2ee1ab08') }
+      it { is_expected.not_to include('eb49186cfa5c4338011f5f590fac11bd66c5c631') }
     end
 
     context 'ref is commit id' do
       subject do
         commits = described_class.where(
           repo: repository,
-          ref: "874797c3a73b60d2187ed6e2fcabd289ff75171e",
+          ref: '874797c3a73b60d2187ed6e2fcabd289ff75171e',
           path: 'files',
           limit: 3,
           offset: 1
@@ -290,7 +290,7 @@ describe Gitlab::Git::Commit, :seed_helper do
       it 'has 3 elements' do
         expect(subject.size).to eq(3)
       end
-      it { is_expected.to include("2f63565e7aac07bcdadb654e253078b727143ec4") }
+      it { is_expected.to include('2f63565e7aac07bcdadb654e253078b727143ec4') }
       it { is_expected.not_to include(SeedRepo::Commit::ID) }
     end
 
@@ -310,7 +310,7 @@ describe Gitlab::Git::Commit, :seed_helper do
       it 'has 3 elements' do
         expect(subject.size).to eq(3)
       end
-      it { is_expected.to include("874797c3a73b60d2187ed6e2fcabd289ff75171e") }
+      it { is_expected.to include('874797c3a73b60d2187ed6e2fcabd289ff75171e') }
       it { is_expected.not_to include(SeedRepo::Commit::ID) }
     end
 
@@ -638,8 +638,8 @@ describe Gitlab::Git::Commit, :seed_helper do
     it 'has 2 element' do
       expect(subject.size).to eq(2)
     end
-    it { is_expected.to include("master") }
-    it { is_expected.not_to include("feature") }
+    it { is_expected.to include('master') }
+    it { is_expected.not_to include('feature') }
   end
 
   describe '.get_message' do
@@ -663,15 +663,15 @@ describe Gitlab::Git::Commit, :seed_helper do
 
   def sample_commit_hash
     {
-      author_email: "dmitriy.zaporozhets@gmail.com",
-      author_name: "Dmitriy Zaporozhets",
-      authored_date: "2012-02-27 20:51:12 +0200",
-      committed_date: "2012-02-27 20:51:12 +0200",
-      committer_email: "dmitriy.zaporozhets@gmail.com",
-      committer_name: "Dmitriy Zaporozhets",
+      author_email: 'dmitriy.zaporozhets@gmail.com',
+      author_name: 'Dmitriy Zaporozhets',
+      authored_date: '2012-02-27 20:51:12 +0200',
+      committed_date: '2012-02-27 20:51:12 +0200',
+      committer_email: 'dmitriy.zaporozhets@gmail.com',
+      committer_name: 'Dmitriy Zaporozhets',
       id: SeedRepo::Commit::ID,
-      message: "tree css fixes",
-      parent_ids: ["874797c3a73b60d2187ed6e2fcabd289ff75171e"]
+      message: 'tree css fixes',
+      parent_ids: ['874797c3a73b60d2187ed6e2fcabd289ff75171e']
     }
   end
 end

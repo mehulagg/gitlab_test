@@ -20,7 +20,7 @@ describe Search::GroupService, :elastic do
   end
 
   describe 'group search' do
-    let(:term) { "Project Name" }
+    let(:term) { 'Project Name' }
     let(:nested_group) { create(:group, :nested) }
 
     # These projects shouldn't be found
@@ -92,7 +92,7 @@ describe Search::GroupService, :elastic do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           [project, project2].each do |project|
             update_feature_access_level(project, feature_access_level)
           end
@@ -126,7 +126,7 @@ describe Search::GroupService, :elastic do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           [project, project2].each do |project|
             update_feature_access_level(project, feature_access_level)
             ElasticCommitIndexerWorker.new.perform(project.id)
@@ -160,7 +160,7 @@ describe Search::GroupService, :elastic do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           [project, project2].each do |project|
             update_feature_access_level(project, feature_access_level)
           end
@@ -185,7 +185,7 @@ describe Search::GroupService, :elastic do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           project.wiki.create_page('test.md', '# term')
           project.wiki.index_wiki_blobs
           update_feature_access_level(project, feature_access_level)
@@ -206,7 +206,7 @@ describe Search::GroupService, :elastic do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           project.update!(
             'issues_access_level' => issues_access_level,
             'merge_requests_access_level' => merge_requests_access_level
@@ -228,7 +228,7 @@ describe Search::GroupService, :elastic do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           ElasticCommitIndexerWorker.new.perform(project.id)
           Gitlab::Elastic::Helper.refresh_index
 

@@ -13,7 +13,7 @@ describe Gitlab::CycleAnalytics::StageSummary do
 
   let(:stage_summary) { described_class.new(project, options).data }
 
-  describe "#new_issues" do
+  describe '#new_issues' do
     subject { stage_summary.first[:value] }
 
     it "finds the number of issues created after the 'from date'" do
@@ -41,7 +41,7 @@ describe Gitlab::CycleAnalytics::StageSummary do
         expect(subject).to eq(0)
       end
 
-      it "finds records created between `from` and `to` range" do
+      it 'finds records created between `from` and `to` range' do
         options[:from] = 10.days.ago
         options[:to] = 10.days.from_now
 
@@ -50,32 +50,32 @@ describe Gitlab::CycleAnalytics::StageSummary do
     end
   end
 
-  describe "#commits" do
+  describe '#commits' do
     subject { stage_summary.second[:value] }
 
     it "finds the number of commits created after the 'from date'" do
-      Timecop.freeze(5.days.ago) { create_commit("Test message", project, user, 'master') }
-      Timecop.freeze(5.days.from_now) { create_commit("Test message", project, user, 'master') }
+      Timecop.freeze(5.days.ago) { create_commit('Test message', project, user, 'master') }
+      Timecop.freeze(5.days.from_now) { create_commit('Test message', project, user, 'master') }
 
       expect(subject).to eq(1)
     end
 
     it "doesn't find commits from other projects" do
-      Timecop.freeze(5.days.from_now) { create_commit("Test message", create(:project, :repository), user, 'master') }
+      Timecop.freeze(5.days.from_now) { create_commit('Test message', create(:project, :repository), user, 'master') }
 
       expect(subject).to eq(0)
     end
 
-    it "finds a large (> 100) snumber of commits if present" do
-      Timecop.freeze(5.days.from_now) { create_commit("Test message", project, user, 'master', count: 100) }
+    it 'finds a large (> 100) snumber of commits if present' do
+      Timecop.freeze(5.days.from_now) { create_commit('Test message', project, user, 'master', count: 100) }
 
       expect(subject).to eq(100)
     end
 
     context 'when `to` parameter is given' do
       before do
-        Timecop.freeze(5.days.ago) { create_commit("Test message", project, user, 'master') }
-        Timecop.freeze(5.days.from_now) { create_commit("Test message", project, user, 'master') }
+        Timecop.freeze(5.days.ago) { create_commit('Test message', project, user, 'master') }
+        Timecop.freeze(5.days.from_now) { create_commit('Test message', project, user, 'master') }
       end
 
       it "doesn't find any record" do
@@ -84,7 +84,7 @@ describe Gitlab::CycleAnalytics::StageSummary do
         expect(subject).to eq(0)
       end
 
-      it "finds records created between `from` and `to` range" do
+      it 'finds records created between `from` and `to` range' do
         options[:from] = 10.days.ago
         options[:to] = 10.days.from_now
 
@@ -106,12 +106,12 @@ describe Gitlab::CycleAnalytics::StageSummary do
       end
 
       def includes_commits?(data)
-        data.any? { |h| h["title"] == 'Commits' }
+        data.any? { |h| h['title'] == 'Commits' }
       end
     end
   end
 
-  describe "#deploys" do
+  describe '#deploys' do
     subject { stage_summary.third[:value] }
 
     it "finds the number of deploys made created after the 'from date'" do
@@ -141,7 +141,7 @@ describe Gitlab::CycleAnalytics::StageSummary do
         expect(subject).to eq(0)
       end
 
-      it "finds records created between `from` and `to` range" do
+      it 'finds records created between `from` and `to` range' do
         options[:from] = 10.days.ago
         options[:to] = 10.days.from_now
 

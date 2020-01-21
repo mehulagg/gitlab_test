@@ -11,7 +11,7 @@
 class CertificateKeyValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     unless valid_private_key_pem?(value)
-      record.errors.add(attribute, "must be a valid PEM private key")
+      record.errors.add(attribute, 'must be a valid PEM private key')
     end
   end
 

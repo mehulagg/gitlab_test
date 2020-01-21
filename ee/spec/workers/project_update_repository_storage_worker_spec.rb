@@ -7,8 +7,8 @@ describe ProjectUpdateRepositoryStorageWorker do
 
   subject { described_class.new }
 
-  describe "#perform" do
-    it "calls the update repository storage service" do
+  describe '#perform' do
+    it 'calls the update repository storage service' do
       expect_any_instance_of(Projects::UpdateRepositoryStorageService)
         .to receive(:execute).with('new_storage')
 

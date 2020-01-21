@@ -317,14 +317,14 @@ describe EE::Gitlab::Auth::LDAP::Sync::Group do
           parent_group.add_maintainer(user)
         end
 
-        it "adds member with the inherited higher permission" do
+        it 'adds member with the inherited higher permission' do
           sync_group.update_permissions
 
           expect(group.members.find_by(user_id: user.id).access_level)
             .to eq(::Gitlab::Access::MAINTAINER)
         end
 
-        it "upgrades existing member to the inherited higher permission" do
+        it 'upgrades existing member to the inherited higher permission' do
           group.add_user(user, Gitlab::Access::DEVELOPER)
 
           sync_group.update_permissions
@@ -333,7 +333,7 @@ describe EE::Gitlab::Auth::LDAP::Sync::Group do
             .to eq(::Gitlab::Access::MAINTAINER)
         end
 
-        it "does not alter an ldap member that has a permission override" do
+        it 'does not alter an ldap member that has a permission override' do
           group.members.create(
             user: user,
             access_level: ::Gitlab::Access::OWNER,
@@ -373,7 +373,7 @@ describe EE::Gitlab::Auth::LDAP::Sync::Group do
             .to eq(::Gitlab::Access::DEVELOPER)
         end
 
-        it "does not alter an ldap member that has a permission override" do
+        it 'does not alter an ldap member that has a permission override' do
           group.members.create(
             user: user,
             access_level: ::Gitlab::Access::OWNER,
@@ -424,7 +424,7 @@ describe EE::Gitlab::Auth::LDAP::Sync::Group do
           parent_group.add_maintainer(user)
         end
 
-        it "removes existing member" do
+        it 'removes existing member' do
           group.add_user(user, Gitlab::Access::MAINTAINER)
 
           sync_group.update_permissions

@@ -25,6 +25,6 @@ describe 'Project Activity RSS' do
       visit path
     end
 
-    it_behaves_like "it has an RSS button without a feed token"
+    it_behaves_like 'it has an RSS button without a feed token'
   end
 end

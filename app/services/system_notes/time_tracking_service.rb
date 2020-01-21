@@ -33,7 +33,7 @@ module SystemNotes
     def change_time_estimate
       parsed_time = Gitlab::TimeTrackingFormatter.output(noteable.time_estimate)
       body = if noteable.time_estimate == 0
-               "removed time estimate"
+               'removed time estimate'
              else
                "changed time estimate to #{parsed_time}"
              end
@@ -56,7 +56,7 @@ module SystemNotes
       time_spent = noteable.time_spent
 
       if time_spent == :reset
-        body = "removed time spent"
+        body = 'removed time spent'
       else
         spent_at = noteable.spent_at
         parsed_time = Gitlab::TimeTrackingFormatter.output(time_spent.abs)

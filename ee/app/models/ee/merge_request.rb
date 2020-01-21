@@ -177,7 +177,7 @@ module EE
     end
 
     def compare_dependency_scanning_reports(current_user)
-      return missing_report_error("dependency scanning") unless has_dependency_scanning_reports?
+      return missing_report_error('dependency scanning') unless has_dependency_scanning_reports?
 
       compare_reports(::Ci::CompareDependencyScanningReportsService, current_user)
     end
@@ -191,7 +191,7 @@ module EE
     end
 
     def compare_container_scanning_reports(current_user)
-      return missing_report_error("container scanning") unless has_container_scanning_reports?
+      return missing_report_error('container scanning') unless has_container_scanning_reports?
 
       compare_reports(::Ci::CompareContainerScanningReportsService, current_user)
     end
@@ -201,7 +201,7 @@ module EE
     end
 
     def compare_sast_reports(current_user)
-      return missing_report_error("SAST") unless has_sast_reports?
+      return missing_report_error('SAST') unless has_sast_reports?
 
       compare_reports(::Ci::CompareSastReportsService, current_user)
     end
@@ -211,13 +211,13 @@ module EE
     end
 
     def compare_dast_reports(current_user)
-      return missing_report_error("DAST") unless has_dast_reports?
+      return missing_report_error('DAST') unless has_dast_reports?
 
       compare_reports(::Ci::CompareDastReportsService, current_user)
     end
 
     def compare_license_management_reports(current_user)
-      return missing_report_error("license management") unless has_license_management_reports?
+      return missing_report_error('license management') unless has_license_management_reports?
 
       compare_reports(::Ci::CompareLicenseScanningReportsService, current_user)
     end
@@ -227,7 +227,7 @@ module EE
     end
 
     def compare_metrics_reports
-      return missing_report_error("metrics") unless has_metrics_reports?
+      return missing_report_error('metrics') unless has_metrics_reports?
 
       compare_reports(::Ci::CompareMetricsReportsService)
     end

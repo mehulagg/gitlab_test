@@ -48,7 +48,7 @@ describe RecaptchaExperimentHelper, type: :helper do
         end
 
         with_them do
-          it "returns expected_result" do
+          it 'returns expected_result' do
             allow(Feature).to receive(:enabled?).and_call_original # Allow Feature to _really_ work.
             allow(helper).to receive(:flipper_session).and_return(FlipperSession.new(flipper_session_id))
 

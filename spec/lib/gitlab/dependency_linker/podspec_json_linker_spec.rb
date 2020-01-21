@@ -14,7 +14,7 @@ describe Gitlab::DependencyLinker::PodspecJsonLinker do
   end
 
   describe '#link' do
-    let(:file_name) { "AFNetworking.podspec.json" }
+    let(:file_name) { 'AFNetworking.podspec.json' }
 
     let(:file_content) do
       <<-CONTENT.strip_heredoc

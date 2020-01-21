@@ -11,7 +11,7 @@ module EE
       validate :sso_enforcement, if: :group
       validate :group_domain_limitations, if: :group_has_domain_limitations?
 
-      scope :with_ldap_dn, -> { joins(user: :identities).where("identities.provider LIKE ?", 'ldap%') }
+      scope :with_ldap_dn, -> { joins(user: :identities).where('identities.provider LIKE ?', 'ldap%') }
       scope :with_identity_provider, ->(provider) do
         joins(user: :identities).where(identities: { provider: provider })
       end
@@ -19,7 +19,7 @@ module EE
         joins(user: :identities).where(identities: { saml_provider_id: provider })
       end
 
-      scope :non_owners, -> { where("members.access_level < ?", ::Gitlab::Access::OWNER) }
+      scope :non_owners, -> { where('members.access_level < ?', ::Gitlab::Access::OWNER) }
     end
 
     class_methods do

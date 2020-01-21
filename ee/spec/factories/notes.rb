@@ -29,7 +29,7 @@ FactoryBot.define do
         height: 10,
         x: 1,
         y: 1,
-        position_type: "image",
+        position_type: 'image',
         diff_refs: noteable.diff_refs
       )
     end

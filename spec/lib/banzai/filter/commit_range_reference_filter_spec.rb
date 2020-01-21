@@ -6,7 +6,7 @@ describe Banzai::Filter::CommitRangeReferenceFilter do
   include FilterSpecHelper
 
   let(:project) { create(:project, :public, :repository) }
-  let(:commit1) { project.commit("HEAD~2") }
+  let(:commit1) { project.commit('HEAD~2') }
   let(:commit2) { project.commit }
 
   let(:range)  { CommitRange.new("#{commit1.id}...#{commit2.id}", project) }
@@ -68,7 +68,7 @@ describe Banzai::Filter::CommitRangeReferenceFilter do
 
     it 'includes no title attribute' do
       doc = reference_filter("See #{reference}")
-      expect(doc.css('a').first.attr('title')).to eq ""
+      expect(doc.css('a').first.attr('title')).to eq ''
     end
 
     it 'includes default classes' do
@@ -137,7 +137,7 @@ describe Banzai::Filter::CommitRangeReferenceFilter do
   context 'cross-project / same-namespace complete reference' do
     let(:namespace)         { create(:namespace) }
     let(:project)           { create(:project, :public, :repository, namespace: namespace) }
-    let(:project2)          { create(:project, :public, :repository, path: "same-namespace", namespace: namespace) }
+    let(:project2)          { create(:project, :public, :repository, path: 'same-namespace', namespace: namespace) }
     let(:reference)         { "#{project2.path}@#{commit1.id}...#{commit2.id}" }
 
     it 'links to a valid reference' do
@@ -172,7 +172,7 @@ describe Banzai::Filter::CommitRangeReferenceFilter do
   context 'cross-project shorthand reference' do
     let(:namespace)         { create(:namespace) }
     let(:project)           { create(:project, :public, :repository, namespace: namespace) }
-    let(:project2)          { create(:project, :public, :repository, path: "same-namespace", namespace: namespace) }
+    let(:project2)          { create(:project, :public, :repository, path: 'same-namespace', namespace: namespace) }
     let(:reference)         { "#{project2.path}@#{commit1.id}...#{commit2.id}" }
 
     it 'links to a valid reference' do

@@ -88,7 +88,7 @@ describe GitlabRoutingHelper do
     it 'returns snippet preview markdown path for a personal snippet' do
       @snippet = create(:personal_snippet)
 
-      expect(preview_markdown_path(nil)).to eq("/snippets/preview_markdown")
+      expect(preview_markdown_path(nil)).to eq('/snippets/preview_markdown')
     end
 
     it 'returns project preview markdown path for a project snippet' do

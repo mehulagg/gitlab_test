@@ -12,7 +12,7 @@ module Gitlab
         end
 
         def next_page
-          cursor_json["after"]
+          cursor_json['after']
         end
 
         private

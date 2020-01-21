@@ -4,8 +4,8 @@ module Gitlab
   module Diff
     class InlineDiffMarkdownMarker < Gitlab::StringRangeMarker
       MARKDOWN_SYMBOLS = {
-        addition: "+",
-        deletion: "-"
+        addition: '+',
+        deletion: '-'
       }.freeze
 
       def mark(line_inline_diffs, mode: nil)

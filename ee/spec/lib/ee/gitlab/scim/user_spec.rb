@@ -13,7 +13,7 @@ describe ::EE::Gitlab::Scim::User do
   subject { entity.as_json }
 
   it 'contains the schemas' do
-    expect(subject[:schemas]).to eq(["urn:ietf:params:scim:schemas:core:2.0:User"])
+    expect(subject[:schemas]).to eq(['urn:ietf:params:scim:schemas:core:2.0:User'])
   end
 
   it 'contains the extern UID' do

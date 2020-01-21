@@ -8,7 +8,7 @@ class Projects::MirrorsController < Projects::ApplicationController
   before_action :check_mirror_available!
   before_action :authorize_admin_project!
 
-  layout "project_settings"
+  layout 'project_settings'
 
   def show
     redirect_to_repository_settings(project, anchor: 'js-push-remote-settings')
@@ -38,7 +38,7 @@ class Projects::MirrorsController < Projects::ApplicationController
   def update_now
     if params[:sync_remote]
       project.update_remote_mirrors
-      flash[:notice] = _("The remote repository is being updated...")
+      flash[:notice] = _('The remote repository is being updated...')
     end
 
     redirect_to_repository_settings(project, anchor: 'js-push-remote-settings')

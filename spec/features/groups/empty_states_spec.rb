@@ -99,7 +99,7 @@ describe 'Group empty states' do
         end
       end
 
-      shared_examples "no projects" do
+      shared_examples 'no projects' do
         it 'displays an empty state' do
           expect(page).to have_selector('.empty-state')
         end
@@ -144,7 +144,7 @@ describe 'Group empty states' do
             visit path
           end
 
-          it_behaves_like "no projects"
+          it_behaves_like 'no projects'
         end
       end
 
@@ -155,7 +155,7 @@ describe 'Group empty states' do
           visit path
         end
 
-        it_behaves_like "no projects"
+        it_behaves_like 'no projects'
       end
     end
   end

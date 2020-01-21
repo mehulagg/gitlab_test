@@ -10,7 +10,7 @@ prettier_candidates = get_prettier_files(helper.all_changed_files)
 
 return if prettier_candidates.empty?
 
-unpretty = `node_modules/prettier/bin-prettier.js --list-different #{prettier_candidates.join(" ")}`
+unpretty = `node_modules/prettier/bin-prettier.js --list-different #{prettier_candidates.join(' ')}`
              .split(/$/)
              .map(&:strip)
              .reject(&:empty?)

@@ -159,14 +159,14 @@ describe FileUploader do
     end
   end
 
-  describe "#migrate!" do
+  describe '#migrate!' do
     before do
       uploader.store!(fixture_file_upload('spec/fixtures/dk.png'))
       stub_uploads_object_storage
     end
 
-    it_behaves_like "migrates", to_store: described_class::Store::REMOTE
-    it_behaves_like "migrates", from_store: described_class::Store::REMOTE, to_store: described_class::Store::LOCAL
+    it_behaves_like 'migrates', to_store: described_class::Store::REMOTE
+    it_behaves_like 'migrates', from_store: described_class::Store::REMOTE, to_store: described_class::Store::LOCAL
   end
 
   describe '#upload=' do
@@ -195,15 +195,15 @@ describe FileUploader do
   end
 
   context 'when remote file is used' do
-    let(:temp_file) { Tempfile.new("test") }
+    let(:temp_file) { Tempfile.new('test') }
 
     let!(:fog_connection) do
       stub_uploads_object_storage(described_class)
     end
 
-    let(:filename) { "my file.txt" }
+    let(:filename) { 'my file.txt' }
     let(:uploaded_file) do
-      UploadedFile.new(temp_file.path, filename: filename, remote_id: "test/123123")
+      UploadedFile.new(temp_file.path, filename: filename, remote_id: 'test/123123')
     end
 
     let!(:fog_file) do

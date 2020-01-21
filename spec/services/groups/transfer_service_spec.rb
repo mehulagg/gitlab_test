@@ -48,11 +48,11 @@ describe Groups::TransferService do
       context 'when the user does not have the right policies' do
         let!(:group_member) { create(:group_member, :guest, group: group, user: user) }
 
-        it "returns false" do
+        it 'returns false' do
           expect(transfer_service.execute(nil)).to be_falsy
         end
 
-        it "adds an error on group" do
+        it 'adds an error on group' do
           transfer_service.execute(new_parent_group)
           expect(transfer_service.error).to eq("Transfer failed: You don't have enough permissions.")
         end
@@ -124,11 +124,11 @@ describe Groups::TransferService do
       context 'when the user does not have the right policies' do
         let!(:group_member) { create(:group_member, :guest, group: group, user: user) }
 
-        it "returns false" do
+        it 'returns false' do
           expect(transfer_service.execute(new_parent_group)).to be_falsy
         end
 
-        it "adds an error on group" do
+        it 'adds an error on group' do
           transfer_service.execute(new_parent_group)
           expect(transfer_service.error).to eq("Transfer failed: You don't have enough permissions.")
         end
@@ -137,8 +137,8 @@ describe Groups::TransferService do
       context 'when the parent has a group with the same path' do
         before do
           create(:group_member, :owner, group: new_parent_group, user: user)
-          group.update_attribute(:path, "not-unique")
-          create(:group, path: "not-unique", parent: new_parent_group)
+          group.update_attribute(:path, 'not-unique')
+          create(:group, path: 'not-unique', parent: new_parent_group)
         end
 
         it 'returns false' do

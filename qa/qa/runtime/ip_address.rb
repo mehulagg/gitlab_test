@@ -8,7 +8,7 @@ module QA
       HostUnreachableError = Class.new(StandardError)
 
       LOOPBACK_ADDRESS = '127.0.0.1'
-      PUBLIC_IP_ADDRESS_API = "https://api.ipify.org"
+      PUBLIC_IP_ADDRESS_API = 'https://api.ipify.org'
 
       def fetch_current_ip_address
         # When running on CI against a live environment such as staging.gitlab.com,

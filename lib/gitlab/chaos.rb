@@ -11,7 +11,7 @@ module Gitlab
 
       retainer = []
       # Add `n` 1mb chunks of memory to the retainer array
-      memory_mb.times { retainer << "x" * 1.megabyte }
+      memory_mb.times { retainer << 'x' * 1.megabyte }
 
       duration_left = [start_time + duration_s - Time.now, 0].max
       Kernel.sleep(duration_left)
@@ -31,7 +31,7 @@ module Gitlab
       expected_end_time = Time.now + duration_s
 
       while Time.now < expected_end_time
-        ActiveRecord::Base.connection.execute("SELECT 1")
+        ActiveRecord::Base.connection.execute('SELECT 1')
 
         end_interval_time = Time.now + [duration_s, interval_s].min
         rand while Time.now < end_interval_time
@@ -45,7 +45,7 @@ module Gitlab
 
     # Kill will send a SIGKILL signal to the current process
     def self.kill
-      Process.kill("KILL", Process.pid)
+      Process.kill('KILL', Process.pid)
     end
   end
 end

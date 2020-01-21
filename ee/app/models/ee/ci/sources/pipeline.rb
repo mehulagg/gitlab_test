@@ -8,7 +8,7 @@ module EE
 
         prepended do
           belongs_to :source_bridge,
-            class_name: "Ci::Bridge",
+            class_name: 'Ci::Bridge',
             foreign_key: :source_job_id
         end
       end

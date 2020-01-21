@@ -143,8 +143,8 @@ describe Groups::MilestonesController do
         milestones = json_response
 
         expect(milestones.count).to eq(2)
-        expect(milestones.first["title"]).to eq("group milestone")
-        expect(milestones.second["title"]).to eq("legacy")
+        expect(milestones.first['title']).to eq('group milestone')
+        expect(milestones.second['title']).to eq('legacy')
         expect(response).to have_gitlab_http_status(200)
         expect(response.content_type).to eq 'application/json'
       end
@@ -196,8 +196,8 @@ describe Groups::MilestonesController do
 
   it_behaves_like 'milestone tabs'
 
-  describe "#create" do
-    it "creates group milestone with Chinese title" do
+  describe '#create' do
+    it 'creates group milestone with Chinese title' do
       post :create,
            params: {
              group_id: group.to_param,
@@ -213,11 +213,11 @@ describe Groups::MilestonesController do
     end
   end
 
-  describe "#update" do
+  describe '#update' do
     let(:milestone) { create(:milestone, group: group) }
 
-    it "updates group milestone" do
-      milestone_params[:title] = "title changed"
+    it 'updates group milestone' do
+      milestone_params[:title] = 'title changed'
 
       put :update,
            params: {
@@ -228,17 +228,17 @@ describe Groups::MilestonesController do
 
       milestone.reload
       expect(response).to redirect_to(group_milestone_path(group, milestone.iid))
-      expect(milestone.title).to eq("title changed")
+      expect(milestone.title).to eq('title changed')
     end
 
-    context "legacy group milestones" do
-      let!(:milestone1) { create(:milestone, project: project, title: 'legacy milestone', description: "old description") }
-      let!(:milestone2) { create(:milestone, project: project2, title: 'legacy milestone', description: "old description") }
+    context 'legacy group milestones' do
+      let!(:milestone1) { create(:milestone, project: project, title: 'legacy milestone', description: 'old description') }
+      let!(:milestone2) { create(:milestone, project: project2, title: 'legacy milestone', description: 'old description') }
 
-      it "updates only group milestones state" do
-        milestone_params[:title] = "title changed"
-        milestone_params[:description] = "description changed"
-        milestone_params[:state_event] = "close"
+      it 'updates only group milestones state' do
+        milestone_params[:title] = 'title changed'
+        milestone_params[:description] = 'description changed'
+        milestone_params[:state_event] = 'close'
 
         put :update,
              params: {
@@ -252,18 +252,18 @@ describe Groups::MilestonesController do
 
         [milestone1, milestone2].each do |milestone|
           milestone.reload
-          expect(milestone.title).to eq("legacy milestone")
-          expect(milestone.description).to eq("old description")
-          expect(milestone.state).to eq("closed")
+          expect(milestone.title).to eq('legacy milestone')
+          expect(milestone.description).to eq('old description')
+          expect(milestone.state).to eq('closed')
         end
       end
     end
   end
 
-  describe "#destroy" do
+  describe '#destroy' do
     let(:milestone) { create(:milestone, group: group) }
 
-    it "removes milestone" do
+    it 'removes milestone' do
       delete :destroy, params: { group_id: group.to_param, id: milestone.iid }, format: :js
 
       expect(response).to be_successful

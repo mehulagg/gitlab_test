@@ -22,7 +22,7 @@ end
 describe UploadsController do
   include WorkhorseHelpers
 
-  let!(:user) { create(:user, avatar: fixture_file_upload("spec/fixtures/dk.png", "image/png")) }
+  let!(:user) { create(:user, avatar: fixture_file_upload('spec/fixtures/dk.png', 'image/png')) }
 
   describe 'POST #authorize' do
     it_behaves_like 'handle uploads authorize' do
@@ -43,7 +43,7 @@ describe UploadsController do
       let(:snippet) { create(:personal_snippet, :public) }
 
       context 'when a user does not have permissions to upload a file' do
-        it "returns 401 when the user is not logged in" do
+        it 'returns 401 when the user is not logged in' do
           post :create, params: { model: model, id: snippet.id }, format: :json
 
           expect(response).to have_gitlab_http_status(401)
@@ -64,18 +64,18 @@ describe UploadsController do
           sign_in(user)
         end
 
-        it "returns an error without file" do
+        it 'returns an error without file' do
           post :create, params: { model: model, id: snippet.id }, format: :json
 
           expect(response).to have_gitlab_http_status(422)
         end
 
-        it "returns an error with invalid model" do
+        it 'returns an error with invalid model' do
           expect { post :create, params: { model: 'invalid', id: snippet.id }, format: :json }
             .to raise_error(ActionController::UrlGenerationError)
         end
 
-        it "returns 404 status when object not found" do
+        it 'returns 404 status when object not found' do
           post :create, params: { model: model, id: 9999 }, format: :json
 
           expect(response).to have_gitlab_http_status(404)
@@ -88,7 +88,7 @@ describe UploadsController do
 
           it 'returns a content with original filename, new link, and correct type.' do
             expect(response.body).to match '\"alt\":\"rails_sample\"'
-            expect(response.body).to match "\"url\":\"/uploads"
+            expect(response.body).to match '"url":"/uploads'
           end
 
           it 'creates a corresponding Upload record' do
@@ -108,7 +108,7 @@ describe UploadsController do
 
           it 'returns a content with original filename, new link, and correct type.' do
             expect(response.body).to match '\"alt\":\"doc_sample.txt\"'
-            expect(response.body).to match "\"url\":\"/uploads"
+            expect(response.body).to match '"url":"/uploads'
           end
 
           it 'creates a corresponding Upload record' do
@@ -194,7 +194,7 @@ describe UploadsController do
     end
   end
 
-  describe "GET show" do
+  describe 'GET show' do
     context 'Content-Disposition security measures' do
       let(:expected_disposition) { 'inline;' }
       let(:project) { create(:project, :public) }
@@ -232,27 +232,27 @@ describe UploadsController do
       end
     end
 
-    context "when viewing a user avatar" do
-      context "when signed in" do
+    context 'when viewing a user avatar' do
+      context 'when signed in' do
         before do
           sign_in(user)
         end
 
-        context "when the user is blocked" do
+        context 'when the user is blocked' do
           before do
             user.block
           end
 
-          it "responds with status 401" do
-            get :show, params: { model: "user", mounted_as: "avatar", id: user.id, filename: "dk.png" }
+          it 'responds with status 401' do
+            get :show, params: { model: 'user', mounted_as: 'avatar', id: user.id, filename: 'dk.png' }
 
             expect(response).to have_gitlab_http_status(401)
           end
         end
 
         context "when the user isn't blocked" do
-          it "responds with status 200" do
-            get :show, params: { model: "user", mounted_as: "avatar", id: user.id, filename: "dk.png" }
+          it 'responds with status 200' do
+            get :show, params: { model: 'user', mounted_as: 'avatar', id: user.id, filename: 'dk.png' }
 
             expect(response).to have_gitlab_http_status(200)
           end
@@ -267,9 +267,9 @@ describe UploadsController do
         end
       end
 
-      context "when not signed in" do
-        it "responds with status 200" do
-          get :show, params: { model: "user", mounted_as: "avatar", id: user.id, filename: "dk.png" }
+      context 'when not signed in' do
+        it 'responds with status 200' do
+          get :show, params: { model: 'user', mounted_as: 'avatar', id: user.id, filename: 'dk.png' }
 
           expect(response).to have_gitlab_http_status(200)
         end
@@ -284,17 +284,17 @@ describe UploadsController do
       end
     end
 
-    context "when viewing a project avatar" do
-      let!(:project) { create(:project, avatar: fixture_file_upload("spec/fixtures/dk.png", "image/png")) }
+    context 'when viewing a project avatar' do
+      let!(:project) { create(:project, avatar: fixture_file_upload('spec/fixtures/dk.png', 'image/png')) }
 
-      context "when the project is public" do
+      context 'when the project is public' do
         before do
           project.update_attribute(:visibility_level, Project::PUBLIC)
         end
 
-        context "when not signed in" do
-          it "responds with status 200" do
-            get :show, params: { model: "project", mounted_as: "avatar", id: project.id, filename: "dk.png" }
+        context 'when not signed in' do
+          it 'responds with status 200' do
+            get :show, params: { model: 'project', mounted_as: 'avatar', id: project.id, filename: 'dk.png' }
 
             expect(response).to have_gitlab_http_status(200)
           end
@@ -308,13 +308,13 @@ describe UploadsController do
           end
         end
 
-        context "when signed in" do
+        context 'when signed in' do
           before do
             sign_in(user)
           end
 
-          it "responds with status 200" do
-            get :show, params: { model: "project", mounted_as: "avatar", id: project.id, filename: "dk.png" }
+          it 'responds with status 200' do
+            get :show, params: { model: 'project', mounted_as: 'avatar', id: project.id, filename: 'dk.png' }
 
             expect(response).to have_gitlab_http_status(200)
           end
@@ -329,45 +329,45 @@ describe UploadsController do
         end
       end
 
-      context "when the project is private" do
+      context 'when the project is private' do
         before do
           project.update_attribute(:visibility_level, Project::PRIVATE)
         end
 
-        context "when not signed in" do
-          it "responds with status 401" do
-            get :show, params: { model: "project", mounted_as: "avatar", id: project.id, filename: "dk.png" }
+        context 'when not signed in' do
+          it 'responds with status 401' do
+            get :show, params: { model: 'project', mounted_as: 'avatar', id: project.id, filename: 'dk.png' }
 
             expect(response).to have_gitlab_http_status(401)
           end
         end
 
-        context "when signed in" do
+        context 'when signed in' do
           before do
             sign_in(user)
           end
 
-          context "when the user has access to the project" do
+          context 'when the user has access to the project' do
             before do
               project.add_maintainer(user)
             end
 
-            context "when the user is blocked" do
+            context 'when the user is blocked' do
               before do
                 user.block
                 project.add_maintainer(user)
               end
 
-              it "responds with status 401" do
-                get :show, params: { model: "project", mounted_as: "avatar", id: project.id, filename: "dk.png" }
+              it 'responds with status 401' do
+                get :show, params: { model: 'project', mounted_as: 'avatar', id: project.id, filename: 'dk.png' }
 
                 expect(response).to have_gitlab_http_status(401)
               end
             end
 
             context "when the user isn't blocked" do
-              it "responds with status 200" do
-                get :show, params: { model: "project", mounted_as: "avatar", id: project.id, filename: "dk.png" }
+              it 'responds with status 200' do
+                get :show, params: { model: 'project', mounted_as: 'avatar', id: project.id, filename: 'dk.png' }
 
                 expect(response).to have_gitlab_http_status(200)
               end
@@ -383,8 +383,8 @@ describe UploadsController do
           end
 
           context "when the user doesn't have access to the project" do
-            it "responds with status 404" do
-              get :show, params: { model: "project", mounted_as: "avatar", id: project.id, filename: "dk.png" }
+            it 'responds with status 404' do
+              get :show, params: { model: 'project', mounted_as: 'avatar', id: project.id, filename: 'dk.png' }
 
               expect(response).to have_gitlab_http_status(404)
             end
@@ -393,13 +393,13 @@ describe UploadsController do
       end
     end
 
-    context "when viewing a group avatar" do
-      let!(:group) { create(:group, avatar: fixture_file_upload("spec/fixtures/dk.png", "image/png")) }
+    context 'when viewing a group avatar' do
+      let!(:group) { create(:group, avatar: fixture_file_upload('spec/fixtures/dk.png', 'image/png')) }
 
-      context "when the group is public" do
-        context "when not signed in" do
-          it "responds with status 200" do
-            get :show, params: { model: "group", mounted_as: "avatar", id: group.id, filename: "dk.png" }
+      context 'when the group is public' do
+        context 'when not signed in' do
+          it 'responds with status 200' do
+            get :show, params: { model: 'group', mounted_as: 'avatar', id: group.id, filename: 'dk.png' }
 
             expect(response).to have_gitlab_http_status(200)
           end
@@ -413,13 +413,13 @@ describe UploadsController do
           end
         end
 
-        context "when signed in" do
+        context 'when signed in' do
           before do
             sign_in(user)
           end
 
-          it "responds with status 200" do
-            get :show, params: { model: "group", mounted_as: "avatar", id: group.id, filename: "dk.png" }
+          it 'responds with status 200' do
+            get :show, params: { model: 'group', mounted_as: 'avatar', id: group.id, filename: 'dk.png' }
 
             expect(response).to have_gitlab_http_status(200)
           end
@@ -434,36 +434,36 @@ describe UploadsController do
         end
       end
 
-      context "when the group is private" do
+      context 'when the group is private' do
         before do
           group.update_attribute(:visibility_level, Gitlab::VisibilityLevel::PRIVATE)
         end
 
-        context "when signed in" do
+        context 'when signed in' do
           before do
             sign_in(user)
           end
 
-          context "when the user has access to the project" do
+          context 'when the user has access to the project' do
             before do
               group.add_developer(user)
             end
 
-            context "when the user is blocked" do
+            context 'when the user is blocked' do
               before do
                 user.block
               end
 
-              it "responds with status 401" do
-                get :show, params: { model: "group", mounted_as: "avatar", id: group.id, filename: "dk.png" }
+              it 'responds with status 401' do
+                get :show, params: { model: 'group', mounted_as: 'avatar', id: group.id, filename: 'dk.png' }
 
                 expect(response).to have_gitlab_http_status(401)
               end
             end
 
             context "when the user isn't blocked" do
-              it "responds with status 200" do
-                get :show, params: { model: "group", mounted_as: "avatar", id: group.id, filename: "dk.png" }
+              it 'responds with status 200' do
+                get :show, params: { model: 'group', mounted_as: 'avatar', id: group.id, filename: 'dk.png' }
 
                 expect(response).to have_gitlab_http_status(200)
               end
@@ -479,8 +479,8 @@ describe UploadsController do
           end
 
           context "when the user doesn't have access to the project" do
-            it "responds with status 404" do
-              get :show, params: { model: "group", mounted_as: "avatar", id: group.id, filename: "dk.png" }
+            it 'responds with status 404' do
+              get :show, params: { model: 'group', mounted_as: 'avatar', id: group.id, filename: 'dk.png' }
 
               expect(response).to have_gitlab_http_status(404)
             end
@@ -489,18 +489,18 @@ describe UploadsController do
       end
     end
 
-    context "when viewing a note attachment" do
+    context 'when viewing a note attachment' do
       let!(:note) { create(:note, :with_attachment) }
       let(:project) { note.project }
 
-      context "when the project is public" do
+      context 'when the project is public' do
         before do
           project.update_attribute(:visibility_level, Project::PUBLIC)
         end
 
-        context "when not signed in" do
-          it "responds with status 200" do
-            get :show, params: { model: "note", mounted_as: "attachment", id: note.id, filename: "dk.png" }
+        context 'when not signed in' do
+          it 'responds with status 200' do
+            get :show, params: { model: 'note', mounted_as: 'attachment', id: note.id, filename: 'dk.png' }
 
             expect(response).to have_gitlab_http_status(200)
           end
@@ -514,13 +514,13 @@ describe UploadsController do
           end
         end
 
-        context "when signed in" do
+        context 'when signed in' do
           before do
             sign_in(user)
           end
 
-          it "responds with status 200" do
-            get :show, params: { model: "note", mounted_as: "attachment", id: note.id, filename: "dk.png" }
+          it 'responds with status 200' do
+            get :show, params: { model: 'note', mounted_as: 'attachment', id: note.id, filename: 'dk.png' }
 
             expect(response).to have_gitlab_http_status(200)
           end
@@ -535,45 +535,45 @@ describe UploadsController do
         end
       end
 
-      context "when the project is private" do
+      context 'when the project is private' do
         before do
           project.update_attribute(:visibility_level, Project::PRIVATE)
         end
 
-        context "when not signed in" do
-          it "responds with status 401" do
-            get :show, params: { model: "note", mounted_as: "attachment", id: note.id, filename: "dk.png" }
+        context 'when not signed in' do
+          it 'responds with status 401' do
+            get :show, params: { model: 'note', mounted_as: 'attachment', id: note.id, filename: 'dk.png' }
 
             expect(response).to have_gitlab_http_status(401)
           end
         end
 
-        context "when signed in" do
+        context 'when signed in' do
           before do
             sign_in(user)
           end
 
-          context "when the user has access to the project" do
+          context 'when the user has access to the project' do
             before do
               project.add_maintainer(user)
             end
 
-            context "when the user is blocked" do
+            context 'when the user is blocked' do
               before do
                 user.block
                 project.add_maintainer(user)
               end
 
-              it "responds with status 401" do
-                get :show, params: { model: "note", mounted_as: "attachment", id: note.id, filename: "dk.png" }
+              it 'responds with status 401' do
+                get :show, params: { model: 'note', mounted_as: 'attachment', id: note.id, filename: 'dk.png' }
 
                 expect(response).to have_gitlab_http_status(401)
               end
             end
 
             context "when the user isn't blocked" do
-              it "responds with status 200" do
-                get :show, params: { model: "note", mounted_as: "attachment", id: note.id, filename: "dk.png" }
+              it 'responds with status 200' do
+                get :show, params: { model: 'note', mounted_as: 'attachment', id: note.id, filename: 'dk.png' }
 
                 expect(response).to have_gitlab_http_status(200)
               end
@@ -589,8 +589,8 @@ describe UploadsController do
           end
 
           context "when the user doesn't have access to the project" do
-            it "responds with status 404" do
-              get :show, params: { model: "note", mounted_as: "attachment", id: note.id, filename: "dk.png" }
+            it 'responds with status 404' do
+              get :show, params: { model: 'note', mounted_as: 'attachment', id: note.id, filename: 'dk.png' }
 
               expect(response).to have_gitlab_http_status(404)
             end

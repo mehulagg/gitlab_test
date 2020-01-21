@@ -94,7 +94,7 @@ describe QA::Support::Retrier do
 
     it 'does not repeat if no exception is raised' do
       loop_counter = 0
-      return_value = "test passed"
+      return_value = 'test passed'
 
       expect(
         subject.retry_on_exception(max_attempts: 2) do

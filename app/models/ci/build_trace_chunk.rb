@@ -6,7 +6,7 @@ module Ci
     include ::Gitlab::ExclusiveLeaseHelpers
     extend Gitlab::Ci::Model
 
-    belongs_to :build, class_name: "Ci::Build", foreign_key: :build_id
+    belongs_to :build, class_name: 'Ci::Build', foreign_key: :build_id
 
     default_value_for :data_store, :redis
 
@@ -70,7 +70,7 @@ module Ci
       raise ArgumentError, 'Offset is out of range' if offset > size || offset < 0
       return if offset == size # Skip the following process as it doesn't affect anything
 
-      self.append("", offset)
+      self.append('', offset)
     end
 
     def append(new_data, offset)

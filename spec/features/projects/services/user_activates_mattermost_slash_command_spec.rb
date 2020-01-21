@@ -17,7 +17,7 @@ describe 'Set up Mattermost slash commands', :js do
 
   describe 'user visits the mattermost slash command config page' do
     it 'shows a help message' do
-      expect(page).to have_content("This service allows users to perform common")
+      expect(page).to have_content('This service allows users to perform common')
     end
 
     it 'shows a token placeholder' do
@@ -78,7 +78,7 @@ describe 'Set up Mattermost slash commands', :js do
       select_element = find('#mattermost_team_id')
       selected_option = select_element.find('option[selected]')
 
-      expect(select_element['disabled']).to eq("true")
+      expect(select_element['disabled']).to eq('true')
       expect(selected_option).to have_content(team_name.to_s)
     end
 
@@ -124,7 +124,7 @@ describe 'Set up Mattermost slash commands', :js do
 
       click_link 'Add to Mattermost'
 
-      expect(find('input[type="submit"]')['disabled']).not_to eq("true")
+      expect(find('input[type="submit"]')['disabled']).not_to eq('true')
     end
 
     it 'disables the submit button if the required fields are not provided', :js do
@@ -134,7 +134,7 @@ describe 'Set up Mattermost slash commands', :js do
 
       fill_in('mattermost_trigger', with: '')
 
-      expect(find('input[type="submit"]')['disabled']).to eq("true")
+      expect(find('input[type="submit"]')['disabled']).to eq('true')
     end
 
     def stub_teams(count: 0)
@@ -149,7 +149,7 @@ describe 'Set up Mattermost slash commands', :js do
       teams = []
 
       count.times do |i|
-        teams.push({ "id" => "x#{i}", "display_name" => "x#{i}-name" })
+        teams.push({ 'id' => "x#{i}", 'display_name' => "x#{i}-name" })
       end
 
       teams

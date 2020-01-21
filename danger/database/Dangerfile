@@ -38,11 +38,11 @@ geo_migration_created = !git.added_files.grep(%r{\Aee/db/geo/(post_)?migrate/}).
 format_str = gitlab_danger.ci? ? SCHEMA_NOT_UPDATED_MESSAGE_FULL : SCHEMA_NOT_UPDATED_MESSAGE_SHORT
 
 if non_geo_migration_created && !non_geo_db_schema_updated
-  warn format(format_str, migrations: 'migrations', schema: gitlab_danger.html_link("db/schema.rb"))
+  warn format(format_str, migrations: 'migrations', schema: gitlab_danger.html_link('db/schema.rb'))
 end
 
 if geo_migration_created && !geo_db_schema_updated
-  warn format(format_str, migrations: 'Geo migrations', schema: gitlab_danger.html_link("ee/db/geo/schema.rb"))
+  warn format(format_str, migrations: 'Geo migrations', schema: gitlab_danger.html_link('ee/db/geo/schema.rb'))
 end
 
 return unless gitlab_danger.ci?

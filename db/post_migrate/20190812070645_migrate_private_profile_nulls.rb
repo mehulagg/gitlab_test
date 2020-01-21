@@ -18,7 +18,7 @@ class MigratePrivateProfileNulls < ActiveRecord::Migration[5.2]
   def up
     # Migration will take about 7 hours
     User.where(private_profile: nil).each_batch(of: BATCH_SIZE) do |batch, index|
-      range = batch.pluck(Arel.sql("MIN(id)"), Arel.sql("MAX(id)")).first
+      range = batch.pluck(Arel.sql('MIN(id)'), Arel.sql('MAX(id)')).first
       delay = index * DELAY
 
       BackgroundMigrationWorker.perform_in(delay.seconds, 'MigrateNullPrivateProfileToFalse', [*range])

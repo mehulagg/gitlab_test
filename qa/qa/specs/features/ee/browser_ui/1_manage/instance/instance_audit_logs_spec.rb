@@ -32,7 +32,7 @@ module QA
           sign_in
         end
 
-        it_behaves_like 'instance audit event logs', ["Failed to login with STANDARD authentication"]
+        it_behaves_like 'instance audit event logs', ['Failed to login with STANDARD authentication']
       end
 
       context 'Successful sign in' do
@@ -40,7 +40,7 @@ module QA
           sign_in
         end
 
-        it_behaves_like 'instance audit event logs', ["Signed in with STANDARD authentication"]
+        it_behaves_like 'instance audit event logs', ['Signed in with STANDARD authentication']
       end
 
       context 'Add SSH key' do
@@ -51,7 +51,7 @@ module QA
           end
         end
 
-        it_behaves_like 'instance audit event logs', ["Added SSH key"]
+        it_behaves_like 'instance audit event logs', ['Added SSH key']
       end
 
       context 'Add and delete email' do
@@ -66,7 +66,7 @@ module QA
           end
         end
 
-        it_behaves_like 'instance audit event logs', ["Added email", "Removed email"]
+        it_behaves_like 'instance audit event logs', ['Added email', 'Removed email']
       end
 
       context 'Change password', :skip_signup_disabled do
@@ -89,7 +89,7 @@ module QA
           sign_in
         end
 
-        it_behaves_like 'instance audit event logs', ["Changed password"]
+        it_behaves_like 'instance audit event logs', ['Changed password']
       end
 
       context 'Start and stop user impersonation' do
@@ -108,7 +108,7 @@ module QA
           Page::Main::Menu.perform(&:click_stop_impersonation_link)
         end
 
-        it_behaves_like 'instance audit event logs', ["Started Impersonation", "Stopped Impersonation"]
+        it_behaves_like 'instance audit event logs', ['Started Impersonation', 'Stopped Impersonation']
       end
 
       def sign_in

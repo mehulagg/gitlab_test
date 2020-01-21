@@ -39,7 +39,7 @@ RSpec.shared_context 'exposing regular notes on a noteable in GraphQL' do
     end
   end
 
-  context "for discussions" do
+  context 'for discussions' do
     let(:query) do
       discussion_fields = <<~DISCUSSIONS
       discussions {

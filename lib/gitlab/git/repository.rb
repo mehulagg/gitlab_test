@@ -2,7 +2,7 @@
 
 require 'tempfile'
 require 'forwardable'
-require "rubygems/package"
+require 'rubygems/package'
 
 module Gitlab
   module Git
@@ -61,7 +61,7 @@ module Gitlab
         @gl_repository = gl_repository
         @gl_project_path = gl_project_path
 
-        @name = @relative_path.split("/").last
+        @name = @relative_path.split('/').last
       end
 
       def to_s
@@ -229,7 +229,7 @@ module Gitlab
         end
       end
 
-      def archive_metadata(ref, storage_path, project_path, format = "tar.gz", append_sha:, path: nil)
+      def archive_metadata(ref, storage_path, project_path, format = 'tar.gz', append_sha:, path: nil)
         ref ||= root_ref
         commit = Gitlab::Git::Commit.find(self, ref)
         return {} if commit.nil?
@@ -273,21 +273,21 @@ module Gitlab
       # be resolved by either removing the cache, or moving the implementation
       # into Gitaly and removing the ArchivePath parameter from the git-archive
       # senddata response.
-      def archive_file_path(storage_path, sha, name, format = "tar.gz")
+      def archive_file_path(storage_path, sha, name, format = 'tar.gz')
         # Build file path
         return unless name
 
         extension =
           case format
-          when "tar.bz2", "tbz", "tbz2", "tb2", "bz2"
-            "tar.bz2"
-          when "tar"
-            "tar"
-          when "zip"
-            "zip"
+          when 'tar.bz2', 'tbz', 'tbz2', 'tb2', 'bz2'
+            'tar.bz2'
+          when 'tar'
+            'tar'
+          when 'zip'
+            'zip'
           else
             # everything else should fall back to tar.gz
-            "tar.gz"
+            'tar.gz'
           end
 
         file_name = "#{name}.#{extension}"
@@ -655,7 +655,7 @@ module Gitlab
       # Examples:
       #   create_branch("feature")
       #   create_branch("other-feature", "master")
-      def create_branch(ref, start_point = "HEAD")
+      def create_branch(ref, start_point = 'HEAD')
         wrapped_gitaly_errors do
           gitaly_ref_client.create_branch(ref, start_point)
         end
@@ -772,7 +772,7 @@ module Gitlab
       end
 
       def write_ref(ref_path, ref, old_ref: nil)
-        ref_path = "#{Gitlab::Git::BRANCH_REF_PREFIX}#{ref_path}" unless ref_path.start_with?("refs/") || ref_path == "HEAD"
+        ref_path = "#{Gitlab::Git::BRANCH_REF_PREFIX}#{ref_path}" unless ref_path.start_with?('refs/') || ref_path == 'HEAD'
 
         wrapped_gitaly_errors do
           gitaly_repository_client.write_ref(ref_path, ref, old_ref)
@@ -1007,7 +1007,7 @@ module Gitlab
       end
 
       def search_files_by_name(query, ref)
-        safe_query = Regexp.escape(query.sub(%r{^/*}, ""))
+        safe_query = Regexp.escape(query.sub(%r{^/*}, ''))
         ref ||= root_ref
 
         return [] if empty? || safe_query.blank?
@@ -1037,7 +1037,7 @@ module Gitlab
 
       def checksum
         # The exists? RPC is much cheaper, so we perform this request first
-        raise NoRepository, "Repository does not exists" unless exists?
+        raise NoRepository, 'Repository does not exists' unless exists?
 
         gitaly_repository_client.calculate_checksum
       rescue GRPC::NotFound

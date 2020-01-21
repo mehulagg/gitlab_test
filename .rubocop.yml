@@ -353,4 +353,6 @@ Style/MultilineWhenThen:
 
 Style/FloatDivision:
   Enabled: false
-  
+
+Style/StringLiterals:
+  Enabled: true

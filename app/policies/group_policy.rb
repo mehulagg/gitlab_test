@@ -3,7 +3,7 @@
 class GroupPolicy < BasePolicy
   include FindGroupProjects
 
-  desc "Group is public"
+  desc 'Group is public'
   with_options scope: :subject, score: 0
   condition(:public_group) { @subject.public? }
 

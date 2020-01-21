@@ -16,7 +16,7 @@ describe Gitlab::ExternalAuthorization::Response do
       end
     end
 
-    it "is invalid for other statuses" do
+    it 'is invalid for other statuses' do
       expect(excon_response).to receive(:status).and_return(500)
 
       expect(response).not_to be_valid

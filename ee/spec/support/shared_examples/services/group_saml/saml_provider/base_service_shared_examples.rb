@@ -90,7 +90,7 @@ RSpec.shared_examples 'SamlProvider service toggles Group Managed Accounts' do
       it 'adds an error warning that the owner must first link SAML' do
         service.execute
 
-        expect(service.saml_provider.errors[:base]).to eq(["Group Owner must have signed in with SAML before enabling Group Managed Accounts"])
+        expect(service.saml_provider.errors[:base]).to eq(['Group Owner must have signed in with SAML before enabling Group Managed Accounts'])
       end
 
       it 'does not attempt member cleanup' do

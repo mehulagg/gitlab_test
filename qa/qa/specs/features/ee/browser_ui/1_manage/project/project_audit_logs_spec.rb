@@ -25,17 +25,17 @@ module QA
 
       let(:user) { Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_1, Runtime::Env.gitlab_qa_password_1) }
 
-      context "Add project" do
+      context 'Add project' do
         before do
           Resource::Project.fabricate_via_browser_ui! do |project|
             project.name = 'audit-add-project-via-ui'
             project.initialize_with_readme = true
           end.visit!
         end
-        it_behaves_like 'project audit event logs', ["Add project"]
+        it_behaves_like 'project audit event logs', ['Add project']
       end
 
-      context "Add user access as guest" do
+      context 'Add user access as guest' do
         before do
           project.visit!
 
@@ -45,10 +45,10 @@ module QA
           end
         end
 
-        it_behaves_like 'project audit event logs', ["Add user access as guest"]
+        it_behaves_like 'project audit event logs', ['Add user access as guest']
       end
 
-      context "Add deploy key" do
+      context 'Add deploy key' do
         before do
           key = Runtime::Key::RSA.new
           deploy_key_title = 'deploy key title'
@@ -61,10 +61,10 @@ module QA
           end
         end
 
-        it_behaves_like 'project audit event logs', ["Add deploy key"]
+        it_behaves_like 'project audit event logs', ['Add deploy key']
       end
 
-      context "Change visibility" do
+      context 'Change visibility' do
         before do
           project.visit!
 
@@ -72,32 +72,32 @@ module QA
           Page::Project::Settings::Main.perform do |settings|
             # Change visibility from public to internal
             settings.expand_visibility_project_features_permissions do |page|
-              page.set_project_visibility "Internal"
+              page.set_project_visibility 'Internal'
             end
           end
         end
 
-        it_behaves_like 'project audit event logs', ["Change visibility from public to internal"]
+        it_behaves_like 'project audit event logs', ['Change visibility from public to internal']
       end
 
-      context "Export file download" do
+      context 'Export file download' do
         before do
           project.visit!
 
           Page::Project::Menu.perform(&:go_to_general_settings)
           Page::Project::Settings::Main.perform do |settings|
             settings.expand_advanced_settings(&:click_export_project_link)
-            expect(page).to have_text("Project export started")
+            expect(page).to have_text('Project export started')
 
             Page::Project::Menu.perform(&:go_to_general_settings)
             settings.expand_advanced_settings(&:click_download_export_link)
           end
         end
 
-        it_behaves_like 'project audit event logs', ["Export file download started"]
+        it_behaves_like 'project audit event logs', ['Export file download started']
       end
 
-      context "Project archive and unarchive" do
+      context 'Project archive and unarchive' do
         before do
           project.visit!
 
@@ -114,7 +114,7 @@ module QA
           end
         end
 
-        it_behaves_like 'project audit event logs', ["Project archived", "Project unarchived"]
+        it_behaves_like 'project audit event logs', ['Project archived', 'Project unarchived']
       end
 
       def sign_in

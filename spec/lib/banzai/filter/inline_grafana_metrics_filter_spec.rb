@@ -26,8 +26,8 @@ describe Banzai::Filter::InlineGrafanaMetricsFilter do
       project,
       embedded: true,
       grafana_url: url,
-      start: "2019-10-06T21:35:39Z",
-      end: "2019-10-07T21:35:39Z"
+      start: '2019-10-06T21:35:39Z',
+      end: '2019-10-07T21:35:39Z'
     )
 
     expect(node.attribute('data-dashboard-url').to_s).to eq(dashboard_url)

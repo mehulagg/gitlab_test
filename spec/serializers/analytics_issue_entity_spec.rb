@@ -6,11 +6,11 @@ describe AnalyticsIssueEntity do
   let(:user) { create(:user) }
   let(:entity_hash) do
     {
-      total_time: "172802.724419",
-      title: "Eos voluptatem inventore in sed.",
-      iid: "1",
-      id: "1",
-      created_at: "2016-11-12 15:04:02.948604",
+      total_time: '172802.724419',
+      title: 'Eos voluptatem inventore in sed.',
+      iid: '1',
+      id: '1',
+      created_at: '2016-11-12 15:04:02.948604',
       author: user,
       project_path: project.path,
       namespace_path: project.namespace.route.path

@@ -18,7 +18,7 @@ describe 'Issues > User creates issue by email' do
 
       before do
         project.issues << issue
-        stub_incoming_email_setting(enabled: true, address: "p+%{key}@gl.ab")
+        stub_incoming_email_setting(enabled: true, address: 'p+%{key}@gl.ab')
 
         visit project_issues_path(project)
         click_button('Email a new issue')

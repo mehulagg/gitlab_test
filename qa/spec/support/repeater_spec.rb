@@ -18,7 +18,7 @@ describe QA::Support::Repeater do
   end
 
   let(:time_start) { Time.now }
-  let(:return_value) { "test passed" }
+  let(:return_value) { 'test passed' }
 
   describe '.repeat_until' do
     context 'when raise_on_failure is not provided (default: true)' do
@@ -33,7 +33,7 @@ describe QA::Support::Repeater do
                     false
                   end
                 end
-              end.to raise_error(QA::Support::Repeater::WaitExceededError, "Wait condition not met after 1 second")
+              end.to raise_error(QA::Support::Repeater::WaitExceededError, 'Wait condition not met after 1 second')
             end
 
             it 'ignores attempts' do
@@ -79,7 +79,7 @@ describe QA::Support::Repeater do
                     false
                   end
                 end
-              end.to raise_error(QA::Support::Repeater::RetriesExceededError, "Retry condition not met after 1 attempt")
+              end.to raise_error(QA::Support::Repeater::RetriesExceededError, 'Retry condition not met after 1 attempt')
             end
 
             it 'ignores duration' do
@@ -128,7 +128,7 @@ describe QA::Support::Repeater do
                     false
                   end
                 end
-              end.to raise_error(QA::Support::Repeater::RetriesExceededError, "Retry condition not met after 1 attempt")
+              end.to raise_error(QA::Support::Repeater::RetriesExceededError, 'Retry condition not met after 1 attempt')
             end
           end
 
@@ -143,7 +143,7 @@ describe QA::Support::Repeater do
                     false
                   end
                 end
-              end.to raise_error(QA::Support::Repeater::WaitExceededError, "Wait condition not met after 1 second")
+              end.to raise_error(QA::Support::Repeater::WaitExceededError, 'Wait condition not met after 1 second')
             end
           end
         end
@@ -157,9 +157,9 @@ describe QA::Support::Repeater do
                 subject.repeat_until(max_duration: 1, retry_on_exception: true) do
                   Timecop.travel(2)
 
-                  raise "this should be raised"
+                  raise 'this should be raised'
                 end
-              end.to raise_error(RuntimeError, "this should be raised")
+              end.to raise_error(RuntimeError, 'this should be raised')
             end
           end
 
@@ -172,9 +172,9 @@ describe QA::Support::Repeater do
                   loop_counter += 1
                   Timecop.travel(time_start + loop_counter)
 
-                  raise "this should be raised"
+                  raise 'this should be raised'
                 end
-              end.to raise_error(RuntimeError, "this should be raised")
+              end.to raise_error(RuntimeError, 'this should be raised')
             end
             expect(loop_counter).to eq(2)
           end
@@ -190,7 +190,7 @@ describe QA::Support::Repeater do
                   loop_counter += 1
                   Timecop.travel(time_start + loop_counter)
 
-                  raise "this should not be raised" if loop_counter == 1
+                  raise 'this should not be raised' if loop_counter == 1
 
                   return_value
                 end
@@ -212,7 +212,7 @@ describe QA::Support::Repeater do
                     false
                   end
                 end
-              end.to raise_error(QA::Support::Repeater::RetriesExceededError, "Retry condition not met after 1 attempt")
+              end.to raise_error(QA::Support::Repeater::RetriesExceededError, 'Retry condition not met after 1 attempt')
             end
           end
 
@@ -227,7 +227,7 @@ describe QA::Support::Repeater do
                     false
                   end
                 end
-              end.to raise_error(QA::Support::Repeater::WaitExceededError, "Wait condition not met after 1 second")
+              end.to raise_error(QA::Support::Repeater::WaitExceededError, 'Wait condition not met after 1 second')
             end
           end
         end
@@ -270,9 +270,9 @@ describe QA::Support::Repeater do
             Timecop.freeze do
               expect do
                 subject.repeat_until(max_duration: 1, raise_on_failure: false) do
-                  raise "this should be raised"
+                  raise 'this should be raised'
                 end
-              end.to raise_error(RuntimeError, "this should be raised")
+              end.to raise_error(RuntimeError, 'this should be raised')
             end
           end
         end
@@ -336,7 +336,7 @@ describe QA::Support::Repeater do
                 @loop_counter += 1
                 Timecop.travel(time_start + @loop_counter)
 
-                raise "this should not be raised" if @loop_counter == 1
+                raise 'this should not be raised' if @loop_counter == 1
 
                 return_value
               end

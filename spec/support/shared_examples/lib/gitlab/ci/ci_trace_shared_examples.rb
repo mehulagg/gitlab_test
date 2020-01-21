@@ -6,12 +6,12 @@ RSpec.shared_examples 'common trace features' do
       trace.set("12\n34")
     end
 
-    it "returns formatted html" do
-      expect(trace.html).to eq("<span>12<br/>34</span>")
+    it 'returns formatted html' do
+      expect(trace.html).to eq('<span>12<br/>34</span>')
     end
 
-    it "returns last line of formatted html" do
-      expect(trace.html(last_lines: 1)).to eq("<span>34</span>")
+    it 'returns last line of formatted html' do
+      expect(trace.html(last_lines: 1)).to eq('<span>34</span>')
     end
   end
 
@@ -20,12 +20,12 @@ RSpec.shared_examples 'common trace features' do
       trace.set("12\n34")
     end
 
-    it "returns raw output" do
+    it 'returns raw output' do
       expect(trace.raw).to eq("12\n34")
     end
 
-    it "returns last line of raw output" do
-      expect(trace.raw(last_lines: 1)).to eq("34")
+    it 'returns last line of raw output' do
+      expect(trace.raw(last_lines: 1)).to eq('34')
     end
   end
 
@@ -37,8 +37,8 @@ RSpec.shared_examples 'common trace features' do
         trace.set('Coverage 1033 / 1051 LOC (98.29%) covered')
       end
 
-      it "returns valid coverage" do
-        expect(trace.extract_coverage(regex)).to eq("98.29")
+      it 'returns valid coverage' do
+        expect(trace.extract_coverage(regex)).to eq('98.29')
       end
     end
 
@@ -82,7 +82,7 @@ RSpec.shared_examples 'common trace features' do
         ]
       end
 
-      it "returns valid sections" do
+      it 'returns valid sections' do
         expect(sections).not_to be_empty
         expect(sections.size).to eq(sections_data.size),
                                  "expected #{sections_data.size} sections, got #{sections.size}"
@@ -105,20 +105,20 @@ RSpec.shared_examples 'common trace features' do
     context 'logs contains "section_start"' do
       let(:log) { "section_start:1506417476:a_section\r\033[0Klooks like a section_start:invalid\nsection_end:1506417477:a_section\r\033[0K"}
 
-      it "returns only one section" do
+      it 'returns only one section' do
         expect(sections).not_to be_empty
         expect(sections.size).to eq(1)
 
         section = sections[0]
         expect(section[:name]).to eq('a_section')
-        expect(section[:byte_start]).not_to eq(section[:byte_end]), "got an empty section"
+        expect(section[:byte_start]).not_to eq(section[:byte_end]), 'got an empty section'
       end
     end
 
     context 'missing section_end' do
       let(:log) { "section_start:1506417476:a_section\r\033[0KSome logs\nNo section_end\n"}
 
-      it "returns no sections" do
+      it 'returns no sections' do
         expect(sections).to be_empty
       end
     end
@@ -126,7 +126,7 @@ RSpec.shared_examples 'common trace features' do
     context 'missing section_start' do
       let(:log) { "Some logs\nNo section_start\nsection_end:1506417476:a_section\r\033[0K"}
 
-      it "returns no sections" do
+      it 'returns no sections' do
         expect(sections).to be_empty
       end
     end
@@ -134,7 +134,7 @@ RSpec.shared_examples 'common trace features' do
     context 'inverted section_start section_end' do
       let(:log) { "section_end:1506417476:a_section\r\033[0Klooks like a section_start:invalid\nsection_start:1506417477:a_section\r\033[0K"}
 
-      it "returns no sections" do
+      it 'returns no sections' do
         expect(sections).to be_empty
       end
     end
@@ -164,20 +164,20 @@ RSpec.shared_examples 'common trace features' do
 
   describe '#set' do
     before do
-      trace.set("12")
+      trace.set('12')
     end
 
-    it "returns trace" do
-      expect(trace.raw).to eq("12")
+    it 'returns trace' do
+      expect(trace.raw).to eq('12')
     end
 
     context 'overwrite trace' do
       before do
-        trace.set("34")
+        trace.set('34')
       end
 
-      it "returns new trace" do
-        expect(trace.raw).to eq("34")
+      it 'returns new trace' do
+        expect(trace.raw).to eq('34')
       end
     end
 
@@ -188,7 +188,7 @@ RSpec.shared_examples 'common trace features' do
         trace.set(token)
       end
 
-      it "hides token" do
+      it 'hides token' do
         expect(trace.raw).not_to include(token)
       end
     end
@@ -200,7 +200,7 @@ RSpec.shared_examples 'common trace features' do
         trace.set(token)
       end
 
-      it "hides token" do
+      it 'hides token' do
         expect(trace.raw).not_to include(token)
       end
     end
@@ -208,18 +208,18 @@ RSpec.shared_examples 'common trace features' do
 
   describe '#append' do
     before do
-      trace.set("1234")
+      trace.set('1234')
     end
 
-    it "returns correct trace" do
-      expect(trace.append("56", 4)).to eq(6)
-      expect(trace.raw).to eq("123456")
+    it 'returns correct trace' do
+      expect(trace.append('56', 4)).to eq(6)
+      expect(trace.raw).to eq('123456')
     end
 
     context 'tries to append trace at different offset' do
-      it "fails with append" do
-        expect(trace.append("56", 2)).to eq(4)
-        expect(trace.raw).to eq("1234")
+      it 'fails with append' do
+        expect(trace.append('56', 2)).to eq(4)
+        expect(trace.raw).to eq('1234')
       end
     end
 
@@ -231,7 +231,7 @@ RSpec.shared_examples 'common trace features' do
         trace.append(token, 0)
       end
 
-      it "hides token" do
+      it 'hides token' do
         expect(trace.raw).not_to include(token)
       end
     end
@@ -244,7 +244,7 @@ RSpec.shared_examples 'common trace features' do
         trace.append(token, 0)
       end
 
-      it "hides token" do
+      it 'hides token' do
         expect(trace.raw).not_to include(token)
       end
     end
@@ -333,7 +333,7 @@ RSpec.shared_examples 'trace with disabled live trace feature' do
 
     context 'when db trace exists' do
       before do
-        build.send(:write_attribute, :trace, "data")
+        build.send(:write_attribute, :trace, 'data')
       end
 
       it_behaves_like 'read successfully with StringIO'
@@ -375,16 +375,16 @@ RSpec.shared_examples 'trace with disabled live trace feature' do
       before do
         trace.send(:ensure_directory)
 
-        File.open(trace.send(:default_path), "w") do |file|
-          file.write("data")
+        File.open(trace.send(:default_path), 'w') do |file|
+          file.write('data')
         end
       end
 
-      it "trace exist" do
+      it 'trace exist' do
         expect(trace.exist?).to be(true)
       end
 
-      it "can be erased" do
+      it 'can be erased' do
         trace.erase!
         expect(trace.exist?).to be(false)
       end
@@ -392,20 +392,20 @@ RSpec.shared_examples 'trace with disabled live trace feature' do
 
     context 'stored in database' do
       before do
-        build.send(:write_attribute, :trace, "data")
+        build.send(:write_attribute, :trace, 'data')
       end
 
-      it "trace exist" do
+      it 'trace exist' do
         expect(trace.exist?).to be(true)
       end
 
-      it "can be erased" do
+      it 'can be erased' do
         trace.erase!
         expect(trace.exist?).to be(false)
       end
 
-      it "returns database data" do
-        expect(trace.raw).to eq("data")
+      it 'returns database data' do
+        expect(trace.raw).to eq('data')
       end
     end
   end
@@ -581,7 +581,7 @@ RSpec.shared_examples 'trace with disabled live trace feature' do
 
         it { expect(trace.raw).not_to be_nil }
 
-        it "removes trace" do
+        it 'removes trace' do
           subject
 
           expect(trace.raw).to be_nil
@@ -593,7 +593,7 @@ RSpec.shared_examples 'trace with disabled live trace feature' do
 
         it { expect(trace.raw).not_to be_nil }
 
-        it "removes trace" do
+        it 'removes trace' do
           subject
 
           expect(trace.raw).to be_nil
@@ -604,11 +604,11 @@ RSpec.shared_examples 'trace with disabled live trace feature' do
     context 'when it is an archived trace' do
       let(:build) { create(:ci_build, :trace_artifact) }
 
-      it "has trace at first" do
+      it 'has trace at first' do
         expect(trace.raw).not_to be_nil
       end
 
-      it "removes trace" do
+      it 'removes trace' do
         subject
 
         build.reload
@@ -706,18 +706,18 @@ RSpec.shared_examples 'trace with enabled live trace feature' do
         end
       end
 
-      it "trace exist" do
+      it 'trace exist' do
         expect(trace.exist?).to be(true)
       end
 
-      it "can be erased" do
+      it 'can be erased' do
         trace.erase!
         expect(trace.exist?).to be(false)
         expect(Ci::BuildTraceChunk.where(build: build)).not_to be_exist
       end
 
-      it "returns live trace data" do
-        expect(trace.raw).to eq("abc")
+      it 'returns live trace data' do
+        expect(trace.raw).to eq('abc')
       end
     end
   end
@@ -864,7 +864,7 @@ RSpec.shared_examples 'trace with enabled live trace feature' do
 
       it { expect(trace.raw).not_to be_nil }
 
-      it "removes trace" do
+      it 'removes trace' do
         subject
 
         expect(trace.raw).to be_nil
@@ -874,11 +874,11 @@ RSpec.shared_examples 'trace with enabled live trace feature' do
     context 'when it is an archived trace' do
       let(:build) { create(:ci_build, :trace_artifact) }
 
-      it "has trace at first" do
+      it 'has trace at first' do
         expect(trace.raw).not_to be_nil
       end
 
-      it "removes trace" do
+      it 'removes trace' do
         subject
 
         build.reload

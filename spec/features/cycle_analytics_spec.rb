@@ -80,7 +80,7 @@ describe 'Cycle Analytics', :js do
         expect_issue_to_be_present
       end
 
-      context "when I change the time period observed" do
+      context 'when I change the time period observed' do
         before do
           _two_weeks_old_issue = create(:issue, project: project, created_at: 2.weeks.ago)
 
@@ -96,7 +96,7 @@ describe 'Cycle Analytics', :js do
     end
   end
 
-  context "as a guest" do
+  context 'as a guest' do
     before do
       project.add_developer(user)
       project.add_guest(guest)

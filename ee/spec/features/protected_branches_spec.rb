@@ -49,29 +49,29 @@ describe 'Protected Branches', :js do
         end
 
         it 'has code owner toggle' do
-          expect(page).to have_content("Require approval from code owners")
-          expect(code_owner_toggle[:class]).to include("is-checked")
+          expect(page).to have_content('Require approval from code owners')
+          expect(code_owner_toggle[:class]).to include('is-checked')
         end
 
         it 'can create new protected branch with code owner disabled' do
-          fill_in_form "with-codeowners"
+          fill_in_form 'with-codeowners'
 
           code_owner_toggle.click
-          expect(code_owner_toggle[:class]).not_to include("is-checked")
+          expect(code_owner_toggle[:class]).not_to include('is-checked')
 
           submit_form
 
-          expect(project.protected_branches.find_by_name("with-codeowners").code_owner_approval_required).to be(false)
+          expect(project.protected_branches.find_by_name('with-codeowners').code_owner_approval_required).to be(false)
         end
 
         it 'can create new protected branch with code owner enabled' do
-          fill_in_form "with-codeowners"
+          fill_in_form 'with-codeowners'
 
-          expect(code_owner_toggle[:class]).to include("is-checked")
+          expect(code_owner_toggle[:class]).to include('is-checked')
 
           submit_form
 
-          expect(project.protected_branches.find_by_name("with-codeowners").code_owner_approval_required).to be(true)
+          expect(project.protected_branches.find_by_name('with-codeowners').code_owner_approval_required).to be(true)
         end
       end
 
@@ -84,7 +84,7 @@ describe 'Protected Branches', :js do
           end
 
           it 'shows code owner approval toggle' do
-            expect(page).to have_content("Code owner approval")
+            expect(page).to have_content('Code owner approval')
           end
 
           it 'displays toggle on' do
@@ -114,11 +114,11 @@ describe 'Protected Branches', :js do
       end
 
       it 'does not have code owner approval in the form' do
-        expect(page).not_to have_content("Require approval from code owners")
+        expect(page).not_to have_content('Require approval from code owners')
       end
 
       it 'does not have code owner approval in the table' do
-        expect(page).not_to have_content("Code owner approval")
+        expect(page).not_to have_content('Code owner approval')
       end
     end
   end
@@ -148,8 +148,8 @@ describe 'Protected Branches', :js do
 
           visit project_settings_repository_path(project)
 
-          expect(page).to have_content("The following user can also push to this branch: "\
-                                       "Jane")
+          expect(page).to have_content('The following user can also push to this branch: '\
+                                       'Jane')
         end
 
         it 'shows groups that can push to the branch' do
@@ -158,8 +158,8 @@ describe 'Protected Branches', :js do
 
           visit project_settings_repository_path(project)
 
-          expect(page).to have_content("Members of this group can also push to "\
-                                       "this branch: Team Awesome")
+          expect(page).to have_content('Members of this group can also push to '\
+                                       'this branch: Team Awesome')
         end
 
         it 'shows users that can merge into the branch' do
@@ -168,8 +168,8 @@ describe 'Protected Branches', :js do
 
           visit project_settings_repository_path(project)
 
-          expect(page).to have_content("The following user can also merge into "\
-                                       "this branch: Jane")
+          expect(page).to have_content('The following user can also merge into '\
+                                       'this branch: Jane')
         end
 
         it 'shows groups that have can push to the branch' do
@@ -180,8 +180,8 @@ describe 'Protected Branches', :js do
 
           visit project_settings_repository_path(project)
 
-          expect(page).to have_content("Members of these groups can also merge into "\
-                                       "this branch:")
+          expect(page).to have_content('Members of these groups can also merge into '\
+                                       'this branch:')
           expect(page).to have_content(/(Team Awesome|Team B) and (Team Awesome|Team B)/)
         end
       end

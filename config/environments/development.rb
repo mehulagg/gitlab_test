@@ -49,5 +49,5 @@ Rails.application.configure do
   config.allow_concurrency = Gitlab::Runtime.multi_threaded?
 
   # BetterErrors live shell (REPL) on every stack frame
-  BetterErrors::Middleware.allow_ip!("127.0.0.1/0")
+  BetterErrors::Middleware.allow_ip!('127.0.0.1/0')
 end

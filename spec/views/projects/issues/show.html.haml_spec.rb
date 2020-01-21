@@ -138,8 +138,8 @@ describe 'projects/issues/show' do
       render
 
       expect(rendered).to have_selector(
-        "#js-sentry-error-stack-trace"\
-        "[data-issue-stack-trace-path="\
+        '#js-sentry-error-stack-trace'\
+        '[data-issue-stack-trace-path='\
         "\"/#{project.full_path}/-/error_tracking/1066622/stack_trace.json\"]"
       )
     end

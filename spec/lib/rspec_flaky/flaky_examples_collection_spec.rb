@@ -36,7 +36,7 @@ describe RspecFlaky::FlakyExamplesCollection, :aggregate_failures do
     end
 
     it 'does not accept anything else' do
-      expect { described_class.new([1, 2, 3]) }.to raise_error(ArgumentError, "`collection` must be a Hash, Array given!")
+      expect { described_class.new([1, 2, 3]) }.to raise_error(ArgumentError, '`collection` must be a Hash, Array given!')
     end
   end
 
@@ -67,7 +67,7 @@ describe RspecFlaky::FlakyExamplesCollection, :aggregate_failures do
     it 'fails if the given collection does not respond to `#key?`' do
       collection = described_class.new(collection_hash)
 
-      expect { collection - [1, 2, 3] }.to raise_error(ArgumentError, "`other` must respond to `#key?`, Array does not!")
+      expect { collection - [1, 2, 3] }.to raise_error(ArgumentError, '`other` must respond to `#key?`, Array does not!')
     end
   end
 end

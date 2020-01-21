@@ -1,11 +1,11 @@
 namespace :gitlab do
   namespace :uploads do
     namespace :migrate do
-      desc "GitLab | Uploads | Migrate all uploaded files to object storage"
+      desc 'GitLab | Uploads | Migrate all uploaded files to object storage'
       task all: :environment do
         Gitlab::Uploads::MigrationHelper::CATEGORIES.each do |args|
-          Rake::Task["gitlab:uploads:migrate"].invoke(*args)
-          Rake::Task["gitlab:uploads:migrate"].reenable
+          Rake::Task['gitlab:uploads:migrate'].invoke(*args)
+          Rake::Task['gitlab:uploads:migrate'].reenable
         end
       end
     end
@@ -18,11 +18,11 @@ namespace :gitlab do
     end
 
     namespace :migrate_to_local do
-      desc "GitLab | Uploads | Migrate all uploaded files to local storage"
+      desc 'GitLab | Uploads | Migrate all uploaded files to local storage'
       task all: :environment do
         Gitlab::Uploads::MigrationHelper::CATEGORIES.each do |args|
-          Rake::Task["gitlab:uploads:migrate_to_local"].invoke(*args)
-          Rake::Task["gitlab:uploads:migrate_to_local"].reenable
+          Rake::Task['gitlab:uploads:migrate_to_local'].invoke(*args)
+          Rake::Task['gitlab:uploads:migrate_to_local'].reenable
         end
       end
     end

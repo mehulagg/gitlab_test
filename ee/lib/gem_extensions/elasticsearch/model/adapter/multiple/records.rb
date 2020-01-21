@@ -10,7 +10,7 @@ module GemExtensions
             def records
               records_by_type = __records_by_type
 
-              records = response.response["hits"]["hits"].map do |hit|
+              records = response.response['hits']['hits'].map do |hit|
                 records_by_type[__type_for_hit(hit)][hit[:_source][:id].to_s]
               end
 
@@ -30,7 +30,7 @@ module GemExtensions
             def __ids_by_type
               ids_by_type = {}
 
-              response.response["hits"]["hits"].each do |hit|
+              response.response['hits']['hits'].each do |hit|
                 type = __type_for_hit(hit)
                 ids_by_type[type] ||= []
                 ids_by_type[type] << hit[:_source][:id]

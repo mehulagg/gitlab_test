@@ -52,7 +52,7 @@ module Gitlab
             quoted_old_wildcard_path = quote_string("#{old_full_path}/%")
 
             filter =
-              "routes.id IN "\
+              'routes.id IN '\
               "( SELECT routes.id FROM routes WHERE lower(routes.path) = lower('#{quoted_old_full_path}') "\
               "UNION SELECT routes.id FROM routes WHERE routes.path ILIKE '#{quoted_old_wildcard_path}' )"
 
@@ -81,7 +81,7 @@ module Gitlab
           end
 
           def remove_last_occurrence(string, pattern)
-            string.reverse.sub(pattern.reverse, "").reverse
+            string.reverse.sub(pattern.reverse, '').reverse
           end
 
           def join_routable_path(namespace_path, top_level)
@@ -183,7 +183,7 @@ module Gitlab
           end
 
           def uploads_dir
-            File.join(CarrierWave.root, "uploads")
+            File.join(CarrierWave.root, 'uploads')
           end
 
           def pages_dir

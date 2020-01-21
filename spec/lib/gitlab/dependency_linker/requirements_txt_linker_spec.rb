@@ -18,7 +18,7 @@ describe Gitlab::DependencyLinker::RequirementsTxtLinker do
   end
 
   describe '#link' do
-    let(:file_name) { "requirements.txt" }
+    let(:file_name) { 'requirements.txt' }
 
     let(:file_content) do
       <<-CONTENT.strip_heredoc

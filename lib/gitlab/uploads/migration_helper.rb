@@ -51,10 +51,10 @@ module Gitlab
                                                            @model_class,
                                                            @mounted_as,
                                                            @to_store)
-        logger.info(message: "[Uploads migration] Enqueued upload migration job", index: index, job_id: job)
+        logger.info(message: '[Uploads migration] Enqueued upload migration job', index: index, job_id: job)
       rescue ObjectStorage::MigrateUploadsWorker::SanityCheckError => e
         # continue for the next batch
-        logger.warn(message: "[Uploads migration] Could not enqueue batch", ids: batch.ids, reason: e.message) # rubocop:disable CodeReuse/ActiveRecord
+        logger.warn(message: '[Uploads migration] Could not enqueue batch', ids: batch.ids, reason: e.message) # rubocop:disable CodeReuse/ActiveRecord
       end
 
       # rubocop:disable CodeReuse/ActiveRecord

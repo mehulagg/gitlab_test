@@ -26,7 +26,7 @@ module QA
             yield
           end
 
-          raise EventNotFoundError, "Timed out waiting for event" unless event_found
+          raise EventNotFoundError, 'Timed out waiting for event' unless event_found
         end
 
         def max_wait

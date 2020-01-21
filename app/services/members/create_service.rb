@@ -9,7 +9,7 @@ module Members
 
       user_ids = params[:user_ids].split(',').uniq
 
-      return error(s_("AddMember|Too many users specified (limit is %{user_limit})") % { user_limit: user_limit }) if
+      return error(s_('AddMember|Too many users specified (limit is %{user_limit})') % { user_limit: user_limit }) if
         user_limit && user_ids.size > user_limit
 
       members = source.add_users(
@@ -28,7 +28,7 @@ module Members
             if member.user.present?
               "#{member.user.username}: "
             else
-              ""
+              ''
             end
 
           current_error += member.errors.full_messages.to_sentence

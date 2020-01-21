@@ -20,7 +20,7 @@ class BuildUserInteractedProjectsTable < ActiveRecord::Migration[4.2]
   end
 
   def down
-    execute "TRUNCATE user_interacted_projects"
+    execute 'TRUNCATE user_interacted_projects'
 
     if foreign_key_exists?(:user_interacted_projects, :users)
       remove_foreign_key :user_interacted_projects, :users
@@ -69,7 +69,7 @@ class BuildUserInteractedProjectsTable < ActiveRecord::Migration[4.2]
         end
       end
 
-      execute "ANALYZE user_interacted_projects"
+      execute 'ANALYZE user_interacted_projects'
     end
 
     private
@@ -102,11 +102,11 @@ class BuildUserInteractedProjectsTable < ActiveRecord::Migration[4.2]
     end
 
     def remove_without_project
-      execute "DELETE FROM user_interacted_projects WHERE NOT EXISTS (SELECT 1 FROM projects WHERE id = user_interacted_projects.project_id)"
+      execute 'DELETE FROM user_interacted_projects WHERE NOT EXISTS (SELECT 1 FROM projects WHERE id = user_interacted_projects.project_id)'
     end
 
     def remove_without_user
-      execute "DELETE FROM user_interacted_projects WHERE NOT EXISTS (SELECT 1 FROM users WHERE id = user_interacted_projects.user_id)"
+      execute 'DELETE FROM user_interacted_projects WHERE NOT EXISTS (SELECT 1 FROM users WHERE id = user_interacted_projects.user_id)'
     end
 
     def create_fk(table, target, column)
@@ -124,7 +124,7 @@ class BuildUserInteractedProjectsTable < ActiveRecord::Migration[4.2]
     # Protect table against concurrent data changes while still allowing reads
     def with_table_lock(*tables)
       ActiveRecord::Base.connection.transaction do
-        execute "LOCK TABLE #{tables.join(", ")} IN SHARE MODE"
+        execute "LOCK TABLE #{tables.join(', ')} IN SHARE MODE"
         yield
       end
     end

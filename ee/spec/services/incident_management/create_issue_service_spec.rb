@@ -199,7 +199,7 @@ describe IncidentManagement::CreateIssueService do
       end
     end
 
-    describe "label `incident`" do
+    describe 'label `incident`' do
       let(:title) { 'incident' }
       let(:color) { '#CC0033' }
       let(:description) do

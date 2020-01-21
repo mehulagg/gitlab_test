@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe EE::AuthHelper do
-  describe "form_based_providers" do
+  describe 'form_based_providers' do
     context 'with smartcard_auth feature flag off' do
       before do
         stub_licensed_features(smartcard_auth: false)

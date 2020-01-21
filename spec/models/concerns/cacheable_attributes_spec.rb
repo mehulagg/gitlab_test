@@ -36,7 +36,7 @@ describe CacheableAttributes do
   end
 
   before do
-    stub_const("MinimalTestClass", minimal_test_class)
+    stub_const('MinimalTestClass', minimal_test_class)
   end
 
   shared_context 'with defaults' do

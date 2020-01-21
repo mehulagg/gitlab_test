@@ -5,7 +5,7 @@ require 'spec_helper'
 describe PostReceive do
   let(:changes) { "123456 789012 refs/heads/tést\n654321 210987 refs/tags/tag" }
   let(:changes_with_master) { "#{changes}\n423423 797823 refs/heads/master" }
-  let(:wrongly_encoded_changes) { changes.encode("ISO-8859-1").force_encoding("UTF-8") }
+  let(:wrongly_encoded_changes) { changes.encode('ISO-8859-1').force_encoding('UTF-8') }
   let(:base64_changes) { Base64.encode64(wrongly_encoded_changes) }
   let(:base64_changes_with_master) { Base64.encode64(changes_with_master) }
   let(:gl_repository) { "project-#{project.id}" }
@@ -13,7 +13,7 @@ describe PostReceive do
   let(:key_id) { key.shell_id }
   let(:project) { create(:project, :repository, :wiki_repo) }
 
-  describe "#process_project_changes" do
+  describe '#process_project_changes' do
     before do
       allow_any_instance_of(Gitlab::GitPostReceive).to receive(:identify).and_return(project.owner)
     end

@@ -127,7 +127,7 @@ module Gitlab
     private
 
     def lock(timeout = 10)
-      File.open("#{file}.lock", "w+") do |f|
+      File.open("#{file}.lock", 'w+') do |f|
         f.flock File::LOCK_EX
         Timeout.timeout(timeout) { yield }
       ensure

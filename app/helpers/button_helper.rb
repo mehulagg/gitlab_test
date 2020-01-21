@@ -68,9 +68,9 @@ module ButtonHelper
 
   def http_dropdown_description(protocol)
     if current_user.try(:require_password_creation_for_git?)
-      _("Set a password on your account to pull or push via %{protocol}.") % { protocol: protocol }
+      _('Set a password on your account to pull or push via %{protocol}.') % { protocol: protocol }
     elsif current_user.try(:require_personal_access_token_creation_for_git_auth?)
-      _("Create a personal access token on your account to pull or push via %{protocol}.") % { protocol: protocol }
+      _('Create a personal access token on your account to pull or push via %{protocol}.') % { protocol: protocol }
     end
   end
 
@@ -86,7 +86,7 @@ module ButtonHelper
   end
 
   def dropdown_item_with_description(title, description, href: nil, data: nil, default: false)
-    active_class = "is-active" if default
+    active_class = 'is-active' if default
     button_content = content_tag(:strong, title, class: 'dropdown-menu-inner-title')
     button_content << content_tag(:span, description, class: 'dropdown-menu-inner-content') if description
 

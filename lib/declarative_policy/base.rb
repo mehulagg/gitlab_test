@@ -228,10 +228,10 @@ module DeclarativePolicy
       runner(ability).debug(*args)
     end
 
-    desc "Unknown user"
+    desc 'Unknown user'
     condition(:anonymous, scope: :user, score: 0) { @user.nil? }
 
-    desc "By default"
+    desc 'By default'
     condition(:default, scope: :global, score: 0) { true }
 
     def repr
@@ -246,7 +246,7 @@ module DeclarativePolicy
         if @user
           @user.to_reference
         else
-          "<anonymous>"
+          '<anonymous>'
         end
 
       "(#{user_repr} : #{subject_repr})"

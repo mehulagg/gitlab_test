@@ -7,7 +7,7 @@ describe Git::TagHooksService, :service do
   let(:project) { create(:project, :repository) }
 
   let(:oldrev) { Gitlab::Git::BLANK_SHA }
-  let(:newrev) { "8a2a6eb295bb170b34c24c76c49ed0e9b2eaf34b" } # gitlab-test: git rev-parse refs/tags/v1.1.0
+  let(:newrev) { '8a2a6eb295bb170b34c24c76c49ed0e9b2eaf34b' } # gitlab-test: git rev-parse refs/tags/v1.1.0
   let(:ref) { "refs/tags/#{tag_name}" }
   let(:tag_name) { 'v1.1.0' }
 
@@ -33,8 +33,8 @@ describe Git::TagHooksService, :service do
     end
   end
 
-  describe "Webhooks" do
-    it "executes hooks on the project" do
+  describe 'Webhooks' do
+    it 'executes hooks on the project' do
       expect(project).to receive(:has_active_hooks?).and_return(true)
       expect(project).to receive(:execute_hooks)
 
@@ -42,13 +42,13 @@ describe Git::TagHooksService, :service do
     end
   end
 
-  describe "Pipelines" do
+  describe 'Pipelines' do
     before do
       stub_ci_pipeline_to_return_yaml_file
       project.add_developer(user)
     end
 
-    it "creates a new pipeline" do
+    it 'creates a new pipeline' do
       expect { service.execute }.to change { Ci::Pipeline.count }
 
       expect(Ci::Pipeline.last).to be_push
@@ -72,7 +72,7 @@ describe Git::TagHooksService, :service do
         )
       end
 
-      context "with repository data" do
+      context 'with repository data' do
         subject { push_data[:repository] }
 
         it 'has expected repository attributes' do
@@ -85,7 +85,7 @@ describe Git::TagHooksService, :service do
         end
       end
 
-      context "with commits" do
+      context 'with commits' do
         subject { push_data[:commits] }
 
         it { is_expected.to be_an(Array) }
@@ -94,7 +94,7 @@ describe Git::TagHooksService, :service do
           expect(subject.size).to eq(1)
         end
 
-        context "the commit" do
+        context 'the commit' do
           subject { push_data[:commits].first }
 
           it { is_expected.to include(timestamp: commit.date.xmlschema) }
@@ -113,7 +113,7 @@ describe Git::TagHooksService, :service do
             )
           end
 
-          context "with an author" do
+          context 'with an author' do
             subject { push_data[:commits].first[:author] }
 
             it 'has expected author attributes' do

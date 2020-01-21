@@ -16,11 +16,11 @@ module Gitlab
       }.freeze
 
       LOG_MESSAGES = {
-        delete_default_branch_check: "Checking if default branch is being deleted...",
-        protected_branch_checks: "Checking if you are force pushing to a protected branch...",
-        protected_branch_push_checks: "Checking if you are allowed to push to the protected branch...",
-        protected_branch_creation_checks: "Checking if you are allowed to create a protected branch...",
-        protected_branch_deletion_checks: "Checking if you are allowed to delete the protected branch..."
+        delete_default_branch_check: 'Checking if default branch is being deleted...',
+        protected_branch_checks: 'Checking if you are force pushing to a protected branch...',
+        protected_branch_push_checks: 'Checking if you are allowed to push to the protected branch...',
+        protected_branch_creation_checks: 'Checking if you are allowed to create a protected branch...',
+        protected_branch_deletion_checks: 'Checking if you are allowed to delete the protected branch...'
       }.freeze
 
       def validate!

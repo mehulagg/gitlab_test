@@ -233,7 +233,7 @@ describe 'New project' do
           context 'namespace selector' do
             it "only shows the template's group hierarchy options" do
               page.within('#create-from-template-pane') do
-                elements = page.find_all("#project_namespace_id option:not(.hidden)", visible: false).map { |e| e['data-name'] }
+                elements = page.find_all('#project_namespace_id option:not(.hidden)', visible: false).map { |e| e['data-name'] }
                 expect(elements).to contain_exactly(group1.name, subgroup1.name, subsubgroup1.name)
               end
             end
@@ -261,7 +261,7 @@ describe 'New project' do
 
           it 'list the appropriate groups' do
             page.within('#create-from-template-pane') do
-              elements = page.find_all("#project_namespace_id option:not(.hidden)", visible: false).map { |e| e['data-name'] }
+              elements = page.find_all('#project_namespace_id option:not(.hidden)', visible: false).map { |e| e['data-name'] }
 
               expect(elements).to contain_exactly(group1.name, subgroup1.name, subsubgroup1.name)
             end

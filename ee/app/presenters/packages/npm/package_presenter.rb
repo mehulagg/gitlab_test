@@ -29,7 +29,7 @@ module Packages
       end
 
       def dist_tags
-        build_package_tags.tap { |t| t["latest"] ||= sorted_versions.last }
+        build_package_tags.tap { |t| t['latest'] ||= sorted_versions.last }
       end
 
       private

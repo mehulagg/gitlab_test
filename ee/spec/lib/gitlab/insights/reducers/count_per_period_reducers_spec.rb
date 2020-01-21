@@ -45,7 +45,7 @@ RSpec.describe Gitlab::Insights::Reducers::CountPerPeriodReducer do
   end
 
   it 'raises an error for an unknown :period_limit option' do
-    expect { reduce(issuable_relation, 'month', -1) }.to raise_error(described_class::InvalidPeriodLimitError, "Invalid value for `period_limit`: `-1`. Value must be greater than 0!")
+    expect { reduce(issuable_relation, 'month', -1) }.to raise_error(described_class::InvalidPeriodLimitError, 'Invalid value for `period_limit`: `-1`. Value must be greater than 0!')
   end
 
   it 'returns issuables with only the needed fields' do

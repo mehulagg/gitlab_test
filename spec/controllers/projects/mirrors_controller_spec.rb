@@ -53,7 +53,7 @@ describe Projects::MirrorsController do
 
     context 'With valid URL for a push' do
       let(:remote_mirror_attributes) do
-        { "0" => { "enabled" => "0", url: 'https://updated.example.com' } }
+        { '0' => { 'enabled' => '0', url: 'https://updated.example.com' } }
       end
 
       it 'processes a successful update' do
@@ -70,7 +70,7 @@ describe Projects::MirrorsController do
 
     context 'With invalid URL for a push' do
       let(:remote_mirror_attributes) do
-        { "0" => { "enabled" => "0", url: 'ftp://invalid.invalid' } }
+        { '0' => { 'enabled' => '0', url: 'ftp://invalid.invalid' } }
       end
 
       it 'processes an unsuccessful update' do
@@ -88,7 +88,7 @@ describe Projects::MirrorsController do
 
   describe '#ssh_host_keys', :use_clean_rails_memory_store_caching do
     let(:project) { create(:project) }
-    let(:cache) { SshHostKey.new(project: project, url: "ssh://example.com:22") }
+    let(:cache) { SshHostKey.new(project: project, url: 'ssh://example.com:22') }
 
     before do
       sign_in(project.owner)

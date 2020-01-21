@@ -25,7 +25,7 @@ describe Gitlab::Diff::Highlight do
   end
 
   describe '#highlight' do
-    context "with a diff file" do
+    context 'with a diff file' do
       let(:subject) { described_class.new(diff_file, repository: project.repository).highlight }
 
       it 'returns Gitlab::Diff::Line elements' do
@@ -66,7 +66,7 @@ describe Gitlab::Diff::Highlight do
       end
     end
 
-    context "with diff lines" do
+    context 'with diff lines' do
       let(:subject) { described_class.new(diff_file.diff_lines, repository: project.repository).highlight }
 
       it 'returns Gitlab::Diff::Line elements' do

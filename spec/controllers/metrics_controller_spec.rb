@@ -24,7 +24,7 @@ describe MetricsController, :request_store do
     allow(Gitlab::Metrics).to receive(:prometheus_metrics_enabled?).and_return(true)
     allow(Settings.monitoring).to receive(:ip_whitelist).and_return([whitelisted_ip, whitelisted_ip_range])
     allow_next_instance_of(MetricsService) do |instance|
-      allow(instance).to receive(:metrics_text).and_return("prometheus_counter 1")
+      allow(instance).to receive(:metrics_text).and_return('prometheus_counter 1')
     end
   end
 

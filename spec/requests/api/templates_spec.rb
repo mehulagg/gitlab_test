@@ -48,7 +48,7 @@ describe API::Templates do
       get api('/templates/gitlab_ci_ymls/Ruby')
 
       expect(response).to have_gitlab_http_status(200)
-      expect(json_response['content']).to start_with("# This file is a template,")
+      expect(json_response['content']).to start_with('# This file is a template,')
     end
   end
 

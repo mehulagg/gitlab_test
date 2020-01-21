@@ -17,10 +17,10 @@ describe API::Groups do
     group.ldap_group_links.create cn: 'ldap-group', group_access: Gitlab::Access::MAINTAINER, provider: 'ldap'
   end
 
-  describe "GET /groups" do
-    context "when authenticated as user" do
-      it "returns ldap details" do
-        get api("/groups", user)
+  describe 'GET /groups' do
+    context 'when authenticated as user' do
+      it 'returns ldap details' do
+        get api('/groups', user)
 
         expect(json_response).to(
           satisfy_one { |group_json| group_json['ldap_cn'] == group.ldap_cn })
@@ -132,20 +132,20 @@ describe API::Groups do
     end
   end
 
-  describe "POST /groups" do
-    context "when authenticated as user with group permissions" do
-      it "creates an ldap_group_link if ldap_cn and ldap_access are supplied" do
+  describe 'POST /groups' do
+    context 'when authenticated as user with group permissions' do
+      it 'creates an ldap_group_link if ldap_cn and ldap_access are supplied' do
         group_attributes = attributes_for_group_api ldap_cn: 'ldap-group', ldap_access: Gitlab::Access::DEVELOPER
-        expect { post api("/groups", admin), params: group_attributes }.to change { LdapGroupLink.count }.by(1)
+        expect { post api('/groups', admin), params: group_attributes }.to change { LdapGroupLink.count }.by(1)
       end
 
       context 'when shared_runners_minutes_limit is given' do
         context 'when the current user is not an admin' do
-          it "does not create a group with shared_runners_minutes_limit" do
+          it 'does not create a group with shared_runners_minutes_limit' do
             group = attributes_for_group_api shared_runners_minutes_limit: 133
 
             expect do
-              post api("/groups", another_user), params: group
+              post api('/groups', another_user), params: group
             end.not_to change { Group.count }
 
             expect(response).to have_gitlab_http_status(403)
@@ -153,11 +153,11 @@ describe API::Groups do
         end
 
         context 'when the current user is an admin' do
-          it "creates a group with shared_runners_minutes_limit" do
+          it 'creates a group with shared_runners_minutes_limit' do
             group = attributes_for_group_api shared_runners_minutes_limit: 133
 
             expect do
-              post api("/groups", admin), params: group
+              post api('/groups', admin), params: group
             end.to change { Group.count }.by(1)
 
             created_group = Group.find(json_response['id'])
@@ -261,8 +261,8 @@ describe API::Groups do
     end
   end
 
-  describe "GET /groups/:id/projects" do
-    context "when authenticated as user" do
+  describe 'GET /groups/:id/projects' do
+    context 'when authenticated as user' do
       let(:project_with_reports) { create(:project, :public, group: group) }
       let!(:project_without_reports) { create(:project, :public, group: group) }
 
@@ -282,7 +282,7 @@ describe API::Groups do
           create(:gitlab_subscription, hosted_plan: group.plan, namespace: group)
         end
 
-        it "returns only projects with security reports" do
+        it 'returns only projects with security reports' do
           subject
 
           expect(json_response.map { |p| p['id'] }).to contain_exactly(project_with_reports.id)
@@ -290,7 +290,7 @@ describe API::Groups do
       end
 
       context 'when security dashboard is disabled for a group' do
-        it "returns all projects regardless of the security reports" do
+        it 'returns all projects regardless of the security reports' do
           subject
 
           # using `include` since other projects may be added to this group from different contexts
@@ -358,26 +358,26 @@ describe API::Groups do
 
         context 'parameters' do
           context 'created_before parameter' do
-            it "returns audit events created before the given parameter" do
+            it 'returns audit events created before the given parameter' do
               created_before = '2000-01-20T00:00:00.060Z'
 
               get api(path, user), params: { created_before: created_before }
 
               expect(json_response.size).to eq 3
-              expect(json_response.first["id"]).to eq(group_audit_event_3.id)
-              expect(json_response.last["id"]).to eq(group_audit_event_1.id)
+              expect(json_response.first['id']).to eq(group_audit_event_3.id)
+              expect(json_response.last['id']).to eq(group_audit_event_1.id)
             end
           end
 
           context 'created_after parameter' do
-            it "returns audit events created after the given parameter" do
+            it 'returns audit events created after the given parameter' do
               created_after = '2000-01-12T00:00:00.060Z'
 
               get api(path, user), params: { created_after: created_after }
 
               expect(json_response.size).to eq 2
-              expect(json_response.first["id"]).to eq(group_audit_event_3.id)
-              expect(json_response.last["id"]).to eq(group_audit_event_2.id)
+              expect(json_response.first['id']).to eq(group_audit_event_3.id)
+              expect(json_response.last['id']).to eq(group_audit_event_2.id)
             end
           end
         end

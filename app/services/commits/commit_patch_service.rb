@@ -55,7 +55,7 @@ module Commits
     end
 
     def validate_patches!
-      raise_error("Patches are too big") unless @patches.valid_size?
+      raise_error('Patches are too big') unless @patches.valid_size?
     end
   end
 end

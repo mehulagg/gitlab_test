@@ -218,11 +218,11 @@ module QA
       end
 
       def gcloud_account_key
-        ENV.fetch("GCLOUD_ACCOUNT_KEY")
+        ENV.fetch('GCLOUD_ACCOUNT_KEY')
       end
 
       def gcloud_account_email
-        ENV.fetch("GCLOUD_ACCOUNT_EMAIL")
+        ENV.fetch('GCLOUD_ACCOUNT_EMAIL')
       end
 
       def gcloud_region
@@ -245,11 +245,11 @@ module QA
       def require_github_access_token!
         return unless github_access_token.empty?
 
-        raise ArgumentError, "Please provide GITHUB_ACCESS_TOKEN"
+        raise ArgumentError, 'Please provide GITHUB_ACCESS_TOKEN'
       end
 
       def require_admin_access_token!
-        admin_personal_access_token || (raise ArgumentError, "GITLAB_QA_ADMIN_ACCESS_TOKEN is required!")
+        admin_personal_access_token || (raise ArgumentError, 'GITLAB_QA_ADMIN_ACCESS_TOKEN is required!')
       end
 
       # Returns true if there is an environment variable that indicates that

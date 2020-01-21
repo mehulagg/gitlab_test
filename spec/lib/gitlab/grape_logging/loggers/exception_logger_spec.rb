@@ -7,7 +7,7 @@ describe Gitlab::GrapeLogging::Loggers::ExceptionLogger do
 
   let(:mock_request) { OpenStruct.new(env: {}) }
 
-  describe ".parameters" do
+  describe '.parameters' do
     describe 'when no exception is available' do
       it 'returns an empty hash' do
         expect(subject.parameters(mock_request, nil)).to eq({})

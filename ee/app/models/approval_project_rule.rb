@@ -65,6 +65,6 @@ class ApprovalProjectRule < ApplicationRecord
     return unless name_changed?
     return unless name_was == ApprovalRuleLike::DEFAULT_NAME_FOR_LICENSE_REPORT
 
-    errors.add(:name, _("cannot be modified"))
+    errors.add(:name, _('cannot be modified'))
   end
 end

@@ -14,5 +14,5 @@ abort unless $?.success?
 puts git_status
 
 if git_status.lines.grep(%r{^.. spec/support/gitlab-git-test.git}).any?
-  abort "error: detected changes in gitlab-git-test.git"
+  abort 'error: detected changes in gitlab-git-test.git'
 end

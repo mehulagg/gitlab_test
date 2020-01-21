@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 describe NotesHelper do
   include RepoHelpers
@@ -24,7 +24,7 @@ describe NotesHelper do
     project.add_guest(guest)
   end
 
-  describe "#notes_max_access_for_users" do
+  describe '#notes_max_access_for_users' do
     it 'returns access levels' do
       expect(helper.note_max_access_for_user(owner_note)).to eq(Gitlab::Access::OWNER)
       expect(helper.note_max_access_for_user(maintainer_note)).to eq(Gitlab::Access::MAINTAINER)
@@ -63,8 +63,8 @@ describe NotesHelper do
         context 'when the discussion is on an older merge request version' do
           let(:position) do
             Gitlab::Diff::Position.new(
-              old_path: ".gitmodules",
-              new_path: ".gitmodules",
+              old_path: '.gitmodules',
+              new_path: '.gitmodules',
               old_line: nil,
               new_line: 4,
               diff_refs: merge_request_diff1.diff_refs
@@ -87,8 +87,8 @@ describe NotesHelper do
         context 'when the discussion is on a comparison between merge request versions' do
           let(:position) do
             Gitlab::Diff::Position.new(
-              old_path: ".gitmodules",
-              new_path: ".gitmodules",
+              old_path: '.gitmodules',
+              new_path: '.gitmodules',
               old_line: 4,
               new_line: 4,
               diff_refs: merge_request_diff3.compare_with(merge_request_diff1.head_commit_sha).diff_refs

@@ -11,7 +11,7 @@
 class CertificateValidator < ActiveModel::EachValidator
   def validate_each(record, attribute, value)
     unless valid_certificate_pem?(value)
-      record.errors.add(attribute, "must be a valid PEM certificate")
+      record.errors.add(attribute, 'must be a valid PEM certificate')
     end
   end
 

@@ -14,8 +14,8 @@ class AddLabelProjectGroupPartialIndexes < ActiveRecord::Migration[5.2]
   GROUP_AND_TITLE = [:group_id, :title]
 
   def up
-    add_concurrent_index :labels, PROJECT_AND_TITLE, unique: false, where: "labels.group_id = null"
-    add_concurrent_index :labels, GROUP_AND_TITLE, unique: false, where: "labels.project_id = null"
+    add_concurrent_index :labels, PROJECT_AND_TITLE, unique: false, where: 'labels.group_id = null'
+    add_concurrent_index :labels, GROUP_AND_TITLE, unique: false, where: 'labels.project_id = null'
   end
 
   def down

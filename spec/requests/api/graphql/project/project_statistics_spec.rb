@@ -25,7 +25,7 @@ describe 'rendering project statistics' do
     end
   end
 
-  it "includes the packages size if the user can read the statistics" do
+  it 'includes the packages size if the user can read the statistics' do
     post_graphql(query, current_user: user)
 
     expect(graphql_data['project']['statistics']['packagesSize']).to eq(5.megabytes)

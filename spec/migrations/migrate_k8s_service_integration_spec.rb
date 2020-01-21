@@ -12,7 +12,7 @@ describe MigrateK8sServiceIntegration, :migration do
           template: true,
           category: 'deployment',
           type: 'KubernetesService',
-          properties: "{\"namespace\":\"prod\",\"api_url\":\"https://sample.kubernetes.com\",\"ca_pem\":\"ca_pem-sample\",\"token\":\"token-sample\"}"
+          properties: '{"namespace":"prod","api_url":"https://sample.kubernetes.com","ca_pem":"ca_pem-sample","token":"token-sample"}'
         )
       end
 
@@ -40,7 +40,7 @@ describe MigrateK8sServiceIntegration, :migration do
           template: true,
           category: 'deployment',
           type: 'KubernetesService',
-          properties: "{\"namespace\":\"\",\"api_url\":\"https://sample.kubernetes.com\",\"ca_pem\":\"ca_pem-sample\",\"token\":\"token-sample\"}"
+          properties: '{"namespace":"","api_url":"https://sample.kubernetes.com","ca_pem":"ca_pem-sample","token":"token-sample"}'
         )
       end
 
@@ -68,7 +68,7 @@ describe MigrateK8sServiceIntegration, :migration do
           template: true,
           category: 'deployment',
           type: 'KubernetesService',
-          properties: "{}"
+          properties: '{}'
         )
       end
 
@@ -84,7 +84,7 @@ describe MigrateK8sServiceIntegration, :migration do
           template: true,
           category: 'deployment',
           type: 'KubernetesService',
-          properties: "{\"namespace\":\"prod\",\"api_url\":\"https://sample.kubernetes.com\",\"ca_pem\":\"ca_pem-sample\",\"token\":\"token-sample\"}"
+          properties: '{"namespace":"prod","api_url":"https://sample.kubernetes.com","ca_pem":"ca_pem-sample","token":"token-sample"}'
         )
       end
 
@@ -112,7 +112,7 @@ describe MigrateK8sServiceIntegration, :migration do
           template: true,
           category: 'deployment',
           type: 'KubernetesService',
-          properties: "{\"namespace\":\"prod\",\"api_url\":\"https://sample.kubernetes.com\",\"ca_pem\":\"ca_pem-sample\",\"token\":\"token-sample\"}"
+          properties: '{"namespace":"prod","api_url":"https://sample.kubernetes.com","ca_pem":"ca_pem-sample","token":"token-sample"}'
         )
       end
 
@@ -150,7 +150,7 @@ describe MigrateK8sServiceIntegration, :migration do
         template: false,
         category: 'deployment',
         type: 'KubernetesService',
-        properties: "{\"namespace\":\"prod\",\"api_url\":\"https://sample.kubernetes.com\",\"ca_pem\":\"ca_pem-sample\",\"token\":\"token-sample\"}"
+        properties: '{"namespace":"prod","api_url":"https://sample.kubernetes.com","ca_pem":"ca_pem-sample","token":"token-sample"}'
       )
     end
 

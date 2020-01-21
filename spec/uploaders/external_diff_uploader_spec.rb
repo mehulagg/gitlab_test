@@ -8,25 +8,25 @@ describe ExternalDiffUploader do
 
   subject(:uploader) { described_class.new(diff, :external_diff) }
 
-  it_behaves_like "builds correct paths",
+  it_behaves_like 'builds correct paths',
                   store_dir: %r[merge_request_diffs/mr-\d+],
                   cache_dir: %r[/external-diffs/tmp/cache],
                   work_dir: %r[/external-diffs/tmp/work]
 
-  context "object store is REMOTE" do
+  context 'object store is REMOTE' do
     before do
       stub_external_diffs_object_storage
     end
 
     include_context 'with storage', described_class::Store::REMOTE
 
-    it_behaves_like "builds correct paths",
+    it_behaves_like 'builds correct paths',
                     store_dir: %r[merge_request_diffs/mr-\d+]
   end
 
   describe 'migration to object storage' do
     context 'with object storage disabled' do
-      it "is skipped" do
+      it 'is skipped' do
         expect(ObjectStorage::BackgroundMoveWorker).not_to receive(:perform_async)
 
         diff

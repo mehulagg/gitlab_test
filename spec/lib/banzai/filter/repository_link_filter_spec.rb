@@ -58,11 +58,11 @@ describe Banzai::Filter::RepositoryLinkFilter do
   let(:only_path)      { true }
 
   it 'does not trigger a gitaly n+1', :request_store do
-    raw_doc = ""
+    raw_doc = ''
 
     allow_gitaly_n_plus_1 do
       30.times do |i|
-        create_file_in_repo(project, ref, ref, "new_file_#{i}", "x" )
+        create_file_in_repo(project, ref, ref, "new_file_#{i}", 'x' )
         raw_doc += link("new_file_#{i}")
       end
     end
@@ -119,26 +119,26 @@ describe Banzai::Filter::RepositoryLinkFilter do
   end
 
   it 'does not raise an exception on invalid URIs' do
-    act = link("://foo")
+    act = link('://foo')
     expect { filter(act) }.not_to raise_error
   end
 
   it 'does not raise an exception on URIs containing invalid utf-8 byte sequences' do
-    act = link("%FF")
+    act = link('%FF')
     expect { filter(act) }.not_to raise_error
   end
 
   it 'does not raise an exception on URIs containing invalid utf-8 byte sequences in context requested path' do
-    expect { filter(link("files/test.md"), requested_path: '%FF') }.not_to raise_error
+    expect { filter(link('files/test.md'), requested_path: '%FF') }.not_to raise_error
   end
 
   it 'does not raise an exception with a garbled path' do
-    act = link("open(/var/tmp/):%20/location%0Afrom:%20/test")
+    act = link('open(/var/tmp/):%20/location%0Afrom:%20/test')
     expect { filter(act) }.not_to raise_error
   end
 
   it 'does not explode with an escaped null byte' do
-    act = link("/%00")
+    act = link('/%00')
     expect { filter(act) }.not_to raise_error
   end
 

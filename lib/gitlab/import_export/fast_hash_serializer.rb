@@ -54,7 +54,7 @@ module Gitlab
             batch = @relation
             batch = batch.preload(@preloads) if @preloads
             batch.each do |item|
-              result.concat(",") unless result.empty?
+              result.concat(',') unless result.empty?
               result.concat(item.to_json(@options))
             end
 

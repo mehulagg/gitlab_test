@@ -160,7 +160,7 @@ describe GroupsController, type: :request do
       context 'with empty ip restriction param' do
         let(:params) do
           { group: { two_factor_grace_period: 42,
-                     ip_restriction_ranges: "" } }
+                     ip_restriction_ranges: '' } }
         end
 
         it 'updates group setting' do

@@ -61,7 +61,7 @@ module Projects
 
       @project
     rescue ActiveRecord::RecordInvalid => e
-      message = "Unable to save #{e.record.type}: #{e.record.errors.full_messages.join(", ")} "
+      message = "Unable to save #{e.record.type}: #{e.record.errors.full_messages.join(', ')} "
       fail(error: message)
     rescue => e
       @project.errors.add(:base, e.message) if @project
@@ -71,7 +71,7 @@ module Projects
     protected
 
     def deny_namespace
-      @project.errors.add(:namespace, "is not valid")
+      @project.errors.add(:namespace, 'is not valid')
     end
 
     # rubocop: disable CodeReuse/ActiveRecord

@@ -23,7 +23,7 @@ module Gitlab
 
         unless migration_class.const_defined?(DOWNTIME_CONST)
           raise "The migration in #{path} does not specify if it requires " \
-            "downtime or not"
+            'downtime or not'
         end
 
         if online?(migration_class)
@@ -33,7 +33,7 @@ module Gitlab
 
           unless reason
             raise "The migration in #{path} requires downtime but no reason " \
-              "was given"
+              'was given'
           end
 
           Message.new(path, true, reason)

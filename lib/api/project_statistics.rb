@@ -13,7 +13,7 @@ module API
     end
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
       desc 'Get the list of project fetch statistics for the last 30 days'
-      get ":id/statistics" do
+      get ':id/statistics' do
         statistic_finder = ::Projects::DailyStatisticsFinder.new(user_project)
 
         present statistic_finder, with: Entities::ProjectDailyStatistics

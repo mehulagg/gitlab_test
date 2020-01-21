@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
 # Inspired in great part by Discourse's Email::Receiver
 describe Gitlab::Email::ReplyParser do
@@ -9,20 +9,20 @@ describe Gitlab::Email::ReplyParser do
       described_class.new(Mail::Message.new(mail_string), params).execute
     end
 
-    it "returns an empty string if the message is blank" do
-      expect(test_parse_body("")).to eq("")
+    it 'returns an empty string if the message is blank' do
+      expect(test_parse_body('')).to eq('')
     end
 
-    it "returns an empty string if the message is not an email" do
-      expect(test_parse_body("asdf" * 30)).to eq("")
+    it 'returns an empty string if the message is not an email' do
+      expect(test_parse_body('asdf' * 30)).to eq('')
     end
 
-    it "returns an empty string if there is no reply content" do
-      expect(test_parse_body(fixture_file("emails/no_content_reply.eml"))).to eq("")
+    it 'returns an empty string if there is no reply content' do
+      expect(test_parse_body(fixture_file('emails/no_content_reply.eml'))).to eq('')
     end
 
-    it "properly renders plaintext-only email" do
-      expect(test_parse_body(fixture_file("emails/plaintext_only.eml")))
+    it 'properly renders plaintext-only email' do
+      expect(test_parse_body(fixture_file('emails/plaintext_only.eml')))
         .to eq(
           <<-BODY.strip_heredoc.chomp
             ### reply from default mail client in Windows 8.1 Metro
@@ -39,16 +39,16 @@ describe Gitlab::Email::ReplyParser do
         )
     end
 
-    it "supports a Dutch reply" do
-      expect(test_parse_body(fixture_file("emails/dutch.eml"))).to eq("Dit is een antwoord in het Nederlands.")
+    it 'supports a Dutch reply' do
+      expect(test_parse_body(fixture_file('emails/dutch.eml'))).to eq('Dit is een antwoord in het Nederlands.')
     end
 
     it "removes an 'on date wrote' quoting line" do
-      expect(test_parse_body(fixture_file("emails/on_wrote.eml"))).to eq("Sure, all you need to do is frobnicate the foobar and you'll be all set!")
+      expect(test_parse_body(fixture_file('emails/on_wrote.eml'))).to eq("Sure, all you need to do is frobnicate the foobar and you'll be all set!")
     end
 
-    it "handles multiple paragraphs" do
-      expect(test_parse_body(fixture_file("emails/paragraphs.eml")))
+    it 'handles multiple paragraphs' do
+      expect(test_parse_body(fixture_file('emails/paragraphs.eml')))
         .to eq(
           <<-BODY.strip_heredoc.chomp
             Is there any reason the *old* candy can't be kept in silos while the new candy
@@ -62,8 +62,8 @@ describe Gitlab::Email::ReplyParser do
         )
     end
 
-    it "handles multiple paragraphs when parsing html" do
-      expect(test_parse_body(fixture_file("emails/html_paragraphs.eml")))
+    it 'handles multiple paragraphs when parsing html' do
+      expect(test_parse_body(fixture_file('emails/html_paragraphs.eml')))
         .to eq(
           <<-BODY.strip_heredoc.chomp
             Awesome!
@@ -75,8 +75,8 @@ describe Gitlab::Email::ReplyParser do
         )
     end
 
-    it "handles newlines" do
-      expect(test_parse_body(fixture_file("emails/newlines.eml")))
+    it 'handles newlines' do
+      expect(test_parse_body(fixture_file('emails/newlines.eml')))
         .to eq(
           <<-BODY.strip_heredoc.chomp
             This is my reply.
@@ -86,8 +86,8 @@ describe Gitlab::Email::ReplyParser do
         )
     end
 
-    it "handles inline reply" do
-      expect(test_parse_body(fixture_file("emails/inline_reply.eml")))
+    it 'handles inline reply' do
+      expect(test_parse_body(fixture_file('emails/inline_reply.eml')))
         .to eq(
           <<-BODY.strip_heredoc.chomp
             >     techAPJ <https://meta.discourse.org/users/techapj>
@@ -133,8 +133,8 @@ describe Gitlab::Email::ReplyParser do
         )
     end
 
-    it "properly renders email reply from gmail web client" do
-      expect(test_parse_body(fixture_file("emails/gmail_web.eml")))
+    it 'properly renders email reply from gmail web client' do
+      expect(test_parse_body(fixture_file('emails/gmail_web.eml')))
         .to eq(
           <<-BODY.strip_heredoc.chomp
             ### This is a reply from standard GMail in Google Chrome.
@@ -152,8 +152,8 @@ describe Gitlab::Email::ReplyParser do
         )
     end
 
-    it "properly renders email reply from iOS default mail client" do
-      expect(test_parse_body(fixture_file("emails/ios_default.eml")))
+    it 'properly renders email reply from iOS default mail client' do
+      expect(test_parse_body(fixture_file('emails/ios_default.eml')))
         .to eq(
           <<-BODY.strip_heredoc.chomp
             ### this is a reply from iOS default mail
@@ -167,8 +167,8 @@ describe Gitlab::Email::ReplyParser do
         )
     end
 
-    it "properly renders email reply from Android 5 gmail client" do
-      expect(test_parse_body(fixture_file("emails/android_gmail.eml")))
+    it 'properly renders email reply from Android 5 gmail client' do
+      expect(test_parse_body(fixture_file('emails/android_gmail.eml')))
         .to eq(
           <<-BODY.strip_heredoc.chomp
             ### this is a reply from Android 5 gmail
@@ -185,8 +185,8 @@ describe Gitlab::Email::ReplyParser do
         )
     end
 
-    it "properly renders email reply from Windows 8.1 Metro default mail client" do
-      expect(test_parse_body(fixture_file("emails/windows_8_metro.eml")))
+    it 'properly renders email reply from Windows 8.1 Metro default mail client' do
+      expect(test_parse_body(fixture_file('emails/windows_8_metro.eml')))
         .to eq(
           <<-BODY.strip_heredoc.chomp
             ### reply from default mail client in Windows 8.1 Metro
@@ -203,20 +203,20 @@ describe Gitlab::Email::ReplyParser do
         )
     end
 
-    it "properly renders email reply from MS Outlook client" do
-      expect(test_parse_body(fixture_file("emails/outlook.eml"))).to eq("Microsoft Outlook 2010")
+    it 'properly renders email reply from MS Outlook client' do
+      expect(test_parse_body(fixture_file('emails/outlook.eml'))).to eq('Microsoft Outlook 2010')
     end
 
-    it "properly renders html-only email from MS Outlook" do
-      expect(test_parse_body(fixture_file("emails/outlook_html.eml"))).to eq("Microsoft Outlook 2010")
+    it 'properly renders html-only email from MS Outlook' do
+      expect(test_parse_body(fixture_file('emails/outlook_html.eml'))).to eq('Microsoft Outlook 2010')
     end
 
-    it "does not wrap links with no href in unnecessary brackets" do
-      expect(test_parse_body(fixture_file("emails/html_empty_link.eml"))).to eq("no brackets!")
+    it 'does not wrap links with no href in unnecessary brackets' do
+      expect(test_parse_body(fixture_file('emails/html_empty_link.eml'))).to eq('no brackets!')
     end
 
-    it "does not trim reply if trim_reply option is false" do
-      expect(test_parse_body(fixture_file("emails/valid_new_issue_with_quote.eml"), { trim_reply: false }))
+    it 'does not trim reply if trim_reply option is false' do
+      expect(test_parse_body(fixture_file('emails/valid_new_issue_with_quote.eml'), { trim_reply: false }))
         .to eq(
           <<-BODY.strip_heredoc.chomp
           The reply by email functionality should be extended to allow creating a new issue by email.

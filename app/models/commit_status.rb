@@ -33,7 +33,7 @@ class CommitStatus < ApplicationRecord
     # We want to ignore failed but allowed to fail jobs.
     #
     # TODO, we also skip ignored optional manual actions.
-    where("allow_failure = ? OR status IN (?)",
+    where('allow_failure = ? OR status IN (?)',
       false, all_state_names - [:failed, :canceled, :manual])
   end
 

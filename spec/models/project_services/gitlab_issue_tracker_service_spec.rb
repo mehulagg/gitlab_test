@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe GitlabIssueTrackerService do
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to :project }
     it { is_expected.to have_one :service_hook }
   end
@@ -29,7 +29,7 @@ describe GitlabIssueTrackerService do
 
     context 'with absolute urls' do
       before do
-        allow(described_class).to receive(:default_url_options).and_return(script_name: "/gitlab/root")
+        allow(described_class).to receive(:default_url_options).and_return(script_name: '/gitlab/root')
       end
 
       it 'gives the correct path' do
@@ -41,7 +41,7 @@ describe GitlabIssueTrackerService do
 
     context 'with relative urls' do
       before do
-        allow(described_class).to receive(:default_url_options).and_return(script_name: "/gitlab/root")
+        allow(described_class).to receive(:default_url_options).and_return(script_name: '/gitlab/root')
       end
 
       it 'gives the correct path' do

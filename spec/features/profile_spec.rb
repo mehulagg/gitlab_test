@@ -65,7 +65,7 @@ describe 'Profile account page', :js do
 
     it 'resets feed token' do
       within('.feed-token-reset') do
-        previous_token = find("#feed_token").value
+        previous_token = find('#feed_token').value
 
         accept_confirm { click_link('reset it') }
 

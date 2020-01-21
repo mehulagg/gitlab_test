@@ -149,7 +149,7 @@ module ObjectStorage
 
       strong_memoize(:upload_id) do
         new_upload = connection.initiate_multipart_upload(bucket_name, object_name)
-        new_upload.body["UploadId"]
+        new_upload.body['UploadId']
       end
     end
 

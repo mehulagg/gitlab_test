@@ -14,7 +14,7 @@ describe Gitlab::DependencyLinker::GodepsJsonLinker do
   end
 
   describe '#link' do
-    let(:file_name) { "Godeps.json" }
+    let(:file_name) { 'Godeps.json' }
 
     let(:file_content) do
       <<-CONTENT.strip_heredoc

@@ -185,11 +185,11 @@ module Projects
     end
 
     def pages_deployments_total_counter
-      @pages_deployments_total_counter ||= Gitlab::Metrics.counter(:pages_deployments_total, "Counter of GitLab Pages deployments triggered")
+      @pages_deployments_total_counter ||= Gitlab::Metrics.counter(:pages_deployments_total, 'Counter of GitLab Pages deployments triggered')
     end
 
     def pages_deployments_failed_total_counter
-      @pages_deployments_failed_total_counter ||= Gitlab::Metrics.counter(:pages_deployments_failed_total, "Counter of GitLab Pages deployments which failed")
+      @pages_deployments_failed_total_counter ||= Gitlab::Metrics.counter(:pages_deployments_failed_total, 'Counter of GitLab Pages deployments which failed')
     end
 
     def make_secure_tmp_dir(tmp_path)

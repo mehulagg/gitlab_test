@@ -11,7 +11,7 @@ describe API::ProtectedBranches do
     create(:protected_branch, project: project, name: protected_name)
   end
 
-  describe "GET /projects/:id/protected_branches/:branch" do
+  describe 'GET /projects/:id/protected_branches/:branch' do
     let(:route) { "/projects/#{project.id}/protected_branches/#{branch_name}" }
 
     shared_examples_for 'protected branch' do
@@ -82,7 +82,7 @@ describe API::ProtectedBranches do
     end
   end
 
-  describe "PATCH /projects/:id/protected_branches/:branch" do
+  describe 'PATCH /projects/:id/protected_branches/:branch' do
     let(:route) { "/projects/#{project.id}/protected_branches/#{branch_name}" }
 
     context 'when authenticated as a maintainer' do
@@ -90,12 +90,12 @@ describe API::ProtectedBranches do
         project.add_maintainer(user)
       end
 
-      context "when the feature is enabled" do
+      context 'when the feature is enabled' do
         before do
           stub_licensed_features(code_owner_approval_required: true)
         end
 
-        it "updates the protected branch" do
+        it 'updates the protected branch' do
           expect do
             patch api(route, user), params: { code_owner_approval_required: true }
           end.to change { protected_branch.reload.code_owner_approval_required }
@@ -105,12 +105,12 @@ describe API::ProtectedBranches do
         end
       end
 
-      context "when the feature is disabled" do
+      context 'when the feature is disabled' do
         before do
           stub_licensed_features(code_owner_approval_required: false)
         end
 
-        it "does not change the protected branch" do
+        it 'does not change the protected branch' do
           expect do
             patch api(route, user), params: { code_owner_approval_required: true }
           end.not_to change { protected_branch.reload.code_owner_approval_required }
@@ -125,7 +125,7 @@ describe API::ProtectedBranches do
         project.add_guest(user)
       end
 
-      it "returns a 403 response" do
+      it 'returns a 403 response' do
         patch api(route, user)
 
         expect(response).to have_gitlab_http_status(403)
@@ -164,32 +164,32 @@ describe API::ProtectedBranches do
         expect(json_response['unprotect_access_levels'][0]['access_level']).to eq(Gitlab::Access::ADMIN)
       end
 
-      context "code_owner_approval_required" do
-        context "when feature is enabled" do
+      context 'code_owner_approval_required' do
+        context 'when feature is enabled' do
           before do
             stub_licensed_features(code_owner_approval_required: true)
           end
 
-          it "sets :code_owner_approval_required to true when the param is true" do
+          it 'sets :code_owner_approval_required to true when the param is true' do
             expect(project.protected_branches.find_by_name(branch_name)).to be_nil
 
             post post_endpoint, params: { name: branch_name, code_owner_approval_required: true }
 
             expect(response).to have_gitlab_http_status(201)
-            expect(json_response["code_owner_approval_required"]).to eq(true)
+            expect(json_response['code_owner_approval_required']).to eq(true)
 
             new_branch = project.protected_branches.find_by_name(branch_name)
             expect(new_branch.code_owner_approval_required).to be_truthy
             expect(new_branch[:code_owner_approval_required]).to be_truthy
           end
 
-          it "sets :code_owner_approval_required to false when the param is false" do
+          it 'sets :code_owner_approval_required to false when the param is false' do
             expect(project.protected_branches.find_by_name(branch_name)).to be_nil
 
             post post_endpoint, params: { name: branch_name, code_owner_approval_required: false }
 
             expect(response).to have_gitlab_http_status(201)
-            expect(json_response["code_owner_approval_required"]).to eq(false)
+            expect(json_response['code_owner_approval_required']).to eq(false)
 
             new_branch = project.protected_branches.find_by_name(branch_name)
             expect(new_branch.code_owner_approval_required).to be_falsy
@@ -197,14 +197,14 @@ describe API::ProtectedBranches do
           end
         end
 
-        context "when feature is not enabled" do
-          it "sets :code_owner_approval_required to false when the param is false" do
+        context 'when feature is not enabled' do
+          it 'sets :code_owner_approval_required to false when the param is false' do
             expect(project.protected_branches.find_by_name(branch_name)).to be_nil
 
             post post_endpoint, params: { name: branch_name, code_owner_approval_required: true }
 
             expect(response).to have_gitlab_http_status(201)
-            expect(json_response["code_owner_approval_required"]).to eq(false)
+            expect(json_response['code_owner_approval_required']).to eq(false)
 
             new_branch = project.protected_branches.find_by_name(branch_name)
             expect(new_branch.code_owner_approval_required).to be_falsy

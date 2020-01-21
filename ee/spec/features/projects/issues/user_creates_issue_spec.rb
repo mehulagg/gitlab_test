@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
-describe "User creates issue", :js do
+describe 'User creates issue', :js do
   let(:project) { create(:project_empty_repo, :public) }
   let(:user) { create(:user) }
 
@@ -15,17 +15,17 @@ describe "User creates issue", :js do
     visit(new_project_issue_path(project))
   end
 
-  context "with weight set" do
-    it "creates issue" do
-      issue_title = "500 error on profile"
-      weight = "7"
+  context 'with weight set' do
+    it 'creates issue' do
+      issue_title = '500 error on profile'
+      weight = '7'
 
-      fill_in("Title", with: issue_title)
-      fill_in("issue_weight", with: weight)
+      fill_in('Title', with: issue_title)
+      fill_in('issue_weight', with: weight)
 
-      click_button("Submit issue")
+      click_button('Submit issue')
 
-      page.within(".weight") do
+      page.within('.weight') do
         expect(page).to have_content(weight)
       end
 

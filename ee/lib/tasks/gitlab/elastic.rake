@@ -1,21 +1,21 @@
 namespace :gitlab do
   namespace :elastic do
-    desc "GitLab | Elasticsearch | Index eveything at once"
+    desc 'GitLab | Elasticsearch | Index eveything at once'
     task :index do
       # UPDATE_INDEX=true can cause some projects not to be indexed properly if someone were to push a commit to the
       # project before the rake task could get to it, so we set it to `nil` here to avoid that. It doesn't make sense
       # to use this configuration during a full re-index anyways.
       ENV['UPDATE_INDEX'] = nil
 
-      Rake::Task["gitlab:elastic:create_empty_index"].invoke
-      Rake::Task["gitlab:elastic:clear_index_status"].invoke
-      Rake::Task["gitlab:elastic:index_projects"].invoke
-      Rake::Task["gitlab:elastic:index_snippets"].invoke
+      Rake::Task['gitlab:elastic:create_empty_index'].invoke
+      Rake::Task['gitlab:elastic:clear_index_status'].invoke
+      Rake::Task['gitlab:elastic:index_projects'].invoke
+      Rake::Task['gitlab:elastic:index_snippets'].invoke
     end
 
-    desc "GitLab | Elasticsearch | Index projects in the background"
+    desc 'GitLab | Elasticsearch | Index projects in the background'
     task index_projects: :environment do
-      print "Enqueuing projects"
+      print 'Enqueuing projects'
 
       project_id_batches do |ids|
         args = ids.collect do |id|
@@ -23,19 +23,19 @@ namespace :gitlab do
         end
 
         ElasticIndexerWorker.bulk_perform_async(args)
-        print "."
+        print '.'
       end
 
-      puts "OK"
+      puts 'OK'
     end
 
-    desc "GitLab | ElasticSearch | Check project indexing status"
+    desc 'GitLab | ElasticSearch | Check project indexing status'
     task index_projects_status: :environment do
       indexed = IndexStatus.count
       projects = Project.count
       percent = (indexed / projects.to_f) * 100.0
 
-      puts "Indexing is %.2f%% complete (%d/%d projects)" % [percent, indexed, projects]
+      puts 'Indexing is %.2f%% complete (%d/%d projects)' % [percent, indexed, projects]
     end
 
     desc 'GitLab | Elasticsearch | Unlock repositories for indexing in case something gets stuck'
@@ -45,41 +45,41 @@ namespace :gitlab do
       puts 'Cleared all locked projects. Incremental indexing should work now.'
     end
 
-    desc "GitLab | Elasticsearch | Index all snippets"
+    desc 'GitLab | Elasticsearch | Index all snippets'
     task index_snippets: :environment do
       logger = Logger.new(STDOUT)
-      logger.info("Indexing snippets...")
+      logger.info('Indexing snippets...')
 
       Snippet.es_import
 
-      logger.info("Indexing snippets... " + "done".color(:green))
+      logger.info('Indexing snippets... ' + 'done'.color(:green))
     end
 
-    desc "GitLab | Elasticsearch | Create empty index"
+    desc 'GitLab | Elasticsearch | Create empty index'
     task create_empty_index: :environment do
       Gitlab::Elastic::Helper.create_empty_index
-      puts "Index created".color(:green)
+      puts 'Index created'.color(:green)
     end
 
-    desc "GitLab | Elasticsearch | Clear indexing status"
+    desc 'GitLab | Elasticsearch | Clear indexing status'
     task clear_index_status: :environment do
       IndexStatus.delete_all
-      puts "Index status has been reset".color(:green)
+      puts 'Index status has been reset'.color(:green)
     end
 
-    desc "GitLab | Elasticsearch | Delete index"
+    desc 'GitLab | Elasticsearch | Delete index'
     task delete_index: :environment do
       Gitlab::Elastic::Helper.delete_index
-      puts "Index deleted".color(:green)
+      puts 'Index deleted'.color(:green)
     end
 
-    desc "GitLab | Elasticsearch | Recreate index"
+    desc 'GitLab | Elasticsearch | Recreate index'
     task recreate_index: :environment do
       Gitlab::Elastic::Helper.create_empty_index
-      puts "Index recreated".color(:green)
+      puts 'Index recreated'.color(:green)
     end
 
-    desc "GitLab | Elasticsearch | Display which projects are not indexed"
+    desc 'GitLab | Elasticsearch | Display which projects are not indexed'
     task projects_not_indexed: :environment do
       not_indexed = Project.where.not(id: IndexStatus.select(:project_id).distinct)
 

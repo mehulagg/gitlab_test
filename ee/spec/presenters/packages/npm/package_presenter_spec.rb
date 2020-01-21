@@ -44,7 +44,7 @@ describe ::Packages::Npm::PackagePresenter do
 
     context 'for packages without tags' do
       it { is_expected.to be_a(Hash) }
-      it { expect(subject["latest"]).to eq(latest_package.version) }
+      it { expect(subject['latest']).to eq(latest_package.version) }
     end
 
     context 'for packages with tags' do

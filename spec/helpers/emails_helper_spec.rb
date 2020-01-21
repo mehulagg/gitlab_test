@@ -17,27 +17,27 @@ describe EmailsHelper do
           self.instance_variable_set(:@project, merge_request.project)
         end
 
-        context "and format is text" do
-          it "returns plain text" do
+        context 'and format is text' do
+          it 'returns plain text' do
             expect(helper.closure_reason_text(merge_request, format: :text)).to eq("via merge request #{merge_request.to_reference} (#{merge_request_presenter.web_url})")
           end
         end
 
-        context "and format is HTML" do
-          it "returns HTML" do
+        context 'and format is HTML' do
+          it 'returns HTML' do
             expect(helper.closure_reason_text(merge_request, format: :html)).to eq("via merge request #{link_to(merge_request.to_reference, merge_request_presenter.web_url)}")
           end
         end
 
-        context "and format is unknown" do
-          it "returns plain text" do
+        context 'and format is unknown' do
+          it 'returns plain text' do
             expect(helper.closure_reason_text(merge_request, format: :text)).to eq("via merge request #{merge_request.to_reference} (#{merge_request_presenter.web_url})")
           end
         end
       end
 
       context 'when user cannot read merge request' do
-        it "does not have link to merge request" do
+        it 'does not have link to merge request' do
           expect(helper.closure_reason_text(merge_request)).to be_empty
         end
       end
@@ -46,7 +46,7 @@ describe EmailsHelper do
     context 'when given a String' do
       let(:user) { create(:user) }
       let(:project) { create(:project) }
-      let(:closed_via) { "5a0eb6fd7e0f133044378c662fcbbc0d0c16dbfa" }
+      let(:closed_via) { '5a0eb6fd7e0f133044378c662fcbbc0d0c16dbfa' }
 
       context 'when user can read commits' do
         before do
@@ -55,21 +55,21 @@ describe EmailsHelper do
           self.instance_variable_set(:@project, project)
         end
 
-        it "returns plain text" do
+        it 'returns plain text' do
           expect(closure_reason_text(closed_via)).to eq("via #{closed_via}")
         end
       end
 
       context 'when user cannot read commits' do
-        it "returns plain text" do
+        it 'returns plain text' do
           expect(closure_reason_text(closed_via)).to be_empty
         end
       end
     end
 
     context 'when not given anything' do
-      it "returns empty string" do
-        expect(closure_reason_text(nil)).to eq("")
+      it 'returns empty string' do
+        expect(closure_reason_text(nil)).to eq('')
       end
     end
   end
@@ -83,7 +83,7 @@ describe EmailsHelper do
       NotificationReason::OWN_ACTIVITY | ' of your activity '
       NotificationReason::ASSIGNED     | ' you have been assigned an item '
       NotificationReason::MENTIONED    | ' you have been mentioned '
-      ""                               | ' of your account '
+      ''                               | ' of your account '
       nil                              | ' of your account '
     end
 
@@ -187,24 +187,24 @@ describe EmailsHelper do
     using RSpec::Parameterized::TableSyntax
 
     where(:full_path, :list_id_path) do
-      "01234"  | "01234"
-      "5/0123" | "012.."
-      "45/012" | "012.."
-      "012"    | "012"
-      "23/01"  | "01.23"
-      "2/01"   | "01.2"
-      "234/01" | "01.."
-      "4/2/0"  | "0.2.4"
-      "45/2/0" | "0.2.."
-      "5/23/0" | "0.."
-      "0-2/5"  | "5.0-2"
-      "0_2/5"  | "5.0-2"
-      "0.2/5"  | "5.0-2"
+      '01234'  | '01234'
+      '5/0123' | '012..'
+      '45/012' | '012..'
+      '012'    | '012'
+      '23/01'  | '01.23'
+      '2/01'   | '01.2'
+      '234/01' | '01..'
+      '4/2/0'  | '0.2.4'
+      '45/2/0' | '0.2..'
+      '5/23/0' | '0..'
+      '0-2/5'  | '5.0-2'
+      '0_2/5'  | '5.0-2'
+      '0.2/5'  | '5.0-2'
     end
 
     with_them do
       it 'ellipcizes different variants' do
-        project = double("project")
+        project = double('project')
         allow(project).to receive(:full_path).and_return(full_path)
         allow(project).to receive(:id).and_return(12345)
         # Set a max length that gives only 5 chars for the project full path
@@ -221,13 +221,13 @@ describe EmailsHelper do
     using RSpec::Parameterized::TableSyntax
 
     where(:full_path, :list_id_path) do
-      "gitlab-org/gitlab-ce" | "gitlab-ce.gitlab-org"
-      "project-name/subproject_name/my.project" | "my-project.subproject-name.project-name"
+      'gitlab-org/gitlab-ce' | 'gitlab-ce.gitlab-org'
+      'project-name/subproject_name/my.project' | 'my-project.subproject-name.project-name'
     end
 
     with_them do
       it 'Produces the right List-Id' do
-        project = double("project")
+        project = double('project')
         allow(project).to receive(:full_path).and_return(full_path)
         allow(project).to receive(:id).and_return(12345)
         list_id = create_list_id_string(project)

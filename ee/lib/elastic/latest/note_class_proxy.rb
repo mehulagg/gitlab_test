@@ -35,7 +35,7 @@ module Elastic
           bool: {
             should: [
               { bool: { must_not: [{ exists: { field: :issue } }] } },
-              { term: { "issue.confidential" => false } }
+              { term: { 'issue.confidential' => false } }
             ]
           }
         }
@@ -44,13 +44,13 @@ module Elastic
           filter[:bool][:should] << {
             bool: {
               must: [
-                { term: { "issue.confidential" => true } },
+                { term: { 'issue.confidential' => true } },
                 {
                   bool: {
                     should: [
-                      { term: { "issue.author_id" => current_user.id } },
-                      { term: { "issue.assignee_id" => current_user.id } },
-                      { terms: { "project_id" => current_user.authorized_projects(Gitlab::Access::REPORTER).pluck_primary_key } }
+                      { term: { 'issue.author_id' => current_user.id } },
+                      { term: { 'issue.assignee_id' => current_user.id } },
+                      { terms: { 'project_id' => current_user.authorized_projects(Gitlab::Access::REPORTER).pluck_primary_key } }
                     ]
                   }
                 }
@@ -100,7 +100,7 @@ module Elastic
               must: [
                 {
                   has_parent: {
-                    parent_type: "project",
+                    parent_type: 'project',
                     query: {
                       bool: {
                         should: condition

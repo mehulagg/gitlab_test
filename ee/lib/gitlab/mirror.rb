@@ -80,7 +80,7 @@ module Gitlab
       private
 
       def update_all_mirrors_cron_job
-        Sidekiq::Cron::Job.find("update_all_mirrors_worker")
+        Sidekiq::Cron::Job.find('update_all_mirrors_worker')
       end
 
       def destroy_cron_job!

@@ -87,7 +87,7 @@ describe Gitlab::Metrics::Samplers::UnicornSampler do
       end
 
       context 'without http server' do
-        it "does set unicorn_workers to 0" do
+        it 'does set unicorn_workers to 0' do
           expect(subject.metrics[:unicorn_workers]).to receive(:set).with({}, 0)
 
           subject.sample
@@ -102,7 +102,7 @@ describe Gitlab::Metrics::Samplers::UnicornSampler do
           stub_const('Unicorn::HttpServer', http_server_class)
         end
 
-        it "sets additional metrics" do
+        it 'sets additional metrics' do
           expect(subject.metrics[:unicorn_workers]).to receive(:set).with({}, 5)
 
           subject.sample

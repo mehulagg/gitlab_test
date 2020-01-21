@@ -11,7 +11,7 @@ module PageLayoutHelper
     end
 
     # Segments are separated by middot
-    @page_title.join(" · ")
+    @page_title.join(' · ')
   end
 
   # Define or get a description for the current page
@@ -105,7 +105,7 @@ module PageLayoutHelper
   end
 
   def fluid_layout
-    current_user && current_user.layout == "fluid"
+    current_user && current_user.layout == 'fluid'
   end
 
   def blank_container(enabled = false)
@@ -117,14 +117,14 @@ module PageLayoutHelper
   end
 
   def container_class
-    css_class = ["container-fluid"]
+    css_class = ['container-fluid']
 
     unless fluid_layout
-      css_class << "container-limited"
+      css_class << 'container-limited'
     end
 
     if blank_container
-      css_class << "container-blank"
+      css_class << 'container-blank'
     end
 
     css_class.join(' ')

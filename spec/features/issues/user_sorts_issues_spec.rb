@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
-describe "User sorts issues" do
+describe 'User sorts issues' do
   include SortingHelper
   include IssueHelpers
 
@@ -46,23 +46,23 @@ describe "User sorts issues" do
     expect(find('.issues-filters a.is-active')).to have_content('Milestone')
   end
 
-  it "sorts by popularity" do
+  it 'sorts by popularity' do
     find('.filter-dropdown-container .dropdown').click
 
     page.within('ul.dropdown-menu.dropdown-menu-right li') do
-      click_link("Popularity")
+      click_link('Popularity')
     end
 
-    page.within(".issues-list") do
-      page.within("li.issue:nth-child(1)") do
+    page.within('.issues-list') do
+      page.within('li.issue:nth-child(1)') do
         expect(page).to have_content(issue1.title)
       end
 
-      page.within("li.issue:nth-child(2)") do
+      page.within('li.issue:nth-child(2)') do
         expect(page).to have_content(issue2.title)
       end
 
-      page.within("li.issue:nth-child(3)") do
+      page.within('li.issue:nth-child(3)') do
         expect(page).to have_content(issue3.title)
       end
     end

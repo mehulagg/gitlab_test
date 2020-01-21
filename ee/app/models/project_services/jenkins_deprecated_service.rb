@@ -16,7 +16,7 @@ class JenkinsDeprecatedService < CiService
   def compose_service_hook
     hook = service_hook || build_service_hook
     jenkins_url = project_url.sub(%r{job/.*}, '')
-    hook.url = jenkins_url + "gitlab/build_now"
+    hook.url = jenkins_url + 'gitlab/build_now'
     hook.save
   end
 
@@ -46,8 +46,8 @@ class JenkinsDeprecatedService < CiService
   def fields
     [
       { type: 'text', name: 'project_url', placeholder: 'Jenkins project URL like http://jenkins.example.com/job/my-project/' },
-      { type: 'checkbox', name: 'multiproject_enabled', title: "Multi-project setup enabled?",
-        help: "Multi-project mode is configured in Jenkins GitLab Hook plugin." },
+      { type: 'checkbox', name: 'multiproject_enabled', title: 'Multi-project setup enabled?',
+        help: 'Multi-project mode is configured in Jenkins GitLab Hook plugin.' },
       { type: 'checkbox', name: 'pass_unstable', title: 'Should unstable builds be treated as passing?',
         help: 'Unstable builds will be treated as passing.' }
     ]
@@ -93,7 +93,7 @@ class JenkinsDeprecatedService < CiService
     if parsed_url.userinfo.blank?
       response = Gitlab::HTTP.get(build_page(sha, ref), verify: false, allow_local_requests: true)
     else
-      get_url = build_page(sha, ref).gsub("#{parsed_url.userinfo}@", "")
+      get_url = build_page(sha, ref).gsub("#{parsed_url.userinfo}@", '')
       auth = {
         username: CGI.unescape(parsed_url.user),
         password: CGI.unescape(parsed_url.password)

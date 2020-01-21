@@ -23,7 +23,7 @@ describe Gitlab::SlashCommands::Command do
     end
 
     context 'when an unknown command is triggered' do
-      let(:params) { { command: '/gitlab', text: "unknown command 123" } }
+      let(:params) { { command: '/gitlab', text: 'unknown command 123' } }
 
       it 'displays the help message' do
         expect(subject[:response_type]).to be(:ephemeral)
@@ -33,7 +33,7 @@ describe Gitlab::SlashCommands::Command do
     end
 
     context 'the user can not create an issue' do
-      let(:params) { { text: "issue create my new issue" } }
+      let(:params) { { text: 'issue create my new issue' } }
 
       it 'rejects the actions' do
         expect(subject[:response_type]).to be(:ephemeral)

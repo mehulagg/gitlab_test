@@ -40,7 +40,7 @@ describe API::GroupBoards do
 
   set(:board) { create(:board, group: board_parent, lists: [dev_list, test_list]) }
 
-  it_behaves_like 'group and project boards', "/groups/:id/boards", false
+  it_behaves_like 'group and project boards', '/groups/:id/boards', false
 
   describe 'POST /groups/:id/boards/lists' do
     let(:url) { "/groups/#{board_parent.id}/boards/#{board.id}/lists" }

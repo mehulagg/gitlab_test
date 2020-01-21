@@ -37,7 +37,7 @@ module Geo
       ::Geo::ProjectRegistry.where(project_id: id).delete_all
       ::Geo::DesignRegistry.where(project_id: id).delete_all
 
-      log_info("Registry entries removed", project_id: id)
+      log_info('Registry entries removed', project_id: id)
     end
     # rubocop: enable CodeReuse/ActiveRecord
 

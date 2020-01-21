@@ -818,11 +818,11 @@ describe Gitlab::Ci::Pipeline::Seed::Build do
     end
 
     context 'when build job is not present in prior stages' do
-      it "is included" do
+      it 'is included' do
         is_expected.to be_included
       end
 
-      it "returns an error" do
+      it 'returns an error' do
         expect(subject.errors).to contain_exactly(
           "rspec: needs 'build'")
       end
@@ -843,11 +843,11 @@ describe Gitlab::Ci::Pipeline::Seed::Build do
 
       let(:previous_stages) { [stage_seed] }
 
-      it "is included" do
+      it 'is included' do
         is_expected.to be_included
       end
 
-      it "does not have errors" do
+      it 'does not have errors' do
         expect(subject.errors).to be_empty
       end
     end
@@ -859,9 +859,9 @@ describe Gitlab::Ci::Pipeline::Seed::Build do
 
       let(:needs_count) { described_class::LOW_NEEDS_LIMIT + 1 }
 
-      it "returns an error" do
+      it 'returns an error' do
         expect(subject.errors).to contain_exactly(
-          "rspec: one job can only need 10 others, but you have listed 11. See needs keyword documentation for more details")
+          'rspec: one job can only need 10 others, but you have listed 11. See needs keyword documentation for more details')
       end
     end
 
@@ -872,9 +872,9 @@ describe Gitlab::Ci::Pipeline::Seed::Build do
 
       let(:needs_count) { described_class::HARD_NEEDS_LIMIT + 1 }
 
-      it "returns an error" do
+      it 'returns an error' do
         expect(subject.errors).to contain_exactly(
-          "rspec: one job can only need 50 others, but you have listed 51. See needs keyword documentation for more details")
+          'rspec: one job can only need 50 others, but you have listed 51. See needs keyword documentation for more details')
       end
     end
   end

@@ -11,7 +11,7 @@ module QA
       ElasticSearchServerError = Class.new(RuntimeError)
 
       def assert_elasticsearch_responding
-        QA::Runtime::Logger.debug("Attempting to search via Elasticsearch...")
+        QA::Runtime::Logger.debug('Attempting to search via Elasticsearch...')
 
         QA::Support::Retrier.retry_on_exception(max_attempts: 3) do
           search_term = SecureRandom.hex(8)

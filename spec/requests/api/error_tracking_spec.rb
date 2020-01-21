@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe API::ErrorTracking do
-  describe "GET /projects/:id/error_tracking/settings" do
+  describe 'GET /projects/:id/error_tracking/settings' do
     let(:user) { create(:user) }
     let(:setting) { create(:project_error_tracking_setting) }
     let(:project) { setting.project }

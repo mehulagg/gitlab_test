@@ -117,8 +117,8 @@ describe 'Branches' do
       it 'sorts the branches by name' do
         visit project_branches_filtered_path(project, state: 'all')
 
-        click_button "Last updated" # Open sorting dropdown
-        click_link "Name"
+        click_button 'Last updated' # Open sorting dropdown
+        click_link 'Name'
 
         expect(page).to have_content(sorted_branches(repository, count: 20, sort_by: :name))
       end
@@ -126,8 +126,8 @@ describe 'Branches' do
       it 'sorts the branches by oldest updated' do
         visit project_branches_filtered_path(project, state: 'all')
 
-        click_button "Last updated" # Open sorting dropdown
-        click_link "Oldest updated"
+        click_button 'Last updated' # Open sorting dropdown
+        click_link 'Oldest updated'
 
         expect(page).to have_content(sorted_branches(repository, count: 20, sort_by: :updated_asc))
       end
@@ -194,7 +194,7 @@ describe 'Branches' do
       it 'shows description for admin' do
         visit project_branches_filtered_path(project, state: 'all')
 
-        expect(page).to have_content("Protected branches can be managed in project settings")
+        expect(page).to have_content('Protected branches can be managed in project settings')
       end
     end
 

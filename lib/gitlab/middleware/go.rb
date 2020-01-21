@@ -36,7 +36,7 @@ module Gitlab
       end
 
       def go_request?(request)
-        request["go-get"].to_i == 1 && request.env["PATH_INFO"].present?
+        request['go-get'].to_i == 1 && request.env['PATH_INFO'].present?
       end
 
       def go_response(path, branch)
@@ -71,7 +71,7 @@ module Gitlab
       end
 
       def project_path(request)
-        path_info = request.env["PATH_INFO"]
+        path_info = request.env['PATH_INFO']
         path_info.sub!(%r{^/}, '')
 
         project_path_match = "#{path_info}/".match(PROJECT_PATH_REGEX)

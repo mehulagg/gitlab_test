@@ -19,7 +19,7 @@ describe 'Automated License Installation' do
       license_file = double('Pathname', exist?: false)
       allow(Pathname).to receive(:new).and_call_original
       expect(Pathname).to receive(:new).with(license_path).and_return(license_file)
-      expect { subject }.to raise_error(RuntimeError, "License File Missing")
+      expect { subject }.to raise_error(RuntimeError, 'License File Missing')
     end
 
     context 'when the file does exist' do
@@ -47,7 +47,7 @@ describe 'Automated License Installation' do
           license = double('License', save: false)
           expect(License).to receive(:new).with(data: license_file_contents).and_return(license)
 
-          expect { subject }.to raise_error(RuntimeError, "License Invalid")
+          expect { subject }.to raise_error(RuntimeError, 'License Invalid')
         end
       end
     end

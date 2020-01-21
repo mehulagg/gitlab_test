@@ -55,7 +55,7 @@ describe Ci::Pipeline do
       create(:vulnerabilities_occurrence, pipelines: [pipeline_2], project: pipeline.project)
     end
 
-    it "returns pipeline with vulnerabilities" do
+    it 'returns pipeline with vulnerabilities' do
       expect(described_class.with_vulnerabilities).to contain_exactly(pipeline_1, pipeline_2)
     end
   end
@@ -450,7 +450,7 @@ describe Ci::Pipeline do
         pipeline.downstream_bridges << create(:ci_bridge)
       end
 
-      context "when transitioning to success" do
+      context 'when transitioning to success' do
         it 'schedules the pipeline bridge worker' do
           expect(::Ci::PipelineBridgeStatusWorker).to receive(:perform_async).with(pipeline.id)
 

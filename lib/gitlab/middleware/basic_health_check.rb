@@ -12,8 +12,8 @@ module Gitlab
     class BasicHealthCheck
       # This can't be frozen because Rails::Rack::Logger wraps the body
       # rubocop:disable Style/MutableConstant
-      OK_RESPONSE = [200, { 'Content-Type' => 'text/plain' }, ["GitLab OK"]]
-      EMPTY_RESPONSE = [404, { 'Content-Type' => 'text/plain' }, [""]]
+      OK_RESPONSE = [200, { 'Content-Type' => 'text/plain' }, ['GitLab OK']]
+      EMPTY_RESPONSE = [404, { 'Content-Type' => 'text/plain' }, ['']]
       # rubocop:enable Style/MutableConstant
       HEALTH_PATH = '/-/health'
 

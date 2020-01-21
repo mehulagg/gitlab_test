@@ -4,7 +4,7 @@ module Ci
   class BuildNeed < ApplicationRecord
     extend Gitlab::Ci::Model
 
-    belongs_to :build, class_name: "Ci::Build", foreign_key: :build_id, inverse_of: :needs
+    belongs_to :build, class_name: 'Ci::Build', foreign_key: :build_id, inverse_of: :needs
 
     validates :build, presence: true
     validates :name, presence: true, length: { maximum: 128 }

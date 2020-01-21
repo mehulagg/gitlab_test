@@ -20,9 +20,9 @@ RSpec.describe Packages::Package, type: :model do
     it { is_expected.to validate_uniqueness_of(:name).scoped_to(:project_id, :version, :package_type) }
 
     describe '#name' do
-      it { is_expected.to allow_value("my/domain/com/my-app").for(:name) }
-      it { is_expected.to allow_value("my.app-11.07.2018").for(:name) }
-      it { is_expected.not_to allow_value("my(dom$$$ain)com.my-app").for(:name) }
+      it { is_expected.to allow_value('my/domain/com/my-app').for(:name) }
+      it { is_expected.to allow_value('my.app-11.07.2018').for(:name) }
+      it { is_expected.not_to allow_value('my(dom$$$ain)com.my-app').for(:name) }
     end
 
     describe '#package_already_taken' do
@@ -54,7 +54,7 @@ RSpec.describe Packages::Package, type: :model do
         it "will not allow a #{pt} package with same project, name, version and package_type" do
           new_package = build("#{pt}_package", project: package.project, name: package.name, version: package.version)
           expect(new_package).not_to be_valid
-          expect(new_package.errors.to_a).to include("Name has already been taken")
+          expect(new_package.errors.to_a).to include('Name has already been taken')
         end
       end
     end

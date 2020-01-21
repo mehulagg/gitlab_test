@@ -15,7 +15,7 @@ module Gitlab
       def perform(discussion_ids)
         Note.where(noteable_type: 'Epic')
           .where(discussion_id: discussion_ids)
-          .update_all("discussion_id=MD5(discussion_id)||substring(discussion_id from 1 for 8)")
+          .update_all('discussion_id=MD5(discussion_id)||substring(discussion_id from 1 for 8)')
       end
     end
   end

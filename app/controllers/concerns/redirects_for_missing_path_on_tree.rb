@@ -12,6 +12,6 @@ module RedirectsForMissingPathOnTree
   end
 
   def truncate_path(path)
-    path.reverse.truncate(60, separator: "/").reverse
+    path.reverse.truncate(60, separator: '/').reverse
   end
 end

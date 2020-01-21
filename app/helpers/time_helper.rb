@@ -8,12 +8,12 @@ module TimeHelper
 
     if minutes >= 1
       if seconds % 60 == 0
-        pluralize(minutes, "minute")
+        pluralize(minutes, 'minute')
       else
-        [pluralize(minutes, "minute"), pluralize(seconds, "second")].to_sentence
+        [pluralize(minutes, 'minute'), pluralize(seconds, 'second')].to_sentence
       end
     else
-      pluralize(seconds, "second")
+      pluralize(seconds, 'second')
     end
   end
 
@@ -27,9 +27,9 @@ module TimeHelper
     hours = duration_in_seconds / 1.hour
 
     if hours == 0
-      "%02d:%02d" % [minutes, seconds]
+      '%02d:%02d' % [minutes, seconds]
     else
-      "%02d:%02d:%02d" % [hours, minutes, seconds]
+      '%02d:%02d:%02d' % [hours, minutes, seconds]
     end
   end
 end

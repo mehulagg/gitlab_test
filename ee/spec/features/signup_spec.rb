@@ -20,7 +20,7 @@ describe 'Signup on EE' do
         fill_in 'new_user_email_confirmation',  with: user_attrs[:email]
         fill_in 'new_user_password',            with: user_attrs[:password]
         check   'new_user_email_opted_in'
-        click_button "Register"
+        click_button 'Register'
 
         user = User.find_by_username!(user_attrs[:username])
         expect(user.email_opted_in).to be_truthy
@@ -39,7 +39,7 @@ describe 'Signup on EE' do
         fill_in 'new_user_email',               with: user_attrs[:email]
         fill_in 'new_user_email_confirmation',  with: user_attrs[:email]
         fill_in 'new_user_password',            with: user_attrs[:password]
-        click_button "Register"
+        click_button 'Register'
 
         user = User.find_by_username!(user_attrs[:username])
         expect(user.email_opted_in).to be_falsey
@@ -65,7 +65,7 @@ describe 'Signup on EE' do
       fill_in 'new_user_email',               with: user_attrs[:email]
       fill_in 'new_user_email_confirmation',  with: user_attrs[:email]
       fill_in 'new_user_password',            with: user_attrs[:password]
-      click_button "Register"
+      click_button 'Register'
 
       user = User.find_by_username!(user_attrs[:username])
       expect(user.email_opted_in).to be_falsey

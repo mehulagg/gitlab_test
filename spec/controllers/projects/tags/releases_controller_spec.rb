@@ -38,10 +38,10 @@ describe Projects::Tags::ReleasesController do
 
   describe 'PUT #update' do
     it 'updates release note description' do
-      response = update_release(release.tag, "description updated")
+      response = update_release(release.tag, 'description updated')
 
       release = project.releases.find_by(tag: tag)
-      expect(release.description).to eq("description updated")
+      expect(release.description).to eq('description updated')
       expect(response).to have_http_status(:found)
     end
 
@@ -49,7 +49,7 @@ describe Projects::Tags::ReleasesController do
       tag_without_release = create_new_tag
 
       expect do
-        update_release(tag_without_release.name, "a new release")
+        update_release(tag_without_release.name, 'a new release')
       end.to change { project.releases.count }.by(1)
 
       expect(response).to have_http_status(:found)
@@ -58,7 +58,7 @@ describe Projects::Tags::ReleasesController do
     it 'sets the release name, sha, and author for a new release' do
       tag_without_release = create_new_tag
 
-      response = update_release(tag_without_release.name, "a new release")
+      response = update_release(tag_without_release.name, 'a new release')
 
       release = project.releases.find_by(tag: tag_without_release.name)
       expect(release.name).to eq(tag_without_release.name)
@@ -70,7 +70,7 @@ describe Projects::Tags::ReleasesController do
     it 'deletes release when description is empty' do
       initial_releases_count = project.releases.count
 
-      response = update_release(release.tag, "")
+      response = update_release(release.tag, '')
 
       expect(initial_releases_count).to eq(1)
       expect(project.releases.count).to eq(0)
@@ -81,7 +81,7 @@ describe Projects::Tags::ReleasesController do
       tag_without_release = create_new_tag
 
       expect do
-        update_release(tag_without_release.name, "")
+        update_release(tag_without_release.name, '')
       end.not_to change { project.releases.count }
 
       expect(response).to have_http_status(:found)

@@ -23,13 +23,13 @@ describe Geo::FileUploadService do
       end
     end
 
-    it "returns a LfsRetriever given object_type is lfs" do
+    it 'returns a LfsRetriever given object_type is lfs' do
       subject = described_class.new({ type: 'lfs', id: 1 }, 'request-data')
 
       expect(subject.retriever).to be_a(Gitlab::Geo::Replication::LfsRetriever)
     end
 
-    it "returns a JobArtifactRetriever given object_type is job_artifact" do
+    it 'returns a JobArtifactRetriever given object_type is job_artifact' do
       subject = described_class.new({ type: 'job_artifact', id: 1 }, 'request-data')
 
       expect(subject.retriever).to be_a(Gitlab::Geo::Replication::JobArtifactRetriever)

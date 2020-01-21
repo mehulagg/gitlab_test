@@ -7,7 +7,7 @@ module Banzai
       private
 
       def media_type
-        "audio"
+        'audio'
       end
 
       def safe_media_ext

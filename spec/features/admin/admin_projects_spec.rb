@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe "Admin::Projects" do
+describe 'Admin::Projects' do
   include Select2Helper
 
   let(:user) { create :user }
@@ -13,7 +13,7 @@ describe "Admin::Projects" do
     sign_in(current_user)
   end
 
-  describe "GET /admin/projects" do
+  describe 'GET /admin/projects' do
     let!(:archived_project) { create :project, :public, :archived }
 
     before do
@@ -21,7 +21,7 @@ describe "Admin::Projects" do
       visit admin_projects_path
     end
 
-    it "is ok" do
+    it 'is ok' do
       expect(current_path).to eq(admin_projects_path)
     end
 
@@ -48,7 +48,7 @@ describe "Admin::Projects" do
     end
   end
 
-  describe "GET /admin/projects/:namespace_id/:id" do
+  describe 'GET /admin/projects/:namespace_id/:id' do
     before do
       expect(project).to be_persisted
 
@@ -56,7 +56,7 @@ describe "Admin::Projects" do
       click_link project.name
     end
 
-    it "has project info" do
+    it 'has project info' do
       expect(current_path).to eq admin_project_path(project)
       expect(page).to have_content(project.path)
       expect(page).to have_content(project.name)

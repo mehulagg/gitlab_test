@@ -19,7 +19,7 @@ describe Projects::MilestonesController do
 
   it_behaves_like 'milestone tabs'
 
-  describe "#show" do
+  describe '#show' do
     render_views
 
     def view_milestone(options = {})
@@ -42,8 +42,8 @@ describe Projects::MilestonesController do
     end
   end
 
-  describe "#index" do
-    context "as html" do
+  describe '#index' do
+    context 'as html' do
       def render_index(project:, page:, search_title: '')
         get :index, params: {
                       namespace_id: project.namespace.id,
@@ -53,7 +53,7 @@ describe Projects::MilestonesController do
                     }
       end
 
-      it "queries only projects milestones" do
+      it 'queries only projects milestones' do
         render_index project: project, page: 1
 
         milestones = assigns(:milestones)
@@ -97,7 +97,7 @@ describe Projects::MilestonesController do
       end
     end
 
-    context "as json" do
+    context 'as json' do
       let!(:group) { create(:group, :public) }
       let!(:group_milestone) { create(:milestone, group: group) }
 
@@ -107,7 +107,7 @@ describe Projects::MilestonesController do
           get :index, params: { namespace_id: project.namespace.id, project_id: project.id }, format: :json
         end
 
-        it "queries projects milestones and groups milestones" do
+        it 'queries projects milestones and groups milestones' do
           milestones = assigns(:milestones)
 
           expect(milestones.count).to eq(2)
@@ -124,7 +124,7 @@ describe Projects::MilestonesController do
           get :index, params: { namespace_id: project.namespace.id, project_id: project.id }, format: :json
         end
 
-        it "queries projects milestones and all ancestors milestones" do
+        it 'queries projects milestones and all ancestors milestones' do
           milestones = assigns(:milestones)
 
           expect(milestones.count).to eq(3)
@@ -134,8 +134,8 @@ describe Projects::MilestonesController do
     end
   end
 
-  describe "#destroy" do
-    it "removes milestone" do
+  describe '#destroy' do
+    it 'removes milestone' do
       expect(issue.milestone_id).to eq(milestone.id)
 
       delete :destroy, params: { namespace_id: project.namespace.id, project_id: project.id, id: milestone.iid }, format: :js
@@ -248,7 +248,7 @@ describe Projects::MilestonesController do
   context '#participants' do
     render_views
 
-    context "when guest user" do
+    context 'when guest user' do
       let(:issue_assignee) { create(:user) }
       let(:guest_user) { create(:user) }
 
@@ -258,7 +258,7 @@ describe Projects::MilestonesController do
         issue.update(assignee_ids: issue_assignee.id)
       end
 
-      context "when issue is not confidential" do
+      context 'when issue is not confidential' do
         it 'shows milestone participants' do
           params = { namespace_id: project.namespace.id, project_id: project.id, id: milestone.iid, format: :json }
           get :participants, params: params
@@ -269,7 +269,7 @@ describe Projects::MilestonesController do
         end
       end
 
-      context "when issue is confidential" do
+      context 'when issue is confidential' do
         before do
           issue.update(confidential: true)
         end

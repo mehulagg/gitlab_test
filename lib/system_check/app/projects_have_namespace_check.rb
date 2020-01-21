@@ -27,10 +27,10 @@ module SystemCheck
 
       def show_error
         try_fixing_it(
-          "Migrate global projects"
+          'Migrate global projects'
         )
         for_more_information(
-          "doc/update/5.4-to-6.0.md in section \"#global-projects\""
+          'doc/update/5.4-to-6.0.md in section "#global-projects"'
         )
         fix_and_rerun
       end

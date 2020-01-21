@@ -29,7 +29,7 @@ describe ExtractsPath do
       @project = create(:project, :repository)
     end
 
-    it "log tree path has no escape sequences" do
+    it 'log tree path has no escape sequences' do
       assign_ref_vars
       expect(@logs_path).to eq("/#{@project.full_path}/refs/#{ref}/logs_tree/files/ruby/popen.rb")
     end
@@ -172,53 +172,53 @@ describe ExtractsPath do
   end
 
   describe '#extract_ref' do
-    it "returns an empty pair when no @project is set" do
+    it 'returns an empty pair when no @project is set' do
       @project = nil
       expect(extract_ref('master/CHANGELOG')).to eq(['', ''])
     end
 
-    context "without a path" do
-      it "extracts a valid branch" do
+    context 'without a path' do
+      it 'extracts a valid branch' do
         expect(extract_ref('master')).to eq(['master', ''])
       end
 
-      it "extracts a valid tag" do
+      it 'extracts a valid tag' do
         expect(extract_ref('v2.0.0')).to eq(['v2.0.0', ''])
       end
 
-      it "extracts a valid commit ref without a path" do
+      it 'extracts a valid commit ref without a path' do
         expect(extract_ref('f4b14494ef6abf3d144c28e4af0c20143383e062')).to eq(
           ['f4b14494ef6abf3d144c28e4af0c20143383e062', '']
         )
       end
 
-      it "falls back to a primitive split for an invalid ref" do
+      it 'falls back to a primitive split for an invalid ref' do
         expect(extract_ref('stable')).to eq(['stable', ''])
       end
 
-      it "extracts the longest matching ref" do
+      it 'extracts the longest matching ref' do
         expect(extract_ref('release/app/v1.0.0/README.md')).to eq(
           ['release/app/v1.0.0', 'README.md'])
       end
     end
 
-    context "with a path" do
-      it "extracts a valid branch" do
+    context 'with a path' do
+      it 'extracts a valid branch' do
         expect(extract_ref('foo/bar/baz/CHANGELOG')).to eq(
           ['foo/bar/baz', 'CHANGELOG'])
       end
 
-      it "extracts a valid tag" do
+      it 'extracts a valid tag' do
         expect(extract_ref('v2.0.0/CHANGELOG')).to eq(['v2.0.0', 'CHANGELOG'])
       end
 
-      it "extracts a valid commit SHA" do
+      it 'extracts a valid commit SHA' do
         expect(extract_ref('f4b14494ef6abf3d144c28e4af0c20143383e062/CHANGELOG')).to eq(
           %w(f4b14494ef6abf3d144c28e4af0c20143383e062 CHANGELOG)
         )
       end
 
-      it "falls back to a primitive split for an invalid ref" do
+      it 'falls back to a primitive split for an invalid ref' do
         expect(extract_ref('stable/CHANGELOG')).to eq(%w(stable CHANGELOG))
       end
     end

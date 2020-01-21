@@ -24,7 +24,7 @@ describe Git::WikiPushService do
       let(:changes) { +"123456 789012 refs/heads/tést\n654321 210987 refs/tags/tag\n423423 797823 refs/heads/master" }
 
       it 'triggers a wiki update' do
-        expect(project.wiki).to receive(:index_wiki_blobs).with("797823")
+        expect(project.wiki).to receive(:index_wiki_blobs).with('797823')
 
         described_class.new(project, project.owner, changes: post_received.changes).execute
       end

@@ -10,6 +10,6 @@ describe Gitlab::MarkdownCache::FieldData do
   end
 
   it 'translates a markdown field name into a html field name' do
-    expect(field_data.html_field(:description)).to eq("description_html")
+    expect(field_data.html_field(:description)).to eq('description_html')
   end
 end

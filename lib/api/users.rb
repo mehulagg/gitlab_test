@@ -107,7 +107,7 @@ module API
         # get either 0 or 1 `users` here.
         authorized &&= params[:username].present? if current_user.blank?
 
-        forbidden!("Not authorized to access /api/v4/users") unless authorized
+        forbidden!('Not authorized to access /api/v4/users') unless authorized
 
         entity = current_user&.admin? ? Entities::UserWithAdmin : Entities::UserBasic
         users = users.preload(:identities, :u2f_registrations) if entity == Entities::UserWithAdmin
@@ -126,7 +126,7 @@ module API
         use :with_custom_attributes
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      get ":id" do
+      get ':id' do
         user = User.find_by(id: params[:id])
         not_found!('User') unless user && can?(current_user, :read_user, user)
 
@@ -137,11 +137,11 @@ module API
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      desc "Get the status of a user"
+      desc 'Get the status of a user'
       params do
         requires :user_id, type: String, desc: 'The ID or username of the user'
       end
-      get ":user_id/status", requirements: API::USER_REQUIREMENTS do
+      get ':user_id/status', requirements: API::USER_REQUIREMENTS do
         user = find_user(params[:user_id])
         not_found!('User') unless user && can?(current_user, :read_user, user)
 
@@ -196,7 +196,7 @@ module API
         use :optional_attributes
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      put ":id" do
+      put ':id' do
         authenticated_as_admin!
 
         user = User.find_by(id: params.delete(:id))
@@ -232,7 +232,7 @@ module API
         requires :title, type: String, desc: 'The title of the new SSH key'
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      post ":id/keys" do
+      post ':id/keys' do
         authenticated_as_admin!
 
         user = User.find_by(id: params.delete(:id))
@@ -381,7 +381,7 @@ module API
         optional :skip_confirmation, type: Boolean, desc: 'Skip confirmation of email and assume it is verified'
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      post ":id/emails" do
+      post ':id/emails' do
         authenticated_as_admin!
 
         user = User.find_by(id: params.delete(:id))
@@ -444,7 +444,7 @@ module API
         optional :hard_delete, type: Boolean, desc: "Whether to remove a user's contributions"
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      delete ":id" do
+      delete ':id' do
         Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab/issues/20757')
 
         authenticated_as_admin!
@@ -637,7 +637,7 @@ module API
       params do
         use :pagination
       end
-      get "keys" do
+      get 'keys' do
         present paginate(current_user.keys), with: Entities::SSHKey
       end
 
@@ -648,7 +648,7 @@ module API
         requires :key_id, type: Integer, desc: 'The ID of the SSH key'
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      get "keys/:key_id" do
+      get 'keys/:key_id' do
         key = current_user.keys.find_by(id: params[:key_id])
         not_found!('Key') unless key
 
@@ -663,7 +663,7 @@ module API
         requires :key, type: String, desc: 'The new SSH key'
         requires :title, type: String, desc: 'The title of the new SSH key'
       end
-      post "keys" do
+      post 'keys' do
         key = current_user.keys.new(declared_params)
 
         if key.save
@@ -680,7 +680,7 @@ module API
         requires :key_id, type: Integer, desc: 'The ID of the SSH key'
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      delete "keys/:key_id" do
+      delete 'keys/:key_id' do
         key = current_user.keys.find_by(id: params[:key_id])
         not_found!('Key') unless key
 
@@ -771,7 +771,7 @@ module API
       params do
         use :pagination
       end
-      get "emails" do
+      get 'emails' do
         present paginate(current_user.emails), with: Entities::Email
       end
 
@@ -782,7 +782,7 @@ module API
         requires :email_id, type: Integer, desc: 'The ID of the email'
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      get "emails/:email_id" do
+      get 'emails/:email_id' do
         email = current_user.emails.find_by(id: params[:email_id])
         not_found!('Email') unless email
 
@@ -796,7 +796,7 @@ module API
       params do
         requires :email, type: String, desc: 'The new email'
       end
-      post "emails" do
+      post 'emails' do
         email = Emails::CreateService.new(current_user, declared_params.merge(user: current_user)).execute
 
         if email.errors.blank?
@@ -811,7 +811,7 @@ module API
         requires :email_id, type: Integer, desc: 'The ID of the email'
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      delete "emails/:email_id" do
+      delete 'emails/:email_id' do
         email = current_user.emails.find_by(id: params[:email_id])
         not_found!('Email') unless email
 
@@ -827,7 +827,7 @@ module API
         use :pagination
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      get "activities" do
+      get 'activities' do
         authenticated_as_admin!
 
         activities = User
@@ -842,10 +842,10 @@ module API
         success Entities::UserStatus
       end
       params do
-        optional :emoji, type: String, desc: "The emoji to set on the status"
-        optional :message, type: String, desc: "The status message to set"
+        optional :emoji, type: String, desc: 'The emoji to set on the status'
+        optional :message, type: String, desc: 'The status message to set'
       end
-      put "status" do
+      put 'status' do
         forbidden! unless can?(current_user, :update_user_status, current_user)
 
         if ::Users::SetStatusService.new(current_user, declared_params).execute

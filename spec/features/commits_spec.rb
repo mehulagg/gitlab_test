@@ -118,7 +118,7 @@ describe 'Commits' do
         end
       end
 
-      context "when logged as reporter" do
+      context 'when logged as reporter' do
         before do
           project.add_reporter(user)
           create(:ci_job_artifact, :archive, file: artifacts_file, job: build)
@@ -172,7 +172,7 @@ describe 'Commits' do
       commits = project.repository.commits(branch_name, limit: 40)
 
       commits.each do |commit|
-        expect(page).to have_content("authored #{commit.authored_date.strftime("%b %d, %Y")}")
+        expect(page).to have_content("authored #{commit.authored_date.strftime('%b %d, %Y')}")
       end
     end
 

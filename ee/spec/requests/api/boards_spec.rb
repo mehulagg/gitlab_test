@@ -8,7 +8,7 @@ describe API::Boards do
   set(:milestone) { create(:milestone, project: board_parent) }
   set(:board) { create(:board, project: board_parent, milestone: milestone, assignee: user) }
 
-  it_behaves_like 'multiple and scoped issue boards', "/projects/:id/boards"
+  it_behaves_like 'multiple and scoped issue boards', '/projects/:id/boards'
 
   describe 'POST /projects/:id/boards/:board_id/lists' do
     let(:url) { "/projects/#{board_parent.id}/boards/#{board.id}/lists" }
@@ -25,7 +25,7 @@ describe API::Boards do
 
       get api(url, user)
 
-      expect(json_response["milestone"]["title"]).to eq(Milestone::Upcoming.title)
+      expect(json_response['milestone']['title']).to eq(Milestone::Upcoming.title)
     end
 
     it 'returns board with Started milestone' do
@@ -33,7 +33,7 @@ describe API::Boards do
 
       get api(url, user)
 
-      expect(json_response["milestone"]["title"]).to eq(Milestone::Started.title)
+      expect(json_response['milestone']['title']).to eq(Milestone::Started.title)
     end
   end
 

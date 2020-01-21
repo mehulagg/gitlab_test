@@ -15,6 +15,6 @@ describe 'Projects > Show > Developer views empty project instructions' do
   it 'displays "git clone" instructions' do
     visit project_path(project)
 
-    expect(page).to have_content("git clone")
+    expect(page).to have_content('git clone')
   end
 end

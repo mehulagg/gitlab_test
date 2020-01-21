@@ -24,60 +24,60 @@ describe 'Git HTTP requests' do
     end
   end
 
-  describe "User with no identities" do
+  describe 'User with no identities' do
     let(:user) { create(:user) }
     let(:project) { create(:project, :repository, :private) }
     let(:path) { "#{project.full_path}.git" }
 
-    context "when Kerberos token is provided" do
+    context 'when Kerberos token is provided' do
       let(:env) { { spnego_request_token: 'opaque_request_token' } }
 
       before do
         allow_any_instance_of(Projects::GitHttpController).to receive(:allow_kerberos_spnego_auth?).and_return(true)
       end
 
-      context "when authentication fails because of invalid Kerberos token" do
+      context 'when authentication fails because of invalid Kerberos token' do
         before do
           allow_any_instance_of(Projects::GitHttpController).to receive(:spnego_credentials!).and_return(nil)
         end
 
-        it "responds with status 401 Unauthorized" do
+        it 'responds with status 401 Unauthorized' do
           download(path, env) do |response|
             expect(response).to have_gitlab_http_status(:unauthorized)
           end
         end
       end
 
-      context "when authentication fails because of unknown Kerberos identity" do
+      context 'when authentication fails because of unknown Kerberos identity' do
         before do
-          allow_any_instance_of(Projects::GitHttpController).to receive(:spnego_credentials!).and_return("mylogin@FOO.COM")
+          allow_any_instance_of(Projects::GitHttpController).to receive(:spnego_credentials!).and_return('mylogin@FOO.COM')
         end
 
-        it "responds with status 401 Unauthorized" do
+        it 'responds with status 401 Unauthorized' do
           download(path, env) do |response|
             expect(response).to have_gitlab_http_status(:unauthorized)
           end
         end
       end
 
-      context "when authentication succeeds" do
+      context 'when authentication succeeds' do
         before do
-          allow_any_instance_of(Projects::GitHttpController).to receive(:spnego_credentials!).and_return("mylogin@FOO.COM")
-          user.identities.create!(provider: "kerberos", extern_uid: "mylogin@FOO.COM")
+          allow_any_instance_of(Projects::GitHttpController).to receive(:spnego_credentials!).and_return('mylogin@FOO.COM')
+          user.identities.create!(provider: 'kerberos', extern_uid: 'mylogin@FOO.COM')
         end
 
-        context "when the user has access to the project" do
+        context 'when the user has access to the project' do
           before do
             project.add_maintainer(user)
           end
 
-          context "when the user is blocked" do
+          context 'when the user is blocked' do
             before do
               user.block
               project.add_maintainer(user)
             end
 
-            it "responds with status 403 Forbidden" do
+            it 'responds with status 403 Forbidden' do
               download(path, env) do |response|
                 expect(response).to have_gitlab_http_status(:forbidden)
               end
@@ -85,7 +85,7 @@ describe 'Git HTTP requests' do
           end
 
           context "when the user isn't blocked", :redis do
-            it "responds with status 200 OK" do
+            it 'responds with status 200 OK' do
               download(path, env) do |response|
                 expect(response).to have_gitlab_http_status(:ok)
               end
@@ -100,8 +100,8 @@ describe 'Git HTTP requests' do
             end
           end
 
-          it "complies with RFC4559" do
-            allow_any_instance_of(Projects::GitHttpController).to receive(:spnego_response_token).and_return("opaque_response_token")
+          it 'complies with RFC4559' do
+            allow_any_instance_of(Projects::GitHttpController).to receive(:spnego_response_token).and_return('opaque_response_token')
             download(path, env) do |response|
               expect(response.headers['WWW-Authenticate'].split("\n")).to include("Negotiate #{::Base64.strict_encode64('opaque_response_token')}")
             end
@@ -109,14 +109,14 @@ describe 'Git HTTP requests' do
         end
 
         context "when the user doesn't have access to the project" do
-          it "responds with status 404 Not Found" do
+          it 'responds with status 404 Not Found' do
             download(path, env) do |response|
               expect(response).to have_gitlab_http_status(:not_found)
             end
           end
 
-          it "complies with RFC4559" do
-            allow_any_instance_of(Projects::GitHttpController).to receive(:spnego_response_token).and_return("opaque_response_token")
+          it 'complies with RFC4559' do
+            allow_any_instance_of(Projects::GitHttpController).to receive(:spnego_response_token).and_return('opaque_response_token')
             download(path, env) do |response|
               expect(response.headers['WWW-Authenticate'].split("\n")).to include("Negotiate #{::Base64.strict_encode64('opaque_response_token')}")
             end

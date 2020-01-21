@@ -42,7 +42,7 @@ describe Projects::LfsPointers::LfsImportService do
 
     context 'when an exception is raised' do
       it 'returns error' do
-        error_message = "error message"
+        error_message = 'error message'
         expect_next_instance_of(Projects::LfsPointers::LfsObjectDownloadListService) do |instance|
           expect(instance).to receive(:execute).and_raise(StandardError, error_message)
         end

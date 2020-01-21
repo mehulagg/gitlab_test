@@ -25,7 +25,7 @@ describe Gitlab::FogbugzImport::Importer do
     {
       fOpen: 'false',
       sTitle: 'Closed bug',
-      sLatestTextSummary: "",
+      sLatestTextSummary: '',
       dtOpened: Time.now.to_s,
       dtLastUpdated: Time.now.to_s,
       events: { event: [] }
@@ -36,7 +36,7 @@ describe Gitlab::FogbugzImport::Importer do
     {
       fOpen: 'true',
       sTitle: 'Opened bug',
-      sLatestTextSummary: "",
+      sLatestTextSummary: '',
       dtOpened: Time.now.to_s,
       dtLastUpdated: Time.now.to_s,
       events: { event: [] }

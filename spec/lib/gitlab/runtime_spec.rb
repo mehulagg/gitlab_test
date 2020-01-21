@@ -7,24 +7,24 @@ describe Gitlab::Runtime do
     allow(described_class).to receive(:process_name).and_return('ruby')
   end
 
-  context "when unknown" do
-    it "raises an exception when trying to identify" do
+  context 'when unknown' do
+    it 'raises an exception when trying to identify' do
       expect { subject.identify }.to raise_error(subject::UnknownProcessError)
     end
   end
 
-  context "on multiple matches" do
+  context 'on multiple matches' do
     before do
       stub_const('::Puma', double)
       stub_const('::Rails::Console', double)
     end
 
-    it "raises an exception when trying to identify" do
+    it 'raises an exception when trying to identify' do
       expect { subject.identify }.to raise_error(subject::AmbiguousProcessError)
     end
   end
 
-  context "puma" do
+  context 'puma' do
     let(:puma_type) { double('::Puma') }
     let(:options) do
       {
@@ -37,12 +37,12 @@ describe Gitlab::Runtime do
       allow(puma_type).to receive_message_chain(:cli_config, :options).and_return(options)
     end
 
-    it "identifies itself" do
+    it 'identifies itself' do
       expect(subject.identify).to eq(:puma)
       expect(subject.puma?).to be(true)
     end
 
-    it "does not identify as others" do
+    it 'does not identify as others' do
       expect(subject.unicorn?).to be(false)
       expect(subject.sidekiq?).to be(false)
       expect(subject.console?).to be(false)
@@ -50,12 +50,12 @@ describe Gitlab::Runtime do
       expect(subject.rspec?).to be(false)
     end
 
-    it "reports its maximum concurrency" do
+    it 'reports its maximum concurrency' do
       expect(subject.max_threads).to eq(2)
     end
   end
 
-  context "unicorn" do
+  context 'unicorn' do
     let(:unicorn_type) { Module.new }
     let(:unicorn_server_type) { Class.new }
 
@@ -64,12 +64,12 @@ describe Gitlab::Runtime do
       stub_const('::Unicorn::HttpServer', unicorn_server_type)
     end
 
-    it "identifies itself" do
+    it 'identifies itself' do
       expect(subject.identify).to eq(:unicorn)
       expect(subject.unicorn?).to be(true)
     end
 
-    it "does not identify as others" do
+    it 'does not identify as others' do
       expect(subject.puma?).to be(false)
       expect(subject.sidekiq?).to be(false)
       expect(subject.console?).to be(false)
@@ -77,12 +77,12 @@ describe Gitlab::Runtime do
       expect(subject.rspec?).to be(false)
     end
 
-    it "reports its maximum concurrency" do
+    it 'reports its maximum concurrency' do
       expect(subject.max_threads).to eq(1)
     end
   end
 
-  context "sidekiq" do
+  context 'sidekiq' do
     let(:sidekiq_type) { double('::Sidekiq') }
     let(:options) do
       {
@@ -96,12 +96,12 @@ describe Gitlab::Runtime do
       allow(sidekiq_type).to receive(:options).and_return(options)
     end
 
-    it "identifies itself" do
+    it 'identifies itself' do
       expect(subject.identify).to eq(:sidekiq)
       expect(subject.sidekiq?).to be(true)
     end
 
-    it "does not identify as others" do
+    it 'does not identify as others' do
       expect(subject.unicorn?).to be(false)
       expect(subject.puma?).to be(false)
       expect(subject.console?).to be(false)
@@ -109,24 +109,24 @@ describe Gitlab::Runtime do
       expect(subject.rspec?).to be(false)
     end
 
-    it "reports its maximum concurrency" do
+    it 'reports its maximum concurrency' do
       expect(subject.max_threads).to eq(2)
     end
   end
 
-  context "console" do
+  context 'console' do
     let(:console_type) { double('::Rails::Console') }
 
     before do
       stub_const('::Rails::Console', console_type)
     end
 
-    it "identifies itself" do
+    it 'identifies itself' do
       expect(subject.identify).to eq(:console)
       expect(subject.console?).to be(true)
     end
 
-    it "does not identify as others" do
+    it 'does not identify as others' do
       expect(subject.unicorn?).to be(false)
       expect(subject.sidekiq?).to be(false)
       expect(subject.puma?).to be(false)
@@ -134,29 +134,29 @@ describe Gitlab::Runtime do
       expect(subject.rspec?).to be(false)
     end
 
-    it "reports its maximum concurrency" do
+    it 'reports its maximum concurrency' do
       expect(subject.max_threads).to eq(1)
     end
   end
 
-  context "rspec" do
+  context 'rspec' do
     before do
       allow(described_class).to receive(:process_name).and_return('rspec')
     end
 
-    it "identifies itself" do
+    it 'identifies itself' do
       expect(subject.identify).to eq(:rspec)
       expect(subject.rspec?).to be(true)
     end
 
-    it "does not identify as others" do
+    it 'does not identify as others' do
       expect(subject.unicorn?).to be(false)
       expect(subject.sidekiq?).to be(false)
       expect(subject.rake?).to be(false)
       expect(subject.puma?).to be(false)
     end
 
-    it "reports its maximum concurrency" do
+    it 'reports its maximum concurrency' do
       expect(subject.max_threads).to eq(1)
     end
   end

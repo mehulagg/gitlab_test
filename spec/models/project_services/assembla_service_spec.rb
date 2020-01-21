@@ -5,12 +5,12 @@ require 'spec_helper'
 describe AssemblaService do
   include StubRequests
 
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to :project }
     it { is_expected.to have_one :service_hook }
   end
 
-  describe "Execute" do
+  describe 'Execute' do
     let(:user)    { create(:user) }
     let(:project) { create(:project, :repository) }
 
@@ -28,7 +28,7 @@ describe AssemblaService do
       stub_full_request(@api_url, method: :post)
     end
 
-    it "calls Assembla API" do
+    it 'calls Assembla API' do
       @assembla_service.execute(@sample_data)
       expect(WebMock).to have_requested(:post, stubbed_hostname(@api_url)).with(
         body: /#{@sample_data[:before]}.*#{@sample_data[:after]}.*#{project.path}/

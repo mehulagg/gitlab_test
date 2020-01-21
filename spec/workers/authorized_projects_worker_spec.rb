@@ -14,8 +14,8 @@ describe AuthorizedProjectsWorker do
       job.perform(user.id)
     end
 
-    context "when the user is not found" do
-      it "does nothing" do
+    context 'when the user is not found' do
+      it 'does nothing' do
         expect_any_instance_of(User).not_to receive(:refresh_authorized_projects)
 
         job.perform(-1)

@@ -43,9 +43,9 @@ class Issue < ApplicationRecord
     dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
   has_many :issue_assignees
-  has_many :assignees, class_name: "User", through: :issue_assignees
+  has_many :assignees, class_name: 'User', through: :issue_assignees
   has_many :zoom_meetings
-  has_many :user_mentions, class_name: "IssueUserMention"
+  has_many :user_mentions, class_name: 'IssueUserMention'
   has_one :sentry_issue
 
   accepts_nested_attributes_for :sentry_issue
@@ -136,7 +136,7 @@ class Issue < ApplicationRecord
   end
 
   def self.link_reference_pattern
-    @link_reference_pattern ||= super("issues", /(?<issue>\d+)/)
+    @link_reference_pattern ||= super('issues', /(?<issue>\d+)/)
   end
 
   def self.reference_valid?(reference)
@@ -162,7 +162,7 @@ class Issue < ApplicationRecord
     order_labels_priority
       .reorder(Gitlab::Database.nulls_last_order('relative_position', 'ASC'),
               Gitlab::Database.nulls_last_order('highest_priority', 'ASC'),
-              "id DESC")
+              'id DESC')
   end
 
   def hook_attrs
@@ -225,7 +225,7 @@ class Issue < ApplicationRecord
         truncated_string = branch_name[0, 100]
         # Delete everything dangling after the last hyphen so as not to risk
         # existence of unintended words in the branch name due to mid-word split.
-        branch_name = truncated_string[0, truncated_string.rindex("-")]
+        branch_name = truncated_string[0, truncated_string.rindex('-')]
       end
 
       branch_name

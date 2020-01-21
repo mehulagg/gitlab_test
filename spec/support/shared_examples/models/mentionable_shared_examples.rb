@@ -12,12 +12,12 @@ RSpec.shared_context 'mentionable context' do
 
   let(:mentioned_issue) { create(:issue, project: project) }
   let!(:mentioned_mr) { create(:merge_request, source_project: project) }
-  let(:mentioned_commit) { project.commit("HEAD~1") }
+  let(:mentioned_commit) { project.commit('HEAD~1') }
 
   let(:ext_proj)   { create(:project, :public, :repository) }
   let(:ext_issue)  { create(:issue, project: ext_proj) }
   let(:ext_mr)     { create(:merge_request, :simple, source_project: ext_proj) }
-  let(:ext_commit) { ext_proj.commit("HEAD~2") }
+  let(:ext_commit) { ext_proj.commit('HEAD~2') }
 
   # Override to add known commits to the repository stub.
   let(:extra_commits) { [] }
@@ -66,7 +66,7 @@ RSpec.shared_examples 'a mentionable' do
     expect(subject.gfm_reference).to eq(backref_text)
   end
 
-  it "extracts references from its reference property" do
+  it 'extracts references from its reference property' do
     # De-duplicate and omit itself
     refs = subject.referenced_mentionables
     expect(refs.size).to eq(6)
@@ -220,7 +220,7 @@ RSpec.shared_examples 'mentions in description' do |mentionable_type|
     end
 
     context 'when mentionable description has no mentions' do
-      let(:mentionable) { create(mentionable_type, description: "just some description") }
+      let(:mentionable) { create(mentionable_type, description: 'just some description') }
 
       it 'stores no mentions' do
         expect(mentionable.user_mentions.count).to eq 0

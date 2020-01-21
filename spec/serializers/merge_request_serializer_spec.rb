@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe MergeRequestSerializer do
   set(:user) { create(:user) }
-  set(:resource) { create(:merge_request, description: "Description") }
+  set(:resource) { create(:merge_request, description: 'Description') }
 
   let(:json_entity) do
     described_class.new(current_user: user)
@@ -52,7 +52,7 @@ describe MergeRequestSerializer do
     end
 
     context 'when merge_request is locked' do
-      let(:resource) { create(:merge_request, :locked, description: "Description") }
+      let(:resource) { create(:merge_request, :locked, description: 'Description') }
 
       it 'matches noteable merge request json schema' do
         expect(json_entity).to match_schema('entities/merge_request_noteable')
@@ -61,7 +61,7 @@ describe MergeRequestSerializer do
 
     context 'when project is archived' do
       let(:project) { create(:project, :archived, :repository) }
-      let(:resource) { create(:merge_request, source_project: project, target_project: project, description: "Description") }
+      let(:resource) { create(:merge_request, source_project: project, target_project: project, description: 'Description') }
 
       it 'matches noteable merge request json schema' do
         expect(json_entity).to match_schema('entities/merge_request_noteable')

@@ -8,7 +8,7 @@ module Gitlab
       end
 
       def self.help_message
-        "issue show <id>"
+        'issue show <id>'
       end
 
       def execute(match)

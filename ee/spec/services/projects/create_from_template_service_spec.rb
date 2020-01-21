@@ -133,7 +133,7 @@ describe Projects::CreateFromTemplateService do
         end
 
         shared_examples 'a persisted project' do
-          it "is persisted" do
+          it 'is persisted' do
             project = subject.execute
 
             expect(project).to be_saved

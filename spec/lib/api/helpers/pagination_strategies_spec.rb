@@ -5,8 +5,8 @@ require 'spec_helper'
 describe API::Helpers::PaginationStrategies do
   subject { Class.new.include(described_class).new }
 
-  let(:expected_result) { double("result") }
-  let(:relation) { double("relation") }
+  let(:expected_result) { double('result') }
+  let(:relation) { double('relation') }
   let(:params) { {} }
 
   before do
@@ -14,7 +14,7 @@ describe API::Helpers::PaginationStrategies do
   end
 
   describe '#paginate_with_strategies' do
-    let(:paginator) { double("paginator", paginate: expected_result, finalize: nil) }
+    let(:paginator) { double('paginator', paginate: expected_result, finalize: nil) }
 
     before do
       allow(subject).to receive(:paginator).with(relation).and_return(paginator)
@@ -47,7 +47,7 @@ describe API::Helpers::PaginationStrategies do
 
   describe '#paginator' do
     context 'offset pagination' do
-      let(:paginator) { double("paginator") }
+      let(:paginator) { double('paginator') }
 
       before do
         allow(subject).to receive(:keyset_pagination_enabled?).and_return(false)

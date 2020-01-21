@@ -41,7 +41,7 @@ describe Gitlab::Ci::Config::Required::Processor do
     end
 
     context 'when template is empty string' do
-      let(:required_ci_template_name) { "" }
+      let(:required_ci_template_name) { '' }
 
       it 'returns the unmodified config' do
         expect(subject).to eq(config)

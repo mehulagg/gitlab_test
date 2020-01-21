@@ -26,7 +26,7 @@ module Gitlab
             full_line = line.delete("\n")
 
             if line =~ /^@@ -/
-              type = "match"
+              type = 'match'
 
               line_old = line.match(/\-[0-9]*/)[0].to_i.abs rescue 0
               line_new = line.match(/\+[0-9]*/)[0].to_i.abs rescue 0
@@ -48,13 +48,13 @@ module Gitlab
             end
 
             case line[0]
-            when "+"
+            when '+'
               line_new += 1
               context = :new
-            when "-"
+            when '-'
               line_old += 1
               context = :old
-            when "\\" # rubocop:disable Lint/EmptyWhen
+            when '\\' # rubocop:disable Lint/EmptyWhen
               # No increment
             else
               line_new += 1
@@ -78,10 +78,10 @@ module Gitlab
 
       def identification_type(line)
         case line[0]
-        when "+"
-          "new"
-        when "-"
-          "old"
+        when '+'
+          'new'
+        when '-'
+          'old'
         else
           nil
         end

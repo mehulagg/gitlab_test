@@ -31,7 +31,7 @@ module CycleAnalyticsHelpers
 
         context "start condition: #{start_time_conditions.map(&:first).to_sentence}" do
           context "end condition: #{end_time_conditions.map(&:first).to_sentence}" do
-            it "finds the median of available durations between the two conditions", :sidekiq_might_not_need_inline do
+            it 'finds the median of available durations between the two conditions', :sidekiq_might_not_need_inline do
               time_differences = Array.new(5) do |index|
                 data = data_fn[self]
                 start_time = (index * 10).days.from_now
@@ -57,8 +57,8 @@ module CycleAnalyticsHelpers
               expect(subject[phase].project_median).to be_within(5).of(median_time_difference)
             end
 
-            context "when the data belongs to another project" do
-              it "returns nil" do
+            context 'when the data belongs to another project' do
+              it 'returns nil' do
                 # Use a stub to "trick" the data/condition functions
                 # into using another project. This saves us from having to
                 # define separate data/condition functions for this particular
@@ -86,7 +86,7 @@ module CycleAnalyticsHelpers
               end
             end
 
-            context "when the end condition happens before the start condition" do
+            context 'when the end condition happens before the start condition' do
               it 'returns nil' do
                 data = data_fn[self]
                 start_time = Time.now
@@ -113,7 +113,7 @@ module CycleAnalyticsHelpers
 
         context "start condition NOT PRESENT: #{start_time_conditions.map(&:first).to_sentence}" do
           context "end condition: #{end_time_conditions.map(&:first).to_sentence}" do
-            it "returns nil" do
+            it 'returns nil' do
               data = data_fn[self]
               end_time = rand(1..10).days.from_now
 
@@ -130,7 +130,7 @@ module CycleAnalyticsHelpers
 
         context "start condition: #{start_time_conditions.map(&:first).to_sentence}" do
           context "end condition NOT PRESENT: #{end_time_conditions.map(&:first).to_sentence}" do
-            it "returns nil" do
+            it 'returns nil' do
               data = data_fn[self]
               start_time = Time.now
 
@@ -146,8 +146,8 @@ module CycleAnalyticsHelpers
         end
       end
 
-      context "when none of the start / end conditions are matched" do
-        it "returns nil" do
+      context 'when none of the start / end conditions are matched' do
+        it 'returns nil' do
           expect(subject[phase].project_median).to be_nil
         end
       end

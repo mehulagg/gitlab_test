@@ -147,7 +147,7 @@ describe Clusters::Platforms::Kubernetes do
       end
 
       context 'with an invalid certificate' do
-        let(:ca_pem) { "invalid" }
+        let(:ca_pem) { 'invalid' }
 
         it { is_expected.to be_falsey }
 
@@ -161,7 +161,7 @@ describe Clusters::Platforms::Kubernetes do
       end
 
       context 'with no certificate' do
-        let(:ca_pem) { "" }
+        let(:ca_pem) { '' }
 
         it { is_expected.to be_truthy }
       end
@@ -331,8 +331,8 @@ describe Clusters::Platforms::Kubernetes do
     let!(:cluster) { create(:cluster, :project, platform_kubernetes: service) }
     let(:project) { cluster.project }
     let(:service) { create(:cluster_platform_kubernetes, :configured) }
-    let(:environment) { build(:environment, project: project, name: "env", slug: "env-000000") }
-    let(:pods) { [{ "bad" => "pod" }] }
+    let(:environment) { build(:environment, project: project, name: 'env', slug: 'env-000000') }
+    let(:pods) { [{ 'bad' => 'pod' }] }
 
     context 'with invalid pods' do
       it 'returns no terminals' do
@@ -342,9 +342,9 @@ describe Clusters::Platforms::Kubernetes do
 
     context 'with valid pods' do
       let(:pod) { kube_pod(environment_slug: environment.slug, namespace: cluster.kubernetes_namespace_for(environment), project_slug: project.full_path_slug) }
-      let(:pod_with_no_terminal) { kube_pod(environment_slug: environment.slug, project_slug: project.full_path_slug, status: "Pending") }
+      let(:pod_with_no_terminal) { kube_pod(environment_slug: environment.slug, project_slug: project.full_path_slug, status: 'Pending') }
       let(:terminals) { kube_terminals(service, pod) }
-      let(:pods) { [pod, pod, pod_with_no_terminal, kube_pod(environment_slug: "should-be-filtered-out")] }
+      let(:pods) { [pod, pod, pod_with_no_terminal, kube_pod(environment_slug: 'should-be-filtered-out')] }
 
       it 'returns terminals' do
         is_expected.to eq(terminals + terminals)
@@ -362,7 +362,7 @@ describe Clusters::Platforms::Kubernetes do
   describe '#calculate_reactive_cache_for' do
     let(:service) { create(:cluster_platform_kubernetes, :configured) }
     let(:pod) { kube_pod }
-    let(:namespace) { pod["metadata"]["namespace"] }
+    let(:namespace) { pod['metadata']['namespace'] }
     let(:environment) { instance_double(Environment, deployment_namespace: namespace) }
 
     subject { service.calculate_reactive_cache_for(environment) }

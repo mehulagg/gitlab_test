@@ -75,7 +75,7 @@ describe Gitlab::Auth::LDAP::Adapter do
   describe '#dn_matches_filter?' do
     subject { adapter.dn_matches_filter?(:dn, :filter) }
 
-    context "when the search result is non-empty" do
+    context 'when the search result is non-empty' do
       before do
         allow(adapter).to receive(:ldap_search).and_return([:foo])
       end
@@ -83,7 +83,7 @@ describe Gitlab::Auth::LDAP::Adapter do
       it { is_expected.to be_truthy }
     end
 
-    context "when the search result is empty" do
+    context 'when the search result is empty' do
       before do
         allow(adapter).to receive(:ldap_search).and_return([])
       end
@@ -95,8 +95,8 @@ describe Gitlab::Auth::LDAP::Adapter do
   describe '#ldap_search' do
     subject { adapter.ldap_search(base: :dn, filter: :filter) }
 
-    context "when the search is successful" do
-      context "and the result is non-empty" do
+    context 'when the search is successful' do
+      context 'and the result is non-empty' do
         before do
           allow(ldap).to receive(:search).and_return([:foo])
         end
@@ -104,7 +104,7 @@ describe Gitlab::Auth::LDAP::Adapter do
         it { is_expected.to eq [:foo] }
       end
 
-      context "and the result is empty" do
+      context 'and the result is empty' do
         before do
           allow(ldap).to receive(:search).and_return([])
         end
@@ -113,7 +113,7 @@ describe Gitlab::Auth::LDAP::Adapter do
       end
     end
 
-    context "when the search encounters an error" do
+    context 'when the search encounters an error' do
       before do
         allow(ldap).to receive_messages(
           search: nil,
@@ -124,10 +124,10 @@ describe Gitlab::Auth::LDAP::Adapter do
       it { is_expected.to eq [] }
     end
 
-    context "when the search raises an LDAP exception" do
+    context 'when the search raises an LDAP exception' do
       before do
         allow(adapter).to receive(:renew_connection_adapter).and_return(ldap)
-        allow(ldap).to receive(:search) { raise Net::LDAP::Error, "some error" }
+        allow(ldap).to receive(:search) { raise Net::LDAP::Error, 'some error' }
         allow(Rails.logger).to receive(:warn)
       end
 
@@ -153,7 +153,7 @@ describe Gitlab::Auth::LDAP::Adapter do
           it 'logs the error' do
             expect { subject }.to raise_error(Gitlab::Auth::LDAP::LDAPConnectionError)
             expect(Rails.logger).to have_received(:warn).with(
-              "LDAP search raised exception Net::LDAP::Error: some error")
+              'LDAP search raised exception Net::LDAP::Error: some error')
           end
         end
       end

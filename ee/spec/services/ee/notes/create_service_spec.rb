@@ -10,12 +10,12 @@ describe Notes::CreateService do
 
     subject(:service) { described_class.new(project, user, opts) }
 
-    describe "#execute" do
+    describe '#execute' do
       let(:opts) do
         {
           type: 'DiffNote',
           noteable: design,
-          note: "A message",
+          note: 'A message',
           position: {
             old_path: design.full_path,
             new_path: design.full_path,

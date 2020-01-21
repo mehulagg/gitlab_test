@@ -4,9 +4,9 @@ require 'spec_helper'
 
 describe 'User Snippets' do
   let(:author) { create(:user) }
-  let!(:public_snippet) { create(:personal_snippet, :public, author: author, title: "This is a public snippet") }
-  let!(:internal_snippet) { create(:personal_snippet, :internal, author: author, title: "This is an internal snippet") }
-  let!(:private_snippet) { create(:personal_snippet, :private, author: author, title: "This is a private snippet") }
+  let!(:public_snippet) { create(:personal_snippet, :public, author: author, title: 'This is a public snippet') }
+  let!(:internal_snippet) { create(:personal_snippet, :internal, author: author, title: 'This is an internal snippet') }
+  let!(:private_snippet) { create(:personal_snippet, :private, author: author, title: 'This is a private snippet') }
 
   before do
     sign_in author
@@ -21,7 +21,7 @@ describe 'User Snippets' do
 
   it 'View my public snippets' do
     page.within('.snippet-scope-menu') do
-      click_link "Public"
+      click_link 'Public'
     end
 
     expect(page).to have_content(public_snippet.title)
@@ -31,7 +31,7 @@ describe 'User Snippets' do
 
   it 'View my internal snippets' do
     page.within('.snippet-scope-menu') do
-      click_link "Internal"
+      click_link 'Internal'
     end
 
     expect(page).not_to have_content(public_snippet.title)
@@ -41,7 +41,7 @@ describe 'User Snippets' do
 
   it 'View my private snippets' do
     page.within('.snippet-scope-menu') do
-      click_link "Private"
+      click_link 'Private'
     end
 
     expect(page).not_to have_content(public_snippet.title)

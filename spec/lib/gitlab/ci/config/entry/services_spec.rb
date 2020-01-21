@@ -45,7 +45,7 @@ describe Gitlab::Ci::Config::Entry::Services do
       describe '#valid?' do
         it 'is not valid' do
           expect(entry).not_to be_valid
-          expect(entry.errors).to include("service config contains disallowed keys: ports")
+          expect(entry.errors).to include('service config contains disallowed keys: ports')
         end
       end
     end
@@ -76,7 +76,7 @@ describe Gitlab::Ci::Config::Entry::Services do
           describe '#valid?' do
             it 'is invalid' do
               expect(entry).not_to be_valid
-              expect(entry.errors).to include("services config alias must be unique in services with ports")
+              expect(entry.errors).to include('services config alias must be unique in services with ports')
             end
           end
         end

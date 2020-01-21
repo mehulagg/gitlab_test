@@ -22,8 +22,8 @@ module BreadcrumbsHelper
   end
 
   def breadcrumb_list_item(link)
-    content_tag "li" do
-      link + sprite_icon("angle-right", size: 8, css_class: "breadcrumbs-list-angle")
+    content_tag 'li' do
+      link + sprite_icon('angle-right', size: 8, css_class: 'breadcrumbs-list-angle')
     end
   end
 

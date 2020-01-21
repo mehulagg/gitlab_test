@@ -272,7 +272,7 @@ FactoryBot.define do
         after(:build) do |artifact, _|
           filename = "gl-#{artifact.file_type.dasherize}-report-v#{version.sub(/_/, '.')}.json"
           path = Rails.root.join("ee/spec/fixtures/security_reports/#{filename}")
-          artifact.file = fixture_file_upload(path, "application/json")
+          artifact.file = fixture_file_upload(path, 'application/json')
         end
       end
     end

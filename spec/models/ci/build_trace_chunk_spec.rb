@@ -66,7 +66,7 @@ describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
 
     def external_data_counter
       Gitlab::Redis::SharedState.with do |redis|
-        redis.scan_each(match: "gitlab:ci:trace:*:chunks:*").to_a.size
+        redis.scan_each(match: 'gitlab:ci:trace:*:chunks:*').to_a.size
       end
     end
   end
@@ -621,7 +621,7 @@ describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
     shared_examples_for 'deletes all build_trace_chunk and data in redis' do
       it 'deletes all build_trace_chunk and data in redis', :sidekiq_might_not_need_inline do
         Gitlab::Redis::SharedState.with do |redis|
-          expect(redis.scan_each(match: "gitlab:ci:trace:*:chunks:*").to_a.size).to eq(3)
+          expect(redis.scan_each(match: 'gitlab:ci:trace:*:chunks:*').to_a.size).to eq(3)
         end
 
         expect(described_class.count).to eq(3)
@@ -631,7 +631,7 @@ describe Ci::BuildTraceChunk, :clean_gitlab_redis_shared_state do
         expect(described_class.count).to eq(0)
 
         Gitlab::Redis::SharedState.with do |redis|
-          expect(redis.scan_each(match: "gitlab:ci:trace:*:chunks:*").to_a.size).to eq(0)
+          expect(redis.scan_each(match: 'gitlab:ci:trace:*:chunks:*').to_a.size).to eq(0)
         end
       end
     end

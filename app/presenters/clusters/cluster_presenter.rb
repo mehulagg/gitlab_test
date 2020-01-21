@@ -40,11 +40,11 @@ module Clusters
 
     def cluster_type_description
       if cluster.project_type?
-        s_("ClusterIntegration|Project cluster")
+        s_('ClusterIntegration|Project cluster')
       elsif cluster.group_type?
-        s_("ClusterIntegration|Group cluster")
+        s_('ClusterIntegration|Group cluster')
       elsif cluster.instance_type?
-        s_("ClusterIntegration|Instance cluster")
+        s_('ClusterIntegration|Instance cluster')
       end
     end
 

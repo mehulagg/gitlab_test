@@ -28,7 +28,7 @@ describe CampfireService do
     end
   end
 
-  describe "#execute" do
+  describe '#execute' do
     let(:user)    { create(:user) }
     let(:project) { create(:project, :repository) }
 
@@ -48,7 +48,7 @@ describe CampfireService do
       @headers = { 'Content-Type' => 'application/json; charset=utf-8' }
     end
 
-    it "calls Campfire API to get a list of rooms and speak in a room" do
+    it 'calls Campfire API to get a list of rooms and speak in a room' do
       # make sure a valid list of rooms is returned
       body = File.read(Rails.root + 'spec/fixtures/project_services/campfire/rooms.json')
 

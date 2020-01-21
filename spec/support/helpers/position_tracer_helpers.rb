@@ -59,7 +59,7 @@ module PositionTracerHelpers
       current_user,
       start_branch: branch_name,
       branch_name: branch_name,
-      commit_message: "Create file",
+      commit_message: 'Create file',
       file_path: file_name,
       file_content: content
     ).execute
@@ -72,7 +72,7 @@ module PositionTracerHelpers
       current_user,
       start_branch: branch_name,
       branch_name: branch_name,
-      commit_message: "Update file",
+      commit_message: 'Update file',
       file_path: file_name,
       file_content: content
     ).execute
@@ -85,7 +85,7 @@ module PositionTracerHelpers
       current_user,
       start_branch: branch_name,
       branch_name: branch_name,
-      commit_message: "Delete file",
+      commit_message: 'Delete file',
       file_path: file_name
     ).execute
     project.commit(branch_name)

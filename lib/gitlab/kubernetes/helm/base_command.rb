@@ -37,15 +37,15 @@ module Gitlab
         end
 
         def name
-          raise "Not implemented"
+          raise 'Not implemented'
         end
 
         def rbac?
-          raise "Not implemented"
+          raise 'Not implemented'
         end
 
         def files
-          raise "Not implemented"
+          raise 'Not implemented'
         end
 
         private

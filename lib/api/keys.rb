@@ -9,7 +9,7 @@ module API
       desc 'Get single ssh key by id. Only available to admin users' do
         success Entities::SSHKeyWithUser
       end
-      get ":id" do
+      get ':id' do
         authenticated_as_admin!
 
         key = Key.find(params[:id])
@@ -30,7 +30,7 @@ module API
 
         not_found!('Key') unless key
 
-        if key.type == "DeployKey"
+        if key.type == 'DeployKey'
           present key, with: Entities::DeployKeyWithUser, current_user: current_user
         else
           present key, with: Entities::SSHKeyWithUser, current_user: current_user

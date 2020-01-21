@@ -18,55 +18,55 @@ describe PathLock do
     it { is_expected.to validate_uniqueness_of(:path).scoped_to(:project_id) }
 
     describe '#path_unique_validation' do
-      it "is not valid because of upstream lock" do
+      it 'is not valid because of upstream lock' do
         path_lock = build :path_lock, path: 'app/models/user.rb', project: project
         expect(path_lock.valid?).to be_falsey
-        expect(path_lock.errors[:path].first).to match("upstream lock")
+        expect(path_lock.errors[:path].first).to match('upstream lock')
       end
 
-      it "is not valid because of downstream lock" do
+      it 'is not valid because of downstream lock' do
         path_lock = build :path_lock, path: 'app', project: project
         expect(path_lock.valid?).to be_falsey
-        expect(path_lock.errors[:path].first).to match("downstream lock")
+        expect(path_lock.errors[:path].first).to match('downstream lock')
       end
     end
   end
 
   describe 'downstream?' do
-    it "returns true" do
-      expect(path_lock.downstream?("app")).to be_truthy
+    it 'returns true' do
+      expect(path_lock.downstream?('app')).to be_truthy
     end
 
-    it "returns false" do
-      expect(path_lock.downstream?("app/models")).to be_falsey
+    it 'returns false' do
+      expect(path_lock.downstream?('app/models')).to be_falsey
     end
 
-    it "returns false" do
-      expect(path_lock.downstream?("app/models/user.rb")).to be_falsey
+    it 'returns false' do
+      expect(path_lock.downstream?('app/models/user.rb')).to be_falsey
     end
   end
 
   describe 'upstream?' do
-    it "returns true" do
-      expect(path_lock.upstream?("app/models/user.rb")).to be_truthy
+    it 'returns true' do
+      expect(path_lock.upstream?('app/models/user.rb')).to be_truthy
     end
 
-    it "returns false" do
-      expect(path_lock.upstream?("app/models")).to be_falsey
+    it 'returns false' do
+      expect(path_lock.upstream?('app/models')).to be_falsey
     end
 
-    it "returns false" do
-      expect(path_lock.upstream?("app")).to be_falsey
+    it 'returns false' do
+      expect(path_lock.upstream?('app')).to be_falsey
     end
   end
 
   describe 'exact?' do
-    it "returns true" do
-      expect(path_lock.exact?("app/models")).to be_truthy
+    it 'returns true' do
+      expect(path_lock.exact?('app/models')).to be_truthy
     end
 
-    it "returns false" do
-      expect(path_lock.exact?("app")).to be_falsey
+    it 'returns false' do
+      expect(path_lock.exact?('app')).to be_falsey
     end
   end
 end

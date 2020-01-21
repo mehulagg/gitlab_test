@@ -56,7 +56,7 @@ class ProjectCacheWorker
   end
 
   def project_cache_worker_key(project_id, statistics)
-    ["project_cache_worker", project_id, *statistics.sort].join(":")
+    ['project_cache_worker', project_id, *statistics.sort].join(':')
   end
 end
 

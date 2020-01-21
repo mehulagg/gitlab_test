@@ -9,9 +9,9 @@ module EE
 
         prepended do
           params :optional_create_project_params_ee do
-            optional :use_custom_template, type: Grape::API::Boolean, desc: "Use custom template"
+            optional :use_custom_template, type: Grape::API::Boolean, desc: 'Use custom template'
             given :use_custom_template do
-              optional :group_with_project_templates_id, type: Integer, desc: "Group ID that serves as the template source"
+              optional :group_with_project_templates_id, type: Integer, desc: 'Group ID that serves as the template source'
             end
           end
 

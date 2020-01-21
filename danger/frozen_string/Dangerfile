@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-FILE_EXTENSION = ".rb"
-MAGIC_COMMENT = "# frozen_string_literal: true"
+FILE_EXTENSION = '.rb'
+MAGIC_COMMENT = '# frozen_string_literal: true'
 
 def get_files_with_no_magic_comment(files)
   files.select do |file|

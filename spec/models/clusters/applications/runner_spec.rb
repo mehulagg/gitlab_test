@@ -131,18 +131,18 @@ describe Clusters::Applications::Runner do
     context 'with duplicated values on vendor/runner/values.yaml' do
       let(:stub_values) do
         {
-          "concurrent" => 4,
-          "checkInterval" => 3,
-          "rbac" => {
-            "create" => false
+          'concurrent' => 4,
+          'checkInterval' => 3,
+          'rbac' => {
+            'create' => false
           },
-          "clusterWideAccess" => false,
-          "runners" => {
-            "privileged" => false,
-            "image" => "ubuntu:16.04",
-            "builds" => {},
-            "services" => {},
-            "helpers" => {}
+          'clusterWideAccess' => false,
+          'runners' => {
+            'privileged' => false,
+            'image' => 'ubuntu:16.04',
+            'builds' => {},
+            'services' => {},
+            'helpers' => {}
           }
         }
       end

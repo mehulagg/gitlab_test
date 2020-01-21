@@ -13,7 +13,7 @@ module Groups
 
     def all_members
       count = group_members.count
-      [{ username: "all", name: "All Group Members", count: count }]
+      [{ username: 'all', name: 'All Group Members', count: count }]
     end
 
     def group_members

@@ -6,9 +6,9 @@ describe 'Merge request > User resolves diff notes and threads', :js do
   let(:project)       { create(:project, :public, :repository) }
   let(:user)          { project.creator }
   let(:guest)         { create(:user) }
-  let(:merge_request) { create(:merge_request_with_diffs, source_project: project, author: user, title: "Bug NS-04") }
+  let(:merge_request) { create(:merge_request_with_diffs, source_project: project, author: user, title: 'Bug NS-04') }
   let!(:note)         { create(:diff_note_on_merge_request, project: project, noteable: merge_request, note: "| Markdown | Table |\n|-------|---------|\n| first | second |") }
-  let(:path)          { "files/ruby/popen.rb" }
+  let(:path)          { 'files/ruby/popen.rb' }
   let(:position) do
     Gitlab::Diff::Position.new(
       old_path: path,
@@ -115,7 +115,7 @@ describe 'Merge request > User resolves diff notes and threads', :js do
           it 'shows resolved thread when toggled' do
             find(".timeline-content .discussion[data-discussion-id='#{note.discussion_id}'] .discussion-toggle-button").click
 
-            expect(page.find(".line-holder-placeholder")).to be_visible
+            expect(page.find('.line-holder-placeholder')).to be_visible
             expect(page.find(".timeline-content #note_#{note.id}")).to be_visible
           end
 
@@ -124,8 +124,8 @@ describe 'Merge request > User resolves diff notes and threads', :js do
 
             wait_for_requests
 
-            expect(page.find(".timeline-content #note_#{note.id}")).not_to have_css(".line_holder")
-            expect(page.find(".timeline-content #note_#{note.id}")).to have_css("tr", count: 2)
+            expect(page.find(".timeline-content #note_#{note.id}")).not_to have_css('.line_holder')
+            expect(page.find(".timeline-content #note_#{note.id}")).to have_css('tr', count: 2)
           end
         end
 
@@ -232,7 +232,7 @@ describe 'Merge request > User resolves diff notes and threads', :js do
           page.find('.discussion-next-btn').click
         end
 
-        expect(page.evaluate_script("window.pageYOffset")).to be > 0
+        expect(page.evaluate_script('window.pageYOffset')).to be > 0
       end
 
       it 'hides jump to next button when all resolved' do
@@ -354,7 +354,7 @@ describe 'Merge request > User resolves diff notes and threads', :js do
           page.find('.discussion-next-btn').click
         end
 
-        expect(page.evaluate_script("window.pageYOffset")).to be > 0
+        expect(page.evaluate_script('window.pageYOffset')).to be > 0
       end
 
       it 'updates updated text after resolving note' do

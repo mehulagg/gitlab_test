@@ -18,7 +18,7 @@ module RepoHelpers
   def sample_blob
     OpenStruct.new(
       oid: '5f53439ca4b009096571d3c8bc3d09d30e7431b3',
-      path: "files/js/commit.js.coffee",
+      path: 'files/js/commit.js.coffee',
       data: <<eos
 class Commit
   constructor: ->
@@ -32,10 +32,10 @@ eos
 
   def sample_commit
     OpenStruct.new(
-      id: "570e7b2abdd848b95f2f578043fc23bd6f6fd24d",
+      id: '570e7b2abdd848b95f2f578043fc23bd6f6fd24d',
       parent_id: '6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9',
-      author_full_name: "Dmitriy Zaporozhets",
-      author_email: "dmitriy.zaporozhets@gmail.com",
+      author_full_name: 'Dmitriy Zaporozhets',
+      author_email: 'dmitriy.zaporozhets@gmail.com',
       files_changed_count: 2,
       line_code: '2f6fcd96b88b36ce98c38da085c795a27d92a3dd_15_14',
       line_code_path: 'files/ruby/popen.rb',
@@ -49,10 +49,10 @@ eos
 
   def another_sample_commit
     OpenStruct.new(
-      id: "e56497bb5f03a90a51293fc6d516788730953899",
+      id: 'e56497bb5f03a90a51293fc6d516788730953899',
       parent_id: '4cd80ccab63c82b4bad16faa5193fbd2aa06df40',
-      author_full_name: "Sytse Sijbrandij",
-      author_email: "sytse@gitlab.com",
+      author_full_name: 'Sytse Sijbrandij',
+      author_email: 'sytse@gitlab.com',
       files_changed_count: 1,
       message: <<eos
 Add directory structure for tree_helper spec
@@ -68,9 +68,9 @@ eos
 
   def sample_big_commit
     OpenStruct.new(
-      id: "913c66a37b4a45b9769037c55c2d238bd0942d2e",
-      author_full_name: "Dmitriy Zaporozhets",
-      author_email: "dmitriy.zaporozhets@gmail.com",
+      id: '913c66a37b4a45b9769037c55c2d238bd0942d2e',
+      author_full_name: 'Dmitriy Zaporozhets',
+      author_email: 'dmitriy.zaporozhets@gmail.com',
       message: <<eos
 Files, encoding and much more
 Signed-off-by: Dmitriy Zaporozhets <dmitriy.zaporozhets@gmail.com>
@@ -80,9 +80,9 @@ eos
 
   def sample_image_commit
     OpenStruct.new(
-      id: "2f63565e7aac07bcdadb654e253078b727143ec4",
-      author_full_name: "Dmitriy Zaporozhets",
-      author_email: "dmitriy.zaporozhets@gmail.com",
+      id: '2f63565e7aac07bcdadb654e253078b727143ec4',
+      author_full_name: 'Dmitriy Zaporozhets',
+      author_email: 'dmitriy.zaporozhets@gmail.com',
       old_blob_id: '33f3729a45c02fc67d00adb1b8bca394b0e761d9',
       new_blob_id: '2f63565e7aac07bcdadb654e253078b727143ec4',
       message: <<eos
@@ -138,14 +138,14 @@ eos
     options = {}
     options[:tree] = index.write_tree(repo)
     options[:author] = {
-      email: "test@example.com",
-      name: "Test Author",
-      time: Time.gm(2014, "mar", 3, 20, 15, 1)
+      email: 'test@example.com',
+      name: 'Test Author',
+      time: Time.gm(2014, 'mar', 3, 20, 15, 1)
     }
     options[:committer] = {
-      email: "test@example.com",
-      name: "Test Author",
-      time: Time.gm(2014, "mar", 3, 20, 15, 1)
+      email: 'test@example.com',
+      name: 'Test Author',
+      time: Time.gm(2014, 'mar', 3, 20, 15, 1)
     }
     options[:message] ||= message
     options[:parents] = repo.empty? ? [] : [target].compact
@@ -157,17 +157,17 @@ eos
   # Writes a new commit to the repo and returns a Rugged::Commit.  Replaces the
   # contents of CHANGELOG with a single new line of text.
   def new_commit_edit_old_file(repo)
-    oid = repo.write("I replaced the changelog with this text", :blob)
+    oid = repo.write('I replaced the changelog with this text', :blob)
     index = repo.index
     index.read_tree(repo.head.target.tree)
-    index.add(path: "CHANGELOG", oid: oid, mode: 0100644)
+    index.add(path: 'CHANGELOG', oid: oid, mode: 0100644)
 
     options = commit_options(
       repo,
       index,
       repo.head.target,
-      "HEAD",
-      "Edit CHANGELOG in its original location"
+      'HEAD',
+      'Edit CHANGELOG in its original location'
     )
 
     sha = Rugged::Commit.create(repo, options)
@@ -196,15 +196,15 @@ eos
   # Writes a new commit to the repo and returns a Rugged::Commit.  Moves the
   # CHANGELOG file to the encoding/ directory.
   def new_commit_move_file(repo)
-    blob_oid = repo.head.target.tree.detect { |i| i[:name] == "CHANGELOG" }[:oid]
+    blob_oid = repo.head.target.tree.detect { |i| i[:name] == 'CHANGELOG' }[:oid]
     file_content = repo.lookup(blob_oid).content
     oid = repo.write(file_content, :blob)
     index = repo.index
     index.read_tree(repo.head.target.tree)
-    index.add(path: "encoding/CHANGELOG", oid: oid, mode: 0100644)
-    index.remove("CHANGELOG")
+    index.add(path: 'encoding/CHANGELOG', oid: oid, mode: 0100644)
+    index.remove('CHANGELOG')
 
-    options = commit_options(repo, index, repo.head.target, "HEAD", "Move CHANGELOG to encoding/")
+    options = commit_options(repo, index, repo.head.target, 'HEAD', 'Move CHANGELOG to encoding/')
 
     sha = Rugged::Commit.create(repo, options)
     repo.lookup(sha)

@@ -36,10 +36,10 @@ describe 'Profile > Emails' do
   it 'User removes email' do
     user.emails.create(email: 'my@email.com')
     visit profile_emails_path
-    expect(page).to have_content("my@email.com")
+    expect(page).to have_content('my@email.com')
 
     click_link('Remove')
-    expect(page).not_to have_content("my@email.com")
+    expect(page).not_to have_content('my@email.com')
   end
 
   it 'User confirms email' do
@@ -58,7 +58,7 @@ describe 'Profile > Emails' do
     email = user.emails.create(email: 'my@email.com')
     visit profile_emails_path
 
-    expect { click_link("Resend confirmation email") }.to change { ActionMailer::Base.deliveries.size }
+    expect { click_link('Resend confirmation email') }.to change { ActionMailer::Base.deliveries.size }
     expect(page).to have_content("Confirmation email sent to #{email.email}")
   end
 

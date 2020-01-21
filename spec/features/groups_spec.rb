@@ -178,7 +178,7 @@ describe 'Group' do
       expect(page).to have_content 'successfully updated'
       expect(find('#group_name').value).to eq(new_name)
 
-      page.within ".breadcrumbs" do
+      page.within '.breadcrumbs' do
         expect(page).to have_content new_name
       end
     end
@@ -192,7 +192,7 @@ describe 'Group' do
     it 'removes group', :sidekiq_might_not_need_inline do
       expect { remove_with_confirm('Remove group', group.path) }.to change {Group.count}.by(-1)
       expect(group.members.all.count).to be_zero
-      expect(page).to have_content "scheduled for deletion"
+      expect(page).to have_content 'scheduled for deletion'
     end
   end
 

@@ -7,7 +7,7 @@ module MilestoneActions
     respond_to do |format|
       format.html { redirect_to milestone_redirect_path }
       format.json do
-        render json: tabs_json("shared/milestones/_merge_requests_tab", {
+        render json: tabs_json('shared/milestones/_merge_requests_tab', {
           merge_requests: @milestone.sorted_merge_requests(current_user), # rubocop:disable Gitlab/ModuleWithInstanceVariables
           show_project_name: true
         })
@@ -19,7 +19,7 @@ module MilestoneActions
     respond_to do |format|
       format.html { redirect_to milestone_redirect_path }
       format.json do
-        render json: tabs_json("shared/milestones/_participants_tab", {
+        render json: tabs_json('shared/milestones/_participants_tab', {
           users: @milestone.issue_participants_visible_by_user(current_user) # rubocop:disable Gitlab/ModuleWithInstanceVariables
         })
       end
@@ -33,7 +33,7 @@ module MilestoneActions
       format.json do
         milestone_labels = @milestone.issue_labels_visible_by_user(current_user)
 
-        render json: tabs_json("shared/milestones/_labels_tab", {
+        render json: tabs_json('shared/milestones/_labels_tab', {
           labels: milestone_labels.map do |label|
             label.present(issuable_subject: @milestone.resource_parent)
           end

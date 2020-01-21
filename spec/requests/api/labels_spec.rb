@@ -561,41 +561,41 @@ describe API::Labels do
     end
   end
 
-  describe "POST /projects/:id/labels/:label_id/subscribe" do
-    context "when label_id is a label title" do
-      it "subscribes to the label" do
+  describe 'POST /projects/:id/labels/:label_id/subscribe' do
+    context 'when label_id is a label title' do
+      it 'subscribes to the label' do
         post api("/projects/#{project.id}/labels/#{label1.title}/subscribe", user)
 
         expect(response).to have_gitlab_http_status(201)
-        expect(json_response["name"]).to eq(label1.title)
-        expect(json_response["subscribed"]).to be_truthy
+        expect(json_response['name']).to eq(label1.title)
+        expect(json_response['subscribed']).to be_truthy
       end
     end
 
-    context "when label_id is a label ID" do
-      it "subscribes to the label" do
+    context 'when label_id is a label ID' do
+      it 'subscribes to the label' do
         post api("/projects/#{project.id}/labels/#{label1.id}/subscribe", user)
 
         expect(response).to have_gitlab_http_status(201)
-        expect(json_response["name"]).to eq(label1.title)
-        expect(json_response["subscribed"]).to be_truthy
+        expect(json_response['name']).to eq(label1.title)
+        expect(json_response['subscribed']).to be_truthy
       end
     end
 
-    context "when user is already subscribed to label" do
+    context 'when user is already subscribed to label' do
       before do
         label1.subscribe(user, project)
       end
 
-      it "returns 304" do
+      it 'returns 304' do
         post api("/projects/#{project.id}/labels/#{label1.id}/subscribe", user)
 
         expect(response).to have_gitlab_http_status(304)
       end
     end
 
-    context "when label ID is not found" do
-      it "returns 404 error" do
+    context 'when label ID is not found' do
+      it 'returns 404 error' do
         post api("/projects/#{project.id}/labels/1234/subscribe", user)
 
         expect(response).to have_gitlab_http_status(404)
@@ -603,45 +603,45 @@ describe API::Labels do
     end
   end
 
-  describe "POST /projects/:id/labels/:label_id/unsubscribe" do
+  describe 'POST /projects/:id/labels/:label_id/unsubscribe' do
     before do
       label1.subscribe(user, project)
     end
 
-    context "when label_id is a label title" do
-      it "unsubscribes from the label" do
+    context 'when label_id is a label title' do
+      it 'unsubscribes from the label' do
         post api("/projects/#{project.id}/labels/#{label1.title}/unsubscribe", user)
 
         expect(response).to have_gitlab_http_status(201)
-        expect(json_response["name"]).to eq(label1.title)
-        expect(json_response["subscribed"]).to be_falsey
+        expect(json_response['name']).to eq(label1.title)
+        expect(json_response['subscribed']).to be_falsey
       end
     end
 
-    context "when label_id is a label ID" do
-      it "unsubscribes from the label" do
+    context 'when label_id is a label ID' do
+      it 'unsubscribes from the label' do
         post api("/projects/#{project.id}/labels/#{label1.id}/unsubscribe", user)
 
         expect(response).to have_gitlab_http_status(201)
-        expect(json_response["name"]).to eq(label1.title)
-        expect(json_response["subscribed"]).to be_falsey
+        expect(json_response['name']).to eq(label1.title)
+        expect(json_response['subscribed']).to be_falsey
       end
     end
 
-    context "when user is already unsubscribed from label" do
+    context 'when user is already unsubscribed from label' do
       before do
         label1.unsubscribe(user, project)
       end
 
-      it "returns 304" do
+      it 'returns 304' do
         post api("/projects/#{project.id}/labels/#{label1.id}/unsubscribe", user)
 
         expect(response).to have_gitlab_http_status(304)
       end
     end
 
-    context "when label ID is not found" do
-      it "returns 404 error" do
+    context 'when label ID is not found' do
+      it 'returns 404 error' do
         post api("/projects/#{project.id}/labels/1234/unsubscribe", user)
 
         expect(response).to have_gitlab_http_status(404)

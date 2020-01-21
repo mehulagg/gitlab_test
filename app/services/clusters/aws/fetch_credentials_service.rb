@@ -61,7 +61,7 @@ module Clusters
       end
 
       def read_only_policy
-        Rails.root.join('vendor', 'aws', 'iam', "eks_cluster_read_only_policy.json")
+        Rails.root.join('vendor', 'aws', 'iam', 'eks_cluster_read_only_policy.json')
       end
 
       def session_name

@@ -34,7 +34,7 @@ describe API::Environments do
         expect(json_response.first['name']).to eq(environment.name)
         expect(json_response.first['external_url']).to eq(environment.external_url)
         expect(json_response.first['project'].keys).to contain_exactly(*project_data_keys)
-        expect(json_response.first).not_to have_key("last_deployment")
+        expect(json_response.first).not_to have_key('last_deployment')
       end
 
       context 'when filtering' do
@@ -91,7 +91,7 @@ describe API::Environments do
   describe 'POST /projects/:id/environments' do
     context 'as a member' do
       it 'creates a environment with valid params' do
-        post api("/projects/#{project.id}/environments", user), params: { name: "mepmep" }
+        post api("/projects/#{project.id}/environments", user), params: { name: 'mepmep' }
 
         expect(response).to have_gitlab_http_status(201)
         expect(json_response['name']).to eq('mepmep')
@@ -112,10 +112,10 @@ describe API::Environments do
       end
 
       it 'returns a 400 if slug is specified' do
-        post api("/projects/#{project.id}/environments", user), params: { name: "foo", slug: "foo" }
+        post api("/projects/#{project.id}/environments", user), params: { name: 'foo', slug: 'foo' }
 
         expect(response).to have_gitlab_http_status(400)
-        expect(json_response["error"]).to eq("slug is automatically generated and cannot be changed")
+        expect(json_response['error']).to eq('slug is automatically generated and cannot be changed')
       end
     end
 
@@ -127,7 +127,7 @@ describe API::Environments do
       end
 
       it 'returns a 400 when the required params are missing' do
-        post api("/projects/12345/environments", non_member), params: { external_url: 'http://env.git.com' }
+        post api('/projects/12345/environments', non_member), params: { external_url: 'http://env.git.com' }
       end
     end
   end
@@ -146,10 +146,10 @@ describe API::Environments do
     it "won't allow slug to be changed" do
       slug = environment.slug
       api_url = api("/projects/#{project.id}/environments/#{environment.id}", user)
-      put api_url, params: { slug: slug + "-foo" }
+      put api_url, params: { slug: slug + '-foo' }
 
       expect(response).to have_gitlab_http_status(400)
-      expect(json_response["error"]).to eq("slug is automatically generated and cannot be changed")
+      expect(json_response['error']).to eq('slug is automatically generated and cannot be changed')
     end
 
     it "won't update the external_url if only the name is passed" do

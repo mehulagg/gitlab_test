@@ -61,7 +61,7 @@ describe ChatMessage::WikiPageMessage do
         it 'returns the commit message for a new wiki page' do
           expect(subject.attachments).to eq([
             {
-              text: "Wiki page commit message",
+              text: 'Wiki page commit message',
               color: color
             }
           ])
@@ -76,7 +76,7 @@ describe ChatMessage::WikiPageMessage do
         it 'returns the commit message for an updated wiki page' do
           expect(subject.attachments).to eq([
             {
-              text: "Wiki page commit message",
+              text: 'Wiki page commit message',
               color: color
             }
           ])

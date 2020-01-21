@@ -42,7 +42,7 @@ RSpec.describe 'admin issues labels' do
 
       wait_for_requests
 
-      expect(page).to have_content("There are no labels yet")
+      expect(page).to have_content('There are no labels yet')
       expect(page).not_to have_content('bug')
       expect(page).not_to have_content('feature_label')
     end

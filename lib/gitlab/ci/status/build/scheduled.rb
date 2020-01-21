@@ -9,16 +9,16 @@ module Gitlab
             {
               image: 'illustrations/illustrations_scheduled-job_countdown.svg',
               size: 'svg-394',
-              title: _("This is a delayed job to run in %{remainingTime}"),
-              content: _("This job will automatically run after its timer finishes. " \
-                         "Often they are used for incremental roll-out deploys " \
-                         "to production environments. When unscheduled it converts " \
-                         "into a manual action.")
+              title: _('This is a delayed job to run in %{remainingTime}'),
+              content: _('This job will automatically run after its timer finishes. ' \
+                         'Often they are used for incremental roll-out deploys ' \
+                         'to production environments. When unscheduled it converts ' \
+                         'into a manual action.')
             }
           end
 
           def status_tooltip
-            "delayed manual action (%{remainingTime})"
+            'delayed manual action (%{remainingTime})'
           end
 
           def self.matches?(build, user)

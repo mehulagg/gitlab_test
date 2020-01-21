@@ -34,7 +34,7 @@ describe Projects::GitHttpController, type: :request do
           end
         end
 
-        it "allows access" do
+        it 'allows access' do
           subject
 
           expect(response).to have_gitlab_http_status(200)
@@ -42,7 +42,7 @@ describe Projects::GitHttpController, type: :request do
       end
 
       context 'user without a smartcard session' do
-        it "does not allow access" do
+        it 'does not allow access' do
           subject
 
           expect(response).to have_gitlab_http_status(403)
@@ -55,7 +55,7 @@ describe Projects::GitHttpController, type: :request do
           stub_smartcard_setting(required_for_git_access: false)
         end
 
-        it "allows access" do
+        it 'allows access' do
           subject
 
           expect(response).to have_gitlab_http_status(200)

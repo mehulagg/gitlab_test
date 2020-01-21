@@ -39,7 +39,7 @@ describe Gitlab::Ci::Reports::TestCase do
             file: 'spec/trace_spec.rb',
             execution_time: 1.23,
             status: described_class::STATUS_FAILED,
-            system_output: "Failure/Error: is_expected.to eq(300) expected: 300 got: -100"
+            system_output: 'Failure/Error: is_expected.to eq(300) expected: 300 got: -100'
           }
         end
 

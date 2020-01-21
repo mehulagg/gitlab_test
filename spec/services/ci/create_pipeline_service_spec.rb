@@ -70,7 +70,7 @@ describe Ci::CreatePipelineService do
 
       it 'increments the prometheus counter' do
         expect(Gitlab::Metrics).to receive(:counter)
-          .with(:pipelines_created_total, "Counter of pipelines created")
+          .with(:pipelines_created_total, 'Counter of pipelines created')
           .and_call_original
         allow(Gitlab::Metrics).to receive(:counter).and_call_original # allow other counters
 
@@ -79,15 +79,15 @@ describe Ci::CreatePipelineService do
 
       context 'when merge requests already exist for this source branch' do
         let(:merge_request_1) do
-          create(:merge_request, source_branch: 'feature', target_branch: "master", source_project: project)
+          create(:merge_request, source_branch: 'feature', target_branch: 'master', source_project: project)
         end
         let(:merge_request_2) do
-          create(:merge_request, source_branch: 'feature', target_branch: "v1.1.0", source_project: project)
+          create(:merge_request, source_branch: 'feature', target_branch: 'v1.1.0', source_project: project)
         end
 
         context 'when related merge request is already merged' do
           let!(:merged_merge_request) do
-            create(:merge_request, source_branch: 'master', target_branch: "branch_2", source_project: project, state: 'merged')
+            create(:merge_request, source_branch: 'master', target_branch: 'branch_2', source_project: project, state: 'merged')
           end
 
           it 'does not schedule update head pipeline job' do
@@ -126,9 +126,9 @@ describe Ci::CreatePipelineService do
         end
 
         context 'when there is no pipeline for source branch' do
-          it "does not update merge request head pipeline" do
+          it 'does not update merge request head pipeline' do
             merge_request = create(:merge_request, source_branch: 'feature',
-                                                   target_branch: "branch_1",
+                                                   target_branch: 'branch_1',
                                                    source_project: project)
 
             head_pipeline = execute_service
@@ -143,7 +143,7 @@ describe Ci::CreatePipelineService do
 
           it 'updates head pipeline for merge request', :sidekiq_might_not_need_inline do
             merge_request = create(:merge_request, source_branch: 'feature',
-                                                   target_branch: "master",
+                                                   target_branch: 'master',
                                                    source_project: project,
                                                    target_project: target_project)
 
@@ -156,7 +156,7 @@ describe Ci::CreatePipelineService do
         context 'when the pipeline is not the latest for the branch' do
           it 'does not update merge request head pipeline' do
             merge_request = create(:merge_request, source_branch: 'master',
-                                                   target_branch: "branch_1",
+                                                   target_branch: 'branch_1',
                                                    source_project: project)
 
             allow_any_instance_of(MergeRequest)
@@ -442,13 +442,13 @@ describe Ci::CreatePipelineService do
       end
     end
 
-    context "skip tag if there is no build for it" do
-      it "creates commit if there is appropriate job" do
+    context 'skip tag if there is no build for it' do
+      it 'creates commit if there is appropriate job' do
         expect(execute_service).to be_persisted
       end
 
-      it "creates commit if there is no appropriate job but deploy job has right ref setting" do
-        config = YAML.dump({ deploy: { script: "ls", only: ["master"] } })
+      it 'creates commit if there is no appropriate job but deploy job has right ref setting' do
+        config = YAML.dump({ deploy: { script: 'ls', only: ['master'] } })
         stub_ci_pipeline_yaml_file(config)
 
         expect(execute_service).to be_persisted
@@ -621,17 +621,17 @@ describe Ci::CreatePipelineService do
     end
 
     context 'when commit contains a [ci skip] directive' do
-      let(:message) { "some message[ci skip]" }
+      let(:message) { 'some message[ci skip]' }
 
       ci_messages = [
-        "some message[ci skip]",
-        "some message[skip ci]",
-        "some message[CI SKIP]",
-        "some message[SKIP CI]",
-        "some message[ci_skip]",
-        "some message[skip_ci]",
-        "some message[ci-skip]",
-        "some message[skip-ci]"
+        'some message[ci skip]',
+        'some message[skip ci]',
+        'some message[CI SKIP]',
+        'some message[SKIP CI]',
+        'some message[ci_skip]',
+        'some message[skip_ci]',
+        'some message[ci-skip]',
+        'some message[skip-ci]'
       ]
 
       before do
@@ -644,7 +644,7 @@ describe Ci::CreatePipelineService do
 
           expect(pipeline).to be_persisted
           expect(pipeline.builds.any?).to be false
-          expect(pipeline.status).to eq("skipped")
+          expect(pipeline.status).to eq('skipped')
         end
       end
 
@@ -655,7 +655,7 @@ describe Ci::CreatePipelineService do
           pipeline = execute_service(message: commit_message)
 
           expect(pipeline).to be_persisted
-          expect(pipeline.builds.first.name).to eq("rspec")
+          expect(pipeline.builds.first.name).to eq('rspec')
         end
       end
 
@@ -689,7 +689,7 @@ describe Ci::CreatePipelineService do
         # TODO: DRY these up with "skips builds creation if the commit message"
         expect(pipeline).to be_persisted
         expect(pipeline.builds.any?).to be false
-        expect(pipeline.status).to eq("skipped")
+        expect(pipeline.status).to eq('skipped')
       end
     end
 
@@ -763,7 +763,7 @@ describe Ci::CreatePipelineService do
       before do
         config = YAML.dump(
           deploy: {
-            environment: { name: "review/$CI_COMMIT_REF_NAME" },
+            environment: { name: 'review/$CI_COMMIT_REF_NAME' },
             script: 'ls',
             tags: ['hello']
           })
@@ -775,7 +775,7 @@ describe Ci::CreatePipelineService do
         result = execute_service
 
         expect(result).to be_persisted
-        expect(Environment.find_by(name: "review/master")).to be_present
+        expect(Environment.find_by(name: 'review/master')).to be_present
         expect(result.builds.first.tag_list).to contain_exactly('hello')
         expect(result.builds.first.deployment).to be_persisted
         expect(result.builds.first.deployment.deployable).to be_a(Ci::Build)
@@ -786,7 +786,7 @@ describe Ci::CreatePipelineService do
       before do
         config = YAML.dump(
           deploy: {
-            environment: { name: "review/$CI_COMMIT_REF_NAME", auto_stop_in: '1 day' },
+            environment: { name: 'review/$CI_COMMIT_REF_NAME', auto_stop_in: '1 day' },
             script: 'ls'
           })
 
@@ -805,7 +805,7 @@ describe Ci::CreatePipelineService do
       before do
         config = YAML.dump(
           deploy: {
-            environment: { name: "review/id1$CI_PIPELINE_ID/id2$CI_BUILD_ID" },
+            environment: { name: 'review/id1$CI_PIPELINE_ID/id2$CI_BUILD_ID' },
             script: 'ls'
           }
         )
@@ -817,7 +817,7 @@ describe Ci::CreatePipelineService do
         result = execute_service
 
         expect(result).to be_persisted
-        expect(Environment.find_by(name: "review/id1/id2")).to be_present
+        expect(Environment.find_by(name: 'review/id1/id2')).to be_present
       end
     end
 
@@ -828,7 +828,7 @@ describe Ci::CreatePipelineService do
         config = YAML.dump(
           deploy: {
             environment: {
-              name: "environment-name",
+              name: 'environment-name',
               kubernetes: { namespace: kubernetes_namespace }
             },
             script: 'ls'
@@ -993,10 +993,10 @@ describe Ci::CreatePipelineService do
           let(:config) do
             {
               release: {
-                script: ["make changelog | tee release_changelog.txt"],
+                script: ['make changelog | tee release_changelog.txt'],
                 release: {
-                  tag_name: "v0.06",
-                  description: "./release_changelog.txt"
+                  tag_name: 'v0.06',
+                  description: './release_changelog.txt'
                 }
               }
             }
@@ -1009,19 +1009,19 @@ describe Ci::CreatePipelineService do
           let(:config) do
             {
               release: {
-                script: ["make changelog | tee release_changelog.txt"],
+                script: ['make changelog | tee release_changelog.txt'],
                 release: {
-                  name: "Release $CI_TAG_NAME",
-                  tag_name: "v0.06",
-                  description: "./release_changelog.txt",
+                  name: 'Release $CI_TAG_NAME',
+                  tag_name: 'v0.06',
+                  description: './release_changelog.txt',
                   assets: {
                     links: [
                       {
-                        name: "cool-app.zip",
-                        url: "http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.zip"
+                        name: 'cool-app.zip',
+                        url: 'http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.zip'
                       },
                       {
-                        url: "http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.exe"
+                        url: 'http://my.awesome.download.site/1.0-$CI_COMMIT_SHORT_SHA.exe'
                       }
                     ]
                   }
@@ -1259,7 +1259,7 @@ describe Ci::CreatePipelineService do
 
               it 'does not create an extrnal pull request pipeline' do
                 expect(pipeline).not_to be_persisted
-                expect(pipeline.errors[:tag]).to eq(["is not included in the list"])
+                expect(pipeline.errors[:tag]).to eq(['is not included in the list'])
               end
             end
 
@@ -1267,7 +1267,7 @@ describe Ci::CreatePipelineService do
               it 'does not create an external pull request pipeline'
             end
 
-            context "when there are no matched jobs" do
+            context 'when there are no matched jobs' do
               let(:config) do
                 {
                   test: {
@@ -1280,7 +1280,7 @@ describe Ci::CreatePipelineService do
 
               it 'does not create a detached merge request pipeline' do
                 expect(pipeline).not_to be_persisted
-                expect(pipeline.errors[:base]).to eq(["No stages / jobs for this pipeline."])
+                expect(pipeline.errors[:base]).to eq(['No stages / jobs for this pipeline.'])
               end
             end
           end
@@ -1295,7 +1295,7 @@ describe Ci::CreatePipelineService do
           end
         end
 
-        context "when config does not have external_pull_requests keywords" do
+        context 'when config does not have external_pull_requests keywords' do
           let(:config) do
             {
               build: {
@@ -1366,7 +1366,7 @@ describe Ci::CreatePipelineService do
       context 'when source is merge request' do
         let(:source) { :merge_request_event }
 
-        context "when config has merge_requests keywords" do
+        context 'when config has merge_requests keywords' do
           let(:config) do
             {
               build: {
@@ -1432,7 +1432,7 @@ describe Ci::CreatePipelineService do
 
               it 'does not create a merge request pipeline' do
                 expect(pipeline).not_to be_persisted
-                expect(pipeline.errors[:tag]).to eq(["is not included in the list"])
+                expect(pipeline.errors[:tag]).to eq(['is not included in the list'])
               end
             end
 
@@ -1456,7 +1456,7 @@ describe Ci::CreatePipelineService do
               end
             end
 
-            context "when there are no matched jobs" do
+            context 'when there are no matched jobs' do
               let(:config) do
                 {
                   test: {
@@ -1469,7 +1469,7 @@ describe Ci::CreatePipelineService do
 
               it 'does not create a detached merge request pipeline' do
                 expect(pipeline).not_to be_persisted
-                expect(pipeline.errors[:base]).to eq(["No stages / jobs for this pipeline."])
+                expect(pipeline.errors[:base]).to eq(['No stages / jobs for this pipeline.'])
               end
             end
           end
@@ -1484,7 +1484,7 @@ describe Ci::CreatePipelineService do
           end
         end
 
-        context "when config does not have merge_requests keywords" do
+        context 'when config does not have merge_requests keywords' do
           let(:config) do
             {
               build: {
@@ -1531,7 +1531,7 @@ describe Ci::CreatePipelineService do
           end
         end
 
-        context "when config uses regular expression for only keyword" do
+        context 'when config uses regular expression for only keyword' do
           let(:config) do
             {
               build: {
@@ -1560,7 +1560,7 @@ describe Ci::CreatePipelineService do
           end
         end
 
-        context "when config uses variables for only keyword" do
+        context 'when config uses variables for only keyword' do
           let(:config) do
             {
               build: {
@@ -1624,7 +1624,7 @@ describe Ci::CreatePipelineService do
       context 'when source is web' do
         let(:source) { :web }
 
-        context "when config has merge_requests keywords" do
+        context 'when config has merge_requests keywords' do
           let(:config) do
             {
               build: {
@@ -1655,7 +1655,7 @@ describe Ci::CreatePipelineService do
 
             it 'does not create a merge request pipeline' do
               expect(pipeline).not_to be_persisted
-              expect(pipeline.errors[:merge_request]).to eq(["must be blank"])
+              expect(pipeline.errors[:merge_request]).to eq(['must be blank'])
             end
           end
 
@@ -1679,19 +1679,19 @@ describe Ci::CreatePipelineService do
       let(:config) do
         {
           build_a: {
-            stage: "build",
-            script: "ls",
+            stage: 'build',
+            script: 'ls',
             only: %w[master]
           },
           test_a: {
-            stage: "test",
-            script: "ls",
+            stage: 'test',
+            script: 'ls',
             only: %w[master feature],
             needs: %w[build_a]
           },
           deploy: {
-            stage: "deploy",
-            script: "ls",
+            stage: 'deploy',
+            script: 'ls',
             only: %w[tags]
           }
         }
@@ -1706,7 +1706,7 @@ describe Ci::CreatePipelineService do
 
         it 'creates a pipeline with build_a and test_a' do
           expect(pipeline).to be_persisted
-          expect(pipeline.builds.pluck(:name)).to contain_exactly("build_a", "test_a")
+          expect(pipeline.builds.pluck(:name)).to contain_exactly('build_a', 'test_a')
         end
       end
 
@@ -1741,7 +1741,7 @@ describe Ci::CreatePipelineService do
 
         it 'does create a pipeline only with deploy' do
           expect(pipeline).to be_persisted
-          expect(pipeline.builds.pluck(:name)).to contain_exactly("deploy")
+          expect(pipeline.builds.pluck(:name)).to contain_exactly('deploy')
         end
       end
     end

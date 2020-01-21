@@ -45,7 +45,7 @@ describe 'gitlab:cleanup rake tasks' do
         end
 
         it 'logs action as done' do
-          expect(logger).to receive(:info).with("Looking for orphaned project uploads to clean up...")
+          expect(logger).to receive(:info).with('Looking for orphaned project uploads to clean up...')
           expect(logger).to receive(:info).with("Did fix #{path} -> #{new_path}")
 
           run_rake_task('gitlab:cleanup:project_uploads')
@@ -61,7 +61,7 @@ describe 'gitlab:cleanup rake tasks' do
         end
 
         it 'logs action as able to be done' do
-          expect(logger).to receive(:info).with("Looking for orphaned project uploads to clean up. Dry run...")
+          expect(logger).to receive(:info).with('Looking for orphaned project uploads to clean up. Dry run...')
           expect(logger).to receive(:info).with("Can fix #{path} -> #{new_path}")
           expect(logger).to receive(:info).with(/To clean up these files run this command with DRY_RUN=false/)
 

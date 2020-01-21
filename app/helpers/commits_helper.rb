@@ -96,16 +96,16 @@ module CommitsHelper
 
     if @path.blank?
       url = project_tree_path(project, commit)
-      tooltip = _("Browse Files")
+      tooltip = _('Browse Files')
     elsif @repo.blob_at(commit.id, @path)
       url = project_blob_path(project, tree_join(commit.id, @path))
-      tooltip = _("Browse File")
+      tooltip = _('Browse File')
     elsif @path.present?
       url = project_tree_path(project, tree_join(commit.id, @path))
-      tooltip = _("Browse Directory")
+      tooltip = _('Browse Directory')
     end
 
-    link_to url, class: "btn btn-default has-tooltip", title: tooltip, data: { container: "body" } do
+    link_to url, class: 'btn btn-default has-tooltip', title: tooltip, data: { container: 'body' } do
       sprite_icon('folder-open')
     end
   end

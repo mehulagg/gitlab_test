@@ -14,7 +14,7 @@ describe Gitlab::DependencyLinker::PodspecLinker do
   end
 
   describe '#link' do
-    let(:file_name) { "Reachability.podspec" }
+    let(:file_name) { 'Reachability.podspec' }
 
     let(:file_content) do
       <<-CONTENT.strip_heredoc

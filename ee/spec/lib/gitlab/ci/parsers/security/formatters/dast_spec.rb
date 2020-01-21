@@ -38,19 +38,19 @@ describe Gitlab::Ci::Parsers::Security::Formatters::Dast do
                                              'type'  => 'ZAProxy_PluginId',
                                              'name'  => 'Anti CSRF Tokens Scanner',
                                              'value' => '20012',
-                                             'url'   => "https://github.com/zaproxy/zaproxy/blob/w2019-01-14/docs/scanners.md"
+                                             'url'   => 'https://github.com/zaproxy/zaproxy/blob/w2019-01-14/docs/scanners.md'
                                            })
       expect(data['identifiers'][1]).to eq({
                                              'type'  => 'CWE',
-                                             'name'  => "CWE-352",
+                                             'name'  => 'CWE-352',
                                              'value' => '352',
-                                             'url'   => "https://cwe.mitre.org/data/definitions/352.html"
+                                             'url'   => 'https://cwe.mitre.org/data/definitions/352.html'
                                            })
       expect(data['identifiers'][2]).to eq({
                                              'type'  => 'WASC',
-                                             'name'  => "WASC-9",
+                                             'name'  => 'WASC-9',
                                              'value' => '9',
-                                             'url'   => "http://projects.webappsec.org/w/page/13246974/Threat%20Classification%20Reference%20Grid"
+                                             'url'   => 'http://projects.webappsec.org/w/page/13246974/Threat%20Classification%20Reference%20Grid'
                                            })
       expect(data['location']).to eq({
                                        'param' => '',

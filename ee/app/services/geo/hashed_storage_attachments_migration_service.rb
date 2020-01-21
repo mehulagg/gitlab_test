@@ -41,7 +41,7 @@ module Geo
       end
 
       if File.exist?(new_path)
-        log_error("Cannot migrate attachments to Hashed Storage, target path already exist", project_id: project.id, source: old_path, target: new_path)
+        log_error('Cannot migrate attachments to Hashed Storage, target path already exist', project_id: project.id, source: old_path, target: new_path)
         raise AttachmentMigrationError, "Target path '#{new_path}' already exist"
       end
 
@@ -49,7 +49,7 @@ module Geo
       FileUtils.mkdir_p(File.dirname(new_path))
 
       FileUtils.mv(old_path, new_path)
-      log_info("Migrated project attachments to Hashed Storage", project_id: project.id, source: old_path, target: new_path)
+      log_info('Migrated project attachments to Hashed Storage', project_id: project.id, source: old_path, target: new_path)
 
       true
     end

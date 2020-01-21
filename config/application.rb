@@ -85,7 +85,7 @@ module Gitlab
     config.gettext_i18n_rails.use_for_active_record_attributes = false
 
     # Configure the default encoding used in templates for Ruby 1.9.
-    config.encoding = "utf-8"
+    config.encoding = 'utf-8'
 
     # Configure sensitive parameters which will be filtered from the log file.
     #
@@ -142,9 +142,9 @@ module Gitlab
     # config.active_record.schema_format = :sql
 
     # Configure webpack
-    config.webpack.config_file = "config/webpack.config.js"
-    config.webpack.output_dir  = "public/assets/webpack"
-    config.webpack.public_path = "assets/webpack"
+    config.webpack.config_file = 'config/webpack.config.js'
+    config.webpack.output_dir  = 'public/assets/webpack'
+    config.webpack.public_path = 'assets/webpack'
 
     # Webpack dev server configuration is handled in initializers/static_files.rb
     config.webpack.dev_server.enabled = false
@@ -156,38 +156,38 @@ module Gitlab
     config.assets.paths << Gemojione.images_path
     config.assets.paths << "#{config.root}/vendor/assets/fonts"
 
-    config.assets.precompile << "print.css"
-    config.assets.precompile << "mailer.css"
-    config.assets.precompile << "mailer_client_specific.css"
-    config.assets.precompile << "notify.css"
-    config.assets.precompile << "mailers/*.css"
-    config.assets.precompile << "page_bundles/ide.css"
-    config.assets.precompile << "page_bundles/xterm.css"
-    config.assets.precompile << "performance_bar.css"
-    config.assets.precompile << "lib/ace.js"
-    config.assets.precompile << "disable_animations.css"
-    config.assets.precompile << "snippets.css"
-    config.assets.precompile << "locale/**/app.js"
-    config.assets.precompile << "emoji_sprites.css"
-    config.assets.precompile << "errors.css"
+    config.assets.precompile << 'print.css'
+    config.assets.precompile << 'mailer.css'
+    config.assets.precompile << 'mailer_client_specific.css'
+    config.assets.precompile << 'notify.css'
+    config.assets.precompile << 'mailers/*.css'
+    config.assets.precompile << 'page_bundles/ide.css'
+    config.assets.precompile << 'page_bundles/xterm.css'
+    config.assets.precompile << 'performance_bar.css'
+    config.assets.precompile << 'lib/ace.js'
+    config.assets.precompile << 'disable_animations.css'
+    config.assets.precompile << 'snippets.css'
+    config.assets.precompile << 'locale/**/app.js'
+    config.assets.precompile << 'emoji_sprites.css'
+    config.assets.precompile << 'errors.css'
 
-    config.assets.precompile << "highlight/themes/*.css"
+    config.assets.precompile << 'highlight/themes/*.css'
 
     # Import gitlab-svgs directly from vendored directory
     config.assets.paths << "#{config.root}/node_modules/@gitlab/svgs/dist"
-    config.assets.precompile << "icons.svg"
-    config.assets.precompile << "icons.json"
-    config.assets.precompile << "illustrations/*.svg"
+    config.assets.precompile << 'icons.svg'
+    config.assets.precompile << 'icons.json'
+    config.assets.precompile << 'illustrations/*.svg'
 
     # Import css for xterm
     config.assets.paths << "#{config.root}/node_modules/xterm/src/"
-    config.assets.precompile << "xterm.css"
+    config.assets.precompile << 'xterm.css'
 
     if Gitlab.ee?
       %w[images javascripts stylesheets].each do |path|
         config.assets.paths << "#{config.root}/ee/app/assets/#{path}"
-        config.assets.precompile << "jira_connect.js"
-        config.assets.precompile << "pages/jira_connect.css"
+        config.assets.precompile << 'jira_connect.js'
+        config.assets.precompile << 'pages/jira_connect.css'
       end
     end
 
@@ -198,7 +198,7 @@ module Gitlab
     config.assets.paths << "#{config.root}/app/assets/stylesheets/_ee"
 
     config.assets.paths << "#{config.root}/vendor/assets/javascripts/"
-    config.assets.precompile << "snowplow/sp.js"
+    config.assets.precompile << 'snowplow/sp.js'
 
     # This path must come last to avoid confusing sprockets
     # See https://gitlab.com/gitlab-org/gitlab-foss/issues/64091#note_194512508
@@ -208,7 +208,7 @@ module Gitlab
       # Compile non-JS/CSS assets in the ee/app/assets folder by default
       # Mimic sprockets-rails default: https://github.com/rails/sprockets-rails/blob/v3.2.1/lib/sprockets/railtie.rb#L84-L87
       LOOSE_EE_APP_ASSETS = lambda do |logical_path, filename|
-        filename.start_with?(config.root.join("ee/app/assets").to_s) &&
+        filename.start_with?(config.root.join('ee/app/assets').to_s) &&
           !['.js', '.css', ''].include?(File.extname(logical_path))
       end
       config.assets.precompile << LOOSE_EE_APP_ASSETS

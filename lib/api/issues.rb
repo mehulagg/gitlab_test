@@ -121,7 +121,7 @@ module API
       params do
         use :issues_params
       end
-      get ":id/issues" do
+      get ':id/issues' do
         issues = paginate(find_issues(group_id: user_group.id, include_subgroups: true))
 
         options = {
@@ -140,7 +140,7 @@ module API
       params do
         use :issues_stats_params
       end
-      get ":id/issues_statistics" do
+      get ':id/issues_statistics' do
         present issues_statistics(group_id: user_group.id, include_subgroups: true), with: Grape::Presenters::Presenter
       end
     end
@@ -157,7 +157,7 @@ module API
       params do
         use :issues_params
       end
-      get ":id/issues" do
+      get ':id/issues' do
         issues = paginate(find_issues(project_id: user_project.id))
 
         options = {
@@ -176,7 +176,7 @@ module API
       params do
         use :issues_stats_params
       end
-      get ":id/issues_statistics" do
+      get ':id/issues_statistics' do
         present issues_statistics(project_id: user_project.id), with: Grape::Presenters::Presenter
       end
 
@@ -186,7 +186,7 @@ module API
       params do
         requires :issue_iid, type: Integer, desc: 'The internal ID of a project issue'
       end
-      get ":id/issues/:issue_iid", as: :api_v4_project_issue do
+      get ':id/issues/:issue_iid', as: :api_v4_project_issue do
         issue = find_project_issue(params[:issue_iid])
         present issue, with: Entities::Issue, current_user: current_user, project: user_project
       end
@@ -312,7 +312,7 @@ module API
         requires :issue_iid, type: Integer, desc: 'The internal ID of a project issue'
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      delete ":id/issues/:issue_iid" do
+      delete ':id/issues/:issue_iid' do
         issue = user_project.issues.find_by(iid: params[:issue_iid])
         not_found!('Issue') unless issue
 
@@ -380,7 +380,7 @@ module API
       params do
         requires :issue_iid, type: Integer, desc: 'The internal ID of a project issue'
       end
-      get ":id/issues/:issue_iid/user_agent_detail" do
+      get ':id/issues/:issue_iid/user_agent_detail' do
         authenticated_as_admin!
 
         issue = find_project_issue(params[:issue_iid])

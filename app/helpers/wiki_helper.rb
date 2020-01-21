@@ -18,7 +18,7 @@ module WikiHelper
   def wiki_breadcrumb_dropdown_links(page_slug)
     page_slug_split = page_slug.split('/')
     page_slug_split.pop(1)
-    current_slug = ""
+    current_slug = ''
     page_slug_split
       .map do |dir_or_page|
         current_slug = "#{current_slug}#{dir_or_page}/"
@@ -32,12 +32,12 @@ module WikiHelper
     content_tag(:div, class: 'alert alert-danger') do
       case error
       when WikiPage::PageChangedError
-        page_link = link_to s_("WikiPageConflictMessage|the page"), project_wiki_path(@project, @page), target: "_blank"
+        page_link = link_to s_('WikiPageConflictMessage|the page'), project_wiki_path(@project, @page), target: '_blank'
         concat(
-          (s_("WikiPageConflictMessage|Someone edited the page the same time you did. Please check out %{page_link} and make sure your changes will not unintentionally remove theirs.") % { page_link: page_link }).html_safe
+          (s_('WikiPageConflictMessage|Someone edited the page the same time you did. Please check out %{page_link} and make sure your changes will not unintentionally remove theirs.') % { page_link: page_link }).html_safe
         )
       when WikiPage::PageRenameError
-        s_("WikiEdit|There is already a page with the same title in that path.")
+        s_('WikiEdit|There is already a page with the same title in that path.')
       else
         error.message
       end
@@ -62,9 +62,9 @@ module WikiHelper
 
   def wiki_sort_title(key)
     if key == ProjectWiki::CREATED_AT_ORDER
-      s_("Wiki|Created date")
+      s_('Wiki|Created date')
     else
-      s_("Wiki|Title")
+      s_('Wiki|Title')
     end
   end
 end

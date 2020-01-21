@@ -126,11 +126,11 @@ describe Gitlab::Ci::Config::Entry::Job do
         context 'when it is a release' do
           let(:config) do
             {
-              script: ["make changelog | tee release_changelog.txt"],
+              script: ['make changelog | tee release_changelog.txt'],
               release: {
-                tag_name: "v0.06",
-                name: "Release $CI_TAG_NAME",
-                description: "./release_changelog.txt"
+                tag_name: 'v0.06',
+                name: 'Release $CI_TAG_NAME',
+                description: './release_changelog.txt'
               }
             }
           end
@@ -186,7 +186,7 @@ describe Gitlab::Ci::Config::Entry::Job do
 
         it 'returns error about wrong value type' do
           expect(entry).not_to be_valid
-          expect(entry.errors).to include "job extends should be an array of strings or a string"
+          expect(entry.errors).to include 'job extends should be an array of strings or a string'
         end
       end
 
@@ -435,7 +435,7 @@ describe Gitlab::Ci::Config::Entry::Job do
           it 'returns error about value too high' do
             expect(entry).not_to be_valid
             expect(entry.errors)
-              .to include "timeout config should not exceed the limit"
+              .to include 'timeout config should not exceed the limit'
           end
         end
 
@@ -463,15 +463,15 @@ describe Gitlab::Ci::Config::Entry::Job do
         context 'when `release:description` is missing' do
           let(:config) do
             {
-              script: ["make changelog | tee release_changelog.txt"],
+              script: ['make changelog | tee release_changelog.txt'],
               release: {
-                tag_name: "v0.06",
-                name: "Release $CI_TAG_NAME"
+                tag_name: 'v0.06',
+                name: 'Release $CI_TAG_NAME'
               }
             }
           end
 
-          it "returns error" do
+          it 'returns error' do
             expect(entry).not_to be_valid
             expect(entry.errors).to include "release description can't be blank"
           end
@@ -532,12 +532,12 @@ describe Gitlab::Ci::Config::Entry::Job do
       using RSpec::Parameterized::TableSyntax
 
       where(:name, :has_workflow_rules?, :only, :rules, :result) do
-        "uses default only"    | false | nil          | nil    | { refs: %w[branches tags] }
-        "uses user only"       | false | %w[branches] | nil    | { refs: %w[branches] }
-        "does not define only" | false | nil          | []     | nil
-        "does not define only" | true  | nil          | nil    | nil
-        "uses user only"       | true  | %w[branches] | nil    | { refs: %w[branches] }
-        "does not define only" | true  | nil          | []     | nil
+        'uses default only'    | false | nil          | nil    | { refs: %w[branches tags] }
+        'uses user only'       | false | %w[branches] | nil    | { refs: %w[branches] }
+        'does not define only' | false | nil          | []     | nil
+        'does not define only' | true  | nil          | nil    | nil
+        'uses user only'       | true  | %w[branches] | nil    | { refs: %w[branches] }
+        'does not define only' | true  | nil          | []     | nil
       end
 
       with_them do

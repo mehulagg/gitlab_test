@@ -26,14 +26,14 @@ describe 'Issue weight', :js do
     visit project_issue_path(project, issue)
 
     page.within('.weight') do
-      expect(page).to have_content "None"
+      expect(page).to have_content 'None'
 
       click_link 'Edit'
 
       find('.block.weight input').send_keys 1, :enter
 
       page.within('.value') do
-        expect(page).to have_content "1"
+        expect(page).to have_content '1'
       end
     end
   end
@@ -48,14 +48,14 @@ describe 'Issue weight', :js do
     visit project_issue_path(project, issue)
 
     page.within('.weight') do
-      expect(page).to have_content "2"
+      expect(page).to have_content '2'
 
       click_link 'Edit'
 
       find('.block.weight input').send_keys 3, :enter
 
       page.within('.value') do
-        expect(page).to have_content "3"
+        expect(page).to have_content '3'
       end
     end
   end
@@ -70,12 +70,12 @@ describe 'Issue weight', :js do
     visit project_issue_path(project, issue)
 
     page.within('.weight') do
-      expect(page).to have_content "5"
+      expect(page).to have_content '5'
 
       click_link 'remove weight'
 
       page.within('.value') do
-        expect(page).to have_content "None"
+        expect(page).to have_content 'None'
       end
     end
   end

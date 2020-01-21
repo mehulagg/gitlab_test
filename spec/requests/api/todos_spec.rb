@@ -216,7 +216,7 @@ describe API::Todos do
       it 'updates todos cache' do
         expect_any_instance_of(User).to receive(:update_todos_count_cache).and_call_original
 
-        post api("/todos/mark_as_done", john_doe)
+        post api('/todos/mark_as_done', john_doe)
       end
     end
   end

@@ -40,9 +40,9 @@ describe Gitlab::Cluster::Mixins::PumaCluster do
   def with_puma(workers:, timeout: PUMA_STARTUP_TIMEOUT)
     with_puma_config(workers: workers) do |puma_rb|
       cmdline = [
-        "bundle", "exec", "puma",
-        "-C", puma_rb,
-        "-I", Rails.root.to_s
+        'bundle', 'exec', 'puma',
+        '-C', puma_rb,
+        '-I', Rails.root.to_s
       ]
 
       IO.popen(cmdline) do |process|

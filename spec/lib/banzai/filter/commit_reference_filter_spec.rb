@@ -97,7 +97,7 @@ describe Banzai::Filter::CommitReferenceFilter do
       expect(link).to eq urls.project_commit_url(project, reference, only_path: true)
     end
 
-    context "in merge request context" do
+    context 'in merge request context' do
       let(:noteable) { create(:merge_request, target_project: project, source_project: project) }
       let(:commit) { noteable.commits.first }
 
@@ -108,14 +108,14 @@ describe Banzai::Filter::CommitReferenceFilter do
         expect(doc.css('a').first[:href]).to eq(url)
       end
 
-      context "a doc with many (29) strings that could be SHAs" do
+      context 'a doc with many (29) strings that could be SHAs' do
         let!(:oids) { noteable.commits.collect(&:id) }
 
         it 'makes only a single request to Gitaly' do
           expect(Gitlab::GitalyClient).to receive(:allow_n_plus_1_calls).exactly(0).times
           expect(Gitlab::Git::Commit).to receive(:batch_by_oid).once.and_call_original
 
-          reference_filter("A big list of SHAs #{oids.join(", ")}", noteable: noteable)
+          reference_filter("A big list of SHAs #{oids.join(', ')}", noteable: noteable)
         end
       end
     end

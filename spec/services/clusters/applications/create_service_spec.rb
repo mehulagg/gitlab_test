@@ -110,7 +110,7 @@ describe Clusters::Applications::CreateService do
         end
 
         before do
-          create(:clusters_applications_ingress, :installed, external_ip: "127.0.0.0", cluster: cluster)
+          create(:clusters_applications_ingress, :installed, external_ip: '127.0.0.0', cluster: cluster)
           expect_any_instance_of(Clusters::Applications::Jupyter)
             .to receive(:make_scheduled!)
             .and_call_original
@@ -168,7 +168,7 @@ describe Clusters::Applications::CreateService do
         end
 
         before do
-          create(:clusters_applications_ingress, :installed, external_ip: "127.0.0.0", cluster: cluster)
+          create(:clusters_applications_ingress, :installed, external_ip: '127.0.0.0', cluster: cluster)
           expect_any_instance_of(Clusters::Applications::ElasticStack)
             .to receive(:make_scheduled!)
             .and_call_original

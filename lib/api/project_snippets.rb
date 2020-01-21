@@ -30,7 +30,7 @@ module API
       params do
         use :pagination
       end
-      get ":id/snippets" do
+      get ':id/snippets' do
         present paginate(snippets_for_current_user), with: Entities::ProjectSnippet
       end
 
@@ -40,7 +40,7 @@ module API
       params do
         requires :snippet_id, type: Integer, desc: 'The ID of a project snippet'
       end
-      get ":id/snippets/:snippet_id" do
+      get ':id/snippets/:snippet_id' do
         snippet = snippets_for_current_user.find(params[:snippet_id])
         present snippet, with: Entities::ProjectSnippet
       end
@@ -59,7 +59,7 @@ module API
                               desc: 'The visibility of the snippet'
         mutually_exclusive :code, :content
       end
-      post ":id/snippets" do
+      post ':id/snippets' do
         authorize! :create_project_snippet, user_project
         snippet_params = declared_params(include_missing: false).merge(request: request, api: true)
         snippet_params[:content] = snippet_params.delete(:code) if snippet_params[:code].present?
@@ -93,7 +93,7 @@ module API
         mutually_exclusive :code, :content
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      put ":id/snippets/:snippet_id" do
+      put ':id/snippets/:snippet_id' do
         snippet = snippets_for_current_user.find_by(id: params.delete(:snippet_id))
         not_found!('Snippet') unless snippet
 
@@ -122,7 +122,7 @@ module API
         requires :snippet_id, type: Integer, desc: 'The ID of a project snippet'
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      delete ":id/snippets/:snippet_id" do
+      delete ':id/snippets/:snippet_id' do
         snippet = snippets_for_current_user.find_by(id: params[:snippet_id])
         not_found!('Snippet') unless snippet
 
@@ -144,7 +144,7 @@ module API
         requires :snippet_id, type: Integer, desc: 'The ID of a project snippet'
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      get ":id/snippets/:snippet_id/raw" do
+      get ':id/snippets/:snippet_id/raw' do
         snippet = snippets_for_current_user.find_by(id: params[:snippet_id])
         not_found!('Snippet') unless snippet
 
@@ -161,7 +161,7 @@ module API
         requires :snippet_id, type: Integer, desc: 'The ID of a project snippet'
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      get ":id/snippets/:snippet_id/user_agent_detail" do
+      get ':id/snippets/:snippet_id/user_agent_detail' do
         authenticated_as_admin!
 
         snippet = Snippet.find_by!(id: params[:snippet_id], project_id: params[:id])

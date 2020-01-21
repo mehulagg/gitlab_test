@@ -9,7 +9,7 @@ class Projects::PushRulesController < Projects::ApplicationController
 
   respond_to :html
 
-  layout "project_settings"
+  layout 'project_settings'
 
   def update
     @push_rule = project.push_rule

@@ -148,7 +148,7 @@ RSpec.shared_examples 'thread comments' do |resource_name|
           find("#{comments_selector} .js-vue-discussion-reply").click
           find("#{comments_selector} .note-textarea").send_keys(text)
 
-          click_button "Comment"
+          click_button 'Comment'
           wait_for_requests
         end
 
@@ -181,7 +181,7 @@ RSpec.shared_examples 'thread comments' do |resource_name|
           let(:reply_id) { find("#{comments_selector} .note:last-of-type", match: :first)['data-note-id'] }
 
           it 'can be replied to after resolving' do
-            click_button "Resolve thread"
+            click_button 'Resolve thread'
             wait_for_requests
 
             refresh
@@ -193,13 +193,13 @@ RSpec.shared_examples 'thread comments' do |resource_name|
           it 'shows resolved thread when toggled' do
             submit_reply('a')
 
-            click_button "Resolve thread"
+            click_button 'Resolve thread'
             wait_for_requests
 
             expect(page).to have_selector(".note-row-#{note_id}", visible: true)
 
             refresh
-            click_button "1 reply"
+            click_button '1 reply'
 
             expect(page).to have_selector(".note-row-#{reply_id}", visible: true)
           end

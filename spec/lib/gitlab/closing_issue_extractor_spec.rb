@@ -20,7 +20,7 @@ describe Gitlab::ClosingIssueExtractor do
     project2.add_maintainer(project.creator)
   end
 
-  describe "#closed_by_message" do
+  describe '#closed_by_message' do
     context 'with a single reference' do
       it do
         message = "Awesome commit (Closes #{reference})"
@@ -310,21 +310,21 @@ describe Gitlab::ClosingIssueExtractor do
       end
     end
 
-    context "with a cross-project reference" do
+    context 'with a cross-project reference' do
       it do
         message = "Closes #{cross_reference}"
         expect(subject.closed_by_message(message)).to eq([issue2])
       end
     end
 
-    context "with a cross-project URL" do
+    context 'with a cross-project URL' do
       it do
         message = "Closes #{urls.project_issue_url(issue2.project, issue2)}"
         expect(subject.closed_by_message(message)).to eq([issue2])
       end
     end
 
-    context "with a cross-project fork reference" do
+    context 'with a cross-project fork reference' do
       subject { described_class.new(forked_project, forked_project.creator) }
 
       it do
@@ -333,14 +333,14 @@ describe Gitlab::ClosingIssueExtractor do
       end
     end
 
-    context "with an invalid URL" do
+    context 'with an invalid URL' do
       it do
         message = "Closes https://google.com#{urls.project_issue_path(issue2.project, issue2)}"
         expect(subject.closed_by_message(message)).to eq([])
       end
     end
 
-    context "with an invalid keyword such as suffix insted of fix" do
+    context 'with an invalid keyword such as suffix insted of fix' do
       it do
         message = "suffix #{reference}"
         expect(subject.closed_by_message(message)).to eq([])
@@ -417,21 +417,21 @@ describe Gitlab::ClosingIssueExtractor do
             .to match_array([issue, other_issue, third_issue])
       end
 
-      it "fetches cross-project references" do
+      it 'fetches cross-project references' do
         message = "Closes #{reference} and #{cross_reference}"
 
         expect(subject.closed_by_message(message))
             .to match_array([issue, issue2])
       end
 
-      it "fetches cross-project URL references" do
+      it 'fetches cross-project URL references' do
         message = "Closes #{urls.project_issue_url(issue2.project, issue2)}, #{reference} and #{urls.project_issue_url(other_issue.project, other_issue)}"
 
         expect(subject.closed_by_message(message))
             .to match_array([issue, issue2, other_issue])
       end
 
-      it "ignores invalid cross-project URL references" do
+      it 'ignores invalid cross-project URL references' do
         message = "Closes https://google.com#{urls.project_issue_path(issue2.project, issue2)} and #{reference}"
 
         expect(subject.closed_by_message(message))
@@ -439,7 +439,7 @@ describe Gitlab::ClosingIssueExtractor do
       end
     end
 
-    context "with autoclose referenced issues disabled" do
+    context 'with autoclose referenced issues disabled' do
       before do
         project.update!(autoclose_referenced_issues: false)
       end

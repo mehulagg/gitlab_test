@@ -13,7 +13,7 @@ describe 'User updates wiki page' do
   context 'when wiki is empty' do
     before do
       visit(project_wikis_path(project))
-      click_link "Create your first page"
+      click_link 'Create your first page'
     end
 
     context 'in a user namespace' do
@@ -198,7 +198,7 @@ describe 'User updates wiki page' do
     end
 
     it 'can be moved to a different dir with a different name' do
-      new_page_dir = "foo1/bar1/new_page_name"
+      new_page_dir = 'foo1/bar1/new_page_name'
 
       fill_in(:wiki_title, with: new_page_dir)
 

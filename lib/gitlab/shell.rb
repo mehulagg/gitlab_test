@@ -215,7 +215,7 @@ module Gitlab
     def remove_keys_not_found_in_db
       return unless self.authorized_keys_enabled?
 
-      Rails.logger.info("Removing keys not found in DB") # rubocop:disable Gitlab/RailsLogger
+      Rails.logger.info('Removing keys not found in DB') # rubocop:disable Gitlab/RailsLogger
 
       batch_read_key_ids do |ids_in_file|
         ids_in_file.uniq!

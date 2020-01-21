@@ -4,12 +4,12 @@ require 'spec_helper'
 
 describe 'doorkeeper access' do
   let!(:user) { create(:user) }
-  let!(:application) { Doorkeeper::Application.create!(name: "MyApp", redirect_uri: "https://app.com", owner: user) }
-  let!(:token) { Doorkeeper::AccessToken.create! application_id: application.id, resource_owner_id: user.id, scopes: "api" }
+  let!(:application) { Doorkeeper::Application.create!(name: 'MyApp', redirect_uri: 'https://app.com', owner: user) }
+  let!(:token) { Doorkeeper::AccessToken.create! application_id: application.id, resource_owner_id: user.id, scopes: 'api' }
 
-  describe "unauthenticated" do
-    it "returns authentication success" do
-      get api("/user"), params: { access_token: token.token }
+  describe 'unauthenticated' do
+    it 'returns authentication success' do
+      get api('/user'), params: { access_token: token.token }
       expect(response).to have_gitlab_http_status(200)
     end
 
@@ -20,16 +20,16 @@ describe 'doorkeeper access' do
     end
   end
 
-  describe "when token invalid" do
-    it "returns authentication error" do
-      get api("/user"), params: { access_token: "123a" }
+  describe 'when token invalid' do
+    it 'returns authentication error' do
+      get api('/user'), params: { access_token: '123a' }
       expect(response).to have_gitlab_http_status(401)
     end
   end
 
-  describe "authorization by OAuth token" do
-    it "returns authentication success" do
-      get api("/user", user)
+  describe 'authorization by OAuth token' do
+    it 'returns authentication success' do
+      get api('/user', user)
       expect(response).to have_gitlab_http_status(200)
     end
 
@@ -42,13 +42,13 @@ describe 'doorkeeper access' do
 
   shared_examples 'forbidden request' do
     it 'returns 403 response' do
-      get api("/user"), params: { access_token: token.token }
+      get api('/user'), params: { access_token: token.token }
 
       expect(response).to have_gitlab_http_status(403)
     end
   end
 
-  context "when user is blocked" do
+  context 'when user is blocked' do
     before do
       user.block
     end
@@ -56,7 +56,7 @@ describe 'doorkeeper access' do
     it_behaves_like 'forbidden request'
   end
 
-  context "when user is ldap_blocked" do
+  context 'when user is ldap_blocked' do
     before do
       user.ldap_block
     end
@@ -64,7 +64,7 @@ describe 'doorkeeper access' do
     it_behaves_like 'forbidden request'
   end
 
-  context "when user is deactivated" do
+  context 'when user is deactivated' do
     before do
       user.deactivate
     end

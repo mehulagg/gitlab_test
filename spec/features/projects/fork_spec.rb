@@ -221,7 +221,7 @@ describe 'Project fork' do
         click_link user.name
       end
 
-      expect(page).to have_content "Name has already been taken"
+      expect(page).to have_content 'Name has already been taken'
     end
   end
 

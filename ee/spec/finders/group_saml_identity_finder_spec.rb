@@ -12,12 +12,12 @@ describe GroupSamlIdentityFinder do
 
   subject { described_class.new(user: user) }
 
-  describe ".find_by_group_and_uid" do
-    it "finds identity matching user and group" do
+  describe '.find_by_group_and_uid' do
+    it 'finds identity matching user and group' do
       expect(described_class.find_by_group_and_uid(group: group, uid: identity.extern_uid)).to eq(identity)
     end
 
-    it "returns nil when no saml_provider exists" do
+    it 'returns nil when no saml_provider exists' do
       group.saml_provider.destroy!
 
       expect(described_class.find_by_group_and_uid(group: group, uid: identity.extern_uid)).to eq(nil)
@@ -39,28 +39,28 @@ describe GroupSamlIdentityFinder do
     end
   end
 
-  describe "#find_linked" do
-    it "finds identity matching user and group" do
+  describe '#find_linked' do
+    it 'finds identity matching user and group' do
       expect(subject.find_linked(group: group)).to eq(identity)
     end
 
-    it "returns nil when no saml_provider exists" do
+    it 'returns nil when no saml_provider exists' do
       group.saml_provider.destroy!
 
       expect(subject.find_linked(group: group)).to eq(nil)
     end
 
-    it "returns nil when group is nil" do
+    it 'returns nil when group is nil' do
       expect(subject.find_linked(group: nil)).to eq(nil)
     end
   end
 
-  describe "#all" do
-    it "finds Group SAML identities for a user" do
+  describe '#all' do
+    it 'finds Group SAML identities for a user' do
       expect(subject.all.first).to eq(identity)
     end
 
-    it "avoids N+1 on access to provider and group path" do
+    it 'avoids N+1 on access to provider and group path' do
       identity = subject.all.first
 
       expect { group_path(identity.saml_provider.group) }.not_to exceed_query_limit(0)

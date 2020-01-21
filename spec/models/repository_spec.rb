@@ -173,20 +173,20 @@ describe Repository do
   describe '#list_last_commits_for_tree' do
     let(:path_to_commit) do
       {
-        "encoding" => "913c66a37b4a45b9769037c55c2d238bd0942d2e",
-        "files" => "570e7b2abdd848b95f2f578043fc23bd6f6fd24d",
-        ".gitignore" => "c1acaa58bbcbc3eafe538cb8274ba387047b69f8",
-        ".gitmodules" => "6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9",
-        "CHANGELOG" => "913c66a37b4a45b9769037c55c2d238bd0942d2e",
-        "CONTRIBUTING.md" => "6d394385cf567f80a8fd85055db1ab4c5295806f",
-        "Gemfile.zip" => "ae73cb07c9eeaf35924a10f713b364d32b2dd34f",
-        "LICENSE" => "1a0b36b3cdad1d2ee32457c102a8c0b7056fa863",
-        "MAINTENANCE.md" => "913c66a37b4a45b9769037c55c2d238bd0942d2e",
-        "PROCESS.md" => "913c66a37b4a45b9769037c55c2d238bd0942d2e",
-        "README.md" => "1a0b36b3cdad1d2ee32457c102a8c0b7056fa863",
-        "VERSION" => "913c66a37b4a45b9769037c55c2d238bd0942d2e",
-        "gitlab-shell" => "6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9",
-        "six" => "cfe32cf61b73a0d5e9f13e774abde7ff789b1660"
+        'encoding' => '913c66a37b4a45b9769037c55c2d238bd0942d2e',
+        'files' => '570e7b2abdd848b95f2f578043fc23bd6f6fd24d',
+        '.gitignore' => 'c1acaa58bbcbc3eafe538cb8274ba387047b69f8',
+        '.gitmodules' => '6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9',
+        'CHANGELOG' => '913c66a37b4a45b9769037c55c2d238bd0942d2e',
+        'CONTRIBUTING.md' => '6d394385cf567f80a8fd85055db1ab4c5295806f',
+        'Gemfile.zip' => 'ae73cb07c9eeaf35924a10f713b364d32b2dd34f',
+        'LICENSE' => '1a0b36b3cdad1d2ee32457c102a8c0b7056fa863',
+        'MAINTENANCE.md' => '913c66a37b4a45b9769037c55c2d238bd0942d2e',
+        'PROCESS.md' => '913c66a37b4a45b9769037c55c2d238bd0942d2e',
+        'README.md' => '1a0b36b3cdad1d2ee32457c102a8c0b7056fa863',
+        'VERSION' => '913c66a37b4a45b9769037c55c2d238bd0942d2e',
+        'gitlab-shell' => '6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9',
+        'six' => 'cfe32cf61b73a0d5e9f13e774abde7ff789b1660'
       }
     end
 
@@ -223,11 +223,11 @@ describe Repository do
     context 'with a commit with invalid UTF-8 path' do
       def create_commit_with_invalid_utf8_path
         rugged = rugged_repo(repository)
-        blob_id = Rugged::Blob.from_buffer(rugged, "some contents")
+        blob_id = Rugged::Blob.from_buffer(rugged, 'some contents')
         tree_builder = Rugged::Tree::Builder.new(rugged)
         tree_builder.insert({ oid: blob_id, name: "hello\x80world", filemode: 0100644 })
         tree_id = tree_builder.write
-        user = { email: "jcai@gitlab.com", time: Time.now, name: "John Cai" }
+        user = { email: 'jcai@gitlab.com', time: Time.now, name: 'John Cai' }
 
         Rugged::Commit.create(rugged, message: 'some commit message', parents: [rugged.head.target.oid], tree: tree_id, committer: user, author: user)
       end
@@ -257,11 +257,11 @@ describe Repository do
   describe '#last_commit_id_for_path' do
     subject { repository.last_commit_id_for_path(sample_commit.id, '.gitignore') }
 
-    it "returns last commit id for a given path" do
+    it 'returns last commit id for a given path' do
       is_expected.to eq('c1acaa58bbcbc3eafe538cb8274ba387047b69f8')
     end
 
-    it "caches last commit id for a given path" do
+    it 'caches last commit id for a given path' do
       cache = repository.send(:cache)
       key = "last_commit_id_for_path:#{sample_commit.id}:#{Digest::SHA1.hexdigest('.gitignore')}"
 
@@ -545,8 +545,8 @@ describe Repository do
     end
   end
 
-  describe "#create_dir" do
-    it "commits a change that creates a new directory" do
+  describe '#create_dir' do
+    it 'commits a change that creates a new directory' do
       expect do
         repository.create_dir(user, 'newdir',
           message: 'Create newdir', branch_name: 'master')
@@ -556,10 +556,10 @@ describe Repository do
       expect(newdir.path).to eq('newdir')
     end
 
-    context "when committing to another project" do
+    context 'when committing to another project' do
       let(:forked_project) { create(:project, :repository) }
 
-      it "creates a fork and commit to the forked project" do
+      it 'creates a fork and commit to the forked project' do
         expect do
           repository.create_dir(user, 'newdir',
             message: 'Create newdir', branch_name: 'patch',
@@ -574,7 +574,7 @@ describe Repository do
       end
     end
 
-    context "when an author is specified" do
+    context 'when an author is specified' do
       it "uses the given email/name to set the commit's author" do
         expect do
           repository.create_dir(user, 'newdir',
@@ -591,7 +591,7 @@ describe Repository do
     end
   end
 
-  describe "#create_file" do
+  describe '#create_file' do
     it 'commits new file successfully' do
       expect do
         repository.create_file(user, 'NEWCHANGELOG', 'Changelog!',
@@ -625,7 +625,7 @@ describe Repository do
       expect(blob.data).to eq("Hello,\nWorld")
     end
 
-    context "when an author is specified" do
+    context 'when an author is specified' do
       it "uses the given email/name to set the commit's author" do
         expect do
           repository.create_file(user, 'NEWREADME', 'README!',
@@ -643,7 +643,7 @@ describe Repository do
     end
   end
 
-  describe "#update_file" do
+  describe '#update_file' do
     it 'updates file successfully' do
       expect do
         repository.update_file(user, 'CHANGELOG', 'Changelog!',
@@ -670,7 +670,7 @@ describe Repository do
       expect(files).to include('NEWLICENSE')
     end
 
-    context "when an author is specified" do
+    context 'when an author is specified' do
       it "uses the given email/name to set the commit's author" do
         expect do
           repository.update_file(user, 'README', 'Updated README!',
@@ -689,7 +689,7 @@ describe Repository do
     end
   end
 
-  describe "#delete_file" do
+  describe '#delete_file' do
     it 'removes file successfully' do
       expect do
         repository.delete_file(user, 'README',
@@ -699,7 +699,7 @@ describe Repository do
       expect(repository.blob_at('master', 'README')).to be_nil
     end
 
-    context "when an author is specified" do
+    context 'when an author is specified' do
       it "uses the given email/name to set the commit's author" do
         expect do
           repository.delete_file(user, 'README',
@@ -715,7 +715,7 @@ describe Repository do
     end
   end
 
-  describe "search_files_by_content" do
+  describe 'search_files_by_content' do
     let(:results) { repository.search_files_by_content('feature', 'master') }
 
     subject { results }
@@ -723,13 +723,13 @@ describe Repository do
     it { is_expected.to be_an Array }
 
     it 'regex-escapes the query string' do
-      results = repository.search_files_by_content("test\\", 'master')
+      results = repository.search_files_by_content('test\\', 'master')
 
       expect(results.first).not_to start_with('fatal:')
     end
 
     it 'properly handles an unmatched parenthesis' do
-      results = repository.search_files_by_content("test(", 'master')
+      results = repository.search_files_by_content('test(', 'master')
 
       expect(results.first).not_to start_with('fatal:')
     end
@@ -763,7 +763,7 @@ describe Repository do
     end
   end
 
-  describe "search_files_by_name" do
+  describe 'search_files_by_name' do
     let(:results) { repository.search_files_by_name('files', 'master') }
 
     it 'returns result' do
@@ -870,7 +870,7 @@ describe Repository do
     end
   end
 
-  describe "#changelog", :use_clean_rails_memory_store_caching do
+  describe '#changelog', :use_clean_rails_memory_store_caching do
     it 'accepts changelog' do
       expect(repository.tree).to receive(:blobs).and_return([TestBlob.new('changelog')])
 
@@ -902,7 +902,7 @@ describe Repository do
     end
   end
 
-  describe "#license_blob", :use_clean_rails_memory_store_caching do
+  describe '#license_blob', :use_clean_rails_memory_store_caching do
     before do
       repository.delete_file(
         user, 'LICENSE', message: 'Remove LICENSE', branch_name: 'master')
@@ -1023,7 +1023,7 @@ describe Repository do
     end
   end
 
-  describe "#gitlab_ci_yml", :use_clean_rails_memory_store_caching do
+  describe '#gitlab_ci_yml', :use_clean_rails_memory_store_caching do
     it 'returns valid file' do
       files = [TestBlob.new('file'), TestBlob.new('.gitlab-ci.yml'), TestBlob.new('copying')]
       expect(repository.tree).to receive(:blobs).and_return(files)
@@ -1887,7 +1887,7 @@ describe Repository do
     end
   end
 
-  describe "#copy_gitattributes" do
+  describe '#copy_gitattributes' do
     it 'returns true with a valid ref' do
       expect(repository.copy_gitattributes('master')).to be_truthy
     end
@@ -2156,14 +2156,14 @@ describe Repository do
         let(:project) { create(:project, :repository) }
 
         it 'returns the README' do
-          expect(repository.readme_path).to eq("README.md")
+          expect(repository.readme_path).to eq('README.md')
         end
 
         it 'caches the response' do
           expect(repository).to receive(:readme).and_call_original.once
 
           2.times do
-            expect(repository.readme_path).to eq("README.md")
+            expect(repository.readme_path).to eq('README.md')
           end
         end
       end
@@ -2686,7 +2686,7 @@ describe Repository do
     end
   end
 
-  describe "#blobs_metadata" do
+  describe '#blobs_metadata' do
     set(:project) { create(:project, :repository) }
     let(:repository) { project.repository }
 
@@ -2695,22 +2695,22 @@ describe Repository do
       expect(thing.data).to be_empty
     end
 
-    it "returns blob metadata in batch for HEAD" do
-      result = repository.blobs_metadata(["bar/branch-test.txt", "README.md", "does/not/exist"])
+    it 'returns blob metadata in batch for HEAD' do
+      result = repository.blobs_metadata(['bar/branch-test.txt', 'README.md', 'does/not/exist'])
 
       expect_metadata_blob(result.first)
       expect_metadata_blob(result.second)
       expect(result.size).to eq(2)
     end
 
-    it "returns blob metadata for a specified ref" do
-      result = repository.blobs_metadata(["files/ruby/feature.rb"], "feature")
+    it 'returns blob metadata for a specified ref' do
+      result = repository.blobs_metadata(['files/ruby/feature.rb'], 'feature')
 
       expect_metadata_blob(result.first)
     end
 
-    it "performs a single gitaly call", :request_store do
-      expect { repository.blobs_metadata(["bar/branch-test.txt", "readme.txt", "does/not/exist"]) }
+    it 'performs a single gitaly call', :request_store do
+      expect { repository.blobs_metadata(['bar/branch-test.txt', 'readme.txt', 'does/not/exist']) }
         .to change { Gitlab::GitalyClient.get_request_count }.by(1)
     end
   end

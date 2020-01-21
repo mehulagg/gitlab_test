@@ -77,13 +77,13 @@ describe Repository do
     end
   end
 
-  describe "Elastic search", :elastic do
+  describe 'Elastic search', :elastic do
     before do
       stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
     end
 
-    describe "class method find_commits_by_message_with_elastic" do
-      it "returns commits", :sidekiq_might_not_need_inline do
+    describe 'class method find_commits_by_message_with_elastic' do
+      it 'returns commits', :sidekiq_might_not_need_inline do
         project = create :project, :repository
         project1 = create :project, :repository
 
@@ -98,8 +98,8 @@ describe Repository do
       end
     end
 
-    describe "find_commits_by_message_with_elastic" do
-      it "returns commits", :sidekiq_might_not_need_inline do
+    describe 'find_commits_by_message_with_elastic' do
+      it 'returns commits', :sidekiq_might_not_need_inline do
         project = create :project, :repository
 
         project.repository.index_commits_and_blobs
@@ -197,7 +197,7 @@ describe Repository do
     end
   end
 
-  describe "#insights_config_for" do
+  describe '#insights_config_for' do
     context 'when no config file exists' do
       it 'returns nil if does not exist' do
         expect(repository.insights_config_for(repository.root_ref)).to be_nil

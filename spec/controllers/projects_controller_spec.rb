@@ -64,48 +64,48 @@ describe ProjectsController do
     end
   end
 
-  describe "GET show" do
-    context "user not project member" do
+  describe 'GET show' do
+    context 'user not project member' do
       before do
         sign_in(user)
       end
 
-      context "user does not have access to project" do
+      context 'user does not have access to project' do
         let(:private_project) { create(:project, :private) }
 
-        it "does not initialize notification setting" do
+        it 'does not initialize notification setting' do
           get :show, params: { namespace_id: private_project.namespace, id: private_project }
           expect(assigns(:notification_setting)).to be_nil
         end
       end
 
-      context "user has access to project" do
+      context 'user has access to project' do
         before do
           expect(::Gitlab::GitalyClient).to receive(:allow_ref_name_caching).and_call_original
         end
 
-        context "and does not have notification setting" do
-          it "initializes notification as disabled" do
+        context 'and does not have notification setting' do
+          it 'initializes notification as disabled' do
             get :show, params: { namespace_id: public_project.namespace, id: public_project }
-            expect(assigns(:notification_setting).level).to eq("global")
+            expect(assigns(:notification_setting).level).to eq('global')
           end
         end
 
-        context "and has notification setting" do
+        context 'and has notification setting' do
           before do
             setting = user.notification_settings_for(public_project)
             setting.level = :watch
             setting.save
           end
 
-          it "shows current notification setting" do
+          it 'shows current notification setting' do
             get :show, params: { namespace_id: public_project.namespace, id: public_project }
-            expect(assigns(:notification_setting).level).to eq("watch")
+            expect(assigns(:notification_setting).level).to eq('watch')
           end
         end
       end
 
-      describe "when project repository is disabled" do
+      describe 'when project repository is disabled' do
         render_views
 
         before do
@@ -135,7 +135,7 @@ describe ProjectsController do
 
           get :show, params: { namespace_id: project.namespace, id: project }
 
-          expect(response).to render_template("projects/_customize_workflow")
+          expect(response).to render_template('projects/_customize_workflow')
         end
 
         it 'shows activity if enabled by user' do
@@ -143,7 +143,7 @@ describe ProjectsController do
 
           get :show, params: { namespace_id: project.namespace, id: project }
 
-          expect(response).to render_template("projects/_activity")
+          expect(response).to render_template('projects/_activity')
         end
       end
     end
@@ -163,7 +163,7 @@ describe ProjectsController do
       end
     end
 
-    context "project with empty repo" do
+    context 'project with empty repo' do
       let(:empty_project) { create(:project_empty_repo, :public) }
 
       before do
@@ -178,14 +178,14 @@ describe ProjectsController do
             get :show, params: { namespace_id: empty_project.namespace, id: empty_project }
           end
 
-          it "renders the empty project view" do
+          it 'renders the empty project view' do
             expect(response).to render_template('empty')
           end
         end
       end
     end
 
-    context "project with broken repo" do
+    context 'project with broken repo' do
       let(:empty_project) { create(:project_broken_repo, :public) }
 
       before do
@@ -200,7 +200,7 @@ describe ProjectsController do
             get :show, params: { namespace_id: empty_project.namespace, id: empty_project }
           end
 
-          it "renders the empty project view" do
+          it 'renders the empty project view' do
             allow(Project).to receive(:repo).and_raise(Gitlab::Git::Repository::NoRepository)
 
             expect(response).to render_template('projects/no_repo')
@@ -209,12 +209,12 @@ describe ProjectsController do
       end
     end
 
-    context "rendering default project view" do
+    context 'rendering default project view' do
       let(:public_project) { create(:project, :public, :repository) }
 
       render_views
 
-      it "renders the activity view" do
+      it 'renders the activity view' do
         allow(controller).to receive(:current_user).and_return(user)
         allow(user).to receive(:project_view).and_return('activity')
 
@@ -222,7 +222,7 @@ describe ProjectsController do
         expect(response).to render_template('_activity')
       end
 
-      it "renders the files view" do
+      it 'renders the files view' do
         allow(controller).to receive(:current_user).and_return(user)
         allow(user).to receive(:project_view).and_return('files')
 
@@ -230,7 +230,7 @@ describe ProjectsController do
         expect(response).to render_template('_files')
       end
 
-      it "renders the readme view" do
+      it 'renders the readme view' do
         allow(controller).to receive(:current_user).and_return(user)
         allow(user).to receive(:project_view).and_return('readme')
 
@@ -239,7 +239,7 @@ describe ProjectsController do
       end
     end
 
-    context "when the url contains .atom" do
+    context 'when the url contains .atom' do
       let(:public_project_with_dot_atom) { build(:project, :public, name: 'my.atom', path: 'my.atom') }
 
       it 'expects an error creating the project' do
@@ -258,7 +258,7 @@ describe ProjectsController do
       end
     end
 
-    context "redirection from http://someproject.git" do
+    context 'redirection from http://someproject.git' do
       it 'redirects to project page (format.html)' do
         project = create(:project, :public)
 
@@ -491,7 +491,7 @@ describe ProjectsController do
     end
   end
 
-  describe "#update" do
+  describe '#update' do
     render_views
 
     let(:admin) { create(:admin) }
@@ -502,7 +502,7 @@ describe ProjectsController do
 
     shared_examples_for 'updating a project' do
       context 'when only renaming a project path' do
-        it "sets the repository to the right path after a rename" do
+        it 'sets the repository to the right path after a rename' do
           original_repository_path = Gitlab::GitalyClient::StorageSettings.allow_disk_access do
             project.repository.path
           end
@@ -680,10 +680,10 @@ describe ProjectsController do
     end
   end
 
-  describe "#destroy" do
+  describe '#destroy' do
     let(:admin) { create(:admin) }
 
-    it "redirects to the dashboard", :sidekiq_might_not_need_inline do
+    it 'redirects to the dashboard', :sidekiq_might_not_need_inline do
       controller.instance_variable_set(:@project, project)
       sign_in(admin)
 
@@ -695,7 +695,7 @@ describe ProjectsController do
       expect(response).to redirect_to(dashboard_projects_path)
     end
 
-    context "when the project is forked" do
+    context 'when the project is forked' do
       let(:project) { create(:project, :repository) }
       let(:forked_project) { fork_project(project, nil, repository: true) }
       let(:merge_request) do
@@ -704,7 +704,7 @@ describe ProjectsController do
           target_project: project)
       end
 
-      it "closes all related merge requests", :sidekiq_might_not_need_inline do
+      it 'closes all related merge requests', :sidekiq_might_not_need_inline do
         project.merge_requests << merge_request
         sign_in(admin)
 
@@ -775,8 +775,8 @@ describe ProjectsController do
     end
   end
 
-  describe "POST #toggle_star" do
-    it "toggles star if user is signed in" do
+  describe 'POST #toggle_star' do
+    it 'toggles star if user is signed in' do
       sign_in(user)
       expect(user.starred?(public_project)).to be_falsey
       post(:toggle_star,
@@ -793,7 +793,7 @@ describe ProjectsController do
       expect(user.starred?(public_project)).to be_falsey
     end
 
-    it "does nothing if user is not signed in" do
+    it 'does nothing if user is not signed in' do
       post(:toggle_star,
            params: {
              namespace_id: project.namespace,
@@ -809,7 +809,7 @@ describe ProjectsController do
     end
   end
 
-  describe "DELETE remove_fork" do
+  describe 'DELETE remove_fork' do
     context 'when signed in' do
       before do
         sign_in(user)
@@ -849,7 +849,7 @@ describe ProjectsController do
       end
     end
 
-    it "does nothing if user is not signed in" do
+    it 'does nothing if user is not signed in' do
       delete(:remove_fork,
           params: {
             namespace_id: project.namespace,
@@ -860,7 +860,7 @@ describe ProjectsController do
     end
   end
 
-  describe "GET refs" do
+  describe 'GET refs' do
     let(:project) { create(:project, :public, :repository) }
 
     it 'gets a list of branches and tags' do
@@ -871,26 +871,26 @@ describe ProjectsController do
       expect(json_response['Commits']).to be_nil
     end
 
-    it "gets a list of branches, tags and commits" do
-      get :refs, params: { namespace_id: project.namespace, id: project, ref: "123456" }
+    it 'gets a list of branches, tags and commits' do
+      get :refs, params: { namespace_id: project.namespace, id: project, ref: '123456' }
 
-      expect(json_response["Branches"]).to include("master")
-      expect(json_response["Tags"]).to include("v1.0.0")
-      expect(json_response["Commits"]).to include("123456")
+      expect(json_response['Branches']).to include('master')
+      expect(json_response['Tags']).to include('v1.0.0')
+      expect(json_response['Commits']).to include('123456')
     end
 
-    context "when preferred language is Japanese" do
+    context 'when preferred language is Japanese' do
       before do
         user.update!(preferred_language: 'ja')
         sign_in(user)
       end
 
-      it "gets a list of branches, tags and commits" do
-        get :refs, params: { namespace_id: project.namespace, id: project, ref: "123456" }
+      it 'gets a list of branches, tags and commits' do
+        get :refs, params: { namespace_id: project.namespace, id: project, ref: '123456' }
 
-        expect(json_response["Branches"]).to include("master")
-        expect(json_response["Tags"]).to include("v1.0.0")
-        expect(json_response["Commits"]).to include("123456")
+        expect(json_response['Branches']).to include('master')
+        expect(json_response['Tags']).to include('v1.0.0')
+        expect(json_response['Commits']).to include('123456')
       end
     end
 
@@ -989,8 +989,8 @@ describe ProjectsController do
 
     context 'for a GET request' do
       context 'when requesting the canonical path' do
-        context "with exactly matching casing" do
-          it "loads the project" do
+        context 'with exactly matching casing' do
+          it 'loads the project' do
             get :show, params: { namespace_id: public_project.namespace, id: public_project }
 
             expect(assigns(:project)).to eq(public_project)
@@ -998,8 +998,8 @@ describe ProjectsController do
           end
         end
 
-        context "with different casing" do
-          it "redirects to the normalized path" do
+        context 'with different casing' do
+          it 'redirects to the normalized path' do
             get :show, params: { namespace_id: public_project.namespace, id: public_project.path.upcase }
 
             expect(assigns(:project)).to eq(public_project)
@@ -1010,7 +1010,7 @@ describe ProjectsController do
       end
 
       context 'when requesting a redirected path' do
-        let!(:redirect_route) { public_project.redirect_routes.create!(path: "foo/bar") }
+        let!(:redirect_route) { public_project.redirect_routes.create!(path: 'foo/bar') }
 
         it 'redirects to the canonical path' do
           get :show, params: { namespace_id: 'foo', id: 'bar' }
@@ -1044,7 +1044,7 @@ describe ProjectsController do
       end
 
       context 'when requesting a redirected path' do
-        let!(:redirect_route) { public_project.redirect_routes.create!(path: "foo/bar") }
+        let!(:redirect_route) { public_project.redirect_routes.create!(path: 'foo/bar') }
 
         it 'returns not found' do
           post :toggle_star, params: { namespace_id: 'foo', id: 'bar' }
@@ -1074,7 +1074,7 @@ describe ProjectsController do
       end
 
       context 'when requesting a redirected path' do
-        let!(:redirect_route) { project.redirect_routes.create!(path: "foo/bar") }
+        let!(:redirect_route) { project.redirect_routes.create!(path: 'foo/bar') }
 
         it 'returns not found' do
           delete :destroy, params: { namespace_id: 'foo', id: 'bar' }

@@ -17,7 +17,7 @@ describe Gitlab::GitAccess do
   let(:authentication_abilities) { %i[read_project download_code push_code] }
   let(:redirected_path) { nil }
 
-  context "when in a read-only GitLab instance" do
+  context 'when in a read-only GitLab instance' do
     before do
       create(:protected_branch, name: 'feature', project: project)
       allow(Gitlab::Database).to receive(:read_only?) { true }
@@ -29,7 +29,7 @@ describe Gitlab::GitAccess do
     it_behaves_like 'a read-only GitLab instance'
   end
 
-  describe "push_rule_check" do
+  describe 'push_rule_check' do
     let(:start_sha) { '6f6d7e7ed97bb5f0054f2b1df789b39ca89b6ff9' }
     let(:end_sha)   { '570e7b2abdd848b95f2f578043fc23bd6f6fd24d' }
     let(:changes)   { "#{start_sha} #{end_sha} refs/heads/master" }
@@ -41,69 +41,69 @@ describe Gitlab::GitAccess do
         .and_return(project.repository.commits_between(start_sha, end_sha))
     end
 
-    describe "author email check" do
+    describe 'author email check' do
       it 'returns true' do
         expect { push_changes(changes) }.not_to raise_error
       end
 
       it 'returns false when a commit message is missing required matches (positive regex match)' do
-        project.create_push_rule(commit_message_regex: "@only.com")
+        project.create_push_rule(commit_message_regex: '@only.com')
 
         expect { push_changes(changes) }.to raise_error(described_class::UnauthorizedError)
       end
 
       it 'returns false when a commit message contains forbidden characters (negative regex match)' do
-        project.create_push_rule(commit_message_negative_regex: "@gmail.com")
+        project.create_push_rule(commit_message_negative_regex: '@gmail.com')
 
         expect { push_changes(changes) }.to raise_error(described_class::UnauthorizedError)
       end
 
       it 'returns true for tags' do
-        project.create_push_rule(commit_message_regex: "@only.com")
+        project.create_push_rule(commit_message_regex: '@only.com')
 
         expect { push_changes("#{start_sha} #{end_sha} refs/tags/v1") }.not_to raise_error
       end
 
       it 'allows githook for new branch with an old bad commit' do
-        bad_commit = double("Commit", safe_message: 'Some change').as_null_object
+        bad_commit = double('Commit', safe_message: 'Some change').as_null_object
         ref_object = double(name: 'heads/master')
         allow(bad_commit).to receive(:refs).and_return([ref_object])
         allow_any_instance_of(Repository).to receive(:commits_between).and_return([bad_commit])
 
-        project.create_push_rule(commit_message_regex: "Change some files")
+        project.create_push_rule(commit_message_regex: 'Change some files')
 
         # push to new branch, so use a blank old rev and new ref
         expect { push_changes("#{Gitlab::Git::BLANK_SHA} #{end_sha} refs/heads/new-branch") }.not_to raise_error
       end
 
       it 'allows githook for any change with an old bad commit' do
-        bad_commit = double("Commit", safe_message: 'Some change').as_null_object
+        bad_commit = double('Commit', safe_message: 'Some change').as_null_object
         ref_object = double(name: 'heads/master')
         allow(bad_commit).to receive(:refs).and_return([ref_object])
         allow(project.repository).to receive(:commits_between).and_return([bad_commit])
 
-        project.create_push_rule(commit_message_regex: "Change some files")
+        project.create_push_rule(commit_message_regex: 'Change some files')
 
         # push to new branch, so use a blank old rev and new ref
         expect { push_changes("#{start_sha} #{end_sha} refs/heads/master") }.not_to raise_error
       end
 
       it 'does not allow any change from Web UI with bad commit' do
-        bad_commit = double("Commit", safe_message: 'Some change').as_null_object
+        bad_commit = double('Commit', safe_message: 'Some change').as_null_object
         # We use tmp ref a a temporary for Web UI commiting
         ref_object = double(name: 'refs/tmp')
         allow(bad_commit).to receive(:refs).and_return([ref_object])
         allow(project.repository).to receive(:commits_between).and_return([bad_commit])
         allow(project.repository).to receive(:new_commits).and_return([bad_commit])
 
-        project.create_push_rule(commit_message_regex: "Change some files")
+        project.create_push_rule(commit_message_regex: 'Change some files')
 
         # push to new branch, so use a blank old rev and new ref
         expect { push_changes("#{start_sha} #{end_sha} refs/heads/master") }.to raise_error(described_class::UnauthorizedError)
       end
     end
 
-    describe "member_check" do
+    describe 'member_check' do
       let(:changes) { "#{start_sha} #{end_sha} refs/heads/master" }
 
       before do
@@ -121,7 +121,7 @@ describe Gitlab::GitAccess do
       end
     end
 
-    describe "file names check" do
+    describe 'file names check' do
       let(:start_sha) { '913c66a37b4a45b9769037c55c2d238bd0942d2e' }
       let(:end_sha) { '33f3729a45c02fc67d00adb1b8bca394b0e761d9' }
       let(:changes) { "#{start_sha} #{end_sha} refs/heads/master" }
@@ -132,19 +132,19 @@ describe Gitlab::GitAccess do
       end
 
       it 'returns false when filename is prohibited' do
-        project.create_push_rule(file_name_regex: "jpg$")
+        project.create_push_rule(file_name_regex: 'jpg$')
 
         expect { push_changes(changes) }.to raise_error(described_class::UnauthorizedError)
       end
 
       it 'returns true if file name is allowed' do
-        project.create_push_rule(file_name_regex: "exe$")
+        project.create_push_rule(file_name_regex: 'exe$')
 
         expect { push_changes(changes) }.not_to raise_error
       end
     end
 
-    describe "max file size check" do
+    describe 'max file size check' do
       let(:start_sha) { ::Gitlab::Git::BLANK_SHA }
       # SHA of the 2-mb-file branch
       let(:end_sha)   { 'bf12d2567099e26f59692896f73ac819bae45b00' }
@@ -156,14 +156,14 @@ describe Gitlab::GitAccess do
         repository.delete_branch('2-mb-file')
       end
 
-      it "returns false when size is too large" do
+      it 'returns false when size is too large' do
         project.create_push_rule(max_file_size: 1)
 
         expect(repository.new_blobs(end_sha)).to be_present
         expect { push_changes(changes) }.to raise_error(described_class::UnauthorizedError)
       end
 
-      it "returns true when size is allowed" do
+      it 'returns true when size is allowed' do
         project.create_push_rule(max_file_size: 3)
 
         expect(repository.new_blobs(end_sha)).to be_present
@@ -369,7 +369,7 @@ describe Gitlab::GitAccess do
         push_master: "#{start_sha} #{end_sha} refs/heads/master",
         push_protected_branch: "#{start_sha} #{end_sha} refs/heads/feature",
         push_remove_protected_branch: "#{end_sha} #{Gitlab::Git::BLANK_SHA} "\
-                                      "refs/heads/feature",
+                                      'refs/heads/feature',
         push_tag: "#{start_sha} #{end_sha} refs/tags/v1.0.0",
         push_new_tag: "#{Gitlab::Git::BLANK_SHA} #{end_sha} refs/tags/v7.8.9",
         push_all: ["#{start_sha} #{end_sha} refs/heads/master", "#{start_sha} #{end_sha} refs/heads/feature"],
@@ -387,10 +387,10 @@ describe Gitlab::GitAccess do
           'This is the file content',
           message: 'This is a good commit message',
           branch_name: unprotected_branch)
-        author = { email: "email@example.com", time: Time.now, name: "Example Git User" }
+        author = { email: 'email@example.com', time: Time.now, name: 'Example Git User' }
 
         merge_index = rugged.merge_commits(target_branch, source_branch)
-        Rugged::Commit.create(rugged, author: author, committer: author, message: "commit message", parents: [target_branch, source_branch], tree: merge_index.write_tree(rugged))
+        Rugged::Commit.create(rugged, author: author, committer: author, message: 'commit message', parents: [target_branch, source_branch], tree: merge_index.write_tree(rugged))
       end
     end
 
@@ -518,7 +518,7 @@ describe Gitlab::GitAccess do
     }
 
     [%w(feature exact), ['feat*', 'wildcard']].each do |protected_branch_name, protected_branch_type|
-      context "user-specific access control" do
+      context 'user-specific access control' do
         let(:user) { create(:user) }
 
         context "when a specific user is allowed to push into the #{protected_branch_type} protected branch" do
@@ -556,7 +556,7 @@ describe Gitlab::GitAccess do
         end
       end
 
-      context "group-specific access control" do
+      context 'group-specific access control' do
         let(:user) { create(:user) }
         let(:group) { create(:group) }
 

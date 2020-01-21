@@ -54,7 +54,7 @@ describe 'Merge Request button' do
 
           visit url
 
-          within("#content-body") do
+          within('#content-body') do
             expect(page).not_to have_link(label)
           end
         end
@@ -84,7 +84,7 @@ describe 'Merge Request button' do
 
           visit fork_url
 
-          within("#content-body") do
+          within('#content-body') do
             expect(page).to have_link(label, href: href)
           end
         end

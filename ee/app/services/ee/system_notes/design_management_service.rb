@@ -23,7 +23,7 @@ module EE
           icon_name = note_data[:icon]
           n = designs.size
 
-          body = "%s [%d %s](%s)" % [note_data[:past_tense], n, 'design'.pluralize(n), link_href]
+          body = '%s [%d %s](%s)' % [note_data[:past_tense], n, 'design'.pluralize(n), link_href]
 
           create_note(NoteSummary.new(noteable, project, author, body, action: icon_name))
         end

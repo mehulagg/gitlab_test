@@ -39,12 +39,12 @@ describe Gitlab::Diff::InlineDiff do
     end
   end
 
-  describe "#inline_diffs" do
-    let(:old_line) { "XXX def initialize(test = true)" }
-    let(:new_line) { "YYY def initialize(test = false)" }
+  describe '#inline_diffs' do
+    let(:old_line) { 'XXX def initialize(test = true)' }
+    let(:new_line) { 'YYY def initialize(test = false)' }
     let(:subject) { described_class.new(old_line, new_line, offset: 3).inline_diffs }
 
-    it "finds the inline diff" do
+    it 'finds the inline diff' do
       old_diffs, new_diffs = subject
 
       expect(old_diffs).to eq([26..28])

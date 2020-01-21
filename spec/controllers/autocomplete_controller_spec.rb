@@ -23,7 +23,7 @@ describe AutocompleteController do
         it 'returns the project members' do
           expect(json_response).to be_kind_of(Array)
           expect(json_response.size).to eq(1)
-          expect(json_response.map { |u| u["username"] }).to include(user.username)
+          expect(json_response.map { |u| u['username'] }).to include(user.username)
         end
       end
 
@@ -52,7 +52,7 @@ describe AutocompleteController do
         it 'returns the group members' do
           expect(json_response).to be_kind_of(Array)
           expect(json_response.size).to eq(1)
-          expect(json_response.first["username"]).to eq user.username
+          expect(json_response.first['username']).to eq user.username
         end
       end
 
@@ -188,7 +188,7 @@ describe AutocompleteController do
         it 'includes the author' do
           get(:users, params: { author_id: non_member.id })
 
-          expect(json_response.first["username"]).to eq non_member.username
+          expect(json_response.first['username']).to eq non_member.username
         end
 
         it 'rejects non existent user ids' do

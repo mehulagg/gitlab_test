@@ -18,7 +18,7 @@ describe 'Projects > Files > User views files page' do
     folders = tree.trees.map(&:name)
     files = tree.blobs.map(&:name)
     submodules = tree.submodules.map do |submodule|
-      submodule.name + " @ " + submodule.id[0..7]
+      submodule.name + ' @ ' + submodule.id[0..7]
     end
 
     sorted_titles = (folders + submodules).sort + files

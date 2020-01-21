@@ -86,7 +86,7 @@ module Gitlab
           elsif job.trace_chunks.any?
             Gitlab::Ci::Trace::ChunkedIO.new(job)
           elsif current_path
-            File.open(current_path, "rb")
+            File.open(current_path, 'rb')
           elsif old_trace
             StringIO.new(old_trace)
           end
@@ -197,7 +197,7 @@ module Gitlab
       def clone_file!(src_stream, temp_dir)
         FileUtils.mkdir_p(temp_dir)
         Dir.mktmpdir("tmp-trace-#{job.id}", temp_dir) do |dir_path|
-          temp_path = File.join(dir_path, "job.log")
+          temp_path = File.join(dir_path, 'job.log')
           FileUtils.touch(temp_path)
           size = IO.copy_stream(src_stream, temp_path)
           raise ArchiveError, 'Failed to copy stream' unless size == src_stream.size
@@ -244,7 +244,7 @@ module Gitlab
       def default_directory
         File.join(
           Settings.gitlab_ci.builds_path,
-          job.created_at.utc.strftime("%Y_%m"),
+          job.created_at.utc.strftime('%Y_%m'),
           job.project_id.to_s
         )
       end

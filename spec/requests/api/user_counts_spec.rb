@@ -6,7 +6,7 @@ describe API::UserCounts do
   let(:user) { create(:user) }
   let(:project) { create(:project, :public) }
 
-  let!(:merge_request) { create(:merge_request, :simple, author: user, assignees: [user], source_project: project, title: "Test") }
+  let!(:merge_request) { create(:merge_request, :simple, author: user, assignees: [user], source_project: project, title: 'Test') }
 
   describe 'GET /user_counts' do
     context 'when unauthenticated' do

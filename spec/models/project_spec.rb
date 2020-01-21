@@ -125,7 +125,7 @@ describe Project do
     end
 
     context 'after initialized' do
-      it "has a project_feature" do
+      it 'has a project_feature' do
         expect(described_class.new.project_feature).to be_present
       end
     end
@@ -241,7 +241,7 @@ describe Project do
     end
 
     describe 'wiki path conflict' do
-      context "when the new path has been used by the wiki of other Project" do
+      context 'when the new path has been used by the wiki of other Project' do
         it 'has an error on the name attribute' do
           new_project = build_stubbed(:project, namespace_id: project.namespace_id, path: "#{project.path}.wiki")
 
@@ -250,7 +250,7 @@ describe Project do
         end
       end
 
-      context "when the new wiki path has been used by the path of other Project" do
+      context 'when the new wiki path has been used by the path of other Project' do
         it 'has an error on the name attribute' do
           project_with_wiki_suffix = create(:project, path: 'foo.wiki')
           new_project = build_stubbed(:project, namespace_id: project_with_wiki_suffix.namespace_id, path: 'foo')
@@ -319,7 +319,7 @@ describe Project do
         expect(project.import_data).to be_nil
       end
 
-      it "does not allow import_url pointing to localhost" do
+      it 'does not allow import_url pointing to localhost' do
         project = build(:project, import_url: 'http://localhost:9000/t.git')
 
         expect(project).to be_invalid
@@ -333,14 +333,14 @@ describe Project do
         expect(project.errors[:import_url].first).to include('Requests to the local network are not allowed')
       end
 
-      it "does not allow import_url with invalid ports for new projects" do
+      it 'does not allow import_url with invalid ports for new projects' do
         project = build(:project, import_url: 'http://github.com:25/t.git')
 
         expect(project).to be_invalid
         expect(project.errors[:import_url].first).to include('Only allowed ports are 80, 443')
       end
 
-      it "does not allow import_url with invalid ports for persisted projects" do
+      it 'does not allow import_url with invalid ports for persisted projects' do
         project = create(:project)
         project.import_url = 'http://github.com:25/t.git'
 
@@ -348,7 +348,7 @@ describe Project do
         expect(project.errors[:import_url].first).to include('Only allowed ports are 22, 80, 443')
       end
 
-      it "does not allow import_url with invalid user" do
+      it 'does not allow import_url with invalid user' do
         project = build(:project, import_url: 'http://$user:password@github.com/t.git')
 
         expect(project).to be_invalid
@@ -665,8 +665,8 @@ describe Project do
     expect(project.url_to_repo).to eq(Gitlab.config.gitlab_shell.ssh_path_prefix + 'somewhere.git')
   end
 
-  describe "#web_url" do
-    let(:project) { create(:project, path: "somewhere") }
+  describe '#web_url' do
+    let(:project) { create(:project, path: 'somewhere') }
 
     context 'when given the only_path option' do
       subject { project.web_url(only_path: only_path) }
@@ -703,7 +703,7 @@ describe Project do
     end
   end
 
-  describe "#readme_url" do
+  describe '#readme_url' do
     context 'with a non-existing repository' do
       let(:project) { create(:project) }
 
@@ -731,13 +731,13 @@ describe Project do
     end
   end
 
-  describe "#new_issuable_address" do
-    let(:project) { create(:project, path: "somewhere") }
+  describe '#new_issuable_address' do
+    let(:project) { create(:project, path: 'somewhere') }
     let(:user) { create(:user) }
 
     context 'incoming email enabled' do
       before do
-        stub_incoming_email_setting(enabled: true, address: "p+%{key}@gl.ab")
+        stub_incoming_email_setting(enabled: true, address: 'p+%{key}@gl.ab')
       end
 
       it 'returns the address to create a new issue' do
@@ -941,13 +941,13 @@ describe Project do
   end
 
   describe '#default_issues_tracker?' do
-    it "is true if used internal tracker" do
+    it 'is true if used internal tracker' do
       project = build(:project)
 
       expect(project.default_issues_tracker?).to be_truthy
     end
 
-    it "is false if used other tracker" do
+    it 'is false if used other tracker' do
       # NOTE: The current nature of this factory requires persistence
       project = create(:redmine_project)
 
@@ -1314,7 +1314,7 @@ describe Project do
     context 'when shared runners are enabled for project' do
       let!(:project) { create(:project, shared_runners_enabled: true) }
 
-      it "returns a project" do
+      it 'returns a project' do
         is_expected.to eq([project])
       end
     end
@@ -1322,7 +1322,7 @@ describe Project do
     context 'when shared runners are disabled for project' do
       let!(:project) { create(:project, shared_runners_enabled: false) }
 
-      it "returns an empty array" do
+      it 'returns an empty array' do
         is_expected.to be_empty
       end
     end
@@ -1571,7 +1571,7 @@ describe Project do
     context 'when shared runners are enabled for project' do
       let!(:project) { create(:project, shared_runners_enabled: true) }
 
-      it "returns a list of shared runners" do
+      it 'returns a list of shared runners' do
         is_expected.to eq([runner])
       end
     end
@@ -1579,7 +1579,7 @@ describe Project do
     context 'when shared runners are disabled for project' do
       let!(:project) { create(:project, shared_runners_enabled: false) }
 
-      it "returns a empty list" do
+      it 'returns a empty list' do
         is_expected.to be_empty
       end
     end
@@ -1673,14 +1673,14 @@ describe Project do
       let(:group_name) { 'Group' }
       let(:project_name) { 'group.example.com' }
 
-      it { is_expected.to eq("http://group.example.com") }
+      it { is_expected.to eq('http://group.example.com') }
     end
 
     context 'project page' do
       let(:group_name) { 'Group' }
       let(:project_name) { 'Project' }
 
-      it { is_expected.to eq("http://group.example.com/project") }
+      it { is_expected.to eq('http://group.example.com/project') }
     end
   end
 
@@ -2277,7 +2277,7 @@ describe Project do
       it 'returns the right status' do
         project = create(:project, :import_started)
 
-        expect(project.import_status).to eq("started")
+        expect(project.import_status).to eq('started')
       end
     end
 
@@ -2856,7 +2856,7 @@ describe Project do
     let(:project) { create(:project) }
 
     it 'returns production environment when it exists' do
-      production = create(:environment, name: "production", project: project)
+      production = create(:environment, name: 'production', project: project)
       create(:environment, name: 'staging', project: project)
 
       expect(project.default_environment).to eq(production)
@@ -3173,16 +3173,16 @@ describe Project do
   describe '#update_project_statistics' do
     let(:project) { create(:project) }
 
-    it "is called after creation" do
+    it 'is called after creation' do
       expect(project.statistics).to be_a ProjectStatistics
       expect(project.statistics).to be_persisted
     end
 
-    it "copies the namespace_id" do
+    it 'copies the namespace_id' do
       expect(project.statistics.namespace_id).to eq project.namespace_id
     end
 
-    it "updates the namespace_id when changed" do
+    it 'updates the namespace_id when changed' do
       namespace = create(:namespace)
       project.update(namespace: namespace)
 
@@ -3379,13 +3379,13 @@ describe Project do
       context 'group page' do
         let(:project_name) { 'group.example.com' }
 
-        it { is_expected.to eq("http://group.example.com") }
+        it { is_expected.to eq('http://group.example.com') }
       end
 
       context 'project page' do
         let(:project_name) { 'Project' }
 
-        it { is_expected.to eq("http://group.example.com/project") }
+        it { is_expected.to eq('http://group.example.com/project') }
       end
     end
 
@@ -3707,7 +3707,7 @@ describe Project do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           update_feature_access_level(project, feature_access_level)
 
           expected_objects = expected_count == 1 ? [project] : []
@@ -3727,7 +3727,7 @@ describe Project do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           update_feature_access_level(project, feature_access_level)
 
           expected_objects = expected_count == 1 ? [project] : []
@@ -3747,7 +3747,7 @@ describe Project do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           update_feature_access_level(project, feature_access_level)
 
           expected_objects = expected_count == 1 ? [project] : []
@@ -3767,7 +3767,7 @@ describe Project do
       end
 
       with_them do
-        it "respects visibility" do
+        it 'respects visibility' do
           update_feature_access_level(project, feature_access_level)
 
           expected_objects = expected_count == 1 ? [project] : []
@@ -4132,7 +4132,7 @@ describe Project do
         expect(repository).to receive(:gitlab_ci_yml) { 'content' }
       end
 
-      it "CI is available" do
+      it 'CI is available' do
         expect(project).to have_ci
       end
     end
@@ -4142,7 +4142,7 @@ describe Project do
         expect(repository).to receive(:gitlab_ci_yml) { nil }
       end
 
-      it "CI is available" do
+      it 'CI is available' do
         expect(project).to have_ci
       end
 
@@ -4151,7 +4151,7 @@ describe Project do
           stub_application_setting(auto_devops_enabled: false)
         end
 
-        it "CI is not available" do
+        it 'CI is not available' do
           expect(project).not_to have_ci
         end
       end
@@ -4930,19 +4930,19 @@ describe Project do
     end
   end
 
-  describe "#pages_https_only?" do
+  describe '#pages_https_only?' do
     subject { build(:project) }
 
-    context "when HTTPS pages are disabled" do
+    context 'when HTTPS pages are disabled' do
       it { is_expected.not_to be_pages_https_only }
     end
 
-    context "when HTTPS pages are enabled", :https_pages_enabled do
+    context 'when HTTPS pages are enabled', :https_pages_enabled do
       it { is_expected.to be_pages_https_only }
     end
   end
 
-  describe "#pages_https_only? validation", :https_pages_enabled do
+  describe '#pages_https_only? validation', :https_pages_enabled do
     subject(:project) do
       # set-up dirty object:
       create(:project, pages_https_only: false).tap do |p|
@@ -4950,11 +4950,11 @@ describe Project do
       end
     end
 
-    context "when no domains are associated" do
+    context 'when no domains are associated' do
       it { is_expected.to be_valid }
     end
 
-    context "when domains including keys and certificates are associated" do
+    context 'when domains including keys and certificates are associated' do
       before do
         allow(project)
           .to receive(:pages_domains)
@@ -4964,7 +4964,7 @@ describe Project do
       it { is_expected.to be_valid }
     end
 
-    context "when domains including no keys or certificates are associated" do
+    context 'when domains including no keys or certificates are associated' do
       before do
         allow(project)
           .to receive(:pages_domains)
@@ -5090,7 +5090,7 @@ describe Project do
     end
   end
 
-  describe "#find_or_initialize_services" do
+  describe '#find_or_initialize_services' do
     subject { build(:project) }
 
     it 'returns only enabled services' do
@@ -5104,7 +5104,7 @@ describe Project do
     end
   end
 
-  describe "#find_or_initialize_service" do
+  describe '#find_or_initialize_service' do
     subject { build(:project) }
 
     it 'avoids N+1 database queries' do

@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
-describe "User views issue" do
+describe 'User views issue' do
   let(:project) { create(:project_empty_repo, :public) }
   let(:user) { create(:user) }
-  let(:issue) { create(:issue, project: project, description: "# Description header", author: user) }
+  let(:issue) { create(:issue, project: project, description: '# Description header', author: user) }
 
   before do
     project.add_developer(user)
@@ -14,7 +14,7 @@ describe "User views issue" do
     visit(project_issue_path(project, issue))
   end
 
-  it { expect(page).to have_header_with_correct_id_and_link(1, "Description header", "description-header") }
+  it { expect(page).to have_header_with_correct_id_and_link(1, 'Description header', 'description-header') }
 
   it 'shows the merge request and issue actions', :aggregate_failures do
     expect(page).to have_link('New issue')

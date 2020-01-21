@@ -16,7 +16,7 @@ describe GlobalMilestone do
     let!(:milestone1_project1) do
       create(
         :milestone,
-        title: "Milestone v1.2",
+        title: 'Milestone v1.2',
         project: project1,
         due_date: milestone1_due_date
       )
@@ -25,7 +25,7 @@ describe GlobalMilestone do
     let!(:milestone1_project2) do
       create(
         :milestone,
-        title: "Milestone v1.2",
+        title: 'Milestone v1.2',
         project: project2,
         due_date: milestone1_due_date
       )
@@ -34,7 +34,7 @@ describe GlobalMilestone do
     let!(:milestone1_project3) do
       create(
         :milestone,
-        title: "Milestone v1.2",
+        title: 'Milestone v1.2',
         project: project3,
         due_date: milestone1_due_date
       )
@@ -43,7 +43,7 @@ describe GlobalMilestone do
     let!(:milestone2_project1) do
       create(
         :milestone,
-        title: "VD-123",
+        title: 'VD-123',
         project: project1,
         due_date: nil
       )
@@ -52,7 +52,7 @@ describe GlobalMilestone do
     let!(:milestone2_project2) do
       create(
         :milestone,
-        title: "VD-123",
+        title: 'VD-123',
         project: project2,
         due_date: nil
       )
@@ -61,7 +61,7 @@ describe GlobalMilestone do
     let!(:milestone2_project3) do
       create(
         :milestone,
-        title: "VD-123",
+        title: 'VD-123',
         project: project3,
         due_date: nil
       )
@@ -161,7 +161,7 @@ describe GlobalMilestone do
   end
 
   describe '#initialize' do
-    let(:milestone1_project1) { create(:milestone, title: "Milestone v1.2", project: project1) }
+    let(:milestone1_project1) { create(:milestone, title: 'Milestone v1.2', project: project1) }
 
     subject(:global_milestone) { described_class.new(milestone1_project1) }
 
@@ -175,7 +175,7 @@ describe GlobalMilestone do
   end
 
   describe '#safe_title' do
-    let(:milestone) { create(:milestone, title: "git / test", project: project1) }
+    let(:milestone) { create(:milestone, title: 'git / test', project: project1) }
 
     it 'strips out slashes and spaces' do
       global_milestone = described_class.new(milestone)

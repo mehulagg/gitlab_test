@@ -38,7 +38,7 @@ describe 'Request Profiler' do
     end
   end
 
-  context "when user is logged-in" do
+  context 'when user is logged-in' do
     before do
       login_as(user)
     end
@@ -48,7 +48,7 @@ describe 'Request Profiler' do
     include_examples 'profiling a request', 'memory', 'txt'
   end
 
-  context "when user is not logged-in" do
+  context 'when user is not logged-in' do
     include_examples 'profiling a request', 'execution', 'html'
     include_examples 'profiling a request', nil, 'html'
     include_examples 'profiling a request', 'memory', 'txt'

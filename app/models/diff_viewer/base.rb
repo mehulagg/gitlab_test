@@ -84,7 +84,7 @@ module DiffViewer
     def render_error_message
       return unless render_error
 
-      _("This %{viewer} could not be displayed because %{reason}. You can %{options} instead.") %
+      _('This %{viewer} could not be displayed because %{reason}. You can %{options} instead.') %
         {
           viewer: switcher_title,
           reason: render_error_reason,
@@ -110,7 +110,7 @@ module DiffViewer
 
     def render_error_reason
       if render_error == :too_large
-        _("it is too large")
+        _('it is too large')
       end
     end
   end

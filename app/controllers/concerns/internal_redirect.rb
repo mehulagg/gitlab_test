@@ -36,7 +36,7 @@ module InternalRedirect
 
   def full_path_for_uri(uri)
     path_with_query = [uri.path, uri.query].compact.join('?')
-    [path_with_query, uri.fragment].compact.join("#")
+    [path_with_query, uri.fragment].compact.join('#')
   end
 
   def referer_path(request)

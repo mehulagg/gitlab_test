@@ -6,7 +6,7 @@ module Ci
     include Presentable
 
     belongs_to :project
-    belongs_to :owner, class_name: "User"
+    belongs_to :owner, class_name: 'User'
 
     has_many :trigger_requests
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'audit event contains custom message' do
-  let(:custom_message) { "Message_with_spaces" }
+  let(:custom_message) { 'Message_with_spaces' }
   let(:details) do
     {
       custom_message: custom_message,

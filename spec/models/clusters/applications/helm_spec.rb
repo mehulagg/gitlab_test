@@ -19,7 +19,7 @@ describe Clusters::Applications::Helm do
   end
 
   describe '#can_uninstall?' do
-    context "with other existing applications" do
+    context 'with other existing applications' do
       Clusters::Cluster::APPLICATIONS.keys.each do |application_name|
         next if application_name == 'helm'
 
@@ -41,7 +41,7 @@ describe Clusters::Applications::Helm do
       end
     end
 
-    context "without other existing applications" do
+    context 'without other existing applications' do
       subject { helm.can_uninstall? }
 
       let(:helm) { create(:clusters_applications_helm) }

@@ -30,17 +30,17 @@ describe Gitlab::Auth::LDAP::User do
   end
 
   describe '#should_save?' do
-    it "marks existing ldap user as changed" do
+    it 'marks existing ldap user as changed' do
       create(:omniauth_user, extern_uid: 'uid=John Smith,ou=People,dc=example,dc=com', provider: 'ldapmain')
       expect(ldap_user.should_save?).to be_truthy
     end
 
-    it "marks existing non-ldap user if the email matches as changed" do
+    it 'marks existing non-ldap user if the email matches as changed' do
       create(:user, email: 'john@example.com')
       expect(ldap_user.should_save?).to be_truthy
     end
 
-    it "does not mark existing ldap user as changed" do
+    it 'does not mark existing ldap user as changed' do
       create(:omniauth_user, email: 'john@example.com', extern_uid: 'uid=john smith,ou=people,dc=example,dc=com', provider: 'ldapmain')
       expect(ldap_user.should_save?).to be_falsey
     end
@@ -64,14 +64,14 @@ describe Gitlab::Auth::LDAP::User do
   end
 
   describe 'find or create' do
-    it "finds the user if already existing" do
+    it 'finds the user if already existing' do
       create(:omniauth_user, extern_uid: 'uid=john smith,ou=people,dc=example,dc=com', provider: 'ldapmain')
 
       expect { ldap_user.save }.not_to change { User.count }
     end
 
-    it "connects to existing non-ldap user if the email matches" do
-      existing_user = create(:omniauth_user, email: 'john@example.com', provider: "twitter")
+    it 'connects to existing non-ldap user if the email matches' do
+      existing_user = create(:omniauth_user, email: 'john@example.com', provider: 'twitter')
       expect { ldap_user.save }.not_to change { User.count }
 
       existing_user.reload
@@ -111,7 +111,7 @@ describe Gitlab::Auth::LDAP::User do
       expect(ldap_user.gl_user.identities.find_by(provider: auth_hash.provider)).to be_instance_of Identity
     end
 
-    it "creates a new user if not found" do
+    it 'creates a new user if not found' do
       expect { ldap_user.save }.to change { User.count }.by(1)
     end
 
@@ -142,20 +142,20 @@ describe Gitlab::Auth::LDAP::User do
   end
 
   describe 'updating email' do
-    context "when LDAP sets an email" do
-      it "has a real email" do
+    context 'when LDAP sets an email' do
+      it 'has a real email' do
         expect(ldap_user.gl_user.email).to eq(info[:email])
       end
 
-      it "has email set as synced" do
+      it 'has email set as synced' do
         expect(ldap_user.gl_user.user_synced_attributes_metadata.email_synced).to be_truthy
       end
 
-      it "has email set as read-only" do
+      it 'has email set as read-only' do
         expect(ldap_user.gl_user.read_only_attribute?(:email)).to be_truthy
       end
 
-      it "has synced attributes provider set to ldapmain" do
+      it 'has synced attributes provider set to ldapmain' do
         expect(ldap_user.gl_user.user_synced_attributes_metadata.provider).to eql 'ldapmain'
       end
     end
@@ -165,15 +165,15 @@ describe Gitlab::Auth::LDAP::User do
         info.delete(:email)
       end
 
-      it "has a temp email" do
+      it 'has a temp email' do
         expect(ldap_user.gl_user.temp_oauth_email?).to be_truthy
       end
 
-      it "has email set as not synced" do
+      it 'has email set as not synced' do
         expect(ldap_user.gl_user.user_synced_attributes_metadata.email_synced).to be_falsey
       end
 
-      it "does not have email set as read-only" do
+      it 'does not have email set as read-only' do
         expect(ldap_user.gl_user.read_only_attribute?(:email)).to be_falsey
       end
     end

@@ -6,7 +6,7 @@ module ExternalAuthorizationServiceHelpers
 
     stub_application_setting(external_authorization_service_url: 'https://authorize.me')
     stub_application_setting(external_authorization_service_default_label: 'default_label')
-    stub_request(:post, "https://authorize.me").to_return(status: 200)
+    stub_request(:post, 'https://authorize.me').to_return(status: 200)
   end
 
   def external_service_set_access(allowed, user, project)

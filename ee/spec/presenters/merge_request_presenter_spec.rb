@@ -60,7 +60,7 @@ describe MergeRequestPresenter do
 
     it { is_expected.to eq(expose_path("/api/v4/projects/#{merge_request.project.id}/approval_settings")) }
 
-    context "when approvals not available" do
+    context 'when approvals not available' do
       let(:approval_feature_available) { false }
 
       it { is_expected.to be_nil }

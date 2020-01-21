@@ -173,7 +173,7 @@ module TestEnv
       return
     end
 
-    FileUtils.mkdir_p("tmp/tests/second_storage") unless File.exist?("tmp/tests/second_storage")
+    FileUtils.mkdir_p('tmp/tests/second_storage') unless File.exist?('tmp/tests/second_storage')
 
     spawn_script = Rails.root.join('scripts/gitaly-test-spawn').to_s
     Bundler.with_original_env do
@@ -300,7 +300,7 @@ module TestEnv
   def eager_load_driver_server
     return unless defined?(Capybara)
 
-    puts "Starting the Capybara driver server..."
+    puts 'Starting the Capybara driver server...'
     Capybara.current_session.visit '/'
   end
 
@@ -377,7 +377,7 @@ module TestEnv
     update_refs = %W(#{Gitlab.config.git.bin_path} update-ref --stdin -z)
     reset = proc do
       Dir.chdir(repo_path) do
-        IO.popen(update_refs, "w") { |io| io.write(instructions) }
+        IO.popen(update_refs, 'w') { |io| io.write(instructions) }
         $?.success?
       end
     end

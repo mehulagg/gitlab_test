@@ -38,7 +38,7 @@ module API
           if move_list_service.execute(list)
             present list, with: Entities::List
           else
-            render_api_error!({ error: "List could not be moved!" }, 400)
+            render_api_error!({ error: 'List could not be moved!' }, 400)
           end
         end
 

@@ -6,7 +6,7 @@ module QA
       let(:issue) { Resource::Issue.fabricate_via_api! }
       let(:design_filename) { 'banana_sample.gif' }
       let(:design) { File.absolute_path(File.join('spec', 'fixtures', design_filename)) }
-      let(:annotation) { "This design is great!" }
+      let(:annotation) { 'This design is great!' }
 
       before do
         Flow::Login.sign_in

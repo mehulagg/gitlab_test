@@ -7,7 +7,7 @@ describe Resolvers::EnvironmentsResolver do
 
   let_it_be(:current_user) { create(:user) }
 
-  context "with a group" do
+  context 'with a group' do
     let(:group)   { create(:group) }
     let(:project) { create(:project, :public, group: group) }
     let!(:environment1) { create(:environment, name: 'production', project: project) }

@@ -67,8 +67,8 @@ describe Projects::MergeRequests::DraftsController do
       diff_refs = project.commit(sample_commit.id).try(:diff_refs)
 
       position = Gitlab::Diff::Position.new(
-        old_path: "files/ruby/popen.rb",
-        new_path: "files/ruby/popen.rb",
+        old_path: 'files/ruby/popen.rb',
+        new_path: 'files/ruby/popen.rb',
         old_line: nil,
         new_line: 14,
         diff_refs: diff_refs
@@ -143,8 +143,8 @@ describe Projects::MergeRequests::DraftsController do
 
       let(:position) do
         Gitlab::Diff::Position.new(
-          old_path: "files/ruby/popen.rb",
-          new_path: "files/ruby/popen.rb",
+          old_path: 'files/ruby/popen.rb',
+          new_path: 'files/ruby/popen.rb',
           old_line: nil,
           new_line: 14,
           diff_refs: commit.diff_refs
@@ -257,7 +257,7 @@ describe Projects::MergeRequests::DraftsController do
     context 'when PublishService errors' do
       it 'returns message and 500 response' do
         create(:draft_note, merge_request: merge_request, author: user)
-        error_message = "Something went wrong"
+        error_message = 'Something went wrong'
 
         expect_next_instance_of(DraftNotes::PublishService) do |service|
           allow(service).to receive(:execute).and_return({ message: error_message, status: :error })
@@ -266,7 +266,7 @@ describe Projects::MergeRequests::DraftsController do
         post :publish, params: params
 
         expect(response).to have_gitlab_http_status(:error)
-        expect(json_response["message"]).to include(error_message)
+        expect(json_response['message']).to include(error_message)
       end
     end
 
@@ -274,8 +274,8 @@ describe Projects::MergeRequests::DraftsController do
       diff_refs = project.commit(sample_commit.id).try(:diff_refs)
 
       position = Gitlab::Diff::Position.new(
-        old_path: "files/ruby/popen.rb",
-        new_path: "files/ruby/popen.rb",
+        old_path: 'files/ruby/popen.rb',
+        new_path: 'files/ruby/popen.rb',
         old_line: nil,
         new_line: 14,
         diff_refs: diff_refs

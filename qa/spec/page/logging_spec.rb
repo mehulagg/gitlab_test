@@ -95,7 +95,7 @@ describe QA::Support::Page::Logging do
   end
 
   it 'logs has_element? with text' do
-    expect { subject.has_element?(:element, text: "some text") }
+    expect { subject.has_element?(:element, text: 'some text') }
       .to output(/has_element\? :element with text \"some text\" \(wait: #{QA::Runtime::Browser::CAPYBARA_MAX_WAIT_TIME}\) returned: true/).to_stdout_from_any_process
   end
 
@@ -109,7 +109,7 @@ describe QA::Support::Page::Logging do
   it 'logs has_no_element? with text' do
     allow(page).to receive(:has_no_css?).and_return(true)
 
-    expect { subject.has_no_element?(:element, text: "more text") }
+    expect { subject.has_no_element?(:element, text: 'more text') }
       .to output(/has_no_element\? :element with text \"more text\" \(wait: #{QA::Runtime::Browser::CAPYBARA_MAX_WAIT_TIME}\) returned: true/).to_stdout_from_any_process
   end
 

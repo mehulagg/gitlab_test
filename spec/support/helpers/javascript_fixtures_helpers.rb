@@ -60,7 +60,7 @@ module JavaScriptFixturesHelpers
   #
   def parse_response(response)
     fixture = response.body
-    fixture.force_encoding("utf-8")
+    fixture.force_encoding('utf-8')
 
     response_mime_type = Mime::Type.lookup(response.content_type)
     if response_mime_type.html?

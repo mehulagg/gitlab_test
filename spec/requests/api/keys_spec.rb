@@ -55,14 +55,14 @@ describe API::Keys do
 
     context 'when authenticated as admin' do
       it 'returns 404 for non-existing SSH md5 fingerprint' do
-        get api("/keys?fingerprint=11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11", admin)
+        get api('/keys?fingerprint=11:11:11:11:11:11:11:11:11:11:11:11:11:11:11:11', admin)
 
         expect(response).to have_gitlab_http_status(404)
         expect(json_response['message']).to eq('404 Key Not Found')
       end
 
       it 'returns 404 for non-existing SSH sha256 fingerprint' do
-        get api("/keys?fingerprint=#{URI.encode_www_form_component("SHA256:nUhzNyftwADy8AH3wFY31tAKs7HufskYTte2aXo1lCg")}", admin)
+        get api("/keys?fingerprint=#{URI.encode_www_form_component('SHA256:nUhzNyftwADy8AH3wFY31tAKs7HufskYTte2aXo1lCg')}", admin)
 
         expect(response).to have_gitlab_http_status(404)
         expect(json_response['message']).to eq('404 Key Not Found')
@@ -82,7 +82,7 @@ describe API::Keys do
       it 'returns user if SSH sha256 fingerprint found' do
         user.keys << key
 
-        get api("/keys?fingerprint=#{URI.encode_www_form_component("SHA256:" + key.fingerprint_sha256)}", admin)
+        get api("/keys?fingerprint=#{URI.encode_www_form_component('SHA256:' + key.fingerprint_sha256)}", admin)
 
         expect(response).to have_gitlab_http_status(200)
         expect(json_response['title']).to eq(key.title)
@@ -93,7 +93,7 @@ describe API::Keys do
       it 'returns user if SSH sha256 fingerprint found' do
         user.keys << key
 
-        get api("/keys?fingerprint=#{URI.encode_www_form_component("sha256:" + key.fingerprint_sha256)}", admin)
+        get api("/keys?fingerprint=#{URI.encode_www_form_component('sha256:' + key.fingerprint_sha256)}", admin)
 
         expect(response).to have_gitlab_http_status(200)
         expect(json_response['title']).to eq(key.title)
@@ -123,7 +123,7 @@ describe API::Keys do
         it 'returns user and projects if SSH sha256 fingerprint for DeployKey found' do
           user.keys << deploy_key
 
-          get api("/keys?fingerprint=#{URI.encode_www_form_component("SHA256:" + deploy_key.fingerprint_sha256)}", admin)
+          get api("/keys?fingerprint=#{URI.encode_www_form_component('SHA256:' + deploy_key.fingerprint_sha256)}", admin)
 
           expect(response).to have_gitlab_http_status(200)
           expect(json_response['title']).to eq(deploy_key.title)

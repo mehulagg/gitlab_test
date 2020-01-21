@@ -1,4 +1,4 @@
-require "gettext_i18n_rails/tasks"
+require 'gettext_i18n_rails/tasks'
 
 namespace :gettext do
   # Customize list of translatable files

@@ -1,4 +1,4 @@
-desc "GITLAB | migrate provider names to multiple ldap setup"
+desc 'GITLAB | migrate provider names to multiple ldap setup'
 namespace :gitlab do
   task migrate_ldap_providers: :environment do
     config = Gitlab::Auth::LDAP::Config

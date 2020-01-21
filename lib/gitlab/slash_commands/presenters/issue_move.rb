@@ -11,7 +11,7 @@ module Gitlab
         end
 
         def display_move_error(error)
-          message = header_with_list("The action was not successful, because:", [error])
+          message = header_with_list('The action was not successful, because:', [error])
 
           ephemeral_response(text: message)
         end

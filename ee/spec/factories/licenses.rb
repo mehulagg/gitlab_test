@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 FactoryBot.define do
-  factory :gitlab_license, class: "Gitlab::License" do
+  factory :gitlab_license, class: 'Gitlab::License' do
     skip_create
 
     trait :trial do
@@ -26,7 +26,7 @@ FactoryBot.define do
     notify_admins_at { expires_at }
 
     licensee do
-      { "Name" => generate(:name) }
+      { 'Name' => generate(:name) }
     end
 
     restrictions do

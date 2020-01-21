@@ -76,7 +76,7 @@ describe TrialsController do
               first_name: user.first_name,
               last_name: user.last_name,
               phone_number: '1111111111',
-              number_of_users: "20",
+              number_of_users: '20',
               country: 'IN'
           }
           extra_params = {

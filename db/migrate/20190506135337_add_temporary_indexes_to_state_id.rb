@@ -18,14 +18,14 @@ class AddTemporaryIndexesToStateId < ActiveRecord::Migration[5.1]
         table,
         'id',
         name: index_name_for(table),
-        where: "state_id IS NULL"
+        where: 'state_id IS NULL'
       )
     end
   end
 
   def down
-    remove_concurrent_index_by_name(:issues, index_name_for("issues"))
-    remove_concurrent_index_by_name(:merge_requests, index_name_for("merge_requests"))
+    remove_concurrent_index_by_name(:issues, index_name_for('issues'))
+    remove_concurrent_index_by_name(:merge_requests, index_name_for('merge_requests'))
   end
 
   def index_name_for(table)

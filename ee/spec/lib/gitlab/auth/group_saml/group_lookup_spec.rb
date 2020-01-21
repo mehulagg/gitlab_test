@@ -9,7 +9,7 @@ describe Gitlab::Auth::GroupSaml::GroupLookup do
   def subject(params = {})
     @subject ||= begin
       env = {
-        "rack.input" => double,
+        'rack.input' => double,
         'PATH_INFO' => path_info
       }.merge(params)
 
@@ -27,7 +27,7 @@ describe Gitlab::Auth::GroupSaml::GroupLookup do
     end
 
     it 'can detect group_path from query params' do
-      subject( "QUERY_STRING" => query_string )
+      subject( 'QUERY_STRING' => query_string )
 
       expect(subject.path).to eq 'the-group'
     end
@@ -41,7 +41,7 @@ describe Gitlab::Auth::GroupSaml::GroupLookup do
     end
 
     it 'does not allow params to take precedence' do
-      subject( "QUERY_STRING" => query_string )
+      subject( 'QUERY_STRING' => query_string )
 
       expect(subject.path).to eq 'callback-group'
     end
@@ -69,21 +69,21 @@ describe Gitlab::Auth::GroupSaml::GroupLookup do
 
     describe '#token_discoverable?' do
       it 'returns false when missing the discovery token' do
-        subject("QUERY_STRING" => group_params.to_query)
+        subject('QUERY_STRING' => group_params.to_query)
 
         expect(subject).not_to be_token_discoverable
       end
 
       it 'returns false for incorrect discovery token' do
         query_string = group_params.merge(token: 'wrongtoken').to_query
-        subject("QUERY_STRING" => query_string)
+        subject('QUERY_STRING' => query_string)
 
         expect(subject).not_to be_token_discoverable
       end
 
       it 'returns true when discovery token matches' do
         query_string = group_params.merge(token: group.saml_discovery_token).to_query
-        subject("QUERY_STRING" => query_string)
+        subject('QUERY_STRING' => query_string)
 
         expect(subject).to be_token_discoverable
       end

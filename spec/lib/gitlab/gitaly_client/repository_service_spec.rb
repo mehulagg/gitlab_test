@@ -261,7 +261,7 @@ describe Gitlab::GitalyClient::RepositoryService do
     it 'deletes the alternates file' do
       repository.disconnect_alternates
 
-      alternates_file = File.join(repository_path, "objects", "info", "alternates")
+      alternates_file = File.join(repository_path, 'objects', 'info', 'alternates')
 
       expect(File.exist?(alternates_file)).to be_falsey
     end

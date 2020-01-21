@@ -46,7 +46,7 @@ module EE
       has_one :deletion_schedule, class_name: 'GroupDeletionSchedule'
       delegate :deleting_user, :marked_for_deletion_on, to: :deletion_schedule, allow_nil: true
 
-      belongs_to :file_template_project, class_name: "Project"
+      belongs_to :file_template_project, class_name: 'Project'
 
       # Use +checked_file_template_project+ instead, which implements important
       # visibility checks
@@ -147,11 +147,11 @@ module EE
     def ip_restriction_ranges
       return unless ip_restrictions.present?
 
-      ip_restrictions.map(&:range).join(",")
+      ip_restrictions.map(&:range).join(',')
     end
 
     def vulnerable_projects
-      projects.where("EXISTS(?)", ::Vulnerabilities::Occurrence.select(1).undismissed.where('vulnerability_occurrences.project_id = projects.id'))
+      projects.where('EXISTS(?)', ::Vulnerabilities::Occurrence.select(1).undismissed.where('vulnerability_occurrences.project_id = projects.id'))
     end
 
     def human_ldap_access
@@ -285,7 +285,7 @@ module EE
       return if custom_project_templates_group_id.blank?
       return if children.exists?(id: custom_project_templates_group_id)
 
-      errors.add(:custom_project_templates_group_id, "has to be a subgroup of the group")
+      errors.add(:custom_project_templates_group_id, 'has to be a subgroup of the group')
     end
   end
 end

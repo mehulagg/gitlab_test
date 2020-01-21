@@ -25,19 +25,19 @@ describe Gitlab::Ci::Config::Entry::Port do
     end
 
     describe '#number' do
-      it "returns port number" do
+      it 'returns port number' do
         expect(entry.number).to eq 80
       end
     end
 
     describe '#protocol' do
-      it "is nil" do
+      it 'is nil' do
         expect(entry.protocol).to be_nil
       end
     end
 
     describe '#name' do
-      it "is nil" do
+      it 'is nil' do
         expect(entry.name).to be_nil
       end
     end
@@ -64,19 +64,19 @@ describe Gitlab::Ci::Config::Entry::Port do
       end
 
       describe '#number' do
-        it "returns port number" do
+        it 'returns port number' do
           expect(entry.number).to eq 80
         end
       end
 
       describe '#protocol' do
-        it "returns port protocol" do
+        it 'returns port protocol' do
           expect(entry.protocol).to eq 'http'
         end
       end
 
       describe '#name' do
-        it "returns port name" do
+        it 'returns port name' do
           expect(entry.name).to eq 'foobar'
         end
       end
@@ -98,19 +98,19 @@ describe Gitlab::Ci::Config::Entry::Port do
       end
 
       describe '#number' do
-        it "returns port number" do
+        it 'returns port number' do
           expect(entry.number).to eq 80
         end
       end
 
       describe '#protocol' do
-        it "is nil" do
+        it 'is nil' do
           expect(entry.protocol).to be_nil
         end
       end
 
       describe '#name' do
-        it "is nil" do
+        it 'is nil' do
           expect(entry.name).to be_nil
         end
       end
@@ -165,7 +165,7 @@ describe Gitlab::Ci::Config::Entry::Port do
 
       describe '#valid?' do
         it 'is invalid' do
-          expect(entry.errors).to include("port protocol should be http or https")
+          expect(entry.errors).to include('port protocol should be http or https')
         end
       end
     end

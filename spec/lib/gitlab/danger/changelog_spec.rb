@@ -50,7 +50,7 @@ describe Gitlab::Danger::Changelog do
       let(:changes_by_category) { categories }
       let(:mr_labels) { labels }
 
-      it "is falsy when labels require no changelog" do
+      it 'is falsy when labels require no changelog' do
         is_expected.to be_falsy
       end
     end
@@ -65,7 +65,7 @@ describe Gitlab::Danger::Changelog do
       let(:changes_by_category) { categories }
       let(:mr_labels) { labels }
 
-      it "is truthy when categories and labels require a changelog" do
+      it 'is truthy when categories and labels require a changelog' do
         is_expected.to be_truthy
       end
     end

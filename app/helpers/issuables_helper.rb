@@ -89,7 +89,7 @@ module IssuablesHelper
   end
 
   def template_dropdown_tag(issuable, &block)
-    title = selected_template(issuable) || "Choose a template"
+    title = selected_template(issuable) || 'Choose a template'
     options = {
       toggle_class: 'js-issuable-selector',
       title: title,
@@ -113,7 +113,7 @@ module IssuablesHelper
   def users_dropdown_label(selected_users)
     case selected_users.length
     when 0
-      "Unassigned"
+      'Unassigned'
     when 1
       selected_users[0].name
     else
@@ -124,7 +124,7 @@ module IssuablesHelper
   # rubocop: disable CodeReuse/ActiveRecord
   def user_dropdown_label(user_id, default_label)
     return default_label if user_id.nil?
-    return "Unassigned" if user_id == "0"
+    return 'Unassigned' if user_id == '0'
 
     user = User.find_by(id: user_id)
 
@@ -139,7 +139,7 @@ module IssuablesHelper
   # rubocop: disable CodeReuse/ActiveRecord
   def project_dropdown_label(project_id, default_label)
     return default_label if project_id.nil?
-    return "Any project" if project_id == "0"
+    return 'Any project' if project_id == '0'
 
     project = Project.find_by(id: project_id)
 
@@ -154,7 +154,7 @@ module IssuablesHelper
   # rubocop: disable CodeReuse/ActiveRecord
   def group_dropdown_label(group_id, default_label)
     return default_label if group_id.nil?
-    return "Any group" if group_id == "0"
+    return 'Any group' if group_id == '0'
 
     group = ::Group.find_by(id: group_id)
 
@@ -166,7 +166,7 @@ module IssuablesHelper
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
-  def milestone_dropdown_label(milestone_title, default_label = "Milestone")
+  def milestone_dropdown_label(milestone_title, default_label = 'Milestone')
     title =
       case milestone_title
       when Milestone::Upcoming.name then Milestone::Upcoming.title
@@ -193,8 +193,8 @@ module IssuablesHelper
     output << "Opened #{time_ago_with_tooltip(issuable.created_at)} by ".html_safe
 
     output << content_tag(:strong) do
-      author_output = link_to_member(project, issuable.author, size: 24, mobile_classes: "d-none d-sm-inline")
-      author_output << link_to_member(project, issuable.author, size: 24, by_username: true, avatar: false, mobile_classes: "d-inline d-sm-none")
+      author_output = link_to_member(project, issuable.author, size: 24, mobile_classes: 'd-none d-sm-inline')
+      author_output << link_to_member(project, issuable.author, size: 24, by_username: true, avatar: false, mobile_classes: 'd-inline d-sm-none')
 
       if status = user_status(issuable.author)
         author_output << "#{status}".html_safe
@@ -205,8 +205,8 @@ module IssuablesHelper
 
     output << content_tag(:span, (issuable_first_contribution_icon if issuable.first_contribution?), class: 'has-tooltip prepend-left-4', title: _('1st contribution!'))
 
-    output << content_tag(:span, (issuable.task_status if issuable.tasks?), id: "task_status", class: "d-none d-sm-none d-md-inline-block prepend-left-8")
-    output << content_tag(:span, (issuable.task_status_short if issuable.tasks?), id: "task_status_short", class: "d-md-none")
+    output << content_tag(:span, (issuable.task_status if issuable.tasks?), id: 'task_status', class: 'd-none d-sm-none d-md-inline-block prepend-left-8')
+    output << content_tag(:span, (issuable.task_status_short if issuable.tasks?), id: 'task_status_short', class: 'd-md-none')
 
     output.join.html_safe
   end
@@ -220,13 +220,13 @@ module IssuablesHelper
 
       label_names.join(', ')
     else
-      _("Labels")
+      _('Labels')
     end
   end
 
   def issuables_state_counter_text(issuable_type, state, display_count)
     titles = {
-      opened: "Open"
+      opened: 'Open'
     }
 
     state_title = titles[state] || state.to_s.humanize
@@ -234,7 +234,7 @@ module IssuablesHelper
 
     if display_count
       count = issuables_count_for_state(issuable_type, state)
-      html << " " << content_tag(:span, number_with_delimiter(count), class: 'badge badge-pill')
+      html << ' ' << content_tag(:span, number_with_delimiter(count), class: 'badge badge-pill')
     end
 
     html.html_safe
@@ -242,7 +242,7 @@ module IssuablesHelper
 
   def issuable_first_contribution_icon
     content_tag(:span, class: 'fa-stack') do
-      concat(icon('certificate', class: "fa-stack-2x"))
+      concat(icon('certificate', class: 'fa-stack-2x'))
       concat(content_tag(:strong, '1', class: 'fa-inverse fa-stack-1x'))
     end
   end
@@ -424,10 +424,10 @@ module IssuablesHelper
       container: is_collapsed ? 'body' : nil,
       boundary: 'viewport',
       is_collapsed: is_collapsed,
-      track_label: "right_sidebar",
-      track_property: "update_todo",
-      track_event: "click_button",
-      track_value: ""
+      track_label: 'right_sidebar',
+      track_property: 'update_todo',
+      track_event: 'click_button',
+      track_value: ''
     }
   end
 

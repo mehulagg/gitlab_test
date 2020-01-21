@@ -27,7 +27,7 @@ describe 'Global search' do
       create_list(:issue, 2, project: project, title: 'initial')
     end
 
-    it "has a pagination" do
+    it 'has a pagination' do
       submit_search('initial')
       select_search_scope('Issues')
 
@@ -36,7 +36,7 @@ describe 'Global search' do
   end
 
   it 'closes the dropdown on blur', :js do
-    fill_in 'search', with: "a"
+    fill_in 'search', with: 'a'
     dropdown = find('.js-dashboard-search-options')
 
     expect(dropdown[:class]).to include 'show'

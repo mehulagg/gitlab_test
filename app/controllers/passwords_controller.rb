@@ -52,7 +52,7 @@ class PasswordsController < Devise::PasswordsController
     end
 
     redirect_to after_sending_reset_password_instructions_path_for(resource_name),
-      alert: _("Password authentication is unavailable.")
+      alert: _('Password authentication is unavailable.')
   end
 
   def throttle_reset

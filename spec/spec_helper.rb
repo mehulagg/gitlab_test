@@ -3,9 +3,9 @@
 require './spec/simplecov_env'
 SimpleCovEnv.start!
 
-ENV["RAILS_ENV"] = 'test'
-ENV["IN_MEMORY_APPLICATION_SETTINGS"] = 'true'
-ENV["RSPEC_ALLOW_INVALID_URLS"] = 'true'
+ENV['RAILS_ENV'] = 'test'
+ENV['IN_MEMORY_APPLICATION_SETTINGS'] = 'true'
+ENV['RSPEC_ALLOW_INVALID_URLS'] = 'true'
 
 require File.expand_path('../config/environment', __dir__)
 require 'rspec/rails'
@@ -41,13 +41,13 @@ require_relative('../ee/spec/spec_helper') if Gitlab.ee?
 # Requires helpers, and shared contexts/examples first since they're used in other support files
 
 # Load these first since they may be required by other helpers
-require Rails.root.join("spec/support/helpers/git_helpers.rb")
+require Rails.root.join('spec/support/helpers/git_helpers.rb')
 
 # Then the rest
-Dir[Rails.root.join("spec/support/helpers/*.rb")].each { |f| require f }
-Dir[Rails.root.join("spec/support/shared_contexts/*.rb")].each { |f| require f }
-Dir[Rails.root.join("spec/support/shared_examples/*.rb")].each { |f| require f }
-Dir[Rails.root.join("spec/support/**/*.rb")].each { |f| require f }
+Dir[Rails.root.join('spec/support/helpers/*.rb')].each { |f| require f }
+Dir[Rails.root.join('spec/support/shared_contexts/*.rb')].each { |f| require f }
+Dir[Rails.root.join('spec/support/shared_examples/*.rb')].each { |f| require f }
+Dir[Rails.root.join('spec/support/**/*.rb')].each { |f| require f }
 
 quality_level = Quality::TestLevel.new
 
@@ -230,7 +230,7 @@ RSpec.configure do |config|
   end
 
   config.before(:example, :prometheus) do
-    matching_files = File.join(::Prometheus::Client.configuration.multiprocess_files_dir, "*.db")
+    matching_files = File.join(::Prometheus::Client.configuration.multiprocess_files_dir, '*.db')
     Dir[matching_files].map { |filename| File.delete(filename) if File.file?(filename) }
 
     Gitlab::Metrics.reset_registry!

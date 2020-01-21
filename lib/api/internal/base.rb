@@ -76,7 +76,7 @@ module API
               payload[:git_config_options] << "receive.maxInputSize=#{receive_max_input_size.megabytes}"
 
               if Feature.enabled?(:gitaly_upload_pack_filter, project)
-                payload[:git_config_options] << "uploadpack.allowFilter=true" << "uploadpack.allowAnySHA1InWant=true"
+                payload[:git_config_options] << 'uploadpack.allowFilter=true' << 'uploadpack.allowAnySHA1InWant=true'
               end
             end
 
@@ -102,13 +102,13 @@ module API
         #   changes - changes as "oldrev newrev ref", see Gitlab::ChangesList
         #   check_ip - optional, only in EE version, may limit access to
         #     group resources based on its IP restrictions
-        post "/allowed" do
+        post '/allowed' do
           # It was moved to a separate method so that EE can alter its behaviour more
           # easily.
           check_allowed(params)
         end
 
-        post "/lfs_authenticate" do
+        post '/lfs_authenticate' do
           status 200
 
           unless actor.key_or_user

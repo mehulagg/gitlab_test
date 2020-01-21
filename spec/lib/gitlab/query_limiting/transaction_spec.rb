@@ -124,7 +124,7 @@ describe Gitlab::QueryLimiting::Transaction do
       transaction.action = 'UsersController#show'
 
       expect(transaction.error_message).to eq(
-        "Too many SQL queries were executed in UsersController#show: " \
+        'Too many SQL queries were executed in UsersController#show: ' \
         "a maximum of #{max} is allowed but #{max} SQL queries were executed"
       )
     end

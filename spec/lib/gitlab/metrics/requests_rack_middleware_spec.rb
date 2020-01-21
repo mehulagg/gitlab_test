@@ -66,7 +66,7 @@ describe Gitlab::Metrics::RequestsRackMiddleware do
     end
 
     describe '.initialize_http_request_duration_seconds' do
-      it "sets labels" do
+      it 'sets labels' do
         expected_labels = []
         described_class::HTTP_METHODS.each do |method, statuses|
           statuses.each do |status|

@@ -29,7 +29,7 @@ module Gitlab
           end
 
           def format_to_ext(format)
-            format == :markdown ? "md" : format.to_s
+            format == :markdown ? 'md' : format.to_s
           end
 
           def canonicalize_filename(filename)

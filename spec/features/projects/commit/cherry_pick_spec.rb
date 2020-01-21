@@ -15,7 +15,7 @@ describe 'Cherry-pick Commits' do
     visit project_commit_path(project, master_pickable_commit.id)
   end
 
-  context "I cherry-pick a commit" do
+  context 'I cherry-pick a commit' do
     it do
       find("a[href='#modal-cherry-pick-commit']").click
       expect(page).not_to have_content('v1.0.0') # Only branches, not tags
@@ -27,7 +27,7 @@ describe 'Cherry-pick Commits' do
     end
   end
 
-  context "I cherry-pick a merge commit" do
+  context 'I cherry-pick a merge commit' do
     it do
       find("a[href='#modal-cherry-pick-commit']").click
       page.within('#modal-cherry-pick-commit') do
@@ -38,7 +38,7 @@ describe 'Cherry-pick Commits' do
     end
   end
 
-  context "I cherry-pick a commit that was previously cherry-picked" do
+  context 'I cherry-pick a commit that was previously cherry-picked' do
     it do
       find("a[href='#modal-cherry-pick-commit']").click
       page.within('#modal-cherry-pick-commit') do
@@ -55,7 +55,7 @@ describe 'Cherry-pick Commits' do
     end
   end
 
-  context "I cherry-pick a commit in a new merge request", :js do
+  context 'I cherry-pick a commit in a new merge request', :js do
     it do
       find('.header-action-buttons a.dropdown-toggle').click
       find("a[href='#modal-cherry-pick-commit']").click
@@ -70,7 +70,7 @@ describe 'Cherry-pick Commits' do
     end
   end
 
-  context "I cherry-pick a commit from a different branch", :js do
+  context 'I cherry-pick a commit from a different branch', :js do
     it do
       find('.header-action-buttons a.dropdown-toggle').click
       find(:css, "a[href='#modal-cherry-pick-commit']").click
@@ -84,7 +84,7 @@ describe 'Cherry-pick Commits' do
       page.within('#modal-cherry-pick-commit .dropdown-menu') do
         find('.dropdown-input input').set('feature')
         wait_for_requests
-        click_link "feature"
+        click_link 'feature'
       end
 
       page.within('#modal-cherry-pick-commit') do
@@ -102,7 +102,7 @@ describe 'Cherry-pick Commits' do
     it 'does not show the cherry-pick link' do
       find('.header-action-buttons a.dropdown-toggle').click
 
-      expect(page).not_to have_text("Cherry-pick")
+      expect(page).not_to have_text('Cherry-pick')
       expect(page).not_to have_css("a[href='#modal-cherry-pick-commit']")
     end
   end

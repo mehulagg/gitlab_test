@@ -7,7 +7,7 @@ describe API::MergeRequestApprovals do
   set(:user2)         { create(:user) }
   set(:admin)         { create(:user, :admin) }
   set(:project)       { create(:project, :public, :repository, creator: user, namespace: user.namespace, only_allow_merge_if_pipeline_succeeds: false) }
-  let(:merge_request) { create(:merge_request, :simple, author: user, assignees: [user], source_project: project, target_project: project, title: "Test", created_at: Time.now) }
+  let(:merge_request) { create(:merge_request, :simple, author: user, assignees: [user], source_project: project, target_project: project, title: 'Test', created_at: Time.now) }
 
   set(:approver) { create :user }
   set(:group) { create :group }
@@ -91,7 +91,7 @@ describe API::MergeRequestApprovals do
       expect(json_response['approvals_required']).to eq 2
       expect(json_response['approvals_left']).to eq 2
 
-      short_approval = { "id" => rule.id, "name" => rule.name, "rule_type" => rule.rule_type.to_s }
+      short_approval = { 'id' => rule.id, 'name' => rule.name, 'rule_type' => rule.rule_type.to_s }
       expect(json_response['approval_rules_left']).to eq([short_approval])
 
       expect(json_response['approved_by']).to be_empty

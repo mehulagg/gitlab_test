@@ -38,7 +38,7 @@ RSpec.describe Gitlab::Insights::Validators::ParamsValidator do
       end
 
       it 'raises an error' do
-        expect { subject }.to raise_error(described_class::InvalidProjectsError, "Invalid `:projects`: `[]`. It should be a hash.")
+        expect { subject }.to raise_error(described_class::InvalidProjectsError, 'Invalid `:projects`: `[]`. It should be a hash.')
       end
     end
 
@@ -48,7 +48,7 @@ RSpec.describe Gitlab::Insights::Validators::ParamsValidator do
       end
 
       it 'raises an error' do
-        expect { subject }.to raise_error(described_class::InvalidProjectsError, "Invalid `:projects`.`only`: `1`. It should be an array.")
+        expect { subject }.to raise_error(described_class::InvalidProjectsError, 'Invalid `:projects`.`only`: `1`. It should be an array.')
       end
     end
 

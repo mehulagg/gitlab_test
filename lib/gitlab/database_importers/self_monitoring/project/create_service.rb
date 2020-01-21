@@ -60,7 +60,7 @@ module Gitlab
             if result[:project].persisted?
               success(result)
             else
-              log_error("Could not create instance administration project. Errors: %{errors}" % { errors: result[:project].errors.full_messages })
+              log_error('Could not create instance administration project. Errors: %{errors}' % { errors: result[:project].errors.full_messages })
               error(_('Could not create project'))
             end
           end
@@ -75,7 +75,7 @@ module Gitlab
             if response
               success(result)
             else
-              log_error("Could not save instance administration project ID, errors: %{errors}" % { errors: application_settings.errors.full_messages })
+              log_error('Could not save instance administration project ID, errors: %{errors}' % { errors: application_settings.errors.full_messages })
               error(_('Could not save project ID'))
             end
           end
@@ -95,7 +95,7 @@ module Gitlab
           end
 
           def track_event(result)
-            ::Gitlab::Tracking.event("self_monitoring", "project_created")
+            ::Gitlab::Tracking.event('self_monitoring', 'project_created')
 
             success(result)
           end

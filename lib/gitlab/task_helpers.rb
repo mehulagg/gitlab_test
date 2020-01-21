@@ -24,8 +24,8 @@ module Gitlab
     # Returns "yes" the user chose to continue
     # Raises Gitlab::TaskAbortedByUserError if the user chose *not* to continue
     def ask_to_continue
-      answer = prompt("Do you want to continue (yes/no)? ".color(:blue), %w{yes no})
-      raise Gitlab::TaskAbortedByUserError unless answer == "yes"
+      answer = prompt('Do you want to continue (yes/no)? '.color(:blue), %w{yes no})
+      raise Gitlab::TaskAbortedByUserError unless answer == 'yes'
     end
 
     # Check which OS is running
@@ -127,11 +127,11 @@ module Gitlab
       strong_memoize(:warned_user_not_gitlab) do
         current_user = run_command(%w(whoami)).chomp
 
-        puts " Warning ".color(:black).background(:yellow)
+        puts ' Warning '.color(:black).background(:yellow)
         puts "  You are running as user #{current_user.color(:magenta)}, we hope you know what you are doing."
         puts "  Things may work\/fail for the wrong reasons."
         puts "  For correct results you should run this as user #{gitlab_user.color(:magenta)}."
-        puts ""
+        puts ''
       end
     end
 

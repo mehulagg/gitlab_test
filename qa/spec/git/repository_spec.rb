@@ -64,23 +64,23 @@ describe QA::Git::Repository do
       end
 
       it 'raises an error if the version is unsupported' do
-        expect { repository.git_protocol = 'foo' }.to raise_error(ArgumentError, "Please specify the protocol you would like to use: 0, 1, or 2")
+        expect { repository.git_protocol = 'foo' }.to raise_error(ArgumentError, 'Please specify the protocol you would like to use: 0, 1, or 2')
       end
     end
 
     describe '#fetch_supported_git_protocol' do
-      it "reports the detected version" do
-        expect(repository).to receive(:run).and_return("packet: git< version 2")
+      it 'reports the detected version' do
+        expect(repository).to receive(:run).and_return('packet: git< version 2')
         expect(repository.fetch_supported_git_protocol).to eq('2')
       end
 
       it 'reports unknown if version is unknown' do
-        expect(repository).to receive(:run).and_return("packet: git< version -1")
+        expect(repository).to receive(:run).and_return('packet: git< version -1')
         expect(repository.fetch_supported_git_protocol).to eq('unknown')
       end
 
       it 'reports unknown if content does not identify a version' do
-        expect(repository).to receive(:run).and_return("foo")
+        expect(repository).to receive(:run).and_return('foo')
         expect(repository.fetch_supported_git_protocol).to eq('unknown')
       end
     end
@@ -106,7 +106,7 @@ describe QA::Git::Repository do
       it 'raises an error if no username was given' do
         expect { repository.password = 'foo' }
           .to raise_error(QA::Git::Repository::InvalidCredentialsError,
-            "Please provide a username when setting a password")
+            'Please provide a username when setting a password')
       end
 
       it 'adds credentials to .netrc' do

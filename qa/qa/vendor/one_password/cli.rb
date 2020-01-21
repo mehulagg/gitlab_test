@@ -55,7 +55,7 @@ module QA
         end
 
         def os
-          RUBY_PLATFORM.include?("darwin") ? "darwin" : "linux"
+          RUBY_PLATFORM.include?('darwin') ? 'darwin' : 'linux'
         end
       end
     end

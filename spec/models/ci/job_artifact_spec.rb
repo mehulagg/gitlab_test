@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Ci::JobArtifact do
   let(:artifact) { create(:ci_job_artifact, :archive) }
 
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to(:project) }
     it { is_expected.to belong_to(:job) }
   end

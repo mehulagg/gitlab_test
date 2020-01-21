@@ -171,7 +171,7 @@ describe ButtonHelper do
           expect(element.attr('data-placement')).to eq('bottom')
           expect(element.attr('data-container')).to eq('body')
           expect(element.attr('data-clipboard-text')).to eq(nil)
-          expect(element.inner_text).to eq("")
+          expect(element.inner_text).to eq('')
 
           expect(element.to_html).to include sprite_icon('duplicate')
         end

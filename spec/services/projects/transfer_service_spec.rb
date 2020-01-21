@@ -87,7 +87,7 @@ describe Projects::TransferService do
     before do
       group.add_owner(user)
 
-      expect_any_instance_of(Labels::TransferService).to receive(:execute).and_raise(ActiveRecord::StatementInvalid, "PG ERROR")
+      expect_any_instance_of(Labels::TransferService).to receive(:execute).and_raise(ActiveRecord::StatementInvalid, 'PG ERROR')
     end
 
     def project_path(project)

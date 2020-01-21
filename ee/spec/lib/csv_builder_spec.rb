@@ -86,8 +86,8 @@ describe CsvBuilder do
   end
 
   describe 'excel sanitization' do
-    let(:dangerous_title) { double(title: "=cmd|' /C calc'!A0 title", description: "*safe_desc") }
-    let(:dangerous_desc) { double(title: "*safe_title", description: "=cmd|' /C calc'!A0 desc") }
+    let(:dangerous_title) { double(title: "=cmd|' /C calc'!A0 title", description: '*safe_desc') }
+    let(:dangerous_desc) { double(title: '*safe_title', description: "=cmd|' /C calc'!A0 desc") }
     let(:fake_relation) { FakeRelation.new([dangerous_title, dangerous_desc]) }
     let(:subject) { described_class.new(fake_relation, 'Title' => 'title', 'Description' => 'description') }
     let(:csv_data) { subject.render }

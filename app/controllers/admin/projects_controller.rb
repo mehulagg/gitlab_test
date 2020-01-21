@@ -15,7 +15,7 @@ class Admin::ProjectsController < Admin::ApplicationController
       format.html
       format.json do
         render json: {
-          html: view_to_html_string("admin/projects/_projects", projects: @projects)
+          html: view_to_html_string('admin/projects/_projects', projects: @projects)
         }
       end
     end
@@ -25,7 +25,7 @@ class Admin::ProjectsController < Admin::ApplicationController
   def show
     if @group
       @group_members = present_members(
-        @group.members.order("access_level DESC").page(params[:group_members_page]))
+        @group.members.order('access_level DESC').page(params[:group_members_page]))
     end
 
     @project_members = present_members(

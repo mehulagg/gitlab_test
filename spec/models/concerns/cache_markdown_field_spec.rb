@@ -28,7 +28,7 @@ describe CacheMarkdownField, :clean_gitlab_redis_cache do
       cache_markdown_field :description
 
       def cache_key
-        "cache-key"
+        'cache-key'
       end
     end
   end
@@ -144,7 +144,7 @@ describe CacheMarkdownField, :clean_gitlab_redis_cache do
       it 'saves the changes' do
         expect(thing)
           .to receive(:save_markdown)
-          .with("description_html" => updated_html, "title_html" => "", "cached_markdown_version" => cache_version)
+          .with('description_html' => updated_html, 'title_html' => '', 'cached_markdown_version' => cache_version)
 
         thing.refresh_markdown_cache!
       end

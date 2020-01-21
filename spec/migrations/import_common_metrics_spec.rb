@@ -5,7 +5,7 @@ require Rails.root.join('db', 'migrate', '20180831164910_import_common_metrics.r
 
 describe ImportCommonMetrics, :migration do
   describe '#up' do
-    it "imports all prometheus metrics" do
+    it 'imports all prometheus metrics' do
       expect(PrometheusMetric.common).to be_empty
 
       migrate!

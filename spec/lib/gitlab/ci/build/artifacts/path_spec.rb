@@ -18,7 +18,7 @@ describe Gitlab::Ci::Build::Artifacts::Path do
 
     context 'when path is valid' do
       it 'is valid' do
-        expect(described_class.new("some/file/path")).to be_valid
+        expect(described_class.new('some/file/path')).to be_valid
       end
     end
   end
@@ -26,26 +26,26 @@ describe Gitlab::Ci::Build::Artifacts::Path do
   describe '#directory?' do
     context 'when path ends with a directory indicator' do
       it 'is a directory' do
-        expect(described_class.new("some/file/dir/")).to be_directory
+        expect(described_class.new('some/file/dir/')).to be_directory
       end
     end
 
     context 'when path does not end with a directory indicator' do
       it 'is not a directory' do
-        expect(described_class.new("some/file")).not_to be_directory
+        expect(described_class.new('some/file')).not_to be_directory
       end
     end
   end
 
   describe '#name' do
     it 'returns a base name' do
-      expect(described_class.new("some/file").name).to eq 'file'
+      expect(described_class.new('some/file').name).to eq 'file'
     end
   end
 
   describe '#nodes' do
     it 'returns number of path nodes' do
-      expect(described_class.new("some/dir/file").nodes).to eq 2
+      expect(described_class.new('some/dir/file').nodes).to eq 2
     end
   end
 

@@ -51,7 +51,7 @@ module Gitlab
 
       def key
         strong_memoize(:redis_key) do
-          ['highlighted-diff-files', diffable.cache_key, VERSION, diff_options].join(":")
+          ['highlighted-diff-files', diffable.cache_key, VERSION, diff_options].join(':')
         end
       end
 

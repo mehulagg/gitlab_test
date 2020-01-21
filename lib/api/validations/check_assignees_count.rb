@@ -19,7 +19,7 @@ module API
 
         raise Grape::Exceptions::Validation,
               params: [@scope.full_name(attr_name)],
-              message: "allows one value, but found #{params[attr_name].size}: #{params[attr_name].join(", ")}"
+              message: "allows one value, but found #{params[attr_name].size}: #{params[attr_name].join(', ')}"
       end
 
       private

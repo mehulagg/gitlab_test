@@ -64,7 +64,7 @@ shared_context 'simple_check' do |metrics_prefix, check_name, success_result|
 
     context 'Check is raising an unhandled exception' do
       before do
-        allow(described_class).to receive(:check ).and_raise "unexpected error"
+        allow(described_class).to receive(:check ).and_raise 'unexpected error'
       end
 
       it { is_expected.to have_attributes(success: false, message: "unexpected #{described_class.human_name} check result: unexpected error") }

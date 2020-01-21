@@ -31,7 +31,7 @@ module QA
 
         setup_project_integration_with_jenkins
 
-        expect(page).to have_text("Jenkins CI activated.")
+        expect(page).to have_text('Jenkins CI activated.')
 
         QA::Support::Retrier.retry_on_exception do
           Resource::Repository::ProjectPush.fabricate! do |push|

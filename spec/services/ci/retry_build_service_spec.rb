@@ -92,7 +92,7 @@ describe Ci::RetryBuildService do
           build.update_attribute(:protected, nil)
         end
 
-        it "clones protected build attribute" do
+        it 'clones protected build attribute' do
           expect(new_build.protected).to be_nil
           expect(new_build.protected).to eq build.protected
         end

@@ -21,7 +21,7 @@ module Gitlab
           namespace: namespace,
           creator: current_user,
           visibility_level: Gitlab::VisibilityLevel::PUBLIC,
-          import_type: "google_code",
+          import_type: 'google_code',
           import_source: repo.name,
           import_url: repo.import_url,
           import_data: { data: { 'repo' => repo.raw_data, 'user_map' => user_map } }

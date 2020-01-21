@@ -65,8 +65,8 @@ describe DeployToken do
     end
   end
 
-  describe "#active?" do
-    context "when it has been revoked" do
+  describe '#active?' do
+    context 'when it has been revoked' do
       it 'returns false' do
         deploy_token.revoke!
         expect(deploy_token.active?).to be_falsy

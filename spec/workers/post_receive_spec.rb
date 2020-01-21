@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe PostReceive do
   let(:changes) { "123456 789012 refs/heads/tést\n654321 210987 refs/tags/tag" }
-  let(:wrongly_encoded_changes) { changes.encode("ISO-8859-1").force_encoding("UTF-8") }
+  let(:wrongly_encoded_changes) { changes.encode('ISO-8859-1').force_encoding('UTF-8') }
   let(:base64_changes) { Base64.encode64(wrongly_encoded_changes) }
   let(:gl_repository) { "project-#{project.id}" }
   let(:key) { create(:key, user: project.owner) }
@@ -18,25 +18,25 @@ describe PostReceive do
     described_class.new.perform(gl_repository, key_id, changes)
   end
 
-  context "as a sidekiq worker" do
-    it "responds to #perform" do
+  context 'as a sidekiq worker' do
+    it 'responds to #perform' do
       expect(described_class.new).to respond_to(:perform)
     end
   end
 
   context 'with a non-existing project' do
-    let(:gl_repository) { "project-123456789" }
+    let(:gl_repository) { 'project-123456789' }
     let(:error_message) do
       "Triggered hook for non-existing project with gl_repository \"#{gl_repository}\""
     end
 
-    it "returns false and logs an error" do
+    it 'returns false and logs an error' do
       expect(Gitlab::GitLogger).to receive(:error).with("POST-RECEIVE: #{error_message}")
       expect(perform).to be(false)
     end
   end
 
-  describe "#process_project_changes" do
+  describe '#process_project_changes' do
     context 'with an empty project' do
       let(:empty_project) { create(:project, :empty_repo) }
       let(:changes) { "123456 789012 refs/heads/tést1\n" }
@@ -72,18 +72,18 @@ describe PostReceive do
     end
 
     context 'empty changes' do
-      it "does not call any PushService but runs after project hooks" do
+      it 'does not call any PushService but runs after project hooks' do
         expect(Git::ProcessRefChangesService).not_to receive(:new)
         expect_next_instance_of(SystemHooksService) { |service| expect(service).to receive(:execute_hooks) }
 
-        perform(changes: "")
+        perform(changes: '')
       end
 
       it_behaves_like 'not updating remote mirrors'
     end
 
     context 'unidentified user' do
-      let!(:key_id) { "" }
+      let!(:key_id) { '' }
 
       it 'returns false' do
         expect(Git::ProcessRefChangesService).not_to receive(:new)
@@ -110,7 +110,7 @@ describe PostReceive do
         end
       end
 
-      context "branches" do
+      context 'branches' do
         let(:changes) do
           <<~EOF
             123456 789012 refs/heads/tést1
@@ -166,7 +166,7 @@ describe PostReceive do
         end
       end
 
-      context "tags" do
+      context 'tags' do
         let(:changes) do
           <<~EOF
             654321 210987 refs/tags/tag1
@@ -211,10 +211,10 @@ describe PostReceive do
         it_behaves_like 'updating remote mirrors'
       end
 
-      context "merge-requests" do
-        let(:changes) { "123456 789012 refs/merge-requests/123" }
+      context 'merge-requests' do
+        let(:changes) { '123456 789012 refs/merge-requests/123' }
 
-        it "does not call any of the services" do
+        it 'does not call any of the services' do
           expect(Git::ProcessRefChangesService).not_to receive(:new)
 
           perform
@@ -274,7 +274,7 @@ describe PostReceive do
       end
     end
 
-    context "branches" do
+    context 'branches' do
       let(:changes) do
         <<~EOF
             123456 789012 refs/heads/tést1
@@ -297,14 +297,14 @@ describe PostReceive do
     end
   end
 
-  context "webhook" do
-    it "fetches the correct project" do
+  context 'webhook' do
+    it 'fetches the correct project' do
       expect(Project).to receive(:find_by).with(id: project.id.to_s)
 
       perform
     end
 
-    it "does not run if the author is not in the project" do
+    it 'does not run if the author is not in the project' do
       allow_any_instance_of(Gitlab::GitPostReceive)
         .to receive(:identify_using_ssh_key)
         .and_return(nil)
@@ -314,7 +314,7 @@ describe PostReceive do
       expect(perform).to be_falsey
     end
 
-    it "asks the project to trigger all hooks" do
+    it 'asks the project to trigger all hooks' do
       create(:project_hook, push_events: true, tag_push_events: true, project: project)
       create(:custom_issue_tracker_service, push_events: true, merge_requests_events: false, project: project)
       allow(Project).to receive(:find_by).and_return(project)
@@ -325,7 +325,7 @@ describe PostReceive do
       perform
     end
 
-    it "enqueues a UpdateMergeRequestsWorker job" do
+    it 'enqueues a UpdateMergeRequestsWorker job' do
       allow(Project).to receive(:find_by).and_return(project)
 
       expect(UpdateMergeRequestsWorker).to receive(:perform_async).with(project.id, project.owner.id, any_args)

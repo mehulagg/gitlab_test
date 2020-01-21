@@ -23,11 +23,11 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
 
       it 'Change visibility settings' do
         page.within('.as-visibility-access') do
-          choose "application_setting_default_project_visibility_20"
+          choose 'application_setting_default_project_visibility_20'
           click_button 'Save changes'
         end
 
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
       end
 
       it 'Uncheck all restricted visibility levels' do
@@ -38,7 +38,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
           click_button 'Save changes'
         end
 
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
         expect(find('#application_setting_visibility_level_0')).not_to be_checked
         expect(find('#application_setting_visibility_level_10')).not_to be_checked
         expect(find('#application_setting_visibility_level_20')).not_to be_checked
@@ -55,15 +55,15 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
           click_button 'Save changes'
         end
 
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
         expect(current_settings.import_sources).to be_empty
 
         page.within('.as-visibility-access') do
-          check "Repo by URL"
+          check 'Repo by URL'
           click_button 'Save changes'
         end
 
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
         expect(current_settings.import_sources).to eq(['git'])
       end
 
@@ -74,7 +74,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
         end
 
         expect(current_settings.project_export_enabled).to be_falsey
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
       end
 
       it 'Change Keys settings' do
@@ -102,7 +102,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
         end
 
         expect(current_settings.gravatar_enabled).to be_falsey
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
       end
 
       it 'Change New users set to external', :js do
@@ -123,8 +123,8 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
           click_button 'Save changes'
         end
 
-        expect(current_settings.home_page_url).to eq "https://about.gitlab.com/"
-        expect(page).to have_content "Application settings saved successfully"
+        expect(current_settings.home_page_url).to eq 'https://about.gitlab.com/'
+        expect(page).to have_content 'Application settings saved successfully'
       end
 
       it 'Terms of Service' do
@@ -151,15 +151,15 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
           click_button 'Save changes'
         end
 
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
         expect(current_settings.disabled_oauth_sign_in_sources).to include('google_oauth2')
 
         page.within('.as-signin') do
-          check "Google"
+          check 'Google'
           click_button 'Save changes'
         end
 
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
         expect(current_settings.disabled_oauth_sign_in_sources).not_to include('google_oauth2')
       end
 
@@ -171,7 +171,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
           click_button 'Save changes'
         end
 
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
         expect(current_settings.disabled_oauth_sign_in_sources).to include('google_oauth2')
 
         # Remove google_oauth2 from the Omniauth strategies
@@ -182,7 +182,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
           click_button 'Save changes'
         end
 
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
         expect(current_settings.disabled_oauth_sign_in_sources).to include('google_oauth2')
       end
 
@@ -192,7 +192,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
           click_button 'Save changes'
         end
 
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
         expect(current_settings.terminal_max_session_time).to eq(15)
       end
     end
@@ -208,7 +208,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
           click_button 'Save changes'
         end
 
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
         expect(current_settings.hide_third_party_offers).to be true
       end
 
@@ -256,7 +256,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
 
         expect(current_settings.auto_devops_enabled?).to be true
         expect(current_settings.auto_devops_domain).to eq('domain.com')
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
       end
     end
 
@@ -273,7 +273,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
           click_button 'Save changes'
         end
 
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
         expect(current_settings.recaptcha_enabled).to be true
         expect(current_settings.login_recaptcha_protection_enabled).to be true
         expect(current_settings.unique_ips_limit_per_user).to eq(15)
@@ -292,7 +292,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
         end
 
         expect(current_settings.metrics_enabled?).to be true
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
       end
 
       it 'Change Prometheus settings' do
@@ -302,7 +302,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
         end
 
         expect(current_settings.prometheus_metrics_enabled?).to be true
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
       end
 
       it 'Change Performance bar settings' do
@@ -314,7 +314,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
           click_on 'Save changes'
         end
 
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
         expect(find_field('Enable access to the Performance Bar')).to be_checked
         expect(find_field('Allowed group').value).to eq group.path
 
@@ -351,7 +351,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
           click_button 'Save changes'
         end
 
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
         expect(current_settings.allow_local_requests_from_web_hooks_and_services).to be true
         expect(current_settings.allow_local_requests_from_system_hooks).to be false
         expect(current_settings.dns_rebinding_protection_enabled).to be false
@@ -373,10 +373,10 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
           click_button 'Save changes'
         end
 
-        expect(current_settings.help_page_text).to eq "Example text"
+        expect(current_settings.help_page_text).to eq 'Example text'
         expect(current_settings.help_page_hide_commercial_content).to be_truthy
         expect(current_settings.help_page_support_url).to eq new_support_url
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
       end
 
       it 'Change Pages settings' do
@@ -388,7 +388,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
 
         expect(current_settings.max_pages_size).to eq 15
         expect(current_settings.pages_domain_verification_enabled?).to be_truthy
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
       end
 
       it 'Change Real-time features settings' do
@@ -398,7 +398,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
         end
 
         expect(current_settings.polling_interval_multiplier).to eq 5.0
-        expect(page).to have_content "Application settings saved successfully"
+        expect(page).to have_content 'Application settings saved successfully'
       end
 
       it 'shows an error when validation fails' do
@@ -409,7 +409,7 @@ describe 'Admin updates settings', :clean_gitlab_redis_shared_state, :do_not_moc
 
         expect(current_settings.polling_interval_multiplier).not_to eq(-1.0)
         expect(page)
-          .to have_content "The form contains the following error: Polling interval multiplier must be greater than or equal to 0"
+          .to have_content 'The form contains the following error: Polling interval multiplier must be greater than or equal to 0'
       end
 
       it "Change Pages Let's Encrypt settings" do

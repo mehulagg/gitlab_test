@@ -69,7 +69,7 @@ module Resolvers
       date_params_complete = args[:start_date] && args[:end_date]
 
       unless date_params_complete
-        raise Gitlab::Graphql::Errors::ArgumentError, "Both start_date and end_date must be present."
+        raise Gitlab::Graphql::Errors::ArgumentError, 'Both start_date and end_date must be present.'
       end
     end
 

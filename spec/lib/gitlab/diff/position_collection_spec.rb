@@ -7,8 +7,8 @@ describe Gitlab::Diff::PositionCollection do
 
   def build_text_position(attrs = {})
     attributes = {
-      old_path: "files/ruby/popen.rb",
-      new_path: "files/ruby/popen.rb",
+      old_path: 'files/ruby/popen.rb',
+      new_path: 'files/ruby/popen.rb',
       old_line: nil,
       new_line: 14,
       diff_refs: merge_request.diff_refs
@@ -19,14 +19,14 @@ describe Gitlab::Diff::PositionCollection do
 
   def build_image_position(attrs = {})
     attributes = {
-      old_path: "files/images/any_image.png",
-      new_path: "files/images/any_image.png",
+      old_path: 'files/images/any_image.png',
+      new_path: 'files/images/any_image.png',
       width: 10,
       height: 10,
       x: 1,
       y: 1,
       diff_refs: merge_request.diff_refs,
-      position_type: "image"
+      position_type: 'image'
     }.merge(attrs)
 
     Gitlab::Diff::Position.new(attributes)

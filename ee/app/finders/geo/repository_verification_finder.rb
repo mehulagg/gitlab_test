@@ -13,7 +13,7 @@ module Geo
 
       Project.with(cte.to_arel)
              .from(cte.alias_to(projects_table))
-             .order("projects.repository_retry_at ASC")
+             .order('projects.repository_retry_at ASC')
     end
     # rubocop: enable CodeReuse/ActiveRecord
 
@@ -24,7 +24,7 @@ module Geo
 
       Project.with(cte.to_arel)
              .from(cte.alias_to(projects_table))
-             .order("projects.wiki_retry_at ASC")
+             .order('projects.wiki_retry_at ASC')
     end
     # rubocop: enable CodeReuse/ActiveRecord
 

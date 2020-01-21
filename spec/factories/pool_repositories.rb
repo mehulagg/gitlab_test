@@ -2,7 +2,7 @@
 
 FactoryBot.define do
   factory :pool_repository do
-    shard { Shard.by_name("default") }
+    shard { Shard.by_name('default') }
     state { :none }
 
     before(:create) do |pool|

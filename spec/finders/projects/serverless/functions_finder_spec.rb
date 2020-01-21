@@ -75,8 +75,8 @@ describe Projects::Serverless::FunctionsFinder do
         stub_kubeclient_service_pods
         stub_reactive_cache(knative_services_finder,
           {
-            services: kube_knative_services_body(namespace: namespace.namespace, name: cluster.project.name)["items"],
-            pods: kube_knative_pods_body(cluster.project.name, namespace.namespace)["items"]
+            services: kube_knative_services_body(namespace: namespace.namespace, name: cluster.project.name)['items'],
+            pods: kube_knative_pods_body(cluster.project.name, namespace.namespace)['items']
           },
           *knative_services_finder.cache_args)
 
@@ -87,14 +87,14 @@ describe Projects::Serverless::FunctionsFinder do
         stub_kubeclient_service_pods
         stub_reactive_cache(knative_services_finder,
           {
-            services: kube_knative_services_body(namespace: namespace.namespace, name: cluster.project.name)["items"],
-            pods: kube_knative_pods_body(cluster.project.name, namespace.namespace)["items"]
+            services: kube_knative_services_body(namespace: namespace.namespace, name: cluster.project.name)['items'],
+            pods: kube_knative_pods_body(cluster.project.name, namespace.namespace)['items']
           },
           *knative_services_finder.cache_args)
 
         result = finder.service(cluster.environment_scope, cluster.project.name)
         expect(result).not_to be_empty
-        expect(result["metadata"]["name"]).to be_eql(cluster.project.name)
+        expect(result['metadata']['name']).to be_eql(cluster.project.name)
       end
 
       it 'has metrics', :use_clean_rails_memory_store_caching do
@@ -113,11 +113,11 @@ describe Projects::Serverless::FunctionsFinder do
       end
 
       it 'is available' do
-        expect(finder.has_prometheus?("*")).to be true
+        expect(finder.has_prometheus?('*')).to be true
       end
 
       it 'has query data' do
-        expect(finder.invocation_metrics("*", cluster.project.name)).not_to be_nil
+        expect(finder.invocation_metrics('*', cluster.project.name)).not_to be_nil
       end
     end
   end

@@ -17,76 +17,76 @@ describe DesignManagement::DesignPolicy do
 
   subject(:design_policy) { described_class.new(current_user, design) }
 
-  shared_examples_for "design abilities not available" do
-    context "for owners" do
+  shared_examples_for 'design abilities not available' do
+    context 'for owners' do
       let(:current_user) { owner }
 
       it { is_expected.to be_disallowed(*design_abilities) }
     end
 
-    context "for admins" do
+    context 'for admins' do
       let(:current_user) { admin }
 
       it { is_expected.to be_disallowed(*design_abilities) }
     end
 
-    context "for maintainers" do
+    context 'for maintainers' do
       let(:current_user) { maintainer }
 
       it { is_expected.to be_disallowed(*design_abilities) }
     end
 
-    context "for developers" do
+    context 'for developers' do
       let(:current_user) { developer }
 
       it { is_expected.to be_disallowed(*design_abilities) }
     end
 
-    context "for reporters" do
+    context 'for reporters' do
       let(:current_user) { reporter }
 
       it { is_expected.to be_disallowed(*design_abilities) }
     end
 
-    context "for guests" do
+    context 'for guests' do
       let(:current_user) { guest }
 
       it { is_expected.to be_disallowed(*design_abilities) }
     end
 
-    context "for anonymous users" do
+    context 'for anonymous users' do
       let(:current_user) { nil }
 
       it { is_expected.to be_disallowed(*design_abilities) }
     end
   end
 
-  shared_examples_for "design abilities available for members" do
-    context "for owners" do
+  shared_examples_for 'design abilities available for members' do
+    context 'for owners' do
       let(:current_user) { owner }
 
       it { is_expected.to be_allowed(*design_abilities) }
     end
 
-    context "for admins" do
+    context 'for admins' do
       let(:current_user) { admin }
 
       it { is_expected.to be_allowed(*design_abilities) }
     end
 
-    context "for maintainers" do
+    context 'for maintainers' do
       let(:current_user) { maintainer }
 
       it { is_expected.to be_allowed(*design_abilities) }
     end
 
-    context "for developers" do
+    context 'for developers' do
       let(:current_user) { developer }
 
       it { is_expected.to be_allowed(*design_abilities) }
     end
 
-    context "for reporters" do
+    context 'for reporters' do
       let(:current_user) { reporter }
 
       it { is_expected.to be_allowed(*guest_design_abilities) }
@@ -94,37 +94,37 @@ describe DesignManagement::DesignPolicy do
     end
   end
 
-  shared_examples_for "read-only design abilities" do
+  shared_examples_for 'read-only design abilities' do
     it { is_expected.to be_allowed(:read_design) }
     it { is_expected.to be_disallowed(:create_design, :destroy_design) }
   end
 
-  context "when the license does not include the feature" do
+  context 'when the license does not include the feature' do
     before do
       stub_licensed_features(design_management: false)
       allow(Gitlab.config.lfs).to receive(:enabled).and_return(true)
     end
 
-    it_behaves_like "design abilities not available"
+    it_behaves_like 'design abilities not available'
   end
 
-  context "when LFS is not enabled" do
+  context 'when LFS is not enabled' do
     before do
       stub_licensed_features(design_management: true)
       allow(Gitlab.config.lfs).to receive(:enabled).and_return(false)
     end
 
-    it_behaves_like "design abilities not available"
+    it_behaves_like 'design abilities not available'
   end
 
-  context "when the feature is available" do
+  context 'when the feature is available' do
     before do
       enable_design_management
     end
 
-    it_behaves_like "design abilities available for members"
+    it_behaves_like 'design abilities available for members'
 
-    context "for guests in private projects" do
+    context 'for guests in private projects' do
       let(:project) { create(:project, :private) }
       let(:current_user) { guest }
 
@@ -132,53 +132,53 @@ describe DesignManagement::DesignPolicy do
       it { is_expected.to be_disallowed(*developer_design_abilities) }
     end
 
-    context "for anonymous users in public projects" do
+    context 'for anonymous users in public projects' do
       let(:current_user) { nil }
 
       it { is_expected.to be_allowed(*guest_design_abilities) }
       it { is_expected.to be_disallowed(*developer_design_abilities) }
     end
 
-    context "when the issue is confidential" do
+    context 'when the issue is confidential' do
       let(:issue) { create(:issue, :confidential, project: project) }
 
-      it_behaves_like "design abilities available for members"
+      it_behaves_like 'design abilities available for members'
 
-      context "for guests" do
+      context 'for guests' do
         let(:current_user) { guest }
 
         it { is_expected.to be_disallowed(*design_abilities) }
       end
 
-      context "for anonymous users" do
+      context 'for anonymous users' do
         let(:current_user) { nil }
 
         it { is_expected.to be_disallowed(*design_abilities) }
       end
     end
 
-    context "when the issue is locked" do
+    context 'when the issue is locked' do
       let(:current_user) { owner }
       let(:issue) { create(:issue, :locked, project: project) }
 
-      it_behaves_like "read-only design abilities"
+      it_behaves_like 'read-only design abilities'
     end
 
-    context "when the issue has moved" do
+    context 'when the issue has moved' do
       let(:current_user) { owner }
       let(:issue) { create(:issue, project: project, moved_to: create(:issue)) }
 
-      it_behaves_like "read-only design abilities"
+      it_behaves_like 'read-only design abilities'
     end
 
-    context "when the project is archived" do
+    context 'when the project is archived' do
       let(:current_user) { owner }
 
       before do
         project.update!(archived: true)
       end
 
-      it_behaves_like "read-only design abilities"
+      it_behaves_like 'read-only design abilities'
     end
   end
 end

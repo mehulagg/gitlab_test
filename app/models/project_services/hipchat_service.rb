@@ -86,15 +86,15 @@ class HipchatService < Service
     object_kind = data[:object_kind]
 
     case object_kind
-    when "push", "tag_push"
+    when 'push', 'tag_push'
       create_push_message(data)
-    when "issue"
+    when 'issue'
       create_issue_message(data) unless update?(data)
-    when "merge_request"
+    when 'merge_request'
       create_merge_request_message(data) unless update?(data)
-    when "note"
+    when 'note'
       create_note_message(data)
-    when "pipeline"
+    when 'pipeline'
       create_pipeline_message(data) if should_pipeline_be_notified?(data)
     end
   end
@@ -138,7 +138,7 @@ class HipchatService < Service
   end
 
   def markdown(text, options = {})
-    return "" unless text
+    return '' unless text
 
     context = {
       project: project,
@@ -208,30 +208,30 @@ class HipchatService < Service
     commit_id = nil
 
     case noteable_type
-    when "Commit"
+    when 'Commit'
       commit_attr = HashWithIndifferentAccess.new(data[:commit])
       commit_id = commit_attr[:id]
       subject_desc = commit_id
       subject_desc = Commit.truncate_sha(subject_desc)
-      subject_type = "commit"
+      subject_type = 'commit'
       title = format_title(commit_attr[:message])
-    when "Issue"
+    when 'Issue'
       subj_attr = HashWithIndifferentAccess.new(data[:issue])
       subject_id = subj_attr[:iid]
       subject_desc = "##{subject_id}"
-      subject_type = "issue"
+      subject_type = 'issue'
       title = format_title(subj_attr[:title])
-    when "MergeRequest"
+    when 'MergeRequest'
       subj_attr = HashWithIndifferentAccess.new(data[:merge_request])
       subject_id = subj_attr[:iid]
       subject_desc = "!#{subject_id}"
-      subject_type = "merge request"
+      subject_type = 'merge request'
       title = format_title(subj_attr[:title])
-    when "Snippet"
+    when 'Snippet'
       subj_attr = HashWithIndifferentAccess.new(data[:snippet])
       subject_id = subj_attr[:id]
       subject_desc = "##{subject_id}"
-      subject_type = "snippet"
+      subject_type = 'snippet'
       title = format_title(subj_attr[:title])
     end
 

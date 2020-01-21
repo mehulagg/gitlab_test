@@ -11,7 +11,7 @@ describe Banzai::Filter::GollumTagsFilter do
 
   describe 'validation' do
     it 'ensure that a :project_wiki key exists in context' do
-      expect { filter("See [[images/image.jpg]]", {}) }.to raise_error ArgumentError, "Missing context keys for Banzai::Filter::GollumTagsFilter: :project_wiki"
+      expect { filter('See [[images/image.jpg]]', {}) }.to raise_error ArgumentError, 'Missing context keys for Banzai::Filter::GollumTagsFilter: :project_wiki'
     end
   end
 
@@ -46,7 +46,7 @@ describe Banzai::Filter::GollumTagsFilter do
       tag = '[[http://example.com/image.jpg]]'
       doc = filter("See #{tag}", project_wiki: project_wiki)
 
-      expect(doc.at_css('img')['data-src']).to eq "http://example.com/image.jpg"
+      expect(doc.at_css('img')['data-src']).to eq 'http://example.com/image.jpg'
     end
 
     it 'does not creates img tag for invalid URL' do
@@ -94,7 +94,7 @@ describe Banzai::Filter::GollumTagsFilter do
       expect(doc.at_css('a')['href']).to eq expected_path
     end
 
-    it "inside back ticks will be exempt from linkification" do
+    it 'inside back ticks will be exempt from linkification' do
       doc = filter('<code>[[link-in-backticks]]</code>', project_wiki: project_wiki)
 
       expect(doc.at_css('code').text).to eq '[[link-in-backticks]]'
@@ -103,13 +103,13 @@ describe Banzai::Filter::GollumTagsFilter do
 
   context 'table of contents' do
     it 'replaces [[<em>TOC</em>]] with ToC result' do
-      doc = described_class.call("<p>[[<em>TOC</em>]]</p>", { project_wiki: project_wiki }, { toc: "FOO" })
+      doc = described_class.call('<p>[[<em>TOC</em>]]</p>', { project_wiki: project_wiki }, { toc: 'FOO' })
 
-      expect(doc.to_html).to eq("FOO")
+      expect(doc.to_html).to eq('FOO')
     end
 
     it 'handles an empty ToC result' do
-      input = "<p>[[<em>TOC</em>]]</p>"
+      input = '<p>[[<em>TOC</em>]]</p>'
       doc = described_class.call(input, project_wiki: project_wiki)
 
       expect(doc.to_html).to eq ''

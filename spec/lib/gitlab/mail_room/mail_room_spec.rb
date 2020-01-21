@@ -85,7 +85,7 @@ describe Gitlab::MailRoom do
     end
 
     describe 'setting up redis settings' do
-      let(:fake_redis_queues) { double(url: "localhost", sentinels: "yes, them", sentinels?: true) }
+      let(:fake_redis_queues) { double(url: 'localhost', sentinels: 'yes, them', sentinels?: true) }
 
       before do
         allow(Gitlab::Redis::Queues).to receive(:new).and_return(fake_redis_queues)

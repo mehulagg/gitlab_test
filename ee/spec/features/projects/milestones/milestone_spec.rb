@@ -53,7 +53,7 @@ describe 'Milestones on EE' do
           visit_milestone
 
           expect(page).to have_selector('#data-warning', count: 1)
-          expect(page.find('#data-warning').text).to include("Some issues can’t be shown in the burndown chart")
+          expect(page.find('#data-warning').text).to include('Some issues can’t be shown in the burndown chart')
           expect(page).to have_selector('.burndown-chart')
         end
       end
@@ -66,7 +66,7 @@ describe 'Milestones on EE' do
           visit_milestone
 
           expect(page).to have_selector('#data-warning', count: 1)
-          expect(page.find('#data-warning').text).to include("The burndown chart can’t be shown")
+          expect(page.find('#data-warning').text).to include('The burndown chart can’t be shown')
           expect(page).not_to have_selector('.burndown-chart')
         end
       end

@@ -169,7 +169,7 @@ describe LfsObject do
     end
   end
 
-  describe ".calculate_oid" do
+  describe '.calculate_oid' do
     let(:lfs_object) { create(:lfs_object, :with_file) }
 
     it 'returns SHA256 sum of the file' do

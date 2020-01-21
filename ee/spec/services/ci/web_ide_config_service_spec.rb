@@ -44,7 +44,7 @@ describe Ci::WebIdeConfigService do
           it 'returns an error' do
             is_expected.to include(
               status: :error,
-              message: "Invalid configuration format")
+              message: 'Invalid configuration format')
           end
         end
 
@@ -67,7 +67,7 @@ describe Ci::WebIdeConfigService do
               terminal: {
                 tag_list: [],
                 yaml_variables: [],
-                options: { script: ["sleep 60"] }
+                options: { script: ['sleep 60'] }
               })
           end
         end
@@ -81,7 +81,7 @@ describe Ci::WebIdeConfigService do
               terminal: {
                 tag_list: [],
                 yaml_variables: [],
-                options: { before_script: ["ls"], script: ["sleep 60"] }
+                options: { before_script: ['ls'], script: ['sleep 60'] }
               })
           end
         end

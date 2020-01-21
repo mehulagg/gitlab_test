@@ -111,15 +111,15 @@ module QA
         end
 
         def sign_in_tab?
-          has_css?(".active", text: 'Sign in')
+          has_css?('.active', text: 'Sign in')
         end
 
         def ldap_tab?
-          has_css?(".active", text: 'LDAP')
+          has_css?('.active', text: 'LDAP')
         end
 
         def standard_tab?
-          has_css?(".active", text: 'Standard')
+          has_css?('.active', text: 'Standard')
         end
 
         def switch_to_sign_in_tab

@@ -23,7 +23,7 @@ module QA
           private
 
           def select_gitlab_api_token
-            find('.setting-name', text: "Kind").find(:xpath, "..").find('select').select "GitLab API token"
+            find('.setting-name', text: 'Kind').find(:xpath, '..').find('select').select 'GitLab API token'
           end
 
           def set_api_token(api_token)
@@ -40,7 +40,7 @@ module QA
 
           def wait_for_page_to_load
             QA::Support::Waiter.wait_until(sleep_interval: 1.0) do
-              page.has_css?('.setting-name', text: "Description")
+              page.has_css?('.setting-name', text: 'Description')
             end
           end
         end

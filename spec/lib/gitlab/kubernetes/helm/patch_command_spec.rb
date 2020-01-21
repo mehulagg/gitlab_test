@@ -185,9 +185,9 @@ describe Gitlab::Kubernetes::Helm::PatchCommand do
   describe '#config_map_resource' do
     let(:metadata) do
       {
-        name: "values-content-configuration-app-name",
+        name: 'values-content-configuration-app-name',
         namespace: 'gitlab-managed-apps',
-        labels: { name: "values-content-configuration-app-name" }
+        labels: { name: 'values-content-configuration-app-name' }
       }
     end
 

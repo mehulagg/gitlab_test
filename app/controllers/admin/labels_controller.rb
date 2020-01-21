@@ -21,7 +21,7 @@ class Admin::LabelsController < Admin::ApplicationController
     @label = Labels::CreateService.new(label_params).execute(template: true)
 
     if @label.persisted?
-      redirect_to admin_labels_url, notice: _("Label was created")
+      redirect_to admin_labels_url, notice: _('Label was created')
     else
       render :new
     end

@@ -20,8 +20,8 @@ describe BoardsHelper do
   describe '#current_board_json' do
     let(:board_json) { helper.current_board_json }
     let(:user) { create(:user) }
-    let(:label1) { create(:label, name: "feijoa") }
-    let(:label2) { create(:label, name: "pineapple") }
+    let(:label1) { create(:label, name: 'feijoa') }
+    let(:label2) { create(:label, name: 'pineapple') }
     let(:milestone) { create(:milestone) }
 
     it 'serializes with child object attributes' do

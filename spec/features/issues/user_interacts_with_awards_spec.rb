@@ -250,7 +250,7 @@ describe 'User interacts with awards' do
       end
 
       describe 'Click award emoji from issue#show' do
-        let!(:note) { create(:note_on_issue, noteable: issue, project: issue.project, note: "Hello world") }
+        let!(:note) { create(:note_on_issue, noteable: issue, project: issue.project, note: 'Hello world') }
 
         before do
           visit project_issue_path(project, issue)
@@ -261,11 +261,11 @@ describe 'User interacts with awards' do
           it 'increments the thumbsdown emoji', :js do
             find('[data-name="thumbsdown"]').click
             wait_for_requests
-            expect(thumbsdown_emoji).to have_text("1")
+            expect(thumbsdown_emoji).to have_text('1')
           end
 
           it 'decrements the thumbsup emoji', :js do
-            expect(thumbsup_emoji).to have_text("0")
+            expect(thumbsup_emoji).to have_text('0')
           end
         end
 
@@ -273,7 +273,7 @@ describe 'User interacts with awards' do
           toggle_smiley_emoji(true)
 
           within('.note-body') do
-            expect(find(emoji_counter)).to have_text("1")
+            expect(find(emoji_counter)).to have_text('1')
           end
 
           toggle_smiley_emoji(false)
@@ -287,7 +287,7 @@ describe 'User interacts with awards' do
           it 'toggles the emoji award on noteable', :js do
             execute_quick_action('/award :100:')
 
-            expect(find(noteable_award_counter)).to have_text("1")
+            expect(find(noteable_award_counter)).to have_text('1')
 
             execute_quick_action('/award :100:')
 
@@ -329,7 +329,7 @@ describe 'User interacts with awards' do
     end
 
     def noteable_award_counter
-      ".awards .active"
+      '.awards .active'
     end
 
     def toggle_smiley_emoji(status)

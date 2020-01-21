@@ -7,7 +7,7 @@ describe Milestones::UpdateService do
   let(:milestone) { create(:milestone, project: project) }
 
   describe '#execute' do
-    context "valid params" do
+    context 'valid params' do
       let(:inner_service) { double(:service) }
 
       before do

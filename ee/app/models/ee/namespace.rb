@@ -35,10 +35,10 @@ module EE
       accepts_nested_attributes_for :gitlab_subscription
 
       scope :include_gitlab_subscription, -> { includes(:gitlab_subscription) }
-      scope :join_gitlab_subscription, -> { joins("LEFT OUTER JOIN gitlab_subscriptions ON gitlab_subscriptions.namespace_id=namespaces.id") }
+      scope :join_gitlab_subscription, -> { joins('LEFT OUTER JOIN gitlab_subscriptions ON gitlab_subscriptions.namespace_id=namespaces.id') }
       scope :with_plan, -> { where.not(plan_id: nil) }
-      scope :with_shared_runners_minutes_limit, -> { where("namespaces.shared_runners_minutes_limit > 0") }
-      scope :with_extra_shared_runners_minutes_limit, -> { where("namespaces.extra_shared_runners_minutes_limit > 0") }
+      scope :with_shared_runners_minutes_limit, -> { where('namespaces.shared_runners_minutes_limit > 0') }
+      scope :with_extra_shared_runners_minutes_limit, -> { where('namespaces.extra_shared_runners_minutes_limit > 0') }
       scope :with_shared_runners_minutes_exceeding_default_limit, -> do
         where('namespace_statistics.namespace_id = namespaces.id')
         .where('namespace_statistics.shared_runners_seconds > (namespaces.shared_runners_minutes_limit * 60)')
@@ -52,9 +52,9 @@ module EE
         plans = plans_with_feature(feature)
         matcher = Plan.where(name: plans)
           .joins(:hosted_subscriptions)
-          .where("gitlab_subscriptions.namespace_id = namespaces.id")
+          .where('gitlab_subscriptions.namespace_id = namespaces.id')
           .select('1')
-        where("EXISTS (?)", matcher)
+        where('EXISTS (?)', matcher)
       end
 
       delegate :shared_runners_minutes, :shared_runners_seconds, :shared_runners_seconds_last_reset,

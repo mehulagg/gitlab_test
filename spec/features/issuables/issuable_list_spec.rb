@@ -48,7 +48,7 @@ describe 'issuable list' do
     end
   end
 
-  it "counts merge requests closing issues icons for each issue" do
+  it 'counts merge requests closing issues icons for each issue' do
     visit_issuable_list(:issue)
 
     expect(page).to have_selector('.icon-merge-request-unmerged', count: 1)

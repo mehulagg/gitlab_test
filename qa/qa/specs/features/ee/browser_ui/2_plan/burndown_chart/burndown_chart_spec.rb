@@ -27,7 +27,7 @@ module QA
 
         QA::EE::Page::Project::Milestone::Show.perform do |show|
           expect(show.burndown_chart).to be_visible
-          expect(show.burndown_chart).to have_content("Open issues")
+          expect(show.burndown_chart).to have_content('Open issues')
 
           show.click_weight_button
 

@@ -9,7 +9,7 @@ module Gitlab
       MIN_SUBJECT_WORDS_COUNT = 3
       MAX_LINE_LENGTH = 72
       WARN_SUBJECT_LENGTH = 50
-      URL_LIMIT_SUBJECT = "https://chris.beams.io/posts/git-commit/#limit-50"
+      URL_LIMIT_SUBJECT = 'https://chris.beams.io/posts/git-commit/#limit-50'
       MAX_CHANGED_FILES_IN_COMMIT = 3
       MAX_CHANGED_LINES_IN_COMMIT = 30
       SHORT_REFERENCE_REGEX = %r{([\w\-\/]+)?(#|!|&|%)\d+\b}.freeze
@@ -18,18 +18,18 @@ module Gitlab
         subject_too_short: "The %s must contain at least #{MIN_SUBJECT_WORDS_COUNT} words",
         subject_too_long: "The %s may not be longer than #{MAX_LINE_LENGTH} characters",
         subject_above_warning: "The %s length is acceptable, but please try to [reduce it to #{WARN_SUBJECT_LENGTH} characters](#{URL_LIMIT_SUBJECT}).",
-        subject_starts_with_lowercase: "The %s must start with a capital letter",
-        subject_ends_with_a_period: "The %s must not end with a period",
-        separator_missing: "The commit subject and body must be separated by a blank line",
+        subject_starts_with_lowercase: 'The %s must start with a capital letter',
+        subject_ends_with_a_period: 'The %s must not end with a period',
+        separator_missing: 'The commit subject and body must be separated by a blank line',
         details_too_many_changes: "Commits that change #{MAX_CHANGED_LINES_IN_COMMIT} or more lines across " \
           "at least #{MAX_CHANGED_FILES_IN_COMMIT} files must describe these changes in the commit body",
         details_line_too_long: "The commit body should not contain more than #{MAX_LINE_LENGTH} characters per line",
-        message_contains_text_emoji: "Avoid the use of Markdown Emoji such as `:+1:`. These add limited value " \
-          "to the commit message, and are displayed as plain text outside of GitLab",
-        message_contains_unicode_emoji: "Avoid the use of Unicode Emoji. These add no value to the commit " \
-          "message, and may not be displayed properly everywhere",
-        message_contains_short_reference: "Use full URLs instead of short references (`gitlab-org/gitlab#123` or " \
-          "`!123`), as short references are displayed as plain text outside of GitLab"
+        message_contains_text_emoji: 'Avoid the use of Markdown Emoji such as `:+1:`. These add limited value ' \
+          'to the commit message, and are displayed as plain text outside of GitLab',
+        message_contains_unicode_emoji: 'Avoid the use of Unicode Emoji. These add no value to the commit ' \
+          'message, and may not be displayed properly everywhere',
+        message_contains_short_reference: 'Use full URLs instead of short references (`gitlab-org/gitlab#123` or ' \
+          '`!123`), as short references are displayed as plain text outside of GitLab'
       }.freeze
 
       attr_reader :commit, :problems
@@ -68,7 +68,7 @@ module Gitlab
         @problems[problem_key] = sprintf(PROBLEMS[problem_key], *args)
       end
 
-      def lint(subject_description = "commit subject")
+      def lint(subject_description = 'commit subject')
         return self if @linted
 
         @linted = true

@@ -30,11 +30,11 @@ describe Gitlab::Middleware::RequestContext do
           }
         end
 
-        let(:env) { Rack::MockRequest.env_for("/").merge(headers) }
+        let(:env) { Rack::MockRequest.env_for('/').merge(headers) }
 
         it 'returns the load balancer IP' do
           endpoint = proc do
-            [200, {}, ["Hello"]]
+            [200, {}, ['Hello']]
           end
 
           described_class.new(endpoint).call(env)

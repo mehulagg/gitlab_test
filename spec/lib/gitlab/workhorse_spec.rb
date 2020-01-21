@@ -8,7 +8,7 @@ describe Gitlab::Workhorse do
 
   def decode_workhorse_header(array)
     key, value = array
-    command, encoded_params = value.split(":")
+    command, encoded_params = value.split(':')
     params = JSON.parse(Base64.urlsafe_decode64(encoded_params))
 
     [key, command, params]
@@ -20,7 +20,7 @@ describe Gitlab::Workhorse do
     })
   end
 
-  describe ".send_git_archive" do
+  describe '.send_git_archive' do
     let(:ref) { 'master' }
     let(:format) { 'zip' }
     let(:storage_path) { Gitlab.config.gitlab.repository_downloads_path }
@@ -108,22 +108,22 @@ describe Gitlab::Workhorse do
         allow(project.repository).to receive(:archive_metadata).and_return(Hash.new)
       end
 
-      it "raises an error" do
+      it 'raises an error' do
         expect { subject }.to raise_error(RuntimeError)
       end
     end
   end
 
   describe '.send_git_patch' do
-    let(:diff_refs) { double(base_sha: "base", head_sha: "head") }
+    let(:diff_refs) { double(base_sha: 'base', head_sha: 'head') }
 
     subject { described_class.send_git_patch(repository, diff_refs) }
 
     it 'sets the header correctly' do
       key, command, params = decode_workhorse_header(subject)
 
-      expect(key).to eq("Gitlab-Workhorse-Send-Data")
-      expect(command).to eq("git-format-patch")
+      expect(key).to eq('Gitlab-Workhorse-Send-Data')
+      expect(command).to eq('git-format-patch')
       expect(params).to eq({
         'GitalyServer' => {
           features: { 'gitaly-feature-foobar' => 'true' },
@@ -171,22 +171,22 @@ describe Gitlab::Workhorse do
     end
 
     context 'with ca_pem' do
-      subject { described_class.channel_websocket(terminal(ca_pem: "foo")) }
+      subject { described_class.channel_websocket(terminal(ca_pem: 'foo')) }
 
-      it { is_expected.to eq(workhorse(ca_pem: "foo")) }
+      it { is_expected.to eq(workhorse(ca_pem: 'foo')) }
     end
   end
 
   describe '.send_git_diff' do
-    let(:diff_refs) { double(base_sha: "base", head_sha: "head") }
+    let(:diff_refs) { double(base_sha: 'base', head_sha: 'head') }
 
     subject { described_class.send_git_diff(repository, diff_refs) }
 
     it 'sets the header correctly' do
       key, command, params = decode_workhorse_header(subject)
 
-      expect(key).to eq("Gitlab-Workhorse-Send-Data")
-      expect(command).to eq("git-diff")
+      expect(key).to eq('Gitlab-Workhorse-Send-Data')
+      expect(command).to eq('git-diff')
       expect(params).to eq({
         'GitalyServer' => {
           features: { 'gitaly-feature-foobar' => 'true' },
@@ -297,7 +297,7 @@ describe Gitlab::Workhorse do
         expect(subject[:Repository]).to include(repo_param)
       end
 
-      context "when git_upload_pack action is passed" do
+      context 'when git_upload_pack action is passed' do
         let(:action) { 'git_upload_pack' }
         let(:feature_flag) { :post_upload_pack }
 
@@ -314,13 +314,13 @@ describe Gitlab::Workhorse do
         end
       end
 
-      context "when git_receive_pack action is passed" do
+      context 'when git_receive_pack action is passed' do
         let(:action) { 'git_receive_pack' }
 
         it { expect(subject).to include(gitaly_params) }
       end
 
-      context "when info_refs action is passed" do
+      context 'when info_refs action is passed' do
         let(:action) { 'info_refs' }
 
         it { expect(subject).to include(gitaly_params) }
@@ -370,7 +370,7 @@ describe Gitlab::Workhorse do
       it 'set and notify' do
         expect(Gitlab::Redis::SharedState).to receive(:with).and_call_original
         expect_any_instance_of(::Redis).to receive(:publish)
-          .with(described_class::NOTIFICATION_CHANNEL, "test-key=test-value")
+          .with(described_class::NOTIFICATION_CHANNEL, 'test-key=test-value')
 
         subject
       end
@@ -446,8 +446,8 @@ describe Gitlab::Workhorse do
     it 'sets the header correctly' do
       key, command, params = decode_workhorse_header(subject)
 
-      expect(key).to eq("Gitlab-Workhorse-Send-Data")
-      expect(command).to eq("send-url")
+      expect(key).to eq('Gitlab-Workhorse-Send-Data')
+      expect(command).to eq('send-url')
       expect(params).to eq({
         'URL' => url,
         'AllowRedirects' => false
@@ -463,7 +463,7 @@ describe Gitlab::Workhorse do
     it 'sets the header correctly' do
       key, command, params = decode_workhorse_header(request)
 
-      expect(key).to eq("Gitlab-Workhorse-Send-Data")
+      expect(key).to eq('Gitlab-Workhorse-Send-Data')
       expect(command).to eq('git-snapshot')
       expect(params).to eq(
         'GitalyServer' => {

@@ -32,7 +32,7 @@ module EE
 
       has_many :reviews,                  foreign_key: :author_id, inverse_of: :author
       has_many :epics,                    foreign_key: :author_id
-      has_many :assigned_epics,           foreign_key: :assignee_id, class_name: "Epic"
+      has_many :assigned_epics,           foreign_key: :assignee_id, class_name: 'Epic'
       has_many :path_locks,               dependent: :destroy # rubocop: disable Cop/ActiveRecordDependent
       has_many :vulnerability_feedback, foreign_key: :author_id, class_name: 'Vulnerabilities::Feedback'
       has_many :commented_vulnerability_feedback, foreign_key: :comment_author_id, class_name: 'Vulnerabilities::Feedback'
@@ -45,12 +45,12 @@ module EE
       has_many :users_security_dashboard_projects
       has_many :security_dashboard_projects, through: :users_security_dashboard_projects, source: :project
 
-      has_many :group_saml_identities, -> { where.not(saml_provider_id: nil) }, source: :identities, class_name: "::Identity"
+      has_many :group_saml_identities, -> { where.not(saml_provider_id: nil) }, source: :identities, class_name: '::Identity'
 
       # Protected Branch Access
-      has_many :protected_branch_merge_access_levels, dependent: :destroy, class_name: "::ProtectedBranch::MergeAccessLevel" # rubocop:disable Cop/ActiveRecordDependent
-      has_many :protected_branch_push_access_levels, dependent: :destroy, class_name: "::ProtectedBranch::PushAccessLevel" # rubocop:disable Cop/ActiveRecordDependent
-      has_many :protected_branch_unprotect_access_levels, dependent: :destroy, class_name: "::ProtectedBranch::UnprotectAccessLevel" # rubocop:disable Cop/ActiveRecordDependent
+      has_many :protected_branch_merge_access_levels, dependent: :destroy, class_name: '::ProtectedBranch::MergeAccessLevel' # rubocop:disable Cop/ActiveRecordDependent
+      has_many :protected_branch_push_access_levels, dependent: :destroy, class_name: '::ProtectedBranch::PushAccessLevel' # rubocop:disable Cop/ActiveRecordDependent
+      has_many :protected_branch_unprotect_access_levels, dependent: :destroy, class_name: '::ProtectedBranch::UnprotectAccessLevel' # rubocop:disable Cop/ActiveRecordDependent
 
       has_many :smartcard_identities
 
@@ -159,7 +159,7 @@ module EE
 
     def cannot_be_admin_and_auditor
       if admin? && auditor?
-        errors.add(:admin, "user cannot also be an Auditor.")
+        errors.add(:admin, 'user cannot also be an Auditor.')
       end
     end
 

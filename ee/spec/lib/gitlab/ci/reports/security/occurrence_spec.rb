@@ -61,7 +61,7 @@ describe Gitlab::Ci::Reports::Security::Occurrence do
     end
   end
 
-  describe "delegation" do
+  describe 'delegation' do
     subject { create(:ci_reports_security_occurrence) }
 
     %i[file_path start_line end_line].each do |attribute|

@@ -17,8 +17,8 @@ describe FixWrongPagesAccessLevel, :migration, :sidekiq_might_not_need_inline, s
   let(:features_table) { table(:project_features) }
 
   let(:subgroup) do
-    root_group = namespaces_table.create(path: "group", name: "group")
-    namespaces_table.create!(path: "subgroup", name: "group", parent_id: root_group.id)
+    root_group = namespaces_table.create(path: 'group', name: 'group')
+    namespaces_table.create!(path: 'subgroup', name: 'group', parent_id: root_group.id)
   end
 
   def create_project_feature(path, project_visibility, pages_access_level)
@@ -30,8 +30,8 @@ describe FixWrongPagesAccessLevel, :migration, :sidekiq_might_not_need_inline, s
   it 'correctly schedules background migrations' do
     Sidekiq::Testing.fake! do
       Timecop.freeze do
-        first_id = create_project_feature("project1", project_class::PRIVATE, feature_class::PRIVATE).id
-        last_id = create_project_feature("project2", project_class::PRIVATE, feature_class::PUBLIC).id
+        first_id = create_project_feature('project1', project_class::PRIVATE, feature_class::PRIVATE).id
+        last_id = create_project_feature('project2', project_class::PRIVATE, feature_class::PUBLIC).id
 
         migrate!
 
@@ -76,17 +76,17 @@ describe FixWrongPagesAccessLevel, :migration, :sidekiq_might_not_need_inline, s
 
   with_them do
     let!(:project_feature) do
-      create_project_feature("projectpath", project_visibility, pages_access_level)
+      create_project_feature('projectpath', project_visibility, pages_access_level)
     end
 
     before do
-      tested_path = File.join(Settings.pages.path, "group/subgroup/projectpath", "public")
+      tested_path = File.join(Settings.pages.path, 'group/subgroup/projectpath', 'public')
       allow(Dir).to receive(:exist?).with(tested_path).and_return(pages_deployed)
 
       stub_pages_setting(access_control: access_control_is_enabled)
     end
 
-    it "sets proper pages_access_level" do
+    it 'sets proper pages_access_level' do
       expect(project_feature.reload.pages_access_level).to eq(pages_access_level)
 
       perform_enqueued_jobs do

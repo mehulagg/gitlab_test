@@ -6,7 +6,7 @@ module QA
       let(:approver1) { Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_1, Runtime::Env.gitlab_qa_password_1) }
       let(:approver2) { Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_2, Runtime::Env.gitlab_qa_password_2) }
       let(:project) do
-        Resource::Project.fabricate_via_api! { |project| project.name = "approval-rules" }
+        Resource::Project.fabricate_via_api! { |project| project.name = 'approval-rules' }
       end
 
       def login(user = nil)
@@ -31,12 +31,12 @@ module QA
           resource.project = project
           resource.approval_rules = [
             {
-              name: "user",
+              name: 'user',
               approvals_required: 1,
               users: [approver1]
             },
             {
-              name: "group",
+              name: 'group',
               approvals_required: 1,
               groups: [project.group]
             }
@@ -45,7 +45,7 @@ module QA
 
         Page::MergeRequest::Show.perform do |show|
           expect(show.num_approvals_required).to eq(2)
-          expect(show.approvals_required_from).to include("user", "group")
+          expect(show.approvals_required_from).to include('user', 'group')
         end
 
         # As approver1, approve the MR
@@ -61,8 +61,8 @@ module QA
         # Confirm that an approval was granted but it is not yet fully approved
         Page::MergeRequest::Show.perform do |show|
           expect(show).not_to be_approved
-          expect(show.approvals_required_from).to include("group")
-          expect(show.approvals_required_from).not_to include("user")
+          expect(show.approvals_required_from).to include('group')
+          expect(show.approvals_required_from).not_to include('user')
         end
 
         # As approver2, approve the MR

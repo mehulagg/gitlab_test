@@ -15,10 +15,10 @@ class Oauth::AuthorizationsController < Doorkeeper::AuthorizationsController
         session.delete(:user_return_to)
         redirect_to auth.redirect_uri
       else
-        render "doorkeeper/authorizations/new"
+        render 'doorkeeper/authorizations/new'
       end
     else
-      render "doorkeeper/authorizations/error"
+      render 'doorkeeper/authorizations/error'
     end
   end
 end

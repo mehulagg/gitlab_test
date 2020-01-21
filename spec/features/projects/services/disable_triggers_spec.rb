@@ -21,7 +21,7 @@ describe 'Disable individual triggers' do
     it 'shows trigger checkboxes' do
       event_count = HipchatService.supported_events.count
 
-      expect(page).to have_content "Trigger"
+      expect(page).to have_content 'Trigger'
       expect(page).to have_css(checkbox_selector, count: event_count)
     end
   end
@@ -30,7 +30,7 @@ describe 'Disable individual triggers' do
     let(:service_name) { 'Asana' }
 
     it "doesn't show unnecessary Trigger checkboxes" do
-      expect(page).not_to have_content "Trigger"
+      expect(page).not_to have_content 'Trigger'
       expect(page).not_to have_css(checkbox_selector)
     end
   end

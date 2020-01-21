@@ -120,7 +120,7 @@ describe ApprovalRules::CreateService do
   context 'when target is project' do
     let(:target) { project }
 
-    it_behaves_like "creatable"
+    it_behaves_like 'creatable'
 
     context 'when protected_branch_ids param is present' do
       let(:protected_branch) { create(:protected_branch, project: target) }
@@ -192,7 +192,7 @@ describe ApprovalRules::CreateService do
   context 'when target is merge request' do
     let(:target) { create(:merge_request, source_project: project, target_project: project) }
 
-    it_behaves_like "creatable"
+    it_behaves_like 'creatable'
 
     context 'when project rule id is present' do
       let(:project_rule) do

@@ -479,7 +479,7 @@ describe Projects::FeatureFlagsController do
         production_strategies_json = json_response['scopes'].second['strategies']
         expect(production_strategies_json).to eq([{
           'name' => 'gradualRolloutUserId',
-          'parameters' => { "groupId" => "default", "percentage" => "42" }
+          'parameters' => { 'groupId' => 'default', 'percentage' => '42' }
         }])
       end
     end
@@ -503,7 +503,7 @@ describe Projects::FeatureFlagsController do
         production_strategies_json = json_response['scopes'].second['strategies']
         expect(production_strategies_json).to eq([{
           'name' => 'userWithId',
-          'parameters' => { "userIds" => "123,4,6722" }
+          'parameters' => { 'userIds' => '123,4,6722' }
         }])
       end
     end
@@ -522,7 +522,7 @@ describe Projects::FeatureFlagsController do
 
         expect(response).to have_gitlab_http_status(:ok)
         default_strategies_json = json_response['scopes'].first['strategies']
-        expect(default_strategies_json).to eq([{ "name" => "default", "parameters" => {} }])
+        expect(default_strategies_json).to eq([{ 'name' => 'default', 'parameters' => {} }])
       end
     end
   end
@@ -670,7 +670,7 @@ describe Projects::FeatureFlagsController do
       end
     end
 
-    context "when creates an additional scope for production environment" do
+    context 'when creates an additional scope for production environment' do
       let(:params) do
         {
           namespace_id: project.namespace,
@@ -690,7 +690,7 @@ describe Projects::FeatureFlagsController do
       end
     end
 
-    context "when creates a default scope" do
+    context 'when creates a default scope' do
       let(:params) do
         {
           namespace_id: project.namespace,
@@ -727,7 +727,7 @@ describe Projects::FeatureFlagsController do
         }
       end
 
-      it "updates successfully" do
+      it 'updates successfully' do
         subject
 
         expect(json_response['scopes'].first['environment_scope']).to eq('*')
@@ -759,7 +759,7 @@ describe Projects::FeatureFlagsController do
       end
     end
 
-    context "when destroys the default scope" do
+    context 'when destroys the default scope' do
       let(:params) do
         {
           namespace_id: project.namespace,
@@ -781,7 +781,7 @@ describe Projects::FeatureFlagsController do
       end
     end
 
-    context "when destroys a production scope" do
+    context 'when destroys a production scope' do
       let!(:production_scope) { create_scope(feature_flag, 'production', true) }
       let(:params) do
         {
@@ -808,7 +808,7 @@ describe Projects::FeatureFlagsController do
       end
     end
 
-    describe "updating the strategy" do
+    describe 'updating the strategy' do
       def request_params(scope, strategies)
         {
           namespace_id: project.namespace,
@@ -836,15 +836,15 @@ describe Projects::FeatureFlagsController do
           s['environment_scope'] == 'production'
         end.first
         expect(scope_json['strategies']).to eq([{
-          "name" => "default",
-          "parameters" => {}
+          'name' => 'default',
+          'parameters' => {}
         }])
       end
 
       it 'creates a gradualRolloutUserId strategy' do
         scope = create_scope(feature_flag, 'production', true, [])
         params = request_params(scope, [{ name: 'gradualRolloutUserId',
-                                          parameters: { groupId: 'default', percentage: "70" } }])
+                                          parameters: { groupId: 'default', percentage: '70' } }])
 
         put(:update, params: params, format: :json)
 
@@ -853,10 +853,10 @@ describe Projects::FeatureFlagsController do
           s['environment_scope'] == 'production'
         end.first
         expect(scope_json['strategies']).to eq([{
-          "name" => "gradualRolloutUserId",
-          "parameters" => {
-            "groupId" => "default",
-            "percentage" => "70"
+          'name' => 'gradualRolloutUserId',
+          'parameters' => {
+            'groupId' => 'default',
+            'percentage' => '70'
           }
         }])
       end
@@ -872,15 +872,15 @@ describe Projects::FeatureFlagsController do
           s['environment_scope'] == 'production'
         end.first
         expect(scope_json['strategies']).to eq([{
-          "name" => "userWithId",
-          "parameters" => { "userIds" => "sam,fred" }
+          'name' => 'userWithId',
+          'parameters' => { 'userIds' => 'sam,fred' }
         }])
       end
 
       it 'updates an existing strategy' do
         scope = create_scope(feature_flag, 'production', true, [{ name: 'default', parameters: {} }])
         params = request_params(scope, [{ name: 'gradualRolloutUserId',
-                                          parameters: { groupId: 'default', percentage: "50" } }])
+                                          parameters: { groupId: 'default', percentage: '50' } }])
 
         put(:update, params: params, format: :json)
 
@@ -889,10 +889,10 @@ describe Projects::FeatureFlagsController do
           s['environment_scope'] == 'production'
         end.first
         expect(scope_json['strategies']).to eq([{
-          "name" => "gradualRolloutUserId",
-          "parameters" => {
-            "groupId" => "default",
-            "percentage" => "50"
+          'name' => 'gradualRolloutUserId',
+          'parameters' => {
+            'groupId' => 'default',
+            'percentage' => '50'
           }
         }])
       end
@@ -925,12 +925,12 @@ describe Projects::FeatureFlagsController do
         end.first
         expect(scope_json['strategies'].length).to eq(2)
         expect(scope_json['strategies']).to include({
-          "name" => "gradualRolloutUserId",
-          "parameters" => { "groupId" => "mygroup", "percentage" => "55" }
+          'name' => 'gradualRolloutUserId',
+          'parameters' => { 'groupId' => 'mygroup', 'percentage' => '55' }
         })
         expect(scope_json['strategies']).to include({
-          "name" => "userWithId",
-          "parameters" => { "userIds" => "joe" }
+          'name' => 'userWithId',
+          'parameters' => { 'userIds' => 'joe' }
         })
       end
 
@@ -952,8 +952,8 @@ describe Projects::FeatureFlagsController do
           s['environment_scope'] == 'production'
         end.first
         expect(scope_json['strategies']).to eq([{
-          "name" => "default",
-          "parameters" => {}
+          'name' => 'default',
+          'parameters' => {}
         }])
       end
 
@@ -976,8 +976,8 @@ describe Projects::FeatureFlagsController do
           s['environment_scope'] == 'production'
         end.first
         expect(scope_json['strategies']).to eq([{
-          "name" => "gradualRolloutUserId",
-          "parameters" => { "groupId" => "default", "percentage" => "10" }
+          'name' => 'gradualRolloutUserId',
+          'parameters' => { 'groupId' => 'default', 'percentage' => '10' }
         }])
       end
 
@@ -988,7 +988,7 @@ describe Projects::FeatureFlagsController do
         put(:update, params: params, format: :json, as: :json)
 
         expect(response).to have_gitlab_http_status(:bad_request)
-        expect(json_response['message']).to eq(["Scopes strategies parameters are invalid"])
+        expect(json_response['message']).to eq(['Scopes strategies parameters are invalid'])
       end
     end
   end

@@ -12,8 +12,8 @@ describe 'Error Pages' do
 
   shared_examples 'shows nav links' do
     it 'shows nav links' do
-      expect(page).to have_link("Home", href: root_path)
-      expect(page).to have_link("Help", href: help_path)
+      expect(page).to have_link('Home', href: root_path)
+      expect(page).to have_link('Help', href: help_path)
       expect(page).to have_link(nil, href: destroy_user_session_path)
     end
   end

@@ -7,7 +7,7 @@ module ImportExport
         allow(instance).to receive(:storage_path).and_return(tmpdir)
       end
 
-      File.open("#{tmpdir}/test", 'w') { |file| file.write("test") }
+      File.open("#{tmpdir}/test", 'w') { |file| file.write('test') }
       FileUtils.ln_s("#{tmpdir}/test", "#{tmpdir}/#{symlink_name}")
     end
 

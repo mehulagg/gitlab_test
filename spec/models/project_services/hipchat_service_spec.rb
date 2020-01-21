@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe HipchatService do
-  describe "Associations" do
+  describe 'Associations' do
     it { is_expected.to belong_to :project }
     it { is_expected.to have_one :service_hook }
   end
@@ -26,7 +26,7 @@ describe HipchatService do
     end
   end
 
-  describe "Execute" do
+  describe 'Execute' do
     let(:hipchat) { described_class.new }
     let(:user)    { create(:user) }
     let(:project) { create(:project, :repository) }
@@ -78,13 +78,13 @@ describe HipchatService do
     end
 
     context 'push events' do
-      it "calls Hipchat API for push events" do
+      it 'calls Hipchat API for push events' do
         hipchat.execute(push_sample_data)
 
         expect(WebMock).to have_requested(:post, api_url).once
       end
 
-      it "creates a push message" do
+      it 'creates a push message' do
         message = hipchat.send(:create_push_message, push_sample_data)
 
         push_sample_data[:object_attributes]
@@ -105,13 +105,13 @@ describe HipchatService do
           ref: 'refs/tags/test')
       end
 
-      it "calls Hipchat API for tag push events" do
+      it 'calls Hipchat API for tag push events' do
         hipchat.execute(push_sample_data)
 
         expect(WebMock).to have_requested(:post, api_url).once
       end
 
-      it "creates a tag push message" do
+      it 'creates a tag push message' do
         message = hipchat.send(:create_push_message, push_sample_data)
 
         push_sample_data[:object_attributes]
@@ -126,21 +126,21 @@ describe HipchatService do
       let(:issue_service) { Issues::CreateService.new(project, user) }
       let(:issues_sample_data) { issue_service.hook_data(issue, 'open') }
 
-      it "calls Hipchat API for issue events" do
+      it 'calls Hipchat API for issue events' do
         hipchat.execute(issues_sample_data)
 
         expect(WebMock).to have_requested(:post, api_url).once
       end
 
-      it "creates an issue message" do
+      it 'creates an issue message' do
         message = hipchat.send(:create_issue_message, issues_sample_data)
 
         obj_attr = issues_sample_data[:object_attributes]
         expect(message).to eq("#{user.name} opened " \
-            "<a href=\"#{obj_attr[:url]}\">issue ##{obj_attr["iid"]}</a> in " \
+            "<a href=\"#{obj_attr[:url]}\">issue ##{obj_attr['iid']}</a> in " \
             "<a href=\"#{project.web_url}\">#{project_name}</a>: " \
-            "<b>Awesome issue</b>" \
-            "<pre><strong>please</strong> fix</pre>")
+            '<b>Awesome issue</b>' \
+            '<pre><strong>please</strong> fix</pre>')
       end
     end
 
@@ -149,26 +149,26 @@ describe HipchatService do
       let(:merge_service) { MergeRequests::CreateService.new(project, user) }
       let(:merge_sample_data) { merge_service.hook_data(merge_request, 'open') }
 
-      it "calls Hipchat API for merge requests events" do
+      it 'calls Hipchat API for merge requests events' do
         hipchat.execute(merge_sample_data)
 
         expect(WebMock).to have_requested(:post, api_url).once
       end
 
-      it "creates a merge request message" do
+      it 'creates a merge request message' do
         message = hipchat.send(:create_merge_request_message,
                                merge_sample_data)
 
         obj_attr = merge_sample_data[:object_attributes]
         expect(message).to eq("#{user.name} opened " \
-            "<a href=\"#{obj_attr[:url]}\">merge request !#{obj_attr["iid"]}</a> in " \
+            "<a href=\"#{obj_attr[:url]}\">merge request !#{obj_attr['iid']}</a> in " \
             "<a href=\"#{project.web_url}\">#{project_name}</a>: " \
-            "<b>Awesome merge request</b>" \
-            "<pre><strong>please</strong> fix</pre>")
+            '<b>Awesome merge request</b>' \
+            '<pre><strong>please</strong> fix</pre>')
       end
     end
 
-    context "Note events" do
+    context 'Note events' do
       let(:user) { create(:user) }
       let(:project) { create(:project, :repository, creator: user) }
 
@@ -179,7 +179,7 @@ describe HipchatService do
                                   note: 'a comment on a commit')
         end
 
-        it "calls Hipchat API for commit comment events" do
+        it 'calls Hipchat API for commit comment events' do
           data = Gitlab::DataBuilder::Note.build(commit_note, user)
           hipchat.execute(data)
 
@@ -195,7 +195,7 @@ describe HipchatService do
               "<a href=\"#{obj_attr[:url]}\">commit #{commit_id}</a> in " \
               "<a href=\"#{project.web_url}\">#{project_name}</a>: " \
               "#{title}" \
-              "<pre>a comment on a commit</pre>")
+              '<pre>a comment on a commit</pre>')
         end
       end
 
@@ -208,10 +208,10 @@ describe HipchatService do
         let(:merge_request_note) do
           create(:note_on_merge_request, noteable: merge_request,
                                          project: project,
-                                         note: "merge request **note**")
+                                         note: 'merge request **note**')
         end
 
-        it "calls Hipchat API for merge request comment events" do
+        it 'calls Hipchat API for merge request comment events' do
           data = Gitlab::DataBuilder::Note.build(merge_request_note, user)
           hipchat.execute(data)
 
@@ -227,7 +227,7 @@ describe HipchatService do
               "<a href=\"#{obj_attr[:url]}\">merge request !#{merge_id}</a> in " \
               "<a href=\"#{project.web_url}\">#{project_name}</a>: " \
               "<b>#{title}</b>" \
-              "<pre>merge request <strong>note</strong></pre>")
+              '<pre>merge request <strong>note</strong></pre>')
         end
       end
 
@@ -235,10 +235,10 @@ describe HipchatService do
         let(:issue) { create(:issue, project: project) }
         let(:issue_note) do
           create(:note_on_issue, noteable: issue, project: project,
-                                 note: "issue **note**")
+                                 note: 'issue **note**')
         end
 
-        it "calls Hipchat API for issue comment events" do
+        it 'calls Hipchat API for issue comment events' do
           data = Gitlab::DataBuilder::Note.build(issue_note, user)
           hipchat.execute(data)
 
@@ -252,7 +252,7 @@ describe HipchatService do
               "<a href=\"#{obj_attr[:url]}\">issue ##{issue_id}</a> in " \
               "<a href=\"#{project.web_url}\">#{project_name}</a>: " \
               "<b>#{title}</b>" \
-              "<pre>issue <strong>note</strong></pre>")
+              '<pre>issue <strong>note</strong></pre>')
         end
 
         context 'with confidential issue' do
@@ -266,7 +266,7 @@ describe HipchatService do
 
             message = hipchat.send(:create_message, data)
 
-            expect(message).to include("<pre>issue <strong>note</strong></pre>")
+            expect(message).to include('<pre>issue <strong>note</strong></pre>')
           end
         end
       end
@@ -276,10 +276,10 @@ describe HipchatService do
         let(:snippet_note) do
           create(:note_on_project_snippet, noteable: snippet,
                                            project: project,
-                                           note: "snippet note")
+                                           note: 'snippet note')
         end
 
-        it "calls Hipchat API for snippet comment events" do
+        it 'calls Hipchat API for snippet comment events' do
           data = Gitlab::DataBuilder::Note.build(snippet_note, user)
           hipchat.execute(data)
 
@@ -295,7 +295,7 @@ describe HipchatService do
               "<a href=\"#{obj_attr[:url]}\">snippet ##{snippet_id}</a> in " \
               "<a href=\"#{project.web_url}\">#{project_name}</a>: " \
               "<b>#{title}</b>" \
-              "<pre>snippet note</pre>")
+              '<pre>snippet note</pre>')
         end
       end
     end
@@ -309,13 +309,13 @@ describe HipchatService do
           pipeline.drop
         end
 
-        it "calls Hipchat API" do
+        it 'calls Hipchat API' do
           hipchat.execute(data)
 
           expect(WebMock).to have_requested(:post, api_url).once
         end
 
-        it "creates a build message" do
+        it 'creates a build message' do
           message = hipchat.__send__(:create_pipeline_message, data)
 
           project_url = project.web_url
@@ -338,13 +338,13 @@ describe HipchatService do
           pipeline.succeed
         end
 
-        it "calls Hipchat API" do
+        it 'calls Hipchat API' do
           hipchat.notify_only_broken_pipelines = false
           hipchat.execute(data)
           expect(WebMock).to have_requested(:post, api_url).once
         end
 
-        it "notifies only broken" do
+        it 'notifies only broken' do
           hipchat.notify_only_broken_pipelines = true
           hipchat.execute(data)
           expect(WebMock).not_to have_requested(:post, api_url).once
@@ -352,18 +352,18 @@ describe HipchatService do
       end
     end
 
-    context "#message_options" do
-      it "is set to the defaults" do
+    context '#message_options' do
+      it 'is set to the defaults' do
         expect(hipchat.__send__(:message_options)).to eq({ notify: false, color: 'yellow' })
       end
 
-      it "sets notify to true" do
+      it 'sets notify to true' do
         allow(hipchat).to receive(:notify).and_return('1')
 
         expect(hipchat.__send__(:message_options)).to eq({ notify: true, color: 'yellow' })
       end
 
-      it "sets the color" do
+      it 'sets the color' do
         allow(hipchat).to receive(:color).and_return('red')
 
         expect(hipchat.__send__(:message_options)).to eq({ notify: false, color: 'red' })

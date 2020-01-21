@@ -16,7 +16,7 @@ describe Clusters::Providers::Aws do
   describe 'default_value_for' do
     let(:provider) { build(:cluster_provider_aws) }
 
-    it "sets default values" do
+    it 'sets default values' do
       expect(provider.region).to eq('us-east-1')
       expect(provider.num_nodes).to eq(3)
       expect(provider.instance_type).to eq('m5.large')

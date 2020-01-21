@@ -13,7 +13,7 @@ describe 'User uploads new design', :js do
     sign_in(user)
   end
 
-  context "when the feature is available" do
+  context 'when the feature is available' do
     before do
       enable_design_management
 

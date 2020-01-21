@@ -33,7 +33,7 @@ describe API::Helpers do
   end
 
   def warden_authenticate_returns(value)
-    warden = double("warden", authenticate: value)
+    warden = double('warden', authenticate: value)
     env['warden'] = warden
   end
 
@@ -45,12 +45,12 @@ describe API::Helpers do
     request.update_param(key, value)
   end
 
-  describe ".current_user" do
+  describe '.current_user' do
     subject { current_user }
 
-    describe "Warden authentication", :allow_forgery_protection do
-      context "with invalid credentials" do
-        context "GET request" do
+    describe 'Warden authentication', :allow_forgery_protection do
+      context 'with invalid credentials' do
+        context 'GET request' do
           before do
             env['REQUEST_METHOD'] = 'GET'
           end
@@ -59,12 +59,12 @@ describe API::Helpers do
         end
       end
 
-      context "with valid credentials" do
+      context 'with valid credentials' do
         before do
           warden_authenticate_returns user
         end
 
-        context "GET request" do
+        context 'GET request' do
           before do
             env['REQUEST_METHOD'] = 'GET'
           end
@@ -78,7 +78,7 @@ describe API::Helpers do
           end
         end
 
-        context "HEAD request" do
+        context 'HEAD request' do
           before do
             env['REQUEST_METHOD'] = 'HEAD'
           end
@@ -86,7 +86,7 @@ describe API::Helpers do
           it { is_expected.to eq(user) }
         end
 
-        context "PUT request" do
+        context 'PUT request' do
           before do
             env['REQUEST_METHOD'] = 'PUT'
           end
@@ -104,7 +104,7 @@ describe API::Helpers do
           end
         end
 
-        context "POST request" do
+        context 'POST request' do
           before do
             env['REQUEST_METHOD'] = 'POST'
           end
@@ -122,7 +122,7 @@ describe API::Helpers do
           end
         end
 
-        context "DELETE request" do
+        context 'DELETE request' do
           before do
             env['REQUEST_METHOD'] = 'DELETE'
           end
@@ -145,13 +145,13 @@ describe API::Helpers do
     describe "when authenticating using a user's personal access tokens" do
       let(:personal_access_token) { create(:personal_access_token, user: user) }
 
-      it "returns a 401 response for an invalid token" do
+      it 'returns a 401 response for an invalid token' do
         env[Gitlab::Auth::AuthFinders::PRIVATE_TOKEN_HEADER] = 'invalid token'
 
         expect { current_user }.to raise_error /401/
       end
 
-      it "returns a 403 response for a user without access" do
+      it 'returns a 403 response for a user without access' do
         env[Gitlab::Auth::AuthFinders::PRIVATE_TOKEN_HEADER] = personal_access_token.token
         allow_any_instance_of(Gitlab::UserAccess).to receive(:allowed?).and_return(false)
 
@@ -182,12 +182,12 @@ describe API::Helpers do
         end
       end
 
-      it "sets current_user" do
+      it 'sets current_user' do
         env[Gitlab::Auth::AuthFinders::PRIVATE_TOKEN_HEADER] = personal_access_token.token
         expect(current_user).to eq(user)
       end
 
-      it "does not allow tokens without the appropriate scope" do
+      it 'does not allow tokens without the appropriate scope' do
         personal_access_token = create(:personal_access_token, user: user, scopes: ['read_user'])
         env[Gitlab::Auth::AuthFinders::PRIVATE_TOKEN_HEADER] = personal_access_token.token
 

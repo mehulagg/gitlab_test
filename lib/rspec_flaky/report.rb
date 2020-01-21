@@ -33,7 +33,7 @@ module RspecFlaky
 
     def write(file_path)
       unless RspecFlaky::Config.generate_report?
-        puts "! Generating reports is disabled. To enable it, please set the `FLAKY_RSPEC_GENERATE_REPORT=1` !" # rubocop:disable Rails/Output
+        puts '! Generating reports is disabled. To enable it, please set the `FLAKY_RSPEC_GENERATE_REPORT=1` !' # rubocop:disable Rails/Output
         return
       end
 

@@ -13,7 +13,7 @@ module EE
           redirect_to [:admin, @user], notice: _('User pipeline minutes were successfully reset.')
         else
           flash.now[:error] = _('There was an error resetting user pipeline minutes.')
-          render "edit"
+          render 'edit'
         end
       end
 

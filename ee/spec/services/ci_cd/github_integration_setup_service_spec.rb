@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 describe CiCd::GithubIntegrationSetupService do
-  let(:repo_full_name) { "MyUser/my-project" }
-  let(:api_token) { "abcdefghijk123" }
+  let(:repo_full_name) { 'MyUser/my-project' }
+  let(:api_token) { 'abcdefghijk123' }
   let(:import_url) { "https://#{api_token}@github.com/#{repo_full_name}.git" }
   let(:credentials) { { user: api_token } }
   let(:project) do

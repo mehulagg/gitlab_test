@@ -247,7 +247,7 @@ describe API::FeatureFlagScopes do
 
     context 'when there is a corresponding feature flag' do
       let!(:feature_flag) { create(:operations_feature_flag, project: project) }
-      let(:scope) { create_scope(feature_flag, 'staging', false, [{ name: "default", parameters: {} }]) }
+      let(:scope) { create_scope(feature_flag, 'staging', false, [{ name: 'default', parameters: {} }]) }
 
       it_behaves_like 'check user permission'
 

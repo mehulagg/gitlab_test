@@ -26,7 +26,7 @@ describe ProjectStatistics do
   end
 
   describe 'statistics columns' do
-    it "support values up to 8 exabytes" do
+    it 'support values up to 8 exabytes' do
       statistics.update!(
         commit_count: 8.exabytes - 1,
         repository_size: 2.exabytes,
@@ -47,7 +47,7 @@ describe ProjectStatistics do
   end
 
   describe '#total_repository_size' do
-    it "sums repository and LFS object size" do
+    it 'sums repository and LFS object size' do
       statistics.repository_size = 2
       statistics.wiki_size = 6
       statistics.lfs_objects_size = 3
@@ -58,7 +58,7 @@ describe ProjectStatistics do
   end
 
   describe '#wiki_size' do
-    it "is initialized with not null value" do
+    it 'is initialized with not null value' do
       expect(statistics.wiki_size).to eq 0
     end
   end
@@ -72,12 +72,12 @@ describe ProjectStatistics do
       allow(statistics).to receive(:update_storage_size)
     end
 
-    context "without arguments" do
+    context 'without arguments' do
       before do
         statistics.refresh!
       end
 
-      it "sums all counters" do
+      it 'sums all counters' do
         expect(statistics).to have_received(:update_commit_count)
         expect(statistics).to have_received(:update_repository_size)
         expect(statistics).to have_received(:update_wiki_size)
@@ -85,12 +85,12 @@ describe ProjectStatistics do
       end
     end
 
-    context "when passing an only: argument" do
+    context 'when passing an only: argument' do
       before do
         statistics.refresh! only: [:lfs_objects_size]
       end
 
-      it "only updates the given columns" do
+      it 'only updates the given columns' do
         expect(statistics).to have_received(:update_lfs_objects_size)
         expect(statistics).not_to have_received(:update_commit_count)
         expect(statistics).not_to have_received(:update_repository_size)
@@ -175,7 +175,7 @@ describe ProjectStatistics do
       statistics.update_commit_count
     end
 
-    it "stores the number of commits in the repository" do
+    it 'stores the number of commits in the repository' do
       expect(statistics.commit_count).to eq 23
     end
   end
@@ -186,7 +186,7 @@ describe ProjectStatistics do
       statistics.update_repository_size
     end
 
-    it "stores the size of the repository" do
+    it 'stores the size of the repository' do
       expect(statistics.repository_size).to eq 12.megabytes
     end
   end
@@ -197,7 +197,7 @@ describe ProjectStatistics do
       statistics.update_wiki_size
     end
 
-    it "stores the size of the wiki" do
+    it 'stores the size of the wiki' do
       expect(statistics.wiki_size).to eq 34.megabytes
     end
   end
@@ -212,13 +212,13 @@ describe ProjectStatistics do
       statistics.update_lfs_objects_size
     end
 
-    it "stores the size of related LFS objects" do
+    it 'stores the size of related LFS objects' do
       expect(statistics.lfs_objects_size).to eq 57.megabytes
     end
   end
 
   describe '#update_storage_size' do
-    it "sums all storage counters" do
+    it 'sums all storage counters' do
       statistics.update!(
         repository_size: 2,
         wiki_size: 4,
@@ -281,7 +281,7 @@ describe ProjectStatistics do
     context 'when using an invalid column' do
       it 'raises an error' do
         expect { described_class.increment_statistic(project.id, :id, 13) }
-          .to raise_error(ArgumentError, "Cannot increment attribute: id")
+          .to raise_error(ArgumentError, 'Cannot increment attribute: id')
       end
     end
   end

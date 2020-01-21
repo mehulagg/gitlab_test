@@ -28,7 +28,7 @@ describe "Pages with Let's Encrypt", :https_pages_enabled do
 
     fill_in 'Domain', with: 'my.test.domain.com'
 
-    expect(find("#pages_domain_auto_ssl_enabled", visible: false).value).to eq 'true'
+    expect(find('#pages_domain_auto_ssl_enabled', visible: false).value).to eq 'true'
     click_button 'Create New Domain'
 
     expect(page).to have_content('my.test.domain.com')
@@ -45,13 +45,13 @@ describe "Pages with Let's Encrypt", :https_pages_enabled do
 
       expect(domain.auto_ssl_enabled).to eq false
 
-      expect(find("#pages_domain_auto_ssl_enabled", visible: false).value).to eq 'false'
+      expect(find('#pages_domain_auto_ssl_enabled', visible: false).value).to eq 'false'
       expect(page).to have_selector '.card-header', text: 'Certificate'
       expect(page).to have_text domain.subject
 
       find('.js-auto-ssl-toggle-container .project-feature-toggle').click
 
-      expect(find("#pages_domain_auto_ssl_enabled", visible: false).value).to eq 'true'
+      expect(find('#pages_domain_auto_ssl_enabled', visible: false).value).to eq 'true'
       expect(page).not_to have_selector '.card-header', text: 'Certificate'
       expect(page).not_to have_text domain.subject
 
@@ -69,13 +69,13 @@ describe "Pages with Let's Encrypt", :https_pages_enabled do
     it 'disables auto SSL and dynamically updates the form accordingly', :js do
       visit project_pages_domain_path(project, domain)
 
-      expect(find("#pages_domain_auto_ssl_enabled", visible: false).value).to eq 'true'
+      expect(find('#pages_domain_auto_ssl_enabled', visible: false).value).to eq 'true'
       expect(page).not_to have_field 'Certificate (PEM)', type: 'textarea'
       expect(page).not_to have_field 'Key (PEM)', type: 'textarea'
 
       find('.js-auto-ssl-toggle-container .project-feature-toggle').click
 
-      expect(find("#pages_domain_auto_ssl_enabled", visible: false).value).to eq 'false'
+      expect(find('#pages_domain_auto_ssl_enabled', visible: false).value).to eq 'false'
       expect(page).to have_field 'Certificate (PEM)', type: 'textarea'
       expect(page).to have_field 'Key (PEM)', type: 'textarea'
 

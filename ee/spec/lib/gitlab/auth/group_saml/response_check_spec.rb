@@ -46,7 +46,7 @@ describe Gitlab::Auth::GroupSaml::ResponseCheck do
       let(:name_id) { 'user@example.com' }
       let(:name_id_format) { 'urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress' }
 
-      it "only warns on the NameID but not the format" do
+      it 'only warns on the NameID but not the format' do
         expect(subject.errors[:name_id].join).to include('email')
         expect(subject.errors[:name_id_format]).to be_blank
       end

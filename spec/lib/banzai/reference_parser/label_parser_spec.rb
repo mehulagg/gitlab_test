@@ -18,7 +18,7 @@ describe Banzai::ReferenceParser::LabelParser do
         link['data-label'] = label.id.to_s
       end
 
-      it_behaves_like "referenced feature visibility", "issues", "merge_requests"
+      it_behaves_like 'referenced feature visibility', 'issues', 'merge_requests'
     end
   end
 

@@ -22,11 +22,11 @@ module Gitlab
       end
 
       def legend
-        _("Related Merged Requests")
+        _('Related Merged Requests')
       end
 
       def description
-        _("Time between merge request creation and merge/close")
+        _('Time between merge request creation and merge/close')
       end
     end
   end

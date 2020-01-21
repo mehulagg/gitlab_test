@@ -103,7 +103,7 @@ describe 'Project settings > [EE] repository' do
     context 'with a non-mirrored imported project', :js do
       let(:external_project) do
         create(:project_empty_repo,
-               import_url: "https://12345@github.com/testngalog2/newrepository.git")
+               import_url: 'https://12345@github.com/testngalog2/newrepository.git')
       end
 
       before do

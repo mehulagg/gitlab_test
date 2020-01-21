@@ -7,7 +7,7 @@ describe Gitlab::Email::Handler::CreateNoteHandler do
   it_behaves_like :reply_processing_shared_examples
 
   before do
-    stub_incoming_email_setting(enabled: true, address: "reply+%{key}@appmail.adventuretime.ooo")
+    stub_incoming_email_setting(enabled: true, address: 'reply+%{key}@appmail.adventuretime.ooo')
     stub_config_setting(host: 'localhost')
   end
 
@@ -22,42 +22,42 @@ describe Gitlab::Email::Handler::CreateNoteHandler do
   end
 
   context "when the recipient address doesn't include a mail key" do
-    let(:email_raw) { fixture_file('emails/valid_reply.eml').gsub(mail_key, "") }
+    let(:email_raw) { fixture_file('emails/valid_reply.eml').gsub(mail_key, '') }
 
-    it "raises a UnknownIncomingEmail" do
+    it 'raises a UnknownIncomingEmail' do
       expect { receiver.execute }.to raise_error(Gitlab::Email::UnknownIncomingEmail)
     end
   end
 
-  context "when no sent notification for the mail key could be found" do
+  context 'when no sent notification for the mail key could be found' do
     let(:email_raw) { fixture_file('emails/wrong_mail_key.eml') }
 
-    it "raises a SentNotificationNotFoundError" do
+    it 'raises a SentNotificationNotFoundError' do
       expect { receiver.execute }.to raise_error(Gitlab::Email::SentNotificationNotFoundError)
     end
   end
 
-  context "when the noteable could not be found" do
+  context 'when the noteable could not be found' do
     before do
       noteable.destroy
     end
 
-    it "raises a NoteableNotFoundError" do
+    it 'raises a NoteableNotFoundError' do
       expect { receiver.execute }.to raise_error(Gitlab::Email::NoteableNotFoundError)
     end
   end
 
-  context "when the note could not be saved" do
+  context 'when the note could not be saved' do
     before do
       allow_any_instance_of(Note).to receive(:persisted?).and_return(false)
     end
 
-    it "raises an InvalidNoteError" do
+    it 'raises an InvalidNoteError' do
       expect { receiver.execute }.to raise_error(Gitlab::Email::InvalidNoteError)
     end
 
     context 'because the note was update commands only' do
-      let!(:email_raw) { fixture_file("emails/update_commands_only_reply.eml") }
+      let!(:email_raw) { fixture_file('emails/update_commands_only_reply.eml') }
 
       context 'and current user cannot update noteable' do
         it 'raises a CommandsOnlyNoteError' do
@@ -81,7 +81,7 @@ describe Gitlab::Email::Handler::CreateNoteHandler do
   end
 
   context 'when the note contains quick actions' do
-    let!(:email_raw) { fixture_file("emails/commands_in_reply.eml") }
+    let!(:email_raw) { fixture_file('emails/commands_in_reply.eml') }
 
     context 'and current user cannot update the noteable' do
       it 'only executes the commands that the user can perform' do
@@ -110,41 +110,41 @@ describe Gitlab::Email::Handler::CreateNoteHandler do
     end
   end
 
-  context "when the reply is blank" do
-    let!(:email_raw) { fixture_file("emails/no_content_reply.eml") }
+  context 'when the reply is blank' do
+    let!(:email_raw) { fixture_file('emails/no_content_reply.eml') }
 
-    it "raises an EmptyEmailError" do
+    it 'raises an EmptyEmailError' do
       expect { receiver.execute }.to raise_error(Gitlab::Email::EmptyEmailError)
     end
   end
 
-  shared_examples "checks permissions on noteable" do
-    context "when user has access" do
+  shared_examples 'checks permissions on noteable' do
+    context 'when user has access' do
       before do
         project.add_reporter(user)
       end
 
-      it "creates a comment" do
+      it 'creates a comment' do
         expect { receiver.execute }.to change { noteable.notes.count }.by(1)
       end
     end
 
-    context "when user does not have access" do
-      it "raises UserNotAuthorizedError" do
+    context 'when user does not have access' do
+      it 'raises UserNotAuthorizedError' do
         expect { receiver.execute }.to raise_error(Gitlab::Email::UserNotAuthorizedError)
       end
     end
   end
 
-  context "when discussion is locked" do
+  context 'when discussion is locked' do
     before do
       noteable.update_attribute(:discussion_locked, true)
     end
 
-    it_behaves_like "checks permissions on noteable"
+    it_behaves_like 'checks permissions on noteable'
   end
 
-  context "when issue is confidential" do
+  context 'when issue is confidential' do
     let(:issue) { create(:issue, project: project) }
     let(:note) { create(:note, noteable: issue, project: project) }
 
@@ -152,17 +152,17 @@ describe Gitlab::Email::Handler::CreateNoteHandler do
       issue.update_attribute(:confidential, true)
     end
 
-    it_behaves_like "checks permissions on noteable"
+    it_behaves_like 'checks permissions on noteable'
   end
 
   shared_examples 'a reply to existing comment' do
-    it "creates a comment" do
+    it 'creates a comment' do
       expect { receiver.execute }.to change { noteable.notes.count }.by(1)
       new_note = noteable.notes.last
 
       expect(new_note.author).to eq(sent_notification.recipient)
       expect(new_note.position).to eq(note.position)
-      expect(new_note.note).to include("I could not disagree more.")
+      expect(new_note.note).to include('I could not disagree more.')
       expect(new_note.in_reply_to?(note)).to be_truthy
 
       if note.part_of_discussion?
@@ -173,20 +173,20 @@ describe Gitlab::Email::Handler::CreateNoteHandler do
     end
   end
 
-  context "when everything is fine" do
+  context 'when everything is fine' do
     before do
       setup_attachment
     end
 
     it_behaves_like 'a reply to existing comment'
 
-    it "adds all attachments" do
+    it 'adds all attachments' do
       expect_next_instance_of(Gitlab::Email::AttachmentUploader) do |uploader|
         expect(uploader).to receive(:execute).with(upload_parent: project, uploader_class: FileUploader).and_return(
           [
             {
-              url: "uploads/image.png",
-              alt: "image",
+              url: 'uploads/image.png',
+              alt: 'image',
               markdown: markdown
             }
           ]
@@ -229,7 +229,7 @@ describe Gitlab::Email::Handler::CreateNoteHandler do
     end
   end
 
-  context "when note is not a discussion" do
+  context 'when note is not a discussion' do
     let(:note) { create(:note_on_merge_request, project: project) }
 
     it_behaves_like 'a reply to existing comment'

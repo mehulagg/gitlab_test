@@ -2,7 +2,7 @@
 
 module EE
   SUBSCRIPTIONS_URL = ENV.fetch('CUSTOMER_PORTAL_URL', 'https://customers.gitlab.com').freeze
-  SUBSCRIPTIONS_COMPARISON_URL = "https://about.gitlab.com/pricing/gitlab-com/feature-comparison".freeze
+  SUBSCRIPTIONS_COMPARISON_URL = 'https://about.gitlab.com/pricing/gitlab-com/feature-comparison'.freeze
   SUBSCRIPTIONS_MORE_MINUTES_URL = "#{SUBSCRIPTIONS_URL}/buy_pipeline_minutes".freeze
   SUBSCRIPTIONS_PLANS_URL = "#{SUBSCRIPTIONS_URL}/plans".freeze
   SUBSCRIPTION_PORTAL_ADMIN_EMAIL = ENV.fetch('SUBSCRIPTION_PORTAL_ADMIN_EMAIL', 'gl_com_api@gitlab.com')

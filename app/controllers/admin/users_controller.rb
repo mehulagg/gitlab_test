@@ -41,17 +41,17 @@ class Admin::UsersController < Admin::ApplicationController
 
       log_impersonation_event
 
-      flash[:alert] = _("You are now impersonating %{username}") % { username: user.username }
+      flash[:alert] = _('You are now impersonating %{username}') % { username: user.username }
 
       redirect_to root_path
     else
       flash[:alert] =
         if user.blocked?
-          _("You cannot impersonate a blocked user")
+          _('You cannot impersonate a blocked user')
         elsif user.internal?
-          _("You cannot impersonate an internal user")
+          _('You cannot impersonate an internal user')
         else
-          _("You cannot impersonate a user who cannot log in")
+          _('You cannot impersonate a user who cannot log in')
         end
 
       redirect_to admin_user_path(user)
@@ -59,52 +59,52 @@ class Admin::UsersController < Admin::ApplicationController
   end
 
   def activate
-    return redirect_back_or_admin_user(notice: _("Error occurred. A blocked user must be unblocked to be activated")) if user.blocked?
+    return redirect_back_or_admin_user(notice: _('Error occurred. A blocked user must be unblocked to be activated')) if user.blocked?
 
     user.activate
-    redirect_back_or_admin_user(notice: _("Successfully activated"))
+    redirect_back_or_admin_user(notice: _('Successfully activated'))
   end
 
   def deactivate
-    return redirect_back_or_admin_user(notice: _("Error occurred. A blocked user cannot be deactivated")) if user.blocked?
-    return redirect_back_or_admin_user(notice: _("Successfully deactivated")) if user.deactivated?
-    return redirect_back_or_admin_user(notice: _("The user you are trying to deactivate has been active in the past %{minimum_inactive_days} days and cannot be deactivated") % { minimum_inactive_days: ::User::MINIMUM_INACTIVE_DAYS }) unless user.can_be_deactivated?
+    return redirect_back_or_admin_user(notice: _('Error occurred. A blocked user cannot be deactivated')) if user.blocked?
+    return redirect_back_or_admin_user(notice: _('Successfully deactivated')) if user.deactivated?
+    return redirect_back_or_admin_user(notice: _('The user you are trying to deactivate has been active in the past %{minimum_inactive_days} days and cannot be deactivated') % { minimum_inactive_days: ::User::MINIMUM_INACTIVE_DAYS }) unless user.can_be_deactivated?
 
     user.deactivate
-    redirect_back_or_admin_user(notice: _("Successfully deactivated"))
+    redirect_back_or_admin_user(notice: _('Successfully deactivated'))
   end
 
   def block
     if update_user { |user| user.block }
-      redirect_back_or_admin_user(notice: _("Successfully blocked"))
+      redirect_back_or_admin_user(notice: _('Successfully blocked'))
     else
-      redirect_back_or_admin_user(alert: _("Error occurred. User was not blocked"))
+      redirect_back_or_admin_user(alert: _('Error occurred. User was not blocked'))
     end
   end
 
   def unblock
     if user.ldap_blocked?
-      redirect_back_or_admin_user(alert: _("This user cannot be unlocked manually from GitLab"))
+      redirect_back_or_admin_user(alert: _('This user cannot be unlocked manually from GitLab'))
     elsif update_user { |user| user.activate }
-      redirect_back_or_admin_user(notice: _("Successfully unblocked"))
+      redirect_back_or_admin_user(notice: _('Successfully unblocked'))
     else
-      redirect_back_or_admin_user(alert: _("Error occurred. User was not unblocked"))
+      redirect_back_or_admin_user(alert: _('Error occurred. User was not unblocked'))
     end
   end
 
   def unlock
     if update_user { |user| user.unlock_access! }
-      redirect_back_or_admin_user(alert: _("Successfully unlocked"))
+      redirect_back_or_admin_user(alert: _('Successfully unlocked'))
     else
-      redirect_back_or_admin_user(alert: _("Error occurred. User was not unlocked"))
+      redirect_back_or_admin_user(alert: _('Error occurred. User was not unlocked'))
     end
   end
 
   def confirm
     if update_user { |user| user.confirm }
-      redirect_back_or_admin_user(notice: _("Successfully confirmed"))
+      redirect_back_or_admin_user(notice: _('Successfully confirmed'))
     else
-      redirect_back_or_admin_user(alert: _("Error occurred. User was not confirmed"))
+      redirect_back_or_admin_user(alert: _('Error occurred. User was not confirmed'))
     end
   end
 
@@ -128,7 +128,7 @@ class Admin::UsersController < Admin::ApplicationController
         format.html { redirect_to [:admin, @user], notice: _('User was successfully created.') }
         format.json { render json: @user, status: :created, location: @user }
       else
-        format.html { render "new" }
+        format.html { render 'new' }
         format.json { render json: @user.errors, status: :unprocessable_entity }
       end
     end
@@ -159,7 +159,7 @@ class Admin::UsersController < Admin::ApplicationController
       else
         # restore username to keep form action url.
         user.username = params[:id]
-        format.html { render "edit" }
+        format.html { render 'edit' }
         format.json { render json: [result[:message]], status: result[:status] }
       end
     end
@@ -169,7 +169,7 @@ class Admin::UsersController < Admin::ApplicationController
     user.delete_async(deleted_by: current_user, params: params.permit(:hard_delete))
 
     respond_to do |format|
-      format.html { redirect_to admin_users_path, status: :found, notice: _("The user is being deleted.") }
+      format.html { redirect_to admin_users_path, status: :found, notice: _('The user is being deleted.') }
       format.json { head :ok }
     end
   end
@@ -254,7 +254,7 @@ class Admin::UsersController < Admin::ApplicationController
   end
 
   def log_impersonation_event
-    Gitlab::AppLogger.info(_("User %{current_user_username} has started impersonating %{username}") % { current_user_username: current_user.username, username: user.username })
+    Gitlab::AppLogger.info(_('User %{current_user_username} has started impersonating %{username}') % { current_user_username: current_user.username, username: user.username })
   end
 end
 

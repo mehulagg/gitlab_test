@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.shared_examples "position formatter" do
+RSpec.shared_examples 'position formatter' do
   let(:formatter) { described_class.new(attrs) }
 
   describe '#key' do

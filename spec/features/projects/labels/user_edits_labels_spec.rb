@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-require "spec_helper"
+require 'spec_helper'
 
-describe "User edits labels" do
+describe 'User edits labels' do
   set(:project) { create(:project_empty_repo, :public) }
   set(:label) { create(:label, project: project) }
   set(:user) { create(:user) }
@@ -15,12 +15,12 @@ describe "User edits labels" do
   end
 
   it "updates label's title" do
-    new_title = "fix"
+    new_title = 'fix'
 
-    fill_in("Title", with: new_title)
-    click_button("Save changes")
+    fill_in('Title', with: new_title)
+    click_button('Save changes')
 
-    page.within(".other-labels .manage-labels-list") do
+    page.within('.other-labels .manage-labels-list') do
       expect(page).to have_content(new_title).and have_no_content(label.title)
     end
   end

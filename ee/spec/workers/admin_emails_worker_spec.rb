@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe AdminEmailsWorker do
-  context "recipients" do
+  context 'recipients' do
     let(:group) { create(:group) }
     let(:project) { create(:project) }
 
@@ -23,10 +23,10 @@ describe AdminEmailsWorker do
       ActionMailer::Base.deliveries = []
     end
 
-    context "sending emails to members of a group only" do
+    context 'sending emails to members of a group only' do
       let(:recipient_id) { "group-#{group.id}" }
 
-      it "sends email to subscribed users" do
+      it 'sends email to subscribed users' do
         perform_enqueued_jobs do
           subject.perform(recipient_id, 'subject', 'body')
 
@@ -35,10 +35,10 @@ describe AdminEmailsWorker do
       end
     end
 
-    context "sending emails to members of a project only" do
+    context 'sending emails to members of a project only' do
       let(:recipient_id) { "project-#{project.id}" }
 
-      it "sends email to subscribed users" do
+      it 'sends email to subscribed users' do
         perform_enqueued_jobs do
           subject.perform(recipient_id, 'subject', 'body')
 
@@ -47,10 +47,10 @@ describe AdminEmailsWorker do
       end
     end
 
-    context "sending emails to users directly" do
-      let(:recipient_id) { "all" }
+    context 'sending emails to users directly' do
+      let(:recipient_id) { 'all' }
 
-      it "sends email to subscribed users" do
+      it 'sends email to subscribed users' do
         perform_enqueued_jobs do
           subject.perform(recipient_id, 'subject', 'body')
 

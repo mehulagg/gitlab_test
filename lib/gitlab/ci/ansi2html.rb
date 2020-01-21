@@ -209,9 +209,9 @@ module Gitlab
 
           normalized_section = section_to_class_name(section)
 
-          if action == "start"
+          if action == 'start'
             handle_section_start(normalized_section, timestamp)
-          elsif action == "end"
+          elsif action == 'end'
             handle_section_end(normalized_section, timestamp)
           end
         end
@@ -237,7 +237,7 @@ module Gitlab
         end
 
         def data_section_names
-          @sections.join(" ")
+          @sections.join(' ')
         end
 
         def handle_sequence(scanner)
@@ -305,12 +305,12 @@ module Gitlab
           end
 
           if @sections.any?
-            css_classes << "section"
+            css_classes << 'section'
 
             css_classes << if @lineno_in_section == 0
-                             "section-header"
+                             'section-header'
                            else
-                             "line"
+                             'line'
                            end
 
             css_classes += sections.map { |section| "js-s-#{section}" }
@@ -376,34 +376,34 @@ module Gitlab
         end
 
         def set_fg_color(color_index, prefix = nil)
-          @fg_color = get_term_color_class(color_index, ["fg", prefix])
+          @fg_color = get_term_color_class(color_index, ['fg', prefix])
         end
 
         def set_bg_color(color_index, prefix = nil)
-          @bg_color = get_term_color_class(color_index, ["bg", prefix])
+          @bg_color = get_term_color_class(color_index, ['bg', prefix])
         end
 
         def get_term_color_class(color_index, prefix)
           color_name = COLOR[color_index]
           return if color_name.nil?
 
-          get_color_class(["term", prefix, color_name])
+          get_color_class(['term', prefix, color_name])
         end
 
         def set_fg_color_256(command_stack)
-          css_class = get_xterm_color_class(command_stack, "fg")
+          css_class = get_xterm_color_class(command_stack, 'fg')
           @fg_color = css_class unless css_class.nil?
         end
 
         def set_bg_color_256(command_stack)
-          css_class = get_xterm_color_class(command_stack, "bg")
+          css_class = get_xterm_color_class(command_stack, 'bg')
           @bg_color = css_class unless css_class.nil?
         end
 
         def get_xterm_color_class(command_stack, prefix)
           # the 38 and 48 commands have to be followed by "5" and the color index
           return unless command_stack.length >= 2
-          return unless command_stack[0] == "5"
+          return unless command_stack[0] == '5'
 
           command_stack.shift # ignore the "5" command
           color_index = command_stack.shift.to_i
@@ -411,7 +411,7 @@ module Gitlab
           return unless color_index >= 0
           return unless color_index <= 255
 
-          get_color_class(["xterm", prefix, color_index])
+          get_color_class(['xterm', prefix, color_index])
         end
 
         def get_color_class(segments)

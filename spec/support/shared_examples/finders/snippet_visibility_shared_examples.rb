@@ -20,7 +20,7 @@ RSpec.shared_examples 'snippet visibility' do
     end
   end
 
-  context "For project snippets" do
+  context 'For project snippets' do
     let!(:users) do
       {
         unauthenticated: nil,

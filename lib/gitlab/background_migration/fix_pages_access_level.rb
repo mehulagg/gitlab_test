@@ -22,7 +22,7 @@ module Gitlab
 
         include Routable
 
-        belongs_to :parent, class_name: "Namespace"
+        belongs_to :parent, class_name: 'Namespace'
       end
 
       # Project

@@ -10,7 +10,7 @@ require 'spec_helper'
 describe 'Issues > User uses quick actions', :js do
   include Spec::Support::Helpers::Features::NotesHelpers
 
-  context "issuable common quick actions" do
+  context 'issuable common quick actions' do
     let(:new_url_opts) { {} }
     let(:maintainer) { create(:user) }
     let(:project) { create(:project, :public) }

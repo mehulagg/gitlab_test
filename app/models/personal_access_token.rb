@@ -16,9 +16,9 @@ class PersonalAccessToken < ApplicationRecord
 
   before_save :ensure_token
 
-  scope :active, -> { where("revoked = false AND (expires_at >= NOW() OR expires_at IS NULL)") }
-  scope :expiring_and_not_notified, ->(date) { where(["revoked = false AND expire_notification_delivered = false AND expires_at >= NOW() AND expires_at <= ?", date]) }
-  scope :inactive, -> { where("revoked = true OR expires_at < NOW()") }
+  scope :active, -> { where('revoked = false AND (expires_at >= NOW() OR expires_at IS NULL)') }
+  scope :expiring_and_not_notified, ->(date) { where(['revoked = false AND expire_notification_delivered = false AND expires_at >= NOW() AND expires_at <= ?', date]) }
+  scope :inactive, -> { where('revoked = true OR expires_at < NOW()') }
   scope :with_impersonation, -> { where(impersonation: true) }
   scope :without_impersonation, -> { where(impersonation: false) }
   scope :for_user, -> (user) { where(user: user) }
@@ -62,7 +62,7 @@ class PersonalAccessToken < ApplicationRecord
 
   def validate_scopes
     unless revoked || scopes.all? { |scope| Gitlab::Auth.all_available_scopes.include?(scope.to_sym) }
-      errors.add :scopes, "can only contain available scopes"
+      errors.add :scopes, 'can only contain available scopes'
     end
   end
 

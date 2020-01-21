@@ -51,7 +51,7 @@ module Projects
 
       raise RenameFailedError.new(
         "Project #{full_path_before} cannot be renamed because images are " \
-          "present in its container registry"
+          'present in its container registry'
       )
     end
 

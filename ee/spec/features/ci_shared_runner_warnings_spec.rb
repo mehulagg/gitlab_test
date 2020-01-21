@@ -30,7 +30,7 @@ describe 'CI shared runner limits' do
 
     context 'when limit is defined' do
       before do
-        stub_const("EE::Namespace::CI_USAGE_ALERT_LEVELS", [30, 5])
+        stub_const('EE::Namespace::CI_USAGE_ALERT_LEVELS', [30, 5])
       end
 
       context 'when usage has reached a notification level' do

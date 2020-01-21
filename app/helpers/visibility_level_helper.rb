@@ -31,22 +31,22 @@ module VisibilityLevelHelper
   def project_visibility_level_description(level)
     case level
     when Gitlab::VisibilityLevel::PRIVATE
-      _("Project access must be granted explicitly to each user.")
+      _('Project access must be granted explicitly to each user.')
     when Gitlab::VisibilityLevel::INTERNAL
-      _("The project can be accessed by any logged in user.")
+      _('The project can be accessed by any logged in user.')
     when Gitlab::VisibilityLevel::PUBLIC
-      _("The project can be accessed without any authentication.")
+      _('The project can be accessed without any authentication.')
     end
   end
 
   def group_visibility_level_description(level)
     case level
     when Gitlab::VisibilityLevel::PRIVATE
-      _("The group and its projects can only be viewed by members.")
+      _('The group and its projects can only be viewed by members.')
     when Gitlab::VisibilityLevel::INTERNAL
-      _("The group and any internal projects can be viewed by any logged in user.")
+      _('The group and any internal projects can be viewed by any logged in user.')
     when Gitlab::VisibilityLevel::PUBLIC
-      _("The group and any public projects can be viewed without any authentication.")
+      _('The group and any public projects can be viewed without any authentication.')
     end
   end
 
@@ -54,14 +54,14 @@ module VisibilityLevelHelper
     case level
     when Gitlab::VisibilityLevel::PRIVATE
       if snippet.is_a? ProjectSnippet
-        _("The snippet is visible only to project members.")
+        _('The snippet is visible only to project members.')
       else
-        _("The snippet is visible only to me.")
+        _('The snippet is visible only to me.')
       end
     when Gitlab::VisibilityLevel::INTERNAL
-      _("The snippet is visible to any logged in user.")
+      _('The snippet is visible to any logged in user.')
     when Gitlab::VisibilityLevel::PUBLIC
-      _("The snippet can be accessed without any authentication.")
+      _('The snippet can be accessed without any authentication.')
     end
   end
 
@@ -73,7 +73,7 @@ module VisibilityLevelHelper
     instructions = []
 
     unless project.visibility_level_allowed_as_fork?(level)
-      reasons << "the fork source project has lower visibility"
+      reasons << 'the fork source project has lower visibility'
     end
 
     unless project.visibility_level_allowed_by_group?(level)
@@ -95,11 +95,11 @@ module VisibilityLevelHelper
     instructions = []
 
     unless group.visibility_level_allowed_by_projects?(level)
-      reasons << "it contains projects with higher visibility"
+      reasons << 'it contains projects with higher visibility'
     end
 
     unless group.visibility_level_allowed_by_sub_groups?(level)
-      reasons << "it contains sub-groups with higher visibility"
+      reasons << 'it contains sub-groups with higher visibility'
     end
 
     unless group.visibility_level_allowed_by_parent?(level)
