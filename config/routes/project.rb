@@ -479,9 +479,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
       # Deprecated unscoped routing.
       # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
-      scope as: 'deprecated' do
-        draw :repository
-      end
+      # scope as: 'deprecated' do
+      #   draw :repository
+      # end
 
       # All new routes should go under /-/ scope.
       # Look for scope '-' at the top of the file.
