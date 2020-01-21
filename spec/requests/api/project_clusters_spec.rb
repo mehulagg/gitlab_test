@@ -149,6 +149,7 @@ describe API::ProjectClusters do
   end
 
   describe 'POST /projects/:id/clusters/user' do
+    let(:management_project) { create(:project, namespace: project.namespace) }
     let(:api_url) { 'https://kubernetes.example.com' }
     let(:namespace) { project.path }
     let(:authorization_type) { 'rbac' }
@@ -167,6 +168,7 @@ describe API::ProjectClusters do
         name: 'test-cluster',
         domain: 'domain.example.com',
         managed: false,
+        management_project_id: management_project.id,
         platform_kubernetes_attributes: platform_kubernetes_attributes
       }
     end
@@ -199,6 +201,7 @@ describe API::ProjectClusters do
           expect(cluster_result.name).to eq('test-cluster')
           expect(cluster_result.domain).to eq('domain.example.com')
           expect(cluster_result.managed).to be_falsy
+          expect(cluster_result.management_project).to eq(management_project)
           expect(platform_kubernetes.rbac?).to be_truthy
           expect(platform_kubernetes.api_url).to eq(api_url)
           expect(platform_kubernetes.namespace).to eq(namespace)

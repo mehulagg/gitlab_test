@@ -155,6 +155,7 @@ describe API::GroupClusters do
   describe 'POST /groups/:id/clusters/user' do
     include_context 'kubernetes calls stubbed'
 
+    let(:management_project) { create(:project, namespace: group) }
     let(:api_url) { 'https://kubernetes.example.com' }
     let(:authorization_type) { 'rbac' }
 
@@ -171,6 +172,7 @@ describe API::GroupClusters do
         name: 'test-cluster',
         domain: 'domain.example.com',
         managed: false,
+        management_project_id: management_project.id,
         platform_kubernetes_attributes: platform_kubernetes_attributes
       }
     end
@@ -203,6 +205,7 @@ describe API::GroupClusters do
           expect(cluster_result.name).to eq('test-cluster')
           expect(cluster_result.domain).to eq('domain.example.com')
           expect(cluster_result.managed).to be_falsy
+          expect(cluster_result.management_project).to eq(management_project)
           expect(platform_kubernetes.rbac?).to be_truthy
           expect(platform_kubernetes.api_url).to eq(api_url)
           expect(platform_kubernetes.token).to eq('sample-token')
