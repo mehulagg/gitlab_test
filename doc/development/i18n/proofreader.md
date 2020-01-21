@@ -55,14 +55,16 @@ are very appreciative of the work done by translators and proofreaders!
   - Ahmad Naufal Mukhtar - [GitLab](https://gitlab.com/anaufalm), [Crowdin](https://crowdin.com/profile/anaufalm)
 - Italian
   - Paolo Falomo - [GitLab](https://gitlab.com/paolofalomo), [Crowdin](https://crowdin.com/profile/paolo.falomo)
-- Japanese
+- Japanese (日本語)
   - Hiroyuki Sato - [GitLab](https://gitlab.com/hiroponz), [Crowdin](https://crowdin.com/profile/hiroponz)
   - Tomo Dote - [GitLab](https://gitlab.com/fu7mu4), [Crowdin](https://crowdin.com/profile/fu7mu4)
   - Hiromi Nozawa - [GitLab](https://gitlab.com/hir0mi), [Crowdin](https://crowdin.com/profile/hir0mi)
-- Korean
+  - Guenjun Yoo - [GitLab](https://gitlab.com/gyoo), [Crowdin](https://crowdin.com/profile/guenjun)
+- Korean　（한국어)
   - Chang-Ho Cha - [GitLab](https://gitlab.com/changho-cha), [Crowdin](https://crowdin.com/profile/zzazang)
   - Ji Hun Oh - [GitLab](https://gitlab.com/Baw-Appie), [Crowdin](https://crowdin.com/profile/BawAppie)
   - Jeongwhan Choi - [GitLab](https://gitlab.com/jeongwhanchoi), [Crowdin](https://crowdin.com/profile/jeongwhanchoi)
+  - Guenjun Yoo - [GitLab](https://gitlab.com/gyoo), [Crowdin](https://crowdin.com/profile/guenjun)
 - Mongolian
   - Proofreaders needed.
 - Norwegian Bokmal
