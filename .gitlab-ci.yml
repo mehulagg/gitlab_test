@@ -13,6 +13,8 @@ variables:
   DOCKER_TLS_CERTDIR: ""
   SAST_BRAKEMAN_LEVEL: 2
   SAST_EXCLUDED_PATHS: qa,spec,doc,ee/spec
+  PRE_BUILD_SCRIPT: "whoami && chown node /builds/gitlab-org/gitlab"
+
   # CI_PRE_CLONE_SCRIPT: ""
   # ANALYZER_ARTIFACT_DIR: /tmp/app
   # CI_PROJECT_DIR: /tmp/app
