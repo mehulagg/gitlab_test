@@ -118,7 +118,7 @@ at GitLab so far:
 
 ## Limitations
 
-- ~~[`danger local` does not work on GitLab](https://github.com/danger/danger/issues/458)~~ to run Danger locally call `bin/rake danger_local`
+- ~~[`danger local` does not work on GitLab](https://github.com/danger/danger/issues/458)~~ You can now run Danger locally. To run Danger locally call `bin/rake danger_local`
 - Danger output is not added to a merge request comment if working on
   a fork. This happens because the secret variable from the canonical
   project is not shared to forks.
