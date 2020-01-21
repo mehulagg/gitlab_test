@@ -36,9 +36,14 @@ class VaultService < Service
     ]
   end
 
-  # TODO
   def test(_data)
-    { success: true }
+    begin
+      status = client.sys.health_status
+    rescue ::Vault::HTTPError => error
+      return { success: false, result: error }
+    end
+
+    { success: true, result: status.cluster_name }
   end
 
   def execute(_data)
@@ -49,6 +54,6 @@ class VaultService < Service
   end
 
   def client
-    @client ||= Vault::Client.new(address: vault_url, token: token)
+    @client ||= ::Vault::Client.new(address: vault_url, token: token)
   end
 end
