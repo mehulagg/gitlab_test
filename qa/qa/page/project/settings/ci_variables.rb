@@ -7,16 +7,15 @@ module QA
         class CiVariables < Page::Base
           include Common
 
-          view 'app/views/ci/variables/_variable_row.html.haml' do
-            element :variable_row, '.ci-variable-row-body' # rubocop:disable QA/ElementWithPattern
-            element :variable_key, '.qa-ci-variable-input-key' # rubocop:disable QA/ElementWithPattern
-            element :variable_value, '.qa-ci-variable-input-value' # rubocop:disable QA/ElementWithPattern
+          view 'app/assets/javascripts/ci_variable_list/components/ci_variable_modal.vue' do
+            element :variable_key
+            element :variable_value
             element :variable_masked
           end
 
-          view 'app/views/ci/variables/_index.html.haml' do
-            element :save_variables, '.js-ci-variables-save-button' # rubocop:disable QA/ElementWithPattern
-            element :reveal_values, '.js-secret-value-reveal-button' # rubocop:disable QA/ElementWithPattern
+          view 'app/assets/javascripts/ci_variable_list/components/ci_variable_table.vue' do
+            element :add_ci_variable
+            element :reveal_ci_variable_value
           end
 
           def fill_variable(key, value, masked)

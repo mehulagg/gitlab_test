@@ -525,6 +525,9 @@ msgstr ""
 msgid "(removed)"
 msgstr ""
 
+msgid "*"
+msgstr ""
+
 msgid "+ %{amount} more"
 msgstr ""
 
@@ -1035,6 +1038,9 @@ msgstr ""
 msgid "Add README"
 msgstr ""
 
+msgid "Add Variable"
+msgstr ""
+
 msgid "Add Zoom meeting"
 msgstr ""
 
@@ -1162,6 +1168,9 @@ msgid "Add user(s) to the group:"
 msgstr ""
 
 msgid "Add users to group"
+msgstr ""
+
+msgid "Add variable"
 msgstr ""
 
 msgid "Add webhook"
@@ -1529,6 +1538,9 @@ msgstr ""
 msgid "All email addresses will be used to identify your commits."
 msgstr ""
 
+msgid "All environments"
+msgstr ""
+
 msgid "All features are enabled for blank projects, from templates, or when importing, but you can disable them afterward in the project settings."
 msgstr ""
 
@@ -1605,6 +1617,9 @@ msgid "Allow users to register any application to use GitLab as an OAuth provide
 msgstr ""
 
 msgid "Allow users to request access (if visibility is public or internal)"
+msgstr ""
+
+msgid "Allow variables to run on protected branches and tags."
 msgstr ""
 
 msgid "Allowed email domain restriction only permitted for top-level groups"
@@ -5613,6 +5628,9 @@ msgstr ""
 msgid "Create project label"
 msgstr ""
 
+msgid "Create variables to apply via the runner to use for passwords, secret keys, etc..."
+msgstr ""
+
 msgid "Create your first page"
 msgstr ""
 
@@ -7284,7 +7302,7 @@ msgstr ""
 msgid "Environment"
 msgstr ""
 
-msgid "Environment variables are applied to environments via the runner. They can be protected by only exposing them to protected branches or tags. Additionally, they can be masked so they are hidden in job logs, though they must match certain regexp requirements to do so. You can use environment variables for passwords, secret keys, or whatever you want."
+msgid "Environment Scope"
 msgstr ""
 
 msgid "Environment variables are configured by your administrator to be %{link_start}protected%{link_end} by default"
@@ -8344,6 +8362,9 @@ msgid "Fetching licenses failed. The request endpoint was not found."
 msgstr ""
 
 msgid "Fetching licenses failed. You are not permitted to perform this action."
+msgstr ""
+
+msgid "File"
 msgstr ""
 
 msgid "File Hooks"
@@ -11708,6 +11729,12 @@ msgid "Marks this issue as a duplicate of %{duplicate_reference}."
 msgstr ""
 
 msgid "Marks this issue as related to %{issue_ref}."
+msgstr ""
+
+msgid "Mask variable"
+msgstr ""
+
+msgid "Masked"
 msgstr ""
 
 msgid "Match not found; try refining your search query."
@@ -15373,6 +15400,9 @@ msgstr ""
 msgid "Prompt users to upload SSH keys"
 msgstr ""
 
+msgid "Protect variable"
+msgstr ""
+
 msgid "Protected"
 msgstr ""
 
@@ -15392,6 +15422,9 @@ msgid "Protected Tag"
 msgstr ""
 
 msgid "Protected branches"
+msgstr ""
+
+msgid "Protected variables only run on protected branches or tags, while masked variables are hidden from job logs. You may also add variables that are made available to the running application by prepending the variable key with"
 msgstr ""
 
 msgid "ProtectedBranch|%{wildcards_link_start}Wildcards%{wildcards_link_end} such as %{code_tag_start}*-stable%{code_tag_end} or %{code_tag_start}production/*%{code_tag_end} are supported"
@@ -16542,9 +16575,6 @@ msgid "Save pipeline schedule"
 msgstr ""
 
 msgid "Save template"
-msgstr ""
-
-msgid "Save variables"
 msgstr ""
 
 msgid "Saving"
@@ -19236,6 +19266,9 @@ msgstr ""
 msgid "The value lying at the midpoint of a series of observed values. E.g., between 3, 5, 9, the median is 5. Between 3, 5, 7, 8, the median is (5+7)/2 = 6."
 msgstr ""
 
+msgid "There are currently no variables, add a variable with the Add Variable button below."
+msgstr ""
+
 msgid "There are no GPG keys associated with this account."
 msgstr ""
 
@@ -20683,6 +20716,9 @@ msgstr ""
 msgid "Update"
 msgstr ""
 
+msgid "Update Variable"
+msgstr ""
+
 msgid "Update all"
 msgstr ""
 
@@ -21289,7 +21325,13 @@ msgstr ""
 msgid "Value Stream Analytics gives an overview of how much time it takes to go from idea to production in your project."
 msgstr ""
 
+msgid "Variable"
+msgstr ""
+
 msgid "Variables"
+msgstr ""
+
+msgid "Variables will be masked in job logs. Requires value to meet regexp requriments."
 msgstr ""
 
 msgid "Various container registry settings."
@@ -22131,9 +22173,6 @@ msgid "You haven't selected any issues yet"
 msgstr ""
 
 msgid "You left the \"%{membershipable_human_name}\" %{source_type}."
-msgstr ""
-
-msgid "You may also add variables that are made available to the running application by prepending the variable key with <code>K8S_SECRET_</code>."
 msgstr ""
 
 msgid "You may close the milestone now."

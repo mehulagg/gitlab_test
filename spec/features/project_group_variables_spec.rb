@@ -53,8 +53,8 @@ describe 'Project group variables', :js do
   it 'project origin keys link to ancestor groups ci_cd settings' do
     visit project_path
     find('.group-origin-link').click
-    page.within('.js-ci-variable-list-section .js-row:nth-child(2)') do
-      expect(find('.js-ci-variable-input-key').value).to eq(key1)
+    page.within('.ci-variable-table') do
+      expect(find('tbody tr td:nth-child(2)')).to have_text key1
     end
   end
 end

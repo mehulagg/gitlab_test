@@ -2,10 +2,14 @@
 
 %h4
   = _('Variables')
-  = link_to icon('question-circle'), help_page_path('ci/variables/README', anchor: 'variables'), target: '_blank', rel: 'noopener noreferrer'
 
 %button.btn.btn-default.js-settings-toggle{ type: 'button' }
   = expanded ? _('Collapse') : _('Expand')
 
 %p
-  = render "ci/variables/content"
+  = _('Create variables to apply via the runner to use for passwords, secret keys, etc...')
+%p
+  = _('Protected variables only run on protected branches or tags, while masked variables are hidden from job logs. You may also add variables that are made available to the running application by prepending the variable key with')
+  %code
+    = ('K8S_SECRET_')
+  = link_to _('More information'), help_page_path('ci/variables/README', anchor: 'variables')
