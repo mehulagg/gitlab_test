@@ -5571,23 +5571,27 @@ describe Project do
       let(:project) { create(:project) }
 
       it 'updates state in redis store' do
-        project.set_export_state('dummy')
+        project.set_export_state('finished')
 
         Gitlab::Redis::SharedState.with do |redis|
-          expect(redis.get(project.export_state_redis_key)).to eq 'dummy'
+          expect(redis.get(project.export_state_redis_key)).to eq 'finished'
         end
+      end
+
+      it 'fails to update an invalid state' do
+        expect { project.set_export_state('invalid_name') }.to raise_error(described_class::InvalidExportState)
       end
 
       it 'retrieves state from redis' do
         Gitlab::Redis::SharedState.with do |redis|
-          redis.set(project.export_state_redis_key, 'random')
+          redis.set(project.export_state_redis_key, 'started')
         end
 
-        expect(project.get_export_state).to eq('random')
+        expect(project.get_export_state).to eq('started')
       end
 
       it 'returns the key used to store export state' do
-        expect(project.export_state_redis_key).to eq("project_export_#{project.id}")
+        expect(project.export_state_redis_key).to eq("export:project:#{project.id}")
       end
     end
 

@@ -37,6 +37,7 @@ class Project < ApplicationRecord
   extend Gitlab::ConfigHelper
 
   BoardLimitExceeded = Class.new(StandardError)
+  InvalidExportState = Class.new(StandardError)
 
   STATISTICS_ATTRIBUTE = 'repositories_count'
   UNKNOWN_IMPORT_URL = 'http://unknown.git'
@@ -60,6 +61,7 @@ class Project < ApplicationRecord
 
   SORTING_PREFERENCE_FIELD = :projects_sort
   MAX_BUILD_TIMEOUT = 1.month
+  EXPORT_STATES = %w(started after_export_action finished).freeze
 
   cache_markdown_field :description, pipeline: :description
 
@@ -1875,6 +1877,8 @@ class Project < ApplicationRecord
   end
 
   def set_export_state(state)
+    raise InvalidExportState, "Export state #{state} is invalid" unless EXPORT_STATES.include?(state)
+
     Gitlab::Redis::SharedState.with do |redis|
       redis.set(export_state_redis_key, state)
     end
@@ -1887,7 +1891,7 @@ class Project < ApplicationRecord
   end
 
   def export_state_redis_key
-    "project_export_#{id}"
+    "export:project:#{id}"
   end
 
   def export_in_progress?
