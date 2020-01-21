@@ -44,6 +44,21 @@ describe Projects::MergeRequestsController do
       get :show, params: params.merge(extra_params)
     end
 
+    context 'when merge request is unchecked' do
+      before do
+        merge_request.mark_as_unchecked!
+      end
+
+      it 'checks mergeability asynchronously' do
+        expect_next_instance_of(MergeRequests::MergeabilityCheckService) do |service|
+          expect(service).not_to receive(:execute)
+          expect(service).to receive(:async_execute)
+        end
+
+        go
+      end
+    end
+
     describe 'as html' do
       context 'when diff files were cleaned' do
         render_views
@@ -1376,7 +1391,7 @@ describe Projects::MergeRequestsController do
     end
 
     def expect_rebase_worker_for(user)
-      expect(RebaseWorker).to receive(:perform_async).with(merge_request.id, user.id)
+      expect(RebaseWorker).to receive(:perform_async).with(merge_request.id, user.id, false)
     end
 
     context 'successfully' do
@@ -1412,7 +1427,7 @@ describe Projects::MergeRequestsController do
         post_rebase
 
         expect(response.status).to eq(409)
-        expect(json_response['merge_error']).to eq(MergeRequest::REBASE_LOCK_MESSAGE)
+        expect(json_response['merge_error']).to eq('Failed to enqueue the rebase operation, possibly due to a long-lived transaction. Try again later.')
       end
     end
 

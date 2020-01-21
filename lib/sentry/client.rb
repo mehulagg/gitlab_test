@@ -5,6 +5,8 @@ module Sentry
     include Sentry::Client::Event
     include Sentry::Client::Projects
     include Sentry::Client::Issue
+    include Sentry::Client::Repo
+    include Sentry::Client::IssueLink
 
     Error = Class.new(StandardError)
     MissingKeysError = Class.new(StandardError)
@@ -33,6 +35,7 @@ module Sentry
     def request_params
       {
         headers: {
+          'Content-Type' => 'application/json',
           'Authorization' => "Bearer #{@token}"
         },
         follow_redirects: false
@@ -47,7 +50,7 @@ module Sentry
 
     def http_put(url, params = {})
       http_request do
-        Gitlab::HTTP.put(url, **request_params.merge(body: params))
+        Gitlab::HTTP.put(url, **request_params.merge(body: params.to_json))
       end
     end
 
@@ -78,7 +81,7 @@ module Sentry
     end
 
     def handle_response(response)
-      unless response.code == 200
+      unless response.code.between?(200, 204)
         raise_error "Sentry response status code: #{response.code}"
       end
 

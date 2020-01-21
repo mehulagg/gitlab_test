@@ -60,9 +60,7 @@ module SystemNoteService
   #
   # Returns the created Note object
   def change_due_date(noteable, project, author, due_date)
-    body = due_date ? "changed due date to #{due_date.to_s(:long)}" : 'removed due date'
-
-    create_note(NoteSummary.new(noteable, project, author, body, action: 'due_date'))
+    ::SystemNotes::TimeTrackingService.new(noteable: noteable, project: project, author: author).change_due_date(due_date)
   end
 
   # Called when the estimated time of a Noteable is changed
@@ -80,14 +78,7 @@ module SystemNoteService
   #
   # Returns the created Note object
   def change_time_estimate(noteable, project, author)
-    parsed_time = Gitlab::TimeTrackingFormatter.output(noteable.time_estimate)
-    body = if noteable.time_estimate == 0
-             "removed time estimate"
-           else
-             "changed time estimate to #{parsed_time}"
-           end
-
-    create_note(NoteSummary.new(noteable, project, author, body, action: 'time_tracking'))
+    ::SystemNotes::TimeTrackingService.new(noteable: noteable, project: project, author: author).change_time_estimate
   end
 
   # Called when the spent time of a Noteable is changed
@@ -105,21 +96,13 @@ module SystemNoteService
   #
   # Returns the created Note object
   def change_time_spent(noteable, project, author)
-    time_spent = noteable.time_spent
+    ::SystemNotes::TimeTrackingService.new(noteable: noteable, project: project, author: author).change_time_spent
+  end
 
-    if time_spent == :reset
-      body = "removed time spent"
-    else
-      spent_at = noteable.spent_at
-      parsed_time = Gitlab::TimeTrackingFormatter.output(time_spent.abs)
-      action = time_spent > 0 ? 'added' : 'subtracted'
+  def close_after_error_tracking_resolve(issue, project, author)
+    body = _('resolved the corresponding error and closed the issue.')
 
-      text_parts = ["#{action} #{parsed_time} of time spent"]
-      text_parts << "at #{spent_at}" if spent_at
-      body = text_parts.join(' ')
-    end
-
-    create_note(NoteSummary.new(noteable, project, author, body, action: 'time_tracking'))
+    create_note(NoteSummary.new(issue, project, author, body, action: 'closed'))
   end
 
   def change_status(noteable, project, author, status, source = nil)

@@ -79,10 +79,12 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         resources :audit_events, only: [:index]
 
         namespace :analytics do
-          constraints(::Constraints::FeatureConstrainer.new(:code_review_analytics)) do
+          constraints(::Constraints::FeatureConstrainer.new(:code_review_analytics, default_enabled: true)) do
             resources :code_reviews, only: [:index]
           end
         end
+
+        draw :merge_requests_ee
       end
       # End of the /-/ scope.
 
@@ -138,17 +140,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       get '/service_desk' => 'service_desk#show', as: :service_desk
       put '/service_desk' => 'service_desk#update', as: :service_desk_refresh
 
-      # Unscoped route. It will be replaced with redirect to /-/merge_requests/
-      # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
-      draw :merge_requests_ee
-
-      # To ensure an old unscoped routing is used for the UI we need to
-      # add prefix 'as' to the scope routing and place it below original MR routing.
-      # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
-      scope '-', as: 'scoped' do
-        draw :merge_requests_ee
-      end
-
       post '/restore' => '/projects#restore', as: :restore
 
       resources :approvers, only: :destroy
@@ -169,7 +160,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       end
 
       namespace :security do
-        resource :dashboard, only: [:show], controller: :dashboard
+        resources :dashboard, only: [:show, :index], controller: :dashboard
         resource :configuration, only: [:show], controller: :configuration
 
         resources :vulnerability_findings, only: [:index] do

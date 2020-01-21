@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_14_113341) do
+ActiveRecord::Schema.define(version: 2020_01_17_112554) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -697,6 +697,7 @@ ActiveRecord::Schema.define(version: 2020_01_14_113341) do
     t.integer "upstream_pipeline_id"
     t.bigint "resource_group_id"
     t.datetime_with_timezone "waiting_for_resource_at"
+    t.boolean "processed"
     t.index ["artifacts_expire_at"], name: "index_ci_builds_on_artifacts_expire_at", where: "(artifacts_file <> ''::text)"
     t.index ["auto_canceled_by_id"], name: "index_ci_builds_on_auto_canceled_by_id"
     t.index ["commit_id", "artifacts_expire_at", "id"], name: "index_ci_builds_on_commit_id_and_artifacts_expireatandidpartial", where: "(((type)::text = 'Ci::Build'::text) AND ((retried = false) OR (retried IS NULL)) AND ((name)::text = ANY (ARRAY[('sast'::character varying)::text, ('dependency_scanning'::character varying)::text, ('sast:container'::character varying)::text, ('container_scanning'::character varying)::text, ('dast'::character varying)::text])))"
@@ -1538,7 +1539,6 @@ ActiveRecord::Schema.define(version: 2020_01_14_113341) do
   end
 
   create_table "epics", id: :serial, force: :cascade do |t|
-    t.integer "milestone_id"
     t.integer "group_id", null: false
     t.integer "author_id", null: false
     t.integer "assignee_id"
@@ -1577,7 +1577,6 @@ ActiveRecord::Schema.define(version: 2020_01_14_113341) do
     t.index ["end_date"], name: "index_epics_on_end_date"
     t.index ["group_id"], name: "index_epics_on_group_id"
     t.index ["iid"], name: "index_epics_on_iid"
-    t.index ["milestone_id"], name: "index_milestone"
     t.index ["parent_id"], name: "index_epics_on_parent_id"
     t.index ["start_date"], name: "index_epics_on_start_date"
     t.index ["start_date_sourcing_epic_id"], name: "index_epics_on_start_date_sourcing_epic_id", where: "(start_date_sourcing_epic_id IS NOT NULL)"
@@ -2038,14 +2037,17 @@ ActiveRecord::Schema.define(version: 2020_01_14_113341) do
 
   create_table "import_failures", force: :cascade do |t|
     t.integer "relation_index"
-    t.bigint "project_id", null: false
+    t.bigint "project_id"
     t.datetime_with_timezone "created_at", null: false
     t.string "relation_key", limit: 64
     t.string "exception_class", limit: 128
     t.string "correlation_id_value", limit: 128
     t.string "exception_message", limit: 255
+    t.integer "retry_count"
+    t.integer "group_id"
     t.index ["correlation_id_value"], name: "index_import_failures_on_correlation_id_value"
-    t.index ["project_id"], name: "index_import_failures_on_project_id"
+    t.index ["group_id"], name: "index_import_failures_on_group_id_not_null", where: "(group_id IS NOT NULL)"
+    t.index ["project_id"], name: "index_import_failures_on_project_id_not_null", where: "(project_id IS NOT NULL)"
   end
 
   create_table "index_statuses", id: :serial, force: :cascade do |t|
@@ -3168,6 +3170,7 @@ ActiveRecord::Schema.define(version: 2020_01_14_113341) do
     t.datetime "updated_at"
     t.integer "repository_access_level", default: 20, null: false
     t.integer "pages_access_level", null: false
+    t.integer "forking_access_level"
     t.index ["project_id"], name: "index_project_features_on_project_id", unique: true
   end
 
@@ -3734,6 +3737,7 @@ ActiveRecord::Schema.define(version: 2020_01_14_113341) do
     t.bigint "issue_id", null: false
     t.bigint "sentry_issue_identifier", null: false
     t.index ["issue_id"], name: "index_sentry_issues_on_issue_id", unique: true
+    t.index ["sentry_issue_identifier"], name: "index_sentry_issues_on_sentry_issue_identifier"
   end
 
   create_table "serverless_domain_cluster", primary_key: "uuid", id: :string, limit: 14, force: :cascade do |t|
@@ -4591,7 +4595,6 @@ ActiveRecord::Schema.define(version: 2020_01_14_113341) do
   add_foreign_key "epics", "epics", column: "start_date_sourcing_epic_id", name: "fk_9d480c64b2", on_delete: :nullify
   add_foreign_key "epics", "milestones", column: "due_date_sourcing_milestone_id", name: "fk_3c1fd1cccc", on_delete: :nullify
   add_foreign_key "epics", "milestones", column: "start_date_sourcing_milestone_id", name: "fk_1fbed67632", on_delete: :nullify
-  add_foreign_key "epics", "milestones", on_delete: :nullify
   add_foreign_key "epics", "namespaces", column: "group_id", name: "fk_f081aa4489", on_delete: :cascade
   add_foreign_key "epics", "users", column: "assignee_id", name: "fk_dccd3f98fc", on_delete: :nullify
   add_foreign_key "epics", "users", column: "author_id", name: "fk_3654b61b03", on_delete: :cascade
@@ -4645,6 +4648,7 @@ ActiveRecord::Schema.define(version: 2020_01_14_113341) do
   add_foreign_key "identities", "saml_providers", name: "fk_aade90f0fc", on_delete: :cascade
   add_foreign_key "import_export_uploads", "namespaces", column: "group_id", name: "fk_83319d9721", on_delete: :cascade
   add_foreign_key "import_export_uploads", "projects", on_delete: :cascade
+  add_foreign_key "import_failures", "namespaces", column: "group_id", name: "fk_24b824da43", on_delete: :cascade
   add_foreign_key "index_statuses", "projects", name: "fk_74b2492545", on_delete: :cascade
   add_foreign_key "insights", "namespaces", on_delete: :cascade
   add_foreign_key "insights", "projects", on_delete: :cascade

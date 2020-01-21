@@ -164,9 +164,9 @@ class User < ApplicationRecord
   # Validations
   #
   # Note: devise :validatable above adds validations for :email and :password
-  validates :name, presence: true, length: { maximum: 128 }
-  validates :first_name, length: { maximum: 255 }
-  validates :last_name, length: { maximum: 255 }
+  validates :name, presence: true, length: { maximum: 255 }
+  validates :first_name, length: { maximum: 127 }
+  validates :last_name, length: { maximum: 127 }
   validates :email, confirmation: true
   validates :notification_email, presence: true
   validates :notification_email, devise_email: true, if: ->(user) { user.notification_email != user.email }
@@ -223,19 +223,19 @@ class User < ApplicationRecord
   after_initialize :set_projects_limit
 
   # User's Layout preference
-  enum layout: [:fixed, :fluid]
+  enum layout: { fixed: 0, fluid: 1 }
 
   # User's Dashboard preference
   # Note: When adding an option, it MUST go on the end of the array.
-  enum dashboard: [:projects, :stars, :project_activity, :starred_project_activity, :groups, :todos, :issues, :merge_requests, :operations]
+  enum dashboard: { projects: 0, stars: 1, project_activity: 2, starred_project_activity: 3, groups: 4, todos: 5, issues: 6, merge_requests: 7, operations: 8 }
 
   # User's Project preference
   # Note: When adding an option, it MUST go on the end of the array.
-  enum project_view: [:readme, :activity, :files]
+  enum project_view: { readme: 0, activity: 1, files: 2 }
 
   # User's role
   # Note: When adding an option, it MUST go on the end of the array.
-  enum role: [:software_developer, :development_team_lead, :devops_engineer, :systems_administrator, :security_analyst, :data_analyst, :product_manager, :product_designer, :other], _suffix: true
+  enum role: { software_developer: 0, development_team_lead: 1, devops_engineer: 2, systems_administrator: 3, security_analyst: 4, data_analyst: 5, product_manager: 6, product_designer: 7, other: 8 }, _suffix: true
 
   delegate :path, to: :namespace, allow_nil: true, prefix: true
   delegate :notes_filter_for, to: :user_preference
@@ -307,6 +307,8 @@ class User < ApplicationRecord
   scope :blocked, -> { with_states(:blocked, :ldap_blocked) }
   scope :external, -> { where(external: true) }
   scope :active, -> { with_state(:active).non_internal }
+  scope :active_without_ghosts, -> { with_state(:active).without_ghosts }
+  scope :without_ghosts, -> { where('ghost IS NOT TRUE') }
   scope :deactivated, -> { with_state(:deactivated).non_internal }
   scope :without_projects, -> { joins('LEFT JOIN project_authorizations ON users.id = project_authorizations.user_id').where(project_authorizations: { user_id: nil }) }
   scope :order_recent_sign_in, -> { reorder(Gitlab::Database.nulls_last_order('current_sign_in_at', 'DESC')) }
@@ -470,7 +472,7 @@ class User < ApplicationRecord
       when 'deactivated'
         deactivated
       else
-        active
+        active_without_ghosts
       end
     end
 
@@ -614,7 +616,7 @@ class User < ApplicationRecord
   end
 
   def self.non_internal
-    where('ghost IS NOT TRUE')
+    without_ghosts
   end
 
   #

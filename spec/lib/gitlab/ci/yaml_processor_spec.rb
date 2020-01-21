@@ -1331,9 +1331,9 @@ module Gitlab
             stub_feature_flags(ci_release_generation: false)
           end
 
-          it "returns release info" do
-            expect(processor.stage_builds_attributes('release').first[:options].include?(config[:release]))
-              .to be false
+          it 'raises error' do
+            expect { processor }.to raise_error(
+              'jobs:release config release features are not enabled: release')
           end
         end
       end
@@ -1734,6 +1734,39 @@ module Gitlab
           let(:dependencies) { %w(build2) }
 
           it { expect { subject }.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:test1 dependencies the build2 should be part of needs') }
+        end
+
+        context 'needs with a Hash type and dependencies with a string type that are mismatching' do
+          let(:needs) do
+            [
+              "build1",
+              { job: "build2" }
+            ]
+          end
+          let(:dependencies) { %w(build3) }
+
+          it { expect { subject }.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:test1 dependencies the build3 should be part of needs') }
+        end
+
+        context 'needs with an array type and dependency with a string type' do
+          let(:needs) { %w(build1) }
+          let(:dependencies) { 'deploy' }
+
+          it { expect { subject }.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:test1 dependencies should be an array of strings') }
+        end
+
+        context 'needs with a string type and dependency with an array type' do
+          let(:needs) { 'build1' }
+          let(:dependencies) { %w(deploy) }
+
+          it { expect { subject }.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:test1:needs config can only be a hash or an array') }
+        end
+
+        context 'needs with a Hash type and dependency with a string type' do
+          let(:needs) { { job: 'build1' } }
+          let(:dependencies) { 'deploy' }
+
+          it { expect { subject }.to raise_error(Gitlab::Ci::YamlProcessor::ValidationError, 'jobs:test1 dependencies should be an array of strings') }
         end
       end
 

@@ -3992,7 +3992,7 @@ describe Project do
       end
 
       it 'schedules HashedStorage::ProjectMigrateWorker with delayed start when the project repo is in use' do
-        Gitlab::ReferenceCounter.new(Gitlab::GlRepository::PROJECT.identifier_for_subject(project)).increase
+        Gitlab::ReferenceCounter.new(Gitlab::GlRepository::PROJECT.identifier_for_repositorable(project)).increase
 
         expect(HashedStorage::ProjectMigrateWorker).to receive(:perform_in)
 
@@ -4000,7 +4000,7 @@ describe Project do
       end
 
       it 'schedules HashedStorage::ProjectMigrateWorker with delayed start when the wiki repo is in use' do
-        Gitlab::ReferenceCounter.new(Gitlab::GlRepository::WIKI.identifier_for_subject(project)).increase
+        Gitlab::ReferenceCounter.new(Gitlab::GlRepository::WIKI.identifier_for_repositorable(project)).increase
 
         expect(HashedStorage::ProjectMigrateWorker).to receive(:perform_in)
 
@@ -4745,7 +4745,7 @@ describe Project do
     end
 
     it 'returns true when a plugin exists' do
-      expect(Gitlab::Plugin).to receive(:any?).twice.and_return(true)
+      expect(Gitlab::FileHook).to receive(:any?).twice.and_return(true)
 
       expect(project.has_active_hooks?(:merge_request_events)).to be_truthy
       expect(project.has_active_hooks?).to be_truthy

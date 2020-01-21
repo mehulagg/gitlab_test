@@ -433,6 +433,8 @@ Filebeat will run as a DaemonSet on each node in your cluster, and it will ship 
 GitLab will then connect to Elasticsearch for logs instead of the Kubernetes API,
 and you will have access to more advanced querying capabilities.
 
+Log data is automatically deleted after 15 days using [Curator](https://www.elastic.co/guide/en/elasticsearch/client/curator/5.5/about.html).
+
 This is a preliminary release of Elastic Stack as a GitLab-managed application. By default,
 the ability to install it is disabled.
 
@@ -474,6 +476,8 @@ Supported applications:
 - [Ingress](#install-ingress-using-gitlab-ci)
 - [cert-manager](#install-cert-manager-using-gitlab-ci)
 - [Sentry](#install-sentry-using-gitlab-ci)
+- [GitLab Runner](#install-gitlab-runner-using-gitlab-ci)
+- [Cilium](#install-cilium-using-gitlab-ci)
 
 ### Usage
 
@@ -505,7 +509,10 @@ To install applications using GitLab CI:
    customize values for the installed application.
 
 A GitLab CI pipeline will then run on the `master` branch to install the
-applications you have configured.
+applications you have configured. In case of pipeline failure, the
+output of the [Helm
+Tiller](https://v2.helm.sh/docs/install/#running-tiller-locally) binary
+will be saved as a [CI job artifact](../project/pipelines/job_artifacts.md).
 
 ### Install Ingress using GitLab CI
 
@@ -557,7 +564,7 @@ certManager:
     installed: false
 ```
 
-You can customize the installation of Ingress by defining
+You can customize the installation of cert-manager by defining
 `.gitlab/managed-apps/cert-manager/values.yaml` file in your cluster
 management project. Refer to the
 [chart](https://hub.helm.sh/charts/jetstack/cert-manager) for the
@@ -622,6 +629,96 @@ ingress:
 # See https://github.com/helm/charts/tree/master/stable/postgresql#upgrade for more info
 postgresql:
   postgresqlPassword: example-postgresql-password
+```
+
+### Install GitLab Runner using GitLab CI
+
+GitLab Runner is installed using GitLab CI by defining configuration in
+`.gitlab/managed-apps/config.yaml`.
+
+The following configuration is required to install GitLab Runner using GitLab CI:
+
+```yaml
+gitlabRunner:
+  installed: true
+```
+
+GitLab Runner is installed into the `gitlab-managed-apps` namespace of your cluster.
+
+In order for GitLab Runner to function, you **must** specify the following:
+
+- `gitlabUrl` - the GitLab server full URL (e.g., `https://example.gitlab.com`) to register the Runner against.
+- `runnerRegistrationToken` - The registration token for adding new Runners to GitLab. This must be
+  [retrieved from your GitLab instance](../../ci/runners/README.md).
+
+These values can be specifed using [CI variables](../../ci/variables/README.md):
+
+- `GITLAB_RUNNER_GITLAB_URL` will be used for `gitlabUrl`.
+- `GITLAB_RUNNER_REGISTRATION_TOKEN` will be used for `runnerRegistrationToken`
+
+You can customize the installation of GitLab Runner by defining
+`.gitlab/managed-apps/gitlab-runner/values.yaml` file in your cluster
+management project. Refer to the
+[chart](https://gitlab.com/gitlab-org/charts/gitlab-runner) for the
+available configuration options.
+
+### Install Cilium using GitLab CI
+
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/merge_requests/22) in GitLab 12.7.
+
+[Cilium](https://cilium.io/) is a networking plugin for Kubernetes
+that you can use to implement support for
+[NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
+resources.
+
+Enable Cilium in the `.gitlab/managed-apps/config.yaml` file to install it:
+
+```yaml
+# possible values are gke, eks or you can leave it blank
+clusterType: gke
+
+cilium:
+  installed: true
+```
+
+The `clusterType` variable enables the recommended Helm variables for
+a corresponding cluster type, the default value is blank. You can
+check the recommended variables for each cluster type in the official
+documentation:
+
+- [Google GKE](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-gke/#prepare-deploy-cilium)
+- [AWS EKS](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-eks/#prepare-deploy-cilium)
+
+You can customize Cilium's Helm variables by defining the
+`.gitlab/managed-apps/cilium/values.yaml` file in your cluster
+management project. Refer to the
+[Cilium chart](https://github.com/cilium/cilium/tree/master/install/kubernetes/cilium)
+for the available configuration options.
+
+CAUTION: **Caution:**
+Installation and removal of the Cilium [requires restart](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-gke/#restart-remaining-pods)
+of all affected pods in all namespaces to ensure that they are
+[managed](https://cilium.readthedocs.io/en/stable/troubleshooting/#ensure-pod-is-managed-by-cilium)
+by the correct networking plugin.
+
+NOTE: **Note:**
+Major upgrades might require additional setup steps, please consult
+the official [upgrade guide](https://docs.cilium.io/en/stable/install/upgrade/) for more
+information.
+
+By default, the drop log for traffic is logged out by the
+`cilium-monitor` sidecar container. You can check these logs via:
+
+```bash
+kubectl -n gitlab-managed-apps logs cilium-XXXX cilium-monitor
+```
+
+Drop logging can be disabled via `.gitlab/managed-apps/cilium/values.yaml`:
+
+```yml
+agent:
+  monitor:
+    enabled: false
 ```
 
 ## Upgrading applications

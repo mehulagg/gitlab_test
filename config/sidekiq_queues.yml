@@ -76,7 +76,7 @@
   - [pages_domain_ssl_renewal, 1]
   - [object_storage_upload, 1]
   - [object_storage, 1]
-  - [plugin, 1]
+  - [file_hook, 1]
   - [pipeline_background, 1]
   - [repository_update_remote_mirror, 1]
   - [repository_remove_remote, 1]
@@ -101,6 +101,8 @@
   - [group_export, 1]
   - [self_monitoring_project_create, 2]
   - [self_monitoring_project_delete, 2]
+  - [error_tracking_issue_link, 2]
+  - [merge_request_mergeability_check, 5]
 
   # EE-specific queues
   - [analytics, 1]

@@ -150,7 +150,7 @@ gem 'wikicloth', '0.8.1'
 gem 'asciidoctor', '~> 2.0.10'
 gem 'asciidoctor-include-ext', '~> 0.3.1', require: false
 gem 'asciidoctor-plantuml', '0.0.10'
-gem 'rouge', '~> 3.11.0'
+gem 'rouge', '~> 3.15.0'
 gem 'truncato', '~> 0.7.11'
 gem 'bootstrap_form', '~> 4.2.0'
 gem 'nokogiri', '~> 1.10.5'
@@ -457,7 +457,7 @@ group :ed25519 do
 end
 
 # Gitaly GRPC protocol definitions
-gem 'gitaly', '~> 1.73.0'
+gem 'gitaly', '~> 1.81.0'
 
 gem 'grpc', '~> 1.24.0'
 
@@ -484,3 +484,6 @@ gem 'countries', '~> 3.0'
 gem 'retriable', '~> 3.1.2'
 
 gem 'liquid', '~> 4.0'
+
+# LRU cache
+gem 'lru_redux'

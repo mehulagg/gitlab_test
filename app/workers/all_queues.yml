@@ -143,6 +143,7 @@
 - delete_user
 - email_receiver
 - emails_on_push
+- error_tracking_issue_link
 - expire_build_instance_artifacts
 - git_garbage_collect
 - gitlab_shell
@@ -158,7 +159,7 @@
 - pages
 - pages_domain_verification
 - pages_domain_ssl_renewal
-- plugin
+- file_hook
 - post_receive
 - process_commit
 - project_cache
@@ -190,3 +191,4 @@
 - group_export
 - self_monitoring_project_create
 - self_monitoring_project_delete
+- merge_request_mergeability_check

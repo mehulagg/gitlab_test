@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 class SpamService
+  include AkismetMethods
+
   attr_accessor :spammable, :request, :options
   attr_reader :spam_log
 
-  def initialize(spammable:, request: nil)
+  def initialize(spammable:, request:)
     @spammable = spammable
     @request = request
     @options = {}
@@ -16,16 +18,6 @@ class SpamService
     else
       @options[:ip_address] = @spammable.ip_address
       @options[:user_agent] = @spammable.user_agent
-    end
-  end
-
-  def mark_as_spam!
-    return false unless spammable.submittable_as_spam?
-
-    if akismet.submit_spam
-      spammable.user_agent_detail.update_attribute(:submitted, true)
-    else
-      false
     end
   end
 
@@ -54,28 +46,6 @@ class SpamService
     true
   end
 
-  def akismet
-    @akismet ||= AkismetService.new(
-      spammable_owner.name,
-      spammable_owner.email,
-      spammable.spammable_text,
-      options
-    )
-  end
-
-  def spammable_owner
-    @user ||= User.find(spammable_owner_id)
-  end
-
-  def spammable_owner_id
-    @owner_id ||=
-      if spammable.respond_to?(:author_id)
-        spammable.author_id
-      elsif spammable.respond_to?(:creator_id)
-        spammable.creator_id
-      end
-  end
-
   def check_for_spam?
     spammable.check_for_spam?
   end
@@ -83,7 +53,7 @@ class SpamService
   def create_spam_log(api)
     @spam_log = SpamLog.create!(
       {
-        user_id: spammable_owner_id,
+        user_id: spammable.author_id,
         title: spammable.spam_title,
         description: spammable.spam_description,
         source_ip: options[:ip_address],

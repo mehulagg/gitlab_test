@@ -284,7 +284,6 @@ module ApplicationSettingsHelper
       :unique_ips_limit_enabled,
       :unique_ips_limit_per_user,
       :unique_ips_limit_time_window,
-      :updating_name_disabled_for_users,
       :usage_ping_enabled,
       :instance_statistics_visibility_private,
       :user_default_external,
@@ -352,7 +351,7 @@ module ApplicationSettingsHelper
         status_delete_self_monitoring_project_admin_application_settings_path,
 
       'self_monitoring_project_exists' =>
-        Gitlab::CurrentSettings.instance_administration_project.present?,
+        Gitlab::CurrentSettings.instance_administration_project.present?.to_s,
 
       'self_monitoring_project_full_path' =>
         Gitlab::CurrentSettings.instance_administration_project&.full_path

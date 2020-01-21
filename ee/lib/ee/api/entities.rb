@@ -92,7 +92,7 @@ module EE
         prepended do
           expose :group_saml_identity,
                  using: ::API::Entities::Identity,
-                 if:  -> (member, options) { Ability.allowed?(options[:current_user], :read_group_saml_identity, member.source) }
+                 if: -> (member, options) { Ability.allowed?(options[:current_user], :read_group_saml_identity, member.source) }
         end
       end
 
@@ -209,6 +209,7 @@ module EE
           expose :file_template_project_id, if: ->(_instance, _opts) { ::License.feature_available?(:custom_file_templates) }
           expose :default_project_deletion_protection, if: ->(_instance, _opts) { ::License.feature_available?(:default_project_deletion_protection) }
           expose :deletion_adjourned_period, if: ->(_instance, _opts) { ::License.feature_available?(:marking_project_for_deletion) }
+          expose :updating_name_disabled_for_users, if: ->(_instance, _opts) { ::License.feature_available?(:disable_name_update_for_users) }
         end
       end
 
@@ -575,14 +576,14 @@ module EE
 
       class GitlabLicense < Grape::Entity
         expose :id,
-          :plan,
-          :created_at,
-          :starts_at,
-          :expires_at,
-          :historical_max,
-          :maximum_user_count,
-          :licensee,
-          :add_ons
+               :plan,
+               :created_at,
+               :starts_at,
+               :expires_at,
+               :historical_max,
+               :maximum_user_count,
+               :licensee,
+               :add_ons
 
         expose :expired?, as: :expired
 
@@ -1006,6 +1007,46 @@ module EE
         expose :vulnerability, using: ::EE::API::Entities::Vulnerability
         expose :issue, using: ::API::Entities::IssueBasic
         expose :link_type
+      end
+
+      module Analytics
+        module CodeReview
+          class MergeRequest < ::API::Entities::MergeRequestSimple
+            expose :milestone, using: ::API::Entities::Milestone
+            expose :author, using: ::API::Entities::UserBasic
+            expose :approved_by_users, as: :approved_by, using: ::API::Entities::UserBasic
+            expose :notes_count do |mr|
+              if options[:issuable_metadata]
+                # Avoids an N+1 query when metadata is included
+                options[:issuable_metadata][mr.id].user_notes_count
+              else
+                mr.notes.user.count
+              end
+            end
+            expose :review_time do |mr|
+              next unless mr.metrics.first_comment_at
+
+              review_time = (mr.metrics.merged_at || Time.now) - mr.metrics.first_comment_at
+
+              (review_time / ActiveSupport::Duration::SECONDS_PER_HOUR).floor
+            end
+            expose :diff_stats
+
+            private
+
+            # rubocop: disable CodeReuse/ActiveRecord
+            def diff_stats
+              result = {
+                additions: object.diffs.diff_files.sum(&:added_lines),
+                deletions: object.diffs.diff_files.sum(&:removed_lines),
+                commits_count: object.commits_count
+              }
+              result[:total] = result[:additions] + result[:deletions]
+              result
+            end
+            # rubocop: enable CodeReuse/ActiveRecord
+          end
+        end
       end
     end
   end

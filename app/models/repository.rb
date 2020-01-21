@@ -1062,10 +1062,13 @@ class Repository
     rebase_sha
   end
 
-  def rebase(user, merge_request)
+  def rebase(user, merge_request, skip_ci: false)
     if Feature.disabled?(:two_step_rebase, default_enabled: true)
       return rebase_deprecated(user, merge_request)
     end
+
+    push_options = []
+    push_options << Gitlab::PushOptions::CI_SKIP if skip_ci
 
     raw.rebase(
       user,
@@ -1073,7 +1076,8 @@ class Repository
       branch: merge_request.source_branch,
       branch_sha: merge_request.source_branch_sha,
       remote_repository: merge_request.target_project.repository.raw,
-      remote_branch: merge_request.target_branch
+      remote_branch: merge_request.target_branch,
+      push_options: push_options
     ) do |commit_id|
       merge_request.update!(rebase_commit_sha: commit_id, merge_error: nil)
     end
@@ -1088,6 +1092,10 @@ class Repository
                                        end_sha: merge_request.diff_head_sha,
                                        author: merge_request.author,
                                        message: message)
+  end
+
+  def submodule_links
+    @submodule_links ||= ::Gitlab::SubmoduleLinks.new(self)
   end
 
   def update_submodule(user, submodule, commit_sha, message:, branch:)
@@ -1173,7 +1181,7 @@ class Repository
   def initialize_raw_repository
     Gitlab::Git::Repository.new(project.repository_storage,
                                 disk_path + '.git',
-                                repo_type.identifier_for_subject(project),
+                                repo_type.identifier_for_repositorable(project),
                                 project.full_path)
   end
 end

@@ -22,6 +22,7 @@ export default {
   cycleAnalyticsStageMedianPath: '/-/analytics/cycle_analytics/stages/:stage_id/median',
   cycleAnalyticsStagePath: '/-/analytics/cycle_analytics/stages/:stage_id',
   cycleAnalyticsDurationChartPath: '/-/analytics/cycle_analytics/stages/:stage_id/duration_chart',
+  codeReviewAnalyticsPath: '/api/:version/analytics/code_review',
 
   userSubscription(namespaceId) {
     const url = Api.buildUrl(this.subscriptionPath).replace(':id', encodeURIComponent(namespaceId));
@@ -87,13 +88,15 @@ export default {
    * Returns pods logs for an environment with an optional pod and container
    *
    * @param {Object} params
-   * @param {string} param.projectFullPath - Path of the project, in format `/<namespace>/<project-key>`
-   * @param {number} param.environmentId - Id of the environment
+   * @param {string} params.projectFullPath - Path of the project, in format `/<namespace>/<project-key>`
+   * @param {number} params.environmentId - Id of the environment
    * @param {string=} params.podName - Pod name, if not set the backend assumes a default one
    * @param {string=} params.containerName - Container name, if not set the backend assumes a default one
+   * @param {string=} params.start - Starting date to query the logs in ISO format
+   * @param {string=} params.end - Ending date to query the logs in ISO format
    * @returns {Promise} Axios promise for the result of a GET request of logs
    */
-  getPodLogs({ projectPath, environmentName, podName, containerName, search }) {
+  getPodLogs({ projectPath, environmentName, podName, containerName, search, start, end }) {
     const url = this.buildUrl(this.podLogsPath).replace(':project_full_path', projectPath);
 
     const params = {
@@ -108,6 +111,12 @@ export default {
     }
     if (search) {
       params.search = search;
+    }
+    if (start) {
+      params.start = start;
+    }
+    if (end) {
+      params.end = end;
     }
 
     return axios.get(url, { params });
@@ -201,6 +210,11 @@ export default {
     return axios.get(url, {
       params,
     });
+  },
+
+  codeReviewAnalytics(params = {}) {
+    const url = Api.buildUrl(this.codeReviewAnalyticsPath);
+    return axios.get(url, { params });
   },
 
   getGeoDesigns(params = {}) {

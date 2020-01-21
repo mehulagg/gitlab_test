@@ -39,7 +39,8 @@ describe('ErrorDetails', () => {
     });
     wrapper.setData({
       GQLerror: {
-        id: 129381,
+        id: 'gid://gitlab/Gitlab::ErrorTracking::DetailedError/129381',
+        sentryId: 129381,
         title: 'Issue title',
         externalUrl: 'http://sentry.gitlab.net/gitlab',
         firstSeen: '2017-05-26T13:32:48Z',
@@ -198,6 +199,7 @@ describe('ErrorDetails', () => {
       const gitlabIssue = 'https://gitlab.example.com/issues/1';
       const findGitLabLink = () => wrapper.find(`[href="${gitlabIssue}"]`);
       const findCreateIssueButton = () => wrapper.find('[data-qa-selector="create_issue_button"]');
+      const findViewIssueButton = () => wrapper.find('[data-qa-selector="view_issue_button"]');
 
       describe('is present', () => {
         beforeEach(() => {
@@ -207,6 +209,10 @@ describe('ErrorDetails', () => {
             gitlab_issue: gitlabIssue,
           };
           mountComponent();
+        });
+
+        it('should display the View issue button', () => {
+          expect(findViewIssueButton().exists()).toBe(true);
         });
 
         it('should display the issue link', () => {
@@ -228,11 +234,48 @@ describe('ErrorDetails', () => {
           mountComponent();
         });
 
+        it('should not display the View issue button', () => {
+          expect(findViewIssueButton().exists()).toBe(false);
+        });
+
         it('should not display an issue link', () => {
           expect(findGitLabLink().exists()).toBe(false);
         });
+
         it('should display the create issue button', () => {
           expect(findCreateIssueButton().exists()).toBe(true);
+        });
+      });
+    });
+
+    describe('GitLab commit link', () => {
+      const gitlabCommit = '7975be0116940bf2ad4321f79d02a55c5f7779aa';
+      const gitlabCommitPath =
+        '/gitlab-org/gitlab-test/commit/7975be0116940bf2ad4321f79d02a55c5f7779aa';
+      const findGitLabCommitLink = () => wrapper.find(`[href$="${gitlabCommitPath}"]`);
+
+      it('should display a link', () => {
+        mocks.$apollo.queries.GQLerror.loading = false;
+        wrapper.setData({
+          GQLerror: {
+            gitlabCommit,
+            gitlabCommitPath,
+          },
+        });
+        return wrapper.vm.$nextTick().then(() => {
+          expect(findGitLabCommitLink().exists()).toBe(true);
+        });
+      });
+
+      it('should not display a link', () => {
+        mocks.$apollo.queries.GQLerror.loading = false;
+        wrapper.setData({
+          GQLerror: {
+            gitlabCommit: null,
+          },
+        });
+        return wrapper.vm.$nextTick().then(() => {
+          expect(findGitLabCommitLink().exists()).toBe(false);
         });
       });
     });

@@ -61,6 +61,12 @@ Parameters:
 | `in`                | string         | no       | Modify the scope of the `search` attribute. `title`, `description`, or a string joining them with comma. Default is `title,description` |
 | `wip`               | string         | no       | Filter merge requests against their `wip` status. `yes` to return *only* WIP merge requests, `no` to return *non* WIP merge requests |
 
+NOTE: **Note:**
+[Starting in GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/issues/29984),
+the mergeability (`merge_status`) of each merge request will be checked
+asynchronously when a request is made to this endpoint. Poll this API endpoint
+to get updated status.
+
 ```json
 [
   {
@@ -525,6 +531,12 @@ Parameters:
 - `render_html` (optional) - If `true` response includes rendered HTML for title and description
 - `include_diverged_commits_count` (optional) - If `true` response includes the commits behind the target branch
 - `include_rebase_in_progress` (optional) - If `true` response includes whether a rebase operation is in progress
+
+NOTE: **Note:**
+[Starting in GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/issues/29984),
+the mergeability (`merge_status`) of a merge request will be checked
+asynchronously when a request is made to this endpoint. Poll this API endpoint
+to get updated status.
 
 ```json
 {
@@ -1613,6 +1625,7 @@ PUT /projects/:id/merge_requests/:merge_request_iid/rebase
 | ---------           | ----    | -------- | -----------                          |
 | `id`                | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user                  |
 | `merge_request_iid` | integer | yes      | The internal ID of the merge request |
+| `skip_ci`           | boolean | no       | Set to `true` to skip creating a CI pipeline |
 
 ```bash
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/76/merge_requests/1/rebase

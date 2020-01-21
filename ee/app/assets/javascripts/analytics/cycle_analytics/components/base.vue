@@ -74,6 +74,7 @@ export default {
       'currentGroupPath',
       'durationChartPlottableData',
       'tasksByTypeChartData',
+      'durationChartMedianData',
     ]),
     shouldRenderEmptyState() {
       return !this.selectedGroup;
@@ -121,6 +122,7 @@ export default {
     this.initDateRange();
     this.setFeatureFlags({
       hasDurationChart: this.glFeatures.cycleAnalyticsScatterplotEnabled,
+      hasDurationChartMedian: this.glFeatures.cycleAnalyticsScatterplotMedianEnabled,
       hasTasksByTypeChart: this.glFeatures.tasksByTypeChart,
     });
   },
@@ -142,6 +144,7 @@ export default {
       'setFeatureFlags',
       'editCustomStage',
       'updateStage',
+      'setTasksByTypeFilters',
     ]),
     onGroupSelect(group) {
       this.setSelectedGroup(group);
@@ -303,6 +306,7 @@ export default {
             :y-axis-title="s__('CycleAnalytics|Total days to completion')"
             :tooltip-date-format="$options.durationChartTooltipDateFormat"
             :scatter-data="durationChartPlottableData"
+            :median-line-data="durationChartMedianData"
           />
           <div v-else ref="duration-chart-no-data" class="bs-callout bs-callout-info">
             {{ __('There is no data available. Please change your selection.') }}
@@ -316,6 +320,8 @@ export default {
             <tasks-by-type-chart
               :chart-data="tasksByTypeChartData"
               :filters="selectedTasksByTypeFilters"
+              :labels="labels"
+              @updateFilter="setTasksByTypeFilters"
             />
           </div>
           <gl-loading-icon v-else size="md" class="my-4 py-4" />

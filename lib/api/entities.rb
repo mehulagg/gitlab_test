@@ -414,6 +414,7 @@ module API
       expose :auto_devops_enabled
       expose :subgroup_creation_level_str, as: :subgroup_creation_level
       expose :emails_disabled
+      expose :mentions_disabled
       expose :lfs_enabled?, as: :lfs_enabled
       expose :avatar_url do |group, options|
         group.avatar_url(only_path: false)
@@ -810,7 +811,7 @@ module API
       # See https://gitlab.com/gitlab-org/gitlab-foss/issues/42344 for more
       # information.
       expose :merge_status do |merge_request|
-        merge_request.check_mergeability
+        merge_request.check_mergeability(async: true)
         merge_request.merge_status
       end
       expose :diff_head_sha, as: :sha

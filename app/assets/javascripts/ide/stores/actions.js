@@ -33,25 +33,12 @@ export const setPanelCollapsedStatus = ({ commit }, { side, collapsed }) => {
   }
 };
 
-export const toggleRightPanelCollapsed = ({ dispatch, state }, e = undefined) => {
-  if (e) {
-    $(e.currentTarget)
-      .tooltip('hide')
-      .blur();
-  }
-
-  dispatch('setPanelCollapsedStatus', {
-    side: 'right',
-    collapsed: !state.rightPanelCollapsed,
-  });
-};
-
 export const setResizingStatus = ({ commit }, resizing) => {
   commit(types.SET_RESIZING_STATUS, resizing);
 };
 
 export const createTempEntry = (
-  { state, commit, dispatch },
+  { state, commit, dispatch, getters },
   { name, type, content = '', base64 = false, binary = false, rawPath = '' },
 ) => {
   const fullName = name.slice(-1) !== '/' && type === 'tree' ? `${name}/` : name;
@@ -92,7 +79,11 @@ export const createTempEntry = (
 
   if (type === 'blob') {
     commit(types.TOGGLE_FILE_OPEN, file.path);
-    commit(types.ADD_FILE_TO_CHANGED, file.path);
+
+    if (gon.features?.stageAllByDefault)
+      commit(types.STAGE_CHANGE, { path: file.path, diffInfo: getters.getDiffInfo(file.path) });
+    else commit(types.ADD_FILE_TO_CHANGED, file.path);
+
     dispatch('setFileActive', file.path);
     dispatch('triggerFilesChange');
     dispatch('burstUnusedSeal');
@@ -238,7 +229,7 @@ export const deleteEntry = ({ commit, dispatch, state }, path) => {
 
 export const resetOpenFiles = ({ commit }) => commit(types.RESET_OPEN_FILES);
 
-export const renameEntry = ({ dispatch, commit, state }, { path, name, parentPath }) => {
+export const renameEntry = ({ dispatch, commit, state, getters }, { path, name, parentPath }) => {
   const entry = state.entries[path];
   const newPath = parentPath ? `${parentPath}/${name}` : name;
   const existingParent = parentPath && state.entries[parentPath];
@@ -268,7 +259,10 @@ export const renameEntry = ({ dispatch, commit, state }, { path, name, parentPat
     if (isReset) {
       commit(types.REMOVE_FILE_FROM_STAGED_AND_CHANGED, newEntry);
     } else if (!isInChanges) {
-      commit(types.ADD_FILE_TO_CHANGED, newPath);
+      if (gon.features?.stageAllByDefault)
+        commit(types.STAGE_CHANGE, { path: newPath, diffInfo: getters.getDiffInfo(newPath) });
+      else commit(types.ADD_FILE_TO_CHANGED, newPath);
+
       dispatch('burstUnusedSeal');
     }
 

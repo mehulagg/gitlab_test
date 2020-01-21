@@ -645,21 +645,6 @@ describe API::Users do
       expect(response).to have_gitlab_http_status(200)
     end
 
-    context 'updating name' do
-      context 'when the ability to update their name is disabled for users' do
-        before do
-          stub_application_setting(updating_name_disabled_for_users: true)
-        end
-
-        it 'updates the user with new name' do
-          put api("/users/#{user.id}", admin), params: { name: 'New Name' }
-
-          expect(response).to have_gitlab_http_status(200)
-          expect(json_response['name']).to eq('New Name')
-        end
-      end
-    end
-
     it "updates user with new bio" do
       put api("/users/#{user.id}", admin), params: { bio: 'new test bio' }
 
@@ -920,6 +905,27 @@ describe API::Users do
       user.save
 
       get api("/users/#{user.id}/keys")
+
+      expect(response).to have_gitlab_http_status(200)
+      expect(response).to include_pagination_headers
+      expect(json_response).to be_an Array
+      expect(json_response.first['title']).to eq(key.title)
+    end
+  end
+
+  describe 'GET /user/:user_id/keys' do
+    it 'returns 404 for non-existing user' do
+      get api("/users/#{not_existing_user_id}/keys")
+
+      expect(response).to have_gitlab_http_status(404)
+      expect(json_response['message']).to eq('404 User Not Found')
+    end
+
+    it 'returns array of ssh keys' do
+      user.keys << key
+      user.save
+
+      get api("/users/#{user.username}/keys")
 
       expect(response).to have_gitlab_http_status(200)
       expect(response).to include_pagination_headers

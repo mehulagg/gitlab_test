@@ -65,6 +65,21 @@ describe API::MergeRequests do
         end.not_to exceed_query_limit(control)
       end
 
+      context 'when merge request is unchecked' do
+        before do
+          merge_request.mark_as_unchecked!
+        end
+
+        it 'checks mergeability asynchronously' do
+          expect_next_instance_of(MergeRequests::MergeabilityCheckService) do |service|
+            expect(service).not_to receive(:execute)
+            expect(service).to receive(:async_execute)
+          end
+
+          get api(endpoint_path, user)
+        end
+      end
+
       context 'with labels' do
         include_context 'with labels'
 
@@ -1002,6 +1017,21 @@ describe API::MergeRequests do
       get api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user2)
 
       expect(json_response['user']['can_merge']).to be_falsy
+    end
+
+    context 'when merge request is unchecked' do
+      before do
+        merge_request.mark_as_unchecked!
+      end
+
+      it 'checks mergeability asynchronously' do
+        expect_next_instance_of(MergeRequests::MergeabilityCheckService) do |service|
+          expect(service).not_to receive(:execute)
+          expect(service).to receive(:async_execute)
+        end
+
+        get api("/projects/#{project.id}/merge_requests/#{merge_request.iid}", user)
+      end
     end
   end
 
@@ -2222,16 +2252,34 @@ describe API::MergeRequests do
   end
 
   describe 'PUT :id/merge_requests/:merge_request_iid/rebase' do
-    it 'enqueues a rebase of the merge request against the target branch' do
-      Sidekiq::Testing.fake! do
-        put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/rebase", user)
+    context 'when rebase can be performed' do
+      it 'enqueues a rebase of the merge request against the target branch' do
+        Sidekiq::Testing.fake! do
+          expect do
+            put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/rebase", user)
+          end.to change { RebaseWorker.jobs.size }.by(1)
+        end
+
+        expect(response).to have_gitlab_http_status(202)
+        expect(merge_request.reload).to be_rebase_in_progress
+        expect(json_response['rebase_in_progress']).to be(true)
       end
 
-      expect(response).to have_gitlab_http_status(202)
-      expect(RebaseWorker.jobs.size).to eq(1)
+      context 'when skip_ci parameter is set' do
+        it 'enqueues a rebase of the merge request with skip_ci flag set' do
+          expect(RebaseWorker).to receive(:perform_async).with(merge_request.id, user.id, true).and_call_original
 
-      expect(merge_request.reload).to be_rebase_in_progress
-      expect(json_response['rebase_in_progress']).to be(true)
+          Sidekiq::Testing.fake! do
+            expect do
+              put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/rebase", user), params: { skip_ci: true }
+            end.to change { RebaseWorker.jobs.size }.by(1)
+          end
+
+          expect(response).to have_gitlab_http_status(202)
+          expect(merge_request.reload).to be_rebase_in_progress
+          expect(json_response['rebase_in_progress']).to be(true)
+        end
+      end
     end
 
     it 'returns 403 if the user cannot push to the branch' do
@@ -2260,7 +2308,7 @@ describe API::MergeRequests do
       put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/rebase", user)
 
       expect(response).to have_gitlab_http_status(409)
-      expect(json_response['message']).to eq(MergeRequest::REBASE_LOCK_MESSAGE)
+      expect(json_response['message']).to eq('Failed to enqueue the rebase operation, possibly due to a long-lived transaction. Try again later.')
     end
   end
 

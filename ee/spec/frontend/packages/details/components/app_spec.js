@@ -5,9 +5,11 @@ import PackagesApp from 'ee/packages/details/components/app.vue';
 import PackageInformation from 'ee/packages/details/components/information.vue';
 import NpmInstallation from 'ee/packages/details/components/npm_installation.vue';
 import MavenInstallation from 'ee/packages/details/components/maven_installation.vue';
+import PackageTags from 'ee/packages/details/components/package_tags.vue';
 import * as SharedUtils from 'ee/packages/shared/utils';
 import { TrackingActions } from 'ee/packages/shared/constants';
-import { mavenPackage, mavenFiles, npmPackage, npmFiles, conanPackage } from '../../mock_data';
+import ConanInstallation from 'ee/packages/details/components/conan_installation.vue';
+import { conanPackage, mavenPackage, mavenFiles, npmPackage, npmFiles } from '../../mock_data';
 
 describe('PackagesApp', () => {
   let wrapper;
@@ -22,6 +24,8 @@ describe('PackagesApp', () => {
     npmHelpPath: 'foo',
     mavenPath: 'foo',
     mavenHelpPath: 'foo',
+    conanPath: 'foo',
+    conanHelpPath: 'foo',
   };
 
   function createComponent(props = {}) {
@@ -32,7 +36,6 @@ describe('PackagesApp', () => {
 
     wrapper = mount(PackagesApp, {
       propsData,
-      attachToDocument: true,
     });
   }
 
@@ -42,11 +45,13 @@ describe('PackagesApp', () => {
   const packageInformation = index => allPackageInformation().at(index);
   const npmInstallation = () => wrapper.find(NpmInstallation);
   const mavenInstallation = () => wrapper.find(MavenInstallation);
+  const conanInstallation = () => wrapper.find(ConanInstallation);
   const allFileRows = () => wrapper.findAll('.js-file-row');
   const firstFileDownloadLink = () => wrapper.find('.js-file-download');
   const deleteButton = () => wrapper.find('.js-delete-button');
   const deleteModal = () => wrapper.find(GlModal);
   const modalDeleteButton = () => wrapper.find({ ref: 'modal-delete-button' });
+  const packageTags = () => wrapper.find(PackageTags);
 
   afterEach(() => {
     wrapper.destroy();
@@ -140,6 +145,25 @@ describe('PackagesApp', () => {
     });
   });
 
+  describe('package tags', () => {
+    it('displays the package-tags component when the package has tags', () => {
+      createComponent({
+        packageEntity: {
+          ...npmPackage,
+          tags: [{ name: 'foo' }],
+        },
+      });
+
+      expect(packageTags().exists()).toBe(true);
+    });
+
+    it('does not display the package-tags component when there are no tags', () => {
+      createComponent();
+
+      expect(packageTags().exists()).toBe(false);
+    });
+  });
+
   describe('tracking', () => {
     let eventSpy;
     let utilSpy;
@@ -178,5 +202,13 @@ describe('PackagesApp', () => {
         expect.any(Object),
       );
     });
+  });
+
+  it('renders package installation instructions for conan packages', () => {
+    createComponent({
+      packageEntity: conanPackage,
+    });
+
+    expect(conanInstallation()).toExist();
   });
 });

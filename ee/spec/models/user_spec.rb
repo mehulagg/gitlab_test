@@ -96,6 +96,18 @@ describe User do
         expect(users_with_invalid_tokens).not_to include valid_pat.user
       end
     end
+
+    describe '.active_without_ghosts' do
+      let_it_be(:user1) { create(:user, :external) }
+      let_it_be(:user2) { create(:user, state: 'blocked') }
+      let_it_be(:user3) { create(:user, ghost: true) }
+      let_it_be(:user4) { create(:user, bot_type: 'support_bot') }
+      let_it_be(:user5) { create(:user, state: 'blocked', bot_type: 'support_bot') }
+
+      it 'returns all active users including active bots but ghost users' do
+        expect(described_class.active_without_ghosts).to match_array([user1, user4])
+      end
+    end
   end
 
   describe '.find_by_smartcard_identity' do
@@ -626,6 +638,16 @@ describe User do
     end
 
     context 'when user is active' do
+      context 'when license is nil (core/free/default)' do
+        before do
+          allow(License).to receive(:current).and_return(nil)
+        end
+
+        it 'returns false if license is nil (core/free/default)' do
+          expect(user.using_license_seat?).to eq false
+        end
+      end
+
       context 'user is guest' do
         let(:project_guest_user) { create(:project_member, :guest).user }
 
@@ -635,7 +657,7 @@ describe User do
           expect(project_guest_user.using_license_seat?).to eq false
         end
 
-        it 'returns true if license is not ultimate' do
+        it 'returns true if license is not ultimate and not nil' do
           create(:license, plan: License::STARTER_PLAN)
 
           expect(project_guest_user.using_license_seat?).to eq true
@@ -651,7 +673,7 @@ describe User do
           expect(user.using_license_seat?).to eq false
         end
 
-        it 'returns true if license is not ultimate' do
+        it 'returns true if license is not ultimate and not nil' do
           create(:license, plan: License::STARTER_PLAN)
 
           expect(user.using_license_seat?).to eq true

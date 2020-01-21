@@ -110,8 +110,9 @@ describe Projects::UpdatePagesService do
 
       context 'when timeout happens by DNS error' do
         before do
-          allow_any_instance_of(described_class)
-            .to receive(:extract_zip_archive!).and_raise(SocketError)
+          allow_next_instance_of(described_class) do |instance|
+            allow(instance).to receive(:extract_zip_archive!).and_raise(SocketError)
+          end
         end
 
         it 'raises an error' do
@@ -125,9 +126,10 @@ describe Projects::UpdatePagesService do
 
       context 'when failed to extract zip artifacts' do
         before do
-          expect_any_instance_of(described_class)
-            .to receive(:extract_zip_archive!)
-            .and_raise(Projects::UpdatePagesService::FailedToExtractError)
+          expect_next_instance_of(described_class) do |instance|
+            expect(instance).to receive(:extract_zip_archive!)
+              .and_raise(Projects::UpdatePagesService::FailedToExtractError)
+          end
         end
 
         it 'raises an error' do
@@ -173,6 +175,35 @@ describe Projects::UpdatePagesService do
 
   describe 'maximum pages artifacts size' do
     let(:metadata) { spy('metadata') }
+
+    shared_examples 'pages size limit is' do |size_limit|
+      context "when size is below the limit" do
+        before do
+          allow(metadata).to receive(:total_size).and_return(size_limit - 1.megabyte)
+        end
+
+        it 'updates pages correctly' do
+          subject.execute
+
+          expect(deploy_status.description).not_to be_present
+          expect(project.pages_metadatum).to be_deployed
+        end
+      end
+
+      context "when size is above the limit" do
+        before do
+          allow(metadata).to receive(:total_size).and_return(size_limit + 1.megabyte)
+        end
+
+        it 'limits the maximum size of gitlab pages' do
+          subject.execute
+
+          expect(deploy_status.description)
+            .to match(/artifacts for pages are too large/)
+          expect(deploy_status).to be_script_failure
+        end
+      end
+    end
 
     before do
       file = fixture_file_upload('spec/fixtures/pages.zip')
