@@ -155,15 +155,15 @@ export const dismissVulnerability = ({ state, rootState }, { vulnerability }) =>
   axios
     .post(`/api/v4/projects/${projectId}/vulnerabilities?finding_id=${findingId}`)
     .then(data => {
-      debugger;
+      console.log('success');
     })
     .catch(error => {
-      debugger;
+      console.log('fail');
     });
 
-  axios.get(`/api/v4/projects/${projectId}/vulnerabilities`).then(data => {
-    debugger;
-  });
+  // axios.get(`/api/v4/projects/${projectId}/vulnerabilities`).then(data => {
+  //   debugger;
+  // });
 };
 
 export const xDismissVulnerability = (
