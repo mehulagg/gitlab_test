@@ -23,19 +23,7 @@ module EE
           @update_params ||= process_operations
         end
 
-        def filter_params
-          @filter_params ||= filter_parser.params
-        end
-
-        def filter_operator
-          filter_parser.operator.to_sym if filter_parser.valid?
-        end
-
         private
-
-        def filter_parser
-          @filter_parser ||= FilterParser.new(@params[:filter])
-        end
 
         def process_operations
           @params[:Operations].each_with_object({}) do |operation, hash|

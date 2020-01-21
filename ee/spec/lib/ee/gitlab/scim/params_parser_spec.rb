@@ -3,34 +3,6 @@
 require 'spec_helper'
 
 describe EE::Gitlab::Scim::ParamsParser do
-  describe '#filter_params' do
-    it 'returns the correct filter attributes' do
-      filter = 'id eq "6ba81b08-77da"'
-
-      expect(described_class.new(filter: filter).filter_params).to eq(extern_uid: '6ba81b08-77da')
-    end
-
-    it 'returns an empty hash for the wrong filter' do
-      filter = 'blah eq "6ba81b08-77da"'
-
-      expect(described_class.new(filter: filter).filter_params).to eq({})
-    end
-  end
-
-  describe '#filter_operator' do
-    it 'returns the operator as a symbol' do
-      parser = described_class.new(filter: 'id eq 1')
-
-      expect(parser.filter_operator).to eq(:eq)
-    end
-
-    it 'returns nil if the filter is invalid' do
-      parser = described_class.new(filter: 'this eq that')
-
-      expect(parser.filter_operator).to eq(nil)
-    end
-  end
-
   describe '#update_params' do
     it 'returns the correct operation attributes' do
       operations = [{ 'op': 'Replace', 'path': 'active', 'value': 'False' }]

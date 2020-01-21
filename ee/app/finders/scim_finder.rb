@@ -13,41 +13,16 @@ class ScimFinder
     return Identity.none unless saml_provider&.enabled?
     return saml_provider.identities if unfiltered?(params)
 
-    filter_identities(params)
+    Scim::Kit::V2::Filter
+      .parse(params[:filter])
+      .accept(IdentityVisitor.new(saml_provider))
+  rescue Scim::Kit::NotImplementedError, ::Parslet::ParseFailed
+    raise UnsupportedFilter
   end
 
   private
 
   def unfiltered?(params)
     params[:filter].blank?
-  end
-
-  def filter_identities(params)
-    parser = EE::Gitlab::Scim::ParamsParser.new(params)
-
-    if eq_filter_on_extern_uid?(parser)
-      by_extern_uid(parser)
-    elsif eq_filter_on_username?(parser)
-      by_username(parser)
-    else
-      raise UnsupportedFilter
-    end
-  end
-
-  def eq_filter_on_extern_uid?(parser)
-    parser.filter_operator == :eq && parser.filter_params[:extern_uid].present?
-  end
-
-  def by_extern_uid(parser)
-    Identity.where_group_saml_uid(saml_provider, parser.filter_params[:extern_uid])
-  end
-
-  def eq_filter_on_username?(parser)
-    parser.filter_operator == :eq && parser.filter_params[:username].present?
-  end
-
-  def by_username(parser)
-    user = User.find_by_username(parser.filter_params[:username])
-    saml_provider.identities.for_user(user)
   end
 end
