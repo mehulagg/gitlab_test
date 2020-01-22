@@ -881,7 +881,7 @@ repo or by specifying a project variable:
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/30628) in GitLab 12.6, `.gitlab/auto-deploy-values.yaml` will be used by default for Helm upgrades.
 
-You can also override the default values in the `values.yaml` file in the [default Helm chart](https://gitlab.com/gitlab-org/charts/auto-deploy-app).
+You can override the default values in the `values.yaml` file in the [default Helm chart](https://gitlab.com/gitlab-org/charts/auto-deploy-app).
 This can be achieved by:
 
 - Adding a file named `.gitlab/auto-deploy-values.yaml` to your repository. It will
