@@ -6,7 +6,6 @@
 class DropKibanaColumn < ActiveRecord::Migration[5.2]
   include Gitlab::Database::MigrationHelpers
 
-  # Set this constant to true if this migration requires downtime.
   DOWNTIME = false
 
   def change
