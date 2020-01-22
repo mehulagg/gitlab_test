@@ -307,6 +307,12 @@ db:check-schema:
   script:
     - source scripts/schema_changed.sh
 
+db:check-added-migrations:
+  extends: .db-job-base
+  allow_failure: true
+  script:
+    - scripts/check_added_migrations.sh
+
 db:migrate-from-v11.11.0:
   extends: .db-job-base
   variables:
