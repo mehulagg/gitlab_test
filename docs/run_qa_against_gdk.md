@@ -4,21 +4,28 @@ To run the `Test::Instance::Any` scenario against your local GDK, you'll need to
 make a few changes to your `gdk/gitlab/config/gitlab.yml` file.
 
 1. Retrieve your current local IP with `ifconfig`, e.g. `192.168.0.12`.
-1. Create a file named `host` in your GDK directory containing your IP. E.g.:
-   `echo "192.168.0.12" > host`
-1. Edit `gdk/gitlab/config/gitlab.yml` and
-   - replace `host: localhost` under `production:gitlab` with `host: 192.168.0.12`.
-   - replace `ssh_host: localhost` under `production:gitlab_shell` with
-   `ssh_host: 192.168.0.12`.
-   - replace `host: localhost` under `production:webpack:dev_server` with
-   `host: 192.168.0.12`.
-1. Edit `Procfile` in your GDK directory and
-   - enable the `sshd` service by uncommenting the relevant line
-1. Edit `openssh/sshd_config` in your GDK directory and
-   - set `ListenAddress` to `192.168.0.12:2222`
-   - add `AcceptEnv GIT_PROTOCOL` to allow the use of the [Git protocol v2][Git protocol]
-1. Restart your GDK
-1. Run the QA scenario as follows:
+2. In your gdk directory, create file `gdk.yml`. Within `gdk.yml` add:
+    ```yaml
+    ---
+    gdk:
+        overwrite_changes: true
+    hostname: 192.168.0.12
+    sshd:
+        enabled: true
+        listen_address: 192.168.0.12
+    webpack:
+        host: 192.168.0.12
+    ```
+3. Run `gdk reconfigure`
+    - This should update `localhost` in your `gitlab/config/gitlab.yml`.
+        and `gdk/Procfile` as well as `gdk/openssh/sshd_config` to the provided IP address.
+4. Edit `gdk/gitlab/config/gitlab.yml` and
+   - Replace `ssh_host: localhost` under `production:gitlab_shell` with `ssh_host: 192.168.0.12`.
+5. Edit `openssh/sshd_config` in your GDK directory and
+   - Add `AcceptEnv GIT_PROTOCOL` to allow the use of the [Git protocol v2][Git protocol]
+6. Restart your GDK by running `gdk restart`
+   - If reconfigure is successful, you should now be able to browse to `http://192.168.0.12:3000` instead of `http://localhost:3000`
+7. Run the QA scenario as follows:
 
   ```
   $ gitlab-qa Test::Instance::Any CE http://192.168.0.12:3000 -- qa/specs/features/browser_ui/1_manage/login/log_in_spec.rb
