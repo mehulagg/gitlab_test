@@ -887,7 +887,7 @@ This can be achieved by:
 - Adding a file named `.gitlab/auto-deploy-values.yaml` to your repository. It will
   be automatically used if found.
 - Adding a file with a different name or path to the repository, and set the
-  `HELM_UPGRADE_VALUES_FILE` variable with the path and name.
+  `HELM_UPGRADE_VALUES_FILE` [environment variable](https://docs.gitlab.com/ee/topics/autodevops/#environment-variables) with the path and name.
 
 ### Custom Helm chart per environment
 
