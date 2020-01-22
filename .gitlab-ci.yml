@@ -14,12 +14,6 @@ variables:
   SAST_BRAKEMAN_LEVEL: 2
   SAST_EXCLUDED_PATHS: qa,spec,doc,ee/spec
 
-  # CI_PRE_CLONE_SCRIPT: ""
-  # ANALYZER_ARTIFACT_DIR: /tmp/app
-  # CI_PROJECT_DIR: /tmp/app
-  # SAST_DEFAULT_ANALYZERS: "brakeman, kubesec"
-  # SAST_ANALYZER_IMAGE_TAG: "error-walking-dir" #this does no good for SAST !@#$&*(^#$@%
-
 #hacky copy of the template
 sast:
   stage: test
