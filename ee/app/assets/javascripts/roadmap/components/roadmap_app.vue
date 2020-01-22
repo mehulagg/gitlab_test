@@ -145,7 +145,7 @@ export default {
 </script>
 
 <template>
-  <div :class="{ 'overflow-reset': epicsFetchResultEmpty && milestonesFetchResultEmpty }" class="roadmap-container">
+  <div :class="{ 'overflow-reset': epicsFetchResultEmpty }" class="roadmap-container">
     <roadmap-shell
       v-if="showRoadmap"
       :preset-type="presetType"
@@ -157,7 +157,7 @@ export default {
       @onScrollToEnd="handleScrollToExtend"
     />
     <epics-list-empty
-      v-if="epicsFetchResultEmpty && milestonesFetchResultEmpty"
+      v-if="epicsFetchResultEmpty"
       :preset-type="presetType"
       :timeframe-start="timeframeStart"
       :timeframe-end="timeframeEnd"

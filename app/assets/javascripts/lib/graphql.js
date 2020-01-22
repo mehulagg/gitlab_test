@@ -107,7 +107,7 @@ export const createMockClient = (resolvers = {}, config = {}) => {
                 title: 'Milestone 2 blablablablablablabla',
                 state: 'active',
                 dueDate: '2020-03-15',
-                startDate: '2020-01-17',
+                startDate: '2019-12-15',
               },
             },
             {

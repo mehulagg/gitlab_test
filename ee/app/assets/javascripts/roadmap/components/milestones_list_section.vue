@@ -110,11 +110,8 @@ export default {
       <div class="milestones-list-title">{{ __('Milestones') }}</div>
       <div class="milestones-list-items">
         <milestone-timeline
-          v-for="(timeframeItem, index) in timeframe"
-          :key="index"
           :preset-type="presetType"
           :timeframe="timeframe"
-          :timeframe-item="timeframeItem"
           :milestones="milestones"
           :current-group-id="currentGroupId"
         />

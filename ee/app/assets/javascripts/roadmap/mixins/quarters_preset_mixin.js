@@ -15,6 +15,30 @@ export default {
       );
     },
     /**
+     * Check if milestone starts within quarter
+     */
+    startsInQuarter(milestone, timeframeItem) {
+      const quarterStart = timeframeItem.range[0];
+      const quarterEnd = timeframeItem.range[2];
+
+      return (
+        milestone.startDate.getTime() >= quarterStart.getTime() &&
+        milestone.startDate.getTime() <= quarterEnd.getTime()
+      );
+    },
+    /**
+     * Check if milestone starts within quarter
+     */
+    endsInQuarter(milestone, timeframeItem) {
+      const quarterStart = timeframeItem.range[0];
+      const quarterEnd = timeframeItem.range[2];
+
+      return (
+        milestone.endDate.getTime() >= quarterStart.getTime() &&
+        milestone.endDate.getTime() <= quarterEnd.getTime()
+      );
+    },
+    /**
      * Check if current epic ends within current quarter (timeline cell)
      */
     isTimeframeUnderEndDateForQuarter(timeframeItem) {

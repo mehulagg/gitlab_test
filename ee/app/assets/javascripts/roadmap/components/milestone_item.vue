@@ -172,16 +172,17 @@ export default {
 </script>
 
 <template>
-  <!-- <div v-if="isCurrent" class="timeline-extra-cell" /> -->
-  <div v-if="hasStartDate" class="timeline-bar-wrapper" :style="timelineBarStyles">
+  <span v-if="hasStartDate"
+    :class="{
+      'start-date-undefined': milestone.startDateUndefined,
+      'end-date-undefined': milestone.endDateUndefined,
+    }"
+    :style="timelineBarStyles"
+    class="milestone-item-details"
+  >
     <a
       :id="`milestone-item-${milestone.id}`"
       :href="milestone.webUrl"
-      :class="{
-        'start-date-undefined': milestone.startDateUndefined,
-        'end-date-undefined': milestone.endDateUndefined,
-      }"
-      class="milestone-item-details"
     >
       <span class="timeline-bar"></span>
       <span class="milestone-item-title">{{ milestone.title }}</span>
@@ -198,5 +199,6 @@ export default {
       <!-- TODO - move timeframeString epic function to util for reusability  -->
       {{ timeframeString }}
     </gl-popover>
-  </div>
+  </span>
+  <!-- <div v-else class="timeline-extra-cell"></div> -->
 </template>

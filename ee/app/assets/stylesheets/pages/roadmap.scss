@@ -420,12 +420,12 @@ html.group-epics-roadmap-html {
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
-      color: $gray-700;
     }
 
     .timeline-bar-wrapper {
       position: relative;
       height: $item-height;
+      color: $gray-700;
 
       .milestone-start-and-end {
         display: none;
@@ -438,15 +438,30 @@ html.group-epics-roadmap-html {
       }
 
       .milestone-item-details {
-        display: block;
-        position: relative;
+        display: inline-block;
+        position: absolute;
 
-        &:hover {
+        a {
+          display: inline-block;
+          color: inherit;
+        }
+
+        a:hover {
           color: $gray-900;
           text-decoration: none;
 
           .milestone-start-and-end {
             display: block;
+          }
+
+          .timeline-bar {
+            background-color: $gray-900;
+            &::before {
+              background-color: $gray-900;
+            }
+            &::after {
+              border-color: $gray-900;
+            }
           }
         }
       }
@@ -461,13 +476,9 @@ html.group-epics-roadmap-html {
       width: 100%;
       top: 30px;
       background-color: $gray-700;
-      color: $gray-700;
+      // color: inherit;
       height: 2px;
       will-change: width, left;
-
-      &:hover {
-        background-color: $gray-900;
-      }
 
       &::before {
         content: '';
