@@ -201,7 +201,6 @@ describe('Logs Store actions', () => {
         .reply(200, {
           pod_name: mockPodName,
           pods: mockPods,
-          enable_advanced_querying: true,
           logs: mockLogsResult,
         });
 
