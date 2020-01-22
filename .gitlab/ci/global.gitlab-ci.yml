@@ -13,6 +13,8 @@
 .default-before_script:
   before_script:
     - date
+    - echo ".default-before_script"
+    - chown /builds/gitlab-org/gitlab
     - export GOPATH=$CI_PROJECT_DIR/.go
     - mkdir -p $GOPATH
     - source scripts/utils.sh
