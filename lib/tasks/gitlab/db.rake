@@ -22,6 +22,13 @@ namespace :gitlab do
       end
     end
 
+    desc 'Show postgres config'
+    task show_postgres_config: :environment do
+      ActiveRecord::Base.connection.execute('SHOW ALL').each do |config|
+        puts "#{config['name']}: #{config['setting']}"
+      end
+    end
+
     desc 'Drop all tables'
     task drop_tables: :environment do
       connection = ActiveRecord::Base.connection

@@ -302,6 +302,12 @@ db:migrate:reset:
   script:
     - bundle exec rake db:migrate:reset
 
+# Show database config
+db:show_config:
+  extends: .db-job-base
+  script:
+    - bundle exec rake gitlab:db:show_postgres_config
+
 db:check-schema:
   extends: .db-job-base
   script:
