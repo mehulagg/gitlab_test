@@ -17,7 +17,7 @@ module Gitlab
     ).freeze
     SNIPPET = RepoType.new(
       name: :snippet,
-      access_checker_class: Gitlab::GitAccessSnippet,
+      access_checker_class: Gitlab::GitAccessSnippetDelegator,
       repository_resolver: -> (snippet) { snippet.repository },
       container_resolver: -> (id) { Snippet.find_by_id(id) }
     ).freeze
