@@ -307,6 +307,13 @@ db:check-schema:
   script:
     - source scripts/schema_changed.sh
 
+db:check-migrations-consistency:
+  extends: .db-job-base
+  allow_failure: true
+  script:
+    - bundle exec rake db:drop db:create db:migrate
+    - source scripts/schema_changed.sh
+
 db:migrate-from-v11.11.0:
   extends: .db-job-base
   variables:
