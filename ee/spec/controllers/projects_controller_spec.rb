@@ -11,6 +11,25 @@ describe ProjectsController do
     sign_in(user)
   end
 
+  shared_examples_for 'action pushing protected branches data to gon' do
+    include_context 'gon'
+
+    let!(:protected_branch) { create(:protected_branch, project: project) }
+    let!(:another_protected_branch) { create(:protected_branch, project: project) }
+    let!(:unrelated_protected_branch) { create(:protected_branch) }
+
+    before do
+      action
+    end
+
+    it 'pushes protected branches data to gon' do
+      expect(gon['protected_branches']).to match_array([
+        { id: protected_branch.id, name: protected_branch.name },
+        { id: another_protected_branch.id, name: another_protected_branch.name }
+      ])
+    end
+  end
+
   describe "GET show" do
     let(:public_project) { create(:project, :public, :repository) }
 
@@ -33,14 +52,19 @@ describe ProjectsController do
   end
 
   describe 'GET edit' do
-    it 'does not allow an auditor user to access the page' do
-      sign_in(create(:user, :auditor))
-
+    let(:action) do
       get :edit,
           params: {
             namespace_id: project.namespace.path,
             id: project.path
           }
+    end
+
+    it_behaves_like 'action pushing protected branches data to gon'
+
+    it 'does not allow an auditor user to access the page' do
+      sign_in(create(:user, :auditor))
+      action
 
       expect(response).to have_gitlab_http_status(:not_found)
     end
@@ -141,17 +165,19 @@ describe ProjectsController do
   end
 
   describe 'PUT #update' do
-    it 'updates EE attributes' do
-      params = {
-        repository_size_limit: 1024
-      }
+    let(:params) { { repository_size_limit: 1024 } }
 
+    let(:action) do
       put :update,
           params: {
             namespace_id: project.namespace,
             id: project,
             project: params
           }
+    end
+
+    it 'updates EE attributes' do
+      action
       project.reload
 
       expect(response).to have_gitlab_http_status(:found)
@@ -161,80 +187,82 @@ describe ProjectsController do
       expect(project.repository_size_limit).to eq(params[:repository_size_limit].megabytes)
     end
 
-    it 'updates Merge Request Approvers attributes' do
-      params = {
-        approvals_before_merge: 50,
-        approver_group_ids: create(:group).id,
-        approver_ids: create(:user).id,
-        reset_approvals_on_push: false
-      }
+    context 'when Merge Request Approvers related params are set' do
+      let(:params) do
+        {
+          approvals_before_merge: 50,
+          approver_group_ids: create(:group).id,
+          approver_ids: create(:user).id,
+          reset_approvals_on_push: false
+        }
+      end
 
-      put :update,
-          params: {
-            namespace_id: project.namespace,
-            id: project,
-            project: params
-          }
-      project.reload
+      it 'updates Merge Request Approvers attributes' do
+        action
+        project.reload
 
-      expect(response).to have_gitlab_http_status(:found)
-      expect(project.approver_groups.pluck(:group_id)).to contain_exactly(params[:approver_group_ids])
-      expect(project.approvers.pluck(:user_id)).to contain_exactly(params[:approver_ids])
-    end
-
-    it 'updates Issuable Default Templates attributes' do
-      params = {
-        issues_template: 'You got issues?',
-        merge_requests_template: 'I got tissues'
-      }
-
-      put :update,
-          params: {
-            namespace_id: project.namespace,
-            id: project,
-            project: params
-          }
-      project.reload
-
-      expect(response).to have_gitlab_http_status(:found)
-      params.each do |param, value|
-        expect(project.public_send(param)).to eq(value)
+        expect(response).to have_gitlab_http_status(:found)
+        expect(project.approver_groups.pluck(:group_id)).to contain_exactly(params[:approver_group_ids])
+        expect(project.approvers.pluck(:user_id)).to contain_exactly(params[:approver_ids])
       end
     end
 
-    it 'updates Service Desk attributes' do
-      allow(Gitlab::IncomingEmail).to receive(:enabled?) { true }
-      allow(Gitlab::IncomingEmail).to receive(:supports_wildcard?) { true }
-      stub_licensed_features(service_desk: true)
-      params = {
-        service_desk_enabled: true
-      }
+    context 'when Issuable Default Templates params are set' do
+      let(:params) do
+        {
+          issues_template: 'You got issues?',
+          merge_requests_template: 'I got tissues'
+        }
+      end
 
-      put :update,
-          params: {
-            namespace_id: project.namespace,
-            id: project,
-            project: params
-          }
-      project.reload
+      it 'updates Issuable Default Templates attributes' do
+        action
+        project.reload
 
-      expect(response).to have_gitlab_http_status(:found)
-      expect(project.service_desk_enabled).to eq(true)
+        expect(response).to have_gitlab_http_status(:found)
+        params.each do |param, value|
+          expect(project.public_send(param)).to eq(value)
+        end
+      end
+    end
+
+    context 'when Service Desk related params are set' do
+      let(:params) { { service_desk_enabled: true } }
+
+      before do
+        allow(Gitlab::IncomingEmail).to receive(:enabled?) { true }
+        allow(Gitlab::IncomingEmail).to receive(:supports_wildcard?) { true }
+        stub_licensed_features(service_desk: true)
+      end
+
+      it 'updates Service Desk attributes' do
+        action
+        project.reload
+
+        expect(response).to have_gitlab_http_status(:found)
+        expect(project.service_desk_enabled).to eq(true)
+      end
+    end
+
+    context 'when error occurs' do
+      before do
+        expect(::Projects::UpdateService)
+          .to receive_message_chain(:new, :execute)
+          .and_return({ status: :error, message: 'Error' })
+      end
+
+      it_behaves_like 'action pushing protected branches data to gon'
     end
 
     context 'when merge_pipelines_enabled param is specified' do
       let(:params) { { merge_pipelines_enabled: true } }
-
-      let(:request) do
-        put :update, params: { namespace_id: project.namespace, id: project, project: params }
-      end
 
       before do
         stub_licensed_features(merge_pipelines: true)
       end
 
       it 'updates the attribute' do
-        request
+        action
 
         expect(project.reload.merge_pipelines_enabled).to be_truthy
       end
@@ -245,7 +273,7 @@ describe ProjectsController do
         end
 
         it 'does not update the attribute' do
-          request
+          action
 
           expect(project.reload.merge_pipelines_enabled).to be_falsy
         end
@@ -257,7 +285,7 @@ describe ProjectsController do
         end
 
         it 'does not update the attribute' do
-          request
+          action
 
           expect(project.reload.merge_pipelines_enabled).to be_falsy
         end
@@ -282,12 +310,7 @@ describe ProjectsController do
         it 'updates repository mirror attributes' do
           expect_any_instance_of(EE::ProjectImportState).to receive(:force_import_job!).once
 
-          put :update,
-            params: {
-              namespace_id: project.namespace,
-              id: project,
-              project: params
-            }
+          action
           project.reload
 
           expect(project.mirror).to eq(true)
@@ -305,12 +328,7 @@ describe ProjectsController do
         it 'does not update repository mirror attributes' do
           params.each do |param, _value|
             expect do
-              put :update,
-                params: {
-                  namespace_id: project.namespace,
-                  id: project,
-                  project: params
-                }
+              action
               project.reload
             end.not_to change(project, param)
           end
@@ -398,6 +416,7 @@ describe ProjectsController do
   describe 'DELETE #destroy' do
     let(:owner) { create(:user) }
     let(:project) { create(:project, namespace: owner.namespace)}
+    let(:action) { delete :destroy, params: { namespace_id: project.namespace, id: project } }
 
     before do
       controller.instance_variable_set(:@project, project)
@@ -410,30 +429,38 @@ describe ProjectsController do
       end
 
       it 'marks project for deletion' do
-        delete :destroy, params: { namespace_id: project.namespace, id: project }
+        action
 
         expect(project.reload.marked_for_deletion?).to be_truthy
         expect(response).to have_gitlab_http_status(:found)
         expect(response).to redirect_to(project_path(project))
       end
 
-      it 'does not mark project for deletion because of error' do
-        message = 'Error'
+      context 'when error occurs' do
+        let(:message) { 'Error' }
 
-        expect(::Projects::MarkForDeletionService).to receive_message_chain(:new, :execute).and_return({ status: :error, message: message })
+        before do
+          expect(::Projects::MarkForDeletionService)
+            .to receive_message_chain(:new, :execute)
+            .and_return({ status: :error, message: message })
+        end
 
-        delete :destroy, params: { namespace_id: project.namespace, id: project }
+        it_behaves_like 'action pushing protected branches data to gon'
 
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(response).to render_template(:edit)
-        expect(flash[:alert]).to include(message)
+        it 'does not mark project for deletion' do
+          action
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to render_template(:edit)
+          expect(flash[:alert]).to include(message)
+        end
       end
 
       context 'when instance setting is set to 0 days' do
         it 'deletes project right away' do
           allow(Gitlab::CurrentSettings).to receive(:deletion_adjourned_period).and_return(0)
 
-          delete :destroy, params: { namespace_id: project.namespace, id: project }
+          action
 
           expect(project.marked_for_deletion?).to be_falsey
           expect(response).to have_gitlab_http_status(:found)
@@ -448,7 +475,7 @@ describe ProjectsController do
       end
 
       it 'deletes project right away' do
-        delete :destroy, params: { namespace_id: project.namespace, id: project }
+        action
 
         expect(project.marked_for_deletion?).to be_falsey
         expect(response).to have_gitlab_http_status(:found)
@@ -460,6 +487,7 @@ describe ProjectsController do
   describe 'POST #restore' do
     let(:owner) { create(:user) }
     let(:project) { create(:project, namespace: owner.namespace)}
+    let(:action) { post :restore, params: { namespace_id: project.namespace, project_id: project } }
 
     before do
       controller.instance_variable_set(:@project, project)
@@ -467,7 +495,7 @@ describe ProjectsController do
     end
 
     it 'restores project deletion' do
-      post :restore, params: { namespace_id: project.namespace, project_id: project }
+      action
 
       expect(project.reload.marked_for_deletion_at).to be_nil
       expect(project.reload.archived).to be_falsey
@@ -475,15 +503,24 @@ describe ProjectsController do
       expect(response).to redirect_to(edit_project_path(project))
     end
 
-    it 'does not restore project because of error' do
-      message = 'Error'
-      expect(::Projects::RestoreService).to receive_message_chain(:new, :execute).and_return({ status: :error, message: message })
+    context 'when error occurs' do
+      let(:message) { 'Error' }
 
-      post :restore, params: { namespace_id: project.namespace, project_id: project }
+      before do
+        expect(::Projects::RestoreService)
+          .to receive_message_chain(:new, :execute)
+          .and_return({ status: :error, message: message })
+      end
 
-      expect(response).to have_gitlab_http_status(:ok)
-      expect(response).to render_template(:edit)
-      expect(flash[:alert]).to include(message)
+      it_behaves_like 'action pushing protected branches data to gon'
+
+      it 'does not restore project' do
+        action
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to render_template(:edit)
+        expect(flash[:alert]).to include(message)
+      end
     end
   end
 end
