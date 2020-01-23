@@ -15,14 +15,21 @@ import DesignPresentation from '../../components/design_presentation.vue';
 import getDesignQuery from '../../graphql/queries/getDesign.query.graphql';
 import appDataQuery from '../../graphql/queries/appData.query.graphql';
 import createImageDiffNoteMutation from '../../graphql/mutations/createImageDiffNote.mutation.graphql';
+import updateImageDiffNoteMutation from '../../graphql/mutations/updateImageDiffNote.mutation.graphql';
 import {
   extractDiscussions,
   extractDesign,
   extractParticipants,
+  updateImageDiffNoteOptimisticResponse,
 } from '../../utils/design_management_utils';
-import { updateStoreAfterAddImageDiffNote } from '../../utils/cache_update';
+import {
+  updateStoreAfterAddImageDiffNote,
+  updateStoreAfterUpdateImageDiffNote,
+} from '../../utils/cache_update';
 import {
   ADD_DISCUSSION_COMMENT_ERROR,
+  ADD_IMAGE_DIFF_NOTE_ERROR,
+  UPDATE_IMAGE_DIFF_NOTE_ERROR,
   DESIGN_NOT_FOUND_ERROR,
   DESIGN_NOT_EXIST_ERROR,
   designDeletionError,
@@ -165,19 +172,59 @@ export default {
         this.designVariables,
       );
     },
+    updateImageDiffNoteInStore(
+      store,
+      {
+        data: { updateImageDiffNote },
+      },
+    ) {
+      return updateStoreAfterUpdateImageDiffNote(
+        store,
+        updateImageDiffNote,
+        getDesignQuery,
+        this.designVariables,
+      );
+    },
+    onNoteMove({ noteableId, position }) {
+      const note = {}; // TODO get the current note from cache (using noteableId, discussionId)
+      const mutationPayload = {
+        // TODO(tq) update args for optimistic response as needed
+        optimisticResponse: updateImageDiffNoteOptimisticResponse(note, {
+          position,
+        }),
+        variables: {
+          input: {
+            id: noteableId,
+            position,
+          },
+        },
+        mutation: updateImageDiffNoteMutation,
+        update: this.updateImageDiffNoteInStore,
+      };
+      // TODO(tq) actually commit a mutation
+      return this.$apollo.mutate(mutationPayload).catch(e => this.onUpdateImageDiffNoteError(e));
+    },
     onQueryError(message) {
       // because we redirect user to /designs (the issue page),
       // we want to create these flashes on the issue page
       createFlash(message);
       this.$router.push({ name: this.$options.DESIGNS_ROUTE_NAME });
     },
-    onDiffNoteError(e) {
-      this.errorMessage = ADD_DISCUSSION_COMMENT_ERROR;
+    onError(message, e) {
+      this.errorMessage = message;
       throw e;
     },
+    onCreateImageDiffNoteError(e) {
+      this.onError(ADD_IMAGE_DIFF_NOTE_ERROR, e);
+    },
+    onDesignDiscussionError(e) {
+      this.onError(ADD_DISCUSSION_COMMENT_ERROR, e);
+    },
+    onUpdateImageDiffNoteError(e) {
+      this.onError(UPDATE_IMAGE_DIFF_NOTE_ERROR, e);
+    },
     onDesignDeleteError(e) {
-      this.errorMessage = designDeletionError({ singular: true });
-      throw e;
+      this.onError(designDeletionError({ singular: true }), e);
     },
     openCommentForm(annotationCoordinates) {
       this.annotationCoordinates = annotationCoordinates;
@@ -239,6 +286,7 @@ export default {
           :is-annotating="isAnnotating"
           :scale="scale"
           @openCommentForm="openCommentForm"
+          @moveNote="onMoveNote"
         />
 
         <div class="design-scaler-wrapper position-absolute mb-4 d-flex-center">
@@ -264,7 +312,7 @@ export default {
             :noteable-id="design.id"
             :discussion-index="index + 1"
             :markdown-preview-path="markdownPreviewPath"
-            @error="onDiffNoteError"
+            @error="onDesignDiscussionError"
           />
           <apollo-mutation
             v-if="annotationCoordinates"
@@ -275,7 +323,7 @@ export default {
             }"
             :update="addImageDiffNoteToStore"
             @done="closeCommentForm"
-            @error="onDiffNoteError"
+            @error="onCreateImageDiffNoteError"
           >
             <design-reply-form
               v-model="comment"
