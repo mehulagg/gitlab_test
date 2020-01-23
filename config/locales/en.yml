@@ -20,10 +20,6 @@ en:
         token: "Grafana HTTP API Token"
         grafana_url: "Grafana API URL"
         grafana_enabled: "Grafana integration enabled"
-  views:
-    pagination:
-      previous: "Prev"
-      next: "Next"
   date:
     abbr_day_names:
     - Sun

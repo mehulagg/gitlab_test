@@ -1,0 +1,5 @@
+---
+title: Use gettext translations for pagination links
+merge_request: 23627
+author:
+type: changed
