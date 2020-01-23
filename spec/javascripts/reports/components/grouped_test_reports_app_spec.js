@@ -83,16 +83,40 @@ describe('Grouped Test Reports App', () => {
       setTimeout(() => {
         expect(vm.$el.querySelector('.gl-spinner')).toBeNull();
         expect(vm.$el.querySelector('.js-code-text').textContent.trim()).toEqual(
-          'Test summary contained 2 failed/error test results out of 11 total tests',
+          'Test summary contained 2 failed out of 11 total tests',
         );
 
-        expect(vm.$el.textContent).toContain(
-          'rspec:pg found 2 failed/error test results out of 8 total tests',
-        );
+        expect(vm.$el.textContent).toContain('rspec:pg found 2 failed out of 8 total tests');
 
         expect(vm.$el.textContent).toContain('New');
         expect(vm.$el.textContent).toContain(
           'java ant found no changed test results out of 3 total tests',
+        );
+        done();
+      }, 0);
+    });
+  });
+
+  describe('with new error result', () => {
+    beforeEach(() => {
+      mock.onGet('test_results.json').reply(200, newErrorsTestReports, {});
+      vm = mountComponent(Component, {
+        endpoint: 'test_results.json',
+      });
+    });
+
+    it('renders error summary text + new badge', done => {
+      setTimeout(() => {
+        expect(vm.$el.querySelector('.gl-spinner')).toBeNull();
+        expect(vm.$el.querySelector('.js-code-text').textContent.trim()).toEqual(
+          'Test summary contained 2 errors out of 11 total tests',
+        );
+
+        expect(vm.$el.textContent).toContain('karma found 2 errors out of 3 total tests');
+
+        expect(vm.$el.textContent).toContain('New');
+        expect(vm.$el.textContent).toContain(
+          'rspec:pg found no changed test results out of 8 total tests',
         );
         done();
       }, 0);
@@ -111,17 +135,15 @@ describe('Grouped Test Reports App', () => {
       setTimeout(() => {
         expect(vm.$el.querySelector('.gl-spinner')).toBeNull();
         expect(vm.$el.querySelector('.js-code-text').textContent.trim()).toEqual(
-          'Test summary contained 2 failed/error test results and 2 fixed test results out of 11 total tests',
+          'Test summary contained 2 failed and 2 fixed test results out of 11 total tests',
         );
 
         expect(vm.$el.textContent).toContain(
-          'rspec:pg found 1 failed/error test result and 2 fixed test results out of 8 total tests',
+          'rspec:pg found 1 failed and 2 fixed test results out of 8 total tests',
         );
 
         expect(vm.$el.textContent).toContain('New');
-        expect(vm.$el.textContent).toContain(
-          ' java ant found 1 failed/error test result out of 3 total tests',
-        );
+        expect(vm.$el.textContent).toContain(' java ant found 1 failed out of 3 total tests');
         done();
       }, 0);
     });
