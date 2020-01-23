@@ -65,7 +65,7 @@ describe('AlertWidget', () => {
     wrapper = null;
   });
 
-  it('displays a loading spinner and disables form when fetching alerts', () => {
+  it('displays a loading spinner and disables form when fetching alerts', async () => {
     let resolveReadAlert;
     mockReadAlert.mockReturnValue(
       new Promise(resolve => {
@@ -73,31 +73,29 @@ describe('AlertWidget', () => {
       }),
     );
     createComponent(defaultProps);
-    return wrapper.vm
-      .$nextTick()
-      .then(() => {
-        expect(wrapper.find(GlLoadingIcon).isVisible()).toBe(true);
-        expect(findWidgetForm().props('disabled')).toBe(true);
 
-        resolveReadAlert({ operator: '==', threshold: 42 });
-      })
-      .then(() => waitForPromises())
-      .then(() => {
-        expect(wrapper.find(GlLoadingIcon).isVisible()).toBe(false);
-        expect(findWidgetForm().props('disabled')).toBe(false);
-      });
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.find(GlLoadingIcon).isVisible()).toBe(true);
+    expect(findWidgetForm().props('disabled')).toBe(true);
+    resolveReadAlert({ operator: '==', threshold: 42 });
+
+    await waitForPromises();
+
+    expect(wrapper.find(GlLoadingIcon).isVisible()).toBe(false);
+    expect(findWidgetForm().props('disabled')).toBe(false);
   });
 
-  it('displays an error message when fetch fails', () => {
+  it('displays an error message when fetch fails', async () => {
     mockReadAlert.mockRejectedValue();
     createComponent(propsWithAlert);
 
     expect(wrapper.find(GlLoadingIcon).isVisible()).toBe(true);
 
-    return waitForPromises().then(() => {
-      expect(createFlash).toHaveBeenCalled();
-      expect(wrapper.find(GlLoadingIcon).isVisible()).toBe(false);
-    });
+    await waitForPromises();
+
+    expect(createFlash).toHaveBeenCalled();
+    expect(wrapper.find(GlLoadingIcon).isVisible()).toBe(false);
   });
 
   it('displays an alert summary when there is a single alert', () => {
@@ -185,7 +183,7 @@ describe('AlertWidget', () => {
     expect(mockUpdateAlert).toHaveBeenCalledWith(alertPath, newAlertParams);
   });
 
-  it('deletes an alert with an appropriate handler', () => {
+  it('deletes an alert with an appropriate handler', async () => {
     const alertParams = { alert_path: alertPath, operator: '>', threshold: 42 };
     mockReadAlert.mockResolvedValue(alertParams);
     mockDeleteAlert.mockResolvedValue({});
@@ -203,10 +201,10 @@ describe('AlertWidget', () => {
 
     findWidgetForm().vm.$emit('delete', { alert: alertPath });
 
-    return wrapper.vm.$nextTick().then(() => {
-      expect(mockDeleteAlert).toHaveBeenCalledWith(alertPath);
-      expect(findAlertErrorMessage().exists()).toBe(false);
-    });
+    await wrapper.vm.$nextTick();
+
+    expect(mockDeleteAlert).toHaveBeenCalledWith(alertPath);
+    expect(findAlertErrorMessage().exists()).toBe(false);
   });
 
   describe('when delete fails', () => {
@@ -235,12 +233,10 @@ describe('AlertWidget', () => {
       expect(findAlertErrorMessage().text()).toEqual('Error deleting alert');
     });
 
-    it('dismisses error message on cancel', () => {
+    it('dismisses error message on cancel', async () => {
       findWidgetForm().vm.$emit('cancel');
-
-      return wrapper.vm.$nextTick().then(() => {
-        expect(findAlertErrorMessage().exists()).toBe(false);
-      });
+      await wrapper.vm.$nextTick();
+      expect(findAlertErrorMessage().exists()).toBe(false);
     });
   });
 });
