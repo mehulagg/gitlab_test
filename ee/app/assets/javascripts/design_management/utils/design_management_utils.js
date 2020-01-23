@@ -87,6 +87,23 @@ export const designUploadOptimisticResponse = files => {
   };
 };
 
+/**
+ * Generates optimistic response for a design upload mutation
+ * @param {Array<File>} files
+ */
+export const updateImageDiffNoteOptimisticResponse = (note, updates) => {
+  // TODO(tq) update once we know the data structure
+  return {
+    // False positive i18n lint: https://gitlab.com/gitlab-org/frontend/eslint-plugin-i18n/issues/26
+    // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
+    __typename: 'Mutation',
+    updateImageDiffNote: {
+      __typename: 'DesignManagementUploadPayload',
+      note: Object.assign(note, updates), // TODO(tq) consider lodash.merge
+    },
+  };
+};
+
 const normalizeAuthor = author => ({
   ...author,
   web_url: author.webUrl,
