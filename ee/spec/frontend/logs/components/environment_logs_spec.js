@@ -175,21 +175,6 @@ describe('EnvironmentLogs', () => {
     });
   });
 
-  describe('elastic stack disabled', () => {
-    beforeEach(() => {
-      gon.features = gon.features || {};
-      gon.features.enableClusterApplicationElasticStack = false;
-
-      initWrapper();
-    });
-
-    it("doesn't display the search bar", () => {
-      expect(findSearchBar().exists()).toEqual(false);
-      expect(wrapper.find('#environments-dropdown-fg').attributes('class')).toEqual('px-1 col-6');
-      expect(wrapper.find('#pods-dropdown-fg').attributes('class')).toEqual('px-1 col-6');
-    });
-  });
-
   describe('ES enabled and legacy environment', () => {
     beforeEach(() => {
       state.pods.options = [];
