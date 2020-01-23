@@ -5,6 +5,8 @@ require 'mime/types'
 module API
   class LsifDatabases < Grape::API
     before do
+      Feature.enabled?(:code_navigation, user_project)
+
       require_repository_enabled!
       require_gitlab_workhorse!
 
@@ -38,6 +40,7 @@ module API
             db = SQLite3::Database.new(uploader.file.file)
 
             doc_id, filepath = db.execute("SELECT documentHash, uri, MIN(LENGTH(uri)) FROM documents WHERE uri LIKE '%#{params[:path]}'").first
+            prefix = filepath.delete_suffix(params[:path])
 
             ranges = db.execute("SELECT identifier, startLine, endLine, startCharacter, endCharacter FROM refs WHERE documentHash='#{doc_id}'")
 
@@ -54,14 +57,9 @@ module API
                 INNER JOIN refs ON refs.identifier = hovers.identifier WHERE refs.documentHash='#{doc_id}'").to_h
 
             ranges.map do |(identifier, start_line, end_line, start_char, end_char)|
-              definition = def_for_ranges[identifier]&.yield_self do |(_, path, start_line, end_line, start_char, end_char)|
-                {
-                  path: path,
-                  start_line: start_line,
-                  end_line: end_line,
-                  start_char: start_char,
-                  end_char: end_char
-                }
+              definition_url = def_for_ranges[identifier]&.yield_self do |(_, path, start_line, end_line, start_char, end_char)|
+                blob_ref_path = File.join(params[:commit_id], path.delete_prefix(prefix))
+                Gitlab::Routing.url_helpers.project_blob_url(@project, blob_ref_path, anchor: "L#{start_line + 1}")
               end
 
               {
@@ -70,7 +68,7 @@ module API
                 end_line: end_line,
                 start_char: start_char,
                 end_char: end_char,
-                definition: definition,
+                definition_url: definition_url,
                 hover: hover_for_ranges[identifier] ? JSON.parse(hover_for_ranges[identifier]) : nil
               }
             end

@@ -32,8 +32,8 @@ export default {
     <div :class="{ 'border-bottom': data.definition }">
       <pre class="border-0 bg-transparent m-0">{{ data.hover.contents[0].value }}</pre>
     </div>
-    <div v-if="data.definition" class="popover-body">
-      <gl-button :href="data.definition.path" target="_blank" class="w-100">
+    <div v-if="data.definition_url" class="popover-body">
+      <gl-button :href="data.definition_url" target="_blank" class="w-100">
         {{ __('Go to definition') }}
       </gl-button>
     </div>
