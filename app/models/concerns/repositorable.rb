@@ -12,12 +12,16 @@ module Repositorable
     false
   end
 
-  def repository_exists?
-    strong_memoize(:repository_exists) do
-      !!repository.exists?
+  def repo_exists?
+    strong_memoize(:repo_exists) do
+      repository.exists?
     rescue
       false
     end
+  end
+
+  def repository_exists?
+    !!repository.exists?
   end
 
   def root_ref?(branch)

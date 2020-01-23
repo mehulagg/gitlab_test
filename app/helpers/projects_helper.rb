@@ -386,7 +386,7 @@ module ProjectsHelper
       nav_tabs << :releases if can?(current_user, :read_release, project)
     end
 
-    if project.repository_exists? && can?(current_user, :read_merge_request, project)
+    if project.repo_exists? && can?(current_user, :read_merge_request, project)
       nav_tabs << :merge_requests
     end
 
