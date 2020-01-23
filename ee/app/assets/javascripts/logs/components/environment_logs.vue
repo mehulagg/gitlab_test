@@ -46,7 +46,7 @@ export default {
     showLoader() {
       return this.logs.isLoading || !this.logs.isComplete;
     },
-    advancedFeaturesEnabled() {
+    enableAdvancedQuerying() {
       const environment = this.environments.options.find(
         ({ name }) => name === this.environments.current,
       );
