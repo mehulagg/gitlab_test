@@ -65,7 +65,7 @@ export default {
       const line = el.closest('.line');
 
       if (getCurrentHoverElement()) {
-        getCurrentHoverElement().classList.remove('hll');
+        getCurrentHoverElement().classList.remove('hll', 'cursor-pointer');
       }
 
       if (line) {
@@ -75,7 +75,7 @@ export default {
           this.currentHoverPosition = this.getElementGlobalPosition(el);
           this.currentHoverData = data;
 
-          el.classList.add('hll');
+          el.classList.add('hll', 'cursor-pointer');
 
           setCurrentHoverElement(el);
 
@@ -90,7 +90,6 @@ export default {
       return {
         x: el.offsetLeft,
         y: el.offsetTop,
-        width: el.offsetWidth,
         height: el.offsetHeight,
       };
     },

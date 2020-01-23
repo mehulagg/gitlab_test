@@ -17,20 +17,26 @@ export default {
       default: null,
     },
   },
+  // eslint-disable-next-line camelcase
+  colorScheme: gon?.user_color_scheme,
 };
 </script>
 
 <template>
   <div
     :style="{
-      left: `${position.x + position.width / 2 - 12}px`,
+      left: `${position.x}px`,
       top: `${position.y + position.height}px`,
     }"
     class="popover gl-popover fade bs-popover-bottom show"
   >
     <div class="arrow"></div>
-    <div :class="{ 'border-bottom': data.definition }">
-      <pre class="border-0 bg-transparent m-0">{{ data.hover.contents[0].value }}</pre>
+    <div v-for="(hover, index) in data.hover" :key="index" class="border-bottom">
+      <pre
+        :class="$options.colorScheme"
+        class="border-0 bg-transparent m-0 code highlight"
+        v-html="hover.value"
+      ></pre>
     </div>
     <div v-if="data.definition_url" class="popover-body">
       <gl-button :href="data.definition_url" target="_blank" class="w-100">

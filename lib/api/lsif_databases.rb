@@ -69,7 +69,9 @@ module API
                 start_char: start_char,
                 end_char: end_char,
                 definition_url: definition_url,
-                hover: hover_for_ranges[identifier] ? JSON.parse(hover_for_ranges[identifier]) : nil
+                hover: hover_for_ranges[identifier] ? JSON.parse(hover_for_ranges[identifier])["contents"].map do |hover|
+                  { language: hover["language"], value: Gitlab::Highlight.highlight(nil, hover["value"], language: hover["language"]) }
+                end : nil
               }
             end
           end
