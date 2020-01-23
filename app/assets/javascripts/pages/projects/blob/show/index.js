@@ -30,4 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   GpgBadges.fetch();
+
+  if (gon.features?.codeNavigation) {
+    import('~/code_navigation')
+      .then(m => m.default())
+      .catch(() => {});
+  }
 });

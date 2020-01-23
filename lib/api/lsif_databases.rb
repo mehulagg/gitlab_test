@@ -71,7 +71,7 @@ module API
                 start_char: start_char,
                 end_char: end_char,
                 definition: definition,
-                hover: hover_for_ranges[identifier]
+                hover: hover_for_ranges[identifier] ? JSON.parse(hover_for_ranges[identifier]) : nil
               }
             end
           end
