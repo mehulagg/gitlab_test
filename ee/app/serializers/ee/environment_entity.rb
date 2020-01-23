@@ -12,6 +12,14 @@ module EE
         project_path(environment.project)
       end
 
+      expose :logs_api_path, if: -> (*) { can_read_pod_logs? } do |environment|
+        if environment.deployment_platform&.elastic_stack_available?
+          expose_path api_v4_clusters_namespace__clusters__cluster_id_namespace__namespace_logs_logs_elasticsearch_path(cluster_id: environment.deployment_platform.cluster_id, namespace: environment.deployment_namespace, format: '.json')
+        else
+          expose_path api_v4_clusters_namespace__clusters__cluster_id_namespace__namespace_logs_logs_kubernetes_path(cluster_id: environment.deployment_platform.cluster_id, namespace: environment.deployment_namespace, format: '.json')
+        end
+      end
+
       expose :enable_advanced_logs_querying, if: -> (*) { can_read_pod_logs? } do |environment|
         environment.deployment_platform&.elastic_stack_available?
       end

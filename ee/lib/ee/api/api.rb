@@ -52,6 +52,7 @@ module EE
         mount ::API::VisualReviewDiscussions
         mount ::API::Analytics::CodeReviewAnalytics
         mount ::API::ProtectedEnvironments
+        mount ::API::Clusters
 
         version 'v3', using: :path do
           # Although the following endpoints are kept behind V3 namespace,
