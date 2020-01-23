@@ -2,7 +2,7 @@
 
 const BABEL_ENV = process.env.BABEL_ENV || process.env.NODE_ENV || null;
 
-const presets = [
+let presets = [
   [
     '@babel/preset-env',
     {
@@ -43,12 +43,22 @@ if (BABEL_ENV === 'karma' || BABEL_ENV === 'coverage') {
 // Jest is running in node environment, so we need additional plugins
 const isJest = Boolean(process.env.JEST_WORKER_ID);
 if (isJest) {
-  plugins.push('@babel/plugin-transform-modules-commonjs');
   /*
   without the following, babel-plugin-istanbul throws an error:
   https://gitlab.com/gitlab-org/gitlab-foss/issues/58390
   */
   plugins.push('babel-plugin-dynamic-import-node');
+
+  presets = [
+    [
+      '@babel/preset-env',
+      {
+        targets: {
+          node: 'current',
+        },
+      },
+    ],
+  ];
 }
 
 module.exports = { presets, plugins };
