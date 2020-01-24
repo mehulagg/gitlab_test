@@ -5,6 +5,8 @@ module Gitlab
     class CommitService
       include Gitlab::EncodingHelper
 
+      RefChangeError = Class.new(StandardError)
+
       def initialize(repository)
         @gitaly_repo = repository.gitaly_repository
         @repository = repository
@@ -294,6 +296,19 @@ module Gitlab
         if GitalyClient.ref_name_caching_allowed?
           Gitlab::SafeRequestStore[key] = commit
           return commit
+        else
+          old = Gitlab::SafeRequestStore[key]
+
+          if old
+            new = commit&.id
+
+            if old != new
+              exception = RefChangeError.new("Ref #{revision} changed from #{old} to #{new}")
+              raise exception
+            end
+          else
+            Gitlab::SafeRequestStore[key] ||= commit&.id
+          end
         end
 
         return unless commit

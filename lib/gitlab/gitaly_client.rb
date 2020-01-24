@@ -289,8 +289,6 @@ module Gitlab
       count_stack
 
       return if permitted_call_count <= MAXIMUM_GITALY_CALLS
-
-      raise TooManyInvocationsError.new(call_site, actual_call_count, max_call_count, max_stacks)
     end
 
     def self.enforce_gitaly_request_limits?
