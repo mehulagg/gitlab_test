@@ -10,12 +10,12 @@ code is effective, understandable, maintainable, and secure.
 ## Getting your merge request reviewed, approved, and merged
 
 You are strongly encouraged to get your code **reviewed** by a
-[reviewer](https://about.gitlab.com/handbook/engineering/workflow/code-review/#reviewer) as soon as
+[domain maintainer](https://about.gitlab.com/handbook/engineering/workflow/code-review/#domain-maintainer) as soon as
 there is any code to review, to get a second opinion on the chosen solution and
 implementation, and an extra pair of eyes looking for bugs, logic problems, or
-uncovered edge cases. The reviewer can be from a different team, but it is
-recommended to pick someone who knows the domain well. You can read more about the
-importance of involving reviewer(s) in the section on the responsibility of the author below.
+uncovered edge cases. The domain maintainer needs to be someone from the stage that
+the code changes relates to. You can read more about the
+importance of involving domain maintainer in the section on the responsibility of the author below.
 
 If you need some guidance (e.g. it's your first merge request), feel free to ask
 one of the [Merge request coaches](https://about.gitlab.com/company/team/).
@@ -24,38 +24,34 @@ If you need assistance with security scans or comments, feel free to include the
 Security Team (`@gitlab-com/gl-security`) in the review.
 
 Depending on the areas your merge request touches, it must be **approved** by one
-or more [maintainers](https://about.gitlab.com/handbook/engineering/workflow/code-review/#maintainer):
+or more [codebase maintainers](https://about.gitlab.com/handbook/engineering/workflow/code-review/#codebase-maintainer):
 
 For approvals, we use the approval functionality found in the merge request
-widget. Reviewers can add their approval by [approving additionally](../user/project/merge_requests/merge_request_approvals.md#adding-or-removing-an-approval).
+widget. Maintainers can add their approval by [approving additionally](../user/project/merge_requests/merge_request_approvals.md#adding-or-removing-an-approval).
 
-Getting your merge request **merged** also requires a maintainer. If it requires
-more than one approval, the last maintainer to review and approve it will also merge it.
+Getting your merge request **merged** requires a codebase maintainer's approval. If it requires
+more than one approval, the last codebase maintainer to review and approve it will also merge it.
 
 ### Reviewer roulette
 
-The [Danger bot](dangerbot.md) randomly picks a reviewer and a maintainer for
+The [Danger bot](dangerbot.md) randomly picks a domain maintainer and a codebase maintainer for
 each area of the codebase that your merge request seems to touch. It only makes
 recommendations - feel free to override it if you think someone else is a better
 fit!
 
-It picks reviewers and maintainers from the list at the
+It picks domain maintainers and codebase maintainers from the list at the
 [engineering projects](https://about.gitlab.com/handbook/engineering/projects/)
-page, with these behaviours:
+page, with these behaviors:
 
 1. It will not pick people whose [GitLab status](../user/profile/index.md#current-status)
    contains the string 'OOO'.
-1. [Trainee maintainers](https://about.gitlab.com/handbook/engineering/workflow/code-review/#trainee-maintainer)
-   are three times as likely to be picked as other reviewers.
-1. It always picks the same reviewers and maintainers for the same
-   branch name (unless their OOO status changes, as in point 1). It
-   removes leading `ce-` and `ee-`, and trailing `-ce` and `-ee`, so
-   that it can be stable for backport branches.
+1. It always picks the same domain maintainers and codebase maintainers for the same
+   branch name (unless their OOO status changes, as in point 1).
 
 ### Approval guidelines
 
-As described in the section on the responsibility of the maintainer below, you
-are recommended to get your merge request approved and merged by maintainer(s)
+As described in the section on the responsibility of the codebase maintainer below, you
+are recommended to get your merge request approved and merged by codebase maintainer(s)
 from teams other than your own.
 
 1. If your merge request includes backend changes [^1], it must be
@@ -83,7 +79,7 @@ View the updated documentation regarding [internal application security reviews]
 The responsibility to find the best solution and implement it lies with the
 merge request author.
 
-Before assigning a merge request to a maintainer for approval and merge, they
+Before assigning a merge request to a domain maintainer for approval, they
 should be confident that it actually solves the problem it was meant to solve,
 that it does so in the most appropriate way, that it satisfies all requirements,
 and that there are no remaining bugs, logical problems, uncovered edge cases,
@@ -95,18 +91,14 @@ To reach the required level of confidence in their solution, an author is expect
 to involve other people in the investigation and implementation processes as
 appropriate.
 
-They are encouraged to reach out to domain experts to discuss different solutions
+They are encouraged to reach out to domain maintainers to discuss different solutions
 or get an implementation reviewed, to product managers and UX designers to clear
 up confusion or verify that the end result matches what they had in mind, to
 database specialists to get input on the data model or specific queries, or to
 any other developer to get an in-depth review of the solution.
 
-If an author is unsure if a merge request needs a domain expert's opinion, that's
-usually a pretty good sign that it does, since without it the required level of
-confidence in their solution will not have been reached.
-
 Before the review, the author is requested to submit comments on the merge
-request diff alerting the reviewer to anything important as well as for anything
+request diff alerting the domain maintainer to anything important as well as for anything
 that demands further explanation or attention.  Examples of content that may
 warrant a comment could be:
 
@@ -118,72 +110,78 @@ warrant a comment could be:
 
 Avoid:
 
-- Adding comments (referenced above, or TODO items) directly to the source code unless the reviewer requires you to do so. If the comments are added due to an actionable task,
+- Adding comments (referenced above, or TODO items) directly to the source code unless the domain maintainer requires you to do so. If the comments are added due to an actionable task,
 a link to an issue must be included.
-- Assigning merge requests with failed tests to maintainers. If the tests are failing and you have to assign, ensure you leave a comment with an explanation.
-- Excessively mentioning maintainers through email or Slack (if the maintainer is reachable
+- Assigning merge requests with failed tests to domain maintainers. If the tests are failing and you have to assign, ensure you leave a comment with an explanation.
+- Excessively mentioning domain maintainers through email or Slack (if the maintainer is reachable
 through Slack). If you can't assign a merge request, `@` mentioning a maintainer in a comment is acceptable and in all other cases assigning the merge request is sufficient.
 
 This
-[saves reviewers time and helps authors catch mistakes earlier](https://www.ibm.com/developerworks/rational/library/11-proven-practices-for-peer-review/index.html#__RefHeading__97_174136755).
+[saves domain maintainers time and helps authors catch mistakes earlier](https://www.ibm.com/developerworks/rational/library/11-proven-practices-for-peer-review/index.html#__RefHeading__97_174136755).
 
-### The responsibility of the reviewer
+Once the merge request have been approved by a domain maintainer, it should be
+assigned to a codebase maintainer to be reviewed and merged.
+
+### The responsibility of the domain maintainer
+
+Domain maintainers are primarily focused on validating the solution being implemented by ensuring that:
+
+1. it is accurate
+1. it is maintainable
+1. it is consistent with the architecture of the domain area and overall GitLab codebase
+1. it doesn't degrade our application performance or security
 
 [Review the merge request](#reviewing-code) thoroughly. When you are confident
 that it meets all requirements, you should:
 
 - Click the Approve button.
 - Advise the author their merge request has been reviewed and approved.
-- Assign the merge request to a maintainer. [Reviewer roulette](#reviewer-roulette)
+- Assign the merge request to a codebase maintainer. [Reviewer roulette](#reviewer-roulette)
 should have made a suggestion, but feel free to override if someone else is a
 better choice.
 
-### The responsibility of the maintainer
-
-Maintainers are responsible for the overall health, quality, and consistency of
-the GitLab codebase, across domains and product areas.
-
-Consequently, their reviews will focus primarily on things like overall
-architecture, code organization, separation of concerns, tests, DRYness,
-consistency, and readability.
-
-Since a maintainer's job only depends on their knowledge of the overall GitLab
-codebase, and not that of any specific domain, they can review, approve and merge
-merge requests from any team and in any product area.
-
-In fact, authors are encouraged to get their merge requests merged by maintainers
-from teams other than their own, to ensure that all code across GitLab is consistent
-and can be easily understood by all contributors, from both inside and outside the
-company, without requiring team-specific expertise.
-
-Maintainers will do their best to also review the specifics of the chosen solution
-before merging, but as they are not necessarily domain experts, they may be poorly
-placed to do so without an unreasonable investment of time. In those cases, they
-will defer to the judgment of the author and earlier reviewers and involved domain
-experts, in favor of focusing on their primary responsibilities.
-
-If a developer who happens to also be a maintainer was involved in a merge request
-as a domain expert and/or reviewer, it is recommended that they are not also picked
-as the maintainer to ultimately approve and merge it.
-
-Maintainers should check before merging if the merge request is approved by the
-required approvers.
-
-Maintainers must check before merging if the merge request is introducing new
-vulnerabilities, by inspecting the list in the Merge Request
-[Security Widget](../user/application_security/index.md).
-When in doubt, a [Security Engineer](https://about.gitlab.com/company/team/) can be involved. The list of detected
+Domain maintainers must check before merging if the merge request is introducing new
+vulnerabilities, by inspecting the list in the Merge Request [Security
+Widget](../user/project/merge_requests/index.md#security-reports-ultimate).
+When in doubt, a [Security Engineer][team] can be involved. The list of detected
 vulnerabilities must be either empty or containing:
 
 - dismissed vulnerabilities in case of false positives
 - vulnerabilities converted to issues
 
-Maintainers should **never** dismiss vulnerabilities to "empty" the list,
+Domain maintainers should **never** dismiss vulnerabilities to "empty" the list,
 without duly verifying them.
 
-Note that certain Merge Requests may target a stable branch.  These are rare
-events.  These types of Merge Requests cannot be merged by the Maintainer.
-Instead these should be sent to the [Release Manager](https://about.gitlab.com/community/release-managers/).
+### The responsibility of the codebase maintainer
+
+Codebase Maintainers are responsible for the overall health, quality, and consistency of
+the GitLab codebase, **across domains and product areas**.
+
+Consequently, their reviews will focus primarily on things like overall
+architecture, code organization, separation of concerns, tests, DRYness,
+consistency, and readability.
+
+Since a codebase maintainer's job only depends on their knowledge of the overall GitLab
+codebase, and not that of any specific domain, they can review, approve and merge
+merge requests from any team and in any product area.
+
+In fact, authors are encouraged to get their merge requests merged by codebase maintainers
+from teams other than their own, to ensure that all code across GitLab is consistent
+and can be easily understood by all contributors, from both inside and outside the
+company, without requiring team-specific expertise.
+
+Codebase maintainers will do their best to also review the specifics of the chosen solution
+before merging, but as they are not necessarily domain experts, they may be poorly
+placed to do so without an unreasonable investment of time. In those cases, they
+will defer to the judgment of the author and earlier reviewers and domain maintainer,
+in favor of focusing on their primary responsibilities.
+
+If a developer who happens to also be a codebase maintainer was involved in a merge request
+as a domain maintainer and/or reviewer, it is recommended that they are not also picked
+as the codebase maintainer to ultimately approve and merge it.
+
+Codebase maintainers should check before merging if the merge request is approved by the
+required approvers.
 
 ## Best practices
 
@@ -240,15 +238,28 @@ first time.
   review. If you do not have the ability to assign merge requests, `@`
   mention the reviewer instead.
 
-### Assigning a merge request for a review
+### Assigning a merge request for mandatory reviews
 
-If you want to have your merge request reviewed, you can assign it to any reviewer. The list of reviewers can be found on [Engineering projects](https://about.gitlab.com/handbook/engineering/projects/) page.
+Before assigning your merge request for the mandatory domain maintainer and
+codebase maintainer reviews, you are welcome to request a review from any
+team member. The list of reviewers can be found on the
+[Engineering projects](https://about.gitlab.com/handbook/engineering/projects/) page.
 
-You can also use `ready for review` label. That means that your merge request is ready to be reviewed and any reviewer can pick it. It is recommended to use that label only if there isn't time pressure and make sure the merge request is assigned to a reviewer.
+You can also use `ready for review` label. That means that your merge request
+is ready to be reviewed and any reviewer can pick it. It is recommended to use
+that label only if there isn't time pressure and make sure the merge request
+is assigned to a reviewer.
 
-When your merge request was reviewed and can be passed to a maintainer you can either pick a specific maintainer or use a label `ready for merge`.
+When you are ready to have your merge request go through the mandatory reviews,
+you should assign it to the relevant domain maintainer for review.
 
-It is responsibility of the author of a merge request that the merge request is reviewed. If it stays in `ready for review` state too long it is recommended to assign it to a specific reviewer.
+Once your merge request has been approved by a domain maintainer and can be
+passed to a codebase maintainer you can either pick a specific maintainer or
+use a label `ready for merge`.
+
+It is responsibility of the author of a merge request to ensure that the merge
+request is reviewed. If it stays in `ready for merge` state too long it is
+recommended to assign it to a specific codebase maintainer.
 
 ### List of merge requests ready for review
 
