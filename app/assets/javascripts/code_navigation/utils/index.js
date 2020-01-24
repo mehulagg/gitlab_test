@@ -1,27 +1,5 @@
 const cachedData = new Map();
 
-export const getAllPreviousElements = el => {
-  let node = el.previousSibling;
-  const previousEls = [];
-
-  while (node) {
-    previousEls.push(node);
-    node = node.previousSibling;
-  }
-
-  return previousEls;
-};
-export const getCharacterIndex = el => {
-  if (!cachedData.has(el)) {
-    cachedData.set(
-      el,
-      getAllPreviousElements(el).reduce((acc, { textContent }) => acc + textContent.length, 0),
-    );
-  }
-
-  return cachedData.get(el);
-};
-
 export const getLines = () => {
   if (!cachedData.has('lines')) {
     cachedData.set('lines', [...document.querySelectorAll('.blob-viewer .line')]);
@@ -29,7 +7,19 @@ export const getLines = () => {
 
   return cachedData.get('lines');
 };
-export const getLineIndex = lineEl => getLines().indexOf(lineEl);
 
 export const getCurrentHoverElement = () => cachedData.get('current');
 export const setCurrentHoverElement = el => cachedData.set('current', el);
+
+export const addInteractionClass = d => {
+  let charCount = 0;
+  const line = getLines()[d.start_line];
+  const el = [...line.childNodes].find(({ textContent }) => {
+    if (charCount === d.start_char) return true;
+    charCount += textContent.length;
+    return false;
+  });
+  el.setAttribute('data-char-index', d.start_char);
+  el.setAttribute('data-line-index', d.start_line);
+  el.classList.add('cursor-pointer', 'code-navigation', 'js-code-navigation');
+};

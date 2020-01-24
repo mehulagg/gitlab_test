@@ -33,10 +33,14 @@ export default {
     <div class="arrow"></div>
     <div v-for="(hover, index) in data.hover" :key="index" class="border-bottom">
       <pre
+        v-if="hover.language"
         :class="$options.colorScheme"
         class="border-0 bg-transparent m-0 code highlight"
         v-html="hover.value"
       ></pre>
+      <p v-else class="p-3 m-0">
+        {{ hover.value }}
+      </p>
     </div>
     <div v-if="data.definition_url" class="popover-body">
       <gl-button :href="data.definition_url" target="_blank" class="w-100">
@@ -45,3 +49,9 @@ export default {
     </div>
   </div>
 </template>
+
+<style scoped>
+.popover {
+  max-width: 450px;
+}
+</style>

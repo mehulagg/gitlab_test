@@ -1,13 +1,7 @@
 <script>
-import { debounce } from 'underscore';
 import api from '~/api';
 import Popover from './popover.vue';
-import {
-  getLineIndex,
-  getCurrentHoverElement,
-  setCurrentHoverElement,
-  getCharacterIndex,
-} from '../utils';
+import { getCurrentHoverElement, setCurrentHoverElement, addInteractionClass } from '../utils';
 
 export default {
   components: {
@@ -44,6 +38,7 @@ export default {
           data.reduce((acc, d) => {
             if (d.hover) {
               acc[`${d.start_line}:${d.start_char}`] = d;
+              addInteractionClass(d);
             }
 
             return acc;
@@ -52,39 +47,38 @@ export default {
       })
       .catch(() => {});
   },
+  beforeDestroy() {
+    this.removeGlobalEventListeners();
+  },
   methods: {
     addGlobalEventListeners() {
-      this.debouncedMouseMove = debounce(this.hoverCode, 500);
-
-      document.querySelector('.blob-viewer').addEventListener('mousemove', this.debouncedMouseMove);
+      document.querySelector('.blob-viewer').addEventListener('click', this.showPopover);
     },
-    hoverCode(e) {
+    removeGlobalEventListeners() {
+      document.querySelector('.blob-viewer').removeEventListener('click', this.showPopover);
+    },
+    showPopover({ target: el }) {
       if (!this.lsifData) return;
 
-      const el = e.target;
-      const line = el.closest('.line');
+      const isCurrentElementPopoverOpen = el.classList.contains('hll');
 
       if (getCurrentHoverElement()) {
-        getCurrentHoverElement().classList.remove('hll', 'cursor-pointer');
+        getCurrentHoverElement().classList.remove('hll');
       }
 
-      if (line) {
-        const data = this.lsifData[`${getLineIndex(line)}:${getCharacterIndex(el)}`];
+      if (el.classList.contains('js-code-navigation') && !isCurrentElementPopoverOpen) {
+        const { lineIndex, charIndex } = el.dataset;
 
-        if (data) {
-          this.currentHoverPosition = this.getElementGlobalPosition(el);
-          this.currentHoverData = data;
+        this.currentHoverPosition = this.getElementGlobalPosition(el);
+        this.currentHoverData = this.lsifData[`${lineIndex}:${charIndex}`];
 
-          el.classList.add('hll', 'cursor-pointer');
+        el.classList.add('hll');
 
-          setCurrentHoverElement(el);
-
-          return;
-        }
+        setCurrentHoverElement(el);
+      } else {
+        this.currentHoverPosition = null;
+        this.currentHoverData = null;
       }
-
-      this.currentHoverPosition = null;
-      this.currentHoverData = null;
     },
     getElementGlobalPosition(el) {
       return {
