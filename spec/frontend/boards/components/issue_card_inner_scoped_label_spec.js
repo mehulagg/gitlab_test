@@ -3,7 +3,14 @@ import { shallowMount } from '@vue/test-utils';
 import IssueCardInnerScopedLabel from '~/boards/components/issue_card_inner_scoped_label.vue';
 
 describe('IssueCardInnerScopedLabel Component', () => {
-  let wrapper;
+  let vm;
+  const Component = Vue.extend(IssueCardInnerScopedLabel);
+  const props = {
+    label: { title: 'Foo::Bar', description: 'Some Random Description', color: '#000000' },
+    labelStyle: { background: 'white', color: 'black' },
+    scopedLabelsDocumentationLink: '/docs-link',
+  };
+  const createComponent = () => mountComponent(Component, { ...props });
 
   beforeEach(() => {
     wrapper = shallowMount(IssueCardInnerScopedLabel, {
@@ -20,21 +27,18 @@ describe('IssueCardInnerScopedLabel Component', () => {
   });
 
   it('should render label title', () => {
-    expect(wrapper.find('.color-label').text()).toBe('Foo::Bar');
+    // expect(vm.$el.find('.gl-label-text').textContent.trim()).toEqual('Foo::Bar');
+    expect(vm.$el.querySelector('.gl-label-text:first-child').textContent.trim()).toContain('Foo');
+    expect(vm.$el.querySelector('.gl-label-text:last-child').textContent.trim()).toContain('Bar');
   });
 
   it('should render question mark symbol', () => {
-    expect(wrapper.find('.fa-question-circle').exists()).toBe(true);
-  });
-
-  it('should render label style provided', () => {
-    const label = wrapper.find('.color-label');
-
-    expect(label.attributes('style')).toContain('background: white;');
-    expect(label.attributes('style')).toContain('color: black;');
+    expect(vm.$el.querySelector('.gl-icon')).not.toBeNull();
   });
 
   it('should render the docs link', () => {
-    expect(wrapper.find(GlLink).attributes('href')).toBe('/docs-link');
+    expect(vm.$el.querySelector('a.gl-link.gl-label-icon').href).toContain(
+      props.scopedLabelsDocumentationLink,
+    );
   });
 });

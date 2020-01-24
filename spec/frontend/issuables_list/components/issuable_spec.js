@@ -1,5 +1,5 @@
 import { shallowMount } from '@vue/test-utils';
-import { GlLink } from '@gitlab/ui';
+import { GlLabel } from '@gitlab/ui';
 import { TEST_HOST } from 'helpers/test_constants';
 import { trimText } from 'helpers/text_helper';
 import initUserPopovers from '~/user_popovers';
@@ -71,7 +71,7 @@ describe('Issuable component', () => {
   const findMilestoneTooltip = () => findMilestone().attributes('title');
   const findDueDate = () => wrapper.find('.js-due-date');
   const findLabelContainer = () => wrapper.find('.js-labels');
-  const findLabelLinks = () => findLabelContainer().findAll(GlLink);
+  const findLabelLinks = () => findLabelContainer().findAll(GlLabel);
   const findWeight = () => wrapper.find('.js-weight');
   const findAssignees = () => wrapper.find(IssueAssignees);
   const findMergeRequestsCount = () => wrapper.find('.js-merge-requests');
@@ -240,9 +240,9 @@ describe('Issuable component', () => {
       factory({ issuable });
 
       const labels = findLabelLinks().wrappers.map(label => ({
-        href: label.attributes('href'),
-        text: label.text(),
-        tooltip: label.find('span').attributes('title'),
+        href: label.find('.gl-link').attributes('href'),
+        text: label.find('span.gl-label-text').text(),
+        tooltip: label.find('div[aria-hidden="true"] div').text(),
       }));
 
       const expected = testLabels.map(label => ({

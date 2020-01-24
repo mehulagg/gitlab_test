@@ -80,6 +80,7 @@ describe('Issue card component', () => {
           id: 9001,
           type,
           title,
+          color: '#000000',
         }),
       );
 

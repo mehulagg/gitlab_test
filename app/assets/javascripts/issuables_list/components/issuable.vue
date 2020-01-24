@@ -167,8 +167,8 @@ export default {
     issuableLink(params) {
       return mergeUrlParams(params, this.baseUrl);
     },
-    labelHref(label) {
-      return this.issuableLink({ 'label_name[]': label.name });
+    labelHref({ name }) {
+      return this.issuableLink({ 'label_name[]': name });
     },
     onSelect(ev) {
       this.$emit('select', {

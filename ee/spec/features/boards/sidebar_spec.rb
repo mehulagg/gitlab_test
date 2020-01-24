@@ -262,7 +262,7 @@ describe 'Issue Boards', :js do
       wait_for_requests
     end
 
-    it 'removes existing scoped label' do
+    it 'adds multiple scoped labels' do
       click_card(card1)
 
       page.within('.labels') do
@@ -273,6 +273,32 @@ describe 'Issue Boards', :js do
         click_link scoped_label_1.title
 
         wait_for_requests
+
+        click_link scoped_label_2.title
+
+        wait_for_requests
+
+        find('.dropdown-menu-close-icon').click
+
+        page.within('.value') do
+          expect(page).to have_selector('.scoped-label-wrapper', count: 2)
+          expect(page).to have_content(scoped_label_1.title)
+          expect(page).to have_content(scoped_label_2.title)
+        end
+      end
+    end
+
+    it 'removes existing scoped label' do
+      click_card(card1)
+
+      page.within('.labels') do
+        click_link 'Edit'
+
+        wait_for_requests
+
+        # click_link scoped_label_1.title
+
+        # wait_for_requests
 
         click_link scoped_label_2.title
 

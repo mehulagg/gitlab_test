@@ -155,12 +155,6 @@ describe('Board card', () => {
       expect(boardsStore.detail.issue).toEqual({});
     });
 
-    it('does not set detail issue if button is clicked', () => {
-      triggerEvent('mouseup', vm.$el.querySelector('button'));
-
-      expect(boardsStore.detail.issue).toEqual({});
-    });
-
     it('does not set detail issue if img is clicked', done => {
       vm.issue.assignees = [
         new ListAssignee({

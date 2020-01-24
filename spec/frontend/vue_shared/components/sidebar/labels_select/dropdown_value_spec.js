@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import { hexToRgb } from '~/lib/utils/color_utils';
 import DropdownValueComponent from '~/vue_shared/components/sidebar/labels_select/dropdown_value.vue';
 import DropdownValueScopedLabel from '~/vue_shared/components/sidebar/labels_select/dropdown_value_scoped_label.vue';
 
@@ -8,24 +7,17 @@ import {
   mockLabels,
 } from '../../../../../javascripts/vue_shared/components/sidebar/labels_select/mock_data';
 
-const labelStyles = {
-  textColor: '#FFFFFF',
-  color: '#BADA55',
-};
 const createComponent = (
   labels = mockLabels,
   labelFilterBasePath = mockConfig.labelFilterBasePath,
-) => {
-  labels.forEach(label => Object.assign(label, labelStyles));
-
-  return mount(DropdownValueComponent, {
+) =>
+  mount(DropdownValueComponent, {
     propsData: {
       labels,
       labelFilterBasePath,
       enableScopedLabels: true,
     },
   });
-};
 
 describe('DropdownValueComponent', () => {
   let vm;
@@ -62,15 +54,6 @@ describe('DropdownValueComponent', () => {
       });
     });
 
-    describe('labelStyle', () => {
-      it('returns object with `color` & `backgroundColor` properties from label.textColor & label.color', () => {
-        expect(vm.find(DropdownValueScopedLabel).props('labelStyle')).toEqual({
-          color: labelStyles.textColor,
-          backgroundColor: labelStyles.color,
-        });
-      });
-    });
-
     describe('showScopedLabels', () => {
       it('returns true if the label is scoped label', () => {
         expect(vm.findAll(DropdownValueScopedLabel).length).toEqual(1);
@@ -101,26 +84,28 @@ describe('DropdownValueComponent', () => {
       );
     });
 
-    it('renders label element and styles based on label details', () => {
-      const labelEl = vm.find('a span.badge.color-label');
+    it('renders label element', () => {
+      const labelEl = vm.find('span.gl-label');
 
       expect(labelEl.exists()).toBe(true);
-      expect(labelEl.attributes('style')).toContain(
-        `background-color: rgb(${hexToRgb(labelStyles.color).join(', ')});`,
-      );
-      expect(labelEl.text().trim()).toBe(mockLabels[0].title);
+      expect(
+        labelEl
+          .find('.gl-label-text')
+          .text()
+          .trim(),
+      ).toBe(mockLabels[0].title);
     });
 
     describe('label is of scoped-label type', () => {
-      it('renders a scoped-label-wrapper span to incorporate 2 anchors', () => {
-        expect(vm.find('span.scoped-label-wrapper').exists()).toBe(true);
+      it('renders a gl-label-scoped span to incorporate 2 anchors', () => {
+        expect(vm.find('span.gl-label.gl-label-scoped').exists()).toBe(true);
       });
 
       it('renders anchor tag containing question icon', () => {
-        const anchor = vm.find('.scoped-label-wrapper a.scoped-label');
+        const anchor = vm.find('.gl-label-scoped a.gl-label-icon');
 
         expect(anchor.exists()).toBe(true);
-        expect(anchor.find('i.fa-question-circle').exists()).toBe(true);
+        expect(anchor.find('svg.gl-icon.s12').exists()).toBe(true);
       });
     });
   });
