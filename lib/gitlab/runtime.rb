@@ -66,7 +66,7 @@ module Gitlab
 
       def max_threads
         if puma?
-          Puma.cli_config.options[:max_threads]
+          ::Puma.cli_config.options[:max_threads]
         elsif sidekiq?
           Sidekiq.options[:concurrency]
         else
