@@ -62,6 +62,19 @@ module API
                 Gitlab::Routing.url_helpers.project_blob_url(@project, blob_ref_path, anchor: "L#{start_line + 1}")
               end
 
+              hover = hover_for_ranges[identifier]&.yield_self do |hover_for_range|
+                JSON.parse(hover_for_range)["contents"].map do |hover|
+                  value =
+                    if hover.is_a?(Hash)
+                      value = Gitlab::Highlight.highlight(nil, hover["value"], language: hover["language"])
+                    else
+                      hover
+                    end
+
+                  { language: hover["language"], value: value }
+                end
+              end
+
               {
                 identifier: identifier,
                 start_line: start_line,
@@ -69,9 +82,7 @@ module API
                 start_char: start_char,
                 end_char: end_char,
                 definition_url: definition_url,
-                hover: hover_for_ranges[identifier] ? JSON.parse(hover_for_ranges[identifier])["contents"].map do |hover|
-                  { language: hover["language"], value: Gitlab::Highlight.highlight(nil, hover["value"], language: hover["language"]) }
-                end : nil
+                hover: hover
               }
             end
           end
