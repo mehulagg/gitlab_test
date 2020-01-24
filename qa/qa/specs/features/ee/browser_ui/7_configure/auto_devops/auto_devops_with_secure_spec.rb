@@ -61,6 +61,7 @@ module QA
           @project = Resource::Project.fabricate! do |p|
             p.name = Runtime::Env.auto_devops_project_name || 'project-with-autodevops'
             p.description = 'Project with Auto DevOps'
+            p.auto_devops_enabled = true
           end
 
           disable_optional_jobs(@project)
