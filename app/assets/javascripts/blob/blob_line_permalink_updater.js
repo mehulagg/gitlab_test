@@ -25,7 +25,7 @@ function BlobLinePermalinkUpdater(blobContentHolder, lineNumberSelector, element
     // Wait for the hash to update from the LineHighlighter callback
     setTimeout(() => {
       updateLineNumbersOnBlobPermalinks(elementsToUpdate);
-    }, 0);
+    }, 50);
   };
 
   blobContentHolder.addEventListener('click', e => {
