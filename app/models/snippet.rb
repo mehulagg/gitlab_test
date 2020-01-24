@@ -46,7 +46,6 @@ class Snippet < ApplicationRecord
   has_many :user_mentions, class_name: "SnippetUserMention"
 
   delegate :name, :email, to: :author, prefix: true, allow_nil: true
-  delegate :base_dir, :disk_path, to: :storage
 
   validates :author, presence: true
   validates :title, presence: true, length: { maximum: 255 }
