@@ -21,11 +21,11 @@ module EE
 
         return true unless hooks_error
 
-        handle_merge_error(log_message: hooks_error, save_message_on_model: true)
+        handle_merge_error(exception: RuntimeError.new(hooks_error), save_message_on_model: true)
 
         false
       rescue PushRule::MatchError => e
-        handle_merge_error(log_message: e.message, save_message_on_model: true)
+        handle_merge_error(exception: e, save_message_on_model: true)
         false
       end
 

@@ -29,7 +29,7 @@ module MergeRequests
       end
       log_info("Merge process finished on JID #{merge_jid} with state #{state}")
     rescue MergeError => e
-      handle_merge_error(log_message: e.message, save_message_on_model: true)
+      handle_merge_error(exception: e, save_message_on_model: true)
     end
 
     private
@@ -87,7 +87,7 @@ module MergeRequests
       raise MergeError,
             "Something went wrong during merge pre-receive hook. #{e.message}".strip
     rescue => e
-      handle_merge_error(log_message: e.message)
+      handle_merge_error(exception: e)
       raise_error('Something went wrong during merge')
     ensure
       merge_request.update!(in_progress_merge_commit_sha: nil)
@@ -120,9 +120,12 @@ module MergeRequests
         @merge_request.can_remove_source_branch?(branch_deletion_user)
     end
 
-    def handle_merge_error(log_message:, save_message_on_model: false)
-      Rails.logger.error("MergeService ERROR: #{merge_request_info} - #{log_message}") # rubocop:disable Gitlab/RailsLogger
-      @merge_request.update(merge_error: log_message) if save_message_on_model
+    def handle_merge_error(exception:, save_message_on_model: false)
+      Gitlab::ErrorTracking.track_exception(exception,
+        merge_request_id: merge_request.id,
+        merge_request: merge_request_info,
+        save_message_on_model: save_message_on_model)
+      @merge_request.update(merge_error: exception.message) if save_message_on_model
     end
 
     def log_info(message)
