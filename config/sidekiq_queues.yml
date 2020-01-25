@@ -101,6 +101,7 @@
   - [group_export, 1]
   - [self_monitoring_project_create, 2]
   - [self_monitoring_project_delete, 2]
+  - [praefect_replication, 1]
 
   # EE-specific queues
   - [analytics, 1]

@@ -132,6 +132,7 @@ module API
     mount ::API::ImportGithub
     mount ::API::Internal::Base
     mount ::API::Internal::Pages
+    mount ::API::Internal::Praefect
     mount ::API::Issues
     mount ::API::JobArtifacts
     mount ::API::Jobs

@@ -1044,6 +1044,12 @@ module Gitlab
         raise NoRepository # Guard against data races.
       end
 
+      def replicate_repository(source_repository)
+        wrapped_gitaly_errors do
+          gitaly_repository_client.replicate_repository(source_repository)
+        end
+      end
+
       private
 
       def compare(base_ref, head_ref, straight:)

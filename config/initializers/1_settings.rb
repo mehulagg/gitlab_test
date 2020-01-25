@@ -572,6 +572,8 @@ Settings.repositories.storages.each do |key, storage|
   Settings.repositories.storages[key] = Gitlab::GitalyClient::StorageSettings.new(storage)
 end
 
+Settings.repositories['virtual_storages'] ||= {}
+
 #
 # The repository_downloads_path is used to remove outdated repository
 # archives, if someone has it configured incorrectly, and it points

@@ -104,7 +104,7 @@ module Gitlab
     end
 
     def self.address(storage)
-      params = Gitlab.config.repositories.storages[storage]
+      params = storage_params(storage)
       raise "storage not found: #{storage.inspect}" if params.nil?
 
       address = params['gitaly_address']
@@ -117,6 +117,16 @@ module Gitlab
       end
 
       address
+    end
+
+    def self.storage_params(storage)
+      if Gitlab::Praefect.virtual?(storage)
+        Gitlab::Praefect.primary_storage_params(storage)
+      elsif Gitlab::Praefect.internal?(storage)
+        Gitlab::Praefect.internal_storage_params(storage)
+      else
+        Gitlab.config.repositories.storages[storage]
+      end
     end
 
     def self.address_metadata(storage)
@@ -262,7 +272,7 @@ module Gitlab
     end
 
     def self.token(storage)
-      params = Gitlab.config.repositories.storages[storage]
+      params = storage_params(storage)
       raise "storage not found: #{storage.inspect}" if params.nil?
 
       params['gitaly_token'].presence || Gitlab.config.gitaly['token']

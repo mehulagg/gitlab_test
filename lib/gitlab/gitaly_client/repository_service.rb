@@ -359,6 +359,22 @@ module Gitlab
         GitalyClient.call(@storage, :repository_service, :remove_repository, request, timeout: GitalyClient.long_timeout)
       end
 
+      def replicate_repository(source_repo)
+        request = Gitaly::ReplicateRepositoryRequest.new(
+          repository: @gitaly_repo,
+          source: source_repo.gitaly_repository
+        )
+
+        GitalyClient.call(
+          @storage,
+          :repository_service,
+          :replicate_repository,
+          request,
+          remote_storage: source_repo.storage,
+          timeout: GitalyClient.long_timeout
+        )
+      end
+
       private
 
       def search_results_from_response(gitaly_response)
