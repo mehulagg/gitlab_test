@@ -7,7 +7,6 @@ import {
   GlLink,
   GlLoadingIcon,
   GlTable,
-  GlFormInput,
   GlDropdown,
   GlDropdownItem,
   GlDropdownDivider,
@@ -15,7 +14,6 @@ import {
   GlPagination,
   GlButtonGroup,
   GlFilteredSearchTerm,
-  GlToken,
 } from '@gitlab/ui';
 import AccessorUtils from '~/lib/utils/accessor';
 import Icon from '~/vue_shared/components/icon.vue';
@@ -39,6 +37,11 @@ export default {
     { type: 'ignored', icon: 'label', hint: 'Ignored', token: {} },
     { type: 'resolved', icon: 'label', hint: 'Resolved', token: {} },
     { type: 'unresolved', icon: 'label', hint: 'Unresolved', token: {} }
+  ],
+  statusLabelToken: [{ type: 'status', icon: '', hint: __('Status'), token: {} }],
+  statusTokens: [
+    { type: 'ignored', icon: 'eye-slash', hint: __('Ignored'), token: {} },
+    { type: 'unresolved', icon: 'check-circle', hint: __('Resolved'), token: {} }
   ],
   fields: [
     {
@@ -91,14 +94,18 @@ export default {
     GlLink,
     GlLoadingIcon,
     GlTable,
-    GlFormInput,
     Icon,
     GlPagination,
     TimeAgo,
     GlButtonGroup,
+    GlFilteredSearchTerm,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
+  },
+  provide: {
+    portalName: 'statusPortal',
+    alignSuggestions: noop,
   },
   props: {
     indexPath: {
@@ -133,6 +140,9 @@ export default {
   hasLocalStorage: AccessorUtils.isLocalStorageAccessSafe(),
   data() {
     return {
+      statusLabelToken: this.$options.statusLabelToken,
+      statusTokens: this.$options.statusTokens,
+      filterActive: true,
       errorSearchQuery: '',
       pageValue: this.$options.FIRST_PAGE,
     };
@@ -246,12 +256,13 @@ export default {
             <div>
               <gl-filtered-search-term
                 v-model="errorSearchQuery"
-                class="gl-h-full"
-                :active="active"
-                :available-tokens="$options.availableStatuses"
+                :active="filterActive"
+                class="h-100"
+                :placeholder="__('Enter query')"
+                :available-tokens="statusTokens"
                 @keyup.enter.native="searchByQuery(errorSearchQuery)"
-               />
-              <portal-target name="statusPortal" class="gl-relative" />
+                />
+              <portal-target name="statusPortal" class="position-relative" multiple />
             </div>
             <div class="gl-search-box-by-type-right-icons">
               <gl-button
