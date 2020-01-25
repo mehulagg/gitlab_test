@@ -14,6 +14,8 @@ import {
   GlTooltipDirective,
   GlPagination,
   GlButtonGroup,
+  GlFilteredSearchTerm,
+  GlToken,
 } from '@gitlab/ui';
 import AccessorUtils from '~/lib/utils/accessor';
 import Icon from '~/vue_shared/components/icon.vue';
@@ -23,6 +25,8 @@ import _ from 'underscore';
 
 export const tableDataClass = 'table-col d-flex d-sm-table-cell align-items-center';
 
+const noop = () => {};
+
 export default {
   FIRST_PAGE: 1,
   PREV_PAGE: 1,
@@ -30,6 +34,11 @@ export default {
   statusButtons: [
     { status: 'ignored', icon: 'eye-slash', title: __('Ignore') },
     { status: 'resolved', icon: 'check-circle', title: __('Resolve') },
+  ],
+  statusesTokens: [
+    { type: 'ignored', icon: 'label', hint: 'Ignored', token: {} },
+    { type: 'resolved', icon: 'label', hint: 'Resolved', token: {} },
+    { type: 'unresolved', icon: 'label', hint: 'Unresolved', token: {} }
   ],
   fields: [
     {
@@ -234,14 +243,15 @@ export default {
               </template>
               <div v-else class="px-3">{{ __("You don't have any recent searches") }}</div>
             </gl-dropdown>
-            <div class="filtered-search-input-container flex-fill">
-              <gl-form-input
-                class="pl-2 filtered-search"
-                :disabled="loading"
-                :placeholder="__('Search or filter results…')"
-                autofocus
+            <div>
+              <gl-filtered-search-term
+                v-model="errorSearchQuery"
+                class="gl-h-full"
+                :active="active"
+                :available-tokens="$options.availableStatuses"
                 @keyup.enter.native="searchByQuery(errorSearchQuery)"
-              />
+               />
+              <portal-target name="statusPortal" class="gl-relative" />
             </div>
             <div class="gl-search-box-by-type-right-icons">
               <gl-button

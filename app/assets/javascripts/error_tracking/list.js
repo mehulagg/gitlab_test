@@ -2,8 +2,11 @@ import Vue from 'vue';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import store from './store';
 import ErrorTrackingList from './components/error_tracking_list.vue';
+import PortalVue from 'portal-vue';
 
 export default () => {
+  Vue.use(PortalVue);
+
   // eslint-disable-next-line no-new
   new Vue({
     el: '#js-error_tracking',
