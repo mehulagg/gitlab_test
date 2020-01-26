@@ -6,7 +6,7 @@ module Gitlab
       end
 
       def internal?(storage)
-        all_internal_storages.any? { |cluster| cluster.keys.include?(storage) }
+        all_internal_storages.any? { |cluster| cluster.include?(storage) }
       end
 
       def all_internal_storages
