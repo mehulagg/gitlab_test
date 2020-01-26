@@ -42,9 +42,6 @@ def jobs_to_run(node_index, node_total)
   all_tasks = [
     %w[bin/rake lint:all],
     %w[bundle exec license_finder],
-    %w[yarn run eslint],
-    %w[yarn run stylelint],
-    %w[yarn run prettier-all],
     %w[bundle exec rubocop --parallel],
     %w[scripts/lint-conflicts.sh],
     %w[scripts/lint-rugged],
