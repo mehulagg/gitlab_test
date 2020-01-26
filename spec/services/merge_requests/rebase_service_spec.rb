@@ -94,6 +94,12 @@ describe MergeRequests::RebaseService do
         expect(service.execute(merge_request)).to match(status: :error,
                                                         message: described_class::REBASE_ERROR)
       end
+
+      it 'logs the stage and output' do
+        expect(service).to receive(:log_error).with(exception: an_instance_of(RuntimeError), message: "Rebase failed. Please rebase locally", save_message_on_model: true)
+
+        service.execute(merge_request)
+      end
     end
 
     context 'with git command failure' do

@@ -141,21 +141,37 @@ describe MergeRequests::SquashService do
       let(:merge_request) { merge_request_with_only_new_files }
       let(:error) { 'A test error' }
 
-      context 'with gitaly enabled' do
+      context 'with an error in Gitaly UserSquash RPC' do
         before do
           allow(repository.gitaly_operation_client).to receive(:user_squash)
             .and_raise(Gitlab::Git::Repository::GitError, error)
         end
 
         it 'logs the stage and output' do
-          expect(service).to receive(:log_error).with(log_error)
-          expect(service).to receive(:log_error).with(error)
+          expect(service).to receive(:log_error).with(exception: an_instance_of(Gitlab::Git::Repository::GitError), message: "Failed to squash merge request")
 
           service.execute
         end
 
         it 'returns an error' do
           expect(service.execute).to match(status: :error, message: a_string_including('squash'))
+        end
+      end
+
+      context 'with an error in squash in progress check' do
+        before do
+          allow(repository).to receive(:squash_in_progress?)
+            .and_raise(Gitlab::Git::Repository::GitError, error)
+        end
+
+        it 'logs the stage and output' do
+          expect(service).to receive(:log_error).with(exception: an_instance_of(Gitlab::Git::Repository::GitError), message: "Failed to check squash in progress")
+
+          service.execute
+        end
+
+        it 'returns an error' do
+          expect(service.execute).to match(status: :error, message: 'An error occurred while checking whether another squash is in progress.')
         end
       end
     end
@@ -169,8 +185,7 @@ describe MergeRequests::SquashService do
       end
 
       it 'logs the MR reference and exception' do
-        expect(service).to receive(:log_error).with(a_string_including("#{project.full_path}#{merge_request.to_reference}"))
-        expect(service).to receive(:log_error).with(error)
+        expect(service).to receive(:log_error).with(exception: an_instance_of(RuntimeError), message: "Failed to squash merge request")
 
         service.execute
       end
