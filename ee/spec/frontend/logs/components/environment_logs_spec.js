@@ -198,27 +198,6 @@ describe('EnvironmentLogs', () => {
     });
   });
 
-  describe('ES enabled and legacy environment', () => {
-    beforeEach(() => {
-      state.pods.options = [];
-
-      state.logs.lines = [];
-      state.logs.isLoading = false;
-
-      state.environments.options = [];
-      state.environments.isLoading = false;
-
-      state.enableAdvancedQuerying = false;
-
-      initWrapper();
-    });
-
-    it('displays a disabled search bar', () => {
-      expect(findSearchBar().exists()).toEqual(true);
-      expect(findSearchBar().attributes('disabled')).toEqual('true');
-    });
-  });
-
   describe('state with data', () => {
     beforeEach(() => {
       actionMocks.setInitData.mockImplementation(mockSetInitData);
