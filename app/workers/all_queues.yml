@@ -160,6 +160,7 @@
 - pages_domain_ssl_renewal
 - file_hook
 - post_receive
+- praefect_replication
 - process_commit
 - project_cache
 - project_destroy
