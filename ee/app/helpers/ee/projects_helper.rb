@@ -6,13 +6,9 @@ module EE
 
     override :sidebar_projects_paths
     def sidebar_projects_paths
-      if ::Feature.enabled?(:analytics_pages_under_project_analytics_sidebar, @project)
-        super
-      else
-        super + %w[
-          projects/insights#show
-        ]
-      end
+      super + %w[
+        projects/insights#show
+      ]
     end
 
     override :sidebar_settings_paths

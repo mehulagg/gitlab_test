@@ -403,10 +403,6 @@ module ProjectsHelper
       nav_tabs << :operations
     end
 
-    if can?(current_user, :read_cycle_analytics, project)
-      nav_tabs << :cycle_analytics
-    end
-
     tab_ability_map.each do |tab, ability|
       if can?(current_user, ability, project)
         nav_tabs << tab
@@ -647,6 +643,7 @@ module ProjectsHelper
       projects#show
       projects#activity
       releases#index
+      cycle_analytics#show
     ]
   end
 
