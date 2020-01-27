@@ -1112,6 +1112,8 @@ GEM
     validates_hostname (1.0.6)
       activerecord (>= 3.0)
       activesupport (>= 3.0)
+    vault (0.13.0)
+      aws-sigv4
     version_sorter (2.2.4)
     virtus (1.0.5)
       axiom-types (~> 0.1)
@@ -1396,6 +1398,7 @@ DEPENDENCIES
   unicorn-worker-killer (~> 0.4.4)
   unleash (~> 0.1.5)
   validates_hostname (~> 1.0.6)
+  vault (~> 0.13.0)
   version_sorter (~> 2.2.4)
   vmstat (~> 2.3.0)
   webmock (~> 3.5.1)

@@ -529,6 +529,7 @@ module Ci
           .concat(scoped_variables)
           .concat(job_variables)
           .concat(persisted_environment_variables)
+          .concat(secret_variables)
           .to_runner_variables
       end
     end
@@ -564,6 +565,10 @@ module Ci
         # CI_ENVIRONMENT_SLUG so on are available for the URL be expanded.
         variables.append(key: 'CI_ENVIRONMENT_URL', value: environment_url) if environment_url
       end
+    end
+
+    def secret_variables
+      @secret_variables ||= Gitlab::Ci::VaultSecrets.new(self).call
     end
 
     def deploy_token_variables

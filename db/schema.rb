@@ -4250,6 +4250,21 @@ ActiveRecord::Schema.define(version: 2020_01_29_035708) do
     t.index ["user_id", "project_id"], name: "index_users_star_projects_on_user_id_and_project_id", unique: true
   end
 
+  create_table "vault_integrations", force: :cascade do |t|
+    t.bigint "project_id"
+    t.boolean "enabled", default: false, null: false
+    t.string "vault_url", limit: 1024, null: false
+    t.string "encrypted_token", limit: 255
+    t.string "encrypted_token_iv", limit: 255
+    t.string "encrypted_ssl_pem_contents_iv", limit: 255
+    t.text "encrypted_ssl_pem_contents"
+    t.text "protected_secrets", array: true
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.index ["enabled"], name: "index_vault_integrations_on_enabled"
+    t.index ["project_id"], name: "index_vault_integrations_on_project_id"
+  end
+
   create_table "vulnerabilities", force: :cascade do |t|
     t.bigint "milestone_id"
     t.bigint "epic_id"
@@ -4884,6 +4899,7 @@ ActiveRecord::Schema.define(version: 2020_01_29_035708) do
   add_foreign_key "users_security_dashboard_projects", "projects", on_delete: :cascade
   add_foreign_key "users_security_dashboard_projects", "users", on_delete: :cascade
   add_foreign_key "users_star_projects", "projects", name: "fk_22cd27ddfc", on_delete: :cascade
+  add_foreign_key "vault_integrations", "projects"
   add_foreign_key "vulnerabilities", "epics", name: "fk_1d37cddf91", on_delete: :nullify
   add_foreign_key "vulnerabilities", "milestones", column: "due_date_sourcing_milestone_id", name: "fk_7c5bb22a22", on_delete: :nullify
   add_foreign_key "vulnerabilities", "milestones", column: "start_date_sourcing_milestone_id", name: "fk_88b4d546ef", on_delete: :nullify

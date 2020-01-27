@@ -70,7 +70,15 @@ module Projects
             project: [:slug, :name, :organization_slug, :organization_name]
           ],
 
-          grafana_integration_attributes: [:token, :grafana_url, :enabled]
+          grafana_integration_attributes: [:token, :grafana_url, :enabled],
+
+          vault_integration_attributes: [
+            :token,
+            :ssl_pem_contents,
+            :vault_url,
+            :protected_secrets,
+            :enabled
+          ]
         }
       end
     end

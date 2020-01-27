@@ -15,6 +15,7 @@ module Projects
         error_tracking_params
           .merge(metrics_setting_params)
           .merge(grafana_integration_params)
+          .merge(vault_integration_params)
       end
 
       def metrics_setting_params
@@ -55,6 +56,18 @@ module Projects
         destroy = attrs[:grafana_url].blank? && attrs[:token].blank?
 
         { grafana_integration_attributes: attrs.merge(_destroy: destroy) }
+      end
+
+      def vault_integration_params
+        return {} unless attrs = params[:vault_integration_attributes]
+
+        destroy = attrs[:vault_url].blank? && attrs[:token].blank? && attrs[:ssl_pem_contents].blank?
+        attrs = attrs.merge(_destroy: destroy)
+        attrs[:protected_secrets] = attrs.delete(:protected_secrets).to_s.split("\n")
+
+        attrs.delete(:token) if /\A\*+\z/.match? attrs[:token]
+        attrs.delete(:ssl_pem_contents) if /\A\*+\z/.match? attrs[:ssl_pem_contents]
+        { vault_integration_attributes: attrs }
       end
     end
   end

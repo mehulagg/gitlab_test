@@ -298,6 +298,9 @@ gem 'rack-attack', '~> 6.2.0'
 # Sentry integration
 gem 'sentry-raven', '~> 2.9'
 
+# Vault integration
+gem 'vault', '~> 0.13.0'
+
 gem 'premailer-rails', '~> 1.10.3'
 
 # LabKit: Tracing and Correlation
