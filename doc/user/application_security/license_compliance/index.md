@@ -324,3 +324,20 @@ in your project's sidebar, and you'll see the licenses displayed, where:
 - **Component:** The components which have this license.
 
 ![License List](img/license_list_v12_6.png)
+
+## Policies
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/22465) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.8.
+
+The Policy tab allows you to see your project's software license policies
+and the associated classifications for each one of them.
+
+Policies can be configured by maintainers of the project.
+
+![View Policies](img/policies_maintainer_view.png)
+![Edit Policy](img/policies_maintainer_edit.png)
+![Add Policy](img/policies_maintainer_add.png)
+
+Developers of the project can view the policies configured in a project.
+
+![View Policies](img/policies.png)
