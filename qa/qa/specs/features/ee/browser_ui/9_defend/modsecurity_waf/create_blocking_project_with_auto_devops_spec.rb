@@ -4,75 +4,6 @@ require 'pathname'
 
 module QA
   context 'Defend' do
-    def login
-      Runtime::Browser.visit(:gitlab, Page::Main::Login)
-      Page::Main::Login.perform(&:sign_in_using_credentials)
-    end
-
-    def disable_optional_jobs(project)
-      # Disable code_quality check in Auto DevOps pipeline as it takes
-      # too long and times out the test
-      Resource::CiVariable.fabricate_via_api! do |resource|
-        resource.project = project
-        resource.key = 'CODE_QUALITY_DISABLED'
-        resource.value = '1'
-        resource.masked = false
-      end
-
-      Resource::CiVariable.fabricate_via_api! do |resource|
-        resource.project = project
-        resource.key = 'LICENSE_MANAGEMENT_DISABLED'
-        resource.value = '1'
-        resource.masked = false
-      end
-
-      Resource::CiVariable.fabricate_via_api! do |resource|
-        resource.project = project
-        resource.key = 'SAST_DISABLED'
-        resource.value = '1'
-        resource.masked = false
-      end
-
-      Resource::CiVariable.fabricate_via_api! do |resource|
-        resource.project = project
-        resource.key = 'DEPENDENCY_SCANNING_DISABLED'
-        resource.value = '1'
-        resource.masked = false
-      end
-
-      Resource::CiVariable.fabricate_via_api! do |resource|
-        resource.project = project
-        resource.key = 'CONTAINER_SCANNING_DISABLED'
-        resource.value = '1'
-        resource.masked = false
-      end
-
-      Resource::CiVariable.fabricate_via_api! do |resource|
-        resource.project = project
-        resource.key = 'DAST_DISABLED'
-        resource.value = '1'
-        resource.masked = false
-      end
-
-      Resource::CiVariable.fabricate_via_api! do |resource|
-        resource.project = project
-        resource.key = 'AUTO_DEVOPS_MODSEC_RULE_ENGINE'
-        resource.value = 'On'
-        resource.masked = false
-      end
-    end
-
-    def enable_blocking_mode(project)
-      # Blocking mode is enabled via ENV variable by enabling
-      # modsecurity-snippet in Auto-Deploy helm chart
-      Resource::CiVariable.fabricate_via_api! do |resource|
-        resource.project = project
-        resource.key = 'AUTO_DEVOPS_MODSEC_RULE_ENGINE'
-        resource.value = 'On'
-        resource.masked = false
-      end
-    end
-
     describe 'Auto DevOps support', :orchestrated, :kubernetes do
       context 'when rbac is enabled' do
         before(:all) do
@@ -84,11 +15,12 @@ module QA
         end
 
         it 'runs auto devops to default to detectiononly mode' do
-          login
+          Flow::Login.sign_in
 
           @project = Resource::Project.fabricate! do |p|
             p.name = Runtime::Env.auto_devops_project_name || 'project-with-autodevops'
             p.description = 'Project with Auto DevOps'
+            p.auto_devops_enabled = true
           end
 
           disable_optional_jobs(@project)
@@ -166,11 +98,12 @@ module QA
         end
 
         it 'runs auto devops to deploy blocking mode' do
-          login
+          Flow::Login.sign_in
 
           @project = Resource::Project.fabricate! do |p|
             p.name = Runtime::Env.auto_devops_project_name || 'project-with-autodevops'
             p.description = 'Project with Auto DevOps'
+            p.auto_devops_enabled = true
           end
 
           disable_optional_jobs(@project)
@@ -246,6 +179,31 @@ module QA
               expect(page).to have_content('Forbidden')
             end
           end
+        end
+      end
+    end
+
+    def enable_blocking_mode(project)
+      # Blocking mode is enabled via ENV variable by enabling
+      # modsecurity-snippet in Auto-Deploy helm chart
+      Resource::CiVariable.fabricate_via_api! do |resource|
+        resource.project = project
+        resource.key = 'AUTO_DEVOPS_MODSEC_RULE_ENGINE'
+        resource.value = 'On'
+        resource.masked = false
+      end
+    end
+
+    def disable_optional_jobs(project)
+      %w[
+        CODE_QUALITY_DISABLED LICENSE_MANAGEMENT_DISABLED
+        SAST_DISABLED DAST_DISABLED CONTAINER_SCANNING_DISABLED
+      ].each do |key|
+        Resource::CiVariable.fabricate_via_api! do |resource|
+          resource.project = project
+          resource.key = key
+          resource.value = '1'
+          resource.masked = false
         end
       end
     end
