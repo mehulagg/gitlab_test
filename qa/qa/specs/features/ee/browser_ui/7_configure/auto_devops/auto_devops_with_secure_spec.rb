@@ -17,14 +17,14 @@ module QA
     end
 
     describe 'Auto DevOps support', :orchestrated, :kubernetes do
-      context 'when rbac is enabled' do
+      context 'when dependency scanning is enabled' do
         let(:cluster) { Service::KubernetesCluster.new.create! }
 
         after do
           cluster&.remove!
         end
 
-        it 'runs auto devops' do
+        it 'runs auto devops with a dependency scanning job' do
           Flow::Login.sign_in
 
           # Connect K8s cluster
