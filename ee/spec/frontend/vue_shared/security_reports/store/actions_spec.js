@@ -8,7 +8,6 @@ import {
   setCanCreateIssuePermission,
   setCanCreateFeedbackPermission,
   requestContainerScanningDiff,
-  requestDastDiff,
   requestDependencyScanningDiff,
   openModal,
   setModalData,
@@ -28,7 +27,6 @@ import {
   createMergeRequest,
   updateDependencyScanningIssue,
   updateContainerScanningIssue,
-  updateDastIssue,
   addDismissalComment,
   receiveAddDismissalCommentError,
   receiveAddDismissalCommentSuccess,
@@ -47,20 +45,12 @@ import {
   receiveDependencyScanningDiffSuccess,
   receiveDependencyScanningDiffError,
   fetchDependencyScanningDiff,
-  setDastDiffEndpoint,
-  receiveDastDiffSuccess,
-  receiveDastDiffError,
-  fetchDastDiff,
 } from 'ee/vue_shared/security_reports/store/actions';
 import * as types from 'ee/vue_shared/security_reports/store/mutation_types';
 import state from 'ee/vue_shared/security_reports/store/state';
 import testAction from 'helpers/vuex_action_helper';
 import axios from '~/lib/utils/axios_utils';
-import {
-  dastFeedbacks,
-  containerScanningFeedbacks,
-  dependencyScanningFeedbacks,
-} from '../mock_data';
+import { containerScanningFeedbacks, dependencyScanningFeedbacks } from '../mock_data';
 import toasted from '~/vue_shared/plugins/global_toast';
 
 // Mock bootstrap modal implementation
@@ -239,23 +229,6 @@ describe('security reports actions', () => {
         [
           {
             type: types.REQUEST_CONTAINER_SCANNING_DIFF,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('requestDastDiff', () => {
-    it('should commit request mutation', done => {
-      testAction(
-        requestDastDiff,
-        null,
-        mockedState,
-        [
-          {
-            type: types.REQUEST_DAST_DIFF,
           },
         ],
         [],
@@ -1067,26 +1040,6 @@ describe('security reports actions', () => {
     });
   });
 
-  describe('updateDastIssue', () => {
-    it('commits update dast issue', done => {
-      const payload = { foo: 'bar' };
-
-      testAction(
-        updateDastIssue,
-        payload,
-        mockedState,
-        [
-          {
-            type: types.UPDATE_DAST_ISSUE,
-            payload,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
   describe('setContainerScanningDiffEndpoint', () => {
     it('should pass down the endpoint to the mutation', done => {
       const payload = '/container_scanning_endpoint.json';
@@ -1394,163 +1347,6 @@ describe('security reports actions', () => {
             },
             {
               type: 'receiveDependencyScanningDiffError',
-            },
-          ],
-          done,
-        );
-      });
-    });
-  });
-
-  describe('setDastDiffEndpoint', () => {
-    it('should pass down the endpoint to the mutation', done => {
-      const payload = '/dast_endpoint.json';
-
-      testAction(
-        setDastDiffEndpoint,
-        payload,
-        mockedState,
-        [
-          {
-            type: types.SET_DAST_DIFF_ENDPOINT,
-            payload,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('receiveDastDiffSuccess', () => {
-    it('should pass down the response to the mutation', done => {
-      const payload = { data: 'Effort yields its own rewards.' };
-
-      testAction(
-        receiveDastDiffSuccess,
-        payload,
-        mockedState,
-        [
-          {
-            type: types.RECEIVE_DAST_DIFF_SUCCESS,
-            payload,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('receiveDastDiffError', () => {
-    it('should commit dast diff error mutation', done => {
-      testAction(
-        receiveDastDiffError,
-        undefined,
-        mockedState,
-        [
-          {
-            type: types.RECEIVE_DAST_DIFF_ERROR,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('fetchDastDiff', () => {
-    const diff = { foo: {} };
-
-    beforeEach(() => {
-      mockedState.vulnerabilityFeedbackPath = 'vulnerabilities_feedback';
-      mockedState.dast.paths.diffEndpoint = 'dast_diff.json';
-    });
-
-    describe('on success', () => {
-      it('should dispatch `receiveDastDiffSuccess`', done => {
-        mock.onGet('dast_diff.json').reply(200, diff);
-        mock
-          .onGet('vulnerabilities_feedback', {
-            params: {
-              category: 'dast',
-            },
-          })
-          .reply(200, dastFeedbacks);
-
-        testAction(
-          fetchDastDiff,
-          null,
-          mockedState,
-          [],
-          [
-            {
-              type: 'requestDastDiff',
-            },
-            {
-              type: 'receiveDastDiffSuccess',
-              payload: {
-                diff,
-                enrichData: dastFeedbacks,
-              },
-            },
-          ],
-          done,
-        );
-      });
-    });
-
-    describe('when vulnerabilities path errors', () => {
-      it('should dispatch `receiveDastError`', done => {
-        mock.onGet('dast_diff.json').reply(500);
-        mock
-          .onGet('vulnerabilities_feedback', {
-            params: {
-              category: 'dast',
-            },
-          })
-          .reply(200, dastFeedbacks);
-
-        testAction(
-          fetchDastDiff,
-          null,
-          mockedState,
-          [],
-          [
-            {
-              type: 'requestDastDiff',
-            },
-            {
-              type: 'receiveDastDiffError',
-            },
-          ],
-          done,
-        );
-      });
-    });
-
-    describe('when feedback path errors', () => {
-      it('should dispatch `receiveDastError`', done => {
-        mock.onGet('dast_diff.json').reply(200, diff);
-        mock
-          .onGet('vulnerabilities_feedback', {
-            params: {
-              category: 'dast',
-            },
-          })
-          .reply(500);
-
-        testAction(
-          fetchDastDiff,
-          null,
-          mockedState,
-          [],
-          [
-            {
-              type: 'requestDastDiff',
-            },
-            {
-              type: 'receiveDastDiffError',
             },
           ],
           done,

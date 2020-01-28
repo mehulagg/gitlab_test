@@ -89,42 +89,6 @@ export const updateContainerScanningIssue = ({ commit }, issue) =>
   commit(types.UPDATE_CONTAINER_SCANNING_ISSUE, issue);
 
 /**
- * DAST
- */
-export const setDastDiffEndpoint = ({ commit }, path) => commit(types.SET_DAST_DIFF_ENDPOINT, path);
-
-export const requestDastDiff = ({ commit }) => commit(types.REQUEST_DAST_DIFF);
-
-export const updateDastIssue = ({ commit }, issue) => commit(types.UPDATE_DAST_ISSUE, issue);
-
-export const receiveDastDiffSuccess = ({ commit }, response) =>
-  commit(types.RECEIVE_DAST_DIFF_SUCCESS, response);
-
-export const receiveDastDiffError = ({ commit }) => commit(types.RECEIVE_DAST_DIFF_ERROR);
-
-export const fetchDastDiff = ({ state, dispatch }) => {
-  dispatch('requestDastDiff');
-
-  return Promise.all([
-    pollUntilComplete(state.dast.paths.diffEndpoint),
-    axios.get(state.vulnerabilityFeedbackPath, {
-      params: {
-        category: 'dast',
-      },
-    }),
-  ])
-    .then(values => {
-      dispatch('receiveDastDiffSuccess', {
-        diff: values[0].data,
-        enrichData: values[1].data,
-      });
-    })
-    .catch(() => {
-      dispatch('receiveDastDiffError');
-    });
-};
-
-/**
  * DEPENDENCY SCANNING
  */
 

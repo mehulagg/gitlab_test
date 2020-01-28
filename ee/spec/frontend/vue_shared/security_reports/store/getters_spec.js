@@ -1,15 +1,14 @@
 import createState from 'ee/vue_shared/security_reports/store/state';
 import createSastState from 'ee/vue_shared/security_reports/store/modules/sast/state';
+import createDastState from 'ee/vue_shared/security_reports/store/modules/dast/state';
 import {
   groupedContainerScanningText,
-  groupedDastText,
   groupedDependencyText,
   groupedSummaryText,
   allReportsHaveError,
   noBaseInAllReports,
   areReportsLoading,
   containerScanningStatusIcon,
-  dastStatusIcon,
   dependencyScanningStatusIcon,
   anyReportHasError,
   summaryCounts,
@@ -29,6 +28,7 @@ describe('Security reports getters', () => {
   beforeEach(() => {
     state = createState();
     state.sast = createSastState();
+    state.dast = createDastState();
   });
 
   describe('groupedContainerScanningText', () => {
@@ -101,73 +101,6 @@ describe('Security reports getters', () => {
           expect(groupedContainerScanningText(state)).toEqual(
             'Container scanning detected 1 fixed vulnerability',
           );
-        });
-      });
-    });
-  });
-
-  describe('groupedDastText', () => {
-    describe('with no issues', () => {
-      it('returns no issues text', () => {
-        state.dast.paths.head = HEAD_PATH;
-        state.dast.paths.base = BASE_PATH;
-
-        expect(groupedDastText(state)).toEqual('DAST detected no vulnerabilities');
-      });
-    });
-
-    describe('with new issues and without base', () => {
-      it('returns unable to compare text', () => {
-        state.dast.paths.head = HEAD_PATH;
-        state.dast.newIssues = [{}];
-
-        expect(groupedDastText(state)).toEqual(
-          'DAST detected 1 vulnerability for the source branch only',
-        );
-      });
-    });
-
-    describe('with base and head', () => {
-      describe('with only new issues', () => {
-        it('returns new issues text', () => {
-          state.dast.paths.head = HEAD_PATH;
-          state.dast.paths.base = BASE_PATH;
-          state.dast.newIssues = [{}];
-
-          expect(groupedDastText(state)).toEqual('DAST detected 1 new vulnerability');
-        });
-      });
-
-      describe('with only dismissed issues', () => {
-        it('returns dismissed issues text', () => {
-          state.dast.paths.head = HEAD_PATH;
-          state.dast.paths.base = BASE_PATH;
-          state.dast.newIssues = [{ isDismissed: true }];
-
-          expect(groupedDastText(state)).toEqual('DAST detected 1 dismissed vulnerability');
-        });
-      });
-
-      describe('with new and resolved issues', () => {
-        it('returns new and fixed issues text', () => {
-          state.dast.paths.head = HEAD_PATH;
-          state.dast.paths.base = BASE_PATH;
-          state.dast.newIssues = [{}];
-          state.dast.resolvedIssues = [{}];
-
-          expect(removeBreakLine(groupedDastText(state))).toEqual(
-            'DAST detected 1 new, and 1 fixed vulnerabilities',
-          );
-        });
-      });
-
-      describe('with only resolved issues', () => {
-        it('returns fixed issues text', () => {
-          state.dast.paths.head = HEAD_PATH;
-          state.dast.paths.base = BASE_PATH;
-          state.dast.resolvedIssues = [{}];
-
-          expect(groupedDastText(state)).toEqual('DAST detected 1 fixed vulnerability');
         });
       });
     });
@@ -416,24 +349,6 @@ describe('Security reports getters', () => {
           summaryCounts: {},
         }),
       ).toEqual('Security scanning detected no vulnerabilities');
-    });
-  });
-
-  describe('dastStatusIcon', () => {
-    it('returns warning with new issues', () => {
-      state.dast.newIssues = [{}];
-
-      expect(dastStatusIcon(state)).toEqual('warning');
-    });
-
-    it('returns warning with failed report', () => {
-      state.dast.hasError = true;
-
-      expect(dastStatusIcon(state)).toEqual('warning');
-    });
-
-    it('returns success with no new issues or failed report', () => {
-      expect(dastStatusIcon(state)).toEqual('success');
     });
   });
 

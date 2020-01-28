@@ -202,31 +202,6 @@ export const dependencyScanningFeedbacks = [
   },
 ];
 
-export const dastFeedbacks = [
-  {
-    id: 3,
-    project_id: 17,
-    author_id: 1,
-    issue_iid: null,
-    pipeline_id: 132,
-    category: 'container_scanning',
-    feedback_type: 'dismissal',
-    branch: 'try_new_container_scanning',
-    project_fingerprint: '40bd001563085fc35165329ea1ff5c5ecbdbbeef',
-  },
-  {
-    id: 4,
-    project_id: 17,
-    author_id: 1,
-    issue_iid: 123,
-    pipeline_id: 132,
-    category: 'container_scanning',
-    feedback_type: 'issue',
-    branch: 'try_new_container_scanning',
-    project_fingerprint: '40bd001563085fc35165329ea1ff5c5ecbdbbeef',
-  },
-];
-
 export const containerScanningFeedbacks = [
   {
     id: 3,

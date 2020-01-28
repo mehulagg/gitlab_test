@@ -20,7 +20,7 @@ describe('security reports mediator', () => {
     it.each`
       action                             | category
       ${'sast/updateVulnerability'}      | ${'sast'}
-      ${'updateDastIssue'}               | ${'dast'}
+      ${'dast/updateVulnerability'}      | ${'dast'}
       ${'updateDependencyScanningIssue'} | ${'dependency_scanning'}
       ${'updateContainerScanningIssue'}  | ${'container_scanning'}
     `(`should trigger $action on when a $category is updated`, data => {

@@ -31,21 +31,6 @@ export default () => ({
     baseReportOutofDate: false,
     hasBaseReport: false,
   },
-  dast: {
-    paths: {
-      head: null,
-      base: null,
-      diffEndpoint: null,
-    },
-
-    isLoading: false,
-    hasError: false,
-
-    newIssues: [],
-    resolvedIssues: [],
-    baseReportOutofDate: false,
-    hasBaseReport: false,
-  },
 
   dependencyScanning: {
     paths: {

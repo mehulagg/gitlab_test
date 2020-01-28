@@ -4,7 +4,7 @@ const updateIssueActionsMap = {
   sast: 'sast/updateVulnerability',
   dependency_scanning: 'updateDependencyScanningIssue',
   container_scanning: 'updateContainerScanningIssue',
-  dast: 'updateDastIssue',
+  dast: 'dast/updateVulnerability',
 };
 
 export default function configureMediator(store) {

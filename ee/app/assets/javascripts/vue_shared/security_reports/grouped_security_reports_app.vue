@@ -130,16 +130,18 @@ export default {
       'groupedSummaryText',
       'summaryStatus',
       'groupedContainerScanningText',
-      'groupedDastText',
       'groupedDependencyText',
       'containerScanningStatusIcon',
-      'dastStatusIcon',
       'dependencyScanningStatusIcon',
       'isBaseSecurityReportOutOfDate',
     ]),
     ...mapGetters('sast', {
       groupedSastText: 'groupedReportText',
       sastStatusIcon: 'reportStatusIcon',
+    }),
+    ...mapGetters('dast', {
+      groupedDastText: 'groupedReportText',
+      dastStatusIcon: 'reportStatusIcon',
     }),
     securityTab() {
       return `${this.pipelinePath}/security`;
@@ -255,12 +257,14 @@ export default {
       'setContainerScanningDiffEndpoint',
       'fetchDependencyScanningDiff',
       'setDependencyScanningDiffEndpoint',
-      'fetchDastDiff',
-      'setDastDiffEndpoint',
     ]),
     ...mapActions('sast', {
       setSastDiffEndpoint: 'setDiffEndpoint',
       fetchSastDiff: 'fetchDiff',
+    }),
+    ...mapActions('dast', {
+      setDastDiffEndpoint: 'setDiffEndpoint',
+      fetchDastDiff: 'fetchDiff',
     }),
   },
 };
