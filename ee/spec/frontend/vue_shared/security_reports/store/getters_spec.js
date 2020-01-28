@@ -1,8 +1,5 @@
 import createState from 'ee/vue_shared/security_reports/store/state';
-import createSastState from 'ee/vue_shared/security_reports/store/modules/sast/state';
-import createDastState from 'ee/vue_shared/security_reports/store/modules/dast/state';
-import createContainerScanningState from 'ee/vue_shared/security_reports/store/modules/containerScanning/state';
-import createDependencyScanningState from 'ee/vue_shared/security_reports/store/modules/dependencyScanning/state';
+import createModuleState from 'ee/vue_shared/security_reports/store/modules/base/state';
 import {
   groupedSummaryText,
   allReportsHaveError,
@@ -18,10 +15,10 @@ describe('Security reports getters', () => {
 
   beforeEach(() => {
     state = createState();
-    state.sast = createSastState();
-    state.dast = createDastState();
-    state.containerScanning = createContainerScanningState();
-    state.dependencyScanning = createDependencyScanningState();
+    state.sast = createModuleState();
+    state.dast = createModuleState();
+    state.containerScanning = createModuleState();
+    state.dependencyScanning = createModuleState();
   });
 
   describe('summaryCounts', () => {

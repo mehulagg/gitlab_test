@@ -1,11 +1,7 @@
 import Vue from 'vue';
 import MockAdapter from 'axios-mock-adapter';
 import GroupedSecurityReportsApp from 'ee/vue_shared/security_reports/grouped_security_reports_app.vue';
-import state from 'ee/vue_shared/security_reports/store/state';
-import containerScanningState from 'ee/vue_shared/security_reports/store/modules/containerScanning/state';
-import dastState from 'ee/vue_shared/security_reports/store/modules/dast/state';
-import dependencyScanningState from 'ee/vue_shared/security_reports/store/modules/dependencyScanning/state';
-import sastState from 'ee/vue_shared/security_reports/store/modules/sast/state';
+import createStore from 'ee/vue_shared/security_reports/store';
 import * as reportMutationTypes from 'ee/vue_shared/security_reports/store/modules/base/mutation_types';
 import { mount } from '@vue/test-utils';
 import { waitForMutation } from 'helpers/vue_test_utils_helper';
@@ -44,10 +40,10 @@ describe('Grouped security reports app', () => {
     canDismissVulnerability: true,
   };
 
-  const createWrapper = (propsData, provide = {}) => {
+  const createWrapper = propsData => {
     wrapper = mount(GroupedSecurityReportsApp, {
       propsData,
-      provide,
+      store: createStore(),
     });
   };
 
@@ -57,13 +53,6 @@ describe('Grouped security reports app', () => {
   });
 
   afterEach(() => {
-    wrapper.vm.$store.replaceState({
-      ...state(),
-      containerScanning: containerScanningState(),
-      dast: dastState(),
-      dependencyScanning: dependencyScanningState(),
-      sast: sastState(),
-    });
     wrapper.vm.$destroy();
     mock.restore();
   });

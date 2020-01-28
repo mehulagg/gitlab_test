@@ -1,8 +1,6 @@
 import * as types from 'ee/vue_shared/security_reports/store/modules/base/mutation_types';
 import mutations from 'ee/vue_shared/security_reports/store/modules/base/mutations';
-import stateFactory from 'ee/vue_shared/security_reports/store/modules/base/state_factory';
-
-const createState = stateFactory({});
+import createState from 'ee/vue_shared/security_reports/store/modules/base/state';
 
 const createIssue = ({ ...config }) => ({ changed: false, ...config });
 

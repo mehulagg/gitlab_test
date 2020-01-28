@@ -3,10 +3,14 @@ import mutations from '../base/mutations';
 import * as getters from '../base/getters';
 import * as actions from '../base/actions';
 
-export default {
+export default ({ reportType, feedbackPathCategory }) => ({
   namespaced: true,
-  state,
+  state: () => ({
+    reportType,
+    feedbackPathCategory,
+    ...state(),
+  }),
   mutations,
   getters,
   actions,
-};
+});
