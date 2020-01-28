@@ -1,5 +1,3 @@
-const libTiffCveFingerprint2 = '29af456d1107381bc2511646e2ae488ddfe9a8ed';
-
 export const sastParsedIssues = [
   {
     title: 'Arbitrary file existence disclosure in Action Pack',
@@ -199,31 +197,6 @@ export const dependencyScanningFeedbacks = [
     feedback_type: 'issue',
     branch: 'try_new_container_scanning',
     project_fingerprint: 'f55331d66fd4f3bfb4237d48e9c9fa8704bd33c6',
-  },
-];
-
-export const containerScanningFeedbacks = [
-  {
-    id: 3,
-    project_id: 17,
-    author_id: 1,
-    issue_iid: null,
-    pipeline_id: 132,
-    category: 'container_scanning',
-    feedback_type: 'dismissal',
-    branch: 'try_new_container_scanning',
-    project_fingerprint: libTiffCveFingerprint2,
-  },
-  {
-    id: 4,
-    project_id: 17,
-    author_id: 1,
-    issue_iid: 123,
-    pipeline_id: 132,
-    category: 'container_scanning',
-    feedback_type: 'issue',
-    branch: 'try_new_container_scanning',
-    project_fingerprint: libTiffCveFingerprint2,
   },
 ];
 

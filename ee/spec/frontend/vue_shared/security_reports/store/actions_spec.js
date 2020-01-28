@@ -7,7 +7,6 @@ import {
   setPipelineId,
   setCanCreateIssuePermission,
   setCanCreateFeedbackPermission,
-  requestContainerScanningDiff,
   requestDependencyScanningDiff,
   openModal,
   setModalData,
@@ -26,7 +25,6 @@ import {
   receiveCreateMergeRequestError,
   createMergeRequest,
   updateDependencyScanningIssue,
-  updateContainerScanningIssue,
   addDismissalComment,
   receiveAddDismissalCommentError,
   receiveAddDismissalCommentSuccess,
@@ -37,10 +35,6 @@ import {
   requestDeleteDismissalComment,
   showDismissalDeleteButtons,
   hideDismissalDeleteButtons,
-  setContainerScanningDiffEndpoint,
-  receiveContainerScanningDiffSuccess,
-  receiveContainerScanningDiffError,
-  fetchContainerScanningDiff,
   setDependencyScanningDiffEndpoint,
   receiveDependencyScanningDiffSuccess,
   receiveDependencyScanningDiffError,
@@ -50,7 +44,7 @@ import * as types from 'ee/vue_shared/security_reports/store/mutation_types';
 import state from 'ee/vue_shared/security_reports/store/state';
 import testAction from 'helpers/vuex_action_helper';
 import axios from '~/lib/utils/axios_utils';
-import { containerScanningFeedbacks, dependencyScanningFeedbacks } from '../mock_data';
+import { dependencyScanningFeedbacks } from '../mock_data';
 import toasted from '~/vue_shared/plugins/global_toast';
 
 // Mock bootstrap modal implementation
@@ -212,23 +206,6 @@ describe('security reports actions', () => {
           {
             type: types.SET_CAN_CREATE_FEEDBACK_PERMISSION,
             payload: true,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('requestContainerScanningDiff', () => {
-    it('should commit request mutation', done => {
-      testAction(
-        requestContainerScanningDiff,
-        null,
-        mockedState,
-        [
-          {
-            type: types.REQUEST_CONTAINER_SCANNING_DIFF,
           },
         ],
         [],
@@ -1017,184 +994,6 @@ describe('security reports actions', () => {
         [],
         done,
       );
-    });
-  });
-
-  describe('updateContainerScanningIssue', () => {
-    it('commits update container scanning issue', done => {
-      const payload = { foo: 'bar' };
-
-      testAction(
-        updateContainerScanningIssue,
-        payload,
-        mockedState,
-        [
-          {
-            type: types.UPDATE_CONTAINER_SCANNING_ISSUE,
-            payload,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('setContainerScanningDiffEndpoint', () => {
-    it('should pass down the endpoint to the mutation', done => {
-      const payload = '/container_scanning_endpoint.json';
-
-      testAction(
-        setContainerScanningDiffEndpoint,
-        payload,
-        mockedState,
-        [
-          {
-            type: types.SET_CONTAINER_SCANNING_DIFF_ENDPOINT,
-            payload,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('receiveContainerScanningDiffSuccess', () => {
-    it('should pass down the response to the mutation', done => {
-      const payload = { data: 'Effort yields its own rewards.' };
-
-      testAction(
-        receiveContainerScanningDiffSuccess,
-        payload,
-        mockedState,
-        [
-          {
-            type: types.RECEIVE_CONTAINER_SCANNING_DIFF_SUCCESS,
-            payload,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('receiveContainerScanningDiffError', () => {
-    it('should commit container diff error mutation', done => {
-      testAction(
-        receiveContainerScanningDiffError,
-        undefined,
-        mockedState,
-        [
-          {
-            type: types.RECEIVE_CONTAINER_SCANNING_DIFF_ERROR,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('fetchContainerScanningDiff', () => {
-    const diff = { vulnerabilities: [] };
-    const endpoint = 'container_scanning_diff.json';
-
-    beforeEach(() => {
-      mockedState.vulnerabilityFeedbackPath = 'vulnerabilities_feedback';
-      mockedState.containerScanning.paths.diffEndpoint = endpoint;
-    });
-
-    describe('on success', () => {
-      it('should dispatch `receiveContainerScanningDiffSuccess`', done => {
-        mock.onGet(endpoint).reply(200, diff);
-        mock
-          .onGet('vulnerabilities_feedback', {
-            params: {
-              category: 'container_scanning',
-            },
-          })
-          .reply(200, containerScanningFeedbacks);
-
-        testAction(
-          fetchContainerScanningDiff,
-          null,
-          mockedState,
-          [],
-          [
-            {
-              type: 'requestContainerScanningDiff',
-            },
-            {
-              type: 'receiveContainerScanningDiffSuccess',
-              payload: {
-                diff,
-                enrichData: containerScanningFeedbacks,
-              },
-            },
-          ],
-          done,
-        );
-      });
-    });
-
-    describe('when vulnerabilities path errors', () => {
-      it('should dispatch `receiveContainerScanningError`', done => {
-        mock.onGet(endpoint).reply(500);
-        mock
-          .onGet('vulnerabilities_feedback', {
-            params: {
-              category: 'container_scanning',
-            },
-          })
-          .reply(200, containerScanningFeedbacks);
-
-        testAction(
-          fetchContainerScanningDiff,
-          null,
-          mockedState,
-          [],
-          [
-            {
-              type: 'requestContainerScanningDiff',
-            },
-            {
-              type: 'receiveContainerScanningDiffError',
-            },
-          ],
-          done,
-        );
-      });
-    });
-
-    describe('when feedback path errors', () => {
-      it('should dispatch `receiveContainerScanningError`', done => {
-        mock.onGet(endpoint).reply(200, diff);
-        mock
-          .onGet('vulnerabilities_feedback', {
-            params: {
-              category: 'container_scanning',
-            },
-          })
-          .reply(500);
-
-        testAction(
-          fetchContainerScanningDiff,
-          null,
-          mockedState,
-          [],
-          [
-            {
-              type: 'requestContainerScanningDiff',
-            },
-            {
-              type: 'receiveContainerScanningDiffError',
-            },
-          ],
-          done,
-        );
-      });
     });
   });
 

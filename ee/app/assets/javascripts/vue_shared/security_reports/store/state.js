@@ -16,22 +16,6 @@ export default () => ({
   canCreateIssuePermission: false,
   canCreateFeedbackPermission: false,
 
-  containerScanning: {
-    paths: {
-      head: null,
-      base: null,
-      diffEndpoint: null,
-    },
-
-    isLoading: false,
-    hasError: false,
-
-    newIssues: [],
-    resolvedIssues: [],
-    baseReportOutofDate: false,
-    hasBaseReport: false,
-  },
-
   dependencyScanning: {
     paths: {
       head: null,

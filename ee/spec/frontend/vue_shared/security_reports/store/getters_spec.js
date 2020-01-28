@@ -1,14 +1,13 @@
 import createState from 'ee/vue_shared/security_reports/store/state';
 import createSastState from 'ee/vue_shared/security_reports/store/modules/sast/state';
 import createDastState from 'ee/vue_shared/security_reports/store/modules/dast/state';
+import createContainerScanningState from 'ee/vue_shared/security_reports/store/modules/containerScanning/state';
 import {
-  groupedContainerScanningText,
   groupedDependencyText,
   groupedSummaryText,
   allReportsHaveError,
   noBaseInAllReports,
   areReportsLoading,
-  containerScanningStatusIcon,
   dependencyScanningStatusIcon,
   anyReportHasError,
   summaryCounts,
@@ -29,81 +28,7 @@ describe('Security reports getters', () => {
     state = createState();
     state.sast = createSastState();
     state.dast = createDastState();
-  });
-
-  describe('groupedContainerScanningText', () => {
-    describe('with no issues', () => {
-      it('returns no issues text', () => {
-        state.containerScanning.paths.head = HEAD_PATH;
-        state.containerScanning.paths.base = BASE_PATH;
-
-        expect(groupedContainerScanningText(state)).toEqual(
-          'Container scanning detected no vulnerabilities',
-        );
-      });
-    });
-
-    describe('with new issues and without base', () => {
-      it('returns unable to compare text', () => {
-        state.containerScanning.paths.head = HEAD_PATH;
-        state.containerScanning.newIssues = [{}];
-
-        expect(groupedContainerScanningText(state)).toEqual(
-          'Container scanning detected 1 vulnerability for the source branch only',
-        );
-      });
-    });
-
-    describe('with base and head', () => {
-      describe('with only new issues', () => {
-        it('returns new issues text', () => {
-          state.containerScanning.paths.head = HEAD_PATH;
-          state.containerScanning.paths.base = BASE_PATH;
-          state.containerScanning.newIssues = [{}];
-
-          expect(groupedContainerScanningText(state)).toEqual(
-            'Container scanning detected 1 new vulnerability',
-          );
-        });
-      });
-
-      describe('with only dismissed issues', () => {
-        it('returns dismissed issues text', () => {
-          state.containerScanning.paths.head = HEAD_PATH;
-          state.containerScanning.paths.base = BASE_PATH;
-          state.containerScanning.newIssues = [{ isDismissed: true }];
-
-          expect(groupedContainerScanningText(state)).toEqual(
-            'Container scanning detected 1 dismissed vulnerability',
-          );
-        });
-      });
-
-      describe('with new and resolved issues', () => {
-        it('returns new and fixed issues text', () => {
-          state.containerScanning.paths.head = HEAD_PATH;
-          state.containerScanning.paths.base = BASE_PATH;
-          state.containerScanning.newIssues = [{}];
-          state.containerScanning.resolvedIssues = [{}];
-
-          expect(removeBreakLine(groupedContainerScanningText(state))).toEqual(
-            'Container scanning detected 1 new, and 1 fixed vulnerabilities',
-          );
-        });
-      });
-
-      describe('with only resolved issues', () => {
-        it('returns fixed issues text', () => {
-          state.containerScanning.paths.head = HEAD_PATH;
-          state.containerScanning.paths.base = BASE_PATH;
-          state.containerScanning.resolvedIssues = [{}];
-
-          expect(groupedContainerScanningText(state)).toEqual(
-            'Container scanning detected 1 fixed vulnerability',
-          );
-        });
-      });
-    });
+    state.containerScanning = createContainerScanningState();
   });
 
   describe('groupedDependencyText', () => {
@@ -349,24 +274,6 @@ describe('Security reports getters', () => {
           summaryCounts: {},
         }),
       ).toEqual('Security scanning detected no vulnerabilities');
-    });
-  });
-
-  describe('containerScanningStatusIcon', () => {
-    it('returns warning with new issues', () => {
-      state.containerScanning.newIssues = [{}];
-
-      expect(containerScanningStatusIcon(state)).toEqual('warning');
-    });
-
-    it('returns warning with failed report', () => {
-      state.containerScanning.hasError = true;
-
-      expect(containerScanningStatusIcon(state)).toEqual('warning');
-    });
-
-    it('returns success with no new issues or failed report', () => {
-      expect(containerScanningStatusIcon(state)).toEqual('success');
     });
   });
 

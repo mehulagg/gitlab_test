@@ -71,14 +71,6 @@ describe('security reports mutations', () => {
     });
   });
 
-  describe('REQUEST_CONTAINER_SCANNING_DIFF', () => {
-    it('should set container scanning loading flag to true', () => {
-      mutations[types.REQUEST_CONTAINER_SCANNING_DIFF](stateCopy);
-
-      expect(stateCopy.containerScanning.isLoading).toEqual(true);
-    });
-  });
-
   describe('REQUEST_DEPENDENCY_SCANNING_DIFF', () => {
     it('should set dependency scanning loading flag to true', () => {
       mutations[types.REQUEST_DEPENDENCY_SCANNING_DIFF](stateCopy);
@@ -503,104 +495,6 @@ describe('security reports mutations', () => {
       mutations[types.UPDATE_DEPENDENCY_SCANNING_ISSUE](stateCopy, updatedIssue);
 
       expect(stateCopy.dependencyScanning.allIssues[0]).toEqual(updatedIssue);
-    });
-  });
-
-  describe('UPDATE_CONTAINER_SCANNING_ISSUE', () => {
-    it('updates issue in the new issues list', () => {
-      stateCopy.containerScanning.newIssues = mockFindings;
-      stateCopy.containerScanning.resolvedIssues = [];
-      const updatedIssue = {
-        ...mockFindings[0],
-        foo: 'bar',
-      };
-
-      mutations[types.UPDATE_CONTAINER_SCANNING_ISSUE](stateCopy, updatedIssue);
-
-      expect(stateCopy.containerScanning.newIssues[0]).toEqual(updatedIssue);
-    });
-
-    it('updates issue in the resolved issues list', () => {
-      stateCopy.containerScanning.newIssues = [];
-      stateCopy.containerScanning.resolvedIssues = mockFindings;
-      const updatedIssue = {
-        ...mockFindings[0],
-        foo: 'bar',
-      };
-
-      mutations[types.UPDATE_CONTAINER_SCANNING_ISSUE](stateCopy, updatedIssue);
-
-      expect(stateCopy.containerScanning.resolvedIssues[0]).toEqual(updatedIssue);
-    });
-  });
-
-  describe('SET_CONTAINER_SCANNING_DIFF_ENDPOINT', () => {
-    const endpoint = 'container_scanning_diff_endpoint.json';
-
-    beforeEach(() => {
-      mutations[types.SET_CONTAINER_SCANNING_DIFF_ENDPOINT](stateCopy, endpoint);
-    });
-
-    it('should set the correct endpoint', () => {
-      expect(stateCopy.containerScanning.paths.diffEndpoint).toEqual(endpoint);
-    });
-  });
-
-  describe('RECEIVE_CONTAINER_SCANNING_DIFF_SUCCESS', () => {
-    const reports = {
-      diff: {
-        added: [
-          { name: 'added vuln 1', report_type: 'container_scanning' },
-          { name: 'added vuln 2', report_type: 'container_scanning' },
-        ],
-        fixed: [{ name: 'fixed vuln 1', report_type: 'container_scanning' }],
-        base_report_out_of_date: true,
-      },
-    };
-
-    beforeEach(() => {
-      mutations[types.RECEIVE_CONTAINER_SCANNING_DIFF_SUCCESS](stateCopy, reports);
-    });
-
-    it('should set isLoading to false', () => {
-      expect(stateCopy.containerScanning.isLoading).toBe(false);
-    });
-
-    it('should set baseReportOutofDate to true', () => {
-      expect(stateCopy.containerScanning.baseReportOutofDate).toBe(true);
-    });
-
-    it('should parse and set the added vulnerabilities', () => {
-      reports.diff.added.forEach((vuln, i) => {
-        expect(stateCopy.containerScanning.newIssues[i]).toEqual(
-          expect.objectContaining({
-            name: vuln.name,
-            title: vuln.name,
-            category: vuln.report_type,
-          }),
-        );
-      });
-    });
-
-    it('should parse and set the fixed vulnerabilities', () => {
-      reports.diff.fixed.forEach((vuln, i) => {
-        expect(stateCopy.containerScanning.resolvedIssues[i]).toEqual(
-          expect.objectContaining({
-            name: vuln.name,
-            title: vuln.name,
-            category: vuln.report_type,
-          }),
-        );
-      });
-    });
-  });
-
-  describe('RECEIVE_CONTAINER_SCANNING_DIFF_ERROR', () => {
-    it('should set container scanning loading flag to false and error flag to true', () => {
-      mutations[types.RECEIVE_CONTAINER_SCANNING_DIFF_ERROR](stateCopy);
-
-      expect(stateCopy.containerScanning.isLoading).toEqual(false);
-      expect(stateCopy.containerScanning.hasError).toEqual(true);
     });
   });
 

@@ -48,47 +48,6 @@ export const setCanCreateFeedbackPermission = ({ commit }, permission) =>
   commit(types.SET_CAN_CREATE_FEEDBACK_PERMISSION, permission);
 
 /**
- * CONTAINER SCANNING
- */
-
-export const setContainerScanningDiffEndpoint = ({ commit }, path) =>
-  commit(types.SET_CONTAINER_SCANNING_DIFF_ENDPOINT, path);
-
-export const requestContainerScanningDiff = ({ commit }) =>
-  commit(types.REQUEST_CONTAINER_SCANNING_DIFF);
-
-export const receiveContainerScanningDiffSuccess = ({ commit }, response) =>
-  commit(types.RECEIVE_CONTAINER_SCANNING_DIFF_SUCCESS, response);
-
-export const receiveContainerScanningDiffError = ({ commit }) =>
-  commit(types.RECEIVE_CONTAINER_SCANNING_DIFF_ERROR);
-
-export const fetchContainerScanningDiff = ({ state, dispatch }) => {
-  dispatch('requestContainerScanningDiff');
-
-  return Promise.all([
-    pollUntilComplete(state.containerScanning.paths.diffEndpoint),
-    axios.get(state.vulnerabilityFeedbackPath, {
-      params: {
-        category: 'container_scanning',
-      },
-    }),
-  ])
-    .then(values => {
-      dispatch('receiveContainerScanningDiffSuccess', {
-        diff: values[0].data,
-        enrichData: values[1].data,
-      });
-    })
-    .catch(() => {
-      dispatch('receiveContainerScanningDiffError');
-    });
-};
-
-export const updateContainerScanningIssue = ({ commit }, issue) =>
-  commit(types.UPDATE_CONTAINER_SCANNING_ISSUE, issue);
-
-/**
  * DEPENDENCY SCANNING
  */
 

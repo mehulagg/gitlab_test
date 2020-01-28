@@ -3,17 +3,6 @@ import { countIssues, groupedTextBuilder, statusIcon, groupedReportText } from '
 import { LOADING, ERROR, SUCCESS } from './constants';
 import messages from './messages';
 
-export const groupedContainerScanningText = ({ containerScanning }) =>
-  groupedReportText(
-    containerScanning,
-    messages.CONTAINER_SCANNING,
-    messages.CONTAINER_SCANNING_HAS_ERROR,
-    messages.CONTAINER_SCANNING_IS_LOADING,
-  );
-
-export const groupedDastText = ({ dast }) =>
-  groupedReportText(dast, messages.DAST, messages.DAST_HAS_ERROR, messages.DAST_IS_LOADING);
-
 export const groupedDependencyText = ({ dependencyScanning }) =>
   groupedReportText(
     dependencyScanning,
@@ -80,16 +69,6 @@ export const summaryStatus = (state, getters) => {
 
   return SUCCESS;
 };
-
-export const containerScanningStatusIcon = ({ containerScanning }) =>
-  statusIcon(
-    containerScanning.isLoading,
-    containerScanning.hasError,
-    containerScanning.newIssues.length,
-  );
-
-export const dastStatusIcon = ({ dast }) =>
-  statusIcon(dast.isLoading, dast.hasError, dast.newIssues.length);
 
 export const dependencyScanningStatusIcon = ({ dependencyScanning }) =>
   statusIcon(

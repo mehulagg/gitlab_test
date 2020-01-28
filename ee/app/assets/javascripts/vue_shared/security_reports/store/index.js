@@ -6,16 +6,18 @@ import * as getters from './getters';
 import mutations from './mutations';
 import state from './state';
 
-import sast from './modules/sast';
+import containerScanning from './modules/containerScanning';
 import dast from './modules/dast';
+import sast from './modules/sast';
 
 Vue.use(Vuex);
 
 export default () =>
   new Vuex.Store({
     modules: {
-      sast,
+      containerScanning,
       dast,
+      sast,
     },
     actions,
     getters,

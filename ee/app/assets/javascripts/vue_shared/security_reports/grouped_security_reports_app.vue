@@ -129,9 +129,7 @@ export default {
     ...mapGetters([
       'groupedSummaryText',
       'summaryStatus',
-      'groupedContainerScanningText',
       'groupedDependencyText',
-      'containerScanningStatusIcon',
       'dependencyScanningStatusIcon',
       'isBaseSecurityReportOutOfDate',
     ]),
@@ -142,6 +140,10 @@ export default {
     ...mapGetters('dast', {
       groupedDastText: 'groupedReportText',
       dastStatusIcon: 'reportStatusIcon',
+    }),
+    ...mapGetters('containerScanning', {
+      groupedContainerScanningText: 'groupedReportText',
+      containerScanningStatusIcon: 'reportStatusIcon',
     }),
     securityTab() {
       return `${this.pipelinePath}/security`;
@@ -253,8 +255,6 @@ export default {
       'deleteDismissalComment',
       'showDismissalDeleteButtons',
       'hideDismissalDeleteButtons',
-      'fetchContainerScanningDiff',
-      'setContainerScanningDiffEndpoint',
       'fetchDependencyScanningDiff',
       'setDependencyScanningDiffEndpoint',
     ]),
@@ -265,6 +265,10 @@ export default {
     ...mapActions('dast', {
       setDastDiffEndpoint: 'setDiffEndpoint',
       fetchDastDiff: 'fetchDiff',
+    }),
+    ...mapActions('containerScanning', {
+      setContainerScanningDiffEndpoint: 'setDiffEndpoint',
+      fetchContainerScanningDiff: 'fetchDiff',
     }),
   },
 };
