@@ -3,7 +3,7 @@
 module QA
   module Resource
     class ProjectMilestone < Base
-      attr_reader :title
+      attribute :title
 
       attribute :project do
         Project.fabricate!
@@ -23,7 +23,7 @@ module QA
 
       def api_post_body
         {
-          title: @title
+          title: title
         }
       end
     end
