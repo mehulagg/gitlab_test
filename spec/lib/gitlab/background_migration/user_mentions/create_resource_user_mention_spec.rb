@@ -3,8 +3,9 @@
 require 'spec_helper'
 require './db/post_migrate/20200127131953_migrate_snippet_mentions_to_db'
 require './db/post_migrate/20200127151953_migrate_snippet_notes_mentions_to_db'
+require './db/post_migrate/20200128134110_migrate_commit_notes_mentions_to_db'
 
-describe Gitlab::BackgroundMigration::UserMentions::CreateResourceUserMention, schema: 20200127151953 do
+describe Gitlab::BackgroundMigration::UserMentions::CreateResourceUserMention, schema: 20200128134110 do
   include MigrationsHelpers
 
   context 'when migrating data' do
@@ -67,11 +68,36 @@ describe Gitlab::BackgroundMigration::UserMentions::CreateResourceUserMention, s
         it_behaves_like 'resource notes mentions migration', MigrateSnippetNotesMentionsToDb, Snippet
       end
     end
-  end
 
-  context 'checks no_quote_columns' do
-    it 'has correct no_quote_columns' do
-      expect(Gitlab::BackgroundMigration::UserMentions::Models::Snippet.no_quote_columns).to match([:note_id, :snippet_id])
+    context 'migrate commit mentions' do
+      let(:repository) { Gitlab::Git::Repository.new('default', TEST_REPO_PATH, '', 'group/project') }
+      let(:commit) { Commit.new(RepoHelpers.sample_commit, project.becomes(Project)) }
+      let(:commit_user_mentions) { table(:commit_user_mentions) }
+
+      let!(:note1) { notes.create!(commit_id: commit.id, noteable_type: 'Commit', project_id: project.id, author_id: author.id, note: description_mentions) }
+      let!(:note2) { notes.create!(commit_id: commit.id, noteable_type: 'Commit', project_id: project.id, author_id: author.id, note: 'sample note') }
+      let!(:note3) { notes.create!(commit_id: commit.id, noteable_type: 'Commit', project_id: project.id, author_id: author.id, note: description_mentions, system: true) }
+
+      # this not does not have actual mentions
+      let!(:note4) { notes.create!(commit_id: commit.id, noteable_type: 'Commit', project_id: project.id, author_id: author.id, note: 'note for an email@somesite.com and some other random @ ref' ) }
+      # this should have pointed to an innexisted commit record in a commits table
+      # but because commit is not an AR we'll just make it so that it does not have mentions
+      let!(:note5) { notes.create!(commit_id: 'abc', noteable_type: 'Commit', project_id: project.id, author_id: author.id, note: 'note for an email@somesite.com and some other random @ ref') }
+
+      let(:user_mentions) { commit_user_mentions }
+      let(:resource) { commit }
+
+      it_behaves_like 'resource notes mentions migration', MigrateCommitNotesMentionsToDb, Commit
+    end
+
+    context 'checks no_quote_columns' do
+      it 'snippet has correct no_quote_columns' do
+        expect(Gitlab::BackgroundMigration::UserMentions::Models::Snippet.no_quote_columns).to match([:note_id, :snippet_id])
+      end
+
+      it 'commit has correct no_quote_columns' do
+        expect(Gitlab::BackgroundMigration::UserMentions::Models::Commit.no_quote_columns).to match([:note_id])
+      end
     end
   end
 end

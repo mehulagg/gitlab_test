@@ -43,6 +43,14 @@ module Gitlab
             id
           end
 
+          def noteable
+            super unless for_commit?
+          end
+
+          def for_commit?
+            noteable_type == "Commit"
+          end
+
           private
 
           def mentionable_params
