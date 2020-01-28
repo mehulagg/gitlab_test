@@ -3,14 +3,14 @@
 module QA
   module Resource
     class ProjectMilestone < Base
-      attribute :title
+      attribute :id
+      attribute :iid
+      attribute :title do
+        "project-milestone-#{SecureRandom.hex(4)}"
+      end
 
       attribute :project do
         Project.fabricate!
-      end
-
-      def initialize
-        @title = "project-milestone-#{SecureRandom.hex(4)}"
       end
 
       def api_get_path
