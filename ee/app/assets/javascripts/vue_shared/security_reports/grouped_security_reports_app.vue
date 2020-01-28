@@ -1,6 +1,7 @@
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex';
 import { componentNames } from 'ee/reports/components/issue_body';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import ReportSection from '~/reports/components/report_section.vue';
 import SummaryRow from '~/reports/components/summary_row.vue';
 import IssuesList from '~/reports/components/issues_list.vue';
@@ -8,6 +9,7 @@ import Icon from '~/vue_shared/components/icon.vue';
 import IssueModal from './components/modal.vue';
 import securityReportsMixin from './mixins/security_report_mixin';
 import createStore from './store';
+import { s__, sprintf } from '~/locale';
 
 export default {
   store: createStore(),
@@ -18,7 +20,7 @@ export default {
     IssueModal,
     Icon,
   },
-  mixins: [securityReportsMixin],
+  mixins: [securityReportsMixin, glFeatureFlagsMixin()],
   props: {
     enabledReports: {
       type: Object,
@@ -39,42 +41,7 @@ export default {
       required: false,
       default: null,
     },
-    sastHeadPath: {
-      type: String,
-      required: false,
-      default: null,
-    },
-    sastBasePath: {
-      type: String,
-      required: false,
-      default: null,
-    },
-    dastHeadPath: {
-      type: String,
-      required: false,
-      default: null,
-    },
-    dastBasePath: {
-      type: String,
-      required: false,
-      default: null,
-    },
-    sastContainerHeadPath: {
-      type: String,
-      required: false,
-      default: null,
-    },
-    sastContainerBasePath: {
-      type: String,
-      required: false,
-      default: null,
-    },
-    dependencyScanningHeadPath: {
-      type: String,
-      required: false,
-      default: null,
-    },
-    dependencyScanningBasePath: {
+    targetBranch: {
       type: String,
       required: false,
       default: null,
@@ -84,7 +51,7 @@ export default {
       required: false,
       default: '',
     },
-    sastContainerHelpPath: {
+    containerScanningHelpPath: {
       type: String,
       required: false,
       default: '',
@@ -151,7 +118,7 @@ export default {
   computed: {
     ...mapState([
       'sast',
-      'sastContainer',
+      'containerScanning',
       'dast',
       'dependencyScanning',
       'summaryCounts',
@@ -162,33 +129,48 @@ export default {
     ...mapGetters([
       'groupedSummaryText',
       'summaryStatus',
-      'groupedSastContainerText',
+      'groupedContainerScanningText',
       'groupedDastText',
       'groupedDependencyText',
-      'sastContainerStatusIcon',
+      'containerScanningStatusIcon',
       'dastStatusIcon',
       'dependencyScanningStatusIcon',
+      'isBaseSecurityReportOutOfDate',
     ]),
     ...mapGetters('sast', ['groupedSastText', 'sastStatusIcon']),
     securityTab() {
       return `${this.pipelinePath}/security`;
     },
     hasContainerScanningReports() {
-      const type = 'containerScanning';
-      if (this.isMergeRequestReportApiEnabled(type)) {
-        return this.enabledReports[type];
-      }
-      const { head, diffEndpoint } = this.sastContainer.paths;
-      return Boolean(head || diffEndpoint);
+      return this.enabledReports.containerScanning;
     },
     hasDependencyScanningReports() {
-      return this.hasReportsType('dependencyScanning');
+      return this.enabledReports.dependencyScanning;
     },
     hasDastReports() {
-      return this.hasReportsType('dast');
+      return this.enabledReports.dast;
     },
     hasSastReports() {
-      return this.hasReportsType('sast');
+      return this.enabledReports.sast;
+    },
+    subHeadingText() {
+      const mrDivergedCommitsCount =
+        (gl && gl.mrWidgetData && gl.mrWidgetData.diverged_commits_count) || 0;
+      const isMRBranchOutdated = mrDivergedCommitsCount > 0;
+
+      if (isMRBranchOutdated) {
+        return sprintf(
+          s__(
+            'Security report is out of date. Please incorporate latest changes from %{targetBranchName}',
+          ),
+          {
+            targetBranchName: this.targetBranch,
+          },
+        );
+      }
+      return sprintf(
+        s__('Security report is out of date. Retry the pipeline for the target branch.'),
+      );
     },
   },
 
@@ -209,70 +191,36 @@ export default {
     this.setCanCreateIssuePermission(this.canCreateIssue);
     this.setCanCreateFeedbackPermission(this.canCreateFeedback);
 
-    const sastDiffEndpoint = gl && gl.mrWidgetData && gl.mrWidgetData.sast_comparison_path;
+    // eslint-disable-next-line camelcase
+    const sastDiffEndpoint = gl?.mrWidgetData?.sast_comparison_path;
 
-    if (this.isMergeRequestReportApiEnabled('sast') && sastDiffEndpoint && this.hasSastReports) {
+    if (sastDiffEndpoint && this.hasSastReports) {
       this.setSastDiffEndpoint(sastDiffEndpoint);
       this.fetchSastDiff();
-    } else if (this.sastHeadPath) {
-      this.setSastHeadPath(this.sastHeadPath);
-
-      if (this.sastBasePath) {
-        this.setSastBasePath(this.sastBasePath);
-      }
-      this.fetchSastReports();
     }
 
-    const sastContainerDiffEndpoint =
-      gl && gl.mrWidgetData && gl.mrWidgetData.container_scanning_comparison_path;
+    // eslint-disable-next-line camelcase
+    const containerScanningDiffEndpoint = gl?.mrWidgetData?.container_scanning_comparison_path;
 
-    if (
-      this.isMergeRequestReportApiEnabled('containerScanning') &&
-      sastContainerDiffEndpoint &&
-      this.hasContainerScanningReports
-    ) {
-      this.setSastContainerDiffEndpoint(sastContainerDiffEndpoint);
-      this.fetchSastContainerDiff();
-    } else if (this.sastContainerHeadPath) {
-      this.setSastContainerHeadPath(this.sastContainerHeadPath);
-
-      if (this.sastContainerBasePath) {
-        this.setSastContainerBasePath(this.sastContainerBasePath);
-      }
-      this.fetchSastContainerReports();
+    if (containerScanningDiffEndpoint && this.hasContainerScanningReports) {
+      this.setContainerScanningDiffEndpoint(containerScanningDiffEndpoint);
+      this.fetchContainerScanningDiff();
     }
 
-    const dastDiffEndpoint = gl && gl.mrWidgetData && gl.mrWidgetData.dast_comparison_path;
+    // eslint-disable-next-line camelcase
+    const dastDiffEndpoint = gl?.mrWidgetData?.dast_comparison_path;
 
-    if (this.isMergeRequestReportApiEnabled('dast') && dastDiffEndpoint && this.hasDastReports) {
+    if (dastDiffEndpoint && this.hasDastReports) {
       this.setDastDiffEndpoint(dastDiffEndpoint);
       this.fetchDastDiff();
-    } else if (this.dastHeadPath) {
-      this.setDastHeadPath(this.dastHeadPath);
-
-      if (this.dastBasePath) {
-        this.setDastBasePath(this.dastBasePath);
-      }
-      this.fetchDastReports();
     }
 
-    const dependencyScanningDiffEndpoint =
-      gl && gl.mrWidgetData && gl.mrWidgetData.dependency_scanning_comparison_path;
+    // eslint-disable-next-line camelcase
+    const dependencyScanningDiffEndpoint = gl?.mrWidgetData?.dependency_scanning_comparison_path;
 
-    if (
-      this.isMergeRequestReportApiEnabled('dependencyScanning') &&
-      dependencyScanningDiffEndpoint &&
-      this.hasDependencyScanningReports
-    ) {
+    if (dependencyScanningDiffEndpoint && this.hasDependencyScanningReports) {
       this.setDependencyScanningDiffEndpoint(dependencyScanningDiffEndpoint);
       this.fetchDependencyScanningDiff();
-    } else if (this.dependencyScanningHeadPath) {
-      this.setDependencyScanningHeadPath(this.dependencyScanningHeadPath);
-
-      if (this.dependencyScanningBasePath) {
-        this.setDependencyScanningBasePath(this.dependencyScanningBasePath);
-      }
-      this.fetchDependencyScanningReports();
     }
   },
   methods: {
@@ -281,15 +229,6 @@ export default {
       'setHeadBlobPath',
       'setBaseBlobPath',
       'setSourceBranch',
-      'setSastContainerHeadPath',
-      'setSastContainerBasePath',
-      'setDastHeadPath',
-      'setDastBasePath',
-      'setDependencyScanningHeadPath',
-      'setDependencyScanningBasePath',
-      'fetchSastContainerReports',
-      'fetchDastReports',
-      'fetchDependencyScanningReports',
       'setVulnerabilityFeedbackPath',
       'setVulnerabilityFeedbackHelpPath',
       'setCreateVulnerabilityFeedbackIssuePath',
@@ -309,30 +248,17 @@ export default {
       'deleteDismissalComment',
       'showDismissalDeleteButtons',
       'hideDismissalDeleteButtons',
-      'fetchSastContainerDiff',
-      'setSastContainerDiffEndpoint',
+      'fetchContainerScanningDiff',
+      'setContainerScanningDiffEndpoint',
       'fetchDependencyScanningDiff',
       'setDependencyScanningDiffEndpoint',
       'fetchDastDiff',
       'setDastDiffEndpoint',
     ]),
     ...mapActions('sast', {
-      setSastHeadPath: 'setHeadPath',
-      setSastBasePath: 'setBasePath',
       setSastDiffEndpoint: 'setDiffEndpoint',
-      fetchSastReports: 'fetchReports',
       fetchSastDiff: 'fetchDiff',
     }),
-    isMergeRequestReportApiEnabled(type) {
-      return Boolean(gon.features && gon.features[`${type}MergeRequestReportApi`]);
-    },
-    hasReportsType(type) {
-      if (this.isMergeRequestReportApiEnabled(type)) {
-        return this.enabledReports[type];
-      }
-      const { head, diffEndpoint } = this[type].paths;
-      return Boolean(head || diffEndpoint);
-    },
   },
 };
 </script>
@@ -355,6 +281,10 @@ export default {
         <span>{{ s__('ciReport|View full report') }}</span>
         <icon :size="16" name="external-link" />
       </a>
+    </div>
+
+    <div v-if="isBaseSecurityReportOutOfDate" slot="subHeading" class="text-secondary-700 text-1">
+      <span>{{ subHeadingText }}</span>
     </div>
 
     <div slot="body" class="mr-widget-grouped-section report-block">
@@ -397,18 +327,18 @@ export default {
 
       <template v-if="hasContainerScanningReports">
         <summary-row
-          :summary="groupedSastContainerText"
-          :status-icon="sastContainerStatusIcon"
-          :popover-options="sastContainerPopover"
-          class="js-sast-container"
+          :summary="groupedContainerScanningText"
+          :status-icon="containerScanningStatusIcon"
+          :popover-options="containerScanningPopover"
+          class="js-container-scanning"
           data-qa-selector="container_scan_report"
         />
 
         <issues-list
-          v-if="sastContainer.newIssues.length || sastContainer.resolvedIssues.length"
-          :unresolved-issues="sastContainer.newIssues"
-          :resolved-issues="sastContainer.resolvedIssues"
-          :component="$options.componentNames.SastContainerIssueBody"
+          v-if="containerScanning.newIssues.length || containerScanning.resolvedIssues.length"
+          :unresolved-issues="containerScanning.newIssues"
+          :resolved-issues="containerScanning.resolvedIssues"
+          :component="$options.componentNames.ContainerScanningIssueBody"
           class="report-block-group-list"
         />
       </template>

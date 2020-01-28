@@ -1,26 +1,40 @@
 <script>
-import { mapState } from 'vuex';
-import { s__, sprintf } from '~/locale';
+import { mapActions, mapState } from 'vuex';
+import { GlAlert } from '@gitlab/ui';
+import { sprintf, s__ } from '~/locale';
+
+import { FETCH_SETTINGS_ERROR_MESSAGE } from '../constants';
+
+import SettingsForm from './settings_form.vue';
 
 export default {
-  components: {},
+  components: {
+    SettingsForm,
+    GlAlert,
+  },
   computed: {
-    ...mapState({
-      helpPagePath: 'helpPagePath',
-    }),
-
-    helpText() {
+    ...mapState(['isDisabled']),
+    notAvailableMessage() {
       return sprintf(
         s__(
-          'PackageRegistry|Read more about the %{helpLinkStart}Container Registry tag retention policies%{helpLinkEnd}',
+          'ContainerRegistry|Currently, the Container Registry tag expiration feature is not available for projects created before GitLab version 12.8. For updates and more information, visit Issue %{linkStart}#196124%{linkEnd}',
         ),
         {
-          helpLinkStart: `<a href="${this.helpPagePath}" target="_blank">`,
-          helpLinkEnd: '</a>',
+          linkStart:
+            '<a href="https://gitlab.com/gitlab-org/gitlab/issues/196124" target="_blank" rel="noopener noreferrer">',
+          linkEnd: '</a>',
         },
         false,
       );
     },
+  },
+  mounted() {
+    this.fetchSettings().catch(() =>
+      this.$toast.show(FETCH_SETTINGS_ERROR_MESSAGE, { type: 'error' }),
+    );
+  },
+  methods: {
+    ...mapActions(['fetchSettings']),
   },
 };
 </script>
@@ -28,16 +42,21 @@ export default {
 <template>
   <div>
     <p>
-      {{ s__('PackageRegistry|Tag retention policies are designed to:') }}
+      {{ s__('ContainerRegistry|Tag expiration policy is designed to:') }}
     </p>
     <ul>
-      <li>{{ s__('PackageRegistry|Keep and protect the images that matter most.') }}</li>
+      <li>{{ s__('ContainerRegistry|Keep and protect the images that matter most.') }}</li>
       <li>
         {{
-          s__("PackageRegistry|Automatically remove extra images that aren't designed to be kept.")
+          s__(
+            "ContainerRegistry|Automatically remove extra images that aren't designed to be kept.",
+          )
         }}
       </li>
     </ul>
-    <p ref="help-link" v-html="helpText"></p>
+    <settings-form v-if="!isDisabled" />
+    <gl-alert v-else :dismissible="false">
+      <p v-html="notAvailableMessage"></p>
+    </gl-alert>
   </div>
 </template>

@@ -20,6 +20,14 @@ describe('Panel Type component', () => {
   const dashboardWidth = 100;
   const exampleText = 'example_text';
 
+  const createWrapper = props =>
+    shallowMount(PanelType, {
+      propsData: {
+        ...props,
+      },
+      store,
+    });
+
   beforeEach(() => {
     setTestTimeout(1000);
     axiosMock = new AxiosMockAdapter(axios);
@@ -36,14 +44,9 @@ describe('Panel Type component', () => {
     graphDataNoResult.metrics[0].result = [];
 
     beforeEach(() => {
-      panelType = shallowMount(PanelType, {
-        propsData: {
-          clipboardText: 'dashboard_link',
-          dashboardWidth,
-          graphData: graphDataNoResult,
-        },
-        sync: false,
-        attachToDocument: true,
+      panelType = createWrapper({
+        dashboardWidth,
+        graphData: graphDataNoResult,
       });
     });
 
@@ -68,39 +71,28 @@ describe('Panel Type component', () => {
     });
   });
 
-  describe('when Graph data is available', () => {
-    const propsData = {
-      clipboardText: exampleText,
-      dashboardWidth,
-      graphData: graphDataPrometheusQueryRange,
-    };
-
-    beforeEach(done => {
+  describe('when graph data is available', () => {
+    beforeEach(() => {
       store = createStore();
-      panelType = shallowMount(PanelType, {
-        propsData,
-        store,
-        sync: false,
-        attachToDocument: true,
+      panelType = createWrapper({
+        dashboardWidth,
+        graphData: graphDataPrometheusQueryRange,
       });
-      panelType.vm.$nextTick(done);
     });
 
     afterEach(() => {
       panelType.destroy();
     });
 
+    it('sets no clipboard copy link on dropdown by default', () => {
+      const link = () => panelType.find('.js-chart-link');
+      expect(link().exists()).toBe(false);
+    });
+
     describe('Time Series Chart panel type', () => {
       it('is rendered', () => {
         expect(panelType.find(TimeSeriesChart).isVueInstance()).toBe(true);
         expect(panelType.find(TimeSeriesChart).exists()).toBe(true);
-      });
-
-      it('sets clipboard text on the dropdown', () => {
-        const link = () => panelType.find('.js-chart-link');
-        const clipboardText = () => link().element.dataset.clipboardText;
-
-        expect(clipboardText()).toBe(exampleText);
       });
 
       it('includes a default group id', () => {
@@ -123,6 +115,30 @@ describe('Panel Type component', () => {
     });
   });
 
+  describe('when cliboard data is available', () => {
+    const clipboardText = 'A value to copy.';
+
+    beforeEach(() => {
+      store = createStore();
+      panelType = createWrapper({
+        clipboardText,
+        dashboardWidth,
+        graphData: graphDataPrometheusQueryRange,
+      });
+    });
+
+    afterEach(() => {
+      panelType.destroy();
+    });
+
+    it('sets clipboard text on the dropdown', () => {
+      const link = () => panelType.find('.js-chart-link');
+
+      expect(link().exists()).toBe(true);
+      expect(link().element.dataset.clipboardText).toBe(clipboardText);
+    });
+  });
+
   describe('when downloading metrics data as CSV', () => {
     beforeEach(done => {
       graphDataPrometheusQueryRange.y_label = 'metric';
@@ -134,8 +150,6 @@ describe('Panel Type component', () => {
           graphData: graphDataPrometheusQueryRange,
         },
         store,
-        sync: false,
-        attachToDocument: true,
       });
       panelType.vm.$nextTick(done);
     });

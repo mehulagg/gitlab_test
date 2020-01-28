@@ -324,6 +324,7 @@ describe Gitlab::Database do
 
       context 'with version < 9.5' do
         let(:version) { 9.4 }
+
         it 'refuses setting the upsert' do
           expect(connection)
             .not_to receive(:execute)
@@ -392,6 +393,20 @@ describe Gitlab::Database do
         expect(described_class.cached_table_exists?(:projects)).to be_truthy
         expect(described_class.cached_table_exists?(:bogus_table_name)).to be_falsey
       end
+    end
+  end
+
+  describe '.exists?' do
+    it 'returns true if `ActiveRecord::Base.connection` succeeds' do
+      expect(ActiveRecord::Base).to receive(:connection)
+
+      expect(described_class.exists?).to be(true)
+    end
+
+    it 'returns false if `ActiveRecord::Base.connection` fails' do
+      expect(ActiveRecord::Base).to receive(:connection) { raise ActiveRecord::NoDatabaseError, 'broken' }
+
+      expect(described_class.exists?).to be(false)
     end
   end
 

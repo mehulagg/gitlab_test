@@ -33,7 +33,7 @@ describe OperationsController do
     it 'renders index with 200 status code' do
       get :index
 
-      expect(response).to have_gitlab_http_status(200)
+      expect(response).to have_gitlab_http_status(:ok)
       expect(response).to render_template(:index)
     end
 
@@ -42,7 +42,7 @@ describe OperationsController do
 
       get :index
 
-      expect(response).to have_gitlab_http_status(200)
+      expect(response).to have_gitlab_http_status(:ok)
       expect(response).to render_template(:index)
     end
 
@@ -105,7 +105,7 @@ describe OperationsController do
     let(:project) { create(:project, :repository) }
     let(:commit) { project.commit }
     let!(:environment) { create(:environment, name: 'production', project: project) }
-    let!(:deployment) { create(:deployment, :success, environment: environment, sha: commit.id, created_at: now) }
+    let!(:deployment) { create(:deployment, :success, environment: environment, sha: commit.id, created_at: now, project: project) }
 
     it_behaves_like 'unlicensed', :get, :list
 
@@ -113,7 +113,7 @@ describe OperationsController do
       it 'returns an empty list' do
         get :list
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(json_response).to match_schema('dashboard/operations/list', dir: 'ee')
         expect(json_response['projects']).to eq([])
       end
@@ -154,7 +154,7 @@ describe OperationsController do
       it 'returns a list of added projects' do
         get :list
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(response).to match_response_schema('dashboard/operations/list', dir: 'ee')
 
         expect(json_response['projects'].size).to eq(1)
@@ -178,7 +178,7 @@ describe OperationsController do
 
         get :list
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(response).to match_response_schema('dashboard/operations/list', dir: 'ee')
 
         expect(json_response['projects'].size).to eq(8)
@@ -189,7 +189,7 @@ describe OperationsController do
 
         get :list
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(response).to match_response_schema('dashboard/operations/list', dir: 'ee')
         expect(json_response['projects'].size).to eq(1)
         expect(expected_project['id']).to eq(project.id)
@@ -276,7 +276,7 @@ describe OperationsController do
       end
 
       context 'with a project in the dashboard' do
-        let(:project) { create(:project, :with_avatar) }
+        let(:project) { create(:project, :with_avatar, :repository) }
 
         before do
           project.add_developer(user)
@@ -683,7 +683,7 @@ describe OperationsController do
       it 'adds projects to the dasboard' do
         post :create, params: { project_ids: [project_a.id, project_b.id.to_s] }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(json_response).to match_schema('dashboard/operations/add', dir: 'ee')
         expect(json_response['added']).to contain_exactly(project_a.id, project_b.id)
         expect(json_response['duplicate']).to be_empty
@@ -698,7 +698,7 @@ describe OperationsController do
 
         post :create, params: { project_ids: [project_a.id, project_b.id.to_s] }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(json_response).to match_schema('dashboard/operations/add', dir: 'ee')
         expect(json_response['added']).to contain_exactly(project_a.id, project_b.id)
       end
@@ -706,7 +706,7 @@ describe OperationsController do
       it 'cannot add a project twice' do
         post :create, params: { project_ids: [project_a.id, project_a.id] }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(json_response).to match_schema('dashboard/operations/add', dir: 'ee')
         expect(json_response['added']).to contain_exactly(project_a.id)
         expect(json_response['duplicate']).to be_empty
@@ -719,7 +719,7 @@ describe OperationsController do
       it 'does not add invalid project ids' do
         post :create, params: { project_ids: ['', -1, '-2'] }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(json_response).to match_schema('dashboard/operations/add', dir: 'ee')
         expect(json_response['added']).to be_empty
         expect(json_response['duplicate']).to be_empty
@@ -741,7 +741,7 @@ describe OperationsController do
       it 'does not add already added project' do
         post :create, params: { project_ids: [project.id] }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(json_response).to match_schema('dashboard/operations/add', dir: 'ee')
         expect(json_response['added']).to be_empty
         expect(json_response['duplicate']).to contain_exactly(project.id)
@@ -778,7 +778,7 @@ describe OperationsController do
       it 'removes a project successfully' do
         delete :destroy, params: { project_id: project.id }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
 
         user.reload
         expect(user.ops_dashboard_projects).to eq([])
@@ -789,7 +789,7 @@ describe OperationsController do
 
         delete :destroy, params: { project_id: project.id }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         user.reload
         expect(user.ops_dashboard_projects).to eq([])
       end
@@ -799,7 +799,7 @@ describe OperationsController do
       it 'cannot remove invalid project' do
         delete :destroy, params: { project_id: -1 }
 
-        expect(response).to have_gitlab_http_status(204)
+        expect(response).to have_gitlab_http_status(:no_content)
       end
     end
 

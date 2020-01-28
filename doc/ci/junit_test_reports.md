@@ -25,7 +25,7 @@ Consider the following workflow:
 
 1. Your `master` branch is rock solid, your project is using GitLab CI/CD and
    your pipelines indicate that there isn't anything broken.
-1. Someone from you team submits a merge request, a test fails and the pipeline
+1. Someone from your team submits a merge request, a test fails and the pipeline
    gets the known red icon. To investigate more, you have to go through the job
    logs to figure out the cause of the failed test, which usually contain
    thousands of lines.
@@ -169,6 +169,32 @@ cpp:
   artifacts:
     reports:
       junit: report.xml
+```
+
+### .Net example
+
+The [JunitXML.TestLogger](https://www.nuget.org/packages/JunitXml.TestLogger/) NuGet
+package can generate test reports for .Net Framework and .Net Core applications. The following
+example expects a solution in the root folder of the repository, with one or more
+project files in sub-folders. One result file is produced per test project, and each file
+is placed in a new artifacts folder. This example includes optional formatting arguments, which
+improve the readability of test data in the test widget. A full .Net Core
+[example is available](https://gitlab.com/Siphonophora/dot-net-cicd-test-logging-demo).
+
+```yaml
+## Source code and documentation are here: https://github.com/spekt/junit.testlogger/
+
+Test:
+  stage: test
+  script:
+    - 'dotnet test --test-adapter-path:. --logger:"junit;LogFilePath=..\artifacts\{assembly}-test-result.xml;MethodFormat=Class;FailureBodyFormat=Verbose"'
+  artifacts:
+    when: always
+    paths:
+      - ./**/*test-result.xml
+    reports:
+      junit:
+       - ./**/*test-result.xml
 ```
 
 ## Limitations

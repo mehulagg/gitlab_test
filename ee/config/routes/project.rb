@@ -12,7 +12,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           constraints: { project_id: Gitlab::PathRegex.project_route_regex },
           module: :projects,
           as: :project) do
-
       # Begin of the /-/ scope.
       # Use this scope for all new project routes.
       scope '-' do
@@ -61,23 +60,13 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         resources :subscriptions, only: [:create, :destroy]
 
-        namespace :performance_monitoring do
-          resources :dashboards, only: [:create]
-        end
+        resources :licenses, only: [:index, :create, :update]
 
-        resource :licenses, only: [:show]
-        namespace :security do
-          resources :licenses, only: [:index, :create, :update]
-        end
+        resource :threat_monitoring, only: [:show], controller: :threat_monitoring
 
-        resources :environments, only: [] do
-          member do
-            get :logs
-            get '/pods/(:pod_name)/containers/(:container_name)/logs', to: 'environments#k8s_pod_logs', as: :k8s_pod_logs
-          end
-
+        resources :logs, only: [:index] do
           collection do
-            get :logs, action: :logs_redirect
+            get :k8s
           end
         end
 
@@ -88,6 +77,18 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
 
         resources :audit_events, only: [:index]
+
+        namespace :security do
+          resources :waf_anomalies, only: [] do
+            get :summary, on: :collection
+          end
+        end
+
+        namespace :analytics do
+          resources :code_reviews, only: [:index]
+        end
+
+        draw :merge_requests_ee
       end
       # End of the /-/ scope.
 
@@ -129,6 +130,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       resources :issues, only: [], constraints: { id: /\d+/ } do
         member do
           get '/descriptions/:version_id/diff', action: :description_diff, as: :description_diff
+          delete '/descriptions/:version_id', action: :delete_description_version, as: :delete_description_version
           get '/designs(/*vueroute)', to: 'issues#designs', as: :designs, format: false
         end
 
@@ -143,36 +145,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       get '/service_desk' => 'service_desk#show', as: :service_desk
       put '/service_desk' => 'service_desk#update', as: :service_desk_refresh
 
-      resources :merge_requests, only: [], constraints: { id: /\d+/ } do
-        member do
-          get '/descriptions/:version_id/diff', action: :description_diff, as: :description_diff
-          get :metrics_reports
-          get :license_management_reports
-          get :container_scanning_reports
-          get :dependency_scanning_reports
-          get :sast_reports
-          get :dast_reports
-
-          get :approvals
-          post :approvals, action: :approve
-          delete :approvals, action: :unapprove
-
-          post :rebase
-        end
-
-        resources :approvers, only: :destroy
-        delete 'approvers', to: 'approvers#destroy_via_user_id', as: :approver_via_user_id
-        resources :approver_groups, only: :destroy
-
-        scope module: :merge_requests do
-          resources :drafts, only: [:index, :update, :create, :destroy] do
-            collection do
-              post :publish
-              delete :discard
-            end
-          end
-        end
-      end
+      post '/restore' => '/projects#restore', as: :restore
 
       resources :approvers, only: :destroy
       resources :approver_groups, only: :destroy
@@ -192,20 +165,10 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       end
 
       namespace :security do
-        resource :dashboard, only: [:show], controller: :dashboard
+        resources :dashboard, only: [:show, :index], controller: :dashboard
         resource :configuration, only: [:show], controller: :configuration
+        resource :discover, only: [:show], controller: :discover
 
-        resources :dependencies, only: [:index]
-        # We have to define both legacy and new routes for Vulnerability Findings
-        # because they are loaded upon application initialization and preloaded by
-        # web server.
-        # TODO: remove this comment and `resources :vulnerabilities` when applicable
-        # see https://gitlab.com/gitlab-org/gitlab/issues/33488
-        resources :vulnerabilities, only: [:index] do
-          collection do
-            get :summary
-          end
-        end
         resources :vulnerability_findings, only: [:index] do
           collection do
             get :summary
@@ -215,7 +178,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
       resources :vulnerability_feedback, only: [:index, :create, :update, :destroy], constraints: { id: /\d+/ }
 
-      resource :dependencies, only: [:show]
+      resources :dependencies, only: [:index]
       # All new routes should go under /-/ scope.
       # Look for scope '-' at the top of the file.
       # rubocop: enable Cop/PutProjectRoutesUnderScope
@@ -249,7 +212,7 @@ scope path: '(/-/jira)', constraints: ::Constraints::JiraEncodedUrlConstrainer.n
         project: params[:project_id]
       )
 
-      "/#{project_full_path}/tree/#{params[:id]}"
+      "/#{project_full_path}/-/tree/#{params[:id]}"
     }
   end
 end

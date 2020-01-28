@@ -1,22 +1,17 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import ProjectHeader from 'ee/operations/components/dashboard/project_header.vue';
-import ProjectAvatar from '~/vue_shared/components/project_avatar/default.vue';
 import { trimText } from 'helpers/text_helper';
+import ProjectAvatar from '~/vue_shared/components/project_avatar/default.vue';
 import { mockOneProject } from '../../mock_data';
-
-const localVue = createLocalVue();
 
 describe('project header component', () => {
   let wrapper;
 
   const factory = () => {
-    wrapper = shallowMount(localVue.extend(ProjectHeader), {
+    wrapper = shallowMount(ProjectHeader, {
       propsData: {
         project: mockOneProject,
       },
-      localVue,
-      sync: false,
-      attachToDocument: true,
     });
   };
 
@@ -50,18 +45,20 @@ describe('project header component', () => {
     it('renders correct title for removal icon', () => {
       const button = wrapper.find('.js-remove-button');
 
-      expect(button.attributes('data-original-title')).toBe('Remove card');
+      expect(button.attributes('title')).toBe('Remove card');
     });
 
     it('emits project removal link on click', () => {
       wrapper.find('.js-remove-button').vm.$emit('click');
 
-      expect(wrapper.emittedByOrder()).toContainEqual(
-        expect.objectContaining({
-          name: 'remove',
-          args: [mockOneProject.remove_path],
-        }),
-      );
+      return wrapper.vm.$nextTick().then(() => {
+        expect(wrapper.emittedByOrder()).toContainEqual(
+          expect.objectContaining({
+            name: 'remove',
+            args: [mockOneProject.remove_path],
+          }),
+        );
+      });
     });
   });
 

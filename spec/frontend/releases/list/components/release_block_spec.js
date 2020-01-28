@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import { mount } from '@vue/test-utils';
 import { first } from 'underscore';
 import EvidenceBlock from '~/releases/list/components/evidence_block.vue';
@@ -34,7 +35,6 @@ describe('Release block', () => {
           ...featureFlags,
         },
       },
-      sync: false,
     });
 
     return wrapper.vm.$nextTick();
@@ -44,6 +44,7 @@ describe('Release block', () => {
   const editButton = () => wrapper.find('.js-edit-button');
 
   beforeEach(() => {
+    jest.spyOn($.fn, 'renderGFM');
     releaseClone = JSON.parse(JSON.stringify(release));
   });
 
@@ -67,8 +68,13 @@ describe('Release block', () => {
       expect(wrapper.text()).toContain(release.name);
     });
 
+    it('renders release description', () => {
+      expect(wrapper.vm.$refs['gfm-content']).toBeDefined();
+      expect($.fn.renderGFM).toHaveBeenCalledTimes(1);
+    });
+
     it('renders release date', () => {
-      expect(wrapper.text()).toContain(timeagoMixin.methods.timeFormated(release.released_at));
+      expect(wrapper.text()).toContain(timeagoMixin.methods.timeFormatted(release.released_at));
     });
 
     it('renders number of assets provided', () => {
@@ -170,7 +176,7 @@ describe('Release block', () => {
     releaseClone.tag_name = 'a dangerous tag name <script>alert("hello")</script>';
 
     return factory(releaseClone).then(() => {
-      expect(wrapper.attributes().id).toBe('a-dangerous-tag-name-script-alert-hello-script-');
+      expect(wrapper.attributes().id).toBe('a-dangerous-tag-name-script-alert-hello-script');
     });
   });
 
@@ -271,7 +277,7 @@ describe('Release block', () => {
 
         expect(milestoneLink.attributes('href')).toBe(milestone.web_url);
 
-        expect(milestoneLink.attributes('data-original-title')).toBe(milestone.description);
+        expect(milestoneLink.attributes('title')).toBe(milestone.description);
       });
     });
 

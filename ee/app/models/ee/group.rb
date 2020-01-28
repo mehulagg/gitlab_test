@@ -13,6 +13,7 @@ module EE
       include Vulnerable
       include TokenAuthenticatable
       include InsightsFeature
+      include HasTimelogsReport
 
       add_authentication_token_field :saml_discovery_token, unique: false, token_generator: -> { Devise.friendly_token(8) }
 
@@ -57,6 +58,7 @@ module EE
       validate :custom_project_templates_group_allowed, if: :custom_project_templates_group_id_changed?
 
       scope :aimed_for_deletion, -> (date) { joins(:deletion_schedule).where('group_deletion_schedules.marked_for_deletion_on <= ?', date) }
+      scope :with_deletion_schedule, -> { preload(:deletion_schedule) }
 
       scope :where_group_links_with_provider, ->(provider) do
         joins(:ldap_group_links).where(ldap_group_links: { provider: provider })
@@ -73,12 +75,8 @@ module EE
       end
 
       scope :for_epics, ->(epics) do
-        if ::Feature.enabled?(:optimized_groups_user_can_read_epics_method)
-          epics_query = epics.select(:group_id)
-          joins("INNER JOIN (#{epics_query.to_sql}) as epics on epics.group_id = namespaces.id")
-        else
-          where(id: epics.select(:group_id))
-        end
+        epics_query = epics.select(:group_id)
+        joins("INNER JOIN (#{epics_query.to_sql}) as epics on epics.group_id = namespaces.id")
       end
 
       state_machine :ldap_sync_status, namespace: :ldap_sync, initial: :ready do
@@ -131,7 +129,7 @@ module EE
         # preset root_ancestor for all of them to avoid an additional SQL query
         # done for each group permission check:
         # https://gitlab.com/gitlab-org/gitlab/issues/11539
-        preset_root_ancestor_for(groups) if same_root && ::Feature.enabled?(:preset_group_root)
+        preset_root_ancestor_for(groups) if same_root
 
         DeclarativePolicy.user_scope do
           groups.select { |group| Ability.allowed?(user, :read_epic, group) }
@@ -276,9 +274,21 @@ module EE
     end
 
     def marked_for_deletion?
-      return false unless feature_available?(:adjourned_deletion_for_projects_and_groups)
+      marked_for_deletion_on.present? &&
+        feature_available?(:adjourned_deletion_for_projects_and_groups)
+    end
 
-      marked_for_deletion_on.present?
+    def self_or_ancestor_marked_for_deletion
+      return unless feature_available?(:adjourned_deletion_for_projects_and_groups)
+
+      self_and_ancestors(hierarchy_order: :asc)
+        .joins(:deletion_schedule).first
+    end
+
+    override :adjourned_deletion?
+    def adjourned_deletion?
+      feature_available?(:adjourned_deletion_for_projects_and_groups) &&
+        ::Gitlab::CurrentSettings.deletion_adjourned_period > 0
     end
 
     private

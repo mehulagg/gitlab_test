@@ -2,12 +2,14 @@
 
 class WebHookService
   class InternalErrorResponse
+    ERROR_MESSAGE = 'internal error'
+
     attr_reader :body, :headers, :code
 
     def initialize
       @headers = Gitlab::HTTP::Response::Headers.new({})
       @body = ''
-      @code = 'internal error'
+      @code = ERROR_MESSAGE
     end
   end
 
@@ -92,9 +94,6 @@ class WebHookService
   end
 
   def log_execution(trigger:, url:, request_data:, response:, execution_duration:, error_message: nil)
-    # logging for ServiceHook's is not available
-    return if hook.is_a?(ServiceHook)
-
     WebHookLog.create(
       web_hook: hook,
       trigger: trigger,

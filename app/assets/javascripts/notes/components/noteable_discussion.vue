@@ -1,10 +1,10 @@
 <script>
 import { mapActions, mapGetters } from 'vuex';
 import { GlTooltipDirective } from '@gitlab/ui';
+import diffLineNoteFormMixin from 'ee_else_ce/notes/mixins/diff_line_note_form';
 import { s__, __ } from '~/locale';
 import { clearDraft, getDiscussionReplyKey } from '~/lib/utils/autosave';
 import icon from '~/vue_shared/components/icon.vue';
-import diffLineNoteFormMixin from 'ee_else_ce/notes/mixins/diff_line_note_form';
 import TimelineEntryItem from '~/vue_shared/components/notes/timeline_entry_item.vue';
 import Flash from '../../flash';
 import userAvatarLink from '../../vue_shared/components/user_avatar/user_avatar_link.vue';
@@ -88,6 +88,9 @@ export default {
     ]),
     currentUser() {
       return this.getUserData;
+    },
+    isLoggedIn() {
+      return Boolean(gon.current_user_id);
     },
     autosaveKey() {
       return getDiscussionReplyKey(this.firstNote.noteable_type, this.discussion.id);
@@ -198,23 +201,22 @@ export default {
         data: postData,
       };
 
-      this.isReplying = false;
       this.saveNote(replyData)
-        .then(() => {
-          clearDraft(this.autosaveKey);
+        .then(res => {
+          if (res.hasFlash !== true) {
+            this.isReplying = false;
+            clearDraft(this.autosaveKey);
+          }
           callback();
         })
         .catch(err => {
           this.removePlaceholderNotes();
-          this.isReplying = true;
-          this.$nextTick(() => {
-            const msg = __(
-              'Your comment could not be submitted! Please check your network connection and try again.',
-            );
-            Flash(msg, 'alert', this.$el);
-            this.$refs.noteForm.note = noteText;
-            callback(err);
-          });
+          const msg = __(
+            'Your comment could not be submitted! Please check your network connection and try again.',
+          );
+          Flash(msg, 'alert', this.$el);
+          this.$refs.noteForm.note = noteText;
+          callback(err);
         });
     },
     jumpToNextDiscussion() {
@@ -315,7 +317,7 @@ export default {
                       @cancelForm="cancelReplyForm"
                     />
                   </div>
-                  <note-signed-out-widget v-if="!userCanReply" />
+                  <note-signed-out-widget v-if="!isLoggedIn" />
                 </div>
               </template>
             </discussion-notes>

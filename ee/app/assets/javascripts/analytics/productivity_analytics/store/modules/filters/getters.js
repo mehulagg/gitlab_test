@@ -14,12 +14,12 @@ import { dateFormats } from '../../../../shared/constants';
  *   author_username: 'author',
  *   milestone_title: 'my milestone',
  *   label_name: ['my label', 'yet another label'],
- *   merged_at_after: '2019-06-11T00:00:00Z'
- *   merged_at_before: '2019-09-09T23:59:59Z'
+ *   merged_after: '2019-06-11T00:00:00Z'
+ *   merged_before: '2019-09-09T23:59:59Z'
  * }
  *
  */
-export const getCommonFilterParams = state => chartKey => {
+export const getCommonFilterParams = (state, getters) => chartKey => {
   const {
     groupNamespace,
     projectPath,
@@ -30,10 +30,10 @@ export const getCommonFilterParams = state => chartKey => {
     milestoneTitle,
   } = state;
 
-  // for the scatterplot we need to remove 30 days from the state's merged_at_after date
-  const mergedAtAfterDate =
+  // for the scatterplot we need to query the API with a date prior to the selected start date
+  const mergedAfterDate =
     chartKey && chartKey === chartKeys.scatterplot
-      ? dateFormat(getDateInPast(startDate, scatterPlotAddonQueryDays), dateFormats.isoDate)
+      ? dateFormat(getters.scatterplotStartDate, dateFormats.isoDate)
       : dateFormat(startDate, dateFormats.isoDate);
 
   return {
@@ -42,10 +42,22 @@ export const getCommonFilterParams = state => chartKey => {
     author_username: authorUsername,
     milestone_title: milestoneTitle,
     label_name: labelName,
-    merged_at_after: `${mergedAtAfterDate}${beginOfDayTime}`,
-    merged_at_before: `${dateFormat(endDate, dateFormats.isoDate)}${endOfDayTime}`,
+    merged_after: `${mergedAfterDate}${beginOfDayTime}`,
+    merged_before: `${dateFormat(endDate, dateFormats.isoDate)}${endOfDayTime}`,
   };
 };
 
-// prevent babel-plugin-rewire from generating an invalid default during karma tests
-export default () => {};
+/**
+ * Returns the start date for the scatterplot.
+ * It computes a dateInPast based on the selected startDate
+ * and a default number of offset days (offsetDays)
+ *
+ * When a minDate exists and the minDate is after the computed dateInPast,
+ * the minDate is returned. Otherwise the computed dateInPast is returned.
+ */
+export const scatterplotStartDate = state => {
+  const { startDate, minDate } = state;
+  const dateInPast = getDateInPast(startDate, scatterPlotAddonQueryDays);
+
+  return minDate && minDate > dateInPast ? minDate : dateInPast;
+};

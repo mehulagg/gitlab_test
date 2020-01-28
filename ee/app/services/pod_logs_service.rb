@@ -7,14 +7,15 @@ class PodLogsService < ::BaseService
 
   K8S_NAME_MAX_LENGTH = 253
 
-  PARAMS = %w(pod_name container_name).freeze
+  PARAMS = %w(pod_name container_name search start end).freeze
 
-  SUCCESS_RETURN_KEYS = [:status, :logs, :pod_name, :container_name, :pods].freeze
+  SUCCESS_RETURN_KEYS = [:status, :logs, :pod_name, :container_name, :pods, :enable_advanced_querying].freeze
 
   steps :check_param_lengths,
     :check_deployment_platform,
     :check_pod_names,
     :check_pod_name,
+    :check_times,
     :pod_logs,
     :filter_return_keys
 
@@ -72,17 +73,29 @@ class PodLogsService < ::BaseService
     success(result)
   end
 
+  def check_times(result)
+    Time.iso8601(params['start']) if params['start']
+    Time.iso8601(params['end']) if params['end']
+
+    success(result)
+  rescue ArgumentError
+    error(_('Invalid start or end time format'))
+  end
+
   def pod_logs(result)
     response = environment.deployment_platform.read_pod_logs(
       environment.id,
       result[:pod_name],
       namespace,
-      container: result[:container_name]
+      container: result[:container_name],
+      search: params['search'],
+      start_time: params['start'],
+      end_time: params['end']
     )
 
     return { status: :processing } unless response
 
-    result.merge!(response.slice(:pod_name, :container_name, :logs))
+    result.merge!(response.slice(:pod_name, :container_name, :logs, :enable_advanced_querying))
 
     if response[:status] == :error
       error(response[:error]).reverse_merge(result)

@@ -76,7 +76,7 @@ describe API::Releases do
         mr_uri = URI.parse(links['merge_requests_url'])
         issue_uri = URI.parse(links['issues_url'])
 
-        expect(mr_uri.path).to eq("#{path_base}/merge_requests")
+        expect(mr_uri.path).to eq("#{path_base}/-/merge_requests")
         expect(issue_uri.path).to eq("#{path_base}/issues")
         expect(mr_uri.query).to eq(expected_query)
         expect(issue_uri.query).to eq(expected_query)
@@ -112,6 +112,16 @@ describe API::Releases do
         expect(json_response.count).to eq(1)
         expect(json_response.first['tag_name']).to eq('v1.1.5')
         expect(release).to be_tag_missing
+      end
+    end
+
+    context 'when tag contains a slash' do
+      let!(:release) { create(:release, project: project, tag: 'debian/2.4.0-1', description: "debian/2.4.0-1") }
+
+      it 'returns 200 HTTP status' do
+        get api("/projects/#{project.id}/releases", maintainer)
+
+        expect(response).to have_gitlab_http_status(:ok)
       end
     end
 
@@ -340,6 +350,40 @@ describe API::Releases do
 
           expect(response).to have_gitlab_http_status(:ok)
         end
+
+        context 'when release is associated to a milestone' do
+          let!(:release) do
+            create(:release, tag: 'v0.1', project: project, milestones: [milestone])
+          end
+
+          let(:milestone) { create(:milestone, project: project) }
+
+          it 'exposes milestones' do
+            get api("/projects/#{project.id}/releases/v0.1", non_project_member)
+
+            expect(json_response['milestones'].first['title']).to eq(milestone.title)
+          end
+
+          context 'when project restricts visibility of issues and merge requests' do
+            let!(:project) { create(:project, :repository, :public, :issues_private, :merge_requests_private) }
+
+            it 'does not expose milestones' do
+              get api("/projects/#{project.id}/releases/v0.1", non_project_member)
+
+              expect(json_response['milestones']).to be_nil
+            end
+          end
+
+          context 'when project restricts visibility of issues' do
+            let!(:project) { create(:project, :repository, :public, :issues_private) }
+
+            it 'exposes milestones' do
+              get api("/projects/#{project.id}/releases/v0.1", non_project_member)
+
+              expect(json_response['milestones'].first['title']).to eq(milestone.title)
+            end
+          end
+        end
       end
     end
   end
@@ -554,6 +598,43 @@ describe API::Releases do
               expect(response).to have_gitlab_http_status(:bad_request)
             end
           end
+        end
+      end
+    end
+
+    context 'when using JOB-TOKEN auth' do
+      let(:job) { create(:ci_build, user: maintainer) }
+      let(:params) do
+        {
+          name: 'Another release',
+          tag_name: 'v0.2',
+          description: 'Another nice release',
+          released_at: '2019-04-25T10:00:00+09:00'
+        }
+      end
+
+      context 'when no token is provided' do
+        it 'returns a :not_found error' do
+          post api("/projects/#{project.id}/releases"), params: params
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+
+      context 'when an invalid token is provided' do
+        it 'returns an :unauthorized error' do
+          post api("/projects/#{project.id}/releases"), params: params.merge(job_token: 'yadayadayada')
+
+          expect(response).to have_gitlab_http_status(:unauthorized)
+        end
+      end
+
+      context 'when a valid token is provided' do
+        it 'creates the release' do
+          post api("/projects/#{project.id}/releases"), params: params.merge(job_token: job.token)
+
+          expect(response).to have_gitlab_http_status(:created)
+          expect(project.releases.last.description).to eq('Another nice release')
         end
       end
     end

@@ -105,7 +105,7 @@ ahead and select this one, but please choose the size which best meets your own 
 
 ![Azure - Create Virtual Machine - Size](img/azure-create-virtual-machine-size.png)
 
-> **Note:** be aware that whilst your VM is active (known as "allocated"), it will incur
+> **Note:** be aware that while your VM is active (known as "allocated"), it will incur
 "compute charges" which, ultimately, you will be billed for. So, even if you're using the
 free trial credits, you'll likely want to learn
 [how to properly shutdown an Azure VM to save money](https://buildazure.com/properly-shutdown-azure-vm-to-save-money/).
@@ -226,7 +226,7 @@ connections:
 ![Azure - Add inbound security rules - HTTP](img/azure-add-inbound-sec-rule-http.png)
 
 1. Enter **"HTTP"** in the `Name` field
-1. Select **HTTP** from the options in the `Service` drop-down
+1. Select **HTTP** from the options in the `Service` dropdown list
 1. Make sure the `Action` is set to **Allow**
 1. Click **"OK"**
 
@@ -238,7 +238,7 @@ accept [SSH] connections:
 ![Azure - Add inbound security rules - SSH](img/azure-add-inbound-sec-rule-ssh.png)
 
 1. Enter **"SSH"** in the `Name` field
-1. Select **SSH** from the options in the `Service` drop-down
+1. Select **SSH** from the options in the `Service` dropdown list
 1. Make sure the `Action` is set to **Allow**
 1. Click **"OK"**
 

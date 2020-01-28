@@ -144,6 +144,7 @@ module EE
       scope :aimed_for_deletion, -> (date) { where('marked_for_deletion_at <= ?', date).without_deleted }
       scope :with_repos_templates, -> { where(namespace_id: ::Gitlab::CurrentSettings.current_application_settings.custom_project_templates_group_id) }
       scope :with_groups_level_repos_templates, -> { joins("INNER JOIN namespaces ON projects.namespace_id = namespaces.custom_project_templates_group_id") }
+      scope :with_designs, -> { where(id: DesignManagement::Design.select(:project_id)) }
 
       delegate :shared_runners_minutes, :shared_runners_seconds, :shared_runners_seconds_last_reset,
         to: :statistics, allow_nil: true
@@ -158,10 +159,14 @@ module EE
       delegate :log_jira_dvcs_integration_usage, :jira_dvcs_server_last_sync_at, :jira_dvcs_cloud_last_sync_at, to: :feature_usage
 
       delegate :merge_pipelines_enabled, :merge_pipelines_enabled=, :merge_pipelines_enabled?, :merge_pipelines_were_disabled?, to: :ci_cd_settings
-      delegate :merge_trains_enabled, :merge_trains_enabled=, :merge_trains_enabled?, to: :ci_cd_settings
+      delegate :merge_trains_enabled?, to: :ci_cd_settings
+      delegate :actual_limits, :actual_plan_name, to: :namespace, allow_nil: true
 
       validates :repository_size_limit,
         numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true }
+      validates :max_pages_size,
+        numericality: { only_integer: true, greater_than: 0, allow_nil: true,
+                        less_than: ::Gitlab::Pages::MAX_SIZE / 1.megabyte }
 
       validates :approvals_before_merge, numericality: true, allow_blank: true
 
@@ -190,19 +195,6 @@ module EE
       def with_slack_application_disabled
         joins('LEFT JOIN services ON services.project_id = projects.id AND services.type = \'GitlabSlackApplicationService\' AND services.active IS true')
           .where('services.id IS NULL')
-      end
-
-      def inner_join_design_management
-        join_statement =
-          arel_table
-            .join(DesignManagement::Design.arel_table, Arel::Nodes::InnerJoin)
-            .on(arel_table[:id].eq(DesignManagement::Design.arel_table[:project_id]))
-
-        joins(join_statement.join_sources)
-      end
-
-      def count_designs
-        inner_join_design_management.distinct.count
       end
     end
 
@@ -297,6 +289,7 @@ module EE
       ::Feature.enabled?(feature, self) ||
         (::Feature.enabled?(feature) && feature_available?(feature))
     end
+    alias_method :alpha_feature_available?, :beta_feature_available?
 
     def push_audit_events_enabled?
       ::Feature.enabled?(:repository_push_audit_event, self)
@@ -316,6 +309,10 @@ module EE
 
     def code_owner_approval_required_available?
       feature_available?(:code_owner_approval_required)
+    end
+
+    def scoped_approval_rules_enabled?
+      ::Feature.enabled?(:scoped_approval_rules, self, default_enabled: true)
     end
 
     def service_desk_enabled
@@ -403,14 +400,11 @@ module EE
       end
     end
 
-    def visible_user_defined_rules
-      strong_memoize(:visible_user_defined_rules) do
-        rules = approval_rules.regular_or_any_approver.order(rule_type: :desc, id: :asc)
+    def visible_user_defined_rules(branch: nil)
+      return user_defined_rules.take(1) unless multiple_approval_rules_available?
+      return user_defined_rules unless branch
 
-        next rules.take(1) unless multiple_approval_rules_available?
-
-        rules
-      end
+      user_defined_rules.applicable_to_branch(branch)
     end
 
     # TODO: Clean up this method in the https://gitlab.com/gitlab-org/gitlab/issues/33329
@@ -585,7 +579,11 @@ module EE
     def protected_environment_by_name(environment_name)
       return unless protected_environments_feature_available?
 
-      protected_environments.find_by(name: environment_name)
+      key = "protected_environment_by_name:#{id}:#{environment_name}"
+
+      ::Gitlab::SafeRequestStore.fetch(key) do
+        protected_environments.find_by(name: environment_name)
+      end
     end
 
     override :after_import
@@ -662,16 +660,24 @@ module EE
         # hashed storage requirement for existing design management projects.
         # See https://gitlab.com/gitlab-org/gitlab/issues/13428#note_238729038
         (hashed_storage?(:repository) || ::Feature.disabled?(:design_management_require_hashed_storage, self, default_enabled: true)) &&
-        # Check both feature availability on the license, as well as the feature
-        # flag, because we don't want to enable design_management by default on
-        # on prem installs yet.
-        # See https://gitlab.com/gitlab-org/gitlab/issues/13709
-        feature_available?(:design_management) &&
-        ::Feature.enabled?(:design_management_flag, self, default_enabled: true)
+        feature_available?(:design_management)
     end
 
     def design_repository
-      @design_repository ||= DesignManagement::Repository.new(self)
+      strong_memoize(:design_repository) do
+        DesignManagement::Repository.new(self)
+      end
+    end
+
+    override(:expire_caches_before_rename)
+    def expire_caches_before_rename(old_path)
+      super
+
+      design = ::Repository.new("#{old_path}#{EE::Gitlab::GlRepository::DESIGN.path_suffix}", self)
+
+      if design.exists?
+        design.before_delete
+      end
     end
 
     def alerts_service_available?
@@ -696,9 +702,15 @@ module EE
     end
 
     def marked_for_deletion?
-      return false unless feature_available?(:marking_project_for_deletion)
+      marked_for_deletion_at.present? &&
+        feature_available?(:marking_project_for_deletion)
+    end
 
-      marked_for_deletion_at.present?
+    def ancestor_marked_for_deletion
+      return unless feature_available?(:adjourned_deletion_for_projects_and_groups)
+
+      ancestors(hierarchy_order: :asc)
+        .joins(:deletion_schedule).first
     end
 
     def has_packages?(package_type)
@@ -752,6 +764,12 @@ module EE
 
       unless ::Gitlab::GitRefValidator.validate("#{pull_mirror_branch_prefix}master")
         errors.add(:pull_mirror_branch_prefix, _('Invalid Git ref'))
+      end
+    end
+
+    def user_defined_rules
+      strong_memoize(:user_defined_rules) do
+        approval_rules.regular_or_any_approver.order(rule_type: :desc, id: :asc)
       end
     end
   end

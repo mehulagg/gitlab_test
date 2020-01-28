@@ -1,10 +1,11 @@
 import { shallowMount, RouterLinkStub } from '@vue/test-utils';
+import { GlLoadingIcon } from '@gitlab/ui';
 import ParentRow from '~/repository/components/table/parent_row.vue';
 
 let vm;
 let $router;
 
-function factory(path) {
+function factory(path, loadingPath) {
   $router = {
     push: jest.fn(),
   };
@@ -13,6 +14,7 @@ function factory(path) {
     propsData: {
       commitRef: 'master',
       path,
+      loadingPath,
     },
     stubs: {
       RouterLink: RouterLinkStub,
@@ -30,8 +32,8 @@ describe('Repository parent row component', () => {
 
   it.each`
     path            | to
-    ${'app'}        | ${'/tree/master/'}
-    ${'app/assets'} | ${'/tree/master/app'}
+    ${'app'}        | ${'/-/tree/master/'}
+    ${'app/assets'} | ${'/-/tree/master/app'}
   `('renders link in $path to $to', ({ path, to }) => {
     factory(path);
 
@@ -46,7 +48,7 @@ describe('Repository parent row component', () => {
     vm.find('td').trigger('click');
 
     expect($router.push).toHaveBeenCalledWith({
-      path: '/tree/master/app',
+      path: '/-/tree/master/app',
     });
   });
 
@@ -58,7 +60,13 @@ describe('Repository parent row component', () => {
     vm.find('a').trigger('click');
 
     expect($router.push).not.toHaveBeenCalledWith({
-      path: '/tree/master/app',
+      path: '/-/tree/master/app',
     });
+  });
+
+  it('renders loading icon when loading parent', () => {
+    factory('app/assets', 'app');
+
+    expect(vm.find(GlLoadingIcon).exists()).toBe(true);
   });
 });

@@ -31,7 +31,10 @@ class Issue < ApplicationRecord
   belongs_to :duplicated_to, class_name: 'Issue'
   belongs_to :closed_by, class_name: 'User'
 
-  has_internal_id :iid, scope: :project, init: ->(s) { s&.project&.issues&.maximum(:iid) }
+  has_internal_id :iid, scope: :project, track_if: -> { !importing? }, init: ->(s) { s&.project&.issues&.maximum(:iid) }
+
+  has_many :issue_milestones
+  has_many :milestones, through: :issue_milestones
 
   has_many :events, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
@@ -42,6 +45,10 @@ class Issue < ApplicationRecord
   has_many :issue_assignees
   has_many :assignees, class_name: "User", through: :issue_assignees
   has_many :zoom_meetings
+  has_many :user_mentions, class_name: "IssueUserMention"
+  has_one :sentry_issue
+
+  accepts_nested_attributes_for :sentry_issue
 
   validates :project, presence: true
 
@@ -71,8 +78,8 @@ class Issue < ApplicationRecord
 
   ignore_column :state, remove_with: '12.7', remove_after: '2019-12-22'
 
-  after_commit :expire_etag_cache
-  after_save :ensure_metrics, unless: :imported?
+  after_commit :expire_etag_cache, unless: :importing?
+  after_save :ensure_metrics, unless: :importing?
 
   attr_spammable :title, spam_title: true
   attr_spammable :description, spam_description: true
@@ -238,7 +245,7 @@ class Issue < ApplicationRecord
 
     return false unless readable_by?(user)
 
-    user.full_private_access? ||
+    user.can_read_all_resources? ||
       ::Gitlab::ExternalAuthorization.access_allowed?(
         user, project.external_authorization_classification_label)
   end

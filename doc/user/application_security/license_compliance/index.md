@@ -52,7 +52,7 @@ The following languages and package managers are supported.
 | JavaScript | [Bower](https://bower.io/), [npm](https://www.npmjs.com/), [yarn](https://yarnpkg.com/) ([experimental support](https://github.com/pivotal/LicenseFinder#experimental-project-types)) |[License Finder](https://github.com/pivotal/LicenseFinder)|
 | Go         | [Godep](https://github.com/tools/godep), go get ([experimental support](https://github.com/pivotal/LicenseFinder#experimental-project-types)), gvt ([experimental support](https://github.com/pivotal/LicenseFinder#experimental-project-types)), glide ([experimental support](https://github.com/pivotal/LicenseFinder#experimental-project-types)), dep ([experimental support](https://github.com/pivotal/LicenseFinder#experimental-project-types)), trash ([experimental support](https://github.com/pivotal/LicenseFinder#experimental-project-types))  and govendor ([experimental support](https://github.com/pivotal/LicenseFinder#experimental-project-types)), [go mod](https://github.com/golang/go/wiki/Modules) ([experimental support](https://github.com/pivotal/LicenseFinder#experimental-project-types))   |[License Finder](https://github.com/pivotal/LicenseFinder)|
 | Java       | [Gradle](https://gradle.org/), [Maven](https://maven.apache.org/) |[License Finder](https://github.com/pivotal/LicenseFinder)|
-| .NET       | [Nuget](https://www.nuget.org/)                                   |[License Finder](https://github.com/pivotal/LicenseFinder)|
+| .NET      | [Nuget](https://www.nuget.org/) (.NET Framework is supported via the [mono project](https://www.mono-project.com/). Windows specific dependencies are not supported at this time.)  |[License Finder](https://github.com/pivotal/LicenseFinder)|
 | Python     | [pip](https://pip.pypa.io/en/stable/)                             |[License Finder](https://github.com/pivotal/LicenseFinder)|
 | Ruby       | [gem](https://rubygems.org/)                                      |[License Finder](https://github.com/pivotal/LicenseFinder)|
 | Erlang     | [rebar](https://www.rebar3.org/) ([experimental support](https://github.com/pivotal/LicenseFinder#experimental-project-types))|[License Finder](https://github.com/pivotal/LicenseFinder)|
@@ -179,9 +179,10 @@ If you still need to run tests during `mvn install`, add `-DskipTests=false` to
 ### Selecting the version of Python
 
 > - [Introduced](https://gitlab.com/gitlab-org/security-products/license-management/merge_requests/36) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.0.
-> - In GitLab 12.2, Python 3.5 became the default.
+> - In [GitLab 12.2](https://gitlab.com/gitlab-org/gitlab/issues/12032), Python 3.5 became the default.
+> - In [GitLab 12.7](https://gitlab.com/gitlab-org/security-products/license-management/merge_requests/101), Python 3.8 became the default.
 
-License Compliance uses Python 3.5 and pip 19.1 by default.
+License Compliance uses Python 3.8 and pip 19.1 by default.
 If your project requires Python 2, you can switch to Python 2.7 and pip 10.0
 by setting the `LM_PYTHON_VERSION` environment variable to `2`.
 
@@ -253,3 +254,25 @@ questions that you know someone might ask.
 Each scenario can be a third-level heading, e.g. `### Getting error message X`.
 If you have none to add when creating a doc, leave this section in place
 but commented out to help encourage others to add to it in the future. -->
+
+## License list
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-ee/issues/13582) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.7.
+
+The License list allows you to see your project's licenses and key
+details about them.
+
+In order for the licenses to appear under the license list, the following
+requirements must be met:
+
+1. The License Compliance CI job must be [configured](#configuration) for your project.
+1. Your project must use at least one of the
+   [supported languages and package managers](#supported-languages-and-package-managers).
+
+Once everything is set, navigate to **Security & Compliance > License Compliance**
+in your project's sidebar, and you'll see the licenses displayed, where:
+
+- **Name:** The name of the license.
+- **Component:** The components which have this license.
+
+![License List](img/license_list_v12_6.png)

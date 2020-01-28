@@ -30,11 +30,14 @@ describe('Design overlay component', () => {
 
   function createComponent(props = {}) {
     wrapper = shallowMount(DesignOverlay, {
-      sync: false,
       propsData: {
-        position: {
+        dimensions: {
           width: 100,
           height: 100,
+        },
+        position: {
+          top: '0',
+          left: '0',
         },
         ...props,
       },
@@ -45,7 +48,7 @@ describe('Design overlay component', () => {
     createComponent();
 
     expect(wrapper.find('.image-diff-overlay').attributes().style).toBe(
-      'width: 100px; height: 100px;',
+      'width: 100px; height: 100px; top: 0px; left: 0px;',
     );
   });
 
@@ -53,7 +56,9 @@ describe('Design overlay component', () => {
     createComponent();
     wrapper.find('.image-diff-overlay-add-comment').trigger('click', { offsetX: 10, offsetY: 10 });
 
-    expect(wrapper.emitted('openCommentForm')).toEqual([[{ x: 10, y: 10 }]]);
+    return wrapper.vm.$nextTick().then(() => {
+      expect(wrapper.emitted('openCommentForm')).toEqual([[{ x: 10, y: 10 }]]);
+    });
   });
 
   describe('when has notes', () => {
@@ -91,7 +96,7 @@ describe('Design overlay component', () => {
   it('should recalculate badges positions on window resize', () => {
     createComponent({
       notes,
-      position: {
+      dimensions: {
         width: 400,
         height: 400,
       },
@@ -100,7 +105,7 @@ describe('Design overlay component', () => {
     expect(findFirstBadge().attributes().style).toBe('left: 40px; top: 60px;');
 
     wrapper.setProps({
-      position: {
+      dimensions: {
         width: 200,
         height: 200,
       },

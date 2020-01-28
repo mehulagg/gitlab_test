@@ -7,9 +7,9 @@ describe Projects::Serverless::FunctionsController do
   include ReactiveCachingHelpers
 
   let(:user) { create(:user) }
-  let(:cluster) { create(:cluster, :project, :provided_by_gcp) }
+  let(:project) { create(:project, :repository) }
+  let(:cluster) { create(:cluster, :project, :provided_by_gcp, projects: [project]) }
   let(:service) { cluster.platform_kubernetes }
-  let(:project) { cluster.project }
   let(:environment) { create(:environment, project: project) }
   let!(:deployment) { create(:deployment, :success, environment: environment, cluster: cluster) }
   let(:knative_services_finder) { environment.knative_services_finder }
@@ -149,6 +149,14 @@ describe Projects::Serverless::FunctionsController do
 
         include_examples 'GET #show with valid data'
       end
+
+      context 'on Knative 0.9.0' do
+        before do
+          prepare_knative_stubs(knative_09_service(knative_stub_options))
+        end
+
+        include_examples 'GET #show with valid data'
+      end
     end
   end
 
@@ -206,6 +214,14 @@ describe Projects::Serverless::FunctionsController do
     context 'on Knative 0.7.0' do
       before do
         prepare_knative_stubs(knative_07_service(knative_stub_options))
+      end
+
+      include_examples 'GET #index with data'
+    end
+
+    context 'on Knative 0.9.0' do
+      before do
+        prepare_knative_stubs(knative_09_service(knative_stub_options))
       end
 
       include_examples 'GET #index with data'

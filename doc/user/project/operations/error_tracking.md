@@ -10,7 +10,7 @@ Error tracking allows developers to easily discover and view the errors that the
 
 ### Deploying Sentry
 
-You may sign up to the cloud hosted <https://sentry.io> or deploy your own [on-premise instance](https://docs.sentry.io/server/installation/).
+You may sign up to the cloud hosted <https://sentry.io>, deploy your own [on-premise instance](https://docs.sentry.io/server/installation/) or use GitLab to [install Sentry to a Kubernetes cluster](../../clusters/applications.md#install-sentry-using-gitlab-ci).
 
 ### Enabling Sentry
 
@@ -42,9 +42,9 @@ NOTE: **Note:**
 You will need at least Reporter [permissions](../../permissions.md) to view the Error Tracking list.
 
 The Error Tracking list may be found at **Operations > Error Tracking** in your project's sidebar.
-Errors can be filtered by title.
+Errors can be filtered by title or sorted by Frequency, First Seen or Last Seen. Errors are always sorted in descending order by the field specified.
 
-![Error Tracking list](img/error_tracking_list.png)
+![Error Tracking list](img/error_tracking_list_v12_6.png)
 
 ## Error Details
 
@@ -52,7 +52,37 @@ From error list, users can navigate to the error details page by clicking the ti
 
 This page has:
 
-- A link to Sentry issue.
-- A full stack trace along with other details.
+- A link to the Sentry issue.
+- A link to the GitLab commit if the Sentry [release id/version](https://docs.sentry.io/workflow/releases/?platform=javascript#configure-sdk) on the Sentry Issue's first release matches a commit SHA in your GitLab hosted project.
+- Other details about the issue, including a full stack trace.
+- In [GitLab 12.7 and newer](https://gitlab.com/gitlab-org/gitlab/issues/36246), language and urgency are displayed.
 
-![Error Details](img/error_details_v12_5.png)
+By default, a **Create issue** button is displayed:
+
+![Error Details without Issue Link](img/error_details_v12_7.png)
+
+If you create a GitLab issue from the error, the **Create issue** button will change to a **View issue** button:
+
+![Error Details with Issue Link](img/error_details_with_issue_v12_7.png)
+
+## Taking Action on errors
+
+You can take action on Sentry Errors from within the GitLab UI.
+
+### Ignoring errors
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/39665) in GitLab 12.7.
+
+From within the [Error Details](#error-details) page you can ignore a Sentry error by simply clicking the **Ignore** button near the top of the page.
+
+Ignoring an error will prevent it from appearing in the [Error Tracking List](#error-tracking-list), and will silence notifications that were set up within Sentry.
+
+### Resolving errors
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/39825) in GitLab 12.7.
+
+From within the [Error Details](#error-details) page you can resolve a Sentry error by
+clicking the **Resolve** button near the top of the page.
+
+Marking an error as resolved indicates that the error has stopped firing events. If another event
+occurs, the error reverts to unresolved.

@@ -2,29 +2,22 @@
 
 require 'fast_spec_helper'
 require 'rspec-parameterized'
+require_relative 'danger_spec_helper'
 
 require 'gitlab/danger/helper'
 
 describe Gitlab::Danger::Helper do
   using RSpec::Parameterized::TableSyntax
-
-  class FakeDanger
-    include Gitlab::Danger::Helper
-
-    attr_reader :git, :gitlab
-
-    def initialize(git:, gitlab:)
-      @git = git
-      @gitlab = gitlab
-    end
-  end
+  include DangerSpecHelper
 
   let(:fake_git) { double('fake-git') }
 
   let(:mr_author) { nil }
   let(:fake_gitlab) { double('fake-gitlab', mr_author: mr_author) }
 
-  subject(:helper) { FakeDanger.new(git: fake_git, gitlab: fake_gitlab) }
+  let(:fake_danger) { new_fake_danger.include(described_class) }
+
+  subject(:helper) { fake_danger.new(git: fake_git, gitlab: fake_gitlab) }
 
   describe '#gitlab_helper' do
     context 'when gitlab helper is not available' do
@@ -317,6 +310,41 @@ describe Gitlab::Danger::Helper do
       let(:current_mr_labels) { ['feature'] }
 
       it { is_expected.to match_array(['database', 'database::review pending']) }
+    end
+  end
+
+  describe '#sanitize_mr_title' do
+    where(:mr_title, :expected_mr_title) do
+      'My MR title'      | 'My MR title'
+      'WIP: My MR title' | 'My MR title'
+    end
+
+    with_them do
+      subject { helper.sanitize_mr_title(mr_title) }
+
+      it { is_expected.to eq(expected_mr_title) }
+    end
+  end
+
+  describe '#security_mr?' do
+    it 'returns false when `gitlab_helper` is unavailable' do
+      expect(helper).to receive(:gitlab_helper).and_return(nil)
+
+      expect(helper).not_to be_security_mr
+    end
+
+    it 'returns false when on a normal merge request' do
+      expect(fake_gitlab).to receive(:mr_json)
+        .and_return('web_url' => 'https://gitlab.com/gitlab-org/gitlab/-/merge_requests/1')
+
+      expect(helper).not_to be_security_mr
+    end
+
+    it 'returns true when on a security merge request' do
+      expect(fake_gitlab).to receive(:mr_json)
+        .and_return('web_url' => 'https://gitlab.com/gitlab-org/security/gitlab/-/merge_requests/1')
+
+      expect(helper).to be_security_mr
     end
   end
 end

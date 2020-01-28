@@ -8,6 +8,7 @@ export const SEVERITY_LEVELS = {
   unknown: s__('severity|Unknown'),
   info: s__('severity|Info'),
   undefined: s__('severity|Undefined'),
+  none: s__('severity|None'),
 };
 
 export const CONFIDENCE_LEVELS = {
@@ -26,4 +27,11 @@ export const REPORT_TYPES = {
   dast: s__('ciReport|DAST'),
   dependency_scanning: s__('ciReport|Dependency Scanning'),
   sast: s__('ciReport|SAST'),
+};
+
+export const DASHBOARD_TYPES = {
+  PROJECT: 'project',
+  PIPELINE: 'pipeline',
+  GROUP: 'group',
+  INSTANCE: 'instance',
 };

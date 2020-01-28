@@ -5,7 +5,7 @@ describe('Event Item', () => {
   let wrapper;
 
   const mountComponent = (options, mountFn = shallowMount) => {
-    wrapper = mountFn(Component, { sync: false, attachToDocument: true, ...options });
+    wrapper = mountFn(Component, options);
   };
 
   describe('initial state', () => {
@@ -84,10 +84,16 @@ describe('Event Item', () => {
     it('emits the button events when clicked', () => {
       const buttons = wrapper.findAll('.action-buttons > button');
       buttons.at(0).trigger('click');
-      buttons.at(1).trigger('click');
-
-      expect(wrapper.emitted().fooEvent.length).toEqual(1);
-      expect(wrapper.emitted().barEvent.length).toEqual(1);
+      return wrapper.vm
+        .$nextTick()
+        .then(() => {
+          buttons.at(1).trigger('click');
+          return wrapper.vm.$nextTick();
+        })
+        .then(() => {
+          expect(wrapper.emitted().fooEvent.length).toEqual(1);
+          expect(wrapper.emitted().barEvent.length).toEqual(1);
+        });
     });
   });
 });

@@ -1,11 +1,11 @@
 <script>
 import _ from 'underscore';
-import { sprintf, s__, __ } from '~/locale';
-import Project from '~/pages/projects/project';
-import SmartInterval from '~/smart_interval';
 import MRWidgetStore from 'ee_else_ce/vue_merge_request_widget/stores/mr_widget_store';
 import MRWidgetService from 'ee_else_ce/vue_merge_request_widget/services/mr_widget_service';
 import stateMaps from 'ee_else_ce/vue_merge_request_widget/stores/state_maps';
+import { sprintf, s__, __ } from '~/locale';
+import Project from '~/pages/projects/project';
+import SmartInterval from '~/smart_interval';
 import createFlash from '../flash';
 import Loading from './components/loading.vue';
 import WidgetHeader from './components/mr_widget_header.vue';
@@ -121,8 +121,14 @@ export default {
       );
     },
     mergeError() {
+      let { mergeError } = this.mr;
+
+      if (mergeError && mergeError.slice(-1) === '.') {
+        mergeError = mergeError.slice(0, -1);
+      }
+
       return sprintf(s__('mrWidget|Merge failed: %{mergeError}. Please try again.'), {
-        mergeError: this.mr.mergeError,
+        mergeError,
       });
     },
   },
@@ -135,15 +141,11 @@ export default {
     },
   },
   mounted() {
-    if (gon && gon.features && gon.features.asyncMrWidget) {
-      MRWidgetService.fetchInitialData()
-        .then(({ data }) => this.initWidget(data))
-        .catch(() =>
-          createFlash(__('Unable to load the merge request widget. Try reloading the page.')),
-        );
-    } else {
-      this.initWidget();
-    }
+    MRWidgetService.fetchInitialData()
+      .then(({ data }) => this.initWidget(data))
+      .catch(() =>
+        createFlash(__('Unable to load the merge request widget. Try reloading the page.')),
+      );
   },
   beforeDestroy() {
     eventHub.$off('mr.discussion.updated', this.checkStatus);

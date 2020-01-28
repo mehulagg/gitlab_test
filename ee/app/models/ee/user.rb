@@ -125,12 +125,12 @@ module EE
 
       override :internal
       def internal
-        super.or(where.not(bot_type: nil))
+        super.or(bots)
       end
 
       override :non_internal
       def non_internal
-        super.where(bot_type: nil)
+        super.humans
       end
 
       def non_ldap
@@ -253,6 +253,13 @@ module EE
         .any?
     end
 
+    def has_paid_namespace?
+      ::Namespace
+        .from("(#{namespace_union_for_reporter_developer_maintainer_owned(:plan_id)}) #{::Namespace.table_name}")
+        .where(plan_id: Plan.where(name: Plan::PAID_HOSTED_PLANS).select(:id))
+        .any?
+    end
+
     def any_namespace_with_gold?
       ::Namespace
         .includes(:plan)
@@ -268,11 +275,25 @@ module EE
 
     def using_license_seat?
       return false unless active?
+      return false if support_bot? || ghost?
+      return false unless License.current
 
-      if License.current&.exclude_guests_from_active_count?
+      if License.current.exclude_guests_from_active_count?
         highest_role > ::Gitlab::Access::GUEST
       else
-        highest_role > ::Gitlab::Access::NO_ACCESS
+        true
+      end
+    end
+
+    def using_gitlab_com_seat?(namespace)
+      return false unless ::Gitlab.com?
+      return false unless namespace.present?
+      return false if namespace.free_plan?
+
+      if namespace.gold_plan?
+        highest_role > ::Gitlab::Access::GUEST
+      else
+        true
       end
     end
 
@@ -325,6 +346,14 @@ module EE
       read_attribute(:support_bot)
     end
 
+    def security_dashboard_project_ids
+      if self.can?(:read_all_resources)
+        security_dashboard_projects.ids
+      else
+        security_dashboard_projects.visible_to_user(self).ids
+      end
+    end
+
     protected
 
     override :password_required?
@@ -340,6 +369,13 @@ module EE
       ::Gitlab::SQL::Union.new([
         ::Namespace.select(select).where(type: nil, owner: self),
         owned_groups.select(select).where(parent_id: nil)
+      ]).to_sql
+    end
+
+    def namespace_union_for_reporter_developer_maintainer_owned(select = :id)
+      ::Gitlab::SQL::Union.new([
+        ::Namespace.select(select).where(type: nil, owner: self),
+        reporter_developer_maintainer_owned_groups.select(select).where(parent_id: nil)
       ]).to_sql
     end
   end

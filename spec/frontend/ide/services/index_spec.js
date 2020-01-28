@@ -2,7 +2,7 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import services from '~/ide/services';
 import Api from '~/api';
-import { escapeFileUrl } from '~/ide/stores/utils';
+import { escapeFileUrl } from '~/lib/utils/url_utility';
 
 jest.mock('~/api');
 
@@ -97,7 +97,7 @@ describe('IDE services', () => {
 
           mock
             .onGet(
-              `${relativeUrlRoot}/${TEST_PROJECT_ID}/raw/${TEST_COMMIT_SHA}/${escapeFileUrl(
+              `${relativeUrlRoot}/${TEST_PROJECT_ID}/-/raw/${TEST_COMMIT_SHA}/${escapeFileUrl(
                 filePath,
               )}`,
             )

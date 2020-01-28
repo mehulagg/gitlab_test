@@ -111,7 +111,9 @@ GET /users
     "can_create_project": true,
     "two_factor_enabled": true,
     "external": false,
-    "private_profile": false
+    "private_profile": false,
+    "current_sign_in_ip": "196.165.1.102",
+    "last_sign_in_ip": "172.127.2.22"
   },
   {
     "id": 2,
@@ -142,7 +144,9 @@ GET /users
     "can_create_project": true,
     "two_factor_enabled": true,
     "external": false,
-    "private_profile": false
+    "private_profile": false,
+    "current_sign_in_ip": "10.165.1.102",
+    "last_sign_in_ip": "172.127.2.22"
   }
 ]
 ```
@@ -294,7 +298,9 @@ Example Responses:
   "can_create_project": true,
   "two_factor_enabled": true,
   "external": false,
-  "private_profile": false
+  "private_profile": false,
+  "current_sign_in_ip": "196.165.1.102",
+  "last_sign_in_ip": "172.127.2.22"
 }
 ```
 
@@ -430,7 +436,7 @@ e.g. when renaming the email address to some existing one.
 ## User deletion
 
 Deletes a user. Available only for administrators.
-This returns a `204 No Content` status code if the operation was successfully or `404` if the resource was not found.
+This returns a `204 No Content` status code if the operation was successfully, `404` if the resource was not found or `409` if the user cannot be soft deleted.
 
 ```
 DELETE /users/:id
@@ -534,7 +540,9 @@ GET /user
   "can_create_project": true,
   "two_factor_enabled": true,
   "external": false,
-  "private_profile": false
+  "private_profile": false,
+  "current_sign_in_ip": "196.165.1.102",
+  "last_sign_in_ip": "172.127.2.22"
 }
 ```
 
@@ -677,12 +685,12 @@ Parameters:
 Get a list of a specified user's SSH keys.
 
 ```
-GET /users/:id/keys
+GET /users/:id_or_username/keys
 ```
 
-Parameters:
-
-- `id` (required) - id of specified user
+| Attribute        | Type   | Required | Description |
+| ---------------- | ------ | -------- | ----------- |
+| `id_or_username` | string | yes      | The id or username of the user to get the SSH keys for. |
 
 ## Single SSH key
 
@@ -1405,3 +1413,53 @@ Example response:
 ```
 
 Please note that `last_activity_at` is deprecated, please use `last_activity_on`.
+
+## User memberships (admin only)
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/22518) in GitLab 12.8.
+
+Lists all projects and groups a user is a member of. This endpoint is available for admins only.
+It returns the `source_id`, `source_name`, `source_type` and `access_level` of a membership.
+Source can be of type `Namespace` (representing a group) or `Project`. The response represents only direct memberships. Inherited memberships, for example in subgroups, will not be included.
+Access levels will be represented by an integer value. Read more about the meaning of access level values [here](access_requests.md#valid-access-levels).
+
+```
+GET /users/:id/memberships
+```
+
+Parameters:
+
+| Attribute | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `id` | integer | yes | The ID of a specified user |
+| `type` | string | no | Filter memberships by type. Can be either `Project` or `Namespace` |
+
+Returns:
+
+- `200 OK` on success.
+- `404 User Not Found` if user cannot be found.
+- `403 Forbidden` when not requested by an admin.
+- `400 Bad Request` when requested type is not supported.
+
+```bash
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/users/<user_id>/memberships
+```
+
+Example response:
+
+```json
+[
+  {
+    "source_id": 1,
+    "source_name": "Project one",
+    "source_type": "Project",
+    "access_level": "20"
+  },
+  {
+    "source_id": 3,
+    "source_name": "Group three",
+    "source_type": "Namespace",
+    "access_level": "20"
+  },
+]
+```

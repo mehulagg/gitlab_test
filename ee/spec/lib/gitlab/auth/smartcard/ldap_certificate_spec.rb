@@ -60,6 +60,7 @@ describe Gitlab::Auth::Smartcard::LDAPCertificate do
 
     context 'user exists but it is using a new ldap certificate' do
       let(:ldap_person_email) { user.email }
+
       let_it_be(:user) { create(:user) }
 
       it 'finds existing user' do
@@ -90,8 +91,20 @@ describe Gitlab::Auth::Smartcard::LDAPCertificate do
     context 'user does not exist' do
       let(:user) { create(:user) }
 
-      it 'creates user' do
-        expect { subject }.to change { User.count }.from(0).to(1)
+      shared_examples_for 'creates user' do
+        it do
+          expect { subject }.to change { User.count }.from(0).to(1)
+        end
+      end
+
+      it_behaves_like 'creates user'
+
+      context 'when the current minimum password length is different from the default minimum password length' do
+        before do
+          stub_application_setting minimum_password_length: 21
+        end
+
+        it_behaves_like 'creates user'
       end
 
       it 'creates user with correct attributes' do

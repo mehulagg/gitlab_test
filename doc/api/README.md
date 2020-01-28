@@ -82,7 +82,7 @@ There are four ways to authenticate with the GitLab API:
 1. [OAuth2 tokens](#oauth2-tokens)
 1. [Personal access tokens](#personal-access-tokens)
 1. [Session cookie](#session-cookie)
-1. [GitLab CI job token](#gitlab-ci-job-token-premium) **(PREMIUM)**
+1. [GitLab CI job token](#gitlab-ci-job-token) **(Specific endpoints only)**
 
 For admins who want to authenticate with the API as a specific user, or who want to build applications or scripts that do so, two options are available:
 
@@ -152,13 +152,14 @@ The primary user of this authentication method is the web frontend of GitLab its
 which can use the API as the authenticated user to get a list of their projects,
 for example, without needing to explicitly pass an access token.
 
-### GitLab CI job token **(PREMIUM)**
+### GitLab CI job token
 
 With a few API endpoints you can use a [GitLab CI job token](../user/project/new_ci_build_permissions_model.md#job-token)
 to authenticate with the API:
 
 - [Get job artifacts](jobs.md#get-job-artifacts)
 - [Pipeline triggers](pipeline_triggers.md)
+- [Release creation](releases/index.md#create-a-release)
 
 ### Impersonation tokens
 
@@ -409,7 +410,7 @@ This method is controlled by the following parameters:
 In the example below, we list 50 [projects](projects.md) per page, ordered by `id` ascending.
 
 ```bash
-curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects?pagination=keyset&per_page=50&order_by=id&sort=asc"
+curl --request GET --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects?pagination=keyset&per_page=50&order_by=id&sort=asc"
 ```
 
 The response header includes a link to the next page. For example:
@@ -425,7 +426,7 @@ Status: 200 OK
 The link to the next page contains an additional filter `id_after=42` which excludes records we have retrieved already.
 Note the type of filter depends on the `order_by` option used and we may have more than one additional filter.
 
-The `Link` header is absent when the end of the collection has been reached and there are no additional records to retrieve.
+When the end of the collection has been reached and there are no additional records to retrieve, the `Link` header is absent and the resulting array is empty.
 
 We recommend using only the given link to retrieve the next page instead of building your own URL. Apart from the headers shown,
 we don't expose additional pagination headers.

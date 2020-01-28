@@ -19,13 +19,14 @@ gem 'default_value_for', '~> 3.3.0'
 gem 'pg', '~> 1.1'
 
 gem 'rugged', '~> 0.28'
-gem 'grape-path-helpers', '~> 1.1'
+gem 'grape-path-helpers', '~> 1.2'
 
 gem 'faraday', '~> 0.12'
+gem 'marginalia', '~> 1.8.0'
 
 # Authentication libraries
 gem 'devise', '~> 4.6'
-gem 'doorkeeper', '~> 4.3'
+gem 'doorkeeper', '~> 4.4.3'
 gem 'doorkeeper-openid_connect', '~> 1.5'
 gem 'omniauth', '~> 1.8'
 gem 'omniauth-auth0', '~> 2.0.0'
@@ -53,7 +54,7 @@ gem 'gssapi', group: :kerberos
 
 # Spam and anti-bot protection
 gem 'recaptcha', '~> 4.11', require: 'recaptcha/rails'
-gem 'akismet', '~> 2.0'
+gem 'akismet', '~> 3.0'
 gem 'invisible_captcha', '~> 0.12.1'
 
 # Two-factor authentication
@@ -66,7 +67,7 @@ gem 'u2f', '~> 0.2.1'
 gem 'validates_hostname', '~> 1.0.6'
 gem 'rubyzip', '~> 1.3.0', require: 'zip'
 # GitLab Pages letsencrypt support
-gem 'acme-client', '~> 2.0.2'
+gem 'acme-client', '~> 2.0.5'
 
 # Browser detection
 gem 'browser', '~> 2.5'
@@ -101,7 +102,7 @@ gem 'hashie-forbidden_attributes'
 gem 'kaminari', '~> 1.0'
 
 # HAML
-gem 'hamlit', '~> 2.10.0'
+gem 'hamlit', '~> 2.11.0'
 
 # Files attachments
 gem 'carrierwave', '~> 1.3'
@@ -128,27 +129,27 @@ gem 'unf', '~> 0.1.4'
 gem 'seed-fu', '~> 2.3.7'
 
 # Search
-gem 'elasticsearch-model', '~> 0.1.9'
-gem 'elasticsearch-rails', '~> 0.1.9', require: 'elasticsearch/rails/instrumentation'
-gem 'elasticsearch-api',   '5.0.3'
+gem 'elasticsearch-model', '~> 6.1'
+gem 'elasticsearch-rails', '~> 6.1', require: 'elasticsearch/rails/instrumentation'
+gem 'elasticsearch-api',   '~> 6.8'
 gem 'aws-sdk'
 gem 'faraday_middleware-aws-signers-v4'
 
 # Markdown and HTML processing
 gem 'html-pipeline', '~> 2.12'
-gem 'deckar01-task_list', '2.2.1'
+gem 'deckar01-task_list', '2.3.1'
 gem 'gitlab-markup', '~> 1.7.0'
 gem 'github-markup', '~> 1.7.0', require: 'github/markup'
 gem 'commonmarker', '~> 0.20'
 gem 'RedCloth', '~> 4.3.2'
-gem 'rdoc', '~> 6.0'
+gem 'rdoc', '~> 6.1.2'
 gem 'org-ruby', '~> 0.9.12'
 gem 'creole', '~> 0.5.0'
 gem 'wikicloth', '0.8.1'
 gem 'asciidoctor', '~> 2.0.10'
 gem 'asciidoctor-include-ext', '~> 0.3.1', require: false
-gem 'asciidoctor-plantuml', '0.0.9'
-gem 'rouge', '~> 3.11.0'
+gem 'asciidoctor-plantuml', '0.0.10'
+gem 'rouge', '~> 3.15.0'
 gem 'truncato', '~> 0.7.11'
 gem 'bootstrap_form', '~> 4.2.0'
 gem 'nokogiri', '~> 1.10.5'
@@ -170,8 +171,8 @@ group :unicorn do
 end
 
 group :puma do
-  gem 'puma', '~> 4.3.0', require: false
-  gem 'puma_worker_killer', '~> 0.1.1', require: false
+  gem 'gitlab-puma', '~> 4.3.1.gitlab.2', require: false
+  gem 'gitlab-puma_worker_killer', '~> 0.1.1.gitlab.1', require: false
   gem 'rack-timeout', require: false
 end
 
@@ -242,13 +243,13 @@ gem 'slack-notifier', '~> 1.5.1'
 gem 'hangouts-chat', '~> 0.0.5'
 
 # Asana integration
-gem 'asana', '~> 0.8.1'
+gem 'asana', '~> 0.9'
 
 # FogBugz integration
 gem 'ruby-fogbugz', '~> 0.2.1'
 
 # Kubernetes integration
-gem 'kubeclient', '~> 4.4.0'
+gem 'kubeclient', '~> 4.6.0'
 
 # Sanitize user input
 gem 'sanitize', '~> 4.6'
@@ -282,7 +283,7 @@ gem 'rack-proxy', '~> 0.6.0'
 gem 'sassc-rails', '~> 2.1.0'
 gem 'uglifier', '~> 2.7.2'
 
-gem 'addressable', '~> 2.5.2'
+gem 'addressable', '~> 2.7'
 gem 'font-awesome-rails', '~> 4.7'
 gem 'gemojione', '~> 3.3'
 gem 'gon', '~> 6.2'
@@ -300,7 +301,7 @@ gem 'sentry-raven', '~> 2.9'
 gem 'premailer-rails', '~> 1.10.3'
 
 # LabKit: Tracing and Correlation
-gem 'gitlab-labkit', '~> 0.5'
+gem 'gitlab-labkit', '0.9.1'
 
 # I18n
 gem 'ruby_parser', '~> 3.8', require: false
@@ -326,7 +327,7 @@ group :metrics do
   gem 'influxdb', '~> 0.2', require: false
 
   # Prometheus
-  gem 'prometheus-client-mmap', '~> 0.9.10'
+  gem 'prometheus-client-mmap', '~> 0.10.0'
   gem 'raindrops', '~> 0.18'
 end
 
@@ -346,7 +347,7 @@ group :development do
 end
 
 group :development, :test do
-  gem 'bullet', '~> 5.5.0', require: !!ENV['ENABLE_BULLET']
+  gem 'bullet', '~> 6.0.2', require: !!ENV['ENABLE_BULLET']
   gem 'pry-byebug', '~> 3.5.1', platform: :mri
   gem 'pry-rails', '~> 0.3.4'
 
@@ -365,11 +366,11 @@ group :development, :test do
   gem 'spring', '~> 2.0.0'
   gem 'spring-commands-rspec', '~> 1.0.4'
 
-  gem 'gitlab-styles', '~> 2.7', require: false
+  gem 'gitlab-styles', '~> 3.1.0', require: false
   # Pin these dependencies, otherwise a new rule could break the CI pipelines
-  gem 'rubocop', '~> 0.69.0'
-  gem 'rubocop-performance', '~> 1.1.0'
-  gem 'rubocop-rspec', '~> 1.22.1'
+  gem 'rubocop', '~> 0.74.0'
+  gem 'rubocop-performance', '~> 1.4.1'
+  gem 'rubocop-rspec', '~> 1.37.0'
 
   gem 'scss_lint', '~> 0.56.0', require: false
   gem 'haml_lint', '~> 0.34.0', require: false
@@ -385,6 +386,10 @@ group :development, :test do
   gem 'simple_po_parser', '~> 1.1.2', require: false
 
   gem 'timecop', '~> 0.8.0'
+
+  gem 'png_quantizator', '~> 0.2.1', require: false
+
+  gem 'parallel', '~> 1.19', require: false
 end
 
 # Gems required in omnibus-gitlab pipeline
@@ -414,9 +419,9 @@ group :test do
   gem 'guard-rspec'
 end
 
-gem 'octokit', '~> 4.9'
+gem 'octokit', '~> 4.15'
 
-gem 'mail_room', '~> 0.9.1'
+gem 'mail_room', '~> 0.10.0'
 
 gem 'email_reply_trimmer', '~> 0.1'
 gem 'html2text'
@@ -451,13 +456,13 @@ group :ed25519 do
 end
 
 # Gitaly GRPC protocol definitions
-gem 'gitaly', '~> 1.73.0'
+gem 'gitaly', '~> 1.81.0'
 
 gem 'grpc', '~> 1.24.0'
 
 gem 'google-protobuf', '~> 3.8.0'
 
-gem 'toml-rb', '~> 1.0.0', require: false
+gem 'toml-rb', '~> 1.0.0'
 
 # Feature toggles
 gem 'flipper', '~> 0.17.1'
@@ -476,3 +481,8 @@ gem 'gitlab-net-dns', '~> 0.9.1'
 gem 'countries', '~> 3.0'
 
 gem 'retriable', '~> 3.1.2'
+
+gem 'liquid', '~> 4.0'
+
+# LRU cache
+gem 'lru_redux'

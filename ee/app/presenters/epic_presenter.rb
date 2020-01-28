@@ -61,6 +61,7 @@ class EpicPresenter < Gitlab::View::Presenter::Delegated
   def base_attributes(author_icon)
     {
       epic_id: epic.id,
+      epic_iid: epic.iid,
       created: epic.created_at,
       author: epic_author(author_icon),
       ancestors: epic_ancestors(epic.ancestors.inc_group),
@@ -90,7 +91,7 @@ class EpicPresenter < Gitlab::View::Presenter::Delegated
   # todo:
   #
   # rename the hash keys to something more like inherited_source rather than milestone
-  # as now source can be noth milestone and child epic, but it does require a bunch of renaming on frontend as well
+  # as now source can be both milestone and child epic, but it does require a bunch of renaming on frontend as well
   def start_dates
     {
       start_date: epic.start_date,

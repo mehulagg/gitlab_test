@@ -49,12 +49,30 @@
               "deprecationReason": null
             },
             {
+              "name": "designManagement",
+              "description": "Fields related to design management",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "DesignManagement",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "echo",
-              "description": "Testing endpoint to validate the API with",
+              "description": "Text to echo back",
               "args": [
                 {
                   "name": "text",
-                  "description": null,
+                  "description": "Text to echo back",
                   "type": {
                     "kind": "NON_NULL",
                     "name": null,
@@ -310,7 +328,21 @@
           "fields": [
             {
               "name": "archived",
-              "description": "Archived status of the project",
+              "description": "Indicates the archived status of the project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "autocloseReferencedIssues",
+              "description": "Indicates if issues referenced by merge requests and commits within the default branch are closed automatically",
               "args": [
 
               ],
@@ -393,6 +425,79 @@
               "deprecationReason": null
             },
             {
+              "name": "environments",
+              "description": "Environments of the project",
+              "args": [
+                {
+                  "name": "name",
+                  "description": "Name of the environment",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "search",
+                  "description": "Search query",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Returns the elements in the list that come after the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Returns the elements in the list that come before the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Returns the first _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Returns the last _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "EnvironmentConnection",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "forksCount",
               "description": "Number of times the project has been forked",
               "args": [
@@ -424,6 +529,20 @@
                   "name": "ID",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "grafanaIntegration",
+              "description": "Grafana integration details for the project",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "GrafanaIntegration",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -494,7 +613,7 @@
               "args": [
                 {
                   "name": "iid",
-                  "description": "The IID of the issue, e.g., \"1\"",
+                  "description": "IID of the issue. For example, \"1\"",
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -504,7 +623,7 @@
                 },
                 {
                   "name": "iids",
-                  "description": "The list of IIDs of issues, e.g., [1, 2]",
+                  "description": "List of IIDs of issues. For example, [1, 2]",
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -522,7 +641,7 @@
                 },
                 {
                   "name": "state",
-                  "description": "Current state of Issue",
+                  "description": "Current state of this issue",
                   "type": {
                     "kind": "ENUM",
                     "name": "IssuableState",
@@ -532,7 +651,7 @@
                 },
                 {
                   "name": "labelName",
-                  "description": "Labels applied to the Issue",
+                  "description": "Labels applied to this issue",
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -606,7 +725,7 @@
                 },
                 {
                   "name": "search",
-                  "description": null,
+                  "description": "Search query for finding issues by title or description",
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -639,7 +758,7 @@
               "args": [
                 {
                   "name": "iid",
-                  "description": "The IID of the issue, e.g., \"1\"",
+                  "description": "IID of the issue. For example, \"1\"",
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -649,7 +768,7 @@
                 },
                 {
                   "name": "iids",
-                  "description": "The list of IIDs of issues, e.g., [1, 2]",
+                  "description": "List of IIDs of issues. For example, [1, 2]",
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -667,7 +786,7 @@
                 },
                 {
                   "name": "state",
-                  "description": "Current state of Issue",
+                  "description": "Current state of this issue",
                   "type": {
                     "kind": "ENUM",
                     "name": "IssuableState",
@@ -677,7 +796,7 @@
                 },
                 {
                   "name": "labelName",
-                  "description": "Labels applied to the Issue",
+                  "description": "Labels applied to this issue",
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -751,7 +870,7 @@
                 },
                 {
                   "name": "search",
-                  "description": null,
+                  "description": "Search query for finding issues by title or description",
                   "type": {
                     "kind": "SCALAR",
                     "name": "String",
@@ -1315,6 +1434,34 @@
               "deprecationReason": null
             },
             {
+              "name": "serviceDeskAddress",
+              "description": "E-mail address of the service desk.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "serviceDeskEnabled",
+              "description": "Indicates if the project has service desk enabled.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "sharedRunnersEnabled",
               "description": "Indicates if shared runners are enabled on the project",
               "args": [
@@ -1470,6 +1617,20 @@
               "deprecationReason": null
             },
             {
+              "name": "suggestionCommitMessage",
+              "description": "The commit message used to apply merge request suggestions",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "tagList",
               "description": "List of project tags",
               "args": [
@@ -1558,7 +1719,7 @@
           "fields": [
             {
               "name": "adminOperations",
-              "description": "Whether or not a user can perform `admin_operations` on this resource",
+              "description": "Indicates the user can perform `admin_operations` on this resource",
               "args": [
 
               ],
@@ -1576,7 +1737,7 @@
             },
             {
               "name": "adminProject",
-              "description": "Whether or not a user can perform `admin_project` on this resource",
+              "description": "Indicates the user can perform `admin_project` on this resource",
               "args": [
 
               ],
@@ -1594,7 +1755,7 @@
             },
             {
               "name": "adminRemoteMirror",
-              "description": "Whether or not a user can perform `admin_remote_mirror` on this resource",
+              "description": "Indicates the user can perform `admin_remote_mirror` on this resource",
               "args": [
 
               ],
@@ -1612,7 +1773,7 @@
             },
             {
               "name": "adminWiki",
-              "description": "Whether or not a user can perform `admin_wiki` on this resource",
+              "description": "Indicates the user can perform `admin_wiki` on this resource",
               "args": [
 
               ],
@@ -1630,7 +1791,7 @@
             },
             {
               "name": "archiveProject",
-              "description": "Whether or not a user can perform `archive_project` on this resource",
+              "description": "Indicates the user can perform `archive_project` on this resource",
               "args": [
 
               ],
@@ -1648,7 +1809,7 @@
             },
             {
               "name": "changeNamespace",
-              "description": "Whether or not a user can perform `change_namespace` on this resource",
+              "description": "Indicates the user can perform `change_namespace` on this resource",
               "args": [
 
               ],
@@ -1666,7 +1827,7 @@
             },
             {
               "name": "changeVisibilityLevel",
-              "description": "Whether or not a user can perform `change_visibility_level` on this resource",
+              "description": "Indicates the user can perform `change_visibility_level` on this resource",
               "args": [
 
               ],
@@ -1684,7 +1845,7 @@
             },
             {
               "name": "createDeployment",
-              "description": "Whether or not a user can perform `create_deployment` on this resource",
+              "description": "Indicates the user can perform `create_deployment` on this resource",
               "args": [
 
               ],
@@ -1702,7 +1863,7 @@
             },
             {
               "name": "createDesign",
-              "description": "Whether or not a user can perform `create_design` on this resource",
+              "description": "Indicates the user can perform `create_design` on this resource",
               "args": [
 
               ],
@@ -1720,7 +1881,7 @@
             },
             {
               "name": "createIssue",
-              "description": "Whether or not a user can perform `create_issue` on this resource",
+              "description": "Indicates the user can perform `create_issue` on this resource",
               "args": [
 
               ],
@@ -1738,7 +1899,7 @@
             },
             {
               "name": "createLabel",
-              "description": "Whether or not a user can perform `create_label` on this resource",
+              "description": "Indicates the user can perform `create_label` on this resource",
               "args": [
 
               ],
@@ -1756,7 +1917,7 @@
             },
             {
               "name": "createMergeRequestFrom",
-              "description": "Whether or not a user can perform `create_merge_request_from` on this resource",
+              "description": "Indicates the user can perform `create_merge_request_from` on this resource",
               "args": [
 
               ],
@@ -1774,7 +1935,7 @@
             },
             {
               "name": "createMergeRequestIn",
-              "description": "Whether or not a user can perform `create_merge_request_in` on this resource",
+              "description": "Indicates the user can perform `create_merge_request_in` on this resource",
               "args": [
 
               ],
@@ -1792,7 +1953,7 @@
             },
             {
               "name": "createPages",
-              "description": "Whether or not a user can perform `create_pages` on this resource",
+              "description": "Indicates the user can perform `create_pages` on this resource",
               "args": [
 
               ],
@@ -1810,7 +1971,7 @@
             },
             {
               "name": "createPipeline",
-              "description": "Whether or not a user can perform `create_pipeline` on this resource",
+              "description": "Indicates the user can perform `create_pipeline` on this resource",
               "args": [
 
               ],
@@ -1828,7 +1989,7 @@
             },
             {
               "name": "createPipelineSchedule",
-              "description": "Whether or not a user can perform `create_pipeline_schedule` on this resource",
+              "description": "Indicates the user can perform `create_pipeline_schedule` on this resource",
               "args": [
 
               ],
@@ -1846,7 +2007,7 @@
             },
             {
               "name": "createSnippet",
-              "description": "Whether or not a user can perform `create_snippet` on this resource",
+              "description": "Indicates the user can perform `create_snippet` on this resource",
               "args": [
 
               ],
@@ -1864,7 +2025,7 @@
             },
             {
               "name": "createWiki",
-              "description": "Whether or not a user can perform `create_wiki` on this resource",
+              "description": "Indicates the user can perform `create_wiki` on this resource",
               "args": [
 
               ],
@@ -1882,7 +2043,7 @@
             },
             {
               "name": "destroyDesign",
-              "description": "Whether or not a user can perform `destroy_design` on this resource",
+              "description": "Indicates the user can perform `destroy_design` on this resource",
               "args": [
 
               ],
@@ -1900,7 +2061,7 @@
             },
             {
               "name": "destroyPages",
-              "description": "Whether or not a user can perform `destroy_pages` on this resource",
+              "description": "Indicates the user can perform `destroy_pages` on this resource",
               "args": [
 
               ],
@@ -1918,7 +2079,7 @@
             },
             {
               "name": "destroyWiki",
-              "description": "Whether or not a user can perform `destroy_wiki` on this resource",
+              "description": "Indicates the user can perform `destroy_wiki` on this resource",
               "args": [
 
               ],
@@ -1936,7 +2097,7 @@
             },
             {
               "name": "downloadCode",
-              "description": "Whether or not a user can perform `download_code` on this resource",
+              "description": "Indicates the user can perform `download_code` on this resource",
               "args": [
 
               ],
@@ -1954,7 +2115,7 @@
             },
             {
               "name": "downloadWikiCode",
-              "description": "Whether or not a user can perform `download_wiki_code` on this resource",
+              "description": "Indicates the user can perform `download_wiki_code` on this resource",
               "args": [
 
               ],
@@ -1972,7 +2133,7 @@
             },
             {
               "name": "forkProject",
-              "description": "Whether or not a user can perform `fork_project` on this resource",
+              "description": "Indicates the user can perform `fork_project` on this resource",
               "args": [
 
               ],
@@ -1990,7 +2151,7 @@
             },
             {
               "name": "pushCode",
-              "description": "Whether or not a user can perform `push_code` on this resource",
+              "description": "Indicates the user can perform `push_code` on this resource",
               "args": [
 
               ],
@@ -2008,7 +2169,7 @@
             },
             {
               "name": "pushToDeleteProtectedBranch",
-              "description": "Whether or not a user can perform `push_to_delete_protected_branch` on this resource",
+              "description": "Indicates the user can perform `push_to_delete_protected_branch` on this resource",
               "args": [
 
               ],
@@ -2026,7 +2187,7 @@
             },
             {
               "name": "readCommitStatus",
-              "description": "Whether or not a user can perform `read_commit_status` on this resource",
+              "description": "Indicates the user can perform `read_commit_status` on this resource",
               "args": [
 
               ],
@@ -2044,7 +2205,7 @@
             },
             {
               "name": "readCycleAnalytics",
-              "description": "Whether or not a user can perform `read_cycle_analytics` on this resource",
+              "description": "Indicates the user can perform `read_cycle_analytics` on this resource",
               "args": [
 
               ],
@@ -2062,7 +2223,7 @@
             },
             {
               "name": "readDesign",
-              "description": "Whether or not a user can perform `read_design` on this resource",
+              "description": "Indicates the user can perform `read_design` on this resource",
               "args": [
 
               ],
@@ -2080,7 +2241,7 @@
             },
             {
               "name": "readPagesContent",
-              "description": "Whether or not a user can perform `read_pages_content` on this resource",
+              "description": "Indicates the user can perform `read_pages_content` on this resource",
               "args": [
 
               ],
@@ -2098,7 +2259,7 @@
             },
             {
               "name": "readProject",
-              "description": "Whether or not a user can perform `read_project` on this resource",
+              "description": "Indicates the user can perform `read_project` on this resource",
               "args": [
 
               ],
@@ -2116,7 +2277,7 @@
             },
             {
               "name": "readProjectMember",
-              "description": "Whether or not a user can perform `read_project_member` on this resource",
+              "description": "Indicates the user can perform `read_project_member` on this resource",
               "args": [
 
               ],
@@ -2134,7 +2295,7 @@
             },
             {
               "name": "readWiki",
-              "description": "Whether or not a user can perform `read_wiki` on this resource",
+              "description": "Indicates the user can perform `read_wiki` on this resource",
               "args": [
 
               ],
@@ -2152,7 +2313,7 @@
             },
             {
               "name": "removeForkProject",
-              "description": "Whether or not a user can perform `remove_fork_project` on this resource",
+              "description": "Indicates the user can perform `remove_fork_project` on this resource",
               "args": [
 
               ],
@@ -2170,7 +2331,7 @@
             },
             {
               "name": "removePages",
-              "description": "Whether or not a user can perform `remove_pages` on this resource",
+              "description": "Indicates the user can perform `remove_pages` on this resource",
               "args": [
 
               ],
@@ -2188,7 +2349,7 @@
             },
             {
               "name": "removeProject",
-              "description": "Whether or not a user can perform `remove_project` on this resource",
+              "description": "Indicates the user can perform `remove_project` on this resource",
               "args": [
 
               ],
@@ -2206,7 +2367,7 @@
             },
             {
               "name": "renameProject",
-              "description": "Whether or not a user can perform `rename_project` on this resource",
+              "description": "Indicates the user can perform `rename_project` on this resource",
               "args": [
 
               ],
@@ -2224,7 +2385,7 @@
             },
             {
               "name": "requestAccess",
-              "description": "Whether or not a user can perform `request_access` on this resource",
+              "description": "Indicates the user can perform `request_access` on this resource",
               "args": [
 
               ],
@@ -2242,7 +2403,7 @@
             },
             {
               "name": "updatePages",
-              "description": "Whether or not a user can perform `update_pages` on this resource",
+              "description": "Indicates the user can perform `update_pages` on this resource",
               "args": [
 
               ],
@@ -2260,7 +2421,7 @@
             },
             {
               "name": "updateWiki",
-              "description": "Whether or not a user can perform `update_wiki` on this resource",
+              "description": "Indicates the user can perform `update_wiki` on this resource",
               "args": [
 
               ],
@@ -2278,7 +2439,7 @@
             },
             {
               "name": "uploadFile",
-              "description": "Whether or not a user can perform `upload_file` on this resource",
+              "description": "Indicates the user can perform `upload_file` on this resource",
               "args": [
 
               ],
@@ -2647,7 +2808,7 @@
             },
             {
               "name": "repositorySize",
-              "description": "The git repository size in bytes",
+              "description": "The Git repository size in bytes",
               "args": [
 
               ],
@@ -2902,6 +3063,20 @@
           "description": null,
           "fields": [
             {
+              "name": "autoDevopsEnabled",
+              "description": "Indicates whether Auto DevOps is enabled for all projects within this group",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "avatarUrl",
               "description": "Avatar URL of the group",
               "args": [
@@ -2944,12 +3119,26 @@
               "deprecationReason": null
             },
             {
+              "name": "emailsDisabled",
+              "description": "Indicates if a group has email notifications disabled",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "epic",
-              "description": null,
+              "description": "Find a single epic",
               "args": [
                 {
                   "name": "iid",
-                  "description": "The IID of the epic, e.g., \"1\"",
+                  "description": "IID of the epic, e.g., \"1\"",
                   "type": {
                     "kind": "SCALAR",
                     "name": "ID",
@@ -2959,7 +3148,7 @@
                 },
                 {
                   "name": "iids",
-                  "description": "The list of IIDs of epics, e.g., [1, 2]",
+                  "description": "List of IIDs of epics, e.g., [1, 2]",
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -3064,11 +3253,11 @@
             },
             {
               "name": "epics",
-              "description": null,
+              "description": "Find epics",
               "args": [
                 {
                   "name": "iid",
-                  "description": "The IID of the epic, e.g., \"1\"",
+                  "description": "IID of the epic, e.g., \"1\"",
                   "type": {
                     "kind": "SCALAR",
                     "name": "ID",
@@ -3078,7 +3267,7 @@
                 },
                 {
                   "name": "iids",
-                  "description": "The list of IIDs of epics, e.g., [1, 2]",
+                  "description": "List of IIDs of epics, e.g., [1, 2]",
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -3223,7 +3412,7 @@
             },
             {
               "name": "epicsEnabled",
-              "description": null,
+              "description": "Indicates if Epics are enabled for namespace",
               "args": [
 
               ],
@@ -3272,6 +3461,20 @@
               "deprecationReason": null
             },
             {
+              "name": "groupTimelogsEnabled",
+              "description": "Indicates if Group timelogs are enabled for namespace",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "id",
               "description": "ID of the namespace",
               "args": [
@@ -3292,6 +3495,20 @@
             {
               "name": "lfsEnabled",
               "description": "Indicates if Large File Storage (LFS) is enabled for namespace",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "mentionsDisabled",
+              "description": "Indicates if a group is disabled from getting mentioned",
               "args": [
 
               ],
@@ -3349,6 +3566,20 @@
                   "name": "String",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "projectCreationLevel",
+              "description": "The permission level required to create projects in the group",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -3435,6 +3666,20 @@
               "deprecationReason": null
             },
             {
+              "name": "requireTwoFactorAuthentication",
+              "description": "Indicates if all users in this group are required to set up two-factor authentication",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "rootStorageStatistics",
               "description": "Aggregated storage statistics of the namespace. Only available for root namespaces",
               "args": [
@@ -3443,6 +3688,133 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "RootStorageStatistics",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "shareWithGroupLock",
+              "description": "Indicates if sharing a project with another group within this group is prevented",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "subgroupCreationLevel",
+              "description": "The permission level required to create subgroups within the group",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "timelogs",
+              "description": "Time logged in issues by group members",
+              "args": [
+                {
+                  "name": "startDate",
+                  "description": "List time logs within a time range where the logged date is after start_date parameter.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Time",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "endDate",
+                  "description": "List time logs within a time range where the logged date is before end_date parameter.",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "Time",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Returns the elements in the list that come after the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Returns the elements in the list that come before the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Returns the first _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Returns the last _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "TimelogConnection",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "twoFactorGracePeriod",
+              "description": "Time before two-factor authentication is enforced",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Int",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -3513,7 +3885,7 @@
           "fields": [
             {
               "name": "readGroup",
-              "description": "Whether or not a user can perform `read_group` on this resource",
+              "description": "Indicates the user can perform `read_group` on this resource",
               "args": [
 
               ],
@@ -3540,7 +3912,7 @@
         {
           "kind": "OBJECT",
           "name": "Epic",
-          "description": null,
+          "description": "Represents an epic.",
           "fields": [
             {
               "name": "author",
@@ -3566,7 +3938,7 @@
               "args": [
                 {
                   "name": "iid",
-                  "description": "The IID of the epic, e.g., \"1\"",
+                  "description": "IID of the epic, e.g., \"1\"",
                   "type": {
                     "kind": "SCALAR",
                     "name": "ID",
@@ -3576,7 +3948,7 @@
                 },
                 {
                   "name": "iids",
-                  "description": "The list of IIDs of epics, e.g., [1, 2]",
+                  "description": "List of IIDs of epics, e.g., [1, 2]",
                   "type": {
                     "kind": "LIST",
                     "name": null,
@@ -4357,7 +4729,7 @@
             },
             {
               "name": "subscribed",
-              "description": "Boolean flag for whether the currently logged in user is subscribed to this epic",
+              "description": "Indicates the currently logged in user is subscribed to the epic",
               "args": [
 
               ],
@@ -4760,7 +5132,7 @@
           "fields": [
             {
               "name": "author",
-              "description": "The user who wrote this note",
+              "description": "User who wrote this note",
               "args": [
 
               ],
@@ -4778,7 +5150,7 @@
             },
             {
               "name": "body",
-              "description": "The content note itself",
+              "description": "Content of the note",
               "args": [
 
               ],
@@ -4810,7 +5182,7 @@
             },
             {
               "name": "createdAt",
-              "description": null,
+              "description": "Timestamp of the note creation",
               "args": [
 
               ],
@@ -4842,7 +5214,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the note",
               "args": [
 
               ],
@@ -4874,7 +5246,7 @@
             },
             {
               "name": "project",
-              "description": "The project this note is associated to",
+              "description": "Project associated with the note",
               "args": [
 
               ],
@@ -4888,7 +5260,7 @@
             },
             {
               "name": "resolvable",
-              "description": null,
+              "description": "Indicates if this note can be resolved. That is, if it is a resolvable discussion or simply a standalone note",
               "args": [
 
               ],
@@ -4906,7 +5278,7 @@
             },
             {
               "name": "resolvedAt",
-              "description": "The time the discussion was resolved",
+              "description": "Timestamp of the note's resolution",
               "args": [
 
               ],
@@ -4920,7 +5292,7 @@
             },
             {
               "name": "resolvedBy",
-              "description": "The user that resolved the discussion",
+              "description": "User that resolved the discussion",
               "args": [
 
               ],
@@ -4934,7 +5306,7 @@
             },
             {
               "name": "system",
-              "description": "Whether or not this note was created by the system or by a user",
+              "description": "Indicates whether this note was created by the system or by a user",
               "args": [
 
               ],
@@ -4952,7 +5324,7 @@
             },
             {
               "name": "updatedAt",
-              "description": null,
+              "description": "Timestamp of the note's last activity",
               "args": [
 
               ],
@@ -5001,7 +5373,7 @@
           "fields": [
             {
               "name": "adminNote",
-              "description": "Whether or not a user can perform `admin_note` on this resource",
+              "description": "Indicates the user can perform `admin_note` on this resource",
               "args": [
 
               ],
@@ -5019,7 +5391,7 @@
             },
             {
               "name": "awardEmoji",
-              "description": "Whether or not a user can perform `award_emoji` on this resource",
+              "description": "Indicates the user can perform `award_emoji` on this resource",
               "args": [
 
               ],
@@ -5037,7 +5409,7 @@
             },
             {
               "name": "createNote",
-              "description": "Whether or not a user can perform `create_note` on this resource",
+              "description": "Indicates the user can perform `create_note` on this resource",
               "args": [
 
               ],
@@ -5055,7 +5427,7 @@
             },
             {
               "name": "readNote",
-              "description": "Whether or not a user can perform `read_note` on this resource",
+              "description": "Indicates the user can perform `read_note` on this resource",
               "args": [
 
               ],
@@ -5073,7 +5445,7 @@
             },
             {
               "name": "resolveNote",
-              "description": "Whether or not a user can perform `resolve_note` on this resource",
+              "description": "Indicates the user can perform `resolve_note` on this resource",
               "args": [
 
               ],
@@ -5463,7 +5835,7 @@
           "fields": [
             {
               "name": "createSnippet",
-              "description": "Whether or not a user can perform `create_snippet` on this resource",
+              "description": "Indicates the user can perform `create_snippet` on this resource",
               "args": [
 
               ],
@@ -6019,8 +6391,8 @@
               "deprecationReason": null
             },
             {
-              "name": "content",
-              "description": "Content of the snippet",
+              "name": "blob",
+              "description": "Snippet blob",
               "args": [
 
               ],
@@ -6028,8 +6400,8 @@
                 "kind": "NON_NULL",
                 "name": null,
                 "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
+                  "kind": "OBJECT",
+                  "name": "SnippetBlob",
                   "ofType": null
                 }
               },
@@ -6315,8 +6687,8 @@
               "deprecationReason": null
             },
             {
-              "name": "visibility",
-              "description": "Visibility of the snippet",
+              "name": "visibilityLevel",
+              "description": "Visibility Level of the snippet",
               "args": [
 
               ],
@@ -6324,8 +6696,8 @@
                 "kind": "NON_NULL",
                 "name": null,
                 "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
+                  "kind": "ENUM",
+                  "name": "VisibilityLevelsEnum",
                   "ofType": null
                 }
               },
@@ -6481,7 +6853,7 @@
           "fields": [
             {
               "name": "createdAt",
-              "description": null,
+              "description": "Timestamp of the discussion's creation",
               "args": [
 
               ],
@@ -6499,7 +6871,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of this discussion",
               "args": [
 
               ],
@@ -6574,7 +6946,7 @@
             },
             {
               "name": "replyId",
-              "description": "The ID used to reply to this discussion",
+              "description": "ID used to reply to this discussion",
               "args": [
 
               ],
@@ -6605,7 +6977,7 @@
           "fields": [
             {
               "name": "adminSnippet",
-              "description": "Whether or not a user can perform `admin_snippet` on this resource",
+              "description": "Indicates the user can perform `admin_snippet` on this resource",
               "args": [
 
               ],
@@ -6623,7 +6995,7 @@
             },
             {
               "name": "awardEmoji",
-              "description": "Whether or not a user can perform `award_emoji` on this resource",
+              "description": "Indicates the user can perform `award_emoji` on this resource",
               "args": [
 
               ],
@@ -6641,7 +7013,7 @@
             },
             {
               "name": "createNote",
-              "description": "Whether or not a user can perform `create_note` on this resource",
+              "description": "Indicates the user can perform `create_note` on this resource",
               "args": [
 
               ],
@@ -6659,7 +7031,25 @@
             },
             {
               "name": "readSnippet",
-              "description": "Whether or not a user can perform `read_snippet` on this resource",
+              "description": "Indicates the user can perform `read_snippet` on this resource",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "reportSnippet",
+              "description": "Indicates the user can perform `report_snippet` on this resource",
               "args": [
 
               ],
@@ -6677,7 +7067,7 @@
             },
             {
               "name": "updateSnippet",
-              "description": "Whether or not a user can perform `update_snippet` on this resource",
+              "description": "Indicates the user can perform `update_snippet` on this resource",
               "args": [
 
               ],
@@ -6699,6 +7089,340 @@
 
           ],
           "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "ENUM",
+          "name": "VisibilityLevelsEnum",
+          "description": null,
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "private",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "internal",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "public",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "SnippetBlob",
+          "description": "Represents the snippet blob",
+          "fields": [
+            {
+              "name": "binary",
+              "description": "Shows whether the blob is binary",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "highlightedData",
+              "description": "Blob highlighted data",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "name",
+              "description": "Blob name",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "path",
+              "description": "Blob path",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "rawPath",
+              "description": "Blob raw content endpoint path",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "richViewer",
+              "description": "Blob content rich viewer",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "SnippetBlobViewer",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "simpleViewer",
+              "description": "Blob content simple viewer",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "SnippetBlobViewer",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "size",
+              "description": "Blob size",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "SnippetBlobViewer",
+          "description": "Represents how the blob content should be displayed",
+          "fields": [
+            {
+              "name": "collapsed",
+              "description": "Shows whether the blob should be displayed collapsed",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "fileType",
+              "description": "Content file type",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "loadAsync",
+              "description": "Shows whether the blob content is loaded async",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "loadingPartialName",
+              "description": "Loading partial name",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "renderError",
+              "description": "Error rendering the blob content",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "tooLarge",
+              "description": "Shows whether the blob too large to be displayed",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "type",
+              "description": "Type of blob viewer",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "BlobViewersType",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "ENUM",
+          "name": "BlobViewersType",
+          "description": "Types of blob viewers",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": [
+            {
+              "name": "rich",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "simple",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "auxiliary",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
           "possibleTypes": null
         },
         {
@@ -6760,7 +7484,7 @@
           "fields": [
             {
               "name": "diffRefs",
-              "description": null,
+              "description": "Information about the branch, HEAD, and base at the time of commenting",
               "args": [
 
               ],
@@ -6778,7 +7502,7 @@
             },
             {
               "name": "filePath",
-              "description": "The path of the file that was changed",
+              "description": "Path of the file that was changed",
               "args": [
 
               ],
@@ -6796,7 +7520,7 @@
             },
             {
               "name": "height",
-              "description": "The total height of the image",
+              "description": "Total height of the image",
               "args": [
 
               ],
@@ -6810,7 +7534,7 @@
             },
             {
               "name": "newLine",
-              "description": "The line on head sha that was changed",
+              "description": "Line on HEAD SHA that was changed",
               "args": [
 
               ],
@@ -6824,7 +7548,7 @@
             },
             {
               "name": "newPath",
-              "description": "The path of the file on the head sha.",
+              "description": "Path of the file on the HEAD SHA",
               "args": [
 
               ],
@@ -6838,7 +7562,7 @@
             },
             {
               "name": "oldLine",
-              "description": "The line on start sha that was changed",
+              "description": "Line on start SHA that was changed",
               "args": [
 
               ],
@@ -6852,7 +7576,7 @@
             },
             {
               "name": "oldPath",
-              "description": "The path of the file on the start sha.",
+              "description": "Path of the file on the start SHA",
               "args": [
 
               ],
@@ -6866,7 +7590,7 @@
             },
             {
               "name": "positionType",
-              "description": null,
+              "description": "Type of file the position refers to",
               "args": [
 
               ],
@@ -6884,7 +7608,7 @@
             },
             {
               "name": "width",
-              "description": "The total width of the image",
+              "description": "Total width of the image",
               "args": [
 
               ],
@@ -6898,7 +7622,7 @@
             },
             {
               "name": "x",
-              "description": "The X postion on which the comment was made",
+              "description": "X position on which the comment was made",
               "args": [
 
               ],
@@ -6912,7 +7636,7 @@
             },
             {
               "name": "y",
-              "description": "The Y position on which the comment was made",
+              "description": "Y position on which the comment was made",
               "args": [
 
               ],
@@ -6939,7 +7663,7 @@
           "fields": [
             {
               "name": "baseSha",
-              "description": "The merge base of the branch the comment was made on",
+              "description": "Merge base of the branch the comment was made on",
               "args": [
 
               ],
@@ -6957,7 +7681,7 @@
             },
             {
               "name": "headSha",
-              "description": "The sha of the head at the time the comment was made",
+              "description": "SHA of the HEAD at the time the comment was made",
               "args": [
 
               ],
@@ -6975,7 +7699,7 @@
             },
             {
               "name": "startSha",
-              "description": "The sha of the branch being compared against",
+              "description": "SHA of the branch being compared against",
               "args": [
 
               ],
@@ -7029,7 +7753,7 @@
           "fields": [
             {
               "name": "adminEpic",
-              "description": "Whether or not a user can perform `admin_epic` on this resource",
+              "description": "Indicates the user can perform `admin_epic` on this resource",
               "args": [
 
               ],
@@ -7047,7 +7771,7 @@
             },
             {
               "name": "awardEmoji",
-              "description": "Whether or not a user can perform `award_emoji` on this resource",
+              "description": "Indicates the user can perform `award_emoji` on this resource",
               "args": [
 
               ],
@@ -7065,7 +7789,7 @@
             },
             {
               "name": "createEpic",
-              "description": "Whether or not a user can perform `create_epic` on this resource",
+              "description": "Indicates the user can perform `create_epic` on this resource",
               "args": [
 
               ],
@@ -7083,7 +7807,7 @@
             },
             {
               "name": "createNote",
-              "description": "Whether or not a user can perform `create_note` on this resource",
+              "description": "Indicates the user can perform `create_note` on this resource",
               "args": [
 
               ],
@@ -7101,7 +7825,7 @@
             },
             {
               "name": "destroyEpic",
-              "description": "Whether or not a user can perform `destroy_epic` on this resource",
+              "description": "Indicates the user can perform `destroy_epic` on this resource",
               "args": [
 
               ],
@@ -7119,7 +7843,7 @@
             },
             {
               "name": "readEpic",
-              "description": "Whether or not a user can perform `read_epic` on this resource",
+              "description": "Indicates the user can perform `read_epic` on this resource",
               "args": [
 
               ],
@@ -7137,7 +7861,7 @@
             },
             {
               "name": "readEpicIid",
-              "description": "Whether or not a user can perform `read_epic_iid` on this resource",
+              "description": "Indicates the user can perform `read_epic_iid` on this resource",
               "args": [
 
               ],
@@ -7155,7 +7879,7 @@
             },
             {
               "name": "updateEpic",
-              "description": "Whether or not a user can perform `update_epic` on this resource",
+              "description": "Indicates the user can perform `update_epic` on this resource",
               "args": [
 
               ],
@@ -7182,7 +7906,7 @@
         {
           "kind": "ENUM",
           "name": "EpicState",
-          "description": "State of a GitLab epic",
+          "description": "State of an epic.",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -7492,7 +8216,7 @@
             },
             {
               "name": "description",
-              "description": "Description of the label (markdown rendered as HTML for caching)",
+              "description": "Description of the label (Markdown rendered as HTML for caching)",
               "args": [
 
               ],
@@ -7807,7 +8531,7 @@
         {
           "kind": "OBJECT",
           "name": "EpicIssue",
-          "description": null,
+          "description": "Relationship between an epic and an issue",
           "fields": [
             {
               "name": "assignees",
@@ -7960,7 +8684,7 @@
             },
             {
               "name": "designCollection",
-              "description": null,
+              "description": "Collection of design images associated with this issue",
               "args": [
 
               ],
@@ -7974,7 +8698,7 @@
             },
             {
               "name": "designs",
-              "description": null,
+              "description": "Deprecated. Use `design_collection`",
               "args": [
 
               ],
@@ -8095,7 +8819,7 @@
             },
             {
               "name": "epic",
-              "description": "The epic to which issue belongs",
+              "description": "Epic to which this issue belongs",
               "args": [
 
               ],
@@ -8109,7 +8833,7 @@
             },
             {
               "name": "epicIssueId",
-              "description": null,
+              "description": "ID of the epic-issue relation",
               "args": [
 
               ],
@@ -8127,7 +8851,7 @@
             },
             {
               "name": "id",
-              "description": "The global id of the epic-issue relation",
+              "description": "Global ID of the epic-issue relation",
               "args": [
 
               ],
@@ -8363,7 +9087,7 @@
             },
             {
               "name": "relationPath",
-              "description": null,
+              "description": "URI path of the epic-issue relation",
               "args": [
 
               ],
@@ -8409,7 +9133,7 @@
             },
             {
               "name": "subscribed",
-              "description": "Boolean flag for whether the currently logged in user is subscribed to this issue",
+              "description": "Indicates the currently logged in user is subscribed to the issue",
               "args": [
 
               ],
@@ -8621,7 +9345,7 @@
             },
             {
               "name": "weight",
-              "description": null,
+              "description": "Weight of the issue",
               "args": [
 
               ],
@@ -8652,7 +9376,7 @@
           "fields": [
             {
               "name": "adminIssue",
-              "description": "Whether or not a user can perform `admin_issue` on this resource",
+              "description": "Indicates the user can perform `admin_issue` on this resource",
               "args": [
 
               ],
@@ -8670,7 +9394,7 @@
             },
             {
               "name": "createDesign",
-              "description": "Whether or not a user can perform `create_design` on this resource",
+              "description": "Indicates the user can perform `create_design` on this resource",
               "args": [
 
               ],
@@ -8688,7 +9412,7 @@
             },
             {
               "name": "createNote",
-              "description": "Whether or not a user can perform `create_note` on this resource",
+              "description": "Indicates the user can perform `create_note` on this resource",
               "args": [
 
               ],
@@ -8706,7 +9430,7 @@
             },
             {
               "name": "destroyDesign",
-              "description": "Whether or not a user can perform `destroy_design` on this resource",
+              "description": "Indicates the user can perform `destroy_design` on this resource",
               "args": [
 
               ],
@@ -8724,7 +9448,7 @@
             },
             {
               "name": "readDesign",
-              "description": "Whether or not a user can perform `read_design` on this resource",
+              "description": "Indicates the user can perform `read_design` on this resource",
               "args": [
 
               ],
@@ -8742,7 +9466,7 @@
             },
             {
               "name": "readIssue",
-              "description": "Whether or not a user can perform `read_issue` on this resource",
+              "description": "Indicates the user can perform `read_issue` on this resource",
               "args": [
 
               ],
@@ -8760,7 +9484,7 @@
             },
             {
               "name": "reopenIssue",
-              "description": "Whether or not a user can perform `reopen_issue` on this resource",
+              "description": "Indicates the user can perform `reopen_issue` on this resource",
               "args": [
 
               ],
@@ -8778,7 +9502,7 @@
             },
             {
               "name": "updateIssue",
-              "description": "Whether or not a user can perform `update_issue` on this resource",
+              "description": "Indicates the user can perform `update_issue` on this resource",
               "args": [
 
               ],
@@ -9028,11 +9752,71 @@
         {
           "kind": "OBJECT",
           "name": "DesignCollection",
-          "description": null,
+          "description": "A collection of designs.",
           "fields": [
             {
+              "name": "design",
+              "description": "Find a specific design",
+              "args": [
+                {
+                  "name": "id",
+                  "description": "Find a design by its ID",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filename",
+                  "description": "Find a design by its filename",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Design",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "designAtVersion",
+              "description": "Find a design as of a version",
+              "args": [
+                {
+                  "name": "id",
+                  "description": "The Global ID of the design at this version",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DesignAtVersion",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "designs",
-              "description": "All designs for this collection",
+              "description": "All designs for the design collection",
               "args": [
                 {
                   "name": "ids",
@@ -9135,7 +9919,7 @@
             },
             {
               "name": "issue",
-              "description": null,
+              "description": "Issue associated with the design collection",
               "args": [
 
               ],
@@ -9153,7 +9937,7 @@
             },
             {
               "name": "project",
-              "description": null,
+              "description": "Project associated with the design collection",
               "args": [
 
               ],
@@ -9170,9 +9954,62 @@
               "deprecationReason": null
             },
             {
-              "name": "versions",
-              "description": "All versions related to all designs ordered newest first",
+              "name": "version",
+              "description": "A specific version",
               "args": [
+                {
+                  "name": "sha",
+                  "description": "The SHA256 of a specific version",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "id",
+                  "description": "The Global ID of the version",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DesignVersion",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "versions",
+              "description": "All versions related to all designs, ordered newest first",
+              "args": [
+                {
+                  "name": "earlierOrEqualToSha",
+                  "description": "The SHA256 of the most recent acceptable version",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "earlierOrEqualToId",
+                  "description": "The Global ID of the most recent acceptable version",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
                 {
                   "name": "after",
                   "description": "Returns the elements in the list that come after the specified cursor.",
@@ -9390,7 +10227,7 @@
             },
             {
               "name": "designCollection",
-              "description": null,
+              "description": "Collection of design images associated with this issue",
               "args": [
 
               ],
@@ -9404,7 +10241,7 @@
             },
             {
               "name": "designs",
-              "description": null,
+              "description": "Deprecated. Use `design_collection`",
               "args": [
 
               ],
@@ -9525,7 +10362,7 @@
             },
             {
               "name": "epic",
-              "description": "The epic to which issue belongs",
+              "description": "Epic to which this issue belongs",
               "args": [
 
               ],
@@ -9793,7 +10630,7 @@
             },
             {
               "name": "subscribed",
-              "description": "Boolean flag for whether the currently logged in user is subscribed to this issue",
+              "description": "Indicates the currently logged in user is subscribed to the issue",
               "args": [
 
               ],
@@ -10005,7 +10842,7 @@
             },
             {
               "name": "weight",
-              "description": null,
+              "description": "Weight of the issue",
               "args": [
 
               ],
@@ -10144,11 +10981,11 @@
         {
           "kind": "OBJECT",
           "name": "Design",
-          "description": null,
+          "description": "A single design",
           "fields": [
             {
               "name": "diffRefs",
-              "description": null,
+              "description": "The diff refs for this design",
               "args": [
 
               ],
@@ -10223,7 +11060,7 @@
             },
             {
               "name": "event",
-              "description": "The change that happened to the design at this version",
+              "description": "How this design was changed in the current version",
               "args": [
 
               ],
@@ -10241,7 +11078,7 @@
             },
             {
               "name": "filename",
-              "description": null,
+              "description": "The filename of the design",
               "args": [
 
               ],
@@ -10259,7 +11096,7 @@
             },
             {
               "name": "fullPath",
-              "description": null,
+              "description": "The full path to the design file",
               "args": [
 
               ],
@@ -10277,7 +11114,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "The ID of this design",
               "args": [
 
               ],
@@ -10295,7 +11132,7 @@
             },
             {
               "name": "image",
-              "description": null,
+              "description": "The URL of the image",
               "args": [
 
               ],
@@ -10313,7 +11150,7 @@
             },
             {
               "name": "issue",
-              "description": null,
+              "description": "The issue the design belongs to",
               "args": [
 
               ],
@@ -10406,7 +11243,7 @@
             },
             {
               "name": "project",
-              "description": null,
+              "description": "The project the design belongs to",
               "args": [
 
               ],
@@ -10426,6 +11263,26 @@
               "name": "versions",
               "description": "All versions related to this design ordered newest first",
               "args": [
+                {
+                  "name": "earlierOrEqualToSha",
+                  "description": "The SHA256 of the most recent acceptable version",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "earlierOrEqualToId",
+                  "description": "The Global ID of the most recent acceptable version",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
                 {
                   "name": "after",
                   "description": "Returns the elements in the list that come after the specified cursor.",
@@ -10486,15 +11343,204 @@
               "kind": "INTERFACE",
               "name": "Noteable",
               "ofType": null
+            },
+            {
+              "kind": "INTERFACE",
+              "name": "DesignFields",
+              "ofType": null
             }
           ],
           "enumValues": null,
           "possibleTypes": null
         },
         {
+          "kind": "INTERFACE",
+          "name": "DesignFields",
+          "description": null,
+          "fields": [
+            {
+              "name": "diffRefs",
+              "description": "The diff refs for this design",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "DiffRefs",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "event",
+              "description": "How this design was changed in the current version",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "DesignVersionEvent",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "filename",
+              "description": "The filename of the design",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "fullPath",
+              "description": "The full path to the design file",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "id",
+              "description": "The ID of this design",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "image",
+              "description": "The URL of the image",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "issue",
+              "description": "The issue the design belongs to",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Issue",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "notesCount",
+              "description": "The total count of user-created notes for this design",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "project",
+              "description": "The project the design belongs to",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Project",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": [
+            {
+              "kind": "OBJECT",
+              "name": "Design",
+              "ofType": null
+            },
+            {
+              "kind": "OBJECT",
+              "name": "DesignAtVersion",
+              "ofType": null
+            }
+          ]
+        },
+        {
           "kind": "ENUM",
           "name": "DesignVersionEvent",
-          "description": "Mutation event of a Design within a Version",
+          "description": "Mutation event of a design within a version",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
@@ -10641,11 +11687,58 @@
         {
           "kind": "OBJECT",
           "name": "DesignVersion",
-          "description": null,
+          "description": "A specific version in which designs were added, modified or deleted",
           "fields": [
             {
+              "name": "designAtVersion",
+              "description": "A particular design as of this version, provided it is visible at this version",
+              "args": [
+                {
+                  "name": "id",
+                  "description": "The ID of the DesignAtVersion",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "designId",
+                  "description": "The ID of a specific design",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "ID",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filename",
+                  "description": "The filename of a specific design",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "DesignAtVersion",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "designs",
-              "description": "All designs that were changed in this version",
+              "description": "All designs that were changed in the version",
               "args": [
                 {
                   "name": "after",
@@ -10701,8 +11794,101 @@
               "deprecationReason": null
             },
             {
+              "name": "designsAtVersion",
+              "description": "All designs that are visible at this version, as of this version",
+              "args": [
+                {
+                  "name": "ids",
+                  "description": "Filters designs by their ID",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "ID",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "filenames",
+                  "description": "Filters designs by their filename",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "NON_NULL",
+                      "name": null,
+                      "ofType": {
+                        "kind": "SCALAR",
+                        "name": "String",
+                        "ofType": null
+                      }
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "after",
+                  "description": "Returns the elements in the list that come after the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "before",
+                  "description": "Returns the elements in the list that come before the specified cursor.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "first",
+                  "description": "Returns the first _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "last",
+                  "description": "Returns the last _n_ elements from the list.",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "Int",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "DesignAtVersionConnection",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "id",
-              "description": null,
+              "description": "ID of the design version",
               "args": [
 
               ],
@@ -10720,7 +11906,7 @@
             },
             {
               "name": "sha",
-              "description": null,
+              "description": "SHA of the design version",
               "args": [
 
               ],
@@ -10746,8 +11932,335 @@
         },
         {
           "kind": "OBJECT",
+          "name": "DesignAtVersionConnection",
+          "description": "The connection type for DesignAtVersion.",
+          "fields": [
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "DesignAtVersionEdge",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nodes",
+              "description": "A list of nodes.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "DesignAtVersion",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "DesignAtVersionEdge",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DesignAtVersion",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "DesignAtVersion",
+          "description": "A design pinned to a specific version. The image field reflects the design as of the associated version.",
+          "fields": [
+            {
+              "name": "design",
+              "description": "The underlying design.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Design",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "diffRefs",
+              "description": "The diff refs for this design",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "DiffRefs",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "event",
+              "description": "How this design was changed in the current version",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "DesignVersionEvent",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "filename",
+              "description": "The filename of the design",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "fullPath",
+              "description": "The full path to the design file",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "id",
+              "description": "The ID of this design",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "image",
+              "description": "The URL of the image",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "issue",
+              "description": "The issue the design belongs to",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Issue",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "notesCount",
+              "description": "The total count of user-created notes for this design",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "project",
+              "description": "The project the design belongs to",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Project",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "version",
+              "description": "The version this design-at-versions is pinned to",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "DesignVersion",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+            {
+              "kind": "INTERFACE",
+              "name": "DesignFields",
+              "ofType": null
+            }
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
           "name": "EpicDescendantCount",
-          "description": null,
+          "description": "Counts of descendent epics.",
           "fields": [
             {
               "name": "closedEpics",
@@ -10801,6 +12314,199 @@
                 "kind": "SCALAR",
                 "name": "Int",
                 "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "TimelogConnection",
+          "description": "The connection type for Timelog.",
+          "fields": [
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "TimelogEdge",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nodes",
+              "description": "A list of nodes.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Timelog",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "TimelogEdge",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Timelog",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "Timelog",
+          "description": null,
+          "fields": [
+            {
+              "name": "date",
+              "description": "The date when the time tracked was spent at",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Time",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "issue",
+              "description": "The issue that logged time was added to",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Issue",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "timeSpent",
+              "description": "The time spent displayed in seconds",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "user",
+              "description": "The user that logged the time",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "User",
+                  "ofType": null
+                }
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -11061,7 +12767,7 @@
           "fields": [
             {
               "name": "blobs",
-              "description": null,
+              "description": "Blobs of the tree",
               "args": [
                 {
                   "name": "after",
@@ -11132,7 +12838,7 @@
             },
             {
               "name": "submodules",
-              "description": null,
+              "description": "Sub-modules of the tree",
               "args": [
                 {
                   "name": "after",
@@ -11189,7 +12895,7 @@
             },
             {
               "name": "trees",
-              "description": null,
+              "description": "Trees of the tree",
               "args": [
                 {
                   "name": "after",
@@ -11662,7 +13368,7 @@
           "fields": [
             {
               "name": "beforeSha",
-              "description": null,
+              "description": "Base SHA of the source branch",
               "args": [
 
               ],
@@ -11676,7 +13382,7 @@
             },
             {
               "name": "committedAt",
-              "description": null,
+              "description": "Timestamp of the pipeline's commit",
               "args": [
 
               ],
@@ -11704,7 +13410,7 @@
             },
             {
               "name": "createdAt",
-              "description": null,
+              "description": "Timestamp of the pipeline's creation",
               "args": [
 
               ],
@@ -11722,7 +13428,7 @@
             },
             {
               "name": "detailedStatus",
-              "description": null,
+              "description": "Detailed status of the pipeline",
               "args": [
 
               ],
@@ -11754,7 +13460,7 @@
             },
             {
               "name": "finishedAt",
-              "description": null,
+              "description": "Timestamp of the pipeline's completion",
               "args": [
 
               ],
@@ -11768,7 +13474,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the pipeline",
               "args": [
 
               ],
@@ -11786,7 +13492,7 @@
             },
             {
               "name": "iid",
-              "description": null,
+              "description": "Internal ID of the pipeline",
               "args": [
 
               ],
@@ -11804,7 +13510,7 @@
             },
             {
               "name": "sha",
-              "description": null,
+              "description": "SHA of the pipeline's commit",
               "args": [
 
               ],
@@ -11822,7 +13528,7 @@
             },
             {
               "name": "startedAt",
-              "description": null,
+              "description": "Timestamp when the pipeline was started",
               "args": [
 
               ],
@@ -11836,7 +13542,7 @@
             },
             {
               "name": "status",
-              "description": null,
+              "description": "Status of the pipeline (CREATED, WAITING_FOR_RESOURCE, PREPARING, PENDING, RUNNING, FAILED, SUCCESS, CANCELED, SKIPPED, MANUAL, SCHEDULED)",
               "args": [
 
               ],
@@ -11854,7 +13560,7 @@
             },
             {
               "name": "updatedAt",
-              "description": null,
+              "description": "Timestamp of the pipeline's last activity",
               "args": [
 
               ],
@@ -11903,7 +13609,7 @@
           "fields": [
             {
               "name": "adminPipeline",
-              "description": "Whether or not a user can perform `admin_pipeline` on this resource",
+              "description": "Indicates the user can perform `admin_pipeline` on this resource",
               "args": [
 
               ],
@@ -11921,7 +13627,7 @@
             },
             {
               "name": "destroyPipeline",
-              "description": "Whether or not a user can perform `destroy_pipeline` on this resource",
+              "description": "Indicates the user can perform `destroy_pipeline` on this resource",
               "args": [
 
               ],
@@ -11939,7 +13645,7 @@
             },
             {
               "name": "updatePipeline",
-              "description": "Whether or not a user can perform `update_pipeline` on this resource",
+              "description": "Indicates the user can perform `update_pipeline` on this resource",
               "args": [
 
               ],
@@ -11973,6 +13679,12 @@
           "enumValues": [
             {
               "name": "CREATED",
+              "description": null,
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "WAITING_FOR_RESOURCE",
               "description": null,
               "isDeprecated": false,
               "deprecationReason": null
@@ -12041,7 +13753,7 @@
           "fields": [
             {
               "name": "detailsPath",
-              "description": null,
+              "description": "Path of the details for the pipeline status",
               "args": [
 
               ],
@@ -12059,7 +13771,7 @@
             },
             {
               "name": "favicon",
-              "description": null,
+              "description": "Favicon of the pipeline status",
               "args": [
 
               ],
@@ -12077,7 +13789,7 @@
             },
             {
               "name": "group",
-              "description": null,
+              "description": "Group of the pipeline status",
               "args": [
 
               ],
@@ -12095,7 +13807,7 @@
             },
             {
               "name": "hasDetails",
-              "description": null,
+              "description": "Indicates if the pipeline status has further details",
               "args": [
 
               ],
@@ -12113,7 +13825,7 @@
             },
             {
               "name": "icon",
-              "description": null,
+              "description": "Icon of the pipeline status",
               "args": [
 
               ],
@@ -12131,7 +13843,7 @@
             },
             {
               "name": "label",
-              "description": null,
+              "description": "Label of the pipeline status",
               "args": [
 
               ],
@@ -12149,7 +13861,7 @@
             },
             {
               "name": "text",
-              "description": null,
+              "description": "Text of the pipeline status",
               "args": [
 
               ],
@@ -12167,7 +13879,7 @@
             },
             {
               "name": "tooltip",
-              "description": null,
+              "description": "Tooltip associated with the pipeline status",
               "args": [
 
               ],
@@ -12320,7 +14032,7 @@
           "fields": [
             {
               "name": "flatPath",
-              "description": null,
+              "description": "Flat path of the entry",
               "args": [
 
               ],
@@ -12338,7 +14050,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the entry",
               "args": [
 
               ],
@@ -12356,7 +14068,7 @@
             },
             {
               "name": "name",
-              "description": null,
+              "description": "Name of the entry",
               "args": [
 
               ],
@@ -12374,7 +14086,7 @@
             },
             {
               "name": "path",
-              "description": null,
+              "description": "Path of the entry",
               "args": [
 
               ],
@@ -12392,7 +14104,7 @@
             },
             {
               "name": "sha",
-              "description": "Last commit sha for entry",
+              "description": "Last commit sha for the entry",
               "args": [
 
               ],
@@ -12410,7 +14122,7 @@
             },
             {
               "name": "type",
-              "description": null,
+              "description": "Type of tree entry",
               "args": [
 
               ],
@@ -12428,7 +14140,7 @@
             },
             {
               "name": "webUrl",
-              "description": null,
+              "description": "Web URL for the tree entry (directory)",
               "args": [
 
               ],
@@ -12459,7 +14171,7 @@
           "fields": [
             {
               "name": "flatPath",
-              "description": null,
+              "description": "Flat path of the entry",
               "args": [
 
               ],
@@ -12477,7 +14189,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the entry",
               "args": [
 
               ],
@@ -12495,7 +14207,7 @@
             },
             {
               "name": "name",
-              "description": null,
+              "description": "Name of the entry",
               "args": [
 
               ],
@@ -12513,7 +14225,7 @@
             },
             {
               "name": "path",
-              "description": null,
+              "description": "Path of the entry",
               "args": [
 
               ],
@@ -12531,7 +14243,7 @@
             },
             {
               "name": "sha",
-              "description": "Last commit sha for entry",
+              "description": "Last commit sha for the entry",
               "args": [
 
               ],
@@ -12549,7 +14261,7 @@
             },
             {
               "name": "type",
-              "description": null,
+              "description": "Type of tree entry",
               "args": [
 
               ],
@@ -12735,7 +14447,7 @@
           "fields": [
             {
               "name": "flatPath",
-              "description": null,
+              "description": "Flat path of the entry",
               "args": [
 
               ],
@@ -12753,7 +14465,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the entry",
               "args": [
 
               ],
@@ -12771,7 +14483,7 @@
             },
             {
               "name": "name",
-              "description": null,
+              "description": "Name of the entry",
               "args": [
 
               ],
@@ -12789,7 +14501,7 @@
             },
             {
               "name": "path",
-              "description": null,
+              "description": "Path of the entry",
               "args": [
 
               ],
@@ -12807,7 +14519,7 @@
             },
             {
               "name": "sha",
-              "description": "Last commit sha for entry",
+              "description": "Last commit sha for the entry",
               "args": [
 
               ],
@@ -12825,7 +14537,7 @@
             },
             {
               "name": "treeUrl",
-              "description": null,
+              "description": "Tree URL for the sub-module",
               "args": [
 
               ],
@@ -12839,7 +14551,7 @@
             },
             {
               "name": "type",
-              "description": null,
+              "description": "Type of tree entry",
               "args": [
 
               ],
@@ -12857,7 +14569,7 @@
             },
             {
               "name": "webUrl",
-              "description": null,
+              "description": "Web URL for the sub-module",
               "args": [
 
               ],
@@ -13000,7 +14712,7 @@
           "fields": [
             {
               "name": "flatPath",
-              "description": null,
+              "description": "Flat path of the entry",
               "args": [
 
               ],
@@ -13018,7 +14730,7 @@
             },
             {
               "name": "id",
-              "description": null,
+              "description": "ID of the entry",
               "args": [
 
               ],
@@ -13036,7 +14748,7 @@
             },
             {
               "name": "lfsOid",
-              "description": null,
+              "description": "LFS ID of the blob",
               "args": [
 
               ],
@@ -13050,7 +14762,7 @@
             },
             {
               "name": "name",
-              "description": null,
+              "description": "Name of the entry",
               "args": [
 
               ],
@@ -13068,7 +14780,7 @@
             },
             {
               "name": "path",
-              "description": null,
+              "description": "Path of the entry",
               "args": [
 
               ],
@@ -13086,7 +14798,7 @@
             },
             {
               "name": "sha",
-              "description": "Last commit sha for entry",
+              "description": "Last commit sha for the entry",
               "args": [
 
               ],
@@ -13104,7 +14816,7 @@
             },
             {
               "name": "type",
-              "description": null,
+              "description": "Type of tree entry",
               "args": [
 
               ],
@@ -13122,7 +14834,7 @@
             },
             {
               "name": "webUrl",
-              "description": null,
+              "description": "Web URL of the blob",
               "args": [
 
               ],
@@ -13364,7 +15076,7 @@
             },
             {
               "name": "description",
-              "description": "Description of the merge request (markdown rendered as HTML for caching)",
+              "description": "Description of the merge request (Markdown rendered as HTML for caching)",
               "args": [
 
               ],
@@ -14441,7 +16153,7 @@
           "fields": [
             {
               "name": "adminMergeRequest",
-              "description": "Whether or not a user can perform `admin_merge_request` on this resource",
+              "description": "Indicates the user can perform `admin_merge_request` on this resource",
               "args": [
 
               ],
@@ -14459,7 +16171,7 @@
             },
             {
               "name": "cherryPickOnCurrentMergeRequest",
-              "description": "Whether or not a user can perform `cherry_pick_on_current_merge_request` on this resource",
+              "description": "Indicates the user can perform `cherry_pick_on_current_merge_request` on this resource",
               "args": [
 
               ],
@@ -14477,7 +16189,7 @@
             },
             {
               "name": "createNote",
-              "description": "Whether or not a user can perform `create_note` on this resource",
+              "description": "Indicates the user can perform `create_note` on this resource",
               "args": [
 
               ],
@@ -14495,7 +16207,7 @@
             },
             {
               "name": "pushToSourceBranch",
-              "description": "Whether or not a user can perform `push_to_source_branch` on this resource",
+              "description": "Indicates the user can perform `push_to_source_branch` on this resource",
               "args": [
 
               ],
@@ -14513,7 +16225,7 @@
             },
             {
               "name": "readMergeRequest",
-              "description": "Whether or not a user can perform `read_merge_request` on this resource",
+              "description": "Indicates the user can perform `read_merge_request` on this resource",
               "args": [
 
               ],
@@ -14531,7 +16243,7 @@
             },
             {
               "name": "removeSourceBranch",
-              "description": "Whether or not a user can perform `remove_source_branch` on this resource",
+              "description": "Indicates the user can perform `remove_source_branch` on this resource",
               "args": [
 
               ],
@@ -14549,7 +16261,7 @@
             },
             {
               "name": "revertOnCurrentMergeRequest",
-              "description": "Whether or not a user can perform `revert_on_current_merge_request` on this resource",
+              "description": "Indicates the user can perform `revert_on_current_merge_request` on this resource",
               "args": [
 
               ],
@@ -14567,7 +16279,7 @@
             },
             {
               "name": "updateMergeRequest",
-              "description": "Whether or not a user can perform `update_merge_request` on this resource",
+              "description": "Indicates the user can perform `update_merge_request` on this resource",
               "args": [
 
               ],
@@ -14834,6 +16546,167 @@
         },
         {
           "kind": "OBJECT",
+          "name": "EnvironmentConnection",
+          "description": "The connection type for Environment.",
+          "fields": [
+            {
+              "name": "edges",
+              "description": "A list of edges.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "EnvironmentEdge",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "nodes",
+              "description": "A list of nodes.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "LIST",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "Environment",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "pageInfo",
+              "description": "Information to aid in pagination.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "PageInfo",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "EnvironmentEdge",
+          "description": "An edge in a connection.",
+          "fields": [
+            {
+              "name": "cursor",
+              "description": "A cursor for use in pagination.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "node",
+              "description": "The item at the end of the edge.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Environment",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "Environment",
+          "description": "Describes where code is deployed for a project",
+          "fields": [
+            {
+              "name": "id",
+              "description": "ID of the environment",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "name",
+              "description": "Human-readable name of the environment",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
           "name": "SentryDetailedError",
           "description": null,
           "fields": [
@@ -14858,6 +16731,24 @@
             {
               "name": "culprit",
               "description": "Culprit of the error",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "externalBaseUrl",
+              "description": "External Base URL of the Sentry Instance",
               "args": [
 
               ],
@@ -14959,6 +16850,48 @@
                     }
                   }
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "gitlabCommit",
+              "description": "GitLab commit SHA attributed to the Error based on the release version",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "gitlabCommitPath",
+              "description": "Path to the GitLab page for the GitLab commit attributed to the error",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "gitlabIssuePath",
+              "description": "URL of GitLab Issue",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -15150,6 +17083,24 @@
               "deprecationReason": null
             },
             {
+              "name": "tags",
+              "description": "Tags associated with the Sentry Error",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "SentryErrorTags",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "title",
               "description": "Title of the error",
               "args": [
@@ -15297,6 +17248,168 @@
         },
         {
           "kind": "OBJECT",
+          "name": "SentryErrorTags",
+          "description": "State of a Sentry error",
+          "fields": [
+            {
+              "name": "level",
+              "description": "Severity level of the Sentry Error",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "logger",
+              "description": "Logger of the Sentry Error",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "GrafanaIntegration",
+          "description": null,
+          "fields": [
+            {
+              "name": "createdAt",
+              "description": "Timestamp of the issue's creation",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Time",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "enabled",
+              "description": "Indicates whether Grafana integration is enabled",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "grafanaUrl",
+              "description": "Url for the Grafana host for the Grafana integration",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "id",
+              "description": "Internal ID of the Grafana integration",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "token",
+              "description": "API token for the Grafana integration",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "updatedAt",
+              "description": "Timestamp of the issue's last activity",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Time",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
           "name": "Metadata",
           "description": null,
           "fields": [
@@ -15332,6 +17445,73 @@
                   "name": "String",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "DesignManagement",
+          "description": null,
+          "fields": [
+            {
+              "name": "designAtVersion",
+              "description": "Find a design as of a version",
+              "args": [
+                {
+                  "name": "id",
+                  "description": "The Global ID of the design at this version",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DesignAtVersion",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "version",
+              "description": "Find a version",
+              "args": [
+                {
+                  "name": "id",
+                  "description": "The Global ID of the version",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DesignVersion",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -15485,6 +17665,33 @@
               "deprecationReason": null
             },
             {
+              "name": "createSnippet",
+              "description": null,
+              "args": [
+                {
+                  "name": "input",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "CreateSnippetInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "CreateSnippetPayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "designManagementDelete",
               "description": null,
               "args": [
@@ -15560,6 +17767,33 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "DestroyNotePayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "destroySnippet",
+              "description": null,
+              "args": [
+                {
+                  "name": "input",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "DestroySnippetInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "DestroySnippetPayload",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -15668,6 +17902,60 @@
               "type": {
                 "kind": "OBJECT",
                 "name": "IssueSetDueDatePayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "issueSetWeight",
+              "description": null,
+              "args": [
+                {
+                  "name": "input",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "IssueSetWeightInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "IssueSetWeightPayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "markAsSpamSnippet",
+              "description": null,
+              "args": [
+                {
+                  "name": "input",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "MarkAsSpamSnippetInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "MarkAsSpamSnippetPayload",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -16023,6 +18311,33 @@
               },
               "isDeprecated": false,
               "deprecationReason": null
+            },
+            {
+              "name": "updateSnippet",
+              "description": null,
+              "args": [
+                {
+                  "name": "input",
+                  "description": null,
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "INPUT_OBJECT",
+                      "name": "UpdateSnippetInput",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "UpdateSnippetPayload",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
             }
           ],
           "inputFields": null,
@@ -16102,7 +18417,7 @@
         {
           "kind": "OBJECT",
           "name": "AwardEmoji",
-          "description": null,
+          "description": "An emoji awarded by a user.",
           "fields": [
             {
               "name": "description",
@@ -16446,7 +18761,7 @@
             },
             {
               "name": "toggledOn",
-              "description": "True when the emoji was awarded, false when it was removed",
+              "description": "Indicates the status of the emoji. True if the toggle awarded the emoji, and false if the toggle removed the emoji.",
               "args": [
 
               ],
@@ -17709,7 +20024,7 @@
             },
             {
               "name": "body",
-              "description": "The content note itself",
+              "description": "Content of the note",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -17835,7 +20150,7 @@
             },
             {
               "name": "body",
-              "description": "The content note itself",
+              "description": "Content of the note",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -17884,7 +20199,7 @@
           "inputFields": [
             {
               "name": "headSha",
-              "description": "The sha of the head at the time the comment was made",
+              "description": "SHA of the HEAD at the time the comment was made",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -17898,7 +20213,7 @@
             },
             {
               "name": "baseSha",
-              "description": "The merge base of the branch the comment was made on",
+              "description": "Merge base of the branch the comment was made on",
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -17908,7 +20223,7 @@
             },
             {
               "name": "startSha",
-              "description": "The sha of the branch being compared against",
+              "description": "SHA of the branch being compared against",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -17936,7 +20251,7 @@
             },
             {
               "name": "oldLine",
-              "description": "The line on start sha that was changed",
+              "description": "Line on start SHA that was changed",
               "type": {
                 "kind": "SCALAR",
                 "name": "Int",
@@ -17946,7 +20261,7 @@
             },
             {
               "name": "newLine",
-              "description": "The line on head sha that was changed",
+              "description": "Line on HEAD SHA that was changed",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -18083,7 +20398,7 @@
             },
             {
               "name": "body",
-              "description": "The content note itself",
+              "description": "Content of the note",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -18132,7 +20447,7 @@
           "inputFields": [
             {
               "name": "headSha",
-              "description": "The sha of the head at the time the comment was made",
+              "description": "SHA of the HEAD at the time the comment was made",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -18146,7 +20461,7 @@
             },
             {
               "name": "baseSha",
-              "description": "The merge base of the branch the comment was made on",
+              "description": "Merge base of the branch the comment was made on",
               "type": {
                 "kind": "SCALAR",
                 "name": "String",
@@ -18156,7 +20471,7 @@
             },
             {
               "name": "startSha",
-              "description": "The sha of the branch being compared against",
+              "description": "SHA of the branch being compared against",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -18184,7 +20499,7 @@
             },
             {
               "name": "x",
-              "description": "The X postion on which the comment was made",
+              "description": "X position on which the comment was made",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -18198,7 +20513,7 @@
             },
             {
               "name": "y",
-              "description": "The Y position on which the comment was made",
+              "description": "Y position on which the comment was made",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -18212,7 +20527,7 @@
             },
             {
               "name": "width",
-              "description": "The total width of the image",
+              "description": "Total width of the image",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -18226,7 +20541,7 @@
             },
             {
               "name": "height",
-              "description": "The total height of the image",
+              "description": "Total height of the image",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -18332,7 +20647,7 @@
             },
             {
               "name": "body",
-              "description": "The content note itself",
+              "description": "Content of the note",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -18775,6 +21090,522 @@
         },
         {
           "kind": "OBJECT",
+          "name": "DestroySnippetPayload",
+          "description": "Autogenerated return type of DestroySnippet",
+          "fields": [
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "errors",
+              "description": "Reasons why the mutation failed.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "snippet",
+              "description": "The snippet after mutation",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Snippet",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "DestroySnippetInput",
+          "description": "Autogenerated input type of DestroySnippet",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "id",
+              "description": "The global id of the snippet to destroy",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "UpdateSnippetPayload",
+          "description": "Autogenerated return type of UpdateSnippet",
+          "fields": [
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "errors",
+              "description": "Reasons why the mutation failed.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "snippet",
+              "description": "The snippet after mutation",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Snippet",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "UpdateSnippetInput",
+          "description": "Autogenerated input type of UpdateSnippet",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "id",
+              "description": "The global id of the snippet to update",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "title",
+              "description": "Title of the snippet",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "fileName",
+              "description": "File name of the snippet",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "content",
+              "description": "Content of the snippet",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "description",
+              "description": "Description of the snippet",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "visibilityLevel",
+              "description": "The visibility level of the snippet",
+              "type": {
+                "kind": "ENUM",
+                "name": "VisibilityLevelsEnum",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "CreateSnippetPayload",
+          "description": "Autogenerated return type of CreateSnippet",
+          "fields": [
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "errors",
+              "description": "Reasons why the mutation failed.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "snippet",
+              "description": "The snippet after mutation",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Snippet",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "CreateSnippetInput",
+          "description": "Autogenerated input type of CreateSnippet",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "title",
+              "description": "Title of the snippet",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "fileName",
+              "description": "File name of the snippet",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "content",
+              "description": "Content of the snippet",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "description",
+              "description": "Description of the snippet",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "visibilityLevel",
+              "description": "The visibility level of the snippet",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "ENUM",
+                  "name": "VisibilityLevelsEnum",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "projectPath",
+              "description": "The project full path the snippet is associated with",
+              "type": {
+                "kind": "SCALAR",
+                "name": "ID",
+                "ofType": null
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
+          "name": "MarkAsSpamSnippetPayload",
+          "description": "Autogenerated return type of MarkAsSpamSnippet",
+          "fields": [
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "errors",
+              "description": "Reasons why the mutation failed.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "snippet",
+              "description": "The snippet after mutation",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Snippet",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "MarkAsSpamSnippetInput",
+          "description": "Autogenerated input type of MarkAsSpamSnippet",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "id",
+              "description": "The global id of the snippet to update",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
           "name": "DesignManagementUploadPayload",
           "description": "Autogenerated return type of DesignManagementUpload",
           "fields": [
@@ -19099,6 +21930,136 @@
         },
         {
           "kind": "OBJECT",
+          "name": "IssueSetWeightPayload",
+          "description": "Autogenerated return type of IssueSetWeight",
+          "fields": [
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "errors",
+              "description": "Reasons why the mutation failed.",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "issue",
+              "description": "The issue after mutation",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "OBJECT",
+                "name": "Issue",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [
+
+          ],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "INPUT_OBJECT",
+          "name": "IssueSetWeightInput",
+          "description": "Autogenerated input type of IssueSetWeight",
+          "fields": null,
+          "inputFields": [
+            {
+              "name": "projectPath",
+              "description": "The project the issue to mutate is in",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "iid",
+              "description": "The iid of the issue to mutate",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "String",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "weight",
+              "description": "The desired weight for the issue",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Int",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
+              "name": "clientMutationId",
+              "description": "A unique identifier for the client performing the mutation.",
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
+              },
+              "defaultValue": null
+            }
+          ],
+          "interfaces": null,
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
           "name": "EpicTreeReorderPayload",
           "description": "Autogenerated return type of EpicTreeReorder",
           "fields": [
@@ -19202,7 +22163,7 @@
         {
           "kind": "INPUT_OBJECT",
           "name": "EpicTreeNodeFieldsInputType",
-          "description": null,
+          "description": "A node of an epic tree.",
           "fields": null,
           "inputFields": [
             {
@@ -19500,20 +22461,20 @@
         {
           "kind": "ENUM",
           "name": "EpicStateEvent",
-          "description": "State event of a GitLab Epic",
+          "description": "State event of an epic",
           "fields": null,
           "inputFields": null,
           "interfaces": null,
           "enumValues": [
             {
               "name": "REOPEN",
-              "description": "Reopen the Epic",
+              "description": "Reopen the epic",
               "isDeprecated": false,
               "deprecationReason": null
             },
             {
               "name": "CLOSE",
-              "description": "Close the Epic",
+              "description": "Close the epic",
               "isDeprecated": false,
               "deprecationReason": null
             }

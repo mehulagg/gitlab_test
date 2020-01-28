@@ -1,9 +1,9 @@
 <script>
-import { sprintf, s__ } from '~/locale';
 import $ from 'jquery';
 import _ from 'underscore';
-import Icon from '~/vue_shared/components/icon.vue';
 import { GlButton } from '@gitlab/ui';
+import { sprintf, s__ } from '~/locale';
+import Icon from '~/vue_shared/components/icon.vue';
 
 export default {
   name: 'StageDropdownFilter',
@@ -96,7 +96,9 @@ export default {
         {{ selectedStagesLabel }}
         <icon name="chevron-down" />
       </gl-button>
-      <div class="dropdown-menu dropdown-menu-selectable dropdown-menu-full-width">
+      <div
+        class="dropdown-menu dropdown-menu-selectable dropdown-menu-full-width dropdown-menu-right"
+      >
         <div class="dropdown-title text-left">{{ s__('CycleAnalytics|Stages') }}</div>
         <div class="dropdown-content"></div>
       </div>

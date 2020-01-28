@@ -34,6 +34,9 @@ blocking access to the table being modified. See ["Adding Columns With Default
 Values"](migration_style_guide.md#adding-columns-with-default-values) for more
 information on how to use this method.
 
+Note that usage of `add_column_with_default` with `allow_null: false` to also add
+a `NOT NULL` constraint is [discouraged](https://gitlab.com/gitlab-org/gitlab/issues/38060).
+
 ## Dropping Columns
 
 Removing columns is tricky because running GitLab processes may still be using
@@ -210,7 +213,7 @@ class ChangeUsersUsernameStringToTextCleanup < ActiveRecord::Migration[4.2]
   disable_ddl_transaction!
 
   def up
-    cleanup_concurrent_column_type_change :users
+    cleanup_concurrent_column_type_change :users, :username
   end
 
   def down
@@ -373,6 +376,11 @@ This operation is safe as there's no code using the table just yet.
 
 Dropping tables can be done safely using a post-deployment migration, but only
 if the application no longer uses the table.
+
+## Renaming Tables
+
+Renaming tables requires downtime as an application may continue
+using the old table name during/after a database migration.
 
 ## Adding Foreign Keys
 

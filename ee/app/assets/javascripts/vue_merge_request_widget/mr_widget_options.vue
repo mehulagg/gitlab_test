@@ -1,11 +1,11 @@
 <script>
 import _ from 'underscore';
-import ReportSection from '~/reports/components/report_section.vue';
 import GroupedSecurityReportsApp from 'ee/vue_shared/security_reports/grouped_security_reports_app.vue';
 import GroupedMetricsReportsApp from 'ee/vue_shared/metrics_reports/grouped_metrics_reports_app.vue';
 import reportsMixin from 'ee/vue_shared/security_reports/mixins/reports_mixin';
 import { componentNames } from 'ee/reports/components/issue_body';
 import MrWidgetLicenses from 'ee/vue_shared/license_management/mr_widget_license_report.vue';
+import ReportSection from '~/reports/components/report_section.vue';
 import BlockingMergeRequestsReport from './components/blocking_merge_requests/blocking_merge_requests_report.vue';
 
 import { n__, s__, __, sprintf } from '~/locale';
@@ -44,7 +44,7 @@ export default {
     },
     shouldRenderCodeQuality() {
       const { codeclimate } = this.mr || {};
-      return codeclimate && codeclimate.head_path && codeclimate.base_path;
+      return codeclimate && codeclimate.head_path;
     },
     shouldRenderLicenseReport() {
       const { licenseManagement } = this.mr;
@@ -72,10 +72,8 @@ export default {
     },
     shouldRenderSecurityReport() {
       return (
-        (this.mr.sast && this.mr.sast.head_path) ||
-        (this.mr.sastContainer && this.mr.sastContainer.head_path) ||
-        (this.mr.dast && this.mr.dast.head_path) ||
-        (this.mr.dependencyScanning && this.mr.dependencyScanning.head_path)
+        this.mr.enabledSecurityReports &&
+        Object.values(this.mr.enabledSecurityReports).some(isReportEnabled => isReportEnabled)
       );
     },
     codequalityText() {
@@ -101,6 +99,23 @@ export default {
       }
 
       return text.join('');
+    },
+    codequalityPopover() {
+      const { codeclimate } = this.mr || {};
+      if (codeclimate && !codeclimate.base_path) {
+        return {
+          title: s__('ciReport|Base pipeline codequality artifact not found'),
+          content: sprintf(
+            s__('ciReport|%{linkStartTag}Learn more about codequality reports %{linkEndTag}'),
+            {
+              linkStartTag: `<a href="${this.mr.codequalityHelpPath}" target="_blank" rel="noopener noreferrer">`,
+              linkEndTag: '<i class="fa fa-external-link" aria-hidden="true"></i></a>',
+            },
+            false,
+          ),
+        };
+      }
+      return {};
     },
 
     performanceText() {
@@ -174,11 +189,20 @@ export default {
       };
     },
     fetchCodeQuality() {
-      const { head_path, base_path } = this.mr.codeclimate;
+      const { codeclimate } = this.mr || {};
+
+      if (!codeclimate.base_path) {
+        this.isLoadingCodequality = false;
+        this.loadingCodequalityFailed = true;
+        return;
+      }
 
       this.isLoadingCodequality = true;
 
-      Promise.all([this.service.fetchReport(head_path), this.service.fetchReport(base_path)])
+      Promise.all([
+        this.service.fetchReport(codeclimate.head_path),
+        this.service.fetchReport(codeclimate.base_path),
+      ])
         .then(values =>
           this.mr.compareCodeclimateMetrics(
             values[0],
@@ -251,6 +275,7 @@ export default {
         :resolved-issues="mr.codeclimateMetrics.resolvedIssues"
         :has-issues="hasCodequalityIssues"
         :component="$options.componentNames.CodequalityIssueBody"
+        :popover-options="codequalityPopover"
         class="js-codequality-widget mr-widget-border-top mr-report"
       />
       <report-section
@@ -274,19 +299,12 @@ export default {
         v-if="shouldRenderSecurityReport"
         :head-blob-path="mr.headBlobPath"
         :source-branch="mr.sourceBranch"
+        :target-branch="mr.targetBranch"
         :base-blob-path="mr.baseBlobPath"
         :enabled-reports="mr.enabledSecurityReports"
-        :sast-head-path="mr.sast.head_path"
-        :sast-base-path="mr.sast.base_path"
         :sast-help-path="mr.sastHelp"
-        :dast-head-path="mr.dast.head_path"
-        :dast-base-path="mr.dast.base_path"
         :dast-help-path="mr.dastHelp"
-        :sast-container-head-path="mr.sastContainer.head_path"
-        :sast-container-base-path="mr.sastContainer.base_path"
-        :sast-container-help-path="mr.sastContainerHelp"
-        :dependency-scanning-head-path="mr.dependencyScanning.head_path"
-        :dependency-scanning-base-path="mr.dependencyScanning.base_path"
+        :container-scanning-help-path="mr.containerScanningHelp"
         :dependency-scanning-help-path="mr.dependencyScanningHelp"
         :vulnerability-feedback-path="mr.vulnerabilityFeedbackPath"
         :vulnerability-feedback-help-path="mr.vulnerabilityFeedbackHelpPath"

@@ -22,7 +22,6 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
   before do
     project.add_role(user, user_access_level)
     sign_in(user)
-    stub_feature_flags(job_log_json: false)
   end
 
   describe "GET /:project/jobs" do
@@ -304,6 +303,21 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
 
           expect(page.current_path).to eq(job_url)
         end
+      end
+    end
+
+    context 'when job is waiting for resource', :js do
+      let(:job) { create(:ci_build, :waiting_for_resource, pipeline: pipeline, resource_group: resource_group) }
+      let(:resource_group) { create(:ci_resource_group, project: project) }
+
+      before do
+        visit project_job_path(project, job)
+        wait_for_requests
+      end
+
+      it 'shows correct UI components' do
+        expect(page).to have_content("This job is waiting for resource: #{resource_group.key}")
+        expect(page).to have_link("Cancel this job")
       end
     end
 
@@ -810,7 +824,7 @@ describe 'Jobs', :clean_gitlab_redis_shared_state do
 
         it 'renders job log' do
           wait_for_all_requests
-          expect(page).to have_selector('.js-build-trace')
+          expect(page).to have_selector('.job-log')
         end
       end
 

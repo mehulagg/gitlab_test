@@ -68,15 +68,37 @@ describe Gitlab::Diff::HighlightCache, :clean_gitlab_redis_cache do
 
       expect(diff_file.highlighted_diff_lines.size).to be > 5
     end
+
+    it 'assigns highlighted diff lines which rich_text are HTML-safe' do
+      cache.write_if_empty
+      cache.decorate(diff_file)
+
+      rich_texts = diff_file.highlighted_diff_lines.map(&:rich_text)
+
+      expect(rich_texts).to all(be_html_safe)
+    end
+  end
+
+  shared_examples 'caches missing entries' do
+    it 'filters the key/value list of entries to be caches for each invocation' do
+      expect(cache).to receive(:write_to_redis_hash)
+        .with(hash_including(*paths))
+        .once
+        .and_call_original
+
+      2.times { cache.write_if_empty }
+    end
+
+    it 'reads from cache once' do
+      expect(cache).to receive(:read_cache).once.and_call_original
+
+      cache.write_if_empty
+    end
   end
 
   describe '#write_if_empty' do
-    it 'filters the key/value list of entries to be caches for each invocation' do
-      expect(cache).to receive(:write_to_redis_hash)
-        .once.with(hash_including(".gitignore")).and_call_original
-      expect(cache).to receive(:write_to_redis_hash).once.with({}).and_call_original
-
-      2.times { cache.write_if_empty }
+    it_behaves_like 'caches missing entries' do
+      let(:paths) { merge_request.diffs.raw_diff_files.select(&:text?).map(&:file_path) }
     end
 
     context 'different diff_collections for the same diffable' do
@@ -89,6 +111,21 @@ describe Gitlab::Diff::HighlightCache, :clean_gitlab_redis_cache do
 
         expect { cache.write_if_empty }
           .to change { Gitlab::Redis::Cache.with { |r| r.hgetall(cache_key) } }
+      end
+    end
+
+    context 'when cache initialized with MergeRequestDiffBatch' do
+      let(:merge_request_diff_batch) do
+        Gitlab::Diff::FileCollection::MergeRequestDiffBatch.new(
+          merge_request.merge_request_diff,
+          1,
+          10,
+          diff_options: nil)
+      end
+
+      it_behaves_like 'caches missing entries' do
+        let(:cache) { described_class.new(merge_request_diff_batch) }
+        let(:paths) { merge_request_diff_batch.raw_diff_files.select(&:text?).map(&:file_path) }
       end
     end
   end

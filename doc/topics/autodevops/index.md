@@ -19,12 +19,20 @@ For an introduction to Auto DevOps, watch [AutoDevOps in GitLab 11.0](https://yo
 
 ## Enabled by default
 
-Starting with GitLab 11.3, the Auto DevOps pipeline is enabled by default for all
-projects. If it has not been explicitly enabled for the project, Auto DevOps will be automatically
-disabled on the first pipeline failure. Your project will continue to use an alternative
-[CI/CD configuration file](../../ci/yaml/README.md) if one is found. A GitLab
-administrator can [change this setting](../../user/admin_area/settings/continuous_integration.md#auto-devops-core-only)
-in the admin area.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/41729) in GitLab 11.3.
+
+Auto DevOps is enabled by default for all projects and will attempt to run on all pipelines
+in each project. This default can be enabled or disabled by an instance administrator in the
+[Auto DevOps settings](../../user/admin_area/settings/continuous_integration.md#auto-devops-core-only).
+It will be automatically disabled in individual projects on their first pipeline failure,
+if it has not been explicitly enabled for the project.
+
+Since [GitLab 12.7](https://gitlab.com/gitlab-org/gitlab/issues/26655), Auto DevOps
+will run on pipelines automatically only if a [`Dockerfile` or matching buildpack](#auto-build)
+exists.
+
+If a [CI/CD configuration file](../../ci/yaml/README.md) is present in the project,
+it will continue to be used, whether or not Auto DevOps is enabled.
 
 ## Quick start
 
@@ -176,7 +184,7 @@ The Auto DevOps base domain is required if you want to make use of
 places:
 
 - either under the cluster's settings, whether for [projects](../../user/project/clusters/index.md#base-domain) or [groups](../../user/group/clusters/index.md#base-domain)
-- or in instance-wide settings in the **admin area > Settings** under the "Continuous Integration and Delivery" section
+- or in instance-wide settings in the **Admin Area > Settings** under the "Continuous Integration and Delivery" section
 - or at the project level as a variable: `KUBE_INGRESS_BASE_DOMAIN`
 - or at the group level as a variable: `KUBE_INGRESS_BASE_DOMAIN`.
 
@@ -255,7 +263,7 @@ the subgroup or project.
 Even when disabled at the instance level, group owners and project maintainers can still enable
 Auto DevOps at the group and project level, respectively.
 
-1. Go to **Admin area > Settings > Continuous Integration and Deployment**.
+1. Go to **Admin Area > Settings > Continuous Integration and Deployment**.
 1. Toggle the checkbox labeled **Default to Auto DevOps pipeline for all projects**.
 1. If enabling, optionally set up the Auto DevOps [base domain](#auto-devops-base-domain) which will be used for Auto Deploy and Auto Review Apps.
 1. Click **Save changes** for the changes to take effect.
@@ -651,8 +659,6 @@ procfile exec` to replicate the environment where your application will run.
 
 #### Workers
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/30628) in GitLab 12.6, `.gitlab/auto-deploy-values.yaml` will be used by default for Helm upgrades.
-
 Some web applications need to run extra deployments for "worker processes". For
 example, it is common in a Rails application to have a separate worker process
 to run background tasks like sending emails.
@@ -675,17 +681,8 @@ need to:
   ensure it's passed into your deployments.
 
 Once you have configured your worker to respond to health checks, run a Sidekiq
-worker for your Rails application. For:
-
-- GitLab 12.6 and later, either:
-  - Add a file named `.gitlab/auto-deploy-values.yaml` to your repository. It will
-    be automatically used if found.
-  - Add a file with a different name or path to the repository, and override the value of the
-    `HELM_UPGRADE_VALUES_FILE` variable with the path and name.
-- GitLab 12.5 and earlier, run the worker with the `--values` parameter that specifies
-  a file in the repository.
-
-In any case, the file must contain the following:
+worker for your Rails application. You can enable workers by setting the
+following in the [`.gitlab/auto-deploy-values.yaml` file](#customize-values-for-helm-chart):
 
 ```yml
 workers:
@@ -703,6 +700,56 @@ workers:
     - sidekiqctl
     - quiet
     terminationGracePeriodSeconds: 60
+```
+
+#### Network Policy
+
+> [Introduced](https://gitlab.com/gitlab-org/charts/auto-deploy-app/merge_requests/30) in GitLab 12.7.
+
+By default, all Kubernetes pods are
+[non-isolated](https://kubernetes.io/docs/concepts/services-networking/network-policies/#isolated-and-non-isolated-pods)
+and accept traffic from any source. You can use
+[NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
+to restrict connections to selected pods or namespaces.
+
+NOTE: **Note:**
+You must use a Kubernetes network plugin that implements support for
+`NetworkPolicy`, the default network plugin for Kubernetes (`kubenet`)
+[doesn't implement](https://kubernetes.io/docs/concepts/extend-kubernetes/compute-storage-net/network-plugins/#kubenet)
+support for it. The [Cilium](https://cilium.io/) network plugin can be
+installed as a [cluster application](../../user/clusters/applications.md#install-cilium-using-gitlab-ci)
+to enable support for network policies.
+
+You can enable deployment of a network policy by setting the following
+in the `.gitlab/auto-deploy-values.yaml` file:
+
+```yml
+networkPolicy:
+  enabled: true
+```
+
+The default policy deployed by the auto deploy pipeline will allow
+traffic within a local namespace and from the `gitlab-managed-apps`
+namespace, all other inbound connection will be blocked. Outbound
+traffic is not affected by the default policy.
+
+You can also provide a custom [policy specification](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#networkpolicyspec-v1-networking-k8s-io)
+via the `.gitlab/auto-deploy-values.yaml` file, for example:
+
+```yml
+networkPolicy:
+  enabled: true
+  spec:
+    podSelector:
+      matchLabels:
+        app.gitlab.com/env: staging
+    ingress:
+    - from:
+      - podSelector:
+          matchLabels: {}
+      - namespaceSelector:
+          matchLabels:
+            app.gitlab.com/managed_by: gitlab
 ```
 
 #### Running commands in the container
@@ -869,8 +916,21 @@ repo or by specifying a project variable:
 - **Project variable** - Create a [project variable](../../ci/variables/README.md#gitlab-cicd-environment-variables)
   `AUTO_DEVOPS_CHART` with the URL of a custom chart to use or create two project variables `AUTO_DEVOPS_CHART_REPOSITORY` with the URL of a custom chart repository and `AUTO_DEVOPS_CHART` with the path to the chart.
 
-You can also make use of the `HELM_UPGRADE_EXTRA_ARGS` environment variable to override the default values in the `values.yaml` file in the [default Helm chart](https://gitlab.com/gitlab-org/charts/auto-deploy-app).
-To apply your own `values.yaml` file to all Helm upgrade commands in Auto Deploy set `HELM_UPGRADE_EXTRA_ARGS` to `--values my-values.yaml`.
+### Customize values for Helm Chart
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/30628) in GitLab 12.6, `.gitlab/auto-deploy-values.yaml` will be used by default for Helm upgrades.
+
+You can override the default values in the `values.yaml` file in the [default Helm chart](https://gitlab.com/gitlab-org/charts/auto-deploy-app).
+This can be achieved by either:
+
+- Adding a file named `.gitlab/auto-deploy-values.yaml` to your repository. It will
+  be automatically used if found.
+- Adding a file with a different name or path to the repository, and set the
+  `HELM_UPGRADE_VALUES_FILE` [environment variable](#environment-variables) with the path and name.
+
+NOTE: **Note:**
+For GitLab 12.5 and earlier, the `HELM_UPGRADE_EXTRA_ARGS` environment variable can be used to override the default chart values.
+To do so, set `HELM_UPGRADE_EXTRA_ARGS` to `--values my-values.yaml`.
 
 ### Custom Helm chart per environment
 
@@ -1016,6 +1076,7 @@ Auto DevOps can undo your changes.
 The following table lists variables related to the database.
 
 | **Variable**                            | **Description**                    |
+|-----------------------------------------|------------------------------------|
 | `DB_INITIALIZE`                         | From GitLab 11.4, used to specify the command to run to initialize the application's PostgreSQL database. Runs inside the application pod. |
 | `DB_MIGRATE`                            | From GitLab 11.4, used to specify the command to run to migrate the application's PostgreSQL database. Runs inside the application pod. |
 | `POSTGRES_ENABLED`                      | Whether PostgreSQL is enabled. Defaults to `"true"`. Set to `false` to disable the automatic deployment of PostgreSQL. |
@@ -1029,6 +1090,7 @@ The following table lists variables related to the database.
 The following table lists variables related to security tools.
 
 | **Variable**                            | **Description**                    |
+|-----------------------------------------|------------------------------------|
 | `SAST_CONFIDENCE_LEVEL`                 | Minimum confidence level of security issues you want to be reported; `1` for Low, `2` for Medium, `3` for High. Defaults to `3`. |
 
 #### Disable jobs
@@ -1036,6 +1098,7 @@ The following table lists variables related to security tools.
 The following table lists variables used to disable jobs.
 
 | **Variable**                            | **Description**                    |
+|-----------------------------------------|------------------------------------|
 | `CODE_QUALITY_DISABLED`                 | From GitLab 11.0, used to disable the `codequality` job. If the variable is present, the job will not be created. |
 | `CONTAINER_SCANNING_DISABLED`           | From GitLab 11.0, used to disable the `sast:container` job. If the variable is present, the job will not be created. |
 | `DAST_DISABLED`                         | From GitLab 11.0, used to disable the `dast` job. If the variable is present, the job will not be created. |
@@ -1268,6 +1331,30 @@ Everything behaves the same way, except:
   1. `timed rollout 50%`
   1. `timed rollout 100%`
 
+### Auto DevOps banner
+
+The following Auto DevOps banner will show for maintainers+ on new projects when Auto DevOps is not
+enabled:
+
+![Auto DevOps banner](img/autodevops_banner_v12_6.png)
+
+The banner can be disabled for:
+
+- A user when they dismiss it themselves.
+- A project by explicitly [disabling Auto DevOps](#enablingdisabling-auto-devops).
+- An entire GitLab instance:
+  - By an administrator running the following in a Rails console:
+
+    ```ruby
+    Feature.get(:auto_devops_banner_disabled).enable
+    ```
+
+  - Through the REST API with an admin access token:
+
+    ```sh
+    curl --data "value=true" --header "PRIVATE-TOKEN: <personal_access_token>" https://gitlab.example.com/api/v4/features/auto_devops_banner_disabled
+    ```
+
 ## Currently supported languages
 
 Note that not all buildpacks support Auto Test yet, as it's a relatively new
@@ -1339,27 +1426,6 @@ spec:
 - Auto Deploy will fail if GitLab can not create a Kubernetes namespace and
   service account for your project. For help debugging this issue, see
   [Troubleshooting failed deployment jobs](../../user/project/clusters/index.md#troubleshooting).
-
-### Disable the banner instance wide
-
-If an administrator would like to disable the banners on an instance level, this
-feature can be disabled either through the console:
-
-```sh
-sudo gitlab-rails console
-```
-
-Then run:
-
-```ruby
-Feature.get(:auto_devops_banner_disabled).enable
-```
-
-Or through the HTTP API with an admin access token:
-
-```sh
-curl --data "value=true" --header "PRIVATE-TOKEN: personal_access_token" https://gitlab.example.com/api/v4/features/auto_devops_banner_disabled
-```
 
 [ce-37115]: https://gitlab.com/gitlab-org/gitlab-foss/issues/37115
 [docker-in-docker]: ../../docker/using_docker_build.md#use-docker-in-docker-executor

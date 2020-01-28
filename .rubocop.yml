@@ -155,11 +155,10 @@ Rails/ApplicationRecord:
     # as they need to be as decoupled from application code as possible
     - db/**/*.rb
     - lib/gitlab/background_migration/**/*.rb
+    - ee/lib/ee/gitlab/background_migration/**/*.rb
     - lib/gitlab/database/**/*.rb
     - spec/**/*.rb
     - ee/db/**/*.rb
-    - ee/lib/gitlab/background_migration/**/*.rb
-    - ee/lib/ee/gitlab/background_migration/**/*.rb
     - ee/spec/**/*.rb
 
 # GitLab ###################################################################
@@ -233,7 +232,8 @@ RSpec/FactoriesInMigrationSpecs:
     - 'spec/migrations/**/*.rb'
     - 'ee/spec/migrations/**/*.rb'
     - 'spec/lib/gitlab/background_migration/**/*.rb'
-    - 'ee/spec/lib/gitlab/background_migration/**/*.rb'
+    - 'spec/lib/ee/gitlab/background_migration/**/*.rb'
+    - 'ee/spec/lib/ee/gitlab/background_migration/**/*.rb'
 
 Cop/IncludeActionViewContext:
   Enabled: true
@@ -298,4 +298,62 @@ Graphql/Descriptions:
     - 'ee/app/graphql/**/*'
 
 RSpec/AnyInstanceOf:
+  Enabled: false
+
+# Cops for upgrade to gitlab-styles 3.1.0
+RSpec/ImplicitSubject:
+  Enabled: false
+
+RSpec/LeakyConstantDeclaration:
+  Enabled: false
+
+RSpec/EmptyLineAfterHook:
+  Enabled: false
+
+RSpec/HooksBeforeExamples:
+  Enabled: false
+
+RSpec/EmptyLineAfterExample:
+  Enabled: false
+
+RSpec/Be:
+  Enabled: false
+
+RSpec/DescribedClass:
+  Enabled: false
+
+RSpec/SharedExamples:
+  Enabled: false
+
+RSpec/EmptyLineAfterExampleGroup:
+  Enabled: false
+
+RSpec/ReceiveNever:
+  Enabled: false
+
+RSpec/MissingExampleGroupArgument:
+  Enabled: false
+
+RSpec/UnspecifiedException:
+  Enabled: false
+
+# Work in progress. See https://gitlab.com/gitlab-org/gitlab/issues/196163
+RSpec/HaveGitlabHttpStatus:
+  Enabled: true
+  Include:
+    - 'spec/support/shared_examples/**/*'
+    - 'ee/spec/support/shared_examples/**/*'
+    - 'spec/features/**/*'
+    - 'ee/spec/features/**/*'
+    - 'spec/controllers/*.rb'
+    - 'ee/spec/controllers/*.rb'
+    - 'spec/controllers/projects/*.rb'
+    - 'ee/spec/controllers/projects/*.rb'
+    - 'spec/requests/*.rb'
+    - 'ee/spec/requests/*.rb'
+
+Style/MultilineWhenThen:
+  Enabled: false
+
+Style/FloatDivision:
   Enabled: false

@@ -57,7 +57,7 @@ describe Gitlab::Git::Commit, :seed_helper do
     it { expect(@commit.different_committer?).to be_truthy }
     it { expect(@commit.parents).to eq(@gitlab_parents) }
     it { expect(@commit.parent_id).to eq(@parents.first.oid) }
-    it { expect(@commit.no_commit_message).to eq("--no commit message") }
+    it { expect(@commit.no_commit_message).to eq("No commit message") }
 
     after do
       # Erase the new commit so other tests get the original repo
@@ -542,6 +542,7 @@ describe Gitlab::Git::Commit, :seed_helper do
   skip 'move this test to gitaly-ruby' do
     describe '#init_from_rugged' do
       let(:gitlab_commit) { described_class.new(repository, rugged_commit) }
+
       subject { gitlab_commit }
 
       describe '#id' do
@@ -553,6 +554,7 @@ describe Gitlab::Git::Commit, :seed_helper do
 
   describe '#init_from_hash' do
     let(:commit) { described_class.new(repository, sample_commit_hash) }
+
     subject { commit }
 
     describe '#id' do
@@ -608,6 +610,7 @@ describe Gitlab::Git::Commit, :seed_helper do
 
   describe '#to_hash' do
     let(:hash) { commit.to_hash }
+
     subject { hash }
 
     it { is_expected.to be_kind_of Hash }
@@ -629,6 +632,7 @@ describe Gitlab::Git::Commit, :seed_helper do
 
   describe '#ref_names' do
     let(:commit) { described_class.find(repository, 'master') }
+
     subject { commit.ref_names(repository) }
 
     it 'has 2 element' do

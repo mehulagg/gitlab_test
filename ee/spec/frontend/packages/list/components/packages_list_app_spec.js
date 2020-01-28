@@ -6,17 +6,16 @@ describe('packages_list_app', () => {
   let wrapper;
 
   const emptyListHelpUrl = 'helpUrl';
-  const findGlEmptyState = () => wrapper.find({ name: 'gl-empty-state-stub' });
   const findListComponent = () => wrapper.find({ name: 'package-list' });
   const findLoadingComponent = () => wrapper.find({ name: 'gl-loading-icon' });
 
   const componentConfig = {
     stubs: {
+      GlEmptyState,
       'package-list': {
         name: 'package-list',
         template: '<div><slot name="empty-state"></slot></div>',
       },
-      GlEmptyState: { ...GlEmptyState, name: 'gl-empty-state-stub' },
       'gl-loading-icon': { name: 'gl-loading-icon', template: '<div>loading</div>' },
     },
     computed: {
@@ -62,7 +61,7 @@ describe('packages_list_app', () => {
   });
 
   it('generate the correct empty list link', () => {
-    const emptyState = findGlEmptyState();
+    const emptyState = findListComponent();
     const link = emptyState.find('a');
 
     expect(link.html()).toMatchInlineSnapshot(
@@ -78,10 +77,7 @@ describe('packages_list_app', () => {
 
   it('call requestDeletePackage on package:delete', () => {
     const list = findListComponent();
-    list.vm.$emit('package:delete', 1);
-    expect(componentConfig.methods.requestDeletePackage).toHaveBeenCalledWith({
-      projectId: 'project_id',
-      packageId: 1,
-    });
+    list.vm.$emit('package:delete', 'foo');
+    expect(componentConfig.methods.requestDeletePackage).toHaveBeenCalledWith('foo');
   });
 });

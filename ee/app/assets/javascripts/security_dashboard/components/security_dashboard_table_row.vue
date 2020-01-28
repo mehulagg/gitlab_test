@@ -1,10 +1,11 @@
 <script>
-import { mapActions } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 import { GlButton, GlSkeletonLoading } from '@gitlab/ui';
-import Icon from '~/vue_shared/components/icon.vue';
 import SeverityBadge from 'ee/vue_shared/security_reports/components/severity_badge.vue';
+import Icon from '~/vue_shared/components/icon.vue';
 import VulnerabilityActionButtons from './vulnerability_action_buttons.vue';
 import VulnerabilityIssueLink from './vulnerability_issue_link.vue';
+import { DASHBOARD_TYPES } from '../store/constants';
 
 export default {
   name: 'SecurityDashboardTableRow',
@@ -35,9 +36,12 @@ export default {
     severity() {
       return this.vulnerability.severity || ' ';
     },
-    projectFullName() {
-      const { project } = this.vulnerability;
-      return project && project.full_name;
+    vulnerabilityNamepace() {
+      const { project, location } = this.vulnerability;
+      if (this.dashboardType === DASHBOARD_TYPES.GROUP) {
+        return project && project.full_name;
+      }
+      return location && (location.image || location.file || location.path);
     },
     isDismissed() {
       return Boolean(this.vulnerability.dismissal_feedback);
@@ -55,6 +59,7 @@ export default {
       const path = this.vulnerability.create_vulnerability_feedback_issue_path;
       return Boolean(path) && !this.hasIssue;
     },
+    ...mapState(['dashboardType']),
   },
   methods: {
     ...mapActions('vulnerabilities', ['openModal']),
@@ -76,7 +81,10 @@ export default {
 
     <div class="table-section flex-grow-1">
       <div class="table-mobile-header" role="rowheader">{{ s__('Reports|Vulnerability') }}</div>
-      <div class="table-mobile-content vulnerability-info">
+      <div
+        class="table-mobile-content vulnerability-info"
+        data-qa-selector="vulnerability_info_content"
+      >
         <gl-skeleton-loading v-if="isLoading" class="mt-2 js-skeleton-loader" :lines="2" />
         <template v-else>
           <gl-button
@@ -102,8 +110,8 @@ export default {
             :project-name="vulnerability.project.name"
           />
           <br />
-          <span v-if="projectFullName" class="vulnerability-namespace">
-            {{ projectFullName }}
+          <span v-if="vulnerabilityNamepace" class="vulnerability-namespace">
+            {{ vulnerabilityNamepace }}
           </span>
         </template>
       </div>

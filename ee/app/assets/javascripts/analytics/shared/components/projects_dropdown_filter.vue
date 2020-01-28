@@ -1,9 +1,9 @@
 <script>
-import { sprintf, n__, s__, __ } from '~/locale';
 import $ from 'jquery';
 import _ from 'underscore';
-import Icon from '~/vue_shared/components/icon.vue';
 import { GlLoadingIcon, GlButton, GlAvatar } from '@gitlab/ui';
+import Icon from '~/vue_shared/components/icon.vue';
+import { n__, s__, __ } from '~/locale';
 import Api from '~/api';
 import { renderAvatar, renderIdenticon } from '~/helpers/avatar_helper';
 
@@ -49,16 +49,17 @@ export default {
   },
   computed: {
     selectedProjectsLabel() {
-      return this.selectedProjects.length
-        ? sprintf(
-            n__(
-              'CycleAnalytics|%{projectName}',
-              'CycleAnalytics|%d projects selected',
-              this.selectedProjects.length,
-            ),
-            { projectName: this.selectedProjects[0].name },
-          )
-        : this.selectedProjectsPlaceholder;
+      if (this.selectedProjects.length === 1) {
+        return this.selectedProjects[0].name;
+      } else if (this.selectedProjects.length > 1) {
+        return n__(
+          'CycleAnalytics|Project selected',
+          'CycleAnalytics|%d projects selected',
+          this.selectedProjects.length,
+        );
+      }
+
+      return this.selectedProjectsPlaceholder;
     },
     selectedProjectsPlaceholder() {
       return this.multiSelect ? __('Select projects') : __('Select a project');
@@ -111,7 +112,7 @@ export default {
       });
     },
     rowTemplate(project) {
-      const selected = this.defaultProjects.length
+      const selected = this.defaultProjects
         ? this.defaultProjects.find(p => p.id === project.id)
         : false;
       const isActiveClass = selected ? 'is-active' : '';

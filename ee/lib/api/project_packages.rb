@@ -24,7 +24,7 @@ module API
       get ':id/packages' do
         packages = user_project.packages
 
-        present paginate(packages), with: EE::API::Entities::Package
+        present paginate(packages), with: EE::API::Entities::Package, user: current_user
       end
 
       desc 'Get a single project package' do
@@ -38,7 +38,7 @@ module API
         package = ::Packages::PackageFinder
           .new(user_project, params[:package_id]).execute
 
-        present package, with: EE::API::Entities::Package
+        present package, with: EE::API::Entities::Package, user: current_user
       end
 
       desc 'Remove a package' do
@@ -48,7 +48,7 @@ module API
         requires :package_id, type: Integer, desc: 'The ID of a package'
       end
       delete ':id/packages/:package_id' do
-        authorize_destroy_package!
+        authorize_destroy_package!(user_project)
 
         package = ::Packages::PackageFinder
           .new(user_project, params[:package_id]).execute

@@ -35,6 +35,10 @@ module Types
           resolver: Resolvers::SnippetsResolver,
           description: 'Find Snippets visible to the current user'
 
-    field :echo, GraphQL::STRING_TYPE, null: false, resolver: Resolvers::EchoResolver # rubocop:disable Graphql/Descriptions
+    field :echo, GraphQL::STRING_TYPE, null: false,
+          description: 'Text to echo back',
+          resolver: Resolvers::EchoResolver
   end
 end
+
+Types::QueryType.prepend_if_ee('EE::Types::QueryType')

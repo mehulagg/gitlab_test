@@ -3,22 +3,6 @@
 require 'spec_helper'
 
 describe Gitlab::Pagination::Keyset do
-  describe '.paginate' do
-    subject { described_class.paginate(request_context, relation) }
-
-    let(:request_context) { double }
-    let(:relation) { double }
-    let(:pager) { double }
-    let(:result) { double }
-
-    it 'uses Pager to paginate the relation' do
-      expect(Gitlab::Pagination::Keyset::Pager).to receive(:new).with(request_context).and_return(pager)
-      expect(pager).to receive(:paginate).with(relation).and_return(result)
-
-      expect(subject).to eq(result)
-    end
-  end
-
   describe '.available?' do
     subject { described_class }
 
@@ -49,6 +33,7 @@ describe Gitlab::Pagination::Keyset do
 
     context 'with other order-by columns' do
       let(:order_by) { { created_at: :desc, id: :desc } }
+
       it 'returns false for Project' do
         expect(subject.available?(request_context, Project.all)).to be_falsey
       end

@@ -10,7 +10,7 @@ module Gitlab
       def initialize(user:, shared:, project:)
         @path = File.join(shared.export_path, 'project.json')
         @user = user
-        @shared  = shared
+        @shared = shared
         @project = project
       end
 
@@ -21,7 +21,9 @@ module Gitlab
         RelationRenameService.rename(@tree_hash)
 
         if relation_tree_restorer.restore
-          @project.merge_requests.set_latest_merge_request_diff_ids!
+          import_failure_service.with_retry(action: 'set_latest_merge_request_diff_ids!') do
+            @project.merge_requests.set_latest_merge_request_diff_ids!
+          end
 
           true
         else
@@ -48,6 +50,7 @@ module Gitlab
           shared: @shared,
           importable: @project,
           tree_hash: @tree_hash,
+          object_builder: object_builder,
           members_mapper: members_mapper,
           relation_factory: relation_factory,
           reader: reader
@@ -60,12 +63,20 @@ module Gitlab
                                                                     importable: @project)
       end
 
+      def object_builder
+        Gitlab::ImportExport::GroupProjectObjectBuilder
+      end
+
       def relation_factory
-        Gitlab::ImportExport::RelationFactory
+        Gitlab::ImportExport::ProjectRelationFactory
       end
 
       def reader
         @reader ||= Gitlab::ImportExport::Reader.new(shared: @shared)
+      end
+
+      def import_failure_service
+        @import_failure_service ||= ImportFailureService.new(@project)
       end
     end
   end

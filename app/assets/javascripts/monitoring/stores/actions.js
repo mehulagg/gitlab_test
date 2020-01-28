@@ -1,12 +1,14 @@
 import * as types from './mutation_types';
 import axios from '~/lib/utils/axios_utils';
 import createFlash from '~/flash';
+import { gqClient, parseEnvironmentsResponse, removeLeadingSlash } from './utils';
 import trackDashboardLoad from '../monitoring_tracking_helper';
+import getEnvironments from '../queries/getEnvironments.query.graphql';
 import statusCodes from '../../lib/utils/http_status';
 import { backOff } from '../../lib/utils/common_utils';
-import { s__ } from '../../locale';
+import { s__, sprintf } from '../../locale';
 
-const TWO_MINUTES = 120000;
+import { PROMETHEUS_TIMEOUT } from '../constants';
 
 function backOffRequest(makeRequestCallback) {
   return backOff((next, stop) => {
@@ -19,7 +21,7 @@ function backOffRequest(makeRequestCallback) {
         }
       })
       .catch(stop);
-  }, TWO_MINUTES);
+  }, PROMETHEUS_TIMEOUT);
 }
 
 export const setGettingStartedEmptyState = ({ commit }) => {
@@ -28,6 +30,10 @@ export const setGettingStartedEmptyState = ({ commit }) => {
 
 export const setEndpoints = ({ commit }, endpoints) => {
   commit(types.SET_ENDPOINTS, endpoints);
+};
+
+export const setEnvironmentsSearchTerm = ({ commit }, searchTerm) => {
+  commit(types.SET_ENVIRONMENTS_SEARCH_TERM, searchTerm);
 };
 
 export const setShowErrorBanner = ({ commit }, enabled) => {
@@ -39,7 +45,7 @@ export const requestMetricsDashboard = ({ commit }) => {
 };
 export const receiveMetricsDashboardSuccess = ({ commit, dispatch }, { response, params }) => {
   commit(types.SET_ALL_DASHBOARDS, response.all_dashboards);
-  commit(types.RECEIVE_METRICS_DATA_SUCCESS, response.dashboard.panel_groups);
+  commit(types.RECEIVE_METRICS_DATA_SUCCESS, response.dashboard);
   return dispatch('fetchPrometheusMetrics', params);
 };
 export const receiveMetricsDashboardFailure = ({ commit }, error) => {
@@ -74,17 +80,21 @@ export const fetchDashboard = ({ state, dispatch }, params) => {
   return backOffRequest(() => axios.get(state.dashboardEndpoint, { params }))
     .then(resp => resp.data)
     .then(response => dispatch('receiveMetricsDashboardSuccess', { response, params }))
-    .then(() => {
-      const dashboardType = state.currentDashboard === '' ? 'default' : 'custom';
-      return trackDashboardLoad({
-        label: `${dashboardType}_metrics_dashboard`,
-        value: state.metricsWithData.length,
-      });
-    })
-    .catch(error => {
-      dispatch('receiveMetricsDashboardFailure', error);
-      if (state.setShowErrorBanner) {
-        createFlash(s__('Metrics|There was an error while retrieving metrics'));
+    .catch(e => {
+      dispatch('receiveMetricsDashboardFailure', e);
+      if (state.showErrorBanner) {
+        if (e.response.data && e.response.data.message) {
+          const { message } = e.response.data;
+          createFlash(
+            sprintf(
+              s__('Metrics|There was an error while retrieving metrics. %{message}'),
+              { message },
+              false,
+            ),
+          );
+        } else {
+          createFlash(s__('Metrics|There was an error while retrieving metrics'));
+        }
       }
     });
 };
@@ -121,12 +131,20 @@ export const fetchPrometheusMetric = ({ commit }, { metric, params }) => {
     step,
   };
 
-  return fetchPrometheusResult(metric.prometheus_endpoint_path, queryParams).then(result => {
-    commit(types.SET_QUERY_RESULT, { metricId: metric.metric_id, result });
-  });
+  commit(types.REQUEST_METRIC_RESULT, { metricId: metric.metric_id });
+
+  return fetchPrometheusResult(metric.prometheus_endpoint_path, queryParams)
+    .then(result => {
+      commit(types.RECEIVE_METRIC_RESULT_SUCCESS, { metricId: metric.metric_id, result });
+    })
+    .catch(error => {
+      commit(types.RECEIVE_METRIC_RESULT_FAILURE, { metricId: metric.metric_id, error });
+      // Continue to throw error so the dashboard can notify using createFlash
+      throw error;
+    });
 };
 
-export const fetchPrometheusMetrics = ({ state, commit, dispatch }, params) => {
+export const fetchPrometheusMetrics = ({ state, commit, dispatch, getters }, params) => {
   commit(types.REQUEST_METRICS_DATA);
 
   const promises = [];
@@ -140,9 +158,11 @@ export const fetchPrometheusMetrics = ({ state, commit, dispatch }, params) => {
 
   return Promise.all(promises)
     .then(() => {
-      if (state.metricsWithData.length === 0) {
-        commit(types.SET_NO_DATA_EMPTY_STATE);
-      }
+      const dashboardType = state.currentDashboard === '' ? 'default' : 'custom';
+      trackDashboardLoad({
+        label: `${dashboardType}_metrics_dashboard`,
+        value: getters.metricsWithData().length,
+      });
     })
     .catch(() => {
       createFlash(s__(`Metrics|There was an error while retrieving metrics`), 'warning');
@@ -153,7 +173,8 @@ export const fetchDeploymentsData = ({ state, dispatch }) => {
   if (!state.deploymentsEndpoint) {
     return Promise.resolve([]);
   }
-  return backOffRequest(() => axios.get(state.deploymentsEndpoint))
+  return axios
+    .get(state.deploymentsEndpoint)
     .then(resp => resp.data)
     .then(response => {
       if (!response || !response.deployments) {
@@ -168,26 +189,30 @@ export const fetchDeploymentsData = ({ state, dispatch }) => {
     });
 };
 
-export const fetchEnvironmentsData = ({ state, dispatch }) => {
-  if (!state.environmentsEndpoint) {
-    return Promise.resolve([]);
-  }
-  return axios
-    .get(state.environmentsEndpoint)
-    .then(resp => resp.data)
-    .then(response => {
-      if (!response || !response.environments) {
+export const fetchEnvironmentsData = ({ state, dispatch }) =>
+  gqClient
+    .mutate({
+      mutation: getEnvironments,
+      variables: {
+        projectPath: removeLeadingSlash(state.projectPath),
+        search: state.environmentsSearchTerm,
+      },
+    })
+    .then(resp =>
+      parseEnvironmentsResponse(resp.data?.project?.data?.environments, state.projectPath),
+    )
+    .then(environments => {
+      if (!environments) {
         createFlash(
           s__('Metrics|There was an error fetching the environments data, please try again'),
         );
       }
-      dispatch('receiveEnvironmentsDataSuccess', response.environments);
+      dispatch('receiveEnvironmentsDataSuccess', environments);
     })
     .catch(() => {
       dispatch('receiveEnvironmentsDataFailure');
       createFlash(s__('Metrics|There was an error getting environments information.'));
     });
-};
 
 /**
  * Set a new array of metrics to a panel group
@@ -197,6 +222,30 @@ export const fetchEnvironmentsData = ({ state, dispatch }) => {
  */
 export const setPanelGroupMetrics = ({ commit }, data) => {
   commit(types.SET_PANEL_GROUP_METRICS, data);
+};
+
+export const duplicateSystemDashboard = ({ state }, payload) => {
+  const params = {
+    dashboard: payload.dashboard,
+    file_name: payload.fileName,
+    branch: payload.branch,
+    commit_message: payload.commitMessage,
+  };
+
+  return axios
+    .post(state.dashboardsEndpoint, params)
+    .then(response => response.data)
+    .then(data => data.dashboard)
+    .catch(error => {
+      const { response } = error;
+      if (response && response.data && response.data.error) {
+        throw sprintf(s__('Metrics|There was an error creating the dashboard. %{error}'), {
+          error: response.data.error,
+        });
+      } else {
+        throw s__('Metrics|There was an error creating the dashboard.');
+      }
+    });
 };
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests

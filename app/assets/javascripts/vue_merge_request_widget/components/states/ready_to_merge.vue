@@ -1,11 +1,11 @@
 <script>
 import _ from 'underscore';
+import { GlIcon } from '@gitlab/ui';
 import successSvg from 'icons/_icon_status_success.svg';
 import warningSvg from 'icons/_icon_status_warning.svg';
 import readyToMergeMixin from 'ee_else_ce/vue_merge_request_widget/mixins/ready_to_merge';
 import simplePoll from '~/lib/utils/simple_poll';
 import { __, sprintf } from '~/locale';
-import { GlIcon } from '@gitlab/ui';
 import MergeRequest from '../../../merge_request';
 import { refreshUserMergeRequestCounts } from '~/commons/nav/user_merge_requests';
 import Flash from '../../../flash';
@@ -146,8 +146,14 @@ export default {
         auto_merge_strategy: useAutoMerge ? this.mr.preferredAutoMergeStrategy : undefined,
         should_remove_source_branch: this.removeSourceBranch === true,
         squash: this.squashBeforeMerge,
-        squash_commit_message: this.squashCommitMessage,
       };
+
+      // If users can't alter the squash message (e.g. for 1-commit merge requests),
+      // we shouldn't send the commit message because that would make the backend
+      // do unnecessary work.
+      if (this.shouldShowSquashBeforeMerge) {
+        options.squash_commit_message = this.squashCommitMessage;
+      }
 
       this.isMakingRequest = true;
       this.service

@@ -18,9 +18,9 @@ FactoryBot.define do
     factory :note_on_personal_snippet,   traits: [:on_personal_snippet]
     factory :system_note,                traits: [:system]
 
-    factory :discussion_note, class: DiscussionNote
+    factory :discussion_note, class: 'DiscussionNote'
 
-    factory :discussion_note_on_merge_request, traits: [:on_merge_request], class: DiscussionNote do
+    factory :discussion_note_on_merge_request, traits: [:on_merge_request], class: 'DiscussionNote' do
       association :project, :repository
 
       trait :resolved do
@@ -29,22 +29,27 @@ FactoryBot.define do
       end
     end
 
-    factory :discussion_note_on_issue, traits: [:on_issue], class: DiscussionNote
+    factory :track_mr_picking_note, traits: [:on_merge_request, :system] do
+      association :system_note_metadata, action: 'cherry_pick'
+      commit_id { RepoHelpers.sample_commit.id }
+    end
 
-    factory :discussion_note_on_commit, traits: [:on_commit], class: DiscussionNote
+    factory :discussion_note_on_issue, traits: [:on_issue], class: 'DiscussionNote'
 
-    factory :discussion_note_on_personal_snippet, traits: [:on_personal_snippet], class: DiscussionNote
+    factory :discussion_note_on_commit, traits: [:on_commit], class: 'DiscussionNote'
 
-    factory :discussion_note_on_snippet, traits: [:on_snippet], class: DiscussionNote
+    factory :discussion_note_on_personal_snippet, traits: [:on_personal_snippet], class: 'DiscussionNote'
 
-    factory :legacy_diff_note_on_commit, traits: [:on_commit, :legacy_diff_note], class: LegacyDiffNote
+    factory :discussion_note_on_snippet, traits: [:on_snippet], class: 'DiscussionNote'
 
-    factory :legacy_diff_note_on_merge_request, traits: [:on_merge_request, :legacy_diff_note], class: LegacyDiffNote do
+    factory :legacy_diff_note_on_commit, traits: [:on_commit, :legacy_diff_note], class: 'LegacyDiffNote'
+
+    factory :legacy_diff_note_on_merge_request, traits: [:on_merge_request, :legacy_diff_note], class: 'LegacyDiffNote' do
       association :project, :repository
       position { '' }
     end
 
-    factory :diff_note_on_merge_request, traits: [:on_merge_request], class: DiffNote do
+    factory :diff_note_on_merge_request, traits: [:on_merge_request], class: 'DiffNote' do
       association :project, :repository
 
       transient do
@@ -95,7 +100,7 @@ FactoryBot.define do
       end
     end
 
-    factory :diff_note_on_commit, traits: [:on_commit], class: DiffNote do
+    factory :diff_note_on_commit, traits: [:on_commit], class: 'DiffNote' do
       association :project, :repository
 
       transient do
@@ -165,6 +170,10 @@ FactoryBot.define do
 
     trait :with_svg_attachment do
       attachment { fixture_file_upload("spec/fixtures/unsanitized.svg", "image/svg+xml") }
+    end
+
+    trait :with_pdf_attachment do
+      attachment { fixture_file_upload("spec/fixtures/git-cheat-sheet.pdf", "application/pdf") }
     end
 
     transient do

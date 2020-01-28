@@ -1,7 +1,7 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import DraftNote from 'ee/batch_comments/components/draft_note.vue';
-import NoteableNote from '~/notes/components/noteable_note.vue';
 import { createStore } from 'ee/batch_comments/stores';
+import NoteableNote from '~/notes/components/noteable_note.vue';
 import '~/behaviors/markdown/render_gfm';
 import { createDraft } from '../mock_data';
 
@@ -19,7 +19,6 @@ describe('Batch comments draft note component', () => {
     wrapper = shallowMount(localVue.extend(DraftNote), {
       store,
       propsData: { draft },
-      sync: false,
       localVue,
     });
 

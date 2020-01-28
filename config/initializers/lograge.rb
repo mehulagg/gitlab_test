@@ -1,5 +1,5 @@
 # Only use Lograge for Rails
-unless Sidekiq.server?
+unless Gitlab::Runtime.sidekiq?
   filename = File.join(Rails.root, 'log', "#{Rails.env}_json.log")
 
   Rails.application.configure do
@@ -14,6 +14,10 @@ unless Sidekiq.server?
       data.delete(:error)
       data
     end
+
+    # This isn't a user-reachable controller; we use it to check for a
+    # valid CSRF token in the API
+    config.lograge.ignore_actions = ['Gitlab::RequestForgeryProtection::Controller#index']
 
     # Add request parameters to log output
     config.lograge.custom_options = lambda do |event|
@@ -35,9 +39,10 @@ unless Sidekiq.server?
       ::Gitlab::InstrumentationHelper.add_instrumentation_data(payload)
 
       payload[:response] = event.payload[:response] if event.payload[:response]
+      payload[:etag_route] = event.payload[:etag_route] if event.payload[:etag_route]
       payload[Labkit::Correlation::CorrelationId::LOG_KEY] = Labkit::Correlation::CorrelationId.current_id
 
-      if cpu_s = Gitlab::Metrics::System.thread_cpu_duration(::Gitlab::RequestContext.start_thread_cpu_time)
+      if cpu_s = Gitlab::Metrics::System.thread_cpu_duration(::Gitlab::RequestContext.instance.start_thread_cpu_time)
         payload[:cpu_s] = cpu_s
       end
 

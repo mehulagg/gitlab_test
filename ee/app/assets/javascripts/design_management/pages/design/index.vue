@@ -1,33 +1,45 @@
 <script>
 import { ApolloMutation } from 'vue-apollo';
 import Mousetrap from 'mousetrap';
-import { GlLoadingIcon } from '@gitlab/ui';
+import { GlLoadingIcon, GlAlert } from '@gitlab/ui';
 import createFlash from '~/flash';
-import { s__ } from '~/locale';
 import allVersionsMixin from '../../mixins/all_versions';
 import Toolbar from '../../components/toolbar/index.vue';
-import DesignImage from '../../components/image.vue';
-import DesignOverlay from '../../components/design_overlay.vue';
 import DesignDiscussion from '../../components/design_notes/design_discussion.vue';
 import DesignReplyForm from '../../components/design_notes/design_reply_form.vue';
 import DesignDestroyer from '../../components/design_destroyer.vue';
+import DesignScaler from '../../components/design_scaler.vue';
+import Participants from '~/sidebar/components/participants/participants.vue';
+import DesignPresentation from '../../components/design_presentation.vue';
 import getDesignQuery from '../../graphql/queries/getDesign.query.graphql';
 import appDataQuery from '../../graphql/queries/appData.query.graphql';
 import createImageDiffNoteMutation from '../../graphql/mutations/createImageDiffNote.mutation.graphql';
-import { extractDiscussions, extractDesign } from '../../utils/design_management_utils';
+import {
+  extractDiscussions,
+  extractDesign,
+  extractParticipants,
+} from '../../utils/design_management_utils';
 import { updateStoreAfterAddImageDiffNote } from '../../utils/cache_update';
-import { ADD_DISCUSSION_COMMENT_ERROR } from '../../utils/error_messages';
+import {
+  ADD_DISCUSSION_COMMENT_ERROR,
+  DESIGN_NOT_FOUND_ERROR,
+  DESIGN_NOT_EXIST_ERROR,
+  designDeletionError,
+} from '../../utils/error_messages';
+import { DESIGNS_ROUTE_NAME } from '../../router/constants';
 
 export default {
   components: {
     ApolloMutation,
-    DesignImage,
-    DesignOverlay,
+    DesignPresentation,
     DesignDiscussion,
+    DesignScaler,
     DesignDestroyer,
     Toolbar,
     DesignReplyForm,
     GlLoadingIcon,
+    GlAlert,
+    Participants,
   },
   mixins: [allVersionsMixin],
   props: {
@@ -41,12 +53,10 @@ export default {
       design: {},
       comment: '',
       annotationCoordinates: null,
-      overlayDimensions: {
-        width: 0,
-        height: 0,
-      },
       projectPath: '',
-      issueId: '',
+      errorMessage: '',
+      issueIid: '',
+      scale: 1,
     };
   },
   apollo: {
@@ -67,13 +77,14 @@ export default {
       update: data => extractDesign(data),
       result({ data }) {
         if (!data) {
-          createFlash(s__('DesignManagement|Could not find design, please try again.'));
-          this.$router.push({ name: 'designs' });
+          this.onQueryError(DESIGN_NOT_FOUND_ERROR);
         }
         if (this.$route.query.version && !this.hasValidVersion) {
-          createFlash(s__('DesignManagement|Requested design version does not exist'));
-          this.$router.push({ name: 'designs' });
+          this.onQueryError(DESIGN_NOT_EXIST_ERROR);
         }
+      },
+      error() {
+        this.onQueryError(DESIGN_NOT_FOUND_ERROR);
       },
     },
   },
@@ -84,8 +95,8 @@ export default {
     discussions() {
       return extractDiscussions(this.design.discussions);
     },
-    discussionStartingNotes() {
-      return this.discussions.map(discussion => discussion.notes[0]);
+    discussionParticipants() {
+      return extractParticipants(this.design.issue.participants);
     },
     markdownPreviewPath() {
       return `/${this.projectPath}/preview_markdown?target_type=Issue`;
@@ -123,6 +134,15 @@ export default {
         },
       };
     },
+    issue() {
+      return {
+        ...this.design.issue,
+        webPath: this.design.issue.webPath.substr(1),
+      };
+    },
+    isAnnotating() {
+      return Boolean(this.annotationCoordinates);
+    },
   },
   mounted() {
     Mousetrap.bind('esc', this.closeDesign);
@@ -144,32 +164,30 @@ export default {
         this.designVariables,
       );
     },
-    onMutationError(e) {
-      createFlash(ADD_DISCUSSION_COMMENT_ERROR);
+    onQueryError(message) {
+      // because we redirect user to /designs (the issue page),
+      // we want to create these flashes on the issue page
+      createFlash(message);
+      this.$router.push({ name: this.$options.DESIGNS_ROUTE_NAME });
+    },
+    onDiffNoteError(e) {
+      this.errorMessage = ADD_DISCUSSION_COMMENT_ERROR;
       throw e;
     },
-    openCommentForm(position) {
-      const { x, y } = position;
-      const { width, height } = this.overlayDimensions;
-      this.annotationCoordinates = {
-        ...this.annotationCoordinates,
-        x,
-        y,
-        width,
-        height,
-      };
+    onDesignDeleteError(e) {
+      this.errorMessage = designDeletionError({ singular: true });
+      throw e;
+    },
+    openCommentForm(annotationCoordinates) {
+      this.annotationCoordinates = annotationCoordinates;
     },
     closeCommentForm() {
       this.comment = '';
       this.annotationCoordinates = null;
     },
-    setOverlayDimensions(position) {
-      this.overlayDimensions.width = position.width;
-      this.overlayDimensions.height = position.height;
-    },
     closeDesign() {
       this.$router.push({
-        name: 'designs',
+        name: this.$options.DESIGNS_ROUTE_NAME,
         query: this.$route.query,
       });
     },
@@ -179,6 +197,7 @@ export default {
     next();
   },
   createImageDiffNoteMutation,
+  DESIGNS_ROUTE_NAME,
 };
 </script>
 
@@ -188,13 +207,13 @@ export default {
   >
     <gl-loading-icon v-if="isLoading" size="xl" class="align-self-center" />
     <template v-else>
-      <div class="d-flex overflow-hidden flex-lg-grow-1 flex-column">
+      <div class="d-flex overflow-hidden flex-grow-1 flex-column position-relative">
         <design-destroyer
           :filenames="[design.filename]"
           :project-path="projectPath"
           :iid="issueIid"
-          @done="$router.push({ name: 'designs' })"
-          @error="$router.push({ name: 'designs' })"
+          @done="$router.push({ name: $options.DESIGNS_ROUTE_NAME })"
+          @error="onDesignDeleteError"
         >
           <template v-slot="{ mutate, loading, error }">
             <toolbar
@@ -206,21 +225,34 @@ export default {
             />
           </template>
         </design-destroyer>
-        <div class="d-flex flex-column h-100 mh-100 position-relative">
-          <design-image
-            :image="design.image"
-            :name="design.filename"
-            @setOverlayDimensions="setOverlayDimensions"
-          />
-          <design-overlay
-            :position="overlayDimensions"
-            :notes="discussionStartingNotes"
-            :current-comment-form="annotationCoordinates"
-            @openCommentForm="openCommentForm"
-          />
+
+        <div v-if="errorMessage" class="p-3">
+          <gl-alert variant="danger" @dismiss="errorMessage = null">
+            {{ errorMessage }}
+          </gl-alert>
+        </div>
+        <design-presentation
+          :image="design.image"
+          :image-name="design.filename"
+          :discussions="discussions"
+          :is-annotating="isAnnotating"
+          :scale="scale"
+          @openCommentForm="openCommentForm"
+        />
+        <div class="design-scaler-wrapper position-absolute w-100 mb-4 d-flex-center">
+          <design-scaler @scale="scale = $event" />
         </div>
       </div>
       <div class="image-notes">
+        <h2 class="gl-font-size-20 font-weight-bold mt-0">{{ issue.title }}</h2>
+        <a class="text-tertiary text-decoration-none mb-3 d-block" :href="issue.webUrl">{{
+          issue.webPath
+        }}</a>
+        <participants
+          :participants="discussionParticipants"
+          :show-participant-label="false"
+          class="mb-4"
+        />
         <template v-if="renderDiscussions">
           <design-discussion
             v-for="(discussion, index) in discussions"
@@ -230,6 +262,7 @@ export default {
             :noteable-id="design.id"
             :discussion-index="index + 1"
             :markdown-preview-path="markdownPreviewPath"
+            @error="onDiffNoteError"
           />
           <apollo-mutation
             v-if="annotationCoordinates"
@@ -240,7 +273,7 @@ export default {
             }"
             :update="addImageDiffNoteToStore"
             @done="closeCommentForm"
-            @error="onMutationError"
+            @error="onDiffNoteError"
           >
             <design-reply-form
               v-model="comment"
@@ -251,7 +284,7 @@ export default {
             />
           </apollo-mutation>
         </template>
-        <h2 v-else class="new-discussion-disclaimer m-0">
+        <h2 v-else class="new-discussion-disclaimer gl-font-size-14 m-0">
           {{ __("Click the image where you'd like to start a new discussion") }}
         </h2>
       </div>

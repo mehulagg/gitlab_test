@@ -2,170 +2,6 @@
 
 module API
   module Entities
-    class BlameRangeCommit < Grape::Entity
-      expose :id
-      expose :parent_ids
-      expose :message
-      expose :authored_date, :author_name, :author_email
-      expose :committed_date, :committer_name, :committer_email
-    end
-
-    class BlameRange < Grape::Entity
-      expose :commit, using: BlameRangeCommit
-      expose :lines
-    end
-
-    class WikiPageBasic < Grape::Entity
-      expose :format
-      expose :slug
-      expose :title
-    end
-
-    class WikiPage < WikiPageBasic
-      expose :content
-    end
-
-    class WikiAttachment < Grape::Entity
-      include Gitlab::FileMarkdownLinkBuilder
-
-      expose :file_name
-      expose :file_path
-      expose :branch
-      expose :link do
-        expose :file_path, as: :url
-        expose :markdown do |_entity|
-          self.markdown_link
-        end
-      end
-
-      def filename
-        object.file_name
-      end
-
-      def secure_url
-        object.file_path
-      end
-    end
-
-    class UserSafe < Grape::Entity
-      expose :id, :name, :username
-    end
-
-    class UserBasic < UserSafe
-      expose :state
-
-      expose :avatar_url do |user, options|
-        user.avatar_url(only_path: false)
-      end
-
-      expose :avatar_path, if: ->(user, options) { options.fetch(:only_path, false) && user.avatar_path }
-      expose :custom_attributes, using: 'API::Entities::CustomAttribute', if: :with_custom_attributes
-
-      expose :web_url do |user, options|
-        Gitlab::Routing.url_helpers.user_url(user)
-      end
-    end
-
-    class User < UserBasic
-      expose :created_at, if: ->(user, opts) { Ability.allowed?(opts[:current_user], :read_user_profile, user) }
-      expose :bio, :location, :public_email, :skype, :linkedin, :twitter, :website_url, :organization
-    end
-
-    class UserActivity < Grape::Entity
-      expose :username
-      expose :last_activity_on
-      expose :last_activity_on, as: :last_activity_at # Back-compat
-    end
-
-    class UserStarsProject < Grape::Entity
-      expose :starred_since
-      expose :user, using: Entities::UserBasic
-    end
-
-    class Identity < Grape::Entity
-      expose :provider, :extern_uid
-    end
-
-    class UserPublic < User
-      expose :last_sign_in_at
-      expose :confirmed_at
-      expose :last_activity_on
-      expose :email
-      expose :theme_id, :color_scheme_id, :projects_limit, :current_sign_in_at
-      expose :identities, using: Entities::Identity
-      expose :can_create_group?, as: :can_create_group
-      expose :can_create_project?, as: :can_create_project
-      expose :two_factor_enabled?, as: :two_factor_enabled
-      expose :external
-      expose :private_profile
-    end
-
-    class UserWithAdmin < UserPublic
-      expose :admin?, as: :is_admin
-    end
-
-    class UserDetailsWithAdmin < UserWithAdmin
-      expose :highest_role
-    end
-
-    class UserStatus < Grape::Entity
-      expose :emoji
-      expose :message
-      expose :message_html do |entity|
-        MarkupHelper.markdown_field(entity, :message)
-      end
-    end
-
-    class Email < Grape::Entity
-      expose :id, :email
-    end
-
-    class Hook < Grape::Entity
-      expose :id, :url, :created_at, :push_events, :tag_push_events, :merge_requests_events, :repository_update_events
-      expose :enable_ssl_verification
-    end
-
-    class ProjectHook < Hook
-      expose :project_id, :issues_events, :confidential_issues_events
-      expose :note_events, :confidential_note_events, :pipeline_events, :wiki_page_events
-      expose :job_events
-      expose :push_events_branch_filter
-    end
-
-    class SharedGroup < Grape::Entity
-      expose :group_id
-      expose :group_name do |group_link, options|
-        group_link.group.name
-      end
-      expose :group_full_path do |group_link, options|
-        group_link.group.full_path
-      end
-      expose :group_access, as: :group_access_level
-      expose :expires_at
-    end
-
-    class ProjectIdentity < Grape::Entity
-      expose :id, :description
-      expose :name, :name_with_namespace
-      expose :path, :path_with_namespace
-      expose :created_at
-    end
-
-    class ProjectExportStatus < ProjectIdentity
-      include ::API::Helpers::RelatedResourcesHelpers
-
-      expose :export_status
-      expose :_links, if: lambda { |project, _options| project.export_status == :finished } do
-        expose :api_url do |project|
-          expose_url(api_v4_projects_export_download_path(id: project.id))
-        end
-
-        expose :web_url do |project|
-          Gitlab::Routing.url_helpers.download_export_project_url(project)
-        end
-      end
-    end
-
     class RemoteMirror < Grape::Entity
       expose :id
       expose :enabled
@@ -178,6 +14,15 @@ module API
       expose :only_protected_branches
     end
 
+    class ContainerExpirationPolicy < Grape::Entity
+      expose :cadence
+      expose :enabled
+      expose :keep_n
+      expose :older_than
+      expose :name_regex
+      expose :next_run_at
+    end
+
     class ProjectImportStatus < ProjectIdentity
       expose :import_status
 
@@ -188,7 +33,7 @@ module API
     end
 
     class BasicProjectDetails < ProjectIdentity
-      include ::API::ProjectsBatchCounting
+      include ::API::ProjectsRelationBuilder
 
       expose :default_branch, if: -> (project, options) { Ability.allowed?(options[:current_user], :download_code, project) }
       # Avoids an N+1 query: https://github.com/mbleigh/acts-as-taggable-on/issues/91#issuecomment-168273770
@@ -276,6 +121,8 @@ module API
       expose :owner, using: Entities::UserBasic, unless: ->(project, options) { project.group }
       expose :resolve_outdated_diff_discussions
       expose :container_registry_enabled
+      expose :container_expiration_policy, using: Entities::ContainerExpirationPolicy,
+        if: -> (project, _) { project.container_expiration_policy }
 
       # Expose old field names with the new permissions methods to keep API compatible
       # TODO: remove in API v5, replaced by *_access_level
@@ -291,6 +138,7 @@ module API
       expose(:wiki_access_level) { |project, options| project.project_feature.string_access_level(:wiki) }
       expose(:builds_access_level) { |project, options| project.project_feature.string_access_level(:builds) }
       expose(:snippets_access_level) { |project, options| project.project_feature.string_access_level(:snippets) }
+      expose(:pages_access_level) { |project, options| project.project_feature.string_access_level(:pages) }
 
       expose :shared_runners_enabled
       expose :lfs_enabled?, as: :lfs_enabled
@@ -324,6 +172,7 @@ module API
       expose :remove_source_branch_after_merge
       expose :printing_merge_request_link_enabled
       expose :merge_method
+      expose :suggestion_commit_message
       expose :statistics, using: 'API::Entities::ProjectStatistics', if: -> (project, options) {
         options[:statistics] && Ability.allowed?(options[:current_user], :read_statistics, project)
       }
@@ -331,6 +180,7 @@ module API
       expose :auto_devops_deploy_strategy do |project, options|
         project.auto_devops.nil? ? 'continuous' : project.auto_devops.deploy_strategy
       end
+      expose :autoclose_referenced_issues
 
       # rubocop: disable CodeReuse/ActiveRecord
       def self.preload_relation(projects_relation, options = {})
@@ -340,6 +190,7 @@ module API
         # MR describing the solution: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/20555
         super(projects_relation).preload(:group)
                                 .preload(:ci_cd_settings)
+                                .preload(:container_expiration_policy)
                                 .preload(:auto_devops)
                                 .preload(project_group_links: { group: :route },
                                          fork_network: :root_project,
@@ -400,6 +251,7 @@ module API
       expose :auto_devops_enabled
       expose :subgroup_creation_level_str, as: :subgroup_creation_level
       expose :emails_disabled
+      expose :mentions_disabled
       expose :lfs_enabled?, as: :lfs_enabled
       expose :avatar_url do |group, options|
         group.avatar_url(only_path: false)
@@ -430,7 +282,7 @@ module API
           options: { only_owned: true, limit: projects_limit }
         ).execute
 
-        Entities::Project.preload_and_batch_count!(projects)
+        Entities::Project.prepare_relation(projects)
       end
 
       expose :shared_projects, using: Entities::Project do |group, options|
@@ -440,7 +292,7 @@ module API
           options: { only_shared: true, limit: projects_limit }
         ).execute
 
-        Entities::Project.preload_and_batch_count!(projects)
+        Entities::Project.prepare_relation(projects)
       end
 
       def projects_limit
@@ -569,6 +421,20 @@ module API
       end
     end
 
+    class IssuableReferences < Grape::Entity
+      expose :short do |issuable|
+        issuable.to_reference
+      end
+
+      expose :relative do |issuable, options|
+        issuable.to_reference(options[:group] || options[:project])
+      end
+
+      expose :full do |issuable|
+        issuable.to_reference(full: true)
+      end
+    end
+
     class Diff < Grape::Entity
       expose :old_path, :new_path, :a_mode, :b_mode
       expose :new_file?, as: :new_file
@@ -585,6 +451,7 @@ module API
     end
 
     class ProtectedBranch < Grape::Entity
+      expose :id
       expose :name
       expose :push_access_levels, using: Entities::ProtectedRefAccess
       expose :merge_access_levels, using: Entities::ProtectedRefAccess
@@ -676,6 +543,10 @@ module API
         end
       end
 
+      expose :references, with: IssuableReferences do |issue|
+        issue
+      end
+
       # Calculating the value of subscribed field triggers Markdown
       # processing. We can't do that for multiple issues / merge
       # requests in a single API request.
@@ -761,9 +632,12 @@ module API
       expose :author, :assignees, using: Entities::UserBasic
 
       expose :source_project_id, :target_project_id
-      expose :labels do |merge_request|
-        # Avoids an N+1 query since labels are preloaded
-        merge_request.labels.map(&:title).sort
+      expose :labels do |merge_request, options|
+        if options[:with_labels_details]
+          ::API::Entities::LabelBasic.represent(merge_request.labels.sort_by(&:title))
+        else
+          merge_request.labels.map(&:title).sort
+        end
       end
       expose :work_in_progress?, as: :work_in_progress
       expose :milestone, using: Entities::Milestone
@@ -774,7 +648,7 @@ module API
       # See https://gitlab.com/gitlab-org/gitlab-foss/issues/42344 for more
       # information.
       expose :merge_status do |merge_request|
-        merge_request.check_mergeability
+        merge_request.check_mergeability(async: true)
         merge_request.merge_status
       end
       expose :diff_head_sha, as: :sha
@@ -787,8 +661,14 @@ module API
       # Deprecated
       expose :allow_collaboration, as: :allow_maintainer_to_push, if: -> (merge_request, _) { merge_request.for_fork? }
 
+      # reference is deprecated in favour of references
+      # Introduced [Gitlab 12.6](https://gitlab.com/gitlab-org/gitlab/merge_requests/20354)
       expose :reference do |merge_request, options|
         merge_request.to_reference(options[:project])
+      end
+
+      expose :references, with: IssuableReferences do |merge_request|
+        merge_request
       end
 
       expose :web_url do |merge_request|
@@ -881,6 +761,10 @@ module API
 
     class SSHKeyWithUser < SSHKey
       expose :user, using: Entities::UserPublic
+    end
+
+    class DeployKeyWithUser < SSHKeyWithUser
+      expose :deploy_keys_projects
     end
 
     class DeployKeysProject < Grape::Entity
@@ -1082,12 +966,19 @@ module API
       end
     end
 
-    class ProjectService < Grape::Entity
-      expose :id, :title, :created_at, :updated_at, :active
+    class ProjectServiceBasic < Grape::Entity
+      expose :id, :title
+      expose :slug do |service|
+        service.to_param.dasherize
+      end
+      expose :created_at, :updated_at, :active
       expose :commit_events, :push_events, :issues_events, :confidential_issues_events
       expose :merge_requests_events, :tag_push_events, :note_events
       expose :confidential_note_events, :pipeline_events, :wiki_page_events
-      expose :job_events
+      expose :job_events, :comment_on_event_enabled
+    end
+
+    class ProjectService < ProjectServiceBasic
       # Expose serialized properties
       expose :properties do |service, options|
         # TODO: Simplify as part of https://gitlab.com/gitlab-org/gitlab/issues/29404
@@ -1142,7 +1033,7 @@ module API
     end
 
     class LabelBasic < Grape::Entity
-      expose :id, :name, :color, :description, :text_color
+      expose :id, :name, :color, :description, :description_html, :text_color
     end
 
     class Label < LabelBasic
@@ -1193,20 +1084,20 @@ module API
     end
 
     class Compare < Grape::Entity
-      expose :commit, using: Entities::Commit do |compare, options|
-        ::Commit.decorate(compare.commits, nil).last
+      expose :commit, using: Entities::Commit do |compare, _|
+        compare.commits.last
       end
 
-      expose :commits, using: Entities::Commit do |compare, options|
-        ::Commit.decorate(compare.commits, nil)
+      expose :commits, using: Entities::Commit do |compare, _|
+        compare.commits
       end
 
-      expose :diffs, using: Entities::Diff do |compare, options|
-        compare.diffs(limits: false).to_a
+      expose :diffs, using: Entities::Diff do |compare, _|
+        compare.diffs.diffs.to_a
       end
 
-      expose :compare_timeout do |compare, options|
-        compare.diffs.overflow?
+      expose :compare_timeout do |compare, _|
+        compare.diffs.diffs.overflow?
       end
 
       expose :same, as: :compare_same_ref
@@ -1217,7 +1108,7 @@ module API
     end
 
     class BroadcastMessage < Grape::Entity
-      expose :message, :starts_at, :ends_at, :color, :font
+      expose :message, :starts_at, :ends_at, :color, :font, :target_path
     end
 
     class ApplicationStatistics < Grape::Entity
@@ -1300,6 +1191,30 @@ module API
       expose :allow_local_requests_from_web_hooks_and_services, as: :allow_local_requests_from_hooks_and_services
     end
 
+    class Appearance < Grape::Entity
+      expose :title
+      expose :description
+
+      expose :logo do |appearance, options|
+        appearance.logo.url
+      end
+
+      expose :header_logo do |appearance, options|
+        appearance.header_logo.url
+      end
+
+      expose :favicon do |appearance, options|
+        appearance.favicon.url
+      end
+
+      expose :new_project_guidelines
+      expose :header_message
+      expose :footer_message
+      expose :message_background_color
+      expose :message_font_color
+      expose :email_header_and_footer_enabled
+    end
+
     # deprecated old Release representation
     class TagRelease < Grape::Entity
       expose :tag, as: :tag_name
@@ -1336,7 +1251,7 @@ module API
       expose :author, using: Entities::UserBasic, if: -> (release, _) { release.author.present? }
       expose :commit, using: Entities::Commit, if: ->(_, _) { can_download_code? }
       expose :upcoming_release?, as: :upcoming_release
-      expose :milestones, using: Entities::Milestone, if: -> (release, _) { release.milestones.present? }
+      expose :milestones, using: Entities::Milestone, if: -> (release, _) { release.milestones.present? && can_read_milestone? }
       expose :commit_path, expose_nil: false
       expose :tag_path, expose_nil: false
       expose :evidence_sha, expose_nil: false, if: ->(_, _) { can_download_code? }
@@ -1361,6 +1276,10 @@ module API
 
       def can_download_code?
         Ability.allowed?(options[:current_user], :download_code, object.project)
+      end
+
+      def can_read_milestone?
+        Ability.allowed?(options[:current_user], :read_milestone, object.project)
       end
     end
 
@@ -1672,7 +1591,7 @@ module API
         expose :artifacts, using: Artifacts
         expose :cache, using: Cache
         expose :credentials, using: Credentials
-        expose :dependencies, using: Dependency
+        expose :all_dependencies, as: :dependencies, using: Dependency
         expose :features
       end
     end
@@ -1737,6 +1656,7 @@ module API
       expose :uid, as: :application_id
       expose :name, as: :application_name
       expose :redirect_uri, as: :callback_url
+      expose :confidential
     end
 
     # Use with care, this exposes the secret

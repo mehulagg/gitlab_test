@@ -24,7 +24,7 @@ describe Gitlab::Ci::Config::Entry::Job do
       let(:result) do
         %i[before_script script stage type after_script cache
            image services only except rules needs variables artifacts
-           environment coverage retry interruptible timeout]
+           environment coverage retry interruptible timeout release tags]
       end
 
       it { is_expected.to match_array result }
@@ -117,6 +117,21 @@ describe Gitlab::Ci::Config::Entry::Job do
               script: 'echo',
               dependencies: ['another-job'],
               needs: ['another-job']
+            }
+          end
+
+          it { expect(entry).to be_valid }
+        end
+
+        context 'when it is a release' do
+          let(:config) do
+            {
+              script: ["make changelog | tee release_changelog.txt"],
+              release: {
+                tag_name: "v0.06",
+                name: "Release $CI_TAG_NAME",
+                description: "./release_changelog.txt"
+              }
             }
           end
 
@@ -443,6 +458,25 @@ describe Gitlab::Ci::Config::Entry::Job do
           expect(entry.timeout).to eq('1m 1s')
         end
       end
+
+      context 'when it is a release' do
+        context 'when `release:description` is missing' do
+          let(:config) do
+            {
+              script: ["make changelog | tee release_changelog.txt"],
+              release: {
+                tag_name: "v0.06",
+                name: "Release $CI_TAG_NAME"
+              }
+            }
+          end
+
+          it "returns error" do
+            expect(entry).not_to be_valid
+            expect(entry.errors).to include "release description can't be blank"
+          end
+        end
+      end
     end
   end
 
@@ -461,7 +495,8 @@ describe Gitlab::Ci::Config::Entry::Job do
 
     let(:unspecified) { double('unspecified', 'specified?' => false) }
     let(:default) { double('default', '[]' => unspecified) }
-    let(:deps) { double('deps', 'default' => default, '[]' => unspecified) }
+    let(:workflow) { double('workflow', 'has_rules?' => false) }
+    let(:deps) { double('deps', 'default' => default, '[]' => unspecified, 'workflow' => workflow) }
 
     context 'when job config overrides default config' do
       before do
@@ -490,6 +525,49 @@ describe Gitlab::Ci::Config::Entry::Job do
       it 'uses config from default entry' do
         expect(entry[:image].value).to eq 'specified'
         expect(entry[:cache].value).to eq(key: 'test', policy: 'pull-push')
+      end
+    end
+
+    context 'with workflow rules' do
+      using RSpec::Parameterized::TableSyntax
+
+      where(:name, :has_workflow_rules?, :only, :rules, :result) do
+        "uses default only"    | false | nil          | nil    | { refs: %w[branches tags] }
+        "uses user only"       | false | %w[branches] | nil    | { refs: %w[branches] }
+        "does not define only" | false | nil          | []     | nil
+        "does not define only" | true  | nil          | nil    | nil
+        "uses user only"       | true  | %w[branches] | nil    | { refs: %w[branches] }
+        "does not define only" | true  | nil          | []     | nil
+      end
+
+      with_them do
+        let(:config) { { script: 'ls', rules: rules, only: only }.compact }
+
+        it "#{name}" do
+          expect(workflow).to receive(:has_rules?) { has_workflow_rules? }
+
+          entry.compose!(deps)
+
+          expect(entry.only_value).to eq(result)
+        end
+      end
+    end
+
+    context 'when workflow rules is used' do
+      context 'when rules are used' do
+        let(:config) { { script: 'ls', cache: { key: 'test' }, rules: [] } }
+
+        it 'does not define only' do
+          expect(entry).not_to be_only_defined
+        end
+      end
+
+      context 'when rules are not used' do
+        let(:config) { { script: 'ls', cache: { key: 'test' }, only: [] } }
+
+        it 'does not define only' do
+          expect(entry).not_to be_only_defined
+        end
       end
     end
   end

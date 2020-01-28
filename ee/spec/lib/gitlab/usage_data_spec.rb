@@ -26,6 +26,7 @@ describe Gitlab::UsageData do
 
       create(:alerts_service, project: projects[0])
       create(:alerts_service, :inactive, project: projects[1])
+      create(:service, project: projects[1], type: 'JenkinsService', active: true)
 
       create(:package, project: projects[0])
       create(:package, project: projects[0])
@@ -55,6 +56,7 @@ describe Gitlab::UsageData do
         license_id
         elasticsearch_enabled
         geo_enabled
+        license_trial_ends_on
       ))
     end
 
@@ -79,6 +81,7 @@ describe Gitlab::UsageData do
         operations_dashboard_default_dashboard
         operations_dashboard_users_with_projects_added
         pod_logs_usages_total
+        projects_jenkins_active
         projects_jira_dvcs_cloud_active
         projects_jira_dvcs_server_active
         projects_mirrored_with_pipelines_enabled
@@ -96,6 +99,7 @@ describe Gitlab::UsageData do
         template_repositories
       ))
 
+      expect(count_data[:projects_jenkins_active]).to eq(1)
       expect(count_data[:projects_with_prometheus_alerts]).to eq(2)
       expect(count_data[:projects_with_packages]).to eq(2)
       expect(count_data[:feature_flags]).to eq(1)
@@ -130,6 +134,7 @@ describe Gitlab::UsageData do
     it 'gathers feature usage data of EE' do
       expect(subject[:elasticsearch_enabled]).to eq(Gitlab::CurrentSettings.elasticsearch_search?)
       expect(subject[:geo_enabled]).to eq(Gitlab::Geo.enabled?)
+      expect(subject[:license_trial_ends_on]).to eq(License.trial_ends_on)
     end
   end
 

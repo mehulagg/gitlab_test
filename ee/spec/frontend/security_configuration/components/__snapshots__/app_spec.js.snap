@@ -5,7 +5,7 @@ exports[`Security Configuration App features table displays a given feature 1`] 
   class="mt-0"
 >
   <div
-    class="gl-responsive-table-row table-row-header text-2 font-weight-bold px-2"
+    class="gl-responsive-table-row table-row-header text-2 font-weight-bold px-2 gl-text-gray-900"
     role="row"
   >
     <div
@@ -48,14 +48,14 @@ exports[`Security Configuration App features table displays a given feature 1`] 
             class="d-flex align-items-center justify-content-end justify-content-md-start"
           >
             <div
-              class="text-2"
+              class="text-2 gl-text-gray-900"
             >
               
                 name-feature-0
               
             </div>
              
-            <gllink-stub
+            <gl-link-stub
               aria-label="Feature documentation"
               class="d-inline-flex ml-1"
               href="link-feature-0"
@@ -65,7 +65,7 @@ exports[`Security Configuration App features table displays a given feature 1`] 
                 name="external-link"
                 size="16"
               />
-            </gllink-stub>
+            </gl-link-stub>
           </div>
            
           <div

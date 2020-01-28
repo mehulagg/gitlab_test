@@ -4,9 +4,9 @@ require 'spec_helper'
 
 module Ci
   describe RegisterJobService do
-    set(:group) { create(:group) }
-    set(:project) { create(:project, group: group, shared_runners_enabled: false, group_runners_enabled: false) }
-    set(:pipeline) { create(:ci_pipeline, project: project) }
+    let_it_be(:group) { create(:group) }
+    let_it_be(:project, reload: true) { create(:project, group: group, shared_runners_enabled: false, group_runners_enabled: false) }
+    let_it_be(:pipeline) { create(:ci_pipeline, project: project) }
     let!(:shared_runner) { create(:ci_runner, :instance) }
     let!(:specific_runner) { create(:ci_runner, :project, projects: [project]) }
     let!(:group_runner) { create(:ci_runner, :group, groups: [group]) }
@@ -514,8 +514,8 @@ module Ci
         subject { execute(specific_runner, {}) }
 
         it 'does drop the build and logs both failures' do
-          expect(Gitlab::Sentry).to receive(:track_acceptable_exception)
-            .with(anything, a_hash_including(extra: a_hash_including(build_id: pending_job.id)))
+          expect(Gitlab::ErrorTracking).to receive(:track_exception)
+            .with(anything, a_hash_including(build_id: pending_job.id))
             .twice
             .and_call_original
 
@@ -540,8 +540,8 @@ module Ci
         subject { execute(specific_runner, {}) }
 
         it 'does drop the build and logs failure' do
-          expect(Gitlab::Sentry).to receive(:track_acceptable_exception)
-            .with(anything, a_hash_including(extra: a_hash_including(build_id: pending_job.id)))
+          expect(Gitlab::ErrorTracking).to receive(:track_exception)
+            .with(anything, a_hash_including(build_id: pending_job.id))
             .once
             .and_call_original
 

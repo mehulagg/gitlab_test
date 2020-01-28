@@ -10,11 +10,13 @@ describe('DiffsStoreMutations', () => {
       const state = {};
       const endpoint = '/diffs/endpoint';
       const projectPath = '/root/project';
+      const useSingleDiffStyle = false;
 
-      mutations[types.SET_BASE_CONFIG](state, { endpoint, projectPath });
+      mutations[types.SET_BASE_CONFIG](state, { endpoint, projectPath, useSingleDiffStyle });
 
       expect(state.endpoint).toEqual(endpoint);
       expect(state.projectPath).toEqual(projectPath);
+      expect(state.useSingleDiffStyle).toEqual(useSingleDiffStyle);
     });
   });
 
@@ -38,9 +40,26 @@ describe('DiffsStoreMutations', () => {
     });
   });
 
+  describe('SET_RETRIEVING_BATCHES', () => {
+    it('should set retrievingBatches state', () => {
+      const state = {};
+
+      mutations[types.SET_RETRIEVING_BATCHES](state, false);
+
+      expect(state.retrievingBatches).toEqual(false);
+    });
+  });
+
   describe('SET_DIFF_DATA', () => {
     it('should set diff data type properly', () => {
-      const state = {};
+      const state = {
+        diffFiles: [
+          {
+            content_sha: diffFileMockData.content_sha,
+            file_hash: diffFileMockData.file_hash,
+          },
+        ],
+      };
       const diffMock = {
         diff_files: [diffFileMockData],
       };
@@ -50,8 +69,40 @@ describe('DiffsStoreMutations', () => {
       const firstLine = state.diffFiles[0].parallel_diff_lines[0];
 
       expect(firstLine.right.text).toBeUndefined();
+      expect(state.diffFiles.length).toEqual(1);
       expect(state.diffFiles[0].renderIt).toEqual(true);
       expect(state.diffFiles[0].collapsed).toEqual(false);
+    });
+
+    describe('given diffsBatchLoad feature flag is enabled', () => {
+      beforeEach(() => {
+        gon.features = { diffsBatchLoad: true };
+      });
+
+      afterEach(() => {
+        delete gon.features;
+      });
+
+      it('should not modify the existing state', () => {
+        const state = {
+          diffFiles: [
+            {
+              content_sha: diffFileMockData.content_sha,
+              file_hash: diffFileMockData.file_hash,
+              highlighted_diff_lines: [],
+            },
+          ],
+        };
+        const diffMock = {
+          diff_files: [diffFileMockData],
+        };
+
+        mutations[types.SET_DIFF_DATA](state, diffMock);
+
+        // If the batch load is enabled, there shouldn't be any processing
+        // done on the existing state object, so we shouldn't have this.
+        expect(state.diffFiles[0].parallel_diff_lines).toBeUndefined();
+      });
     });
   });
 
@@ -156,11 +207,17 @@ describe('DiffsStoreMutations', () => {
     it('should update the state with the given data for the given file hash', () => {
       const fileHash = 123;
       const state = {
-        diffFiles: [{}, { file_hash: fileHash, existing_field: 0 }],
+        diffFiles: [{}, { content_sha: 'abc', file_hash: fileHash, existing_field: 0 }],
       };
       const data = {
         diff_files: [
-          { file_hash: fileHash, extra_field: 1, existing_field: 1, viewer: { name: 'text' } },
+          {
+            content_sha: 'abc',
+            file_hash: fileHash,
+            extra_field: 1,
+            existing_field: 1,
+            viewer: { name: 'text' },
+          },
         ],
       };
 
@@ -196,7 +253,7 @@ describe('DiffsStoreMutations', () => {
                   discussions: [],
                 },
                 right: {
-                  line_code: 'ABC_1',
+                  line_code: 'ABC_2',
                   discussions: [],
                 },
               },
@@ -262,7 +319,7 @@ describe('DiffsStoreMutations', () => {
                   discussions: [],
                 },
                 right: {
-                  line_code: 'ABC_1',
+                  line_code: 'ABC_2',
                   discussions: [],
                 },
               },
@@ -340,7 +397,7 @@ describe('DiffsStoreMutations', () => {
                   discussions: [],
                 },
                 right: {
-                  line_code: 'ABC_1',
+                  line_code: 'ABC_2',
                   discussions: [],
                 },
               },
@@ -436,6 +493,7 @@ describe('DiffsStoreMutations', () => {
                 discussions: [],
               },
             ],
+            parallel_diff_lines: [],
           },
         ],
       };

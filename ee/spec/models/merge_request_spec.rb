@@ -335,6 +335,7 @@ describe MergeRequest do
     let(:project) { create(:project, :repository) }
     let(:current_user) { project.users.take }
     let(:merge_request) { create(:merge_request, source_project: project) }
+
     subject { merge_request.calculate_reactive_cache(service_class_name, current_user&.id) }
 
     context 'when given a known service class name' do
@@ -713,6 +714,7 @@ describe MergeRequest do
 
     context 'when using approvals' do
       let(:user) { create(:user) }
+
       before do
         allow(subject).to receive(:mergeable_state?).and_return(true)
 
@@ -741,6 +743,14 @@ describe MergeRequest do
       end
 
       it { is_expected.to be_truthy }
+    end
+
+    context 'when the merge request was on a merge train' do
+      let(:merge_request) do
+        create(:merge_request, :on_train, status: 'merged', source_project: project, target_project: project)
+      end
+
+      it { is_expected.to be_falsy }
     end
 
     context 'when the merge request is not on a merge train' do
@@ -777,6 +787,17 @@ describe MergeRequest do
           expect { merge_request.mark_as_merged! }.not_to raise_error
         end
       end
+    end
+  end
+
+  describe 'review time sorting' do
+    it 'orders by first_comment_at' do
+      merge_request_1 = create(:merge_request, :with_productivity_metrics, metrics_data: { first_comment_at: 1.day.ago })
+      merge_request_2 = create(:merge_request, :with_productivity_metrics, metrics_data: { first_comment_at: 3.days.ago })
+      merge_request_3 = create(:merge_request, :with_productivity_metrics, metrics_data: { first_comment_at: nil })
+
+      expect(described_class.order_review_time_desc).to match([merge_request_2, merge_request_1, merge_request_3])
+      expect(described_class.sort_by_attribute('review_time_desc')).to match([merge_request_2, merge_request_1, merge_request_3])
     end
   end
 end

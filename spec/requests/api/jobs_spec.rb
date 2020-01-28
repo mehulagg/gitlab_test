@@ -244,7 +244,7 @@ describe API::Jobs do
           get api("/projects/#{project.id}/pipelines/#{pipeline.id}/jobs", api_user), params: query
         end.count
 
-        3.times { create(:ci_build, :trace_artifact, :artifacts, :test_reports, pipeline: pipeline) }
+        create_list(:ci_build, 3, :trace_artifact, :artifacts, :test_reports, pipeline: pipeline)
 
         expect do
           get api("/projects/#{project.id}/pipelines/#{pipeline.id}/jobs", api_user), params: query
@@ -795,9 +795,11 @@ describe API::Jobs do
 
         before do
           stub_remote_url_206(url, file_path)
-          allow_any_instance_of(JobArtifactUploader).to receive(:file_storage?) { false }
-          allow_any_instance_of(JobArtifactUploader).to receive(:url) { url }
-          allow_any_instance_of(JobArtifactUploader).to receive(:size) { File.size(file_path) }
+          allow_next_instance_of(JobArtifactUploader) do |instance|
+            allow(instance).to receive(:file_storage?) { false }
+            allow(instance).to receive(:url) { url }
+            allow(instance).to receive(:size) { File.size(file_path) }
+          end
         end
 
         it 'returns specific job trace' do

@@ -18,13 +18,15 @@ import {
   fetchPrometheusMetric,
   setEndpoints,
   setGettingStartedEmptyState,
+  duplicateSystemDashboard,
 } from '~/monitoring/stores/actions';
+import { gqClient, parseEnvironmentsResponse } from '~/monitoring/stores/utils';
 import storeState from '~/monitoring/stores/state';
 import {
   deploymentData,
   environmentData,
   metricsDashboardResponse,
-  metricsGroupsAPIResponse,
+  metricsDashboardPayload,
   dashboardGitResponse,
 } from '../mock_data';
 
@@ -104,37 +106,46 @@ describe('Monitoring store actions', () => {
     });
   });
   describe('fetchEnvironmentsData', () => {
-    it('commits RECEIVE_ENVIRONMENTS_DATA_SUCCESS on error', done => {
+    it('commits RECEIVE_ENVIRONMENTS_DATA_SUCCESS on error', () => {
       const dispatch = jest.fn();
       const { state } = store;
-      state.environmentsEndpoint = '/success';
-      mock.onGet(state.environmentsEndpoint).reply(200, {
-        environments: environmentData,
+      state.projectPath = '/gitlab-org/gitlab-test';
+
+      jest.spyOn(gqClient, 'mutate').mockReturnValue(
+        Promise.resolve({
+          data: {
+            project: {
+              data: {
+                environments: environmentData,
+              },
+            },
+          },
+        }),
+      );
+
+      return fetchEnvironmentsData({
+        state,
+        dispatch,
+      }).then(() => {
+        expect(dispatch).toHaveBeenCalledWith(
+          'receiveEnvironmentsDataSuccess',
+          parseEnvironmentsResponse(environmentData, state.projectPath),
+        );
       });
-      fetchEnvironmentsData({
-        state,
-        dispatch,
-      })
-        .then(() => {
-          expect(dispatch).toHaveBeenCalledWith('receiveEnvironmentsDataSuccess', environmentData);
-          done();
-        })
-        .catch(done.fail);
     });
-    it('commits RECEIVE_ENVIRONMENTS_DATA_FAILURE on error', done => {
+
+    it('commits RECEIVE_ENVIRONMENTS_DATA_FAILURE on error', () => {
       const dispatch = jest.fn();
       const { state } = store;
-      state.environmentsEndpoint = '/error';
-      mock.onGet(state.environmentsEndpoint).reply(500);
-      fetchEnvironmentsData({
+      state.projectPath = '/gitlab-org/gitlab-test';
+      jest.spyOn(gqClient, 'mutate').mockReturnValue(Promise.reject());
+
+      return fetchEnvironmentsData({
         state,
         dispatch,
-      })
-        .then(() => {
-          expect(dispatch).toHaveBeenCalledWith('receiveEnvironmentsDataFailure');
-          done();
-        })
-        .catch(done.fail);
+      }).then(() => {
+        expect(dispatch).toHaveBeenCalledWith('receiveEnvironmentsDataFailure');
+      });
     });
   });
   describe('Set endpoints', () => {
@@ -148,7 +159,6 @@ describe('Monitoring store actions', () => {
         {
           metricsEndpoint: 'additional_metrics.json',
           deploymentsEndpoint: 'deployments.json',
-          environmentsEndpoint: 'deployments.json',
         },
         mockedState,
         [
@@ -157,7 +167,6 @@ describe('Monitoring store actions', () => {
             payload: {
               metricsEndpoint: 'additional_metrics.json',
               deploymentsEndpoint: 'deployments.json',
-              environmentsEndpoint: 'deployments.json',
             },
           },
         ],
@@ -191,12 +200,11 @@ describe('Monitoring store actions', () => {
     let state;
     const response = metricsDashboardResponse;
     beforeEach(() => {
-      jest.spyOn(Tracking, 'event');
       dispatch = jest.fn();
       state = storeState();
       state.dashboardEndpoint = '/dashboard';
     });
-    it('dispatches receive and success actions', done => {
+    it('on success, dispatches receive and success actions', done => {
       const params = {};
       document.body.dataset.page = 'projects:environments:metrics';
       mock.onGet(state.dashboardEndpoint).reply(200, response);
@@ -213,39 +221,65 @@ describe('Monitoring store actions', () => {
             response,
             params,
           });
-        })
-        .then(() => {
-          expect(Tracking.event).toHaveBeenCalledWith(
-            document.body.dataset.page,
-            'dashboard_fetch',
-            {
-              label: 'custom_metrics_dashboard',
-              property: 'count',
-              value: 0,
-            },
-          );
           done();
         })
         .catch(done.fail);
     });
-    it('dispatches failure action', done => {
-      const params = {};
-      mock.onGet(state.dashboardEndpoint).reply(500);
-      fetchDashboard(
-        {
-          state,
-          dispatch,
-        },
-        params,
-      )
-        .then(() => {
-          expect(dispatch).toHaveBeenCalledWith(
-            'receiveMetricsDashboardFailure',
-            new Error('Request failed with status code 500'),
-          );
-          done();
-        })
-        .catch(done.fail);
+
+    describe('on failure', () => {
+      let result;
+      let errorResponse;
+      beforeEach(() => {
+        const params = {};
+        result = () => {
+          mock.onGet(state.dashboardEndpoint).replyOnce(500, errorResponse);
+          return fetchDashboard({ state, dispatch }, params);
+        };
+      });
+
+      it('dispatches a failure action', done => {
+        errorResponse = {};
+        result()
+          .then(() => {
+            expect(dispatch).toHaveBeenCalledWith(
+              'receiveMetricsDashboardFailure',
+              new Error('Request failed with status code 500'),
+            );
+            expect(createFlash).toHaveBeenCalled();
+            done();
+          })
+          .catch(done.fail);
+      });
+
+      it('dispatches a failure action when a message is returned', done => {
+        const message = 'Something went wrong with Prometheus!';
+        errorResponse = { message };
+        result()
+          .then(() => {
+            expect(dispatch).toHaveBeenCalledWith(
+              'receiveMetricsDashboardFailure',
+              new Error('Request failed with status code 500'),
+            );
+            expect(createFlash).toHaveBeenCalledWith(expect.stringContaining(message));
+            done();
+          })
+          .catch(done.fail);
+      });
+
+      it('does not show a flash error when showErrorBanner is disabled', done => {
+        state.showErrorBanner = false;
+
+        result()
+          .then(() => {
+            expect(dispatch).toHaveBeenCalledWith(
+              'receiveMetricsDashboardFailure',
+              new Error('Request failed with status code 500'),
+            );
+            expect(createFlash).not.toHaveBeenCalled();
+            done();
+          })
+          .catch(done.fail);
+      });
     });
   });
   describe('receiveMetricsDashboardSuccess', () => {
@@ -273,7 +307,7 @@ describe('Monitoring store actions', () => {
       );
       expect(commit).toHaveBeenCalledWith(
         types.RECEIVE_METRICS_DATA_SUCCESS,
-        metricsDashboardResponse.dashboard.panel_groups,
+        metricsDashboardResponse.dashboard,
       );
       expect(dispatch).toHaveBeenCalledWith('fetchPrometheusMetrics', params);
     });
@@ -317,18 +351,33 @@ describe('Monitoring store actions', () => {
     });
   });
   describe('fetchPrometheusMetrics', () => {
+    const params = {};
     let commit;
     let dispatch;
+    let state;
+
     beforeEach(() => {
+      jest.spyOn(Tracking, 'event');
       commit = jest.fn();
       dispatch = jest.fn();
+      state = storeState();
     });
+
     it('commits empty state when state.groups is empty', done => {
-      const state = storeState();
-      const params = {};
-      fetchPrometheusMetrics({ state, commit, dispatch }, params)
+      const getters = {
+        metricsWithData: () => [],
+      };
+      fetchPrometheusMetrics({ state, commit, dispatch, getters }, params)
         .then(() => {
-          expect(commit).toHaveBeenCalledWith(types.SET_NO_DATA_EMPTY_STATE);
+          expect(Tracking.event).toHaveBeenCalledWith(
+            document.body.dataset.page,
+            'dashboard_fetch',
+            {
+              label: 'custom_metrics_dashboard',
+              property: 'count',
+              value: 0,
+            },
+          );
           expect(dispatch).not.toHaveBeenCalled();
           expect(createFlash).not.toHaveBeenCalled();
           done();
@@ -336,19 +385,28 @@ describe('Monitoring store actions', () => {
         .catch(done.fail);
     });
     it('dispatches fetchPrometheusMetric for each panel query', done => {
-      const params = {};
-      const state = storeState();
       state.dashboard.panel_groups = metricsDashboardResponse.dashboard.panel_groups;
-      const metric = state.dashboard.panel_groups[0].panels[0].metrics[0];
-      fetchPrometheusMetrics({ state, commit, dispatch }, params)
+      const [metric] = state.dashboard.panel_groups[0].panels[0].metrics;
+      const getters = {
+        metricsWithData: () => [metric.id],
+      };
+
+      fetchPrometheusMetrics({ state, commit, dispatch, getters }, params)
         .then(() => {
-          expect(dispatch).toHaveBeenCalledTimes(3);
           expect(dispatch).toHaveBeenCalledWith('fetchPrometheusMetric', {
             metric,
             params,
           });
 
-          expect(createFlash).not.toHaveBeenCalled();
+          expect(Tracking.event).toHaveBeenCalledWith(
+            document.body.dataset.page,
+            'dashboard_fetch',
+            {
+              label: 'custom_metrics_dashboard',
+              property: 'count',
+              value: 1,
+            },
+          );
 
           done();
         })
@@ -357,8 +415,6 @@ describe('Monitoring store actions', () => {
     });
 
     it('dispatches fetchPrometheusMetric for each panel query, handles an error', done => {
-      const params = {};
-      const state = storeState();
       state.dashboard.panel_groups = metricsDashboardResponse.dashboard.panel_groups;
       const metric = state.dashboard.panel_groups[0].panels[0].metrics[0];
 
@@ -387,32 +443,44 @@ describe('Monitoring store actions', () => {
       start: '2019-08-06T12:40:02.184Z',
       end: '2019-08-06T20:40:02.184Z',
     };
-    let commit;
     let metric;
     let state;
     let data;
 
     beforeEach(() => {
-      commit = jest.fn();
       state = storeState();
       [metric] = metricsDashboardResponse.dashboard.panel_groups[0].panels[0].metrics;
-      [data] = metricsGroupsAPIResponse[0].panels[0].metrics;
+      [data] = metricsDashboardPayload.panel_groups[0].panels[0].metrics;
     });
 
     it('commits result', done => {
       mock.onGet('http://test').reply(200, { data }); // One attempt
 
-      fetchPrometheusMetric({ state, commit }, { metric, params })
-        .then(() => {
-          expect(commit).toHaveBeenCalledWith(types.SET_QUERY_RESULT, {
-            metricId: metric.metric_id,
-            result: data.result,
-          });
-
+      testAction(
+        fetchPrometheusMetric,
+        { metric, params },
+        state,
+        [
+          {
+            type: types.REQUEST_METRIC_RESULT,
+            payload: {
+              metricId: metric.metric_id,
+            },
+          },
+          {
+            type: types.RECEIVE_METRIC_RESULT_SUCCESS,
+            payload: {
+              metricId: metric.metric_id,
+              result: data.result,
+            },
+          },
+        ],
+        [],
+        () => {
           expect(mock.history.get).toHaveLength(1);
           done();
-        })
-        .catch(done.fail);
+        },
+      ).catch(done.fail);
     });
 
     it('commits result, when waiting for results', done => {
@@ -422,18 +490,31 @@ describe('Monitoring store actions', () => {
       mock.onGet('http://test').replyOnce(statusCodes.NO_CONTENT);
       mock.onGet('http://test').reply(200, { data }); // 4th attempt
 
-      const fetch = fetchPrometheusMetric({ state, commit }, { metric, params });
-
-      fetch
-        .then(() => {
-          expect(commit).toHaveBeenCalledWith(types.SET_QUERY_RESULT, {
-            metricId: metric.metric_id,
-            result: data.result,
-          });
+      testAction(
+        fetchPrometheusMetric,
+        { metric, params },
+        state,
+        [
+          {
+            type: types.REQUEST_METRIC_RESULT,
+            payload: {
+              metricId: metric.metric_id,
+            },
+          },
+          {
+            type: types.RECEIVE_METRIC_RESULT_SUCCESS,
+            payload: {
+              metricId: metric.metric_id,
+              result: data.result,
+            },
+          },
+        ],
+        [],
+        () => {
           expect(mock.history.get).toHaveLength(4);
           done();
-        })
-        .catch(done.fail);
+        },
+      ).catch(done.fail);
     });
 
     it('commits failure, when waiting for results and getting a server error', done => {
@@ -443,15 +524,114 @@ describe('Monitoring store actions', () => {
       mock.onGet('http://test').replyOnce(statusCodes.NO_CONTENT);
       mock.onGet('http://test').reply(500); // 4th attempt
 
-      fetchPrometheusMetric({ state, commit }, { metric, params })
+      const error = new Error('Request failed with status code 500');
+
+      testAction(
+        fetchPrometheusMetric,
+        { metric, params },
+        state,
+        [
+          {
+            type: types.REQUEST_METRIC_RESULT,
+            payload: {
+              metricId: metric.metric_id,
+            },
+          },
+          {
+            type: types.RECEIVE_METRIC_RESULT_FAILURE,
+            payload: {
+              metricId: metric.metric_id,
+              error,
+            },
+          },
+        ],
+        [],
+      ).catch(e => {
+        expect(mock.history.get).toHaveLength(4);
+        expect(e).toEqual(error);
+        done();
+      });
+    });
+  });
+
+  describe('duplicateSystemDashboard', () => {
+    let state;
+
+    beforeEach(() => {
+      state = storeState();
+      state.dashboardsEndpoint = '/dashboards.json';
+    });
+
+    it('Succesful POST request resolves', done => {
+      mock.onPost(state.dashboardsEndpoint).reply(statusCodes.CREATED, {
+        dashboard: dashboardGitResponse[1],
+      });
+
+      testAction(duplicateSystemDashboard, {}, state, [], [])
         .then(() => {
-          done.fail();
-        })
-        .catch(() => {
-          expect(commit).not.toHaveBeenCalled();
-          expect(mock.history.get).toHaveLength(4);
+          expect(mock.history.post).toHaveLength(1);
           done();
-        });
+        })
+        .catch(done.fail);
+    });
+
+    it('Succesful POST request resolves to a dashboard', done => {
+      const mockCreatedDashboard = dashboardGitResponse[1];
+
+      const params = {
+        dashboard: 'my-dashboard',
+        fileName: 'file-name.yml',
+        branch: 'my-new-branch',
+        commitMessage: 'A new commit message',
+      };
+
+      const expectedPayload = JSON.stringify({
+        dashboard: 'my-dashboard',
+        file_name: 'file-name.yml',
+        branch: 'my-new-branch',
+        commit_message: 'A new commit message',
+      });
+
+      mock.onPost(state.dashboardsEndpoint).reply(statusCodes.CREATED, {
+        dashboard: mockCreatedDashboard,
+      });
+
+      testAction(duplicateSystemDashboard, params, state, [], [])
+        .then(result => {
+          expect(mock.history.post).toHaveLength(1);
+          expect(mock.history.post[0].data).toEqual(expectedPayload);
+          expect(result).toEqual(mockCreatedDashboard);
+
+          done();
+        })
+        .catch(done.fail);
+    });
+
+    it('Failed POST request throws an error', done => {
+      mock.onPost(state.dashboardsEndpoint).reply(statusCodes.BAD_REQUEST);
+
+      testAction(duplicateSystemDashboard, {}, state, [], []).catch(err => {
+        expect(mock.history.post).toHaveLength(1);
+        expect(err).toEqual(expect.any(String));
+
+        done();
+      });
+    });
+
+    it('Failed POST request throws an error with a description', done => {
+      const backendErrorMsg = 'This file already exists!';
+
+      mock.onPost(state.dashboardsEndpoint).reply(statusCodes.BAD_REQUEST, {
+        error: backendErrorMsg,
+      });
+
+      testAction(duplicateSystemDashboard, {}, state, [], []).catch(err => {
+        expect(mock.history.post).toHaveLength(1);
+        expect(err).toEqual(expect.any(String));
+        expect(err).toEqual(expect.stringContaining(backendErrorMsg));
+
+        done();
+      });
     });
   });
 });

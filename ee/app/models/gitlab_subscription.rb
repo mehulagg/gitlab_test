@@ -2,7 +2,6 @@
 
 class GitlabSubscription < ApplicationRecord
   default_value_for(:start_date) { Date.today }
-  after_create_commit :log_previous_state_for_create
   before_update :log_previous_state_for_update
   after_destroy_commit :log_previous_state_for_destroy
 
@@ -14,8 +13,12 @@ class GitlabSubscription < ApplicationRecord
 
   delegate :name, :title, to: :hosted_plan, prefix: :plan, allow_nil: true
 
+  scope :with_hosted_plan, -> (plan_name) do
+    joins(:hosted_plan).where(trial: false, 'plans.name' => plan_name)
+  end
+
   scope :with_a_paid_hosted_plan, -> do
-    joins(:hosted_plan).where(trial: false, 'plans.name' => Plan::PAID_HOSTED_PLANS)
+    with_hosted_plan(Plan::PAID_HOSTED_PLANS)
   end
 
   def seats_in_use
@@ -58,10 +61,6 @@ class GitlabSubscription < ApplicationRecord
   end
 
   private
-
-  def log_previous_state_for_create
-    log_previous_state_to_history(:gitlab_subscription_created)
-  end
 
   def log_previous_state_for_update
     attrs = self.attributes.merge(self.attributes_in_database)

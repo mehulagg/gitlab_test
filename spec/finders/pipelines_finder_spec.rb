@@ -6,6 +6,7 @@ describe PipelinesFinder do
   let(:project) { create(:project, :public, :repository) }
   let(:current_user) { nil }
   let(:params) { {} }
+
   subject { described_class.new(project, current_user, params).execute }
 
   describe "#execute" do
@@ -60,6 +61,19 @@ describe PipelinesFinder do
         it 'returns matched pipelines' do
           is_expected.to eq([pipeline_tag])
         end
+      end
+    end
+
+    context 'when project has child pipelines' do
+      let!(:parent_pipeline) { create(:ci_pipeline, project: project) }
+      let!(:child_pipeline) { create(:ci_pipeline, project: project, source: :parent_pipeline) }
+
+      let!(:pipeline_source) do
+        create(:ci_sources_pipeline, pipeline: child_pipeline, source_pipeline: parent_pipeline)
+      end
+
+      it 'filters out child pipelines and show only the parents' do
+        is_expected.to eq([parent_pipeline])
       end
     end
 

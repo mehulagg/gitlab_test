@@ -1,8 +1,8 @@
 import Vuex from 'vuex';
 import { createLocalVue, mount } from '@vue/test-utils';
-import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
 import store from 'ee/geo_designs/store';
 import GeoDesignTimeAgo from 'ee/geo_designs/components/geo_design_time_ago.vue';
+import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -17,7 +17,7 @@ describe('GeoDesignTimeAgo', () => {
   };
 
   const createComponent = () => {
-    wrapper = mount(localVue.extend(GeoDesignTimeAgo), {
+    wrapper = mount(GeoDesignTimeAgo, {
       localVue,
       store,
       propsData,

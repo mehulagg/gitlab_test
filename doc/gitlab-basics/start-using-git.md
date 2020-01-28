@@ -93,7 +93,7 @@ This creates a `.git` directory that contains the Git configuration files.
 
 Once the directory has been initialized, you can [add a remote repository](#add-a-remote-repository)
 and [send changes to GitLab.com](#send-changes-to-gitlabcom). You will also need to
-[create a new project in GitLab](../gitlab-basics/create-project.html#push-to-create-a-new-project)
+[create a new project in GitLab](../gitlab-basics/create-project.md#push-to-create-a-new-project)
 for your Git repository.
 
 ### Clone a repository
@@ -313,7 +313,7 @@ git merge master
 
 ### Synchronize changes in a forked repository with the upstream
 
-[Forking a repository](../user/project/repository/forking_workflow.md lets you create
+[Forking a repository](../user/project/repository/forking_workflow.md) lets you create
 a copy of a repository in your namespace. Changes made to your copy of the repository
 are not synchronized automatically with the original.
 Your local fork (copy) contains changes made by you only, so to keep the project

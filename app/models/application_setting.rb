@@ -5,15 +5,13 @@ class ApplicationSetting < ApplicationRecord
   include CacheMarkdownField
   include TokenAuthenticatable
   include ChronicDurationAttribute
-  include IgnorableColumns
-
-  ignore_columns :pendo_enabled, :pendo_url, remove_after: '2019-12-01', remove_with: '12.6'
 
   add_authentication_token_field :runners_registration_token, encrypted: -> { Feature.enabled?(:application_settings_tokens_optional_encryption, default_enabled: true) ? :optional : :required }
   add_authentication_token_field :health_check_access_token
   add_authentication_token_field :static_objects_external_storage_auth_token
 
   belongs_to :instance_administration_project, class_name: "Project"
+  belongs_to :instance_administrators_group, class_name: "Group"
 
   # Include here so it can override methods from
   # `add_authentication_token_field`
@@ -48,6 +46,12 @@ class ApplicationSetting < ApplicationRecord
   validates :session_expire_delay,
             presence: true,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+
+  validates :minimum_password_length,
+            presence: true,
+            numericality: { only_integer: true,
+                            greater_than_or_equal_to: DEFAULT_MINIMUM_PASSWORD_LENGTH,
+                            less_than_or_equal_to: Devise.password_length.max }
 
   validates :home_page_url,
             allow_blank: true,
@@ -118,6 +122,11 @@ class ApplicationSetting < ApplicationRecord
             presence: true,
             numericality: { only_integer: true, greater_than: 0 }
 
+  validates :max_pages_size,
+            presence: true,
+            numericality: { only_integer: true, greater_than: 0,
+                            less_than: ::Gitlab::Pages::MAX_SIZE / 1.megabyte }
+
   validates :default_artifacts_expire_in, presence: true, duration: true
 
   validates :container_registry_token_expire_delay,
@@ -133,7 +142,7 @@ class ApplicationSetting < ApplicationRecord
             if: :auto_devops_enabled?
 
   validates :enabled_git_access_protocol,
-            inclusion: { in: %w(ssh http), allow_blank: true, allow_nil: true }
+            inclusion: { in: %w(ssh http), allow_blank: true }
 
   validates :domain_blacklist,
             presence: { message: 'Domain blacklist cannot be empty if Blacklist is enabled.' },
@@ -161,7 +170,11 @@ class ApplicationSetting < ApplicationRecord
 
   validates :gitaly_timeout_default,
             presence: true,
-            numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+            numericality: {
+              only_integer: true,
+              greater_than_or_equal_to: 0,
+              less_than_or_equal_to: Settings.gitlab.max_request_duration_seconds
+            }
 
   validates :gitaly_timeout_medium,
             presence: true,

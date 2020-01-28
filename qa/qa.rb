@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-$: << File.expand_path(File.dirname(__FILE__))
+$: << File.expand_path(__dir__)
 
 Encoding.default_external = 'UTF-8'
 
@@ -35,6 +35,9 @@ module QA
     autoload :Logger, 'qa/runtime/logger'
     autoload :GPG, 'qa/runtime/gpg'
     autoload :MailHog, 'qa/runtime/mail_hog'
+    autoload :IPAddress, 'qa/runtime/ip_address'
+    autoload :Search, 'qa/runtime/search'
+    autoload :ApplicationSettings, 'qa/runtime/application_settings'
 
     module API
       autoload :Client, 'qa/runtime/api/client'
@@ -485,8 +488,10 @@ module QA
     end
     autoload :Api, 'qa/support/api'
     autoload :Dates, 'qa/support/dates'
-    autoload :Waiter, 'qa/support/waiter'
+    autoload :Repeater, 'qa/support/repeater'
     autoload :Retrier, 'qa/support/retrier'
+    autoload :Waiter, 'qa/support/waiter'
+    autoload :WaitForRequests, 'qa/support/wait_for_requests'
   end
 end
 

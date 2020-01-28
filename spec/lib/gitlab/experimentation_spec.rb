@@ -54,7 +54,7 @@ describe Gitlab::Experimentation do
     describe '#experiment_enabled?' do
       context 'cookie is not present' do
         it 'calls Gitlab::Experimentation.enabled_for_user? with the name of the experiment and an experimentation_subject_index of nil' do
-          expect(Gitlab::Experimentation).to receive(:enabled_for_user?).with(:test_experiment, nil) # rubocop:disable RSpec/DescribedClass
+          expect(Gitlab::Experimentation).to receive(:enabled_for_user?).with(:test_experiment, nil)
           controller.experiment_enabled?(:test_experiment)
         end
       end
@@ -67,7 +67,7 @@ describe Gitlab::Experimentation do
 
         it 'calls Gitlab::Experimentation.enabled_for_user? with the name of the experiment and an experimentation_subject_index of the modulo 100 of the hex value of the uuid' do
           # 'abcd1234'.hex % 100 = 76
-          expect(Gitlab::Experimentation).to receive(:enabled_for_user?).with(:test_experiment, 76) # rubocop:disable RSpec/DescribedClass
+          expect(Gitlab::Experimentation).to receive(:enabled_for_user?).with(:test_experiment, 76)
           controller.experiment_enabled?(:test_experiment)
         end
       end
@@ -96,10 +96,10 @@ describe Gitlab::Experimentation do
             expect(Gitlab::Tracking).to receive(:event).with(
               'Team',
               'start',
-              label: nil,
-              property: 'experimental_group'
+              property: 'experimental_group',
+              value: 'team_id'
             )
-            controller.track_experiment_event(:test_experiment, 'start')
+            controller.track_experiment_event(:test_experiment, 'start', 'team_id')
           end
         end
 
@@ -112,10 +112,10 @@ describe Gitlab::Experimentation do
             expect(Gitlab::Tracking).to receive(:event).with(
               'Team',
               'start',
-              label: nil,
-              property: 'control_group'
+              property: 'control_group',
+              value: 'team_id'
             )
-            controller.track_experiment_event(:test_experiment, 'start')
+            controller.track_experiment_event(:test_experiment, 'start', 'team_id')
           end
         end
       end
@@ -144,13 +144,13 @@ describe Gitlab::Experimentation do
           end
 
           it 'pushes the right parameters to gon' do
-            controller.frontend_experimentation_tracking_data(:test_experiment, 'start')
+            controller.frontend_experimentation_tracking_data(:test_experiment, 'start', 'team_id')
             expect(Gon.tracking_data).to eq(
               {
                 category: 'Team',
                 action: 'start',
-                label: nil,
-                property: 'experimental_group'
+                property: 'experimental_group',
+                value: 'team_id'
               }
             )
           end
@@ -164,12 +164,23 @@ describe Gitlab::Experimentation do
           end
 
           it 'pushes the right parameters to gon' do
+            controller.frontend_experimentation_tracking_data(:test_experiment, 'start', 'team_id')
+            expect(Gon.tracking_data).to eq(
+              {
+                category: 'Team',
+                action: 'start',
+                property: 'control_group',
+                value: 'team_id'
+              }
+            )
+          end
+
+          it 'does not send nil value to gon' do
             controller.frontend_experimentation_tracking_data(:test_experiment, 'start')
             expect(Gon.tracking_data).to eq(
               {
                 category: 'Team',
                 action: 'start',
-                label: nil,
                 property: 'control_group'
               }
             )

@@ -47,7 +47,11 @@ dependency_scanning:
           DS_PULL_ANALYZER_IMAGE_TIMEOUT \
           DS_RUN_ANALYZER_TIMEOUT \
           DS_PYTHON_VERSION \
+          DS_PIP_VERSION \
           DS_PIP_DEPENDENCY_PATH \
+          GEMNASIUM_DB_LOCAL_PATH \
+          GEMNASIUM_DB_REMOTE_URL \
+          GEMNASIUM_DB_REF_NAME \
           PIP_INDEX_URL \
           PIP_EXTRA_INDEX_URL \
           PIP_REQUIREMENTS_FILE \
@@ -71,27 +75,28 @@ dependency_scanning:
       - $DEPENDENCY_SCANNING_DISABLED
       - $DS_DISABLE_DIND == 'true'
 
-.analyzer:
+.ds-analyzer:
   extends: dependency_scanning
   services: []
   except:
     variables:
+      - $DEPENDENCY_SCANNING_DISABLED
       - $DS_DISABLE_DIND == 'false'
   script:
     - /analyzer run
 
 gemnasium-dependency_scanning:
-  extends: .analyzer
+  extends: .ds-analyzer
   image:
     name: "$DS_ANALYZER_IMAGE_PREFIX/gemnasium:$DS_MAJOR_VERSION"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
-        $DS_DEFAULT_ANALYZERS =~ /gemnasium/ &&
-        $CI_PROJECT_REPOSITORY_LANGUAGES =~ /ruby|javascript|php/
+        $DS_DEFAULT_ANALYZERS =~ /gemnasium([^-]|$)/ &&
+        $CI_PROJECT_REPOSITORY_LANGUAGES =~ /ruby|javascript|php|\bgo\b/
 
 gemnasium-maven-dependency_scanning:
-  extends: .analyzer
+  extends: .ds-analyzer
   image:
     name: "$DS_ANALYZER_IMAGE_PREFIX/gemnasium-maven:$DS_MAJOR_VERSION"
   only:
@@ -101,7 +106,7 @@ gemnasium-maven-dependency_scanning:
         $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bjava\b/
 
 gemnasium-python-dependency_scanning:
-  extends: .analyzer
+  extends: .ds-analyzer
   image:
     name: "$DS_ANALYZER_IMAGE_PREFIX/gemnasium-python:$DS_MAJOR_VERSION"
   only:
@@ -111,7 +116,7 @@ gemnasium-python-dependency_scanning:
         $CI_PROJECT_REPOSITORY_LANGUAGES =~ /python/
 
 bundler-audit-dependency_scanning:
-  extends: .analyzer
+  extends: .ds-analyzer
   image:
     name: "$DS_ANALYZER_IMAGE_PREFIX/bundler-audit:$DS_MAJOR_VERSION"
   only:
@@ -121,7 +126,7 @@ bundler-audit-dependency_scanning:
         $CI_PROJECT_REPOSITORY_LANGUAGES =~ /ruby/
 
 retire-js-dependency_scanning:
-  extends: .analyzer
+  extends: .ds-analyzer
   image:
     name: "$DS_ANALYZER_IMAGE_PREFIX/retire.js:$DS_MAJOR_VERSION"
   only:

@@ -51,6 +51,7 @@ module EE
 
       has_many :epic_issues
       has_many :issues, through: :epic_issues
+      has_many :user_mentions, class_name: "EpicUserMention"
 
       validates :group, presence: true
       validate :validate_parent, on: :create
@@ -361,7 +362,7 @@ module EE
     private :validate_parent
 
     def level_depth_exceeded?(parent_epic)
-      hierarchy.max_descendants_depth.to_i + parent_epic.ancestors.count >= MAX_HIERARCHY_DEPTH
+      hierarchy.max_descendants_depth.to_i + parent_epic.base_and_ancestors.count >= MAX_HIERARCHY_DEPTH
     end
     private :level_depth_exceeded?
 
@@ -370,6 +371,5 @@ module EE
 
       hierarchy.base_and_ancestors(hierarchy_order: :asc)
     end
-    private :base_and_ancestors
   end
 end

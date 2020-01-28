@@ -68,6 +68,8 @@ export default () => {
       Board,
       BoardSidebar,
       BoardAddIssuesModal,
+      BoardSettingsSidebar: () =>
+        import('ee_component/boards/components/board_settings_sidebar.vue'),
     },
     store,
     data: {
@@ -166,6 +168,7 @@ export default () => {
                 humanTotalTimeSpent,
                 weight,
                 epic,
+                assignees,
               } = convertObjectPropsToCamelCase(data);
 
               newIssue.setFetchingState('subscriptions', false);
@@ -179,6 +182,7 @@ export default () => {
                 subscribed,
                 weight,
                 epic,
+                assignees,
               });
             })
             .catch(() => {

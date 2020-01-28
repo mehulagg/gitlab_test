@@ -1,6 +1,6 @@
+const fs = require('fs');
 const path = require('path');
 const glob = require('glob');
-const fs = require('fs');
 const webpack = require('webpack');
 const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const StatsWriterPlugin = require('webpack-stats-plugin').StatsWriterPlugin;
@@ -8,8 +8,10 @@ const CompressionPlugin = require('compression-webpack-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const vendorDllHash = require('./helpers/vendor_dll_hash');
 
 const ROOT_PATH = path.resolve(__dirname, '..');
+const VENDOR_DLL = process.env.WEBPACK_VENDOR_DLL && process.env.WEBPACK_VENDOR_DLL !== 'false';
 const CACHE_PATH = process.env.WEBPACK_CACHE_PATH || path.join(ROOT_PATH, 'tmp/cache');
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 const IS_DEV_SERVER = process.env.WEBPACK_DEV_SERVER === 'true';
@@ -90,6 +92,7 @@ const alias = {
   vendor: path.join(ROOT_PATH, 'vendor/assets/javascripts'),
   vue$: 'vue/dist/vue.esm.js',
   spec: path.join(ROOT_PATH, 'spec/javascripts'),
+  jest: path.join(ROOT_PATH, 'spec/frontend'),
 
   // the following resolves files which are different between CE and EE
   ee_else_ce: path.join(ROOT_PATH, 'app/assets/javascripts'),
@@ -109,8 +112,28 @@ if (IS_EE) {
     ee_icons: path.join(ROOT_PATH, 'ee/app/views/shared/icons'),
     ee_images: path.join(ROOT_PATH, 'ee/app/assets/images'),
     ee_spec: path.join(ROOT_PATH, 'ee/spec/javascripts'),
+    ee_jest: path.join(ROOT_PATH, 'ee/spec/frontend'),
     ee_else_ce: path.join(ROOT_PATH, 'ee/app/assets/javascripts'),
   });
+}
+
+// if there is a compiled DLL with a matching hash string, use it
+let dll;
+
+if (VENDOR_DLL && !IS_PRODUCTION) {
+  const dllHash = vendorDllHash();
+  const dllCachePath = path.join(ROOT_PATH, `tmp/cache/webpack-dlls/${dllHash}`);
+  if (fs.existsSync(dllCachePath)) {
+    console.log(`Using vendor DLL found at: ${dllCachePath}`);
+    dll = {
+      manifestPath: path.join(dllCachePath, 'vendor.dll.manifest.json'),
+      cacheFrom: dllCachePath,
+      cacheTo: path.join(ROOT_PATH, `public/assets/webpack/dll.${dllHash}/`),
+      publicPath: `dll.${dllHash}/vendor.dll.bundle.js`,
+    };
+  } else {
+    console.log(`Warning: No vendor DLL found at: ${dllCachePath}. DllPlugin disabled.`);
+  }
 }
 
 module.exports = {
@@ -180,7 +203,7 @@ module.exports = {
         loader: 'raw-loader',
       },
       {
-        test: /\.(gif|png)$/,
+        test: /\.(gif|png|mp4)$/,
         loader: 'url-loader',
         options: { limit: 2048 },
       },
@@ -267,6 +290,11 @@ module.exports = {
           modules: false,
           assets: true,
         });
+
+        // tell our rails helper where to find the DLL files
+        if (dll) {
+          stats.dllAssets = dll.publicPath;
+        }
         return JSON.stringify(stats, null, 2);
       },
     }),
@@ -285,6 +313,21 @@ module.exports = {
       $: 'jquery',
       jQuery: 'jquery',
     }),
+
+    // reference our compiled DLL modules
+    dll &&
+      new webpack.DllReferencePlugin({
+        context: ROOT_PATH,
+        manifest: dll.manifestPath,
+      }),
+
+    dll &&
+      new CopyWebpackPlugin([
+        {
+          from: dll.cacheFrom,
+          to: dll.cacheTo,
+        },
+      ]),
 
     !IS_EE &&
       new webpack.NormalModuleReplacementPlugin(/^ee_component\/(.*)\.vue/, resource => {

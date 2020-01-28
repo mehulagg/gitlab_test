@@ -12,7 +12,9 @@ describe Gitlab::Email::Handler::EE::ServiceDeskHandler do
 
   let(:email_raw) { email_fixture('emails/service_desk.eml', dir: 'ee') }
   let_it_be(:namespace) { create(:namespace, name: "email") }
-  let(:expected_description) { "Service desk stuff!\n\n```\na = b\n```\n\n![image](uploads/image.png)" }
+  let(:expected_description) do
+    "Service desk stuff!\n\n```\na = b\n```\n\n`/label ~label1`\n`/assign @user1`\n`/close`\n![image](uploads/image.png)"
+  end
 
   context 'service desk is enabled for the project' do
     let_it_be(:project) { create(:project, :repository, :public, namespace: namespace, path: 'test', service_desk_enabled: true) }
@@ -61,16 +63,58 @@ describe Gitlab::Email::Handler::EE::ServiceDeskHandler do
         end
 
         context 'and template is present' do
+          let_it_be(:settings) { create(:service_desk_setting, project: project) }
+
+          def set_template_file(file_name, content)
+            file_path = ".gitlab/issue_templates/#{file_name}.md"
+            project.repository.create_file(user, file_path, content, message: 'message', branch_name: 'master')
+            settings.update!(issue_template_key: file_name)
+          end
+
           it 'appends template text to issue description' do
-            template_path = '.gitlab/issue_templates/service_desk.md'
-            project.repository.create_file(user, template_path, 'text from template', message: 'message', branch_name: 'master')
-            ServiceDeskSetting.update_template_key_for(project: project, issue_template_key: 'service_desk')
+            set_template_file('service_desk', 'text from template')
 
             receiver.execute
 
             issue_description = Issue.last.description
             expect(issue_description).to include(expected_description)
             expect(issue_description.lines.last).to eq('text from template')
+          end
+
+          context 'when quick actions are present' do
+            let(:label) { create(:label, project: project, title: 'label1') }
+            let(:milestone) { create(:milestone, project: project) }
+            let!(:user) { create(:user, username: 'user1') }
+
+            before do
+              project.add_developer(user)
+            end
+
+            it 'applies quick action commands present on templates' do
+              file_content = %(Text from template \n/label ~#{label.title} \n/milestone %"#{milestone.name}"")
+              set_template_file('with_slash_commands', file_content)
+
+              receiver.execute
+
+              issue = Issue.last
+              expect(issue.description).to include('Text from template')
+              expect(issue.label_ids).to include(label.id)
+              expect(issue.milestone).to eq(milestone)
+            end
+
+            it 'redacts quick actions present on user email body' do
+              set_template_file('service_desk1', 'text from template')
+
+              receiver.execute
+
+              issue = Issue.last
+              expect(issue).to be_opened
+              expect(issue.description).to include('`/label ~label1`')
+              expect(issue.description).to include('`/assign @user1`')
+              expect(issue.description).to include('`/close`')
+              expect(issue.assignees).to be_empty
+              expect(issue.milestone).to be_nil
+            end
           end
         end
 

@@ -159,6 +159,9 @@ RSpec.configure do |config|
       .with(:force_autodevops_on_by_default, anything)
       .and_return(false)
 
+    # Enable Marginalia feature for all specs in the test suite.
+    allow(Gitlab::Marginalia).to receive(:cached_feature_enabled?).and_return(true)
+
     # The following can be removed once Vue Issuable Sidebar
     # is feature-complete and can be made default in place
     # of older sidebar.
@@ -240,6 +243,12 @@ RSpec.configure do |config|
     example.run
 
     Rails.cache = caching_store
+  end
+
+  config.around do |example|
+    # Wrap each example in it's own context to make sure the contexts don't
+    # leak
+    Labkit::Context.with_context { example.run }
   end
 
   config.around(:each, :clean_gitlab_redis_cache) do |example|

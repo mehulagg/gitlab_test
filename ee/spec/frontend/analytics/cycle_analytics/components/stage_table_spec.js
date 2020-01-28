@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import { shallowMount, mount } from '@vue/test-utils';
+import { GlLoadingIcon } from '@gitlab/ui';
 import StageTable from 'ee/analytics/cycle_analytics/components/stage_table.vue';
 import {
   issueEvents,
@@ -7,6 +8,7 @@ import {
   allowedStages,
   groupLabels,
   customStageEvents,
+  stageMedians as medians,
 } from '../mock_data';
 
 let wrapper = null;
@@ -21,7 +23,7 @@ const $sel = {
   illustration: '.empty-state .svg-content',
 };
 
-const headers = ['Stage', 'Median', issueStage.legend, 'Total Time'];
+const headers = ['Stage', 'Median', issueStage.legend, 'Time'];
 const noDataSvgPath = 'path/to/no/data';
 const noAccessSvgPath = 'path/to/no/access';
 
@@ -36,19 +38,19 @@ function createComponent(props = {}, shallow = false) {
       isLoading: false,
       isLoadingSummaryData: false,
       isEmptyStage: false,
-      isAddingCustomStage: false,
       isSavingCustomStage: false,
+      isCreatingCustomStage: false,
+      isEditingCustomStage: false,
       noDataSvgPath,
       noAccessSvgPath,
       canEditStages: false,
       customStageFormEvents: customStageEvents,
+      medians,
       ...props,
     },
     stubs: {
       'gl-loading-icon': true,
     },
-    sync: false,
-    attachToDocument: true,
   });
 }
 
@@ -150,7 +152,7 @@ describe('StageTable', () => {
 
   it('isLoading = true', () => {
     wrapper = createComponent({ isLoading: true }, true);
-    expect(wrapper.find('gl-loading-icon-stub').exists()).toEqual(true);
+    expect(wrapper.find(GlLoadingIcon).exists()).toEqual(true);
   });
 
   describe('isEmptyStage = true', () => {

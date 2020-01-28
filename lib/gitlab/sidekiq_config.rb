@@ -1,78 +1,118 @@
 # frozen_string_literal: true
 
 require 'yaml'
-require 'set'
 
 module Gitlab
   module SidekiqConfig
-    QUEUE_CONFIG_PATHS = begin
-      result = %w[app/workers/all_queues.yml]
-      result << 'ee/app/workers/all_queues.yml' if Gitlab.ee?
-      result
-    end.freeze
+    FOSS_QUEUE_CONFIG_PATH = 'app/workers/all_queues.yml'
+    EE_QUEUE_CONFIG_PATH = 'ee/app/workers/all_queues.yml'
+    SIDEKIQ_QUEUES_PATH = 'config/sidekiq_queues.yml'
 
-    # This method is called by `ee/bin/sidekiq-cluster` in EE, which runs outside
-    # of bundler/Rails context, so we cannot use any gem or Rails methods.
-    def self.worker_queues(rails_path = Rails.root.to_s)
-      @worker_queues ||= {}
+    QUEUE_CONFIG_PATHS = [
+      FOSS_QUEUE_CONFIG_PATH,
+      (EE_QUEUE_CONFIG_PATH if Gitlab.ee?)
+    ].compact.freeze
 
-      @worker_queues[rails_path] ||= QUEUE_CONFIG_PATHS.flat_map do |path|
-        full_path = File.join(rails_path, path)
+    # For queues that don't have explicit workers - default and mailers
+    DummyWorker = Struct.new(:queue, :weight) do
+      def queue_namespace
+        nil
+      end
 
-        File.exist?(full_path) ? YAML.load_file(full_path) : []
+      def get_weight
+        weight
       end
     end
 
-    # This method is called by `ee/bin/sidekiq-cluster` in EE, which runs outside
-    # of bundler/Rails context, so we cannot use any gem or Rails methods.
-    def self.expand_queues(queues, all_queues = self.worker_queues)
-      return [] if queues.empty?
+    DEFAULT_WORKERS = [
+      Gitlab::SidekiqConfig::Worker.new(DummyWorker.new('default', 1), ee: false),
+      Gitlab::SidekiqConfig::Worker.new(DummyWorker.new('mailers', 2), ee: false)
+    ].freeze
 
-      queues_set = all_queues.to_set
+    class << self
+      include Gitlab::SidekiqConfig::CliMethods
 
-      queues.flat_map do |queue|
-        [queue, *queues_set.grep(/\A#{queue}:/)]
+      def redis_queues
+        # Not memoized, because this can change during the life of the application
+        Sidekiq::Queue.all.map(&:name)
       end
-    end
 
-    def self.redis_queues
-      # Not memoized, because this can change during the life of the application
-      Sidekiq::Queue.all.map(&:name)
-    end
-
-    def self.config_queues
-      @config_queues ||= begin
-        config = YAML.load_file(Rails.root.join('config/sidekiq_queues.yml'))
-        config[:queues].map(&:first)
+      def config_queues
+        @config_queues ||= begin
+          config = YAML.load_file(Rails.root.join(SIDEKIQ_QUEUES_PATH))
+          config[:queues].map(&:first)
+        end
       end
-    end
 
-    def self.cron_workers
-      @cron_workers ||= Settings.cron_jobs.map { |job_name, options| options['job_class'].constantize }
-    end
-
-    def self.workers
-      @workers ||= begin
-        result = find_workers(Rails.root.join('app', 'workers'))
-        result.concat(find_workers(Rails.root.join('ee', 'app', 'workers'))) if Gitlab.ee?
-        result
+      def cron_workers
+        @cron_workers ||= Settings.cron_jobs.map { |job_name, options| options['job_class'].constantize }
       end
-    end
 
-    def self.find_workers(root)
-      concerns = root.join('concerns').to_s
+      def workers
+        @workers ||= begin
+          result = []
+          result.concat(DEFAULT_WORKERS)
+          result.concat(find_workers(Rails.root.join('app', 'workers'), ee: false))
 
-      workers = Dir[root.join('**', '*.rb')]
-        .reject { |path| path.start_with?(concerns) }
+          if Gitlab.ee?
+            result.concat(find_workers(Rails.root.join('ee', 'app', 'workers'), ee: true))
+          end
 
-      workers.map! do |path|
+          result
+        end
+      end
+
+      def workers_for_all_queues_yml
+        workers.partition(&:ee?).reverse.map(&:sort)
+      end
+
+      def all_queues_yml_outdated?
+        foss_workers, ee_workers = workers_for_all_queues_yml
+
+        return true if foss_workers != YAML.safe_load(File.read(FOSS_QUEUE_CONFIG_PATH))
+
+        Gitlab.ee? && ee_workers != YAML.safe_load(File.read(EE_QUEUE_CONFIG_PATH))
+      end
+
+      def queues_for_sidekiq_queues_yml
+        namespaces_with_equal_weights =
+          workers
+            .group_by(&:queue_namespace)
+            .map(&:last)
+            .select { |workers| workers.map(&:get_weight).uniq.count == 1 }
+            .map(&:first)
+
+        namespaces = namespaces_with_equal_weights.map(&:queue_namespace).to_set
+        remaining_queues = workers.reject { |worker| namespaces.include?(worker.queue_namespace) }
+
+        (namespaces_with_equal_weights.map(&:namespace_and_weight) +
+         remaining_queues.map(&:queue_and_weight)).sort
+      end
+
+      def sidekiq_queues_yml_outdated?
+        # YAML.load is OK here as we control the file contents
+        config_queues = YAML.load(File.read(SIDEKIQ_QUEUES_PATH))[:queues] # rubocop:disable Security/YAMLLoad
+
+        queues_for_sidekiq_queues_yml != config_queues
+      end
+
+      private
+
+      def find_workers(root, ee:)
+        concerns = root.join('concerns').to_s
+
+        Dir[root.join('**', '*.rb')]
+          .reject { |path| path.start_with?(concerns) }
+          .map { |path| worker_from_path(path, root) }
+          .select { |worker| worker < Sidekiq::Worker }
+          .map { |worker| Gitlab::SidekiqConfig::Worker.new(worker, ee: ee) }
+      end
+
+      def worker_from_path(path, root)
         ns = Pathname.new(path).relative_path_from(root).to_s.gsub('.rb', '')
 
         ns.camelize.constantize
       end
-
-      # Skip things that aren't workers
-      workers.select { |w| w < Sidekiq::Worker }
     end
   end
 end

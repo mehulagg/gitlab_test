@@ -77,6 +77,31 @@ describe Namespace do
         end
       end
     end
+
+    describe '.join_gitlab_subscription' do
+      subject { described_class.join_gitlab_subscription.select('gitlab_subscriptions.hosted_plan_id').first.hosted_plan_id }
+
+      context 'when there is no subscription' do
+        it 'returns namespace with nil subscription' do
+          is_expected.to be_nil
+        end
+      end
+
+      context 'when there is a subscription' do
+        let!(:subscription) { create(:gitlab_subscription, namespace: namespace, hosted_plan_id: gold_plan.id) }
+
+        it 'returns namespace with subscription set' do
+          is_expected.to eq(gold_plan.id)
+        end
+      end
+    end
+  end
+
+  context 'validation' do
+    it do
+      is_expected.to validate_numericality_of(:max_pages_size).only_integer.is_greater_than(0)
+                       .is_less_than(::Gitlab::Pages::MAX_SIZE / 1.megabyte)
+    end
   end
 
   describe 'custom validations' do
@@ -92,11 +117,17 @@ describe Namespace do
       end
 
       context 'with an invalid plan name' do
-        it 'is invalid' do
+        it 'is invalid when `unknown`' do
           group.plan = 'unknown'
 
           expect(group).not_to be_valid
           expect(group.errors[:plan]).to include('is not included in the list')
+        end
+
+        it 'is valid for blank strings' do
+          group.plan = ' '
+
+          expect(group).to be_valid
         end
       end
     end
@@ -620,6 +651,7 @@ describe Namespace do
 
   describe '#shared_runners_remaining_minutes_percent' do
     let(:namespace) { build(:namespace) }
+
     subject { namespace.shared_runners_remaining_minutes_percent }
 
     it 'returns the minutes left as a percent of the limit' do
@@ -666,6 +698,7 @@ describe Namespace do
 
   describe '#shared_runners_remaining_minutes_below_threshold?' do
     let(:namespace) { build(:namespace, last_ci_minutes_usage_notification_level: 30) }
+
     subject { namespace.shared_runners_remaining_minutes_below_threshold? }
 
     it 'is true when minutes left is below the notification level' do

@@ -47,7 +47,7 @@ module BlobHelper
   def edit_blob_button(project = @project, ref = @ref, path = @path, options = {})
     return unless blob = readable_blob(options, path, project, ref)
 
-    common_classes = "btn btn-primary js-edit-blob #{options[:extra_class]}"
+    common_classes = "btn btn-primary js-edit-blob ml-2 #{options[:extra_class]}"
 
     edit_button_tag(blob,
                     common_classes,
@@ -62,7 +62,7 @@ module BlobHelper
     return unless blob = readable_blob(options, path, project, ref)
 
     edit_button_tag(blob,
-                    'btn btn-inverted btn-primary ide-edit-button',
+                    'btn btn-inverted btn-primary ide-edit-button ml-2',
                     _('Web IDE'),
                     ide_edit_path(project, ref, path, options),
                     project,
@@ -141,7 +141,7 @@ module BlobHelper
     if @build && @entry
       raw_project_job_artifacts_url(@project, @build, path: @entry.path, **kwargs)
     elsif @snippet
-      raw_snippet_url(@snippet)
+      gitlab_raw_snippet_url(@snippet)
     elsif @blob
       project_raw_url(@project, @id, **kwargs)
     end

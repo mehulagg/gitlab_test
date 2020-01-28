@@ -155,35 +155,6 @@ describe API::Projects do
       project4
     end
 
-    # This is a regression spec for https://gitlab.com/gitlab-org/gitlab/issues/37919
-    context 'batch counting forks and open issues and refreshing count caches' do
-      # We expect to count these projects (only the ones on the first page, not all matching ones)
-      let(:projects) { Project.public_to_user(nil).order(id: :desc).first(per_page) }
-      let(:per_page) { 2 }
-      let(:count_service) { double }
-
-      before do
-        # Create more projects, so we have more than one page
-        create_list(:project, 5, :public)
-      end
-
-      it 'batch counts project forks' do
-        expect(::Projects::BatchForksCountService).to receive(:new).with(projects).and_return(count_service)
-        expect(count_service).to receive(:refresh_cache)
-
-        get api("/projects?per_page=#{per_page}")
-        expect(response.status).to eq 200
-      end
-
-      it 'batch counts open issues' do
-        expect(::Projects::BatchOpenIssuesCountService).to receive(:new).with(projects).and_return(count_service)
-        expect(count_service).to receive(:refresh_cache)
-
-        get api("/projects?per_page=#{per_page}")
-        expect(response.status).to eq 200
-      end
-    end
-
     context 'when unauthenticated' do
       it_behaves_like 'projects response' do
         let(:filter) { { search: project.name } }
@@ -623,10 +594,25 @@ describe API::Projects do
           expect(json_response.map { |p| p['id'] }).to contain_exactly(public_project.id)
         end
 
-        it 'does not include a link if the end has reached and there is no more data' do
+        it 'still includes a link if the end has reached and there is no more data after this page' do
           get api('/projects', current_user), params: params.merge(id_after: project2.id)
 
+          expect(response.header).to include('Links')
+          expect(response.header['Links']).to include('pagination=keyset')
+          expect(response.header['Links']).to include("id_after=#{project3.id}")
+        end
+
+        it 'does not include a next link when the page does not have any records' do
+          get api('/projects', current_user), params: params.merge(id_after: Project.maximum(:id))
+
           expect(response.header).not_to include('Links')
+        end
+
+        it 'returns an empty array when the page does not have any records' do
+          get api('/projects', current_user), params: params.merge(id_after: Project.maximum(:id))
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response).to eq([])
         end
 
         it 'responds with 501 if order_by is different from id' do
@@ -745,6 +731,7 @@ describe API::Projects do
         wiki_enabled: false,
         resolve_outdated_diff_discussions: false,
         remove_source_branch_after_merge: true,
+        autoclose_referenced_issues: true,
         only_allow_merge_if_pipeline_succeeds: false,
         request_access_enabled: true,
         only_allow_merge_if_all_discussions_are_resolved: false,
@@ -825,7 +812,7 @@ describe API::Projects do
 
       post api('/projects', user), params: project
 
-      expect(json_response['readme_url']).to eql("#{Gitlab.config.gitlab.url}/#{json_response['namespace']['full_path']}/somewhere/blob/master/README.md")
+      expect(json_response['readme_url']).to eql("#{Gitlab.config.gitlab.url}/#{json_response['namespace']['full_path']}/somewhere/-/blob/master/README.md")
     end
 
     it 'sets tag list to a project' do
@@ -915,6 +902,22 @@ describe API::Projects do
       post api('/projects', user), params: project
 
       expect(json_response['only_allow_merge_if_all_discussions_are_resolved']).to be_truthy
+    end
+
+    it 'sets a project as enabling auto close referenced issues' do
+      project = attributes_for(:project, autoclose_referenced_issues: true)
+
+      post api('/projects', user), params: project
+
+      expect(json_response['autoclose_referenced_issues']).to be_truthy
+    end
+
+    it 'sets a project as disabling auto close referenced issues' do
+      project = attributes_for(:project, autoclose_referenced_issues: false)
+
+      post api('/projects', user), params: project
+
+      expect(json_response['autoclose_referenced_issues']).to be_falsey
     end
 
     it 'sets the merge method of a project to rebase merge' do
@@ -1391,6 +1394,7 @@ describe API::Projects do
         expect(json_response['jobs_enabled']).to be_present
         expect(json_response['snippets_enabled']).to be_present
         expect(json_response['snippets_access_level']).to be_present
+        expect(json_response['pages_access_level']).to be_present
         expect(json_response['repository_access_level']).to be_present
         expect(json_response['issues_access_level']).to be_present
         expect(json_response['merge_requests_access_level']).to be_present
@@ -1736,6 +1740,14 @@ describe API::Projects do
         end
       end
     end
+
+    it_behaves_like 'storing arguments in the application context' do
+      let_it_be(:user) { create(:user) }
+      let_it_be(:project) { create(:project, :public) }
+      let(:expected_params) { { user: user.username, project: project.full_path } }
+
+      subject { get api("/projects/#{project.id}", user) }
+    end
   end
 
   describe 'GET /projects/:id/users' do
@@ -1992,6 +2004,7 @@ describe API::Projects do
 
   describe "POST /projects/:id/share" do
     let(:group) { create(:group) }
+
     before do
       group.add_developer(user)
     end
@@ -2218,6 +2231,16 @@ describe API::Projects do
         expect(json_response['builds_access_level']).to eq('private')
       end
 
+      it 'updates pages_access_level' do
+        project_param = { pages_access_level: 'private' }
+
+        put api("/projects/#{project3.id}", user), params: project_param
+
+        expect(response).to have_gitlab_http_status(:ok)
+
+        expect(json_response['pages_access_level']).to eq('private')
+      end
+
       it 'updates build_git_strategy' do
         project_param = { build_git_strategy: 'clone' }
 
@@ -2334,6 +2357,22 @@ describe API::Projects do
         project_param = { visibility: 'public' }
         put api("/projects/#{project3.id}", user4), params: project_param
         expect(response).to have_gitlab_http_status(403)
+      end
+
+      it 'updates container_expiration_policy' do
+        project_param = {
+          container_expiration_policy_attributes: {
+            cadence: '1month',
+            keep_n: 1
+          }
+        }
+
+        put api("/projects/#{project3.id}", user4), params: project_param
+
+        expect(response).to have_gitlab_http_status(200)
+
+        expect(json_response['container_expiration_policy']['cadence']).to eq('1month')
+        expect(json_response['container_expiration_policy']['keep_n']).to eq(1)
       end
     end
 
@@ -2828,6 +2867,20 @@ describe API::Projects do
 
         expect(response).to have_gitlab_http_status(401)
         expect(json_response['message']).to eq('401 Unauthorized')
+      end
+    end
+
+    context 'forking disabled' do
+      before do
+        project.project_feature.update_attribute(
+          :forking_access_level, ProjectFeature::DISABLED)
+      end
+
+      it 'denies project to be forked' do
+        post api("/projects/#{project.id}/fork", admin)
+
+        expect(response).to have_gitlab_http_status(409)
+        expect(json_response['message']['forked_from_project_id']).to eq(['is forbidden'])
       end
     end
   end

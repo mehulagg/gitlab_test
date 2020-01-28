@@ -156,6 +156,8 @@ When the user is authenticated and `simple` is not set this returns something li
     "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
+    "autoclose_referenced_issues": true,
+    "suggestion_commit_message": null,
     "statistics": {
       "commit_count": 37,
       "storage_size": 1038090,
@@ -241,6 +243,21 @@ When the user is authenticated and `simple` is not set this returns something li
     "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
+    "auto_devops_enabled": true,
+    "auto_devops_deploy_strategy": "continuous",
+    "repository_storage": "default",
+    "approvals_before_merge": 0,
+    "mirror": false,
+    "mirror_user_id": 45,
+    "mirror_trigger_builds": false,
+    "only_mirror_protected_branches": false,
+    "mirror_overwrites_diverged_branches": false,
+    "external_authorization_classification_label": null,
+    "packages_enabled": true,
+    "service_desk_enabled": false,
+    "service_desk_address": null,
+    "autoclose_referenced_issues": true,
+    "suggestion_commit_message": null,
     "statistics": {
       "commit_count": 12,
       "storage_size": 2066080,
@@ -282,6 +299,15 @@ You can filter by [custom attributes](custom_attributes.md) with:
 ```
 GET /projects?custom_attributes[key]=value&custom_attributes[other_key]=other_value
 ```
+
+### Pagination limits
+
+From GitLab 12.10, [offset-based pagination](README.md#offset-based-pagination) will be
+[limited to 10,000 records](https://gitlab.com/gitlab-org/gitlab/issues/34565).
+[Keyset pagination](README.md#keyset-based-pagination) will be required to retrieve projects
+beyond this limit.
+
+Note that keyset pagination only supports `order_by=id`. Other sorting options are not available.
 
 ## List user projects
 
@@ -372,6 +398,8 @@ This endpoint supports [keyset pagination](README.md#keyset-based-pagination) fo
     "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
+    "autoclose_referenced_issues": true,
+    "suggestion_commit_message": null,
     "statistics": {
       "commit_count": 37,
       "storage_size": 1038090,
@@ -457,6 +485,21 @@ This endpoint supports [keyset pagination](README.md#keyset-based-pagination) fo
     "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
+    "auto_devops_enabled": true,
+    "auto_devops_deploy_strategy": "continuous",
+    "repository_storage": "default",
+    "approvals_before_merge": 0,
+    "mirror": false,
+    "mirror_user_id": 45,
+    "mirror_trigger_builds": false,
+    "only_mirror_protected_branches": false,
+    "mirror_overwrites_diverged_branches": false,
+    "external_authorization_classification_label": null,
+    "packages_enabled": true,
+    "service_desk_enabled": false,
+    "service_desk_address": null,
+    "autoclose_referenced_issues": true,
+    "suggestion_commit_message": null,
     "statistics": {
       "commit_count": 12,
       "storage_size": 2066080,
@@ -567,6 +610,8 @@ Example response:
     "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
+    "autoclose_referenced_issues": true,
+    "suggestion_commit_message": null,
     "statistics": {
       "commit_count": 37,
       "storage_size": 1038090,
@@ -649,6 +694,21 @@ Example response:
     "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
+    "auto_devops_enabled": true,
+    "auto_devops_deploy_strategy": "continuous",
+    "repository_storage": "default",
+    "approvals_before_merge": 0,
+    "mirror": false,
+    "mirror_user_id": 45,
+    "mirror_trigger_builds": false,
+    "only_mirror_protected_branches": false,
+    "mirror_overwrites_diverged_branches": false,
+    "external_authorization_classification_label": null,
+    "packages_enabled": true,
+    "service_desk_enabled": false,
+    "service_desk_address": null,
+    "autoclose_referenced_issues": true,
+    "suggestion_commit_message": null,
     "statistics": {
       "commit_count": 12,
       "storage_size": 2066080,
@@ -716,6 +776,14 @@ GET /projects/:id
   "snippets_enabled": false,
   "resolve_outdated_diff_discussions": false,
   "container_registry_enabled": false,
+  "container_expiration_policy": {
+    "cadence": "7d",
+    "enabled": false,
+    "keep_n": null,
+    "older_than": null,
+    "name_regex": null,
+    "next_run_at": "2020-01-07T21:42:58.658Z"
+  },
   "created_at": "2013-09-30T13:46:02Z",
   "last_activity_at": "2013-09-30T13:46:02Z",
   "creator_id": 3,
@@ -777,6 +845,21 @@ GET /projects/:id
   "printing_merge_requests_link_enabled": true,
   "request_access_enabled": false,
   "merge_method": "merge",
+  "auto_devops_enabled": true,
+  "auto_devops_deploy_strategy": "continuous",
+  "repository_storage": "default",
+  "approvals_before_merge": 0,
+  "mirror": false,
+  "mirror_user_id": 45,
+  "mirror_trigger_builds": false,
+  "only_mirror_protected_branches": false,
+  "mirror_overwrites_diverged_branches": false,
+  "external_authorization_classification_label": null,
+  "packages_enabled": true,
+  "service_desk_enabled": false,
+  "service_desk_address": null,
+  "autoclose_referenced_issues": true,
+  "suggestion_commit_message": null,
   "statistics": {
     "commit_count": 37,
     "storage_size": 1038090,
@@ -925,8 +1008,10 @@ POST /projects
 | `builds_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `wiki_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `snippets_access_level` | string | no | One of `disabled`, `private` or `enabled` |
+| `pages_access_level` | string | no | One of `disabled`, `private`, `enabled` or `public` |
 | `resolve_outdated_diff_discussions` | boolean | no | Automatically resolve merge request diffs discussions on lines changed with a push |
 | `container_registry_enabled` | boolean | no | Enable container registry for this project |
+| `container_expiration_policy_attributes` | hash | no | Update the container expiration policy for this project. Accepts: `cadence` (string), `keep_n` (string), `older_than` (string), `name_regex` (string), `enabled` (boolean) |
 | `shared_runners_enabled` | boolean | no | Enable shared runners for this project |
 | `visibility` | string | no | See [project visibility level](#project-visibility-level) |
 | `import_url` | string | no | URL to import repository from |
@@ -934,6 +1019,7 @@ POST /projects
 | `only_allow_merge_if_pipeline_succeeds` | boolean | no | Set whether merge requests can only be merged with successful jobs |
 | `only_allow_merge_if_all_discussions_are_resolved` | boolean | no | Set whether merge requests can only be merged when all the discussions are resolved |
 | `merge_method` | string | no | Set the [merge method](#project-merge-method) used |
+| `autoclose_referenced_issues` | boolean | no | Set whether auto-closing referenced issues on default branch |
 | `remove_source_branch_after_merge` | boolean | no | Enable `Delete source branch` option by default for all new merge requests |
 | `lfs_enabled` | boolean | no | Enable LFS |
 | `request_access_enabled` | boolean | no | Allow users to request member access |
@@ -957,6 +1043,7 @@ POST /projects
 | `template_project_id` | integer | no | **(PREMIUM)** When used with `use_custom_template`, project ID of a custom project template. This is preferable to using `template_name` since `template_name` may be ambiguous. |
 | `use_custom_template` | boolean | no | **(PREMIUM)** Use either custom [instance](../user/admin_area/custom_project_templates.md) or [group](../user/group/custom_project_templates.md) (with `group_with_project_templates_id`) project template |
 | `group_with_project_templates_id` | integer | no | **(PREMIUM)** For group-level custom templates, specifies ID of group from which all the custom project templates are sourced. Leave empty for instance-level templates. Requires `use_custom_template` to be true |
+| `packages_enabled` | boolean | no | **(PREMIUM ONLY)** Enable or disable packages repository feature |
 
 NOTE: **Note:** If your HTTP repository is not publicly accessible,
 add authentication information to the URL: `https://username:password@gitlab.company.com/group/project.git`
@@ -988,6 +1075,7 @@ POST /projects/user/:user_id
 | `builds_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `wiki_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `snippets_access_level` | string | no | One of `disabled`, `private` or `enabled` |
+| `pages_access_level` | string | no | One of `disabled`, `private`, `enabled` or `public` |
 | `resolve_outdated_diff_discussions` | boolean | no | Automatically resolve merge request diffs discussions on lines changed with a push |
 | `container_registry_enabled` | boolean | no | Enable container registry for this project |
 | `shared_runners_enabled` | boolean | no | Enable shared runners for this project |
@@ -997,6 +1085,8 @@ POST /projects/user/:user_id
 | `only_allow_merge_if_pipeline_succeeds` | boolean | no | Set whether merge requests can only be merged with successful jobs |
 | `only_allow_merge_if_all_discussions_are_resolved` | boolean | no | Set whether merge requests can only be merged when all the discussions are resolved |
 | `merge_method` | string | no | Set the [merge method](#project-merge-method) used |
+| `autoclose_referenced_issues` | boolean | no | Set whether auto-closing referenced issues on default branch |
+| `suggestion_commit_message` | string | no | The commit message used to apply merge request suggestions |
 | `remove_source_branch_after_merge` | boolean | no | Enable `Delete source branch` option by default for all new merge requests |
 | `lfs_enabled` | boolean | no | Enable LFS |
 | `request_access_enabled` | boolean | no | Allow users to request member access |
@@ -1019,6 +1109,7 @@ POST /projects/user/:user_id
 | `template_name` | string | no | When used without `use_custom_template`, name of a [built-in project template](../gitlab-basics/create-project.md#built-in-templates). When used with `use_custom_template`, name of a custom project template |
 | `use_custom_template` | boolean | no | **(PREMIUM)** Use either custom [instance](../user/admin_area/custom_project_templates.md) or [group](../user/group/custom_project_templates.md) (with `group_with_project_templates_id`) project template |
 | `group_with_project_templates_id` | integer | no | **(PREMIUM)** For group-level custom templates, specifies ID of group from which all the custom project templates are sourced. Leave empty for instance-level templates. Requires `use_custom_template` to be true |
+| `packages_enabled` | boolean | no | **(PREMIUM ONLY)** Enable or disable packages repository feature |
 
 NOTE: **Note:** If your HTTP repository is not publicly accessible,
 add authentication information to the URL: `https://username:password@gitlab.company.com/group/project.git`
@@ -1050,8 +1141,10 @@ PUT /projects/:id
 | `builds_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `wiki_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `snippets_access_level` | string | no | One of `disabled`, `private` or `enabled` |
+| `pages_access_level` | string | no | One of `disabled`, `private`, `enabled` or `public` |
 | `resolve_outdated_diff_discussions` | boolean | no | Automatically resolve merge request diffs discussions on lines changed with a push |
 | `container_registry_enabled` | boolean | no | Enable container registry for this project |
+| `container_expiration_policy_attributes` | hash | no | Update the container expiration policy for this project. Accepts: `cadence` (string), `keep_n` (string), `older_than` (string), `name_regex` (string), `enabled` (boolean) |
 | `shared_runners_enabled` | boolean | no | Enable shared runners for this project |
 | `visibility` | string | no | See [project visibility level](#project-visibility-level) |
 | `import_url` | string | no | URL to import repository from |
@@ -1059,6 +1152,8 @@ PUT /projects/:id
 | `only_allow_merge_if_pipeline_succeeds` | boolean | no | Set whether merge requests can only be merged with successful jobs |
 | `only_allow_merge_if_all_discussions_are_resolved` | boolean | no | Set whether merge requests can only be merged when all the discussions are resolved |
 | `merge_method` | string | no | Set the [merge method](#project-merge-method) used |
+| `autoclose_referenced_issues` | boolean | no | Set whether auto-closing referenced issues on default branch |
+| `suggestion_commit_message` | string | no | The commit message used to apply merge request suggestions |
 | `remove_source_branch_after_merge` | boolean | no | Enable `Delete source branch` option by default for all new merge requests |
 | `lfs_enabled` | boolean | no | Enable LFS |
 | `request_access_enabled` | boolean | no | Allow users to request member access |
@@ -1081,6 +1176,7 @@ PUT /projects/:id
 | `only_mirror_protected_branches` | boolean | no | **(STARTER)** Only mirror protected branches |
 | `mirror_overwrites_diverged_branches` | boolean | no | **(STARTER)** Pull mirror overwrites diverged branches |
 | `packages_enabled` | boolean | no | **(PREMIUM ONLY)** Enable or disable packages repository feature |
+| `service_desk_enabled` | boolean | no | **(PREMIUM ONLY)** Enable or disable service desk feature |
 
 NOTE: **Note:** If your HTTP repository is not publicly accessible,
 add authentication information to the URL: `https://username:password@gitlab.company.com/group/project.git`
@@ -1189,6 +1285,8 @@ Example responses:
     "remove_source_branch_after_merge": false,
     "request_access_enabled": false,
     "merge_method": "merge",
+    "autoclose_referenced_issues": true,
+    "suggestion_commit_message": null,
     "_links": {
       "self": "http://example.com/api/v4/projects",
       "issues": "http://example.com/api/v4/projects/1/issues",
@@ -1277,6 +1375,8 @@ Example response:
   "remove_source_branch_after_merge": false,
   "request_access_enabled": false,
   "merge_method": "merge",
+  "autoclose_referenced_issues": true,
+  "suggestion_commit_message": null,
   "_links": {
     "self": "http://example.com/api/v4/projects",
     "issues": "http://example.com/api/v4/projects/1/issues",
@@ -1364,6 +1464,8 @@ Example response:
   "remove_source_branch_after_merge": false,
   "request_access_enabled": false,
   "merge_method": "merge",
+  "autoclose_referenced_issues": true,
+  "suggestion_commit_message": null,
   "_links": {
     "self": "http://example.com/api/v4/projects",
     "issues": "http://example.com/api/v4/projects/1/issues",
@@ -1538,6 +1640,8 @@ Example response:
   "remove_source_branch_after_merge": false,
   "request_access_enabled": false,
   "merge_method": "merge",
+  "autoclose_referenced_issues": true,
+  "suggestion_commit_message": null,
   "_links": {
     "self": "http://example.com/api/v4/projects",
     "issues": "http://example.com/api/v4/projects/1/issues",
@@ -1644,6 +1748,8 @@ Example response:
   "remove_source_branch_after_merge": false,
   "request_access_enabled": false,
   "merge_method": "merge",
+  "autoclose_referenced_issues": true,
+  "suggestion_commit_message": null,
   "_links": {
     "self": "http://example.com/api/v4/projects",
     "issues": "http://example.com/api/v4/projects/1/issues",
@@ -1658,10 +1764,29 @@ Example response:
 
 ## Remove project
 
-Removes a project including all associated resources (issues, merge requests etc).
+This endpoint either:
+
+- Removes a project including all associated resources (issues, merge requests etc).
+- From [GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/issues/32935) on [Premium or Silver](https://about.gitlab.com/pricing/) or higher tiers, marks a project for deletion. Actual
+  deletion happens after number of days specified in
+  [instance settings](../user/admin_area/settings/visibility_and_access_controls.md#default-deletion-adjourned-period-premium-only).
 
 ```
 DELETE /projects/:id
+```
+
+| Attribute | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) |
+
+## Restore project marked for deletion **(PREMIUM)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/32935) in GitLab 12.6.
+
+Restores project marked for deletion.
+
+```
+POST /projects/:id/restore
 ```
 
 | Attribute | Type | Required | Description |

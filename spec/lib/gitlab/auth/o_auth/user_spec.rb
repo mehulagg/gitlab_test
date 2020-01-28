@@ -86,6 +86,20 @@ describe Gitlab::Auth::OAuth::User do
         end
       end
 
+      context 'when the current minimum password length is different from the default minimum password length' do
+        before do
+          stub_application_setting minimum_password_length: 21
+        end
+
+        it 'creates the user' do
+          stub_omniauth_config(allow_single_sign_on: [provider])
+
+          oauth_user.save
+
+          expect(gl_user).to be_persisted
+        end
+      end
+
       it 'marks user as having password_automatically_set' do
         stub_omniauth_config(allow_single_sign_on: [provider], external_providers: [provider])
 
@@ -253,6 +267,7 @@ describe Gitlab::Auth::OAuth::User do
 
             context "and LDAP user has an account already" do
               let!(:existing_user) { create(:omniauth_user, name: 'John Doe', email: 'john@example.com', extern_uid: dn, provider: 'ldapmain', username: 'john') }
+
               it "adds the omniauth identity to the LDAP account" do
                 allow(Gitlab::Auth::LDAP::Person).to receive(:find_by_uid).and_return(ldap_user)
 

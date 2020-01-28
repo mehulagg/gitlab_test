@@ -30,7 +30,6 @@ describe('Design discussions component', () => {
 
   function createComponent(props = {}) {
     wrapper = shallowMount(DesignDiscussion, {
-      sync: false,
       propsData: {
         discussion: {
           id: '0',
@@ -95,6 +94,25 @@ describe('Design discussions component', () => {
         expect(mutate).toHaveBeenCalledWith(mutationVariables);
 
         return mutate({ variables: mutationVariables });
+      })
+      .then(() => {
+        expect(findReplyForm().exists()).toBe(false);
+      });
+  });
+
+  it('clears the discussion comment on closing comment form', () => {
+    wrapper.setData({
+      discussionComment: 'test',
+      isFormRendered: true,
+    });
+
+    return wrapper.vm
+      .$nextTick()
+      .then(() => {
+        findReplyForm().vm.$emit('cancelForm');
+
+        expect(wrapper.vm.discussionComment).toBe('');
+        return wrapper.vm.$nextTick();
       })
       .then(() => {
         expect(findReplyForm().exists()).toBe(false);

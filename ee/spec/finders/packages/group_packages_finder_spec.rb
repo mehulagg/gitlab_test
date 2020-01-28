@@ -13,6 +13,7 @@ describe Packages::GroupPackagesFinder do
 
   describe '#execute' do
     let(:params) { { exclude_subgroups: false } }
+
     subject { described_class.new(user, group, params).execute }
 
     shared_examples 'with package type' do |package_type|
@@ -74,7 +75,7 @@ describe Packages::GroupPackagesFinder do
     end
 
     context 'when project is public' do
-      set(:other_user) { create(:user) }
+      let_it_be(:other_user) { create(:user) }
       let(:finder) { described_class.new(other_user, group) }
 
       before do

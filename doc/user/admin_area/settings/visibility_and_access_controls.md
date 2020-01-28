@@ -16,7 +16,6 @@ To access the visibility and access control options:
 
 This global option defines the branch protection that applies to every repository's default branch. [Branch protection](../../project/protected_branches.md) specifies which roles can push to branches and which roles can delete
 branches.  In this case _Default_ refers to a repository's default branch, which in most cases is _master_.
-branches.  "Default" in this case refers to a repository's default branch, which in most cases would be "master".
 
 This setting applies only to each repositories' default branch. To protect other branches, you must configure branch protection in repository. For details, see [Protected Branches](../../project/protected_branches.md).
 
@@ -46,6 +45,19 @@ group level.
 To ensure only admin users can delete projects:
 
 1. Check the **Default project deletion protection** checkbox.
+1. Click **Save changes**.
+
+## Default deletion adjourned period **(PREMIUM ONLY)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/32935) in GitLab 12.6.
+
+By default, a project or group marked for removal will be permanently removed after 7 days.
+This period may be changed, and setting this period to 0 will enable immediate removal
+of projects or groups.
+
+To change this period:
+
+1. Select the desired option.
 1. Click **Save changes**.
 
 ## Default project visibility

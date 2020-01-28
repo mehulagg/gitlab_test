@@ -18,7 +18,7 @@ describe('GeoDesigns', () => {
   };
 
   const createComponent = () => {
-    wrapper = mount(localVue.extend(GeoDesigns), {
+    wrapper = mount(GeoDesigns, {
       localVue,
       store,
       methods: {
@@ -52,7 +52,7 @@ describe('GeoDesigns', () => {
         });
 
         it('is hidden', () => {
-          expect(findGlPagination().html()).toBeUndefined();
+          expect(findGlPagination().isEmpty()).toBe(true);
         });
       });
 
@@ -78,7 +78,7 @@ describe('GeoDesigns', () => {
         const designs = [...wrapper.vm.$store.state.designs];
 
         for (let i = 0; i < designWrappers.length; i += 1) {
-          expect(designWrappers.at(i).props().projectId).toBe(designs[i].project_id);
+          expect(designWrappers.at(i).props().projectId).toBe(designs[i].projectId);
         }
       });
     });

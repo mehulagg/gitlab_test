@@ -19,7 +19,6 @@ describe('ProductivityApp component', () => {
   let mock;
 
   const propsData = {
-    endpoint: TEST_HOST,
     emptyStateSvgPath: TEST_HOST,
     noAccessSvgPath: TEST_HOST,
   };
@@ -35,10 +34,9 @@ describe('ProductivityApp component', () => {
   const mainChartData = { 1: 2, 2: 3 };
 
   const createComponent = (scatterplotEnabled = true) => {
-    wrapper = shallowMount(localVue.extend(ProductivityApp), {
+    wrapper = shallowMount(ProductivityApp, {
       localVue,
       store,
-      sync: false,
       propsData,
       methods: {
         ...actionSpies,
@@ -47,6 +45,8 @@ describe('ProductivityApp component', () => {
         glFeatures: { productivityAnalyticsScatterplotEnabled: scatterplotEnabled },
       },
     });
+
+    wrapper.vm.$store.dispatch('setEndpoint', TEST_HOST);
   };
 
   beforeEach(() => {
@@ -83,10 +83,12 @@ describe('ProductivityApp component', () => {
 
     describe('with a group being selected', () => {
       beforeEach(() => {
-        wrapper.vm.$store.dispatch('filters/setDateRange', {
+        wrapper.vm.$store.dispatch('filters/setInitialData', {
           skipFetch: true,
-          startDate: new Date('2019-09-01'),
-          endDate: new Date('2019-09-02'),
+          data: {
+            mergedAfter: new Date('2019-09-01'),
+            mergedBefore: new Date('2019-09-02'),
+          },
         });
         wrapper.vm.$store.dispatch('filters/setGroupNamespace', 'gitlab-org');
         mock.onGet(wrapper.vm.$store.state.endpoint).replyOnce(200);
@@ -267,6 +269,7 @@ describe('ProductivityApp component', () => {
                     beforeEach(() => {
                       jest.spyOn(store, 'dispatch');
                       findCommitBasedMetricChart().vm.$emit('metricTypeChange', 'loc_per_commit');
+                      return wrapper.vm.$nextTick();
                     });
 
                     it('should call setMetricType  when `metricTypeChange` is emitted on the metric chart', () => {
@@ -323,6 +326,7 @@ describe('ProductivityApp component', () => {
                       beforeEach(() => {
                         jest.spyOn(store, 'dispatch');
                         findScatterplotMetricChart().vm.$emit('metricTypeChange', 'loc_per_commit');
+                        return wrapper.vm.$nextTick();
                       });
 
                       it('should call setMetricType  when `metricTypeChange` is emitted on the metric chart', () => {

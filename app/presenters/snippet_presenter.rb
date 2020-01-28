@@ -23,6 +23,10 @@ class SnippetPresenter < Gitlab::View::Presenter::Delegated
     can_access_resource?("admin")
   end
 
+  def can_report_as_spam?
+    snippet.submittable_as_spam_by?(current_user)
+  end
+
   private
 
   def can_access_resource?(ability_prefix)
@@ -30,6 +34,6 @@ class SnippetPresenter < Gitlab::View::Presenter::Delegated
   end
 
   def ability_name(ability_prefix)
-    "#{ability_prefix}_#{snippet.class.underscore}".to_sym
+    "#{ability_prefix}_#{snippet.to_ability_name}".to_sym
   end
 end

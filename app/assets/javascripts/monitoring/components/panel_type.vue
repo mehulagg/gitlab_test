@@ -1,7 +1,6 @@
 <script>
 import { mapState } from 'vuex';
-import _ from 'underscore';
-import { __ } from '~/locale';
+import { pickBy } from 'lodash';
 import {
   GlDropdown,
   GlDropdownItem,
@@ -9,6 +8,7 @@ import {
   GlModalDirective,
   GlTooltipDirective,
 } from '@gitlab/ui';
+import { __ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import MonitorTimeSeriesChart from './charts/time_series.vue';
 import MonitorAnomalyChart from './charts/anomaly.vue';
@@ -36,7 +36,8 @@ export default {
   props: {
     clipboardText: {
       type: String,
-      required: true,
+      required: false,
+      default: '',
     },
     graphData: {
       type: Object,
@@ -89,7 +90,7 @@ export default {
     getGraphAlerts(queries) {
       if (!this.allAlerts) return {};
       const metricIdsForChart = queries.map(q => q.metricId);
-      return _.pick(this.allAlerts, alert => metricIdsForChart.includes(alert.metricId));
+      return pickBy(this.allAlerts, alert => metricIdsForChart.includes(alert.metricId));
     },
     getGraphAlertValues(queries) {
       return Object.values(this.getGraphAlerts(queries));
@@ -152,6 +153,7 @@ export default {
           {{ __('Download CSV') }}
         </gl-dropdown-item>
         <gl-dropdown-item
+          v-if="clipboardText"
           v-track-event="generateLinkToChartOptions(clipboardText)"
           class="js-chart-link"
           :data-clipboard-text="clipboardText"

@@ -11,7 +11,7 @@
 #
 namespace :gitlab do
   namespace :import_export do
-    desc 'EXPERIMENTAL | Import large project archives'
+    desc 'GitLab | Import/Export | EXPERIMENTAL | Import large project archives'
     task :import, [:username, :namespace_path, :project_path, :archive_path] => :gitlab_environment do |_t, args|
       # Load it here to avoid polluting Rake tasks with Sidekiq test warnings
       require 'sidekiq/testing'
@@ -64,16 +64,25 @@ class GitlabProjectImport
 
   private
 
+  def with_request_store
+    RequestStore.begin!
+    yield
+  ensure
+    RequestStore.end!
+    RequestStore.clear!
+  end
+
   # We want to ensure that all Sidekiq jobs are executed
   # synchronously as part of that process.
   # This ensures that all expensive operations do not escape
   # to general Sidekiq clusters/nodes.
   def run_isolated_sidekiq_job
     Sidekiq::Testing.fake! do
-      @project = create_project
+      with_request_store do
+        @project = create_project
 
-      execute_sidekiq_job
-
+        execute_sidekiq_job
+      end
       true
     end
   end

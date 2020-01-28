@@ -1,6 +1,6 @@
 /* global ListAssignee, ListLabel, ListIssue */
 import { mount } from '@vue/test-utils';
-import _ from 'underscore';
+import { range } from 'lodash';
 import '~/boards/models/label';
 import '~/boards/models/assignee';
 import '~/boards/models/issue';
@@ -50,8 +50,6 @@ describe('Issue card component', () => {
         rootPath: '/',
       },
       store,
-      sync: false,
-      attachToDocument: true,
     });
   });
 
@@ -224,7 +222,7 @@ describe('Issue card component', () => {
       it('renders 99+ avatar counter', done => {
         const assignees = [
           ...wrapper.props('issue').assignees,
-          ..._.range(5, 103).map(
+          ...range(5, 103).map(
             i =>
               new ListAssignee({
                 id: i,
@@ -267,17 +265,13 @@ describe('Issue card component', () => {
     });
 
     it('renders label', () => {
-      const nodes = wrapper
-        .findAll('.badge')
-        .wrappers.map(label => label.attributes('data-original-title'));
+      const nodes = wrapper.findAll('.badge').wrappers.map(label => label.attributes('title'));
 
       expect(nodes.includes(label1.description)).toBe(true);
     });
 
     it('sets label description as title', () => {
-      expect(wrapper.find('.badge').attributes('data-original-title')).toContain(
-        label1.description,
-      );
+      expect(wrapper.find('.badge').attributes('title')).toContain(label1.description);
     });
 
     it('sets background color of button', () => {

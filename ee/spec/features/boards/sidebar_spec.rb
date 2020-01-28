@@ -271,6 +271,9 @@ describe 'Issue Boards', :js do
         wait_for_requests
 
         click_link scoped_label_1.title
+
+        wait_for_requests
+
         click_link scoped_label_2.title
 
         wait_for_requests

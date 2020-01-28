@@ -1,12 +1,9 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import { GlButton } from '@gitlab/ui';
 import component from 'ee/environments_dashboard/components/dashboard/project_header.vue';
 import ProjectAvatar from '~/vue_shared/components/project_avatar/default.vue';
 
-const localVue = createLocalVue();
-
 describe('Project Header', () => {
-  const Component = localVue.extend(component);
   let wrapper;
   let propsData;
 
@@ -24,11 +21,8 @@ describe('Project Header', () => {
   });
 
   beforeEach(() => {
-    wrapper = shallowMount(Component, {
-      sync: false,
-      attachToDocument: true,
+    wrapper = shallowMount(component, {
       propsData,
-      localVue,
     });
   });
 
@@ -87,7 +81,10 @@ describe('Project Header', () => {
         .at(0)
         .find(GlButton)
         .vm.$emit('click');
-      expect(wrapper.emitted('remove')).toContainEqual([propsData.project.remove_path]);
+
+      return wrapper.vm.$nextTick().then(() => {
+        expect(wrapper.emitted('remove')).toContainEqual([propsData.project.remove_path]);
+      });
     });
   });
 });

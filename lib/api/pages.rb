@@ -4,7 +4,7 @@ module API
   class Pages < Grape::API
     before do
       require_pages_config_enabled!
-      authenticated_with_full_private_access!
+      authenticated_with_can_read_all_resources!
     end
 
     params do
@@ -17,9 +17,9 @@ module API
       delete ':id/pages' do
         authorize! :remove_pages, user_project
 
-        status 204
-
         ::Pages::DeleteService.new(user_project, current_user).execute
+
+        no_content!
       end
     end
   end

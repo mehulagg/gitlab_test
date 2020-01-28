@@ -77,7 +77,7 @@ and cross-link between any related content.
 We employ a **docs-first methodology** to help ensure that the docs remain a complete and trusted resource, and to make communicating about the use of GitLab more efficient.
 
 - If the answer to a question exists in documentation, share the link to the docs instead of rephrasing the information.
-- When you encounter new information not available in GitLab’s documentation (for example, when working on a support case or testing a feature), your first step should be to create a merge request to add this information to the docs. You can then share the MR in order to communicate this information.
+- When you encounter new information not available in GitLab’s documentation (for example, when working on a support case or testing a feature), your first step should be to create a merge request (MR) to add this information to the docs. You can then share the MR in order to communicate this information.
 
 New information that would be useful toward the future usage or troubleshooting of GitLab should not be written directly in a forum or other messaging system, but added to a docs MR and then referenced, as described above. Note that among any other doc changes, you can always add a Troubleshooting section to a doc if none exists, or un-comment and use the placeholder Troubleshooting section included as part of our [doc template](structure.md#template-for-new-docs), if present.
 
@@ -111,10 +111,37 @@ Hard-coded HTML is valid, although it's discouraged to be used while we have `/h
 
 GitLab ensures that the Markdown used across all documentation is consistent, as
 well as easy to review and maintain, by [testing documentation changes](index.md#testing) with
-[`markdownlint`](index.md#markdownlint). This lint test fails when any document has an issue
+[markdownlint](index.md#markdownlint). This lint test fails when any document has an issue
 with Markdown formatting that may cause the page to render incorrectly within GitLab.
 It will also fail when a document is using non-standard Markdown (which may render
 correctly, but is not the current standard for GitLab documentation).
+
+#### Markdown rule `MD044/proper-names` (capitalization)
+
+A rule that could cause confusion is `MD044/proper-names`, as it might not be immediately
+clear what caused markdownlint to fail, or how to correct the failure. This rule
+checks a list of known words, listed in the `.markdownlint.json` file in each project,
+to verify that proper capitalization and backticks are used. Words in backticks will
+be ignored by markdownlint.
+
+In general, product names should follow the exact capitalization of the official names
+of the products, protocols, etc.
+
+Some examples that will fail if incorrect capitalization is used:
+
+- MinIO (needs capital `IO`)
+- NGINX (needs all capitals)
+- runit (needs lowercase `r`)
+
+Additionally, commands, parameters, values, filenames, etc. must be included in backticks.
+For example:
+
+- "Change the `needs` keyword in your `.gitlab.yml`..."
+  - `needs` is a parameter, and `.gitlab.yml` is a file, so both need backticks. Additionally,
+    `.gitlab.yml` will fail markdownlint without backticks as it does not have capital G or L.
+- "Run `git clone` to clone a Git repository..."
+  - `git clone` is a command, so it must be lowercase, while Git is the product, so
+    it must have a capital G.
 
 ## Structure
 
@@ -229,12 +256,18 @@ Do not include the same information in multiple places. [Link to a SSOT instead.
     Some features are also objects. For example, "GitLab's Merge Requests support X" and
     "Create a new merge request for Z."
 
+- Use common contractions when it helps create a friendly and informal tone, especially in tutorials and [UIs](https://design.gitlab.com/content/punctuation/#contractions).
+  - Do use contractions like: _it's_, _can't_, _wouldn't_, _you're_, _you've_, _haven't_, don't, _we're_, _that's_, and _won't_. Contractions in instructional documentation such as tutorials can help create a friendly and informal tone.
+  - Avoid less common contractions such as: _he'd_, _it'll_, _should've_, and _there'd_.
+  - Do not use contractions in reference documentation. Examples:
+    - You cannot set a limit higher than 1000.
+    - For `parameter1`, the default is 10.
+  - Do not use contractions with a proper noun and a verb, such as _GitLab's creating X_.
+  - Avoid using contractions when you need to emphasize a negative, such as "Do **not** install X with Y."
+
 - Avoid use of the future tense:
   - Instead of "after you execute this command, GitLab will display the result", use "after you execute this command, GitLab displays the result".
   - Only use the future tense to convey when the action or result will actually occur at a future time.
-- Do not use contractions:
-  - Instead of "don't," "can't," "doesn't," and so on, use "do not," "cannot," or "does not."
-  - Possible exceptions are cases when a more familiar tone is desired, such as a blog post or other casual context.
 - Do not use slashes to clump different words together or as a replacement for the word "or":
   - Instead of "and/or," consider using "or," or use another sensible construction.
   - Other examples include "clone/fetch," author/assignee," and "namespace/repository name." Break apart any such instances in an appropriate way.
@@ -242,10 +275,10 @@ Do not include the same information in multiple places. [Link to a SSOT instead.
 - Do not use "may" and "might" interchangeably:
   - Use "might" to indicate the probability of something occurring. "If you skip this step, the import process might fail."
   - Use "may" to indicate giving permission for someone to do something, or consider using "can" instead. "You may select either option on this screen." Or, "you can select either option on this screen."
-- We recommend avoiding Latin abbreviations, such as "e.g.," "i.e.," or "etc.,"
+- We discourage use of Latin abbreviations, such as "e.g.," "i.e.," or "etc.,"
 as even native users of English might misunderstand them.
   - Instead of "i.e.", use "that is."
-  - Instead of "e.g.", use "for example."
+  - Instead of "e.g.", use "for example," "such as," "for instance," or "like."
   - Instead of "etc.", either use "and so on" or consider editing it out, since it can be vague.
 
 ## Text
@@ -492,6 +525,35 @@ For other punctuation rules, please refer to the
 - Use sentence case in headings. Do not capitalize the words of the title, unless
   it refers to a product feature. For example, capitalizing "issues" is acceptable in
   `## What you can do with GitLab Issues`, but not in `## Closing multiple issues`.
+- Our docs site search engine prioritizes headings, therefore, make sure to write
+  headings that contextualize the subject and help to take the user to the right
+  document. For example, `## Examples` is a bad heading; `## GitLab Pages examples`
+  is a better one. It's not an exact science, but please consider this carefully.
+
+### Anchor links
+
+Headings generate anchor links automatically when rendered. `## This is an example`
+generates the anchor `#this-is-an-example`.
+
+Keep in mind that the GitLab UI links to a large number of docs and respective
+anchor links to take the user to the right spot. Therefore, when you change a
+heading, search `doc/*`, `app/views/*`, and `ee/app/views/*` for the old anchor
+to make sure you're not breaking an anchor linked from other docs nor from the
+GitLab UI. If you find the old anchor, make sure to replace it with the new one.
+
+Important:
+
+- Avoid crosslinking docs to headings unless you need to link to a specific section
+  of the document. This will avoid breaking anchors in the future in case the heading
+  is changed.
+- If possible, avoid changing headings since they're not only linked internally.
+  There are various links to GitLab documentation on the internet, such as tutorials,
+  presentations, StackOverflow posts, and other sources.
+- Do not link to `h1` headings.
+
+Note that, with Kramdown, it is possible to add a custom ID to an HTML element
+with Markdown markup, but they **do not** work in GitLab's `/help`. Therefore,
+do not use this option until further notice.
 
 ## Links
 
@@ -733,7 +795,76 @@ nicely on different mobile devices.
 - To display raw Markdown instead of rendered Markdown, you can use triple backticks
   with `md`, like the `Markdown code` example above, unless you want to include triple
   backticks in the code block as well. In that case, use triple tildes (`~~~`) instead.
+- [Syntax highlighting for code blocks](https://github.com/rouge-ruby/rouge/wiki/List-of-supported-languages-and-lexers) is available for many languages.
 - For a complete reference on code blocks, check the [Kramdown guide](https://about.gitlab.com/handbook/product/technical-writing/markdown-guide/#code-blocks).
+
+## GitLab SVG icons
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-docs/issues/384) in GitLab 12.7.
+
+You can use icons from the [GitLab SVG library](https://gitlab-org.gitlab.io/gitlab-svgs/) directly
+in the documentation.
+
+This way, you can achieve a consistent look when writing about interacting with GitLab UI elements.
+
+Usage examples:
+
+- Icon with default size (16px): `**{icon-name}**`
+
+  Example: `**{tanuki}**` renders as: **{tanuki}**.
+- Icon with custom size: `**{icon-name, size}**`
+
+  Available sizes (in px): 8, 10, 12, 14, 16, 18, 24, 32, 48, and 72
+
+  Example: `**{tanuki, 24}**` renders as: **{tanuki, 24}**.
+- Icon with custom size and class: `**{icon-name, size, class-name}**`.
+
+  You can access any class available to this element in GitLab docs CSS.
+
+  Example with `float-right`, a
+  [Bootstrap utility class](https://getbootstrap.com/docs/4.4/utilities/float/):
+  `**{tanuki, 32, float-right}**` renders as: **{tanuki, 32, float-right}**
+
+### Using GitLab SVGs to describe UI elements
+
+When using GitLab SVGs to describe screen elements, also include the name or tooltip of the element as text.
+
+For example, for references to the Admin Area:
+
+- Correct: `**{admin}** **Admin Area > Settings**` (**{admin}** **Admin Area > Settings**)
+- Incorrect: `**{admin}** **> Settings**` (**{admin}** **> Settings**)
+
+This will ensure that the source Markdown remains readable and should help with accessibility.
+
+The following are examples of source Markdown for menu items with their published output:
+
+```md
+1. Go to **{home}** **Project overview > Details**
+1. Go to **{doc-text}** **Repository > Branches**
+1. Go to **{issues}** **Issues > List**
+1. Go to **{merge-request}** **Merge Requests**
+1. Go to **{rocket}** **CI/CD > Pipelines**
+1. Go to **{shield}** **Security & Compliance > Configuration**
+1. Go to **{cloud-gear}** **Operations > Metrics**
+1. Go to **{package}** **Packages > Container Registry**
+1. Go to **{chart}** **Project Analytics > Code Review**
+1. Go to **{book}** **Wiki**
+1. Go to **{snippet}** **Snippets**
+1. Go to **{users}** **Members**
+```
+
+1. Go to **{home}** **Project overview > Details**
+1. Go to **{doc-text}** **Repository > Branches**
+1. Go to **{issues}** **Issues > List**
+1. Go to **{merge-request}** **Merge Requests**
+1. Go to **{rocket}** **CI/CD > Pipelines**
+1. Go to **{shield}** **Security & Compliance > Configuration**
+1. Go to **{cloud-gear}** **Operations > Metrics**
+1. Go to **{package}** **Packages > Container Registry**
+1. Go to **{chart}** **Project Analytics > Code Review**
+1. Go to **{book}** **Wiki**
+1. Go to **{snippet}** **Snippets**
+1. Go to **{users}** **Members**
 
 ## Alert boxes
 
@@ -851,6 +982,24 @@ Which renders to:
 To maintain consistency through GitLab documentation, the following guides documentation authors
 on agreed styles and usage of terms.
 
+### Merge Requests (MRs)
+
+Merge requests allow you to exchange changes you made to source code and collaborate
+with other people on the same project. You'll see this term used in the following ways:
+
+- If you're referring to the feature, use **Merge Request**.
+- In any other context, use **merge request**.
+
+As noted in our corporate [Writing Style Guidelines](https://about.gitlab.com/handbook/communication/#writing-style-guidelines),
+if you use the **MR** acronym, expand it at least once per document page.
+For example, the first time you specify a MR, specify either _Merge Request (MR)_ or _merge request (MR)_.
+
+Examples:
+
+- "We prefer GitLab Merge Requests".
+- "Open a merge request to fix a broken link".
+- "After you open a merge request (MR), submit your MR for review and approval".
+
 ### Describing UI elements
 
 The following are styles to follow when describing UI elements on a screen:
@@ -914,7 +1063,7 @@ a helpful link back to how the feature was developed.
 Over time, version text will reference a progressively older version of GitLab. In cases where version text
 refers to versions of GitLab four or more major versions back, consider removing the text.
 
-For example, if the current major version is 11.x, version text referencing versions of GitLab 7.x
+For example, if the current major version is 12.x, version text referencing versions of GitLab 8.x
 and older are candidates for removal.
 
 NOTE: **Note:**

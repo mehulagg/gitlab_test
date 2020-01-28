@@ -30,7 +30,7 @@ and corresponding views / partials / selectors in CE / EE.
 
 Whenever `qa:selectors` job fails in your merge request, you are supposed to
 fix [page objects](../doc/development/testing_guide/end_to_end/page_objects.md). You should also trigger end-to-end tests
-using `package-and-qa-manual` manual action, to test if everything works fine.
+using `package-and-qa` manual action, to test if everything works fine.
 
 ## How can I use it?
 
@@ -66,6 +66,16 @@ bundle exec bin/qa Test::Instance::All http://localhost:3000
 
 Note: If you want to run tests requiring SSH against GDK, you
 will need to [modify your GDK setup](https://gitlab.com/gitlab-org/gitlab-qa/blob/master/docs/run_qa_against_gdk.md).
+
+#### Running EE tests
+
+When running EE tests you'll need to have a license available. GitLab engineers can [request a license](https://about.gitlab.com/handbook/developer-onboarding/#working-on-gitlab-ee).
+
+Once you have the license file you can export it as an environment variable and then the framework can use it. If you do so it will be installed automatically.
+
+```
+export EE_LICENSE=$(cat /path/to/gitlab_license)
+```
 
 ### Writing tests
 

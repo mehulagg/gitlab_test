@@ -62,6 +62,7 @@ describe Project do
     it { is_expected.to have_one(:external_wiki_service) }
     it { is_expected.to have_one(:project_feature) }
     it { is_expected.to have_one(:project_repository) }
+    it { is_expected.to have_one(:container_expiration_policy) }
     it { is_expected.to have_one(:statistics).class_name('ProjectStatistics') }
     it { is_expected.to have_one(:import_data).class_name('ProjectImportData') }
     it { is_expected.to have_one(:last_event).class_name('Event') }
@@ -137,6 +138,13 @@ describe Project do
         expect(project.ci_cd_settings).to be_persisted
       end
 
+      it 'automatically creates a container expiration policy row' do
+        project = create(:project)
+
+        expect(project.container_expiration_policy).to be_an_instance_of(ContainerExpirationPolicy)
+        expect(project.container_expiration_policy).to be_persisted
+      end
+
       it 'automatically creates a Pages metadata row' do
         project = create(:project)
 
@@ -157,6 +165,7 @@ describe Project do
       let(:project) { create(:project, :public) }
       let(:requester) { create(:user) }
       let(:developer) { create(:user) }
+
       before do
         project.request_access(requester)
         project.add_developer(developer)
@@ -202,6 +211,7 @@ describe Project do
     it { is_expected.to validate_presence_of(:creator) }
     it { is_expected.to validate_presence_of(:namespace) }
     it { is_expected.to validate_presence_of(:repository_storage) }
+    it { is_expected.to validate_numericality_of(:max_artifacts_size).only_integer.is_greater_than(0) }
 
     it 'validates build timeout constraints' do
       is_expected.to validate_numericality_of(:build_timeout)
@@ -236,7 +246,7 @@ describe Project do
           new_project = build_stubbed(:project, namespace_id: project.namespace_id, path: "#{project.path}.wiki")
 
           expect(new_project).not_to be_valid
-          expect(new_project.errors[:name].first).to eq('has already been taken')
+          expect(new_project.errors[:name].first).to eq(_('has already been taken'))
         end
       end
 
@@ -246,7 +256,7 @@ describe Project do
           new_project = build_stubbed(:project, namespace_id: project_with_wiki_suffix.namespace_id, path: 'foo')
 
           expect(new_project).not_to be_valid
-          expect(new_project.errors[:name].first).to eq('has already been taken')
+          expect(new_project.errors[:name].first).to eq(_('has already been taken'))
         end
       end
     end
@@ -377,7 +387,7 @@ describe Project do
       end
 
       it 'contains errors related to the project being deleted' do
-        expect(new_project.errors.full_messages.first).to eq('The project is still being deleted. Please try again later.')
+        expect(new_project.errors.full_messages.first).to eq(_('The project is still being deleted. Please try again later.'))
       end
     end
 
@@ -460,6 +470,32 @@ describe Project do
       it 'returns .external pipelines' do
         expect(project.ci_pipelines).to all(have_attributes(source: 'external'))
         expect(project.ci_pipelines.size).to eq(1)
+      end
+    end
+  end
+
+  describe '#autoclose_referenced_issues' do
+    context 'when DB entry is nil' do
+      let(:project) { create(:project, autoclose_referenced_issues: nil) }
+
+      it 'returns true' do
+        expect(project.autoclose_referenced_issues).to be_truthy
+      end
+    end
+
+    context 'when DB entry is true' do
+      let(:project) { create(:project, autoclose_referenced_issues: true) }
+
+      it 'returns true' do
+        expect(project.autoclose_referenced_issues).to be_truthy
+      end
+    end
+
+    context 'when DB entry is false' do
+      let(:project) { create(:project, autoclose_referenced_issues: false) }
+
+      it 'returns false' do
+        expect(project.autoclose_referenced_issues).to be_falsey
       end
     end
   end
@@ -689,7 +725,7 @@ describe Project do
         let(:project) { create(:project, :repository) }
 
         it 'returns the README' do
-          expect(project.readme_url).to eq("#{project.web_url}/blob/master/README.md")
+          expect(project.readme_url).to eq("#{project.web_url}/-/blob/master/README.md")
         end
       end
     end
@@ -807,6 +843,7 @@ describe Project do
 
     context 'with external issues tracker' do
       let!(:internal_issue) { create(:issue, project: project) }
+
       before do
         allow(project).to receive(:external_issue_tracker).and_return(true)
       end
@@ -1311,9 +1348,7 @@ describe Project do
     let(:project2) { create(:project, :public, group: group) }
 
     before do
-      2.times do
-        create(:note_on_commit, project: project1)
-      end
+      create_list(:note_on_commit, 2, project: project1)
 
       create(:note_on_commit, project: project2)
 
@@ -1327,9 +1362,7 @@ describe Project do
     end
 
     it 'does not take system notes into account' do
-      10.times do
-        create(:note_on_commit, project: project2, system: true)
-      end
+      create_list(:note_on_commit, 10, project: project2, system: true)
 
       expect(described_class.trending.to_a).to eq([project1, project2])
     end
@@ -1778,11 +1811,11 @@ describe Project do
     end
   end
 
-  describe '.including_namespace_and_owner' do
+  describe '.eager_load_namespace_and_owner' do
     it 'eager loads the namespace and namespace owner' do
       create(:project)
 
-      row = described_class.eager_load_namespace_and_owner.to_a.first
+      row = described_class.eager_load_namespace_and_owner.first
       recorder = ActiveRecord::QueryRecorder.new { row.namespace.owner }
 
       expect(recorder.count).to be_zero
@@ -1793,6 +1826,7 @@ describe Project do
     let(:project) { create(:project, :repository) }
     let(:repo)    { double(:repo, exists?: true) }
     let(:wiki)    { double(:wiki, exists?: true) }
+    let(:design)  { double(:wiki, exists?: false) }
 
     it 'expires the caches of the repository and wiki' do
       allow(Repository).to receive(:new)
@@ -1802,6 +1836,10 @@ describe Project do
       allow(Repository).to receive(:new)
         .with('foo.wiki', project)
         .and_return(wiki)
+
+      allow(Repository).to receive(:new)
+        .with('foo.design', project)
+        .and_return(design)
 
       expect(repo).to receive(:before_delete)
       expect(wiki).to receive(:before_delete)
@@ -2257,7 +2295,7 @@ describe Project do
       it 'returns the right human import status' do
         project = create(:project, :import_started)
 
-        expect(project.human_import_status_name).to eq('started')
+        expect(project.human_import_status_name).to eq(_('started'))
       end
     end
 
@@ -2321,6 +2359,7 @@ describe Project do
 
   describe '#has_remote_mirror?' do
     let(:project) { create(:project, :remote_mirror, :import_started) }
+
     subject { project.has_remote_mirror? }
 
     before do
@@ -2340,6 +2379,7 @@ describe Project do
 
   describe '#update_remote_mirrors' do
     let(:project) { create(:project, :remote_mirror, :import_started) }
+
     delegate :update_remote_mirrors, to: :project
 
     before do
@@ -3269,6 +3309,54 @@ describe Project do
     it { expect(project.parent_changed?).to be_truthy }
   end
 
+  describe '#default_merge_request_target' do
+    context 'when forked from a more visible project' do
+      it 'returns the more restrictive project' do
+        project = create(:project, :public)
+        forked = fork_project(project)
+        forked.visibility = Gitlab::VisibilityLevel::PRIVATE
+        forked.save!
+
+        expect(project.visibility).to eq 'public'
+        expect(forked.visibility).to eq 'private'
+
+        expect(forked.default_merge_request_target).to eq(forked)
+      end
+    end
+
+    context 'when forked from a project with disabled merge requests' do
+      it 'returns the current project' do
+        project = create(:project, :merge_requests_disabled)
+        forked = fork_project(project)
+
+        expect(forked.forked_from_project).to receive(:merge_requests_enabled?)
+          .and_call_original
+
+        expect(forked.default_merge_request_target).to eq(forked)
+      end
+    end
+
+    context 'when forked from a project with enabled merge requests' do
+      it 'returns the source project' do
+        project = create(:project, :public)
+        forked = fork_project(project)
+
+        expect(project.visibility).to eq 'public'
+        expect(forked.visibility).to eq 'public'
+
+        expect(forked.default_merge_request_target).to eq(project)
+      end
+    end
+
+    context 'when not forked' do
+      it 'returns the current project' do
+        project = build_stubbed(:project)
+
+        expect(project.default_merge_request_target).to eq(project)
+      end
+    end
+  end
+
   def enable_lfs
     allow(Gitlab.config.lfs).to receive(:enabled).and_return(true)
   end
@@ -3399,6 +3487,7 @@ describe Project do
 
   describe '#pipeline_status' do
     let(:project) { create(:project, :repository) }
+
     it 'builds a pipeline status' do
       expect(project.pipeline_status).to be_a(Gitlab::Cache::Ci::ProjectPipelineStatus)
     end
@@ -3691,6 +3780,25 @@ describe Project do
     end
   end
 
+  describe '.wrap_authorized_projects_with_cte' do
+    let!(:user) { create(:user) }
+
+    let!(:private_project) do
+      create(:project, :private, creator: user, namespace: user.namespace)
+    end
+
+    let!(:public_project) { create(:project, :public) }
+
+    let(:projects) { described_class.all.public_or_visible_to_user(user) }
+
+    subject { described_class.wrap_authorized_projects_with_cte(projects) }
+
+    it 'wrapped query matches original' do
+      expect(subject.to_sql).to match(/^WITH "authorized_projects" AS/)
+      expect(subject).to match_array(projects)
+    end
+  end
+
   describe '#pages_available?' do
     let(:project) { create(:project, group: group) }
 
@@ -3903,7 +4011,7 @@ describe Project do
       end
 
       it 'schedules HashedStorage::ProjectMigrateWorker with delayed start when the project repo is in use' do
-        Gitlab::ReferenceCounter.new(Gitlab::GlRepository::PROJECT.identifier_for_subject(project)).increase
+        Gitlab::ReferenceCounter.new(Gitlab::GlRepository::PROJECT.identifier_for_container(project)).increase
 
         expect(HashedStorage::ProjectMigrateWorker).to receive(:perform_in)
 
@@ -3911,7 +4019,7 @@ describe Project do
       end
 
       it 'schedules HashedStorage::ProjectMigrateWorker with delayed start when the wiki repo is in use' do
-        Gitlab::ReferenceCounter.new(Gitlab::GlRepository::WIKI.identifier_for_subject(project)).increase
+        Gitlab::ReferenceCounter.new(Gitlab::GlRepository::WIKI.identifier_for_container(project)).increase
 
         expect(HashedStorage::ProjectMigrateWorker).to receive(:perform_in)
 
@@ -4577,6 +4685,7 @@ describe Project do
 
   describe '#execute_hooks' do
     let(:data) { { ref: 'refs/heads/master', data: 'data' } }
+
     it 'executes active projects hooks with the specified scope' do
       hook = create(:project_hook, merge_requests_events: false, push_events: true)
       expect(ProjectHook).to receive(:select_active)
@@ -4651,6 +4760,13 @@ describe Project do
       create(:system_hook, push_events: true)
 
       expect(project.has_active_hooks?(:merge_request_events)).to be_falsey
+      expect(project.has_active_hooks?).to be_truthy
+    end
+
+    it 'returns true when a plugin exists' do
+      expect(Gitlab::FileHook).to receive(:any?).twice.and_return(true)
+
+      expect(project.has_active_hooks?(:merge_request_events)).to be_truthy
       expect(project.has_active_hooks?).to be_truthy
     end
   end
@@ -4907,6 +5023,7 @@ describe Project do
 
     context 'when there is a gitlab deploy token associated but is has been revoked' do
       let!(:deploy_token) { create(:deploy_token, :gitlab_deploy_token, :revoked, projects: [project]) }
+
       it { is_expected.to be_nil }
     end
 
@@ -4950,6 +5067,7 @@ describe Project do
 
   context '#members_among' do
     let(:users) { create_list(:user, 3) }
+
     set(:group) { create(:group) }
     set(:project) { create(:project, namespace: group) }
 
@@ -5037,7 +5155,7 @@ describe Project do
   describe '.deployments' do
     subject { project.deployments }
 
-    let(:project) { create(:project) }
+    let(:project) { create(:project, :repository) }
 
     before do
       allow_any_instance_of(Deployment).to receive(:create_ref)

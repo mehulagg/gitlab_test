@@ -4,7 +4,7 @@
 
 Broadcast messages API operates on [broadcast messages](../user/admin_area/broadcast_messages.md).
 
-The broadcast message API is only accessible to administrators. All requests by:
+As of GitLab 12.8, GET requests do not require authentication. All other broadcast message API endpoints are accessible only to administrators. Non-GET requests by:
 
 - Guests will result in `401 Unauthorized`.
 - Regular users will result in `403 Forbidden`.
@@ -20,7 +20,7 @@ GET /broadcast_messages
 Example request:
 
 ```sh
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/broadcast_messages
+curl https://gitlab.example.com/api/v4/broadcast_messages
 ```
 
 Example response:
@@ -34,7 +34,8 @@ Example response:
         "color":"#E75E40",
         "font":"#FFFFFF",
         "id":1,
-        "active": false
+        "active": false,
+        "target_path": "*/welcome"
     }
 ]
 ```
@@ -56,7 +57,7 @@ Parameters:
 Example request:
 
 ```sh
-curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/broadcast_messages/1
+curl https://gitlab.example.com/api/v4/broadcast_messages/1
 ```
 
 Example response:
@@ -69,7 +70,8 @@ Example response:
     "color":"#cecece",
     "font":"#FFFFFF",
     "id":1,
-    "active":false
+    "active":false,
+    "target_path": "*/welcome"
 }
 ```
 
@@ -107,7 +109,8 @@ Example response:
     "color":"#cecece",
     "font":"#FFFFFF",
     "id":1,
-    "active": true
+    "active": true,
+    "target_path": "*/welcome"
 }
 ```
 
@@ -146,7 +149,8 @@ Example response:
     "color":"#000",
     "font":"#FFFFFF",
     "id":1,
-    "active": true
+    "active": true,
+    "target_path": "*/welcome"
 }
 ```
 

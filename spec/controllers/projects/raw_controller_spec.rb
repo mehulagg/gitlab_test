@@ -23,7 +23,7 @@ describe Projects::RawController do
       it 'delivers ASCII file' do
         subject
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(response.header['Content-Type']).to eq('text/plain; charset=utf-8')
         expect(response.header['Content-Disposition']).to eq('inline')
         expect(response.header[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
@@ -37,7 +37,7 @@ describe Projects::RawController do
       it 'leaves image content disposition' do
         subject
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(response.header['Content-Disposition']).to eq('inline')
         expect(response.header[Gitlab::Workhorse::DETECT_HEADER]).to eq "true"
         expect(response.header[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with('git-blob:')
@@ -56,11 +56,14 @@ describe Projects::RawController do
         stub_application_setting(raw_blob_request_limit: 5)
       end
 
-      it 'prevents from accessing the raw file' do
-        execute_raw_requests(requests: 6, project: project, file_path: file_path)
+      it 'prevents from accessing the raw file', :request_store do
+        execute_raw_requests(requests: 5, project: project, file_path: file_path)
 
-        expect(flash[:alert]).to eq('You cannot access the raw file. Please wait a minute.')
-        expect(response).to have_gitlab_http_status(429)
+        expect { execute_raw_requests(requests: 1, project: project, file_path: file_path) }
+          .to change { Gitlab::GitalyClient.get_request_count }.by(0)
+
+        expect(response.body).to eq(_('You cannot access the raw file. Please wait a minute.'))
+        expect(response).to have_gitlab_http_status(:too_many_requests)
       end
 
       it 'logs the event on auth.log' do
@@ -69,7 +72,7 @@ describe Projects::RawController do
           env: :raw_blob_request_limit,
           remote_ip: '0.0.0.0',
           request_method: 'GET',
-          path: "/#{project.full_path}/raw/#{file_path}"
+          path: "/#{project.full_path}/-/raw/#{file_path}"
         }
 
         expect(Gitlab::AuthLogger).to receive(:error).with(attributes).once
@@ -91,7 +94,7 @@ describe Projects::RawController do
           request.headers['X-Gitlab-External-Storage-Token'] = token
           execute_raw_requests(requests: 6, project: project, file_path: file_path)
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
         end
       end
 
@@ -109,8 +112,8 @@ describe Projects::RawController do
 
           execute_raw_requests(requests: 3, project: project, file_path: modified_path)
 
-          expect(flash[:alert]).to eq('You cannot access the raw file. Please wait a minute.')
-          expect(response).to have_gitlab_http_status(429)
+          expect(response.body).to eq(_('You cannot access the raw file. Please wait a minute.'))
+          expect(response).to have_gitlab_http_status(:too_many_requests)
         end
       end
 
@@ -122,7 +125,7 @@ describe Projects::RawController do
         it 'does not prevent from accessing the raw file' do
           execute_raw_requests(requests: 10, project: project, file_path: file_path)
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
         end
       end
 
@@ -137,15 +140,15 @@ describe Projects::RawController do
           # Accessing downcase version of readme
           execute_raw_requests(requests: 6, project: project, file_path: file_path)
 
-          expect(flash[:alert]).to eq('You cannot access the raw file. Please wait a minute.')
-          expect(response).to have_gitlab_http_status(429)
+          expect(response.body).to eq(_('You cannot access the raw file. Please wait a minute.'))
+          expect(response).to have_gitlab_http_status(:too_many_requests)
 
           # Accessing upcase version of readme
           file_path = "#{commit_sha}/README.md"
 
           execute_raw_requests(requests: 1, project: project, file_path: file_path)
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
         end
       end
     end
@@ -163,7 +166,7 @@ describe Projects::RawController do
         it 'redirects to sign in page' do
           execute_raw_requests(requests: 1, project: project, file_path: file_path)
 
-          expect(response).to have_gitlab_http_status(302)
+          expect(response).to have_gitlab_http_status(:found)
           expect(response.location).to end_with('/users/sign_in')
         end
       end
@@ -173,7 +176,7 @@ describe Projects::RawController do
           it 'calls the action normally' do
             execute_raw_requests(requests: 1, project: project, file_path: file_path, token: user.static_object_token)
 
-            expect(response).to have_gitlab_http_status(200)
+            expect(response).to have_gitlab_http_status(:ok)
           end
         end
 
@@ -181,7 +184,7 @@ describe Projects::RawController do
           it 'redirects to sign in page' do
             execute_raw_requests(requests: 1, project: project, file_path: file_path, token: 'foobar')
 
-            expect(response).to have_gitlab_http_status(302)
+            expect(response).to have_gitlab_http_status(:found)
             expect(response.location).to end_with('/users/sign_in')
           end
         end
@@ -193,7 +196,7 @@ describe Projects::RawController do
             request.headers['X-Gitlab-Static-Object-Token'] = user.static_object_token
             execute_raw_requests(requests: 1, project: project, file_path: file_path)
 
-            expect(response).to have_gitlab_http_status(200)
+            expect(response).to have_gitlab_http_status(:ok)
           end
         end
 
@@ -202,7 +205,7 @@ describe Projects::RawController do
             request.headers['X-Gitlab-Static-Object-Token'] = 'foobar'
             execute_raw_requests(requests: 1, project: project, file_path: file_path)
 
-            expect(response).to have_gitlab_http_status(302)
+            expect(response).to have_gitlab_http_status(:found)
             expect(response.location).to end_with('/users/sign_in')
           end
         end

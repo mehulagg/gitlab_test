@@ -95,7 +95,7 @@ class Repository
   def path_to_repo
     @path_to_repo ||=
       begin
-        storage = Gitlab.config.repositories.storages[@project.repository_storage]
+        storage = Gitlab.config.repositories.storages[project.repository_storage]
 
         File.expand_path(
           File.join(storage.legacy_disk_path, disk_path + '.git')
@@ -128,7 +128,7 @@ class Repository
     commits = Gitlab::Git::Commit.batch_by_oid(raw_repository, oids)
 
     if commits.present?
-      Commit.decorate(commits, @project)
+      Commit.decorate(commits, project)
     else
       []
     end
@@ -159,14 +159,14 @@ class Repository
     }
 
     commits = Gitlab::Git::Commit.where(options)
-    commits = Commit.decorate(commits, @project) if commits.present?
+    commits = Commit.decorate(commits, project) if commits.present?
 
     CommitCollection.new(project, commits, ref)
   end
 
   def commits_between(from, to)
     commits = Gitlab::Git::Commit.between(raw_repository, from, to)
-    commits = Commit.decorate(commits, @project) if commits.present?
+    commits = Commit.decorate(commits, project) if commits.present?
     commits
   end
 
@@ -447,6 +447,8 @@ class Repository
   def after_import
     expire_content_cache
 
+    return unless repo_type.project?
+
     # This call is stubbed in tests due to being an expensive operation
     # It can be reenabled for specific tests via:
     #
@@ -695,13 +697,13 @@ class Repository
     commits = raw_repository.list_last_commits_for_tree(sha, path, offset: offset, limit: limit)
 
     commits.each do |path, commit|
-      commits[path] = ::Commit.new(commit, @project)
+      commits[path] = ::Commit.new(commit, project)
     end
   end
 
   def last_commit_for_path(sha, path)
     commit = raw_repository.last_commit_for_path(sha, path)
-    ::Commit.new(commit, @project) if commit
+    ::Commit.new(commit, project) if commit
   end
 
   def last_commit_id_for_path(sha, path)
@@ -1062,10 +1064,13 @@ class Repository
     rebase_sha
   end
 
-  def rebase(user, merge_request)
+  def rebase(user, merge_request, skip_ci: false)
     if Feature.disabled?(:two_step_rebase, default_enabled: true)
       return rebase_deprecated(user, merge_request)
     end
+
+    push_options = []
+    push_options << Gitlab::PushOptions::CI_SKIP if skip_ci
 
     raw.rebase(
       user,
@@ -1073,7 +1078,8 @@ class Repository
       branch: merge_request.source_branch,
       branch_sha: merge_request.source_branch_sha,
       remote_repository: merge_request.target_project.repository.raw,
-      remote_branch: merge_request.target_branch
+      remote_branch: merge_request.target_branch,
+      push_options: push_options
     ) do |commit_id|
       merge_request.update!(rebase_commit_sha: commit_id, merge_error: nil)
     end
@@ -1088,6 +1094,10 @@ class Repository
                                        end_sha: merge_request.diff_head_sha,
                                        author: merge_request.author,
                                        message: message)
+  end
+
+  def submodule_links
+    @submodule_links ||= ::Gitlab::SubmoduleLinks.new(self)
   end
 
   def update_submodule(user, submodule, commit_sha, message:, branch:)
@@ -1127,8 +1137,8 @@ class Repository
 
   private
 
-  # TODO Generice finder, later split this on finders by Ref or Oid
-  # https://gitlab.com/gitlab-org/gitlab-foss/issues/39239
+  # TODO Genericize finder, later split this on finders by Ref or Oid
+  # https://gitlab.com/gitlab-org/gitlab/issues/19877
   def find_commit(oid_or_ref)
     commit = if oid_or_ref.is_a?(Gitlab::Git::Commit)
                oid_or_ref
@@ -1136,7 +1146,7 @@ class Repository
                Gitlab::Git::Commit.find(raw_repository, oid_or_ref)
              end
 
-    ::Commit.new(commit, @project) if commit
+    ::Commit.new(commit, project) if commit
   end
 
   def cache
@@ -1173,7 +1183,7 @@ class Repository
   def initialize_raw_repository
     Gitlab::Git::Repository.new(project.repository_storage,
                                 disk_path + '.git',
-                                repo_type.identifier_for_subject(project),
+                                repo_type.identifier_for_container(project),
                                 project.full_path)
   end
 end

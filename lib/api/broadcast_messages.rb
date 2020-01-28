@@ -4,9 +4,6 @@ module API
   class BroadcastMessages < Grape::API
     include PaginationParams
 
-    before { authenticate! }
-    before { authenticated_as_admin! }
-
     resource :broadcast_messages do
       helpers do
         def find_message
@@ -32,13 +29,16 @@ module API
         success Entities::BroadcastMessage
       end
       params do
-        requires :message,   type: String,   desc: 'Message to display'
+        requires :message, type: String, desc: 'Message to display'
         optional :starts_at, type: DateTime, desc: 'Starting time', default: -> { Time.zone.now }
-        optional :ends_at,   type: DateTime, desc: 'Ending time',   default: -> { 1.hour.from_now }
-        optional :color,     type: String,   desc: 'Background color'
-        optional :font,      type: String,   desc: 'Foreground color'
+        optional :ends_at, type: DateTime, desc: 'Ending time', default: -> { 1.hour.from_now }
+        optional :color, type: String, desc: 'Background color'
+        optional :font, type: String, desc: 'Foreground color'
+        optional :target_path, type: String, desc: 'Target path'
       end
       post do
+        authenticated_as_admin!
+
         message = BroadcastMessage.create(declared_params(include_missing: false))
 
         if message.persisted?
@@ -66,14 +66,17 @@ module API
         success Entities::BroadcastMessage
       end
       params do
-        requires :id,        type: Integer,  desc: 'Broadcast message ID'
-        optional :message,   type: String,   desc: 'Message to display'
+        requires :id, type: Integer, desc: 'Broadcast message ID'
+        optional :message, type: String, desc: 'Message to display'
         optional :starts_at, type: DateTime, desc: 'Starting time'
-        optional :ends_at,   type: DateTime, desc: 'Ending time'
-        optional :color,     type: String,   desc: 'Background color'
-        optional :font,      type: String,   desc: 'Foreground color'
+        optional :ends_at, type: DateTime, desc: 'Ending time'
+        optional :color, type: String, desc: 'Background color'
+        optional :font, type: String, desc: 'Foreground color'
+        optional :target_path, type: String, desc: 'Target path'
       end
       put ':id' do
+        authenticated_as_admin!
+
         message = find_message
 
         if message.update(declared_params(include_missing: false))
@@ -91,6 +94,8 @@ module API
         requires :id, type: Integer, desc: 'Broadcast message ID'
       end
       delete ':id' do
+        authenticated_as_admin!
+
         message = find_message
 
         destroy_conditionally!(message)

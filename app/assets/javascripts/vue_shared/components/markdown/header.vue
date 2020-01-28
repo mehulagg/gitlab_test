@@ -128,15 +128,19 @@ export default {
               @click="handleSuggestDismissed"
             />
             <gl-popover
-              v-if="showSuggestPopover"
-              :target="() => $refs.suggestButton"
+              v-if="showSuggestPopover && $refs.suggestButton"
+              :target="$refs.suggestButton"
               :css-classes="['diff-suggest-popover']"
               placement="bottom"
               :show="showSuggestPopover"
             >
               <strong>{{ __('New! Suggest changes directly') }}</strong>
               <p class="mb-2">
-                {{ __('Suggest code changes which are immediately applied. Try it out!') }}
+                {{
+                  __(
+                    'Suggest code changes which can be immediately applied in one click. Try it out!',
+                  )
+                }}
               </p>
               <gl-button variant="primary" size="sm" @click="handleSuggestDismissed">
                 {{ __('Got it') }}

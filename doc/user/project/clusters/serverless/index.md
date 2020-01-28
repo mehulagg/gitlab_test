@@ -13,7 +13,7 @@ GitLab supports several ways deploy Serverless applications in both Kubernetes E
 
 Currently we support:
 
-- [Knative](#knative): Build Knative applications with Knative and `gitlabktl` on GKE.
+- [Knative](#knative): Build Knative applications with Knative and `gitlabktl` on GKE and EKS.
 - [AWS Lambda](aws.md): Create serverless applications via the Serverless Framework and GitLab CI.
 
 ## Knative
@@ -43,7 +43,7 @@ To run Knative on GitLab, you will need:
      clone the sample [Knative Ruby App](https://gitlab.com/knative-examples/knative-ruby-app) to get
      started.
 1. **Kubernetes Cluster:** An RBAC-enabled Kubernetes cluster is required to deploy Knative.
-   The simplest way to get started is to add a cluster using [GitLab's GKE integration](../add_remove_clusters.md#gke-cluster).
+   The simplest way to get started is to add a cluster using GitLab's [GKE integration](../add_remove_clusters.md).
    The set of minimum recommended cluster specifications to run Knative is 3 nodes, 6 vCPUs, and 22.50 GB memory.
 1. **Helm Tiller:** Helm is a package manager for Kubernetes and is required to install
    Knative.
@@ -89,7 +89,7 @@ The minimum recommended cluster size to run Knative is 3-nodes, 6 vCPUs, and 22.
    for other platforms [Install kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
 
 1. The Ingress is now available at this address and will route incoming requests to the proper service based on the DNS
-   name in the request. To support this, a wildcard DNS A record should be created for the desired domain name. For example,
+   name in the request. To support this, a wildcard DNS record should be created for the desired domain name. For example,
    if your Knative base domain is `knative.info` then you need to create an A record or CNAME record with domain `*.knative.info`
    pointing the ip address or hostname of the Ingress.
 
@@ -118,8 +118,7 @@ You must do the following:
 
 1. Ensure GitLab can manage Knative:
    - For a non-GitLab managed cluster, ensure that the service account for the token
-     provided can manage resources in the `serving.knative.dev` API group. It will also
-     need list access to the deployments in the `knative-serving` namespace.
+     provided can manage resources in the `serving.knative.dev` API group.
    - For a GitLab managed cluster, if you added the cluster in [GitLab 12.1 or later](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/30235),
      then GitLab will already have the required access and you can proceed to the next step.
 
@@ -156,19 +155,6 @@ You must do the following:
        - delete
        - patch
        - watch
-     ---
-     apiVersion: rbac.authorization.k8s.io/v1
-     kind: ClusterRole
-     metadata:
-       name: gitlab-knative-version-role
-     rules:
-     - apiGroups:
-       - apps
-       resources:
-       - deployments
-       verbs:
-       - list
-       - get
      ```
 
      Then run the following command:
@@ -183,53 +169,6 @@ You must do the following:
 1. Follow the steps to deploy [functions](#deploying-functions)
    or [serverless applications](#deploying-serverless-applications) onto your
    cluster.
-
-## Configuring logging
-
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/33330) in GitLab 12.5.
-
-### Prerequisites
-
-- A GitLab-managed cluster.
-- `kubectl` installed and working.
-
-Running `kubectl` commands on your cluster requires setting up access to the
-cluster first. For clusters created on:
-
-- GKE, see [GKE Cluster Access](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl)
-- Other platforms, see [Install and Set Up kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
-
-### Enable request log template
-
-Run the following command to enable request logs:
-
-```shell
-kubectl edit cm -n knative-serving config-observability
-```
-
-Copy the `logging.request-log-template` from the `data._example` field to the data field one level up in the hierarchy.
-
-### Enable request logs
-
-Run the following commands to install Elasticsearch, Kibana, and Filebeat into a `kube-logging` namespace and configure all nodes to forward logs using Filebeat:
-
-```shell
-kubectl apply -f https://gitlab.com/gitlab-org/serverless/configurations/knative/raw/v0.7.0/kube-logging-filebeat.yaml
-kubectl label nodes --all beta.kubernetes.io/filebeat-ready="true"
-```
-
-### Viewing request logs
-
-To view request logs:
-
-1. Run `kubectl proxy`.
-1. Navigate to Kibana UI.
-
-Or:
-
-1. Open the Kibana UI.
-1. Click on **Discover**, then select `filebeat-*` from the dropdown on the left.
-1. Enter `kubernetes.container.name:"queue-proxy" AND message:/httpRequest/` into the search box.
 
 ## Supported runtimes
 
@@ -573,6 +512,53 @@ deployment. Copy and paste the domain into your browser to see the app live.
 
 ![knative app](img/knative-app.png)
 
+## Configuring logging
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/33330) in GitLab 12.5.
+
+### Prerequisites
+
+- A GitLab-managed cluster.
+- `kubectl` installed and working.
+
+Running `kubectl` commands on your cluster requires setting up access to the
+cluster first. For clusters created on:
+
+- GKE, see [GKE Cluster Access](https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl)
+- Other platforms, see [Install and Set Up kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/).
+
+### Enable request log template
+
+Run the following command to enable request logs:
+
+```shell
+kubectl edit cm -n knative-serving config-observability
+```
+
+Copy the `logging.request-log-template` from the `data._example` field to the data field one level up in the hierarchy.
+
+### Enable request logs
+
+Run the following commands to install Elasticsearch, Kibana, and Filebeat into a `kube-logging` namespace and configure all nodes to forward logs using Filebeat:
+
+```shell
+kubectl apply -f https://gitlab.com/gitlab-org/serverless/configurations/knative/raw/v0.7.0/kube-logging-filebeat.yaml
+kubectl label nodes --all beta.kubernetes.io/filebeat-ready="true"
+```
+
+### Viewing request logs
+
+To view request logs:
+
+1. Run `kubectl proxy`.
+1. Navigate to [Kibana UI](http://localhost:8001/api/v1/namespaces/kube-logging/services/kibana/proxy/app/kibana).
+
+Or:
+
+1. Open the [Kibana UI](http://localhost:8001/api/v1/namespaces/kube-logging/services/kibana/proxy/app/kibana).
+1. Click on **Discover**, then select `filebeat-*` from the dropdown on the left.
+1. Enter `kubernetes.container.name:"queue-proxy" AND message:/httpRequest/` into the search box.
+
 ## Function details
 
 Go to the **Operations > Serverless** page and click on one of the function
@@ -863,3 +849,23 @@ The instructions below relate to installing and running Certbot on a Linux serve
    After your changes are running on your Knative cluster, you can begin using the HTTPS protocol for secure access your deployed Knative services.
    In the event a mistake is made during this process and you need to update the cert, you will need to edit the gateway `knative-ingress-gateway`
    to switch back to `PASSTHROUGH` mode. Once corrections are made, edit the file again so the gateway will use the new certificates.
+
+## Using an older version of `gitlabktl`
+
+There may be situations where you want to run an older version of `gitlabktl`. This
+requires setting an older version of the `gitlabktl` image in the `.gitlab-ci.yml file.`
+
+To set an older version, add `image:` to the `functions:deploy` block. For example:
+
+```yaml
+functions:deploy:
+  extends: .serverless:deploy:functions
+  environment: production
+  image: registry.gitlab.com/gitlab-org/gitlabktl:0.5.0
+```
+
+Different versions are available by changing the version tag at the end of the registry URL in the
+format `registry.gitlab.com/gitlab-org/gitlabktl:<version>`.
+
+For a full inventory of available `gitlabktl` versions, see the `gitlabktl` project's
+[container registry](https://gitlab.com/gitlab-org/gitlabktl/container_registry).

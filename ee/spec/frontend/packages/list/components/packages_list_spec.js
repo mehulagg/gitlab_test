@@ -1,8 +1,11 @@
 import Vue from 'vue';
 import _ from 'underscore';
-import { shallowMount } from '@vue/test-utils';
-import { GlTable } from '@gitlab/ui';
+import Tracking from '~/tracking';
+import { mount } from '@vue/test-utils';
 import PackagesList from 'ee/packages/list/components/packages_list.vue';
+import * as SharedUtils from 'ee/packages/shared/utils';
+import { TrackingActions } from 'ee/packages/shared/constants';
+import stubChildren from 'helpers/stub_children';
 import { packageList } from '../../mock_data';
 
 describe('packages_list', () => {
@@ -16,9 +19,10 @@ describe('packages_list', () => {
   const findSortingItems = () => wrapper.findAll({ name: 'sorting-item-stub' });
   const findFirstProjectColumn = () => wrapper.find({ ref: 'col-project' });
 
-  const defaultShallowMountOptions = {
+  const mountOptions = {
     stubs: {
-      GlTable,
+      ...stubChildren(PackagesList),
+      GlTable: false,
       GlSortingItem: { name: 'sorting-item-stub', template: '<div><slot></slot></div>' },
     },
     computed: {
@@ -35,7 +39,7 @@ describe('packages_list', () => {
     // This is needed due to  console.error called by vue to emit a warning that stop the tests
     // see  https://github.com/vuejs/vue-test-utils/issues/532
     Vue.config.silent = true;
-    wrapper = shallowMount(PackagesList, defaultShallowMountOptions);
+    wrapper = mount(PackagesList, mountOptions);
   });
 
   afterEach(() => {
@@ -43,17 +47,12 @@ describe('packages_list', () => {
     wrapper.destroy();
   });
 
-  it('renders', () => {
-    expect(wrapper.element).toMatchSnapshot();
-  });
-
   describe('when is isGroupPage', () => {
     beforeEach(() => {
-      wrapper = shallowMount(PackagesList, {
-        ...defaultShallowMountOptions,
+      wrapper = mount(PackagesList, {
+        ...mountOptions,
         computed: {
-          ...defaultShallowMountOptions.computed,
-          canDestroyPackage: () => false,
+          ...mountOptions.computed,
           isGroupPage: () => true,
         },
       });
@@ -62,6 +61,11 @@ describe('packages_list', () => {
     it('has project field', () => {
       const projectColumn = findFirstProjectColumn();
       expect(projectColumn.exists()).toBe(true);
+    });
+
+    it('does not show the action column', () => {
+      const action = findFirstActionColumn();
+      expect(action.exists()).toBe(false);
     });
   });
 
@@ -82,20 +86,6 @@ describe('packages_list', () => {
   it('contains a modal component', () => {
     const sorting = findPackageListDeleteModal();
     expect(sorting.exists()).toBe(true);
-  });
-
-  describe('when user can not destroy the package', () => {
-    beforeEach(() => {
-      wrapper = shallowMount(PackagesList, {
-        ...defaultShallowMountOptions,
-        computed: { ...defaultShallowMountOptions.computed, canDestroyPackage: () => false },
-      });
-    });
-
-    it('does not show the action column', () => {
-      const action = findFirstActionColumn();
-      expect(action.exists()).toBe(false);
-    });
   });
 
   describe('when the user can destroy the package', () => {
@@ -129,10 +119,14 @@ describe('packages_list', () => {
       wrapper.vm.deleteItemConfirmation();
       expect(wrapper.vm.itemToBeDeleted).toEqual(null);
     });
+
     it('deleteItemConfirmation emit package:delete', () => {
-      wrapper.setData({ itemToBeDeleted: { id: 2 } });
+      const itemToBeDeleted = { id: 2 };
+      wrapper.setData({ itemToBeDeleted });
       wrapper.vm.deleteItemConfirmation();
-      expect(wrapper.emitted('package:delete')).toEqual([[2]]);
+      return wrapper.vm.$nextTick(() => {
+        expect(wrapper.emitted('package:delete')[0]).toEqual([itemToBeDeleted]);
+      });
     });
 
     it('deleteItemCanceled resets itemToBeDeleted', () => {
@@ -146,8 +140,8 @@ describe('packages_list', () => {
     const findEmptySlot = () => wrapper.find({ name: 'empty-slot-stub' });
 
     beforeEach(() => {
-      wrapper = shallowMount(PackagesList, {
-        ...defaultShallowMountOptions,
+      wrapper = mount(PackagesList, {
+        ...mountOptions,
         computed: { list: () => [] },
         slots: {
           'empty-state': { name: 'empty-slot-stub', template: '<div>bar</div>' },
@@ -171,6 +165,39 @@ describe('packages_list', () => {
     it('emits page:changed events when the page changes', () => {
       wrapper.vm.currentPage = 2;
       expect(wrapper.emitted('page:changed')).toEqual([[2]]);
+    });
+  });
+
+  describe('table component', () => {
+    it('has stacked-md class', () => {
+      const table = findPackageListTable();
+      expect(table.classes()).toContain('b-table-stacked-md');
+    });
+  });
+
+  describe('tracking', () => {
+    let eventSpy;
+    let utilSpy;
+    const category = 'foo';
+
+    beforeEach(() => {
+      eventSpy = jest.spyOn(Tracking, 'event');
+      utilSpy = jest.spyOn(SharedUtils, 'packageTypeToTrackCategory').mockReturnValue(category);
+      wrapper.setData({ itemToBeDeleted: { package_type: 'conan' } });
+    });
+
+    it('tracking category calls packageTypeToTrackCategory', () => {
+      expect(wrapper.vm.tracking.category).toBe(category);
+      expect(utilSpy).toHaveBeenCalledWith('conan');
+    });
+
+    it('deleteItemConfirmation calls event', () => {
+      wrapper.vm.deleteItemConfirmation();
+      expect(eventSpy).toHaveBeenCalledWith(
+        category,
+        TrackingActions.DELETE_PACKAGE,
+        expect.any(Object),
+      );
     });
   });
 });

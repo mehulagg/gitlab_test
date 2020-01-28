@@ -6,7 +6,7 @@ FactoryBot.define do
     type { 'Service' }
   end
 
-  factory :custom_issue_tracker_service, class: CustomIssueTrackerService do
+  factory :custom_issue_tracker_service, class: 'CustomIssueTrackerService' do
     project
     active { true }
     issue_tracker
@@ -42,6 +42,13 @@ FactoryBot.define do
         manual_configuration: true
       }
     end
+  end
+
+  factory :drone_ci_service do
+    project
+    active { true }
+    drone_url { 'https://bamboo.example.com' }
+    token { 'test' }
   end
 
   factory :jira_service do

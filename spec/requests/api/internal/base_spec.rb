@@ -268,7 +268,7 @@ describe API::Internal::Base do
       end
 
       context 'with env passed as a JSON' do
-        let(:gl_repository) { Gitlab::GlRepository::WIKI.identifier_for_subject(project) }
+        let(:gl_repository) { Gitlab::GlRepository::WIKI.identifier_for_container(project) }
 
         it 'sets env in RequestStore' do
           obj_dir_relative = './objects'
@@ -326,7 +326,7 @@ describe API::Internal::Base do
           expect(json_response["gitaly"]["repository"]["relative_path"]).to eq(project.repository.gitaly_repository.relative_path)
           expect(json_response["gitaly"]["address"]).to eq(Gitlab::GitalyClient.address(project.repository_storage))
           expect(json_response["gitaly"]["token"]).to eq(Gitlab::GitalyClient.token(project.repository_storage))
-          expect(json_response["gitaly"]["features"]).to eq('gitaly-feature-get-all-lfs-pointers-go' => 'true', 'gitaly-feature-inforef-uploadpack-cache' => 'true', 'gitaly-feature-get-tag-messages-go' => 'true', 'gitaly-feature-filter-shas-with-signatures-go' => 'true')
+          expect(json_response["gitaly"]["features"]).to eq('gitaly-feature-inforef-uploadpack-cache' => 'true', 'gitaly-feature-cache-invalidator' => 'true', 'gitaly-feature-commit-without-batch-check' => 'true')
           expect(user.reload.last_activity_on).to eql(Date.today)
         end
       end
@@ -346,7 +346,7 @@ describe API::Internal::Base do
             expect(json_response["gitaly"]["repository"]["relative_path"]).to eq(project.repository.gitaly_repository.relative_path)
             expect(json_response["gitaly"]["address"]).to eq(Gitlab::GitalyClient.address(project.repository_storage))
             expect(json_response["gitaly"]["token"]).to eq(Gitlab::GitalyClient.token(project.repository_storage))
-            expect(json_response["gitaly"]["features"]).to eq('gitaly-feature-get-all-lfs-pointers-go' => 'true', 'gitaly-feature-inforef-uploadpack-cache' => 'true', 'gitaly-feature-get-tag-messages-go' => 'true', 'gitaly-feature-filter-shas-with-signatures-go' => 'true')
+            expect(json_response["gitaly"]["features"]).to eq('gitaly-feature-inforef-uploadpack-cache' => 'true', 'gitaly-feature-cache-invalidator' => 'true', 'gitaly-feature-commit-without-batch-check' => 'true')
             expect(user.reload.last_activity_on).to be_nil
           end
         end
@@ -388,6 +388,12 @@ describe API::Internal::Base do
             expect(json_response["git_config_options"]).to be_empty
           end
         end
+      end
+
+      it_behaves_like 'storing arguments in the application context' do
+        let(:expected_params) { { user: key.user.username, project: project.full_path } }
+
+        subject { push(key, project) }
       end
     end
 
@@ -588,7 +594,7 @@ describe API::Internal::Base do
           expect(json_response["gitaly"]["repository"]["relative_path"]).to eq(project.repository.gitaly_repository.relative_path)
           expect(json_response["gitaly"]["address"]).to eq(Gitlab::GitalyClient.address(project.repository_storage))
           expect(json_response["gitaly"]["token"]).to eq(Gitlab::GitalyClient.token(project.repository_storage))
-          expect(json_response["gitaly"]["features"]).to eq('gitaly-feature-get-all-lfs-pointers-go' => 'true', 'gitaly-feature-inforef-uploadpack-cache' => 'true', 'gitaly-feature-get-tag-messages-go' => 'true', 'gitaly-feature-filter-shas-with-signatures-go' => 'true')
+          expect(json_response["gitaly"]["features"]).to eq('gitaly-feature-inforef-uploadpack-cache' => 'true', 'gitaly-feature-cache-invalidator' => 'true', 'gitaly-feature-commit-without-batch-check' => 'true')
         end
       end
 
@@ -852,7 +858,7 @@ describe API::Internal::Base do
 
       message = <<~MESSAGE.strip
         To create a merge request for #{branch_name}, visit:
-          http://#{Gitlab.config.gitlab.host}/#{project.full_path}/merge_requests/new?merge_request%5Bsource_branch%5D=#{branch_name}
+          http://#{Gitlab.config.gitlab.host}/#{project.full_path}/-/merge_requests/new?merge_request%5Bsource_branch%5D=#{branch_name}
       MESSAGE
 
       expect(json_response['messages']).to include(build_basic_message(message))
@@ -885,6 +891,12 @@ describe API::Internal::Base do
       post api('/internal/post_receive'), params: valid_params
     end
 
+    it_behaves_like 'storing arguments in the application context' do
+      let(:expected_params) { { user: user.username, project: project.full_path } }
+
+      subject { post api('/internal/post_receive'), params: valid_params }
+    end
+
     context 'when there are merge_request push options' do
       before do
         valid_params[:push_options] = ['merge_request.create']
@@ -909,7 +921,7 @@ describe API::Internal::Base do
 
         message = <<~MESSAGE.strip
           View merge request for #{branch_name}:
-            http://#{Gitlab.config.gitlab.host}/#{project.full_path}/merge_requests/1
+            http://#{Gitlab.config.gitlab.host}/#{project.full_path}/-/merge_requests/1
         MESSAGE
 
         expect(json_response['messages']).to include(build_basic_message(message))
@@ -1000,6 +1012,22 @@ describe API::Internal::Base do
       it 'does not try to notify that project moved' do
         allow_any_instance_of(Gitlab::Identifier).to receive(:identify).and_return(nil)
 
+        expect(Gitlab::Checks::ProjectMoved).not_to receive(:fetch_message)
+
+        post api('/internal/post_receive'), params: valid_params
+
+        expect(response).to have_gitlab_http_status(200)
+      end
+    end
+
+    context 'when project is nil' do
+      let(:gl_repository) { 'project-foo' }
+
+      it 'does not try to notify that project moved' do
+        allow(Gitlab::GlRepository).to receive(:parse).and_return([nil, Gitlab::GlRepository::PROJECT])
+
+        expect(Gitlab::Checks::ProjectMoved).not_to receive(:fetch_message)
+
         post api('/internal/post_receive'), params: valid_params
 
         expect(response).to have_gitlab_http_status(200)
@@ -1026,9 +1054,9 @@ describe API::Internal::Base do
   def gl_repository_for(project_or_wiki)
     case project_or_wiki
     when ProjectWiki
-      Gitlab::GlRepository::WIKI.identifier_for_subject(project_or_wiki.project)
+      Gitlab::GlRepository::WIKI.identifier_for_container(project_or_wiki.project)
     when Project
-      Gitlab::GlRepository::PROJECT.identifier_for_subject(project_or_wiki)
+      Gitlab::GlRepository::PROJECT.identifier_for_container(project_or_wiki)
     else
       nil
     end

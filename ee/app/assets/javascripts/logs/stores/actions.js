@@ -1,14 +1,17 @@
+import Api from 'ee/api';
 import { backOff } from '~/lib/utils/common_utils';
 import httpStatusCodes from '~/lib/utils/http_status';
 import axios from '~/lib/utils/axios_utils';
 import flash from '~/flash';
 import { s__ } from '~/locale';
-import Api from 'ee/api';
 import * as types from './mutation_types';
 
-const requestLogsUntilData = ({ projectPath, environmentId, podName }) =>
+import { getTimeRange } from '../utils';
+import { timeWindows } from '../constants';
+
+const requestLogsUntilData = params =>
   backOff((next, stop) => {
-    Api.getPodLogs({ projectPath, environmentId, podName })
+    Api.getPodLogs(params)
       .then(res => {
         if (res.status === httpStatusCodes.ACCEPTED) {
           next();
@@ -21,14 +24,31 @@ const requestLogsUntilData = ({ projectPath, environmentId, podName }) =>
       });
   });
 
-export const setInitData = ({ dispatch, commit }, { projectPath, environmentId, podName }) => {
-  commit(types.SET_PROJECT_ENVIRONMENT, { projectPath, environmentId });
+export const setInitData = ({ dispatch, commit }, { projectPath, environmentName, podName }) => {
+  commit(types.SET_PROJECT_PATH, projectPath);
+  commit(types.SET_PROJECT_ENVIRONMENT, environmentName);
   commit(types.SET_CURRENT_POD_NAME, podName);
   dispatch('fetchLogs');
 };
 
 export const showPodLogs = ({ dispatch, commit }, podName) => {
   commit(types.SET_CURRENT_POD_NAME, podName);
+  dispatch('fetchLogs');
+};
+
+export const setSearch = ({ dispatch, commit }, searchQuery) => {
+  commit(types.SET_SEARCH, searchQuery);
+  dispatch('fetchLogs');
+};
+
+export const setTimeWindow = ({ dispatch, commit }, timeWindowKey) => {
+  commit(types.SET_TIME_WINDOW, timeWindowKey);
+  dispatch('fetchLogs');
+};
+
+export const showEnvironment = ({ dispatch, commit }, environmentName) => {
+  commit(types.SET_PROJECT_ENVIRONMENT, environmentName);
+  commit(types.SET_CURRENT_POD_NAME, null);
   dispatch('fetchLogs');
 };
 
@@ -49,16 +69,26 @@ export const fetchEnvironments = ({ commit }, environmentsPath) => {
 export const fetchLogs = ({ commit, state }) => {
   const params = {
     projectPath: state.projectPath,
-    environmentId: state.environments.current,
+    environmentName: state.environments.current,
     podName: state.pods.current,
+    search: state.search,
   };
+
+  if (state.timeWindow.current) {
+    const { current } = state.timeWindow;
+    const { start, end } = getTimeRange(timeWindows[current].seconds);
+
+    params.start = start;
+    params.end = end;
+  }
 
   commit(types.REQUEST_PODS_DATA);
   commit(types.REQUEST_LOGS_DATA);
 
   return requestLogsUntilData(params)
     .then(({ data }) => {
-      const { pod_name, pods, logs } = data;
+      const { pod_name, pods, logs, enable_advanced_querying } = data;
+      commit(types.ENABLE_ADVANCED_QUERYING, enable_advanced_querying);
       commit(types.SET_CURRENT_POD_NAME, pod_name);
 
       commit(types.RECEIVE_PODS_DATA_SUCCESS, pods);

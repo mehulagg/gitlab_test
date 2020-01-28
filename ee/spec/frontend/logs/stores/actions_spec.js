@@ -1,31 +1,49 @@
 import MockAdapter from 'axios-mock-adapter';
-import axios from '~/lib/utils/axios_utils';
 
 import testAction from 'helpers/vuex_action_helper';
 import * as types from 'ee/logs/stores/mutation_types';
 import logsPageState from 'ee/logs/stores/state';
-import { setInitData, showPodLogs, fetchEnvironments, fetchLogs } from 'ee/logs/stores/actions';
+import {
+  setInitData,
+  setSearch,
+  showPodLogs,
+  fetchEnvironments,
+  fetchLogs,
+} from 'ee/logs/stores/actions';
+import { getTimeRange } from 'ee/logs/utils';
+import { timeWindows } from 'ee/logs/constants';
 
+import axios from '~/lib/utils/axios_utils';
 import flash from '~/flash';
 
 import {
   mockProjectPath,
-  mockEnvId,
   mockPodName,
   mockEnvironmentsEndpoint,
   mockEnvironments,
   mockPods,
-  mockLines,
+  mockLogsResult,
+  mockEnvName,
+  mockSearch,
+  mockEnableAdvancedQuerying,
 } from '../mock_data';
 
 jest.mock('~/flash');
+jest.mock('ee/logs/utils');
 
 describe('Logs Store actions', () => {
   let state;
   let mock;
 
+  const mockThirtyMinutesSeconds = 3600;
+  const mockThirtyMinutes = {
+    start: '2020-01-09T18:06:20.000Z',
+    end: '2020-01-09T18:36:20.000Z',
+  };
+
   beforeEach(() => {
     state = logsPageState();
+    getTimeRange.mockReturnValue(mockThirtyMinutes);
   });
 
   afterEach(() => {
@@ -36,15 +54,26 @@ describe('Logs Store actions', () => {
     it('should commit environment and pod name mutation', done => {
       testAction(
         setInitData,
-        { projectPath: mockProjectPath, environmentId: mockEnvId, podName: mockPodName },
+        { projectPath: mockProjectPath, environmentName: mockEnvName, podName: mockPodName },
         state,
         [
-          {
-            type: types.SET_PROJECT_ENVIRONMENT,
-            payload: { projectPath: mockProjectPath, environmentId: mockEnvId },
-          },
+          { type: types.SET_PROJECT_PATH, payload: mockProjectPath },
+          { type: types.SET_PROJECT_ENVIRONMENT, payload: mockEnvName },
           { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
         ],
+        [{ type: 'fetchLogs' }],
+        done,
+      );
+    });
+  });
+
+  describe('setSearch', () => {
+    it('should commit search mutation', done => {
+      testAction(
+        setSearch,
+        mockSearch,
+        state,
+        [{ type: types.SET_SEARCH, payload: mockSearch }],
         [{ type: 'fetchLogs' }],
         done,
       );
@@ -114,16 +143,21 @@ describe('Logs Store actions', () => {
 
     it('should commit logs and pod data when there is pod name defined', done => {
       state.projectPath = mockProjectPath;
-      state.environments.current = mockEnvId;
+      state.environments.current = mockEnvName;
       state.pods.current = mockPodName;
 
-      const endpoint = `/${mockProjectPath}/-/environments/${mockEnvId}/pods/${mockPodName}/containers/logs.json`;
+      const endpoint = `/${mockProjectPath}/-/logs/k8s.json`;
 
-      mock.onGet(endpoint).reply(200, {
-        pod_name: mockPodName,
-        pods: mockPods,
-        logs: mockLines,
-      });
+      mock
+        .onGet(endpoint, {
+          params: { environment_name: mockEnvName, pod_name: mockPodName, ...mockThirtyMinutes },
+        })
+        .reply(200, {
+          pod_name: mockPodName,
+          pods: mockPods,
+          logs: mockLogsResult,
+          enable_advanced_querying: mockEnableAdvancedQuerying,
+        });
 
       mock.onGet(endpoint).replyOnce(202); // mock reactive cache
 
@@ -134,9 +168,104 @@ describe('Logs Store actions', () => {
         [
           { type: types.REQUEST_PODS_DATA },
           { type: types.REQUEST_LOGS_DATA },
+          { type: types.ENABLE_ADVANCED_QUERYING, payload: mockEnableAdvancedQuerying },
           { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
           { type: types.RECEIVE_PODS_DATA_SUCCESS, payload: mockPods },
-          { type: types.RECEIVE_LOGS_DATA_SUCCESS, payload: mockLines },
+          { type: types.RECEIVE_LOGS_DATA_SUCCESS, payload: mockLogsResult },
+        ],
+        [],
+        () => {
+          expect(getTimeRange).toHaveBeenCalledWith(mockThirtyMinutesSeconds);
+          done();
+        },
+      );
+    });
+
+    it('should commit logs and pod data when there is pod name defined and a non-default date range', done => {
+      const mockOneDaySeconds = timeWindows.oneDay.seconds;
+      const mockOneDay = {
+        start: '2020-01-08T18:41:39.000Z',
+        end: '2020-01-09T18:41:39.000Z',
+      };
+
+      getTimeRange.mockReturnValueOnce(mockOneDay);
+
+      state.projectPath = mockProjectPath;
+      state.environments.current = mockEnvName;
+      state.pods.current = mockPodName;
+      state.timeWindow.current = 'oneDay';
+
+      const endpoint = `/${mockProjectPath}/-/logs/k8s.json`;
+
+      mock
+        .onGet(endpoint, {
+          params: { environment_name: mockEnvName, pod_name: mockPodName, ...mockOneDay },
+        })
+        .reply(200, {
+          pod_name: mockPodName,
+          pods: mockPods,
+          enable_advanced_querying: true,
+          logs: mockLogsResult,
+        });
+
+      testAction(
+        fetchLogs,
+        null,
+        state,
+        [
+          { type: types.REQUEST_PODS_DATA },
+          { type: types.REQUEST_LOGS_DATA },
+          { type: types.ENABLE_ADVANCED_QUERYING, payload: true },
+          { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
+          { type: types.RECEIVE_PODS_DATA_SUCCESS, payload: mockPods },
+          { type: types.RECEIVE_LOGS_DATA_SUCCESS, payload: mockLogsResult },
+        ],
+        [],
+        () => {
+          expect(getTimeRange).toHaveBeenCalledWith(mockOneDaySeconds);
+          done();
+        },
+      );
+    });
+
+    it('should commit logs and pod data when there is pod name and search', done => {
+      state.projectPath = mockProjectPath;
+      state.environments.current = mockEnvName;
+      state.pods.current = mockPodName;
+      state.advancedFeaturesEnabled = true;
+      state.search = mockSearch;
+
+      const endpoint = `/${mockProjectPath}/-/logs/k8s.json`;
+
+      mock
+        .onGet(endpoint, {
+          params: {
+            environment_name: mockEnvName,
+            pod_name: mockPodName,
+            search: mockSearch,
+            ...mockThirtyMinutes,
+          },
+        })
+        .reply(200, {
+          pod_name: mockPodName,
+          pods: mockPods,
+          logs: mockLogsResult,
+          enable_advanced_querying: mockEnableAdvancedQuerying,
+        });
+
+      mock.onGet(endpoint).replyOnce(202); // mock reactive cache
+
+      testAction(
+        fetchLogs,
+        null,
+        state,
+        [
+          { type: types.REQUEST_PODS_DATA },
+          { type: types.REQUEST_LOGS_DATA },
+          { type: types.ENABLE_ADVANCED_QUERYING, payload: mockEnableAdvancedQuerying },
+          { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
+          { type: types.RECEIVE_PODS_DATA_SUCCESS, payload: mockPods },
+          { type: types.RECEIVE_LOGS_DATA_SUCCESS, payload: mockLogsResult },
         ],
         [],
         done,
@@ -145,15 +274,18 @@ describe('Logs Store actions', () => {
 
     it('should commit logs and pod data when no pod name defined', done => {
       state.projectPath = mockProjectPath;
-      state.environments.current = mockEnvId;
+      state.environments.current = mockEnvName;
 
-      const endpoint = `/${mockProjectPath}/-/environments/${mockEnvId}/pods/containers/logs.json`;
+      const endpoint = `/${mockProjectPath}/-/logs/k8s.json`;
 
-      mock.onGet(endpoint).reply(200, {
-        pod_name: mockPodName,
-        pods: mockPods,
-        logs: mockLines,
-      });
+      mock
+        .onGet(endpoint, { params: { environment_name: mockEnvName, ...mockThirtyMinutes } })
+        .reply(200, {
+          pod_name: mockPodName,
+          pods: mockPods,
+          logs: mockLogsResult,
+          enable_advanced_querying: mockEnableAdvancedQuerying,
+        });
       mock.onGet(endpoint).replyOnce(202); // mock reactive cache
 
       testAction(
@@ -163,9 +295,10 @@ describe('Logs Store actions', () => {
         [
           { type: types.REQUEST_PODS_DATA },
           { type: types.REQUEST_LOGS_DATA },
+          { type: types.ENABLE_ADVANCED_QUERYING, payload: mockEnableAdvancedQuerying },
           { type: types.SET_CURRENT_POD_NAME, payload: mockPodName },
           { type: types.RECEIVE_PODS_DATA_SUCCESS, payload: mockPods },
-          { type: types.RECEIVE_LOGS_DATA_SUCCESS, payload: mockLines },
+          { type: types.RECEIVE_LOGS_DATA_SUCCESS, payload: mockLogsResult },
         ],
         [],
         done,
@@ -174,9 +307,9 @@ describe('Logs Store actions', () => {
 
     it('should commit logs and pod errors when backend fails', done => {
       state.projectPath = mockProjectPath;
-      state.environments.current = mockEnvId;
+      state.environments.current = mockEnvName;
 
-      const endpoint = `/${mockProjectPath}/-/environments/${mockEnvId}/pods/containers/logs.json`;
+      const endpoint = `/${mockProjectPath}/logs.json?environment_name=${mockEnvName}`;
       mock.onGet(endpoint).replyOnce(500);
 
       testAction(

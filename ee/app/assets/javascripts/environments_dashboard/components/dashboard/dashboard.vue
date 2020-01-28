@@ -2,11 +2,12 @@
 import _ from 'underscore';
 import { mapState, mapActions } from 'vuex';
 import {
-  GlLoadingIcon,
   GlModal,
   GlModalDirective,
   GlButton,
   GlDashboardSkeleton,
+  GlSprintf,
+  GlLink,
 } from '@gitlab/ui';
 import { s__ } from '~/locale';
 import ProjectSelector from '~/vue_shared/components/project_selector/project_selector.vue';
@@ -32,8 +33,9 @@ export default {
   components: {
     GlModal,
     GlDashboardSkeleton,
-    GlLoadingIcon,
     GlButton,
+    GlSprintf,
+    GlLink,
     ProjectSelector,
     Environment,
     ProjectHeader,
@@ -56,6 +58,10 @@ export default {
       required: true,
     },
     emptyDashboardHelpPath: {
+      type: String,
+      required: true,
+    },
+    environmentsDashboardHelpPath: {
       type: String,
       required: true,
     },
@@ -151,6 +157,21 @@ export default {
         {{ $options.addProjectsButton }}
       </gl-button>
     </div>
+    <p class="mt-2 mb-4 js-page-limits-message">
+      <gl-sprintf
+        :message="
+          s__(
+            'EnvironmentsDashboard|This dashboard displays a maximum of 7 projects and 3 environments per project. %{readMoreLink}',
+          )
+        "
+      >
+        <template #readMoreLink>
+          <gl-link :href="environmentsDashboardHelpPath" target="_blank" rel="noopener noreferrer">
+            {{ s__('EnvironmentsDashboard|Read more.') }}
+          </gl-link>
+        </template>
+      </gl-sprintf>
+    </p>
     <div class="prepend-top-default">
       <div v-if="projects.length" class="dashboard-cards">
         <div v-for="project in projects" :key="project.id" class="column prepend-top-default">

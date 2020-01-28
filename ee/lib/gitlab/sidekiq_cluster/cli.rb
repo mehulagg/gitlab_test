@@ -7,11 +7,17 @@ require 'time'
 module Gitlab
   module SidekiqCluster
     class CLI
+      CHECK_TERMINATE_INTERVAL_SECONDS = 1
+      # How long to wait in total when asking for a clean termination
+      # Sidekiq default to self-terminate is 25s
+      TERMINATE_TIMEOUT_SECONDS = 30
+
       CommandError = Class.new(StandardError)
 
       def initialize(log_output = STDERR)
         # As recommended by https://github.com/mperham/sidekiq/wiki/Advanced-Options#concurrency
         @max_concurrency = 50
+        @min_concurrency = 0
         @environment = ENV['RAILS_ENV'] || 'development'
         @pid = nil
         @interval = 5
@@ -37,10 +43,10 @@ module Gitlab
 
         queue_groups = SidekiqCluster.parse_queues(argv)
 
-        all_queues = SidekiqConfig.worker_queues(@rails_path)
+        all_queues = SidekiqConfig::CliMethods.worker_queues(@rails_path)
 
         queue_groups.map! do |queues|
-          SidekiqConfig.expand_queues(queues, all_queues)
+          SidekiqConfig::CliMethods.expand_queues(queues, all_queues)
         end
 
         if @negate_queues
@@ -49,8 +55,14 @@ module Gitlab
 
         @logger.info("Starting cluster with #{queue_groups.length} processes")
 
-        @processes = SidekiqCluster.start(queue_groups, env: @environment, directory: @rails_path,
-          max_concurrency: @max_concurrency, dryrun: @dryrun)
+        @processes = SidekiqCluster.start(
+          queue_groups,
+          env: @environment,
+          directory: @rails_path,
+          max_concurrency: @max_concurrency,
+          min_concurrency: @min_concurrency,
+          dryrun: @dryrun
+        )
 
         return if @dryrun
 
@@ -63,10 +75,30 @@ module Gitlab
         SidekiqCluster.write_pid(@pid) if @pid
       end
 
+      def monotonic_time
+        Process.clock_gettime(Process::CLOCK_MONOTONIC, :float_second)
+      end
+
+      def continue_waiting?(deadline)
+        SidekiqCluster.any_alive?(@processes) && monotonic_time < deadline
+      end
+
+      def hard_stop_stuck_pids
+        SidekiqCluster.signal_processes(SidekiqCluster.pids_alive(@processes), :KILL)
+      end
+
+      def wait_for_termination
+        deadline = monotonic_time + TERMINATE_TIMEOUT_SECONDS
+        sleep(CHECK_TERMINATE_INTERVAL_SECONDS) while continue_waiting?(deadline)
+
+        hard_stop_stuck_pids
+      end
+
       def trap_signals
         SidekiqCluster.trap_terminate do |signal|
           @alive = false
           SidekiqCluster.signal_processes(@processes, signal)
+          wait_for_termination
         end
 
         SidekiqCluster.trap_forward do |signal|
@@ -101,6 +133,10 @@ module Gitlab
 
           opt.on('-m', '--max-concurrency INT', 'Maximum threads to use with Sidekiq (default: 50, 0 to disable)') do |int|
             @max_concurrency = int.to_i
+          end
+
+          opt.on('--min-concurrency INT', 'Minimum threads to use with Sidekiq (default: 0)') do |int|
+            @min_concurrency = int.to_i
           end
 
           opt.on('-e', '--environment ENV', 'The application environment') do |env|

@@ -182,17 +182,17 @@ describe Gitlab::Gpg do
       expected_tmp_dir = nil
 
       expect(described_class).to receive(:cleanup_tmp_dir).and_raise(expected_exception)
-      allow(Gitlab::Sentry).to receive(:track_exception)
+      allow(Gitlab::ErrorTracking).to receive(:track_and_raise_for_dev_exception)
 
       described_class.using_tmp_keychain do
         expected_tmp_dir = described_class.current_home_dir
         FileUtils.touch(File.join(expected_tmp_dir, 'dummy.file'))
       end
 
-      expect(Gitlab::Sentry).to have_received(:track_exception).with(
+      expect(Gitlab::ErrorTracking).to have_received(:track_and_raise_for_dev_exception).with(
         expected_exception,
         issue_url: 'https://gitlab.com/gitlab-org/gitlab/issues/20918',
-        extra: { tmp_dir: expected_tmp_dir, contents: ['dummy.file'] }
+        tmp_dir: expected_tmp_dir, contents: ['dummy.file']
       )
     end
 
@@ -208,8 +208,8 @@ describe Gitlab::Gpg do
         allow(FileUtils).to receive(:remove_entry).with(any_args).and_call_original
       end
 
-      it "tries for #{seconds}" do
-        expect(Retriable).to receive(:retriable).with(a_hash_including(max_elapsed_time: seconds))
+      it "tries for #{seconds} or 15 times" do
+        expect(Retriable).to receive(:retriable).with(a_hash_including(max_elapsed_time: seconds, tries: 15))
 
         described_class.using_tmp_keychain {}
       end
@@ -236,7 +236,7 @@ describe Gitlab::Gpg do
 
     context 'when running in Sidekiq' do
       before do
-        allow(Sidekiq).to receive(:server?).and_return(true)
+        allow(Gitlab::Runtime).to receive(:sidekiq?).and_return(true)
       end
 
       it_behaves_like 'multiple deletion attempts of the tmp-dir', described_class::BG_CLEANUP_RUNTIME_S

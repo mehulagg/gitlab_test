@@ -117,13 +117,13 @@ export default {
   <section v-else>
     <dependency-list-incomplete-alert
       v-if="isIncomplete && !isIncompleteAlertDismissed"
-      @close="dismissIncompleteListAlert"
+      @dismiss="dismissIncompleteListAlert"
     />
 
     <dependency-list-job-failed-alert
       v-if="isJobFailed && !isJobFailedAlertDismissed"
       :job-path="reportInfo.jobPath"
-      @close="dismissJobFailedAlert"
+      @dismiss="dismissJobFailedAlert"
     />
 
     <header class="my-3">
@@ -159,7 +159,7 @@ export default {
         </template>
         <paginated-dependencies-table :namespace="listType.namespace" />
       </gl-tab>
-      <template #tabs>
+      <template #tabs-end>
         <li class="d-flex align-items-center ml-sm-auto">
           <dependencies-actions :namespace="currentList" class="my-2 my-sm-0" />
         </li>

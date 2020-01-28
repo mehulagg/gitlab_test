@@ -5,13 +5,12 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
   include ApiHelpers
   include HttpIOHelpers
 
-  let(:project) { create(:project, :public) }
+  let(:project) { create(:project, :public, :repository) }
   let(:pipeline) { create(:ci_pipeline, project: project) }
   let(:user) { create(:user) }
 
   before do
     stub_feature_flags(ci_enable_live_trace: true)
-    stub_feature_flags(job_log_json: false)
     stub_not_protect_default_branch
   end
 
@@ -512,7 +511,7 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
 
     def get_show_json
       expect { get_show(id: job.id, format: :json) }
-        .to change { Gitlab::GitalyClient.get_request_count }.by(1) # ListCommitsByOid
+        .to change { Gitlab::GitalyClient.get_request_count }.by_at_most(2)
     end
 
     def get_show(**extra_params)
@@ -527,7 +526,6 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
 
   describe 'GET trace.json' do
     before do
-      stub_feature_flags(job_log_json: true)
       get_trace
     end
 
@@ -557,6 +555,12 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
         expect(json_response['id']).to eq job.id
         expect(json_response['status']).to eq job.status
         expect(json_response['lines']).to eq [{ 'content' => [{ 'text' => 'BUILD TRACE' }], 'offset' => 0 }]
+      end
+
+      it 'sets being-watched flag for the job' do
+        expect(response).to have_gitlab_http_status(:ok)
+
+        expect(job.trace.being_watched?).to be(true)
       end
     end
 
@@ -634,6 +638,7 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
 
   describe 'GET legacy trace.json' do
     before do
+      stub_feature_flags(job_log_json: false)
       get_trace
     end
 
@@ -1178,7 +1183,7 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
 
           get_terminal_websocket(id: job.id)
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
           expect(response.headers["Content-Type"]).to eq(Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE)
           expect(response.body).to eq('{"workhorse":"response"}')
         end
@@ -1188,7 +1193,7 @@ describe Projects::JobsController, :clean_gitlab_redis_shared_state do
         it 'returns 404' do
           get_terminal_websocket(id: 1234)
 
-          expect(response).to have_gitlab_http_status(404)
+          expect(response).to have_gitlab_http_status(:not_found)
         end
       end
     end

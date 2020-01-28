@@ -29,7 +29,7 @@ module Gitlab
     PEM_REGEX = /\-+BEGIN CERTIFICATE\-+.+?\-+END CERTIFICATE\-+/m.freeze
     SERVER_VERSION_FILE = 'GITALY_SERVER_VERSION'
     MAXIMUM_GITALY_CALLS = 30
-    CLIENT_NAME = (Sidekiq.server? ? 'gitlab-sidekiq' : 'gitlab-web').freeze
+    CLIENT_NAME = (Gitlab::Runtime.sidekiq? ? 'gitlab-sidekiq' : 'gitlab-web').freeze
     GITALY_METADATA_FILENAME = '.gitaly-metadata'
 
     MUTEX = Mutex.new
@@ -67,8 +67,7 @@ module Gitlab
         File.read(cert_file).scan(PEM_REGEX).map do |cert|
           OpenSSL::X509::Certificate.new(cert).to_pem
         rescue OpenSSL::OpenSSLError => e
-          Rails.logger.error "Could not load certificate #{cert_file} #{e}" # rubocop:disable Gitlab/RailsLogger
-          Gitlab::Sentry.track_exception(e, extra: { cert_file: cert_file })
+          Gitlab::ErrorTracking.track_and_raise_for_dev_exception(e, cert_file: cert_file)
           nil
         end.compact
       end.uniq.join("\n")
@@ -161,6 +160,7 @@ module Gitlab
 
     def self.execute(storage, service, rpc, request, remote_storage:, timeout:)
       enforce_gitaly_request_limits(:call)
+      Gitlab::RequestContext.instance.ensure_deadline_not_exceeded!
 
       kwargs = request_kwargs(storage, timeout: timeout.to_f, remote_storage: remote_storage)
       kwargs = yield(kwargs) if block_given?
@@ -180,7 +180,7 @@ module Gitlab
       self.query_time += duration
       if Gitlab::PerformanceBar.enabled_for_request?
         add_call_details(feature: "#{service}##{rpc}", duration: duration, request: request_hash, rpc: rpc,
-                         backtrace: Gitlab::Profiler.clean_backtrace(caller))
+                         backtrace: Gitlab::BacktraceCleaner.clean_backtrace(caller))
       end
     end
 
@@ -235,11 +235,27 @@ module Gitlab
       metadata['gitaly-session-id'] = session_id
       metadata.merge!(Feature::Gitaly.server_feature_flags)
 
-      result = { metadata: metadata }
+      deadline_info = request_deadline(timeout)
+      metadata.merge!(deadline_info.slice(:deadline_type))
 
-      result[:deadline] = real_time + timeout if timeout > 0
-      result
+      { metadata: metadata, deadline: deadline_info[:deadline] }
     end
+
+    def self.request_deadline(timeout)
+      # timeout being 0 means the request is allowed to run indefinitely.
+      # We can't allow that inside a request, but this won't count towards Gitaly
+      # error budgets
+      regular_deadline = real_time.to_i + timeout if timeout > 0
+
+      return { deadline: regular_deadline } if Sidekiq.server?
+      return { deadline: regular_deadline } unless Gitlab::RequestContext.instance.request_deadline
+
+      limited_deadline = [regular_deadline, Gitlab::RequestContext.instance.request_deadline].compact.min
+      limited = limited_deadline < regular_deadline
+
+      { deadline: limited_deadline, deadline_type: limited ? "limited" : "regular" }
+    end
+    private_class_method :request_deadline
 
     def self.session_id
       Gitlab::SafeRequestStore[:gitaly_session_id] ||= SecureRandom.uuid
@@ -383,15 +399,11 @@ module Gitlab
     end
 
     def self.long_timeout
-      if web_app_server?
+      if Gitlab::Runtime.web_server?
         default_timeout
       else
         6.hours
       end
-    end
-
-    def self.web_app_server?
-      defined?(::Unicorn) || defined?(::Puma)
     end
 
     def self.storage_metadata_file_path(storage)
@@ -420,10 +432,7 @@ module Gitlab
     end
 
     def self.filesystem_id(storage)
-      response = Gitlab::GitalyClient::ServerService.new(storage).info
-      storage_status = response.storage_statuses.find { |status| status.storage_name == storage }
-
-      storage_status&.filesystem_id
+      Gitlab::GitalyClient::ServerService.new(storage).storage_info&.filesystem_id
     end
 
     def self.filesystem_id_from_disk(storage)
@@ -432,6 +441,14 @@ module Gitlab
       metadata_hash['gitaly_filesystem_id']
     rescue Errno::ENOENT, Errno::EACCES, JSON::ParserError
       nil
+    end
+
+    def self.filesystem_disk_available(storage)
+      Gitlab::GitalyClient::ServerService.new(storage).storage_disk_statistics&.available
+    end
+
+    def self.filesystem_disk_used(storage)
+      Gitlab::GitalyClient::ServerService.new(storage).storage_disk_statistics&.used
     end
 
     def self.timeout(timeout_name)
@@ -443,7 +460,7 @@ module Gitlab
     def self.count_stack
       return unless Gitlab::SafeRequestStore.active?
 
-      stack_string = Gitlab::Profiler.clean_backtrace(caller).drop(1).join("\n")
+      stack_string = Gitlab::BacktraceCleaner.clean_backtrace(caller).drop(1).join("\n")
 
       Gitlab::SafeRequestStore[:stack_counter] ||= Hash.new
 

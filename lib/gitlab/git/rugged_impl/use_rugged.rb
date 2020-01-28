@@ -8,7 +8,17 @@ module Gitlab
           feature = Feature.get(feature_key)
           return feature.enabled? if Feature.persisted?(feature)
 
+          # Disable Rugged auto-detect(can_use_disk?) when Puma threads>1
+          # https://gitlab.com/gitlab-org/gitlab/issues/119326
+          return false if running_puma_with_multiple_threads?
+
           Gitlab::GitalyClient.can_use_disk?(repo.storage)
+        end
+
+        def running_puma_with_multiple_threads?
+          return false unless Gitlab::Runtime.puma?
+
+          ::Puma.respond_to?(:cli_config) && ::Puma.cli_config.options[:max_threads] > 1
         end
 
         def execute_rugged_call(method_name, *args)
@@ -27,7 +37,7 @@ module Gitlab
                 feature: method_name,
                 args: args,
                 duration: duration,
-                backtrace: Gitlab::Profiler.clean_backtrace(caller))
+                backtrace: Gitlab::BacktraceCleaner.clean_backtrace(caller))
             end
 
             result

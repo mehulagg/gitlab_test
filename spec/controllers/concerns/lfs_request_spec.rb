@@ -5,9 +5,9 @@ require 'spec_helper'
 describe LfsRequest do
   include ProjectForksHelper
 
-  controller(Projects::GitHttpClientController) do
+  controller(Repositories::GitHttpClientController) do
     # `described_class` is not available in this context
-    include LfsRequest # rubocop:disable RSpec/DescribedClass
+    include LfsRequest
 
     def show
       storage_project

@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import { each } from 'lodash';
 import { trimText } from 'helpers/text_helper';
 import { shallowMount } from '@vue/test-utils';
 import { GlLink } from '@gitlab/ui';
@@ -26,8 +26,6 @@ describe('User Avatar Link Component', () => {
         ...defaultProps,
         ...props,
       },
-      sync: false,
-      attachToDocument: true,
     });
   };
 
@@ -60,7 +58,7 @@ describe('User Avatar Link Component', () => {
   });
 
   it('should return necessary props as defined', () => {
-    _.each(defaultProps, (val, key) => {
+    each(defaultProps, (val, key) => {
       expect(wrapper.vm[key]).toBeDefined();
     });
   });
@@ -99,9 +97,9 @@ describe('User Avatar Link Component', () => {
     });
 
     it('should render text tooltip for <span>', () => {
-      expect(
-        wrapper.find('.js-user-avatar-link-username').attributes('data-original-title'),
-      ).toEqual(defaultProps.tooltipText);
+      expect(wrapper.find('.js-user-avatar-link-username').attributes('title')).toEqual(
+        defaultProps.tooltipText,
+      );
     });
 
     it('should render text tooltip placement for <span>', () => {

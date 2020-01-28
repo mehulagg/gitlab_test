@@ -1,5 +1,6 @@
 import { shallowMount } from '@vue/test-utils';
 import { GlButton } from '@gitlab/ui';
+import LogControlButtons from 'ee/logs/components/log_control_buttons.vue';
 import {
   canScroll,
   isScrolledToTop,
@@ -7,8 +8,6 @@ import {
   scrollDown,
   scrollUp,
 } from '~/lib/utils/scroll_utils';
-
-import LogControlButtons from 'ee/logs/components/log_control_buttons.vue';
 
 jest.mock('~/lib/utils/scroll_utils');
 
@@ -20,10 +19,7 @@ describe('LogControlButtons', () => {
   const findRefreshBtn = () => wrapper.find('.js-refresh-log');
 
   const initWrapper = () => {
-    wrapper = shallowMount(LogControlButtons, {
-      attachToDocument: true,
-      sync: false,
-    });
+    wrapper = shallowMount(LogControlButtons);
   };
 
   afterEach(() => {
@@ -43,14 +39,17 @@ describe('LogControlButtons', () => {
     expect(findRefreshBtn().is(GlButton)).toBe(true);
   });
 
-  it('emits a `refresh` event on click on `refersh` button', () => {
+  it('emits a `refresh` event on click on `refresh` button', () => {
     initWrapper();
 
-    expect(wrapper.emitted('refresh')).toHaveLength(0);
+    // An `undefined` value means no event was emitted
+    expect(wrapper.emitted('refresh')).toBe(undefined);
 
     findRefreshBtn().vm.$emit('click');
 
-    expect(wrapper.emitted('refresh')).toHaveLength(1);
+    return wrapper.vm.$nextTick().then(() => {
+      expect(wrapper.emitted('refresh')).toHaveLength(1);
+    });
   });
 
   describe('when scrolling actions are enabled', () => {

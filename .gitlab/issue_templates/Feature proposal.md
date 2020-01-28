@@ -6,6 +6,7 @@
 
 <!-- Who will use this feature? If known, include any of the following: types of users (e.g. Developer), personas, or specific company roles (e.g. Release Manager). It's okay to write "Unknown" and fill this field in later.
 
+* [Rachel (Release Manager)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#rachel-release-manager)
 * [Parker (Product Manager)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#parker-product-manager)
 * [Delaney (Development Team Lead)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#delaney-development-team-lead)
 * [Sasha (Software Developer)](https://about.gitlab.com/handbook/marketing/product-marketing/roles-personas/#sasha-software-developer)
@@ -35,9 +36,16 @@ Personas are described at https://about.gitlab.com/handbook/marketing/product-ma
 Add all known Documentation Requirements here, per https://docs.gitlab.com/ee/development/documentation/feature-change-workflow.html#documentation-requirements
 If this feature requires changing permissions, this document https://docs.gitlab.com/ee/user/permissions.html must be updated accordingly. -->
 
-### Testing
+### Availability & Testing
 
-<!-- What risks does this change pose? How might it affect the quality of the product? What additional test coverage or changes to tests will be needed? Will it require cross-browser testing? See the test engineering process for further help: https://about.gitlab.com/handbook/engineering/quality/test-engineering/ -->
+<!-- What risks does this change pose to our availability? How might it affect the quality of the product? What additional test coverage or changes to tests will be needed? Will it require cross-browser testing? 
+
+Please list the test areas (unit, integration and end-to-end) that needs to be added or updated to ensure that this feature will work as intended. Please use the list below as guidance.
+* Unit test changes
+* Integration test changes
+* End-to-end test change
+
+See the test engineering planning process and reach out to your counterpart Software Engineer in Test for assistance: https://about.gitlab.com/handbook/engineering/quality/test-engineering/#test-planning -->
 
 ### What does success look like, and how can we measure that?
 

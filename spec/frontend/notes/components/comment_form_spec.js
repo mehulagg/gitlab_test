@@ -37,8 +37,6 @@ describe('issue_comment_form component', () => {
         noteableType,
       },
       store,
-      sync: false,
-      attachToDocument: true,
     });
   };
 
@@ -50,7 +48,6 @@ describe('issue_comment_form component', () => {
   afterEach(() => {
     axiosMock.restore();
     wrapper.destroy();
-    jest.clearAllMocks();
   });
 
   describe('user is logged in', () => {
@@ -90,7 +87,7 @@ describe('issue_comment_form component', () => {
         expect(wrapper.vm.toggleIssueState).toHaveBeenCalled();
       });
 
-      it('should disable action button whilst submitting', done => {
+      it('should disable action button while submitting', done => {
         const saveNotePromise = Promise.resolve();
         wrapper.vm.note = 'hello world';
         jest.spyOn(wrapper.vm, 'saveNote').mockReturnValue(saveNotePromise);

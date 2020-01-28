@@ -4,11 +4,13 @@ import * as types from 'ee/logs/stores/mutation_types';
 import logsPageState from 'ee/logs/stores/state';
 import {
   mockProjectPath,
-  mockEnvId,
+  mockEnvName,
   mockEnvironments,
   mockPods,
   mockPodName,
-  mockLines,
+  mockLogsResult,
+  mockSearch,
+  mockEnableAdvancedQuerying,
 } from '../mock_data';
 
 describe('Logs Store Mutations', () => {
@@ -25,13 +27,21 @@ describe('Logs Store Mutations', () => {
   });
 
   describe('SET_PROJECT_ENVIRONMENT', () => {
-    it('sets the logs json endpoint', () => {
-      mutations[types.SET_PROJECT_ENVIRONMENT](state, {
-        projectPath: mockProjectPath,
-        environmentId: mockEnvId,
-      });
+    it('sets the project path', () => {
+      mutations[types.SET_PROJECT_PATH](state, mockProjectPath);
       expect(state.projectPath).toEqual(mockProjectPath);
-      expect(state.environments.current).toEqual(mockEnvId);
+    });
+
+    it('sets the environment', () => {
+      mutations[types.SET_PROJECT_ENVIRONMENT](state, mockEnvName);
+      expect(state.environments.current).toEqual(mockEnvName);
+    });
+  });
+
+  describe('SET_SEARCH', () => {
+    it('sets the search', () => {
+      mutations[types.SET_SEARCH](state, mockSearch);
+      expect(state.search).toEqual(mockSearch);
     });
   });
 
@@ -82,11 +92,11 @@ describe('Logs Store Mutations', () => {
 
   describe('RECEIVE_LOGS_DATA_SUCCESS', () => {
     it('receives logs lines', () => {
-      mutations[types.RECEIVE_LOGS_DATA_SUCCESS](state, mockLines);
+      mutations[types.RECEIVE_LOGS_DATA_SUCCESS](state, mockLogsResult);
 
       expect(state.logs).toEqual(
         expect.objectContaining({
-          lines: mockLines,
+          lines: mockLogsResult,
           isLoading: false,
           isComplete: true,
         }),
@@ -115,6 +125,26 @@ describe('Logs Store Mutations', () => {
       expect(state.pods.current).toEqual(mockPodName);
     });
   });
+
+  describe('ENABLE_ADVANCED_QUERYING', () => {
+    it('set advanced querying toggle', () => {
+      state.enableAdvancedQuerying = !mockEnableAdvancedQuerying;
+
+      mutations[types.ENABLE_ADVANCED_QUERYING](state, mockEnableAdvancedQuerying);
+
+      expect(state.enableAdvancedQuerying).toEqual(mockEnableAdvancedQuerying);
+    });
+  });
+
+  describe('SET_TIME_WINDOW', () => {
+    it('sets a time window Key', () => {
+      const mockKey = 'fourHours';
+      mutations[types.SET_TIME_WINDOW](state, mockKey);
+
+      expect(state.timeWindow.current).toEqual(mockKey);
+    });
+  });
+
   describe('REQUEST_PODS_DATA', () => {
     it('receives log data error and stops loading', () => {
       mutations[types.REQUEST_PODS_DATA](state);

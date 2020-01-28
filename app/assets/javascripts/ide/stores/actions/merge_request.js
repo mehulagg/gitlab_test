@@ -58,7 +58,7 @@ export const getMergeRequestData = (
         })
         .catch(() => {
           dispatch('setErrorMessage', {
-            text: __('An error occurred whilst loading the merge request.'),
+            text: __('An error occurred while loading the merge request.'),
             action: payload =>
               dispatch('getMergeRequestData', payload).then(() =>
                 dispatch('setErrorMessage', null),
@@ -91,7 +91,7 @@ export const getMergeRequestChanges = (
         })
         .catch(() => {
           dispatch('setErrorMessage', {
-            text: __('An error occurred whilst loading the merge request changes.'),
+            text: __('An error occurred while loading the merge request changes.'),
             action: payload =>
               dispatch('getMergeRequestChanges', payload).then(() =>
                 dispatch('setErrorMessage', null),
@@ -125,7 +125,7 @@ export const getMergeRequestVersions = (
         })
         .catch(() => {
           dispatch('setErrorMessage', {
-            text: __('An error occurred whilst loading the merge request version data.'),
+            text: __('An error occurred while loading the merge request version data.'),
             action: payload =>
               dispatch('getMergeRequestVersions', payload).then(() =>
                 dispatch('setErrorMessage', null),
@@ -141,7 +141,7 @@ export const getMergeRequestVersions = (
   });
 
 export const openMergeRequest = (
-  { dispatch, state },
+  { dispatch, state, getters },
   { projectId, targetProjectId, mergeRequestId } = {},
 ) =>
   dispatch('getMergeRequestData', {
@@ -152,17 +152,18 @@ export const openMergeRequest = (
     .then(mr => {
       dispatch('setCurrentBranchId', mr.source_branch);
 
-      // getFiles needs to be called after getting the branch data
-      // since files are fetched using the last commit sha of the branch
       return dispatch('getBranchData', {
         projectId,
         branchId: mr.source_branch,
-      }).then(() =>
-        dispatch('getFiles', {
+      }).then(() => {
+        const branch = getters.findBranch(projectId, mr.source_branch);
+
+        return dispatch('getFiles', {
           projectId,
           branchId: mr.source_branch,
-        }),
-      );
+          ref: branch.commit.id,
+        });
+      });
     })
     .then(() =>
       dispatch('getMergeRequestVersions', {

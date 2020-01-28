@@ -358,6 +358,7 @@ describe API::Groups do
         expect(json_response['two_factor_grace_period']).to eq(group1.two_factor_grace_period)
         expect(json_response['auto_devops_enabled']).to eq(group1.auto_devops_enabled)
         expect(json_response['emails_disabled']).to eq(group1.emails_disabled)
+        expect(json_response['mentions_disabled']).to eq(group1.mentions_disabled)
         expect(json_response['project_creation_level']).to eq('maintainer')
         expect(json_response['subgroup_creation_level']).to eq('maintainer')
         expect(json_response['web_url']).to eq(group1.web_url)
@@ -556,6 +557,7 @@ describe API::Groups do
         expect(json_response['two_factor_grace_period']).to eq(48)
         expect(json_response['auto_devops_enabled']).to eq(nil)
         expect(json_response['emails_disabled']).to eq(nil)
+        expect(json_response['mentions_disabled']).to eq(nil)
         expect(json_response['project_creation_level']).to eq("noone")
         expect(json_response['subgroup_creation_level']).to eq("maintainer")
         expect(json_response['request_access_enabled']).to eq(true)
@@ -1075,8 +1077,9 @@ describe API::Groups do
     let(:project_path) { CGI.escape(project.full_path) }
 
     before do
-      allow_any_instance_of(Projects::TransferService)
-        .to receive(:execute).and_return(true)
+      allow_next_instance_of(Projects::TransferService) do |instance|
+        allow(instance).to receive(:execute).and_return(true)
+      end
     end
 
     context "when authenticated as user" do

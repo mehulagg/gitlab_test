@@ -46,6 +46,7 @@ export const setBaseConfig = ({ commit }, options) => {
     projectPath,
     dismissEndpoint,
     showSuggestPopover,
+    useSingleDiffStyle,
   } = options;
   commit(types.SET_BASE_CONFIG, {
     endpoint,
@@ -54,11 +55,20 @@ export const setBaseConfig = ({ commit }, options) => {
     projectPath,
     dismissEndpoint,
     showSuggestPopover,
+    useSingleDiffStyle,
   });
 };
 
 export const fetchDiffFiles = ({ state, commit }) => {
   const worker = new TreeWorker();
+  const urlParams = {
+    w: state.showWhitespace ? '0' : '1',
+  };
+  let returnData;
+
+  if (state.useSingleDiffStyle) {
+    urlParams.view = state.diffViewType;
+  }
 
   commit(types.SET_LOADING, true);
 
@@ -69,35 +79,51 @@ export const fetchDiffFiles = ({ state, commit }) => {
   });
 
   return axios
-    .get(mergeUrlParams({ w: state.showWhitespace ? '0' : '1' }, state.endpoint))
+    .get(mergeUrlParams(urlParams, state.endpoint))
     .then(res => {
       commit(types.SET_LOADING, false);
+
       commit(types.SET_MERGE_REQUEST_DIFFS, res.data.merge_request_diffs || []);
       commit(types.SET_DIFF_DATA, res.data);
 
       worker.postMessage(state.diffFiles);
 
+      returnData = res.data;
       return Vue.nextTick();
     })
-    .then(handleLocationHash)
+    .then(() => {
+      handleLocationHash();
+      return returnData;
+    })
     .catch(() => worker.terminate());
 };
 
 export const fetchDiffFilesBatch = ({ commit, state }) => {
-  const baseUrl = `${state.endpointBatch}?per_page=${DIFFS_PER_PAGE}`;
-  const url = page => (page ? `${baseUrl}&page=${page}` : baseUrl);
+  const urlParams = {
+    per_page: DIFFS_PER_PAGE,
+    w: state.showWhitespace ? '0' : '1',
+  };
+
+  if (state.useSingleDiffStyle) {
+    urlParams.view = state.diffViewType;
+  }
 
   commit(types.SET_BATCH_LOADING, true);
+  commit(types.SET_RETRIEVING_BATCHES, true);
 
   const getBatch = page =>
     axios
-      .get(url(page))
+      .get(state.endpointBatch, {
+        params: { ...urlParams, page },
+      })
       .then(({ data: { pagination, diff_files } }) => {
         commit(types.SET_DIFF_DATA_BATCH, { diff_files });
         commit(types.SET_BATCH_LOADING, false);
+        if (!pagination.next_page) commit(types.SET_RETRIEVING_BATCHES, false);
         return pagination.next_page;
       })
-      .then(nextPage => nextPage && getBatch(nextPage));
+      .then(nextPage => nextPage && getBatch(nextPage))
+      .catch(() => commit(types.SET_RETRIEVING_BATCHES, false));
 
   return getBatch()
     .then(handleLocationHash)
@@ -126,6 +152,7 @@ export const fetchDiffFilesMeta = ({ commit, state }) => {
 
       prepareDiffData(data);
       worker.postMessage(data.diff_files);
+      return data;
     })
     .catch(() => worker.terminate());
 };
@@ -142,7 +169,10 @@ export const assignDiscussionsToDiff = (
   { commit, state, rootState },
   discussions = rootState.notes.discussions,
 ) => {
-  const diffPositionByLineCode = getDiffPositionByLineCode(state.diffFiles);
+  const diffPositionByLineCode = getDiffPositionByLineCode(
+    state.diffFiles,
+    state.useSingleDiffStyle,
+  );
   const hash = getLocationHash();
 
   discussions
@@ -331,24 +361,23 @@ export const toggleFileDiscussions = ({ getters, dispatch }, diff) => {
 
 export const toggleFileDiscussionWrappers = ({ commit }, diff) => {
   const discussionWrappersExpanded = allDiscussionWrappersExpanded(diff);
-  let linesWithDiscussions;
-  if (diff.highlighted_diff_lines) {
-    linesWithDiscussions = diff.highlighted_diff_lines.filter(line => line.discussions.length);
-  }
-  if (diff.parallel_diff_lines) {
-    linesWithDiscussions = diff.parallel_diff_lines.filter(
-      line =>
-        (line.left && line.left.discussions.length) ||
-        (line.right && line.right.discussions.length),
-    );
-  }
+  const lineCodesWithDiscussions = new Set();
+  const { parallel_diff_lines: parallelLines, highlighted_diff_lines: inlineLines } = diff;
+  const allLines = inlineLines.concat(
+    parallelLines.map(line => line.left),
+    parallelLines.map(line => line.right),
+  );
+  const lineHasDiscussion = line => Boolean(line?.discussions.length);
+  const registerDiscussionLine = line => lineCodesWithDiscussions.add(line.line_code);
 
-  if (linesWithDiscussions.length) {
-    linesWithDiscussions.forEach(line => {
+  allLines.filter(lineHasDiscussion).forEach(registerDiscussionLine);
+
+  if (lineCodesWithDiscussions.size) {
+    Array.from(lineCodesWithDiscussions).forEach(lineCode => {
       commit(types.TOGGLE_LINE_DISCUSSIONS, {
         fileHash: diff.file_hash,
-        lineCode: line.line_code,
         expanded: !discussionWrappersExpanded,
+        lineCode,
       });
     });
   }

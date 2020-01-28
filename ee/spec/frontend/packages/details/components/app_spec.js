@@ -1,17 +1,25 @@
-import { mount } from '@vue/test-utils';
+import Vuex from 'vuex';
+import { mount, createLocalVue } from '@vue/test-utils';
 import { GlModal } from '@gitlab/ui';
+import Tracking from '~/tracking';
 import PackagesApp from 'ee/packages/details/components/app.vue';
 import PackageInformation from 'ee/packages/details/components/information.vue';
 import NpmInstallation from 'ee/packages/details/components/npm_installation.vue';
 import MavenInstallation from 'ee/packages/details/components/maven_installation.vue';
-import { mavenPackage, mavenFiles, npmPackage, npmFiles } from '../../mock_data';
+import PackageTags from 'ee/packages/details/components/package_tags.vue';
+import * as SharedUtils from 'ee/packages/shared/utils';
+import { TrackingActions } from 'ee/packages/shared/constants';
+import ConanInstallation from 'ee/packages/details/components/conan_installation.vue';
+import { conanPackage, mavenPackage, mavenFiles, npmPackage, npmFiles } from '../../mock_data';
+
+const localVue = createLocalVue();
+localVue.use(Vuex);
 
 describe('PackagesApp', () => {
   let wrapper;
+  let store;
 
   const defaultProps = {
-    packageEntity: mavenPackage,
-    files: mavenFiles,
     canDelete: true,
     destroyPath: 'destroy-package-path',
     emptySvgPath: 'empty-illustration',
@@ -19,18 +27,32 @@ describe('PackagesApp', () => {
     npmHelpPath: 'foo',
     mavenPath: 'foo',
     mavenHelpPath: 'foo',
+    conanPath: 'foo',
+    conanHelpPath: 'foo',
   };
 
-  function createComponent(props = {}) {
+  function createComponent(packageEntity = mavenPackage, packageFiles = mavenFiles) {
     const propsData = {
       ...defaultProps,
-      ...props,
     };
 
+    store = new Vuex.Store({
+      state: {
+        isLoading: false,
+        packageEntity,
+        packageFiles,
+        pipelineInfo: {},
+        pipelineError: null,
+      },
+      getters: {
+        packageHasPipeline: () => packageEntity.build_info && packageEntity.build_info.pipeline_id,
+      },
+    });
+
     wrapper = mount(PackagesApp, {
+      localVue,
       propsData,
-      sync: false,
-      attachToDocument: true,
+      store,
     });
   }
 
@@ -40,10 +62,13 @@ describe('PackagesApp', () => {
   const packageInformation = index => allPackageInformation().at(index);
   const npmInstallation = () => wrapper.find(NpmInstallation);
   const mavenInstallation = () => wrapper.find(MavenInstallation);
+  const conanInstallation = () => wrapper.find(ConanInstallation);
   const allFileRows = () => wrapper.findAll('.js-file-row');
   const firstFileDownloadLink = () => wrapper.find('.js-file-download');
   const deleteButton = () => wrapper.find('.js-delete-button');
   const deleteModal = () => wrapper.find(GlModal);
+  const modalDeleteButton = () => wrapper.find({ ref: 'modal-delete-button' });
+  const packageTags = () => wrapper.find(PackageTags);
 
   afterEach(() => {
     wrapper.destroy();
@@ -78,20 +103,14 @@ describe('PackagesApp', () => {
   });
 
   it('does not render package metadata for npm as npm packages do not contain metadata', () => {
-    createComponent({
-      packageEntity: npmPackage,
-      files: npmFiles,
-    });
+    createComponent(npmPackage, npmFiles);
 
     expect(packageInformation(0)).toExist();
     expect(allPackageInformation().length).toBe(1);
   });
 
   it('renders package installation instructions for npm packages', () => {
-    createComponent({
-      packageEntity: npmPackage,
-      files: npmFiles,
-    });
+    createComponent(npmPackage, npmFiles);
 
     expect(npmInstallation()).toExist();
   });
@@ -103,10 +122,7 @@ describe('PackagesApp', () => {
   });
 
   it('renders a single file for an npm package as they only contain one file', () => {
-    createComponent({
-      packageEntity: npmPackage,
-      files: npmFiles,
-    });
+    createComponent(npmPackage, npmFiles);
 
     expect(allFileRows()).toExist();
     expect(allFileRows().length).toBe(1);
@@ -135,5 +151,70 @@ describe('PackagesApp', () => {
     it('shows the delete confirmation modal when delete is clicked', () => {
       expect(deleteModal()).toExist();
     });
+  });
+
+  describe('package tags', () => {
+    it('displays the package-tags component when the package has tags', () => {
+      createComponent({
+        ...npmPackage,
+        tags: [{ name: 'foo' }],
+      });
+
+      expect(packageTags().exists()).toBe(true);
+    });
+
+    it('does not display the package-tags component when there are no tags', () => {
+      createComponent();
+
+      expect(packageTags().exists()).toBe(false);
+    });
+  });
+
+  describe('tracking', () => {
+    let eventSpy;
+    let utilSpy;
+    const category = 'foo';
+
+    beforeEach(() => {
+      eventSpy = jest.spyOn(Tracking, 'event');
+      utilSpy = jest.spyOn(SharedUtils, 'packageTypeToTrackCategory').mockReturnValue(category);
+    });
+
+    it('tracking category calls packageTypeToTrackCategory', () => {
+      createComponent(conanPackage);
+      expect(wrapper.vm.tracking.category).toBe(category);
+      expect(utilSpy).toHaveBeenCalledWith('conan');
+    });
+
+    it(`delete button on delete modal call event with ${TrackingActions.DELETE_PACKAGE}`, () => {
+      createComponent(conanPackage);
+      deleteButton().trigger('click');
+      return wrapper.vm.$nextTick().then(() => {
+        modalDeleteButton().trigger('click');
+        expect(eventSpy).toHaveBeenCalledWith(
+          category,
+          TrackingActions.DELETE_PACKAGE,
+          expect.any(Object),
+        );
+      });
+    });
+
+    it(`file download link call event with ${TrackingActions.PULL_PACKAGE}`, () => {
+      createComponent(conanPackage);
+      firstFileDownloadLink().trigger('click');
+      expect(eventSpy).toHaveBeenCalledWith(
+        category,
+        TrackingActions.PULL_PACKAGE,
+        expect.any(Object),
+      );
+    });
+  });
+
+  it('renders package installation instructions for conan packages', () => {
+    createComponent({
+      packageEntity: conanPackage,
+    });
+
+    expect(conanInstallation()).toExist();
   });
 });

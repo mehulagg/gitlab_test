@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Projects::TracingsController do
-  set(:user) { create(:user) }
+  let_it_be(:user) { create(:user) }
 
   describe 'GET show' do
     shared_examples 'user with read access' do |visibility_level|
@@ -16,7 +16,7 @@ describe Projects::TracingsController do
       it 'renders OK' do
         get :show, params: { namespace_id: project.namespace, project_id: project }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(response).to render_template(:show)
       end
     end

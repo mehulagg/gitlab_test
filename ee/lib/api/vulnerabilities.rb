@@ -16,10 +16,6 @@ module API
         Vulnerability.with_findings.find(params[:id])
       end
 
-      def authorize_vulnerability!(vulnerability, action)
-        authorize! action, vulnerability.project
-      end
-
       def render_vulnerability(vulnerability)
         if vulnerability.valid?
           present vulnerability, with: EE::API::Entities::Vulnerability
@@ -38,7 +34,7 @@ module API
       end
       get ':id' do
         vulnerability = Vulnerability.find(params[:id])
-        authorize_vulnerability!(vulnerability, :read_project_security_dashboard)
+        authorize_vulnerability!(vulnerability, :read_vulnerability)
         render_vulnerability(vulnerability)
       end
 
