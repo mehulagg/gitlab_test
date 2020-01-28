@@ -1,5 +1,6 @@
-export default options => () => ({
-  options,
+export default ({ reportType, feedbackPathCategory }) => () => ({
+  reportType,
+  feedbackPathCategory,
 
   paths: {
     head: null,

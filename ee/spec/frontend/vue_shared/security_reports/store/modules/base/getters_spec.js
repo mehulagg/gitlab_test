@@ -1,36 +1,32 @@
 import * as getters from 'ee/vue_shared/security_reports/store/modules/base/getters';
 
 const createReport = (config = {}) => ({
-  options: {
-    reportName: 'ExampleReport',
-    errorMessage: 'Example Error Message',
-    loadingMessage: 'Example Loading Message',
-  },
+  reportType: 'Example Report',
   paths: [],
   newIssues: [],
   ...config,
 });
 
-describe('groupedSastText', () => {
+describe('groupedReportText', () => {
   it("should return the error message if there's an error", () => {
-    const sast = createReport({ hasError: true });
-    const result = getters.groupedReportText(sast);
+    const state = createReport({ hasError: true });
+    const result = getters.groupedReportText(state);
 
-    expect(result).toBe('Example Error Message');
+    expect(result).toBe('Example Report: Loading resulted in an error');
   });
 
   it("should return the loading message if it's still loading", () => {
-    const sast = createReport({ isLoading: true });
-    const result = getters.groupedReportText(sast);
+    const state = createReport({ isLoading: true });
+    const result = getters.groupedReportText(state);
 
-    expect(result).toBe('Example Loading Message');
+    expect(result).toBe('Example Report is loading');
   });
 
   it('should call groupedTextBuilder if everything is fine', () => {
-    const sast = createReport();
-    const result = getters.groupedReportText(sast);
+    const state = createReport();
+    const result = getters.groupedReportText(state);
 
-    expect(result).toBe('ExampleReport detected no vulnerabilities for the source branch only');
+    expect(result).toBe('Example Report detected no vulnerabilities for the source branch only');
   });
 });
 
