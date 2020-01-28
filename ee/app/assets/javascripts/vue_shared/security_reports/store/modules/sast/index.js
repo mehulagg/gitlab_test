@@ -1,7 +1,7 @@
 import state from './state';
-import mutations from './mutations';
-import * as getters from './getters';
-import * as actions from './actions';
+import mutations from '../base/mutations';
+import * as getters from '../base/getters';
+import * as actions from '../base/actions';
 
 export default {
   namespaced: true,

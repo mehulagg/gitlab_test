@@ -137,7 +137,10 @@ export default {
       'dependencyScanningStatusIcon',
       'isBaseSecurityReportOutOfDate',
     ]),
-    ...mapGetters('sast', ['groupedSastText', 'sastStatusIcon']),
+    ...mapGetters('sast', {
+      groupedSastText: 'groupedReportText',
+      sastStatusIcon: 'reportStatusIcon',
+    }),
     securityTab() {
       return `${this.pipelinePath}/security`;
     },

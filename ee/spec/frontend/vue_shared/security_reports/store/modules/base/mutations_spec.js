@@ -1,10 +1,12 @@
-import * as types from 'ee/vue_shared/security_reports/store/modules/sast/mutation_types';
-import createState from 'ee/vue_shared/security_reports/store/modules/sast/state';
-import mutations from 'ee/vue_shared/security_reports/store/modules/sast/mutations';
+import * as types from 'ee/vue_shared/security_reports/store/modules/base/mutation_types';
+import mutations from 'ee/vue_shared/security_reports/store/modules/base/mutations';
+import stateFactory from 'ee/vue_shared/security_reports/store/modules/base/state_factory';
+
+const createState = stateFactory({});
 
 const createIssue = ({ ...config }) => ({ changed: false, ...config });
 
-describe('sast module mutations', () => {
+describe('generic report module mutations', () => {
   const path = 'path';
   let state;
 
@@ -13,7 +15,7 @@ describe('sast module mutations', () => {
   });
 
   describe(types.SET_DIFF_ENDPOINT, () => {
-    it('should set the SAST diff endpoint', () => {
+    it('should set the diff endpoint', () => {
       mutations[types.SET_DIFF_ENDPOINT](state, path);
 
       expect(state.paths.diffEndpoint).toBe(path);

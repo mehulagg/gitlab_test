@@ -1,10 +1,12 @@
 import MockAdapter from 'axios-mock-adapter';
 import testAction from 'helpers/vuex_action_helper';
 
-import createState from 'ee/vue_shared/security_reports/store/modules/sast/state';
-import * as types from 'ee/vue_shared/security_reports/store/modules/sast/mutation_types';
-import * as actions from 'ee/vue_shared/security_reports/store/modules/sast/actions';
+import stateFactory from 'ee/vue_shared/security_reports/store/modules/base/state_factory';
+import * as types from 'ee/vue_shared/security_reports/store/modules/base/mutation_types';
+import * as actions from 'ee/vue_shared/security_reports/store/modules/base/actions';
 import axios from '~/lib/utils/axios_utils';
+
+const createState = stateFactory({});
 
 const diffEndpoint = 'diff-endpoint.json';
 const blobPath = 'blob-path.json';
@@ -21,7 +23,7 @@ const rootState = { vulnerabilityFeedbackPath, blobPath };
 
 let state;
 
-describe('sast report actions', () => {
+describe('generic report actions', () => {
   beforeEach(() => {
     state = createState();
   });

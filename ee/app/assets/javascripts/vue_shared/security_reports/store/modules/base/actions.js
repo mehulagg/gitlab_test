@@ -22,7 +22,7 @@ export const fetchDiff = ({ state, rootState, dispatch }) => {
     pollUntilComplete(state.paths.diffEndpoint),
     axios.get(rootState.vulnerabilityFeedbackPath, {
       params: {
-        category: 'sast',
+        category: state.options.feedbackPathCategory,
       },
     }),
   ])

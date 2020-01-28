@@ -4,7 +4,7 @@ import GroupedSecurityReportsApp from 'ee/vue_shared/security_reports/grouped_se
 import state from 'ee/vue_shared/security_reports/store/state';
 import * as types from 'ee/vue_shared/security_reports/store/mutation_types';
 import sastState from 'ee/vue_shared/security_reports/store/modules/sast/state';
-import * as sastTypes from 'ee/vue_shared/security_reports/store/modules/sast/mutation_types';
+import * as reportMutationTypes from 'ee/vue_shared/security_reports/store/modules/base/mutation_types';
 import { mount } from '@vue/test-utils';
 import { waitForMutation } from 'helpers/vue_test_utils_helper';
 import { trimText } from 'helpers/text_helper';
@@ -92,7 +92,7 @@ describe('Grouped security reports app', () => {
         createWrapper(allReportProps);
 
         return Promise.all([
-          waitForMutation(wrapper.vm.$store, `sast/${sastTypes.RECEIVE_DIFF_ERROR}`),
+          waitForMutation(wrapper.vm.$store, `sast/${reportMutationTypes.RECEIVE_DIFF_ERROR}`),
           waitForMutation(wrapper.vm.$store, types.RECEIVE_CONTAINER_SCANNING_DIFF_ERROR),
           waitForMutation(wrapper.vm.$store, types.RECEIVE_DAST_DIFF_ERROR),
           waitForMutation(wrapper.vm.$store, types.RECEIVE_DEPENDENCY_SCANNING_DIFF_ERROR),
@@ -162,7 +162,7 @@ describe('Grouped security reports app', () => {
         createWrapper(allReportProps);
 
         return Promise.all([
-          waitForMutation(wrapper.vm.$store, `sast/${sastTypes.RECEIVE_DIFF_SUCCESS}`),
+          waitForMutation(wrapper.vm.$store, `sast/${reportMutationTypes.RECEIVE_DIFF_SUCCESS}`),
           waitForMutation(wrapper.vm.$store, types.RECEIVE_DAST_DIFF_SUCCESS),
           waitForMutation(wrapper.vm.$store, types.RECEIVE_CONTAINER_SCANNING_DIFF_SUCCESS),
           waitForMutation(wrapper.vm.$store, types.RECEIVE_DEPENDENCY_SCANNING_DIFF_SUCCESS),
@@ -360,7 +360,7 @@ describe('Grouped security reports app', () => {
         },
       });
 
-      return waitForMutation(wrapper.vm.$store, `sast/${sastTypes.RECEIVE_DIFF_SUCCESS}`);
+      return waitForMutation(wrapper.vm.$store, `sast/${reportMutationTypes.RECEIVE_DIFF_SUCCESS}`);
     });
 
     it('should set setSastDiffEndpoint', () => {
