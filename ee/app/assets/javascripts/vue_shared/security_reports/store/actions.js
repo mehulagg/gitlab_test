@@ -1,6 +1,5 @@
 import $ from 'jquery';
 import axios from '~/lib/utils/axios_utils';
-import pollUntilComplete from '~/lib/utils/poll_until_complete';
 import { s__, sprintf } from '~/locale';
 import { visitUrl } from '~/lib/utils/url_utility';
 import toast from '~/vue_shared/plugins/global_toast';
@@ -46,47 +45,6 @@ export const setCanCreateIssuePermission = ({ commit }, permission) =>
 
 export const setCanCreateFeedbackPermission = ({ commit }, permission) =>
   commit(types.SET_CAN_CREATE_FEEDBACK_PERMISSION, permission);
-
-/**
- * DEPENDENCY SCANNING
- */
-
-export const setDependencyScanningDiffEndpoint = ({ commit }, path) =>
-  commit(types.SET_DEPENDENCY_SCANNING_DIFF_ENDPOINT, path);
-
-export const requestDependencyScanningDiff = ({ commit }) =>
-  commit(types.REQUEST_DEPENDENCY_SCANNING_DIFF);
-
-export const receiveDependencyScanningDiffSuccess = ({ commit }, response) =>
-  commit(types.RECEIVE_DEPENDENCY_SCANNING_DIFF_SUCCESS, response);
-
-export const receiveDependencyScanningDiffError = ({ commit }) =>
-  commit(types.RECEIVE_DEPENDENCY_SCANNING_DIFF_ERROR);
-
-export const fetchDependencyScanningDiff = ({ state, dispatch }) => {
-  dispatch('requestDependencyScanningDiff');
-
-  return Promise.all([
-    pollUntilComplete(state.dependencyScanning.paths.diffEndpoint),
-    axios.get(state.vulnerabilityFeedbackPath, {
-      params: {
-        category: 'dependency_scanning',
-      },
-    }),
-  ])
-    .then(values => {
-      dispatch('receiveDependencyScanningDiffSuccess', {
-        diff: values[0].data,
-        enrichData: values[1].data,
-      });
-    })
-    .catch(() => {
-      dispatch('receiveDependencyScanningDiffError');
-    });
-};
-
-export const updateDependencyScanningIssue = ({ commit }, issue) =>
-  commit(types.UPDATE_DEPENDENCY_SCANNING_ISSUE, issue);
 
 export const openModal = ({ dispatch }, payload) => {
   dispatch('setModalData', payload);

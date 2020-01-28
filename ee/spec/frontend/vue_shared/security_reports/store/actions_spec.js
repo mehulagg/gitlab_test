@@ -7,7 +7,6 @@ import {
   setPipelineId,
   setCanCreateIssuePermission,
   setCanCreateFeedbackPermission,
-  requestDependencyScanningDiff,
   openModal,
   setModalData,
   requestDismissVulnerability,
@@ -24,7 +23,6 @@ import {
   receiveCreateMergeRequestSuccess,
   receiveCreateMergeRequestError,
   createMergeRequest,
-  updateDependencyScanningIssue,
   addDismissalComment,
   receiveAddDismissalCommentError,
   receiveAddDismissalCommentSuccess,
@@ -35,16 +33,11 @@ import {
   requestDeleteDismissalComment,
   showDismissalDeleteButtons,
   hideDismissalDeleteButtons,
-  setDependencyScanningDiffEndpoint,
-  receiveDependencyScanningDiffSuccess,
-  receiveDependencyScanningDiffError,
-  fetchDependencyScanningDiff,
 } from 'ee/vue_shared/security_reports/store/actions';
 import * as types from 'ee/vue_shared/security_reports/store/mutation_types';
 import state from 'ee/vue_shared/security_reports/store/state';
 import testAction from 'helpers/vuex_action_helper';
 import axios from '~/lib/utils/axios_utils';
-import { dependencyScanningFeedbacks } from '../mock_data';
 import toasted from '~/vue_shared/plugins/global_toast';
 
 // Mock bootstrap modal implementation
@@ -206,23 +199,6 @@ describe('security reports actions', () => {
           {
             type: types.SET_CAN_CREATE_FEEDBACK_PERMISSION,
             payload: true,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('requestDependencyScanningDiff', () => {
-    it('should commit request mutation', done => {
-      testAction(
-        requestDependencyScanningDiff,
-        null,
-        mockedState,
-        [
-          {
-            type: types.REQUEST_DEPENDENCY_SCANNING_DIFF,
           },
         ],
         [],
@@ -974,183 +950,6 @@ describe('security reports actions', () => {
         ],
         done,
       );
-    });
-  });
-
-  describe('updateDependencyScanningIssue', () => {
-    it('commits update dependency scanning issue', done => {
-      const payload = { foo: 'bar' };
-
-      testAction(
-        updateDependencyScanningIssue,
-        payload,
-        mockedState,
-        [
-          {
-            type: types.UPDATE_DEPENDENCY_SCANNING_ISSUE,
-            payload,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('setDependencyScanningDiffEndpoint', () => {
-    it('should pass down the endpoint to the mutation', done => {
-      const payload = '/dependency_scanning_endpoint.json';
-
-      testAction(
-        setDependencyScanningDiffEndpoint,
-        payload,
-        mockedState,
-        [
-          {
-            type: types.SET_DEPENDENCY_SCANNING_DIFF_ENDPOINT,
-            payload,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('receiveDependencyScanningDiffSuccess', () => {
-    it('should pass down the response to the mutation', done => {
-      const payload = { data: 'Effort yields its own rewards.' };
-
-      testAction(
-        receiveDependencyScanningDiffSuccess,
-        payload,
-        mockedState,
-        [
-          {
-            type: types.RECEIVE_DEPENDENCY_SCANNING_DIFF_SUCCESS,
-            payload,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('receiveDependencyScanningDiffError', () => {
-    it('should commit dependency scanning diff error mutation', done => {
-      testAction(
-        receiveDependencyScanningDiffError,
-        undefined,
-        mockedState,
-        [
-          {
-            type: types.RECEIVE_DEPENDENCY_SCANNING_DIFF_ERROR,
-          },
-        ],
-        [],
-        done,
-      );
-    });
-  });
-
-  describe('fetchDependencyScanningDiff', () => {
-    const diff = { foo: {} };
-
-    beforeEach(() => {
-      mockedState.vulnerabilityFeedbackPath = 'vulnerabilities_feedback';
-      mockedState.dependencyScanning.paths.diffEndpoint = 'dependency_scanning_diff.json';
-    });
-
-    describe('on success', () => {
-      it('should dispatch `receiveDependencyScanningDiffSuccess`', done => {
-        mock.onGet('dependency_scanning_diff.json').reply(200, diff);
-        mock
-          .onGet('vulnerabilities_feedback', {
-            params: {
-              category: 'dependency_scanning',
-            },
-          })
-          .reply(200, dependencyScanningFeedbacks);
-
-        testAction(
-          fetchDependencyScanningDiff,
-          null,
-          mockedState,
-          [],
-          [
-            {
-              type: 'requestDependencyScanningDiff',
-            },
-            {
-              type: 'receiveDependencyScanningDiffSuccess',
-              payload: {
-                diff,
-                enrichData: dependencyScanningFeedbacks,
-              },
-            },
-          ],
-          done,
-        );
-      });
-    });
-
-    describe('when vulnerabilities path errors', () => {
-      it('should dispatch `receiveDependencyScanningError`', done => {
-        mock.onGet('dependency_scanning_diff.json').reply(500);
-        mock
-          .onGet('vulnerabilities_feedback', {
-            params: {
-              category: 'dependency_scanning',
-            },
-          })
-          .reply(200, dependencyScanningFeedbacks);
-
-        testAction(
-          fetchDependencyScanningDiff,
-          null,
-          mockedState,
-          [],
-          [
-            {
-              type: 'requestDependencyScanningDiff',
-            },
-            {
-              type: 'receiveDependencyScanningDiffError',
-            },
-          ],
-          done,
-        );
-      });
-    });
-
-    describe('when feedback path errors', () => {
-      it('should dispatch `receiveDependencyScanningError`', done => {
-        mock.onGet('dependency_scanning_diff.json').reply(200, diff);
-        mock
-          .onGet('vulnerabilities_feedback', {
-            params: {
-              category: 'dependency_scanning',
-            },
-          })
-          .reply(500);
-
-        testAction(
-          fetchDependencyScanningDiff,
-          null,
-          mockedState,
-          [],
-          [
-            {
-              type: 'requestDependencyScanningDiff',
-            },
-            {
-              type: 'receiveDependencyScanningDiffError',
-            },
-          ],
-          done,
-        );
-      });
     });
   });
 });

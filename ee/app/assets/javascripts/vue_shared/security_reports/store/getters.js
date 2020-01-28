@@ -1,15 +1,7 @@
 import { s__, sprintf } from '~/locale';
-import { countIssues, groupedTextBuilder, statusIcon, groupedReportText } from './utils';
+import { countIssues, groupedTextBuilder } from './utils';
 import { LOADING, ERROR, SUCCESS } from './constants';
 import messages from './messages';
-
-export const groupedDependencyText = ({ dependencyScanning }) =>
-  groupedReportText(
-    dependencyScanning,
-    messages.DEPENDENCY_SCANNING,
-    messages.DEPENDENCY_SCANNING_HAS_ERROR,
-    messages.DEPENDENCY_SCANNING_IS_LOADING,
-  );
 
 export const summaryCounts = state =>
   [state.sast, state.containerScanning, state.dast, state.dependencyScanning].reduce(
@@ -69,13 +61,6 @@ export const summaryStatus = (state, getters) => {
 
   return SUCCESS;
 };
-
-export const dependencyScanningStatusIcon = ({ dependencyScanning }) =>
-  statusIcon(
-    dependencyScanning.isLoading,
-    dependencyScanning.hasError,
-    dependencyScanning.newIssues.length,
-  );
 
 export const areReportsLoading = state =>
   state.sast.isLoading ||

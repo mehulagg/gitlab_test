@@ -16,23 +16,6 @@ export default () => ({
   canCreateIssuePermission: false,
   canCreateFeedbackPermission: false,
 
-  dependencyScanning: {
-    paths: {
-      head: null,
-      base: null,
-      diffEndpoint: null,
-    },
-
-    isLoading: false,
-    hasError: false,
-
-    newIssues: [],
-    resolvedIssues: [],
-    allIssues: [],
-    baseReportOutofDate: false,
-    hasBaseReport: false,
-  },
-
   modal: {
     title: null,
 

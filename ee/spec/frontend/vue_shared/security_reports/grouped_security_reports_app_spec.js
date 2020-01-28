@@ -2,9 +2,9 @@ import Vue from 'vue';
 import MockAdapter from 'axios-mock-adapter';
 import GroupedSecurityReportsApp from 'ee/vue_shared/security_reports/grouped_security_reports_app.vue';
 import state from 'ee/vue_shared/security_reports/store/state';
-import * as types from 'ee/vue_shared/security_reports/store/mutation_types';
 import containerScanningState from 'ee/vue_shared/security_reports/store/modules/containerScanning/state';
 import dastState from 'ee/vue_shared/security_reports/store/modules/dast/state';
+import dependencyScanningState from 'ee/vue_shared/security_reports/store/modules/dependencyScanning/state';
 import sastState from 'ee/vue_shared/security_reports/store/modules/sast/state';
 import * as reportMutationTypes from 'ee/vue_shared/security_reports/store/modules/base/mutation_types';
 import { mount } from '@vue/test-utils';
@@ -61,6 +61,7 @@ describe('Grouped security reports app', () => {
       ...state(),
       containerScanning: containerScanningState(),
       dast: dastState(),
+      dependencyScanning: dependencyScanningState(),
       sast: sastState(),
     });
     wrapper.vm.$destroy();
@@ -102,7 +103,10 @@ describe('Grouped security reports app', () => {
             wrapper.vm.$store,
             `containerScanning/${reportMutationTypes.RECEIVE_DIFF_ERROR}`,
           ),
-          waitForMutation(wrapper.vm.$store, types.RECEIVE_DEPENDENCY_SCANNING_DIFF_ERROR),
+          waitForMutation(
+            wrapper.vm.$store,
+            `dependencyScanning/${reportMutationTypes.RECEIVE_DIFF_ERROR}`,
+          ),
         ]);
       });
 
@@ -175,7 +179,10 @@ describe('Grouped security reports app', () => {
             wrapper.vm.$store,
             `containerScanning/${reportMutationTypes.RECEIVE_DIFF_SUCCESS}`,
           ),
-          waitForMutation(wrapper.vm.$store, types.RECEIVE_DEPENDENCY_SCANNING_DIFF_SUCCESS),
+          waitForMutation(
+            wrapper.vm.$store,
+            `dependencyScanning/${reportMutationTypes.RECEIVE_DIFF_SUCCESS}`,
+          ),
         ]);
       });
 
@@ -303,7 +310,10 @@ describe('Grouped security reports app', () => {
         },
       });
 
-      return waitForMutation(wrapper.vm.$store, types.RECEIVE_DEPENDENCY_SCANNING_DIFF_SUCCESS);
+      return waitForMutation(
+        wrapper.vm.$store,
+        `dependencyScanning/${reportMutationTypes.RECEIVE_DIFF_SUCCESS}`,
+      );
     });
 
     it('should set setDependencyScanningDiffEndpoint', () => {

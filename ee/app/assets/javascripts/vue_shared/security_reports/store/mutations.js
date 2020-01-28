@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import * as types from './mutation_types';
-import { findIssueIndex, parseDiff } from './utils';
 import getFileLocation from './utils/get_file_location';
 import { visitUrl } from '~/lib/utils/url_utility';
 
@@ -47,34 +46,6 @@ export default {
 
   [types.SET_CAN_CREATE_FEEDBACK_PERMISSION](state, permission) {
     state.canCreateFeedbackPermission = permission;
-  },
-
-  // DEPENDECY SCANNING
-
-  [types.SET_DEPENDENCY_SCANNING_DIFF_ENDPOINT](state, path) {
-    Vue.set(state.dependencyScanning.paths, 'diffEndpoint', path);
-  },
-
-  [types.REQUEST_DEPENDENCY_SCANNING_DIFF](state) {
-    Vue.set(state.dependencyScanning, 'isLoading', true);
-  },
-
-  [types.RECEIVE_DEPENDENCY_SCANNING_DIFF_SUCCESS](state, { diff, enrichData }) {
-    const { added, fixed, existing } = parseDiff(diff, enrichData);
-    const baseReportOutofDate = diff.base_report_out_of_date || false;
-    const hasBaseReport = Boolean(diff.base_report_created_at);
-
-    Vue.set(state.dependencyScanning, 'isLoading', false);
-    Vue.set(state.dependencyScanning, 'newIssues', added);
-    Vue.set(state.dependencyScanning, 'resolvedIssues', fixed);
-    Vue.set(state.dependencyScanning, 'allIssues', existing);
-    Vue.set(state.dependencyScanning, 'baseReportOutofDate', baseReportOutofDate);
-    Vue.set(state.dependencyScanning, 'hasBaseReport', hasBaseReport);
-  },
-
-  [types.RECEIVE_DEPENDENCY_SCANNING_DIFF_ERROR](state) {
-    Vue.set(state.dependencyScanning, 'isLoading', false);
-    Vue.set(state.dependencyScanning, 'hasError', true);
   },
 
   [types.SET_ISSUE_MODAL_DATA](state, payload) {
@@ -171,26 +142,6 @@ export default {
   },
   [types.HIDE_DISMISSAL_DELETE_BUTTONS](state) {
     Vue.set(state.modal, 'isShowingDeleteButtons', false);
-  },
-  [types.UPDATE_DEPENDENCY_SCANNING_ISSUE](state, issue) {
-    // Find issue in the correct list and update it
-
-    const newIssuesIndex = findIssueIndex(state.dependencyScanning.newIssues, issue);
-    if (newIssuesIndex !== -1) {
-      state.dependencyScanning.newIssues.splice(newIssuesIndex, 1, issue);
-      return;
-    }
-
-    const resolvedIssuesIndex = findIssueIndex(state.dependencyScanning.resolvedIssues, issue);
-    if (resolvedIssuesIndex !== -1) {
-      state.dependencyScanning.resolvedIssues.splice(resolvedIssuesIndex, 1, issue);
-      return;
-    }
-
-    const allIssuesIndex = findIssueIndex(state.dependencyScanning.allIssues, issue);
-    if (allIssuesIndex !== -1) {
-      state.dependencyScanning.allIssues.splice(allIssuesIndex, 1, issue);
-    }
   },
 
   [types.REQUEST_CREATE_ISSUE](state) {

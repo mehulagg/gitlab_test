@@ -18,11 +18,11 @@ describe('security reports mediator', () => {
     const type = types.RECEIVE_DISMISS_VULNERABILITY_SUCCESS;
 
     it.each`
-      action                                     | category
-      ${'sast/updateVulnerability'}              | ${'sast'}
-      ${'dast/updateVulnerability'}              | ${'dast'}
-      ${'updateDependencyScanningIssue'}         | ${'dependency_scanning'}
-      ${'containerScanning/updateVulnerability'} | ${'container_scanning'}
+      action                                      | category
+      ${'sast/updateVulnerability'}               | ${'sast'}
+      ${'dast/updateVulnerability'}               | ${'dast'}
+      ${'dependencyScanning/updateVulnerability'} | ${'dependency_scanning'}
+      ${'containerScanning/updateVulnerability'}  | ${'container_scanning'}
     `(`should trigger $action on when a $category is updated`, data => {
       const { action, category } = data;
       const payload = { category };

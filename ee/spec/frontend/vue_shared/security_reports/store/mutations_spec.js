@@ -1,7 +1,6 @@
 import state from 'ee/vue_shared/security_reports/store/state';
 import mutations from 'ee/vue_shared/security_reports/store/mutations';
 import * as types from 'ee/vue_shared/security_reports/store/mutation_types';
-import { mockFindings } from '../mock_data';
 import { visitUrl } from '~/lib/utils/url_utility';
 
 jest.mock('~/lib/utils/url_utility', () => ({
@@ -68,14 +67,6 @@ describe('security reports mutations', () => {
       mutations[types.SET_CAN_CREATE_FEEDBACK_PERMISSION](stateCopy, true);
 
       expect(stateCopy.canCreateFeedbackPermission).toEqual(true);
-    });
-  });
-
-  describe('REQUEST_DEPENDENCY_SCANNING_DIFF', () => {
-    it('should set dependency scanning loading flag to true', () => {
-      mutations[types.REQUEST_DEPENDENCY_SCANNING_DIFF](stateCopy);
-
-      expect(stateCopy.dependencyScanning.isLoading).toEqual(true);
     });
   });
 
@@ -451,122 +442,6 @@ describe('security reports mutations', () => {
 
       expect(stateCopy.modal.isCreatingMergeRequest).toEqual(false);
       expect(stateCopy.modal.error).toEqual('error');
-    });
-  });
-
-  describe('UPDATE_DEPENDENCY_SCANNING_ISSUE', () => {
-    it('updates issue in the new issues list', () => {
-      stateCopy.dependencyScanning.newIssues = mockFindings;
-      stateCopy.dependencyScanning.resolvedIssues = [];
-      stateCopy.dependencyScanning.allIssues = [];
-      const updatedIssue = {
-        ...mockFindings[0],
-        foo: 'bar',
-      };
-
-      mutations[types.UPDATE_DEPENDENCY_SCANNING_ISSUE](stateCopy, updatedIssue);
-
-      expect(stateCopy.dependencyScanning.newIssues[0]).toEqual(updatedIssue);
-    });
-
-    it('updates issue in the resolved issues list', () => {
-      stateCopy.dependencyScanning.newIssues = [];
-      stateCopy.dependencyScanning.resolvedIssues = mockFindings;
-      stateCopy.dependencyScanning.allIssues = [];
-      const updatedIssue = {
-        ...mockFindings[0],
-        foo: 'bar',
-      };
-
-      mutations[types.UPDATE_DEPENDENCY_SCANNING_ISSUE](stateCopy, updatedIssue);
-
-      expect(stateCopy.dependencyScanning.resolvedIssues[0]).toEqual(updatedIssue);
-    });
-
-    it('updates issue in the all issues list', () => {
-      stateCopy.dependencyScanning.newIssues = [];
-      stateCopy.dependencyScanning.resolvedIssues = [];
-      stateCopy.dependencyScanning.allIssues = mockFindings;
-      const updatedIssue = {
-        ...mockFindings[0],
-        foo: 'bar',
-      };
-
-      mutations[types.UPDATE_DEPENDENCY_SCANNING_ISSUE](stateCopy, updatedIssue);
-
-      expect(stateCopy.dependencyScanning.allIssues[0]).toEqual(updatedIssue);
-    });
-  });
-
-  describe('SET_DEPENDENCY_SCANNING_DIFF_ENDPOINT', () => {
-    const endpoint = 'dependency_scannning_diff_endpoint.json';
-
-    beforeEach(() => {
-      mutations[types.SET_DEPENDENCY_SCANNING_DIFF_ENDPOINT](stateCopy, endpoint);
-    });
-
-    it('should set the correct endpoint', () => {
-      expect(stateCopy.dependencyScanning.paths.diffEndpoint).toEqual(endpoint);
-    });
-  });
-
-  describe('RECEIVE_DEPENDENCY_SCANNING_DIFF_SUCCESS', () => {
-    let reports = {};
-
-    beforeEach(() => {
-      reports = {
-        diff: {
-          added: [
-            { name: 'added vuln 1', report_type: 'dependency_scanning' },
-            { name: 'added vuln 2', report_type: 'dependency_scanning' },
-          ],
-          fixed: [{ name: 'fixed vuln 1', report_type: 'dependency_scanning' }],
-          existing: [{ name: 'existing vuln 1', report_type: 'dependency_scanning' }],
-          base_report_out_of_date: true,
-        },
-      };
-      mutations[types.RECEIVE_DEPENDENCY_SCANNING_DIFF_SUCCESS](stateCopy, reports);
-    });
-
-    it('should set isLoading to false', () => {
-      expect(stateCopy.dependencyScanning.isLoading).toBe(false);
-    });
-
-    it('should set baseReportOutofDate to true', () => {
-      expect(stateCopy.dependencyScanning.baseReportOutofDate).toBe(true);
-    });
-
-    it('should parse and set the added vulnerabilities', () => {
-      reports.diff.added.forEach((vuln, i) => {
-        expect(stateCopy.dependencyScanning.newIssues[i]).toEqual(
-          expect.objectContaining({
-            name: vuln.name,
-            title: vuln.name,
-            category: vuln.report_type,
-          }),
-        );
-      });
-    });
-
-    it('should parse and set the fixed vulnerabilities', () => {
-      reports.diff.fixed.forEach((vuln, i) => {
-        expect(stateCopy.dependencyScanning.resolvedIssues[i]).toEqual(
-          expect.objectContaining({
-            name: vuln.name,
-            title: vuln.name,
-            category: vuln.report_type,
-          }),
-        );
-      });
-    });
-  });
-
-  describe('RECEIVE_DEPENDENCY_SCANNING_DIFF_ERROR', () => {
-    it('should set dependency scanning loading flag to false and error flag to true', () => {
-      mutations[types.RECEIVE_DEPENDENCY_SCANNING_DIFF_ERROR](stateCopy);
-
-      expect(stateCopy.dependencyScanning.isLoading).toEqual(false);
-      expect(stateCopy.dependencyScanning.hasError).toEqual(true);
     });
   });
 });

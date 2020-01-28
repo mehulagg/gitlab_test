@@ -126,13 +126,7 @@ export default {
       'canCreateIssuePermission',
       'canCreateFeedbackPermission',
     ]),
-    ...mapGetters([
-      'groupedSummaryText',
-      'summaryStatus',
-      'groupedDependencyText',
-      'dependencyScanningStatusIcon',
-      'isBaseSecurityReportOutOfDate',
-    ]),
+    ...mapGetters(['groupedSummaryText', 'summaryStatus', 'isBaseSecurityReportOutOfDate']),
     ...mapGetters('sast', {
       groupedSastText: 'groupedReportText',
       sastStatusIcon: 'reportStatusIcon',
@@ -144,6 +138,10 @@ export default {
     ...mapGetters('containerScanning', {
       groupedContainerScanningText: 'groupedReportText',
       containerScanningStatusIcon: 'reportStatusIcon',
+    }),
+    ...mapGetters('dependencyScanning', {
+      groupedDependencyScanningText: 'groupedReportText',
+      dependencyScanningStatusIcon: 'reportStatusIcon',
     }),
     securityTab() {
       return `${this.pipelinePath}/security`;
@@ -255,8 +253,6 @@ export default {
       'deleteDismissalComment',
       'showDismissalDeleteButtons',
       'hideDismissalDeleteButtons',
-      'fetchDependencyScanningDiff',
-      'setDependencyScanningDiffEndpoint',
     ]),
     ...mapActions('sast', {
       setSastDiffEndpoint: 'setDiffEndpoint',
@@ -269,6 +265,10 @@ export default {
     ...mapActions('containerScanning', {
       setContainerScanningDiffEndpoint: 'setDiffEndpoint',
       fetchContainerScanningDiff: 'fetchDiff',
+    }),
+    ...mapActions('dependencyScanning', {
+      setDependencyScanningDiffEndpoint: 'setDiffEndpoint',
+      fetchDependencyScanningDiff: 'fetchDiff',
     }),
   },
 };
@@ -320,7 +320,7 @@ export default {
 
       <template v-if="hasDependencyScanningReports">
         <summary-row
-          :summary="groupedDependencyText"
+          :summary="groupedDependencyScanningText"
           :status-icon="dependencyScanningStatusIcon"
           :popover-options="dependencyScanningPopover"
           class="js-dependency-scanning-widget"

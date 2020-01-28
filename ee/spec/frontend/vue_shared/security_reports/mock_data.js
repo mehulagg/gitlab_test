@@ -175,31 +175,6 @@ export const parsedDast = [
   },
 ];
 
-export const dependencyScanningFeedbacks = [
-  {
-    id: 3,
-    project_id: 17,
-    author_id: 1,
-    issue_iid: null,
-    pipeline_id: 132,
-    category: 'dependency_scanning',
-    feedback_type: 'dismissal',
-    branch: 'try_new_container_scanning',
-    project_fingerprint: 'f55331d66fd4f3bfb4237d48e9c9fa8704bd33c6',
-  },
-  {
-    id: 4,
-    project_id: 17,
-    author_id: 1,
-    issue_iid: 123,
-    pipeline_id: 132,
-    category: 'dependency_scanning',
-    feedback_type: 'issue',
-    branch: 'try_new_container_scanning',
-    project_fingerprint: 'f55331d66fd4f3bfb4237d48e9c9fa8704bd33c6',
-  },
-];
-
 export const mockFindings = [
   {
     id: null,

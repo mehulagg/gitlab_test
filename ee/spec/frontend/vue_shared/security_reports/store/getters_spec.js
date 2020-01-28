@@ -2,26 +2,18 @@ import createState from 'ee/vue_shared/security_reports/store/state';
 import createSastState from 'ee/vue_shared/security_reports/store/modules/sast/state';
 import createDastState from 'ee/vue_shared/security_reports/store/modules/dast/state';
 import createContainerScanningState from 'ee/vue_shared/security_reports/store/modules/containerScanning/state';
+import createDependencyScanningState from 'ee/vue_shared/security_reports/store/modules/dependencyScanning/state';
 import {
-  groupedDependencyText,
   groupedSummaryText,
   allReportsHaveError,
   noBaseInAllReports,
   areReportsLoading,
-  dependencyScanningStatusIcon,
   anyReportHasError,
   summaryCounts,
   isBaseSecurityReportOutOfDate,
 } from 'ee/vue_shared/security_reports/store/getters';
 
-const BASE_PATH = 'fake/base/path.json';
-const HEAD_PATH = 'fake/head/path.json';
-
 describe('Security reports getters', () => {
-  function removeBreakLine(data) {
-    return data.replace(/\r?\n|\r/g, '').replace(/\s\s+/g, ' ');
-  }
-
   let state;
 
   beforeEach(() => {
@@ -29,82 +21,7 @@ describe('Security reports getters', () => {
     state.sast = createSastState();
     state.dast = createDastState();
     state.containerScanning = createContainerScanningState();
-  });
-
-  describe('groupedDependencyText', () => {
-    describe('with no issues', () => {
-      it('returns no issues text', () => {
-        state.dependencyScanning.paths.head = HEAD_PATH;
-        state.dependencyScanning.paths.base = BASE_PATH;
-
-        expect(groupedDependencyText(state)).toEqual(
-          'Dependency scanning detected no vulnerabilities',
-        );
-      });
-    });
-
-    describe('with new issues and without base', () => {
-      it('returns unable to compare text', () => {
-        state.dependencyScanning.paths.head = HEAD_PATH;
-        state.dependencyScanning.newIssues = [{}];
-
-        expect(groupedDependencyText(state)).toEqual(
-          'Dependency scanning detected 1 vulnerability for the source branch only',
-        );
-      });
-    });
-
-    describe('with base and head', () => {
-      describe('with only new issues', () => {
-        it('returns new issues text', () => {
-          state.dependencyScanning.paths.head = HEAD_PATH;
-          state.dependencyScanning.paths.base = BASE_PATH;
-          state.dependencyScanning.newIssues = [{}];
-
-          expect(groupedDependencyText(state)).toEqual(
-            'Dependency scanning detected 1 new vulnerability',
-          );
-        });
-      });
-
-      describe('with only dismissed issues', () => {
-        it('returns dismissed issues text', () => {
-          state.dependencyScanning.paths.head = HEAD_PATH;
-          state.dependencyScanning.paths.base = BASE_PATH;
-          state.dependencyScanning.newIssues = [{ isDismissed: true }];
-
-          expect(groupedDependencyText(state)).toEqual(
-            'Dependency scanning detected 1 dismissed vulnerability',
-          );
-        });
-      });
-
-      describe('with new and resolved issues', () => {
-        it('returns new and fixed issues text', () => {
-          state.dependencyScanning.paths.head = HEAD_PATH;
-          state.dependencyScanning.paths.base = BASE_PATH;
-          state.dependencyScanning.newIssues = [{}];
-          state.dependencyScanning.resolvedIssues = [{}];
-
-          expect(removeBreakLine(groupedDependencyText(state))).toEqual(
-            'Dependency scanning detected 1 new, and 1 fixed vulnerabilities',
-          );
-        });
-      });
-
-      describe('with only resolved issues', () => {
-        it('returns fixed issues text', () => {
-          state.dependencyScanning.paths.head = HEAD_PATH;
-          state.dependencyScanning.paths.base = BASE_PATH;
-
-          state.dependencyScanning.resolvedIssues = [{}];
-
-          expect(groupedDependencyText(state)).toEqual(
-            'Dependency scanning detected 1 fixed vulnerability',
-          );
-        });
-      });
-    });
+    state.dependencyScanning = createDependencyScanningState();
   });
 
   describe('summaryCounts', () => {
@@ -274,24 +191,6 @@ describe('Security reports getters', () => {
           summaryCounts: {},
         }),
       ).toEqual('Security scanning detected no vulnerabilities');
-    });
-  });
-
-  describe('dependencyScanningStatusIcon', () => {
-    it('returns warning with new issues', () => {
-      state.dependencyScanning.newIssues = [{}];
-
-      expect(dependencyScanningStatusIcon(state)).toEqual('warning');
-    });
-
-    it('returns warning with failed report', () => {
-      state.dependencyScanning.hasError = true;
-
-      expect(dependencyScanningStatusIcon(state)).toEqual('warning');
-    });
-
-    it('returns success with no new issues or failed report', () => {
-      expect(dependencyScanningStatusIcon(state)).toEqual('success');
     });
   });
 

@@ -8,6 +8,7 @@ import state from './state';
 
 import containerScanning from './modules/containerScanning';
 import dast from './modules/dast';
+import dependencyScanning from './modules/dependencyScanning';
 import sast from './modules/sast';
 
 Vue.use(Vuex);
@@ -17,6 +18,7 @@ export default () =>
     modules: {
       containerScanning,
       dast,
+      dependencyScanning,
       sast,
     },
     actions,
