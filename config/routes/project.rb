@@ -1,13 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop: disable Cop/PutProjectRoutesUnderScope
-resources :projects, only: [:index, :new, :create]
-
-draw :git_http
-
-get '/projects/:id' => 'projects#resolve'
-# rubocop: enable Cop/PutProjectRoutesUnderScope
-
 constraints(::Constraints::ProjectUrlConstrainer.new) do
   # If the route has a wildcard segment, the segment has a regex constraint,
   # the segment is potentially followed by _another_ wildcard segment, and
@@ -286,6 +278,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         # The wiki and repository routing contains wildcard characters so
         # its preferable to keep it below all other project routes
         draw :repository_scoped
+        draw :repository
         draw :wiki
       end
       # End of the /-/ scope.
@@ -476,14 +469,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         post :web_ide_clientside_preview
       end
 
-      # The repository routing contains wildcard characters so
-      # its preferable to keep it below all other project routes
-      draw :repository
-
-      # To ensure an old unscoped routing is used for the UI we need to
-      # add prefix 'as' to the scope routing and place it below original routing.
+      # Deprecated unscoped routing.
       # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
-      scope '-', as: 'scoped' do
+      scope as: 'deprecated' do
         draw :repository
       end
 

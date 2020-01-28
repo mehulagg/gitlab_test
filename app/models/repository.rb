@@ -447,6 +447,8 @@ class Repository
   def after_import
     expire_content_cache
 
+    return unless repo_type.project?
+
     # This call is stubbed in tests due to being an expensive operation
     # It can be reenabled for specific tests via:
     #
@@ -925,22 +927,12 @@ class Repository
   def ancestor?(ancestor_id, descendant_id)
     return false if ancestor_id.nil? || descendant_id.nil?
 
-    counter = Gitlab::Metrics.counter(
-      :repository_ancestor_calls_total,
-      'The number of times we call Repository#ancestor with valid arguments')
-    cache_hit = true
-
     cache_key = "ancestor:#{ancestor_id}:#{descendant_id}"
-    result = request_store_cache.fetch(cache_key) do
+    request_store_cache.fetch(cache_key) do
       cache.fetch(cache_key) do
-        cache_hit = false
         raw_repository.ancestor?(ancestor_id, descendant_id)
       end
     end
-
-    counter.increment(cache_hit: cache_hit.to_s)
-
-    result
   end
 
   def fetch_as_mirror(url, forced: false, refmap: :all_refs, remote_name: nil, prune: true)
@@ -1181,7 +1173,7 @@ class Repository
   def initialize_raw_repository
     Gitlab::Git::Repository.new(project.repository_storage,
                                 disk_path + '.git',
-                                repo_type.identifier_for_repositorable(project),
+                                repo_type.identifier_for_container(project),
                                 project.full_path)
   end
 end

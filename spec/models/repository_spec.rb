@@ -482,6 +482,18 @@ describe Repository do
     end
   end
 
+  describe "#root_ref_sha" do
+    let(:commit) { double("commit", sha: "a94a8fe5ccb19ba61c4c0873d391e987982fbbd3") }
+
+    subject { repository.root_ref_sha }
+
+    before do
+      allow(repository).to receive(:commit).with(repository.root_ref) { commit }
+    end
+
+    it { is_expected.to eq(commit.sha) }
+  end
+
   describe '#can_be_merged?' do
     context 'mergeable branches' do
       subject { repository.can_be_merged?('0b4bc9a49b562e85de7cc9e834518ea6828729b9', 'master') }
@@ -1805,10 +1817,28 @@ describe Repository do
   end
 
   describe '#after_import' do
+    subject { repository.after_import }
+
     it 'flushes and builds the cache' do
       expect(repository).to receive(:expire_content_cache)
 
-      repository.after_import
+      subject
+    end
+
+    it 'calls DetectRepositoryLanguagesWorker' do
+      expect(DetectRepositoryLanguagesWorker).to receive(:perform_async)
+
+      subject
+    end
+
+    context 'with a wiki repository' do
+      let(:repository) { project.wiki.repository }
+
+      it 'does not call DetectRepositoryLanguagesWorker' do
+        expect(DetectRepositoryLanguagesWorker).not_to receive(:perform_async)
+
+        subject
+      end
     end
   end
 
@@ -2418,15 +2448,6 @@ describe Repository do
         expect(repository.raw_repository).to receive(:ancestor?).once
 
         2.times { repository.ancestor?(commit.id, ancestor.id) }
-      end
-
-      it 'increments a counter with cache hits' do
-        counter = Gitlab::Metrics.counter(:repository_ancestor_calls_total, 'Repository ancestor calls')
-
-        expect do
-          2.times { repository.ancestor?(commit.id, ancestor.id) }
-        end.to change { counter.get(cache_hit: 'true') }.by(1)
-                 .and change { counter.get(cache_hit: 'false') }.by(1)
       end
 
       it 'returns the value from the request store' do

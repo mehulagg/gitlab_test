@@ -322,7 +322,7 @@ class Project < ApplicationRecord
     :pages_enabled?, :public_pages?, :private_pages?,
     :merge_requests_access_level, :forking_access_level, :issues_access_level,
     :wiki_access_level, :snippets_access_level, :builds_access_level,
-    :repository_access_level,
+    :repository_access_level, :pages_access_level,
     to: :project_feature, allow_nil: true
   delegate :scheduled?, :started?, :in_progress?, :failed?, :finished?,
     prefix: :import, to: :import_state, allow_nil: true
@@ -397,6 +397,8 @@ class Project < ApplicationRecord
   scope :sorted_by_stars_desc, -> { reorder(star_count: :desc) }
   scope :sorted_by_stars_asc, -> { reorder(star_count: :asc) }
   scope :sorted_by_name_asc_limited, ->(limit) { reorder(name: :asc).limit(limit) }
+  # Sometimes queries (e.g. using CTEs) require explicit disambiguation with table name
+  scope :projects_order_id_desc, -> { reorder("#{table_name}.id DESC") }
 
   scope :in_namespace, ->(namespace_ids) { where(namespace_id: namespace_ids) }
   scope :personal, ->(user) { where(namespace_id: user.namespace_id) }
@@ -411,6 +413,8 @@ class Project < ApplicationRecord
   scope :with_project_feature, -> { joins('LEFT JOIN project_features ON projects.id = project_features.project_id') }
   scope :inc_routes, -> { includes(:route, namespace: :route) }
   scope :with_statistics, -> { includes(:statistics) }
+  scope :with_namespace, -> { includes(:namespace) }
+  scope :with_import_state, -> { includes(:import_state) }
   scope :with_service, ->(service) { joins(service).eager_load(service) }
   scope :with_shared_runners, -> { where(shared_runners_enabled: true) }
   scope :with_container_registry, -> { where(container_registry_enabled: true) }
@@ -539,6 +543,11 @@ class Project < ApplicationRecord
         user,
         ProjectFeature.required_minimum_access_level_for_private_project(feature)
       )
+  end
+
+  def self.wrap_authorized_projects_with_cte(collection)
+    cte = Gitlab::SQL::CTE.new(:authorized_projects, collection)
+    Project.with(cte.to_arel).from(cte.alias_to(Project.arel_table))
   end
 
   scope :active, -> { joins(:issues, :notes, :merge_requests).order('issues.created_at, notes.created_at, merge_requests.created_at DESC') }
@@ -1936,6 +1945,8 @@ class Project < ApplicationRecord
       .append(key: 'GITLAB_CI', value: 'true')
       .append(key: 'CI_SERVER_URL', value: Gitlab.config.gitlab.url)
       .append(key: 'CI_SERVER_HOST', value: Gitlab.config.gitlab.host)
+      .append(key: 'CI_SERVER_PORT', value: Gitlab.config.gitlab.port.to_s)
+      .append(key: 'CI_SERVER_PROTOCOL', value: Gitlab.config.gitlab.protocol)
       .append(key: 'CI_SERVER_NAME', value: 'GitLab')
       .append(key: 'CI_SERVER_VERSION', value: Gitlab::VERSION)
       .append(key: 'CI_SERVER_VERSION_MAJOR', value: Gitlab.version_info.major.to_s)
@@ -2203,7 +2214,7 @@ class Project < ApplicationRecord
   end
 
   def reference_counter(type: Gitlab::GlRepository::PROJECT)
-    Gitlab::ReferenceCounter.new(type.identifier_for_repositorable(self))
+    Gitlab::ReferenceCounter.new(type.identifier_for_container(self))
   end
 
   def badges
@@ -2274,7 +2285,7 @@ class Project < ApplicationRecord
   end
 
   def snippets_visible?(user = nil)
-    Ability.allowed?(user, :read_project_snippet, self)
+    Ability.allowed?(user, :read_snippet, self)
   end
 
   def max_attachment_size

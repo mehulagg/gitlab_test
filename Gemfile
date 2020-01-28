@@ -26,7 +26,7 @@ gem 'marginalia', '~> 1.8.0'
 
 # Authentication libraries
 gem 'devise', '~> 4.6'
-gem 'doorkeeper', '~> 4.3'
+gem 'doorkeeper', '~> 4.4.3'
 gem 'doorkeeper-openid_connect', '~> 1.5'
 gem 'omniauth', '~> 1.8'
 gem 'omniauth-auth0', '~> 2.0.0'
@@ -67,7 +67,7 @@ gem 'u2f', '~> 0.2.1'
 gem 'validates_hostname', '~> 1.0.6'
 gem 'rubyzip', '~> 1.3.0', require: 'zip'
 # GitLab Pages letsencrypt support
-gem 'acme-client', '~> 2.0.2'
+gem 'acme-client', '~> 2.0.5'
 
 # Browser detection
 gem 'browser', '~> 2.5'
@@ -132,9 +132,8 @@ gem 'seed-fu', '~> 2.3.7'
 gem 'elasticsearch-model', '~> 6.1'
 gem 'elasticsearch-rails', '~> 6.1', require: 'elasticsearch/rails/instrumentation'
 gem 'elasticsearch-api',   '~> 6.8'
-gem 'aws-sdk-core', '~> 3'
-gem 'aws-sdk-cloudformation', '~> 1'
-gem 'faraday_middleware-aws-sigv4'
+gem 'aws-sdk'
+gem 'faraday_middleware-aws-signers-v4'
 
 # Markdown and HTML processing
 gem 'html-pipeline', '~> 2.12'
@@ -302,7 +301,7 @@ gem 'sentry-raven', '~> 2.9'
 gem 'premailer-rails', '~> 1.10.3'
 
 # LabKit: Tracing and Correlation
-gem 'gitlab-labkit', '0.8.0'
+gem 'gitlab-labkit', '0.9.1'
 
 # I18n
 gem 'ruby_parser', '~> 3.8', require: false

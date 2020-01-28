@@ -2,170 +2,6 @@
 
 module API
   module Entities
-    class BlameRangeCommit < Grape::Entity
-      expose :id
-      expose :parent_ids
-      expose :message
-      expose :authored_date, :author_name, :author_email
-      expose :committed_date, :committer_name, :committer_email
-    end
-
-    class BlameRange < Grape::Entity
-      expose :commit, using: BlameRangeCommit
-      expose :lines
-    end
-
-    class WikiPageBasic < Grape::Entity
-      expose :format
-      expose :slug
-      expose :title
-    end
-
-    class WikiPage < WikiPageBasic
-      expose :content
-    end
-
-    class WikiAttachment < Grape::Entity
-      include Gitlab::FileMarkdownLinkBuilder
-
-      expose :file_name
-      expose :file_path
-      expose :branch
-      expose :link do
-        expose :file_path, as: :url
-        expose :markdown do |_entity|
-          self.markdown_link
-        end
-      end
-
-      def filename
-        object.file_name
-      end
-
-      def secure_url
-        object.file_path
-      end
-    end
-
-    class UserSafe < Grape::Entity
-      expose :id, :name, :username
-    end
-
-    class UserBasic < UserSafe
-      expose :state
-
-      expose :avatar_url do |user, options|
-        user.avatar_url(only_path: false)
-      end
-
-      expose :avatar_path, if: ->(user, options) { options.fetch(:only_path, false) && user.avatar_path }
-      expose :custom_attributes, using: 'API::Entities::CustomAttribute', if: :with_custom_attributes
-
-      expose :web_url do |user, options|
-        Gitlab::Routing.url_helpers.user_url(user)
-      end
-    end
-
-    class User < UserBasic
-      expose :created_at, if: ->(user, opts) { Ability.allowed?(opts[:current_user], :read_user_profile, user) }
-      expose :bio, :location, :public_email, :skype, :linkedin, :twitter, :website_url, :organization
-    end
-
-    class UserActivity < Grape::Entity
-      expose :username
-      expose :last_activity_on
-      expose :last_activity_on, as: :last_activity_at # Back-compat
-    end
-
-    class UserStarsProject < Grape::Entity
-      expose :starred_since
-      expose :user, using: Entities::UserBasic
-    end
-
-    class Identity < Grape::Entity
-      expose :provider, :extern_uid
-    end
-
-    class UserPublic < User
-      expose :last_sign_in_at
-      expose :confirmed_at
-      expose :last_activity_on
-      expose :email
-      expose :theme_id, :color_scheme_id, :projects_limit, :current_sign_in_at
-      expose :identities, using: Entities::Identity
-      expose :can_create_group?, as: :can_create_group
-      expose :can_create_project?, as: :can_create_project
-      expose :two_factor_enabled?, as: :two_factor_enabled
-      expose :external
-      expose :private_profile
-    end
-
-    class UserWithAdmin < UserPublic
-      expose :admin?, as: :is_admin
-    end
-
-    class UserDetailsWithAdmin < UserWithAdmin
-      expose :highest_role
-    end
-
-    class UserStatus < Grape::Entity
-      expose :emoji
-      expose :message
-      expose :message_html do |entity|
-        MarkupHelper.markdown_field(entity, :message)
-      end
-    end
-
-    class Email < Grape::Entity
-      expose :id, :email
-    end
-
-    class Hook < Grape::Entity
-      expose :id, :url, :created_at, :push_events, :tag_push_events, :merge_requests_events, :repository_update_events
-      expose :enable_ssl_verification
-    end
-
-    class ProjectHook < Hook
-      expose :project_id, :issues_events, :confidential_issues_events
-      expose :note_events, :confidential_note_events, :pipeline_events, :wiki_page_events
-      expose :job_events
-      expose :push_events_branch_filter
-    end
-
-    class SharedGroup < Grape::Entity
-      expose :group_id
-      expose :group_name do |group_link, options|
-        group_link.group.name
-      end
-      expose :group_full_path do |group_link, options|
-        group_link.group.full_path
-      end
-      expose :group_access, as: :group_access_level
-      expose :expires_at
-    end
-
-    class ProjectIdentity < Grape::Entity
-      expose :id, :description
-      expose :name, :name_with_namespace
-      expose :path, :path_with_namespace
-      expose :created_at
-    end
-
-    class ProjectExportStatus < ProjectIdentity
-      include ::API::Helpers::RelatedResourcesHelpers
-
-      expose :export_status
-      expose :_links, if: lambda { |project, _options| project.export_status == :finished } do
-        expose :api_url do |project|
-          expose_url(api_v4_projects_export_download_path(id: project.id))
-        end
-
-        expose :web_url do |project|
-          Gitlab::Routing.url_helpers.download_export_project_url(project)
-        end
-      end
-    end
-
     class RemoteMirror < Grape::Entity
       expose :id
       expose :enabled
@@ -302,6 +138,7 @@ module API
       expose(:wiki_access_level) { |project, options| project.project_feature.string_access_level(:wiki) }
       expose(:builds_access_level) { |project, options| project.project_feature.string_access_level(:builds) }
       expose(:snippets_access_level) { |project, options| project.project_feature.string_access_level(:snippets) }
+      expose(:pages_access_level) { |project, options| project.project_feature.string_access_level(:pages) }
 
       expose :shared_runners_enabled
       expose :lfs_enabled?, as: :lfs_enabled
@@ -1247,20 +1084,20 @@ module API
     end
 
     class Compare < Grape::Entity
-      expose :commit, using: Entities::Commit do |compare, options|
-        ::Commit.decorate(compare.commits, nil).last
+      expose :commit, using: Entities::Commit do |compare, _|
+        compare.commits.last
       end
 
-      expose :commits, using: Entities::Commit do |compare, options|
-        ::Commit.decorate(compare.commits, nil)
+      expose :commits, using: Entities::Commit do |compare, _|
+        compare.commits
       end
 
-      expose :diffs, using: Entities::Diff do |compare, options|
-        compare.diffs(limits: false).to_a
+      expose :diffs, using: Entities::Diff do |compare, _|
+        compare.diffs.diffs.to_a
       end
 
-      expose :compare_timeout do |compare, options|
-        compare.diffs.overflow?
+      expose :compare_timeout do |compare, _|
+        compare.diffs.diffs.overflow?
       end
 
       expose :same, as: :compare_same_ref
@@ -1819,6 +1656,7 @@ module API
       expose :uid, as: :application_id
       expose :name, as: :application_name
       expose :redirect_uri, as: :callback_url
+      expose :confidential
     end
 
     # Use with care, this exposes the secret

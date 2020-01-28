@@ -74,6 +74,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
     resources :epics, concerns: :awardable, constraints: { id: /\d+/ } do
       member do
         get '/descriptions/:version_id/diff', action: :description_diff, as: :description_diff
+        delete '/descriptions/:version_id', action: :delete_description_version, as: :delete_description_version
         get :discussions, format: :json
         get :realtime_changes
         post :toggle_subscription
@@ -112,7 +113,9 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
 
     namespace :security do
       resource :dashboard, only: [:show], controller: :dashboard
+      resource :compliance_dashboard, only: [:show]
       resources :vulnerable_projects, only: [:index]
+      resource :discover, only: [:show], controller: :discover
 
       resources :vulnerability_findings, only: [:index] do
         collection do
@@ -138,6 +141,8 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
 
     resource :dependency_proxy, only: [:show, :update]
     resources :packages, only: [:index]
+
+    post '/restore' => '/groups#restore', as: :restore
   end
 end
 

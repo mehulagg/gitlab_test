@@ -38,7 +38,7 @@ repository. There, you will have full [Owner](../../permissions.md)
 access, so you can set it up as you please.
 
 CAUTION: **CAUTION:**
-From GitLab 12.6 onwards, if the [visibility of an upstream project is reduced](../../../public_access/public_access.md#reducing-visibility)
+From GitLab 12.6 onward, if the [visibility of an upstream project is reduced](../../../public_access/public_access.md#reducing-visibility)
 in any way, the fork relationship with all its forks will be removed.
 
 CAUTION: **Caution:**
@@ -59,5 +59,9 @@ your changes. Upon pressing the 'Submit Merge Request' button, your
 changes will be added to the repository and branch you're merging into.
 
 ![New merge request](img/forking_workflow_merge_request.png)
+
+## Removing a fork relationship
+
+You can unlink your fork from its upstream project in the [advanced settings](../settings/index.md#removing-a-fork-relationship).
 
 [gitlab flow]: https://about.gitlab.com/blog/2014/09/29/gitlab-flow/ "GitLab Flow blog post"

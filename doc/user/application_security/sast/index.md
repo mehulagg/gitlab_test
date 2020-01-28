@@ -54,6 +54,8 @@ this is enabled by default.
 Privileged mode is not necessary if you've [disabled Docker in Docker
 for SAST](#disabling-docker-in-docker-for-sast)
 
+CAUTION: **Caution:** Our SAST jobs currently expect a Linux container type. Windows containers are not yet supported.
+
 CAUTION: **Caution:**
 If you use your own Runners, make sure that the Docker version you have installed
 is **not** `19.03.00`. See [troubleshooting information](#error-response-from-daemon-error-processing-tar-file-docker-tar-relocation-error) for details.
@@ -207,7 +209,8 @@ variables:
 
 If your project requires custom build configurations, it can be preferable to avoid
 compilation during your SAST execution and instead pass all job artifacts from an
-earlier stage within the pipeline.
+earlier stage within the pipeline. This is the current strategy when requiring
+a `before_script` execution to prepare your scan job.
 
 To pass your project's dependencies as artifacts, the dependencies must be included
 in the project's working directory and specified using the `artifacts:path` configuration.

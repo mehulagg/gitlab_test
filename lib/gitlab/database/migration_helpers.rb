@@ -280,6 +280,46 @@ module Gitlab
         end
       end
 
+      # Executes the block with a retry mechanism that alters the +lock_timeout+ and +sleep_time+ between attempts.
+      # The timings can be controlled via the +timing_configuration+ parameter.
+      # If the lock was not acquired within the retry period, a last attempt is made without using +lock_timeout+.
+      #
+      # ==== Examples
+      #   # Invoking without parameters
+      #   with_lock_retries do
+      #     drop_table :my_table
+      #   end
+      #
+      #   # Invoking with custom +timing_configuration+
+      #   t = [
+      #     [1.second, 1.second],
+      #     [2.seconds, 2.seconds]
+      #   ]
+      #
+      #   with_lock_retries(timing_configuration: t) do
+      #     drop_table :my_table # this will be retried twice
+      #   end
+      #
+      #   # Disabling the retries using an environment variable
+      #   > export DISABLE_LOCK_RETRIES=true
+      #
+      #   with_lock_retries do
+      #     drop_table :my_table # one invocation, it will not retry at all
+      #   end
+      #
+      # ==== Parameters
+      # * +timing_configuration+ - [[ActiveSupport::Duration, ActiveSupport::Duration], ...] lock timeout for the block, sleep time before the next iteration, defaults to `Gitlab::Database::WithLockRetries::DEFAULT_TIMING_CONFIGURATION`
+      # * +logger+ - [Gitlab::JsonLogger]
+      # * +env+ - [Hash] custom environment hash, see the example with `DISABLE_LOCK_RETRIES`
+      def with_lock_retries(**args, &block)
+        merged_args = {
+          klass: self.class,
+          logger: Gitlab::BackgroundMigration::Logger
+        }.merge(args)
+
+        Gitlab::Database::WithLockRetries.new(merged_args).run(&block)
+      end
+
       def true_value
         Database.true_value
       end
@@ -1077,6 +1117,20 @@ into similar problems in the future (e.g. when new tables are created).
             ((SELECT id FROM plans WHERE name = #{quote(plan_name)} LIMIT 1), #{quote(limit_value)})
           ON CONFLICT (plan_id) DO UPDATE SET #{quote_column_name(limit_name)} = EXCLUDED.#{quote_column_name(limit_name)};
         SQL
+      end
+
+      # Note this should only be used with very small tables
+      def backfill_iids(table)
+        sql = <<-END
+          UPDATE #{table}
+          SET iid = #{table}_with_calculated_iid.iid_num
+          FROM (
+            SELECT id, ROW_NUMBER() OVER (PARTITION BY project_id ORDER BY id ASC) AS iid_num FROM #{table}
+          ) AS #{table}_with_calculated_iid
+          WHERE #{table}.id = #{table}_with_calculated_iid.id
+        END
+
+        execute(sql)
       end
 
       private

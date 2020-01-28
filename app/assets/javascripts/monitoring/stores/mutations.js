@@ -172,7 +172,6 @@ export default {
 
   [types.SET_ENDPOINTS](state, endpoints) {
     state.metricsEndpoint = endpoints.metricsEndpoint;
-    state.environmentsEndpoint = endpoints.environmentsEndpoint;
     state.deploymentsEndpoint = endpoints.deploymentsEndpoint;
     state.dashboardEndpoint = endpoints.dashboardEndpoint;
     state.dashboardsEndpoint = endpoints.dashboardsEndpoint;
@@ -195,5 +194,8 @@ export default {
   [types.SET_PANEL_GROUP_METRICS](state, payload) {
     const panelGroup = state.dashboard.panel_groups.find(pg => payload.key === pg.key);
     panelGroup.panels = payload.panels;
+  },
+  [types.SET_ENVIRONMENTS_SEARCH_TERM](state, searchTerm) {
+    state.environmentsSearchTerm = searchTerm;
   },
 };

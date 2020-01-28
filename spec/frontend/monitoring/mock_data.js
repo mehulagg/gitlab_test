@@ -331,9 +331,17 @@ export const mockedQueryResultPayloadCoresTotal = {
   ],
 };
 
+const extraEnvironmentData = new Array(15).fill(null).map((_, idx) => ({
+  id: `gid://gitlab/Environments/${150 + idx}`,
+  name: `no-deployment/noop-branch-${idx}`,
+  state: 'available',
+  created_at: '2018-07-04T18:39:41.702Z',
+  updated_at: '2018-07-04T18:44:54.010Z',
+}));
+
 export const environmentData = [
   {
-    id: 34,
+    id: 'gid://gitlab/Environments/34',
     name: 'production',
     state: 'available',
     external_url: 'http://root-autodevops-deploy.my-fake-domain.com',
@@ -351,7 +359,7 @@ export const environmentData = [
     },
   },
   {
-    id: 35,
+    id: 'gid://gitlab/Environments/35',
     name: 'review/noop-branch',
     state: 'available',
     external_url: 'http://root-autodevops-deploy-review-noop-branc-die93w.my-fake-domain.com',
@@ -368,14 +376,7 @@ export const environmentData = [
       id: 128,
     },
   },
-  {
-    id: 36,
-    name: 'no-deployment/noop-branch',
-    state: 'available',
-    created_at: '2018-07-04T18:39:41.702Z',
-    updated_at: '2018-07-04T18:44:54.010Z',
-  },
-];
+].concat(extraEnvironmentData);
 
 export const metricsDashboardResponse = {
   dashboard: {

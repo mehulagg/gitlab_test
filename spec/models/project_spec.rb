@@ -725,7 +725,7 @@ describe Project do
         let(:project) { create(:project, :repository) }
 
         it 'returns the README' do
-          expect(project.readme_url).to eq("#{project.web_url}/blob/master/README.md")
+          expect(project.readme_url).to eq("#{project.web_url}/-/blob/master/README.md")
         end
       end
     end
@@ -3780,6 +3780,25 @@ describe Project do
     end
   end
 
+  describe '.wrap_authorized_projects_with_cte' do
+    let!(:user) { create(:user) }
+
+    let!(:private_project) do
+      create(:project, :private, creator: user, namespace: user.namespace)
+    end
+
+    let!(:public_project) { create(:project, :public) }
+
+    let(:projects) { described_class.all.public_or_visible_to_user(user) }
+
+    subject { described_class.wrap_authorized_projects_with_cte(projects) }
+
+    it 'wrapped query matches original' do
+      expect(subject.to_sql).to match(/^WITH "authorized_projects" AS/)
+      expect(subject).to match_array(projects)
+    end
+  end
+
   describe '#pages_available?' do
     let(:project) { create(:project, group: group) }
 
@@ -3992,7 +4011,7 @@ describe Project do
       end
 
       it 'schedules HashedStorage::ProjectMigrateWorker with delayed start when the project repo is in use' do
-        Gitlab::ReferenceCounter.new(Gitlab::GlRepository::PROJECT.identifier_for_repositorable(project)).increase
+        Gitlab::ReferenceCounter.new(Gitlab::GlRepository::PROJECT.identifier_for_container(project)).increase
 
         expect(HashedStorage::ProjectMigrateWorker).to receive(:perform_in)
 
@@ -4000,7 +4019,7 @@ describe Project do
       end
 
       it 'schedules HashedStorage::ProjectMigrateWorker with delayed start when the wiki repo is in use' do
-        Gitlab::ReferenceCounter.new(Gitlab::GlRepository::WIKI.identifier_for_repositorable(project)).increase
+        Gitlab::ReferenceCounter.new(Gitlab::GlRepository::WIKI.identifier_for_container(project)).increase
 
         expect(HashedStorage::ProjectMigrateWorker).to receive(:perform_in)
 

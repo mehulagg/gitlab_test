@@ -659,8 +659,6 @@ procfile exec` to replicate the environment where your application will run.
 
 #### Workers
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/30628) in GitLab 12.6, `.gitlab/auto-deploy-values.yaml` will be used by default for Helm upgrades.
-
 Some web applications need to run extra deployments for "worker processes". For
 example, it is common in a Rails application to have a separate worker process
 to run background tasks like sending emails.
@@ -683,17 +681,8 @@ need to:
   ensure it's passed into your deployments.
 
 Once you have configured your worker to respond to health checks, run a Sidekiq
-worker for your Rails application. For:
-
-- GitLab 12.6 and later, either:
-  - Add a file named `.gitlab/auto-deploy-values.yaml` to your repository. It will
-    be automatically used if found.
-  - Add a file with a different name or path to the repository, and override the value of the
-    `HELM_UPGRADE_VALUES_FILE` variable with the path and name.
-- GitLab 12.5 and earlier, run the worker with the `--values` parameter that specifies
-  a file in the repository.
-
-In any case, the file must contain the following:
+worker for your Rails application. You can enable workers by setting the
+following in the [`.gitlab/auto-deploy-values.yaml` file](#customize-values-for-helm-chart):
 
 ```yml
 workers:
@@ -927,8 +916,21 @@ repo or by specifying a project variable:
 - **Project variable** - Create a [project variable](../../ci/variables/README.md#gitlab-cicd-environment-variables)
   `AUTO_DEVOPS_CHART` with the URL of a custom chart to use or create two project variables `AUTO_DEVOPS_CHART_REPOSITORY` with the URL of a custom chart repository and `AUTO_DEVOPS_CHART` with the path to the chart.
 
-You can also make use of the `HELM_UPGRADE_EXTRA_ARGS` environment variable to override the default values in the `values.yaml` file in the [default Helm chart](https://gitlab.com/gitlab-org/charts/auto-deploy-app).
-To apply your own `values.yaml` file to all Helm upgrade commands in Auto Deploy set `HELM_UPGRADE_EXTRA_ARGS` to `--values my-values.yaml`.
+### Customize values for Helm Chart
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/30628) in GitLab 12.6, `.gitlab/auto-deploy-values.yaml` will be used by default for Helm upgrades.
+
+You can override the default values in the `values.yaml` file in the [default Helm chart](https://gitlab.com/gitlab-org/charts/auto-deploy-app).
+This can be achieved by either:
+
+- Adding a file named `.gitlab/auto-deploy-values.yaml` to your repository. It will
+  be automatically used if found.
+- Adding a file with a different name or path to the repository, and set the
+  `HELM_UPGRADE_VALUES_FILE` [environment variable](#environment-variables) with the path and name.
+
+NOTE: **Note:**
+For GitLab 12.5 and earlier, the `HELM_UPGRADE_EXTRA_ARGS` environment variable can be used to override the default chart values.
+To do so, set `HELM_UPGRADE_EXTRA_ARGS` to `--values my-values.yaml`.
 
 ### Custom Helm chart per environment
 
@@ -1074,6 +1076,7 @@ Auto DevOps can undo your changes.
 The following table lists variables related to the database.
 
 | **Variable**                            | **Description**                    |
+|-----------------------------------------|------------------------------------|
 | `DB_INITIALIZE`                         | From GitLab 11.4, used to specify the command to run to initialize the application's PostgreSQL database. Runs inside the application pod. |
 | `DB_MIGRATE`                            | From GitLab 11.4, used to specify the command to run to migrate the application's PostgreSQL database. Runs inside the application pod. |
 | `POSTGRES_ENABLED`                      | Whether PostgreSQL is enabled. Defaults to `"true"`. Set to `false` to disable the automatic deployment of PostgreSQL. |
@@ -1087,6 +1090,7 @@ The following table lists variables related to the database.
 The following table lists variables related to security tools.
 
 | **Variable**                            | **Description**                    |
+|-----------------------------------------|------------------------------------|
 | `SAST_CONFIDENCE_LEVEL`                 | Minimum confidence level of security issues you want to be reported; `1` for Low, `2` for Medium, `3` for High. Defaults to `3`. |
 
 #### Disable jobs
@@ -1094,6 +1098,7 @@ The following table lists variables related to security tools.
 The following table lists variables used to disable jobs.
 
 | **Variable**                            | **Description**                    |
+|-----------------------------------------|------------------------------------|
 | `CODE_QUALITY_DISABLED`                 | From GitLab 11.0, used to disable the `codequality` job. If the variable is present, the job will not be created. |
 | `CONTAINER_SCANNING_DISABLED`           | From GitLab 11.0, used to disable the `sast:container` job. If the variable is present, the job will not be created. |
 | `DAST_DISABLED`                         | From GitLab 11.0, used to disable the `dast` job. If the variable is present, the job will not be created. |

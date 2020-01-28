@@ -812,7 +812,7 @@ describe API::Projects do
 
       post api('/projects', user), params: project
 
-      expect(json_response['readme_url']).to eql("#{Gitlab.config.gitlab.url}/#{json_response['namespace']['full_path']}/somewhere/blob/master/README.md")
+      expect(json_response['readme_url']).to eql("#{Gitlab.config.gitlab.url}/#{json_response['namespace']['full_path']}/somewhere/-/blob/master/README.md")
     end
 
     it 'sets tag list to a project' do
@@ -1394,6 +1394,7 @@ describe API::Projects do
         expect(json_response['jobs_enabled']).to be_present
         expect(json_response['snippets_enabled']).to be_present
         expect(json_response['snippets_access_level']).to be_present
+        expect(json_response['pages_access_level']).to be_present
         expect(json_response['repository_access_level']).to be_present
         expect(json_response['issues_access_level']).to be_present
         expect(json_response['merge_requests_access_level']).to be_present
@@ -2228,6 +2229,16 @@ describe API::Projects do
         expect(response).to have_gitlab_http_status(200)
 
         expect(json_response['builds_access_level']).to eq('private')
+      end
+
+      it 'updates pages_access_level' do
+        project_param = { pages_access_level: 'private' }
+
+        put api("/projects/#{project3.id}", user), params: project_param
+
+        expect(response).to have_gitlab_http_status(:ok)
+
+        expect(json_response['pages_access_level']).to eq('private')
       end
 
       it 'updates build_git_strategy' do

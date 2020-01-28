@@ -42,7 +42,7 @@ describe('dashboard time window', () => {
     mock.restore();
   });
 
-  it('shows an error message if invalid url parameters are passed', done => {
+  it('shows an active quick range option', done => {
     mock.onGet(mockApiEndpoint).reply(statusCodes.OK, metricsDashboardPayload);
 
     createComponentWrapperMounted({ hasMetrics: true }, { stubs: ['graph-group', 'panel-type'] });
@@ -53,8 +53,9 @@ describe('dashboard time window', () => {
       .$nextTick()
       .then(() => {
         const timeWindowDropdownItems = wrapper
-          .find('.js-time-window-dropdown')
+          .find({ ref: 'dateTimePicker' })
           .findAll(GlDropdownItem);
+
         const activeItem = timeWindowDropdownItems.wrappers.filter(itemWrapper =>
           itemWrapper.find('.active').exists(),
         );

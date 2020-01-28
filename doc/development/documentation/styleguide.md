@@ -77,7 +77,7 @@ and cross-link between any related content.
 We employ a **docs-first methodology** to help ensure that the docs remain a complete and trusted resource, and to make communicating about the use of GitLab more efficient.
 
 - If the answer to a question exists in documentation, share the link to the docs instead of rephrasing the information.
-- When you encounter new information not available in GitLab’s documentation (for example, when working on a support case or testing a feature), your first step should be to create a merge request to add this information to the docs. You can then share the MR in order to communicate this information.
+- When you encounter new information not available in GitLab’s documentation (for example, when working on a support case or testing a feature), your first step should be to create a merge request (MR) to add this information to the docs. You can then share the MR in order to communicate this information.
 
 New information that would be useful toward the future usage or troubleshooting of GitLab should not be written directly in a forum or other messaging system, but added to a docs MR and then referenced, as described above. Note that among any other doc changes, you can always add a Troubleshooting section to a doc if none exists, or un-comment and use the placeholder Troubleshooting section included as part of our [doc template](structure.md#template-for-new-docs), if present.
 
@@ -525,6 +525,35 @@ For other punctuation rules, please refer to the
 - Use sentence case in headings. Do not capitalize the words of the title, unless
   it refers to a product feature. For example, capitalizing "issues" is acceptable in
   `## What you can do with GitLab Issues`, but not in `## Closing multiple issues`.
+- Our docs site search engine prioritizes headings, therefore, make sure to write
+  headings that contextualize the subject and help to take the user to the right
+  document. For example, `## Examples` is a bad heading; `## GitLab Pages examples`
+  is a better one. It's not an exact science, but please consider this carefully.
+
+### Anchor links
+
+Headings generate anchor links automatically when rendered. `## This is an example`
+generates the anchor `#this-is-an-example`.
+
+Keep in mind that the GitLab UI links to a large number of docs and respective
+anchor links to take the user to the right spot. Therefore, when you change a
+heading, search `doc/*`, `app/views/*`, and `ee/app/views/*` for the old anchor
+to make sure you're not breaking an anchor linked from other docs nor from the
+GitLab UI. If you find the old anchor, make sure to replace it with the new one.
+
+Important:
+
+- Avoid crosslinking docs to headings unless you need to link to a specific section
+  of the document. This will avoid breaking anchors in the future in case the heading
+  is changed.
+- If possible, avoid changing headings since they're not only linked internally.
+  There are various links to GitLab documentation on the internet, such as tutorials,
+  presentations, StackOverflow posts, and other sources.
+- Do not link to `h1` headings.
+
+Note that, with Kramdown, it is possible to add a custom ID to an HTML element
+with Markdown markup, but they **do not** work in GitLab's `/help`. Therefore,
+do not use this option until further notice.
 
 ## Links
 
@@ -766,7 +795,76 @@ nicely on different mobile devices.
 - To display raw Markdown instead of rendered Markdown, you can use triple backticks
   with `md`, like the `Markdown code` example above, unless you want to include triple
   backticks in the code block as well. In that case, use triple tildes (`~~~`) instead.
+- [Syntax highlighting for code blocks](https://github.com/rouge-ruby/rouge/wiki/List-of-supported-languages-and-lexers) is available for many languages.
 - For a complete reference on code blocks, check the [Kramdown guide](https://about.gitlab.com/handbook/product/technical-writing/markdown-guide/#code-blocks).
+
+## GitLab SVG icons
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-docs/issues/384) in GitLab 12.7.
+
+You can use icons from the [GitLab SVG library](https://gitlab-org.gitlab.io/gitlab-svgs/) directly
+in the documentation.
+
+This way, you can achieve a consistent look when writing about interacting with GitLab UI elements.
+
+Usage examples:
+
+- Icon with default size (16px): `**{icon-name}**`
+
+  Example: `**{tanuki}**` renders as: **{tanuki}**.
+- Icon with custom size: `**{icon-name, size}**`
+
+  Available sizes (in px): 8, 10, 12, 14, 16, 18, 24, 32, 48, and 72
+
+  Example: `**{tanuki, 24}**` renders as: **{tanuki, 24}**.
+- Icon with custom size and class: `**{icon-name, size, class-name}**`.
+
+  You can access any class available to this element in GitLab docs CSS.
+
+  Example with `float-right`, a
+  [Bootstrap utility class](https://getbootstrap.com/docs/4.4/utilities/float/):
+  `**{tanuki, 32, float-right}**` renders as: **{tanuki, 32, float-right}**
+
+### Using GitLab SVGs to describe UI elements
+
+When using GitLab SVGs to describe screen elements, also include the name or tooltip of the element as text.
+
+For example, for references to the Admin Area:
+
+- Correct: `**{admin}** **Admin Area > Settings**` (**{admin}** **Admin Area > Settings**)
+- Incorrect: `**{admin}** **> Settings**` (**{admin}** **> Settings**)
+
+This will ensure that the source Markdown remains readable and should help with accessibility.
+
+The following are examples of source Markdown for menu items with their published output:
+
+```md
+1. Go to **{home}** **Project overview > Details**
+1. Go to **{doc-text}** **Repository > Branches**
+1. Go to **{issues}** **Issues > List**
+1. Go to **{merge-request}** **Merge Requests**
+1. Go to **{rocket}** **CI/CD > Pipelines**
+1. Go to **{shield}** **Security & Compliance > Configuration**
+1. Go to **{cloud-gear}** **Operations > Metrics**
+1. Go to **{package}** **Packages > Container Registry**
+1. Go to **{chart}** **Project Analytics > Code Review**
+1. Go to **{book}** **Wiki**
+1. Go to **{snippet}** **Snippets**
+1. Go to **{users}** **Members**
+```
+
+1. Go to **{home}** **Project overview > Details**
+1. Go to **{doc-text}** **Repository > Branches**
+1. Go to **{issues}** **Issues > List**
+1. Go to **{merge-request}** **Merge Requests**
+1. Go to **{rocket}** **CI/CD > Pipelines**
+1. Go to **{shield}** **Security & Compliance > Configuration**
+1. Go to **{cloud-gear}** **Operations > Metrics**
+1. Go to **{package}** **Packages > Container Registry**
+1. Go to **{chart}** **Project Analytics > Code Review**
+1. Go to **{book}** **Wiki**
+1. Go to **{snippet}** **Snippets**
+1. Go to **{users}** **Members**
 
 ## Alert boxes
 
@@ -883,6 +981,24 @@ Which renders to:
 
 To maintain consistency through GitLab documentation, the following guides documentation authors
 on agreed styles and usage of terms.
+
+### Merge Requests (MRs)
+
+Merge requests allow you to exchange changes you made to source code and collaborate
+with other people on the same project. You'll see this term used in the following ways:
+
+- If you're referring to the feature, use **Merge Request**.
+- In any other context, use **merge request**.
+
+As noted in our corporate [Writing Style Guidelines](https://about.gitlab.com/handbook/communication/#writing-style-guidelines),
+if you use the **MR** acronym, expand it at least once per document page.
+For example, the first time you specify a MR, specify either _Merge Request (MR)_ or _merge request (MR)_.
+
+Examples:
+
+- "We prefer GitLab Merge Requests".
+- "Open a merge request to fix a broken link".
+- "After you open a merge request (MR), submit your MR for review and approval".
 
 ### Describing UI elements
 

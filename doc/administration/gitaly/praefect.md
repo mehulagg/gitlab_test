@@ -72,9 +72,11 @@ We need to manage the following secrets and make them match across hosts:
 1. `PRAEFECT_SQL_PASSWORD`: this password is used by Praefect to connect to
     PostgreSQL.
 
+We will note in the instructions below where these secrets are required.
+
 #### Network addresses
 
-1. `POSTGRESQL_SERVER`: the host name or IP address of your PostgreSQL server
+1. `POSTGRESQL_SERVER_ADDRESS`: the host name or IP address of your PostgreSQL server
 
 #### PostgreSQL
 
@@ -91,7 +93,7 @@ Below we assume that you have administrative access as the `postgres`
 user. First open a `psql` session as the `postgres` user:
 
 ```shell
-psql -h POSTGRESQL_SERVER -U postgres -d template1
+/opt/gitlab/embedded/bin/psql -h POSTGRESQL_SERVER_ADDRESS -U postgres -d template1
 ```
 
 Once you are connected, run the following command. Replace
@@ -100,21 +102,21 @@ generated for the `praefect` SQL user:
 
 ```sql
 CREATE ROLE praefect WITH LOGIN CREATEDB PASSWORD 'PRAEFECT_SQL_PASSWORD';
-\q # exit psql
+\q
 ```
 
 Now connect as the `praefect` user to create the database. This has
 the side effect of verifying that you have access:
 
 ```shell
-psql -h POSTGRESQL_SERVER -U praefect -d template1
+/opt/gitlab/embedded/bin/psql -h POSTGRESQL_SERVER_ADDRESS -U praefect -d template1
 ```
 
 Once you have connected as the `praefect` user, run:
 
 ```sql
 CREATE DATABASE praefect_production WITH ENCODING=UTF8;
-\q # quit psql
+\q
 ```
 
 #### Praefect
@@ -124,6 +126,12 @@ Gitaly node that will be connected to Praefect as members of the `praefect` hash
 
 In the example below, the Gitaly nodes are named `gitaly-N`. Note that one
 node is designated as primary by setting the primary to `true`.
+
+If you are using an uncrypted connection to Postgres, set `praefect['database_sslmode']` to false.
+
+If you are using an encrypted connection with a client certificate,
+`praefect['database_sslcert']` and `praefect['database_sslkey']` will need to be set.
+If you are using a custom CA, also set `praefect['database_sslrootcert']`:
 
 ```ruby
 # /etc/gitlab/gitlab.rb on praefect server
@@ -173,9 +181,11 @@ praefect['virtual_storages'] = {
   }
 }
 
-praefect['database_host'] = 'POSTGRESQL_SERVER'
+# Replace POSTGRESQL_SERVER below with a real IP/host address of the database.
+praefect['database_host'] = 'POSTGRESQL_SERVER_ADDRESS'
 praefect['database_port'] = 5432
 praefect['database_user'] = 'praefect'
+# Replace PRAEFECT_SQL_PASSWORD below with a real password of the database.
 praefect['database_password'] = 'PRAEFECT_SQL_PASSWORD'
 praefect['database_dbname'] = 'praefect_production'
 
@@ -192,6 +202,9 @@ praefect['database_dbname'] = 'praefect_production'
 # CA
 # praefect['database_sslrootcert'] = '/path/to/rootcert'
 ```
+
+Replace `POSTGRESQL_SERVER_ADDRESS`, `PRAEFECT_EXTERNAL_TOKEN`, `PRAEFECT_INTERNAL_TOKEN`,
+and `PRAEFECT_SQL_PASSWORD` with their respective values.
 
 Save the file and [reconfigure Praefect](../restart_gitlab.md#omnibus-gitlab-reconfigure).
 
@@ -258,7 +271,26 @@ git_data_dirs({
 })
 ```
 
+Replace `GITLAB_SHELL_SECRET_TOKEN` and `PRAEFECT_INTERNAL_TOKEN`
+with their respective values.
+
 For more information on Gitaly server configuration, see our [Gitaly documentation](index.md#3-gitaly-server-configuration).
+
+When finished editing the configuration file for each Gitaly server, run the
+reconfigure command to put changes into effect:
+
+```shell
+sudo gitlab-ctl reconfigure
+```
+
+When all Gitaly servers are configured, you can run the Praefect connection
+checker to verify Praefect can connect to all Gitaly servers in the Praefect
+config. This can be done by running the following command on the Praefect
+server:
+
+```shell
+sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dial-nodes
+```
 
 #### GitLab
 
@@ -283,6 +315,9 @@ git_data_dirs({
 # Replace GITLAB_SHELL_SECRET_TOKEN below with real secret
 gitlab_shell['secret_token'] = 'GITLAB_SHELL_SECRET_TOKEN'
 ```
+
+Replace `GITLAB_SHELL_SECRET_TOKEN` and `PRAEFECT_EXTERNAL_TOKEN`
+with their respective values.
 
 Note that the storage name used is the same as the `praefect['virtual_storage_name']` set
 on the Praefect node.
@@ -311,4 +346,5 @@ Here are common errors and potential causes:
   - **GRPC::Unavailable (14:failed to connect to all addresses)**
     - GitLab was unable to reach Praefect.
   - **GRPC::Unavailable (14:all SubCons are in TransientFailure...)**
-    - Praefect cannot reach one or more of its child Gitaly nodes.
+    - Praefect cannot reach one or more of its child Gitaly nodes. Try running
+      the Praefect connection checker to diagnose.

@@ -160,7 +160,7 @@ module EE
 
       delegate :merge_pipelines_enabled, :merge_pipelines_enabled=, :merge_pipelines_enabled?, :merge_pipelines_were_disabled?, to: :ci_cd_settings
       delegate :merge_trains_enabled?, to: :ci_cd_settings
-      delegate :actual_limits, to: :namespace, allow_nil: true
+      delegate :actual_limits, :actual_plan_name, to: :namespace, allow_nil: true
 
       validates :repository_size_limit,
         numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true }
@@ -702,9 +702,15 @@ module EE
     end
 
     def marked_for_deletion?
-      return false unless feature_available?(:marking_project_for_deletion)
+      marked_for_deletion_at.present? &&
+        feature_available?(:marking_project_for_deletion)
+    end
 
-      marked_for_deletion_at.present?
+    def ancestor_marked_for_deletion
+      return unless feature_available?(:adjourned_deletion_for_projects_and_groups)
+
+      ancestors(hierarchy_order: :asc)
+        .joins(:deletion_schedule).first
     end
 
     def has_packages?(package_type)

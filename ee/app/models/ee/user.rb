@@ -275,9 +275,22 @@ module EE
 
     def using_license_seat?
       return false unless active?
+      return false if support_bot? || ghost?
       return false unless License.current
 
       if License.current.exclude_guests_from_active_count?
+        highest_role > ::Gitlab::Access::GUEST
+      else
+        true
+      end
+    end
+
+    def using_gitlab_com_seat?(namespace)
+      return false unless ::Gitlab.com?
+      return false unless namespace.present?
+      return false if namespace.free_plan?
+
+      if namespace.gold_plan?
         highest_role > ::Gitlab::Access::GUEST
       else
         true

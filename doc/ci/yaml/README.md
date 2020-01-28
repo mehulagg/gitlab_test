@@ -651,7 +651,7 @@ With `only`, individual keys are logically joined by an AND:
 
 > NOT((any of refs) AND (any of variables) AND (any of changes) AND (if Kubernetes is active))
 
-This, more intuitively, means the keys join by an OR. A functionally equivalent expression:
+This means the keys are treated as if joined by an OR. This relationship could be described as:
 
 > (any of refs) OR (any of variables) OR (any of changes) OR (if Kubernetes is active)
 
@@ -736,7 +736,7 @@ This means the `only:changes` policy is useful for pipelines where:
 - `$CI_PIPELINE_SOURCE == 'external_pull_request_event'`
 
 If there is no Git push event, such as for pipelines with
-[sources other than the three above](../variables/predefined_variables.html#variables-reference),
+[sources other than the three above](../variables/predefined_variables.md#variables-reference),
 `changes` cannot determine if a given file is new or old, and will always
 return true.
 
@@ -1342,8 +1342,7 @@ In its simplest form, the `environment` keyword can be defined like:
 deploy to production:
   stage: deploy
   script: git push production HEAD:master
-  environment:
-    name: production
+  environment: production
 ```
 
 In the above example, the `deploy to production` job will be marked as doing a
@@ -2681,6 +2680,27 @@ trigger_job:
       - local: path/to/child-pipeline.yml
     strategy: depend
 ```
+
+#### Linking pipelines with `trigger:strategy`
+
+By default, the `trigger` job completes with the `success` status
+as soon as the downstream pipeline is created.
+
+To force the `trigger` job to wait for the downstream (multi-project or child) pipeline to complete, use
+`strategy: depend`. This will make the trigger job wait with a "running" status until the triggered
+pipeline completes. At that point, the `trigger` job will complete and display the same status as
+the downstream job.
+
+```yaml
+trigger_job:
+  trigger:
+    include: path/to/child-pipeline.yml
+    strategy: depend
+```
+
+This can help keep your pipeline execution linear. In the example above, jobs from
+subsequent stages will wait for the triggered pipeline to successfully complete before
+starting, at the cost of reduced parallelization.
 
 ### `interruptible`
 

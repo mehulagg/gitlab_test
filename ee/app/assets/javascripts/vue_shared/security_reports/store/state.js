@@ -16,7 +16,7 @@ export default () => ({
   canCreateIssuePermission: false,
   canCreateFeedbackPermission: false,
 
-  sastContainer: {
+  containerScanning: {
     paths: {
       head: null,
       base: null,
@@ -29,6 +29,7 @@ export default () => ({
     newIssues: [],
     resolvedIssues: [],
     baseReportOutofDate: false,
+    hasBaseReport: false,
   },
   dast: {
     paths: {
@@ -43,6 +44,7 @@ export default () => ({
     newIssues: [],
     resolvedIssues: [],
     baseReportOutofDate: false,
+    hasBaseReport: false,
   },
 
   dependencyScanning: {
@@ -59,6 +61,7 @@ export default () => ({
     resolvedIssues: [],
     allIssues: [],
     baseReportOutofDate: false,
+    hasBaseReport: false,
   },
 
   modal: {

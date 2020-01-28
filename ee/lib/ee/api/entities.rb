@@ -66,6 +66,7 @@ module EE
           expose :checked_file_template_project_id,
                  as: :file_template_project_id,
                  if: ->(group, options) { group.feature_available?(:custom_file_templates_for_namespace) }
+          expose :marked_for_deletion_on, if: ->(group, _) { group.feature_available?(:adjourned_deletion_for_projects_and_groups) }
         end
       end
 
@@ -93,6 +94,9 @@ module EE
           expose :group_saml_identity,
                  using: ::API::Entities::Identity,
                  if: -> (member, options) { Ability.allowed?(options[:current_user], :read_group_saml_identity, member.source) }
+          expose :is_using_seat, if: -> (member, options) { options[:show_seat_info] } do |member, _options|
+            !!member.user&.using_license_seat?
+          end
         end
       end
 
@@ -112,6 +116,11 @@ module EE
           expose :unprotect_access_levels, using: ::API::Entities::ProtectedRefAccess
           expose :code_owner_approval_required
         end
+      end
+
+      class ProtectedEnvironment < Grape::Entity
+        expose :name
+        expose :deploy_access_levels, using: ::API::Entities::ProtectedRefAccess
       end
 
       module IssueBasic
@@ -616,6 +625,10 @@ module EE
         expose :repos_max_capacity
         expose :verification_max_capacity
         expose :container_repositories_max_capacity
+        expose :selective_sync_type
+        expose :selective_sync_shards
+        expose :namespace_ids, as: :selective_sync_namespace_ids
+        expose :minimum_reverification_interval
         expose :sync_object_storage, if: ->(geo_node, _) { geo_node.secondary? }
 
         # Retained for backwards compatibility. Remove in API v5

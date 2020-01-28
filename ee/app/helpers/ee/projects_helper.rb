@@ -6,9 +6,13 @@ module EE
 
     override :sidebar_projects_paths
     def sidebar_projects_paths
-      super + %w[
-        projects/insights#show
-      ]
+      if ::Feature.enabled?(:analytics_pages_under_project_analytics_sidebar, @project)
+        super
+      else
+        super + %w[
+          projects/insights#show
+        ]
+      end
     end
 
     override :sidebar_settings_paths
@@ -59,7 +63,7 @@ module EE
         nav_tabs << :packages
       end
 
-      if ::Feature.enabled?(:code_review_analytics, project, default_enabled: true)
+      if can?(current_user, :read_code_review_analytics, project)
         nav_tabs << :code_review
       end
 
@@ -251,6 +255,15 @@ module EE
 
     def any_project_nav_tab?(tabs)
       tabs.any? { |tab| project_nav_tab?(tab) }
+    end
+
+    def show_discover_project_security?(project)
+      !!::Feature.enabled?(:discover_security) &&
+        ::Gitlab.com? &&
+        !!current_user &&
+        current_user.created_at > DateTime.new(2020, 1, 20) &&
+        !project.feature_available?(:security_dashboard) &&
+        can?(current_user, :admin_namespace, project.root_ancestor)
     end
 
     def settings_operations_available?

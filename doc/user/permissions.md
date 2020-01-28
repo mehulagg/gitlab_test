@@ -37,11 +37,12 @@ usernames. A GitLab administrator can configure the GitLab instance to
 NOTE: **Note:**
 In GitLab 11.0, the Master role was renamed to Maintainer.
 
-While Maintainer is the highest project-level role, some actions can only be performed by a personal namespace or group owner.
+While Maintainer is the highest project-level role, some actions can only be performed by a personal namespace or group owner,
+or an instance admin, who receives all permissions.
 
 The following table depicts the various user permission levels in a project.
 
-| Action                                            | Guest   | Reporter   | Developer   |Maintainer| Owner  |
+| Action                                            | Guest   | Reporter   | Developer   |Maintainer| Owner* |
 |---------------------------------------------------|---------|------------|-------------|----------|--------|
 | Download project                                  | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
 | Leave comments                                    | ✓ (*1*) | ✓          | ✓           | ✓        | ✓      |
@@ -118,7 +119,7 @@ The following table depicts the various user permission levels in a project.
 | Configure project hooks                           |         |            |             | ✓        | ✓      |
 | Manage Runners                                    |         |            |             | ✓        | ✓      |
 | Manage job triggers                               |         |            |             | ✓        | ✓      |
-| Manage variables                                  |         |            |             | ✓        | ✓      |
+| Manage CI/CD variables                            |         |            |             | ✓        | ✓      |
 | Manage GitLab Pages                               |         |            |             | ✓        | ✓      |
 | Manage GitLab Pages domains and certificates      |         |            |             | ✓        | ✓      |
 | Remove GitLab Pages                               |         |            |             | ✓        | ✓      |
@@ -138,10 +139,11 @@ The following table depicts the various user permission levels in a project.
 | Force push to protected branches (*4*)            |         |            |             |          |        |
 | Remove protected branches (*4*)                   |         |            |             |          |        |
 
-- (*1*): Guest users are able to perform this action on public and internal projects, but not private projects.
-- (*2*): Guest users can only view the confidential issues they created themselves
-- (*3*): If **Public pipelines** is enabled in **Project Settings > CI/CD**
-- (*4*): Not allowed for Guest, Reporter, Developer, Maintainer, or Owner. See [Protected Branches](./project/protected_branches.md).
+\* Owner permission is only available at the group or personal namespace level (and for instance admins) and is inherited by its projects.  
+(*1*): Guest users are able to perform this action on public and internal projects, but not private projects.  
+(*2*): Guest users can only view the confidential issues they created themselves.  
+(*3*): If **Public pipelines** is enabled in **Project Settings > CI/CD**.  
+(*4*): Not allowed for Guest, Reporter, Developer, Maintainer, or Owner. See [Protected Branches](./project/protected_branches.md).
 
 ## Project features permissions
 
@@ -221,6 +223,7 @@ group.
 | Use security dashboard **(ULTIMATE)**                  |       |          | ✓         | ✓          | ✓     |
 | Create subgroup                                        |       |          |           | ✓ (1)      | ✓     |
 | Edit group                                             |       |          |           |            | ✓     |
+| Manage group level CI/CD variables                     |       |          |           |            | ✓     |
 | Manage group members                                   |       |          |           |            | ✓     |
 | Remove group                                           |       |          |           |            | ✓     |
 | Delete group epic **(ULTIMATE)**                       |       |          |           |            | ✓     |
@@ -423,7 +426,7 @@ for details about the pipelines security model.
 ## LDAP users permissions
 
 Since GitLab 8.15, LDAP user permissions can now be manually overridden by an admin user.
-Read through the documentation on [LDAP users permissions](../administration/auth/how_to_configure_ldap_gitlab_ee/index.html) to learn more.
+Read through the documentation on [LDAP users permissions](../administration/auth/how_to_configure_ldap_gitlab_ee/index.md) to learn more.
 
 ## Project aliases
 

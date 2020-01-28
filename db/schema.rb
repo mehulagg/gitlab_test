@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_01_17_112554) do
+ActiveRecord::Schema.define(version: 2020_01_27_090233) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1150,7 +1150,6 @@ ActiveRecord::Schema.define(version: 2020_01_17_112554) do
     t.bigint "cluster_id", null: false
     t.integer "status", null: false
     t.string "version", limit: 255, null: false
-    t.string "kibana_hostname", limit: 255
     t.text "status_reason"
     t.index ["cluster_id"], name: "index_clusters_applications_elastic_stacks_on_cluster_id", unique: true
   end
@@ -1410,6 +1409,7 @@ ActiveRecord::Schema.define(version: 2020_01_17_112554) do
     t.integer "merge_request_id"
     t.integer "epic_id"
     t.text "description"
+    t.datetime_with_timezone "deleted_at"
     t.index ["epic_id"], name: "index_description_versions_on_epic_id", where: "(epic_id IS NOT NULL)"
     t.index ["issue_id"], name: "index_description_versions_on_issue_id", where: "(issue_id IS NOT NULL)"
     t.index ["merge_request_id"], name: "index_description_versions_on_merge_request_id", where: "(merge_request_id IS NOT NULL)"
@@ -2045,6 +2045,7 @@ ActiveRecord::Schema.define(version: 2020_01_17_112554) do
     t.string "exception_message", limit: 255
     t.integer "retry_count"
     t.integer "group_id"
+    t.string "source", limit: 128
     t.index ["correlation_id_value"], name: "index_import_failures_on_correlation_id_value"
     t.index ["group_id"], name: "index_import_failures_on_group_id_not_null", where: "(group_id IS NOT NULL)"
     t.index ["project_id"], name: "index_import_failures_on_project_id_not_null", where: "(project_id IS NOT NULL)"
@@ -2777,6 +2778,7 @@ ActiveRecord::Schema.define(version: 2020_01_17_112554) do
     t.index ["commit_id"], name: "index_notes_on_commit_id"
     t.index ["created_at"], name: "index_notes_on_created_at"
     t.index ["discussion_id"], name: "index_notes_on_discussion_id"
+    t.index ["id"], name: "epic_mentions_temp_index", where: "((note ~~ '%@%'::text) AND ((noteable_type)::text = 'Epic'::text))"
     t.index ["line_code"], name: "index_notes_on_line_code"
     t.index ["note"], name: "index_notes_on_note_trigram", opclass: :gin_trgm_ops, using: :gin
     t.index ["noteable_id", "noteable_type"], name: "index_notes_on_noteable_id_and_noteable_type"
@@ -2852,6 +2854,7 @@ ActiveRecord::Schema.define(version: 2020_01_17_112554) do
     t.integer "owner_id"
     t.string "owner_type"
     t.boolean "trusted", default: false, null: false
+    t.boolean "confidential", default: true, null: false
     t.index ["owner_id", "owner_type"], name: "index_oauth_applications_on_owner_id_and_owner_type"
     t.index ["uid"], name: "index_oauth_applications_on_uid", unique: true
   end
@@ -2879,6 +2882,8 @@ ActiveRecord::Schema.define(version: 2020_01_17_112554) do
     t.datetime_with_timezone "updated_at", null: false
     t.string "name", null: false
     t.text "description"
+    t.integer "iid", null: false
+    t.index ["project_id", "iid"], name: "index_operations_feature_flags_on_project_id_and_iid", unique: true
     t.index ["project_id", "name"], name: "index_operations_feature_flags_on_project_id_and_name", unique: true
   end
 
@@ -3842,7 +3847,6 @@ ActiveRecord::Schema.define(version: 2020_01_17_112554) do
     t.string "encrypted_secret_token_iv", limit: 255
     t.boolean "secret", default: false, null: false
     t.string "repository_storage", limit: 255, default: "default", null: false
-    t.integer "storage_version", default: 2, null: false
     t.index ["author_id"], name: "index_snippets_on_author_id"
     t.index ["content"], name: "index_snippets_on_content_trigram", opclass: :gin_trgm_ops, using: :gin
     t.index ["created_at"], name: "index_snippets_on_created_at"
@@ -3857,8 +3861,8 @@ ActiveRecord::Schema.define(version: 2020_01_17_112554) do
     t.integer "project_id", null: false
     t.integer "software_license_id", null: false
     t.integer "classification", default: 0, null: false
-    t.datetime_with_timezone "created_at"
-    t.datetime_with_timezone "updated_at"
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
     t.index ["project_id", "software_license_id"], name: "index_software_license_policies_unique_per_project", unique: true
     t.index ["software_license_id"], name: "index_software_license_policies_on_software_license_id"
   end

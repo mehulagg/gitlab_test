@@ -24,10 +24,12 @@ class SubscriptionsController < ApplicationController
 
   def new
     if experiment_enabled?(:paid_signup_flow)
-      return if current_user
-
-      store_location_for :user, request.fullpath
-      redirect_to new_user_registration_path
+      if current_user
+        track_paid_signup_flow_event('start')
+      else
+        store_location_for :user, request.fullpath
+        redirect_to new_user_registration_path
+      end
     else
       redirect_to customer_portal_new_subscription_url
     end
@@ -46,7 +48,8 @@ class SubscriptionsController < ApplicationController
   def create
     current_user.update(setup_for_company: true) if params[:setup_for_company]
     group_name = params[:setup_for_company] ? customer_params[:company] : "#{current_user.name}'s Group"
-    group = Groups::CreateService.new(current_user, name: group_name, path: SecureRandom.uuid).execute
+    path = Namespace.clean_path(group_name)
+    group = Groups::CreateService.new(current_user, name: group_name, path: path).execute
     return render json: group.errors.to_json unless group.persisted?
 
     response = Subscriptions::CreateService.new(
@@ -56,11 +59,27 @@ class SubscriptionsController < ApplicationController
       subscription_params: subscription_params
     ).execute
 
-    response[:data] = { location: edit_group_path(group) } if response[:success]
+    if response[:success]
+      plan_id, quantity = subscription_params.values_at(:plan_id, :quantity)
+
+      response[:data] = { location: edit_subscriptions_group_path(group.path, plan_id: plan_id, quantity: quantity) }
+
+      track_paid_signup_flow_event('end', label: plan_id, value: quantity)
+    end
+
     render json: response[:data]
   end
 
   private
+
+  def track_paid_signup_flow_event(action, label: nil, value: nil)
+    ::Gitlab::Tracking.event(
+      'Growth::Acquisition::Experiment::PaidSignUpFlow',
+      action,
+      label: label,
+      value: value
+    )
+  end
 
   def customer_params
     params.require(:customer).permit(:country, :address_1, :address_2, :city, :state, :zip_code, :company)

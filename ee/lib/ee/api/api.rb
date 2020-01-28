@@ -37,6 +37,7 @@ module EE
         mount ::API::NpmPackages
         mount ::API::ProjectPackages
         mount ::API::GroupPackages
+        mount ::API::GroupHooks
         mount ::API::PackageFiles
         mount ::API::Scim
         mount ::API::ManagedLicenses
@@ -50,6 +51,7 @@ module EE
         mount ::API::Dependencies
         mount ::API::VisualReviewDiscussions
         mount ::API::Analytics::CodeReviewAnalytics
+        mount ::API::ProtectedEnvironments
 
         version 'v3', using: :path do
           # Although the following endpoints are kept behind V3 namespace,

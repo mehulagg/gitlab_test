@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-scope "/-/push_from_secondary/:geo_node_id" do
-  draw :git_http
-end
-
 constraints(::Constraints::ProjectUrlConstrainer.new) do
   scope(path: '*namespace_id',
         as: :namespace,
@@ -78,10 +74,14 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         resources :audit_events, only: [:index]
 
-        namespace :analytics do
-          constraints(::Constraints::FeatureConstrainer.new(:code_review_analytics, default_enabled: true)) do
-            resources :code_reviews, only: [:index]
+        namespace :security do
+          resources :waf_anomalies, only: [] do
+            get :summary, on: :collection
           end
+        end
+
+        namespace :analytics do
+          resources :code_reviews, only: [:index]
         end
 
         draw :merge_requests_ee
@@ -126,6 +126,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       resources :issues, only: [], constraints: { id: /\d+/ } do
         member do
           get '/descriptions/:version_id/diff', action: :description_diff, as: :description_diff
+          delete '/descriptions/:version_id', action: :delete_description_version, as: :delete_description_version
           get '/designs(/*vueroute)', to: 'issues#designs', as: :designs, format: false
         end
 
@@ -162,6 +163,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       namespace :security do
         resources :dashboard, only: [:show, :index], controller: :dashboard
         resource :configuration, only: [:show], controller: :configuration
+        resource :discover, only: [:show], controller: :discover
 
         resources :vulnerability_findings, only: [:index] do
           collection do
@@ -206,7 +208,7 @@ scope path: '(/-/jira)', constraints: ::Constraints::JiraEncodedUrlConstrainer.n
         project: params[:project_id]
       )
 
-      "/#{project_full_path}/tree/#{params[:id]}"
+      "/#{project_full_path}/-/tree/#{params[:id]}"
     }
   end
 end
