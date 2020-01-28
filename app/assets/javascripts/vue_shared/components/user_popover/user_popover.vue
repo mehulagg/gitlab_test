@@ -42,9 +42,6 @@ export default {
 
       return '';
     },
-    nameIsLoading() {
-      return !this.user.name;
-    },
     jobInfoIsLoading() {
       return !this.user.loaded && this.user.organization === null;
     },
@@ -56,16 +53,16 @@ export default {
 </script>
 
 <template>
-  <gl-popover :target="target" boundary="viewport" placement="top" offset="0, 1" show>
+  <gl-popover :target="target" boundary="viewport" triggers="hover" placement="top" v-on="$listeners">
     <div class="user-popover d-flex">
       <div class="p-1 flex-shrink-1">
         <user-avatar-image :img-src="user.avatarUrl" :size="60" css-classes="mr-2" />
       </div>
       <div class="p-1 w-100">
         <h5 class="m-0">
-          {{ user.name }}
+          <span v-if="user.name">{{ user.name }}</span>
           <gl-skeleton-loading
-            v-if="nameIsLoading"
+            v-else
             :lines="1"
             class="animation-container-small mb-1"
           />
