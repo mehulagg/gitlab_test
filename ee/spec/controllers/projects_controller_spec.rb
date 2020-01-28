@@ -12,8 +12,6 @@ describe ProjectsController do
   end
 
   shared_examples_for 'action pushing protected branches data to gon' do
-    include_context 'gon'
-
     let!(:protected_branch) { create(:protected_branch, project: project) }
     let!(:another_protected_branch) { create(:protected_branch, project: project) }
     let!(:unrelated_protected_branch) { create(:protected_branch) }
@@ -22,7 +20,7 @@ describe ProjectsController do
       action
     end
 
-    it 'pushes protected branches data to gon' do
+    it 'pushes protected branches data to gon', :gon do
       expect(gon['protected_branches']).to match_array([
         { id: protected_branch.id, name: protected_branch.name },
         { id: another_protected_branch.id, name: another_protected_branch.name }
