@@ -9,13 +9,13 @@ module Gitlab
       attr_reader :user
       attr_reader :shared
       attr_reader :importable
-      attr_reader :tree_hash
+      attr_reader :relation_reader
 
-      def initialize(user:, shared:, importable:, tree_hash:, members_mapper:, object_builder:, relation_factory:, reader:)
+      def initialize(user:, shared:, importable:, relation_reader:, members_mapper:, object_builder:, relation_factory:, reader:)
         @user = user
         @shared = shared
         @importable = importable
-        @tree_hash = tree_hash
+        @relation_reader = relation_reader
         @members_mapper = members_mapper
         @object_builder = object_builder
         @relation_factory = relation_factory
@@ -51,18 +51,8 @@ module Gitlab
       end
 
       def process_relation!(relation_key, relation_definition)
-        data_hashes = @tree_hash.delete(relation_key)
-        return unless data_hashes
-
-        # we do not care if we process array or hash
-        data_hashes = [data_hashes] unless data_hashes.is_a?(Array)
-
-        relation_index = 0
-
-        # consume and remove objects from memory
-        while data_hash = data_hashes.shift
+        @relation_reader.each_relation(relation_key) do |data_hash, relation_index|
           process_relation_item!(relation_key, relation_definition, relation_index, data_hash)
-          relation_index += 1
         end
       end
 
@@ -110,10 +100,7 @@ module Gitlab
       end
 
       def update_params!
-        params = @tree_hash.reject do |key, _|
-          relations.include?(key)
-        end
-
+        params = @relation_reader.root_attributes(relations.keys)
         params = params.merge(present_override_params)
 
         # Cleaning all imported and overridden params
