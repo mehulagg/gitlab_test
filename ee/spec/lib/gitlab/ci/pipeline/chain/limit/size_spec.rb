@@ -36,7 +36,7 @@ describe ::Gitlab::Ci::Pipeline::Chain::Limit::Size do
         double(:command,
           project: project,
           current_user: user,
-          save_quota_limit_errors?: true,
+          save_incompleted: true,
           stage_seeds: [double(:seed_1, size: 1), double(:seed_2, size: 1)])
       end
 
@@ -86,7 +86,7 @@ describe ::Gitlab::Ci::Pipeline::Chain::Limit::Size do
         double(:command,
           project: project,
           current_user: user,
-          save_quota_limit_errors?: false,
+          save_incompleted: false,
           stage_seeds: [double(:seed_1, size: 1), double(:seed_2, size: 1)])
       end
 

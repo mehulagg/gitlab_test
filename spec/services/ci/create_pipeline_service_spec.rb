@@ -27,7 +27,7 @@ describe Ci::CreatePipelineService do
       push_options: nil,
       source_sha: nil,
       target_sha: nil,
-      save_on_errors: :all)
+      save_on_errors: true)
       params = { ref: ref,
                  before: '00000000',
                  after: after,
@@ -1676,7 +1676,7 @@ describe Ci::CreatePipelineService do
         let(:ref_name) { 'refs/heads/feature' }
 
         context 'when save_on_errors is enabled' do
-          let(:pipeline) { execute_service(save_on_errors: :all) }
+          let(:pipeline) { execute_service(save_on_errors: true) }
 
           it 'does create a pipeline as test_a depends on build_a' do
             expect(pipeline).to be_persisted
@@ -1687,7 +1687,7 @@ describe Ci::CreatePipelineService do
         end
 
         context 'when save_on_errors is disabled' do
-          let(:pipeline) { execute_service(save_on_errors: :none) }
+          let(:pipeline) { execute_service(save_on_errors: false) }
 
           it 'does not create a pipeline as test_a depends on build_a' do
             expect(pipeline).not_to be_persisted
