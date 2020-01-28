@@ -72,18 +72,6 @@ module Gitlab
               project.repository.ambiguous_ref?(origin_ref)
             end
           end
-
-          def save_config_errors?
-            save_incompleted == :all
-          end
-
-          def save_skipped_pipelines?
-            [:all, :except_config].include?(save_incompleted)
-          end
-
-          def save_quota_limit_errors?
-            [:all, :except_config].include?(save_incompleted)
-          end
         end
       end
     end

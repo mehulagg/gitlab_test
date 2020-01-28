@@ -24,7 +24,7 @@ module EE
               def perform!
                 return unless limit.exceeded?
 
-                if command.save_quota_limit_errors?
+                if [:all, :except_config].include?(command.save_incompleted)
                   pipeline.drop!(:size_limit_exceeded)
                 end
 
