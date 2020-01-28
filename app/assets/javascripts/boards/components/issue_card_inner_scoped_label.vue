@@ -24,6 +24,7 @@ export default {
     :title="label.title"
     :description="label.description"
     size="sm"
+    scoped
     :scoped-labels-documentation-link="scopedLabelsDocumentationLink"
     @click="$emit('scoped-label-click', label)"
   />

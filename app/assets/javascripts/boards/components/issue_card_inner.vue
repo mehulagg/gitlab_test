@@ -146,12 +146,6 @@ export default {
 
       boardsStore.toggleFilter(filter);
     },
-    labelStyle(label) {
-      return {
-        backgroundColor: label.color,
-        color: label.textColor,
-      };
-    },
     showScopedLabel(label) {
       return boardsStore.scopedLabels.enabled && isScopedLabel(label);
     },

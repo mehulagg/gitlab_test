@@ -252,7 +252,7 @@ export default {
           </span>
 
           <span v-if="hasLabels" class="js-labels">
-            <!-- TODO: add scopedLabelsDocumentationLink for scoped labels -->
+            <!-- There is currently no way of knowing if ee to display scoped labels -->
             <gl-label
               v-for="label in issuable.labels"
               :key="label.id"

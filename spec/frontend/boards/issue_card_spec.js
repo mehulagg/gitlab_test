@@ -20,7 +20,7 @@ describe('Issue card component', () => {
   const label1 = new ListLabel({
     id: 3,
     title: 'testing 123',
-    color: 'blue',
+    color: '#000CFF',
     text_color: 'white',
     description: 'test',
   });
@@ -290,25 +290,15 @@ describe('Issue card component', () => {
     });
 
     it('does not render list label but renders all other labels', () => {
-      expect(wrapper.findAll('.badge').length).toBe(1);
+      expect(wrapper.findAll('.gl-label').length).toBe(1);
     });
 
     it('renders label', () => {
-      const nodes = wrapper.findAll('.badge').wrappers.map(label => label.attributes('title'));
-
-      expect(nodes.includes(label1.description)).toBe(true);
+      expect(wrapper.find('.gl-label .gl-label-text').text()).toContain(label1.title);
     });
 
-    it('sets label description as title', () => {
-      expect(wrapper.find('.badge').attributes('title')).toContain(label1.description);
-    });
-
-    it('sets background color of button', () => {
-      const nodes = wrapper
-        .findAll('.badge')
-        .wrappers.map(label => label.element.style.backgroundColor);
-
-      expect(nodes.includes(label1.color)).toBe(true);
+    it('sets label description within label', () => {
+      expect(wrapper.find('.gl-label').text()).toContain(label1.description);
     });
 
     it('does not render label if label does not have an ID', done => {
@@ -321,7 +311,7 @@ describe('Issue card component', () => {
       wrapper.vm
         .$nextTick()
         .then(() => {
-          expect(wrapper.findAll('.badge').length).toBe(1);
+          expect(wrapper.findAll('.gl-label').length).toBe(1);
           expect(wrapper.text()).not.toContain('closed');
           done();
         })

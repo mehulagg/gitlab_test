@@ -1,4 +1,4 @@
-import { shallowMount } from '@vue/test-utils';
+import { shallowMount, mount } from '@vue/test-utils';
 import { GlLabel } from '@gitlab/ui';
 import { TEST_HOST } from 'helpers/test_constants';
 import { trimText } from 'helpers/text_helper';
@@ -47,6 +47,16 @@ describe('Issuable component', () => {
     });
   };
 
+  const factoryMount = (props = {}) => {
+    wrapper = mount(Issuable, {
+      propsData: {
+        issuable: simpleIssue,
+        baseUrl: TEST_BASE_URL,
+        ...props,
+      },
+    });
+  };
+
   beforeEach(() => {
     issuable = { ...simpleIssue };
   });
@@ -71,7 +81,7 @@ describe('Issuable component', () => {
   const findMilestoneTooltip = () => findMilestone().attributes('title');
   const findDueDate = () => wrapper.find('.js-due-date');
   const findLabelContainer = () => wrapper.find('.js-labels');
-  const findLabelLinks = () => findLabelContainer().findAll(GlLabel);
+  const findLabels = () => findLabelContainer().findAll(GlLabel);
   const findWeight = () => wrapper.find('.js-weight');
   const findAssignees = () => wrapper.find(IssueAssignees);
   const findMergeRequestsCount = () => wrapper.find('.js-merge-requests');
@@ -233,25 +243,27 @@ describe('Issuable component', () => {
     beforeEach(() => {
       issuable.labels = [...testLabels];
 
-      factory({ issuable });
+      factoryMount({ issuable });
     });
 
     it('renders labels', () => {
-      factory({ issuable });
+      findLabels().wrappers.forEach((label, index) => {
+        expect(label.find('.gl-link').attributes('href')).toEqual(
+          mergeUrlParams({ 'label_name[]': testLabels[index].name }, TEST_BASE_URL),
+        );
 
-      const labels = findLabelLinks().wrappers.map(label => ({
-        href: label.find('.gl-link').attributes('href'),
-        text: label.find('span.gl-label-text').text(),
-        tooltip: label.find('div[aria-hidden="true"] div').text(),
-      }));
+        expect(label.find('.gl-label-text').text()).toEqual(testLabels[index].name);
 
-      const expected = testLabels.map(label => ({
-        href: mergeUrlParams({ 'label_name[]': label.name }, TEST_BASE_URL),
-        text: label.name,
-        tooltip: label.description,
-      }));
-
-      expect(labels).toEqual(expected);
+        // Once issuable.vue has ee knowledge, scoped labels can be activated
+        // const scopedName = testLabels[index].name.split('::');
+        // if (scopedName[0] && scopedName[1]) {
+        //   const nameArray = label.findAll('.gl-label-text');
+        //   expect(nameArray.at(0).text()).toEqual(scopedName[0]);
+        //   expect(nameArray.at(1).text()).toEqual(scopedName[1]);
+        // } else {
+        //   expect(label.find('.gl-label-text').text()).toEqual(testLabels[index].name);
+        // }
+      });
     });
   });
 

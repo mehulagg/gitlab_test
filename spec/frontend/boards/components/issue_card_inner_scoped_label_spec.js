@@ -7,7 +7,6 @@ describe('IssueCardInnerScopedLabel Component', () => {
   const Component = Vue.extend(IssueCardInnerScopedLabel);
   const props = {
     label: { title: 'Foo::Bar', description: 'Some Random Description', color: '#000000' },
-    labelStyle: { background: 'white', color: 'black' },
     scopedLabelsDocumentationLink: '/docs-link',
   };
   const createComponent = () => mountComponent(Component, { ...props });
@@ -27,7 +26,6 @@ describe('IssueCardInnerScopedLabel Component', () => {
   });
 
   it('should render label title', () => {
-    // expect(vm.$el.find('.gl-label-text').textContent.trim()).toEqual('Foo::Bar');
     expect(vm.$el.querySelector('.gl-label-text:first-child').textContent.trim()).toContain('Foo');
     expect(vm.$el.querySelector('.gl-label-text:last-child').textContent.trim()).toContain('Bar');
   });

@@ -28,6 +28,7 @@ export default {
     :background-color="label.color"
     :title="label.title"
     :description="label.description"
+    scoped
     :scoped-labels-documentation-link="scopedLabelsDocumentationLink"
   />
 </template>
