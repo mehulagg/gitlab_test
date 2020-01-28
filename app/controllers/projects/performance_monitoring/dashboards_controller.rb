@@ -8,12 +8,25 @@ module Projects
       before_action :check_repository_available!
       before_action :validate_required_params!
 
+      USER_DASHBOARDS_DIR = ::Metrics::Dashboard::ProjectDashboardService::DASHBOARD_ROOT
+
       rescue_from ActionController::ParameterMissing do |exception|
         respond_error(http_status: :bad_request, message: _('Request parameter %{param} is missing.') % { param: exception.param })
       end
 
       def create
         result = ::Metrics::Dashboard::CloneDashboardService.new(project, current_user, dashboard_params).execute
+
+        if result[:status] == :success
+          respond_success(result)
+        else
+          respond_error(result)
+        end
+      end
+
+      def update
+
+        result = ::Metrics::Dashboard::UpdateDashboardService.new(project, current_user, dashboard_params.merge(file_content_params)).execute
 
         if result[:status] == :success
           respond_success(result)
@@ -53,6 +66,10 @@ module Projects
 
       def dashboard_params
         params.permit(%i(branch file_name dashboard commit_message)).to_h
+      end
+
+      def file_content_params
+        params.permit(file_content: [:dashboard, panel_groups: [:group, :priority, panels: [:type, :title, :y_label, :weight, metrics: [:id, :unit, :label, :query, :query_range]]]])
       end
     end
   end

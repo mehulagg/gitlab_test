@@ -129,4 +129,151 @@ describe Projects::PerformanceMonitoring::DashboardsController do
       end
     end
   end
+
+  describe '#update' do
+    context 'authenticated user' do
+      before do
+        sign_in(user)
+      end
+
+      let(:file_content) do
+        {
+          "dashboard" => "Dashboard Title",
+          "panel_groups" => [{
+            "group" => "Group Title",
+            "panels" => [{
+              "type" => "area-chart",
+              "title" => "Chart Title",
+              "y_label" => "Y-Axis",
+              "metrics" => [{
+                "id" => "metric_of_ages",
+                "unit" => "count",
+                "label" => "Metric of Ages",
+                "query_range" => "http_requests_total"
+              }]
+            }]
+          }]
+        }
+      end
+
+      let(:params) do
+        {
+          namespace_id: namespace,
+          project_id: project,
+          dashboard: dashboard,
+          file_name: file_name,
+          file_content: file_content,
+          commit_message: commit_message,
+          branch: branch_name,
+          format: :json
+        }
+      end
+
+      context 'project with repository feature' do
+        context 'with rights to push to the repository' do
+          before do
+            project.add_maintainer(user)
+          end
+
+          context 'valid parameters' do
+            it 'delegates commit creation to service' do
+              allow(controller).to receive(:repository).and_return(repository)
+              allow(repository).to receive(:find_branch).and_return(branch)
+
+              dashboard_attrs = {
+                commit_message: commit_message,
+                branch_name: branch_name,
+                start_branch: 'master',
+                encoding: 'text',
+                file_path: ".gitlab/dashboards/#{file_name}",
+                file_content: ::PerformanceMonitoring::PrometheusDashboard.from_json(file_content).to_yaml
+              }
+
+              service_instance = instance_double(::Files::UpdateService)
+              expect(::Files::UpdateService).to receive(:new).with(project, user, dashboard_attrs).and_return(service_instance)
+              expect(service_instance).to receive(:execute).and_return(status: :success)
+
+              put :update, params: params
+            end
+
+            context 'selected branch already exists' do
+              it 'responds with :created status code', :aggregate_failures do
+                allow(controller).to receive(:repository).and_return(repository)
+                allow(repository).to receive(:find_branch).and_return(branch)
+                allow(::Files::UpdateService).to receive(:new).and_return(double(execute: { status: :success }))
+
+                put :update, params: params
+
+                expect(response).to have_gitlab_http_status :created
+
+                params[:commit_message] = 'a new commit'
+
+                put :update, params: params
+
+                expect(response).to have_gitlab_http_status :created
+              end
+            end
+
+            context 'request format json' do
+              it 'returns path to new file' do
+                allow(controller).to receive(:repository).and_return(repository)
+                allow(repository).to receive(:find_branch).and_return(branch)
+                allow(::Files::UpdateService).to receive(:new).and_return(double(execute: { status: :success }))
+
+                put :update, params: params
+
+                expect(response).to have_gitlab_http_status :created
+                expect(response).to set_flash[:notice].to eq("Your dashboard has been copied. You can <a href=\"/-/ide/project/#{namespace.path}/#{project.name}/edit/#{branch_name}/-/.gitlab/dashboards/#{file_name}\">edit it here</a>.")
+                expect(json_response).to eq('status' => 'success', 'dashboard' => { 'path' => ".gitlab/dashboards/#{file_name}" })
+              end
+
+              context 'UpdateDashboardService failure' do
+                it 'returns json with failure message' do
+                  allow(::Metrics::Dashboard::UpdateDashboardService).to receive(:new).and_return(double(execute: { status: :error, message: 'something went wrong', http_status: :bad_request }))
+
+                  put :update, params: params
+
+                  expect(response).to have_gitlab_http_status :bad_request
+                  expect(json_response).to eq('error' => 'something went wrong')
+                end
+              end
+            end
+          end
+
+          context 'missing branch' do
+            let(:branch_name) { nil }
+
+            it 'raises ActionController::ParameterMissing' do
+              put :update, params: params
+
+              expect(response).to have_gitlab_http_status :bad_request
+              expect(json_response).to eq('error' => "Request parameter branch is missing.")
+            end
+          end
+        end
+
+        context 'without rights to push to repository' do
+          before do
+            project.add_guest(user)
+          end
+
+          it 'responds with :forbidden status code' do
+            put :update, params: params
+
+            expect(response).to have_gitlab_http_status :forbidden
+          end
+        end
+      end
+
+      context 'project without repository feature' do
+        let!(:project) { create(:project, name: 'dashboard-project', namespace: namespace) }
+
+        it 'responds with :not_found status code' do
+          put :update, params: params
+
+          expect(response).to have_gitlab_http_status :not_found
+        end
+      end
+    end
+  end
 end
