@@ -11,7 +11,7 @@ module Gitlab
 
           def perform!
             if skipped?
-              @pipeline.skip if [:all, :except_config].include?(@command.save_incompleted)
+              @pipeline.skip if @command.save_incompleted
             end
           end
 

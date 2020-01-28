@@ -388,7 +388,7 @@ module API
 
         pipeline = ::MergeRequests::CreatePipelineService
           .new(user_project, current_user, allow_duplicate: true)
-          .execute(find_merge_request_with_access(params[:merge_request_iid]), save_on_errors: :except_config)
+          .execute(find_merge_request_with_access(params[:merge_request_iid]), save_config_errors: false)
 
         if pipeline.nil?
           not_allowed!

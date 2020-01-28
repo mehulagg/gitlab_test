@@ -6,7 +6,7 @@ module EE
       extend ::Gitlab::Utils::Override
 
       override :execute
-      def execute(merge_request, save_on_errors: :all)
+      def execute(merge_request, save_config_errors: true)
         create_merge_request_pipeline_for(merge_request) || super
       end
 

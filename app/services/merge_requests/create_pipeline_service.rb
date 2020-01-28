@@ -2,10 +2,10 @@
 
 module MergeRequests
   class CreatePipelineService < MergeRequests::BaseService
-    def execute(merge_request, save_on_errors: :all)
+    def execute(merge_request, save_config_errors: true)
       return unless can_create_pipeline_for?(merge_request)
 
-      create_detached_merge_request_pipeline(merge_request, save_on_errors)
+      create_detached_merge_request_pipeline(merge_request, save_config_errors)
     end
 
     def create_detached_merge_request_pipeline(merge_request)
