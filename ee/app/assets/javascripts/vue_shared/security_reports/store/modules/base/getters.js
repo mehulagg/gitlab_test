@@ -1,5 +1,5 @@
 import { sprintf } from '~/locale';
-import { statusIcon, groupedTextBuilder, countIssues } from '../../utils';
+import { groupedTextBuilder, countIssues } from '../../utils';
 import messages from '../../messages';
 
 const { TRANSLATION_IS_LOADING, TRANSLATION_HAS_ERROR } = messages;
@@ -28,7 +28,18 @@ export const groupedReportText = state => {
   });
 };
 
-export const reportStatusIcon = ({ isLoading, hasError, newIssues }) =>
-  statusIcon(isLoading, hasError, newIssues.length);
+export const reportStatusIcon = state => {
+  const { isLoading = false, hasError = false, newIssues = [] } = state;
+
+  if (isLoading) {
+    return 'loading';
+  }
+
+  if (hasError || newIssues.length > 0) {
+    return 'warning';
+  }
+
+  return 'success';
+};
 
 export default () => {};

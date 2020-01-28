@@ -1,7 +1,6 @@
 import {
   findIssueIndex,
   groupedTextBuilder,
-  statusIcon,
   countIssues,
 } from 'ee/vue_shared/security_reports/store/utils';
 import filterByKey from 'ee/vue_shared/security_reports/store/utils/filter_by_key';
@@ -178,32 +177,6 @@ describe('security reports utils', () => {
             ' detected 1 new, 1 fixed, and 2 dismissed vulnerabilities',
           );
         });
-      });
-    });
-  });
-
-  describe('statusIcon', () => {
-    describe('with failed report', () => {
-      it('returns warning', () => {
-        expect(statusIcon(false, true)).toEqual('warning');
-      });
-    });
-
-    describe('with new issues', () => {
-      it('returns warning', () => {
-        expect(statusIcon(false, false, 1)).toEqual('warning');
-      });
-    });
-
-    describe('with neutral issues', () => {
-      it('returns warning', () => {
-        expect(statusIcon(false, false, 0, 1)).toEqual('warning');
-      });
-    });
-
-    describe('without new or neutal issues', () => {
-      it('returns success', () => {
-        expect(statusIcon()).toEqual('success');
       });
     });
   });

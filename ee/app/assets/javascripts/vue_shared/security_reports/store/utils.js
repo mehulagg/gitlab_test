@@ -139,18 +139,6 @@ export const groupedTextBuilder = ({
   });
 };
 
-export const statusIcon = (loading = false, failed = false, newIssues = 0, neutralIssues = 0) => {
-  if (loading) {
-    return 'loading';
-  }
-
-  if (failed || newIssues > 0 || neutralIssues > 0) {
-    return 'warning';
-  }
-
-  return 'success';
-};
-
 /**
  * Counts issues. Simply returns the amount of existing and fixed Issues.
  * New Issues are divided into dismissed and added.

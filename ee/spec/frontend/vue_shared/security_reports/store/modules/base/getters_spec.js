@@ -30,7 +30,7 @@ describe('groupedReportText', () => {
   });
 });
 
-describe('sastStatusIcon', () => {
+describe('reportStatusIcon', () => {
   it("should return `loading` when we're still loading", () => {
     const sast = createReport({ isLoading: true });
     const result = getters.reportStatusIcon(sast);
@@ -40,6 +40,13 @@ describe('sastStatusIcon', () => {
 
   it("should return `warning` when there's an issue", () => {
     const sast = createReport({ hasError: true });
+    const result = getters.reportStatusIcon(sast);
+
+    expect(result).toBe('warning');
+  });
+
+  it("should return `warning` when there's a new issue", () => {
+    const sast = createReport({ hasError: true, newIssues: [{}] });
     const result = getters.reportStatusIcon(sast);
 
     expect(result).toBe('warning');
