@@ -261,21 +261,36 @@ describe Elastic::IndexRecordService, :elastic do
       it 'does not retry if successful' do
         expect_indexing(issues.map(&:id), success_response, unstub: true)
 
-        expect(subject.execute(project, true)).to eq(true)
+        Sidekiq::Testing.inline! do
+          expect(subject.execute(project, true)).to eq(true)
+        end
       end
 
-      it 'retries, and raises error if all retries fail' do
-        expect_indexing(issues.map(&:id), failure_response)
-        expect_indexing([issues.first.id], failure_response).exactly(described_class::IMPORT_RETRY_COUNT).times # Retry
+      it 'retries, and raises error if it fails' do
+        issues_ids = issues.map(&:id)
+        expect_indexing(issues_ids, failure_response)
+        expect_indexing([issues.first.id], failure_response).once # Retry
 
-        expect { subject.execute(project, true) }.to raise_error(described_class::ImportError)
+        Sidekiq::Testing.inline! do
+          expect { subject.execute(project, true) }.to raise_error(described_class::ImportError)
+        end
+      end
+    end
+
+    context 'retry with different batch size after timeout' do
+      before do
+        allow(Issue).to receive(:es_import).and_raise(Faraday::TimeoutError)
       end
 
-      it 'retries, and returns true if a retry is successful' do
-        expect_indexing(issues.map(&:id), failure_response)
-        expect_indexing([issues.first.id], success_response, unstub: true) # Retry
+      it 'retries with the next batch size' do
+        expect(ElasticAssociationIndexerWorker).to receive(:perform_async).with(project.id, 'issues').ordered.and_call_original
+        ElasticAssociationIndexerWorker::RETRY_BATCH_SIZES.each do |batch_size|
+          expect(ElasticAssociationIndexerWorker).to receive(:perform_async).with(project.id, 'issues', batch_size).ordered.and_call_original
+        end
 
-        expect(subject.execute(project, true)).to eq(true)
+        Sidekiq::Testing.inline! do
+          expect { subject.execute(project, true) }.to raise_error(Faraday::TimeoutError)
+        end
       end
     end
   end

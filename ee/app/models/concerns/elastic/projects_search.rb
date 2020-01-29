@@ -20,6 +20,8 @@ module Elastic
       end
 
       def each_indexed_association
+        return enum_for(:each_indexed_association) unless block_given?
+
         INDEXED_ASSOCIATIONS.each do |association_name|
           association = self.association(association_name)
           scope = association.scope

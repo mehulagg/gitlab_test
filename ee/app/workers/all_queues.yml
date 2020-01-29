@@ -381,6 +381,12 @@
   :latency_sensitive: 
   :resource_boundary: :unknown
   :weight: 1
+- :name: elastic_association_indexer
+  :feature_category: :search
+  :has_external_dependencies: 
+  :latency_sensitive: 
+  :resource_boundary: :unknown
+  :weight: 1
 - :name: elastic_batch_project_indexer
   :feature_category: :search
   :has_external_dependencies: 

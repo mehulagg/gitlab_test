@@ -40,7 +40,8 @@ module Elastic
     # rubocop: disable CodeReuse/ActiveRecord
     def update_issue_notes(record, changed_fields)
       if changed_fields && (changed_fields & ISSUE_TRACKED_FIELDS).any?
-        import_association(Note, query: -> { searchable.where(noteable: record) })
+        ids = Note.searchable.where(noteable: record).map(&:id)
+        ElasticAssociationIndexerWorker.perform_async(record.project_id, Note.model_name.route_key, nil, ids)
       end
     end
     # rubocop: enable CodeReuse/ActiveRecord
@@ -52,22 +53,8 @@ module Elastic
       ElasticCommitIndexerWorker.perform_async(project.id, nil, nil, true)
 
       project.each_indexed_association do |klass, association|
-        import_association(association)
+        ElasticAssociationIndexerWorker.perform_async(project.id, klass.model_name.route_key)
       end
-    end
-
-    def import_association(association, options = {})
-      options[:return] = 'errors'
-
-      errors = association.es_import(options)
-      return if errors.empty?
-
-      IMPORT_RETRY_COUNT.times do
-        errors = retry_import(errors, association, options)
-        return if errors.empty?
-      end
-
-      raise ImportError.new(errors.inspect)
     end
 
     def import(record, indexing)
@@ -85,11 +72,6 @@ module Elastic
       end
 
       raise ImportError.new(response)
-    end
-
-    def retry_import(errors, association, options)
-      ids = errors.map { |error| error['index']['_id'][/_(\d+)$/, 1] }
-      association.id_in(ids).es_import(options)
     end
 
     def logger
