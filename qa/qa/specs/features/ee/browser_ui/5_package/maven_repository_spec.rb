@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Package', :docker, :orchestrated, :packages do
+  context 'Package', :docker, :orchestrated, :packages, quarantine: 'https://gitlab.com/gitlab-org/gitlab/issues/199304' do
     describe 'Maven Repository' do
       include Runtime::Fixtures
 
