@@ -38,6 +38,10 @@ module MergeRequests
         merge_request.source_branch
       end
     end
+
+    def save_on_errors
+      !Feature.enabled?(:skip_mr_pipeline_for_invalid_yaml, default_enabled: true)
+    end
   end
 end
 
