@@ -340,9 +340,9 @@
   :resource_boundary: :cpu
   :weight: 3
 - :name: pipeline_default:store_security_reports
-  :feature_category: :continuous_integration
+  :feature_category: :static_application_security_testing
   :has_external_dependencies: 
-  :latency_sensitive: 
+  :latency_sensitive: true
   :resource_boundary: :unknown
   :weight: 3
 - :name: pipeline_default:sync_security_reports_to_report_approval_rules
