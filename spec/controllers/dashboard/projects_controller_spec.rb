@@ -76,4 +76,33 @@ describe Dashboard::ProjectsController do
       it { is_expected.to respond_with(:success) }
     end
   end
+
+  context 'atom requests' do
+    let(:user) { create(:user) }
+
+    before do
+      sign_in(user)
+    end
+
+    describe '#index' do
+      context 'project pagination' do
+        let(:page) { 1 }
+        let(:projects) { create_list(:project, Project.page(page).limit_value + 1, creator: user) }
+
+        before do
+          projects.each do |project|
+            project.add_developer(user)
+          end
+        end
+
+        it 'does not paginate projects, even if page number is passed' do
+          expect_next_instance_of(EventCollection) do |event_collection|
+            expect(event_collection.send(:projects).count).to eq(projects.count)
+          end
+
+          get :index, format: :atom, params: { page: page }
+        end
+      end
+    end
+  end
 end
