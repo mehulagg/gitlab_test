@@ -5,6 +5,7 @@ class AutoMergeService < BaseService
   STRATEGIES = [STRATEGY_MERGE_WHEN_PIPELINE_SUCCEEDS].freeze
 
   class << self
+    # NOTE: strategies must be sorted by the recommended order
     def all_strategies
       STRATEGIES
     end
@@ -16,7 +17,10 @@ class AutoMergeService < BaseService
     end
   end
 
-  def execute(merge_request, strategy)
+  def execute(merge_request, strategy = nil)
+    return update(merge_request) if merge_request.auto_merge_enabled?
+
+    strategy ||= recommended_strategy(merge_request)
     service = get_service_instance(strategy)
 
     return :failed unless service&.available_for?(merge_request)
@@ -58,6 +62,12 @@ class AutoMergeService < BaseService
 
   def get_service_instance(strategy)
     self.class.get_service_class(strategy)&.new(project, current_user, params)
+  end
+
+  def recommended_strategy(merge_request)
+    self.class.all_strategies.find do |strategy|
+      get_service_instance(strategy).available_for?(merge_request)
+    end
   end
 end
 

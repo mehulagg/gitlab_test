@@ -12,10 +12,11 @@ module EE
       extend ::Gitlab::Utils::Override
       include ::Gitlab::Utils::StrongMemoize
 
+      # NOTE: strategies must be sorted by the recommended order
       override :all_strategies
       def all_strategies
         strong_memoize(:all_strategies) do
-          super + EE_STRATEGIES
+          EE_STRATEGIES + super
         end
       end
     end

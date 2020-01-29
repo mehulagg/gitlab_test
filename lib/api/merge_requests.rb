@@ -436,7 +436,9 @@ module API
         optional :should_remove_source_branch, type: Boolean,
                                                desc: 'When true, the source branch will be deleted if possible'
         optional :merge_when_pipeline_succeeds, type: Boolean,
-                                                desc: 'When true, this merge request will be merged when the pipeline succeeds'
+                                                desc: 'When true, this merge request will be merged when the pipeline succeeds (Deprecated)'
+        optional :merge_immediately,            type: Boolean,
+                                                desc: 'When true, this merge request will be merged immediately'
         optional :sha, type: String, desc: 'When present, must have the HEAD SHA of the source branch'
         optional :squash, type: Grape::API::Boolean, desc: 'When true, the commits will be squashed into a single commit on merge'
       end
@@ -450,10 +452,9 @@ module API
         unauthorized! unless merge_request.can_be_merged_by?(current_user)
 
         merge_when_pipeline_succeeds = to_boolean(params[:merge_when_pipeline_succeeds])
-        automatically_mergeable = automatically_mergeable?(merge_when_pipeline_succeeds, merge_request)
-        immediately_mergeable = immediately_mergeable?(merge_when_pipeline_succeeds, merge_request)
+        immediately_mergeable = merge_request.mergeable_state?
 
-        not_allowed! if !immediately_mergeable && !automatically_mergeable
+        not_allowed! unless immediately_mergeable
 
         render_api_error!('Branch cannot be merged', 406) unless merge_request.mergeable?(skip_ci_check: automatically_mergeable)
 
@@ -468,13 +469,15 @@ module API
           sha: params[:sha] || merge_request.diff_head_sha
         )
 
-        if immediately_mergeable
+        result = if !params[:merge_immediately]
+          AutoMergeService.new(merge_request.target_project, current_user, merge_params)
+                          .execute(merge_request)
+        end
+
+        if result.nil? || result == :failed
           ::MergeRequests::MergeService
             .new(merge_request.target_project, current_user, merge_params)
             .execute(merge_request)
-        elsif automatically_mergeable
-          AutoMergeService.new(merge_request.target_project, current_user, merge_params)
-            .execute(merge_request, AutoMergeService::STRATEGY_MERGE_WHEN_PIPELINE_SUCCEEDS)
         end
 
         present merge_request, with: Entities::MergeRequest, current_user: current_user, project: user_project
