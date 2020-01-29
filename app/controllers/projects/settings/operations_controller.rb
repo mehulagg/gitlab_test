@@ -8,6 +8,7 @@ module Projects
       helper_method :error_tracking_setting
 
       def show
+        @service = project.find_or_initialize_service('prometheus')
       end
 
       def update
