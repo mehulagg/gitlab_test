@@ -453,6 +453,9 @@ class Project < ApplicationRecord
   scope :with_issues_enabled, -> { with_feature_enabled(:issues) }
   scope :with_issues_available_for_user, ->(current_user) { with_feature_available_for_user(:issues, current_user) }
   scope :with_merge_requests_available_for_user, ->(current_user) { with_feature_available_for_user(:merge_requests, current_user) }
+  scope :with_issues_or_mrs_available_for_user, -> (user) do
+    with_issues_available_for_user(user).or(with_merge_requests_available_for_user(user))
+  end
   scope :with_merge_requests_enabled, -> { with_feature_enabled(:merge_requests) }
   scope :with_remote_mirrors, -> { joins(:remote_mirrors).where(remote_mirrors: { enabled: true }).distinct }
   scope :with_limit, -> (maximum) { limit(maximum) }
@@ -760,6 +763,10 @@ class Project < ApplicationRecord
     Feature.enabled?(:unlink_fork_network_upon_visibility_decrease, self, default_enabled: true)
   end
 
+  def context_commits_enabled?
+    Feature.enabled?(:context_commits, default_enabled: true)
+  end
+
   def empty_repo?
     repository.empty?
   end
@@ -1065,12 +1072,19 @@ class Project < ApplicationRecord
     end
   end
 
-  def to_reference_with_postfix
-    "#{to_reference(full: true)}#{self.class.reference_postfix}"
+  # Produce a valid reference (see Referable#to_reference)
+  #
+  # NB: For projects, all references are 'full' - i.e. they all include the
+  # full_path, rather than just the project name. For this reason, we ignore
+  # the value of `full:` passed to this method, which is part of the Referable
+  # interface.
+  def to_reference(from = nil, full: false)
+    base = to_reference_base(from, full: true)
+    "#{base}#{self.class.reference_postfix}"
   end
 
   # `from` argument can be a Namespace or Project.
-  def to_reference(from = nil, full: false)
+  def to_reference_base(from = nil, full: false)
     if full || cross_namespace_reference?(from)
       full_path
     elsif cross_project_reference?(from)

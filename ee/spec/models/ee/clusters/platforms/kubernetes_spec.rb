@@ -141,7 +141,6 @@ describe Clusters::Platforms::Kubernetes do
     let(:pod_name) { 'pod-1' }
     let(:namespace) { 'app' }
     let(:container) { 'some-container' }
-    let(:enable_advanced_querying) { false }
     let(:expected_logs) do
       [
         { message: "Log 1", timestamp: "2019-12-13T14:04:22.123456Z" },
@@ -158,7 +157,6 @@ describe Clusters::Platforms::Kubernetes do
         expect(subject[:status]).to eq(:success)
         expect(subject[:pod_name]).to eq(pod_name)
         expect(subject[:container_name]).to eq(container)
-        expect(subject[:enable_advanced_querying]).to eq(enable_advanced_querying)
       end
     end
 
@@ -177,12 +175,10 @@ describe Clusters::Platforms::Kubernetes do
       context 'when ElasticSearch is enabled' do
         let(:cluster) { create(:cluster, :project, platform_kubernetes: service) }
         let!(:elastic_stack) { create(:clusters_applications_elastic_stack, cluster: cluster) }
-        let(:enable_advanced_querying) { true }
 
         before do
           expect_any_instance_of(::Clusters::Applications::ElasticStack).to receive(:elasticsearch_client).at_least(:once).and_return(Elasticsearch::Transport::Client.new)
           expect_any_instance_of(::Gitlab::Elasticsearch::Logs).to receive(:pod_logs).and_return(expected_logs)
-          stub_feature_flags(enable_cluster_application_elastic_stack: true)
         end
 
         include_examples 'successful log request'
