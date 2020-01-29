@@ -184,7 +184,7 @@ module QA
             end
 
             Support::Retrier.retry_until(raise_on_failure: true) do
-              @managed_group_url = setup_and_enable_group_managed_accounts
+              setup_and_enable_group_managed_accounts
               group_managed_accounts_setup?
             end
 
@@ -260,8 +260,7 @@ module QA
 
     def login_to_idp_if_required_and_expect_success(username, password)
       login_to_idp_if_required(username, password)
-      expect(page).to have_content("SAML for #{Runtime::Env.sandbox_name} was added to your connected accounts")
-                        .or have_content("Already signed in with SAML for #{Runtime::Env.sandbox_name}")
+      expect(page).to have_content(/(SAML for #{Runtime::Env.sandbox_name} was added to your connected accounts)|(Already signed in with SAML for #{Runtime::Env.sandbox_name})/)
     end
 
     def remove_group(group)
@@ -306,23 +305,21 @@ module QA
     def setup_and_enable_group_managed_accounts
       setup_and_enable_enforce_sso
 
-      Support::Retrier.retry_on_exception do
-        # We must sign in with SAML before enabling Group Managed Accounts
-        EE::Page::Group::Settings::SamlSSO.perform do |saml_sso|
-          saml_sso.click_user_login_url_link
-        end
+      @managed_group_url = EE::Page::Group::Settings::SamlSSO.perform(&:user_login_url_link_text)
 
+      Support::Retrier.retry_on_exception do
+        page.visit @managed_group_url
+
+        # We must sign in with SAML before enabling Group Managed Accounts
         EE::Page::Group::SamlSSOSignIn.perform(&:click_sign_in)
+
         login_to_idp_if_required_and_expect_success('user1', 'user1pass')
 
         Page::Group::Menu.perform(&:go_to_saml_sso_group_settings)
-
         EE::Page::Group::Settings::SamlSSO.perform do |saml_sso|
           saml_sso.enable_group_managed_accounts
 
           saml_sso.click_save_changes
-
-          saml_sso.user_login_url_link_text
         end
       end
     end
