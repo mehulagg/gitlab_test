@@ -10184,6 +10184,9 @@ msgstr ""
 msgid "Hide archived projects"
 msgstr ""
 
+msgid "Hide charts"
+msgstr ""
+
 msgid "Hide file browser"
 msgstr ""
 
@@ -21682,6 +21685,9 @@ msgid "View Documentation"
 msgstr ""
 
 msgid "View blame prior to this change"
+msgstr ""
+
+msgid "View charts"
 msgstr ""
 
 msgid "View dependency details for your project"

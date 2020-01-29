@@ -27,8 +27,8 @@ describe('Render metrics for Gitlab Flavoured Markdown', () => {
   });
 
   it('renders a vue component when elements are found', () => {
-    const element = document.createElement('div');
-    element.setAttribute('data-dashboard-url', TEST_HOST);
+    document.body.innerHTML = `<div class="element" data-dashboard-url="${TEST_HOST}"/>`;
+    const element = document.querySelector('.element');
 
     renderMetrics([element]);
 

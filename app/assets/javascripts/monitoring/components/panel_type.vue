@@ -62,6 +62,11 @@ export default {
       required: false,
       default: 'panel-type-chart',
     },
+    namespace: {
+      type: String,
+      required: false,
+      default: 'monitoringDashboard',
+    },
   },
   data() {
     return {
@@ -70,7 +75,20 @@ export default {
     };
   },
   computed: {
-    ...mapState('monitoringDashboard', ['deploymentData', 'projectPath', 'logsPath', 'timeRange']),
+    ...mapState({
+      deploymentData(state) {
+        return state[this.namespace].deploymentData;
+      },
+      projectPath(state) {
+        return state[this.namespace].projectPath;
+      },
+      logsPath(state) {
+        return state[this.namespace].logsPath;
+      },
+      timeRange(state) {
+        return state[this.namespace].timeRange;
+      },
+    }),
     title() {
       return this.graphData.title || '';
     },
