@@ -12,7 +12,7 @@ RSpec.describe DiffNote do
   let_it_be(:path) { "files/ruby/popen.rb" }
 
   let(:diff_refs) { merge_request.diff_refs }
-  let!(:position) do
+  let(:position) do
     Gitlab::Diff::Position.new(
       old_path: path,
       new_path: path,
@@ -22,7 +22,7 @@ RSpec.describe DiffNote do
     )
   end
 
-  let!(:new_position) do
+  let(:new_position) do
     Gitlab::Diff::Position.new(
       old_path: path,
       new_path: path,
@@ -35,7 +35,19 @@ RSpec.describe DiffNote do
   subject { create(:diff_note_on_merge_request, project: project, position: position, noteable: merge_request) }
 
   describe 'validations' do
-    it_behaves_like 'a valid diff positionable note', :diff_note_on_commit
+    it_behaves_like 'a valid diff positionable note', :diff_note_on_merge_request, :diff_note_on_commit
+
+    # Also test designs, because they use image positions and also have their own repository.
+    it_behaves_like 'a valid diff positionable note', :diff_note_on_design, false do
+      let(:position) { build(:image_diff_position, diff_refs: diff_refs) }
+      let(:repository) { project.design_repository }
+
+      before do
+        # Create some commits in the design repository
+        create(:design, :with_file, project: project)
+        create(:design, :with_file, project: project)
+      end
+    end
   end
 
   describe "#position=" do
@@ -375,6 +387,11 @@ RSpec.describe DiffNote do
 
   describe "creation" do
     describe "updating of position" do
+      before do
+        # Initialize the position
+        position
+      end
+
       context "when noteable is a commit" do
         let(:diff_refs) { commit.diff_refs }
 

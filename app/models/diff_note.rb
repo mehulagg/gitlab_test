@@ -183,8 +183,4 @@ class DiffNote < Note
 
     repository.keep_around(*shas)
   end
-
-  def repository
-    noteable.respond_to?(:repository) ? noteable.repository : project.repository
-  end
 end

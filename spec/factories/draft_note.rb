@@ -1,9 +1,14 @@
 # frozen_string_literal: true
 FactoryBot.define do
   factory :draft_note do
+    transient do
+      # Allow specifying the project, like with the notes factories.
+      project { build(:project) }
+    end
+
     note { generate(:title) }
+    merge_request { association(:merge_request, source_project: project) }
     association :author, factory: :user
-    association :merge_request, factory: :merge_request
 
     factory :draft_note_on_text_diff do
       transient do
