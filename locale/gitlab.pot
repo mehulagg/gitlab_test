@@ -212,6 +212,9 @@ msgstr ""
 msgid "%{authorsName}'s thread"
 msgstr ""
 
+msgid "%{cluster_name} Cluster Management"
+msgstr ""
+
 msgid "%{commit_author_link} authored %{commit_timeago}"
 msgstr ""
 
@@ -20136,6 +20139,9 @@ msgid "This project does not have billing enabled. To create a cluster, <a href=
 msgstr ""
 
 msgid "This project is archived and cannot be commented on."
+msgstr ""
+
+msgid "This project is automatically generated and will be used to manage your Kubernetes cluster. [More information](%{docs_path})"
 msgstr ""
 
 msgid "This project path either does not exist or is private."
