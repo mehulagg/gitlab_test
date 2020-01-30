@@ -10,7 +10,7 @@ stages:
   - notify
 
 variables:
-  TEST_IMAGE: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-qa
+  TEST_IMAGE: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-qa-ruby-2.6
   DOCKER_DRIVER: overlay
   DOCKER_HOST: tcp://docker:2375
   QA_ARTIFACTS_DIR: $CI_PROJECT_DIR
