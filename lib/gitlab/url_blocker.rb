@@ -210,6 +210,8 @@ module Gitlab
       end
 
       def validate_localhost(addrs_info)
+        return if Rails.env.development?
+
         local_ips = ["::", "0.0.0.0"]
         local_ips.concat(Socket.ip_address_list.map(&:ip_address))
 
@@ -219,18 +221,22 @@ module Gitlab
       end
 
       def validate_loopback(addrs_info)
+        return if Rails.env.development?
         return unless addrs_info.any? { |addr| addr.ipv4_loopback? || addr.ipv6_loopback? }
 
         raise BlockedUrlError, "Requests to loopback addresses are not allowed"
       end
 
       def validate_local_network(addrs_info)
+        return if Rails.env.development?
         return unless addrs_info.any? { |addr| addr.ipv4_private? || addr.ipv6_sitelocal? || addr.ipv6_unique_local? }
 
         raise BlockedUrlError, "Requests to the local network are not allowed"
       end
 
       def validate_link_local(addrs_info)
+        return if Rails.env.development?
+
         netmask = IPAddr.new('169.254.0.0/16')
         return unless addrs_info.any? { |addr| addr.ipv6_linklocal? || netmask.include?(addr.ip_address) }
 
