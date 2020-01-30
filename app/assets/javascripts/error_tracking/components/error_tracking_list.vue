@@ -13,7 +13,10 @@ import {
   GlTooltipDirective,
   GlPagination,
   GlButtonGroup,
+  GlFilteredSearch,
   GlFilteredSearchTerm,
+  GlFilteredSearchSuggestion,
+  GlFilteredSearchBinaryToken,
 } from '@gitlab/ui';
 import AccessorUtils from '~/lib/utils/accessor';
 import Icon from '~/vue_shared/components/icon.vue';
@@ -24,6 +27,25 @@ import _ from 'underscore';
 export const tableDataClass = 'table-col d-flex d-sm-table-cell align-items-center';
 
 const noop = () => {};
+
+const staticToken = {
+  components: {
+    GlFilteredSearchSuggestion,
+    GlFilteredSearchBinaryToken,
+  },
+  props: ['value', 'active'],
+  template: `<gl-filtered-search-binary-token
+                title=""
+                :active="active"
+                :value="value"
+                v-on="$listeners"
+              >
+                <template #suggestions>
+                  <gl-filtered-search-suggestion value="Ignored">Ignored</gl-filtered-search-suggestion>
+                  <gl-filtered-search-suggestion value="Resolved">Resolved</gl-filtered-search-suggestion>
+                </template>
+            </gl-filtered-search-binary-token>`,
+};
 
 export default {
   FIRST_PAGE: 1,
@@ -42,6 +64,9 @@ export default {
   statusTokens: [
     { type: 'ignored', icon: 'eye-slash', hint: __('Ignored'), token: {} },
     { type: 'unresolved', icon: 'check-circle', hint: __('Resolved'), token: {} }
+  ],
+  statusLabelToken: [
+    { type: 'static', icon: 'eye-slash', hint: __('Status'), token: staticToken },
   ],
   fields: [
     {
@@ -99,6 +124,7 @@ export default {
     TimeAgo,
     GlButtonGroup,
     GlFilteredSearchTerm,
+    GlFilteredSearch,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -141,9 +167,7 @@ export default {
   data() {
     return {
       statusLabelToken: this.$options.statusLabelToken,
-      statusTokens: this.$options.statusTokens,
-      filterActive: true,
-      errorSearchQuery: '',
+      errorSearchQuery: [],
       pageValue: this.$options.FIRST_PAGE,
     };
   },
@@ -213,6 +237,9 @@ export default {
     getIssueUpdatePath(errorId) {
       return `/${this.projectPath}/-/error_tracking/${errorId}.json`;
     },
+    searchOrFilter(errorSearchQuery) {
+      this.searchByQuery(errorSearchQuery[0].value);
+    },
     updateIssueStatus(errorId, status) {
       this.updateStatus({
         endpoint: this.getIssueUpdatePath(errorId),
@@ -253,29 +280,14 @@ export default {
               </template>
               <div v-else class="px-3">{{ __("You don't have any recent searches") }}</div>
             </gl-dropdown>
-            <div>
-              <gl-filtered-search-term
-                v-model="errorSearchQuery"
-                :active="filterActive"
-                class="h-100"
-                :placeholder="__('Enter query')"
-                :available-tokens="statusTokens"
-                @keyup.enter.native="searchByQuery(errorSearchQuery)"
-                />
-              <portal-target name="statusPortal" class="position-relative" multiple />
-            </div>
-            <div class="gl-search-box-by-type-right-icons">
-              <gl-button
-                v-if="errorSearchQuery.length > 0"
-                v-gl-tooltip.hover
-                :title="__('Clear')"
-                class="clear-search text-secondary"
-                name="clear"
-                @click="errorSearchQuery = ''"
-              >
-                <gl-icon name="close" :size="12" />
-              </gl-button>
-            </div>
+
+            <gl-filtered-search
+              v-model="errorSearchQuery"
+              :available-tokens="statusLabelToken"
+              :placeholder="__('Search by query or filter')"
+              @submit="searchOrFilter(errorSearchQuery)"
+              />
+            <portal-target name="statusPortal" class="position-relative" multiple />
           </div>
         </div>
 
