@@ -22,7 +22,7 @@ module API
         end
 
         ::Gitlab::UsageCounters::PodLogs.increment(environment.project.id)
-        ::Gitlab::PollingInterval.set_header(headers, interval: 3_000)
+        ::Gitlab::PollingInterval.set_header(header, interval: 3_000)
 
         result = PodLogsService.new(environment, params: params).execute
 
@@ -32,7 +32,7 @@ module API
         when :success
           result
         else
-          render_api_error!("#{result[:message]} (last_step: #{result[:last_step]})", 400)
+          error!({ status: :error, message: "#{result[:message]} (last_step: #{result[:last_step]})" }, 400)
         end
       end
     end

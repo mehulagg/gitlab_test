@@ -13,37 +13,10 @@ module Projects
       end
     end
 
-    def k8s
-      render_logs
-    end
-
-    def elasticsearch
-      render_logs
-    end
-
     private
-
-    def render_logs
-      ::Gitlab::UsageCounters::PodLogs.increment(project.id)
-      ::Gitlab::PollingInterval.set_header(response, interval: 3_000)
-
-      result = PodLogsService.new(environment, params: filter_params).execute
-
-      if result[:status] == :processing
-        head :accepted
-      elsif result[:status] == :success
-        render json: result
-      else
-        render status: :bad_request, json: result
-      end
-    end
 
     def index_params
       params.permit(:environment_name)
-    end
-
-    def filter_params
-      params.permit(:container_name, :pod_name, :search, :start, :end)
     end
 
     def environment
