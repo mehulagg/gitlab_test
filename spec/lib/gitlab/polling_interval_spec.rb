@@ -26,8 +26,14 @@ describe Gitlab::PollingInterval do
         stub_application_setting(polling_interval_multiplier: 0.33333)
       end
 
-      it 'applies modifier to base interval' do
+      it 'applies modifier to base interval (response object)' do
         polling_interval.set_header(response, interval: 10_000)
+
+        expect(headers['Poll-Interval']).to eq('3333')
+      end
+
+      it 'applies modifier to base interval (headers object)' do
+        polling_interval.set_header(headers, interval: 10_000)
 
         expect(headers['Poll-Interval']).to eq('3333')
       end
