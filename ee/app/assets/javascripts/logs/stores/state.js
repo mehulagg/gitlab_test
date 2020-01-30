@@ -1,13 +1,18 @@
-export default () => ({
-  /**
-   * Current project path
-   */
-  projectPath: '',
+import { defaultTimeWindow, timeWindows } from '../constants';
 
+export default () => ({
   /**
    * Full text search
    */
   search: '',
+
+  /**
+   * Time range (Show last)
+   */
+  timeWindow: {
+    options: { ...timeWindows },
+    current: defaultTimeWindow,
+  },
 
   /**
    * Environments list information

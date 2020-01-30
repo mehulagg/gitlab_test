@@ -1,30 +1,30 @@
 import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import { GlButton } from '@gitlab/ui';
-import store from 'ee/subscriptions/new/store';
+import createStore from 'ee/subscriptions/new/store';
 import * as constants from 'ee/subscriptions/new/constants';
-import component from 'ee/subscriptions/new/components/checkout/components/step.vue';
+import Component from 'ee/subscriptions/new/components/checkout/components/step.vue';
 import StepSummary from 'ee/subscriptions/new/components/checkout/components/step_summary.vue';
 
 describe('Step', () => {
   const localVue = createLocalVue();
   localVue.use(Vuex);
 
+  let store;
   let wrapper;
 
-  const initialData = {
+  const initialProps = {
     step: 'secondStep',
     isValid: true,
     title: 'title',
     nextStepButtonText: 'next',
   };
 
-  const factory = propsData => {
-    wrapper = shallowMount(localVue.extend(component), {
-      store,
-      propsData: { ...initialData, ...propsData },
+  const createComponent = propsData => {
+    wrapper = shallowMount(Component, {
+      propsData: { ...initialProps, ...propsData },
       localVue,
-      sync: false,
+      store,
     });
   };
 
@@ -35,6 +35,7 @@ describe('Step', () => {
   constants.STEPS = ['firstStep', 'secondStep'];
 
   beforeEach(() => {
+    store = createStore();
     store.dispatch('activateStep', 'secondStep');
   });
 
@@ -42,80 +43,67 @@ describe('Step', () => {
     wrapper.destroy();
   });
 
-  describe('isActive', () => {
-    it('should return true when this step is the current step', () => {
-      factory();
+  describe('Step Body', () => {
+    it('should display the step body when this step is the current step', () => {
+      createComponent();
 
-      expect(wrapper.vm.isActive).toEqual(true);
+      expect(wrapper.find('.card > div').attributes('style')).toBeUndefined();
     });
 
-    it('should return false when this step is not the current step', () => {
+    it('should not display the step body when this step is not the current step', () => {
       activatePreviousStep();
-      factory();
+      createComponent();
 
-      expect(wrapper.vm.isActive).toEqual(false);
+      expect(wrapper.find('.card > div').attributes('style')).toBe('display: none;');
     });
   });
 
-  describe('isFinished', () => {
-    it('should return true when this step is valid and not active', () => {
+  describe('Step Summary', () => {
+    it('should be shown when this step is valid and not active', () => {
       activatePreviousStep();
-      factory();
+      createComponent();
 
-      expect(wrapper.vm.isFinished).toEqual(true);
+      expect(wrapper.find(StepSummary).exists()).toBe(true);
     });
 
-    it('should return false when this step is not valid and not active', () => {
+    it('should not be shown when this step is not valid and not active', () => {
       activatePreviousStep();
-      factory({ isValid: false });
+      createComponent({ isValid: false });
 
-      expect(wrapper.vm.isFinished).toEqual(false);
+      expect(wrapper.find(StepSummary).exists()).toBe(false);
     });
 
-    it('should return false when this step is valid and active', () => {
-      factory();
+    it('should not be shown when this step is valid and active', () => {
+      createComponent();
 
-      expect(wrapper.vm.isFinished).toEqual(false);
+      expect(wrapper.find(StepSummary).exists()).toBe(false);
     });
 
-    it('should return false when this step is not valid and active', () => {
-      factory({ isValid: false });
+    it('should not be shown when this step is not valid and active', () => {
+      createComponent({ isValid: false });
 
-      expect(wrapper.vm.isFinished).toEqual(false);
+      expect(wrapper.find(StepSummary).exists()).toBe(false);
     });
   });
 
-  describe('editable', () => {
-    it('should return true when this step is finished and comes before the current step', () => {
-      factory({ step: 'firstStep' });
+  describe('isEditable', () => {
+    it('should set the isEditable property to true when this step is finished and comes before the current step', () => {
+      createComponent({ step: 'firstStep' });
 
-      expect(wrapper.vm.editable).toEqual(true);
-    });
-
-    it('should return false when this step is not finished and comes before the current step', () => {
-      factory({ step: 'firstStep', isValid: false });
-
-      expect(wrapper.vm.editable).toEqual(false);
-    });
-
-    it('should return false when this step is finished and does not come before the current step', () => {
-      activatePreviousStep();
-      factory({ step: 'firstStep' });
-
-      expect(wrapper.vm.editable).toEqual(false);
+      expect(wrapper.find(StepSummary).props('isEditable')).toBe(true);
     });
   });
 
   describe('Showing the summary', () => {
     it('shows the summary when this step is finished', () => {
       activatePreviousStep();
-      factory();
+      createComponent();
 
       expect(wrapper.find(StepSummary).exists()).toBe(true);
     });
 
     it('does not show the summary when this step is not finished', () => {
-      factory();
+      createComponent();
 
       expect(wrapper.find(StepSummary).exists()).toBe(false);
     });
@@ -123,25 +111,25 @@ describe('Step', () => {
 
   describe('Next button', () => {
     it('shows the next button when the text was passed', () => {
-      factory();
+      createComponent();
 
-      expect(wrapper.text()).toEqual('next');
+      expect(wrapper.text()).toBe('next');
     });
 
     it('does not show the next button when no text was passed', () => {
-      factory({ nextStepButtonText: '' });
+      createComponent({ nextStepButtonText: '' });
 
-      expect(wrapper.text()).toEqual('');
+      expect(wrapper.text()).toBe('');
     });
 
     it('is disabled when this step is not valid', () => {
-      factory({ isValid: false });
+      createComponent({ isValid: false });
 
       expect(wrapper.find(GlButton).attributes('disabled')).toBe('true');
     });
 
     it('is enabled when this step is valid', () => {
-      factory();
+      createComponent();
 
       expect(wrapper.find(GlButton).attributes('disabled')).toBeUndefined();
     });

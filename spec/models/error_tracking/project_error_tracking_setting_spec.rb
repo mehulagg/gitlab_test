@@ -4,6 +4,7 @@ require 'spec_helper'
 
 describe ErrorTracking::ProjectErrorTrackingSetting do
   include ReactiveCachingHelpers
+  include Gitlab::Routing
 
   let_it_be(:project) { create(:project) }
 
@@ -60,6 +61,22 @@ describe ErrorTracking::ProjectErrorTrackingSetting do
 
         it { expect(subject.valid?).to eq(valid?) }
       end
+    end
+  end
+
+  describe '.extract_sentry_external_url' do
+    subject { described_class.extract_sentry_external_url(sentry_url) }
+
+    describe 'when passing a URL' do
+      let(:sentry_url) { 'https://sentrytest.gitlab.com/api/0/projects/sentry-org/sentry-project' }
+
+      it { is_expected.to eq('https://sentrytest.gitlab.com/sentry-org/sentry-project') }
+    end
+
+    describe 'when passing nil' do
+      let(:sentry_url) { nil }
+
+      it { is_expected.to be_nil }
     end
   end
 
@@ -210,6 +227,90 @@ describe ErrorTracking::ProjectErrorTrackingSetting do
     end
   end
 
+  describe '#issue_details' do
+    let(:issue) { build(:detailed_error_tracking_error) }
+    let(:sentry_client) { double('sentry_client', issue_details: issue) }
+    let(:commit_id) { issue.first_release_version }
+
+    let(:result) do
+      subject.issue_details
+    end
+
+    context 'when cached' do
+      before do
+        stub_reactive_cache(subject, issue, {})
+        synchronous_reactive_cache(subject)
+
+        expect(subject).to receive(:sentry_client).and_return(sentry_client)
+      end
+
+      it { expect(result).to eq(issue: issue) }
+      it { expect(result[:issue].first_release_version).to eq(commit_id) }
+      it { expect(result[:issue].gitlab_commit).to eq(nil) }
+      it { expect(result[:issue].gitlab_commit_path).to eq(nil) }
+
+      context 'when release version is nil' do
+        before do
+          issue.first_release_version = nil
+        end
+
+        it { expect(result[:issue].gitlab_commit).to eq(nil) }
+        it { expect(result[:issue].gitlab_commit_path).to eq(nil) }
+      end
+
+      context 'when repo commit matches first relase version' do
+        let(:commit) { double('commit', id: commit_id) }
+        let(:repository) { double('repository', commit: commit) }
+
+        before do
+          expect(project).to receive(:repository).and_return(repository)
+        end
+
+        it { expect(result[:issue].gitlab_commit).to eq(commit_id) }
+        it { expect(result[:issue].gitlab_commit_path).to eq("/#{project.namespace.path}/#{project.path}/commit/#{commit_id}") }
+      end
+    end
+
+    context 'when not cached' do
+      it { expect(subject).not_to receive(:sentry_client) }
+      it { expect(result).to be_nil }
+    end
+  end
+
+  describe '#update_issue' do
+    let(:opts) do
+      { status: 'resolved' }
+    end
+
+    let(:result) do
+      subject.update_issue(**opts)
+    end
+
+    let(:sentry_client) { spy(:sentry_client) }
+
+    context 'successful call to sentry' do
+      before do
+        allow(subject).to receive(:sentry_client).and_return(sentry_client)
+        allow(sentry_client).to receive(:update_issue).with(opts).and_return(true)
+      end
+
+      it 'returns the successful response' do
+        expect(result).to eq(updated: true)
+      end
+    end
+
+    context 'sentry raises an error' do
+      before do
+        allow(subject).to receive(:sentry_client).and_return(sentry_client)
+        allow(sentry_client).to receive(:update_issue).with(opts).and_raise(StandardError)
+      end
+
+      it 'returns the successful response' do
+        expect(result).to eq(error: 'Unexpected Error')
+      end
+    end
+  end
+
   context 'slugs' do
     shared_examples_for 'slug from api_url' do |method, slug|
       context 'when api_url is correct' do
@@ -337,6 +438,20 @@ describe ErrorTracking::ProjectErrorTrackingSetting do
       it 'returns nil' do
         expect(subject.api_url).to eq(nil)
       end
+    end
+  end
+
+  describe '#expire_issues_cache', :use_clean_rails_memory_store_caching do
+    it 'clears the cache' do
+      klass_key = subject.class.reactive_cache_key.call(subject).join(':')
+      key = "#{klass_key}:list_issues:some_suffix"
+      Rails.cache.write(key, 1)
+
+      expect(Rails.cache.exist?(key)).to eq(true)
+
+      subject.expire_issues_cache
+
+      expect(Rails.cache.exist?(key)).to eq(false)
     end
   end
 end

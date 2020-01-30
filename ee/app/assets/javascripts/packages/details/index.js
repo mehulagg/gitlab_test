@@ -1,24 +1,28 @@
 import Vue from 'vue';
 import PackagesApp from './components/app.vue';
 import Translate from '~/vue_shared/translate';
+import createStore from './store';
 
 Vue.use(Translate);
 
-export default () =>
+export default () => {
+  const { dataset } = document.querySelector('#js-vue-packages-detail');
+  const packageEntity = JSON.parse(dataset.package);
+  const packageFiles = JSON.parse(dataset.packageFiles);
+  const canDelete = dataset.canDelete === 'true';
+
+  const store = createStore({ packageEntity, packageFiles });
+  store.dispatch('fetchPipelineInfo');
+
+  // eslint-disable-next-line no-new
   new Vue({
     el: '#js-vue-packages-detail',
     components: {
       PackagesApp,
     },
+    store,
     data() {
-      const { dataset } = document.querySelector(this.$options.el);
-      const packageData = JSON.parse(dataset.package);
-      const packageFiles = JSON.parse(dataset.packageFiles);
-      const canDelete = dataset.canDelete === 'true';
-
       return {
-        packageData,
-        packageFiles,
         canDelete,
         destroyPath: dataset.destroyPath,
         emptySvgPath: dataset.svgPath,
@@ -26,13 +30,13 @@ export default () =>
         npmHelpPath: dataset.npmHelpPath,
         mavenPath: dataset.mavenPath,
         mavenHelpPath: dataset.mavenHelpPath,
+        conanPath: dataset.conanPath,
+        conanHelpPath: dataset.conanHelpPath,
       };
     },
     render(createElement) {
       return createElement('packages-app', {
         props: {
-          packageEntity: this.packageData,
-          files: this.packageFiles,
           canDelete: this.canDelete,
           destroyPath: this.destroyPath,
           emptySvgPath: this.emptySvgPath,
@@ -40,7 +44,10 @@ export default () =>
           npmHelpPath: this.npmHelpPath,
           mavenPath: this.mavenPath,
           mavenHelpPath: this.mavenHelpPath,
+          conanPath: this.conanPath,
+          conanHelpPath: this.conanHelpPath,
         },
       });
     },
   });
+};

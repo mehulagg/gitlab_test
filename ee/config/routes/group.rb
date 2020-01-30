@@ -17,7 +17,8 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
       patch :override, on: :member
     end
 
-    resource :analytics, only: [:show]
+    get '/analytics', to: redirect('groups/%{group_id}/-/contribution_analytics')
+    resource :contribution_analytics, only: [:show]
     resource :cycle_analytics, only: [:show]
     namespace :cycle_analytics do
       scope :events, controller: 'events' do
@@ -73,6 +74,7 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
     resources :epics, concerns: :awardable, constraints: { id: /\d+/ } do
       member do
         get '/descriptions/:version_id/diff', action: :description_diff, as: :description_diff
+        delete '/descriptions/:version_id', action: :delete_description_version, as: :delete_description_version
         get :discussions, format: :json
         get :realtime_changes
         post :toggle_subscription
@@ -111,18 +113,10 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
 
     namespace :security do
       resource :dashboard, only: [:show], controller: :dashboard
+      resource :compliance_dashboard, only: [:show]
       resources :vulnerable_projects, only: [:index]
-      # We have to define both legacy and new routes for Vulnerability Findings
-      # because they are loaded upon application initialization and preloaded by
-      # web server.
-      # TODO: remove this comment and `resources :vulnerabilities` when feature flag is removed
-      # see https://gitlab.com/gitlab-org/gitlab/issues/33488
-      resources :vulnerabilities, only: [:index] do
-        collection do
-          get :summary
-          get :history
-        end
-      end
+      resource :discover, only: [:show], controller: :discover
+
       resources :vulnerability_findings, only: [:index] do
         collection do
           get :summary
@@ -147,6 +141,8 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
 
     resource :dependency_proxy, only: [:show, :update]
     resources :packages, only: [:index]
+
+    post '/restore' => '/groups#restore', as: :restore
   end
 end
 

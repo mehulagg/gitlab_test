@@ -6,6 +6,7 @@ class Packages::Package < ApplicationRecord
   # package_files must be destroyed by ruby code in order to properly remove carrierwave uploads and update project statistics
   has_many :package_files, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_many :dependency_links, inverse_of: :package, class_name: 'Packages::DependencyLink'
+  has_many :tags, inverse_of: :package, class_name: 'Packages::Tag'
   has_one :conan_metadatum, inverse_of: :package
   has_one :maven_metadatum, inverse_of: :package
   has_one :build_info, inverse_of: :package
@@ -39,6 +40,11 @@ class Packages::Package < ApplicationRecord
   end
 
   scope :has_version, -> { where.not(version: nil) }
+  scope :processed, -> do
+    where.not(package_type: :nuget).or(
+      where.not(name: Packages::Nuget::CreatePackageService::TEMPORARY_PACKAGE_NAME)
+    )
+  end
   scope :preload_files, -> { preload(:package_files) }
   scope :last_of_each_version, -> { where(id: all.select('MAX(id) AS id').group(:version)) }
 

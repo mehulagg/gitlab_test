@@ -25,6 +25,7 @@ describe User, :do_not_mock_admin_mode do
   describe 'associations' do
     it { is_expected.to have_one(:namespace) }
     it { is_expected.to have_one(:status) }
+    it { is_expected.to have_one(:max_access_level_membership) }
     it { is_expected.to have_many(:snippets).dependent(:destroy) }
     it { is_expected.to have_many(:members) }
     it { is_expected.to have_many(:project_members) }
@@ -147,15 +148,15 @@ describe User, :do_not_mock_admin_mode do
 
     describe 'name' do
       it { is_expected.to validate_presence_of(:name) }
-      it { is_expected.to validate_length_of(:name).is_at_most(128) }
+      it { is_expected.to validate_length_of(:name).is_at_most(255) }
     end
 
     describe 'first name' do
-      it { is_expected.to validate_length_of(:first_name).is_at_most(255) }
+      it { is_expected.to validate_length_of(:first_name).is_at_most(127) }
     end
 
     describe 'last name' do
-      it { is_expected.to validate_length_of(:last_name).is_at_most(255) }
+      it { is_expected.to validate_length_of(:last_name).is_at_most(127) }
     end
 
     describe 'username' do
@@ -508,6 +509,20 @@ describe User, :do_not_mock_admin_mode do
       end
     end
 
+    describe '.random_password' do
+      let(:random_password) { described_class.random_password }
+
+      before do
+        expect(User).to receive(:password_length).and_return(88..128)
+      end
+
+      context 'length' do
+        it 'conforms to the current password length settings' do
+          expect(random_password.length).to eq(128)
+        end
+      end
+    end
+
     describe '.password_length' do
       let(:password_length) { described_class.password_length }
 
@@ -631,6 +646,27 @@ describe User, :do_not_mock_admin_mode do
         it 'only includes user2' do
           expect(users).to contain_exactly(user2)
         end
+      end
+    end
+
+    describe '.active_without_ghosts' do
+      let_it_be(:user1) { create(:user, :external) }
+      let_it_be(:user2) { create(:user, state: 'blocked') }
+      let_it_be(:user3) { create(:user, ghost: true) }
+      let_it_be(:user4) { create(:user) }
+
+      it 'returns all active users but ghost users' do
+        expect(described_class.active_without_ghosts).to match_array([user1, user4])
+      end
+    end
+
+    describe '.without_ghosts' do
+      let_it_be(:user1) { create(:user, :external) }
+      let_it_be(:user2) { create(:user, state: 'blocked') }
+      let_it_be(:user3) { create(:user, ghost: true) }
+
+      it 'returns users without ghosts users' do
+        expect(described_class.without_ghosts).to match_array([user1, user2])
       end
     end
   end
@@ -804,8 +840,35 @@ describe User, :do_not_mock_admin_mode do
 
   describe '#highest_role' do
     let(:user) { create(:user) }
-
     let(:group) { create(:group) }
+
+    context 'with association :max_access_level_membership' do
+      let(:another_user) { create(:user) }
+
+      before do
+        create(:project, group: group) do |project|
+          group.add_user(user, GroupMember::GUEST)
+          group.add_user(another_user, GroupMember::DEVELOPER)
+        end
+
+        create(:project, group: create(:group)) do |project|
+          project.add_guest(another_user)
+        end
+
+        create(:project, group: create(:group)) do |project|
+          project.add_maintainer(user)
+        end
+      end
+
+      it 'returns the correct highest role' do
+        users = User.includes(:max_access_level_membership).where(id: [user.id, another_user.id])
+
+        expect(users.collect { |u| [u.id, u.highest_role] }).to contain_exactly(
+          [user.id, Gitlab::Access::MAINTAINER],
+          [another_user.id, Gitlab::Access::DEVELOPER]
+        )
+      end
+    end
 
     it 'returns NO_ACCESS if none has been set' do
       expect(user.highest_role).to eq(Gitlab::Access::NO_ACCESS)
@@ -1252,7 +1315,7 @@ describe User, :do_not_mock_admin_mode do
     let(:user) { double }
 
     it 'filters by active users by default' do
-      expect(described_class).to receive(:active).and_return([user])
+      expect(described_class).to receive(:active_without_ghosts).and_return([user])
 
       expect(described_class.filter_items(nil)).to include user
     end
@@ -1990,6 +2053,19 @@ describe User, :do_not_mock_admin_mode do
 
         expect(user.blocked?).to be_truthy
         expect(user.ldap_blocked?).to be_truthy
+      end
+
+      context 'on a read-only instance' do
+        before do
+          allow(Gitlab::Database).to receive(:read_only?).and_return(true)
+        end
+
+        it 'does not block user' do
+          user.ldap_block
+
+          expect(user.blocked?).to be_falsey
+          expect(user.ldap_blocked?).to be_falsey
+        end
       end
     end
   end

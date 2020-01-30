@@ -1,10 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Settings Form renders 1`] = `
-<div
-  class="card"
->
-  <form>
+<form>
+  <div
+    class="card"
+  >
+    <!---->
     <div
       class="card-header"
     >
@@ -12,10 +13,12 @@ exports[`Settings Form renders 1`] = `
       Tag expiration policy
     
     </div>
-     
     <div
       class="card-body"
     >
+      <!---->
+      <!---->
+        
       <glformgroup-stub
         id="expiration-policy-toggle-group"
         label="Expiration policy:"
@@ -51,18 +54,23 @@ exports[`Settings Form renders 1`] = `
         label-for="expiration-policy-interval"
       >
         <glformselect-stub
+          disabled="true"
           id="expiration-policy-interval"
+          value="bar"
         >
           <option
-            value="1"
+            value="foo"
           >
-            Option 1
+            
+            Foo
+          
           </option>
-           
           <option
-            value="2"
+            value="bar"
           >
-            Option 2
+            
+            Bar
+          
           </option>
         </glformselect-stub>
       </glformgroup-stub>
@@ -75,42 +83,52 @@ exports[`Settings Form renders 1`] = `
         label-for="expiration-policy-schedule"
       >
         <glformselect-stub
+          disabled="true"
           id="expiration-policy-schedule"
+          value="bar"
         >
           <option
-            value="1"
+            value="foo"
           >
-            Option 1
+            
+            Foo
+          
           </option>
-           
           <option
-            value="2"
+            value="bar"
           >
-            Option 2
+            
+            Bar
+          
           </option>
         </glformselect-stub>
       </glformgroup-stub>
        
       <glformgroup-stub
         id="expiration-policy-latest-group"
-        label="Expiration latest:"
+        label="Number of tags to retain:"
         label-align="right"
         label-cols="3"
         label-for="expiration-policy-latest"
       >
         <glformselect-stub
+          disabled="true"
           id="expiration-policy-latest"
+          value="bar"
         >
           <option
-            value="1"
+            value="foo"
           >
-            Option 1
+            
+            Foo
+          
           </option>
-           
           <option
-            value="2"
+            value="bar"
           >
-            Option 2
+            
+            Bar
+          
           </option>
         </glformselect-stub>
       </glformgroup-stub>
@@ -118,38 +136,52 @@ exports[`Settings Form renders 1`] = `
       <glformgroup-stub
         id="expiration-policy-name-matching-group"
         invalid-feedback="The value of this input should be less than 255 characters"
-        label="Expire Docker tags with name matching:"
+        label="Docker tags with names matching this regex pattern will expire:"
         label-align="right"
         label-cols="3"
         label-for="expiration-policy-name-matching"
       >
         <glformtextarea-stub
+          disabled="true"
           id="expiration-policy-name-matching"
           placeholder=".*"
           trim=""
           value=""
         />
       </glformgroup-stub>
-    </div>
-     
-    <div
-      class="card-footer text-right"
-    >
-      <glbutton-stub
-        type="reset"
-      >
-        Cancel
-      </glbutton-stub>
        
-      <glbutton-stub
-        type="submit"
-        variant="success"
-      >
-        
-        Save Expiration Policy
-      
-      </glbutton-stub>
     </div>
-  </form>
-</div>
+    <div
+      class="card-footer"
+    >
+      <div
+        class="d-flex justify-content-end"
+      >
+        <glbutton-stub
+          class="mr-2 d-block"
+          size="md"
+          type="reset"
+          variant="secondary"
+        >
+          
+          Cancel
+        
+        </glbutton-stub>
+         
+        <glbutton-stub
+          class="d-flex justify-content-center align-items-center js-no-auto-disable"
+          size="md"
+          type="submit"
+          variant="success"
+        >
+          
+          Save expiration policy
+          
+          <!---->
+        </glbutton-stub>
+      </div>
+    </div>
+    <!---->
+  </div>
+</form>
 `;

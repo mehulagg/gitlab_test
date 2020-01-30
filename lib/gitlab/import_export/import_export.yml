@@ -16,6 +16,7 @@ tree:
       - :timelogs
       - notes:
         - :author
+        - :award_emoji
         - events:
           - :push_event_payload
       - label_links:
@@ -32,18 +33,22 @@ tree:
       - :issue_assignees
       - :zoom_meetings
       - :sentry_issue
+      - :award_emoji
     - snippets:
       - :award_emoji
       - notes:
         - :author
+        - :award_emoji
     - releases:
       - :links
     - project_members:
       - :user
     - merge_requests:
       - :metrics
+      - :award_emoji
       - notes:
         - :author
+        - :award_emoji
         - events:
           - :push_event_payload
         - :suggestions
@@ -172,6 +177,7 @@ excluded_attributes:
     - :secret
     - :encrypted_secret_token
     - :encrypted_secret_token_iv
+    - :repository_storage
   merge_request_diff:
     - :external_diff
     - :stored_externally
@@ -233,6 +239,7 @@ excluded_attributes:
     - :upstream_pipeline_id
     - :resource_group_id
     - :waiting_for_resource_at
+    - :processed
   sentry_issue:
     - :issue_id
   push_event_payload:
@@ -315,6 +322,13 @@ excluded_attributes:
     - :board_id
     - :label_id
     - :milestone_id
+  epic:
+    - :start_date_sourcing_milestone_id
+    - :due_date_sourcing_milestone_id
+    - :parent_id
+    - :state_id
+    - :start_date_sourcing_epic_id
+    - :due_date_sourcing_epic_id
 methods:
   notes:
     - :type
@@ -367,6 +381,7 @@ ee:
         - design_versions:
           - actions:
             - :design # Duplicate export of issues.designs in order to link the record to both Issue and Action
+        - :epic
       - protected_branches:
         - :unprotect_access_levels
       - protected_environments:

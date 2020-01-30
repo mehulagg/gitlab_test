@@ -90,6 +90,10 @@ module QA
             end
           end
 
+          def wait_for_license_compliance_report
+            has_no_text?('Loading License Compliance report', wait: QA::Support::Repeater::DEFAULT_MAX_WAIT_TIME)
+          end
+
           def approvals_required_from
             approvals_content.match(/approvals? from (.*)/)[1]
           end
@@ -100,7 +104,7 @@ module QA
 
           def approvers
             within_element :approver_list do
-              all_elements(:approver).map { |item| item.find('img')['title'] }
+              all_elements(:approver, minimum: 1).map { |item| item.find('img')['title'] }
             end
           end
 
@@ -186,7 +190,7 @@ module QA
               click_on name
             end
 
-            wait(reload: false) do
+            wait_until(reload: false) do
               find_element(:vulnerability_modal_content)[:class].include? 'show'
             end
           end
@@ -198,7 +202,7 @@ module QA
             find_element(:dismiss_comment_field).fill_in with: reason
             click_element :add_and_dismiss_button
 
-            wait(reload: false) do
+            wait_until(reload: false) do
               has_no_element?(:vulnerability_modal_content)
             end
           end
@@ -210,7 +214,7 @@ module QA
             previous_page = page.current_url
             click_element :resolve_split_button
 
-            wait(max: 15, reload: false) do
+            wait_until(max_duration: 15, reload: false) do
               page.current_url != previous_page
             end
           end
@@ -222,13 +226,13 @@ module QA
             previous_page = page.current_url
             click_element(:create_issue_button)
 
-            wait(max: 15, reload: false) do
+            wait_until(max_duration: 15, reload: false) do
               page.current_url != previous_page
             end
           end
 
           def has_vulnerability_report?(timeout: 60)
-            wait(reload: true, max: timeout, interval: 1) do
+            wait_until(reload: true, max_duration: timeout, sleep_interval: 1) do
               finished_loading?
               has_element?(:vulnerability_report_grouped, wait: 10)
             end
@@ -280,12 +284,16 @@ module QA
             wait_for_animated_element :merge_immediately_button
 
             click_element :merge_immediately_button
+
+            finished_loading?
           end
 
           def merge_via_merge_train
             raise ElementNotFound, "Not ready to merge" unless ready_to_merge?
 
             click_element(:merge_button, text: "Start merge train")
+
+            finished_loading?
           end
 
           private
@@ -304,7 +312,7 @@ module QA
             sleep 1
 
             text = nil
-            wait(reload: false) do
+            wait_until(reload: false) do
               text = find_element(:approvals_summary_content).text
               text =~ /Requires|approved/
             end

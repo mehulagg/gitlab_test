@@ -15,6 +15,7 @@ module QA
       module Component
         autoload :DesignManagement, 'qa/ee/page/component/design_management'
         autoload :LicenseManagement, 'qa/ee/page/component/license_management'
+        autoload :SecureReport, 'qa/ee/page/component/secure_report'
 
         module IssueBoard
           autoload :Show, 'qa/ee/page/component/issue_board/show'
@@ -127,6 +128,8 @@ module QA
           module Kubernetes
             autoload :Show, 'qa/ee/page/project/operations/kubernetes/show'
           end
+
+          autoload :Metrics, 'qa/ee/page/project/operations/metrics'
         end
 
         module Packages
@@ -160,7 +163,6 @@ module QA
         module Epic
           autoload :Index, 'qa/ee/page/group/epic/index'
           autoload :Show, 'qa/ee/page/group/epic/show'
-          autoload :Edit, 'qa/ee/page/group/epic/edit'
         end
 
         module Secure

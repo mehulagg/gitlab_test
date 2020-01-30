@@ -57,14 +57,14 @@ repository.
 
 To use this repository you must first clone it:
 
-```
+```shell
 git clone https://gitlab.com/gitlab-org/influxdb-management.git
 cd influxdb-management
 ```
 
 Next you must install the required dependencies:
 
-```
+```shell
 gem install bundler
 bundle install
 ```
@@ -113,14 +113,14 @@ repository for more information on this process.
 
 If you have set up Grafana, you can enable a link to access it easily from the sidebar:
 
-1. Go to the admin area under **Settings > Metrics and profiling**
-   and expand "Metrics - Grafana".
+1. Go to the **Admin Area > Settings > Metrics and profiling**.
+1. Expand **Metrics - Grafana**.
 1. Check the "Enable access to Grafana" checkbox.
 1. If Grafana is enabled through Omnibus GitLab and on the same server,
    leave "Grafana URL" unchanged. In any other case, enter the full URL
    path of the Grafana instance.
 1. Click **Save changes**.
-1. The new link will be available in the admin area under **Monitoring > Metrics Dashboard**.
+1. The new link will be available in the **Admin Area > Monitoring > Metrics Dashboard**.
 
 ## Security Update
 
@@ -139,7 +139,7 @@ echo "0" > /var/opt/gitlab/grafana/CVE_reset_status
 
 To reinstate your old data, move it back into its original location:
 
-```
+```shell
 sudo mv /var/opt/gitlab/grafana/data.bak.xxxx/ /var/opt/gitlab/grafana/data/
 ```
 

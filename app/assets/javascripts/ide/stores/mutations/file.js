@@ -54,27 +54,29 @@ export default {
       }
     });
   },
-  [types.SET_FILE_RAW_DATA](state, { file, raw }) {
+  [types.SET_FILE_RAW_DATA](state, { file, raw, fileDeletedAndReadded = false }) {
     const openPendingFile = state.openFiles.find(
-      f => f.path === file.path && f.pending && !(f.tempFile && !f.prevPath),
+      f =>
+        f.path === file.path && f.pending && !(f.tempFile && !f.prevPath && !fileDeletedAndReadded),
     );
+    const stagedFile = state.stagedFiles.find(f => f.path === file.path);
 
-    if (file.tempFile && file.content === '') {
-      Object.assign(state.entries[file.path], {
-        content: raw,
-      });
+    if (file.tempFile && file.content === '' && !fileDeletedAndReadded) {
+      Object.assign(state.entries[file.path], { content: raw });
+    } else if (fileDeletedAndReadded) {
+      Object.assign(stagedFile, { raw });
     } else {
-      Object.assign(state.entries[file.path], {
-        raw,
-      });
+      Object.assign(state.entries[file.path], { raw });
     }
 
     if (!openPendingFile) return;
 
     if (!openPendingFile.tempFile) {
       openPendingFile.raw = raw;
-    } else if (openPendingFile.tempFile) {
+    } else if (openPendingFile.tempFile && !fileDeletedAndReadded) {
       openPendingFile.content = raw;
+    } else if (fileDeletedAndReadded) {
+      Object.assign(stagedFile, { raw });
     }
   },
   [types.SET_FILE_BASE_RAW_DATA](state, { file, baseRaw }) {
@@ -132,7 +134,7 @@ export default {
   [types.DISCARD_FILE_CHANGES](state, path) {
     const stagedFile = state.stagedFiles.find(f => f.path === path);
     const entry = state.entries[path];
-    const { deleted, prevPath } = entry;
+    const { deleted } = entry;
 
     Object.assign(state.entries[path], {
       content: stagedFile ? stagedFile.content : state.entries[path].raw,
@@ -146,12 +148,6 @@ export default {
         : state.trees[`${state.currentProjectId}/${state.currentBranchId}`];
 
       parent.tree = sortTree(parent.tree.concat(entry));
-    } else if (prevPath) {
-      const parent = entry.parentPath
-        ? state.entries[entry.parentPath]
-        : state.trees[`${state.currentProjectId}/${state.currentBranchId}`];
-
-      parent.tree = parent.tree.filter(f => f.path !== path);
     }
   },
   [types.ADD_FILE_TO_CHANGED](state, path) {

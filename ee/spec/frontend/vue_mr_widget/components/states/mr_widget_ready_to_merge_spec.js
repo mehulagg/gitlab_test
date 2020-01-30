@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import { MERGE_DISABLED_TEXT_UNAPPROVED } from 'ee/vue_merge_request_widget/mixins/ready_to_merge';
 import MergeImmediatelyConfirmationDialog from 'ee/vue_merge_request_widget/components/merge_immediately_confirmation_dialog.vue';
 import ReadyToMerge from '~/vue_merge_request_widget/components/states/ready_to_merge.vue';
@@ -10,7 +10,6 @@ import {
 import { MERGE_DISABLED_TEXT } from '~/vue_merge_request_widget/mixins/ready_to_merge';
 
 describe('ReadyToMerge', () => {
-  const localVue = createLocalVue();
   let wrapper;
   let vm;
 
@@ -43,13 +42,11 @@ describe('ReadyToMerge', () => {
   };
 
   const factory = (mrUpdates = {}) => {
-    wrapper = shallowMount(localVue.extend(ReadyToMerge), {
+    wrapper = shallowMount(ReadyToMerge, {
       propsData: {
         mr: { ...mr, ...mrUpdates },
         service,
       },
-      localVue,
-      sync: false,
       stubs: {
         MergeImmediatelyConfirmationDialog,
       },
@@ -77,7 +74,7 @@ describe('ReadyToMerge', () => {
 
       it('should return "Merge in progress"', () => {
         factory();
-        localVue.set(vm, 'isMergingImmediately', true);
+        wrapper.setData({ isMergingImmediately: true });
 
         expect(vm.mergeButtonText).toEqual('Merge in progress');
       });

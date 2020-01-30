@@ -30,7 +30,7 @@ describe RegistrationsController do
 
       it 'renders new template and sets the resource variable' do
         expect(subject).to render_template(:new)
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(assigns(:resource)).to be_a(User)
       end
     end
@@ -48,7 +48,7 @@ describe RegistrationsController do
 
       it 'renders new template and sets the resource variable' do
         subject
-        expect(response).to have_gitlab_http_status(302)
+        expect(response).to have_gitlab_http_status(:found)
         expect(response).to redirect_to(new_user_session_path(anchor: 'register-pane'))
       end
     end
@@ -200,7 +200,7 @@ describe RegistrationsController do
               .and_call_original
             expect(Gitlab::AuthLogger).to receive(:error).with(auth_log_attributes).once
             expect { post(:create, params: user_params, session: session_params) }.not_to change(User, :count)
-            expect(response).to have_gitlab_http_status(200)
+            expect(response).to have_gitlab_http_status(:ok)
             expect(response.body).to be_empty
           end
         end
@@ -306,6 +306,23 @@ describe RegistrationsController do
 
       expect(subject.current_user).not_to be_nil
     end
+
+    context 'with the experimental signup flow enabled and the user is part of the experimental group' do
+      before do
+        stub_experiment(signup_flow: true)
+        stub_experiment_for_user(signup_flow: true)
+      end
+
+      let(:base_user_params) { { first_name: 'First', last_name: 'Last', username: 'new_username', email: 'new@user.com', password: 'Any_password' } }
+
+      it 'sets name from first and last name' do
+        post :create, params: { new_user: base_user_params }
+
+        expect(User.last.first_name).to eq(base_user_params[:first_name])
+        expect(User.last.last_name).to eq(base_user_params[:last_name])
+        expect(User.last.name).to eq("#{base_user_params[:first_name]} #{base_user_params[:last_name]}")
+      end
+    end
   end
 
   describe '#destroy' do
@@ -395,7 +412,7 @@ describe RegistrationsController do
         label: anything,
         property: 'experimental_group'
       )
-      patch :update_registration, params: { user: { name: 'New name', role: 'software_developer', setup_for_company: 'false' } }
+      patch :update_registration, params: { user: { role: 'software_developer', setup_for_company: 'false' } }
     end
   end
 end

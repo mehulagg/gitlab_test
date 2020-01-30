@@ -27,11 +27,9 @@ module QA
 
         Flow::Project.add_member(project: project, username: user.username)
 
-        issue = Resource::Issue.fabricate_via_api! do |issue|
-          issue.title = 'issue title'
+        Resource::Issue.fabricate_via_api! do |issue|
           issue.project = project
-        end
-        issue.visit!
+        end.visit!
 
         Page::Project::Issue::Show.perform do |show|
           show.select_all_activities_filter

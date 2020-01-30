@@ -1,4 +1,4 @@
-import { shallowMount, mount, createLocalVue } from '@vue/test-utils';
+import { shallowMount, mount } from '@vue/test-utils';
 import { discussionMock } from '../../notes/mock_data';
 import DiscussionActions from '~/notes/components/discussion_actions.vue';
 import ReplyPlaceholder from '~/notes/components/discussion_reply_placeholder.vue';
@@ -22,12 +22,10 @@ const createUnallowedNote = () =>
 describe('DiscussionActions', () => {
   let wrapper;
   const createComponentFactory = (shallow = true) => props => {
-    const localVue = createLocalVue();
     const store = createStore();
     const mountFn = shallow ? shallowMount : mount;
 
     wrapper = mountFn(DiscussionActions, {
-      localVue,
       store,
       propsData: {
         discussion: discussionMock,
@@ -37,8 +35,6 @@ describe('DiscussionActions', () => {
         shouldShowJumpToNextDiscussion: true,
         ...props,
       },
-      sync: false,
-      attachToDocument: true,
     });
   };
 
@@ -123,15 +119,6 @@ describe('DiscussionActions', () => {
         .find('button')
         .trigger('click');
       expect(wrapper.vm.$emit).toHaveBeenCalledWith('resolve');
-    });
-
-    it('emits jumpToNextDiscussion event when clicking on jump to next discussion button', () => {
-      jest.spyOn(wrapper.vm, '$emit');
-      wrapper
-        .find(JumpToNextDiscussionButton)
-        .find('button')
-        .trigger('click');
-      expect(wrapper.vm.$emit).toHaveBeenCalledWith('jumpToNextDiscussion');
     });
   });
 });

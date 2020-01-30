@@ -210,7 +210,7 @@ class MergeRequestPermissionsType < BasePermissionType
   abilities :admin_merge_request, :update_merge_request, :create_note
 
   ability_field :resolve_note,
-                description: 'Whether or not the user can resolve disussions on the merge request'
+                description: 'Indicates the user can resolve discussions on the merge request'
   permission_field :push_to_source_branch, method: :can_push_to_source_branch?
 end
 ```
@@ -220,7 +220,7 @@ end
   them non-nullable. These options can still be overridden by adding
   them as arguments.
 - **`ability_field`**: Expose an ability defined in our policies. This
-  takes behaves the same way as `permission_field` and the same
+  behaves the same way as `permission_field` and the same
   arguments can be overridden.
 - **`abilities`**: Allows exposing several abilities defined in our
   policies at once. The fields for these will all have be non-nullable

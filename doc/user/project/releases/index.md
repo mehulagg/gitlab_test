@@ -16,8 +16,12 @@ GitLab's **Releases** are a way to track deliverables in your project. Consider 
 a snapshot in time of the source, build output, and other metadata or artifacts
 associated with a released version of your code.
 
-At the moment, you can create Release entries via the [Releases API](../../../api/releases/index.md);
-we recommend doing this as one of the last steps in your CI/CD release pipeline.
+There are several ways to create a Release:
+
+- In the interface, when you create a new Git tag.
+- In the interface, by adding a release note to an existing Git tag.
+- Using the [Releases API](../../../api/releases/index.md): we recommend doing this as one of the last
+  steps in your CI/CD release pipeline.
 
 ## Getting started with Releases
 
@@ -90,6 +94,19 @@ project.
 
 ![Releases list](img/releases.png)
 
+### Number of Releases
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/36667) in GitLab 12.8.
+
+The incremental number of Releases is displayed on the project's details page. When clicked,
+it takes you to the list of Releases.
+
+![Number of Releases](img/releases_count_v12_8.png "Incremental counter of Releases")
+
+For private projects, the number of Releases is displayed to users with Reporter
+[permissions](../../permissions.md#releases-permissions) or higher. For public projects,
+it is displayed to every user regardless of their permission level.
+
 ## Editing a release
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/26016) in GitLab 12.6.
@@ -135,8 +152,9 @@ drag and drop files to it. Release notes are stored in GitLab's database.
 There are several ways to add release notes:
 
 - In the interface, when you create a new Git tag.
-- In the interface, by adding a note to an existing Git tag.
-- Using the GitLab API.
+- In the interface, by adding a release note to an existing Git tag.
+- Using the [Releases API](../../../api/releases/index.md): (we recommend doing this as one of the last
+  steps in your CI/CD release pipeline).
 
 To create a new tag, navigate to your project's **Repository > Tags** and
 click **New tag**. From there, you can fill the form with all the information
@@ -148,7 +166,7 @@ You can also edit an existing tag to add release notes:
 
 ![tags](img/tags_12_5.png "Addition of note to an existing tag")
 
-## Release evidence
+## Release Evidence
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/26019) in GitLab 12.6.
 
@@ -210,6 +228,22 @@ Here is what this object can look like:
   }
 }
 ```
+
+### Enabling Release Evidence display **(CORE ONLY)**
+
+This feature comes with the `:release_evidence_collection` feature flag
+disabled by default in GitLab self-managed instances. To turn it on,
+ask a GitLab administrator with Rails console access to run the following
+command:
+
+```ruby
+Feature.enable(:release_evidence_collection)
+```
+
+NOTE: **Note:**
+Please note that Release Evidence's data is collected regardless of this
+feature flag, which only enables or disables the display of the data on the
+Releases page.
 
 <!-- ## Troubleshooting
 

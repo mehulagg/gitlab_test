@@ -96,8 +96,7 @@ class Key < ApplicationRecord
   def remove_from_shell
     GitlabShellWorker.perform_async(
       :remove_key,
-      shell_id,
-      key
+      shell_id
     )
   end
 
@@ -142,13 +141,9 @@ class Key < ApplicationRecord
   end
 
   def forbidden_key_type_message
-    allowed_types =
-      Gitlab::CurrentSettings
-        .allowed_key_types
-        .map(&:upcase)
-        .to_sentence(last_word_connector: ', or ', two_words_connector: ' or ')
+    allowed_types = Gitlab::CurrentSettings.allowed_key_types.map(&:upcase)
 
-    "type is forbidden. Must be #{allowed_types}"
+    "type is forbidden. Must be #{Gitlab::Utils.to_exclusive_sentence(allowed_types)}"
   end
 end
 

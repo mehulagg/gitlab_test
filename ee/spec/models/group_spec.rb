@@ -233,46 +233,29 @@ describe Group do
         end
       end
 
-      context 'with `preset_group_root` feature flag disabled' do
-        before do
-          stub_feature_flags(preset_group_root: false)
-        end
+      context 'when same_root is false' do
+        let(:params) { { same_root: false } }
 
+        # extra 6 queries:
+        # * getting root_ancestor
+        # * getting root ancestor's saml_provider
+        # * check if group has projects
+        # * max_member_access_for_user_from_shared_groups
+        # * max_member_access_for_user
+        # * self_and_ancestors_ids
         it_behaves_like 'group root ancestor' do
-          let(:params) { {} }
           let(:extra_query_count) { 6 }
         end
       end
 
-      context 'with `preset_group_root` feature flag enabled' do
-        before do
-          stub_feature_flags(preset_group_root: true)
-        end
+      context 'when same_root is true' do
+        let(:params) { { same_root: true } }
 
-        context 'when same_root is false' do
-          let(:params) { { same_root: false } }
-
-          # extra 6 queries:
-          # * getting root_ancestor
-          # * getting root ancestor's saml_provider
-          # * check if group has projects
-          # * max_member_access_for_user_from_shared_groups
-          # * max_member_access_for_user
-          # * self_and_ancestors_ids
-          it_behaves_like 'group root ancestor' do
-            let(:extra_query_count) { 6 }
-          end
-        end
-
-        context 'when same_root is true' do
-          let(:params) { { same_root: true } }
-
-          # avoids 2 queries from the list above:
-          # * getting root ancestor
-          # * getting root ancestor's saml_provider
-          it_behaves_like 'group root ancestor' do
-            let(:extra_query_count) { 4 }
-          end
+        # avoids 2 queries from the list above:
+        # * getting root ancestor
+        # * getting root ancestor's saml_provider
+        it_behaves_like 'group root ancestor' do
+          let(:extra_query_count) { 4 }
         end
       end
     end
@@ -288,6 +271,17 @@ describe Group do
 
       expect(vulnerable_projects.count).to be(1)
       expect(vulnerable_projects.first).to eq(vulnerable_project)
+    end
+
+    it 'includes projects in subgroups' do
+      subgroup = create(:group, parent: group)
+      project = create(:project, namespace: subgroup)
+      create(:vulnerabilities_occurrence, project: project)
+
+      vulnerable_projects = group.vulnerable_projects
+
+      expect(vulnerable_projects.count).to be(1)
+      expect(vulnerable_projects.first).to eq(project)
     end
 
     it 'does not include projects that only have dismissed vulnerabilities' do
@@ -653,8 +647,105 @@ describe Group do
     end
   end
 
+  describe '#self_or_ancestor_marked_for_deletion' do
+    context 'adjourned deletion feature is not available' do
+      before do
+        stub_licensed_features(adjourned_deletion_for_projects_and_groups: false)
+        create(:group_deletion_schedule, group: group, marked_for_deletion_on: 1.day.ago)
+      end
+
+      it 'returns nil' do
+        expect(group.self_or_ancestor_marked_for_deletion).to be_nil
+      end
+    end
+
+    context 'adjourned deletion feature is available' do
+      before do
+        stub_licensed_features(adjourned_deletion_for_projects_and_groups: true)
+      end
+
+      context 'the group has been marked for deletion' do
+        before do
+          create(:group_deletion_schedule, group: group, marked_for_deletion_on: 1.day.ago)
+        end
+
+        it 'returns the group' do
+          expect(group.self_or_ancestor_marked_for_deletion).to eq(group)
+        end
+      end
+
+      context 'the parent group has been marked for deletion' do
+        let(:parent_group) { create(:group_with_deletion_schedule, marked_for_deletion_on: 1.day.ago) }
+        let(:group) { create(:group, parent: parent_group) }
+
+        it 'returns the parent group' do
+          expect(group.self_or_ancestor_marked_for_deletion).to eq(parent_group)
+        end
+      end
+
+      context 'no group has been marked for deletion' do
+        let(:parent_group) { create(:group) }
+        let(:group) { create(:group, parent: parent_group) }
+
+        it 'returns nil' do
+          expect(group.self_or_ancestor_marked_for_deletion).to be_nil
+        end
+      end
+
+      context 'ordering' do
+        let(:group_a) { create(:group_with_deletion_schedule, marked_for_deletion_on: 1.day.ago) }
+        let(:subgroup_a) { create(:group_with_deletion_schedule, marked_for_deletion_on: 1.day.ago, parent: group_a) }
+        let(:group) { create(:group, parent: subgroup_a) }
+
+        it 'returns the first group that is marked for deletion, up its ancestry chain' do
+          expect(group.self_or_ancestor_marked_for_deletion).to eq(subgroup_a)
+        end
+      end
+    end
+  end
+
   describe '#marked_for_deletion?' do
     subject { group.marked_for_deletion? }
+
+    context 'adjourned deletion feature is available' do
+      before do
+        stub_licensed_features(adjourned_deletion_for_projects_and_groups: true)
+      end
+
+      context 'when the group is marked for adjourned deletion' do
+        before do
+          create(:group_deletion_schedule, group: group, marked_for_deletion_on: 1.day.ago)
+        end
+
+        it { is_expected.to be_truthy }
+      end
+
+      context 'when the group is not marked for adjourned deletion' do
+        it { is_expected.to be_falsey }
+      end
+    end
+
+    context 'adjourned deletion feature is not available' do
+      before do
+        stub_licensed_features(adjourned_deletion_for_projects_and_groups: false)
+      end
+
+      context 'when the group is marked for adjourned deletion' do
+        before do
+          create(:group_deletion_schedule, group: group, marked_for_deletion_on: 1.day.ago)
+        end
+
+        it { is_expected.to be_falsey }
+      end
+
+      context 'when the group is not marked for adjourned deletion' do
+        it { is_expected.to be_falsey }
+      end
+    end
+  end
+
+  describe '#adjourned_deletion?' do
+    subject { group.adjourned_deletion? }
 
     shared_examples_for 'returns false' do
       it { is_expected.to be_falsey }
@@ -669,15 +760,19 @@ describe Group do
         stub_licensed_features(adjourned_deletion_for_projects_and_groups: true)
       end
 
-      context 'when the group is marked for adjourned deletion' do
+      context 'when adjourned deletion period is set to more than 0' do
         before do
-          create(:group_deletion_schedule, group: group, marked_for_deletion_on: 1.day.ago)
+          stub_application_setting(deletion_adjourned_period: 1)
         end
 
         it_behaves_like 'returns true'
       end
 
-      context 'when the group is not marked for adjourned deletion' do
+      context 'when adjourned deletion period is set to 0' do
+        before do
+          stub_application_setting(deletion_adjourned_period: 0)
+        end
+
         it_behaves_like 'returns false'
       end
     end
@@ -687,15 +782,19 @@ describe Group do
         stub_licensed_features(adjourned_deletion_for_projects_and_groups: false)
       end
 
-      context 'when the group is marked for adjourned deletion' do
+      context 'when adjourned deletion period is set to more than 0' do
         before do
-          create(:group_deletion_schedule, group: group, marked_for_deletion_on: 1.day.ago)
+          stub_application_setting(deletion_adjourned_period: 1)
         end
 
         it_behaves_like 'returns false'
       end
 
-      context 'when the group is not marked for adjourned deletion' do
+      context 'when adjourned deletion period is set to 0' do
+        before do
+          stub_application_setting(deletion_adjourned_period: 0)
+        end
+
         it_behaves_like 'returns false'
       end
     end

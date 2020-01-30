@@ -22,7 +22,7 @@ There are two kinds of repository mirroring supported by GitLab:
 When the mirror repository is updated, all new branches, tags, and commits will be visible in the
 project's activity feed.
 
-Users with at least [developer access](../../permissions.md) to the project can also force an
+Users with at least [Developer access](../../permissions.md) to the project can also force an
 immediate update, unless:
 
 - The mirror is already being updated.
@@ -341,7 +341,7 @@ the upstream Git repository. In this configuration one Git repository acts as
 the authoritative upstream, and the other as downstream. The `pre-receive` hook
 will be installed on the downstream repository.
 
-Read about [configuring custom Git hooks](../../../administration/custom_hooks.md) on the GitLab server.
+Read about [configuring Server hooks](../../../administration/server_hooks.md) on the GitLab server.
 
 A sample `pre-receive` hook is provided below.
 

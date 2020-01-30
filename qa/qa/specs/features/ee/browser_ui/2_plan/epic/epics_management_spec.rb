@@ -7,30 +7,13 @@ module QA
         Flow::Login.sign_in
       end
 
-      it 'creates, edits, and deletes an epic' do
+      it 'creates an epic' do
         epic_title = 'Epic created via GUI'
-        epic = EE::Resource::Epic.fabricate_via_browser_ui! do |epic|
+        EE::Resource::Epic.fabricate_via_browser_ui! do |epic|
           epic.title = epic_title
         end
 
         expect(page).to have_content(epic_title)
-
-        epic_edited_title = 'Epic edited via GUI'
-        EE::Page::Group::Epic::Show.perform(&:click_edit_button)
-        EE::Page::Group::Epic::Edit.perform do |edit|
-          edit.set_title(epic_edited_title)
-          edit.save_changes
-
-          expect(edit).to have_content(epic_edited_title)
-        end
-
-        epic.visit!
-        EE::Page::Group::Epic::Show.perform(&:click_edit_button)
-        EE::Page::Group::Epic::Edit.perform(&:delete_epic)
-
-        EE::Page::Group::Epic::Index.perform do |index|
-          expect(index).to have_no_epic(epic_edited_title)
-        end
       end
 
       context 'Resources created via API' do
@@ -80,12 +63,7 @@ module QA
           Page::Project::Issue::Show.perform do |show|
             show.wait_for_related_issues_to_load
             show.comment("/epic #{issue.project.group.web_url}/-/epics/#{epic.iid}")
-
-            expect(show).to have_content('added to epic')
-
             show.comment("/remove_epic")
-
-            expect(show).to have_content('removed from epic')
           end
 
           epic.visit!
@@ -103,7 +81,6 @@ module QA
 
           Resource::Issue.fabricate_via_api! do |issue|
             issue.project = project
-            issue.title = 'Issue created via API'
           end
         end
 

@@ -36,7 +36,6 @@ describe('noteable_discussion component', () => {
       store,
       propsData: { discussion: discussionMock },
       localVue,
-      sync: false,
     });
   });
 
@@ -99,37 +98,6 @@ describe('noteable_discussion component', () => {
       expect(wrapper.find('*[data-original-title="Jump to next unresolved thread"]').exists()).toBe(
         false,
       );
-    });
-  });
-
-  describe('methods', () => {
-    describe('jumpToNextDiscussion', () => {
-      it('expands next unresolved thread', done => {
-        const discussion2 = getJSONFixture(discussionWithTwoUnresolvedNotes)[0];
-        discussion2.resolved = false;
-        discussion2.active = true;
-        discussion2.id = 'next'; // prepare this for being identified as next one (to be jumped to)
-        store.dispatch('setInitialNotes', [discussionMock, discussion2]);
-        window.mrTabs.currentAction = 'show';
-
-        wrapper.vm
-          .$nextTick()
-          .then(() => {
-            spyOn(wrapper.vm, 'expandDiscussion').and.stub();
-
-            const nextDiscussionId = discussion2.id;
-
-            setFixtures(`<div class="discussion" data-discussion-id="${nextDiscussionId}"></div>`);
-
-            wrapper.vm.jumpToNextDiscussion();
-
-            expect(wrapper.vm.expandDiscussion).toHaveBeenCalledWith({
-              discussionId: nextDiscussionId,
-            });
-          })
-          .then(done)
-          .catch(done.fail);
-      });
     });
   });
 
@@ -196,7 +164,6 @@ describe('noteable_discussion component', () => {
           store,
           propsData: { discussion: discussionMock },
           localVue,
-          sync: false,
         });
       });
 
@@ -216,7 +183,6 @@ describe('noteable_discussion component', () => {
           store,
           propsData: { discussion: discussionMock },
           localVue,
-          sync: false,
         });
       });
 

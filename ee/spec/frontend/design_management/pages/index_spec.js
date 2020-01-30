@@ -8,6 +8,7 @@ import uploadDesignQuery from 'ee/design_management/graphql/mutations/uploadDesi
 import DesignDestroyer from 'ee/design_management/components/design_destroyer.vue';
 import UploadButton from 'ee/design_management/components/upload/button.vue';
 import DeleteButton from 'ee/design_management/components/delete_button.vue';
+import { DESIGNS_ROUTE_NAME } from 'ee/design_management/router/constants';
 import createFlash from '~/flash';
 
 const localVue = createLocalVue();
@@ -15,7 +16,7 @@ localVue.use(VueRouter);
 const router = new VueRouter({
   routes: [
     {
-      name: 'designs',
+      name: DESIGNS_ROUTE_NAME,
       path: '/designs',
       component: Index,
     },
@@ -85,7 +86,6 @@ describe('Design management index page', () => {
     };
 
     wrapper = shallowMount(Index, {
-      sync: false,
       mocks: { $apollo },
       localVue,
       router,
@@ -304,7 +304,7 @@ describe('Design management index page', () => {
     });
   });
 
-  describe('on latest version', () => {
+  describe('on latest version when has designs', () => {
     beforeEach(() => {
       createComponent({ designs: mockDesigns, allVersions: [mockVersion] });
     });
@@ -313,13 +313,10 @@ describe('Design management index page', () => {
       expect(findDesignCheckboxes().length).toBe(mockDesigns.length);
     });
 
-    it('renders Delete selected button', () => {
-      expect(findDeleteButton().exists()).toBe(true);
-    });
-
-    it('renders a button with Select all text', () => {
-      expect(findSelectAllButton().exists()).toBe(true);
-      expect(findSelectAllButton().text()).toBe('Select all');
+    it('renders toolbar buttons', () => {
+      expect(findToolbar().exists()).toBe(true);
+      expect(findToolbar().classes()).toContain('d-flex');
+      expect(findToolbar().classes()).not.toContain('d-none');
     });
 
     it('adds two designs to selected designs when their checkboxes are checked', () => {
@@ -376,12 +373,17 @@ describe('Design management index page', () => {
     });
   });
 
+  it('on latest version when has no designs does not render toolbar buttons', () => {
+    createComponent({ designs: [], allVersions: [mockVersion] });
+    expect(findToolbar().exists()).toBe(false);
+  });
+
   describe('on non-latest version', () => {
     beforeEach(() => {
       createComponent({ designs: mockDesigns, allVersions: [mockVersion] });
 
       router.replace({
-        name: 'designs',
+        name: DESIGNS_ROUTE_NAME,
         query: {
           version: '2',
         },

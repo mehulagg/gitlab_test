@@ -129,7 +129,7 @@ module EE
         # preset root_ancestor for all of them to avoid an additional SQL query
         # done for each group permission check:
         # https://gitlab.com/gitlab-org/gitlab/issues/11539
-        preset_root_ancestor_for(groups) if same_root && ::Feature.enabled?(:preset_group_root)
+        preset_root_ancestor_for(groups) if same_root
 
         DeclarativePolicy.user_scope do
           groups.select { |group| Ability.allowed?(user, :read_epic, group) }
@@ -151,7 +151,12 @@ module EE
     end
 
     def vulnerable_projects
-      projects.where("EXISTS(?)", ::Vulnerabilities::Occurrence.select(1).undismissed.where('vulnerability_occurrences.project_id = projects.id'))
+      vulnerabilities = ::Vulnerabilities::Occurrence
+        .select(1)
+        .undismissed
+        .where('vulnerability_occurrences.project_id = projects.id')
+
+      ::Project.for_group_and_its_subgroups(self).where("EXISTS(?)", vulnerabilities)
     end
 
     def human_ldap_access
@@ -274,9 +279,21 @@ module EE
     end
 
     def marked_for_deletion?
-      return false unless feature_available?(:adjourned_deletion_for_projects_and_groups)
+      marked_for_deletion_on.present? &&
+        feature_available?(:adjourned_deletion_for_projects_and_groups)
+    end
 
-      marked_for_deletion_on.present?
+    def self_or_ancestor_marked_for_deletion
+      return unless feature_available?(:adjourned_deletion_for_projects_and_groups)
+
+      self_and_ancestors(hierarchy_order: :asc)
+        .joins(:deletion_schedule).first
+    end
+
+    override :adjourned_deletion?
+    def adjourned_deletion?
+      feature_available?(:adjourned_deletion_for_projects_and_groups) &&
+        ::Gitlab::CurrentSettings.deletion_adjourned_period > 0
     end
 
     private

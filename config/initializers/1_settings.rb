@@ -209,6 +209,7 @@ Settings.gitlab['content_security_policy'] ||= Gitlab::ContentSecurityPolicy::Co
 Settings.gitlab['no_todos_messages'] ||= YAML.load_file(Rails.root.join('config', 'no_todos_messages.yml'))
 Settings.gitlab['impersonation_enabled'] ||= true if Settings.gitlab['impersonation_enabled'].nil?
 Settings.gitlab['usage_ping_enabled'] = true if Settings.gitlab['usage_ping_enabled'].nil?
+Settings.gitlab['max_request_duration_seconds'] ||= 57
 
 Gitlab.ee do
   Settings.gitlab['mirror_max_delay'] ||= 300
@@ -467,6 +468,9 @@ Settings.cron_jobs['schedule_migrate_external_diffs_worker']['job_class'] = 'Sch
 Settings.cron_jobs['namespaces_prune_aggregation_schedules_worker'] ||= Settingslogic.new({})
 Settings.cron_jobs['namespaces_prune_aggregation_schedules_worker']['cron'] ||= '5 1 * * *'
 Settings.cron_jobs['namespaces_prune_aggregation_schedules_worker']['job_class'] = 'Namespaces::PruneAggregationSchedulesWorker'
+Settings.cron_jobs['container_expiration_policy_worker'] ||= Settingslogic.new({})
+Settings.cron_jobs['container_expiration_policy_worker']['cron'] ||= '50 * * * *'
+Settings.cron_jobs['container_expiration_policy_worker']['job_class'] = 'ContainerExpirationPolicyWorker'
 
 Gitlab.ee do
   Settings.cron_jobs['adjourned_group_deletion_worker'] ||= Settingslogic.new({})

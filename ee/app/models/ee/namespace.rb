@@ -35,6 +35,7 @@ module EE
       accepts_nested_attributes_for :gitlab_subscription
 
       scope :include_gitlab_subscription, -> { includes(:gitlab_subscription) }
+      scope :join_gitlab_subscription, -> { joins("LEFT OUTER JOIN gitlab_subscriptions ON gitlab_subscriptions.namespace_id=namespaces.id") }
       scope :with_plan, -> { where.not(plan_id: nil) }
       scope :with_shared_runners_minutes_limit, -> { where("namespaces.shared_runners_minutes_limit > 0") }
       scope :with_extra_shared_runners_minutes_limit, -> { where("namespaces.extra_shared_runners_minutes_limit > 0") }
@@ -168,6 +169,12 @@ module EE
 
     def actual_plan_name
       actual_plan&.name || Plan::FREE
+    end
+
+    def plan_name_for_upgrading
+      return Plan::FREE if trial_active?
+
+      actual_plan_name
     end
 
     def actual_size_limit
@@ -322,7 +329,7 @@ module EE
     private
 
     def validate_plan_name
-      if @plan_name.present? && PLANS.exclude?(@plan_name) # rubocop:disable Gitlab/ModuleWithInstanceVariables
+      if defined?(@plan_name) && @plan_name.present? && PLANS.exclude?(@plan_name) # rubocop:disable Gitlab/ModuleWithInstanceVariables
         errors.add(:plan, 'is not included in the list')
       end
     end
@@ -364,6 +371,9 @@ module EE
     end
 
     def generate_subscription
+      return unless persisted?
+      return if ::Gitlab::Database.read_only?
+
       create_gitlab_subscription(
         plan_code: plan&.name,
         trial: trial_active?,

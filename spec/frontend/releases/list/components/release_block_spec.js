@@ -1,3 +1,4 @@
+import $ from 'jquery';
 import { mount } from '@vue/test-utils';
 import { first } from 'underscore';
 import EvidenceBlock from '~/releases/list/components/evidence_block.vue';
@@ -34,7 +35,6 @@ describe('Release block', () => {
           ...featureFlags,
         },
       },
-      sync: false,
     });
 
     return wrapper.vm.$nextTick();
@@ -44,6 +44,7 @@ describe('Release block', () => {
   const editButton = () => wrapper.find('.js-edit-button');
 
   beforeEach(() => {
+    jest.spyOn($.fn, 'renderGFM');
     releaseClone = JSON.parse(JSON.stringify(release));
   });
 
@@ -65,6 +66,11 @@ describe('Release block', () => {
 
     it('renders release name', () => {
       expect(wrapper.text()).toContain(release.name);
+    });
+
+    it('renders release description', () => {
+      expect(wrapper.vm.$refs['gfm-content']).toBeDefined();
+      expect($.fn.renderGFM).toHaveBeenCalledTimes(1);
     });
 
     it('renders release date', () => {
@@ -170,7 +176,7 @@ describe('Release block', () => {
     releaseClone.tag_name = 'a dangerous tag name <script>alert("hello")</script>';
 
     return factory(releaseClone).then(() => {
-      expect(wrapper.attributes().id).toBe('a-dangerous-tag-name-script-alert-hello-script-');
+      expect(wrapper.attributes().id).toBe('a-dangerous-tag-name-script-alert-hello-script');
     });
   });
 

@@ -26,15 +26,14 @@ module Ci
     belongs_to :merge_request, class_name: 'MergeRequest'
     belongs_to :external_pull_request
 
-    has_internal_id :iid, scope: :project, presence: false, ensure_if: -> { !importing? }, init: ->(s) do
+    has_internal_id :iid, scope: :project, presence: false, track_if: -> { !importing? }, ensure_if: -> { !importing? }, init: ->(s) do
       s&.project&.all_pipelines&.maximum(:iid) || s&.project&.all_pipelines&.count
     end
 
     has_many :stages, -> { order(position: :asc) }, inverse_of: :pipeline
     has_many :statuses, class_name: 'CommitStatus', foreign_key: :commit_id, inverse_of: :pipeline
     has_many :latest_statuses_ordered_by_stage, -> { latest.order(:stage_idx, :stage) }, class_name: 'CommitStatus', foreign_key: :commit_id, inverse_of: :pipeline
-    has_many :processables, -> { processables },
-             class_name: 'CommitStatus', foreign_key: :commit_id, inverse_of: :pipeline
+    has_many :processables, class_name: 'Ci::Processable', foreign_key: :commit_id, inverse_of: :pipeline
     has_many :builds, foreign_key: :commit_id, inverse_of: :pipeline
     has_many :trigger_requests, dependent: :destroy, foreign_key: :commit_id # rubocop:disable Cop/ActiveRecordDependent
     has_many :variables, class_name: 'Ci::PipelineVariable'
@@ -198,6 +197,10 @@ module Ci
 
             AutoMergeProcessWorker.perform_async(merge_request.id)
           end
+
+          if pipeline.auto_devops_source?
+            self.class.auto_devops_pipelines_completed_total.increment(status: pipeline.status)
+          end
         end
       end
 
@@ -329,6 +332,10 @@ module Ci
 
     def self.bridgeable_statuses
       ::Ci::Pipeline::AVAILABLE_STATUSES - %w[created waiting_for_resource preparing pending]
+    end
+
+    def self.auto_devops_pipelines_completed_total
+      @auto_devops_pipelines_completed_total ||= Gitlab::Metrics.counter(:auto_devops_pipelines_completed_total, 'Number of completed auto devops pipelines')
     end
 
     def stages_count
@@ -508,7 +515,9 @@ module Ci
     # rubocop: enable CodeReuse/ServiceClass
 
     def mark_as_processable_after_stage(stage_idx)
-      builds.skipped.after_stage(stage_idx).find_each(&:process)
+      builds.skipped.after_stage(stage_idx).find_each do |build|
+        Gitlab::OptimisticLocking.retry_lock(build, &:process)
+      end
     end
 
     def latest?
@@ -547,6 +556,13 @@ module Ci
       end
     end
 
+    def needs_processing?
+      statuses
+        .where(processed: [false, nil])
+        .latest
+        .exists?
+    end
+
     # TODO: this logic is duplicate with Pipeline::Chain::Config::Content
     # we should persist this is `ci_pipelines.config_path`
     def config_path
@@ -562,7 +578,7 @@ module Ci
     # Manually set the notes for a Ci::Pipeline
     # There is no ActiveRecord relation between Ci::Pipeline and notes
     # as they are related to a commit sha. This method helps importing
-    # them using the +Gitlab::ImportExport::RelationFactory+ class.
+    # them using the +Gitlab::ImportExport::ProjectRelationFactory+ class.
     def notes=(notes)
       notes.each do |note|
         note[:id] = nil
@@ -576,9 +592,8 @@ module Ci
       project.notes.for_commit_id(sha)
     end
 
-    def update_status
+    def set_status(new_status)
       retry_optimistic_lock(self) do
-        new_status = latest_builds_status.to_s
         case new_status
         when 'created' then nil
         when 'waiting_for_resource' then request_resource
@@ -596,6 +611,10 @@ module Ci
                 "Unknown status `#{new_status}`"
         end
       end
+    end
+
+    def update_legacy_status
+      set_status(latest_builds_status.to_s)
     end
 
     def protected_ref?

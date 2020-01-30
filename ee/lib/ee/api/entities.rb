@@ -50,7 +50,7 @@ module EE
           expose :packages_enabled, if: ->(project, _) { project.feature_available?(:packages) }
           expose :service_desk_enabled, if: ->(project, _) { project.feature_available?(:service_desk) }
           expose :service_desk_address, if: ->(project, _) { project.feature_available?(:service_desk) }
-          expose :marked_for_deletion_at, if: ->(project, _) { project.feature_available?(:marking_project_for_deletion) }
+          expose :marked_for_deletion_at, if: ->(project, _) { project.feature_available?(:adjourned_deletion_for_projects_and_groups) }
         end
       end
 
@@ -66,6 +66,7 @@ module EE
           expose :checked_file_template_project_id,
                  as: :file_template_project_id,
                  if: ->(group, options) { group.feature_available?(:custom_file_templates_for_namespace) }
+          expose :marked_for_deletion_on, if: ->(group, _) { group.feature_available?(:adjourned_deletion_for_projects_and_groups) }
         end
       end
 
@@ -92,7 +93,10 @@ module EE
         prepended do
           expose :group_saml_identity,
                  using: ::API::Entities::Identity,
-                 if:  -> (member, options) { Ability.allowed?(options[:current_user], :read_group_saml_identity, member.source) }
+                 if: -> (member, options) { Ability.allowed?(options[:current_user], :read_group_saml_identity, member.source) }
+          expose :is_using_seat, if: -> (member, options) { options[:show_seat_info] } do |member, _options|
+            !!member.user&.using_license_seat?
+          end
         end
       end
 
@@ -112,6 +116,11 @@ module EE
           expose :unprotect_access_levels, using: ::API::Entities::ProtectedRefAccess
           expose :code_owner_approval_required
         end
+      end
+
+      class ProtectedEnvironment < Grape::Entity
+        expose :name
+        expose :deploy_access_levels, using: ::API::Entities::ProtectedRefAccess
       end
 
       module IssueBasic
@@ -208,7 +217,8 @@ module EE
           expose :email_additional_text, if: ->(_instance, _opts) { ::License.feature_available?(:email_additional_text) }
           expose :file_template_project_id, if: ->(_instance, _opts) { ::License.feature_available?(:custom_file_templates) }
           expose :default_project_deletion_protection, if: ->(_instance, _opts) { ::License.feature_available?(:default_project_deletion_protection) }
-          expose :deletion_adjourned_period, if: ->(_instance, _opts) { ::License.feature_available?(:marking_project_for_deletion) }
+          expose :deletion_adjourned_period, if: ->(_instance, _opts) { ::License.feature_available?(:adjourned_deletion_for_projects_and_groups) }
+          expose :updating_name_disabled_for_users, if: ->(_instance, _opts) { ::License.feature_available?(:disable_name_update_for_users) }
         end
       end
 
@@ -269,6 +279,7 @@ module EE
 
       class RelatedIssue < ::API::Entities::Issue
         expose :issue_link_id
+        expose :issue_link_type, as: :link_type
       end
 
       class LinkedEpic < Grape::Entity
@@ -395,6 +406,7 @@ module EE
       class IssueLink < Grape::Entity
         expose :source, as: :source_issue, using: ::API::Entities::IssueBasic
         expose :target, as: :target_issue, using: ::API::Entities::IssueBasic
+        expose :link_type
       end
 
       class SpecialBoardFilter < Grape::Entity
@@ -416,6 +428,10 @@ module EE
         expose :users, using: ::API::Entities::UserBasic
         expose :groups, using: ::API::Entities::Group
         expose :contains_hidden_groups?, as: :contains_hidden_groups
+      end
+
+      class ProjectApprovalRule < ApprovalRule
+        expose :protected_branches, using: ::API::Entities::ProtectedBranch, if: -> (rule, _) { rule.project.multiple_approval_rules_available? }
       end
 
       class MergeRequestApprovalRule < ApprovalRule
@@ -444,7 +460,7 @@ module EE
       # This overrides the `eligible_approvers` to be exposed as `approvers`.
       #
       # To be removed in https://gitlab.com/gitlab-org/gitlab/issues/13574.
-      class ApprovalSettingRule < ApprovalRule
+      class ProjectApprovalSettingRule < ProjectApprovalRule
         expose :approvers, using: ::API::Entities::UserBasic, override: true
       end
 
@@ -452,7 +468,7 @@ module EE
       #
       # To be removed in https://gitlab.com/gitlab-org/gitlab/issues/13574.
       class ProjectApprovalSettings < Grape::Entity
-        expose :visible_approval_rules, as: :rules, using: ApprovalSettingRule
+        expose :visible_approval_rules, as: :rules, using: ProjectApprovalSettingRule
         expose :min_fallback_approvals, as: :fallback_approvals_required
       end
 
@@ -569,14 +585,14 @@ module EE
 
       class GitlabLicense < Grape::Entity
         expose :id,
-          :plan,
-          :created_at,
-          :starts_at,
-          :expires_at,
-          :historical_max,
-          :maximum_user_count,
-          :licensee,
-          :add_ons
+               :plan,
+               :created_at,
+               :starts_at,
+               :expires_at,
+               :historical_max,
+               :maximum_user_count,
+               :licensee,
+               :add_ons
 
         expose :expired?, as: :expired
 
@@ -609,6 +625,10 @@ module EE
         expose :repos_max_capacity
         expose :verification_max_capacity
         expose :container_repositories_max_capacity
+        expose :selective_sync_type
+        expose :selective_sync_shards
+        expose :namespace_ids, as: :selective_sync_namespace_ids
+        expose :minimum_reverification_interval
         expose :sync_object_storage, if: ->(geo_node, _) { geo_node.secondary? }
 
         # Retained for backwards compatibility. Remove in API v5
@@ -865,9 +885,17 @@ module EE
         expose :dist_tags, as: 'dist-tags'
       end
 
+      class NpmPackageTag < Grape::Entity
+        expose :dist_tags, merge: true
+      end
+
       class Package < Grape::Entity
         include ::API::Helpers::RelatedResourcesHelpers
         extend EntityHelpers
+
+        class BuildInfo < Grape::Entity
+          expose :pipeline, using: ::API::Entities::PipelineBasic
+        end
 
         expose :id
         expose :name
@@ -885,6 +913,15 @@ module EE
         end
 
         expose :created_at
+        expose :project_id, if: ->(_, opts) { opts[:group] }
+        expose :project_path, if: ->(obj, opts) { opts[:group] && Ability.allowed?(opts[:user], :read_project, obj.project) }
+        expose :build_info, using: BuildInfo
+
+        private
+
+        def project_path
+          object.project.full_path
+        end
       end
 
       class PackageFile < Grape::Entity
@@ -976,6 +1013,52 @@ module EE
         expose :vulnerability_link_id
         expose :vulnerability_link_type do |related_issue|
           ::Vulnerabilities::IssueLink.link_types.key(related_issue.vulnerability_link_type)
+        end
+      end
+
+      class VulnerabilityIssueLink < Grape::Entity
+        expose :vulnerability, using: ::EE::API::Entities::Vulnerability
+        expose :issue, using: ::API::Entities::IssueBasic
+        expose :link_type
+      end
+
+      module Analytics
+        module CodeReview
+          class MergeRequest < ::API::Entities::MergeRequestSimple
+            expose :milestone, using: ::API::Entities::Milestone
+            expose :author, using: ::API::Entities::UserBasic
+            expose :approved_by_users, as: :approved_by, using: ::API::Entities::UserBasic
+            expose :notes_count do |mr|
+              if options[:issuable_metadata]
+                # Avoids an N+1 query when metadata is included
+                options[:issuable_metadata][mr.id].user_notes_count
+              else
+                mr.notes.user.count
+              end
+            end
+            expose :review_time do |mr|
+              next unless mr.metrics.first_comment_at
+
+              review_time = (mr.metrics.merged_at || Time.now) - mr.metrics.first_comment_at
+
+              (review_time / ActiveSupport::Duration::SECONDS_PER_HOUR).floor
+            end
+            expose :diff_stats
+
+            private
+
+            # rubocop: disable CodeReuse/ActiveRecord
+            def diff_stats
+              result = {
+                additions: object.diffs.diff_files.sum(&:added_lines),
+                deletions: object.diffs.diff_files.sum(&:removed_lines),
+                commits_count: object.commits_count
+              }
+              result[:total] = result[:additions] + result[:deletions]
+              result
+            end
+            # rubocop: enable CodeReuse/ActiveRecord
+          end
         end
       end
     end

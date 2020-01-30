@@ -76,7 +76,7 @@ describe API::Releases do
         mr_uri = URI.parse(links['merge_requests_url'])
         issue_uri = URI.parse(links['issues_url'])
 
-        expect(mr_uri.path).to eq("#{path_base}/merge_requests")
+        expect(mr_uri.path).to eq("#{path_base}/-/merge_requests")
         expect(issue_uri.path).to eq("#{path_base}/issues")
         expect(mr_uri.query).to eq(expected_query)
         expect(issue_uri.query).to eq(expected_query)
@@ -112,6 +112,16 @@ describe API::Releases do
         expect(json_response.count).to eq(1)
         expect(json_response.first['tag_name']).to eq('v1.1.5')
         expect(release).to be_tag_missing
+      end
+    end
+
+    context 'when tag contains a slash' do
+      let!(:release) { create(:release, project: project, tag: 'debian/2.4.0-1', description: "debian/2.4.0-1") }
+
+      it 'returns 200 HTTP status' do
+        get api("/projects/#{project.id}/releases", maintainer)
+
+        expect(response).to have_gitlab_http_status(:ok)
       end
     end
 

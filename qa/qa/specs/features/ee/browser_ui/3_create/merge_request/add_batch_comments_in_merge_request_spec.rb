@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  # Failure issue: https://gitlab.com/gitlab-org/gitlab/issues/118473
-  context 'Create', :quarantine do
+  context 'Create' do
     describe 'batch comments in merge request' do
       let(:project) do
         Resource::Project.fabricate_via_api! do |project|
@@ -28,7 +27,7 @@ module QA
           # You can't start a review immediately, so we have to add a
           # comment (or start a thread) first
           show.start_discussion("I'm starting a new discussion")
-          show.type_reply_to_discussion("Could you please check this?")
+          show.type_reply_to_discussion(1, "Could you please check this?")
           show.start_review
           show.submit_pending_reviews
 
@@ -70,7 +69,6 @@ module QA
 
         Page::MergeRequest::Show.perform do |show|
           show.click_discussions_tab
-          show.refresh
           show.resolve_discussion_at_index(0)
 
           expect(show).to have_content("Can you check this line of code?")

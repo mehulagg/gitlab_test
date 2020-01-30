@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class Build < CommitStatus
-    include Ci::Processable
+  class Build < Ci::Processable
     include Ci::Metadatable
     include Ci::Contextable
     include Ci::PipelineDelegator
@@ -173,6 +172,9 @@ module Ci
     scope :queued_before, ->(time) { where(arel_table[:queued_at].lt(time)) }
     scope :order_id_desc, -> { order('ci_builds.id DESC') }
 
+    PROJECT_ROUTE_AND_NAMESPACE_ROUTE = { project: [:project_feature, :route, { namespace: :route }] }.freeze
+    scope :preload_project_and_pipeline_project, -> { preload(PROJECT_ROUTE_AND_NAMESPACE_ROUTE, pipeline: PROJECT_ROUTE_AND_NAMESPACE_ROUTE) }
+
     acts_as_taggable
 
     add_authentication_token_field :token, encrypted: :optional
@@ -267,7 +269,7 @@ module Ci
       end
 
       before_transition on: :enqueue_preparing do |build|
-        build.any_unmet_prerequisites? # If false is returned, it stops the transition
+        !build.any_unmet_prerequisites? # If false is returned, it stops the transition
       end
 
       after_transition created: :scheduled do |build|
@@ -446,10 +448,6 @@ module Ci
     def retry_on_reason_or_always?
       options_retry_when.include?(failure_reason.to_s) ||
         options_retry_when.include?('always')
-    end
-
-    def latest?
-      !retried?
     end
 
     def any_unmet_prerequisites?

@@ -32,7 +32,7 @@ describe AutocompleteController do
           get(:users, params: { project_id: 'unknown' })
         end
 
-        it { expect(response).to have_gitlab_http_status(404) }
+        it { expect(response).to have_gitlab_http_status(:not_found) }
       end
     end
 
@@ -61,7 +61,7 @@ describe AutocompleteController do
           get(:users, params: { group_id: 'unknown' })
         end
 
-        it { expect(response).to have_gitlab_http_status(404) }
+        it { expect(response).to have_gitlab_http_status(:not_found) }
       end
     end
 
@@ -112,9 +112,7 @@ describe AutocompleteController do
 
     context 'limited users per page' do
       before do
-        25.times do
-          create(:user)
-        end
+        create_list(:user, 25)
 
         sign_in(user)
         get(:users)
@@ -142,7 +140,7 @@ describe AutocompleteController do
           get(:users, params: { project_id: project.id })
         end
 
-        it { expect(response).to have_gitlab_http_status(404) }
+        it { expect(response).to have_gitlab_http_status(:not_found) }
       end
 
       describe 'GET #users with unknown project' do
@@ -150,7 +148,7 @@ describe AutocompleteController do
           get(:users, params: { project_id: 'unknown' })
         end
 
-        it { expect(response).to have_gitlab_http_status(404) }
+        it { expect(response).to have_gitlab_http_status(:not_found) }
       end
 
       describe 'GET #users with inaccessible group' do
@@ -159,7 +157,7 @@ describe AutocompleteController do
           get(:users, params: { group_id: user.namespace.id })
         end
 
-        it { expect(response).to have_gitlab_http_status(404) }
+        it { expect(response).to have_gitlab_http_status(:not_found) }
       end
 
       describe 'GET #users with no project' do
@@ -374,7 +372,7 @@ describe AutocompleteController do
       it 'returns empty json' do
         get :merge_request_target_branches, params: { project_id: project.id }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(json_response).to be_empty
       end
     end
@@ -385,7 +383,7 @@ describe AutocompleteController do
 
         get :merge_request_target_branches, params: { project_id: project.id }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(json_response).to be_empty
       end
     end
@@ -406,7 +404,7 @@ describe AutocompleteController do
 
           get :merge_request_target_branches, params: params
 
-          expect(response).to have_gitlab_http_status(400)
+          expect(response).to have_gitlab_http_status(:bad_request)
           expect(json_response).to eq({ 'error' => 'At least one of group_id or project_id must be specified' })
         end
       end
@@ -418,7 +416,7 @@ describe AutocompleteController do
 
         get :merge_request_target_branches, params: { project_id: project.id }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(json_response).to contain_exactly({ 'title' => 'feature' })
       end
     end
@@ -435,7 +433,7 @@ describe AutocompleteController do
 
         get :merge_request_target_branches, params: { group_id: group.id }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(json_response).to contain_exactly({ 'title' => 'feature' })
       end
     end

@@ -6,9 +6,13 @@ module EE
 
     override :sidebar_projects_paths
     def sidebar_projects_paths
-      super + %w[
-        projects/insights#show
-      ]
+      if ::Feature.enabled?(:analytics_pages_under_project_analytics_sidebar, @project)
+        super
+      else
+        super + %w[
+          projects/insights#show
+        ]
+      end
     end
 
     override :sidebar_settings_paths
@@ -45,7 +49,7 @@ module EE
         nav_tabs << :dependencies
       end
 
-      if ::Feature.enabled?(:licenses_list, project) && can?(current_user, :read_licenses, project)
+      if can?(current_user, :read_licenses, project)
         nav_tabs << :licenses
       end
 
@@ -57,6 +61,10 @@ module EE
           project.feature_available?(:packages) &&
           can?(current_user, :read_package, project)
         nav_tabs << :packages
+      end
+
+      if can?(current_user, :read_code_review_analytics, project)
+        nav_tabs << :code_review
       end
 
       if can?(current_user, :read_feature_flag, project) && !nav_tabs.include?(:operations)
@@ -118,7 +126,7 @@ module EE
 
     override :remove_project_message
     def remove_project_message(project)
-      return super unless project.feature_available?(:marking_project_for_deletion)
+      return super unless project.feature_available?(:adjourned_deletion_for_projects_and_groups)
 
       date = permanent_deletion_date(Time.now.utc)
       _("Removing a project places it into a read-only state until %{date}, at which point the project will be permanantly removed. Are you ABSOLUTELY sure?") %
@@ -201,8 +209,8 @@ module EE
       else
         {
           project: { id: project.id, name: project.name },
-          vulnerabilities_endpoint: project_vulnerabilities_endpoint_path(project),
-          vulnerabilities_summary_endpoint: project_vulnerabilities_summary_endpoint_path(project),
+          vulnerabilities_endpoint: project_security_vulnerability_findings_path(project),
+          vulnerabilities_summary_endpoint: summary_project_security_vulnerability_findings_path(project),
           vulnerability_feedback_help_path: help_page_path("user/application_security/index", anchor: "interacting-with-the-vulnerabilities"),
           empty_state_svg_path: image_path('illustrations/security-dashboard-empty-state.svg'),
           dashboard_documentation: help_page_path('user/application_security/security_dashboard/index'),
@@ -219,22 +227,6 @@ module EE
           pipeline_created: pipeline.created_at.to_s(:iso8601),
           has_pipeline_data: "true"
         }
-      end
-    end
-
-    def project_vulnerabilities_endpoint_path(project)
-      if ::Feature.enabled?(:first_class_vulnerabilities)
-        project_security_vulnerability_findings_path(project)
-      else
-        project_security_vulnerabilities_path(project)
-      end
-    end
-
-    def project_vulnerabilities_summary_endpoint_path(project)
-      if ::Feature.enabled?(:first_class_vulnerabilities)
-        summary_project_security_vulnerability_findings_path(project)
-      else
-        summary_project_security_vulnerabilities_path(project)
       end
     end
 
@@ -263,6 +255,15 @@ module EE
 
     def any_project_nav_tab?(tabs)
       tabs.any? { |tab| project_nav_tab?(tab) }
+    end
+
+    def show_discover_project_security?(project)
+      !!::Feature.enabled?(:discover_security) &&
+        ::Gitlab.com? &&
+        !!current_user &&
+        current_user.created_at > DateTime.new(2020, 1, 20) &&
+        !project.feature_available?(:security_dashboard) &&
+        can?(current_user, :admin_namespace, project.root_ancestor)
     end
 
     def settings_operations_available?

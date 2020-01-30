@@ -4,17 +4,20 @@ import testAction from 'helpers/vuex_action_helper';
 import * as getters from 'ee/analytics/cycle_analytics/store/getters';
 import * as actions from 'ee/analytics/cycle_analytics/store/actions';
 import * as types from 'ee/analytics/cycle_analytics/store/mutation_types';
+import { TASKS_BY_TYPE_FILTERS } from 'ee/analytics/cycle_analytics/constants';
 import createFlash from '~/flash';
 import {
   group,
-  cycleAnalyticsData,
+  summaryData,
   allowedStages as stages,
   groupLabels,
   startDate,
   endDate,
   customizableStagesAndEvents,
   rawDurationData,
+  rawDurationMedianData,
   transformedDurationData,
+  transformedDurationMedianData,
 } from '../mock_data';
 
 const stageData = { events: [] };
@@ -25,7 +28,7 @@ const [selectedStage] = stages;
 const selectedStageSlug = selectedStage.slug;
 const endpoints = {
   groupLabels: `/groups/${group.path}/-/labels`,
-  cycleAnalyticsData: `/groups/${group.path}/-/cycle_analytics`,
+  summaryData: '/analytics/cycle_analytics/summary',
   durationData: /analytics\/cycle_analytics\/stages\/\d+\/duration_chart/,
   stageData: /analytics\/cycle_analytics\/stages\/\d+\/records/,
   stageMedian: /analytics\/cycle_analytics\/stages\/\d+\/median/,
@@ -44,12 +47,13 @@ describe('Cycle analytics actions', () => {
 
   beforeEach(() => {
     state = {
-      startDate: '2019-01-14',
-      endDate: '2019-02-15',
+      startDate,
+      endDate,
       stages: [],
       featureFlags: {
         hasDurationChart: true,
         hasTasksByTypeChart: true,
+        hasDurationChartMedian: true,
       },
     };
     mock = new MockAdapter(axios);
@@ -268,7 +272,7 @@ describe('Cycle analytics actions', () => {
 
     beforeEach(() => {
       setFixtures('<div class="flash-container"></div>');
-      mock.onGet(endpoints.cycleAnalyticsData).replyOnce(200, cycleAnalyticsData);
+      mock.onGet(endpoints.summaryData).replyOnce(200, summaryData);
       state = { ...state, selectedGroup, startDate, endDate };
     });
 
@@ -851,20 +855,50 @@ describe('Cycle analytics actions', () => {
   });
 
   describe('receiveDurationDataSuccess', () => {
-    const payload = { durationData: transformedDurationData, isLoadingDurationChart: false };
+    describe('with hasDurationChartMedian feature flag enabled', () => {
+      it('commits the transformed duration data and dispatches fetchDurationMedianData', () => {
+        testAction(
+          actions.receiveDurationDataSuccess,
+          transformedDurationData,
+          state,
+          [
+            {
+              type: types.RECEIVE_DURATION_DATA_SUCCESS,
+              payload: transformedDurationData,
+            },
+          ],
+          [
+            {
+              type: 'fetchDurationMedianData',
+            },
+          ],
+        );
+      });
+    });
 
-    testAction(
-      actions.receiveDurationDataSuccess,
-      payload,
-      state,
-      [
-        {
-          type: types.RECEIVE_DURATION_DATA_SUCCESS,
-          payload,
+    describe('with hasDurationChartMedian feature flag disabled', () => {
+      const disabledState = {
+        ...state,
+        featureFlags: {
+          hasDurationChartMedian: false,
         },
-      ],
-      [],
-    );
+      };
+
+      it('commits the transformed duration data', () => {
+        testAction(
+          actions.receiveDurationDataSuccess,
+          transformedDurationData,
+          disabledState,
+          [
+            {
+              type: types.RECEIVE_DURATION_DATA_SUCCESS,
+              payload: transformedDurationData,
+            },
+          ],
+          [],
+        );
+      });
+    });
   });
 
   describe('receiveDurationDataError', () => {
@@ -900,6 +934,7 @@ describe('Cycle analytics actions', () => {
       const stateWithDurationData = {
         ...state,
         durationData: transformedDurationData,
+        durationMedianData: transformedDurationMedianData,
       };
 
       testAction(
@@ -909,7 +944,10 @@ describe('Cycle analytics actions', () => {
         [
           {
             type: types.UPDATE_SELECTED_DURATION_CHART_STAGES,
-            payload: transformedDurationData,
+            payload: {
+              updatedDurationStageData: transformedDurationData,
+              updatedDurationStageMedianData: transformedDurationMedianData,
+            },
           },
         ],
         [],
@@ -920,6 +958,7 @@ describe('Cycle analytics actions', () => {
       const stateWithDurationData = {
         ...state,
         durationData: transformedDurationData,
+        durationMedianData: transformedDurationMedianData,
       };
 
       testAction(
@@ -929,13 +968,22 @@ describe('Cycle analytics actions', () => {
         [
           {
             type: types.UPDATE_SELECTED_DURATION_CHART_STAGES,
-            payload: [
-              transformedDurationData[0],
-              {
-                ...transformedDurationData[1],
-                selected: false,
-              },
-            ],
+            payload: {
+              updatedDurationStageData: [
+                transformedDurationData[0],
+                {
+                  ...transformedDurationData[1],
+                  selected: false,
+                },
+              ],
+              updatedDurationStageMedianData: [
+                transformedDurationMedianData[0],
+                {
+                  ...transformedDurationMedianData[1],
+                  selected: false,
+                },
+              ],
+            },
           },
         ],
         [],
@@ -946,6 +994,7 @@ describe('Cycle analytics actions', () => {
       const stateWithDurationData = {
         ...state,
         durationData: transformedDurationData,
+        durationMedianData: transformedDurationMedianData,
       };
 
       testAction(
@@ -955,19 +1004,152 @@ describe('Cycle analytics actions', () => {
         [
           {
             type: types.UPDATE_SELECTED_DURATION_CHART_STAGES,
-            payload: [
-              {
-                ...transformedDurationData[0],
-                selected: false,
-              },
-              {
-                ...transformedDurationData[1],
-                selected: false,
-              },
-            ],
+            payload: {
+              updatedDurationStageData: [
+                {
+                  ...transformedDurationData[0],
+                  selected: false,
+                },
+                {
+                  ...transformedDurationData[1],
+                  selected: false,
+                },
+              ],
+              updatedDurationStageMedianData: [
+                {
+                  ...transformedDurationMedianData[0],
+                  selected: false,
+                },
+                {
+                  ...transformedDurationMedianData[1],
+                  selected: false,
+                },
+              ],
+            },
           },
         ],
         [],
+      );
+    });
+  });
+
+  describe('fetchDurationMedianData', () => {
+    beforeEach(() => {
+      mock.onGet(endpoints.durationData).reply(200, [...rawDurationMedianData]);
+    });
+
+    it('dispatches requestDurationMedianData when called', done => {
+      const stateWithStages = {
+        ...state,
+        stages: [stages[0], stages[1]],
+        selectedGroup,
+      };
+      const dispatch = jest.fn();
+
+      actions
+        .fetchDurationMedianData({
+          dispatch,
+          state: stateWithStages,
+        })
+        .then(() => {
+          expect(dispatch).toHaveBeenNthCalledWith(1, 'requestDurationMedianData');
+          done();
+        })
+        .catch(done.fail);
+    });
+
+    it('dispatches the receiveDurationMedianDataSuccess action on success', done => {
+      const stateWithStages = {
+        ...state,
+        stages: [stages[0], stages[1]],
+        selectedGroup,
+      };
+      const dispatch = jest.fn();
+
+      actions
+        .fetchDurationMedianData({
+          dispatch,
+          state: stateWithStages,
+        })
+        .then(() => {
+          expect(dispatch).toHaveBeenCalledWith(
+            'receiveDurationMedianDataSuccess',
+            transformedDurationMedianData,
+          );
+          done();
+        })
+        .catch(done.fail);
+    });
+
+    it('dispatches the receiveDurationMedianDataError action when there is an error', done => {
+      const brokenState = {
+        ...state,
+        stages: [
+          {
+            id: 'oops',
+          },
+        ],
+        selectedGroup,
+      };
+      const dispatch = jest.fn();
+
+      actions
+        .fetchDurationMedianData({
+          dispatch,
+          state: brokenState,
+        })
+        .then(() => {
+          expect(dispatch).toHaveBeenCalledWith('receiveDurationMedianDataError');
+          done();
+        })
+        .catch(done.fail);
+    });
+  });
+
+  describe('receiveDurationMedianDataSuccess', () => {
+    it('commits the transformed duration median data', done => {
+      testAction(
+        actions.receiveDurationMedianDataSuccess,
+        transformedDurationMedianData,
+        state,
+        [
+          {
+            type: types.RECEIVE_DURATION_MEDIAN_DATA_SUCCESS,
+            payload: transformedDurationMedianData,
+          },
+        ],
+        [],
+        done,
+      );
+    });
+  });
+
+  describe('receiveDurationMedianDataError', () => {
+    beforeEach(() => {
+      setFixtures('<div class="flash-container"></div>');
+    });
+
+    it("commits the 'RECEIVE_DURATION_MEDIAN_DATA_ERROR' mutation", () => {
+      testAction(
+        actions.receiveDurationMedianDataError,
+        {},
+        state,
+        [
+          {
+            type: types.RECEIVE_DURATION_MEDIAN_DATA_ERROR,
+          },
+        ],
+        [],
+      );
+    });
+
+    it('will flash an error', () => {
+      actions.receiveDurationMedianDataError({
+        commit: () => {},
+      });
+
+      shouldFlashAMessage(
+        'There was an error while fetching cycle analytics duration median data.',
       );
     });
   });
@@ -1059,6 +1241,31 @@ describe('Cycle analytics actions', () => {
         state,
         [{ type: types.RECEIVE_STAGE_MEDIANS_SUCCESS, payload: { events: [] } }],
         [],
+        done,
+      );
+    });
+  });
+
+  describe('setTasksByTypeFilters', () => {
+    const filter = TASKS_BY_TYPE_FILTERS.SUBJECT;
+    const value = 'issue';
+
+    it(`commits the ${types.SET_TASKS_BY_TYPE_FILTERS} mutation and dispatches 'fetchTasksByTypeData'`, done => {
+      testAction(
+        actions.setTasksByTypeFilters,
+        { filter, value },
+        {},
+        [
+          {
+            type: types.SET_TASKS_BY_TYPE_FILTERS,
+            payload: { filter, value },
+          },
+        ],
+        [
+          {
+            type: 'fetchTasksByTypeData',
+          },
+        ],
         done,
       );
     });

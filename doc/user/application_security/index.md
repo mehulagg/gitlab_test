@@ -40,7 +40,7 @@ The various scanning tools and the vulnerabilities database are updated regularl
 |:-------------------------------------------------------------|-------------------------------------------|
 | [Container Scanning](container_scanning/index.md)            | Uses `clair` underneath and the latest `clair-db` version is used for each job run by running the [`latest` docker image tag](https://gitlab.com/gitlab-org/gitlab/blob/438a0a56dc0882f22bdd82e700554525f552d91b/lib/gitlab/ci/templates/Security/Container-Scanning.gitlab-ci.yml#L37). The `clair-db` database [is updated daily according to the author](https://github.com/arminc/clair-local-scan#clair-server-or-local). |
 | [Dependency Scanning](dependency_scanning/index.md)          | Relies on `bundler-audit` (for Rubygems), `retire.js` (for NPM packages) and `gemnasium` (GitLab's own tool for all libraries). `bundler-audit` and `retire.js` both fetch their vulnerabilities data from GitHub repositories, so vulnerabilities added to `ruby-advisory-db` and `retire.js` are immediately available. The tools themselves are updated once per month if there's a new version. The [Gemnasium DB](https://gitlab.com/gitlab-org/security-products/gemnasium-db) is updated at least once a week. |
-| [Dynamic Application Security Testing (DAST)](dast/index.md) | Updated weekly on Sundays. The underlying tool, `zaproxy`, downloads fresh rules at startup. |
+| [Dynamic Application Security Testing (DAST)](dast/index.md) | The scanning engine is updated on a periodic basis. See the [version of the underlying tool `zaproxy`](https://gitlab.com/gitlab-org/security-products/dast/blob/master/Dockerfile#L1). The scanning rules are downloaded at the runtime of the scan. |
 | [Static Application Security Testing (SAST)](sast/index.md)  | Relies exclusively on [the tools GitLab is wrapping](sast/index.md#supported-languages-and-frameworks). The underlying analyzers are updated at least once per month if a relevant update is available. The vulnerabilities database is updated by the upstream tools. |
 
 You don't have to update GitLab to benefit from the latest vulnerabilities definitions,
@@ -148,12 +148,15 @@ Clicking on this button will create a merge request to apply the solution onto t
 
 ![Create merge request from vulnerability](img/create_issue_with_list_hover.png)
 
-## Security approvals in merge requests **(ULTIMATE)**
+## Security approvals in merge requests
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9928) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.2.
 
-Merge Request Approvals can be configured to require approval from a member
-of your security team when a vulnerability, or a software license compliance violation would be introduced by a merge request.
+Merge Request Approvals can be configured to require approval from a member of your
+security team when a merge request would introduce one of the following security issues:
+
+- a security vulnerability
+- a software license compliance violation
 
 This threshold is defined as `high`, `critical`, or `unknown`
 severity. When any vulnerabilities are present within a merge request, an
@@ -210,7 +213,7 @@ An approval will be optional when a license report:
 When including a security job template like [`SAST`](sast/index.md#configuration),
 the following error can be raised, depending on your GitLab CI/CD configuration:
 
-```
+```plaintext
 Found errors in your .gitlab-ci.yml:
 
 * sast job: stage parameter should be unit-tests

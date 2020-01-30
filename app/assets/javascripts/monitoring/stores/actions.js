@@ -1,7 +1,9 @@
 import * as types from './mutation_types';
 import axios from '~/lib/utils/axios_utils';
 import createFlash from '~/flash';
+import { gqClient, parseEnvironmentsResponse, removeLeadingSlash } from './utils';
 import trackDashboardLoad from '../monitoring_tracking_helper';
+import getEnvironments from '../queries/getEnvironments.query.graphql';
 import statusCodes from '../../lib/utils/http_status';
 import { backOff } from '../../lib/utils/common_utils';
 import { s__, sprintf } from '../../locale';
@@ -30,6 +32,11 @@ export const setEndpoints = ({ commit }, endpoints) => {
   commit(types.SET_ENDPOINTS, endpoints);
 };
 
+export const filterEnvironments = ({ commit, dispatch }, searchTerm) => {
+  commit(types.SET_ENVIRONMENTS_FILTER, searchTerm);
+  dispatch('fetchEnvironmentsData');
+};
+
 export const setShowErrorBanner = ({ commit }, enabled) => {
   commit(types.SET_SHOW_ERROR_BANNER, enabled);
 };
@@ -39,7 +46,7 @@ export const requestMetricsDashboard = ({ commit }) => {
 };
 export const receiveMetricsDashboardSuccess = ({ commit, dispatch }, { response, params }) => {
   commit(types.SET_ALL_DASHBOARDS, response.all_dashboards);
-  commit(types.RECEIVE_METRICS_DATA_SUCCESS, response.dashboard.panel_groups);
+  commit(types.RECEIVE_METRICS_DATA_SUCCESS, response.dashboard);
   return dispatch('fetchPrometheusMetrics', params);
 };
 export const receiveMetricsDashboardFailure = ({ commit }, error) => {
@@ -50,6 +57,7 @@ export const receiveDeploymentsDataSuccess = ({ commit }, data) =>
   commit(types.RECEIVE_DEPLOYMENTS_DATA_SUCCESS, data);
 export const receiveDeploymentsDataFailure = ({ commit }) =>
   commit(types.RECEIVE_DEPLOYMENTS_DATA_FAILURE);
+export const requestEnvironmentsData = ({ commit }) => commit(types.REQUEST_ENVIRONMENTS_DATA);
 export const receiveEnvironmentsDataSuccess = ({ commit }, data) =>
   commit(types.RECEIVE_ENVIRONMENTS_DATA_SUCCESS, data);
 export const receiveEnvironmentsDataFailure = ({ commit }) =>
@@ -184,19 +192,26 @@ export const fetchDeploymentsData = ({ state, dispatch }) => {
 };
 
 export const fetchEnvironmentsData = ({ state, dispatch }) => {
-  if (!state.environmentsEndpoint) {
-    return Promise.resolve([]);
-  }
-  return axios
-    .get(state.environmentsEndpoint)
-    .then(resp => resp.data)
-    .then(response => {
-      if (!response || !response.environments) {
+  dispatch('requestEnvironmentsData');
+  return gqClient
+    .mutate({
+      mutation: getEnvironments,
+      variables: {
+        projectPath: removeLeadingSlash(state.projectPath),
+        search: state.environmentsSearchTerm,
+      },
+    })
+    .then(resp =>
+      parseEnvironmentsResponse(resp.data?.project?.data?.environments, state.projectPath),
+    )
+    .then(environments => {
+      if (!environments) {
         createFlash(
           s__('Metrics|There was an error fetching the environments data, please try again'),
         );
       }
-      dispatch('receiveEnvironmentsDataSuccess', response.environments);
+
+      dispatch('receiveEnvironmentsDataSuccess', environments);
     })
     .catch(() => {
       dispatch('receiveEnvironmentsDataFailure');
@@ -212,6 +227,30 @@ export const fetchEnvironmentsData = ({ state, dispatch }) => {
  */
 export const setPanelGroupMetrics = ({ commit }, data) => {
   commit(types.SET_PANEL_GROUP_METRICS, data);
+};
+
+export const duplicateSystemDashboard = ({ state }, payload) => {
+  const params = {
+    dashboard: payload.dashboard,
+    file_name: payload.fileName,
+    branch: payload.branch,
+    commit_message: payload.commitMessage,
+  };
+
+  return axios
+    .post(state.dashboardsEndpoint, params)
+    .then(response => response.data)
+    .then(data => data.dashboard)
+    .catch(error => {
+      const { response } = error;
+      if (response && response.data && response.data.error) {
+        throw sprintf(s__('Metrics|There was an error creating the dashboard. %{error}'), {
+          error: response.data.error,
+        });
+      } else {
+        throw s__('Metrics|There was an error creating the dashboard.');
+      }
+    });
 };
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests

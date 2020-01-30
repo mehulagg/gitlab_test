@@ -15,8 +15,6 @@ describe('Assignee component', () => {
   const createWrapper = (propsData = getDefaultProps()) => {
     wrapper = mount(Assignee, {
       propsData,
-      sync: false,
-      attachToDocument: true,
     });
   };
 

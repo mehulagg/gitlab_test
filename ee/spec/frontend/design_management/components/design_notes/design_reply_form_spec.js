@@ -1,16 +1,16 @@
-import { shallowMount } from '@vue/test-utils';
-
+import { mount } from '@vue/test-utils';
 import DesignReplyForm from 'ee/design_management/components/design_notes/design_reply_form.vue';
 
 describe('Design reply form component', () => {
   let wrapper;
 
   const findTextarea = () => wrapper.find('textarea');
-  const findSubmitButton = () => wrapper.find('.js-comment-submit-button');
+  const findSubmitButton = () => wrapper.find({ ref: 'submitButton' });
+  const findCancelButton = () => wrapper.find({ ref: 'cancelButton' });
+  const findModal = () => wrapper.find({ ref: 'cancelCommentModal' });
 
   function createComponent(props = {}) {
-    wrapper = shallowMount(DesignReplyForm, {
-      sync: false,
+    wrapper = mount(DesignReplyForm, {
       propsData: {
         value: '',
         isSaving: false,
@@ -59,6 +59,18 @@ describe('Design reply form component', () => {
         expect(wrapper.emitted('submitForm')).toBeFalsy();
       });
     });
+
+    it('emits cancelForm event on pressing escape button on textarea', () => {
+      findTextarea().trigger('keyup.esc');
+
+      expect(wrapper.emitted('cancelForm')).toBeTruthy();
+    });
+
+    it('emits cancelForm event on clicking Cancel button', () => {
+      findCancelButton().vm.$emit('click');
+
+      expect(wrapper.emitted('cancelForm')).toHaveLength(1);
+    });
   });
 
   describe('when form has text', () => {
@@ -72,8 +84,8 @@ describe('Design reply form component', () => {
       expect(findSubmitButton().attributes().disabled).toBeFalsy();
     });
 
-    it('emits submitForm event on button click', () => {
-      findSubmitButton().trigger('click');
+    it('emits submitForm event on Comment button click', () => {
+      findSubmitButton().vm.$emit('click');
 
       return wrapper.vm.$nextTick().then(() => {
         expect(wrapper.emitted('submitForm')).toBeTruthy();
@@ -108,12 +120,23 @@ describe('Design reply form component', () => {
       });
     });
 
-    it('emits cancelForm event on pressing escape button on textarea', () => {
+    it('opens confirmation modal on pressing Escape button', () => {
       findTextarea().trigger('keyup.esc');
 
-      return wrapper.vm.$nextTick().then(() => {
-        expect(wrapper.emitted('cancelForm')).toBeTruthy();
-      });
+      expect(findModal().exists()).toBe(true);
+    });
+
+    it('opens confirmation modal on Cancel button click', () => {
+      findCancelButton().vm.$emit('click');
+
+      expect(findModal().exists()).toBe(true);
+    });
+
+    it('emits cancelForm event on modal Ok button click', () => {
+      findTextarea().trigger('keyup.esc');
+      findModal().vm.$emit('ok');
+
+      expect(wrapper.emitted('cancelForm')).toBeTruthy();
     });
   });
 });

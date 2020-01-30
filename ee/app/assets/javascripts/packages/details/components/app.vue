@@ -1,6 +1,7 @@
 <script>
 import {
   GlButton,
+  GlIcon,
   GlModal,
   GlModalDirective,
   GlTooltipDirective,
@@ -9,15 +10,19 @@ import {
   GlTable,
 } from '@gitlab/ui';
 import _ from 'underscore';
+import Tracking from '~/tracking';
 import PackageInformation from './information.vue';
 import NpmInstallation from './npm_installation.vue';
 import MavenInstallation from './maven_installation.vue';
-import Icon from '~/vue_shared/components/icon.vue';
+import ConanInstallation from './conan_installation.vue';
+import PackageTags from './package_tags.vue';
 import { numberToHumanSize } from '~/lib/utils/number_utils';
 import timeagoMixin from '~/vue_shared/mixins/timeago';
 import { generatePackageInfo } from '../utils';
 import { __, s__, sprintf } from '~/locale';
-import { PackageType } from '../constants';
+import { PackageType, TrackingActions } from '../../shared/constants';
+import { packageTypeToTrackCategory } from '../../shared/utils';
+import { mapState } from 'vuex';
 
 export default {
   name: 'PackagesApp',
@@ -27,26 +32,20 @@ export default {
     GlLink,
     GlModal,
     GlTable,
-    Icon,
+    GlIcon,
     PackageInformation,
+    PackageTags,
     NpmInstallation,
     MavenInstallation,
+    ConanInstallation,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
     GlModal: GlModalDirective,
   },
-  mixins: [timeagoMixin],
+  mixins: [timeagoMixin, Tracking.mixin()],
+  trackingActions: { ...TrackingActions },
   props: {
-    packageEntity: {
-      type: Object,
-      required: true,
-    },
-    files: {
-      type: Array,
-      default: () => [],
-      required: true,
-    },
     canDelete: {
       type: Boolean,
       default: false,
@@ -77,16 +76,31 @@ export default {
       type: String,
       required: true,
     },
+    conanPath: {
+      type: String,
+      required: true,
+    },
+    conanHelpPath: {
+      type: String,
+      required: true,
+    },
   },
   computed: {
+    ...mapState(['packageEntity', 'packageFiles']),
     isNpmPackage() {
       return this.packageEntity.package_type === PackageType.NPM;
     },
     isMavenPackage() {
       return this.packageEntity.package_type === PackageType.MAVEN;
     },
+    isConanPackage() {
+      return this.packageEntity.package_type === PackageType.CONAN;
+    },
     isValidPackage() {
       return Boolean(this.packageEntity.name);
+    },
+    hasTagsToDisplay() {
+      return Boolean(this.packageEntity.tags && this.packageEntity.tags.length);
     },
     canDeletePackage() {
       return this.canDelete && this.destroyPath;
@@ -138,12 +152,17 @@ export default {
       }
     },
     filesTableRows() {
-      return this.files.map(x => ({
+      return this.packageFiles.map(x => ({
         name: x.file_name,
         downloadPath: x.download_path,
         size: this.formatSize(x.size),
         created: x.created_at,
       }));
+    },
+    tracking() {
+      return {
+        category: packageTypeToTrackCategory(this.packageEntity.package_type),
+      };
     },
   },
   methods: {
@@ -187,7 +206,11 @@ export default {
 
   <div v-else class="packages-app">
     <div class="detail-page-header d-flex justify-content-between">
-      <strong class="js-version-title">{{ packageEntity.version }}</strong>
+      <div class="d-flex align-items-center">
+        <gl-icon name="fork" class="append-right-8" />
+        <strong class="append-right-default js-version-title">{{ packageEntity.version }}</strong>
+        <package-tags v-if="hasTagsToDisplay" :tags="packageEntity.tags" />
+      </div>
       <gl-button
         v-if="canDeletePackage"
         v-gl-modal="'delete-modal'"
@@ -223,6 +246,13 @@ export default {
           :registry-url="mavenPath"
           :help-url="mavenHelpPath"
         />
+
+        <conan-installation
+          v-else-if="isConanPackage"
+          :package-entity="packageEntity"
+          :registry-url="conanPath"
+          :help-url="conanHelpPath"
+        />
       </div>
     </div>
 
@@ -231,14 +261,18 @@ export default {
       :items="filesTableRows"
       tbody-tr-class="js-file-row"
     >
-      <template #name="items">
-        <icon name="doc-code" class="space-right" />
-        <gl-link :href="items.item.downloadPath" class="js-file-download">{{
-          items.item.name
-        }}</gl-link>
+      <template #cell(name)="items">
+        <gl-icon name="doc-code" class="space-right" />
+        <gl-link
+          :href="items.item.downloadPath"
+          class="js-file-download"
+          @click="track($options.trackingActions.PULL_PACKAGE)"
+        >
+          {{ items.item.name }}
+        </gl-link>
       </template>
 
-      <template #created="items">
+      <template #cell(created)="items">
         <span v-gl-tooltip :title="tooltipTitle(items.item.created)">{{
           timeFormatted(items.item.created)
         }}</span>
@@ -253,10 +287,12 @@ export default {
         <div class="float-right">
           <gl-button @click="cancelDelete()">{{ __('Cancel') }}</gl-button>
           <gl-button
+            ref="modal-delete-button"
             data-method="delete"
             :to="destroyPath"
             variant="danger"
             data-qa-selector="delete_modal_button"
+            @click="track($options.trackingActions.DELETE_PACKAGE)"
             >{{ __('Delete') }}</gl-button
           >
         </div>

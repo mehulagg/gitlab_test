@@ -29,22 +29,14 @@ module QA
             end
 
             def click_first_epic(page = nil)
-              all_elements(:epic_title_text).first.click
+              all_elements(:epic_title_text, minimum: 1).first.click
               page.validate_elements_present! if page
             end
 
             def has_epic_title?(title)
-              wait do
+              wait_until do
                 has_element?(:epic_title_text, text: title)
               end
-            end
-
-            def has_no_epic?(title)
-              # First, check that the new epic button is present,
-              # meaning that the test is in the right page before
-              # checking that the epic is not there.
-              find_element(:new_epic_button)
-              has_no_element?(:epic_title_text, text: title)
             end
           end
         end

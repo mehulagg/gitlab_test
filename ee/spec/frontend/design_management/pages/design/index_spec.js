@@ -4,6 +4,7 @@ import { ApolloMutation } from 'vue-apollo';
 import DesignIndex from 'ee/design_management/pages/design/index.vue';
 import DesignDiscussion from 'ee/design_management/components/design_notes/design_discussion.vue';
 import DesignReplyForm from 'ee/design_management/components/design_notes/design_reply_form.vue';
+import Participants from '~/sidebar/components/participants/participants.vue';
 import createImageDiffNoteMutation from 'ee/design_management/graphql/mutations/createImageDiffNote.mutation.graphql';
 import design from '../../mock_data/design';
 
@@ -44,6 +45,7 @@ describe('Design management design index page', () => {
 
   const findDiscussions = () => wrapper.findAll(DesignDiscussion);
   const findDiscussionForm = () => wrapper.find(DesignReplyForm);
+  const findParticipants = () => wrapper.find(Participants);
 
   function createComponent(loading = false) {
     const $apollo = {
@@ -56,7 +58,6 @@ describe('Design management design index page', () => {
     };
 
     wrapper = shallowMount(DesignIndex, {
-      sync: false,
       propsData: { id: '1' },
       mocks: { $apollo },
       stubs: {
@@ -97,6 +98,22 @@ describe('Design management design index page', () => {
       expect(wrapper.element).toMatchSnapshot();
       expect(wrapper.find(GlAlert).exists()).toBe(false);
     });
+  });
+
+  it('renders participants', () => {
+    setDesign();
+
+    wrapper.setData({
+      design,
+    });
+
+    return wrapper.vm.$nextTick().then(() => {
+      expect(findParticipants().exists()).toBe(true);
+    });
+  });
+
+  it('passes the correct amount of participants to the Participants component', () => {
+    expect(findParticipants().props('participants').length).toBe(1);
   });
 
   describe('when has no discussions', () => {
@@ -182,6 +199,33 @@ describe('Design management design index page', () => {
       });
   });
 
+  it('closes the form and clears the comment on canceling form', () => {
+    setDesign();
+
+    wrapper.setData({
+      design: {
+        ...design,
+        discussions: {
+          edges: [],
+        },
+      },
+      annotationCoordinates,
+      comment: newComment,
+    });
+
+    return wrapper.vm
+      .$nextTick()
+      .then(() => {
+        findDiscussionForm().vm.$emit('cancelForm');
+
+        expect(wrapper.vm.comment).toBe('');
+        return wrapper.vm.$nextTick();
+      })
+      .then(() => {
+        expect(findDiscussionForm().exists()).toBe(false);
+      });
+  });
+
   describe('with error', () => {
     beforeEach(() => {
       setDesign();
@@ -196,6 +240,7 @@ describe('Design management design index page', () => {
         errorMessage: 'woops',
       });
     });
+
     it('GlAlert is rendered in correct position with correct content', () => {
       expect(wrapper.element).toMatchSnapshot();
     });

@@ -1,8 +1,21 @@
 <script>
-import { mapActions } from 'vuex';
-import { GlFormGroup, GlToggle, GlFormSelect, GlFormTextarea, GlButton } from '@gitlab/ui';
+import { mapActions, mapState } from 'vuex';
+import {
+  GlFormGroup,
+  GlToggle,
+  GlFormSelect,
+  GlFormTextarea,
+  GlButton,
+  GlCard,
+  GlLoadingIcon,
+} from '@gitlab/ui';
 import { s__, __, sprintf } from '~/locale';
-import { NAME_REGEX_LENGTH } from '../constants';
+import Tracking from '~/tracking';
+import {
+  NAME_REGEX_LENGTH,
+  UPDATE_SETTINGS_ERROR_MESSAGE,
+  UPDATE_SETTINGS_SUCCESS_MESSAGE,
+} from '../constants';
 import { mapComputed } from '~/vuex_shared/bindings';
 
 export default {
@@ -12,19 +25,34 @@ export default {
     GlFormSelect,
     GlFormTextarea,
     GlButton,
+    GlCard,
+    GlLoadingIcon,
   },
+  mixins: [Tracking.mixin()],
   labelsConfig: {
     cols: 3,
     align: 'right',
   },
+  data() {
+    return {
+      tracking: {
+        label: 'docker_container_retention_and_expiration_policies',
+      },
+    };
+  },
   computed: {
-    ...mapComputed('settings', 'updateSettings', [
-      'enabled',
-      'cadence',
-      'older_than',
-      'keep_n',
-      'name_regex',
-    ]),
+    ...mapState(['formOptions', 'isLoading']),
+    ...mapComputed(
+      [
+        'enabled',
+        { key: 'cadence', getter: 'getCadence' },
+        { key: 'older_than', getter: 'getOlderThan' },
+        { key: 'keep_n', getter: 'getKeepN' },
+        'name_regex',
+      ],
+      'updateSettings',
+      'settings',
+    ),
     policyEnabledText() {
       return this.enabled ? __('enabled') : __('disabled');
     },
@@ -40,7 +68,7 @@ export default {
     regexHelpText() {
       return sprintf(
         s__(
-          'ContainerRegistry|Wildcards such as %{codeStart}*-stable%{codeEnd} or %{codeStart}production/*%{codeEnd} are supported',
+          'ContainerRegistry|Wildcards such as %{codeStart}*-stable%{codeEnd} or %{codeStart}production/*%{codeEnd} are supported.  To select all tags, use %{codeStart}.*%{codeEnd}',
         ),
         {
           codeStart: '<code>',
@@ -55,23 +83,39 @@ export default {
     nameRegexState() {
       return this.name_regex ? this.name_regex.length <= NAME_REGEX_LENGTH : null;
     },
-    formIsValid() {
+    formIsInvalid() {
       return this.nameRegexState === false;
+    },
+    isFormElementDisabled() {
+      return !this.enabled || this.isLoading;
+    },
+    isSubmitButtonDisabled() {
+      return this.formIsInvalid || this.isLoading;
     },
   },
   methods: {
     ...mapActions(['resetSettings', 'saveSettings']),
+    reset() {
+      this.track('reset_form');
+      this.resetSettings();
+    },
+    submit() {
+      this.track('submit_form');
+      this.saveSettings()
+        .then(() => this.$toast.show(UPDATE_SETTINGS_SUCCESS_MESSAGE, { type: 'success' }))
+        .catch(() => this.$toast.show(UPDATE_SETTINGS_ERROR_MESSAGE, { type: 'error' }));
+    },
   },
 };
 </script>
 
 <template>
-  <div class="card">
-    <form ref="form-element" @submit.prevent="saveSettings" @reset.prevent="resetSettings">
-      <div class="card-header">
+  <form ref="form-element" @submit.prevent="submit" @reset.prevent="reset">
+    <gl-card>
+      <template #header>
         {{ s__('ContainerRegistry|Tag expiration policy') }}
-      </div>
-      <div class="card-body">
+      </template>
+      <template>
         <gl-form-group
           id="expiration-policy-toggle-group"
           :label-cols="$options.labelsConfig.cols"
@@ -80,7 +124,7 @@ export default {
           :label="s__('ContainerRegistry|Expiration policy:')"
         >
           <div class="d-flex align-items-start">
-            <gl-toggle id="expiration-policy-toggle" v-model="enabled" />
+            <gl-toggle id="expiration-policy-toggle" v-model="enabled" :disabled="isLoading" />
             <span class="mb-2 ml-1 lh-2" v-html="toggleDescriptionText"></span>
           </div>
         </gl-form-group>
@@ -92,9 +136,14 @@ export default {
           label-for="expiration-policy-interval"
           :label="s__('ContainerRegistry|Expiration interval:')"
         >
-          <gl-form-select id="expiration-policy-interval" v-model="older_than">
-            <option value="1">{{ __('Option 1') }}</option>
-            <option value="2">{{ __('Option 2') }}</option>
+          <gl-form-select
+            id="expiration-policy-interval"
+            v-model="older_than"
+            :disabled="isFormElementDisabled"
+          >
+            <option v-for="option in formOptions.olderThan" :key="option.key" :value="option.key">
+              {{ option.label }}
+            </option>
           </gl-form-select>
         </gl-form-group>
 
@@ -105,9 +154,14 @@ export default {
           label-for="expiration-policy-schedule"
           :label="s__('ContainerRegistry|Expiration schedule:')"
         >
-          <gl-form-select id="expiration-policy-schedule" v-model="cadence">
-            <option value="1">{{ __('Option 1') }}</option>
-            <option value="2">{{ __('Option 2') }}</option>
+          <gl-form-select
+            id="expiration-policy-schedule"
+            v-model="cadence"
+            :disabled="isFormElementDisabled"
+          >
+            <option v-for="option in formOptions.cadence" :key="option.key" :value="option.key">
+              {{ option.label }}
+            </option>
           </gl-form-select>
         </gl-form-group>
 
@@ -116,11 +170,16 @@ export default {
           :label-cols="$options.labelsConfig.cols"
           :label-align="$options.labelsConfig.align"
           label-for="expiration-policy-latest"
-          :label="s__('ContainerRegistry|Expiration latest:')"
+          :label="s__('ContainerRegistry|Number of tags to retain:')"
         >
-          <gl-form-select id="expiration-policy-latest" v-model="keep_n">
-            <option value="1">{{ __('Option 1') }}</option>
-            <option value="2">{{ __('Option 2') }}</option>
+          <gl-form-select
+            id="expiration-policy-latest"
+            v-model="keep_n"
+            :disabled="isFormElementDisabled"
+          >
+            <option v-for="option in formOptions.keepN" :key="option.key" :value="option.key">
+              {{ option.label }}
+            </option>
           </gl-form-select>
         </gl-form-group>
 
@@ -129,7 +188,9 @@ export default {
           :label-cols="$options.labelsConfig.cols"
           :label-align="$options.labelsConfig.align"
           label-for="expiration-policy-name-matching"
-          :label="s__('ContainerRegistry|Expire Docker tags with name matching:')"
+          :label="
+            s__('ContainerRegistry|Docker tags with names matching this regex pattern will expire:')
+          "
           :state="nameRegexState"
           :invalid-feedback="
             s__('ContainerRegistry|The value of this input should be less than 255 characters')
@@ -140,19 +201,31 @@ export default {
             v-model="name_regex"
             :placeholder="nameRegexPlaceholder"
             :state="nameRegexState"
+            :disabled="isFormElementDisabled"
             trim
           />
           <template #description>
             <span ref="regex-description" v-html="regexHelpText"></span>
           </template>
         </gl-form-group>
-      </div>
-      <div class="card-footer text-right">
-        <gl-button ref="cancel-button" type="reset">{{ __('Cancel') }}</gl-button>
-        <gl-button ref="save-button" type="submit" :disabled="formIsValid" variant="success">
-          {{ __('Save Expiration Policy') }}
-        </gl-button>
-      </div>
-    </form>
-  </div>
+      </template>
+      <template #footer>
+        <div class="d-flex justify-content-end">
+          <gl-button ref="cancel-button" type="reset" class="mr-2 d-block" :disabled="isLoading">
+            {{ __('Cancel') }}
+          </gl-button>
+          <gl-button
+            ref="save-button"
+            type="submit"
+            :disabled="isSubmitButtonDisabled"
+            variant="success"
+            class="d-flex justify-content-center align-items-center js-no-auto-disable"
+          >
+            {{ __('Save expiration policy') }}
+            <gl-loading-icon v-if="isLoading" class="ml-2" />
+          </gl-button>
+        </div>
+      </template>
+    </gl-card>
+  </form>
 </template>

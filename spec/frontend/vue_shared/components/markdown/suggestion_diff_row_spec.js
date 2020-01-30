@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import SuggestionDiffRow from '~/vue_shared/components/markdown/suggestion_diff_row.vue';
 
 const oldLine = {
@@ -27,10 +27,7 @@ describe('SuggestionDiffRow', () => {
   let wrapper;
 
   const factory = (options = {}) => {
-    const localVue = createLocalVue();
-
     wrapper = shallowMount(SuggestionDiffRow, {
-      localVue,
       ...options,
     });
   };
@@ -66,21 +63,59 @@ describe('SuggestionDiffRow', () => {
     it('renders the plain text when it is available but rich text is not', () => {
       factory({
         propsData: {
-          line: Object.assign({}, newLine, { rich_text: undefined }),
+          line: {
+            ...newLine,
+            rich_text: undefined,
+          },
         },
       });
 
       expect(wrapper.find('td.line_content').text()).toEqual('newplaintext');
     });
 
-    it('renders a zero-width space when it has no plain or rich texts', () => {
+    it('switches to table-cell display when it has no plain or rich texts', () => {
       factory({
         propsData: {
-          line: Object.assign({}, newLine, { rich_text: undefined, text: undefined }),
+          line: {
+            ...newLine,
+            text: undefined,
+            rich_text: undefined,
+          },
         },
       });
 
-      expect(wrapper.find('td.line_content').text()).toEqual('\u200B');
+      const lineContent = wrapper.find('td.line_content');
+
+      expect(lineContent.classes()).toContain('d-table-cell');
+      expect(lineContent.text()).toEqual('');
+    });
+
+    it('does not switch to table-cell display if it has either plain or rich texts', () => {
+      let lineContent;
+
+      factory({
+        propsData: {
+          line: {
+            ...newLine,
+            text: undefined,
+          },
+        },
+      });
+
+      lineContent = wrapper.find('td.line_content');
+      expect(lineContent.classes()).not.toContain('d-table-cell');
+
+      factory({
+        propsData: {
+          line: {
+            ...newLine,
+            rich_text: undefined,
+          },
+        },
+      });
+
+      lineContent = wrapper.find('td.line_content');
+      expect(lineContent.classes()).not.toContain('d-table-cell');
     });
   });
 

@@ -158,9 +158,9 @@ describe('ServiceDeskRoot', () => {
         endpoint,
         initialIncomingEmail,
         selectedTemplate: 'Bug',
+        outgoingName: 'GitLab Support Bot',
         templates: ['Bug', 'Documentation'],
       },
-      sync: false,
     });
 
     wrapper.find('button.btn-success').trigger('click');
@@ -168,6 +168,7 @@ describe('ServiceDeskRoot', () => {
     return wrapper.vm.$nextTick(() => {
       expect(spy).toHaveBeenCalledWith(endpoint, {
         issue_template_key: 'Bug',
+        outgoing_name: 'GitLab Support Bot',
         service_desk_enabled: true,
       });
     });
@@ -184,7 +185,6 @@ describe('ServiceDeskRoot', () => {
         selectedTemplate: 'Bug',
         templates: ['Bug', 'Documentation'],
       },
-      sync: false,
     });
 
     wrapper.find('button.btn-success').trigger('click');
@@ -208,7 +208,6 @@ describe('ServiceDeskRoot', () => {
         selectedTemplate: 'Bug',
         templates: ['Bug', 'Documentation'],
       },
-      sync: false,
     });
 
     wrapper.find('button.btn-success').trigger('click');

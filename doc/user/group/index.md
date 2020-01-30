@@ -204,6 +204,25 @@ and give all group members access to the project at once.
 
 Alternatively, you can [lock the sharing with group feature](#share-with-group-lock).
 
+## Sharing a group with another group
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/18328) in GitLab 12.7.
+
+Similarly to [sharing a project with a group](#sharing-a-project-with-a-group),
+you can share a group with another group to give direct group members access
+to the shared group. This is not valid for inherited members.
+
+To share a given group, for example, 'Frontend' with another group, for example,
+'Engineering':
+
+1. Navigate to your 'Frontend' group page and use the left navigation menu to go
+   to your group **Members**.
+1. Select the **Invite group** tab.
+1. Add 'Engineering' with the maximum access level of your choice.
+1. Click **Invite**.
+
+All the members of the 'Engineering' group will have been added to 'Frontend'.
+
 ## Manage group memberships via LDAP
 
 In GitLab Enterprise Edition, it is possible to manage GitLab group memberships using LDAP groups.
@@ -294,6 +313,30 @@ TIP: **TIP:**
 If you want to retain ownership over the original namespace and
 protect the URL redirects, then instead of changing a group's path or renaming a
 username, you can create a new group and transfer projects to it.
+
+### Remove a group
+
+To remove a group and its contents:
+
+1. Navigate to your group's **{settings}** **Settings > General** page.
+1. Expand the **Path, transfer, remove** section.
+1. In the Remove group section, click the **Remove group** button.
+1. Confirm the action when asked to.
+
+This action either:
+
+- Removes the group, and also queues a background job to delete all projects in that group.
+- Since [GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/issues/33257), on [Premium or Silver](https://about.gitlab.com/pricing/premium/) or higher tiers, marks a group for deletion. The deletion will happen 7 days later by default, but this can be changed in the [instance settings](../admin_area/settings/visibility_and_access_controls.md#default-deletion-adjourned-period-premium-only).
+
+### Restore a group **(PREMIUM)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/33257) in GitLab 12.8.
+
+To restore a group that is marked for deletion:
+
+1. Navigate to your group's **{settings}** **Settings > General** page.
+1. Expand the **Path, transfer, remove** section.
+1. In the Restore group section, click the **Restore group** button.
 
 #### Enforce 2FA to group members
 

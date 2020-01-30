@@ -1,4 +1,4 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import fieldComponent from '~/vue_shared/components/markdown/field.vue';
 import { TEST_HOST, FIXTURES_PATH } from 'spec/test_constants';
 import AxiosMockAdapter from 'axios-mock-adapter';
@@ -37,7 +37,6 @@ function createComponent() {
       </textarea>
     </field-component>
     `,
-    sync: false,
   });
   return wrapper;
 }
@@ -50,7 +49,6 @@ const getVideo = wrapper => wrapper.find('video');
 
 describe('Markdown field component', () => {
   let axiosMock;
-  const localVue = createLocalVue();
 
   beforeEach(() => {
     axiosMock = new AxiosMockAdapter(axios);
@@ -84,7 +82,7 @@ describe('Markdown field component', () => {
         previewLink = getPreviewLink(wrapper);
         previewLink.trigger('click');
 
-        return localVue.nextTick().then(() => {
+        return wrapper.vm.$nextTick().then(() => {
           expect(previewLink.element.parentNode.classList.contains('active')).toBeTruthy();
         });
       });
@@ -94,7 +92,7 @@ describe('Markdown field component', () => {
         previewLink = getPreviewLink(wrapper);
         previewLink.trigger('click');
 
-        localVue.nextTick(() => {
+        wrapper.vm.$nextTick(() => {
           expect(wrapper.find('.md-preview-holder').element.textContent.trim()).toContain(
             'Loading…',
           );
@@ -155,17 +153,17 @@ describe('Markdown field component', () => {
         previewLink = getPreviewLink(wrapper);
 
         writeLink.trigger('click');
-        return localVue
-          .nextTick()
+        return wrapper.vm
+          .$nextTick()
           .then(() => assertMarkdownTabs(true, writeLink, previewLink, wrapper))
           .then(() => writeLink.trigger('click'))
-          .then(() => localVue.nextTick())
+          .then(() => wrapper.vm.$nextTick())
           .then(() => assertMarkdownTabs(true, writeLink, previewLink, wrapper))
           .then(() => previewLink.trigger('click'))
-          .then(() => localVue.nextTick())
+          .then(() => wrapper.vm.$nextTick())
           .then(() => assertMarkdownTabs(false, writeLink, previewLink, wrapper))
           .then(() => previewLink.trigger('click'))
-          .then(() => localVue.nextTick())
+          .then(() => wrapper.vm.$nextTick())
           .then(() => assertMarkdownTabs(false, writeLink, previewLink, wrapper));
       });
     });
@@ -178,7 +176,7 @@ describe('Markdown field component', () => {
         const markdownButton = getMarkdownButton(wrapper);
         markdownButton.trigger('click');
 
-        localVue.nextTick(() => {
+        wrapper.vm.$nextTick(() => {
           expect(textarea.value).toContain('**testing**');
         });
       });
@@ -190,7 +188,7 @@ describe('Markdown field component', () => {
         const markdownButton = getAllMarkdownButtons(wrapper).wrappers[5];
         markdownButton.trigger('click');
 
-        localVue.nextTick(() => {
+        wrapper.vm.$nextTick(() => {
           expect(textarea.value).toContain('*  testing');
         });
       });
@@ -202,7 +200,7 @@ describe('Markdown field component', () => {
         const markdownButton = getAllMarkdownButtons(wrapper).wrappers[5];
         markdownButton.trigger('click');
 
-        localVue.nextTick(() => {
+        wrapper.vm.$nextTick(() => {
           expect(textarea.value).toContain('* testing\n* 123');
         });
       });

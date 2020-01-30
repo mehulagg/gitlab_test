@@ -39,7 +39,6 @@ describe('User Popover Component', () => {
         target: findTarget(),
         ...props,
       },
-      sync: false,
       ...options,
     });
   };
@@ -60,7 +59,6 @@ describe('User Popover Component', () => {
               status: null,
             },
           },
-          attachToDocument: true,
         },
       );
     });

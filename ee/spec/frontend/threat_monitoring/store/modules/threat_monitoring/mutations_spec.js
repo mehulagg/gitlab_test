@@ -80,6 +80,18 @@ describe('Threat Monitoring mutations', () => {
     });
   });
 
+  describe(types.SET_CURRENT_TIME_WINDOW, () => {
+    const timeWindow = 'foo';
+
+    beforeEach(() => {
+      mutations[types.SET_CURRENT_TIME_WINDOW](state, timeWindow);
+    });
+
+    it('sets currentTimeWindow', () => {
+      expect(state.currentTimeWindow).toBe(timeWindow);
+    });
+  });
+
   describe(types.REQUEST_WAF_STATISTICS, () => {
     beforeEach(() => {
       mutations[types.REQUEST_WAF_STATISTICS](state);
@@ -102,8 +114,7 @@ describe('Threat Monitoring mutations', () => {
     it('sets wafStatistics according to the payload', () => {
       expect(state.wafStatistics).toEqual({
         totalTraffic: mockWafStatisticsResponse.total_traffic,
-        trafficAllowed: mockWafStatisticsResponse.traffic_allowed,
-        trafficBlocked: mockWafStatisticsResponse.traffic_blocked,
+        anomalousTraffic: mockWafStatisticsResponse.anomalous_traffic,
         history: mockWafStatisticsResponse.history,
       });
     });

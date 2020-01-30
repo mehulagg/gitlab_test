@@ -14,6 +14,7 @@ import allDesignsMixin from '../mixins/all_designs';
 import { UPLOAD_DESIGN_ERROR, designDeletionError } from '../utils/error_messages';
 import { updateStoreAfterUploadDesign } from '../utils/cache_update';
 import { designUploadOptimisticResponse } from '../utils/design_management_utils';
+import { DESIGNS_ROUTE_NAME } from '../router/constants';
 
 const MAXIMUM_FILE_UPLOAD_LIMIT = 10;
 
@@ -145,7 +146,7 @@ export default {
     },
     onUploadDesignDone() {
       this.resetFilesToBeSaved();
-      this.$router.push({ name: 'designs' });
+      this.$router.push({ name: DESIGNS_ROUTE_NAME });
     },
     onUploadDesignError() {
       this.resetFilesToBeSaved();
@@ -176,7 +177,7 @@ export default {
     },
     onDesignDelete() {
       this.selectedDesigns = [];
-      if (this.$route.query.version) this.$router.push({ name: 'designs' });
+      if (this.$route.query.version) this.$router.push({ name: DESIGNS_ROUTE_NAME });
     },
     onDesignDeleteError() {
       const errorMessage = designDeletionError({ singular: this.selectedDesigns.length === 1 });
@@ -195,7 +196,7 @@ export default {
     <header v-if="showToolbar" class="row-content-block border-top-0 p-2 d-flex">
       <div class="d-flex justify-content-between align-items-center w-100">
         <design-version-dropdown />
-        <div v-if="hasDesigns" class="d-flex qa-selector-toolbar">
+        <div :class="['qa-selector-toolbar', { 'd-flex': hasDesigns, 'd-none': !hasDesigns }]">
           <gl-button
             v-if="isLatestVersion"
             variant="link"
@@ -204,7 +205,7 @@ export default {
             >{{ selectAllButtonText }}</gl-button
           >
           <design-destroyer
-            v-slot="{ mutate, loading, error }"
+            v-slot="{ mutate, loading }"
             :filenames="selectedDesigns"
             :project-path="projectPath"
             :iid="issueIid"

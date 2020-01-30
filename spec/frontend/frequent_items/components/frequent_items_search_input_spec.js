@@ -1,14 +1,10 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import searchComponent from '~/frequent_items/components/frequent_items_search_input.vue';
 import eventHub from '~/frequent_items/event_hub';
 
-const localVue = createLocalVue();
-
 const createComponent = (namespace = 'projects') =>
-  shallowMount(localVue.extend(searchComponent), {
+  shallowMount(searchComponent, {
     propsData: { namespace },
-    localVue,
-    sync: false,
   });
 
 describe('FrequentItemsSearchInputComponent', () => {
@@ -42,7 +38,7 @@ describe('FrequentItemsSearchInputComponent', () => {
       jest.spyOn(eventHub, '$on').mockImplementation(() => {});
       const vmX = createComponent().vm;
 
-      localVue.nextTick(() => {
+      vmX.$nextTick(() => {
         expect(eventHub.$on).toHaveBeenCalledWith(
           `${vmX.namespace}-dropdownOpen`,
           expect.any(Function),
@@ -60,7 +56,7 @@ describe('FrequentItemsSearchInputComponent', () => {
       vmX.$mount();
       vmX.$destroy();
 
-      localVue.nextTick(() => {
+      vmX.$nextTick(() => {
         expect(eventHub.$off).toHaveBeenCalledWith(
           `${vmX.namespace}-dropdownOpen`,
           expect.any(Function),

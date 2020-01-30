@@ -1,7 +1,9 @@
 require_relative 'boot'
 
-# Based on https://github.com/rails/rails/blob/v5.2.3/railties/lib/rails/all.rb
+# Based on https://github.com/rails/rails/blob/v6.0.1/railties/lib/rails/all.rb
 # Only load the railties we need instead of loading everything
+require 'rails'
+
 require 'active_record/railtie'
 require 'action_controller/railtie'
 require 'action_view/railtie'
@@ -18,7 +20,6 @@ module Gitlab
     require_dependency Rails.root.join('lib/gitlab/redis/cache')
     require_dependency Rails.root.join('lib/gitlab/redis/queues')
     require_dependency Rails.root.join('lib/gitlab/redis/shared_state')
-    require_dependency Rails.root.join('lib/gitlab/request_context')
     require_dependency Rails.root.join('lib/gitlab/current_settings')
     require_dependency Rails.root.join('lib/gitlab/middleware/read_only')
     require_dependency Rails.root.join('lib/gitlab/middleware/basic_health_check')
@@ -166,7 +167,7 @@ module Gitlab
     config.assets.precompile << "page_bundles/xterm.css"
     config.assets.precompile << "performance_bar.css"
     config.assets.precompile << "lib/ace.js"
-    config.assets.precompile << "test.css"
+    config.assets.precompile << "disable_animations.css"
     config.assets.precompile << "snippets.css"
     config.assets.precompile << "locale/**/app.js"
     config.assets.precompile << "emoji_sprites.css"
@@ -229,13 +230,15 @@ module Gitlab
 
     # Allow access to GitLab API from other domains
     config.middleware.insert_before Warden::Manager, Rack::Cors do
+      headers_to_expose = %w[Link X-Total X-Total-Pages X-Per-Page X-Page X-Next-Page X-Prev-Page X-Gitlab-Blob-Id X-Gitlab-Commit-Id X-Gitlab-Content-Sha256 X-Gitlab-Encoding X-Gitlab-File-Name X-Gitlab-File-Path X-Gitlab-Last-Commit-Id X-Gitlab-Ref X-Gitlab-Size]
+
       allow do
         origins Gitlab.config.gitlab.url
         resource '/api/*',
           credentials: true,
           headers: :any,
           methods: :any,
-          expose: %w[Link X-Total X-Total-Pages X-Per-Page X-Page X-Next-Page X-Prev-Page]
+          expose: headers_to_expose
       end
 
       # Cross-origin requests must not have the session cookie available
@@ -245,7 +248,7 @@ module Gitlab
           credentials: false,
           headers: :any,
           methods: :any,
-          expose: %w[Link X-Total X-Total-Pages X-Per-Page X-Page X-Next-Page X-Prev-Page]
+          expose: headers_to_expose
       end
     end
 
@@ -260,6 +263,10 @@ module Gitlab
       caching_config_hash[:pool_size] = Gitlab::Redis::Cache.pool_size
       caching_config_hash[:pool_timeout] = 1
     end
+
+    # Overrides RedisCacheStore's default value of 0
+    # This makes the default value the same with Gitlab::Redis::Cache
+    caching_config_hash[:reconnect_attempts] ||= ::Redis::Client::DEFAULTS[:reconnect_attempts]
 
     config.cache_store = :redis_cache_store, caching_config_hash
 

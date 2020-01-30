@@ -41,7 +41,6 @@ describe('Feature flag table', () => {
   const createWrapper = (propsData, opts = {}) => {
     wrapper = shallowMount(FeatureFlagsTable, {
       propsData,
-      sync: false,
       ...opts,
     });
   };
@@ -116,7 +115,7 @@ describe('Feature flag table', () => {
 
     beforeEach(() => {
       props.featureFlags[0].update_path = props.featureFlags[0].destroy_path;
-      createWrapper(props, { provide: { glFeatures: { featureFlagToggle: true } } });
+      createWrapper(props);
       toggle = wrapper.find(GlToggle);
     });
 

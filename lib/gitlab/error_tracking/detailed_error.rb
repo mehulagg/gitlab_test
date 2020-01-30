@@ -12,10 +12,13 @@ module Gitlab
                     :external_url,
                     :first_release_last_commit,
                     :first_release_short_version,
+                    :first_release_version,
                     :first_seen,
                     :frequency,
-                    :gitlab_project,
+                    :gitlab_commit,
+                    :gitlab_commit_path,
                     :gitlab_issue,
+                    :gitlab_project,
                     :id,
                     :last_release_last_commit,
                     :last_release_short_version,
@@ -32,7 +35,7 @@ module Gitlab
                     :user_count
 
       def self.declarative_policy_class
-        'ErrorTracking::DetailedErrorPolicy'
+        'ErrorTracking::BasePolicy'
       end
     end
   end

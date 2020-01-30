@@ -24,7 +24,7 @@ module EE
         after_save :stick_build_if_status_changed
         delegate :service_specification, to: :runner_session, allow_nil: true
 
-        scope :license_scan, -> { joins(:job_artifacts).merge(::Ci::JobArtifact.license_management) }
+        scope :license_scan, -> { joins(:job_artifacts).merge(::Ci::JobArtifact.license_scanning_reports) }
         scope :max_build_id_by, -> (build_name, ref, project_path) do
           select('max(ci_builds.id) as id')
             .by_name(build_name)
@@ -68,7 +68,7 @@ module EE
       end
 
       def collect_license_scanning_reports!(license_scanning_report)
-        each_report(::Ci::JobArtifact::LICENSE_MANAGEMENT_REPORT_FILE_TYPES) do |file_type, blob|
+        each_report(::Ci::JobArtifact::LICENSE_SCANNING_REPORT_FILE_TYPES) do |file_type, blob|
           next if ::Feature.disabled?(:parse_license_management_reports, default_enabled: true)
 
           next unless project.feature_available?(:license_management)
@@ -95,7 +95,7 @@ module EE
         if project.feature_available?(:dependency_scanning)
           dependency_list = ::Gitlab::Ci::Parsers::Security::DependencyList.new(project, sha)
 
-          each_report(::Ci::JobArtifact::LICENSE_MANAGEMENT_REPORT_FILE_TYPES) do |_, blob|
+          each_report(::Ci::JobArtifact::LICENSE_SCANNING_REPORT_FILE_TYPES) do |_, blob|
             dependency_list.parse_licenses!(blob, dependency_list_report)
           end
         end
@@ -120,7 +120,7 @@ module EE
       override :cross_dependencies
       def cross_dependencies
         return [] unless user_id
-        return [] unless ::Feature.enabled?(:cross_project_need_artifacts, project, default_enabled: false)
+        return [] unless ::Feature.enabled?(:cross_project_need_artifacts, project, default_enabled: true)
         return [] unless project.feature_available?(:cross_project_pipelines)
 
         cross_dependencies_relationship

@@ -8,6 +8,7 @@ RSpec.describe Packages::Package, type: :model do
     it { is_expected.to belong_to(:project) }
     it { is_expected.to have_many(:package_files).dependent(:destroy) }
     it { is_expected.to have_many(:dependency_links).inverse_of(:package) }
+    it { is_expected.to have_many(:tags).inverse_of(:package) }
     it { is_expected.to have_one(:conan_metadatum).inverse_of(:package) }
     it { is_expected.to have_one(:maven_metadatum).inverse_of(:package) }
   end
@@ -136,6 +137,22 @@ RSpec.describe Packages::Package, type: :model do
 
     it 'includes only packages with specified version' do
       is_expected.to eq([package])
+    end
+  end
+
+  describe '.processed' do
+    let!(:package1) { create(:nuget_package) }
+    let!(:package2) { create(:npm_package) }
+    let!(:package3) { create(:nuget_package) }
+
+    subject { described_class.processed }
+
+    it { is_expected.to eq([package1, package2, package3]) }
+
+    context 'with temporary packages' do
+      let!(:package1) { create(:nuget_package, name: Packages::Nuget::CreatePackageService::TEMPORARY_PACKAGE_NAME) }
+
+      it { is_expected.to eq([package2, package3]) }
     end
   end
 end

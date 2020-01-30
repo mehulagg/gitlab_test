@@ -34,7 +34,10 @@ export default {
           projectPath: this.projectPath,
         };
       },
-      update: data => data.project.userPermissions,
+      update: data => data.project?.userPermissions,
+      error(error) {
+        throw error;
+      },
     },
   },
   mixins: [getRefMixin],
@@ -104,10 +107,16 @@ export default {
             return acc.concat({
               name,
               path,
-              to: `/tree/${this.ref}${path}`,
+              to: `/-/tree/${escape(this.ref)}${path}`,
             });
           },
-          [{ name: this.projectShortPath, path: '/', to: `/tree/${this.ref}/` }],
+          [
+            {
+              name: this.projectShortPath,
+              path: '/',
+              to: `/-/tree/${escape(this.ref)}/`,
+            },
+          ],
         );
     },
     canCreateMrFromFork() {
@@ -172,7 +181,7 @@ export default {
         );
       }
 
-      if (this.userPermissions.pushCode) {
+      if (this.userPermissions?.pushCode) {
         items.push(
           {
             type: ROW_TYPES.divider,

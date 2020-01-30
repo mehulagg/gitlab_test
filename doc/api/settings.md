@@ -180,7 +180,7 @@ are listed in the descriptions of the relevant settings.
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | :------: | ----------- |
-| `admin_notification_email`               | string           | no                                   | Abuse reports will be sent to this address if it is set. Abuse reports are always available in the admin area. |
+| `admin_notification_email`               | string           | no                                   | Abuse reports will be sent to this address if it is set. Abuse reports are always available in the Admin Area. |
 | `after_sign_out_path`                    | string           | no                                   | Where to redirect users after logout. |
 | `after_sign_up_text`                     | string           | no                                   | Text shown to the user after signing up |
 | `akismet_api_key`                        | string           | required by: `akismet_enabled`       | API key for Akismet spam protection. |
@@ -294,7 +294,7 @@ are listed in the descriptions of the relevant settings.
 | `plantuml_enabled`                       | boolean          | no                                   | (**If enabled, requires:** `plantuml_url`) Enable PlantUML integration. Default is `false`. |
 | `plantuml_url`                           | string           | required by: `plantuml_enabled`      | The PlantUML instance URL for integration. |
 | `polling_interval_multiplier`            | decimal          | no                                   | Interval multiplier used by endpoints that perform polling. Set to `0` to disable polling. |
-| `deletion_adjourned_period`      | integer          | no                                   | **(PREMIUM ONLY)** How many days after marking project for deletion it is actually removed. Value between 0 and 90.
+| `deletion_adjourned_period`      | integer          | no                                   | **(PREMIUM ONLY)** The number of days to wait before removing a project or group that is marked for deletion. Value must be between 0 and 90.
 | `project_export_enabled`                 | boolean          | no                                   | Enable project export. |
 | `prometheus_metrics_enabled`             | boolean          | no                                   | Enable Prometheus metrics. |
 | `protected_ci_variables`                 | boolean          | no                                   | Environment variables are protected by default. |

@@ -32,11 +32,11 @@ In the case of [custom domains](#custom-domains) (but not
 ports `80` and/or `443`. For that reason, there is some flexibility in the way
 which you can set it up:
 
-1. Run the Pages daemon in the same server as GitLab, listening on a secondary IP.
-1. Run the Pages daemon in a separate server. In that case, the
+- Run the Pages daemon in the same server as GitLab, listening on a **secondary IP**.
+- Run the Pages daemon in a [separate server](#running-gitlab-pages-on-a-separate-server). In that case, the
    [Pages path](#change-storage-path) must also be present in the server that
    the Pages daemon is installed, so you will have to share it via network.
-1. Run the Pages daemon in the same server as GitLab, listening on the same IP
+- Run the Pages daemon in the same server as GitLab, listening on the same IP
    but on different ports. In that case, you will have to proxy the traffic with
    a loadbalancer. If you choose that route note that you should use TCP load
    balancing for HTTPS. If you use TLS-termination (HTTPS-load balancing) the
@@ -182,7 +182,7 @@ The [GitLab Pages README](https://gitlab.com/gitlab-org/gitlab-pages#caveats) ha
 In addition to the wildcard domains, you can also have the option to configure
 GitLab Pages to work with custom domains. Again, there are two options here:
 support custom domains with and without TLS certificates. The easiest setup is
-that without TLS certificates. In either case, you'll need a secondary IP. If
+that without TLS certificates. In either case, you'll need a **secondary IP**. If
 you have IPv6 as well as IPv4 addresses, you can use them both.
 
 ### Custom domains
@@ -257,8 +257,8 @@ When adding a custom domain, users will be required to prove they own it by
 adding a GitLab-controlled verification code to the DNS records for that domain.
 
 If your userbase is private or otherwise trusted, you can disable the
-verification requirement. Navigate to `Admin area ➔ Settings` and uncheck
-**Require users to prove ownership of custom domains** in the Pages section.
+verification requirement. Navigate to **Admin Area > Settings > Preferences** and
+uncheck **Require users to prove ownership of custom domains** in the **Pages** section.
 This setting is enabled by default.
 
 ### Let's Encrypt integration
@@ -307,6 +307,27 @@ Pages access control is disabled by default. To enable it:
 1. [Reconfigure GitLab][reconfigure].
 1. Users can now configure it in their [projects' settings](../../user/project/pages/pages_access_control.md).
 
+#### Disabling public access to all Pages websites
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/32095) in GitLab 12.7.
+
+You can enforce [Access Control](#access-control) for all GitLab Pages websites hosted
+on your GitLab instance. By doing so, only logged-in users will have access to them.
+This setting overrides Access Control set by users in individual projects.
+
+This can be useful to preserve information published with Pages websites to the users
+of your instance only.
+To do that:
+
+1. Navigate to your instance's **Admin Area > Settings > Preferences** and expand **Pages** settings.
+1. Check the **Disable public access to Pages sites** checkbox.
+1. Click **Save changes**.
+
+CAUTION: **Warning:**
+This action will not make all currently public web-sites private until they redeployed.
+This issue among others will be resolved by
+[changing GitLab Pages configuration mechanism](https://gitlab.com/gitlab-org/gitlab-pages/issues/282).
+
 ### Running behind a proxy
 
 Like the rest of GitLab, Pages can be used in those environments where external
@@ -321,22 +342,37 @@ pages:
 
 1. [Reconfigure GitLab][reconfigure] for the changes to take effect.
 
-### Using a custom Certificate Authority (CA) with Access Control
+### Using a custom Certificate Authority (CA)
 
-When using certificates issued by a custom CA, Access Control on GitLab Pages may fail to work if the custom CA is not recognized.
+When using certificates issued by a custom CA, [Access Control](../../user/project/pages/pages_access_control.md#gitlab-pages-access-control) and
+the [online view of HTML job artifacts](../../user/project/pipelines/job_artifacts.md#browsing-artifacts)
+will fail to work if the custom CA is not recognized.
 
 This usually results in this error:
 `Post /oauth/token: x509: certificate signed by unknown authority`.
 
-For GitLab Pages Access Control with TLS/SSL certs issued by an internal or custom CA:
+For installation from source this can be fixed by installing the custom Certificate
+Authority (CA) in the system certificate store.
 
-1. Copy the certificate bundle to `/opt/gitlab/embedded/ssl/certs/` in `.pem` format.
+For Omnibus, normally this would be fixed by [installing a custom CA in GitLab Omnibus](https://docs.gitlab.com/omnibus/settings/ssl.html#install-custom-public-certificates)
+but a [bug](https://gitlab.com/gitlab-org/gitlab/issues/25411) is currently preventing
+that method from working. Use the following workaround:
+
+1. Append your GitLab server TLS/SSL certficate to `/opt/gitlab/embedded/ssl/certs/cacert.pem` where `gitlab-domain-example.com` is your GitLab application URL
+
+    ```bash
+    printf "\ngitlab-domain-example.com\n===========================\n" | sudo tee --append /opt/gitlab/embedded/ssl/certs/cacert.pem
+    echo -n | openssl s_client -connect gitlab-domain-example.com:443  | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee --append /opt/gitlab/embedded/ssl/certs/cacert.pem
+    ```
 
 1. [Restart](../restart_gitlab.md) the GitLab Pages Daemon. For GitLab Omnibus instances:
 
     ```bash
     sudo gitlab-ctl restart gitlab-pages
     ```
+
+CAUTION: **Caution:**
+Some GitLab Omnibus upgrades will revert this workaround and you'll need to apply it again.
 
 ## Activate verbose logging for daemon
 
@@ -395,8 +431,8 @@ Omnibus GitLab 11.1.
 
 ## Set maximum pages size
 
-You can configure the maximum size of the unpacked archive per project in the
-Admin area. Under Application settings, edit the **Maximum size of pages (MB)**.
+You can configure the maximum size of the unpacked archive per project in
+**Admin Area > Settings > Preferences > Pages**, in **Maximum size of pages (MB)**.
 The default is 100MB.
 
 ### Override maximum pages size per project or group **(PREMIUM ONLY)**

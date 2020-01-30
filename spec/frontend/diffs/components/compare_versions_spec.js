@@ -22,13 +22,12 @@ describe('CompareVersions', () => {
     store.state.diffs.diffFiles.push('test');
 
     wrapper = mount(CompareVersionsComponent, {
-      sync: false,
-      attachToDocument: true,
       localVue,
       store,
       propsData: {
         mergeRequestDiffs: diffsMockData,
         mergeRequestDiff: diffsMockData[0],
+        diffFilesLength: 0,
         targetBranch,
         ...props,
       },

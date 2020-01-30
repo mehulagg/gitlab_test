@@ -1,18 +1,27 @@
 import Vue from 'vue';
-import store from './store';
+import createStore from './store';
 import Checkout from './components/checkout.vue';
+import OrderSummary from './components/order_summary.vue';
 
 export default () => {
   const checkoutEl = document.getElementById('checkout');
+  const summaryEl = document.getElementById('summary');
+  const store = createStore(checkoutEl.dataset);
 
-  return new Vue({
+  // eslint-disable-next-line no-new
+  new Vue({
     el: checkoutEl,
     store,
-    components: {
-      Checkout,
-    },
     render(createElement) {
-      return createElement('checkout', {});
+      return createElement(Checkout);
+    },
+  });
+
+  return new Vue({
+    el: summaryEl,
+    store,
+    render(createElement) {
+      return createElement(OrderSummary);
     },
   });
 };

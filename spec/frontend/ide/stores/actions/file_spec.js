@@ -9,6 +9,7 @@ import router from '~/ide/ide_router';
 import eventHub from '~/ide/eventhub';
 import { file } from '../../helpers';
 
+const ORIGINAL_CONTENT = 'original content';
 const RELATIVE_URL_ROOT = '/gitlab';
 
 describe('IDE store file actions', () => {
@@ -201,9 +202,56 @@ describe('IDE store file actions', () => {
       };
     });
 
+    describe('call to service', () => {
+      const callExpectation = serviceCalled => {
+        store.dispatch('getFileData', { path: localFile.path });
+
+        if (serviceCalled) {
+          expect(service.getFileData).toHaveBeenCalled();
+        } else {
+          expect(service.getFileData).not.toHaveBeenCalled();
+        }
+      };
+
+      beforeEach(() => {
+        service.getFileData.mockImplementation(() => new Promise(() => {}));
+      });
+
+      it("isn't called if file.raw exists", () => {
+        localFile.raw = 'raw data';
+
+        callExpectation(false);
+      });
+
+      it("isn't called if file is a tempFile", () => {
+        localFile.raw = '';
+        localFile.tempFile = true;
+
+        callExpectation(false);
+      });
+
+      it('is called if file is a tempFile but also renamed', () => {
+        localFile.raw = '';
+        localFile.tempFile = true;
+        localFile.prevPath = 'old_path';
+
+        callExpectation(true);
+      });
+
+      it('is called if tempFile but file was deleted and readded', () => {
+        localFile.raw = '';
+        localFile.tempFile = true;
+        localFile.prevPath = 'old_path';
+
+        store.state.stagedFiles = [{ ...localFile, deleted: true }];
+
+        callExpectation(true);
+      });
+    });
+
     describe('success', () => {
       beforeEach(() => {
-        mock.onGet(`${RELATIVE_URL_ROOT}/test/test/7297abc/${localFile.path}`).replyOnce(
+        mock.onGet(`${RELATIVE_URL_ROOT}/test/test/-/7297abc/${localFile.path}`).replyOnce(
           200,
           {
             blame_path: 'blame_path',
@@ -225,7 +273,7 @@ describe('IDE store file actions', () => {
           .dispatch('getFileData', { path: localFile.path })
           .then(() => {
             expect(service.getFileData).toHaveBeenCalledWith(
-              `${RELATIVE_URL_ROOT}/test/test/7297abc/${localFile.path}`,
+              `${RELATIVE_URL_ROOT}/test/test/-/7297abc/${localFile.path}`,
             );
 
             done();
@@ -297,7 +345,7 @@ describe('IDE store file actions', () => {
         localFile.path = 'new-shiny-file';
         store.state.entries[localFile.path] = localFile;
 
-        mock.onGet(`${RELATIVE_URL_ROOT}/test/test/7297abc/old-dull-file`).replyOnce(
+        mock.onGet(`${RELATIVE_URL_ROOT}/test/test/-/7297abc/old-dull-file`).replyOnce(
           200,
           {
             blame_path: 'blame_path',
@@ -328,20 +376,20 @@ describe('IDE store file actions', () => {
 
     describe('error', () => {
       beforeEach(() => {
-        mock.onGet(`${RELATIVE_URL_ROOT}/test/test/7297abc/${localFile.path}`).networkError();
+        mock.onGet(`${RELATIVE_URL_ROOT}/test/test/-/7297abc/${localFile.path}`).networkError();
       });
 
-      it('dispatches error action', done => {
+      it('dispatches error action', () => {
         const dispatch = jest.fn();
 
-        actions
+        return actions
           .getFileData(
             { state: store.state, commit() {}, dispatch, getters: store.getters },
             { path: localFile.path },
           )
           .then(() => {
             expect(dispatch).toHaveBeenCalledWith('setErrorMessage', {
-              text: 'An error occurred whilst loading the file.',
+              text: 'An error occurred while loading the file.',
               action: expect.any(Function),
               actionText: 'Please try again',
               actionPayload: {
@@ -349,10 +397,7 @@ describe('IDE store file actions', () => {
                 makeFileActive: true,
               },
             });
-
-            done();
-          })
-          .catch(done.fail);
+          });
       });
     });
   });
@@ -445,23 +490,23 @@ describe('IDE store file actions', () => {
         mock.onGet(/(.*)/).networkError();
       });
 
-      it('dispatches error action', done => {
+      it('dispatches error action', () => {
         const dispatch = jest.fn();
 
-        actions
-          .getRawFileData({ state: store.state, commit() {}, dispatch }, { path: tmpFile.path })
-          .then(done.fail)
+        return actions
+          .getRawFileData(
+            { state: store.state, commit() {}, dispatch, getters: store.getters },
+            { path: tmpFile.path },
+          )
           .catch(() => {
             expect(dispatch).toHaveBeenCalledWith('setErrorMessage', {
-              text: 'An error occurred whilst loading the file content.',
+              text: 'An error occurred while loading the file content.',
               action: expect.any(Function),
               actionText: 'Please try again',
               actionPayload: {
                 path: tmpFile.path,
               },
             });
-
-            done();
           });
       });
     });
@@ -469,6 +514,8 @@ describe('IDE store file actions', () => {
 
   describe('changeFileContent', () => {
     let tmpFile;
+    const callAction = (content = 'content\n') =>
+      store.dispatch('changeFileContent', { path: tmpFile.path, content });
 
     beforeEach(() => {
       tmpFile = file('tmpFile');
@@ -478,11 +525,7 @@ describe('IDE store file actions', () => {
     });
 
     it('updates file content', done => {
-      store
-        .dispatch('changeFileContent', {
-          path: tmpFile.path,
-          content: 'content\n',
-        })
+      callAction()
         .then(() => {
           expect(tmpFile.content).toBe('content\n');
 
@@ -492,11 +535,7 @@ describe('IDE store file actions', () => {
     });
 
     it('adds a newline to the end of the file if it doesnt already exist', done => {
-      store
-        .dispatch('changeFileContent', {
-          path: tmpFile.path,
-          content: 'content',
-        })
+      callAction('content')
         .then(() => {
           expect(tmpFile.content).toBe('content\n');
 
@@ -506,11 +545,7 @@ describe('IDE store file actions', () => {
     });
 
     it('adds file into changedFiles array', done => {
-      store
-        .dispatch('changeFileContent', {
-          path: tmpFile.path,
-          content: 'content',
-        })
+      callAction()
         .then(() => {
           expect(store.state.changedFiles.length).toBe(1);
 
@@ -519,7 +554,7 @@ describe('IDE store file actions', () => {
         .catch(done.fail);
     });
 
-    it('adds file once into changedFiles array', done => {
+    it('adds file not more than once into changedFiles array', done => {
       store
         .dispatch('changeFileContent', {
           path: tmpFile.path,
@@ -559,6 +594,52 @@ describe('IDE store file actions', () => {
         .catch(done.fail);
     });
 
+    describe('when `gon.feature.stageAllByDefault` is true', () => {
+      const originalGonFeatures = Object.assign({}, gon.features);
+
+      beforeAll(() => {
+        gon.features = { stageAllByDefault: true };
+      });
+
+      afterAll(() => {
+        gon.features = originalGonFeatures;
+      });
+
+      it('adds file into stagedFiles array', done => {
+        store
+          .dispatch('changeFileContent', {
+            path: tmpFile.path,
+            content: 'content',
+          })
+          .then(() => {
+            expect(store.state.stagedFiles.length).toBe(1);
+
+            done();
+          })
+          .catch(done.fail);
+      });
+
+      it('adds file not more than once into stagedFiles array', done => {
+        store
+          .dispatch('changeFileContent', {
+            path: tmpFile.path,
+            content: 'content',
+          })
+          .then(() =>
+            store.dispatch('changeFileContent', {
+              path: tmpFile.path,
+              content: 'content 123',
+            }),
+          )
+          .then(() => {
+            expect(store.state.stagedFiles.length).toBe(1);
+
+            done();
+          })
+          .catch(done.fail);
+      });
+    });
+
     it('bursts unused seal', done => {
       store
         .dispatch('changeFileContent', {
@@ -574,98 +655,113 @@ describe('IDE store file actions', () => {
     });
   });
 
-  describe('discardFileChanges', () => {
+  describe('with changed file', () => {
     let tmpFile;
 
     beforeEach(() => {
-      jest.spyOn(eventHub, '$on').mockImplementation(() => {});
-      jest.spyOn(eventHub, '$emit').mockImplementation(() => {});
-
       tmpFile = file('tempFile');
       tmpFile.content = 'testing';
+      tmpFile.raw = ORIGINAL_CONTENT;
 
       store.state.changedFiles.push(tmpFile);
       store.state.entries[tmpFile.path] = tmpFile;
-
-      jest.spyOn(store, 'dispatch');
     });
 
-    it('resets file content', done => {
-      store
-        .dispatch('discardFileChanges', tmpFile.path)
-        .then(() => {
-          expect(tmpFile.content).not.toBe('testing');
+    describe('restoreOriginalFile', () => {
+      it('resets file content', () =>
+        store.dispatch('restoreOriginalFile', tmpFile.path).then(() => {
+          expect(tmpFile.content).toBe(ORIGINAL_CONTENT);
+        }));
 
-          done();
-        })
-        .catch(done.fail);
+      it('closes temp file and deletes it', () => {
+        tmpFile.tempFile = true;
+        tmpFile.opened = true;
+        tmpFile.parentPath = 'parentFile';
+        store.state.entries.parentFile = file('parentFile');
+
+        actions.restoreOriginalFile(store, tmpFile.path);
+
+        expect(store.dispatch).toHaveBeenCalledWith('closeFile', tmpFile);
+        expect(store.dispatch).toHaveBeenCalledWith('deleteEntry', tmpFile.path);
+      });
+
+      describe('with renamed file', () => {
+        beforeEach(() => {
+          Object.assign(tmpFile, {
+            prevPath: 'parentPath/old_name',
+            prevName: 'old_name',
+            prevParentPath: 'parentPath',
+          });
+
+          store.state.entries.parentPath = file('parentPath');
+
+          actions.restoreOriginalFile(store, tmpFile.path);
+        });
+
+        it('renames the file to its original name and closes it if it was open', () => {
+          expect(store.dispatch).toHaveBeenCalledWith('closeFile', tmpFile);
+          expect(store.dispatch).toHaveBeenCalledWith('renameEntry', {
+            path: 'tempFile',
+            name: 'old_name',
+            parentPath: 'parentPath',
+          });
+        });
+
+        it('resets file content', () => {
+          expect(tmpFile.content).toBe(ORIGINAL_CONTENT);
+        });
+      });
     });
 
-    it('removes file from changedFiles array', done => {
-      store
-        .dispatch('discardFileChanges', tmpFile.path)
-        .then(() => {
+    describe('discardFileChanges', () => {
+      beforeEach(() => {
+        jest.spyOn(eventHub, '$on').mockImplementation(() => {});
+        jest.spyOn(eventHub, '$emit').mockImplementation(() => {});
+      });
+
+      describe('with regular file', () => {
+        beforeEach(() => {
+          actions.discardFileChanges(store, tmpFile.path);
+        });
+
+        it('restores original file', () => {
+          expect(store.dispatch).toHaveBeenCalledWith('restoreOriginalFile', tmpFile.path);
+        });
+
+        it('removes file from changedFiles array', () => {
           expect(store.state.changedFiles.length).toBe(0);
+        });
 
-          done();
-        })
-        .catch(done.fail);
-    });
+        it('does not push a new route', () => {
+          expect(router.push).not.toHaveBeenCalled();
+        });
 
-    it('closes temp file and deletes it', () => {
-      tmpFile.tempFile = true;
-      tmpFile.opened = true;
-      tmpFile.parentPath = 'parentFile';
-      store.state.entries.parentFile = file('parentFile');
+        it('emits eventHub event to dispose cached model', () => {
+          actions.discardFileChanges(store, tmpFile.path);
 
-      actions.discardFileChanges(store, tmpFile.path);
-
-      expect(store.dispatch).toHaveBeenCalledWith('closeFile', tmpFile);
-      expect(store.dispatch).toHaveBeenCalledWith('deleteEntry', tmpFile.path);
-    });
-
-    it('renames the file to its original name and closes it if it was open', () => {
-      Object.assign(tmpFile, {
-        prevPath: 'parentPath/old_name',
-        prevName: 'old_name',
-        prevParentPath: 'parentPath',
+          expect(eventHub.$emit).toHaveBeenCalledWith(
+            `editor.update.model.new.content.${tmpFile.key}`,
+            ORIGINAL_CONTENT,
+          );
+          expect(eventHub.$emit).toHaveBeenCalledWith(
+            `editor.update.model.dispose.unstaged-${tmpFile.key}`,
+            ORIGINAL_CONTENT,
+          );
+        });
       });
 
-      store.state.entries.parentPath = file('parentPath');
+      describe('with active file', () => {
+        beforeEach(() => {
+          tmpFile.active = true;
+          store.state.openFiles.push(tmpFile);
 
-      actions.discardFileChanges(store, tmpFile.path);
+          actions.discardFileChanges(store, tmpFile.path);
+        });
 
-      expect(store.dispatch).toHaveBeenCalledWith('closeFile', tmpFile);
-      expect(store.dispatch).toHaveBeenCalledWith('renameEntry', {
-        path: 'tempFile',
-        name: 'old_name',
-        parentPath: 'parentPath',
-      });
-    });
-
-    it('pushes route for active file', done => {
-      tmpFile.active = true;
-      store.state.openFiles.push(tmpFile);
-
-      store
-        .dispatch('discardFileChanges', tmpFile.path)
-        .then(() => {
+        it('pushes route for active file', () => {
           expect(router.push).toHaveBeenCalledWith(`/project${tmpFile.url}`);
-
-          done();
-        })
-        .catch(done.fail);
-    });
-
-    it('emits eventHub event to dispose cached model', done => {
-      store
-        .dispatch('discardFileChanges', tmpFile.path)
-        .then(() => {
-          expect(eventHub.$emit).toHaveBeenCalled();
-
-          done();
-        })
-        .catch(done.fail);
+        });
+      });
     });
   });
 

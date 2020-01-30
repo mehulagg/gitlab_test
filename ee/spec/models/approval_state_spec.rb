@@ -106,28 +106,6 @@ describe ApprovalState do
       end
     end
 
-    context 'when approval rule on the merge request exists' do
-      before do
-        create(:approval_merge_request_rule, merge_request: merge_request, users: approvers)
-      end
-
-      context 'without approvers' do
-        let(:approvers) { [] }
-
-        it 'returns false' do
-          expect(subject.approval_rules_overwritten?).to eq(false)
-        end
-      end
-
-      context 'with approvers' do
-        let(:approvers) { [create(:user)] }
-
-        it 'returns true' do
-          expect(subject.approval_rules_overwritten?).to eq(true)
-        end
-      end
-    end
-
     context 'when merge request has any approver rule' do
       let!(:any_approver_rule) { create(:any_approver_rule, merge_request: merge_request) }
 
@@ -594,14 +572,10 @@ describe ApprovalState do
       end
 
       context 'when there is one approver required' do
-        let!(:rule) { create_rule(approvals_required: 1, users: []) }
+        let!(:any_approver_rule) { create_rule(rule_type: :any_approver, approvals_required: 1) }
+        let!(:rule) { create_rule(approvals_required: 1, users: [author]) }
 
         context 'when that approver is the MR author' do
-          before do
-            project.update!(approvals_before_merge: 2)
-            rule.users << author
-          end
-
           it_behaves_like 'authors self-approval authorization'
 
           it_behaves_like 'a MR that all members with write access can approve'
@@ -610,29 +584,9 @@ describe ApprovalState do
             expect(subject.can_approve?(nil)).to be_falsey
           end
 
-          it 'fallback rule is used' do
-            expect(subject.approvals_left).to eq(2)
-          end
-
           it 'is not approved' do
+            expect(subject.approvals_left).to eq(2)
             expect(subject.approved?).to eq(false)
-          end
-
-          context 'with project approval rule' do
-            before do
-              create(:approval_project_rule, project: project, approvals_required: 1, users: [approver])
-            end
-
-            context 'with approvers' do
-              let(:approver) { create(:user) }
-
-              it 'requires one approval' do
-                rule = subject.wrapped_approval_rules.last.approval_rule
-
-                expect(rule).to be_a(ApprovalProjectRule)
-                expect(subject.approvers).to eq([approver])
-              end
-            end
           end
         end
       end
@@ -1251,14 +1205,10 @@ describe ApprovalState do
       end
 
       context 'when there is one approver required' do
-        let!(:rule) { create_rule(approvals_required: 1, users: []) }
+        let!(:rule) { create_rule(approvals_required: 1, users: [author]) }
+        let!(:any_approver_rule) { create_rule(rule_type: :any_approver, approvals_required: 1) }
 
         context 'when that approver is the MR author' do
-          before do
-            project.update!(approvals_before_merge: 1)
-            rule.users << author
-          end
-
           it_behaves_like 'authors self-approval authorization'
 
           it_behaves_like 'a MR that all members with write access can approve'
@@ -1426,6 +1376,132 @@ describe ApprovalState do
 
         it 'returns true' do
           expect(subject.authors_can_approve?).to eq(false)
+        end
+      end
+    end
+  end
+
+  describe '#user_defined_rules' do
+    context 'when approval rules are not overwritten' do
+      let!(:project_rule) { create(:approval_project_rule, project: project) }
+      let!(:another_project_rule) { create(:approval_project_rule, project: project) }
+
+      context 'and multiple approval rules is disabled' do
+        it 'returns the first rule' do
+          expect(subject.user_defined_rules.map(&:approval_rule)).to match_array([
+            project_rule
+          ])
+        end
+      end
+
+      context 'and multiple approval rules is enabled' do
+        before do
+          stub_licensed_features(multiple_approval_rules: true)
+        end
+
+        it 'returns the rules as is' do
+          expect(subject.user_defined_rules.map(&:approval_rule)).to match_array([
+            project_rule,
+            another_project_rule
+          ])
+        end
+
+        context 'and rules are scoped by protected branches' do
+          let(:protected_branch) { create(:protected_branch, project: project, name: 'stable-*') }
+          let(:another_protected_branch) { create(:protected_branch, project: project, name: '*-stable') }
+
+          before do
+            merge_request.update!(target_branch: 'stable-1')
+            another_project_rule.update!(protected_branches: [protected_branch])
+            project_rule.update!(protected_branches: [another_protected_branch])
+          end
+
+          context 'and scoped_approval_rules feature is enabled' do
+            it 'returns the rules that are applicable to the merge request target branch' do
+              expect(subject.user_defined_rules.map(&:approval_rule)).to eq([
+                another_project_rule
+              ])
+            end
+          end
+
+          context 'but scoped_approval_rules feature is disabled' do
+            before do
+              stub_feature_flags(scoped_approval_rules: false)
+            end
+
+            it 'returns unscoped rules' do
+              expect(subject.user_defined_rules.map(&:approval_rule)).to match_array([
+                project_rule,
+                another_project_rule
+              ])
+            end
+          end
+        end
+      end
+    end
+
+    context 'when approval rules are overwritten' do
+      let!(:mr_rule) { create(:approval_merge_request_rule, merge_request: merge_request) }
+      let!(:another_mr_rule) { create(:approval_merge_request_rule, merge_request: merge_request) }
+
+      before do
+        project.update!(disable_overriding_approvers_per_merge_request: false)
+      end
+
+      context 'when multiple approval rules is disabled' do
+        it 'returns the first rule' do
+          expect(subject.user_defined_rules.map(&:approval_rule)).to match_array([
+            mr_rule
+          ])
+        end
+      end
+
+      context 'when multiple approval rules is enabled' do
+        before do
+          stub_licensed_features(multiple_approval_rules: true)
+        end
+
+        it 'returns the rules as is' do
+          expect(subject.user_defined_rules.map(&:approval_rule)).to match_array([
+            mr_rule,
+            another_mr_rule
+          ])
+        end
+
+        context 'and rules have source rules that are scoped by protected branches' do
+          let(:source_rule) { create(:approval_project_rule, project: project) }
+          let(:another_source_rule) { create(:approval_project_rule, project: project) }
+          let(:protected_branch) { create(:protected_branch, project: project, name: 'stable-*') }
+          let(:another_protected_branch) { create(:protected_branch, project: project, name: '*-stable') }
+
+          before do
+            merge_request.update!(target_branch: 'stable-1')
+            source_rule.update!(protected_branches: [protected_branch])
+            another_source_rule.update!(protected_branches: [another_protected_branch])
+            mr_rule.update!(approval_project_rule: another_source_rule)
+            another_mr_rule.update!(approval_project_rule: source_rule)
+          end
+
+          context 'and scoped_approval_rules feature is enabled' do
+            it 'returns the rules that are applicable to the merge request target branch' do
+              expect(subject.user_defined_rules.map(&:approval_rule)).to eq([
+                another_mr_rule
+              ])
+            end
+          end
+
+          context 'but scoped_approval_rules feature is disabled' do
+            before do
+              stub_feature_flags(scoped_approval_rules: false)
+            end
+
+            it 'returns unscoped rules' do
+              expect(subject.user_defined_rules.map(&:approval_rule)).to match_array([
+                mr_rule,
+                another_mr_rule
+              ])
+            end
+          end
         end
       end
     end

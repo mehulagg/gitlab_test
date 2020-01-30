@@ -1,5 +1,5 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import { GlButton } from '@gitlab/ui';
+import { shallowMount } from '@vue/test-utils';
+import { GlButton, GlTooltip } from '@gitlab/ui';
 
 import RelatedItemsTreeHeader from 'ee/related_items_tree/components/related_items_tree_header.vue';
 import createDefaultStore from 'ee/related_items_tree/store';
@@ -15,7 +15,6 @@ import {
 
 const createComponent = ({ slots } = {}) => {
   const store = createDefaultStore();
-  const localVue = createLocalVue();
   const children = epicUtils.processQueryResponse(mockQueryResponse.data.group);
 
   store.dispatch('setInitialParentItem', mockParentItem);
@@ -31,9 +30,6 @@ const createComponent = ({ slots } = {}) => {
   store.dispatch('setChildrenCount', mockParentItem.descendantCounts);
 
   return shallowMount(RelatedItemsTreeHeader, {
-    attachToDocument: true,
-    sync: false,
-    localVue,
     store,
     slots,
   });
@@ -50,15 +46,19 @@ describe('RelatedItemsTree', () => {
       wrapper.destroy();
     });
 
-    describe('computed', () => {
+    describe('badgeTooltip', () => {
       beforeEach(() => {
         wrapper = createComponent();
       });
 
-      describe('badgeTooltip', () => {
-        it('returns string containing epic count and issues count based on available direct children within state', () => {
-          expect(wrapper.vm.badgeTooltip).toBe('2 epics and 2 issues');
-        });
+      it('returns string containing epic count based on available direct children within state', () => {
+        expect(wrapper.find(GlTooltip).text()).toContain(`Epics •
+        1 open, 1 closed`);
+      });
+
+      it('returns string containing issue count based on available direct children within state', () => {
+        expect(wrapper.find(GlTooltip).text()).toContain(`Issues •
+        1 open, 1 closed`);
       });
     });
 

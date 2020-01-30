@@ -18,7 +18,7 @@ describe('GeoDesigns', () => {
   };
 
   const createComponent = () => {
-    wrapper = mount(localVue.extend(GeoDesigns), {
+    wrapper = mount(GeoDesigns, {
       localVue,
       store,
       methods: {
@@ -52,7 +52,7 @@ describe('GeoDesigns', () => {
         });
 
         it('is hidden', () => {
-          expect(findGlPagination().html()).toBeUndefined();
+          expect(findGlPagination().isEmpty()).toBe(true);
         });
       });
 

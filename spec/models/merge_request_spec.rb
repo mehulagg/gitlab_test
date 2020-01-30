@@ -277,6 +277,7 @@ describe MergeRequest do
 
   describe 'respond to' do
     it { is_expected.to respond_to(:unchecked?) }
+    it { is_expected.to respond_to(:checking?) }
     it { is_expected.to respond_to(:can_be_merged?) }
     it { is_expected.to respond_to(:cannot_be_merged?) }
     it { is_expected.to respond_to(:merge_params) }
@@ -301,7 +302,11 @@ describe MergeRequest do
 
       it 'returns empty requests' do
         latest_merge_request_diff = merge_request.merge_request_diffs.create
-        latest_merge_request_diff.merge_request_diff_commits.where(sha: 'b83d6e391c22777fca1ed3012fce84f633d7fed0').delete_all
+
+        MergeRequestDiffCommit.where(
+          merge_request_diff_id: latest_merge_request_diff,
+          sha: 'b83d6e391c22777fca1ed3012fce84f633d7fed0'
+        ).delete_all
 
         expect(by_commit_sha).to be_empty
       end
@@ -323,6 +328,16 @@ describe MergeRequest do
       create(:merge_request, :merged, merge_commit_sha: '123def')
 
       expect(described_class.by_merge_commit_sha('123abc')).to eq([mr])
+    end
+  end
+
+  describe '.by_cherry_pick_sha' do
+    it 'returns merge requests that match the given merge commit' do
+      note = create(:track_mr_picking_note, commit_id: '456abc')
+
+      create(:track_mr_picking_note, commit_id: '456def')
+
+      expect(described_class.by_cherry_pick_sha('456abc')).to eq([note.noteable])
     end
   end
 
@@ -960,6 +975,15 @@ describe MergeRequest do
     it 'only lists issues as to be closed if it targets the default branch' do
       allow(subject.project).to receive(:default_branch).and_return('master')
       subject.target_branch = 'something-else'
+
+      expect(subject.closes_issues).to be_empty
+    end
+
+    it 'ignores referenced issues when auto-close is disabled' do
+      subject.project.update!(autoclose_referenced_issues: false)
+
+      allow(subject.project).to receive(:default_branch)
+        .and_return(subject.target_branch)
 
       expect(subject.closes_issues).to be_empty
     end
@@ -2013,7 +2037,7 @@ describe MergeRequest do
     it 'atomically enqueues a RebaseWorker job and updates rebase_jid' do
       expect(RebaseWorker)
         .to receive(:perform_async)
-        .with(merge_request.id, user_id)
+        .with(merge_request.id, user_id, false)
         .and_return(rebase_jid)
 
       expect(merge_request).to receive(:expire_etag_cache)
@@ -2075,43 +2099,65 @@ describe MergeRequest do
   describe '#check_mergeability' do
     let(:mergeability_service) { double }
 
+    subject { create(:merge_request, merge_status: 'unchecked') }
+
     before do
       allow(MergeRequests::MergeabilityCheckService).to receive(:new) do
         mergeability_service
       end
     end
 
-    context 'if the merge status is unchecked' do
-      before do
-        subject.mark_as_unchecked!
-      end
-
+    shared_examples_for 'method that executes MergeabilityCheckService' do
       it 'executes MergeabilityCheckService' do
         expect(mergeability_service).to receive(:execute)
 
         subject.check_mergeability
       end
+
+      context 'when async is true' do
+        context 'and async_merge_request_check_mergeability feature flag is enabled' do
+          it 'executes MergeabilityCheckService asynchronously' do
+            expect(mergeability_service).to receive(:async_execute)
+
+            subject.check_mergeability(async: true)
+          end
+        end
+
+        context 'and async_merge_request_check_mergeability feature flag is disabled' do
+          before do
+            stub_feature_flags(async_merge_request_check_mergeability: false)
+          end
+
+          it 'executes MergeabilityCheckService' do
+            expect(mergeability_service).to receive(:execute)
+
+            subject.check_mergeability(async: true)
+          end
+        end
+      end
+    end
+
+    context 'if the merge status is unchecked' do
+      it_behaves_like 'method that executes MergeabilityCheckService'
+    end
+
+    context 'if the merge status is checking' do
+      before do
+        subject.mark_as_checking!
+      end
+
+      it_behaves_like 'method that executes MergeabilityCheckService'
     end
 
     context 'if the merge status is checked' do
-      context 'and feature flag is enabled' do
-        it 'executes MergeabilityCheckService' do
-          expect(mergeability_service).not_to receive(:execute)
-
-          subject.check_mergeability
-        end
+      before do
+        subject.mark_as_mergeable!
       end
 
-      context 'and feature flag is disabled' do
-        before do
-          stub_feature_flags(merge_requests_conditional_mergeability_check: false)
-        end
+      it 'does not call MergeabilityCheckService' do
+        expect(MergeRequests::MergeabilityCheckService).not_to receive(:new)
 
-        it 'does not execute MergeabilityCheckService' do
-          expect(mergeability_service).to receive(:execute)
-
-          subject.check_mergeability
-        end
+        subject.check_mergeability
       end
     end
   end
@@ -2199,6 +2245,16 @@ describe MergeRequest do
     it do
       is_expected
         .to delegate_method(:success?)
+        .to(:actual_head_pipeline)
+        .with_prefix
+        .with_arguments(allow_nil: true)
+    end
+  end
+
+  describe "#actual_head_pipeline_active? " do
+    it do
+      is_expected
+        .to delegate_method(:active?)
         .to(:actual_head_pipeline)
         .with_prefix
         .with_arguments(allow_nil: true)
@@ -3126,7 +3182,7 @@ describe MergeRequest do
     describe 'check_state?' do
       it 'indicates whether MR is still checking for mergeability' do
         state_machine = described_class.state_machines[:merge_status]
-        check_states = [:unchecked, :cannot_be_merged_recheck]
+        check_states = [:unchecked, :cannot_be_merged_recheck, :checking]
 
         check_states.each do |merge_status|
           expect(state_machine.check_state?(merge_status)).to be true

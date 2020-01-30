@@ -19,10 +19,7 @@ describe('LogControlButtons', () => {
   const findRefreshBtn = () => wrapper.find('.js-refresh-log');
 
   const initWrapper = () => {
-    wrapper = shallowMount(LogControlButtons, {
-      attachToDocument: true,
-      sync: false,
-    });
+    wrapper = shallowMount(LogControlButtons);
   };
 
   afterEach(() => {

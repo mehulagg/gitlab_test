@@ -21,7 +21,6 @@ module QA
         project.add_member(user_4)
 
         Resource::Issue.fabricate_via_api! do |issue|
-          issue.title = issue.title = 'issue-to-test-multiple-assignees'
           issue.project = project
           issue.assignee_ids = [
             user_1.id,
@@ -38,7 +37,7 @@ module QA
         Page::Project::Menu.perform(&:click_issues)
 
         Page::Project::Issue::Index.perform do |index|
-          expect(index.assignee_link_count).to be 4
+          expect(index).to have_assignee_link_count(4)
         end
       end
     end

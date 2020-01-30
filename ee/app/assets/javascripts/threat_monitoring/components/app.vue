@@ -1,8 +1,12 @@
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters, mapState } from 'vuex';
 import { GlAlert, GlEmptyState, GlIcon, GlLink, GlPopover } from '@gitlab/ui';
 import { s__ } from '~/locale';
+import axios from '~/lib/utils/axios_utils';
 import ThreatMonitoringFilters from './threat_monitoring_filters.vue';
+import WafLoadingSkeleton from './waf_loading_skeleton.vue';
+import WafStatisticsSummary from './waf_statistics_summary.vue';
+import WafStatisticsHistory from './waf_statistics_history.vue';
 
 export default {
   name: 'ThreatMonitoring',
@@ -13,10 +17,17 @@ export default {
     GlLink,
     GlPopover,
     ThreatMonitoringFilters,
+    WafLoadingSkeleton,
+    WafStatisticsSummary,
+    WafStatisticsHistory,
   },
   props: {
     defaultEnvironmentId: {
       type: Number,
+      required: true,
+    },
+    chartEmptyStateSvgPath: {
+      type: String,
       required: true,
     },
     emptyStateSvgPath: {
@@ -27,10 +38,22 @@ export default {
       type: String,
       required: true,
     },
+    showUserCallout: {
+      type: Boolean,
+      required: true,
+    },
+    userCalloutId: {
+      type: String,
+      required: true,
+    },
+    userCalloutsPath: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
-      showAlert: true,
+      showAlert: this.showUserCallout,
 
       // WAF requires the project to have at least one available environment.
       // An invalid default environment id means there there are no available
@@ -38,6 +61,10 @@ export default {
       // environment id only means that WAF *might* be set up.
       isWafMaybeSetUp: this.isValidEnvironmentId(this.defaultEnvironmentId),
     };
+  },
+  computed: {
+    ...mapState('threatMonitoring', ['isLoadingWafStatistics']),
+    ...mapGetters('threatMonitoring', ['hasHistory']),
   },
   created() {
     if (this.isWafMaybeSetUp) {
@@ -52,8 +79,17 @@ export default {
     },
     dismissAlert() {
       this.showAlert = false;
+
+      axios.post(this.userCalloutsPath, {
+        feature_name: this.userCalloutId,
+      });
     },
   },
+  chartEmptyStateDescription: s__(
+    `ThreatMonitoring|While it's rare to have no traffic coming to your
+    application, it can happen. In any event, we ask that you double check your
+    settings to make sure you've set up the WAF correctly.`,
+  ),
   emptyStateDescription: s__(
     `ThreatMonitoring|A Web Application Firewall (WAF) provides monitoring and
     rules to protect production applications. GitLab adds the modsecurity WAF
@@ -66,13 +102,14 @@ export default {
     malicious traffic is trying to access your app. The docs link is also
     accessible by clicking the "?" icon next to the title below.`,
   ),
-  helpPopoverTitle: s__('ThreatMonitoring|At this time, threat monitoring only supports WAF data.'),
+  helpPopoverText: s__('ThreatMonitoring|At this time, threat monitoring only supports WAF data.'),
 };
 </script>
 
 <template>
   <gl-empty-state
     v-if="!isWafMaybeSetUp"
+    ref="emptyState"
     :title="s__('ThreatMonitoring|Web Application Firewall not enabled')"
     :description="$options.emptyStateDescription"
     :svg-path="emptyStateSvgPath"
@@ -102,18 +139,29 @@ export default {
         >
           <gl-icon name="question" />
         </gl-link>
-        <gl-popover
-          :target="() => $refs.helpLink"
-          triggers="hover focus"
-          :title="$options.helpPopoverTitle"
-        >
-          <gl-link :href="documentationPath">{{
-            s__('ThreatMonitoring|View WAF documentation')
-          }}</gl-link>
+        <gl-popover :target="() => $refs.helpLink" triggers="hover focus">
+          {{ $options.helpPopoverText }}
         </gl-popover>
       </h2>
     </header>
 
     <threat-monitoring-filters />
+
+    <waf-loading-skeleton v-if="isLoadingWafStatistics" class="mt-3" />
+
+    <template v-else-if="hasHistory">
+      <waf-statistics-summary class="mt-3" />
+      <waf-statistics-history class="mt-3" />
+    </template>
+
+    <gl-empty-state
+      v-else
+      ref="chartEmptyState"
+      :title="s__('ThreatMonitoring|No traffic to display')"
+      :description="$options.chartEmptyStateDescription"
+      :svg-path="chartEmptyStateSvgPath"
+      :primary-button-link="documentationPath"
+      :primary-button-text="__('Learn More')"
+    />
   </section>
 </template>

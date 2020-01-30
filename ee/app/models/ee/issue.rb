@@ -19,7 +19,7 @@ module EE
       scope :order_weight_asc, -> { reorder ::Gitlab::Database.nulls_last_order('weight') }
       scope :order_created_at_desc, -> { reorder(created_at: :desc) }
       scope :service_desk, -> { where(author: ::User.support_bot) }
-
+      scope :no_epic, -> { left_outer_joins(:epic_issue).where(epic_issues: { epic_id: nil }) }
       scope :in_epics, ->(epics) do
         issue_ids = EpicIssue.where(epic_id: epics).select(:issue_id)
         id_in(issue_ids)
@@ -41,6 +41,9 @@ module EE
 
       has_many :vulnerability_links, class_name: 'Vulnerabilities::IssueLink', inverse_of: :issue
       has_many :related_vulnerabilities, through: :vulnerability_links, source: :vulnerability
+
+      has_many :blocked_by_issue_links, -> { where(link_type: IssueLink::TYPE_BLOCKS) }, class_name: 'IssueLink', foreign_key: :target_id
+      has_many :blocked_by_issues, through: :blocked_by_issue_links, source: :source
 
       validates :weight, allow_nil: true, numericality: { greater_than_or_equal_to: 0 }
 

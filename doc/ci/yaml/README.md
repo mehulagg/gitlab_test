@@ -651,7 +651,7 @@ With `only`, individual keys are logically joined by an AND:
 
 > NOT((any of refs) AND (any of variables) AND (any of changes) AND (if Kubernetes is active))
 
-This, more intuitively, means the keys join by an OR. A functionally equivalent expression:
+This means the keys are treated as if joined by an OR. This relationship could be described as:
 
 > (any of refs) OR (any of variables) OR (any of changes) OR (if Kubernetes is active)
 
@@ -729,7 +729,18 @@ Learn more about [variables expressions](../variables/README.md#environment-vari
 Using the `changes` keyword with `only` or `except` makes it possible to define if
 a job should be created based on files modified by a Git push event.
 
-For example:
+This means the `only:changes` policy is useful for pipelines where:
+
+- `$CI_PIPELINE_SOURCE == 'push'`
+- `$CI_PIPELINE_SOURCE == 'merge_request_event'`
+- `$CI_PIPELINE_SOURCE == 'external_pull_request_event'`
+
+If there is no Git push event, such as for pipelines with
+[sources other than the three above](../variables/predefined_variables.md#variables-reference),
+`changes` cannot determine if a given file is new or old, and will always
+return true.
+
+A basic example of using `only: changes`:
 
 ```yaml
 docker build:
@@ -830,7 +841,7 @@ In the example above, a pipeline could fail due to changes to a file in `service
 A later commit could then be pushed that does not include any changes to this file,
 but includes changes to the `Dockerfile`, and this pipeline could pass because it is only
 testing the changes to the `Dockerfile`. GitLab checks the **most recent pipeline**,
-that **passed**, and will show the merge request as mergable, despite the earlier
+that **passed**, and will show the merge request as mergeable, despite the earlier
 failed pipeline caused by a change that was not yet corrected.
 
 With this configuration, care must be taken to check that the most recent pipeline
@@ -910,8 +921,9 @@ at all, the behavior defaults to `job:when`, which continues to default to
 
 #### `rules:changes`
 
-`changes` works exactly the same way as [`only`/`except`](#onlychangesexceptchanges),
-accepting an array of paths.
+`rules: changes` works exactly the same way as `only: changes` and `except: changes`,
+accepting an array of paths. Similarly, it will always return true if there is no
+Git push event. See [`only/except: changes`](#onlychangesexceptchanges) for more information.
 
 For example:
 
@@ -1330,8 +1342,7 @@ In its simplest form, the `environment` keyword can be defined like:
 deploy to production:
   stage: deploy
   script: git push production HEAD:master
-  environment:
-    name: production
+  environment: production
 ```
 
 In the above example, the `deploy to production` job will be marked as doing a
@@ -2091,7 +2102,7 @@ The `codequality` report collects [CodeQuality issues](../../user/project/merge_
 as artifacts.
 
 The collected Code Quality report will be uploaded to GitLab as an artifact and will
-be automatically shown in merge requests.
+be summarized in merge requests. It is not available for download through the web interface.
 
 ##### `artifacts:reports:sast` **(ULTIMATE)**
 
@@ -2101,8 +2112,8 @@ The `sast` report collects [SAST vulnerabilities](../../user/application_securit
 as artifacts.
 
 The collected SAST report will be uploaded to GitLab as an artifact and will
-be automatically shown in merge requests, pipeline view and provide data for security
-dashboards.
+be summarized in the merge requests and pipeline view. It is also used to provide data for security
+dashboards. It is not available for download through the web interface.
 
 ##### `artifacts:reports:dependency_scanning` **(ULTIMATE)**
 
@@ -2112,8 +2123,8 @@ The `dependency_scanning` report collects [Dependency Scanning vulnerabilities](
 as artifacts.
 
 The collected Dependency Scanning report will be uploaded to GitLab as an artifact and will
-be automatically shown in merge requests, pipeline view and provide data for security
-dashboards.
+be summarized in the merge requests and pipeline view. It is also used to provide data for security
+dashboards. It is not available for download through the web interface.
 
 ##### `artifacts:reports:container_scanning` **(ULTIMATE)**
 
@@ -2123,8 +2134,8 @@ The `container_scanning` report collects [Container Scanning vulnerabilities](..
 as artifacts.
 
 The collected Container Scanning report will be uploaded to GitLab as an artifact and will
-be automatically shown in merge requests, pipeline view and provide data for security
-dashboards.
+be summarized in the merge requests and pipeline view. It is also used to provide data for security
+dashboards. It is not available for download through the web interface.
 
 ##### `artifacts:reports:dast` **(ULTIMATE)**
 
@@ -2134,8 +2145,8 @@ The `dast` report collects [DAST vulnerabilities](../../user/application_securit
 as artifacts.
 
 The collected DAST report will be uploaded to GitLab as an artifact and will
-be automatically shown in merge requests, pipeline view and provide data for security
-dashboards.
+be summarized in the merge requests and pipeline view. It is also used to provide data for security
+dashboards. It is not available for download through the web interface.
 
 ##### `artifacts:reports:license_management` **(ULTIMATE)**
 
@@ -2145,8 +2156,8 @@ The `license_management` report collects [Licenses](../../user/application_secur
 as artifacts.
 
 The collected License Compliance report will be uploaded to GitLab as an artifact and will
-be automatically shown in merge requests, pipeline view and provide data for security
-dashboards.
+be summarized in the merge requests and pipeline view. It is also used to provide data for security
+dashboards. It is not available for download through the web interface.
 
 ##### `artifacts:reports:performance` **(PREMIUM)**
 
@@ -2156,7 +2167,7 @@ The `performance` report collects [Performance metrics](../../user/project/merge
 as artifacts.
 
 The collected Performance report will be uploaded to GitLab as an artifact and will
-be automatically shown in merge requests.
+be automatically shown in merge requests. It is not available for download through the web interface.
 
 ##### `artifacts:reports:metrics` **(PREMIUM)**
 
@@ -2166,7 +2177,7 @@ The `metrics` report collects [Metrics](../../ci/metrics_reports.md)
 as artifacts.
 
 The collected Metrics report will be uploaded to GitLab as an artifact and will
-be automatically shown in merge requests.
+be automatically shown in merge requests. It is not available for download through the web interface.
 
 ### `dependencies`
 
@@ -2313,6 +2324,23 @@ This example creates three paths of execution:
 - Related to the above, stages must be explicitly defined for all jobs
   that have the keyword `needs:` or are referred to by one.
 
+##### Changing the `needs:` job limit
+
+The maximum number of jobs that can be defined within `needs:` defaults to 10, but
+can be changed to 50 via a feature flag. To change the limit to 50,
+[start a Rails console session](https://docs.gitlab.com/omnibus/maintenance/#starting-a-rails-console-session)
+and run:
+
+```ruby
+Feature::disable(:ci_dag_limit_needs)
+```
+
+To set it back to 10, run the opposite command:
+
+```ruby
+Feature::enable(:ci_dag_limit_needs)
+```
+
 #### Artifact downloads with `needs`
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/14311) in GitLab v12.6.
@@ -2355,6 +2383,51 @@ rspec:
     - job: build_job_2
     - build_job_3
 ```
+
+#### Cross project artifact downloads with `needs` **(PREMIUM)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/14311) in GitLab v12.7.
+
+`needs` can be used to download artifacts from up to five jobs in pipelines on
+[other refs in the same project](#artifact-downloads-between-pipelines-in-the-same-project),
+or pipelines in different projects:
+
+```yaml
+build_job:
+  stage: build
+  script:
+    - ls -lhR
+  needs:
+    - project: group/project-name
+      job: build-1
+      ref: master
+      artifacts: true
+```
+
+`build_job` will download the artifacts from the latest successful `build-1` job
+on the `master` branch in the `group/project-name` project.
+
+##### Artifact downloads between pipelines in the same project
+
+`needs` can be used to download artifacts from different pipelines in the current project
+by setting the `project` keyword as the current project's name, and specifying a ref.
+In the example below, `build_job` will download the artifacts for the latest successful
+`build-1` job with the `other-ref` ref:
+
+```yaml
+build_job:
+  stage: build
+  script:
+    - ls -lhR
+  needs:
+    - project: group/same-project-name
+      job: build-1
+      ref: other-ref
+      artifacts: true
+```
+
+NOTE: **Note:**
+Downloading artifacts from jobs that are run in [`parallel:`](#parallel) is not supported.
 
 ### `coverage`
 
@@ -2526,14 +2599,17 @@ job split into three separate jobs.
 from `trigger` definition is started by GitLab, a downstream pipeline gets
 created.
 
-Learn more about [multi-project pipelines](../multi_project_pipelines.md#creating-multi-project-pipelines-from-gitlab-ciyml).
+This keyword allows the creation of two different types of downstream pipelines:
+
+- [Multi-project pipelines](../multi_project_pipelines.md#creating-multi-project-pipelines-from-gitlab-ciyml)
+- [Child pipelines](../parent_child_pipelines.md)
 
 NOTE: **Note:**
 Using a `trigger` with `when:manual` together results in the error `jobs:#{job-name}
 when should be on_success, on_failure or always`, because `when:manual` prevents
 triggers being used.
 
-#### Simple `trigger` syntax
+#### Simple `trigger` syntax for multi-project pipelines
 
 The simplest way to configure a downstream trigger is to use `trigger` keyword
 with a full path to a downstream project:
@@ -2548,7 +2624,7 @@ staging:
   trigger: my/deployment
 ```
 
-#### Complex `trigger` syntax
+#### Complex `trigger` syntax for multi-project pipelines
 
 It is possible to configure a branch name that GitLab will use to create
 a downstream pipeline with:
@@ -2582,6 +2658,49 @@ upstream_bridge:
   needs:
     pipeline: other/project
 ```
+
+#### `trigger` syntax for child pipeline
+
+To create a [child pipeline](../parent_child_pipelines.md), specify the path to the
+YAML file containing the CI config of the child pipeline:
+
+```yaml
+trigger_job:
+  trigger:
+    include: path/to/child-pipeline.yml
+```
+
+Similar to [multi-project pipelines](../multi_project_pipelines.md#mirroring-status-from-triggered-pipeline),
+it is possible to mirror the status from a triggered pipeline:
+
+```yaml
+trigger_job:
+  trigger:
+    include:
+      - local: path/to/child-pipeline.yml
+    strategy: depend
+```
+
+#### Linking pipelines with `trigger:strategy`
+
+By default, the `trigger` job completes with the `success` status
+as soon as the downstream pipeline is created.
+
+To force the `trigger` job to wait for the downstream (multi-project or child) pipeline to complete, use
+`strategy: depend`. This will make the trigger job wait with a "running" status until the triggered
+pipeline completes. At that point, the `trigger` job will complete and display the same status as
+the downstream job.
+
+```yaml
+trigger_job:
+  trigger:
+    include: path/to/child-pipeline.yml
+    strategy: depend
+```
+
+This can help keep your pipeline execution linear. In the example above, jobs from
+subsequent stages will wait for the triggered pipeline to successfully complete before
+starting, at the cost of reduced parallelization.
 
 ### `interruptible`
 
@@ -2645,10 +2764,10 @@ can lead to errors during the deployment.
 To avoid these errors, the `resource_group` attribute can be used to ensure that
 the Runner will not run certain jobs simultaneously.
 
-When the `resource_group` key is defined in a job in `.gitlab-ci.yml`,
-job runs are mutually exclusive across different pipelines in the same project.
+When the `resource_group` key is defined for a job in `.gitlab-ci.yml`,
+job executions are mutually exclusive across different pipelines for the same project.
 If multiple jobs belonging to the same resource group are enqueued simultaneously,
-only one of them will be picked by the Runner, and the other jobs will wait until the
+only one of the jobs will be picked by the Runner, and the other jobs will wait until the
 `resource_group` is free.
 
 Here is a simple example:
@@ -3628,7 +3747,7 @@ having their own custom `script` defined:
 
 ```yaml
 .job_template: &job_definition  # Hidden key that defines an anchor named 'job_definition'
-  image: ruby:2.1
+  image: ruby:2.6
   services:
     - postgres
     - redis
@@ -3650,13 +3769,13 @@ given hash into the current one", and `*` includes the named anchor
 
 ```yaml
 .job_template:
-  image: ruby:2.1
+  image: ruby:2.6
   services:
     - postgres
     - redis
 
 test1:
-  image: ruby:2.1
+  image: ruby:2.6
   services:
     - postgres
     - redis
@@ -3664,7 +3783,7 @@ test1:
     - test1 project
 
 test2:
-  image: ruby:2.1
+  image: ruby:2.6
   services:
     - postgres
     - redis

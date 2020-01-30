@@ -52,15 +52,15 @@ will get rejected.
 ### Custom Push Rules **(CORE ONLY)**
 
 It's possible to create custom push rules rather than the push rules available in
-**Admin area > Push Rules** by using more advanced server-side Git hooks.
+**Admin Area > Push Rules** by using more advanced server hooks.
 
-See [custom server-side Git hooks](../administration/custom_hooks.md) for more information.
+See [server hooks](../administration/server_hooks.md) for more information.
 
 ## Enabling push rules
 
 NOTE: **Note:**
 GitLab administrators can set push rules globally under
-**Admin area > Push Rules** that all new projects will inherit. You can later
+**Admin Area > Push Rules** that all new projects will inherit. You can later
 override them in a project's settings.
 
 1. Navigate to your project's **Settings > Repository** and expand **Push Rules**

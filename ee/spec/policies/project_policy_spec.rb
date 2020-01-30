@@ -5,12 +5,12 @@ require 'spec_helper'
 describe ProjectPolicy do
   include ExternalAuthorizationServiceHelpers
 
-  set(:owner) { create(:user) }
-  set(:admin) { create(:admin) }
-  set(:maintainer) { create(:user) }
-  set(:developer) { create(:user) }
-  set(:reporter) { create(:user) }
-  set(:guest) { create(:user) }
+  let_it_be(:owner) { create(:user) }
+  let_it_be(:admin) { create(:admin) }
+  let_it_be(:maintainer) { create(:user) }
+  let_it_be(:developer) { create(:user) }
+  let_it_be(:reporter) { create(:user) }
+  let_it_be(:guest) { create(:user) }
   let(:project) { create(:project, :public, namespace: owner.namespace) }
 
   subject { described_class.new(current_user, project) }
@@ -36,6 +36,7 @@ describe ProjectPolicy do
       %i[
         admin_vulnerability_feedback read_project_security_dashboard read_feature_flag
         read_vulnerability create_vulnerability admin_vulnerability
+        admin_vulnerability_issue_link
       ]
     end
     let(:additional_maintainer_permissions) { %i[push_code_to_protected_branches admin_feature_flags_client] }
@@ -44,7 +45,7 @@ describe ProjectPolicy do
         download_code download_wiki_code read_project read_board read_list
         read_project_for_iids read_issue_iid read_merge_request_iid read_wiki
         read_issue read_label read_issue_link read_milestone
-        read_project_snippet read_project_member read_note read_cycle_analytics
+        read_snippet read_project_member read_note read_cycle_analytics
         read_pipeline read_build read_commit_status read_container_image
         read_environment read_deployment read_merge_request read_pages
         create_merge_request_in award_emoji
@@ -1186,5 +1187,42 @@ describe ProjectPolicy do
     end
 
     it { is_expected.to be_disallowed(:read_group_timelogs) }
+  end
+
+  describe ':read_code_review_analytics' do
+    let(:project) { create(:project, namespace: owner.namespace) }
+
+    using RSpec::Parameterized::TableSyntax
+
+    where(:role, :allowed) do
+      :guest | false
+      :reporter | true
+      :developer | true
+      :maintainer | true
+      :owner | true
+      :admin | true
+    end
+
+    with_them do
+      let(:current_user) { public_send(role) }
+
+      before do
+        stub_licensed_features(code_review_analytics: true)
+      end
+
+      it do
+        is_expected.to(allowed ? be_allowed(:read_code_review_analytics) : be_disallowed(:read_code_review_analytics))
+      end
+    end
+
+    context 'with code review analytics is not available in license' do
+      let(:current_user) { owner }
+
+      before do
+        stub_licensed_features(code_review_analytics: false)
+      end
+
+      it { is_expected.to be_disallowed(:read_code_review_analytics) }
+    end
   end
 end

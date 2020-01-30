@@ -41,10 +41,11 @@ describe Gitlab::SidekiqMiddleware do
        Labkit::Middleware::Sidekiq::Server,
        Gitlab::SidekiqMiddleware::InstrumentationLogger,
        Gitlab::SidekiqStatus::ServerMiddleware,
-       Gitlab::SidekiqMiddleware::Metrics,
+       Gitlab::SidekiqMiddleware::ServerMetrics,
        Gitlab::SidekiqMiddleware::ArgumentsLogger,
        Gitlab::SidekiqMiddleware::MemoryKiller,
-       Gitlab::SidekiqMiddleware::RequestStoreMiddleware
+       Gitlab::SidekiqMiddleware::RequestStoreMiddleware,
+       Gitlab::SidekiqMiddleware::WorkerContext::Server
       ]
     end
     let(:enabled_sidekiq_middlewares) { all_sidekiq_middlewares - disabled_sidekiq_middlewares }
@@ -74,7 +75,7 @@ describe Gitlab::SidekiqMiddleware do
       let(:request_store) { false }
       let(:disabled_sidekiq_middlewares) do
         [
-          Gitlab::SidekiqMiddleware::Metrics,
+          Gitlab::SidekiqMiddleware::ServerMetrics,
           Gitlab::SidekiqMiddleware::ArgumentsLogger,
           Gitlab::SidekiqMiddleware::MemoryKiller,
           Gitlab::SidekiqMiddleware::RequestStoreMiddleware

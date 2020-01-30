@@ -172,7 +172,7 @@ describe OmniauthCallbacksController, type: :controller, do_not_mock_admin_mode:
             it 'returns 403' do
               post provider
 
-              expect(response).to have_gitlab_http_status(403)
+              expect(response).to have_gitlab_http_status(:forbidden)
             end
           end
         end
@@ -285,6 +285,34 @@ describe OmniauthCallbacksController, type: :controller, do_not_mock_admin_mode:
       mock_auth_hash_with_saml_xml('saml', +'my-uid', user.email, mock_saml_response)
       request.env['devise.mapping'] = Devise.mappings[:user]
       request.env['omniauth.auth'] = Rails.application.env_config['omniauth.auth']
+    end
+
+    context 'sign up' do
+      before do
+        user.destroy
+      end
+
+      it 'denies login if sign up is enabled, but block_auto_created_users is set' do
+        post :saml, params: { SAMLResponse: mock_saml_response }
+
+        expect(flash[:alert]).to start_with 'Your account has been blocked.'
+      end
+
+      it 'accepts login if sign up is enabled' do
+        stub_omniauth_setting(block_auto_created_users: false)
+
+        post :saml, params: { SAMLResponse: mock_saml_response }
+
+        expect(request.env['warden']).to be_authenticated
+      end
+
+      it 'denies login if sign up is not enabled' do
+        stub_omniauth_setting(allow_single_sign_on: false, block_auto_created_users: false)
+
+        post :saml, params: { SAMLResponse: mock_saml_response }
+
+        expect(flash[:alert]).to start_with 'Signing in using your saml account without a pre-existing GitLab account is not allowed.'
+      end
     end
 
     context 'with GitLab initiated request' do

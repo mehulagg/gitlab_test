@@ -6,7 +6,7 @@ describe('DismissalButton', () => {
   let wrapper;
 
   const mountComponent = options => {
-    wrapper = mount(component, { sync: false, attachToDocument: true, ...options });
+    wrapper = mount(component, options);
   };
 
   describe('With a non-dismissed vulnerability', () => {

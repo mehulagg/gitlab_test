@@ -1,6 +1,6 @@
 <script>
 import _ from 'underscore';
-import { GlButton, GlTooltipDirective, GlModalDirective, GlModal, GlToggle } from '@gitlab/ui';
+import { GlButton, GlTooltipDirective, GlModal, GlToggle } from '@gitlab/ui';
 import { sprintf, s__ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import glFeatureFlagMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
@@ -14,7 +14,6 @@ export default {
     GlToggle,
   },
   directives: {
-    GlModalDirective,
     GlTooltip: GlTooltipDirective,
   },
   mixins: [glFeatureFlagMixin()],
@@ -62,9 +61,6 @@ export default {
     modalId() {
       return 'delete-feature-flag';
     },
-    hasFeatureFlagToggle() {
-      return this.glFeatures.featureFlagToggle;
-    },
   },
   methods: {
     scopeTooltipText(scope) {
@@ -93,6 +89,8 @@ export default {
     setDeleteModalData(featureFlag) {
       this.deleteFeatureFlagUrl = featureFlag.destroy_path;
       this.deleteFeatureFlagName = featureFlag.name;
+
+      this.$refs[this.modalId].show();
     },
     onSubmit() {
       this.$refs.form.submit();
@@ -133,7 +131,7 @@ export default {
           <div class="table-mobile-header" role="rowheader">{{ s__('FeatureFlags|Status') }}</div>
           <div class="table-mobile-content js-feature-flag-status">
             <gl-toggle
-              v-if="hasFeatureFlagToggle && featureFlag.update_path"
+              v-if="featureFlag.update_path"
               :value="featureFlag.active"
               @change="toggleFeatureFlag(featureFlag)"
             />
@@ -192,7 +190,6 @@ export default {
             <template v-if="featureFlag.destroy_path">
               <gl-button
                 v-gl-tooltip.hover.bottom="__('Delete')"
-                v-gl-modal-directive="modalId"
                 class="js-feature-flag-delete-button"
                 variant="danger"
                 :disabled="!canDeleteFlag(featureFlag)"
@@ -207,6 +204,7 @@ export default {
     </template>
 
     <gl-modal
+      :ref="modalId"
       :title="modalTitle"
       :ok-title="s__('FeatureFlags|Delete feature flag')"
       :modal-id="modalId"

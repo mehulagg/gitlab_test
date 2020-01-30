@@ -703,7 +703,7 @@ describe Projects::PipelinesController do
       it 'shows latest pipeline for the default project branch' do
         get :show, params: { namespace_id: project.namespace, project_id: project, latest: true, ref: nil }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(assigns(:pipeline)).to have_attributes(id: pipeline_master.id)
       end
     end
@@ -716,7 +716,7 @@ describe Projects::PipelinesController do
       it 'shows the latest pipeline for the provided ref' do
         get :show, params: { namespace_id: project.namespace, project_id: project, latest: true, ref: branch_secondary.name }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(assigns(:pipeline)).to have_attributes(id: pipeline_secondary.id)
       end
 
@@ -728,7 +728,7 @@ describe Projects::PipelinesController do
         it 'shows the provided ref with the last sha/pipeline combo' do
           get :show, params: { namespace_id: project.namespace, project_id: project, latest: true, ref: branch_secondary.name }
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
           expect(assigns(:pipeline)).to have_attributes(id: pipeline_secondary.id)
         end
       end
@@ -737,7 +737,54 @@ describe Projects::PipelinesController do
     it 'renders a 404 if no pipeline is found for the ref' do
       get :show, params: { namespace_id: project.namespace, project_id: project, ref: 'no-branch' }
 
-      expect(response).to have_gitlab_http_status(404)
+      expect(response).to have_gitlab_http_status(:not_found)
+    end
+  end
+
+  describe 'DELETE #destroy' do
+    let!(:project) { create(:project, :private, :repository) }
+    let!(:pipeline) { create(:ci_pipeline, :failed, project: project) }
+    let!(:build) { create(:ci_build, :failed, pipeline: pipeline) }
+
+    context 'when user has ability to delete pipeline' do
+      before do
+        sign_in(project.owner)
+      end
+
+      it 'deletes pipeline and redirects' do
+        delete_pipeline
+
+        expect(response).to have_gitlab_http_status(:see_other)
+
+        expect(Ci::Build.exists?(build.id)).to be_falsy
+        expect(Ci::Pipeline.exists?(pipeline.id)).to be_falsy
+      end
+
+      context 'and builds are disabled' do
+        let(:feature) { ProjectFeature::DISABLED }
+
+        it 'fails to delete pipeline' do
+          delete_pipeline
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+    end
+
+    context 'when user has no privileges' do
+      it 'fails to delete pipeline' do
+        delete_pipeline
+
+        expect(response).to have_gitlab_http_status(:forbidden)
+      end
+    end
+
+    def delete_pipeline
+      delete :destroy, params: {
+                         namespace_id: project.namespace,
+                         project_id: project,
+                         id: pipeline.id
+                       }
     end
   end
 end

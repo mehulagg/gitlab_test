@@ -252,17 +252,15 @@ module API
         success Entities::SSHKey
       end
       params do
-        requires :id, type: Integer, desc: 'The ID of the user'
+        requires :user_id, type: String, desc: 'The ID or username of the user'
         use :pagination
       end
-      # rubocop: disable CodeReuse/ActiveRecord
-      get ':id/keys' do
-        user = User.find_by(id: params[:id])
+      get ':user_id/keys', requirements: API::USER_REQUIREMENTS do
+        user = find_user(params[:user_id])
         not_found!('User') unless user && can?(current_user, :read_user, user)
 
         present paginate(user.keys), with: Entities::SSHKey
       end
-      # rubocop: enable CodeReuse/ActiveRecord
 
       desc 'Delete an existing SSH key from a specified user. Available only for admins.' do
         success Entities::SSHKey
@@ -346,8 +344,9 @@ module API
         key = user.gpg_keys.find_by(id: params[:key_id])
         not_found!('GPG Key') unless key
 
-        status 204
         key.destroy
+
+        no_content!
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
@@ -533,6 +532,32 @@ module API
         end
       end
       # rubocop: enable CodeReuse/ActiveRecord
+
+      desc 'Get memberships' do
+        success Entities::Membership
+      end
+      params do
+        requires :user_id, type: Integer, desc: 'The ID of the user'
+        optional :type, type: String, values: %w[Project Namespace]
+        use :pagination
+      end
+      get ":user_id/memberships" do
+        authenticated_as_admin!
+        user = find_user_by_id(params)
+
+        members = case params[:type]
+                  when 'Project'
+                    user.project_members
+                  when 'Namespace'
+                    user.group_members
+                  else
+                    user.members
+                  end
+
+        members = members.including_source
+
+        present paginate(members), with: Entities::Membership
+      end
 
       params do
         requires :user_id, type: Integer, desc: 'The ID of the user'
@@ -760,8 +785,9 @@ module API
         key = current_user.gpg_keys.find_by(id: params[:key_id])
         not_found!('GPG Key') unless key
 
-        status 204
         key.destroy
+
+        no_content!
       end
       # rubocop: enable CodeReuse/ActiveRecord
 

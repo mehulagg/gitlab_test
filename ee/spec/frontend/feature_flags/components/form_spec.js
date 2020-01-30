@@ -37,10 +37,8 @@ describe('feature flag form', () => {
         glFeatures: {
           featureFlagPermissions: true,
           featureFlagsUsersPerEnvironment: true,
-          featureFlagToggle: true,
         },
       },
-      sync: false,
     });
   };
 

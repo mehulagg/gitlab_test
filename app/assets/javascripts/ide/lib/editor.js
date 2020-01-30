@@ -8,35 +8,32 @@ import ModelManager from './common/model_manager';
 import editorOptions, { defaultEditorOptions } from './editor_options';
 import gitlabTheme from './themes/gl_theme';
 import keymap from './keymap.json';
+import { clearDomElement } from '~/editor/utils';
 
 function setupMonacoTheme() {
   monacoEditor.defineTheme(gitlabTheme.themeName, gitlabTheme.monacoTheme);
   monacoEditor.setTheme('gitlab');
 }
 
-export const clearDomElement = el => {
-  if (!el || !el.firstChild) return;
-
-  while (el.firstChild) {
-    el.removeChild(el.firstChild);
-  }
-};
-
 export default class Editor {
-  static create() {
+  static create(options = {}) {
     if (!this.editorInstance) {
-      this.editorInstance = new Editor();
+      this.editorInstance = new Editor(options);
     }
     return this.editorInstance;
   }
 
-  constructor() {
+  constructor(options = {}) {
     this.currentModel = null;
     this.instance = null;
     this.dirtyDiffController = null;
     this.disposable = new Disposable();
     this.modelManager = new ModelManager();
     this.decorationsController = new DecorationsController(this);
+    this.options = {
+      ...defaultEditorOptions,
+      ...options,
+    };
 
     setupMonacoTheme();
 
@@ -51,7 +48,7 @@ export default class Editor {
 
       this.disposable.add(
         (this.instance = monacoEditor.create(domElement, {
-          ...defaultEditorOptions,
+          ...this.options,
         })),
         (this.dirtyDiffController = new DirtyDiffController(
           this.modelManager,
@@ -71,7 +68,7 @@ export default class Editor {
 
       this.disposable.add(
         (this.instance = monacoEditor.createDiffEditor(domElement, {
-          ...defaultEditorOptions,
+          ...this.options,
           quickSuggestions: false,
           occurrencesHighlight: false,
           renderSideBySide: Editor.renderSideBySide(domElement),

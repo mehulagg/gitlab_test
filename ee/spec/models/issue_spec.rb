@@ -67,19 +67,29 @@ describe Issue do
       end
     end
 
-    describe '.in_epics' do
+    context 'epics' do
       let_it_be(:epic1) { create(:epic) }
       let_it_be(:epic2) { create(:epic) }
       let_it_be(:epic_issue1) { create(:epic_issue, epic: epic1) }
       let_it_be(:epic_issue2) { create(:epic_issue, epic: epic2) }
+      let_it_be(:issue_no_epic) { create(:issue) }
 
       before do
         stub_licensed_features(epics: true)
       end
 
-      it 'returns only issues in selected epics' do
-        expect(described_class.count).to eq 2
-        expect(described_class.in_epics([epic1])).to eq [epic_issue1.issue]
+      describe '.no_epic' do
+        it 'returns only issues without an epic assigned' do
+          expect(described_class.count).to eq 3
+          expect(described_class.no_epic).to eq [issue_no_epic]
+        end
+      end
+
+      describe '.in_epics' do
+        it 'returns only issues in selected epics' do
+          expect(described_class.count).to eq 3
+          expect(described_class.in_epics([epic1])).to eq [epic_issue1.issue]
+        end
       end
     end
   end
@@ -117,6 +127,8 @@ describe Issue do
     it { is_expected.to have_many(:related_vulnerabilities).through(:vulnerability_links).source(:vulnerability) }
     it { is_expected.to belong_to(:promoted_to_epic).class_name('Epic') }
     it { is_expected.to have_many(:resource_weight_events) }
+    it { is_expected.to have_many(:blocked_by_issue_links) }
+    it { is_expected.to have_many(:blocked_by_issues).through(:blocked_by_issue_links).source(:source) }
 
     describe 'versions.most_recent' do
       it 'returns the most recent version' do

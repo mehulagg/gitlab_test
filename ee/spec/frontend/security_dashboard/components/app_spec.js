@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import MockAdapter from 'axios-mock-adapter';
 import { TEST_HOST } from 'helpers/test_constants';
 
@@ -12,8 +12,6 @@ import VulnerabilitySeverity from 'ee/security_dashboard/components/vulnerabilit
 import createStore from 'ee/security_dashboard/store';
 import { getParameterValues } from '~/lib/utils/url_utility';
 import axios from '~/lib/utils/axios_utils';
-
-const localVue = createLocalVue();
 
 const pipelineId = 123;
 const vulnerabilitiesEndpoint = `${TEST_HOST}/vulnerabilities`;
@@ -41,9 +39,7 @@ describe('Security Dashboard app', () => {
   const createComponent = props => {
     store = createStore();
     wrapper = shallowMount(SecurityDashboardApp, {
-      localVue,
       store,
-      sync: false,
       methods: {
         lockFilter: lockFilterSpy,
         setPipelineId: setPipelineIdSpy,
@@ -104,7 +100,7 @@ describe('Security Dashboard app', () => {
       const newCount = 3;
 
       beforeEach(() => {
-        localVue.set(store.state.vulnerabilities.pageInfo, 'total', newCount);
+        store.state.vulnerabilities.pageInfo = { total: newCount };
       });
 
       it('emits a vulnerabilitiesCountChanged event', () => {

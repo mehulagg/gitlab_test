@@ -26,7 +26,7 @@ module EE
               strategy :CrossProjectTrigger, if: -> (config) { !config.key?(:include) }
 
               strategy :SameProjectTrigger, if: -> (config) do
-                ::Feature.enabled?(:ci_parent_child_pipeline) &&
+                ::Feature.enabled?(:ci_parent_child_pipeline, default_enabled: true) &&
                   config.key?(:include)
               end
 
@@ -51,6 +51,7 @@ module EE
                 include ::Gitlab::Config::Entry::Attributable
                 include ::Gitlab::Config::Entry::Configurable
 
+                INCLUDE_MAX_SIZE = 3
                 ALLOWED_KEYS = %i[strategy include].freeze
                 attributes :strategy
 
@@ -62,7 +63,8 @@ module EE
 
                 entry :include, ::Gitlab::Ci::Config::Entry::Includes,
                   description: 'List of external YAML files to include.',
-                  reserved: true
+                  reserved: true,
+                  metadata: { max_size: INCLUDE_MAX_SIZE }
 
                 def value
                   @config
@@ -71,7 +73,7 @@ module EE
 
               class UnknownStrategy < ::Gitlab::Config::Entry::Node
                 def errors
-                  if ::Feature.enabled?(:ci_parent_child_pipeline)
+                  if ::Feature.enabled?(:ci_parent_child_pipeline, default_enabled: true)
                     ['config must specify either project or include']
                   else
                     ['config must specify project']

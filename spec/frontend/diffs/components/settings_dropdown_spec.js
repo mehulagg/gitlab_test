@@ -25,10 +25,9 @@ describe('Diff settiings dropdown component', () => {
 
     extendStore(store);
 
-    vm = mount(localVue.extend(SettingsDropdown), {
+    vm = mount(SettingsDropdown, {
       localVue,
       store,
-      sync: false,
     });
   }
 

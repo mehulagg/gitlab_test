@@ -1,7 +1,10 @@
 import Vue from 'vue';
 import _ from 'underscore';
+import Tracking from '~/tracking';
 import { mount } from '@vue/test-utils';
 import PackagesList from 'ee/packages/list/components/packages_list.vue';
+import * as SharedUtils from 'ee/packages/shared/utils';
+import { TrackingActions } from 'ee/packages/shared/constants';
 import stubChildren from 'helpers/stub_children';
 import { packageList } from '../../mock_data';
 
@@ -50,7 +53,6 @@ describe('packages_list', () => {
         ...mountOptions,
         computed: {
           ...mountOptions.computed,
-          canDestroyPackage: () => false,
           isGroupPage: () => true,
         },
       });
@@ -59,6 +61,11 @@ describe('packages_list', () => {
     it('has project field', () => {
       const projectColumn = findFirstProjectColumn();
       expect(projectColumn.exists()).toBe(true);
+    });
+
+    it('does not show the action column', () => {
+      const action = findFirstActionColumn();
+      expect(action.exists()).toBe(false);
     });
   });
 
@@ -79,20 +86,6 @@ describe('packages_list', () => {
   it('contains a modal component', () => {
     const sorting = findPackageListDeleteModal();
     expect(sorting.exists()).toBe(true);
-  });
-
-  describe('when user can not destroy the package', () => {
-    beforeEach(() => {
-      wrapper = mount(PackagesList, {
-        ...mountOptions,
-        computed: { ...mountOptions.computed, canDestroyPackage: () => false },
-      });
-    });
-
-    it('does not show the action column', () => {
-      const action = findFirstActionColumn();
-      expect(action.exists()).toBe(false);
-    });
   });
 
   describe('when the user can destroy the package', () => {
@@ -126,11 +119,13 @@ describe('packages_list', () => {
       wrapper.vm.deleteItemConfirmation();
       expect(wrapper.vm.itemToBeDeleted).toEqual(null);
     });
+
     it('deleteItemConfirmation emit package:delete', () => {
-      wrapper.setData({ itemToBeDeleted: { id: 2 } });
+      const itemToBeDeleted = { id: 2 };
+      wrapper.setData({ itemToBeDeleted });
       wrapper.vm.deleteItemConfirmation();
       return wrapper.vm.$nextTick(() => {
-        expect(wrapper.emitted('package:delete')).toEqual([[2]]);
+        expect(wrapper.emitted('package:delete')[0]).toEqual([itemToBeDeleted]);
       });
     });
 
@@ -177,6 +172,32 @@ describe('packages_list', () => {
     it('has stacked-md class', () => {
       const table = findPackageListTable();
       expect(table.classes()).toContain('b-table-stacked-md');
+    });
+  });
+
+  describe('tracking', () => {
+    let eventSpy;
+    let utilSpy;
+    const category = 'foo';
+
+    beforeEach(() => {
+      eventSpy = jest.spyOn(Tracking, 'event');
+      utilSpy = jest.spyOn(SharedUtils, 'packageTypeToTrackCategory').mockReturnValue(category);
+      wrapper.setData({ itemToBeDeleted: { package_type: 'conan' } });
+    });
+
+    it('tracking category calls packageTypeToTrackCategory', () => {
+      expect(wrapper.vm.tracking.category).toBe(category);
+      expect(utilSpy).toHaveBeenCalledWith('conan');
+    });
+
+    it('deleteItemConfirmation calls event', () => {
+      wrapper.vm.deleteItemConfirmation();
+      expect(eventSpy).toHaveBeenCalledWith(
+        category,
+        TrackingActions.DELETE_PACKAGE,
+        expect.any(Object),
+      );
     });
   });
 });

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-$: << File.expand_path(File.dirname(__FILE__))
+$: << File.expand_path(__dir__)
 
 Encoding.default_external = 'UTF-8'
 
@@ -289,6 +289,8 @@ module QA
           autoload :AddExisting, 'qa/page/project/operations/kubernetes/add_existing'
           autoload :Show, 'qa/page/project/operations/kubernetes/show'
         end
+
+        autoload :Metrics, 'qa/page/project/operations/metrics'
       end
 
       module Wiki
@@ -488,8 +490,9 @@ module QA
     end
     autoload :Api, 'qa/support/api'
     autoload :Dates, 'qa/support/dates'
-    autoload :Waiter, 'qa/support/waiter'
+    autoload :Repeater, 'qa/support/repeater'
     autoload :Retrier, 'qa/support/retrier'
+    autoload :Waiter, 'qa/support/waiter'
     autoload :WaitForRequests, 'qa/support/wait_for_requests'
   end
 end

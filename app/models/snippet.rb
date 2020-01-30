@@ -14,7 +14,11 @@ class Snippet < ApplicationRecord
   include Editable
   include Gitlab::SQL::Pattern
   include FromUnion
+  include IgnorableColumns
+
   extend ::Gitlab::Utils::Override
+
+  ignore_column :storage_version, remove_with: '12.9', remove_after: '2020-03-22'
 
   cache_markdown_field :title, pipeline: :single_line
   cache_markdown_field :description
@@ -176,7 +180,7 @@ class Snippet < ApplicationRecord
     reference = "#{self.class.reference_prefix}#{id}"
 
     if project.present?
-      "#{project.to_reference(from, full: full)}#{reference}"
+      "#{project.to_reference_base(from, full: full)}#{reference}"
     else
       reference
     end
@@ -211,9 +215,7 @@ class Snippet < ApplicationRecord
   end
 
   def embeddable?
-    ability = project_id? ? :read_project_snippet : :read_personal_snippet
-
-    Ability.allowed?(nil, ability, self)
+    Ability.allowed?(nil, :read_snippet, self)
   end
 
   def notes_with_associations
@@ -225,7 +227,7 @@ class Snippet < ApplicationRecord
       (public? && (title_changed? || content_changed?))
   end
 
-  # snippers are the biggest sources of spam
+  # snippets are the biggest sources of spam
   override :allow_possible_spam?
   def allow_possible_spam?
     false
@@ -236,7 +238,7 @@ class Snippet < ApplicationRecord
   end
 
   def to_ability_name
-    model_name.singular
+    'snippet'
   end
 
   def valid_secret_token?(token)

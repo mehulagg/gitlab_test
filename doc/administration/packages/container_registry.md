@@ -98,7 +98,7 @@ There are two ways you can configure the Registry's external domain. Either:
   for that domain.
 
 Since the container Registry requires a TLS certificate, in the end it all boils
-down to how easy or pricey is to get a new one.
+down to how easy or pricey it is to get a new one.
 
 Please take this into consideration before configuring the Container Registry
 for the first time.
@@ -144,7 +144,7 @@ otherwise you will run into conflicts.
 
 1. Validate using:
 
-   ```sh
+   ```shell
    openssl s_client -showcerts -servername gitlab.example.com -connect gitlab.example.com:443 > cacert.pem
    ```
 
@@ -156,7 +156,7 @@ If your certificate provider provides the CA Bundle certificates, append them to
 1. Open `/home/git/gitlab/config/gitlab.yml`, find the `registry` entry and
    configure it with the following settings:
 
-   ```
+   ```yaml
    registry:
      enabled: true
      host: gitlab.example.com
@@ -398,6 +398,9 @@ To configure the `s3` storage driver in Omnibus:
 
 1. Save the file and [reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
+NOTE: **Note:**
+`your-s3-bucket` should only be the name of a bucket that exists, and can't include subdirectories.
+
 **Installations from source**
 
 Configuring the storage driver is done in your registry config YML file created
@@ -405,12 +408,12 @@ when you [deployed your docker registry](https://docs.docker.com/registry/deploy
 
 `s3` storage driver example:
 
-```yml
+```yaml
 storage:
   s3:
-    accesskey: 'AKIAKIAKI'
-    secretkey: 'secret123'
-    bucket: 'gitlab-registry-bucket-AKIAKIAKI'
+    accesskey: 's3-access-key'
+    secretkey: 's3-secret-key-for-access-key'
+    bucket: 'your-s3-bucket'
     region: 'your-s3-region'
     regionendpoint: 'your-s3-regionendpoint'
   cache:
@@ -418,6 +421,9 @@ storage:
   delete:
     enabled: true
 ```
+
+NOTE: **Note:**
+`your-s3-bucket` should only be the name of a bucket that exists, and can't include subdirectories.
 
 ## Change the registry's internal port
 
@@ -610,7 +616,7 @@ Before diving in to the following sections, here's some basic troubleshooting:
 If you're using a self-signed certificate with your Container Registry, you
 might encounter issues during the CI jobs like the following:
 
-```
+```plaintext
 Error response from daemon: Get registry.example.com/v1/users/: x509: certificate signed by unknown authority
 ```
 
@@ -625,19 +631,42 @@ mounting the docker-daemon and setting `privileged = false` in the Runner's
 
 ```toml
   [runners.docker]
-    image = "ruby:2.1"
+    image = "ruby:2.6"
     privileged = false
     volumes = ["/var/run/docker.sock:/var/run/docker.sock", "/cache"]
 ```
 
 Additional information about this: [issue 18239](https://gitlab.com/gitlab-org/gitlab-foss/issues/18239).
 
+### `unauthorized: authentication required` when pushing large images
+
+Example error:
+
+```shell
+docker push gitlab.example.com/myproject/docs:latest
+The push refers to a repository [gitlab.example.com/myproject/docs]
+630816f32edb: Preparing
+530d5553aec8: Preparing
+...
+4b0bab9ff599: Waiting
+d1c800db26c7: Waiting
+42755cf4ee95: Waiting
+unauthorized: authentication required
+```
+
+GitLab has a default token expiration of 5 minutes for the registry. When pushing
+larger images, or images that take longer than 5 minutes to push, users may
+encounter this error.
+
+Administrators can increase the token duration in **Admin area > Settings >
+Container Registry > Authorization token duration (minutes)**.
+
 ### AWS S3 with the GitLab registry error when pushing large images
 
 When using AWS S3 with the GitLab registry, an error may occur when pushing
 large images. Look in the Registry log for the following error:
 
-```
+```plaintext
 level=error msg="response completed with error" err.code=unknown err.detail="unexpected EOF" err.message="unknown error"
 ```
 
@@ -715,7 +744,7 @@ project or branch name. Special characters can include:
 
 To get around this, you can [change the group path](../../user/group/index.md#changing-a-groups-path),
 [change the project path](../../user/project/settings/index.md#renaming-a-repository) or change the
-branch name. Another option is to create a [push rule](../../push_rules/push_rules.html) to prevent
+branch name. Another option is to create a [push rule](../../push_rules/push_rules.md) to prevent
 this at the instance level.
 
 ### Image push errors
@@ -784,7 +813,7 @@ diagnose a problem with the S3 setup.
 A user attempted to enable an S3-backed Registry. The `docker login` step went
 fine. However, when pushing an image, the output showed:
 
-```text
+```plaintext
 The push refers to a repository [s3-testing.myregistry.com:4567/root/docker-test/docker-image]
 dc5e59c14160: Pushing [==================================================>] 14.85 kB
 03c20c1a019a: Pushing [==================================================>] 2.048 kB
@@ -830,27 +859,27 @@ The following installation instructions assume you are running Ubuntu:
    Enter <kbd>CTRL</kbd>-<kbd>C</kbd> to quit.
 1. Install the certificate from `~/.mitmproxy` to your system:
 
-   ```sh
+   ```shell
    sudo cp ~/.mitmproxy/mitmproxy-ca-cert.pem /usr/local/share/ca-certificates/mitmproxy-ca-cert.crt
    sudo update-ca-certificates
    ```
 
 If successful, the output should indicate that a certificate was added:
 
-```sh
+```shell
 Updating certificates in /etc/ssl/certs... 1 added, 0 removed; done.
 Running hooks in /etc/ca-certificates/update.d....done.
 ```
 
 To verify that the certificates are properly installed, run:
 
-```sh
+```shell
 mitmproxy --port 9000
 ```
 
 This will run mitmproxy on port `9000`. In another window, run:
 
-```sh
+```shell
 curl --proxy http://localhost:9000 https://httpbin.org/status/200
 ```
 
@@ -863,7 +892,7 @@ For Docker to connect through a proxy, you must start the Docker daemon with the
 proper environment variables. The easiest way is to shutdown Docker (e.g. `sudo initctl stop docker`)
 and then run Docker by hand. As root, run:
 
-```sh
+```shell
 export HTTP_PROXY="http://localhost:9000"
 export HTTPS_PROXY="https://localhost:9000"
 docker daemon --debug
@@ -876,7 +905,7 @@ This will launch the Docker daemon and proxy all connections through mitmproxy.
 Now that we have mitmproxy and Docker running, we can attempt to login and push
 a container image. You may need to run as root to do this. For example:
 
-```sh
+```shell
 docker login s3-testing.myregistry.com:4567
 docker push s3-testing.myregistry.com:4567/root/docker-test/docker-image
 ```

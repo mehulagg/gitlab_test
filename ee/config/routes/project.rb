@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-scope "/-/push_from_secondary/:geo_node_id" do
-  draw :git_http
-end
-
 constraints(::Constraints::ProjectUrlConstrainer.new) do
   scope(path: '*namespace_id',
         as: :namespace,
@@ -60,10 +56,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         resources :subscriptions, only: [:create, :destroy]
 
-        namespace :performance_monitoring do
-          resources :dashboards, only: [:create]
-        end
-
         resources :licenses, only: [:index, :create, :update]
 
         resource :threat_monitoring, only: [:show], controller: :threat_monitoring
@@ -71,6 +63,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         resources :logs, only: [:index] do
           collection do
             get :k8s
+            get :elasticsearch
           end
         end
 
@@ -81,6 +74,16 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
 
         resources :audit_events, only: [:index]
+
+        namespace :security do
+          resources :waf_anomalies, only: [] do
+            get :summary, on: :collection
+          end
+        end
+
+        namespace :analytics do
+          resources :code_reviews, only: [:index]
+        end
       end
       # End of the /-/ scope.
 
@@ -119,33 +122,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
-      resources :issues, only: [], constraints: { id: /\d+/ } do
-        member do
-          get '/descriptions/:version_id/diff', action: :description_diff, as: :description_diff
-          get '/designs(/*vueroute)', to: 'issues#designs', as: :designs, format: false
-        end
-
-        collection do
-          post :export_csv
-          get :service_desk
-        end
-
-        resources :issue_links, only: [:index, :create, :destroy], as: 'links', path: 'links'
-      end
-
       get '/service_desk' => 'service_desk#show', as: :service_desk
       put '/service_desk' => 'service_desk#update', as: :service_desk_refresh
-
-      # Unscoped route. It will be replaced with redirect to /-/merge_requests/
-      # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
-      draw :merge_requests_ee
-
-      # To ensure an old unscoped routing is used for the UI we need to
-      # add prefix 'as' to the scope routing and place it below original MR routing.
-      # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
-      scope '-', as: 'scoped' do
-        draw :merge_requests_ee
-      end
 
       post '/restore' => '/projects#restore', as: :restore
 
@@ -167,19 +145,10 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       end
 
       namespace :security do
-        resource :dashboard, only: [:show], controller: :dashboard
+        resources :dashboard, only: [:show, :index], controller: :dashboard
         resource :configuration, only: [:show], controller: :configuration
+        resource :discover, only: [:show], controller: :discover
 
-        # We have to define both legacy and new routes for Vulnerability Findings
-        # because they are loaded upon application initialization and preloaded by
-        # web server.
-        # TODO: remove this comment and `resources :vulnerabilities` when applicable
-        # see https://gitlab.com/gitlab-org/gitlab/issues/33488
-        resources :vulnerabilities, only: [:index] do
-          collection do
-            get :summary
-          end
-        end
         resources :vulnerability_findings, only: [:index] do
           collection do
             get :summary
@@ -223,7 +192,7 @@ scope path: '(/-/jira)', constraints: ::Constraints::JiraEncodedUrlConstrainer.n
         project: params[:project_id]
       )
 
-      "/#{project_full_path}/tree/#{params[:id]}"
+      "/#{project_full_path}/-/tree/#{params[:id]}"
     }
   end
 end

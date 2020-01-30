@@ -208,7 +208,7 @@ code reviewer have ensured:
 
 ### When documentation is required
 
-Documentation [is required](../contributing/merge_request_workflow.html#definition-of-done) for a
+Documentation [is required](../contributing/merge_request_workflow.md#definition-of-done) for a
 milestone when:
 
 - A new or enhanced feature is shipped that impacts the user or administrator experience.
@@ -284,7 +284,7 @@ To update GitLab documentation:
 1. Follow GitLab's [Merge Request Guidelines](../contributing/merge_request_workflow.md#merge-request-guidelines).
 
 TIP: **Tip:**
-Work in a fork if you do not have developer access to the GitLab project.
+Work in a fork if you do not have Developer access to the GitLab project.
 
 Request help from the Technical Writing team if you:
 

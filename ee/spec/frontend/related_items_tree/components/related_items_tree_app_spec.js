@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import { GlLoadingIcon } from '@gitlab/ui';
 
 import RelatedItemsTreeApp from 'ee/related_items_tree/components/related_items_tree_app.vue';
@@ -19,8 +19,6 @@ import {
   mockParentItem,
 } from '../../../javascripts/related_items_tree/mock_data';
 
-const localVue = createLocalVue();
-
 const mockProjects = getJSONFixture('static/projects.json');
 
 const createComponent = () => {
@@ -29,10 +27,8 @@ const createComponent = () => {
   store.dispatch('setInitialConfig', mockInitialConfig);
   store.dispatch('setInitialParentItem', mockParentItem);
 
-  return shallowMount(localVue.extend(RelatedItemsTreeApp), {
-    localVue,
+  return shallowMount(RelatedItemsTreeApp, {
     store,
-    sync: false,
   });
 };
 
@@ -126,10 +122,12 @@ describe('RelatedItemsTreeApp', () => {
 
     describe('handleAddItemFormSubmit', () => {
       it('calls `addItem` action when `pendingReferences` prop in state is not empty', () => {
-        const newValue = '&1 &2';
+        const emitObj = {
+          pendingReferences: '&1 &2',
+        };
         jest.spyOn(wrapper.vm, 'addItem').mockImplementation();
 
-        wrapper.vm.handleAddItemFormSubmit(newValue);
+        wrapper.vm.handleAddItemFormSubmit(emitObj);
 
         expect(wrapper.vm.addItem).toHaveBeenCalled();
       });

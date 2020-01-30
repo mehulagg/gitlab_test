@@ -38,6 +38,8 @@ issues:
 - vulnerability_links
 - related_vulnerabilities
 - user_mentions
+- blocked_by_issue_links
+- blocked_by_issues
 events:
 - author
 - project
@@ -123,6 +125,8 @@ merge_requests:
 - merge_user
 - merge_request_diffs
 - merge_request_diff
+- merge_request_context_commits
+- merge_request_context_commit_diff_files
 - events
 - merge_requests_closing_issues
 - cached_closes_issues
@@ -168,6 +172,9 @@ merge_request_diff_commits:
 - merge_request_diff
 merge_request_diff_files:
 - merge_request_diff
+merge_request_context_commits:
+- merge_request
+- diff_files
 ci_pipelines:
 - project
 - user
@@ -214,6 +221,7 @@ stages:
 - project
 - pipeline
 - statuses
+- processables
 - builds
 - bridges
 statuses:
@@ -463,6 +471,7 @@ project:
 - import_failures
 - container_expiration_policy
 - resource_groups
+- autoclose_referenced_issues
 award_emoji:
 - awardable
 - user
@@ -577,3 +586,30 @@ zoom_meetings:
 sentry_issue:
 - issue
 design_versions: *version
+epic:
+- subscriptions
+- award_emoji
+- description_versions
+- author
+- assignee
+- issues
+- epic_issues
+- milestone
+- notes
+- label_links
+- labels
+- todos
+- metrics
+- group
+- parent
+- children
+- updated_by
+- last_edited_by
+- closed_by
+- start_date_sourcing_milestone
+- due_date_sourcing_milestone
+- start_date_sourcing_epic
+- due_date_sourcing_epic
+- events
+- resource_label_events
+- user_mentions

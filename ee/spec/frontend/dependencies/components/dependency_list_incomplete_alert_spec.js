@@ -1,4 +1,4 @@
-import { createLocalVue, shallowMount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import { GlAlert } from '@gitlab/ui';
 import DependencyListIncompleteAlert from 'ee/dependencies/components/dependency_list_incomplete_alert.vue';
 
@@ -6,11 +6,7 @@ describe('DependencyListIncompleteAlert component', () => {
   let wrapper;
 
   const factory = (options = {}) => {
-    const localVue = createLocalVue();
-
-    wrapper = shallowMount(localVue.extend(DependencyListIncompleteAlert), {
-      localVue,
-      sync: false,
+    wrapper = shallowMount(DependencyListIncompleteAlert, {
       ...options,
     });
   };

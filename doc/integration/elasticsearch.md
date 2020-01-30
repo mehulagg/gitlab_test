@@ -17,27 +17,30 @@ special searches:
 
 | GitLab version | Elasticsearch version |
 | -------------- | --------------------- |
-| GitLab Enterprise Edition 8.4 - 8.17  | Elasticsearch 2.4 with [Delete By Query Plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/2.4/plugins-delete-by-query.html) installed |
+| GitLab Enterprise Edition 8.4 - 8.17   | Elasticsearch 2.4 with [Delete By Query Plugin](https://www.elastic.co/guide/en/elasticsearch/plugins/2.4/plugins-delete-by-query.html) installed |
 | GitLab Enterprise Edition 9.0 - 11.4   | Elasticsearch 5.1 - 5.5 |
-| GitLab Enterprise Edition 11.5+        | Elasticsearch 5.6 - 6.x |
+| GitLab Enterprise Edition 11.5 - 12.6  | Elasticsearch 5.6 - 6.x |
+| GitLab Enterprise Edition 12.7+        | Elasticsearch 6.x - 7.x |
 
 ## Installing Elasticsearch
 
 Elasticsearch is _not_ included in the Omnibus packages. You will have to
-[install it yourself](https://www.elastic.co/guide/en/elasticsearch/reference/current/install-elasticsearch.html "Elasticsearch installation documentation")
+[install it yourself](https://www.elastic.co/guide/en/elasticsearch/reference/6.8/install-elasticsearch.html "Elasticsearch 6.8 installation documentation")
 whether you are using the Omnibus package or installed GitLab from source.
 Providing detailed information on installing Elasticsearch is out of the scope
 of this document.
 
 NOTE: **Note:**
 Elasticsearch should be installed on a separate server, whether you install
-it yourself or by using the
-[Amazon Elasticsearch](https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-gsg.html)
-service. Running Elasticsearch on the same server as GitLab is not recommended
-and it will likely cause performance degradation on the GitLab installation.
+it yourself or use a cloud hosted offering like Elastic's [Elasticsearch Service](https://www.elastic.co/products/elasticsearch/service) (available on AWS, GCP, or Azure) or the
+[Amazon Elasticsearch](http://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/es-gsg.html) service. Running Elasticsearch on the same server as GitLab is not recommended
+and will likely cause a degradation in GitLab instance performance.
+
+NOTE: **Note:**
+**For a single node Elasticsearch cluster the functional cluster health status will be yellow** (will never be green) because the primary shard is allocated but replicas can not be as there is no other node to which Elasticsearch can assign a replica.
 
 Once the data is added to the database or repository and [Elasticsearch is
-enabled in the admin area](#enabling-elasticsearch) the search index will be
+enabled in the Admin Area](#enabling-elasticsearch) the search index will be
 updated automatically.
 
 ## Elasticsearch repository indexer
@@ -198,7 +201,7 @@ To backfill existing data, you can use one of the methods below to index it in b
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/15390) in [GitLab Starter](https://about.gitlab.com/pricing/) 12.3.
 
-To index via the admin area:
+To index via the Admin Area:
 
 1. [Configure your Elasticsearch host and port](#enabling-elasticsearch).
 1. Create empty indexes using one of the following commands:
@@ -591,6 +594,32 @@ Here are some common pitfalls and how to overcome them:
   AWS has [fixed limits](https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/aes-limits.html)
   for this setting ("Maximum Size of HTTP Request Payloads"), based on the size of
   the underlying instance.
+  
+- **My single node Elasticsearch cluster status never goes from `yellow` to `green` even though everything seems to be running properly**
+
+  **For a single node Elasticsearch cluster the functional cluster health status will be yellow** (will never be green) because the primary shard is allocated but replicas can not be as there is no other node to which Elasticsearch can assign a replica. This also applies if you are using using the
+[Amazon Elasticsearch](https://docs.aws.amazon.com/elasticsearch-service/latest/developerguide/aes-handling-errors.html#aes-handling-errors-yellow-cluster-status) service.
+
+  CAUTION: **Warning**: Setting the number of replicas to `0` is not something that we recommend (this is not allowed in the GitLab Elasticsearch Integration menu). If you are planning to add more Elasticsearch nodes (for a total of more than 1 Elasticsearch) the number of replicas will need to be set to an integer value larger than `0`. Failure to do so will result in lack of redundancy (losing one node will corrupt the index).
+
+  If you have a **hard requirement to have a green status for your single node Elasticsearch cluster**, please make sure you understand the risks outlined in the previous paragraph and then simply run the following query to set the number of replicas to `0`(the cluster will no longer try to create any shard replicas):
+
+  ```bash
+  curl --request PUT localhost:9200/gitlab-production/_settings --header 'Content-Type: application/json' --data '{
+  "index" : {
+     "number_of_replicas" : 0
+    }
+  }'
+  ```
+  
+- **I'm getting a `health check timeout: no Elasticsearch node available` error in Sidekiq during the indexing process**
+
+   ```
+   Gitlab::Elastic::Indexer::Error: time="2020-01-23T09:13:00Z" level=fatal msg="health check timeout: no Elasticsearch node available"
+   ```
+
+   You probably have not used either `http://` or `https://` as part of your value in the **"URL"** field of the Elasticseach Integration Menu. Please make sure you are using either `http://` or `https://` in this field as the [Elasticsearch client for Go](https://github.com/olivere/elastic) that we are using [needs the prefix for the URL to be acceped as valid](https://github.com/olivere/elastic/commit/a80af35aa41856dc2c986204e2b64eab81ccac3a).
+   Once you have corrected the formatting of the URL please delete the index (via the [dedicated rake task](#gitlab-elasticsearch-rake-tasks)) and [index the content of your intance](#adding-gitlabs-data-to-the-elasticsearch-index) once more.
 
 ### Reverting to basic search
 

@@ -52,7 +52,7 @@ module API
       def log_user_activity(actor)
         commands = Gitlab::GitAccess::DOWNLOAD_COMMANDS
 
-        ::Users::ActivityService.new(actor, 'Git SSH').execute if commands.include?(params[:action])
+        ::Users::ActivityService.new(actor).execute if commands.include?(params[:action])
       end
 
       def merge_request_urls
@@ -104,21 +104,19 @@ module API
 
       # rubocop:disable Gitlab/ModuleWithInstanceVariables
       def set_project
-        if params[:gl_repository]
-          @project, @repo_type = Gitlab::GlRepository.parse(params[:gl_repository])
-          @redirected_path = nil
-        elsif params[:project]
-          @project, @repo_type, @redirected_path = Gitlab::RepoPath.parse(params[:project])
-        else
-          @project, @repo_type, @redirected_path = nil, nil, nil
-        end
+        @project, @repo_type, @redirected_path =
+          if params[:gl_repository]
+            Gitlab::GlRepository.parse(params[:gl_repository])
+          elsif params[:project]
+            Gitlab::RepoPath.parse(params[:project])
+          end
       end
       # rubocop:enable Gitlab/ModuleWithInstanceVariables
 
       # Project id to pass between components that don't share/don't have
       # access to the same filesystem mounts
       def gl_repository
-        repo_type.identifier_for_subject(project)
+        repo_type.identifier_for_container(project)
       end
 
       def gl_project_path

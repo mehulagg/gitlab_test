@@ -1,4 +1,4 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { GlDropdownItem } from '@gitlab/ui';
 import MockAdapter from 'axios-mock-adapter';
 import axios from '~/lib/utils/axios_utils';
@@ -6,9 +6,7 @@ import statusCodes from '~/lib/utils/http_status';
 import Dashboard from '~/monitoring/components/dashboard.vue';
 import { createStore } from '~/monitoring/stores';
 import { propsData, setupComponentStore } from '../init_utils';
-import { metricsGroupsAPIResponse, mockApiEndpoint } from '../mock_data';
-
-const localVue = createLocalVue();
+import { metricsDashboardPayload, mockApiEndpoint } from '../mock_data';
 
 jest.mock('~/lib/utils/url_utility', () => ({
   getParameterValues: jest.fn().mockImplementation(param => {
@@ -25,9 +23,7 @@ describe('dashboard time window', () => {
   let mock;
 
   const createComponentWrapperMounted = (props = {}, options = {}) => {
-    wrapper = mount(localVue.extend(Dashboard), {
-      localVue,
-      sync: false,
+    wrapper = mount(Dashboard, {
       propsData: { ...propsData, ...props },
       store,
       ...options,
@@ -46,13 +42,10 @@ describe('dashboard time window', () => {
     mock.restore();
   });
 
-  it('shows an error message if invalid url parameters are passed', done => {
-    mock.onGet(mockApiEndpoint).reply(statusCodes.OK, metricsGroupsAPIResponse);
+  it('shows an active quick range option', done => {
+    mock.onGet(mockApiEndpoint).reply(statusCodes.OK, metricsDashboardPayload);
 
-    createComponentWrapperMounted(
-      { hasMetrics: true },
-      { attachToDocument: true, stubs: ['graph-group', 'panel-type'] },
-    );
+    createComponentWrapperMounted({ hasMetrics: true }, { stubs: ['graph-group', 'panel-type'] });
 
     setupComponentStore(wrapper);
 
@@ -60,8 +53,9 @@ describe('dashboard time window', () => {
       .$nextTick()
       .then(() => {
         const timeWindowDropdownItems = wrapper
-          .find('.js-time-window-dropdown')
+          .find({ ref: 'dateTimePicker' })
           .findAll(GlDropdownItem);
+
         const activeItem = timeWindowDropdownItems.wrappers.filter(itemWrapper =>
           itemWrapper.find('.active').exists(),
         );

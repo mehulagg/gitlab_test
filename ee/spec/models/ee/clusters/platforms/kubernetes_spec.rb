@@ -179,7 +179,6 @@ describe Clusters::Platforms::Kubernetes do
         before do
           expect_any_instance_of(::Clusters::Applications::ElasticStack).to receive(:elasticsearch_client).at_least(:once).and_return(Elasticsearch::Transport::Client.new)
           expect_any_instance_of(::Gitlab::Elasticsearch::Logs).to receive(:pod_logs).and_return(expected_logs)
-          stub_feature_flags(enable_cluster_application_elastic_stack: true)
         end
 
         include_examples 'successful log request'
@@ -265,7 +264,9 @@ describe Clusters::Platforms::Kubernetes do
             'pod_name' => pod_name,
             'namespace' => namespace,
             'container' => container,
-            'search' => nil
+            'search' => nil,
+            'start_time' => nil,
+            'end_time' => nil
           }
         ]
       end

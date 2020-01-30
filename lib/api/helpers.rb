@@ -4,6 +4,7 @@ module API
   module Helpers
     include Gitlab::Utils
     include Helpers::Pagination
+    include Helpers::PaginationStrategies
 
     SUDO_HEADER = "HTTP_SUDO"
     GITLAB_SHARED_SECRET_HEADER = "Gitlab-Shared-Secret"
@@ -30,6 +31,7 @@ module API
       check_unmodified_since!(last_updated)
 
       status 204
+      body false
 
       if block_given?
         yield resource
@@ -314,7 +316,7 @@ module API
 
     def order_options_with_tie_breaker
       order_options = { params[:order_by] => params[:sort] }
-      order_options['id'] ||= 'desc'
+      order_options['id'] ||= params[:sort] || 'asc'
       order_options
     end
 
@@ -432,7 +434,7 @@ module API
 
     def present_disk_file!(path, filename, content_type = 'application/octet-stream')
       filename ||= File.basename(path)
-      header['Content-Disposition'] = ::Gitlab::ContentDisposition.format(disposition: 'attachment', filename: filename)
+      header['Content-Disposition'] = ActionDispatch::Http::ContentDisposition.format(disposition: 'attachment', filename: filename)
       header['Content-Transfer-Encoding'] = 'binary'
       content_type content_type
 
@@ -540,7 +542,7 @@ module API
     def send_git_blob(repository, blob)
       env['api.format'] = :txt
       content_type 'text/plain'
-      header['Content-Disposition'] = ::Gitlab::ContentDisposition.format(disposition: 'inline', filename: blob.name)
+      header['Content-Disposition'] = ActionDispatch::Http::ContentDisposition.format(disposition: 'inline', filename: blob.name)
 
       # Let Workhorse examine the content and determine the better content disposition
       header[Gitlab::Workhorse::DETECT_HEADER] = "true"

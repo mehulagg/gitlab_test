@@ -318,6 +318,9 @@ describe 'Issue Boards', :js do
         wait_for_requests
 
         click_link bug.title
+
+        wait_for_requests
+
         click_link regression.title
 
         wait_for_requests

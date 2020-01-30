@@ -1,5 +1,5 @@
 <script>
-import _ from 'underscore';
+import { omit } from 'lodash';
 import { GlLink, GlButton, GlTooltip, GlResizeObserverDirective } from '@gitlab/ui';
 import { GlAreaChart, GlLineChart, GlChartSeriesLabel } from '@gitlab/ui/dist/charts';
 import dateFormat from 'dateformat';
@@ -140,7 +140,7 @@ export default {
       return (this.option.series || []).concat(this.scatterSeries ? [this.scatterSeries] : []);
     },
     chartOptions() {
-      const option = _.omit(this.option, 'series');
+      const option = omit(this.option, 'series');
       return {
         series: this.chartOptionSeries,
         xAxis: {
@@ -311,7 +311,10 @@ export default {
       <gl-tooltip :target="() => $refs.graphTitle" :disabled="!showTitleTooltip">
         {{ graphData.title }}
       </gl-tooltip>
-      <div class="prometheus-graph-widgets js-graph-widgets flex-fill">
+      <div
+        class="prometheus-graph-widgets js-graph-widgets flex-fill"
+        data-qa-selector="prometheus_graph_widgets"
+      >
         <slot></slot>
       </div>
     </div>

@@ -3,7 +3,6 @@ import * as types from 'ee/logs/stores/mutation_types';
 
 import logsPageState from 'ee/logs/stores/state';
 import {
-  mockProjectPath,
   mockEnvName,
   mockEnvironments,
   mockPods,
@@ -26,11 +25,6 @@ describe('Logs Store Mutations', () => {
   });
 
   describe('SET_PROJECT_ENVIRONMENT', () => {
-    it('sets the project path', () => {
-      mutations[types.SET_PROJECT_PATH](state, mockProjectPath);
-      expect(state.projectPath).toEqual(mockProjectPath);
-    });
-
     it('sets the environment', () => {
       mutations[types.SET_PROJECT_ENVIRONMENT](state, mockEnvName);
       expect(state.environments.current).toEqual(mockEnvName);
@@ -124,6 +118,16 @@ describe('Logs Store Mutations', () => {
       expect(state.pods.current).toEqual(mockPodName);
     });
   });
+
+  describe('SET_TIME_WINDOW', () => {
+    it('sets a time window Key', () => {
+      const mockKey = 'fourHours';
+      mutations[types.SET_TIME_WINDOW](state, mockKey);
+
+      expect(state.timeWindow.current).toEqual(mockKey);
+    });
+  });
+
   describe('REQUEST_PODS_DATA', () => {
     it('receives log data error and stops loading', () => {
       mutations[types.REQUEST_PODS_DATA](state);

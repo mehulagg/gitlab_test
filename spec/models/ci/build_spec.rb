@@ -341,6 +341,36 @@ describe Ci::Build do
     end
   end
 
+  describe '#enqueue_preparing' do
+    let(:build) { create(:ci_build, :preparing) }
+
+    subject { build.enqueue_preparing }
+
+    before do
+      allow(build).to receive(:any_unmet_prerequisites?).and_return(has_unmet_prerequisites)
+    end
+
+    context 'build completed prerequisites' do
+      let(:has_unmet_prerequisites) { false }
+
+      it 'transitions to pending' do
+        subject
+
+        expect(build).to be_pending
+      end
+    end
+
+    context 'build did not complete prerequisites' do
+      let(:has_unmet_prerequisites) { true }
+
+      it 'remains in preparing' do
+        subject
+
+        expect(build).to be_preparing
+      end
+    end
+  end
+
   describe '#actionize' do
     context 'when build is a created' do
       before do
@@ -1610,6 +1640,12 @@ describe Ci::Build do
 
           it { is_expected.to be_cancelable }
         end
+
+        context 'when build is waiting for resource' do
+          let(:build) { create(:ci_build, :waiting_for_resource) }
+
+          it { is_expected.to be_cancelable }
+        end
       end
 
       context 'when build is not cancelable' do
@@ -2353,7 +2389,10 @@ describe Ci::Build do
           { key: 'CI_BUILD_STAGE', value: 'test', public: true, masked: false },
           { key: 'CI', value: 'true', public: true, masked: false },
           { key: 'GITLAB_CI', value: 'true', public: true, masked: false },
+          { key: 'CI_SERVER_URL', value: Gitlab.config.gitlab.url, public: true, masked: false },
           { key: 'CI_SERVER_HOST', value: Gitlab.config.gitlab.host, public: true, masked: false },
+          { key: 'CI_SERVER_PORT', value: Gitlab.config.gitlab.port.to_s, public: true, masked: false },
+          { key: 'CI_SERVER_PROTOCOL', value: Gitlab.config.gitlab.protocol, public: true, masked: false },
           { key: 'CI_SERVER_NAME', value: 'GitLab', public: true, masked: false },
           { key: 'CI_SERVER_VERSION', value: Gitlab::VERSION, public: true, masked: false },
           { key: 'CI_SERVER_VERSION_MAJOR', value: Gitlab.version_info.major.to_s, public: true, masked: false },

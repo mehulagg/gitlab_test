@@ -447,6 +447,8 @@ class Repository
   def after_import
     expire_content_cache
 
+    return unless repo_type.project?
+
     # This call is stubbed in tests due to being an expensive operation
     # It can be reenabled for specific tests via:
     #
@@ -925,22 +927,12 @@ class Repository
   def ancestor?(ancestor_id, descendant_id)
     return false if ancestor_id.nil? || descendant_id.nil?
 
-    counter = Gitlab::Metrics.counter(
-      :repository_ancestor_calls_total,
-      'The number of times we call Repository#ancestor with valid arguments')
-    cache_hit = true
-
     cache_key = "ancestor:#{ancestor_id}:#{descendant_id}"
-    result = request_store_cache.fetch(cache_key) do
+    request_store_cache.fetch(cache_key) do
       cache.fetch(cache_key) do
-        cache_hit = false
         raw_repository.ancestor?(ancestor_id, descendant_id)
       end
     end
-
-    counter.increment(cache_hit: cache_hit.to_s)
-
-    result
   end
 
   def fetch_as_mirror(url, forced: false, refmap: :all_refs, remote_name: nil, prune: true)
@@ -1062,10 +1054,13 @@ class Repository
     rebase_sha
   end
 
-  def rebase(user, merge_request)
+  def rebase(user, merge_request, skip_ci: false)
     if Feature.disabled?(:two_step_rebase, default_enabled: true)
       return rebase_deprecated(user, merge_request)
     end
+
+    push_options = []
+    push_options << Gitlab::PushOptions::CI_SKIP if skip_ci
 
     raw.rebase(
       user,
@@ -1073,7 +1068,8 @@ class Repository
       branch: merge_request.source_branch,
       branch_sha: merge_request.source_branch_sha,
       remote_repository: merge_request.target_project.repository.raw,
-      remote_branch: merge_request.target_branch
+      remote_branch: merge_request.target_branch,
+      push_options: push_options
     ) do |commit_id|
       merge_request.update!(rebase_commit_sha: commit_id, merge_error: nil)
     end
@@ -1088,6 +1084,10 @@ class Repository
                                        end_sha: merge_request.diff_head_sha,
                                        author: merge_request.author,
                                        message: message)
+  end
+
+  def submodule_links
+    @submodule_links ||= ::Gitlab::SubmoduleLinks.new(self)
   end
 
   def update_submodule(user, submodule, commit_sha, message:, branch:)
@@ -1127,8 +1127,8 @@ class Repository
 
   private
 
-  # TODO Generice finder, later split this on finders by Ref or Oid
-  # https://gitlab.com/gitlab-org/gitlab-foss/issues/39239
+  # TODO Genericize finder, later split this on finders by Ref or Oid
+  # https://gitlab.com/gitlab-org/gitlab/issues/19877
   def find_commit(oid_or_ref)
     commit = if oid_or_ref.is_a?(Gitlab::Git::Commit)
                oid_or_ref
@@ -1173,7 +1173,7 @@ class Repository
   def initialize_raw_repository
     Gitlab::Git::Repository.new(project.repository_storage,
                                 disk_path + '.git',
-                                repo_type.identifier_for_subject(project),
+                                repo_type.identifier_for_container(project),
                                 project.full_path)
   end
 end

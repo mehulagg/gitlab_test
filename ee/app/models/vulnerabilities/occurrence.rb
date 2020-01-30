@@ -136,6 +136,7 @@ module Vulnerabilities
 
     def state
       return 'dismissed' if dismissal_feedback.present?
+      return 'opened' unless Feature.enabled?(:first_class_vulnerabilities, project)
 
       if vulnerability.nil?
         'opened'
@@ -164,9 +165,14 @@ module Vulnerabilities
         project_ids = items.map { |i| i[:project_id] }.uniq
         severities = items.map { |i| i[:severity] }.uniq
 
-        counts = undismissed
+        latest_pipelines = Ci::Pipeline
+          .where(project_id: project_ids)
+          .with_vulnerabilities
+          .latest_successful_ids_per_project
+
+        counts = for_pipelines(latest_pipelines)
+          .undismissed
           .by_severities(severities)
-          .by_projects(project_ids)
           .group(:project_id, :severity)
           .count
 

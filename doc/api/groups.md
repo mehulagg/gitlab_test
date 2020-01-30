@@ -40,6 +40,7 @@ GET /groups
     "auto_devops_enabled": null,
     "subgroup_creation_level": "owner",
     "emails_disabled": null,
+    "mentions_disabled": null,
     "lfs_enabled": true,
     "avatar_url": "http://localhost:3000/uploads/group/avatar/1/foo.jpg",
     "web_url": "http://localhost:3000/groups/foo-bar",
@@ -73,6 +74,7 @@ GET /groups?statistics=true
     "auto_devops_enabled": null,
     "subgroup_creation_level": "owner",
     "emails_disabled": null,
+    "mentions_disabled": null,
     "lfs_enabled": true,
     "avatar_url": "http://localhost:3000/uploads/group/avatar/1/foo.jpg",
     "web_url": "http://localhost:3000/groups/foo-bar",
@@ -144,6 +146,7 @@ GET /groups/:id/subgroups
     "auto_devops_enabled": null,
     "subgroup_creation_level": "owner",
     "emails_disabled": null,
+    "mentions_disabled": null,
     "lfs_enabled": true,
     "avatar_url": "http://gitlab.example.com/uploads/group/avatar/1/foo.jpg",
     "web_url": "http://gitlab.example.com/groups/foo-bar",
@@ -486,6 +489,7 @@ Parameters:
 | `auto_devops_enabled`                | boolean | no       | Default to Auto DevOps pipeline for all projects within this group. |
 | `subgroup_creation_level`            | integer | no       | Allowed to create subgroups. Can be `owner` (Owners), or `maintainer` (Maintainers). |
 | `emails_disabled`                    | boolean | no       | Disable email notifications |
+| `mentions_disabled`                  | boolean | no       | Disable the capability of a group from getting mentioned |
 | `lfs_enabled`                        | boolean | no       | Enable/disable Large File Storage (LFS) for the projects in this group. |
 | `request_access_enabled`             | boolean | no       | Allow users to request member access. |
 | `parent_id`                          | integer | no       | The parent group ID for creating nested group. |
@@ -531,6 +535,7 @@ PUT /groups/:id
 | `auto_devops_enabled`                | boolean | no       | Default to Auto DevOps pipeline for all projects within this group. |
 | `subgroup_creation_level`            | integer | no       | Allowed to create subgroups. Can be `owner` (Owners), or `maintainer` (Maintainers). |
 | `emails_disabled`                    | boolean | no       | Disable email notifications |
+| `mentions_disabled`                  | boolean | no       | Disable the capability of a group from getting mentioned |
 | `lfs_enabled` (optional)             | boolean | no       | Enable/disable Large File Storage (LFS) for the projects in this group. |
 | `request_access_enabled`             | boolean | no       | Allow users to request member access. |
 | `file_template_project_id`           | integer | no       | **(PREMIUM)** The ID of a project to load custom file templates from. |
@@ -623,7 +628,12 @@ Feature.disable(:limit_projects_in_groups_api)
 
 ## Remove group
 
-Removes group with all projects inside. Only available to group owners and administrators.
+Only available to group owners and administrators.
+
+This endpoint either:
+
+- Removes group, and queues a background job to delete all projects in the group as well.
+- Since [GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/issues/33257), on [Premium or Silver](https://about.gitlab.com/pricing/) or higher tiers, marks a group for deletion. The deletion will happen 7 days later by default, but this can be changed in the [instance settings](../user/admin_area/settings/visibility_and_access_controls.md#default-deletion-adjourned-period-premium-only).
 
 ```
 DELETE /groups/:id
@@ -631,10 +641,27 @@ DELETE /groups/:id
 
 Parameters:
 
-- `id` (required) - The ID or path of a user group
+| Attribute       | Type           | Required | Description |
+| --------------- | -------------- | -------- | ----------- |
+| `id`            | integer/string | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) |
 
-This will queue a background job to delete all projects in the group. The
-response will be a 202 Accepted if the user has authorization.
+The response will be `202 Accepted` if the user has authorization.
+
+## Restore group marked for deletion **(PREMIUM)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/33257) in GitLab 12.8.
+
+Restores a group marked for deletion.
+
+```plaintext
+POST /groups/:id/restore
+```
+
+Parameters:
+
+| Attribute       | Type           | Required | Description |
+| --------------- | -------------- | -------- | ----------- |
+| `id`            | integer/string | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) |
 
 ## Search for group
 
@@ -654,6 +681,118 @@ GET /groups?search=foobar
   }
 ]
 ```
+
+## Hooks
+
+Also called Group Hooks and Webhooks.
+These are different from [System Hooks](system_hooks.md) that are system wide and [Project Hooks](projects.md#hooks) that are limited to one project.
+
+### List group hooks
+
+Get a list of group hooks
+
+```
+GET /groups/:id/hooks
+```
+
+| Attribute | Type            | Required | Description |
+| --------- | --------------- | -------- | ----------- |
+| `id`      | integer/string  | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) |
+
+### Get group hook
+
+Get a specific hook for a group.
+
+| Attribute | Type           | Required | Description |
+| --------- | -------------- | -------- | ----------- |
+| `id`      | integer/string | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) |
+| `hook_id` | integer        | yes      | The ID of a group hook |
+
+```
+GET /groups/:id/hooks/:hook_id
+```
+
+```json
+{
+  "id": 1,
+  "url": "http://example.com/hook",
+  "group_id": 3,
+  "push_events": true,
+  "issues_events": true,
+  "confidential_issues_events": true,
+  "merge_requests_events": true,
+  "tag_push_events": true,
+  "note_events": true,
+  "job_events": true,
+  "pipeline_events": true,
+  "wiki_page_events": true,
+  "enable_ssl_verification": true,
+  "created_at": "2012-10-12T17:04:47Z"
+}
+```
+
+### Add group hook
+
+Adds a hook to a specified group.
+
+```
+POST /groups/:id/hooks
+```
+
+| Attribute                    | Type           | Required | Description |
+| -----------------------------| -------------- | ---------| ----------- |
+| `id`                         | integer/string | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) |
+| `url`                        | string         | yes      | The hook URL |
+| `push_events`                | boolean        | no       | Trigger hook on push events |
+| `issues_events`              | boolean        | no       | Trigger hook on issues events |
+| `confidential_issues_events` | boolean        | no       | Trigger hook on confidential issues events |
+| `merge_requests_events`      | boolean        | no       | Trigger hook on merge requests events |
+| `tag_push_events`            | boolean        | no       | Trigger hook on tag push events |
+| `note_events`                | boolean        | no       | Trigger hook on note events |
+| `job_events`                 | boolean        | no       | Trigger hook on job events |
+| `pipeline_events`            | boolean        | no       | Trigger hook on pipeline events |
+| `wiki_page_events`           | boolean        | no       | Trigger hook on wiki events |
+| `enable_ssl_verification`    | boolean        | no       | Do SSL verification when triggering the hook |
+| `token`                      | string         | no       | Secret token to validate received payloads; this will not be returned in the response |
+
+### Edit group hook
+
+Edits a hook for a specified group.
+
+```
+PUT /groups/:id/hooks/:hook_id
+```
+
+| Attribute                    | Type           | Required | Description |
+| ---------------------------- | -------------- | -------- | ----------- |
+| `id`                         | integer/string | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) |
+| `hook_id`                    | integer        | yes      | The ID of the group hook |
+| `url`                        | string         | yes      | The hook URL |
+| `push_events`                | boolean        | no       | Trigger hook on push events |
+| `issues_events`              | boolean        | no       | Trigger hook on issues events |
+| `confidential_issues_events` | boolean        | no       | Trigger hook on confidential issues events |
+| `merge_requests_events`      | boolean        | no       | Trigger hook on merge requests events |
+| `tag_push_events`            | boolean        | no       | Trigger hook on tag push events |
+| `note_events`                | boolean        | no       | Trigger hook on note events |
+| `job_events`                 | boolean        | no       | Trigger hook on job events |
+| `pipeline_events`            | boolean        | no       | Trigger hook on pipeline events |
+| `wiki_events`                | boolean        | no       | Trigger hook on wiki events |
+| `enable_ssl_verification`    | boolean        | no       | Do SSL verification when triggering the hook |
+| `token`                      | string         | no       | Secret token to validate received payloads; this will not be returned in the response |
+
+### Delete group hook
+
+Removes a hook from a group. This is an idempotent method and can be called multiple times.
+Either the hook is available or not.
+
+```
+DELETE /groups/:id/hooks/:hook_id
+```
+
+| Attribute | Type           | Required | Description |
+| --------- | -------------- | -------- | ----------- |
+| `id`      | integer/string | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) |
+| `hook_id` | integer        | yes      | The ID of the group hook. |
 
 ## Group Audit Events **(STARTER)**
 

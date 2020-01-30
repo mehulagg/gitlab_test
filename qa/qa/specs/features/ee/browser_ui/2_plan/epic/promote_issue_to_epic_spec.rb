@@ -3,21 +3,15 @@
 module QA
   context 'Plan' do
     describe 'promote issue to epic' do
-      let(:issue_title) { "My Awesome Issue #{SecureRandom.hex(8)}" }
-
       it 'user promotes issue to an epic' do
         Flow::Login.sign_in
-
-        group = Resource::Group.fabricate_via_api!
 
         project = Resource::Project.fabricate_via_api! do |project|
           project.name = 'promote-issue-to-epic'
           project.description = 'Project to promote issue to epic'
-          project.group = group
         end
 
         issue = Resource::Issue.fabricate_via_api! do |issue|
-          issue.title = issue_title
           issue.project = project
         end
 
@@ -35,16 +29,11 @@ module QA
           show.comment('/promote ')
         end
 
-        group.visit!
+        project.group.visit!
         Page::Group::Menu.perform(&:click_group_epics_link)
         QA::EE::Page::Group::Epic::Index.perform do |index|
-          expect(index).to have_epic_title(issue_title)
-
-          index.click_first_epic(QA::EE::Page::Group::Epic::Show)
+          expect(index).to have_epic_title(issue.title)
         end
-
-        expect(page).to have_content(issue_title)
-        expect(page).to have_content(/promoted from issue .* \(closed\)/)
       end
     end
   end
