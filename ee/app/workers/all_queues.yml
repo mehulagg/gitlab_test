@@ -351,6 +351,12 @@
   :latency_sensitive: 
   :resource_boundary: :unknown
   :weight: 3
+- :name: pipeline_default:store_security_scans
+  :feature_category: :static_application_security_testing
+  :has_external_dependencies: 
+  :latency_sensitive: true
+  :resource_boundary: :unknown
+  :weight: 3
 - :name: pipeline_default:sync_security_reports_to_report_approval_rules
   :feature_category: :static_application_security_testing
   :has_external_dependencies: 
