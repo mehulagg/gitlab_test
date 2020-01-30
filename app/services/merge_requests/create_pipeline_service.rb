@@ -40,7 +40,7 @@ module MergeRequests
     end
 
     def save_on_errors
-      !Feature.enabled?(:skip_mr_pipeline_for_invalid_yaml, default_enabled: true)
+      Feature.enabled?(:ci_merge_request_pipelines_save_on_errors)
     end
   end
 end
