@@ -14,7 +14,7 @@ module Metrics
           result = ::Files::UpdateService.new(project, current_user, dashboard_attrs).execute
           throw(:error, result) unless result[:status] == :success
 
-          success(result.merge(http_status: :created, dashboard: dashboard_details))
+          success(result.merge(http_status: :created, dashboard: { path: new_dashboard_path }))
         end
       end
 
@@ -28,12 +28,6 @@ module Metrics
           encoding: 'text',
           branch_name: branch,
           start_branch: repository.branch_exists?(branch) ? branch : project.default_branch
-        }
-      end
-
-      def dashboard_details
-        {
-          path: new_dashboard_path
         }
       end
 
