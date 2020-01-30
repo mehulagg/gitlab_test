@@ -19,11 +19,8 @@ class ElasticAssociationIndexerWorker
 
     options[:batch_size] = batch_size if batch_size
 
-    errors = if ids
-               association.id_in(ids).es_import(options)
-             else
-               association.es_import(options)
-             end
+    resource = ids ? association.id_in(ids) : association
+    errors = resource.es_import(options)
 
     return if errors.empty?
 
