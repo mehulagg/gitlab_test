@@ -2,6 +2,6 @@
 
 module Security
   class DependencyPolicy < ::BasePolicy
-    delegate { @subject.issue }
+    delegate { @subject.project }
   end
 end
