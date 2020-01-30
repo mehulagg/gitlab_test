@@ -10,9 +10,7 @@ module Gitlab
           SKIP_PATTERN = /\[(ci[ _-]skip|skip[ _-]ci)\]/i.freeze
 
           def perform!
-            if skipped?
-              @pipeline.skip if @command.save_incompleted
-            end
+            skip if skipped?
           end
 
           def skipped?

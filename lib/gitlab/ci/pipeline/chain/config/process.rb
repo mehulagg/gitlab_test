@@ -19,7 +19,7 @@ module Gitlab
                 }
               )
             rescue Gitlab::Ci::YamlProcessor::ValidationError => ex
-              error(ex.message, config_error: true)
+              error(ex.message, :config_error)
             rescue => ex
               Gitlab::ErrorTracking.track_exception(ex,
                 project_id: project.id,
@@ -27,7 +27,7 @@ module Gitlab
               )
 
               error("Undefined error (#{Labkit::Correlation::CorrelationId.current_id})",
-                config_error: true)
+                :config_error)
             end
 
             def break?

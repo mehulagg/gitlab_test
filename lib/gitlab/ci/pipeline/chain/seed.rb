@@ -27,7 +27,7 @@ module Gitlab
             # Gather all runtime build/stage errors
             #
             if stage_seeds_errors
-              return error(stage_seeds_errors.join("\n"), config_error: true)
+              return error(stage_seeds_errors.join("\n"), :config_error)
             end
 
             @command.stage_seeds = stage_seeds

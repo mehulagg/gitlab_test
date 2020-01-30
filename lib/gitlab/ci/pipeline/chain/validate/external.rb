@@ -13,7 +13,7 @@ module Gitlab
             VALIDATION_REQUEST_TIMEOUT = 5
 
             def perform!
-              error('External validation failed', drop_reason: :external_validation_failure) unless validate_external
+              error('External validation failed', :external_validation_failure) unless validate_external
             end
 
             def break?

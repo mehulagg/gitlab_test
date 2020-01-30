@@ -183,7 +183,7 @@ class Gitlab::Seeder::CycleAnalytics
       service = Ci::CreatePipelineService.new(merge_request.project,
                                               @user,
                                               ref: "refs/heads/#{merge_request.source_branch}")
-      pipeline = service.execute(:push, ignore_skip_ci: true, save_on_errors: false)
+      pipeline = service.execute(:push, ignore_skip_ci: true)
 
       pipeline.builds.each(&:enqueue) # make sure all pipelines in pending state
       pipeline.builds.each(&:run!)

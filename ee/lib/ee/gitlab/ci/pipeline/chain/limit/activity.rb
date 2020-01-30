@@ -26,7 +26,7 @@ module EE
                 return unless limit.exceeded?
 
                 retry_optimistic_lock(pipeline) do
-                  pipeline.drop!(:activity_limit_exceeded)
+                  error(limit.message, :activity_limit_exceeded)
                   limit.log_error!(project_id: project.id, plan: project.actual_plan_name)
                 end
               end
