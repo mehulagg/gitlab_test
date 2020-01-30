@@ -19112,6 +19112,12 @@ msgstr ""
 msgid "There was an error trying to validate your query"
 msgstr ""
 
+msgid "There was an error updating the dashboard, branch name is invalid."
+msgstr ""
+
+msgid "There was an error updating the dashboard, branch named: %{branch} already exists."
+msgstr ""
+
 msgid "There was an error when reseting email token."
 msgstr ""
 
@@ -21695,6 +21701,9 @@ msgid "You cannot write to a read-only secondary GitLab Geo instance. Please use
 msgstr ""
 
 msgid "You cannot write to this read-only GitLab instance."
+msgstr ""
+
+msgid "You cant commit to this project"
 msgstr ""
 
 msgid "You could not create a new trigger."

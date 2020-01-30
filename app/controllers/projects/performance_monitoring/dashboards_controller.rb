@@ -25,7 +25,6 @@ module Projects
       end
 
       def update
-
         result = ::Metrics::Dashboard::UpdateDashboardService.new(project, current_user, dashboard_params.merge(file_content_params)).execute
 
         if result[:status] == :success
