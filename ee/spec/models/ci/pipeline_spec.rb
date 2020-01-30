@@ -10,6 +10,7 @@ describe Ci::Pipeline do
     create(:ci_empty_pipeline, status: :created, project: project)
   end
 
+  it { is_expected.to have_many(:security_scans) }
   it { is_expected.to have_many(:downstream_bridges) }
   it { is_expected.to have_many(:job_artifacts).through(:builds) }
   it { is_expected.to have_many(:vulnerability_findings).through(:vulnerabilities_occurrence_pipelines).class_name('Vulnerabilities::Occurrence') }
