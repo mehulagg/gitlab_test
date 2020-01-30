@@ -41,7 +41,7 @@ describe('GkeSubmitButton', () => {
     hasValidData.mockReturnValueOnce(false);
     bootstrap();
 
-    expect(wrapper.attributes('disabled')).toBe('disabled');
+    expect(wrapper.attributes('disabled')).toBe("true");
   });
 
   it('is not disabled when hasValidData is true', () => {
