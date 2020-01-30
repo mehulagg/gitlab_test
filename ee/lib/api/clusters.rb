@@ -21,7 +21,7 @@ module API
           return
         end
 
-        # ::Gitlab::UsageCounters::PodLogs.increment(environment.project.id)
+        ::Gitlab::UsageCounters::PodLogs.increment(environment.project.id)
         # ::Gitlab::PollingInterval.set_header(response, interval: 3_000)
 
         result = PodLogs::BaseService.new(environment, params: params).execute
@@ -60,45 +60,5 @@ module API
         end
       end
     end
-
-    #     desc 'Get a list of all project aliases' do
-    #       success EE::API::Entities::ProjectAlias
-    #     end
-    #     params do
-    #       use :pagination
-    #     end
-    #     get do
-    #       present paginate(ProjectAlias.all), with: EE::API::Entities::ProjectAlias
-    #     end
-
-    #     desc 'Get info of specific project alias by name' do
-    #       success EE::API::Entities::ProjectAlias
-    #     end
-    #     get 'k8s' do
-    #       present project_alias, with: EE::API::Entities::ProjectAlias
-    #     end
-
-    #     desc 'Create a project alias'
-    #     params do
-    #       requires :project_id, type: String, desc: 'The ID or URL-encoded path of the project'
-    #       requires :name, type: String, desc: 'The alias of the project'
-    #     end
-    #     post do
-    #       project_alias = project.project_aliases.create(name: params[:name])
-
-    #       if project_alias.valid?
-    #         present project_alias, with: EE::API::Entities::ProjectAlias
-    #       else
-    #         render_validation_error!(project_alias)
-    #       end
-    #     end
-
-    #     desc 'Delete a project alias by name'
-    #     delete ':name' do
-    #       project_alias.destroy
-
-    #       no_content!
-    #     end
-    #   end
   end
 end
