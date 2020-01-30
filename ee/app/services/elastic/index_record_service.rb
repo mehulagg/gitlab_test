@@ -40,7 +40,7 @@ module Elastic
     # rubocop: disable CodeReuse/ActiveRecord
     def update_issue_notes(record, changed_fields)
       if changed_fields && (changed_fields & ISSUE_TRACKED_FIELDS).any?
-        ids = Note.searchable.where(noteable: record).map(&:id)
+        ids = Note.searchable.unscope(:includes).where(noteable: record).pluck(:id)
         ElasticAssociationIndexerWorker.perform_async(record.project_id, Note.model_name.route_key, nil, ids)
       end
     end
