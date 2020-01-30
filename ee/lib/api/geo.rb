@@ -11,6 +11,30 @@ module API
           valid_attributes = params.keys & allowed_attributes
           params.slice(*valid_attributes)
         end
+
+        def authorize_geo_transfer!(file_type:, file_id:)
+          decoded_authorization = ::Gitlab::Geo::JwtRequestDecoder.new(headers['Authorization']).decode
+          jwt_scope_valid = decoded_authorization.valid_attributes?(file_type: file_type, file_id: file_id)
+
+          unauthorized! unless decoded_authorization.present? && jwt_scope_valid
+        end
+
+        def authorize_geo_retrieval!(replicable_name:, id:)
+          decoded_authorization = ::Gitlab::Geo::JwtRequestDecoder.new(headers['Authorization']).decode
+          jwt_scope_valid = decoded_authorization.valid_attributes?(replicable_name: replicable_name, id: id)
+
+          unauthorized! unless decoded_authorization.present? && jwt_scope_valid
+        end
+      end
+
+      params do
+        requires :replicable_name, type: String, desc: 'Replicable name (eg. package_file)'
+        requires :id, type: Integer, desc: 'The model ID that needs to be transferred'
+      end
+      get 'retrieve/:replicable_name/:id' do
+        check_gitlab_geo_request_ip!
+
+        authorize_geo_retrieval!(replicable_name: replicable_name, id: id)
       end
 
       # Verify the GitLab Geo transfer request is valid
@@ -28,10 +52,10 @@ module API
       get 'transfers/:type/:id' do
         check_gitlab_geo_request_ip!
 
-        service = ::Geo::FileUploadService.new(params, headers['Authorization'])
-        response = service.execute
+        authorize_geo_transfer!(type: params[:type], id: params[:id])
 
-        unauthorized! unless response.present?
+        service = ::Geo::FileUploadService.new(params)
+        response = service.execute
 
         if response[:code] == :ok
           file = response[:file]
