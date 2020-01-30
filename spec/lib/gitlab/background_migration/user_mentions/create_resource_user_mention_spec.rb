@@ -3,8 +3,9 @@
 require 'spec_helper'
 require './db/post_migrate/20200127131953_migrate_snippet_mentions_to_db'
 require './db/post_migrate/20200127151953_migrate_snippet_notes_mentions_to_db'
+require './db/post_migrate/20200229161025_migrate_issue_mentions_to_db'
 
-describe Gitlab::BackgroundMigration::UserMentions::CreateResourceUserMention, schema: 20200127151953 do
+describe Gitlab::BackgroundMigration::UserMentions::CreateResourceUserMention, schema: 20200229161025 do
   include MigrationsHelpers
 
   context 'when migrating data' do
@@ -67,11 +68,29 @@ describe Gitlab::BackgroundMigration::UserMentions::CreateResourceUserMention, s
         it_behaves_like 'resource notes mentions migration', MigrateSnippetNotesMentionsToDb, Snippet
       end
     end
+
+    context 'migrate issue mentions' do
+      let(:issues) { table(:issues) }
+      let(:issue_user_mentions) { table(:issue_user_mentions) }
+
+      let!(:issue1) { issues.create!(project_id: project.id, author_id: author.id, description: description_mentions) }
+      let!(:issue2) { issues.create!(project_id: project.id, author_id: author.id, description: 'some description') }
+      let!(:issue3) { issues.create!(project_id: project.id, author_id: author.id, description: 'description with an email@example.com and some other @ char here.') }
+
+      let(:user_mentions) { issue_user_mentions }
+      let(:resource) { issue1 }
+
+      it_behaves_like 'resource mentions migration', MigrateIssueMentionsToDb, Issue
+    end
   end
 
   context 'checks no_quote_columns' do
-    it 'has correct no_quote_columns' do
+    it 'snippet has correct no_quote_columns' do
       expect(Gitlab::BackgroundMigration::UserMentions::Models::Snippet.no_quote_columns).to match([:note_id, :snippet_id])
+    end
+
+    it 'issue has correct no_quote_columns' do
+      expect(Gitlab::BackgroundMigration::UserMentions::Models::Issue.no_quote_columns).to match([:note_id, :issue_id])
     end
   end
 end
