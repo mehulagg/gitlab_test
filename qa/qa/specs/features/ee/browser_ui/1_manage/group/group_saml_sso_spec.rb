@@ -6,11 +6,14 @@ module QA
       include Support::Api
 
       before(:all) do
+        puts ">>>>>>>> 1. in before(:all) of describe 'Group SAML SSO'"
+
         @group = Resource::Sandbox.fabricate_via_api!
         @api_client = Runtime::API::Client.new(:gitlab, personal_access_token: Runtime::Env.admin_personal_access_token)
       end
 
       before do
+        puts ">>>>>>>> 2. in before of describe 'Group SAML SSO'"
         reset_idp_session
 
         page.visit Runtime::Scenario.gitlab_address
@@ -21,6 +24,10 @@ module QA
       end
 
       context 'Non enforced SSO' do
+        before do
+          puts ">>>>>>>> 3. in before of context 'Non enforced SSO'"
+        end
+
         it 'User logs in to group with SAML SSO' do
           Page::Group::Menu.perform(&:go_to_saml_sso_group_settings)
 
@@ -76,15 +83,19 @@ module QA
       end
 
       context 'Enforced SSO' do
-        let(:developer_user) { Resource::User.fabricate_via_api! }
-        let(:owner_user) { Resource::User.fabricate_via_api! }
+        before(:all) do
+          puts ">>>>>>>> 4. in before(:all) of context 'Enforced SSO'"
 
-        before do
+          page.visit Runtime::Scenario.gitlab_address
           %w[enforced_sso enforced_sso_requires_session].each do |flag|
             Runtime::Feature.enable_and_verify(flag)
           end
 
-          @group.add_member(developer_user)
+          @developer_user = Resource::User.fabricate_via_api!
+
+          @group.add_member(@developer_user)
+
+          @managed_group_url = setup_and_enable_enforce_sso
         end
 
         context 'Access' do
@@ -117,6 +128,7 @@ module QA
 
           shared_examples 'user access' do
             it 'is not allowed without SSO' do
+              page.visit Runtime::Scenario.gitlab_address
               Page::Main::Menu.perform(&:sign_out_if_signed_in)
               Page::Main::Login.perform do |login|
                 login.sign_in_using_credentials(user: user)
@@ -142,23 +154,28 @@ module QA
             end
           end
 
-          before do
-            @group.add_member(owner_user, Resource::Members::AccessLevel::OWNER)
+          before(:all) do
+            puts ">>>>>>>> 5. in before(:all) of context 'Access'"
+            @owner_user = Resource::User.fabricate_via_api!
 
-            setup_and_enable_enforce_sso
+            @group.add_member(@owner_user, Resource::Members::AccessLevel::OWNER)
+          end
+
+          after(:all) do
+            puts "<<<<<<<< E. in AFTER(:all) of context 'Access'"
+
+            @group.remove_member(@owner_user)
           end
 
           it_behaves_like 'user access' do
-            let(:user) { developer_user }
+            let(:user) { @developer_user }
           end
           it_behaves_like 'user access' do
-            let(:user) { owner_user }
+            let(:user) { @owner_user }
           end
         end
 
         it 'user clones and pushes to project within a group using Git HTTP' do
-          setup_and_enable_enforce_sso
-
           @project = Resource::Project.fabricate! do |project|
             project.name = 'project-in-saml-enforced-group'
             project.description = 'project in SAML enforced group for git clone test'
@@ -172,14 +189,16 @@ module QA
             Resource::Repository::ProjectPush.fabricate! do |project_push|
               project_push.project = @project
               project_push.branch_name = "new_branch"
-              project_push.user = developer_user
+              project_push.user = @developer_user
             end
           end.not_to raise_error
         end
 
         context 'Group managed accounts' do
           before do
-            %w[enforced_sso enforced_sso_requires_session group_managed_accounts sign_up_on_sso group_scim].each do |flag|
+            puts ">>>>>>>> 6. in before of context 'Group managed accounts'"
+
+            %w[group_managed_accounts sign_up_on_sso group_scim].each do |flag|
               Runtime::Feature.enable_and_verify(flag)
             end
 
@@ -193,7 +212,7 @@ module QA
           end
 
           it 'removes existing users from the group, forces existing users to create a new account and allows to leave group' do
-            expect(@group.list_members.map { |item| item["username"] }).not_to include(developer_user.username)
+            expect(@group.list_members.map { |item| item["username"] }).not_to include(@developer_user.username)
 
             visit_managed_group_url
 
@@ -235,21 +254,46 @@ module QA
           end
 
           after do
+            puts "<<<<<<<< D. in AFTER of context 'Group managed accounts'"
+
+            disable_sso_setting('group_managed_accounts')
+
+            %w[group_managed_accounts sign_up_on_sso group_scim].each do |flag|
+              Runtime::Feature.remove(flag)
+            end
+
             remove_user_if_exists(@idp_user_email)
           end
         end
 
         after(:all) do
-          disable_enforce_sso_and_group_managed_account
+          puts "<<<<<<<< C. in AFTER of context 'Enforced SSO'"
 
-          %w[enforced_sso enforced_sso_requires_session group_managed_accounts sign_up_on_sso group_scim].each do |flag|
+          @group.remove_member(@developer_user)
+
+          disable_sso_setting('enforced_sso')
+
+          %w[enforced_sso enforced_sso_requires_session].each do |flag|
             Runtime::Feature.remove(flag)
           end
         end
       end
 
+      after do
+        puts "<<<<<<<< B. in AFTER of describe 'Group SAML SSO'"
+
+        page.visit Runtime::Scenario.gitlab_address
+        Page::Main::Menu.perform(&:sign_out_if_signed_in)
+
+        logout_from_idp
+      end
+
       after(:all) do
+        puts "<<<<<<<< A in AFTER(:all) of describe 'Group SAML SSO'"
+
         remove_group(@group) unless @group.nil?
+
+        page.visit Runtime::Scenario.gitlab_address
         Page::Main::Menu.perform(&:sign_out_if_signed_in)
       end
     end
@@ -298,19 +342,18 @@ module QA
           saml_sso.set_cert_fingerprint(EE::Runtime::Saml.idp_certificate_fingerprint)
 
           saml_sso.click_save_changes
+
+          saml_sso.user_login_url_link_text
         end
       end
     end
 
     def setup_and_enable_group_managed_accounts
-      setup_and_enable_enforce_sso
-
-      @managed_group_url = EE::Page::Group::Settings::SamlSSO.perform(&:user_login_url_link_text)
+      Page::Main::Login.perform(&:sign_in_using_credentials) unless Page::Main::Menu.perform(&:signed_in?)
 
       Support::Retrier.retry_on_exception do
-        page.visit @managed_group_url
-
         # We must sign in with SAML before enabling Group Managed Accounts
+        page.visit @managed_group_url
         EE::Page::Group::SamlSSOSignIn.perform(&:click_sign_in)
 
         login_to_idp_if_required_and_expect_success('user1', 'user1pass')
@@ -369,9 +412,9 @@ module QA
       Support::Waiter.wait_until { current_url == @managed_group_url }
     end
 
-    def disable_enforce_sso_and_group_managed_account
-      if Runtime::Feature.enabled?('enforced_sso') || Runtime::Feature.enabled?('group_managed_accounts')
-        Runtime::Logger.info('Disabling enforce sso and/or group managed account')
+    def disable_sso_setting(setting_name)
+      if Runtime::Feature.enabled?(setting_name)
+        Runtime::Logger.info("Disabling #{setting_name}")
 
         page.visit Runtime::Scenario.gitlab_address
 
@@ -385,8 +428,7 @@ module QA
 
         Page::Group::Menu.perform(&:go_to_saml_sso_group_settings)
         EE::Page::Group::Settings::SamlSSO.perform do |saml_sso|
-          saml_sso.disable_enforce_sso if saml_sso.has_enforce_sso_button?
-          saml_sso.disable_group_managed_accounts if saml_sso.has_group_managed_accounts_button?
+          saml_sso.public_send("disable_#{setting_name}") if saml_sso.public_send("has_#{setting_name}_button?")
           saml_sso.click_save_changes
         end
       end

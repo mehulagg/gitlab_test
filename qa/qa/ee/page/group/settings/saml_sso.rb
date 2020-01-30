@@ -30,7 +30,7 @@ module QA
               fill_element :certificate_fingerprint_field, fingerprint
             end
 
-            def has_enforce_sso_button?
+            def has_enforced_sso_button?
               has_element?(:enforced_sso_toggle_button, wait: 1.0)
             end
 
@@ -45,7 +45,7 @@ module QA
               end
             end
 
-            def disable_enforce_sso
+            def disable_enforced_sso
               Support::Retrier.retry_until(sleep_interval: 1.0, raise_on_failure: true) do
                 click_element :enforced_sso_toggle_button if enforce_sso_enabled?
                 !enforce_sso_enabled?
