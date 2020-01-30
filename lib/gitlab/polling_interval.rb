@@ -4,7 +4,7 @@ module Gitlab
   class PollingInterval
     HEADER_NAME = 'Poll-Interval'
 
-    def self.set_header(response, interval:)
+    def self.set_header(response_or_headers, interval:)
       if polling_enabled?
         multiplier = Gitlab::CurrentSettings.polling_interval_multiplier
         value = (interval * multiplier).to_i
@@ -12,7 +12,11 @@ module Gitlab
         value = -1
       end
 
-      response.headers[HEADER_NAME] = value.to_s
+      if response_or_headers.respond_to?(:headers)
+        response_or_headers.headers[HEADER_NAME] = value.to_s
+      else
+        response_or_headers[HEADER_NAME] = value.to_s
+      end
     end
 
     def self.polling_enabled?

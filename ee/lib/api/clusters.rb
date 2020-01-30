@@ -22,9 +22,9 @@ module API
         end
 
         ::Gitlab::UsageCounters::PodLogs.increment(environment.project.id)
-        # ::Gitlab::PollingInterval.set_header(response, interval: 3_000)
+        ::Gitlab::PollingInterval.set_header(headers, interval: 3_000)
 
-        result = PodLogs::BaseService.new(environment, params: params).execute
+        result = PodLogsService.new(environment, params: params).execute
 
         case result[:status]
         when :processing
