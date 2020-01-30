@@ -15,5 +15,3 @@ export const scatterChartLineProps = {
 };
 
 export const LAST_ACTIVITY_AT = 'last_activity_at';
-
-export const DATE_RANGE_LIMIT = 180;

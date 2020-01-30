@@ -5963,9 +5963,6 @@ msgstr ""
 msgid "Date picker"
 msgstr ""
 
-msgid "Date range cannot exceed %{maxDateRange} days."
-msgstr ""
-
 msgid "DayTitle|F"
 msgstr ""
 
