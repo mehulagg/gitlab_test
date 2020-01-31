@@ -289,8 +289,10 @@ module QA
         ENV['MAILHOG_HOSTNAME']
       end
 
-      def specs_hostname
-        ENV.fetch('QA_SPECS_HOSTNAME', 'localhost')
+      [:host, :port].each do |k3d_env|
+        define_method "k3d_#{k3d_env}" do
+          ENV["QA_K3D_#{k3d_env.upcase}"]
+        end
       end
 
       private
