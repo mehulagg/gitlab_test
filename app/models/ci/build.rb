@@ -529,7 +529,7 @@ module Ci
           .concat(scoped_variables)
           .concat(job_variables)
           .concat(persisted_environment_variables)
-          .concat(secret_variables)
+          .concat(vault_secrets)
           .to_runner_variables
       end
     end
@@ -567,8 +567,10 @@ module Ci
       end
     end
 
-    def secret_variables
-      @secret_variables ||= Gitlab::Ci::VaultSecrets.new(self).call
+    def vault_secrets
+      strong_memoize(:vault_secrets) do
+        Gitlab::Ci::Vault::Variables.new(self).call
+      end
     end
 
     def deploy_token_variables

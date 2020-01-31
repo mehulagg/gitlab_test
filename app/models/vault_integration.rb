@@ -38,7 +38,8 @@ class VaultIntegration < ApplicationRecord
     {
       address: vault_url.chomp('/'),
       token: token.presence,
-      ssl_pem_contents: ssl_pem_contents.presence
+      ssl_pem_contents: ssl_pem_contents.presence,
+      timeout: 5.seconds
     }.compact
   end
 end
