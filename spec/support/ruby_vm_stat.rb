@@ -70,6 +70,14 @@ module RubyVmStat
     end
   end
 
+  def self.track
+    counter = Counter.new('eval')
+    yield
+  ensure
+    counter.stop
+    puts counter.output if counter.diff?
+  end
+
   def self.for(config)
     summary = Summary.new
     verbose = ENV['RUBY_VM_STAT'] == 'verbose'
