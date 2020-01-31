@@ -16,7 +16,7 @@ module RubyVmStat
     def stop
       raise 'Already stopped?' if @after
 
-      @after = RubyVM.stat 
+      @after = RubyVM.stat
       @diff = calc_diff
 
       self
