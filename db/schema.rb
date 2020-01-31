@@ -2831,6 +2831,7 @@ ActiveRecord::Schema.define(version: 2020_03_03_074328) do
     t.index ["discussion_id"], name: "index_notes_on_discussion_id"
     t.index ["id"], name: "design_mentions_temp_index", where: "((note ~~ '%@%'::text) AND ((noteable_type)::text = 'DesignManagement::Design'::text))"
     t.index ["id"], name: "epic_mentions_temp_index", where: "((note ~~ '%@%'::text) AND ((noteable_type)::text = 'Epic'::text))"
+    t.index ["id"], name: "issue_notes_mentions_temp_index", where: "((note ~~ '%@%'::text) AND ((noteable_type)::text = 'Issue'::text))"
     t.index ["id"], name: "snippet_mentions_temp_index", where: "((note ~~ '%@%'::text) AND ((noteable_type)::text = 'Snippet'::text))"
     t.index ["line_code"], name: "index_notes_on_line_code"
     t.index ["note"], name: "index_notes_on_note_trigram", opclass: :gin_trgm_ops, using: :gin
