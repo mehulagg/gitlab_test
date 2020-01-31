@@ -623,6 +623,10 @@ describe Projects::PipelinesController do
   end
 
   describe 'GET test_report.json' do
+    let(:pipeline)     { create(:ci_pipeline, :with_test_reports, project: project) }
+    let(:bad_build)    { create(:ci_build, pipeline: pipeline) }
+    let(:bad_artifact) { create(:ci_job_artifact, :junit_with_corrupted_data, job: bad_build, project: project) }
+
     subject(:get_test_report_json) do
       get :test_report, params: {
         namespace_id: project.namespace,
@@ -649,8 +653,6 @@ describe Projects::PipelinesController do
       end
 
       context 'when pipeline has a test report' do
-        let(:pipeline) { create(:ci_pipeline, :with_test_reports, project: project) }
-
         it 'renders the test report' do
           get_test_report_json
 
@@ -659,19 +661,19 @@ describe Projects::PipelinesController do
         end
       end
 
-      context 'when pipeline has corrupt test reports' do
-        let(:pipeline) { create(:ci_pipeline, project: project) }
-
+      context 'when pipeline has a corrupt test report artifact' do
         before do
-          job = create(:ci_build, pipeline: pipeline)
-          create(:ci_job_artifact, :junit_with_corrupted_data, job: job, project: project)
+          bad_artifact
+          get_test_report_json
         end
 
         it 'renders the test reports' do
-          get_test_report_json
-
           expect(response).to have_gitlab_http_status(:ok)
-          expect(json_response['status']).to eq('error_parsing_report')
+          expect(json_response['test_suites'].count).to eq(1)
+        end
+
+        it 'returns a suite_error on the suite with corrupted XML' do
+          expect(json_response['test_suites'].first['suite_error']).to eq('Syntax error: Failed to parse JUnit XML data')
         end
       end
     end

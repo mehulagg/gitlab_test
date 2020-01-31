@@ -3892,8 +3892,13 @@ describe Ci::Build do
           create(:ci_job_artifact, :junit_with_corrupted_data, job: build, project: build.project)
         end
 
-        it 'raises an error' do
-          expect { subject }.to raise_error(Gitlab::Ci::Parsers::Test::Junit::JunitParserError)
+        it 'returns no test data and includes a suite_error message' do
+          expect { subject }.not_to raise_error
+
+          expect(test_reports.get_suite(build.name).total_count).to eq(0)
+          expect(test_reports.get_suite(build.name).success_count).to eq(0)
+          expect(test_reports.get_suite(build.name).failed_count).to eq(0)
+          expect(test_reports.get_suite(build.name).suite_error).to eq('Syntax error: Failed to parse JUnit XML data')
         end
       end
     end
