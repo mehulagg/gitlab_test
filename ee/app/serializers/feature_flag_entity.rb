@@ -27,6 +27,8 @@ class FeatureFlagEntity < Grape::Entity
     feature_flag.scopes.sort_by(&:id)
   end
 
+  expose :strategies
+
   private
 
   def can_update?(feature_flag)

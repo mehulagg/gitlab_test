@@ -1,0 +1,18 @@
+{
+  "type": "object",
+  "required" : [
+    "id",
+    "name",
+    "parameters",
+    "active"
+  ],
+  "properties" : {
+    "id": { "type": "integer" },
+    "name": { "type": "string" },
+    "parameters": { "type": "object" },
+    "active": { "type": "boolean" },
+    "created_at": { "type": "date" },
+    "updated_at": { "type": "date" }
+  },
+  "additionalProperties": false
+}

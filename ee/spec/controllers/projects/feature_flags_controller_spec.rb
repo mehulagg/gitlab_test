@@ -206,6 +206,86 @@ describe Projects::FeatureFlagsController do
         expect(related_count).to be_within(5).of(2)
       end
     end
+
+    context 'when feature flags have strategies' do
+      let!(:feature_flag_active_strategy_a) do
+        create(:operations_strategy,
+               feature_flag: feature_flag_active,
+               name: 'default',
+               parameters: {},
+               active: true)
+      end
+
+      let!(:feature_flag_active_strategy_scope_a) do
+        create(:operations_scope,
+              strategy: feature_flag_active_strategy_a,
+              environment_scope: 'production')
+      end
+
+      let!(:feature_flag_active_strategy_b) do
+        create(:operations_strategy,
+               feature_flag: feature_flag_active,
+               name: 'default',
+               parameters: {},
+               active: true)
+      end
+
+      let!(:feature_flag_active_strategy_scope_b) do
+        create(:operations_scope,
+              strategy: feature_flag_active_strategy_b,
+              environment_scope: 'staging')
+      end
+
+      let!(:feature_flag_inactive_strategy) do
+        create(:operations_strategy,
+               feature_flag: feature_flag_inactive,
+               name: 'default',
+               parameters: {},
+               active: true)
+      end
+
+      let!(:feature_flag_inactive_strategy_scope) do
+        create(:operations_scope,
+              strategy: feature_flag_inactive_strategy,
+              environment_scope: 'staging')
+      end
+
+      it 'returns a correct summary' do
+        subject
+
+        expect(json_response['count']['all']).to eq(2)
+        expect(json_response['count']['enabled']).to eq(1)
+        expect(json_response['count']['disabled']).to eq(1)
+      end
+
+      it 'recognizes feature flag 1 as active' do
+        subject
+
+        expect(json_response['feature_flags'].first['active']).to be_truthy
+      end
+
+      it 'recognizes feature flag 2 as inactive' do
+        subject
+
+        expect(json_response['feature_flags'].second['active']).to be_falsy
+      end
+
+      it 'has ordered strategies' do
+        subject
+
+        expect(json_response['feature_flags'][0]['strategies'][0]['id'])
+          .to be < json_response['feature_flags'][0]['strategies'][1]['id']
+      end
+
+      it 'does not have N+1 problem' do
+        recorded = ActiveRecord::QueryRecorder.new { subject }
+
+        related_count = recorded.log
+          .select { |query| query.include?('operations_feature_flag') }.count
+
+        expect(related_count).to be_within(5).of(2)
+      end
+    end
   end
 
   describe 'GET new' do

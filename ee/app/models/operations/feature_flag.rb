@@ -18,6 +18,8 @@ module Operations
     has_many :strategies, class_name: 'Operations::FeatureFlags::Strategy'
     has_one :default_scope, -> { where(environment_scope: '*') }, class_name: 'Operations::FeatureFlagScope'
 
+    has_many :strategies, class_name: 'Operations::Strategy'
+
     validates :project, presence: true
     validates :name,
       presence: true,
