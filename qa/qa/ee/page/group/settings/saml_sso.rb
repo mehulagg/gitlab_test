@@ -35,7 +35,7 @@ module QA
             end
 
             def enforce_sso_enabled?
-              find_element(:enforced_sso_toggle_button)[:class].include?('is-checked')
+              has_enforced_sso_button? && find_element(:enforced_sso_toggle_button)[:class].include?('is-checked')
             end
 
             def enforce_sso
@@ -57,7 +57,7 @@ module QA
             end
 
             def group_managed_accounts_enabled?
-              find_element(:group_managed_accounts_toggle_button)[:class].include?('is-checked')
+              has_group_managed_accounts_button? && find_element(:group_managed_accounts_toggle_button)[:class].include?('is-checked')
             end
 
             def enable_group_managed_accounts

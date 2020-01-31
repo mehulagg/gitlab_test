@@ -14,9 +14,12 @@ module QA
 
       before do
         puts ">>>>>>>> 2. in before of describe 'Group SAML SSO'"
+        logout_from_idp
+
         reset_idp_session
 
         page.visit Runtime::Scenario.gitlab_address
+        Page::Main::Menu.perform(&:sign_out_if_signed_in)
 
         Page::Main::Login.perform(&:sign_in_using_credentials) unless Page::Main::Menu.perform(&:signed_in?)
 
@@ -87,15 +90,14 @@ module QA
           puts ">>>>>>>> 4. in before(:all) of context 'Enforced SSO'"
 
           page.visit Runtime::Scenario.gitlab_address
-          %w[enforced_sso enforced_sso_requires_session].each do |flag|
-            Runtime::Feature.enable_and_verify(flag)
-          end
-
           @developer_user = Resource::User.fabricate_via_api!
 
           @group.add_member(@developer_user)
 
-          @managed_group_url = setup_and_enable_enforce_sso
+          Support::Retrier.retry_until(raise_on_failure: true) do
+            @managed_group_url = setup_and_enable_enforce_sso
+            enforced_sso_setup?
+          end
         end
 
         context 'Access' do
@@ -162,7 +164,7 @@ module QA
           end
 
           after(:all) do
-            puts "<<<<<<<< E. in AFTER(:all) of context 'Access'"
+            puts "<<<<<<<< D. in AFTER(:all) of context 'Access'"
 
             @group.remove_member(@owner_user)
           end
@@ -197,10 +199,6 @@ module QA
         context 'Group managed accounts' do
           before do
             puts ">>>>>>>> 6. in before of context 'Group managed accounts'"
-
-            %w[group_managed_accounts sign_up_on_sso group_scim].each do |flag|
-              Runtime::Feature.enable_and_verify(flag)
-            end
 
             Support::Retrier.retry_until(raise_on_failure: true) do
               setup_and_enable_group_managed_accounts
@@ -253,8 +251,8 @@ module QA
             expect(page).to have_text("uses group managed accounts. You need to create a new GitLab account which will be managed by")
           end
 
-          after do
-            puts "<<<<<<<< D. in AFTER of context 'Group managed accounts'"
+          after(:all) do
+            puts "<<<<<<<< C. in AFTER(:all) of context 'Group managed accounts'"
 
             disable_sso_setting('group_managed_accounts')
 
@@ -267,7 +265,7 @@ module QA
         end
 
         after(:all) do
-          puts "<<<<<<<< C. in AFTER of context 'Enforced SSO'"
+          puts "<<<<<<<< B. in AFTER(:all) of context 'Enforced SSO'"
 
           @group.remove_member(@developer_user)
 
@@ -277,15 +275,6 @@ module QA
             Runtime::Feature.remove(flag)
           end
         end
-      end
-
-      after do
-        puts "<<<<<<<< B. in AFTER of describe 'Group SAML SSO'"
-
-        page.visit Runtime::Scenario.gitlab_address
-        Page::Main::Menu.perform(&:sign_out_if_signed_in)
-
-        logout_from_idp
       end
 
       after(:all) do
@@ -329,6 +318,11 @@ module QA
     end
 
     def setup_and_enable_enforce_sso
+      %w[enforced_sso enforced_sso_requires_session].each do |flag|
+        Runtime::Feature.enable_and_verify(flag)
+      end
+
+      page.visit Runtime::Scenario.gitlab_address
       Page::Main::Login.perform(&:sign_in_using_credentials) unless Page::Main::Menu.perform(&:signed_in?)
 
       Support::Retrier.retry_on_exception do
@@ -348,7 +342,31 @@ module QA
       end
     end
 
+    def enforced_sso_setup?
+      QA::Runtime::Logger.info("Verifying if enforced sso is setup correctly")
+
+      @group.visit!
+
+      Page::Group::Menu.perform(&:go_to_saml_sso_group_settings)
+
+      EE::Page::Group::Settings::SamlSSO.perform do |saml_sso|
+        condition = saml_sso.enforce_sso_enabled?
+
+        unless condition
+          QA::Runtime::Logger.debug Capybara::Screenshot.screenshot_and_save_page
+          QA::Runtime::Logger.debug("Enforced SSO not setup correctly")
+        end
+
+        condition
+      end
+    end
+
     def setup_and_enable_group_managed_accounts
+      %w[group_managed_accounts sign_up_on_sso group_scim].each do |flag|
+        Runtime::Feature.enable_and_verify(flag)
+      end
+
+      page.visit Runtime::Scenario.gitlab_address
       Page::Main::Login.perform(&:sign_in_using_credentials) unless Page::Main::Menu.perform(&:signed_in?)
 
       Support::Retrier.retry_on_exception do
@@ -375,7 +393,14 @@ module QA
       Page::Group::Menu.perform(&:go_to_saml_sso_group_settings)
 
       EE::Page::Group::Settings::SamlSSO.perform do |saml_sso|
-        saml_sso.enforce_sso_enabled? && saml_sso.group_managed_accounts_enabled?
+        condition = saml_sso.enforce_sso_enabled? && saml_sso.group_managed_accounts_enabled?
+
+        unless condition
+          QA::Runtime::Logger.debug Capybara::Screenshot.screenshot_and_save_page
+          QA::Runtime::Logger.debug("Group managed accounts not setup correctly")
+        end
+
+        condition
       end
     end
 
@@ -392,12 +417,14 @@ module QA
     end
 
     def logout_from_idp
+      QA::Runtime::Logger.debug("Logging out of IDP by visiting \"#{EE::Runtime::Saml.idp_sign_out_url}\"")
+
       page.visit EE::Runtime::Saml.idp_sign_out_url
       Support::Waiter.wait_until { current_url == EE::Runtime::Saml.idp_signed_out_url }
     end
 
     def reset_idp_session
-      Runtime::Logger.debug(%Q[Visiting IDP url at "#{EE::Runtime::Saml.idp_sso_url}"])
+      Runtime::Logger.debug(%Q[Visiting IDP url at "#{EE::Runtime::Saml.idp_sso_url} to reset session"])
 
       page.visit EE::Runtime::Saml.idp_sso_url
       Support::Waiter.wait_until { current_url == EE::Runtime::Saml.idp_sso_url }
