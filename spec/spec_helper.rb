@@ -139,6 +139,8 @@ RSpec.configure do |config|
     TestEnv.clean_test_path
   end
 
+  RubyVmStat.for(config) if ENV['RUBY_VM_STAT']
+
   config.before do |example|
     # Enable all features by default for testing
     allow(Feature).to receive(:enabled?) { true }
