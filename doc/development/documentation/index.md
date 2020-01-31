@@ -120,7 +120,9 @@ Things to note:
   documentation, sometimes it might be useful to search a path deeper.
 - The `*.md` extension is not used when a document is linked to GitLab's
   built-in help page, that's why we omit it in `git grep`.
-- Use the checklist on the "Change documentation location" MR description template.
+- Use the checklist on the
+  "[Change documentation location](https://gitlab.com/gitlab-org/gitlab/blob/master/.gitlab/merge_request_templates/Change%20documentation%20location.md)"
+  MR description template.
 
 ### Alternative redirection method
 
@@ -187,6 +189,34 @@ If the release version you want to add the documentation to has already been
 frozen or released, use the label `Pick into X.Y` to get it merged into
 the correct release. Avoid picking into a past release as much as you can, as
 it increases the work of the release managers.
+
+### Documentation for upcoming features
+
+Upcoming features must be documented by the engineer developing the feature,
+according to GitLab's [Definition of Done](../contributing/merge_request_workflow.md#definition-of-done),
+and must be reviewed by the [assigned Techical Writer](https://about.gitlab.com/handbook/engineering/ux/technical-writing/#assignments),
+according to the [documentation process](workflow.md).
+
+Documentation should only exist for existing features, we **must not** document
+something that isn't in production and/or is unavailable to the users.
+
+Whenever possible, documentation must be added in the same merge request (MR)
+as code to ensure the docs become available at the same time as the feature.
+
+For features that involve multiple MRs, the doc changes should be added to the
+latest MR to be merged, whenever possible. If it is not possible for technical
+or architectural reasons, the docs may be introduced in a separate MR. In this
+case, the author must set the feature MR as dependency of the docs MR to guarantee
+that the MR introducing documentation is not merged ahead of the feature. The
+designated Techical Writer reviews the documentation changes and can approve the MR,
+but should not merge it until the MR with code gets merged and the feature
+becomes available to the users.
+
+In case this was disregarded, and a yet non-existing feature was documented,
+the author of the docs MR should revert the docs changes until the feature
+becomes available.
+
+Note that there is also an specific process for [documenting features behind feature flags](styleguide.md#feature-flags).
 
 ## GitLab `/help`
 
