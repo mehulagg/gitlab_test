@@ -78,7 +78,7 @@ class IssuableFinder
 
     # This should not be used in controller strong params!
     def negatable_array_params
-      @negatable_array_params ||= array_params.keys.append(:iids)
+      @negatable_array_params ||= array_params.keys.append(:iids, :assignee_ids)
     end
 
     # This should not be used in controller strong params!
@@ -310,6 +310,10 @@ class IssuableFinder
     params[:assignee_id].present?
   end
 
+  def assignee_ids?
+    params[:assignee_ids].present?
+  end
+
   def assignee_username?
     params[:assignee_username].present?
   end
@@ -321,7 +325,9 @@ class IssuableFinder
   # rubocop: disable CodeReuse/ActiveRecord
   def assignees
     strong_memoize(:assignees) do
-      if assignee_id?
+      if assignee_ids?
+        User.where(id: params[:assignee_ids])
+      elsif assignee_id?
         User.where(id: params[:assignee_id])
       elsif assignee_username?
         User.where(username: params[:assignee_username])
@@ -546,14 +552,12 @@ class IssuableFinder
   # rubocop: enable CodeReuse/ActiveRecord
 
   def by_assignee(items)
-    return items.assigned_to(assignees) if not_query? && assignees.any?
-
     if filter_by_no_assignee?
       items.unassigned
     elsif filter_by_any_assignee?
       items.assigned
-    elsif assignee
-      items.assigned_to(assignee)
+    elsif assignees.any?
+      items.assigned_to(assignees)
     elsif assignee_id? || assignee_username? # assignee not found
       items.none
     else

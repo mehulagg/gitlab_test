@@ -49,10 +49,6 @@ module EE
       params[:weight].to_s.downcase == ::IssuesFinder::FILTER_ANY
     end
 
-    def assignee_ids?
-      params[:assignee_ids].present?
-    end
-
     override :by_assignee
     def by_assignee(items)
       if assignees.any? && !not_query?
@@ -65,19 +61,6 @@ module EE
 
       super
     end
-
-    override :assignees
-    # rubocop: disable CodeReuse/ActiveRecord
-    def assignees
-      strong_memoize(:assignees) do
-        if assignee_ids?
-          ::User.where(id: params[:assignee_ids])
-        else
-          super
-        end
-      end
-    end
-    # rubocop: enable CodeReuse/ActiveRecord
 
     def by_epic?
       params[:epic_id].present?
