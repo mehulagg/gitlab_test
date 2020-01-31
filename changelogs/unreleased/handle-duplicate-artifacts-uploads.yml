@@ -1,0 +1,5 @@
+---
+title: Return 200 status on duplicate artifacts uploads
+merge_request: 24154
+author:
+type: fixed

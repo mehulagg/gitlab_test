@@ -1894,6 +1894,20 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
           end
         end
 
+        context 'when artifacts already exist for the job' do
+          let!(:existing_artifact) { create(:ci_job_artifact, :archive, job: job) }
+          let(:params) { { artifact_type: :archive, artifact_format: :zip } }
+
+          it 'returns success and logs an error' do
+            expect(Gitlab::ErrorTracking).to receive(:track_exception)
+
+            upload_artifacts(file_upload, headers_with_token, params)
+
+            expect(response).to have_gitlab_http_status(200)
+            expect(job.reload.job_artifacts_archive).to eq(existing_artifact)
+          end
+        end
+
         context 'when artifacts are being stored outside of tmp path' do
           let(:new_tmpdir) { Dir.mktmpdir }
 

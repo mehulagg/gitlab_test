@@ -302,6 +302,10 @@ module API
         else
           render_validation_error!(job)
         end
+      rescue ActiveRecord::RecordNotUnique => error
+        # artifacts already present
+        Gitlab::ErrorTracking.track_exception(error, job_id: job.id)
+        status :ok
       end
 
       desc 'Download the artifacts file for job' do
