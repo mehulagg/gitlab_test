@@ -4,6 +4,8 @@ module QA
   context 'Manage', :smoke do
     describe 'basic user login' do
       it 'user logs in using basic credentials and logs out' do
+        puts 'this is a test'
+
         Flow::Login.sign_in
 
         Page::Main::Menu.perform do |menu|
