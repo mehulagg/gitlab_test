@@ -86,9 +86,7 @@ module Gitlab
           attributes(*ALLOWED_KEYS)
 
           def self.matching?(name, config)
-            # TODO: I think this feature flag can be removed now
-            ::Feature.enabled?(:cross_project_pipeline_triggers, default_enabled: true) &&
-              !name.to_s.start_with?('.') &&
+            !name.to_s.start_with?('.') &&
               config.is_a?(Hash) &&
               (config.key?(:trigger) || config.key?(:needs))
           end

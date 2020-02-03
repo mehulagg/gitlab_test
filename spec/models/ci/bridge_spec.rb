@@ -256,4 +256,28 @@ describe Ci::Bridge do
       it { is_expected.to be_nil }
     end
   end
+
+  describe '#target_ref' do
+    context 'when trigger is defined' do
+      it 'returns a ref name' do
+        expect(bridge.target_ref).to eq 'master'
+      end
+
+      context 'when using variable expansion' do
+        let(:options) { { trigger: { project: 'my/project', branch: '$BRIDGE-master' } } }
+
+        it 'correctly expands variables' do
+          expect(bridge.target_ref).to eq('cross-master')
+        end
+      end
+    end
+
+    context 'when trigger does not have project defined' do
+      let(:options) { nil }
+
+      it 'returns nil' do
+        expect(bridge.target_ref).to be_nil
+      end
+    end
+  end
 end
