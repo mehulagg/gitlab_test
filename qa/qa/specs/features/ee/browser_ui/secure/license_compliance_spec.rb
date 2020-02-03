@@ -25,7 +25,14 @@ module QA
         QA::EE::Page::Project::Settings::LicenseCompliance.perform do |license_compliance|
           license_compliance.approve_license approved_license_name
 
-          expect(license_compliance).to have_approved_license approved_license_name
+          # Sometimes the licenses are not displayed in the UI
+          # right away so a refresh may be needed.
+          # https://gitlab.com/gitlab-org/gitlab/issues/195992#note_281729218
+          license_approved = license_compliance.retry_on_exception(reload: true) do
+            Page::Project::Settings::CICD.perform(&:expand_license_compliance)
+            license_compliance.has_approved_license?(approved_license_name)
+          end
+          expect(license_approved).to be_truthy
         end
       end
 
@@ -33,7 +40,14 @@ module QA
         QA::EE::Page::Project::Settings::LicenseCompliance.perform do |license_compliance|
           license_compliance.deny_license denied_license_name
 
-          expect(license_compliance).to have_denied_license denied_license_name
+          # Sometimes the licenses are not displayed in the UI
+          # right away so a refresh may be needed.
+          # https://gitlab.com/gitlab-org/gitlab/issues/195992#note_281729218
+          license_denied = license_compliance.retry_on_exception(reload: true) do
+            Page::Project::Settings::CICD.perform(&:expand_license_compliance)
+            license_compliance.has_denied_license?(denied_license_name)
+          end
+          expect(license_denied).to be_truthy
         end
       end
     end

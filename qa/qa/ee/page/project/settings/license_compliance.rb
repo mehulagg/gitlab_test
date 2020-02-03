@@ -47,8 +47,6 @@ module QA::EE
             search_and_select license
             click_element :approved_license_radio
             click_element :add_license_submit_button
-
-            has_approved_license? license
           end
 
           def deny_license(license)
@@ -57,8 +55,6 @@ module QA::EE
             search_and_select license
             click_element :blacklisted_license_radio
             click_element :add_license_submit_button
-
-            has_denied_license? license
           end
         end
       end
