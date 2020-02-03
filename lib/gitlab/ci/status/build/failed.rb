@@ -18,7 +18,10 @@ module Gitlab
             archived_failure: 'archived failure',
             unmet_prerequisites: 'unmet prerequisites',
             scheduler_failure: 'scheduler failure',
-            data_integrity_failure: 'data integrity failure'
+            data_integrity_failure: 'data integrity failure',
+            vault_timeout_failure: 'vault timeout failure',
+            vault_missing_secret_failure: 'vault missing secret failure',
+            vault_generic_failure: 'vault generic failure'
           }.freeze
 
           private_constant :REASONS

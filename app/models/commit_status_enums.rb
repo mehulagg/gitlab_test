@@ -17,7 +17,10 @@ module CommitStatusEnums
       archived_failure: 9,
       unmet_prerequisites: 10,
       scheduler_failure: 11,
-      data_integrity_failure: 12
+      data_integrity_failure: 12,
+      vault_timeout_failure: 13,
+      vault_missing_secret_failure: 14,
+      vault_generic_failure: 15
     }
   end
 end

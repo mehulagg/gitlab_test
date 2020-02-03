@@ -13,7 +13,10 @@ class CommitStatusPresenter < Gitlab::View::Presenter::Delegated
     archived_failure: 'The job is archived and cannot be run',
     unmet_prerequisites: 'The job failed to complete prerequisite tasks',
     scheduler_failure: 'The scheduler failed to assign job to the runner, please try again or contact system administrator',
-    data_integrity_failure: 'There has been a structural integrity problem detected, please contact system administrator'
+    data_integrity_failure: 'There has been a structural integrity problem detected, please contact system administrator',
+    vault_timeout_failure: 'There has been a timeout failure while fetching the Vault secrets. Reduce the number of secrets or try again',
+    vault_missing_secret_failure: 'One or more Vault secrets are missing. Please check your definitions and permissions',
+    vault_generic_failure: 'There has been a failure while fetching the Vault secrets. Please check your configuration and permissions'
   }.freeze
 
   private_constant :CALLOUT_FAILURE_MESSAGES
