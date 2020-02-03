@@ -153,7 +153,7 @@ The Docker daemon supports connection over TLS and it's done by default
 for Docker 19.03.1 or higher. This is the **suggested** way to use the
 docker-in-docker service and
 [GitLab.com Shared Runners](../../user/gitlab_com/index.md#shared-runners)
-support this.
+have implemented this model.
 
 1. Install [GitLab Runner](https://docs.gitlab.com/runner/install/).
 
@@ -245,7 +245,8 @@ support this.
 
 Sometimes there are legitimate reasons why you might want to disable TLS.
 For example, you have no control over the GitLab Runner configuration
-that you are using.
+that you are using. The Runner installed via [GitLab Managed Apps](https://docs.gitlab.com/ee/user/clusters/applications.html#gitlab-runner) 
+on Kubernetes clusters has been implemented using this model.
 
 Assuming that the Runner `config.toml` is similar to:
 
