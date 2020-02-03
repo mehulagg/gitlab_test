@@ -198,7 +198,7 @@ and must be reviewed by the [assigned Techical Writer](https://about.gitlab.com/
 according to the [documentation process](workflow.md).
 
 Documentation should only exist for existing features, we **must not** document
-something that isn't in production and/or is unavailable to the users.
+something that isn't in production or is unavailable to the users.
 
 Whenever possible, documentation must be added in the same merge request (MR)
 as code to ensure the docs become available at the same time as the feature.
@@ -216,7 +216,7 @@ In case this was disregarded, and a yet non-existing feature was documented,
 the author of the docs MR should revert the docs changes until the feature
 becomes available.
 
-Note that there is also an specific process for [documenting features behind feature flags](styleguide.md#feature-flags).
+Note that there is also a specific process for [documenting features behind feature flags](styleguide.md#feature-flags).
 
 ## GitLab `/help`
 
