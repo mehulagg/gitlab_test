@@ -9,7 +9,7 @@ describe Issue do
 
   context 'callbacks' do
     describe '.after_create' do
-      set(:project) { create(:project) }
+      let_it_be(:project) { create(:project) }
       let(:author) { User.alert_bot }
 
       context 'when issue title is "New: Incident"' do
@@ -207,6 +207,15 @@ describe Issue do
       issue = build(:issue)
 
       expect(issue.allows_multiple_assignees?).to be_truthy
+    end
+  end
+
+  describe '.simple_sorts' do
+    it 'includes weight with other base keys' do
+      expect(Issue.simple_sorts.keys).to match_array(
+        %w(created_asc created_at_asc created_date created_desc created_at_desc
+           id_asc id_desc updated_desc updated_asc updated_at_asc updated_at_desc
+           weight weight_asc weight_desc))
     end
   end
 

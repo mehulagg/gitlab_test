@@ -1,5 +1,16 @@
 Please view this file on the master branch, on stable branches it's out of date.
 
+## 12.7.5
+
+### Fixed (1 change)
+
+- Fix DB connection pool size for Geo database. !24021
+
+
+## 12.7.3
+
+- No changes.
+
 ## 12.7.1
 
 ### Fixed (1 change)
@@ -94,6 +105,14 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Limit size of search query for non ES searches. !22208
 - Remove "creations" in gitlab_subscription_histories on gitlab.com. !22278
 
+
+## 12.6.6
+
+- No changes.
+
+## 12.6.5
+
+- No changes.
 
 ## 12.6.4
 
@@ -206,6 +225,10 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Remove operations_feature_flags_clients.token column. !21016
 - Update the alerts used in the Dependency List to follow GitLab design guidelines. !21760
 
+
+## 12.5.8
+
+- No changes.
 
 ## 12.5.5
 

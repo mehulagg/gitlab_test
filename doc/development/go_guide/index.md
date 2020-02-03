@@ -52,9 +52,9 @@ Web servers can take advantages of middlewares like [Secure](https://github.com/
 
 Many of our projects are too small to have full-time maintainers. That's why we
 have a shared pool of Go reviewers at GitLab. To find a reviewer, use the
-[Engineering Projects](https://about.gitlab.com/handbook/engineering/projects/)
-page in the handbook. "GitLab Community Edition (CE)" and "GitLab Community
-Edition (EE)" both have a "Go" section with its list of reviewers.
+["Go" section](https://about.gitlab.com/handbook/engineering/projects/#gitlab_reviewers_go)
+of the "GitLab" project on the Engineering Projects
+page in the handbook.
 
 To add yourself to this list, add the following to your profile in the
 [team.yml](https://gitlab.com/gitlab-com/www-gitlab-com/blob/master/data/team.yml)
@@ -302,7 +302,7 @@ There are a few guidelines one should follow when using the
   fields in the context of that code path, such as the URI of the request using
   [`WithField`](https://godoc.org/github.com/sirupsen/logrus#WithField) or
   [`WithFields`](https://godoc.org/github.com/sirupsen/logrus#WithFields). For
-  example, `logrus.WithField("file", "/app/go).Info("Opening dir")`. If you
+  example, `logrus.WithField("file", "/app/go").Info("Opening dir")`. If you
   have to log multiple keys, always use `WithFields` instead of calling
   `WithField` more than once.
 

@@ -36,7 +36,7 @@ Here are some things to keep in mind regarding test performance:
 
 To run rspec tests:
 
-```sh
+```shell
 # run all tests
 bundle exec rspec
 
@@ -46,7 +46,7 @@ bundle exec rspec spec/[path]/[to]/[spec].rb
 
 Use [guard](https://github.com/guard/guard) to continuously monitor for changes and only run matching tests:
 
-```sh
+```shell
 bundle exec guard
 ```
 
@@ -544,6 +544,15 @@ be very useful whenever some tests start breaking and we would love to know
 why without editing the source and rerun the tests.
 
 This is especially useful whenever it's showing 500 internal server error.
+
+Prefer named HTTP status like `:no_content` over its numeric representation
+`206`. See a list of [supported status codes](https://github.com/rack/rack/blob/f2d2df4016a906beec755b63b4edfcc07b58ee05/lib/rack/utils.rb#L490).
+
+Example:
+
+```ruby
+expect(response).to have_gitlab_http_status(:ok)
+```
 
 ### Shared contexts
 

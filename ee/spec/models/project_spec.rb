@@ -423,7 +423,7 @@ describe Project do
   end
 
   describe '#environments_for_scope' do
-    set(:project) { create(:project) }
+    let_it_be(:project, reload: true) { create(:project) }
 
     before do
       create_list(:environment, 2, project: project)
@@ -784,8 +784,8 @@ describe Project do
   end
 
   describe '#shared_runners_limit_namespace' do
-    set(:root_ancestor) { create(:group) }
-    set(:group) { create(:group, parent: root_ancestor) }
+    let_it_be(:root_ancestor) { create(:group) }
+    let_it_be(:group) { create(:group, parent: root_ancestor) }
     let(:project) { create(:project, namespace: group) }
 
     subject { project.shared_runners_limit_namespace }
@@ -2472,6 +2472,38 @@ describe Project do
       expect(design).to receive(:before_delete)
 
       project.expire_caches_before_rename('foo')
+    end
+  end
+
+  describe '#template_source?' do
+    let_it_be(:group) { create(:group, :private) }
+    let_it_be(:subgroup) { create(:group, :private, parent: group) }
+    let_it_be(:project_template) { create(:project, group: subgroup) }
+
+    context 'when project is not template source' do
+      it 'returns false' do
+        expect(project.template_source?).to be_falsey
+      end
+    end
+
+    context 'instance-level custom project templates' do
+      before do
+        stub_ee_application_setting(custom_project_templates_group_id: subgroup.id)
+      end
+
+      it 'returns true' do
+        expect(project_template.template_source?).to be_truthy
+      end
+    end
+
+    context 'group-level custom project templates' do
+      before do
+        group.update(custom_project_templates_group_id: subgroup.id)
+      end
+
+      it 'returns true' do
+        expect(project_template.template_source?).to be_truthy
+      end
     end
   end
 end

@@ -85,7 +85,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           resources :code_reviews, only: [:index]
         end
 
-        draw :merge_requests_ee
+        resources :approvers, only: :destroy
+        resources :approver_groups, only: :destroy
+        resources :push_rules, constraints: { id: /\d+/ }, only: [:update]
       end
       # End of the /-/ scope.
 
@@ -128,10 +130,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       put '/service_desk' => 'service_desk#update', as: :service_desk_refresh
 
       post '/restore' => '/projects#restore', as: :restore
-
-      resources :approvers, only: :destroy
-      resources :approver_groups, only: :destroy
-      resources :push_rules, constraints: { id: /\d+/ }, only: [:update]
 
       resources :pipelines, only: [] do
         member do

@@ -18,6 +18,26 @@ RSpec.shared_examples 'rejects nuget packages access' do |user_type, status, add
   end
 end
 
+RSpec.shared_examples 'rejects nuget packages access with packages features disabled' do
+  context 'with packages features disabled' do
+    before do
+      stub_licensed_features(packages: false)
+    end
+
+    it_behaves_like 'rejects nuget packages access', :anonymous, :forbidden
+  end
+end
+
+RSpec.shared_examples 'rejects nuget packages access with feature flag disabled' do
+  context 'with feature flag disabled' do
+    before do
+      stub_feature_flags(nuget_package_registry: { enabled: false, thing: project })
+    end
+
+    it_behaves_like 'rejects nuget packages access', :anonymous, :not_found
+  end
+end
+
 RSpec.shared_examples 'process nuget service index request' do |user_type, status, add_member = true|
   context "for user type #{user_type}" do
     before do
@@ -41,6 +61,64 @@ RSpec.shared_examples 'process nuget service index request' do |user_type, statu
 
     context 'with invalid format' do
       let(:url) { "/projects/#{project.id}/packages/nuget/index.xls" }
+
+      it_behaves_like 'rejects nuget packages access', :anonymous, :not_found
+    end
+  end
+end
+
+RSpec.shared_examples 'process nuget metadata request at package name level' do |user_type, status, add_member = true|
+  context "for user type #{user_type}" do
+    before do
+      project.send("add_#{user_type}", user) if add_member && user_type != :anonymous
+    end
+
+    it_behaves_like 'returning response status', status
+
+    it 'returns a valid json response' do
+      subject
+
+      expect(response.content_type.to_s).to eq('application/json')
+      expect(json_response).to be_a(Hash)
+    end
+
+    it 'returns a valid nuget packages metadata json' do
+      subject
+
+      expect(json_response).to match_schema('public_api/v4/packages/nuget/packages_metadata', dir: 'ee')
+    end
+
+    context 'with invalid format' do
+      let(:url) { "/projects/#{project.id}/packages/nuget/metadata/#{package_name}/index.xls" }
+
+      it_behaves_like 'rejects nuget packages access', :anonymous, :not_found
+    end
+  end
+end
+
+RSpec.shared_examples 'process nuget metadata request at package name and package version level' do |user_type, status, add_member = true|
+  context "for user type #{user_type}" do
+    before do
+      project.send("add_#{user_type}", user) if add_member && user_type != :anonymous
+    end
+
+    it_behaves_like 'returning response status', status
+
+    it 'returns a valid json response' do
+      subject
+
+      expect(response.content_type.to_s).to eq('application/json')
+      expect(json_response).to be_a(Hash)
+    end
+
+    it 'returns a valid nuget package metadata json' do
+      subject
+
+      expect(json_response).to match_schema('public_api/v4/packages/nuget/package_metadata', dir: 'ee')
+    end
+
+    context 'with invalid format' do
+      let(:url) { "/projects/#{project.id}/packages/nuget/metadata/#{package_name}/#{package.version}.xls" }
 
       it_behaves_like 'rejects nuget packages access', :anonymous, :not_found
     end
@@ -72,13 +150,13 @@ RSpec.shared_examples 'process nuget workhorse authorization' do |user_type, sta
         project.add_maintainer(user)
       end
 
-      it_behaves_like 'returning response status', :error
+      it_behaves_like 'returning response status', :forbidden
     end
   end
 end
 
 RSpec.shared_examples 'process nuget upload' do |user_type, status, add_member = true|
-  shared_examples 'creates nuget package files' do
+  RSpec.shared_examples 'creates nuget package files' do
     it 'creates package files' do
       expect(::Packages::Nuget::ExtractionWorker).to receive(:perform_async).once
       expect { subject }
@@ -105,6 +183,7 @@ RSpec.shared_examples 'process nuget upload' do |user_type, status, add_member =
       end
 
       context 'with correct params' do
+        it_behaves_like 'package workhorse uploads'
         it_behaves_like 'creates nuget package files'
         it_behaves_like 'a gitlab tracking event', described_class.name, 'push_package'
       end
