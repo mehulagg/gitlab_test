@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Manage', :group_saml, :orchestrated, :requires_admin do
+  context 'Manage', :group_saml, :orchestrated, :requires_admin, :skip do
     describe 'Group SAML SSO' do
       include Support::Api
 
