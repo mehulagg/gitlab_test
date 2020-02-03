@@ -4,6 +4,7 @@ import { mapActions, mapState, mapGetters } from 'vuex';
 import IssueModal from 'ee/vue_shared/security_reports/components/modal.vue';
 import Filters from './filters.vue';
 import SecurityDashboardTable from './security_dashboard_table.vue';
+import UnscannedProjects from './unscanned_projects.vue';
 import VulnerabilityChart from './vulnerability_chart.vue';
 import VulnerabilityCountList from './vulnerability_count_list.vue';
 import VulnerabilitySeverity from './vulnerability_severity.vue';
@@ -15,12 +16,18 @@ export default {
     Filters,
     IssueModal,
     SecurityDashboardTable,
+    UnscannedProjects,
     VulnerabilityChart,
     VulnerabilityCountList,
     VulnerabilitySeverity,
     LoadingError,
   },
   props: {
+    unscannedProjectsEndpoint: {
+      type: String,
+      required: false,
+      default: '',
+    },
     vulnerabilitiesEndpoint: {
       type: String,
       required: true,
@@ -84,10 +91,17 @@ export default {
       return this.lockToProject !== null;
     },
     shouldShowAside() {
-      return this.shouldShowChart || this.shouldShowVulnerabilitySeverities;
+      return (
+        this.shouldShowChart ||
+        this.shouldShowVulnerabilitySeverities ||
+        this.shouldShowUnscannedProjects
+      );
     },
     shouldShowChart() {
       return Boolean(this.vulnerabilitiesHistoryEndpoint);
+    },
+    shouldShowUnscannedProjects() {
+      return Boolean(this.unscannedProjectsEndpoint);
     },
     shouldShowVulnerabilitySeverities() {
       return Boolean(this.vulnerableProjectsEndpoint);
@@ -172,6 +186,11 @@ export default {
           <vulnerability-severity
             v-if="shouldShowVulnerabilitySeverities"
             :endpoint="vulnerableProjectsEndpoint"
+            class="mb-3"
+          />
+          <unscanned-projects
+            v-if="shouldShowUnscannedProjects"
+            :endpoint="unscannedProjectsEndpoint"
           />
         </aside>
       </div>
