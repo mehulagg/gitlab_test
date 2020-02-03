@@ -22,6 +22,8 @@
     "style": "---"
   },
   "no-emphasis-as-heading": false,
+  "code-fence-style": false,
+  "commands-show-output": false,
   "fenced-code-language": false,
   "first-line-h1": false,
   "code-block-style": {
