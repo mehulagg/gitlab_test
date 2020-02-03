@@ -52,6 +52,16 @@ describe Gitlab::BackgroundMigration::MigrateSecurityScans, :migration, schema: 
     end
   end
 
+  context 'job artifacts are not security artifacts' do
+    let!(:job_artifact) { job_artifacts.create!(project_id: project.id, job_id: build.id, file_type: 1) }
+
+    it 'does not save a new security scan' do
+      subject.perform(job_artifact.id)
+
+      expect(Security::Scan.count).to eq(0)
+    end
+  end
+
   context 'security scan has already been saved' do
     let!(:job_artifact) { job_artifacts.create!(project_id: project.id, job_id: build.id, file_type: 5) }
 
