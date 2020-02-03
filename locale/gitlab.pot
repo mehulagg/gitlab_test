@@ -20991,6 +20991,9 @@ msgstr ""
 msgid "VaultIntegration|Enter the base URL of the Vault instance."
 msgstr ""
 
+msgid "VaultIntegration|Or"
+msgstr ""
+
 msgid "VaultIntegration|Protected secrets"
 msgstr ""
 

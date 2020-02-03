@@ -1,7 +1,6 @@
 <script>
 import { GlButton, GlFormGroup, GlFormInput, GlFormCheckbox, GlFormTextarea } from '@gitlab/ui';
 import { mapState, mapActions } from 'vuex';
-import Icon from '~/vue_shared/components/icon.vue';
 
 export default {
   components: {
@@ -10,7 +9,6 @@ export default {
     GlFormGroup,
     GlFormInput,
     GlFormTextarea,
-    Icon,
   },
   data() {
     return { placeholderUrl: 'https://my-url.vault.net/' };
@@ -102,10 +100,14 @@ export default {
           <gl-form-input id="vault-url" v-model="localVaultUrl" :placeholder="placeholderUrl" />
         </gl-form-group>
         <gl-form-group :label="s__('VaultIntegration|API Token')" label-for="vault-token">
-          <gl-form-input id="vault-token" type="password" v-model="localVaultToken" />
+          <gl-form-input id="vault-token" v-model="localVaultToken" type="password" />
         </gl-form-group>
 
-        <div><strong>Or</strong></div>
+        <div>
+          <p class="form-text text-muted">
+            {{ s__('VaultIntegration|Or') }}
+          </p>
+        </div>
 
         <gl-form-group
           :label="s__('VaultIntegration|SSL certificate and key')"
