@@ -3,10 +3,7 @@
 require 'spec_helper'
 
 describe Ci::CreatePipelineService, '#execute' do
-  set(:namespace) { create(:namespace) }
-  set(:gold_plan) { create(:gold_plan) }
-  set(:plan_limits) { create(:plan_limits, plan: gold_plan) }
-  set(:project) { create(:project, :repository, namespace: namespace) }
+  set(:project) { create(:project, :repository) }
   set(:user) { create(:user) }
   let(:ref_name) { 'master' }
 
@@ -20,8 +17,6 @@ describe Ci::CreatePipelineService, '#execute' do
   end
 
   before do
-    create(:gitlab_subscription, namespace: namespace, hosted_plan: gold_plan)
-
     project.add_developer(user)
     stub_ci_pipeline_to_return_yaml_file
   end
