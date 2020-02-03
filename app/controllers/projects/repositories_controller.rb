@@ -21,7 +21,7 @@ class Projects::RepositoriesController < Projects::ApplicationController
   end
 
   def archive
-    return git_not_found! if request.format.html?
+    return git_not_found! if html_request?
 
     set_cache_headers
     return if archive_not_modified?
