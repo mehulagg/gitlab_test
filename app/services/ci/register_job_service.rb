@@ -111,8 +111,27 @@ module Ci
         return false
       end
 
+      return false unless load_vault_secrets(build)
+
       build.run!
       true
+    end
+
+    def load_vault_secrets(build)
+      build.load_vault_secrets!
+      true
+
+    rescue Gitlab::Ci::Vault::SoftTimeout::TimeoutError
+      build.drop!(:vault_timeout_failure)
+      false
+
+    rescue Gitlab::Ci::Vault::Secret::NotFoundError
+      build.drop!(:vault_missing_secret_failure)
+      false
+
+    rescue Vault::VaultError
+      build.drop!(:vault_generic_failure)
+      false
     end
 
     def scheduler_failure!(build)

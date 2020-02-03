@@ -16,6 +16,8 @@ module Ci
 
     BuildArchivedError = Class.new(StandardError)
 
+    attr_reader :vault_secrets
+
     ignore_columns :artifacts_file, :artifacts_file_store, :artifacts_metadata, :artifacts_metadata_store, :artifacts_size, :commands, remove_after: '2019-12-15', remove_with: '12.7'
 
     belongs_to :project, inverse_of: :builds
@@ -529,8 +531,13 @@ module Ci
           .concat(scoped_variables)
           .concat(job_variables)
           .concat(persisted_environment_variables)
-          .concat(vault_secrets)
           .to_runner_variables
+      end
+    end
+
+    def runner_variables
+      strong_memoize(:runner_variables) do
+        variables + vault_secrets.to_runner_variables
       end
     end
 
@@ -567,10 +574,8 @@ module Ci
       end
     end
 
-    def vault_secrets
-      strong_memoize(:vault_secrets) do
-        Gitlab::Ci::Vault::Variables.new(self).call
-      end
+    def load_vault_secrets!
+      @vault_secrets = Gitlab::Ci::Vault::Variables.new(self).call
     end
 
     def deploy_token_variables

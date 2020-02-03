@@ -1251,7 +1251,7 @@ module API
           model
         end
 
-        expose :variables
+        expose :runner_variables, as: :variables
         expose :steps, using: Step
         expose :image, using: Image
         expose :services, using: Service
