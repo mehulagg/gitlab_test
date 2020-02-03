@@ -6,11 +6,11 @@ describe "User comments on issue", :js do
   include Spec::Support::Helpers::Features::NotesHelpers
 
   let(:project) { create(:project_empty_repo, :public) }
-  let(:issue) { create(:issue, project: project) }
   let(:user) { create(:user) }
+  let(:issue) { create(:issue, project: project, author: user) }
 
   before do
-    project.add_guest(user)
+    project.add_maintainer(user)
     sign_in(user)
 
     visit(project_issue_path(project, issue))
@@ -70,6 +70,26 @@ describe "User comments on issue", :js do
 
       page.within '.atwho-container #at-view-commands' do
         expect(find('li', match: :first)).to have_content('/label')
+      end
+    end
+
+    it "adds comment assigning user" do
+      content = "/assign @#{user.username}"
+      target_form = ".js-main-target-form"
+
+      add_note(content)
+
+      page.within(".system-note") do
+        expect(page).to have_content("assigned to @#{user.username}")
+        find('.gfm-project_member').hover
+      end
+
+      popover_selector = '.user-popover'
+
+      expect(page).to have_css(popover_selector, visible: true)
+
+      page.within(popover_selector) do
+        expect(page).to have_content(user.name)
       end
     end
   end
