@@ -20982,6 +20982,30 @@ msgstr ""
 msgid "Various settings that affect GitLab performance."
 msgstr ""
 
+msgid "VaultIntegration|API Token"
+msgstr ""
+
+msgid "VaultIntegration|Active"
+msgstr ""
+
+msgid "VaultIntegration|Enter the base URL of the Vault instance."
+msgstr ""
+
+msgid "VaultIntegration|Protected secrets"
+msgstr ""
+
+msgid "VaultIntegration|SSL certificate and key"
+msgstr ""
+
+msgid "VaultIntegration|Send Vault secrets to CI jobs."
+msgstr ""
+
+msgid "VaultIntegration|Vault Integration"
+msgstr ""
+
+msgid "VaultIntegration|Vault URL"
+msgstr ""
+
 msgid "Verification capacity"
 msgstr ""
 
