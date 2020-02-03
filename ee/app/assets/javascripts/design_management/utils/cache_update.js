@@ -172,7 +172,7 @@ const updateImageDiffNoteInStore = (store, updateImageDiffNote, query, variables
           __typename: 'NoteEdge',
           node: updateImageDiffNote.note,
         },
-        ...discussion.node.notes.slice(1),
+        ...discussion.node.notes.edges.slice(1),
       ],
     },
   };
