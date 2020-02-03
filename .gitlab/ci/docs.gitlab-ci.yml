@@ -81,7 +81,7 @@ docs-lint-vale:
     # Lint Markdown
     - markdownlint --config .markdownlint.json 'doc/**/*.md'
     - vale dc
-    - vale --debug --glob='*.{md,rst}' /doc
+    - vale --glob='*.{md,rst}' doc/
 
 graphql-reference-verify:
   extends:
