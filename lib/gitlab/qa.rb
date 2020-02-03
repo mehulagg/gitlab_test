@@ -82,5 +82,9 @@ module Gitlab
       autoload :Shellout, 'gitlab/qa/docker/shellout'
       autoload :Volumes, 'gitlab/qa/docker/volumes'
     end
+
+    module Report
+      autoload :PrepareStageReports, 'gitlab/qa/report/prepare_stage_reports'
+    end
   end
 end
