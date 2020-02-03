@@ -14,12 +14,8 @@ module Gitlab
               super
             end
 
-            def set_accept_insecure_certs
-              ::Gitlab::QA::Runtime::Env.accept_insecure_certs = 'true'
-            end
-
             def configure_omnibus(gitlab)
-              set_accept_insecure_certs
+              gitlab.set_accept_insecure_certs
               gitlab.omnibus_config = <<~OMNIBUS
                     gitlab_rails['ldap_enabled'] = true;
                     gitlab_rails['ldap_servers'] = #{ldap_servers_omnibus_config};
