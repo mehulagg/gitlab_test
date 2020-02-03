@@ -1,9 +1,11 @@
 describe Gitlab::QA::Runner do
   let(:scenario) { spy('scenario') }
   let(:scenario_arg) { ['Test::Instance::Image'] }
+  let(:prepare_reports) { spy('Gitlab::QA::Report::PrepareStageReports') }
 
   before do
     stub_const('Gitlab::QA::Scenario', scenario)
+    stub_const('Gitlab::QA::Report::PrepareStageReports', prepare_reports)
   end
 
   describe '.run' do
@@ -59,6 +61,28 @@ describe Gitlab::QA::Runner do
         described_class.run(scenario_arg + passed_args)
 
         expect(scenario).to have_received(:perform).with(*passed_args)
+      end
+
+      describe 'when preparing stage reports' do
+        it 'requires input files to be specified' do
+          expect { described_class.run('--prepare-stage-reports') }
+            .to raise_error(OptionParser::MissingArgument, 'missing argument: --prepare-stage-reports')
+        end
+
+        it 'accepts specified files' do
+          files = 'files'
+
+          expect { described_class.run(%w[--prepare-stage-reports files]) }.to raise_error(SystemExit)
+
+          expect(prepare_reports).to have_received(:new).with(input_files: files)
+          expect(prepare_reports).to have_received(:invoke!)
+        end
+
+        it 'does not run tests' do
+          expect { described_class.run(%w[--prepare-stage-reports files]) }.to raise_error(SystemExit)
+
+          expect(scenario).not_to have_received(:perform)
+        end
       end
     end
   end

@@ -27,4 +27,5 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rubocop', '~> 0.54.0'
   spec.add_development_dependency 'rubocop-rspec', '1.20.1'
   spec.add_development_dependency 'webmock', '3.7.0'
+  spec.add_runtime_dependency 'nokogiri', '~> 1.10'
 end
