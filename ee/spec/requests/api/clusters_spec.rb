@@ -55,7 +55,7 @@ describe API::Clusters do
           before do
             service = instance_double(PodLogsService)
             expect(PodLogsService).to receive(:new).with(environment, params: hash_including(params)).and_return(service)
-            expect(service).to receive(:execute).and_return({ status: :processing })
+            expect(service).to receive(:execute).and_return(status: :processing)
           end
 
           it 'returns 202' do
@@ -68,14 +68,14 @@ describe API::Clusters do
           before do
             service = instance_double(PodLogsService)
             expect(PodLogsService).to receive(:new).with(environment, params: hash_including(params)).and_return(service)
-            expect(service).to receive(:execute).and_return({ status: :error, message: 'an error occured', last_step: 'foo' })
+            expect(service).to receive(:execute).and_return(status: :error, message: 'an error occured', last_step: 'foo')
           end
 
           it 'returns 400 with the error message' do
             get api(url, user)
             expect(response).to have_gitlab_http_status(400)
-            expect(json_response["message"]).to eq("an error occured (last_step: foo)")
-            expect(json_response["status"]).to eq("error")
+            expect(json_response['message']).to eq('an error occured (last_step: foo)')
+            expect(json_response['status']).to eq('error')
             expect(json_response.keys).to contain_exactly('message', 'status')
           end
         end
@@ -84,13 +84,13 @@ describe API::Clusters do
           before do
             service = instance_double(PodLogsService)
             expect(PodLogsService).to receive(:new).with(environment, params: hash_including(params)).and_return(service)
-            expect(service).to receive(:execute).and_return({ status: :success, logs: %w[foo bar] })
+            expect(service).to receive(:execute).and_return(status: :success, logs: %w[foo bar])
           end
 
           it 'returns 200 with the result' do
             get api(url, user)
             expect(response).to have_gitlab_http_status(200)
-            expect(json_response).to eq({ "status" => "success", "logs" => %w[foo bar] })
+            expect(json_response).to eq({ 'status' => 'success', 'logs' => %w[foo bar] })
           end
 
           it 'registers a usage of the endpoint' do
@@ -100,7 +100,7 @@ describe API::Clusters do
 
           it 'sets the polling header' do
             get api(url, user)
-            expect(response.headers['Poll-Interval']).to eq("3000")
+            expect(response.headers['Poll-Interval']).to eq('3000')
           end
         end
       end

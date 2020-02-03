@@ -274,7 +274,7 @@ describe('Logs Store actions', () => {
 
       const endpoint = '/dummy_logs_path.json';
 
-      mock.onGet(endpoint, { params: { ...mockDefaultRange} }).reply(200, {
+      mock.onGet(endpoint, { params: { ...mockDefaultRange } }).reply(200, {
         pod_name: mockPodName,
         pods: mockPods,
         logs: mockLogsResult,

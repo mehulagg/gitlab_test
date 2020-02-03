@@ -11,7 +11,7 @@ module API
 
       # rubocop: disable CodeReuse/ActiveRecord
       def environment
-        @environment ||= ::Clusters::KubernetesNamespace.where(namespace: params[:namespace], cluster_id: params[:cluster_id]).first.try(:environment)
+        @environment ||= ::Clusters::KubernetesNamespace.find_by(namespace: params[:namespace], cluster_id: params[:cluster_id])&.environment
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
