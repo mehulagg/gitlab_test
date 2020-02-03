@@ -67,6 +67,21 @@ docs lint:
     # Check the internal anchor links
     - bundle exec nanoc check internal_anchors
 
+docs-lint-vale:
+  extends:
+    - .default-tags
+    - .default-retry
+    - .default-only
+    - .only:changes-docs
+  image: "registry.gitlab.com/gitlab-org/gitlab-docs:lint-test"
+  stage: test
+  dependencies: []
+  script:
+    - scripts/lint-doc.sh
+    # Lint Markdown
+    - markdownlint --config .markdownlint.json 'doc/**/*.md'
+    - vale --glob='*.{md,rst}' /doc
+
 graphql-reference-verify:
   extends:
     - .only-ee
