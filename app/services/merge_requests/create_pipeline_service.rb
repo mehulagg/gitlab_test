@@ -40,7 +40,7 @@ module MergeRequests
     end
 
     def save_on_errors
-      Feature.enabled?(:ci_merge_request_pipelines_save_on_errors)
+      !Feature.enabled?(:ci_merge_request_pipelines_fix_yaml_errors, default_enabled: true)
     end
   end
 end
