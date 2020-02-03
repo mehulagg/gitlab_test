@@ -6,6 +6,12 @@ module API
       expose :highest_role
       expose :current_sign_in_ip
       expose :last_sign_in_ip
+      expose :plan do |user|
+        user.namespace&.plan&.name
+      end
+      expose :trial do |user|
+        user.namespace&.trial?
+      end
     end
   end
 end

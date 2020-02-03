@@ -266,4 +266,43 @@ describe API::Users do
       end
     end
   end
+
+  context 'plan and trial info' do
+    describe 'GET /user/:id' do
+      context 'when authenticated' do
+        before do
+          plan = create(:gold_plan)
+          namespace = create(:namespace)
+          namespace.plan = plan
+          user.namespace = namespace
+        end
+
+        context 'as an admin' do
+          it 'contains plan and trial' do
+            get api("/users/#{user.id}", admin)
+
+            expect(json_response).to include('plan' => 'gold')
+          end
+        end
+
+        context 'as a user' do
+          it 'does not contain plan and trial info' do
+            get api("/users/#{user.id}", user)
+
+            expect(json_response).not_to have_key('plan')
+            expect(json_response).not_to have_key('trial')
+          end
+        end
+      end
+
+      context 'when not authenticated' do
+        it 'does not contain plan and trial info' do
+          get api("/users/#{user.id}")
+
+          expect(json_response).not_to have_key('plan')
+          expect(json_response).not_to have_key('trial')
+        end
+      end
+    end
+  end
 end
