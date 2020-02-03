@@ -22,6 +22,7 @@ permission level, who added a new user, or who removed a user.
   user for a project in GitLab.
 - Use it to track which users have access to a certain group of projects
   in  GitLab, and who gave them that permission level.
+- This is a list, maybe and not.
 
 ## List of events
 
