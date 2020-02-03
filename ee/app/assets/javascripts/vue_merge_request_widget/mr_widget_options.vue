@@ -221,13 +221,13 @@ export default {
     },
 
     fetchPerformance() {
-      const { head_path, base_path } = this.mr.performance;
+      const { head_path, base_path, degradation_threshold } = this.mr.performance;
 
       this.isLoadingPerformance = true;
 
       Promise.all([this.service.fetchReport(head_path), this.service.fetchReport(base_path)])
         .then(values => {
-          this.mr.comparePerformanceMetrics(values[0], values[1]);
+          this.mr.comparePerformanceMetrics(values[0], values[1], degradation_threshold);
           this.isLoadingPerformance = false;
         })
         .catch(() => {

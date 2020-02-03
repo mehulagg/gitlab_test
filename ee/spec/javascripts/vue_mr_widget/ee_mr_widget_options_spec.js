@@ -539,7 +539,7 @@ describe('ee merge request widget options', () => {
             removeBreakLine(
               vm.$el.querySelector('.js-performance-widget .js-code-text').textContent,
             ),
-          ).toEqual('Performance metrics improved on 2 points and degraded on 1 point');
+          ).toEqual('Performance metrics improved on 1 point and degraded on 2 points');
           done();
         }, 0);
       });
@@ -554,7 +554,7 @@ describe('ee merge request widget options', () => {
                 removeBreakLine(
                   vm.$el.querySelector('.js-performance-widget .js-code-text').textContent,
                 ),
-              ).toEqual('Performance metrics improved on 2 points');
+              ).toEqual('Performance metrics improved on 1 point');
               done();
             });
           }, 0);
@@ -569,9 +569,24 @@ describe('ee merge request widget options', () => {
                 removeBreakLine(
                   vm.$el.querySelector('.js-performance-widget .js-code-text').textContent,
                 ),
-              ).toEqual('Performance metrics degraded on 1 point');
+              ).toEqual('Performance metrics degraded on 2 points');
               done();
             });
+          }, 0);
+        });
+      });
+
+      describe('with degradation threshold', () => {
+        it('should only render degradations over the threshold', done => {
+          vm.mr.performance.degradation_threshold = 2;
+
+          setTimeout(() => {
+            expect(
+              removeBreakLine(
+                vm.$el.querySelector('.js-performance-widget .js-code-text').textContent,
+              ),
+            ).toEqual('Performance metrics improved on 1 point and degraded on 1 point');
+            done();
           }, 0);
         });
       });

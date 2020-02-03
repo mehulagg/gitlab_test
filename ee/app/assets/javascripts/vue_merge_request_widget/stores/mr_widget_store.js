@@ -122,7 +122,7 @@ export default class MergeRequestStore extends CEMergeRequestStore {
     );
   }
 
-  comparePerformanceMetrics(headMetrics, baseMetrics) {
+  comparePerformanceMetrics(headMetrics, baseMetrics, degradationThreshold = 0) {
     const headMetricsIndexed = MergeRequestStore.normalizePerformanceMetrics(headMetrics);
     const baseMetricsIndexed = MergeRequestStore.normalizePerformanceMetrics(baseMetrics);
 
@@ -148,10 +148,11 @@ export default class MergeRequestStore extends CEMergeRequestStore {
               headMetricData.desiredSize === 'smaller'
                 ? metricData.delta < 0
                 : metricData.delta > 0;
+            const isDeltaOverThreshold = Math.abs(metricData.delta) >= degradationThreshold;
 
             if (isImproved) {
               improved.push(metricData);
-            } else {
+            } else if (isDeltaOverThreshold) {
               degraded.push(metricData);
             }
           }

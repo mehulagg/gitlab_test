@@ -122,7 +122,7 @@ export const headPerformance = [
     metrics: [
       {
         name: 'Sitespeed Score',
-        value: 85,
+        value: 82,
       },
     ],
   },
