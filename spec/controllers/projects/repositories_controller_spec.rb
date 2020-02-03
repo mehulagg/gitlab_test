@@ -91,6 +91,7 @@ describe Projects::RepositoriesController do
       context "when the request format is HTML" do
         it "renders 404" do
           get :archive, params: { namespace_id: project.namespace, project_id: project, id: 'master' }, format: "html"
+
           expect(response).to have_gitlab_http_status(:not_found)
         end
       end
