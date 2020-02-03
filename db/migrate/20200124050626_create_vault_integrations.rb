@@ -1,4 +1,8 @@
+# frozen_string_literal: true
+
 class CreateVaultIntegrations < ActiveRecord::Migration[5.2]
+  DOWNTIME = false
+
   def change
     create_table :vault_integrations do |t|
       t.references :project, foreign_key: true
@@ -13,6 +17,5 @@ class CreateVaultIntegrations < ActiveRecord::Migration[5.2]
 
       t.timestamps_with_timezone
     end
-    add_index :vault_integrations, :enabled
   end
 end
