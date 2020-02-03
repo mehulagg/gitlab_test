@@ -10,16 +10,17 @@ module Gitlab
           @job = job
           @timeout = (timeout || 10.seconds).to_f
           @secrets = initialize_secrets
+          @data = ::Gitlab::Ci::Variables::Collection.new
         end
 
         def call
-          return [] unless vault_configured?
+          return @data unless vault_configured?
 
           SoftTimeout.with_deadline(@timeout) do |deadline|
             secrets.each { |secret| secret.resolve(deadline) }
           end
 
-          secrets.flat_map(&:data)
+          @data.concat(secrets.flat_map(&:data))
         end
 
         def initialize_secrets

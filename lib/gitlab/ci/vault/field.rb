@@ -16,12 +16,12 @@ module Gitlab
 
         def expand(data)
           strong_memoize(:data) do
-            {
+            ::Gitlab::Ci::Variables::Collection::Item.fabricate(
               key: variable_name,
               value: data[name].to_s,
               masked: Maskable::REGEX.match?(data[name].to_s),
               public: false
-            }
+            )
           end
         end
 
