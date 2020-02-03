@@ -3,9 +3,6 @@
 module Gitlab
   module Badge
     module Release
-      ##
-      # Latest Release badge
-      #
       class Latest_Release < Badge::Base
         attr_reader :project, :ref
 
