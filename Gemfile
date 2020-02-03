@@ -332,7 +332,6 @@ group :metrics do
 end
 
 group :development do
-  gem 'listen', '~> 3.0'
   gem 'brakeman', '~> 4.2', require: false
   gem 'danger', '~> 6.0', require: false
 
@@ -350,7 +349,7 @@ end
 group :development, :test do
   gem 'bullet', '~> 6.0.2', require: !!ENV['ENABLE_BULLET']
   gem 'pry-byebug', '~> 3.5.1', platform: :mri
-  gem 'pry-rails', '~> 0.3.4'
+  gem 'pry-rails', '~> 0.3.9'
 
   gem 'awesome_print', require: false
 
@@ -487,3 +486,5 @@ gem 'liquid', '~> 4.0'
 
 # LRU cache
 gem 'lru_redux'
+
+gem 'erubi', '~> 1.9.0'

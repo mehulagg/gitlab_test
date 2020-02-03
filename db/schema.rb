@@ -94,30 +94,6 @@ ActiveRecord::Schema.define(version: 2020_01_30_212450) do
     t.index ["project_id"], name: "analytics_repository_languages_on_project_id"
   end
 
-  create_table "analytics_repository_file_commits", force: :cascade do |t|
-    t.bigint "analytics_repository_file_id", null: false
-    t.bigint "project_id", null: false
-    t.date "committed_date", null: false
-    t.integer "commit_count", limit: 2, null: false
-    t.index ["analytics_repository_file_id"], name: "index_analytics_repository_file_commits_file_id"
-    t.index ["project_id", "committed_date", "analytics_repository_file_id"], name: "index_file_commits_on_committed_date_file_id_and_project_id", unique: true
-  end
-
-  create_table "analytics_repository_file_edits", force: :cascade do |t|
-    t.bigint "project_id", null: false
-    t.bigint "analytics_repository_file_id", null: false
-    t.date "committed_date", null: false
-    t.integer "num_edits", default: 0, null: false
-    t.index ["analytics_repository_file_id", "committed_date", "project_id"], name: "index_file_edits_on_committed_date_file_id_and_project_id", unique: true
-    t.index ["project_id"], name: "index_analytics_repository_file_edits_on_project_id"
-  end
-
-  create_table "analytics_repository_files", force: :cascade do |t|
-    t.bigint "project_id", null: false
-    t.string "file_path", limit: 4096, null: false
-    t.index ["project_id", "file_path"], name: "index_analytics_repository_files_on_project_id_and_file_path", unique: true
-  end
-
   create_table "appearances", id: :serial, force: :cascade do |t|
     t.string "title", null: false
     t.text "description", null: false
@@ -3042,13 +3018,15 @@ ActiveRecord::Schema.define(version: 2020_01_30_212450) do
     t.datetime_with_timezone "certificate_valid_not_after"
     t.integer "certificate_source", limit: 2, default: 0, null: false
     t.boolean "wildcard", default: false, null: false
-    t.integer "domain_type", limit: 2, default: 2, null: false
+    t.integer "usage", limit: 2, default: 0, null: false
+    t.integer "scope", limit: 2, default: 2, null: false
     t.index ["certificate_source", "certificate_valid_not_after"], name: "index_pages_domains_need_auto_ssl_renewal", where: "(auto_ssl_enabled = true)"
-    t.index ["domain"], name: "index_pages_domains_on_domain", unique: true
-    t.index ["domain_type"], name: "index_pages_domains_on_domain_type"
+    t.index ["domain", "wildcard"], name: "index_pages_domains_on_domain_and_wildcard", unique: true
     t.index ["project_id", "enabled_until"], name: "index_pages_domains_on_project_id_and_enabled_until"
     t.index ["project_id"], name: "index_pages_domains_on_project_id"
     t.index ["remove_at"], name: "index_pages_domains_on_remove_at"
+    t.index ["scope"], name: "index_pages_domains_on_scope"
+    t.index ["usage"], name: "index_pages_domains_on_usage"
     t.index ["verified_at", "enabled_until"], name: "index_pages_domains_on_verified_at_and_enabled_until"
     t.index ["verified_at"], name: "index_pages_domains_on_verified_at"
     t.index ["wildcard"], name: "index_pages_domains_on_wildcard"
@@ -4487,11 +4465,6 @@ ActiveRecord::Schema.define(version: 2020_01_30_212450) do
   add_foreign_key "analytics_cycle_analytics_project_stages", "projects", on_delete: :cascade
   add_foreign_key "analytics_language_trend_repository_languages", "programming_languages", on_delete: :cascade
   add_foreign_key "analytics_language_trend_repository_languages", "projects", on_delete: :cascade
-  add_foreign_key "analytics_repository_file_commits", "analytics_repository_files", on_delete: :cascade
-  add_foreign_key "analytics_repository_file_commits", "projects", on_delete: :cascade
-  add_foreign_key "analytics_repository_file_edits", "analytics_repository_files", on_delete: :cascade
-  add_foreign_key "analytics_repository_file_edits", "projects", on_delete: :cascade
-  add_foreign_key "analytics_repository_files", "projects", on_delete: :cascade
   add_foreign_key "application_settings", "namespaces", column: "custom_project_templates_group_id", on_delete: :nullify
   add_foreign_key "application_settings", "namespaces", column: "instance_administrators_group_id", name: "fk_e8a145f3a7", on_delete: :nullify
   add_foreign_key "application_settings", "projects", column: "file_template_project_id", name: "fk_ec757bd087", on_delete: :nullify
