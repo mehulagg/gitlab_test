@@ -6,8 +6,7 @@ import * as mutationTypes from './mutation_types';
 
 export const setVaultUrl = ({ commit }, url) => commit(mutationTypes.SET_VAULT_URL, url);
 
-export const setVaultToken = ({ commit }, token) =>
-  commit(mutationTypes.SET_VAULT_TOKEN, token);
+export const setVaultToken = ({ commit }, token) => commit(mutationTypes.SET_VAULT_TOKEN, token);
 
 export const setVaultEnabled = ({ commit }, enabled) =>
   commit(mutationTypes.SET_VAULT_ENABLED, enabled);

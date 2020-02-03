@@ -16,7 +16,14 @@ export default {
     return { placeholderUrl: 'https://my-url.vault.net/' };
   },
   computed: {
-    ...mapState(['operationsSettingsEndpoint', 'vaultToken', 'vaultUrl', 'vaultEnabled', 'vaultSslPemContents', 'vaultProtectedSecrets']),
+    ...mapState([
+      'operationsSettingsEndpoint',
+      'vaultToken',
+      'vaultUrl',
+      'vaultEnabled',
+      'vaultSslPemContents',
+      'vaultProtectedSecrets',
+    ]),
     integrationEnabled: {
       get() {
         return this.vaultEnabled;
@@ -84,11 +91,7 @@ export default {
     </div>
     <div class="settings-content">
       <form>
-        <gl-form-checkbox
-          id="vault-integration-enabled"
-          v-model="integrationEnabled"
-          class="mb-4"
-        >
+        <gl-form-checkbox id="vault-integration-enabled" v-model="integrationEnabled" class="mb-4">
           {{ s__('VaultIntegration|Active') }}
         </gl-form-checkbox>
         <gl-form-group
@@ -104,11 +107,17 @@ export default {
 
         <div><strong>Or</strong></div>
 
-        <gl-form-group :label="s__('VaultIntegration|SSL certificate and key')" label-for="vault-ssl-pem-contents">
+        <gl-form-group
+          :label="s__('VaultIntegration|SSL certificate and key')"
+          label-for="vault-ssl-pem-contents"
+        >
           <gl-form-textarea id="vault-ssl-pem-contents" v-model="localVaultSslPemContents" />
         </gl-form-group>
 
-        <gl-form-group :label="s__('VaultIntegration|Protected secrets')" label-for="vault-protected_secrets">
+        <gl-form-group
+          :label="s__('VaultIntegration|Protected secrets')"
+          label-for="vault-protected_secrets"
+        >
           <gl-form-textarea id="vault-protected-secrets" v-model="localVaultProtectedSecrets" />
         </gl-form-group>
 

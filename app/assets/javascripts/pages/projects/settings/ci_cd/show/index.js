@@ -4,7 +4,6 @@ import AjaxVariableList from '~/ci_variable_list/ajax_variable_list';
 import registrySettingsApp from '~/registry/settings/registry_settings_bundle';
 import mountVaultIntegration from '~/vault_integration';
 
-
 document.addEventListener('DOMContentLoaded', () => {
   mountVaultIntegration();
 
