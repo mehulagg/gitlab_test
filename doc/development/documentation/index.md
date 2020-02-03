@@ -212,9 +212,9 @@ designated Techical Writer reviews the documentation changes and can approve the
 but should not merge it until the MR with code gets merged and the feature
 becomes available to the users.
 
-In case this was disregarded, and a yet non-existing feature was documented,
-the author of the docs MR should revert the docs changes until the feature
-becomes available.
+In case this was disregarded or in case of regressions, in which a yet
+non-existing feature was documented, the author of the docs MR should
+revert the docs changes until the feature becomes available.
 
 Note that there is also a specific process for [documenting features behind feature flags](styleguide.md#feature-flags).
 
