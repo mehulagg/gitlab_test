@@ -2328,6 +2328,10 @@ class Project < ApplicationRecord
     protected_branches.limit(limit)
   end
 
+  def self_monitoring?
+    Gitlab::CurrentSettings.current_application_settings.self_monitoring_project_id == id
+  end
+
   private
 
   def closest_namespace_setting(name)

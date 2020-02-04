@@ -8,19 +8,19 @@ panel_groups:
       y_label: "Unhandled Exceptions (%)"
       metrics:
         - id: wter_web_service
-          query_range: 'max(max_over_time(gitlab_service_errors:ratio{environment="%{ci_environment_slug}", type="web", stage="main"}[1m])) by (type)'
+          query_range: 'max(max_over_time(gitlab_service_errors:ratio{environment="{{ci_environment_slug}}", type="web", stage="main"}[1m])) by (type)'
           unit: "%"
           label: "Web Service"
         - id: wter_degradation_slo
-          query_range: 'avg(slo:max:gitlab_service_errors:ratio{environment="%{ci_environment_slug}", type="web", stage="main"}) or avg(slo:max:gitlab_service_errors:ratio{type="web"})'
+          query_range: 'avg(slo:max:gitlab_service_errors:ratio{environment="{{ci_environment_slug}}", type="web", stage="main"}) or avg(slo:max:gitlab_service_errors:ratio{type="web"})'
           unit: "%"
           label: "Degradation SLO"
         - id: wter_outage_slo
-          query_range: '2 * (avg(slo:max:gitlab_service_errors:ratio{environment="%{ci_environment_slug}", type="web", stage="main"}) or avg(slo:max:gitlab_service_errors:ratio{type="web"}))'
+          query_range: '2 * (avg(slo:max:gitlab_service_errors:ratio{environment="{{ci_environment_slug}}", type="web", stage="main"}) or avg(slo:max:gitlab_service_errors:ratio{type="web"}))'
           unit: "%"
           label: "Outage SLO"
         - id: wter_last_week
-          query_range: 'max(max_over_time(gitlab_service_errors:ratio{environment="%{ci_environment_slug}", type="web", stage="main"}[1m] offset 1w)) by (type)'
+          query_range: 'max(max_over_time(gitlab_service_errors:ratio{environment="{{ci_environment_slug}}", type="web", stage="main"}[1m] offset 1w)) by (type)'
           unit: "%"
           label: "Last Week"
 - group: API Traffic - Error Ratio
@@ -30,18 +30,18 @@ panel_groups:
       y_label: "Unhandled Exceptions (%)"
       metrics:
         - id: ater_web_service
-          query_range: 'max(max_over_time(gitlab_service_errors:ratio{environment="%{ci_environment_slug}", type="api", stage="main"}[1m])) by (type)'
+          query_range: 'max(max_over_time(gitlab_service_errors:ratio{environment="{{ci_environment_slug}}", type="api", stage="main"}[1m])) by (type)'
           unit: "%"
           label: "Web Service"
         - id: ater_degradation_slo
-          query_range: 'avg(slo:max:gitlab_service_errors:ratio{environment="%{ci_environment_slug}", type="api", stage="main"}) or avg(slo:max:gitlab_service_errors:ratio{type="web"})'
+          query_range: 'avg(slo:max:gitlab_service_errors:ratio{environment="{{ci_environment_slug}}", type="api", stage="main"}) or avg(slo:max:gitlab_service_errors:ratio{type="web"})'
           unit: "%"
           label: "Degradation SLO"
         - id: ater_outage_slo
-          query_range: '2 * (avg(slo:max:gitlab_service_errors:ratio{environment="%{ci_environment_slug}", type="api", stage="main"}) or avg(slo:max:gitlab_service_errors:ratio{type="web"}))'
+          query_range: '2 * (avg(slo:max:gitlab_service_errors:ratio{environment="{{ci_environment_slug}}", type="api", stage="main"}) or avg(slo:max:gitlab_service_errors:ratio{type="web"}))'
           unit: "%"
           label: "Outage SLO"
         - id: ater_last_week
-          query_range: 'max(max_over_time(gitlab_service_errors:ratio{environment="%{ci_environment_slug}", type="api", stage="main"}[1m] offset 1w)) by (type)'
+          query_range: 'max(max_over_time(gitlab_service_errors:ratio{environment="{{ci_environment_slug}}", type="api", stage="main"}[1m] offset 1w)) by (type)'
           unit: "%"
           label: "Last Week"

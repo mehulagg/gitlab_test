@@ -22,6 +22,10 @@ module MetricsDashboardHelpers
     Metrics::Dashboard::SystemDashboardService::DASHBOARD_PATH
   end
 
+  def self_monitoring_dashboard_path
+    Metrics::Dashboard::SelfMonitoringDashboardService::DASHBOARD_PATH
+  end
+
   def pod_dashboard_path
     Metrics::Dashboard::PodDashboardService::DASHBOARD_PATH
   end

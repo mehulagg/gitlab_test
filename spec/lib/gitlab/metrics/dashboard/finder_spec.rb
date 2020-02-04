@@ -44,6 +44,12 @@ describe Gitlab::Metrics::Dashboard::Finder, :use_clean_rails_memory_store_cachi
       it_behaves_like 'valid dashboard service response'
     end
 
+    context 'when the self monitoring dashboard is specificed' do
+      let(:dashboard_path) { self_monitoring_dashboard_path }
+
+      it_behaves_like 'valid dashboard service response'
+    end
+
     context 'when no dashboard is specified' do
       let(:service_call) { described_class.find(project, user, environment: environment) }
 
