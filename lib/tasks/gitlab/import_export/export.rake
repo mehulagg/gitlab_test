@@ -1,22 +1,25 @@
 # frozen_string_literal: true
 
-# Import large project archives
-#
-# This task:
-#   1. Disables ObjectStorage for archive upload
-#   2. Performs Sidekiq job synchronously
-#
-# @example
-#   bundle exec rake "gitlab:import_export:import[root, root, imported_project, /path/to/file.tar.gz]"
-#
 namespace :gitlab do
   namespace :import_export do
-    desc 'GitLab | Import/Export | EXPERIMENTAL | Import large project archives'
-    task :import, [:username, :namespace_path, :project_path, :archive_path] => :gitlab_environment do |_t, args|
+    desc 'GitLab | Import/Export | EXPERIMENTAL | Export large project archives'
+    task :export, [:username, :namespace_path, :project_path, :archive_path] => :gitlab_environment do |_t, args|
       # Load it here to avoid polluting Rake tasks with Sidekiq test warnings
       require 'sidekiq/testing'
 
       sleep(15)
+
+      class CopyFileStrategy < Gitlab::ImportExport::AfterExportStrategies::BaseAfterExportStrategy
+        def initialize(archive_path:)
+          @archive_path = archive_path
+        end
+
+        private
+
+        def strategy_execute
+          FileUtils.mv(project.export_file.path, @archive_path)
+        end
+      end
 
       warn_user_is_not_gitlab
 
@@ -46,14 +49,14 @@ namespace :gitlab do
         puts "Time to finish: #{timing}"
       end
 
+      current_user = User.find_by_username(args.username)
+      namespace = Namespace.find_by_full_path(args.namespace_path)
+      project = namespace.projects.find_by_path(args.project_path)
+
       with_count_queries do
         with_measuretime do
-          GitlabProjectImport.new(
-            namespace_path: args.namespace_path,
-            project_path:   args.project_path,
-            username:       args.username,
-            file_path:      args.archive_path
-          ).import
+          ::Projects::ImportExport::ExportService.new(project, current_user)
+            .execute(CopyFileStrategy.new(archive_path: args.archive_path))
         end
       end
 
@@ -63,6 +66,12 @@ namespace :gitlab do
       puts "Label: #{Prometheus::PidProvider.worker_id}"
 
       sleep(30)
+
+      puts 'Done!'
+    rescue StandardError => e
+      puts "Exception: #{e.message}"
+      puts e.backtrace
+      exit 1
     end
   end
 end

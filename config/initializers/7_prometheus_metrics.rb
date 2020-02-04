@@ -10,8 +10,6 @@ def prometheus_default_multiproc_dir
     Rails.root.join('tmp/prometheus_multiproc_dir/unicorn')
   elsif Gitlab::Runtime.puma?
     Rails.root.join('tmp/prometheus_multiproc_dir/puma')
-  else
-    Rails.root.join('tmp/prometheus_multiproc_dir')
   end
 end
 
