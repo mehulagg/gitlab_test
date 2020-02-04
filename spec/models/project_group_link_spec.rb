@@ -18,6 +18,7 @@ describe ProjectGroupLink do
     it { is_expected.to validate_uniqueness_of(:group_id).scoped_to(:project_id).with_message(/already shared/) }
     it { is_expected.to validate_presence_of(:group) }
     it { is_expected.to validate_presence_of(:group_access) }
+    it { is_expected.to allow_value(Gitlab::Access::OWNER).for(:group_access) }
 
     it "doesn't allow a project to be shared with the group it is in" do
       project_group_link.group = group
