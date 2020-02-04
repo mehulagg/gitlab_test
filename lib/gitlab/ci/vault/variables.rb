@@ -50,15 +50,18 @@ module Gitlab
         end
 
         def can_read?(secret)
-          return true if job.protected?
+          config = protected_secrets.find { |config| config.match?(secret.key) }
 
-          protected_secrets.none? { |regex| regex.match?(secret.key) }
+          return true unless config
+          return false unless job.protected?
+
+          config.environment_match?(job)
         end
 
         def protected_secrets
           strong_memoize(:protected_secrets) do
-            vault_service.protected_secrets.map do |key|
-              Gitlab::UntrustedRegexp.new(key)
+            vault_service.protected_secrets.map do |config|
+              ProtectedSecret.new(config)
             end
           end
         end
