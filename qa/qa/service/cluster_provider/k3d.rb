@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'yaml'
+
 module QA
   module Service
     module ClusterProvider
@@ -15,7 +17,7 @@ module QA
 
         def setup
           k3d_command = %W[k3d create --workers 1 --name #{cluster_name} --wait 0]
-          k3d_command << %W[--api-port #{Runtime::Env.k3d_host}:#{Runtime::Env.k3d_port}] if Runtime::Env.running_in_ci?
+          k3d_command << %W[--api-port 0.0.0.0:#{Runtime::Env.k3d_port} --server-arg '--tls-san=#{Runtime::Env.k3d_host}'] if Runtime::Env.running_in_ci?
 
           shell(k3d_command.join(' '))
 
@@ -24,6 +26,7 @@ module QA
           raise "Could not fetch kubeconfig" unless ENV['KUBECONFIG']
 
           install_local_storage
+          change_server_ip if Runtime::Env.running_in_ci?
         end
 
         def teardown
@@ -63,6 +66,17 @@ module QA
 
         def install_local_storage
           shell('kubectl apply -f -', stdin_data: local_storage_config)
+        end
+
+        def change_server_ip
+          kubeconfig = fetch_kubeconfig
+          config = YAML.load_file(kubeconfig)
+          new_config = config
+          new_config['clusters'].first['cluster']['server'].sub!('127.0.0.1', Runtime::Env.k3d_host)
+
+          File.open(kubeconfig, 'w') do |configuration|
+            configuration.write(new_config.to_yaml)
+          end
         end
 
         # See https://github.com/rancher/k3d/issues/67

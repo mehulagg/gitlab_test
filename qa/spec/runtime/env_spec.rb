@@ -370,15 +370,4 @@ describe QA::Runtime::Env do
       end
     end
   end
-
-  describe '.specs_hostname' do
-    it 'defaults to localhost if not specified' do
-      expect(described_class.specs_hostname).to eq('localhost')
-    end
-
-    it 'can be set' do
-      stub_env('QA_SPECS_HOSTNAME', 'TEST')
-      expect(described_class.specs_hostname).to eq('TEST')
-    end
-  end
 end
