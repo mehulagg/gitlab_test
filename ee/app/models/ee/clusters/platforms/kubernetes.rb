@@ -5,15 +5,23 @@ module EE
     module Platforms
       module Kubernetes
         extend ActiveSupport::Concern
+        extend ::Gitlab::Utils::Override
         include ::Gitlab::Utils::StrongMemoize
 
         CACHE_KEY_GET_POD_LOG = 'get_pod_log'
 
         LOGS_LIMIT = 500.freeze
 
+        override :calculate_reactive_cache_for
         def calculate_reactive_cache_for(environment)
           result = super
-          result[:deployments] = read_deployments(environment.deployment_namespace) if result
+
+          if result
+            deployments = read_deployments(environment.deployment_namespace)
+
+            # extract_relevant_deployment_data avoids uploading all the deployment info into ReactiveCaching
+            result[:deployments] = extract_relevant_deployment_data(deployments)
+          end
 
           result
         end
@@ -72,9 +80,14 @@ module EE
             environment = ::Environment.find_by(id: opts['environment_id'])
             return unless environment
 
+            method = elastic_stack_available? ? :elasticsearch_project_logs_path : :k8s_project_logs_path
+
             ::Gitlab::EtagCaching::Store.new.tap do |store|
               store.touch(
-                ::Gitlab::Routing.url_helpers.k8s_project_logs_path(
+                # not using send with untrusted input, this is better for readability
+                # rubocop:disable GitlabSecurity/PublicSend
+                ::Gitlab::Routing.url_helpers.send(
+                  method,
                   environment.project,
                   environment_name: environment.name,
                   pod_name: opts['pod_name'],
@@ -86,11 +99,14 @@ module EE
           end
         end
 
+        def elastic_stack_available?
+          !!cluster.application_elastic_stack
+        end
+
         private
 
         def pod_logs(pod_name, namespace, container: nil, search: nil, start_time: nil, end_time: nil)
-          enable_advanced_querying = ::Feature.enabled?(:enable_cluster_application_elastic_stack) && !!elastic_stack_client
-          logs = if enable_advanced_querying
+          logs = if elastic_stack_available?
                    elastic_stack_pod_logs(namespace, pod_name, container, search, start_time, end_time)
                  else
                    platform_pod_logs(namespace, pod_name, container)
@@ -100,8 +116,7 @@ module EE
             logs: logs,
             status: :success,
             pod_name: pod_name,
-            container_name: container,
-            enable_advanced_querying: enable_advanced_querying
+            container_name: container
           }
         end
 
@@ -164,6 +179,16 @@ module EE
           kubeclient.get_deployments(namespace: namespace).as_json
         rescue Kubeclient::ResourceNotFoundError
           []
+        end
+
+        def extract_relevant_deployment_data(deployments)
+          deployments.map do |deployment|
+            {
+              'metadata' => deployment.fetch('metadata', {}).slice('name', 'generation', 'labels', 'annotations'),
+              'spec' => deployment.fetch('spec', {}).slice('replicas'),
+              'status' => deployment.fetch('status', {}).slice('observedGeneration')
+            }
+          end
         end
       end
     end

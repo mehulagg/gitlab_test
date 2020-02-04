@@ -9,6 +9,7 @@ import { mount } from '@vue/test-utils';
 import { waitForMutation } from 'helpers/vue_test_utils_helper';
 import { trimText } from 'helpers/text_helper';
 import axios from '~/lib/utils/axios_utils';
+import { mrStates } from '~/mr_popover/constants';
 
 import {
   sastDiffSuccessMock,
@@ -31,7 +32,7 @@ describe('Grouped security reports app', () => {
     headBlobPath: 'path',
     baseBlobPath: 'path',
     sastHelpPath: 'path',
-    sastContainerHelpPath: 'path',
+    containerScanningHelpPath: 'path',
     dastHelpPath: 'path',
     dependencyScanningHelpPath: 'path',
     vulnerabilityFeedbackPath: 'vulnerability_feedback_path.json',
@@ -93,7 +94,7 @@ describe('Grouped security reports app', () => {
 
         return Promise.all([
           waitForMutation(wrapper.vm.$store, `sast/${sastTypes.RECEIVE_DIFF_ERROR}`),
-          waitForMutation(wrapper.vm.$store, types.RECEIVE_SAST_CONTAINER_DIFF_ERROR),
+          waitForMutation(wrapper.vm.$store, types.RECEIVE_CONTAINER_SCANNING_DIFF_ERROR),
           waitForMutation(wrapper.vm.$store, types.RECEIVE_DAST_DIFF_ERROR),
           waitForMutation(wrapper.vm.$store, types.RECEIVE_DEPENDENCY_SCANNING_DIFF_ERROR),
         ]);
@@ -164,7 +165,7 @@ describe('Grouped security reports app', () => {
         return Promise.all([
           waitForMutation(wrapper.vm.$store, `sast/${sastTypes.RECEIVE_DIFF_SUCCESS}`),
           waitForMutation(wrapper.vm.$store, types.RECEIVE_DAST_DIFF_SUCCESS),
-          waitForMutation(wrapper.vm.$store, types.RECEIVE_SAST_CONTAINER_DIFF_SUCCESS),
+          waitForMutation(wrapper.vm.$store, types.RECEIVE_CONTAINER_SCANNING_DIFF_SUCCESS),
           waitForMutation(wrapper.vm.$store, types.RECEIVE_DEPENDENCY_SCANNING_DIFF_SUCCESS),
         ]);
       });
@@ -220,7 +221,7 @@ describe('Grouped security reports app', () => {
 
       it('has the success icon for fixed vulnerabilities', () => {
         const icon = wrapper.vm.$el.querySelector(
-          '.js-sast-container~.js-plain-element .ic-status_success_borderless',
+          '.js-container-scanning~.js-plain-element .ic-status_success_borderless',
         );
 
         expect(icon).not.toBeNull();
@@ -260,11 +261,13 @@ describe('Grouped security reports app', () => {
         },
       });
 
-      return waitForMutation(wrapper.vm.$store, types.RECEIVE_SAST_CONTAINER_DIFF_SUCCESS);
+      return waitForMutation(wrapper.vm.$store, types.RECEIVE_CONTAINER_SCANNING_DIFF_SUCCESS);
     });
 
-    it('should set setSastContainerDiffEndpoint', () => {
-      expect(wrapper.vm.sastContainer.paths.diffEndpoint).toEqual(CONTAINER_SCANNING_DIFF_ENDPOINT);
+    it('should set setContainerScanningDiffEndpoint', () => {
+      expect(wrapper.vm.containerScanning.paths.diffEndpoint).toEqual(
+        CONTAINER_SCANNING_DIFF_ENDPOINT,
+      );
     });
 
     it('should display the correct numbers of vulnerabilities', () => {
@@ -332,27 +335,17 @@ describe('Grouped security reports app', () => {
         'DAST detected 1 new, and 2 fixed vulnerabilities',
       );
     });
-
-    it('should display out of date message', () => {
-      expect(wrapper.vm.$el.textContent).toContain(
-        'Security report is out of date. Retry the pipeline for the target branch',
-      );
-    });
   });
 
   describe('sast reports', () => {
     beforeEach(() => {
       gl.mrWidgetData = gl.mrWidgetData || {};
       gl.mrWidgetData.sast_comparison_path = SAST_DIFF_ENDPOINT;
-      gl.mrWidgetData.diverged_commits_count = 100;
 
-      mock
-        .onGet(SAST_DIFF_ENDPOINT)
-        .reply(200, { ...sastDiffSuccessMock, base_report_out_of_date: true });
+      mock.onGet(SAST_DIFF_ENDPOINT).reply(200, { ...sastDiffSuccessMock });
 
       createWrapper({
         ...props,
-        targetBranch: 'master',
         enabledReports: {
           sast: true,
         },
@@ -370,11 +363,73 @@ describe('Grouped security reports app', () => {
         'SAST detected 1 new, and 2 fixed vulnerabilities',
       );
     });
+  });
 
-    it('should display out of date message for Outdated MR ', () => {
-      expect(wrapper.vm.$el.textContent).toContain(
-        'Security report is out of date. Please incorporate latest changes from master',
-      );
+  describe('Out of date report', () => {
+    const createComponent = (extraProp, done) => {
+      gl.mrWidgetData = gl.mrWidgetData || {};
+      gl.mrWidgetData.sast_comparison_path = SAST_DIFF_ENDPOINT;
+
+      mock
+        .onGet(SAST_DIFF_ENDPOINT)
+        .reply(200, { ...sastDiffSuccessMock, base_report_out_of_date: true });
+
+      createWrapper({
+        ...props,
+        ...extraProp,
+        targetBranch: 'master',
+        enabledReports: {
+          sast: true,
+        },
+      });
+
+      waitForMutation(wrapper.vm.$store, `sast/${sastTypes.RECEIVE_DIFF_SUCCESS}`)
+        .then(done)
+        .catch(done.fail);
+    };
+
+    describe('with active MR', () => {
+      beforeEach(done => {
+        createComponent({ mrState: mrStates.open }, done);
+      });
+
+      it('should display out of date message', () => {
+        expect(wrapper.vm.$el.textContent).toContain(
+          'Security report is out of date. Retry the pipeline for the target branch',
+        );
+      });
+    });
+
+    describe('with active MR and diverged commit', () => {
+      beforeEach(done => {
+        createComponent({ mrState: mrStates.open, divergedCommitsCount: 1 }, done);
+      });
+
+      it('should display out of date message', () => {
+        expect(wrapper.vm.$el.textContent).toContain(
+          'Security report is out of date. Please incorporate latest changes from master',
+        );
+      });
+    });
+
+    describe('with closed MR', () => {
+      beforeEach(done => {
+        createComponent({ mrState: mrStates.closed }, done);
+      });
+
+      it('should not display out of date message', () => {
+        expect(wrapper.vm.$el.textContent).not.toContain('Security report is out of date.');
+      });
+    });
+
+    describe('with merged MR', () => {
+      beforeEach(done => {
+        createComponent({ mrState: mrStates.merged }, done);
+      });
+
+      it('should not display out of date message', () => {
+        expect(wrapper.vm.$el.textContent).not.toContain('Security report is out of date.');
+      });
     });
   });
 });

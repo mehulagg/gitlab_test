@@ -397,6 +397,8 @@ class Project < ApplicationRecord
   scope :sorted_by_stars_desc, -> { reorder(star_count: :desc) }
   scope :sorted_by_stars_asc, -> { reorder(star_count: :asc) }
   scope :sorted_by_name_asc_limited, ->(limit) { reorder(name: :asc).limit(limit) }
+  # Sometimes queries (e.g. using CTEs) require explicit disambiguation with table name
+  scope :projects_order_id_desc, -> { reorder("#{table_name}.id DESC") }
 
   scope :in_namespace, ->(namespace_ids) { where(namespace_id: namespace_ids) }
   scope :personal, ->(user) { where(namespace_id: user.namespace_id) }
@@ -451,6 +453,9 @@ class Project < ApplicationRecord
   scope :with_issues_enabled, -> { with_feature_enabled(:issues) }
   scope :with_issues_available_for_user, ->(current_user) { with_feature_available_for_user(:issues, current_user) }
   scope :with_merge_requests_available_for_user, ->(current_user) { with_feature_available_for_user(:merge_requests, current_user) }
+  scope :with_issues_or_mrs_available_for_user, -> (user) do
+    with_issues_available_for_user(user).or(with_merge_requests_available_for_user(user))
+  end
   scope :with_merge_requests_enabled, -> { with_feature_enabled(:merge_requests) }
   scope :with_remote_mirrors, -> { joins(:remote_mirrors).where(remote_mirrors: { enabled: true }).distinct }
   scope :with_limit, -> (maximum) { limit(maximum) }
@@ -541,6 +546,11 @@ class Project < ApplicationRecord
         user,
         ProjectFeature.required_minimum_access_level_for_private_project(feature)
       )
+  end
+
+  def self.wrap_authorized_projects_with_cte(collection)
+    cte = Gitlab::SQL::CTE.new(:authorized_projects, collection)
+    Project.with(cte.to_arel).from(cte.alias_to(Project.arel_table))
   end
 
   scope :active, -> { joins(:issues, :notes, :merge_requests).order('issues.created_at, notes.created_at, merge_requests.created_at DESC') }
@@ -751,6 +761,10 @@ class Project < ApplicationRecord
 
   def unlink_forks_upon_visibility_decrease_enabled?
     Feature.enabled?(:unlink_fork_network_upon_visibility_decrease, self, default_enabled: true)
+  end
+
+  def context_commits_enabled?
+    Feature.enabled?(:context_commits, default_enabled: true)
   end
 
   def empty_repo?
@@ -1058,12 +1072,19 @@ class Project < ApplicationRecord
     end
   end
 
-  def to_reference_with_postfix
-    "#{to_reference(full: true)}#{self.class.reference_postfix}"
+  # Produce a valid reference (see Referable#to_reference)
+  #
+  # NB: For projects, all references are 'full' - i.e. they all include the
+  # full_path, rather than just the project name. For this reason, we ignore
+  # the value of `full:` passed to this method, which is part of the Referable
+  # interface.
+  def to_reference(from = nil, full: false)
+    base = to_reference_base(from, full: true)
+    "#{base}#{self.class.reference_postfix}"
   end
 
   # `from` argument can be a Namespace or Project.
-  def to_reference(from = nil, full: false)
+  def to_reference_base(from = nil, full: false)
     if full || cross_namespace_reference?(from)
       full_path
     elsif cross_project_reference?(from)
@@ -2343,6 +2364,10 @@ class Project < ApplicationRecord
     if Gitlab::CurrentSettings.restricted_visibility_levels.include?(visibility_level)
       self.visibility_level = Gitlab::VisibilityLevel::PRIVATE
     end
+  end
+
+  def template_source?
+    false
   end
 
   private

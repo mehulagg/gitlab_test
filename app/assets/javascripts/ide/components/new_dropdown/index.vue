@@ -51,7 +51,7 @@ export default {
 </script>
 
 <template>
-  <div class="ide-new-btn">
+  <div class="ide-new-btn d-none">
     <div
       :class="{
         show: isOpen,
@@ -91,7 +91,7 @@ export default {
         </template>
         <li>
           <item-button
-            :label="__('Rename')"
+            :label="__('Rename/Move')"
             class="d-flex"
             icon="pencil"
             icon-classes="mr-2"

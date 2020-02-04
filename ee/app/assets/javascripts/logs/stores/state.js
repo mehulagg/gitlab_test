@@ -1,27 +1,17 @@
-import { defaultTimeWindow, timeWindows } from '../constants';
+import { timeRanges, defaultTimeRange } from '~/monitoring/constants';
 
 export default () => ({
-  /**
-   * Current project path
-   */
-  projectPath: '',
-
   /**
    * Full text search
    */
   search: '',
 
   /**
-   * True if log source is elasticsearch
-   */
-  enableAdvancedQuerying: false,
-
-  /**
    * Time range (Show last)
    */
-  timeWindow: {
-    options: { ...timeWindows },
-    current: defaultTimeWindow,
+  timeRange: {
+    options: timeRanges,
+    current: defaultTimeRange,
   },
 
   /**

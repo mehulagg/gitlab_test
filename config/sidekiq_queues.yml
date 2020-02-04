@@ -110,6 +110,8 @@
   - 1
 - - group_export
   - 1
+- - group_import
+  - 1
 - - hashed_storage
   - 1
 - - import_issues_csv
@@ -149,6 +151,8 @@
 - - object_pool
   - 1
 - - object_storage
+  - 1
+- - package_repositories
   - 1
 - - pages
   - 1
@@ -220,6 +224,8 @@
   - 2
 - - self_monitoring_project_delete
   - 2
+- - service_desk_email_receiver
+  - 1
 - - system_hook_push
   - 1
 - - todos_destroyer

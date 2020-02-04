@@ -382,7 +382,7 @@ module Gitlab
         count_arel = table.project(Arel.star.count.as('count'))
         count_arel = yield table, count_arel if block_given?
 
-        total = exec_query(count_arel.to_sql).to_hash.first['count'].to_i
+        total = exec_query(count_arel.to_sql).to_a.first['count'].to_i
 
         return if total == 0
 
@@ -399,7 +399,7 @@ module Gitlab
 
         start_arel = table.project(table[:id]).order(table[:id].asc).take(1)
         start_arel = yield table, start_arel if block_given?
-        start_id = exec_query(start_arel.to_sql).to_hash.first['id'].to_i
+        start_id = exec_query(start_arel.to_sql).to_a.first['id'].to_i
 
         loop do
           stop_arel = table.project(table[:id])
@@ -409,7 +409,7 @@ module Gitlab
             .skip(batch_size)
 
           stop_arel = yield table, stop_arel if block_given?
-          stop_row = exec_query(stop_arel.to_sql).to_hash.first
+          stop_row = exec_query(stop_arel.to_sql).to_a.first
 
           update_arel = Arel::UpdateManager.new
             .table(table)
@@ -1117,6 +1117,20 @@ into similar problems in the future (e.g. when new tables are created).
             ((SELECT id FROM plans WHERE name = #{quote(plan_name)} LIMIT 1), #{quote(limit_value)})
           ON CONFLICT (plan_id) DO UPDATE SET #{quote_column_name(limit_name)} = EXCLUDED.#{quote_column_name(limit_name)};
         SQL
+      end
+
+      # Note this should only be used with very small tables
+      def backfill_iids(table)
+        sql = <<-END
+          UPDATE #{table}
+          SET iid = #{table}_with_calculated_iid.iid_num
+          FROM (
+            SELECT id, ROW_NUMBER() OVER (PARTITION BY project_id ORDER BY id ASC) AS iid_num FROM #{table}
+          ) AS #{table}_with_calculated_iid
+          WHERE #{table}.id = #{table}_with_calculated_iid.id
+        END
+
+        execute(sql)
       end
 
       private

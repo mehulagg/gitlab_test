@@ -697,13 +697,13 @@ module EE
     end
 
     def adjourned_deletion?
-      feature_available?(:marking_project_for_deletion) &&
+      feature_available?(:adjourned_deletion_for_projects_and_groups) &&
         ::Gitlab::CurrentSettings.deletion_adjourned_period > 0
     end
 
     def marked_for_deletion?
       marked_for_deletion_at.present? &&
-        feature_available?(:marking_project_for_deletion)
+        feature_available?(:adjourned_deletion_for_projects_and_groups)
     end
 
     def ancestor_marked_for_deletion
@@ -721,6 +721,13 @@ module EE
 
     def license_compliance
       strong_memoize(:license_compliance) { SCA::LicenseCompliance.new(self) }
+    end
+
+    override :template_source?
+    def template_source?
+      return true if namespace_id == ::Gitlab::CurrentSettings.current_application_settings.custom_project_templates_group_id
+
+      ::Project.with_groups_level_repos_templates.exists?(id)
     end
 
     private

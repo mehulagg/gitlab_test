@@ -40,8 +40,14 @@ class Packages::Package < ApplicationRecord
   end
 
   scope :has_version, -> { where.not(version: nil) }
+  scope :processed, -> do
+    where.not(package_type: :nuget).or(
+      where.not(name: Packages::Nuget::CreatePackageService::TEMPORARY_PACKAGE_NAME)
+    )
+  end
   scope :preload_files, -> { preload(:package_files) }
   scope :last_of_each_version, -> { where(id: all.select('MAX(id) AS id').group(:version)) }
+  scope :limit_recent, ->(limit) { order_created_desc.limit(limit) }
 
   # Sorting
   scope :order_created, -> { reorder('created_at ASC') }

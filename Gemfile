@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '5.2.3'
+gem 'rails', '6.0.2'
 
 gem 'bootsnap', '~> 1.4'
 
@@ -65,7 +65,7 @@ gem 'u2f', '~> 0.2.1'
 
 # GitLab Pages
 gem 'validates_hostname', '~> 1.0.6'
-gem 'rubyzip', '~> 1.3.0', require: 'zip'
+gem 'rubyzip', '~> 2.0.0', require: 'zip'
 # GitLab Pages letsencrypt support
 gem 'acme-client', '~> 2.0.5'
 
@@ -132,9 +132,8 @@ gem 'seed-fu', '~> 2.3.7'
 gem 'elasticsearch-model', '~> 6.1'
 gem 'elasticsearch-rails', '~> 6.1', require: 'elasticsearch/rails/instrumentation'
 gem 'elasticsearch-api',   '~> 6.8'
-gem 'aws-sdk-core', '~> 3'
-gem 'aws-sdk-cloudformation', '~> 1'
-gem 'faraday_middleware-aws-sigv4'
+gem 'aws-sdk'
+gem 'faraday_middleware-aws-signers-v4'
 
 # Markdown and HTML processing
 gem 'html-pipeline', '~> 2.12'
@@ -306,7 +305,7 @@ gem 'gitlab-labkit', '0.9.1'
 
 # I18n
 gem 'ruby_parser', '~> 3.8', require: false
-gem 'rails-i18n', '~> 5.1'
+gem 'rails-i18n', '~> 6.0'
 gem 'gettext_i18n_rails', '~> 1.8.0'
 gem 'gettext_i18n_rails_js', '~> 1.3'
 gem 'gettext', '~> 3.2.2', require: false, group: :development
@@ -350,7 +349,7 @@ end
 group :development, :test do
   gem 'bullet', '~> 6.0.2', require: !!ENV['ENABLE_BULLET']
   gem 'pry-byebug', '~> 3.5.1', platform: :mri
-  gem 'pry-rails', '~> 0.3.4'
+  gem 'pry-rails', '~> 0.3.9'
 
   gem 'awesome_print', require: false
 
@@ -457,7 +456,7 @@ group :ed25519 do
 end
 
 # Gitaly GRPC protocol definitions
-gem 'gitaly', '~> 1.81.0'
+gem 'gitaly', '~> 1.85.0'
 
 gem 'grpc', '~> 1.24.0'
 
@@ -487,3 +486,5 @@ gem 'liquid', '~> 4.0'
 
 # LRU cache
 gem 'lru_redux'
+
+gem 'erubi', '~> 1.9.0'

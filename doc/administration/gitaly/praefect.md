@@ -72,9 +72,11 @@ We need to manage the following secrets and make them match across hosts:
 1. `PRAEFECT_SQL_PASSWORD`: this password is used by Praefect to connect to
     PostgreSQL.
 
+We will note in the instructions below where these secrets are required.
+
 #### Network addresses
 
-1. `POSTGRESQL_SERVER`: the host name or IP address of your PostgreSQL server
+1. `POSTGRESQL_SERVER_ADDRESS`: the host name or IP address of your PostgreSQL server
 
 #### PostgreSQL
 
@@ -91,7 +93,7 @@ Below we assume that you have administrative access as the `postgres`
 user. First open a `psql` session as the `postgres` user:
 
 ```shell
-/opt/gitlab/embedded/bin/psql -h POSTGRESQL_SERVER -U postgres -d template1
+/opt/gitlab/embedded/bin/psql -h POSTGRESQL_SERVER_ADDRESS -U postgres -d template1
 ```
 
 Once you are connected, run the following command. Replace
@@ -107,7 +109,7 @@ Now connect as the `praefect` user to create the database. This has
 the side effect of verifying that you have access:
 
 ```shell
-/opt/gitlab/embedded/bin/psql -h POSTGRESQL_SERVER -U praefect -d template1
+/opt/gitlab/embedded/bin/psql -h POSTGRESQL_SERVER_ADDRESS -U praefect -d template1
 ```
 
 Once you have connected as the `praefect` user, run:
@@ -124,6 +126,12 @@ Gitaly node that will be connected to Praefect as members of the `praefect` hash
 
 In the example below, the Gitaly nodes are named `gitaly-N`. Note that one
 node is designated as primary by setting the primary to `true`.
+
+If you are using an uncrypted connection to Postgres, set `praefect['database_sslmode']` to false.
+
+If you are using an encrypted connection with a client certificate,
+`praefect['database_sslcert']` and `praefect['database_sslkey']` will need to be set.
+If you are using a custom CA, also set `praefect['database_sslrootcert']`:
 
 ```ruby
 # /etc/gitlab/gitlab.rb on praefect server
@@ -158,23 +166,26 @@ praefect['auth_token'] = 'PRAEFECT_EXTERNAL_TOKEN'
 praefect['virtual_storages'] = {
   'praefect' => {
     'gitaly-1' => {
-      'address' => 'tcp://gitaly-1.internal:8075',
+      # Replace GITALY_URL_OR_IP below with the real address to connect to.
+      'address' => 'tcp://GITALY_URL_OR_IP:8075',
       'token'   => 'PRAEFECT_INTERNAL_TOKEN',
       'primary' => true
     },
     'gitaly-2' => {
-      'address' => 'tcp://gitaly-2.internal:8075',
+      # Replace GITALY_URL_OR_IP below with the real address to connect to.
+      'address' => 'tcp://GITALY_URL_OR_IP:8075',
       'token'   => 'PRAEFECT_INTERNAL_TOKEN'
     },
     'gitaly-3' => {
-      'address' => 'tcp://gitaly-3.internal:8075',
+      # Replace GITALY_URL_OR_IP below with the real address to connect to.
+      'address' => 'tcp://GITALY_URL_OR_IP:8075',
       'token'   => 'PRAEFECT_INTERNAL_TOKEN'
     }
   }
 }
 
 # Replace POSTGRESQL_SERVER below with a real IP/host address of the database.
-praefect['database_host'] = 'POSTGRESQL_SERVER'
+praefect['database_host'] = 'POSTGRESQL_SERVER_ADDRESS'
 praefect['database_port'] = 5432
 praefect['database_user'] = 'praefect'
 # Replace PRAEFECT_SQL_PASSWORD below with a real password of the database.
@@ -194,6 +205,9 @@ praefect['database_dbname'] = 'praefect_production'
 # CA
 # praefect['database_sslrootcert'] = '/path/to/rootcert'
 ```
+
+Replace `POSTGRESQL_SERVER_ADDRESS`, `PRAEFECT_EXTERNAL_TOKEN`, `PRAEFECT_INTERNAL_TOKEN`,
+and `PRAEFECT_SQL_PASSWORD` with their respective values.
 
 Save the file and [reconfigure Praefect](../restart_gitlab.md#omnibus-gitlab-reconfigure).
 
@@ -254,11 +268,16 @@ gitaly['auth_token'] = 'PRAEFECT_INTERNAL_TOKEN'
 gitaly['listen_addr'] = "0.0.0.0:8075"
 
 git_data_dirs({
+  # Update this to the name of this Gitaly server which will be later
+  # exposed in the UI under "Admin area > Gitaly"
   "gitaly-1" => {
     "path" => "/var/opt/gitlab/git-data"
   }
 })
 ```
+
+Replace `GITLAB_SHELL_SECRET_TOKEN` and `PRAEFECT_INTERNAL_TOKEN`
+with their respective values.
 
 For more information on Gitaly server configuration, see our [Gitaly documentation](index.md#3-gitaly-server-configuration).
 
@@ -287,13 +306,14 @@ is present, there should be two storages available to GitLab:
 ```ruby
 # /etc/gitlab/gitlab.rb on gitlab server
 
+# Replace PRAEFECT_URL_OR_IP below with real address Praefect can be accessed at.
 # Replace PRAEFECT_EXTERNAL_TOKEN below with real secret.
 git_data_dirs({
   "default" => {
     "path" => "/var/opt/gitlab/git-data"
   },
   "praefect" => {
-    "gitaly_address" => "tcp://praefect.internal:2305",
+    "gitaly_address" => "tcp://PRAEFECT_URL_OR_IP:2305",
     "gitaly_token" => 'PRAEFECT_EXTERNAL_TOKEN'
   }
 })
@@ -302,12 +322,15 @@ git_data_dirs({
 gitlab_shell['secret_token'] = 'GITLAB_SHELL_SECRET_TOKEN'
 ```
 
+Replace `GITLAB_SHELL_SECRET_TOKEN` and `PRAEFECT_EXTERNAL_TOKEN`
+with their respective values.
+
 Note that the storage name used is the same as the `praefect['virtual_storage_name']` set
 on the Praefect node.
 
 Save your changes and [reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure).
 
-Run `gitlab-rake gitlab:gitaly:check` to confirm that GitLab can reach Praefect.
+Run `sudo gitlab-rake gitlab:gitaly:check` to confirm that GitLab can reach Praefect.
 
 ### Testing Praefect
 

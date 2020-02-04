@@ -3,14 +3,12 @@ import * as types from 'ee/logs/stores/mutation_types';
 
 import logsPageState from 'ee/logs/stores/state';
 import {
-  mockProjectPath,
   mockEnvName,
   mockEnvironments,
   mockPods,
   mockPodName,
   mockLogsResult,
   mockSearch,
-  mockEnableAdvancedQuerying,
 } from '../mock_data';
 
 describe('Logs Store Mutations', () => {
@@ -27,11 +25,6 @@ describe('Logs Store Mutations', () => {
   });
 
   describe('SET_PROJECT_ENVIRONMENT', () => {
-    it('sets the project path', () => {
-      mutations[types.SET_PROJECT_PATH](state, mockProjectPath);
-      expect(state.projectPath).toEqual(mockProjectPath);
-    });
-
     it('sets the environment', () => {
       mutations[types.SET_PROJECT_ENVIRONMENT](state, mockEnvName);
       expect(state.environments.current).toEqual(mockEnvName);
@@ -126,22 +119,19 @@ describe('Logs Store Mutations', () => {
     });
   });
 
-  describe('ENABLE_ADVANCED_QUERYING', () => {
-    it('set advanced querying toggle', () => {
-      state.enableAdvancedQuerying = !mockEnableAdvancedQuerying;
-
-      mutations[types.ENABLE_ADVANCED_QUERYING](state, mockEnableAdvancedQuerying);
-
-      expect(state.enableAdvancedQuerying).toEqual(mockEnableAdvancedQuerying);
+  describe('SET_TIME_RANGE', () => {
+    it('sets a default range', () => {
+      expect(state.timeRange.current).toEqual(expect.any(Object));
     });
-  });
 
-  describe('SET_TIME_WINDOW', () => {
-    it('sets a time window Key', () => {
-      const mockKey = 'fourHours';
-      mutations[types.SET_TIME_WINDOW](state, mockKey);
+    it('sets a time range', () => {
+      const mockRange = {
+        start: '2020-01-10T18:00:00.000Z',
+        end: '2020-01-10T10:00:00.000Z',
+      };
+      mutations[types.SET_TIME_RANGE](state, mockRange);
 
-      expect(state.timeWindow.current).toEqual(mockKey);
+      expect(state.timeRange.current).toEqual(mockRange);
     });
   });
 

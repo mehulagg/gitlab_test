@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-scope "/-/push_from_secondary/:geo_node_id" do
-  draw :git_http
-end
-
 constraints(::Constraints::ProjectUrlConstrainer.new) do
   scope(path: '*namespace_id',
         as: :namespace,
@@ -67,6 +63,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         resources :logs, only: [:index] do
           collection do
             get :k8s
+            get :elasticsearch
           end
         end
 
@@ -88,7 +85,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           resources :code_reviews, only: [:index]
         end
 
-        draw :merge_requests_ee
+        resources :approvers, only: :destroy
+        resources :approver_groups, only: :destroy
+        resources :push_rules, constraints: { id: /\d+/ }, only: [:update]
       end
       # End of the /-/ scope.
 
@@ -127,29 +126,10 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
-      resources :issues, only: [], constraints: { id: /\d+/ } do
-        member do
-          get '/descriptions/:version_id/diff', action: :description_diff, as: :description_diff
-          delete '/descriptions/:version_id', action: :delete_description_version, as: :delete_description_version
-          get '/designs(/*vueroute)', to: 'issues#designs', as: :designs, format: false
-        end
-
-        collection do
-          post :export_csv
-          get :service_desk
-        end
-
-        resources :issue_links, only: [:index, :create, :destroy], as: 'links', path: 'links'
-      end
-
       get '/service_desk' => 'service_desk#show', as: :service_desk
       put '/service_desk' => 'service_desk#update', as: :service_desk_refresh
 
       post '/restore' => '/projects#restore', as: :restore
-
-      resources :approvers, only: :destroy
-      resources :approver_groups, only: :destroy
-      resources :push_rules, constraints: { id: /\d+/ }, only: [:update]
 
       resources :pipelines, only: [] do
         member do
@@ -167,6 +147,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
       namespace :security do
         resources :dashboard, only: [:show, :index], controller: :dashboard
         resource :configuration, only: [:show], controller: :configuration
+        resource :discover, only: [:show], controller: :discover
 
         resources :vulnerability_findings, only: [:index] do
           collection do

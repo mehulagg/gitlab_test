@@ -13,9 +13,13 @@ module EE
 
     override :group_overview_nav_link_paths
     def group_overview_nav_link_paths
-      super + %w[
-        groups/insights#show
-      ]
+      if ::Feature.enabled?(:analytics_pages_under_group_analytics_sidebar, @group)
+        super
+      else
+        super + %w[
+          groups/insights#show
+        ]
+      end
     end
 
     override :group_nav_link_paths
@@ -76,6 +80,15 @@ module EE
 
     def deletion_adjourned_period
       ::Gitlab::CurrentSettings.deletion_adjourned_period
+    end
+
+    def show_discover_group_security?(group)
+      !!::Feature.enabled?(:discover_security) &&
+        ::Gitlab.com? &&
+        !!current_user &&
+        current_user.created_at > DateTime.new(2020, 1, 20) &&
+        !@group.feature_available?(:security_dashboard) &&
+        can?(current_user, :admin_group, @group)
     end
 
     private

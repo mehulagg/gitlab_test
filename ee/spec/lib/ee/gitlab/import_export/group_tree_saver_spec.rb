@@ -9,8 +9,13 @@ describe Gitlab::ImportExport::GroupTreeSaver do
     let_it_be(:label) { create(:group_label) }
     let_it_be(:parent_epic) { create(:epic, group: group) }
     let_it_be(:epic) { create(:epic, group: group, parent: parent_epic) }
+    let_it_be(:epic_event) { create(:event, :created, target: epic, group: group, author: user) }
+    let_it_be(:epic_push_event) { create(:event, :pushed, target: epic, group: group, author: user) }
     let_it_be(:board) { create(:board, group: group, assignee: user, labels: [label]) }
     let_it_be(:note) { create(:note, noteable: epic) }
+    let_it_be(:note_event) { create(:event, :created, target: note, author: user) }
+    let_it_be(:epic_emoji) { create(:award_emoji, awardable: epic) }
+    let_it_be(:epic_note_emoji) { create(:award_emoji, awardable: note) }
 
     let(:shared) { Gitlab::ImportExport::Shared.new(group) }
     let(:export_path) { "#{Dir.tmpdir}/group_tree_saver_spec_ee" }
@@ -61,6 +66,37 @@ describe Gitlab::ImportExport::GroupTreeSaver do
         expect(notes).not_to be_empty
         expect(notes.first['note']).to eq(note.note)
         expect(notes.first['noteable_id']).to eq(epic.id)
+      end
+
+      it 'saves epic events' do
+        expect_successful_save(group_tree_saver)
+
+        events = epic_json['events']
+        expect(events).not_to be_empty
+
+        event_actions = events.map { |event| event['action'] }
+        expect(event_actions).to contain_exactly(epic_event.action, epic_push_event.action)
+      end
+
+      it "saves epic's note events" do
+        expect_successful_save(group_tree_saver)
+
+        notes = epic_json['notes']
+        expect(notes.first['events'].first['action']).to eq(note_event.action)
+      end
+
+      it "saves epic's award emojis" do
+        expect_successful_save(group_tree_saver)
+
+        award_emoji = epic_json['award_emoji'].first
+        expect(award_emoji['name']).to eq(epic_emoji.name)
+      end
+
+      it "saves epic's note award emojis" do
+        expect_successful_save(group_tree_saver)
+
+        award_emoji = epic_json['notes'].first['award_emoji'].first
+        expect(award_emoji['name']).to eq(epic_note_emoji.name)
       end
     end
 

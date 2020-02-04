@@ -6,8 +6,11 @@ import {
   GlButton,
   GlDropdown,
   GlDropdownItem,
+  GlDropdownHeader,
+  GlDropdownDivider,
   GlFormGroup,
   GlModal,
+  GlLoadingIcon,
   GlSearchBoxByType,
   GlModalDirective,
   GlTooltipDirective,
@@ -16,10 +19,10 @@ import PanelType from 'ee_else_ce/monitoring/components/panel_type.vue';
 import { s__ } from '~/locale';
 import createFlash from '~/flash';
 import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
-import { getParameterValues, mergeUrlParams, redirectTo } from '~/lib/utils/url_utility';
+import { mergeUrlParams, redirectTo } from '~/lib/utils/url_utility';
 import invalidUrl from '~/lib/utils/invalid_url';
+import { convertToFixedRange } from '~/lib/utils/datetime_range';
 import Icon from '~/vue_shared/components/icon.vue';
-import { getTimeRange } from '~/vue_shared/components/date_time_picker/date_time_picker_lib';
 import DateTimePicker from '~/vue_shared/components/date_time_picker/date_time_picker.vue';
 
 import GraphGroup from './graph_group.vue';
@@ -28,11 +31,8 @@ import GroupEmptyState from './group_empty_state.vue';
 import DashboardsDropdown from './dashboards_dropdown.vue';
 
 import TrackEventDirective from '~/vue_shared/directives/track_event';
-import { getAddMetricTrackingOptions } from '../utils';
-
-import { datePickerTimeWindows, metricStates } from '../constants';
-
-const defaultTimeRange = getTimeRange();
+import { getAddMetricTrackingOptions, timeRangeToUrl, timeRangeFromUrl } from '../utils';
+import { defaultTimeRange, timeRanges, metricStates } from '../constants';
 
 export default {
   components: {
@@ -41,7 +41,10 @@ export default {
     Icon,
     GlButton,
     GlDropdown,
+    GlLoadingIcon,
     GlDropdownItem,
+    GlDropdownHeader,
+    GlDropdownDivider,
     GlSearchBoxByType,
     GlFormGroup,
     GlModal,
@@ -132,11 +135,6 @@ export default {
       type: String,
       required: true,
     },
-    environmentsEndpoint: {
-      type: String,
-      required: false,
-      default: '',
-    },
     currentEnvironmentName: {
       type: String,
       required: true,
@@ -196,10 +194,9 @@ export default {
     return {
       state: 'gettingStarted',
       formIsValid: null,
-      startDate: getParameterValues('start')[0] || defaultTimeRange.start,
-      endDate: getParameterValues('end')[0] || defaultTimeRange.end,
+      selectedTimeRange: timeRangeFromUrl() || defaultTimeRange,
       hasValidDates: true,
-      datePickerTimeWindows,
+      timeRanges,
       isRearrangingPanels: false,
     };
   },
@@ -215,12 +212,11 @@ export default {
       'useDashboardEndpoint',
       'allDashboards',
       'additionalPanelTypesEnabled',
+      'environmentsLoading',
     ]),
     ...mapGetters('monitoringDashboard', ['getMetricStates', 'filteredEnvironments']),
     firstDashboard() {
-      return this.environmentsEndpoint.length > 0 && this.allDashboards.length > 0
-        ? this.allDashboards[0]
-        : {};
+      return this.allDashboards.length > 0 ? this.allDashboards[0] : {};
     },
     selectedDashboard() {
       return this.allDashboards.find(d => d.path === this.currentDashboard) || this.firstDashboard;
@@ -239,14 +235,13 @@ export default {
         this.externalDashboardUrl.length
       );
     },
-    shouldRenderSearchableEnvironmentsDropdown() {
-      return this.glFeatures.searchableEnvironmentsDropdown;
+    shouldShowEnvironmentsDropdownNoMatchedMsg() {
+      return !this.environmentsLoading && this.filteredEnvironments.length === 0;
     },
   },
   created() {
     this.setEndpoints({
       metricsEndpoint: this.metricsEndpoint,
-      environmentsEndpoint: this.environmentsEndpoint,
       deploymentsEndpoint: this.deploymentsEndpoint,
       dashboardEndpoint: this.dashboardEndpoint,
       dashboardsEndpoint: this.dashboardsEndpoint,
@@ -258,9 +253,11 @@ export default {
     if (!this.hasMetrics) {
       this.setGettingStartedEmptyState();
     } else {
+      const { start, end } = convertToFixedRange(this.selectedTimeRange);
+
       this.fetchData({
-        start: this.startDate,
-        end: this.endDate,
+        start,
+        end,
       });
     }
   },
@@ -270,7 +267,7 @@ export default {
       'setGettingStartedEmptyState',
       'setEndpoints',
       'setPanelGroupMetrics',
-      'setEnvironmentsSearchTerm',
+      'filterEnvironments',
     ]),
     updatePanels(key, panels) {
       this.setPanelGroupMetrics({
@@ -285,8 +282,8 @@ export default {
       });
     },
 
-    onDateTimePickerApply(params) {
-      redirectTo(mergeUrlParams(params, window.location.href));
+    onDateTimePickerInput(timeRange) {
+      redirectTo(timeRangeToUrl(timeRange));
     },
     onDateTimePickerInvalid() {
       createFlash(
@@ -294,8 +291,8 @@ export default {
           'Metrics|Link contains an invalid time window, please verify the link to see the requested time range.',
         ),
       );
-      this.startDate = defaultTimeRange.start;
-      this.endDate = defaultTimeRange.end;
+      // As a fallback, switch to default time range instead
+      this.selectedTimeRange = defaultTimeRange;
     },
 
     generateLink(group, title, yLabel) {
@@ -313,7 +310,7 @@ export default {
       this.formIsValid = isValid;
     },
     debouncedEnvironmentsSearch: debounce(function environmentsSearchOnInput(searchTerm) {
-      this.setEnvironmentsSearchTerm(searchTerm);
+      this.filterEnvironments(searchTerm);
     }, 500),
     submitCustomMetricsForm() {
       this.$refs.customMetricsForm.submit();
@@ -361,7 +358,7 @@ export default {
 </script>
 
 <template>
-  <div class="prometheus-graphs">
+  <div class="prometheus-graphs" data-qa-selector="prometheus_graphs">
     <div
       v-if="showHeader"
       ref="prometheusGraphsHeader"
@@ -398,16 +395,23 @@ export default {
             toggle-class="dropdown-menu-toggle"
             menu-class="monitor-environment-dropdown-menu"
             :text="currentEnvironmentName"
-            :disabled="filteredEnvironments.length === 0"
           >
             <div class="d-flex flex-column overflow-hidden">
+              <gl-dropdown-header class="monitor-environment-dropdown-header text-center">{{
+                __('Environment')
+              }}</gl-dropdown-header>
+              <gl-dropdown-divider />
               <gl-search-box-by-type
-                v-if="shouldRenderSearchableEnvironmentsDropdown"
                 ref="monitorEnvironmentsDropdownSearch"
                 class="m-2"
                 @input="debouncedEnvironmentsSearch"
               />
-              <div class="flex-fill overflow-auto">
+              <gl-loading-icon
+                v-if="environmentsLoading"
+                ref="monitorEnvironmentsDropdownLoading"
+                :inline="true"
+              />
+              <div v-else class="flex-fill overflow-auto">
                 <gl-dropdown-item
                   v-for="environment in filteredEnvironments"
                   :key="environment.id"
@@ -418,12 +422,11 @@ export default {
                 >
               </div>
               <div
-                v-if="shouldRenderSearchableEnvironmentsDropdown"
-                v-show="filteredEnvironments.length === 0"
+                v-show="shouldShowEnvironmentsDropdownNoMatchedMsg"
                 ref="monitorEnvironmentsDropdownMsg"
                 class="text-secondary no-matches-message"
               >
-                {{ s__('No matching results') }}
+                {{ __('No matching results') }}
               </div>
             </div>
           </gl-dropdown>
@@ -437,10 +440,9 @@ export default {
         >
           <date-time-picker
             ref="dateTimePicker"
-            :start="startDate"
-            :end="endDate"
-            :time-windows="datePickerTimeWindows"
-            @apply="onDateTimePickerApply"
+            :value="selectedTimeRange"
+            :options="timeRanges"
+            @input="onDateTimePickerInput"
             @invalid="onDateTimePickerInvalid"
           />
         </gl-form-group>
@@ -524,44 +526,41 @@ export default {
         :show-panels="showPanels"
         :collapse-group="collapseGroup(groupData.key)"
       >
-        <div v-if="!groupSingleEmptyState(groupData.key)">
-          <vue-draggable
-            :value="groupData.panels"
-            group="metrics-dashboard"
-            :component-data="{ attrs: { class: 'row mx-0 w-100' } }"
-            :disabled="!isRearrangingPanels"
-            @input="updatePanels(groupData.key, $event)"
+        <vue-draggable
+          v-if="!groupSingleEmptyState(groupData.key)"
+          :value="groupData.panels"
+          group="metrics-dashboard"
+          :component-data="{ attrs: { class: 'row mx-0 w-100' } }"
+          :disabled="!isRearrangingPanels"
+          @input="updatePanels(groupData.key, $event)"
+        >
+          <div
+            v-for="(graphData, graphIndex) in groupData.panels"
+            :key="`panel-type-${graphIndex}`"
+            class="col-12 col-lg-6 px-2 mb-2 draggable"
+            :class="{ 'draggable-enabled': isRearrangingPanels }"
           >
-            <div
-              v-for="(graphData, graphIndex) in groupData.panels"
-              :key="`panel-type-${graphIndex}`"
-              class="col-12 col-lg-6 px-2 mb-2 draggable"
-              :class="{ 'draggable-enabled': isRearrangingPanels }"
-            >
-              <div class="position-relative draggable-panel js-draggable-panel">
-                <div
-                  v-if="isRearrangingPanels"
-                  class="draggable-remove js-draggable-remove p-2 w-100 position-absolute d-flex justify-content-end"
-                  @click="removePanel(groupData.key, groupData.panels, graphIndex)"
-                >
-                  <a class="mx-2 p-2 draggable-remove-link" :aria-label="__('Remove')">
-                    <icon name="close" />
-                  </a>
-                </div>
-
-                <panel-type
-                  :clipboard-text="
-                    generateLink(groupData.group, graphData.title, graphData.y_label)
-                  "
-                  :graph-data="graphData"
-                  :alerts-endpoint="alertsEndpoint"
-                  :prometheus-alerts-available="prometheusAlertsAvailable"
-                  :index="`${index}-${graphIndex}`"
-                />
+            <div class="position-relative draggable-panel js-draggable-panel">
+              <div
+                v-if="isRearrangingPanels"
+                class="draggable-remove js-draggable-remove p-2 w-100 position-absolute d-flex justify-content-end"
+                @click="removePanel(groupData.key, groupData.panels, graphIndex)"
+              >
+                <a class="mx-2 p-2 draggable-remove-link" :aria-label="__('Remove')">
+                  <icon name="close" />
+                </a>
               </div>
+
+              <panel-type
+                :clipboard-text="generateLink(groupData.group, graphData.title, graphData.y_label)"
+                :graph-data="graphData"
+                :alerts-endpoint="alertsEndpoint"
+                :prometheus-alerts-available="prometheusAlertsAvailable"
+                :index="`${index}-${graphIndex}`"
+              />
             </div>
-          </vue-draggable>
-        </div>
+          </div>
+        </vue-draggable>
         <div v-else class="py-5 col col-sm-10 col-md-8 col-lg-7 col-xl-6">
           <group-empty-state
             ref="empty-group"

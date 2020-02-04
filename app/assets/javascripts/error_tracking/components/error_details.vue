@@ -11,6 +11,7 @@ import Stacktrace from './stacktrace.vue';
 import TrackEventDirective from '~/vue_shared/directives/track_event';
 import timeagoMixin from '~/vue_shared/mixins/timeago';
 import { trackClickErrorLinkToSentryOptions } from '../utils';
+import { severityLevel, severityLevelVariant, errorStatus } from './constants';
 
 import query from '../queries/details.query.graphql';
 
@@ -31,10 +32,6 @@ export default {
   },
   mixins: [timeagoMixin],
   props: {
-    listPath: {
-      type: String,
-      required: true,
-    },
     issueUpdatePath: {
       type: String,
       required: true,
@@ -79,6 +76,7 @@ export default {
       result(res) {
         if (res.data.project?.sentryDetailedError) {
           this.$apollo.queries.GQLerror.stopPolling();
+          this.setStatus(this.GQLerror.status);
         }
       },
     },
@@ -97,6 +95,7 @@ export default {
       'stacktraceData',
       'updatingResolveStatus',
       'updatingIgnoreStatus',
+      'errorStatus',
     ]),
     ...mapGetters('details', ['stacktrace']),
     reported() {
@@ -147,20 +146,45 @@ export default {
     errorLevel() {
       return sprintf(__('level: %{level}'), { level: this.error.tags.level });
     },
+    errorSeverityVariant() {
+      return (
+        severityLevelVariant[this.error.tags.level] || severityLevelVariant[severityLevel.ERROR]
+      );
+    },
+    ignoreBtnLabel() {
+      return this.errorStatus !== errorStatus.IGNORED ? __('Ignore') : __('Undo ignore');
+    },
+    resolveBtnLabel() {
+      return this.errorStatus !== errorStatus.RESOLVED ? __('Resolve') : __('Unresolve');
+    },
   },
   mounted() {
     this.startPollingDetails(this.issueDetailsPath);
     this.startPollingStacktrace(this.issueStackTracePath);
   },
   methods: {
-    ...mapActions('details', ['startPollingDetails', 'startPollingStacktrace', 'updateStatus']),
+    ...mapActions('details', [
+      'startPollingDetails',
+      'startPollingStacktrace',
+      'updateStatus',
+      'setStatus',
+      'updateResolveStatus',
+      'updateIgnoreStatus',
+    ]),
     trackClickErrorLinkToSentryOptions,
     createIssue() {
       this.issueCreationInProgress = true;
       this.$refs.sentryIssueForm.submit();
     },
-    updateIssueStatus(status) {
-      this.updateStatus({ endpoint: this.issueUpdatePath, redirectUrl: this.listPath, status });
+    onIgnoreStatusUpdate() {
+      const status =
+        this.errorStatus === errorStatus.IGNORED ? errorStatus.UNRESOLVED : errorStatus.IGNORED;
+      this.updateIgnoreStatus({ endpoint: this.issueUpdatePath, status });
+    },
+    onResolveStatusUpdate() {
+      const status =
+        this.errorStatus === errorStatus.RESOLVED ? errorStatus.UNRESOLVED : errorStatus.RESOLVED;
+      this.updateResolveStatus({ endpoint: this.issueUpdatePath, status });
     },
     formatDate(date) {
       return `${this.timeFormatted(date)} (${dateFormat(date, 'UTC:yyyy-mm-dd h:MM:ssTT Z')})`;
@@ -179,15 +203,17 @@ export default {
         <span v-if="!loadingStacktrace && stacktrace" v-html="reported"></span>
         <div class="d-inline-flex">
           <loading-button
-            :label="__('Ignore')"
+            :label="ignoreBtnLabel"
             :loading="updatingIgnoreStatus"
-            @click="updateIssueStatus('ignored')"
+            data-qa-selector="update_ignore_status_button"
+            @click="onIgnoreStatusUpdate"
           />
           <loading-button
             class="btn-outline-info ml-2"
-            :label="__('Resolve')"
+            :label="resolveBtnLabel"
             :loading="updatingResolveStatus"
-            @click="updateIssueStatus('resolved')"
+            data-qa-selector="update_resolve_status_button"
+            @click="onResolveStatusUpdate"
           />
           <gl-button
             v-if="error.gitlab_issue"
@@ -228,8 +254,12 @@ export default {
           <h2 class="text-truncate">{{ GQLerror.title }}</h2>
         </tooltip-on-truncate>
         <template v-if="error.tags">
-          <gl-badge v-if="error.tags.level" variant="danger" class="rounded-pill mr-2"
-            >{{ errorLevel }}
+          <gl-badge
+            v-if="error.tags.level"
+            :variant="errorSeverityVariant"
+            class="rounded-pill mr-2"
+          >
+            {{ errorLevel }}
           </gl-badge>
           <gl-badge v-if="error.tags.logger" variant="light" class="rounded-pill"
             >{{ error.tags.logger }}

@@ -155,15 +155,20 @@ $subscriptions-full-width-lg: 541px;
     }
   }
 
-  .edit-group {
+  .edit-group,
+  .edit-profile {
     max-width: 400px;
 
     .bar {
       width: 100%;
     }
 
-    .form-check:nth-child(2) {
-      display: none;
+    .normal {
+      font-weight: $gl-font-weight-normal;
+    }
+
+    .field_with_errors {
+      display: inline;
     }
   }
 }

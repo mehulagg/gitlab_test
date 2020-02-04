@@ -2,32 +2,24 @@
 
 module ErrorTracking
   class IssueUpdateService < ErrorTracking::BaseService
-    include ::Gitlab::Utils::StrongMemoize
-
     private
 
     def perform
-      response = fetch
-
-      unless parse_errors(response).present?
-        response[:closed_issue_iid] = update_related_issue&.iid
-        project_error_tracking_setting.expire_issues_cache
-      end
-
-      response
-    end
-
-    def fetch
-      project_error_tracking_setting.update_issue(
+      response = project_error_tracking_setting.update_issue(
         issue_id: params[:issue_id],
         params: update_params
       )
+
+      compose_response(response) do
+        response[:closed_issue_iid] = update_related_issue&.iid
+      end
     end
 
     def update_related_issue
-      return if related_issue.nil?
+      issue = related_issue
+      return unless issue
 
-      close_and_create_note(related_issue)
+      close_and_create_note(issue)
     end
 
     def close_and_create_note(issue)
@@ -51,12 +43,10 @@ module ErrorTracking
     end
 
     def related_issue
-      strong_memoize(:related_issue) do
-        SentryIssueFinder
-          .new(project, current_user: current_user)
-          .execute(params[:issue_id])
-          &.issue
-      end
+      SentryIssueFinder
+        .new(project, current_user: current_user)
+        .execute(params[:issue_id])
+        &.issue
     end
 
     def resolving?
@@ -74,7 +64,7 @@ module ErrorTracking
       }
     end
 
-    def check_permissions
+    def unauthorized
       return error('Error Tracking is not enabled') unless enabled?
       return error('Access denied', :unauthorized) unless can_update?
     end

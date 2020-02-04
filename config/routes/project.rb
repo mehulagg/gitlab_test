@@ -1,13 +1,5 @@
 # frozen_string_literal: true
 
-# rubocop: disable Cop/PutProjectRoutesUnderScope
-resources :projects, only: [:index, :new, :create]
-
-draw :git_http
-
-get '/projects/:id' => 'projects#resolve'
-# rubocop: enable Cop/PutProjectRoutesUnderScope
-
 constraints(::Constraints::ProjectUrlConstrainer.new) do
   # If the route has a wildcard segment, the segment has a regex constraint,
   # the segment is potentially followed by _another_ wildcard segment, and
@@ -174,7 +166,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
-        resources :releases, only: [:index, :edit], param: :tag, constraints: { tag: %r{[^/]+} } do
+        resources :releases, only: [:index, :show, :edit], param: :tag, constraints: { tag: %r{[^/]+} } do
           member do
             get :evidence
           end
@@ -409,25 +401,15 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
-      get :issues, to: 'issues#calendar', constraints: lambda { |req| req.format == :ics }
+      # Unscoped route. It will be replaced with redirect to /-/issues/
+      # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
+      draw :issues
 
-      resources :issues, concerns: :awardable, constraints: { id: /\d+/ } do
-        member do
-          post :toggle_subscription
-          post :mark_as_spam
-          post :move
-          put :reorder
-          get :related_branches
-          get :can_create_branch
-          get :realtime_changes
-          post :create_merge_request
-          get :discussions, format: :json
-        end
-
-        collection do
-          post :bulk_update
-          post :import_csv
-        end
+      # To ensure an old unscoped routing is used for the UI we need to
+      # add prefix 'as' to the scope routing and place it below original routing.
+      # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
+      scope '-', as: 'scoped' do
+        draw :issues
       end
 
       resources :notes, only: [:create, :destroy, :update], concerns: :awardable, constraints: { id: /\d+/ } do

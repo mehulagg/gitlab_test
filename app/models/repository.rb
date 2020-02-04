@@ -41,8 +41,8 @@ class Repository
   CACHED_METHODS = %i(size commit_count rendered_readme readme_path contribution_guide
                       changelog license_blob license_key gitignore
                       gitlab_ci_yml branch_names tag_names branch_count
-                      tag_count avatar exists? root_ref has_visible_content?
-                      issue_template_names merge_request_template_names
+                      tag_count avatar exists? root_ref merged_branch_names
+                      has_visible_content? issue_template_names merge_request_template_names
                       metrics_dashboard_paths xcode_project?).freeze
 
   # Methods that use cache_method but only memoize the value
@@ -64,6 +64,8 @@ class Repository
     metrics_dashboard: :metrics_dashboard_paths,
     xcode_config: :xcode_project?
   }.freeze
+
+  MERGED_BRANCH_NAMES_CACHE_DURATION = 10.minutes
 
   def initialize(full_path, project, disk_path: nil, repo_type: Gitlab::GlRepository::PROJECT)
     @full_path = full_path
@@ -296,7 +298,7 @@ class Repository
   end
 
   def expire_branches_cache
-    expire_method_caches(%i(branch_names branch_count has_visible_content?))
+    expire_method_caches(%i(branch_names merged_branch_names branch_count has_visible_content?))
     @local_branches = nil
     @branch_exists_memo = nil
   end
@@ -516,10 +518,12 @@ class Repository
   end
 
   # items is an Array like: [[oid, path], [oid1, path1]]
-  def blobs_at(items)
+  def blobs_at(items, blob_size_limit: Gitlab::Git::Blob::MAX_DATA_DISPLAY_SIZE)
     return [] unless exists?
 
-    raw_repository.batch_blobs(items).map { |blob| Blob.decorate(blob, project) }
+    raw_repository.batch_blobs(items, blob_size_limit: blob_size_limit).map do |blob|
+      Blob.decorate(blob, project)
+    end
   end
 
   def root_ref
@@ -914,7 +918,39 @@ class Repository
     @root_ref_sha ||= commit(root_ref).sha
   end
 
-  delegate :merged_branch_names, to: :raw_repository
+  def merged_branch_names(branch_names = [])
+    # Currently we should skip caching if requesting all branch names
+    # This is only used in a few places, notably app/services/branches/delete_merged_service.rb,
+    # and it could potentially result in a very large cache/performance issues with the current
+    # implementation.
+    skip_cache = branch_names.empty? || Feature.disabled?(:merged_branch_names_redis_caching)
+    return raw_repository.merged_branch_names(branch_names) if skip_cache
+
+    cached_branch_names = cache.read(:merged_branch_names)
+    merged_branch_names_hash = cached_branch_names || {}
+    missing_branch_names = branch_names.select { |bn| !merged_branch_names_hash.key?(bn) }
+
+    # Track some metrics here whilst feature flag is enabled
+    if cached_branch_names.present?
+      counter = Gitlab::Metrics.counter(
+        :gitlab_repository_merged_branch_names_cache_hit,
+        "Count of cache hits for Repository#merged_branch_names"
+      )
+      counter.increment(full_hit: missing_branch_names.empty?)
+    end
+
+    if missing_branch_names.any?
+      merged = raw_repository.merged_branch_names(missing_branch_names)
+
+      missing_branch_names.each do |bn|
+        merged_branch_names_hash[bn] = merged.include?(bn)
+      end
+
+      cache.write(:merged_branch_names, merged_branch_names_hash, expires_in: MERGED_BRANCH_NAMES_CACHE_DURATION)
+    end
+
+    Set.new(merged_branch_names_hash.select { |_, v| v }.keys)
+  end
 
   def merge_base(*commits_or_ids)
     commit_ids = commits_or_ids.map do |commit_or_id|
@@ -927,22 +963,12 @@ class Repository
   def ancestor?(ancestor_id, descendant_id)
     return false if ancestor_id.nil? || descendant_id.nil?
 
-    counter = Gitlab::Metrics.counter(
-      :repository_ancestor_calls_total,
-      'The number of times we call Repository#ancestor with valid arguments')
-    cache_hit = true
-
     cache_key = "ancestor:#{ancestor_id}:#{descendant_id}"
-    result = request_store_cache.fetch(cache_key) do
+    request_store_cache.fetch(cache_key) do
       cache.fetch(cache_key) do
-        cache_hit = false
         raw_repository.ancestor?(ancestor_id, descendant_id)
       end
     end
-
-    counter.increment(cache_hit: cache_hit.to_s)
-
-    result
   end
 
   def fetch_as_mirror(url, forced: false, refmap: :all_refs, remote_name: nil, prune: true)

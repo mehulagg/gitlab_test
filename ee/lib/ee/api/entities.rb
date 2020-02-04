@@ -50,7 +50,7 @@ module EE
           expose :packages_enabled, if: ->(project, _) { project.feature_available?(:packages) }
           expose :service_desk_enabled, if: ->(project, _) { project.feature_available?(:service_desk) }
           expose :service_desk_address, if: ->(project, _) { project.feature_available?(:service_desk) }
-          expose :marked_for_deletion_at, if: ->(project, _) { project.feature_available?(:marking_project_for_deletion) }
+          expose :marked_for_deletion_at, if: ->(project, _) { project.feature_available?(:adjourned_deletion_for_projects_and_groups) }
         end
       end
 
@@ -217,7 +217,7 @@ module EE
           expose :email_additional_text, if: ->(_instance, _opts) { ::License.feature_available?(:email_additional_text) }
           expose :file_template_project_id, if: ->(_instance, _opts) { ::License.feature_available?(:custom_file_templates) }
           expose :default_project_deletion_protection, if: ->(_instance, _opts) { ::License.feature_available?(:default_project_deletion_protection) }
-          expose :deletion_adjourned_period, if: ->(_instance, _opts) { ::License.feature_available?(:marking_project_for_deletion) }
+          expose :deletion_adjourned_period, if: ->(_instance, _opts) { ::License.feature_available?(:adjourned_deletion_for_projects_and_groups) }
           expose :updating_name_disabled_for_users, if: ->(_instance, _opts) { ::License.feature_available?(:disable_name_update_for_users) }
         end
       end
@@ -506,6 +506,7 @@ module EE
         expose :disable_overriding_approvers_per_merge_request
         expose :merge_requests_author_approval
         expose :merge_requests_disable_committers_approval
+        expose :require_password_to_approve
       end
 
       class Approvals < Grape::Entity
@@ -877,6 +878,35 @@ module EE
           expose :version
           expose :resources
         end
+
+        class PackageMetadataCatalogEntry < Grape::Entity
+          expose :json_url, as: :@id
+          expose :authors
+          expose :dependencies, as: :dependencyGroups
+          expose :package_name, as: :id
+          expose :package_version, as: :version
+          expose :archive_url, as: :packageContent
+          expose :summary
+        end
+
+        class PackageMetadata < Grape::Entity
+          expose :json_url, as: :@id
+          expose :archive_url, as: :packageContent
+          expose :catalog_entry, as: :catalogEntry, using: EE::API::Entities::Nuget::PackageMetadataCatalogEntry
+        end
+
+        class PackagesMetadataItem < Grape::Entity
+          expose :json_url, as: :@id
+          expose :lower_version, as: :lower
+          expose :upper_version, as: :upper
+          expose :packages_count, as: :count
+          expose :packages, as: :items, using: EE::API::Entities::Nuget::PackageMetadata
+        end
+
+        class PackagesMetadata < Grape::Entity
+          expose :count
+          expose :items, using: EE::API::Entities::Nuget::PackagesMetadataItem
+        end
       end
 
       class NpmPackage < Grape::Entity
@@ -916,6 +946,7 @@ module EE
         expose :project_id, if: ->(_, opts) { opts[:group] }
         expose :project_path, if: ->(obj, opts) { opts[:group] && Ability.allowed?(opts[:user], :read_project, obj.project) }
         expose :build_info, using: BuildInfo
+        expose :tags
 
         private
 

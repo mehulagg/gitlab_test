@@ -2,7 +2,6 @@ import invalidUrl from '~/lib/utils/invalid_url';
 
 export default () => ({
   metricsEndpoint: null,
-  environmentsEndpoint: null,
   deploymentsEndpoint: null,
   dashboardEndpoint: invalidUrl,
   emptyState: 'gettingStarted',
@@ -16,6 +15,7 @@ export default () => ({
   deploymentData: [],
   environments: [],
   environmentsSearchTerm: '',
+  environmentsLoading: false,
   allDashboards: [],
   currentDashboard: null,
   projectPath: null,

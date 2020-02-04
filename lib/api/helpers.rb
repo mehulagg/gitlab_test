@@ -258,9 +258,19 @@ module API
     end
 
     def require_gitlab_workhorse!
+      verify_workhorse_api!
+
       unless env['HTTP_GITLAB_WORKHORSE'].present?
         forbidden!('Request should be executed via GitLab Workhorse')
       end
+    end
+
+    def verify_workhorse_api!
+      Gitlab::Workhorse.verify_api_request!(request.headers)
+    rescue => e
+      Gitlab::ErrorTracking.track_exception(e)
+
+      forbidden!
     end
 
     def require_pages_enabled!
@@ -434,7 +444,7 @@ module API
 
     def present_disk_file!(path, filename, content_type = 'application/octet-stream')
       filename ||= File.basename(path)
-      header['Content-Disposition'] = ::Gitlab::ContentDisposition.format(disposition: 'attachment', filename: filename)
+      header['Content-Disposition'] = ActionDispatch::Http::ContentDisposition.format(disposition: 'attachment', filename: filename)
       header['Content-Transfer-Encoding'] = 'binary'
       content_type content_type
 
@@ -542,7 +552,7 @@ module API
     def send_git_blob(repository, blob)
       env['api.format'] = :txt
       content_type 'text/plain'
-      header['Content-Disposition'] = ::Gitlab::ContentDisposition.format(disposition: 'inline', filename: blob.name)
+      header['Content-Disposition'] = ActionDispatch::Http::ContentDisposition.format(disposition: 'inline', filename: blob.name)
 
       # Let Workhorse examine the content and determine the better content disposition
       header[Gitlab::Workhorse::DETECT_HEADER] = "true"
