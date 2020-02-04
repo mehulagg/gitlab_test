@@ -578,6 +578,7 @@ ActiveRecord::Schema.define(version: 2020_02_06_111847) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["service_id", "team_id", "chat_id"], name: "index_chat_names_on_service_id_and_team_id_and_chat_id", unique: true
+    t.index ["service_id"], name: "index_chat_names_on_service_id"
     t.index ["user_id", "service_id"], name: "index_chat_names_on_user_id_and_service_id", unique: true
   end
 
@@ -4576,6 +4577,7 @@ ActiveRecord::Schema.define(version: 2020_02_06_111847) do
   add_foreign_key "board_project_recent_visits", "users", on_delete: :cascade
   add_foreign_key "boards", "namespaces", column: "group_id", name: "fk_1e9a074a35", on_delete: :cascade
   add_foreign_key "boards", "projects", name: "fk_f15266b5f9", on_delete: :cascade
+  add_foreign_key "chat_names", "services", name: "fk_00797a2bf9", on_delete: :cascade
   add_foreign_key "chat_teams", "namespaces", on_delete: :cascade
   add_foreign_key "ci_build_needs", "ci_builds", column: "build_id", on_delete: :cascade
   add_foreign_key "ci_build_trace_chunks", "ci_builds", column: "build_id", on_delete: :cascade
