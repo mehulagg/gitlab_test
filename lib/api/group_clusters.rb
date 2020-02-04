@@ -96,7 +96,7 @@ module API
       put ':id/clusters/:cluster_id' do
         authorize! :update_cluster, cluster
 
-        update_service = Clusters::UpdateService.new(current_user, update_cluster_params)
+        update_service = ::Clusters::UpdateService.new(current_user, update_cluster_params)
 
         if update_service.execute(cluster)
           present cluster, with: Entities::ClusterGroup
