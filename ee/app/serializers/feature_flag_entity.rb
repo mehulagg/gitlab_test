@@ -27,7 +27,9 @@ class FeatureFlagEntity < Grape::Entity
     feature_flag.scopes.sort_by(&:id)
   end
 
-  expose :strategies
+  expose :strategies do |feature_flag|
+    feature_flag.strategies.sort_by(&:id)
+  end
 
   private
 
