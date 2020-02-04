@@ -24,7 +24,7 @@ function update_tests_metadata() {
 
   scripts/merge-reports "${FLAKY_RSPEC_SUITE_REPORT_PATH}" rspec_flaky/all_*.json
 
-  export FLAKY_RSPEC_GENERATE_REPORT="true"
+  export FLAKY_RSPEC_GENERATE_REPORT="false"
   scripts/flaky_examples/prune-old-flaky-examples "${FLAKY_RSPEC_SUITE_REPORT_PATH}"
 
   if [[ -n ${TESTS_METADATA_S3_BUCKET} ]]; then
@@ -72,7 +72,7 @@ function rspec_paralellized_job() {
 
   if [[ -d "ee/" ]]; then
     export KNAPSACK_GENERATE_REPORT="true"
-    export FLAKY_RSPEC_GENERATE_REPORT="true"
+    export FLAKY_RSPEC_GENERATE_REPORT="false"
     export SUITE_FLAKY_RSPEC_REPORT_PATH="${FLAKY_RSPEC_SUITE_REPORT_PATH}"
     export FLAKY_RSPEC_REPORT_PATH="rspec_flaky/all_${test_tool}_${CI_NODE_INDEX}_${CI_NODE_TOTAL}_report.json"
     export NEW_FLAKY_RSPEC_REPORT_PATH="rspec_flaky/new_${test_tool}_${CI_NODE_INDEX}_${CI_NODE_TOTAL}_report.json"

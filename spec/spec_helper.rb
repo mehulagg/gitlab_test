@@ -10,7 +10,7 @@ ENV["RSPEC_ALLOW_INVALID_URLS"] = 'true'
 require File.expand_path('../config/environment', __dir__)
 require 'rspec/rails'
 require 'shoulda/matchers'
-require 'rspec/retry'
+# require 'rspec/retry'
 require 'rspec-parameterized'
 require 'test_prof/recipes/rspec/let_it_be'
 
@@ -59,7 +59,7 @@ RSpec.configure do |config|
   config.use_instantiated_fixtures  = false
   config.fixture_path = Rails.root
 
-  config.verbose_retry = true
+  # config.verbose_retry = true
   config.display_try_failure_messages = true
 
   config.infer_spec_type_from_file_location!
