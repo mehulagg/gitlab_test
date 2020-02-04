@@ -3,12 +3,6 @@
 class ProjectGroupLink < ApplicationRecord
   include Expirable
 
-  GUEST     = 10
-  REPORTER  = 20
-  DEVELOPER = 30
-  MAINTAINER = 40
-  MASTER = MAINTAINER # @deprecated
-
   belongs_to :project
   belongs_to :group
 
@@ -28,7 +22,7 @@ class ProjectGroupLink < ApplicationRecord
   end
 
   def self.default_access
-    DEVELOPER
+    Gitlab::Access::DEVELOPER
   end
 
   def self.search(query)
