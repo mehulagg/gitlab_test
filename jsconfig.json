@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["./app/assets/javascripts/*"],
+      "emojis/*": ["./fixtures/emojis/*"],
+      "icons/*": ["./app/views/shared/icons/*"],
+      "images/*": ["./app/assets/images/*"],
+      "vendor/*": ["./vendor/assets/javascripts/*"],
+      "spec/*": ["./spec/javascripts/*"],
+      "jest/*": ["./spec/frontend/*"],
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "tmp"
+  ]
+}
