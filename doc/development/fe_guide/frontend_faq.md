@@ -146,3 +146,13 @@ export const fetchFoos = ({ state }) => {
   return axios.get(state.settings.fooPath);
 };
 ```
+
+### 7. Babel polyfills
+
+> Introduced in [GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/issues/28837)
+
+Rather than needing to explicitly add each `core-js` polyfill, we've enabled the Babel preset-env option [`useBuiltIns: 'usage'`](https://babeljs.io/docs/en/babel-preset-env#usebuiltins-usage).
+
+This will automatically add each needed `core-js` polyfill once if our target browsers don't support JavaScript feature we're using.
+
+Note: We still manually add non-`core-js` polyfills that extend browser features such as our SVG polyfill that lets us reference SVG by `<use xlink:href>`. These should be added to `app/assets/javascripts/commons/polyfills.js`.
