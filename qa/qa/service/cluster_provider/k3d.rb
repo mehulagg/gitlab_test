@@ -17,7 +17,7 @@ module QA
 
         def setup
           k3d_command = %W[k3d create --workers 1 --name #{cluster_name} --wait 0]
-          k3d_command << %W[--api-port 0.0.0.0:#{Runtime::Env.k3d_port} --server-arg '--tls-san=#{Runtime::Env.k3d_host}'] if Runtime::Env.running_in_ci?
+          k3d_command << %W[--api-port 0.0.0.0:6443 --server-arg '--tls-san=#{Runtime::Env.k3d_host}'] if Runtime::Env.running_in_ci?
 
           shell(k3d_command.join(' '))
 
