@@ -89,8 +89,6 @@ class Project < ApplicationRecord
 
   after_save :create_import_state, if: ->(project) { project.import? && project.import_state.nil? }
 
-  after_create :create_project_feature, unless: :project_feature
-
   after_create :create_ci_cd_settings,
     unless: :ci_cd_settings,
     if: proc { ProjectCiCdSetting.available? }
