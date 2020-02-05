@@ -44,7 +44,7 @@ describe('IDE error message component', () => {
     });
   });
 
-  describe('messag actions', () => {
+  describe('message actions', () => {
     it('will fire local action logic accordingly', () => {
       const actionMock = jest.fn().mockResolvedValue(true);
       const wrapper = createComponent({ action: actionMock });
@@ -54,7 +54,7 @@ describe('IDE error message component', () => {
       expect(actionMock).toHaveBeenCalledWith(mockMessage.actionPayload);
     });
 
-    it('will correctly set loading state amd prevent further invocation', done => {
+    it('will correctly set loading state amd prevent further invocation', () => {
       let resolveAction;
       const actionMock = jest.fn().mockImplementation(
         () =>
@@ -81,7 +81,6 @@ describe('IDE error message component', () => {
         .then(nextTick())
         .then(() => {
           expect(spinner.isVisible()).toBe(false);
-          done();
         });
     });
   });

@@ -16,10 +16,15 @@ export default {
   data() {
     return {
       isLoading: false,
-      canDismiss:
-        this.message.hasOwnProperty('action') === false ||
-        typeof this.message.action === 'undefined',
     };
+  },
+  computed: {
+    canDismiss() {
+      return (
+        this.message.hasOwnProperty('action') === false ||
+        typeof this.message.action === 'undefined'
+      );
+    },
   },
   methods: {
     ...mapActions(['setErrorMessage']),
