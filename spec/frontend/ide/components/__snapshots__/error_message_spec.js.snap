@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`IDE error message component renders error message 1`] = `
+"<div role=\\"alert\\" class=\\"gl-alert gl-alert-danger\\"><svg class=\\"gl-icon s16 gl-alert-icon gl-alert-icon-no-title\\">
+    <use href=\\"#error\\"></use>
+  </svg> <button type=\\"button\\" aria-label=\\"Dismiss\\" class=\\"gl-alert-dismiss\\"><svg class=\\"gl-icon s16\\">
+      <use href=\\"#close\\"></use>
+    </svg></button>
+  <!---->
+  <div class=\\"gl-alert-body\\"><span>some <strong>text</strong></span> <span class=\\"gl-spinner-container\\" style=\\"display: none;\\"><span aria-label=\\"Loading\\" aria-hidden=\\"true\\" class=\\"gl-spinner gl-spinner-orange gl-spinner-sm\\"></span></span></div>
+  <div class=\\"gl-alert-actions\\"><button type=\\"button\\" class=\\"btn gl-alert-action btn-danger btn-md new-gl-button\\">
+      <!---->
+      test action
+    </button></div>
+</div>"
+`;

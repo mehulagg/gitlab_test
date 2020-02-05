@@ -1,125 +1,87 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
-import Vuex from 'vuex';
-import { GlLoadingIcon } from '@gitlab/ui';
+import { mount } from '@vue/test-utils';
+import { nextTick } from 'vue';
 import ErrorMessage from '~/ide/components/error_message.vue';
+import { GlLoadingIcon, GlAlert } from '@gitlab/ui';
 
-const localVue = createLocalVue();
-localVue.use(Vuex);
+const mockMessage = {
+  text: 'some <strong>text</strong>',
+  actionText: 'test action',
+  actionPayload: 'testActionPayload',
+};
+
+const createComponent = function(messageOptions = {}, options = {}) {
+  return mount(ErrorMessage, {
+    propsData: {
+      message: Object.assign({}, mockMessage, messageOptions),
+    },
+    ...options,
+  });
+};
 
 describe('IDE error message component', () => {
-  let wrapper;
-
-  const setErrorMessageMock = jest.fn();
-  const createComponent = messageProps => {
-    const fakeStore = new Vuex.Store({
-      actions: { setErrorMessage: setErrorMessageMock },
-    });
-
-    wrapper = shallowMount(ErrorMessage, {
-      propsData: {
-        message: {
-          text: 'some text',
-          actionText: 'test action',
-          actionPayload: 'testActionPayload',
-          ...messageProps,
-        },
-      },
-      store: fakeStore,
-      localVue,
-    });
-  };
-
-  beforeEach(() => {
-    setErrorMessageMock.mockReset();
-  });
-
-  afterEach(() => {
-    wrapper.destroy();
-    wrapper = null;
-  });
-
   it('renders error message', () => {
-    const text = 'error message';
-    createComponent({ text });
-    expect(wrapper.text()).toContain(text);
+    const wrapper = createComponent();
+    expect(wrapper.text()).toContain('some text');
+    expect(wrapper.html()).toMatchSnapshot();
   });
 
-  it('clears error message on click', () => {
-    createComponent();
-    wrapper.trigger('click');
+  describe('dismissal', () => {
+    it('is not visible if there is an action available', () => {
+      const actionMock = jest.fn();
+      const wrapper = createComponent({ action: actionMock });
+      expect(wrapper.find('button.gl-alert-dismiss').exists()).toBe(false);
+    });
 
-    expect(setErrorMessageMock).toHaveBeenCalledWith(expect.any(Object), null, undefined);
+    it('will trigger the custom dismiss event', () => {
+      const wrapper = createComponent();
+      const setErrorMessageStub = jest.fn();
+      wrapper.setMethods({ setErrorMessage: setErrorMessageStub });
+
+      const alertComponent = wrapper.find(GlAlert);
+      alertComponent.vm.$emit('dismiss');
+
+      expect(setErrorMessageStub).toHaveBeenCalledWith(null);
+    });
   });
 
-  describe('with action', () => {
-    let actionMock;
+  describe('messag actions', () => {
+    it('will fire local action logic accordingly', () => {
+      const actionMock = jest.fn().mockResolvedValue(true);
+      const wrapper = createComponent({ action: actionMock });
+      const actionButton = wrapper.find('button.gl-alert-action');
 
-    const message = {
-      actionText: 'test action',
-      actionPayload: 'testActionPayload',
-    };
-
-    beforeEach(() => {
-      actionMock = jest.fn().mockResolvedValue();
-      createComponent({
-        ...message,
-        action: actionMock,
-      });
+      actionButton.trigger('click');
+      expect(actionMock).toHaveBeenCalledWith(mockMessage.actionPayload);
     });
 
-    it('renders action button', () => {
-      const button = wrapper.find('button');
-
-      expect(button.exists()).toBe(true);
-      expect(button.text()).toContain(message.actionText);
-    });
-
-    it('does not clear error message on click', () => {
-      wrapper.trigger('click');
-
-      expect(setErrorMessageMock).not.toHaveBeenCalled();
-    });
-
-    it('dispatches action', () => {
-      wrapper.find('button').trigger('click');
-
-      expect(actionMock).toHaveBeenCalledWith(message.actionPayload);
-    });
-
-    it('does not dispatch action when already loading', () => {
-      wrapper.find('button').trigger('click');
-      actionMock.mockReset();
-      return wrapper.vm.$nextTick(() => {
-        wrapper.find('button').trigger('click');
-
-        return wrapper.vm.$nextTick().then(() => {
-          expect(actionMock).not.toHaveBeenCalled();
-        });
-      });
-    });
-
-    it('shows loading icon when loading', () => {
+    it('will correctly set loading state amd prevent further invocation', done => {
       let resolveAction;
-      actionMock.mockImplementation(
+      const actionMock = jest.fn().mockImplementation(
         () =>
           new Promise(resolve => {
             resolveAction = resolve;
           }),
       );
-      wrapper.find('button').trigger('click');
+      const wrapper = createComponent({ action: actionMock });
+      const actionButton = wrapper.find('button.gl-alert-action');
+      const spinner = wrapper.find(GlLoadingIcon);
 
-      return wrapper.vm.$nextTick(() => {
-        expect(wrapper.find(GlLoadingIcon).isVisible()).toBe(true);
-        resolveAction();
-      });
-    });
+      expect(spinner.isVisible()).toBe(false);
+      actionButton.trigger('click');
+      expect(actionMock.mock.calls.length).toBe(1);
 
-    it('hides loading icon when operation finishes', () => {
-      wrapper.find('button').trigger('click');
-      return actionMock()
-        .then(() => wrapper.vm.$nextTick())
+      return nextTick()
         .then(() => {
-          expect(wrapper.find(GlLoadingIcon).isVisible()).toBe(false);
+          expect(spinner.isVisible()).toBe(true);
+          actionButton.trigger('click');
+          // This click should not add another call to the message action
+          expect(actionMock.mock.calls.length).toBe(1);
+          resolveAction();
+        })
+        .then(nextTick())
+        .then(() => {
+          expect(spinner.isVisible()).toBe(false);
+          done();
         });
     });
   });
