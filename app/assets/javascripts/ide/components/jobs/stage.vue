@@ -71,7 +71,7 @@ export default {
         v-tooltip="showTooltip"
         :title="showTooltip ? stage.name : null"
         data-container="body"
-        class="prepend-left-8 text-truncate"
+        class="prepend-left-8 ide-stage-title"
       >
         {{ stage.name }}
       </strong>
@@ -80,7 +80,7 @@ export default {
       </div>
       <icon :name="collapseIcon" class="ide-stage-collapse-icon" />
     </div>
-    <div v-show="!stage.isCollapsed" ref="jobList" class="card-body p-0">
+    <div v-show="!stage.isCollapsed" ref="jobList" class="card-body">
       <gl-loading-icon v-if="showLoadingIcon" />
       <template v-else>
         <item v-for="job in stage.jobs" :key="job.id" :job="job" @clickViewLog="clickViewLog" />
