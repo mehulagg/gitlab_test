@@ -78,6 +78,48 @@ by another folder with the next 2 characters. They are both stored in a special
 "@hashed/#{hash[0..1]}/#{hash[2..3]}/#{hash}.wiki.git"
 ```
 
+### Translating hashed storage paths
+
+#### From path to project
+
+To translate from a hashed storage path to a project name:
+
+1. Start a [Rails console.](troubleshooting/debug.md#starting-a-rails-console)
+1. Run the following:
+
+```ruby
+ProjectRepository.find_by(disk_path: '@hashed/b1/7e/b17ef6...d9').project
+```
+
+The quoted string in that command is the directory tree you'll find on your
+GitLab server. For example on a default Omnibus installation:
+`/var/opt/gitlab/git-data/repositories/@hashed/b1/7e/b17e...`
+with `.git` from the end of the directory name removed.
+
+The output includes the project id and the project name.
+
+```
+=> #<Project id:16 it/supportteam/ticketsystem>
+```
+
+#### From project to path
+
+To locate the path for a project, you need the project ID for the project.
+This is on the details page for the project, under the project name.
+
+1. Start a [Rails console.](troubleshooting/debug.md#starting-a-rails-console)
+1. Run the following:
+
+```ruby
+ProjectRepository.find_by(project_id: '16').disk_path
+```
+
+The output is the disk path, without `.git`:
+
+```
+"@hashed/b1/7e/b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9"
+```
+
 ### Hashed object pools
 
 > [Introduced](https://gitlab.com/gitlab-org/gitaly/issues/1606) in GitLab 12.1.
