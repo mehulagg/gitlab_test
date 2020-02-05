@@ -5,9 +5,11 @@ import { sprintf, n__, s__ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import RelatedIssuableItem from '~/vue_shared/components/issue/related_issuable_item.vue';
 import { parseIssuableData } from '../../issue_show/utils/parse_data';
+import createStore from '../store';
 
 export default {
   name: 'RelatedMergeRequests',
+  store: createStore(),
   components: {
     Icon,
     GlLoadingIcon,

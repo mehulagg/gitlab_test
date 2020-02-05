@@ -265,19 +265,19 @@ module IssuablesHelper
   def issuable_initial_data(issuable)
     data = {
       endpoint: issuable_path(issuable),
-      updateEndpoint: "#{issuable_path(issuable)}.json",
-      canUpdate: can?(current_user, :"update_#{issuable.to_ability_name}", issuable),
-      canDestroy: can?(current_user, :"destroy_#{issuable.to_ability_name}", issuable),
-      issuableRef: issuable.to_reference,
-      markdownPreviewPath: preview_markdown_path(parent),
-      markdownDocsPath: help_page_path('user/markdown'),
-      lockVersion: issuable.lock_version,
-      issuableTemplateNamesPath: template_names_path(parent, issuable),
-      initialTitleHtml: markdown_field(issuable, :title),
-      initialTitleText: issuable.title,
-      initialDescriptionHtml: markdown_field(issuable, :description),
-      initialDescriptionText: issuable.description,
-      initialTaskStatus: issuable.task_status
+      'update-endpoint': "#{issuable_path(issuable)}.json",
+      'can-update': can?(current_user, :"update_#{issuable.to_ability_name}", issuable),
+      'can-destroy': can?(current_user, :"destroy_#{issuable.to_ability_name}", issuable),
+      'issuable-ref': issuable.to_reference,
+      'markdown-preview-path': preview_markdown_path(parent),
+      'markdown-docs-path': help_page_path('user/markdown'),
+      'lock-version': issuable.lock_version,
+      'issuable-template-names-path': template_names_path(parent, issuable),
+      'initial-title-html': markdown_field(issuable, :title),
+      'initial-title-text': issuable.title,
+      'initial-description-html': markdown_field(issuable, :description),
+      'initial-description-text': issuable.description,
+      'initial-task-status': issuable.task_status
     }
     data.merge!(issue_only_initial_data(issuable))
     data.merge!(path_data(parent))

@@ -62,7 +62,8 @@
   .detail-page-description.content-block
     -# haml-lint:disable InlineJavaScript
     %script#js-issuable-app-initial-data{ type: "application/json" }= issuable_initial_data(@issue).to_json
-    #js-issuable-app
+
+    %issuable-app{ **issuable_initial_data(@issue) }
       %h2.title= markdown_field(@issue, :title)
       - if @issue.description.present?
         .description{ class: can?(current_user, :update_issue, @issue) ? 'js-task-list-container' : '' }
@@ -76,7 +77,7 @@
 
     = render_if_exists 'projects/issues/related_issues'
 
-    #js-related-merge-requests{ data: { endpoint: expose_path(api_v4_projects_issues_related_merge_requests_path(id: @project.id, issue_iid: @issue.iid)), project_namespace: @project.namespace.path, project_path: @project.path } }
+    %related-merge-requests{ endpoint: expose_path(api_v4_projects_issues_related_merge_requests_path(id: @project.id, issue_iid: @issue.iid)), project_namespace: @project.namespace.path, project_path: @project.path }
 
     - if can?(current_user, :download_code, @project)
       #related-branches{ data: { url: related_branches_project_issue_path(@project, @issue) } }
