@@ -416,7 +416,7 @@ You need the below inside your instance and acessible across the instance (for e
 - [SAST Requirements](https://docs.gitlab.com/ee/user/application_security/sast/#requirements)
 - Host SAST docker images on a local Docker container registry:
   - [registry.gitlab.com/gitlab-org/security-products/sast:$SAST_VERSION](https://gitlab.com/gitlab-org/security-products/sast/container_registry)
-  -  Docker images:
+  - Docker images:
   - docker:stable
   - docker:stable-dind
 - It's a hard requirement to be able to pull a docker image from your internal registry and use it in the CI job. If one gets an x509: certificate signed by unknown authority error, when trying to pull a local image currently, this won't work.
