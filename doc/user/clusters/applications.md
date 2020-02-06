@@ -735,6 +735,7 @@ agent:
 ```
 
 ### Install Vault using GitLab CI
+
 [Hashicorp Vault](https://vaultproject.io/) is a secrets management solution which
 can be used to safely manage and store passwords, credentials, certificates and more.
 
@@ -746,17 +747,18 @@ vault:
 ```
 
 By default you will get a basic Vault setup with no high availability nor any scalable
-storage backend. It is advised to read through the Vault helm chart [values.yaml](https://github.com/hashicorp/vault-helm/blob/v0.3.3/values.yaml)
+storage backend. It is advised to read through the Vault Helm chart [values.yaml](https://github.com/hashicorp/vault-helm/blob/v0.3.3/values.yaml)
 As well as read the Vault documentation [here](https://www.vaultproject.io/docs/internals/)
 to get a good understanding of the internals of Vault and how to configure it correctly.
 
 At a minimum you will likely be looking to setup
-* An [seal](https://www.vaultproject.io/docs/configuration/seal/) for extra encryption
+
+- A [seal](https://www.vaultproject.io/docs/configuration/seal/) for extra encryption
 of the master key
-* A [storage backend](https://www.vaultproject.io/docs/configuration/storage/) that is
+- A [storage backend](https://www.vaultproject.io/docs/configuration/storage/) that is
 suitable for environment and storage security requirements
-* Enabling [HA Mode](https://www.vaultproject.io/docs/concepts/ha/)
-* Enabling the [Vault UI](https://www.vaultproject.io/docs/configuration/ui/)
+- Enabling [HA Mode](https://www.vaultproject.io/docs/concepts/ha/)
+- Enabling the [Vault UI](https://www.vaultproject.io/docs/configuration/ui/)
 
 The following is an example values file (`.gitlab/managed-apps/vault/values.yaml`)
 that configures GKMS for auto-unseal, using a Google Cloud Storage backend, enabling
