@@ -531,7 +531,9 @@ Prometheus server.
 
 > [Introduced][ce-29691] in GitLab 12.2.
 
-It is possible to display metrics charts within [GitLab Flavored Markdown](../../markdown.md#gitlab-flavored-markdown-gfm). The maximum number of embeds allowed in a GitLab Flavored Markdown field is 100.
+It is possible to display metrics charts within [GitLab Flavored Markdown](../../markdown.md#gitlab-flavored-markdown-gfm) fields such as issue or merge request descriptions. The maximum number of embedded charts allowed in a GitLab Flavored Markdown field is 100.
+
+Metrics that can be embedded as described below include [cluster health metrics](https://docs.gitlab.com/ee/user/project/clusters/#monitoring-your-kubernetes-cluster-ultimate). [Introduced in GitLab 12.9] (EE only placeholder?)
 
 NOTE: **Note:**
 Requires [Kubernetes](prometheus_library/kubernetes.md) metrics.

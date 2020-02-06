@@ -10,6 +10,7 @@ module EE
           EE_SERVICES = [
             ::Metrics::Dashboard::ClusterDashboardService,
             ::Metrics::Dashboard::GitlabAlertEmbedService
+            ::Metrics::Dashboard::ClusterEmbedService
           ].freeze
 
           class_methods do

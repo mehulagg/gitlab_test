@@ -29,7 +29,8 @@ module Gitlab
           #         Used by embedded dashboards.
           # @param options - y_label [String] Y-Axis label of
           #         a panel. Used by embedded dashboards.
-          # @param options - cluster [Cluster]
+          # @param options - cluster [Cluster]. Used by
+          #         embedded dashboards.
           # @param options - cluster_type [Symbol] The level of
           #         cluster, one of [:admin, :project, :group]
           # @param options - grafana_url [String] URL pointing

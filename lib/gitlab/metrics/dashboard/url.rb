@@ -17,9 +17,9 @@ module Gitlab
                 #{gitlab_pattern}
                 #{project_pattern}
                 (?:\/\-)?
-                \/environments
-                \/(?<environment>\d+)
-                \/metrics
+                /environments
+                /(?<environment>\d+)
+                /metrics
                 #{query_pattern}
                 #{anchor_pattern}
               )
@@ -35,13 +35,33 @@ module Gitlab
                 #{gitlab_pattern}
                 #{project_pattern}
                 (?:\/\-)?
-                \/grafana
-                \/metrics_dashboard
+                /grafana
+                /metrics_dashboard
                 #{query_pattern}
                 #{anchor_pattern}
               )
             }x
           end
+
+          # # Matches dashboard urls for a metric chart embed
+          # # for cluster metrics
+          # #
+          # # EX - https://<host>/<namespace>/<project>/-/clusters/<cluster_id>/?group=Cluster%20Health&title=Memory%20Usage&y_label=Memory%20(GiB)
+          #
+          # def clusters_regex
+          #   %r{
+          #     (?<url>
+          #       #{gitlab_pattern}
+          #       #{project_pattern}
+          #       (?:\/\-)?
+          #       /-
+          #       /clusters
+          #       /(?<cluster_id>\d+)
+          #       [/]?#{query_pattern}
+          #       #{anchor_pattern}
+          #     )
+          #   }x
+          # end
 
           # Parses query params out from full url string into hash.
           #
@@ -82,3 +102,5 @@ module Gitlab
     end
   end
 end
+
+Gitlab::Metrics::Dashboard::Url.extend_if_ee('::EE::Gitlab::Metrics::Dashboard::Url')
