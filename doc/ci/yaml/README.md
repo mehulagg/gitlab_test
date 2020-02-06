@@ -1111,7 +1111,9 @@ osx job:
 
 `allow_failure` allows a job to fail without impacting the rest of the CI
 suite.
-The default value is `false`, except for [manual](#whenmanual) jobs.
+The default value is `false`, except for [manual](#whenmanual) jobs using the
+`when: manual` syntax. Within [rules](#rules), manual jobs set this `true` by
+default.
 
 When enabled and the job fails, the job will show an orange warning in the UI.
 However, the logical flow of the pipeline will consider the job a
@@ -1226,13 +1228,16 @@ manual action by clicking a _play_ button.
 
 When a pipeline is blocked, it will not be merged if Merge When Pipeline Succeeds
 is set. Blocked pipelines also do have a special status, called _manual_.
-Manual actions are non-blocking by default. If you want to make manual action
-blocking, it is necessary to add `allow_failure: false` to the job's definition
-in `.gitlab-ci.yml`.
+With the `when:manual` syntax is used, manual actions are non-blocking by
+default. If you want to make manual action blocking, it is necessary to add
+`allow_failure: false` to the job's definition in `.gitlab-ci.yml`.
 
 Optional manual actions have `allow_failure: true` set by default and their
 Statuses do not contribute to the overall pipeline status. So, if a manual
 action fails, the pipeline will eventually succeed.
+
+NOTE: **Note:**
+The default value of `allow_failure` is different when using [rules](#rules).
 
 Manual actions are considered to be write actions, so permissions for
 [protected branches](../../user/project/protected_branches.md) are used when
