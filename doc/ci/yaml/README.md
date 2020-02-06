@@ -855,6 +855,45 @@ In this example, if the first rule:
   - `when: on_success` attribute if the second rule does not match. The third
     rule will always match when reached because it has no conditional clauses.
 
+#### Behaviour differences using `rules:`
+
+Manual jobs:
+
+- Pipelines pass when they contain jobs configured as `when: manual` that did
+  not get triggered. They show as `allowed to fail` in the job list views.
+- Jobs configured with `rules:manual` do not work the same way. The
+  `allow to fail` property is not set automatically. This needs to be done
+  explicitly in the CI code with `allow_failure: true`
+
+For example, this job will be set `allowed to fail`:
+
+```yaml
+job:
+  script: "echo Hello, Rules!"
+  when: manual
+```
+
+This job will not be set `allowed to fail` and so the pipeline will be `blocked`.
+
+```yaml
+job:
+  script: "echo Hello, Rules!"
+  rules:
+    - if: '$CI'
+      when: manual
+```
+
+Add an `allow_failure` clause to get the same behaviour:
+
+```yaml
+job:
+  script: "echo Hello, Rules!"
+  rules:
+    - if: '$CI'
+      when: manual
+  allow_failure: true
+```
+
 #### `rules:if`
 
 `rules:if` differs slightly from `only:variables` by accepting only a single
