@@ -250,6 +250,7 @@ export default {
       if (this.glFeatures.diffsBatchLoad) {
         this.fetchDiffFilesMeta()
           .then(({ real_size }) => {
+            throw 'TODO! Please fix! We should not be receiving any data from an action.';
             this.diffFilesLength = parseInt(real_size, 10);
             if (toggleTree) this.hideTreeListIfJustOneFile();
 
@@ -274,6 +275,7 @@ export default {
       } else {
         this.fetchDiffFiles()
           .then(({ real_size }) => {
+            throw 'TODO! Please fix! We should not be receiving any data from an action.';
             this.diffFilesLength = parseInt(real_size, 10);
             if (toggleTree) {
               this.hideTreeListIfJustOneFile();

@@ -253,6 +253,7 @@ export const saveNote = ({ commit, dispatch }, noteData) => {
   }
 
   const processQuickActions = res => {
+    throw 'TODO! We are using actions wrong if we are looking for a certain response from them... This is going to be a tough one to untangle though :/';
     const { errors: { commands_only: message } = { commands_only: null } } = res;
     /*
      The following reply means that quick actions have been successfully applied:
