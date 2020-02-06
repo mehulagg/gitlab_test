@@ -197,6 +197,7 @@ Example response:
   "total_size": 350224384
 }
 ```
+`total_size` is in bytes.
 
 ## Delete a registry repository tag
 
