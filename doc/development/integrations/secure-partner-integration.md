@@ -5,7 +5,7 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
 ## What is the Desired Developer Workflow?
 
 - Developers want to write their code, and not need to leave context to consume feedback and critical data about the item they are working on.
-- During the Gitlab CI/CD step Developers submit changes via a branch which triggers a pipeline and its associated jobs on this updated code. Then the merge request (MR) is where it is best to review these changes and the corresponding security analyses.
+- During the GitLab CI/CD step Developers submit changes via a branch which triggers a pipeline and its associated jobs on this updated code. Then the merge request (MR) is where it is best to review these changes and the corresponding security analyses.
 - Jobs serve a variety of purposes, for this feature we are concerned with ones that have Security, Policy, or Compliance implications. The job will report back on its status, and create a [job artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html) as a result.
 - Feedback about the findings are shown in the [Merge Request Security Widget](https://docs.gitlab.com/ee/user/project/merge_requests/#security-reports-ultimate)
 - A developer may expand and review a summary of the findings in the MR report, and then view more information as needed.
