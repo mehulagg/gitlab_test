@@ -87,9 +87,12 @@ To manually enable GitLab CI/CD for your repository:
    [trigger pull mirroring](../../api/projects.md#start-the-pull-mirroring-process-for-a-project-starter),
    using the GitLab personal access token we just created:
 
+
    ```plaintext
    https://gitlab.com/api/v4/projects/<NAMESPACE>%2F<PROJECT>/mirror/pull?private_token=<PERSONAL_ACCESS_TOKEN>
    ```
+
+   Be sure to select the **Let me select individual events** option, then check the `Pull requests` and `Pushes` boxes, as this allows you to use [pipelines for external pull requests](https://docs.gitlab.com/ee/ci/ci_cd_for_external_repos/#pipelines-for-external-pull-requests).
 
    ![Create web hook](img/github_push_webhook.png)
 
