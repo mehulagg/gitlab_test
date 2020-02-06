@@ -52,9 +52,9 @@ class IdentityVisitor < Scim::Kit::V2::Filter::Visitor
 
   def query_for(conditions, invert: false)
     if invert
-      saml_provider.identities.joins(:user).where.not(conditions)
+      saml_provider.identities.with_user.where.not(conditions)
     else
-      saml_provider.identities.joins(:user).where(conditions)
+      saml_provider.identities.with_user.where(conditions)
     end
   end
 

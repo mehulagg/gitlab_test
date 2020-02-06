@@ -15,6 +15,7 @@ class Identity < ApplicationRecord
 
   scope :for_user, ->(user) { where(user: user) }
   scope :with_provider, ->(provider) { where(provider: provider) }
+  scope :with_user, -> { joins(:user) }
   scope :with_extern_uid, ->(provider, extern_uid) do
     iwhere(extern_uid: normalize_uid(provider, extern_uid)).with_provider(provider)
   end
