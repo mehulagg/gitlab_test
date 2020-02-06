@@ -146,7 +146,7 @@ Complementary reads:
 ## Integration guides
 
 - [Jira Connect app](integrations/jira_connect.md)
-- [Secure Partner Integration](integrations/secure-partner-integration.md)
+- [Secure Partner Integration](integrations/secure_partner_integration.md)
 
 ## Testing guides
 
