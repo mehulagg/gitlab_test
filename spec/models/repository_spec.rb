@@ -502,27 +502,17 @@ describe Repository do
 
     let(:merge_state_hash) do
       {
-        "test" => false,
-        "beep" => false,
-        "boop" => false,
-        "definitely_merged" => true
+        "test" => "false",
+        "beep" => "false",
+        "boop" => "false",
+        "definitely_merged" => "true"
       }
     end
 
-    let_it_be(:cache) do
-      caching_config_hash = Gitlab::Redis::Cache.params
-      ActiveSupport::Cache.lookup_store(:redis_cache_store, caching_config_hash)
-    end
-
-    let(:repository_cache) do
-      Gitlab::RepositoryCache.new(repository, backend: Rails.cache)
-    end
-
-    let(:cache_key) { repository_cache.cache_key(:merged_branch_names) }
+    let(:cache) { repository.send(:redis_hash_cache) }
+    let(:cache_key) { cache.cache_key(:merged_branch_names) }
 
     before do
-      allow(Rails).to receive(:cache) { cache }
-      allow(repository).to receive(:cache) { repository_cache }
       allow(repository.raw_repository).to receive(:merged_branch_names).with(branch_names).and_return(already_merged)
     end
 
@@ -531,14 +521,14 @@ describe Repository do
 
     context "cache is empty" do
       before do
-        cache.delete(cache_key)
+        cache.delete(:merged_branch_names)
       end
 
       it { is_expected.to eq(already_merged) }
 
       describe "cache values" do
         it "writes the values to redis" do
-          expect(cache).to receive(:write).with(cache_key, merge_state_hash, expires_in: Repository::MERGED_BRANCH_NAMES_CACHE_DURATION)
+          expect(cache).to receive(:write).with(:merged_branch_names, merge_state_hash)
 
           subject
         end
@@ -546,14 +536,14 @@ describe Repository do
         it "matches the supplied hash" do
           subject
 
-          expect(cache.read(cache_key)).to eq(merge_state_hash)
+          expect(cache.read_members(:merged_branch_names, branch_names)).to eq(merge_state_hash)
         end
       end
     end
 
     context "cache is not empty" do
       before do
-        cache.write(cache_key, merge_state_hash)
+        cache.write(:merged_branch_names, merge_state_hash)
       end
 
       it { is_expected.to eq(already_merged) }
@@ -569,7 +559,7 @@ describe Repository do
       before do
         allow(repository.raw_repository).to receive(:merged_branch_names).with(["boop"]).and_return([])
         hash = merge_state_hash.except("boop")
-        cache.write(cache_key, hash)
+        cache.write(:merged_branch_names, hash)
       end
 
       it { is_expected.to eq(already_merged) }
