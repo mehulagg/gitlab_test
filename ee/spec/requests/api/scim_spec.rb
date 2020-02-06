@@ -32,7 +32,7 @@ describe API::Scim do
       end
 
       it 'responds with an error for unsupported filters' do
-        get scim_api("scim/v2/groups/#{group.full_path}/Users?filter=id ne \"#{identity.extern_uid}\"")
+        get scim_api("scim/v2/groups/#{group.full_path}/Users?filter=id lt \"#{identity.extern_uid}\"")
 
         expect(response).to have_gitlab_http_status(412)
       end
