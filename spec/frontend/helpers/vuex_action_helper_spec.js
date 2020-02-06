@@ -4,30 +4,15 @@ import axios from '~/lib/utils/axios_utils';
 import testAction from './vuex_action_helper';
 
 describe('VueX test helper (testAction)', () => {
-  let originalExpect;
-  let assertion;
   let mock;
   const noop = () => {};
 
   beforeEach(() => {
     mock = new MockAdapter(axios);
-    /**
-     * In order to test the helper properly, we need to overwrite the Jest
-     * `expect` helper.  We test that the testAction helper properly passes the
-     * dispatched actions/committed mutations to the Jest helper.
-     */
-    originalExpect = expect;
-    assertion = null;
-    global.expect = actual => ({
-      toEqual: () => {
-        originalExpect(actual).toEqual(assertion);
-      },
-    });
   });
 
   afterEach(() => {
     mock.restore();
-    global.expect = originalExpect;
   });
 
   it('properly passes state and payload to action', () => {
@@ -35,13 +20,11 @@ describe('VueX test helper (testAction)', () => {
     const examplePayload = { BAZ: 73, BIZ: 55 };
 
     const action = ({ state }, payload) => {
-      originalExpect(state).toEqual(exampleState);
-      originalExpect(payload).toEqual(examplePayload);
+      expect(state).toEqual(exampleState);
+      expect(payload).toEqual(examplePayload);
     };
 
-    assertion = { mutations: [], actions: [] };
-
-    testAction(action, examplePayload, exampleState);
+    return testAction(action, examplePayload, exampleState);
   });
 
   describe('given a sync action', () => {
@@ -50,7 +33,7 @@ describe('VueX test helper (testAction)', () => {
         commit('MUTATION');
       };
 
-      assertion = { mutations: [{ type: 'MUTATION' }], actions: [] };
+      const assertion = { mutations: [{ type: 'MUTATION' }], actions: [] };
 
       testAction(action, null, {}, assertion.mutations, assertion.actions, noop);
     });
@@ -60,19 +43,19 @@ describe('VueX test helper (testAction)', () => {
         dispatch('ACTION');
       };
 
-      assertion = { actions: [{ type: 'ACTION' }], mutations: [] };
+      const assertion = { actions: [{ type: 'ACTION' }], mutations: [] };
 
       testAction(action, null, {}, assertion.mutations, assertion.actions, noop);
     });
 
     it('works with done callback once finished', done => {
-      assertion = { mutations: [], actions: [] };
+      const assertion = { mutations: [], actions: [] };
 
       testAction(noop, null, {}, assertion.mutations, assertion.actions, done);
     });
 
     it('returns a promise', done => {
-      assertion = { mutations: [], actions: [] };
+      const assertion = { mutations: [], actions: [] };
 
       testAction(noop, null, {}, assertion.mutations, assertion.actions)
         .then(done)
@@ -82,7 +65,6 @@ describe('VueX test helper (testAction)', () => {
 
   describe('given an async action (returning a promise)', () => {
     let lastError;
-    const data = { FOO: 'BAR' };
 
     const asyncAction = ({ commit, dispatch }) => {
       dispatch('ACTION');
@@ -96,7 +78,6 @@ describe('VueX test helper (testAction)', () => {
         })
         .then(() => {
           commit('SUCCESS');
-          return data;
         });
     };
 
@@ -107,33 +88,32 @@ describe('VueX test helper (testAction)', () => {
     it('works with done callback once finished', done => {
       mock.onGet(TEST_HOST).replyOnce(200, 42);
 
-      assertion = { mutations: [{ type: 'SUCCESS' }], actions: [{ type: 'ACTION' }] };
+      const assertion = { mutations: [{ type: 'SUCCESS' }], actions: [{ type: 'ACTION' }] };
 
       testAction(asyncAction, null, {}, assertion.mutations, assertion.actions, done);
     });
 
-    it('returns original data of successful promise while checking actions/mutations', done => {
+    it('fails spec if action returns data', () => {
       mock.onGet(TEST_HOST).replyOnce(200, 42);
 
-      assertion = { mutations: [{ type: 'SUCCESS' }], actions: [{ type: 'ACTION' }] };
+      const badAction = () => Promise.resolve('something');
 
-      testAction(asyncAction, null, {}, assertion.mutations, assertion.actions)
-        .then(res => {
-          originalExpect(res).toEqual(data);
-          done();
-        })
-        .catch(done.fail);
+      return expect(testAction(badAction, null, {})).rejects.toThrow(
+        expect.objectContaining({
+          message: expect.stringContaining('toBeUndefined'),
+        }),
+      );
     });
 
     it('returns original error of rejected promise while checking actions/mutations', done => {
       mock.onGet(TEST_HOST).replyOnce(500, '');
 
-      assertion = { mutations: [{ type: 'ERROR' }], actions: [{ type: 'ACTION' }] };
+      const assertion = { mutations: [{ type: 'ERROR' }], actions: [{ type: 'ACTION' }] };
 
       testAction(asyncAction, null, {}, assertion.mutations, assertion.actions)
         .then(done.fail)
         .catch(error => {
-          originalExpect(error).toBe(lastError);
+          expect(error).toBe(lastError);
           done();
         });
     });
@@ -159,7 +139,7 @@ describe('VueX test helper (testAction)', () => {
 
     mock.onGet(TEST_HOST).replyOnce(200, 42);
 
-    assertion = { mutations: [{ type: 'SUCCESS' }], actions: [{ type: 'ACTION' }] };
+    const assertion = { mutations: [{ type: 'SUCCESS' }], actions: [{ type: 'ACTION' }] };
 
     testAction(asyncAction, null, {}, assertion.mutations, assertion.actions, done);
   });

@@ -75,7 +75,9 @@ export default (
     return Promise.resolve();
   };
 
-  const validateResults = () => {
+  const validateResults = returnValue => {
+    expect(returnValue).toBeUndefined();
+
     expect({
       mutations,
       actions,
@@ -97,8 +99,6 @@ export default (
       throw error;
     })
     .then(data => {
-      expect(data).toBeFalsy();
-
-      validateResults();
+      validateResults(data);
     });
 };
