@@ -111,7 +111,7 @@ module Gitlab
         new_values = {}
 
         # Run the block, which updates the new_values hash
-        block.call(missing, new_values)
+        yield(missing, new_values)
 
         # Write the new values to the hset
         write(key, new_values)
@@ -140,11 +140,11 @@ module Gitlab
       cache_hits = cache_values.delete_if { |_, v| v.nil? }
 
       # Increment the counter if we have hits
-      metrics_hit_counter.increment(full_hit: missing_keys.size == 0, store_type: key) if cache_hits.any?
+      metrics_hit_counter.increment(full_hit: missing_keys.empty?, store_type: key) if cache_hits.any?
 
       # Track the number of hits we got
       metrics_hit_histogram.observe({ type: "hits", store_type: key }, cache_hits.size)
-      metrics_hit_histogram.observe({ type: "misses", store_type: key}, missing_keys.size)
+      metrics_hit_histogram.observe({ type: "misses", store_type: key }, missing_keys.size)
     end
 
     def metrics_hit_counter
