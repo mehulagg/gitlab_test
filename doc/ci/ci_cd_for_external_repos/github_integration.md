@@ -87,7 +87,6 @@ To manually enable GitLab CI/CD for your repository:
    [trigger pull mirroring](../../api/projects.md#start-the-pull-mirroring-process-for-a-project-starter),
    using the GitLab personal access token we just created:
 
-
    ```plaintext
    https://gitlab.com/api/v4/projects/<NAMESPACE>%2F<PROJECT>/mirror/pull?private_token=<PERSONAL_ACCESS_TOKEN>
    ```
