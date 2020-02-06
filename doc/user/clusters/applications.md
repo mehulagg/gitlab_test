@@ -444,9 +444,10 @@ chart is used to install this application with a
 file.
 
 NOTE: **Note:**
-The chart will deploy 4 Elasticsearch nodes: 2 masters, 1 data and 1 client node,
-with resource requests totalling 0.1 CPU and 3GB RAM. Each data node requests 1.5GB of memory,
+The chart will deploy 4 Elasticsearch nodes: 1 master, 2 data and 1 client node,
+with resource requests totalling 0.1 CPU and 4GB RAM. Each data node requests 1.5GB of memory,
 which makes it incompatible with clusters of `f1-micro` and `g1-small` instance types.
+Additionally, your cluster size needs to be at least 2.
 
 ## Install using GitLab CI (alpha)
 
