@@ -2,9 +2,9 @@
 
 ## Infrastructure as Code, GitOps, and related buzzwords
 
-Infrastructure as Code (IaC) is the approach of provisioning, configuring, running and
+Infrastructure as Code (IaC) is the approach of provisioning, configuring, running, and
 destroying infrastructure elements using code. Infrastructure can mean anything
-from installing an OS to bare-metal servers through EC2 instances, setting up and
+from installing an OS to bare-metal servers through Elastic Cloud Compute (EC2) instances, setting up and
 scaling clusters, or just managing your GitLab instance, and connecting your cluster
 with a project. Running these tools using code, instead of manual administration is the territory of IaC.
 
@@ -16,22 +16,22 @@ every type of infrastructure as code project that's executed in a continuous del
 job attached to a Git repo, it's not about Kubernetes management only.
 
 While managing Kubernetes with GitOps provides much value, many companies don't run
-Kubernetes or beside K8s they have other infrastructure needs too. Today the *de facto standard*
+Kubernetes or they have other infrastructure needs beyond Kubernetes. Today the *de facto standard*
 for generic infrastructure as code management is Terraform. Terraform provides various
 providers to manage different infrastructure types. This way you can manage your GitLab
-instance, an EKS, GKS or self-hosted Kubernetes cluster all from Terraform. Obviously,
-you can run your Terraform code from Git too. Thus you get all the benefits of GitOps
+instance, an EKS, GKS or self-hosted Kubernetes cluster all from Terraform.
+Alternatively, you can run your Terraform code from Git. Thus you get all the benefits of GitOps
 with it as well.
 
 ### What is the best option for you
 
-The best option depends on your needs, the technology background and culture of your DevOps team. Making a technology
+The best option depends on your needs, the technology background, and culture of your DevOps team. Making a technology
 investment is a tough decision, and we obviously can not and do not want to provide here a generic, all-encompassing response. Still, we would like to point out a few questions and their consequences that might help you to follow along with the GitLab recommended Infrastructure as Code Flow.
 
 When to use Terraform?
 
 - If many developers are expected to touch and modify your infrastructure code, we recommend Terraform.
-- If compliance is important, we recommend Terraform, as its state file might already fulfil your needs.
+- If compliance is important, we recommend Terraform, as its state file might already fulfill your needs.
 
 When not to use Terraform?
 
@@ -55,7 +55,7 @@ https://www.youtube.com/watch?v=MOALiliVoeg
 
 ## Application code and infrastructure code
 
-Basically, we recommend to separate your application code from your infrastructure code. For very simple infrastructures, like
+We recommend to separate your application code from your infrastructure code. For very simple infrastructures, like
 serverless functions, the infrastructure code might stay beside your application code. For every other case, often these
 codebases are managed by different sets of people and in different intervals. Moreover by separating your application and infrastructure codes, you can separate your CI
 and CD pipelines that simplifies debugging, maintenance, and allows for better authorization management.
@@ -68,12 +68,12 @@ recommendation is to use the application CI job to build and push [container ima
 Many users can re-use a single infrastructure as code repo for different application projects by setting appropriate
 environment variables for the CD job.
 
-## Infrastructure code organisation
+## Infrastructure code organization
 
-Depending on the diversity of your infrastructure you might have one or many infrastructure projects. Our recommendation
-is to always aim for a modular setup. You can either store your modules together with your running terraform code, or as
-separate projects, each being Git-tagged, and reference them from your main terraform code, or by using a private
-terraform module registry. For versioning reasons, we recommend against storing the modules together with your main code.
+Depending on the diversity of your infrastructure, you might have one or many infrastructure projects. Our recommendation
+is to always aim for a modular setup. You can either store your modules together with your running Terraform code, or as
+separate projects, each being Git-tagged, and reference them from your main Terraform code, or by using a private
+Terraform module registry. For versioning reasons, we recommend against storing the modules together with your main code.
 
 ```
 Example code here on how to reference a module stored in another GitLab repo
@@ -132,7 +132,7 @@ merge trains.
 
 ### Secrets management
 
-Every secure key that finally ends in the .tfstate file should be time-restricted,
+Every secure key that finally ends in the `.tfstate` file should be time-restricted,
 and automatically expire once the infra is ready.
 
 Long living passwords (e.g. db password) should be retrieved directly from Vault
