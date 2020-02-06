@@ -7,7 +7,9 @@ exports[`IDE error message component renders error message 1`] = `
       <use href=\\"#close\\"></use>
     </svg></button>
   <!---->
-  <div class=\\"gl-alert-body\\"><span>some <strong>text</strong></span> <span class=\\"gl-spinner-container\\" style=\\"display: none;\\"><span aria-label=\\"Loading\\" aria-hidden=\\"true\\" class=\\"gl-spinner gl-spinner-orange gl-spinner-sm\\"></span></span></div>
+  <div class=\\"gl-alert-body\\"><span>some <strong>text</strong></span>
+    <glloadingicon-stub label=\\"Loading\\" size=\\"sm\\" color=\\"orange\\" inline=\\"true\\" style=\\"display: none;\\"></glloadingicon-stub>
+  </div>
   <div class=\\"gl-alert-actions\\"><button type=\\"button\\" class=\\"btn gl-alert-action btn-danger btn-md new-gl-button\\">
       <!---->
       test action

@@ -9,12 +9,14 @@ const mockMessage = {
   actionPayload: 'testActionPayload',
 };
 
-const createComponent = function(messageOptions = {}, options = {}) {
+const createComponent = function(messageOptions = {}) {
   return mount(ErrorMessage, {
     propsData: {
       message: Object.assign({}, mockMessage, messageOptions),
     },
-    ...options,
+    stubs: {
+      GlLoadingIcon: true,
+    },
   });
 };
 
