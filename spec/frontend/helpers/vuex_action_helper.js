@@ -71,6 +71,8 @@ export default (
     }
 
     actions.push(dispatchedAction);
+
+    return Promise.resolve();
   };
 
   const validateResults = () => {
@@ -95,7 +97,8 @@ export default (
       throw error;
     })
     .then(data => {
+      expect(data).toBeFalsy();
+
       validateResults();
-      return data;
     });
 };
