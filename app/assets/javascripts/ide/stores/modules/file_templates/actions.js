@@ -43,7 +43,7 @@ export const fetchTemplateTypes = ({ dispatch, state, rootState }) => {
       })
       .catch(() => dispatch('receiveTemplateTypesError'));
 
-  return fetchPages();
+  return fetchPages().then(() => {});
 };
 
 export const setSelectedTemplateType = ({ commit, dispatch, rootGetters }, type) => {

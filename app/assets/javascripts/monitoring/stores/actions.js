@@ -239,8 +239,7 @@ export const duplicateSystemDashboard = ({ state }, payload) => {
 
   return axios
     .post(state.dashboardsEndpoint, params)
-    .then(response => response.data)
-    .then(data => data.dashboard)
+    .then(() => {})
     .catch(error => {
       const { response } = error;
       if (response && response.data && response.data.error) {

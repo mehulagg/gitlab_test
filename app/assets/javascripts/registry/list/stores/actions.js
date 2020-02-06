@@ -34,9 +34,9 @@ export const fetchList = ({ commit }, { repo, page }) => {
     });
 };
 
-export const deleteItem = (_, item) => axios.delete(item.destroyPath);
+export const deleteItem = (_, item) => axios.delete(item.destroyPath).then(() => {});
 export const multiDeleteItems = (_, { path, items }) =>
-  axios.delete(path, { params: { ids: items } });
+  axios.delete(path, { params: { ids: items } }).then(() => {});
 
 export const setMainEndpoint = ({ commit }, data) => commit(types.SET_MAIN_ENDPOINT, data);
 export const setIsDeleteDisabled = ({ commit }, data) => commit(types.SET_IS_DELETE_DISABLED, data);

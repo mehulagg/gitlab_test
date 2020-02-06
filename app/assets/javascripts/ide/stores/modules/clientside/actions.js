@@ -5,7 +5,7 @@ export const pingUsage = ({ rootGetters }) => {
 
   const url = `${projectUrl}/usage_ping/web_ide_clientside_preview`;
 
-  return axios.post(url);
+  return axios.post(url).then(() => {});
 };
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests

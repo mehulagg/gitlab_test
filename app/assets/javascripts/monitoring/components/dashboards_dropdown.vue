@@ -96,6 +96,8 @@ export default {
           const dashboard =
             this.form.branch === this.defaultBranch ? createdDashboard : this.selectedDashboard;
           this.$emit(events.selectDashboard, dashboard);
+
+          throw 'TODO! Please fix! We should not be receiving any data from an action.';
         })
         .catch(error => {
           this.loading = false;

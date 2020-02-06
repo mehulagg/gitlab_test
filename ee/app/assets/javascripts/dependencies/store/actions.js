@@ -7,12 +7,12 @@ export const setDependenciesEndpoint = ({ state, dispatch }, endpoint) =>
     state.listTypes.map(({ namespace }) =>
       dispatch(`${namespace}/setDependenciesEndpoint`, endpoint),
     ),
-  );
+  ).then(() => {});
 
 export const fetchDependencies = ({ state, dispatch }, payload) =>
   Promise.all(
     state.listTypes.map(({ namespace }) => dispatch(`${namespace}/fetchDependencies`, payload)),
-  );
+  ).then(() => {});
 
 export const setCurrentList = ({ state, commit }, payload) => {
   if (state.listTypes.map(({ namespace }) => namespace).includes(payload)) {
