@@ -40,7 +40,7 @@ describe Repository do
   end
 
   describe '#branch_names_contains' do
-    set(:project) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :repository) }
     let(:repository) { project.repository }
 
     subject { repository.branch_names_contains(sample_commit.id) }
@@ -328,7 +328,7 @@ describe Repository do
   end
 
   describe '#new_commits' do
-    set(:project) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :repository) }
     let(:repository) { project.repository }
 
     subject { repository.new_commits(rev) }
@@ -356,7 +356,7 @@ describe Repository do
   end
 
   describe '#commits_by' do
-    set(:project) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :repository) }
     let(:oids) { TestEnv::BRANCH_SHA.values }
 
     subject { project.repository.commits_by(oids: oids) }
@@ -492,6 +492,100 @@ describe Repository do
     end
 
     it { is_expected.to eq(commit.sha) }
+  end
+
+  describe "#merged_branch_names", :clean_gitlab_redis_cache do
+    subject { repository.merged_branch_names(branch_names) }
+
+    let(:branch_names) { %w(test beep boop definitely_merged) }
+    let(:already_merged) { Set.new(["definitely_merged"]) }
+
+    let(:merge_state_hash) do
+      {
+        "test" => false,
+        "beep" => false,
+        "boop" => false,
+        "definitely_merged" => true
+      }
+    end
+
+    let_it_be(:cache) do
+      caching_config_hash = Gitlab::Redis::Cache.params
+      ActiveSupport::Cache.lookup_store(:redis_cache_store, caching_config_hash)
+    end
+
+    let(:repository_cache) do
+      Gitlab::RepositoryCache.new(repository, backend: Rails.cache)
+    end
+
+    let(:cache_key) { repository_cache.cache_key(:merged_branch_names) }
+
+    before do
+      allow(Rails).to receive(:cache) { cache }
+      allow(repository).to receive(:cache) { repository_cache }
+      allow(repository.raw_repository).to receive(:merged_branch_names).with(branch_names).and_return(already_merged)
+    end
+
+    it { is_expected.to eq(already_merged) }
+    it { is_expected.to be_a(Set) }
+
+    context "cache is empty" do
+      before do
+        cache.delete(cache_key)
+      end
+
+      it { is_expected.to eq(already_merged) }
+
+      describe "cache values" do
+        it "writes the values to redis" do
+          expect(cache).to receive(:write).with(cache_key, merge_state_hash, expires_in: Repository::MERGED_BRANCH_NAMES_CACHE_DURATION)
+
+          subject
+        end
+
+        it "matches the supplied hash" do
+          subject
+
+          expect(cache.read(cache_key)).to eq(merge_state_hash)
+        end
+      end
+    end
+
+    context "cache is not empty" do
+      before do
+        cache.write(cache_key, merge_state_hash)
+      end
+
+      it { is_expected.to eq(already_merged) }
+
+      it "doesn't fetch from the disk" do
+        expect(repository.raw_repository).not_to receive(:merged_branch_names)
+
+        subject
+      end
+    end
+
+    context "cache is partially complete" do
+      before do
+        allow(repository.raw_repository).to receive(:merged_branch_names).with(["boop"]).and_return([])
+        hash = merge_state_hash.except("boop")
+        cache.write(cache_key, hash)
+      end
+
+      it { is_expected.to eq(already_merged) }
+
+      it "does fetch from the disk" do
+        expect(repository.raw_repository).to receive(:merged_branch_names).with(["boop"])
+
+        subject
+      end
+    end
+
+    context "requested branches array is empty" do
+      let(:branch_names) { [] }
+
+      it { is_expected.to eq(already_merged) }
+    end
   end
 
   describe '#can_be_merged?' do
@@ -1524,79 +1618,58 @@ describe Repository do
       end
     end
 
-    context 'when two_step_rebase feature is enabled' do
-      before do
-        stub_feature_flags(two_step_rebase: true)
-      end
+    it_behaves_like 'a method that can rebase successfully'
 
-      it_behaves_like 'a method that can rebase successfully'
+    it 'executes the new Gitaly RPC' do
+      expect_any_instance_of(Gitlab::GitalyClient::OperationService).to receive(:rebase)
+      expect_any_instance_of(Gitlab::GitalyClient::OperationService).not_to receive(:user_rebase)
 
-      it 'executes the new Gitaly RPC' do
-        expect_any_instance_of(Gitlab::GitalyClient::OperationService).to receive(:rebase)
-        expect_any_instance_of(Gitlab::GitalyClient::OperationService).not_to receive(:user_rebase)
-
-        repository.rebase(user, merge_request)
-      end
-
-      describe 'rolling back the `rebase_commit_sha`' do
-        let(:new_sha) { Digest::SHA1.hexdigest('foo') }
-
-        it 'does not rollback when there are no errors' do
-          second_response = double(pre_receive_error: nil, git_error: nil)
-          mock_gitaly(second_response)
-
-          repository.rebase(user, merge_request)
-
-          expect(merge_request.reload.rebase_commit_sha).to eq(new_sha)
-        end
-
-        it 'does rollback when a PreReceiveError is encountered in the second step' do
-          second_response = double(pre_receive_error: 'my_error', git_error: nil)
-          mock_gitaly(second_response)
-
-          expect do
-            repository.rebase(user, merge_request)
-          end.to raise_error(Gitlab::Git::PreReceiveError)
-
-          expect(merge_request.reload.rebase_commit_sha).to be_nil
-        end
-
-        it 'does rollback when a GitError is encountered in the second step' do
-          second_response = double(pre_receive_error: nil, git_error: 'git error')
-          mock_gitaly(second_response)
-
-          expect do
-            repository.rebase(user, merge_request)
-          end.to raise_error(Gitlab::Git::Repository::GitError)
-
-          expect(merge_request.reload.rebase_commit_sha).to be_nil
-        end
-
-        def mock_gitaly(second_response)
-          responses = [
-            double(rebase_sha: new_sha).as_null_object,
-            second_response
-          ]
-
-          expect_any_instance_of(
-            Gitaly::OperationService::Stub
-          ).to receive(:user_rebase_confirmable).and_return(responses.each)
-        end
-      end
+      repository.rebase(user, merge_request)
     end
 
-    context 'when two_step_rebase feature is disabled' do
-      before do
-        stub_feature_flags(two_step_rebase: false)
-      end
+    describe 'rolling back the `rebase_commit_sha`' do
+      let(:new_sha) { Digest::SHA1.hexdigest('foo') }
 
-      it_behaves_like 'a method that can rebase successfully'
-
-      it 'executes the deprecated Gitaly RPC' do
-        expect_any_instance_of(Gitlab::GitalyClient::OperationService).to receive(:user_rebase)
-        expect_any_instance_of(Gitlab::GitalyClient::OperationService).not_to receive(:rebase)
+      it 'does not rollback when there are no errors' do
+        second_response = double(pre_receive_error: nil, git_error: nil)
+        mock_gitaly(second_response)
 
         repository.rebase(user, merge_request)
+
+        expect(merge_request.reload.rebase_commit_sha).to eq(new_sha)
+      end
+
+      it 'does rollback when a PreReceiveError is encountered in the second step' do
+        second_response = double(pre_receive_error: 'my_error', git_error: nil)
+        mock_gitaly(second_response)
+
+        expect do
+          repository.rebase(user, merge_request)
+        end.to raise_error(Gitlab::Git::PreReceiveError)
+
+        expect(merge_request.reload.rebase_commit_sha).to be_nil
+      end
+
+      it 'does rollback when a GitError is encountered in the second step' do
+        second_response = double(pre_receive_error: nil, git_error: 'git error')
+        mock_gitaly(second_response)
+
+        expect do
+          repository.rebase(user, merge_request)
+        end.to raise_error(Gitlab::Git::Repository::GitError)
+
+        expect(merge_request.reload.rebase_commit_sha).to be_nil
+      end
+
+      def mock_gitaly(second_response)
+        responses = [
+          double(rebase_sha: new_sha).as_null_object,
+          second_response
+        ]
+
+        expect_any_instance_of(
+          Gitaly::OperationService::Stub
+        ).to receive(:user_rebase_confirmable).and_return(responses.each)
       end
     end
   end
@@ -1784,6 +1857,7 @@ describe Repository do
         :avatar,
         :exists?,
         :root_ref,
+        :merged_branch_names,
         :has_visible_content?,
         :issue_template_names,
         :merge_request_template_names,
@@ -1959,7 +2033,7 @@ describe Repository do
   describe '#expire_branches_cache' do
     it 'expires the cache' do
       expect(repository).to receive(:expire_method_caches)
-        .with(%i(branch_names branch_count has_visible_content?))
+        .with(%i(branch_names merged_branch_names branch_count has_visible_content?))
         .and_call_original
 
       repository.expire_branches_cache
@@ -2450,15 +2524,6 @@ describe Repository do
         2.times { repository.ancestor?(commit.id, ancestor.id) }
       end
 
-      it 'increments a counter with cache hits' do
-        counter = Gitlab::Metrics.counter(:repository_ancestor_calls_total, 'Repository ancestor calls')
-
-        expect do
-          2.times { repository.ancestor?(commit.id, ancestor.id) }
-        end.to change { counter.get(cache_hit: 'true') }.by(1)
-                 .and change { counter.get(cache_hit: 'false') }.by(1)
-      end
-
       it 'returns the value from the request store' do
         repository.__send__(:request_store_cache).write(cache_key, "it's apparent")
 
@@ -2510,7 +2575,7 @@ describe Repository do
   end
 
   describe 'commit cache' do
-    set(:project) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :repository) }
 
     it 'caches based on SHA' do
       # Gets the commit oid, and warms the cache
@@ -2658,7 +2723,7 @@ describe Repository do
   end
 
   describe '#merge_base' do
-    set(:project) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :repository) }
     subject(:repository) { project.repository }
 
     it 'only makes one gitaly call' do
@@ -2717,7 +2782,7 @@ describe Repository do
   end
 
   describe "#blobs_metadata" do
-    set(:project) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :repository) }
     let(:repository) { project.repository }
 
     def expect_metadata_blob(thing)

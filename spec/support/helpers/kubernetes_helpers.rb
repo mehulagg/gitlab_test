@@ -60,6 +60,12 @@ module KubernetesHelpers
       .to_return(status: [404, "Resource Not Found"])
   end
 
+  def stub_kubeclient_discover_knative_found(api_url)
+    WebMock
+      .stub_request(:get, api_url + '/apis/serving.knative.dev/v1alpha1')
+      .to_return(kube_response(kube_knative_discovery_body))
+  end
+
   def stub_kubeclient_service_pods(response = nil, options = {})
     stub_kubeclient_discover(service.api_url)
 
@@ -288,6 +294,13 @@ module KubernetesHelpers
     }
   end
 
+  def kube_knative_discovery_body
+    {
+      "kind" => "APIResourceList",
+      "resources" => []
+    }
+  end
+
   def kube_extensions_v1beta1_discovery_body
     {
       "kind" => "APIResourceList",
@@ -481,7 +494,7 @@ module KubernetesHelpers
       "metadata" => {
         "name" => name,
         "namespace" => namespace,
-        "generate_name" => "generated-name-with-suffix",
+        "generateName" => "generated-name-with-suffix",
         "creationTimestamp" => "2016-11-25T19:55:19Z",
         "annotations" => {
           "app.gitlab.com/env" => environment_slug,
@@ -507,7 +520,7 @@ module KubernetesHelpers
       "metadata" => {
         "name" => name,
         "namespace" => namespace,
-        "generate_name" => "generated-name-with-suffix",
+        "generateName" => "generated-name-with-suffix",
         "creationTimestamp" => "2016-11-25T19:55:19Z",
         "labels" => {
           "serving.knative.dev/service" => name
@@ -538,10 +551,7 @@ module KubernetesHelpers
       },
       "spec" => { "replicas" => 3 },
       "status" => {
-        "observedGeneration" => 4,
-        "replicas" => 3,
-        "updatedReplicas" => 3,
-        "availableReplicas" => 3
+        "observedGeneration" => 4
       }
     }
   end

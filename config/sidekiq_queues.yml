@@ -152,6 +152,8 @@
   - 1
 - - object_storage
   - 1
+- - package_repositories
+  - 1
 - - pages
   - 1
 - - pages_domain_ssl_renewal
@@ -218,10 +220,14 @@
   - 1
 - - repository_update_remote_mirror
   - 1
+- - security_scans
+  - 2
 - - self_monitoring_project_create
   - 2
 - - self_monitoring_project_delete
   - 2
+- - service_desk_email_receiver
+  - 1
 - - system_hook_push
   - 1
 - - todos_destroyer

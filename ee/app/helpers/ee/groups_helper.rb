@@ -13,9 +13,13 @@ module EE
 
     override :group_overview_nav_link_paths
     def group_overview_nav_link_paths
-      super + %w[
-        groups/insights#show
-      ]
+      if ::Feature.enabled?(:analytics_pages_under_group_analytics_sidebar, @group)
+        super
+      else
+        super + %w[
+          groups/insights#show
+        ]
+      end
     end
 
     override :group_nav_link_paths
@@ -106,6 +110,10 @@ module EE
 
       if @group.insights_available?
         links << :group_insights
+      end
+
+      if @group.feature_available?(:productivity_analytics) && can?(current_user, :view_productivity_analytics, @group)
+        links << :productivity_analytics
       end
 
       links

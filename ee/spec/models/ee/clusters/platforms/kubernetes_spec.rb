@@ -141,7 +141,6 @@ describe Clusters::Platforms::Kubernetes do
     let(:pod_name) { 'pod-1' }
     let(:namespace) { 'app' }
     let(:container) { 'some-container' }
-    let(:enable_advanced_querying) { false }
     let(:expected_logs) do
       [
         { message: "Log 1", timestamp: "2019-12-13T14:04:22.123456Z" },
@@ -158,7 +157,6 @@ describe Clusters::Platforms::Kubernetes do
         expect(subject[:status]).to eq(:success)
         expect(subject[:pod_name]).to eq(pod_name)
         expect(subject[:container_name]).to eq(container)
-        expect(subject[:enable_advanced_querying]).to eq(enable_advanced_querying)
       end
     end
 
@@ -177,12 +175,10 @@ describe Clusters::Platforms::Kubernetes do
       context 'when ElasticSearch is enabled' do
         let(:cluster) { create(:cluster, :project, platform_kubernetes: service) }
         let!(:elastic_stack) { create(:clusters_applications_elastic_stack, cluster: cluster) }
-        let(:enable_advanced_querying) { true }
 
         before do
           expect_any_instance_of(::Clusters::Applications::ElasticStack).to receive(:elasticsearch_client).at_least(:once).and_return(Elasticsearch::Transport::Client.new)
           expect_any_instance_of(::Gitlab::Elasticsearch::Logs).to receive(:pod_logs).and_return(expected_logs)
-          stub_feature_flags(enable_cluster_application_elastic_stack: true)
         end
 
         include_examples 'successful log request'
@@ -349,22 +345,22 @@ describe Clusters::Platforms::Kubernetes do
   describe '#calculate_reactive_cache_for' do
     let(:cluster) { create(:cluster, :project, platform_kubernetes: service) }
     let(:service) { create(:cluster_platform_kubernetes, :configured) }
-    let(:namespace) { 'app' }
+    let(:namespace) { 'project-namespace' }
     let(:environment) { instance_double(Environment, deployment_namespace: namespace) }
+    let(:expected_pod_cached_data) do
+      kube_pod.tap { |kp| kp['metadata'].delete('namespace') }
+    end
 
     subject { service.calculate_reactive_cache_for(environment) }
 
-    before do
-      allow(service).to receive(:read_pods).and_return([])
-    end
-
     context 'when kubernetes responds with valid deployments' do
       before do
+        stub_kubeclient_pods(namespace)
         stub_kubeclient_deployments(namespace)
       end
 
       shared_examples 'successful deployment request' do
-        it { is_expected.to include(deployments: [kube_deployment]) }
+        it { is_expected.to include(pods: [expected_pod_cached_data], deployments: [kube_deployment]) }
       end
 
       context 'on a project level cluster' do
@@ -388,6 +384,7 @@ describe Clusters::Platforms::Kubernetes do
 
     context 'when kubernetes responds with 500s' do
       before do
+        stub_kubeclient_pods(namespace)
         stub_kubeclient_deployments(namespace, status: 500)
       end
 
@@ -396,6 +393,7 @@ describe Clusters::Platforms::Kubernetes do
 
     context 'when kubernetes responds with 404s' do
       before do
+        stub_kubeclient_pods(namespace)
         stub_kubeclient_deployments(namespace, status: 404)
       end
 

@@ -74,16 +74,6 @@ describe User do
       end
     end
 
-    describe 'bots & humans' do
-      it 'returns corresponding users' do
-        human = create(:user)
-        bot = create(:user, :bot)
-
-        expect(described_class.humans).to match_array([human])
-        expect(described_class.bots).to match_array([bot])
-      end
-    end
-
     describe 'with_invalid_expires_at_tokens' do
       it 'only includes users with invalid tokens' do
         valid_pat = create(:personal_access_token, expires_at: 7.days.from_now)
@@ -638,61 +628,73 @@ describe User do
     end
 
     context 'when user is active' do
-      context 'when user is a support bot' do
-        let(:user) { create(:user, bot_type: 'support_bot') }
+      context 'when user is internal' do
+        using RSpec::Parameterized::TableSyntax
 
-        it 'returns false' do
-          expect(user.using_license_seat?).to eq false
+        where(:bot_type) do
+          User.bot_types.keys
+        end
+
+        with_them do
+          context 'when user is a bot' do
+            let(:user) { create(:user, bot_type: bot_type) }
+
+            it 'returns false' do
+              expect(user.using_license_seat?).to eq false
+            end
+          end
+        end
+
+        context 'when user is a ghost' do
+          let(:user) { create(:user, ghost: true) }
+
+          it 'returns false' do
+            expect(user.using_license_seat?).to eq false
+          end
         end
       end
 
-      context 'when user is a ghost' do
-        let(:user) { create(:user, ghost: true) }
+      context 'when user is not internal' do
+        context 'when license is nil (core/free/default)' do
+          before do
+            allow(License).to receive(:current).and_return(nil)
+          end
 
-        it 'returns false' do
-          expect(user.using_license_seat?).to eq false
-        end
-      end
-
-      context 'when license is nil (core/free/default)' do
-        before do
-          allow(License).to receive(:current).and_return(nil)
+          it 'returns false if license is nil (core/free/default)' do
+            expect(user.using_license_seat?).to eq false
+          end
         end
 
-        it 'returns false if license is nil (core/free/default)' do
-          expect(user.using_license_seat?).to eq false
-        end
-      end
+        context 'user is guest' do
+          let(:project_guest_user) { create(:project_member, :guest).user }
 
-      context 'user is guest' do
-        let(:project_guest_user) { create(:project_member, :guest).user }
+          it 'returns false if license is ultimate' do
+            create(:license, plan: License::ULTIMATE_PLAN)
 
-        it 'returns false if license is ultimate' do
-          create(:license, plan: License::ULTIMATE_PLAN)
+            expect(project_guest_user.using_license_seat?).to eq false
+          end
 
-          expect(project_guest_user.using_license_seat?).to eq false
-        end
+          it 'returns true if license is not ultimate and not nil' do
+            create(:license, plan: License::STARTER_PLAN)
 
-        it 'returns true if license is not ultimate and not nil' do
-          create(:license, plan: License::STARTER_PLAN)
-
-          expect(project_guest_user.using_license_seat?).to eq true
-        end
-      end
-
-      context 'user is admin without projects' do
-        let(:user) { create(:user, admin: true) }
-
-        it 'returns false if license is ultimate' do
-          create(:license, plan: License::ULTIMATE_PLAN)
-
-          expect(user.using_license_seat?).to eq false
+            expect(project_guest_user.using_license_seat?).to eq true
+          end
         end
 
-        it 'returns true if license is not ultimate and not nil' do
-          create(:license, plan: License::STARTER_PLAN)
+        context 'user is admin without projects' do
+          let(:user) { create(:user, admin: true) }
 
-          expect(user.using_license_seat?).to eq true
+          it 'returns false if license is ultimate' do
+            create(:license, plan: License::ULTIMATE_PLAN)
+
+            expect(user.using_license_seat?).to eq false
+          end
+
+          it 'returns true if license is not ultimate and not nil' do
+            create(:license, plan: License::STARTER_PLAN)
+
+            expect(user.using_license_seat?).to eq true
+          end
         end
       end
     end
@@ -821,34 +823,6 @@ describe User do
         username = described_class.username_suggestion(name)
 
         expect(username).to eq('')
-      end
-    end
-  end
-
-  describe '#security_dashboard_project_ids' do
-    let(:project) { create(:project) }
-
-    context 'when the user can read all resources' do
-      it "returns the ids for all of the user's security dashboard projects" do
-        admin = create(:admin)
-        auditor = create(:auditor)
-
-        admin.security_dashboard_projects << project
-        auditor.security_dashboard_projects << project
-
-        expect(admin.security_dashboard_project_ids).to eq([project.id])
-        expect(auditor.security_dashboard_project_ids).to eq([project.id])
-      end
-    end
-
-    context 'when the user cannot read all resources' do
-      it 'returns the ids for security dashboard projects visible to the user' do
-        user = create(:user)
-        member_project = create(:project)
-        member_project.add_developer(user)
-        user.security_dashboard_projects << [project, member_project]
-
-        expect(user.security_dashboard_project_ids).to eq([member_project.id])
       end
     end
   end

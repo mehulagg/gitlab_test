@@ -170,6 +170,20 @@ describe Project do
         expect(described_class.with_active_prometheus_service).not_to include(project_without_active_prometheus_service)
       end
     end
+
+    describe '.find_by_service_desk_project_key' do
+      it 'returns the correct project' do
+        project2 = create(:project)
+        create(:service_desk_setting, project: project, project_key: 'key1')
+        create(:service_desk_setting, project: project2, project_key: 'key2')
+
+        expect(Project.find_by_service_desk_project_key('key2')).to eq(project2)
+      end
+
+      it 'returns nil if there is no project with the key' do
+        expect(Project.find_by_service_desk_project_key('some_key')).to be_nil
+      end
+    end
   end
 
   describe 'validations' do
@@ -423,7 +437,7 @@ describe Project do
   end
 
   describe '#environments_for_scope' do
-    set(:project) { create(:project) }
+    let_it_be(:project, reload: true) { create(:project) }
 
     before do
       create_list(:environment, 2, project: project)
@@ -784,8 +798,8 @@ describe Project do
   end
 
   describe '#shared_runners_limit_namespace' do
-    set(:root_ancestor) { create(:group) }
-    set(:group) { create(:group, parent: root_ancestor) }
+    let_it_be(:root_ancestor) { create(:group) }
+    let_it_be(:group) { create(:group, parent: root_ancestor) }
     let(:project) { create(:project, namespace: group) }
 
     subject { project.shared_runners_limit_namespace }
@@ -2319,7 +2333,7 @@ describe Project do
       let(:project) { create(:project) }
 
       before do
-        stub_licensed_features(marking_project_for_deletion: true)
+        stub_licensed_features(adjourned_deletion_for_projects_and_groups: true)
       end
 
       context 'when number of days is set to more than 0' do
@@ -2343,7 +2357,7 @@ describe Project do
       let(:project) { create(:project) }
 
       before do
-        stub_licensed_features(marking_project_for_deletion: false)
+        stub_licensed_features(adjourned_deletion_for_projects_and_groups: false)
       end
 
       context 'when number of days is set to more than 0' do
@@ -2472,6 +2486,38 @@ describe Project do
       expect(design).to receive(:before_delete)
 
       project.expire_caches_before_rename('foo')
+    end
+  end
+
+  describe '#template_source?' do
+    let_it_be(:group) { create(:group, :private) }
+    let_it_be(:subgroup) { create(:group, :private, parent: group) }
+    let_it_be(:project_template) { create(:project, group: subgroup) }
+
+    context 'when project is not template source' do
+      it 'returns false' do
+        expect(project.template_source?).to be_falsey
+      end
+    end
+
+    context 'instance-level custom project templates' do
+      before do
+        stub_ee_application_setting(custom_project_templates_group_id: subgroup.id)
+      end
+
+      it 'returns true' do
+        expect(project_template.template_source?).to be_truthy
+      end
+    end
+
+    context 'group-level custom project templates' do
+      before do
+        group.update(custom_project_templates_group_id: subgroup.id)
+      end
+
+      it 'returns true' do
+        expect(project_template.template_source?).to be_truthy
+      end
     end
   end
 end

@@ -96,9 +96,8 @@ to integrate with.
 
 1. Navigate to the [Integrations page](project_services.md#accessing-the-project-services)
 1. Click the **Prometheus** service
-1. Provide the base URL of the your server, for example `http://prometheus.example.com/`.
-   The **Test Settings** button can be used to confirm connectivity from GitLab
-   to the Prometheus server.
+1. Provide the base URL of your server, for example `http://prometheus.example.com/`
+1. Click **Save changes**
 
 ![Configure Prometheus Service](img/prometheus_service_configuration.png)
 
@@ -330,6 +329,33 @@ Note the following properties:
 
 ![anomaly panel type](img/prometheus_dashboard_anomaly_panel_type.png)
 
+#### Column
+
+To add a column panel type to a dashboard, look at the following sample dashboard file:
+
+```yaml
+dashboard: 'Dashboard Title'
+panel_groups:
+  - group: 'Group title'
+    panels:
+      - title: "Column"
+        type: "column"
+        metrics:
+        - id: 1024_memory
+          query: 'avg(sum(container_memory_usage_bytes{container_name!="POD",pod_name=~"^%{ci_environment_slug}-([^c].*|c([^a]|a([^n]|n([^a]|a([^r]|r[^y])))).*|)-(.*)",namespace="%{kube_namespace}"}) by (job)) without (job) / count(avg(container_memory_usage_bytes{container_name!="POD",pod_name=~"^%{ci_environment_slug}-([^c].*|c([^a]|a([^n]|n([^a]|a([^r]|r[^y])))).*|)-(.*)",namespace="%{kube_namespace}"}) without (job)) /1024/1024'
+          unit: MB
+          label: "Memory Usage"
+```
+
+Note the following properties:
+
+| Property | Type | Required | Description |
+| ------ | ------ | ------ | ------ |
+| type | string | yes | Type of panel to be rendered. For column panel types, set to `column` |
+| query_range | yes | yes | For column panel types, you must use a [range query](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries) |
+
+![anomaly panel type](img/prometheus_dashboard_column_panel_type.png)
+
 ##### Single Stat
 
 To add a single stat panel type to a dashboard, look at the following sample dashboard file:
@@ -540,24 +566,24 @@ Grafana metrics can be embedded in [GitLab Flavored Markdown](../../markdown.md)
 
 #### Embedding charts via Grafana Rendered Images
 
-It is possible to embed live [Grafana](https://docs.gitlab.com/omnibus/settings/grafana.html) charts in issues, as a [direct linked rendered image](https://grafana.com/docs/reference/sharing/#direct-link-rendered-image).
+It is possible to embed live [Grafana](https://docs.gitlab.com/omnibus/settings/grafana.html) charts in issues, as a [direct linked rendered image](https://grafana.com/docs/grafana/latest/reference/share_panel/#direct-link-rendered-image).
 
 The sharing dialog within Grafana provides the link, as highlighted below.
 
 ![Grafana Direct Linked Rendered Image](img/grafana_live_embed.png)
 
 NOTE: **Note:**
-For this embed to display correctly the Grafana instance must be available to the target user, either as a public dashboard or on the same network.
+For this embed to display correctly, the Grafana instance must be available to the target user, either as a public dashboard or on the same network.
 
 Copy the link and add an image tag as [inline HTML](../../markdown.md#inline-html) in your Markdown. You may tweak the query parameters as required. For instance, removing the `&from=` and `&to=` parameters will give you a live chart. Here is example markup for a live chart from GitLab's public dashboard:
 
 ```html
-<img src="https://dashboards.gitlab.com/render/d-solo/RZmbBr7mk/gitlab-triage?orgId=1&refresh=30s&var-env=gprd&var-environment=gprd&var-prometheus=prometheus-01-inf-gprd&var-prometheus_app=prometheus-app-01-inf-gprd&var-backend=All&var-type=All&var-stage=main&panelId=1247&width=1000&height=300"/>
+<img src="https://dashboards.gitlab.com/d/RZmbBr7mk/gitlab-triage?orgId=1&refresh=30s&var-env=gprd&var-environment=gprd&var-prometheus=prometheus-01-inf-gprd&var-prometheus_app=prometheus-app-01-inf-gprd&var-backend=All&var-type=All&var-stage=main&from=1580444107655&to=1580465707655"/>
 ```
 
 This will render like so:
 
-<img src="https://dashboards.gitlab.com/render/d-solo/RZmbBr7mk/gitlab-triage?orgId=1&refresh=30s&var-env=gprd&var-environment=gprd&var-prometheus=prometheus-01-inf-gprd&var-prometheus_app=prometheus-app-01-inf-gprd&var-backend=All&var-type=All&var-stage=main&panelId=1247&width=1000&height=300"/>
+![Grafana dashboard embedded preview](img/grafana_embedded.png)
 
 #### Embedding charts via integration with Grafana HTTP API
 
@@ -574,7 +600,7 @@ Prerequisites for embedding from a Grafana instance:
 
 ##### Setting up the Grafana integration
 
-1. [Generate an Admin-level API Token in Grafana.](https://grafana.com/docs/http_api/auth/#create-api-token)
+1. [Generate an Admin-level API Token in Grafana.](https://grafana.com/docs/grafana/latest/http_api/auth/#create-api-token)
 1. In your GitLab project, navigate to **Settings > Operations > Grafana Authentication**.
 1. To enable the integration, check the "Active" checkbox.
 1. For "Grafana URL", enter the base URL of the Grafana instance.

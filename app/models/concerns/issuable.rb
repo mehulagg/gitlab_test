@@ -108,7 +108,9 @@ module Issuable
       where("NOT EXISTS (SELECT TRUE FROM #{to_ability_name}_assignees WHERE #{to_ability_name}_id = #{to_ability_name}s.id)")
     end
     scope :assigned_to, ->(u) do
-      where("EXISTS (SELECT TRUE FROM #{to_ability_name}_assignees WHERE user_id = ? AND #{to_ability_name}_id = #{to_ability_name}s.id)", u.id)
+      assignees_table = Arel::Table.new("#{to_ability_name}_assignees")
+      sql = assignees_table.project('true').where(assignees_table[:user_id].in(u)).where(Arel::Nodes::SqlLiteral.new("#{to_ability_name}_id = #{to_ability_name}s.id"))
+      where("EXISTS (#{sql.to_sql})")
     end
     # rubocop:enable GitlabSecurity/SqlInjection
 
@@ -127,6 +129,10 @@ module Issuable
     participant :assignees
 
     strip_attributes :title
+
+    def self.locking_enabled?
+      false
+    end
 
     # We want to use optimistic lock for cases when only title or description are involved
     # http://api.rubyonrails.org/classes/ActiveRecord/Locking/Optimistic.html
@@ -263,8 +269,9 @@ module Issuable
         .reorder(Gitlab::Database.nulls_last_order('highest_priority', direction))
     end
 
-    def with_label(title, sort = nil)
-      if title.is_a?(Array) && title.size > 1
+    def with_label(title, sort = nil, not_query: false)
+      multiple_labels = title.is_a?(Array) && title.size > 1
+      if multiple_labels && !not_query
         joins(:labels).where(labels: { title: title }).group(*grouping_columns(sort)).having("COUNT(DISTINCT labels.title) = #{title.size}")
       else
         joins(:labels).where(labels: { title: title })

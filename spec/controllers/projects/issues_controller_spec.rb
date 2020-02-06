@@ -422,7 +422,7 @@ describe Projects::IssuesController do
       context 'when Akismet is enabled and the issue is identified as spam' do
         before do
           stub_application_setting(recaptcha_enabled: true)
-          expect_next_instance_of(AkismetService) do |akismet_service|
+          expect_next_instance_of(Spam::AkismetService) do |akismet_service|
             expect(akismet_service).to receive_messages(spam?: true)
           end
         end
@@ -702,7 +702,7 @@ describe Projects::IssuesController do
 
         context 'when an issue is not identified as spam' do
           before do
-            expect_next_instance_of(AkismetService) do |akismet_service|
+            expect_next_instance_of(Spam::AkismetService) do |akismet_service|
               expect(akismet_service).to receive_messages(spam?: false)
             end
           end
@@ -715,7 +715,7 @@ describe Projects::IssuesController do
         context 'when an issue is identified as spam' do
           context 'when captcha is not verified' do
             before do
-              expect_next_instance_of(AkismetService) do |akismet_service|
+              expect_next_instance_of(Spam::AkismetService) do |akismet_service|
                 expect(akismet_service).to receive_messages(spam?: true)
               end
             end
@@ -954,7 +954,7 @@ describe Projects::IssuesController do
         before do
           stub_feature_flags(allow_possible_spam: false)
 
-          expect_next_instance_of(AkismetService) do |akismet_service|
+          expect_next_instance_of(Spam::AkismetService) do |akismet_service|
             expect(akismet_service).to receive_messages(spam?: false)
           end
         end
@@ -971,7 +971,7 @@ describe Projects::IssuesController do
           end
 
           before do
-            expect_next_instance_of(AkismetService) do |akismet_service|
+            expect_next_instance_of(Spam::AkismetService) do |akismet_service|
               expect(akismet_service).to receive_messages(spam?: true)
             end
           end
@@ -1084,19 +1084,13 @@ describe Projects::IssuesController do
       it 'creates a sentry issue' do
         expect { subject }.to change(SentryIssue, :count)
       end
-
-      it 'with existing issue it will not create an issue' do
-        post_new_issue(sentry_issue_attributes: { sentry_issue_identifier: 1234567 })
-
-        expect { subject }.not_to change(Issue, :count)
-      end
     end
   end
 
   describe 'POST #mark_as_spam' do
     context 'properly submits to Akismet' do
       before do
-        expect_next_instance_of(AkismetService) do |akismet_service|
+        expect_next_instance_of(Spam::AkismetService) do |akismet_service|
           expect(akismet_service).to receive_messages(submit_spam: true)
         end
         expect_next_instance_of(ApplicationSetting) do |setting|
@@ -1129,8 +1123,9 @@ describe Projects::IssuesController do
         sign_in(user)
       end
 
-      it "rejects a developer to destroy an issue" do
+      it "does not delete the issue, returning :not_found" do
         delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: issue.iid }
+
         expect(response).to have_gitlab_http_status(:not_found)
       end
     end
@@ -1142,13 +1137,6 @@ describe Projects::IssuesController do
 
       before do
         sign_in(owner)
-      end
-
-      it "deletes the issue" do
-        delete :destroy, params: { namespace_id: project.namespace, project_id: project, id: issue.iid, destroy_confirm: true }
-
-        expect(response).to have_gitlab_http_status(:found)
-        expect(controller).to set_flash[:notice].to(/The issue was successfully deleted\./)
       end
 
       it "deletes the issue" do

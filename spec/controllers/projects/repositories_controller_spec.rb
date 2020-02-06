@@ -17,6 +17,7 @@ describe Projects::RepositoriesController do
 
     context 'as a user' do
       let(:user) { create(:user) }
+      let(:archive_name) { "#{project.path}-master" }
 
       before do
         project.add_developer(user)
@@ -30,9 +31,18 @@ describe Projects::RepositoriesController do
       end
 
       it 'responds with redirect to the short name archive if fully qualified' do
-        get :archive, params: { namespace_id: project.namespace, project_id: project, id: "master/#{project.path}-master" }, format: "zip"
+        get :archive, params: { namespace_id: project.namespace, project_id: project, id: "master/#{archive_name}" }, format: "zip"
 
         expect(assigns(:ref)).to eq("master")
+        expect(assigns(:filename)).to eq(archive_name)
+        expect(response.header[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with("git-archive:")
+      end
+
+      it 'responds with redirect for a path with multiple slashes' do
+        get :archive, params: { namespace_id: project.namespace, project_id: project, id: "improve/awesome/#{archive_name}" }, format: "zip"
+
+        expect(assigns(:ref)).to eq("improve/awesome")
+        expect(assigns(:filename)).to eq(archive_name)
         expect(response.header[Gitlab::Workhorse::SEND_DATA_HEADER]).to start_with("git-archive:")
       end
 
@@ -73,6 +83,14 @@ describe Projects::RepositoriesController do
 
         it "renders Not Found" do
           get :archive, params: { namespace_id: project.namespace, project_id: project, id: "master" }, format: "zip"
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+
+      context "when the request format is HTML" do
+        it "renders 404" do
+          get :archive, params: { namespace_id: project.namespace, project_id: project, id: 'master' }, format: "html"
 
           expect(response).to have_gitlab_http_status(:not_found)
         end

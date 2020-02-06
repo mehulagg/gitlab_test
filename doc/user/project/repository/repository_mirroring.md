@@ -83,7 +83,7 @@ mirror.
 
 To set up a mirror from GitLab to GitHub, you need to follow these steps:
 
-1. Create a [GitHub personal access token](https://help.github.com/en/articles/creating-a-personal-access-token-for-the-command-line) with the `public_repo` box checked.
+1. Create a [GitHub personal access token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line) with the `public_repo` box checked.
 1. Fill in the **Git repository URL** field using this format: `https://<your_github_username>@github.com/<your_github_group>/<your_github_project>.git`.
 1. Fill in **Password** field with your GitHub personal access token.
 1. Click the **Mirror repository** button.
@@ -204,7 +204,7 @@ fingerprints in the open for you to check:
 
 - [AWS CodeCommit](https://docs.aws.amazon.com/codecommit/latest/userguide/regions.html#regions-fingerprints)
 - [Bitbucket](https://confluence.atlassian.com/bitbucket/ssh-keys-935365775.html)
-- [GitHub](https://help.github.com/en/articles/githubs-ssh-key-fingerprints)
+- [GitHub](https://help.github.com/en/github/authenticating-to-github/githubs-ssh-key-fingerprints)
 - [GitLab.com](../../gitlab_com/index.md#ssh-host-keys-fingerprints)
 - [Launchpad](https://help.launchpad.net/SSHFingerprints)
 - [Savannah](http://savannah.gnu.org/maintenance/SshAccess/)
@@ -214,7 +214,7 @@ Other providers will vary. If you're running self-managed GitLab, or otherwise
 have access to the server for the other repository, you can securely gather the
 key fingerprints:
 
-```sh
+```shell
 $ cat /etc/ssh/ssh_host*pub | ssh-keygen -E md5 -l -f -
 256 MD5:f4:28:9f:23:99:15:21:1b:bf:ed:1f:8e:a0:76:b2:9d root@example.com (ECDSA)
 256 MD5:e6:eb:45:8a:3c:59:35:5f:e9:5b:80:12:be:7e:22:73 root@example.com (ED25519)
@@ -345,7 +345,7 @@ Read about [configuring Server hooks](../../../administration/server_hooks.md) o
 
 A sample `pre-receive` hook is provided below.
 
-```bash
+```shell
 #!/usr/bin/env bash
 
 # --- Assume only one push mirror target

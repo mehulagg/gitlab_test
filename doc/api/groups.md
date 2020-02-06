@@ -118,7 +118,7 @@ Parameters:
 | ------------------------ | ----------------- | -------- | ----------- |
 | `id`                     | integer/string    | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) of the parent group |
 | `skip_groups`            | array of integers | no       | Skip the group IDs passed |
-| `all_available`          | boolean           | no       | Show all the groups you have access to (defaults to `false` for authenticated users, `true` for admin); Attributes `owned` and `min_access_level` have preceden |
+| `all_available`          | boolean           | no       | Show all the groups you have access to (defaults to `false` for authenticated users, `true` for admin); Attributes `owned` and `min_access_level` have precedence |
 | `search`                 | string            | no       | Return the list of authorized groups matching the search criteria |
 | `order_by`               | string            | no       | Order groups by `name`, `path` or `id`. Default is `name` |
 | `sort`                   | string            | no       | Order groups in `asc` or `desc` order. Default is `asc` |
@@ -251,7 +251,7 @@ Parameters:
 | `with_custom_attributes` | boolean        | no       | Include [custom attributes](custom_attributes.md) in response (admins only). |
 | `with_projects`          | boolean        | no       | Include details from projects that belong to the specified group (defaults to `true`). |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/4
 ```
 
@@ -431,7 +431,7 @@ Additional response parameters:
 
 When adding the parameter `with_projects=false`, projects will not be returned.
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/4?with_projects=false
 ```
 
@@ -487,7 +487,7 @@ Parameters:
 | `two_factor_grace_period`            | integer | no       | Time before Two-factor authentication is enforced (in hours). |
 | `project_creation_level`             | string  | no       | Determine if developers can create projects in the group. Can be `noone` (No one), `maintainer` (Maintainers), or `developer` (Developers + Maintainers). |
 | `auto_devops_enabled`                | boolean | no       | Default to Auto DevOps pipeline for all projects within this group. |
-| `subgroup_creation_level`            | integer | no       | Allowed to create subgroups. Can be `owner` (Owners), or `maintainer` (Maintainers). |
+| `subgroup_creation_level`            | string  | no       | Allowed to create subgroups. Can be `owner` (Owners), or `maintainer` (Maintainers). |
 | `emails_disabled`                    | boolean | no       | Disable email notifications |
 | `mentions_disabled`                  | boolean | no       | Disable the capability of a group from getting mentioned |
 | `lfs_enabled`                        | boolean | no       | Enable/disable Large File Storage (LFS) for the projects in this group. |
@@ -533,7 +533,7 @@ PUT /groups/:id
 | `two_factor_grace_period`            | integer | no       | Time before Two-factor authentication is enforced (in hours). |
 | `project_creation_level`             | string  | no       | Determine if developers can create projects in the group. Can be `noone` (No one), `maintainer` (Maintainers), or `developer` (Developers + Maintainers). |
 | `auto_devops_enabled`                | boolean | no       | Default to Auto DevOps pipeline for all projects within this group. |
-| `subgroup_creation_level`            | integer | no       | Allowed to create subgroups. Can be `owner` (Owners), or `maintainer` (Maintainers). |
+| `subgroup_creation_level`            | string  | no       | Allowed to create subgroups. Can be `owner` (Owners), or `maintainer` (Maintainers). |
 | `emails_disabled`                    | boolean | no       | Disable email notifications |
 | `mentions_disabled`                  | boolean | no       | Disable the capability of a group from getting mentioned |
 | `lfs_enabled` (optional)             | boolean | no       | Enable/disable Large File Storage (LFS) for the projects in this group. |
@@ -542,7 +542,7 @@ PUT /groups/:id
 | `shared_runners_minutes_limit`       | integer | no       | **(STARTER ONLY)** Pipeline minutes quota for this group. |
 | `extra_shared_runners_minutes_limit` | integer | no       | **(STARTER ONLY)** Extra pipeline minutes quota for this group. |
 
-```bash
+```shell
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/groups/5?name=Experimental"
 
 ```

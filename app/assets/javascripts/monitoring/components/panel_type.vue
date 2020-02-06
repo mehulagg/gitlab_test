@@ -14,6 +14,8 @@ import MonitorTimeSeriesChart from './charts/time_series.vue';
 import MonitorAnomalyChart from './charts/anomaly.vue';
 import MonitorSingleStatChart from './charts/single_stat.vue';
 import MonitorHeatmapChart from './charts/heatmap.vue';
+import MonitorColumnChart from './charts/column.vue';
+import MonitorStackedColumnChart from './charts/stacked_column.vue';
 import MonitorEmptyChart from './charts/empty_chart.vue';
 import TrackEventDirective from '~/vue_shared/directives/track_event';
 import { downloadCSVOptions, generateLinkToChartOptions } from '../utils';
@@ -21,7 +23,9 @@ import { downloadCSVOptions, generateLinkToChartOptions } from '../utils';
 export default {
   components: {
     MonitorSingleStatChart,
+    MonitorColumnChart,
     MonitorHeatmapChart,
+    MonitorStackedColumnChart,
     MonitorEmptyChart,
     Icon,
     GlDropdown,
@@ -114,7 +118,14 @@ export default {
   <monitor-heatmap-chart
     v-else-if="isPanelType('heatmap') && graphDataHasMetrics"
     :graph-data="graphData"
-    :container-width="dashboardWidth"
+  />
+  <monitor-column-chart
+    v-else-if="isPanelType('column') && graphDataHasMetrics"
+    :graph-data="graphData"
+  />
+  <monitor-stacked-column-chart
+    v-else-if="isPanelType('stacked-column') && graphDataHasMetrics"
+    :graph-data="graphData"
   />
   <component
     :is="monitorChartComponent"
@@ -138,6 +149,7 @@ export default {
         v-gl-tooltip
         class="ml-auto mx-3"
         toggle-class="btn btn-transparent border-0"
+        data-qa-selector="prometheus_widgets_dropdown"
         :right="true"
         :no-caret="true"
         :title="__('More actions')"
@@ -161,7 +173,11 @@ export default {
         >
           {{ __('Generate link to chart') }}
         </gl-dropdown-item>
-        <gl-dropdown-item v-if="alertWidgetAvailable" v-gl-modal="`alert-modal-${index}`">
+        <gl-dropdown-item
+          v-if="alertWidgetAvailable"
+          v-gl-modal="`alert-modal-${index}`"
+          data-qa-selector="alert_widget_menu_item"
+        >
           {{ __('Alerts') }}
         </gl-dropdown-item>
       </gl-dropdown>

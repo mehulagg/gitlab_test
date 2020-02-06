@@ -106,6 +106,14 @@ describe Project do
     it { is_expected.to have_many(:sourced_pipelines) }
     it { is_expected.to have_many(:source_pipelines) }
 
+    it_behaves_like 'model with repository' do
+      let_it_be(:container) { create(:project, :repository, path: 'somewhere') }
+      let(:stubbed_container) { build_stubbed(:project) }
+      let(:expected_full_path) { "#{container.namespace.full_path}/somewhere" }
+      let(:expected_repository_klass) { Repository }
+      let(:expected_storage_klass) { Storage::Hashed }
+    end
+
     it 'has an inverse relationship with merge requests' do
       expect(described_class.reflect_on_association(:merge_requests).has_inverse?).to eq(:target_project)
     end
@@ -131,23 +139,19 @@ describe Project do
     end
 
     context 'when creating a new project' do
-      it 'automatically creates a CI/CD settings row' do
-        project = create(:project)
+      let_it_be(:project) { create(:project) }
 
+      it 'automatically creates a CI/CD settings row' do
         expect(project.ci_cd_settings).to be_an_instance_of(ProjectCiCdSetting)
         expect(project.ci_cd_settings).to be_persisted
       end
 
       it 'automatically creates a container expiration policy row' do
-        project = create(:project)
-
         expect(project.container_expiration_policy).to be_an_instance_of(ContainerExpirationPolicy)
         expect(project.container_expiration_policy).to be_persisted
       end
 
       it 'automatically creates a Pages metadata row' do
-        project = create(:project)
-
         expect(project.pages_metadatum).to be_an_instance_of(ProjectPagesMetadatum)
         expect(project.pages_metadatum).to be_persisted
       end
@@ -514,7 +518,6 @@ describe Project do
 
   describe 'Respond to' do
     it { is_expected.to respond_to(:url_to_repo) }
-    it { is_expected.to respond_to(:repo_exists?) }
     it { is_expected.to respond_to(:execute_hooks) }
     it { is_expected.to respond_to(:owner) }
     it { is_expected.to respond_to(:path_with_namespace) }
@@ -532,111 +535,114 @@ describe Project do
     it { is_expected.to delegate_method(:last_pipeline).to(:commit).with_arguments(allow_nil: true) }
   end
 
-  describe '#to_reference_with_postfix' do
-    it 'returns the full path with reference_postfix' do
-      namespace = create(:namespace, path: 'sample-namespace')
-      project = create(:project, path: 'sample-project', namespace: namespace)
+  describe 'reference methods' do
+    let_it_be(:owner)     { create(:user, name: 'Gitlab') }
+    let_it_be(:namespace) { create(:namespace, name: 'Sample namespace', path: 'sample-namespace', owner: owner) }
+    let_it_be(:project)   { create(:project, name: 'Sample project', path: 'sample-project', namespace: namespace) }
+    let_it_be(:group)     { create(:group, name: 'Group', path: 'sample-group') }
+    let_it_be(:another_project) { create(:project, namespace: namespace) }
+    let_it_be(:another_namespace_project) { create(:project, name: 'another-project') }
 
-      expect(project.to_reference_with_postfix).to eq 'sample-namespace/sample-project>'
-    end
-  end
+    describe '#to_reference' do
+      it 'returns the path with reference_postfix' do
+        expect(project.to_reference).to eq("#{project.full_path}>")
+      end
 
-  describe '#to_reference' do
-    let(:owner)     { create(:user, name: 'Gitlab') }
-    let(:namespace) { create(:namespace, path: 'sample-namespace', owner: owner) }
-    let(:project)   { create(:project, path: 'sample-project', namespace: namespace) }
-    let(:group)     { create(:group, name: 'Group', path: 'sample-group') }
+      it 'returns the path with reference_postfix when arg is self' do
+        expect(project.to_reference(project)).to eq("#{project.full_path}>")
+      end
 
-    context 'when nil argument' do
-      it 'returns nil' do
-        expect(project.to_reference).to be_nil
+      it 'returns the full_path with reference_postfix when full' do
+        expect(project.to_reference(full: true)).to eq("#{project.full_path}>")
+      end
+
+      it 'returns the full_path with reference_postfix when cross-project' do
+        expect(project.to_reference(build_stubbed(:project))).to eq("#{project.full_path}>")
       end
     end
 
-    context 'when full is true' do
-      it 'returns complete path to the project' do
-        expect(project.to_reference(full: true)).to          eq 'sample-namespace/sample-project'
-        expect(project.to_reference(project, full: true)).to eq 'sample-namespace/sample-project'
-        expect(project.to_reference(group, full: true)).to   eq 'sample-namespace/sample-project'
+    describe '#to_reference_base' do
+      context 'when nil argument' do
+        it 'returns nil' do
+          expect(project.to_reference_base).to be_nil
+        end
       end
-    end
 
-    context 'when same project argument' do
-      it 'returns nil' do
-        expect(project.to_reference(project)).to be_nil
+      context 'when full is true' do
+        it 'returns complete path to the project', :aggregate_failures do
+          be_full_path = eq('sample-namespace/sample-project')
+
+          expect(project.to_reference_base(full: true)).to be_full_path
+          expect(project.to_reference_base(project, full: true)).to be_full_path
+          expect(project.to_reference_base(group, full: true)).to be_full_path
+        end
       end
-    end
 
-    context 'when cross namespace project argument' do
-      let(:another_namespace_project) { create(:project, name: 'another-project') }
-
-      it 'returns complete path to the project' do
-        expect(project.to_reference(another_namespace_project)).to eq 'sample-namespace/sample-project'
+      context 'when same project argument' do
+        it 'returns nil' do
+          expect(project.to_reference_base(project)).to be_nil
+        end
       end
-    end
 
-    context 'when same namespace / cross-project argument' do
-      let(:another_project) { create(:project, namespace: namespace) }
-
-      it 'returns path to the project' do
-        expect(project.to_reference(another_project)).to eq 'sample-project'
+      context 'when cross namespace project argument' do
+        it 'returns complete path to the project' do
+          expect(project.to_reference_base(another_namespace_project)).to eq 'sample-namespace/sample-project'
+        end
       end
-    end
 
-    context 'when different namespace / cross-project argument' do
-      let(:another_namespace) { create(:namespace, path: 'another-namespace', owner: owner) }
-      let(:another_project)   { create(:project, path: 'another-project', namespace: another_namespace) }
-
-      it 'returns full path to the project' do
-        expect(project.to_reference(another_project)).to eq 'sample-namespace/sample-project'
-      end
-    end
-
-    context 'when argument is a namespace' do
-      context 'with same project path' do
+      context 'when same namespace / cross-project argument' do
         it 'returns path to the project' do
-          expect(project.to_reference(namespace)).to eq 'sample-project'
+          expect(project.to_reference_base(another_project)).to eq 'sample-project'
         end
       end
 
-      context 'with different project path' do
+      context 'when different namespace / cross-project argument with same owner' do
+        let(:another_namespace_same_owner) { create(:namespace, path: 'another-namespace', owner: owner) }
+        let(:another_project_same_owner)   { create(:project, path: 'another-project', namespace: another_namespace_same_owner) }
+
         it 'returns full path to the project' do
-          expect(project.to_reference(group)).to eq 'sample-namespace/sample-project'
+          expect(project.to_reference_base(another_project_same_owner)).to eq 'sample-namespace/sample-project'
+        end
+      end
+
+      context 'when argument is a namespace' do
+        context 'with same project path' do
+          it 'returns path to the project' do
+            expect(project.to_reference_base(namespace)).to eq 'sample-project'
+          end
+        end
+
+        context 'with different project path' do
+          it 'returns full path to the project' do
+            expect(project.to_reference_base(group)).to eq 'sample-namespace/sample-project'
+          end
         end
       end
     end
-  end
 
-  describe '#to_human_reference' do
-    let(:owner) { create(:user, name: 'Gitlab') }
-    let(:namespace) { create(:namespace, name: 'Sample namespace', owner: owner) }
-    let(:project) { create(:project, name: 'Sample project', namespace: namespace) }
-
-    context 'when nil argument' do
-      it 'returns nil' do
-        expect(project.to_human_reference).to be_nil
+    describe '#to_human_reference' do
+      context 'when nil argument' do
+        it 'returns nil' do
+          expect(project.to_human_reference).to be_nil
+        end
       end
-    end
 
-    context 'when same project argument' do
-      it 'returns nil' do
-        expect(project.to_human_reference(project)).to be_nil
+      context 'when same project argument' do
+        it 'returns nil' do
+          expect(project.to_human_reference(project)).to be_nil
+        end
       end
-    end
 
-    context 'when cross namespace project argument' do
-      let(:another_namespace_project) { create(:project, name: 'another-project') }
-
-      it 'returns complete name with namespace of the project' do
-        expect(project.to_human_reference(another_namespace_project)).to eq 'Gitlab / Sample project'
+      context 'when cross namespace project argument' do
+        it 'returns complete name with namespace of the project' do
+          expect(project.to_human_reference(another_namespace_project)).to eq 'Gitlab / Sample project'
+        end
       end
-    end
 
-    context 'when same namespace / cross-project argument' do
-      let(:another_project) { create(:project, namespace: namespace) }
-
-      it 'returns name of the project' do
-        expect(project.to_human_reference(another_project)).to eq 'Sample project'
+      context 'when same namespace / cross-project argument' do
+        it 'returns name of the project' do
+          expect(project.to_human_reference(another_project)).to eq 'Sample project'
+        end
       end
     end
   end
@@ -663,44 +669,6 @@ describe Project do
   it 'returns valid url to repo' do
     project = described_class.new(path: 'somewhere')
     expect(project.url_to_repo).to eq(Gitlab.config.gitlab_shell.ssh_path_prefix + 'somewhere.git')
-  end
-
-  describe "#web_url" do
-    let(:project) { create(:project, path: "somewhere") }
-
-    context 'when given the only_path option' do
-      subject { project.web_url(only_path: only_path) }
-
-      context 'when only_path is false' do
-        let(:only_path) { false }
-
-        it 'returns the full web URL for this repo' do
-          expect(subject).to eq("#{Gitlab.config.gitlab.url}/#{project.namespace.full_path}/somewhere")
-        end
-      end
-
-      context 'when only_path is true' do
-        let(:only_path) { true }
-
-        it 'returns the relative web URL for this repo' do
-          expect(subject).to eq("/#{project.namespace.full_path}/somewhere")
-        end
-      end
-
-      context 'when only_path is nil' do
-        let(:only_path) { nil }
-
-        it 'returns the full web URL for this repo' do
-          expect(subject).to eq("#{Gitlab.config.gitlab.url}/#{project.namespace.full_path}/somewhere")
-        end
-      end
-    end
-
-    context 'when not given the only_path option' do
-      it 'returns the full web URL for this repo' do
-        expect(project.web_url).to eq("#{Gitlab.config.gitlab.url}/#{project.namespace.full_path}/somewhere")
-      end
-    end
   end
 
   describe "#readme_url" do
@@ -932,14 +900,6 @@ describe Project do
     end
   end
 
-  describe '#repository' do
-    let(:project) { create(:project, :repository) }
-
-    it 'returns valid repo' do
-      expect(project.repository).to be_kind_of(Repository)
-    end
-  end
-
   describe '#default_issues_tracker?' do
     it "is true if used internal tracker" do
       project = build(:project)
@@ -952,24 +912,6 @@ describe Project do
       project = create(:redmine_project)
 
       expect(project.default_issues_tracker?).to be_falsey
-    end
-  end
-
-  describe '#empty_repo?' do
-    context 'when the repo does not exist' do
-      let(:project) { build_stubbed(:project) }
-
-      it 'returns true' do
-        expect(project.empty_repo?).to be(true)
-      end
-    end
-
-    context 'when the repo exists' do
-      let(:project) { create(:project, :repository) }
-      let(:empty_project) { create(:project, :empty_repo) }
-
-      it { expect(empty_project.empty_repo?).to be(true) }
-      it { expect(project.empty_repo?).to be(false) }
     end
   end
 
@@ -2150,6 +2092,28 @@ describe Project do
       it 'returns the correct path' do
         expect(project.ci_config_path.presence || :default).to eq(expected_ci_config_path)
       end
+    end
+  end
+
+  describe '#uses_default_ci_config?' do
+    let(:project) { build(:project)}
+
+    it 'has a custom ci config path' do
+      project.ci_config_path = 'something_custom'
+
+      expect(project.uses_default_ci_config?).to be_falsey
+    end
+
+    it 'has a blank ci config path' do
+      project.ci_config_path = ''
+
+      expect(project.uses_default_ci_config?).to be_truthy
+    end
+
+    it 'does not have a custom ci config path' do
+      project.ci_config_path = nil
+
+      expect(project.uses_default_ci_config?).to be_truthy
     end
   end
 
@@ -3403,59 +3367,6 @@ describe Project do
         let(:project_name) { 'Project' }
 
         it { is_expected.to eq(expected_url) }
-      end
-    end
-  end
-
-  describe '#http_url_to_repo' do
-    let(:project) { create(:project) }
-
-    context 'when a custom HTTP clone URL root is not set' do
-      it 'returns the url to the repo without a username' do
-        expect(project.http_url_to_repo).to eq("#{project.web_url}.git")
-        expect(project.http_url_to_repo).not_to include('@')
-      end
-    end
-
-    context 'when a custom HTTP clone URL root is set' do
-      before do
-        stub_application_setting(custom_http_clone_url_root: custom_http_clone_url_root)
-      end
-
-      context 'when custom HTTP clone URL root has a relative URL root' do
-        context 'when custom HTTP clone URL root ends with a slash' do
-          let(:custom_http_clone_url_root) { 'https://git.example.com:51234/mygitlab/' }
-
-          it 'returns the url to the repo, with the root replaced with the custom one' do
-            expect(project.http_url_to_repo).to eq("https://git.example.com:51234/mygitlab/#{project.full_path}.git")
-          end
-        end
-
-        context 'when custom HTTP clone URL root does not end with a slash' do
-          let(:custom_http_clone_url_root) { 'https://git.example.com:51234/mygitlab' }
-
-          it 'returns the url to the repo, with the root replaced with the custom one' do
-            expect(project.http_url_to_repo).to eq("https://git.example.com:51234/mygitlab/#{project.full_path}.git")
-          end
-        end
-      end
-
-      context 'when custom HTTP clone URL root does not have a relative URL root' do
-        context 'when custom HTTP clone URL root ends with a slash' do
-          let(:custom_http_clone_url_root) { 'https://git.example.com:51234/' }
-
-          it 'returns the url to the repo, with the root replaced with the custom one' do
-            expect(project.http_url_to_repo).to eq("https://git.example.com:51234/#{project.full_path}.git")
-          end
-        end
-
-        context 'when custom HTTP clone URL root does not end with a slash' do
-          let(:custom_http_clone_url_root) { 'https://git.example.com:51234' }
-
-          it 'returns the url to the repo, with the root replaced with the custom one' do
-            expect(project.http_url_to_repo).to eq("https://git.example.com:51234/#{project.full_path}.git")
-          end
-        end
       end
     end
   end
@@ -5055,16 +4966,6 @@ describe Project do
     end
   end
 
-  context '#commits_by' do
-    let(:project) { create(:project, :repository) }
-    let(:commits) { project.repository.commits('HEAD', limit: 3).commits }
-    let(:commit_shas) { commits.map(&:id) }
-
-    it 'retrieves several commits from the repository by oid' do
-      expect(project.commits_by(oids: commit_shas)).to eq commits
-    end
-  end
-
   context '#members_among' do
     let(:users) { create_list(:user, 3) }
 
@@ -5584,6 +5485,25 @@ describe Project do
             .to not_change { project.visibility_level }
         end
       end
+    end
+  end
+
+  describe 'with_issues_or_mrs_available_for_user' do
+    before do
+      Project.delete_all
+    end
+
+    it 'returns correct projects' do
+      user = create(:user)
+      project1 = create(:project, :public, :merge_requests_disabled, :issues_enabled)
+      project2 = create(:project, :public, :merge_requests_disabled, :issues_disabled)
+      project3 = create(:project, :public, :issues_enabled, :merge_requests_enabled)
+      project4 = create(:project, :private, :issues_private, :merge_requests_private)
+
+      [project1, project2, project3, project4].each { |project| project.add_developer(user) }
+
+      expect(described_class.with_issues_or_mrs_available_for_user(user))
+        .to contain_exactly(project1, project3, project4)
     end
   end
 

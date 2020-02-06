@@ -368,8 +368,8 @@ module ProjectsHelper
     @project.grafana_integration&.grafana_url
   end
 
-  def grafana_integration_token
-    @project.grafana_integration&.token
+  def grafana_integration_masked_token
+    @project.grafana_integration&.masked_token
   end
 
   def grafana_integration_enabled?
@@ -704,6 +704,10 @@ module ProjectsHelper
 
   def vue_file_list_enabled?
     Feature.enabled?(:vue_file_list, @project)
+  end
+
+  def native_code_navigation_enabled?(project)
+    Feature.enabled?(:code_navigation, project)
   end
 
   def show_visibility_confirm_modal?(project)

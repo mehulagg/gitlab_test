@@ -27,6 +27,15 @@ describe Projects::SnippetsController do
       end
     end
 
+    it 'fetches snippet counts via the snippet count service' do
+      service = double(:count_service, execute: {})
+      expect(Snippets::CountService)
+        .to receive(:new).with(nil, project: project)
+        .and_return(service)
+
+      get :index, params: { namespace_id: project.namespace, project_id: project }
+    end
+
     context 'when the project snippet is private' do
       let!(:project_snippet) { create(:project_snippet, :private, project: project, author: user) }
 
@@ -92,7 +101,7 @@ describe Projects::SnippetsController do
 
     context 'when the snippet is spam' do
       before do
-        allow_next_instance_of(AkismetService) do |instance|
+        allow_next_instance_of(Spam::AkismetService) do |instance|
           allow(instance).to receive(:spam?).and_return(true)
         end
       end
@@ -172,7 +181,7 @@ describe Projects::SnippetsController do
 
     context 'when the snippet is spam' do
       before do
-        allow_next_instance_of(AkismetService) do |instance|
+        allow_next_instance_of(Spam::AkismetService) do |instance|
           allow(instance).to receive(:spam?).and_return(true)
         end
       end
@@ -282,7 +291,7 @@ describe Projects::SnippetsController do
     let(:snippet) { create(:project_snippet, :private, project: project, author: user) }
 
     before do
-      allow_next_instance_of(AkismetService) do |instance|
+      allow_next_instance_of(Spam::AkismetService) do |instance|
         allow(instance).to receive_messages(submit_spam: true)
       end
       stub_application_setting(akismet_enabled: true)

@@ -9,6 +9,10 @@ and [deployments](../../ci/environments.md) when using [Auto DevOps](../../topic
 You can install them after you
 [create a cluster](../project/clusters/add_remove_clusters.md).
 
+Interested in contributing a new GitLab managed app? Visit the
+[development guidelines page](../../development/kubernetes.md#gitlab-managed-apps)
+to get started.
+
 ## Installing applications
 
 Applications managed by GitLab will be installed onto the `gitlab-managed-apps` namespace.
@@ -196,25 +200,25 @@ rules that allow external access to your deployed applications.
 
 If you installed Ingress via the **Applications**, run the following command:
 
-```bash
+```shell
 kubectl get service --namespace=gitlab-managed-apps ingress-nginx-ingress-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 ```
 
 Some Kubernetes clusters return a hostname instead, like [Amazon EKS](https://aws.amazon.com/eks/). For these platforms, run:
 
-```bash
+```shell
 kubectl get service --namespace=gitlab-managed-apps ingress-nginx-ingress-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 ```
 
 For Istio/Knative, the command will be different:
 
-```bash
+```shell
 kubectl get svc --namespace=istio-system knative-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip} '
 ```
 
 Otherwise, you can list the IP addresses of all load balancers:
 
-```bash
+```shell
 kubectl get svc --all-namespaces -o jsonpath='{range.items[?(@.status.loadBalancer.ingress)]}{.status.loadBalancer.ingress[*].ip} '
 ```
 
@@ -264,7 +268,7 @@ This feature:
 - Is viewable by checking your Ingress controller's `modsec` log for rule violations.
   For example:
 
-  ```sh
+  ```shell
   kubectl logs -n gitlab-managed-apps $(kubectl get pod -n gitlab-managed-apps -l app=nginx-ingress,component=controller --no-headers=true -o custom-columns=:metadata.name) modsecurity-log -f
   ```
 
@@ -435,18 +439,7 @@ and you will have access to more advanced querying capabilities.
 
 Log data is automatically deleted after 15 days using [Curator](https://www.elastic.co/guide/en/elasticsearch/client/curator/5.5/about.html).
 
-This is a preliminary release of Elastic Stack as a GitLab-managed application. By default,
-the ability to install it is disabled.
-
-To allow installation of Elastic Stack as a GitLab-managed application, ask a GitLab
-administrator to run following command within a Rails console:
-
-```ruby
-Feature.enable(:enable_cluster_application_elastic_stack)
-```
-
-Once the feature flag is set, to enable log shipping, install Elastic Stack into the cluster with the
-**Install** button.
+To enable log shipping, install Elastic Stack into the cluster with the **Install** button.
 
 NOTE: **Note:**
 The [`stable/elastic-stack`](https://github.com/helm/charts/tree/master/stable/elastic-stack)
@@ -706,14 +699,33 @@ Major upgrades might require additional setup steps, please consult
 the official [upgrade guide](https://docs.cilium.io/en/stable/install/upgrade/) for more
 information.
 
-By default, the drop log for traffic is logged out by the
+By default, Cilium will drop all non-whitelisted packets upon policy
+deployment. The audit mode is scheduled for release in
+[Cilium 1.8](https://github.com/cilium/cilium/pull/9970). In the audit
+mode non-whitelisted packets will not be dropped, instead audit
+notifications will be generated. GitLab provides alternative Docker
+images for Cilium with the audit patch included. You can switch to the
+custom build and enable the audit mode by adding the following to
+`.gitlab/managed-apps/cilium/values.yaml`:
+
+```yml
+global:
+  registry: registry.gitlab.com/gitlab-org/defend/cilium
+  policyAuditMode: true
+
+agent:
+  monitor:
+    eventTypes: ["drop", "audit"]
+```
+
+The Cilium monitor log for traffic is logged out by the
 `cilium-monitor` sidecar container. You can check these logs via:
 
-```bash
+```shell
 kubectl -n gitlab-managed-apps logs cilium-XXXX cilium-monitor
 ```
 
-Drop logging can be disabled via `.gitlab/managed-apps/cilium/values.yaml`:
+You can disable the monitor log via `.gitlab/managed-apps/cilium/values.yaml`:
 
 ```yml
 agent:
@@ -795,7 +807,7 @@ To avoid installation errors:
 
   You can confirm that the certificates match via `kubectl`:
 
-  ```sh
+  ```shell
   kubectl get configmaps/values-content-configuration-ingress -n gitlab-managed-apps -o \
   "jsonpath={.data['cert\.pem']}" | base64 -d > a.pem
   kubectl get secrets/tiller-secret -n gitlab-managed-apps -o "jsonpath={.data['ca\.crt']}" | base64 -d > b.pem

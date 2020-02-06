@@ -129,6 +129,7 @@ When the user is authenticated and `simple` is not set this returns something li
     "jobs_enabled": true,
     "wiki_enabled": true,
     "snippets_enabled": false,
+    "can_create_merge_request_in": true,
     "resolve_outdated_diff_discussions": false,
     "container_registry_enabled": false,
     "created_at": "2013-09-30T13:46:02Z",
@@ -205,6 +206,7 @@ When the user is authenticated and `simple` is not set this returns something li
     "jobs_enabled": true,
     "wiki_enabled": true,
     "snippets_enabled": false,
+    "can_create_merge_request_in": true,
     "resolve_outdated_diff_discussions": false,
     "container_registry_enabled": false,
     "created_at": "2013-09-30T13:46:02Z",
@@ -371,6 +373,7 @@ This endpoint supports [keyset pagination](README.md#keyset-based-pagination) fo
     "jobs_enabled": true,
     "wiki_enabled": true,
     "snippets_enabled": false,
+    "can_create_merge_request_in": true,
     "resolve_outdated_diff_discussions": false,
     "container_registry_enabled": false,
     "created_at": "2013-09-30T13:46:02Z",
@@ -447,6 +450,7 @@ This endpoint supports [keyset pagination](README.md#keyset-based-pagination) fo
     "jobs_enabled": true,
     "wiki_enabled": true,
     "snippets_enabled": false,
+    "can_create_merge_request_in": true,
     "resolve_outdated_diff_discussions": false,
     "container_registry_enabled": false,
     "created_at": "2013-09-30T13:46:02Z",
@@ -548,7 +552,7 @@ GET /users/:user_id/starred_projects
 | `with_merge_requests_enabled` | boolean | no | Limit by enabled merge requests feature. |
 | `min_access_level` | integer | no | Limit by current user minimal [access level](members.md). |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/users/5/starred_projects"
 ```
 
@@ -584,6 +588,7 @@ Example response:
     "jobs_enabled": true,
     "wiki_enabled": true,
     "snippets_enabled": false,
+    "can_create_merge_request_in": true,
     "resolve_outdated_diff_discussions": false,
     "container_registry_enabled": false,
     "created_at": "2013-09-30T13:46:02Z",
@@ -657,6 +662,7 @@ Example response:
     "jobs_enabled": true,
     "wiki_enabled": true,
     "snippets_enabled": false,
+    "can_create_merge_request_in": true,
     "resolve_outdated_diff_discussions": false,
     "container_registry_enabled": false,
     "created_at": "2013-09-30T13:46:02Z",
@@ -774,6 +780,7 @@ GET /projects/:id
   "jobs_enabled": true,
   "wiki_enabled": true,
   "snippets_enabled": false,
+  "can_create_merge_request_in": true,
   "resolve_outdated_diff_discussions": false,
   "container_registry_enabled": false,
   "container_expiration_policy": {
@@ -1009,6 +1016,7 @@ POST /projects
 | `wiki_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `snippets_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `pages_access_level` | string | no | One of `disabled`, `private`, `enabled` or `public` |
+| `emails_disabled` | boolean | no | Disable email notifications |
 | `resolve_outdated_diff_discussions` | boolean | no | Automatically resolve merge request diffs discussions on lines changed with a push |
 | `container_registry_enabled` | boolean | no | Enable container registry for this project |
 | `container_expiration_policy_attributes` | hash | no | Update the container expiration policy for this project. Accepts: `cadence` (string), `keep_n` (string), `older_than` (string), `name_regex` (string), `enabled` (boolean) |
@@ -1076,6 +1084,7 @@ POST /projects/user/:user_id
 | `wiki_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `snippets_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `pages_access_level` | string | no | One of `disabled`, `private`, `enabled` or `public` |
+| `emails_disabled` | boolean | no | Disable email notifications |
 | `resolve_outdated_diff_discussions` | boolean | no | Automatically resolve merge request diffs discussions on lines changed with a push |
 | `container_registry_enabled` | boolean | no | Enable container registry for this project |
 | `shared_runners_enabled` | boolean | no | Enable shared runners for this project |
@@ -1142,6 +1151,7 @@ PUT /projects/:id
 | `wiki_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `snippets_access_level` | string | no | One of `disabled`, `private` or `enabled` |
 | `pages_access_level` | string | no | One of `disabled`, `private`, `enabled` or `public` |
+| `emails_disabled` | boolean | no | Disable email notifications |
 | `resolve_outdated_diff_discussions` | boolean | no | Automatically resolve merge request diffs discussions on lines changed with a push |
 | `container_registry_enabled` | boolean | no | Enable container registry for this project |
 | `container_expiration_policy_attributes` | hash | no | Update the container expiration policy for this project. Accepts: `cadence` (string), `keep_n` (string), `older_than` (string), `name_regex` (string), `enabled` (boolean) |
@@ -1229,7 +1239,7 @@ GET /projects/:id/forks
 | `with_merge_requests_enabled` | boolean | no | Limit by enabled merge requests feature |
 | `min_access_level` | integer | no | Limit by current user minimal [access level](members.md) |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/5/forks"
 ```
 
@@ -1260,6 +1270,7 @@ Example responses:
     "jobs_enabled": true,
     "wiki_enabled": true,
     "snippets_enabled": false,
+    "can_create_merge_request_in": true,
     "resolve_outdated_diff_discussions": false,
     "container_registry_enabled": false,
     "created_at": "2013-09-30T13:46:02Z",
@@ -1312,7 +1323,7 @@ POST /projects/:id/star
 | --------- | ---- | -------- | ----------- |
 | `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/5/star"
 ```
 
@@ -1342,6 +1353,7 @@ Example response:
   "jobs_enabled": true,
   "wiki_enabled": true,
   "snippets_enabled": false,
+  "can_create_merge_request_in": true,
   "resolve_outdated_diff_discussions": false,
   "container_registry_enabled": false,
   "created_at": "2013-09-30T13:46:02Z",
@@ -1401,7 +1413,7 @@ POST /projects/:id/unstar
 | --------- | ---- | -------- | ----------- |
 | `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/5/unstar"
 ```
 
@@ -1431,6 +1443,7 @@ Example response:
   "jobs_enabled": true,
   "wiki_enabled": true,
   "snippets_enabled": false,
+  "can_create_merge_request_in": true,
   "resolve_outdated_diff_discussions": false,
   "container_registry_enabled": false,
   "created_at": "2013-09-30T13:46:02Z",
@@ -1490,7 +1503,7 @@ GET /projects/:id/starrers
 | --------- | ---- | -------- | ----------- |
 | `search` | string | no | Search for specific users. |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/5/starrers"
 ```
 
@@ -1531,7 +1544,7 @@ Get languages used in a project with percentage value.
 GET /projects/:id/languages
 ```
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/5/languages"
 ```
 
@@ -1559,7 +1572,7 @@ POST /projects/:id/archive
 | --------- | ---- | -------- | ----------- |
 | `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/5/archive"
 ```
 
@@ -1594,6 +1607,7 @@ Example response:
   "jobs_enabled": true,
   "wiki_enabled": true,
   "snippets_enabled": false,
+  "can_create_merge_request_in": true,
   "resolve_outdated_diff_discussions": false,
   "container_registry_enabled": false,
   "created_at": "2013-09-30T13:46:02Z",
@@ -1667,7 +1681,7 @@ POST /projects/:id/unarchive
 | --------- | ---- | -------- | ----------- |
 | `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/5/unarchive"
 ```
 
@@ -1702,6 +1716,7 @@ Example response:
   "jobs_enabled": true,
   "wiki_enabled": true,
   "snippets_enabled": false,
+  "can_create_merge_request_in": true,
   "resolve_outdated_diff_discussions": false,
   "container_registry_enabled": false,
   "created_at": "2013-09-30T13:46:02Z",
@@ -1811,7 +1826,7 @@ cURL to post data using the header `Content-Type: multipart/form-data`.
 The `file=` parameter must point to a file on your filesystem and be preceded
 by `@`. For example:
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" --form "file=@dk.png" https://gitlab.example.com/api/v4/projects/5/uploads
 ```
 
@@ -1857,7 +1872,7 @@ DELETE /projects/:id/share/:group_id
 | `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) |
 | `group_id` | integer | yes | The ID of the group |
 
-```bash
+```shell
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/share/17
 ```
 
@@ -2025,7 +2040,7 @@ GET /projects
 | `order_by` | string | no | Return requests ordered by `id`, `name`, `created_at` or `last_activity_at` fields |
 | `sort` | string | no | Return requests sorted in `asc` or `desc` order |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects?search=test
 ```
 
@@ -2105,7 +2120,7 @@ POST /projects/:id/push_rule
 | `commit_message_negative_regex` **(STARTER)** | string         | no       | No commit message is allowed to match this, e.g. `ssh\:\/\/` |
 | `branch_name_regex` **(STARTER)**             | string         | no       | All branch names must match this, e.g. `(feature|hotfix)\/*` |
 | `author_email_regex` **(STARTER)**            | string         | no       | All commit author emails must match this, e.g. `@my-company.com$` |
-| `file_name_regex` **(STARTER)**               | string         | no       | All commited filenames must **not** match this, e.g. `(jar|exe)$` |
+| `file_name_regex` **(STARTER)**               | string         | no       | All committed filenames must **not** match this, e.g. `(jar|exe)$` |
 | `max_file_size` **(STARTER)**                 | integer        | no       | Maximum file size (MB) |
 | `commit_committer_check` **(PREMIUM)**        | boolean        | no       | Users can only push commits to this repository that were committed with one of their own verified emails. |
 | `reject_unsigned_commits` **(PREMIUM)**        | boolean        | no       | Reject commit when it is not signed through GPG. |
@@ -2128,7 +2143,7 @@ PUT /projects/:id/push_rule
 | `commit_message_negative_regex` **(STARTER)** | string         | no       | No commit message is allowed to match this, e.g. `ssh\:\/\/` |
 | `branch_name_regex` **(STARTER)**             | string         | no       | All branch names must match this, e.g. `(feature|hotfix)\/*` |
 | `author_email_regex` **(STARTER)**            | string         | no       | All commit author emails must match this, e.g. `@my-company.com$` |
-| `file_name_regex` **(STARTER)**               | string         | no       | All commited filenames must **not** match this, e.g. `(jar|exe)$` |
+| `file_name_regex` **(STARTER)**               | string         | no       | All committed filenames must **not** match this, e.g. `(jar|exe)$` |
 | `max_file_size` **(STARTER)**                 | integer        | no       | Maximum file size (MB) |
 | `commit_committer_check` **(PREMIUM)**        | boolean        | no       | Users can only push commits to this repository that were committed with one of their own verified emails. |
 | `reject_unsigned_commits` **(PREMIUM)**        | boolean        | no       | Reject commits when they are not GPG signed. |
@@ -2184,7 +2199,7 @@ POST /projects/:id/mirror/pull
 | --------- | ---- | -------- | ----------- |
 | `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/:id/mirror/pull
 ```
 

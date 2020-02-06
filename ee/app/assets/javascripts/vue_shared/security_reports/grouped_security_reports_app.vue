@@ -10,6 +10,7 @@ import IssueModal from './components/modal.vue';
 import securityReportsMixin from './mixins/security_report_mixin';
 import createStore from './store';
 import { s__, sprintf } from '~/locale';
+import { mrStates } from '~/mr_popover/constants';
 
 export default {
   store: createStore(),
@@ -113,6 +114,16 @@ export default {
       type: Boolean,
       required: true,
     },
+    divergedCommitsCount: {
+      type: Number,
+      required: false,
+      default: 0,
+    },
+    mrState: {
+      type: String,
+      required: false,
+      default: null,
+    },
   },
   componentNames,
   computed: {
@@ -154,10 +165,7 @@ export default {
       return this.enabledReports.sast;
     },
     subHeadingText() {
-      const mrDivergedCommitsCount =
-        (gl && gl.mrWidgetData && gl.mrWidgetData.diverged_commits_count) || 0;
-      const isMRBranchOutdated = mrDivergedCommitsCount > 0;
-
+      const isMRBranchOutdated = this.divergedCommitsCount > 0;
       if (isMRBranchOutdated) {
         return sprintf(
           s__(
@@ -171,6 +179,9 @@ export default {
       return sprintf(
         s__('Security report is out of date. Retry the pipeline for the target branch.'),
       );
+    },
+    isMRActive() {
+      return this.mrState !== mrStates.merged && this.mrState !== mrStates.closed;
     },
   },
 
@@ -191,7 +202,6 @@ export default {
     this.setCanCreateIssuePermission(this.canCreateIssue);
     this.setCanCreateFeedbackPermission(this.canCreateFeedback);
 
-    // eslint-disable-next-line camelcase
     const sastDiffEndpoint = gl?.mrWidgetData?.sast_comparison_path;
 
     if (sastDiffEndpoint && this.hasSastReports) {
@@ -199,7 +209,6 @@ export default {
       this.fetchSastDiff();
     }
 
-    // eslint-disable-next-line camelcase
     const containerScanningDiffEndpoint = gl?.mrWidgetData?.container_scanning_comparison_path;
 
     if (containerScanningDiffEndpoint && this.hasContainerScanningReports) {
@@ -207,7 +216,6 @@ export default {
       this.fetchContainerScanningDiff();
     }
 
-    // eslint-disable-next-line camelcase
     const dastDiffEndpoint = gl?.mrWidgetData?.dast_comparison_path;
 
     if (dastDiffEndpoint && this.hasDastReports) {
@@ -215,7 +223,6 @@ export default {
       this.fetchDastDiff();
     }
 
-    // eslint-disable-next-line camelcase
     const dependencyScanningDiffEndpoint = gl?.mrWidgetData?.dependency_scanning_comparison_path;
 
     if (dependencyScanningDiffEndpoint && this.hasDependencyScanningReports) {
@@ -283,7 +290,11 @@ export default {
       </a>
     </div>
 
-    <div v-if="isBaseSecurityReportOutOfDate" slot="subHeading" class="text-secondary-700 text-1">
+    <div
+      v-if="isMRActive && isBaseSecurityReportOutOfDate"
+      slot="subHeading"
+      class="text-secondary-700 text-1"
+    >
       <span>{{ subHeadingText }}</span>
     </div>
 

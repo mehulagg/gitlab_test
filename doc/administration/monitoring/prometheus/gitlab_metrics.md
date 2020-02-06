@@ -83,6 +83,14 @@ The following metrics are available:
 | `upload_file_does_not_exist`                                   | Counter   | 10.7 in EE, 11.5 in CE | Number of times an upload record could not find its file                                            |                                                     |
 | `failed_login_captcha_total`                                   | Gauge     |                   11.0 | Counter of failed CAPTCHA attempts during login                                                     |                                                     |
 | `successful_login_captcha_total`                               | Gauge     |                   11.0 | Counter of successful CAPTCHA attempts during login                                                 |                                                     |
+| `auto_devops_pipelines_completed_total`                        | Counter   |                   12.7 | Counter of completed Auto DevOps pipelines, labeled by status                                       |                                                     |
+| `sidekiq_jobs_cpu_seconds`                                     | Histogram |                   12.4 | Seconds of cpu time to run Sidekiq job                                                              |                                                     |
+| `sidekiq_jobs_completion_seconds`                              | Histogram |                   12.2 | Seconds to complete Sidekiq job                                                                     |                                                     |
+| `sidekiq_jobs_queue_duration_seconds`                          | Histogram |                   12.5 | Duration in seconds that a Sidekiq job was queued before being executed                             |                                                     |
+| `sidekiq_jobs_failed_total`                                    | Counter   |                   12.2 | Sidekiq jobs failed                                                                                 |                                                     |
+| `sidekiq_jobs_retried_total`                                   | Counter   |                   12.2 | Sidekiq jobs retried                                                                                |                                                     |
+| `sidekiq_running_jobs`                                         | Gauge     |                   12.2 | Number of Sidekiq jobs running                                                                      |                                                     |
+| `sidekiq_concurrency`                                          | Gauge     |                   12.5 | Maximum number of Sidekiq jobs                                                                      |                                                     |
 
 ## Metrics controlled by a feature flag
 

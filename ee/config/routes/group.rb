@@ -31,6 +31,9 @@ constraints(::Constraints::GroupUrlConstrainer.new) do
         get :production
       end
     end
+    namespace :analytics do
+      resource :productivity_analytics, only: :show, constraints: -> (req) { Feature.enabled?(:group_level_productivity_analytics) && Gitlab::Analytics.productivity_analytics_enabled? }
+    end
 
     resource :ldap, only: [] do
       member do
@@ -151,7 +154,7 @@ end
 scope format: false do
   get 'v2', to: proc { [200, {}, ['']] }
 
-  constraints image: Gitlab::PathRegex.container_image_regex do
+  constraints image: Gitlab::PathRegex.container_image_regex, sha: Gitlab::PathRegex.container_image_blob_sha_regex do
     get 'v2/*group_id/dependency_proxy/containers/*image/manifests/*tag' => 'groups/dependency_proxy_for_containers#manifest'
     get 'v2/*group_id/dependency_proxy/containers/*image/blobs/:sha' => 'groups/dependency_proxy_for_containers#blob'
   end

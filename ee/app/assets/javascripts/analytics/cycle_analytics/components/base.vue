@@ -8,7 +8,7 @@ import { PROJECTS_PER_PAGE, DEFAULT_DAYS_IN_PAST } from '../constants';
 import GroupsDropdownFilter from '../../shared/components/groups_dropdown_filter.vue';
 import ProjectsDropdownFilter from '../../shared/components/projects_dropdown_filter.vue';
 import Scatterplot from '../../shared/components/scatterplot.vue';
-import { LAST_ACTIVITY_AT, dateFormats } from '../../shared/constants';
+import { LAST_ACTIVITY_AT, dateFormats, DATE_RANGE_LIMIT } from '../../shared/constants';
 import DateRange from '../../shared/components/daterange.vue';
 import StageDropdownFilter from './stage_dropdown_filter.vue';
 import SummaryTable from './summary_table.vue';
@@ -193,13 +193,15 @@ export default {
     per_page: PROJECTS_PER_PAGE,
     with_shared: false,
     order_by: LAST_ACTIVITY_AT,
+    include_subgroups: true,
   },
   durationChartTooltipDateFormat: dateFormats.defaultDate,
+  maxDateRange: DATE_RANGE_LIMIT,
 };
 </script>
 
 <template>
-  <div>
+  <div class="js-cycle-analytics">
     <div class="page-title-holder d-flex align-items-center">
       <h3 class="page-title">{{ __('Cycle Analytics') }}</h3>
     </div>
@@ -228,6 +230,7 @@ export default {
           <date-range
             :start-date="startDate"
             :end-date="endDate"
+            :max-date-range="$options.maxDateRange"
             class="js-daterange-picker"
             @change="setDateRange"
           />

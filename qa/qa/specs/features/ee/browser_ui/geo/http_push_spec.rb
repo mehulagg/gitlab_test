@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Geo', :orchestrated, :geo do
+  context 'Geo', :orchestrated, :geo, quarantine: 'https://gitlab.com/gitlab-org/gitlab/issues/201948' do
     describe 'GitLab HTTP push' do
       let(:file_name) { 'README.md' }
 
@@ -34,6 +34,8 @@ module QA
             end
           end
 
+          QA::Runtime::Logger.debug('Visiting the secondary geo node')
+
           QA::Flow::Login.while_signed_in(address: :geo_secondary) do
             EE::Page::Main::Banner.perform do |banner|
               expect(banner).to have_secondary_read_only_banner
@@ -63,11 +65,7 @@ module QA
           lfs_file_display_message = 'The rendered file could not be displayed because it is stored in LFS.'
           project = nil
 
-          Runtime::Browser.visit(:geo_primary, QA::Page::Main::Login) do
-            # Visit the primary node and login
-            Page::Main::Login.perform(&:sign_in_using_credentials)
-
-            # Create a new Project
+          QA::Flow::Login.while_signed_in(address: :geo_primary) do
             project = Resource::Project.fabricate! do |project|
               project.name = 'geo-project'
               project.description = 'Geo test project'
@@ -94,10 +92,9 @@ module QA
             end
           end
 
-          Runtime::Browser.visit(:geo_secondary, QA::Page::Main::Login) do
-            # Visit the secondary node and login
-            Page::Main::Login.perform(&:sign_in_using_credentials)
+          QA::Runtime::Logger.debug('Visiting the secondary geo node')
 
+          QA::Flow::Login.while_signed_in(address: :geo_secondary) do
             EE::Page::Main::Banner.perform do |banner|
               expect(banner).to have_secondary_read_only_banner
             end

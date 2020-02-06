@@ -98,7 +98,7 @@ For example, if you move `doc/workflow/lfs/lfs_administration.md` to
    A quick way to find them is to use `git grep`. First go to the root directory
    where you cloned the `gitlab` repository and then do:
 
-   ```sh
+   ```shell
    git grep -n "workflow/lfs/lfs_administration"
    git grep -n "lfs/lfs_administration"
    ```
@@ -435,7 +435,7 @@ This list does not limit what other linters you can add to your local documentat
  documentation in the [`gitlab` project](https://gitlab.com/gitlab-org/gitlab), run the
  following commands from within the `gitlab` project:
 
-```sh
+```shell
 cd doc
 proselint **/*.md
 ```
@@ -480,13 +480,13 @@ run the following commands from within your `gitlab` project root directory, whi
 automatically detect the [`.markdownlint.json`](#markdownlint-configuration) config
 file in the root of the project, and test all files in `/doc` and its subdirectories:
 
-```sh
+```shell
 markdownlint 'doc/**/*.md'
 ```
 
 If you wish to use a different config file, use the `-c` flag:
 
-```sh
+```shell
 markdownlint -c <config-file-name> 'doc/**/*.md'
 ```
 
@@ -520,7 +520,7 @@ also check [the issue](https://gitlab.com/gitlab-org/gitlab-foss/issues/64352) t
 tracked the changes required to implement these rules, and details which rules were
 on or off when markdownlint was enabled on the docs.
 
-#### `Vale`
+#### Vale
 
 [Vale](https://errata-ai.github.io/vale/) is a grammar, style, and word usage linter
 for the English language. Vale's configuration is stored in the
@@ -531,7 +531,14 @@ Vale supports creating [custom tests](https://errata-ai.github.io/vale/styles/),
 stored in the `doc/.linting/vale/styles/gitlab` directory, that extend any of
 several types of checks.
 
-To view linting suggestions locally, you must install Vale on your own machine, and
+To view linting suggestions locally, you must install Vale on your own machine,
+and from GitLab's root directory (where `.vale.ini` is located), run:
+
+```shell
+vale --glob='*.{md}' doc
+```
+
+You can also
 [configure the text editor of your choice](https://errata-ai.github.io/vale/#local-use-by-a-single-writer)
 to display the results.
 

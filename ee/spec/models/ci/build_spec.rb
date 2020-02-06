@@ -3,7 +3,7 @@
 require 'spec_helper'
 
 describe Ci::Build do
-  set(:group) { create(:group, plan: :bronze_plan) }
+  let_it_be(:group) { create(:group, plan: :bronze_plan) }
   let(:project) { create(:project, :repository, group: group) }
 
   let(:pipeline) do
@@ -32,6 +32,10 @@ describe Ci::Build do
 
       it { expect(artifact.file_type).to eq 'license_scanning' }
     end
+  end
+
+  describe 'associations' do
+    it { is_expected.to have_many(:security_scans) }
   end
 
   describe '#shared_runners_minutes_limit_enabled?' do

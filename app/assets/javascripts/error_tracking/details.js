@@ -25,9 +25,7 @@ export default () => {
       const {
         issueId,
         projectPath,
-        listPath,
         issueUpdatePath,
-        issueDetailsPath,
         issueStackTracePath,
         projectIssuesPath,
       } = domEl.dataset;
@@ -36,9 +34,7 @@ export default () => {
         props: {
           issueId,
           projectPath,
-          listPath,
           issueUpdatePath,
-          issueDetailsPath,
           issueStackTracePath,
           projectIssuesPath,
           csrfToken: csrf.token,

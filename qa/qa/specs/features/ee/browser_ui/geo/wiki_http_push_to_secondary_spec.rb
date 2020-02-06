@@ -2,7 +2,7 @@
 
 module QA
   # https://gitlab.com/gitlab-org/gitlab/issues/35706
-  context 'Geo', :orchestrated, :geo do
+  context 'Geo', :orchestrated, :geo, quarantine: 'https://gitlab.com/gitlab-org/gitlab/issues/201948' do
     describe 'GitLab Geo Wiki HTTP push secondary' do
       let(:wiki_content) { 'This tests wiki pushes via HTTP to secondary.' }
       let(:push_content_primary) { 'This is from the Geo wiki push to primary!' }
@@ -42,6 +42,8 @@ module QA
       end
 
       it 'is redirected to the primary and ultimately replicated to the secondary' do
+        QA::Runtime::Logger.debug('Visiting the secondary geo node')
+
         QA::Flow::Login.while_signed_in(address: :geo_secondary) do
           EE::Page::Main::Banner.perform do |banner|
             expect(banner).to have_secondary_read_only_banner

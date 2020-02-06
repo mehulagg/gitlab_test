@@ -396,7 +396,8 @@ Parameters:
 | `my_reaction_emoji`             | string         | no       | Return merge requests reacted by the authenticated user by the given `emoji`. `None` returns issues not given a reaction. `Any` returns issues given at least one reaction. _([Introduced][ce-14016] in GitLab 10.0)_ |
 | `source_branch`                 | string         | no       | Return merge requests with the given source branch                                                                             |
 | `target_branch`                 | string         | no       | Return merge requests with the given target branch                                                                             |
-| `search`                        | string         | no       | Search merge requests against their `title` and `description`                                                                  |
+| `search`                        | string         | no       | Search merge requests against their `title` and `description` |
+| `non_archived`                  | Boolean        | no       | Return merge requests from non archived projects only. Default is true. _(Introduced in [GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/23809))_  |
 
 ```json
 [
@@ -1272,7 +1273,7 @@ DELETE /projects/:id/merge_requests/:merge_request_iid
 | `id`      | integer/string  | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
 | `merge_request_iid` | integer | yes      | The internal ID of the merge request |
 
-```bash
+```shell
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/4/merge_requests/85
 ```
 
@@ -1630,7 +1631,7 @@ PUT /projects/:id/merge_requests/:merge_request_iid/rebase
 | `merge_request_iid` | integer | yes      | The internal ID of the merge request |
 | `skip_ci`           | boolean | no       | Set to `true` to skip creating a CI pipeline |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/76/merge_requests/1/rebase
 ```
 
@@ -1692,7 +1693,7 @@ GET /projects/:id/merge_requests/:merge_request_iid/closes_issues
 | `id`                | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user                  |
 | `merge_request_iid` | integer | yes      | The internal ID of the merge request |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/76/merge_requests/1/closes_issues
 ```
 
@@ -1768,7 +1769,7 @@ POST /projects/:id/merge_requests/:merge_request_iid/subscribe
 | `id`                | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user         |
 | `merge_request_iid` | integer | yes      | The internal ID of the merge request |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/merge_requests/17/subscribe
 ```
 
@@ -1919,7 +1920,7 @@ POST /projects/:id/merge_requests/:merge_request_iid/unsubscribe
 | `id`                | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user                  |
 | `merge_request_iid` | integer | yes      | The internal ID of the merge request |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/merge_requests/17/unsubscribe
 ```
 
@@ -2070,7 +2071,7 @@ POST /projects/:id/merge_requests/:merge_request_iid/todo
 | `id`                | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user                  |
 | `merge_request_iid` | integer | yes      | The internal ID of the merge request |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/merge_requests/27/todo
 ```
 
@@ -2187,7 +2188,7 @@ GET /projects/:id/merge_requests/:merge_request_iid/versions
 | `id`                | String  | yes      | The ID of the project       |
 | `merge_request_iid` | integer | yes      | The internal ID of the merge request |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/1/merge_requests/1/versions
 ```
 
@@ -2229,7 +2230,7 @@ GET /projects/:id/merge_requests/:merge_request_iid/versions/:version_id
 | `merge_request_iid` | integer | yes      | The internal ID of the merge request     |
 | `version_id`        | integer | yes      | The ID of the merge request diff version |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/1/merge_requests/1/versions/1
 ```
 
@@ -2297,7 +2298,7 @@ POST /projects/:id/merge_requests/:merge_request_iid/time_estimate
 | `merge_request_iid` | integer | yes      | The internal ID of the merge request     |
 | `duration`          | string  | yes      | The duration in human format. e.g: 3h30m |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/merge_requests/93/time_estimate?duration=3h30m
 ```
 
@@ -2325,7 +2326,7 @@ POST /projects/:id/merge_requests/:merge_request_iid/reset_time_estimate
 | `id`                | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user                          |
 | `merge_request_iid` | integer | yes      | The internal ID of a project's merge_request |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/merge_requests/93/reset_time_estimate
 ```
 
@@ -2354,7 +2355,7 @@ POST /projects/:id/merge_requests/:merge_request_iid/add_spent_time
 | `merge_request_iid` | integer | yes      | The internal ID of the merge request     |
 | `duration`          | string  | yes      | The duration in human format. e.g: 3h30m |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/merge_requests/93/add_spent_time?duration=1h
 ```
 
@@ -2382,7 +2383,7 @@ POST /projects/:id/merge_requests/:merge_request_iid/reset_spent_time
 | `id`                | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user                          |
 | `merge_request_iid` | integer | yes      | The internal ID of a project's merge_request |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/merge_requests/93/reset_spent_time
 ```
 
@@ -2408,7 +2409,7 @@ GET /projects/:id/merge_requests/:merge_request_iid/time_stats
 | `id`                | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user                  |
 | `merge_request_iid` | integer | yes      | The internal ID of the merge request |
 
-```bash
+```shell
 curl --request GET --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/merge_requests/93/time_stats
 ```
 

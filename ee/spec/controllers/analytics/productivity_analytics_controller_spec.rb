@@ -9,6 +9,7 @@ describe Analytics::ProductivityAnalyticsController do
   before do
     sign_in(current_user) if current_user
 
+    stub_feature_flags(group_level_productivity_analytics: false)
     stub_licensed_features(productivity_analytics: true)
   end
 

@@ -1,6 +1,6 @@
 source 'https://rubygems.org'
 
-gem 'rails', '5.2.3'
+gem 'rails', '6.0.2'
 
 gem 'bootsnap', '~> 1.4'
 
@@ -65,7 +65,7 @@ gem 'u2f', '~> 0.2.1'
 
 # GitLab Pages
 gem 'validates_hostname', '~> 1.0.6'
-gem 'rubyzip', '~> 1.3.0', require: 'zip'
+gem 'rubyzip', '~> 2.0.0', require: 'zip'
 # GitLab Pages letsencrypt support
 gem 'acme-client', '~> 2.0.5'
 
@@ -84,7 +84,7 @@ gem 'net-ldap'
 # API
 gem 'grape', '~> 1.1.0'
 gem 'grape-entity', '~> 0.7.1'
-gem 'rack-cors', '~> 1.0.0', require: 'rack/cors'
+gem 'rack-cors', '~> 1.0.6', require: 'rack/cors'
 
 # GraphQL API
 gem 'graphql', '~> 1.9.11'
@@ -305,7 +305,7 @@ gem 'gitlab-labkit', '0.9.1'
 
 # I18n
 gem 'ruby_parser', '~> 3.8', require: false
-gem 'rails-i18n', '~> 5.1'
+gem 'rails-i18n', '~> 6.0'
 gem 'gettext_i18n_rails', '~> 1.8.0'
 gem 'gettext_i18n_rails_js', '~> 1.3'
 gem 'gettext', '~> 3.2.2', require: false, group: :development
@@ -349,7 +349,7 @@ end
 group :development, :test do
   gem 'bullet', '~> 6.0.2', require: !!ENV['ENABLE_BULLET']
   gem 'pry-byebug', '~> 3.5.1', platform: :mri
-  gem 'pry-rails', '~> 0.3.4'
+  gem 'pry-rails', '~> 0.3.9'
 
   gem 'awesome_print', require: false
 
@@ -456,7 +456,7 @@ group :ed25519 do
 end
 
 # Gitaly GRPC protocol definitions
-gem 'gitaly', '~> 1.81.0'
+gem 'gitaly', '~> 1.85.0'
 
 gem 'grpc', '~> 1.24.0'
 
@@ -486,3 +486,10 @@ gem 'liquid', '~> 4.0'
 
 # LRU cache
 gem 'lru_redux'
+
+gem 'erubi', '~> 1.9.0'
+
+# Locked as long as quoted-printable encoding issues are not resolved
+# Monkey-patched in `config/initializers/mail_encoding_patch.rb`
+# See https://gitlab.com/gitlab-org/gitlab/issues/197386
+gem 'mail', '= 2.7.1'

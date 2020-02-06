@@ -36,17 +36,17 @@ Here are some things to keep in mind regarding test performance:
 
 To run rspec tests:
 
-```sh
+```shell
 # run all tests
-bundle exec rspec
+bin/rspec
 
 # run test for path
-bundle exec rspec spec/[path]/[to]/[spec].rb
+bin/rspec spec/[path]/[to]/[spec].rb
 ```
 
-Use [guard](https://github.com/guard/guard) to continuously monitor for changes and only run matching tests:
+Use [Guard](https://github.com/guard/guard) to continuously monitor for changes and only run matching tests:
 
-```sh
+```shell
 bundle exec guard
 ```
 
@@ -130,7 +130,7 @@ Note: `live_debug` only works on JavaScript enabled specs.
 Run the spec with `CHROME_HEADLESS=0`, e.g.:
 
 ```
-CHROME_HEADLESS=0 bundle exec rspec some_spec.rb
+CHROME_HEADLESS=0 bin/rspec some_spec.rb
 ```
 
 The test will go by quickly, but this will give you an idea of what's happening.
@@ -382,8 +382,23 @@ this trait should be either fixed to not rely on Sidekiq processing jobs, or the
 the processing of background jobs is needed/expected.
 
 NOTE: **Note:**
-The usage of `perform_enqueued_jobs` is currently useless since our
-workers aren't inheriting from `ApplicationJob` / `ActiveJob::Base`.
+The usage of `perform_enqueued_jobs` is only useful for testing delayed mail
+deliveries since our Sidekiq workers aren't inheriting from `ApplicationJob` / `ActiveJob::Base`.
+
+#### DNS
+
+DNS requests are stubbed universally in the test suite
+(as of [!22368](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/22368)), as DNS can
+cause issues depending on the developer's local network. There are RSpec labels
+available in `spec/support/dns.rb` which you can apply to tests if you need to
+bypass the DNS stubbing, e.g.:
+
+```
+it "really connects to Prometheus", :permit_dns do
+```
+
+And if you need more specific control, the DNS blocking is implemented in
+`spec/support/helpers/dns_helpers.rb` and these methods can be called elsewhere.
 
 #### Filesystem
 
@@ -529,6 +544,15 @@ be very useful whenever some tests start breaking and we would love to know
 why without editing the source and rerun the tests.
 
 This is especially useful whenever it's showing 500 internal server error.
+
+Prefer named HTTP status like `:no_content` over its numeric representation
+`206`. See a list of [supported status codes](https://github.com/rack/rack/blob/f2d2df4016a906beec755b63b4edfcc07b58ee05/lib/rack/utils.rb#L490).
+
+Example:
+
+```ruby
+expect(response).to have_gitlab_http_status(:ok)
+```
 
 ### Shared contexts
 

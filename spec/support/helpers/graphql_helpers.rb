@@ -185,12 +185,13 @@ module GraphqlHelpers
   end
 
   # Fairly dumb Ruby => GraphQL rendering function. Only suitable for testing.
-  # Missing support for Enums (feel free to add if you need it).
+  # Use symbol for Enum values
   def as_graphql_literal(value)
     case value
     when Array then "[#{value.map { |v| as_graphql_literal(v) }.join(',')}]"
     when Integer, Float then value.to_s
     when String then "\"#{value.gsub(/"/, '\\"')}\""
+    when Symbol then value
     when nil then 'null'
     when true then 'true'
     when false then 'false'
@@ -348,6 +349,39 @@ module GraphqlHelpers
 
   def custom_graphql_error(path, msg)
     a_hash_including('path' => path, 'message' => msg)
+  end
+
+  def type_factory
+    Class.new(Types::BaseObject) do
+      graphql_name 'TestType'
+
+      field :name, GraphQL::STRING_TYPE, null: true
+
+      yield(self) if block_given?
+    end
+  end
+
+  def query_factory
+    Class.new(Types::BaseObject) do
+      graphql_name 'TestQuery'
+
+      yield(self) if block_given?
+    end
+  end
+
+  def execute_query(query_type)
+    schema = Class.new(GraphQL::Schema) do
+      use Gitlab::Graphql::Authorize
+      use Gitlab::Graphql::Connections
+
+      query(query_type)
+    end
+
+    schema.execute(
+      query_string,
+      context: { current_user: user },
+      variables: {}
+    )
   end
 end
 

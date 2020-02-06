@@ -196,6 +196,12 @@ module EE
         joins('LEFT JOIN services ON services.project_id = projects.id AND services.type = \'GitlabSlackApplicationService\' AND services.active IS true')
           .where('services.id IS NULL')
       end
+
+      def find_by_service_desk_project_key(key)
+        # project_key is not indexed for now
+        # see https://gitlab.com/gitlab-org/gitlab/-/merge_requests/24063#note_282435524 for details
+        joins(:service_desk_setting).find_by('service_desk_settings.project_key' => key)
+      end
     end
 
     def can_store_security_reports?
@@ -697,13 +703,13 @@ module EE
     end
 
     def adjourned_deletion?
-      feature_available?(:marking_project_for_deletion) &&
+      feature_available?(:adjourned_deletion_for_projects_and_groups) &&
         ::Gitlab::CurrentSettings.deletion_adjourned_period > 0
     end
 
     def marked_for_deletion?
       marked_for_deletion_at.present? &&
-        feature_available?(:marking_project_for_deletion)
+        feature_available?(:adjourned_deletion_for_projects_and_groups)
     end
 
     def ancestor_marked_for_deletion
@@ -721,6 +727,13 @@ module EE
 
     def license_compliance
       strong_memoize(:license_compliance) { SCA::LicenseCompliance.new(self) }
+    end
+
+    override :template_source?
+    def template_source?
+      return true if namespace_id == ::Gitlab::CurrentSettings.current_application_settings.custom_project_templates_group_id
+
+      ::Project.with_groups_level_repos_templates.exists?(id)
     end
 
     private

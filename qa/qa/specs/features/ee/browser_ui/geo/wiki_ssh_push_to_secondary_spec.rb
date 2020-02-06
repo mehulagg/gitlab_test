@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Geo', :orchestrated, :geo do
+  context 'Geo', :orchestrated, :geo, quarantine: 'https://gitlab.com/gitlab-org/gitlab/issues/201948' do
     describe 'GitLab wiki SSH push to secondary' do
       wiki_title = 'Geo Replication Wiki'
       wiki_content = 'This tests replication of wikis via SSH to secondary'
@@ -36,6 +36,8 @@ module QA
       end
 
       it 'proxies wiki commit to primary node and ultmately replicates to secondary node' do
+        QA::Runtime::Logger.debug('Visiting the secondary geo node')
+
         QA::Flow::Login.while_signed_in(address: :geo_secondary) do
           EE::Page::Main::Banner.perform do |banner|
             expect(banner).to have_secondary_read_only_banner

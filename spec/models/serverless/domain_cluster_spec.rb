@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Serverless::DomainCluster do
+describe ::Serverless::DomainCluster do
   subject { create(:serverless_domain_cluster) }
 
   describe 'validations' do
@@ -45,5 +45,17 @@ describe Serverless::DomainCluster do
         expect(build(:serverless_domain_cluster, uuid: uuid).uuid).to eq(uuid)
       end
     end
+  end
+
+  describe 'domain' do
+    it { is_expected.to respond_to(:domain) }
+  end
+
+  describe 'certificate' do
+    it { is_expected.to respond_to(:certificate) }
+  end
+
+  describe 'key' do
+    it { is_expected.to respond_to(:key) }
   end
 end

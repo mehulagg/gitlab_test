@@ -232,8 +232,8 @@ To create and add a new Kubernetes cluster to your project, group, or instance:
    - **Number of nodes** - Enter the number of nodes you wish the cluster to have.
    - **Machine type** - The [machine type](https://cloud.google.com/compute/docs/machine-types)
      of the Virtual Machine instance that the cluster will be based on.
-   - **Enable Cloud Run on GKE (beta)** - Check this if you want to use Cloud Run on GKE for this cluster.
-     See the [Cloud Run on GKE section](#cloud-run-on-gke) for more information.
+   - **Enable Cloud Run for Anthos** - Check this if you want to use Cloud Run for Anthos for this cluster.
+     See the [Cloud Run for Anthos section](#cloud-run-for-anthos) for more information.
    - **GitLab-managed cluster** - Leave this checked if you want GitLab to manage namespaces and service accounts for this cluster.
      See the [Managed clusters section](index.md#gitlab-managed-clusters) for more information.
 1. Finally, click the **Create Kubernetes cluster** button.
@@ -241,11 +241,11 @@ To create and add a new Kubernetes cluster to your project, group, or instance:
 After a couple of minutes, your cluster will be ready to go. You can now proceed
 to install some [pre-defined applications](index.md#installing-applications).
 
-#### Cloud Run on GKE
+#### Cloud Run for Anthos
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/16566) in GitLab 12.4.
 
-You can choose to use Cloud Run on GKE in place of installing Knative and Istio
+You can choose to use Cloud Run for Anthos in place of installing Knative and Istio
 separately after the cluster has been created. This means that Cloud Run
 (Knative), Istio, and HTTP Load Balancing will be enabled on the cluster at
 create time and cannot be [installed or uninstalled](../../clusters/applications.md) separately.
@@ -393,7 +393,7 @@ To add a Kubernetes cluster to your project, group, or instance:
 
      Get the API URL by running this command:
 
-     ```sh
+     ```shell
      kubectl cluster-info | grep 'Kubernetes master' | awk '/http/ {print $NF}'
      ```
 
@@ -402,7 +402,7 @@ To add a Kubernetes cluster to your project, group, or instance:
       `default-token-xxxxx`. Copy that token name for use below.
      - Get the certificate by running this command:
 
-       ```sh
+       ```shell
 
        kubectl get secret <secret name> -o jsonpath="{['data']['ca\.crt']}" | base64 --decode
 
@@ -444,7 +444,7 @@ To add a Kubernetes cluster to your project, group, or instance:
 
      1. Apply the service account and cluster role binding to your cluster:
 
-        ```bash
+        ```shell
         kubectl apply -f gitlab-admin-service-account.yaml
         ```
 
@@ -453,7 +453,7 @@ To add a Kubernetes cluster to your project, group, or instance:
         you can alternatively enable Basic Authentication and then run the
         `kubectl apply` command as an admin:
 
-        ```bash
+        ```shell
         kubectl apply -f gitlab-admin-service-account.yaml --username=admin --password=<password>
         ```
 
@@ -463,14 +463,14 @@ To add a Kubernetes cluster to your project, group, or instance:
 
         Output:
 
-        ```bash
+        ```shell
         serviceaccount "gitlab-admin" created
         clusterrolebinding "gitlab-admin" created
         ```
 
      1. Retrieve the token for the `gitlab-admin` service account:
 
-        ```bash
+        ```shell
         kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep gitlab-admin | awk '{print $1}')
         ```
 
@@ -530,7 +530,7 @@ To add an existing EKS cluster to your project, group, or instance:
          `default-token-xxxxx`. Copy that token name for use below.
       1. Get the certificate with:
 
-         ```sh
+         ```shell
          kubectl get secret <secret name> -o jsonpath="{['data']['ca\.crt']}" | base64 --decode
          ```
 
@@ -582,7 +582,7 @@ To add an existing EKS cluster to your project, group, or instance:
 
       1. Retrieve the token for the `eks-admin` service account:
 
-         ```bash
+         ```shell
          kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep eks-admin | awk '{print $1}')
          ```
 
@@ -643,7 +643,7 @@ or user who can authenticate to the cluster, has full API access. This is a
 
 To effectively disable RBAC, global permissions can be applied granting full access:
 
-```bash
+```shell
 kubectl create clusterrolebinding permissive-binding \
   --clusterrole=cluster-admin \
   --user=admin \

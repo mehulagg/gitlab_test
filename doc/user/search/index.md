@@ -33,8 +33,15 @@ Follow these steps to filter the **Issues** and **Merge Requests** list pages wi
 groups:
 
 1. Click in the field **Search or filter results...**.
-1. In the dropdown menu that appears, select the attribute you wish to filter by (for example,
-   author, assignee, milestone, and so on).
+1. In the dropdown menu that appears, select the attribute you wish to filter by:
+   - Author
+   - Assignee
+   - [Milestone](../project/milestones/index.md)
+   - Release
+   - [Label](../project/labels.md)
+   - My-reaction
+   - Confidential
+   - Search for this text
 1. Select or type the operator to use for filtering the attribute. The following operators are
    available:
    - `=`: Is
@@ -72,6 +79,15 @@ You can filter issues and merge requests by specific terms included in titles or
   - Search is limited to 4096 characters and 64 terms per query.
 
 ![filter issues by specific terms](img/issue_search_by_term.png)
+
+### Filtering merge requests by approvers **(STARTER)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/9468) in [GitLab Starter](https://about.gitlab.com/pricing/) 11.9.
+
+To filter merge requests by an individual approver, you can type (or select from
+the dropdown) `approver` and select the user.
+
+![Filter MRs by an approver](img/filter_approver_merge_requests.png)
 
 ## Search history
 
