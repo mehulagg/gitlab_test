@@ -9,13 +9,13 @@ module Gitlab
             def initialize
               @gitlab_name = 'gitlab-instance-saml'
               @spec_suite = 'Test::Integration::InstanceSAML'
+              @saml_component = true
             end
 
             def configure(gitlab, saml)
               saml.set_entity_id(gitlab.address)
               saml.set_assertion_consumer_service("#{gitlab.address}/users/auth/saml/callback")
               saml.set_simple_saml_hostname
-              saml.set_accept_insecure_certs
 
               gitlab.omnibus_config = <<~OMNIBUS
                 gitlab_rails['omniauth_enabled'] = true;

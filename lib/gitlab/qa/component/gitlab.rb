@@ -73,6 +73,10 @@ module Gitlab
           @relative_path ||= ''
         end
 
+        def set_accept_insecure_certs
+          Runtime::Env.accept_insecure_certs = 'true'
+        end
+
         def instance
           prepare
           start

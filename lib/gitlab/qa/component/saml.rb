@@ -113,10 +113,6 @@ module Gitlab
         def set_simple_saml_hostname
           ::Gitlab::QA::Runtime::Env.simple_saml_hostname = hostname
         end
-
-        def set_accept_insecure_certs
-          ::Gitlab::QA::Runtime::Env.accept_insecure_certs = 'true'
-        end
       end
     end
   end

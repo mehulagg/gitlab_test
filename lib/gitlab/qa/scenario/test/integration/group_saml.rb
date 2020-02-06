@@ -9,6 +9,7 @@ module Gitlab
             def initialize
               @gitlab_name = 'gitlab-group-saml'
               @spec_suite = 'QA::EE::Scenario::Test::Integration::GroupSAML'
+              @saml_component = false
             end
 
             def before_perform(release)
@@ -16,12 +17,6 @@ module Gitlab
             end
 
             def configure(gitlab, saml)
-              saml.set_entity_id("#{gitlab.address}/groups/#{saml.group_name}")
-              saml.set_assertion_consumer_service("#{gitlab.address}/groups/#{saml.group_name}/-/saml/callback")
-              saml.set_sandbox_name(saml.group_name)
-              saml.set_simple_saml_hostname
-              saml.set_accept_insecure_certs
-
               gitlab.omnibus_config = <<~OMNIBUS
                 gitlab_rails['omniauth_enabled'] = true;
                 gitlab_rails['omniauth_providers'] = [{ name: 'group_saml' }];
