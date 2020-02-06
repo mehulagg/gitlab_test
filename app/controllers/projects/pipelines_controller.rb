@@ -168,7 +168,7 @@ class Projects::PipelinesController < Projects::ApplicationController
       end
 
       format.json do
-        if pipeline_test_report == :error
+        if pipeline_test_report.suite_errors.any?
           render json: { status: :error_parsing_report }
         else
           render json: TestReportSerializer
@@ -257,11 +257,7 @@ class Projects::PipelinesController < Projects::ApplicationController
   end
 
   def pipeline_test_report
-    strong_memoize(:pipeline_test_report) do
-      @pipeline.test_reports
-    rescue Gitlab::Ci::Parsers::ParserError
-      :error
-    end
+    strong_memoize(:pipeline_test_report) { @pipeline.test_reports }
   end
 end
 

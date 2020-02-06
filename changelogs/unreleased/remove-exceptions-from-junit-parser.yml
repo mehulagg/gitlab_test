@@ -1,0 +1,5 @@
+---
+title: Use TestReport#suite_errors in PipelinesController
+merge_request: 24188
+author:
+type: fixed

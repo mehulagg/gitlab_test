@@ -33,7 +33,9 @@ module Gitlab
         # rubocop: enable CodeReuse/ActiveRecord
 
         def total_status
-          if @suite_error || failed_count > 0 || error_count > 0
+          if @suite_error
+            TestCase::STATUS_ERROR
+          elsif failed_count > 0 || error_count > 0
             TestCase::STATUS_FAILED
           else
             TestCase::STATUS_SUCCESS
@@ -46,7 +48,6 @@ module Gitlab
 
             test_cases[status_type]
           end
-
 
           define_method("#{status_type}_count") do
             return 0 if @suite_error || test_cases[status_type].nil?
