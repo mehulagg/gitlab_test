@@ -39,15 +39,6 @@ export default {
       return this.endDateValues.time < timeframeItem.getTime();
     },
     /**
-     * Check if current milestone begins before current month and ends after current month (timeline cell)
-     */
-    isTimeframeBetweenStartandEndForMonth(timeframeItem) {
-      return (
-        this.startDateValues.month < timeframeItem.getMonth() &&
-        this.endDateValues.month > timeframeItem.getMonth()
-      );
-    },
-    /**
      * Return timeline bar width for current month (timeline cell) based on
      * cellWidth, days in month and date of the month
      */

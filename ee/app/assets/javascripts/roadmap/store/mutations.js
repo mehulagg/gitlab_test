@@ -51,6 +51,9 @@ export default {
     state.timeframe.push(...extendedTimeframe);
   },
 
+  [types.SET_MILESTONES](state, milestones) {
+    state.milestones = milestones;
+  },
   [types.UPDATE_MILESTONE_IDS](state, milestoneId) {
     state.milestoneIds.push(milestoneId);
   },

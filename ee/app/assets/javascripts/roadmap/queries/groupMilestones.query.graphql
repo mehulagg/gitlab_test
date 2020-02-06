@@ -1,10 +1,17 @@
 query groupMilestones(
   $fullPath: ID!
+  $state: MilestoneStateEnum
+  $startDate: Time
+  $dueDate: Time
 ) {
   group(fullPath: $fullPath) {
     id
     name
-    milestones (startDate: $startDate) {
+    milestones(
+      state: $state
+      startDate: $startDate
+      endDate: $dueDate
+    ) {
       edges {
         node {
           id
@@ -13,7 +20,7 @@ query groupMilestones(
           state
           dueDate
           startDate
-          webUrl
+          webPath
         }
       }
     }

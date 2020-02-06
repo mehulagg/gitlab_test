@@ -1,7 +1,6 @@
 import flash from '~/flash';
 import { s__ } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
-import { createMockClient } from '~/lib/graphql';
 
 import * as epicUtils from '../utils/epic_utils';
 import * as milestoneUtils from '../utils/milestone_utils';
@@ -201,15 +200,22 @@ export const refreshEpicDates = ({ commit, state, getters }) => {
   commit(types.SET_EPICS, epics);
 };
 
-export const fetchGroupMilestones = ({ fullPath }) => {
+export const fetchGroupMilestones = (
+  { fullPath, presetType, filterParams, timeframe },
+  defaultTimeframe,
+) => {
   const query = groupMilestones;
   const variables = {
     fullPath,
+    state: 'active',
+    ...getEpicsTimeframeRange({
+      presetType,
+      timeframe: defaultTimeframe || timeframe,
+    }),
+    ...filterParams,
   };
 
-  const mockClient = createMockClient();
-
-  return mockClient
+  return epicUtils.gqClient
     .query({
       query,
       variables,
@@ -228,7 +234,7 @@ export const requestMilestones = ({ commit }) => commit(types.REQUEST_MILESTONES
 export const fetchMilestones = ({ state, dispatch }) => {
   dispatch('requestMilestones');
 
-  fetchGroupMilestones(state)
+  return fetchGroupMilestones(state)
     .then(rawMilestones => {
       dispatch('receiveMilestonesSuccess', { rawMilestones });
     })
@@ -266,6 +272,18 @@ export const receiveMilestonesSuccess = (
 export const receiveMilestonesFailure = ({ commit }) => {
   commit(types.RECEIVE_MILESTONES_FAILURE);
   flash(s__('GroupRoadmap|Something went wrong while fetching milestones'));
+};
+
+export const refreshMilestoneDates = ({ commit, state, getters }) => {
+  const milestones = state.milestones.map(milestone =>
+    roadmapItemUtils.processRoadmapItemDates(
+      milestone,
+      getters.timeframeStartDate,
+      getters.timeframeEndDate,
+    ),
+  );
+
+  commit(types.SET_MILESTONES, milestones);
 };
 
 export const setBufferSize = ({ commit }, bufferSize) => commit(types.SET_BUFFER_SIZE, bufferSize);

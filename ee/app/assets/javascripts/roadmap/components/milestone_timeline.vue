@@ -33,39 +33,8 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      milestonesPerTimeframeItem: [],
-    };
-  },
-  created() {
-    this.milestonesPerTimeframeItem = this.getMilestonesPerTimeframeItem();
-  },
-  methods: {
-    timeframeToDate(timeframeItem) {
-      return timeframeDate(timeframeItem, this.presetType);
-    },
-    hasStartDate(milestone, timeframeItem) {
-      if (this.presetType === PRESET_TYPES.QUARTERS) {
-        return this.startsInQuarter(milestone, timeframeItem);
-      } else if (this.presetType === PRESET_TYPES.MONTHS) {
-        return this.startsInMonth(milestone, timeframeItem);
-      } else if (this.presetType === PRESET_TYPES.WEEKS) {
-        return this.startsInWeek(milestone, timeframeItem);
-      }
-      return false;
-    },
-    hasEndDate(milestone, timeframeItem) {
-      if (this.presetType === PRESET_TYPES.QUARTERS) {
-        return this.endsInQuarter(milestone, timeframeItem);
-      } else if (this.presetType === PRESET_TYPES.MONTHS) {
-        return this.endsInMonth(milestone, timeframeItem);
-      } else if (this.presetType === PRESET_TYPES.WEEKS) {
-        return this.endsInWeek(milestone, timeframeItem);
-      }
-      return false;
-    },
-    getMilestonesPerTimeframeItem() {
+  computed: {
+    milestonesPerTimeframeItem() {
       const milestonesPerTimeframeItem = {};
       let previousTimeFrameItem = this.timeframe[0];
       this.timeframe.forEach((timeframeItem, timeIndex) => {
@@ -118,6 +87,31 @@ export default {
         previousTimeFrameItem = timeframeItem;
       });
       return milestonesPerTimeframeItem;
+    },
+  },
+  methods: {
+    timeframeToDate(timeframeItem) {
+      return timeframeDate(timeframeItem, this.presetType);
+    },
+    hasStartDate(milestone, timeframeItem) {
+      if (this.presetType === PRESET_TYPES.QUARTERS) {
+        return this.startsInQuarter(milestone, timeframeItem);
+      } else if (this.presetType === PRESET_TYPES.MONTHS) {
+        return this.startsInMonth(milestone, timeframeItem);
+      } else if (this.presetType === PRESET_TYPES.WEEKS) {
+        return this.startsInWeek(milestone, timeframeItem);
+      }
+      return false;
+    },
+    hasEndDate(milestone, timeframeItem) {
+      if (this.presetType === PRESET_TYPES.QUARTERS) {
+        return this.endsInQuarter(milestone, timeframeItem);
+      } else if (this.presetType === PRESET_TYPES.MONTHS) {
+        return this.endsInMonth(milestone, timeframeItem);
+      } else if (this.presetType === PRESET_TYPES.WEEKS) {
+        return this.endsInWeek(milestone, timeframeItem);
+      }
+      return false;
     },
   },
 };

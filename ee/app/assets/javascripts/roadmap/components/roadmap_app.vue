@@ -92,6 +92,7 @@ export default {
       'extendTimeframe',
       'refreshEpicDates',
       'fetchMilestones',
+      'refreshMilestoneDates',
     ]),
     /**
      * Once timeline is expanded (either with prepend or append)
@@ -122,6 +123,7 @@ export default {
     handleScrollToExtend(roadmapTimelineEl, extendType = EXTEND_AS.PREPEND) {
       this.extendTimeframe({ extendAs: extendType });
       this.refreshEpicDates();
+      this.refreshMilestoneDates();
 
       this.$nextTick(() => {
         this.fetchEpicsForTimeframeFn({

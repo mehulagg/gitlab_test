@@ -436,32 +436,35 @@ html.group-epics-roadmap-html {
         position: relative;
         top: 10px;
       }
+    }
 
-      .milestone-item-details {
+    .milestone-item-details {
+      display: inline-block;
+      position: absolute;
+
+      &:hover .milestone-start-and-end {
+        display: block;
+      }
+
+      a {
         display: inline-block;
-        position: absolute;
+        color: inherit;
+      }
 
-        a {
-          display: inline-block;
-          color: inherit;
-        }
+      a:hover {
+        color: $gray-900;
+        text-decoration: none;
+        cursor: pointer;
 
-        a:hover {
-          color: $gray-900;
-          text-decoration: none;
+        .timeline-bar {
+          background-color: $gray-900;
 
-          .milestone-start-and-end {
-            display: block;
+          &::before {
+            background-color: $gray-900;
           }
 
-          .timeline-bar {
-            background-color: $gray-900;
-            &::before {
-              background-color: $gray-900;
-            }
-            &::after {
-              border-color: $gray-900;
-            }
+          &::after {
+            border-color: $gray-900;
           }
         }
       }

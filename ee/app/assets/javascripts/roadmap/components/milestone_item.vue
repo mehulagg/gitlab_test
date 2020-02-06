@@ -73,15 +73,6 @@ export default {
       }
       return false;
     },
-    isCurrent() {
-      if (this.presetType === PRESET_TYPES.MONTHS) {
-        return this.isTimeframeBetweenStartandEndForMonth(this.timeframeItem)
-      }
-      else if (this.presetType === PRESET_TYPES.WEEKS) {
-        return this.isTimeframeBetweenStartandEndForWeek(this.timeframeItem);
-      }
-      return false;
-    },
     timelineBarStyles() {
       let barStyles = {};
 
@@ -182,12 +173,12 @@ export default {
   >
     <a
       :id="`milestone-item-${milestone.id}`"
-      :href="milestone.webUrl"
+      :href="milestone.webPath"
     >
       <span class="timeline-bar"></span>
       <span class="milestone-item-title">{{ milestone.title }}</span>
-      <div class="milestone-start-and-end" :style="hoverStyles"></div>
     </a>
+    <div class="milestone-start-and-end" :style="hoverStyles"></div>
     <gl-popover
       :target="`milestone-item-${milestone.id}`"
       boundary="viewport"
