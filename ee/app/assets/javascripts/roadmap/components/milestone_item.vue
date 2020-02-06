@@ -90,7 +90,9 @@ export default {
           )}`;
         } else if (this.presetType === PRESET_TYPES.WEEKS) {
           // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
-          barStyles = `width: ${this.getTimelineBarWidthForWeeks()}px; ${this.getTimelineBarStartOffsetForWeeks(this.milestone)}`;
+          barStyles = `width: ${this.getTimelineBarWidthForWeeks()}px; ${this.getTimelineBarStartOffsetForWeeks(
+            this.milestone,
+          )}`;
         }
       }
       return barStyles;
@@ -163,7 +165,8 @@ export default {
 </script>
 
 <template>
-  <span v-if="hasStartDate"
+  <span
+    v-if="hasStartDate"
     :class="{
       'start-date-undefined': milestone.startDateUndefined,
       'end-date-undefined': milestone.endDateUndefined,
@@ -171,10 +174,7 @@ export default {
     :style="timelineBarStyles"
     class="milestone-item-details"
   >
-    <a
-      :id="`milestone-item-${milestone.id}`"
-      :href="milestone.webPath"
-    >
+    <a :id="`milestone-item-${milestone.id}`" :href="milestone.webPath" class="milestone-url">
       <span class="timeline-bar"></span>
       <span class="milestone-item-title">{{ milestone.title }}</span>
     </a>
@@ -187,9 +187,7 @@ export default {
       :title="milestone.title"
     >
       <!-- TODO - Add group, subgroup or project  -->
-      <!-- TODO - move timeframeString epic function to util for reusability  -->
       {{ timeframeString }}
     </gl-popover>
   </span>
-  <!-- <div v-else class="timeline-extra-cell"></div> -->
 </template>

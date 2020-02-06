@@ -41,42 +41,53 @@ export default {
         const linesForMilestones = {};
         let previousLinesForMilestones = {};
         if (timeIndex > 0) {
-          previousLinesForMilestones = milestonesPerTimeframeItem[this.timeframeToDate(previousTimeFrameItem)];
+          previousLinesForMilestones =
+            milestonesPerTimeframeItem[this.timeframeToDate(previousTimeFrameItem)];
         }
-        this.milestones.forEach((milestone) => {
+        this.milestones.forEach(milestone => {
           if (this.hasStartDate(milestone, timeframeItem)) {
-            let milestoneWillStack = false;
-            Object.keys(previousLinesForMilestones).forEach(lineIndex => {
-              const line = previousLinesForMilestones[lineIndex];
-              line.forEach(prevMilestone => {
-                // Can milestone be stacked next to another from previous timeframeItem
-                if (this.hasEndDate(prevMilestone, timeframeItem) && prevMilestone.endDate.getTime() < milestone.startDate.getTime()) {
-                  if (linesForMilestones[lineIndex]) { linesForMilestones[lineIndex].push(milestone); }
-                  else { linesForMilestones[lineIndex] = [milestone]; }
-                  milestoneWillStack = true;
-                }
-                else if (linesForMilestones[lineIndex]) {
-                  linesForMilestones[lineIndex].push(prevMilestone);
-                }
-                else {
-                  linesForMilestones[lineIndex] = [prevMilestone];
+            let milestoneWillStackCurrent = false;
+            // Can milestone be stacked next to another from current timeframeItem
+            Object.keys(linesForMilestones).forEach(curentLineIndex => {
+              const currentLine = linesForMilestones[curentLineIndex];
+              currentLine.forEach(currentMilestone => {
+                if (
+                  this.hasEndDate(currentMilestone, timeframeItem) &&
+                  currentMilestone.endDate.getTime() < milestone.startDate.getTime()
+                ) {
+                  if (linesForMilestones[curentLineIndex])
+                    linesForMilestones[curentLineIndex].push(milestone);
+                  else linesForMilestones[curentLineIndex] = [milestone];
+                  milestoneWillStackCurrent = true;
                 }
               });
             });
-            if (!milestoneWillStack) {
-              let milestoneWillStackCurrent = false;
-              // Can milestone be stacked next to another from current timeframeItem
-              Object.keys(linesForMilestones).forEach(curentLineIndex => {
-                const currentLine = linesForMilestones[curentLineIndex];
-                currentLine.forEach(currentMilestone => {
-                  if (this.hasEndDate(currentMilestone, timeframeItem) && currentMilestone.endDate.getTime() < milestone.startDate.getTime()) {
-                    if (linesForMilestones[curentLineIndex]) linesForMilestones[curentLineIndex].push(milestone);
-                    else linesForMilestones[curentLineIndex] = [milestone];
-                    milestoneWillStackCurrent = true;
+
+            if (!milestoneWillStackCurrent) {
+              let milestoneWillStack = false;
+              Object.keys(previousLinesForMilestones).forEach(lineIndex => {
+                const line = previousLinesForMilestones[lineIndex];
+                line.forEach(prevMilestone => {
+                  // Can milestone be stacked next to another from previous timeframeItem
+                  if (
+                    this.hasEndDate(prevMilestone, timeframeItem) &&
+                    prevMilestone.endDate.getTime() < milestone.startDate.getTime()
+                  ) {
+                    if (linesForMilestones[lineIndex]) {
+                      linesForMilestones[lineIndex].push(milestone);
+                    } else {
+                      linesForMilestones[lineIndex] = [milestone];
+                    }
+                    milestoneWillStack = true;
+                  } else if (linesForMilestones[lineIndex]) {
+                    linesForMilestones[lineIndex].push(prevMilestone);
+                    milestoneWillStack = true;
+                  } else {
+                    linesForMilestones[lineIndex] = [prevMilestone];
                   }
                 });
               });
-              if (!milestoneWillStackCurrent) {
+              if (!milestoneWillStack) {
                 linesForMilestones[Object.keys(linesForMilestones).length] = [milestone];
               }
             }

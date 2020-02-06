@@ -89,34 +89,21 @@ export default {
     handleEpicsListScroll({ scrollTop, clientHeight, scrollHeight }) {
       this.showBottomShadow = Math.ceil(scrollTop) + clientHeight < scrollHeight;
     },
-    getMilestoneItemProps(index) {
-      return {
-        key: index,
-        props: {
-          milestone: this.milestones[index],
-          presetType: this.presetType,
-          timeframe: this.timeframe,
-          currentGroupId: this.currentGroupId,
-        },
-      };
-    },
   },
 };
 </script>
 
 <template>
   <div :style="sectionContainerStyles" class="milestones-list-section">
-    <template>
-      <div class="milestones-list-title">{{ __('Milestones') }}</div>
-      <div class="milestones-list-items">
-        <milestone-timeline
-          :preset-type="presetType"
-          :timeframe="timeframe"
-          :milestones="milestones"
-          :current-group-id="currentGroupId"
-        />
-      </div>
-    </template>
+    <div class="milestones-list-title">{{ __('Milestones') }}</div>
+    <div class="milestones-list-items">
+      <milestone-timeline
+        :preset-type="presetType"
+        :timeframe="timeframe"
+        :milestones="milestones"
+        :current-group-id="currentGroupId"
+      />
+    </div>
     <div v-show="showBottomShadow" :style="shadowCellStyles" class="scroll-bottom-shadow"></div>
   </div>
 </template>

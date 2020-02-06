@@ -45,7 +45,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['defaultInnerHeight', 'epicsFetchInProgress']),
+    ...mapState(['defaultInnerHeight']),
   },
   mounted() {
     this.$nextTick(() => {
@@ -98,7 +98,7 @@ export default {
       :timeframe="timeframe"
       :current-group-id="currentGroupId"
     />
-    <div v-if="epicsFetchInProgress" class="skeleton-loader js-skeleton-loader">
+    <div v-if="!epics.length" class="skeleton-loader js-skeleton-loader">
       <div v-for="n in 10" :key="n" class="mt-2">
         <gl-skeleton-loading :lines="2" />
       </div>

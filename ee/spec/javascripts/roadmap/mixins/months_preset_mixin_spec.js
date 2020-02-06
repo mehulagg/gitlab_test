@@ -6,7 +6,7 @@ import { getTimeframeForMonthsView } from 'ee/roadmap/utils/roadmap_utils';
 import { PRESET_TYPES } from 'ee/roadmap/constants';
 
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
-import { mockTimeframeInitialDate, mockEpic } from '../mock_data';
+import { mockTimeframeInitialDate, mockEpic, mockMilestone } from '../mock_data';
 
 const mockTimeframeMonths = getTimeframeForMonthsView(mockTimeframeInitialDate);
 
@@ -51,6 +51,52 @@ describe('MonthsPresetMixin', () => {
         });
 
         expect(vm.hasStartDateForMonth()).toBe(false);
+      });
+    });
+
+    describe('startsInMonth', () => {
+      it('returns true when Milestone.startDate falls within passed timeframeItem', () => {
+        vm = createComponent({
+          milestone: Object.assign({}, mockMilestone),
+          timeframeItem: mockTimeframeMonths[1],
+        });
+        const mockedMilestone = Object.assign({}, mockMilestone, {
+          startDate: mockTimeframeMonths[0],
+        });
+
+        expect(vm.startsInMonth(mockedMilestone, mockTimeframeMonths[0])).toBe(true);
+      });
+
+      it('returns false when Milestone.startDate does not fall within passed timeframeItem', () => {
+        vm = createComponent({
+          milestone: Object.assign({}, mockMilestone),
+          timeframeItem: mockTimeframeMonths[1],
+        });
+
+        expect(vm.startsInMonth(mockMilestone, mockTimeframeMonths[0])).toBe(false);
+      });
+    });
+
+    describe('endsInMonth', () => {
+      it('returns true when Milestone.endDate falls within passed timeframeItem', () => {
+        vm = createComponent({
+          milestone: Object.assign({}, mockMilestone),
+          timeframeItem: mockTimeframeMonths[1],
+        });
+        const mockedMilestone = Object.assign({}, mockMilestone, {
+          endDate: mockTimeframeMonths[0],
+        });
+
+        expect(vm.endsInMonth(mockedMilestone, mockTimeframeMonths[0])).toBe(true);
+      });
+
+      it('returns false when Milestone.endDate does not fall within passed timeframeItem', () => {
+        vm = createComponent({
+          milestone: Object.assign({}, mockMilestone),
+          timeframeItem: mockTimeframeMonths[1],
+        });
+
+        expect(vm.endsInMonth(mockMilestone, mockTimeframeMonths[0])).toBe(false);
       });
     });
 

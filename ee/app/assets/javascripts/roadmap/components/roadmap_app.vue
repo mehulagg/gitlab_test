@@ -55,8 +55,6 @@ export default {
       'epicsFetchResultEmpty',
       'epicsFetchFailure',
       'isChildEpics',
-      'milestonesFetchInProgress',
-      'milestonesFetchResultEmpty',
       'milestonesFetchFailure',
     ]),
     timeframeStart() {
@@ -71,10 +69,7 @@ export default {
         !this.windowResizeInProgress &&
         !this.epicsFetchFailure &&
         !this.epicsFetchInProgress &&
-        !this.milestonesFetchInProgress &&
-        !this.milestonesFetchFailure && (
-        !this.epicsFetchResultEmpty ||
-        !this.milestonesFetchResultEmpty)
+        !this.epicsFetchResultEmpty
       );
     },
   },

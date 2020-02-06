@@ -6,7 +6,7 @@ import { getTimeframeForQuartersView } from 'ee/roadmap/utils/roadmap_utils';
 import { PRESET_TYPES } from 'ee/roadmap/constants';
 
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
-import { mockTimeframeInitialDate, mockEpic } from '../mock_data';
+import { mockTimeframeInitialDate, mockEpic, mockMilestone } from '../mock_data';
 
 const mockTimeframeQuarters = getTimeframeForQuartersView(mockTimeframeInitialDate);
 
@@ -51,6 +51,52 @@ describe('QuartersPresetMixin', () => {
         });
 
         expect(vm.hasStartDateForQuarter()).toBe(false);
+      });
+    });
+
+    describe('startsInQuarter', () => {
+      it('returns true when Milestone.startDate falls within passed timeframeItem', () => {
+        vm = createComponent({
+          milestone: Object.assign({}, mockMilestone),
+          timeframeItem: mockTimeframeQuarters[1],
+        });
+        const mockedMilestone = Object.assign({}, mockMilestone, {
+          startDate: mockTimeframeQuarters[0].range[0],
+        });
+
+        expect(vm.startsInQuarter(mockedMilestone, mockTimeframeQuarters[0])).toBe(true);
+      });
+
+      it('returns false when Milestone.startDate does not fall within passed timeframeItem', () => {
+        vm = createComponent({
+          milestone: Object.assign({}, mockMilestone),
+          timeframeItem: mockTimeframeQuarters[1],
+        });
+
+        expect(vm.startsInQuarter(mockMilestone, mockTimeframeQuarters[1])).toBe(false);
+      });
+    });
+
+    describe('endsInQuarter', () => {
+      it('returns true when Milestone.endDate falls within passed timeframeItem', () => {
+        vm = createComponent({
+          milestone: Object.assign({}, mockMilestone),
+          timeframeItem: mockTimeframeQuarters[1],
+        });
+        const mockedMilestone = Object.assign({}, mockMilestone, {
+          endDate: mockTimeframeQuarters[0].range[0],
+        });
+
+        expect(vm.endsInQuarter(mockedMilestone, mockTimeframeQuarters[0])).toBe(true);
+      });
+
+      it('returns false when Milestone.endDate does not fall within passed timeframeItem', () => {
+        vm = createComponent({
+          milestone: Object.assign({}, mockMilestone),
+          timeframeItem: mockTimeframeQuarters[1],
+        });
+
+        expect(vm.endsInQuarter(mockMilestone, mockTimeframeQuarters[0])).toBe(false);
       });
     });
 
