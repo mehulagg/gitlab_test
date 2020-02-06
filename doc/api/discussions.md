@@ -22,7 +22,7 @@ Read more on [pagination](README.md#pagination).
 
 Gets a list of all discussion items for a single issue.
 
-```
+```plaintext
 GET /projects/:id/issues/:issue_iid/discussions
 ```
 
