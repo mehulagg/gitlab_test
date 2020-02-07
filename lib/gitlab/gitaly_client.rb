@@ -152,7 +152,7 @@ module Gitlab
     # produce the full response, not just the initial response.
     def self.streaming_call(storage, service, rpc, request, remote_storage: nil, timeout: default_timeout)
       self.measure_timings(service, rpc, request) do
-        response = self.execute(storage, service, rpc, request, remote_storage: remote_storage, timeout: timeout)
+        response, trailer = self.execute(storage, service, rpc, request, remote_storage: remote_storage, timeout: timeout)
 
         yield(response)
       end
@@ -164,8 +164,31 @@ module Gitlab
 
       kwargs = request_kwargs(storage, timeout: timeout.to_f, remote_storage: remote_storage)
       kwargs = yield(kwargs) if block_given?
+      kwargs[:return_op] = true
 
-      stub(service, storage).__send__(rpc, request, kwargs) # rubocop:disable GitlabSecurity/PublicSend
+      op = stub(service, storage).__send__(rpc, request, kwargs) # rubocop:disable GitlabSecurity/PublicSend
+      op.execute.tap do
+        record_proxy_time(op.trailing_metadata)
+      end
+    end
+
+    def self.record_proxy_time(trailer)
+      return if trailer.nil?
+
+      return unless trailer["praefect"] && trailer["gitaly"]
+
+      proxy_time = (trailer["praefect"].to_f - trailer["gitaly"].to_f)
+      metric_praefect_proxy_seconds.observe({}, proxy_time)
+    rescue ArgumentError
+    end
+
+    def self.metric_praefect_proxy_seconds
+      @metric_praefect_proxy_seconds ||= Gitlab::Metrics.histogram(
+        :praefect_proxy_latency,
+        'Praefect proxy latency',
+        {},
+        [0.00004, 0.0002, 0.001, 0.005, 0.025, 0.1, 0.5, 1.0]
+      )
     end
 
     def self.measure_timings(service, rpc, request)
