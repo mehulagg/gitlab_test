@@ -65,8 +65,6 @@ class Repository
     xcode_config: :xcode_project?
   }.freeze
 
-  MERGED_BRANCH_NAMES_CACHE_DURATION = 10.minutes
-
   def initialize(full_path, container, disk_path: nil, repo_type: Gitlab::GlRepository::PROJECT)
     @full_path = full_path
     @disk_path = disk_path || full_path

@@ -519,6 +519,24 @@ describe Repository do
     it { is_expected.to eq(already_merged) }
     it { is_expected.to be_a(Set) }
 
+    describe "cache expiry" do
+      before do
+        allow(cache).to receive(:delete).with(anything)
+      end
+
+      it "is expired when the branches caches are expired" do
+        expect(cache).to receive(:delete).with(:merged_branch_names).at_least(:once)
+
+        repository.send(:expire_branches_cache)
+      end
+
+      it "is expired when the repository caches are expired" do
+        expect(cache).to receive(:delete).with(:merged_branch_names).at_least(:once)
+
+        repository.send(:expire_all_method_caches)
+      end
+    end
+
     context "cache is empty" do
       before do
         cache.delete(:merged_branch_names)
