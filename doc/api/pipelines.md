@@ -130,6 +130,57 @@ Example of response
 ]
 ```
 
+### Get a pipeline's test report
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/24648) in GitLab 12.8.
+
+```
+GET /projects/:id/pipelines/:pipeline_id/test_report
+```
+
+| Attribute  | Type    | Required | Description         |
+|------------|---------|----------|---------------------|
+| `id`       | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
+| `pipeline_id` | integer | yes      | The ID of a pipeline   |
+
+```
+curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/1/pipelines/46/test_report"
+```
+
+Example of response
+
+```json
+{
+  "total_time": 5,
+  "total_count": 1,
+  "success_count": 1,
+  "failed_count": 0,
+  "skipped_count": 0,
+  "error_count": 0,
+  "test_suites": [
+    {
+      "name": "Secure",
+      "total_time": 5,
+      "total_count": 1,
+      "success_count": 1,
+      "failed_count": 0,
+      "skipped_count": 0,
+      "error_count": 0,
+      "test_cases": [
+        {
+          "status": "success",
+          "name": "Security Reports can create an auto-remediation MR",
+          "classname": "vulnerability_management_spec",
+          "execution_time": 5,
+          "system_output": null,
+          "stack_trace": null
+        }
+      ]
+    }
+  ]
+}
+```
+
 ## Create a new pipeline
 
 > [Introduced][ce-7209] in GitLab 8.14
