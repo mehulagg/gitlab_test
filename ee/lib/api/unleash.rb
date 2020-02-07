@@ -74,7 +74,13 @@ module API
 
         flags = Operations::FeatureFlag.for_unleash_client(params[:project_id], unleash_app_name)
 
-        flags.presence || Operations::FeatureFlagScope.for_unleash_client(project, unleash_app_name)
+        flag_names = flags.map(&:name)
+
+        legacy_flags = Operations::FeatureFlagScope
+          .for_unleash_client(project, unleash_app_name)
+          .reject { |f| flag_names.include?(f.name) }
+
+        flags.to_a.concat(legacy_flags)
       end
     end
   end
