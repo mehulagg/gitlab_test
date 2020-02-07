@@ -278,7 +278,7 @@ describe API::Unleash do
                             name: 'default', parameters: {}, active: true)
           create(:operations_scope, strategy: strategy, environment_scope: 'production')
 
-          get api(features_url), headers: { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "production" }
+          get api(features_url), headers: { 'UNLEASH-INSTANCEID' => client.token, 'UNLEASH-APPNAME' => 'production' }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response['features'].count).to eq(1)
@@ -296,7 +296,7 @@ describe API::Unleash do
                             name: 'userWithId', parameters: { userIds: 'user123,user456' }, active: true)
           create(:operations_scope, strategy: strategy, environment_scope: 'production')
 
-          get api(features_url), headers: { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "production" }
+          get api(features_url), headers: { 'UNLEASH-INSTANCEID' => client.token, 'UNLEASH-APPNAME' => 'production' }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response['features'].count).to eq(1)
@@ -317,7 +317,7 @@ describe API::Unleash do
           create(:operations_scope, strategy: strategy_a, environment_scope: 'production')
           create(:operations_scope, strategy: strategy_b, environment_scope: 'production')
 
-          get api(features_url), headers: { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "production" }
+          get api(features_url), headers: { 'UNLEASH-INSTANCEID' => client.token, 'UNLEASH-APPNAME' => 'production' }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response['features'].count).to eq(1)
@@ -340,7 +340,7 @@ describe API::Unleash do
           strategy_b = create(:operations_strategy, feature_flag: feature_flag_b)
           create(:operations_scope, strategy: strategy_b, environment_scope: 'staging')
 
-          get api(features_url), headers: { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "staging" }
+          get api(features_url), headers: { 'UNLEASH-INSTANCEID' => client.token, 'UNLEASH-APPNAME' => 'staging' }
 
           expect(response).to have_gitlab_http_status(:ok)
           expect(json_response['features'].count).to eq(1)
@@ -350,6 +350,28 @@ describe API::Unleash do
           expect(feature_json['strategies'].sort_by {|s| s['name']}).to eq([{
             'name' => 'default',
             'parameters' => {}
+          }])
+        end
+      end
+
+      context 'when using both the Strategy and FeatureFlagScopes models' do
+        it 'returns the Strategy model data instead of the FeatureFlagScope data for a single flag' do
+          create(:operations_feature_flag_scope, feature_flag: feature_flag,
+                 active: true, strategies: [{ name: 'default', parameters: {} }], environment_scope: 'production')
+          scope = create(:operations_strategy, feature_flag: feature_flag,
+                         active: true, name: 'userWithId', parameters: { userIds: 'user8' })
+          create(:operations_scope, strategy: scope, environment_scope: 'production')
+
+          get api(features_url), headers: { 'UNLEASH-INSTANCEID' => client.token, 'UNLEASH-APPNAME' => 'production' }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['features'].count).to eq(1)
+          feature_json = json_response['features'].first
+          expect(feature_json['name']).to eq('feature1')
+          expect(feature_json['enabled']).to eq(true)
+          expect(feature_json['strategies']).to eq([{
+            'name' => 'userWithId',
+            'parameters' => { 'userIds' => 'user8' }
           }])
         end
       end
