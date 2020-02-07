@@ -756,8 +756,6 @@ describe API::Pipelines do
       end
 
       context 'when feature is disabled' do
-        let(:pipeline) { create(:ci_empty_pipeline, project: project) }
-
         before do
           stub_feature_flags(junit_pipeline_view: false)
         end
