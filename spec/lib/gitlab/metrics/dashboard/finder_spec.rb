@@ -160,7 +160,7 @@ describe Gitlab::Metrics::Dashboard::Finder, :use_clean_rails_memory_store_cachi
     end
 
     context 'when the project is self monitoring' do
-      let(:self_monitoring_dashboard) { { path: self_monitoring_dashboard_path, display_name: 'Default', default: true, system_dashboard: true } }
+      let(:self_monitoring_dashboard) { { path: self_monitoring_dashboard_path, display_name: 'Default', default: true, system_dashboard: false } }
       let(:dashboard_path) { '.gitlab/dashboards/test.yml' }
       let(:project) { project_with_dashboard(dashboard_path) }
 

@@ -32,7 +32,7 @@ describe Metrics::Dashboard::SelfMonitoringDashboardService, :use_clean_rails_me
           path: described_class::DASHBOARD_PATH,
           display_name: described_class::DASHBOARD_NAME,
           default: true,
-          system_dashboard: true
+          system_dashboard: false
         }]
       )
     end
