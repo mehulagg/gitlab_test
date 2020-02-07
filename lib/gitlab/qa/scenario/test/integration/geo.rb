@@ -24,6 +24,7 @@ module Gitlab
                   gitlab_rails['db_key_base'] = '4dd58204865eb41bca93bd38131d51cc';
                   geo_primary_role['enable'] = true;
                   gitlab_rails['db_password'] = 'mypass';
+                  gitlab_rails['db_pool'] = 5;
                   gitlab_rails['geo_node_name'] = '#{primary.name}';
                   gitlab_rails['monitoring_whitelist'] = ['0.0.0.0/0'];
                   postgresql['listen_address'] = '0.0.0.0';
@@ -46,6 +47,7 @@ module Gitlab
                       geo_secondary_role['enable'] = true;
                       gitlab_rails['db_key_base'] = '4dd58204865eb41bca93bd38131d51cc';
                       gitlab_rails['db_password'] = 'mypass';
+                      gitlab_rails['db_pool'] = 5;
                       gitlab_rails['geo_node_name'] = '#{secondary.name}';
                       gitlab_rails['monitoring_whitelist'] = ['0.0.0.0/0'];
                       postgresql['listen_address'] = '0.0.0.0';
