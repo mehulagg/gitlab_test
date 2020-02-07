@@ -158,5 +158,21 @@ describe Gitlab::Metrics::Dashboard::Finder, :use_clean_rails_memory_store_cachi
         expect(all_dashboard_paths).to contain_exactly(system_dashboard, project_dashboard)
       end
     end
+
+    context 'when the project is self monitoring' do
+      let(:self_monitoring_dashboard) { { path: self_monitoring_dashboard_path, display_name: 'Default', default: true, system_dashboard: true } }
+      let(:dashboard_path) { '.gitlab/dashboards/test.yml' }
+      let(:project) { project_with_dashboard(dashboard_path) }
+
+      before do
+        stub_application_setting(self_monitoring_project_id: project.id)
+      end
+
+      it 'includes self monitoring and project dashboards' do
+        project_dashboard = { path: dashboard_path, display_name: 'test.yml', default: false, system_dashboard: false }
+
+        expect(all_dashboard_paths).to contain_exactly(self_monitoring_dashboard, project_dashboard)
+      end
+    end
   end
 end
