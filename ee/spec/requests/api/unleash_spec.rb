@@ -271,6 +271,88 @@ describe API::Unleash do
           expect(feature_json['strategies']).to eq([{ 'name' => 'default', 'parameters' => {} }])
         end
       end
+
+      context 'when using the Strategy model' do
+        it 'returns a flag with a default strategy' do
+          strategy = create(:operations_strategy, feature_flag: feature_flag,
+                            name: 'default', parameters: {}, active: true)
+          create(:operations_scope, strategy: strategy, environment_scope: 'production')
+
+          get api(features_url), headers: { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "production" }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['features'].count).to eq(1)
+          feature_json = json_response['features'].first
+          expect(feature_json['name']).to eq('feature1')
+          expect(feature_json['enabled']).to eq(true)
+          expect(feature_json['strategies']).to eq([{
+            'name' => 'default',
+            'parameters' => {}
+          }])
+        end
+
+        it 'returns a flag with a userWithId strategy' do
+          strategy = create(:operations_strategy, feature_flag: feature_flag,
+                            name: 'userWithId', parameters: { userIds: 'user123,user456' }, active: true)
+          create(:operations_scope, strategy: strategy, environment_scope: 'production')
+
+          get api(features_url), headers: { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "production" }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['features'].count).to eq(1)
+          feature_json = json_response['features'].first
+          expect(feature_json['name']).to eq('feature1')
+          expect(feature_json['enabled']).to eq(true)
+          expect(feature_json['strategies']).to eq([{
+            'name' => 'userWithId',
+            'parameters' => { 'userIds' => 'user123,user456' }
+          }])
+        end
+
+        it 'returns a flag with multiple strategies' do
+          strategy_a = create(:operations_strategy, feature_flag: feature_flag,
+                            name: 'userWithId', parameters: { userIds: 'user_a,user_b' }, active: true)
+          strategy_b = create(:operations_strategy, feature_flag: feature_flag,
+                            name: 'gradualRolloutUserId', parameters: { percentage: '45' }, active: true)
+          create(:operations_scope, strategy: strategy_a, environment_scope: 'production')
+          create(:operations_scope, strategy: strategy_b, environment_scope: 'production')
+
+          get api(features_url), headers: { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "production" }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['features'].count).to eq(1)
+          feature_json = json_response['features'].first
+          expect(feature_json['name']).to eq('feature1')
+          expect(feature_json['enabled']).to eq(true)
+          expect(feature_json['strategies'].sort_by {|s| s['name']}).to eq([{
+            'name' => 'gradualRolloutUserId',
+            'parameters' => { 'percentage' => '45' }
+          }, {
+            'name' => 'userWithId',
+            'parameters' => { 'userIds' => 'user_a,user_b' }
+          }])
+        end
+
+        it 'returns flags matching the environment scope' do
+          strategy_a = create(:operations_strategy, feature_flag: feature_flag)
+          create(:operations_scope, strategy: strategy_a, environment_scope: 'production')
+          feature_flag_b = create(:operations_feature_flag, project: project, name: 'feature2', active: true)
+          strategy_b = create(:operations_strategy, feature_flag: feature_flag_b)
+          create(:operations_scope, strategy: strategy_b, environment_scope: 'staging')
+
+          get api(features_url), headers: { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "staging" }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['features'].count).to eq(1)
+          feature_json = json_response['features'].first
+          expect(feature_json['name']).to eq('feature2')
+          expect(feature_json['enabled']).to eq(true)
+          expect(feature_json['strategies'].sort_by {|s| s['name']}).to eq([{
+            'name' => 'default',
+            'parameters' => {}
+          }])
+        end
+      end
     end
   end
 

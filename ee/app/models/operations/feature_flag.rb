@@ -52,6 +52,13 @@ module Operations
       def preload_relations
         preload(:scopes)
       end
+
+      def for_unleash_client(project_id, environment_scope)
+        joins(strategies: :scopes)
+          .group(:id)
+          .where(project_id: project_id)
+          .where('operations_scopes.environment_scope = ?', environment_scope)
+      end
     end
 
     private

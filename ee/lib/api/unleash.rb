@@ -72,7 +72,9 @@ module API
       def feature_flags
         return [] unless unleash_app_name.present?
 
-        Operations::FeatureFlagScope.for_unleash_client(project, unleash_app_name)
+        flags = Operations::FeatureFlag.for_unleash_client(params[:project_id], unleash_app_name)
+
+        flags.presence || Operations::FeatureFlagScope.for_unleash_client(project, unleash_app_name)
       end
     end
   end
