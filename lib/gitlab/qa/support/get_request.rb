@@ -31,7 +31,7 @@ module Gitlab
         def build_request
           Net::HTTP::Get.new(uri).tap do |req|
             req['PRIVATE-TOKEN'] = token
-            req['Cookie'] = Runtime::Env.qa_cookie if Runtime::Env.qa_cookie
+            req['Cookie'] = ENV['QA_COOKIES'] if ENV['QA_COOKIES']
           end
         end
       end
