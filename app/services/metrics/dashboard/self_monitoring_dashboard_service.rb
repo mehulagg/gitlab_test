@@ -15,6 +15,8 @@ module Metrics
 
       class << self
         def valid_params?(params)
+          # TODO - can we only check DASHBOARD_PATH and not project.self_monitoring?
+          # params[:dashboard_path] && params[:dashboard_path] == DASHBOARD_PATH
           params[:environment]&.project&.self_monitoring? || (params[:dashboard_path] && params[:dashboard_path] == DASHBOARD_PATH)
         end
 
