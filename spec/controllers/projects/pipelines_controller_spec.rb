@@ -667,7 +667,7 @@ describe Projects::PipelinesController do
           create(:ci_job_artifact, :junit_with_corrupted_data, job: job, project: project)
         end
 
-        it 'renders the test reports' do
+        it 'renders an error status' do
           get_test_report_json
 
           expect(response).to have_gitlab_http_status(:ok)
