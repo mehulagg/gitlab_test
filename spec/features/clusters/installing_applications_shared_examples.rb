@@ -2,6 +2,8 @@
 
 shared_examples "installing applications on a cluster" do
   before do
+    stub_feature_flags(managed_apps_local_tiller: false)
+
     visit cluster_path
   end
 
