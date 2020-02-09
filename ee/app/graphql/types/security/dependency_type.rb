@@ -5,7 +5,7 @@ module Types
     class DependencyType < BaseObject
       graphql_name 'Dependency'
 
-      authorize :read_dependencies
+      # authorize :read_dependencies
 
       field :name, GraphQL::STRING_TYPE, null: true,
             description: 'Name of a dependency'

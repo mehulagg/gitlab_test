@@ -15,6 +15,7 @@ module EE
         field :dependencies, [::Types::Security::DependencyType], null: true,
           description: 'Components used by the project',
           resolver: ::Resolvers::Security::DependencyResolver
+          # authorize: :read_dependencies
 
         field :licenses, [::Types::Security::LicenseType], null: true,
               description: 'Licenses used by the project',
