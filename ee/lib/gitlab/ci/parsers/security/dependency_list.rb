@@ -5,8 +5,9 @@ module Gitlab
     module Parsers
       module Security
         class DependencyList
-          def initialize(project, sha)
+          def initialize(project, sha, permissions = [:all])
             @formatter = Formatters::DependencyList.new(project, sha)
+            @permissions = permissions
           end
 
           def parse!(json_data, report)
@@ -16,7 +17,7 @@ module Gitlab
                 report.add_dependency(formatter.format(dependency,
                                                        file['package_manager'],
                                                        file['path'],
-                                                       report_data['vulnerabilities']))
+                                                       vulnerabilities(report_data)))
               end
             end
           end
@@ -30,7 +31,15 @@ module Gitlab
 
           private
 
-          attr_reader :formatter
+          def vulnerabilities(report_data)
+            if permissions.include?(:all) || permissions.include?(:vulnerabilities)
+              report_data['vulnerabilities']
+            else
+              []
+            end
+          end
+
+          attr_reader :formatter, :permissions
         end
       end
     end
