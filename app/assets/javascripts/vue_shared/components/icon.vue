@@ -31,6 +31,7 @@ if (process.env.NODE_ENV !== 'production') {
  *  />
  */
 export default {
+  iconsPath,
   props: {
     name: {
       type: String,
@@ -45,23 +46,11 @@ export default {
       validator: value => validSizes.includes(value),
     },
   },
-
-  computed: {
-    spriteHref() {
-      return `${iconsPath}#${this.name}`;
-    },
-    iconTestClass() {
-      return `ic-${this.name}`;
-    },
-    iconSizeClass() {
-      return this.size ? `s${this.size}` : '';
-    },
-  },
 };
 </script>
 
-<template>
-  <svg :class="[iconSizeClass, iconTestClass]" aria-hidden="true" v-on="$listeners">
-    <use v-bind="{ 'xlink:href': spriteHref }" />
+<template functional>
+  <svg :class="[props.size ? `s${props.size}` : '', `ic-${props.name}`]" aria-hidden="true" v-on="listeners">
+    <use v-bind="{ 'xlink:href': `${$options.iconsPath}#${props.name}` }" />
   </svg>
 </template>
