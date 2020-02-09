@@ -306,6 +306,32 @@ module EE
       super
     end
 
+    FEATURE_FILTER_UNKNOWN = 0
+    FEATURE_FILTER_CONTROL = 1
+    FEATURE_FILTER_EXPERIMENT = 2
+    def ab_feature_enabled?(feature, percentage: nil)
+      return false unless ::Gitlab.com?
+      return false if ::Gitlab::Geo.secondary?
+
+      raise "Currently only discover_security feature is supported" unless feature == :discover_security
+
+      return false unless ::Feature.enabled?(feature)
+
+      # Flipper % rollout per time & user doesn't work as intended
+      # We use a 2nd feature flag for control as enabled and percentage_of_time for chatops
+      percentage ||= ::Feature.get((feature.to_s + '_control').to_sym).gate_values[:percentage_of_time]
+      return false if percentage <= 0
+
+      filter = user_preference&.feature_filter || 0
+
+      if filter == FEATURE_FILTER_UNKNOWN
+        filter = SecureRandom.rand * 100 <= percentage ? FEATURE_FILTER_EXPERIMENT : FEATURE_FILTER_CONTROL
+        self.user_preference.update feature_filter: filter
+      end
+
+      filter == FEATURE_FILTER_EXPERIMENT
+    end
+
     protected
 
     override :password_required?

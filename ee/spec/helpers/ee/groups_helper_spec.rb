@@ -96,7 +96,7 @@ describe GroupsHelper do
     using RSpec::Parameterized::TableSyntax
 
     where(
-      gitlab_com?: [true, false],
+      ab_feature_enabled?: [true, false],
       user?: [true, false],
       created_at: [Time.mktime(2010, 1, 20), Time.mktime(2030, 1, 20)],
       discover_security_feature_enabled?: [true, false],
@@ -106,15 +106,15 @@ describe GroupsHelper do
 
     with_them do
       it 'returns the expected value' do
-        allow(::Gitlab).to receive(:com?) { gitlab_com? }
         allow(helper).to receive(:current_user) { user? ? user : nil }
+        allow(user).to receive(:ab_feature_enabled?) { ab_feature_enabled? }
         allow(user).to receive(:created_at) { created_at }
         allow(::Feature).to receive(:enabled?).with(:discover_security) { discover_security_feature_enabled? }
         allow(group).to receive(:feature_available?) { security_dashboard_feature_available? }
         allow(helper).to receive(:can?) { can_admin_group? }
 
-        expected_value = gitlab_com? && user? && created_at > DateTime.new(2020, 1, 20) &&
-                         discover_security_feature_enabled? && !security_dashboard_feature_available? && can_admin_group?
+        expected_value = user? && created_at > DateTime.new(2020, 1, 20) &&
+                         ab_feature_enabled? && !security_dashboard_feature_available? && can_admin_group?
 
         expect(helper.show_discover_group_security?(group)).to eq(expected_value)
       end

@@ -83,9 +83,8 @@ module EE
     end
 
     def show_discover_group_security?(group)
-      !!::Feature.enabled?(:discover_security) &&
-        ::Gitlab.com? &&
-        !!current_user &&
+      !!current_user &&
+        current_user.ab_feature_enabled?(:discover_security) &&
         current_user.created_at > DateTime.new(2020, 1, 20) &&
         !@group.feature_available?(:security_dashboard) &&
         can?(current_user, :admin_group, @group)
