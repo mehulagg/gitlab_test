@@ -53,6 +53,13 @@ describe Metrics::Dashboard::SelfMonitoringDashboardService, :use_clean_rails_me
       it { is_expected.to be_truthy }
     end
 
+    context 'with a different dashboard selected' do
+      let(:dashboard_path) { '.gitlab/dashboards/test.yml' }
+      let(:params) { { dashboard_path: dashboard_path, environment: environment } }
+
+      it { is_expected.to be_falsey }
+    end
+
     context 'missing environment and dashboard_path' do
       let(:params) { {} }
 
