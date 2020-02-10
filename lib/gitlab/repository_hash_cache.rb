@@ -135,6 +135,10 @@ module Gitlab
       Gitlab::Redis::Cache.with(&blk) # rubocop:disable CodeReuse/ActiveRecord
     end
 
+    # Take a hash and convert both keys and values to strings, for insertion into Redis.
+    #
+    # @param hash [Hash]
+    # @return [Hash] the stringified hash
     def standardize_hash(hash)
       hash.map { |k, v| [k.to_s, v.to_s] }.to_h
     end
