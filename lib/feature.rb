@@ -27,6 +27,29 @@ class Feature
       flipper.features.to_a
     end
 
+    def enabled_features_for(thing)
+      results = shallow_enabled_features_for(thing)
+
+      case thing
+      when User
+        results << enabled_features_for_collection([thing.groups, thing.projects].flatten)
+      when Group
+        results << enabled_features_for_collection([thing.users, thing.projects].flatten)
+      when Project
+        results << enabled_features_for_collection([thing.users, thing.group].flatten)
+      end
+
+      results.flatten.uniq
+    end
+
+    def enabled_features_for_collection(collection_array)
+      collection_array.map { |item| shallow_enabled_features_for(item) }.flatten.uniq
+    end
+
+    def shallow_enabled_features_for(thing)
+      all.select { |feature| feature.enabled?(thing) }
+    end
+
     def get(key)
       flipper.feature(key)
     end

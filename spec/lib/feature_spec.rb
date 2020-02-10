@@ -99,6 +99,81 @@ describe Feature do
     end
   end
 
+  describe '.shallow_enabled_features_for' do
+    let!(:user)    { create(:user) }
+    let!(:project) { create(:project) }
+    let!(:group)   { create(:group) }
+
+    before do
+      described_class.enable(:user_feature, user)
+      described_class.enable(:project_feature, project)
+      described_class.enable(:group_feature, group)
+    end
+
+    it 'finds a separate matching feauture for each unique thing' do
+      expect(described_class.all.size).to eq(3)
+
+      [user, project, group].each do |thing|
+        results = described_class.shallow_enabled_features_for(thing)
+
+        expect(results.size).to eq(1)
+        expect(results.first.name).to eq("#{thing.model_name.param_key}_feature".to_sym)
+      end
+    end
+  end
+
+  describe 'enabled_features_for' do
+    let!(:user)    { create(:user) }
+    let!(:project) { create(:project) }
+    let!(:group)   { create(:group) }
+
+    before do
+      described_class.enable(:user_feature, user)
+      described_class.enable(:project_feature, project)
+      described_class.enable(:group_feature, group)
+    end
+
+    context 'a user belonging to a group' do
+      before do
+        group.add_developer(user)
+      end
+
+      it 'the user additionally returns the group feature' do
+        results = described_class.enabled_features_for(user)
+
+        expect(results.size).to eq(2)
+        expect(results.collect(&:name)).to contain_exactly(:user_feature, :group_feature)
+      end
+
+      it 'the group additionally returns the user feature' do
+        results = described_class.enabled_features_for(group)
+
+        expect(results.size).to eq(2)
+        expect(results.collect(&:name)).to contain_exactly(:user_feature, :group_feature)
+      end
+    end
+
+    context 'a user belonging to a project' do
+      before do
+        project.add_developer(user)
+      end
+
+      it 'user additionally returns the project feature' do
+        results = described_class.enabled_features_for(user)
+
+        expect(results.size).to eq(2)
+        expect(results.collect(&:name)).to contain_exactly(:user_feature, :project_feature)
+      end
+
+      it 'project additionally returns the user feature' do
+        results = described_class.enabled_features_for(project)
+
+        expect(results.size).to eq(2)
+        expect(results.collect(&:name)).to contain_exactly(:user_feature, :project_feature)
+      end
+    end
+  end
+
   describe '.flipper' do
     before do
       described_class.instance_variable_set(:@flipper, nil)
