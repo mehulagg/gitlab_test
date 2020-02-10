@@ -17,7 +17,7 @@ module Gitlab
     # @param repository [Repository]
     # @param extra_namespace [String]
     # @param expires_in [Integer] expiry time for hash store keys
-    def initialize(repository, extra_namespace: nil, expires_in: 2.weeks)
+    def initialize(repository, extra_namespace: nil, expires_in: 1.day)
       @repository = repository
       @namespace = "#{repository.full_path}"
       @namespace += ":#{repository.project.id}" if repository.project

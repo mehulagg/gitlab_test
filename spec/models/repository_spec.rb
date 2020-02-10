@@ -500,12 +500,21 @@ describe Repository do
     let(:branch_names) { %w(test beep boop definitely_merged) }
     let(:already_merged) { Set.new(["definitely_merged"]) }
 
-    let(:merge_state_hash) do
+    let(:write_hash) do
       {
-        "test" => "false",
-        "beep" => "false",
-        "boop" => "false",
-        "definitely_merged" => "true"
+        "test" => Gitlab::Redis::Boolean.new(false).to_s,
+        "beep" => Gitlab::Redis::Boolean.new(false).to_s,
+        "boop" => Gitlab::Redis::Boolean.new(false).to_s,
+        "definitely_merged" => Gitlab::Redis::Boolean.new(true).to_s
+      }
+    end
+
+    let(:read_hash) do
+      {
+        "test" => Gitlab::Redis::Boolean.new(false).to_s,
+        "beep" => Gitlab::Redis::Boolean.new(false).to_s,
+        "boop" => Gitlab::Redis::Boolean.new(false).to_s,
+        "definitely_merged" => Gitlab::Redis::Boolean.new(true).to_s
       }
     end
 
@@ -546,7 +555,7 @@ describe Repository do
 
       describe "cache values" do
         it "writes the values to redis" do
-          expect(cache).to receive(:write).with(:merged_branch_names, merge_state_hash)
+          expect(cache).to receive(:write).with(:merged_branch_names, write_hash)
 
           subject
         end
@@ -554,14 +563,14 @@ describe Repository do
         it "matches the supplied hash" do
           subject
 
-          expect(cache.read_members(:merged_branch_names, branch_names)).to eq(merge_state_hash)
+          expect(cache.read_members(:merged_branch_names, branch_names)).to eq(read_hash)
         end
       end
     end
 
     context "cache is not empty" do
       before do
-        cache.write(:merged_branch_names, merge_state_hash)
+        cache.write(:merged_branch_names, write_hash)
       end
 
       it { is_expected.to eq(already_merged) }
@@ -576,7 +585,7 @@ describe Repository do
     context "cache is partially complete" do
       before do
         allow(repository.raw_repository).to receive(:merged_branch_names).with(["boop"]).and_return([])
-        hash = merge_state_hash.except("boop")
+        hash = write_hash.except("boop")
         cache.write(:merged_branch_names, hash)
       end
 

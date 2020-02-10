@@ -928,12 +928,14 @@ class Repository
       merged = raw_repository.merged_branch_names(missing_branch_names)
 
       missing_branch_names.each do |bn|
-        # Redis only stores strings in hset keys
-        hash[bn] = merged.include?(bn).to_s
+        # Redis only stores strings in hset keys, use a fancy encoder
+        # We call .to_s here directly so that the merged cached/uncached
+        # values are all strings
+        hash[bn] = Gitlab::Redis::Boolean.new(merged.include?(bn)).to_s
       end
     end
 
-    Set.new(merged_branch_names_hash.select { |_, v| v == "true" }.keys)
+    Set.new(merged_branch_names_hash.select { |_, v| Gitlab::Redis::Boolean.true?(v) }.keys)
   end
 
   def merge_base(*commits_or_ids)
