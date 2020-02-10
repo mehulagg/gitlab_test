@@ -33,10 +33,8 @@ repositories:
    your project, update commit statuses, and create a web hook to notify
    GitLab of new commits.
 
-1. In GitLab create a **CI/CD for external repo** project and select
+1. In GitLab create a new project, select the  **CI/CD for external repo** tab, and then select
    **GitHub**.
-
-   ![Create project](img/github_omniauth.png)
 
 1. Paste the token into the **Personal access token** field and click **List
    Repositories**. Click **Connect** to select the repository.
@@ -92,8 +90,6 @@ To manually enable GitLab CI/CD for your repository:
    ```
 
    Select the **Let me select individual events** option, then check the **Pull requests** and **Pushes** checkboxes. These settings are needed for [pipelines for external pull requests](index.md#pipelines-for-external-pull-requests).
-
-   ![Create web hook](img/github_push_webhook.png)
 
 1. In GitHub add a `.gitlab-ci.yml` to configure GitLab CI/CD.
 
