@@ -73,22 +73,12 @@ describe "User comments on issue", :js do
       end
     end
 
-    it "adds comment assigning user" do
-      content = "/assign @#{user.username}"
-      target_form = ".js-main-target-form"
+    it "adds popover to system note containing username" do
+      add_note("/assign @#{user.username}")
 
-      add_note(content)
+      find('.system-note-message .js-user-link').hover
 
-      page.within(".system-note") do
-        expect(page).to have_content("assigned to @#{user.username}")
-        find('.gfm-project_member').hover
-      end
-
-      popover_selector = '.user-popover'
-
-      expect(page).to have_css(popover_selector, visible: true)
-
-      page.within(popover_selector) do
+      page.within('.user-popover') do
         expect(page).to have_content(user.name)
       end
     end

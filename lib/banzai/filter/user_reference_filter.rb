@@ -144,7 +144,7 @@ module Banzai
       end
 
       def link_tag(url, data, link_content, title)
-        %(<a href="#{url}" #{data} class="#{link_class}" title="#{escape_once(title)}">#{link_content}</a>)
+        %(<a href="#{url}" #{data} class="#{link_class} js-user-link" title="#{escape_once(title)}">#{link_content}</a>)
       end
 
       def parent

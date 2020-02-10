@@ -131,7 +131,7 @@ export default {
   updated() {
     this.$nextTick(() => {
       highlightCurrentUser(this.$el.querySelectorAll('.gfm-project_member'));
-      initUserPopovers(this.$el.querySelectorAll('.js-user-link, .gfm-project_member'));
+      initUserPopovers(this.$el.querySelectorAll('.js-user-link'));
     });
   },
   beforeDestroy() {
