@@ -113,6 +113,10 @@ module Gitlab
         # Run the block, which updates the new_values hash
         yield(missing, new_values)
 
+        # Ensure all values are converted to strings, to ensure merging hashes
+        # below returns standardised data.
+        new_values = standardize_hash(new_values)
+
         # Write the new values to the hset
         write(key, new_values)
 
@@ -129,6 +133,10 @@ module Gitlab
 
     def with(&blk)
       Gitlab::Redis::Cache.with(&blk) # rubocop:disable CodeReuse/ActiveRecord
+    end
+
+    def standardize_hash(hash)
+      hash.map { |k, v| [k.to_s, v.to_s] }.to_h
     end
 
     # Record metrics in Prometheus.

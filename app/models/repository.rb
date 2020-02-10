@@ -929,9 +929,7 @@ class Repository
 
       missing_branch_names.each do |bn|
         # Redis only stores strings in hset keys, use a fancy encoder
-        # We call .to_s here directly so that the merged cached/uncached
-        # values are all strings
-        hash[bn] = Gitlab::Redis::Boolean.new(merged.include?(bn)).to_s
+        hash[bn] = Gitlab::Redis::Boolean.new(merged.include?(bn))
       end
     end
 
