@@ -91,7 +91,7 @@ To manually enable GitLab CI/CD for your repository:
    https://gitlab.com/api/v4/projects/<NAMESPACE>%2F<PROJECT>/mirror/pull?private_token=<PERSONAL_ACCESS_TOKEN>
    ```
 
-   Be sure to select the **Let me select individual events** option, then check the **Pull requests** and **Pushes** checkboxes, as these settings allow you to use [pipelines for external pull requests](index.md#pipelines-for-external-pull-requests).
+   Select the **Let me select individual events** option, then check the **Pull requests** and **Pushes** checkboxes. These settings are needed for [pipelines for external pull requests](index.md#pipelines-for-external-pull-requests).
 
    ![Create web hook](img/github_push_webhook.png)
 
