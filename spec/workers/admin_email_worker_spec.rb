@@ -6,12 +6,20 @@ describe AdminEmailWorker do
   subject(:worker) { described_class.new }
 
   describe '.perform' do
-    it 'does not attempt to send repository check mail when they are disabled' do
-      stub_application_setting(repository_checks_enabled: false)
+    context 'repository_checks disabled' do
+      before do
+        stub_application_setting(repository_checks_enabled: false)
+      end
 
-      expect(worker).not_to receive(:send_repository_check_mail)
+      context 'idempotency' do
+        it_behaves_like 'can handle multiple calls without raising exceptions'
+      end
 
-      worker.perform
+      it 'does not attempt to send repository check mail when they are disabled' do
+        expect(worker).not_to receive(:send_repository_check_mail)
+
+        perform_multiple(worker: worker)
+      end
     end
 
     context 'repository_checks enabled' do
@@ -19,24 +27,28 @@ describe AdminEmailWorker do
         stub_application_setting(repository_checks_enabled: true)
       end
 
-      it 'checks if repository check mail should be sent' do
-        expect(worker).to receive(:send_repository_check_mail)
+      context 'idempotency' do
+        it_behaves_like 'can handle multiple calls without raising exceptions'
+      end
 
-        worker.perform
+      it 'checks if repository check mail should be sent' do
+        expect(worker).to receive(:send_repository_check_mail).exactly(3).times
+
+        perform_multiple(worker: worker)
       end
 
       it 'does not send mail when there are no failed repos' do
         expect(RepositoryCheckMailer).not_to receive(:notify)
 
-        worker.perform
+        perform_multiple(worker: worker)
       end
 
       it 'send mail when there is a failed repo' do
         create(:project, last_repository_check_failed: true, last_repository_check_at: Date.yesterday)
 
-        expect(RepositoryCheckMailer).to receive(:notify).and_return(spy)
+        expect(RepositoryCheckMailer).to receive(:notify).exactly(3).and_return(spy)
 
-        worker.perform
+        perform_multiple(worker: worker)
       end
     end
   end

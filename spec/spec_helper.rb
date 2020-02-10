@@ -120,6 +120,7 @@ RSpec.configure do |config|
   config.include MemoryUsageHelper
   config.include ExpectRequestWithStatus, type: :request
   config.include RailsHelpers
+  config.include IdempotentWorkerHelper, type: :worker
 
   if ENV['CI'] || ENV['RETRIES']
     # This includes the first try, i.e. tests will be run 4 times before failing.

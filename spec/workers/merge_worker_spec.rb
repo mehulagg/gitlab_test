@@ -9,6 +9,18 @@ describe MergeWorker do
     let!(:project) { merge_request.project }
     let!(:author) { merge_request.author }
 
+    let(:job_args) do
+      [
+        merge_request.id,
+        merge_request.author_id,
+        {
+          commit_message: 'wow such merge',
+          sha: merge_request.diff_head_sha,
+          should_remove_source_branch: true
+        }
+      ]
+    end
+
     before do
       source_project.add_maintainer(author)
       source_project.repository.expire_branches_cache
@@ -17,11 +29,7 @@ describe MergeWorker do
     it 'clears cache of source repo after removing source branch' do
       expect(source_project.repository.branch_names).to include('markdown')
 
-      described_class.new.perform(
-        merge_request.id, merge_request.author_id,
-        commit_message: 'wow such merge',
-        sha: merge_request.diff_head_sha,
-        should_remove_source_branch: true)
+      perform_multiple(job_args)
 
       merge_request.reload
       expect(merge_request).to be_merged

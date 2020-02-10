@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe AutoMergeProcessWorker do
   describe '#perform' do
-    subject { described_class.new.perform(merge_request&.id) }
+    subject { perform_multiple(merge_request&.id, exec_times: 1) }
 
     context 'when merge request is found' do
       let(:merge_request) { create(:merge_request) }
@@ -16,6 +16,12 @@ describe AutoMergeProcessWorker do
 
         subject
       end
+
+      context 'idempotency' do
+        it_behaves_like 'can handle multiple calls without raising exceptions' do
+          let(:job_args) { merge_request.id }
+        end
+      end
     end
 
     context 'when merge request is not found' do
@@ -25,6 +31,12 @@ describe AutoMergeProcessWorker do
         expect(AutoMergeService).not_to receive(:new)
 
         subject
+      end
+
+      context 'idempotency' do
+        it_behaves_like 'can handle multiple calls without raising exceptions' do
+          let(:job_args) { nil }
+        end
       end
     end
   end

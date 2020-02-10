@@ -11,14 +11,26 @@ describe BuildCoverageWorker do
         expect_any_instance_of(Ci::Build)
           .to receive(:update_coverage)
 
-        described_class.new.perform(build.id)
+        perform_multiple(build.id, exec_times: 1)
+      end
+
+      context 'idempotency' do
+        it_behaves_like 'can handle multiple calls without raising exceptions' do
+          let(:job_args) { build.id }
+        end
       end
     end
 
     context 'when build does not exist' do
       it 'does not raise exception' do
-        expect { described_class.new.perform(123) }
+        expect { perform_multiple(123) }
           .not_to raise_error
+      end
+
+      context 'idempotency' do
+        it_behaves_like 'can handle multiple calls without raising exceptions' do
+          let(:job_args) { nil }
+        end
       end
     end
   end
