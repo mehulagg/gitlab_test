@@ -2,7 +2,6 @@
 import { mapActions, mapState, mapGetters } from 'vuex';
 import { GlDropdown, GlDropdownItem, GlFormGroup, GlSearchBoxByClick, GlAlert } from '@gitlab/ui';
 import DateTimePicker from '~/vue_shared/components/date_time_picker/date_time_picker.vue';
-import { scrollDown } from '~/lib/utils/scroll_utils';
 import LogControlButtons from './log_control_buttons.vue';
 
 import { timeRanges, defaultTimeRange } from '~/monitoring/constants';
@@ -77,16 +76,6 @@ export default {
         !this.logs.isLoading &&
         !this.disableAdvancedControls
       );
-    },
-  },
-  watch: {
-    trace(val) {
-      this.$nextTick(() => {
-        if (val) {
-          scrollDown();
-        }
-        this.$refs.scrollButtons.update();
-      });
     },
   },
   mounted() {
