@@ -168,6 +168,27 @@ RSpec.shared_examples 'variable list' do
     end
   end
 
+  it 'edits variable with empty value' do
+    page.within('.js-ci-variable-list-section') do
+      click_button('Reveal value')
+
+      page.within('.js-row:nth-child(2)') do
+        find('.js-ci-variable-input-key').set('new_key')
+        find('.js-ci-variable-input-value').set('')
+      end
+
+      click_button('Save variables')
+      wait_for_requests
+
+      visit page_path
+
+      page.within('.js-row:nth-child(2)') do
+        expect(find('.js-ci-variable-input-key').value).to eq('new_key')
+        expect(find('.js-ci-variable-input-value', visible: false).value).to eq('')
+      end
+    end
+  end
+
   it 'edits variable to be protected' do
     # Create the unprotected variable
     page.within('.js-ci-variable-list-section .js-row:last-child') do

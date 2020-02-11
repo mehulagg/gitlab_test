@@ -2,10 +2,10 @@ import $ from 'jquery';
 import { parseBoolean } from '../lib/utils/common_utils';
 import { s__ } from '../locale';
 import setupToggleButtons from '../toggle_buttons';
-import CreateItemDropdown from '../create_item_dropdown';
 import SecretValues from '../behaviors/secret_values';
 
 const ALL_ENVIRONMENTS_STRING = s__('CiVariable|All environments');
+const SCOPE_DOC_LINK = $('.js-ci-variable-list-section').data('scopeDocsLink');
 
 function createEnvironmentItem(value) {
   return {
@@ -120,27 +120,51 @@ export default class VariableList {
     // Reset the resizable textarea
     $row.find(this.inputMap.secret_value.selector).css('height', '');
 
-    const $environmentSelect = $row.find('.js-variable-environment-toggle');
+    const $environmentSelect = $row.find('.js-variable-environment-trigger');
     if ($environmentSelect.length) {
-      const createItemDropdown = new CreateItemDropdown({
-        $dropdown: $environmentSelect,
-        defaultToggleLabel: ALL_ENVIRONMENTS_STRING,
-        fieldName: `${this.formField}[variables_attributes][][environment_scope]`,
-        getData: (term, callback) => callback(this.getEnvironmentValues()),
-        createNewItemFromValue: createEnvironmentItem,
-        onSelect: () => {
-          // Refresh the other dropdowns in the variable list
-          // so they have the new value we just picked
-          this.refreshDropdownData();
+      const dropdownTrigger = $row.find(this.inputMap.environment_scope.selector);
 
-          $row.find(this.inputMap.environment_scope.selector).trigger('trigger-change');
+      $(dropdownTrigger).select2({
+        data: () => ({
+          results: [
+            {
+              id: 0,
+              locked: true,
+              disabled: true,
+              text: '',
+            },
+            ...this.getEnvironmentValues(),
+          ],
+        }),
+        allowClear: true,
+        formatResult: result => {
+          if (result.id === 0) {
+            return `<span class="ci-variable-environment-help-text">
+            Enter scope (wildcards allowed) or select a past value. <a target="_blank" rel="noopener noreferrer" href="${SCOPE_DOC_LINK}">Learn more</a></span>`;
+          }
+
+          return result.text;
         },
+        createSearchChoice: value => {
+          const result = createEnvironmentItem(value);
+          result.text = `"${result.text}"`;
+          return result;
+        },
+        createSearchChoicePosition: 'bottom',
       });
 
-      // Clear out any data that might have been left-over from the row clone
-      createItemDropdown.clearDropdown();
+      $(dropdownTrigger).on('select2-selecting', e => {
+        e.choice.text = e.choice.text.replace(/"/g, '');
+        $(dropdownTrigger).select2('val', e.choice.text);
+        $(dropdownTrigger).val(e.choice.id);
+      });
 
-      this.environmentDropdownMap.set($row[0], createItemDropdown);
+      // Remove select2 mouse trap
+      $(dropdownTrigger).on('select2-open', () => {
+        $('#select2-drop').off('click');
+      });
+
+      this.environmentDropdownMap.set($row[0], $(dropdownTrigger));
     }
   }
 
@@ -154,14 +178,16 @@ export default class VariableList {
       $rowClone.find(entry.selector).val(entry.default);
     });
 
-    // Close any dropdowns
-    $rowClone.find('.dropdown-menu.show').each((index, $dropdown) => {
-      $dropdown.classList.remove('show');
+    // Remove any dropdowns
+    $rowClone.find('.select2-container').each((index, $el) => {
+      $el.remove();
     });
 
-    this.initRow($rowClone);
+    $rowClone.find(this.inputMap.environment_scope.selector).show();
 
     $row.after($rowClone);
+
+    this.initRow($rowClone);
   }
 
   removeRow(row) {
@@ -177,10 +203,6 @@ export default class VariableList {
     } else {
       $row.remove();
     }
-
-    // Refresh the other dropdowns in the variable list
-    // so any value with the variable deleted is gone
-    this.refreshDropdownData();
   }
 
   checkIfRowTouched($row) {
@@ -255,14 +277,5 @@ export default class VariableList {
       );
 
     return Object.keys(valueMap).map(createEnvironmentItem);
-  }
-
-  refreshDropdownData() {
-    this.$container.find('.js-row').each((index, rowEl) => {
-      const environmentDropdown = this.environmentDropdownMap.get(rowEl);
-      if (environmentDropdown) {
-        environmentDropdown.refreshData();
-      }
-    });
   }
 }

@@ -32,9 +32,6 @@ describe('VariableList (EE features)', () => {
           .find('.js-variable-environment-dropdown-wrapper .dropdown-input-field')
           .val(newEnv)
           .trigger('input');
-
-        // Create the new item
-        $row.find('.js-variable-environment-dropdown-wrapper .js-dropdown-create-new-item').click();
       }
 
       it('should add another row when editing the last rows environment dropdown', done => {
@@ -59,7 +56,7 @@ describe('VariableList (EE features)', () => {
         addRowByNewEnvironment('someenv');
 
         const $row = $wrapper.find('.js-row:last-child');
-        $row.find('.js-variable-environment-toggle').click();
+        $row.find('.select2-container.js-variable-environment-trigger').select2('open');
 
         getSetTimeoutPromise()
           .then(() => {
@@ -71,9 +68,11 @@ describe('VariableList (EE features)', () => {
             expect($dropdownItemsBeforeRemove[0].textContent.trim()).toBe('someenv');
             expect($dropdownItemsBeforeRemove[1].textContent.trim()).toBe('* (All environments)');
 
-            $wrapper.find('.js-row-remove-button').trigger('click');
-
-            expect($wrapper.find('.js-row').length).toBe(0);
+            $row.find('.select2-container.js-variable-environment-trigger').select2('close');
+            $row
+              .prev()
+              .find('.js-row-remove-button')
+              .trigger('click');
           })
           .then(() => {
             const $dropdownItemsAfterRemove = $row.find(
