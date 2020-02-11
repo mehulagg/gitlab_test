@@ -5,7 +5,6 @@ import DateTimePicker from '~/vue_shared/components/date_time_picker/date_time_p
 import EnvironmentLogs from 'ee/logs/components/environment_logs.vue';
 
 import { createStore } from 'ee/logs/stores';
-import { scrollDown } from '~/lib/utils/scroll_utils';
 import {
   mockEnvName,
   mockEnvironments,
@@ -229,7 +228,6 @@ describe('EnvironmentLogs', () => {
     });
 
     afterEach(() => {
-      scrollDown.mockReset();
       updateControlBtnsMock.mockReset();
 
       actionMocks.setInitData.mockReset();
@@ -276,15 +274,7 @@ describe('EnvironmentLogs', () => {
     it('populates logs trace', () => {
       const trace = findLogTrace();
       expect(trace.text().split('\n').length).toBe(mockTrace.length);
-      expect(trace.text().split('\n')).toEqual(mockTrace);
-    });
-
-    it('update control buttons state', () => {
-      expect(updateControlBtnsMock).toHaveBeenCalledTimes(1);
-    });
-
-    it('scrolls to bottom when loaded', () => {
-      expect(scrollDown).toHaveBeenCalledTimes(1);
+      expect(trace.text().split('\n')).toEqual(mockTrace.reverse());
     });
 
     describe('when user clicks', () => {

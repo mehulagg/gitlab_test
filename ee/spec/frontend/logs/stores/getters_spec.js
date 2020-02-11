@@ -32,8 +32,8 @@ describe('Logs Store getters', () => {
         state.logs.lines = mockLogsResult;
       });
 
-      it('returns an empty string', () => {
-        expect(getters.trace(state)).toEqual(mockTrace.join('\n'));
+      it('returns the trace', () => {
+        expect(getters.trace(state)).toEqual(mockTrace.reverse().join('\n'));
       });
     });
   });
