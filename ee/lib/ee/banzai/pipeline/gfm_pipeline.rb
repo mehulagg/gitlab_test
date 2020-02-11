@@ -14,6 +14,13 @@ module EE
               *super
             ]
           end
+
+          def metric_filters
+            [
+              ::EE::Banzai::Filter::InlineClusterMetricsFilter,
+              *super
+            ]
+          end
         end
       end
     end
