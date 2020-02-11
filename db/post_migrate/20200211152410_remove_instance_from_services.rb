@@ -6,12 +6,9 @@ class RemoveInstanceFromServices < ActiveRecord::Migration[6.0]
   DOWNTIME = false
 
   def up
-    trigger_name = rename_trigger_name(:services, :template, :instance)
-    remove_rename_triggers_for_postgresql(:services, trigger_name)
-
     return unless column_exists?(:services, :instance)
 
-    remove_column :services, :instance
+    undo_rename_column_concurrently :services, :template, :instance
   end
 
   def down
