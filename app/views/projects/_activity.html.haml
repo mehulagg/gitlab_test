@@ -1,9 +1,15 @@
 %div{ class: container_class }
+  .project-clone-holder.d-block.d-md-none.mt-sm-2.mt-md-0.prepend-top-default
+    = render "shared/mobile_clone_panel"
+
   .nav-block.d-none.d-sm-flex.activities
     = render 'shared/event_filter'
     .controls
-      = link_to project_path(@project, rss_url_options), title: s_("ProjectActivityRSS|Subscribe"), class: 'btn d-none d-sm-inline-block has-tooltip' do
+      = link_to project_path(@project, rss_url_options), title: s_("ProjectActivityRSS|Subscribe"), class: 'btn d-none d-sm-inline-block has-tooltip append-right-8' do
         = icon('rss')
+
+      .project-clone-holder.d-none.d-md-inline-block>
+        = render "projects/buttons/clone", dropdown_class: 'dropdown-menu-right'
 
   .content_list.project-activity{ :"data-href" => activity_project_path(@project) }
   = spinner
