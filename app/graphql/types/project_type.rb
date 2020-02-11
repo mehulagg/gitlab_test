@@ -66,15 +66,9 @@ module Types
             project.avatar_url(only_path: false)
           end
 
-    field :vulnerable, GraphQL::BOOLEAN_TYPE, null: true, resolve: -> (_project, args, _ctx) { args[:severity] == 'critical' }do
-      argument :severity, GraphQL::STRING_TYPE, required: true
-    end
-
-    field :labels_count, GraphQL::INT_TYPE, null: true, # rubocop:disable Graphql/Descriptions
-          resolve: -> (project, _args, _ctx) { project.labels.count }
-
-    field :default_label, GraphQL::STRING_TYPE, null: true, # rubocop:disable Graphql/Descriptions
-          resolve: -> (project, _args, _ctx) do
+    field :default_label, GraphQL::STRING_TYPE, null: true,
+          description: 'Default label for the project',
+          resolve: -> (project, _args, _ctx)do
             project.labels.first&.title
           end
 
