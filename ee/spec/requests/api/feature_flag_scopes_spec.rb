@@ -204,6 +204,7 @@ describe API::FeatureFlagScopes do
 
     context 'when there is a feature flag' do
       let!(:feature_flag) { create(:operations_feature_flag, project: project) }
+      let!(:feature_flag_default_scope) { create_default_scope_for(feature_flag) }
       let(:scope) { feature_flag.default_scope }
 
       it_behaves_like 'check user permission'

@@ -2,8 +2,10 @@
 
 module FeatureFlagHelpers
   def create_flag(project, name, active = true, description: nil)
-    create(:operations_feature_flag, name: name, active: active,
+    feature_flag = create(:operations_feature_flag, name: name, active: active,
                                      description: description, project: project)
+    create_default_scope_for(feature_flag, active: active)
+    feature_flag
   end
 
   def create_scope(feature_flag, environment_scope, active = true, strategies = [{ name: "default", parameters: {} }])
