@@ -46,6 +46,11 @@ export default {
     };
   },
   computed: {
+    dastIsSelected() {
+      return (
+        this.checkedConfigurationItems.indexOf('Dynamic Application Security Testing (DAST)') !== -1
+      );
+    },
     hasNewlyCheckedItems() {
       return this.checkedConfigurationItems.filter(negate(isPreConfigured)).length > 0;
     },
@@ -81,6 +86,11 @@ export default {
       const linkEnd = '</a>';
 
       return sprintf(body, { linkStart, linkEnd }, false);
+    },
+  },
+  methods: {
+    featureIsDast(feature) {
+      return feature.name === __('Dynamic Application Security Testing (DAST)');
     },
   },
 };
@@ -128,8 +138,8 @@ export default {
                 {{ s__('SecurityConfiguration|Feature') }}
               </div>
               <div class="table-mobile-content">
-                <div class="d-flex align-items-center justify-content-end justify-content-md-start">
-                  <div>
+                <div class="d-flex">
+                  <div class="mr-2">
                     <input
                       v-model="checkedConfigurationItems"
                       type="checkbox"
@@ -137,19 +147,28 @@ export default {
                       :disabled="feature.configured"
                     />
                   </div>
-                  <div class="text-2 gl-text-gray-900">
-                    {{ feature.name }}
+                  <div>
+                    <div
+                      class="d-flex align-items-center justify-content-end justify-content-md-start"
+                    >
+                      <div class="text-2 gl-text-gray-900">
+                        {{ feature.name }}
+                      </div>
+                      <gl-link
+                        class="d-inline-flex ml-1"
+                        target="_blank"
+                        :href="feature.link"
+                        :aria-label="s__('SecurityConfiguration|Feature documentation')"
+                        ><icon name="external-link"
+                      /></gl-link>
+                    </div>
+                    <div class="text-secondary">
+                      {{ feature.description }}
+                    </div>
                   </div>
-                  <gl-link
-                    class="d-inline-flex ml-1"
-                    target="_blank"
-                    :href="feature.link"
-                    :aria-label="s__('SecurityConfiguration|Feature documentation')"
-                    ><icon name="external-link"
-                  /></gl-link>
-                </div>
-                <div class="text-secondary">
-                  {{ feature.description }}
+                  <div v-if="featureIsDast(feature) && dastIsSelected">
+                    {{ __('I show when DAST has been selected') }}
+                  </div>
                 </div>
               </div>
             </div>

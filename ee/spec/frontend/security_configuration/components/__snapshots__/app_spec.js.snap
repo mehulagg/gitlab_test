@@ -12,8 +12,8 @@ exports[`Security Configuration App features table displays a given feature 1`] 
       class="table-section section-80"
     >
       
-        Secure features
-      
+          Secure features
+        
     </div>
      
     <div
@@ -37,43 +37,56 @@ exports[`Security Configuration App features table displays a given feature 1`] 
           role="rowheader"
         >
           
-            Feature
-          
+              Feature
+            
         </div>
          
         <div
           class="table-mobile-content"
         >
           <div
-            class="d-flex align-items-center justify-content-end justify-content-md-start"
+            class="d-flex"
           >
-            <div
-              class="text-2 gl-text-gray-900"
-            >
-              
-                name-feature-0
-              
+            <div>
+              <input
+                type="checkbox"
+                value="[object Object]"
+              />
             </div>
              
-            <gl-link-stub
-              aria-label="Feature documentation"
-              class="d-inline-flex ml-1"
-              href="link-feature-0"
-              target="_blank"
-            >
-              <icon-stub
-                name="external-link"
-                size="16"
-              />
-            </gl-link-stub>
-          </div>
-           
-          <div
-            class="text-secondary"
-          >
-            
-              description-feature-0
-            
+            <div>
+              <div
+                class="d-flex align-items-center justify-content-end justify-content-md-start"
+              >
+                <div
+                  class="text-2 gl-text-gray-900"
+                >
+                  
+                      name-feature-0
+                    
+                </div>
+                 
+                <gl-link-stub
+                  aria-label="Feature documentation"
+                  class="d-inline-flex ml-1"
+                  href="link-feature-0"
+                  target="_blank"
+                >
+                  <icon-stub
+                    name="external-link"
+                    size="16"
+                  />
+                </gl-link-stub>
+              </div>
+               
+              <div
+                class="text-secondary"
+              >
+                
+                    description-feature-0
+                  
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -86,16 +99,16 @@ exports[`Security Configuration App features table displays a given feature 1`] 
           role="rowheader"
         >
           
-            Status
-          
+              Status
+            
         </div>
          
         <div
           class="table-mobile-content"
         >
           
-            Not yet configured
-          
+              Not yet configured
+            
         </div>
       </div>
     </div>
