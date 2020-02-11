@@ -740,9 +740,9 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.95.0.tgz#105311b8eae530dbe586232925690ca3e947a89b"
   integrity sha512-sGvtkf5XgDhMA9vPJu2YLHiEk4tbF6W9AAxAl3lMfwaFdF4mwfOwVtAWLJaM+9ubL91t+jVsOtHGsAzATufnlg==
 
-"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/429704491/artifacts/raw/gitlab-ui.601-first-focusable-item-should-be-auto-focused-modal-component.tgz":
+"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/433731768/artifacts/raw/gitlab-ui.601-first-focusable-item-should-be-auto-focused-modal-component.tgz":
   version "9.4.0"
-  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/429704491/artifacts/raw/gitlab-ui.601-first-focusable-item-should-be-auto-focused-modal-component.tgz#80877f43f2a5e96472fd21be12e980c9c9ede5b4"
+  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/433731768/artifacts/raw/gitlab-ui.601-first-focusable-item-should-be-auto-focused-modal-component.tgz#829c227d5398026edc0d418addf93def82954578"
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
