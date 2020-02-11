@@ -55,12 +55,6 @@ export default {
     { status: 'ignored', icon: 'eye-slash', title: __('Ignore') },
     { status: 'resolved', icon: 'check-circle', title: __('Resolve') },
   ],
-  statusesTokens: [
-    { type: 'ignored', icon: 'label', hint: 'Ignored', token: {} },
-    { type: 'resolved', icon: 'label', hint: 'Resolved', token: {} },
-    { type: 'unresolved', icon: 'label', hint: 'Unresolved', token: {} }
-  ],
-  statusLabelToken: [{ type: 'status', icon: '', hint: __('Status'), token: {} }],
   statusTokens: [
     { type: 'ignored', icon: 'eye-slash', hint: __('Ignored'), token: {} },
     { type: 'unresolved', icon: 'check-circle', hint: __('Resolved'), token: {} }
