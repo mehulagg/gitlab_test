@@ -1,8 +1,8 @@
 <script>
-import _ from 'underscore';
+import { isNumber, chain } from 'lodash';
+import { flow, filter, sortBy } from 'lodash/fp';
 import { mapState } from 'vuex';
 import { GlTooltipDirective } from '@gitlab/ui';
-import issueCardInner from 'ee_else_ce/boards/mixins/issue_card_inner';
 import { sprintf, __ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import TooltipOnTruncate from '~/vue_shared/components/tooltip_on_truncate.vue';
@@ -14,6 +14,7 @@ import IssueCardInnerScopedLabel from './issue_card_inner_scoped_label.vue';
 import { isScopedLabel } from '~/lib/utils/common_utils';
 
 export default {
+  isNumber,
   components: {
     Icon,
     UserAvatarLink,
@@ -26,7 +27,6 @@ export default {
   directives: {
     GlTooltip: GlTooltipDirective,
   },
-  mixins: [issueCardInner],
   props: {
     issue: {
       type: Object,
@@ -101,10 +101,10 @@ export default {
       return !groupId ? referencePath.split('#')[0] : null;
     },
     orderedLabels() {
-      return _.chain(this.issue.labels)
-        .filter(this.isNonListLabel)
-        .sortBy('title')
-        .value();
+      return flow(
+        filter(this.isNonListLabel),
+        sortBy('title'),
+      )(this.issue.labels);
     },
     helpLink() {
       return boardsStore.scopedLabels.helpLink;
@@ -177,9 +177,9 @@ export default {
           class="confidential-icon append-right-4"
           :aria-label="__('Confidential')"
         />
-        <a :href="issue.path" :title="issue.title" class="js-no-trigger" @mousemove.stop>
-          {{ issue.title }}
-        </a>
+        <a :href="issue.path" :title="issue.title" class="js-no-trigger" @mousemove.stop>{{
+          issue.title
+        }}</a>
       </h4>
     </div>
     <div v-if="showLabelFooter" class="board-card-labels prepend-top-4 d-flex flex-wrap">
@@ -227,11 +227,7 @@ export default {
         <span class="board-info-items prepend-top-8 d-inline-block">
           <issue-due-date v-if="issue.dueDate" :date="issue.dueDate" />
           <issue-time-estimate v-if="issue.timeEstimate" :estimate="issue.timeEstimate" />
-          <issue-card-weight
-            v-if="validIssueWeight"
-            :weight="issue.weight"
-            @click="filterByWeight(issue.weight)"
-          />
+          <issue-card-weight v-if="$options.isNumber(issue.weight)" :weight="issue.weight" />
         </span>
       </div>
       <div class="board-card-assignee d-flex">
