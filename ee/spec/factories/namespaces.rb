@@ -7,8 +7,10 @@ FactoryBot.modify do
     end
 
     before(:create) do |namespace, evaluator|
-      if evaluator.plan.present?
-        namespace.plan = create(evaluator.plan)
+      if evaluator.plan.present? && evaluator.plan.is_a?(Symbol)
+        plan_name = evaluator.plan.to_s.chomp('_plan')
+        default_plan = Plan.send(plan_name) if plan_name.in?(Plan::DEFAULT_PLANS) # Default plans are unique
+        namespace.plan = default_plan || create(evaluator.plan)
       end
     end
 

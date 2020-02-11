@@ -26,9 +26,11 @@ describe SubscriptionsHelper do
 
   describe '#subscription_data' do
     let_it_be(:user) { create(:user, setup_for_company: nil, name: 'First Last') }
+    let_it_be(:group) { create(:group, name: 'My Namespace', id: 11) }
 
     before do
       allow(helper).to receive(:current_user).and_return(user)
+      group.add_owner(user)
     end
 
     subject { helper.subscription_data }
@@ -38,6 +40,7 @@ describe SubscriptionsHelper do
     it { is_expected.to include(plan_data: '[{"id":"bronze_id","code":"bronze","price_per_year":48.0}]') }
     it { is_expected.to include(plan_id: 'bronze_id') }
     it { is_expected.to include(new_user: 'false') }
+    it { is_expected.to include(group_data: '[{"id":11,"name":"My Namespace","users":1}]') }
 
     context 'with new_user param in the URL' do
       before do

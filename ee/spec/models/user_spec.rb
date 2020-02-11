@@ -826,4 +826,34 @@ describe User do
       end
     end
   end
+
+  describe '#free_namespaces' do
+    let_it_be(:user) { create(:user) }
+    let_it_be(:licensed_group) { create(:group, plan: :bronze_plan) }
+    let_it_be(:free_group_z) { create(:group, plan: :default_plan, name: 'Z') }
+    let_it_be(:free_group_a) { create(:group, plan: :default_plan, name: 'A') }
+
+    subject { user.free_namespaces }
+
+    context 'user with no groups' do
+      it { is_expected.to eq [] }
+    end
+
+    context 'user with a licensed group' do
+      before do
+        licensed_group.add_owner(user)
+      end
+
+      it { is_expected.not_to include licensed_group }
+    end
+
+    context 'user with free groups' do
+      before do
+        free_group_a.add_owner(user)
+        free_group_z.add_owner(user)
+      end
+
+      it { is_expected.to eq [free_group_a, free_group_z] }
+    end
+  end
 end
