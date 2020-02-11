@@ -1,0 +1,24 @@
+query group($fullPath: ID!) {
+  group(fullPath: $fullPath) {
+    id
+    name
+    projects {
+      nodes {
+        fullPath
+        name
+        issues(sort: updated_desc, first: 5) {
+          nodes {
+            iid
+            title
+            state
+            author {
+              name
+              username
+              avatarUrl
+            }
+          }
+        }
+      }
+    }
+  }
+}

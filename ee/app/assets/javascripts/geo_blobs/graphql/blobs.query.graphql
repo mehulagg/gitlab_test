@@ -1,0 +1,14 @@
+query {
+  blobs {
+    id
+    name
+    registry
+    entries {
+      nodes {
+        iid
+        title
+        sync_status
+      }
+    }
+  }
+}

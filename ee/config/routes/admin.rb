@@ -54,6 +54,8 @@ namespace :admin do
 
     resources :designs, only: [:index]
 
+    resources :blobs, only: [:index]
+
     resources :uploads, only: [:index, :destroy]
   end
 
