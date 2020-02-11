@@ -34,17 +34,22 @@ const staticToken = {
     GlFilteredSearchBinaryToken,
   },
   props: ['value', 'active'],
-  template: `<gl-filtered-search-binary-token
-                title=""
-                :active="active"
-                :value="value"
-                v-on="$listeners"
-              >
-                <template #suggestions>
-                  <gl-filtered-search-suggestion value="Ignored">Ignored</gl-filtered-search-suggestion>
-                  <gl-filtered-search-suggestion value="Resolved">Resolved</gl-filtered-search-suggestion>
-                </template>
-            </gl-filtered-search-binary-token>`,
+  template: `<div>
+                <gl-filtered-search-binary-token
+                  title="Status"
+                  :active="active"
+                  :value="value"
+                  v-on="$listeners"
+                >
+                  <template #suggestions>
+                    <gl-filtered-search-suggestion value="ignored">Ignored</gl-filtered-search-suggestion>
+                    <gl-filtered-search-suggestion value="resolved">Resolved</gl-filtered-search-suggestion>
+                  </template>
+               </gl-filtered-search-binary-token>
+               <div>
+                <portal-target name="statusPortal" class="position-relative" multiple />
+                </div>
+              </div>`,
 };
 
 export default {
@@ -56,10 +61,6 @@ export default {
     { status: 'resolved', icon: 'check-circle', title: __('Resolve') },
   ],
   statusTokens: [
-    { type: 'ignored', icon: 'eye-slash', hint: __('Ignored'), token: {} },
-    { type: 'unresolved', icon: 'check-circle', hint: __('Resolved'), token: {} }
-  ],
-  statusLabelToken: [
     { type: 'static', icon: 'eye-slash', hint: __('Status'), token: staticToken },
   ],
   fields: [
@@ -160,7 +161,7 @@ export default {
   hasLocalStorage: AccessorUtils.isLocalStorageAccessSafe(),
   data() {
     return {
-      statusLabelToken: this.$options.statusLabelToken,
+      statusTokens: this.$options.statusTokens,
       errorSearchQuery: [],
       pageValue: this.$options.FIRST_PAGE,
     };
@@ -233,11 +234,12 @@ export default {
       return `/${this.projectPath}/-/error_tracking/${errorId}.json`;
     },
     searchOrFilter(errorSearchQuery) {
-      if(errorSearchQuery[1].type === 'filtered-search-term'){
-        const errorQuery = errorSearchQuery.map(({ value }) => value).join(' ');
-        this.searchByQuery(errorQuery)
+      const errorQuery = errorSearchQuery.filter(error => error.type === 'filtered-search-term').filter(Boolean).map(({ value }) => value).join(' ');
+      const filterQuery = errorSearchQuery.filter(error => error.type === 'static').map(({ value }) => value)[0];
+      if(filterQuery) {
+        this.searchByFilter(filterQuery);
       }
-      this.searchByFilter(errorSearchQuery);
+      this.searchByQuery(errorQuery);
     },
     updateIssueStatus(errorId, status) {
       this.updateStatus({
@@ -282,11 +284,10 @@ export default {
 
             <gl-filtered-search
               v-model="errorSearchQuery"
-              :available-tokens="statusLabelToken"
+              :available-tokens="statusTokens"
               :placeholder="__('Search by query or filter')"
               @submit="searchOrFilter(errorSearchQuery)"
               />
-            <portal-target name="statusPortal" class="position-relative" multiple />
           </div>
         </div>
 
