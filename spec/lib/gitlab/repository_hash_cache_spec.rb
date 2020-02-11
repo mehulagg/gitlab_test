@@ -29,24 +29,52 @@ describe Gitlab::RepositoryHashCache, :clean_gitlab_redis_cache do
   end
 
   describe "#delete" do
-    subject { cache.delete(:example) }
+    subject { cache.delete(*keys) }
 
-    context "key exists" do
-      before do
-        cache.write(:example, test_hash)
+    context "single key" do
+      let(:keys) { [:example] }
+
+      context "key exists" do
+        before do
+          cache.write(:example, test_hash)
+        end
+
+        it { is_expected.to eq(1) }
+
+        it "deletes the given key from the cache" do
+          subject
+
+          expect(cache.read_members(:example, ["test"])).to eq({ "test" => nil })
+        end
       end
 
-      it { is_expected.to eq(1) }
-
-      it "deletes the given key from the cache" do
-        subject
-
-        expect(cache.read_members(:example, ["test"])).to eq({ "test" => nil })
+      context "key doesn't exist" do
+        it { is_expected.to eq(0) }
       end
     end
 
-    context "key doesn't exist" do
-      it { is_expected.to eq(0) }
+    context "multiple keys" do
+      let(:keys) { [:example, :example2] }
+
+      context "keys exist" do
+        before do
+          cache.write(:example, test_hash)
+          cache.write(:example2, test_hash)
+        end
+
+        it { is_expected.to eq(2) }
+
+        it "deletes the given keys from the cache" do
+          subject
+
+          expect(cache.read_members(:example, ["test"])).to eq({ "test" => nil })
+          expect(cache.read_members(:example2, ["test"])).to eq({ "test" => nil })
+        end
+      end
+
+      context "keys don't exist" do
+        it { is_expected.to eq(0) }
+      end
     end
   end
 

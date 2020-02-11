@@ -17,8 +17,11 @@ module Gitlab
       "#{type}:#{namespace}:set"
     end
 
-    def expire(key)
-      with { |redis| redis.del(cache_key(key)) }
+    def delete(*keys)
+      with do |redis|
+        keys = keys.map { |key| cache_key(key) }
+        redis.del(*keys)
+      end
     end
 
     def exist?(key)

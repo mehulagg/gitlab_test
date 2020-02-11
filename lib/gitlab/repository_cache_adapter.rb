@@ -237,11 +237,11 @@ module Gitlab
     end
 
     def expire_redis_set_method_caches(methods)
-      methods.each { |name| redis_set_cache.expire(name) }
+      redis_set_cache.delete(methods)
     end
 
     def expire_redis_hash_method_caches(methods)
-      methods.each { |name| redis_hash_cache.delete(name) }
+      redis_hash_cache.delete(methods)
     end
 
     # All cached repository methods depend on the existence of a Git repository,

@@ -31,10 +31,20 @@ module Gitlab
       "#{type}:#{namespace}:hash"
     end
 
-    # @param key [String]
-    # @return [Integer] 0 or 1 depending on success
-    def delete(key)
-      with { |redis| redis.del(cache_key(key)) }
+    # @overload delete(key)
+    #   Delete a single key
+    #   @param key [String]
+    #   @return [Integer] 0 or 1 depending on success
+    # @overload delete(key1, key2)
+    #   Delete multiple keys
+    #   @param key1 [String]
+    #   @param key2 [String]
+    #   @return [Integer] the number of keys deleted
+    def delete(*keys)
+      with do |redis|
+        keys = keys.map { |key| cache_key(key) }
+        redis.del(*keys)
+      end
     end
 
     # Check if the provided hash key exists in the hash.
