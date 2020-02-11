@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 describe Operations::FeatureFlagScope do
+  include FeatureFlagHelpers
+
   describe 'associations' do
     it { is_expected.to belong_to(:feature_flag) }
   end
@@ -30,7 +32,7 @@ describe Operations::FeatureFlagScope do
 
     context 'when environment scope of a default scope is updated' do
       let!(:feature_flag) { create(:operations_feature_flag) }
-      let!(:default_scope) { feature_flag.default_scope }
+      let!(:default_scope) { create_default_scope_for(feature_flag) }
 
       it 'keeps default scope intact' do
         default_scope.update(environment_scope: 'review/*')
@@ -42,7 +44,7 @@ describe Operations::FeatureFlagScope do
 
     context 'when a default scope is destroyed' do
       let!(:feature_flag) { create(:operations_feature_flag) }
-      let!(:default_scope) { feature_flag.default_scope }
+      let!(:default_scope) { create_default_scope_for(feature_flag) }
 
       it 'prevents from destroying the default scope' do
         expect { default_scope.destroy! }.to raise_error(ActiveRecord::ReadOnlyRecord)
