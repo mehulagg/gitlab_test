@@ -17,7 +17,7 @@ module Types
             description: 'SHA of the design version'
 
       field :designs,
-            ::Types::DesignManagement::DesignType.connection_type,
+            ::Types::DesignManagement::DesignConnectionType,
             null: false,
             description: 'All designs that were changed in the version'
 

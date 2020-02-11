@@ -2,7 +2,7 @@
 
 module Types
   module DesignManagement
-    class DesignsConnectionType < GraphQL::Types::Relay::BaseConnection
+    class DesignConnectionType < GraphQL::Types::Relay::BaseConnection
       edge_type(Types::DesignManagement::DesignType.edge_type)
 
       authorize :read_design

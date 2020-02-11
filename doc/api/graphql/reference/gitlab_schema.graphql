@@ -899,7 +899,7 @@ type DesignCollection {
     Returns the last _n_ elements from the list.
     """
     last: Int
-  ): DesignsConnection!
+  ): DesignConnection!
 
   """
   Issue associated with the design collection
@@ -980,6 +980,11 @@ type DesignConnection {
   Information to aid in pagination.
   """
   pageInfo: PageInfo!
+
+  """
+  Total count of designs in design collection
+  """
+  totalCount: Int!
 }
 
 """
@@ -1314,31 +1319,6 @@ enum DesignVersionEvent {
   No change
   """
   NONE
-}
-
-"""
-The connection type for Design.
-"""
-type DesignsConnection {
-  """
-  A list of edges.
-  """
-  edges: [DesignEdge]
-
-  """
-  A list of nodes.
-  """
-  nodes: [Design]
-
-  """
-  Information to aid in pagination.
-  """
-  pageInfo: PageInfo!
-
-  """
-  Total count of designs in design collection
-  """
-  totalCount: Int!
 }
 
 """

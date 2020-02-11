@@ -14,7 +14,7 @@ module Types
             description: 'Issue associated with the design collection'
 
       field :designs,
-            Types::DesignManagement::DesignsConnectionType,
+            Types::DesignManagement::DesignConnectionType,
             null: false,
             resolver: Resolvers::DesignManagement::DesignsResolver,
             description: 'All designs for the design collection'
