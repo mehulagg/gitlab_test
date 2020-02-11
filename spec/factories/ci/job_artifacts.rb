@@ -6,6 +6,7 @@ FactoryBot.define do
   factory :ci_job_artifact, class: 'Ci::JobArtifact' do
     job factory: :ci_build
     file_type { :archive }
+    file_store { ObjectStorage::Store::LOCAL }
     file_format { :zip }
 
     trait :expired do
@@ -13,7 +14,7 @@ FactoryBot.define do
     end
 
     trait :remote_store do
-      file_store { JobArtifactUploader::Store::REMOTE}
+      file_store { ObjectStorage::Store::REMOTE }
     end
 
     after :build do |artifact|
