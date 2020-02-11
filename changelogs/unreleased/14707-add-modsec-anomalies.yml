@@ -1,0 +1,5 @@
+---
+title: Add modsec anomaly aggregations to WAF anomaly service
+merge_request: 24837
+author:
+type: added
