@@ -3,7 +3,7 @@
 module QA
   context 'Verify' do
     describe 'CI variable support' do
-      it 'user adds a CI variable', :smoke do
+      it 'user adds a CI variable', :smoke, quarantine: 'https://gitlab.com/gitlab-org/gitlab/-/merge_requests/24088' do
         Flow::Login.sign_in
 
         project = Resource::Project.fabricate_via_api! do |project|
