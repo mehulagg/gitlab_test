@@ -37,6 +37,15 @@ describe SubscriptionsHelper do
     it { is_expected.to include(full_name: 'First Last') }
     it { is_expected.to include(plan_data: '[{"id":"bronze_id","code":"bronze","price_per_year":48.0}]') }
     it { is_expected.to include(plan_id: 'bronze_id') }
+    it { is_expected.to include(new_user: 'false') }
+
+    context 'with new_user param in the URL' do
+      before do
+        allow(helper).to receive(:params).and_return(plan_id: 'bronze_id', new_user: 'true')
+      end
+
+      it { is_expected.to include(new_user: 'true') }
+    end
   end
 
   describe '#plan_title' do

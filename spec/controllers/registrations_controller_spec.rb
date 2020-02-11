@@ -403,6 +403,8 @@ describe RegistrationsController do
       sign_in(create(:user))
     end
 
+    subject { patch :update_registration, params: { user: { role: 'software_developer', setup_for_company: 'false' } } }
+
     it 'tracks the event with the right parameters' do
       expect(Gitlab::Tracking).to receive(:event).with(
         'Growth::Acquisition::Experiment::SignUpFlow',
@@ -410,7 +412,36 @@ describe RegistrationsController do
         label: anything,
         property: 'experimental_group'
       )
-      patch :update_registration, params: { user: { role: 'software_developer', setup_for_company: 'false' } }
+
+      subject
+    end
+
+    describe 'redirecting' do
+      context 'with no user_return_to in the session' do
+        it 'redirects_to the dashboard_projects_path' do
+          expect(subject).to redirect_to dashboard_projects_path
+        end
+      end
+
+      context 'with a user_return_to in the session' do
+        before do
+          request.session['user_return_to'] = 'redirect_url'
+        end
+
+        it 'redirects_to the the stored path' do
+          expect(subject).to redirect_to 'redirect_url'
+        end
+      end
+
+      context 'with a user_return_to in the session with a value that includes the new_subscriptions_path' do
+        before do
+          request.session['user_return_to'] = new_subscriptions_path(plan_id: 'bronze_plan')
+        end
+
+        it 'redirects_to the the stored path and adds the new_user parameter' do
+          expect(subject).to redirect_to new_subscriptions_path(plan_id: 'bronze_plan', new_user: true)
+        end
+      end
     end
   end
 

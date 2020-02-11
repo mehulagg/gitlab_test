@@ -8,7 +8,8 @@ module SubscriptionsHelper
       setup_for_company: (current_user.setup_for_company == true).to_s,
       full_name: current_user.name,
       plan_data: plan_data.to_json,
-      plan_id: params[:plan_id]
+      plan_id: params[:plan_id],
+      new_user: (params[:new_user] == 'true').to_s
     }
   end
 

@@ -64,6 +64,7 @@ class RegistrationsController < Devise::RegistrationsController
     if result[:status] == :success
       track_experiment_event(:signup_flow, 'end') # We want this event to be tracked when the user is _in_ the experimental group
       set_flash_message! :notice, :signed_up
+      add_new_user_param_to_user_return_to
       redirect_to stored_location_or_dashboard(current_user)
     else
       render :welcome
@@ -196,6 +197,15 @@ class RegistrationsController < Devise::RegistrationsController
     else
       'devise'
     end
+  end
+
+  def add_new_user_param_to_user_return_to
+    user_return_to = session['user_return_to']
+    return unless user_return_to.present? && user_return_to.include?(new_subscriptions_path)
+
+    redirect_url = Addressable::URI.parse(user_return_to)
+    redirect_url.query_values = redirect_url.query_values.merge(new_user: true)
+    session['user_return_to'] = redirect_url.to_s
   end
 end
 
