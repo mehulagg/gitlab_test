@@ -120,6 +120,7 @@ setup-test-env:
     - .use-pg9
   stage: prepare
   script:
+    - pwd
     - bundle exec ruby -Ispec -e 'require "spec_helper" ; TestEnv.init'
     - scripts/gitaly-test-build  # Do not use 'bundle exec' here
   artifacts:
