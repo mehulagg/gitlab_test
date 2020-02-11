@@ -206,6 +206,7 @@ export default {
       'fetchPaginatedResults',
       'updateStatus',
       'removeIgnoredResolvedErrors',
+      'searchByFilter',
     ]),
     setSearchText(text) {
       this.errorSearchQuery = text;
@@ -236,6 +237,7 @@ export default {
         const errorQuery = errorSearchQuery.map(({ value }) => value).join(' ');
         this.searchByQuery(errorQuery)
       }
+      this.searchByFilter(errorSearchQuery);
     },
     updateIssueStatus(errorId, status) {
       this.updateStatus({

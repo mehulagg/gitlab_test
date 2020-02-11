@@ -1,4 +1,5 @@
 export default () => ({
+  filterErrorStatus: 'unresolved',
   errors: [],
   loading: true,
   endpoint: null,

@@ -62,4 +62,7 @@ export default {
   [types.REMOVE_IGNORED_RESOLVED_ERRORS](state, error) {
     state.errors = state.errors.filter(err => err.id !== error);
   },
+  [types.SET_FILTER_ERROR_STATUS](state, query) {
+    state.filterErrorStatus = query;
+  },
 };
