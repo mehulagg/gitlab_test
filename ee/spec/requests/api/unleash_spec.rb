@@ -158,11 +158,6 @@ describe API::Unleash do
 
       subject { get api(features_url), params: params, headers: headers }
 
-      def create_default_scope_for(feature_flag)
-        create(:operations_feature_flag_scope, feature_flag: feature_flag,
-               active: true, strategies: [{ name: 'default', parameters: {} }], environment_scope: '*')
-      end
-
       context 'with FeatureFlagScope models' do
         let(:feature_flag) { create(:operations_feature_flag, project: project, name: 'feature1', active: true) }
 

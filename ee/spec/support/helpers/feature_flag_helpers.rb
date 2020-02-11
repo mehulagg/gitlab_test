@@ -14,6 +14,11 @@ module FeatureFlagHelpers
       strategies: strategies)
   end
 
+  def create_default_scope_for(feature_flag, active: true, strategies: [{ name: 'default', parameters: {} }])
+    create(:operations_feature_flag_scope, feature_flag: feature_flag,
+           active: active, strategies: strategies, environment_scope: '*')
+  end
+
   def within_feature_flag_row(index)
     within ".gl-responsive-table-row:nth-child(#{index + 1})" do
       yield
