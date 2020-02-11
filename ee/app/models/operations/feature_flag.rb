@@ -77,10 +77,6 @@ module Operations
       end
     end
 
-    def build_default_scope
-      scopes.build(environment_scope: '*', active: self.active)
-    end
-
     def has_scopes?
       scopes.any?
     end

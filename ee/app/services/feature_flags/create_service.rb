@@ -7,6 +7,7 @@ module FeatureFlags
 
       ActiveRecord::Base.transaction do
         feature_flag = project.operations_feature_flags.new(params)
+        build_default_scope(feature_flag) if feature_flag.scopes.none?
 
         if feature_flag.save
           save_audit_event(audit_event(feature_flag))
@@ -19,6 +20,10 @@ module FeatureFlags
     end
 
     private
+
+    def build_default_scope(feature_flag)
+      feature_flag.scopes.build(environment_scope: '*', active: feature_flag.active)
+    end
 
     def audit_message(feature_flag)
       message_parts = ["Created feature flag <strong>#{feature_flag.name}</strong>",
