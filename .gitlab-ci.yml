@@ -23,6 +23,14 @@ variables:
   BUILD_ASSETS_IMAGE: "false"
   ES_JAVA_OPTS: "-Xms256m -Xmx256m"
   ELASTIC_URL: "http://elastic:changeme@elasticsearch:9200"
+  # Preparing custom clone path to reduce space used by all random forks
+  # on GitLab.com's Shared Runners. Our main forks - especially the security
+  # ones - will have this variable overwritten in the project settings, so that
+  # a security-related code or code using our protected variables will be never
+  # stored on the same path as the community forks.
+  # Part of the solution for the `no space left on device` problem described at
+  # https://gitlab.com/gitlab-org/gitlab/issues/197876.
+  GIT_CLONE_PATH: "/builds/gitlab-forks/gitlab"
 
 after_script:
   - date
