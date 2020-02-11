@@ -3,11 +3,13 @@
 require 'spec_helper'
 
 describe FeatureFlags::UpdateService do
+  include FeatureFlagHelpers
+
   let(:project) { create(:project) }
   let(:developer) { create(:user) }
   let(:reporter) { create(:user) }
   let(:user) { developer }
-  let(:feature_flag) { create(:operations_feature_flag, project: project, active: true) }
+  let(:feature_flag) { create_flag(project, 'feature_flag_1', true) }
 
   before do
     stub_licensed_features(feature_flags: true)
