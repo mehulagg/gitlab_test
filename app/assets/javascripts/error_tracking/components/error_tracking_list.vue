@@ -232,7 +232,10 @@ export default {
       return `/${this.projectPath}/-/error_tracking/${errorId}.json`;
     },
     searchOrFilter(errorSearchQuery) {
-      this.searchByQuery(errorSearchQuery[0].value);
+      if(errorSearchQuery[1].type === 'filtered-search-term'){
+        const errorQuery = errorSearchQuery.map(({ value }) => value).join(' ');
+        this.searchByQuery(errorQuery)
+      }
     },
     updateIssueStatus(errorId, status) {
       this.updateStatus({
