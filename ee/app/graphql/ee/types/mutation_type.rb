@@ -13,7 +13,6 @@ module EE
         mount_mutation ::Mutations::Epics::Update
         mount_mutation ::Mutations::Epics::Create
         mount_mutation ::Mutations::Epics::SetSubscription
-        mount_mutation ::Mutations::Projects::UpdateDescription
       end
     end
   end

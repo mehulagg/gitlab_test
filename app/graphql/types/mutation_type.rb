@@ -30,6 +30,7 @@ module Types
     mount_mutation Mutations::Snippets::Update
     mount_mutation Mutations::Snippets::Create
     mount_mutation Mutations::Snippets::MarkAsSpam
+    mount_mutation Mutations::Projects::UpdateDescription
   end
 end
 
