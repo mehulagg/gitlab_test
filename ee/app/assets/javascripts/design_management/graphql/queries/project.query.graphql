@@ -1,17 +1,22 @@
 #import "../fragments/designList.fragment.graphql"
 #import "../fragments/version.fragment.graphql"
 
-query project($fullPath: ID!, $iid: String!, $atVersion: ID) {
+query project($fullPath: ID!, $iid: String!, $atVersion: ID, $first: Int, $after: String) {
   project(fullPath: $fullPath) {
     id
     issue(iid: $iid) {
       designCollection {
-        designs(atVersion: $atVersion) {
+        designs(atVersion: $atVersion, first: $first, after: $after) {
           edges {
             node {
               ...DesignListItem
             }
           }
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
+          totalCount
         }
         versions {
           edges {

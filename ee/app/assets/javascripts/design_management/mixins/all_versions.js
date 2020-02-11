@@ -1,6 +1,6 @@
 import projectQuery from '../graphql/queries/project.query.graphql';
 import appDataQuery from '../graphql/queries/appData.query.graphql';
-import { findVersionId } from '../utils/design_management_utils';
+import { findVersionId, DESIGNS_PAGE_SIZE } from '../utils/design_management_utils';
 
 export default {
   apollo: {
@@ -19,6 +19,7 @@ export default {
           fullPath: this.projectPath,
           iid: this.issueIid,
           atVersion: null,
+          first: DESIGNS_PAGE_SIZE,
         };
       },
       update: data => data.project.issue.designCollection.versions.edges,

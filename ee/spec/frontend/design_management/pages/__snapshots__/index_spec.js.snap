@@ -7,49 +7,64 @@ exports[`Design management index page designs does not render toolbar when there
   <div
     class="mt-4"
   >
-    <ol
-      class="list-unstyled row"
-    >
-      <li
-        class="col-md-6 col-lg-4 mb-3"
+    <div>
+      <div
+        class="gl-infinite-scroll-container"
+        style="max-height: 300px;"
       >
-        <design-stub
-          event="NONE"
-          filename="design-1-name"
-          id="design-1"
-          image="design-1-image"
-          notescount="0"
-        />
-         
-        <!---->
-      </li>
-      <li
-        class="col-md-6 col-lg-4 mb-3"
+        <ol
+          class="list-unstyled row"
+        >
+          <li
+            class="col-md-6 col-lg-4 mb-3"
+          >
+            <design-stub
+              event="NONE"
+              filename="design-1-name"
+              id="design-1"
+              image="design-1-image"
+              notescount="0"
+            />
+             
+            <!---->
+          </li>
+          <li
+            class="col-md-6 col-lg-4 mb-3"
+          >
+            <design-stub
+              event="NONE"
+              filename="design-2-name"
+              id="design-2"
+              image="design-2-image"
+              notescount="1"
+            />
+             
+            <!---->
+          </li>
+          <li
+            class="col-md-6 col-lg-4 mb-3"
+          >
+            <design-stub
+              event="NONE"
+              filename="design-3-name"
+              id="design-3"
+              image="design-3-image"
+              notescount="0"
+            />
+             
+            <!---->
+          </li>
+        </ol>
+      </div>
+       
+      <p
+        class="gl-infinite-scroll-legend"
       >
-        <design-stub
-          event="NONE"
-          filename="design-2-name"
-          id="design-2"
-          image="design-2-image"
-          notescount="1"
-        />
-         
-        <!---->
-      </li>
-      <li
-        class="col-md-6 col-lg-4 mb-3"
-      >
-        <design-stub
-          event="NONE"
-          filename="design-3-name"
-          id="design-3"
-          image="design-3-image"
-          notescount="0"
-        />
-         
-        <!---->
-      </li>
-    </ol>
+        
+      Showing 3 of 3 items
+    
+      </p>
+    </div>
   </div>
    
   <router-view-stub
@@ -99,58 +114,73 @@ exports[`Design management index page designs renders designs list and header wi
   <div
     class="mt-4"
   >
-    <ol
-      class="list-unstyled row"
-    >
-      <li
-        class="col-md-6 col-lg-4 mb-3"
+    <div>
+      <div
+        class="gl-infinite-scroll-container"
+        style="max-height: 300px;"
       >
-        <design-stub
-          event="NONE"
-          filename="design-1-name"
-          id="design-1"
-          image="design-1-image"
-          notescount="0"
-        />
-         
-        <input
-          class="design-checkbox"
-          type="checkbox"
-        />
-      </li>
-      <li
-        class="col-md-6 col-lg-4 mb-3"
+        <ol
+          class="list-unstyled row"
+        >
+          <li
+            class="col-md-6 col-lg-4 mb-3"
+          >
+            <design-stub
+              event="NONE"
+              filename="design-1-name"
+              id="design-1"
+              image="design-1-image"
+              notescount="0"
+            />
+             
+            <input
+              class="design-checkbox"
+              type="checkbox"
+            />
+          </li>
+          <li
+            class="col-md-6 col-lg-4 mb-3"
+          >
+            <design-stub
+              event="NONE"
+              filename="design-2-name"
+              id="design-2"
+              image="design-2-image"
+              notescount="1"
+            />
+             
+            <input
+              class="design-checkbox"
+              type="checkbox"
+            />
+          </li>
+          <li
+            class="col-md-6 col-lg-4 mb-3"
+          >
+            <design-stub
+              event="NONE"
+              filename="design-3-name"
+              id="design-3"
+              image="design-3-image"
+              notescount="0"
+            />
+             
+            <input
+              class="design-checkbox"
+              type="checkbox"
+            />
+          </li>
+        </ol>
+      </div>
+       
+      <p
+        class="gl-infinite-scroll-legend"
       >
-        <design-stub
-          event="NONE"
-          filename="design-2-name"
-          id="design-2"
-          image="design-2-image"
-          notescount="1"
-        />
-         
-        <input
-          class="design-checkbox"
-          type="checkbox"
-        />
-      </li>
-      <li
-        class="col-md-6 col-lg-4 mb-3"
-      >
-        <design-stub
-          event="NONE"
-          filename="design-3-name"
-          id="design-3"
-          image="design-3-image"
-          notescount="0"
-        />
-         
-        <input
-          class="design-checkbox"
-          type="checkbox"
-        />
-      </li>
-    </ol>
+        
+      Showing 3 of 3 items
+    
+      </p>
+    </div>
   </div>
    
   <router-view-stub

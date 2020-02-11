@@ -1,7 +1,7 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
 import { ApolloMutation } from 'vue-apollo';
 import VueRouter from 'vue-router';
-import { GlEmptyState } from '@gitlab/ui';
+import { GlEmptyState, GlInfiniteScroll } from '@gitlab/ui';
 
 import Index from 'ee/design_management/pages/index.vue';
 import uploadDesignQuery from 'ee/design_management/graphql/mutations/uploadDesign.mutation.graphql';
@@ -70,7 +70,9 @@ describe('Design management index page', () => {
     designs = [],
     allVersions = [],
     createDesign = true,
-    stubs = {},
+    stubs = {
+      GlInfiniteScroll,
+    },
     mockMutate = jest.fn().mockResolvedValue(),
   } = {}) {
     mutate = mockMutate;

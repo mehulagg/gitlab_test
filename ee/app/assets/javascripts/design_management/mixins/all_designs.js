@@ -1,8 +1,11 @@
-import { propertyOf } from 'underscore';
+/* eslint no-param-reassign: ["error", { "props": false }] */
+
+import { get } from 'lodash';
+import produce from 'immer';
 import createFlash from '~/flash';
 import { s__ } from '~/locale';
 import projectQuery from '../graphql/queries/project.query.graphql';
-import { extractNodes } from '../utils/design_management_utils';
+import { extractNodes, DESIGNS_PAGE_SIZE } from '../utils/design_management_utils';
 import allVersionsMixin from './all_versions';
 import { DESIGNS_ROUTE_NAME } from '../router/constants';
 
@@ -16,10 +19,11 @@ export default {
           fullPath: this.projectPath,
           iid: this.issueIid,
           atVersion: this.designsVersion,
+          first: DESIGNS_PAGE_SIZE,
         };
       },
       update: data => {
-        const designEdges = propertyOf(data)(['project', 'issue', 'designCollection', 'designs']);
+        const designEdges = get(data, ['project', 'issue', 'designCollection', 'designs']);
         if (designEdges) {
           return extractNodes(designEdges);
         }
@@ -28,7 +32,9 @@ export default {
       error() {
         this.error = true;
       },
-      result() {
+      result(res) {
+        this.pageInfo = res.data?.project?.issue?.designCollection?.designs?.pageInfo;
+        this.totalCount = res.data?.project?.issue?.designCollection?.designs?.totalCount;
         if (this.$route.query.version && !this.hasValidVersion) {
           createFlash(
             s__(
@@ -44,6 +50,32 @@ export default {
     return {
       designs: [],
       error: false,
+      pageInfo: null,
+      totalCount: 0,
     };
+  },
+  methods: {
+    fetchMoreDesigns() {
+      if (this.pageInfo?.hasNextPage)
+        this.$apollo.queries.designs.fetchMore({
+          variables: {
+            fullPath: this.projectPath,
+            iid: this.issueIid,
+            atVersion: this.designsVersion,
+            first: DESIGNS_PAGE_SIZE,
+            after: this.pageInfo?.endCursor,
+          },
+          updateQuery(previousResult, { fetchMoreResult }) {
+            const newResult = produce(previousResult, draftResult => {
+              const draftDesigns = draftResult.project.issue.designCollection.designs;
+              const newDesigns = fetchMoreResult.project.issue.designCollection.designs;
+              draftDesigns.edges.push(...newDesigns.edges);
+              draftDesigns.pageInfo = newDesigns.pageInfo;
+            });
+
+            return newResult;
+          },
+        });
+    },
   },
 };

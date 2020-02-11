@@ -5,6 +5,7 @@ import App from './components/app.vue';
 import apolloProvider from './graphql';
 import projectQuery from './graphql/queries/project.query.graphql';
 import { DESIGNS_ROUTE_NAME, ROOT_ROUTE_NAME } from './router/constants';
+import { DESIGNS_PAGE_SIZE } from './utils/design_management_utils';
 
 export default () => {
   const el = document.getElementById('js-design-management');
@@ -34,11 +35,12 @@ export default () => {
         fullPath: projectPath,
         iid: issueIid,
         atVersion: null,
+        first: DESIGNS_PAGE_SIZE,
       },
     })
     .subscribe(({ data }) => {
       if (badge) {
-        badge.textContent = data.project.issue.designCollection.designs.edges.length;
+        badge.textContent = data.project.issue.designCollection.designs.totalCount;
       }
     });
 

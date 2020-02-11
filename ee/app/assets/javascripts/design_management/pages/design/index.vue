@@ -261,8 +261,6 @@ export default {
       <div class="d-flex overflow-hidden flex-grow-1 flex-column position-relative">
         <design-destroyer
           :filenames="[design.filename]"
-          :project-path="projectPath"
-          :iid="issueIid"
           @done="$router.push({ name: $options.DESIGNS_ROUTE_NAME })"
           @error="onDesignDeleteError"
         >

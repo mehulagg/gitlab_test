@@ -1,5 +1,5 @@
 <script>
-import { GlLoadingIcon, GlEmptyState, GlButton } from '@gitlab/ui';
+import { GlLoadingIcon, GlEmptyState, GlButton, GlInfiniteScroll } from '@gitlab/ui';
 import createFlash from '~/flash';
 import { s__, sprintf } from '~/locale';
 import UploadButton from '../components/upload/button.vue';
@@ -17,7 +17,10 @@ import {
   designDeletionError,
 } from '../utils/error_messages';
 import { updateStoreAfterUploadDesign } from '../utils/cache_update';
-import { designUploadOptimisticResponse } from '../utils/design_management_utils';
+import {
+  designUploadOptimisticResponse,
+  DESIGNS_PAGE_SIZE,
+} from '../utils/design_management_utils';
 import { DESIGNS_ROUTE_NAME } from '../router/constants';
 
 const MAXIMUM_FILE_UPLOAD_LIMIT = 10;
@@ -32,6 +35,7 @@ export default {
     DesignDestroyer,
     DesignVersionDropdown,
     DeleteButton,
+    GlInfiniteScroll,
   },
   mixins: [allDesignsMixin],
   apollo: {
@@ -57,7 +61,10 @@ export default {
   },
   computed: {
     isLoading() {
-      return this.$apollo.queries.designs.loading || this.$apollo.queries.permissions.loading;
+      return (
+        !this.designs.length &&
+        (this.$apollo.queries.designs.loading || this.$apollo.queries.permissions.loading)
+      );
     },
     isSaving() {
       return this.filesToBeSaved.length > 0;
@@ -80,7 +87,12 @@ export default {
     projectQueryBody() {
       return {
         query: projectQuery,
-        variables: { fullPath: this.projectPath, iid: this.issueIid, atVersion: null },
+        variables: {
+          fullPath: this.projectPath,
+          iid: this.issueIid,
+          atVersion: null,
+          first: DESIGNS_PAGE_SIZE,
+        },
       };
     },
     selectAllButtonText() {
@@ -220,8 +232,6 @@ export default {
           <design-destroyer
             v-slot="{ mutate, loading }"
             :filenames="selectedDesigns"
-            :project-path="projectPath"
-            :iid="issueIid"
             @done="onDesignDelete"
             @error="onDesignDeleteError"
           >
@@ -245,18 +255,28 @@ export default {
       <div v-else-if="error" class="alert alert-danger">
         {{ __('An error occurred while loading designs. Please try again.') }}
       </div>
-      <ol v-else-if="hasDesigns" class="list-unstyled row">
-        <li v-for="design in designs" :key="design.id" class="col-md-6 col-lg-4 mb-3">
-          <design v-bind="design" :is-loading="isDesignToBeSaved(design.filename)" />
-          <input
-            v-if="canSelectDesign(design.filename)"
-            :checked="isDesignSelected(design.filename)"
-            type="checkbox"
-            class="design-checkbox"
-            @change="changeSelectedDesigns(design.filename)"
-          />
-        </li>
-      </ol>
+      <gl-infinite-scroll
+        v-else-if="hasDesigns"
+        :max-list-height="300"
+        :total-items="totalCount"
+        :fetched-items="designs.length"
+        @bottomReached="fetchMoreDesigns"
+      >
+        <template #items>
+          <ol class="list-unstyled row">
+            <li v-for="design in designs" :key="design.id" class="col-md-6 col-lg-4 mb-3">
+              <design v-bind="design" :is-loading="isDesignToBeSaved(design.filename)" />
+              <input
+                v-if="canSelectDesign(design.filename)"
+                :checked="isDesignSelected(design.filename)"
+                type="checkbox"
+                class="design-checkbox"
+                @change="changeSelectedDesigns(design.filename)"
+              />
+            </li>
+          </ol>
+        </template>
+      </gl-infinite-scroll>
       <gl-empty-state
         v-else
         :title="s__('DesignManagement|The one place for your designs')"

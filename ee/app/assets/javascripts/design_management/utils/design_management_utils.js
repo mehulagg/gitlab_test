@@ -1,5 +1,7 @@
 import { uniqueId } from 'underscore';
 
+export const DESIGNS_PAGE_SIZE = 6;
+
 /**
  * Returns formatted array that doesn't contain
  * `edges`->`node` nesting

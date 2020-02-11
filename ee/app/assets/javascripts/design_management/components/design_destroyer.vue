@@ -2,23 +2,18 @@
 import { ApolloMutation } from 'vue-apollo';
 import projectQuery from '../graphql/queries/project.query.graphql';
 import destroyDesignMutation from '../graphql/mutations/destroyDesign.mutation.graphql';
+import allDesignsMixin from '../mixins/all_designs';
 import { updateStoreAfterDesignsDelete } from '../utils/cache_update';
+import { DESIGNS_PAGE_SIZE } from '../utils/design_management_utils';
 
 export default {
   components: {
     ApolloMutation,
   },
+  mixins: [allDesignsMixin],
   props: {
     filenames: {
       type: Array,
-      required: true,
-    },
-    projectPath: {
-      type: String,
-      required: true,
-    },
-    iid: {
-      type: String,
       required: true,
     },
   },
@@ -26,8 +21,16 @@ export default {
     projectQueryBody() {
       return {
         query: projectQuery,
-        variables: { fullPath: this.projectPath, iid: this.iid, atVersion: null },
+        variables: {
+          fullPath: this.projectPath,
+          iid: this.issueIid,
+          atVersion: null,
+          first: DESIGNS_PAGE_SIZE,
+        },
       };
+    },
+    refetchDesigns() {
+      return this.designs.length <= DESIGNS_PAGE_SIZE ? [this.projectQueryBody] : [];
     },
   },
   methods: {
@@ -56,9 +59,10 @@ export default {
     :variables="{
       filenames,
       projectPath,
-      iid,
+      iid: issueIid,
     }"
     :update="updateStoreAfterDelete"
+    :refetch-queries="() => refetchDesigns"
     v-on="$listeners"
   >
     <slot v-bind="{ mutate, loading, error }"></slot>

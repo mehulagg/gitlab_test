@@ -9,8 +9,6 @@ exports[`Design management design index page renders design index 1`] = `
   >
     <design-destroyer-stub
       filenames="test.jpg"
-      iid="1"
-      projectpath=""
     />
      
     <!---->
@@ -86,8 +84,6 @@ exports[`Design management design index page with error GlAlert is rendered in c
   >
     <design-destroyer-stub
       filenames="test.jpg"
-      iid="1"
-      projectpath=""
     />
      
     <div
