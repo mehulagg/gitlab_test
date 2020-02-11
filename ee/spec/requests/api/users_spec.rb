@@ -270,18 +270,34 @@ describe API::Users do
   context 'plan and trial info' do
     describe 'GET /user/:id' do
       context 'when authenticated' do
+        let_it_be(:subscription){ create(:gitlab_subscription, :gold) }
+
         before do
-          plan = create(:gold_plan)
-          namespace = create(:namespace)
-          namespace.plan = plan
-          user.namespace = namespace
+          user.namespace = subscription.namespace
         end
 
         context 'as an admin' do
-          it 'contains plan and trial' do
-            get api("/users/#{user.id}", admin)
+          context 'and user is not a trial user' do
+            it 'contains plan and trial' do
+              get api("/users/#{user.id}", admin)
 
-            expect(json_response).to include('plan' => 'gold')
+              expect(json_response).to include('plan' => 'gold')
+              expect(json_response).to include('trial' => false)
+            end
+          end
+
+          context 'and user is a trial user' do
+            before do
+              subscription.trial = true
+              subscription.save!
+              subscription.reset
+            end
+            it 'contains plan and trial' do
+              get api("/users/#{user.id}", admin)
+
+              expect(json_response).to include('plan' => 'gold')
+              expect(json_response).to include('trial' => true)
+            end
           end
         end
 
