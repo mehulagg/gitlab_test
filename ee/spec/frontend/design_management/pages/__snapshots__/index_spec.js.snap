@@ -61,7 +61,7 @@ exports[`Design management index page designs does not render toolbar when there
         class="gl-infinite-scroll-legend"
       >
         
-      Showing 3 of 3 items
+      Showing 3 of 0 items
     
       </p>
     </div>
@@ -177,7 +177,7 @@ exports[`Design management index page designs renders designs list and header wi
         class="gl-infinite-scroll-legend"
       >
         
-      Showing 3 of 3 items
+      Showing 3 of 0 items
     
       </p>
     </div>
