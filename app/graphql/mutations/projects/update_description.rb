@@ -1,17 +1,13 @@
 # frozen_string_literal: true
 
-# mutation {
-#   projectsUpdateDecription(input: {fullPath: "root/tanuki", description: "hehehe"}) {
-#     project {
-#       description
-#     } errors
-#   }
-# }
-
 module Mutations
   module Projects
     class UpdateDescription < Base
-      graphql_name 'ProjectsUpdateDecription'
+      graphql_name 'ProjectsUpdateDescription'
+
+      argument :description, GraphQL::STRING_TYPE,
+               required: true,
+               description: "New description"
 
       authorize :read_project
 

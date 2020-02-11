@@ -7,16 +7,12 @@ module Mutations
 
       argument :full_path, GraphQL::ID_TYPE,
                required: true,
-               description: 'The project path'
-
-      argument :description, GraphQL::STRING_TYPE,
-               required: true,
-               description: 'New desc'
+               description: 'Project path'
 
       field :project,
             Types::ProjectType,
             null: false,
-            description: 'The project after mutation'
+            description: 'Project after mutation'
 
       private
 
