@@ -1,0 +1,5 @@
+---
+title: Use custom clone path for CI jobs
+merge_request: 24887
+author:
+type: performance
