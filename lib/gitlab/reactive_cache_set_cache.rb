@@ -3,12 +3,13 @@
 # Interface to the Redis-backed cache store to keep track of complete cache keys
 # for a ReactiveCache resource.
 module Gitlab
-  class ReactiveSetCache
-    attr_reader :cache_prefix, :expires_in
+  class ReactiveCacheSetCache
+    attr_reader :cache_prefix, :expires_in, :cache_type
 
     def initialize(cache_prefix, expires_in: 10.minutes)
       @cache_prefix = cache_prefix
       @expires_in = expires_in
+      @cache_type = 'cache:gitlab'
     end
 
     def cache_key
@@ -29,10 +30,16 @@ module Gitlab
       with { |redis| redis.smembers(cache_key) }
     end
 
-    def clear_cache!(cache_type: 'cache:gitlab')
+    def clear_cache!
       values.each do |value|
         with { |redis| redis.del("#{cache_type}:#{value}") }
       end
+
+      with { |redis| redis.del(cache_key) }
+    end
+
+    def include?(value)
+      with { |redis| redis.sismember(cache_key, value) }
     end
 
     private
