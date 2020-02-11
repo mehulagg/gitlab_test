@@ -4,12 +4,11 @@
 # for a ReactiveCache resource.
 module Gitlab
   class ReactiveCacheSetCache
-    attr_reader :cache_prefix, :expires_in, :cache_type
+    attr_reader :cache_prefix, :expires_in
 
     def initialize(cache_prefix, expires_in: 10.minutes)
       @cache_prefix = cache_prefix
       @expires_in = expires_in
-      @cache_type = 'cache:gitlab'
     end
 
     def cache_key
@@ -32,7 +31,7 @@ module Gitlab
 
     def clear_cache!
       values.each do |value|
-        with { |redis| redis.del("#{cache_type}:#{value}") }
+        with { |redis| redis.del("#{cache_type}#{value}") }
       end
 
       with { |redis| redis.del(cache_key) }
@@ -43,6 +42,10 @@ module Gitlab
     end
 
     private
+
+    def cache_type
+      "#{Gitlab::Redis::Cache::CACHE_NAMESPACE}:"
+    end
 
     def with(&blk)
       Gitlab::Redis::Cache.with(&blk) # rubocop:disable CodeReuse/ActiveRecord
