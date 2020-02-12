@@ -7,7 +7,30 @@ describe 'Jobs/Test.gitlab-ci.yml' do
 
   describe 'the created pipeline' do
     let_it_be(:user) { create(:admin) }
-    let_it_be(:project) { create(:project, :repository) }
+    let_it_be(:project) do
+      create(:project, :repository).tap do |project|
+        project.repository.create_file(
+          user,
+          'go.mod',
+          'go 1.13',
+          message: 'A go project',
+          branch_name: 'master'
+        )
+        project.repository.create_file(
+          user,
+          'go.mod',
+          'go 1.13',
+          message: 'A go project',
+          branch_name: 'feature'
+        )
+        project.repository.add_tag(
+          user,
+          'go_project_tag',
+          'master'
+        )
+        project.repository.expire_tags_cache
+      end
+    end
 
     let(:default_branch) { 'master' }
     let(:pipeline_ref) { default_branch }
@@ -36,7 +59,7 @@ describe 'Jobs/Test.gitlab-ci.yml' do
     end
 
     context 'on tag' do
-      let(:pipeline_ref) { 'v1.0.0' }
+      let(:pipeline_ref) { 'go_project_tag' }
 
       it 'creates the test job' do
         expect(pipeline).to be_tag
@@ -75,7 +98,7 @@ describe 'Jobs/Test.gitlab-ci.yml' do
       end
 
       context 'on tag' do
-        let(:pipeline_ref) { 'v1.0.0' }
+        let(:pipeline_ref) { 'go_project_tag' }
 
         it 'has no jobs' do
           expect { pipeline }.to raise_error(Ci::CreatePipelineService::CreateError)

@@ -1,0 +1,5 @@
+---
+title: Only run Auto-DevOps Test on detected projects
+merge_request: 25065
+author:
+type: changed
