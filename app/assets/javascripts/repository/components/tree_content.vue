@@ -2,7 +2,7 @@
 import createFlash from '~/flash';
 import { __ } from '../../locale';
 import FileTable from './table/index.vue';
-import getRefMixin from '../mixins/get_ref';
+import getShaMixin from '../mixins/get_sha';
 import getFiles from '../queries/getFiles.query.graphql';
 import getProjectPath from '../queries/getProjectPath.query.graphql';
 import getVueFileListLfsBadge from '../queries/getVueFileListLfsBadge.query.graphql';
@@ -16,7 +16,7 @@ export default {
     FileTable,
     FilePreview,
   },
-  mixins: [getRefMixin],
+  mixins: [getShaMixin],
   apollo: {
     projectPath: {
       query: getProjectPath,
@@ -78,7 +78,7 @@ export default {
           query: getFiles,
           variables: {
             projectPath: this.projectPath,
-            ref: this.ref,
+            ref: this.sha,
             path: this.path || '/',
             nextPageCursor: this.nextPageCursor,
             pageSize: PAGE_SIZE,

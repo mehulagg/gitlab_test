@@ -1,9 +1,9 @@
 import getFiles from '../queries/getFiles.query.graphql';
-import getRefMixin from './get_ref';
+import getShaMixin from './get_sha';
 import getProjectPath from '../queries/getProjectPath.query.graphql';
 
 export default {
-  mixins: [getRefMixin],
+  mixins: [getShaMixin],
   apollo: {
     projectPath: {
       query: getProjectPath,
@@ -24,7 +24,7 @@ export default {
           query: getFiles,
           variables: {
             projectPath: this.projectPath,
-            ref: this.ref,
+            ref: this.sha,
             path: this.loadingPath,
             nextPageCursor: '',
             pageSize: 100,

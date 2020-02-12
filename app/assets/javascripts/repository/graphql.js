@@ -36,6 +36,10 @@ const defaultClient = createDefaultClient(
     },
   },
   {
+    persist: {
+      key: 'repository',
+      version: 1.0,
+    },
     cacheConfig: {
       fragmentMatcher,
       dataIdFromObject: obj => {

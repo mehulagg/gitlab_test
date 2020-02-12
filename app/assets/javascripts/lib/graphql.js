@@ -3,6 +3,8 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import { createUploadLink } from 'apollo-upload-client';
 import { ApolloLink } from 'apollo-link';
 import { BatchHttpLink } from 'apollo-link-batch-http';
+import { persistCache } from 'apollo-cache-persist';
+import localforage from 'localforage';
 import csrf from '~/lib/utils/csrf';
 
 export const fetchPolicies = {
@@ -27,6 +29,24 @@ export default (resolvers = {}, config = {}) => {
       [csrf.headerKey]: csrf.token,
     },
   };
+  const cache = new InMemoryCache({
+    ...config.cacheConfig,
+    freezeResults: config.assumeImmutableResults,
+  });
+
+  if (config.persist) {
+    localforage.config({
+      version: config.persist.version,
+      storeName: 'apollo',
+    });
+
+    persistCache({
+      cache,
+      storage: localforage,
+      key: config.persist.key,
+      debug: true,
+    });
+  }
 
   return new ApolloClient({
     link: ApolloLink.split(
@@ -34,10 +54,7 @@ export default (resolvers = {}, config = {}) => {
       createUploadLink(httpOptions),
       new BatchHttpLink(httpOptions),
     ),
-    cache: new InMemoryCache({
-      ...config.cacheConfig,
-      freezeResults: config.assumeImmutableResults,
-    }),
+    cache,
     resolvers,
     assumeImmutableResults: config.assumeImmutableResults,
     defaultOptions: {

@@ -7,7 +7,7 @@ import UserAvatarLink from '../../vue_shared/components/user_avatar/user_avatar_
 import TimeagoTooltip from '../../vue_shared/components/time_ago_tooltip.vue';
 import CiIcon from '../../vue_shared/components/ci_icon.vue';
 import ClipboardButton from '../../vue_shared/components/clipboard_button.vue';
-import getRefMixin from '../mixins/get_ref';
+import getShaMixin from '../mixins/get_sha';
 import getProjectPath from '../queries/getProjectPath.query.graphql';
 import pathLastCommit from '../queries/pathLastCommit.query.graphql';
 
@@ -25,7 +25,7 @@ export default {
   directives: {
     GlTooltip: GlTooltipDirective,
   },
-  mixins: [getRefMixin],
+  mixins: [getShaMixin],
   apollo: {
     projectPath: {
       query: getProjectPath,
@@ -35,7 +35,7 @@ export default {
       variables() {
         return {
           projectPath: this.projectPath,
-          ref: this.ref,
+          ref: this.sha,
           path: this.currentPath.replace(/^\//, ''),
         };
       },

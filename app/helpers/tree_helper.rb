@@ -194,6 +194,7 @@ module TreeHelper
       project_path: project.full_path,
       project_short_path: project.path,
       ref: ref,
+      sha: project.repository.commit(ref)&.sha,
       full_name: project.name_with_namespace
     }
   end
