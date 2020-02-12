@@ -1136,16 +1136,6 @@ describe Repository do
       expect(repository.license).to be_nil
     end
 
-    it 'returns nil when Gitaly is down' do
-      expect_any_instance_of(Gitlab::GitalyClient::RepositoryService).to receive(:license_short_name).and_raise(Gitlab::Git::CommandError)
-
-      expect(repository.license).to be_nil
-
-      expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
-        an_instance_of(Gitlab::Git::CommandError)
-      )
-    end
-
     it 'returns the license' do
       license = Licensee::License.new('mit')
       repository.create_file(user, 'LICENSE',
@@ -1153,6 +1143,44 @@ describe Repository do
         message: 'Add LICENSE', branch_name: 'master')
 
       expect(repository.license).to eq(license)
+    end
+
+    context 'gitaly is down' do
+      subject { repository.license }
+
+      shared_examples 'returns nil and tracks exception' do
+        it { is_expected.to be_nil }
+
+        it 'tracks the exception' do
+          expect(Gitlab::ErrorTracking).to receive(:track_exception).with(
+            an_instance_of(Gitlab::Git::CommandError)
+          )
+
+          subject
+        end
+      end
+
+      before do
+        allow_any_instance_of(Gitlab::GitalyClient::RepositoryService).to receive(:license_short_name).and_raise(exception)
+      end
+
+      context "Gitlab::Git::CommandError" do
+        let(:exception) { Gitlab::Git::CommandError }
+
+        it_behaves_like 'returns nil and tracks exception'
+      end
+
+      context "GRPC::Unavailable" do
+        let(:exception) { GRPC::Unavailable }
+
+        it_behaves_like 'returns nil and tracks exception'
+      end
+
+      context "GRPC::DeadlineExceeded" do
+        let(:exception) { GRPC::DeadlineExceeded }
+
+        it_behaves_like 'returns nil and tracks exception'
+      end
     end
   end
 
