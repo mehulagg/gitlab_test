@@ -25,6 +25,16 @@ export const updateSelectedPlan = ({ commit }, selectedPlan) => {
   commit(types.UPDATE_SELECTED_PLAN, selectedPlan);
 };
 
+export const updateSelectedGroup = ({ commit, getters, state }, selectedGroup) => {
+  commit(types.UPDATE_SELECTED_GROUP, selectedGroup);
+  commit(types.UPDATE_ORGANIZATION_NAME, null);
+
+  const { selectedGroupUsers } = getters;
+  if (state.numberOfUsers < selectedGroupUsers) {
+    commit(types.UPDATE_NUMBER_OF_USERS, selectedGroupUsers);
+  }
+};
+
 export const toggleIsSetupForCompany = ({ state, commit }) => {
   commit(types.UPDATE_IS_SETUP_FOR_COMPANY, !state.isSetupForCompany);
 };

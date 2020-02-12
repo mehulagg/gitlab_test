@@ -22,17 +22,28 @@ export default {
     ...mapState([
       'availablePlans',
       'selectedPlan',
+      'newUser',
+      'groupData',
+      'selectedGroup',
       'isSetupForCompany',
       'organizationName',
       'numberOfUsers',
     ]),
-    ...mapGetters(['selectedPlanText']),
+    ...mapGetters(['selectedPlanText', 'groupSelected', 'selectedGroupUsers']),
     selectedPlanModel: {
       get() {
         return this.selectedPlan;
       },
       set(selectedPlan) {
         this.updateSelectedPlan(selectedPlan);
+      },
+    },
+    selectedGroupModel: {
+      get() {
+        return this.selectedGroup;
+      },
+      set(selectedGroup) {
+        this.updateSelectedGroup(selectedGroup);
       },
     },
     numberOfUsersModel: {
@@ -58,16 +69,34 @@ export default {
       if (this.isSetupForCompany) {
         return (
           !_.isEmpty(this.selectedPlan) &&
-          !_.isEmpty(this.organizationName) &&
-          this.numberOfUsers > 0
+          (!_.isEmpty(this.organizationName) || this.groupSelected) &&
+          this.numberOfUsers > 0 &&
+          this.numberOfUsers >= this.selectedGroupUsers
         );
       }
       return !_.isEmpty(this.selectedPlan) && this.numberOfUsers === 1;
+    },
+    isNameOfCompanyInputShown() {
+      return this.isSetupForCompany && (!this.groupData.length || this.selectedGroup === 'new');
+    },
+    groupOptionsWithDefault() {
+      return [
+        {
+          text: this.$options.i18n.groupSelectPrompt,
+          value: null,
+        },
+        ...this.groupData,
+        {
+          text: this.$options.i18n.groupSelectCreateNewOption,
+          value: 'new',
+        },
+      ];
     },
   },
   methods: {
     ...mapActions([
       'updateSelectedPlan',
+      'updateSelectedGroup',
       'toggleIsSetupForCompany',
       'updateNumberOfUsers',
       'updateOrganizationName',
@@ -77,6 +106,11 @@ export default {
     stepTitle: s__('Checkout|Subscription details'),
     nextStepButtonText: s__('Checkout|Continue to billing'),
     selectedPlanLabel: s__('Checkout|GitLab plan'),
+    selectedGroupLabel: s__('Checkout|GitLab group'),
+    groupSelectPrompt: s__('Checkout|Select'),
+    groupSelectCreateNewOption: s__('Checkout|Create a new group'),
+    selectedGroupDescription: s__('Checkout|Your subscription will be applied to this group'),
+    createNewGroupDescription: s__("Checkout|You'll create your new group after checkout"),
     organizationNameLabel: s__('Checkout|Name of company or organization using GitLab'),
     numberOfUsersLabel: s__('Checkout|Number of users'),
     needMoreUsersLink: s__('Checkout|Need more users? Purchase GitLab for your %{company}.'),
@@ -99,7 +133,7 @@ export default {
         :label="$options.i18n.selectedPlanLabel"
         label-size="sm"
         label-for="selectedPlan"
-        class="append-bottom-default"
+        class="mb-3"
       >
         <gl-form-select
           id="selectedPlan"
@@ -109,11 +143,24 @@ export default {
         />
       </gl-form-group>
       <gl-form-group
-        v-if="isSetupForCompany"
+        v-if="!newUser && groupData.length"
+        :label="$options.i18n.selectedGroupLabel"
+        :description="
+          selectedGroup === 'new'
+            ? $options.i18n.createNewGroupDescription
+            : $options.i18n.selectedGroupDescription
+        "
+        label-size="sm"
+        class="mb-3"
+      >
+        <gl-form-select v-model="selectedGroupModel" :options="groupOptionsWithDefault" />
+      </gl-form-group>
+      <gl-form-group
+        v-if="isNameOfCompanyInputShown"
         :label="$options.i18n.organizationNameLabel"
         label-size="sm"
         label-for="organizationName"
-        class="append-bottom-default"
+        class="mb-3"
       >
         <gl-form-input id="organizationName" v-model="organizationNameModel" type="text" />
       </gl-form-group>
@@ -128,14 +175,11 @@ export default {
             id="numberOfUsers"
             v-model.number="numberOfUsersModel"
             type="number"
-            min="0"
+            :min="selectedGroupUsers"
             :disabled="!isSetupForCompany"
           />
         </gl-form-group>
-        <gl-form-group
-          v-if="!isSetupForCompany"
-          class="label prepend-left-default align-self-end company-link"
-        >
+        <gl-form-group v-if="!isSetupForCompany" class="label ml-3 align-self-end company-link">
           <gl-sprintf :message="$options.i18n.needMoreUsersLink">
             <template #company>
               <gl-link @click="toggleIsSetupForCompany">{{ $options.i18n.companyOrTeam }}</gl-link>

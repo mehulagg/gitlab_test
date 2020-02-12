@@ -15,8 +15,9 @@ export const selectedPlanPrice = (state, getters) =>
 export const selectedPlanDetails = state =>
   state.availablePlans.find(plan => plan.value === state.selectedPlan);
 
-export const confirmOrderParams = state => ({
+export const confirmOrderParams = (state, getters) => ({
   setup_for_company: state.isSetupForCompany,
+  selected_group: getters.selectedGroupId,
   customer: {
     country: state.country,
     address_1: state.streetAddressLine1,
@@ -42,10 +43,27 @@ export const vat = (state, getters) => state.taxRate * getters.totalExVat;
 
 export const totalAmount = (_, getters) => getters.totalExVat + getters.vat;
 
-export const name = state => {
+export const name = (state, getters) => {
   if (state.isSetupForCompany && state.organizationName) return state.organizationName;
+  else if (getters.groupSelected) return getters.selectedGroupName;
   else if (state.isSetupForCompany) return s__('Checkout|Your organization');
   return state.fullName;
 };
 
 export const usersPresent = state => state.numberOfUsers > 0;
+
+export const groupSelected = state => state.selectedGroup !== null && state.selectedGroup !== 'new';
+
+export const selectedGroupUsers = (state, getters) => {
+  if (!getters.groupSelected) return 0;
+  return state.groupData.find(group => group.value === state.selectedGroup).numberOfUsers;
+};
+
+export const selectedGroupName = (state, getters) => {
+  if (!getters.groupSelected) return null;
+  return state.groupData.find(group => group.value === state.selectedGroup).text;
+};
+
+export const selectedGroupId = (state, getters) => {
+  return getters.groupSelected ? state.selectedGroup : null;
+};
