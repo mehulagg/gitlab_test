@@ -164,7 +164,10 @@ export default {
     paginationRequired() {
       return !_.isEmpty(this.pagination);
     },
-    statusToken() {
+    availableTokens() {
+      if(this.errorSearchQuery.filter(err => err.value !== '' && err.type === 'status').length !== 0) {
+        return [];
+      }
       return [{ type: 'status', icon: 'eye', hint: __('Status'), token: staticToken }];
     },
   },
@@ -278,7 +281,7 @@ export default {
 
             <gl-filtered-search
               v-model="errorSearchQuery"
-              :available-tokens="statusToken"
+              :available-tokens="availableTokens"
               :placeholder="__('Search by query or filter')"
               @submit="searchOrFilter(errorSearchQuery)"
               />
