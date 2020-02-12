@@ -216,7 +216,7 @@ module Ci
         end
       end
 
-      after_transition created: :pending do |pipeline|
+      after_transition created: any - [:failed] do |pipeline|
         next unless pipeline.bridge_triggered?
         next if pipeline.bridge_waiting?
 
@@ -786,6 +786,12 @@ module Ci
         builds.latest.with_reports(Ci::JobArtifact.test_reports).each do |build|
           build.collect_test_reports!(test_reports)
         end
+      end
+    end
+
+    def test_reports_count
+      Rails.cache.fetch(['project', project.id, 'pipeline', id, 'test_reports_count'], force: false) do
+        test_reports.total_count
       end
     end
 

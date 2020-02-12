@@ -919,7 +919,7 @@ class Repository
     # This is only used in a few places, notably app/services/branches/delete_merged_service.rb,
     # and it could potentially result in a very large cache/performance issues with the current
     # implementation.
-    skip_cache = branch_names.empty? || Feature.disabled?(:merged_branch_names_redis_caching)
+    skip_cache = branch_names.empty? || Feature.disabled?(:merged_branch_names_redis_caching, default_enabled: true)
     return raw_repository.merged_branch_names(branch_names) if skip_cache
 
     cache = redis_hash_cache
@@ -1116,6 +1116,12 @@ class Repository
     after_create
 
     true
+  end
+
+  def create_from_bundle(bundle_path)
+    raw.create_from_bundle(bundle_path).tap do |result|
+      after_create if result
+    end
   end
 
   def blobs_metadata(paths, ref = 'HEAD')

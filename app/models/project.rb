@@ -138,6 +138,7 @@ class Project < ApplicationRecord
   has_many :boards
 
   # Project services
+  has_one :alerts_service
   has_one :campfire_service
   has_one :discord_service
   has_one :drone_ci_service
@@ -187,6 +188,7 @@ class Project < ApplicationRecord
   has_one :import_state, autosave: true, class_name: 'ProjectImportState', inverse_of: :project
   has_one :import_export_upload, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one :project_repository, inverse_of: :project
+  has_one :incident_management_setting, inverse_of: :project, class_name: 'IncidentManagement::ProjectIncidentManagementSetting'
   has_one :error_tracking_setting, inverse_of: :project, class_name: 'ErrorTracking::ProjectErrorTrackingSetting'
   has_one :metrics_setting, inverse_of: :project, class_name: 'ProjectMetricsSetting'
   has_one :grafana_integration, inverse_of: :project
@@ -316,6 +318,7 @@ class Project < ApplicationRecord
                                 allow_destroy: true,
                                 reject_if: ->(attrs) { attrs[:id].blank? && attrs[:url].blank? }
 
+  accepts_nested_attributes_for :incident_management_setting, update_only: true
   accepts_nested_attributes_for :error_tracking_setting, update_only: true
   accepts_nested_attributes_for :metrics_setting, update_only: true, allow_destroy: true
   accepts_nested_attributes_for :grafana_integration, update_only: true, allow_destroy: true
@@ -1222,13 +1225,13 @@ class Project < ApplicationRecord
     service = find_service(services, name)
     return service if service
 
-    # We should check if an instance-level service exists
-    instance_level_service = find_service(instance_level_services, name)
+    # We should check if template for the service exists
+    template = find_service(services_templates, name)
 
-    if instance_level_service
-      Service.build_from_instance(id, instance_level_service)
+    if template
+      Service.build_from_template(id, template)
     else
-      # If no instance-level service exists, we should create a new service. Ex `build_gitlab_ci_service`
+      # If no template, we should create an instance. Ex `build_gitlab_ci_service`
       public_send("build_#{name}_service") # rubocop:disable GitlabSecurity/PublicSend
     end
   end
@@ -2328,6 +2331,10 @@ class Project < ApplicationRecord
     protected_branches.limit(limit)
   end
 
+  def alerts_service_activated?
+    false
+  end
+
   private
 
   def closest_namespace_setting(name)
@@ -2458,8 +2465,8 @@ class Project < ApplicationRecord
     end
   end
 
-  def instance_level_services
-    @instance_level_services ||= Service.where(instance: true)
+  def services_templates
+    @services_templates ||= Service.where(template: true)
   end
 
   def ensure_pages_metadatum

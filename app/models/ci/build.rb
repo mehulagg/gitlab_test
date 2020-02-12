@@ -10,7 +10,6 @@ module Ci
     include ObjectStorage::BackgroundMove
     include Presentable
     include Importable
-    include Gitlab::Utils::StrongMemoize
     include HasRef
     include IgnorableColumns
 
@@ -23,6 +22,7 @@ module Ci
     belongs_to :trigger_request
     belongs_to :erased_by, class_name: 'User'
     belongs_to :resource_group, class_name: 'Ci::ResourceGroup', inverse_of: :builds
+    belongs_to :pipeline, class_name: 'Ci::Pipeline', foreign_key: :commit_id
 
     RUNNER_FEATURES = {
       upload_multiple_artifacts: -> (build) { build.publishes_artifacts_reports? },

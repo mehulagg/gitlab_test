@@ -130,6 +130,7 @@ module API
       mount ::API::GroupBoards
       mount ::API::GroupClusters
       mount ::API::GroupExport
+      mount ::API::GroupImport
       mount ::API::GroupLabels
       mount ::API::GroupMilestones
       mount ::API::Groups
@@ -142,6 +143,7 @@ module API
       mount ::API::Keys
       mount ::API::Labels
       mount ::API::Lint
+      mount ::API::LsifData
       mount ::API::Markdown
       mount ::API::Members
       mount ::API::MergeRequestDiffs

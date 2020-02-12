@@ -244,6 +244,10 @@ module Gitlab
       redis_hash_cache.delete(methods)
     end
 
+    def expire_redis_hash_method_caches(methods)
+      methods.each { |name| redis_hash_cache.delete(name) }
+    end
+
     # All cached repository methods depend on the existence of a Git repository,
     # so if the repository doesn't exist, we already know not to call it.
     def fallback_early?(method_name)
