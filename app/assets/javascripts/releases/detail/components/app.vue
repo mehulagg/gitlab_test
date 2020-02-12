@@ -84,7 +84,7 @@ export default {
       'updateRelease',
       'updateReleaseTitle',
       'updateReleaseNotes',
-      'navigateToReleasesPage',
+      'navigateToCancelPage',
     ]),
   },
 };
@@ -162,7 +162,7 @@ export default {
           variant="default"
           type="button"
           :aria-label="__('Cancel')"
-          @click="navigateToReleasesPage()"
+          @click="navigateToCancelPage()"
         >
           {{ __('Cancel') }}
         </gl-button>

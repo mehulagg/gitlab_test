@@ -60,3 +60,7 @@ export const updateRelease = ({ dispatch, state }) => {
 export const navigateToReleasesPage = ({ state }) => {
   redirectTo(state.releasesPagePath);
 };
+
+export const navigateToCancelPage = ({ state }) => {
+  redirectTo(state.cancelPath);
+};

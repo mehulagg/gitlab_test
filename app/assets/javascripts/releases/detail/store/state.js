@@ -2,6 +2,7 @@ export default () => ({
   projectId: null,
   tagName: null,
   releasesPagePath: null,
+  cancelPath: null,
   markdownDocsPath: null,
   markdownPreviewPath: null,
   updateReleaseApiDocsPath: null,
