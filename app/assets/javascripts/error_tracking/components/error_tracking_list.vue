@@ -61,7 +61,7 @@ export default {
     { status: 'resolved', icon: 'check-circle', title: __('Resolve') },
   ],
   statusTokens: [
-    { type: 'static', icon: 'eye-slash', hint: __('Status'), token: staticToken },
+    { type: 'status', icon: 'eye-slash', hint: __('Status'), token: staticToken },
   ],
   fields: [
     {
@@ -233,9 +233,15 @@ export default {
     getIssueUpdatePath(errorId) {
       return `/${this.projectPath}/-/error_tracking/${errorId}.json`;
     },
+    getFilterStatus(errorSearchQuery) {
+      return errorSearchQuery.filter(error => error.type === 'status').map(({ value }) => value)[0];
+    },
+    getSearchQuery(errorSearchQuery) {
+      return errorSearchQuery.filter(error => error.type === 'filtered-search-term').filter(Boolean).map(({ value }) => value).join(' ');
+    },
     searchOrFilter(errorSearchQuery) {
-      const errorQuery = errorSearchQuery.filter(error => error.type === 'filtered-search-term').filter(Boolean).map(({ value }) => value).join(' ');
-      const filterQuery = errorSearchQuery.filter(error => error.type === 'static').map(({ value }) => value)[0];
+      const errorQuery =  this.getSearchQuery(errorSearchQuery);
+      const filterQuery = this.getFilterStatus(errorSearchQuery);
       if(filterQuery) {
         this.searchByFilter(filterQuery);
       }
