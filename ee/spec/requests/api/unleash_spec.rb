@@ -286,7 +286,7 @@ describe API::Unleash do
       end
 
       context 'with Strategy models' do
-        it 'does not return a flag without an strategies (or scopes)' do
+        it 'does not return a flag without any strategies (or scopes)' do
           create(:operations_feature_flag, project: project, name: 'feature1', active: true)
 
           get api(features_url), headers: { 'UNLEASH-INSTANCEID' => client.token, 'UNLEASH-APPNAME' => 'production' }
