@@ -295,9 +295,6 @@ RSpec/AnyInstanceOf:
   Enabled: false
 
 # Cops for upgrade to gitlab-styles 3.1.0
-RSpec/ImplicitSubject:
-  Enabled: false
-
 RSpec/LeakyConstantDeclaration:
   Enabled: false
 
