@@ -210,7 +210,7 @@ export default {
       'searchByFilter',
     ]),
     setSearchText(text) {
-      this.errorSearchQuery = text;
+      this.errorSearchQuery = [text];
       this.searchByQuery(text);
     },
     getDetailsLink(errorId) {
