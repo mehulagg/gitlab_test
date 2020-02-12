@@ -4,4 +4,6 @@ export default () => ({
   updatingResolveStatus: false,
   updatingIgnoreStatus: false,
   errorStatus: '',
+  issueMarkdown: '',
+  loadingIssueMarkdown: false,
 });

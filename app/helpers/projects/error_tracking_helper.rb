@@ -24,6 +24,7 @@ module Projects::ErrorTrackingHelper
       'project-path' => project.full_path,
       'issue-update-path' => update_project_error_tracking_index_path(*opts),
       'project-issues-path' => project_issues_path(project),
+      'preview-markdown-path' => preview_markdown_path(project),
       'issue-stack-trace-path' => stack_trace_project_error_tracking_index_path(*opts)
     }
   end

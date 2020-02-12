@@ -58,6 +58,10 @@ export default {
       type: String,
       required: true,
     },
+    previewMarkdownPath: {
+      type: String,
+      required: true,
+    },
     projectIssuesPath: {
       type: String,
       required: true,
@@ -80,9 +84,16 @@ export default {
       update: data => data.project.sentryErrors.detailedError,
       error: () => createFlash(__('Failed to load error details from Sentry.')),
       result(res) {
-        if (res.data.project?.sentryErrors?.detailedError) {
+        const detailedError = res.data.project?.sentryErrors?.detailedError;
+        if (detailedError) {
           this.$apollo.queries.error.stopPolling();
           this.setStatus(this.error.status);
+          if (detailedError?.gitlabIssuePath) {
+            this.renderMarkdown({
+              endpoint: this.previewMarkdownPath,
+              payload: detailedError?.gitlabIssuePath,
+            });
+          }
         }
       },
     },
@@ -97,7 +108,9 @@ export default {
   },
   computed: {
     ...mapState('details', [
+      'issueMarkdown',
       'loadingStacktrace',
+      'loadingIssueMarkdown',
       'stacktraceData',
       'updatingResolveStatus',
       'updatingIgnoreStatus',
@@ -164,9 +177,10 @@ export default {
   },
   methods: {
     ...mapActions('details', [
+      'renderMarkdown',
       'startPollingStacktrace',
-      'updateStatus',
       'setStatus',
+      'updateStatus',
       'updateResolveStatus',
       'updateIgnoreStatus',
     ]),
@@ -292,7 +306,9 @@ export default {
           </li>
           <li v-if="error.gitlabIssuePath">
             <strong class="bold">{{ __('GitLab Issue') }}:</strong>
-            <gl-link :href="error.gitlabIssuePath">
+            <span v-if="issueMarkdown" class="issue-link-markdown" v-html="issueMarkdown"></span>
+            <span v-else-if="loadingIssueMarkdown">{{ __('Loading…') }}</span>
+            <gl-link v-else-if="error.gitlabIssuePath" :href="error.gitlabIssuePath">
               <span>{{ error.gitlabIssuePath }}</span>
             </gl-link>
           </li>
@@ -344,3 +360,8 @@ export default {
     </div>
   </div>
 </template>
+<style scoped>
+.issue-link-markdown >>> p {
+  display: inline;
+}
+</style>
