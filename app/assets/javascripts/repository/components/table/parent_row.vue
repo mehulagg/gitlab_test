@@ -41,7 +41,7 @@ export default {
 
 <template>
   <tr class="tree-item">
-    <td colspan="3" class="tree-item-file-name" @click.self="clickRow">
+    <td class="tree-item-file-name" @click.self="clickRow">
       <gl-loading-icon
         v-if="parentPath === loadingPath"
         size="sm"

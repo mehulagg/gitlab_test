@@ -3,14 +3,12 @@ import { GlSkeletonLoading } from '@gitlab/ui';
 import { sprintf, __ } from '../../../locale';
 import getRefMixin from '../../mixins/get_ref';
 import getProjectPath from '../../queries/getProjectPath.query.graphql';
-import TableHeader from './header.vue';
 import TableRow from './row.vue';
 import ParentRow from './parent_row.vue';
 
 export default {
   components: {
     GlSkeletonLoading,
-    TableHeader,
     TableRow,
     ParentRow,
   },
@@ -72,7 +70,15 @@ export default {
   <div class="tree-content-holder">
     <div class="table-holder bordered-box">
       <table :aria-label="tableCaption" class="table tree-table qa-file-tree" aria-live="polite">
-        <table-header v-once />
+        <thead>
+          <tr>
+            <th class="tree-list-row gl-font-size-0">
+              <div class="d-inline-block tree-list-col-1">{{ s__('ProjectFileTree|Name') }}</div>
+              <div class="d-inline-block tree-list-col-2">{{ __('Last commit') }}</div>
+              <div class="d-inline-block tree-list-col-3 text-right">{{ __('Last update') }}</div>
+            </th>
+          </tr>
+        </thead>
         <tbody>
           <parent-row
             v-show="showParentRow"
@@ -99,9 +105,17 @@ export default {
           </template>
           <template v-if="isLoading">
             <tr v-for="i in 5" :key="i" aria-hidden="true">
-              <td><gl-skeleton-loading :lines="1" class="h-auto" /></td>
-              <td><gl-skeleton-loading :lines="1" class="h-auto" /></td>
-              <td><gl-skeleton-loading :lines="1" class="ml-auto h-auto w-50" /></td>
+              <td class="tree-list-row gl-font-size-0">
+                <div class="tree-list-col-1 d-inline-block">
+                  <gl-skeleton-loading :lines="1" class="h-auto" />
+                </div>
+                <div class="tree-list-col-2 d-inline-block">
+                  <gl-skeleton-loading :lines="1" class="h-auto" />
+                </div>
+                <div class="tree-list-col-3 d-inline-block">
+                  <gl-skeleton-loading :lines="1" class="ml-auto h-auto w-50" />
+                </div>
+              </td>
             </tr>
           </template>
         </tbody>
@@ -109,3 +123,37 @@ export default {
     </div>
   </div>
 </template>
+
+<style>
+.tree-list-col-1 {
+  width: 30%;
+}
+
+.tree-list-col-2 {
+  width: 55%;
+}
+
+.tree-list-col-3 {
+  width: 15%;
+}
+
+.tree-list-row * {
+  font-size: 0.875rem;
+}
+
+.tree-list-row a:not(.tree-list-link),
+.tree-list-row time {
+  position: relative;
+  z-index: 2;
+}
+
+.tree-list-link::before {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+</style>
