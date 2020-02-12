@@ -18,10 +18,6 @@ module QA
             def has_package?(name)
               has_element?(:package_link, text: name)
             end
-
-            def has_no_package?(name)
-              has_no_element?(:package_link, text: name)
-            end
           end
         end
       end

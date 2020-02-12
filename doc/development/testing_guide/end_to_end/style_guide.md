@@ -140,7 +140,7 @@ end
 ```
 
 ```ruby
-Page::Project::New.peform do |new_page|
+Page::Project::New.perform do |new_page|
   new_page.do_something
 end
 ```
@@ -154,9 +154,56 @@ end
 ```
 
 ```ruby
-Page::Project::New.peform do |page|
+Page::Project::New.perform do |page|
   page.do_something
 end
 ```
 
+```ruby
+Page::Project::Pipeline::Show.perform do |resource|
+  expect(resource).to have_job('test')
+end
+```
+
 > Besides the advantage of having a standard in place, by following this standard we also write shorter lines of code.
+
+## Avoid calling negative expectations
+
+Make use of RSpec's `not_to` expectation target, instead of implementing duplicate methods, and using negative conditional
+language like `has_no_something?`
+
+### Examples
+
+**Good**
+
+```ruby
+class Job
+  def has_job?(job_name)
+    has_element? :job_link, text: job_name
+  end
+end
+
+expect(page).not_to have_content('content')
+
+expect(job).not_to be_running
+```
+
+**Bad**
+
+```ruby
+class Job
+  def has_job?(job_name)
+    has_element? :job_link, text: job_name
+  end
+
+  def has_no_job?(job_name)
+    has_no_element? :job_link, text: job_name # or !has_job?(job_name)
+  end
+end
+
+
+expect(page).to have_no_content('content')
+
+expect(job).to be_not_running
+expect(job).to_not be_running # note: `to_not` is valid.. use `not_to` to pass rubocop
+```

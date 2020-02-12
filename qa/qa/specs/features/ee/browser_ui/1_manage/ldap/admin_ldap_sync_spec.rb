@@ -27,7 +27,7 @@ module QA
 
         Page::Main::Menu.perform do |menu|
           admin_removed = menu.wait_until(max_duration: 80, sleep_interval: 1, reload: true) do
-            menu.has_no_admin_area_link?
+            !menu.has_admin_area_link?
           end
 
           expect(admin_removed).to be_truthy

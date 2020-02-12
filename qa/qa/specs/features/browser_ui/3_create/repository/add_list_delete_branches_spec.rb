@@ -70,7 +70,7 @@ module QA
 
           branches_page.delete_branch(third_branch)
 
-          expect(branches_page).to have_no_branch(third_branch)
+          expect(branches_page).not_to have_branch(third_branch)
 
           branches_page.delete_merged_branches
 
@@ -80,7 +80,7 @@ module QA
 
           branches_page.refresh
 
-          expect(branches_page).to have_no_branch(second_branch, reload: true)
+          expect(branches_page).not_to have_branch(second_branch, reload: true)
         end
       end
     end

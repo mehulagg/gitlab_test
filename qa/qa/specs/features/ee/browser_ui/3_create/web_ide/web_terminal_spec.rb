@@ -74,7 +74,7 @@ module QA
         Page::Project::WebIDE::Edit.perform do |edit|
           edit.start_web_terminal
 
-          expect(edit).to have_no_alert
+          expect(edit).not_to have_alert
           expect(edit).to have_finished_loading
           expect(edit).to have_terminal_screen
         end

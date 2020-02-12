@@ -33,7 +33,7 @@ module QA
 
               show.remove_issue_from_epic
 
-              expect(show).to have_no_related_issue_item
+              expect(show).not_to have_related_issue_item
             end
           end
 

@@ -13,11 +13,11 @@ module QA
             end
           end
 
-          def has_no_alert?(message = nil)
-            return has_no_element?(:flash_alert) if message.nil?
+          def has_alert?(message = nil)
+            return has_element?(:flash_alert) if message.nil?
 
             within_element(:flash_alert) do
-              has_no_text?(message)
+              has_text?(message)
             end
           end
         end

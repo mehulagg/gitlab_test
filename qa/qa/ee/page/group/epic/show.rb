@@ -62,10 +62,6 @@ module QA
             def has_related_issue_item?
               has_element?(:related_issue_item)
             end
-
-            def has_no_related_issue_item?
-              has_no_element?(:related_issue_item)
-            end
           end
         end
       end

@@ -48,10 +48,6 @@ module QA::Page
         has_element?(:job_link, text: job_name)
       end
 
-      def has_no_job?(job_name)
-        has_no_element?(:job_link, text: job_name)
-      end
-
       def has_tag?(tag_name)
         within_element(:pipeline_badges) do
           has_selector?('.badge', text: tag_name)

@@ -28,10 +28,10 @@ module QA
             finished_loading?
           end
 
-          def has_no_branch?(branch_name, reload: false)
+          def has_branch?(branch_name, reload: false)
             wait_until(reload: reload) do
               within_element(:all_branches) do
-                has_no_element?(:branch_name, text: branch_name)
+                has_element?(:branch_name, text: branch_name)
               end
             end
           end
