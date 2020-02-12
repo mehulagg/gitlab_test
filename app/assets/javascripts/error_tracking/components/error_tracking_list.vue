@@ -14,7 +14,6 @@ import {
   GlPagination,
   GlButtonGroup,
   GlFilteredSearch,
-  GlFilteredSearchTerm,
   GlFilteredSearchSuggestion,
   GlFilteredSearchBinaryToken,
 } from '@gitlab/ui';
@@ -26,9 +25,7 @@ import _ from 'underscore';
 
 export const tableDataClass = 'table-col d-flex d-sm-table-cell align-items-center';
 
-const noop = () => {};
-
-const staticToken = {
+const statusToken = {
   components: {
     GlFilteredSearchSuggestion,
     GlFilteredSearchBinaryToken,
@@ -46,9 +43,6 @@ const staticToken = {
                     <gl-filtered-search-suggestion value="resolved">Resolved</gl-filtered-search-suggestion>
                   </template>
                </gl-filtered-search-binary-token>
-               <div>
-                <portal-target name="statusPortal" class="position-relative" />
-                </div>
               </div>`,
 };
 
@@ -60,8 +54,8 @@ export default {
     { status: 'ignored', icon: 'eye-slash', title: __('Ignore') },
     { status: 'resolved', icon: 'check-circle', title: __('Resolve') },
   ],
-  statusTokens: [
-    { type: 'status', icon: 'eye', hint: __('Status'), token: staticToken },
+  statusToken: [
+    { type: 'status', icon: 'eye', hint: __('Status'), token: statusToken },
   ],
   fields: [
     {
@@ -118,15 +112,10 @@ export default {
     GlPagination,
     TimeAgo,
     GlButtonGroup,
-    GlFilteredSearchTerm,
     GlFilteredSearch,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
-  },
-  provide: {
-    portalName: 'statusPortal',
-    alignSuggestions: noop,
   },
   props: {
     indexPath: {
@@ -161,7 +150,7 @@ export default {
   hasLocalStorage: AccessorUtils.isLocalStorageAccessSafe(),
   data() {
     return {
-      statusTokens: this.$options.statusTokens,
+      statusToken: this.$options.statusToken,
       errorSearchQuery: [],
       pageValue: this.$options.FIRST_PAGE,
     };
@@ -290,7 +279,7 @@ export default {
 
             <gl-filtered-search
               v-model="errorSearchQuery"
-              :available-tokens="statusTokens"
+              :available-tokens="statusToken"
               :placeholder="__('Search by query or filter')"
               @submit="searchOrFilter(errorSearchQuery)"
               />
