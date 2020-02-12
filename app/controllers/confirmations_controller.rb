@@ -19,10 +19,7 @@ class ConfirmationsController < Devise::ConfirmationsController
   def after_confirmation_path_for(resource_name, resource)
     accept_pending_invitations
 
-    if should_sign_in?
-      sign_in(resource)
-      AuditEventService.new(resource, resource, with: 'confirmation-email').for_authentication.security_event
-    end
+    sign_in_from_email_confirmation
 
     # incoming resource can either be a :user or an :email
     if signed_in?(:user)
@@ -40,12 +37,21 @@ class ConfirmationsController < Devise::ConfirmationsController
 
   private
 
+  def sign_in_from_email_confirmation
+    return unless should_sign_in?
+
+    sign_in(resource)
+    cookies.delete(:confirmation_email_verification_token)
+    AuditEventService.new(resource, resource, with: 'confirmation-email').for_authentication.security_event
+  end
+
   def should_sign_in?
     resource_name == :user &&
       !user_signed_in? &&
       !resource.two_factor_enabled? &&
       resource.confirmation_sent_at &&
-      Time.now <= resource.confirmation_sent_at + AUTHENTICATE_AFTER_CONFIRMATION_EXPIRATION
+      Time.now <= resource.confirmation_sent_at + AUTHENTICATE_AFTER_CONFIRMATION_EXPIRATION &&
+      resource.confirmation_email_verification_token == cookies[:confirmation_email_verification_token]
   end
 end
 

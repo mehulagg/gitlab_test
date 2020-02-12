@@ -678,6 +678,10 @@ class User < ApplicationRecord
     @reset_token
   end
 
+  def generate_confirmation_email_verification_token
+    self.confirmation_email_verification_token = SecureRandom.hex.to_i(16).to_s(36)
+  end
+
   def recently_sent_password_reset?
     reset_password_sent_at.present? && reset_password_sent_at >= 1.minute.ago
   end

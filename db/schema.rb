@@ -4276,10 +4276,12 @@ ActiveRecord::Schema.define(version: 2020_02_13_204737) do
     t.string "last_name", limit: 255
     t.string "static_object_token", limit: 255
     t.integer "role", limit: 2
+    t.string "confirmation_email_verification_token", limit: 255
     t.index "lower((name)::text)", name: "index_on_users_name_lower"
     t.index ["accepted_term_id"], name: "index_users_on_accepted_term_id"
     t.index ["admin"], name: "index_users_on_admin"
     t.index ["bot_type"], name: "index_users_on_bot_type"
+    t.index ["confirmation_email_verification_token"], name: "index_users_on_confirmation_email_verification_token", unique: true
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["created_at"], name: "index_users_on_created_at"
     t.index ["email"], name: "index_users_on_email", unique: true

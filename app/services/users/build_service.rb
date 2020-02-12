@@ -28,6 +28,10 @@ module Users
         end
       end
 
+      unless skip_user_confirmation_email_from_setting
+        user.generate_confirmation_email_verification_token
+      end
+
       unless identity_params.empty?
         user.identities.build(identity_params)
       end

@@ -134,8 +134,14 @@ describe Users::BuildService do
           stub_application_setting(send_user_confirmation_email: true, signup_enabled?: true)
         end
 
+        subject { service.execute }
+
         it 'does not confirm the user' do
-          expect(service.execute).not_to be_confirmed
+          expect(subject).not_to be_confirmed
+        end
+
+        it 'sets confirmation_email_verification_token' do
+          expect(subject.confirmation_email_verification_token).to be_present
         end
       end
 
@@ -144,8 +150,14 @@ describe Users::BuildService do
           stub_application_setting(send_user_confirmation_email: false, signup_enabled?: true)
         end
 
+        subject { service.execute }
+
         it 'confirms the user' do
-          expect(service.execute).to be_confirmed
+          expect(subject).to be_confirmed
+        end
+
+        it 'does not set confirmation_email_verification_token' do
+          expect(subject.confirmation_email_verification_token).to be_nil
         end
       end
 
