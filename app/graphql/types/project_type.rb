@@ -72,6 +72,9 @@ module Types
             project.labels.first&.title
           end
 
+    field :labels, Types::LabelType.connection_type, null: true,
+          description: 'Labels of the project'
+
     field :pending_delete, GraphQL::BOOLEAN_TYPE, null: false # rubocop:disable Graphql/Descriptions
 
     %i[issues merge_requests wiki snippets].each do |feature|
