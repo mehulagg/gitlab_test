@@ -47,7 +47,7 @@ const staticToken = {
                   </template>
                </gl-filtered-search-binary-token>
                <div>
-                <portal-target name="statusPortal" class="position-relative" multiple />
+                <portal-target name="statusPortal" class="position-relative" />
                 </div>
               </div>`,
 };
@@ -61,7 +61,7 @@ export default {
     { status: 'resolved', icon: 'check-circle', title: __('Resolve') },
   ],
   statusTokens: [
-    { type: 'status', icon: 'eye-slash', hint: __('Status'), token: staticToken },
+    { type: 'status', icon: 'eye', hint: __('Status'), token: staticToken },
   ],
   fields: [
     {
