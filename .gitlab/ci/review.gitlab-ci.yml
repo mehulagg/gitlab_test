@@ -174,9 +174,10 @@ review-stop:
 review-qa-smoke:
   extends:
     - .review-qa-base
-    - .review:rules:mr-only-auto
+    - .review:rules:mr-only-manual
   script:
     - gitlab-qa Test::Instance::Smoke "${QA_IMAGE}" "${CI_ENVIRONMENT_URL}"
+  parallel: 10
 
 review-qa-all:
   extends:
