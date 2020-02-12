@@ -39,42 +39,42 @@ describe Gitlab::Elasticsearch::Logs do
       expect(client).to receive(:search).with(body: a_hash_equal_to_json(body)).and_return(es_response)
 
       result = subject.pod_logs(namespace, pod_name)
-      expect(result).to eq([es_message_4, es_message_3, es_message_2, es_message_1])
+      expect(result).to eq([es_message_1, es_message_2, es_message_3, es_message_4])
     end
 
     it 'can further filter the logs by container name' do
       expect(client).to receive(:search).with(body: a_hash_equal_to_json(body_with_container)).and_return(es_response)
 
       result = subject.pod_logs(namespace, pod_name, container_name)
-      expect(result).to eq([es_message_4, es_message_3, es_message_2, es_message_1])
+      expect(result).to eq([es_message_1, es_message_2, es_message_3, es_message_4])
     end
 
     it 'can further filter the logs by search' do
       expect(client).to receive(:search).with(body: a_hash_equal_to_json(body_with_search)).and_return(es_response)
 
       result = subject.pod_logs(namespace, pod_name, nil, search)
-      expect(result).to eq([es_message_4, es_message_3, es_message_2, es_message_1])
+      expect(result).to eq([es_message_1, es_message_2, es_message_3, es_message_4])
     end
 
     it 'can further filter the logs by start_time and end_time' do
       expect(client).to receive(:search).with(body: a_hash_equal_to_json(body_with_times)).and_return(es_response)
 
       result = subject.pod_logs(namespace, pod_name, nil, nil, start_time, end_time)
-      expect(result).to eq([es_message_4, es_message_3, es_message_2, es_message_1])
+      expect(result).to eq([es_message_1, es_message_2, es_message_3, es_message_4])
     end
 
     it 'can further filter the logs by only start_time' do
       expect(client).to receive(:search).with(body: a_hash_equal_to_json(body_with_start_time)).and_return(es_response)
 
       result = subject.pod_logs(namespace, pod_name, nil, nil, start_time)
-      expect(result).to eq([es_message_4, es_message_3, es_message_2, es_message_1])
+      expect(result).to eq([es_message_1, es_message_2, es_message_3, es_message_4])
     end
 
     it 'can further filter the logs by only end_time' do
       expect(client).to receive(:search).with(body: a_hash_equal_to_json(body_with_end_time)).and_return(es_response)
 
       result = subject.pod_logs(namespace, pod_name, nil, nil, nil, end_time)
-      expect(result).to eq([es_message_4, es_message_3, es_message_2, es_message_1])
+      expect(result).to eq([es_message_1, es_message_2, es_message_3, es_message_4])
     end
   end
 end

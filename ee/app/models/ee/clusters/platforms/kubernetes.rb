@@ -125,7 +125,7 @@ module EE
             pod_name, namespace, container: container_name, tail_lines: LOGS_LIMIT, timestamps: true
           ).body
 
-          logs.strip.split("\n").map do |line|
+          logs.strip.split("\n").reverse.map do |line|
             # message contains a RFC3339Nano timestamp, then a space, then the log line.
             # resolution of the nanoseconds can vary, so we split on the first space
             values = line.split(' ', 2)

@@ -100,15 +100,12 @@ module Gitlab
       end
 
       def format_response(response)
-        result = response.fetch("hits", {}).fetch("hits", []).map do |hit|
+        response.fetch("hits", {}).fetch("hits", []).map do |hit|
           {
             timestamp: hit["_source"]["@timestamp"],
             message: hit["_source"]["message"]
           }
         end
-
-        # we queried for the N-most recent records but we want them ordered oldest to newest
-        result.reverse
       end
     end
   end

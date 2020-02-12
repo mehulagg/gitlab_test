@@ -274,7 +274,7 @@ describe('EnvironmentLogs', () => {
     it('populates logs trace', () => {
       const trace = findLogTrace();
       expect(trace.text().split('\n').length).toBe(mockTrace.length);
-      expect(trace.text().split('\n')).toEqual(mockTrace.reverse());
+      expect(trace.text().split('\n')).toEqual(mockTrace);
     });
 
     describe('when user clicks', () => {

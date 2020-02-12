@@ -143,9 +143,9 @@ describe Clusters::Platforms::Kubernetes do
     let(:container) { 'some-container' }
     let(:expected_logs) do
       [
-        { message: "Log 1", timestamp: "2019-12-13T14:04:22.123456Z" },
+        { message: "Log 3", timestamp: "2019-12-13T14:04:24.123456Z" },
         { message: "Log 2", timestamp: "2019-12-13T14:04:23.123456Z" },
-        { message: "Log 3", timestamp: "2019-12-13T14:04:24.123456Z" }
+        { message: "Log 1", timestamp: "2019-12-13T14:04:22.123456Z" }
       ]
     end
 

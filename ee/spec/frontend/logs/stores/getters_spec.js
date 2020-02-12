@@ -33,7 +33,7 @@ describe('Logs Store getters', () => {
       });
 
       it('returns the trace', () => {
-        expect(getters.trace(state)).toEqual(mockTrace.reverse().join('\n'));
+        expect(getters.trace(state)).toEqual(mockTrace.join('\n'));
       });
     });
   });
