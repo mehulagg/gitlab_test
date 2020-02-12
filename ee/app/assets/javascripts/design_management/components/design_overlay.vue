@@ -84,9 +84,6 @@ export default {
         deltaY,
       };
     },
-    findNotePosition(noteId) {
-      return (this.notes.find(({ id }) => id === noteId) || {}).position;
-    },
     isMovingNote(noteId) {
       const movingNoteId = this.movingNoteStartPosition?.noteId;
       return Boolean(movingNoteId && movingNoteId === noteId);

@@ -32,9 +32,6 @@ export const extractDiscussions = discussions =>
 export const extractCurrentDiscussion = (discussions, id) =>
   discussions.edges.find(({ node }) => node.id === id);
 
-export const extractNote = (discussion, noteId) =>
-  discussion.notes.edges.find(({ node }) => node.id === noteId);
-
 export const findVersionId = id => (id.match('::Version/(.+$)') || [])[1];
 
 export const findNoteId = id => (id.match('DiffNote/(.+$)') || [])[1];

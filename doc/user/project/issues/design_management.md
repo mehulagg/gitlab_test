@@ -154,6 +154,12 @@ Different discussions have different badge numbers:
 From GitLab 12.5 on, new annotations will be outputted to the issue activity,
 so that everyone involved can participate in the discussion.
 
+### Moving annotation badges
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/34353) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.8.
+
+Move a badge around the design by dragging it to the desired location. This is useful if your design layout has changed between revisions, or if you need to move an existing badge to add a new one.
+
 ## References
 
 GitLab Flavored Markdown supports references to designs. The syntax for this is:

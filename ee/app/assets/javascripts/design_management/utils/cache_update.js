@@ -150,7 +150,6 @@ const addImageDiffNoteToStore = (store, createImageDiffNote, query, variables) =
 };
 
 const updateImageDiffNoteInStore = (store, updateImageDiffNote, query, variables) => {
-  // TODO(tq) fix this as necessary
   const data = store.readQuery({
     query,
     variables,
