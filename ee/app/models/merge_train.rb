@@ -55,6 +55,7 @@ class MergeTrain < ApplicationRecord
     after_transition merging: :merged do |merge_train|
       merge_train.run_after_commit do
         merge_train.cleanup_ref
+        merge_train.send_metrics
       end
     end
 
@@ -102,6 +103,11 @@ class MergeTrain < ApplicationRecord
 
     def total_count_in_train(merge_request)
       all_active_mrs_in_train(merge_request.target_project_id, merge_request.target_branch).count
+    end
+
+    def send_metrics
+      metric = ::Gitlab::Metrics.gauge(:merge_trains_durations, 'Duration of merge trains')
+      metric.gauge({ project_id: target_project_id }, merge_train.duration)
     end
 
     private
