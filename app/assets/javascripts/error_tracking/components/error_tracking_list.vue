@@ -25,7 +25,7 @@ import _ from 'underscore';
 
 export const tableDataClass = 'table-col d-flex d-sm-table-cell align-items-center';
 
-const statusToken = {
+const staticToken = {
   components: {
     GlFilteredSearchSuggestion,
     GlFilteredSearchBinaryToken,
@@ -53,9 +53,6 @@ export default {
   statusButtons: [
     { status: 'ignored', icon: 'eye-slash', title: __('Ignore') },
     { status: 'resolved', icon: 'check-circle', title: __('Resolve') },
-  ],
-  statusToken: [
-    { type: 'status', icon: 'eye', hint: __('Status'), token: statusToken },
   ],
   fields: [
     {
@@ -150,7 +147,6 @@ export default {
   hasLocalStorage: AccessorUtils.isLocalStorageAccessSafe(),
   data() {
     return {
-      statusToken: this.$options.statusToken,
       errorSearchQuery: [],
       pageValue: this.$options.FIRST_PAGE,
     };
@@ -167,6 +163,9 @@ export default {
     ]),
     paginationRequired() {
       return !_.isEmpty(this.pagination);
+    },
+    statusToken() {
+      return [{ type: 'status', icon: 'eye', hint: __('Status'), token: staticToken }];
     },
   },
   watch: {
