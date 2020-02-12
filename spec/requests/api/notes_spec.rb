@@ -239,7 +239,7 @@ describe API::Notes do
         project.add_developer(assignee)
       end
 
-      it 'returns 202 status' do
+      it 'returns 202 Accepted status' do
         subject
 
         expect(response).to have_gitlab_http_status(202)
@@ -249,7 +249,7 @@ describe API::Notes do
         expect { subject }.not_to change { Note.where(system: false).count }
       end
 
-      it 'does not however create a system note about the change' do
+      it 'does however create a system note about the change' do
         expect { subject }.to change { Note.system.count }.by(1)
       end
 
