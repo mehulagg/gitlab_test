@@ -124,7 +124,7 @@ module Milestoneish
   end
 
   def count_issues_by_state
-    @count_issues_by_state ||= issues.public_only.reorder(nil).group(:state_id).count
+    @count_issues_by_state ||= issues.reorder(nil).group(:state_id).count
   end
 
   private

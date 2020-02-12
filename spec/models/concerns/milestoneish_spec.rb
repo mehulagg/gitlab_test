@@ -234,9 +234,9 @@ describe Milestone, 'Milestoneish' do
   end
 
   describe '#count_issues_by_state' do
-    it 'does not count confidential issues for non project members' do
-      expect(milestone.closed_issues_count).to eq 2
-      expect(milestone.total_issues_count).to eq 3
+    it 'counts all issues including confidential' do
+      expect(milestone.closed_issues_count).to eq 6
+      expect(milestone.total_issues_count).to eq 9
     end
   end
 
