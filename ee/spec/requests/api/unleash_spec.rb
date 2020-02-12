@@ -286,6 +286,15 @@ describe API::Unleash do
       end
 
       context 'with Strategy models' do
+        it 'does not return a flag without an strategies (or scopes)' do
+          create(:operations_feature_flag, project: project, name: 'feature1', active: true)
+
+          get api(features_url), headers: { 'UNLEASH-INSTANCEID' => client.token, 'UNLEASH-APPNAME' => 'production' }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['features']).to be_empty
+        end
+
         it 'returns a flag with a default strategy' do
           feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
           strategy = create(:operations_strategy, feature_flag: feature_flag,
