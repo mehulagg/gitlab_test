@@ -1,0 +1,5 @@
+---
+title: Repository set and hash caches multi-delete
+merge_request: 24504
+author:
+type: performance
