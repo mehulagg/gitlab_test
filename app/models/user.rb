@@ -207,6 +207,7 @@ class User < ApplicationRecord
   before_save :ensure_user_rights_and_limits, if: ->(user) { user.new_record? || user.external_changed? }
   before_save :skip_reconfirmation!, if: ->(user) { user.email_changed? && user.read_only_attribute?(:email) }
   before_save :check_for_verified_email, if: ->(user) { user.email_changed? && !user.new_record? }
+  before_save :generate_confirmation_email_verification_token, if: ->(user) { user.new_record? }
   before_validation :ensure_namespace_correct
   before_save :ensure_namespace_correct # in case validation is skipped
   after_validation :set_username_errors
@@ -676,6 +677,12 @@ class User < ApplicationRecord
     self.reset_password_sent_at = Time.now.utc
 
     @reset_token
+  end
+
+  def generate_confirmation_email_verification_token
+    return unless Gitlab::CurrentSettings.send_user_confirmation_email
+
+    self.confirmation_email_verification_token = SecureRandom.hex.to_i(16).to_s(36)
   end
 
   def recently_sent_password_reset?

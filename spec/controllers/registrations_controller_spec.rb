@@ -66,11 +66,21 @@ describe RegistrationsController do
       end
 
       context 'when send_user_confirmation_email is false' do
-        it 'signs the user in' do
+        before do
           stub_application_setting(send_user_confirmation_email: false)
+        end
 
-          expect { post(:create, params: user_params) }.not_to change { ActionMailer::Base.deliveries.size }
-          expect(subject.current_user).not_to be_nil
+        subject { post(:create, params: user_params) }
+
+        it 'signs the user in' do
+          expect { subject }.not_to change { ActionMailer::Base.deliveries.size }
+          expect(controller.current_user).not_to be_nil
+        end
+
+        it 'does not set confirmation_email_verification_token' do
+          subject
+
+          expect(User.last.confirmation_email_verification_token).to be_nil
         end
       end
 
@@ -79,13 +89,22 @@ describe RegistrationsController do
           stub_application_setting(send_user_confirmation_email: true)
         end
 
+        subject { post(:create, params: user_params) }
+
+        it 'sets confirmation_email_verification_token' do
+          subject
+
+          expect(cookies[:confirmation_email_verification_token]).to be_present
+          expect(cookies[:confirmation_email_verification_token]).to eq User.last.confirmation_email_verification_token
+        end
+
         context 'when a grace period is active for confirming the email address' do
           before do
             allow(User).to receive(:allow_unconfirmed_access_for).and_return 2.days
           end
 
           it 'sends a confirmation email and redirects to the dashboard' do
-            post(:create, params: user_params)
+            subject
 
             expect(ActionMailer::Base.deliveries.last.to.first).to eq(user_params[:user][:email])
             expect(response).to redirect_to(dashboard_projects_path)
@@ -98,7 +117,7 @@ describe RegistrationsController do
           end
 
           it 'sends a confirmation email and redirects to the almost there page' do
-            post(:create, params: user_params)
+            subject
 
             expect(ActionMailer::Base.deliveries.last.to.first).to eq(user_params[:user][:email])
             expect(response).to redirect_to(users_almost_there_path)

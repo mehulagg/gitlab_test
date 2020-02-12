@@ -32,6 +32,7 @@ class RegistrationsController < Devise::RegistrationsController
     super do |new_user|
       persist_accepted_terms_if_required(new_user)
       set_role_required(new_user)
+      set_confirmation_email_verification_token_cookie(new_user)
       yield new_user if block_given?
     end
 
@@ -80,6 +81,12 @@ class RegistrationsController < Devise::RegistrationsController
       terms = ApplicationSetting::Term.latest
       Users::RespondToTermsService.new(new_user, terms).execute(accepted: true)
     end
+  end
+
+  def set_confirmation_email_verification_token_cookie(new_user)
+    return unless new_user.confirmation_email_verification_token
+
+    cookies[:confirmation_email_verification_token] = new_user.confirmation_email_verification_token
   end
 
   def set_role_required(new_user)

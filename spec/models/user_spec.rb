@@ -743,6 +743,30 @@ describe User, :do_not_mock_admin_mode do
         expect(user.confirmed?).to be_truthy
       end
     end
+
+    describe '#generate_confirmation_email_verification_token' do
+      let(:user) { create(:user) }
+
+      context 'when email confirmations are sent' do
+        before do
+          stub_application_setting(send_user_confirmation_email: true)
+        end
+
+        it 'sets confirmation_email_verification_token' do
+          expect(user.confirmation_email_verification_token).to be_present
+        end
+      end
+
+      context 'when email confirmations are not sent' do
+        before do
+          stub_application_setting(send_user_confirmation_email: false)
+        end
+
+        it 'sets confirmation_email_verification_token' do
+          expect(user.confirmation_email_verification_token).to be_nil
+        end
+      end
+    end
   end
 
   describe 'after commit hook' do
