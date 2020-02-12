@@ -1,6 +1,6 @@
 <script>
-import { isNumber, chain } from 'lodash';
-import { flow, filter, sortBy } from 'lodash/fp';
+import { isNumber } from 'lodash';
+import { flow, filter as lodashFilter, sortBy } from 'lodash/fp';
 import { mapState } from 'vuex';
 import { GlTooltipDirective } from '@gitlab/ui';
 import { sprintf, __ } from '~/locale';
@@ -102,7 +102,7 @@ export default {
     },
     orderedLabels() {
       return flow(
-        filter(this.isNonListLabel),
+        lodashFilter(this.isNonListLabel),
         sortBy('title'),
       )(this.issue.labels);
     },
