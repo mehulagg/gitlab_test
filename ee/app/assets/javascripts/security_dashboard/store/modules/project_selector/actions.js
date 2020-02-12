@@ -2,10 +2,16 @@ import Api from '~/api';
 import axios from '~/lib/utils/axios_utils';
 import createFlash from '~/flash';
 import { __, s__, sprintf } from '~/locale';
+import { addPageInfo } from './utils';
 import * as types from './mutation_types';
 
 const API_MINIMUM_QUERY_LENGTH = 3;
 
+// helpers
+const searchProjects = (searchQuery, searchOptions) =>
+  Api.projects(searchQuery, searchOptions).then(addPageInfo);
+
+// actions
 export const toggleSelectedProject = ({ commit, state }, project) => {
   const isProject = ({ id }) => id === project.id;
 
@@ -149,8 +155,27 @@ export const fetchSearchResults = ({ state, dispatch }) => {
     return dispatch('setMinimumQueryMessage');
   }
 
-  return Api.projects(searchQuery, {})
-    .then(results => dispatch('receiveSearchResultsSuccess', results))
+  return searchProjects(searchQuery)
+    .then(payload => {
+      dispatch('receiveSearchResultsSuccess', payload);
+    })
+    .catch(() => dispatch('receiveSearchResultsError'));
+};
+
+export const fetchSearchResultsNextPage = ({ state, dispatch }) => {
+  const {
+    searchQuery,
+    pageInfo: { totalPages, page, nextPage },
+  } = state;
+
+  if (totalPages <= page) {
+    return Promise.resolve();
+  }
+
+  const searchOptions = { page: nextPage };
+
+  return searchProjects(searchQuery, searchOptions)
+    .then(payload => dispatch('receiveNextPageSuccess', payload))
     .catch(() => dispatch('receiveSearchResultsError'));
 };
 
@@ -158,8 +183,8 @@ export const requestSearchResults = ({ commit }) => {
   commit(types.REQUEST_SEARCH_RESULTS);
 };
 
-export const receiveSearchResultsSuccess = ({ commit }, results) => {
-  commit(types.RECEIVE_SEARCH_RESULTS_SUCCESS, results);
+export const receiveSearchResultsSuccess = ({ commit }, payload) => {
+  commit(types.RECEIVE_SEARCH_RESULTS_SUCCESS, payload);
 };
 
 export const receiveSearchResultsError = ({ commit }) => {
@@ -168,6 +193,10 @@ export const receiveSearchResultsError = ({ commit }) => {
 
 export const setMinimumQueryMessage = ({ commit }) => {
   commit(types.SET_MINIMUM_QUERY_MESSAGE);
+};
+
+export const receiveNextPageSuccess = ({ commit }, payload) => {
+  commit(types.RECEIVE_NEXT_PAGE_SUCCESS, payload);
 };
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
