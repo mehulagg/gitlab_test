@@ -1,10 +1,8 @@
 <script>
 import { GlLink } from '@gitlab/ui';
-import { negate } from 'lodash';
+import { without } from 'lodash';
 import { __, sprintf } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
-
-const isPreConfigured = ({ configured }) => configured;
 
 export default {
   components: {
@@ -41,18 +39,15 @@ export default {
   },
   data() {
     return {
-      // @TODO - check if this is cool
-      checkedConfigurationItems: this.features.filter(isPreConfigured),
+      userSelectedConfigurations: [],
     };
   },
   computed: {
     dastIsSelected() {
       return (
-        this.checkedConfigurationItems.indexOf('Dynamic Application Security Testing (DAST)') !== -1
+        this.userSelectedConfigurations.indexOf('Dynamic Application Security Testing (DAST)') !==
+        -1
       );
-    },
-    hasNewlyCheckedItems() {
-      return this.checkedConfigurationItems.filter(negate(isPreConfigured)).length > 0;
     },
     headerContent() {
       const body = __('Configure Security %{wordBreakOpportunity}and Compliance');
@@ -89,6 +84,13 @@ export default {
     },
   },
   methods: {
+    handleConfigChange({ target: { checked, value } }) {
+      if (checked) {
+        this.userSelectedConfigurations.push(value);
+      } else {
+        this.userSelectedConfigurations = without(this.userSelectedConfigurations, value); .fi
+      }
+    },
     featureIsDast(feature) {
       return feature.name === __('Dynamic Application Security Testing (DAST)');
     },
@@ -141,10 +143,11 @@ export default {
                 <div class="d-flex">
                   <div class="mr-2">
                     <input
-                      v-model="checkedConfigurationItems"
                       type="checkbox"
-                      :value="feature"
+                      :value="feature.name"
                       :disabled="feature.configured"
+                      :checked="feature.configured"
+                      @change="handleConfigChange"
                     />
                   </div>
                   <div>
@@ -187,7 +190,7 @@ export default {
           </div>
         </div>
       </section>
-      <button :disabled="!hasNewlyCheckedItems">
+      <button :disabled="!userSelectedConfigurations.length > 0">
         {{ s__('SecurityConfiguration|Create merge request') }}
       </button>
     </form>
