@@ -24,7 +24,7 @@ module QA
           Resource::Issue.fabricate_via_api!.visit!
         end
 
-        it 'comments on an issue with an attachment' do
+        it 'comments on an issue with an image' do
           Page::Project::Issue::Show.perform do |show|
             show.comment("See attachment ![sample_file](#{sample_file})")
 
