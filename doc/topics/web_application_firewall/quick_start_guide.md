@@ -16,11 +16,10 @@ so it will be avaliable to your applications no matter how you deploy them to Ku
 
 ## Enable or disable ModSecurity
 
-ModSecurity is enabled by default on GitLab.com. You can toggle the feature flag to false by running the following command in the Rails console:
+ModSecurity is disabled by default on GitLab.com. You can enable it by checking ModSecurity checkbox.
 
-```ruby
-Feature.disable(:ingress_modsecurity)
-```
+For existing installations toggling the ModSecurity checkbox and applying the changes through `save changes` buttom will trigger a reinstall
+of Ingress with the most recent changes.
 
 Once disabled, you must uninstall and reinstall your Ingress application for the changes to take effect. See the [Feature Flag](../../user/project/operations/feature_flags.md) documentation for more information.
 

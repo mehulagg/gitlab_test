@@ -283,7 +283,7 @@ This feature:
   ```
 
 To enable ModSecurity, check the **Enable Web Application Firewall** checkbox
-when installing your [Ingress application](#ingress).
+which is part of [Ingress application](#ingress).
 
 If this is your first time using GitLab's WAF, we recommend you follow the
 [quick start guide](../../topics/web_application_firewall/quick_start_guide.md).
@@ -293,13 +293,14 @@ if this is considered significant for your application, you can disable it.
 
 There is a small performance overhead by enabling ModSecurity. If this is
 considered significant for your application, you can disable ModSecurity's
-rule engine for your deployed application by setting
-[the deployment variable](../../topics/autodevops/index.md)
+rule engine for your deployed application in any of the following ways:
+
+1. Setting [the deployment variable](../../topics/autodevops/index.md)
 `AUTO_DEVOPS_MODSECURITY_SEC_RULE_ENGINE` to `Off`. This will prevent ModSecurity
 from processing any requests for the given application or environment.
 
-To permanently disable it, you must [uninstall](#uninstalling-applications) and
-reinstall your Ingress application for the changes to take effect.
+1. Unchecking ModSecurity checkbox and applying changes through `save changes` buttom. This will reinstall
+Ingress with the recent changes.
 
 ### JupyterHub
 
