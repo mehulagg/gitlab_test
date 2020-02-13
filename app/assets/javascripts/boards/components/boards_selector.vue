@@ -183,11 +183,10 @@ export default {
       );
 
       Promise.all([boardsStore.allBoards(), recentBoardsPromise])
-        .then(([allBoards, recentBoards]) => [allBoards.data, recentBoards.data])
-        .then(([allBoardsJson, recentBoardsJson]) => {
+        .then(([allBoards, recentBoards]) => {
           this.loading = false;
-          this.boards = allBoardsJson;
-          this.recentBoards = recentBoardsJson;
+          this.boards = allBoards;
+          this.recentBoards = recentBoards.data;
         })
         .then(() => this.$nextTick()) // Wait for boards list in DOM
         .then(() => {
