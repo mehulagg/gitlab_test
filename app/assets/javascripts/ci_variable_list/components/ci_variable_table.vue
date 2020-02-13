@@ -44,6 +44,7 @@ export default {
     valuesButtonText() {
       return this.valuesHidden ? __('Reveal values') : __('Hide values');
     },
+    // eslint-disable-next-line
     tableIsNotEmpty() {
       if (this.variables) return this.variables.length > 0;
     },

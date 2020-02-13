@@ -5,12 +5,13 @@ import createStore from './store';
 export default () => {
   const el = document.getElementById('js-ci-project-variables');
   const { endpoint, projectId, group } = el.dataset;
-  const isGroup = group === 'true' ? true : false;
+  // get boolean value from rails passed string value
+  const isGroup = group === 'true';
 
   const store = createStore({
-    endpoint: endpoint,
-    projectId: projectId,
-    isGroup: isGroup,
+    endpoint,
+    projectId,
+    isGroup,
   });
 
   return new Vue({
