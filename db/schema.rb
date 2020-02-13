@@ -606,6 +606,14 @@ ActiveRecord::Schema.define(version: 2020_02_26_162723) do
     t.index ["build_id", "name"], name: "index_ci_build_needs_on_build_id_and_name", unique: true
   end
 
+  create_table "ci_build_report_results", force: :cascade do |t|
+    t.bigint "build_id", null: false
+    t.integer "report_type", limit: 2
+    t.integer "report_param", limit: 2
+    t.bigint "value"
+    t.index ["build_id", "report_type", "report_param"], name: "idx_ci_build_report_results_on_build_and_report", unique: true
+  end
+
   create_table "ci_build_trace_chunks", force: :cascade do |t|
     t.integer "build_id", null: false
     t.integer "chunk_index", null: false
@@ -4636,6 +4644,7 @@ ActiveRecord::Schema.define(version: 2020_02_26_162723) do
   add_foreign_key "boards", "projects", name: "fk_f15266b5f9", on_delete: :cascade
   add_foreign_key "chat_teams", "namespaces", on_delete: :cascade
   add_foreign_key "ci_build_needs", "ci_builds", column: "build_id", on_delete: :cascade
+  add_foreign_key "ci_build_report_results", "ci_builds", column: "build_id", on_delete: :cascade
   add_foreign_key "ci_build_trace_chunks", "ci_builds", column: "build_id", on_delete: :cascade
   add_foreign_key "ci_build_trace_section_names", "projects", on_delete: :cascade
   add_foreign_key "ci_build_trace_sections", "ci_build_trace_section_names", column: "section_name_id", name: "fk_264e112c66", on_delete: :cascade
