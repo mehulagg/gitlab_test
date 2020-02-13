@@ -377,7 +377,7 @@ describe API::Users, :do_not_mock_admin_mode do
       it 'does not include values for plan or trial' do
         get api("/users/#{user.id}", admin)
         expect(response).to match_response_schema('public_api/v4/user/basic')
-        expect(json_response).to include({'plan' => nil, 'trial' => nil})
+        expect(json_response).to include( { 'plan' => nil, 'trial' => nil } )
       end
 
       context 'when user has not logged in' do

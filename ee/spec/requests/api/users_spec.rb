@@ -272,7 +272,7 @@ describe API::Users do
       context 'when authenticated' do
         context 'as an admin' do
           context 'and user has a plan' do
-            let_it_be(:subscription){ create(:gitlab_subscription, :gold) }
+            let_it_be(:subscription) { create(:gitlab_subscription, :gold) }
 
             before do
               user.namespace = subscription.namespace
@@ -281,7 +281,7 @@ describe API::Users do
               it 'contains plan and trial' do
                 get api("/users/#{user.id}", admin)
 
-                expect(json_response).to include({'plan' => 'gold', 'trial' => false})
+                expect(json_response).to include( { 'plan' => 'gold', 'trial' => false } )
               end
             end
 
@@ -294,7 +294,7 @@ describe API::Users do
               it 'contains plan and trial' do
                 get api("/users/#{user.id}", admin)
 
-                expect(json_response).to include({'plan' => 'gold', 'trial' => true})
+                expect(json_response).to include( { 'plan' => 'gold', 'trial' => true } )
               end
             end
           end
@@ -303,7 +303,7 @@ describe API::Users do
             it 'returns `nil` for both plan and trial' do
               get api("/users/#{user.id}", admin)
 
-              expect(json_response).to include({'plan' => nil, 'trial' => nil})
+              expect(json_response).to include( { 'plan' => nil, 'trial' => nil } )
             end
           end
         end
