@@ -17,11 +17,8 @@ module QA
         end
       end
 
-      context 'when using attachments in comments', :object_storage do
-        let(:gif_file_name) { 'banana_sample.gif' }
-        let(:file_to_attach) do
-          File.absolute_path(File.join('spec', 'fixtures', gif_file_name))
-        end
+      context 'when using attachments in comments' do
+        let(:sample_file) { 'sample_file.jpg' }
 
         before do
           Resource::Issue.fabricate_via_api!.visit!
@@ -29,9 +26,9 @@ module QA
 
         it 'comments on an issue with an attachment' do
           Page::Project::Issue::Show.perform do |show|
-            show.comment('See attached banana for scale', attachment: file_to_attach)
+            show.comment("See attachment ![sample_file](#{sample_file})")
 
-            expect(show.noteable_note_item.find("img[src$='#{gif_file_name}']")).to be_visible
+            expect(show.noteable_note_item.find("img[src$='#{sample_file}']")).to be_visible
           end
         end
       end
