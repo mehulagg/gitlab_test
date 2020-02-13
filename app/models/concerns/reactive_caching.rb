@@ -14,6 +14,7 @@ module ReactiveCaching
     class_attribute :reactive_cache_lifetime
     class_attribute :reactive_cache_refresh_interval
     class_attribute :reactive_cache_worker_finder
+    class_attribute :reactive_cache_store_keys
 
     # defaults
     self.reactive_cache_key = -> (record) { [model_name.singular, record.id] }
@@ -26,6 +27,8 @@ module ReactiveCaching
     self.reactive_cache_worker_finder = ->(id, *_args) do
       find_by(primary_key => id)
     end
+
+    self.reactive_cache_store_keys = false
 
     def calculate_reactive_cache(*args)
       raise NotImplementedError
@@ -74,6 +77,7 @@ module ReactiveCaching
             old_value = Rails.cache.read(key)
             Rails.cache.write(key, new_value)
             reactive_cache_updated(*args) if new_value != old_value
+            write_reactive_set_cache!(*args) if reactive_cache_store_keys
           end
         else
           Rails.cache.delete(key)
@@ -81,7 +85,27 @@ module ReactiveCaching
       end
     end
 
+    def write_reactive_set_cache!(key=nil, value=nil)
+      return if key.blank? || value.blank?
+      cache_key = full_reactive_cache_key(key)
+
+      reactive_set_cache(cache_key)
+        .write("#{cache_key}:#{value}")
+    end
+
+    def clear_reactive_set_cache!(key)
+      return if key.blank?
+      cache_key = full_reactive_cache_key(key)
+
+      reactive_set_cache(cache_key)
+        .clear_cache!
+    end
+
     private
+
+    def reactive_set_cache(cache_key)
+      Gitlab::ReactiveCacheSetCache.new(cache_key, expires_in: reactive_cache_lifetime)
+    end
 
     def refresh_reactive_cache!(*args)
       clear_reactive_cache!(*args)

@@ -22,6 +22,7 @@ module ErrorTracking
     }x.freeze
 
     self.reactive_cache_key = ->(setting) { [setting.class.model_name.singular, setting.project_id] }
+    self.reactive_cache_store_keys = true
 
     belongs_to :project
 
@@ -128,6 +129,18 @@ module ErrorTracking
       end
     end
 
+    def reactive_cache_updated(request, opts)
+      cache_key = expand_cache_key(request)
+
+      reactive_set_cache(cache_key)
+        .write("#{cache_key}:#{opts}")
+    end
+
+    def expire_issues_cache
+      Rails.logger.info("CLEARING CACHE!!!")
+      clear_reactive_set_cache!('list_issues')
+    end
+
     # http://HOST/api/0/projects/ORG/PROJECT
     # ->
     # http://HOST/ORG/PROJECT
@@ -143,6 +156,16 @@ module ErrorTracking
     end
 
     private
+
+    # def reactive_set_cache(cache_key)
+    #   Gitlab::ReactiveCacheSetCache.new(cache_key, expires_in: reactive_cache_lifetime)
+    # end
+
+    def expand_cache_key(resource_prefix)
+      klass_key = reactive_cache_key.call(self).join(':')
+
+      "#{klass_key}:#{resource_prefix}"
+    end
 
     def add_gitlab_issue_details(issue)
       issue.gitlab_commit = match_gitlab_commit(issue.first_release_version)
