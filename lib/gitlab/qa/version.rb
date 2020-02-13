@@ -1,5 +1,5 @@
 module Gitlab
   module QA
-    VERSION = '4.19.2'.freeze
+    VERSION = '4.19.3'.freeze
   end
 end

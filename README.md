@@ -84,7 +84,13 @@ of tests.
 
 ## Documentation
 
-All the documentation can be found under [`docs/`](/docs/README.md).
+- [Architecture](docs/architecture.md)
+- [How it works](docs/how_it_works.md)
+- [Release process](docs/release_process.md)
+- [Run QA tests against your GDK setup](docs/run_qa_against_gdk.md)
+- [Trainings](docs/trainings.md)
+- [Waits](docs/waits.md)
+- [What tests can be run?](docs/what_tests_can_be_run.md)
 
 ## How do we use it
 
