@@ -34,42 +34,6 @@ describe('CI variable list store actions', () => {
     mock.restore();
   });
 
-  describe('setEndpoint', () => {
-    const endpoint = '/root/node-app/-/variables';
-    it('commits SET_ENDPOINT mutation', () => {
-      testAction(actions.setEndpoint, endpoint, {}, [
-        {
-          type: types.SET_ENDPOINT,
-          payload: endpoint,
-        },
-      ]);
-    });
-  });
-
-  describe('setProjectId', () => {
-    const projectId = '32';
-    it('commits SET_PROJECT_ID mutation', () => {
-      testAction(actions.setProjectId, projectId, {}, [
-        {
-          type: types.SET_PROJECT_ID,
-          payload: projectId,
-        },
-      ]);
-    });
-  });
-
-  describe('setIsGroup', () => {
-    const isGroup = false;
-    it('commits SET_IS_GROUP mutation', () => {
-      testAction(actions.setIsGroup, isGroup, {}, [
-        {
-          type: types.SET_IS_GROUP,
-          payload: isGroup,
-        },
-      ]);
-    });
-  });
-
   describe('toggleValues', () => {
     const valuesHidden = false;
     it('commits TOGGLE_VALUES mutation', () => {

@@ -4,18 +4,6 @@ import Api from '~/api';
 import createFlash from '~/flash';
 import { prepareDataForApi, prepareDataForDisplay, prepareEnvironments } from './utils';
 
-export const setEndpoint = ({ commit }, endpoint) => {
-  commit(types.SET_ENDPOINT, endpoint);
-};
-
-export const setProjectId = ({ commit }, projectId) => {
-  commit(types.SET_PROJECT_ID, projectId);
-};
-
-export const setIsGroup = ({ commit }, value) => {
-  commit(types.SET_IS_GROUP, value);
-};
-
 export const toggleValues = ({ commit }, valueState) => {
   commit(types.TOGGLE_VALUES, valueState);
 };

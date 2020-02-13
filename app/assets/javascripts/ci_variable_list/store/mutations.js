@@ -2,18 +2,6 @@ import * as types from './mutation_types';
 import { __ } from '~/locale';
 
 export default {
-  [types.SET_ENDPOINT](state, endpoint) {
-    state.endpoint = endpoint;
-  },
-
-  [types.SET_PROJECT_ID](state, projectId) {
-    state.projectId = projectId;
-  },
-
-  [types.SET_IS_GROUP](state, value) {
-    state.isGroup = value;
-  },
-
   [types.REQUEST_VARIABLES](state) {
     state.isLoading = true;
   },

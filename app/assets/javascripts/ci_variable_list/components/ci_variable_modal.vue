@@ -28,7 +28,6 @@ export default {
       'typeOptions',
       'variable',
       'variableBeingEdited',
-      'showInputValue',
       'isGroup',
     ]),
     canSubmit() {

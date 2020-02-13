@@ -10,23 +10,13 @@ describe('Ci variable table', () => {
   let wrapper;
   let store;
 
-  const actionMocks = {
-    setEndpoint: jest.fn(),
-    fetchEnvironments: jest.fn(),
-    setProjectId: jest.fn(),
-    setIsGroup: jest.fn(),
-  };
+  const fetchEnvironments = jest.fn();
 
   const createComponent = () => {
     store = createStore();
     wrapper = shallowMount(CiVariableSettings, {
-      propsData: {
-        endpoint: '/variables',
-        projectId: '26',
-        isGroup: false,
-      },
       methods: {
-        ...actionMocks,
+        fetchEnvironments,
       },
       localVue,
       store,
@@ -42,12 +32,6 @@ describe('Ci variable table', () => {
   });
 
   it('dispatches fetchEnvironments when mounted', () => {
-    expect(actionMocks.fetchEnvironments).toHaveBeenCalled();
-  });
-
-  it('dispatches correct vuex actions on created', () => {
-    expect(actionMocks.setEndpoint).toHaveBeenCalledWith(wrapper.vm.$props.endpoint);
-    expect(actionMocks.setProjectId).toHaveBeenCalledWith(wrapper.vm.$props.projectId);
-    expect(actionMocks.setIsGroup).toHaveBeenCalledWith(wrapper.vm.$props.isGroup);
+    expect(fetchEnvironments).toHaveBeenCalled();
   });
 });

@@ -16,6 +16,7 @@ export default {
     {
       key: 'value',
       label: __('Value'),
+      tdClass: 'qa-ci-variable-input-value',
     },
     {
       key: 'protected',
@@ -42,6 +43,9 @@ export default {
     ...mapState(['variables', 'valuesHidden', 'isGroup', 'isLoading', 'isDeleting']),
     valuesButtonText() {
       return this.valuesHidden ? __('Reveal values') : __('Hide values');
+    },
+    tableIsNotEmpty() {
+      if (this.variables) return this.variables.length > 0;
     },
   },
   mounted() {
@@ -114,6 +118,7 @@ export default {
     </gl-table>
     <div class="ci-variable-actions d-flex justify-content-end">
       <gl-button
+        v-if="tableIsNotEmpty"
         data-qa-selector="reveal_ci_variable_value"
         class="append-right-8 js-secret-value-reveal-button"
         @click="toggleValues(!valuesHidden)"

@@ -1,31 +1,15 @@
 <script>
 import CiVariableModal from './ci_variable_modal.vue';
 import CiVariableTable from './ci_variable_table.vue';
-import { mapActions } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 
 export default {
   components: {
     CiVariableModal,
     CiVariableTable,
   },
-  props: {
-    endpoint: {
-      type: String,
-      required: true,
-    },
-    projectId: {
-      type: String,
-      required: true,
-    },
-    isGroup: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  created() {
-    this.setEndpoint(this.endpoint);
-    this.setProjectId(this.projectId);
-    this.setIsGroup(this.isGroup);
+  computed: {
+    ...mapState(['isGroup']),
   },
   mounted() {
     if (!this.isGroup) {
@@ -33,7 +17,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(['setEndpoint', 'setProjectId', 'fetchEnvironments', 'setIsGroup']),
+    ...mapActions(['fetchEnvironments']),
   },
 };
 </script>

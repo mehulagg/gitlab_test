@@ -1,6 +1,3 @@
-export const SET_ENDPOINT = 'SET_ENDPOINT';
-export const SET_PROJECT_ID = 'SET_PROJECT_ID';
-export const SET_IS_GROUP = 'SET_IS_GROUP';
 export const TOGGLE_VALUES = 'TOGGLE_VALUES';
 export const VARIABLE_BEING_EDITED = 'VARIABLE_BEING_EDITED';
 export const RESET_EDITING = 'RESET_EDITING';

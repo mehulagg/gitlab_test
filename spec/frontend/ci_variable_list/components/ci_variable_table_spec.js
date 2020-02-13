@@ -69,9 +69,11 @@ describe('Ci variable table', () => {
   });
 
   describe('Table click actions', () => {
-    it('dispatches deleteVariable with correct variable to delete', () => {
+    beforeEach(() => {
       wrapper.vm.$store.state.variables = mockData.mockVariables;
+    });
 
+    it('dispatches deleteVariable with correct variable to delete', () => {
       return wrapper.vm.$nextTick(() => {
         const variableToDelete = mockData.mockVariables[0];
         findDeleteButton().trigger('click');
@@ -86,8 +88,6 @@ describe('Ci variable table', () => {
     });
 
     it('dispatches editVariable with correct variable to edit', () => {
-      wrapper.vm.$store.state.variables = mockData.mockVariables;
-
       return wrapper.vm.$nextTick(() => {
         const variableToEdit = mockData.mockVariables[0];
         findEditButton().trigger('click');

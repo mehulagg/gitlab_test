@@ -9,36 +9,6 @@ describe('CI variable list mutations', () => {
     stateCopy = state();
   });
 
-  describe('SET_ENDPOINT', () => {
-    it('should set endpoint', () => {
-      const endpoint = '/root/node-app/-/variables';
-
-      mutations[types.SET_ENDPOINT](stateCopy, endpoint);
-
-      expect(stateCopy.endpoint).toEqual(endpoint);
-    });
-  });
-
-  describe('SET_PROJECT_ID', () => {
-    it('should set project id', () => {
-      const projectID = '32';
-
-      mutations[types.SET_PROJECT_ID](stateCopy, projectID);
-
-      expect(stateCopy.projectId).toEqual(projectID);
-    });
-  });
-
-  describe('SET_IS_GROUP', () => {
-    it('should set if view is group', () => {
-      const group = false;
-
-      mutations[types.SET_IS_GROUP](stateCopy, group);
-
-      expect(stateCopy.isGroup).toEqual(group);
-    });
-  });
-
   describe('TOGGLE_VALUES', () => {
     it('should toggle state', () => {
       const valuesHidden = false;
