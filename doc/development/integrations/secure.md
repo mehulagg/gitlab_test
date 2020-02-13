@@ -103,12 +103,6 @@ mysec_dependency_scanning:
         $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bjava\b/
 ```
 
-The [`only/except`](../../ci/yaml/README.md#onlyexcept-basic) keywords
-as well as the new [`rules`](../../ci/yaml/README.md#rules) keyword
-make possible to trigger the job depending on the branch, or when some particular file changes.
-Such rules should be defined by users based on their needs,
-and should not be predefined in the job definition of the scanner.
-
 ## Docker image
 
 The Docker image is a self-contained environment that combines
