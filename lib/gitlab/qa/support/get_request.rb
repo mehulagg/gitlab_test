@@ -22,7 +22,7 @@ module Gitlab
           when Net::HTTPSuccess
             response
           else
-            raise InvalidResponseError.new(uri.to_s, response)
+            raise Support::InvalidResponseError.new(uri.to_s, response)
           end
         end
 
