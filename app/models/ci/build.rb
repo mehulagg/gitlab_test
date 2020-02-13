@@ -33,7 +33,7 @@ module Ci
       scheduler_failure: 2
     }.freeze
 
-    DEGRADATION_THRESHOLD_VARIABLE_NAME = "DEGRADATION_THRESHOLD".freeze
+    DEGRADATION_THRESHOLD_VARIABLE_NAME = 'DEGRADATION_THRESHOLD'
 
     has_one :deployment, as: :deployable, class_name: 'Deployment'
     has_one :resource, class_name: 'Ci::Resource', inverse_of: :build

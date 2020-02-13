@@ -114,15 +114,33 @@ describe MergeRequestWidgetEntity do
         :ee_ci_build,
         :performance,
         pipeline: head_pipeline,
-        yaml_variables: [
-          { key: 'FOO', value: 'BAR' },
-          { key: 'DEGRADATION_THRESHOLD', value: '5' }
-        ]
+        yaml_variables: yaml_variables
       )
     end
 
-    it "returns the value from the head pipeline's performance build" do
-      expect(subject.as_json[:performance][:degradation_threshold]).to eq(5)
+    context "when head pipeline's performance build has the threshold variable defined" do
+      let(:yaml_variables) do
+        [
+          { key: 'FOO', value: 'BAR' },
+          { key: 'DEGRADATION_THRESHOLD', value: '5' }
+        ]
+      end
+
+      it "returns the value of the variable" do
+        expect(subject.as_json[:performance][:degradation_threshold]).to eq(5)
+      end
+    end
+
+    context "when head pipeline's performance build has no threshold variable defined" do
+      let(:yaml_variables) do
+        [
+          { key: 'FOO', value: 'BAR' }
+        ]
+      end
+
+      it "returns nil" do
+        expect(subject.as_json[:performance][:degradation_threshold]).to be_nil
+      end
     end
   end
 
