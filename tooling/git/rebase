@@ -1,0 +1,42 @@
+#!/usr/bin/env bash -e
+
+# Usage
+#
+# ./tooling/git/rebase
+# ./tooling/git/rebase old-release-branch
+# ./tooling/git/rebase old-release-branch gitlab-org/gitlab-foss
+
+# Look for jq presence. Needed for JSON parsing
+if [ -x "$(command -v jq)" ]
+then
+  jq_version=$(jq --version)
+  echo "jq detected: $jq_version"
+else
+  echo 'No jq version detected. Please install the `jq` package for your operating system.'
+  exit 0
+fi
+
+current_branch=$(git rev-parse --abbrev-ref HEAD)
+target_branch=${1:-master}
+project=${2:-gitlab-org/gitlab}
+project_param=$(echo -n "$project" | jq -sRr @uri)
+
+echo "Project: $project"
+echo "Will rebase $current_branch onto $target_branch"
+echo "Fetching latest upstream changes"
+
+git fetch -a
+
+echo "Fetching last successful pipeline run for $target_branch"
+
+sha=$(curl -s --request GET --url "https://gitlab.com/api/v4/projects/$project_param/pipelines?status=success&ref=$target_branch" | jq -r ".[0] | .sha")
+
+if [ -z "$sha" ]
+then
+  echo "Failed to get a valid SHA for a good rebase"
+  exit 0
+fi
+
+echo "Rebasing up to $sha"
+
+git rebase "$sha"
