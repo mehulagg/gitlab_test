@@ -128,6 +128,23 @@ documentation.
 TIP: **Tip:**
 Key metrics are automatically extracted and shown in the merge request widget.
 
+### Configuring degradation threshold
+
+Starting in GitLab 12.8, it is now possible to configure the sensitivity of degradation alerts. This is to avoid getting alerts
+even for minor drop in metrics. This can be done by setting the `DEGRADATION_THRESHOLD` variable:
+
+```yaml
+include:
+  template: Verify/Browser-Performance.gitlab-ci.yml
+
+performance:
+  variables:
+    URL: https://example.com
+    DEGRADATION_THRESHOLD: 5
+```
+
+In this example, the alert won't show up if the metric degraded by only 4 points or less.
+
 ### Performance testing on Review Apps
 
 The above CI YML is great for testing against static environments, and it can
