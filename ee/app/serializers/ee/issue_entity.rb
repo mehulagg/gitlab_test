@@ -5,6 +5,7 @@ module EE
 
     prepended do
       expose :weight, if: ->(issue, _) { issue.supports_weight? }
+      expose :blocked_by_issues
     end
   end
 end

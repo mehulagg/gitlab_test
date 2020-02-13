@@ -243,6 +243,51 @@ describe('Actions Notes Store', () => {
     });
   });
 
+  describe('toggleBlockedIssueWarning', () => {
+    it('should set issue warning as true', done => {
+      testAction(
+        actions.toggleBlockedIssueWarning,
+        true,
+        {},
+        [{ type: 'TOGGLE_BLOCKED_ISSUE_WARNING', payload: true }],
+        [],
+        done,
+      );
+    });
+
+    it('should set issue arning as false', done => {
+      testAction(
+        actions.toggleBlockedIssueWarning,
+        false,
+        {},
+        [{ type: 'TOGGLE_BLOCKED_ISSUE_WARNING', payload: false }],
+        [],
+        done,
+      );
+    });
+  });
+
+  describe('attemptCloseIssue', () => {
+    it('should call toggleBlockedIssueWarning action if issue is blocked by other issues', done => {
+      const noteableDataMockBlocked = Object.assign(noteableDataMock, {
+        blocked_by_issues: [
+          {
+            id: 1,
+            path: 'path/to/issue',
+          },
+        ],
+      });
+      testAction(
+        actions.attemptCloseIssue,
+        {},
+        { noteableData: noteableDataMockBlocked },
+        [],
+        [{ type: 'toggleBlockedIssueWarning', payload: true }],
+        done,
+      );
+    });
+  });
+
   describe('poll', () => {
     beforeEach(done => {
       jasmine.clock().install();

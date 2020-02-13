@@ -167,12 +167,22 @@ export const toggleResolveNote = ({ commit, dispatch }, { endpoint, isResolved, 
     dispatch('updateMergeRequestWidget');
   });
 
+export const attemptCloseIssue = ({ dispatch, state }) => {
+  if (state.noteableData.blocked_by_issues && state.noteableData.blocked_by_issues.length > 0) {
+    dispatch('toggleBlockedIssueWarning', true);
+  }
+};
+
+export const toggleBlockedIssueWarning = ({ commit }, value) =>
+  commit(types.TOGGLE_BLOCKED_ISSUE_WARNING, value);
+
 export const closeIssue = ({ commit, dispatch, state }) => {
   dispatch('toggleStateButtonLoading', true);
   return service.toggleIssueState(state.notesData.closePath).then(({ data }) => {
     commit(types.CLOSE_ISSUE);
     dispatch('emitStateChangedEvent', data);
     dispatch('toggleStateButtonLoading', false);
+    dispatch('toggleBlockedIssueWarning', false);
   });
 };
 

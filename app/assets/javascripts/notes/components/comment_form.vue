@@ -3,6 +3,7 @@ import $ from 'jquery';
 import { mapActions, mapGetters, mapState } from 'vuex';
 import { isEmpty } from 'lodash';
 import Autosize from 'autosize';
+import { GlAlert } from '@gitlab/ui';
 import { __, sprintf } from '~/locale';
 import TimelineEntryItem from '~/vue_shared/components/notes/timeline_entry_item.vue';
 import Flash from '../../flash';
@@ -34,6 +35,7 @@ export default {
     userAvatarLink,
     loadingButton,
     TimelineEntryItem,
+    GlAlert,
   },
   mixins: [issuableStateMixin],
   props: {
@@ -57,8 +59,9 @@ export default {
       'getNoteableData',
       'getNotesData',
       'openState',
+      'getBlockedByIssues',
     ]),
-    ...mapState(['isToggleStateButtonLoading']),
+    ...mapState(['isToggleStateButtonLoading', 'isToggleBlockedIssueWarning']),
     noteableDisplayName() {
       return splitCamelCase(this.noteableType).toLowerCase();
     },
@@ -155,10 +158,12 @@ export default {
       'stopPolling',
       'restartPolling',
       'removePlaceholderNotes',
+      'attemptCloseIssue',
       'closeIssue',
       'reopenIssue',
       'toggleIssueLocalState',
       'toggleStateButtonLoading',
+      'toggleBlockedIssueWarning',
     ]),
     setIsSubmitButtonDisabled(note, isSubmitting) {
       if (!isEmpty(note) && !isSubmitting) {
@@ -220,7 +225,10 @@ export default {
       this.isSubmitting = false;
     },
     toggleIssueState() {
-      if (this.isOpen) {
+      if (this.noteableType.toLowerCase() === constants.ISSUE_NOTEABLE_TYPE && this.isOpen) {
+        this.attemptCloseIssue();
+      }
+      if (this.isOpen && !this.isToggleBlockedIssueWarning) {
         this.closeIssue()
           .then(() => {
             this.enableButton();
@@ -257,6 +265,23 @@ export default {
             Flash(errorMessage);
           });
       }
+    },
+    closeIssueAnyway() {
+      this.closeIssue()
+        .then(() => {
+          this.enableButton();
+          refreshUserMergeRequestCounts();
+        })
+        .catch(() => {
+          this.enableButton();
+          this.toggleStateButtonLoading(false);
+          Flash(
+            sprintf(
+              __('Something went wrong while closing the %{issuable}. Please try again later'),
+              { issuable: this.noteableDisplayName },
+            ),
+          );
+        });
     },
     discard(shouldClear = true) {
       // `blur` is needed to clear slash commands autocomplete cache if event fired.
@@ -361,6 +386,23 @@ js-gfm-input js-autosize markdown-area js-vue-textarea qa-comment-input"
               >
               </textarea>
             </markdown-field>
+            <gl-alert
+              v-if="isToggleBlockedIssueWarning"
+              :title="__('Are you sure you want to close this blocked issue?')"
+              :primary-button-text="__('Yes, close issue')"
+              :secondary-button-text="__('Cancel')"
+              variant="warning"
+              :dismissible="false"
+              @primaryAction="closeIssueAnyway"
+              @secondaryAction="toggleBlockedIssueWarning(false)"
+            >
+              <p>
+                {{ __('This issue is currently blocked by the following issues: ') }}
+                <template v-for="blockingIssue in getBlockedByIssues">
+                  <span :key="blockingIssue.id">{{ blockingIssue.id }}</span>
+                </template>
+              </p>
+            </gl-alert>
             <div class="note-form-actions">
               <div
                 class="float-left btn-group
@@ -427,7 +469,7 @@ append-right-10 comment-type-dropdown js-comment-type-dropdown droplab-dropdown"
               </div>
 
               <loading-button
-                v-if="canToggleIssueState"
+                v-if="canToggleIssueState && !isToggleBlockedIssueWarning"
                 :loading="isToggleStateButtonLoading"
                 :container-class="[
                   actionButtonClassNames,
