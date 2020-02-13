@@ -25,6 +25,14 @@ describe 'Updating an image DiffNote' do
   let_it_be(:updated_height) { 100 }
   let_it_be(:updated_x) { 5 }
   let_it_be(:updated_y) { 10 }
+  let(:updated_position) do
+    {
+      width: updated_width,
+      height: updated_height,
+      x: updated_x,
+      y: updated_y
+    }
+  end
   let!(:diff_note) do
     create(:image_diff_note_on_merge_request,
            noteable: noteable,
@@ -36,12 +44,7 @@ describe 'Updating an image DiffNote' do
     variables = {
       id: GitlabSchema.id_from_object(diff_note).to_s,
       body: updated_body,
-      position: {
-        width: updated_width,
-        height: updated_height,
-        x: updated_x,
-        y: updated_y
-      }
+      position: updated_position
     }
 
     graphql_mutation(:update_image_diff_note, variables)
@@ -150,6 +153,28 @@ describe 'Updating an image DiffNote' do
           )
         end
       end
+
+      context 'when position is nil' do
+        let(:updated_position) { nil }
+
+        it 'updates the DiffNote correctly' do
+          post_graphql_mutation(mutation, current_user: current_user)
+
+          diff_note.reload
+
+          expect(diff_note).to have_attributes(
+            note: updated_body,
+            position: original_position
+          )
+        end
+      end
+    end
+
+    context 'when both body and position args are blank' do
+      let(:updated_body) { nil }
+      let(:updated_position) { nil }
+
+      it_behaves_like 'a mutation that returns top-level errors', errors: ['body or position arguments are required']
     end
 
     context 'when resource is not a DiffNote on an image' do

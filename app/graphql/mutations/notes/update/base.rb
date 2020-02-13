@@ -16,7 +16,7 @@ module Mutations
         def resolve(args)
           note = authorized_find!(id: args[:id])
 
-          pre_update_checks!(note)
+          pre_update_checks!(note, args)
 
           updated_note = ::Notes::UpdateService.new(
             note.project,
@@ -35,7 +35,7 @@ module Mutations
 
         private
 
-        def pre_update_checks!(note)
+        def pre_update_checks!(_note, _args)
           raise NotImplementedError
         end
 

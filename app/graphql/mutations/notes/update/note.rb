@@ -13,7 +13,7 @@ module Mutations
 
         private
 
-        def pre_update_checks!(note)
+        def pre_update_checks!(note, _args)
           check_object_is_note!(note)
         end
       end
