@@ -292,6 +292,12 @@ describe Project do
       expect(project).not_to be_valid
     end
 
+    it 'validates presence of ci_cd_settings' do
+      project = build(:project, ci_cd_settings: nil)
+
+      expect(project).not_to be_valid
+    end
+
     describe 'import_url' do
       it 'does not allow an invalid URI as import_url' do
         project = build(:project, import_url: 'invalid://')

@@ -363,6 +363,7 @@ class Project < ApplicationRecord
     length: { maximum: 255 }
 
   validates :project_feature, presence: true
+  validates :ci_cd_settings, presence: true
 
   validates :namespace, presence: true
   validates :name, uniqueness: { scope: :namespace_id }
