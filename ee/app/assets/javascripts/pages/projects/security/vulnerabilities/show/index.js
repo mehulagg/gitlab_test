@@ -37,10 +37,11 @@ function createSolutionCardApp() {
 }
 
 function createHeaderApp() {
-  const el = document.getElementById('js-vulnerability-show-header');
-  const { createIssueUrl } = el.dataset;
+  const el = document.getElementById('js-vulnerability-management-app');
+  const { createIssueUrl, vulnerabilityUrl, pipelineUrl } = el.dataset;
   const vulnerability = JSON.parse(el.dataset.vulnerability);
   const finding = JSON.parse(el.dataset.finding);
+  const pipeline = JSON.parse(el.dataset.pipeline);
 
   return new Vue({
     el,
@@ -50,7 +51,10 @@ function createHeaderApp() {
         props: {
           vulnerability,
           finding,
+          pipeline,
           createIssueUrl,
+          vulnerabilityUrl,
+          pipelineUrl,
         },
       }),
   });
