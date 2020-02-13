@@ -15424,7 +15424,7 @@ msgstr ""
 msgid "Protected branches"
 msgstr ""
 
-msgid "Protected variables only run on protected branches or tags, while masked variables are hidden from job logs. You may also add variables that are made available to the running application by prepending the variable key with"
+msgid "Protected variables only run on protected branches or tags, while masked variables are hidden from job logs. You may also add variables that are made available to the running application by prepending the variable key with <code>K8S_SECRET_</code>."
 msgstr ""
 
 msgid "ProtectedBranch|%{wildcards_link_start}Wildcards%{wildcards_link_end} such as %{code_tag_start}*-stable%{code_tag_end} or %{code_tag_start}production/*%{code_tag_end} are supported"

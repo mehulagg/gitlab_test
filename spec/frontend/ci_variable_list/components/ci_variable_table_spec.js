@@ -73,7 +73,8 @@ describe('Ci variable table', () => {
       wrapper.vm.$store.state.variables = mockData.mockVariables;
     });
 
-    it('dispatches deleteVariable with correct variable to delete', () => wrapper.vm.$nextTick(() => {
+    it('dispatches deleteVariable with correct variable to delete', () =>
+      wrapper.vm.$nextTick(() => {
         const variableToDelete = mockData.mockVariables[0];
         findDeleteButton().trigger('click');
         expect(actionMocks.deleteVariable).toHaveBeenCalledWith(variableToDelete);
@@ -85,7 +86,8 @@ describe('Ci variable table', () => {
       expect(actionMocks.toggleValues).toHaveBeenCalledWith(false);
     });
 
-    it('dispatches editVariable with correct variable to edit', () => wrapper.vm.$nextTick(() => {
+    it('dispatches editVariable with correct variable to edit', () =>
+      wrapper.vm.$nextTick(() => {
         const variableToEdit = mockData.mockVariables[0];
         findEditButton().trigger('click');
         expect(actionMocks.editVariable).toHaveBeenCalledWith(variableToEdit);

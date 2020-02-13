@@ -29,12 +29,13 @@ export default {
       'variable',
       'variableBeingEdited',
       'isGroup',
+      'maskableRegex',
     ]),
     canSubmit() {
       return this.variableData.key !== '' && this.variableData.secret_value !== '';
     },
     canMask() {
-      const regex = RegExp('^[a-zA-Z0-9_+=/@:-]{8,}$');
+      const regex = RegExp(this.maskableRegex);
       return regex.test(this.variableData.secret_value);
     },
     variableData() {

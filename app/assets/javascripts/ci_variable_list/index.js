@@ -4,7 +4,7 @@ import createStore from './store';
 
 export default () => {
   const el = document.getElementById('js-ci-project-variables');
-  const { endpoint, projectId, group } = el.dataset;
+  const { endpoint, projectId, group, maskableRegex } = el.dataset;
   // get boolean value from rails passed string value
   const isGroup = group === 'true';
 
@@ -12,6 +12,7 @@ export default () => {
     endpoint,
     projectId,
     isGroup,
+    maskableRegex,
   });
 
   return new Vue({

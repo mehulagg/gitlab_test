@@ -9,7 +9,5 @@
 %p
   = _('Create variables to apply via the runner to use for passwords, secret keys, etc...')
 %p
-  = _('Protected variables only run on protected branches or tags, while masked variables are hidden from job logs. You may also add variables that are made available to the running application by prepending the variable key with')
-  %code
-    = ('K8S_SECRET_')
+  = _('Protected variables only run on protected branches or tags, while masked variables are hidden from job logs. You may also add variables that are made available to the running application by prepending the variable key with <code>K8S_SECRET_</code>.').html_safe
   = link_to _('More information'), help_page_path('ci/variables/README', anchor: 'variables')

@@ -4,6 +4,7 @@ export default () => ({
   endpoint: null,
   projectId: null,
   isGroup: null,
+  maskableRegex: null,
   isLoading: false,
   isDeleting: false,
   variable: {
