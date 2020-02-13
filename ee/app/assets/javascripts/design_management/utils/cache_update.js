@@ -14,7 +14,9 @@ const deleteDesignsFromStore = (store, query, selectedDesigns) => {
   const changedDesigns = data.project.issue.designCollection.designs.edges.filter(
     ({ node }) => !selectedDesigns.includes(node.filename),
   );
+
   data.project.issue.designCollection.designs.edges = [...changedDesigns];
+  data.project.issue.designCollection.designs.totalCount -= selectedDesigns.length;
 
   store.writeQuery({
     ...query,
@@ -189,6 +191,8 @@ const updateImageDiffNoteInStore = (store, updateImageDiffNote, query, variables
 const addNewDesignToStore = (store, designManagementUpload, query) => {
   const data = store.readQuery(query);
 
+  const initialDesignsCount = data.project.issue.designCollection.designs.edges.length;
+
   const newDesigns = data.project.issue.designCollection.designs.edges.reduce((acc, design) => {
     if (!acc.find(d => d.filename === design.node.filename)) {
       acc.push(design.node);
@@ -213,6 +217,11 @@ const addNewDesignToStore = (store, designManagementUpload, query) => {
     ...data.project.issue.designCollection.versions.edges,
   ];
 
+  const totalCount =
+    newDesigns.length -
+    initialDesignsCount +
+    data.project.issue.designCollection.designs.totalCount;
+
   const updatedDesigns = {
     __typename: 'DesignCollection',
     designs: {
@@ -221,6 +230,12 @@ const addNewDesignToStore = (store, designManagementUpload, query) => {
         __typename: 'DesignEdge',
         node: design,
       })),
+      pageInfo: {
+        __typename: 'PageInfo',
+        hasNextPage: false,
+        endCursor: '',
+      },
+      totalCount,
     },
     versions: {
       __typename: 'DesignVersionConnection',
