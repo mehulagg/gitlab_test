@@ -1,7 +1,48 @@
 # GraphQL
 
+[Apollo]: https://www.apollographql.com/
+[vue-apollo]: https://github.com/Akryum/vue-apollo/
+[apollo-client]: https://www.apollographql.com/docs/react/
+[feature-flags]: ../feature_flags.md
+[default-client]: https://gitlab.com/gitlab-org/gitlab/blob/master/app/assets/javascripts/lib/graphql.js
+[vue-test-utils]: https://vue-test-utils.vuejs.org/
+[apollo-link-state]: https://www.apollographql.com/docs/link/links/state.html
+
+## Getting Started
+
+### Helpful Resources
+
+**General resources**:
+
+- [Official Introduction to GraphQL](https://graphql.org/learn/) (written walkthrough)
+- [Official Introduction to Apollo](https://www.apollographql.com/docs/tutorial/introduction/) (written walkthrough)
+
+**GraphQL at GitLab**:
+
+- [GraphQL at GitLab: Deep Dive](https://docs.gitlab.com/ee/development/api_graphql_styleguide.html#deep-dive) (video) by Nick Thomas
+- [GitLab Feature Walkthrough with GraphQL and Vue Apollo](https://www.youtube.com/watch?v=6yYp2zB7FrM) (video) by Natalia Tepluhina
+- [History of client-side GraphQL at GitLab](https://www.youtube.com/watch?v=mCKRJxvMnf0) (video) Illya Klymov and Natalia Tepluhina
+- [From Vuex to Apollo](https://www.youtube.com/watch?v=9knwu87IfU8) (video) by Natalia Teplhunia
+
+### Libraries
+
+We use [Apollo] (specifically [Apollo Client](apollo-client)) and [Vue Apollo][vue-apollo] for working with GraphQL on the frontend.
+
+If you are using GraphQL within a Vue application, check out the [Usage in Vue](#usage-in-vue) section of this document
+to learn how to integrate Vue Apollo.
+
+For other usecases, check out the [Usage outside of Vue](#usage-outside-of-vue) section.
+
+### Tooling
+
+- [Apollo Client Devtools](https://github.com/apollographql/apollo-client-devtools)
+
+### Exploring the GraphQL API
+
 Our GraphQL API can be explored via GraphiQL at your instance's
-`/-/graphql-explorer` or at [GitLab.com](https://gitlab.com/-/graphql-explorer).
+`/-/graphql-explorer` or at [GitLab.com](https://gitlab.com/-/graphql-explorer). Consult the
+[GitLab GraphQL API Reference documentation](https://docs.gitlab.com/ee/api/graphql/reference/index.html)
+where needed.
 
 You can check all existing queries and mutations on the right side
 of GraphiQL in its **Documentation explorer**. It's also possible to
@@ -9,9 +50,6 @@ write queries and mutations directly on the left tab and check
 their execution by clicking **Execute query** button on the top left:
 
 ![GraphiQL interface](img/graphiql_explorer_v12_4.png)
-
-We use [Apollo] and [Vue Apollo][vue-apollo] for working with GraphQL
-on the frontend.
 
 ## Apollo Client
 
@@ -41,7 +79,7 @@ To distinguish queries from mutations and fragments, the following naming conven
 
 ### Fragments
 
-Fragments are a way to make your complex GraphQL queries more readable and re-usable. Here is an example of GraphQL fragment:
+[Fragments](https://graphql.org/learn/queries/#fragments) are a way to make your complex GraphQL queries more readable and re-usable. Here is an example of GraphQL fragment:
 
 ```javascript
 fragment DesignListItem on Design {
@@ -371,6 +409,21 @@ it('calls mutation on submitting form ', () => {
 });
 ```
 
+## Usage outside of Vue
+
+It is also possible to use GraphQL outside of Vue by directly importing
+and using the default client with queries.
+
+```javascript
+import defaultClient from '~/lib/graphql';
+import query from './query.graphql';
+
+defaultClient.query(query)
+  .then(result => console.log(result));
+```
+
+Read more about the [Apollo] client in the [Apollo documentation](https://www.apollographql.com/docs/tutorial/client/).
+
 ## Handling errors
 
 GitLab's GraphQL mutations currently have two distinct error modes: [Top-level](#top-level-errors) and [errors-as-data](#errors-as-data).
@@ -418,25 +471,3 @@ Now, when we commit this mutation and errors occur, the response will include `e
 ```
 
 When handling errors-as-data, use your best judgement to determine whether to present the error message in the response, or another message defined client-side, to the user.
-
-## Usage outside of Vue
-
-It is also possible to use GraphQL outside of Vue by directly importing
-and using the default client with queries.
-
-```javascript
-import defaultClient from '~/lib/graphql';
-import query from './query.graphql';
-
-defaultClient.query(query)
-  .then(result => console.log(result));
-```
-
-Read more about the [Apollo] client in the [Apollo documentation](https://www.apollographql.com/docs/tutorial/client/).
-
-[Apollo]: https://www.apollographql.com/
-[vue-apollo]: https://github.com/Akryum/vue-apollo/
-[feature-flags]: ../feature_flags.md
-[default-client]: https://gitlab.com/gitlab-org/gitlab/blob/master/app/assets/javascripts/lib/graphql.js
-[vue-test-utils]: https://vue-test-utils.vuejs.org/
-[apollo-link-state]: https://www.apollographql.com/docs/link/links/state.html
