@@ -3,6 +3,7 @@ class Packages::PackageFile < ApplicationRecord
   include UpdateProjectStatistics
   include ::Gitlab::Geo::ReplicableModel
   include IgnorableColumns
+  include Checksummable
 
   ignore_column :file_type, remove_with: '12.10', remove_after: '2019-03-22'
 
@@ -35,7 +36,7 @@ class Packages::PackageFile < ApplicationRecord
   with_replicator Geo::PackageFileReplicator
 
   after_save :update_file_metadata, if: :saved_change_to_file?
-  after_create_commit -> { replicator.publish_created_event }
+  after_create_commit -> { replicator.handle_after_create_commit }
 
   update_project_statistics project_statistics_name: :packages_size
 
@@ -53,5 +54,37 @@ class Packages::PackageFile < ApplicationRecord
 
   def download_path
     Gitlab::Routing.url_helpers.download_project_package_file_path(project, self)
+  end
+
+  def calculate_checksum!
+    self.verification_checksum = nil
+    return unless needs_checksum?
+
+    self.verification_checksum = self.class.hexdigest(absolute_path)
+  end
+
+  def needs_checksum?
+    verification_checksum.nil? && local? && exist?
+  end
+
+  def local?
+    file_store == ::Packages::PackageFileUploader::Store::LOCAL
+  end
+
+  # This checks for existence of the upload on storage
+  #
+  # @return [Boolean] whether upload exists on storage
+  def exist?
+    if local?
+      File.exist?(absolute_path)
+    else
+      file.exists?
+    end
+  end
+
+  def absolute_path
+    raise ObjectStorage::RemoteStoreError, _("Remote object has no absolute path.") unless local?
+
+    Packages::PackageFileUploader.absolute_path(self)
   end
 end

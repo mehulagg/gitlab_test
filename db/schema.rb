@@ -3032,12 +3032,18 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.string "name", null: false
     t.string "version"
     t.integer "package_type", limit: 2, null: false
+    t.string "verification_checksum"
+    t.string "verification_failure"
+    t.integer "verification_retry_count"
+    t.datetime_with_timezone "verification_retry_at"
+    t.datetime_with_timezone "last_verification_ran_at"
     t.index ["name"], name: "index_packages_packages_on_name_trigram", opclass: :gin_trgm_ops, using: :gin
     t.index ["project_id", "created_at"], name: "index_packages_packages_on_project_id_and_created_at"
     t.index ["project_id", "name", "version", "package_type"], name: "idx_packages_packages_on_project_id_name_version_package_type"
     t.index ["project_id", "name"], name: "index_packages_project_id_name_partial_for_nuget", where: "(((name)::text <> 'NuGet.Temporary.Package'::text) AND (version IS NOT NULL) AND (package_type = 4))"
     t.index ["project_id", "package_type"], name: "index_packages_packages_on_project_id_and_package_type"
     t.index ["project_id", "version"], name: "index_packages_packages_on_project_id_and_version"
+    t.index ["verification_failure"], name: "packages_packages_verification_failure_partial", where: "(verification_failure IS NOT NULL)"
   end
 
   create_table "packages_tags", force: :cascade do |t|
