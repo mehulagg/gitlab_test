@@ -1,5 +1,5 @@
 [![Gem Version](https://badge.fury.io/rb/gitlab-qa.svg)](https://rubygems.org/gems/gitlab-qa)
-[![build status](https://gitlab.com/gitlab-org/gitlab-qa/badges/master/build.svg)](https://gitlab.com/gitlab-org/gitlab-qa/pipelines)
+[![build status](https://gitlab.com/gitlab-org/gitlab-qa/badges/master/pipeline.svg)](https://gitlab.com/gitlab-org/gitlab-qa/pipelines)
 
 # GitLab QA orchestrator
 
