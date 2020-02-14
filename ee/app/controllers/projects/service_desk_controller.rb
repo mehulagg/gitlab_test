@@ -2,6 +2,9 @@
 
 class Projects::ServiceDeskController < Projects::ApplicationController
   before_action :authorize_admin_project!
+  before_action do
+    push_frontend_feature_flag(:service_desk_custom_address)
+  end
 
   def show
     json_response

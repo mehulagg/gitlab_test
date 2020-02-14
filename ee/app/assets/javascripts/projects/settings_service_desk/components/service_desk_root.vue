@@ -35,6 +35,11 @@ export default {
       required: false,
       default: '',
     },
+    projectKey: {
+      type: String,
+      required: false,
+      default: '',
+    },
     templates: {
       type: Array,
       required: false,
@@ -139,14 +144,15 @@ export default {
 
 <template>
   <div>
-    <gl-alert v-if="isAlertShowing" class="mb-3" :variant="alertVariant" @dismiss="onDismiss">{{
-      alertMessage
-    }}</gl-alert>
+    <gl-alert v-if="isAlertShowing" class="mb-3" :variant="alertVariant" @dismiss="onDismiss">
+      {{ alertMessage }}
+    </gl-alert>
     <service-desk-setting
       :is-enabled="isEnabled"
       :incoming-email="incomingEmail"
       :initial-selected-template="selectedTemplate"
       :initial-outgoing-name="outgoingName"
+      :initial-project-key="projectKey"
       :templates="templates"
       :is-template-saving="isTemplateSaving"
     />
