@@ -34,5 +34,23 @@ module API
         present paginate(user_project.deploy_tokens), with: Entities::DeployToken
       end
     end
+
+    params do
+      requires :id, type: String, desc: 'The ID of a group'
+    end
+    resource :groups, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
+      params do
+        use :pagination
+      end
+      desc 'List deploy tokens for a group' do
+        detail 'This feature was introduced in GitLab 12.9'
+        success Entities::DeployToken
+      end
+      get ':id/deploy_tokens' do
+        authorize!(:read_deploy_token, user_group)
+
+        present paginate(user_group.deploy_tokens), with: Entities::DeployToken
+      end
+    end
   end
 end
