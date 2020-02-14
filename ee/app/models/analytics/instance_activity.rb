@@ -2,14 +2,12 @@
 
 module Analytics
   class InstanceActivity
-
-    def pipelines_created
-      pipeline_created_counter.get(source: :web) # change to a regex \*\
+    def pipelines_count
+      pipeline_created_counter.get(source: :web) # TODO change to a regex \*\
     end
 
-    def pipeline_created_counter
-      @pipeline_created_counter ||= Gitlab::Metrics
-        .counter(:pipelines_created_total, "Counter of pipelines created")
+    def releases_count
+      release_created_counter.get
     end
   end
 end

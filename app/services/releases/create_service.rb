@@ -47,6 +47,8 @@ module Releases
 
       release.save!
 
+      release_created_counter.increment
+
       success(tag: tag, release: release)
     rescue => e
       error(e.message, 400)
@@ -63,6 +65,10 @@ module Releases
         links_attributes: params.dig(:assets, 'links') || [],
         milestones: milestones
       )
+    end
+
+    def release_created_counter
+      @release_created_counter ||= Gitlab::Metrics.release_created_counter
     end
   end
 end

@@ -77,6 +77,14 @@ module Gitlab
           end
         end
 
+        def release_created_counter
+          counter(:release_created_total, "Counter of releases created")
+        end
+
+        def pipeline_created_counter
+          counter(:pipelines_created_total, "Counter of pipelines created")
+        end
+
         private
 
         def safe_provide_metric(method, name, *args)

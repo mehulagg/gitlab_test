@@ -35,6 +35,11 @@ describe Releases::CreateService do
 
     it_behaves_like 'a successful release creation'
 
+    it 'increments the counter for releases created' do
+      counter = Gitlab::Metrics.release_created_counter
+      expect { service.execute }.to change { counter.get }.by 1
+    end
+
     context 'when the tag does not exist' do
       let(:tag_name) { 'non-exist-tag' }
 
