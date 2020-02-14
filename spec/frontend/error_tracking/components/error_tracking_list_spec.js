@@ -1,6 +1,6 @@
 import { createLocalVue, mount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import { GlEmptyState, GlLoadingIcon, GlFormInput, GlPagination } from '@gitlab/ui';
+import { GlEmptyState, GlLoadingIcon, GlFilteredSearch, GlPagination } from '@gitlab/ui';
 import stubChildren from 'helpers/stub_children';
 import ErrorTrackingList from '~/error_tracking/components/error_tracking_list.vue';
 import errorsList from './list_mock.json';
@@ -43,7 +43,7 @@ describe('ErrorTrackingList', () => {
         ...stubs,
       },
       data() {
-        return { errorSearchQuery: 'search' };
+        return { errorSearchQuery: ['search'] };
       },
     });
   }
@@ -156,7 +156,7 @@ describe('ErrorTrackingList', () => {
     });
 
     describe('filtering', () => {
-      const findSearchBox = () => wrapper.find(GlFormInput);
+      const findSearchBox = () => wrapper.find(GlFilteredSearch);
 
       it('shows search box & sort dropdown', () => {
         expect(findSearchBox().exists()).toBe(true);
