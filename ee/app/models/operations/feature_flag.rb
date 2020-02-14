@@ -35,7 +35,7 @@ module Operations
 
     before_create :build_default_scope, if: -> { legacy_flag? && scopes.none? }
 
-    before_create :build_default_scope, if: -> { self.version == 1 && scopes.none? }
+    before_create :build_default_scope, if: -> { version_one_flag? && scopes.none? }
 
     accepts_nested_attributes_for :scopes, allow_destroy: true
     accepts_nested_attributes_for :strategies
@@ -80,9 +80,9 @@ module Operations
     end
 
     def association_validations
-      if version == 2 && scopes.any?
+      if version_two_flag? && scopes.any?
         errors.add(:version_associations, 'version 2 feature flags may not have scopes')
-      elsif version == 1 && strategies.any?
+      elsif version_one_flag? && strategies.any?
         errors.add(:version_associations, 'version 1 feature flags may not have strategies')
       end
     end
