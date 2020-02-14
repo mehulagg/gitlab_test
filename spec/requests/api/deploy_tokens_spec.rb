@@ -6,7 +6,9 @@ describe API::DeployTokens do
   let(:user)          { create(:user) }
   let(:creator)       { create(:user) }
   let(:project)       { create(:project, creator_id: creator.id) }
+  let(:group)         { create(:group) }
   let!(:deploy_token) { create(:deploy_token, projects: [project]) }
+  let!(:group_deploy_token) { create(:deploy_token, :group, groups: [group]) }
 
   describe 'GET /deploy_tokens' do
     subject do
@@ -81,6 +83,39 @@ describe API::DeployTokens do
 
         token_ids = json_response.map { |token| token['id'] }
         expect(token_ids).not_to include(other_deploy_token.id)
+      end
+    end
+  end
+
+  describe 'DELETE /groups/:id/deploy_tokens/:token_id' do
+    subject do
+      delete api("/groups/#{group.id}/deploy_tokens/#{group_deploy_token.id}", user)
+      response
+    end
+
+    context 'when unauthenticated' do
+      let(:user) { nil }
+
+      it { is_expected.to have_gitlab_http_status(:forbidden) }
+    end
+
+    context 'when authenticated as non-admin user' do
+      before do
+        group.add_developer(user)
+      end
+
+      it { is_expected.to have_gitlab_http_status(:forbidden) }
+    end
+
+    context 'when authenticated as maintainer' do
+      before do
+        group.add_maintainer(user)
+      end
+
+      it 'deletes the deploy token' do
+        expect { subject }.to change { group.deploy_tokens.count }.by(-1)
+
+        expect(response).to have_gitlab_http_status(:no_content)
       end
     end
   end
