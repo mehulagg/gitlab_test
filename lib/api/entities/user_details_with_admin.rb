@@ -7,10 +7,10 @@ module API
       expose :current_sign_in_ip
       expose :last_sign_in_ip
       expose :plan do |user|
-        user.namespace&.gitlab_subscription&.hosted_plan&.name
+        user.namespace.try(:gitlab_subscription)&.hosted_plan&.name
       end
       expose :trial do |user|
-        user.namespace&.trial?
+        user.namespace.try(:trial?)
       end
     end
   end
