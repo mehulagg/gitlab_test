@@ -30,13 +30,8 @@ class Feature
     def enabled_features_for(thing)
       results = shallow_enabled_features_for(thing)
 
-      case thing
-      when User
-        results << enabled_features_for_collection([thing.groups, thing.projects].flatten)
-      when Group
-        results << enabled_features_for_collection([thing.users, thing.projects].flatten)
-      when Project
-        results << enabled_features_for_collection([thing.users, thing.group].flatten)
+      if thing.respond_to?(:relations_for_checking_feature_enablement)
+        results << enabled_features_for_collection(thing.relations_for_checking_feature_enablement)
       end
 
       results.flatten.uniq

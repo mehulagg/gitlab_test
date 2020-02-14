@@ -2210,6 +2210,10 @@ class Project < ApplicationRecord
     fetch_branch_allows_collaboration(user)
   end
 
+  def relations_for_checking_feature_enablement
+    [users, group].flatten
+  end
+
   def branch_allows_collaboration?(user, branch_name)
     fetch_branch_allows_collaboration(user, branch_name)
   end

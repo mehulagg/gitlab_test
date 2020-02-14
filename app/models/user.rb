@@ -1657,6 +1657,10 @@ class User < ApplicationRecord
     callouts.any?
   end
 
+  def relations_for_checking_feature_enablement
+    [groups, projects].flatten
+  end
+
   # @deprecated
   alias_method :owned_or_masters_groups, :owned_or_maintainers_groups
 

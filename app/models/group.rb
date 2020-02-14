@@ -137,6 +137,10 @@ class Group < Namespace
     end
   end
 
+  def relations_for_checking_feature_enablement
+    [users, projects].flatten
+  end
+
   # Overrides notification_settings has_many association
   # This allows to apply notification settings from parent groups
   # to child groups and projects.
