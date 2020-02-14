@@ -220,8 +220,7 @@ describe Projects::FeatureFlagsController do
         create(:operations_strategy,
                feature_flag: feature_flag_active,
                name: 'default',
-               parameters: {},
-               active: true)
+               parameters: {})
       end
 
       let!(:feature_flag_active_strategy_scope_a) do
@@ -234,8 +233,7 @@ describe Projects::FeatureFlagsController do
         create(:operations_strategy,
                feature_flag: feature_flag_active,
                name: 'default',
-               parameters: {},
-               active: true)
+               parameters: {})
       end
 
       let!(:feature_flag_active_strategy_scope_b) do
@@ -248,8 +246,7 @@ describe Projects::FeatureFlagsController do
         create(:operations_strategy,
                feature_flag: feature_flag_inactive,
                name: 'default',
-               parameters: {},
-               active: true)
+               parameters: {})
       end
 
       let!(:feature_flag_inactive_strategy_scope) do
