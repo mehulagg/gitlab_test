@@ -17,24 +17,30 @@
 - [ ] Follow the [Documentation Guidelines](https://docs.gitlab.com/ee/development/documentation/) and [Style Guide](https://docs.gitlab.com/ee/development/documentation/styleguide.html).
 - [ ] If applicable, update the [permissions table](https://docs.gitlab.com/ee/user/permissions.html).
 - [ ] Link docs to and from the higher-level index page, plus other related docs where helpful.
-- [ ] Apply the ~documentation label.
+- [ ] Ensure the `docs-lint` job completes successfully.
+- [ ] Apply the correct `~devops::` and `~group::` scoped labels.
+- [ ] Apply the ~documentation label and a throughput label (~backstage for MRs including only docs)
 
 ## Review checklist
 
-All reviewers can help ensure accuracy, clarity, completeness, and adherence to the [Documentation Guidelines](https://docs.gitlab.com/ee/development/documentation/) and [Style Guide](https://docs.gitlab.com/ee/development/documentation/styleguide.html).
+All reviewers must help ensure accuracy, clarity, completeness, and adherence to the [Documentation Guidelines](https://docs.gitlab.com/ee/development/documentation/) and [Style Guide](https://docs.gitlab.com/ee/development/documentation/styleguide.html).
 
-**1. Primary Reviewer**
+**1. Reviewers**
 
-* [ ] Review by a code reviewer or other selected colleague to confirm accuracy, clarity, and completeness. This can be skipped for minor fixes without substantive content changes.
+Both reviewers below can be assigned at the same time:
 
-**2. Technical Writer**
+- [ ] **Technical writer review**. Assign the writer listed for the applicable [DevOps stage](https://about.gitlab.com/handbook/product/categories/#devops-stages).
+- [ ] (Optional): Review by a code reviewer or other selected colleague to confirm accuracy, clarity, and completeness. When complete, should be assigned to a Maintainer for second review. This can be skipped for minor fixes without substantive content changes.
 
-* [ ] Optional: Technical writer review. If not requested for this MR, must be scheduled post-merge. To request for this MR, assign the writer listed for the applicable [DevOps stage](https://about.gitlab.com/handbook/product/categories/#devops-stages).
+**2. Maintainer**
 
-**3. Maintainer**
+- [ ] Review by assigned maintainer, who can always request/require the above reviews. Maintainer's review can occur before or after a technical writer review.
+- [ ] Ensure a release milestone is set.
+- [ ] If the technical writer review is being skipped, please follow the [post merge review guidelines](https://docs.gitlab.com/ee/development/documentation/workflow.html#post-merge-reviews), and [create an issue for one using the Doc Review template](https://gitlab.com/gitlab-org/gitlab/issues/new?issuable_template=Doc%20Review) if needed.
 
-1. [ ] Review by assigned maintainer, who can always request/require the above reviews. Maintainer's review can occur before or after a technical writer review.
-1. [ ] Ensure a release milestone is set.
-1. [ ] If there has not been a technical writer review, [create an issue for one using the Doc Review template](https://gitlab.com/gitlab-org/gitlab/issues/new?issuable_template=Doc%20Review).
+  Reviews may be skipped only if:
+
+  - The MR contains an extremely minor change, such as a single typo correction, and the maintainer is confident Technical Writer review is not needed.
+  - The MR corrects a critical problem with documentation that must be fixed extremely quickly.
 
 /label ~documentation
