@@ -225,12 +225,16 @@ export default {
       return errorSearchQuery.filter(error => error.type === 'status').map(({ value }) => value)[0];
     },
     getSearchQuery(errorSearchQuery) {
-      return errorSearchQuery.filter(error => error.type === 'filtered-search-term').filter(Boolean).map(({ value }) => value).join(' ');
+      return errorSearchQuery
+        .filter(error => error.type === 'filtered-search-term')
+        .filter(Boolean)
+        .map(({ value }) => value)
+        .join(' ');
     },
     searchOrFilter(errorSearchQuery) {
-      const errorQuery =  this.getSearchQuery(errorSearchQuery);
+      const errorQuery = this.getSearchQuery(errorSearchQuery);
       const filterQuery = this.getFilterStatus(errorSearchQuery);
-      if(filterQuery) {
+      if (filterQuery) {
         this.searchByFilter(filterQuery);
       }
       this.searchByQuery(errorQuery);
@@ -281,7 +285,7 @@ export default {
               :available-tokens="availableTokens"
               :placeholder="__('Search by query or filter')"
               @submit="searchOrFilter(errorSearchQuery)"
-              />
+            />
           </div>
         </div>
 
