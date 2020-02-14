@@ -4,7 +4,6 @@ module FeatureFlagHelpers
   def create_flag(project, name, active = true, description: nil)
     feature_flag = create(:operations_feature_flag, name: name, active: active,
                                      description: description, project: project)
-    create_default_scope_for(feature_flag, active: active)
     feature_flag
   end
 
@@ -14,11 +13,6 @@ module FeatureFlagHelpers
       environment_scope: environment_scope,
       active: active,
       strategies: strategies)
-  end
-
-  def create_default_scope_for(feature_flag, active: true, strategies: [{ name: 'default', parameters: {} }])
-    create(:operations_feature_flag_scope, feature_flag: feature_flag,
-           active: active, strategies: strategies, environment_scope: '*')
   end
 
   def within_feature_flag_row(index)

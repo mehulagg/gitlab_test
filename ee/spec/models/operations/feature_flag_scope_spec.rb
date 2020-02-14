@@ -32,22 +32,20 @@ describe Operations::FeatureFlagScope do
 
     context 'when environment scope of a default scope is updated' do
       let!(:feature_flag) { create(:operations_feature_flag) }
-      let!(:default_scope) { create_default_scope_for(feature_flag) }
 
       it 'keeps default scope intact' do
-        default_scope.update(environment_scope: 'review/*')
+        feature_flag.default_scope.update(environment_scope: 'review/*')
 
-        expect(default_scope.errors[:environment_scope])
+        expect(feature_flag.default_scope.errors[:environment_scope])
           .to include("cannot be changed from default scope")
       end
     end
 
     context 'when a default scope is destroyed' do
       let!(:feature_flag) { create(:operations_feature_flag) }
-      let!(:default_scope) { create_default_scope_for(feature_flag) }
 
       it 'prevents from destroying the default scope' do
-        expect { default_scope.destroy! }.to raise_error(ActiveRecord::ReadOnlyRecord)
+        expect { feature_flag.default_scope.destroy! }.to raise_error(ActiveRecord::ReadOnlyRecord)
       end
     end
 

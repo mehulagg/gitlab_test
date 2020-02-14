@@ -84,8 +84,6 @@ describe API::Unleash do
     end
 
     before do
-      create_default_scope_for(feature_flag_1)
-      create_default_scope_for(feature_flag_2)
       create_scope(feature_flag_1, 'production', false)
       create_scope(feature_flag_2, 'review/*', true)
     end
@@ -164,18 +162,10 @@ describe API::Unleash do
         it_behaves_like 'authenticated request'
         it_behaves_like 'support multiple environments'
 
-        before do
-          create_default_scope_for(feature_flag)
-        end
-
         context 'with a list of feature flags' do
           let(:headers) { { "UNLEASH-INSTANCEID" => client.token, "UNLEASH-APPNAME" => "production" }}
           let!(:enable_feature_flag) { feature_flag }
           let!(:disabled_feature_flag) { create(:operations_feature_flag, project: project, name: 'feature2', active: false) }
-          let!(:disabled_feature_flag_scope) do
-            create(:operations_feature_flag_scope, feature_flag: disabled_feature_flag,
-                   active: false, strategies: [{ name: 'default', parameters: {} }], environment_scope: '*')
-          end
 
           it 'responds with a list of features' do
             subject
@@ -285,9 +275,10 @@ describe API::Unleash do
         end
       end
 
-      context 'with Strategy models' do
-        it 'does not return a flag without any strategies (or scopes)' do
-          create(:operations_feature_flag, project: project, name: 'feature1', active: true)
+      context 'with version 2 feature flags' do
+        it 'does not return a flag without any strategies' do
+          create(:operations_feature_flag, project: project,
+                 name: 'feature1', active: true, version: 2)
 
           get api(features_url), headers: { 'UNLEASH-INSTANCEID' => client.token, 'UNLEASH-APPNAME' => 'production' }
 
@@ -296,7 +287,8 @@ describe API::Unleash do
         end
 
         it 'returns a flag with a default strategy' do
-          feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
+          feature_flag = create(:operations_feature_flag, project: project,
+                                name: 'feature1', active: true, version: 2)
           strategy = create(:operations_strategy, feature_flag: feature_flag,
                             name: 'default', parameters: {})
           create(:operations_scope, strategy: strategy, environment_scope: 'production')
@@ -314,7 +306,8 @@ describe API::Unleash do
         end
 
         it 'returns a flag with a userWithId strategy' do
-          feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
+          feature_flag = create(:operations_feature_flag, project: project,
+                                name: 'feature1', active: true, version: 2)
           strategy = create(:operations_strategy, feature_flag: feature_flag,
                             name: 'userWithId', parameters: { userIds: 'user123,user456' })
           create(:operations_scope, strategy: strategy, environment_scope: 'production')
@@ -332,7 +325,8 @@ describe API::Unleash do
         end
 
         it 'returns a flag with multiple strategies' do
-          feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
+          feature_flag = create(:operations_feature_flag, project: project,
+                                name: 'feature1', active: true, version: 2)
           strategy_a = create(:operations_strategy, feature_flag: feature_flag,
                             name: 'userWithId', parameters: { userIds: 'user_a,user_b' })
           strategy_b = create(:operations_strategy, feature_flag: feature_flag,
@@ -356,10 +350,12 @@ describe API::Unleash do
         end
 
         it 'returns flags matching the environment scope' do
-          feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
+          feature_flag = create(:operations_feature_flag, project: project,
+                                name: 'feature1', active: true, version: 2)
           strategy_a = create(:operations_strategy, feature_flag: feature_flag)
           create(:operations_scope, strategy: strategy_a, environment_scope: 'production')
-          feature_flag_b = create(:operations_feature_flag, project: project, name: 'feature2', active: true)
+          feature_flag_b = create(:operations_feature_flag, project: project,
+                                  name: 'feature2', active: true, version: 2)
           strategy_b = create(:operations_strategy, feature_flag: feature_flag_b)
           create(:operations_scope, strategy: strategy_b, environment_scope: 'staging')
 
@@ -376,13 +372,15 @@ describe API::Unleash do
         end
       end
 
-      context 'when mixing Strategy and FeatureFlagScopes based flags' do
+      context 'when mixing version 1 and version 2 feature flags' do
         it 'returns both types of flags' do
-          feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
+          feature_flag = create(:operations_feature_flag, project: project,
+                                name: 'feature1', active: true, version: 2)
           scope = create(:operations_strategy, feature_flag: feature_flag,
                          name: 'userWithId', parameters: { userIds: 'user8' })
           create(:operations_scope, strategy: scope, environment_scope: 'staging')
-          feature_flag_b = create(:operations_feature_flag, name: 'feature2', project: project, active: true)
+          feature_flag_b = create(:operations_feature_flag, project: project,
+                                  name: 'feature2', active: true, version: 1)
           create(:operations_feature_flag_scope, feature_flag: feature_flag_b,
                  active: true, strategies: [{ name: 'default', parameters: {} }], environment_scope: 'staging')
 

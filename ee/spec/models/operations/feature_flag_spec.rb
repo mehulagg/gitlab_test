@@ -149,7 +149,7 @@ describe Operations::FeatureFlag do
       let!(:feature_flag) { create(:operations_feature_flag, active: true) }
 
       it 'returns the flag' do
-        create_default_scope_for(feature_flag, active: false)
+        feature_flag.default_scope.update!(active: false)
 
         is_expected.to eq([feature_flag])
       end
@@ -167,7 +167,7 @@ describe Operations::FeatureFlag do
       let!(:feature_flag) { create(:operations_feature_flag, active: false) }
 
       it 'does not return the flag' do
-        create_default_scope_for(feature_flag, active: true)
+        feature_flag.default_scope.update!(active: true)
 
         is_expected.to be_empty
       end
@@ -189,7 +189,7 @@ describe Operations::FeatureFlag do
       let!(:feature_flag) { create(:operations_feature_flag, active: true) }
 
       it 'does not return the flag' do
-        create_default_scope_for(feature_flag, active: false)
+        feature_flag.default_scope.update!(active: false)
 
         is_expected.to be_empty
       end
@@ -207,7 +207,7 @@ describe Operations::FeatureFlag do
       let!(:feature_flag) { create(:operations_feature_flag, active: false) }
 
       it 'returns the flag' do
-        create_default_scope_for(feature_flag, active: true)
+        feature_flag.default_scope.update!(active: true)
 
         is_expected.to eq([feature_flag])
       end

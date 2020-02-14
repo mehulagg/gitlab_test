@@ -55,16 +55,8 @@ describe Projects::FeatureFlagsController do
       create(:operations_feature_flag, project: project, active: true)
     end
 
-    let!(:feature_flag_active_default_scope) do
-      create_default_scope_for(feature_flag_active, active: true)
-    end
-
     let!(:feature_flag_inactive) do
       create(:operations_feature_flag, project: project, active: false)
-    end
-
-    let!(:feature_flag_inactive_default_scope) do
-      create_default_scope_for(feature_flag_inactive, active: false)
     end
 
     it 'returns all feature flags as json response' do
@@ -595,8 +587,6 @@ describe Projects::FeatureFlagsController do
 
     let!(:feature_flag) { create(:operations_feature_flag, project: project) }
 
-    let!(:feature_flag_default_scope) { create_default_scope_for(feature_flag) }
-
     let(:params) do
       {
         namespace_id: project.namespace,
@@ -648,10 +638,6 @@ describe Projects::FeatureFlagsController do
         project: project)
     end
 
-    let!(:feature_flag_default_scope) do
-      create_default_scope_for(feature_flag)
-    end
-
     let(:params) do
       {
         namespace_id: project.namespace,
@@ -701,7 +687,6 @@ describe Projects::FeatureFlagsController do
 
       it 'updates active from false to true when an inactive feature flag has an active scope' do
         feature_flag = create(:operations_feature_flag, project: project, name: 'my_flag', active: false)
-        create_default_scope_for(feature_flag, active: false)
         create(:operations_feature_flag_scope, feature_flag: feature_flag, environment_scope: 'production', active: true)
 
         params = {

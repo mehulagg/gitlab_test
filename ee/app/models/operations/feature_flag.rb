@@ -35,6 +35,8 @@ module Operations
 
     before_create :build_default_scope, if: -> { legacy_flag? && scopes.none? }
 
+    before_create :build_default_scope, if: -> { self.version == 1 && scopes.none? }
+
     accepts_nested_attributes_for :scopes, allow_destroy: true
     accepts_nested_attributes_for :strategies
 
@@ -75,6 +77,10 @@ module Operations
       unless scopes.first.environment_scope == '*'
         errors.add(:default_scope, 'has to be the first element')
       end
+    end
+
+    def build_default_scope
+      scopes.build(environment_scope: '*', active: self.active)
     end
 
     def has_scopes?
