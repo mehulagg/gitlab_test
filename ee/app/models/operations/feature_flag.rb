@@ -79,7 +79,7 @@ module Operations
       end
     end
 
-    def association_validations
+    def version_associations
       if version_two_flag? && scopes.any?
         errors.add(:version_associations, 'version 2 feature flags may not have scopes')
       elsif version_one_flag? && strategies.any?
