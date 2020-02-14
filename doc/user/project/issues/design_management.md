@@ -130,7 +130,7 @@ Once selected, click the **Delete selected** button to confirm the deletion:
 
 ![Delete multiple designs](img/delete_multiple_designs_v12_4.png)
 
-NOTE: **Note:**
+**Note:**
 Only the latest version of the designs can be deleted.
 Deleted designs are not permanently lost; they can be
 viewed by browsing previous versions.
@@ -144,12 +144,21 @@ which you can start a new discussion:
 
 ![Starting a new discussion on design](img/adding_note_to_design_1.png)
 
+From GitLab 12.8 on, when you are starting a new discussion, you can adjust the badge's position by
+dragging it around the image.
+
 Different discussions have different badge numbers:
 
 ![Discussions on design annotations](img/adding_note_to_design_2.png)
 
 From GitLab 12.5 on, new annotations will be outputted to the issue activity,
 so that everyone involved can participate in the discussion.
+
+### Moving annotation badges
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/34353) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.8.
+
+Move a badge around the design by dragging it to the desired location. This is useful if your design layout has changed between revisions, or if you need to move an existing badge to add a new one.
 
 ## References
 
