@@ -299,7 +299,7 @@ rule engine for your deployed application in any of the following ways:
 `AUTO_DEVOPS_MODSECURITY_SEC_RULE_ENGINE` to `Off`. This will prevent ModSecurity
 from processing any requests for the given application or environment.
 
-1. Unchecking ModSecurity checkbox and applying changes through `save changes` buttom. This will reinstall
+1. Unchecking the **ModSecurity** checkbox and applying changes through the **Save changes** button. This will reinstall
 Ingress with the recent changes.
 
 ### JupyterHub
