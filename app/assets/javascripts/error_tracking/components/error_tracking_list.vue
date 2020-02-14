@@ -165,7 +165,7 @@ export default {
       return !_.isEmpty(this.pagination);
     },
     availableTokens() {
-      if(this.errorSearchQuery.filter(err => err.value !== '' && err.type === 'status').length !== 0) {
+      if(this.errorSearchQuery.some(err => err.value !== '' && err.type === 'status')) {
         return [];
       }
       return [{ type: 'status', icon: 'eye', hint: __('Status'), token: staticToken }];
