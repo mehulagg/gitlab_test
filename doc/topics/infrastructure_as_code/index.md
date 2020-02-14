@@ -11,7 +11,7 @@ with a project. Running these tools using code, instead of manual administration
 GitOps is a term originally coined by Weaveworks that meant managing a Kubernetes (K8s)
 cluster by pushing code to your Git repository. In GitOps, a continuous deployment
 job is started that runs your code, and applies changes to your Kubernetes cluster.
-Since its original inseption, GitOps became a synonym for IaC. People use it for
+Since its original inception, GitOps became a synonym for IaC. People use it for
 every type of infrastructure as code project that's executed in a continuous delivery
 job attached to a Git repo, it's not about Kubernetes management only.
 
