@@ -16,7 +16,7 @@ so it will be avaliable to your applications no matter how you deploy them to Ku
 
 ## Enable or disable ModSecurity
 
-ModSecurity is disabled by default on GitLab.com. You can enable it by checking ModSecurity checkbox.
+ModSecurity is disabled by default on GitLab.com. You can enable it by checking the **ModSecurity** checkbox.
 
 For existing installations toggling the ModSecurity checkbox and applying the changes through `save changes` buttom will trigger a reinstall
 of Ingress with the most recent changes.
