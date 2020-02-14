@@ -64,6 +64,17 @@ module Gitlab
       end
     end
 
+    override :check_push_access!
+    def check_push_access!
+      if user
+        # User access is verified in check_change_access!
+      else
+        raise UnauthorizedError, ERROR_MESSAGES[:update_snippet]
+      end
+
+      check_change_access!
+    end
+
     override :repository
     def repository
       snippet&.repository
