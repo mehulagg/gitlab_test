@@ -66,6 +66,8 @@ in your SAML IdP:
    auto_link_saml_user: true
    ```
 
+   Make sure you read the [Security](#Security) section before enabling this option.
+
 1. Add the provider configuration:
 
    For Omnibus package:
@@ -429,6 +431,8 @@ args: {
 }
 ```
 
+Make sure you read the [Security](#Security) section before changing this value.
+
 ## Response signature validation (required)
 
 We require Identity Providers to sign SAML responses to ensure that the assertions are
@@ -542,6 +546,10 @@ args: {
 ```
 
 GitLab will sign the request with the provided private key. GitLab will include the configured public x500 certificate in the metadata for your Identity Provider to validate the signature of the received request with. For more information on this option, see the [Ruby SAML gem documentation](https://github.com/onelogin/ruby-saml/tree/v1.7.0). The Ruby SAML gem is used by the [OmniAuth SAML gem](https://github.com/omniauth/omniauth-saml) to implement the client side of the SAML authentication.
+
+## Security
+
+Note that you should make sure that the attribute used to link your SAML users to GitLab users is not user-controlled. This would allow users to take over any account by changing that attribute to the value that matches the target account. For example, if you use the `omniauth_auto_link_saml_user` setting and emails are editable, a user could change their email to admin@domain.com and be logged in that as account.
 
 ## Troubleshooting
 
