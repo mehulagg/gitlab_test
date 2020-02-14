@@ -1,0 +1,5 @@
+---
+title: Don't raise BridgeStatusError when bridge job is not in active state and instead ignore the operation
+merge_request: 25262
+author:
+type: fixed

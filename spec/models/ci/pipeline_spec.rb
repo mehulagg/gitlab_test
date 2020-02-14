@@ -2984,8 +2984,7 @@ describe Ci::Pipeline, :mailer do
           it 'can not update bridge status if is not active' do
             bridge.success!
 
-            expect { pipeline.update_bridge_status! }
-              .to raise_error Ci::Pipeline::BridgeStatusError
+            expect { pipeline.update_bridge_status! }.not_to change { bridge.status }
           end
         end
       end

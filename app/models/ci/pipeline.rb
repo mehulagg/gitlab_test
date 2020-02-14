@@ -16,8 +16,6 @@ module Ci
     include FromUnion
     include UpdatedAtFilterable
 
-    BridgeStatusError = Class.new(StandardError)
-
     sha_attribute :source_sha
     sha_attribute :target_sha
 
@@ -741,7 +739,7 @@ module Ci
 
     def update_bridge_status!
       raise ArgumentError unless bridge_triggered?
-      raise BridgeStatusError unless source_bridge.active?
+      return unless source_bridge.active?
 
       source_bridge.success!
     end
