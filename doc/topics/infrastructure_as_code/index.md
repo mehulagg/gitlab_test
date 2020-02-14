@@ -116,7 +116,7 @@ This video shows [how our Solution Architects think about Tf](https://chorus.ai/
 
 ```
 terraform workspace new $CI_COMMIT_REF_NAME
-terraform workdspace select $CI_COMMIT_REF_NAME
+terraform workspace select $CI_COMMIT_REF_NAME
 terraform plan
 ```
 
