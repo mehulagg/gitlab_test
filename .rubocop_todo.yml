@@ -1043,3 +1043,5 @@ RSpec/ImplicitSubject:
     - 'spec/support/shared_examples/mailers/notify_shared_examples.rb'
     - 'spec/uploaders/object_storage_spec.rb'
     - 'spec/workers/namespaceless_project_destroy_worker_spec.rb'
+    - 'spec/services/environments/auto_stop_service_spec.rb'
+    - 'spec/lib/gitlab/repository_hash_cache_spec.rb'
