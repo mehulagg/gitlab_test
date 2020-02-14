@@ -123,7 +123,7 @@ terraform plan
 ### Infrastructure related project templates
 
 <!-- TODO create and list reference architectures -->
-We recommend creating company-specifc project templates. As a quick-start, we've created a set of reference architectures.
+We recommend creating company-specific project templates. As a quick-start, we've created a set of reference architectures.
 
 ### Merge trains
 
