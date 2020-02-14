@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+RoutePermission = Struct.new(:regex, :ability)
+
 module Banzai
   module Filter
     # HTML filter that removes embeded elements that the current user does
@@ -9,7 +11,6 @@ module Banzai
 
       METRICS_CSS_CLASS = '.js-render-metrics'
       EMBED_LIMIT = 100
-      URL = Gitlab::Metrics::Dashboard::Url
 
       Embed = Struct.new(:project_path, :permission)
 
@@ -59,12 +60,20 @@ module Banzai
             embed = Embed.new
             url = node.attribute('data-dashboard-url').to_s
 
-            set_path_and_permission(embed, url, URL.metrics_regex, :read_environment)
-            set_path_and_permission(embed, url, URL.grafana_regex, :read_project) unless embed.permission
+            permissions_by_route.each do |permission|
+              set_path_and_permission(embed, url, permission.regex, permission.ability) unless embed.permission
+            end
 
             embeds[node] = embed if embed.permission
           end
         end
+      end
+
+      def permissions_by_route
+        [
+          RoutePermission(regex: ::Gitlab::Metrics::Dashboard::Url.metrics_regex, ability: :read_environment),
+          RoutePermission(regex: ::Gitlab::Metrics::Dashboard::Url.clusters_regex, ability: :read_environment)
+        ]
       end
 
       # Attempts to determine the path and permission attributes

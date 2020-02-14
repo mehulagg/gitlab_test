@@ -17,7 +17,7 @@ module EE
 
           def metric_filters
             [
-              ::EE::Banzai::Filter::InlineClusterMetricsFilter,
+              ::Banzai::Filter::InlineClusterMetricsFilter,
               *super
             ]
           end
