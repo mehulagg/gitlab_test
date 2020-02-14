@@ -298,7 +298,7 @@ describe API::Unleash do
         it 'returns a flag with a default strategy' do
           feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
           strategy = create(:operations_strategy, feature_flag: feature_flag,
-                            name: 'default', parameters: {}, active: true)
+                            name: 'default', parameters: {})
           create(:operations_scope, strategy: strategy, environment_scope: 'production')
 
           get api(features_url), headers: { 'UNLEASH-INSTANCEID' => client.token, 'UNLEASH-APPNAME' => 'production' }
@@ -316,7 +316,7 @@ describe API::Unleash do
         it 'returns a flag with a userWithId strategy' do
           feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
           strategy = create(:operations_strategy, feature_flag: feature_flag,
-                            name: 'userWithId', parameters: { userIds: 'user123,user456' }, active: true)
+                            name: 'userWithId', parameters: { userIds: 'user123,user456' })
           create(:operations_scope, strategy: strategy, environment_scope: 'production')
 
           get api(features_url), headers: { 'UNLEASH-INSTANCEID' => client.token, 'UNLEASH-APPNAME' => 'production' }
@@ -334,9 +334,9 @@ describe API::Unleash do
         it 'returns a flag with multiple strategies' do
           feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
           strategy_a = create(:operations_strategy, feature_flag: feature_flag,
-                            name: 'userWithId', parameters: { userIds: 'user_a,user_b' }, active: true)
+                            name: 'userWithId', parameters: { userIds: 'user_a,user_b' })
           strategy_b = create(:operations_strategy, feature_flag: feature_flag,
-                            name: 'gradualRolloutUserId', parameters: { percentage: '45' }, active: true)
+                            name: 'gradualRolloutUserId', parameters: { percentage: '45' })
           create(:operations_scope, strategy: strategy_a, environment_scope: 'production')
           create(:operations_scope, strategy: strategy_b, environment_scope: 'production')
 
@@ -380,7 +380,7 @@ describe API::Unleash do
         it 'returns both types of flags' do
           feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', active: true)
           scope = create(:operations_strategy, feature_flag: feature_flag,
-                         active: true, name: 'userWithId', parameters: { userIds: 'user8' })
+                         name: 'userWithId', parameters: { userIds: 'user8' })
           create(:operations_scope, strategy: scope, environment_scope: 'staging')
           feature_flag_b = create(:operations_feature_flag, name: 'feature2', project: project, active: true)
           create(:operations_feature_flag_scope, feature_flag: feature_flag_b,
