@@ -5,6 +5,5 @@ FactoryBot.define do
     association :feature_flag, factory: :operations_feature_flag
     name { "default" }
     parameters { {} }
-    active { true }
   end
 end
