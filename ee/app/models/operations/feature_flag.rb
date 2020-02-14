@@ -79,6 +79,14 @@ module Operations
       end
     end
 
+    def association_validations
+      if version == 2 && scopes.any?
+        errors.add(:version_associations, 'version 2 feature flags may not have scopes')
+      elsif version == 1 && strategies.any?
+        errors.add(:version_associations, 'version 1 feature flags may not have strategies')
+      end
+    end
+
     def build_default_scope
       scopes.build(environment_scope: '*', active: self.active)
     end
