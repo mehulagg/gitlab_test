@@ -33,6 +33,22 @@ module API
 
         present paginate(user_project.deploy_tokens), with: Entities::DeployToken
       end
+
+      desc 'Delete a project deploy token' do
+        detail 'This feature was introduced in GitLab 12.9'
+      end
+      delete ':id/deploy_tokens/:token_id' do
+        authorize!(:destroy_deploy_token, user_project)
+
+        deploy_token = user_project.project_deploy_tokens
+          .find_by_deploy_token(params[:token_id])
+
+        not_found!('Deploy Token') unless deploy_token
+
+        status 204
+        body false
+        deploy_token.destroy
+      end
     end
   end
 end

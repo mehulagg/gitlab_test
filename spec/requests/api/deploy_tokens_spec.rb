@@ -84,4 +84,51 @@ describe API::DeployTokens do
       end
     end
   end
+
+  context 'projects' do
+    describe 'DELETE /projects/:id/deploy_tokens/:token_id' do
+      subject do
+        delete api("/projects/#{project.id}/deploy_tokens/#{deploy_token.id}", user)
+        response
+      end
+
+      context 'when unauthenticated' do
+        let(:user) { nil }
+
+        it { is_expected.to have_gitlab_http_status(:not_found) }
+      end
+
+      context 'when authenticated as non-admin user' do
+        before do
+          project.add_developer(user)
+        end
+
+        it { is_expected.to have_gitlab_http_status(:forbidden) }
+      end
+
+      context 'when authenticated as maintainer' do
+        before do
+          project.add_maintainer(user)
+        end
+
+        it { is_expected.to have_gitlab_http_status(:no_content) }
+
+        it 'deletes the deploy token' do
+          expect { subject }.to change { project.deploy_tokens.count }.by(-1)
+        end
+
+        it 'with invalid project id' do
+          delete api("/projects/abc123/deploy_tokens/#{deploy_token.id}", user)
+
+          expect(response).to have_gitlab_http_status(:bad_request)
+        end
+
+        it 'with invalid token id' do
+          delete api("/projects/#{project.id}/deploy_tokens/123abc", user)
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+    end
+  end
 end
