@@ -43,10 +43,14 @@ the SSH configuration of your server by adding the line below to the `/etc/ssh/s
 AcceptEnv GIT_PROTOCOL
 ```
 
-Once configured, restart the SSH daemon. In Ubuntu, run:
+Once configured, restart the SSH daemon for the change to take effect. 
 
 ```shell
-sudo service ssh restart
+# Debian/Ubuntu
+sudo systemctl restart ssh
+
+# CentOS/RHEL
+sudo service sshd restart
 ```
 
 ## Instructions
