@@ -39,8 +39,8 @@ const staticToken = {
                   v-on="$listeners"
                 >
                   <template #suggestions>
-                    <gl-filtered-search-suggestion value="ignored">Ignored</gl-filtered-search-suggestion>
-                    <gl-filtered-search-suggestion value="resolved">Resolved</gl-filtered-search-suggestion>
+                    <gl-filtered-search-suggestion class="p-0" value="ignored">Ignored</gl-filtered-search-suggestion>
+                    <gl-filtered-search-suggestion class="p-0"  value="resolved">Resolved</gl-filtered-search-suggestion>
                   </template>
                </gl-filtered-search-binary-token>
               </div>`,
@@ -255,10 +255,10 @@ export default {
     <div v-if="errorTrackingEnabled">
       <div class="row flex-column flex-sm-row align-items-sm-center row-top m-0 mt-sm-2 p-0 p-sm-3">
         <div class="search-box flex-fill mr-sm-2 my-3 m-sm-0 p-3 p-sm-0">
-          <div class="filtered-search-box mb-0">
+          <div class="filtered-search-box border-0 mb-0">
             <gl-dropdown
               :text="__('Recent searches')"
-              class="filtered-search-history-dropdown-wrapper"
+              class="filtered-search-history-dropdown-wrapper rounded-left border-left border-top border-bottom"
               toggle-class="filtered-search-history-dropdown-toggle-button"
               :disabled="loading"
             >
