@@ -16,6 +16,7 @@ tree:
       - :timelogs
       - notes:
         - :author
+        - :award_emoji
         - events:
           - :push_event_payload
       - label_links:
@@ -24,23 +25,30 @@ tree:
       - milestone:
         - events:
           - :push_event_payload
+      - issue_milestones:
+          - :milestone
       - resource_label_events:
         - label:
           - :priorities
       - :issue_assignees
       - :zoom_meetings
+      - :sentry_issue
+      - :award_emoji
     - snippets:
       - :award_emoji
       - notes:
         - :author
+        - :award_emoji
     - releases:
       - :links
     - project_members:
       - :user
     - merge_requests:
       - :metrics
+      - :award_emoji
       - notes:
         - :author
+        - :award_emoji
         - events:
           - :push_event_payload
         - :suggestions
@@ -56,6 +64,8 @@ tree:
       - milestone:
         - events:
           - :push_event_payload
+      - merge_request_milestones:
+          - :milestone
       - resource_label_events:
         - label:
           - :priorities
@@ -72,6 +82,7 @@ tree:
     - :auto_devops
     - :triggers
     - :pipeline_schedules
+    - :container_expiration_policy
     - :services
     - protected_branches:
       - :merge_access_levels
@@ -166,28 +177,47 @@ excluded_attributes:
     - :secret
     - :encrypted_secret_token
     - :encrypted_secret_token_iv
+    - :repository_storage
   merge_request_diff:
     - :external_diff
     - :stored_externally
     - :external_diff_store
+    - :merge_request_id
+  merge_request_diff_commits:
+    - :merge_request_diff_id
   merge_request_diff_files:
     - :diff
     - :external_diff_offset
     - :external_diff_size
+    - :merge_request_diff_id
   issues:
     - :milestone_id
+    - :moved_to_id
+    - :state_id
+    - :duplicated_to_id
+    - :promoted_to_epic_id
   merge_request:
     - :milestone_id
     - :ref_fetched
     - :merge_jid
     - :rebase_jid
     - :latest_merge_request_diff_id
+    - :head_pipeline_id
+    - :state_id
   merge_requests:
     - :milestone_id
     - :ref_fetched
     - :merge_jid
     - :rebase_jid
     - :latest_merge_request_diff_id
+    - :head_pipeline_id
+    - :state_id
+  issue_milestones:
+    - :milestone_id
+    - :issue_id
+  merge_request_milestones:
+    - :milestone_id
+    - :merge_request_id
   award_emoji:
     - :awardable_id
   statuses:
@@ -201,6 +231,17 @@ excluded_attributes:
     - :artifacts_metadata_store
     - :artifacts_size
     - :commands
+    - :runner_id
+    - :trigger_request_id
+    - :erased_by_id
+    - :auto_canceled_by_id
+    - :stage_id
+    - :upstream_pipeline_id
+    - :resource_group_id
+    - :waiting_for_resource_at
+    - :processed
+  sentry_issue:
+    - :issue_id
   push_event_payload:
     - :event_id
   project_badges:
@@ -209,16 +250,85 @@ excluded_attributes:
     - :reference
     - :reference_html
     - :epic_id
+    - :issue_id
+    - :merge_request_id
+    - :label_id
   runners:
     - :token
     - :token_encrypted
   services:
-    - :template
+    - :instance
   error_tracking_setting:
     - :encrypted_token
     - :encrypted_token_iv
     - :enabled
-
+  service_desk_setting:
+    - :outgoing_name
+  priorities:
+    - :label_id
+  events:
+    - :target_id
+  timelogs:
+    - :issue_id
+    - :merge_request_id
+  notes:
+    - :noteable_id
+    - :review_id
+  label_links:
+    - :label_id
+    - :target_id
+  issue_assignees:
+    - :issue_id
+  zoom_meetings:
+    - :issue_id
+  design:
+    - :issue_id
+  designs:
+    - :issue_id
+  design_versions:
+    - :issue_id
+  actions:
+    - :design_id
+    - :version_id
+  links:
+    - :release_id
+  project_members:
+    - :source_id
+  metrics:
+    - :merge_request_id
+    - :pipeline_id
+  suggestions:
+    - :note_id
+  ci_pipelines:
+    - :auto_canceled_by_id
+    - :pipeline_schedule_id
+    - :merge_request_id
+    - :external_pull_request_id
+  stages:
+    - :pipeline_id
+  merge_access_levels:
+    - :protected_branch_id
+  push_access_levels:
+    - :protected_branch_id
+  unprotect_access_levels:
+    - :protected_branch_id
+  create_access_levels:
+    - :protected_tag_id
+  deploy_access_levels:
+    - :protected_environment_id
+  boards:
+    - :milestone_id
+  lists:
+    - :board_id
+    - :label_id
+    - :milestone_id
+  epic:
+    - :start_date_sourcing_milestone_id
+    - :due_date_sourcing_milestone_id
+    - :parent_id
+    - :state_id
+    - :start_date_sourcing_epic_id
+    - :due_date_sourcing_epic_id
 methods:
   notes:
     - :type
@@ -270,7 +380,8 @@ ee:
               - :push_event_payload
         - design_versions:
           - actions:
-            - :design # Duplicate export of issues.designs in order to link the record to both Issue and DesignVersion
+            - :design # Duplicate export of issues.designs in order to link the record to both Issue and Action
+        - :epic
       - protected_branches:
         - :unprotect_access_levels
       - protected_environments:

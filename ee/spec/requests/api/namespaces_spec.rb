@@ -5,7 +5,7 @@ require 'spec_helper'
 describe API::Namespaces do
   let(:admin) { create(:admin) }
   let(:user) { create(:user) }
-  let!(:group1) { create(:group) }
+  let!(:group1) { create(:group, name: 'test.test-group.2') }
   let!(:group2) { create(:group, :nested) }
   let!(:gold_plan) { create(:gold_plan) }
 
@@ -22,12 +22,12 @@ describe API::Namespaces do
         expect(group_kind_json_response.keys).to contain_exactly('id', 'kind', 'name', 'path', 'full_path',
                                                                  'parent_id', 'members_count_with_descendants',
                                                                  'plan', 'shared_runners_minutes_limit',
-                                                                 'avatar_url', 'web_url',
+                                                                 'avatar_url', 'web_url', 'trial_ends_on',
                                                                  'extra_shared_runners_minutes_limit', 'billable_members_count')
 
         expect(user_kind_json_response.keys).to contain_exactly('id', 'kind', 'name', 'path', 'full_path',
                                                                 'parent_id', 'plan', 'shared_runners_minutes_limit',
-                                                                'avatar_url', 'web_url',
+                                                                'avatar_url', 'web_url', 'trial_ends_on',
                                                                 'extra_shared_runners_minutes_limit', 'billable_members_count')
       end
     end
@@ -40,7 +40,7 @@ describe API::Namespaces do
 
         owned_group_response = json_response.find { |resource| resource['id'] == group1.id }
 
-        expect(owned_group_response.keys).to contain_exactly('id', 'kind', 'name', 'path', 'full_path',
+        expect(owned_group_response.keys).to contain_exactly('id', 'kind', 'name', 'path', 'full_path', 'trial_ends_on',
                                                              'plan', 'parent_id', 'members_count_with_descendants',
                                                              'avatar_url', 'web_url', 'billable_members_count')
       end
@@ -116,12 +116,14 @@ describe API::Namespaces do
     end
 
     context 'when authenticated as admin' do
-      it 'updates namespace using full_path' do
+      it 'updates namespace using full_path when full_path contains dots' do
         put api("/namespaces/#{group1.full_path}", admin), params: { plan: 'silver', shared_runners_minutes_limit: 9001 }
 
-        expect(response).to have_gitlab_http_status(200)
-        expect(json_response['plan']).to eq('silver')
-        expect(json_response['shared_runners_minutes_limit']).to eq(9001)
+        aggregate_failures do
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response['plan']).to eq('silver')
+          expect(json_response['shared_runners_minutes_limit']).to eq(9001)
+        end
       end
 
       it 'updates namespace using id' do
@@ -217,6 +219,22 @@ describe API::Namespaces do
         expect(response).to have_gitlab_http_status(201)
         expect(group1.gitlab_subscription).to be_present
       end
+
+      it 'sets the trial_starts_on to the start_date' do
+        do_post(admin, params.merge(trial: true))
+
+        expect(group1.gitlab_subscription.trial_starts_on).to be_present
+        expect(group1.gitlab_subscription.trial_starts_on.strftime('%d/%m/%Y')).to eq(params[:start_date])
+      end
+
+      it 'creates a subscription using full_path when the namespace path contains dots' do
+        post api("/namespaces/#{group1.full_path}/gitlab_subscription", admin), params: params
+
+        aggregate_failures do
+          expect(response).to have_gitlab_http_status(201)
+          expect(group1.gitlab_subscription).to be_present
+        end
+      end
     end
   end
 
@@ -225,11 +243,11 @@ describe API::Namespaces do
       get api("/namespaces/#{namespace.id}/gitlab_subscription", current_user)
     end
 
-    set(:silver_plan) { create(:silver_plan) }
-    set(:owner) { create(:user) }
-    set(:developer) { create(:user) }
-    set(:namespace) { create(:group) }
-    set(:gitlab_subscription) { create(:gitlab_subscription, hosted_plan: silver_plan, namespace: namespace) }
+    let_it_be(:silver_plan) { create(:silver_plan) }
+    let_it_be(:owner) { create(:user) }
+    let_it_be(:developer) { create(:user) }
+    let_it_be(:namespace) { create(:group) }
+    let_it_be(:gitlab_subscription) { create(:gitlab_subscription, hosted_plan: silver_plan, namespace: namespace) }
 
     before do
       namespace.add_owner(owner)
@@ -247,6 +265,12 @@ describe API::Namespaces do
     context 'with the owner of the Group' do
       it 'has access to the object' do
         do_get(owner)
+
+        expect(response).to have_gitlab_http_status(200)
+      end
+
+      it 'is successful using full_path when namespace path contains dots' do
+        get api("/namespaces/#{group1.full_path}/gitlab_subscription", admin)
 
         expect(response).to have_gitlab_http_status(200)
       end
@@ -271,8 +295,9 @@ describe API::Namespaces do
       put api("/namespaces/#{namespace_id}/gitlab_subscription", current_user), params: payload
     end
 
-    set(:namespace) { create(:group) }
-    set(:gitlab_subscription) { create(:gitlab_subscription, namespace: namespace) }
+    let_it_be(:silver_plan) { create(:silver_plan) }
+    let_it_be(:namespace) { create(:group, name: 'test.test-group.22') }
+    let_it_be(:gitlab_subscription) { create(:gitlab_subscription, namespace: namespace) }
 
     let(:params) do
       {
@@ -301,7 +326,7 @@ describe API::Namespaces do
       end
 
       context 'when namespace does not have a subscription' do
-        set(:namespace_2) { create(:group) }
+        let_it_be(:namespace_2) { create(:group) }
 
         it 'returns a 404 error' do
           do_put(namespace_2.id, admin, params)
@@ -326,6 +351,12 @@ describe API::Namespaces do
           expect(gitlab_subscription.reload.seats).to eq(150)
           expect(gitlab_subscription.plan_name).to eq('silver')
           expect(gitlab_subscription.plan_title).to eq('Silver')
+        end
+
+        it 'is sucessful using full_path when namespace path contains dots' do
+          put api("/namespaces/#{namespace.full_path}/gitlab_subscription", admin), params: params
+
+          expect(response).to have_gitlab_http_status(200)
         end
       end
     end

@@ -17,7 +17,7 @@ describe Commit do
   end
 
   describe '.lazy' do
-    set(:project) { create(:project, :repository) }
+    let_it_be(:project) { create(:project, :repository) }
 
     context 'when the commits are found' do
       let(:oids) do
@@ -63,6 +63,20 @@ describe Commit do
     end
   end
 
+  describe '#diff_refs' do
+    it 'is equal to itself' do
+      expect(commit.diff_refs).to eq(commit.diff_refs)
+    end
+
+    context 'from a factory' do
+      let(:commit) { create(:commit) }
+
+      it 'is equal to itself' do
+        expect(commit.diff_refs).to eq(commit.diff_refs)
+      end
+    end
+  end
+
   describe '#author', :request_store do
     it 'looks up the author in a case-insensitive way' do
       user = create(:user, email: commit.author_email.upcase)
@@ -78,6 +92,17 @@ describe Commit do
 
       expect(Gitlab::SafeRequestStore[key]).to eq(user)
       expect(commit.author).to eq(user)
+    end
+
+    context 'with a user with an unconfirmed e-mail' do
+      before do
+        user = create(:user)
+        create(:email, user: user, email: commit.author_email)
+      end
+
+      it 'returns no user' do
+        expect(commit.author).to be_nil
+      end
     end
 
     context 'using eager loading' do
@@ -115,7 +140,7 @@ describe Commit do
       let!(:commits) { [alice_commit, bob_commit, eve_commit, jeff_commit] }
 
       before do
-        create(:email, user: bob, email: 'bob@example.com')
+        create(:email, :confirmed, user: bob, email: 'bob@example.com')
       end
 
       it 'executes only two SQL queries' do
@@ -179,6 +204,32 @@ describe Commit do
     end
   end
 
+  describe '#committer' do
+    context 'with a confirmed e-mail' do
+      it 'returns the user' do
+        user = create(:user, email: commit.committer_email)
+
+        expect(commit.committer).to eq(user)
+      end
+    end
+
+    context 'with an unconfirmed e-mail' do
+      let(:user) { create(:user) }
+
+      before do
+        create(:email, user: user, email: commit.committer_email)
+      end
+
+      it 'returns no user' do
+        expect(commit.committer).to be_nil
+      end
+
+      it 'returns the user' do
+        expect(commit.committer(confirmed: false)).to eq(user)
+      end
+    end
+  end
+
   describe '#to_reference' do
     let(:project) { create(:project, :repository, path: 'sample-project') }
 
@@ -226,7 +277,7 @@ describe Commit do
   describe '#title' do
     it "returns no_commit_message when safe_message is blank" do
       allow(commit).to receive(:safe_message).and_return('')
-      expect(commit.title).to eq("--no commit message")
+      expect(commit.title).to eq("No commit message")
     end
 
     it 'truncates a message without a newline at natural break to 80 characters' do
@@ -257,7 +308,7 @@ eos
   describe '#full_title' do
     it "returns no_commit_message when safe_message is blank" do
       allow(commit).to receive(:safe_message).and_return('')
-      expect(commit.full_title).to eq("--no commit message")
+      expect(commit.full_title).to eq("No commit message")
     end
 
     it "returns entire message if there is no newline" do
@@ -279,7 +330,7 @@ eos
     it 'returns no_commit_message when safe_message is blank' do
       allow(commit).to receive(:safe_message).and_return(nil)
 
-      expect(commit.description).to eq('--no commit message')
+      expect(commit.description).to eq('No commit message')
     end
 
     it 'returns description of commit message if title less than 100 characters' do
@@ -339,6 +390,17 @@ eos
       expect(commit.closes_issues).to include(issue)
       expect(commit.closes_issues).to include(other_issue)
     end
+
+    it 'ignores referenced issues when auto-close is disabled' do
+      project.update!(autoclose_referenced_issues: false)
+
+      allow(commit).to receive_messages(
+        safe_message: "Fixes ##{issue.iid}",
+        committer_email: committer.email
+      )
+
+      expect(commit.closes_issues).to be_empty
+    end
   end
 
   it_behaves_like 'a mentionable' do
@@ -359,7 +421,7 @@ eos
 
     it { expect(data).to be_a(Hash) }
     it { expect(data[:message]).to include('adds bar folder and branch-test text file to check Repository merged_to_root_ref method') }
-    it { expect(data[:timestamp]).to eq('2016-09-27T14:37:46Z') }
+    it { expect(data[:timestamp]).to eq('2016-09-27T14:37:46+00:00') }
     it { expect(data[:added]).to contain_exactly("bar/branch-test.txt") }
     it { expect(data[:modified]).to eq([]) }
     it { expect(data[:removed]).to eq([]) }
@@ -607,6 +669,27 @@ eos
     it 'returns merge_requests that introduced that commit' do
       expect(commit1.merge_requests).to contain_exactly(merge_request1, merge_request2)
       expect(commit2.merge_requests).to contain_exactly(merge_request1)
+    end
+  end
+
+  describe 'signed commits' do
+    let(:gpg_signed_commit) { project.commit_by(oid: '0b4bc9a49b562e85de7cc9e834518ea6828729b9') }
+    let(:x509_signed_commit) { project.commit_by(oid: '189a6c924013fc3fe40d6f1ec1dc20214183bc97') }
+    let(:unsigned_commit) { project.commit_by(oid: '54fcc214b94e78d7a41a9a8fe6d87a5e59500e51') }
+    let!(:commit) { create(:commit, project: project) }
+
+    it 'returns signature_type properly' do
+      expect(gpg_signed_commit.signature_type).to eq(:PGP)
+      expect(x509_signed_commit.signature_type).to eq(:X509)
+      expect(unsigned_commit.signature_type).to eq(:NONE)
+      expect(commit.signature_type).to eq(:NONE)
+    end
+
+    it 'returns has_signature? properly' do
+      expect(gpg_signed_commit.has_signature?).to be_truthy
+      expect(x509_signed_commit.has_signature?).to be_truthy
+      expect(unsigned_commit.has_signature?).to be_falsey
+      expect(commit.has_signature?).to be_falsey
     end
   end
 end

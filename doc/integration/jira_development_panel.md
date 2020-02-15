@@ -65,11 +65,10 @@ There are no special requirements if you are using GitLab.com.
 
 ## Jira Configuration
 
-1. In Jira, from the gear menu at the top right, go to `Applications`. Navigate to `DVCS accounts`
-   from the left navigation menu. Click `Link GitHub account` to start creating a new integration.
+1. In Jira, go to **Jira Settings > Applications > DVCS accounts**, then click **Link GitHub Enterprise account** to start creating a new integration.
    (We are pretending to be GitHub in this integration until there is further platform support from Jira.)
 
-   ![Jira DVCS from Dashboard](img/jira_dev_panel_jira_setup_1.png)
+   ![Jira Settings](img/jira_dev_panel_jira_setup_1-1.png)
 
 1. Complete the form
 
@@ -100,7 +99,7 @@ There are no special requirements if you are using GitLab.com.
    every 60 minutes.
 
    > **Note:**
-   > In the future, we plan on implementating real-time integration. If you need
+   > In the future, we plan on implementing real-time integration. If you need
    > to refresh the data manually, you can do this from the `Applications -> DVCS
    > accounts` screen where you initially set up the integration:
    >

@@ -80,7 +80,7 @@ Learn how to install, configure, update, and maintain your GitLab instance.
   - [Backup and restore](../raketasks/backup_restore.md): Backup and restore your GitLab instance.
 - [Operations](operations/index.md): Keeping GitLab up and running (clean up Redis sessions, moving repositories, Sidekiq MemoryKiller, Unicorn).
 - [Restart GitLab](restart_gitlab.md): Learn how to restart GitLab and its components.
-- [Invalidate markdown cache](invalidate_markdown_cache.md): Invalidate any cached markdown.
+- [Invalidate Markdown cache](invalidate_markdown_cache.md): Invalidate any cached Markdown.
 
 #### Updating GitLab
 
@@ -119,11 +119,12 @@ Learn how to install, configure, update, and maintain your GitLab instance.
 - [Auditor users](auditor_users.md): Users with read-only access to all projects, groups, and other resources on the GitLab instance. **(PREMIUM ONLY)**
 - [Incoming email](incoming_email.md): Configure incoming emails to allow
   users to [reply by email](reply_by_email.md), create [issues by email](../user/project/issues/managing_issues.md#new-issue-via-email) and
-  [merge requests by email](../user/project/merge_requests/creating_merge_requests.md#create-new-merge-requests-by-email), and to enable [Service Desk](../user/project/service_desk.md).
+  [merge requests by email](../user/project/merge_requests/creating_merge_requests.md#new-merge-request-by-email-core-only), and to enable [Service Desk](../user/project/service_desk.md).
   - [Postfix for incoming email](reply_by_email_postfix_setup.md): Set up a
   basic Postfix mail server with IMAP authentication on Ubuntu for incoming
   emails.
 - [Abuse reports](../user/admin_area/abuse_reports.md): View and resolve abuse reports from your users.
+- [Credentials Inventory](../user/admin_area/credentials_inventory.md): With Credentials inventory, GitLab administrators can keep track of the credentials used by their users in their GitLab self-managed instance. **(ULTIMATE ONLY)**
 
 ## Project settings
 
@@ -152,15 +153,20 @@ Learn how to install, configure, update, and maintain your GitLab instance.
 
 - [Enable/disable GitLab CI/CD](../ci/enable_or_disable_ci.md#site-wide-admin-setting): Enable or disable GitLab CI/CD for your instance.
 - [GitLab CI/CD admin settings](../user/admin_area/settings/continuous_integration.md): Enable or disable Auto DevOps site-wide and define the artifacts' max size and expiration time.
+- [External Pipeline Validation](external_pipeline_validation.md): Enable, disable and configure external pipeline validation.
 - [Job artifacts](job_artifacts.md): Enable, disable, and configure job artifacts (a set of files and directories which are outputted by a job when it completes successfully).
 - [Job logs](job_logs.md): Information about the job logs.
 - [Register Shared and specific Runners](../ci/runners/README.md#registering-a-shared-runner): Learn how to register and configure Shared and specific Runners to your own instance.
 - [Shared Runners pipelines quota](../user/admin_area/settings/continuous_integration.md#shared-runners-pipeline-minutes-quota-starter-only): Limit the usage of pipeline minutes for Shared Runners. **(STARTER ONLY)**
 - [Enable/disable Auto DevOps](../topics/autodevops/index.md#enablingdisabling-auto-devops): Enable or disable Auto DevOps for your instance.
 
+## Snippet settings
+
+- [Setting snippet content size limit](snippets/index.md): Set a maximum size limit for snippets' content.
+
 ## Git configuration options
 
-- [Custom Git hooks](custom_hooks.md): Custom Git hooks (on the filesystem) for when webhooks aren't enough.
+- [Server hooks](server_hooks.md): Server hooks (on the filesystem) for when webhooks aren't enough.
 - [Git LFS configuration](lfs/lfs_administration.md): Learn how to configure LFS for GitLab.
 - [Housekeeping](housekeeping.md): Keep your Git repositories tidy and fast.
 - [Configuring Git Protocol v2](git_protocol.md): Git protocol version 2 support.
@@ -194,6 +200,7 @@ Learn how to install, configure, update, and maintain your GitLab instance.
 - [Log system](logs.md): Where to look for logs.
 - [Sidekiq Troubleshooting](troubleshooting/sidekiq.md): Debug when Sidekiq appears hung and is not processing jobs.
 - [Troubleshooting Elasticsearch](troubleshooting/elasticsearch.md)
+- [GitLab application limits](instance_limits.md)
 
 ### Support Team Docs
 
@@ -215,8 +222,12 @@ who are aware of the risks.
 - [Troubleshooting PostgreSQL](troubleshooting/postgresql.md)
 - [Guide to test environments](troubleshooting/test_environments.md) (for Support Engineers)
 - [GitLab Rails console commands](troubleshooting/gitlab_rails_cheat_sheet.md) (for Support Engineers)
+- [Troubleshooting SSL](troubleshooting/ssl.md)
 - Useful links:
   - [GitLab Developer Docs](../development/README.md)
   - [Repairing and recovering broken Git repositories](https://git.seveas.net/repairing-and-recovering-broken-git-repositories.html)
   - [Testing with OpenSSL](https://www.feistyduck.com/library/openssl-cookbook/online/ch-testing-with-openssl.html)
   - [Strace zine](https://wizardzines.com/zines/strace/)
+- GitLab.com-specific resources:
+  - [Group SAML/SCIM setup](troubleshooting/group_saml_scim.md)
+  

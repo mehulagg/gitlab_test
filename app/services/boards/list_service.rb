@@ -2,15 +2,26 @@
 
 module Boards
   class ListService < Boards::BaseService
-    def execute
-      create_board! if parent.boards.empty?
-      boards
+    def execute(create_default_board: true)
+      create_board! if create_default_board && parent.boards.empty?
+
+      if parent.multiple_issue_boards_available?
+        boards
+      else
+        # When multiple issue boards are not available
+        # a user is only allowed to view the default shown board
+        first_board
+      end
     end
 
     private
 
     def boards
-      parent.boards
+      parent.boards.order_by_name_asc
+    end
+
+    def first_board
+      parent.boards.first_board
     end
 
     def create_board!
@@ -18,5 +29,3 @@ module Boards
     end
   end
 end
-
-Boards::ListService.prepend_if_ee('EE::Boards::ListService')

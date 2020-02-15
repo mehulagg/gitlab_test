@@ -299,6 +299,26 @@ describe API::Issues do
       it_behaves_like 'labeled issues with labels and label_name params'
     end
 
+    context 'with_labels_details' do
+      let(:label_b) { create(:label, title: 'foo', project: project) }
+      let(:label_c) { create(:label, title: 'bar', project: project) }
+
+      it 'avoids N+1 queries' do
+        control_count = ActiveRecord::QueryRecorder.new(skip_cached: false) do
+          get api("/projects/#{project.id}/issues?with_labels_details=true", user)
+        end.count
+
+        new_issue = create(:issue, project: project)
+        create(:label_link, label: label, target: new_issue)
+        create(:label_link, label: label_b, target: new_issue)
+        create(:label_link, label: label_c, target: new_issue)
+
+        expect do
+          get api("/projects/#{project.id}/issues?with_labels_details=true", user)
+        end.not_to exceed_all_query_limit(control_count)
+      end
+    end
+
     it 'returns issues matching given search string for title' do
       get api("#{base_url}/issues?search=#{issue.title}", user)
 
@@ -587,6 +607,24 @@ describe API::Issues do
       expect(json_response['author']).to be_a Hash
       expect(json_response['confidential']).to be_falsy
       expect(json_response['subscribed']).to be_truthy
+    end
+
+    context "moved_to_id" do
+      let(:moved_issue) do
+        create(:closed_issue, project: project, moved_to: issue)
+      end
+
+      it 'returns null when not moved' do
+        get api("/projects/#{project.id}/issues/#{issue.iid}", user)
+
+        expect(json_response['moved_to_id']).to be_nil
+      end
+
+      it 'returns issue id when moved' do
+        get api("/projects/#{project.id}/issues/#{moved_issue.iid}", user)
+
+        expect(json_response['moved_to_id']).to eq(issue.id)
+      end
     end
 
     it 'exposes the closed_at attribute' do

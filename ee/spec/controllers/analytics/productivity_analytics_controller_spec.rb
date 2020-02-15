@@ -9,6 +9,7 @@ describe Analytics::ProductivityAnalyticsController do
   before do
     sign_in(current_user) if current_user
 
+    stub_feature_flags(group_level_productivity_analytics: false)
     stub_licensed_features(productivity_analytics: true)
   end
 
@@ -42,7 +43,7 @@ describe Analytics::ProductivityAnalyticsController do
 
       subject
 
-      expect(response).to have_gitlab_http_status(403)
+      expect(response).to have_gitlab_http_status(:forbidden)
     end
 
     it 'renders show template regardless of license' do
@@ -60,7 +61,7 @@ describe Analytics::ProductivityAnalyticsController do
 
       get :show
 
-      expect(response).to have_gitlab_http_status(404)
+      expect(response).to have_gitlab_http_status(:not_found)
     end
   end
 
@@ -85,14 +86,29 @@ describe Analytics::ProductivityAnalyticsController do
 
       subject
 
-      expect(response).to have_gitlab_http_status(403)
+      expect(response).to have_gitlab_http_status(:forbidden)
+    end
+
+    context 'when invalid params are given' do
+      let(:params) { { group_id: group, merged_before: 10.days.ago, merged_after: 5.days.ago } }
+
+      before do
+        group.add_owner(current_user)
+      end
+
+      it 'returns 422, unprocessable_entity' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
+        expect(response).to match_response_schema('analytics/cycle_analytics/validation_error', dir: 'ee')
+      end
     end
 
     context 'without group_id specified' do
       it 'returns 403' do
         subject
 
-        expect(response).to have_gitlab_http_status(403)
+        expect(response).to have_gitlab_http_status(:forbidden)
       end
     end
 
@@ -102,7 +118,7 @@ describe Analytics::ProductivityAnalyticsController do
       it 'renders 404' do
         subject
 
-        expect(response).to have_gitlab_http_status(404)
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
 
@@ -112,7 +128,7 @@ describe Analytics::ProductivityAnalyticsController do
       it 'renders 404' do
         subject
 
-        expect(response).to have_gitlab_http_status(404)
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
 

@@ -11,12 +11,12 @@ describe Notify do
 
   include_context 'gitlab email notification'
 
-  set(:user) { create(:user) }
-  set(:current_user) { create(:user, email: "current@email.com") }
-  set(:assignee) { create(:user, email: 'assignee@example.com', name: 'John Doe') }
-  set(:assignee2) { create(:user, email: 'assignee2@example.com', name: 'Jane Doe') }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:current_user) { create(:user, email: "current@email.com") }
+  let_it_be(:assignee) { create(:user, email: 'assignee@example.com', name: 'John Doe') }
+  let_it_be(:assignee2) { create(:user, email: 'assignee2@example.com', name: 'Jane Doe') }
 
-  set(:merge_request) do
+  let_it_be(:merge_request, reload: true) do
     create(:merge_request, source_project: project,
                            target_project: project,
                            author: current_user,
@@ -24,24 +24,24 @@ describe Notify do
                            description: 'Awesome description')
   end
 
-  set(:issue) do
+  let_it_be(:issue, reload: true) do
     create(:issue, author: current_user,
                    assignees: [assignee],
                    project: project,
                    description: 'My awesome description!')
   end
 
-  set(:project2) { create(:project, :repository) }
-  set(:merge_request_without_assignee) do
+  let_it_be(:project2, reload: true) { create(:project, :repository) }
+  let_it_be(:merge_request_without_assignee, reload: true) do
     create(:merge_request, source_project: project2,
                            author: current_user,
                            description: 'Awesome description')
   end
 
   describe '.note_design_email' do
-    set(:design) { create(:design, :with_file) }
-    set(:recipient) { create(:user) }
-    set(:note) do
+    let_it_be(:design) { create(:design, :with_file) }
+    let_it_be(:recipient) { create(:user) }
+    let_it_be(:note) do
       create(:diff_note_on_design,
          noteable: design,
          project: design.project,
@@ -68,6 +68,12 @@ describe Notify do
         issue.update!(service_desk_reply_to: 'service.desk@example.com')
       end
 
+      def expect_sender(username)
+        sender = subject.header[:from].addrs[0]
+        expect(sender.display_name).to eq(username)
+        expect(sender.address).to eq(gitlab_sender)
+      end
+
       describe 'thank you email' do
         subject { described_class.service_desk_thank_you_email(issue.id) }
 
@@ -83,10 +89,30 @@ describe Notify do
             is_expected.to have_body_text("Thank you for your support request! We are tracking your request as ticket #{issue.to_reference}, and will respond as soon as we can.")
           end
         end
+
+        it 'uses service bot name by default' do
+          expect_sender(User.support_bot.name)
+        end
+
+        context 'when custom outgoing name is set' do
+          let_it_be(:settings) { create(:service_desk_setting, project: project, outgoing_name: 'some custom name') }
+
+          it 'uses custom name in "from" header' do
+            expect_sender('some custom name')
+          end
+        end
+
+        context 'when custom outgoing name is empty' do
+          let_it_be(:settings) { create(:service_desk_setting, project: project, outgoing_name: '') }
+
+          it 'uses service bot name' do
+            expect_sender(User.support_bot.name)
+          end
+        end
       end
 
       describe 'new note email' do
-        set(:first_note) { create(:discussion_note_on_issue, note: 'Hello world') }
+        let_it_be(:first_note) { create(:discussion_note_on_issue, note: 'Hello world') }
 
         subject { described_class.service_desk_new_note_email(issue.id, first_note.id) }
 
@@ -94,6 +120,10 @@ describe Notify do
 
         it 'has the correct recipient' do
           is_expected.to deliver_to('service.desk@example.com')
+        end
+
+        it 'uses author\'s name in "from" header' do
+          expect_sender(first_note.author.name)
         end
 
         it 'has the correct subject and body' do
@@ -122,6 +152,7 @@ describe Notify do
 
       describe 'that are approved' do
         let(:last_approver) { create(:user) }
+
         subject { described_class.approved_merge_request_email(recipient.id, merge_request.id, last_approver.id) }
 
         before do
@@ -185,6 +216,7 @@ describe Notify do
 
       describe 'that are unapproved' do
         let(:last_unapprover) { create(:user) }
+
         subject { described_class.unapproved_merge_request_email(recipient.id, merge_request.id, last_unapprover.id) }
 
         before do
@@ -239,6 +271,7 @@ describe Notify do
     context 'for merge requests without assignee' do
       describe 'that are unapproved' do
         let(:last_unapprover) { create(:user) }
+
         subject { described_class.unapproved_merge_request_email(recipient.id, merge_request_without_assignee.id, last_unapprover.id) }
 
         before do
@@ -254,8 +287,8 @@ describe Notify do
 
   context 'for a group' do
     describe 'for epics' do
-      set(:group) { create(:group) }
-      set(:epic) { create(:epic, group: group) }
+      let_it_be(:group) { create(:group) }
+      let_it_be(:epic) { create(:epic, group: group) }
 
       context 'that are new' do
         subject { described_class.new_epic_email(recipient.id, epic.id) }
@@ -286,7 +319,7 @@ describe Notify do
       end
 
       context 'for epic notes' do
-        set(:note) { create(:note, project: nil, noteable: epic) }
+        let_it_be(:note) { create(:note, project: nil, noteable: epic) }
         let(:note_author) { note.author }
         let(:epic_note_path) { group_epic_path(group, epic, anchor: "note_#{note.id}") }
 

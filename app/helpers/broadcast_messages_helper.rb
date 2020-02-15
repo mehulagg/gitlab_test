@@ -1,15 +1,26 @@
 # frozen_string_literal: true
 
 module BroadcastMessagesHelper
-  def broadcast_message(message)
+  def current_broadcast_banner_messages
+    BroadcastMessage.current_banner_messages(request.path)
+  end
+
+  def current_broadcast_notification_message
+    not_hidden_messages = BroadcastMessage.current_notification_messages(request.path).select do |message|
+      cookies["hide_broadcast_notification_message_#{message.id}"].blank?
+    end
+    not_hidden_messages.last
+  end
+
+  def broadcast_message(message, opts = {})
     return unless message.present?
 
-    content_tag :div, dir: 'auto', class: 'broadcast-message', style: broadcast_message_style(message) do
-      icon('bullhorn') << ' ' << render_broadcast_message(message)
-    end
+    render "shared/broadcast_message", { message: message, opts: opts }
   end
 
   def broadcast_message_style(broadcast_message)
+    return '' if broadcast_message.notification?
+
     style = []
 
     if broadcast_message.color.present?
@@ -35,5 +46,9 @@ module BroadcastMessagesHelper
 
   def render_broadcast_message(broadcast_message)
     Banzai.render_field(broadcast_message, :message).html_safe
+  end
+
+  def broadcast_type_options
+    BroadcastMessage.broadcast_types.keys.map { |w| [w.humanize, w] }
   end
 end

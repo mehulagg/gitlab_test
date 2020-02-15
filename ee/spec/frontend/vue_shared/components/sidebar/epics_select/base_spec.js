@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import { GlLoadingIcon } from '@gitlab/ui';
 
 import EpicsSelectBase from 'ee/vue_shared/components/sidebar/epics_select/base.vue';
@@ -32,7 +32,6 @@ describe('EpicsSelect', () => {
       setFixtures('<div class="flash-container"></div>');
       wrapper = shallowMount(EpicsSelectBase, {
         store,
-        localVue: createLocalVue(),
         propsData: {
           canEdit: true,
           blockTitle: 'Epic',
@@ -56,7 +55,9 @@ describe('EpicsSelect', () => {
             issueId: 123,
           });
 
-          expect(wrapper.vm.$store.state.issueId).toBe(123);
+          return wrapper.vm.$nextTick().then(() => {
+            expect(wrapper.vm.$store.state.issueId).toBe(123);
+          });
         });
       });
 
@@ -66,7 +67,9 @@ describe('EpicsSelect', () => {
             initialEpic: mockEpic2,
           });
 
-          expect(wrapper.vm.$store.state.selectedEpic).toBe(mockEpic2);
+          return wrapper.vm.$nextTick().then(() => {
+            expect(wrapper.vm.$store.state.selectedEpic).toBe(mockEpic2);
+          });
         });
       });
 

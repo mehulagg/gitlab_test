@@ -4,7 +4,7 @@ The GitLab CI pipeline includes a `danger-review` job that uses [Danger](https:/
 to perform a variety of automated checks on the code under test.
 
 Danger is a gem that runs in the CI environment, like any other analysis tool.
-What sets it apart from, e.g., Rubocop, is that it's designed to allow you to
+What sets it apart from, e.g., RuboCop, is that it's designed to allow you to
 easily write arbitrary code to test properties of your code or changes. To this
 end, it provides a set of common helpers and access to information about what
 has actually changed in your environment, then simply runs your code!
@@ -12,6 +12,14 @@ has actually changed in your environment, then simply runs your code!
 If Danger is asking you to change something about your merge request, it's best
 just to make the change. If you want to learn how Danger works, or make changes
 to the existing rules, then this is the document for you.
+
+## Run Danger locally
+
+A subset of the current checks can be run locally with the following rake task:
+
+```shell
+bin/rake danger_local
+```
 
 ## Operation
 
@@ -95,6 +103,12 @@ through in CI. However, you can speed these cycles up somewhat by emptying the
 `.gitlab/ci/rails.gitlab-ci.yml` file in your merge request. Just don't forget
 to revert the change before merging!
 
+To enable the Dangerfile on another existing GitLab project, run the following extra steps, based on [this procedure](https://danger.systems/guides/getting_started.html#creating-a-bot-account-for-danger-to-use):
+
+1. Add `@gitlab-bot` to the project as a `reporter`.
+1. Add the `@gitlab-bot`'s `GITLAB_API_PRIVATE_TOKEN` value as a value for a new CI/CD
+   variable named `DANGER_GITLAB_API_TOKEN`.
+
 You should add the `~Danger bot` label to the merge request before sending it
 for review.
 
@@ -112,5 +126,16 @@ at GitLab so far:
 
 ## Limitations
 
-- [`danger local` does not work on GitLab](https://github.com/danger/danger/issues/458)
-- Danger output is not added to a merge request comment if working on a fork.
+- Danger output is not added to a merge request comment if working on
+  a fork. This happens because the secret variable from the canonical
+  project is not shared to forks.
+  To work around this, you can add an [environment
+  variable](../ci/variables/README.md) called
+  `DANGER_GITLAB_API_TOKEN` with a personal API token to your
+  fork. That way the danger comments will be made from CI using that
+  API token instead.
+  Making the variable
+  [masked](../ci/variables/README.md#masked-variables) will make sure
+  it doesn't show up in the job logs. The variable cannot be
+  [protected](../ci/variables/README.md#protected-environment-variables),
+  as it needs to be present for all feature branches.

@@ -95,6 +95,24 @@ describe 'Merge request > User posts notes', :js do
     end
   end
 
+  describe 'reply on a deleted conversation' do
+    before do
+      visit project_merge_request_path(project, merge_request)
+    end
+
+    it 'shows an error message' do
+      find('.js-reply-button').click
+      note.delete
+
+      page.within('.discussion-reply-holder') do
+        fill_in 'note[note]', with: 'A reply'
+        click_button 'Comment'
+        wait_for_requests
+        expect(page).to have_content('Your comment could not be submitted because discussion to reply to cannot be found')
+      end
+    end
+  end
+
   describe 'when previewing a note' do
     it 'shows the toolbar buttons when editing a note' do
       page.within('.js-main-target-form') do
@@ -147,9 +165,9 @@ describe 'Merge request > User posts notes', :js do
         find('.js-note-edit').click
 
         page.within('.current-note-edit-form') do
-          expect(find('#note_note').value).to eq('This is the new content')
+          expect(find('#note_note').value).to include('This is the new content')
           first('.js-md').click
-          expect(find('#note_note').value).to eq('This is the new content****')
+          expect(find('#note_note').value).to include('This is the new content****')
         end
       end
 

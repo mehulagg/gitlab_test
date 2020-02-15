@@ -14,7 +14,7 @@ of the GitLab instance.
 GET /application/settings
 ```
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/application/settings
 ```
 
@@ -72,14 +72,15 @@ Example response:
 ```
 
 Users on GitLab [Premium or Ultimate](https://about.gitlab.com/pricing/) may also see
-the `file_template_project_id` or the `geo_node_allowed_ips` parameters:
+the `file_template_project_id`, `deletion_adjourned_period`, or the `geo_node_allowed_ips` parameters:
 
 ```json
 {
    "id" : 1,
    "signup_enabled" : true,
    "file_template_project_id": 1,
-   "geo_node_allowed_ips": "0.0.0.0/0, ::/0"
+   "geo_node_allowed_ips": "0.0.0.0/0, ::/0",
+   "deletion_adjourned_period": 7,
    ...
 }
 ```
@@ -93,7 +94,7 @@ Use an API call to modify GitLab instance
 PUT /application/settings
 ```
 
-```bash
+```shell
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/application/settings?signup_enabled=false&default_project_visibility=internal
 ```
 
@@ -162,6 +163,7 @@ these parameters:
 - `file_template_project_id`
 - `geo_node_allowed_ips`
 - `geo_status_timeout`
+- `deletion_adjourned_period`
 
 Example responses: **(PREMIUM ONLY)**
 
@@ -178,7 +180,7 @@ are listed in the descriptions of the relevant settings.
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | :------: | ----------- |
-| `admin_notification_email`               | string           | no                                   | Abuse reports will be sent to this address if it is set. Abuse reports are always available in the admin area. |
+| `admin_notification_email`               | string           | no                                   | Abuse reports will be sent to this address if it is set. Abuse reports are always available in the Admin Area. |
 | `after_sign_out_path`                    | string           | no                                   | Where to redirect users after logout. |
 | `after_sign_up_text`                     | string           | no                                   | Text shown to the user after signing up |
 | `akismet_api_key`                        | string           | required by: `akismet_enabled`       | API key for Akismet spam protection. |
@@ -265,14 +267,15 @@ are listed in the descriptions of the relevant settings.
 | `html_emails_enabled`                    | boolean          | no                                   | Enable HTML emails. |
 | `import_sources`                         | array of strings | no                                   | Sources to allow project import from, possible values: `github`, `bitbucket`, `bitbucket_server`, `gitlab`, `google_code`, `fogbugz`, `git`, `gitlab_project`, `gitea`, `manifest`, and `phabricator`. |
 | `instance_statistics_visibility_private` | boolean          | no                                   | When set to `true` Instance statistics will only be available to admins. |
-| `local_markdown_version`                 | integer          | no                                   | Increase this value when any cached markdown should be invalidated. |
+| `local_markdown_version`                 | integer          | no                                   | Increase this value when any cached Markdown should be invalidated. |
 | `max_artifacts_size`                     | integer          | no                                   | Maximum artifacts size in MB |
 | `max_attachment_size`                    | integer          | no                                   | Limit attachment size in MB |
 | `max_pages_size`                         | integer          | no                                   | Maximum size of pages repositories in MB |
+| `max_personal_access_token_lifetime`     | integer          | no                                   | **(ULTIMATE ONLY)** Maximum allowable lifetime for personal access tokens in days |
 | `metrics_enabled`                        | boolean          | no                                   | (**If enabled, requires:** `metrics_host`, `metrics_method_call_threshold`, `metrics_packet_size`, `metrics_pool_size`, `metrics_port`, `metrics_sample_interval` and `metrics_timeout`) Enable influxDB metrics. |
 | `metrics_host`                           | string           | required by: `metrics_enabled`       | InfluxDB host. |
 | `metrics_method_call_threshold`          | integer          | required by: `metrics_enabled`       | A method call is only tracked when it takes longer than the given amount of milliseconds. |
-| `metrics_packet_size`                    | integer          | required by: `metrics_enabled`       | The amount of datapoints to send in a single UDP packet. |
+| `metrics_packet_size`                    | integer          | required by: `metrics_enabled`       | The amount of data points to send in a single UDP packet. |
 | `metrics_pool_size`                      | integer          | required by: `metrics_enabled`       | The amount of InfluxDB connections to keep open. |
 | `metrics_port`                           | integer          | required by: `metrics_enabled`       | The UDP port to use for connecting to InfluxDB. |
 | `metrics_sample_interval`                | integer          | required by: `metrics_enabled`       | The sampling interval in seconds. |
@@ -291,6 +294,7 @@ are listed in the descriptions of the relevant settings.
 | `plantuml_enabled`                       | boolean          | no                                   | (**If enabled, requires:** `plantuml_url`) Enable PlantUML integration. Default is `false`. |
 | `plantuml_url`                           | string           | required by: `plantuml_enabled`      | The PlantUML instance URL for integration. |
 | `polling_interval_multiplier`            | decimal          | no                                   | Interval multiplier used by endpoints that perform polling. Set to `0` to disable polling. |
+| `deletion_adjourned_period`      | integer          | no                                   | **(PREMIUM ONLY)** The number of days to wait before removing a project or group that is marked for deletion. Value must be between 0 and 90.
 | `project_export_enabled`                 | boolean          | no                                   | Enable project export. |
 | `prometheus_metrics_enabled`             | boolean          | no                                   | Enable Prometheus metrics. |
 | `protected_ci_variables`                 | boolean          | no                                   | Environment variables are protected by default. |
@@ -326,7 +330,7 @@ are listed in the descriptions of the relevant settings.
 | `snowplow_iglu_registry_url`             | string           | no                                   | The Snowplow base Iglu Schema Registry URL to use for custom context and self describing events'|
 | `sourcegraph_enabled`                    | boolean          | no                                    | Enables Sourcegraph integration. Default is `false`. **If enabled, requires** `sourcegraph_url`. |
 | `sourcegraph_url`                        | string           | required by: `sourcegraph_enabled`    | The Sourcegraph instance URL for integration. |
-| `sourcegraph_public_only`                | boolean          | no                                   | Blocks Sourcegraph from being loaded on private and internal projects. Defaul is `true`. |
+| `sourcegraph_public_only`                | boolean          | no                                   | Blocks Sourcegraph from being loaded on private and internal projects. Default is `true`. |
 | `terminal_max_session_time`              | integer          | no                                   | Maximum time for web terminal websocket connection (in seconds). Set to `0` for unlimited time. |
 | `terms`                                  | text             | required by: `enforce_terms`         | (**Required by:** `enforce_terms`) Markdown content for the ToS. |
 | `throttle_authenticated_api_enabled`     | boolean          | no                                   | (**If enabled, requires:** `throttle_authenticated_api_period_in_seconds` and `throttle_authenticated_api_requests_per_period`) Enable authenticated API request rate limit. Helps reduce request volume (e.g. from crawlers or abusive bots). |
@@ -341,7 +345,7 @@ are listed in the descriptions of the relevant settings.
 | `time_tracking_limit_to_hours`           | boolean          | no                                   | Limit display of time tracking units to hours. Default is `false`. |
 | `two_factor_grace_period`                | integer          | required by: `require_two_factor_authentication` | Amount of time (in hours) that users are allowed to skip forced configuration of two-factor authentication. |
 | `unique_ips_limit_enabled`               | boolean          | no                                   | (**If enabled, requires:** `unique_ips_limit_per_user` and `unique_ips_limit_time_window`) Limit sign in from multiple ips. |
-| `unique_ips_limit_per_user`              | integer          | required by: `unique_ips_limit_enabled` | Maximum number of ips per user. |
+| `unique_ips_limit_per_user`              | integer          | required by: `unique_ips_limit_enabled` | Maximum number of IPs per user. |
 | `unique_ips_limit_time_window`           | integer          | required by: `unique_ips_limit_enabled` | How many seconds an IP will be counted towards the limit. |
 | `usage_ping_enabled`                     | boolean          | no                                   | Every week GitLab will report license usage back to GitLab, Inc. |
 | `user_default_external`                  | boolean          | no                                   | Newly registered users will be external by default. |
@@ -350,3 +354,4 @@ are listed in the descriptions of the relevant settings.
 | `user_show_add_ssh_key_message`          | boolean          | no                                   | When set to `false` disable the "You won't be able to pull or push project code via SSH" warning shown to users with no uploaded SSH key. |
 | `version_check_enabled`                  | boolean          | no                                   | Let GitLab inform you when an update is available. |
 | `web_ide_clientside_preview_enabled`     | boolean          | no                                   | Client side evaluation (allow live previews of JavaScript projects in the Web IDE using CodeSandbox client side evaluation). |
+| `snippet_size_limit`                     | integer          | no                                   | Max snippet content size in **bytes**. Default: 52428800 Bytes (50MB).|

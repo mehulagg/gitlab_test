@@ -53,12 +53,6 @@ RSpec.describe Release do
     end
   end
 
-  describe 'callbacks' do
-    it 'creates a new Evidence object on after_commit', :sidekiq_inline do
-      expect { release }.to change(Evidence, :count).by(1)
-    end
-  end
-
   describe '#assets_count' do
     subject { release.assets_count }
 
@@ -180,5 +174,11 @@ RSpec.describe Release do
 
       it { is_expected.to eq(release.evidence.summary) }
     end
+  end
+
+  describe '#milestone_titles' do
+    let(:release) { create(:release, :with_milestones) }
+
+    it { expect(release.milestone_titles).to eq(release.milestones.map {|m| m.title }.sort.join(", "))}
   end
 end

@@ -1,8 +1,12 @@
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import * as types from './mutation_types';
-import { transformRawStages } from '../utils';
+import { transformRawStages, transformRawTasksByTypeData } from '../utils';
+import { TASKS_BY_TYPE_FILTERS } from '../constants';
 
 export default {
+  [types.SET_FEATURE_FLAGS](state, featureFlags) {
+    state.featureFlags = featureFlags;
+  },
   [types.SET_SELECTED_GROUP](state, group) {
     state.selectedGroup = convertObjectPropsToCamelCase(group, { deep: true });
     state.selectedProjectIds = [];
@@ -10,16 +14,24 @@ export default {
   [types.SET_SELECTED_PROJECTS](state, projectIds) {
     state.selectedProjectIds = projectIds;
   },
-  [types.SET_SELECTED_STAGE_ID](state, stageId) {
-    state.selectedStageId = stageId;
+  [types.SET_SELECTED_STAGE](state, rawData) {
+    state.selectedStage = convertObjectPropsToCamelCase(rawData);
   },
   [types.SET_DATE_RANGE](state, { startDate, endDate }) {
     state.startDate = startDate;
     state.endDate = endDate;
   },
+  [types.UPDATE_SELECTED_DURATION_CHART_STAGES](
+    state,
+    { updatedDurationStageData, updatedDurationStageMedianData },
+  ) {
+    state.durationData = updatedDurationStageData;
+    state.durationMedianData = updatedDurationStageMedianData;
+  },
   [types.REQUEST_CYCLE_ANALYTICS_DATA](state) {
     state.isLoading = true;
-    state.isAddingCustomStage = false;
+    state.isCreatingCustomStage = false;
+    state.isEditingCustomStage = false;
   },
   [types.RECEIVE_CYCLE_ANALYTICS_DATA_SUCCESS](state) {
     state.errorCode = null;
@@ -33,11 +45,9 @@ export default {
     state.isLoadingStage = true;
     state.isEmptyStage = false;
   },
-  [types.RECEIVE_STAGE_DATA_SUCCESS](state, data = {}) {
-    const { events = [] } = data;
-
-    state.currentStageEvents = events.map(({ name = '', ...rest }) =>
-      convertObjectPropsToCamelCase({ title: name, ...rest }, { deep: true }),
+  [types.RECEIVE_STAGE_DATA_SUCCESS](state, events = []) {
+    state.currentStageEvents = events.map(fields =>
+      convertObjectPropsToCamelCase(fields, { deep: true }),
     );
     state.isEmptyStage = !events.length;
     state.isLoadingStage = false;
@@ -52,6 +62,21 @@ export default {
       ...state.tasksByType,
       labelIds: [],
     };
+  },
+  [types.REQUEST_STAGE_MEDIANS](state) {
+    state.medians = {};
+  },
+  [types.RECEIVE_STAGE_MEDIANS_SUCCESS](state, medians = []) {
+    state.medians = medians.reduce(
+      (acc, { id, value }) => ({
+        ...acc,
+        [id]: value,
+      }),
+      {},
+    );
+  },
+  [types.RECEIVE_STAGE_MEDIANS_ERROR](state) {
+    state.medians = {};
   },
   [types.RECEIVE_GROUP_LABELS_SUCCESS](state, data = []) {
     const { tasksByType } = state;
@@ -69,11 +94,20 @@ export default {
       labelIds: [],
     };
   },
+  [types.SHOW_CUSTOM_STAGE_FORM](state) {
+    state.isCreatingCustomStage = true;
+    state.customStageFormInitData = {};
+  },
+  [types.EDIT_CUSTOM_STAGE](state) {
+    state.isEditingCustomStage = true;
+  },
   [types.HIDE_CUSTOM_STAGE_FORM](state) {
-    state.isAddingCustomStage = false;
+    state.isEditingCustomStage = false;
+    state.isCreatingCustomStage = false;
+    state.customStageFormInitData = {};
   },
   [types.SHOW_CUSTOM_STAGE_FORM](state) {
-    state.isAddingCustomStage = true;
+    state.isCreatingCustomStage = true;
   },
   [types.RECEIVE_SUMMARY_DATA_ERROR](state) {
     state.summary = [];
@@ -82,24 +116,10 @@ export default {
     state.summary = [];
   },
   [types.RECEIVE_SUMMARY_DATA_SUCCESS](state, data) {
-    const { stages } = state;
-    const { summary, stats } = data;
-    state.summary = summary.map(item => ({
+    state.summary = data.map(item => ({
       ...item,
       value: item.value || '-',
     }));
-
-    /*
-     * Medians will eventually be fetched from a separate endpoint, which will
-     * include the median calculations for the custom stages, for now we will
-     * grab the medians from the group level cycle analytics endpoint, which does
-     * not include the custom stages
-     * https://gitlab.com/gitlab-org/gitlab/issues/34751
-     */
-    state.stages = stages.map(stage => {
-      const stat = stats.find(m => m.name === stage.slug);
-      return { ...stage, value: stat ? stat.value : null };
-    });
   },
   [types.REQUEST_GROUP_STAGES_AND_EVENTS](state) {
     state.stages = [];
@@ -116,23 +136,18 @@ export default {
     state.customStageFormEvents = events.map(ev =>
       convertObjectPropsToCamelCase(ev, { deep: true }),
     );
-
-    if (state.stages.length) {
-      const { id } = state.stages[0];
-      state.selectedStageId = id;
-    }
   },
   [types.REQUEST_TASKS_BY_TYPE_DATA](state) {
-    state.isLoadingChartData = true;
+    state.isLoadingTasksByTypeChart = true;
   },
   [types.RECEIVE_TASKS_BY_TYPE_DATA_ERROR](state) {
-    state.isLoadingChartData = false;
+    state.isLoadingTasksByTypeChart = false;
   },
   [types.RECEIVE_TASKS_BY_TYPE_DATA_SUCCESS](state, data) {
-    state.isLoadingChartData = false;
+    state.isLoadingTasksByTypeChart = false;
     state.tasksByType = {
       ...state.tasksByType,
-      data,
+      data: transformRawTasksByTypeData(data),
     };
   },
   [types.REQUEST_CREATE_CUSTOM_STAGE](state) {
@@ -146,11 +161,55 @@ export default {
   },
   [types.RECEIVE_UPDATE_STAGE_RESPONSE](state) {
     state.isLoading = false;
+    state.isSavingCustomStage = false;
   },
   [types.REQUEST_REMOVE_STAGE](state) {
     state.isLoading = true;
   },
   [types.RECEIVE_REMOVE_STAGE_RESPONSE](state) {
     state.isLoading = false;
+  },
+  [types.REQUEST_DURATION_DATA](state) {
+    state.isLoadingDurationChart = true;
+  },
+  [types.RECEIVE_DURATION_DATA_SUCCESS](state, data) {
+    state.durationData = data;
+    state.isLoadingDurationChart = false;
+  },
+  [types.RECEIVE_DURATION_DATA_ERROR](state) {
+    state.durationData = [];
+    state.isLoadingDurationChart = false;
+  },
+  [types.REQUEST_DURATION_MEDIAN_DATA](state) {
+    state.isLoadingDurationChartMedianData = true;
+  },
+  [types.RECEIVE_DURATION_MEDIAN_DATA_SUCCESS](state, data) {
+    state.durationMedianData = data;
+    state.isLoadingDurationChartMedianData = false;
+  },
+  [types.RECEIVE_DURATION_MEDIAN_DATA_ERROR](state) {
+    state.durationMedianData = [];
+    state.isLoadingDurationChartMedianData = false;
+  },
+  [types.SET_TASKS_BY_TYPE_FILTERS](state, { filter, value }) {
+    const {
+      tasksByType: { labelIds, ...tasksByTypeRest },
+    } = state;
+    let updatedFilter = {};
+    switch (filter) {
+      case TASKS_BY_TYPE_FILTERS.LABEL:
+        updatedFilter = {
+          labelIds: labelIds.includes(value)
+            ? labelIds.filter(v => v !== value)
+            : [...labelIds, value],
+        };
+        break;
+      case TASKS_BY_TYPE_FILTERS.SUBJECT:
+        updatedFilter = { subject: value };
+        break;
+      default:
+        break;
+    }
+    state.tasksByType = { ...tasksByTypeRest, labelIds, ...updatedFilter };
   },
 };

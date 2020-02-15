@@ -33,11 +33,13 @@ module QA
 
           is_enabled = false
 
-          QA::Support::Waiter.wait(interval: 1) do
+          QA::Support::Waiter.wait_until(sleep_interval: 1) do
             is_enabled = enabled?(key)
           end
 
           raise SetFeatureError, "#{key} was not enabled!" unless is_enabled
+
+          QA::Runtime::Logger.info("Successfully enabled and verified feature flag: #{key}")
         end
       end
 

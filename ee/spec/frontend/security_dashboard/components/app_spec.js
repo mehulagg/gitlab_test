@@ -1,7 +1,5 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import MockAdapter from 'axios-mock-adapter';
-import axios from '~/lib/utils/axios_utils';
-import { getParameterValues } from '~/lib/utils/url_utility';
 import { TEST_HOST } from 'helpers/test_constants';
 
 import SecurityDashboardApp from 'ee/security_dashboard/components/app.vue';
@@ -9,15 +7,17 @@ import Filters from 'ee/security_dashboard/components/filters.vue';
 import SecurityDashboardTable from 'ee/security_dashboard/components/security_dashboard_table.vue';
 import VulnerabilityChart from 'ee/security_dashboard/components/vulnerability_chart.vue';
 import VulnerabilityCountList from 'ee/security_dashboard/components/vulnerability_count_list.vue';
+import VulnerabilitySeverity from 'ee/security_dashboard/components/vulnerability_severity.vue';
 
 import createStore from 'ee/security_dashboard/store';
-
-const localVue = createLocalVue();
+import { getParameterValues } from '~/lib/utils/url_utility';
+import axios from '~/lib/utils/axios_utils';
 
 const pipelineId = 123;
 const vulnerabilitiesEndpoint = `${TEST_HOST}/vulnerabilities`;
 const vulnerabilitiesCountEndpoint = `${TEST_HOST}/vulnerabilities_summary`;
 const vulnerabilitiesHistoryEndpoint = `${TEST_HOST}/vulnerabilities_history`;
+const vulnerableProjectsEndpoint = `${TEST_HOST}/vulnerable_projects`;
 
 jest.mock('~/lib/utils/url_utility', () => ({
   getParameterValues: jest.fn().mockReturnValue([]),
@@ -39,19 +39,17 @@ describe('Security Dashboard app', () => {
   const createComponent = props => {
     store = createStore();
     wrapper = shallowMount(SecurityDashboardApp, {
-      localVue,
       store,
-      sync: false,
       methods: {
         lockFilter: lockFilterSpy,
         setPipelineId: setPipelineIdSpy,
       },
       propsData: {
         dashboardDocumentation: '',
-        emptyStateSvgPath: '',
         vulnerabilitiesEndpoint,
         vulnerabilitiesCountEndpoint,
         vulnerabilitiesHistoryEndpoint,
+        vulnerableProjectsEndpoint,
         pipelineId,
         vulnerabilityFeedbackHelpPath: `${TEST_HOST}/vulnerabilities_feedback_help`,
         ...props,
@@ -102,7 +100,7 @@ describe('Security Dashboard app', () => {
       const newCount = 3;
 
       beforeEach(() => {
-        localVue.set(store.state.vulnerabilities.pageInfo, 'total', newCount);
+        store.state.vulnerabilities.pageInfo = { total: newCount };
       });
 
       it('emits a vulnerabilitiesCountChanged event', () => {
@@ -142,6 +140,7 @@ describe('Security Dashboard app', () => {
     endpointProp                        | Component
     ${'vulnerabilitiesCountEndpoint'}   | ${VulnerabilityCountList}
     ${'vulnerabilitiesHistoryEndpoint'} | ${VulnerabilityChart}
+    ${'vulnerableProjectsEndpoint'}     | ${VulnerabilitySeverity}
   `('with an empty $endpointProp', ({ endpointProp, Component }) => {
     beforeEach(() => {
       setup();
@@ -157,8 +156,6 @@ describe('Security Dashboard app', () => {
 
   describe('dismissed vulnerabilities', () => {
     beforeEach(() => {
-      gon.features = gon.features || {};
-      gon.features.hideDismissedVulnerabilities = true;
       getParameterValues.mockImplementation(() => [true]);
       setup();
     });

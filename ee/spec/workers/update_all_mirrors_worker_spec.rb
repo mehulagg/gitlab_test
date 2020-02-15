@@ -27,6 +27,26 @@ describe UpdateAllMirrorsWorker do
       worker.perform
     end
 
+    it 'removes metadata except correlation_id from the application context before scheduling mirrors' do
+      inner_context = nil
+      outer_context = nil
+
+      Gitlab::ApplicationContext.with_context(project: build(:project)) do
+        outer_context = Labkit::Context.current.to_h
+
+        expect(worker).to receive(:schedule_mirrors!) do
+          inner_context = Labkit::Context.current.to_h
+
+          # `schedule_mirrors!` needs to return an integer.
+          0
+        end
+      end
+
+      worker.perform
+
+      expect(inner_context).to eq(outer_context.slice('correlation_id'))
+    end
+
     it 'schedules mirrors' do
       expect(worker).to receive(:schedule_mirrors!).and_call_original
 
@@ -161,6 +181,16 @@ describe UpdateAllMirrorsWorker do
           expect(subject).to receive(:pull_mirrors_batch).with(hash_including(batch_size: 8)).and_call_original
 
           schedule_mirrors!(capacity: 4)
+        end
+
+        it "does not schedule a mirror of an archived project" do
+          licensed_project1.update!(archived: true)
+
+          schedule_mirrors!(capacity: 4)
+
+          expect_import_scheduled(licensed_project2, licensed_project3)
+          expect_import_not_scheduled(licensed_project1)
+          expect_import_not_scheduled(*unlicensed_projects)
         end
       end
 

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Gcp Cluster', :js do
+describe 'Gcp Cluster', :js, :do_not_mock_admin_mode do
   include GoogleApi::CloudPlatformHelpers
 
   let(:project) { create(:project) }
@@ -14,12 +14,15 @@ describe 'Gcp Cluster', :js do
     allow(Projects::ClustersController).to receive(:STATUS_POLLING_INTERVAL) { 100 }
   end
 
+  def submit_form
+    execute_script('document.querySelector(".js-gke-cluster-creation-submit").removeAttribute("disabled")')
+    execute_script('document.querySelector(".js-gke-cluster-creation-submit").click()')
+  end
+
   context 'when user has signed with Google' do
     let(:project_id) { 'test-project-1234' }
 
     before do
-      stub_feature_flags(create_eks_clusters: false)
-
       allow_any_instance_of(Projects::ClustersController)
         .to receive(:token_in_session).and_return('token')
       allow_any_instance_of(Projects::ClustersController)
@@ -31,11 +34,16 @@ describe 'Gcp Cluster', :js do
         visit project_clusters_path(project)
 
         click_link 'Add Kubernetes cluster'
-        click_link 'Create new Cluster on GKE'
+        click_link 'Create new cluster'
+        click_link 'Google GKE'
+      end
+
+      it 'highlights Google GKE logo' do
+        expect(page).to have_css('.js-create-gcp-cluster-button.active')
       end
 
       context 'when user filled form with valid parameters' do
-        subject { click_button 'Create Kubernetes cluster' }
+        subject { submit_form }
 
         before do
           allow_any_instance_of(GoogleApi::CloudPlatform::Client)
@@ -48,8 +56,8 @@ describe 'Gcp Cluster', :js do
 
           allow(WaitForClusterCreationWorker).to receive(:perform_in).and_return(nil)
 
-          execute_script('document.querySelector(".js-gke-cluster-creation-submit").removeAttribute("disabled")')
-          sleep 2 # wait for ajax
+          expect(page).to have_css('.js-gcp-project-id-dropdown')
+
           execute_script('document.querySelector(".js-gcp-project-id-dropdown input").setAttribute("type", "text")')
           execute_script('document.querySelector(".js-gcp-zone-dropdown input").setAttribute("type", "text")')
           execute_script('document.querySelector(".js-gcp-machine-type-dropdown input").setAttribute("type", "text")')
@@ -87,8 +95,7 @@ describe 'Gcp Cluster', :js do
 
       context 'when user filled form with invalid parameters' do
         before do
-          execute_script('document.querySelector(".js-gke-cluster-creation-submit").removeAttribute("disabled")')
-          click_button 'Create Kubernetes cluster'
+          submit_form
         end
 
         it 'user sees a validation error' do
@@ -132,11 +139,11 @@ describe 'Gcp Cluster', :js do
         end
       end
 
-      context 'when user destroy the cluster' do
+      context 'when user destroys the cluster' do
         before do
-          page.accept_confirm do
-            click_link 'Remove integration'
-          end
+          click_button 'Remove integration and resources'
+          fill_in 'confirm_cluster_name_input', with: cluster.name
+          click_button 'Remove integration'
         end
 
         it 'user sees creation form with the successful message' do
@@ -144,21 +151,6 @@ describe 'Gcp Cluster', :js do
           expect(page).to have_link('Add Kubernetes cluster')
         end
       end
-    end
-  end
-
-  context 'when user has not signed with Google' do
-    before do
-      stub_feature_flags(create_eks_clusters: false)
-      visit project_clusters_path(project)
-
-      click_link 'Add Kubernetes cluster'
-      click_link 'Create new Cluster on GKE'
-    end
-
-    it 'user sees a login page' do
-      expect(page).to have_css('.signin-with-google')
-      expect(page).to have_link('Google account')
     end
   end
 
@@ -177,7 +169,6 @@ describe 'Gcp Cluster', :js do
 
   context 'when user has not dismissed GCP signup offer' do
     before do
-      stub_feature_flags(create_eks_clusters: false)
       visit project_clusters_path(project)
     end
 
@@ -190,18 +181,10 @@ describe 'Gcp Cluster', :js do
 
       expect(page).to have_css('.gcp-signup-offer')
     end
-
-    it 'user sees offer on cluster GCP login page' do
-      click_link 'Add Kubernetes cluster'
-      click_link 'Create new Cluster on GKE'
-
-      expect(page).to have_css('.gcp-signup-offer')
-    end
   end
 
   context 'when user has dismissed GCP signup offer' do
     before do
-      stub_feature_flags(create_eks_clusters: false)
       visit project_clusters_path(project)
     end
 
@@ -212,6 +195,31 @@ describe 'Gcp Cluster', :js do
       wait_for_requests
 
       click_link 'Add Kubernetes cluster'
+
+      expect(page).not_to have_css('.gcp-signup-offer')
+    end
+  end
+
+  context 'when third party offers are disabled' do
+    let(:admin) { create(:admin) }
+
+    before do
+      stub_env('IN_MEMORY_APPLICATION_SETTINGS', 'false')
+      sign_in(admin)
+      gitlab_enable_admin_mode_sign_in(admin)
+      visit integrations_admin_application_settings_path
+    end
+
+    it 'user does not see the offer' do
+      page.within('.as-third-party-offers') do
+        click_button 'Expand'
+        check 'Do not display offers from third parties within GitLab'
+        click_button 'Save changes'
+      end
+
+      expect(page).to have_content "Application settings saved successfully"
+
+      visit project_clusters_path(project)
 
       expect(page).not_to have_css('.gcp-signup-offer')
     end

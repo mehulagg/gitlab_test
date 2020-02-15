@@ -47,7 +47,7 @@ describe Projects::UpdateService, '#execute' do
       }
     end
 
-    context '#name' do
+    describe '#name' do
       include_examples 'audit event logging' do
         let!(:old_name) { project.full_name }
         let(:operation) { update_project(project, user, name: 'foobar') }
@@ -67,7 +67,7 @@ describe Projects::UpdateService, '#execute' do
       end
     end
 
-    context '#path' do
+    describe '#path' do
       include_examples 'audit event logging' do
         let(:operation) { update_project(project, user, path: 'foobar1') }
         let(:fail_condition!) do
@@ -86,7 +86,7 @@ describe Projects::UpdateService, '#execute' do
       end
     end
 
-    context '#visibility' do
+    describe '#visibility' do
       include_examples 'audit event logging' do
         let(:operation) do
           update_project(project, user, visibility_level: Gitlab::VisibilityLevel::INTERNAL)
@@ -110,8 +110,8 @@ describe Projects::UpdateService, '#execute' do
 
   context 'triggering wiki Geo syncs', :geo do
     context 'on a Geo primary' do
-      set(:primary)   { create(:geo_node, :primary) }
-      set(:secondary) { create(:geo_node) }
+      let_it_be(:primary)   { create(:geo_node, :primary) }
+      let_it_be(:secondary) { create(:geo_node) }
 
       before do
         stub_current_geo_node(primary)

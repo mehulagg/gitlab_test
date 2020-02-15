@@ -14,6 +14,7 @@ class Issue < ApplicationRecord
   include TimeTrackable
   include ThrottledTouch
   include LabelEventable
+  include IgnorableColumns
 
   DueDateStruct                   = Struct.new(:title, :name).freeze
   NoDueDate                       = DueDateStruct.new('No Due Date', '0').freeze
@@ -30,7 +31,10 @@ class Issue < ApplicationRecord
   belongs_to :duplicated_to, class_name: 'Issue'
   belongs_to :closed_by, class_name: 'User'
 
-  has_internal_id :iid, scope: :project, init: ->(s) { s&.project&.issues&.maximum(:iid) }
+  has_internal_id :iid, scope: :project, track_if: -> { !importing? }, init: ->(s) { s&.project&.issues&.maximum(:iid) }
+
+  has_many :issue_milestones
+  has_many :milestones, through: :issue_milestones
 
   has_many :events, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
@@ -41,6 +45,10 @@ class Issue < ApplicationRecord
   has_many :issue_assignees
   has_many :assignees, class_name: "User", through: :issue_assignees
   has_many :zoom_meetings
+  has_many :user_mentions, class_name: "IssueUserMention"
+  has_one :sentry_issue
+
+  accepts_nested_attributes_for :sentry_issue
 
   validates :project, presence: true
 
@@ -68,16 +76,15 @@ class Issue < ApplicationRecord
 
   scope :counts_by_state, -> { reorder(nil).group(:state_id).count }
 
-  # Only remove after 2019-12-22 and with %12.7
-  self.ignored_columns += %i[state]
+  ignore_column :state, remove_with: '12.7', remove_after: '2019-12-22'
 
-  after_commit :expire_etag_cache
-  after_save :ensure_metrics, unless: :imported?
+  after_commit :expire_etag_cache, unless: :importing?
+  after_save :ensure_metrics, unless: :importing?
 
   attr_spammable :title, spam_title: true
   attr_spammable :description, spam_description: true
 
-  state_machine :state_id, initial: :opened do
+  state_machine :state_id, initial: :opened, initialize: false do
     event :close do
       transition [:opened] => :closed
     end
@@ -140,6 +147,20 @@ class Issue < ApplicationRecord
     'project_id'
   end
 
+  def self.simple_sorts
+    super.merge(
+      {
+        'closest_future_date' => -> { order_closest_future_date },
+        'closest_future_date_asc' => -> { order_closest_future_date },
+        'due_date' => -> { order_due_date_asc.with_order_id_desc },
+        'due_date_asc' => -> { order_due_date_asc.with_order_id_desc },
+        'due_date_desc' => -> { order_due_date_desc.with_order_id_desc },
+        'relative_position' => -> { order_relative_position_asc.with_order_id_desc },
+        'relative_position_asc' => -> { order_relative_position_asc.with_order_id_desc }
+      }
+    )
+  end
+
   def self.sort_by_attribute(method, excluded_labels: [])
     case method.to_s
     when 'closest_future_date', 'closest_future_date_asc' then order_closest_future_date
@@ -166,7 +187,7 @@ class Issue < ApplicationRecord
   def to_reference(from = nil, full: false)
     reference = "#{self.class.reference_prefix}#{iid}"
 
-    "#{project.to_reference(from, full: full)}#{reference}"
+    "#{project.to_reference_base(from, full: full)}#{reference}"
   end
 
   def suggested_branch_name
@@ -238,7 +259,7 @@ class Issue < ApplicationRecord
 
     return false unless readable_by?(user)
 
-    user.full_private_access? ||
+    user.can_read_all_resources? ||
       ::Gitlab::ExternalAuthorization.access_allowed?(
         user, project.external_authorization_classification_label)
   end

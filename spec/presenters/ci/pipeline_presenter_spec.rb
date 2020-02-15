@@ -62,13 +62,19 @@ describe Ci::PipelinePresenter do
     end
   end
 
-  context '#failure_reason' do
-    context 'when pipeline has failure reason' do
-      it 'represents a failure reason sentence' do
-        pipeline.failure_reason = :config_error
+  describe '#failure_reason' do
+    context 'when pipeline has a failure reason' do
+      ::Ci::PipelineEnums.failure_reasons.keys.each do |failure_reason|
+        context "when failure reason is #{failure_reason}" do
+          before do
+            pipeline.failure_reason = failure_reason
+          end
 
-        expect(presenter.failure_reason)
-          .to eq 'CI/CD YAML configuration error!'
+          it 'represents a failure reason sentence' do
+            expect(presenter.failure_reason).to be_an_instance_of(String)
+            expect(presenter.failure_reason).not_to eq(failure_reason.to_s)
+          end
+        end
       end
     end
 
@@ -203,6 +209,15 @@ describe Ci::PipelinePresenter do
           "<a class=\"mr-iid\" href=\"#{merge_request_path(mr_2)}\">#{mr_2.to_reference} #{mr_2.title}</a>, " \
           "<a class=\"mr-iid\" href=\"#{merge_request_path(mr_1)}\">#{mr_1.to_reference} #{mr_1.title}</a>")
       }
+
+      context 'with a limit passed' do
+        subject { presenter.all_related_merge_request_text(limit: 1) }
+
+        it {
+          is_expected.to eq("2 related merge requests: " \
+          "<a class=\"mr-iid\" href=\"#{merge_request_path(mr_2)}\">#{mr_2.to_reference} #{mr_2.title}</a>")
+        }
+      end
     end
   end
 

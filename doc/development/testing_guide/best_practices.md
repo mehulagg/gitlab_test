@@ -36,17 +36,17 @@ Here are some things to keep in mind regarding test performance:
 
 To run rspec tests:
 
-```sh
+```shell
 # run all tests
-bundle exec rspec
+bin/rspec
 
 # run test for path
-bundle exec rspec spec/[path]/[to]/[spec].rb
+bin/rspec spec/[path]/[to]/[spec].rb
 ```
 
-Use [guard](https://github.com/guard/guard) to continuously monitor for changes and only run matching tests:
+Use [Guard](https://github.com/guard/guard) to continuously monitor for changes and only run matching tests:
 
-```sh
+```shell
 bundle exec guard
 ```
 
@@ -67,9 +67,10 @@ When using spring and guard together, use `SPRING=1 bundle exec guard` instead t
 - Don't supply the `:each` argument to hooks since it's the default.
 - On `before` and `after` hooks, prefer it scoped to `:context` over `:all`
 - When using `evaluate_script("$('.js-foo').testSomething()")` (or `execute_script`) which acts on a given element,
-  use a Capyabara matcher beforehand (e.g. `find('.js-foo')`) to ensure the element actually exists.
+  use a Capybara matcher beforehand (e.g. `find('.js-foo')`) to ensure the element actually exists.
 - Use `focus: true` to isolate parts of the specs you want to run.
 - Use [`:aggregate_failures`](https://relishapp.com/rspec/rspec-core/docs/expectation-framework-integration/aggregating-failures) when there is more than one expectation in a test.
+- For [empty test description blocks](https://github.com/rubocop-hq/rspec-style-guide#it-and-specify), use `specify` rather than `it do` if the test is self-explanatory.
 
 ### System / Feature tests
 
@@ -129,10 +130,12 @@ Note: `live_debug` only works on JavaScript enabled specs.
 Run the spec with `CHROME_HEADLESS=0`, e.g.:
 
 ```
-CHROME_HEADLESS=0 bundle exec rspec some_spec.rb
+CHROME_HEADLESS=0 bin/rspec some_spec.rb
 ```
 
 The test will go by quickly, but this will give you an idea of what's happening.
+Using `live_debug` with `CHROME_HEADLESS=0` pauses the open browser, and does not
+open the page again. This can be used to debug and inspect elements.
 
 You can also add `byebug` or `binding.pry` to pause execution and [step through](../pry_debugging.md#stepping)
 the test.
@@ -372,15 +375,30 @@ If a test enqueues Sidekiq jobs and need them to be processed, the
 `:sidekiq_inline` trait can be used.
 
 The `:sidekiq_might_not_need_inline` trait was added when [Sidekiq inline mode was
-changed to fake mode](https://gitlab.com/gitlab-org/gitlab/merge_requests/15479)
+changed to fake mode](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/15479)
 to all the tests that needed Sidekiq to actually process jobs. Tests with
 this trait should be either fixed to not rely on Sidekiq processing jobs, or their
 `:sidekiq_might_not_need_inline` trait should be updated to `:sidekiq_inline` if
 the processing of background jobs is needed/expected.
 
 NOTE: **Note:**
-The usage of `perform_enqueued_jobs` is currently useless since our
-workers aren't inheriting from `ApplicationJob` / `ActiveJob::Base`.
+The usage of `perform_enqueued_jobs` is only useful for testing delayed mail
+deliveries since our Sidekiq workers aren't inheriting from `ApplicationJob` / `ActiveJob::Base`.
+
+#### DNS
+
+DNS requests are stubbed universally in the test suite
+(as of [!22368](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/22368)), as DNS can
+cause issues depending on the developer's local network. There are RSpec labels
+available in `spec/support/dns.rb` which you can apply to tests if you need to
+bypass the DNS stubbing, e.g.:
+
+```
+it "really connects to Prometheus", :permit_dns do
+```
+
+And if you need more specific control, the DNS blocking is implemented in
+`spec/support/helpers/dns_helpers.rb` and these methods can be called elsewhere.
 
 #### Filesystem
 
@@ -527,22 +545,35 @@ why without editing the source and rerun the tests.
 
 This is especially useful whenever it's showing 500 internal server error.
 
+Prefer named HTTP status like `:no_content` over its numeric representation
+`206`. See a list of [supported status codes](https://github.com/rack/rack/blob/f2d2df4016a906beec755b63b4edfcc07b58ee05/lib/rack/utils.rb#L490).
+
+Example:
+
+```ruby
+expect(response).to have_gitlab_http_status(:ok)
+```
+
 ### Shared contexts
 
-All shared contexts should be placed under `spec/support/shared_contexts/`.
-Shared contexts can be placed in subfolder if they apply to a certain type of
-specs only (e.g. features, requests etc.) but shouldn't be if they apply to
-multiple type of specs.
+Shared contexts only used in one spec file can be declared inline.
+Any shared contexts used by more than one spec file:
+
+- Should be placed under `spec/support/shared_contexts/`.
+- Can be placed in subfolder if they apply to a certain type of specs only
+  (e.g. features, requests etc.) but shouldn't be if they apply to multiple type of specs.
 
 Each file should include only one context and have a descriptive name, e.g.
 `spec/support/shared_contexts/controllers/githubish_import_controller_shared_context.rb`.
 
 ### Shared examples
 
-All shared examples should be placed under `spec/support/shared_examples/`.
-Shared examples can be placed in subfolder if they apply to a certain type of
-specs only (e.g. features, requests etc.) but shouldn't be if they apply to
-multiple type of specs.
+Shared examples only used in one spec file can be declared inline.
+Any shared examples used by more than one spec file:
+
+- Should be placed under `spec/support/shared_examples/`.
+- Can be placed in subfolder if they apply to a certain type of specs only
+  (e.g. features, requests etc.) but shouldn't be if they apply to multiple type of specs.
 
 Each file should include only one context and have a descriptive name, e.g.
 `spec/support/shared_examples/controllers/githubish_import_controller_shared_example.rb`.

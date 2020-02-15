@@ -29,6 +29,14 @@ are paginated.
 
 Read more on [pagination](README.md#pagination).
 
+CAUTION: **Deprecation**
+> `reference` attribute in response is deprecated in favour of `references`.
+> Introduced [GitLab 12.6](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/20354)
+
+NOTE: **Note**
+> `references.relative` is relative to the group that the epic is being requested. When epic is fetched from its origin group
+> `relative` format would be the same as `short` format and when requested cross groups it is expected to be the same as `full` format.
+
 ## List epics for a group
 
 Gets all epics of the requested group and its subgroups.
@@ -45,6 +53,7 @@ GET /groups/:id/epics?state=opened
 | `id`                | integer/string   | yes        | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user               |
 | `author_id`         | integer          | no         | Return epics created by the given user `id`                                                                                 |
 | `labels`            | string           | no         | Return epics matching a comma separated list of labels names. Label names from the epic group or a parent group can be used |
+| `with_labels_details` | Boolean        | no         | If `true`, response will return more details for each label in labels field: `:name`, `:color`, `:description`, `:description_html`, `:text_color`. Default is `false`. Introduced in [GitLab 12.7](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/21413)|
 | `order_by`          | string           | no         | Return epics ordered by `created_at` or `updated_at` fields. Default is `created_at`                                        |
 | `sort`              | string           | no         | Return epics sorted in `asc` or `desc` order. Default is `desc`                                                             |
 | `search`            | string           | no         | Search epics against their `title` and `description`                                                                        |
@@ -56,7 +65,7 @@ GET /groups/:id/epics?state=opened
 | `include_ancestor_groups` | boolean    | no         | Include epics from the requested group's ancestors. Default is `false`                                                      |
 | `include_descendant_groups` | boolean  | no         | Include epics from the requested group's descendants. Default is `true`                                                     |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics
 ```
 
@@ -73,6 +82,51 @@ Example response:
   "state": "opened",
   "web_url": "http://localhost:3001/groups/test/-/epics/4",
   "reference": "&4",
+  "references": {
+    "short": "&4",
+    "relative": "&4",
+    "full": "test&4"
+  },
+  "author": {
+    "id": 10,
+    "name": "Lu Mayer",
+    "username": "kam",
+    "state": "active",
+    "avatar_url": "http://www.gravatar.com/avatar/018729e129a6f31c80a6327a30196823?s=80&d=identicon",
+    "web_url": "http://localhost:3001/kam"
+  },
+  "start_date": null,
+  "start_date_is_fixed": false,
+  "start_date_fixed": null,
+  "start_date_from_milestones": null,       //deprecated in favor of start_date_from_inherited_source
+  "start_date_from_inherited_source": null,
+  "end_date": "2018-07-31",                 //deprecated in favor of due_date
+  "due_date": "2018-07-31",
+  "due_date_is_fixed": false,
+  "due_date_fixed": null,
+  "due_date_from_milestones": "2018-07-31", //deprecated in favor of start_date_from_inherited_source
+  "due_date_from_inherited_source": "2018-07-31",
+  "created_at": "2018-07-17T13:36:22.770Z",
+  "updated_at": "2018-07-18T12:22:05.239Z",
+  "closed_at": "2018-08-18T12:22:05.239Z",
+  "labels": [],
+  "upvotes": 4,
+  "downvotes": 0
+  },
+  {
+  "id": 50,
+  "iid": 35,
+  "group_id": 17,
+  "title": "Accusamus iste et ullam ratione voluptatem omnis debitis dolor est.",
+  "description": "Molestias dolorem eos vitae expedita impedit necessitatibus quo voluptatum.",
+  "state": "opened",
+  "web_url": "http://localhost:3001/groups/test/sample/-/epics/4",
+  "reference": "&4",
+  "references": {
+    "short": "&4",
+    "relative": "sample&4",
+    "full": "test/sample&4"
+  },
   "author": {
     "id": 10,
     "name": "Lu Mayer",
@@ -115,7 +169,7 @@ GET /groups/:id/epics/:epic_iid
 | `id`                | integer/string   | yes        | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user                |
 | `epic_iid`          | integer/string   | yes        | The internal ID  of the epic.  |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5
 ```
 
@@ -131,6 +185,11 @@ Example response:
   "state": "opened",
   "web_url": "http://localhost:3001/groups/test/-/epics/5",
   "reference": "&5",
+  "references": {
+    "short": "&5",
+    "relative": "&5",
+    "full": "test&5"
+  },
   "author":{
     "id": 7,
     "name": "Pamella Huel",
@@ -185,7 +244,7 @@ POST /groups/:id/epics
 | `due_date_fixed`    | string           | no         | The fixed due date of an epic (since 11.3) |
 | `parent_id`         | integer/string   | no         | The id of a parent epic (since 11.11) |
 
-```bash
+```shell
 curl --header POST "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics?title=Epic&description=Epic%20description
 ```
 
@@ -199,8 +258,13 @@ Example response:
   "title": "Epic",
   "description": "Epic description",
   "state": "opened",
-  "web_url": "http://localhost:3001/groups/test/-/epics/5",
+  "web_url": "http://localhost:3001/groups/test/-/epics/6",
   "reference": "&6",
+  "references": {
+    "short": "&6",
+    "relative": "&6",
+    "full": "test&6"
+  },
   "author": {
     "name" : "Alexandra Bashirian",
     "avatar_url" : null,
@@ -255,7 +319,7 @@ PUT /groups/:id/epics/:epic_iid
 | `due_date_fixed`    | string           | no         | The fixed due date of an epic (since 11.3) |
 | `state_event`       | string           | no         | State event for an epic. Set `close` to close the epic and `reopen` to reopen it (since 11.4) |
 
-```bash
+```shell
 curl --header PUT "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5?title=New%20Title
 ```
 
@@ -269,8 +333,13 @@ Example response:
   "title": "New Title",
   "description": "Epic description",
   "state": "opened",
-  "web_url": "http://localhost:3001/groups/test/-/epics/5",
+  "web_url": "http://localhost:3001/groups/test/-/epics/6",
   "reference": "&6",
+  "references": {
+    "short": "&6",
+    "relative": "&6",
+    "full": "test&6"
+  },
   "author": {
     "name" : "Alexandra Bashirian",
     "avatar_url" : null,
@@ -312,7 +381,7 @@ DELETE /groups/:id/epics/:epic_iid
 | `id`                | integer/string   | yes        | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user                |
 | `epic_iid`          | integer/string   | yes        | The internal ID  of the epic.  |
 
-```bash
+```shell
 curl --header DELETE "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5
 ```
 
@@ -331,7 +400,7 @@ POST /groups/:id/epics/:epic_iid/todo
 | `id`        | integer/string | yes   | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user  |
 | `epic_iid` | integer | yes          | The internal ID of a group's epic |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5/todo
 ```
 
@@ -372,6 +441,13 @@ Example response:
       "avatar_url": "http://www.gravatar.com/avatar/a2f5c6fcef64c9c69cb8779cb292be1b?s=80&d=identicon",
       "web_url": "http://localhost:3001/arnita"
     },
+    "web_url": "http://localhost:3001/groups/test/-/epics/5",
+    "reference": "&5",
+    "references": {
+      "short": "&5",
+      "relative": "&5",
+      "full": "test&5"
+    },
     "start_date": null,
     "end_date": null,
     "created_at": "2018-01-21T06:21:13.165Z",
@@ -385,4 +461,4 @@ Example response:
 }
 ```
 
-[ee-6448]: https://gitlab.com/gitlab-org/gitlab/merge_requests/6448
+[ee-6448]: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/6448

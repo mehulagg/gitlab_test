@@ -358,6 +358,7 @@ describe API::Groups do
         expect(json_response['two_factor_grace_period']).to eq(group1.two_factor_grace_period)
         expect(json_response['auto_devops_enabled']).to eq(group1.auto_devops_enabled)
         expect(json_response['emails_disabled']).to eq(group1.emails_disabled)
+        expect(json_response['mentions_disabled']).to eq(group1.mentions_disabled)
         expect(json_response['project_creation_level']).to eq('maintainer')
         expect(json_response['subgroup_creation_level']).to eq('maintainer')
         expect(json_response['web_url']).to eq(group1.web_url)
@@ -488,6 +489,51 @@ describe API::Groups do
         expect(response).to have_gitlab_http_status(404)
       end
     end
+
+    context 'limiting the number of projects and shared_projects in the response' do
+      let(:limit) { 1 }
+
+      before do
+        stub_const("GroupProjectsFinder::DEFAULT_PROJECTS_LIMIT", limit)
+
+        # creates 3 public projects
+        create_list(:project, 3, :public, namespace: group1)
+
+        # creates 3 shared projects
+        public_group = create(:group, :public)
+        projects_to_be_shared = create_list(:project, 3, :public, namespace: public_group)
+
+        projects_to_be_shared.each do |project|
+          create(:project_group_link, project: project, group: group1)
+        end
+      end
+
+      context 'when limiting feature is enabled' do
+        before do
+          stub_feature_flags(limit_projects_in_groups_api: true)
+        end
+
+        it 'limits projects and shared_projects' do
+          get api("/groups/#{group1.id}")
+
+          expect(json_response['projects'].count).to eq(limit)
+          expect(json_response['shared_projects'].count).to eq(limit)
+        end
+      end
+
+      context 'when limiting feature is not enabled' do
+        before do
+          stub_feature_flags(limit_projects_in_groups_api: false)
+        end
+
+        it 'does not limit projects and shared_projects' do
+          get api("/groups/#{group1.id}")
+
+          expect(json_response['projects'].count).to eq(3)
+          expect(json_response['shared_projects'].count).to eq(3)
+        end
+      end
+    end
   end
 
   describe 'PUT /groups/:id' do
@@ -511,6 +557,7 @@ describe API::Groups do
         expect(json_response['two_factor_grace_period']).to eq(48)
         expect(json_response['auto_devops_enabled']).to eq(nil)
         expect(json_response['emails_disabled']).to eq(nil)
+        expect(json_response['mentions_disabled']).to eq(nil)
         expect(json_response['project_creation_level']).to eq("noone")
         expect(json_response['subgroup_creation_level']).to eq("maintainer")
         expect(json_response['request_access_enabled']).to eq(true)
@@ -1030,8 +1077,9 @@ describe API::Groups do
     let(:project_path) { CGI.escape(project.full_path) }
 
     before do
-      allow_any_instance_of(Projects::TransferService)
-        .to receive(:execute).and_return(true)
+      allow_next_instance_of(Projects::TransferService) do |instance|
+        allow(instance).to receive(:execute).and_return(true)
+      end
     end
 
     context "when authenticated as user" do

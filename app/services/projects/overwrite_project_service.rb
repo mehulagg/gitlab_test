@@ -7,7 +7,9 @@ module Projects
 
       Project.transaction do
         move_before_destroy_relationships(source_project)
-        destroy_old_project(source_project)
+        # Reset is required in order to get the proper
+        # uncached fork network method calls value.
+        destroy_old_project(source_project.reset)
         rename_project(source_project.name, source_project.path)
 
         @project
@@ -53,7 +55,7 @@ module Projects
     end
 
     def attempt_restore_repositories(project)
-      ::Projects::DestroyService.new(project, @current_user).attempt_repositories_rollback
+      ::Projects::DestroyRollbackService.new(project, @current_user).execute
     end
 
     def add_source_project_to_fork_network(source_project)

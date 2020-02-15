@@ -174,6 +174,7 @@ export default {
       'setInstanceIdEndpoint',
       'setInstanceId',
       'rotateInstanceId',
+      'toggleFeatureFlag',
     ]),
     onChangeTab(scope) {
       this.scope = scope;
@@ -247,7 +248,7 @@ export default {
     <gl-loading-icon
       v-if="isLoading"
       :label="s__('FeatureFlags|Loading feature flags')"
-      :size="3"
+      size="md"
       class="js-loading-state prepend-top-20"
     />
 
@@ -280,6 +281,7 @@ export default {
       v-else-if="shouldRenderTable"
       :csrf-token="csrfToken"
       :feature-flags="featureFlags"
+      @toggle-flag="toggleFeatureFlag"
     />
 
     <table-pagination v-if="shouldRenderPagination" :change="onChangePage" :page-info="pageInfo" />

@@ -1,25 +1,20 @@
 <script>
-import { __ } from '~/locale';
-import DeprecatedModal2 from '~/vue_shared/components/deprecated_modal_2.vue';
-import ExpandButton from '~/vue_shared/components/expand_button.vue';
-
 import DismissalNote from 'ee/vue_shared/security_reports/components/dismissal_note.vue';
 import DismissalCommentBoxToggle from 'ee/vue_shared/security_reports/components/dismissal_comment_box_toggle.vue';
 import DismissalCommentModalFooter from 'ee/vue_shared/security_reports/components/dismissal_comment_modal_footer.vue';
-import EventItem from 'ee/vue_shared/security_reports/components/event_item.vue';
 import IssueNote from 'ee/vue_shared/security_reports/components/issue_note.vue';
 import MergeRequestNote from 'ee/vue_shared/security_reports/components/merge_request_note.vue';
 import ModalFooter from 'ee/vue_shared/security_reports/components/modal_footer.vue';
 import SolutionCard from 'ee/vue_shared/security_reports/components/solution_card.vue';
 import VulnerabilityDetails from 'ee/vue_shared/security_reports/components/vulnerability_details.vue';
+import DeprecatedModal2 from '~/vue_shared/components/deprecated_modal_2.vue';
+import { __ } from '~/locale';
 
 export default {
   components: {
     DismissalNote,
     DismissalCommentBoxToggle,
     DismissalCommentModalFooter,
-    EventItem,
-    ExpandButton,
     IssueNote,
     MergeRequestNote,
     Modal: DeprecatedModal2,
@@ -58,13 +53,26 @@ export default {
     dismissalCommentErrorMessage: '',
   }),
   computed: {
-    canDownloadPatch() {
+    canCreateIssueForThisVulnerability() {
+      return Boolean(!this.isResolved && !this.vulnerability.hasIssue && this.canCreateIssue);
+    },
+    canCreateMergeRequestForThisVulnerability() {
+      return Boolean(!this.isResolved && !this.vulnerability.hasMergeRequest && this.remediation);
+    },
+    canDismissThisVulnerability() {
+      return Boolean(!this.isResolved && this.canDismissVulnerability);
+    },
+    canDownloadPatchForThisVulnerability() {
       const remediationDiff = this.remediation && this.remediation.diff;
       return Boolean(
-        remediationDiff &&
+        !this.isResolved &&
+          remediationDiff &&
           remediationDiff.length > 0 &&
           (!this.vulnerability.hasMergeRequest && this.remediation),
       );
+    },
+    isResolved() {
+      return Boolean(this.modal.isResolved);
     },
     hasRemediation() {
       return Boolean(this.remediation);
@@ -87,12 +95,6 @@ export default {
       return (
         this.vulnerability && this.vulnerability.remediations && this.vulnerability.remediations[0]
       );
-    },
-    renderSolutionCard() {
-      return this.solution || this.remediation;
-    },
-    shouldRenderFooterSection() {
-      return !this.modal.isResolved && (this.canCreateIssue || this.canDismissVulnerability);
     },
     vulnerability() {
       return this.modal.vulnerability;
@@ -148,10 +150,7 @@ export default {
         current_username,
       } = gon;
 
-      const currentDate = new Date();
-
       return {
-        created_at: currentDate.toString(),
         project_id: this.project ? this.project.id : null,
         author: {
           id: current_user_id,
@@ -198,7 +197,6 @@ export default {
   <modal
     id="modal-mrwidget-security-issue"
     :header-title-text="modal.title"
-    :class="{ 'modal-hide-footer': !shouldRenderFooterSection }"
     data-qa-selector="vulnerability_modal_content"
     class="modal-security-report-dast"
   >
@@ -210,7 +208,7 @@ export default {
         :remediation="remediation"
         :has-mr="vulnerability.hasMergeRequest"
         :has-remediation="hasRemediation"
-        :has-download="canDownloadPatch"
+        :has-download="canDownloadPatchForThisVulnerability"
         :vulnerability-feedback-help-path="vulnerabilityFeedbackHelpPath"
       />
 
@@ -273,14 +271,15 @@ export default {
         @cancel="$emit('closeDismissalCommentBox')"
       />
       <modal-footer
-        v-else-if="shouldRenderFooterSection"
+        v-else
+        ref="footer"
         :modal="modal"
         :vulnerability="vulnerability"
         :disabled="modal.isShowingDeleteButtons"
-        :can-create-issue="Boolean(!vulnerability.hasIssue && canCreateIssue)"
-        :can-create-merge-request="Boolean(!vulnerability.hasMergeRequest && remediation)"
-        :can-download-patch="canDownloadPatch"
-        :can-dismiss-vulnerability="canDismissVulnerability"
+        :can-create-issue="canCreateIssueForThisVulnerability"
+        :can-create-merge-request="canCreateMergeRequestForThisVulnerability"
+        :can-download-patch="canDownloadPatchForThisVulnerability"
+        :can-dismiss-vulnerability="canDismissThisVulnerability"
         :is-dismissed="vulnerability.isDismissed"
         @createMergeRequest="$emit('createMergeRequest')"
         @createNewIssue="$emit('createNewIssue')"

@@ -5,8 +5,8 @@ import { GlLoadingIcon } from '@gitlab/ui';
 
 import { issuableTypesMap } from 'ee/related_issues/constants';
 
-import SlotSwitch from '~/vue_shared/components/slot_switch.vue';
 import AddItemForm from 'ee/related_issues/components/add_issuable_form.vue';
+import SlotSwitch from '~/vue_shared/components/slot_switch.vue';
 import CreateEpicForm from './create_epic_form.vue';
 import CreateIssueForm from './create_issue_form.vue';
 import IssueActionsSplitButton from './issue_actions_split_button.vue';
@@ -48,6 +48,8 @@ export default {
       'itemsFetchInProgress',
       'itemsFetchResultEmpty',
       'itemAddInProgress',
+      'itemAddFailure',
+      'itemAddFailureType',
       'itemCreateInProgress',
       'showAddItemForm',
       'showCreateEpicForm',
@@ -58,6 +60,7 @@ export default {
       'issuableType',
       'epicsEndpoint',
       'issuesEndpoint',
+      'projects',
     ]),
     ...mapGetters(['itemAutoCompleteSources', 'itemPathIdSeparator', 'directChildren']),
     disableContents() {
@@ -98,6 +101,8 @@ export default {
       'setItemInputValue',
       'addItem',
       'createItem',
+      'createNewIssue',
+      'fetchProjects',
     ]),
     getRawRefs(value) {
       return value.split(/\s+/).filter(ref => ref.trim().length > 0);
@@ -113,8 +118,8 @@ export default {
       this.addPendingReferences(this.getRawRefs(newValue));
       this.setItemInputValue('');
     },
-    handleAddItemFormSubmit(newValue) {
-      this.handleAddItemFormBlur(newValue);
+    handleAddItemFormSubmit(event) {
+      this.handleAddItemFormBlur(event.pendingReferences);
 
       if (this.pendingReferences.length > 0) {
         this.addItem();
@@ -138,9 +143,11 @@ export default {
       this.toggleAddItemForm({ toggleState: true, issuableType: issuableTypesMap.ISSUE });
     },
     showCreateIssueForm() {
-      this.toggleAddItemForm({ toggleState: false });
-      this.toggleCreateEpicForm({ toggleState: false });
-      this.isCreateIssueFormVisible = true;
+      return this.fetchProjects().then(() => {
+        this.toggleAddItemForm({ toggleState: false });
+        this.toggleCreateEpicForm({ toggleState: false });
+        this.isCreateIssueFormVisible = true;
+      });
     },
   },
 };
@@ -172,7 +179,10 @@ export default {
         v-if="visibleForm"
         :active-slot-names="[visibleForm]"
         class="card-body add-item-form-container"
-        :class="{ 'border-bottom-0': itemsFetchResultEmpty }"
+        :class="{
+          'border-bottom-0': itemsFetchResultEmpty,
+          'gl-show-field-errors': itemAddFailure,
+        }"
       >
         <add-item-form
           :slot="$options.FORM_SLOTS.addItem"
@@ -182,6 +192,8 @@ export default {
           :pending-references="pendingReferences"
           :auto-complete-sources="itemAutoCompleteSources"
           :path-id-separator="itemPathIdSeparator"
+          :has-error="itemAddFailure"
+          :item-add-failure-type="itemAddFailureType"
           @pendingIssuableRemoveRequest="handlePendingItemRemove"
           @addIssuableFormInput="handleAddItemFormInput"
           @addIssuableFormBlur="handleAddItemFormBlur"
@@ -196,7 +208,9 @@ export default {
         />
         <create-issue-form
           :slot="$options.FORM_SLOTS.createIssue"
+          :projects="projects"
           @cancel="isCreateIssueFormVisible = false"
+          @submit="createNewIssue"
         />
       </slot-switch>
       <related-items-tree-body

@@ -1,20 +1,16 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Plan' do
+  context 'Plan', :reliable do
     describe 'Close issue' do
-      let(:issue_title) { 'issue title' }
-      let(:commit_message) { 'Closes' }
+      let(:issue) do
+        Resource::Issue.fabricate_via_api!
+      end
+
+      let(:issue_id) { issue.api_response[:iid] }
 
       before do
         Flow::Login.sign_in
-
-        issue = Resource::Issue.fabricate_via_api! do |issue|
-          issue.title = issue_title
-        end
-
-        @project = issue.project
-        @issue_id = issue.api_response[:iid]
 
         # Initial commit should be pushed because
         # the very first commit to the project doesn't close the issue
@@ -22,25 +18,16 @@ module QA
         push_commit('Initial commit')
       end
 
-      it 'user closes an issue by pushing commit' do
-        push_commit("#{commit_message} ##{@issue_id}", false)
+      it 'closes an issue by pushing a commit' do
+        push_commit("Closes ##{issue_id}", false)
 
-        @project.visit!
-        Page::Project::Show.perform do |show|
-          show.click_commit(commit_message)
-        end
-        commit_sha = Page::Project::Commit::Show.perform(&:commit_sha)
-
-        Page::Project::Menu.perform(&:click_issues)
-        Page::Project::Issue::Index.perform do |index|
-          index.click_closed_issues_link
-          index.click_issue_link(issue_title)
-        end
+        issue.visit!
 
         Page::Project::Issue::Show.perform do |show|
-          show.select_all_activities_filter
-          expect(show).to have_element(:reopen_issue_button)
-          expect(show).to have_content("closed via commit #{commit_sha}")
+          reopen_issue_button_visible = show.wait_until(reload: true) do
+            show.has_element?(:reopen_issue_button, wait: 1.0)
+          end
+          expect(reopen_issue_button_visible).to be_truthy
         end
       end
 
@@ -49,7 +36,7 @@ module QA
           push.commit_message = commit_message
           push.new_branch = new_branch
           push.file_content = commit_message
-          push.project = @project
+          push.project = issue.project
         end
       end
     end

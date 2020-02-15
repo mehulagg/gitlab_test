@@ -97,7 +97,7 @@ and modify them if you have the necessary [permissions](../../permissions.md).
 
 On the Issues List, you can view all issues in the current project, or from multiple
 projects when opening the Issues List from the higher-level group context. Filter the
-issue list with a [search query](../../search/index.md#issues-and-merge-requests-per-project),
+issue list with a [search query](../../search/index.md#filtering-issue-and-merge-request-lists),
 including specific metadata, such as label(s), assignees(s), status, and more. From this
 view, you can also make certain changes [in bulk](../bulk_editing.md) to the displayed issues.
 
@@ -146,7 +146,7 @@ message in the Activity stream about the reference, with a link to the other iss
 
 ### Similar issues
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/22866) in GitLab 11.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/22866) in GitLab 11.6.
 
 To prevent duplication of issues for the same topic, GitLab searches for similar issues
 when new issues are being created.

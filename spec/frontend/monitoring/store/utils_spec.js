@@ -1,44 +1,11 @@
-import { groupQueriesByChartInfo, normalizeMetric, uniqMetricsId } from '~/monitoring/stores/utils';
+import {
+  normalizeMetric,
+  uniqMetricsId,
+  parseEnvironmentsResponse,
+  removeLeadingSlash,
+} from '~/monitoring/stores/utils';
 
-describe('groupQueriesByChartInfo', () => {
-  let input;
-  let output;
-
-  it('groups metrics with the same chart title and y_axis label', () => {
-    input = [
-      { title: 'title', y_label: 'MB', queries: [{}] },
-      { title: 'title', y_label: 'MB', queries: [{}] },
-      { title: 'new title', y_label: 'MB', queries: [{}] },
-    ];
-
-    output = [
-      {
-        title: 'title',
-        y_label: 'MB',
-        queries: [{ metricId: null }, { metricId: null }],
-      },
-      { title: 'new title', y_label: 'MB', queries: [{ metricId: null }] },
-    ];
-
-    expect(groupQueriesByChartInfo(input)).toEqual(output);
-  });
-
-  // Functionality associated with the /additional_metrics endpoint
-  it("associates a chart's stringified metric_id with the metric", () => {
-    input = [{ id: 3, title: 'new title', y_label: 'MB', queries: [{}] }];
-    output = [{ id: 3, title: 'new title', y_label: 'MB', queries: [{ metricId: '3' }] }];
-
-    expect(groupQueriesByChartInfo(input)).toEqual(output);
-  });
-
-  // Functionality associated with the /metrics_dashboard endpoint
-  it('aliases a stringified metrics_id on the metric to the metricId key', () => {
-    input = [{ title: 'new title', y_label: 'MB', queries: [{ metric_id: 3 }] }];
-    output = [{ title: 'new title', y_label: 'MB', queries: [{ metricId: '3', metric_id: 3 }] }];
-
-    expect(groupQueriesByChartInfo(input)).toEqual(output);
-  });
-});
+const projectPath = 'gitlab-org/gitlab-test';
 
 describe('normalizeMetric', () => {
   [
@@ -54,7 +21,7 @@ describe('normalizeMetric', () => {
     },
   ].forEach(({ args, expected }) => {
     it(`normalizes metric to "${expected}" with args=${JSON.stringify(args)}`, () => {
-      expect(normalizeMetric(...args)).toEqual({ metric_id: expected });
+      expect(normalizeMetric(...args)).toEqual({ metric_id: expected, metricId: expected });
     });
   });
 });
@@ -69,6 +36,74 @@ describe('uniqMetricsId', () => {
   ].forEach(({ input, expected }) => {
     it(`creates unique metric ID with ${JSON.stringify(input)}`, () => {
       expect(uniqMetricsId(input)).toEqual(expected);
+    });
+  });
+});
+
+describe('parseEnvironmentsResponse', () => {
+  [
+    {
+      input: null,
+      output: [],
+    },
+    {
+      input: undefined,
+      output: [],
+    },
+    {
+      input: [],
+      output: [],
+    },
+    {
+      input: [
+        {
+          id: '1',
+          name: 'env-1',
+        },
+      ],
+      output: [
+        {
+          id: 1,
+          name: 'env-1',
+          metrics_path: `${projectPath}/environments/1/metrics`,
+        },
+      ],
+    },
+    {
+      input: [
+        {
+          id: 'gid://gitlab/Environment/12',
+          name: 'env-12',
+        },
+      ],
+      output: [
+        {
+          id: 12,
+          name: 'env-12',
+          metrics_path: `${projectPath}/environments/12/metrics`,
+        },
+      ],
+    },
+  ].forEach(({ input, output }) => {
+    it(`parseEnvironmentsResponse returns ${JSON.stringify(output)} with input ${JSON.stringify(
+      input,
+    )}`, () => {
+      expect(parseEnvironmentsResponse(input, projectPath)).toEqual(output);
+    });
+  });
+});
+
+describe('removeLeadingSlash', () => {
+  [
+    { input: null, output: '' },
+    { input: '', output: '' },
+    { input: 'gitlab-org', output: 'gitlab-org' },
+    { input: 'gitlab-org/gitlab', output: 'gitlab-org/gitlab' },
+    { input: '/gitlab-org/gitlab', output: 'gitlab-org/gitlab' },
+    { input: '////gitlab-org/gitlab', output: 'gitlab-org/gitlab' },
+  ].forEach(({ input, output }) => {
+    it(`removeLeadingSlash returns ${output} with input ${input}`, () => {
+      expect(removeLeadingSlash(input)).toEqual(output);
     });
   });
 });

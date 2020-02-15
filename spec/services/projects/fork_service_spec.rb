@@ -6,6 +6,16 @@ describe Projects::ForkService do
   include ProjectForksHelper
   include Gitlab::ShellAdapter
 
+  shared_examples 'forks count cache refresh' do
+    it 'flushes the forks count cache of the source project', :clean_gitlab_redis_cache do
+      expect(from_project.forks_count).to be_zero
+
+      fork_project(from_project, to_user)
+
+      expect(from_project.forks_count).to eq(1)
+    end
+  end
+
   context 'when forking a new project' do
     describe 'fork by user' do
       before do
@@ -40,6 +50,11 @@ describe Projects::ForkService do
           end
         end
 
+        it_behaves_like 'forks count cache refresh' do
+          let(:from_project) { @from_project }
+          let(:to_user) { @to_user }
+        end
+
         describe "successfully creates project in the user namespace" do
           let(:to_project) { fork_project(@from_project, @to_user, namespace: @to_user.namespace) }
 
@@ -62,12 +77,9 @@ describe Projects::ForkService do
             expect(@from_project.avatar.file).to be_exists
           end
 
-          it 'flushes the forks count cache of the source project' do
-            expect(@from_project.forks_count).to be_zero
-
-            fork_project(@from_project, @to_user)
-
-            expect(@from_project.forks_count).to eq(1)
+          it_behaves_like 'forks count cache refresh' do
+            let(:from_project) { @from_project }
+            let(:to_user) { @to_user }
           end
 
           it 'creates a fork network with the new project and the root project set' do
@@ -101,6 +113,11 @@ describe Projects::ForkService do
 
           it 'sets the forked_from_project on the membership' do
             expect(to_project.fork_network_member.forked_from_project).to eq(from_forked_project)
+          end
+
+          it_behaves_like 'forks count cache refresh' do
+            let(:from_project) { from_forked_project }
+            let(:to_user) { @to_user }
           end
         end
       end
@@ -205,6 +222,19 @@ describe Projects::ForkService do
 
             expect(forked_project.visibility_level).to eq(Gitlab::VisibilityLevel::PRIVATE)
           end
+        end
+      end
+
+      context 'when forking is disabled' do
+        before do
+          @from_project.project_feature.update_attribute(
+            :forking_access_level, ProjectFeature::DISABLED)
+        end
+
+        it 'fails' do
+          to_project = fork_project(@from_project, @to_user, namespace: @to_user.namespace)
+
+          expect(to_project.errors[:forked_from_project_id]).to eq(['is forbidden'])
         end
       end
     end
@@ -343,14 +373,6 @@ describe Projects::ForkService do
         subject.execute(fork_to_project)
 
         expect(fork_from_project.forks_count).to eq(1)
-      end
-
-      it 'leaves no LFS objects dangling' do
-        create(:lfs_objects_project, project: fork_to_project)
-
-        expect { subject.execute(fork_to_project) }
-          .to change { fork_to_project.lfs_objects_projects.count }
-          .to(0)
       end
 
       context 'if the fork is not allowed' do

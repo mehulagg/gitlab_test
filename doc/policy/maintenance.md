@@ -7,6 +7,11 @@ type: concepts
 GitLab has strict policies governing version naming, as well as release pace for major, minor,
 patch and security releases. New releases are usually announced on the [GitLab blog](https://about.gitlab.com/blog/categories/releases/).
 
+Our current policy is:
+
+- Backporting bug fixes for **only the current stable release** at any given time, see [patch releases](#patch-releases).
+- Backporting to **to the previous two monthly releases in addition to the current stable release**, see [security releases](#security-releases).
+
 ## Versioning
 
 GitLab uses [Semantic Versioning](https://semver.org/) for its releases:
@@ -30,8 +35,6 @@ The following table describes the version types and their release cadence:
 
 ## Patch releases
 
-Our current policy is to support **only the current stable release** at any given time.
-
 Patch releases **only include bug fixes** for the current stable released version of
 GitLab.
 
@@ -48,9 +51,9 @@ incremental upgrades (and installations) are as simple as possible.
 review process a new change goes through.
 1. Ensuring that tests pass on older release is a considerable challenge in some cases, and as such is very time consuming.
 
-Including new features in patch releases is not possible as that would break [Semantic Versioning].
-Breaking [Semantic Versioning] has the following consequences for users that
-have to adhere to various internal requirements (e.g. org. compliance, verifying new features and similar):
+Including new features in patch releases is not possible as that would break [Semantic Versioning](https://semver.org/).
+Breaking [Semantic Versioning](https://semver.org/) has the following consequences for users that
+have to adhere to various internal requirements (for example, org. compliance, verifying new features, and similar):
 
 1. Inability to quickly upgrade to leverage bug fixes included in patch versions.
 1. Inability to quickly upgrade to leverage security fixes included in patch versions.
@@ -58,9 +61,12 @@ have to adhere to various internal requirements (e.g. org. compliance, verifying
 
 In cases where a strategic user has a requirement to test a feature before it is
 officially released, we can offer to create a Release Candidate (RC) version that will
-include the specific feature. This should be needed only in extreme cases, and can be requested for consideration by raising an issue in [release/tasks] issue tracker.
-It is important to note that the Release Candidate will also contain other
-features and changes as it is not possible to easily isolate a specific feature (similar reasons as noted above). The Release Candidate will be no different than any code that is deployed to GitLab.com or is publicly accessible.
+include the specific feature. This should be needed only in extreme cases, and can be requested for
+consideration by raising an issue in the [release/tasks](https://gitlab.com/gitlab-org/release/tasks/issues/new?issuable_template=Backporting-request) issue tracker.
+It is important to note that the Release Candidate will also contain other features and changes as
+it is not possible to easily isolate a specific feature (similar reasons as noted above). The
+Release Candidate will be no different than any code that is deployed to GitLab.com or is publicly
+accessible.
 
 ### Backporting to older releases
 
@@ -68,11 +74,16 @@ Backporting to more than one stable release is reserved for [security releases](
 In some cases however, we may need to backport *a bug fix* to more than one stable
 release, depending on the severity of the bug.
 
-Decision on whether backporting a change will be performed is done at the discretion of the [current release managers][release-managers], similar to what is described in the [managing bugs] process, based on *all* of the following:
+The decision on whether backporting a change will be performed is done at the discretion of the
+[current release managers](https://about.gitlab.com/community/release-managers/), similar to what is
+described in the [managing bugs](https://gitlab.com/gitlab-org/gitlab/blob/master/PROCESS.md#managing-bugs) process,
+based on *all* of the following:
 
-1. Estimated [severity][severity-labels] of the bug: Highest possible impact to users based on the current definition of severity.
+1. Estimated [severity](../development/contributing/issue_workflow.md#severity-labels) of the bug:
+   Highest possible impact to users based on the current definition of severity.
 
-1. Estimated [priority][priority-labels] of the bug: Immediate impact on all impacted users based on the above estimated severity.
+1. Estimated [priority](../development/contributing/issue_workflow.md#priority-labels) of the bug:
+   Immediate impact on all impacted users based on the above estimated severity.
 
 1. Potentially incurring data loss and/or security breach.
 
@@ -83,15 +94,13 @@ the current stable stable release, and two previous monthly releases.
 For instance, if we release `11.2.1` with a fix for a severe bug introduced in
 `11.0.0`, we could backport the fix to a new `11.0.x`, and `11.1.x` patch release.
 
-To request backporting to more than one stable release for consideration, raise an issue in [release/tasks] issue tracker.
+To request backporting to more than one stable release for consideration, raise an issue in the
+[release/tasks](https://gitlab.com/gitlab-org/release/tasks/issues/new?issuable_template=Backporting-request) issue tracker.
 
 ### Security releases
 
 Security releases are a special kind of patch release that only include security
-fixes and patches (see below).
-
-Our current policy is to backport security fixes to the previous two
-monthly releases in addition to the current stable release.
+fixes and patches (see below) for the previous two monthly releases in addition to the current stable release.
 
 For very serious security issues, there is
 [precedent](https://about.gitlab.com/blog/2016/05/02/cve-2016-4340-patches/)
@@ -115,17 +124,29 @@ one major version. For example, it is safe to:
   - `8.9.0` -> `8.9.7`
   - `8.9.0` -> `8.9.1`
   - `8.9.2` -> `8.9.6`
+  - `9.5.5` -> `9.5.9`
+  - `10.6.3` -> `10.6.6`
+  - `11.11.1` -> `11.11.8`
+  - `12.0.4` -> `12.0.9`
 - Upgrade the minor version:
   - `8.9.4` -> `8.12.3`
   - `9.2.3` -> `9.5.5`
+  - `10.6.6` -> `10.8.7`
+  - `11.3.4` -> `11.11.8`
 
 Upgrading the major version requires more attention.
 We cannot guarantee that upgrading between major versions will be seamless. As previously mentioned, major versions are reserved for backwards incompatible changes.
-
 We recommend that you first upgrade to the latest available minor version within
 your major version. By doing this, you can address any deprecation messages
 that could change behavior in the next major release.
 
+It's also important to ensure that any background migrations have been fully completed
+before upgrading to a new major version. To see the current size of the `background_migration` queue,
+[Check for background migrations before upgrading](../update/README.md#checking-for-background-migrations-before-upgrading).
+
+To ensure background migrations are successful, increment by one minor version during the version jump before installing newer releases.
+
+For example: `11.11.x` -> `12.0.x`
 Please see the table below for some examples:
 
 | Latest stable version | Your version | Recommended upgrade path | Note |
@@ -133,14 +154,8 @@ Please see the table below for some examples:
 | 9.4.5                 | 8.13.4       | `8.13.4` -> `8.17.7` -> `9.4.5`                          | `8.17.7` is the last version in version `8` |
 | 10.1.4                | 8.13.4       | `8.13.4 -> 8.17.7 -> 9.5.10 -> 10.1.4`                   | `8.17.7` is the last version in version `8`, `9.5.10` is the last version in version `9` |
 | 11.3.4                | 8.13.4       | `8.13.4` -> `8.17.7` -> `9.5.10` -> `10.8.7` -> `11.3.4` | `8.17.7` is the last version in version `8`, `9.5.10` is the last version in version `9`, `10.8.7` is the last version in version `10` |
-| 12.0.2                | 11.3.4       | `11.3.4` -> `11.11.x` -> `12.0.2`                        | `11.11.x` is the last version in version `11`
+| 12.5.8                | 11.3.4       | `11.3.4` -> `11.11.8` -> `12.0.9` -> `12.5.8`            | `11.11.8` is the last version in version `11` |
 
 More information about the release procedures can be found in our
 [release documentation](https://gitlab.com/gitlab-org/release/docs). You may also want to read our
 [Responsible Disclosure Policy](https://about.gitlab.com/security/disclosure/).
-
-[release-managers]: https://about.gitlab.com/community/release-managers/
-[priority-definition]: ../development/contributing/issue_workflow.md#priority-labels
-[severity-labels]: ../development/contributing/issue_workflow.html#severity-labels
-[managing bugs]: https://gitlab.com/gitlab-org/gitlab/blob/master/PROCESS.md#managing-bugs
-[release/tasks]: https://gitlab.com/gitlab-org/release/tasks/issues

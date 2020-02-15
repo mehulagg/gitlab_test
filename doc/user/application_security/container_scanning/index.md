@@ -4,7 +4,7 @@ type: reference, howto
 
 # Container Scanning **(ULTIMATE)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/3672)
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/3672)
 in [GitLab Ultimate](https://about.gitlab.com/pricing/) 10.4.
 
 ## Overview
@@ -46,17 +46,31 @@ To enable Container Scanning in your pipeline, you need:
 - Docker `18.09.03` or higher installed on the machine where the Runners are
   running. If you're using the shared Runners on GitLab.com, this is already
   the case.
-- To [build and push](../../../ci/docker/using_docker_build.md#container-registry-examples)
-  your Docker image to your project's [Container Registry](../../packages/container_registry/index.md).
-  The name of the Docker image should match the following scheme:
+- To [build and push](../../packages/container_registry/index.md#container-registry-examples-with-gitlab-cicd)
+  your Docker image to your project's Container Registry.
+  The name of the Docker image should use the following
+  [predefined environment variables](../../../ci/variables/predefined_variables.md)
+  as defined below:
 
   ```text
   $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
   ```
 
-  The variables above can be found in the
-  [predefined environment variables](../../../ci/variables/predefined_variables.md)
-  document.
+  These can be used directly in your `.gitlab-ci.yml` file:
+
+  ```yaml
+  build:
+    image: docker:19.03.1
+    stage: build
+    services:
+      - docker:19.03.1-dind
+    variables:
+      IMAGE_TAG: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_REF_SHA
+    script:
+      - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+      - docker build -t $IMAGE_TAG .
+      - docker push $IMAGE_TAG
+  ```
 
 ## Configuration
 
@@ -71,7 +85,7 @@ Add the following to your `.gitlab-ci.yml` file:
 
 ```yaml
 include:
-  template: Container-Scanning.gitlab-ci.yml
+  - template: Container-Scanning.gitlab-ci.yml
 ```
 
 The included template will:
@@ -127,7 +141,7 @@ If you want to whitelist specific vulnerabilities, you'll need to:
    [overriding the Container Scanning template](#overriding-the-container-scanning-template) section of this document.
    1. Define the whitelisted vulnerabilities in a YAML file named `clair-whitelist.yml` which must use the format described
    in the [following whitelist example file](https://github.com/arminc/clair-scanner/blob/v12/example-whitelist.yaml).
-   1. Add the `clair-whitelist.yml` file to the git repository of your project
+   1. Add the `clair-whitelist.yml` file to the Git repository of your project
 
 ### Overriding the Container Scanning template
 
@@ -218,6 +232,107 @@ build_latest_vulnerabilities:
 ```
 
 The above template will work for a GitLab Docker registry running on a local installation, however, if you're using a non-GitLab Docker registry, you'll need to change the `$CI_REGISTRY` value and the `docker login` credentials to match the details of your local registry.
+
+## Reports JSON format
+
+CAUTION: **Caution:**
+The JSON report artifacts are not a public API of Container Scanning and their format may change in the future.
+
+The Container Scanning tool emits a JSON report file. Here is an example of the report structure with all important parts of
+it highlighted:
+
+```json-doc
+{
+  "version": "2.3",
+  "vulnerabilities": [
+    {
+      "category": "container_scanning",
+      "message": "CVE-2019-3462 in apt",
+      "description": "Incorrect sanitation of the 302 redirect field in HTTP transport method of apt versions 1.4.8 and earlier can lead to content injection by a MITM attacker, potentially leading to remote code execution on the target machine.",
+      "cve": "debian:9:apt:CVE-2019-3462",
+      "severity": "High",
+      "confidence": "Unknown",
+      "solution": "Upgrade apt from 1.4.8 to 1.4.9",
+      "scanner": {
+        "id": "klar",
+        "name": "klar"
+      },
+      "location": {
+        "dependency": {
+          "package": {
+            "name": "apt"
+          },
+          "version": "1.4.8"
+        },
+        "operating_system": "debian:9",
+        "image": "registry.gitlab.com/gitlab-org/security-products/dast/webgoat-8.0@sha256:bc09fe2e0721dfaeee79364115aeedf2174cce0947b9ae5fe7c33312ee019a4e"
+      },
+      "identifiers": [
+        {
+          "type": "cve",
+          "name": "CVE-2019-3462",
+          "value": "CVE-2019-3462",
+          "url": "https://security-tracker.debian.org/tracker/CVE-2019-3462"
+        }
+      ],
+      "links": [
+        {
+          "url": "https://security-tracker.debian.org/tracker/CVE-2019-3462"
+        }
+      ]
+    }
+  ],
+  "remediations": [
+    {
+      "fixes": [
+        {
+          "cve": "debian:9:apt:CVE-2019-3462"
+        }
+      ],
+      "summary": "Upgrade apt from 1.4.8 to 1.4.9",
+      "diff": "YXB0LWdldCB1cGRhdGUgJiYgYXB0LWdldCB1cGdyYWRlIC15IGFwdA=="
+    }
+  ]
+}
+```
+
+Here is the description of the report file structure nodes and their meaning. All fields are mandatory to be present in
+the report JSON unless stated otherwise. Presence of optional fields depends on the underlying analyzers being used.
+
+| Report JSON node                                     | Description                                                                                                                                                                                                                                                                                                                                                                                |
+|------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `version`                                            | Report syntax version used to generate this JSON.                                                                                                                                                                                                                                                                                                                                          |
+| `vulnerabilities`                                    | Array of vulnerability objects.                                                                                                                                                                                                                                                                                                                                                            |
+| `vulnerabilities[].category`                         | Where this vulnerability belongs (SAST, Container Scanning etc.). For Container Scanning, it will always be `container_scanning`.                                                                                                                                                                                                                                                          |
+| `vulnerabilities[].message`                          | A short text that describes the vulnerability, it may include occurrence's specific information. Optional.                                                                                                                                                                                                                                                                                 |
+| `vulnerabilities[].description`                      | A long text that describes the vulnerability. Optional.                                                                                                                                                                                                                                                                                                                                    |
+| `vulnerabilities[].cve`                              | A fingerprint string value that represents a concrete occurrence of the vulnerability. It's used to determine whether two vulnerability occurrences are same or different. May not be 100% accurate. **This is NOT a [CVE](https://cve.mitre.org/)**.                                                                                                                                      |
+| `vulnerabilities[].severity`                         | How much the vulnerability impacts the software. Possible values: `Undefined` (an analyzer has not provided this info), `Info`, `Unknown`, `Low`, `Medium`, `High`, `Critical`.  **Note:** Our current container scanning tool based on [klar](https://github.com/optiopay/klar) only provides the following levels: `Unknown`, `Low`, `Medium`, `High`, `Critical`.                       |
+| `vulnerabilities[].confidence`                       | How reliable the vulnerability's assessment is. Possible values: `Undefined` (an analyzer has not provided this info), `Ignore`, `Unknown`, `Experimental`, `Low`, `Medium`, `High`, `Confirmed`.  **Note:** Our current container scanning tool based on [klar](https://github.com/optiopay/klar) does not provide a confidence level, so this value is currently hardcoded to `Unknown`. |
+| `vulnerabilities[].solution`                         | Explanation of how to fix the vulnerability. Optional.                                                                                                                                                                                                                                                                                                                                     |
+| `vulnerabilities[].scanner`                          | A node that describes the analyzer used to find this vulnerability.                                                                                                                                                                                                                                                                                                                        |
+| `vulnerabilities[].scanner.id`                       | Id of the scanner as a snake_case string.                                                                                                                                                                                                                                                                                                                                                  |
+| `vulnerabilities[].scanner.name`                     | Name of the scanner, for display purposes.                                                                                                                                                                                                                                                                                                                                                 |
+| `vulnerabilities[].location`                         | A node that tells where the vulnerability is located.                                                                                                                                                                                                                                                                                                                                      |
+| `vulnerabilities[].location.dependency`              | A node that describes the dependency of a project where the vulnerability is located.                                                                                                                                                                                                                                                                                                      |
+| `vulnerabilities[].location.dependency.package`      | A node that provides the information on the package where the vulnerability is located.                                                                                                                                                                                                                                                                                                    |
+| `vulnerabilities[].location.dependency.package.name` | Name of the package where the vulnerability is located.                                                                                                                                                                                                                                                                                                                                    |
+| `vulnerabilities[].location.dependency.version`      | Version of the vulnerable package. Optional.                                                                                                                                                                                                                                                                                                                                               |
+| `vulnerabilities[].location.operating_system`        | The operating system that contains the vulnerable package.                                                                                                                                                                                                                                                                                                                                 |
+| `vulnerabilities[].location.image`                   | The Docker image that was analyzed.                                                                                                                                                                                                                                                                                                                                                        |
+| `vulnerabilities[].identifiers`                      | An ordered array of references that identify a vulnerability on internal or external DBs.                                                                                                                                                                                                                                                                                                  |
+| `vulnerabilities[].identifiers[].type`               | Type of the identifier. Possible values: common identifier types (among `cve`, `cwe`, `osvdb`, and `usn`).                                                                                                                                                                                                                                                                                 |
+| `vulnerabilities[].identifiers[].name`               | Name of the identifier for display purpose.                                                                                                                                                                                                                                                                                                                                                |
+| `vulnerabilities[].identifiers[].value`              | Value of the identifier for matching purpose.                                                                                                                                                                                                                                                                                                                                              |
+| `vulnerabilities[].identifiers[].url`                | URL to identifier's documentation. Optional.                                                                                                                                                                                                                                                                                                                                               |
+| `vulnerabilities[].links`                            | An array of references to external documentation pieces or articles that describe the vulnerability further. Optional.                                                                                                                                                                                                                                                                     |
+| `vulnerabilities[].links[].name`                     | Name of the vulnerability details link. Optional.                                                                                                                                                                                                                                                                                                                                          |
+| `vulnerabilities[].links[].url`                      | URL of the vulnerability details document. Optional.                                                                                                                                                                                                                                                                                                                                       |
+| `remediations`                                       | An array of objects containing information on cured vulnerabilities along with patch diffs to apply. Empty if no remediations provided by an underlying analyzer.                                                                                                                                                                                                                          |
+| `remediations[].fixes`                               | An array of strings that represent references to vulnerabilities fixed by this particular remediation.                                                                                                                                                                                                                                                                                     |
+| `remediations[].fixes[].cve`                         | A string value that describes a fixed vulnerability occurrence in the same format as `vulnerabilities[].cve`.                                                                                                                                                                                                                                                                              |
+| `remediations[].summary`                             | Overview of how the vulnerabilities have been fixed.                                                                                                                                                                                                                                                                                                                                       |
+| `remediations[].diff`                                | base64-encoded remediation code diff, compatible with [`git apply`](https://git-scm.com/docs/git-format-patch#_discussion).                                                                                                                                                                                                                                                                |
 
 ## Troubleshooting
 

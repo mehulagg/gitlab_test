@@ -1,4 +1,5 @@
 import Vuex from 'vuex';
+import { GlEmptyState } from '@gitlab/ui';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import GroupSecurityDashboard from 'ee/security_dashboard/components/group_security_dashboard.vue';
 import SecurityDashboard from 'ee/security_dashboard/components/app.vue';
@@ -13,12 +14,13 @@ const vulnerabilitiesEndpoint = '/vulnerabilities';
 const vulnerabilitiesCountEndpoint = '/vulnerabilities_summary';
 const vulnerabilitiesHistoryEndpoint = '/vulnerabilities_history';
 const vulnerabilityFeedbackHelpPath = '/vulnerabilities_feedback_help';
+const vulnerableProjectsEndpoint = '/vulnerable_projects';
 
 describe('Group Security Dashboard component', () => {
   let store;
   let wrapper;
 
-  const factory = () => {
+  const factory = options => {
     store = new Vuex.Store({
       modules: {
         projects: {
@@ -35,7 +37,6 @@ describe('Group Security Dashboard component', () => {
     wrapper = shallowMount(GroupSecurityDashboard, {
       localVue,
       store,
-      sync: false,
       propsData: {
         dashboardDocumentation,
         emptyStateSvgPath,
@@ -44,7 +45,9 @@ describe('Group Security Dashboard component', () => {
         vulnerabilitiesCountEndpoint,
         vulnerabilitiesHistoryEndpoint,
         vulnerabilityFeedbackHelpPath,
+        vulnerableProjectsEndpoint,
       },
+      ...options,
     });
   };
 
@@ -69,14 +72,29 @@ describe('Group Security Dashboard component', () => {
       expect(dashboard.exists()).toBe(true);
       expect(dashboard.props()).toEqual(
         expect.objectContaining({
-          dashboardDocumentation,
-          emptyStateSvgPath,
           vulnerabilitiesEndpoint,
           vulnerabilitiesCountEndpoint,
           vulnerabilitiesHistoryEndpoint,
           vulnerabilityFeedbackHelpPath,
+          vulnerableProjectsEndpoint,
         }),
       );
+    });
+  });
+
+  describe('with a stubbed dashboard for slot testing', () => {
+    beforeEach(() => {
+      factory({
+        stubs: {
+          'security-dashboard': { template: '<div><slot name="emptyState"></slot></div>' },
+        },
+      });
+    });
+
+    it('renders empty state component with correct props', () => {
+      const emptyState = wrapper.find(GlEmptyState);
+
+      expect(emptyState.attributes('title')).toBe('No vulnerabilities found for this group');
     });
   });
 });

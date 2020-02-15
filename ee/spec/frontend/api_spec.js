@@ -1,7 +1,7 @@
 import MockAdapter from 'axios-mock-adapter';
-import axios from '~/lib/utils/axios_utils';
 import Api from 'ee/api';
 import * as cycleAnalyticsConstants from 'ee/analytics/cycle_analytics/constants';
+import axios from '~/lib/utils/axios_utils';
 
 describe('Api', () => {
   const dummyApiVersion = 'v3000';
@@ -165,12 +165,18 @@ describe('Api', () => {
   });
 
   describe('getPodLogs', () => {
-    const projectPath = 'root/test-project';
-    const environmentId = 2;
+    const projectPath = '/root/test-project';
+    const environmentName = 'production';
     const podName = 'pod';
     const containerName = 'container';
+    const search = 'foo +bar';
+    const environment = {
+      name: environmentName,
+      enable_advanced_logs_querying: false,
+      project_path: projectPath,
+    };
 
-    const lastUrl = () => mock.history.get[0].url;
+    const getRequest = () => mock.history.get[0];
 
     beforeEach(() => {
       mock.onAny().reply(200);
@@ -181,33 +187,61 @@ describe('Api', () => {
     });
 
     it('calls `axios.get` with pod_name and container_name', done => {
-      const expectedUrl = `${dummyUrlRoot}/${projectPath}/environments/${environmentId}/pods/${podName}/containers/${containerName}/logs.json`;
+      const expectedUrl = `${dummyUrlRoot}${projectPath}/-/logs/k8s.json`;
 
-      Api.getPodLogs({ projectPath, environmentId, podName, containerName })
+      Api.getPodLogs({ environment, podName, containerName })
         .then(() => {
-          expect(expectedUrl).toBe(lastUrl());
+          expect(getRequest().url).toBe(expectedUrl);
+          expect(getRequest().params).toEqual({
+            environment_name: environmentName,
+            pod_name: podName,
+            container_name: containerName,
+          });
         })
         .then(done)
         .catch(done.fail);
     });
 
     it('calls `axios.get` without pod_name and container_name', done => {
-      const expectedUrl = `${dummyUrlRoot}/${projectPath}/environments/${environmentId}/pods/containers/logs.json`;
+      const expectedUrl = `${dummyUrlRoot}${projectPath}/-/logs/k8s.json`;
 
-      Api.getPodLogs({ projectPath, environmentId })
+      Api.getPodLogs({ environment })
         .then(() => {
-          expect(expectedUrl).toBe(lastUrl());
+          expect(getRequest().url).toBe(expectedUrl);
+          expect(getRequest().params).toEqual({
+            environment_name: environmentName,
+          });
         })
         .then(done)
         .catch(done.fail);
     });
 
     it('calls `axios.get` with pod_name', done => {
-      const expectedUrl = `${dummyUrlRoot}/${projectPath}/environments/${environmentId}/pods/${podName}/containers/logs.json`;
+      const expectedUrl = `${dummyUrlRoot}${projectPath}/-/logs/k8s.json`;
 
-      Api.getPodLogs({ projectPath, environmentId, podName })
+      Api.getPodLogs({ environment, podName })
         .then(() => {
-          expect(expectedUrl).toBe(lastUrl());
+          expect(getRequest().url).toBe(expectedUrl);
+          expect(getRequest().params).toEqual({
+            environment_name: environmentName,
+            pod_name: podName,
+          });
+        })
+        .then(done)
+        .catch(done.fail);
+    });
+
+    it('calls `axios.get` with pod_name and search', done => {
+      const expectedUrl = `${dummyUrlRoot}${projectPath}/-/logs/k8s.json`;
+
+      Api.getPodLogs({ environment, podName, search })
+        .then(() => {
+          expect(getRequest().url).toBe(expectedUrl);
+          expect(getRequest().params).toEqual({
+            environment_name: environmentName,
+            pod_name: podName,
+            search,
+          });
         })
         .then(done)
         .catch(done.fail);
@@ -290,6 +324,11 @@ describe('Api', () => {
     const createdBefore = '2019-11-18';
     const createdAfter = '2019-08-18';
     const stageId = 'thursday';
+    const defaultParams = {
+      group_id: groupId,
+      created_after: createdAfter,
+      created_before: createdBefore,
+    };
 
     const expectRequestWithCorrectParameters = (responseObj, { params, expectedUrl, response }) => {
       const {
@@ -322,9 +361,7 @@ describe('Api', () => {
         ];
         const labelIds = [10, 9, 8, 7];
         const params = {
-          group_id: groupId,
-          created_after: createdAfter,
-          created_before: createdBefore,
+          ...defaultParams,
           project_ids: null,
           subject: cycleAnalyticsConstants.TASKS_BY_TYPE_SUBJECT_ISSUE,
           label_ids: labelIds,
@@ -343,16 +380,16 @@ describe('Api', () => {
     });
 
     describe('cycleAnalyticsSummaryData', () => {
-      it('fetches cycle analytics summary, stage stats and permissions data', done => {
-        const response = { summary: [], stats: [], permissions: {} };
+      it('fetches cycle analytics summary data', done => {
+        const response = [{ value: 0, title: 'New Issues' }, { value: 0, title: 'Deploys' }];
         const params = {
-          'cycle_analytics[created_after]': createdAfter,
-          'cycle_analytics[created_before]': createdBefore,
+          ...defaultParams,
         };
-        const expectedUrl = `${dummyUrlRoot}/groups/${groupId}/-/cycle_analytics`;
+
+        const expectedUrl = `${dummyUrlRoot}/-/analytics/cycle_analytics/summary`;
         mock.onGet(expectedUrl).reply(200, response);
 
-        Api.cycleAnalyticsSummaryData(groupId, params)
+        Api.cycleAnalyticsSummaryData(params)
           .then(responseObj =>
             expectRequestWithCorrectParameters(responseObj, {
               response,
@@ -393,14 +430,34 @@ describe('Api', () => {
       it('fetches stage events', done => {
         const response = { events: [] };
         const params = {
-          'cycle_analytics[group_id]': groupId,
-          'cycle_analytics[created_after]': createdAfter,
-          'cycle_analytics[created_before]': createdBefore,
+          ...defaultParams,
         };
-        const expectedUrl = `${dummyUrlRoot}/groups/${groupId}/-/cycle_analytics/events/${stageId}.json`;
+        const expectedUrl = `${dummyUrlRoot}/-/analytics/cycle_analytics/stages/${stageId}/records`;
         mock.onGet(expectedUrl).reply(200, response);
 
         Api.cycleAnalyticsStageEvents(groupId, stageId, params)
+          .then(responseObj =>
+            expectRequestWithCorrectParameters(responseObj, {
+              response,
+              params,
+              expectedUrl,
+            }),
+          )
+          .then(done)
+          .catch(done.fail);
+      });
+    });
+
+    describe('cycleAnalyticsStageMedian', () => {
+      it('fetches stage events', done => {
+        const response = { value: '5 days ago' };
+        const params = {
+          ...defaultParams,
+        };
+        const expectedUrl = `${dummyUrlRoot}/-/analytics/cycle_analytics/stages/${stageId}/median`;
+        mock.onGet(expectedUrl).reply(200, response);
+
+        Api.cycleAnalyticsStageMedian(groupId, stageId, params)
           .then(responseObj =>
             expectRequestWithCorrectParameters(responseObj, {
               response,
@@ -482,9 +539,7 @@ describe('Api', () => {
       it('fetches stage duration data', done => {
         const response = [];
         const params = {
-          group_id: groupId,
-          created_after: createdAfter,
-          created_before: createdBefore,
+          ...defaultParams,
         };
         const expectedUrl = `${dummyUrlRoot}/-/analytics/cycle_analytics/stages/thursday/duration_chart`;
         mock.onGet(expectedUrl).reply(200, response);
@@ -499,6 +554,74 @@ describe('Api', () => {
           )
           .then(done)
           .catch(done.fail);
+      });
+    });
+  });
+
+  describe('GeoDesigns', () => {
+    let expectedUrl;
+    let apiResponse;
+    let mockParams;
+
+    beforeEach(() => {
+      expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/geo_replication/designs`;
+    });
+
+    describe('getGeoDesigns', () => {
+      it('fetches designs', () => {
+        apiResponse = [{ id: 1, name: 'foo' }, { id: 2, name: 'bar' }];
+        mockParams = { page: 1 };
+
+        jest.spyOn(Api, 'buildUrl').mockReturnValue(expectedUrl);
+        jest.spyOn(axios, 'get');
+        mock.onGet(expectedUrl).replyOnce(200, apiResponse);
+
+        return Api.getGeoDesigns(mockParams).then(({ data }) => {
+          expect(data).toEqual(apiResponse);
+          expect(axios.get).toHaveBeenCalledWith(expectedUrl, { params: mockParams });
+        });
+      });
+    });
+
+    describe('initiateAllGeoDesignSyncs', () => {
+      it('POSTs with correct action', () => {
+        apiResponse = [{ status: 'ok' }];
+        mockParams = {};
+
+        const mockAction = 'reverify';
+
+        jest.spyOn(Api, 'buildUrl').mockReturnValue(expectedUrl);
+        jest.spyOn(axios, 'post');
+        mock.onPost(`${expectedUrl}/${mockAction}`).replyOnce(201, apiResponse);
+
+        return Api.initiateAllGeoDesignSyncs(mockAction).then(({ data }) => {
+          expect(data).toEqual(apiResponse);
+          expect(axios.post).toHaveBeenCalledWith(`${expectedUrl}/${mockAction}`, mockParams);
+        });
+      });
+    });
+
+    describe('initiateGeoDesignSync', () => {
+      it('PUTs with correct action and projectId', () => {
+        apiResponse = [{ status: 'ok' }];
+        mockParams = {};
+
+        const mockAction = 'reverify';
+        const mockProjectId = 1;
+
+        jest.spyOn(Api, 'buildUrl').mockReturnValue(expectedUrl);
+        jest.spyOn(axios, 'put');
+        mock.onPut(`${expectedUrl}/${mockProjectId}/${mockAction}`).replyOnce(201, apiResponse);
+
+        return Api.initiateGeoDesignSync({ projectId: mockProjectId, action: mockAction }).then(
+          ({ data }) => {
+            expect(data).toEqual(apiResponse);
+            expect(axios.put).toHaveBeenCalledWith(
+              `${expectedUrl}/${mockProjectId}/${mockAction}`,
+              mockParams,
+            );
+          },
+        );
       });
     });
   });

@@ -127,13 +127,13 @@ describe Projects::ReleasesController do
       sign_in(user)
     end
 
-    let!(:release) { create(:release, project: project) }
+    let(:release) { create(:release, project: project) }
     let(:tag) { CGI.escape(release.tag) }
 
     it_behaves_like 'successful request'
 
     context 'when tag name contains slash' do
-      let!(:release) { create(:release, project: project, tag: 'awesome/v1.0') }
+      let(:release) { create(:release, project: project, tag: 'awesome/v1.0') }
       let(:tag) { CGI.escape(release.tag) }
 
       it_behaves_like 'successful request'
@@ -144,16 +144,7 @@ describe Projects::ReleasesController do
       end
     end
 
-    context 'when feature flag `release_edit_page` is disabled' do
-      before do
-        stub_feature_flags(release_edit_page: false)
-      end
-
-      it_behaves_like 'not found'
-    end
-
     context 'when release does not exist' do
-      let!(:release) { }
       let(:tag) { 'non-existent-tag' }
 
       it_behaves_like 'not found'
@@ -166,8 +157,50 @@ describe Projects::ReleasesController do
     end
   end
 
+  describe 'GET #show' do
+    subject do
+      get :show, params: { namespace_id: project.namespace, project_id: project, tag: tag }
+    end
+
+    before do
+      sign_in(user)
+    end
+
+    let(:release) { create(:release, project: project) }
+    let(:tag) { CGI.escape(release.tag) }
+
+    it_behaves_like 'successful request'
+
+    context 'when tag name contains slash' do
+      let(:release) { create(:release, project: project, tag: 'awesome/v1.0') }
+      let(:tag) { CGI.escape(release.tag) }
+
+      it_behaves_like 'successful request'
+
+      it 'is accesible at a URL encoded path' do
+        expect(project_release_path(project, release))
+          .to eq("/#{project.namespace.path}/#{project.name}/-/releases/awesome%252Fv1.0")
+      end
+    end
+
+    context 'when feature flag `release_show_page` is disabled' do
+      before do
+        stub_feature_flags(release_show_page: false)
+      end
+
+      it_behaves_like 'not found'
+    end
+
+    context 'when release does not exist' do
+      let(:tag) { 'non-existent-tag' }
+
+      it_behaves_like 'not found'
+    end
+  end
+
   describe 'GET #evidence' do
-    let!(:release) { create(:release, :with_evidence, project: project) }
+    let_it_be(:tag_name) { "v1.1.0-evidence" }
+    let!(:release) { create(:release, :with_evidence, project: project, tag: tag_name) }
     let(:tag) { CGI.escape(release.tag) }
     let(:format) { :json }
 
@@ -184,19 +217,118 @@ describe Projects::ReleasesController do
       sign_in(user)
     end
 
-    it 'returns the correct evidence summary as a json' do
-      subject
-
-      expect(json_response).to eq(release.evidence.summary)
-    end
-
-    context 'when the release was created before evidence existed' do
-      it 'returns an empty json' do
-        release.evidence.destroy
-
+    context 'when the user is a developer' do
+      it 'returns the correct evidence summary as a json' do
         subject
 
-        expect(json_response).to eq({})
+        expect(json_response).to eq(release.evidence.summary)
+      end
+
+      context 'when the release was created before evidence existed' do
+        before do
+          release.evidence.destroy
+        end
+
+        it 'returns an empty json' do
+          subject
+
+          expect(json_response).to eq({})
+        end
+      end
+    end
+
+    context 'when the user is a guest for the project' do
+      before do
+        project.add_guest(user)
+      end
+
+      context 'when the project is private' do
+        let(:project) { private_project }
+
+        it_behaves_like 'not found'
+      end
+
+      context 'when the project is public' do
+        it_behaves_like 'successful request'
+      end
+    end
+
+    context 'when release is associated to a milestone which includes an issue' do
+      let_it_be(:project) { create(:project, :repository, :public) }
+      let_it_be(:issue) { create(:issue, project: project) }
+      let_it_be(:milestone) { create(:milestone, project: project, issues: [issue]) }
+      let_it_be(:release) { create(:release, project: project, tag: tag_name, milestones: [milestone]) }
+
+      before do
+        create(:evidence, release: release)
+      end
+
+      shared_examples_for 'does not show the issue in evidence' do
+        it do
+          subject
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['release']['milestones']
+            .all? { |milestone| milestone['issues'].nil? }).to eq(true)
+        end
+      end
+
+      shared_examples_for 'evidence not found' do
+        it do
+          subject
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+
+      shared_examples_for 'safely expose evidence' do
+        it_behaves_like 'does not show the issue in evidence'
+
+        context 'when the issue is confidential' do
+          let(:issue) { create(:issue, :confidential, project: project) }
+
+          it_behaves_like 'does not show the issue in evidence'
+        end
+
+        context 'when the user is the author of the confidential issue' do
+          let(:issue) { create(:issue, :confidential, project: project, author: user) }
+
+          it_behaves_like 'does not show the issue in evidence'
+        end
+
+        context 'when project is private' do
+          let!(:project) { create(:project, :repository, :private) }
+
+          it_behaves_like 'evidence not found'
+        end
+
+        context 'when project restricts the visibility of issues to project members only' do
+          let!(:project) { create(:project, :repository, :issues_private) }
+
+          it_behaves_like 'evidence not found'
+        end
+      end
+
+      context 'when user is non-project member' do
+        let(:user) { create(:user) }
+
+        it_behaves_like 'safely expose evidence'
+      end
+
+      context 'when user is auditor', if: Gitlab.ee? do
+        let(:user) { create(:user, :auditor) }
+
+        it_behaves_like 'safely expose evidence'
+      end
+
+      context 'when external authorization control is enabled' do
+        let(:user) { create(:user) }
+
+        before do
+          stub_application_setting(external_authorization_service_enabled: true)
+        end
+
+        it_behaves_like 'evidence not found'
       end
     end
   end

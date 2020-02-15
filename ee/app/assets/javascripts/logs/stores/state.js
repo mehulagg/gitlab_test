@@ -1,8 +1,18 @@
+import { timeRanges, defaultTimeRange } from '~/monitoring/constants';
+
 export default () => ({
   /**
-   * Current project path
+   * Full text search
    */
-  projectPath: '',
+  search: '',
+
+  /**
+   * Time range (Show last)
+   */
+  timeRange: {
+    options: timeRanges,
+    current: defaultTimeRange,
+  },
 
   /**
    * Environments list information

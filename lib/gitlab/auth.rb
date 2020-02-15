@@ -3,6 +3,7 @@
 module Gitlab
   module Auth
     MissingPersonalAccessTokenError = Class.new(StandardError)
+    IpBlacklisted = Class.new(StandardError)
 
     # Scopes used for GitLab API access
     API_SCOPES = [:api, :read_user].freeze
@@ -35,6 +36,10 @@ module Gitlab
       def find_for_git_client(login, password, project:, ip:)
         raise "Must provide an IP for rate limiting" if ip.nil?
 
+        rate_limiter = Gitlab::Auth::IpRateLimiter.new(ip)
+
+        raise IpBlacklisted if !skip_rate_limit?(login: login) && rate_limiter.banned?
+
         # `user_with_password_for_git` should be the last check
         # because it's the most expensive, especially when LDAP
         # is enabled.
@@ -44,12 +49,12 @@ module Gitlab
           lfs_token_check(login, password, project) ||
           oauth_access_token_check(login, password) ||
           personal_access_token_check(password) ||
-          deploy_token_check(login, password) ||
+          deploy_token_check(login, password, project) ||
           user_with_password_for_git(login, password) ||
           Gitlab::Auth::Result.new
 
-        rate_limit!(ip, success: result.success?, login: login) unless skip_rate_limit?(login: login)
-        Gitlab::Auth::UniqueIpsLimiter.limit_user!(result.actor)
+        rate_limit!(rate_limiter, success: result.success?, login: login)
+        look_to_limit_user(result.actor)
 
         return result if result.success? || authenticate_using_internal_or_ldap_password?
 
@@ -96,10 +101,11 @@ module Gitlab
         end
       end
 
+      private
+
       # rubocop:disable Gitlab/RailsLogger
-      def rate_limit!(ip, success:, login:)
-        rate_limiter = Gitlab::Auth::IpRateLimiter.new(ip)
-        return unless rate_limiter.enabled?
+      def rate_limit!(rate_limiter, success:, login:)
+        return if skip_rate_limit?(login: login)
 
         if success
           # Repeated login 'failures' are normal behavior for some Git clients so
@@ -109,20 +115,22 @@ module Gitlab
         else
           # Register a login failure so that Rack::Attack can block the next
           # request from this IP if needed.
-          rate_limiter.register_fail!
-
-          if rate_limiter.banned?
-            Rails.logger.info "IP #{ip} failed to login " \
+          # This returns true when the failures are over the threshold and the IP
+          # is banned.
+          if rate_limiter.register_fail!
+            Rails.logger.info "IP #{rate_limiter.ip} failed to login " \
               "as #{login} but has been temporarily banned from Git auth"
           end
         end
       end
       # rubocop:enable Gitlab/RailsLogger
 
-      private
-
       def skip_rate_limit?(login:)
         ::Ci::Build::CI_REGISTRY_USER == login
+      end
+
+      def look_to_limit_user(actor)
+        Gitlab::Auth::UniqueIpsLimiter.limit_user!(actor) if actor.is_a?(User)
       end
 
       def authenticate_using_internal_or_ldap_password?
@@ -200,7 +208,7 @@ module Gitlab
         end.uniq
       end
 
-      def deploy_token_check(login, password)
+      def deploy_token_check(login, password, project)
         return unless password.present?
 
         token = DeployToken.active.find_by_token(password)
@@ -211,7 +219,7 @@ module Gitlab
         scopes = abilities_for_scopes(token.scopes)
 
         if valid_scoped_token?(token, all_available_scopes)
-          Gitlab::Auth::Result.new(token, token.project, :deploy_token, scopes)
+          Gitlab::Auth::Result.new(token, project, :deploy_token, scopes)
         end
       end
 

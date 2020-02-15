@@ -24,6 +24,7 @@ class ApprovalMergeRequestRule < ApplicationRecord
   end
 
   validates :name, uniqueness: { scope: [:merge_request, :code_owner] }
+  validates :rule_type, uniqueness: { scope: :merge_request_id, message: proc { _('any-approver for the merge request already exists') } }, if: :any_approver?
   validates :report_type, presence: true, if: :report_approver?
   # Temporary validations until `code_owner` can be dropped in favor of `rule_type`
   # To be removed with https://gitlab.com/gitlab-org/gitlab/issues/11834
@@ -68,6 +69,14 @@ class ApprovalMergeRequestRule < ApplicationRecord
     end
   rescue ActiveRecord::RecordNotUnique
     retry
+  end
+
+  def self.applicable_to_branch(branch)
+    includes(approval_project_rule: :protected_branches).select do |rule|
+      next true unless rule.approval_project_rule.present?
+
+      rule.approval_project_rule.applies_to_branch?(branch)
+    end
   end
 
   def project
@@ -116,7 +125,9 @@ class ApprovalMergeRequestRule < ApplicationRecord
     # Before being merged, approved_approvers are dynamically calculated in ApprovalWrappedRule instead of being persisted.
     return unless merge_request.merged?
 
-    self.approved_approver_ids = merge_request.approvals.map(&:user_id) & approvers.map(&:id)
+    approvers = ApprovalWrappedRule.wrap(merge_request, self).approved_approvers
+
+    self.approved_approver_ids = approvers.map(&:id)
   end
 
   def refresh_required_approvals!(project_approval_rule)

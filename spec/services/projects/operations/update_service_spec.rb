@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 describe Projects::Operations::UpdateService do
-  set(:user) { create(:user) }
-  set(:project) { create(:project) }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:project, refind: true) { create(:project) }
 
   let(:result) { subject.execute }
 
@@ -145,6 +145,48 @@ describe Projects::Operations::UpdateService do
         end
       end
 
+      context 'partial_update' do
+        let(:params) do
+          {
+            error_tracking_setting_attributes: {
+              enabled: true
+            }
+          }
+        end
+
+        context 'with setting' do
+          before do
+            create(:project_error_tracking_setting, :disabled, project: project)
+          end
+
+          it 'service succeeds' do
+            expect(result[:status]).to eq(:success)
+          end
+
+          it 'updates attributes' do
+            expect { result }
+              .to change { project.reload.error_tracking_setting.enabled }
+              .from(false)
+              .to(true)
+          end
+
+          it 'only updates enabled attribute' do
+            result
+
+            expect(project.error_tracking_setting.previous_changes.keys)
+              .to contain_exactly('enabled')
+          end
+        end
+
+        context 'without setting' do
+          it 'does not create a setting' do
+            expect(result[:status]).to eq(:error)
+
+            expect(project.reload.error_tracking_setting).to be_nil
+          end
+        end
+      end
+
       context 'with masked param token' do
         let(:params) do
           {
@@ -210,7 +252,7 @@ describe Projects::Operations::UpdateService do
           integration = project.reload.grafana_integration
 
           expect(integration.grafana_url).to eq(expected_attrs[:grafana_url])
-          expect(integration.token).to eq(expected_attrs[:token])
+          expect(integration.send(:token)).to eq(expected_attrs[:token])
         end
       end
 
@@ -226,7 +268,7 @@ describe Projects::Operations::UpdateService do
           integration = project.reload.grafana_integration
 
           expect(integration.grafana_url).to eq(expected_attrs[:grafana_url])
-          expect(integration.token).to eq(expected_attrs[:token])
+          expect(integration.send(:token)).to eq(expected_attrs[:token])
         end
 
         context 'with all grafana attributes blank in params' do

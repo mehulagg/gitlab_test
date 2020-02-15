@@ -136,12 +136,13 @@ module Vulnerabilities
 
     def state
       return 'dismissed' if dismissal_feedback.present?
+      return 'detected' unless Feature.enabled?(:first_class_vulnerabilities, project)
 
       if vulnerability.nil?
-        'opened'
+        'detected'
       elsif vulnerability.resolved?
         'resolved'
-      elsif vulnerability.closed? # fail-safe check for cases when dismissal feedback was lost or was not created
+      elsif vulnerability.dismissed? # fail-safe check for cases when dismissal feedback was lost or was not created
         'dismissed'
       else
         'confirmed'
@@ -152,6 +153,8 @@ module Vulnerabilities
       where(
         "NOT EXISTS (?)",
         Feedback.select(1)
+        .where("#{table_name}.report_type = vulnerability_feedback.category")
+        .where("#{table_name}.project_id = vulnerability_feedback.project_id")
         .where("ENCODE(#{table_name}.project_fingerprint, 'HEX') = vulnerability_feedback.project_fingerprint") # rubocop:disable GitlabSecurity/SqlInjection
         .for_dismissal
       )
@@ -162,9 +165,14 @@ module Vulnerabilities
         project_ids = items.map { |i| i[:project_id] }.uniq
         severities = items.map { |i| i[:severity] }.uniq
 
-        counts = undismissed
+        latest_pipelines = Ci::Pipeline
+          .where(project_id: project_ids)
+          .with_vulnerabilities
+          .latest_successful_ids_per_project
+
+        counts = for_pipelines(latest_pipelines)
+          .undismissed
           .by_severities(severities)
-          .by_projects(project_ids)
           .group(:project_id, :severity)
           .count
 

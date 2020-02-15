@@ -75,7 +75,7 @@ data set is for this feature to process, and what problems it might cause.
 If you would think about the following example that puts
 a strong emphasis of data set being processed.
 The problem is simple: you want to filter a list of files from
-some git repository. Your feature requests a list of all files
+some Git repository. Your feature requests a list of all files
 from the repository and perform search for the set of files.
 As an author you should in context of that problem consider
 the following:
@@ -93,7 +93,7 @@ the following:
 The query plan can answer the questions whether we need additional
 indexes, or whether we perform expensive filtering (i.e. using sequential scans).
 
-Each query plan should be run against substantional size of data set.
+Each query plan should be run against substantial size of data set.
 For example if you look for issues with specific conditions,
 you should consider validating the query against
 a small number (a few hundred) and a big number (100_000) of issues.
@@ -164,6 +164,54 @@ can quickly spiral out of control.
 
 There are some cases where this may be needed. If this is the case this should
 be clearly mentioned in the merge request description.
+
+## Batch process
+
+**Summary:** Iterating a single process to external services (e.g. PostgreSQL, Redis, Object Storage, etc)
+should be executed in a **batch-style** in order to reduce connection overheads.
+
+For fetching rows from various tables in a batch-style, please see [Eager Loading](#eager-loading) section.
+
+### Example: Delete multiple files from Object Storage
+
+When you delete multiple files from object storage (e.g. GCS),
+executing a single REST API call multiple times is a quite expensive
+process. Ideally, this should be done in a batch-style, for example, S3 provides
+[batch deletion API](https://docs.aws.amazon.com/AmazonS3/latest/API/API_DeleteObjects.html),
+so it'd be a good idea to consider such an approach.
+
+The `FastDestroyAll` module might help this situation. It's a
+small framework when you remove a bunch of database rows and its associated data
+in a batch style.
+
+## Timeout
+
+**Summary:** You should set a reasonable timeout when the system invokes HTTP calls
+to external services (e.g. Kubernetes), and it should be executed in Sidekiq, not
+in Puma/Unicorn threads.
+
+Often, GitLab needs to communicate with an external service such as Kubernetes
+clusters. In this case, it's hard to estimate when the external service finishes
+the requested process, for example, if it's a user-owned cluster that is inactive for some reason,
+GitLab might wait for the response forever ([Example](https://gitlab.com/gitlab-org/gitlab/issues/31475)).
+This could result in Puma/Unicorn timeout and should be avoided at all cost.
+
+You should set a reasonable timeout, gracefully handle exceptions and surface the
+errors in UI or logging internally.
+
+Using [`ReactiveCaching`](https://docs.gitlab.com/ee/development/utilities.html#reactivecaching) is one of the best solutions to fetch external data.
+
+## Keep database transaction minimal
+
+**Summary:** You should avoid accessing to external services (e.g. Gitaly) during database
+transactions, otherwise it leads to severe contention problems
+as an open transaction basically blocks the release of a Postgres backend connection.
+
+For keeping transaction as minimal as possible, please consider using `AfterCommitQueue`
+module or `after_commit` AR hook.
+
+Here is [an example](https://gitlab.com/gitlab-org/gitlab/issues/36154#note_247228859)
+that one request to Gitaly instance during transaction triggered a P1 issue.
 
 ## Eager Loading
 
@@ -270,7 +318,7 @@ Take into consideration the following when choosing a pagination strategy:
 
 1. It is very inefficient to calculate amount of objects that pass the filtering,
    this operation usually can take seconds, and can time out,
-1. It is very inefficent to get entries for page at higher ordinals, like 1000.
+1. It is very inefficient to get entries for page at higher ordinals, like 1000.
    The database has to sort and iterate all previous items, and this operation usually
    can result in substantial load put on database.
 
@@ -315,7 +363,7 @@ The intent of quotas could be different:
 
 1. We want to provide higher quotas for higher tiers of features:
    we want to provide on GitLab.com more capabilities for different tiers,
-1. We want to prevent misuse of the feature: someone accidentially creates
+1. We want to prevent misuse of the feature: someone accidentally creates
    10000 deploy tokens, because of a broken API script,
 1. We want to prevent abuse of the feature: someone purposely creates
    a 10000 pipelines to take advantage of the system.
@@ -326,7 +374,7 @@ Examples:
    more than 50 schedules.
    In such cases it is rather expected that this is either misuse
    or abuse of the feature. Lack of the upper limit can result
-   in service degredation as the system will try to process all schedules
+   in service degradation as the system will try to process all schedules
    assigned the the project.
 
 1. GitLab CI includes: We started with the limit of maximum of 50 nested includes.

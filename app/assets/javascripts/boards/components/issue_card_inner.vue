@@ -2,10 +2,10 @@
 import _ from 'underscore';
 import { mapState } from 'vuex';
 import { GlTooltipDirective } from '@gitlab/ui';
+import issueCardInner from 'ee_else_ce/boards/mixins/issue_card_inner';
 import { sprintf, __ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import TooltipOnTruncate from '~/vue_shared/components/tooltip_on_truncate.vue';
-import issueCardInner from 'ee_else_ce/boards/mixins/issue_card_inner';
 import UserAvatarLink from '../../vue_shared/components/user_avatar/user_avatar_link.vue';
 import IssueDueDate from './issue_due_date.vue';
 import IssueTimeEstimate from './issue_time_estimate.vue';
@@ -233,7 +233,7 @@ export default {
           :key="assignee.id"
           :link-href="assigneeUrl(assignee)"
           :img-alt="avatarUrlTitle(assignee)"
-          :img-src="assignee.avatar"
+          :img-src="assignee.avatar || assignee.avatar_url"
           :img-size="24"
           class="js-no-trigger"
           tooltip-placement="bottom"

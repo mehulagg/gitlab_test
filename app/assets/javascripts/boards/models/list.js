@@ -1,9 +1,9 @@
 /* eslint-disable no-underscore-dangle, class-methods-use-this, consistent-return, no-shadow */
 
+import ListIssue from 'ee_else_ce/boards/models/issue';
 import { __ } from '~/locale';
 import ListLabel from './label';
 import ListAssignee from './assignee';
-import ListIssue from 'ee_else_ce/boards/models/issue';
 import { urlParamsToObject } from '~/lib/utils/common_utils';
 import flash from '~/flash';
 import boardsStore from '../stores/boards_store';
@@ -83,27 +83,7 @@ class List {
   }
 
   save() {
-    const entity = this.label || this.assignee || this.milestone;
-    let entityType = '';
-    if (this.label) {
-      entityType = 'label_id';
-    } else if (this.assignee) {
-      entityType = 'assignee_id';
-    } else if (IS_EE && this.milestone) {
-      entityType = 'milestone_id';
-    }
-
-    return boardsStore
-      .createList(entity.id, entityType)
-      .then(res => res.data)
-      .then(data => {
-        this.id = data.id;
-        this.type = data.list_type;
-        this.position = data.position;
-        this.label = data.label;
-
-        return this.getIssues();
-      });
+    return boardsStore.saveList(this);
   }
 
   destroy() {

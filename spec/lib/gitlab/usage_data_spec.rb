@@ -17,8 +17,8 @@ describe Gitlab::UsageData do
       create(:service, project: projects[0], type: 'SlackSlashCommandsService', active: true)
       create(:service, project: projects[1], type: 'SlackService', active: true)
       create(:service, project: projects[2], type: 'SlackService', active: true)
-      create(:service, project: projects[2], type: 'MattermostService', active: true)
-      create(:service, project: projects[2], type: 'JenkinsService', active: true)
+      create(:service, project: projects[2], type: 'MattermostService', active: false)
+      create(:service, project: projects[2], type: 'MattermostService', active: true, instance: true)
       create(:service, project: projects[2], type: 'CustomIssueTrackerService', active: true)
       create(:project_error_tracking_setting, project: projects[0])
       create(:project_error_tracking_setting, project: projects[1], enabled: false)
@@ -27,6 +27,7 @@ describe Gitlab::UsageData do
       create_list(:zoom_meeting, 2, project: projects[0], issue: projects[0].issues[1], issue_status: :removed)
       create(:zoom_meeting, project: projects[0], issue: projects[0].issues[2], issue_status: :added)
       create_list(:zoom_meeting, 2, project: projects[0], issue: projects[0].issues[2], issue_status: :removed)
+      create(:sentry_issue, issue: projects[0].issues[0])
 
       # Enabled clusters
       gcp_cluster = create(:cluster_provider_gcp, :created).cluster
@@ -48,10 +49,13 @@ describe Gitlab::UsageData do
       create(:clusters_applications_runner, :installed, cluster: gcp_cluster)
       create(:clusters_applications_knative, :installed, cluster: gcp_cluster)
       create(:clusters_applications_elastic_stack, :installed, cluster: gcp_cluster)
+      create(:clusters_applications_jupyter, :installed, cluster: gcp_cluster)
 
       create(:grafana_integration, project: projects[0], enabled: true)
       create(:grafana_integration, project: projects[1], enabled: true)
       create(:grafana_integration, project: projects[2], enabled: false)
+
+      allow(Gitlab::GrafanaEmbedUsageData).to receive(:issue_count).and_return(2)
 
       ProjectFeature.first.update_attribute('repository_access_level', 0)
     end
@@ -146,12 +150,15 @@ describe Gitlab::UsageData do
         clusters_applications_runner
         clusters_applications_knative
         clusters_applications_elastic_stack
+        clusters_applications_jupyter
         in_review_folder
         grafana_integrated_projects
         groups
         issues
+        issues_created_from_gitlab_error_tracking_ui
         issues_with_associated_zoom_link
         issues_using_zoom_quick_actions
+        issues_with_embedded_grafana_charts_approx
         keys
         label_lists
         labels
@@ -163,13 +170,15 @@ describe Gitlab::UsageData do
         pool_repositories
         projects
         projects_imported_from_github
+        projects_asana_active
         projects_jira_active
         projects_jira_server_active
         projects_jira_cloud_active
         projects_slack_notifications_active
         projects_slack_slash_active
+        projects_slack_active
+        projects_slack_slash_commands_active
         projects_custom_issue_tracker_active
-        projects_jenkins_active
         projects_mattermost_active
         projects_prometheus_active
         projects_with_repositories_enabled
@@ -198,19 +207,23 @@ describe Gitlab::UsageData do
       count_data = subject[:counts]
 
       expect(count_data[:projects]).to eq(4)
+      expect(count_data[:projects_asana_active]).to eq(0)
       expect(count_data[:projects_prometheus_active]).to eq(1)
       expect(count_data[:projects_jira_active]).to eq(4)
       expect(count_data[:projects_jira_server_active]).to eq(2)
       expect(count_data[:projects_jira_cloud_active]).to eq(2)
       expect(count_data[:projects_slack_notifications_active]).to eq(2)
       expect(count_data[:projects_slack_slash_active]).to eq(1)
+      expect(count_data[:projects_slack_active]).to eq(2)
+      expect(count_data[:projects_slack_slash_commands_active]).to eq(1)
       expect(count_data[:projects_custom_issue_tracker_active]).to eq(1)
-      expect(count_data[:projects_jenkins_active]).to eq(1)
-      expect(count_data[:projects_mattermost_active]).to eq(1)
+      expect(count_data[:projects_mattermost_active]).to eq(0)
       expect(count_data[:projects_with_repositories_enabled]).to eq(3)
       expect(count_data[:projects_with_error_tracking_enabled]).to eq(1)
+      expect(count_data[:issues_created_from_gitlab_error_tracking_ui]).to eq(1)
       expect(count_data[:issues_with_associated_zoom_link]).to eq(2)
       expect(count_data[:issues_using_zoom_quick_actions]).to eq(3)
+      expect(count_data[:issues_with_embedded_grafana_charts_approx]).to eq(2)
 
       expect(count_data[:clusters_enabled]).to eq(4)
       expect(count_data[:project_clusters_enabled]).to eq(3)
@@ -231,6 +244,7 @@ describe Gitlab::UsageData do
       expect(count_data[:clusters_applications_knative]).to eq(1)
       expect(count_data[:clusters_applications_elastic_stack]).to eq(1)
       expect(count_data[:grafana_integrated_projects]).to eq(2)
+      expect(count_data[:clusters_applications_jupyter]).to eq(1)
     end
 
     it 'works when queries time out' do
@@ -293,6 +307,24 @@ describe Gitlab::UsageData do
     end
   end
 
+  describe '#ingress_modsecurity_usage' do
+    subject { described_class.ingress_modsecurity_usage }
+
+    it 'gathers variable data' do
+      allow_any_instance_of(
+        ::Clusters::Applications::IngressModsecurityUsageService
+      ).to receive(:execute).and_return(
+        {
+          ingress_modsecurity_blocking: 1,
+          ingress_modsecurity_disabled: 2
+        }
+      )
+
+      expect(subject[:ingress_modsecurity_blocking]).to eq(1)
+      expect(subject[:ingress_modsecurity_disabled]).to eq(2)
+    end
+  end
+
   describe '#license_usage_data' do
     subject { described_class.license_usage_data }
 
@@ -312,12 +344,6 @@ describe Gitlab::UsageData do
       allow(relation).to receive(:count).and_return(1)
 
       expect(described_class.count(relation)).to eq(1)
-    end
-
-    it 'returns the count for count_by when provided' do
-      allow(relation).to receive(:count).with(:creator_id).and_return(2)
-
-      expect(described_class.count(relation, count_by: :creator_id)).to eq(2)
     end
 
     it 'returns the fallback value when counting fails' do

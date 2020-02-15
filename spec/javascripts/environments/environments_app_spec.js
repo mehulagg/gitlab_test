@@ -1,8 +1,8 @@
 import Vue from 'vue';
 import MockAdapter from 'axios-mock-adapter';
+import mountComponent from 'spec/helpers/vue_mount_component_helper';
 import axios from '~/lib/utils/axios_utils';
 import environmentsComponent from '~/environments/components/environments_app.vue';
-import mountComponent from 'spec/helpers/vue_mount_component_helper';
 import { environment, folder } from './mock_data';
 
 describe('Environment', () => {
@@ -10,7 +10,6 @@ describe('Environment', () => {
     endpoint: 'environments.json',
     canCreateEnvironment: true,
     canReadEnvironment: true,
-    cssContainerClass: 'container',
     newEnvironmentPath: 'environments/new',
     helpPagePath: 'help',
     canaryDeploymentFeatureId: 'canary_deployment',
@@ -56,6 +55,26 @@ describe('Environment', () => {
           "You don't have any environments right now",
         );
       });
+
+      describe('when it is possible to enable a review app', () => {
+        beforeEach(done => {
+          mock
+            .onGet(mockData.endpoint)
+            .reply(200, { environments: [], review_app: { can_setup_review_app: true } });
+
+          component = mountComponent(EnvironmentsComponent, mockData);
+
+          setTimeout(() => {
+            done();
+          }, 0);
+        });
+
+        it('should render the enable review app button', () => {
+          expect(component.$el.querySelector('.js-enable-review-app-button').textContent).toContain(
+            'Enable review app',
+          );
+        });
+      });
     });
 
     describe('with paginated environments', () => {
@@ -93,13 +112,13 @@ describe('Environment', () => {
 
       describe('pagination', () => {
         it('should render pagination', () => {
-          expect(component.$el.querySelectorAll('.gl-pagination li').length).toEqual(5);
+          expect(component.$el.querySelectorAll('.gl-pagination li').length).toEqual(9);
         });
 
         it('should make an API request when page is clicked', done => {
           spyOn(component, 'updateContent');
           setTimeout(() => {
-            component.$el.querySelector('.gl-pagination li:nth-child(5) .page-link').click();
+            component.$el.querySelector('.gl-pagination li:nth-child(3) .page-link').click();
 
             expect(component.updateContent).toHaveBeenCalledWith({ scope: 'available', page: '2' });
             done();

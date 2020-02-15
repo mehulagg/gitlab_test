@@ -26,6 +26,14 @@ module API
 
       def verify_update_project_attrs!(project, attrs)
       end
+
+      def delete_project(user_project)
+        destroy_conditionally!(user_project) do
+          ::Projects::DestroyService.new(user_project, current_user, {}).async_execute
+        end
+
+        accepted!
+      end
     end
 
     helpers do
@@ -82,18 +90,22 @@ module API
       def present_projects(projects, options = {})
         projects = reorder_projects(projects)
         projects = apply_filters(projects)
-        projects = paginate(projects)
-        projects, options = with_custom_attributes(projects, options)
 
-        options = options.reverse_merge(
-          with: current_user ? Entities::ProjectWithAccess : Entities::BasicProjectDetails,
-          statistics: params[:statistics],
-          current_user: current_user,
-          license: false
-        )
-        options[:with] = Entities::BasicProjectDetails if params[:simple]
+        records, options = paginate_with_strategies(projects) do |projects|
+          projects, options = with_custom_attributes(projects, options)
 
-        present options[:with].prepare_relation(projects, options), options
+          options = options.reverse_merge(
+            with: current_user ? Entities::ProjectWithAccess : Entities::BasicProjectDetails,
+            statistics: params[:statistics],
+            current_user: current_user,
+            license: false
+          )
+          options[:with] = Entities::BasicProjectDetails if params[:simple]
+
+          [options[:with].prepare_relation(projects, options), options]
+        end
+
+        present records, options
       end
 
       def translate_params_for_compatibility(params)
@@ -347,7 +359,7 @@ module API
       post ':id/unarchive' do
         authorize!(:archive_project, user_project)
 
-        ::Projects::UpdateService.new(@project, current_user, archived: false).execute
+        ::Projects::UpdateService.new(user_project, current_user, archived: false).execute
 
         present user_project, with: Entities::Project, current_user: current_user
       end
@@ -404,11 +416,7 @@ module API
       delete ":id" do
         authorize! :remove_project, user_project
 
-        destroy_conditionally!(user_project) do
-          ::Projects::DestroyService.new(user_project, current_user, {}).async_execute
-        end
-
-        accepted!
+        delete_project(user_project)
       end
 
       desc 'Mark this project as forked from another'
@@ -439,7 +447,7 @@ module API
           ::Projects::UnlinkForkService.new(user_project, current_user).execute
         end
 
-        result ? status(204) : not_modified!
+        not_modified! unless result
       end
 
       desc 'Share the project with a group' do

@@ -223,6 +223,46 @@ The following table describes details of your subscription for groups:
 | Subscription start date | Date your subscription started. If this is for a Free plan, is the date you transitioned off your group's paid plan. |
 | Subscription end date | Date your current subscription will end. Does not apply to Free plans. |
 
+#### CI pipeline minutes
+
+CI pipeline minutes are the execution time for your [pipelines](../ci/pipelines.md) on our shared runners. Each [GitLab.com tier](https://about.gitlab.com/pricing/) includes a monthly quota of CI pipeline minutes. The quota is applied per group, shared across all members of that group, its subgroups and nested projects. To view the usage, navigate to the group's page, then **Settings > Usage Quotas**.
+
+Only pipeline minutes for our shared runners are restricted. If you have a specific runner setup for your projects, there is no limit to your build time on GitLab.com.
+
+The minutes limit only applies to private projects. The available quota is reset on the first of each calendar month at midnight UTC.
+
+If you reach your limit, you can [purchase additional CI minutes](#extra-shared-runners-pipeline-minutes), or upgrade your account to [Silver or Gold](https://about.gitlab.com/pricing/). Note, your own runners can still be used even if you reach your limits.
+
+##### How pipeline quota usage is calculated
+
+Pipeline quota usage is calculated as the sum of the duration of each individual job. This is slightly different to how pipeline _duration_ is [calculated](https://docs.gitlab.com/ee/ci/pipelines.html#how-pipeline-duration-is-calculated). Pipeline quota usage doesn't consider the intersection of jobs.
+
+A simple example is:
+
+A (1, 3)
+B (2, 4)
+C (6, 7)
+
+In the example:
+
+A begins at 1 and ends at 3.
+B begins at 2 and ends at 4.
+C begins at 6 and ends at 7.
+Visually, it can be viewed as:
+
+```
+0  1  2  3  4  5  6  7
+   AAAAAAA
+      BBBBBBB
+                  CCCC
+```
+
+The sum of each individual job is being calculated therefore in this example, `8` runner minutes would be used for this pipeline:
+
+```
+A + B + C = 3 + 3 + 2 => 8
+```
+
 #### Extra Shared Runners pipeline minutes
 
 If you're using GitLab.com, you can purchase additional CI minutes so your
@@ -231,6 +271,19 @@ main quota. Additional minutes:
 
 - Are only used once the shared quota included in your subscription runs out.
 - Roll over month to month.
+
+Each month, any minutes that you used will be deducted from your balance of additional minutes.
+Therefore, the number of minutes used and available will reflect your *current*
+month's usage and availability. Purchased remaining minutes not used in the
+current month will be rolled out over to the next month.
+
+For example:
+
+- February 15: A group buys 4000 minutes. The count reads 0/4000 minutes.
+- February 28: The group has used 1500 minutes. The count reads 1500/4000 minutes. Thus, there are 2500 minutes remaining.
+- March 1: The counter reads: 0/2500 minutes rolled out from February's remaining quota.
+
+##### Purchasing additional minutes
 
 In order to purchase additional minutes, you should follow these steps:
 

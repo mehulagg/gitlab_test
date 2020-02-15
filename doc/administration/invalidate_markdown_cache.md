@@ -1,6 +1,6 @@
 # Invalidate Markdown Cache
 
-For performance reasons, GitLab caches the HTML version of markdown text
+For performance reasons, GitLab caches the HTML version of Markdown text
 (e.g. issue and merge request descriptions, comments). It's possible
 that these cached versions become outdated, for example
 when the `external_url` configuration option is changed - causing links
@@ -11,6 +11,6 @@ increasing the `local_markdown_version` setting in application settings.  This c
 be done by [changing the application settings through
 the API](../api/settings.md#change-application-settings):
 
-```bash
+```shell
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/application/settings?local_markdown_version=<increased_number>
 ```

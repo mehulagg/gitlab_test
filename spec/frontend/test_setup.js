@@ -1,8 +1,8 @@
 import Vue from 'vue';
 import * as jqueryMatchers from 'custom-jquery-matchers';
 import $ from 'jquery';
-import Translate from '~/vue_shared/translate';
 import { config as testUtilsConfig } from '@vue/test-utils';
+import Translate from '~/vue_shared/translate';
 import { initializeTestTimeout } from './helpers/timeout';
 import { getJSONFixture, loadHTMLFixture, setHTMLFixture } from './helpers/fixtures';
 import { setupManualMocks } from './mocks/mocks_helper';
@@ -34,15 +34,6 @@ Vue.config.productionTip = false;
 
 Vue.use(Translate);
 
-// workaround for JSDOM not supporting innerText
-// see https://github.com/jsdom/jsdom/issues/1245
-Object.defineProperty(global.Element.prototype, 'innerText', {
-  get() {
-    return this.textContent;
-  },
-  configurable: true, // make it so that it doesn't blow chunks on re-running tests with things like --watch
-});
-
 // convenience wrapper for migration from Karma
 Object.assign(global, {
   getJSONFixture,
@@ -66,6 +57,11 @@ Object.assign(global, {
 
 // custom-jquery-matchers was written for an old Jest version, we need to make it compatible
 Object.entries(jqueryMatchers).forEach(([matcherName, matcherFactory]) => {
+  // Don't override existing Jest matcher
+  if (matcherName === 'toHaveLength') {
+    return;
+  }
+
   expect.extend({
     [matcherName]: matcherFactory().compare,
   });

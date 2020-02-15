@@ -5,6 +5,10 @@ module Quality
     UnknownTestLevelError = Class.new(StandardError)
 
     TEST_LEVEL_FOLDERS = {
+      migration: %w[
+        migrations
+        lib/gitlab/background_migration
+      ],
       unit: %w[
         bin
         config
@@ -19,11 +23,11 @@ module Quality
         initializers
         javascripts
         lib
-        migrations
         models
         policies
         presenters
         rack_servers
+        replicators
         routing
         rubocop
         serializers
@@ -62,6 +66,10 @@ module Quality
 
     def level_for(file_path)
       case file_path
+      # Detect migration first since some background migration tests are under
+      # spec/lib/gitlab/background_migration and tests under spec/lib are unit by default
+      when regexp(:migration)
+        :migration
       when regexp(:unit)
         :unit
       when regexp(:integration)

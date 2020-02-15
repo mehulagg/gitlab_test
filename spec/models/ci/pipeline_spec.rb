@@ -7,7 +7,7 @@ describe Ci::Pipeline, :mailer do
   include StubRequests
 
   let(:user) { create(:user) }
-  set(:project) { create(:project) }
+  let_it_be(:project) { create(:project) }
 
   let(:pipeline) do
     create(:ci_empty_pipeline, status: :created, project: project)
@@ -35,6 +35,7 @@ describe Ci::Pipeline, :mailer do
   it { is_expected.to have_one(:source_pipeline) }
   it { is_expected.to have_one(:triggered_by_pipeline) }
   it { is_expected.to have_one(:source_job) }
+  it { is_expected.to have_one(:pipeline_config) }
 
   it { is_expected.to validate_presence_of(:sha) }
   it { is_expected.to validate_presence_of(:status) }
@@ -199,25 +200,6 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
-  describe '#merge_train_pipeline?' do
-    subject { pipeline.merge_train_pipeline? }
-
-    let!(:pipeline) do
-      create(:ci_pipeline, source: :merge_request_event, merge_request: merge_request, ref: ref, target_sha: 'xxx')
-    end
-
-    let(:merge_request) { create(:merge_request) }
-    let(:ref) { 'refs/merge-requests/1/train' }
-
-    it { is_expected.to be_truthy }
-
-    context 'when ref is merge ref' do
-      let(:ref) { 'refs/merge-requests/1/merge' }
-
-      it { is_expected.to be_falsy }
-    end
-  end
-
   describe '#merge_request_ref?' do
     subject { pipeline.merge_request_ref? }
 
@@ -228,43 +210,19 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
-  describe '#merge_train_ref?' do
-    subject { pipeline.merge_train_ref? }
-
-    it 'calls Mergetrain#merge_train_ref?' do
-      expect(MergeRequest).to receive(:merge_train_ref?).with(pipeline.ref)
-
-      subject
-    end
-  end
-
   describe '#merge_request_event_type' do
     subject { pipeline.merge_request_event_type }
 
-    before do
-      allow(pipeline).to receive(:merge_request_event?) { true }
-    end
-
-    context 'when pipeline is merge train pipeline' do
-      before do
-        allow(pipeline).to receive(:merge_train_pipeline?) { true }
-      end
-
-      it { is_expected.to eq(:merge_train) }
-    end
+    let(:pipeline) { merge_request.all_pipelines.last }
 
     context 'when pipeline is merge request pipeline' do
-      before do
-        allow(pipeline).to receive(:merge_request_pipeline?) { true }
-      end
+      let(:merge_request) { create(:merge_request, :with_merge_request_pipeline) }
 
       it { is_expected.to eq(:merged_result) }
     end
 
     context 'when pipeline is detached merge request pipeline' do
-      before do
-        allow(pipeline).to receive(:detached_merge_request_pipeline?) { true }
-      end
+      let(:merge_request) { create(:merge_request, :with_detached_merge_request_pipeline) }
 
       it { is_expected.to eq(:detached) }
     end
@@ -273,7 +231,7 @@ describe Ci::Pipeline, :mailer do
   describe '#legacy_detached_merge_request_pipeline?' do
     subject { pipeline.legacy_detached_merge_request_pipeline? }
 
-    set(:merge_request) { create(:merge_request) }
+    let_it_be(:merge_request) { create(:merge_request) }
     let(:ref) { 'feature' }
     let(:target_sha) { nil }
 
@@ -642,6 +600,7 @@ describe Ci::Pipeline, :mailer do
         CI_COMMIT_BEFORE_SHA
         CI_COMMIT_REF_NAME
         CI_COMMIT_REF_SLUG
+        CI_COMMIT_BRANCH
         CI_COMMIT_MESSAGE
         CI_COMMIT_TITLE
         CI_COMMIT_DESCRIPTION
@@ -1049,22 +1008,22 @@ describe Ci::Pipeline, :mailer do
       end
     end
 
-    describe '#duration', :sidekiq_might_not_need_inline do
+    describe '#duration', :sidekiq_inline do
       context 'when multiple builds are finished' do
         before do
           travel_to(current + 30) do
             build.run!
-            build.success!
+            build.reload.success!
             build_b.run!
             build_c.run!
           end
 
           travel_to(current + 40) do
-            build_b.drop!
+            build_b.reload.drop!
           end
 
           travel_to(current + 70) do
-            build_c.success!
+            build_c.reload.success!
           end
         end
 
@@ -1085,7 +1044,7 @@ describe Ci::Pipeline, :mailer do
           end
 
           travel_to(current + 5.minutes) do
-            build.success!
+            build.reload.success!
           end
         end
 
@@ -1221,6 +1180,38 @@ describe Ci::Pipeline, :mailer do
 
           pipeline.succeed!
         end
+      end
+    end
+
+    describe 'auto devops pipeline metrics' do
+      using RSpec::Parameterized::TableSyntax
+
+      let(:pipeline) { create(:ci_empty_pipeline, config_source: config_source) }
+      let(:config_source) { :auto_devops_source }
+
+      where(:action, :status) do
+        :succeed | 'success'
+        :drop    | 'failed'
+        :skip    | 'skipped'
+        :cancel  | 'canceled'
+      end
+
+      with_them do
+        context "when pipeline receives action '#{params[:action]}'" do
+          subject { pipeline.public_send(action) }
+
+          it { expect { subject }.to change { auto_devops_pipelines_completed_total(status) }.by(1) }
+
+          context 'when not auto_devops_source?' do
+            let(:config_source) { :repository_source }
+
+            it { expect { subject }.not_to change { auto_devops_pipelines_completed_total(status) } }
+          end
+        end
+      end
+
+      def auto_devops_pipelines_completed_total(status)
+        Gitlab::Metrics.counter(:auto_devops_pipelines_completed_total, 'Number of completed auto devops pipelines').get(status: status)
       end
     end
 
@@ -1594,6 +1585,30 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
+  describe '#needs_processing?' do
+    using RSpec::Parameterized::TableSyntax
+
+    subject { pipeline.needs_processing? }
+
+    where(:processed, :result) do
+      nil   | true
+      false | true
+      true  | false
+    end
+
+    with_them do
+      let(:build) do
+        create(:ci_build, :success, pipeline: pipeline, name: 'rubocop')
+      end
+
+      before do
+        build.update_column(:processed, processed)
+      end
+
+      it { is_expected.to eq(result) }
+    end
+  end
+
   shared_context 'with some outdated pipelines' do
     before do
       create_pipeline(:canceled, 'ref', 'A', project)
@@ -1768,17 +1783,6 @@ describe Ci::Pipeline, :mailer do
     end
   end
 
-  describe '.latest_for_shas' do
-    let(:sha) { 'abc' }
-
-    it 'returns latest pipeline for sha' do
-      create(:ci_pipeline, sha: sha)
-      pipeline2 = create(:ci_pipeline, sha: sha)
-
-      expect(described_class.latest_for_shas(sha)).to contain_exactly(pipeline2)
-    end
-  end
-
   describe '.latest_successful_ids_per_project' do
     let(:projects) { create_list(:project, 2) }
     let!(:pipeline1) { create(:ci_pipeline, :success, project: projects[0]) }
@@ -1802,15 +1806,26 @@ describe Ci::Pipeline, :mailer do
     subject { described_class.bridgeable_statuses }
 
     it { is_expected.to be_an(Array) }
-    it { is_expected.not_to include('created', 'preparing', 'pending') }
+    it { is_expected.not_to include('created', 'waiting_for_resource', 'preparing', 'pending') }
   end
 
-  describe '#status', :sidekiq_might_not_need_inline do
+  describe '#status', :sidekiq_inline do
     let(:build) do
       create(:ci_build, :created, pipeline: pipeline, name: 'test')
     end
 
     subject { pipeline.reload.status }
+
+    context 'on waiting for resource' do
+      before do
+        allow(build).to receive(:requires_resource?) { true }
+        allow(Ci::ResourceGroups::AssignResourceFromResourceGroupWorker).to receive(:perform_async)
+
+        build.enqueue
+      end
+
+      it { is_expected.to eq('waiting_for_resource') }
+    end
 
     context 'on prepare' do
       before do
@@ -1835,7 +1850,7 @@ describe Ci::Pipeline, :mailer do
     context 'on run' do
       before do
         build.enqueue
-        build.run
+        build.reload.run
       end
 
       it { is_expected.to eq('running') }
@@ -1894,7 +1909,7 @@ describe Ci::Pipeline, :mailer do
       it 'updates does not change pipeline status' do
         expect(pipeline.statuses.latest.slow_composite_status).to be_nil
 
-        expect { pipeline.update_status }
+        expect { pipeline.update_legacy_status }
           .to change { pipeline.reload.status }
           .from('created')
           .to('skipped')
@@ -1907,7 +1922,7 @@ describe Ci::Pipeline, :mailer do
       end
 
       it 'updates pipeline status to running' do
-        expect { pipeline.update_status }
+        expect { pipeline.update_legacy_status }
           .to change { pipeline.reload.status }
           .from('created')
           .to('running')
@@ -1920,7 +1935,7 @@ describe Ci::Pipeline, :mailer do
       end
 
       it 'updates pipeline status to scheduled' do
-        expect { pipeline.update_status }
+        expect { pipeline.update_legacy_status }
           .to change { pipeline.reload.status }
           .from('created')
           .to('scheduled')
@@ -1935,7 +1950,7 @@ describe Ci::Pipeline, :mailer do
       end
 
       it 'raises an exception' do
-        expect { pipeline.update_status }
+        expect { pipeline.update_legacy_status }
           .to raise_error(HasStatus::UnknownStatusError)
       end
     end
@@ -1948,7 +1963,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :created) }
 
       it 'returns detailed status for created pipeline' do
-        expect(subject.text).to eq 'created'
+        expect(subject.text).to eq s_('CiStatusText|created')
       end
     end
 
@@ -1956,7 +1971,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :pending) }
 
       it 'returns detailed status for pending pipeline' do
-        expect(subject.text).to eq 'pending'
+        expect(subject.text).to eq s_('CiStatusText|pending')
       end
     end
 
@@ -1964,7 +1979,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :running) }
 
       it 'returns detailed status for running pipeline' do
-        expect(subject.text).to eq 'running'
+        expect(subject.text).to eq s_('CiStatus|running')
       end
     end
 
@@ -1972,7 +1987,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :success) }
 
       it 'returns detailed status for successful pipeline' do
-        expect(subject.text).to eq 'passed'
+        expect(subject.text).to eq s_('CiStatusText|passed')
       end
     end
 
@@ -1980,7 +1995,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :failed) }
 
       it 'returns detailed status for failed pipeline' do
-        expect(subject.text).to eq 'failed'
+        expect(subject.text).to eq s_('CiStatusText|failed')
       end
     end
 
@@ -1988,7 +2003,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :canceled) }
 
       it 'returns detailed status for canceled pipeline' do
-        expect(subject.text).to eq 'canceled'
+        expect(subject.text).to eq s_('CiStatusText|canceled')
       end
     end
 
@@ -1996,7 +2011,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :skipped) }
 
       it 'returns detailed status for skipped pipeline' do
-        expect(subject.text).to eq 'skipped'
+        expect(subject.text).to eq s_('CiStatusText|skipped')
       end
     end
 
@@ -2004,7 +2019,7 @@ describe Ci::Pipeline, :mailer do
       let(:pipeline) { create(:ci_pipeline, status: :manual) }
 
       it 'returns detailed status for blocked pipeline' do
-        expect(subject.text).to eq 'blocked'
+        expect(subject.text).to eq s_('CiStatusText|blocked')
       end
     end
 
@@ -2016,7 +2031,7 @@ describe Ci::Pipeline, :mailer do
       end
 
       it 'retruns detailed status for successful pipeline with warnings' do
-        expect(subject.label).to eq 'passed with warnings'
+        expect(subject.label).to eq(s_('CiStatusLabel|passed with warnings'))
       end
     end
   end
@@ -2223,11 +2238,11 @@ describe Ci::Pipeline, :mailer do
         stub_full_request(hook.url, method: :post)
       end
 
-      context 'with multiple builds', :sidekiq_might_not_need_inline do
+      context 'with multiple builds', :sidekiq_inline do
         context 'when build is queued' do
           before do
-            build_a.enqueue
-            build_b.enqueue
+            build_a.reload.enqueue
+            build_b.reload.enqueue
           end
 
           it 'receives a pending event once' do
@@ -2237,10 +2252,10 @@ describe Ci::Pipeline, :mailer do
 
         context 'when build is run' do
           before do
-            build_a.enqueue
-            build_a.run
-            build_b.enqueue
-            build_b.run
+            build_a.reload.enqueue
+            build_a.reload.run!
+            build_b.reload.enqueue
+            build_b.reload.run!
           end
 
           it 'receives a running event once' do
@@ -2301,6 +2316,7 @@ describe Ci::Pipeline, :mailer do
              :created,
              pipeline: pipeline,
              name: name,
+             stage: "stage:#{stage_idx}",
              stage_idx: stage_idx)
     end
   end
@@ -2754,6 +2770,116 @@ describe Ci::Pipeline, :mailer do
 
       it 'returns empty string' do
         is_expected.to be_empty
+      end
+    end
+  end
+
+  describe '#parent_pipeline' do
+    let(:project) { create(:project) }
+    let(:pipeline) { create(:ci_pipeline, project: project) }
+
+    context 'when pipeline is triggered by a pipeline from the same project' do
+      let(:upstream_pipeline) { create(:ci_pipeline, project: pipeline.project) }
+
+      before do
+        create(:ci_sources_pipeline,
+          source_pipeline: upstream_pipeline,
+          source_project: project,
+          pipeline: pipeline,
+          project: project)
+      end
+
+      it 'returns the parent pipeline' do
+        expect(pipeline.parent_pipeline).to eq(upstream_pipeline)
+      end
+
+      it 'is child' do
+        expect(pipeline).to be_child
+      end
+    end
+
+    context 'when pipeline is triggered by a pipeline from another project' do
+      let(:upstream_pipeline) { create(:ci_pipeline) }
+
+      before do
+        create(:ci_sources_pipeline,
+          source_pipeline: upstream_pipeline,
+          source_project: upstream_pipeline.project,
+          pipeline: pipeline,
+          project: project)
+      end
+
+      it 'returns nil' do
+        expect(pipeline.parent_pipeline).to be_nil
+      end
+
+      it 'is not child' do
+        expect(pipeline).not_to be_child
+      end
+    end
+
+    context 'when pipeline is not triggered by a pipeline' do
+      it 'returns nil' do
+        expect(pipeline.parent_pipeline).to be_nil
+      end
+
+      it 'is not child' do
+        expect(pipeline).not_to be_child
+      end
+    end
+  end
+
+  describe '#child_pipelines' do
+    let(:project) { create(:project) }
+    let(:pipeline) { create(:ci_pipeline, project: project) }
+
+    context 'when pipeline triggered other pipelines on same project' do
+      let(:downstream_pipeline) { create(:ci_pipeline, project: pipeline.project) }
+
+      before do
+        create(:ci_sources_pipeline,
+          source_pipeline: pipeline,
+          source_project: pipeline.project,
+          pipeline: downstream_pipeline,
+          project: pipeline.project)
+      end
+
+      it 'returns the child pipelines' do
+        expect(pipeline.child_pipelines).to eq [downstream_pipeline]
+      end
+
+      it 'is parent' do
+        expect(pipeline).to be_parent
+      end
+    end
+
+    context 'when pipeline triggered other pipelines on another project' do
+      let(:downstream_pipeline) { create(:ci_pipeline) }
+
+      before do
+        create(:ci_sources_pipeline,
+          source_pipeline: pipeline,
+          source_project: pipeline.project,
+          pipeline: downstream_pipeline,
+          project: downstream_pipeline.project)
+      end
+
+      it 'returns empty array' do
+        expect(pipeline.child_pipelines).to be_empty
+      end
+
+      it 'is not parent' do
+        expect(pipeline).not_to be_parent
+      end
+    end
+
+    context 'when pipeline did not trigger any pipelines' do
+      it 'returns empty array' do
+        expect(pipeline.child_pipelines).to be_empty
+      end
+
+      it 'is not parent' do
+        expect(pipeline).not_to be_parent
       end
     end
   end

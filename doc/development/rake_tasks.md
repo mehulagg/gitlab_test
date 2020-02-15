@@ -54,6 +54,17 @@ By default, this seeds an average of 10 issues per week for the last 52 weeks
 per project. All issues will also be randomly labeled with team, type, severity,
 and priority.
 
+#### Seeding groups with sub-groups
+
+You can seed groups with sub-groups that contain milestones/projects/issues
+with the `gitlab:seed:group_seed` task:
+
+```shell
+bin/rake "gitlab:seed:group_seed[subgroup_depth, username]"
+```
+
+Group are additionally seeded with epics if GitLab instance has epics feature available.
+
 ### Automation
 
 If you're very sure that you want to **wipe the current database** and refill
@@ -93,10 +104,10 @@ There are a few environment flags you can pass to change how projects are seeded
 In order to run the test you can use the following commands:
 
 - `bin/rake spec` to run the rspec suite
-- `bin/rake spec:unit` to run the only the unit tests
-- `bin/rake spec:integration` to run the only the integration tests
-- `bin/rake spec:system` to run the only the system tests
-- `bin/rake karma` to run the karma test suite
+- `bin/rake spec:unit` to run only the unit tests
+- `bin/rake spec:integration` to run only the integration tests
+- `bin/rake spec:system` to run only the system tests
+- `bin/rake karma` to run the Karma test suite
 
 Note: `bin/rake spec` takes significant time to pass.
 Instead of running full test suite locally you can save a lot of time by running
@@ -188,11 +199,10 @@ task, then check the dimensions of the new spritesheet and update the
 ## Updating project templates
 
 Starting a project from a template needs this project to be exported. On a
-up to date master branch with run:
+up to date master branch run:
 
 ```
-gdk run
-# In a new terminal window
+gdk start
 bundle exec rake gitlab:update_project_templates
 git checkout -b update-project-templates
 git add vendor/project_templates

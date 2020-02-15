@@ -3,16 +3,15 @@ import { GlButton } from '@gitlab/ui';
 
 import CreateEpicForm from 'ee/related_items_tree/components/create_epic_form.vue';
 
-const createComponent = (isSubmitting = false) => {
-  const localVue = createLocalVue();
+const localVue = createLocalVue();
 
-  return mount(CreateEpicForm, {
+const createComponent = (isSubmitting = false) =>
+  mount(localVue.extend(CreateEpicForm), {
     localVue,
     propsData: {
       isSubmitting,
     },
   });
-};
 
 describe('RelatedItemsTree', () => {
   describe('CreateEpicForm', () => {

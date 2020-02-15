@@ -12,6 +12,7 @@ class License < ApplicationRecord
     audit_events
     burndown_charts
     code_owners
+    code_review_analytics
     contribution_analytics
     description_diffs
     elastic_search
@@ -41,6 +42,7 @@ class License < ApplicationRecord
   ].freeze
 
   EEP_FEATURES = EES_FEATURES + %i[
+    adjourned_deletion_for_projects_and_groups
     admin_audit_log
     auditor_user
     batch_comments
@@ -49,7 +51,6 @@ class License < ApplicationRecord
     board_milestone_lists
     ci_cd_projects
     cluster_deployments
-    code_analytics
     code_owner_approval_required
     commit_committer_check
     cross_project_pipelines
@@ -63,6 +64,7 @@ class License < ApplicationRecord
     dependency_proxy
     deploy_board
     design_management
+    disable_name_update_for_users
     email_additional_text
     extended_audit_events
     external_authorization_service_api_management
@@ -76,7 +78,6 @@ class License < ApplicationRecord
     issues_analytics
     jira_dev_panel_integration
     ldap_group_sync_filter
-    marking_project_for_deletion
     merge_pipelines
     merge_request_performance_metrics
     merge_trains
@@ -87,6 +88,7 @@ class License < ApplicationRecord
     object_storage
     operations_dashboard
     packages
+    pages_size_limit
     productivity_analytics
     project_aliases
     protected_environments
@@ -95,6 +97,7 @@ class License < ApplicationRecord
     scoped_labels
     service_desk
     smartcard_auth
+    group_timelogs
     type_of_work_analytics
     unprotection_restrictions
     ci_project_subscriptions
@@ -104,21 +107,23 @@ class License < ApplicationRecord
   EEU_FEATURES = EEP_FEATURES + %i[
     cluster_health
     container_scanning
+    credentials_inventory
     dast
-    dependency_list
     dependency_scanning
     epics
     group_ip_restriction
+    group_level_compliance_dashboard
     incident_management
     insights
-    licenses_list
     license_management
+    personal_access_token_expiration_policy
     pod_logs
     prometheus_alerts
     pseudonymizer
     report_approver_rules
     sast
     security_dashboard
+    threat_monitoring
     tracing
     web_ide_terminal
   ]
@@ -201,6 +206,7 @@ class License < ApplicationRecord
     ldap_group_sync_filter
     multiple_ldap_servers
     object_storage
+    pages_size_limit
     project_aliases
     repository_size_limit
     required_ci_templates

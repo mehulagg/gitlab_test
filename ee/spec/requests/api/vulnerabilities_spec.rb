@@ -42,7 +42,7 @@ describe API::Vulnerabilities do
         end
       end
 
-      it_behaves_like 'forbids actions on vulnerability in case of disabled features'
+      it_behaves_like 'forbids access to vulnerability API endpoint in case of disabled features'
     end
 
     describe 'permissions' do
@@ -61,6 +61,7 @@ describe API::Vulnerabilities do
   describe 'GET /vulnerabilities/:id' do
     let_it_be(:project) { create(:project, :with_vulnerabilities) }
     let_it_be(:vulnerability) { project.vulnerabilities.first }
+    let_it_be(:finding) { create(:vulnerabilities_occurrence, vulnerability: vulnerability) }
     let(:vulnerability_id) { vulnerability.id }
 
     subject(:get_vulnerability) { get api("/vulnerabilities/#{vulnerability_id}", user) }
@@ -78,8 +79,16 @@ describe API::Vulnerabilities do
         expect(json_response['id']).to eq vulnerability_id
       end
 
+      it 'returns the desired findings' do
+        get_vulnerability
+
+        expect(response).to have_gitlab_http_status(200)
+        expect(response).to match_response_schema('public_api/v4/vulnerability', dir: 'ee')
+        expect(json_response['finding']['id']).to eq finding.id
+      end
+
       it_behaves_like 'responds with "not found" for an unknown vulnerability ID'
-      it_behaves_like 'forbids actions on vulnerability in case of disabled features'
+      it_behaves_like 'forbids access to vulnerability API endpoint in case of disabled features'
     end
 
     describe 'permissions' do
@@ -114,7 +123,7 @@ describe API::Vulnerabilities do
           have_attributes(
             author: user,
             title: finding.name,
-            state: 'opened',
+            state: 'detected',
             severity: finding.severity,
             severity_overridden: false,
             confidence: finding.confidence,
@@ -150,7 +159,7 @@ describe API::Vulnerabilities do
         end
       end
 
-      it_behaves_like 'forbids actions on vulnerability in case of disabled features'
+      it_behaves_like 'forbids access to vulnerability API endpoint in case of disabled features'
     end
 
     describe 'permissions' do
@@ -190,7 +199,7 @@ describe API::Vulnerabilities do
           expect(response).to match_response_schema('public_api/v4/vulnerability', dir: 'ee')
 
           expect(vulnerability.reload).to(
-            have_attributes(state: 'closed', closed_by: user, closed_at: be_like_time(Time.current)))
+            have_attributes(state: 'dismissed', closed_by: user, closed_at: be_like_time(Time.current)))
           expect(vulnerability.findings).to all have_vulnerability_dismissal_feedback
         end
       end
@@ -228,7 +237,7 @@ describe API::Vulnerabilities do
       end
 
       context 'if a vulnerability is already dismissed' do
-        let(:vulnerability) { create(:vulnerability, :closed, project: project) }
+        let(:vulnerability) { create(:vulnerability, :dismissed, project: project) }
 
         it 'responds with 304 Not Modified' do
           dismiss_vulnerability
@@ -237,7 +246,7 @@ describe API::Vulnerabilities do
         end
       end
 
-      it_behaves_like 'forbids actions on vulnerability in case of disabled features'
+      it_behaves_like 'forbids access to vulnerability API endpoint in case of disabled features'
     end
 
     describe 'permissions' do
@@ -294,7 +303,7 @@ describe API::Vulnerabilities do
         end
       end
 
-      it_behaves_like 'forbids actions on vulnerability in case of disabled features'
+      it_behaves_like 'forbids access to vulnerability API endpoint in case of disabled features'
     end
 
     describe 'permissions' do

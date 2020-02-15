@@ -7,6 +7,10 @@ module API
 
       delegate :wiki?, to: :repo_type
 
+      def actor
+        @actor ||= Support::GitAccessActor.from_params(params)
+      end
+
       def repo_type
         set_project unless defined?(@repo_type) # rubocop:disable Gitlab/ModuleWithInstanceVariables
         @repo_type # rubocop:disable Gitlab/ModuleWithInstanceVariables
@@ -48,7 +52,7 @@ module API
       def log_user_activity(actor)
         commands = Gitlab::GitAccess::DOWNLOAD_COMMANDS
 
-        ::Users::ActivityService.new(actor, 'Git SSH').execute if commands.include?(params[:action])
+        ::Users::ActivityService.new(actor).execute if commands.include?(params[:action])
       end
 
       def merge_request_urls
@@ -100,37 +104,29 @@ module API
 
       # rubocop:disable Gitlab/ModuleWithInstanceVariables
       def set_project
-        if params[:gl_repository]
-          @project, @repo_type = Gitlab::GlRepository.parse(params[:gl_repository])
-          @redirected_path = nil
-        else
-          @project, @repo_type, @redirected_path = Gitlab::RepoPath.parse(params[:project])
-        end
+        @project, @repo_type, @redirected_path =
+          if params[:gl_repository]
+            Gitlab::GlRepository.parse(params[:gl_repository])
+          elsif params[:project]
+            Gitlab::RepoPath.parse(params[:project])
+          end
       end
       # rubocop:enable Gitlab/ModuleWithInstanceVariables
 
       # Project id to pass between components that don't share/don't have
       # access to the same filesystem mounts
       def gl_repository
-        repo_type.identifier_for_subject(project)
+        repo_type.identifier_for_container(project)
       end
 
       def gl_project_path
-        if wiki?
-          project.wiki.full_path
-        else
-          project.full_path
-        end
+        repository.full_path
       end
 
       # Return the repository depending on whether we want the wiki or the
       # regular repository
       def repository
-        if repo_type.wiki?
-          project.wiki.repository
-        else
-          project.repository
-        end
+        @repository ||= repo_type.repository_for(project)
       end
 
       # Return the Gitaly Address if it is enabled

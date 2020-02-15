@@ -29,7 +29,7 @@ the affected files to find someone.
 We also use [GitLab Triage](https://gitlab.com/gitlab-org/gitlab-triage) to automate
 some triaging policies. This is currently set up as a scheduled pipeline
 (`https://gitlab.com/gitlab-org/quality/triage-ops/pipeline_schedules/10512/editpipeline_schedules/10512/edit`,
-must have at least developer access to the project) running on [quality/triage-ops](https://gitlab.com/gitlab-org/quality/triage-ops)
+must have at least Developer access to the project) running on [quality/triage-ops](https://gitlab.com/gitlab-org/quality/triage-ops)
 project.
 
 ## Labels
@@ -40,17 +40,17 @@ scheduling into milestones. Labelling is a task for everyone.
 
 Most issues will have labels for at least one of the following:
 
-- Type: ~feature, ~bug, ~backstage, etc.
-- Stage: ~"devops::plan", ~"devops::create", etc.
-- Group: ~"group::source code", ~"group::knowledge", ~"group::editor", etc.
-- Category: ~"Category:Code Analytics", ~"Category:DevOps Score", ~"Category:Templates", etc.
-- Feature: ~wiki, ~ldap, ~api, ~issues, ~"merge requests", etc.
-- Department: ~UX, ~Quality
-- Team: ~"Technical Writing", ~Delivery
-- Specialization: ~frontend, ~backend, ~documentation
-- Release Scoping: ~Deliverable, ~Stretch, ~"Next Patch Release"
-- Priority: ~P1, ~P2, ~P3, ~P4
-- Severity: ~S1, ~S2, ~S3, ~S4
+- Type: `~feature`, `~bug`, `~backstage`, etc.
+- Stage: `~"devops::plan"`, `~"devops::create"`, etc.
+- Group: `~"group::source code"`, `~"group::knowledge"`, `~"group::editor"`, etc.
+- Category: `~"Category:Code Analytics"`, `~"Category:DevOps Score"`, `~"Category:Templates"`, etc.
+- Feature: `~wiki`, `~ldap`, `~api`, `~issues`, `~"merge requests"`, etc.
+- Department: `~UX`, `~Quality`
+- Team: `~"Technical Writing"`, `~Delivery`
+- Specialization: `~frontend`, `~backend`, `~documentation`
+- Release Scoping: `~Deliverable`, `~Stretch`, `~"Next Patch Release"`
+- Priority: `~P1`, `~P2`, `~P3`, `~P4`
+- Severity: ~`S1`, `~S2`, `~S3`, `~S4`
 
 All labels, their meaning and priority are defined on the
 [labels page](https://gitlab.com/gitlab-org/gitlab-foss/-/labels).
@@ -185,9 +185,9 @@ their color is `#428BCA`.
 `<Category Name>` is the category name as it is in the single source of truth for categories at
 <https://gitlab.com/gitlab-com/www-gitlab-com/blob/master/data/categories.yml>.
 
-For instance, the "Code Analytics" category is represented by the
-~"Category:Code Analytics" label in the `gitlab-org` group since its
-`code_analytics.name` value is "Code Analytics".
+For instance, the "DevOps Score" category is represented by the
+~"Category:DevOps Score" label in the `gitlab-org` group since its
+`devops_score.name` value is "DevOps Score".
 
 If a category's label doesn't respect this naming convention, it should be specified
 with [the `label` attribute](https://about.gitlab.com/handbook/marketing/website/#category-attributes)
@@ -210,7 +210,7 @@ If you are an expert in a particular area, it makes it easier to find issues to
 work on. You can also subscribe to those labels to receive an email each time an
 issue is labeled with a feature label corresponding to your expertise.
 
-Examples of feature labels are ~wiki, ~ldap, ~api, ~issues, ~"merge requests" etc.
+Examples of feature labels are `~wiki`, `~ldap`, `~api`, `~issues`, `~"merge requests"` etc.
 
 #### Naming and color convention
 

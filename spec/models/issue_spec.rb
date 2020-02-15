@@ -12,6 +12,8 @@ describe Issue do
     it { is_expected.to belong_to(:duplicated_to).class_name('Issue') }
     it { is_expected.to belong_to(:closed_by).class_name('User') }
     it { is_expected.to have_many(:assignees) }
+    it { is_expected.to have_many(:user_mentions).class_name("IssueUserMention") }
+    it { is_expected.to have_one(:sentry_issue) }
   end
 
   describe 'modules' do
@@ -79,6 +81,16 @@ describe Issue do
 
         expect(issue.reload.title).to eq('locking test')
       end
+    end
+  end
+
+  describe '.simple_sorts' do
+    it 'includes all keys' do
+      expect(described_class.simple_sorts.keys).to include(
+        *%w(created_asc created_at_asc created_date created_desc created_at_desc
+            closest_future_date closest_future_date_asc due_date due_date_asc due_date_desc
+            id_asc id_desc relative_position relative_position_asc
+            updated_desc updated_asc updated_at_asc updated_at_desc))
     end
   end
 
@@ -257,6 +269,7 @@ describe Issue do
   describe '#can_move?' do
     let(:user) { create(:user) }
     let(:issue) { create(:issue) }
+
     subject { issue.can_move?(user) }
 
     context 'user is not a member of project issue belongs to' do
@@ -275,6 +288,7 @@ describe Issue do
 
       context 'issue not persisted' do
         let(:issue) { build(:issue, project: project) }
+
         it { is_expected.to eq false }
       end
 
@@ -304,6 +318,7 @@ describe Issue do
 
   describe '#moved?' do
     let(:issue) { create(:issue) }
+
     subject { issue.moved? }
 
     context 'issue not moved' do
@@ -320,6 +335,7 @@ describe Issue do
 
   describe '#duplicated?' do
     let(:issue) { create(:issue) }
+
     subject { issue.duplicated? }
 
     context 'issue not duplicated' do
@@ -343,7 +359,7 @@ describe Issue do
       allow(subject.project).to receive(:repository).and_return(repository)
     end
 
-    context '#to_branch_name does not exists' do
+    describe '#to_branch_name does not exists' do
       before do
         allow(repository).to receive(:branch_exists?).and_return(false)
       end
@@ -353,7 +369,7 @@ describe Issue do
       end
     end
 
-    context '#to_branch_name exists not ending with -index' do
+    describe '#to_branch_name exists not ending with -index' do
       before do
         allow(repository).to receive(:branch_exists?).and_return(true)
         allow(repository).to receive(:branch_exists?).with(/#{subject.to_branch_name}-\d/).and_return(false)
@@ -364,7 +380,7 @@ describe Issue do
       end
     end
 
-    context '#to_branch_name exists ending with -index' do
+    describe '#to_branch_name exists ending with -index' do
       before do
         allow(repository).to receive(:branch_exists?).and_return(true)
         allow(repository).to receive(:branch_exists?).with("#{subject.to_branch_name}-3").and_return(false)
@@ -378,6 +394,7 @@ describe Issue do
 
   describe '#has_related_branch?' do
     let(:issue) { create(:issue, title: "Blue Bell Knoll") }
+
     subject { issue.has_related_branch? }
 
     context 'branch found' do
@@ -440,6 +457,7 @@ describe Issue do
 
   describe '#can_be_worked_on?' do
     let(:project) { build(:project) }
+
     subject { build(:issue, :opened, project: project) }
 
     context 'is closed' do

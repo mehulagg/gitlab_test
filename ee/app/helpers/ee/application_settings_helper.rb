@@ -37,6 +37,7 @@ module EE
         :geo_node_allowed_ips,
         :help_text,
         :lock_memberships_to_ldap,
+        :max_personal_access_token_lifetime,
         :pseudonymizer_enabled,
         :repository_size_limit,
         :shared_runners_minutes,
@@ -52,6 +53,18 @@ module EE
 
     def elasticsearch_objects_options(objects)
       objects.map { |g| { id: g.id, text: g.full_name } }
+    end
+
+    # The admin UI cannot handle so many namespaces so we just hide it. We
+    # assume people doing this are using automation anyway.
+    def elasticsearch_too_many_namespaces?
+      ElasticsearchIndexedNamespace.count > 50
+    end
+
+    # The admin UI cannot handle so many projects so we just hide it. We
+    # assume people doing this are using automation anyway.
+    def elasticsearch_too_many_projects?
+      ElasticsearchIndexedProject.count > 50
     end
 
     def elasticsearch_namespace_ids
@@ -75,6 +88,8 @@ module EE
         email_additional_text
         file_template_project_id
         default_project_deletion_protection
+        deletion_adjourned_period
+        updating_name_disabled_for_users
       ]
     end
   end

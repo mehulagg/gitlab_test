@@ -1,11 +1,5 @@
 # frozen_string_literal: true
 
-resources :projects, only: [:index, :new, :create]
-
-draw :git_http
-
-get '/projects/:id' => 'projects#resolve'
-
 constraints(::Constraints::ProjectUrlConstrainer.new) do
   # If the route has a wildcard segment, the segment has a regex constraint,
   # the segment is potentially followed by _another_ wildcard segment, and
@@ -27,7 +21,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           constraints: { project_id: Gitlab::PathRegex.project_route_regex },
           module: :projects,
           as: :project) do
-
       # Begin of the /-/ scope.
       # Use this scope for all new project routes.
       scope '-' do
@@ -56,7 +49,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :trace, defaults: { format: 'json' }
             get :raw
             get :terminal
-            get '/terminal.ws/authorize', to: 'jobs#terminal_websocket_authorize', constraints: { format: nil }
+
+            # This route is also defined in gitlab-workhorse. Make sure to update accordingly.
+            get '/terminal.ws/authorize', to: 'jobs#terminal_websocket_authorize', format: false
           end
 
           resource :artifacts, only: [] do
@@ -157,6 +152,12 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           member do
             put :test
           end
+
+          resources :hook_logs, only: [:show], controller: :service_hook_logs do
+            member do
+              post :retry
+            end
+          end
         end
 
         resources :boards, only: [:index, :show, :create, :update, :destroy], constraints: { id: /\d+/ } do
@@ -165,7 +166,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           end
         end
 
-        resources :releases, only: [:index, :edit], param: :tag, constraints: { tag: %r{[^/]+} } do
+        resources :releases, only: [:index, :show, :edit], param: :tag, constraints: { tag: %r{[^/]+} } do
           member do
             get :evidence
           end
@@ -207,8 +208,84 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
             get :production
           end
         end
+
+        concerns :clusterable
+
+        namespace :serverless do
+          scope :functions do
+            get '/:environment_id/:id', to: 'functions#show'
+            get '/:environment_id/:id/metrics', to: 'functions#metrics', as: :metrics
+          end
+
+          resources :functions, only: [:index]
+        end
+
+        resources :environments, except: [:destroy] do
+          member do
+            post :stop
+            post :cancel_auto_stop
+            get :terminal
+            get :metrics
+            get :additional_metrics
+            get :metrics_dashboard
+
+            # This route is also defined in gitlab-workhorse. Make sure to update accordingly.
+            get '/terminal.ws/authorize', to: 'environments#terminal_websocket_authorize', format: false
+
+            get '/prometheus/api/v1/*proxy_path', to: 'environments/prometheus_api#proxy', as: :prometheus_api
+
+            get '/sample_metrics', to: 'environments/sample_metrics#query'
+          end
+
+          collection do
+            get :metrics, action: :metrics_redirect
+            get :folder, path: 'folders/*id', constraints: { format: /(html|json)/ }
+            get :search
+          end
+
+          resources :deployments, only: [:index] do
+            member do
+              get :metrics
+              get :additional_metrics
+            end
+          end
+        end
+
+        namespace :performance_monitoring do
+          resources :dashboards, only: [:create]
+        end
+
+        namespace :error_tracking do
+          resources :projects, only: :index
+        end
+
+        resources :error_tracking, only: [:index], controller: :error_tracking do
+          collection do
+            get ':issue_id/details',
+              to: 'error_tracking#details',
+              as: 'details'
+            get ':issue_id/stack_trace',
+              to: 'error_tracking/stack_traces#index',
+              as: 'stack_trace'
+            put ':issue_id',
+              to: 'error_tracking#update',
+              as: 'update'
+          end
+        end
+
+        draw :merge_requests
+
+        # The wiki and repository routing contains wildcard characters so
+        # its preferable to keep it below all other project routes
+        draw :repository_scoped
+        draw :repository
+        draw :wiki
       end
       # End of the /-/ scope.
+
+      # All new routes should go under /-/ scope.
+      # Look for scope '-' at the top of the file.
+      # rubocop: disable Cop/PutProjectRoutesUnderScope
 
       #
       # Templates
@@ -223,17 +300,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
           as: :template_names,
           defaults: { format: 'json' },
           constraints: { template_type: %r{issue|merge_request}, format: 'json' }
-
-      resources :commit, only: [:show], constraints: { id: /\h{7,40}/ } do
-        member do
-          get :branches
-          get :pipelines
-          post :revert
-          post :cherry_pick
-          get :diff_for_path
-          get :merge_requests
-        end
-      end
 
       resource :pages, only: [:show, :update, :destroy] do
         resources :domains, except: :index, controller: 'pages_domains', constraints: { id: %r{[^/]+} } do
@@ -257,83 +323,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
-      resources :merge_requests, concerns: :awardable, except: [:new, :create, :show], constraints: { id: /\d+/ } do
-        member do
-          get :show # Insert this first to ensure redirections using merge_requests#show match this route
-          get :commit_change_content
-          post :merge
-          post :cancel_auto_merge
-          get :pipeline_status
-          get :ci_environments_status
-          post :toggle_subscription
-          post :remove_wip
-          post :assign_related_issues
-          get :discussions, format: :json
-          post :rebase
-          get :test_reports
-          get :exposed_artifacts
-
-          scope constraints: { format: nil }, action: :show do
-            get :commits, defaults: { tab: 'commits' }
-            get :pipelines, defaults: { tab: 'pipelines' }
-            get :diffs, defaults: { tab: 'diffs' }
-          end
-
-          scope constraints: { format: 'json' }, as: :json do
-            get :commits
-            get :pipelines
-            get :diffs, to: 'merge_requests/diffs#show'
-            get :diffs_batch, to: 'merge_requests/diffs#diffs_batch'
-            get :diffs_metadata, to: 'merge_requests/diffs#diffs_metadata'
-            get :widget, to: 'merge_requests/content#widget'
-            get :cached_widget, to: 'merge_requests/content#cached_widget'
-          end
-
-          get :diff_for_path, controller: 'merge_requests/diffs'
-
-          scope controller: 'merge_requests/conflicts' do
-            get :conflicts, action: :show
-            get :conflict_for_path
-            post :resolve_conflicts
-          end
-        end
-
-        collection do
-          get :diff_for_path
-          post :bulk_update
-        end
-
-        resources :discussions, only: [:show], constraints: { id: /\h{40}/ } do
-          member do
-            post :resolve
-            delete :resolve, action: :unresolve
-          end
-        end
-      end
-
-      scope path: 'merge_requests', controller: 'merge_requests/creations' do
-        post '', action: :create, as: nil
-
-        scope path: 'new', as: :new_merge_request do
-          get '', action: :new
-
-          scope constraints: { format: nil }, action: :new do
-            get :diffs, defaults: { tab: 'diffs' }
-            get :pipelines, defaults: { tab: 'pipelines' }
-          end
-
-          scope constraints: { format: 'json' }, as: :json do
-            get :diffs
-            get :pipelines
-          end
-
-          get :diff_for_path
-          get :branch_from
-          get :branch_to
-        end
-      end
-
-      resources :pipelines, only: [:index, :new, :create, :show] do
+      resources :pipelines, only: [:index, :new, :create, :show, :destroy] do
         collection do
           resource :pipelines_settings, path: 'settings', only: [:show, :update]
           get :charts
@@ -367,43 +357,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
-      concerns :clusterable
-
-      resources :environments, except: [:destroy] do
-        member do
-          post :stop
-          get :terminal
-          get :metrics
-          get :additional_metrics
-          get :metrics_dashboard
-          get '/terminal.ws/authorize', to: 'environments#terminal_websocket_authorize', constraints: { format: nil }
-
-          get '/prometheus/api/v1/*proxy_path', to: 'environments/prometheus_api#proxy', as: :prometheus_api
-        end
-
-        collection do
-          get :metrics, action: :metrics_redirect
-          get :folder, path: 'folders/*id', constraints: { format: /(html|json)/ }
-          get :search
-        end
-
-        resources :deployments, only: [:index] do
-          member do
-            get :metrics
-            get :additional_metrics
-          end
-        end
-      end
-
-      namespace :serverless do
-        scope :functions do
-          get '/:environment_id/:id', to: 'functions#show'
-          get '/:environment_id/:id/metrics', to: 'functions#metrics', as: :metrics
-        end
-
-        resources :functions, only: [:index]
-      end
-
       draw :legacy_builds
 
       resources :hooks, only: [:index, :create, :edit, :update, :destroy], constraints: { id: /\d+/ } do
@@ -418,7 +371,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
-      resources :container_registry, only: [:index, :destroy],
+      resources :container_registry, only: [:index, :destroy, :show],
                                      controller: 'registry/repositories'
 
       namespace :registry do
@@ -437,25 +390,15 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
-      get :issues, to: 'issues#calendar', constraints: lambda { |req| req.format == :ics }
+      # Unscoped route. It will be replaced with redirect to /-/issues/
+      # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
+      draw :issues
 
-      resources :issues, concerns: :awardable, constraints: { id: /\d+/ } do
-        member do
-          post :toggle_subscription
-          post :mark_as_spam
-          post :move
-          put :reorder
-          get :related_branches
-          get :can_create_branch
-          get :realtime_changes
-          post :create_merge_request
-          get :discussions, format: :json
-        end
-
-        collection do
-          post :bulk_update
-          post :import_csv
-        end
+      # To ensure an old unscoped routing is used for the UI we need to
+      # add prefix 'as' to the scope routing and place it below original routing.
+      # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
+      scope '-', as: 'scoped' do
+        draw :issues
       end
 
       resources :notes, only: [:create, :destroy, :update], concerns: :awardable, constraints: { id: /\d+/ } do
@@ -472,7 +415,7 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
       resources :uploads, only: [:create] do
         collection do
-          get ":secret/:filename", action: :show, as: :show, constraints: { filename: %r{[^/]+} }
+          get ":secret/:filename", action: :show, as: :show, constraints: { filename: %r{[^/]+} }, format: false, defaults: { format: nil }
           post :authorize
         end
       end
@@ -494,8 +437,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         collection do
           scope '*ref', constraints: { ref: Gitlab::PathRegex.git_reference_regex } do
             constraints format: /svg/ do
-              # Keep around until 10.0, see gitlab-org/gitlab-ce#35307
-              get :build, to: "badges#pipeline"
               get :pipeline
               get :coverage
             end
@@ -503,26 +444,19 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         end
       end
 
-      resources :error_tracking, only: [:index], controller: :error_tracking do
-        collection do
-          get ':issue_id/details',
-              to: 'error_tracking#details',
-              as: 'details'
-          get ':issue_id/stack_trace',
-              to: 'error_tracking#stack_trace',
-              as: 'stack_trace'
-          post :list_projects
-        end
-      end
-
       scope :usage_ping, controller: :usage_ping do
         post :web_ide_clientside_preview
       end
 
-      # Since both wiki and repository routing contains wildcard characters
-      # its preferable to keep it below all other project routes
-      draw :wiki
-      draw :repository
+      # Deprecated unscoped routing.
+      # Issue https://gitlab.com/gitlab-org/gitlab/issues/118849
+      scope as: 'deprecated' do
+        draw :repository
+      end
+
+      # All new routes should go under /-/ scope.
+      # Look for scope '-' at the top of the file.
+      # rubocop: enable Cop/PutProjectRoutesUnderScope
 
       # Legacy routes.
       # Introduced in 12.0.
@@ -532,9 +466,13 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
                                             :project_members, :deploy_keys, :deploy_tokens,
                                             :labels, :milestones, :services, :boards, :releases,
                                             :forks, :group_links, :import, :avatar, :mirror,
-                                            :cycle_analytics, :mattermost, :variables, :triggers)
+                                            :cycle_analytics, :mattermost, :variables, :triggers,
+                                            :environments, :protected_environments, :error_tracking,
+                                            :serverless, :clusters, :audit_events, :wikis, :merge_requests,
+                                            :vulnerability_feedback, :security, :dependencies)
     end
 
+    # rubocop: disable Cop/PutProjectRoutesUnderScope
     resources(:projects,
               path: '/',
               constraints: { id: Gitlab::PathRegex.project_route_regex },
@@ -556,5 +494,6 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         put :new_issuable_address
       end
     end
+    # rubocop: enable Cop/PutProjectRoutesUnderScope
   end
 end

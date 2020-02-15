@@ -78,12 +78,15 @@ module Gitlab
             clusters_applications_runner: count(::Clusters::Applications::Runner.available),
             clusters_applications_knative: count(::Clusters::Applications::Knative.available),
             clusters_applications_elastic_stack: count(::Clusters::Applications::ElasticStack.available),
+            clusters_applications_jupyter: count(::Clusters::Applications::Jupyter.available),
             in_review_folder: count(::Environment.in_review_folder),
             grafana_integrated_projects: count(GrafanaIntegration.enabled),
             groups: count(Group),
             issues: count(Issue),
+            issues_created_from_gitlab_error_tracking_ui: count(SentryIssue),
             issues_with_associated_zoom_link: count(ZoomMeeting.added_to_issue),
             issues_using_zoom_quick_actions: count(ZoomMeeting.select(:issue_id).distinct),
+            issues_with_embedded_grafana_charts_approx: ::Gitlab::GrafanaEmbedUsageData.issue_count,
             keys: count(Key),
             label_lists: count(List.label),
             lfs_objects: count(LfsObject),
@@ -107,7 +110,8 @@ module Gitlab
             services_usage,
             approximate_counts,
             usage_counters,
-            user_preferences_usage
+            user_preferences_usage,
+            ingress_modsecurity_usage
           )
         }
       end
@@ -169,20 +173,23 @@ module Gitlab
         }
       end
 
+      def ingress_modsecurity_usage
+        ::Clusters::Applications::IngressModsecurityUsageService.new.execute
+      end
+
       # rubocop: disable CodeReuse/ActiveRecord
       def services_usage
-        types = {
-          SlackService: :projects_slack_notifications_active,
-          SlackSlashCommandsService: :projects_slack_slash_active,
-          PrometheusService: :projects_prometheus_active,
-          CustomIssueTrackerService: :projects_custom_issue_tracker_active,
-          JenkinsService: :projects_jenkins_active,
-          MattermostService: :projects_mattermost_active
-        }
+        service_counts = count(Service.active.where(instance: false).where.not(type: 'JiraService').group(:type), fallback: Hash.new(-1))
 
-        results = count(Service.active.by_type(types.keys).group(:type), fallback: Hash.new(-1))
-        types.each_with_object({}) { |(klass, key), response| response[key] = results[klass.to_s] || 0 }
-          .merge(jira_usage)
+        results = Service.available_services_names.each_with_object({}) do |service_name, response|
+          response["projects_#{service_name}_active".to_sym] = service_counts["#{service_name}_service".camelize] || 0
+        end
+
+        # Keep old Slack keys for backward compatibility, https://gitlab.com/gitlab-data/analytics/issues/3241
+        results[:projects_slack_notifications_active] = results[:projects_slack_active]
+        results[:projects_slack_slash_active] = results[:projects_slack_slash_commands_active]
+
+        results.merge(jira_usage)
       end
 
       def jira_usage
@@ -199,7 +206,6 @@ module Gitlab
           .by_type(:JiraService)
           .includes(:jira_tracker_data)
           .find_in_batches(batch_size: BATCH_SIZE) do |services|
-
           counts = services.group_by do |service|
             # TODO: Simplify as part of https://gitlab.com/gitlab-org/gitlab/issues/29404
             service_url = service.data_fields&.url || (service.properties && service.properties['url'])
@@ -217,17 +223,17 @@ module Gitlab
 
         results
       end
+      # rubocop: enable CodeReuse/ActiveRecord
 
       def user_preferences_usage
         {} # augmented in EE
       end
 
-      def count(relation, count_by: nil, fallback: -1)
-        count_by ? relation.count(count_by) : relation.count
+      def count(relation, fallback: -1)
+        relation.count
       rescue ActiveRecord::StatementInvalid
         fallback
       end
-      # rubocop: enable CodeReuse/ActiveRecord
 
       def approximate_counts
         approx_counts = Gitlab::Database::Count.approximate_counts(APPROXIMATE_COUNT_MODELS)

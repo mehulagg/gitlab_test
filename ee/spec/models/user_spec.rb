@@ -74,13 +74,28 @@ describe User do
       end
     end
 
-    describe 'bots & humans' do
-      it 'returns corresponding users' do
-        human = create(:user)
-        bot = create(:user, :bot)
+    describe 'with_invalid_expires_at_tokens' do
+      it 'only includes users with invalid tokens' do
+        valid_pat = create(:personal_access_token, expires_at: 7.days.from_now)
+        invalid_pat1 = create(:personal_access_token, expires_at: nil)
+        invalid_pat2 = create(:personal_access_token, expires_at: 20.days.from_now)
 
-        expect(described_class.humans).to match_array([human])
-        expect(described_class.bots).to match_array([bot])
+        users_with_invalid_tokens = described_class.with_invalid_expires_at_tokens(15.days.from_now)
+
+        expect(users_with_invalid_tokens).to contain_exactly(invalid_pat1.user, invalid_pat2.user)
+        expect(users_with_invalid_tokens).not_to include valid_pat.user
+      end
+    end
+
+    describe '.active_without_ghosts' do
+      let_it_be(:user1) { create(:user, :external) }
+      let_it_be(:user2) { create(:user, state: 'blocked') }
+      let_it_be(:user3) { create(:user, ghost: true) }
+      let_it_be(:user4) { create(:user, bot_type: 'support_bot') }
+      let_it_be(:user5) { create(:user, state: 'blocked', bot_type: 'support_bot') }
+
+      it 'returns all active users including active bots but ghost users' do
+        expect(described_class.active_without_ghosts).to match_array([user1, user4])
       end
     end
   end
@@ -123,7 +138,7 @@ describe User do
       end
     end
 
-    context '#auditor?' do
+    describe '#auditor?' do
       it "returns true for an auditor user if the addon is enabled" do
         stub_licensed_features(auditor_user: true)
 
@@ -215,11 +230,11 @@ describe User do
     end
   end
 
-  describe '#full_private_access?' do
+  describe '#can_read_all_resources?' do
     it 'returns true for auditor user' do
       user = build(:user, :auditor)
 
-      expect(user.full_private_access?).to be_truthy
+      expect(user.can_read_all_resources?).to be_truthy
     end
   end
 
@@ -613,19 +628,143 @@ describe User do
     end
 
     context 'when user is active' do
-      let(:project_guest_user) { create(:project_member, :guest).user }
+      context 'when user is internal' do
+        using RSpec::Parameterized::TableSyntax
 
-      context 'user is guest' do
-        it 'returns false if license is ultimate' do
-          create(:license, plan: License::ULTIMATE_PLAN)
-
-          expect(project_guest_user.using_license_seat?).to eq false
+        where(:bot_type) do
+          User.bot_types.keys
         end
 
-        it 'returns true if license is not ultimate' do
-          create(:license, plan: License::STARTER_PLAN)
+        with_them do
+          context 'when user is a bot' do
+            let(:user) { create(:user, bot_type: bot_type) }
 
-          expect(project_guest_user.using_license_seat?).to eq true
+            it 'returns false' do
+              expect(user.using_license_seat?).to eq false
+            end
+          end
+        end
+
+        context 'when user is a ghost' do
+          let(:user) { create(:user, ghost: true) }
+
+          it 'returns false' do
+            expect(user.using_license_seat?).to eq false
+          end
+        end
+      end
+
+      context 'when user is not internal' do
+        context 'when license is nil (core/free/default)' do
+          before do
+            allow(License).to receive(:current).and_return(nil)
+          end
+
+          it 'returns false if license is nil (core/free/default)' do
+            expect(user.using_license_seat?).to eq false
+          end
+        end
+
+        context 'user is guest' do
+          let(:project_guest_user) { create(:project_member, :guest).user }
+
+          it 'returns false if license is ultimate' do
+            create(:license, plan: License::ULTIMATE_PLAN)
+
+            expect(project_guest_user.using_license_seat?).to eq false
+          end
+
+          it 'returns true if license is not ultimate and not nil' do
+            create(:license, plan: License::STARTER_PLAN)
+
+            expect(project_guest_user.using_license_seat?).to eq true
+          end
+        end
+
+        context 'user is admin without projects' do
+          let(:user) { create(:user, admin: true) }
+
+          it 'returns false if license is ultimate' do
+            create(:license, plan: License::ULTIMATE_PLAN)
+
+            expect(user.using_license_seat?).to eq false
+          end
+
+          it 'returns true if license is not ultimate and not nil' do
+            create(:license, plan: License::STARTER_PLAN)
+
+            expect(user.using_license_seat?).to eq true
+          end
+        end
+      end
+    end
+  end
+
+  describe '#using_gitlab_com_seat?' do
+    let(:user) { create(:user) }
+
+    context 'when Gitlab.com? is false' do
+      before do
+        allow(Gitlab).to receive(:com?).and_return(false)
+      end
+
+      it 'returns false' do
+        expect(user.using_gitlab_com_seat?(nil)).to eq(false)
+      end
+    end
+
+    context 'when Gitlab.com? is true' do
+      let(:namespace) { create(:namespace) }
+
+      before do
+        allow(Gitlab).to receive(:com?).and_return(true)
+        allow(namespace).to receive(:gold_plan?).and_return(false)
+        allow(namespace).to receive(:free_plan?).and_return(false)
+      end
+
+      context 'when namespace is nil' do
+        let(:namespace) { nil }
+
+        it 'returns false' do
+          expect(user.using_gitlab_com_seat?(namespace)).to eq(false)
+        end
+      end
+
+      context 'when namespace is on a free plan' do
+        before do
+          allow(namespace).to receive(:free_plan?).and_return(true)
+        end
+
+        it 'returns false' do
+          expect(user.using_gitlab_com_seat?(namespace)).to eq(false)
+        end
+      end
+
+      context 'when namespace is on a gold plan' do
+        before do
+          allow(namespace).to receive(:gold_plan?).and_return(true)
+        end
+
+        context 'user is not a guest' do
+          let(:user) { create(:project_member, :developer).user }
+
+          it 'returns true' do
+            expect(user.using_gitlab_com_seat?(namespace)).to eq(true)
+          end
+        end
+
+        context 'user is guest' do
+          let(:user) { create(:project_member, :guest).user }
+
+          it 'returns false' do
+            expect(user.using_gitlab_com_seat?(namespace)).to eq(false)
+          end
+        end
+      end
+
+      context 'when namespace is on a plan that is not free or gold' do
+        it 'returns true' do
+          expect(user.using_gitlab_com_seat?(namespace)).to eq(true)
         end
       end
     end
@@ -644,6 +783,7 @@ describe User do
 
     context 'namespace with input name exists' do
       let(:name) { 'Disney' }
+
       before do
         create(:user, name: 'disney')
       end
@@ -657,6 +797,7 @@ describe User do
 
     context 'namespace with input name and suffix exists' do
       let(:name) { 'Disney' }
+
       before do
         create(:user, name: 'disney')
         create(:user, name: 'disney1')

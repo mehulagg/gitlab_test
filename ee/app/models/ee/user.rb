@@ -70,8 +70,9 @@ module EE
         joins(:identities).where(identities: { provider: provider })
       end
 
-      scope :bots, -> { where.not(bot_type: nil) }
-      scope :humans, -> { where(bot_type: nil) }
+      scope :with_invalid_expires_at_tokens, ->(expiration_date) do
+        where(id: ::PersonalAccessToken.with_invalid_expires_at(expiration_date).select(:user_id))
+      end
 
       accepts_nested_attributes_for :namespace
 
@@ -81,12 +82,6 @@ module EE
       # Note: When adding an option, it's value MUST equal to the last value + 1.
       enum group_view: { details: 1, security_dashboard: 2 }, _prefix: true
       scope :group_view_details, -> { where('group_view = ? OR group_view IS NULL', group_view[:details]) }
-
-      enum bot_type: {
-        support_bot: 1,
-        alert_bot: 2,
-        visual_review_bot: 3
-      }
     end
 
     class_methods do
@@ -101,15 +96,6 @@ module EE
         end
       end
 
-      def alert_bot
-        email_pattern = "alert%s@#{Settings.gitlab.host}"
-
-        unique_internal(where(bot_type: :alert_bot), 'alert-bot', email_pattern) do |u|
-          u.bio = 'The GitLab alert bot'
-          u.name = 'GitLab Alert Bot'
-        end
-      end
-
       def visual_review_bot
         email_pattern = "visual_review%s@#{Settings.gitlab.host}"
 
@@ -117,16 +103,6 @@ module EE
           u.bio = 'The Gitlab Visual Review feedback bot'
           u.name = 'Gitlab Visual Review Bot'
         end
-      end
-
-      override :internal
-      def internal
-        super.or(where.not(bot_type: nil))
-      end
-
-      override :non_internal
-      def non_internal
-        super.where(bot_type: nil)
       end
 
       def non_ldap
@@ -249,6 +225,13 @@ module EE
         .any?
     end
 
+    def has_paid_namespace?
+      ::Namespace
+        .from("(#{namespace_union_for_reporter_developer_maintainer_owned(:plan_id)}) #{::Namespace.table_name}")
+        .where(plan_id: Plan.where(name: Plan::PAID_HOSTED_PLANS).select(:id))
+        .any?
+    end
+
     def any_namespace_with_gold?
       ::Namespace
         .includes(:plan)
@@ -264,11 +247,25 @@ module EE
 
     def using_license_seat?
       return false unless active?
+      return false if internal?
+      return false unless License.current
 
-      if License.current&.exclude_guests_from_active_count?
+      if License.current.exclude_guests_from_active_count?
         highest_role > ::Gitlab::Access::GUEST
       else
-        highest_role > ::Gitlab::Access::NO_ACCESS
+        true
+      end
+    end
+
+    def using_gitlab_com_seat?(namespace)
+      return false unless ::Gitlab.com?
+      return false unless namespace.present?
+      return false if namespace.free_plan?
+
+      if namespace.gold_plan?
+        highest_role > ::Gitlab::Access::GUEST
+      else
+        true
       end
     end
 
@@ -309,18 +306,6 @@ module EE
       super
     end
 
-    override :internal?
-    def internal?
-      super || bot?
-    end
-
-    def bot?
-      return bot_type.present? if has_attribute?(:bot_type)
-
-      # Some older *migration* specs utilize this removed column
-      read_attribute(:support_bot)
-    end
-
     protected
 
     override :password_required?
@@ -336,6 +321,13 @@ module EE
       ::Gitlab::SQL::Union.new([
         ::Namespace.select(select).where(type: nil, owner: self),
         owned_groups.select(select).where(parent_id: nil)
+      ]).to_sql
+    end
+
+    def namespace_union_for_reporter_developer_maintainer_owned(select = :id)
+      ::Gitlab::SQL::Union.new([
+        ::Namespace.select(select).where(type: nil, owner: self),
+        reporter_developer_maintainer_owned_groups.select(select).where(parent_id: nil)
       ]).to_sql
     end
   end

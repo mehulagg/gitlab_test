@@ -180,7 +180,7 @@ describe('IDE store merge request actions', () => {
           .then(done.fail)
           .catch(() => {
             expect(dispatch).toHaveBeenCalledWith('setErrorMessage', {
-              text: 'An error occurred whilst loading the merge request.',
+              text: 'An error occurred while loading the merge request.',
               action: jasmine.any(Function),
               actionText: 'Please try again',
               actionPayload: {
@@ -253,7 +253,7 @@ describe('IDE store merge request actions', () => {
           .then(done.fail)
           .catch(() => {
             expect(dispatch).toHaveBeenCalledWith('setErrorMessage', {
-              text: 'An error occurred whilst loading the merge request changes.',
+              text: 'An error occurred while loading the merge request changes.',
               action: jasmine.any(Function),
               actionText: 'Please try again',
               actionPayload: {
@@ -323,7 +323,7 @@ describe('IDE store merge request actions', () => {
           .then(done.fail)
           .catch(() => {
             expect(dispatch).toHaveBeenCalledWith('setErrorMessage', {
-              text: 'An error occurred whilst loading the merge request version data.',
+              text: 'An error occurred while loading the merge request version data.',
               action: jasmine.any(Function),
               actionText: 'Please try again',
               actionPayload: {
@@ -347,6 +347,8 @@ describe('IDE store merge request actions', () => {
     };
     let testMergeRequest;
     let testMergeRequestChanges;
+
+    const mockGetters = { findBranch: () => ({ commit: { id: 'abcd2322' } }) };
 
     beforeEach(() => {
       testMergeRequest = {
@@ -406,8 +408,8 @@ describe('IDE store merge request actions', () => {
       );
     });
 
-    it('dispatch actions for merge request data', done => {
-      openMergeRequest(store, mr)
+    it('dispatches actions for merge request data', done => {
+      openMergeRequest({ state: store.state, dispatch: store.dispatch, getters: mockGetters }, mr)
         .then(() => {
           expect(store.dispatch.calls.allArgs()).toEqual([
             ['getMergeRequestData', mr],
@@ -424,6 +426,7 @@ describe('IDE store merge request actions', () => {
               {
                 projectId: mr.projectId,
                 branchId: testMergeRequest.source_branch,
+                ref: 'abcd2322',
               },
             ],
             ['getMergeRequestVersions', mr],
@@ -449,7 +452,7 @@ describe('IDE store merge request actions', () => {
         { new_path: 'bar', path: 'bar' },
       ];
 
-      openMergeRequest(store, mr)
+      openMergeRequest({ state: store.state, dispatch: store.dispatch, getters: mockGetters }, mr)
         .then(() => {
           expect(store.dispatch).toHaveBeenCalledWith(
             'updateActivityBarView',

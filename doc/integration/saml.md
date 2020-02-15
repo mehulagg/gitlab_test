@@ -19,13 +19,13 @@ in your SAML IdP:
 
    For Omnibus package:
 
-   ```sh
+   ```shell
    sudo editor /etc/gitlab/gitlab.rb
    ```
 
    For installations from source:
 
-   ```sh
+   ```shell
    cd /home/git/gitlab
 
    sudo -u git -H editor config/gitlab.yml
@@ -155,7 +155,7 @@ Identity Provider.
 ### Requirements
 
 First you need to tell GitLab where to look for group information. For this you
-need to make sure that your IdP server sends a specific `AttributeStament` along
+need to make sure that your IdP server sends a specific `AttributeStatement` along
 with the regular SAML response. Here is an example:
 
 ```xml
@@ -414,7 +414,7 @@ args: {
 
 ### `uid_attribute`
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/17734) in GitLab 10.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/17734) in GitLab 10.7.
 
 By default, the `uid` is set as the `name_id` in the SAML response. If you'd like to designate a unique attribute for the `uid`, you can set the `uid_attribute`. In the example below, the value of `uid` attribute in the SAML response is set as the `uid_attribute`.
 
@@ -541,9 +541,15 @@ args: {
 }
 ```
 
-GitLab will sign the request with the provided private key. GitLab will include the configured public x500 certificate in the metadata for your Identity Provider to validate the signature of the received request with. For more information on this option, see the [ruby-saml gem documentation](https://github.com/onelogin/ruby-saml/tree/v1.7.0). The `ruby-saml` gem is used by the [omniauth-saml gem](https://github.com/omniauth/omniauth-saml) to implement the client side of the SAML authentication.
+GitLab will sign the request with the provided private key. GitLab will include the configured public x500 certificate in the metadata for your Identity Provider to validate the signature of the received request with. For more information on this option, see the [Ruby SAML gem documentation](https://github.com/onelogin/ruby-saml/tree/v1.7.0). The Ruby SAML gem is used by the [OmniAuth SAML gem](https://github.com/omniauth/omniauth-saml) to implement the client side of the SAML authentication.
 
 ## Troubleshooting
+
+### GitLab+SAML Testing Environments
+
+If you need to troubleshoot, [a complete GitLab+SAML testing environment using Docker compose](https://gitlab.com/gitlab-com/support/toolbox/replication/tree/master/compose_files) is available.
+
+If you only need a SAML provider for testing, a [quick start guide to start a Docker container](../administration/troubleshooting/test_environments.md#saml) with a plug and play SAML 2.0 Identity Provider (IdP) is available.
 
 ### 500 error after login
 

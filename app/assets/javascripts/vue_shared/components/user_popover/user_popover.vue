@@ -30,11 +30,16 @@ export default {
   },
   computed: {
     statusHtml() {
+      if (!this.user.status) {
+        return '';
+      }
+
       if (this.user.status.emoji && this.user.status.message_html) {
         return `${glEmojiTag(this.user.status.emoji)} ${this.user.status.message_html}`;
       } else if (this.user.status.message_html) {
         return this.user.status.message_html;
       }
+
       return '';
     },
     nameIsLoading() {
@@ -51,19 +56,16 @@ export default {
 </script>
 
 <template>
-  <gl-popover :target="target" boundary="viewport" placement="top" offset="0, 1" show>
+  <!-- 200ms delay so not every mouseover triggers Popover -->
+  <gl-popover :target="target" :delay="200" boundary="viewport" triggers="hover" placement="top">
     <div class="user-popover d-flex">
       <div class="p-1 flex-shrink-1">
         <user-avatar-image :img-src="user.avatarUrl" :size="60" css-classes="mr-2" />
       </div>
       <div class="p-1 w-100">
         <h5 class="m-0">
-          {{ user.name }}
-          <gl-skeleton-loading
-            v-if="nameIsLoading"
-            :lines="1"
-            class="animation-container-small mb-1"
-          />
+          <span v-if="user.name">{{ user.name }}</span>
+          <gl-skeleton-loading v-else :lines="1" class="animation-container-small mb-1" />
         </h5>
         <div class="text-secondary mb-2">
           <span v-if="user.username">@{{ user.username }}</span>
@@ -97,7 +99,9 @@ export default {
             class="animation-container-small mb-1"
           />
         </div>
-        <div v-if="user.status" class="mt-2"><span v-html="statusHtml"></span></div>
+        <div v-if="statusHtml" class="js-user-status mt-2">
+          <span v-html="statusHtml"></span>
+        </div>
       </div>
     </div>
   </gl-popover>

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 include ImportExport::CommonUtil
 
@@ -11,8 +13,8 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
       # Using an admin for import, so we can check assignment of existing members
       @user = create(:admin)
       @existing_members = [
-        create(:user, username: 'bernard_willms'),
-        create(:user, username: 'saul_will')
+        create(:user, email: 'bernard_willms@gitlabexample.com'),
+        create(:user, email: 'saul_will@gitlabexample.com')
       ]
 
       RSpec::Mocks.with_temporary_scope do
@@ -29,18 +31,11 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
 
         project_tree_restorer = described_class.new(user: @user, shared: @shared, project: @project)
 
-        expect(Gitlab::ImportExport::RelationFactory).to receive(:create).with(hash_including(excluded_keys: ['whatever'])).and_call_original.at_least(:once)
-        allow(project_tree_restorer).to receive(:excluded_keys_for_relation).and_return(['whatever'])
-
         @restored_project_json = project_tree_restorer.restore
       end
     end
 
     context 'JSON' do
-      before do
-        stub_feature_flags(use_legacy_pipeline_triggers: false)
-      end
-
       it 'restores models based on JSON' do
         expect(@restored_project_json).to be_truthy
       end
@@ -119,6 +114,15 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
       it 'has multiple issue assignees' do
         expect(Issue.find_by(title: 'Voluptatem').assignees).to contain_exactly(@user, *@existing_members)
         expect(Issue.find_by(title: 'Issue without assignees').assignees).to be_empty
+      end
+
+      it 'restores timelogs for issues' do
+        timelog = Issue.find_by(title: 'issue_with_timelogs').timelogs.last
+
+        aggregate_failures do
+          expect(timelog.time_spent).to eq(72000)
+          expect(timelog.spent_at).to eq("2019-12-27T00:00:00.000Z")
+        end
       end
 
       it 'contains the merge access levels on a protected branch' do
@@ -220,8 +224,23 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
         expect(award_emoji.map(&:name)).to contain_exactly('thumbsup', 'coffee')
       end
 
+      it 'snippet has notes' do
+        expect(@project.snippets.first.notes.count).to eq(1)
+      end
+
+      it 'snippet has award emojis on notes' do
+        award_emoji = @project.snippets.first.notes.first.award_emoji.first
+
+        expect(award_emoji.name).to eq('thumbsup')
+      end
+
       it 'restores `ci_cd_settings` : `group_runners_enabled` setting' do
         expect(@project.ci_cd_settings.group_runners_enabled?).to eq(false)
+      end
+
+      it 'restores `auto_devops`' do
+        expect(@project.auto_devops_enabled?).to eq(true)
+        expect(@project.auto_devops.deploy_strategy).to eq('continuous')
       end
 
       it 'restores the correct service' do
@@ -233,6 +252,83 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
 
         expect(meetings.count).to eq(1)
         expect(meetings.first.url).to eq('https://zoom.us/j/123456789')
+      end
+
+      it 'restores sentry issues' do
+        sentry_issue = @project.issues.first.sentry_issue
+
+        expect(sentry_issue.sentry_issue_identifier).to eq(1234567891)
+      end
+
+      it 'has award emoji for an issue' do
+        award_emoji = @project.issues.first.award_emoji.first
+
+        expect(award_emoji.name).to eq('musical_keyboard')
+      end
+
+      it 'has award emoji for a note in an issue' do
+        award_emoji = @project.issues.first.notes.first.award_emoji.first
+
+        expect(award_emoji.name).to eq('clapper')
+      end
+
+      it 'restores container_expiration_policy' do
+        policy = Project.find_by_path('project').container_expiration_policy
+
+        aggregate_failures do
+          expect(policy).to be_an_instance_of(ContainerExpirationPolicy)
+          expect(policy).to be_persisted
+          expect(policy.cadence).to eq('3month')
+        end
+      end
+
+      it 'restores error_tracking_setting' do
+        setting = @project.error_tracking_setting
+
+        aggregate_failures do
+          expect(setting.api_url).to eq("https://gitlab.example.com/api/0/projects/sentry-org/sentry-project")
+          expect(setting.project_name).to eq("Sentry Project")
+          expect(setting.organization_name).to eq("Sentry Org")
+        end
+      end
+
+      it 'restores external pull requests' do
+        external_pr = @project.external_pull_requests.last
+
+        aggregate_failures do
+          expect(external_pr.pull_request_iid).to eq(4)
+          expect(external_pr.source_branch).to eq("feature")
+          expect(external_pr.target_branch).to eq("master")
+          expect(external_pr.status).to eq("open")
+        end
+      end
+
+      it 'restores pipeline schedules' do
+        pipeline_schedule = @project.pipeline_schedules.last
+
+        aggregate_failures do
+          expect(pipeline_schedule.description).to eq('Schedule Description')
+          expect(pipeline_schedule.ref).to eq('master')
+          expect(pipeline_schedule.cron).to eq('0 4 * * 0')
+          expect(pipeline_schedule.cron_timezone).to eq('UTC')
+          expect(pipeline_schedule.active).to eq(true)
+        end
+      end
+
+      it 'restores releases with links' do
+        release = @project.releases.last
+        link = release.links.last
+
+        aggregate_failures do
+          expect(release.tag).to eq('release-1.1')
+          expect(release.description).to eq('Some release notes')
+          expect(release.name).to eq('release-1.1')
+          expect(release.sha).to eq('901de3a8bd5573f4a049b1457d28bc1592ba6bf9')
+          expect(release.released_at).to eq('2019-12-26T10:17:14.615Z')
+
+          expect(link.url).to eq('http://localhost/namespace6/project6/-/jobs/140463678/artifacts/download')
+          expect(link.name).to eq('release-1.1.dmg')
+        end
       end
 
       context 'Merge requests' do
@@ -250,6 +346,20 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
 
         it 'has no source if source/target differ' do
           expect(MergeRequest.find_by_title('MR2').source_project_id).to be_nil
+        end
+
+        it 'has award emoji' do
+          award_emoji = MergeRequest.find_by_title('MR1').award_emoji
+
+          expect(award_emoji.map(&:name)).to contain_exactly('thumbsup', 'drum')
+        end
+
+        context 'notes' do
+          it 'has award emoji' do
+            award_emoji = MergeRequest.find_by_title('MR1').notes.first.award_emoji.first
+
+            expect(award_emoji.name).to eq('tada')
+          end
         end
       end
 
@@ -274,9 +384,9 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
         end
 
         it 'has the correct number of pipelines and statuses' do
-          expect(@project.ci_pipelines.size).to eq(6)
+          expect(@project.ci_pipelines.size).to eq(7)
 
-          @project.ci_pipelines.order(:id).zip([2, 2, 2, 2, 2, 0])
+          @project.ci_pipelines.order(:id).zip([2, 2, 2, 2, 2, 0, 0])
             .each do |(pipeline, expected_status_size)|
             expect(pipeline.statuses.size).to eq(expected_status_size)
           end
@@ -285,7 +395,7 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
 
       context 'when restoring hierarchy of pipeline, stages and jobs' do
         it 'restores pipelines' do
-          expect(Ci::Pipeline.all.count).to be 6
+          expect(Ci::Pipeline.all.count).to be 7
         end
 
         it 'restores pipeline stages' do
@@ -311,6 +421,12 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
         it 'restores a Hash for CommitStatus options' do
           expect(CommitStatus.all.map(&:options).compact).to all(be_a(Hash))
         end
+
+        it 'restores external pull request for the restored pipeline' do
+          pipeline_with_external_pr = @project.ci_pipelines.order(:id).last
+
+          expect(pipeline_with_external_pr.external_pull_request).to be_persisted
+        end
       end
     end
   end
@@ -334,7 +450,9 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
   context 'project.json file access check' do
     let(:user) { create(:user) }
     let!(:project) { create(:project, :builds_disabled, :issues_disabled, name: 'project', path: 'project') }
-    let(:project_tree_restorer) { described_class.new(user: user, shared: shared, project: project) }
+    let(:project_tree_restorer) do
+      described_class.new(user: user, shared: shared, project: project)
+    end
     let(:restored_project_json) { project_tree_restorer.restore }
 
     it 'does not read a symlink' do
@@ -360,7 +478,7 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
         expect(restored_project_json).to eq(true)
       end
 
-      it_behaves_like 'restores project correctly',
+      it_behaves_like 'restores project successfully',
                       issues: 1,
                       labels: 2,
                       label_with_priorities: 'A project label',
@@ -373,12 +491,64 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
           create(:ci_build, token: 'abcd')
         end
 
-        it_behaves_like 'restores project correctly',
+        it_behaves_like 'restores project successfully',
                         issues: 1,
                         labels: 2,
                         label_with_priorities: 'A project label',
                         milestones: 1,
                         first_issue_labels: 1
+      end
+    end
+
+    context 'when post import action throw non-retriable exception' do
+      let(:exception) { StandardError.new('post_import_error') }
+
+      before do
+        setup_import_export_config('light')
+        expect(project)
+          .to receive(:merge_requests)
+          .and_raise(exception)
+      end
+
+      it 'report post import error' do
+        expect(restored_project_json).to eq(false)
+        expect(shared.errors).to include('post_import_error')
+      end
+    end
+
+    context 'when post import action throw retriable exception one time' do
+      let(:exception) { GRPC::DeadlineExceeded.new }
+
+      before do
+        setup_import_export_config('light')
+        expect(project)
+          .to receive(:merge_requests)
+          .and_raise(exception)
+        expect(project)
+          .to receive(:merge_requests)
+          .and_call_original
+        expect(restored_project_json).to eq(true)
+      end
+
+      it_behaves_like 'restores project successfully',
+                      issues: 1,
+                      labels: 2,
+                      label_with_priorities: 'A project label',
+                      milestones: 1,
+                      first_issue_labels: 1,
+                      services: 1,
+                      import_failures: 1
+
+      it 'records the failures in the database' do
+        import_failure = ImportFailure.last
+
+        expect(import_failure.project_id).to eq(project.id)
+        expect(import_failure.relation_key).to be_nil
+        expect(import_failure.relation_index).to be_nil
+        expect(import_failure.exception_class).to eq('GRPC::DeadlineExceeded')
+        expect(import_failure.exception_message).to be_present
+        expect(import_failure.correlation_id_value).not_to be_empty
+        expect(import_failure.created_at).to be_present
       end
     end
 
@@ -450,8 +620,8 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
         expect(restored_project_json).to eq(true)
       end
 
-      it_behaves_like 'restores project correctly',
-                      issues: 2,
+      it_behaves_like 'restores project successfully',
+                      issues: 3,
                       labels: 2,
                       label_with_priorities: 'A project label',
                       milestones: 2,
@@ -464,7 +634,7 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
 
       it 'restores issue states' do
         expect(project.issues.with_state(:closed).count).to eq(1)
-        expect(project.issues.with_state(:opened).count).to eq(1)
+        expect(project.issues.with_state(:opened).count).to eq(2)
       end
     end
 
@@ -482,10 +652,10 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
         setup_import_export_config('light')
       end
 
-      it 'does not import any templated services' do
+      it 'does not import any instance-level services' do
         expect(restored_project_json).to eq(true)
 
-        expect(project.services.where(template: true).count).to eq(0)
+        expect(project.services.where(instance: true).count).to eq(0)
       end
 
       it 'imports labels' do
@@ -555,8 +725,11 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
 
   context 'Minimal JSON' do
     let(:project) { create(:project) }
+    let(:user) { create(:user) }
     let(:tree_hash) { { 'visibility_level' => visibility } }
-    let(:restorer) { described_class.new(user: nil, shared: shared, project: project) }
+    let(:restorer) do
+      described_class.new(user: user, shared: shared, project: project)
+    end
 
     before do
       expect(restorer).to receive(:read_tree_hash) { tree_hash }
@@ -628,6 +801,43 @@ describe Gitlab::ImportExport::ProjectTreeRestorer do
             expect(restorer.project.visibility_level).to eq(Gitlab::VisibilityLevel::PRIVATE)
           end
         end
+      end
+    end
+  end
+
+  context 'JSON with invalid records' do
+    subject(:restored_project_json) { project_tree_restorer.restore }
+
+    let(:user) { create(:user) }
+    let!(:project) { create(:project, :builds_disabled, :issues_disabled, name: 'project', path: 'project') }
+    let(:project_tree_restorer) { described_class.new(user: user, shared: shared, project: project) }
+
+    before do
+      setup_import_export_config('with_invalid_records')
+
+      subject
+    end
+
+    context 'when failures occur because a relation fails to be processed' do
+      it_behaves_like 'restores project successfully',
+        issues: 0,
+        labels: 0,
+        label_with_priorities: nil,
+        milestones: 1,
+        first_issue_labels: 0,
+        services: 0,
+        import_failures: 1
+
+      it 'records the failures in the database' do
+        import_failure = ImportFailure.last
+
+        expect(import_failure.project_id).to eq(project.id)
+        expect(import_failure.relation_key).to eq('milestones')
+        expect(import_failure.relation_index).to be_present
+        expect(import_failure.exception_class).to eq('ActiveRecord::RecordInvalid')
+        expect(import_failure.exception_message).to be_present
+        expect(import_failure.correlation_id_value).not_to be_empty
+        expect(import_failure.created_at).to be_present
       end
     end
   end

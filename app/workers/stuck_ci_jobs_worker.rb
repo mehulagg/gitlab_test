@@ -2,7 +2,7 @@
 
 class StuckCiJobsWorker
   include ApplicationWorker
-  include CronjobQueue
+  include CronjobQueue # rubocop:disable Scalability/CronWorkerContext
 
   feature_category :continuous_integration
   worker_resource_boundary :cpu
@@ -80,12 +80,12 @@ class StuckCiJobsWorker
   end
 
   def track_exception_for_build(ex, build)
-    Gitlab::Sentry.track_acceptable_exception(ex, extra: {
+    Gitlab::ErrorTracking.track_exception(ex,
         build_id: build.id,
         build_name: build.name,
         build_stage: build.stage,
         pipeline_id: build.pipeline_id,
         project_id: build.project_id
-    })
+    )
   end
 end

@@ -1,21 +1,11 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Geo', :orchestrated, :geo do
+  context 'Geo', :orchestrated, :geo, quarantine: 'https://gitlab.com/gitlab-org/gitlab/issues/201948' do
     describe 'GitLab Geo project rename replication' do
-      after do
-        # Log out so subsequent tests can start unauthenticated
-        Runtime::Browser.visit(:geo_secondary, QA::Page::Dashboard::Projects)
-        Page::Main::Menu.perform do |menu|
-          menu.sign_out if menu.has_personal_area?(wait: 0)
-        end
-      end
-
       it 'user renames project' do
         # create the project and push code
-        Runtime::Browser.visit(:geo_primary, QA::Page::Main::Login) do
-          Page::Main::Login.perform(&:sign_in_using_credentials)
-
+        QA::Flow::Login.while_signed_in(address: :geo_primary) do
           project = Resource::Project.fabricate! do |project|
             project.name = 'geo-before-rename'
             project.description = 'Geo project to be renamed'
@@ -52,9 +42,9 @@ module QA
         end
 
         # check renamed project exist on secondary node
-        Runtime::Browser.visit(:geo_secondary, QA::Page::Main::Login) do
-          Page::Main::Login.perform(&:sign_in_using_credentials)
+        QA::Runtime::Logger.debug('Visiting the secondary geo node')
 
+        QA::Flow::Login.while_signed_in(address: :geo_secondary) do
           EE::Page::Main::Banner.perform do |banner|
             expect(banner).to have_secondary_read_only_banner
           end

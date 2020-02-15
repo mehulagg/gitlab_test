@@ -4,6 +4,7 @@ class FeatureFlagEntity < Grape::Entity
   include RequestAwareEntity
 
   expose :id
+  expose :iid
   expose :active
   expose :created_at
   expose :updated_at
@@ -12,6 +13,10 @@ class FeatureFlagEntity < Grape::Entity
 
   expose :edit_path, if: -> (feature_flag, _) { can_update?(feature_flag) } do |feature_flag|
     edit_project_feature_flag_path(feature_flag.project, feature_flag)
+  end
+
+  expose :update_path, if: -> (feature_flag, _) { can_update?(feature_flag) } do |feature_flag|
+    project_feature_flag_path(feature_flag.project, feature_flag)
   end
 
   expose :destroy_path, if: -> (feature_flag, _) { can_destroy?(feature_flag) } do |feature_flag|

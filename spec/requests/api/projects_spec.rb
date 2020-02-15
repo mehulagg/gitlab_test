@@ -6,8 +6,6 @@ shared_examples 'languages and percentages JSON response' do
   let(:expected_languages) { project.repository.languages.map { |language| language.values_at(:label, :value)}.to_h }
 
   before do
-    allow(DetectRepositoryLanguagesWorker).to receive(:perform_async).and_call_original
-
     allow(project.repository).to receive(:languages).and_return(
       [{ value: 66.69, label: "Ruby", color: "#701516", highlight: "#701516" },
        { value: 22.98, label: "JavaScript", color: "#f1e05a", highlight: "#f1e05a" },
@@ -49,6 +47,8 @@ shared_examples 'languages and percentages JSON response' do
 end
 
 describe API::Projects do
+  include ProjectForksHelper
+
   let(:user) { create(:user) }
   let(:user2) { create(:user) }
   let(:user3) { create(:user) }
@@ -568,6 +568,102 @@ describe API::Projects do
         let(:projects) { Project.all }
       end
     end
+
+    context 'with keyset pagination' do
+      let(:current_user) { user }
+      let(:projects) { [public_project, project, project2, project3] }
+
+      context 'headers and records' do
+        let(:params) { { pagination: 'keyset', order_by: :id, sort: :asc, per_page: 1 } }
+
+        it 'includes a pagination header with link to the next page' do
+          get api('/projects', current_user), params: params
+
+          expect(response.header).to include('Links')
+          expect(response.header['Links']).to include('pagination=keyset')
+          expect(response.header['Links']).to include("id_after=#{public_project.id}")
+        end
+
+        it 'contains only the first project with per_page = 1' do
+          get api('/projects', current_user), params: params
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response).to be_an Array
+          expect(json_response.map { |p| p['id'] }).to contain_exactly(public_project.id)
+        end
+
+        it 'still includes a link if the end has reached and there is no more data after this page' do
+          get api('/projects', current_user), params: params.merge(id_after: project2.id)
+
+          expect(response.header).to include('Links')
+          expect(response.header['Links']).to include('pagination=keyset')
+          expect(response.header['Links']).to include("id_after=#{project3.id}")
+        end
+
+        it 'does not include a next link when the page does not have any records' do
+          get api('/projects', current_user), params: params.merge(id_after: Project.maximum(:id))
+
+          expect(response.header).not_to include('Links')
+        end
+
+        it 'returns an empty array when the page does not have any records' do
+          get api('/projects', current_user), params: params.merge(id_after: Project.maximum(:id))
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response).to eq([])
+        end
+
+        it 'responds with 501 if order_by is different from id' do
+          get api('/projects', current_user), params: params.merge(order_by: :created_at)
+
+          expect(response).to have_gitlab_http_status(405)
+        end
+      end
+
+      context 'with descending sorting' do
+        let(:params) { { pagination: 'keyset', order_by: :id, sort: :desc, per_page: 1 } }
+
+        it 'includes a pagination header with link to the next page' do
+          get api('/projects', current_user), params: params
+
+          expect(response.header).to include('Links')
+          expect(response.header['Links']).to include('pagination=keyset')
+          expect(response.header['Links']).to include("id_before=#{project3.id}")
+        end
+
+        it 'contains only the last project with per_page = 1' do
+          get api('/projects', current_user), params: params
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response).to be_an Array
+          expect(json_response.map { |p| p['id'] }).to contain_exactly(project3.id)
+        end
+      end
+
+      context 'retrieving the full relation' do
+        let(:params) { { pagination: 'keyset', order_by: :id, sort: :desc, per_page: 2 } }
+
+        it 'returns all projects' do
+          url = '/projects'
+          requests = 0
+          ids = []
+
+          while url && requests <= 5 # circuit breaker
+            requests += 1
+            get api(url, current_user), params: params
+
+            links = response.header['Links']
+            url = links&.match(/<[^>]+(\/projects\?[^>]+)>; rel="next"/) do |match|
+              match[1]
+            end
+
+            ids += JSON.parse(response.body).map { |p| p['id'] }
+          end
+
+          expect(ids).to contain_exactly(*projects.map(&:id))
+        end
+      end
+    end
   end
 
   describe 'POST /projects' do
@@ -633,6 +729,7 @@ describe API::Projects do
         wiki_enabled: false,
         resolve_outdated_diff_discussions: false,
         remove_source_branch_after_merge: true,
+        autoclose_referenced_issues: true,
         only_allow_merge_if_pipeline_succeeds: false,
         request_access_enabled: true,
         only_allow_merge_if_all_discussions_are_resolved: false,
@@ -713,7 +810,7 @@ describe API::Projects do
 
       post api('/projects', user), params: project
 
-      expect(json_response['readme_url']).to eql("#{Gitlab.config.gitlab.url}/#{json_response['namespace']['full_path']}/somewhere/blob/master/README.md")
+      expect(json_response['readme_url']).to eql("#{Gitlab.config.gitlab.url}/#{json_response['namespace']['full_path']}/somewhere/-/blob/master/README.md")
     end
 
     it 'sets tag list to a project' do
@@ -803,6 +900,22 @@ describe API::Projects do
       post api('/projects', user), params: project
 
       expect(json_response['only_allow_merge_if_all_discussions_are_resolved']).to be_truthy
+    end
+
+    it 'sets a project as enabling auto close referenced issues' do
+      project = attributes_for(:project, autoclose_referenced_issues: true)
+
+      post api('/projects', user), params: project
+
+      expect(json_response['autoclose_referenced_issues']).to be_truthy
+    end
+
+    it 'sets a project as disabling auto close referenced issues' do
+      project = attributes_for(:project, autoclose_referenced_issues: false)
+
+      post api('/projects', user), params: project
+
+      expect(json_response['autoclose_referenced_issues']).to be_falsey
     end
 
     it 'sets the merge method of a project to rebase merge' do
@@ -1163,6 +1276,18 @@ describe API::Projects do
         expect(json_response.keys).not_to include('permissions')
       end
 
+      context 'the project is a public fork' do
+        it 'hides details of a public fork parent' do
+          public_project = create(:project, :repository, :public)
+          fork = fork_project(public_project)
+
+          get api("/projects/#{fork.id}")
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response['forked_from_project']).to be_nil
+        end
+      end
+
       context 'and the project has a private repository' do
         let(:project) { create(:project, :repository, :public, :repository_private) }
         let(:protected_attributes) { %w(default_branch ci_config_path) }
@@ -1213,6 +1338,7 @@ describe API::Projects do
         expect(json_response['path']).to be_present
         expect(json_response['issues_enabled']).to be_present
         expect(json_response['merge_requests_enabled']).to be_present
+        expect(json_response['can_create_merge_request_in']).to be_present
         expect(json_response['wiki_enabled']).to be_present
         expect(json_response['jobs_enabled']).to be_present
         expect(json_response['snippets_enabled']).to be_present
@@ -1263,15 +1389,18 @@ describe API::Projects do
         expect(json_response['path']).to be_present
         expect(json_response['issues_enabled']).to be_present
         expect(json_response['merge_requests_enabled']).to be_present
+        expect(json_response['can_create_merge_request_in']).to be_present
         expect(json_response['wiki_enabled']).to be_present
         expect(json_response['jobs_enabled']).to be_present
         expect(json_response['snippets_enabled']).to be_present
         expect(json_response['snippets_access_level']).to be_present
+        expect(json_response['pages_access_level']).to be_present
         expect(json_response['repository_access_level']).to be_present
         expect(json_response['issues_access_level']).to be_present
         expect(json_response['merge_requests_access_level']).to be_present
         expect(json_response['wiki_access_level']).to be_present
         expect(json_response['builds_access_level']).to be_present
+        expect(json_response).to have_key('emails_disabled')
         expect(json_response['resolve_outdated_diff_discussions']).to eq(project.resolve_outdated_diff_discussions)
         expect(json_response['remove_source_branch_after_merge']).to be_truthy
         expect(json_response['container_registry_enabled']).to be_present
@@ -1282,18 +1411,18 @@ describe API::Projects do
         expect(json_response['namespace']).to be_present
         expect(json_response['import_status']).to be_present
         expect(json_response).to include("import_error")
-        expect(json_response['avatar_url']).to be_nil
+        expect(json_response).to have_key('avatar_url')
         expect(json_response['star_count']).to be_present
         expect(json_response['forks_count']).to be_present
         expect(json_response['public_jobs']).to be_present
-        expect(json_response['ci_config_path']).to be_nil
+        expect(json_response).to have_key('ci_config_path')
         expect(json_response['shared_with_groups']).to be_an Array
         expect(json_response['shared_with_groups'].length).to eq(1)
         expect(json_response['shared_with_groups'][0]['group_id']).to eq(group.id)
         expect(json_response['shared_with_groups'][0]['group_name']).to eq(group.name)
         expect(json_response['shared_with_groups'][0]['group_full_path']).to eq(group.full_path)
         expect(json_response['shared_with_groups'][0]['group_access_level']).to eq(link.group_access)
-        expect(json_response['shared_with_groups'][0]['expires_at']).to be_nil
+        expect(json_response['shared_with_groups'][0]).to have_key('expires_at')
         expect(json_response['only_allow_merge_if_pipeline_succeeds']).to eq(project.only_allow_merge_if_pipeline_succeeds)
         expect(json_response['only_allow_merge_if_all_discussions_are_resolved']).to eq(project.only_allow_merge_if_all_discussions_are_resolved)
         expect(json_response['ci_default_git_depth']).to eq(project.ci_default_git_depth)
@@ -1479,6 +1608,28 @@ describe API::Projects do
         end
       end
 
+      context 'the project is a fork' do
+        it 'shows details of a visible fork parent' do
+          fork = fork_project(project, user)
+
+          get api("/projects/#{fork.id}", user)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response['forked_from_project']).to include('id' => project.id)
+        end
+
+        it 'hides details of a hidden fork parent' do
+          fork = fork_project(project, user)
+          fork_user = create(:user)
+          fork.team.add_developer(fork_user)
+
+          get api("/projects/#{fork.id}", fork_user)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response['forked_from_project']).to be_nil
+        end
+      end
+
       describe 'permissions' do
         context 'all projects' do
           before do
@@ -1589,6 +1740,14 @@ describe API::Projects do
           expect(user_data['avatar_url']).to eq(user.avatar_url)
         end
       end
+    end
+
+    it_behaves_like 'storing arguments in the application context' do
+      let_it_be(:user) { create(:user) }
+      let_it_be(:project) { create(:project, :public) }
+      let(:expected_params) { { user: user.username, project: project.full_path } }
+
+      subject { get api("/projects/#{project.id}", user) }
     end
   end
 
@@ -1846,6 +2005,7 @@ describe API::Projects do
 
   describe "POST /projects/:id/share" do
     let(:group) { create(:group) }
+
     before do
       group.add_developer(user)
     end
@@ -2072,6 +2232,26 @@ describe API::Projects do
         expect(json_response['builds_access_level']).to eq('private')
       end
 
+      it 'updates pages_access_level' do
+        project_param = { pages_access_level: 'private' }
+
+        put api("/projects/#{project3.id}", user), params: project_param
+
+        expect(response).to have_gitlab_http_status(:ok)
+
+        expect(json_response['pages_access_level']).to eq('private')
+      end
+
+      it 'updates emails_disabled' do
+        project_param = { emails_disabled: true }
+
+        put api("/projects/#{project3.id}", user), params: project_param
+
+        expect(response).to have_gitlab_http_status(200)
+
+        expect(json_response['emails_disabled']).to eq(true)
+      end
+
       it 'updates build_git_strategy' do
         project_param = { build_git_strategy: 'clone' }
 
@@ -2188,6 +2368,22 @@ describe API::Projects do
         project_param = { visibility: 'public' }
         put api("/projects/#{project3.id}", user4), params: project_param
         expect(response).to have_gitlab_http_status(403)
+      end
+
+      it 'updates container_expiration_policy' do
+        project_param = {
+          container_expiration_policy_attributes: {
+            cadence: '1month',
+            keep_n: 1
+          }
+        }
+
+        put api("/projects/#{project3.id}", user4), params: project_param
+
+        expect(response).to have_gitlab_http_status(200)
+
+        expect(json_response['container_expiration_policy']['cadence']).to eq('1month')
+        expect(json_response['container_expiration_policy']['keep_n']).to eq(1)
       end
     end
 
@@ -2682,6 +2878,20 @@ describe API::Projects do
 
         expect(response).to have_gitlab_http_status(401)
         expect(json_response['message']).to eq('401 Unauthorized')
+      end
+    end
+
+    context 'forking disabled' do
+      before do
+        project.project_feature.update_attribute(
+          :forking_access_level, ProjectFeature::DISABLED)
+      end
+
+      it 'denies project to be forked' do
+        post api("/projects/#{project.id}/fork", admin)
+
+        expect(response).to have_gitlab_http_status(409)
+        expect(json_response['message']['forked_from_project_id']).to eq(['is forbidden'])
       end
     end
   end

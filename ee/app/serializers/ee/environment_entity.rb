@@ -8,8 +8,12 @@ module EE
     prepended do
       expose :rollout_status, if: -> (*) { can_read_deploy_board? }, using: ::RolloutStatusEntity
 
-      expose :logs_path, if: -> (*) { can_read_pod_logs? } do |environment|
-        logs_project_environment_path(environment.project, environment)
+      expose :project_path do |environment|
+        project_path(environment.project)
+      end
+
+      expose :enable_advanced_logs_querying, if: -> (*) { can_read_pod_logs? } do |environment|
+        environment.deployment_platform&.elastic_stack_available?
       end
     end
 

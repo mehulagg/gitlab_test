@@ -55,7 +55,7 @@ describe "User creates wiki page" do
         end
 
         expect(current_path).to include("one/two/three-test")
-        expect(page).to have_xpath("//a[@href='/#{project.full_path}/wikis/one/two/three-test']")
+        expect(page).to have_xpath("//a[@href='/#{project.full_path}/-/wikis/one/two/three-test']")
       end
 
       it "has `Create home` as a commit message", :js do
@@ -143,6 +143,24 @@ describe "User creates wiki page" do
         page.within ".md" do
           expect(page).to have_selector(".katex", count: 3).and have_content("2+2 is 4")
         end
+      end
+
+      it 'creates a wiki page with Org markup', :aggregate_failures do
+        org_content = <<~ORG
+          * Heading
+          ** Subheading
+          [[home][Link to Home]]
+        ORG
+
+        page.within('.wiki-form') do
+          find('#wiki_format option[value=org]').select_option
+          fill_in(:wiki_content, with: org_content)
+          click_button('Create page')
+        end
+
+        expect(page).to have_selector('h1', text: 'Heading')
+        expect(page).to have_selector('h2', text: 'Subheading')
+        expect(page).to have_link('Link to Home', href: "/#{project.full_path}/-/wikis/home")
       end
 
       it_behaves_like 'wiki file attachments', :quarantine

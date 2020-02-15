@@ -1,5 +1,15 @@
-.design-image {
-  object-fit: contain;
+.design-presentation-wrapper {
+  top: 0;
+  left: 0;
+}
+
+.design-scaler {
+  z-index: 1;
+}
+
+.design-scaler-wrapper {
+  bottom: 0;
+  left: 0;
 }
 
 .design-list-item .design-event {
@@ -37,7 +47,6 @@
   }
 
   .design-discussion {
-    padding: $gl-padding 0;
     margin: $gl-padding 0;
 
     &::before {
@@ -63,7 +72,6 @@
 
     .reply-wrapper {
       padding: $gl-padding;
-      padding-bottom: 0;
     }
   }
 

@@ -57,6 +57,7 @@ module API
         optional :milestones, type: Array, desc: 'The titles of the related milestones', default: []
         optional :released_at, type: DateTime, desc: 'The date when the release will be/was ready. Defaults to the current time.'
       end
+      route_setting :authentication, job_token_allowed: true
       post ':id/releases' do
         authorize_create_release!
 
@@ -65,6 +66,9 @@ module API
           .execute
 
         if result[:status] == :success
+          log_release_created_audit_event(result[:release])
+          create_evidence!
+
           present result[:release], with: Entities::Release, current_user: current_user
         else
           render_api_error!(result[:message], result[:http_status])
@@ -90,6 +94,9 @@ module API
           .execute
 
         if result[:status] == :success
+          log_release_updated_audit_event
+          log_release_milestones_updated_audit_event if result[:milestones_updated]
+
           present result[:release], with: Entities::Release, current_user: current_user
         else
           render_api_error!(result[:message], result[:http_status])
@@ -146,6 +153,30 @@ module API
       def release
         @release ||= user_project.releases.find_by_tag(params[:tag])
       end
+
+      def log_release_created_audit_event(release)
+        # This is a separate method so that EE can extend its behaviour
+      end
+
+      def log_release_updated_audit_event
+        # This is a separate method so that EE can extend its behaviour
+      end
+
+      def log_release_milestones_updated_audit_event
+        # This is a separate method so that EE can extend its behaviour
+      end
+
+      def create_evidence!
+        return if release.historical_release?
+
+        if release.upcoming_release?
+          CreateEvidenceWorker.perform_at(release.released_at, release.id)
+        else
+          CreateEvidenceWorker.perform_async(release.id)
+        end
+      end
     end
   end
 end
+
+API::Releases.prepend_if_ee('EE::API::Releases')

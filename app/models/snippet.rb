@@ -14,7 +14,11 @@ class Snippet < ApplicationRecord
   include Editable
   include Gitlab::SQL::Pattern
   include FromUnion
+  include IgnorableColumns
+
   extend ::Gitlab::Utils::Override
+
+  ignore_column :storage_version, remove_with: '12.9', remove_after: '2020-03-22'
 
   cache_markdown_field :title, pipeline: :single_line
   cache_markdown_field :description
@@ -37,6 +41,7 @@ class Snippet < ApplicationRecord
   belongs_to :project
 
   has_many :notes, as: :noteable, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+  has_many :user_mentions, class_name: "SnippetUserMention"
 
   delegate :name, :email, to: :author, prefix: true, allow_nil: true
 
@@ -46,6 +51,18 @@ class Snippet < ApplicationRecord
     length: { maximum: 255 }
 
   validates :content, presence: true
+  validates :content,
+            length: {
+              maximum: ->(_) { Gitlab::CurrentSettings.snippet_size_limit },
+              message: -> (_, data) do
+                current_value = ActiveSupport::NumberHelper.number_to_human_size(data[:value].size)
+                max_size = ActiveSupport::NumberHelper.number_to_human_size(Gitlab::CurrentSettings.snippet_size_limit)
+
+                _("is too long (%{current_value}). The maximum size is %{max_size}.") % { current_value: current_value, max_size: max_size }
+              end
+            },
+            if: :content_changed?
+
   validates :visibility_level, inclusion: { in: Gitlab::VisibilityLevel.values }
 
   # Scopes
@@ -56,6 +73,8 @@ class Snippet < ApplicationRecord
   scope :fresh, -> { order("created_at DESC") }
   scope :inc_author, -> { includes(:author) }
   scope :inc_relations_for_view, -> { includes(author: :status) }
+
+  attr_mentionable :description
 
   participant :author
   participant :notes_with_associations
@@ -161,7 +180,7 @@ class Snippet < ApplicationRecord
     reference = "#{self.class.reference_prefix}#{id}"
 
     if project.present?
-      "#{project.to_reference(from, full: full)}#{reference}"
+      "#{project.to_reference_base(from, full: full)}#{reference}"
     else
       reference
     end
@@ -196,9 +215,7 @@ class Snippet < ApplicationRecord
   end
 
   def embeddable?
-    ability = project_id? ? :read_project_snippet : :read_personal_snippet
-
-    Ability.allowed?(nil, ability, self)
+    Ability.allowed?(nil, :read_snippet, self)
   end
 
   def notes_with_associations
@@ -210,7 +227,7 @@ class Snippet < ApplicationRecord
       (public? && (title_changed? || content_changed?))
   end
 
-  # snippers are the biggest sources of spam
+  # snippets are the biggest sources of spam
   override :allow_possible_spam?
   def allow_possible_spam?
     false
@@ -221,7 +238,7 @@ class Snippet < ApplicationRecord
   end
 
   def to_ability_name
-    model_name.singular
+    'snippet'
   end
 
   def valid_secret_token?(token)

@@ -34,6 +34,7 @@ describe Gitlab::DataBuilder::Pipeline do
       expect(build_data).to be_a(Hash)
       expect(build_data[:id]).to eq(build.id)
       expect(build_data[:status]).to eq(build.status)
+      expect(build_data[:allow_failure]).to eq(build.allow_failure)
       expect(project_data).to eq(project.hook_attrs(backward: false))
       expect(data[:merge_request]).to be_nil
     end
@@ -76,7 +77,7 @@ describe Gitlab::DataBuilder::Pipeline do
         expect(merge_request_attrs[:target_project_id]).to eq(merge_request.target_project_id)
         expect(merge_request_attrs[:state]).to eq(merge_request.state)
         expect(merge_request_attrs[:merge_status]).to eq(merge_request.merge_status)
-        expect(merge_request_attrs[:url]).to eq("http://localhost/#{merge_request.target_project.full_path}/merge_requests/#{merge_request.iid}")
+        expect(merge_request_attrs[:url]).to eq("http://localhost/#{merge_request.target_project.full_path}/-/merge_requests/#{merge_request.iid}")
       end
     end
   end

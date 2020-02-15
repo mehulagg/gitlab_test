@@ -4,11 +4,42 @@ require "spec_helper"
 
 describe API::Services do
   set(:user) { create(:user) }
-  set(:admin) { create(:admin) }
   set(:user2) { create(:user) }
 
   set(:project) do
     create(:project, creator_id: user.id, namespace: user.namespace)
+  end
+
+  describe "GET /projects/:id/services" do
+    it 'returns authentication error when unauthenticated' do
+      get api("/projects/#{project.id}/services")
+
+      expect(response).to have_gitlab_http_status(401)
+    end
+
+    it "returns error when authenticated but user is not a project owner" do
+      project.add_developer(user2)
+      get api("/projects/#{project.id}/services", user2)
+
+      expect(response).to have_gitlab_http_status(403)
+    end
+
+    context 'project with services' do
+      let!(:active_service) { create(:emails_on_push_service, project: project, active: true) }
+      let!(:service) { create(:custom_issue_tracker_service, project: project, active: false) }
+
+      it "returns a list of all active services" do
+        get api("/projects/#{project.id}/services", user)
+
+        aggregate_failures 'expect successful response with all active services' do
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response).to be_an Array
+          expect(json_response.count).to eq(1)
+          expect(json_response.first['slug']).to eq('emails-on-push')
+          expect(response).to match_response_schema('public_api/v4/services')
+        end
+      end
+    end
   end
 
   Service.available_services_names.each do |service|
@@ -31,6 +62,7 @@ describe API::Services do
         put api("/projects/#{project.id}/services/#{dashed_service}?#{query_strings}", user), params: service_attrs
 
         expect(response).to have_gitlab_http_status(200)
+        expect(json_response['slug']).to eq(dashed_service)
         events.each do |event|
           next if event == "foo"
 
@@ -88,33 +120,11 @@ describe API::Services do
         expect(response).to have_gitlab_http_status(401)
       end
 
-      it "returns all properties of service #{service} when authenticated as admin" do
-        get api("/projects/#{project.id}/services/#{dashed_service}", admin)
-
-        expect(response).to have_gitlab_http_status(200)
-        expect(json_response['properties'].keys).to match_array(service_instance.api_field_names)
-      end
-
-      it "returns properties of service #{service} other than passwords when authenticated as project owner" do
+      it "returns all properties of service #{service}" do
         get api("/projects/#{project.id}/services/#{dashed_service}", user)
 
         expect(response).to have_gitlab_http_status(200)
         expect(json_response['properties'].keys).to match_array(service_instance.api_field_names)
-      end
-
-      it "returns empty hash or nil values if properties and data fields are empty" do
-        # deprecated services are not valid for update
-        initialized_service.update_attribute(:properties, {})
-
-        if initialized_service.data_fields_present?
-          initialized_service.data_fields.destroy
-          initialized_service.reload
-        end
-
-        get api("/projects/#{project.id}/services/#{dashed_service}", user)
-
-        expect(response).to have_gitlab_http_status(200)
-        expect(json_response['properties'].values.compact).to be_empty
       end
 
       it "returns error when authenticated but not a project owner" do
@@ -216,10 +226,42 @@ describe API::Services do
     end
 
     it 'accepts a username for update' do
-      put api("/projects/#{project.id}/services/mattermost", user), params: params.merge(username: 'new_username')
+      put api("/projects/#{project.id}/services/#{service_name}", user), params: params.merge(username: 'new_username')
 
       expect(response).to have_gitlab_http_status(200)
       expect(json_response['properties']['username']).to eq('new_username')
+    end
+  end
+
+  describe 'Microsoft Teams service' do
+    let(:service_name) { 'microsoft-teams' }
+    let(:params) do
+      {
+        webhook: 'https://hook.example.com',
+        branches_to_be_notified: 'default',
+        notify_only_broken_pipelines: false
+      }
+    end
+
+    before do
+      project.create_microsoft_teams_service(
+        active: true,
+        properties: params
+      )
+    end
+
+    it 'accepts branches_to_be_notified for update' do
+      put api("/projects/#{project.id}/services/#{service_name}", user), params: params.merge(branches_to_be_notified: 'all')
+
+      expect(response).to have_gitlab_http_status(200)
+      expect(json_response['properties']['branches_to_be_notified']).to eq('all')
+    end
+
+    it 'accepts notify_only_broken_pipelines for update' do
+      put api("/projects/#{project.id}/services/#{service_name}", user), params: params.merge(notify_only_broken_pipelines: true)
+
+      expect(response).to have_gitlab_http_status(200)
+      expect(json_response['properties']['notify_only_broken_pipelines']).to eq(true)
     end
   end
 end

@@ -25,7 +25,7 @@ GET /projects/:id/protected_branches
 | --------- | ---- | -------- | ----------- |
 | `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" 'https://gitlab.example.com/api/v4/projects/5/protected_branches'
 ```
 
@@ -34,6 +34,7 @@ Example response:
 ```json
 [
   {
+    "id": 1,
     "name": "master",
     "push_access_levels": [
       {
@@ -61,6 +62,7 @@ Example response:
 ```json
 [
   {
+    "id": 1,
     "name": "master",
     "push_access_levels": [
       {
@@ -97,7 +99,7 @@ GET /projects/:id/protected_branches/:name
 | `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
 | `name` | string | yes | The name of the branch or wildcard |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" 'https://gitlab.example.com/api/v4/projects/5/protected_branches/master'
 ```
 
@@ -105,6 +107,7 @@ Example response:
 
 ```json
 {
+  "id": 1,
   "name": "master",
   "push_access_levels": [
     {
@@ -129,6 +132,7 @@ Example response:
 
 ```json
 {
+  "id": 1,
   "name": "master",
   "push_access_levels": [
     {
@@ -159,7 +163,7 @@ branches using a wildcard protected branch.
 POST /projects/:id/protected_branches
 ```
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" 'https://gitlab.example.com/api/v4/projects/5/protected_branches?name=*-stable&push_access_level=30&merge_access_level=30&unprotect_access_level=40'
 ```
 
@@ -179,6 +183,7 @@ Example response:
 
 ```json
 {
+  "id": 1,
   "name": "*-stable",
   "push_access_levels": [
     {
@@ -209,6 +214,7 @@ Example response:
 
 ```json
 {
+  "id": 1,
   "name": "*-stable",
   "push_access_levels": [
     {
@@ -241,9 +247,9 @@ Example response:
 ### Example with user / group level access **(STARTER)**
 
 Elements in the `allowed_to_push` / `allowed_to_merge` / `allowed_to_unprotect` array should take the
-form `{user_id: integer}`, `{group_id: integer}` or `{access_level: integer}`. Each user must have access to the project and each group must [have this project shared](../user/project/members/share_project_with_groups.md). These access levels allow [more granular control over protected branch access](../user/project/protected_branches.md#restricting-push-and-merge-access-to-certain-users-starter) and were [added to the API in](https://gitlab.com/gitlab-org/gitlab/merge_requests/3516) in GitLab 10.3 EE.
+form `{user_id: integer}`, `{group_id: integer}` or `{access_level: integer}`. Each user must have access to the project and each group must [have this project shared](../user/project/members/share_project_with_groups.md). These access levels allow [more granular control over protected branch access](../user/project/protected_branches.md#restricting-push-and-merge-access-to-certain-users-starter) and were [added to the API in](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/3516) in GitLab 10.3 EE.
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" 'https://gitlab.example.com/api/v4/projects/5/protected_branches?name=*-stable&allowed_to_push%5B%5D%5Buser_id%5D=1'
 ```
 
@@ -251,6 +257,7 @@ Example response:
 
 ```json
 {
+  "id": 1,
   "name": "*-stable",
   "push_access_levels": [
     {
@@ -288,7 +295,7 @@ Unprotects the given protected branch or wildcard protected branch.
 DELETE /projects/:id/protected_branches/:name
 ```
 
-```bash
+```shell
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" 'https://gitlab.example.com/api/v4/projects/5/protected_branches/*-stable'
 ```
 
@@ -305,7 +312,7 @@ Update the "code owner approval required" option for the given protected branch 
 PATCH /projects/:id/protected_branches/:name
 ```
 
-```bash
+```shell
 curl --request PATCH --header "PRIVATE-TOKEN: <your_access_token>" 'https://gitlab.example.com/api/v4/projects/5/protected_branches/feature-branch'
 ```
 

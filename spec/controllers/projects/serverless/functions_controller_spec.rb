@@ -7,9 +7,9 @@ describe Projects::Serverless::FunctionsController do
   include ReactiveCachingHelpers
 
   let(:user) { create(:user) }
-  let(:cluster) { create(:cluster, :project, :provided_by_gcp) }
+  let(:project) { create(:project, :repository) }
+  let(:cluster) { create(:cluster, :project, :provided_by_gcp, projects: [project]) }
   let(:service) { cluster.platform_kubernetes }
-  let(:project) { cluster.project }
   let(:environment) { create(:environment, project: project) }
   let!(:deployment) { create(:deployment, :success, environment: environment, cluster: cluster) }
   let(:knative_services_finder) { environment.knative_services_finder }
@@ -51,7 +51,7 @@ describe Projects::Serverless::FunctionsController do
         expect(json_response).to eq expected_json
       end
 
-      it { expect(response).to have_gitlab_http_status(200) }
+      it { expect(response).to have_gitlab_http_status(:ok) }
     end
 
     context 'when cache is ready' do
@@ -83,7 +83,7 @@ describe Projects::Serverless::FunctionsController do
           expect(json_response).to eq expected_json
         end
 
-        it { expect(response).to have_gitlab_http_status(200) }
+        it { expect(response).to have_gitlab_http_status(:ok) }
       end
 
       context 'when functions were found' do
@@ -98,7 +98,7 @@ describe Projects::Serverless::FunctionsController do
           expect(json_response["functions"]).not_to be_empty
         end
 
-        it { expect(response).to have_gitlab_http_status(200) }
+        it { expect(response).to have_gitlab_http_status(:ok) }
       end
     end
   end
@@ -107,7 +107,7 @@ describe Projects::Serverless::FunctionsController do
     context 'invalid data' do
       it 'has a bad function name' do
         get :show, params: params({ format: :json, environment_id: "*", id: "foo" })
-        expect(response).to have_gitlab_http_status(404)
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
 
@@ -115,7 +115,7 @@ describe Projects::Serverless::FunctionsController do
       shared_examples 'GET #show with valid data' do
         it 'has a valid function name' do
           get :show, params: params({ format: :json, environment_id: "*", id: cluster.project.name })
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
 
           expect(json_response).to include(
             'name' => project.name,
@@ -149,6 +149,14 @@ describe Projects::Serverless::FunctionsController do
 
         include_examples 'GET #show with valid data'
       end
+
+      context 'on Knative 0.9.0' do
+        before do
+          prepare_knative_stubs(knative_09_service(knative_stub_options))
+        end
+
+        include_examples 'GET #show with valid data'
+      end
     end
   end
 
@@ -156,7 +164,7 @@ describe Projects::Serverless::FunctionsController do
     context 'invalid data' do
       it 'has a bad function name' do
         get :metrics, params: params({ format: :json, environment_id: "*", id: "foo" })
-        expect(response).to have_gitlab_http_status(204)
+        expect(response).to have_gitlab_http_status(:no_content)
       end
     end
   end
@@ -166,7 +174,7 @@ describe Projects::Serverless::FunctionsController do
       it 'has data' do
         get :index, params: params({ format: :json })
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
 
         expect(json_response).to match({
                                          'knative_installed' => 'checking',
@@ -183,7 +191,7 @@ describe Projects::Serverless::FunctionsController do
       it 'has data in html' do
         get :index, params: params
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
       end
     end
 
@@ -206,6 +214,14 @@ describe Projects::Serverless::FunctionsController do
     context 'on Knative 0.7.0' do
       before do
         prepare_knative_stubs(knative_07_service(knative_stub_options))
+      end
+
+      include_examples 'GET #index with data'
+    end
+
+    context 'on Knative 0.9.0' do
+      before do
+        prepare_knative_stubs(knative_09_service(knative_stub_options))
       end
 
       include_examples 'GET #index with data'

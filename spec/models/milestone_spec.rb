@@ -106,6 +106,40 @@ describe Milestone do
     end
   end
 
+  describe '#merge_requests_enabled?' do
+    context "per project" do
+      it "is true for projects with MRs enabled" do
+        project = create(:project, :merge_requests_enabled)
+        milestone = create(:milestone, project: project)
+
+        expect(milestone.merge_requests_enabled?).to be(true)
+      end
+
+      it "is false for projects with MRs disabled" do
+        project = create(:project, :repository_enabled, :merge_requests_disabled)
+        milestone = create(:milestone, project: project)
+
+        expect(milestone.merge_requests_enabled?).to be(false)
+      end
+
+      it "is false for projects with repository disabled" do
+        project = create(:project, :repository_disabled)
+        milestone = create(:milestone, project: project)
+
+        expect(milestone.merge_requests_enabled?).to be(false)
+      end
+    end
+
+    context "per group" do
+      let(:group) { create(:group) }
+      let(:milestone) { create(:milestone, group: group) }
+
+      it "is always true for groups, for performance reasons" do
+        expect(milestone.merge_requests_enabled?).to be(true)
+      end
+    end
+  end
+
   describe "unique milestone title" do
     context "per project" do
       it "does not accept the same title in a project twice" do
@@ -161,6 +195,15 @@ describe Milestone do
 
       expect(described_class.reorder_by_due_date_asc).to eq([milestone1, milestone2])
     end
+  end
+
+  it_behaves_like 'within_timeframe scope' do
+    let_it_be(:now) { Time.now }
+    let_it_be(:project) { create(:project, :empty_repo) }
+    let_it_be(:resource_1) { create(:milestone, project: project, start_date: now - 1.day, due_date: now + 1.day) }
+    let_it_be(:resource_2) { create(:milestone, project: project, start_date: now + 2.days, due_date: now + 3.days) }
+    let_it_be(:resource_3) { create(:milestone, project: project, due_date: now) }
+    let_it_be(:resource_4) { create(:milestone, project: project, start_date: now) }
   end
 
   describe "#percent_complete" do
@@ -483,9 +526,9 @@ describe Milestone do
   end
 
   describe '.sort_by_attribute' do
-    set(:milestone_1) { create(:milestone, title: 'Foo') }
-    set(:milestone_2) { create(:milestone, title: 'Bar') }
-    set(:milestone_3) { create(:milestone, title: 'Zoo') }
+    let_it_be(:milestone_1) { create(:milestone, title: 'Foo') }
+    let_it_be(:milestone_2) { create(:milestone, title: 'Bar') }
+    let_it_be(:milestone_3) { create(:milestone, title: 'Zoo') }
 
     context 'ordering by name ascending' do
       it 'sorts by title ascending' do
@@ -521,7 +564,7 @@ describe Milestone do
       end
 
       it 'returns the quantity of milestones in each possible state' do
-        expected_count = { opened: 5, closed: 6, all: 11 }
+        expected_count = { opened: 2, closed: 6, all: 8 }
 
         count = described_class.states_count(Project.all, Group.all)
         expect(count).to eq(expected_count)

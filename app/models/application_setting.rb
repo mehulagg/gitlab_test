@@ -6,17 +6,14 @@ class ApplicationSetting < ApplicationRecord
   include TokenAuthenticatable
   include ChronicDurationAttribute
 
-  # Only remove this >= %12.6 and >= 2019-12-01
-  self.ignored_columns += %i[
-      pendo_enabled
-      pendo_url
-    ]
-
   add_authentication_token_field :runners_registration_token, encrypted: -> { Feature.enabled?(:application_settings_tokens_optional_encryption, default_enabled: true) ? :optional : :required }
   add_authentication_token_field :health_check_access_token
   add_authentication_token_field :static_objects_external_storage_auth_token
 
-  belongs_to :instance_administration_project, class_name: "Project"
+  belongs_to :self_monitoring_project, class_name: "Project", foreign_key: 'instance_administration_project_id'
+  alias_attribute :self_monitoring_project_id, :instance_administration_project_id
+
+  belongs_to :instance_administrators_group, class_name: "Group"
 
   # Include here so it can override methods from
   # `add_authentication_token_field`
@@ -51,6 +48,12 @@ class ApplicationSetting < ApplicationRecord
   validates :session_expire_delay,
             presence: true,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+
+  validates :minimum_password_length,
+            presence: true,
+            numericality: { only_integer: true,
+                            greater_than_or_equal_to: DEFAULT_MINIMUM_PASSWORD_LENGTH,
+                            less_than_or_equal_to: Devise.password_length.max }
 
   validates :home_page_url,
             allow_blank: true,
@@ -121,6 +124,11 @@ class ApplicationSetting < ApplicationRecord
             presence: true,
             numericality: { only_integer: true, greater_than: 0 }
 
+  validates :max_pages_size,
+            presence: true,
+            numericality: { only_integer: true, greater_than: 0,
+                            less_than: ::Gitlab::Pages::MAX_SIZE / 1.megabyte }
+
   validates :default_artifacts_expire_in, presence: true, duration: true
 
   validates :container_registry_token_expire_delay,
@@ -136,7 +144,7 @@ class ApplicationSetting < ApplicationRecord
             if: :auto_devops_enabled?
 
   validates :enabled_git_access_protocol,
-            inclusion: { in: %w(ssh http), allow_blank: true, allow_nil: true }
+            inclusion: { in: %w(ssh http), allow_blank: true }
 
   validates :domain_blacklist,
             presence: { message: 'Domain blacklist cannot be empty if Blacklist is enabled.' },
@@ -164,7 +172,11 @@ class ApplicationSetting < ApplicationRecord
 
   validates :gitaly_timeout_default,
             presence: true,
-            numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+            numericality: {
+              only_integer: true,
+              greater_than_or_equal_to: 0,
+              less_than_or_equal_to: Settings.gitlab.max_request_duration_seconds
+            }
 
   validates :gitaly_timeout_medium,
             presence: true,
@@ -228,6 +240,8 @@ class ApplicationSetting < ApplicationRecord
 
   validates :push_event_activities_limit,
             numericality: { greater_than_or_equal_to: 0 }
+
+  validates :snippet_size_limit, numericality: { only_integer: true, greater_than: 0 }
 
   SUPPORTED_KEY_TYPES.each do |type|
     validates :"#{type}_key_restriction", presence: true, key_restriction: { type: type }
@@ -313,29 +327,25 @@ class ApplicationSetting < ApplicationRecord
                  algorithm: 'aes-256-cbc',
                  insecure_mode: true
 
-  attr_encrypted :external_auth_client_key,
-                 mode: :per_attribute_iv,
-                 key: Settings.attr_encrypted_db_key_base_truncated,
-                 algorithm: 'aes-256-gcm',
-                 encode: true
+  private_class_method def self.encryption_options_base_truncated_aes_256_gcm
+    {
+      mode: :per_attribute_iv,
+      key: Settings.attr_encrypted_db_key_base_truncated,
+      algorithm: 'aes-256-gcm',
+      encode: true
+    }
+  end
 
-  attr_encrypted :external_auth_client_key_pass,
-                 mode: :per_attribute_iv,
-                 key: Settings.attr_encrypted_db_key_base_truncated,
-                 algorithm: 'aes-256-gcm',
-                 encode: true
-
-  attr_encrypted :lets_encrypt_private_key,
-                 mode: :per_attribute_iv,
-                 key: Settings.attr_encrypted_db_key_base_truncated,
-                 algorithm: 'aes-256-gcm',
-                 encode: true
-
-  attr_encrypted :eks_secret_access_key,
-                 mode: :per_attribute_iv,
-                 key: Settings.attr_encrypted_db_key_base_truncated,
-                 algorithm: 'aes-256-gcm',
-                 encode: true
+  attr_encrypted :external_auth_client_key, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :external_auth_client_key_pass, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :lets_encrypt_private_key, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :eks_secret_access_key, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :akismet_api_key, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :elasticsearch_aws_secret_access_key, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :recaptcha_private_key, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :recaptcha_site_key, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :slack_app_secret, encryption_options_base_truncated_aes_256_gcm
+  attr_encrypted :slack_app_verification_token, encryption_options_base_truncated_aes_256_gcm
 
   before_validation :ensure_uuid!
 

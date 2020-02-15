@@ -10,6 +10,7 @@ module EE
       issue_link
       approvers
       vulnerability_feedback
+      vulnerability
       license_management
       feature_flag
       feature_flags_client
@@ -61,8 +62,8 @@ module EE
       end
 
       with_scope :subject
-      condition(:security_dashboard_feature_disabled) do
-        !@subject.feature_available?(:security_dashboard)
+      condition(:security_dashboard_enabled) do
+        @subject.feature_available?(:security_dashboard)
       end
 
       condition(:prometheus_alerts_enabled) do
@@ -75,13 +76,13 @@ module EE
       end
 
       with_scope :subject
-      condition(:dependency_list_enabled) do
-        @subject.feature_available?(:dependency_list)
+      condition(:dependency_scanning_enabled) do
+        @subject.feature_available?(:dependency_scanning)
       end
 
       with_scope :subject
-      condition(:licenses_list_enabled) do
-        @subject.feature_available?(:licenses_list)
+      condition(:threat_monitoring_enabled) do
+        @subject.beta_feature_available?(:threat_monitoring)
       end
 
       with_scope :subject
@@ -92,6 +93,15 @@ module EE
       with_scope :subject
       condition(:design_management_disabled) do
         !@subject.design_management_enabled?
+      end
+
+      with_scope :subject
+      condition(:code_review_analytics_enabled) do
+        @subject.feature_available?(:code_review_analytics, @user)
+      end
+
+      condition(:group_timelogs_available) do
+        @subject.feature_available?(:group_timelogs)
       end
 
       rule { admin }.enable :change_repository_storage
@@ -119,6 +129,8 @@ module EE
         prevent :admin_issue_link
       end
 
+      rule { ~group_timelogs_available }.prevent :read_group_timelogs
+
       rule { can?(:read_issue) }.policy do
         enable :read_issue_link
         enable :read_design
@@ -130,6 +142,7 @@ module EE
         enable :admin_issue_link
         enable :admin_epic_issue
         enable :read_package
+        enable :read_group_timelogs
       end
 
       rule { can?(:developer_access) }.policy do
@@ -149,28 +162,26 @@ module EE
 
       rule { can?(:public_access) }.enable :read_package
 
-      rule { can?(:developer_access) }.policy do
+      rule { can?(:read_build) & can?(:download_code) }.enable :read_security_findings
+
+      rule { security_dashboard_enabled & can?(:developer_access) }.enable :read_vulnerability
+
+      rule { can?(:read_vulnerability) }.policy do
         enable :read_project_security_dashboard
-      end
-
-      rule { security_dashboard_feature_disabled }.policy do
-        prevent :read_project_security_dashboard
-      end
-
-      rule { can?(:read_project_security_dashboard) & can?(:developer_access) }.policy do
-        enable :read_vulnerability
         enable :create_vulnerability
-        enable :resolve_vulnerability
-        enable :dismiss_vulnerability
+        enable :admin_vulnerability
+        enable :admin_vulnerability_issue_link
       end
 
-      rule { can?(:read_project) & (can?(:read_merge_request) | can?(:read_build)) }.enable :read_vulnerability_feedback
+      rule { threat_monitoring_enabled & (auditor | can?(:developer_access)) }.enable :read_threat_monitoring
 
-      rule { license_management_enabled & can?(:read_project) }.enable :read_software_license_policy
+      rule { can?(:read_security_findings) }.enable :read_vulnerability_feedback
 
-      rule { dependency_list_enabled & can?(:download_code) }.enable :read_dependencies
+      rule { dependency_scanning_enabled & can?(:download_code) }.enable :read_dependencies
 
-      rule { licenses_list_enabled & can?(:read_software_license_policy) }.enable :read_licenses_list
+      rule { license_management_enabled & can?(:download_code) }.enable :read_licenses
+
+      rule { can?(:read_licenses) }.enable :read_software_license_policy
 
       rule { repository_mirrors_enabled & ((mirror_available & can?(:admin_project)) | admin) }.enable :admin_mirror
 
@@ -205,11 +216,16 @@ module EE
         enable :read_environment
         enable :read_deployment
         enable :read_pages
-        enable :read_project_security_dashboard
       end
 
-      rule { auditor & can?(:read_project_security_dashboard) }.policy do
+      rule { auditor & security_dashboard_enabled }.policy do
         enable :read_vulnerability
+      end
+
+      rule { auditor & ~developer }.policy do
+        prevent :create_vulnerability
+        prevent :admin_vulnerability
+        prevent :admin_vulnerability_issue_link
       end
 
       rule { auditor & ~guest }.policy do
@@ -293,13 +309,14 @@ module EE
       end
 
       rule { build_service_proxy_enabled }.enable :build_service_proxy_enabled
+
+      rule { can?(:read_merge_request) & code_review_analytics_enabled }.enable :read_code_review_analytics
     end
 
     override :lookup_access_level!
     def lookup_access_level!
       return ::Gitlab::Access::NO_ACCESS if needs_new_sso_session?
-      return ::Gitlab::Access::REPORTER if alert_bot?
-      return ::Gitlab::Access::GUEST if support_bot? && service_desk_enabled?
+      return ::Gitlab::Access::REPORTER if support_bot? && service_desk_enabled?
       return ::Gitlab::Access::NO_ACCESS if visual_review_bot?
 
       super

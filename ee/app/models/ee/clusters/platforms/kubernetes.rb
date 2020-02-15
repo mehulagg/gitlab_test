@@ -5,15 +5,23 @@ module EE
     module Platforms
       module Kubernetes
         extend ActiveSupport::Concern
+        extend ::Gitlab::Utils::Override
         include ::Gitlab::Utils::StrongMemoize
 
         CACHE_KEY_GET_POD_LOG = 'get_pod_log'
 
         LOGS_LIMIT = 500.freeze
 
+        override :calculate_reactive_cache_for
         def calculate_reactive_cache_for(environment)
           result = super
-          result[:deployments] = read_deployments(environment.deployment_namespace) if result
+
+          if result
+            deployments = read_deployments(environment.deployment_namespace)
+
+            # extract_relevant_deployment_data avoids uploading all the deployment info into ReactiveCaching
+            result[:deployments] = extract_relevant_deployment_data(deployments)
+          end
 
           result
         end
@@ -29,7 +37,7 @@ module EE
           ::Gitlab::Kubernetes::RolloutStatus.from_deployments(*deployments, pods: pods, legacy_deployments: legacy_deployments)
         end
 
-        def read_pod_logs(environment_id, pod_name, namespace, container: nil)
+        def read_pod_logs(environment_id, pod_name, namespace, container: nil, search: nil, start_time: nil, end_time: nil)
           # environment_id is required for use in reactive_cache_updated(),
           # to invalidate the ETag cache.
           with_reactive_cache(
@@ -37,7 +45,10 @@ module EE
             'environment_id' => environment_id,
             'pod_name' => pod_name,
             'namespace' => namespace,
-            'container' => container
+            'container' => container,
+            'search' => search,
+            "start_time" => start_time,
+            "end_time" => end_time
           ) do |result|
             result
           end
@@ -49,11 +60,14 @@ module EE
             container = opts['container']
             pod_name = opts['pod_name']
             namespace = opts['namespace']
+            search = opts['search']
+            start_time = opts['start_time']
+            end_time = opts['end_time']
 
-            handle_exceptions(_('Pod not found'), pod_name: pod_name, container_name: container) do
+            handle_exceptions(_('Pod not found'), pod_name: pod_name, container_name: container, search: search, start_time: start_time, end_time: end_time) do
               container ||= container_names_of(pod_name, namespace).first
 
-              pod_logs(pod_name, namespace, container: container)
+              pod_logs(pod_name, namespace, container: container, search: search, start_time: start_time, end_time: end_time)
             end
           end
         end
@@ -66,13 +80,18 @@ module EE
             environment = ::Environment.find_by(id: opts['environment_id'])
             return unless environment
 
+            method = elastic_stack_available? ? :elasticsearch_project_logs_path : :k8s_project_logs_path
+
             ::Gitlab::EtagCaching::Store.new.tap do |store|
               store.touch(
-                ::Gitlab::Routing.url_helpers.k8s_pod_logs_project_environment_path(
+                # not using send with untrusted input, this is better for readability
+                # rubocop:disable GitlabSecurity/PublicSend
+                ::Gitlab::Routing.url_helpers.send(
+                  method,
                   environment.project,
-                  environment,
-                  opts['pod_name'],
-                  opts['container_name'],
+                  environment_name: environment.name,
+                  pod_name: opts['pod_name'],
+                  container_name: opts['container_name'],
                   format: :json
                 )
               )
@@ -80,11 +99,15 @@ module EE
           end
         end
 
+        def elastic_stack_available?
+          !!cluster.application_elastic_stack
+        end
+
         private
 
-        def pod_logs(pod_name, namespace, container: nil)
-          logs = if ::Feature.enabled?(:enable_cluster_application_elastic_stack) && elastic_stack_client
-                   elastic_stack_pod_logs(namespace, pod_name, container)
+        def pod_logs(pod_name, namespace, container: nil, search: nil, start_time: nil, end_time: nil)
+          logs = if elastic_stack_available?
+                   elastic_stack_pod_logs(namespace, pod_name, container, search, start_time, end_time)
                  else
                    platform_pod_logs(namespace, pod_name, container)
                  end
@@ -99,17 +122,25 @@ module EE
 
         def platform_pod_logs(namespace, pod_name, container_name)
           logs = kubeclient.get_pod_log(
-            pod_name, namespace, container: container_name, tail_lines: LOGS_LIMIT
+            pod_name, namespace, container: container_name, tail_lines: LOGS_LIMIT, timestamps: true
           ).body
 
-          logs.strip.split("\n")
+          logs.strip.split("\n").map do |line|
+            # message contains a RFC3339Nano timestamp, then a space, then the log line.
+            # resolution of the nanoseconds can vary, so we split on the first space
+            values = line.split(' ', 2)
+            {
+              timestamp: values[0],
+              message: values[1]
+            }
+          end
         end
 
-        def elastic_stack_pod_logs(namespace, pod_name, container_name)
+        def elastic_stack_pod_logs(namespace, pod_name, container_name, search, start_time, end_time)
           client = elastic_stack_client
           return [] if client.nil?
 
-          ::Gitlab::Elasticsearch::Logs.new(client).pod_logs(namespace, pod_name, container_name)
+          ::Gitlab::Elasticsearch::Logs.new(client).pod_logs(namespace, pod_name, container_name, search, start_time, end_time)
         end
 
         def elastic_stack_client
@@ -126,7 +157,7 @@ module EE
             status: :error
           }.merge(opts)
         rescue Kubeclient::HttpError => e
-          ::Gitlab::Sentry.track_acceptable_exception(e)
+          ::Gitlab::ErrorTracking.track_exception(e)
 
           {
             error: _('Kubernetes API returned status code: %{error_code}') % {
@@ -148,6 +179,16 @@ module EE
           kubeclient.get_deployments(namespace: namespace).as_json
         rescue Kubeclient::ResourceNotFoundError
           []
+        end
+
+        def extract_relevant_deployment_data(deployments)
+          deployments.map do |deployment|
+            {
+              'metadata' => deployment.fetch('metadata', {}).slice('name', 'generation', 'labels', 'annotations'),
+              'spec' => deployment.fetch('spec', {}).slice('replicas'),
+              'status' => deployment.fetch('status', {}).slice('observedGeneration')
+            }
+          end
         end
       end
     end

@@ -1,79 +1,17 @@
 import * as getters from 'ee/analytics/cycle_analytics/store/getters';
-import { allowedStages as stages, startDate, endDate } from '../mock_data';
+import {
+  startDate,
+  endDate,
+  transformedDurationData,
+  transformedDurationMedianData,
+  durationChartPlottableData,
+  durationChartPlottableMedianData,
+} from '../mock_data';
 
 let state = null;
 const selectedProjectIds = [5, 8, 11];
 
 describe('Cycle analytics getters', () => {
-  describe('with default state', () => {
-    beforeEach(() => {
-      state = {
-        stages: [],
-        selectedStageId: null,
-      };
-    });
-
-    afterEach(() => {
-      state = null;
-    });
-
-    describe('currentStage', () => {
-      it('will return null', () => {
-        expect(getters.currentStage(state)).toEqual(null);
-      });
-    });
-
-    describe('defaultStage', () => {
-      it('will return null', () => {
-        expect(getters.defaultStage(state)).toEqual(null);
-      });
-    });
-  });
-
-  describe('with a set of stages', () => {
-    beforeEach(() => {
-      state = {
-        stages,
-        selectedStageId: null,
-      };
-    });
-
-    afterEach(() => {
-      state = null;
-    });
-
-    describe('currentStage', () => {
-      it('will return null', () => {
-        expect(getters.currentStage(state)).toEqual(null);
-      });
-    });
-
-    describe('defaultStage', () => {
-      it('will return the first stage', () => {
-        expect(getters.defaultStage(state)).toEqual(stages[0]);
-      });
-    });
-  });
-
-  describe('with a set of stages and a stage selected', () => {
-    beforeEach(() => {
-      state = {
-        stages,
-        selectedStageId: stages[2].id,
-      };
-    });
-
-    afterEach(() => {
-      state = null;
-    });
-
-    describe('currentStage', () => {
-      it('will return null', () => {
-        expect(getters.currentStage(state)).toEqual(stages[2]);
-      });
-    });
-  });
-
   describe('hasNoAccessError', () => {
     beforeEach(() => {
       state = {
@@ -133,6 +71,54 @@ describe('Cycle analytics getters', () => {
       ${'project_ids'}    | ${[5, 8, 11]}
     `('should return the $param with value $value', ({ param, value }) => {
       expect(getters.cycleAnalyticsRequestParams(state)).toMatchObject({ [param]: value });
+    });
+  });
+
+  describe('durationChartPlottableData', () => {
+    it('returns plottable data for selected stages', () => {
+      const stateWithDurationData = {
+        startDate,
+        endDate,
+        durationData: transformedDurationData,
+      };
+
+      expect(getters.durationChartPlottableData(stateWithDurationData)).toEqual(
+        durationChartPlottableData,
+      );
+    });
+
+    it('returns null if there is no plottable data for the selected stages', () => {
+      const stateWithDurationData = {
+        startDate,
+        endDate,
+        durationData: [],
+      };
+
+      expect(getters.durationChartPlottableData(stateWithDurationData)).toBeNull();
+    });
+  });
+
+  describe('durationChartPlottableMedianData', () => {
+    it('returns plottable median data for selected stages', () => {
+      const stateWithDurationMedianData = {
+        startDate,
+        endDate,
+        durationMedianData: transformedDurationMedianData,
+      };
+
+      expect(getters.durationChartMedianData(stateWithDurationMedianData)).toEqual(
+        durationChartPlottableMedianData,
+      );
+    });
+
+    it('returns an empty array if there is no plottable median data for the selected stages', () => {
+      const stateWithDurationMedianData = {
+        startDate,
+        endDate,
+        durationMedianData: [],
+      };
+
+      expect(getters.durationChartMedianData(stateWithDurationMedianData)).toEqual([]);
     });
   });
 });

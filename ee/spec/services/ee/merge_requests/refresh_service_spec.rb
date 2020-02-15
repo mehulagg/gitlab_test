@@ -36,11 +36,31 @@ describe MergeRequests::RefreshService do
   end
   let(:oldrev) { TestEnv::BRANCH_SHA[source_branch] }
   let(:newrev) { TestEnv::BRANCH_SHA['after-create-delete-modify-move'] } # Pretend source_branch is now updated
+  let(:service) { described_class.new(project, current_user) }
+  let(:current_user) { merge_request.author }
 
   subject { service.execute(oldrev, newrev, "refs/heads/#{source_branch}") }
 
   describe '#execute' do
-    context '#update_approvers' do
+    it 'checks merge train status' do
+      expect_next_instance_of(MergeTrains::CheckStatusService, project, current_user) do |service|
+        expect(service).to receive(:execute).with(project, source_branch, newrev)
+      end
+
+      subject
+    end
+
+    context 'when branch is deleted' do
+      let(:newrev) { Gitlab::Git::BLANK_SHA }
+
+      it 'does not check merge train status' do
+        expect(MergeTrains::CheckStatusService).not_to receive(:new)
+
+        subject
+      end
+    end
+
+    describe '#update_approvers' do
       let(:owner) { create(:user) }
       let(:current_user) { merge_request.author }
       let(:service) { described_class.new(project, current_user) }

@@ -1,5 +1,269 @@
 Please view this file on the master branch, on stable branches it's out of date.
 
+## 12.7.5
+
+### Fixed (1 change)
+
+- Fix DB connection pool size for Geo database. !24021
+
+
+## 12.7.3
+
+- No changes.
+
+## 12.7.1
+
+### Fixed (1 change)
+
+- Fix create/delete API calls for approval rules. !23107
+
+
+## 12.7.0
+
+### Removed (2 changes)
+
+- Remove `project_ci_cd_settings.merge_trains_enabled` column. !19701
+- Remove old pipeline security report view in favor of the Security Dashboard. !22152
+
+### Fixed (20 changes, 1 of them is from the community)
+
+- Add error flashes to Design view. !20889
+- Pending (unsubmitted) review comments with multiple lines now display whitespace before being submitted. !21435
+- Fixed GitLab admin not seeing merge requests in Jira Development Panel Integration. !21467
+- fix CSS shadowbox on focus. !21785 (allenlai18)
+- Fix GraphQL access to groups with SAML SSO Enforcement. !21922
+- Remove spinner when approval require input is changed. !22186
+- Add billing plans box to profiles. !22270
+- Use full reference in Epic Issue GraphQL query. !22292
+- Support new Azure SCIM pre-setup check. !22348
+- Show expiry details in Audit events when changing acesss levels. !22412
+- Fix PruneOrphanedGeoEvents to pass in demodulized name to BackgroundMigrationWorker. !22451
+- Update widget on click dropdown item when creating epic from epic. !22511
+- Ensure When userWithId Is Picked User IDs are Sent. !22528
+- Fix initial sorting of non-persisted Cycle Analytics stages. !22541
+- The Active tab on the Admin Users page should include bots. !22543
+- Fix reply emails with attachments for epics. !22547
+- Fix child epics depth validation. !22729
+- Users without a license do not use a seat. !23146
+- Fix access to horizontal scrollbar when zooming in on a design.
+- fix positioning of design overlay pins when viewing design.
+
+### Changed (13 changes)
+
+- Rename "Production" stage in Cycle Analytics to "Total". !21450
+- Update copy for start a free gold trial screen. !21820
+- Show Geo node's name in admin page. !21876
+- Improve validation message when a design extension is unsupported. !21888
+- Prevent spiders indexing contribution analytics. !21896
+- Replace depricatedModal (Geo) with GlModal. !22125
+- Allow namespaces in a trial to upgrade to any plan. !22273
+- DAST vendored template pins DAST to latest major version. !22371
+- Rename productivity analytics date parameters. !22377
+- Rename Contribution Analytics endpoint URL. !22877
+- Move 'Allow admins to disable users ability to change profile name' feature to Premium tier. !23034
+- Change security dashboard's filters bar background. !23094
+- Add First & last name on the trial form. !33742
+
+### Performance (3 changes)
+
+- Cache vulnerability summary per project/group. !21373
+- Fix N+1 SQL queries with protected environments. !22101
+- Optimize Group#for_epics scope. !22375
+
+### Added (26 changes)
+
+- GitLab Pages - Storage size Limitations by Project or Group. !17725
+- Add Instance Security Dashboard feature. !18008
+- Add NPM dist-tag support. !20636
+- Track resource weight changes. !21515
+- Add support for custom email templates for service desk. !21745
+- members list to group sso page. !21852
+- Alow to filter by saml identity linked for group members API. !21931
+- Added submit_review quick action. !22061
+- Adds project_id and project_path to package group api. !22089
+- Add trial_ends_on to Namespaces API. !22121
+- Uniquifies path slug creation from trial new group name. !22147
+- Capture Release actions in the audit log page. !22167
+- Add ability to cancel a design discussion. !22241
+- Enable License compliance feature for all instances. !22250
+- Add support for license_scanning artifact report. !22277
+- Add trial counters to usage ping. !22279
+- Support gl-license-scanning-report.json file. !22312
+- Includes _link object in packages list api. !22503
+- Geo - Replicate project designs repositories. !22544
+- Add information about epic to Issue list csv export. !22662
+- Scope approval rules by protected branches via API. !22673
+- Prevent a child pipeline to create further child pipelines. !22675
+- Adds pipeline object to package API. !22854
+- Add zooming functionality to designs in Design view. !22863
+- Introduce Code Review Analytics page. !23031
+- Add support for work in progress limits - Max issue count only.
+
+### Other (3 changes, 1 of them is from the community)
+
+- Generate appropriate Vue key for licenses list table. !21566 (allenlai18)
+- Limit size of search query for non ES searches. !22208
+- Remove "creations" in gitlab_subscription_histories on gitlab.com. !22278
+
+
+## 12.6.6
+
+- No changes.
+
+## 12.6.5
+
+- No changes.
+
+## 12.6.4
+
+- No changes.
+
+## 12.6.2
+
+### Security (2 changes)
+
+- Don't publish drafts if user can't create notes.
+- Remove protected tag access when group is removed.
+
+
+## 12.6.1
+
+- No changes.
+
+## 12.6.0
+
+### Fixed (32 changes, 5 of them are from the community)
+
+- Exclude forks from Group Security Dashboard filter. !14667
+- Clarify why Service Desk feature is unavailable. !19244
+- Bump code quality version in template to 0.85.5. !19354
+- Nullify user roles that have been accidentaly set to a value of 0. !19569
+- Display CI Minutes warning only if minutes left is still below last level. !19751
+- Add a unique constraint to `software_licenses.name` column. !19840
+- Link user accounts to new Smartcards identities on login. !20059
+- Allow valid namespace paths with dots for api PUT. !20079
+- Map software license names from the v1 license scan report to an equivalent SPDX identifer. !20195
+- Prefer sending external pull request pipeline statuses over general statuses to GitHub. !20364
+- Abort rendering of security reports that aren't enabled. !20381
+- Fix Infinite Scrolling on Environments Dashboard Project Selector. !20408
+- Link user accounts to new Smartcards certificate ldap identities on login. !20470
+- Handle design repositories when moving a project to a new storage. !20509
+- Resolve Version dropdown goes wrong if versions are not monotonic. !20515 (Tom Quirk)
+- Turn auto_complete_issues on by default. !20525
+- Handle design repositories when moving existing projects to Hashed Storage. !20540
+- Fix dependency metadata on the NPM registry responses. !20549
+- Fix the hiding of undismissed vulnerabilities. !20599
+- Fix check for existing ES limited indexing IDs. !20866
+- Show actions area for fixed vulnerabilities in merge requests. !20867
+- Fix typo in Kubernetes GKE setup error message. !21091
+- Include projects in subgroups in group boards relative position. !21189
+- Fix inability to add comments to a discussion in Design Management. !21229
+- Fix Infinity % / Infinity % on Stacked Progress Bar. !21437
+- Fix sort icon direction when sorting by weight. !21447 (Jan Beckmann)
+- Auto-focus title text box when creating new epics. !21516 (Jan Beckmann)
+- Fix analytics icon alignment. !21555
+- Invalid trial form to remember user & country. !21840
+- Fix styling on contribution analytics dashboard. !207012 (briankabiro)
+- Add correct link to milestone in groups for issuables list after refactor.
+- Show the proper message when adding a duplicate issue to an epic. (20175)
+
+### Changed (13 changes, 1 of them is from the community)
+
+- Make "Learn more about" links for security scanning popovers on merge request page open in new tab. !13333 (Daniel Tian)
+- Redirect Admin > Settings > Geo to Admin > Geo > Settings. !19833
+- Expose epic_id parameter in issues API. !19953
+- Allow to login with Smartcard certificates using SAN extensions that only defines one global email identity. !20052
+- Update SAST.gitlab-ci.yml - Add kubesec analyzer. !20129
+- Update start trial CTA in top right banner to only appear if all namespaces are free. !20177
+- Update billing page trial CTAs. !20383
+- Rename software_license_policies.approval_status to software_license_policies.classification. !20414
+- Add ability to edit Group Hooks. !20898
+- Improve the performance of group templates finder. !20947
+- Hide elasticsearch namespaces and projects when too many in rollout. !21225
+- Update Explore Geo Page. !21448
+- Renamed Conversational Development Index feature to DevOps Score.
+
+### Performance (1 change)
+
+- Do not trigger count query for pagination without count. !21232
+
+### Added (24 changes, 2 of them are from the community)
+
+- Add new approval rule type which allows anyone to approve. !15378
+- Add Personal access token expiry policy. !17344
+- Expose time logs for group issues via the GraphQL API. !18689
+- Add application settings needed for soft-deletion. !18790
+- Add link to new epic for promoted issues. !18839 (Jan Beckmann)
+- Use issue templates on service desk(backend). !19515
+- Log history for gitlab_subscriptions table. !19694
+- Resolve Show plan of root group on subgroup details page. !20218
+- Adjust group members API to include group SAML info. !20357
+- Add user ability to append template to incoming service desk issues. !20476
+- Add audit event when member access is removed due to expiration. !20529
+- Update CI templates to use sitespeed 11.2.0. !20561
+- Added migration for issue link types. !20617
+- Add security configuration navigation item. !20711
+- Create a new database composite index to support cross-project artifacts downloads. !20721
+- Add deployment API updated_at filters. !20731
+- Show loading spinner in design card while design is uploading. !20814
+- Add most affected projects to group security dashboard. !20892
+- Introduce Credentials Inventory. !20912
+- Add GraphQL mutation for changing weight of an issue. !21331
+- Cache vulnerability findings history endpoint for security dashboards. !21349
+- Added Marginalia feature which can generate PostgreSQL query comments to Gitlab. !21364 (BalaKumar)
+- Add API for states by country. !21417
+- Improved trials sign up for gitlab.com. !21650
+
+### Other (8 changes, 2 of them are from the community)
+
+- Store and look up design management version authorship from database. !17322
+- Remove redundant ManagedLicenses controller. !20131 (briankabiro)
+- Updated board_service.js to use boardStore directly. !20141 (nuwe1)
+- Delete any stale deploy access levels by group. !20689
+- Add project webhooks limits on GitLab.com. !20730
+- Remove the design_management_flag feature flag from the codebase. The feature flag toggles the Design Management feature, and has been enabled by default since 12.2. !20883
+- Remove operations_feature_flags_clients.token column. !21016
+- Update the alerts used in the Dependency List to follow GitLab design guidelines. !21760
+
+
+## 12.5.8
+
+- No changes.
+
+## 12.5.5
+
+- No changes.
+
+## 12.5.4
+
+### Security (1 change)
+
+- Fix stale Elasticsearch permissions when moving group from public group to private parent group.
+
+
+## 12.5.3
+
+### Performance (1 change)
+
+- Geo - Improve query performance to determine job artifacts to sync when selective sync is enabled. !19583
+
+### Other (1 change)
+
+- Geo - Does not schedule duplicated jobs while backfilling uploads, LFS objects and job artifacts. !20324
+
+
+## 12.5.1
+
+### Security (6 changes)
+
+- Protect Jira integration endpoints from guest users.
+- Fix private comment Elasticsearch leak on project search scope.
+- Filter snippet search results by feature visibility.
+- Hide AWS secret on Admin Integration page.
+- Fail pull mirror when mirror user is blocked.
+- Prevent IDOR when adding users to protected environments.
+
+
 ## 12.5.0
 
 ### Security (5 changes)
@@ -85,6 +349,14 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Remove plaintext tokens for feature flags clients. !18923
 - Remove IIFEs from jira_connect.js file. !19248 (nuwe1)
 
+
+## 12.4.8
+
+- No changes.
+
+## 12.4.5
+
+- No changes.
 
 ## 12.4.3
 
@@ -222,6 +494,25 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Updated sidebar navigation icons to be horizontally centered when bar is condensed. !16820
 - Pin major version of SAST analyzers. !17110
 - Docs for protected branch code owner approval API. !17132
+
+
+## 12.3.9
+
+### Security (1 change)
+
+- Fix stale Elasticsearch permissions when moving group from public group to private parent group.
+
+
+## 12.3.7
+
+### Security (6 changes)
+
+- Protect Jira integration endpoints from guest users.
+- Fix private comment Elasticsearch leak on project search scope.
+- Filter snippet search results by feature visibility.
+- Hide AWS secret on Admin Integration page.
+- Fail pull mirror when mirror user is blocked.
+- Prevent IDOR when adding users to protected environments.
 
 
 ## 12.3.4
@@ -425,6 +716,13 @@ Please view this file on the master branch, on stable branches it's out of date.
 - Remove vue-resource from drafts. (Lee Tickett)
 - Changing instance of key-modern icon to key icon.
 - Fixes style-lint errors and warnings for EE builds.scss file.
+
+
+## 12.2.11
+
+### Fixed (1 change)
+
+- Backport the new reliable fetcher. !21198
 
 
 ## 12.2.8
@@ -773,6 +1071,21 @@ Please view this file on the master branch, on stable branches it's out of date.
 ### Fixed (1 change)
 
 - Don't send CI usage email notifications for self-hosted instances. !14809
+
+
+## 12.0.12
+
+### Fixed (1 change)
+
+- Backport the new reliable fetcher to 12.0.9. !20532
+
+
+## 12.0.10
+
+- No changes.
+### Fixed (1 change)
+
+- Backport the new reliable fetcher to 12.0.9. !20532
 
 
 ## 12.0.7

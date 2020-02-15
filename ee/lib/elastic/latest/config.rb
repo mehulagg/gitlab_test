@@ -7,7 +7,7 @@ module Elastic
       extend Elasticsearch::Model::Indexing::ClassMethods
       extend Elasticsearch::Model::Naming::ClassMethods
 
-      self.index_name = [Rails.application.class.parent_name.downcase, Rails.env].join('-')
+      self.index_name = [Rails.application.class.module_parent_name.downcase, Rails.env].join('-')
 
       # ES6 requires a single type per index
       self.document_type = 'doc'
@@ -21,17 +21,55 @@ module Elastic
             analyzer: {
               default: {
                 tokenizer: 'standard',
-                filter: %w(standard lowercase my_stemmer)
+                filter: %w(lowercase my_stemmer)
               },
               my_ngram_analyzer: {
                 tokenizer: 'my_ngram_tokenizer',
                 filter: ['lowercase']
+              },
+              path_analyzer: {
+                type: 'custom',
+                tokenizer: 'path_tokenizer',
+                filter: %w(lowercase asciifolding)
+              },
+              sha_analyzer: {
+                type: 'custom',
+                tokenizer: 'sha_tokenizer',
+                filter: %w(lowercase asciifolding)
+              },
+              code_analyzer: {
+                type: 'custom',
+                tokenizer: 'whitespace',
+                filter: %w(code edgeNGram_filter lowercase asciifolding)
+              },
+              code_search_analyzer: {
+                type: 'custom',
+                tokenizer: 'whitespace',
+                filter: %w(lowercase asciifolding)
               }
             },
             filter: {
               my_stemmer: {
                 type: 'stemmer',
                 name: 'light_english'
+              },
+              code: {
+                type: "pattern_capture",
+                preserve_original: true,
+                patterns: [
+                  "(\\p{Ll}+|\\p{Lu}\\p{Ll}+|\\p{Lu}+)",
+                  "(\\d+)",
+                  "(?=([\\p{Lu}]+[\\p{L}]+))",
+                  '"((?:\\"|[^"]|\\")*)"', # capture terms inside quotes, removing the quotes
+                  "'((?:\\'|[^']|\\')*)'", # same as above, for single quotes
+                  '\.([^.]+)(?=\.|\s|\Z)', # separate terms on periods
+                  '\/?([^\/]+)(?=\/|\b)' # separate path terms (like/this/one)
+                ]
+              },
+              edgeNGram_filter: {
+                type: 'edgeNGram',
+                min_gram: 2,
+                max_gram: 40
               }
             },
             tokenizer: {
@@ -40,6 +78,16 @@ module Elastic
                 min_gram: 2,
                 max_gram: 3,
                 token_chars: %w(letter digit)
+              },
+              sha_tokenizer: {
+                type: "edgeNGram",
+                min_gram: 5,
+                max_gram: 40,
+                token_chars: %w(letter digit)
+              },
+              path_tokenizer: {
+                type: 'path_hierarchy',
+                reverse: true
               }
             }
           }

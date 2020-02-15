@@ -67,6 +67,7 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
   end
 
   describe 'parse_search_result' do
+    let(:project) { double(:project) }
     let(:blob) do
       {
         'blob' => {
@@ -78,11 +79,12 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
     end
 
     it 'returns an unhighlighted blob when no highlight data is present' do
-      parsed = described_class.parse_search_result('_source' => blob)
+      parsed = described_class.parse_search_result({ '_source' => blob }, project)
 
       expect(parsed).to be_kind_of(::Gitlab::Search::FoundBlob)
       expect(parsed).to have_attributes(
         startline: 1,
+        project: project,
         data: "foo\n"
       )
     end
@@ -95,7 +97,7 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
         }
       }
 
-      parsed = described_class.parse_search_result(result)
+      parsed = described_class.parse_search_result(result, project)
 
       expect(parsed).to be_kind_of(::Gitlab::Search::FoundBlob)
       expect(parsed).to have_attributes(
@@ -104,6 +106,7 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
         basename: 'path/file',
         ref: 'sha',
         startline: 2,
+        project: project,
         data: "bar\n"
       )
     end
@@ -214,45 +217,6 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
 
       expect(results.objects('notes')).to be_empty
       expect(results.notes_count).to eq 0
-    end
-
-    it 'redacts issue comments on public projects where issue has lower access_level' do
-      project_1.project_feature.update!(issues_access_level: ProjectFeature::PRIVATE)
-
-      results = described_class.new(user, 'foo', limit_project_ids)
-
-      expect(results.send(:logger))
-        .to receive(:error)
-        .with(hash_including(message: "redacted_search_results", filtered: array_including([
-          { class_name: "Note", id: @note_1.id, ability: :read_note },
-          { class_name: "Note", id: @note_2.id, ability: :read_note }
-      ])))
-
-      expect(results.notes_count).to eq(2) # 2 because redacting only happens when we instantiate the results
-      expect(results.objects('notes')).to be_empty
-    end
-
-    it 'redacts commit comments when user is a guest on a private project' do
-      project_1.update(visibility_level: Gitlab::VisibilityLevel::PRIVATE)
-      project_1.add_guest(user)
-      note_on_commit = create(
-        :note_on_commit,
-        project: project_1,
-        note: 'foo note on commit'
-      )
-
-      Gitlab::Elastic::Helper.refresh_index
-
-      results = described_class.new(user, 'foo', limit_project_ids)
-
-      expect(results.send(:logger))
-        .to receive(:error)
-        .with(hash_including(message: "redacted_search_results", filtered: array_including([
-          { class_name: "Note", id: note_on_commit.id, ability: :read_note }
-      ])))
-
-      expect(results.notes_count).to eq(3) # 3 because redacting only happens when we instantiate the results
-      expect(results.objects('notes')).to match_array([@note_1, @note_2])
     end
   end
 
@@ -558,11 +522,7 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
     end
 
     def search_for(term)
-      blobs = described_class.new(user, term, [project_1.id]).objects('blobs')
-
-      blobs.map do |blob|
-        blob['_source']['blob']['path']
-      end
+      described_class.new(user, term, [project_1.id]).objects('blobs').map(&:path)
     end
 
     it_behaves_like 'a paginated object', 'blobs'
@@ -571,7 +531,7 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
       results = described_class.new(user, 'def', limit_project_ids)
       blobs = results.objects('blobs')
 
-      expect(blobs.first['_source']['blob']['content']).to include('def')
+      expect(blobs.first.data).to include('def')
       expect(results.blobs_count).to eq 7
     end
 
@@ -583,7 +543,7 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
 
       results = described_class.new(user, 'def', [project_1.id])
       expect(results.blobs_count).to eq 7
-      result_project_ids = results.objects('blobs').map { |r| r.dig('_source', 'project_id') }
+      result_project_ids = results.objects('blobs').map(&:project_id)
       expect(result_project_ids.uniq).to eq([project_1.id])
 
       results = described_class.new(user, 'def', [project_1.id, project_2.id])
@@ -678,6 +638,7 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
 
   describe 'Wikis' do
     let(:results) { described_class.new(user, 'term', limit_project_ids) }
+
     subject(:wiki_blobs) { results.objects('wiki_blobs') }
 
     before do
@@ -694,7 +655,7 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
     it 'finds wiki blobs' do
       blobs = results.objects('wiki_blobs')
 
-      expect(blobs.first['_source']['blob']['content']).to include("term")
+      expect(blobs.first.data).to include('term')
       expect(results.wiki_blobs_count).to eq 1
     end
 
@@ -702,7 +663,7 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
       project_1.add_guest(user)
       blobs = results.objects('wiki_blobs')
 
-      expect(blobs.first['_source']['blob']['content']).to include("term")
+      expect(blobs.first.data).to include('term')
       expect(results.wiki_blobs_count).to eq 1
     end
 
@@ -908,18 +869,15 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
 
       context 'when project_ids is not present' do
         context 'when project_ids is :any' do
-          it 'returns all milestones and redacts them when the user has no access' do
+          it 'returns all milestones' do
             results = described_class.new(user, 'project', :any)
-            expect(results.send(:logger))
-              .to receive(:error)
-              .with(hash_including(message: "redacted_search_results", filtered: [{ class_name: "Milestone", id: milestone_2.id, ability: :read_milestone }]))
 
             milestones = results.objects('milestones')
 
-            expect(results.milestones_count).to eq(4) # 4 because redacting only happens when we instantiate the results
+            expect(results.milestones_count).to eq(4)
 
             expect(milestones).to include(milestone_1)
-            expect(milestones).not_to include(milestone_2)
+            expect(milestones).to include(milestone_2)
             expect(milestones).to include(milestone_3)
             expect(milestones).to include(milestone_4)
           end
@@ -1030,14 +988,14 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
         results = described_class.new(user, 'term', limit_project_ids)
         blobs = results.objects('wiki_blobs')
 
-        expect(blobs.map { |blob| blob.join_field.parent }).to match_array [internal_project.es_id, private_project2.es_id, public_project.es_id]
+        expect(blobs.map(&:project)).to match_array [internal_project, private_project2, public_project]
         expect(results.wiki_blobs_count).to eq 3
 
         # Unauthenticated search
         results = described_class.new(nil, 'term', [])
         blobs = results.objects('wiki_blobs')
 
-        expect(blobs.first.join_field.parent).to eq public_project.es_id
+        expect(blobs.first.project).to eq public_project
         expect(results.wiki_blobs_count).to eq 1
       end
     end
@@ -1094,14 +1052,14 @@ describe Gitlab::Elastic::SearchResults, :elastic, :sidekiq_might_not_need_inlin
         results = described_class.new(user, 'tesla', limit_project_ids)
         blobs = results.objects('blobs')
 
-        expect(blobs.map { |blob| blob.join_field.parent }).to match_array [internal_project.es_id, private_project2.es_id, public_project.es_id]
+        expect(blobs.map(&:project)).to match_array [internal_project, private_project2, public_project]
         expect(results.blobs_count).to eq 3
 
         # Unauthenticated search
         results = described_class.new(nil, 'tesla', [])
         blobs = results.objects('blobs')
 
-        expect(blobs.first.join_field.parent).to eq public_project.es_id
+        expect(blobs.first.project).to eq public_project
         expect(results.blobs_count).to eq 1
       end
     end

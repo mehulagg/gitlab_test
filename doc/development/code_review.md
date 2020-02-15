@@ -59,12 +59,12 @@ are recommended to get your merge request approved and merged by maintainer(s)
 from teams other than your own.
 
 1. If your merge request includes backend changes [^1], it must be
-   **approved by a [backend maintainer](https://about.gitlab.com/handbook/engineering/projects/#gitlab-ce_maintainers_backend)**.
+   **approved by a [backend maintainer](https://about.gitlab.com/handbook/engineering/projects/#gitlab_maintainers_backend)**.
 1. If your merge request includes database migrations or changes to expensive queries [^2], it must be
-   **approved by a [database maintainer](https://about.gitlab.com/handbook/engineering/projects/#gitlab-ce_maintainers_database)**.
+   **approved by a [database maintainer](https://about.gitlab.com/handbook/engineering/projects/#gitlab_maintainers_database)**.
    Read the [database review guidelines](database_review.md) for more details.
 1. If your merge request includes frontend changes [^1], it must be
-   **approved by a [frontend maintainer](https://about.gitlab.com/handbook/engineering/projects/#gitlab-ce_maintainers_frontend)**.
+   **approved by a [frontend maintainer](https://about.gitlab.com/handbook/engineering/projects/#gitlab_maintainers_frontend)**.
 1. If your merge request includes UX changes [^1], it must be
    **approved by a [UX team member](https://about.gitlab.com/company/team/)**.
 1. If your merge request includes adding a new JavaScript library [^1], it must be
@@ -259,24 +259,34 @@ Developers who have capacity can regularly check the list of [merge requests to 
 Since [unblocking others is always a top priority](https://about.gitlab.com/handbook/values/#global-optimization),
 reviewers are expected to review assigned merge requests in a timely manner,
 even when this may negatively impact their other tasks and priorities.
+
 Doing so allows everyone involved in the merge request to iterate faster as the
-context is fresh in memory, improves contributors' experiences significantly.
+context is fresh in memory, and improves contributors' experience significantly.
 
-A turnaround time of two working days is usually acceptable, since engineers
-will typically have other things to work on while they're waiting for review,
-but don't hesitate to ask the author if it's unclear what time frame would be
-acceptable, how urgent the review is, or how significant the blockage.
+#### Review-response SLO
 
-If you don't think you'll be able to review a merge request within a reasonable
+To ensure swift feedback to ready-to-review code, we maintain a `Review-response` Service-level Objective (SLO). The SLO is defined as:
+
+> - review-response SLO = (time when first review response is provided) - (time MR is assigned to reviewer) < 2 business days
+
+If you don't think you'll be able to review a merge request within the `Review-response` SLO
 time frame, let the author know as soon as possible and try to help them find
 another reviewer or maintainer who will be able to, so that they can be unblocked
-and get on with their work quickly. Of course, if you are out of office and have
+and get on with their work quickly.
+
+If you think you are at capacity and are unable to accept any more reviews until
+some have been completed, communicate this through your GitLab status by setting
+the `:red_circle:` emoji and mentioning that you are at capacity in the status
+text. This will guide contributors to pick a different reviewer, helping us to
+meet the SLO.
+
+Of course, if you are out of office and have
 [communicated](https://about.gitlab.com/handbook/paid-time-off/#communicating-your-time-off)
 this through your GitLab.com Status, authors are expected to realize this and
 find a different reviewer themselves.
 
-When a merge request author feels like they have been blocked for longer than
-is reasonable, they are free to remind the reviewer through Slack or assign
+When a merge request author has been blocked for longer than
+the `Review-response` SLO, they are free to remind the reviewer through Slack or assign
 another reviewer.
 
 ### Reviewing code
@@ -304,7 +314,7 @@ experience, refactors the existing code). Then:
 - Ensure the target branch is not too far behind master. If
 [master is red](https://about.gitlab.com/handbook/engineering/workflow/#broken-master),
 it should be no more than 100 commits behind.
-- Consider warnings and errors from danger bot, codequality, and other reports.
+- Consider warnings and errors from danger bot, code quality, and other reports.
 Unless a strong case can be made for the violation, these should be resolved
 before merge.
 - Ensure a passing CI pipeline or if [master is broken](https://about.gitlab.com/handbook/engineering/workflow/#broken-master), post a comment mentioning the failure happens in master with a
@@ -337,6 +347,12 @@ reviewee.
   of the contributed code. It's usually a good idea to ask another maintainer or
   reviewer before doing it, but have the courage to do it when you believe it is
   important.
+- In the interest of [Iteration](https://about.gitlab.com/handbook/values/#iteration),
+  if, as a reviewer, your suggestions are non-blocking changes or personal preference
+  (not a documented or agreed requirement), consider approving the merge request
+  before passing it back to the author. This allows them to implement your suggestions
+  if they agree, or allows them to pass it onto the
+  maintainer for review straight away. This can help reduce our overall time-to-merge.
 - There is a difference in doing things right and doing things right now.
   Ideally, we should do the former, but in the real world we need the latter as
   well. A good example is a security fix which should be released as soon as
@@ -399,25 +415,25 @@ Enterprise Edition instance. This has some implications:
 
 How code reviews are conducted can surprise new contributors. Here are some examples of code reviews that should help to orient you as to what to expect.
 
-**["Modify `DiffNote` to reuse it for Designs"](https://gitlab.com/gitlab-org/gitlab/merge_requests/13703):**
+**["Modify `DiffNote` to reuse it for Designs"](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/13703):**
 It contained everything from nitpicks around newlines to reasoning
 about what versions for designs are, how we should compare them
 if there was no previous version of a certain file (parent vs.
 blank `sha` vs empty tree).
 
-**["Support multi-line suggestions"](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/25211)**:
+**["Support multi-line suggestions"](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/25211)**:
 The MR itself consists of a collaboration between FE and BE,
 and documenting comments from the author for the reviewer.
 There's some nitpicks, some questions for information, and
 towards the end, a security vulnerability.
 
-**["Allow multiple repositories per project"](https://gitlab.com/gitlab-org/gitlab/merge_requests/10251)**:
+**["Allow multiple repositories per project"](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/10251)**:
 ZJ referred to the other projects (workhorse) this might impact,
 suggested some improvements for consistency. And James' comments
 helped us with overall code quality (using delegation, `&.` those
 types of things), and making the code more robust.
 
-**["Support multiple assignees for merge requests"](https://gitlab.com/gitlab-org/gitlab/merge_requests/10161)**:
+**["Support multiple assignees for merge requests"](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/10161)**:
 A  good example of collaboration on an MR touching multiple parts of the codebase. Nick pointed out interesting edge cases, James Lopes also joined in raising concerns on import/export feature.
 
 ### Credits

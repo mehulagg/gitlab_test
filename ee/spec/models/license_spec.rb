@@ -171,7 +171,7 @@ describe License do
 
           context 'but active users exceeds restricted user count' do
             it 'is invalid' do
-              6.times { create(:user) }
+              create_list(:user, 6)
 
               expect(license).not_to be_valid
             end
@@ -192,14 +192,14 @@ describe License do
           end
 
           it 'uses current active user count to calculate the expected true-up' do
-            3.times { create(:user) }
+            create_list(:user, 3)
 
             expect(license).to be_valid
           end
 
           context 'with wrong true-up quantity' do
             it 'is invalid' do
-              2.times { create(:user) }
+              create_list(:user, 2)
 
               expect(license).not_to be_valid
             end
@@ -304,6 +304,7 @@ describe License do
 
     describe '.plan_includes_feature?' do
       let(:feature) { :deploy_board }
+
       subject { described_class.plan_includes_feature?(plan, feature) }
 
       context 'when addon included' do
@@ -669,6 +670,7 @@ describe License do
 
       context 'when the license is the very first trial' do
         let(:tomorrow) { Date.tomorrow }
+
         before do
           gl_license.restrictions = { trial: true }
           gl_license.expires_at = tomorrow
@@ -689,6 +691,7 @@ describe License do
 
       context 'when the license is a repeated trial' do
         let(:yesterday) { Date.yesterday }
+
         before do
           gl_license.restrictions = { trial: true }
           gl_license.expires_at = Date.tomorrow

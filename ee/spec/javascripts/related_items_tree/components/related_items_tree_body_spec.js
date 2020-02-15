@@ -4,10 +4,10 @@ import RelatedItemsBody from 'ee/related_items_tree/components/related_items_tre
 
 import { mockParentItem } from '../mock_data';
 
-const createComponent = (parentItem = mockParentItem, children = []) => {
-  const localVue = createLocalVue();
+const localVue = createLocalVue();
 
-  return shallowMount(RelatedItemsBody, {
+const createComponent = (parentItem = mockParentItem, children = []) =>
+  shallowMount(localVue.extend(RelatedItemsBody), {
     localVue,
     stubs: {
       'tree-root': true,
@@ -17,7 +17,6 @@ const createComponent = (parentItem = mockParentItem, children = []) => {
       children,
     },
   });
-};
 
 describe('RelatedItemsTree', () => {
   describe('RelatedTreeBody', () => {

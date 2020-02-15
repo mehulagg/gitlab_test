@@ -51,6 +51,7 @@ module EE
 
       has_many :epic_issues
       has_many :issues, through: :epic_issues
+      has_many :user_mentions, class_name: "EpicUserMention"
 
       validates :group, presence: true
       validate :validate_parent, on: :create
@@ -65,6 +66,12 @@ module EE
       scope :in_milestone, -> (milestone_id) { joins(:issues).where(issues: { milestone_id: milestone_id }) }
       scope :in_issues, -> (issues) { joins(:epic_issues).where(epic_issues: { issue_id: issues }).distinct }
       scope :has_parent, -> { where.not(parent_id: nil) }
+
+      scope :within_timeframe, -> (start_date, end_date) do
+        where('start_date is not NULL or end_date is not NULL')
+          .where('start_date is NULL or start_date <= ?', end_date)
+          .where('end_date is NULL or end_date >= ?', start_date)
+      end
 
       scope :order_start_or_end_date_asc, -> do
         reorder(Arel.sql("COALESCE(start_date, end_date) ASC NULLS FIRST"))
@@ -195,21 +202,15 @@ module EE
         ::Gitlab::ObjectHierarchy.new(self.where(parent_id: nil)).max_descendants_depth
       end
 
-      def groups_user_can_read_epics(epics, user)
-        groups = ::Group.where(id: epics.select(:group_id))
-        groups = ::Gitlab::GroupPlansPreloader.new.preload(groups)
-
-        DeclarativePolicy.user_scope do
-          groups.select { |g| Ability.allowed?(user, :read_epic, g) }
-        end
-      end
-
-      def related_issues(ids:, preload: nil)
-        ::Issue.select('issues.*, epic_issues.id as epic_issue_id, epic_issues.relative_position, epic_issues.epic_id as epic_id')
+      def related_issues(ids: nil, preload: nil)
+        items = ::Issue.select('issues.*, epic_issues.id as epic_issue_id, epic_issues.relative_position, epic_issues.epic_id as epic_id')
           .joins(:epic_issue)
           .preload(preload)
-          .where("epic_issues.epic_id": ids)
           .order('epic_issues.relative_position, epic_issues.id')
+
+        return items unless ids
+
+        items.where("epic_issues.epic_id": ids)
       end
     end
 
@@ -370,7 +371,7 @@ module EE
     private :validate_parent
 
     def level_depth_exceeded?(parent_epic)
-      hierarchy.max_descendants_depth.to_i + parent_epic.ancestors.count >= MAX_HIERARCHY_DEPTH
+      hierarchy.max_descendants_depth.to_i + parent_epic.base_and_ancestors.count >= MAX_HIERARCHY_DEPTH
     end
     private :level_depth_exceeded?
 
@@ -379,6 +380,5 @@ module EE
 
       hierarchy.base_and_ancestors(hierarchy_order: :asc)
     end
-    private :base_and_ancestors
   end
 end

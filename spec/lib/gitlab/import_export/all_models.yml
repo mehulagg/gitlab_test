@@ -6,8 +6,12 @@ issues:
 - assignees
 - updated_by
 - milestone
+- issue_milestones
+- milestones
 - notes
 - resource_label_events
+- resource_weight_events
+- sentry_issue
 - label_links
 - labels
 - last_edited_by
@@ -33,6 +37,9 @@ issues:
 - zoom_meetings
 - vulnerability_links
 - related_vulnerabilities
+- user_mentions
+- blocked_by_issue_links
+- blocked_by_issues
 events:
 - author
 - project
@@ -75,12 +82,15 @@ milestone:
 - boards
 - milestone_releases
 - releases
+- issue_milestones
+- merge_request_milestones
 snippets:
 - author
 - project
 - notes
 - award_emoji
 - user_agent_detail
+- user_mentions
 releases:
 - author
 - project
@@ -102,6 +112,8 @@ merge_requests:
 - assignee
 - updated_by
 - milestone
+- merge_request_milestones
+- milestones
 - notes
 - resource_label_events
 - label_links
@@ -113,6 +125,8 @@ merge_requests:
 - merge_user
 - merge_request_diffs
 - merge_request_diff
+- merge_request_context_commits
+- merge_request_context_commit_diff_files
 - events
 - merge_requests_closing_issues
 - cached_closes_issues
@@ -139,6 +153,15 @@ merge_requests:
 - blocking_merge_requests
 - blocked_merge_requests
 - description_versions
+- deployment_merge_requests
+- deployments
+- user_mentions
+issue_milestones:
+- milestone
+- issue
+merge_request_milestones:
+- milestone
+- merge_request
 external_pull_requests:
 - project
 merge_request_diff:
@@ -149,11 +172,15 @@ merge_request_diff_commits:
 - merge_request_diff
 merge_request_diff_files:
 - merge_request_diff
+merge_request_context_commits:
+- merge_request
+- diff_files
 ci_pipelines:
 - project
 - user
 - stages
 - statuses
+- latest_statuses_ordered_by_stage
 - builds
 - processables
 - trigger_requests
@@ -162,6 +189,7 @@ ci_pipelines:
 - auto_canceled_pipelines
 - auto_canceled_jobs
 - pending_builds
+- failed_builds
 - retryable_builds
 - cancelable_statuses
 - manual_actions
@@ -180,16 +208,21 @@ ci_pipelines:
 - sourced_pipelines
 - triggered_by_pipeline
 - triggered_pipelines
+- child_pipelines
+- parent_pipeline
 - downstream_bridges
 - job_artifacts
 - vulnerabilities_occurrence_pipelines
 - vulnerability_findings
+- pipeline_config
+- security_scans
 pipeline_variables:
 - pipeline
 stages:
 - project
 - pipeline
 - statuses
+- processables
 - builds
 - bridges
 statuses:
@@ -288,6 +321,7 @@ project:
 - microsoft_teams_service
 - mattermost_service
 - hangouts_chat_service
+- unify_circuit_service
 - buildkite_service
 - bamboo_service
 - teamcity_service
@@ -365,6 +399,7 @@ project:
 - root_of_fork_network
 - fork_network_member
 - fork_network
+- fork_network_projects
 - custom_attributes
 - lfs_file_locks
 - project_badges
@@ -434,6 +469,10 @@ project:
 - upstream_project_subscriptions
 - downstream_project_subscriptions
 - service_desk_setting
+- import_failures
+- container_expiration_policy
+- resource_groups
+- autoclose_referenced_issues
 award_emoji:
 - awardable
 - user
@@ -533,14 +572,45 @@ design: &design
 - actions
 - versions
 - notes
+- user_mentions
 designs: *design
 actions:
 - design
 - version
 versions: &version
+- author
 - issue
 - designs
 - actions
 zoom_meetings:
 - issue
+sentry_issue:
+- issue
 design_versions: *version
+epic:
+- subscriptions
+- award_emoji
+- description_versions
+- author
+- assignee
+- issues
+- epic_issues
+- milestone
+- notes
+- label_links
+- labels
+- todos
+- metrics
+- group
+- parent
+- children
+- updated_by
+- last_edited_by
+- closed_by
+- start_date_sourcing_milestone
+- due_date_sourcing_milestone
+- start_date_sourcing_epic
+- due_date_sourcing_epic
+- events
+- resource_label_events
+- user_mentions

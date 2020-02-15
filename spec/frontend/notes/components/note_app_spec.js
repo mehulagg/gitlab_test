@@ -1,16 +1,18 @@
 import $ from 'helpers/jquery';
 import AxiosMockAdapter from 'axios-mock-adapter';
-import axios from '~/lib/utils/axios_utils';
 import Vue from 'vue';
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
+import { setTestTimeout } from 'helpers/timeout';
+import axios from '~/lib/utils/axios_utils';
 import NotesApp from '~/notes/components/notes_app.vue';
 import service from '~/notes/services/notes_service';
 import createStore from '~/notes/stores';
 import '~/behaviors/markdown/render_gfm';
-import { setTestTimeout } from 'helpers/timeout';
 // TODO: use generated fixture (https://gitlab.com/gitlab-org/gitlab-foss/issues/62491)
 import * as mockData from '../../notes/mock_data';
 import * as urlUtility from '~/lib/utils/url_utility';
+
+jest.mock('~/user_popovers', () => jest.fn());
 
 setTestTimeout(1000);
 
@@ -48,7 +50,6 @@ describe('note_app', () => {
         notesData: mockData.notesDataMock,
         userData: mockData.userDataMock,
       };
-      const localVue = createLocalVue();
 
       return mount(
         {
@@ -60,11 +61,8 @@ describe('note_app', () => {
           </div>`,
         },
         {
-          attachToDocument: true,
           propsData,
           store,
-          localVue,
-          sync: false,
         },
       );
     };
@@ -77,6 +75,8 @@ describe('note_app', () => {
 
   describe('set data', () => {
     beforeEach(() => {
+      setFixtures('<div class="js-discussions-count"></div>');
+
       axiosMock.onAny().reply(200, []);
       wrapper = mountComponent();
       return waitForDiscussionsRequest();
@@ -96,6 +96,10 @@ describe('note_app', () => {
 
     it('should fetch discussions', () => {
       expect(store.state.discussions).toEqual([]);
+    });
+
+    it('updates discussions badge', () => {
+      expect(document.querySelector('.js-discussions-count').textContent).toEqual('0');
     });
   });
 
@@ -161,6 +165,7 @@ describe('note_app', () => {
 
   describe('while fetching data', () => {
     beforeEach(() => {
+      setFixtures('<div class="js-discussions-count"></div>');
       axiosMock.onAny().reply(200, []);
       wrapper = mountComponent();
     });
@@ -176,6 +181,10 @@ describe('note_app', () => {
       expect(wrapper.find('.js-main-target-form textarea').attributes('placeholder')).toEqual(
         'Write a comment or drag your files here…',
       );
+    });
+
+    it('should not update discussions badge (it should be blank)', () => {
+      expect(document.querySelector('.js-discussions-count').textContent).toEqual('');
     });
   });
 
@@ -279,7 +288,10 @@ describe('note_app', () => {
     it('should not render quick actions docs url', () => {
       wrapper.find('.js-note-edit').trigger('click');
       const { quickActionsDocsPath } = mockData.notesDataMock;
-      expect(wrapper.find(`.edit-note a[href="${quickActionsDocsPath}"]`).exists()).toBe(false);
+
+      return wrapper.vm.$nextTick().then(() => {
+        expect(wrapper.find(`.edit-note a[href="${quickActionsDocsPath}"]`).exists()).toBe(false);
+      });
     });
   });
 

@@ -131,7 +131,7 @@ describe API::Branches do
         end
 
         new_branch_name = 'protected-branch'
-        CreateBranchService.new(project, current_user).execute(new_branch_name, 'master')
+        ::Branches::CreateService.new(project, current_user).execute(new_branch_name, 'master')
         create(:protected_branch, name: new_branch_name, project: project)
 
         expect do
@@ -608,7 +608,7 @@ describe API::Branches do
       expect(json_response['message']).to eq('Branch name is invalid')
     end
 
-    it 'returns 400 if branch already exists' do
+    it 'returns 400 if branch already exists', :clean_gitlab_redis_cache do
       post api(route, user), params: { branch: 'new_design1', ref: branch_sha }
 
       expect(response).to have_gitlab_http_status(201)
@@ -629,7 +629,9 @@ describe API::Branches do
 
   describe 'DELETE /projects/:id/repository/branches/:branch' do
     before do
-      allow_any_instance_of(Repository).to receive(:rm_branch).and_return(true)
+      allow_next_instance_of(Repository) do |instance|
+        allow(instance).to receive(:rm_branch).and_return(true)
+      end
     end
 
     it 'removes branch' do
@@ -666,7 +668,9 @@ describe API::Branches do
 
   describe 'DELETE /projects/:id/repository/merged_branches' do
     before do
-      allow_any_instance_of(Repository).to receive(:rm_branch).and_return(true)
+      allow_next_instance_of(Repository) do |instance|
+        allow(instance).to receive(:rm_branch).and_return(true)
+      end
     end
 
     it 'returns 202 with json body' do

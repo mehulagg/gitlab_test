@@ -18,12 +18,11 @@ describe('issue_note', () => {
     store.dispatch('setNotesData', notesDataMock);
 
     const localVue = createLocalVue();
-    wrapper = shallowMount(issueNote, {
+    wrapper = shallowMount(localVue.extend(issueNote), {
       store,
       propsData: {
         note,
       },
-      sync: false,
       localVue,
     });
   });

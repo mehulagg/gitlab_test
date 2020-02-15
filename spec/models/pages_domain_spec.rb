@@ -175,6 +175,20 @@ describe PagesDomain do
     it { is_expected.to validate_presence_of(:verification_code) }
   end
 
+  describe 'default values' do
+    it 'defaults wildcard to false' do
+      expect(subject.wildcard).to eq(false)
+    end
+
+    it 'defaults scope to project' do
+      expect(subject.scope).to eq('project')
+    end
+
+    it 'defaults usage to pages' do
+      expect(subject.usage).to eq('pages')
+    end
+  end
+
   describe '#verification_code' do
     subject { pages_domain.verification_code }
 
@@ -305,6 +319,14 @@ describe PagesDomain do
   end
 
   describe '#update_daemon' do
+    context 'when usage is serverless' do
+      it 'does not call the UpdatePagesConfigurationService' do
+        expect(Projects::UpdatePagesConfigurationService).not_to receive(:new)
+
+        create(:pages_domain, usage: :serverless)
+      end
+    end
+
     it 'runs when the domain is created' do
       domain = build(:pages_domain)
 

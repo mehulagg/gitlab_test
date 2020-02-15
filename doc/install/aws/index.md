@@ -4,6 +4,8 @@ type: howto
 
 # Installing GitLab HA on Amazon Web Services (AWS)
 
+DANGER: **Danger:** This guide is under review and the steps below will be revised and updated in due time. For more detail, please see [this epic](https://gitlab.com/groups/gitlab-org/-/epics/912).
+
 This page offers a walkthrough of a common HA (Highly Available) configuration
 for GitLab on AWS. You should customize it to accommodate your needs.
 
@@ -211,7 +213,7 @@ create the actual RDS instance.
 
 Now, it's time to create the database:
 
-1. Select **Instances** from the left menu and click **Create database**.
+1. Select **Databases** from the left menu and click **Create database**.
 1. Select PostgreSQL and click **Next**.
 1. Since this is a production server, let's choose "Production". Click **Next**.
 1. Let's see the instance specifications:
@@ -238,32 +240,7 @@ Now, it's time to create the database:
    auto updates to minor versions. You may want to turn it off.
 1. When done, click **Create database**.
 
-### Installing the `pg_trgm` extension for PostgreSQL
-
-Once the database is created, connect to your new RDS instance to verify access
-and to install a required extension.
-
-You can find the host or endpoint by selecting the instance you just created and
-after the details drop down you'll find it labeled as 'Endpoint'. Do not to
-include the colon and port number:
-
-```sh
-sudo /opt/gitlab/embedded/bin/psql -U gitlab -h <rds-endpoint> -d gitlabhq_production
-```
-
-At the psql prompt create the extension and then quit the session:
-
-```sh
-psql (9.4.7)
-Type "help" for help.
-
-gitlab=# CREATE EXTENSION pg_trgm;
-gitlab=# \q
-```
-
----
-
-Now that the database is created, let's move on setting up Redis with ElasticCache.
+Now that the database is created, let's move on to setting up Redis with ElasticCache.
 
 ## Redis with ElastiCache
 
@@ -362,7 +339,7 @@ Choose the AMI:
 
 You should choose an instance type based on your workload. Consult
 [the hardware requirements](../requirements.md#hardware-requirements) to choose
-one that fits your needs (at least `c4.xlarge`, which is enough to accommodate 100 users):
+one that fits your needs (at least `c5.xlarge`, which is enough to accommodate 100 users):
 
 1. Choose the your instance type.
 1. Click **Next: Configure Instance Details**.
@@ -435,14 +412,31 @@ we intended.
 After a few minutes, the instances should be up and accessible via the internet.
 Let's connect to the primary and configure some things before logging in.
 
-### Configuring GitLab to connect with postgres and Redis
+### Installing the `pg_trgm` extension for PostgreSQL
 
-While connected to your server, let's connect to the RDS instance to verify
-access and to install a required extension:
+Connect to the RDS instance to verify access and to install the required `pg_trgm` extension.
 
-```sh
+To find the host or endpoint, naviagate to **Amazon RDS > Databases** and click on the database you created earlier. Look for the endpoint under the **Connectivity & security** tab.
+
+Do not to include the colon and port number:
+
+```shell
 sudo /opt/gitlab/embedded/bin/psql -U gitlab -h <rds-endpoint> -d gitlabhq_production
 ```
+
+At the psql prompt create the extension and then quit the session:
+
+```shell
+psql (10.9)
+Type "help" for help.
+
+gitlab=# CREATE EXTENSION pg_trgm;
+gitlab=# \q
+```
+
+---
+
+### Configuring GitLab to connect with postgres and Redis
 
 Edit the `gitlab.rb` file at `/etc/gitlab/gitlab.rb`
 find the `external_url 'http://gitlab.example.com'` option and change it
@@ -482,14 +476,14 @@ gitlab_rails['redis_port'] = 6379
 
 Finally, reconfigure GitLab for the change to take effect:
 
-```sh
+```shell
 sudo gitlab-ctl reconfigure
 ```
 
 You might also find it useful to run a check and a service status to make sure
 everything has been setup correctly:
 
-```sh
+```shell
 sudo gitlab-rake gitlab:check
 sudo gitlab-ctl status
 ```
@@ -515,7 +509,7 @@ The EBS volume will host the Git repositories data:
 
 1. Save the file and reconfigure GitLab:
 
-   ```sh
+   ```shell
    sudo gitlab-ctl reconfigure
    ```
 
@@ -556,7 +550,7 @@ After you SSH into the instance, configure the domain name:
 
 1. Reconfigure GitLab:
 
-   ```sh
+   ```shell
    sudo gitlab-ctl reconfigure
    ```
 
@@ -609,7 +603,7 @@ To back up GitLab:
 1. SSH into your instance.
 1. Take a backup:
 
-   ```sh
+   ```shell
    sudo gitlab-backup create
    ```
 
@@ -630,7 +624,7 @@ released, you can update your GitLab instance:
 1. SSH into your instance
 1. Take a backup:
 
-   ```sh
+   ```shell
    sudo gitlab-backup create
    ```
 
@@ -639,7 +633,7 @@ For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
 
 1. Update the repositories and install GitLab:
 
-   ```sh
+   ```shell
    sudo apt update
    sudo apt install gitlab-ee
    ```

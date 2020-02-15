@@ -4,8 +4,8 @@ The internal API is used by different GitLab components, it can not be
 used by other consumers. This documentation is intended for people
 working on the GitLab codebase.
 
-This documentation does not yet include the internal api used by
-GitLab pages.
+This documentation does not yet include the internal API used by
+GitLab Pages.
 
 ## Authentication
 
@@ -19,7 +19,7 @@ file, and include the token Base64 encoded in a `secret_token` param
 or in the `Gitlab-Shared-Secret` header.
 
 NOTE: **Note:**
-The internal api used by GitLab pages uses a different kind of
+The internal API used by GitLab Pages uses a different kind of
 authentication.
 
 ## Git Authentication
@@ -51,7 +51,7 @@ POST /internal/allowed
 
 Example request:
 
-```sh
+```shell
 curl --request POST --header "Gitlab-Shared-Secret: <Base64 encoded token>" --data "key_id=11&project=gnuwget/wget2&action=git-upload-pack&protocol=ssh" http://localhost:3001/api/v4/internal/allowed
 ```
 
@@ -99,7 +99,7 @@ information for LFS clients when the repository is accessed over SSH.
 
 Example request:
 
-```sh
+```shell
 curl --request POST --header "Gitlab-Shared-Secret: <Base64 encoded token>" --data "key_id=11&project=gnuwget/wget2" http://localhost:3001/api/v4/internal/lfs_authenticate
 ```
 
@@ -119,7 +119,7 @@ curl --request POST --header "Gitlab-Shared-Secret: <Base64 encoded token>" --da
 ## Authorized Keys Check
 
 This endpoint is called by the GitLab-shell authorized keys
-check. Which is called by OpenSSH for [fast ssh key
+check. Which is called by OpenSSH for [fast SSH key
 lookup](../administration/operations/fast_ssh_key_lookup.md).
 
 | Attribute | Type   | Required | Description |
@@ -132,7 +132,7 @@ GET /internal/authorized_keys
 
 Example request:
 
-```sh
+```shell
 curl --request GET --header "Gitlab-Shared-Secret: <Base64 encoded secret>""http://localhost:3001/api/v4/internal/authorized_keys?key=<key as passed by OpenSSH>"
 ```
 
@@ -167,7 +167,7 @@ GET /internal/discover
 
 Example request:
 
-```sh
+```shell
 curl --request GET --header "Gitlab-Shared-Secret: <Base64 encoded secret>" "http://localhost:3001/api/v4/internal/discover?key_id=7"
 ```
 
@@ -196,7 +196,7 @@ GET /internal/check
 
 Example request:
 
-```sh
+```shell
 curl --request GET --header "Gitlab-Shared-Secret: <Base64 encoded secret>" "http://localhost:3001/api/v4/internal/check"
 ```
 
@@ -232,7 +232,7 @@ GET /internal/two_factor_recovery_codes
 
 Example request:
 
-```sh
+```shell
 curl --request POST --header "Gitlab-Shared-Secret: <Base64 encoded secret>" --data "key_id=7" http://localhost:3001/api/v4/internal/two_factor_recovery_codes
 ```
 
@@ -275,7 +275,7 @@ POST /internal/pre_receive
 
 Example request:
 
-```sh
+```shell
 curl --request POST --header "Gitlab-Shared-Secret: <Base64 encoded secret>" --data "gl_repository=project-7" http://localhost:3001/api/v4/internal/pre_receive
 ```
 
@@ -287,12 +287,10 @@ Example response:
 }
 ```
 
-## Notify Post Receive [UNUSED] ?
-
 ## PostReceive
 
 Called from Gitaly after a receiving a push. This triggers the
-`PostReceive`-worker in sidekiq, processes the passed push options and
+`PostReceive`-worker in Sidekiq, processes the passed push options and
 builds the response including messages that need to be displayed to
 the user.
 
@@ -300,7 +298,7 @@ the user.
 |:----------|:-------|:---------|:------------|
 | `identifier` | string | yes | `user-[id]` or `key-[id]` Identifying the user performing the push |
 | `gl_repository` | string | yes | identifier of the repository being pushed to |
-| `push_options` | [string] | no | array of push options |
+| `push_options` | string array | no | array of push options |
 | `changes` | string | no | refs to be updated in the push in the format `oldrev newrev refname\n`. |
 
 ```
@@ -309,7 +307,7 @@ POST /internal/post_receive
 
 Example Request:
 
-```sh
+```shell
 curl --request POST --header "Gitlab-Shared-Secret: <Base64 encoded secret>" --data "gl_repository=project-7" --data "identifier=user-1" --data "changes=0000000000000000000000000000000000000000 fd9e76b9136bdd9fe217061b497745792fe5a5ee gh-pages\n"  http://localhost:3001/api/v4/internal/post_receive
 ```
 

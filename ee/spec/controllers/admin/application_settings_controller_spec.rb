@@ -50,6 +50,20 @@ describe Admin::ApplicationSettingsController do
       expect(ApplicationSetting.current.elasticsearch_url).to contain_exactly(settings[:elasticsearch_url])
     end
 
+    context 'elasticsearch_aws_secret_access_key setting is blank' do
+      let(:settings) do
+        {
+          elasticsearch_aws_access_key: 'elasticsearch_aws_access_key',
+          elasticsearch_aws_secret_access_key: ''
+        }
+      end
+
+      it 'does not update the elasticsearch_aws_secret_access_key setting' do
+        expect { put :update, params: { application_setting: settings } }
+          .not_to change { ApplicationSetting.current.reload.elasticsearch_aws_secret_access_key }
+      end
+    end
+
     shared_examples 'settings for licensed features' do
       it 'does not update settings when licensed feature is not available' do
         stub_licensed_features(feature => false)
@@ -86,6 +100,20 @@ describe Admin::ApplicationSettingsController do
     context 'default project deletion protection' do
       let(:settings) { { default_project_deletion_protection: true } }
       let(:feature) { :default_project_deletion_protection }
+
+      it_behaves_like 'settings for licensed features'
+    end
+
+    context 'updating name disabled for users setting' do
+      let(:settings) { { updating_name_disabled_for_users: true } }
+      let(:feature) { :disable_name_update_for_users }
+
+      it_behaves_like 'settings for licensed features'
+    end
+
+    context 'project deletion adjourned period' do
+      let(:settings) { { deletion_adjourned_period: 6 } }
+      let(:feature) { :adjourned_deletion_for_projects_and_groups }
 
       it_behaves_like 'settings for licensed features'
     end

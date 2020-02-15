@@ -1,9 +1,9 @@
 <script>
-import { s__, __ } from '~/locale';
-import _ from 'underscore';
+import { omit, throttle } from 'lodash';
 import { GlLink, GlButton, GlTooltip, GlResizeObserverDirective } from '@gitlab/ui';
 import { GlAreaChart, GlLineChart, GlChartSeriesLabel } from '@gitlab/ui/dist/charts';
 import dateFormat from 'dateformat';
+import { s__, __ } from '~/locale';
 import { roundOffFloat } from '~/lib/utils/common_utils';
 import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
 import Icon from '~/vue_shared/components/icon.vue';
@@ -17,6 +17,13 @@ import {
 } from '../../constants';
 import { makeDataSeries } from '~/helpers/monitor_helper';
 import { graphDataValidatorForValues } from '../../utils';
+
+const THROTTLED_DATAZOOM_WAIT = 1000; // miliseconds
+const timestampToISODate = timestamp => new Date(timestamp).toISOString();
+
+const events = {
+  datazoom: 'datazoom',
+};
 
 export default {
   components: {
@@ -98,6 +105,7 @@ export default {
       height: chartHeight,
       svgs: {},
       primaryColor: null,
+      throttledDatazoom: null,
     };
   },
   computed: {
@@ -105,7 +113,7 @@ export default {
       // Transforms & supplements query data to render appropriate labels & styles
       // Input: [{ queryAttributes1 }, { queryAttributes2 }]
       // Output: [{ seriesAttributes1 }, { seriesAttributes2 }]
-      return this.graphData.queries.reduce((acc, query) => {
+      return this.graphData.metrics.reduce((acc, query) => {
         const { appearance } = query;
         const lineType =
           appearance && appearance.line && appearance.line.type
@@ -121,7 +129,7 @@ export default {
               ? appearance.area.opacity
               : undefined,
         };
-        const series = makeDataSeries(query.result, {
+        const series = makeDataSeries(query.result || [], {
           name: this.formatLegendLabel(query),
           lineStyle: {
             type: lineType,
@@ -140,7 +148,7 @@ export default {
       return (this.option.series || []).concat(this.scatterSeries ? [this.scatterSeries] : []);
     },
     chartOptions() {
-      const option = _.omit(this.option, 'series');
+      const option = omit(this.option, 'series');
       return {
         series: this.chartOptionSeries,
         xAxis: {
@@ -209,7 +217,7 @@ export default {
             id,
             createdAt: created_at,
             sha,
-            commitUrl: `${this.projectPath}/commit/${sha}`,
+            commitUrl: `${this.projectPath}/-/commit/${sha}`,
             tag,
             tagUrl: tag ? `${this.tagsPath}/${ref.name}` : null,
             ref: ref.name,
@@ -244,6 +252,11 @@ export default {
   created() {
     this.setSvg('rocket');
     this.setSvg('scroll-handle');
+  },
+  destroyed() {
+    if (this.throttledDatazoom) {
+      this.throttledDatazoom.cancel();
+    }
   },
   methods: {
     formatLegendLabel(query) {
@@ -287,8 +300,39 @@ export default {
           console.error('SVG could not be rendered correctly: ', e);
         });
     },
-    onChartUpdated(chart) {
-      [this.primaryColor] = chart.getOption().color;
+    onChartUpdated(eChart) {
+      [this.primaryColor] = eChart.getOption().color;
+    },
+
+    onChartCreated(eChart) {
+      // Emit a datazoom event that corresponds to the eChart
+      // `datazoom` event.
+
+      if (this.throttledDatazoom) {
+        // Chart can be created multiple times in this component's
+        // lifetime, remove previous handlers every time
+        // chart is created.
+        this.throttledDatazoom.cancel();
+      }
+
+      // Emitting is throttled to avoid flurries of calls when
+      // the user changes or scrolls the zoom bar.
+      this.throttledDatazoom = throttle(
+        () => {
+          const { startValue, endValue } = eChart.getOption().dataZoom[0];
+          this.$emit(events.datazoom, {
+            start: timestampToISODate(startValue),
+            end: timestampToISODate(endValue),
+          });
+        },
+        THROTTLED_DATAZOOM_WAIT,
+        {
+          leading: false,
+        },
+      );
+
+      eChart.off('datazoom');
+      eChart.on('datazoom', this.throttledDatazoom);
     },
     onResize() {
       if (!this.$refs.chart) return;
@@ -311,7 +355,10 @@ export default {
       <gl-tooltip :target="() => $refs.graphTitle" :disabled="!showTitleTooltip">
         {{ graphData.title }}
       </gl-tooltip>
-      <div class="prometheus-graph-widgets js-graph-widgets flex-fill">
+      <div
+        class="prometheus-graph-widgets js-graph-widgets flex-fill"
+        data-qa-selector="prometheus_graph_widgets"
+      >
         <slot></slot>
       </div>
     </div>
@@ -328,6 +375,7 @@ export default {
       :height="height"
       :average-text="legendAverageText"
       :max-text="legendMaxText"
+      @created="onChartCreated"
       @updated="onChartUpdated"
     >
       <template v-if="tooltip.isDeployment">

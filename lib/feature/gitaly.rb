@@ -7,9 +7,10 @@ class Feature
     # Server feature flags should use '_' to separate words.
     SERVER_FEATURE_FLAGS =
       %w[
+        cache_invalidator
         inforef_uploadpack_cache
-        get_all_lfs_pointers_go
-        get_tag_messages_go
+        commit_without_batch_check
+        use_core_delta_islands
       ].freeze
 
     DEFAULT_ON_FLAGS = Set.new([]).freeze

@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 describe Gitlab::RepositoryCache do
+  let_it_be(:project) { create(:project) }
   let(:backend) { double('backend').as_null_object }
-  let(:project) { create(:project) }
   let(:repository) { project.repository }
   let(:namespace) { "#{repository.full_path}:#{project.id}" }
   let(:cache) { described_class.new(repository, backend: backend) }
@@ -47,6 +47,18 @@ describe Gitlab::RepositoryCache do
 
       cache.fetch(:baz, &p)
       expect(backend).to have_received(:fetch).with("baz:#{namespace}", &p)
+    end
+  end
+
+  describe '#write' do
+    it 'writes the given key and value to the cache' do
+      cache.write(:test, 'test')
+      expect(backend).to have_received(:write).with("test:#{namespace}", 'test')
+    end
+
+    it 'passes additional options to the backend' do
+      cache.write(:test, 'test', expires_in: 10.minutes)
+      expect(backend).to have_received(:write).with("test:#{namespace}", 'test', expires_in: 10.minutes)
     end
   end
 

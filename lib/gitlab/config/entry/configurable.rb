@@ -5,7 +5,7 @@ module Gitlab
     module Entry
       ##
       # This mixin is responsible for adding DSL, which purpose is to
-      # simplifly process of adding child nodes.
+      # simplify the process of adding child nodes.
       #
       # This can be used only if parent node is a configuration entry that
       # holds a hash as a configuration value, for example:
@@ -25,7 +25,6 @@ module Gitlab
           end
         end
 
-        # rubocop: disable CodeReuse/ActiveRecord
         def compose!(deps = nil)
           return unless valid?
 
@@ -35,11 +34,7 @@ module Gitlab
               # we can end with different config types like String
               next unless config.is_a?(Hash)
 
-              factory
-                .value(config[key])
-                .with(key: key, parent: self)
-
-              entries[key] = factory.create!
+              entry_create!(key, config[key])
             end
 
             yield if block_given?
@@ -48,6 +43,16 @@ module Gitlab
               entry.compose!(deps)
             end
           end
+        end
+
+        # rubocop: disable CodeReuse/ActiveRecord
+        def entry_create!(key, value)
+          factory = self.class
+            .nodes[key]
+            .value(value)
+            .with(key: key, parent: self)
+
+          entries[key] = factory.create!
         end
         # rubocop: enable CodeReuse/ActiveRecord
 

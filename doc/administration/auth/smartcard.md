@@ -4,11 +4,17 @@ type: reference
 
 # Smartcard authentication **(PREMIUM ONLY)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/33669) in GitLab 12.6,
-if a user has a pre-existing username and password, they can still use that to log
-in by default. However, this can be disabled.
-
 GitLab supports authentication using smartcards.
+
+## Existing password authentication
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/33669) in GitLab 12.6.
+
+By default, existing users can continue to log in with a username and password when smartcard
+authentication is enabled.
+
+To force existing users to use only smartcard authentication,
+[disable username and password authentication](../../user/admin_area/settings/sign_in_restrictions.md#password-authentication-enabled).
 
 ## Authentication methods
 
@@ -88,10 +94,7 @@ Certificate:
 
 ### Authentication against an LDAP server
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/7693) in
-[GitLab Premium](https://about.gitlab.com/pricing/) 11.8 as an experimental
-feature. Smartcard authentication against an LDAP server may change or be
-removed completely in future releases.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/7693) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.8 as an experimental feature. Smartcard authentication against an LDAP server may change or be removed completely in future releases.
 
 GitLab implements a standard way of certificate matching following
 [RFC4523](https://tools.ietf.org/html/rfc4523). It uses the
@@ -128,14 +131,14 @@ attribute. As a prerequisite, you must use an LDAP server that:
    - The additional NGINX server context must be configured to run on a different
      port:
 
-     ```
+     ```plaintext
      listen *:3444 ssl;
      ```
 
    - The additional NGINX server context must be configured to require the client
      side certificate:
 
-     ```
+     ```plaintext
      ssl_verify_depth 2;
      ssl_client_certificate /etc/ssl/certs/CA.pem;
      ssl_verify_client on;
@@ -144,14 +147,14 @@ attribute. As a prerequisite, you must use an LDAP server that:
    - The additional NGINX server context must be configured to forward the client
      side certificate:
 
-     ```
+     ```plaintext
      proxy_set_header    X-SSL-Client-Certificate    $ssl_client_escaped_cert;
      ```
 
    For example, the following is an example server context in an NGINX
    configuration file (eg. in `/etc/nginx/sites-available/gitlab-ssl`):
 
-   ```
+   ```plaintext
    server {
        listen *:3444 ssl;
 

@@ -77,6 +77,31 @@ describe Namespace do
         end
       end
     end
+
+    describe '.join_gitlab_subscription' do
+      subject { described_class.join_gitlab_subscription.select('gitlab_subscriptions.hosted_plan_id').first.hosted_plan_id }
+
+      context 'when there is no subscription' do
+        it 'returns namespace with nil subscription' do
+          is_expected.to be_nil
+        end
+      end
+
+      context 'when there is a subscription' do
+        let!(:subscription) { create(:gitlab_subscription, namespace: namespace, hosted_plan_id: gold_plan.id) }
+
+        it 'returns namespace with subscription set' do
+          is_expected.to eq(gold_plan.id)
+        end
+      end
+    end
+  end
+
+  context 'validation' do
+    it do
+      is_expected.to validate_numericality_of(:max_pages_size).only_integer.is_greater_than(0)
+                       .is_less_than(::Gitlab::Pages::MAX_SIZE / 1.megabyte)
+    end
   end
 
   describe 'custom validations' do
@@ -92,11 +117,17 @@ describe Namespace do
       end
 
       context 'with an invalid plan name' do
-        it 'is invalid' do
+        it 'is invalid when `unknown`' do
           group.plan = 'unknown'
 
           expect(group).not_to be_valid
           expect(group.errors[:plan]).to include('is not included in the list')
+        end
+
+        it 'is valid for blank strings' do
+          group.plan = ' '
+
+          expect(group).to be_valid
         end
       end
     end
@@ -108,7 +139,7 @@ describe Namespace do
         end
 
         context 'when group is subgroup' do
-          set(:root_ancestor) { create(:group) }
+          let_it_be(:root_ancestor) { create(:group) }
           let(:namespace) { create(:namespace, parent: root_ancestor) }
 
           it 'is invalid' do
@@ -128,8 +159,8 @@ describe Namespace do
 
   describe '#move_dir' do
     context 'when running on a primary node' do
-      set(:primary) { create(:geo_node, :primary) }
-      set(:secondary) { create(:geo_node) }
+      let_it_be(:primary) { create(:geo_node, :primary) }
+      let_it_be(:secondary) { create(:geo_node) }
       let(:gitlab_shell) { Gitlab::Shell.new }
       let(:parent_group) { create(:group) }
       let(:child_group) { create(:group, name: 'child', path: 'child', parent: parent_group) }
@@ -615,6 +646,71 @@ describe Namespace do
 
     context 'without project' do
       it { is_expected.to be_falsey }
+    end
+  end
+
+  describe '#shared_runners_remaining_minutes_percent' do
+    let(:namespace) { build(:namespace) }
+
+    subject { namespace.shared_runners_remaining_minutes_percent }
+
+    it 'returns the minutes left as a percent of the limit' do
+      stub_minutes_used_and_limit(8, 10)
+
+      expect(subject).to eq(20)
+    end
+
+    it 'returns 100 when minutes used are 0' do
+      stub_minutes_used_and_limit(0, 10)
+
+      expect(subject).to eq(100)
+    end
+
+    it 'returns 0 when the limit is 0' do
+      stub_minutes_used_and_limit(0, 0)
+
+      expect(subject).to eq(0)
+    end
+
+    it 'returns 0 when the limit is nil' do
+      stub_minutes_used_and_limit(nil, nil)
+
+      expect(subject).to eq(0)
+    end
+
+    it 'returns 0 when minutes used are over the limit' do
+      stub_minutes_used_and_limit(11, 10)
+
+      expect(subject).to eq(0)
+    end
+
+    it 'returns 0 when minutes used are equal to the limit' do
+      stub_minutes_used_and_limit(10, 10)
+
+      expect(subject).to eq(0)
+    end
+
+    def stub_minutes_used_and_limit(minutes_used, limit)
+      allow(namespace).to receive(:shared_runners_minutes).and_return(minutes_used)
+      allow(namespace).to receive(:actual_shared_runners_minutes_limit).and_return(limit)
+    end
+  end
+
+  describe '#shared_runners_remaining_minutes_below_threshold?' do
+    let(:namespace) { build(:namespace, last_ci_minutes_usage_notification_level: 30) }
+
+    subject { namespace.shared_runners_remaining_minutes_below_threshold? }
+
+    it 'is true when minutes left is below the notification level' do
+      allow(namespace).to receive(:shared_runners_remaining_minutes_percent).and_return(10)
+
+      expect(subject).to be_truthy
+    end
+
+    it 'is false when minutes left is not below the notification level' do
+      allow(namespace).to receive(:shared_runners_remaining_minutes_percent).and_return(80)
+
+      expect(subject).to be_falsey
     end
   end
 

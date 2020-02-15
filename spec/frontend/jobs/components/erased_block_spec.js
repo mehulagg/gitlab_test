@@ -8,13 +8,11 @@ describe('Erased block', () => {
 
   const erasedAt = '2016-11-07T11:11:16.525Z';
   const timeago = getTimeago();
-  const formatedDate = timeago.format(erasedAt);
+  const formattedDate = timeago.format(erasedAt);
 
   const createComponent = props => {
     wrapper = mount(ErasedBlock, {
       propsData: props,
-      sync: false,
-      attachToDocument: true,
     });
   };
 
@@ -41,7 +39,7 @@ describe('Erased block', () => {
     });
 
     it('renders erasedAt', () => {
-      expect(wrapper.text().trim()).toContain(formatedDate);
+      expect(wrapper.text().trim()).toContain(formattedDate);
     });
   });
 
@@ -57,7 +55,7 @@ describe('Erased block', () => {
     });
 
     it('renders erasedAt', () => {
-      expect(wrapper.text().trim()).toContain(formatedDate);
+      expect(wrapper.text().trim()).toContain(formattedDate);
     });
   });
 });

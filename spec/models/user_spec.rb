@@ -20,11 +20,15 @@ describe User, :do_not_mock_admin_mode do
 
   describe 'delegations' do
     it { is_expected.to delegate_method(:path).to(:namespace).with_prefix }
+
+    it { is_expected.to delegate_method(:tab_width).to(:user_preference) }
+    it { is_expected.to delegate_method(:tab_width=).to(:user_preference).with_arguments(5) }
   end
 
   describe 'associations' do
     it { is_expected.to have_one(:namespace) }
     it { is_expected.to have_one(:status) }
+    it { is_expected.to have_one(:max_access_level_membership) }
     it { is_expected.to have_many(:snippets).dependent(:destroy) }
     it { is_expected.to have_many(:members) }
     it { is_expected.to have_many(:project_members) }
@@ -98,17 +102,64 @@ describe User, :do_not_mock_admin_mode do
   end
 
   describe 'validations' do
+    describe 'password' do
+      let!(:user) { create(:user) }
+
+      before do
+        allow(Devise).to receive(:password_length).and_return(8..128)
+        allow(described_class).to receive(:password_length).and_return(10..130)
+      end
+
+      context 'length' do
+        it { is_expected.to validate_length_of(:password).is_at_least(10).is_at_most(130) }
+      end
+
+      context 'length validator' do
+        context 'for a short password' do
+          before do
+            user.password = user.password_confirmation = 'abc'
+          end
+
+          it 'does not run the default Devise password length validation' do
+            expect(user).to be_invalid
+            expect(user.errors.full_messages.join).not_to include('is too short (minimum is 8 characters)')
+          end
+
+          it 'runs the custom password length validator' do
+            expect(user).to be_invalid
+            expect(user.errors.full_messages.join).to include('is too short (minimum is 10 characters)')
+          end
+        end
+
+        context 'for a long password' do
+          before do
+            user.password = user.password_confirmation = 'a' * 140
+          end
+
+          it 'does not run the default Devise password length validation' do
+            expect(user).to be_invalid
+            expect(user.errors.full_messages.join).not_to include('is too long (maximum is 128 characters)')
+          end
+
+          it 'runs the custom password length validator' do
+            expect(user).to be_invalid
+            expect(user.errors.full_messages.join).to include('is too long (maximum is 130 characters)')
+          end
+        end
+      end
+    end
+
     describe 'name' do
       it { is_expected.to validate_presence_of(:name) }
-      it { is_expected.to validate_length_of(:name).is_at_most(128) }
+      it { is_expected.to validate_length_of(:name).is_at_most(255) }
     end
 
     describe 'first name' do
-      it { is_expected.to validate_length_of(:first_name).is_at_most(255) }
+      it { is_expected.to validate_length_of(:first_name).is_at_most(127) }
     end
 
     describe 'last name' do
-      it { is_expected.to validate_length_of(:last_name).is_at_most(255) }
+      it { is_expected.to validate_length_of(:last_name).is_at_most(127) }
     end
 
     describe 'username' do
@@ -142,7 +193,7 @@ describe User, :do_not_mock_admin_mode do
           expect(user.namespace).to receive(:any_project_has_container_registry_tags?).and_return(true)
           user.username = 'new_path'
           expect(user).to be_invalid
-          expect(user.errors.messages[:username].first).to match('cannot be changed if a personal project has container registry tags')
+          expect(user.errors.messages[:username].first).to eq(_('cannot be changed if a personal project has container registry tags.'))
         end
       end
 
@@ -461,6 +512,48 @@ describe User, :do_not_mock_admin_mode do
       end
     end
 
+    describe '.random_password' do
+      let(:random_password) { described_class.random_password }
+
+      before do
+        expect(User).to receive(:password_length).and_return(88..128)
+      end
+
+      context 'length' do
+        it 'conforms to the current password length settings' do
+          expect(random_password.length).to eq(128)
+        end
+      end
+    end
+
+    describe '.password_length' do
+      let(:password_length) { described_class.password_length }
+
+      it 'is expected to be a Range' do
+        expect(password_length).to be_a(Range)
+      end
+
+      context 'minimum value' do
+        before do
+          stub_application_setting(minimum_password_length: 101)
+        end
+
+        it 'is determined by the current value of `minimum_password_length` attribute of application_setting' do
+          expect(password_length.min).to eq(101)
+        end
+      end
+
+      context 'maximum value' do
+        before do
+          allow(Devise.password_length).to receive(:max).and_return(201)
+        end
+
+        it 'is determined by the current value of `Devise.password_length.max`' do
+          expect(password_length.max).to eq(201)
+        end
+      end
+    end
+
     describe '.limit_to_todo_authors' do
       context 'when filtering by todo authors' do
         let(:user1) { create(:user) }
@@ -529,6 +622,56 @@ describe User, :do_not_mock_admin_mode do
           .to contain_exactly(user)
       end
     end
+
+    describe '.with_expiring_and_not_notified_personal_access_tokens' do
+      let_it_be(:user1) { create(:user) }
+      let_it_be(:user2) { create(:user) }
+      let_it_be(:user3) { create(:user) }
+
+      let_it_be(:expired_token) { create(:personal_access_token, user: user1, expires_at: 2.days.ago) }
+      let_it_be(:revoked_token) { create(:personal_access_token, user: user1, revoked: true) }
+      let_it_be(:valid_token_and_notified) { create(:personal_access_token, user: user2, expires_at: 2.days.from_now, expire_notification_delivered: true) }
+      let_it_be(:valid_token1) { create(:personal_access_token, user: user2, expires_at: 2.days.from_now) }
+      let_it_be(:valid_token2) { create(:personal_access_token, user: user2, expires_at: 2.days.from_now) }
+      let(:users) { described_class.with_expiring_and_not_notified_personal_access_tokens(from) }
+
+      context 'in one day' do
+        let(:from) { 1.day.from_now }
+
+        it "doesn't include an user" do
+          expect(users).to be_empty
+        end
+      end
+
+      context 'in three days' do
+        let(:from) { 3.days.from_now }
+
+        it 'only includes user2' do
+          expect(users).to contain_exactly(user2)
+        end
+      end
+    end
+
+    describe '.active_without_ghosts' do
+      let_it_be(:user1) { create(:user, :external) }
+      let_it_be(:user2) { create(:user, state: 'blocked') }
+      let_it_be(:user3) { create(:user, ghost: true) }
+      let_it_be(:user4) { create(:user) }
+
+      it 'returns all active users but ghost users' do
+        expect(described_class.active_without_ghosts).to match_array([user1, user4])
+      end
+    end
+
+    describe '.without_ghosts' do
+      let_it_be(:user1) { create(:user, :external) }
+      let_it_be(:user2) { create(:user, state: 'blocked') }
+      let_it_be(:user3) { create(:user, ghost: true) }
+
+      it 'returns users without ghosts users' do
+        expect(described_class.without_ghosts).to match_array([user1, user2])
+      end
+    end
   end
 
   describe "Respond to" do
@@ -538,7 +681,7 @@ describe User, :do_not_mock_admin_mode do
   end
 
   describe 'before save hook' do
-    context '#default_private_profile_to_false' do
+    describe '#default_private_profile_to_false' do
       let(:user) { create(:user, private_profile: true) }
 
       it 'converts nil to false' do
@@ -700,8 +843,35 @@ describe User, :do_not_mock_admin_mode do
 
   describe '#highest_role' do
     let(:user) { create(:user) }
-
     let(:group) { create(:group) }
+
+    context 'with association :max_access_level_membership' do
+      let(:another_user) { create(:user) }
+
+      before do
+        create(:project, group: group) do |project|
+          group.add_user(user, GroupMember::GUEST)
+          group.add_user(another_user, GroupMember::DEVELOPER)
+        end
+
+        create(:project, group: create(:group)) do |project|
+          project.add_guest(another_user)
+        end
+
+        create(:project, group: create(:group)) do |project|
+          project.add_maintainer(user)
+        end
+      end
+
+      it 'returns the correct highest role' do
+        users = User.includes(:max_access_level_membership).where(id: [user.id, another_user.id])
+
+        expect(users.collect { |u| [u.id, u.highest_role] }).to contain_exactly(
+          [user.id, Gitlab::Access::MAINTAINER],
+          [another_user.id, Gitlab::Access::DEVELOPER]
+        )
+      end
+    end
 
     it 'returns NO_ACCESS if none has been set' do
       expect(user.highest_role).to eq(Gitlab::Access::NO_ACCESS)
@@ -1148,7 +1318,7 @@ describe User, :do_not_mock_admin_mode do
     let(:user) { double }
 
     it 'filters by active users by default' do
-      expect(described_class).to receive(:active).and_return([user])
+      expect(described_class).to receive(:active_without_ghosts).and_return([user])
 
       expect(described_class.filter_items(nil)).to include user
     end
@@ -1887,6 +2057,19 @@ describe User, :do_not_mock_admin_mode do
         expect(user.blocked?).to be_truthy
         expect(user.ldap_blocked?).to be_truthy
       end
+
+      context 'on a read-only instance' do
+        before do
+          allow(Gitlab::Database).to receive(:read_only?).and_return(true)
+        end
+
+        it 'does not block user' do
+          user.ldap_block
+
+          expect(user.blocked?).to be_falsey
+          expect(user.ldap_blocked?).to be_falsey
+        end
+      end
     end
   end
 
@@ -2016,7 +2199,7 @@ describe User, :do_not_mock_admin_mode do
 
   describe '.find_by_private_commit_email' do
     context 'with email' do
-      set(:user) { create(:user) }
+      let_it_be(:user) { create(:user) }
 
       it 'returns user through private commit email' do
         expect(described_class.find_by_private_commit_email(user.private_commit_email)).to eq(user)
@@ -2286,6 +2469,7 @@ describe User, :do_not_mock_admin_mode do
 
   describe '#authorizations_for_projects' do
     let!(:user) { create(:user) }
+
     subject { Project.where("EXISTS (?)", user.authorizations_for_projects) }
 
     it 'includes projects that belong to a user, but no other projects' do
@@ -2533,8 +2717,8 @@ describe User, :do_not_mock_admin_mode do
           add_user(:maintainer)
         end
 
-        it 'loads' do
-          expect(user.ci_owned_runners).to contain_exactly(runner)
+        it 'does not load' do
+          expect(user.ci_owned_runners).to be_empty
         end
       end
 
@@ -2549,6 +2733,20 @@ describe User, :do_not_mock_admin_mode do
       end
     end
 
+    shared_examples :group_member do
+      context 'when the user is owner' do
+        before do
+          add_user(:owner)
+        end
+
+        it 'loads' do
+          expect(user.ci_owned_runners).to contain_exactly(runner)
+        end
+      end
+
+      it_behaves_like :member
+    end
+
     context 'with groups projects runners' do
       let(:group) { create(:group) }
       let!(:project) { create(:project, group: group) }
@@ -2557,7 +2755,7 @@ describe User, :do_not_mock_admin_mode do
         group.add_user(user, access)
       end
 
-      it_behaves_like :member
+      it_behaves_like :group_member
     end
 
     context 'with groups runners' do
@@ -2568,14 +2766,14 @@ describe User, :do_not_mock_admin_mode do
         group.add_user(user, access)
       end
 
-      it_behaves_like :member
+      it_behaves_like :group_member
     end
 
     context 'with other projects runners' do
       let!(:project) { create(:project) }
 
       def add_user(access)
-        project.add_role(user, access)
+        project.add_user(user, access)
       end
 
       it_behaves_like :member
@@ -2593,7 +2791,7 @@ describe User, :do_not_mock_admin_mode do
         subgroup.add_user(another_user, :owner)
       end
 
-      it_behaves_like :member
+      it_behaves_like :group_member
     end
   end
 
@@ -2790,31 +2988,32 @@ describe User, :do_not_mock_admin_mode do
     end
   end
 
-  describe '#full_private_access?' do
+  describe '#can_read_all_resources?', :request_store do
     it 'returns false for regular user' do
-      user = build(:user)
+      user = build_stubbed(:user)
 
-      expect(user.full_private_access?).to be_falsy
+      expect(user.can_read_all_resources?).to be_falsy
     end
 
     context 'for admin user' do
       include_context 'custom session'
 
-      let(:user) { build(:user, :admin) }
+      let(:user) { build_stubbed(:user, :admin) }
 
       context 'when admin mode is disabled' do
         it 'returns false' do
-          expect(user.full_private_access?).to be_falsy
+          expect(user.can_read_all_resources?).to be_falsy
         end
       end
 
       context 'when admin mode is enabled' do
         before do
+          Gitlab::Auth::CurrentUserMode.new(user).request_admin_mode!
           Gitlab::Auth::CurrentUserMode.new(user).enable_admin_mode!(password: user.password)
         end
 
         it 'returns true' do
-          expect(user.full_private_access?).to be_truthy
+          expect(user.can_read_all_resources?).to be_truthy
         end
       end
     end
@@ -2962,7 +3161,7 @@ describe User, :do_not_mock_admin_mode do
     end
   end
 
-  context '.active' do
+  describe '.active' do
     before do
       described_class.ghost
       create(:user, name: 'user', state: 'active')
@@ -2982,7 +3181,7 @@ describe User, :do_not_mock_admin_mode do
     end
   end
 
-  context '#invalidate_issue_cache_counts' do
+  describe '#invalidate_issue_cache_counts' do
     let(:user) { build_stubbed(:user) }
 
     it 'invalidates cache for issue counter' do
@@ -2996,7 +3195,7 @@ describe User, :do_not_mock_admin_mode do
     end
   end
 
-  context '#invalidate_merge_request_cache_counts' do
+  describe '#invalidate_merge_request_cache_counts' do
     let(:user) { build_stubbed(:user) }
 
     it 'invalidates cache for Merge Request counter' do
@@ -3010,7 +3209,7 @@ describe User, :do_not_mock_admin_mode do
     end
   end
 
-  context '#invalidate_personal_projects_count' do
+  describe '#invalidate_personal_projects_count' do
     let(:user) { build_stubbed(:user) }
 
     it 'invalidates cache for personal projects counter' do
@@ -3184,7 +3383,7 @@ describe User, :do_not_mock_admin_mode do
 
             it 'causes the user save to fail' do
               expect(user.update(username: new_username)).to be_falsey
-              expect(user.namespace.errors.messages[:path].first).to eq('has already been taken')
+              expect(user.namespace.errors.messages[:path].first).to eq(_('has already been taken'))
             end
 
             it 'adds the namespace errors to the user' do
@@ -3581,6 +3780,7 @@ describe User, :do_not_mock_admin_mode do
 
   describe '#required_terms_not_accepted?' do
     let(:user) { build(:user) }
+
     subject { user.required_terms_not_accepted? }
 
     context "when terms are not enforced" do
@@ -3885,6 +4085,119 @@ describe User, :do_not_mock_admin_mode do
       it 'returns false' do
         is_expected.to be_falsey
       end
+    end
+  end
+
+  describe '#read_only_attribute?' do
+    context 'when LDAP server is enabled' do
+      before do
+        allow(Gitlab::Auth::LDAP::Config).to receive(:enabled?).and_return(true)
+      end
+
+      %i[name email location].each do |attribute|
+        it "is true for #{attribute}" do
+          expect(subject.read_only_attribute?(attribute)).to be_truthy
+        end
+      end
+
+      context 'and ldap_readonly_attributes feature is disabled' do
+        before do
+          stub_feature_flags(ldap_readonly_attributes: false)
+        end
+
+        %i[name email location].each do |attribute|
+          it "is false" do
+            expect(subject.read_only_attribute?(attribute)).to be_falsey
+          end
+        end
+      end
+    end
+
+    context 'when synced attributes metadata is present' do
+      it 'delegates to synced_attributes_metadata' do
+        subject.build_user_synced_attributes_metadata
+
+        expect(subject.build_user_synced_attributes_metadata)
+          .to receive(:read_only?).with(:email).and_return('return-value')
+        expect(subject.read_only_attribute?(:email)).to eq('return-value')
+      end
+    end
+
+    context 'when synced attributes metadata is present' do
+      it 'is false for any attribute' do
+        expect(subject.read_only_attribute?(:email)).to be_falsey
+      end
+    end
+  end
+
+  describe 'internal methods' do
+    let_it_be(:user) { create(:user) }
+    let!(:ghost) { described_class.ghost }
+    let!(:alert_bot) { described_class.alert_bot }
+    let!(:non_internal) { [user] }
+    let!(:internal) { [ghost, alert_bot] }
+
+    it 'returns non internal users' do
+      expect(described_class.internal).to eq(internal)
+      expect(internal.all?(&:internal?)).to eq(true)
+    end
+
+    it 'returns internal users' do
+      expect(described_class.non_internal).to eq(non_internal)
+      expect(non_internal.all?(&:internal?)).to eq(false)
+    end
+
+    describe '#bot?' do
+      it 'marks bot users' do
+        expect(user.bot?).to eq(false)
+        expect(ghost.bot?).to eq(false)
+
+        expect(alert_bot.bot?).to eq(true)
+      end
+    end
+  end
+
+  describe '#dismissed_callout?' do
+    subject(:user) { create(:user) }
+
+    let(:feature_name) { UserCallout.feature_names.keys.first }
+
+    context 'when no callout dismissal record exists' do
+      it 'returns false when no ignore_dismissal_earlier_than provided' do
+        expect(user.dismissed_callout?(feature_name: feature_name)).to eq false
+      end
+
+      it 'returns false when ignore_dismissal_earlier_than provided' do
+        expect(user.dismissed_callout?(feature_name: feature_name, ignore_dismissal_earlier_than: 3.months.ago)).to eq false
+      end
+    end
+
+    context 'when dismissed callout exists' do
+      before do
+        create(:user_callout, user: user, feature_name: feature_name, dismissed_at: 4.months.ago)
+      end
+
+      it 'returns true when no ignore_dismissal_earlier_than provided' do
+        expect(user.dismissed_callout?(feature_name: feature_name)).to eq true
+      end
+
+      it 'returns true when ignore_dismissal_earlier_than is earlier than dismissed_at' do
+        expect(user.dismissed_callout?(feature_name: feature_name, ignore_dismissal_earlier_than: 6.months.ago)).to eq true
+      end
+
+      it 'returns false when ignore_dismissal_earlier_than is later than dismissed_at' do
+        expect(user.dismissed_callout?(feature_name: feature_name, ignore_dismissal_earlier_than: 3.months.ago)).to eq false
+      end
+    end
+  end
+
+  describe 'bots & humans' do
+    it 'returns corresponding users' do
+      human = create(:user)
+      bot = create(:user, :bot)
+
+      expect(described_class.humans).to match_array([human])
+      expect(described_class.bots).to match_array([bot])
     end
   end
 end

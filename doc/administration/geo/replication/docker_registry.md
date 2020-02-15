@@ -36,7 +36,7 @@ We need to make Docker Registry send notification events to the
 
 1. SSH into your GitLab **primary** server and login as root:
 
-   ```sh
+   ```shell
    sudo -i
    ```
 
@@ -51,7 +51,7 @@ We need to make Docker Registry send notification events to the
        'threshold' => 5,
        'backoff' => '1s',
        'headers' => {
-         'Authorization' => ['<replace_with_a_secret_token>']
+         'Authorization' => ['<replace_with_a_secret_token>'] # An alphanumeric string. Case sensitive and must start with a letter.
        }
      }
    ]
@@ -59,7 +59,7 @@ We need to make Docker Registry send notification events to the
 
    NOTE: **Note:**
    If you use an external Registry (not the one integrated with GitLab), you must add
-   these settings to its configuration. In this case, you will also have to specify
+   these settings to its configuration yourself. In this case, you will also have to specify
    notification secret in `registry.notification_secret` section of
    `/etc/gitlab/gitlab.rb` file.
 
@@ -70,7 +70,7 @@ We need to make Docker Registry send notification events to the
 
 1. Reconfigure the **primary** node for the change to take effect:
 
-   ```sh
+   ```shell
    gitlab-ctl reconfigure
    ```
 
@@ -90,7 +90,7 @@ generate a short-lived JWT that is pull-only-capable to access the
 
 1. SSH into the **secondary** node and login as the `root` user:
 
-   ```sh
+   ```shell
    sudo -i
    ```
 
@@ -100,12 +100,12 @@ generate a short-lived JWT that is pull-only-capable to access the
 
    ```ruby
    gitlab_rails['geo_registry_replication_enabled'] = true
-   gitlab_rails['geo_registry_replication_primary_api_url'] = 'http://primary.example.com:5000/' # internal address to the primary registry, will be used by GitLab to directly communicate with primary registry API
+   gitlab_rails['geo_registry_replication_primary_api_url'] = 'http://primary.example.com:4567/' # Primary registry address, it will be used by the secondary node to directly communicate to primary registry
    ```
 
 1. Reconfigure the **secondary** node for the change to take effect:
 
-   ```sh
+   ```shell
    gitlab-ctl reconfigure
    ```
 

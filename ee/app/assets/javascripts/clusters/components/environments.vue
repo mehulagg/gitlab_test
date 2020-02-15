@@ -1,5 +1,5 @@
 <script>
-import { GlTable, GlLink, GlEmptyState, GlLoadingIcon } from '@gitlab/ui';
+import { GlTable, GlEmptyState, GlLoadingIcon } from '@gitlab/ui';
 import { __, sprintf } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
@@ -8,7 +8,6 @@ export default {
   components: {
     GlEmptyState,
     GlTable,
-    GlLink,
     Icon,
     TimeAgo,
     GlLoadingIcon,
@@ -108,26 +107,26 @@ export default {
       head-variant="white"
     >
       <!-- column: Project -->
-      <template slot="project" slot-scope="data">
+      <template #cell(project)="data">
         <a :href="`/${data.value.path_with_namespace}`">{{ data.value.name }}</a>
       </template>
 
       <!-- column: Name -->
-      <template slot="name" slot-scope="row">
+      <template #cell(name)="row">
         <a :href="`${row.item.environmentPath}`">{{ row.item.name }}</a>
       </template>
 
       <!-- column: Job -->
-      <template slot="lastDeployment" slot-scope="data">
+      <template #cell(lastDeployment)="data">
         {{ __('deploy') }} #{{ data.value.id }}
       </template>
 
       <!-- column: Pods in use -->
-      <template slot="HEAD_rolloutStatus" slot-scope="data">
+      <template #head(rolloutStatus)="data">
         {{ data.label }} <span class="badge badge-pill pods-badge bold">{{ podsInUseCount }}</span>
       </template>
 
-      <template slot="rolloutStatus" slot-scope="row">
+      <template #cell(rolloutStatus)="row">
         <!-- Loading Rollout -->
         <gl-loading-icon
           v-if="isLoadingRollout(row.item.rolloutStatus)"
@@ -143,7 +142,8 @@ export default {
               :tooltip-text="instance.tooltip"
               :pod-name="instance.pod_name"
               :stable="instance.stable"
-              :logs-path="`${row.item.environmentPath}/logs`"
+              :project-path="`/${row.item.project.path_with_namespace}`"
+              :environment-name="row.item.name"
             />
           </template>
         </div>
@@ -160,7 +160,7 @@ export default {
       </template>
 
       <!-- column: Last updated -->
-      <template slot="updatedAt" slot-scope="data">
+      <template #cell(updatedAt)="data">
         <time-ago :time="data.value" />
       </template>
     </gl-table>

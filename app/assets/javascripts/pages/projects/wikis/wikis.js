@@ -1,4 +1,4 @@
-import bp from '../../../breakpoints';
+import { GlBreakpointInstance as bp } from '@gitlab/ui/dist/utils';
 import { s__, sprintf } from '~/locale';
 
 export default class Wikis {
@@ -40,7 +40,7 @@ export default class Wikis {
     // Replace hyphens with spaces
     if (title) title = title.replace(/-+/g, ' ');
 
-    const newCommitMessage = sprintf(this.commitMessageI18n, { pageTitle: title });
+    const newCommitMessage = sprintf(this.commitMessageI18n, { pageTitle: title }, false);
     this.commitMessageInput.value = newCommitMessage;
   }
 
@@ -52,7 +52,7 @@ export default class Wikis {
 
   static sidebarCanCollapse() {
     const bootstrapBreakpoint = bp.getBreakpointSize();
-    return bootstrapBreakpoint === 'xs';
+    return bootstrapBreakpoint === 'xs' || bootstrapBreakpoint === 'sm';
   }
 
   renderSidebar() {

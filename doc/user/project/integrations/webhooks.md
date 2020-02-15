@@ -47,6 +47,20 @@ and **per project and per group** for **GitLab Enterprise Edition**.
 Navigate to the webhooks page by going to your project's
 **Settings ➔ Integrations**.
 
+## Maximum number of webhooks (per tier)
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/20730) in GitLab 12.6.
+
+A maximum number of project webhooks applies to each [GitLab.com
+tier](https://about.gitlab.com/pricing/), as shown in the following table:
+
+| Tier     | Number of webhooks per project |
+|----------|--------------------------------|
+| Free     | 100                            |
+| Bronze   | 100                            |
+| Silver   | 100                            |
+| Gold     | 100                            |
+
 ## Use-cases
 
 - You can set up a webhook in GitLab to send a notification to
@@ -112,7 +126,7 @@ Also, if a single push includes changes for more than three (by default, dependi
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Push Hook
 ```
 
@@ -199,7 +213,7 @@ If a single push includes changes for more than three (by default, depending on
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Tag Push Hook
 ```
 
@@ -253,7 +267,7 @@ Triggered when a new issue is created or an existing issue was updated/closed/re
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Issue Hook
 ```
 
@@ -388,7 +402,7 @@ Valid target types:
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Note Hook
 ```
 
@@ -468,7 +482,7 @@ X-Gitlab-Event: Note Hook
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Note Hook
 ```
 
@@ -595,7 +609,7 @@ X-Gitlab-Event: Note Hook
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Note Hook
 ```
 
@@ -700,7 +714,7 @@ X-Gitlab-Event: Note Hook
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Note Hook
 ```
 
@@ -776,7 +790,7 @@ Triggered when a new merge request is created, an existing merge request was upd
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Merge Request Hook
 ```
 
@@ -937,7 +951,7 @@ Triggered when a wiki page is created, updated or deleted.
 
 **Request Header**:
 
-```
+```plaintext
 X-Gitlab-Event: Wiki Page Hook
 ```
 
@@ -969,7 +983,7 @@ X-Gitlab-Event: Wiki Page Hook
     "http_url": "http://example.com/root/awesome-project.git"
   },
   "wiki": {
-    "web_url": "http://example.com/root/awesome-project/wikis/home",
+    "web_url": "http://example.com/root/awesome-project/-/wikis/home",
     "git_ssh_url": "git@example.com:root/awesome-project.wiki.git",
     "git_http_url": "http://example.com/root/awesome-project.wiki.git",
     "path_with_namespace": "root/awesome-project.wiki",
@@ -981,7 +995,7 @@ X-Gitlab-Event: Wiki Page Hook
     "format": "markdown",
     "message": "adding an awesome page to the wiki",
     "slug": "awesome",
-    "url": "http://example.com/root/awesome-project/wikis/awesome",
+    "url": "http://example.com/root/awesome-project/-/wikis/awesome",
     "action": "create"
   }
 }
@@ -993,7 +1007,7 @@ Triggered on status change of Pipeline.
 
 **Request Header**:
 
-```
+```plaintext
 X-Gitlab-Event: Pipeline Hook
 ```
 
@@ -1076,6 +1090,7 @@ X-Gitlab-Event: Pipeline Hook
          "finished_at": null,
          "when": "manual",
          "manual": true,
+         "allow_failure": false,
          "user":{
             "name": "Administrator",
             "username": "root",
@@ -1097,6 +1112,7 @@ X-Gitlab-Event: Pipeline Hook
          "finished_at": null,
          "when": "on_success",
          "manual": false,
+         "allow_failure": false,
          "user":{
             "name": "Administrator",
             "username": "root",
@@ -1123,6 +1139,7 @@ X-Gitlab-Event: Pipeline Hook
          "finished_at": "2016-08-12 15:26:29 UTC",
          "when": "on_success",
          "manual": false,
+         "allow_failure": false,
          "user":{
             "name": "Administrator",
             "username": "root",
@@ -1149,6 +1166,7 @@ X-Gitlab-Event: Pipeline Hook
          "finished_at": "2016-08-12 15:25:26 UTC",
          "when": "on_success",
          "manual": false,
+         "allow_failure": false,
          "user":{
             "name": "Administrator",
             "username": "root",
@@ -1175,6 +1193,7 @@ X-Gitlab-Event: Pipeline Hook
          "finished_at": null,
          "when": "on_success",
          "manual": false,
+         "allow_failure": false,
          "user":{
             "name": "Administrator",
             "username": "root",
@@ -1196,7 +1215,7 @@ Triggered on status change of a job.
 
 **Request Header**:
 
-```
+```plaintext
 X-Gitlab-Event: Job Hook
 ```
 
@@ -1218,6 +1237,7 @@ X-Gitlab-Event: Job Hook
   "build_duration": null,
   "build_allow_failure": false,
   "build_failure_reason": "script_failure",
+  "pipeline_id": 2366,
   "project_id": 380,
   "project_name": "gitlab-org/gitlab-test",
   "user": {
@@ -1243,9 +1263,17 @@ X-Gitlab-Event: Job Hook
     "git_ssh_url": "git@192.168.64.1:gitlab-org/gitlab-test.git",
     "git_http_url": "http://192.168.64.1:3005/gitlab-org/gitlab-test.git",
     "visibility_level": 20
+  },
+  "runner": {
+    "active": true,
+    "is_shared": false,
+    "id": 380987,
+    "description": "shared-runners-manager-6.gitlab.com"
   }
 }
 ```
+
+Note that `commit.id` is the id of the pipeline, not the id of the commit.
 
 ## Image URL rewriting
 
@@ -1271,7 +1299,7 @@ Markdown features, like link labels.
 
 ## Testing webhooks
 
-You can trigger the webhook manually. Sample data from the project will be used.Sample data will take from the project.
+You can trigger the webhook manually. Sample data from the project will be used. Sample data will take from the project.
 > For example: for triggering `Push Events` your project should have at least one commit.
 
 ![Webhook testing](img/webhook_testing.png)
@@ -1300,7 +1328,7 @@ If the endpoint doesn't send its HTTP response within those 10 seconds, GitLab m
 If you are receiving multiple requests, you can try increasing the default value to wait for the HTTP response after sending the webhook
 by uncommenting or adding the following setting to your `/etc/gitlab/gitlab.rb`:
 
-```
+```ruby
 gitlab_rails['webhook_timeout'] = 10
 ```
 
@@ -1342,7 +1370,7 @@ Pick an unused port (e.g. 8000) and start the script: `ruby print_http_body.rb
 When you press 'Test' in GitLab, you should see something like this in the
 console:
 
-```
+```plaintext
 {"before":"077a85dd266e6f3573ef7e9ef8ce3343ad659c4e","after":"95cd4a99e93bc4bbabacfa2cd10e6725b1403c60",<SNIP>}
 example.com - - [14/May/2014:07:45:26 EDT] "POST / HTTP/1.1" 200 0
 - -> /

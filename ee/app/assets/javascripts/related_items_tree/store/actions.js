@@ -1,16 +1,15 @@
-import flash from '~/flash';
-import { s__ } from '~/locale';
 import Api from 'ee/api';
-import axios from '~/lib/utils/axios_utils';
-import httpStatusCodes from '~/lib/utils/http_status';
-import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
-
 import {
-  addRelatedIssueErrorMap,
   issuableTypesMap,
+  itemAddFailureTypesMap,
   pathIndeterminateErrorMap,
   relatedIssuesRemoveErrorMap,
 } from 'ee/related_issues/constants';
+import flash from '~/flash';
+import { s__, __ } from '~/locale';
+import axios from '~/lib/utils/axios_utils';
+import httpStatusCodes from '~/lib/utils/http_status';
+import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 
 import { processQueryResponse, formatChildItem, gqClient } from '../utils/epic_utils';
 import { ChildType, ChildState } from '../constants';
@@ -308,14 +307,8 @@ export const receiveAddItemSuccess = ({ dispatch, commit, getters }, { rawItems 
   dispatch('setItemInputValue', '');
   dispatch('toggleAddItemForm', { toggleState: false });
 };
-export const receiveAddItemFailure = ({ commit, state }, data = {}) => {
-  commit(types.RECEIVE_ADD_ITEM_FAILURE);
-
-  let errorMessage = addRelatedIssueErrorMap[state.issuableType];
-  if (data.message) {
-    errorMessage = data.message;
-  }
-  flash(errorMessage);
+export const receiveAddItemFailure = ({ commit }, { itemAddFailureType } = {}) => {
+  commit(types.RECEIVE_ADD_ITEM_FAILURE, { itemAddFailureType });
 };
 export const addItem = ({ state, dispatch, getters }) => {
   dispatch('requestAddItem');
@@ -330,8 +323,23 @@ export const addItem = ({ state, dispatch, getters }) => {
         rawItems: data.issuables.slice(0, state.pendingReferences.length),
       });
     })
-    .catch(({ data }) => {
-      dispatch('receiveAddItemFailure', data);
+    .catch(data => {
+      const { response } = data;
+      if (response.status === 404) {
+        dispatch('receiveAddItemFailure', { itemAddFailureType: itemAddFailureTypesMap.NOT_FOUND });
+      }
+      // Ignore 409 conflict when the issue or epic is already attached to epic
+      /* eslint-disable @gitlab/i18n/no-non-i18n-strings */
+      else if (
+        response.status === 409 &&
+        response.data.message === 'Epic hierarchy level too deep'
+      ) {
+        dispatch('receiveAddItemFailure', {
+          itemAddFailureType: itemAddFailureTypesMap.MAX_NUMBER_OF_CHILD_EPICS,
+        });
+      } else {
+        dispatch('receiveAddItemFailure');
+      }
     });
 };
 
@@ -434,6 +442,43 @@ export const reorderItem = (
       });
     });
 };
+
+export const createNewIssue = ({ state, dispatch }, { issuesEndpoint, title }) => {
+  const { parentItem } = state;
+
+  // necessary because parentItem comes from GraphQL and we are using REST API here
+  const epicId = parseInt(parentItem.id.replace(/^gid:\/\/gitlab\/Epic\//, ''), 10);
+
+  return axios
+    .post(issuesEndpoint, { epic_id: epicId, title })
+    .then(() =>
+      dispatch('fetchItems', {
+        parentItem,
+      }),
+    )
+    .catch(e => {
+      flash(__('Could not create issue'));
+      throw e;
+    });
+};
+
+export const fetchProjects = ({ state, commit }) =>
+  axios
+    .get(state.projectsEndpoint, {
+      params: {
+        include_subgroups: true,
+        order_by: 'last_activity_at',
+        with_issues_enabled: true,
+        with_shared: false,
+      },
+    })
+    .then(({ data }) => {
+      commit(types.SET_PROJECTS, data);
+    })
+    .catch(e => {
+      flash(__('Could not fetch projects'));
+      throw e;
+    });
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
 export default () => {};

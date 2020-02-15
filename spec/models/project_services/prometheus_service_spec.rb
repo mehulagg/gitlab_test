@@ -70,7 +70,7 @@ describe PrometheusService, :use_clean_rails_memory_store_caching do
         before do
           service.api_url = 'http://localhost:9090'
 
-          stub_application_setting(instance_administration_project_id: project.id)
+          stub_application_setting(self_monitoring_project_id: project.id)
           stub_config(prometheus: { enable: true, listen_address: 'localhost:9090' })
         end
 
@@ -156,11 +156,34 @@ describe PrometheusService, :use_clean_rails_memory_store_caching do
 
   describe '#prometheus_available?' do
     context 'clusters with installed prometheus' do
-      let!(:cluster) { create(:cluster, projects: [project]) }
-      let!(:prometheus) { create(:clusters_applications_prometheus, :installed, cluster: cluster) }
+      before do
+        create(:clusters_applications_prometheus, :installed, cluster: cluster)
+      end
 
-      it 'returns true' do
-        expect(service.prometheus_available?).to be(true)
+      context 'cluster belongs to project' do
+        let(:cluster) { create(:cluster, projects: [project]) }
+
+        it 'returns true' do
+          expect(service.prometheus_available?).to be(true)
+        end
+      end
+
+      context 'cluster belongs to projects group' do
+        set(:group) { create(:group) }
+        let(:project) { create(:prometheus_project, group: group) }
+        let(:cluster) { create(:cluster_for_group, :with_installed_helm, groups: [group]) }
+
+        it 'returns true' do
+          expect(service.prometheus_available?).to be(true)
+        end
+      end
+
+      context 'cluster belongs to gitlab instance' do
+        let(:cluster) { create(:cluster, :instance) }
+
+        it 'returns true' do
+          expect(service.prometheus_available?).to be(true)
+        end
       end
     end
 

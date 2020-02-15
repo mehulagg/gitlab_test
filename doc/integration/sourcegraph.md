@@ -4,7 +4,7 @@ type: reference, how-to
 
 # Sourcegraph integration
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/16556) in GitLab 12.5. Please note that this integration is in BETA and [behind a feature flag](#enable-the-sourcegraph-feature-flag).
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/16556) in GitLab 12.5. Please note that this integration is in BETA and [behind a feature flag](#enable-the-sourcegraph-feature-flag).
 
 [Sourcegraph](https://sourcegraph.com) provides code intelligence features, natively integrated into the GitLab UI.
 
@@ -35,7 +35,7 @@ by instance administrators.
 
 Use these commands to start the Rails console:
 
-```sh
+```shell
 # Omnibus GitLab
 gitlab-rails console
 
@@ -100,7 +100,7 @@ When visiting one of these views, you can now hover over a code reference to see
 
 - Details on how this reference was defined.
 - **Go to definition**, which navigates to the line of code where this reference was defined.
-- **Find references**, which navigates to the configured Sourcegraph instance, showing a list of references to the hilighted code.
+- **Find references**, which navigates to the configured Sourcegraph instance, showing a list of references to the highlighted code.
 
 ![Sourcegraph demo](img/sourcegraph_popover_v12_5.png)
 

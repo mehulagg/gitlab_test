@@ -2,7 +2,7 @@
 
 module QA
   # https://gitlab.com/gitlab-org/gitlab/issues/35706
-  context 'Geo', :orchestrated, :geo do
+  context 'Geo', :orchestrated, :geo, quarantine: 'https://gitlab.com/gitlab-org/gitlab/issues/201948' do
     describe 'GitLab Geo Wiki HTTP push secondary' do
       let(:wiki_content) { 'This tests wiki pushes via HTTP to secondary.' }
       let(:push_content_primary) { 'This is from the Geo wiki push to primary!' }
@@ -12,18 +12,8 @@ module QA
 
       wiki = nil
 
-      after do
-        Runtime::Browser.visit(:geo_secondary, QA::Page::Dashboard::Projects)
-        Page::Main::Menu.perform do |menu|
-          menu.sign_out if menu.has_personal_area?(wait: 0)
-        end
-      end
-
       before do
-        Runtime::Browser.visit(:geo_primary, QA::Page::Main::Login) do
-          # Visit the primary node and login
-          Page::Main::Login.perform(&:sign_in_using_credentials)
-
+        QA::Flow::Login.while_signed_in(address: :geo_primary) do
           # Create a new project and wiki
           project = Resource::Project.fabricate_via_api! do |project|
             project.name = project_name
@@ -52,9 +42,9 @@ module QA
       end
 
       it 'is redirected to the primary and ultimately replicated to the secondary' do
-        Runtime::Browser.visit(:geo_secondary, QA::Page::Main::Login) do
-          Page::Main::Login.perform(&:sign_in_using_credentials)
+        QA::Runtime::Logger.debug('Visiting the secondary geo node')
 
+        QA::Flow::Login.while_signed_in(address: :geo_secondary) do
           EE::Page::Main::Banner.perform do |banner|
             expect(banner).to have_secondary_read_only_banner
           end

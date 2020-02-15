@@ -1,36 +1,25 @@
 <script>
 import { mapActions, mapState, mapGetters } from 'vuex';
-import { GlDropdown, GlDropdownItem, GlFormGroup, GlButton, GlTooltipDirective } from '@gitlab/ui';
-import {
-  canScroll,
-  isScrolledToTop,
-  isScrolledToBottom,
-  scrollDown,
-  scrollUp,
-} from '~/lib/utils/scroll_utils';
-import Icon from '~/vue_shared/components/icon.vue';
+import { GlDropdown, GlDropdownItem, GlFormGroup, GlSearchBoxByClick, GlAlert } from '@gitlab/ui';
+import DateTimePicker from '~/vue_shared/components/date_time_picker/date_time_picker.vue';
+import { scrollDown } from '~/lib/utils/scroll_utils';
+import LogControlButtons from './log_control_buttons.vue';
+
+import { timeRanges, defaultTimeRange } from '~/monitoring/constants';
+import { timeRangeFromUrl } from '~/monitoring/utils';
 
 export default {
   components: {
+    GlAlert,
     GlDropdown,
     GlDropdownItem,
     GlFormGroup,
-    GlButton,
-    Icon,
-  },
-  directives: {
-    GlTooltip: GlTooltipDirective,
+    GlSearchBoxByClick,
+    DateTimePicker,
+    LogControlButtons,
   },
   props: {
-    environmentId: {
-      type: String,
-      required: true,
-    },
-    projectFullPath: {
-      type: String,
-      required: true,
-    },
-    currentEnvironmentName: {
+    environmentName: {
       type: String,
       required: false,
       default: '',
@@ -45,96 +34,137 @@ export default {
       required: false,
       default: '',
     },
+    clusterApplicationsDocumentationPath: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
-      scrollToTopEnabled: false,
-      scrollToBottomEnabled: false,
+      searchQuery: '',
+      timeRanges,
+      isElasticStackCalloutDismissed: false,
     };
   },
   computed: {
-    ...mapState('environmentLogs', ['environments', 'logs', 'pods']),
+    ...mapState('environmentLogs', ['environments', 'timeRange', 'logs', 'pods']),
     ...mapGetters('environmentLogs', ['trace']),
+
+    timeRangeModel: {
+      get() {
+        return this.timeRange.current;
+      },
+      set(val) {
+        this.setTimeRange(val);
+      },
+    },
+
     showLoader() {
       return this.logs.isLoading || !this.logs.isComplete;
+    },
+    advancedFeaturesEnabled() {
+      const environment = this.environments.options.find(
+        ({ name }) => name === this.environments.current,
+      );
+      return environment && environment.enable_advanced_logs_querying;
+    },
+    disableAdvancedControls() {
+      return this.environments.isLoading || !this.advancedFeaturesEnabled;
+    },
+    shouldShowElasticStackCallout() {
+      return (
+        !this.isElasticStackCalloutDismissed &&
+        !this.logs.isLoading &&
+        !this.disableAdvancedControls
+      );
     },
   },
   watch: {
     trace(val) {
       this.$nextTick(() => {
         if (val) {
-          this.scrollDown();
-        } else {
-          this.updateScrollState();
+          scrollDown();
         }
+        this.$refs.scrollButtons.update();
       });
     },
   },
-  created() {
-    window.addEventListener('scroll', this.updateScrollState);
-  },
   mounted() {
     this.setInitData({
-      projectPath: this.projectFullPath,
-      environmentId: this.environmentId,
+      timeRange: timeRangeFromUrl() || defaultTimeRange,
+      environmentName: this.environmentName,
       podName: this.currentPodName,
     });
 
     this.fetchEnvironments(this.environmentsPath);
   },
-  destroyed() {
-    window.removeEventListener('scroll', this.updateScrollState);
-  },
   methods: {
-    ...mapActions('environmentLogs', ['setInitData', 'showPodLogs', 'fetchEnvironments']),
-    updateScrollState() {
-      this.scrollToTopEnabled = canScroll() && !isScrolledToTop();
-      this.scrollToBottomEnabled = canScroll() && !isScrolledToBottom();
-    },
-    scrollUp,
-    scrollDown,
+    ...mapActions('environmentLogs', [
+      'setInitData',
+      'setSearch',
+      'setTimeRange',
+      'showPodLogs',
+      'showEnvironment',
+      'fetchEnvironments',
+    ]),
   },
 };
 </script>
 <template>
   <div class="build-page-pod-logs mt-3">
-    <div class="top-bar d-flex">
-      <div class="row">
+    <gl-alert
+      v-if="shouldShowElasticStackCallout"
+      class="mb-3"
+      @dismiss="isElasticStackCalloutDismissed = true"
+    >
+      {{
+        s__(
+          'Environments|Install Elastic Stack on your cluster to enable advanced querying capabilities such as full text search.',
+        )
+      }}
+      <a :href="clusterApplicationsDocumentationPath">
+        <strong>
+          {{ s__('View Documentation') }}
+        </strong>
+      </a>
+    </gl-alert>
+    <div class="top-bar js-top-bar d-flex">
+      <div class="row mx-n1">
         <gl-form-group
           id="environments-dropdown-fg"
           :label="s__('Environments|Environment')"
           label-size="sm"
           label-for="environments-dropdown"
-          class="col-6"
+          class="col-3 px-1"
         >
           <gl-dropdown
             id="environments-dropdown"
-            :text="currentEnvironmentName"
+            :text="environments.current"
             :disabled="environments.isLoading"
-            class="d-flex js-environments-dropdown"
+            class="d-flex gl-h-32 js-environments-dropdown"
             toggle-class="dropdown-menu-toggle"
           >
             <gl-dropdown-item
               v-for="env in environments.options"
               :key="env.id"
-              :href="env.logs_path"
+              @click="showEnvironment(env.name)"
             >
               {{ env.name }}
             </gl-dropdown-item>
           </gl-dropdown>
         </gl-form-group>
         <gl-form-group
-          id="environments-dropdown-fg"
+          id="pods-dropdown-fg"
           :label="s__('Environments|Pod logs from')"
           label-size="sm"
           label-for="pods-dropdown"
-          class="col-6"
+          class="col-3 px-1"
         >
           <gl-dropdown
             id="pods-dropdown"
             :text="pods.current || s__('Environments|No pods to display')"
-            :disabled="logs.isLoading"
-            class="d-flex js-pods-dropdown"
+            :disabled="environments.isLoading"
+            class="d-flex gl-h-32 js-pods-dropdown"
             toggle-class="dropdown-menu-toggle"
           >
             <gl-dropdown-item
@@ -146,51 +176,47 @@ export default {
             </gl-dropdown-item>
           </gl-dropdown>
         </gl-form-group>
+        <gl-form-group
+          id="dates-fg"
+          :label="s__('Environments|Show last')"
+          label-size="sm"
+          label-for="time-window-dropdown"
+          class="col-3 px-1"
+        >
+          <date-time-picker
+            ref="dateTimePicker"
+            v-model="timeRangeModel"
+            class="w-100 gl-h-32"
+            :disabled="disableAdvancedControls"
+            :options="timeRanges"
+          />
+        </gl-form-group>
+        <gl-form-group
+          id="search-fg"
+          :label="s__('Environments|Search')"
+          label-size="sm"
+          label-for="search"
+          class="col-3 px-1"
+        >
+          <gl-search-box-by-click
+            v-model.trim="searchQuery"
+            :disabled="disableAdvancedControls"
+            :placeholder="s__('Environments|Search')"
+            class="js-logs-search"
+            type="search"
+            autofocus
+            @submit="!disableAdvancedControls && setSearch(searchQuery)"
+          />
+        </gl-form-group>
       </div>
-      <div class="controllers align-self-end">
-        <div
-          v-gl-tooltip
-          class="controllers-buttons"
-          :title="__('Scroll to top')"
-          aria-labelledby="scroll-to-top"
-        >
-          <gl-button
-            id="scroll-to-top"
-            class="btn-blank js-scroll-to-top"
-            :aria-label="__('Scroll to top')"
-            :disabled="!scrollToTopEnabled"
-            @click="scrollUp()"
-            ><icon name="scroll_up"
-          /></gl-button>
-        </div>
-        <div
-          v-gl-tooltip
-          class="controllers-buttons"
-          :title="__('Scroll to bottom')"
-          aria-labelledby="scroll-to-bottom"
-        >
-          <gl-button
-            id="scroll-to-bottom"
-            class="btn-blank js-scroll-to-bottom"
-            :aria-label="__('Scroll to bottom')"
-            :disabled="!scrollToBottomEnabled"
-            @click="scrollDown()"
-            ><icon name="scroll_down"
-          /></gl-button>
-        </div>
-        <gl-button
-          id="refresh-log"
-          v-gl-tooltip
-          class="ml-1 px-2 js-refresh-log"
-          :title="__('Refresh')"
-          :aria-label="__('Refresh')"
-          @click="showPodLogs(pods.current)"
-        >
-          <icon name="retry" />
-        </gl-button>
-      </div>
+
+      <log-control-buttons
+        ref="scrollButtons"
+        class="controllers align-self-end mb-1"
+        @refresh="showPodLogs(pods.current)"
+      />
     </div>
-    <pre class="build-trace js-log-trace"><code class="bash">{{trace}}
+    <pre class="build-trace js-log-trace"><code class="bash js-build-output">{{trace}}
       <div v-if="showLoader" class="build-loader-animation js-build-loader-animation">
         <div class="dot"></div>
         <div class="dot"></div>

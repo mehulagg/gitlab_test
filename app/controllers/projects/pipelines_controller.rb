@@ -11,7 +11,6 @@ class Projects::PipelinesController < Projects::ApplicationController
   before_action :authorize_create_pipeline!, only: [:new, :create]
   before_action :authorize_update_pipeline!, only: [:retry, :cancel]
   before_action do
-    push_frontend_feature_flag(:hide_dismissed_vulnerabilities)
     push_frontend_feature_flag(:junit_pipeline_view)
   end
 
@@ -79,6 +78,12 @@ class Projects::PipelinesController < Projects::ApplicationController
           .represent(@pipeline, show_represent_params)
       end
     end
+  end
+
+  def destroy
+    ::Ci::DestroyPipelineService.new(project, current_user).execute(pipeline)
+
+    redirect_to project_pipelines_path(project), status: :see_other
   end
 
   def builds

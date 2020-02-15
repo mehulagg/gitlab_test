@@ -170,6 +170,20 @@ describe Project do
         expect(described_class.with_active_prometheus_service).not_to include(project_without_active_prometheus_service)
       end
     end
+
+    describe '.find_by_service_desk_project_key' do
+      it 'returns the correct project' do
+        project2 = create(:project)
+        create(:service_desk_setting, project: project, project_key: 'key1')
+        create(:service_desk_setting, project: project2, project_key: 'key2')
+
+        expect(Project.find_by_service_desk_project_key('key2')).to eq(project2)
+      end
+
+      it 'returns nil if there is no project with the key' do
+        expect(Project.find_by_service_desk_project_key('some_key')).to be_nil
+      end
+    end
   end
 
   describe 'validations' do
@@ -194,6 +208,11 @@ describe Project do
 
       context 'with same variable keys and different environment scope' do
         it { expect(project).to be_valid }
+      end
+
+      it do
+        is_expected.to validate_numericality_of(:max_pages_size).only_integer.is_greater_than(0)
+                         .is_less_than(::Gitlab::Pages::MAX_SIZE / 1.megabyte)
       end
     end
 
@@ -418,7 +437,7 @@ describe Project do
   end
 
   describe '#environments_for_scope' do
-    set(:project) { create(:project) }
+    let_it_be(:project, reload: true) { create(:project) }
 
     before do
       create_list(:environment, 2, project: project)
@@ -487,22 +506,70 @@ describe Project do
     end
   end
 
+  describe '#has_group_hooks?' do
+    subject { project.has_group_hooks? }
+
+    let(:project) { create(:project) }
+
+    it { is_expected.to eq(nil) }
+
+    context 'project is in a group' do
+      let(:group) { create(:group) }
+      let(:project) { create(:project, namespace: group) }
+
+      shared_examples 'returns nil when the feature is not available' do
+        specify do
+          stub_licensed_features(group_webhooks: false)
+
+          expect(subject).to eq(nil)
+        end
+      end
+
+      it_behaves_like 'returns nil when the feature is not available'
+
+      it { is_expected.to eq(false) }
+
+      context 'the group has hooks' do
+        let!(:group_hook) { create(:group_hook, group: group, push_events: true) }
+
+        it { is_expected.to eq(true) }
+
+        it_behaves_like 'returns nil when the feature is not available'
+
+        context 'but the hook is not in scope' do
+          subject { project.has_group_hooks?(:issue_hooks) }
+
+          it_behaves_like 'returns nil when the feature is not available'
+
+          it { is_expected.to eq(false) }
+        end
+      end
+
+      context 'the group inherits a hook' do
+        let(:parent_group) { create(:group) }
+        let!(:group_hook) { create(:group_hook, group: parent_group) }
+        let(:group) { create(:group, parent: parent_group) }
+
+        it_behaves_like 'returns nil when the feature is not available'
+
+        it { is_expected.to eq(true) }
+
+        context 'when sub_group_webhooks feature flag is disabled' do
+          before do
+            stub_feature_flags(sub_group_webhooks: false)
+          end
+
+          it { is_expected.to eq(false) }
+        end
+      end
+    end
+  end
+
   describe "#execute_hooks" do
     context "group hooks" do
       let(:group) { create(:group) }
       let(:project) { create(:project, namespace: group) }
       let(:group_hook) { create(:group_hook, group: group, push_events: true) }
-
-      it 'executes the hook when the feature is enabled' do
-        stub_licensed_features(group_webhooks: true)
-
-        fake_service = double
-        expect(WebHookService).to receive(:new)
-                                    .with(group_hook, { some: 'info' }, 'push_hooks') { fake_service }
-        expect(fake_service).to receive(:async_execute)
-
-        project.execute_hooks(some: 'info')
-      end
 
       it 'does not execute the hook when the feature is disabled' do
         stub_licensed_features(group_webhooks: false)
@@ -512,23 +579,54 @@ describe Project do
 
         project.execute_hooks(some: 'info')
       end
-    end
-  end
 
-  describe '#execute_hooks' do
-    it "triggers project and group hooks" do
-      group = create :group, name: 'gitlab'
-      project = create(:project, name: 'gitlabhq', namespace: group)
-      project_hook = create(:project_hook, push_events: true, project: project)
-      group_hook = create(:group_hook, push_events: true, group: group)
+      context 'when group_webhooks frature is enabled' do
+        before do
+          stub_licensed_features(group_webhooks: true)
+        end
+        let(:fake_service) { double }
 
-      stub_request(:post, project_hook.url)
-      stub_request(:post, group_hook.url)
+        shared_examples 'triggering group webhook' do
+          it 'executes the hook' do
+            expect(fake_service).to receive(:async_execute).once
 
-      expect_any_instance_of(GroupHook).to receive(:async_execute).and_return(true)
-      expect_any_instance_of(ProjectHook).to receive(:async_execute).and_return(true)
+            expect(WebHookService).to receive(:new)
+                                        .with(group_hook, { some: 'info' }, 'push_hooks') { fake_service }
 
-      project.execute_hooks({}, :push_hooks)
+            project.execute_hooks(some: 'info')
+          end
+        end
+
+        it_behaves_like 'triggering group webhook'
+
+        context 'when sub_group_webhooks feature flag is disabled' do
+          before do
+            stub_feature_flags(sub_group_webhooks: false)
+          end
+
+          it_behaves_like 'triggering group webhook'
+        end
+
+        context 'in sub group' do
+          let(:sub_group) { create :group, parent: group }
+          let(:sub_sub_group) { create :group, parent: sub_group }
+          let(:project) { create(:project, namespace: sub_sub_group) }
+
+          it_behaves_like 'triggering group webhook'
+
+          context 'when sub_group_webhooks feature flag is disabled' do
+            before do
+              stub_feature_flags(sub_group_webhooks: false)
+            end
+
+            it 'does not execute the hook' do
+              expect(WebHookService).not_to receive(:new).with(group_hook, { some: 'info' }, 'push_hooks')
+
+              project.execute_hooks(some: 'info')
+            end
+          end
+        end
+      end
     end
   end
 
@@ -545,8 +643,8 @@ describe Project do
     end
   end
 
-  describe '#beta_feature_available?' do
-    it_behaves_like 'an entity with beta feature support' do
+  describe '#alpha/beta_feature_available?' do
+    it_behaves_like 'an entity with alpha/beta feature support' do
       let(:entity) { create(:project) }
     end
   end
@@ -779,8 +877,8 @@ describe Project do
   end
 
   describe '#shared_runners_limit_namespace' do
-    set(:root_ancestor) { create(:group) }
-    set(:group) { create(:group, parent: root_ancestor) }
+    let_it_be(:root_ancestor) { create(:group) }
+    let_it_be(:group) { create(:group, parent: root_ancestor) }
     let(:project) { create(:project, namespace: group) }
 
     subject { project.shared_runners_limit_namespace }
@@ -996,16 +1094,17 @@ describe Project do
     end
   end
 
-  describe '#visible_regular_approval_rules' do
+  describe '#visible_user_defined_rules' do
     let(:project) { create(:project) }
     let!(:approval_rules) { create_list(:approval_project_rule, 2, project: project) }
+    let!(:any_approver_rule) { create(:approval_project_rule, rule_type: :any_approver, project: project) }
 
     before do
       stub_licensed_features(multiple_approval_rules: true)
     end
 
     it 'returns all approval rules' do
-      expect(project.visible_regular_approval_rules).to contain_exactly(*approval_rules)
+      expect(project.visible_user_defined_rules).to eq([any_approver_rule, *approval_rules])
     end
 
     context 'when multiple approval rules is not available' do
@@ -1014,35 +1113,30 @@ describe Project do
       end
 
       it 'returns the first approval rule' do
-        expect(project.visible_regular_approval_rules).to contain_exactly(approval_rules.first)
+        expect(project.visible_user_defined_rules).to eq([any_approver_rule])
       end
     end
   end
 
   describe '#min_fallback_approvals' do
-    let(:project) { create(:project, approvals_before_merge: 1) }
+    let(:project) { create(:project) }
 
-    it 'returns approvals before merge if there are no rules' do
-      expect(project.min_fallback_approvals).to eq(1)
+    before do
+      create(:approval_project_rule, project: project, rule_type: :any_approver, approvals_required: 2)
+      create(:approval_project_rule, project: project, approvals_required: 2)
+      create(:approval_project_rule, project: project, approvals_required: 3)
+
+      stub_licensed_features(multiple_approval_rules: true)
     end
 
-    context 'when approval rules are present' do
-      before do
-        create(:approval_project_rule, project: project, approvals_required: 2)
-        create(:approval_project_rule, project: project, approvals_required: 3)
+    it 'returns the maximum requirement' do
+      expect(project.min_fallback_approvals).to eq(3)
+    end
 
-        stub_licensed_features(multiple_approval_rules: true)
-      end
+    it 'returns the first rule requirement if there is a rule' do
+      stub_licensed_features(multiple_approval_rules: false)
 
-      it 'returns the maximum requirement' do
-        expect(project.min_fallback_approvals).to eq(3)
-      end
-
-      it 'returns the first rule requirement if there is a rule' do
-        stub_licensed_features(multiple_approval_rules: false)
-
-        expect(project.min_fallback_approvals).to eq(2)
-      end
+      expect(project.min_fallback_approvals).to eq(2)
     end
   end
 
@@ -1281,7 +1375,7 @@ describe Project do
         :epics, # Gold only
         :service_desk, # Silver and up
         :audit_events, # Bronze and up
-        :geo, # Global feature, should not be checked at namespace level
+        :geo # Global feature, should not be checked at namespace level
       ])
     end
 
@@ -1447,7 +1541,7 @@ describe Project do
   end
 
   describe '#protected_environment_by_name' do
-    let(:project) { create(:project) }
+    let_it_be(:project) { create(:project) }
 
     subject { project.protected_environment_by_name('production') }
 
@@ -1464,19 +1558,27 @@ describe Project do
 
     context 'when Protected Environments feature is available on the project' do
       let(:feature_available) { true }
-      let(:environment) { create(:environment, name: 'production') }
-      let(:protected_environment) { create(:protected_environment, name: environment.name, project: project) }
-
-      context 'when the project environment exists' do
-        before do
-          protected_environment
-        end
-
-        it { is_expected.to eq(protected_environment) }
-      end
 
       context 'when the project environment does not exists' do
         it { is_expected.to be_nil }
+      end
+
+      context 'when the project environment exists' do
+        let_it_be(:environment) { create(:environment, name: 'production') }
+        let_it_be(:protected_environment) { create(:protected_environment, name: environment.name, project: project) }
+
+        it { is_expected.to eq(protected_environment) }
+
+        it 'caches environment name', :request_store do
+          control_count = ActiveRecord::QueryRecorder.new { project.protected_environment_by_name(protected_environment.name) }
+
+          expect do
+            2.times { project.protected_environment_by_name(protected_environment.name) }
+          end.not_to exceed_query_limit(control_count)
+
+          expect(project.protected_environment_by_name('non-existent-env')).to be_nil
+          expect(project.protected_environment_by_name(protected_environment.name)).to eq(protected_environment)
+        end
       end
     end
   end
@@ -1771,6 +1873,7 @@ describe Project do
 
   describe '#object_pool_missing?' do
     let(:pool) { create(:pool_repository, :ready) }
+
     subject { create(:project, :repository, pool_repository: pool) }
 
     it 'returns true when object pool is missing' do
@@ -1907,20 +2010,19 @@ describe Project do
   describe '#design_management_enabled?' do
     let(:project) { build(:project) }
 
-    where(:feature_enabled, :license_enabled, :lfs_enabled, :hashed_storage_enabled, :hash_storage_required, :expectation) do
-      false | false | false | false | false | false
-      true  | false | false | false | false | false
-      true  | true  | false | false | false | false
-      true  | true  | true  | false | false | true
-      true  | true  | true  | false | true  | false
-      true  | true  | true  | true  | false | true
-      true  | true  | true  | true  | true  | true
+    where(:license_enabled, :lfs_enabled, :hashed_storage_enabled, :hash_storage_required, :expectation) do
+      false | false | false | false | false
+      true  | false | false | false | false
+      true  | true  | false | false | true
+      true  | true  | false | true  | false
+      true  | true  | true  | false | true
+      true  | true  | true  | true  | true
     end
 
     with_them do
       before do
         stub_licensed_features(design_management: license_enabled)
-        stub_feature_flags(design_management_flag: feature_enabled, design_management_require_hashed_storage: hash_storage_required)
+        stub_feature_flags(design_management_require_hashed_storage: hash_storage_required)
         expect(project).to receive(:lfs_enabled?).and_return(lfs_enabled)
         allow(project).to receive(:hashed_storage?).with(:repository).and_return(hashed_storage_enabled)
       end
@@ -2248,17 +2350,75 @@ describe Project do
     end
   end
 
+  describe '#ancestor_marked_for_deletion' do
+    context 'adjourned deletion feature is not available' do
+      before do
+        stub_licensed_features(adjourned_deletion_for_projects_and_groups: false)
+      end
+
+      context 'the parent namespace has been marked for deletion' do
+        let(:parent_group) do
+          create(:group_with_deletion_schedule, marked_for_deletion_on: 1.day.ago)
+        end
+
+        let(:project) { create(:project, namespace: parent_group) }
+
+        it 'returns nil' do
+          expect(project.ancestor_marked_for_deletion).to be_nil
+        end
+      end
+    end
+
+    context 'adjourned deletion feature is available' do
+      before do
+        stub_licensed_features(adjourned_deletion_for_projects_and_groups: true)
+      end
+
+      context 'the parent namespace has been marked for deletion' do
+        let(:parent_group) do
+          create(:group_with_deletion_schedule, marked_for_deletion_on: 1.day.ago)
+        end
+
+        let(:project) { create(:project, namespace: parent_group) }
+
+        it 'returns the parent namespace' do
+          expect(project.ancestor_marked_for_deletion).to eq(parent_group)
+        end
+      end
+
+      context "project or its parent group has not been marked for deletion" do
+        let(:parent_group) { create(:group) }
+        let(:project) { create(:project, namespace: parent_group) }
+
+        it 'returns nil' do
+          expect(project.ancestor_marked_for_deletion).to be_nil
+        end
+      end
+
+      context 'ordering' do
+        let(:group_a) { create(:group_with_deletion_schedule, marked_for_deletion_on: 1.day.ago) }
+        let(:subgroup_a) { create(:group_with_deletion_schedule, marked_for_deletion_on: 1.day.ago, parent: group_a) }
+        let(:project) { create(:project, namespace: subgroup_a) }
+
+        it 'returns the first group that is marked for deletion, up its ancestry chain' do
+          expect(project.ancestor_marked_for_deletion).to eq(subgroup_a)
+        end
+      end
+    end
+  end
+
   describe '#adjourned_deletion?' do
     context 'when marking for deletion feature is available' do
       let(:project) { create(:project) }
 
       before do
-        stub_licensed_features(marking_project_for_deletion: true)
+        stub_licensed_features(adjourned_deletion_for_projects_and_groups: true)
       end
 
       context 'when number of days is set to more than 0' do
         it 'returns true' do
           stub_application_setting(deletion_adjourned_period: 1)
+
           expect(project.adjourned_deletion?).to eq(true)
         end
       end
@@ -2266,6 +2426,7 @@ describe Project do
       context 'when number of days is set to 0' do
         it 'returns false' do
           stub_application_setting(deletion_adjourned_period: 0)
+
           expect(project.adjourned_deletion?).to eq(false)
         end
       end
@@ -2275,7 +2436,7 @@ describe Project do
       let(:project) { create(:project) }
 
       before do
-        stub_licensed_features(marking_project_for_deletion: false)
+        stub_licensed_features(adjourned_deletion_for_projects_and_groups: false)
       end
 
       context 'when number of days is set to more than 0' do
@@ -2349,6 +2510,92 @@ describe Project do
         it_behaves_like 'returning false examples' do
           let(:package_type) { nil }
         end
+      end
+    end
+  end
+
+  describe 'caculate template repositories' do
+    let(:group1) { create(:group) }
+    let(:group2) { create(:group) }
+    let(:group2_sub1) { create(:group, parent: group2) }
+    let(:group2_sub2) { create(:group, parent: group2) }
+
+    before do
+      stub_ee_application_setting(custom_project_templates_group_id: group2.id)
+      group2.update(custom_project_templates_group_id: group2_sub2.id)
+      create(:project, group: group1)
+
+      create_list(:project, 2, group: group2)
+      create_list(:project, 3, group: group2_sub1)
+      create_list(:project, 4, group: group2_sub2)
+    end
+
+    it 'counts instance level templates' do
+      expect(described_class.with_repos_templates.count).to eq(2)
+    end
+
+    it 'counts group level templates' do
+      expect(described_class.with_groups_level_repos_templates.count).to eq(4)
+    end
+  end
+
+  describe '#license_compliance' do
+    it { expect(subject.license_compliance).to be_instance_of(::SCA::LicenseCompliance) }
+  end
+
+  describe '#expire_caches_before_rename' do
+    let(:project) { create(:project, :repository) }
+    let(:repo)    { double(:repo, exists?: true, before_delete: true) }
+    let(:wiki)    { double(:wiki, exists?: true, before_delete: true) }
+    let(:design)  { double(:design, exists?: true) }
+
+    it 'expires the caches of the design repository' do
+      allow(Repository).to receive(:new)
+        .with('foo', project)
+        .and_return(repo)
+
+      allow(Repository).to receive(:new)
+        .with('foo.wiki', project)
+        .and_return(wiki)
+
+      allow(Repository).to receive(:new)
+        .with('foo.design', project)
+        .and_return(design)
+
+      expect(design).to receive(:before_delete)
+
+      project.expire_caches_before_rename('foo')
+    end
+  end
+
+  describe '#template_source?' do
+    let_it_be(:group) { create(:group, :private) }
+    let_it_be(:subgroup) { create(:group, :private, parent: group) }
+    let_it_be(:project_template) { create(:project, group: subgroup) }
+
+    context 'when project is not template source' do
+      it 'returns false' do
+        expect(project.template_source?).to be_falsey
+      end
+    end
+
+    context 'instance-level custom project templates' do
+      before do
+        stub_ee_application_setting(custom_project_templates_group_id: subgroup.id)
+      end
+
+      it 'returns true' do
+        expect(project_template.template_source?).to be_truthy
+      end
+    end
+
+    context 'group-level custom project templates' do
+      before do
+        group.update(custom_project_templates_group_id: subgroup.id)
+      end
+
+      it 'returns true' do
+        expect(project_template.template_source?).to be_truthy
       end
     end
   end

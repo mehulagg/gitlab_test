@@ -13,12 +13,13 @@ module EE
 
       include Elastic::ApplicationVersionedSearch
       include UsageStatistics
+      include WeightEventable
 
       scope :order_weight_desc, -> { reorder ::Gitlab::Database.nulls_last_order('weight', 'DESC') }
       scope :order_weight_asc, -> { reorder ::Gitlab::Database.nulls_last_order('weight') }
       scope :order_created_at_desc, -> { reorder(created_at: :desc) }
       scope :service_desk, -> { where(author: ::User.support_bot) }
-
+      scope :no_epic, -> { left_outer_joins(:epic_issue).where(epic_issues: { epic_id: nil }) }
       scope :in_epics, ->(epics) do
         issue_ids = EpicIssue.where(epic_id: epics).select(:issue_id)
         id_in(issue_ids)
@@ -40,6 +41,9 @@ module EE
 
       has_many :vulnerability_links, class_name: 'Vulnerabilities::IssueLink', inverse_of: :issue
       has_many :related_vulnerabilities, through: :vulnerability_links, source: :vulnerability
+
+      has_many :blocked_by_issue_links, -> { where(link_type: IssueLink::TYPE_BLOCKS) }, class_name: 'IssueLink', foreign_key: :target_id
+      has_many :blocked_by_issues, through: :blocked_by_issue_links, source: :source
 
       validates :weight, allow_nil: true, numericality: { greater_than_or_equal_to: 0 }
 
@@ -92,13 +96,15 @@ module EE
 
     def related_issues(current_user, preload: nil)
       related_issues = ::Issue
-                           .select(['issues.*', 'issue_links.id AS issue_link_id'])
-                           .joins("INNER JOIN issue_links ON
-                                 (issue_links.source_id = issues.id AND issue_links.target_id = #{id})
-                                 OR
-                                 (issue_links.target_id = issues.id AND issue_links.source_id = #{id})")
-                           .preload(preload)
-                           .reorder('issue_link_id')
+        .select(['issues.*', 'issue_links.id AS issue_link_id',
+                 'issue_links.link_type as issue_link_type_value',
+                 'issue_links.target_id as issue_link_source_id'])
+        .joins("INNER JOIN issue_links ON
+               (issue_links.source_id = issues.id AND issue_links.target_id = #{id})
+               OR
+               (issue_links.target_id = issues.id AND issue_links.source_id = #{id})")
+        .preload(preload)
+        .reorder('issue_link_id')
 
       cross_project_filter = -> (issues) { issues.where(project: project) }
       Ability.issues_readable_by_user(related_issues,
@@ -110,7 +116,7 @@ module EE
     def parent_ids
       return super unless has_group_boards?
 
-      board_group.projects.select(:id)
+      board_group.all_projects.select(:id)
     end
 
     def has_group_boards?
@@ -129,8 +135,30 @@ module EE
       !!promoted_to_epic_id
     end
 
+    def issue_link_type
+      return unless respond_to?(:issue_link_type_value) && respond_to?(:issue_link_source_id)
+
+      type = IssueLink.link_types.key(issue_link_type_value) || IssueLink::TYPE_RELATES_TO
+      return type if issue_link_source_id == id
+
+      IssueLink.inverse_link_type(type)
+    end
+
     class_methods do
-      # override
+      extend ::Gitlab::Utils::Override
+
+      override :simple_sorts
+      def simple_sorts
+        super.merge(
+          {
+            'weight' => -> { order_weight_asc.with_order_id_desc },
+            'weight_asc' => -> { order_weight_asc.with_order_id_desc },
+            'weight_desc' => -> { order_weight_desc.with_order_id_desc }
+          }
+        )
+      end
+
+      override :sort_by_attribute
       def sort_by_attribute(method, excluded_labels: [])
         case method.to_s
         when 'weight', 'weight_asc' then order_weight_asc.with_order_id_desc

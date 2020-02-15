@@ -115,7 +115,10 @@ export default {
       <div role="rowheader" class="table-mobile-header">{{ s__('DeployKeys|Deploy key') }}</div>
       <div class="table-mobile-content qa-key">
         <strong class="title qa-key-title"> {{ deployKey.title }} </strong>
-        <div class="fingerprint qa-key-fingerprint">{{ deployKey.fingerprint }}</div>
+        <div class="fingerprint" data-qa-selector="key_md5_fingerprint">
+          {{ __('MD5') }}:{{ deployKey.fingerprint }}
+        </div>
+        <div class="fingerprint">{{ __('SHA256') }}:{{ deployKey.fingerprint_sha256 }}</div>
       </div>
     </div>
     <div class="table-section section-30 section-wrap">
@@ -159,7 +162,7 @@ export default {
       <div role="rowheader" class="table-mobile-header">{{ __('Created') }}</div>
       <div class="table-mobile-content text-secondary key-created-at">
         <span v-tooltip :title="tooltipTitle(deployKey.created_at)">
-          <icon name="calendar" /> <span>{{ timeFormated(deployKey.created_at) }}</span>
+          <icon name="calendar" /> <span>{{ timeFormatted(deployKey.created_at) }}</span>
         </span>
       </div>
     </div>

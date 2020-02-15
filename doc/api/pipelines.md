@@ -14,10 +14,12 @@ GET /projects/:id/pipelines
 | `scope`   | string  | no       | The scope of pipelines, one of: `running`, `pending`, `finished`, `branches`, `tags` |
 | `status`  | string  | no       | The status of pipelines, one of: `running`, `pending`, `success`, `failed`, `canceled`, `skipped` |
 | `ref`     | string  | no       | The ref of pipelines |
-| `sha`     | string  | no       | The sha or pipelines |
+| `sha`     | string  | no       | The sha of pipelines |
 | `yaml_errors`| boolean  | no       | Returns pipelines with invalid configurations |
 | `name`| string  | no       | The name of the user who triggered pipelines |
 | `username`| string  | no       | The username of the user who triggered pipelines |
+| `updated_after` | datetime | no | Return pipelines updated after the specified date. Format: ISO 8601 YYYY-MM-DDTHH:MM:SSZ |
+| `updated_before` | datetime | no | Return pipelines updated before the specified date. Format: ISO 8601 YYYY-MM-DDTHH:MM:SSZ |
 | `order_by`| string  | no       | Order pipelines by `id`, `status`, `ref`, `updated_at` or `user_id` (default: `id`) |
 | `sort`    | string  | no       | Sort pipelines in `asc` or `desc` order (default: `desc`) |
 
@@ -272,7 +274,7 @@ Response:
 
 ## Delete a pipeline
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/22988) in GitLab 11.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/22988) in GitLab 11.6.
 
 ```
 DELETE /projects/:id/pipelines/:pipeline_id
@@ -287,5 +289,5 @@ DELETE /projects/:id/pipelines/:pipeline_id
 curl --header "PRIVATE-TOKEN: <your_access_token>" --request "DELETE" "https://gitlab.example.com/api/v4/projects/1/pipelines/46"
 ```
 
-[ce-5837]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/5837
-[ce-7209]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/7209
+[ce-5837]: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/5837
+[ce-7209]: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/7209

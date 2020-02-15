@@ -16,14 +16,14 @@ describe MetricsDashboard do
     end
 
     controller(::ApplicationController) do
-      include MetricsDashboard # rubocop:disable RSpec/DescribedClass
+      include MetricsDashboard
     end
 
     let(:json_response) do
       routes.draw { get "metrics_dashboard" => "anonymous#metrics_dashboard" }
       response = get :metrics_dashboard, format: :json
 
-      JSON.parse(response.parsed_body)
+      response.parsed_body
     end
 
     context 'when no parameters are provided' do
@@ -72,7 +72,7 @@ describe MetricsDashboard do
 
           it 'includes project_blob_path only for project dashboards' do
             expect(system_dashboard['project_blob_path']).to be_nil
-            expect(project_dashboard['project_blob_path']).to eq("/#{project.namespace.path}/#{project.name}/blob/master/.gitlab/dashboards/test.yml")
+            expect(project_dashboard['project_blob_path']).to eq("/#{project.namespace.path}/#{project.name}/-/blob/master/.gitlab/dashboards/test.yml")
           end
 
           describe 'project permissions' do

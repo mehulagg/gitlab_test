@@ -4,9 +4,9 @@
 # Use Gitlab::Metrics::Dashboard::Finder to retrive dashboards.
 module Metrics
   module Dashboard
-    class ClusterDashboardService < ::Metrics::Dashboard::BaseService
-      CLUSTER_DASHBOARD_PATH = 'ee/config/prometheus/cluster_metrics.yml'
-      CLUSTER_DASHBOARD_NAME = 'Cluster'
+    class ClusterDashboardService < ::Metrics::Dashboard::PredefinedDashboardService
+      DASHBOARD_PATH = 'ee/config/prometheus/cluster_metrics.yml'
+      DASHBOARD_NAME = 'Cluster'
 
       SEQUENCE = [
         STAGES::CommonMetricsInserter,
@@ -14,25 +14,15 @@ module Metrics
         STAGES::Sorter
       ].freeze
 
-      private
-
-      def cache_key
-        "metrics_dashboard_#{dashboard_path}"
+      class << self
+        def valid_params?(params)
+          params[:cluster].present?
+        end
       end
 
-      def dashboard_path
-        CLUSTER_DASHBOARD_PATH
-      end
-
-      # Returns the base metrics shipped with every GitLab service.
-      def get_raw_dashboard
-        yml = File.read(Rails.root.join(dashboard_path))
-
-        YAML.safe_load(yml)
-      end
-
-      def sequence
-        SEQUENCE
+      # Permissions are handled at the controller level
+      def allowed?
+        true
       end
     end
   end

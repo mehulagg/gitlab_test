@@ -10,16 +10,6 @@ import {
   fetchUserIdParams,
 } from '../../constants';
 
-/*
- * Part of implementing https://gitlab.com/gitlab-org/gitlab/issues/34363
- * involves moving the current Array-based list of user IDs (as it is stored as
- * a list of tokens) to a String-based list of user IDs, editable in a text area
- * per environment.
- */
-const shouldShowUsersPerEnvironment = () =>
-  (window.gon && window.gon.features && window.gon.features.featureFlagsUsersPerEnvironment) ||
-  false;
-
 /**
  * Converts raw scope objects fetched from the API into an array of scope
  * objects that is easier/nicer to bind to in Vue.
@@ -31,24 +21,21 @@ export const mapToScopesViewModel = scopesFromRails =>
       strat => strat.name === ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
     );
 
-    const rolloutStrategy = percentStrategy ? percentStrategy.name : ROLLOUT_STRATEGY_ALL_USERS;
-
     const rolloutPercentage = fetchPercentageParams(percentStrategy) || DEFAULT_PERCENT_ROLLOUT;
 
     const userStrategy = (s.strategies || []).find(
       strat => strat.name === ROLLOUT_STRATEGY_USER_ID,
     );
 
-    let rolloutUserIds = '';
+    const rolloutStrategy =
+      (percentStrategy && percentStrategy.name) ||
+      (userStrategy && userStrategy.name) ||
+      ROLLOUT_STRATEGY_ALL_USERS;
 
-    if (shouldShowUsersPerEnvironment()) {
-      rolloutUserIds = (fetchUserIdParams(userStrategy) || '')
-        .split(',')
-        .filter(id => id)
-        .join(', ');
-    } else {
-      rolloutUserIds = (fetchUserIdParams(userStrategy) || '').split(',').filter(id => id);
-    }
+    const rolloutUserIds = (fetchUserIdParams(userStrategy) || '')
+      .split(',')
+      .filter(id => id)
+      .join(', ');
 
     return {
       id: s.id,
@@ -72,20 +59,18 @@ export const mapToScopesViewModel = scopesFromRails =>
  */
 export const mapFromScopesViewModel = params => {
   const scopes = (params.scopes || []).map(s => {
-    const percentParameters = {};
+    const parameters = {};
     if (s.rolloutStrategy === ROLLOUT_STRATEGY_PERCENT_ROLLOUT) {
-      percentParameters.groupId = PERCENT_ROLLOUT_GROUP_ID;
-      percentParameters.percentage = s.rolloutPercentage;
+      parameters.groupId = PERCENT_ROLLOUT_GROUP_ID;
+      parameters.percentage = s.rolloutPercentage;
+    } else if (s.rolloutStrategy === ROLLOUT_STRATEGY_USER_ID) {
+      parameters.userIds = (s.rolloutUserIds || '').replace(/, /g, ',');
     }
 
     const userIdParameters = {};
 
-    const hasUsers = s.shouldIncludeUserIds || s.rolloutStrategy === ROLLOUT_STRATEGY_USER_ID;
-
-    if (shouldShowUsersPerEnvironment() && hasUsers) {
+    if (s.shouldIncludeUserIds && s.rolloutStrategy !== ROLLOUT_STRATEGY_USER_ID) {
       userIdParameters.userIds = (s.rolloutUserIds || '').replace(/, /g, ',');
-    } else if (Array.isArray(s.rolloutUserIds) && s.rolloutUserIds.length > 0) {
-      userIdParameters.userIds = s.rolloutUserIds.join(',');
     }
 
     // Strip out any internal IDs
@@ -94,7 +79,7 @@ export const mapFromScopesViewModel = params => {
     const strategies = [
       {
         name: s.rolloutStrategy,
-        parameters: percentParameters,
+        parameters,
       },
     ];
 
@@ -113,13 +98,16 @@ export const mapFromScopesViewModel = params => {
     };
   });
 
-  return {
+  const model = {
     operations_feature_flag: {
       name: params.name,
       description: params.description,
+      active: params.active,
       scopes_attributes: scopes,
     },
   };
+
+  return model;
 };
 
 /**
@@ -138,7 +126,7 @@ export const createNewEnvironmentScope = (overrides = {}, featureFlagPermissions
     id: _.uniqueId(INTERNAL_ID_PREFIX),
     rolloutStrategy: ROLLOUT_STRATEGY_ALL_USERS,
     rolloutPercentage: DEFAULT_PERCENT_ROLLOUT,
-    rolloutUserIds: shouldShowUsersPerEnvironment() ? '' : [],
+    rolloutUserIds: '',
   };
 
   const newScope = {

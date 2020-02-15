@@ -5,15 +5,16 @@ require 'spec_helper'
 describe API::ProjectPackages do
   let(:user) { create(:user) }
   let(:project) { create(:project, :public) }
-  let!(:package1) { create(:npm_package, project: project) }
+  let!(:package1) { create(:npm_package, project: project, version: '3.1.0', name: "@#{project.root_namespace.path}/foo1") }
   let(:package_url) { "/projects/#{project.id}/packages/#{package1.id}" }
-  let!(:package2) { create(:npm_package, project: project) }
+  let!(:package2) { create(:nuget_package, project: project, version: '2.0.4') }
   let!(:another_package) { create(:npm_package) }
   let(:no_package_url) { "/projects/#{project.id}/packages/0" }
   let(:wrong_package_url) { "/projects/#{project.id}/packages/#{another_package.id}" }
 
   describe 'GET /projects/:id/packages' do
     let(:url) { "/projects/#{project.id}/packages" }
+    let(:package_schema) { 'public_api/v4/packages/packages' }
 
     subject { get api(url) }
 
@@ -41,6 +42,18 @@ describe API::ProjectPackages do
           it_behaves_like 'returns packages', :project, :reporter
           it_behaves_like 'rejects packages access', :project, :no_type, :not_found
           it_behaves_like 'rejects packages access', :project, :guest, :forbidden
+
+          context 'user is a maintainer' do
+            before do
+              project.add_maintainer(user)
+            end
+
+            it 'returns the destroy url' do
+              subject
+
+              expect(json_response.first['_links']).to include('delete_api_path')
+            end
+          end
         end
       end
 
@@ -53,6 +66,58 @@ describe API::ProjectPackages do
           let!(:package4) { create(:npm_package, project: project) }
 
           it_behaves_like 'returns paginated packages'
+        end
+      end
+
+      context 'with sorting' do
+        shared_examples 'package sorting' do |order_by|
+          subject { get api(url), params: { sort: sort, order_by: order_by } }
+
+          context "sorting by #{order_by}" do
+            context 'ascending order' do
+              let(:sort) { 'asc' }
+
+              it 'returns the sorted packages' do
+                subject
+
+                expect(json_response.map { |package| package['id'] }).to eq(packages.map(&:id))
+              end
+            end
+
+            context 'descending order' do
+              let(:sort) { 'desc' }
+
+              it 'returns the sorted packages' do
+                subject
+
+                expect(json_response.map { |package| package['id'] }).to eq(packages.reverse.map(&:id))
+              end
+            end
+          end
+        end
+
+        let(:package3) { create(:maven_package, project: project, version: '1.1.1', name: 'zzz') }
+
+        before do
+          travel_to(1.day.ago) do
+            package3
+          end
+        end
+
+        it_behaves_like 'package sorting', 'name' do
+          let(:packages) { [package1, package2, package3] }
+        end
+
+        it_behaves_like 'package sorting', 'created_at' do
+          let(:packages) { [package3, package1, package2] }
+        end
+
+        it_behaves_like 'package sorting', 'version' do
+          let(:packages) { [package3, package2, package1] }
+        end
+
+        it_behaves_like 'package sorting', 'type' do
+          let(:packages) { [package3, package1, package2] }
         end
       end
     end
@@ -71,6 +136,24 @@ describe API::ProjectPackages do
   end
 
   describe 'GET /projects/:id/packages/:package_id' do
+    subject { get api(package_url, user) }
+
+    shared_examples 'no destroy url' do
+      it 'returns no destroy url' do
+        subject
+
+        expect(json_response['_links']).not_to include('delete_api_path')
+      end
+    end
+
+    shared_examples 'destroy url' do
+      it 'returns destroy url' do
+        subject
+
+        expect(json_response['_links']['delete_api_path']).to be_present
+      end
+    end
+
     context 'packages feature enabled' do
       before do
         stub_licensed_features(packages: true)
@@ -78,7 +161,7 @@ describe API::ProjectPackages do
 
       context 'project is public' do
         it 'returns 200 and the package information' do
-          get api(package_url, user)
+          subject
 
           expect(response).to have_gitlab_http_status(200)
           expect(response).to match_response_schema('public_api/v4/packages/package', dir: 'ee')
@@ -95,6 +178,8 @@ describe API::ProjectPackages do
 
           expect(response).to have_gitlab_http_status(404)
         end
+
+        it_behaves_like 'no destroy url'
       end
 
       context 'project is private' do
@@ -107,18 +192,45 @@ describe API::ProjectPackages do
         end
 
         it 'returns 404 for a user without access to the project' do
-          get api(package_url, user)
+          subject
 
           expect(response).to have_gitlab_http_status(404)
         end
 
-        it 'returns 200 and the package information' do
-          project.add_developer(user)
+        context 'user is a developer' do
+          before do
+            project.add_developer(user)
+          end
 
-          get api(package_url, user)
+          it 'returns 200 and the package information' do
+            subject
 
-          expect(response).to have_gitlab_http_status(200)
-          expect(response).to match_response_schema('public_api/v4/packages/package', dir: 'ee')
+            expect(response).to have_gitlab_http_status(200)
+            expect(response).to match_response_schema('public_api/v4/packages/package', dir: 'ee')
+          end
+
+          it_behaves_like 'no destroy url'
+        end
+
+        context 'user is a maintainer' do
+          before do
+            project.add_maintainer(user)
+          end
+
+          it_behaves_like 'destroy url'
+        end
+
+        context 'with build info' do
+          let!(:package1) { create(:npm_package, :with_build, project: project) }
+
+          it 'returns the build info' do
+            project.add_developer(user)
+
+            get api(package_url, user)
+
+            expect(response).to have_gitlab_http_status(200)
+            expect(response).to match_response_schema('public_api/v4/packages/package_with_build', dir: 'ee')
+          end
         end
       end
     end
@@ -129,7 +241,7 @@ describe API::ProjectPackages do
       end
 
       it 'returns 403' do
-        get api(package_url, user)
+        subject
 
         expect(response).to have_gitlab_http_status(403)
       end

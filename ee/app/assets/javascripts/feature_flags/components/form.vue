@@ -22,7 +22,6 @@ import {
   INTERNAL_ID_PREFIX,
 } from '../constants';
 import { createNewEnvironmentScope } from '../store/modules/helpers';
-import UserWithId from './strategies/user_with_id.vue';
 
 export default {
   components: {
@@ -34,13 +33,17 @@ export default {
     ToggleButton,
     Icon,
     EnvironmentsDropdown,
-    UserWithId,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
   },
   mixins: [featureFlagsMixin()],
   props: {
+    active: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
     name: {
       type: String,
       required: false,
@@ -87,6 +90,7 @@ export default {
 
   ROLLOUT_STRATEGY_ALL_USERS,
   ROLLOUT_STRATEGY_PERCENT_ROLLOUT,
+  ROLLOUT_STRATEGY_USER_ID,
 
   // Matches numbers 0 through 100
   rolloutPercentageRegex: /^[0-9]$|^[1-9][0-9]$|^100$/,
@@ -111,14 +115,6 @@ export default {
     },
     permissionsFlag() {
       return this.glFeatures.featureFlagPermissions;
-    },
-
-    userIds() {
-      const scope = this.formScopes.find(s => Array.isArray(s.rolloutUserIds)) || {};
-      return scope.rolloutUserIds || [];
-    },
-    shouldShowUsersPerEnvironment() {
-      return this.glFeatures.featureFlagsUsersPerEnvironment;
     },
   },
   methods: {
@@ -165,14 +161,8 @@ export default {
         name: this.formName,
         description: this.formDescription,
         scopes: this.formScopes,
+        active: this.active,
       });
-    },
-
-    updateUserIds(userIds) {
-      this.formScopes = this.formScopes.map(s => ({
-        ...s,
-        rolloutUserIds: userIds,
-      }));
     },
 
     canUpdateScope(scope) {
@@ -304,7 +294,7 @@ export default {
                 <div class="table-mobile-content js-feature-flag-status">
                   <toggle-button
                     :value="scope.active"
-                    :disabled-input="!canUpdateScope(scope)"
+                    :disabled-input="!active || !canUpdateScope(scope)"
                     @change="status => (scope.active = status)"
                   />
                 </div>
@@ -331,10 +321,7 @@ export default {
                       <option :value="$options.ROLLOUT_STRATEGY_PERCENT_ROLLOUT">
                         {{ s__('FeatureFlags|Percent rollout (logged in users)') }}
                       </option>
-                      <option
-                        v-if="shouldShowUsersPerEnvironment"
-                        :value="$options.ROLLOUT_STRATEGY_USER_ID"
-                      >
+                      <option :value="$options.ROLLOUT_STRATEGY_USER_ID">
                         {{ s__('FeatureFlags|User IDs') }}
                       </option>
                     </select>
@@ -373,10 +360,7 @@ export default {
                     </gl-tooltip>
                     <span class="ml-1">%</span>
                   </div>
-                  <div
-                    v-if="shouldShowUsersPerEnvironment"
-                    class="d-flex flex-column align-items-start mt-2 w-100"
-                  >
+                  <div class="d-flex flex-column align-items-start mt-2 w-100">
                     <gl-form-checkbox
                       v-if="shouldDisplayIncludeUserIds(scope)"
                       v-model="scope.shouldIncludeUserIds"
@@ -436,7 +420,11 @@ export default {
                   {{ s__('FeatureFlags|Status') }}
                 </div>
                 <div class="table-mobile-content js-feature-flag-status">
-                  <toggle-button :value="false" @change="createNewScope({ active: true })" />
+                  <toggle-button
+                    :disabled-input="!active"
+                    :value="false"
+                    @change="createNewScope({ active: true })"
+                  />
                 </div>
               </div>
 
@@ -465,8 +453,6 @@ export default {
         </div>
       </div>
     </fieldset>
-
-    <user-with-id v-if="!shouldShowUsersPerEnvironment" :value="userIds" @input="updateUserIds" />
 
     <div class="form-actions">
       <gl-button

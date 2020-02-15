@@ -2,6 +2,11 @@
   li {
     @include gl-line-height-32;
   }
+
+  .btn-outline-info {
+    color: $blue-500;
+    border-color: $blue-500;
+  }
 }
 
 .stacktrace {
@@ -9,6 +14,12 @@
     svg {
       vertical-align: middle;
       top: -1px;
+    }
+  }
+
+  .file-title-name {
+    &.limited-width {
+      max-width: 80%;
     }
   }
 

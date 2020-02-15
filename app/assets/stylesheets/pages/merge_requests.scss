@@ -51,6 +51,10 @@
   position: relative;
   border: 1px solid $border-color;
   border-radius: $border-radius-default;
+
+  .gl-skeleton-loader {
+    display: block;
+  }
 }
 
 .mr-widget-extension {
@@ -704,7 +708,7 @@
 .mr-version-controls {
   position: relative;
   z-index: 203;
-  background: $gray-light;
+  background: $white-light;
   color: $gl-text-color;
   margin-top: -1px;
 
@@ -728,7 +732,7 @@
   }
 
   .content-block {
-    padding: $gl-padding-top $gl-padding;
+    padding: $gl-padding;
     border-bottom: 0;
   }
 

@@ -18,13 +18,14 @@ import {
 
 const { epic } = mockQueryResponse.data.group;
 
+const localVue = createLocalVue();
+
 const createComponent = ({
   parentItem = mockParentItem,
   epicPageInfo = epic.children.pageInfo,
   issuesPageInfo = epic.issues.pageInfo,
 } = {}) => {
   const store = createDefaultStore();
-  const localVue = createLocalVue();
   const children = epicUtils.processQueryResponse(mockQueryResponse.data.group);
 
   store.dispatch('setInitialParentItem', mockParentItem);
@@ -44,12 +45,11 @@ const createComponent = ({
     pageInfo: issuesPageInfo,
   });
 
-  return shallowMount(TreeRoot, {
+  return shallowMount(localVue.extend(TreeRoot), {
     localVue,
     store,
     stubs: {
       'tree-item': true,
-      'gl-button': GlButton,
     },
     propsData: {
       parentItem,
@@ -348,13 +348,13 @@ describe('RelatedItemsTree', () => {
       });
 
       it('renders `Show more` link', () => {
-        expect(wrapper.find('button').text()).toBe('Show more');
+        expect(wrapper.find(GlButton).text()).toBe('Show more');
       });
 
       it('calls `handleShowMoreClick` when `Show more` link is clicked', () => {
         spyOn(wrapper.vm, 'handleShowMoreClick');
 
-        wrapper.find('button').trigger('click');
+        wrapper.find(GlButton).vm.$emit('click');
 
         expect(wrapper.vm.handleShowMoreClick).toHaveBeenCalled();
       });

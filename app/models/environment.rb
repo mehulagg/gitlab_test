@@ -11,6 +11,7 @@ class Environment < ApplicationRecord
 
   has_many :deployments, -> { visible }, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_many :successful_deployments, -> { success }, class_name: 'Deployment'
+  has_many :prometheus_alerts, inverse_of: :environment
 
   has_one :last_deployment, -> { success.order('deployments.id DESC') }, class_name: 'Deployment'
   has_one :last_deployable, through: :last_deployment, source: 'deployable', source_type: 'CommitStatus'
@@ -48,13 +49,14 @@ class Environment < ApplicationRecord
 
   scope :available, -> { with_state(:available) }
   scope :stopped, -> { with_state(:stopped) }
+
   scope :order_by_last_deployed_at, -> do
-    max_deployment_id_sql =
-      Deployment.select(Deployment.arel_table[:id].maximum)
-      .where(Deployment.arel_table[:environment_id].eq(arel_table[:id]))
-      .to_sql
     order(Gitlab::Database.nulls_first_order("(#{max_deployment_id_sql})", 'ASC'))
   end
+  scope :order_by_last_deployed_at_desc, -> do
+    order(Gitlab::Database.nulls_last_order("(#{max_deployment_id_sql})", 'DESC'))
+  end
+
   scope :in_review_folder, -> { where(environment_type: "review") }
   scope :for_name, -> (name) { where(name: name) }
   scope :preload_cluster, -> { preload(last_deployment: :cluster) }
@@ -90,12 +92,26 @@ class Environment < ApplicationRecord
     end
   end
 
+  def self.max_deployment_id_sql
+    Deployment.select(Deployment.arel_table[:id].maximum)
+    .where(Deployment.arel_table[:environment_id].eq(arel_table[:id]))
+    .to_sql
+  end
+
   def self.pluck_names
     pluck(:name)
   end
 
   def self.find_or_create_by_name(name)
     find_or_create_by(name: name)
+  end
+
+  def clear_prometheus_reactive_cache!(query_name)
+    cluster_prometheus_adapter&.clear_prometheus_reactive_cache!(query_name, self)
+  end
+
+  def cluster_prometheus_adapter
+    @cluster_prometheus_adapter ||= ::Gitlab::Prometheus::Adapter.new(project, deployment_platform&.cluster).cluster_prometheus_adapter
   end
 
   def predefined_variables
@@ -162,6 +178,10 @@ class Environment < ApplicationRecord
     stop_action&.play(current_user)
   end
 
+  def reset_auto_stop
+    update_column(:auto_stop_at, nil)
+  end
+
   def actions_for(environment)
     return [] unless manual_actions
 
@@ -193,11 +213,15 @@ class Environment < ApplicationRecord
   end
 
   def has_metrics?
-    available? && prometheus_adapter&.can_query?
+    available? && (prometheus_adapter&.configured? || has_sample_metrics?)
+  end
+
+  def has_sample_metrics?
+    !!ENV['USE_SAMPLE_METRICS']
   end
 
   def metrics
-    prometheus_adapter.query(:environment, self) if has_metrics?
+    prometheus_adapter.query(:environment, self) if has_metrics_and_can_query?
   end
 
   def prometheus_status
@@ -205,16 +229,14 @@ class Environment < ApplicationRecord
   end
 
   def additional_metrics(*args)
-    return unless has_metrics?
+    return unless has_metrics_and_can_query?
 
     prometheus_adapter.query(:additional_metrics_environment, self, *args.map(&:to_f))
   end
 
-  # rubocop: disable CodeReuse/ServiceClass
   def prometheus_adapter
-    @prometheus_adapter ||= Prometheus::AdapterService.new(project, deployment_platform).prometheus_adapter
+    @prometheus_adapter ||= Gitlab::Prometheus::Adapter.new(project, deployment_platform&.cluster).prometheus_adapter
   end
-  # rubocop: enable CodeReuse/ServiceClass
 
   def slug
     super.presence || generate_slug
@@ -261,7 +283,22 @@ class Environment < ApplicationRecord
     end
   end
 
+  def auto_stop_in
+    auto_stop_at - Time.now if auto_stop_at
+  end
+
+  def auto_stop_in=(value)
+    return unless value
+    return unless parsed_result = ChronicDuration.parse(value)
+
+    self.auto_stop_at = parsed_result.seconds.from_now
+  end
+
   private
+
+  def has_metrics_and_can_query?
+    has_metrics? && prometheus_adapter.can_query?
+  end
 
   def generate_slug
     self.slug = Gitlab::Slug::Environment.new(name).generate

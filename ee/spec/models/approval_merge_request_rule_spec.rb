@@ -92,24 +92,34 @@ describe ApprovalMergeRequestRule do
     context 'any_approver rules' do
       let(:rule) { build(:approval_merge_request_rule, merge_request: merge_request, rule_type: :any_approver) }
 
-      it 'is valid' do
-        expect(rule).to be_valid
-      end
-
-      it 'creating more than one any_approver rule raises an error' do
+      it 'creating only one any_approver rule is allowed' do
         create(:approval_merge_request_rule, merge_request: merge_request, rule_type: :any_approver)
 
-        expect { rule.save }.to raise_error(ActiveRecord::RecordNotUnique)
+        expect(rule).not_to be_valid
+        expect(rule.errors.messages).to eq(rule_type: ['any-approver for the merge request already exists'])
+        expect { rule.save(validate: false) }.to raise_error(ActiveRecord::RecordNotUnique)
       end
     end
   end
 
-  context 'scopes'  do
-    set(:rb_rule) { create(:code_owner_rule, name: '*.rb') }
-    set(:js_rule) { create(:code_owner_rule, name: '*.js') }
-    set(:css_rule) { create(:code_owner_rule, name: '*.css') }
-    set(:approval_rule) { create(:approval_merge_request_rule) }
-    set(:report_approver_rule) { create(:report_approver_rule) }
+  describe '.regular_or_any_approver scope' do
+    it 'returns regular or any-approver rules' do
+      any_approver_rule = create(:any_approver_rule)
+      regular_rule = create(:approval_merge_request_rule)
+      create(:report_approver_rule)
+
+      expect(described_class.regular_or_any_approver).to(
+        contain_exactly(any_approver_rule, regular_rule)
+      )
+    end
+  end
+
+  context 'scopes' do
+    let!(:rb_rule) { create(:code_owner_rule, name: '*.rb') }
+    let!(:js_rule) { create(:code_owner_rule, name: '*.js') }
+    let!(:css_rule) { create(:code_owner_rule, name: '*.css') }
+    let!(:approval_rule) { create(:approval_merge_request_rule) }
+    let!(:report_approver_rule) { create(:report_approver_rule) }
 
     describe '.not_matching_pattern' do
       it 'returns the correct rules' do
@@ -141,8 +151,7 @@ describe ApprovalMergeRequestRule do
   end
 
   describe '.find_or_create_code_owner_rule' do
-    set(:merge_request) { create(:merge_request) }
-    set(:existing_code_owner_rule) { create(:code_owner_rule, name: '*.rb', merge_request: merge_request) }
+    let!(:existing_code_owner_rule) { create(:code_owner_rule, name: '*.rb', merge_request: merge_request) }
 
     it 'finds an existing rule' do
       expect(described_class.find_or_create_code_owner_rule(merge_request, '*.rb'))
@@ -167,6 +176,47 @@ describe ApprovalMergeRequestRule do
       allow(described_class).to receive(:code_owner).and_call_original
 
       expect(described_class.find_or_create_code_owner_rule(merge_request, '*.js')).not_to be_nil
+    end
+  end
+
+  describe '.applicable_to_branch' do
+    let!(:rule) { create(:approval_merge_request_rule, merge_request: merge_request) }
+    let(:branch) { 'stable' }
+
+    subject { described_class.applicable_to_branch(branch) }
+
+    context 'when there are no associated source rules' do
+      it { is_expected.to eq([rule]) }
+    end
+
+    context 'when there are associated source rules' do
+      let(:source_rule) { create(:approval_project_rule, project: merge_request.target_project) }
+
+      before do
+        rule.update!(approval_project_rule: source_rule)
+      end
+
+      context 'and there are no associated protected branches to source rule' do
+        it { is_expected.to eq([rule]) }
+      end
+
+      context 'and there are associated protected branches to source rule' do
+        before do
+          source_rule.update!(protected_branches: protected_branches)
+        end
+
+        context 'and branch matches' do
+          let(:protected_branches) { [create(:protected_branch, name: branch)] }
+
+          it { is_expected.to eq([rule]) }
+        end
+
+        context 'but branch does not match anything' do
+          let(:protected_branches) { [create(:protected_branch, name: branch.reverse)] }
+
+          it { is_expected.to be_empty }
+        end
+      end
     end
   end
 
@@ -262,6 +312,8 @@ describe ApprovalMergeRequestRule do
     let!(:approval2) { create(:approval, merge_request: merge_request, user: member2) }
     let!(:approval3) { create(:approval, merge_request: merge_request, user: member3) }
 
+    let(:any_approver_rule) { create(:any_approver_rule, merge_request: merge_request) }
+
     before do
       subject.users = [member1, member2]
     end
@@ -269,8 +321,10 @@ describe ApprovalMergeRequestRule do
     context 'when not merged' do
       it 'does nothing' do
         subject.sync_approved_approvers
+        any_approver_rule.sync_approved_approvers
 
         expect(subject.approved_approvers.reload).to be_empty
+        expect(any_approver_rule.approved_approvers).to be_empty
       end
     end
 
@@ -281,6 +335,12 @@ describe ApprovalMergeRequestRule do
         subject.sync_approved_approvers
 
         expect(subject.approved_approvers.reload).to contain_exactly(member1, member2)
+      end
+
+      it 'stores all the approvals for any-approver rule' do
+        any_approver_rule.sync_approved_approvers
+
+        expect(any_approver_rule.approved_approvers.reload).to contain_exactly(member1, member2, member3)
       end
     end
   end
@@ -314,7 +374,7 @@ describe ApprovalMergeRequestRule do
       let!(:project_approval_rule) { create(:approval_project_rule, :requires_approval, :license_management, project: project) }
       let(:project) { create(:project) }
       let!(:open_pipeline) { create(:ee_ci_pipeline, :success, :with_license_management_report, project: project, merge_requests_as_head_pipeline: [open_merge_request]) }
-      let!(:blacklist_policy) { create(:software_license_policy, project: project, software_license: license, approval_status: :blacklisted) }
+      let!(:denied_policy) { create(:software_license_policy, project: project, software_license: license, classification: :denied) }
 
       before do
         subject.refresh_required_approvals!(project_approval_rule)

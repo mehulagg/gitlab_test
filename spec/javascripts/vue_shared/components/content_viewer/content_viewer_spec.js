@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import MockAdapter from 'axios-mock-adapter';
-import axios from '~/lib/utils/axios_utils';
-import contentViewer from '~/vue_shared/components/content_viewer/content_viewer.vue';
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
 import { GREEN_BOX_IMAGE_URL } from 'spec/test_constants';
+import axios from '~/lib/utils/axios_utils';
+import contentViewer from '~/vue_shared/components/content_viewer/content_viewer.vue';
 import '~/behaviors/markdown/render_gfm';
 
 describe('ContentViewer', () => {
@@ -58,14 +58,34 @@ describe('ContentViewer', () => {
 
   it('renders fallback download control', done => {
     createComponent({
-      path: 'test.abc',
+      path: 'somepath/test.abc',
       fileSize: 1024,
     });
 
     setTimeout(() => {
-      expect(vm.$el.querySelector('.file-info').textContent.trim()).toContain('test.abc');
-      expect(vm.$el.querySelector('.file-info').textContent.trim()).toContain('(1.00 KiB)');
-      expect(vm.$el.querySelector('.btn.btn-default').textContent.trim()).toContain('Download');
+      expect(
+        vm.$el
+          .querySelector('.file-info')
+          .textContent.trim()
+          .replace(/\s+/, ' '),
+      ).toEqual('test.abc (1.00 KiB)');
+
+      expect(vm.$el.querySelector('.btn.btn-default').textContent.trim()).toEqual('Download');
+
+      done();
+    });
+  });
+
+  it('renders fallback download control for file with a data URL path properly', done => {
+    createComponent({
+      path: 'data:application/octet-stream;base64,U0VMRUNUICfEhHNnc2cnIGZyb20gVGFibGVuYW1lOwoK',
+      filePath: 'somepath/test.abc',
+    });
+
+    setTimeout(() => {
+      expect(vm.$el.querySelector('.file-info').textContent.trim()).toEqual('test.abc');
+      expect(vm.$el.querySelector('.btn.btn-default')).toHaveAttr('download', 'test.abc');
+      expect(vm.$el.querySelector('.btn.btn-default').textContent.trim()).toEqual('Download');
 
       done();
     });

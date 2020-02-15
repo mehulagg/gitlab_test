@@ -7,6 +7,7 @@
 .bundle
 .chef
 .directory
+.eslintcache
 /.envrc
 eslint-report.html
 /.gitlab_shell_secret
@@ -66,7 +67,7 @@ eslint-report.html
 /vendor/gitaly-ruby
 /builds*
 /.gitlab_workhorse_secret
-/.gitlab_pages_shared_secret
+/.gitlab_pages_secret
 /webpack-report/
 /knapsack/
 /rspec_flaky/
@@ -82,5 +83,9 @@ package-lock.json
 jsdoc/
 **/tmp/rubocop_cache/**
 .overcommit.yml
+.overcommit.yml.backup
 .projections.json
 /qa/.rakeTasks
+webpack-dev-server.json
+/.nvimrc
+.solargraph.yml

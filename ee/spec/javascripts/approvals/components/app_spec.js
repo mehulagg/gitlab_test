@@ -23,7 +23,6 @@ describe('EE Approvals App', () => {
       localVue,
       slots,
       store: new Vuex.Store(store),
-      sync: false,
     });
   };
   const findAddButton = () => wrapper.find(GlButton);
@@ -96,17 +95,10 @@ describe('EE Approvals App', () => {
         };
       });
 
-      it('does not show Rules', () => {
+      it('does show Rules', () => {
         factory();
 
-        expect(findRules().exists()).toBe(false);
-      });
-
-      it('shows loading icon if loading', () => {
-        store.modules.approvals.state.isLoading = true;
-        factory();
-
-        expect(findLoadingIcon().exists()).toBe(true);
+        expect(findRules().exists()).toBe(true);
       });
 
       it('does not show loading icon if not loading', () => {
@@ -148,14 +140,6 @@ describe('EE Approvals App', () => {
           null,
           undefined,
         );
-      });
-
-      it('shows loading icon and rules if loading', () => {
-        store.modules.approvals.state.isLoading = true;
-        factory();
-
-        expect(findRules().exists()).toBe(true);
-        expect(findLoadingIcon().exists()).toBe(true);
       });
     });
   });

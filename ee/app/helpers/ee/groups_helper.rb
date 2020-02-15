@@ -13,9 +13,13 @@ module EE
 
     override :group_overview_nav_link_paths
     def group_overview_nav_link_paths
-      super + %w[
-        groups/insights#show
-      ]
+      if ::Feature.enabled?(:analytics_pages_under_group_analytics_sidebar, @group)
+        super
+      else
+        super + %w[
+          groups/insights#show
+        ]
+      end
     end
 
     override :group_nav_link_paths
@@ -60,31 +64,31 @@ module EE
       { group_id: group }
     end
 
-    def group_vulnerabilities_endpoint_path(group)
-      params = group_path_params(group)
-      if ::Feature.enabled?(:first_class_vulnerabilities)
-        group_security_vulnerability_findings_path(params)
-      else
-        group_security_vulnerabilities_path(params)
-      end
+    override :remove_group_message
+    def remove_group_message(group)
+      return super unless group.feature_available?(:adjourned_deletion_for_projects_and_groups)
+
+      date = permanent_deletion_date(Time.now.utc)
+
+      _("The contents of this group, its subgroups and projects will be permanently removed after %{deletion_adjourned_period} days on %{date}. After this point, your data cannot be recovered.") %
+        { date: date, deletion_adjourned_period: deletion_adjourned_period }
     end
 
-    def group_vulnerabilities_summary_endpoint_path(group)
-      params = group_path_params(group)
-      if ::Feature.enabled?(:first_class_vulnerabilities)
-        summary_group_security_vulnerability_findings_path(params)
-      else
-        summary_group_security_vulnerabilities_path(params)
-      end
+    def permanent_deletion_date(date)
+      (date + deletion_adjourned_period.days).strftime('%F')
     end
 
-    def group_vulnerabilities_history_endpoint_path(group)
-      params = group_path_params(group)
-      if ::Feature.enabled?(:first_class_vulnerabilities)
-        history_group_security_vulnerability_findings_path(params)
-      else
-        history_group_security_vulnerabilities_path(params)
-      end
+    def deletion_adjourned_period
+      ::Gitlab::CurrentSettings.deletion_adjourned_period
+    end
+
+    def show_discover_group_security?(group)
+      !!::Feature.enabled?(:discover_security) &&
+        ::Gitlab.com? &&
+        !!current_user &&
+        current_user.created_at > DateTime.new(2020, 1, 20) &&
+        !@group.feature_available?(:security_dashboard) &&
+        can?(current_user, :admin_group, @group)
     end
 
     private
@@ -106,6 +110,10 @@ module EE
 
       if @group.insights_available?
         links << :group_insights
+      end
+
+      if @group.feature_available?(:productivity_analytics) && can?(current_user, :view_productivity_analytics, @group)
+        links << :productivity_analytics
       end
 
       links

@@ -30,7 +30,7 @@ in `.gitlab-ci.yml`.
 
 ## Git shallow clone
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/28919) in GitLab 12.0.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/28919) in GitLab 12.0.
 
 NOTE: **Note**:
 As of GitLab 12.0, newly created projects will automatically have a default
@@ -55,10 +55,10 @@ if the job surpasses the threshold, it is marked as failed.
 
 ### Timeout overriding on Runner level
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/17221) in GitLab 10.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/17221) in GitLab 10.7.
 
 Project defined timeout (either specific timeout set by user or the default
-60 minutes timeout) may be [overridden on Runner level](../../../ci/runners/README.html#setting-maximum-job-timeout-for-a-runner).
+60 minutes timeout) may be [overridden on Runner level](../../../ci/runners/README.md#setting-maximum-job-timeout-for-a-runner).
 
 ## Maximum artifacts size **(CORE ONLY)**
 
@@ -67,26 +67,46 @@ For information about setting a maximum artifact size for a project, see
 
 ## Custom CI configuration path
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/12509) in GitLab 9.4.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/12509) in GitLab 9.4.
+> - [Support for external `.gitlab-ci.yml` locations](https://gitlab.com/gitlab-org/gitlab/issues/14376) introduced in GitLab 12.6.
 
 By default we look for the `.gitlab-ci.yml` file in the project's root
-directory. If you require a different location **within** the repository,
-you can set a custom path that will be used to look up the configuration file,
-this path should be **relative** to the root.
+directory. If needed, you can specify an alternate path and file name, including locations outside the project.
 
-Here are some valid examples:
-
-- `.gitlab-ci.yml`
-- `.my-custom-file.yml`
-- `my/path/.gitlab-ci.yml`
-- `my/path/.my-custom-file.yml`
-
-The path can be customized at a project level. To customize the path:
+To customize the path:
 
 1. Go to the project's **Settings > CI / CD**.
 1. Expand the **General pipelines** section.
 1. Provide a value in the **Custom CI configuration path** field.
 1. Click **Save changes**.
+
+If the CI configuration is stored within the repository in a non-default
+location, the path must be relative to the root directory. Examples of valid
+paths and file names include:
+
+- `.gitlab-ci.yml` (default)
+- `.my-custom-file.yml`
+- `my/path/.gitlab-ci.yml`
+- `my/path/.my-custom-file.yml`
+
+If the CI configuration will be hosted on an external site, the URL link must end with `.yml`:
+
+- `http://example.com/generate/ci/config.yml`
+
+If the CI configuration will be hosted in a different project within GitLab, the path must be relative
+to the root directory in the other project, with the group and project name added to the end:
+
+- `.gitlab-ci.yml@mygroup/another-project`
+- `my/path/.my-custom-file.yml@mygroup/another-project`
+
+Hosting the configuration file in a separate project allows stricter control of the
+configuration file. For example:
+
+- Create a public project to host the configuration file.
+- Give write permissions on the project only to users who are allowed to edit the file.
+
+Other users and projects will be able to access the configuration file without being
+able to edit it.
 
 ## Test coverage parsing
 
@@ -121,7 +141,7 @@ small one line script that will strip the color codes off.
 
 For example:
 
-```bash
+```shell
 lein cloverage | perl -pe 's/\e\[?.*?[\@-~]//g'
 ```
 
@@ -131,6 +151,9 @@ Pipeline visibility is determined by:
 
 - Your current [user access level](../../permissions.md).
 - The **Public pipelines** project setting under your project's **Settings > CI/CD > General pipelines**.
+
+NOTE: **Note:**
+If the project visibility is set to **Private**, the [**Public pipelines** setting will have no effect](../../../ci/enable_or_disable_ci.md#per-project-user-setting).
 
 This also determines the visibility of these related features:
 
@@ -157,7 +180,7 @@ If **Public pipelines** is disabled:
 
 ## Auto-cancel pending pipelines
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/9362) in GitLab 9.1.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/9362) in GitLab 9.1.
 
 If you want to auto-cancel all pending non-HEAD pipelines on branch, when
 new pipeline will be created (after your Git push or manually from UI),

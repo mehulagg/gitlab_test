@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class Build < CommitStatus
-    include Ci::Processable
+  class Build < Ci::Processable
     include Ci::Metadatable
     include Ci::Contextable
     include Ci::PipelineDelegator
@@ -13,22 +12,17 @@ module Ci
     include Importable
     include Gitlab::Utils::StrongMemoize
     include HasRef
+    include IgnorableColumns
 
     BuildArchivedError = Class.new(StandardError)
 
-    self.ignored_columns += %i[
-      artifacts_file
-      artifacts_file_store
-      artifacts_metadata
-      artifacts_metadata_store
-      artifacts_size
-      commands
-    ]
+    ignore_columns :artifacts_file, :artifacts_file_store, :artifacts_metadata, :artifacts_metadata_store, :artifacts_size, :commands, remove_after: '2019-12-15', remove_with: '12.7'
 
     belongs_to :project, inverse_of: :builds
     belongs_to :runner
     belongs_to :trigger_request
     belongs_to :erased_by, class_name: 'User'
+    belongs_to :resource_group, class_name: 'Ci::ResourceGroup', inverse_of: :builds
 
     RUNNER_FEATURES = {
       upload_multiple_artifacts: -> (build) { build.publishes_artifacts_reports? },
@@ -40,6 +34,7 @@ module Ci
     }.freeze
 
     has_one :deployment, as: :deployable, class_name: 'Deployment'
+    has_one :resource, class_name: 'Ci::Resource', inverse_of: :build
     has_many :trace_sections, class_name: 'Ci::BuildTraceSection'
     has_many :trace_chunks, class_name: 'Ci::BuildTraceChunk', foreign_key: :build_id
 
@@ -53,7 +48,7 @@ module Ci
 
     has_one :runner_session, class_name: 'Ci::BuildRunnerSession', validate: true, inverse_of: :build
 
-    accepts_nested_attributes_for :runner_session
+    accepts_nested_attributes_for :runner_session, update_only: true
     accepts_nested_attributes_for :job_variables
 
     delegate :url, to: :runner_session, prefix: true, allow_nil: true
@@ -120,6 +115,20 @@ module Ci
 
     scope :eager_load_job_artifacts, -> { includes(:job_artifacts) }
 
+    scope :eager_load_everything, -> do
+      includes(
+        [
+          { pipeline: [:project, :user] },
+          :job_artifacts_archive,
+          :metadata,
+          :trigger_request,
+          :project,
+          :user,
+          :tags
+        ]
+      )
+    end
+
     scope :with_exposed_artifacts, -> do
       joins(:metadata).merge(Ci::BuildMetadata.with_exposed_artifacts)
         .includes(:metadata, :job_artifacts_metadata)
@@ -161,6 +170,10 @@ module Ci
     end
 
     scope :queued_before, ->(time) { where(arel_table[:queued_at].lt(time)) }
+    scope :order_id_desc, -> { order('ci_builds.id DESC') }
+
+    PROJECT_ROUTE_AND_NAMESPACE_ROUTE = { project: [:project_feature, :route, { namespace: :route }] }.freeze
+    scope :preload_project_and_pipeline_project, -> { preload(PROJECT_ROUTE_AND_NAMESPACE_ROUTE, pipeline: PROJECT_ROUTE_AND_NAMESPACE_ROUTE) }
 
     acts_as_taggable
 
@@ -195,7 +208,23 @@ module Ci
 
     state_machine :status do
       event :enqueue do
+        transition [:created, :skipped, :manual, :scheduled] => :waiting_for_resource, if: :requires_resource?
         transition [:created, :skipped, :manual, :scheduled] => :preparing, if: :any_unmet_prerequisites?
+      end
+
+      event :enqueue_scheduled do
+        transition scheduled: :waiting_for_resource, if: :requires_resource?
+        transition scheduled: :preparing, if: :any_unmet_prerequisites?
+        transition scheduled: :pending
+      end
+
+      event :enqueue_waiting_for_resource do
+        transition waiting_for_resource: :preparing, if: :any_unmet_prerequisites?
+        transition waiting_for_resource: :pending
+      end
+
+      event :enqueue_preparing do
+        transition preparing: :pending
       end
 
       event :actionize do
@@ -210,14 +239,8 @@ module Ci
         transition scheduled: :manual
       end
 
-      event :enqueue_scheduled do
-        transition scheduled: :preparing, if: ->(build) do
-          build.scheduled_at&.past? && build.any_unmet_prerequisites?
-        end
-
-        transition scheduled: :pending, if: ->(build) do
-          build.scheduled_at&.past? && !build.any_unmet_prerequisites?
-        end
+      before_transition on: :enqueue_scheduled do |build|
+        build.scheduled_at.nil? || build.scheduled_at.past? # If false is returned, it stops the transition
       end
 
       before_transition scheduled: any do |build|
@@ -226,6 +249,27 @@ module Ci
 
       before_transition created: :scheduled do |build|
         build.scheduled_at = build.options_scheduled_at
+      end
+
+      before_transition any => :waiting_for_resource do |build|
+        build.waiting_for_resource_at = Time.now
+      end
+
+      before_transition on: :enqueue_waiting_for_resource do |build|
+        next unless build.requires_resource?
+
+        build.resource_group.assign_resource_to(build) # If false is returned, it stops the transition
+      end
+
+      after_transition any => :waiting_for_resource do |build|
+        build.run_after_commit do
+          Ci::ResourceGroups::AssignResourceFromResourceGroupWorker
+            .perform_async(build.resource_group_id)
+        end
+      end
+
+      before_transition on: :enqueue_preparing do |build|
+        !build.any_unmet_prerequisites? # If false is returned, it stops the transition
       end
 
       after_transition created: :scheduled do |build|
@@ -256,6 +300,16 @@ module Ci
         end
       end
 
+      after_transition any => ::Ci::Build.completed_statuses do |build|
+        next unless build.resource_group_id.present?
+        next unless build.resource_group.release_resource_from(build)
+
+        build.run_after_commit do
+          Ci::ResourceGroups::AssignResourceFromResourceGroupWorker
+            .perform_async(build.resource_group_id)
+        end
+      end
+
       after_transition any => [:success, :failed, :canceled] do |build|
         build.run_after_commit do
           BuildFinishedWorker.perform_async(id)
@@ -278,7 +332,7 @@ module Ci
         begin
           build.deployment.drop!
         rescue => e
-          Gitlab::Sentry.track_exception(e, extra: { build_id: build.id })
+          Gitlab::ErrorTracking.track_and_raise_for_dev_exception(e, build_id: build.id)
         end
 
         true
@@ -396,10 +450,6 @@ module Ci
         options_retry_when.include?('always')
     end
 
-    def latest?
-      !retried?
-    end
-
     def any_unmet_prerequisites?
       prerequisites.present?
     end
@@ -414,6 +464,23 @@ module Ci
       strong_memoize(:expanded_environment_name) do
         ExpandVariables.expand(environment, -> { simple_variables })
       end
+    end
+
+    def expanded_kubernetes_namespace
+      return unless has_environment?
+
+      namespace = options.dig(:environment, :kubernetes, :namespace)
+
+      if namespace.present?
+        strong_memoize(:expanded_kubernetes_namespace) do
+          ExpandVariables.expand(namespace, -> { simple_variables })
+        end
+      end
+    end
+
+    def requires_resource?
+      Feature.enabled?(:ci_resource_group, project, default_enabled: true) &&
+        self.resource_group_id.present?
     end
 
     def has_environment?
@@ -641,9 +708,8 @@ module Ci
     def execute_hooks
       return unless project
 
-      build_data = Gitlab::DataBuilder::Build.build(self)
-      project.execute_hooks(build_data.dup, :job_hooks)
-      project.execute_services(build_data.dup, :job_hooks)
+      project.execute_hooks(build_data.dup, :job_hooks) if project.has_active_hooks?(:job_hooks)
+      project.execute_services(build_data.dup, :job_hooks) if project.has_active_services?(:job_hooks)
     end
 
     def browsable_artifacts?
@@ -697,8 +763,8 @@ module Ci
         end
     end
 
-    def has_expiring_artifacts?
-      artifacts_expire_at.present? && artifacts_expire_at > Time.now
+    def has_expiring_archive_artifacts?
+      has_expiring_artifacts? && job_artifacts_archive.present?
     end
 
     def keep_artifacts!
@@ -742,6 +808,10 @@ module Ci
       Gitlab::Ci::Build::Credentials::Factory.new(self).create!
     end
 
+    def all_dependencies
+      (dependencies + cross_dependencies).uniq
+    end
+
     def dependencies
       return [] if empty_dependencies?
 
@@ -749,7 +819,7 @@ module Ci
 
       # find all jobs that are needed
       if Feature.enabled?(:ci_dag_support, project, default_enabled: true) && needs.exists?
-        depended_jobs = depended_jobs.where(name: needs.select(:name))
+        depended_jobs = depended_jobs.where(name: needs.artifacts.select(:name))
       end
 
       # find all jobs that are dependent on
@@ -757,7 +827,13 @@ module Ci
         depended_jobs = depended_jobs.where(name: options[:dependencies])
       end
 
+      # if both needs and dependencies are used,
+      # the end result will be an intersection between them
       depended_jobs
+    end
+
+    def cross_dependencies
+      []
     end
 
     def empty_dependencies?
@@ -850,6 +926,10 @@ module Ci
 
     private
 
+    def build_data
+      @build_data ||= Gitlab::DataBuilder::Build.build(self)
+    end
+
     def successful_deployment_status
       if deployment&.last?
         :last
@@ -861,7 +941,7 @@ module Ci
     def each_report(report_types)
       job_artifacts_for_types(report_types).each do |report_artifact|
         report_artifact.each_blob do |blob|
-          yield report_artifact.file_type, blob
+          yield report_artifact.file_type, blob, report_artifact
         end
       end
     end
@@ -898,6 +978,10 @@ module Ci
         value = value.is_a?(Integer) ? { max: value } : value.to_h
         value.with_indifferent_access
       end
+    end
+
+    def has_expiring_artifacts?
+      artifacts_expire_at.present? && artifacts_expire_at > Time.now
     end
   end
 end

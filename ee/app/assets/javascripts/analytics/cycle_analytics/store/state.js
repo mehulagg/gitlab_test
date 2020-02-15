@@ -1,28 +1,34 @@
 import { TASKS_BY_TYPE_SUBJECT_ISSUE } from '../constants';
 
 export default () => ({
+  featureFlags: {},
+
   startDate: null,
   endDate: null,
 
   isLoading: false,
   isLoadingStage: false,
-  isLoadingChartData: false,
+  isLoadingTasksByTypeChart: false,
+  isLoadingDurationChart: false,
+  isLoadingDurationChartMedianData: false,
 
   isEmptyStage: false,
   errorCode: null,
 
-  isAddingCustomStage: false,
   isSavingCustomStage: false,
+  isCreatingCustomStage: false,
+  isEditingCustomStage: false,
 
   selectedGroup: null,
   selectedProjectIds: [],
-  selectedStageId: null,
+  selectedStage: null,
 
   currentStageEvents: [],
 
   stages: [],
   summary: [],
   labels: [],
+  medians: {},
 
   customStageFormEvents: [],
   tasksByType: {
@@ -30,4 +36,7 @@ export default () => ({
     labelIds: [],
     data: [],
   },
+
+  durationData: [],
+  durationMedianData: [],
 });

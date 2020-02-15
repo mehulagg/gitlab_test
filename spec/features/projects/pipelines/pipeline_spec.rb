@@ -59,7 +59,8 @@ describe 'Pipeline', :js do
   describe 'GET /:project/pipelines/:id' do
     include_context 'pipeline builds'
 
-    let(:project) { create(:project, :repository) }
+    let(:group) { create(:group) }
+    let(:project) { create(:project, :repository, group: group) }
     let(:pipeline) { create(:ci_pipeline, project: project, ref: 'master', sha: project.commit.id, user: user) }
 
     subject(:visit_pipeline) { visit project_pipeline_path(project, pipeline) }
@@ -98,12 +99,74 @@ describe 'Pipeline', :js do
       end
     end
 
-    it 'shows links to the related merge requests' do
-      visit_pipeline
+    describe 'related merge requests' do
+      context 'when there are no related merge requests' do
+        it 'shows a "no related merge requests" message' do
+          visit_pipeline
 
-      within '.related-merge-request-info' do
-        pipeline.all_merge_requests.map do |merge_request|
-          expect(page).to have_link(project_merge_request_path(project, merge_request))
+          within '.related-merge-request-info' do
+            expect(page).to have_content('No related merge requests found.')
+          end
+        end
+      end
+
+      context 'when there is one related merge request' do
+        before do
+          create(:merge_request,
+            source_project: project,
+            source_branch: pipeline.ref)
+        end
+
+        it 'shows a link to the merge request' do
+          visit_pipeline
+
+          within '.related-merge-requests' do
+            expect(page).to have_content('1 related merge request: ')
+            expect(page).to have_selector('.js-truncated-mr-list')
+            expect(page).to have_link('!1 My title 1')
+
+            expect(page).not_to have_selector('.js-full-mr-list')
+            expect(page).not_to have_selector('.text-expander')
+          end
+        end
+      end
+
+      context 'when there are two related merge requests' do
+        before do
+          create(:merge_request,
+            source_project: project,
+            source_branch: pipeline.ref,
+            target_branch: 'feature-1')
+
+          create(:merge_request,
+            source_project: project,
+            source_branch: pipeline.ref,
+            target_branch: 'feature-2')
+        end
+
+        it 'links to the most recent related merge request' do
+          visit_pipeline
+
+          within '.related-merge-requests' do
+            expect(page).to have_content('2 related merge requests: ')
+            expect(page).to have_link('!2 My title 3')
+            expect(page).to have_selector('.text-expander')
+            expect(page).to have_selector('.js-full-mr-list', visible: false)
+          end
+        end
+
+        it 'expands to show links to all related merge requests' do
+          visit_pipeline
+
+          within '.related-merge-requests' do
+            find('.text-expander').click
+
+            expect(page).to have_selector('.js-full-mr-list', visible: true)
+
+            pipeline.all_merge_requests.map do |merge_request|
+              expect(page).to have_link(href: project_merge_request_path(project, merge_request))
+            end
+          end
         end
       end
     end
@@ -216,7 +279,7 @@ describe 'Pipeline', :js do
         it 'includes the failure reason' do
           page.within('#ci-badge-test') do
             build_link = page.find('.js-pipeline-graph-job-link')
-            expect(build_link['data-original-title']).to eq('test - failed - (unknown failure)')
+            expect(build_link['title']).to eq('test - failed - (unknown failure)')
           end
         end
       end
@@ -325,6 +388,32 @@ describe 'Pipeline', :js do
 
         it 'does not show a "Cancel running" button', :sidekiq_might_not_need_inline do
           expect(page).not_to have_content('Cancel running')
+        end
+      end
+    end
+
+    context 'deleting pipeline' do
+      context 'when user can not delete' do
+        before do
+          visit_pipeline
+        end
+
+        it { expect(page).not_to have_button('Delete') }
+      end
+
+      context 'when deleting' do
+        before do
+          group.add_owner(user)
+
+          visit_pipeline
+
+          click_button 'Delete'
+          click_button 'Delete pipeline'
+        end
+
+        it 'redirects to pipeline overview page', :sidekiq_might_not_need_inline do
+          expect(page).to have_content('The pipeline has been deleted')
+          expect(current_path).to eq(project_pipelines_path(project))
         end
       end
     end
@@ -602,6 +691,117 @@ describe 'Pipeline', :js do
       it 'shows a bridge job on a list' do
         expect(page).to have_content('cross-build')
         expect(page).to have_content(bridge.id)
+      end
+    end
+  end
+
+  context 'when build requires resource', :sidekiq_inline do
+    let_it_be(:project) { create(:project, :repository) }
+    let(:pipeline) { create(:ci_pipeline, project: project) }
+    let(:resource_group) { create(:ci_resource_group, project: project) }
+
+    let!(:test_job) do
+      create(:ci_build, :pending, stage: 'test', name: 'test',
+        stage_idx: 1, pipeline: pipeline, project: project)
+    end
+
+    let!(:deploy_job) do
+      create(:ci_build, :created, stage: 'deploy', name: 'deploy',
+        stage_idx: 2, pipeline: pipeline, project: project, resource_group: resource_group)
+    end
+
+    describe 'GET /:project/pipelines/:id' do
+      subject { visit project_pipeline_path(project, pipeline) }
+
+      it 'shows deploy job as created' do
+        subject
+
+        within('.pipeline-header-container') do
+          expect(page).to have_content('pending')
+        end
+
+        within('.pipeline-graph') do
+          within '.stage-column:nth-child(1)' do
+            expect(page).to have_content('test')
+            expect(page).to have_css('.ci-status-icon-pending')
+          end
+
+          within '.stage-column:nth-child(2)' do
+            expect(page).to have_content('deploy')
+            expect(page).to have_css('.ci-status-icon-created')
+          end
+        end
+      end
+
+      context 'when test job succeeded' do
+        before do
+          test_job.success!
+        end
+
+        it 'shows deploy job as pending' do
+          subject
+
+          within('.pipeline-header-container') do
+            expect(page).to have_content('running')
+          end
+
+          within('.pipeline-graph') do
+            within '.stage-column:nth-child(1)' do
+              expect(page).to have_content('test')
+              expect(page).to have_css('.ci-status-icon-success')
+            end
+
+            within '.stage-column:nth-child(2)' do
+              expect(page).to have_content('deploy')
+              expect(page).to have_css('.ci-status-icon-pending')
+            end
+          end
+        end
+      end
+
+      context 'when test job succeeded but there are no available resources' do
+        let(:another_job) { create(:ci_build, :running, project: project, resource_group: resource_group) }
+
+        before do
+          resource_group.assign_resource_to(another_job)
+          test_job.success!
+        end
+
+        it 'shows deploy job as waiting for resource' do
+          subject
+
+          within('.pipeline-header-container') do
+            expect(page).to have_content('waiting')
+          end
+
+          within('.pipeline-graph') do
+            within '.stage-column:nth-child(2)' do
+              expect(page).to have_content('deploy')
+              expect(page).to have_css('.ci-status-icon-waiting-for-resource')
+            end
+          end
+        end
+
+        context 'when resource is released from another job' do
+          before do
+            another_job.success!
+          end
+
+          it 'shows deploy job as pending' do
+            subject
+
+            within('.pipeline-header-container') do
+              expect(page).to have_content('running')
+            end
+
+            within('.pipeline-graph') do
+              within '.stage-column:nth-child(2)' do
+                expect(page).to have_content('deploy')
+                expect(page).to have_css('.ci-status-icon-pending')
+              end
+            end
+          end
+        end
       end
     end
   end

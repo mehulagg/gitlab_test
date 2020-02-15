@@ -1,6 +1,6 @@
 # Web terminals
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/7690)
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/7690)
 in GitLab 8.15. Only project maintainers and owners can access web terminals.
 
 With the introduction of the [Kubernetes integration](../../user/project/clusters/index.md),
@@ -92,10 +92,10 @@ they will receive a `Connection failed` message.
 
 ## Limiting WebSocket connection time
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/8413)
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/8413)
 in GitLab 8.17.
 
 Terminal sessions use long-lived connections; by default, these may last
-forever. You can configure a maximum session time in the Admin area of your
+forever. You can configure a maximum session time in the Admin Area of your
 GitLab instance if you find this undesirable from a scalability or security
 point of view.

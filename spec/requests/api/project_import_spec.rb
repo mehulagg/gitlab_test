@@ -7,6 +7,7 @@ describe API::ProjectImport do
   let(:user) { create(:user) }
   let(:file) { File.join('spec', 'features', 'projects', 'import_export', 'test_project_export.tar.gz') }
   let(:namespace) { create(:group) }
+
   before do
     allow_any_instance_of(Gitlab::ImportExport).to receive(:storage_path).and_return(export_path)
     stub_uploads_object_storage(FileUploader)
@@ -192,6 +193,19 @@ describe API::ProjectImport do
 
           expect(response).to have_gitlab_http_status(201)
         end
+      end
+    end
+
+    context 'when request exceeds the rate limit' do
+      before do
+        allow(::Gitlab::ApplicationRateLimiter).to receive(:throttled?).and_return(true)
+      end
+
+      it 'prevents users from importing projects' do
+        post api('/projects/import', user), params: { path: 'test-import', file: fixture_file_upload(file), namespace: namespace.id }
+
+        expect(response).to have_gitlab_http_status(429)
+        expect(json_response['message']['error']).to eq('This endpoint has been requested too many times. Try again later.')
       end
     end
 

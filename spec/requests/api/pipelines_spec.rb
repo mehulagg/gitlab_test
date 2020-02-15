@@ -237,12 +237,24 @@ describe API::Pipelines do
           end
         end
 
+        context 'when updated_at filters are specified' do
+          let!(:pipeline1) { create(:ci_pipeline, project: project, updated_at: 2.days.ago) }
+          let!(:pipeline2) { create(:ci_pipeline, project: project, updated_at: 4.days.ago) }
+          let!(:pipeline3) { create(:ci_pipeline, project: project, updated_at: 1.hour.ago) }
+
+          it 'returns pipelines with last update date in specified datetime range' do
+            get api("/projects/#{project.id}/pipelines", user), params: { updated_before: 1.day.ago, updated_after: 3.days.ago }
+
+            expect(response).to have_gitlab_http_status(:ok)
+            expect(response).to include_pagination_headers
+            expect(json_response.first['id']).to eq(pipeline1.id)
+          end
+        end
+
         context 'when order_by and sort are specified' do
           context 'when order_by user_id' do
             before do
-              3.times do
-                create(:ci_pipeline, project: project, user: create(:user))
-              end
+              create_list(:ci_pipeline, 3, project: project, user: create(:user))
             end
 
             context 'when sort parameter is valid' do
@@ -384,7 +396,7 @@ describe API::Pipelines do
             post api("/projects/#{project.id}/pipeline", user), params: { ref: project.default_branch }
 
             expect(response).to have_gitlab_http_status(400)
-            expect(json_response['message']['base'].first).to eq 'Missing .gitlab-ci.yml file'
+            expect(json_response['message']['base'].first).to eq 'Missing CI config file'
             expect(json_response).not_to be_an Array
           end
         end

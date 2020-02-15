@@ -10,13 +10,27 @@ Epics let you manage your portfolio of projects more efficiently and with less
 effort by tracking groups of issues that share a theme, across projects and
 milestones.
 
-![epics list view](img/epics_list_view_v12.5.png)
+## Relationships between epics and issues
+
+The possible relationships between epics and issues are:
+
+- An epic is the parent of one or more issues.
+- An epic is the parent of one or more child epics. For details see [Multi-level child epics](#multi-level-child-epics).
+
+```mermaid
+graph TD
+    Parent_epic --> Issue1
+    Parent_epic --> Child_epic
+    Child_epic --> Issue2
+````
 
 ## Use cases
 
 - Suppose your team is working on a large feature that involves multiple discussions throughout different issues created in distinct projects within a [Group](../index.md). With Epics, you can track all the related activities that together contribute to that single feature.
 - Track when the work for the group of issues is targeted to begin, and when it is targeted to end.
 - Discuss and collaborate on feature ideas and scope at a high level.
+
+![epics list view](img/epics_list_view_v12.5.png)
 
 ## Creating an epic
 
@@ -40,14 +54,19 @@ An epic's page contains the following tabs:
 
 - **Epics and Issues**: epics and issues added to this epic. Child epics, and their issues, are shown in a tree view.
   - Click on the <kbd>></kbd> beside a parent epic to reveal the child epics and issues.
+  - Hover over the total counts to see a breakdown of open and closed items.
 - **Roadmap**: a roadmap view of child epics which have start and due dates.
 
 ![epic view](img/epic_view_v12.3.png)
 
 ## Adding an issue to an epic
 
-Any issue that belongs to a project in the epic's group, or any of the epic's
-subgroups, are eligible to be added.  New issues appear at the top of the list of issues in the **Epics and Issues** tab.
+You can add an existing issue to an epic, or, from an epic's page, create a new issue that is automatically added to the epic.
+
+### Adding an existing issue to an epic
+
+Existing issues that belong to a project in an epic's group, or any of the epic's
+subgroups, are eligible to be added to the epic. Newly added issues appear at the top of the list of issues in the **Epics and Issues** tab.
 
 An epic contains a list of issues and an issue can be associated with at most
 one epic. When you add an issue that is already linked to an epic,
@@ -62,6 +81,19 @@ To add an issue to an epic:
 
    If there are multiple issues to be added, press <kbd>Spacebar</kbd> and repeat this step.
 1. Click **Add**.
+
+### Creating an issue from an epic
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5419) in GitLab 12.7.
+
+Creating an issue from an epic enables you to maintain focus on the broader context of the epic while dividing work into smaller parts.
+
+To create an issue from an epic:
+
+1. On the epic's page, under **Epics and Issues**, click the arrow next to **Add an issue** and select **Create new issue**.
+1. Under **Title**, enter the title for the new issue.
+1. From the **Project** dropdown, select the project in which the issue should be created.
+1. Click **Create issue**.
 
 To remove an issue from an epic:
 
@@ -100,10 +132,13 @@ To remove a child epic from a parent epic:
 To set a **Start date** and **Due date** for an epic, select one of the following:
 
 - **Fixed**: Enter a fixed value.
-- **From milestones**: Inherit a dynamic value from the issues added to the epic.
-- **Inherited**: Inherit a dynamic value from the issues added to the epic. ([Introduced](https://gitlab.com/gitlab-org/gitlab/issues/7332) in GitLab 12.5 to replace **From milestones**).
+- **From milestones**: Inherit a dynamic value from the milestones currently assigned to the epic's issues.
+  Note that GitLab 12.5 replaced this option with **Inherited**.
+- **Inherited**: Inherit a dynamic value from the epic's issues, child epics, and milestones ([Introduced](https://gitlab.com/gitlab-org/gitlab/issues/7332) in GitLab 12.5 to replace **From milestones**).
 
-### Milestones
+### From milestones
+
+> [Replaced](https://gitlab.com/gitlab-org/gitlab/issues/7332) in GitLab 12.5 by **Inherited**.
 
 If you select **From milestones** for the start date, GitLab will automatically set the date to be earliest
 start date across all milestones that are currently assigned to the issues that are added to the epic.
@@ -117,6 +152,8 @@ These are dynamic dates which are recalculated if any of the following occur:
 - Issues are added or removed from the epic.
 
 ### Inherited
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/7332) in GitLab 12.5 to replace **From milestones**.
 
 If you select **Inherited** for the start date, GitLab will scan all child epics and issues assigned to the epic,
 and will set the start date to match the earliest found start date or milestone. Similarly, if you select
@@ -218,7 +255,9 @@ link in the issue sidebar.
 If you have [permissions](../../permissions.md) to close an issue and create an
 epic in the parent group, you can promote an issue to an epic with the `/promote`
 [quick action](../../project/quick_actions.md#quick-actions-for-issues-merge-requests-and-epics).
-Only issues from projects that are in groups can be promoted.
+Only issues from projects that are in groups can be promoted. When attempting to promote a confidential
+issue, a warning will display. Promoting a confidential issue to an epic will make all information
+related to the issue public as epics are public to group members.
 
 When the quick action is executed:
 

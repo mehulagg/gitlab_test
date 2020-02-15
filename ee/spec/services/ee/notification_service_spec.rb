@@ -12,11 +12,11 @@ describe EE::NotificationService, :mailer do
   let(:mailer) { double(deliver_later: true) }
 
   context 'when notified of a new design diff note' do
-    set(:design) { create(:design, :with_file) }
-    set(:project) { design.project }
-    set(:dev) { create(:user) }
-    set(:stranger) { create(:user) }
-    set(:note) do
+    let_it_be(:design) { create(:design, :with_file) }
+    let_it_be(:project) { design.project }
+    let_it_be(:dev) { create(:user) }
+    let_it_be(:stranger) { create(:user) }
+    let_it_be(:note) do
       create(:diff_note_on_design,
          noteable: design,
          project: project,
@@ -412,8 +412,8 @@ describe EE::NotificationService, :mailer do
   end
 
   describe 'epics' do
-    set(:group) { create(:group, :private) }
-    set(:epic) { create(:epic, group: group) }
+    let_it_be(:group) { create(:group, :private) }
+    let_it_be(:epic) { create(:epic, group: group) }
 
     around do |example|
       perform_enqueued_jobs do
@@ -558,7 +558,7 @@ describe EE::NotificationService, :mailer do
     # User to be participant by default
     # This user does not contain any record in notification settings table
     # It should be treated with a :participating notification_level
-    @u_lazy_participant      = create(:user, username: 'lazy-participant')
+    @u_lazy_participant = create(:user, username: 'lazy-participant')
 
     @u_guest_watcher = create_user_with_notification(:watch, 'guest_watching', group)
     @u_guest_custom = create_user_with_notification(:custom, 'guest_custom', group)
@@ -637,7 +637,6 @@ describe EE::NotificationService, :mailer do
         let!(:rule) { create(:approval_project_rule, project: project, users: project_approvers, approvals_required: 1 )}
 
         before do
-          merge_request.target_project.update(approvals_before_merge: 1)
           reset_delivered_emails!
         end
 
@@ -648,7 +647,7 @@ describe EE::NotificationService, :mailer do
         end
 
         it 'does not email the approvers when approval is not necessary' do
-          rule.update(approvals_required: 0)
+          project.approval_rules.update_all(approvals_required: 0)
           notification.new_merge_request(merge_request, @u_disabled)
 
           project_approvers.each { |approver| should_not_email(approver) }
@@ -701,7 +700,7 @@ describe EE::NotificationService, :mailer do
       # User to be participant by default
       # This user does not contain any record in notification settings table
       # It should be treated with a :participating notification_level
-      @u_lazy_participant      = create(:user, username: 'lazy-participant')
+      @u_lazy_participant = create(:user, username: 'lazy-participant')
 
       @u_guest_watcher = create_user_with_notification(:watch, 'guest_watching')
       @u_guest_custom = create_user_with_notification(:custom, 'guest_custom')

@@ -85,20 +85,24 @@ class PrometheusService < MonitoringService
   end
 
   def prometheus_available?
-    return false if template?
+    return false if instance?
     return false unless project
 
-    project.clusters.enabled.any? { |cluster| cluster.application_prometheus_available? }
+    project.all_clusters.enabled.any? { |cluster| cluster.application_prometheus_available? }
   end
 
   def allow_local_api_url?
     self_monitoring_project? && internal_prometheus_url?
   end
 
+  def configured?
+    should_return_client?
+  end
+
   private
 
   def self_monitoring_project?
-    project && project.id == current_settings.instance_administration_project_id
+    project && project.id == current_settings.self_monitoring_project_id
   end
 
   def internal_prometheus_url?

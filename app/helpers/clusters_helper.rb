@@ -9,22 +9,11 @@ module ClustersHelper
   def create_new_cluster_label(provider: nil)
     case provider
     when 'aws'
-      s_('ClusterIntegration|Create new Cluster on EKS')
+      s_('ClusterIntegration|Create new cluster on EKS')
     when 'gcp'
-      s_('ClusterIntegration|Create new Cluster on GKE')
+      s_('ClusterIntegration|Create new cluster on GKE')
     else
-      s_('ClusterIntegration|Create new Cluster')
-    end
-  end
-
-  def new_cluster_partial(provider: nil)
-    case provider
-    when 'aws'
-      'clusters/clusters/aws/new'
-    when 'gcp'
-      'clusters/clusters/gcp/new'
-    else
-      'clusters/clusters/cloud_providers/cloud_provider_selector'
+      s_('ClusterIntegration|Create new cluster')
     end
   end
 

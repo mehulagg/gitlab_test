@@ -1,7 +1,5 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import { GlButton, GlLoadingIcon } from '@gitlab/ui';
-
-import Icon from '~/vue_shared/components/icon.vue';
 
 import TreeItem from 'ee/related_items_tree/components/tree_item.vue';
 import TreeItemBody from 'ee/related_items_tree/components/tree_item_body.vue';
@@ -11,6 +9,8 @@ import createDefaultStore from 'ee/related_items_tree/store';
 import * as epicUtils from 'ee/related_items_tree/utils/epic_utils';
 import { ChildType } from 'ee/related_items_tree/constants';
 import { PathIdSeparator } from 'ee/related_issues/constants';
+
+import Icon from '~/vue_shared/components/icon.vue';
 
 import {
   mockParentItem,
@@ -25,7 +25,6 @@ const mockItem = Object.assign({}, mockEpic1, {
 
 const createComponent = (parentItem = mockParentItem, item = mockItem) => {
   const store = createDefaultStore();
-  const localVue = createLocalVue();
   const children = epicUtils.processQueryResponse(mockQueryResponse.data.group);
 
   store.dispatch('setInitialParentItem', mockParentItem);
@@ -45,7 +44,6 @@ const createComponent = (parentItem = mockParentItem, item = mockItem) => {
   });
 
   return shallowMount(TreeItem, {
-    localVue,
     store,
     stubs: {
       'tree-root': TreeRoot,
@@ -141,7 +139,7 @@ describe('RelatedItemsTree', () => {
         const chevronButton = wrapper.find(GlButton);
 
         expect(chevronButton.isVisible()).toBe(true);
-        expect(chevronButton.attributes('data-original-title')).toBe('Collapse');
+        expect(chevronButton.attributes('title')).toBe('Collapse');
       });
 
       it('renders expand/collapse icon', () => {

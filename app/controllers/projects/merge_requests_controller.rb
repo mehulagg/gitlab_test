@@ -9,7 +9,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   include ToggleAwardEmoji
   include IssuableCollections
   include RecordUserLastActivity
-  include SourcegraphGon
+  include SourcegraphDecorator
 
   skip_before_action :merge_request, only: [:index, :bulk_update]
   before_action :whitelist_query_limiting, only: [:assign_related_issues, :update]
@@ -20,11 +20,12 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   before_action :check_user_can_push_to_source_branch!, only: [:rebase]
   before_action only: [:show] do
     push_frontend_feature_flag(:diffs_batch_load, @project)
+    push_frontend_feature_flag(:single_mr_diff_view, @project)
+    push_frontend_feature_flag(:suggest_pipeline) if experiment_enabled?(:suggest_pipeline)
   end
 
   before_action do
     push_frontend_feature_flag(:vue_issuable_sidebar, @project.group)
-    push_frontend_feature_flag(:release_search_filter, @project, default_enabled: true)
   end
 
   around_action :allow_gitaly_ref_name_caching, only: [:index, :show, :discussions]
@@ -44,7 +45,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
 
   def show
     close_merge_request_if_no_source_project
-    @merge_request.check_mergeability
+    @merge_request.check_mergeability(async: true)
 
     respond_to do |format|
       format.html do
@@ -114,6 +115,15 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
         all: @pipelines.count
       }
     }
+  end
+
+  def context_commits
+    return render_404 unless project.context_commits_enabled?
+
+    # Get commits from repository
+    # or from cache if already merged
+    commits = ContextCommitsFinder.new(project, @merge_request, { search: params[:search], limit: params[:limit], offset: params[:offset] }).execute
+    render json: CommitEntity.represent(commits, { type: :full, request: merge_request })
   end
 
   def test_reports
@@ -218,11 +228,12 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
   end
 
   def ci_environments_status
-    environments = if ci_environments_status_on_merge_result?
-                     EnvironmentStatus.after_merge_request(@merge_request, current_user)
-                   else
-                     EnvironmentStatus.for_merge_request(@merge_request, current_user)
-                   end
+    environments =
+      if ci_environments_status_on_merge_result?
+        EnvironmentStatus.for_deployed_merge_request(@merge_request, current_user)
+      else
+        EnvironmentStatus.for_merge_request(@merge_request, current_user)
+      end
 
     render json: EnvironmentStatusSerializer.new(current_user: current_user).represent(environments)
   end

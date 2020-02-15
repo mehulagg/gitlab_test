@@ -6,6 +6,8 @@ class PagesDomain < ApplicationRecord
   SSL_RENEWAL_THRESHOLD = 30.days.freeze
 
   enum certificate_source: { user_provided: 0, gitlab_provided: 1 }, _prefix: :certificate
+  enum scope: { instance: 0, group: 1, project: 2 }, _prefix: :scope
+  enum usage: { pages: 0, serverless: 1 }, _prefix: :usage
 
   belongs_to :project
   has_many :acme_orders, class_name: "PagesDomainAcmeOrder"
@@ -25,6 +27,9 @@ class PagesDomain < ApplicationRecord
   validate :validate_intermediates, if: ->(domain) { domain.certificate.present? && domain.certificate_changed? }
 
   default_value_for(:auto_ssl_enabled, allow_nil: false) { ::Gitlab::LetsEncrypt.enabled? }
+  default_value_for :scope, allow_nil: false, value: :project
+  default_value_for :wildcard, allow_nil: false, value: false
+  default_value_for :usage, allow_nil: false, value: :pages
 
   attr_encrypted :key,
     mode: :per_attribute_iv_and_salt,
@@ -217,6 +222,8 @@ class PagesDomain < ApplicationRecord
 
   # rubocop: disable CodeReuse/ServiceClass
   def update_daemon
+    return if usage_serverless?
+
     ::Projects::UpdatePagesConfigurationService.new(project).execute
   end
   # rubocop: enable CodeReuse/ServiceClass

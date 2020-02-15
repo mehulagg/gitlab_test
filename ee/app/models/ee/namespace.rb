@@ -25,6 +25,8 @@ module EE
     prepended do
       include EachBatch
 
+      attr_writer :root_ancestor
+
       belongs_to :plan
 
       has_one :namespace_statistics
@@ -32,6 +34,8 @@ module EE
 
       accepts_nested_attributes_for :gitlab_subscription
 
+      scope :include_gitlab_subscription, -> { includes(:gitlab_subscription) }
+      scope :join_gitlab_subscription, -> { joins("LEFT OUTER JOIN gitlab_subscriptions ON gitlab_subscriptions.namespace_id=namespaces.id") }
       scope :with_plan, -> { where.not(plan_id: nil) }
       scope :with_shared_runners_minutes_limit, -> { where("namespaces.shared_runners_minutes_limit > 0") }
       scope :with_extra_shared_runners_minutes_limit, -> { where("namespaces.extra_shared_runners_minutes_limit > 0") }
@@ -62,7 +66,11 @@ module EE
       validate :validate_plan_name
       validate :validate_shared_runner_minutes_support
 
-      delegate :trial?, :trial_ends_on, :upgradable?, to: :gitlab_subscription, allow_nil: true
+      validates :max_pages_size,
+                numericality: { only_integer: true, greater_than: 0, allow_nil: true,
+                                less_than: ::Gitlab::Pages::MAX_SIZE / 1.megabyte }
+
+      delegate :trial?, :trial_ends_on, :trial_starts_on, :upgradable?, to: :gitlab_subscription, allow_nil: true
 
       before_create :sync_membership_lock_with_parent
 
@@ -71,8 +79,69 @@ module EE
     end
 
     class_methods do
+      extend ::Gitlab::Utils::Override
+
+      NamespaceStatisticsNotResetError = Class.new(StandardError)
+
       def plans_with_feature(feature)
         LICENSE_PLANS_TO_NAMESPACE_PLANS.values_at(*License.plans_with_feature(feature))
+      end
+
+      def reset_ci_minutes_in_batches!
+        each_batch do |namespaces|
+          namespace_ids = namespaces.pluck(:id)
+          reset_ci_minutes!(namespace_ids)
+        end
+      end
+
+      # ensure that recalculation of extra shared runners minutes occurs in the same
+      # transaction as the reset of the namespace statistics. If the transaction fails
+      # none of the changes apply but the numbers still remain consistent with each other.
+      override :reset_ci_minutes!
+      def reset_ci_minutes!(namespace_ids)
+        transaction do
+          recalculate_extra_shared_runners_minutes_limits!(namespace_ids)
+          reset_shared_runners_seconds!(namespace_ids)
+          reset_ci_minutes_notifications!(namespace_ids)
+        end
+        true
+      rescue ActiveRecord::ActiveRecordError
+        # We don't need to print thousands of namespace_ids
+        # in the message if all batches failed.
+        # A small batch would be sufficient for investigation.
+        failed_namespace_ids = namespace_ids.first(10)
+
+        raise EE::Namespace::NamespaceStatisticsNotResetError,
+          "#{namespace_ids.count} namespace shared runner minutes were not reset and the transaction was rolled back. Namespace Ids: #{failed_namespace_ids}"
+      end
+
+      def extra_minutes_left_sql
+        "GREATEST((namespaces.shared_runners_minutes_limit + namespaces.extra_shared_runners_minutes_limit) - ROUND(namespace_statistics.shared_runners_seconds / 60.0), 0)"
+      end
+
+      def recalculate_extra_shared_runners_minutes_limits!(namespace_ids)
+        where(id: namespace_ids)
+          .with_shared_runners_minutes_limit
+          .with_extra_shared_runners_minutes_limit
+          .with_shared_runners_minutes_exceeding_default_limit
+          .update_all("extra_shared_runners_minutes_limit = #{extra_minutes_left_sql} FROM namespace_statistics")
+      end
+
+      def reset_shared_runners_seconds!(namespace_ids)
+        NamespaceStatistics
+          .where(namespace: namespace_ids)
+          .where.not(shared_runners_seconds: 0)
+          .update_all(shared_runners_seconds: 0, shared_runners_seconds_last_reset: Time.current)
+
+        ::ProjectStatistics
+          .where(namespace: namespace_ids)
+          .where.not(shared_runners_seconds: 0)
+          .update_all(shared_runners_seconds: 0, shared_runners_seconds_last_reset: Time.current)
+      end
+
+      def reset_ci_minutes_notifications!(namespace_ids)
+        where(id: namespace_ids)
+          .update_all(last_ci_minutes_notification_at: nil, last_ci_minutes_usage_notification_level: nil)
       end
     end
 
@@ -110,6 +179,7 @@ module EE
       ::Feature.enabled?(feature, self) ||
         (::Feature.enabled?(feature) && feature_available?(feature))
     end
+    alias_method :alpha_feature_available?, :beta_feature_available?
 
     # Checks features (i.e. https://about.gitlab.com/pricing/) availabily
     # for a given Namespace plan. This method should consider ancestor groups
@@ -162,6 +232,12 @@ module EE
       actual_plan&.name || Plan::FREE
     end
 
+    def plan_name_for_upgrading
+      return Plan::FREE if trial_active?
+
+      actual_plan_name
+    end
+
     def actual_size_limit
       ::Gitlab::CurrentSettings.repository_size_limit
     end
@@ -195,6 +271,17 @@ module EE
     def shared_runners_minutes_used?
       shared_runners_minutes_limit_enabled? &&
         shared_runners_minutes.to_i >= actual_shared_runners_minutes_limit
+    end
+
+    def shared_runners_remaining_minutes_percent
+      return 0 if shared_runners_remaining_minutes.to_f <= 0
+      return 0 if actual_shared_runners_minutes_limit.to_f == 0
+
+      (shared_runners_remaining_minutes.to_f * 100) / actual_shared_runners_minutes_limit.to_f
+    end
+
+    def shared_runners_remaining_minutes_below_threshold?
+      shared_runners_remaining_minutes_percent.to_i <= last_ci_minutes_usage_notification_level.to_i
     end
 
     def extra_shared_runners_minutes_used?
@@ -303,7 +390,7 @@ module EE
     private
 
     def validate_plan_name
-      if @plan_name.present? && PLANS.exclude?(@plan_name) # rubocop:disable Gitlab/ModuleWithInstanceVariables
+      if defined?(@plan_name) && @plan_name.present? && PLANS.exclude?(@plan_name) # rubocop:disable Gitlab/ModuleWithInstanceVariables
         errors.add(:plan, 'is not included in the list')
       end
     end
@@ -345,12 +432,19 @@ module EE
     end
 
     def generate_subscription
+      return unless persisted?
+      return if ::Gitlab::Database.read_only?
+
       create_gitlab_subscription(
         plan_code: plan&.name,
         trial: trial_active?,
         start_date: created_at,
         seats: 0
       )
+    end
+
+    def shared_runners_remaining_minutes
+      [actual_shared_runners_minutes_limit.to_f - shared_runners_minutes.to_f, 0].max
     end
   end
 end

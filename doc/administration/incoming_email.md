@@ -7,7 +7,7 @@ GitLab has several features based on receiving incoming emails:
 - [New issue by email](../user/project/issues/managing_issues.md#new-issue-via-email):
   allow GitLab users to create a new issue by sending an email to a
   user-specific email address.
-- [New merge request by email](../user/project/merge_requests/creating_merge_requests.md#create-new-merge-requests-by-email):
+- [New merge request by email](../user/project/merge_requests/creating_merge_requests.md#new-merge-request-by-email-core-only):
   allow GitLab users to create a new merge request by sending an email to a
   user-specific email address.
 - [Service Desk](../user/project/service_desk.md): provide e-mail support to
@@ -79,7 +79,7 @@ email address in order to sign up.
 If you also host a public-facing GitLab instance at `hooli.com` and set your
 incoming email domain to `hooli.com`, an attacker could abuse the "Create new
 issue by email" or
-"[Create new merge request by email](../user/project/merge_requests/creating_merge_requests.md#create-new-merge-requests-by-email)"
+"[Create new merge request by email](../user/project/merge_requests/creating_merge_requests.md#new-merge-request-by-email-core-only)"
 features by using a project's unique address as the email when signing up for
 Slack, which would send a confirmation email, which would create a new issue or
 merge request on the project owned by the attacker, allowing them to click the
@@ -102,14 +102,14 @@ for a real-world example of this exploit.
 
 1. Reconfigure GitLab for the changes to take effect:
 
-   ```sh
+   ```shell
    sudo gitlab-ctl reconfigure
    sudo gitlab-ctl restart
    ```
 
 1. Verify that everything is configured correctly:
 
-   ```sh
+   ```shell
    sudo gitlab-rake gitlab:incoming_email:check
    ```
 
@@ -119,7 +119,7 @@ Reply by email should now be working.
 
 1. Go to the GitLab installation directory:
 
-   ```sh
+   ```shell
    cd /home/git/gitlab
    ```
 
@@ -128,20 +128,20 @@ Reply by email should now be working.
 
 1. Enable `mail_room` in the init script at `/etc/default/gitlab`:
 
-   ```sh
+   ```shell
    sudo mkdir -p /etc/default
    echo 'mail_room_enabled=true' | sudo tee -a /etc/default/gitlab
    ```
 
 1. Restart GitLab:
 
-   ```sh
+   ```shell
    sudo service gitlab restart
    ```
 
 1. Verify that everything is configured correctly:
 
-   ```sh
+   ```shell
    sudo -u git -H bundle exec rake gitlab:incoming_email:check RAILS_ENV=production
    ```
 

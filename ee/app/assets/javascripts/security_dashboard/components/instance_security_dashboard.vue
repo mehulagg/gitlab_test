@@ -52,6 +52,11 @@ export default {
       type: String,
       required: true,
     },
+    vulnerableProjectsEndpoint: {
+      type: String,
+      required: false,
+      default: '',
+    },
   },
   data() {
     return {
@@ -139,12 +144,11 @@ export default {
 
         <security-dashboard
           v-else
-          :dashboard-documentation="dashboardDocumentation"
-          :empty-state-svg-path="emptyDashboardStateSvgPath"
           :vulnerabilities-endpoint="vulnerabilitiesEndpoint"
           :vulnerabilities-count-endpoint="vulnerabilitiesCountEndpoint"
           :vulnerabilities-history-endpoint="vulnerabilitiesHistoryEndpoint"
           :vulnerability-feedback-help-path="vulnerabilityFeedbackHelpPath"
+          :vulnerable-projects-endpoint="vulnerableProjectsEndpoint"
         />
       </template>
     </template>

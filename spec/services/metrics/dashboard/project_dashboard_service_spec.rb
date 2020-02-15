@@ -5,15 +5,15 @@ require 'spec_helper'
 describe Metrics::Dashboard::ProjectDashboardService, :use_clean_rails_memory_store_caching do
   include MetricsDashboardHelpers
 
-  set(:user) { create(:user) }
-  set(:project) { create(:project) }
-  set(:environment) { create(:environment, project: project) }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:project) { create(:project) }
+  let_it_be(:environment) { create(:environment, project: project) }
 
   before do
     project.add_maintainer(user)
   end
 
-  describe 'get_dashboard' do
+  describe '#get_dashboard' do
     let(:dashboard_path) { '.gitlab/dashboards/test.yml' }
     let(:service_params) { [project, user, { environment: environment, dashboard_path: dashboard_path }] }
     let(:service_call) { described_class.new(*service_params).get_dashboard }
@@ -62,7 +62,7 @@ describe Metrics::Dashboard::ProjectDashboardService, :use_clean_rails_memory_st
     end
   end
 
-  describe '::all_dashboard_paths' do
+  describe '.all_dashboard_paths' do
     let(:all_dashboards) { described_class.all_dashboard_paths(project) }
 
     context 'when there are no project dashboards' do
@@ -85,6 +85,26 @@ describe Metrics::Dashboard::ProjectDashboardService, :use_clean_rails_memory_st
           }]
         )
       end
+    end
+  end
+
+  describe '.valid_params?' do
+    let(:params) { { dashboard_path: '.gitlab/dashboard/test.yml' } }
+
+    subject { described_class.valid_params?(params) }
+
+    it { is_expected.to be_truthy }
+
+    context 'missing dashboard_path' do
+      let(:params) { {} }
+
+      it { is_expected.to be_falsey }
+    end
+
+    context 'empty dashboard_path' do
+      let(:params) { { dashboard_path: '' } }
+
+      it { is_expected.to be_falsey }
     end
   end
 end

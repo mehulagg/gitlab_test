@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
-require 'fast_spec_helper'
-require_dependency 'active_model'
+require 'spec_helper'
 
 describe EE::Gitlab::Ci::Config::Entry::Trigger do
   subject { described_class.new(config) }
@@ -14,7 +13,7 @@ describe EE::Gitlab::Ci::Config::Entry::Trigger do
     end
 
     describe '#value' do
-      it 'is returns a trigger configuration hash' do
+      it 'returns a trigger configuration hash' do
         expect(subject.value).to eq(project: 'some/project')
       end
     end
@@ -28,7 +27,7 @@ describe EE::Gitlab::Ci::Config::Entry::Trigger do
     end
 
     describe '#errors' do
-      it 'is returns an error about an empty config' do
+      it 'returns an error about an empty config' do
         expect(subject.errors.first)
           .to match /config can't be blank/
       end
@@ -44,7 +43,7 @@ describe EE::Gitlab::Ci::Config::Entry::Trigger do
       end
 
       describe '#value' do
-        it 'is returns a trigger configuration hash' do
+        it 'returns a trigger configuration hash' do
           expect(subject.value)
             .to eq(project: 'some/project', branch: 'feature')
         end
@@ -60,7 +59,7 @@ describe EE::Gitlab::Ci::Config::Entry::Trigger do
         end
 
         describe '#value' do
-          it 'is returns a trigger configuration hash' do
+          it 'returns a trigger configuration hash' do
             expect(subject.value)
               .to eq(project: 'some/project', strategy: 'depend')
           end
@@ -75,10 +74,57 @@ describe EE::Gitlab::Ci::Config::Entry::Trigger do
         end
 
         describe '#errors' do
-          it 'is returns an error about unknown config key' do
+          it 'returns an error about unknown config key' do
             expect(subject.errors.first)
               .to match /trigger strategy should be depend/
           end
+        end
+      end
+    end
+
+    describe '#include' do
+      context 'with simple include' do
+        let(:config) { { include: 'path/to/config.yml' } }
+
+        it { is_expected.to be_valid }
+
+        it 'returns a trigger configuration hash' do
+          expect(subject.value).to eq(include: 'path/to/config.yml' )
+        end
+      end
+
+      context 'with project' do
+        let(:config) { { project: 'some/project', include: 'path/to/config.yml' } }
+
+        it { is_expected.not_to be_valid }
+
+        it 'returns an error' do
+          expect(subject.errors.first)
+            .to match /config contains unknown keys: project/
+        end
+      end
+
+      context 'with branch' do
+        let(:config) { { branch: 'feature', include: 'path/to/config.yml' } }
+
+        it { is_expected.not_to be_valid }
+
+        it 'returns an error' do
+          expect(subject.errors.first)
+            .to match /config contains unknown keys: branch/
+        end
+      end
+
+      context 'when feature flag is off' do
+        before do
+          stub_feature_flags(ci_parent_child_pipeline: false)
+        end
+
+        let(:config) { { include: 'path/to/config.yml' } }
+
+        it 'is returns an error if include is used' do
+          expect(subject.errors.first)
+            .to match /config must specify project/
         end
       end
     end
@@ -91,7 +137,7 @@ describe EE::Gitlab::Ci::Config::Entry::Trigger do
       end
 
       describe '#errors' do
-        it 'is returns an error about unknown config key' do
+        it 'returns an error about unknown config key' do
           expect(subject.errors.first)
             .to match /config contains unknown keys: unknown/
         end

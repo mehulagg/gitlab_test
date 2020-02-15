@@ -46,6 +46,8 @@ class Namespace < ApplicationRecord
     length: { maximum: 255 },
     namespace_path: true
 
+  validates :max_artifacts_size, numericality: { only_integer: true, greater_than: 0, allow_nil: true }
+
   validate :nesting_level_allowed
 
   validates_associated :runners
@@ -123,9 +125,16 @@ class Namespace < ApplicationRecord
 
     def find_by_pages_host(host)
       gitlab_host = "." + Settings.pages.host.downcase
-      name = host.downcase.delete_suffix(gitlab_host)
+      host = host.downcase
+      return unless host.ends_with?(gitlab_host)
 
+      name = host.delete_suffix(gitlab_host)
       Namespace.find_by_full_path(name)
+    end
+
+    # overridden in ee
+    def reset_ci_minutes!(namespace_id)
+      false
     end
   end
 
@@ -182,7 +191,11 @@ class Namespace < ApplicationRecord
   # any ancestor can disable emails for all descendants
   def emails_disabled?
     strong_memoize(:emails_disabled) do
-      self_and_ancestors.where(emails_disabled: true).exists?
+      if parent_id
+        self_and_ancestors.where(emails_disabled: true).exists?
+      else
+        !!emails_disabled
+      end
     end
   end
 

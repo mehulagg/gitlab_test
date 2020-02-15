@@ -30,7 +30,7 @@ Example of an error during a clone:
 
 Open a terminal and enter:
 
-```sh
+```shell
 git config http.postBuffer 52428800
 ```
 
@@ -78,7 +78,7 @@ ClientAliveCountMax 5
 **If 'pack-objects' type errors are also being displayed**, you can try to
 run a `git repack` before attempting to push to the remote repository again:
 
-```sh
+```shell
 git repack
 git push
 ```
@@ -129,6 +129,26 @@ remote: Calculating new repository size... (cancelled after 729ms)
 
 This could be used to further investigate what operation is performing poorly
 and provide GitLab with more information on how to improve the service.
+
+## `git clone` over HTTP fails with `transfer closed with outstanding read data remaining` error
+
+If the buffer size is lower than what is allowed in the request, the action will fail with an error similar to the one below:
+
+```text
+error: RPC failed; curl 18 transfer closed with outstanding read data remaining
+fatal: The remote end hung up unexpectedly
+fatal: early EOF
+fatal: index-pack failed
+```
+
+This can be fixed by increasing the existing `http.postBuffer` value to one greater than the repository size. For example, if `git clone` fails when cloning a 500M repository, the solution will be to set `http.postBuffer` to `524288000` so that the request only starts buffering after the first 524288000 bytes.
+
+NOTE: **Note:**
+The default value of `http.postBuffer`, 1 MiB, is applied if the setting is not configured.
+
+```shell
+git config http.postBuffer 524288000
+```
 
 [SSH troubleshooting]: ../../ssh/README.md#troubleshooting "SSH Troubleshooting"
 [Broken-Pipe]: https://stackoverflow.com/questions/19120120/broken-pipe-when-pushing-to-git-repository/36971469#36971469 "StackOverflow: 'Broken pipe when pushing to Git repository'"

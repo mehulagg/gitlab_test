@@ -19,7 +19,7 @@ run:
 ## Where to run commands
 
 To increase visibility, we recommend that GitLab team members run feature flag
-related Chatops commands within certain slack channels based on the environment
+related Chatops commands within certain Slack channels based on the environment
 and related feature. For the [staging](https://staging.gitlab.com)
 and [development](https://dev.gitlab.org) environments of GitLab.com,
 the commands should run in a channel for the stage the feature is relevant too.
@@ -127,6 +127,18 @@ For groups the `--group` flag is available:
 /chatops run feature set --group=gitlab-org some_feature true
 ```
 
+Note that actor-based gates are applied before percentages. For example, considering the
+`group/project` as `gitlab-org/gitlab` and a given example feature as `some_feature`, if
+you run these 2 commands:
+
+```
+/chatops run feature set --project=gitlab-org/gitlab some_feature true
+/chatops run feature set some_feature 25
+```
+
+Then `some_feature` will be enabled for 25% of the users interacting with
+`gitlab-org/gitlab`, and no one else.
+
 ## Cleaning up
 
 Once the change is deemed stable, submit a new merge request to remove the
@@ -141,13 +153,13 @@ When a feature gate has been removed from the code base, the feature
 record still exists in the database that the flag was deployed too.
 The record can be deleted once the MR is deployed to each environment:
 
-```sh
+```shell
 /chatops run feature delete some_feature --dev
 /chatops run feature delete some_feature --staging
 ```
 
 Then, you can delete it from production after the MR is deployed to prod:
 
-```sh
+```shell
 /chatops run feature delete some_feature
 ```

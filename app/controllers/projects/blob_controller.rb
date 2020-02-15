@@ -8,7 +8,7 @@ class Projects::BlobController < Projects::ApplicationController
   include NotesHelper
   include ActionView::Helpers::SanitizeHelper
   include RedirectsForMissingPathOnTree
-  include SourcegraphGon
+  include SourcegraphDecorator
 
   prepend_before_action :authenticate_user!, only: [:edit]
 
@@ -28,6 +28,10 @@ class Projects::BlobController < Projects::ApplicationController
   before_action :editor_variables, except: [:show, :preview, :diff]
   before_action :validate_diff_params, only: :diff
   before_action :set_last_commit_sha, only: [:edit, :update]
+
+  before_action only: :show do
+    push_frontend_feature_flag(:code_navigation, @project)
+  end
 
   def new
     commit unless @repository.empty?
@@ -205,6 +209,7 @@ class Projects::BlobController < Projects::ApplicationController
 
   def show_html
     environment_params = @repository.branch_exists?(@ref) ? { ref: @ref } : { commit: @commit }
+    environment_params[:find_latest] = true
     @environment = EnvironmentsFinder.new(@project, current_user, environment_params).execute.last
     @last_commit = @repository.last_commit_for_path(@commit.id, @blob.path)
 

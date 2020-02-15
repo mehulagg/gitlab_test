@@ -17,7 +17,7 @@ describe Boards::ListsController do
     it 'returns a successful 200 response' do
       read_board_list user: user, board: board
 
-      expect(response).to have_gitlab_http_status(200)
+      expect(response).to have_gitlab_http_status(:ok)
       expect(response.content_type).to eq 'application/json'
     end
 
@@ -38,7 +38,7 @@ describe Boards::ListsController do
       it 'returns a forbidden 403 response' do
         read_board_list user: user, board: board
 
-        expect(response).to have_gitlab_http_status(403)
+        expect(response).to have_gitlab_http_status(:forbidden)
       end
     end
 
@@ -56,7 +56,7 @@ describe Boards::ListsController do
       it 'returns a successful 200 response' do
         create_board_list user: user, board: board, label_id: label.id
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
       end
 
       it 'returns the created list' do
@@ -70,10 +70,6 @@ describe Boards::ListsController do
       let(:label) { create(:group_label, group: group, name: 'Development') }
 
       context 'with licensed wip limits' do
-        before do
-          stub_licensed_features(wip_limits: true)
-        end
-
         it 'returns the created list' do
           create_board_list user: user, board: board, label_id: label.id, params: { max_issue_count: 2 }
 
@@ -84,7 +80,7 @@ describe Boards::ListsController do
 
       context 'without licensed wip limits' do
         before do
-          stub_licensed_features(wip_limits: false)
+          stub_feature_flags(wip_limits: false)
         end
 
         it 'ignores max issue count' do
@@ -100,10 +96,6 @@ describe Boards::ListsController do
       let(:label) { create(:group_label, group: group, name: 'Development') }
 
       context 'with licensed wip limits' do
-        before do
-          stub_licensed_features(wip_limits: true)
-        end
-
         it 'returns the created list' do
           create_board_list user: user, board: board, label_id: label.id, params: { max_issue_weight: 3 }
 
@@ -114,7 +106,7 @@ describe Boards::ListsController do
 
       context 'without licensed wip limits' do
         before do
-          stub_licensed_features(wip_limits: false)
+          stub_feature_flags(wip_limits: false)
         end
 
         it 'ignores max issue count' do
@@ -131,7 +123,7 @@ describe Boards::ListsController do
         it 'returns a not found 404 response' do
           create_board_list user: user, board: board, label_id: nil
 
-          expect(response).to have_gitlab_http_status(404)
+          expect(response).to have_gitlab_http_status(:not_found)
         end
       end
 
@@ -141,7 +133,7 @@ describe Boards::ListsController do
 
           create_board_list user: user, board: board, label_id: label.id
 
-          expect(response).to have_gitlab_http_status(404)
+          expect(response).to have_gitlab_http_status(:not_found)
         end
       end
     end
@@ -152,7 +144,7 @@ describe Boards::ListsController do
 
         create_board_list user: guest, board: board, label_id: label.id
 
-        expect(response).to have_gitlab_http_status(403)
+        expect(response).to have_gitlab_http_status(:forbidden)
       end
     end
 
@@ -174,7 +166,6 @@ describe Boards::ListsController do
     context 'when updating max limits' do
       before do
         sign_in(user)
-        stub_licensed_features(wip_limits: true)
       end
 
       it 'returns a successful 200 response when max issue count should be updated' do
@@ -182,7 +173,7 @@ describe Boards::ListsController do
 
         patch :update, params: params, as: :json
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(development.reload.max_issue_count).to eq(42)
       end
 
@@ -193,7 +184,7 @@ describe Boards::ListsController do
 
         patch :update, params: params, as: :json
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(development.reload.max_issue_count).to eq(42)
         expect(development.reload.max_issue_weight).to eq(22)
       end
@@ -205,7 +196,7 @@ describe Boards::ListsController do
 
         patch :update, params: params, as: :json
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(development.reload.max_issue_weight).to eq(42)
         expect(development.reload.max_issue_count).to eq(22)
       end
@@ -217,7 +208,7 @@ describe Boards::ListsController do
 
             patch :update, params: params, as: :json
 
-            expect(response).to have_gitlab_http_status(200)
+            expect(response).to have_gitlab_http_status(:ok)
 
             reloaded_list = development.reload
             expect(reloaded_list.position).to eq(expected_position)
@@ -314,7 +305,7 @@ describe Boards::ListsController do
 
         patch :update, params: params, as: :json
 
-        expect(response).to have_gitlab_http_status(422)
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
         expect(development.reload.max_issue_count).to eq(0)
       end
 
@@ -323,13 +314,13 @@ describe Boards::ListsController do
 
         patch :update, params: params, as: :json
 
-        expect(response).to have_gitlab_http_status(422)
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
         expect(development.reload.max_issue_weight).to eq(0)
       end
 
       context 'when wip limits are not licensed' do
         before do
-          stub_licensed_features(wip_limits: false)
+          stub_feature_flags(wip_limits: false)
         end
 
         it 'fails to update max issue count with expected status' do
@@ -337,7 +328,7 @@ describe Boards::ListsController do
 
           patch :update, params: params, as: :json
 
-          expect(response).to have_gitlab_http_status(422)
+          expect(response).to have_gitlab_http_status(:unprocessable_entity)
           expect(development.reload.max_issue_count).to eq(0)
         end
 
@@ -346,7 +337,7 @@ describe Boards::ListsController do
 
           patch :update, params: params, as: :json
 
-          expect(response).to have_gitlab_http_status(422)
+          expect(response).to have_gitlab_http_status(:unprocessable_entity)
           expect(development.reload.max_issue_weight).to eq(0)
         end
       end
@@ -373,7 +364,7 @@ describe Boards::ListsController do
       it 'returns a successful 200 response' do
         move user: user, board: board, list: planning, position: 1
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
       end
 
       it 'moves the list to the desired position' do
@@ -387,7 +378,7 @@ describe Boards::ListsController do
       it 'returns an unprocessable entity 422 response' do
         move user: user, board: board, list: planning, position: 6
 
-        expect(response).to have_gitlab_http_status(422)
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
       end
     end
 
@@ -395,7 +386,7 @@ describe Boards::ListsController do
       it 'returns a not found 404 response' do
         move user: user, board: board, list: 999, position: 1
 
-        expect(response).to have_gitlab_http_status(404)
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
 
@@ -403,7 +394,7 @@ describe Boards::ListsController do
       it 'returns a 422 unprocessable entity response' do
         move user: guest, board: board, list: planning, position: 6
 
-        expect(response).to have_gitlab_http_status(422)
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
       end
     end
 
@@ -427,7 +418,7 @@ describe Boards::ListsController do
       it 'returns a successful 200 response' do
         remove_board_list user: user, board: board, list: planning
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
       end
 
       it 'removes list from board' do
@@ -439,7 +430,7 @@ describe Boards::ListsController do
       it 'returns a not found 404 response' do
         remove_board_list user: user, board: board, list: 999
 
-        expect(response).to have_gitlab_http_status(404)
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
 
@@ -447,7 +438,7 @@ describe Boards::ListsController do
       it 'returns a forbidden 403 response' do
         remove_board_list user: guest, board: board, list: planning
 
-        expect(response).to have_gitlab_http_status(403)
+        expect(response).to have_gitlab_http_status(:forbidden)
       end
     end
 

@@ -11,16 +11,6 @@ export default {
     Pagination,
     SecurityDashboardTableRow,
   },
-  props: {
-    dashboardDocumentation: {
-      type: String,
-      required: true,
-    },
-    emptyStateSvgPath: {
-      type: String,
-      required: true,
-    },
-  },
   computed: {
     ...mapState('vulnerabilities', [
       'errorLoadingVulnerabilities',
@@ -53,7 +43,7 @@ export default {
 </script>
 
 <template>
-  <div class="ci-table js-security-dashboard-table">
+  <div class="ci-table js-security-dashboard-table" data-qa-selector="security_report_content">
     <div
       class="gl-responsive-table-row table-row-header vulnerabilities-row-header px-2"
       role="row"
@@ -92,18 +82,16 @@ export default {
         @openModal="openModal({ vulnerability })"
       />
 
-      <gl-empty-state
-        v-if="showEmptyState"
-        :title="s__(`Security Reports|We've found no vulnerabilities for your group`)"
-        :svg-path="emptyStateSvgPath"
-        :description="
-          s__(
-            `Security Reports|While it's rare to have no vulnerabilities for your group, it can happen. In any event, we ask that you please double check your settings to make sure you've set up your dashboard correctly.`,
-          )
-        "
-        :primary-button-link="dashboardDocumentation"
-        :primary-button-text="s__('Security Reports|Learn more about setting up your dashboard')"
-      />
+      <slot v-if="showEmptyState" name="emptyState">
+        <gl-empty-state
+          :title="s__(`We've found no vulnerabilities`)"
+          :description="
+            s__(
+              `While it's rare to have no vulnerabilities, it can happen. In any event, we ask that you please double check your settings to make sure you've set up your dashboard correctly.`,
+            )
+          "
+        />
+      </slot>
 
       <pagination
         v-if="showPagination"

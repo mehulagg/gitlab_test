@@ -57,7 +57,7 @@ setup-test-env:
   dependencies: ["setup-test-env", "retrieve-tests-metadata", "compile-assets pull-cache"]
   script:
     - source scripts/rspec_helpers.sh
-    - rspec_paralellized_job "--tag ~quarantine --tag ~geo"
+    - rspec_paralellized_job "--tag ~quarantine --tag ~geo --tag ~level:migration"
   artifacts:
     expire_in: 31d
     when: always
@@ -68,6 +68,7 @@ setup-test-env:
       - rspec_profiling/
       - tmp/capybara/
       - tmp/memory_test/
+      - junit_rspec.xml
     reports:
       junit: junit_rspec.xml
 
@@ -92,6 +93,23 @@ setup-test-env:
     - .use-pg10
     - .only-master
 
+.rspec-base-migration:
+  script:
+    - source scripts/rspec_helpers.sh
+    - rspec_paralellized_job "--tag ~quarantine --tag ~geo --tag level:migration"
+
+rspec migration pg9:
+  extends:
+    - .rspec-base-pg9
+    - .rspec-base-migration
+  parallel: 5
+
+rspec migration pg9-foss:
+  extends:
+    - .rspec-base-pg9-foss
+    - .rspec-base-migration
+  parallel: 5
+
 rspec unit pg9:
   extends: .rspec-base-pg9
   parallel: 20
@@ -102,11 +120,11 @@ rspec unit pg9-foss:
 
 rspec integration pg9:
   extends: .rspec-base-pg9
-  parallel: 6
+  parallel: 8
 
 rspec integration pg9-foss:
   extends: .rspec-base-pg9-foss
-  parallel: 6
+  parallel: 8
 
 rspec system pg9:
   extends: .rspec-base-pg9
@@ -122,7 +140,7 @@ rspec unit pg10:
 
 rspec integration pg10:
   extends: .rspec-base-pg10
-  parallel: 6
+  parallel: 8
 
 rspec system pg10:
   extends: .rspec-base-pg10
@@ -140,23 +158,36 @@ rspec system pg10:
     - .only-ee
     - .use-pg10-ee
 
+rspec-ee migration pg9:
+  extends:
+    - .rspec-ee-base-pg9
+    - .rspec-base-migration
+  parallel: 2
+
 rspec-ee unit pg9:
   extends: .rspec-ee-base-pg9
-  parallel: 7
+  parallel: 10
 
 rspec-ee integration pg9:
   extends: .rspec-ee-base-pg9
-  parallel: 3
+  parallel: 4
 
 rspec-ee system pg9:
   extends: .rspec-ee-base-pg9
-  parallel: 5
+  parallel: 6
+
+rspec-ee migration pg10:
+  extends:
+    - .rspec-ee-base-pg10
+    - .rspec-base-migration
+    - .only-master
+  parallel: 2
 
 rspec-ee unit pg10:
   extends:
     - .rspec-ee-base-pg10
     - .only-master
-  parallel: 7
+  parallel: 10
 
 rspec-ee integration pg10:
   extends:
@@ -243,7 +274,7 @@ static-analysis:
   script:
     - scripts/static-analysis
   cache:
-    key: "debian-stretch-ruby-2.6.3-and-rubocop"
+    key: "debian-stretch-ruby-2.6-and-rubocop"
     paths:
       - vendor/ruby
       - tmp/rubocop_cache

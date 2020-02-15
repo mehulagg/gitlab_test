@@ -11,6 +11,7 @@ module EE
     extend ::Gitlab::Cache::RequestCache
     include ::Gitlab::Utils::StrongMemoize
     include ::EE::GitlabRoutingHelper # rubocop: disable Cop/InjectEnterpriseEditionModule
+    include IgnorableColumns
 
     GIT_LFS_DOWNLOAD_OPERATION = 'download'.freeze
 
@@ -23,10 +24,7 @@ module EE
       include DeprecatedApprovalsBeforeMerge
       include UsageStatistics
 
-      self.ignored_columns += %i[
-        mirror_last_update_at
-        mirror_last_successful_update_at
-      ]
+      ignore_columns :mirror_last_update_at, :mirror_last_successful_update_at, remove_after: '2019-12-15', remove_with: '12.6'
 
       before_save :set_override_pull_mirror_available, unless: -> { ::Gitlab::CurrentSettings.mirror_available }
       before_save :set_next_execution_timestamp_to_now, if: ->(project) { project.mirror? && project.mirror_changed? && project.import_state }
@@ -85,7 +83,6 @@ module EE
 
       has_many :webide_pipelines, -> { webide_source }, class_name: 'Ci::Pipeline', inverse_of: :project
 
-      has_many :prometheus_alerts, inverse_of: :project
       has_many :prometheus_alert_events, inverse_of: :project
       has_many :self_managed_prometheus_alert_events, inverse_of: :project
 
@@ -144,6 +141,9 @@ module EE
       scope :with_slack_slash_commands_service, -> { joins(:slack_slash_commands_service) }
       scope :with_prometheus_service, -> { joins(:prometheus_service) }
       scope :aimed_for_deletion, -> (date) { where('marked_for_deletion_at <= ?', date).without_deleted }
+      scope :with_repos_templates, -> { where(namespace_id: ::Gitlab::CurrentSettings.current_application_settings.custom_project_templates_group_id) }
+      scope :with_groups_level_repos_templates, -> { joins("INNER JOIN namespaces ON projects.namespace_id = namespaces.custom_project_templates_group_id") }
+      scope :with_designs, -> { where(id: DesignManagement::Design.select(:project_id)) }
 
       delegate :shared_runners_minutes, :shared_runners_seconds, :shared_runners_seconds_last_reset,
         to: :statistics, allow_nil: true
@@ -158,10 +158,14 @@ module EE
       delegate :log_jira_dvcs_integration_usage, :jira_dvcs_server_last_sync_at, :jira_dvcs_cloud_last_sync_at, to: :feature_usage
 
       delegate :merge_pipelines_enabled, :merge_pipelines_enabled=, :merge_pipelines_enabled?, :merge_pipelines_were_disabled?, to: :ci_cd_settings
-      delegate :merge_trains_enabled, :merge_trains_enabled=, :merge_trains_enabled?, to: :ci_cd_settings
+      delegate :merge_trains_enabled?, to: :ci_cd_settings
+      delegate :actual_limits, :actual_plan_name, to: :namespace, allow_nil: true
 
       validates :repository_size_limit,
         numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true }
+      validates :max_pages_size,
+        numericality: { only_integer: true, greater_than: 0, allow_nil: true,
+                        less_than: ::Gitlab::Pages::MAX_SIZE / 1.megabyte }
 
       validates :approvals_before_merge, numericality: true, allow_blank: true
 
@@ -190,6 +194,12 @@ module EE
       def with_slack_application_disabled
         joins('LEFT JOIN services ON services.project_id = projects.id AND services.type = \'GitlabSlackApplicationService\' AND services.active IS true')
           .where('services.id IS NULL')
+      end
+
+      def find_by_service_desk_project_key(key)
+        # project_key is not indexed for now
+        # see https://gitlab.com/gitlab-org/gitlab/-/merge_requests/24063#note_282435524 for details
+        joins(:service_desk_setting).find_by('service_desk_settings.project_key' => key)
       end
     end
 
@@ -284,6 +294,7 @@ module EE
       ::Feature.enabled?(feature, self) ||
         (::Feature.enabled?(feature) && feature_available?(feature))
     end
+    alias_method :alpha_feature_available?, :beta_feature_available?
 
     def push_audit_events_enabled?
       ::Feature.enabled?(:repository_push_audit_event, self)
@@ -303,6 +314,10 @@ module EE
 
     def code_owner_approval_required_available?
       feature_available?(:code_owner_approval_required)
+    end
+
+    def scoped_approval_rules_enabled?
+      ::Feature.enabled?(:scoped_approval_rules, self, default_enabled: true)
     end
 
     def service_desk_enabled
@@ -343,7 +358,7 @@ module EE
     def has_group_hooks?(hooks_scope = :push_hooks)
       return unless group && feature_available?(:group_webhooks)
 
-      group.hooks.hooks_for(hooks_scope).any?
+      group_hooks.hooks_for(hooks_scope).any?
     end
 
     def execute_hooks(data, hooks_scope = :push_hooks)
@@ -351,7 +366,7 @@ module EE
 
       if group && feature_available?(:group_webhooks)
         run_after_commit_or_now do
-          group.hooks.hooks_for(hooks_scope).each do |hook|
+          group_hooks.hooks_for(hooks_scope).each do |hook|
             hook.async_execute(data, hooks_scope.to_s)
           end
         end
@@ -377,6 +392,7 @@ module EE
       default_issues_tracker? || jira_tracker_active?
     end
 
+    # TODO: Clean up this method in the https://gitlab.com/gitlab-org/gitlab/issues/33329
     def approvals_before_merge
       return 0 unless feature_available?(:merge_request_approvers)
 
@@ -385,24 +401,21 @@ module EE
 
     def visible_approval_rules
       strong_memoize(:visible_approval_rules) do
-        visible_regular_approval_rules + approval_rules.report_approver
+        visible_user_defined_rules + approval_rules.report_approver
       end
     end
 
-    def visible_regular_approval_rules
-      strong_memoize(:visible_regular_approval_rules) do
-        regular_rules = approval_rules.regular.order(:id)
+    def visible_user_defined_rules(branch: nil)
+      return user_defined_rules.take(1) unless multiple_approval_rules_available?
+      return user_defined_rules unless branch
 
-        next regular_rules.take(1) unless multiple_approval_rules_available?
-
-        regular_rules
-      end
+      user_defined_rules.applicable_to_branch(branch)
     end
 
+    # TODO: Clean up this method in the https://gitlab.com/gitlab-org/gitlab/issues/33329
     def min_fallback_approvals
       strong_memoize(:min_fallback_approvals) do
-        visible_regular_approval_rules.map(&:approvals_required).max ||
-          approvals_before_merge.to_i
+        visible_user_defined_rules.map(&:approvals_required).max.to_i
       end
     end
 
@@ -571,7 +584,11 @@ module EE
     def protected_environment_by_name(environment_name)
       return unless protected_environments_feature_available?
 
-      protected_environments.find_by(name: environment_name)
+      key = "protected_environment_by_name:#{id}:#{environment_name}"
+
+      ::Gitlab::SafeRequestStore.fetch(key) do
+        protected_environments.find_by(name: environment_name)
+      end
     end
 
     override :after_import
@@ -648,16 +665,24 @@ module EE
         # hashed storage requirement for existing design management projects.
         # See https://gitlab.com/gitlab-org/gitlab/issues/13428#note_238729038
         (hashed_storage?(:repository) || ::Feature.disabled?(:design_management_require_hashed_storage, self, default_enabled: true)) &&
-        # Check both feature availability on the license, as well as the feature
-        # flag, because we don't want to enable design_management by default on
-        # on prem installs yet.
-        # See https://gitlab.com/gitlab-org/gitlab/issues/13709
-        feature_available?(:design_management) &&
-        ::Feature.enabled?(:design_management_flag, self, default_enabled: true)
+        feature_available?(:design_management)
     end
 
     def design_repository
-      @design_repository ||= DesignManagement::Repository.new(self)
+      strong_memoize(:design_repository) do
+        DesignManagement::Repository.new(self)
+      end
+    end
+
+    override(:expire_caches_before_rename)
+    def expire_caches_before_rename(old_path)
+      super
+
+      design = ::Repository.new("#{old_path}#{EE::Gitlab::GlRepository::DESIGN.path_suffix}", self)
+
+      if design.exists?
+        design.before_delete
+      end
     end
 
     def alerts_service_available?
@@ -677,14 +702,20 @@ module EE
     end
 
     def adjourned_deletion?
-      feature_available?(:marking_project_for_deletion) &&
+      feature_available?(:adjourned_deletion_for_projects_and_groups) &&
         ::Gitlab::CurrentSettings.deletion_adjourned_period > 0
     end
 
     def marked_for_deletion?
-      return false unless feature_available?(:marking_project_for_deletion)
+      marked_for_deletion_at.present? &&
+        feature_available?(:adjourned_deletion_for_projects_and_groups)
+    end
 
-      marked_for_deletion_at.present?
+    def ancestor_marked_for_deletion
+      return unless feature_available?(:adjourned_deletion_for_projects_and_groups)
+
+      ancestors(hierarchy_order: :asc)
+        .joins(:deletion_schedule).first
     end
 
     def has_packages?(package_type)
@@ -693,7 +724,24 @@ module EE
       packages.where(package_type: package_type).exists?
     end
 
+    def license_compliance
+      strong_memoize(:license_compliance) { SCA::LicenseCompliance.new(self) }
+    end
+
+    override :template_source?
+    def template_source?
+      return true if namespace_id == ::Gitlab::CurrentSettings.current_application_settings.custom_project_templates_group_id
+
+      ::Project.with_groups_level_repos_templates.exists?(id)
+    end
+
     private
+
+    def group_hooks
+      return group.hooks unless ::Feature.enabled?(:sub_group_webhooks, self)
+
+      GroupHook.where(group_id: group.self_and_ancestors)
+    end
 
     def set_override_pull_mirror_available
       self.pull_mirror_available_overridden = read_attribute(:mirror)
@@ -734,6 +782,12 @@ module EE
 
       unless ::Gitlab::GitRefValidator.validate("#{pull_mirror_branch_prefix}master")
         errors.add(:pull_mirror_branch_prefix, _('Invalid Git ref'))
+      end
+    end
+
+    def user_defined_rules
+      strong_memoize(:user_defined_rules) do
+        approval_rules.regular_or_any_approver.order(rule_type: :desc, id: :asc)
       end
     end
   end

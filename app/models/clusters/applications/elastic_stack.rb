@@ -15,22 +15,13 @@ module Clusters
       include ::Clusters::Concerns::ApplicationData
       include ::Gitlab::Utils::StrongMemoize
 
+      include IgnorableColumns
+      ignore_column :kibana_hostname, remove_with: '12.9', remove_after: '2020-02-22'
+
       default_value_for :version, VERSION
-
-      def set_initial_status
-        return unless not_installable?
-        return unless cluster&.application_ingress_available?
-
-        ingress = cluster.application_ingress
-        self.status = status_states[:installable] if ingress.external_ip_or_hostname?
-      end
 
       def chart
         'stable/elastic-stack'
-      end
-
-      def values
-        content_values.to_yaml
       end
 
       def install_command
@@ -71,28 +62,12 @@ module Clusters
           # `proxy_url` could raise an exception because gitlab can not communicate with the cluster.
           # We check for a nil client in downstream use and behaviour is equivalent to an empty state
           log_exception(error, :failed_to_create_elasticsearch_client)
+
+          nil
         end
       end
 
       private
-
-      def specification
-        {
-          "kibana" => {
-            "ingress" => {
-              "hosts" => [kibana_hostname],
-              "tls" => [{
-                "hosts" => [kibana_hostname],
-                "secretName" => "kibana-cert"
-              }]
-            }
-          }
-        }
-      end
-
-      def content_values
-        YAML.load_file(chart_values_file).deep_merge!(specification)
-      end
 
       def post_delete_script
         [

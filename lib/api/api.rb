@@ -43,6 +43,15 @@ module API
       header['X-Content-Type-Options'] = 'nosniff'
     end
 
+    before do
+      Gitlab::ApplicationContext.push(
+        user: -> { current_user },
+        project: -> { @project },
+        namespace: -> { @group },
+        caller_id: route.origin
+      )
+    end
+
     # The locale is set to the current user's locale when `current_user` is loaded
     after { Gitlab::I18n.use_default_locale }
 
@@ -96,6 +105,7 @@ module API
 
     # Keep in alphabetical order
     mount ::API::AccessRequests
+    mount ::API::Appearance
     mount ::API::Applications
     mount ::API::Avatar
     mount ::API::AwardEmoji
@@ -108,6 +118,7 @@ module API
     mount ::API::DeployKeys
     mount ::API::Deployments
     mount ::API::Environments
+    mount ::API::ErrorTracking
     mount ::API::Events
     mount ::API::Features
     mount ::API::Files
@@ -137,6 +148,7 @@ module API
     mount ::API::Discussions
     mount ::API::ResourceLabelEvents
     mount ::API::NotificationSettings
+    mount ::API::Pages
     mount ::API::PagesDomains
     mount ::API::Pipelines
     mount ::API::PipelineSchedules
@@ -156,6 +168,7 @@ module API
     mount ::API::ProtectedTags
     mount ::API::Releases
     mount ::API::Release::Links
+    mount ::API::RemoteMirrors
     mount ::API::Repositories
     mount ::API::Runner
     mount ::API::Runners

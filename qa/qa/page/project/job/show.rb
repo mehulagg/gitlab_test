@@ -5,12 +5,16 @@ module QA::Page
     class Show < QA::Page::Base
       include Component::CiBadgeLink
 
-      view 'app/assets/javascripts/jobs/components/job_log.vue' do
-        element :build_trace
+      view 'app/assets/javascripts/jobs/components/log/log.vue' do
+        element :job_log_content
       end
 
       view 'app/assets/javascripts/jobs/components/stages_dropdown.vue' do
         element :pipeline_path
+      end
+
+      view 'app/assets/javascripts/jobs/components/sidebar.vue' do
+        element :retry_button
       end
 
       def successful?(timeout: 60)
@@ -24,20 +28,24 @@ module QA::Page
       def output(wait: 5)
         result = ''
 
-        wait(reload: false, max: wait, interval: 1) do
-          result = find_element(:build_trace).text
+        wait_until(reload: false, max_duration: wait, sleep_interval: 1) do
+          result = find_element(:job_log_content).text
 
-          !result.empty?
+          result.include?('Job')
         end
 
         result
       end
 
+      def retry!
+        click_element :retry_button
+      end
+
       private
 
       def loaded?(wait: 60)
-        wait(reload: true, max: wait, interval: 1) do
-          has_element?(:build_trace, wait: 1)
+        wait_until(reload: true, max_duration: wait, sleep_interval: 1) do
+          has_element?(:job_log_content, wait: 1)
         end
       end
     end

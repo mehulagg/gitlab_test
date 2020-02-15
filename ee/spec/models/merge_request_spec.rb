@@ -118,6 +118,39 @@ describe MergeRequest do
     end
   end
 
+  describe '#enabled_reports' do
+    let(:project) { create(:project, :repository) }
+
+    where(:report_type, :with_reports, :feature) do
+      :sast                | :with_sast_reports                | :sast
+      :container_scanning  | :with_container_scanning_reports  | :container_scanning
+      :dast                | :with_dast_reports                | :dast
+      :dependency_scanning | :with_dependency_scanning_reports | :dependency_scanning
+      :license_management  | :with_license_management_reports  | :license_management
+      :license_management  | :with_license_scanning_reports    | :license_management
+    end
+
+    with_them do
+      subject { merge_request.enabled_reports[report_type] }
+
+      before do
+        stub_licensed_features({ feature => true })
+      end
+
+      context "when head pipeline has reports" do
+        let(:merge_request) { create(:ee_merge_request, with_reports, source_project: project) }
+
+        it { is_expected.to be_truthy }
+      end
+
+      context "when head pipeline does not have reports" do
+        let(:merge_request) { create(:ee_merge_request, source_project: project) }
+
+        it { is_expected.to be_falsy }
+      end
+    end
+  end
+
   describe '#participant_approvers with approval_rules disabled' do
     let!(:approver) { create(:approver, target: project) }
     let(:code_owners) { [double(:code_owner)] }
@@ -303,6 +336,7 @@ describe MergeRequest do
     let(:project) { create(:project, :repository) }
     let(:current_user) { project.users.take }
     let(:merge_request) { create(:merge_request, source_project: project) }
+
     subject { merge_request.calculate_reactive_cache(service_class_name, current_user&.id) }
 
     context 'when given a known service class name' do
@@ -490,7 +524,7 @@ describe MergeRequest do
             expect_any_instance_of(Ci::CompareLicenseScanningReportsService)
                 .to receive(:execute).with(base_pipeline, head_pipeline).and_call_original
 
-            expect(subject[:key]).to include(*[license_1.id, license_1.approval_status, license_2.id, license_2.approval_status])
+            expect(subject[:key].last).to include("software_license_policies/query-")
           end
         end
 
@@ -681,6 +715,7 @@ describe MergeRequest do
 
     context 'when using approvals' do
       let(:user) { create(:user) }
+
       before do
         allow(subject).to receive(:mergeable_state?).and_return(true)
 
@@ -711,12 +746,33 @@ describe MergeRequest do
       it { is_expected.to be_truthy }
     end
 
+    context 'when the merge request was on a merge train' do
+      let(:merge_request) do
+        create(:merge_request, :on_train,
+          status: MergeTrain.state_machines[:status].states[:merged].value,
+          source_project: project, target_project: project)
+      end
+
+      it { is_expected.to be_falsy }
+    end
+
     context 'when the merge request is not on a merge train' do
       let(:merge_request) do
         create(:merge_request, source_project: project, target_project: project)
       end
 
       it { is_expected.to be_falsy }
+    end
+  end
+
+  describe 'review time sorting' do
+    it 'orders by first_comment_at' do
+      merge_request_1 = create(:merge_request, :with_productivity_metrics, metrics_data: { first_comment_at: 1.day.ago })
+      merge_request_2 = create(:merge_request, :with_productivity_metrics, metrics_data: { first_comment_at: 3.days.ago })
+      merge_request_3 = create(:merge_request, :with_productivity_metrics, metrics_data: { first_comment_at: nil })
+
+      expect(described_class.order_review_time_desc).to match([merge_request_2, merge_request_1, merge_request_3])
+      expect(described_class.sort_by_attribute('review_time_desc')).to match([merge_request_2, merge_request_1, merge_request_3])
     end
   end
 end

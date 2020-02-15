@@ -11,6 +11,7 @@ module EE
     prepended do
       EMAIL_ADDITIONAL_TEXT_CHARACTER_LIMIT = 10_000
       INSTANCE_REVIEW_MIN_USERS = 100
+      DEFAULT_NUMBER_OF_DAYS_BEFORE_REMOVAL = 7
 
       belongs_to :file_template_project, class_name: "Project"
 
@@ -39,6 +40,10 @@ module EE
                 presence: true,
                 numericality: { only_integer: true, greater_than: 0 }
 
+      validates :deletion_adjourned_period,
+                presence: true,
+                numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 90 }
+
       validates :elasticsearch_replicas,
                 presence: true,
                 numericality: { only_integer: true, greater_than: 0 }
@@ -60,6 +65,12 @@ module EE
       validates :required_instance_ci_template, presence: true, allow_nil: true
 
       validate :check_geo_node_allowed_ips
+
+      validates :max_personal_access_token_lifetime,
+                allow_blank: true,
+                numericality: { only_integer: true, greater_than: 0, less_than_or_equal_to: 365 }
+
+      after_commit :update_personal_access_tokens_lifetime, if: :saved_change_to_max_personal_access_token_lifetime?
     end
 
     class_methods do
@@ -77,9 +88,11 @@ module EE
           elasticsearch_url: ENV['ELASTIC_URL'] || 'http://localhost:9200',
           email_additional_text: nil,
           lock_memberships_to_ldap: false,
+          max_personal_access_token_lifetime: nil,
           mirror_capacity_threshold: Settings.gitlab['mirror_capacity_threshold'],
           mirror_max_capacity: Settings.gitlab['mirror_max_capacity'],
           mirror_max_delay: Settings.gitlab['mirror_max_delay'],
+          deletion_adjourned_period: DEFAULT_NUMBER_OF_DAYS_BEFORE_REMOVAL,
           pseudonymizer_enabled: false,
           repository_size_limit: 0,
           slack_app_enabled: false,
@@ -231,7 +244,17 @@ module EE
       users_count >= INSTANCE_REVIEW_MIN_USERS
     end
 
+    def max_personal_access_token_lifetime_from_now
+      max_personal_access_token_lifetime&.days&.from_now
+    end
+
     private
+
+    def update_personal_access_tokens_lifetime
+      return unless max_personal_access_token_lifetime.present? && License.feature_available?(:personal_access_token_expiration_policy)
+
+      ::PersonalAccessTokens::UpdateLifetimeService.new.execute
+    end
 
     def mirror_max_delay_in_minutes
       ::Gitlab::Mirror.min_delay_upper_bound / 60

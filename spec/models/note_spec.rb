@@ -285,13 +285,77 @@ describe Note do
     end
   end
 
-  describe "cross_reference_not_visible_for?" do
-    let(:private_user)    { create(:user) }
-    let(:private_project) { create(:project, namespace: private_user.namespace) { |p| p.add_maintainer(private_user) } }
-    let(:private_issue)   { create(:issue, project: private_project) }
+  describe "#visible_for?" do
+    using RSpec::Parameterized::TableSyntax
 
-    let(:ext_proj)  { create(:project, :public) }
-    let(:ext_issue) { create(:issue, project: ext_proj) }
+    let_it_be(:note) { create(:note) }
+    let_it_be(:user) { create(:user) }
+
+    where(:cross_reference_visible, :system_note_viewable, :result) do
+      true  | true  | false
+      false | true  | true
+      false | false | false
+    end
+
+    with_them do
+      it "returns expected result" do
+        expect(note).to receive(:cross_reference_not_visible_for?).and_return(cross_reference_visible)
+
+        unless cross_reference_visible
+          expect(note).to receive(:system_note_viewable_by?)
+            .with(user).and_return(system_note_viewable)
+        end
+
+        expect(note.visible_for?(user)).to eq result
+      end
+    end
+  end
+
+  describe "#system_note_viewable_by?(user)" do
+    let_it_be(:note) { create(:note) }
+    let_it_be(:user) { create(:user) }
+    let!(:metadata) { create(:system_note_metadata, note: note, action: "branch") }
+
+    context "when system_note_metadata is not present" do
+      it "returns true" do
+        expect(note).to receive(:system_note_metadata).and_return(nil)
+
+        expect(note.send(:system_note_viewable_by?, user)).to be_truthy
+      end
+    end
+
+    context "system_note_metadata isn't of type 'branch'" do
+      before do
+        metadata.action = "not_a_branch"
+      end
+
+      it "returns true" do
+        expect(note.send(:system_note_viewable_by?, user)).to be_truthy
+      end
+    end
+
+    context "user doesn't have :download_code ability" do
+      it "returns false" do
+        expect(note.send(:system_note_viewable_by?, user)).to be_falsey
+      end
+    end
+
+    context "user has the :download_code ability" do
+      it "returns true" do
+        expect(Ability).to receive(:allowed?).with(user, :download_code, note.project).and_return(true)
+
+        expect(note.send(:system_note_viewable_by?, user)).to be_truthy
+      end
+    end
+  end
+
+  describe "cross_reference_not_visible_for?" do
+    let_it_be(:private_user)    { create(:user) }
+    let_it_be(:private_project) { create(:project, namespace: private_user.namespace) { |p| p.add_maintainer(private_user) } }
+    let_it_be(:private_issue)   { create(:issue, project: private_project) }
+
+    let_it_be(:ext_proj)  { create(:project, :public) }
+    let_it_be(:ext_issue) { create(:issue, project: ext_proj) }
 
     shared_examples "checks references" do
       it "returns true" do
@@ -329,10 +393,24 @@ describe Note do
       it_behaves_like "checks references"
     end
 
-    context "when there are two references in note" do
+    context "when there is a reference to a label" do
+      let_it_be(:private_label) { create(:label, project: private_project) }
       let(:note) do
         create :note,
           noteable: ext_issue, project: ext_proj,
+          note: "added label #{private_label.to_reference(ext_proj)}",
+          system: true
+      end
+      let!(:system_note_metadata) { create(:system_note_metadata, note: note, action: :label) }
+
+      it_behaves_like "checks references"
+    end
+
+    context "when there are two references in note" do
+      let_it_be(:ext_issue2) { create(:issue, project: ext_proj) }
+      let(:note) do
+        create :note,
+          noteable: ext_issue2, project: ext_proj,
           note: "mentioned in issue #{private_issue.to_reference(ext_proj)} and " \
                 "public issue #{ext_issue.to_reference(ext_proj)}",
           system: true
@@ -654,12 +732,12 @@ describe Note do
   end
 
   describe '#noteable_ability_name' do
-    it 'returns project_snippet for a project snippet note' do
-      expect(build(:note_on_project_snippet).noteable_ability_name).to eq('project_snippet')
+    it 'returns snippet for a project snippet note' do
+      expect(build(:note_on_project_snippet).noteable_ability_name).to eq('snippet')
     end
 
-    it 'returns personal_snippet for a personal snippet note' do
-      expect(build(:note_on_personal_snippet).noteable_ability_name).to eq('personal_snippet')
+    it 'returns snippet for a personal snippet note' do
+      expect(build(:note_on_personal_snippet).noteable_ability_name).to eq('snippet')
     end
 
     it 'returns merge_request for an MR note' do
@@ -984,20 +1062,20 @@ describe Note do
   describe 'expiring ETag cache' do
     let(:note) { build(:note_on_issue) }
 
-    def expect_expiration(note)
+    def expect_expiration(noteable)
       expect_any_instance_of(Gitlab::EtagCaching::Store)
         .to receive(:touch)
-        .with("/#{note.project.namespace.to_param}/#{note.project.to_param}/noteable/issue/#{note.noteable.id}/notes")
+        .with("/#{noteable.project.namespace.to_param}/#{noteable.project.to_param}/noteable/#{noteable.class.name.underscore}/#{noteable.id}/notes")
     end
 
     it "expires cache for note's issue when note is saved" do
-      expect_expiration(note)
+      expect_expiration(note.noteable)
 
       note.save!
     end
 
     it "expires cache for note's issue when note is destroyed" do
-      expect_expiration(note)
+      expect_expiration(note.noteable)
 
       note.destroy!
     end
@@ -1012,28 +1090,54 @@ describe Note do
       end
     end
 
-    describe '#with_notes_filter' do
-      let!(:comment) { create(:note) }
-      let!(:system_note) { create(:note, system: true) }
+    context 'for merge requests' do
+      let_it_be(:merge_request) { create(:merge_request) }
 
-      context 'when notes filter is nil' do
-        subject { described_class.with_notes_filter(nil) }
+      context 'when adding a note to the MR' do
+        let(:note) { build(:note, noteable: merge_request, project: merge_request.project) }
 
-        it { is_expected.to include(comment, system_note) }
+        it 'expires the MR note etag cache' do
+          expect_expiration(merge_request)
+
+          note.save!
+        end
       end
 
-      context 'when notes filter is set to all notes' do
-        subject { described_class.with_notes_filter(UserPreference::NOTES_FILTERS[:all_notes]) }
+      context 'when adding a note to a commit on the MR' do
+        let(:note) { build(:note_on_commit, commit_id: merge_request.commits.first.id, project: merge_request.project) }
 
-        it { is_expected.to include(comment, system_note) }
+        it 'expires the MR note etag cache' do
+          expect_expiration(merge_request)
+
+          note.save!
+        end
       end
+    end
+  end
 
-      context 'when notes filter is set to only comments' do
-        subject { described_class.with_notes_filter(UserPreference::NOTES_FILTERS[:only_comments]) }
+  describe '#with_notes_filter' do
+    let!(:comment) { create(:note) }
+    let!(:system_note) { create(:note, system: true) }
 
-        it { is_expected.to include(comment) }
-        it { is_expected.not_to include(system_note) }
-      end
+    subject { described_class.with_notes_filter(filter) }
+
+    context 'when notes filter is nil' do
+      let(:filter) { nil }
+
+      it { is_expected.to include(comment, system_note) }
+    end
+
+    context 'when notes filter is set to all notes' do
+      let(:filter) { UserPreference::NOTES_FILTERS[:all_notes] }
+
+      it { is_expected.to include(comment, system_note) }
+    end
+
+    context 'when notes filter is set to only comments' do
+      let(:filter) { UserPreference::NOTES_FILTERS[:only_comments] }
+
+      it { is_expected.to include(comment) }
+      it { is_expected.not_to include(system_note) }
     end
   end
 

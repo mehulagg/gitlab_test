@@ -8,6 +8,18 @@ describe 'GitlabSchema configurations' do
   set(:project) { create(:project) }
 
   shared_examples 'imposing query limits' do
+    describe 'timeouts' do
+      context 'when timeout is reached' do
+        it 'shows an error' do
+          Timecop.scale(50000000) do # ludicrously large number because the timeout has to happen before the query even begins
+            subject
+
+            expect_graphql_errors_to_include /Timeout/
+          end
+        end
+      end
+    end
+
     describe '#max_complexity' do
       context 'when complexity is too high' do
         it 'shows an error' do
@@ -55,24 +67,45 @@ describe 'GitlabSchema configurations' do
         end
       end
 
-      context 'a deep but simple recursive introspective query' do
-        it 'fails due to recursion' do
-          query = File.read(Rails.root.join('spec/fixtures/api/graphql/recursive-introspection.graphql'))
-
-          post_graphql(query, current_user: nil)
-
-          expect_graphql_errors_to_include [/Recursive query/]
+      context 'failing queries' do
+        before do
+          allow(GitlabSchema).to receive(:max_query_recursion).and_return 1
         end
-      end
 
-      context 'a deep recursive non-introspective query' do
-        it 'fails due to recursion, complexity and depth' do
-          allow(GitlabSchema).to receive(:max_query_complexity).and_return 1
-          query = File.read(Rails.root.join('spec/fixtures/api/graphql/recursive-query.graphql'))
+        context 'a recursive introspective query' do
+          it 'fails due to recursion' do
+            query = File.read(Rails.root.join('spec/fixtures/api/graphql/recursive-introspection.graphql'))
 
-          post_graphql(query, current_user: nil)
+            post_graphql(query, current_user: nil)
 
-          expect_graphql_errors_to_include [/Recursive query/, /exceeds max complexity/, /exceeds max depth/]
+            expect_graphql_errors_to_include [/Recursive query/]
+          end
+        end
+
+        context 'a recursive non-introspective query' do
+          before do
+            allow(GitlabSchema).to receive(:max_query_complexity).and_return 1
+            allow(GitlabSchema).to receive(:max_query_depth).and_return 1
+            allow(GitlabSchema).to receive(:max_query_complexity).and_return 1
+          end
+
+          shared_examples 'fails due to recursion, complexity and depth' do |fixture_file|
+            it 'fails due to recursion, complexity and depth' do
+              query = File.read(Rails.root.join(fixture_file))
+
+              post_graphql(query, current_user: nil)
+
+              expect_graphql_errors_to_include [/Recursive query/, /exceeds max complexity/, /exceeds max depth/]
+            end
+          end
+
+          context 'using `nodes` notation' do
+            it_behaves_like 'fails due to recursion, complexity and depth', 'spec/fixtures/api/graphql/recursive-query-nodes.graphql'
+          end
+
+          context 'using `edges -> node` notation' do
+            it_behaves_like 'fails due to recursion, complexity and depth', 'spec/fixtures/api/graphql/recursive-query-edges-node.graphql'
+          end
         end
       end
     end

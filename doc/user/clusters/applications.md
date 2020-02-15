@@ -9,6 +9,10 @@ and [deployments](../../ci/environments.md) when using [Auto DevOps](../../topic
 You can install them after you
 [create a cluster](../project/clusters/add_remove_clusters.md).
 
+Interested in contributing a new GitLab managed app? Visit the
+[development guidelines page](../../development/kubernetes.md#gitlab-managed-apps)
+to get started.
+
 ## Installing applications
 
 Applications managed by GitLab will be installed onto the `gitlab-managed-apps` namespace.
@@ -35,12 +39,13 @@ The following applications can be installed:
 
 - [Helm](#helm)
 - [Ingress](#ingress)
-- [Cert-Manager](#cert-manager)
+- [cert-manager](#cert-manager)
 - [Prometheus](#prometheus)
 - [GitLab Runner](#gitlab-runner)
 - [JupyterHub](#jupyterhub)
 - [Knative](#knative)
 - [Crossplane](#crossplane)
+- [Elastic Stack](#elastic-stack)
 
 With the exception of Knative, the applications will be installed in a dedicated
 namespace called `gitlab-managed-apps`.
@@ -73,13 +78,13 @@ Installing Helm as a GitLab-managed App behind a proxy is not supported,
 but a [workaround](../../topics/autodevops/index.md#installing-helm-behind-a-proxy)
 is available.
 
-### Cert-Manager
+### cert-manager
 
 > Introduced in GitLab 11.6 for project- and group-level clusters.
 
-[Cert-Manager](https://docs.cert-manager.io/en/latest/) is a native
+[cert-manager](https://docs.cert-manager.io/en/latest/) is a native
 Kubernetes certificate management controller that helps with issuing
-certificates. Installing Cert-Manager on your cluster will issue a
+certificates. Installing cert-manager on your cluster will issue a
 certificate by [Let's Encrypt](https://letsencrypt.org/) and ensure that
 certificates are valid and up-to-date.
 
@@ -91,13 +96,13 @@ The chart used to install this application depends on the version of GitLab used
 - GitLab 12.2 and older, the [stable/cert-manager](https://github.com/helm/charts/tree/master/stable/cert-manager)
   chart was used.
 
-If you have installed Cert-Manager prior to GitLab 12.3, Let's Encrypt will
-[block requests from older versions of Cert-Manager](https://community.letsencrypt.org/t/blocking-old-cert-manager-versions/98753).
+If you have installed cert-manager prior to GitLab 12.3, Let's Encrypt will
+[block requests from older versions of cert-manager](https://community.letsencrypt.org/t/blocking-old-cert-manager-versions/98753).
 
 To resolve this:
 
-1. Uninstall Cert-Manager (consider [backing up any additional configuration](https://docs.cert-manager.io/en/latest/tasks/backup-restore-crds.html)).
-1. Install Cert-Manager again.
+1. Uninstall cert-manager (consider [backing up any additional configuration](https://docs.cert-manager.io/en/latest/tasks/backup-restore-crds.html)).
+1. Install cert-manager again.
 
 ### GitLab Runner
 
@@ -152,7 +157,7 @@ to determine the external endpoint and it should be available within a few minut
 
 #### Determining the external endpoint automatically
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/17052) in GitLab 10.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/17052) in GitLab 10.6.
 
 After you install Ingress, the external endpoint should be available within a few minutes.
 
@@ -195,25 +200,25 @@ rules that allow external access to your deployed applications.
 
 If you installed Ingress via the **Applications**, run the following command:
 
-```bash
+```shell
 kubectl get service --namespace=gitlab-managed-apps ingress-nginx-ingress-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 ```
 
 Some Kubernetes clusters return a hostname instead, like [Amazon EKS](https://aws.amazon.com/eks/). For these platforms, run:
 
-```bash
+```shell
 kubectl get service --namespace=gitlab-managed-apps ingress-nginx-ingress-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 ```
 
 For Istio/Knative, the command will be different:
 
-```bash
+```shell
 kubectl get svc --namespace=istio-system knative-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip} '
 ```
 
 Otherwise, you can list the IP addresses of all load balancers:
 
-```bash
+```shell
 kubectl get svc --all-namespaces -o jsonpath='{range.items[?(@.status.loadBalancer.ingress)]}{.status.loadBalancer.ingress[*].ip} '
 ```
 
@@ -248,10 +253,10 @@ use an A record. If your external endpoint is a hostname, use a CNAME record.
 
 #### Web Application Firewall (ModSecurity)
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/65192) in GitLab 12.3 (enabled using `ingress_modsecurity` [feature flag](../../development/feature_flags/development.md#enabling-a-feature-flag-in-development)).
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/21966) in GitLab 12.7.
 
 Out of the box, GitLab provides you real-time security monitoring with
-[`modsecurity`](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#modsecurity)
+[ModSecurity](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#modsecurity).
 
 Modsecurity is a toolkit for real-time web application monitoring, logging,
 and access control. With GitLab's offering, the [OWASP's Core Rule Set](https://www.modsecurity.org/CRS/Documentation/), which provides generic attack detection capabilities,
@@ -263,20 +268,22 @@ This feature:
 - Is viewable by checking your Ingress controller's `modsec` log for rule violations.
   For example:
 
-  ```sh
-  kubectl -n gitlab-managed-apps exec -it $(kubectl get pods -n gitlab-managed-apps | grep 'ingress-controller' | awk '{print $1}') -- tail -f /var/log/modsec/audit.log
+  ```shell
+  kubectl logs -n gitlab-managed-apps $(kubectl get pod -n gitlab-managed-apps -l app=nginx-ingress,component=controller --no-headers=true -o custom-columns=:metadata.name) modsecurity-log -f
   ```
 
-There is a small performance overhead by enabling `modsecurity`. However, if this is
-considered significant for your application, you can toggle the feature flag back to
-false by running the following command within the Rails console:
+To enable ModSecurity, check the **Enable Web Application Firewall** checkbox
+when installing your [Ingress application](#ingress).
 
-```ruby
-Feature.disable(:ingress_modsecurity)
-```
+There is a small performance overhead by enabling ModSecurity. If this is
+considered significant for your application, you can disable ModSecurity's
+rule engine for your deployed application by setting
+[the deployment variable](../../topics/autodevops/index.md)
+`AUTO_DEVOPS_MODSECURITY_SEC_RULE_ENGINE` to `Off`. This will prevent ModSecurity
+from processing any requests for the given application or environment.
 
-Once disabled, you must [uninstall](#uninstalling-applications) and reinstall your Ingress
-application for the changes to take effect.
+To permanently disable it, you must [uninstall](#uninstalling-applications) and
+reinstall your Ingress application for the changes to take effect.
 
 ### JupyterHub
 
@@ -313,8 +320,8 @@ file.
 
 #### Jupyter Git Integration
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/28783) in GitLab 12.0 for project-level clusters.
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/32512) in GitLab 12.3 for group and instance-level clusters.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/28783) in GitLab 12.0 for project-level clusters.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/32512) in GitLab 12.3 for group and instance-level clusters.
 
 When installing JupyterHub onto your Kubernetes cluster, [JupyterLab's Git extension](https://github.com/jupyterlab/jupyterlab-git)
 is automatically provisioned and configured using the authenticated user's:
@@ -417,21 +424,318 @@ install Crossplane using the
 [`values.yaml`](https://github.com/crossplaneio/crossplane/blob/master/cluster/charts/crossplane/values.yaml.tmpl)
 file.
 
-#### Enabling installation
+### Elastic Stack
 
-This is a preliminary release of Crossplane as a GitLab-managed application. By default,
-the ability to install it is disabled.
+> Introduced in GitLab 12.7 for project- and group-level clusters.
 
-To allow installation of Crossplane as a GitLab-managed application, ask a GitLab
-administrator to run following command within a Rails console:
+[Elastic Stack](https://www.elastic.co/products/elastic-stack) is a complete end-to-end
+log analysis solution which helps in deep searching, analyzing and visualizing the logs
+generated from different machines.
 
-```ruby
-Feature.enable(:enable_cluster_application_crossplane)
+GitLab is able to gather logs from pods in your cluster automatically.
+Filebeat will run as a DaemonSet on each node in your cluster, and it will ship container logs to Elasticsearch for querying.
+GitLab will then connect to Elasticsearch for logs instead of the Kubernetes API,
+and you will have access to more advanced querying capabilities.
+
+Log data is automatically deleted after 30 days using [Curator](https://www.elastic.co/guide/en/elasticsearch/client/curator/5.5/about.html).
+
+To enable log shipping, install Elastic Stack into the cluster with the **Install** button.
+
+NOTE: **Note:**
+The [`stable/elastic-stack`](https://github.com/helm/charts/tree/master/stable/elastic-stack)
+chart is used to install this application with a
+[`values.yaml`](https://gitlab.com/gitlab-org/gitlab/blob/master/vendor/elastic_stack/values.yaml)
+file.
+
+NOTE: **Note:**
+The chart will deploy 4 Elasticsearch nodes: 2 masters, 1 data and 1 client node,
+with resource requests totalling 0.1 CPU and 3GB RAM. Each data node requests 1.5GB of memory,
+which makes it incompatible with clusters of `f1-micro` and `g1-small` instance types.
+
+## Install using GitLab CI (alpha)
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/20822) in GitLab 12.6.
+
+CAUTION: **Warning:**
+This is an _alpha_ feature, and it is subject to change at any time without
+prior notice.
+
+This alternative method allows users to install GitLab-managed
+applications using GitLab CI. It also allows customization of the
+install using Helm `values.yaml` files.
+
+Supported applications:
+
+- [Ingress](#install-ingress-using-gitlab-ci)
+- [cert-manager](#install-cert-manager-using-gitlab-ci)
+- [Sentry](#install-sentry-using-gitlab-ci)
+- [GitLab Runner](#install-gitlab-runner-using-gitlab-ci)
+- [Cilium](#install-cilium-using-gitlab-ci)
+
+### Usage
+
+You can find and import all the files referenced below
+in the [example cluster applications
+project](https://gitlab.com/gitlab-org/cluster-integration/example-cluster-applications/).
+
+To install applications using GitLab CI:
+
+1. Connect the cluster to a [cluster management project](management_project.md).
+1. In that project, add a `.gitlab-ci.yml` file with the following content:
+
+    ```yaml
+    include:
+      - template: Managed-Cluster-Applications.gitlab-ci.yml
+    ```
+
+1. Add a `.gitlab/managed-apps/config.yaml` file to define which
+  applications you would like to install. Define the `installed` key as
+  `true` to install the application and `false` to uninstall the
+  application. For example, to install Ingress:
+
+    ```yaml
+    ingress:
+      installed: true
+    ```
+
+1. Optionally, define `.gitlab/managed-apps/<application>/values.yaml` file to
+   customize values for the installed application.
+
+A GitLab CI pipeline will then run on the `master` branch to install the
+applications you have configured. In case of pipeline failure, the
+output of the [Helm
+Tiller](https://v2.helm.sh/docs/install/#running-tiller-locally) binary
+will be saved as a [CI job artifact](../project/pipelines/job_artifacts.md).
+
+### Install Ingress using GitLab CI
+
+To install Ingress, define the `.gitlab/managed-apps/config.yaml` file
+with:
+
+```yaml
+ingress:
+  installed: true
+```
+
+Ingress will then be installed into the `gitlab-managed-apps` namespace
+of your cluster.
+
+You can customize the installation of Ingress by defining
+`.gitlab/managed-apps/ingress/values.yaml` file in your cluster
+management project. Refer to the
+[chart](https://github.com/helm/charts/tree/master/stable/nginx-ingress)
+for the available configuration options.
+
+### Install cert-manager using GitLab CI
+
+cert-manager is installed using GitLab CI by defining configuration in
+`.gitlab/managed-apps/config.yaml`.
+
+cert-manager:
+
+- Is installed into the `gitlab-managed-apps` namespace of your cluster.
+- Can be installed with or without a default [Let's Encrypt `ClusterIssuer`](https://cert-manager.io/docs/configuration/acme/), which requires an
+  email address to be specified. The email address is used by Let's Encrypt to
+  contact you about expiring certificates and issues related to your account.
+
+The following configuration is required to install cert-manager using GitLab CI:
+
+```yaml
+certManager:
+  installed: true
+  letsEncryptClusterIssuer:
+    installed: true
+    email: "user@example.com"
+```
+
+The following installs cert-manager using GitLab CI without the default `ClusterIssuer`:
+
+```yaml
+certManager:
+  installed: true
+  letsEncryptClusterIssuer:
+    installed: false
+```
+
+You can customize the installation of cert-manager by defining
+`.gitlab/managed-apps/cert-manager/values.yaml` file in your cluster
+management project. Refer to the
+[chart](https://hub.helm.sh/charts/jetstack/cert-manager) for the
+available configuration options.
+
+### Install Sentry using GitLab CI
+
+NOTE: **Note:**
+The Sentry Helm chart [recommends](https://github.com/helm/charts/blob/f6e5784f265dd459c5a77430185d0302ed372665/stable/sentry/values.yaml#L284-L285) at least 3GB of available RAM for database migrations.
+
+To install Sentry, define the `.gitlab/managed-apps/config.yaml` file
+with:
+
+```yaml
+sentry:
+  installed: true
+```
+
+Sentry will then be installed into the `gitlab-managed-apps` namespace
+of your cluster.
+
+You can customize the installation of Sentry by defining
+`.gitlab/managed-apps/sentry/values.yaml` file in your cluster
+management project. Refer to the
+[chart](https://github.com/helm/charts/tree/master/stable/sentry)
+for the available configuration options.
+
+We recommend you pay close attention to the following configuration options:
+
+- `email`. Needed to invite users to your Sentry instance and to send error emails.
+- `user`. Where you can set the login credentials for the default admin user.
+- `postgresql`. For a PostgreSQL password that can be used when running future updates.
+
+NOTE: **Note:**
+When upgrading it is important to provide the existing PostgreSQL password (given using the `postgresql.postgresqlPassword` key) or you will receive authentication errors. See the [PostgreSQL chart documentation](https://github.com/helm/charts/tree/master/stable/postgresql#upgrade) for more information.
+
+Here is an example configuration for Sentry:
+
+```yaml
+# Admin user to create
+user:
+  # Indicated to create the admin user or not,
+  # Default is true as the initial installation.
+  create: true
+  email: "<your email>"
+  password: "<your password>"
+
+email:
+  from_address: "<your from email>"
+  host: smtp
+  port: 25
+  use_tls: false
+  user: "<your email username>"
+  password: "<your email password>"
+  enable_replies: false
+
+ingress:
+  enabled: true
+  hostname: "<sentry.example.com>"
+
+# Needs to be here between runs.
+# See https://github.com/helm/charts/tree/master/stable/postgresql#upgrade for more info
+postgresql:
+  postgresqlPassword: example-postgresql-password
+```
+
+### Install GitLab Runner using GitLab CI
+
+GitLab Runner is installed using GitLab CI by defining configuration in
+`.gitlab/managed-apps/config.yaml`.
+
+The following configuration is required to install GitLab Runner using GitLab CI:
+
+```yaml
+gitlabRunner:
+  installed: true
+```
+
+GitLab Runner is installed into the `gitlab-managed-apps` namespace of your cluster.
+
+In order for GitLab Runner to function, you **must** specify the following:
+
+- `gitlabUrl` - the GitLab server full URL (e.g., `https://example.gitlab.com`) to register the Runner against.
+- `runnerRegistrationToken` - The registration token for adding new Runners to GitLab. This must be
+  [retrieved from your GitLab instance](../../ci/runners/README.md).
+
+These values can be specifed using [CI variables](../../ci/variables/README.md):
+
+- `GITLAB_RUNNER_GITLAB_URL` will be used for `gitlabUrl`.
+- `GITLAB_RUNNER_REGISTRATION_TOKEN` will be used for `runnerRegistrationToken`
+
+You can customize the installation of GitLab Runner by defining
+`.gitlab/managed-apps/gitlab-runner/values.yaml` file in your cluster
+management project. Refer to the
+[chart](https://gitlab.com/gitlab-org/charts/gitlab-runner) for the
+available configuration options.
+
+### Install Cilium using GitLab CI
+
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/merge_requests/22) in GitLab 12.8.
+
+[Cilium](https://cilium.io/) is a networking plugin for Kubernetes
+that you can use to implement support for
+[NetworkPolicy](https://kubernetes.io/docs/concepts/services-networking/network-policies/)
+resources.
+
+Enable Cilium in the `.gitlab/managed-apps/config.yaml` file to install it:
+
+```yaml
+# possible values are gke, eks or you can leave it blank
+clusterType: gke
+
+cilium:
+  installed: true
+```
+
+The `clusterType` variable enables the recommended Helm variables for
+a corresponding cluster type, the default value is blank. You can
+check the recommended variables for each cluster type in the official
+documentation:
+
+- [Google GKE](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-gke/#prepare-deploy-cilium)
+- [AWS EKS](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-eks/#prepare-deploy-cilium)
+
+You can customize Cilium's Helm variables by defining the
+`.gitlab/managed-apps/cilium/values.yaml` file in your cluster
+management project. Refer to the
+[Cilium chart](https://github.com/cilium/cilium/tree/master/install/kubernetes/cilium)
+for the available configuration options.
+
+CAUTION: **Caution:**
+Installation and removal of the Cilium [requires restart](https://cilium.readthedocs.io/en/stable/gettingstarted/k8s-install-gke/#restart-remaining-pods)
+of all affected pods in all namespaces to ensure that they are
+[managed](https://cilium.readthedocs.io/en/stable/troubleshooting/#ensure-pod-is-managed-by-cilium)
+by the correct networking plugin.
+
+NOTE: **Note:**
+Major upgrades might require additional setup steps, please consult
+the official [upgrade guide](https://docs.cilium.io/en/stable/install/upgrade/) for more
+information.
+
+By default, Cilium will drop all non-whitelisted packets upon policy
+deployment. The audit mode is scheduled for release in
+[Cilium 1.8](https://github.com/cilium/cilium/pull/9970). In the audit
+mode non-whitelisted packets will not be dropped, instead audit
+notifications will be generated. GitLab provides alternative Docker
+images for Cilium with the audit patch included. You can switch to the
+custom build and enable the audit mode by adding the following to
+`.gitlab/managed-apps/cilium/values.yaml`:
+
+```yml
+global:
+  registry: registry.gitlab.com/gitlab-org/defend/cilium
+  policyAuditMode: true
+
+agent:
+  monitor:
+    eventTypes: ["drop", "audit"]
+```
+
+The Cilium monitor log for traffic is logged out by the
+`cilium-monitor` sidecar container. You can check these logs via:
+
+```shell
+kubectl -n gitlab-managed-apps logs cilium-XXXX cilium-monitor
+```
+
+You can disable the monitor log via `.gitlab/managed-apps/cilium/values.yaml`:
+
+```yml
+agent:
+  monitor:
+    enabled: false
 ```
 
 ## Upgrading applications
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/24789) in GitLab 11.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/24789) in GitLab 11.8.
 
 The applications below can be upgraded.
 
@@ -462,7 +766,7 @@ The applications below can be uninstalled.
 
 | Application | GitLab version | Notes |
 | ----------- | -------------- | ----- |
-| Cert-Manager | 12.2+         | The associated private key will be deleted and cannot be restored. Deployed applications will continue to use HTTPS, but certificates will not be renewed. Before uninstalling, you may wish to [back up your configuration](https://docs.cert-manager.io/en/latest/tasks/backup-restore-crds.html) or [revoke your certificates](https://letsencrypt.org/docs/revoking/). |
+| cert-manager | 12.2+         | The associated private key will be deleted and cannot be restored. Deployed applications will continue to use HTTPS, but certificates will not be renewed. Before uninstalling, you may wish to [back up your configuration](https://docs.cert-manager.io/en/latest/tasks/backup-restore-crds.html) or [revoke your certificates](https://letsencrypt.org/docs/revoking/). |
 | GitLab Runner  | 12.2+         | Any running pipelines will be canceled. |
 | Helm  | 12.2+         | The associated Tiller pod, the `gitlab-managed-apps` namespace, and all of its resources will be deleted and cannot be restored. |
 | Ingress  | 12.1+         | The associated load balancer and IP will be deleted and cannot be restored. Furthermore, it can only be uninstalled if JupyterHub is not installed. |
@@ -470,6 +774,8 @@ The applications below can be uninstalled.
 | Knative  | 12.1+         | The associated IP will be deleted and cannot be restored. |
 | Prometheus  | 11.11+         | All data will be deleted and cannot be restored. |
 | Crossplane  | 12.5+         | All data will be deleted and cannot be restored. |
+| Elastic Stack  | 12.7+         | All data will be deleted and cannot be restored. |
+| Sentry  | 12.6+         | The PostgreSQL persistent volume will remain and should be manually removed for complete uninstall.  |
 
 To uninstall an application:
 
@@ -501,7 +807,7 @@ To avoid installation errors:
 
   You can confirm that the certificates match via `kubectl`:
 
-  ```sh
+  ```shell
   kubectl get configmaps/values-content-configuration-ingress -n gitlab-managed-apps -o \
   "jsonpath={.data['cert\.pem']}" | base64 -d > a.pem
   kubectl get secrets/tiller-secret -n gitlab-managed-apps -o "jsonpath={.data['ca\.crt']}" | base64 -d > b.pem

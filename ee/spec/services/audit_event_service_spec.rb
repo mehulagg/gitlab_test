@@ -5,7 +5,7 @@ require 'spec_helper'
 describe AuditEventService do
   let(:project) { create(:project) }
   let(:user) { create(:user) }
-  let(:project_member) { create(:project_member, user: user) }
+  let(:project_member) { create(:project_member, user: user, expires_at: 1.day.from_now) }
   let(:service) { described_class.new(user, project, { action: :destroy }) }
 
   describe '#for_member' do
@@ -24,6 +24,36 @@ describe AuditEventService do
     it 'has the IP address' do
       event = service.for_member(project_member).security_event
       expect(event[:details][:ip_address]).to eq(user.current_sign_in_ip)
+    end
+
+    context 'user access expiry' do
+      let(:service) { described_class.new(nil, project, { action: :expired }) }
+
+      it 'generates a system event' do
+        event = service.for_member(project_member).security_event
+
+        expect(event[:details][:remove]).to eq('user_access')
+        expect(event[:details][:system_event]).to be_truthy
+        expect(event[:details][:reason]).to include('access expired on')
+      end
+    end
+
+    context 'updating membership' do
+      let(:service) do
+        described_class.new(user, project, {
+          action: :update,
+          old_access_level: 'Reporter',
+          old_expiry: Date.today
+        })
+      end
+
+      it 'records the change in expiry date' do
+        event = service.for_member(project_member).security_event
+
+        expect(event[:details][:change]).to eq('access_level')
+        expect(event[:details][:expiry_from]).to eq(Date.today)
+        expect(event[:details][:expiry_to]).to eq(1.day.from_now.to_date)
+      end
     end
 
     context 'admin audit log licensed' do
@@ -54,6 +84,16 @@ describe AuditEventService do
     context 'licensed' do
       it 'creates an event' do
         expect { service.security_event }.to change(SecurityEvent, :count).by(1)
+      end
+
+      context 'on a read-only instance' do
+        before do
+          allow(Gitlab::Database).to receive(:read_only?).and_return(true)
+        end
+
+        it 'does not create an event' do
+          expect { service.security_event }.not_to change(SecurityEvent, :count)
+        end
       end
     end
   end

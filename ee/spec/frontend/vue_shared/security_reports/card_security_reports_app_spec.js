@@ -1,14 +1,12 @@
-import { mount, createLocalVue } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { GlEmptyState } from '@gitlab/ui';
 import MockAdapter from 'axios-mock-adapter';
-import axios from '~/lib/utils/axios_utils';
 import { TEST_HOST } from 'helpers/test_constants';
 
 import CardSecurityDashboardApp from 'ee/vue_shared/security_reports/card_security_reports_app.vue';
 import createStore from 'ee/security_dashboard/store';
 import { trimText } from 'helpers/text_helper';
-
-const localVue = createLocalVue();
+import axios from '~/lib/utils/axios_utils';
 
 const vulnerabilitiesEndpoint = `${TEST_HOST}/vulnerabilities`;
 const vulnerabilitiesSummaryEndpoint = `${TEST_HOST}/vulnerabilities_summary`;
@@ -22,9 +20,7 @@ describe('Card security reports app', () => {
 
   const createComponent = props => {
     wrapper = mount(CardSecurityDashboardApp, {
-      localVue,
       store: createStore(),
-      sync: false,
       stubs: ['security-dashboard-table'],
       propsData: {
         hasPipelineData: true,
@@ -52,8 +48,6 @@ describe('Card security reports app', () => {
           id: 123,
           name: 'my-project',
         },
-        dashboardDocumentation: `${TEST_HOST}/dashboard_documentation`,
-        emptyStateSvgPath: `/empty_state.svg`,
         vulnerabilityFeedbackHelpPath: `${TEST_HOST}/vulnerability_feedback_help`,
         vulnerabilitiesEndpoint,
         vulnerabilitiesSummaryEndpoint,

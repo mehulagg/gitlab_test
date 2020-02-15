@@ -43,7 +43,7 @@ As an example, imagine a pipeline consisting of four stages, executed in the fol
 
 ## Visualizing pipelines
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/5742) in GitLab 8.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/5742) in GitLab 8.11.
 
 Pipelines can be complex structures with many sequential and parallel jobs.
 
@@ -87,7 +87,7 @@ Stages in pipeline mini graphs are collapsible. Hover your mouse over them and c
 
 Job ordering depends on the type of pipeline graph. For [regular pipeline graphs](#regular-pipeline-graphs), jobs are sorted by name.
 
-For [pipeline mini graphs](#pipeline-mini-graphs) ([introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/9760)
+For [pipeline mini graphs](#pipeline-mini-graphs) ([introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/9760)
 in GitLab 9.0), jobs are sorted by severity and then by name.
 
 The order of severity is:
@@ -149,14 +149,15 @@ The union of A, B, and C is (1, 4) and (6, 7). Therefore, the total running time
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/14664) in GitLab
 > 12.0.
 
-Job logs are divided into sections that can be collapsed or expanded.
+Job logs are divided into sections that can be collapsed or expanded. Each section will display
+the duration.
 
 In the following example:
 
-- Two sections are expanded and can be collapsed.
-- One section is collapsed and can be expanded.
+- Two sections are collapsed and can be expanded.
+- Three sections are expanded and can be collapsed.
 
-![Collapsible sections](img/collapsible_log.png)
+![Collapsible sections](img/collapsible_log_v12_6.png)
 
 ## Configuring pipelines
 
@@ -179,7 +180,7 @@ through the GitLab UI:
 
 ### Grouping jobs
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/6242) in GitLab 8.12.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/6242) in GitLab 8.12.
 
 If you have many similar jobs, your [pipeline graph](#visualizing-pipelines) becomes long and hard
 to read.
@@ -245,6 +246,13 @@ Pipelines for different projects can be combined and visualized together.
 
 For more information, see [Multi-project pipelines](multi_project_pipelines.md).
 
+## Parent-child pipelines
+
+Complex pipelines can be broken down into one parent pipeline that can trigger
+multiple child sub-pipelines, which all run in the same project and with the same SHA.
+
+For more information, see [Parent-Child pipelines](parent_child_pipelines.md).
+
 ## Working with pipelines
 
 In general, pipelines are executed automatically and require no intervention once created.
@@ -304,12 +312,14 @@ For example, the query string
 ### Accessing pipelines
 
 You can find the current and historical pipeline runs under your project's
-**CI/CD > Pipelines** page. Clicking on a pipeline will show the jobs that were run for
-that pipeline.
+**CI/CD > Pipelines** page. You can also access pipelines for a merge request by navigating
+to its **Pipelines** tab.
 
 ![Pipelines index page](img/pipelines_index.png)
 
-You can also access pipelines for a merge request by navigating to its **Pipelines** tab.
+Clicking on a pipeline will bring you to the **Pipeline Details** page and show
+the jobs that were run for that pipeline. From here you can cancel a running pipeline,
+retry jobs on a failed pipeline, or [delete a pipeline](#deleting-a-single-pipeline).
 
 ### Accessing individual jobs
 
@@ -323,7 +333,7 @@ Clicking on an individual job will show you its job log, and allow you to:
 
 ### Seeing the failure reason for jobs
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/17782) in GitLab 10.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/17782) in GitLab 10.7.
 
 When a pipeline fails or is allowed to fail, there are several places where you
 can quickly check the reason it failed:
@@ -336,12 +346,12 @@ In each place, if you hover over the failed job you can see the reason it failed
 
 ![Pipeline detail](img/job_failure_reason.png)
 
-From [GitLab 10.8](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/17814),
+From [GitLab 10.8](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/17814),
 you can also see the reason it failed on the Job detail page.
 
 ### Manual actions from pipeline graphs
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/7931) in GitLab 8.15.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/7931) in GitLab 8.15.
 
 Manual actions, configured using the [`when:manual`](yaml/README.md#whenmanual) parameter,
 allow you to require manual interaction before moving forward in the pipeline.
@@ -357,7 +367,7 @@ stage has a job with a manual action.
 
 ### Specifying variables when running manual jobs
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/30485) in GitLab 12.2.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/30485) in GitLab 12.2.
 
 When running manual jobs you can supply additional job specific variables.
 
@@ -371,7 +381,7 @@ environment variables.
 
 ### Delay a job in a pipeline graph
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/21767) in GitLab 11.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/21767) in GitLab 11.4.
 
 When you do not want to run a job immediately, you can use the [`when:delayed`](yaml/README.md#whendelayed) parameter to
 delay a job's execution for a certain period.
@@ -398,7 +408,7 @@ GitLab provides API endpoints to:
 
 ### Start multiple manual actions in a stage
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/27188) in GitLab 11.11.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/27188) in GitLab 11.11.
 
 Multiple manual actions in a single stage can be started at the same time using the "Play all manual" button.
 Once the user clicks this button, each individual manual action will be triggered and refreshed
@@ -408,6 +418,20 @@ This functionality is only available:
 
 - For users with at least Developer access.
 - If the the stage contains [manual actions](#manual-actions-from-pipeline-graphs).
+
+### Deleting a single pipeline
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/24851) in GitLab 12.7.
+
+Users with [owner permissions](../user/permissions.md) in a project can delete a pipeline
+by clicking on the pipeline in the **CI/CD > Pipelines** to get to the **Pipeline Details**
+page, then using the **Delete** button.
+
+![Pipeline Delete Button](img/pipeline-delete.png)
+
+CAUTION: **Warning:**
+Deleting a pipeline will expire all pipeline caches, and delete all related objects,
+such as builds, logs, artifacts, and triggers. **This action cannot be undone.**
 
 ## Most Recent Pipeline
 
@@ -442,7 +466,7 @@ runners will not use regular runners, they must be tagged accordingly.
 
 ## Persistent pipeline refs
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/17043) in GitLab 12.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/17043) in GitLab 12.4.
 
 Previously, you'd have encountered unexpected pipeline failures when you force-pushed
 a branch to its remote repository. To illustrate the problem, suppose you've had the current workflow:

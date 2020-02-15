@@ -14,9 +14,16 @@ tree:
         - :user
 
 included_attributes:
+  user:
+    - :id
+    - :email
+    - :username
+  author:
+    - :name
 
 excluded_attributes:
   group:
+    - :id
     - :runners_token
     - :runners_token_encrypted
 
@@ -25,6 +32,10 @@ methods:
     - :type
   badges:
     - :type
+  notes:
+    - :type
+  events:
+    - :action
 
 preloads:
 
@@ -33,4 +44,17 @@ preloads:
 ee:
   tree:
     group:
-      - :epics
+      - epics:
+          - :parent
+          - :award_emoji
+          - events:
+              - :push_event_payload
+          - notes:
+              - :author
+              - :award_emoji
+              - events:
+                  - :push_event_payload
+      - boards:
+          - :board_assignee
+          - labels:
+              - :priorities

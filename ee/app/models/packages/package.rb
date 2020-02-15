@@ -5,8 +5,11 @@ class Packages::Package < ApplicationRecord
   belongs_to :project
   # package_files must be destroyed by ruby code in order to properly remove carrierwave uploads and update project statistics
   has_many :package_files, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+  has_many :dependency_links, inverse_of: :package, class_name: 'Packages::DependencyLink'
+  has_many :tags, inverse_of: :package, class_name: 'Packages::Tag'
   has_one :conan_metadatum, inverse_of: :package
   has_one :maven_metadatum, inverse_of: :package
+  has_one :build_info, inverse_of: :package
 
   accepts_nested_attributes_for :conan_metadatum
   accepts_nested_attributes_for :maven_metadatum
@@ -19,10 +22,13 @@ class Packages::Package < ApplicationRecord
     presence: true,
     format: { with: Gitlab::Regex.package_name_regex }
 
+  validates :name,
+    uniqueness: { scope: %i[project_id version package_type] }
+
   validate :valid_npm_package_name, if: :npm?
   validate :package_already_taken, if: :npm?
 
-  enum package_type: { maven: 1, npm: 2, conan: 3 }
+  enum package_type: { maven: 1, npm: 2, conan: 3, nuget: 4 }
 
   scope :with_name, ->(name) { where(name: name) }
   scope :with_name_like, ->(name) { where(arel_table[:name].matches(name)) }
@@ -34,8 +40,14 @@ class Packages::Package < ApplicationRecord
   end
 
   scope :has_version, -> { where.not(version: nil) }
+  scope :processed, -> do
+    where.not(package_type: :nuget).or(
+      where.not(name: Packages::Nuget::CreatePackageService::TEMPORARY_PACKAGE_NAME)
+    )
+  end
   scope :preload_files, -> { preload(:package_files) }
   scope :last_of_each_version, -> { where(id: all.select('MAX(id) AS id').group(:version)) }
+  scope :limit_recent, ->(limit) { order_created_desc.limit(limit) }
 
   # Sorting
   scope :order_created, -> { reorder('created_at ASC') }
@@ -72,6 +84,7 @@ class Packages::Package < ApplicationRecord
   def self.sort_by_attribute(method)
     case method.to_s
     when 'created_asc' then order_created
+    when 'created_at_asc' then order_created
     when 'name_asc' then order_name
     when 'name_desc' then order_name_desc
     when 'version_asc' then order_version

@@ -14,7 +14,7 @@ With Deploy Boards you can gain more insight into deploys with benefits such as:
 
 - Following a deploy from the start, not just when it's done
 - Watching the rollout of a build across multiple servers
-- Finer state detail (Waiting, Deploying, Finished, Unknown)
+- Finer state detail (Succeeded, Running, Failed, Pending, Unknown)
 - See [Canary Deployments](canary_deployments.md)
 
 Here's an example of a Deploy Board of the production environment.
@@ -89,7 +89,7 @@ To display the Deploy Boards for a specific [environment] you should:
 
    NOTE: **Note:**
    Matching based on the Kubernetes `app` label was removed in [GitLab
-   12.1](https://gitlab.com/gitlab-org/gitlab/merge_requests/14020).
+   12.1](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/14020).
    To migrate, please apply the required annotations (see above) and
    re-deploy your application. If you are using Auto DevOps, this will
    be done automatically and no action is necessary.

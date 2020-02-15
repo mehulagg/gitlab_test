@@ -1,7 +1,6 @@
 <script>
 import { mapState, mapActions } from 'vuex';
 import _ from 'underscore';
-import { GlButton } from '@gitlab/ui';
 import { sprintf, __ } from '~/locale';
 import ApproversList from './approvers_list.vue';
 import ApproversSelect from './approvers_select.vue';
@@ -15,7 +14,6 @@ export default {
   components: {
     ApproversList,
     ApproversSelect,
-    GlButton,
   },
   props: {
     initRule: {
@@ -133,7 +131,15 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['putFallbackRule', 'postRule', 'putRule', 'deleteRule']),
+    ...mapActions(['putFallbackRule', 'postRule', 'putRule', 'deleteRule', 'postRegularRule']),
+    addSelection() {
+      if (!this.approversToAdd.length) {
+        return;
+      }
+
+      this.approvers = this.approversToAdd.concat(this.approvers);
+      this.approversToAdd = [];
+    },
     /**
      * Validate and submit the form based on what type it is.
      * - Fallback rule?
@@ -156,6 +162,10 @@ export default {
      */
     submitRule() {
       const data = this.submissionData;
+
+      if (!this.settings.allowMultiRule && this.settings.prefix === 'mr-edit') {
+        return data.id ? this.putRule(data) : this.postRegularRule(data);
+      }
 
       return data.id ? this.putRule(data) : this.postRule(data);
     },
@@ -225,7 +235,7 @@ export default {
 <template>
   <form novalidate @submit.prevent.stop="submit">
     <div class="row">
-      <div v-if="settings.allowMultiRule" class="form-group col-sm-6">
+      <div class="form-group col-sm-6">
         <label class="label-wrapper">
           <span class="mb-2 bold inline">{{ s__('ApprovalRule|Rule name') }}</span>
           <input

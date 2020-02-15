@@ -3,11 +3,15 @@
 module Notes
   class UpdateService < BaseService
     def execute(note)
-      return note unless note.editable?
+      return note unless note.editable? && params.present?
 
       old_mentioned_users = note.mentioned_users(current_user).to_a
 
-      note.update(params.merge(updated_by: current_user))
+      note.assign_attributes(params.merge(updated_by: current_user))
+
+      note.with_transaction_returning_status do
+        note.save && note.store_mentions!
+      end
 
       only_commands = false
 

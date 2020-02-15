@@ -341,6 +341,36 @@ describe Ci::Build do
     end
   end
 
+  describe '#enqueue_preparing' do
+    let(:build) { create(:ci_build, :preparing) }
+
+    subject { build.enqueue_preparing }
+
+    before do
+      allow(build).to receive(:any_unmet_prerequisites?).and_return(has_unmet_prerequisites)
+    end
+
+    context 'build completed prerequisites' do
+      let(:has_unmet_prerequisites) { false }
+
+      it 'transitions to pending' do
+        subject
+
+        expect(build).to be_pending
+      end
+    end
+
+    context 'build did not complete prerequisites' do
+      let(:has_unmet_prerequisites) { true }
+
+      it 'remains in preparing' do
+        subject
+
+        expect(build).to be_preparing
+      end
+    end
+  end
+
   describe '#actionize' do
     context 'when build is a created' do
       before do
@@ -610,6 +640,7 @@ describe Ci::Build do
 
     context 'artifacts archive is a zip file and metadata exists' do
       let(:build) { create(:ci_build, :artifacts) }
+
       it { is_expected.to be_truthy }
     end
   end
@@ -741,20 +772,26 @@ describe Ci::Build do
 
       before do
         needs.to_a.each do |need|
-          create(:ci_build_need, build: final, name: need)
+          create(:ci_build_need, build: final, **need)
         end
       end
 
       subject { final.dependencies }
 
-      context 'when depedencies are defined' do
+      context 'when dependencies are defined' do
         let(:dependencies) { %w(rspec staging) }
 
         it { is_expected.to contain_exactly(rspec_test, staging) }
       end
 
       context 'when needs are defined' do
-        let(:needs) { %w(build rspec staging) }
+        let(:needs) do
+          [
+            { name: 'build',   artifacts: true },
+            { name: 'rspec',   artifacts: true },
+            { name: 'staging', artifacts: true }
+          ]
+        end
 
         it { is_expected.to contain_exactly(build, rspec_test, staging) }
 
@@ -767,15 +804,67 @@ describe Ci::Build do
         end
       end
 
+      context 'when need artifacts are defined' do
+        let(:needs) do
+          [
+            { name: 'build',   artifacts: true },
+            { name: 'rspec',   artifacts: false },
+            { name: 'staging', artifacts: true }
+          ]
+        end
+
+        it { is_expected.to contain_exactly(build, staging) }
+      end
+
       context 'when needs and dependencies are defined' do
         let(:dependencies) { %w(rspec staging) }
-        let(:needs) { %w(build rspec staging) }
+        let(:needs) do
+          [
+            { name: 'build',   artifacts: true },
+            { name: 'rspec',   artifacts: true },
+            { name: 'staging', artifacts: true }
+          ]
+        end
 
         it { is_expected.to contain_exactly(rspec_test, staging) }
       end
 
+      context 'when needs and dependencies contradict' do
+        let(:dependencies) { %w(rspec staging) }
+        let(:needs) do
+          [
+            { name: 'build',   artifacts: true },
+            { name: 'rspec',   artifacts: false },
+            { name: 'staging', artifacts: true }
+          ]
+        end
+
+        it { is_expected.to contain_exactly(staging) }
+      end
+
       context 'when nor dependencies or needs are defined' do
         it { is_expected.to contain_exactly(build, rspec_test, rubocop_test, staging) }
+      end
+    end
+
+    describe '#all_dependencies' do
+      let!(:final_build) do
+        create(:ci_build,
+          pipeline: pipeline, name: 'deploy',
+          stage_idx: 3, stage: 'deploy'
+        )
+      end
+
+      subject { final_build.all_dependencies }
+
+      it 'returns dependencies and cross_dependencies' do
+        dependencies = [1, 2, 3]
+        cross_dependencies = [3, 4]
+
+        allow(final_build).to receive(:dependencies).and_return(dependencies)
+        allow(final_build).to receive(:cross_dependencies).and_return(cross_dependencies)
+
+        is_expected.to match(a_collection_containing_exactly(1, 2, 3, 4))
       end
     end
   end
@@ -995,7 +1084,7 @@ describe Ci::Build do
   end
 
   describe 'state transition as a deployable' do
-    let!(:build) { create(:ci_build, :with_deployment, :start_review_app) }
+    let!(:build) { create(:ci_build, :with_deployment, :start_review_app, project: project, pipeline: pipeline) }
     let(:deployment) { build.deployment }
     let(:environment) { deployment.environment }
 
@@ -1056,6 +1145,60 @@ describe Ci::Build do
 
       it 'transits deployment status to canceled' do
         expect(deployment).to be_canceled
+      end
+    end
+  end
+
+  describe 'state transition with resource group' do
+    let(:resource_group) { create(:ci_resource_group, project: project) }
+
+    context 'when build status is created' do
+      let(:build) { create(:ci_build, :created, project: project, resource_group: resource_group) }
+
+      it 'is waiting for resource when build is enqueued' do
+        expect(Ci::ResourceGroups::AssignResourceFromResourceGroupWorker).to receive(:perform_async).with(resource_group.id)
+
+        expect { build.enqueue! }.to change { build.status }.from('created').to('waiting_for_resource')
+
+        expect(build.waiting_for_resource_at).not_to be_nil
+      end
+
+      context 'when build is waiting for resource' do
+        before do
+          build.update_column(:status, 'waiting_for_resource')
+        end
+
+        it 'is enqueued when build requests resource' do
+          expect { build.enqueue_waiting_for_resource! }.to change { build.status }.from('waiting_for_resource').to('pending')
+        end
+
+        it 'releases a resource when build finished' do
+          expect(build.resource_group).to receive(:release_resource_from).with(build).and_call_original
+          expect(Ci::ResourceGroups::AssignResourceFromResourceGroupWorker).to receive(:perform_async).with(build.resource_group_id)
+
+          build.enqueue_waiting_for_resource!
+          build.success!
+        end
+
+        context 'when build has prerequisites' do
+          before do
+            allow(build).to receive(:any_unmet_prerequisites?) { true }
+          end
+
+          it 'is preparing when build is enqueued' do
+            expect { build.enqueue_waiting_for_resource! }.to change { build.status }.from('waiting_for_resource').to('preparing')
+          end
+        end
+
+        context 'when there are no available resources' do
+          before do
+            resource_group.assign_resource_to(create(:ci_build))
+          end
+
+          it 'stays as waiting for resource when build requests resource' do
+            expect { build.enqueue_waiting_for_resource }.not_to change { build.status }
+          end
+        end
       end
     end
   end
@@ -1157,6 +1300,54 @@ describe Ci::Build do
         end
 
         it { is_expected.to eq('review/x') }
+      end
+    end
+
+    describe '#expanded_kubernetes_namespace' do
+      let(:build) { create(:ci_build, environment: environment, options: options) }
+
+      subject { build.expanded_kubernetes_namespace }
+
+      context 'environment and namespace are not set' do
+        let(:environment) { nil }
+        let(:options) { nil }
+
+        it { is_expected.to be_nil }
+      end
+
+      context 'environment is specified' do
+        let(:environment) { 'production' }
+
+        context 'namespace is not set' do
+          let(:options) { nil }
+
+          it { is_expected.to be_nil }
+        end
+
+        context 'namespace is provided' do
+          let(:options) do
+            {
+              environment: {
+                name: environment,
+                kubernetes: {
+                  namespace: namespace
+                }
+              }
+            }
+          end
+
+          context 'with a static value' do
+            let(:namespace) { 'production' }
+
+            it { is_expected.to eq namespace }
+          end
+
+          context 'with a dynamic value' do
+            let(:namespace) { 'deploy-$CI_COMMIT_REF_NAME'}
+
+            it { is_expected.to eq 'deploy-master' }
+          end
+        end
       end
     end
 
@@ -1302,6 +1493,7 @@ describe Ci::Build do
 
         describe '#erased?' do
           let!(:build) { create(:ci_build, :trace_artifact, :success, :artifacts) }
+
           subject { build.erased? }
 
           context 'job has not been erased' do
@@ -1363,6 +1555,7 @@ describe Ci::Build do
   describe '#first_pending' do
     let!(:first) { create(:ci_build, pipeline: pipeline, status: 'pending', created_at: Date.yesterday) }
     let!(:second) { create(:ci_build, pipeline: pipeline, status: 'pending') }
+
     subject { described_class.first_pending }
 
     it { is_expected.to be_a(described_class) }
@@ -1444,6 +1637,12 @@ describe Ci::Build do
 
         context 'when build is created' do
           let(:build) { create(:ci_build, :created) }
+
+          it { is_expected.to be_cancelable }
+        end
+
+        context 'when build is waiting for resource' do
+          let(:build) { create(:ci_build, :waiting_for_resource) }
 
           it { is_expected.to be_cancelable }
         end
@@ -2139,14 +2338,24 @@ describe Ci::Build do
     end
   end
 
-  describe '#has_expiring_artifacts?' do
+  describe '#has_expiring_archive_artifacts?' do
     context 'when artifacts have expiration date set' do
       before do
         build.update(artifacts_expire_at: 1.day.from_now)
       end
 
-      it 'has expiring artifacts' do
-        expect(build).to have_expiring_artifacts
+      context 'and job artifacts archive record exists' do
+        let!(:archive) { create(:ci_job_artifact, :archive, job: build) }
+
+        it 'has expiring artifacts' do
+          expect(build).to have_expiring_archive_artifacts
+        end
+      end
+
+      context 'and job artifacts archive record does not exist' do
+        it 'does not have expiring artifacts' do
+          expect(build).not_to have_expiring_archive_artifacts
+        end
       end
     end
 
@@ -2156,7 +2365,7 @@ describe Ci::Build do
       end
 
       it 'does not have expiring artifacts' do
-        expect(build).not_to have_expiring_artifacts
+        expect(build).not_to have_expiring_archive_artifacts
       end
     end
   end
@@ -2190,7 +2399,10 @@ describe Ci::Build do
           { key: 'CI_BUILD_STAGE', value: 'test', public: true, masked: false },
           { key: 'CI', value: 'true', public: true, masked: false },
           { key: 'GITLAB_CI', value: 'true', public: true, masked: false },
+          { key: 'CI_SERVER_URL', value: Gitlab.config.gitlab.url, public: true, masked: false },
           { key: 'CI_SERVER_HOST', value: Gitlab.config.gitlab.host, public: true, masked: false },
+          { key: 'CI_SERVER_PORT', value: Gitlab.config.gitlab.port.to_s, public: true, masked: false },
+          { key: 'CI_SERVER_PROTOCOL', value: Gitlab.config.gitlab.protocol, public: true, masked: false },
           { key: 'CI_SERVER_NAME', value: 'GitLab', public: true, masked: false },
           { key: 'CI_SERVER_VERSION', value: Gitlab::VERSION, public: true, masked: false },
           { key: 'CI_SERVER_VERSION_MAJOR', value: Gitlab.version_info.major.to_s, public: true, masked: false },
@@ -2219,6 +2431,7 @@ describe Ci::Build do
           { key: 'CI_COMMIT_BEFORE_SHA', value: build.before_sha, public: true, masked: false },
           { key: 'CI_COMMIT_REF_NAME', value: build.ref, public: true, masked: false },
           { key: 'CI_COMMIT_REF_SLUG', value: build.ref_slug, public: true, masked: false },
+          { key: 'CI_COMMIT_BRANCH', value: build.ref, public: true, masked: false },
           { key: 'CI_COMMIT_MESSAGE', value: pipeline.git_commit_message, public: true, masked: false },
           { key: 'CI_COMMIT_TITLE', value: pipeline.git_commit_title, public: true, masked: false },
           { key: 'CI_COMMIT_DESCRIPTION', value: pipeline.git_commit_description, public: true, masked: false },
@@ -2440,6 +2653,19 @@ describe Ci::Build do
       end
 
       it { is_expected.to include(job_variable) }
+    end
+
+    context 'when build is for branch' do
+      let(:branch_variable) do
+        { key: 'CI_COMMIT_BRANCH', value: 'master', public: true, masked: false }
+      end
+
+      before do
+        build.update(tag: false)
+        pipeline.update(tag: false)
+      end
+
+      it { is_expected.to include(branch_variable) }
     end
 
     context 'when build is for tag' do
@@ -2950,6 +3176,32 @@ describe Ci::Build do
     end
   end
 
+  describe '#deployment_variables' do
+    let(:build) { create(:ci_build, environment: environment) }
+    let(:environment) { 'production' }
+    let(:kubernetes_namespace) { 'namespace' }
+    let(:project_variables) { double }
+
+    subject { build.deployment_variables(environment: environment) }
+
+    before do
+      allow(build).to receive(:expanded_kubernetes_namespace)
+        .and_return(kubernetes_namespace)
+
+      allow(build.project).to receive(:deployment_variables)
+        .with(environment: environment, kubernetes_namespace: kubernetes_namespace)
+        .and_return(project_variables)
+    end
+
+    it { is_expected.to eq(project_variables) }
+
+    context 'environment is nil' do
+      let(:environment) { nil }
+
+      it { is_expected.to be_empty }
+    end
+  end
+
   describe '#scoped_variables_hash' do
     context 'when overriding CI variables' do
       before do
@@ -3349,7 +3601,7 @@ describe Ci::Build do
       end
 
       it 'can drop the build' do
-        expect(Gitlab::Sentry).to receive(:track_exception)
+        expect(Gitlab::ErrorTracking).to receive(:track_and_raise_for_dev_exception)
 
         expect { build.drop! }.not_to raise_error
 
@@ -3602,6 +3854,10 @@ describe Ci::Build do
     set(:build) { create(:ci_build, project: project) }
     let(:path) { 'other_artifacts_0.1.2/another-subdirectory/banana_sample.gif' }
 
+    around do |example|
+      Timecop.freeze { example.run }
+    end
+
     before do
       stub_artifacts_object_storage
     end
@@ -3748,7 +4004,7 @@ describe Ci::Build do
     end
 
     context 'when build is a last deployment' do
-      let(:build) { create(:ci_build, :success, environment: 'production') }
+      let(:build) { create(:ci_build, :success, environment: 'production', pipeline: pipeline, project: project) }
       let(:environment) { create(:environment, name: 'production', project: build.project) }
       let!(:deployment) { create(:deployment, :success, environment: environment, project: environment.project, deployable: build) }
 
@@ -3756,7 +4012,7 @@ describe Ci::Build do
     end
 
     context 'when there is a newer build with deployment' do
-      let(:build) { create(:ci_build, :success, environment: 'production') }
+      let(:build) { create(:ci_build, :success, environment: 'production', pipeline: pipeline, project: project) }
       let(:environment) { create(:environment, name: 'production', project: build.project) }
       let!(:deployment) { create(:deployment, :success, environment: environment, project: environment.project, deployable: build) }
       let!(:last_deployment) { create(:deployment, :success, environment: environment, project: environment.project) }
@@ -3765,7 +4021,7 @@ describe Ci::Build do
     end
 
     context 'when build with deployment has failed' do
-      let(:build) { create(:ci_build, :failed, environment: 'production') }
+      let(:build) { create(:ci_build, :failed, environment: 'production', pipeline: pipeline, project: project) }
       let(:environment) { create(:environment, name: 'production', project: build.project) }
       let!(:deployment) { create(:deployment, :success, environment: environment, project: environment.project, deployable: build) }
 
@@ -3773,7 +4029,7 @@ describe Ci::Build do
     end
 
     context 'when build with deployment is running' do
-      let(:build) { create(:ci_build, environment: 'production') }
+      let(:build) { create(:ci_build, environment: 'production', pipeline: pipeline, project: project) }
       let(:environment) { create(:environment, name: 'production', project: build.project) }
       let!(:deployment) { create(:deployment, :success, environment: environment, project: environment.project, deployable: build) }
 
@@ -3950,6 +4206,72 @@ describe Ci::Build do
 
     it 'returns invalid dependencies' do
       expect(job.invalid_dependencies).to eq([pre_stage_job_invalid])
+    end
+  end
+
+  describe '#execute_hooks' do
+    context 'with project hooks' do
+      before do
+        create(:project_hook, project: project, job_events: true)
+      end
+
+      it 'execute hooks' do
+        expect_any_instance_of(ProjectHook).to receive(:async_execute)
+
+        build.execute_hooks
+      end
+    end
+
+    context 'without relevant project hooks' do
+      before do
+        create(:project_hook, project: project, job_events: false)
+      end
+
+      it 'does not execute a hook' do
+        expect_any_instance_of(ProjectHook).not_to receive(:async_execute)
+
+        build.execute_hooks
+      end
+    end
+
+    context 'with project services' do
+      before do
+        create(:service, active: true, job_events: true, project: project)
+      end
+
+      it 'execute services' do
+        expect_any_instance_of(Service).to receive(:async_execute)
+
+        build.execute_hooks
+      end
+    end
+
+    context 'without relevant project services' do
+      before do
+        create(:service, active: true, job_events: false, project: project)
+      end
+
+      it 'execute services' do
+        expect_any_instance_of(Service).not_to receive(:async_execute)
+
+        build.execute_hooks
+      end
+    end
+  end
+
+  describe '#environment_auto_stop_in' do
+    subject { build.environment_auto_stop_in }
+
+    context 'when build option has environment auto_stop_in' do
+      let(:build) { create(:ci_build, options: { environment: { name: 'test', auto_stop_in: '1 day' } }) }
+
+      it { is_expected.to eq('1 day') }
+    end
+
+    context 'when build option does not have environment auto_stop_in' do
+      let(:build) { create(:ci_build) }
+
+      it { is_expected.to be_nil }
     end
   end
 end

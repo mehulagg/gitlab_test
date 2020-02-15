@@ -1,8 +1,11 @@
 # Group Labels API
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/21368) in GitLab 11.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/21368) in GitLab 11.8.
 
 This API supports managing of [group labels](../user/project/labels.md#project-labels-and-group-labels). It allows to list, create, update, and delete group labels. Furthermore, users can subscribe and unsubscribe to and from group labels.
+
+NOTE: **Note:**
+The `description_html` - was added to response JSON in [GitLab 12.7](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/21413).
 
 ## List group labels
 
@@ -15,10 +18,10 @@ GET /groups/:id/labels
 | Attribute     | Type           | Required | Description                                                                                                                                                                  |
 | ---------     | ----           | -------- | -----------                                                                                                                                                                  |
 | `id`          | integer/string | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user.                                                               |
-| `with_counts` | boolean        | no       | Whether or not to include issue and merge request counts. Defaults to `false`. _([Introduced in GitLab 12.2](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/31543))_ |
+| `with_counts` | boolean        | no       | Whether or not to include issue and merge request counts. Defaults to `false`. _([Introduced in GitLab 12.2](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/31543))_ |
 | `include_ancestor_groups` | boolean | no | Include ancestor groups. Defaults to `true`. |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/labels?with_counts=true
 ```
 
@@ -32,6 +35,7 @@ Example response:
     "color": "#FF0000",
     "text_color" : "#FFFFFF",
     "description": null,
+    "description_html": null,
     "open_issues_count": 0,
     "closed_issues_count": 0,
     "open_merge_requests_count": 0,
@@ -43,6 +47,7 @@ Example response:
     "color": "#228B22",
     "text_color" : "#FFFFFF",
     "description": null,
+    "description_html": null,
     "open_issues_count": 0,
     "closed_issues_count": 0,
     "open_merge_requests_count": 0,
@@ -65,7 +70,7 @@ GET /groups/:id/labels/:label_id
 | `label_id` | integer or string | yes | The ID or title of a group's label. |
 | `include_ancestor_groups` | boolean | no | Include ancestor groups. Defaults to `true`. |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/labels/bug
 ```
 
@@ -78,6 +83,7 @@ Example response:
   "color": "#FF0000",
   "text_color" : "#FFFFFF",
   "description": null,
+  "description_html": null,
   "open_issues_count": 0,
   "closed_issues_count": 0,
   "open_merge_requests_count": 0,
@@ -100,7 +106,7 @@ POST /groups/:id/labels
 | `color`       | string  | yes      | The color of the label given in 6-digit hex notation with leading '#' sign (e.g. #FFAABB) or one of the [CSS color names](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#Color_keywords) |
 | `description` | string  | no       | The description of the label, |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" --header "Content-Type: application/json" --data '{"name": "Feature Proposal", "color": "#FFA500", "description": "Describes new ideas" }' https://gitlab.example.com/api/v4/groups/5/labels
 ```
 
@@ -113,6 +119,7 @@ Example response:
   "color": "#FFA500",
   "text_color" : "#FFFFFF",
   "description": "Describes new ideas",
+  "description_html": "Describes new ideas",
   "open_issues_count": 0,
   "closed_issues_count": 0,
   "open_merge_requests_count": 0,
@@ -136,7 +143,7 @@ PUT /groups/:id/labels/:label_id
 | `color`       | string  | no      | The color of the label given in 6-digit hex notation with leading '#' sign (e.g. #FFAABB) or one of the [CSS color names](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#Color_keywords) |
 | `description` | string  | no       | The description of the label. |
 
-```bash
+```shell
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" --header "Content-Type: application/json" --data '{"new_name": "Feature Idea" }' https://gitlab.example.com/api/v4/groups/5/labels/Feature%20Proposal
 ```
 
@@ -149,6 +156,7 @@ Example response:
   "color": "#FFA500",
   "text_color" : "#FFFFFF",
   "description": "Describes new ideas",
+  "description_html": "Describes new ideas",
   "open_issues_count": 0,
   "closed_issues_count": 0,
   "open_merge_requests_count": 0,
@@ -171,7 +179,7 @@ DELETE /groups/:id/labels/:label_id
 | `id`      | integer/string    | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user |
 | `label_id` | integer or string | yes | The ID or title of a group's label. |
 
-```bash
+```shell
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/labels/bug
 ```
 
@@ -191,7 +199,7 @@ POST /groups/:id/labels/:label_id/subscribe
 | `id`      | integer/string    | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user |
 | `label_id` | integer or string | yes      | The ID or title of a group's label. |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/labels/9/subscribe
 ```
 
@@ -204,6 +212,7 @@ Example response:
   "color": "#FFA500",
   "text_color" : "#FFFFFF",
   "description": "Describes new ideas",
+  "description_html": "Describes new ideas",
   "open_issues_count": 0,
   "closed_issues_count": 0,
   "open_merge_requests_count": 0,
@@ -226,7 +235,7 @@ POST /groups/:id/labels/:label_id/unsubscribe
 | `id`      | integer/string    | yes      | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user |
 | `label_id` | integer or string | yes      | The ID or title of a group's label. |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/5/labels/9/unsubscribe
 ```
 
@@ -239,6 +248,7 @@ Example response:
   "color": "#FFA500",
   "text_color" : "#FFFFFF",
   "description": "Describes new ideas",
+  "description_html": "Describes new ideas",
   "open_issues_count": 0,
   "closed_issues_count": 0,
   "open_merge_requests_count": 0,

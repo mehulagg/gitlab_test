@@ -32,7 +32,13 @@ export default {
     ...mapState('rightPane', {
       rightPaneIsOpen: 'isOpen',
     }),
-    ...mapState(['rightPanelCollapsed', 'viewer', 'panelResizing', 'currentActivityView']),
+    ...mapState([
+      'rightPanelCollapsed',
+      'viewer',
+      'panelResizing',
+      'currentActivityView',
+      'renderWhitespaceInCode',
+    ]),
     ...mapGetters([
       'currentMergeRequest',
       'getStagedFile',
@@ -75,6 +81,11 @@ export default {
     },
     showEditor() {
       return !this.shouldHideEditor && this.isEditorViewMode;
+    },
+    editorOptions() {
+      return {
+        renderWhitespace: this.renderWhitespaceInCode ? 'all' : 'none',
+      };
     },
   },
   watch: {
@@ -131,7 +142,7 @@ export default {
   },
   mounted() {
     if (!this.editor) {
-      this.editor = Editor.create();
+      this.editor = Editor.create(this.editorOptions);
     }
     this.initEditor();
   },
@@ -263,7 +274,7 @@ export default {
 <template>
   <div id="ide" class="blob-viewer-container blob-editor-container">
     <div class="ide-mode-tabs clearfix">
-      <ul v-if="!shouldHideEditor && isEditModeActive" class="nav-links float-left">
+      <ul v-if="!shouldHideEditor && isEditModeActive" class="nav-links float-left border-bottom-0">
         <li :class="editTabCSS">
           <a
             href="javascript:void(0);"

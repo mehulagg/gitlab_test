@@ -26,7 +26,7 @@ Creating a strong CI/CD pipeline at the beginning of developing another game, [D
 was essential for the fast pace the team worked at. This tutorial will build upon my
 [previous introductory article](https://ryanhallcs.wordpress.com/2017/03/15/devops-and-game-dev/) and go through the following steps:
 
-1. Using code from the previous article to start with a barebones [Phaser](https://phaser.io) game built by a gulp file
+1. Using code from the previous article to start with a bare-bones [Phaser](https://phaser.io) game built by a gulp file
 1. Adding and running unit tests
 1. Creating a `Weapon` class that can be triggered to spawn a `Bullet` in a given direction
 1. Adding a `Player` class that uses this weapon and moves around the screen
@@ -54,7 +54,7 @@ CI/CD from every new push to master. The `master` branch for this game's [reposi
 contains a completed version with all configurations. If you would like to follow along
 with this article, you can clone and work from the `devops-article` branch:
 
-```sh
+```shell
 git clone git@gitlab.com:blitzgren/gitlab-game-demo.git
 git checkout devops-article
 ```
@@ -363,7 +363,7 @@ our repository. If all goes well you'll end up with a green check mark on each j
 You can confirm that the tests passed by clicking on the `test` job to enter the full build logs.
 Scroll to the bottom and observe, in all its passing glory:
 
-```sh
+```shell
 $ gulp run-test
 [18:37:24] Using gulpfile /builds/blitzgren/gitlab-game-demo/gulpfile.js
 [18:37:24] Starting 'run-test'...

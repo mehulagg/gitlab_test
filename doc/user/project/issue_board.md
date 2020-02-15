@@ -1,6 +1,6 @@
 # Issue Boards
 
-> [Introduced][ce-5554] in [GitLab 8.11](https://about.gitlab.com/blog/2016/08/22/gitlab-8-11-released/#issue-board).
+> [Introduced][ce-5554] in [GitLab 8.11](https://about.gitlab.com/releases/2016/08/22/gitlab-8-11-released/#issue-board).
 
 ## Overview
 
@@ -194,7 +194,7 @@ of the issue card you have selected and drop it in the new list you want.
 
 ### Configurable Issue Boards **(STARTER)**
 
-> Introduced in [GitLab Starter Edition 10.2](https://about.gitlab.com/blog/2017/11/22/gitlab-10-2-released/#issue-boards-configuration).
+> Introduced in [GitLab Starter Edition 10.2](https://about.gitlab.com/releases/2017/11/22/gitlab-10-2-released/#issue-boards-configuration).
 
 An Issue Board can be associated with a GitLab [Milestone](milestones/index.md#milestones),
 [Labels](labels.md), Assignee and Weight
@@ -214,7 +214,7 @@ If you don't have editing permission in a board, you're still able to see the co
 
 ### Focus mode **(STARTER)**
 
-> Introduced in [GitLab Starter 9.1](https://about.gitlab.com/blog/2017/04/22/gitlab-9-1-released/#issue-boards-focus-mode-ees-eep).
+> Introduced in [GitLab Starter 9.1](https://about.gitlab.com/releases/2017/04/22/gitlab-9-1-released/#issue-boards-focus-mode-ees-eep).
 
 Click the button at the top right to toggle focus mode on and off. In focus mode, the navigation UI is hidden, allowing you to focus on issues in the board.
 
@@ -230,7 +230,7 @@ especially in combination with [assignee lists](#assignee-lists-premium).
 
 ### Group Issue Boards **(PREMIUM)**
 
-> Introduced in [GitLab Premium 10.0](https://about.gitlab.com/blog/2017/09/22/gitlab-10-0-released/#group-issue-boards).
+> Introduced in [GitLab Premium 10.0](https://about.gitlab.com/releases/2017/09/22/gitlab-10-0-released/#group-issue-boards).
 
 Accessible at the group navigation level, a group issue board offers the same features as a project-level board,
 but it can display issues from all projects in that
@@ -239,7 +239,7 @@ boards. When updating milestones and labels for an issue through the sidebar upd
 group-level objects are available.
 
 NOTE: **Note:**
-Multiple group issue boards were originally introduced in [GitLab 10.0 Premium](https://about.gitlab.com/blog/2017/09/22/gitlab-10-0-released/#group-issue-boards) and
+Multiple group issue boards were originally introduced in [GitLab 10.0 Premium](https://about.gitlab.com/releases/2017/09/22/gitlab-10-0-released/#group-issue-boards) and
 one group issue board per group was made available in GitLab 10.6 Core.
 
 ![Group issue board](img/group_issue_board.png)
@@ -280,6 +280,17 @@ to and/or from a milestone list to manipulate the milestone of the dragged issue
 As on another list types, click on the trash icon to remove it.
 
 ![Milestone lists](img/issue_board_milestone_lists.png)
+
+## Work In Progress limits **(STARTER)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/11403) in GitLab 12.7
+
+You can set Work In Progress (WIP) limits per issues list. When a limit is set, the list's header shows the number of issues in the list and the soft limit of issues. For example, for a list with 4 issues, and a limit of 5, the header will show `4/5`. If you exceed the limit, the current number of issues is shown in red. For example, you have a list with 5 issues with a limit of 5. When you move another issue to that list, the list's header displays `6/5`, with the `6` shown in red.
+
+To set a WIP limit for a list:
+
+1. Navigate to a Project or Group board for which you have membership and click on the Settings icon (gear) in a list's header.
+1. Next to **Work In Progress Limit**, click **Edit** and enter the maximum number of issues. Press `Enter` to save.
 
 ### Summary of features per tier
 
@@ -412,7 +423,7 @@ something between lists by changing a label.
 
 A typical workflow of using the Issue Board would be:
 
-1. You have [created](labels.md#creating-labels) and [prioritized](labels.md#label-priority)
+1. You have [created](labels.md#label-management) and [prioritized](labels.md#label-priority)
    labels so that you can easily categorize your issues.
 1. You have a bunch of issues (ideally labeled).
 1. You visit the Issue Board and start [creating lists](#creating-a-new-list) to
@@ -463,6 +474,6 @@ A few things to remember:
   by default. If you have more than 20 issues start scrolling down and the next
   20 will appear.
 
-[ce-5554]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/5554
+[ce-5554]: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/5554
 [scrum]: https://en.wikipedia.org/wiki/Scrum_(software_development)
 [kanban]: https://en.wikipedia.org/wiki/Kanban_(development)

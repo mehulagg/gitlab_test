@@ -143,9 +143,23 @@ describe API::Settings, 'EE Settings' do
     it_behaves_like 'settings for licensed features'
   end
 
+  context 'deletion adjourned period' do
+    let(:settings) { { deletion_adjourned_period: 5 } }
+    let(:feature) { :adjourned_deletion_for_projects_and_groups }
+
+    it_behaves_like 'settings for licensed features'
+  end
+
   context 'custom file template project' do
     let(:settings) { { file_template_project_id: project.id } }
     let(:feature) { :custom_file_templates }
+
+    it_behaves_like 'settings for licensed features'
+  end
+
+  context 'updating name disabled for users' do
+    let(:settings) { { updating_name_disabled_for_users: true } }
+    let(:feature) { :disable_name_update_for_users }
 
     it_behaves_like 'settings for licensed features'
   end

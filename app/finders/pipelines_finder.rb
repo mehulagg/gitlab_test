@@ -17,7 +17,7 @@ class PipelinesFinder
       return Ci::Pipeline.none
     end
 
-    items = pipelines
+    items = pipelines.no_child
     items = by_scope(items)
     items = by_status(items)
     items = by_ref(items)
@@ -25,6 +25,7 @@ class PipelinesFinder
     items = by_name(items)
     items = by_username(items)
     items = by_yaml_errors(items)
+    items = by_updated_at(items)
     sort_items(items)
   end
 
@@ -38,7 +39,7 @@ class PipelinesFinder
 
   # rubocop: disable CodeReuse/ActiveRecord
   def from_ids(ids)
-    pipelines.unscoped.where(id: ids)
+    pipelines.unscoped.where(project_id: project.id, id: ids)
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
@@ -127,6 +128,13 @@ class PipelinesFinder
     end
   end
   # rubocop: enable CodeReuse/ActiveRecord
+
+  def by_updated_at(items)
+    items = items.updated_before(params[:updated_before]) if params[:updated_before].present?
+    items = items.updated_after(params[:updated_after]) if params[:updated_after].present?
+
+    items
+  end
 
   # rubocop: disable CodeReuse/ActiveRecord
   def sort_items(items)

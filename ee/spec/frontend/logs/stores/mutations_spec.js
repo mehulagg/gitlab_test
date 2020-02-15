@@ -3,12 +3,12 @@ import * as types from 'ee/logs/stores/mutation_types';
 
 import logsPageState from 'ee/logs/stores/state';
 import {
-  mockProjectPath,
-  mockEnvId,
+  mockEnvName,
   mockEnvironments,
   mockPods,
   mockPodName,
-  mockLines,
+  mockLogsResult,
+  mockSearch,
 } from '../mock_data';
 
 describe('Logs Store Mutations', () => {
@@ -25,13 +25,16 @@ describe('Logs Store Mutations', () => {
   });
 
   describe('SET_PROJECT_ENVIRONMENT', () => {
-    it('sets the logs json endpoint', () => {
-      mutations[types.SET_PROJECT_ENVIRONMENT](state, {
-        projectPath: mockProjectPath,
-        environmentId: mockEnvId,
-      });
-      expect(state.projectPath).toEqual(mockProjectPath);
-      expect(state.environments.current).toEqual(mockEnvId);
+    it('sets the environment', () => {
+      mutations[types.SET_PROJECT_ENVIRONMENT](state, mockEnvName);
+      expect(state.environments.current).toEqual(mockEnvName);
+    });
+  });
+
+  describe('SET_SEARCH', () => {
+    it('sets the search', () => {
+      mutations[types.SET_SEARCH](state, mockSearch);
+      expect(state.search).toEqual(mockSearch);
     });
   });
 
@@ -82,11 +85,11 @@ describe('Logs Store Mutations', () => {
 
   describe('RECEIVE_LOGS_DATA_SUCCESS', () => {
     it('receives logs lines', () => {
-      mutations[types.RECEIVE_LOGS_DATA_SUCCESS](state, mockLines);
+      mutations[types.RECEIVE_LOGS_DATA_SUCCESS](state, mockLogsResult);
 
       expect(state.logs).toEqual(
         expect.objectContaining({
-          lines: mockLines,
+          lines: mockLogsResult,
           isLoading: false,
           isComplete: true,
         }),
@@ -115,6 +118,23 @@ describe('Logs Store Mutations', () => {
       expect(state.pods.current).toEqual(mockPodName);
     });
   });
+
+  describe('SET_TIME_RANGE', () => {
+    it('sets a default range', () => {
+      expect(state.timeRange.current).toEqual(expect.any(Object));
+    });
+
+    it('sets a time range', () => {
+      const mockRange = {
+        start: '2020-01-10T18:00:00.000Z',
+        end: '2020-01-10T10:00:00.000Z',
+      };
+      mutations[types.SET_TIME_RANGE](state, mockRange);
+
+      expect(state.timeRange.current).toEqual(mockRange);
+    });
+  });
+
   describe('REQUEST_PODS_DATA', () => {
     it('receives log data error and stops loading', () => {
       mutations[types.REQUEST_PODS_DATA](state);

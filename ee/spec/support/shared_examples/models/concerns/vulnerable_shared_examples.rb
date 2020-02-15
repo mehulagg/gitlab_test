@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
-
-shared_examples_for Vulnerable do
+RSpec.shared_examples Vulnerable do
   include VulnerableHelpers
 
   let(:external_project) { create(:project) }
@@ -20,8 +18,10 @@ shared_examples_for Vulnerable do
   end
 
   def create_vulnerability(project, pipeline = nil)
-    pipeline ||= create(:ci_pipeline, :success, project: project)
-    create(:vulnerabilities_occurrence, pipelines: [pipeline], project: project)
+    if project
+      pipeline ||= create(:ci_pipeline, :success, project: project)
+      create(:vulnerabilities_occurrence, pipelines: [pipeline], project: project)
+    end
   end
 
   describe '#latest_vulnerabilities' do

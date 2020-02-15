@@ -10,8 +10,12 @@ module EE
             'epic_notes'
           ),
           ::Gitlab::EtagCaching::Router::Route.new(
-            %r(#{::Gitlab::EtagCaching::Router::RESERVED_WORDS_PREFIX}/environments/\d+/pods/(\S+/)?containers/(\S+/)?logs\.json\z),
+            %r(#{::Gitlab::EtagCaching::Router::RESERVED_WORDS_PREFIX}/logs/k8s\.json(\?.*)?\z),
             'k8s_pod_logs'
+          ),
+          ::Gitlab::EtagCaching::Router::Route.new(
+            %r(#{::Gitlab::EtagCaching::Router::RESERVED_WORDS_PREFIX}/logs/elasticsearch\.json(\?.*)?\z),
+            'elasticsearch_pod_logs'
           )
         ].freeze
 

@@ -15,41 +15,15 @@ In June 2019, Mario de la Ossa hosted a [Deep Dive] on GitLab's [Elasticsearch i
 [Google Slides]: https://docs.google.com/presentation/d/1H-pCzI_LNrgrL5pJAIQgvLX8Ji0-jIKOg1QeJQzChug/edit
 [PDF]: https://gitlab.com/gitlab-org/create-stage/uploads/c5aa32b6b07476fa8b597004899ec538/Elasticsearch_Deep_Dive.pdf
 
-## Initial installation on OS X
+## Supported Versions
 
-It is recommended to use the Docker image. After installing docker you can immediately spin up an instance with
+See [Version Requirements](../integration/elasticsearch.md#version-requirements).
 
-```
-docker run --name elastic56 -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:5.6.12
-```
+Developers making significant changes to Elasticsearch queries should test their features against all our supported versions.
 
-and use `docker stop elastic56` and `docker start elastic56` to stop/start it.
+## Setting up development environment
 
-### Installing on the host
-
-We currently only support Elasticsearch [5.6 to 6.x](../integration/elasticsearch.md#version-requirements)
-
-Version 5.6 is available on homebrew and is the recommended version to use in order to test compatibility.
-
-```
-brew install elasticsearch@5.6
-```
-
-There is no need to install any plugins
-
-## New repo indexer (beta)
-
-If you're interested on working with the new beta repo indexer, all you need to do is:
-
-```sh
-git clone git@gitlab.com:gitlab-org/gitlab-elasticsearch-indexer.git
-make
-make install
-```
-
-this adds `gitlab-elasticsearch-indexer` to `$GOPATH/bin`, please make sure that is in your `$PATH`. After that GitLab will find it and you'll be able to enable it in the admin settings area.
-
-**note:** `make` will not recompile the executable unless you do `make clean` beforehand
+See the [Elasticsearch GDK setup instructions](https://gitlab.com/gitlab-org/gitlab-development-kit/blob/master/doc/howto/elasticsearch.md)
 
 ## Helpful rake tasks
 

@@ -127,6 +127,7 @@ Its feature set is listed on the table below according to DevOps stages.
 | [GitLab Pages](../user/project/pages/index.md) | Deploy static websites. |
 | [GitLab Releases](../user/project/releases/index.md) | Add release notes to Git tags. |
 | [Review Apps](review_apps/index.md) | Configure GitLab CI/CD to preview code changes. |
+| [Cloud deployment](cloud_deployment/index.md) | Deploy your application to a main cloud provider. |
 |---+---|
 | **Secure** ||
 | [Container Scanning](../user/application_security/container_scanning/index.md) **(ULTIMATE)** | Check your Docker containers for known vulnerabilities.|
@@ -183,7 +184,7 @@ been necessary. These are:
 - [Remove
   `FF_K8S_USE_ENTRYPOINT_OVER_COMMAND`](https://gitlab.com/gitlab-org/gitlab-runner/issues/4073).
 - [Remove Linux distributions that reach
-  EOL](https://gitlab.com/gitlab-org/gitlab-runner/merge_requests/1130).
+  EOL](https://gitlab.com/gitlab-org/gitlab-runner/-/merge_requests/1130).
 - [Update command line API for helper
   images](https://gitlab.com/gitlab-org/gitlab-runner/issues/4013).
 - [Remove old `git clean`

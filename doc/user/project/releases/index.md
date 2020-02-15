@@ -6,7 +6,7 @@ type: reference, howto
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/41766) in GitLab 11.7.
 
-It's typical to create a [Git tag](../../../university/training/topics/tags.md) at
+It is typical to create a [Git tag](../../../university/training/topics/tags.md) at
 the moment of release to introduce a checkpoint in your source code
 history, but in most cases your users will need compiled objects or other
 assets output by your CI system to use them, not just the raw source
@@ -16,8 +16,12 @@ GitLab's **Releases** are a way to track deliverables in your project. Consider 
 a snapshot in time of the source, build output, and other metadata or artifacts
 associated with a released version of your code.
 
-At the moment, you can create Release entries via the [Releases API](../../../api/releases/index.md);
-we recommend doing this as one of the last steps in your CI/CD release pipeline.
+There are several ways to create a Release:
+
+- In the interface, when you create a new Git tag.
+- In the interface, by adding a release note to an existing Git tag.
+- Using the [Releases API](../../../api/releases/index.md): we recommend doing this as one of the last
+  steps in your CI/CD release pipeline.
 
 ## Getting started with Releases
 
@@ -32,13 +36,13 @@ your users to quickly scan the differences between each one you publish.
 
 NOTE: **Note:**
 [Git's tagging messages](https://git-scm.com/book/en/v2/Git-Basics-Tagging) and
-Release descriptions are unrelated. Description supports [markdown](../../markdown.md).
+Release descriptions are unrelated. Description supports [Markdown](../../markdown.md).
 
 ### Release assets
 
 You can currently add the following types of assets to each Release:
 
-- [Source code](#source-code): state of the repo at the time of the Release
+- [Source code](#source-code): state of the repository at the time of the Release
 - [Links](#links): to content such as built binaries or documentation
 
 GitLab will support more asset types in the future, including objects such
@@ -90,19 +94,42 @@ project.
 
 ![Releases list](img/releases.png)
 
+### Number of Releases
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/36667) in GitLab 12.8.
+
+The incremental number of Releases is displayed on the project's details page. When clicked,
+it takes you to the list of Releases.
+
+![Number of Releases](img/releases_count_v12_8.png "Incremental counter of Releases")
+
+For private projects, the number of Releases is displayed to users with Reporter
+[permissions](../../permissions.md#releases-permissions) or higher. For public projects,
+it is displayed to every user regardless of their permission level.
+
+### Upcoming Releases
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/38105) in GitLab 12.1.
+
+A Release may be created ahead of time by specifying a future `released_at` date. Until
+the `released_at` date and time is reached, an **Upcoming Release** badge will appear next to the
+Release tag. Once the `released_at` date and time has passed, the badge is automatically removed.
+
+![An upcoming release](img/upcoming_release_v12_7.png)
+
 ## Editing a release
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/26016) in GitLab 12.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/26016) in GitLab 12.6.
 
 To edit the details of a release, navigate to **Project overview > Releases** and click
 the edit button (pencil icon) in the top-right corner of the release you want to modify.
 
-![A release with an edit button](img/release_edit_button_v12_5.png)
+![A release with an edit button](img/release_edit_button_v12_6.png)
 
 This will bring you to the **Edit Release** page, from which you can
 change some of the release's details.
 
-![Edit release page](img/edit_release_page_v12_5.png)
+![Edit release page](img/edit_release_page_v12_6.png)
 
 Currently, it is only possible to edit the release title and notes.
 To change other release information, such as its tag, associated
@@ -117,23 +144,27 @@ of GitLab.
 
 You can be notified by email when a new Release is created for your project.
 
-To subscribe to these notifications, navigate to your **Project**'s landing page, then click on the
-bell icon. Choose **Custom** from the dropdown menu. The
-following modal window will be then displayed, from which you can select **New release** to complete your subscription to new Releases notifications.
+To subscribe to Release notifications:
 
-![Custom notification - New release](img/custom_notifications_new_release_v12_4.png)
+1. Navigate to your **Project**'s landing page.
+1. Click the bell icon (**Notification setting**).
+1. Select **Custom** from the dropdown menu.
+   ![Custom notification - Dropdown menu](img/custom_notifications_dropdown_v12_5.png)
+1. Select **New release**.
+   ![Custom notification - New release](img/custom_notifications_new_release_v12_5.png)
 
 ## Add release notes to Git tags
 
 You can add release notes to any Git tag using the notes feature. Release notes
-behave like any other markdown form in GitLab so you can write text and
+behave like any other Markdown form in GitLab so you can write text and
 drag and drop files to it. Release notes are stored in GitLab's database.
 
 There are several ways to add release notes:
 
 - In the interface, when you create a new Git tag.
-- In the interface, by adding a note to an existing Git tag.
-- Using the GitLab API.
+- In the interface, by adding a release note to an existing Git tag.
+- Using the [Releases API](../../../api/releases/index.md): (we recommend doing this as one of the last
+  steps in your CI/CD release pipeline).
 
 To create a new tag, navigate to your project's **Repository > Tags** and
 click **New tag**. From there, you can fill the form with all the information
@@ -147,18 +178,18 @@ You can also edit an existing tag to add release notes:
 
 ## Release Evidence
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/26019) in GitLab 12.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/26019) in GitLab 12.6.
 
 Each time a new release is created, specific related data is collected in
 parallel. This dataset will be a snapshot this new release (including linked
 milestones and issues) at moment of creation. Such collection of data will
 provide a chain of custody and facilitate processes like external audits, for example.
 
-The gathered Evidence data is stored in the database upon creation of a new
-release as a JSON object. In GitLab 12.5, a link to
-the Evidence data is provided for [each Release](#releases-list).
+The gathered evidence data is stored in the database upon creation of a new
+release as a JSON object. In GitLab 12.6, a link to
+the evidence data is provided for [each Release](#releases-list).
 
-Here's what this object can look like:
+Here is what this object can look like:
 
 ```json
 {
@@ -207,6 +238,35 @@ Here's what this object can look like:
   }
 }
 ```
+
+### Enabling Release Evidence display **(CORE ONLY)**
+
+This feature comes with the `:release_evidence_collection` feature flag
+disabled by default in GitLab self-managed instances. To turn it on,
+ask a GitLab administrator with Rails console access to run the following
+command:
+
+```ruby
+Feature.enable(:release_evidence_collection)
+```
+
+NOTE: **Note:**
+Please note that Release Evidence's data is collected regardless of this
+feature flag, which only enables or disables the display of the data on the
+Releases page.
+
+### Scheduled Evidence creation
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/23697) in GitLab 12.8.
+
+When the `released_at` date and time is not provided, the date and time of Release
+creation is used. The Evidence collection background job is immediately executed.
+
+If a future `released_at` is specified, the Release becomes an **Upcoming Release**. In this
+case, the Evidence is scheduled to be collected at the `released_at` date and time, via a
+background job.
+
+If a past `released_at` is used, no Evidence is collected for the Release.
 
 <!-- ## Troubleshooting
 

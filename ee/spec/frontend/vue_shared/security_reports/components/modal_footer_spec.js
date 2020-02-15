@@ -1,12 +1,16 @@
 import { mount } from '@vue/test-utils';
 import component from 'ee/vue_shared/security_reports/components/modal_footer.vue';
-import LoadingButton from '~/vue_shared/components/loading_button.vue';
 import SplitButton from 'ee/vue_shared/security_reports/components/split_button.vue';
 import DismissButton from 'ee/vue_shared/security_reports/components/dismiss_button.vue';
 import createState from 'ee/vue_shared/security_reports/store/state';
+import LoadingButton from '~/vue_shared/components/loading_button.vue';
 
 describe('Security Reports modal footer', () => {
   let wrapper;
+
+  const mountComponent = options => {
+    wrapper = mount(component, options);
+  };
 
   describe('can only create issue', () => {
     beforeEach(() => {
@@ -14,7 +18,7 @@ describe('Security Reports modal footer', () => {
         modal: createState().modal,
         canCreateIssue: true,
       };
-      wrapper = mount(component, { propsData });
+      mountComponent({ propsData });
     });
 
     it('does not render dismiss button', () => {
@@ -28,7 +32,10 @@ describe('Security Reports modal footer', () => {
 
     it('emits createIssue when create issue button is clicked', () => {
       wrapper.find(LoadingButton).trigger('click');
-      expect(wrapper.emitted().createNewIssue).toBeTruthy();
+
+      return wrapper.vm.$nextTick().then(() => {
+        expect(wrapper.emitted().createNewIssue).toBeTruthy();
+      });
     });
   });
 
@@ -38,7 +45,7 @@ describe('Security Reports modal footer', () => {
         modal: createState().modal,
         canCreateMergeRequest: true,
       };
-      wrapper = mount(component, { propsData });
+      mountComponent({ propsData });
     });
 
     it('only renders the create merge request button', () => {
@@ -48,7 +55,10 @@ describe('Security Reports modal footer', () => {
 
     it('emits createMergeRequest when create merge request button is clicked', () => {
       wrapper.find(LoadingButton).trigger('click');
-      expect(wrapper.emitted().createMergeRequest).toBeTruthy();
+
+      return wrapper.vm.$nextTick().then(() => {
+        expect(wrapper.emitted().createMergeRequest).toBeTruthy();
+      });
     });
   });
 
@@ -58,7 +68,7 @@ describe('Security Reports modal footer', () => {
         modal: createState().modal,
         canDownloadPatch: true,
       };
-      wrapper = mount(component, { propsData });
+      mountComponent({ propsData });
     });
 
     it('renders the download patch button', () => {
@@ -68,7 +78,10 @@ describe('Security Reports modal footer', () => {
 
     it('emits downloadPatch when download patch button is clicked', () => {
       wrapper.find(LoadingButton).trigger('click');
-      expect(wrapper.emitted().downloadPatch).toBeTruthy();
+
+      return wrapper.vm.$nextTick().then(() => {
+        expect(wrapper.emitted().downloadPatch).toBeTruthy();
+      });
     });
   });
 
@@ -79,7 +92,7 @@ describe('Security Reports modal footer', () => {
         canCreateIssue: true,
         canCreateMergeRequest: true,
       };
-      wrapper = mount(component, { propsData });
+      mountComponent({ propsData });
     });
 
     it('renders create merge request and issue button as a split button', () => {
@@ -99,7 +112,7 @@ describe('Security Reports modal footer', () => {
         canCreateMergeRequest: true,
         canDownloadPatch: true,
       };
-      wrapper = mount(component, { propsData });
+      mountComponent({ propsData });
     });
 
     it('renders the split button', () => {
@@ -117,7 +130,7 @@ describe('Security Reports modal footer', () => {
         modal: createState().modal,
         canDismissVulnerability: true,
       };
-      wrapper = mount(component, { propsData });
+      mountComponent({ propsData });
     });
 
     it('should render the dismiss button', () => {

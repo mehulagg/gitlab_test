@@ -31,7 +31,7 @@ enable_json_logs = Gitlab.config.sidekiq.log_format == 'json'
 enable_sidekiq_memory_killer = ENV['SIDEKIQ_MEMORY_KILLER_MAX_RSS'].to_i.nonzero?
 use_sidekiq_daemon_memory_killer = ENV["SIDEKIQ_DAEMON_MEMORY_KILLER"].to_i.nonzero?
 use_sidekiq_legacy_memory_killer = !use_sidekiq_daemon_memory_killer
-use_request_store = ENV['SIDEKIQ_REQUEST_STORE'].to_i.nonzero?
+use_request_store = ENV.fetch('SIDEKIQ_REQUEST_STORE', 1).to_i.nonzero?
 
 Sidekiq.configure_server do |config|
   config.redis = queues_config_hash
@@ -88,23 +88,10 @@ Sidekiq.configure_server do |config|
 
   Gitlab::SidekiqVersioning.install!
 
-  db_config = Gitlab::Database.config ||
-    Rails.application.config.database_configuration[Rails.env]
-  db_config['pool'] = Sidekiq.options[:concurrency]
-  ActiveRecord::Base.establish_connection(db_config)
-  Rails.logger.debug("Connection Pool size for Sidekiq Server is now: #{ActiveRecord::Base.connection.pool.instance_variable_get('@size')}") # rubocop:disable Gitlab/RailsLogger
-
   Gitlab.ee do
     Gitlab::Mirror.configure_cron_job!
 
     Gitlab::Geo.configure_cron_jobs!
-
-    if Gitlab::Geo.geo_database_configured?
-      Rails.configuration.geo_database['pool'] = Sidekiq.options[:concurrency]
-      Geo::TrackingBase.establish_connection(Rails.configuration.geo_database)
-
-      Rails.logger.debug("Connection Pool size for Sidekiq Server is now: #{Geo::TrackingBase.connection_pool.size} (Geo tracking database)") # rubocop:disable Gitlab/RailsLogger
-    end
   end
 
   # Avoid autoload issue such as 'Mail::Parsers::AddressStruct'
@@ -118,8 +105,5 @@ end
 Sidekiq.configure_client do |config|
   config.redis = queues_config_hash
 
-  config.client_middleware do |chain|
-    chain.add Gitlab::SidekiqMiddleware::CorrelationInjector
-    chain.add Gitlab::SidekiqStatus::ClientMiddleware
-  end
+  config.client_middleware(&Gitlab::SidekiqMiddleware.client_configurator)
 end

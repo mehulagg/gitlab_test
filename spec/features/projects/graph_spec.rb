@@ -60,7 +60,7 @@ describe 'Project Graph', :js do
     let(:branch_name) { '<h1>evil</h1>' }
 
     before do
-      project.repository.create_branch(branch_name, 'master')
+      project.repository.create_branch(branch_name)
 
       visit charts_project_graph_path(project, branch_name)
     end
@@ -85,7 +85,7 @@ describe 'Project Graph', :js do
       expect(page).to have_content 'Pipelines for last week'
       expect(page).to have_content 'Pipelines for last month'
       expect(page).to have_content 'Pipelines for last year'
-      expect(page).to have_content 'Commit duration in minutes for last 30 commits'
+      expect(page).to have_content 'Duration for the last 30 commits'
     end
   end
 end

@@ -3,16 +3,19 @@
 require 'spec_helper'
 
 describe API::Dependencies do
-  set(:project) { create(:project, :public) }
-  set(:user) { create(:user) }
+  let_it_be(:project) { create(:project, :public) }
+  let_it_be(:user) { create(:user) }
 
   describe "GET /projects/:id/dependencies" do
-    let(:request) { get api("/projects/#{project.id}/dependencies", user), params: params }
+    subject(:request) { get api("/projects/#{project.id}/dependencies", user), params: params }
+
     let(:params) { {} }
 
     before do
-      stub_licensed_features(dependency_list: true, security_dashboard: true)
+      stub_licensed_features(dependency_scanning: true, security_dashboard: true)
     end
+
+    it_behaves_like 'a gitlab tracking event', described_class.name, 'view_dependencies'
 
     context 'with an authorized user with proper permissions' do
       before do

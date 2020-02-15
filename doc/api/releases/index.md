@@ -19,7 +19,7 @@ GET /projects/:id/releases
 
 Example request:
 
-```sh
+```shell
 curl --header "PRIVATE-TOKEN: gDybLx3yrUK_HLp3qPjS" "https://gitlab.example.com/api/v4/projects/24/releases"
 ```
 
@@ -202,7 +202,7 @@ GET /projects/:id/releases/:tag_name
 
 Example request:
 
-```sh
+```shell
 curl --header "PRIVATE-TOKEN: gDybLx3yrUK_HLp3qPjS" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1"
 ```
 
@@ -312,7 +312,7 @@ POST /projects/:id/releases
 | `id`               | integer/string  | yes                         | The ID or [URL-encoded path of the project](../README.md#namespaced-path-encoding).                                              |
 | `name`             | string          | no                          | The release name.                                                                                                                |
 | `tag_name`         | string          | yes                         | The tag where the release will be created from.                                                                                  |
-| `description`      | string          | yes                         | The description of the release. You can use [markdown](../../user/markdown.md).                                                  |
+| `description`      | string          | yes                         | The description of the release. You can use [Markdown](../../user/markdown.md).                                                  |
 | `ref`              | string          | yes, if `tag_name` doesn't exist | If `tag_name` doesn't exist, the release will be created from `ref`. It can be a commit SHA, another tag name, or a branch name. |
 | `milestones`       | array of string | no                          | The title of each milestone the release is associated with.                                                                      |
 | `assets:links`     | array of hash   | no                          | An array of assets links.                                                                                                        |
@@ -322,7 +322,7 @@ POST /projects/:id/releases
 
 Example request:
 
-```sh
+```shell
 curl --header 'Content-Type: application/json' --header "PRIVATE-TOKEN: gDybLx3yrUK_HLp3qPjS" \
      --data '{ "name": "New release", "tag_name": "v0.3", "description": "Super nice release", "milestones": ["v1.0", "v1.0-rc"], "assets": { "links": [{ "name": "hoge", "url": "https://google.com" }] } }' \
      --request POST https://gitlab.example.com/api/v4/projects/24/releases
@@ -439,13 +439,13 @@ PUT /projects/:id/releases/:tag_name
 | `id`          | integer/string  | yes      | The ID or [URL-encoded path of the project](../README.md#namespaced-path-encoding).                         |
 | `tag_name`    | string          | yes      | The tag where the release will be created from.                                                             |
 | `name`        | string          | no       | The release name.                                                                                           |
-| `description` | string          | no       | The description of the release. You can use [markdown](../../user/markdown.md).                             |
+| `description` | string          | no       | The description of the release. You can use [Markdown](../../user/markdown.md).                             |
 | `milestones`  | array of string | no       | The title of each milestone to associate with the release (`[]` to remove all milestones from the release). |
 | `released_at` | datetime        | no       | The date when the release will be/was ready. Expected in ISO 8601 format (`2019-03-15T08:00:00Z`).          |
 
 Example request:
 
-```sh
+```shell
 curl --header 'Content-Type: application/json' --request PUT --data '{"name": "new name", "milestones": ["v1.2"]}' --header "PRIVATE-TOKEN: gDybLx3yrUK_HLp3qPjS" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1"
 ```
 
@@ -544,7 +544,7 @@ DELETE /projects/:id/releases/:tag_name
 
 Example request:
 
-```sh
+```shell
 curl --request DELETE --header "PRIVATE-TOKEN: gDybLx3yrUK_HLp3qPjS" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1"
 ```
 

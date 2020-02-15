@@ -5,8 +5,8 @@ require 'spec_helper'
 describe AutoMerge::MergeTrainService do
   include ExclusiveLeaseHelpers
 
-  set(:project) { create(:project, :repository) }
-  set(:user) { create(:user) }
+  let_it_be(:project) { create(:project, :repository) }
+  let_it_be(:user) { create(:user) }
   let(:service) { described_class.new(project, user, params) }
   let(:params) { {} }
 
@@ -21,7 +21,7 @@ describe AutoMerge::MergeTrainService do
     allow(AutoMergeProcessWorker).to receive(:perform_async) { }
 
     stub_licensed_features(merge_trains: true, merge_pipelines: true)
-    project.update!(merge_trains_enabled: true, merge_pipelines_enabled: true)
+    project.update!(merge_pipelines_enabled: true)
   end
 
   describe '#execute' do
@@ -125,6 +125,19 @@ describe AutoMerge::MergeTrainService do
       subject
     end
 
+    context 'when pipeline exists' do
+      before do
+        merge_request.merge_train.update!(pipeline: pipeline)
+      end
+
+      let(:pipeline) { create(:ci_pipeline) }
+      let(:build) { create(:ci_build, :running, pipeline: pipeline) }
+
+      it 'cancels the jobs in the pipeline' do
+        expect { subject }.to change { build.reload.status }.from('running').to('canceled')
+      end
+    end
+
     context 'when train ref exists' do
       before do
         merge_request.project.repository.create_ref(merge_request.target_branch, merge_request.train_ref_path)
@@ -147,13 +160,30 @@ describe AutoMerge::MergeTrainService do
       let!(:merge_request_2) do
         create(:merge_request, :on_train,
           source_project: project, source_branch: 'signed-commits',
-          target_project: project, target_branch: 'master')
+          target_project: project, target_branch: 'master',
+          status: status)
       end
+
+      let(:status) { MergeTrain.state_machines[:status].states[:fresh].value }
 
       it 'processes the next merge request on the train by default' do
         expect(AutoMergeProcessWorker).to receive(:perform_async).with(merge_request_2.id)
 
         subject
+
+        expect(merge_request_2.reset.merge_train).to be_stale
+      end
+
+      context 'when the status is stale already' do
+        let(:status) { MergeTrain.state_machines[:status].states[:stale].value }
+
+        it 'does not do anything' do
+          expect(AutoMergeProcessWorker).not_to receive(:perform_async).with(merge_request_2.id)
+
+          expect { subject }.not_to raise_error
+
+          expect(merge_request_2.reset.merge_train).to be_stale
+        end
       end
     end
   end
@@ -193,13 +223,16 @@ describe AutoMerge::MergeTrainService do
       let!(:merge_request_2) do
         create(:merge_request, :on_train,
           source_project: project, source_branch: 'signed-commits',
-          target_project: project, target_branch: 'master')
+          target_project: project, target_branch: 'master',
+          status: MergeTrain.state_machines[:status].states[:fresh].value)
       end
 
       it 'processes the next merge request on the train' do
         expect(AutoMergeProcessWorker).to receive(:perform_async).with(merge_request_2.id)
 
         subject
+
+        expect(merge_request_2.reset.merge_train).to be_stale
       end
 
       context 'when process_next is false' do

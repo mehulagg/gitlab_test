@@ -26,7 +26,7 @@ There are some high level differences between the products worth mentioning:
   feature.
 - The `.gitlab-ci.yml` file is checked in to the root of your repository, much like a Jenkinsfile, but
   is in the YAML format (see [complete reference](../yaml/README.md)) instead of a Groovy DSL. It's most
-  analagous to the declarative Jenkinsfile format.
+  analogous to the declarative Jenkinsfile format.
 - GitLab comes with a [container registry](../../user/packages/container_registry/index.md), and we recommend using
   container images to set up your build environment.
 
@@ -62,7 +62,7 @@ rspec:
 
 Artifacts may work a bit differently than you've used them with Jenkins. In GitLab, any job can define
 a set of artifacts to be saved by using the `artifacts:` keyword. This can be configured to point to a file
-or set of files that can then be persisted from job to job. Read more on our detailed [artifacts documentation](../../user/project/pipelines/job_artifacts.html)
+or set of files that can then be persisted from job to job. Read more on our detailed [artifacts documentation](../../user/project/pipelines/job_artifacts.md)
 
 ```yaml
 pdf:
@@ -129,7 +129,7 @@ stages:
   - test
   - deploy
   - after_pipeline
-```  
+```
 
 Setting a step to be performed before and after any job can be done via the [`before_script` and `after_script` keywords](../yaml/README.md#before_script-and-after_script).
 
@@ -207,7 +207,7 @@ Because GitLab is integrated tightly with Git, SCM polling options for triggers 
 
 #### `tools`
 
-GitLab does not support a separate `tools` directive. Our best-practice reccomendation is to use pre-built
+GitLab does not support a separate `tools` directive. Our best-practice recommendation is to use pre-built
 container images, which can be cached, and can be built to already contain the tools you need for your pipelines. Pipelines can
 be set up to automatically build these images as needed and deploy them to the [container registry](../../user/packages/container_registry/index.md).
 
@@ -228,5 +228,5 @@ our very powerful [`only/except` rules system](../yaml/README.md#onlyexcept-basi
 
 ```yaml
 my_job:
-  only: branches
+  only: [branches]
 ```

@@ -153,7 +153,10 @@ module Gitlab
 
         # Fallbacks in case the above patterns miss anything
         %r{\.rb\z} => :backend,
-        %r{\.(md|txt)\z} => :none, # To reinstate roulette for documentation, set to `:docs`.
+        %r{(
+          \.(md|txt)\z |
+          \.markdownlint\.json
+        )}x => :none, # To reinstate roulette for documentation, set to `:docs`.
         %r{\.js\z} => :frontend
       }.freeze
 
@@ -169,6 +172,16 @@ module Gitlab
                  end
 
         labels - current_mr_labels
+      end
+
+      def sanitize_mr_title(title)
+        title.gsub(/^WIP: */, '').gsub(/`/, '\\\`')
+      end
+
+      def security_mr?
+        return false unless gitlab_helper
+
+        gitlab_helper.mr_json['web_url'].include?('/gitlab-org/security/')
       end
 
       private

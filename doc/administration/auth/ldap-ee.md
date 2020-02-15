@@ -19,7 +19,7 @@ NOTE: **Note:**
 - Group sync: Once an hour, GitLab will update group membership
   based on LDAP group members.
 
-## Multiple LDAP servers **(STARTER ONLY)**
+## Multiple LDAP servers
 
 With GitLab Enterprise Edition Starter, you can configure multiple LDAP servers
 that your GitLab instance will connect to.
@@ -452,7 +452,7 @@ things to check to debug the situation.
   links by visiting the GitLab group, then **Settings dropdown > LDAP groups**.
 - Check that the user has an LDAP identity:
   1. Sign in to GitLab as an administrator user.
-  1. Navigate to **Admin area > Users**.
+  1. Navigate to **Admin Area > Users**.
   1. Search for the user
   1. Open the user, by clicking on their name. Do not click 'Edit'.
   1. Navigate to the **Identities** tab. There should be an LDAP identity with
@@ -465,7 +465,7 @@ step of the sync.
 
 1. Start a Rails console:
 
-   ```bash
+   ```shell
    # For Omnibus installations
    sudo gitlab-rails console
 
@@ -540,7 +540,7 @@ statements.
 
 Indicates the point where syncing actually begins:
 
-```bash
+```shell
 Started syncing all providers for 'my_group' group
 ```
 
@@ -551,7 +551,7 @@ log entries like this - one for each LDAP group. If you don't see an LDAP user
 DN in this log entry, LDAP is not returning the user when we do the lookup.
 Verify the user is actually in the LDAP group.
 
-```bash
+```shell
 Members in 'ldap_group_1' LDAP group: ["uid=john0,ou=people,dc=example,dc=com",
 "uid=mary0,ou=people,dc=example,dc=com", "uid=john1,ou=people,dc=example,dc=com",
 "uid=mary1,ou=people,dc=example,dc=com", "uid=john2,ou=people,dc=example,dc=com",
@@ -571,7 +571,7 @@ NOTE: **Note:**
 10 is 'Guest', 20 is 'Reporter', 30 is 'Developer', 40 is 'Maintainer'
 and 50 is 'Owner'.
 
-```bash
+```shell
 Resolved 'my_group' group member access: {"uid=john0,ou=people,dc=example,dc=com"=>30,
 "uid=mary0,ou=people,dc=example,dc=com"=>30, "uid=john1,ou=people,dc=example,dc=com"=>30,
 "uid=mary1,ou=people,dc=example,dc=com"=>30, "uid=john2,ou=people,dc=example,dc=com"=>30,
@@ -588,7 +588,7 @@ If you think a particular user should already exist in GitLab, but you're seeing
 this entry, it could be due to a mismatched DN stored in GitLab. See
 [User DN has changed](#User-DN-has-changed) to update the user's LDAP identity.
 
-```bash
+```shell
 User with DN `uid=john0,ou=people,dc=example,dc=com` should have access
 to 'my_group' group but there is no user in GitLab with that
 identity. Membership will be updated once the user signs in for
@@ -597,6 +597,6 @@ the first time.
 
 Finally, the following entry says syncing has finished for this group:
 
-```bash
+```shell
 Finished syncing all providers for 'my_group' group
 ```
