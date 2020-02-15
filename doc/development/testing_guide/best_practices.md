@@ -72,6 +72,24 @@ When using spring and guard together, use `SPRING=1 bundle exec guard` instead t
 - Use [`:aggregate_failures`](https://relishapp.com/rspec/rspec-core/docs/expectation-framework-integration/aggregating-failures) when there is more than one expectation in a test.
 - For [empty test description blocks](https://github.com/rubocop-hq/rspec-style-guide#it-and-specify), use `specify` rather than `it do` if the test is self-explanatory.
 
+### Coverage
+
+[`simplecov`](https://github.com/colszowka/simplecov) is used to generate code test coverage reports.
+These are generated automatically on the CI, but not when running tests locally. To generate partial reports
+when you run a spec file on your machine, set the `SIMPLECOV` environment variable:
+
+```shell
+SIMPLECOV=1 bundle exec rspec spec/models/repository_spec.rb
+```
+
+Coverage reports are generated into the `coverage` folder in the app root, and you can open these in your browser, for example:
+
+```shell
+firefox coverage/index.html
+```
+
+Use the coverage reports to ensure your tests cover 100% of your code.
+
 ### System / Feature tests
 
 NOTE: **Note:** Before writing a new system test, [please consider **not**
@@ -108,7 +126,7 @@ To resume the test run, press any key.
 
 For example:
 
-```
+```shell
 $ bin/rspec spec/features/auto_deploy_spec.rb:34
 Running via Spring preloader in process 8999
 Run options: include {:locations=>{"./spec/features/auto_deploy_spec.rb"=>[34]}}
@@ -129,7 +147,7 @@ Note: `live_debug` only works on JavaScript enabled specs.
 
 Run the spec with `CHROME_HEADLESS=0`, e.g.:
 
-```
+```shell
 CHROME_HEADLESS=0 bin/rspec some_spec.rb
 ```
 
@@ -224,7 +242,7 @@ This can be achieved by using
 [`before_all`](https://test-prof.evilmartians.io/#/before_all) hook
 from the [`test-prof` gem](https://rubygems.org/gems/test-prof).
 
-```
+```ruby
 let_it_be(:project) { create(:project) }
 let_it_be(:user) { create(:user) }
 
@@ -242,14 +260,14 @@ Note that if you modify an object defined inside a `let_it_be` block,
 then you will need to reload the object as needed, or specify the `reload`
 option to reload for every example.
 
-```
+```ruby
 let_it_be(:project, reload: true) { create(:project) }
 ```
 
 You can also specify the `refind` option as well to completely load a
 new object.
 
-```
+```ruby
 let_it_be(:project, refind: true) { create(:project) }
 ```
 
@@ -393,7 +411,7 @@ cause issues depending on the developer's local network. There are RSpec labels
 available in `spec/support/dns.rb` which you can apply to tests if you need to
 bypass the DNS stubbing, e.g.:
 
-```
+```ruby
 it "really connects to Prometheus", :permit_dns do
 ```
 
@@ -518,7 +536,7 @@ reset before each example, add the `:prometheus` tag to the Rspec test.
 ### Matchers
 
 Custom matchers should be created to clarify the intent and/or hide the
-complexity of RSpec expectations.They should be placed under
+complexity of RSpec expectations. They should be placed under
 `spec/support/matchers/`. Matchers can be placed in subfolder if they apply to
 a certain type of specs only (e.g. features, requests etc.) but shouldn't be if
 they apply to multiple type of specs.
@@ -553,6 +571,27 @@ Example:
 ```ruby
 expect(response).to have_gitlab_http_status(:ok)
 ```
+
+### Testing query performance
+
+Testing query performance allows us to:
+
+- Assert that N+1 problems do not exist within a block of code.
+- Ensure that the number of queries within a block of code does not increase unnoticed.
+
+#### QueryRecorder
+
+`QueryRecorder` allows profiling and testing of the number of database queries
+performed within a given block of code.
+
+See the [`QueryRecorder`](../query_recorder.md) section for more details.
+
+#### GitalyClient
+
+`Gitlab::GitalyClient.get_request_count` allows tests of the number of Gitaly queries
+made by a given block of code:
+
+See the [`Gitaly Request Counts`](../gitaly.md#request-counts) section for more details.
 
 ### Shared contexts
 

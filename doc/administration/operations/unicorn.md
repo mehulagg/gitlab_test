@@ -65,9 +65,12 @@ maximum memory threshold (in bytes) for the Unicorn worker killer by
 setting the following values `/etc/gitlab/gitlab.rb`:
 
 ```ruby
-unicorn['worker_memory_limit_min'] = "400 * 1 << 20"
-unicorn['worker_memory_limit_max'] = "650 * 1 << 20"
+unicorn['worker_memory_limit_min'] = "1024 * 1 << 20"
+unicorn['worker_memory_limit_max'] = "1280 * 1 << 20"
 ```
+
+NOTE: **Note:**
+These values apply to GitLab 12.7.0 or newer versions. For older GitLab versions please consult [previous worker memory limits](https://gitlab.com/gitlab-org/omnibus-gitlab/-/blob/12.6.0+ee.0/files/gitlab-cookbooks/gitlab/attributes/default.rb#L422-423).
 
 Otherwise, you can set the `GITLAB_UNICORN_MEMORY_MIN` and `GITLAB_UNICORN_MEMORY_MAX`
 [environment variables](../environment_variables.md).
@@ -75,7 +78,7 @@ Otherwise, you can set the `GITLAB_UNICORN_MEMORY_MIN` and `GITLAB_UNICORN_MEMOR
 This is what a Unicorn worker memory restart looks like in unicorn_stderr.log.
 You see that worker 4 (PID 125918) is inspecting itself and decides to exit.
 The threshold memory value was 254802235 bytes, about 250MB. With GitLab this
-threshold is a random value between 200 and 250 MB.  The master process (PID
+threshold is a random value between 200 and 250 MB. The master process (PID
 117565) then reaps the worker process and spawns a new 'worker 4' with PID
 127549.
 

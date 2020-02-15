@@ -170,6 +170,9 @@ module EE
           expose :trial_ends_on, if: can_admin_namespace do |namespace, _|
             namespace.trial_ends_on
           end
+          expose :trial, if: can_admin_namespace do |namespace, _|
+            namespace.trial?
+          end
         end
       end
 
@@ -213,6 +216,9 @@ module EE
         prepended do
           expose(*EE::ApplicationSettingsHelper.repository_mirror_attributes, if: ->(_instance, _options) do
             ::License.feature_available?(:repository_mirrors)
+          end)
+          expose(*EE::ApplicationSettingsHelper.merge_request_appovers_rules_attributes, if: ->(_instance, _options) do
+            ::License.feature_available?(:admin_merge_request_approvers_rules)
           end)
           expose :email_additional_text, if: ->(_instance, _opts) { ::License.feature_available?(:email_additional_text) }
           expose :file_template_project_id, if: ->(_instance, _opts) { ::License.feature_available?(:custom_file_templates) }
@@ -906,6 +912,10 @@ module EE
         class PackagesMetadata < Grape::Entity
           expose :count
           expose :items, using: EE::API::Entities::Nuget::PackagesMetadataItem
+        end
+
+        class PackagesVersions < Grape::Entity
+          expose :versions
         end
       end
 

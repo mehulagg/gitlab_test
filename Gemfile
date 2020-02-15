@@ -33,7 +33,7 @@ gem 'omniauth-auth0', '~> 2.0.0'
 gem 'omniauth-azure-oauth2', '~> 0.0.9'
 gem 'omniauth-cas3', '~> 1.1.4'
 gem 'omniauth-facebook', '~> 4.0.0'
-gem 'omniauth-github', '~> 1.3'
+gem 'omniauth-github', '~> 1.4'
 gem 'omniauth-gitlab', '~> 1.0.2'
 gem 'omniauth-google-oauth2', '~> 0.6.0'
 gem 'omniauth-kerberos', '~> 0.3.0', group: :kerberos
@@ -87,7 +87,7 @@ gem 'grape-entity', '~> 0.7.1'
 gem 'rack-cors', '~> 1.0.6', require: 'rack/cors'
 
 # GraphQL API
-gem 'graphql', '~> 1.9.11'
+gem 'graphql', '~> 1.9.12'
 # NOTE: graphiql-rails v1.5+ doesn't work: https://gitlab.com/gitlab-org/gitlab/issues/31771
 # TODO: remove app/views/graphiql/rails/editors/show.html.erb when https://github.com/rmosolgo/graphiql-rails/pull/71 is released:
 # https://gitlab.com/gitlab-org/gitlab/issues/31747
@@ -381,8 +381,6 @@ group :development, :test do
 
   gem 'knapsack', '~> 1.17'
 
-  gem 'stackprof', '~> 0.2.13', require: false
-
   gem 'simple_po_parser', '~> 1.1.2', require: false
 
   gem 'timecop', '~> 0.8.0'
@@ -427,6 +425,7 @@ gem 'email_reply_trimmer', '~> 0.1'
 gem 'html2text'
 
 gem 'ruby-prof', '~> 1.0.0'
+gem 'stackprof', '~> 0.2.15', require: false
 gem 'rbtrace', '~> 0.4', require: false
 gem 'memory_profiler', '~> 0.9', require: false
 gem 'benchmark-memory', '~> 0.1', require: false
@@ -456,7 +455,7 @@ group :ed25519 do
 end
 
 # Gitaly GRPC protocol definitions
-gem 'gitaly', '~> 1.85.0'
+gem 'gitaly', '~> 1.86.0'
 
 gem 'grpc', '~> 1.24.0'
 

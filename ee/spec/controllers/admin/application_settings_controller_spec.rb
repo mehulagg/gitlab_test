@@ -42,7 +42,7 @@ describe Admin::ApplicationSettingsController do
 
       put :update, params: { application_setting: settings }
 
-      expect(response).to redirect_to(admin_application_settings_path)
+      expect(response).to redirect_to(general_admin_application_settings_path)
       settings.except(:elasticsearch_url, :repository_size_limit).each do |setting, value|
         expect(ApplicationSetting.current.public_send(setting)).to eq(value)
       end
@@ -133,10 +133,23 @@ describe Admin::ApplicationSettingsController do
       it_behaves_like 'settings for licensed features'
     end
 
+    context 'merge request approvers rules' do
+      let(:settings) do
+        {
+          disable_overriding_approvers_per_merge_request: true,
+          prevent_merge_requests_author_approval: true,
+          prevent_merge_requests_committers_approval: true
+        }
+      end
+      let(:feature) { :admin_merge_request_approvers_rules }
+
+      it_behaves_like 'settings for licensed features'
+    end
+
     it 'updates repository_size_limit' do
       put :update, params: { application_setting: { repository_size_limit: '100' } }
 
-      expect(response).to redirect_to(admin_application_settings_path)
+      expect(response).to redirect_to(general_admin_application_settings_path)
       expect(response).to set_flash[:notice].to('Application settings saved successfully')
     end
 

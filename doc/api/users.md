@@ -437,6 +437,19 @@ Note, at the moment this method does only return a `404` error,
 even in cases where a `409` (Conflict) would be more appropriate,
 e.g. when renaming the email address to some existing one.
 
+## Delete authentication identity from user
+
+Deletes a user's authentication identity using the provider name associated with that identity. Available only for administrators.
+
+```
+DELETE /users/:id/identities/:provider
+```
+
+Parameters:
+
+- `id` (required) - The ID of the user
+- `provider` (required) - External provider name
+
 ## User deletion
 
 Deletes a user. Available only for administrators.
@@ -1166,9 +1179,9 @@ Will return `201 OK` on success, `404 User Not Found` is user cannot be found or
 
 ## Deactivate user
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/63921) in GitLab 12.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/22257) in GitLab 12.4.
 
-Deactivates the specified user.  Available only for admin.
+Deactivates the specified user. Available only for admin.
 
 ```
 POST /users/:id/deactivate
@@ -1188,9 +1201,9 @@ Returns:
 
 ## Activate user
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/63921) in GitLab 12.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/22257) in GitLab 12.4.
 
-Activates the specified user.  Available only for admin.
+Activates the specified user. Available only for admin.
 
 ```
 POST /users/:id/activate
@@ -1376,6 +1389,7 @@ The activities that update the timestamp are:
 - Git HTTP/SSH activities (such as clone, push)
 - User logging in into GitLab
 - User visiting pages related to Dashboards, Projects, Issues and Merge Requests ([introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/54947) in GitLab 11.8)
+- User using the API
 
 By default, it shows the activity for all users in the last 6 months, but this can be
 amended by using the `from` parameter.

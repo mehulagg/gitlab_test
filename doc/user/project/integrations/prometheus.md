@@ -204,7 +204,7 @@ You can save a copy of a GitLab defined dashboard that can be customized and ada
 
 1. Click on the "Duplicate dashboard" in the dashboard dropdown.
 
-   NOTE:**Note:**
+   NOTE: **Note:**
    Only GitLab-defined dashboards can be duplicated.
 
 1. Input the file name and other information, such as a new commit message, and click on "Duplicate".
@@ -285,7 +285,9 @@ Note the following properties:
 | type | string | no | Type of panel to be rendered. Optional for area panel types |
 | query_range | string | required | For area panel types, you must use a [range query](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries) |
 
-![area panel type](img/prometheus_dashboard_area_panel_type.png)
+![area panel chart](img/prometheus_dashboard_area_panel_type_v12_8.png)
+
+Starting in [version 12.8](https://gitlab.com/gitlab-org/gitlab/issues/202696), the y-axis values will automatically scale according to the data. Previously, it always started from 0.
 
 ##### Anomaly chart
 
@@ -329,7 +331,7 @@ Note the following properties:
 
 ![anomaly panel type](img/prometheus_dashboard_anomaly_panel_type.png)
 
-#### Column
+##### Column chart
 
 To add a column panel type to a dashboard, look at the following sample dashboard file:
 
@@ -355,6 +357,44 @@ Note the following properties:
 | query_range | yes | yes | For column panel types, you must use a [range query](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries) |
 
 ![anomaly panel type](img/prometheus_dashboard_column_panel_type.png)
+
+##### Stacked column
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/30583) in GitLab 12.8.
+
+To add a stacked column panel type to a dashboard, look at the following sample dashboard file:
+
+```yaml
+dashboard: 'Dashboard title'
+priority: 1
+panel_groups:
+- group: 'Group Title'
+  priority: 5
+  panels:
+  - type: 'stacked-column'
+    title: "Stacked column"
+    y_label: "y label"
+    x_label: 'x label'
+    metrics:
+      - id: memory_1
+        query_range: 'memory_query'
+        label: "memory query 1"
+        unit: "count"
+        series_name: 'group 1'
+      - id: memory_2
+        query_range: 'memory_query_2'
+        label: "memory query 2"
+        unit: "count"
+        series_name: 'group 2'
+
+```
+
+![stacked column panel type](img/prometheus_dashboard_stacked_column_panel_type_v12_8.png)
+
+| Property | Type | Required | Description |
+| ------ | ------ | ------ | ------ |
+| `type` | string | yes | Type of panel to be rendered. For stacked column panel types, set to `stacked-column` |
+| `query_range` | yes | yes | For stacked column panel types, you must use a [range query](https://prometheus.io/docs/prometheus/latest/querying/api/#range-queries) |
 
 ##### Single Stat
 
@@ -419,11 +459,30 @@ Note the following properties:
 When viewing a custom dashboard of a project, you can view the original
 `.yml` file by clicking on **Edit dashboard** button.
 
+### Chart Context Menu
+
+From each of the panels in the dashboard, you can access the context menu by clicking the **{ellipsis_v}** **More actions** dropdown box above the upper right corner of the panel to take actions related to the chart's data.
+
+![Context Menu](img/panel_context_menu_v12_8.png)
+
+The options are:
+
+- [View logs](#view-pod-logs-ultimate)
+- [Download CSV](#downloading-data-as-csv)
+- [Generate link to chart](#embedding-gitlab-managed-kubernetes-metrics)
+- [Alerts](#setting-up-alerts-for-prometheus-metrics-ultimate)
+
+### View Pod Logs **(ULTIMATE)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/122013) in GitLab 12.8.
+
+If you have [Kubernetes Pod Logs](../clusters/kubernetes_pod_logs.md) enabled, you can navigate from the charts in the dashboard to view Pod Logs by clicking on the context menu in the upper-right corner.
+
+If you use the **Timeline zoom** function at the bottom of the chart, logs will narrow down to the time range you selected.
+
 ### Downloading data as CSV
 
 Data from Prometheus charts on the metrics dashboard can be downloaded as CSV.
-
-![Downloading as CSV](img/download_as_csv.png)
 
 ### Setting up alerts for Prometheus metrics **(ULTIMATE)**
 

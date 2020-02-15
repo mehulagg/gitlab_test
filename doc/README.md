@@ -88,7 +88,7 @@ The following documentation relates to the DevOps **Manage** stage:
 | Manage Topics                                                                         | Description                                                                                                                                                                                                                  |
 |:--------------------------------------------------------------------------------------|:-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | [Authentication and<br/>Authorization](administration/auth/README.md) **(CORE ONLY)** | Supported authentication and authorization providers.                                                                                                                                                                        |
-| [GitLab Cycle Analytics](user/project/cycle_analytics.md)                             | Measure the time it takes to go from an [idea to production](https://about.gitlab.com/blog/2016/08/05/continuous-integration-delivery-and-deployment-with-gitlab/#from-idea-to-production-with-gitlab) for each project you have. |
+| [GitLab Value Stream Analytics](user/project/cycle_analytics.md)                      | Measure the time it takes to go from an [idea to production](https://about.gitlab.com/blog/2016/08/05/continuous-integration-delivery-and-deployment-with-gitlab/#from-idea-to-production-with-gitlab) for each project you have. |
 | [Instance Statistics](user/instance_statistics/index.md)                              | Discover statistics on how many GitLab features you use and user activity.                                                                                                                                                   |
 
 <div align="right">
@@ -359,6 +359,7 @@ The following documentation relates to the DevOps **Secure** stage:
 
 | Secure Topics                                                                                         | Description                                                            |
 |:------------------------------------------------------------------------------------------------------|:-----------------------------------------------------------------------|
+| [Compliance Dashboard](user/application_security/compliance_dashboard/index.md) **(ULTIMATE)**        | View the most recent Merge Request activity in a group.                |
 | [Container Scanning](user/application_security/container_scanning/index.md) **(ULTIMATE)**            | Use Clair to scan docker images for known vulnerabilities.             |
 | [Dependency List](user/application_security/dependency_list/index.md) **(ULTIMATE)**                  | View your project's dependencies and their known vulnerabilities.      |
 | [Dependency Scanning](user/application_security/dependency_scanning/index.md) **(ULTIMATE)**          | Analyze your dependencies for known vulnerabilities.                   |

@@ -705,6 +705,11 @@
     exec-sh "^0.3.2"
     minimist "^1.2.0"
 
+"@gitlab/at.js@^1.5.5":
+  version "1.5.5"
+  resolved "https://registry.yarnpkg.com/@gitlab/at.js/-/at.js-1.5.5.tgz#5f6bfe6baaef360daa9b038fa78798d7a6a916b4"
+  integrity sha512-282Dn3SPVsUHVDhMsXgfnv+Rzog0uxecjttxGRQvxh25es1+xvkGQFsvJfkSKJ3X1kHVkSjKf+Tt5Rra+Jhp9g==
+
 "@gitlab/eslint-config@^2.1.2":
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/@gitlab/eslint-config/-/eslint-config-2.1.2.tgz#9f4011d3bf15f3e2668a1faa754f0b9804f23f8f"
@@ -740,10 +745,10 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.96.0.tgz#1d32730389e94358dc245e8336912523446d1269"
   integrity sha512-mhg6kndxDhwjWChKhs5utO6PowlOyFdaCXUrkkxxe2H3cd8DYa40QOEcJeUrSIhkmgIMVesUawesx5tt4Bnnnw==
 
-"@gitlab/ui@^9.4.1":
-  version "9.4.1"
-  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-9.4.1.tgz#c4128ac07e1d6e4367a1c7a38dbee0aed1a2ae23"
-  integrity sha512-Xti1dKWhwzL/3sXdMU2z9P6Liip9UElAHXfAXBnRTEPO3JONhdbwbVXrLnCQzKhkJ6qEaM3cJiC9oIeFhlO/sw==
+"@gitlab/ui@^9.8.0":
+  version "9.8.0"
+  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-9.8.0.tgz#b1a0b5f1f6ac9fdb19b64d74f0f729e3ec182495"
+  integrity sha512-0VjSTjCCtevdoeByxf5o/OimzV3zt1MMH5DlZSqakML38uoOM0WpgXI/4xAipzfYwiKUW+IWbuyZGJ3ucaJnhQ==
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
@@ -989,10 +994,10 @@
     "@sentry/types" "5.10.0"
     tslib "^1.9.3"
 
-"@sourcegraph/code-host-integration@0.0.29":
-  version "0.0.29"
-  resolved "https://registry.yarnpkg.com/@sourcegraph/code-host-integration/-/code-host-integration-0.0.29.tgz#71b4392ad9bd4527f5baddc32bb90fda5c00a9c7"
-  integrity sha512-YtCZSuiBTUzlk2ku9xIHPbEIBYfwNtdZQCVaEL1AvMG0Ds0tEDBiiRdW/ZpdYjskOGwslv2wkKC2sGE/zUUrIQ==
+"@sourcegraph/code-host-integration@0.0.30":
+  version "0.0.30"
+  resolved "https://registry.yarnpkg.com/@sourcegraph/code-host-integration/-/code-host-integration-0.0.30.tgz#85f52eca0f8fd5efb1526a7ec6a09d261ab43bda"
+  integrity sha512-5zBN0/oa1c0lY0+MPb2kEs9NqefvOg0NevDQXqQpLHDOx+TtMzC2uEOQiBnyHm2bWcCl/RFatjvNlEV+reGgnA==
 
 "@types/anymatch@*":
   version "1.3.0"
@@ -1774,11 +1779,6 @@ asynckit@^0.4.0:
   resolved "https://registry.yarnpkg.com/asynckit/-/asynckit-0.4.0.tgz#c79ed97f7f34cb8f2ba1bc9790bcc366474b4b79"
   integrity sha1-x57Zf380y48robyXkLzDZkdLS3k=
 
-at.js@^1.5.4:
-  version "1.5.4"
-  resolved "https://registry.yarnpkg.com/at.js/-/at.js-1.5.4.tgz#8fc60cc80eadbe4874449b166a818e7ae1d784c1"
-  integrity sha512-G8mgUb/PqShPoH8AyjuxsTGvIr1o716BtQUKDM44C8qN2W615y7KGJ68MlTGamd0J0D/m28emUkzagaHTdrGZw==
-
 atob@^2.1.1:
   version "2.1.2"
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
@@ -2446,9 +2446,9 @@ camelcase@^5.0.0:
   integrity sha512-L28STB170nwWS63UjtlEOE3dldQApaJXZkOI1uMFfzf3rRuPegHaHesyee+YxQ+W6SvRDQV6UrdOdRiR153wJg==
 
 caniuse-lite@^1.0.30000980, caniuse-lite@^1.0.30000984:
-  version "1.0.30000985"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000985.tgz#0eb40f6c8a8c219155cbe43c4975c0efb4a0f77f"
-  integrity sha512-1ngiwkgqAYPG0JSSUp3PUDGPKKY59EK7NrGGX+VOxaKCNzRbNc7uXMny+c3VJfZxtoK3wSImTvG9T9sXiTw2+w==
+  version "1.0.30001025"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001025.tgz#30336a8aca7f98618eb3cf38e35184e13d4e5fe6"
+  integrity sha512-SKyFdHYfXUZf5V85+PJgLYyit27q4wgvZuf8QTOk1osbypcROihMBlx9GRar2/pIcKH2r4OehdlBr9x6PXetAQ==
 
 capture-exit@^2.0.0:
   version "2.0.0"
@@ -5413,9 +5413,9 @@ handle-thing@^2.0.0:
   integrity sha512-d4sze1JNC454Wdo2fkuyzCr6aHcbL6PGGuFAz0Li/NcOm1tCHGnWDRmJP85dh9IhQErTc2svWFEX5xHIOo//kQ==
 
 handlebars@^4.1.2:
-  version "4.1.2"
-  resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.1.2.tgz#b6b37c1ced0306b221e094fc7aca3ec23b131b67"
-  integrity sha512-nvfrjqvt9xQ8Z/w0ijewdD/vvWDTOweBUm96NTr66Wfvo1mJenBLwcYmPs3TIBP5ruzYGD7Hx/DaM9RmhroGPw==
+  version "4.7.2"
+  resolved "https://registry.yarnpkg.com/handlebars/-/handlebars-4.7.2.tgz#01127b3840156a0927058779482031afe0e730d7"
+  integrity sha512-4PwqDL2laXtTWZghzzCtunQUTLbo31pcCJrd/B/9JP8XbhVzpS5ZXuKqlOzsd1rtcaLo4KqAn8nl8mkknS4MHw==
   dependencies:
     neo-async "^2.6.0"
     optimist "^0.6.1"

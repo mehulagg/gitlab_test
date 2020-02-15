@@ -4160,7 +4160,7 @@ describe User, :do_not_mock_admin_mode do
   describe '#dismissed_callout?' do
     subject(:user) { create(:user) }
 
-    let(:feature_name) { UserCallout.feature_names.keys.first }
+    let(:feature_name) { UserCallout.feature_names.each_key.first }
 
     context 'when no callout dismissal record exists' do
       it 'returns false when no ignore_dismissal_earlier_than provided' do
@@ -4198,6 +4198,19 @@ describe User, :do_not_mock_admin_mode do
 
       expect(described_class.humans).to match_array([human])
       expect(described_class.bots).to match_array([bot])
+    end
+  end
+
+  describe '#hook_attrs' do
+    it 'includes name, username, avatar_url, and email' do
+      user = create(:user)
+      user_attributes = {
+        name: user.name,
+        username: user.username,
+        avatar_url: user.avatar_url(only_path: false),
+        email: user.email
+      }
+      expect(user.hook_attrs).to eq(user_attributes)
     end
   end
 end

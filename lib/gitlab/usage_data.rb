@@ -87,6 +87,7 @@ module Gitlab
             issues_with_associated_zoom_link: count(ZoomMeeting.added_to_issue),
             issues_using_zoom_quick_actions: count(ZoomMeeting.select(:issue_id).distinct),
             issues_with_embedded_grafana_charts_approx: ::Gitlab::GrafanaEmbedUsageData.issue_count,
+            incident_issues: count(::Issue.authored(::User.alert_bot)),
             keys: count(Key),
             label_lists: count(List.label),
             lfs_objects: count(LfsObject),
@@ -98,6 +99,7 @@ module Gitlab
             projects_imported_from_github: count(Project.where(import_type: 'github')),
             projects_with_repositories_enabled: count(ProjectFeature.where('repository_access_level > ?', ProjectFeature::DISABLED)),
             projects_with_error_tracking_enabled: count(::ErrorTracking::ProjectErrorTrackingSetting.where(enabled: true)),
+            projects_with_alerts_service_enabled: count(AlertsService.active),
             protected_branches: count(ProtectedBranch),
             releases: count(Release),
             remote_mirrors: count(RemoteMirror),
@@ -179,7 +181,7 @@ module Gitlab
 
       # rubocop: disable CodeReuse/ActiveRecord
       def services_usage
-        service_counts = count(Service.active.where(instance: false).where.not(type: 'JiraService').group(:type), fallback: Hash.new(-1))
+        service_counts = count(Service.active.where(template: false).where.not(type: 'JiraService').group(:type), fallback: Hash.new(-1))
 
         results = Service.available_services_names.each_with_object({}) do |service_name, response|
           response["projects_#{service_name}_active".to_sym] = service_counts["#{service_name}_service".camelize] || 0

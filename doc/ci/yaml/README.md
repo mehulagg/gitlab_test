@@ -113,7 +113,7 @@ The following table lists available parameters for jobs:
 | [`retry`](#retry)                                  | When and how many times a job can be auto-retried in case of a failure.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
 | [`timeout`](#timeout)                              | Define a custom job-level timeout that takes precedence over the project-wide setting.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | [`parallel`](#parallel)                            | How many instances of a job should be run in parallel.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
-| [`trigger`](#trigger-premium)                      | Defines a downstream pipeline trigger.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| [`trigger`](#trigger)                      | Defines a downstream pipeline trigger.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | [`include`](#include)                              | Allows this job to include external YAML files. Also available: `include:local`, `include:file`, `include:template`, and `include:remote`.                                                                                                                                                                                                                                                                                                                                                                                                                                              |
 | [`extends`](#extends)                              | Configuration entries that this job is going to inherit from.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | [`pages`](#pages)                                  | Upload the result of a job to use with GitLab Pages.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
@@ -851,7 +851,7 @@ In this example, if the first rule:
 - Matches, the job will be given the `when:always` attribute.
 - Does not match, the second and third rules will be evaluated sequentially
   until a match is found. That is, the job will be given either the:
-  - `when: manual` attribute if the second rule matches.
+  - `when: manual` attribute if the second rule matches. **The stage will not complete until this manual job is triggered and completes successfully.**
   - `when: on_success` attribute if the second rule does not match. The third
     rule will always match when reached because it has no conditional clauses.
 
@@ -937,6 +937,25 @@ NOTE: **Note:**
 For performance reasons, using `exists` with patterns is limited to 10000
 checks. After the 10000th check, rules with patterned globs will always match.
 
+#### `rules:allow_failure`
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/30235) in GitLab 12.8.
+
+You can use [`allow_failure: true`](#allow_failure) within `rules:` to allow a job to fail, or a manual job to
+wait for action, without stopping the pipeline itself. All jobs using `rules:` default to `allow_failure: false`
+if `allow_failure:` is not defined.
+
+```yaml
+job:
+  script: "echo Hello, Rules!"
+  rules:
+    - if: '$CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "master"'
+      when: manual
+      allow_failure: true
+```
+
+In this example, if the first rule matches, then the job will have `when: manual` and `allow_failure: true`.
+
 #### Complex rule clauses
 
 To conjoin `if`, `changes`, and `exists` clauses with an AND, use them in the
@@ -976,6 +995,7 @@ The only job attributes currently set by `rules` are:
 
 - `when`.
 - `start_in`, if `when` is set to `delayed`.
+- `allow_failure`.
 
 A job will be included in a pipeline if `when` is evaluated to any value
 except `never`.
@@ -1523,7 +1543,7 @@ globally and all jobs will use that definition.
 Use the `paths` directive to choose which files or directories will be cached. Paths
 are relative to the project directory (`$CI_PROJECT_DIR`) and cannot directly link outside it.
 Wildcards can be used that follow the [glob](https://en.wikipedia.org/wiki/Glob_(programming))
-patterns and [filepath.Match](https://golang.org/pkg/path/filepath/#Match).
+patterns and [`filepath.Match`](https://golang.org/pkg/path/filepath/#Match).
 
 Cache all files in `binaries` that end in `.apk` and the `.config` file:
 
@@ -1571,7 +1591,7 @@ allowing you to cache data between different jobs or even different branches.
 
 The `cache:key` variable can use any of the
 [predefined variables](../variables/README.md), and the default key, if not
-set, is just literal `default` which means everything is shared between each
+set, is just literal `default` which means everything is shared between
 pipelines and jobs by default, starting from GitLab 9.0.
 
 NOTE: **Note:**
@@ -1621,7 +1641,7 @@ cache:
     - node_modules
 ```
 
-In this example we are creating a cache for Ruby and Nodejs dependencies that
+In this example we are creating a cache for Ruby and Node.js dependencies that
 is tied to current versions of the `Gemfile.lock` and `package.json` files. Whenever one of
 these files changes, a new cache key is computed and a new cache is created. Any future
 job runs using the same `Gemfile.lock` and `package.json`  with `cache:key:files` will
@@ -1630,6 +1650,7 @@ use the new cache, instead of rebuilding the dependencies.
 ##### `cache:key:prefix`
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/18986) in GitLab v12.5.
+
 The `prefix` parameter adds extra functionality to `key:files` by allowing the key to
 be composed of the given `prefix` combined with the SHA computed for `cache:key:files`.
 For example, adding a `prefix` of `test`, will cause keys to look like: `test-feef9576d21ee9b6a32e30c5c79d0a0ceb68d1e5`.
@@ -1754,7 +1775,7 @@ be available for download in the GitLab UI.
 
 Paths are relative to the project directory (`$CI_PROJECT_DIR`) and cannot directly
 link outside it. Wildcards can be used that follow the [glob](https://en.wikipedia.org/wiki/Glob_(programming))
-patterns and [filepath.Match](https://golang.org/pkg/path/filepath/#Match).
+patterns and [`filepath.Match`](https://golang.org/pkg/path/filepath/#Match).
 
 To restrict which jobs a specific job will fetch artifacts from, see [dependencies](#dependencies).
 
@@ -2227,6 +2248,7 @@ and bring back the old behavior.
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/47063) in GitLab 12.2.
 > - In GitLab 12.3, maximum number of jobs in `needs` array raised from five to 50.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/30631) in GitLab 12.8, `needs: []` lets jobs start immediately.
 
 The `needs:` keyword enables executing jobs out-of-order, allowing you to implement
 a [directed acyclic graph](../directed_acyclic_graph/index.md) in your `.gitlab-ci.yml`.
@@ -2242,6 +2264,10 @@ linux:build:
 
 mac:build:
   stage: build
+
+lint:
+  stage: test
+  needs: []
 
 linux:rspec:
   stage: test
@@ -2263,7 +2289,9 @@ production:
   stage: deploy
 ```
 
-This example creates three paths of execution:
+This example creates four paths of execution:
+
+- Linter: the `lint` job will run immediately without waiting for the `build` stage to complete because it has no needs (`needs: []`).
 
 - Linux path: the `linux:rspec` and `linux:rubocop` jobs will be run as soon
   as the `linux:build` job finishes without waiting for `mac:build` to finish.
@@ -2287,9 +2315,6 @@ This example creates three paths of execution:
   - For self-managed instances, the limit is:
     - 10, if the `ci_dag_limit_needs` feature flag is enabled (default).
     - 50, if the `ci_dag_limit_needs` feature flag is disabled.
-- It is impossible for now to have `needs: []` (empty needs), the job always needs to
-  depend on something, unless this is the job in the first stage. However, support for
-  an empty needs array [is planned](https://gitlab.com/gitlab-org/gitlab/issues/30631).
 - If `needs:` refers to a job that is marked as `parallel:`.
   the current job will depend on all parallel jobs created.
 - `needs:` is similar to `dependencies:` in that it needs to use jobs from prior stages,
@@ -2571,9 +2596,10 @@ Please be aware that semaphore_test_boosters reports usages statistics to the au
 You can then navigate to the **Jobs** tab of a new pipeline build and see your RSpec
 job split into three separate jobs.
 
-### `trigger` **(PREMIUM)**
+### `trigger`
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/8997) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.8.
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/8997) in [GitLab Premium](https://about.gitlab.com/pricing/) 11.8.
+> - [Moved](https://gitlab.com/gitlab-org/gitlab/issues/199224) to GitLab Core in 12.8.
 
 `trigger` allows you to define downstream pipeline trigger. When a job created
 from `trigger` definition is started by GitLab, a downstream pipeline gets
@@ -2640,6 +2666,8 @@ upstream_bridge:
 ```
 
 #### `trigger` syntax for child pipeline
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/16094) in GitLab 12.7.
 
 To create a [child pipeline](../parent_child_pipelines.md), specify the path to the
 YAML file containing the CI config of the child pipeline:
@@ -3210,9 +3238,9 @@ spinach:
 ```
 
 In GitLab 12.0 and later, it's also possible to use multiple parents for
-`extends`.  The algorithm used for merge is "closest scope wins", so
+`extends`. The algorithm used for merge is "closest scope wins", so
 keys from the last member will always shadow anything defined on other
-levels.  For example:
+levels. For example:
 
 ```yaml
 .only-important:
@@ -3891,7 +3919,7 @@ job_no_git_strategy:
 Triggers can be used to force a rebuild of a specific branch, tag or commit,
 with an API call when a pipeline gets created using a trigger token.
 
-Not to be confused with [`trigger`](#trigger-premium).
+Not to be confused with [`trigger`](#trigger).
 
 [Read more in the triggers documentation.](../triggers/README.md)
 

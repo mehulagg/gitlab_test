@@ -3,6 +3,11 @@
 module ProjectsHelper
   prepend_if_ee('::EE::ProjectsHelper') # rubocop: disable Cop/InjectEnterpriseEditionModule
 
+  def project_incident_management_setting
+    @project_incident_management_setting ||= @project.incident_management_setting ||
+      @project.build_incident_management_setting
+  end
+
   def link_to_project(project)
     link_to namespace_project_path(namespace_id: project.namespace, id: project), title: h(project.name) do
       title = content_tag(:span, project.name, class: 'project-name')
@@ -717,6 +722,6 @@ module ProjectsHelper
   def settings_container_registry_expiration_policy_available?(project)
     Feature.enabled?(:registry_retention_policies_settings, project) &&
       Gitlab.config.registry.enabled &&
-      can?(current_user, :read_container_image, project)
+      can?(current_user, :destroy_container_image, project)
   end
 end

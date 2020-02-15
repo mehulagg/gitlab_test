@@ -19,16 +19,25 @@ members to the group in order to give them maintainer access to the project.
 
 This project will be used for self monitoring your GitLab instance.
 
-## Activating or deactivating the self monitoring project
+## Activating the self monitoring project
 
-1. Navigate to **Admin Area > Settings > Metrics and profiling** and expand the **Self monitoring** section.
-1. Toggle on or off the **Create Project** button to create or remove the "GitLab self monitoring" project.
-1. Click **Save changes** for the changes to take effect.
+1. Navigate to **Admin Area > Settings > Metrics and profiling**, and expand the **Self monitoring** section.
+1. Toggle the **Create Project** button on.
+1. It can take a few seconds for the project to be created. After the project is
+created, GitLab displays a message with a link to the project. The project
+will also be linked in the help text above the **Create Project** button. You can also
+find the project under **Projects > Your projects**.
 
-If you activated the monitoring project, it should now be visible in **Projects > Your projects**.
+## Deactivating the self monitoring project
 
 CAUTION: **Warning:**
 If you deactivate the self monitoring project, it will be permanently deleted.
+
+1. Navigate to **Admin Area > Settings > Metrics and profiling**, and expand the **Self monitoring** section.
+1. Toggle the **Create Project** button off.
+1. In the confirmation dialog that opens, click **Delete project**.
+   It can take a few seconds for it to be deleted.
+1. After the project is deleted, GitLab displays a message confirming your action.
 
 ## Connection to Prometheus
 
@@ -48,3 +57,10 @@ to the Prometheus config in order for GitLab to receive notifications of any ale
 
 Once the webhook is setup, you can
 [take action on incoming alerts](../../../user/project/integrations/prometheus.md#taking-action-on-incidents-ultimate).
+
+## Adding custom metrics to the self monitoring project
+
+You can add custom metrics in the self monitoring project by:
+
+1. [Duplicating](../../../user/project/integrations/prometheus.md#duplicating-a-gitlab-defined-dashboard) the default dashboard.
+1. [Editing](../../../user/project/integrations/prometheus.md#view-and-edit-the-source-file-of-a-custom-dashboard) the newly created dashboard file and configuring it with [dashboard YAML properties](../../../user/project/integrations/prometheus.md#dashboard-yaml-properties).

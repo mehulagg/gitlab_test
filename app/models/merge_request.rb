@@ -24,6 +24,7 @@ class MergeRequest < ApplicationRecord
   self.reactive_cache_key = ->(model) { [model.project.id, model.iid] }
   self.reactive_cache_refresh_interval = 10.minutes
   self.reactive_cache_lifetime = 10.minutes
+  self.reactive_cache_hard_limit = 20.megabytes
 
   SORTING_PREFERENCE_FIELD = :merge_requests_sort
 
@@ -36,9 +37,6 @@ class MergeRequest < ApplicationRecord
   has_many :merge_request_diffs
   has_many :merge_request_context_commits
   has_many :merge_request_context_commit_diff_files, through: :merge_request_context_commits, source: :diff_files
-
-  has_many :merge_request_milestones
-  has_many :milestones, through: :merge_request_milestones
 
   has_one :merge_request_diff,
     -> { order('merge_request_diffs.id DESC') }, inverse_of: :merge_request
@@ -76,7 +74,7 @@ class MergeRequest < ApplicationRecord
 
   has_many :merge_request_assignees
   has_many :assignees, class_name: "User", through: :merge_request_assignees
-  has_many :user_mentions, class_name: "MergeRequestUserMention"
+  has_many :user_mentions, class_name: "MergeRequestUserMention", dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
   has_many :deployment_merge_requests
 
@@ -839,6 +837,10 @@ class MergeRequest < ApplicationRecord
   end
   # rubocop: enable CodeReuse/ServiceClass
 
+  def diffable_merge_ref?
+    Feature.enabled?(:diff_compare_with_head, target_project) && can_be_merged? && merge_ref_head.present?
+  end
+
   # Returns boolean indicating the merge_status should be rechecked in order to
   # switch to either can_be_merged or cannot_be_merged.
   def recheck_merge_status?
@@ -1162,7 +1164,7 @@ class MergeRequest < ApplicationRecord
   # Since deployments run on a merge request ref (e.g. `refs/merge-requests/:iid/head`),
   # we cannot look up environments with source branch name.
   def environments
-    return Environment.none unless actual_head_pipeline&.triggered_by_merge_request?
+    return Environment.none unless actual_head_pipeline&.merge_request?
 
     actual_head_pipeline.environments
   end

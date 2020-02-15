@@ -139,10 +139,12 @@ file. Customizing installation by modifying this file is not supported.
 > - Introduced in GitLab 10.2 for project-level clusters.
 > - Introduced in GitLab 11.6 for group-level clusters.
 
-[Ingress](https://kubernetes.github.io/ingress-nginx/) can provide load
-balancing, SSL termination, and name-based virtual hosting. It acts as a
-web proxy for your applications and is useful if you want to use [Auto
-DevOps](../../topics/autodevops/index.md) or deploy your own web apps.
+[Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) provides load balancing, SSL termination, and name-based virtual hosting
+out of the box. It acts as a web proxy for your applications and is useful
+if you want to use [Auto DevOps](../../topics/autodevops/index.md) or deploy your own web apps.
+
+The Ingress Controller installed is [Ingress-NGINX](https://kubernetes.io/docs/concepts/services-networking/ingress/),
+which is supported by the Kubernetes community.
 
 NOTE: **Note:**
 With the following procedure, a load balancer must be installed in your cluster
@@ -255,12 +257,20 @@ use an A record. If your external endpoint is a hostname, use a CNAME record.
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/21966) in GitLab 12.7.
 
-Out of the box, GitLab provides you real-time security monitoring with
-[ModSecurity](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#modsecurity).
+A Web Application Firewall (WAF) is able to examine traffic being sent/received
+and can block malicious traffic before it reaches your application. The benefits
+of a WAF are:
 
-Modsecurity is a toolkit for real-time web application monitoring, logging,
-and access control. With GitLab's offering, the [OWASP's Core Rule Set](https://www.modsecurity.org/CRS/Documentation/), which provides generic attack detection capabilities,
-is automatically applied.
+- Real-time security monitoring for your application
+- Logging of all your HTTP traffic to the application
+- Access control for your application
+- Highly configurable logging and blocking rules
+
+Out of the box, GitLab provides you with a WAF known as [`ModSecurity`](https://www.modsecurity.org/)
+
+ModSecurity is a toolkit for real-time web application monitoring, logging,
+and access control. With GitLab's offering, the [OWASP's Core Rule Set](https://www.modsecurity.org/CRS/Documentation/),
+which provides generic attack detection capabilities, is automatically applied.
 
 This feature:
 
@@ -274,6 +284,12 @@ This feature:
 
 To enable ModSecurity, check the **Enable Web Application Firewall** checkbox
 when installing your [Ingress application](#ingress).
+
+If this is your first time using GitLab's WAF, we recommend you follow the
+[quick start guide](../../topics/web_application_firewall/quick_start_guide.md).
+
+There is a small performance overhead by enabling ModSecurity. However,
+if this is considered significant for your application, you can disable it.
 
 There is a small performance overhead by enabling ModSecurity. If this is
 considered significant for your application, you can disable ModSecurity's
@@ -448,8 +464,8 @@ chart is used to install this application with a
 file.
 
 NOTE: **Note:**
-The chart will deploy 4 Elasticsearch nodes: 2 masters, 1 data and 1 client node,
-with resource requests totalling 0.1 CPU and 3GB RAM. Each data node requests 1.5GB of memory,
+The chart will deploy 5 Elasticsearch nodes: 2 masters, 2 data and 1 client node,
+with resource requests totalling 0.125 CPU and 4.5GB RAM. Each data node requests 1.5GB of memory,
 which makes it incompatible with clusters of `f1-micro` and `g1-small` instance types.
 
 ## Install using GitLab CI (alpha)
@@ -471,6 +487,7 @@ Supported applications:
 - [Sentry](#install-sentry-using-gitlab-ci)
 - [GitLab Runner](#install-gitlab-runner-using-gitlab-ci)
 - [Cilium](#install-cilium-using-gitlab-ci)
+- [JupyterHub](#install-jupyterhub-using-gitlab-ci)
 
 ### Usage
 
@@ -657,7 +674,7 @@ available configuration options.
 
 ### Install Cilium using GitLab CI
 
-> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/merge_requests/22) in GitLab 12.8.
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/22) in GitLab 12.8.
 
 [Cilium](https://cilium.io/) is a networking plugin for Kubernetes
 that you can use to implement support for
@@ -732,6 +749,47 @@ agent:
   monitor:
     enabled: false
 ```
+
+### Install JupyterHub using GitLab CI
+
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/40) in GitLab 12.8.
+
+Enable JupyterHub in the `.gitlab/managed-apps/config.yaml` file to install it:
+
+```yaml
+jupyterhub:
+  installed: true
+  gitlabProjectIdWhitelist: []
+  gitlabGroupWhitelist: []
+```
+
+`gitlabProjectIdWhitelist` restricts GitLab authentication to only members of the specified projects. `gitlabGroupWhitelist` restricts GitLab authentication to only members of the specified groups. Specifying an empty array for both will allow any user on the GitLab instance to log in.
+
+JupyterHub is installed into the `gitlab-managed-apps` namespace of your
+cluster.
+
+In order for JupyterHub to function, you must setup an [OAuth Application](../../integration/oauth_provider.md). Using the following values:
+
+- "Redirect URI" to `http://<JupyterHub Host>/hub/oauth_callback`
+- "Scope" to `api read_repository write_repository`
+
+In addition the following variables must be specified using [CI variables](../../ci/variables/README.md):
+
+- `JUPYTERHUB_PROXY_SECRET_TOKEN` will set [`proxy.secretToken`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#proxy-secrettoken). Generate this using `openssl rand -hex 32`.
+- `JUPYTERHUB_COOKIE_SECRET` will set [`hub.cookieSecret`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#hub-cookiesecret). Generate this using `openssl rand -hex 32`.
+- `JUPYTERHUB_HOST` is the hostname used for the installation (e.g., `jupyter.example.gitlab.com`).
+- `JUPYTERHUB_GITLAB_HOST` is the hostname of the GitLab instance used for authentication (e.g., `example.gitlab.com`).
+- `JUPYTERHUB_AUTH_CRYPTO_KEY` will set [`auth.state.cryptoKey`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#auth-state-cryptokey). Generate this using `openssl rand -hex 32`.
+- `JUPYTERHUB_AUTH_GITLAB_CLIENT_ID` the "Application ID" for the OAuth Application.
+- `JUPYTERHUB_AUTH_GITLAB_CLIENT_SECRET` the "Secret" for the OAuth Application.
+
+By default JupyterHub will be installed using a
+[default values file](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/blob/master/src/default-data/jupyterhub/values.yaml.gotmpl).
+You can customize the installation of JupyterHub by defining
+`.gitlab/managed-apps/jupyterhub/values.yaml` file in your cluster management
+project. Refer to the
+[chart reference](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html)
+for the available configuration options.
 
 ## Upgrading applications
 

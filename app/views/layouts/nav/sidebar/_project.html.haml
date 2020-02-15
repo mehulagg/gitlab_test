@@ -1,4 +1,4 @@
-- should_display_analytics_pages_in_sidebar = Feature.enabled?(:analytics_pages_under_project_analytics_sidebar, @project)
+- should_display_analytics_pages_in_sidebar = Feature.enabled?(:analytics_pages_under_project_analytics_sidebar, @project, default_enabled: true)
 
 .nav-sidebar{ class: ("sidebar-collapsed-desktop" if collapsed_sidebar?) }
   .nav-sidebar-inner-scroll
@@ -9,7 +9,7 @@
           = project_icon(@project, alt: @project.name, class: 'avatar s40 avatar-tile', width: 40, height: 40)
         .sidebar-context-title
           = @project.name
-    %ul.sidebar-top-level-items
+    %ul.sidebar-top-level-items.qa-project-sidebar
       - paths = sidebar_projects_paths
       - paths << 'cycle_analytics#show' unless should_display_analytics_pages_in_sidebar
       = nav_link(path: paths, html_options: { class: 'home' }) do
@@ -42,8 +42,8 @@
           - unless should_display_analytics_pages_in_sidebar
             - if can?(current_user, :read_cycle_analytics, @project)
               = nav_link(path: 'cycle_analytics#show') do
-                = link_to project_cycle_analytics_path(@project), title: _('Cycle Analytics'), class: 'shortcuts-project-cycle-analytics' do
-                  %span= _('Cycle Analytics')
+                = link_to project_cycle_analytics_path(@project), title: _('Value Stream Analytics'), class: 'shortcuts-project-cycle-analytics' do
+                  %span= _('Value Stream Analytics')
 
             = render_if_exists 'layouts/nav/project_insights_link'
 

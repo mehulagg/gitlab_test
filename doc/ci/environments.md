@@ -115,11 +115,14 @@ With this configuration, we:
 - Lastly we deploy to the staging server.
 
 NOTE: **Note:**
-The `environment` keyword is just a hint for GitLab that this job actually
-deploys to the `name` environment. It can also have a `url` that is
-exposed in various places within GitLab. Each time a job that
-has an environment specified succeeds, a deployment is recorded, storing
-the Git SHA and environment name.
+The `environment` keyword defines where the app is deployed.
+The environment `name` and `url` is exposed in various places
+within GitLab. Each time a job that has an environment specified
+succeeds, a deployment is recorded, along with the Git SHA and environment name.
+
+CAUTION: **Caution**:
+Some characters are not allowed in environment names. Use only letters,
+numbers, spaces, and `-`, `_`, `/`, `{`, `}`, or `.`. Also, it must not start nor end with `/`.
 
 In summary, with the above `.gitlab-ci.yml` we have achieved the following:
 
@@ -220,7 +223,7 @@ deployment will be recorded as a new environment named `production`.
 
 NOTE: **Note:**
 If your environment's name is `production` (all lowercase),
-it will get recorded in [Cycle Analytics](../user/project/cycle_analytics.md).
+it will get recorded in [Value Stream Analytics](../user/project/cycle_analytics.md).
 
 ### Configuring dynamic environments
 

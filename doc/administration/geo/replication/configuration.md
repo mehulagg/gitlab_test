@@ -171,7 +171,7 @@ keys must be manually replicated to the **secondary** node.
    sudo -i
    ```
 
-1. Edit `/etc/gitlab/gitlab.rb` and add a **unique** name for your node.  You will need this in the next steps:
+1. Edit `/etc/gitlab/gitlab.rb` and add a **unique** name for your node. You will need this in the next steps:
 
    ```ruby
    # The unique identifier for the Geo node.
@@ -249,7 +249,7 @@ on the **secondary** node.
 
 Geo synchronizes repositories over HTTP/HTTPS, and therefore requires this clone
 method to be enabled. Navigate to **Admin Area > Settings**
-(`/admin/application_settings`) on the **primary** node, and set
+(`/admin/application_settings/general`) on the **primary** node, and set
 `Enabled Git access protocols` to `Both SSH and HTTP(S)` or `Only HTTP(S)`.
 
 ### Step 7. Verify proper functioning of the **secondary** node
