@@ -3745,9 +3745,6 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.bigint "milestone_id"
     t.integer "action", limit: 2, null: false
     t.integer "state", limit: 2, null: false
-    t.integer "cached_markdown_version"
-    t.text "reference"
-    t.text "reference_html"
     t.datetime_with_timezone "created_at", null: false
     t.index ["issue_id"], name: "index_resource_milestone_events_on_issue_id"
     t.index ["merge_request_id"], name: "index_resource_milestone_events_on_merge_request_id"
