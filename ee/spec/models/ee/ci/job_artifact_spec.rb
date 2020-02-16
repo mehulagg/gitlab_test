@@ -5,18 +5,18 @@ require 'spec_helper'
 describe EE::Ci::JobArtifact do
   include EE::GeoHelpers
 
-  describe '#destroy' do
+  describe '.fast_destroy_all' do
     let_it_be(:primary) { create(:geo_node, :primary) }
     let_it_be(:secondary) { create(:geo_node) }
 
-    it 'creates a JobArtifactDeletedEvent' do
+    before do
       stub_current_geo_node(primary)
 
-      job_artifact = create(:ee_ci_job_artifact, :archive)
+      create_list(:ee_ci_job_artifact, 2, :archive)
+    end
 
-      expect do
-        job_artifact.destroy
-      end.to change { Geo::JobArtifactDeletedEvent.count }.by(1)
+    it 'creates a JobArtifactDeletedEvent' do
+      expect { ::Ci::JobArtifact.fast_destroy_all }.to change { Geo::JobArtifactDeletedEvent.count }.by(2)
     end
   end
 

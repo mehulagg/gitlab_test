@@ -166,8 +166,8 @@ describe Ci::JobArtifact do
     subject { described_class.finalize_fast_destroy(artifact_list) }
 
     it 'calls the async deletion worker' do
-      expect(Ci::DeleteStoredArtifactsWorker).to receive(:perform_async).with(project.id, instance_of(String), nil, instance_of(Integer)).exactly(2).times
-      expect(Ci::DeleteStoredArtifactsWorker).to receive(:perform_async).with(project.id, instance_of(String), ObjectStorage::Store::REMOTE, instance_of(Integer)).exactly(2).times
+      expect(Ci::DeleteStoredArtifactsWorker).to receive(:perform_async).with(project.id, instance_of(String), nil, instance_of(Integer)).twice
+      expect(Ci::DeleteStoredArtifactsWorker).to receive(:perform_async).with(project.id, instance_of(String), ObjectStorage::Store::REMOTE, instance_of(Integer)).twice
 
       subject
     end

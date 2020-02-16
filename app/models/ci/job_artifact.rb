@@ -178,7 +178,7 @@ module Ci
 
       def finalize_fast_destroy(params)
         params.each do |artifact_info|
-          Ci::DeleteStoredArtifactsWorker.perform_async(
+          Ci::DeleteStoredArtifactsWorker.perform_async( # rubocop:disable CodeReuse/Worker
             artifact_info.project_id,
             artifact_info.store_path,
             artifact_info.file_store,
