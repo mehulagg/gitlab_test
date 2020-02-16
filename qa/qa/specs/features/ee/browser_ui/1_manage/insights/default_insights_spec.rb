@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Manage' do
+  context 'Manage', quarantine: { issue: "https://gitlab.com/gitlab-org/gitlab/issues/204833", type: :bug } do
     shared_examples 'default insights page' do
       it 'displays issues and merge requests dashboards' do
         EE::Page::Insights::Show.perform do |show|
