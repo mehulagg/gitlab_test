@@ -230,11 +230,7 @@ const addNewDesignToStore = (store, designManagementUpload, query) => {
         __typename: 'DesignEdge',
         node: design,
       })),
-      pageInfo: {
-        __typename: 'PageInfo',
-        hasNextPage: false,
-        endCursor: '',
-      },
+      pageInfo: data.project.issue.designCollection.designs.pageInfo,
       totalCount,
     },
     versions: {
