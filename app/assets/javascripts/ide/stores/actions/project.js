@@ -138,28 +138,24 @@ export const loadBranch = ({ dispatch, getters }, { projectId, branchId }) =>
       throw err;
     });
 
-export const openBranch = ({ dispatch, state, getters }, { projectId, branchId, basePath }) => {
+export const openBranch = ({ dispatch, state }, { projectId, branchId, basePath }) => {
   const currentProject = state.projects[projectId];
-  if (getters.emptyRepo) {
-    return dispatch('showEmptyState', { projectId, branchId });
-  }
   if (!currentProject || !currentProject.branches[branchId]) {
     dispatch('setCurrentBranchId', branchId);
 
     return dispatch('loadBranch', { projectId, branchId })
       .then(() => dispatch('loadFile', { basePath }))
-      .catch(
-        () =>
-          new Error(
-            sprintf(
-              __('An error occurred while getting files for - %{branchId}'),
-              {
-                branchId: `<strong>${_.escape(projectId)}/${_.escape(branchId)}</strong>`,
-              },
-              false,
-            ),
+      .catch(() => {
+        throw new Error(
+          sprintf(
+            __('An error occurred while getting files for - %{branchId}'),
+            {
+              branchId: `<strong>${_.escape(projectId)}/${_.escape(branchId)}</strong>`,
+            },
+            false,
           ),
-      );
+        );
+      });
   }
   return Promise.resolve(dispatch('loadFile', { basePath }));
 };

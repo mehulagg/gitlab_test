@@ -58,8 +58,12 @@ export const getFiles = ({ state, commit, dispatch }, payload = {}) =>
       const selectedProject = state.projects[projectId];
 
       commit(types.CREATE_TREE, { treePath: `${projectId}/${branchId}` });
-      service
-        .getFiles(selectedProject.web_url, ref)
+
+      const filesAsync = selectedProject.empty_repo
+        ? Promise.resolve({ data: [] })
+        : service.getFiles(selectedProject.web_url, ref);
+
+      filesAsync
         .then(({ data }) => {
           const { entries, treeList } = decorateFiles({
             data,

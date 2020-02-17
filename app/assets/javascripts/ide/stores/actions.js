@@ -262,52 +262,55 @@ export const renameEntry = ({ dispatch, commit, state, getters }, { path, name, 
   dispatch('triggerFilesChange');
 };
 
-export const getBranchData = ({ commit, state }, { projectId, branchId, force = false } = {}) =>
-  new Promise((resolve, reject) => {
-    const currentProject = state.projects[projectId];
-    if (!currentProject || !currentProject.branches[branchId] || force) {
-      service
-        .getBranchData(projectId, branchId)
-        .then(({ data }) => {
-          const { id } = data.commit;
-          commit(types.SET_BRANCH, {
-            projectPath: projectId,
-            branchName: branchId,
-            branch: data,
-          });
-          commit(types.SET_BRANCH_WORKING_REFERENCE, { projectId, branchId, reference: id });
-          resolve(data);
-        })
-        .catch(e => {
-          if (e.response.status === 404) {
-            reject(e);
-          } else {
-            flash(
-              __('Error loading branch data. Please try again.'),
-              'alert',
-              document,
-              null,
-              false,
-              true,
-            );
+export const getBranchData = ({ commit, state }, { projectId, branchId, force = false } = {}) => {
+  const currentProject = state.projects[projectId];
+  if (!force && currentProject?.branches[branchId]) {
+    return Promise.resolve();
+  }
 
-            reject(
-              new Error(
-                sprintf(
-                  __('Branch not loaded - %{branchId}'),
-                  {
-                    branchId: `<strong>${_.escape(projectId)}/${_.escape(branchId)}</strong>`,
-                  },
-                  false,
-                ),
-              ),
-            );
-          }
-        });
-    } else {
-      resolve(currentProject.branches[branchId]);
-    }
-  });
+  // TODO - we need to check if we can actually push to the current branch :/
+  const branchAysnc = currentProject.empty_repo
+    ? Promise.resolve({ data: { can_push: true } })
+    : service.getBranchData(projectId, branchId);
+
+  return branchAysnc
+    .then(({ data }) => {
+      commit(types.SET_BRANCH, {
+        projectPath: projectId,
+        branchName: branchId,
+        branch: data,
+      });
+      commit(types.SET_BRANCH_WORKING_REFERENCE, {
+        projectId,
+        branchId,
+        reference: data.commit?.id,
+      });
+    })
+    .catch(e => {
+      if (e.response.status === 404) {
+        throw e;
+      } else {
+        flash(
+          __('Error loading branch data. Please try again.'),
+          'alert',
+          document,
+          null,
+          false,
+          true,
+        );
+
+        throw new Error(
+          sprintf(
+            __('Branch not loaded - %{branchId}'),
+            {
+              branchId: `<strong>${_.escape(projectId)}/${_.escape(branchId)}</strong>`,
+            },
+            false,
+          ),
+        );
+      }
+    });
+};
 
 export * from './actions/tree';
 export * from './actions/file';
