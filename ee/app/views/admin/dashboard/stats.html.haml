@@ -9,6 +9,15 @@
     %td
       = User.count
 
+  %tr
+    %td
+      = s_('AdminArea|Users without a Group and Project')
+      - if License.current&.exclude_guests_from_active_count?
+        %span.has-tooltip{ data: { container: 'body' }, title: s_('AdminArea|Included Free in license') }
+          = sprite_icon('question', size: 16)
+    %td
+      = @users_without_groups_and_projects_count
+
   - if @roles_count
     - @roles_count.each do |row|
       %tr

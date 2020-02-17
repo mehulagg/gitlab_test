@@ -1477,6 +1477,57 @@ describe User, :do_not_mock_admin_mode do
     it { expect(described_class.without_projects).to include user_without_project2 }
   end
 
+  describe '.without_group_memberships' do
+    it 'returns users without a group membership' do
+      group = create(:group)
+      user_with_group_membership = create(:user)
+      group.add_developer(user_with_group_membership)
+
+      user_without_group_membership = create(:user)
+
+      expect(described_class.without_group_memberships).to contain_exactly(user_without_group_membership)
+    end
+  end
+
+  describe '.with_pending_group_memberships' do
+    it 'returns users with pending group memberships' do
+      group = create(:group)
+
+      user_with_group_membership = create(:user)
+      group.add_developer(user_with_group_membership)
+
+      user_with_pending_group_request = create(:user)
+      group.request_access(user_with_pending_group_request)
+
+      user_with_pending_group_invitation = create(:user)
+      create(:group_member, :developer, group: group, user: user_with_pending_group_invitation, invite_token: '1234', invite_email: 'inviteduser1@example.com')
+
+      expect(described_class.with_pending_group_memberships).to contain_exactly(
+        user_with_pending_group_request,
+        user_with_pending_group_invitation
+      )
+    end
+  end
+
+  describe '.without_groups' do
+    it 'returns users without group memberships' do
+      group = create(:group)
+
+      user_with_group_membership = create(:user)
+      group.add_developer(user_with_group_membership)
+
+      user_without_group_membership = create(:user)
+
+      user_with_pending_group_membership = create(:user)
+      group.request_access(user_with_pending_group_membership)
+
+      expect(described_class.without_groups).to contain_exactly(
+        user_without_group_membership,
+        user_with_pending_group_membership
+      )
+    end
+  end
+
   describe 'user creation' do
     describe 'normal user' do
       let(:user) { create(:user, name: 'John Smith') }

@@ -17,6 +17,7 @@ module EE
       end
 
       def stats
+        @users_without_groups_and_projects_count = ::User.without_projects.without_groups.humans.count
         @roles_count = ::ProjectAuthorization.roles_stats
       end
 

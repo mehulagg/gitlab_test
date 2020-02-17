@@ -1281,6 +1281,9 @@ msgstr ""
 msgid "Admin notes"
 msgstr ""
 
+msgid "AdminArea|Included Free in license"
+msgstr ""
+
 msgid "AdminArea|Stop all jobs"
 msgstr ""
 
@@ -1300,6 +1303,9 @@ msgid "AdminArea|Users total"
 msgstr ""
 
 msgid "AdminArea|Users with highest role"
+msgstr ""
+
+msgid "AdminArea|Users without a Group and Project"
 msgstr ""
 
 msgid "AdminArea|You’re about to stop all jobs.This will halt all current jobs that are running."
