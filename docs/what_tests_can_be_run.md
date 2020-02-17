@@ -61,6 +61,7 @@ For more details on the internals, please read the
   for failing tests will be saved (default: `/tmp/gitlab-qa`)
 * `DOCKER_HOST` - Docker host to run tests against (default: `http://localhost`)
 * `CHROME_HEADLESS` - when running locally, set to `false` to allow Chrome tests to be visible - watch your tests being run
+* `QA_ADDITIONAL_REPOSITORY_STORAGE` - the name of additional, non-default storage to be used with tests tagged `repository_storage`, run via the `Test::Instance::RepositoryStorage` scenario
 * `QA_COOKIES` - optionally set to "cookie1=value;cookie2=value" in order to add a cookie to every request. This can be used to set the canary cookie by setting it to "gitlab_canary=true"
 * `QA_DEBUG` - set to `true` to verbosely log page object actions. Note: if enabled be aware that sensitive data might be logged. If an input element has a QA selector with `password` in the name, data entered into the input element will be masked. If the element doesn't have `password` in its name it won't be masked.
 * `QA_LOG_PATH` - path to output debug logging to. If not set logging will be output to STDOUT

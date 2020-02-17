@@ -248,6 +248,44 @@ ee:relative_url-quarantine:
     - .quarantine
     - .rspec-report-opts
 
+ce:repository_storage:
+  script:
+    - exe/gitlab-qa Test::Instance::RepositoryStorage ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
+  extends:
+    - .test
+    - .high-capacity
+    - .ce-qa
+    - .rspec-report-opts
+
+ce:repository_storage-quarantine:
+  script:
+    - exe/gitlab-qa Test::Instance::RepositoryStorage ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
+  extends:
+    - .test
+    - .high-capacity
+    - .ce-qa
+    - .quarantine
+    - .rspec-report-opts
+
+ee:repository_storage:
+  script:
+    - exe/gitlab-qa Test::Instance::RepositoryStorage ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
+  extends:
+    - .test
+    - .high-capacity
+    - .ee-qa
+    - .rspec-report-opts
+
+ee:repository_storage-quarantine:
+  script:
+    - exe/gitlab-qa Test::Instance::RepositoryStorage ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
+  extends:
+    - .test
+    - .high-capacity
+    - .ee-qa
+    - .quarantine
+    - .rspec-report-opts
+
 ce:image:
   script:
     - exe/gitlab-qa Test::Omnibus::Image ${RELEASE:=CE}
