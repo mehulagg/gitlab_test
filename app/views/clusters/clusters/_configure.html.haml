@@ -2,7 +2,7 @@
   - unless @cluster.status_name.in? %i/scheduled creating/
     = render 'form'
 
-- unless @cluster.status_name.in? %i/scheduled creating/
+- unless false # && @cluster.status_name.in? %i/scheduled creating/
   = render_if_exists 'projects/clusters/prometheus_graphs'
 
   .cluster-applications-table#js-cluster-applications
