@@ -21,9 +21,6 @@ module Gitlab
     end
 
     def self.set_feature_cache
-      # During db:create and db:bootstrap skip feature query as DB is not available yet.
-      return false unless ActiveRecord::Base.connected? && Gitlab::Database.cached_table_exists?('features')
-
       self.enabled = Feature.enabled?(MARGINALIA_FEATURE_FLAG)
     end
   end
