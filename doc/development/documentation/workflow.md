@@ -62,9 +62,11 @@ responsible for:
 - Developing initial content required for a feature.
 - Liaising with their Product Manager to understand what documentation must be delivered, and when.
 - Requesting technical reviews from other developers within their group.
-- Requesting documentation reviews from the Technical Writer
+- Requesting documentation review from the Technical Writer
   [assigned to the DevOps stage group](https://about.gitlab.com/handbook/product/technical-writing/index.html#assignments)
   that is delivering the new feature or feature enhancements.
+- Giving at least 3 working days for each reviewer to respond.
+- Respecting the deadlines for release milestones.
 
 TIP: **Tip:**
 Community Contributors can ask for additional help from GitLab team members.
