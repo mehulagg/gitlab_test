@@ -35,6 +35,7 @@ module Gitlab
           'CLOUDSDK_CORE_PROJECT' => :cloudsdk_core_project,
           'GCLOUD_REGION' => :gcloud_region,
           'SIGNUP_DISABLED' => :signup_disabled,
+          'QA_ADDITIONAL_REPOSITORY_STORAGE' => :qa_additional_repository_storage,
           'QA_COOKIES' => :qa_cookie,
           'QA_DEBUG' => :qa_debug,
           'QA_LOG_PATH' => :qa_log_path,

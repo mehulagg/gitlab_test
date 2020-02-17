@@ -8,11 +8,12 @@ module Gitlab
       # the `qa/` directory located in GitLab CE / EE repositories.
       #
       class Specs < Scenario::Template
-        attr_accessor :suite, :release, :network, :args, :volumes
+        attr_accessor :suite, :release, :network, :args, :volumes, :env
 
         def initialize
           @docker = Docker::Engine.new
           @volumes = {}
+          @env = {}
         end
 
         def perform # rubocop:disable Metrics/AbcSize
@@ -36,7 +37,7 @@ module Gitlab
           @docker.run(release.qa_image, release.qa_tag, suite, *args) do |command|
             command << "-t --rm --net=#{network || 'bridge'}"
 
-            Runtime::Env.variables.each do |key, value|
+            env.merge(Runtime::Env.variables).each do |key, value|
               command.env(key, value)
             end
 

@@ -18,6 +18,7 @@ module Gitlab
           autoload :DeploymentBase, 'gitlab/qa/scenario/test/instance/deployment_base'
           autoload :Image, 'gitlab/qa/scenario/test/instance/image'
           autoload :RelativeUrl, 'gitlab/qa/scenario/test/instance/relative_url'
+          autoload :RepositoryStorage, 'gitlab/qa/scenario/test/instance/repository_storage'
           autoload :Staging, 'gitlab/qa/scenario/test/instance/staging'
           autoload :Production, 'gitlab/qa/scenario/test/instance/production'
           autoload :Smoke, 'gitlab/qa/scenario/test/instance/smoke'
