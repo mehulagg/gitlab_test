@@ -468,6 +468,39 @@ The chart will deploy 5 Elasticsearch nodes: 2 masters, 2 data and 1 client node
 with resource requests totalling 0.125 CPU and 4.5GB RAM. Each data node requests 1.5GB of memory,
 which makes it incompatible with clusters of `f1-micro` and `g1-small` instance types.
 
+#### Optional: deploy Kibana to perform advanced queries
+
+If you are an advanced user and have direct access to your Kubernetes cluster using `kubectl` and `helm`, you can deploy Kibana manually.
+
+Save the following to `kibana.yml`:
+
+```yaml
+elasticsearch:
+  enabled: false
+
+logstash:
+  enabled: false
+
+kibana:
+  enabled: true
+  env:
+    ELASTICSEARCH_HOSTS: http://elastic-stack-elasticsearch-client.gitlab-managed-apps.svc.cluster.local:9200
+```
+
+Then install it on your cluster:
+
+```
+helm install --name kibana stable/elastic-stack --values kibana.yml
+```
+
+To access kibana, forward the port to your local machine:
+
+```
+kubectl port-forward svc/kibana 5601:443
+```
+
+Then you can use Kibana at `http://localhost:5601`
+
 ## Install using GitLab CI (alpha)
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/20822) in GitLab 12.6.
