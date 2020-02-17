@@ -118,14 +118,20 @@
 .only:changes-code:
   only:
     changes: *code-patterns
+  variables:
+    PIPELINE_TYPE: "code"
 
 .only:changes-qa:
   only:
     changes: *qa-patterns
+  variables:
+    PIPELINE_TYPE: "qa"
 
 .only:changes-docs:
   only:
     changes: *docs-patterns
+  variables:
+    PIPELINE_TYPE: "docs"
 
 .only:changes-code-backstage:
   only:
@@ -150,6 +156,8 @@
       - "{,ee/}rubocop/**/*"
       - "{,ee/}spec/**/*"
       - "doc/README.md"  # Some RSpec test rely on this file
+  variables:
+    PIPELINE_TYPE: "code|backstage"
 
 .only:changes-code-qa:
   only:
@@ -170,6 +178,8 @@
       # QA changes
       - ".dockerignore"
       - "qa/**/*"
+  variables:
+    PIPELINE_TYPE: "code|qa"
 
 .only:changes-code-backstage-qa:
   only:
@@ -197,6 +207,8 @@
       # QA changes
       - ".dockerignore"
       - "qa/**/*"
+  variables:
+    PIPELINE_TYPE: "code|backstage|qa"
 
 .use-pg9:
   services:
