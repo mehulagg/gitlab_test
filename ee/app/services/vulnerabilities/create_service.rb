@@ -23,6 +23,8 @@ module Vulnerabilities
       rescue ActiveRecord::RecordNotFound
         vulnerability.errors.add(:base, _('finding is not found or is already attached to a vulnerability'))
         raise ActiveRecord::Rollback
+
+        # add metrics: count vulnerability detected
       end
 
       vulnerability

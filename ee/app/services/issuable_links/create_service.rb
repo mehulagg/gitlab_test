@@ -21,6 +21,7 @@ module IssuableLinks
       end
 
       create_links
+      # add metrics for issues created
       success
     end
 

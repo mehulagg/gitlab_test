@@ -19,6 +19,9 @@ module Security
           )
         end
       end
+
+      # add metrics: count security scans run
+      # when is a security scan run?
     end
   end
 end

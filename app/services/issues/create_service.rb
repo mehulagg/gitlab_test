@@ -29,7 +29,7 @@ module Issues
       todo_service.new_issue(issuable, current_user)
       user_agent_detail_service.create
       resolve_discussions_with_issue(issuable)
-
+      # add metric here counter.count
       super
     end
 

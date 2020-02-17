@@ -9,6 +9,7 @@ module EE
       def after_create_hook(user, reset_token)
         super
 
+        # add metrics: count users created
         log_audit_event(user) if audit_required?
       end
 

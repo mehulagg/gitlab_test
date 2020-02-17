@@ -9,6 +9,7 @@ module EE
       def after_create(issuable)
         super
 
+        # add metrics: count MR created
         ::MergeRequests::SyncCodeOwnerApprovalRules.new(issuable).execute
         ::MergeRequests::SyncReportApproverApprovalRules.new(issuable).execute
 
