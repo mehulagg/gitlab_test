@@ -13,24 +13,6 @@ listed below.
 > **Tip:**
 You can run eslint locally by running `yarn eslint`
 
-## Avoid forEach
-
-Avoid forEach when mutating data. Use `map`, `reduce` or `filter` instead of `forEach`
-when mutating data. This will minimize mutations in functions,
-which aligns with [Airbnb's style guide](https://github.com/airbnb/javascript#testing--for-real).
-
-```javascript
-// bad
-users.forEach((user, index) => {
-  user.id = index;
-});
-
-// good
-const usersWithId = users.map((user, index) => {
-  return Object.assign({}, user, { id: index });
-});
-```
-
 ## Limit number of parameters
 
 If your function or method has more than 3 parameters, use an object as a parameter
@@ -253,9 +235,9 @@ Strive to write many small pure functions and minimize where mutations occur
   function impureFunction(items) {
     const bar = 1;
 
-    items.foo = items.a * bar + 2;
+    items.foo = items.foo * bar + 2;
 
-    return items.a;
+    return items.foo;
   }
 
   const c = impureFunction(values);
