@@ -5,9 +5,6 @@ require 'spec_helper'
 describe Gitlab::GitAccessPersonalSnippet do
   include GitHelpers
 
-  let_it_be(:user) { create(:user) }
-  let_it_be(:snippet) { create(:personal_snippet, :private, :repository, author: user) }
-
   let(:actor) { user }
   let(:protocol) { 'ssh' }
   let(:changes) { Gitlab::GitAccess::ANY }
@@ -15,7 +12,7 @@ describe Gitlab::GitAccessPersonalSnippet do
   let(:push_access_check) { access.check('git-receive-pack', changes) }
   let(:pull_access_check) { access.check('git-upload-pack', changes) }
 
-  context '#check', :aggregate_failures do
+  describe '#check', :aggregate_failures do
     using RSpec::Parameterized::TableSyntax
     include_context 'ProjectPolicyTable context'
     include ProjectHelpers
