@@ -21,7 +21,7 @@ describe 'Admin Dashboard' do
     end
 
     describe 'Roles stats' do
-      it 'show correct amount of users per role' do
+      it 'shows the correct amount of users per role' do
         visit admin_dashboard_stats_path
 
         expect(page).to have_content('Users with highest role developer 2')

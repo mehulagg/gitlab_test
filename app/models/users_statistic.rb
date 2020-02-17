@@ -1,7 +1,9 @@
 # frozen_string_literal: true
 
 class UsersStatistic < ApplicationRecord
-  ROLE_STATISTICS_NAMES = ::Gitlab::Access.sym_options_with_owner.values.collect {|value| "highest_role_is_#{value}".to_sym }
+  HIGHEST_ROLE_PREFIX = 'highest_role_is_'
+  ROLE_VALUES = ::Gitlab::Access.sym_options_with_owner.values.freeze
+  ROLE_STATISTICS_NAMES = ROLE_VALUES.collect {|value| "#{HIGHEST_ROLE_PREFIX}#{value}".to_sym }.freeze
   STATISTICS_NAMES = [
     :without_groups_and_projects,
     *ROLE_STATISTICS_NAMES,
@@ -11,3 +13,5 @@ class UsersStatistic < ApplicationRecord
 
   validates :as_at, presence: true
 end
+
+UsersStatistic.prepend_if_ee('EE::UsersStatistic')
