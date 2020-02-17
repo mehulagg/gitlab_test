@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_15_225103) do
+ActiveRecord::Schema.define(version: 2020_02_13_204737) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -301,6 +301,7 @@ ActiveRecord::Schema.define(version: 2020_02_15_225103) do
     t.string "encrypted_asset_proxy_secret_key_iv"
     t.string "static_objects_external_storage_url", limit: 255
     t.string "static_objects_external_storage_auth_token", limit: 255
+    t.integer "max_personal_access_token_lifetime"
     t.boolean "throttle_protected_paths_enabled", default: false, null: false
     t.integer "throttle_protected_paths_requests_per_period", default: 10, null: false
     t.integer "throttle_protected_paths_period_in_seconds", default: 60, null: false
@@ -325,6 +326,8 @@ ActiveRecord::Schema.define(version: 2020_02_15_225103) do
     t.boolean "sourcegraph_enabled", default: false, null: false
     t.string "sourcegraph_url", limit: 255
     t.boolean "sourcegraph_public_only", default: true, null: false
+    t.bigint "snippet_size_limit", default: 52428800, null: false
+    t.integer "minimum_password_length", default: 8, null: false
     t.text "encrypted_akismet_api_key"
     t.string "encrypted_akismet_api_key_iv", limit: 255
     t.text "encrypted_elasticsearch_aws_secret_access_key"
@@ -337,18 +340,15 @@ ActiveRecord::Schema.define(version: 2020_02_15_225103) do
     t.string "encrypted_slack_app_secret_iv", limit: 255
     t.text "encrypted_slack_app_verification_token"
     t.string "encrypted_slack_app_verification_token_iv", limit: 255
-    t.integer "max_personal_access_token_lifetime"
-    t.bigint "snippet_size_limit", default: 52428800, null: false
-    t.integer "minimum_password_length", default: 8, null: false
-    t.boolean "updating_name_disabled_for_users", default: false, null: false
     t.boolean "force_pages_access_control", default: false, null: false
+    t.boolean "updating_name_disabled_for_users", default: false, null: false
     t.integer "instance_administrators_group_id"
-    t.boolean "disable_overriding_approvers_per_merge_request", default: false, null: false
-    t.boolean "prevent_merge_requests_author_approval", default: false, null: false
-    t.boolean "prevent_merge_requests_committers_approval", default: false, null: false
     t.integer "elasticsearch_indexed_field_length_limit", default: 0, null: false
     t.integer "elasticsearch_max_bulk_size_mb", limit: 2, default: 10, null: false
     t.integer "elasticsearch_max_bulk_concurrency", limit: 2, default: 10, null: false
+    t.boolean "disable_overriding_approvers_per_merge_request", default: false, null: false
+    t.boolean "prevent_merge_requests_author_approval", default: false, null: false
+    t.boolean "prevent_merge_requests_committers_approval", default: false, null: false
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id"
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id"
     t.index ["instance_administration_project_id"], name: "index_applicationsettings_on_instance_administration_project_id"
@@ -1497,6 +1497,7 @@ ActiveRecord::Schema.define(version: 2020_02_15_225103) do
     t.string "state", default: "available", null: false
     t.string "slug", null: false
     t.datetime_with_timezone "auto_stop_at"
+    t.index ["auto_stop_at"], name: "index_environments_on_auto_stop_at", where: "(auto_stop_at IS NOT NULL)"
     t.index ["name"], name: "index_environments_on_name_varchar_pattern_ops", opclass: :varchar_pattern_ops
     t.index ["project_id", "name"], name: "index_environments_on_project_id_and_name", unique: true
     t.index ["project_id", "slug"], name: "index_environments_on_project_id_and_slug", unique: true
@@ -1647,6 +1648,14 @@ ActiveRecord::Schema.define(version: 2020_02_15_225103) do
     t.integer "root_project_id"
     t.string "deleted_root_project_name"
     t.index ["root_project_id"], name: "index_fork_networks_on_root_project_id", unique: true
+  end
+
+  create_table "forked_project_links", id: :serial, force: :cascade do |t|
+    t.integer "forked_to_project_id", null: false
+    t.integer "forked_from_project_id", null: false
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.index ["forked_to_project_id"], name: "index_forked_project_links_on_forked_to_project_id", unique: true
   end
 
   create_table "geo_cache_invalidation_events", force: :cascade do |t|
@@ -2430,36 +2439,34 @@ ActiveRecord::Schema.define(version: 2020_02_15_225103) do
   end
 
   create_table "merge_request_context_commit_diff_files", id: false, force: :cascade do |t|
-    t.bigint "merge_request_context_commit_id"
     t.binary "sha", null: false
     t.integer "relative_order", null: false
-    t.string "a_mode", limit: 255, null: false
-    t.string "b_mode", limit: 255, null: false
     t.boolean "new_file", null: false
     t.boolean "renamed_file", null: false
     t.boolean "deleted_file", null: false
     t.boolean "too_large", null: false
-    t.boolean "binary"
+    t.string "a_mode", limit: 255, null: false
+    t.string "b_mode", limit: 255, null: false
     t.text "new_path", null: false
     t.text "old_path", null: false
     t.text "diff"
+    t.boolean "binary"
+    t.bigint "merge_request_context_commit_id"
     t.index ["merge_request_context_commit_id", "sha"], name: "idx_mr_cc_diff_files_on_mr_cc_id_and_sha"
-    t.index ["merge_request_context_commit_id"], name: "idx_mr_cc_diff_files_on_mr_cc_id"
   end
 
   create_table "merge_request_context_commits", force: :cascade do |t|
-    t.bigint "merge_request_id"
     t.datetime_with_timezone "authored_date"
     t.datetime_with_timezone "committed_date"
-    t.binary "sha", null: false
     t.integer "relative_order", null: false
+    t.binary "sha", null: false
     t.text "author_name"
     t.text "author_email"
     t.text "committer_name"
     t.text "committer_email"
     t.text "message"
+    t.bigint "merge_request_id"
     t.index ["merge_request_id", "sha"], name: "index_mr_context_commits_on_merge_request_id_and_sha", unique: true
-    t.index ["merge_request_id"], name: "index_merge_request_context_commits_on_merge_request_id"
   end
 
   create_table "merge_request_diff_commits", id: false, force: :cascade do |t|
@@ -3858,6 +3865,7 @@ ActiveRecord::Schema.define(version: 2020_02_15_225103) do
     t.boolean "comment_on_event_enabled", default: true, null: false
     t.boolean "template", default: false
     t.index ["project_id"], name: "index_services_on_project_id"
+    t.index ["template"], name: "index_services_on_template"
     t.index ["type"], name: "index_services_on_type"
   end
 
@@ -4726,6 +4734,7 @@ ActiveRecord::Schema.define(version: 2020_02_15_225103) do
   add_foreign_key "fork_network_members", "projects", column: "forked_from_project_id", name: "fk_b01280dae4", on_delete: :nullify
   add_foreign_key "fork_network_members", "projects", on_delete: :cascade
   add_foreign_key "fork_networks", "projects", column: "root_project_id", name: "fk_e7b436b2b5", on_delete: :nullify
+  add_foreign_key "forked_project_links", "projects", column: "forked_to_project_id", name: "fk_434510edb0", on_delete: :cascade
   add_foreign_key "geo_container_repository_updated_events", "container_repositories", name: "fk_212c89c706", on_delete: :cascade
   add_foreign_key "geo_event_log", "geo_cache_invalidation_events", column: "cache_invalidation_event_id", name: "fk_42c3b54bed", on_delete: :cascade
   add_foreign_key "geo_event_log", "geo_container_repository_updated_events", column: "container_repository_updated_event_id", name: "fk_6ada82d42a", on_delete: :cascade
