@@ -419,7 +419,6 @@ linters:
       - 'ee/app/views/admin/_namespace_plan_info.html.haml'
       - 'ee/app/views/admin/application_settings/_templates.html.haml'
       - 'ee/app/views/admin/audit_logs/index.html.haml'
-      - 'ee/app/views/admin/dashboard/stats.html.haml'
       - 'ee/app/views/admin/emails/show.html.haml'
       - 'ee/app/views/admin/geo/nodes/edit.html.haml'
       - 'ee/app/views/admin/geo/nodes/new.html.haml'

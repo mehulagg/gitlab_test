@@ -389,7 +389,7 @@ class License < ApplicationRecord
 
   def current_active_users_count
     @current_active_users_count ||= begin
-      if exclude_guests_from_active_count?
+      if ultimate_plan?
         User.active.excluding_guests.count
       else
         User.active.count
@@ -411,7 +411,7 @@ class License < ApplicationRecord
     !expired?
   end
 
-  def exclude_guests_from_active_count?
+  def ultimate_plan?
     plan == License::ULTIMATE_PLAN
   end
 

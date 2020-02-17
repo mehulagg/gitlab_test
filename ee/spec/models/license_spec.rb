@@ -600,6 +600,24 @@ describe License do
     end
   end
 
+  describe '#ultimate_plan?' do
+    context 'when plan is ultimate' do
+      let(:license) { create(:license, plan: License::ULTIMATE_PLAN) }
+
+      it 'returns true' do
+        expect(license.ultimate_plan?).to eq(true)
+      end
+    end
+
+    context 'when plan is not ultimate' do
+      let(:license) { create(:license, plan: License::PREMIUM_PLAN) }
+
+      it 'returns false' do
+        expect(license.ultimate_plan?).to eq(false)
+      end
+    end
+  end
+
   describe '#overage' do
     it 'returns 0 if restricted_user_count is nil' do
       allow(license).to receive(:restricted_user_count) { nil }

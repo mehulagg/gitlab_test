@@ -1,23 +1,34 @@
-- page_title 'Users statistics'
+- page_title s_('AdminArea|Users statistics')
 
-%h3 Users statistics
+%h3
+  = s_('AdminArea|Users statistics')
 %table.table
   %tr
-    %td Users total
+    %td
+      = s_('AdminArea|Users total')
     %td
       = User.count
 
   - if @admin_count
     %tr
-      %td Admin users
+      %td
+        = s_('AdminArea|Admin users')
       %td
         = @admin_count
+  %tr
+    %td
+      = s_('AdminArea|Users without a Group and Project')
+      - if License.current&.ultimate_plan?
+        %span.has-tooltip{ data: { container: 'body' }, title: s_('AdminArea|Included Free in license') }
+          = sprite_icon('question', size: 16)
+    %td
+      = @users_without_groups_and_projects_count
 
   - if @roles_count
     - @roles_count.each do |row|
       %tr
         %td
-          Users with highest role
+          = s_('AdminArea|Users with highest role')
           %strong
             = row['kind']
         %td

@@ -25,7 +25,7 @@ describe "Licenses app", :js do
     expect(seats_in_license).to have_content license.restrictions[:active_user_count]
     expect(seats_in_use).to have_content 'Seats currently in use'
 
-    if license.exclude_guests_from_active_count?
+    if license.ultimate_plan?
       expect(seats_in_use).to have_content User.active.excluding_guests.count
     else
       expect(seats_in_use).to have_content User.active.count

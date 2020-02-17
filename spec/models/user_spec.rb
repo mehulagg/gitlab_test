@@ -1410,6 +1410,68 @@ describe User, :do_not_mock_admin_mode do
     it { expect(described_class.without_projects).to include user_without_project2 }
   end
 
+  describe '.without_group_memberships' do
+    let!(:group) { create(:group) }
+    let!(:user_with_group_membership) { create(:user) }
+    let!(:user_without_group_membership) { create(:user) }
+
+    before do
+      # add user to group
+      group.add_developer(user_with_group_membership)
+    end
+
+    it { expect(described_class.without_group_memberships).not_to include user_with_group_membership }
+    it { expect(described_class.without_group_memberships).to include user_without_group_membership }
+  end
+
+  describe '.with_pending_group_memberships' do
+    let!(:group) { create(:group) }
+    let!(:user_with_group_membership) { create(:user) }
+    let!(:user_with_pending_group_membership_request) { create(:user) }
+    let(:user_with_pending_group_membership_invitation) { create(:user) }
+    let!(:group_invitation) do
+      create(
+        :group_member,
+        :developer,
+        group: group,
+        user: user_with_pending_group_membership_invitation,
+        invite_token: '1234',
+        invite_email: 'inviteduser1@example.com'
+      )
+    end
+
+    before do
+      # add user to group
+      group.add_developer(user_with_group_membership)
+
+      # create request to join group
+      group.request_access(user_with_pending_group_membership_request)
+    end
+
+    it { expect(described_class.with_pending_group_memberships).not_to include user_with_group_membership }
+    it { expect(described_class.with_pending_group_memberships).to include user_with_pending_group_membership_request }
+    it { expect(described_class.with_pending_group_memberships).to include user_with_pending_group_membership_invitation }
+  end
+
+  describe '.without_groups' do
+    let!(:group) { create(:group) }
+    let!(:user_with_group_membership) { create(:user) }
+    let!(:user_without_group_membership) { create(:user) }
+    let!(:user_with_pending_group_membership) { create(:user) }
+
+    before do
+      # add user to group
+      group.add_developer(user_with_group_membership)
+
+      # create request to join group
+      group.request_access(user_with_pending_group_membership)
+    end
+
+    it { expect(described_class.without_groups).not_to include user_with_group_membership }
+    it { expect(described_class.without_groups).to include user_without_group_membership }
+    it { expect(described_class.without_groups).to include user_with_pending_group_membership }
+  end
+
   describe 'user creation' do
     describe 'normal user' do
       let(:user) { create(:user, name: 'John Smith') }

@@ -250,7 +250,7 @@ module EE
       return false if internal?
       return false unless License.current
 
-      if License.current.exclude_guests_from_active_count?
+      if License.current.ultimate_plan?
         highest_role > ::Gitlab::Access::GUEST
       else
         true

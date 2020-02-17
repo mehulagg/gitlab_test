@@ -321,6 +321,15 @@ class User < ApplicationRecord
   scope :without_ghosts, -> { where('ghost IS NOT TRUE') }
   scope :deactivated, -> { with_state(:deactivated).non_internal }
   scope :without_projects, -> { joins('LEFT JOIN project_authorizations ON users.id = project_authorizations.user_id').where(project_authorizations: { user_id: nil }) }
+  scope :without_group_memberships, -> { left_outer_joins(:members).merge(Member.where(user_id: nil)) }
+  scope :with_pending_group_memberships, -> do
+    joins(:members)
+      .merge(
+        Member.where.not(invite_token: nil)
+        .or(Member.where.not(requested_at: nil))
+      )
+  end
+  scope :without_groups, -> { from_union([without_group_memberships, with_pending_group_memberships]) }
   scope :order_recent_sign_in, -> { reorder(Gitlab::Database.nulls_last_order('current_sign_in_at', 'DESC')) }
   scope :order_oldest_sign_in, -> { reorder(Gitlab::Database.nulls_last_order('current_sign_in_at', 'ASC')) }
   scope :order_recent_last_activity, -> { reorder(Gitlab::Database.nulls_last_order('last_activity_on', 'DESC')) }

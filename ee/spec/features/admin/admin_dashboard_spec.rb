@@ -25,8 +25,9 @@ describe 'Admin Dashboard' do
         visit admin_dashboard_stats_path
 
         expect(page).to have_content('Admin users 1')
-        expect(page).to have_content('Users with highest role developer 2')
+        expect(page).to have_content('Users without a Group and Project 1')
         expect(page).to have_content('Users with highest role reporter 1')
+        expect(page).to have_content('Users with highest role developer 2')
       end
     end
   end
