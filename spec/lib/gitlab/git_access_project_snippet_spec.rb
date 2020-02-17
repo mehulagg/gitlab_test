@@ -23,7 +23,7 @@ describe Gitlab::GitAccessProjectSnippet do
     let(:snippet) { create(:project_snippet, :private, :repository, project: project) }
     let(:user) { membership == :author ? snippet.author : create_user_from_membership(project, membership) }
 
-    context 'when project is accessible' do
+    shared_examples_for 'checks accessibility' do
       [:anonymous, :non_member, :guest, :reporter, :maintainer, :admin, :author].each do |membership|
         context membership.to_s do
           let(:membership) { membership }
@@ -43,6 +43,20 @@ describe Gitlab::GitAccessProjectSnippet do
           end
         end
       end
+    end
+
+    context 'when project is public' do
+      it_behaves_like 'checks accessibility'
+    end
+
+    context 'when project is public but snippet feature is private' do
+      let(:project) { create(:project, :public) }
+
+      before do
+        update_feature_access_level(project, :private)
+      end
+
+      it_behaves_like 'checks accessibility'
     end
 
     context 'when project is not accessible' do
