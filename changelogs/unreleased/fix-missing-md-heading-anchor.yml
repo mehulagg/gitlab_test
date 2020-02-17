@@ -1,0 +1,5 @@
+---
+title: Fix missing anchor link on Markdown headings
+merge_request:
+author:
+type: fixed
