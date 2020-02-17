@@ -44,6 +44,11 @@ describe WhereComposite do
         .to raise_error(ArgumentError)
     end
 
+    it 'attaches a key error as cause if a key is missing' do
+      expect { model.where_composite([:foo], [{ foo: 1 }, { bar: 2 }]) }
+        .to raise_error(have_attributes(cause: KeyError))
+    end
+
     it 'returns an empty relation if there are no arguments' do
       expect(model.where_composite([:foo, :bar], nil))
         .to be_empty

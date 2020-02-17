@@ -41,10 +41,9 @@ module WhereComposite
 
       clauses = hashes.map do |hash|
         permitted_keys.map do |key|
-          # We enforce that the arguments have the expected keys:
-          raise ArgumentError, "all arguments must contain #{permitted_keys}" unless hash.has_key?(key)
-
-          arel_table[key].eq(hash[key])
+          arel_table[key].eq(hash.fetch(key))
+        rescue KeyError
+          raise ArgumentError, "all arguments must contain #{permitted_keys}"
         end.reduce(:and)
       end
 
