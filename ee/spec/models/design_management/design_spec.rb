@@ -563,52 +563,12 @@ describe DesignManagement::Design do
     let_it_be(:design_c) { create(:design, issue: issue_b, filename: design_a.filename) }
     let_it_be(:design_d) { create(:design, issue: issue_b, filename: design_b.filename) }
 
-    let(:result) { described_class.by_issue_id_and_filename(ids) }
+    it_behaves_like 'a where_composite scope', :by_issue_id_and_filename do
+      let(:all_results) { [design_a, design_b, design_c, design_d] }
+      let(:first_result) { design_a }
 
-    def composite_ids(designs)
-      designs.map { |design| { issue_id: design.issue_id, filename: design.filename } }
-    end
-
-    context 'we pass an empty array' do
-      let(:ids) { [] }
-
-      it 'returns a null relation' do
-        expect(result).to be_empty
-      end
-    end
-
-    context 'we pass nil' do
-      let(:ids) { nil }
-
-      it 'returns a null relation' do
-        expect(result).to be_empty
-      end
-    end
-
-    context 'we pass a singleton composite id' do
-      let(:ids) { composite_ids([design_a]).first }
-
-      it 'finds issue_a' do
-        expect(result).to contain_exactly(design_a)
-      end
-    end
-
-    context 'we pass group of ids' do
-      let(:designs) { [design_a, design_b, design_c] }
-      let(:ids) { composite_ids(designs) }
-
-      it 'finds issue_a' do
-        expect(result).to contain_exactly(*designs)
-      end
-    end
-
-    describe 'performance' do
-      it 'is not O(N)' do
-        all_ids = composite_ids([design_a, design_b, design_c, design_d])
-        one_id = all_ids.first
-
-        expect { described_class.by_issue_id_and_filename(all_ids) }
-          .to issue_same_number_of_queries_as { described_class.by_issue_id_and_filename(one_id) }
+      let(:composite_ids) do
+        all_results.map { |design| { issue_id: design.issue_id, filename: design.filename } }
       end
     end
   end
