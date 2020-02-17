@@ -262,6 +262,10 @@ ul.related-merge-requests > li {
   }
 }
 
+.js-close-blocked-issue-warning {
+  margin-top: 16px;
+}
+
 @include media-breakpoint-up(sm) {
   .emoji-block .row {
     display: flex;
