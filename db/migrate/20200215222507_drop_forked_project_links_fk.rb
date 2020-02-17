@@ -14,6 +14,10 @@ class DropForkedProjectLinksFk < ActiveRecord::Migration[6.0]
   end
 
   def down
-    add_concurrent_foreign_key :forked_project_links, :projects, column: :forked_to_project_id, on_delete: :cascade
+    with_lock_retries do
+      add_foreign_key :forked_project_links, :projects, column: :forked_to_project_id, on_delete: :cascade, validate: false
+    end
+
+    validate_foreign_key(:forked_project_links, :forked_to_project_id)
   end
 end
