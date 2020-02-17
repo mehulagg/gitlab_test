@@ -1,0 +1,27 @@
+@import "variables.scss";
+@import "~@gitlab/ui/dist/index.css";
+//@import "app/assets/stylesheets/framework/variables.scss";
+//@import "app/assets/stylesheets/bootstrap_migration.scss";
+//@import "app/assets/stylesheets/framework/common.scss";
+
+// Variables
+
+/*
+* Colors
+*/
+
+/*
+* Common styles:
+*/
+
+.container {
+  margin-top: 64px;
+}
+
+.bb-1 {
+  border-bottom: 1px solid $border-color;
+}
+
+.gl-border-1 {
+  border: 1px solid $border-color;
+}
