@@ -343,12 +343,12 @@ ActiveRecord::Schema.define(version: 2020_02_15_225103) do
     t.boolean "updating_name_disabled_for_users", default: false, null: false
     t.boolean "force_pages_access_control", default: false, null: false
     t.integer "instance_administrators_group_id"
-    t.integer "elasticsearch_indexed_field_length_limit", default: 0, null: false
-    t.integer "elasticsearch_max_bulk_size_mb", limit: 2, default: 10, null: false
-    t.integer "elasticsearch_max_bulk_concurrency", limit: 2, default: 10, null: false
     t.boolean "disable_overriding_approvers_per_merge_request", default: false, null: false
     t.boolean "prevent_merge_requests_author_approval", default: false, null: false
     t.boolean "prevent_merge_requests_committers_approval", default: false, null: false
+    t.integer "elasticsearch_indexed_field_length_limit", default: 0, null: false
+    t.integer "elasticsearch_max_bulk_size_mb", limit: 2, default: 10, null: false
+    t.integer "elasticsearch_max_bulk_concurrency", limit: 2, default: 10, null: false
     t.index ["custom_project_templates_group_id"], name: "index_application_settings_on_custom_project_templates_group_id"
     t.index ["file_template_project_id"], name: "index_application_settings_on_file_template_project_id"
     t.index ["instance_administration_project_id"], name: "index_applicationsettings_on_instance_administration_project_id"
@@ -1497,7 +1497,6 @@ ActiveRecord::Schema.define(version: 2020_02_15_225103) do
     t.string "state", default: "available", null: false
     t.string "slug", null: false
     t.datetime_with_timezone "auto_stop_at"
-    t.index ["auto_stop_at"], name: "index_environments_on_auto_stop_at", where: "(auto_stop_at IS NOT NULL)"
     t.index ["name"], name: "index_environments_on_name_varchar_pattern_ops", opclass: :varchar_pattern_ops
     t.index ["project_id", "name"], name: "index_environments_on_project_id_and_name", unique: true
     t.index ["project_id", "slug"], name: "index_environments_on_project_id_and_slug", unique: true
@@ -1648,14 +1647,6 @@ ActiveRecord::Schema.define(version: 2020_02_15_225103) do
     t.integer "root_project_id"
     t.string "deleted_root_project_name"
     t.index ["root_project_id"], name: "index_fork_networks_on_root_project_id", unique: true
-  end
-
-  create_table "forked_project_links", id: :serial, force: :cascade do |t|
-    t.integer "forked_to_project_id", null: false
-    t.integer "forked_from_project_id", null: false
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.index ["forked_to_project_id"], name: "index_forked_project_links_on_forked_to_project_id", unique: true
   end
 
   create_table "geo_cache_invalidation_events", force: :cascade do |t|
@@ -3867,7 +3858,6 @@ ActiveRecord::Schema.define(version: 2020_02_15_225103) do
     t.boolean "comment_on_event_enabled", default: true, null: false
     t.boolean "template", default: false
     t.index ["project_id"], name: "index_services_on_project_id"
-    t.index ["template"], name: "index_services_on_template"
     t.index ["type"], name: "index_services_on_type"
   end
 
@@ -4736,7 +4726,6 @@ ActiveRecord::Schema.define(version: 2020_02_15_225103) do
   add_foreign_key "fork_network_members", "projects", column: "forked_from_project_id", name: "fk_b01280dae4", on_delete: :nullify
   add_foreign_key "fork_network_members", "projects", on_delete: :cascade
   add_foreign_key "fork_networks", "projects", column: "root_project_id", name: "fk_e7b436b2b5", on_delete: :nullify
-  add_foreign_key "forked_project_links", "projects", column: "forked_to_project_id", name: "fk_434510edb0", on_delete: :cascade
   add_foreign_key "geo_container_repository_updated_events", "container_repositories", name: "fk_212c89c706", on_delete: :cascade
   add_foreign_key "geo_event_log", "geo_cache_invalidation_events", column: "cache_invalidation_event_id", name: "fk_42c3b54bed", on_delete: :cascade
   add_foreign_key "geo_event_log", "geo_container_repository_updated_events", column: "container_repository_updated_event_id", name: "fk_6ada82d42a", on_delete: :cascade
