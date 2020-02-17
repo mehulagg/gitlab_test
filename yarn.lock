@@ -745,10 +745,9 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.96.0.tgz#1d32730389e94358dc245e8336912523446d1269"
   integrity sha512-mhg6kndxDhwjWChKhs5utO6PowlOyFdaCXUrkkxxe2H3cd8DYa40QOEcJeUrSIhkmgIMVesUawesx5tt4Bnnnw==
 
-"@gitlab/ui@^9.8.0":
-  version "9.8.0"
-  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-9.8.0.tgz#b1a0b5f1f6ac9fdb19b64d74f0f729e3ec182495"
-  integrity sha512-0VjSTjCCtevdoeByxf5o/OimzV3zt1MMH5DlZSqakML38uoOM0WpgXI/4xAipzfYwiKUW+IWbuyZGJ3ucaJnhQ==
+"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/433156352/artifacts/raw/gitlab-ui.upgrade-vue.tgz":
+  version "9.7.0"
+  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/433156352/artifacts/raw/gitlab-ui.upgrade-vue.tgz#0d67f67c69ecc6b328a0a2e3981936b2d1621952"
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
@@ -761,8 +760,6 @@
     portal-vue "^2.1.6"
     resize-observer-polyfill "^1.5.1"
     url-search-params-polyfill "^5.0.0"
-    vue "^2.6.10"
-    vue-loader "^15.4.2"
 
 "@gitlab/visual-review-tools@1.5.1":
   version "1.5.1"
@@ -11796,7 +11793,7 @@ vue-jest@^4.0.0-beta.2:
     source-map "^0.5.6"
     ts-jest "^23.10.5"
 
-vue-loader@^15.4.2, vue-loader@^15.7.1:
+vue-loader@^15.7.1:
   version "15.8.3"
   resolved "https://registry.yarnpkg.com/vue-loader/-/vue-loader-15.8.3.tgz#857cb9e30eb5fc25e66db48dce7e4f768602a23c"
   integrity sha512-yFksTFbhp+lxlm92DrKdpVIWMpranXnTEuGSc0oW+Gk43M9LWaAmBTnfj5+FCdve715mTHvo78IdaXf5TbiTJg==
