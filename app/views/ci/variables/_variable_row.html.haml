@@ -41,18 +41,14 @@
         = s_("CiVariables|Cannot use Masked Variable with current value")
         = link_to icon('question-circle'), help_page_path('ci/variables/README', anchor: 'masked-variables'), target: '_blank', rel: 'noopener noreferrer'
     - unless only_key_value
-      .ci-variable-body-item.ci-variable-protected-item.table-section.section-20.mr-0.border-top-0
-        .append-right-default
-          = s_("CiVariable|Protected")
+      .ci-variable-body-item.ci-variable-protected-item.table-section.section-10.mr-0.border-top-0
         = render "shared/buttons/project_feature_toggle", is_checked: is_protected, label: s_("CiVariable|Toggle protected") do
           %input{ type: "hidden",
             class: 'js-ci-variable-input-protected js-project-feature-toggle-input',
             name: protected_input_name,
             value: is_protected,
             data: { default: is_protected_default.to_s } }
-      .ci-variable-body-item.ci-variable-masked-item.table-section.section-20.mr-0.border-top-0
-        .append-right-default
-          = s_("CiVariable|Masked")
+      .ci-variable-body-item.ci-variable-masked-item.table-section.section-10.mr-0.border-top-0
         = render "shared/buttons/project_feature_toggle", is_checked: is_masked, label: s_("CiVariable|Toggle masked"), class_list: "js-project-feature-toggle project-feature-toggle qa-variable-masked" do
           %input{ type: "hidden",
             class: 'js-ci-variable-input-masked js-project-feature-toggle-input',
