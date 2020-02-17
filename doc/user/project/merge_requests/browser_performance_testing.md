@@ -133,8 +133,8 @@ Key metrics are automatically extracted and shown in the merge request widget.
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/27599) in GitLab 12.8.
 
 You can configure the sensitivity of degradation alerts to avoid getting alerts for minor drops in metrics.
-This is done by setting the `DEGRADATION_THRESHOLD` variable. In the example below, the alert won't show up
-if the metric degraded by only 4 points or less:
+This is done by setting the `DEGRADATION_THRESHOLD` variable. In the example below, the alert will only show up
+if the metric degrades by 5 points or more:
 
 ```yaml
 include:
