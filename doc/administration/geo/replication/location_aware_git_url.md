@@ -11,7 +11,8 @@ Though these instructions use [AWS Route53](https://aws.amazon.com/route53/),
 other services such as [Cloudflare](https://www.cloudflare.com/) could be used
 as well.
 
-NOTE: **Note**
+NOTE: The UI writes (MRs, Issues, etc.) need to go directly to the `external_url` of the primary, but the primary can be included in the location-aware load balancer for git operations and read-only requests. User access for ssh/http will be redirected to the closest geo node (either primary or secondaries). User accessing the UI via `external_url` will be accessing the primary, as this is its unique name.
+
 You can also use a load balancer to distribute web UI or API traffic to
 [multiple Geo **secondary** nodes](../../../user/admin_area/geo_nodes.md#multiple-secondary-nodes-behind-a-load-balancer).
 Importantly, the **primary** node cannot yet be included. See the feature request
