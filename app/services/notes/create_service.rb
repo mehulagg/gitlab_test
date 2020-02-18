@@ -17,7 +17,6 @@ module Notes
       # We execute commands (extracted from `params[:note]`) on the noteable
       # **before** we save the note because if the note consists of commands
       # only, there is no need be create a note!
-      quick_actions_service = QuickActionsService.new(project, current_user)
 
       if quick_actions_service.supported?(note)
         content, update_params, message = quick_actions_service.execute(note, quick_action_options)
@@ -36,40 +35,52 @@ module Notes
         !only_commands && note.save
       end
 
-      if note_saved
-        if note.part_of_discussion? && note.discussion.can_convert_to_discussion?
-          note.discussion.convert_to_discussion!(save: true)
-        end
+      when_saved(note) if note_saved
 
-        todo_service.new_note(note, current_user)
-        clear_noteable_diffs_cache(note)
-        Suggestions::CreateService.new(note).execute
-        increment_usage_counter(note)
-
-        if Feature.enabled?(:notes_create_service_tracking, project)
-          Gitlab::Tracking.event('Notes::CreateService', 'execute', tracking_data_for(note))
-        end
-      end
-
-      if quick_actions_service.commands_executed_count.to_i > 0
-        if update_params.present?
-          quick_actions_service.apply_updates(update_params, note)
-          note.commands_changes = update_params
-        end
-
-        # We must add the error after we call #save because errors are reset
-        # when #save is called
-        if only_commands
-          note.errors.add(:commands_only, message.presence || _('Failed to apply commands.'))
-          # Allow consumers to detect problems applying commands
-          note.errors.add(:commands, _('Failed to apply commands.')) unless message.present?
-        end
-      end
+      do_commands(quick_actions_service, note, update_params, message)
 
       note
     end
 
     private
+
+    def quick_actions_service
+      @quick_actions_service ||= QuickActionsService.new(project, current_user)
+    end
+
+    # Moved out of #execute to avoid method size limits
+    def when_saved(note)
+      if note.part_of_discussion? && note.discussion.can_convert_to_discussion?
+        note.discussion.convert_to_discussion!(save: true)
+      end
+
+      todo_service.new_note(note, current_user)
+      clear_noteable_diffs_cache(note)
+      Suggestions::CreateService.new(note).execute
+      increment_usage_counter(note)
+
+      if Feature.enabled?(:notes_create_service_tracking, project)
+        Gitlab::Tracking.event('Notes::CreateService', 'execute', tracking_data_for(note))
+      end
+    end
+
+    # Moved out of #execute to avoid method size limits
+    def do_commands(quick_actions_service, note, update_params, message)
+      return if quick_actions_service.commands_executed_count.to_i.zero?
+
+      if update_params.present?
+        quick_actions_service.apply_updates(update_params, note)
+        note.commands_changes = update_params
+      end
+
+      # We must add the error after we call #save because errors are reset
+      # when #save is called
+      if only_commands
+        note.errors.add(:commands_only, message.presence || _('Failed to apply commands.'))
+        # Allow consumers to detect problems applying commands
+        note.errors.add(:commands, _('Failed to apply commands.')) unless message.present?
+      end
+    end
 
     # EE::Notes::CreateService would override this method
     def quick_action_options
