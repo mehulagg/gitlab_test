@@ -613,6 +613,24 @@ Example:
 $ gitlab-qa Test::Instance::Smoke ee:<tag> https://staging.gitlab.com
 ```
 
+### `Test::Instance::RepositoryStorage`
+
+This scenario will run a limited number of tests that are tagged with `:repository_storage`.
+
+These tests verify features related to multiple repository storages.
+
+**Required environment variables:**
+
+- `QA_ADDITIONAL_REPOSITORY_STORAGE`: The name of the non-default repository storage.
+
+Example:
+
+```
+$ export QA_ADDITIONAL_REPOSITORY_STORAGE=secondary
+
+$ gitlab-qa Test::Instance::RepositoryStorage
+```
+
 ----
 
 [Back to README.md](../README.md)
