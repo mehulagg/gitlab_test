@@ -61,6 +61,8 @@ module Notes
         # when #save is called
         if only_commands
           note.errors.add(:commands_only, message.presence || _('Failed to apply commands.'))
+          # Allow consumers to detect problems applying commands
+          note.errors.add(:commands, _('Failed to apply commands.')) unless message.present?
         end
       end
 
