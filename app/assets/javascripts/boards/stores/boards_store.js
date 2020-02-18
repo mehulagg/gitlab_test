@@ -8,20 +8,10 @@ import Cookies from 'js-cookie';
 import BoardsStoreEE from 'ee_else_ce/boards/stores/boards_store_ee';
 import { getUrlParamsArray, parseBoolean } from '~/lib/utils/common_utils';
 import { __ } from '~/locale';
-import createGqlClient, { fetchPolicies } from '~/lib/graphql';
-import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import axios from '~/lib/utils/axios_utils';
 import { mergeUrlParams } from '~/lib/utils/url_utility';
 import eventHub from '../eventhub';
 import { ListType } from '../constants';
-import query from '../queries/project_boards.query.graphql';
-
-export const gqlClient = createGqlClient(
-  {},
-  {
-    fetchPolicy: fetchPolicies.NO_CACHE,
-  },
-);
 
 const boardsStore = {
   disabled: false,
@@ -548,18 +538,6 @@ const boardsStore = {
 
   toggleIssueSubscription(endpoint) {
     return axios.post(endpoint);
-  },
-
-  allBoards() {
-    const variables = { fullPath: this.state.endpoints.fullPath };
-    return gqlClient.query({ query, variables })
-      .then(({ data }) =>
-        data.project.boards.edges.map(({ node }) => ({
-          id: getIdFromGraphQLId(node.id),
-          name: node.name,
-        }))
-      )
-      .catch(() => []);
   },
 
   recentBoards() {

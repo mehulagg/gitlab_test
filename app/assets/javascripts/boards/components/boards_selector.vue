@@ -10,8 +10,21 @@ import {
 } from '@gitlab/ui';
 
 import httpStatusCodes from '~/lib/utils/http_status';
+
+import createGqlClient, { fetchPolicies } from '~/lib/graphql';
+import { getIdFromGraphQLId } from '~/graphql_shared/utils';
+import projectQuery from '../queries/project_boards.query.graphql';
+import groupQuery from '../queries/group_boards.query.graphql';
+
 import boardsStore from '../stores/boards_store';
 import BoardForm from './board_form.vue';
+
+export const gqlClient = createGqlClient(
+  {},
+  {
+    fetchPolicy: fetchPolicies.NO_CACHE,
+  },
+);
 
 const MIN_BOARDS_TO_VIEW_RECENT = 10;
 
@@ -157,6 +170,20 @@ export default {
     boardsStore.setCurrentBoard(this.currentBoard);
   },
   methods: {
+    allBoards() {
+      const variables = { fullPath: this.state.endpoints.fullPath };
+      const parent = this.groupId ? 'group' : 'project';
+      const query = this.groupId ? groupQuery : projectQuery;
+      return gqlClient
+        .query({ query, variables })
+        .then(({ data }) =>
+          data[parent].boards.edges.map(({ node }) => ({
+            id: getIdFromGraphQLId(node.id),
+            name: node.name,
+          })),
+        )
+        .catch(() => []);
+    },
     showPage(page) {
       boardsStore.showPage(page);
     },
@@ -182,7 +209,7 @@ export default {
           }),
       );
 
-      Promise.all([boardsStore.allBoards(), recentBoardsPromise])
+      Promise.all([this.allBoards(), recentBoardsPromise])
         .then(([allBoards, recentBoards]) => {
           this.loading = false;
           this.boards = allBoards;
