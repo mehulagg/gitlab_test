@@ -1,0 +1,14 @@
+query group_boards($fullPath: ID!) {
+  group(fullPath: $fullPath) {
+    name
+    boards {
+      edges {
+        node {
+          id
+          name
+          weight
+        }
+      }
+    }
+  }
+}

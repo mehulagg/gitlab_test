@@ -42,7 +42,14 @@ const boardsStore = {
   },
   multiSelect: { list: [] },
 
-  setEndpoints({ boardsEndpoint, listsEndpoint, bulkUpdatePath, boardId, recentBoardsEndpoint, fullPath }) {
+  setEndpoints({
+    boardsEndpoint,
+    listsEndpoint,
+    bulkUpdatePath,
+    boardId,
+    recentBoardsEndpoint,
+    fullPath,
+  }) {
     const listsEndpointGenerate = `${listsEndpoint}/generate.json`;
     this.state.endpoints = {
       boardsEndpoint,
