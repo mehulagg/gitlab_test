@@ -411,11 +411,11 @@
     - <<: *if-dot-com-gitlab-org-merge-request
       changes: *code-qa-patterns
 
-.reports:schedule-dast:
+.reports:rules:schedule-dast:
   rules:
     - if: '$DAST_DISABLED || $GITLAB_FEATURES !~ /\bdast\b/'
       when: never
-    - <<: *if-dot-com-gitlab-org-schedule
+    - <<: *if-nightly-master-schedule
 
 ################
 # Review rules #
