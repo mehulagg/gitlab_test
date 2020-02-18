@@ -39,11 +39,19 @@ module API
         end
         params do
           requires :name, type: String, desc: 'The name of feature flag'
+          optional :version, type: Integer, default: 1, desc: 'The feature flag version'
           optional :description, type: String, desc: 'The description of the feature flag'
           optional :scopes, type: Array do
             requires :environment_scope, type: String, desc: 'The environment scope of the scope'
             requires :active, type: Boolean, desc: 'Active/inactive of the scope'
             requires :strategies, type: JSON, desc: 'The strategies of the scope'
+          end
+          optional :strategies, type: Array do
+            requires :name, type: String, desc: 'The strategy name'
+            requires :parameters, type: JSON, desc: 'The strategy parameters'
+            optional :scopes, type: Array do
+              requires :environment_scope, type: String, desc: 'The environment scope'
+            end
           end
         end
         post do
@@ -51,6 +59,13 @@ module API
 
           param = declared_params(include_missing: false)
           param[:scopes_attributes] = param.delete(:scopes) if param.key?(:scopes)
+          if param.key?(:strategies)
+            param[:strategies_attributes] = param[:strategies].map do |strategy_attrs|
+              strategy_attrs[:scopes_attributes] = strategy_attrs.delete(:scopes) if strategy_attrs.key?(:scopes)
+              strategy_attrs
+            end
+            param.delete(:strategies)
+          end
 
           result = ::FeatureFlags::CreateService
             .new(user_project, current_user, param)
