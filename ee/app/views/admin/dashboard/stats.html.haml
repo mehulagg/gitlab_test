@@ -3,18 +3,12 @@
 %h3
   = s_('AdminArea|Users statistics')
 %table.table
-  %tr
-    %td
-      = s_('AdminArea|Users total')
-    %td
-      = User.count
-
-  - if @admin_count
+  - if @counts[:admin]
     %tr
       %td
         = s_('AdminArea|Admin users')
       %td
-        = @admin_count
+        = @counts[:admin]
   %tr
     %td
       = s_('AdminArea|Users without a Group and Project')
@@ -22,14 +16,35 @@
         %span.has-tooltip{ data: { container: 'body' }, title: s_('AdminArea|Included Free in license') }
           = sprite_icon('question', size: 16)
     %td
-      = @users_without_groups_and_projects_count
+      = @counts[:without_groups_and_projects]
 
-  - if @roles_count
-    - @roles_count.each do |row|
-      %tr
-        %td
-          = s_('AdminArea|Users with highest role')
-          %strong
-            = row['kind']
-        %td
-          = row['amount']
+  - @counts[:roles].each do |row|
+    %tr
+      %td
+        = s_('AdminArea|Users with highest role')
+        %strong
+          = row['kind']
+      %td
+        = row['amount']
+
+  %tr.bg-gray-light
+    %td
+      %strong
+        = s_('AdminArea|Active users')
+        = "(#{s_('AdminArea|Billable users')})" if License.current&.paid?
+    %td
+      %strong= @counts[:active]
+  %tr.bg-gray-light
+    %td
+      %strong
+        = s_('AdminArea|Blocked users')
+    %td
+      %strong
+        = @counts[:blocked]
+  %tr.bg-gray-light
+    %td
+      %strong
+        = s_('AdminArea|Total users')
+    %td
+      %strong
+        = @counts[:total]

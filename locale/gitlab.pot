@@ -1257,7 +1257,16 @@ msgstr ""
 msgid "Admin notes"
 msgstr ""
 
+msgid "AdminArea|Active users"
+msgstr ""
+
 msgid "AdminArea|Admin users"
+msgstr ""
+
+msgid "AdminArea|Billable users"
+msgstr ""
+
+msgid "AdminArea|Blocked users"
 msgstr ""
 
 msgid "AdminArea|Included Free in license"
@@ -1275,10 +1284,10 @@ msgstr ""
 msgid "AdminArea|Stopping jobs failed"
 msgstr ""
 
-msgid "AdminArea|Users statistics"
+msgid "AdminArea|Total users"
 msgstr ""
 
-msgid "AdminArea|Users total"
+msgid "AdminArea|Users statistics"
 msgstr ""
 
 msgid "AdminArea|Users with highest role"

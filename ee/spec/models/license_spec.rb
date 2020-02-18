@@ -729,6 +729,40 @@ describe License do
     end
   end
 
+  describe '#paid?' do
+    context 'when plan is Starter' do
+      it 'returns true' do
+        license = build(:license, plan: License::STARTER_PLAN)
+
+        expect(license.paid?).to eq(true)
+      end
+    end
+
+    context 'when plan is Premium' do
+      it 'returns true' do
+        license = build(:license, plan: License::PREMIUM_PLAN)
+
+        expect(license.paid?).to eq(true)
+      end
+    end
+
+    context 'when plan is Ultimate' do
+      it 'returns true' do
+        license = build(:license, plan: License::ULTIMATE_PLAN)
+
+        expect(license.paid?).to eq(true)
+      end
+    end
+
+    context 'when plan is empty' do
+      it 'returns true due to fallback to Starter' do
+        license = build(:license, plan: nil)
+
+        expect(license.paid?).to eq(true)
+      end
+    end
+  end
+
   def set_restrictions(opts)
     gl_license.restrictions = {
       active_user_count: opts[:restricted_user_count],

@@ -17,9 +17,14 @@ module EE
       end
 
       def stats
-        @admin_count = ::User.admins.count
-        @users_without_groups_and_projects_count = ::User.without_projects.without_groups.humans.count
-        @roles_count = ::ProjectAuthorization.roles_stats
+        @counts = {
+          admin: ::User.admins.count,
+          without_groups_and_projects: ::User.without_projects.without_groups.humans.count,
+          roles: ::ProjectAuthorization.roles_stats,
+          active: ::User.active.count,
+          blocked: ::User.blocked.count,
+          total: ::User.count
+        }
       end
 
       # The license section may time out if the number of users is
