@@ -27,7 +27,7 @@ Using the GitLab project Kubernetes integration, you can:
 - Use [Web terminals](#web-terminals).
 - Use [Deploy Boards](#deploy-boards-premium). **(PREMIUM)**
 - Use [Canary Deployments](#canary-deployments-premium). **(PREMIUM)**
-- View [Pod logs](#pod-logs-ultimate). **(ULTIMATE)**
+- View [Pod logs](#pod-logs-ultimate).
 - Run serverless workloads on [Kubernetes with Knative](serverless/index.md).
 
 ### Deploy Boards **(PREMIUM)**
