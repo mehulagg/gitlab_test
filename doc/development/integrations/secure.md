@@ -106,9 +106,9 @@ mysec_dependency_scanning:
 #### Using additional rules
 
 The [`only/except`](../../ci/yaml/README.md#onlyexcept-basic) and [`rules`](../../ci/yaml/README.md#rules) keywords
-make it possible to trigger a job depending on the branch or when a particular file changes. These rules should not be 
-predefined in the job definition of the scanner other than the way the example is above. Any additional rules should only 
-be configured by users based on their needs. 
+make it possible to trigger a job depending on the branch or when a particular file changes. These rules should not be
+predefined in the job definition of the scanner other than the way the example is above. Any additional rules should only
+be configured by users based on their needs.
 
 ## Docker image
 
