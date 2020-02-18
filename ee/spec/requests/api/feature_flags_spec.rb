@@ -85,6 +85,29 @@ describe API::FeatureFlags do
       }
     end
 
+    def attributes_to_as_json_options(attributes)
+      only = []
+      include = {}
+
+      attributes.map do |attr|
+        case attr
+        when Symbol
+          only.push(attr)
+        when Hash
+          attr.map do |k, v|
+            include[k] = attributes_to_as_json_options(v)
+          end
+        end
+      end
+
+      { only: only, include: include }.reject { |k, v| v.empty? }
+    end
+
+    def take_attributes(relation, attributes)
+      options = attributes_to_as_json_options(attributes)
+      relation.as_json(options).map(&:deep_symbolize_keys)
+    end
+
     let(:params) do
       {
         name: 'awesome-feature',
@@ -180,16 +203,17 @@ describe API::FeatureFlags do
       post api("/projects/#{project.id}/feature_flags", user), params: params
 
       expect(response).to have_gitlab_http_status(:created)
-      expect(project.operations_feature_flags.count).to eq(1)
-      feature_flag = project.operations_feature_flags.last
-      expect(feature_flag.name).to eq('awesome-feature')
-      expect(feature_flag.strategies.count).to eq(1)
-      strategy = feature_flag.strategies.first
-      expect(strategy.name).to eq('userWithId')
-      expect(strategy.parameters).to eq({ 'userIds' => 'user1' })
-      expect(strategy.scopes.count).to eq(1)
-      scope = strategy.scopes.first
-      expect(scope.environment_scope).to eq('production')
+      result = take_attributes(project.operations_feature_flags,
+                               [:name, :version, strategies: [:name, :parameters, scopes: [:environment_scope]]])
+      expect(result).to eq([{
+        name: 'awesome-feature',
+        version: 2,
+        strategies: [{
+          name: 'userWithId',
+          parameters: { userIds: 'user1' },
+          scopes: [{ environment_scope: 'production' }]
+        }]
+      }])
     end
   end
 
