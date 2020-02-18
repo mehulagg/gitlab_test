@@ -137,6 +137,32 @@ started:
 
 1. Finally, copy the public key and [add it in your profile settings](#adding-a-gpg-key-to-your-account)
 
+## Move the GPG key to a Yubikey
+
+For maximum security, move the GPG private key to a [Yubikey](https://www.yubico.com/)
+hardware device.
+
+1. Edit the key (using the same key ID as obtained previously)
+
+    ```shell
+    gpg --edit-key 30F2B65B9246B6CA
+    ```
+
+1. Enter the following commands:
+
+    ```shell
+    toggle
+    keytocard
+    ```
+
+1. When prompted, move the signature key to the card (option 1). Optionally,
+   move other subkeys, too. Encryption key (option 2) and Authentication key (option 3).
+
+1. Enter `quit` followed by `y (yes)` to save and exit.
+
+The GPG key is now stored on the Yubikey. The Yubikey will have to be plugged in
+to your computer when signing commits. 
+
 ## Adding a GPG key to your account
 
 NOTE: **Note:**
