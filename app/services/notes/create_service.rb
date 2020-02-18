@@ -37,7 +37,7 @@ module Notes
 
       when_saved(note) if note_saved
 
-      do_commands(quick_actions_service, note, update_params, message)
+      do_commands(quick_actions_service, note, update_params, message, only_commands)
 
       note
     end
@@ -65,7 +65,7 @@ module Notes
     end
 
     # Moved out of #execute to avoid method size limits
-    def do_commands(quick_actions_service, note, update_params, message)
+    def do_commands(quick_actions_service, note, update_params, message, only_commands)
       return if quick_actions_service.commands_executed_count.to_i.zero?
 
       if update_params.present?
