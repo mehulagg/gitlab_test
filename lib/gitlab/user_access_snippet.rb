@@ -2,6 +2,7 @@
 
 module Gitlab
   class UserAccessSnippet < UserAccess
+    extend ::Gitlab::Utils::Override
     extend ::Gitlab::Cache::RequestCache
     # TODO: apply override check https://gitlab.com/gitlab-org/gitlab/issues/205677
 
@@ -26,6 +27,7 @@ module Gitlab
         end
     end
 
+    override :can_create_tag?
     def can_create_tag?(ref)
       false
     end
