@@ -242,7 +242,7 @@ describe API::Notes do
       it 'returns 202 Accepted status' do
         subject
 
-        expect(response).to have_gitlab_http_status(202)
+        expect(response).to have_gitlab_http_status(:accepted)
       end
 
       it 'does not actually create a new note' do
