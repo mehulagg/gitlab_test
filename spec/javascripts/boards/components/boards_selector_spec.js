@@ -37,15 +37,10 @@ describe('BoardsSelector', () => {
       boardId: '',
     });
 
-    allBoardsResponse = Promise.resolve({
-      data: boards,
-    });
+    allBoardsResponse = Promise.resolve(boards);
     recentBoardsResponse = Promise.resolve({
       data: recentBoards,
     });
-
-    spyOn(boardsStore, 'allBoards').and.returnValue(allBoardsResponse);
-    spyOn(boardsStore, 'recentBoards').and.returnValue(recentBoardsResponse);
 
     const Component = Vue.extend(BoardsSelector);
     vm = mountComponent(
@@ -73,6 +68,9 @@ describe('BoardsSelector', () => {
       },
       document.querySelector('.js-boards-selector'),
     );
+
+    spyOn(boardsStore, 'recentBoards').and.returnValue(recentBoardsResponse);
+    spyOn(vm, 'allBoards').and.returnValue(allBoardsResponse);
 
     // Emits gl-dropdown show event to simulate the dropdown is opened at initialization time
     vm.$children[0].$emit('show');
