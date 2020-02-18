@@ -3,6 +3,9 @@
 class Geo::UploadRegistry < Geo::BaseRegistry
   include Geo::Syncable
 
+  MODEL_CLASS = ::Upload
+  MODEL_FOREIGN_KEY = :file_id
+
   self.table_name = 'file_registry'
 
   belongs_to :upload, foreign_key: :file_id
@@ -10,18 +13,6 @@ class Geo::UploadRegistry < Geo::BaseRegistry
   scope :failed, -> { where(success: false).where.not(retry_count: nil) }
   scope :fresh, -> { order(created_at: :desc) }
   scope :never, -> { where(success: false, retry_count: nil) }
-
-  def self.file_id_in(ids)
-    where(file_id: ids)
-  end
-
-  def self.file_id_not_in(ids)
-    where.not(file_id: ids)
-  end
-
-  def self.pluck_file_key
-    where(nil).pluck(:file_id)
-  end
 
   def self.with_search(query)
     return all if query.nil?
