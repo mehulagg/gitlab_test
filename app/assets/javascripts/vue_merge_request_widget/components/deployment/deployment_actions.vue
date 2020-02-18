@@ -1,0 +1,95 @@
+<script>
+import { __, s__ } from '~/locale';
+import DeploymentInfo from './deployment_info.vue';
+import DeploymentManualDeployButton from './deployment_manual_deploy_button.vue';
+import DeploymentStopButton from './deployment_stop_button.vue';
+import DeploymentViewButton from './deployment_view_button.vue';
+import { MANUAL_DEPLOY, RUNNING, SUCCESS } from './constants';
+
+export default {
+  // name: 'Deployment' is a false positive: https://gitlab.com/gitlab-org/frontend/eslint-plugin-i18n/issues/26#possible-false-positives
+  // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
+  name: 'DeploymentActions',
+  components: {
+    DeploymentManualDeployButton,
+    DeploymentStopButton,
+    DeploymentViewButton,
+  },
+  props: {
+    computedDeploymentStatus: {
+      type: String,
+      required: true,
+    },
+    deployment: {
+      type: Object,
+      required: true,
+    },
+    showVisualReviewApp: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    visualReviewAppMeta: {
+      type: Object,
+      required: false,
+      default: () => ({
+        sourceProjectId: '',
+        sourceProjectPath: '',
+        mergeRequestId: '',
+        appUrl: '',
+      }),
+    },
+  },
+  computed: {
+    appButtonText() {
+      return {
+        text: this.isCurrent ? s__('Review App|View app') : s__('Review App|View latest app'),
+        tooltip: this.isCurrent
+          ? ''
+          : __('View the latest successful deployment to this environment'),
+      };
+    },
+    canBeManuallyDeployed() {
+      return this.computedDeploymentStatus === MANUAL_DEPLOY;
+    },
+    hasExternalUrls() {
+      return Boolean(this.deployment.external_url && this.deployment.external_url_formatted);
+    },
+    isCurrent() {
+      return this.computedDeploymentStatus === SUCCESS;
+    },
+    isDeployInProgress() {
+      return this.computedDeploymentStatus.status === RUNNING;
+    },
+    playPath() {
+      return this.deployment.details?.playable_build?.play_path;
+    }
+  },
+};
+</script>
+
+<template>
+  <div>
+    <div>
+      <deployment-manual-deploy-button
+        v-if="canBeManuallyDeployed"
+        :is-deploy-in-progress="isDeployInProgress"
+        :play-url="playPath"
+      />
+      <!-- show appropriate version of review app button  -->
+      <deployment-view-button
+        v-if="hasExternalUrls"
+        :app-button-text="appButtonText"
+        :deployment="deployment"
+        :show-visual-review-app="showVisualReviewApp"
+        :visual-review-app-metadata="visualReviewAppMeta"
+      />
+      <!-- if it is stoppable, show stop -->
+      <deployment-stop-button
+        v-if="deployment.stop_url"
+        :is-deploy-in-progress="isDeployInProgress"
+        :stop-url="deployment.stop_url"
+      />
+    </div>
+  </div>
+</template>
