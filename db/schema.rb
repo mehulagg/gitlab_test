@@ -691,6 +691,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.index ["commit_id", "status", "type"], name: "index_ci_builds_on_commit_id_and_status_and_type"
     t.index ["commit_id", "type", "name", "ref"], name: "index_ci_builds_on_commit_id_and_type_and_name_and_ref"
     t.index ["commit_id", "type", "ref"], name: "index_ci_builds_on_commit_id_and_type_and_ref"
+    t.index ["lock_version"], name: "index_ci_builds_on_lock_version", where: "(lock_version IS NULL)"
     t.index ["name"], name: "index_ci_builds_on_name_for_security_reports_values", where: "((name)::text = ANY (ARRAY[('container_scanning'::character varying)::text, ('dast'::character varying)::text, ('dependency_scanning'::character varying)::text, ('license_management'::character varying)::text, ('sast'::character varying)::text, ('license_scanning'::character varying)::text]))"
     t.index ["project_id", "id"], name: "index_ci_builds_on_project_id_and_id"
     t.index ["project_id", "name", "ref"], name: "index_ci_builds_on_project_id_and_name_and_ref", where: "(((type)::text = 'Ci::Build'::text) AND ((status)::text = 'success'::text) AND ((retried = false) OR (retried IS NULL)))"
@@ -860,6 +861,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.bigint "external_pull_request_id"
     t.index ["auto_canceled_by_id"], name: "index_ci_pipelines_on_auto_canceled_by_id"
     t.index ["external_pull_request_id"], name: "index_ci_pipelines_on_external_pull_request_id", where: "(external_pull_request_id IS NOT NULL)"
+    t.index ["lock_version"], name: "index_ci_pipelines_on_lock_version", where: "(lock_version IS NULL)"
     t.index ["merge_request_id"], name: "index_ci_pipelines_on_merge_request_id", where: "(merge_request_id IS NOT NULL)"
     t.index ["pipeline_schedule_id"], name: "index_ci_pipelines_on_pipeline_schedule_id"
     t.index ["project_id", "id"], name: "index_ci_pipelines_on_project_id_and_id_desc", order: { id: :desc }
@@ -973,6 +975,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.integer "status"
     t.integer "lock_version", default: 0
     t.integer "position"
+    t.index ["lock_version"], name: "index_ci_stages_on_lock_version", where: "(lock_version IS NULL)"
     t.index ["pipeline_id", "name"], name: "index_ci_stages_on_pipeline_id_and_name", unique: true
     t.index ["pipeline_id", "position"], name: "index_ci_stages_on_pipeline_id_and_position"
     t.index ["pipeline_id"], name: "index_ci_stages_on_pipeline_id"
