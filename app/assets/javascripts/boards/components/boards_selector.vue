@@ -11,20 +11,12 @@ import {
 
 import httpStatusCodes from '~/lib/utils/http_status';
 
-import createGqlClient, { fetchPolicies } from '~/lib/graphql';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import projectQuery from '../queries/project_boards.query.graphql';
 import groupQuery from '../queries/group_boards.query.graphql';
 
 import boardsStore from '../stores/boards_store';
 import BoardForm from './board_form.vue';
-
-export const gqlClient = createGqlClient(
-  {},
-  {
-    fetchPolicy: fetchPolicies.NO_CACHE,
-  },
-);
 
 const MIN_BOARDS_TO_VIEW_RECENT = 10;
 
@@ -38,6 +30,45 @@ export default {
     GlDropdownDivider,
     GlDropdownHeader,
     GlDropdownItem,
+  },
+  apollo: {
+    group: {
+      variables() {
+        return { fullPath: this.state.endpoints.fullPath };
+      },
+      query() {
+        return this.groupId ? groupQuery : projectQuery;
+      },
+      update(data) {
+        return data.group.boards.edges.map(({ node }) => ({
+          id: getIdFromGraphQLId(node.id),
+          name: node.name,
+        }));
+      },
+      loadingKey: 'loadingGroupBoards',
+      skip () {
+        if (!this.groupId) {
+          return true;
+        }
+
+        return this.fetchPlz;
+      },
+    },
+    project: {
+      variables() {
+        return { fullPath: this.state.endpoints.fullPath };
+      },
+      query() {
+        return this.groupId ? groupQuery : projectQuery;
+      },
+      skip () {
+        if (this.groupId) {
+          return true;
+        }
+
+        return this.fetchPlz;
+      },
+    }
   },
   props: {
     currentBoard: {
@@ -101,10 +132,11 @@ export default {
   },
   data() {
     return {
+      fetchPlz: false,
       loading: true,
       hasScrollFade: false,
       scrollFadeInitialized: false,
-      boards: [],
+      // boards: [],
       recentBoards: [],
       state: boardsStore.state,
       throttledSetScrollFade: throttle(this.setScrollFade, this.throttleDuration),
@@ -115,6 +147,9 @@ export default {
     };
   },
   computed: {
+    boards() {
+      return this.group || [];
+    },
     currentPage() {
       return this.state.currentPage;
     },
@@ -170,20 +205,6 @@ export default {
     boardsStore.setCurrentBoard(this.currentBoard);
   },
   methods: {
-    allBoards() {
-      const variables = { fullPath: this.state.endpoints.fullPath };
-      const parent = this.groupId ? 'group' : 'project';
-      const query = this.groupId ? groupQuery : projectQuery;
-      return gqlClient
-        .query({ query, variables })
-        .then(({ data }) =>
-          data[parent].boards.edges.map(({ node }) => ({
-            id: getIdFromGraphQLId(node.id),
-            name: node.name,
-          })),
-        )
-        .catch(() => []);
-    },
     showPage(page) {
       boardsStore.showPage(page);
     },
@@ -191,6 +212,8 @@ export default {
       if (toggleDropdown && this.boards.length > 0) {
         return;
       }
+
+      this.fetchPlz = true;
 
       const recentBoardsPromise = new Promise((resolve, reject) =>
         boardsStore
@@ -209,10 +232,10 @@ export default {
           }),
       );
 
-      Promise.all([this.allBoards(), recentBoardsPromise])
-        .then(([allBoards, recentBoards]) => {
+      Promise.all([recentBoardsPromise])
+        .then(([recentBoards]) => {
           this.loading = false;
-          this.boards = allBoards;
+          this.fetchPlz = false;
           this.recentBoards = recentBoards.data;
         })
         .then(() => this.$nextTick()) // Wait for boards list in DOM
