@@ -427,9 +427,13 @@ NOTE: **Note:**
 
 ### Storage limitations
 
-Currently, there is no storage limitation, which means a user can upload an
+Currently, there is no limitation of images that can be stored, which means a user can upload an
 infinite amount of Docker images with arbitrary sizes. This setting will be
 configurable in future releases.
+
+There is however a limitation with lifecycle policies being applied to s3 buckets that are being used for a registry. 
+If a lifecycle policy is applied, some items are aged into unsupported storage, which can cause pipelines to start 
+breaking.
 
 ## Change the registry's internal port
 
