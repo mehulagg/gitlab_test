@@ -23,6 +23,7 @@ import loadingButton from '../../vue_shared/components/loading_button.vue';
 import noteSignedOutWidget from './note_signed_out_widget.vue';
 import discussionLockedWidget from './discussion_locked_widget.vue';
 import issuableStateMixin from '../mixins/issuable_state';
+import { GlButton } from '@gitlab/ui';
 
 export default {
   name: 'CommentForm',
@@ -34,6 +35,7 @@ export default {
     userAvatarLink,
     loadingButton,
     TimelineEntryItem,
+    GlButton,
   },
   mixins: [issuableStateMixin],
   props: {
@@ -366,9 +368,9 @@ js-gfm-input js-autosize markdown-area js-vue-textarea qa-comment-input"
                 class="float-left btn-group
 append-right-10 comment-type-dropdown js-comment-type-dropdown droplab-dropdown"
               >
-                <button
+                <gl-button
                   :disabled="isSubmitButtonDisabled"
-                  class="btn btn-success js-comment-button js-comment-submit-button
+                  class="btn-success js-comment-button js-comment-submit-button
                     qa-comment-button"
                   type="submit"
                   :data-track-label="trackingLabel"
@@ -376,26 +378,22 @@ append-right-10 comment-type-dropdown js-comment-type-dropdown droplab-dropdown"
                   @click.prevent="handleSave()"
                 >
                   {{ commentButtonTitle }}
-                </button>
-                <button
+                </gl-button>
+                <gl-button
                   :disabled="isSubmitButtonDisabled"
                   name="button"
                   type="button"
-                  class="btn btn-success note-type-toggle js-note-new-discussion dropdown-toggle qa-note-dropdown"
+                  class="btn-success note-type-toggle js-note-new-discussion dropdown-toggle qa-note-dropdown"
                   data-display="static"
                   data-toggle="dropdown"
                   :aria-label="__('Open comment type dropdown')"
                 >
                   <i aria-hidden="true" class="fa fa-caret-down toggle-icon"> </i>
-                </button>
+                </gl-button>
 
                 <ul class="note-type-dropdown dropdown-open-top dropdown-menu">
                   <li :class="{ 'droplab-item-selected': noteType === 'comment' }">
-                    <button
-                      type="button"
-                      class="btn btn-transparent"
-                      @click.prevent="setNoteType('comment')"
-                    >
+                    <gl-button class="btn-transparent" @click.prevent="setNoteType('comment')">
                       <i aria-hidden="true" class="fa fa-check icon"> </i>
                       <div class="description">
                         <strong>{{ __('Comment') }}</strong>
@@ -407,13 +405,12 @@ append-right-10 comment-type-dropdown js-comment-type-dropdown droplab-dropdown"
                           }}
                         </p>
                       </div>
-                    </button>
+                    </gl-button>
                   </li>
                   <li class="divider droplab-item-ignore"></li>
                   <li :class="{ 'droplab-item-selected': noteType === 'discussion' }">
-                    <button
-                      type="button"
-                      class="btn btn-transparent qa-discussion-option"
+                    <gl-button
+                      class="btn-transparent qa-discussion-option"
                       @click.prevent="setNoteType('discussion')"
                     >
                       <i aria-hidden="true" class="fa fa-check icon"> </i>
@@ -421,7 +418,7 @@ append-right-10 comment-type-dropdown js-comment-type-dropdown droplab-dropdown"
                         <strong>{{ __('Start thread') }}</strong>
                         <p>{{ startDiscussionDescription }}</p>
                       </div>
-                    </button>
+                    </gl-button>
                   </li>
                 </ul>
               </div>
@@ -437,6 +434,14 @@ append-right-10 comment-type-dropdown js-comment-type-dropdown droplab-dropdown"
                 :label="issueActionButtonTitle"
                 @click="handleSave(true)"
               />
+
+              <gl-button
+                class="btn-cancel js-note-cancel-button"
+                :disabled="isSubmitting || note === ''"
+                @click="discard()"
+              >
+                {{ __('Cancel') }}
+              </gl-button>
             </div>
           </form>
         </div>

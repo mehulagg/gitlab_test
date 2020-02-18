@@ -309,6 +309,34 @@ describe('issue_comment_form component', () => {
         });
       });
     });
+
+    describe('cancel button', () => {
+      beforeEach(() => {
+        wrapper.find('.js-vue-comment-form').setValue('');
+      });
+
+      it('is disabled when note is empty', () => {
+        expect(wrapper.find('.js-note-cancel-button').attributes('disabled')).toEqual('disabled');
+      });
+
+      it('clears the note when clicked', () => {
+        const $cancelButton = $(wrapper.find('.js-note-cancel-button').element);
+        wrapper.find('.js-vue-comment-form').setValue('This has content');
+
+        jest.spyOn(wrapper.vm, 'discard');
+
+        expect(wrapper.find('.js-vue-comment-form').props('value')).toEqual('This has content');
+
+        wrapper.vm.$nextTick(() => {
+          $cancelButton.trigger('click');
+
+          wrapper.vm.$nextTick(() => {
+            expect(wrapper.vm.discard).toHaveBeenCalled();
+            expect(wrapper.vm.find('.js-vue-comment-form').props('value')).toEqual('');
+          });
+        });
+      });
+    });
   });
 
   describe('user is not logged in', () => {
