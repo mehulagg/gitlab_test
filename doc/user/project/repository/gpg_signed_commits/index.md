@@ -161,7 +161,7 @@ hardware device.
 1. Enter `quit` followed by `y (yes)` to save and exit.
 
 The GPG key is now stored on the Yubikey. The Yubikey will have to be plugged in
-to your computer when signing commits. 
+to your computer when signing commits.
 
 ## Adding a GPG key to your account
 
