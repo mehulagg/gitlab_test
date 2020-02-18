@@ -1,6 +1,6 @@
 <script>
 import { GlTooltipDirective } from '@gitlab/ui';
-import { __ } from '~/locale';
+import { __, s__ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import LoadingButton from '~/vue_shared/components/loading_button.vue';
 import { visitUrl } from '~/lib/utils/url_utility';
@@ -8,7 +8,7 @@ import createFlash from '~/flash';
 import MRWidgetService from '../../services/mr_widget_service';
 
 export default {
-  name: 'DeploymentStopButton',
+  name: 'DeploymentManualDeployButton',
   components: {
     LoadingButton,
     Icon,
@@ -21,14 +21,14 @@ export default {
       type: Boolean,
       required: true,
     },
-    stopUrl: {
+    playUrl: {
       type: String,
       required: true,
     },
   },
   data() {
     return {
-      isStopping: false,
+      isDeploying: false,
     };
   },
   computed: {
@@ -38,15 +38,16 @@ export default {
         : '';
     },
   },
+  deployText: s__('MrManualDeploy|Deploy'),
   methods: {
-    stopEnvironment() {
-      const msg = __('Are you sure you want to stop this environment?');
+    deployManually() {
+      const msg = __('Are you sure you want to deploy this environment?');
       const isConfirmed = confirm(msg); // eslint-disable-line
 
       if (isConfirmed) {
-        this.isStopping = true;
+        this.isDeploying = true;
 
-        MRWidgetService.stopEnvironment(this.stopUrl)
+        MRWidgetService.executeInlineAction(this.playUrl)
           .then(res => res.data)
           .then(data => {
             if (data.redirect_url) {
@@ -55,9 +56,9 @@ export default {
           })
           .catch(() => {
             createFlash(
-              __('Something went wrong while stopping this environment. Please try again.'),
+              __('Something went wrong while deploying this environment. Please try again.'),
             );
-            this.isStopping = false;
+            this.isDeploying = false;
           });
       }
     },
@@ -68,14 +69,15 @@ export default {
 <template>
   <span v-gl-tooltip :title="deployInProgressTooltip" class="d-inline-block" tabindex="0">
     <loading-button
-      v-gl-tooltip
-      :loading="isStopping"
+      :loading="isDeploying"
       :disabled="isDeployInProgress"
-      :title="__('Stop environment')"
-      container-class="js-stop-env btn btn-default btn-sm inline prepend-left-4"
-      @click="stopEnvironment"
+      container-class="btn btn-default btn-sm inline prepend-left-4"
+      @click="deployManually"
     >
-      <icon name="stop" />
+      <span class="d-inline-flex align-items-baseline">
+        <icon name="play" />
+        <span>{{ $options.deployText }}</span>
+      </span>
     </loading-button>
   </span>
 </template>

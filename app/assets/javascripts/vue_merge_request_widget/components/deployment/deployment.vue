@@ -1,8 +1,9 @@
 <script>
 import { __, s__ } from '~/locale';
 import DeploymentInfo from './deployment_info.vue';
-import DeploymentViewButton from './deployment_view_button.vue';
+import DeploymentManualDeployButton from './deployment_manual_deploy_button.vue';
 import DeploymentStopButton from './deployment_stop_button.vue';
+import DeploymentViewButton from './deployment_view_button.vue';
 import { MANUAL_DEPLOY, WILL_DEPLOY, CREATED, RUNNING, SUCCESS } from './constants';
 
 export default {
@@ -11,6 +12,7 @@ export default {
   name: 'Deployment',
   components: {
     DeploymentInfo,
+    DeploymentManualDeployButton,
     DeploymentStopButton,
     DeploymentViewButton,
   },
@@ -64,15 +66,14 @@ export default {
       return this.computedDeploymentStatus === SUCCESS;
     },
     isManual() {
-      return Boolean(
-        this.deployment.details &&
-          this.deployment.details.playable_build &&
-          this.deployment.details.playable_build.play_path,
-      );
+      return Boolean(this.playPath);
     },
     isDeployInProgress() {
       return this.deployment.status === RUNNING;
     },
+    playPath() {
+      return this.deployment.details?.playable_build?.play_path;
+    }
   },
 };
 </script>
@@ -88,6 +89,11 @@ export default {
             :show-metrics="showMetrics"
           />
           <div>
+            <deployment-manual-deploy-button
+              v-if="canBeManuallyDeployed"
+              :is-deploy-in-progress="isDeployInProgress"
+              :play-url="playPath"
+            />
             <!-- show appropriate version of review app button  -->
             <deployment-view-button
               v-if="hasExternalUrls"

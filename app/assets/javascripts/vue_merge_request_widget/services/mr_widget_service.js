@@ -58,6 +58,10 @@ export default class MRWidgetService {
     return axios.post(url);
   }
 
+  static executeInlineAction(url) {
+    return axios.post(url);
+  }
+
   static fetchMetrics(metricsUrl) {
     return axios.get(`${metricsUrl}.json`);
   }
