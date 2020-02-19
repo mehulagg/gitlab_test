@@ -14,14 +14,9 @@ need to ensure your own [Runners are configured](../../ci/runners/README.md) and
 **Note**: GitLab's Web Application Firewall is deployed with [Ingress](../../user/clusters/applications.md#Ingress),
 so it will be avaliable to your applications no matter how you deploy them to Kubernetes.
 
-## Enable or disable ModSecurity
+## Enabling Web Application Firewall
 
-ModSecurity is disabled by default on GitLab.com. You can enable it by checking the **ModSecurity** checkbox.
-
-For existing installations, toggling the **ModSecurity** checkbox and applying the changes through the **Save changes** button will trigger a reinstall
-of Ingress with the most recent changes.
-
-Once disabled, you must uninstall and reinstall your Ingress application for the changes to take effect. See the [Feature Flag](../../user/project/operations/feature_flags.md) documentation for more information.
+See [Web Application Firewall](../../user/clusters/applications.md#web-application-firewall-modsecurity) for information on how to enable or disable WAF.
 
 ## Configuring your Google account
 
