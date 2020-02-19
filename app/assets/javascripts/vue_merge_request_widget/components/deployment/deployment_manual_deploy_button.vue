@@ -3,9 +3,7 @@ import { GlTooltipDirective } from '@gitlab/ui';
 import { __, s__ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
 import LoadingButton from '~/vue_shared/components/loading_button.vue';
-import { visitUrl } from '~/lib/utils/url_utility';
-import createFlash from '~/flash';
-import MRWidgetService from '../../services/mr_widget_service';
+import { DEPLOYING } from './constants';
 
 export default {
   name: 'DeploymentManualDeployButton',
@@ -17,60 +15,44 @@ export default {
     GlTooltip: GlTooltipDirective,
   },
   props: {
-    isDeployInProgress: {
+    actionInProgress: {
+      type: String,
+      required: false,
+      default: null,
+    },
+    isActionInProgress: {
       type: Boolean,
       required: true,
     },
-    playUrl: {
-      type: String,
+    deployManually: {
+      type: Function,
       required: true,
     },
   },
-  data() {
-    return {
-      isDeploying: false,
-    };
-  },
   computed: {
-    deployInProgressTooltip() {
-      return this.isDeployInProgress
-        ? __('Stopping this environment is currently not possible as a deployment is in progress')
-        : '';
+    actionInProgressTooltip() {
+      switch (this.actionInProgress) {
+        case DEPLOYING:
+          return __('This environment is being deployed');
+        case null:
+          return '';
+        default:
+          return __('Deploying this environment is currently not possible as another action is in progress');
+      }
+    },
+    isLoading() {
+      return this.actionInProgress === DEPLOYING;
     },
   },
   deployText: s__('MrManualDeploy|Deploy'),
-  methods: {
-    deployManually() {
-      const msg = __('Are you sure you want to deploy this environment?');
-      const isConfirmed = confirm(msg); // eslint-disable-line
-
-      if (isConfirmed) {
-        this.isDeploying = true;
-
-        MRWidgetService.executeInlineAction(this.playUrl)
-          .then(res => res.data)
-          .then(data => {
-            if (data.redirect_url) {
-              visitUrl(data.redirect_url);
-            }
-          })
-          .catch(() => {
-            createFlash(
-              __('Something went wrong while deploying this environment. Please try again.'),
-            );
-            this.isDeploying = false;
-          });
-      }
-    },
-  },
 };
 </script>
 
 <template>
-  <span v-gl-tooltip :title="deployInProgressTooltip" class="d-inline-block" tabindex="0">
+  <span v-gl-tooltip :title="actionInProgressTooltip" class="d-inline-block" tabindex="0">
     <loading-button
-      :loading="isDeploying"
-      :disabled="isDeployInProgress"
+      :loading="isLoading"
+      :disabled="isActionInProgress"
       container-class="btn btn-default btn-sm inline prepend-left-4"
       @click="deployManually"
     >
