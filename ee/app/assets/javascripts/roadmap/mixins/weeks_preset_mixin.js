@@ -16,32 +16,6 @@ export default {
       );
     },
     /**
-     * Check if milestone starts within week
-     */
-    startsInWeek(milestone, timeframeItem) {
-      const firstDayOfWeek = timeframeItem;
-      const lastDayOfWeek = newDate(timeframeItem);
-      lastDayOfWeek.setDate(lastDayOfWeek.getDate() + 6);
-
-      return (
-        milestone.startDate.getTime() >= firstDayOfWeek.getTime() &&
-        milestone.startDate.getTime() <= lastDayOfWeek.getTime()
-      );
-    },
-    /**
-     * Check if milestone starts within week
-     */
-    endsInWeek(milestone, timeframeItem) {
-      const firstDayOfWeek = timeframeItem;
-      const lastDayOfWeek = newDate(timeframeItem);
-      lastDayOfWeek.setDate(lastDayOfWeek.getDate() + 6);
-
-      return (
-        milestone.endDate.getTime() >= firstDayOfWeek.getTime() &&
-        milestone.endDate.getTime() <= lastDayOfWeek.getTime()
-      );
-    },
-    /**
      * Return last date of the week from provided timeframeItem
      */
     getLastDayOfWeek(timeframeItem) {

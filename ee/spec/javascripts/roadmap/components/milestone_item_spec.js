@@ -143,8 +143,12 @@ describe('MilestoneItemComponent', () => {
   });
 
   describe('template', () => {
-    it('renders component container element class `milestone-item-details`', () => {
-      expect(vm.$el.classList.contains('milestone-item-details')).toBeTruthy();
+    it('renders component container element class `timeline-bar-wrapper`', () => {
+      expect(vm.$el.classList.contains('timeline-bar-wrapper')).toBeTruthy();
+    });
+
+    it('renders component element class `milestone-item-details`', () => {
+      expect(vm.$el.querySelector('.milestone-item-details')).not.toBeNull();
     });
 
     it('renders Milestone item link element with class `milestone-url`', () => {

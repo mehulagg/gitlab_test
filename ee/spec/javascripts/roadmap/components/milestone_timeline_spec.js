@@ -43,12 +43,6 @@ describe('MilestoneTimelineComponent', () => {
       expect(wrapper.find('.milestone-timeline-cell').exists()).toBe(true);
     });
 
-    it('renders timeline bar element with class `timeline-bar-wrapper`', () => {
-      wrapper = createComponent();
-
-      expect(wrapper.find('.timeline-bar-wrapper').exists()).toBe(true);
-    });
-
     it('renders MilestoneItem component', () => {
       wrapper = createComponent();
 

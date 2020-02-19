@@ -12,24 +12,6 @@ export default {
       );
     },
     /**
-     * Check if milestone starts within month
-     */
-    startsInMonth(milestone, timeframeItem) {
-      return (
-        milestone.startDate.getMonth() === timeframeItem.getMonth() &&
-        milestone.startDate.getFullYear() === timeframeItem.getFullYear()
-      );
-    },
-    /**
-     * Check if milestone starts within month
-     */
-    endsInMonth(milestone, timeframeItem) {
-      return (
-        milestone.endDate.getMonth() === timeframeItem.getMonth() &&
-        milestone.endDate.getFullYear() === timeframeItem.getFullYear()
-      );
-    },
-    /**
      * Check if current epic ends within current month (timeline cell)
      */
     isTimeframeUnderEndDateForMonth(timeframeItem) {

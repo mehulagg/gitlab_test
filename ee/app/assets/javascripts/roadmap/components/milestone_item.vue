@@ -3,11 +3,12 @@ import { s__, sprintf } from '~/locale';
 
 import { GlPopover } from '@gitlab/ui';
 
+import CommonMixin from '../mixins/common_mixin';
 import QuartersPresetMixin from '../mixins/quarters_preset_mixin';
 import MonthsPresetMixin from '../mixins/months_preset_mixin';
 import WeeksPresetMixin from '../mixins/weeks_preset_mixin';
 
-import { TIMELINE_CELL_MIN_WIDTH, PRESET_TYPES, SCROLL_BAR_SIZE } from '../constants';
+import { TIMELINE_CELL_MIN_WIDTH, SCROLL_BAR_SIZE } from '../constants';
 
 import { dateInWords } from '~/lib/utils/datetime_utility';
 
@@ -16,7 +17,7 @@ export default {
   components: {
     GlPopover,
   },
-  mixins: [QuartersPresetMixin, MonthsPresetMixin, WeeksPresetMixin],
+  mixins: [CommonMixin, QuartersPresetMixin, MonthsPresetMixin, WeeksPresetMixin],
   props: {
     presetType: {
       type: String,
@@ -64,11 +65,11 @@ export default {
       };
     },
     hasStartDate() {
-      if (this.presetType === PRESET_TYPES.QUARTERS) {
+      if (this.presetTypeQuarters) {
         return this.hasStartDateForQuarter();
-      } else if (this.presetType === PRESET_TYPES.MONTHS) {
+      } else if (this.presetTypeMonths) {
         return this.hasStartDateForMonth();
-      } else if (this.presetType === PRESET_TYPES.WEEKS) {
+      } else if (this.presetTypeWeeks) {
         return this.hasStartDateForWeek();
       }
       return false;
@@ -77,18 +78,18 @@ export default {
       let barStyles = {};
 
       if (this.hasStartDate) {
-        if (this.presetType === PRESET_TYPES.QUARTERS) {
+        if (this.presetTypeQuarters) {
           // CSS properties are a false positive: https://gitlab.com/gitlab-org/frontend/eslint-plugin-i18n/issues/24
           // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
           barStyles = `width: ${this.getTimelineBarWidthForQuarters(
             this.milestone,
           )}px; ${this.getTimelineBarStartOffsetForQuarters(this.milestone)}`;
-        } else if (this.presetType === PRESET_TYPES.MONTHS) {
+        } else if (this.presetTypeMonths) {
           // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
           barStyles = `width: ${this.getTimelineBarWidthForMonths()}px; ${this.getTimelineBarStartOffsetForMonths(
             this.milestone,
           )}`;
-        } else if (this.presetType === PRESET_TYPES.WEEKS) {
+        } else if (this.presetTypeWeeks) {
           // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
           barStyles = `width: ${this.getTimelineBarWidthForWeeks()}px; ${this.getTimelineBarStartOffsetForWeeks(
             this.milestone,
@@ -165,29 +166,31 @@ export default {
 </script>
 
 <template>
-  <span
-    v-if="hasStartDate"
-    :class="{
-      'start-date-undefined': milestone.startDateUndefined,
-      'end-date-undefined': milestone.endDateUndefined,
-    }"
-    :style="timelineBarStyles"
-    class="milestone-item-details"
-  >
-    <a :id="`milestone-item-${milestone.id}`" :href="milestone.webPath" class="milestone-url">
-      <span class="timeline-bar"></span>
-      <span class="milestone-item-title">{{ milestone.title }}</span>
-    </a>
-    <div class="milestone-start-and-end" :style="hoverStyles"></div>
-    <gl-popover
-      :target="`milestone-item-${milestone.id}`"
-      boundary="viewport"
-      placement="top"
-      triggers="hover"
-      :title="milestone.title"
+  <div class="timeline-bar-wrapper">
+    <span
+      v-if="hasStartDate"
+      :class="{
+        'start-date-undefined': milestone.startDateUndefined,
+        'end-date-undefined': milestone.endDateUndefined,
+      }"
+      :style="timelineBarStyles"
+      class="milestone-item-details"
     >
-      <!-- TODO - Add group, subgroup or project  -->
-      {{ timeframeString }}
-    </gl-popover>
-  </span>
+      <a :id="`milestone-item-${milestone.id}`" :href="milestone.webPath" class="milestone-url">
+        <span class="timeline-bar"></span>
+        <span class="milestone-item-title">{{ milestone.title }}</span>
+      </a>
+      <div class="milestone-start-and-end" :style="hoverStyles"></div>
+      <gl-popover
+        :target="`milestone-item-${milestone.id}`"
+        boundary="viewport"
+        placement="top"
+        triggers="hover"
+        :title="milestone.title"
+      >
+        <!-- TODO - Add group, subgroup or project  -->
+        {{ timeframeString }}
+      </gl-popover>
+    </span>
+  </div>
 </template>

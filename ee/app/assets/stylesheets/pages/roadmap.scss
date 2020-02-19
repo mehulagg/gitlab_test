@@ -409,6 +409,15 @@ html.group-epics-roadmap-html {
       box-sizing: border-box;
       vertical-align: top;
       max-width: $timeline-cell-width;
+      position: relative;
+
+      .current-day-indicator {
+        top: -1px;
+        width: 2px;
+        height: calc(100% + 1px);
+        background-color: $red-500;
+        pointer-events: none;
+      }
     }
 
     .milestone-item-title {
@@ -419,12 +428,11 @@ html.group-epics-roadmap-html {
       white-space: nowrap;
       text-overflow: ellipsis;
       position: relative;
-      top: 6px;
     }
 
     .timeline-bar-wrapper {
       position: relative;
-      height: $item-height;
+      height: 30px;
       color: $gray-700;
 
       .milestone-start-and-end {
@@ -434,7 +442,7 @@ html.group-epics-roadmap-html {
         border-left: 2px dashed $gray-900;
         border-right: 2px dashed $gray-900;
         position: relative;
-        top: 10px;
+        top: 5px;
       }
     }
 
@@ -474,7 +482,7 @@ html.group-epics-roadmap-html {
     .timeline-bar {
       position: absolute;
       width: 100%;
-      top: 30px;
+      top: 22px;
       background-color: $gray-700;
       // color: inherit;
       height: 2px;
