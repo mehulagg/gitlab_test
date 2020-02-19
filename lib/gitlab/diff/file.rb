@@ -65,8 +65,6 @@ module Gitlab
       end
 
       def line_code(line)
-        return if line.meta?
-
         Gitlab::Git.diff_line_code(file_path, line.new_pos, line.old_pos)
       end
 
