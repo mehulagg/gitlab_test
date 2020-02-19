@@ -90,6 +90,7 @@ you can continue with the next step.
 1. [Gitaly](gitaly.md) (recommended) and / or [NFS](nfs.md)[^5]
 1. [GitLab application nodes](gitlab.md)
     - With [Object Storage service enabled](../gitaly/index.md#eliminating-nfs-altogether)[^4]
+1. [Sidekiq](sidekiq.md)
 1. [Monitoring node (Prometheus and Grafana)](monitoring_node.md)
 
 ### Full Scaling
