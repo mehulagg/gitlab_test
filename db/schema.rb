@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_13_220211) do
+ActiveRecord::Schema.define(version: 2020_02_19_203231) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -665,7 +665,7 @@ ActiveRecord::Schema.define(version: 2020_02_13_220211) do
     t.text "yaml_variables"
     t.datetime "queued_at"
     t.string "token"
-    t.integer "lock_version", default: 0
+    t.integer "lock_version", default: 0, null: false
     t.string "coverage_regex"
     t.integer "auto_canceled_by_id"
     t.boolean "retried"
@@ -842,7 +842,7 @@ ActiveRecord::Schema.define(version: 2020_02_13_220211) do
     t.datetime "finished_at"
     t.integer "duration"
     t.integer "user_id"
-    t.integer "lock_version", default: 0
+    t.integer "lock_version", default: 0, null: false
     t.integer "auto_canceled_by_id"
     t.integer "pipeline_schedule_id"
     t.integer "source"
@@ -956,7 +956,7 @@ ActiveRecord::Schema.define(version: 2020_02_13_220211) do
     t.datetime "updated_at"
     t.string "name"
     t.integer "status"
-    t.integer "lock_version", default: 0
+    t.integer "lock_version", default: 0, null: false
     t.integer "position"
     t.index ["pipeline_id", "name"], name: "index_ci_stages_on_pipeline_id_and_name", unique: true
     t.index ["pipeline_id", "position"], name: "index_ci_stages_on_pipeline_id_and_position"
@@ -1539,7 +1539,7 @@ ActiveRecord::Schema.define(version: 2020_02_13_220211) do
     t.integer "cached_markdown_version"
     t.integer "updated_by_id"
     t.integer "last_edited_by_id"
-    t.integer "lock_version", default: 0
+    t.integer "lock_version", default: 0, null: false
     t.date "start_date"
     t.date "end_date"
     t.datetime "last_edited_at"
@@ -2167,7 +2167,7 @@ ActiveRecord::Schema.define(version: 2020_02_13_220211) do
     t.boolean "confidential", default: false, null: false
     t.date "due_date"
     t.integer "moved_to_id"
-    t.integer "lock_version", default: 0
+    t.integer "lock_version", default: 0, null: false
     t.text "title_html"
     t.text "description_html"
     t.integer "time_estimate"
@@ -2582,7 +2582,7 @@ ActiveRecord::Schema.define(version: 2020_02_13_220211) do
     t.integer "approvals_before_merge"
     t.string "rebase_commit_sha"
     t.string "in_progress_merge_commit_sha"
-    t.integer "lock_version", default: 0
+    t.integer "lock_version", default: 0, null: false
     t.text "title_html"
     t.text "description_html"
     t.integer "time_estimate"
