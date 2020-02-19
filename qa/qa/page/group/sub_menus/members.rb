@@ -8,6 +8,10 @@ module QA
           include Page::Component::UsersSelect
           include Page::Component::Select2
 
+          view 'app/views/groups/group_members/index.html.haml' do
+            element :invite_group_tab
+          end
+
           view 'app/views/shared/members/_invite_member.html.haml' do
             element :member_select_field
             element :invite_member_button
@@ -27,8 +31,10 @@ module QA
           end
 
           view 'app/views/shared/members/_group.html.haml' do
+            element :access_level_dropdown
             element :group_row
             element :delete_group_access_link
+            element :developer_group_access_level_link
           end
 
           def add_member(username)
