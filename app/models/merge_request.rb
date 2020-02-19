@@ -252,7 +252,7 @@ class MergeRequest < ApplicationRecord
     with_state(:opened).where(auto_merge_enabled: true)
   end
 
-  ignore_column :state, remove_with: '12.7', remove_after: '2019-12-22'
+  ignore_column :state, remove_with: '12.10', remove_after: '2020-02-22'
 
   after_save :keep_around_commit, unless: :importing?
 

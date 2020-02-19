@@ -301,7 +301,7 @@ module Issuable
     # Returns an array of arel columns
     def issue_grouping_columns(use_cte: false)
       if use_cte
-        [arel_table[:state]] + attribute_names.map { |attr| arel_table[attr.to_sym] }
+        [arel_table[:state_id]] + attribute_names.map { |attr| arel_table[attr.to_sym] }
       else
         arel_table[:id]
       end
