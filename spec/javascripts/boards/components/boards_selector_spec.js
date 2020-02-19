@@ -42,10 +42,10 @@ describe('BoardsSelector', () => {
       data: {
         group: {
           boards: {
-            edges: boards.map(board => ({ node: board }))
-          }
-        }
-      }
+            edges: boards.map(board => ({ node: board })),
+          },
+        },
+      },
     });
     recentBoardsResponse = Promise.resolve({
       data: recentBoards,

@@ -182,11 +182,10 @@ export default {
             name: node.name,
           })),
         )
-        .catch(() => {
-          // TODO: show error message
-          this.error = 'Failed to fetch boards';
-          return [];
-        });
+        .catch(err => {
+          throw err;
+        })
+        .catch(() => []);
     },
     showPage(page) {
       boardsStore.showPage(page);
