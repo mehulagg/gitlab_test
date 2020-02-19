@@ -16,8 +16,8 @@ FactoryBot.define do
     #
     # See also RepoHelpers.sample_compare
     #
-    source_branch { "master" }
-    target_branch { "feature" }
+    source_branch { 'feature' }
+    target_branch { 'master' }
 
     merge_status { "can_be_merged" }
 
