@@ -7,10 +7,10 @@ export DEV_SERVER_HOST=${DEV_SERVER_HOST:=localhost}
 export DEV_SERVER_STATIC=${DEV_SERVER_STATIC:=false}
 export WEBPACK_VENDOR_DLL=${WEBPACK_VENDOR_DLL:=false}
 
-DIR="$(cd "$(dirname "$0")" >/dev/null 2>&1 && pwd)"
+GITLAB_ROOT="$(cd "$(dirname "$0")/.." >/dev/null 2>&1 && pwd)"
 
 # Change into gitlab directory
-cd "$DIR/../" || exit 1
+cd "$GITLAB_ROOT" || exit 1
 
 # Common function for nodemon, which calls the executable from node_modules, as
 # `yarn run` creates one more intermediate process noone needs.
