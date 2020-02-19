@@ -165,6 +165,16 @@ export default {
     showContainerRegistryPublicNote() {
       return this.visibilityLevel === visibilityOptions.PUBLIC;
     },
+
+    repositoryHelpText() {
+      if (this.visibilityLevel === visibilityOptions.PRIVATE) {
+        return s__('ProjectSettings|View and edit files in this project');
+      }
+
+      return s__(
+        'ProjectSettings|View and edit files in this project. Non-project members will only have read access',
+      );
+    },
   },
 
   watch: {
@@ -281,7 +291,7 @@ export default {
       </project-setting-row>
       <project-setting-row
         :label="s__('ProjectSettings|Repository')"
-        :help-text="s__('ProjectSettings|View and edit files in this project')"
+        :help-text="repositoryHelpText"
       >
         <project-feature-setting
           v-model="repositoryAccessLevel"
