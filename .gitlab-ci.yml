@@ -1,7 +1,10 @@
-image: ruby:2.6
+.default-rules:
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    - if: '$CI_MERGE_REQUEST_ID || $CI_COMMIT_REF_NAME == "master"'
 
-services:
- - docker:19.03.0-dind
+image: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-qa-ruby-2.6
 
 stages:
   - check
@@ -10,8 +13,7 @@ stages:
   - notify
 
 variables:
-  TEST_IMAGE: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-qa-ruby-2.6
-  DOCKER_DRIVER: overlay
+  DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://docker:2375
   QA_ARTIFACTS_DIR: $CI_PROJECT_DIR
   QA_CAN_TEST_GIT_PROTOCOL_V2: 'false'
@@ -29,27 +31,37 @@ before_script:
     fi
   - export LANG=C.UTF-8
 
-check:rubocop:
+.check-base:
+  extends: .default-rules
   stage: check
-  image: $TEST_IMAGE
-  script: bundle exec rubocop
-  except:
-    - triggers
-  tags:
-    - docker
+  script:
+    - bundle exec $CI_JOB_NAME
 
-check:rspec:
-  stage: check
-  image: $TEST_IMAGE
-  script: bundle exec rspec
-  except:
-    - triggers
-  tags:
-    - docker
+rubocop:
+  extends: .check-base
+
+rspec:
+  extends: .check-base
+
+release:
+  stage: release
+  rules:
+    - if: '$CI_COMMIT_TAG'
+  script:
+    - gem update --system
+    - ruby --version
+    - gem env version
+    - gem build gitlab-qa.gemspec
+    - gem push gitlab-qa*.gem
+  artifacts:
+    paths:
+      - gitlab-qa*.gem
+    expire_in: 30 days
 
 .test:
   stage: test
-  image: $TEST_IMAGE
+  services:
+    - docker:19.03.0-dind
   tags:
     - docker
   artifacts:
@@ -63,23 +75,33 @@ check:rspec:
 .ce-qa:
   variables:
     DEFAULT_RELEASE: "CE"
-  only:
-    variables:
-      - $RELEASE == null
-      - $RELEASE =~ /gitlab-ce/
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    - if: '$RELEASE == null && $CI_JOB_NAME =~ /quarantine|praefect|custom|staging/'
+      when: manual
+    - if: '$RELEASE =~ /gitlab-ce/ && $CI_JOB_NAME =~ /quarantine|praefect|custom|staging/'
+      when: manual
+    - if: '$CI_MERGE_REQUEST_ID && $CI_JOB_NAME =~ /quarantine|praefect|custom|staging/'
+      when: manual
+    - if: '$RELEASE == null || $RELEASE =~ /gitlab-ce/ || $CI_MERGE_REQUEST_ID || $CI_COMMIT_REF_NAME == "master"'
 
 .ee-qa:
   variables:
     DEFAULT_RELEASE: "EE"
-  only:
-    variables:
-      - $RELEASE == null
-      - $RELEASE =~ /gitlab-ee/
+  rules:
+    - if: '$CI_COMMIT_TAG'
+      when: never
+    - if: '$RELEASE == null && $CI_JOB_NAME =~ /quarantine|praefect|custom|staging/'
+      when: manual
+    - if: '$RELEASE =~ /gitlab-ee/ && $CI_JOB_NAME =~ /quarantine|praefect|custom|staging/'
+      when: manual
+    - if: '$CI_MERGE_REQUEST_ID && $CI_JOB_NAME =~ /quarantine|praefect|custom|staging/'
+      when: manual
+    - if: '$RELEASE == null || $RELEASE =~ /gitlab-ee/ || $CI_MERGE_REQUEST_ID || $CI_COMMIT_REF_NAME == "master"'
 
 .only-qa:
-  except:
-    variables:
-      - $RELEASE
+  extends: .default-rules
 
 .high-capacity:
   tags:
@@ -100,7 +122,6 @@ check:rspec:
 
 .quarantine:
   allow_failure: true
-  when: manual
 
 .echo-custom-variables-before-calling-gitlab-qa:
   script:
@@ -133,7 +154,7 @@ ce:custom-parallel:
     - .ce-qa
     - .rspec-report-opts
     - .echo-custom-variables-before-calling-gitlab-qa
-  when: manual
+  allow_failure: true
   parallel: 10
 
 ee:custom-parallel:
@@ -143,7 +164,7 @@ ee:custom-parallel:
     - .ee-qa
     - .rspec-report-opts
     - .echo-custom-variables-before-calling-gitlab-qa
-  when: manual
+  allow_failure: true
   parallel: 10
 
 ce:instance:
@@ -753,7 +774,7 @@ ce:praefect:
     - .knapsack-variables
     - .rspec-report-opts
   parallel: 5
-  when: manual
+  allow_failure: true
 
 ee:praefect:
   script:
@@ -765,7 +786,7 @@ ee:praefect:
     - .knapsack-variables
     - .rspec-report-opts
   parallel: 5
-  when: manual
+  allow_failure: true
 
 ce:smtp:
   script:
@@ -785,29 +806,6 @@ ee:smtp:
     - .ee-qa
     - .rspec-report-opts
 
-.notify_upstream_commit:
-  stage: notify
-  except:
-    variables:
-      - $TOP_UPSTREAM_SOURCE_PROJECT == null
-      - $TOP_UPSTREAM_SOURCE_SHA == null
-  before_script:
-    - gem install gitlab --no-document
-
-notify_upstream_commit:success:
-  extends:
-    - .notify_upstream_commit
-  script:
-    - bin/notify_upstream_commit success
-  when: on_success
-
-notify_upstream_commit:failure:
-  extends:
-    - .notify_upstream_commit
-  script:
-    - bin/notify_upstream_commit failure
-  when: on_failure
-
 # This job requires the `GITLAB_QA_ACCESS_TOKEN` and `GITLAB_QA_DEV_ACCESS_TOKEN`
 # variable to be passed when triggered.
 staging:
@@ -818,23 +816,29 @@ staging:
     - .test
     - .high-capacity
     - .only-qa
-  when: manual
+  allow_failure: true
 
-release:
-  stage: release
-  rules:
-    - if: '$CI_COMMIT_TAG'
-      when: on_success
+.notify_upstream_commit:
+  stage: notify
+  image: ruby:2.6
+  before_script:
+    - gem install gitlab --no-document
+
+notify_upstream_commit:success:
+  extends: .notify_upstream_commit
   script:
-    - gem update --system
-    - ruby --version
-    - gem env version
-    - gem build gitlab-qa.gemspec
-    - gem push gitlab-qa*.gem
-  artifacts:
-    paths:
-      - gitlab-qa*.gem
-    expire_in: 30 days
+    - bin/notify_upstream_commit success
+  rules:
+    - if: '$TOP_UPSTREAM_SOURCE_PROJECT && $TOP_UPSTREAM_SOURCE_SHA'
+      when: on_success
+
+notify_upstream_commit:failure:
+  extends: .notify_upstream_commit
+  script:
+    - bin/notify_upstream_commit failure
+  rules:
+    - if: '$TOP_UPSTREAM_SOURCE_PROJECT && $TOP_UPSTREAM_SOURCE_SHA'
+      when: on_failure
 
 .notify_slack:
   image: alpine
@@ -847,10 +851,11 @@ release:
 notify_slack:
   extends:
     - .notify_slack
-  only:
-    variables:
-      - $TOP_UPSTREAM_SOURCE_JOB && $NOTIFY_CHANNEL
-      - $TOP_UPSTREAM_SOURCE_JOB && $TOP_UPSTREAM_SOURCE_REF == 'master'
+  rules:
+    - if: '$TOP_UPSTREAM_SOURCE_JOB && $NOTIFY_CHANNEL'
+      when: on_failure
+    - if: '$TOP_UPSTREAM_SOURCE_JOB && $TOP_UPSTREAM_SOURCE_REF == "master"'
+      when: on_failure
   script:
     - export RELEASE=${TOP_UPSTREAM_SOURCE_REF:-$RELEASE}
     - echo "NOTIFY_CHANNEL is ${NOTIFY_CHANNEL:=qa-$TOP_UPSTREAM_SOURCE_REF}"
@@ -858,4 +863,3 @@ notify_slack:
     - echo "CI_PIPELINE_URL is $CI_PIPELINE_URL"
     - echo "TOP_UPSTREAM_SOURCE_JOB is $TOP_UPSTREAM_SOURCE_JOB"
     - bin/slack $NOTIFY_CHANNEL "☠️ QA against $RELEASE failed! ☠️ See $CI_PIPELINE_URL (triggered from $TOP_UPSTREAM_SOURCE_JOB)" ci_failing
-  when: on_failure
