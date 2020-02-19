@@ -1,13 +1,14 @@
 import Vue from 'vue';
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
 import { TEST_HOST } from 'spec/test_constants';
-import BoardsSelector from '~/boards/components/boards_selector.vue';
+import BoardsSelector, { gqlClient } from '~/boards/components/boards_selector.vue';
 import boardsStore from '~/boards/stores/boards_store';
 
 const throttleDuration = 1;
 
 function boardGenerator(n) {
-  return new Array(n).fill().map((board, id) => {
+  return new Array(n).fill().map((board, index) => {
+    const id = `${index}`;
     const name = `board${id}`;
 
     return {
@@ -37,10 +38,21 @@ describe('BoardsSelector', () => {
       boardId: '',
     });
 
-    allBoardsResponse = Promise.resolve(boards);
+    allBoardsResponse = Promise.resolve({
+      data: {
+        group: {
+          boards: {
+            edges: boards.map(board => ({ node: board }))
+          }
+        }
+      }
+    });
     recentBoardsResponse = Promise.resolve({
       data: recentBoards,
     });
+
+    spyOn(boardsStore, 'recentBoards').and.returnValue(recentBoardsResponse);
+    spyOn(gqlClient, 'query').and.returnValue(allBoardsResponse);
 
     const Component = Vue.extend(BoardsSelector);
     vm = mountComponent(
@@ -68,9 +80,6 @@ describe('BoardsSelector', () => {
       },
       document.querySelector('.js-boards-selector'),
     );
-
-    spyOn(boardsStore, 'recentBoards').and.returnValue(recentBoardsResponse);
-    spyOn(vm, 'allBoards').and.returnValue(allBoardsResponse);
 
     // Emits gl-dropdown show event to simulate the dropdown is opened at initialization time
     vm.$children[0].$emit('show');
