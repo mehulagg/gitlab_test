@@ -2,12 +2,16 @@
 
 module ApprovalRules
   module Updater
+    include EE::Audit::Changes # rubocop: disable Cop/InjectEnterpriseEditionModule
+
     def action
       filter_eligible_users!
       filter_eligible_groups!
       filter_eligible_protected_branches!
 
       if rule.update(params)
+        audit_changes(:approvals_required, as: 'required approvers')
+
         rule.reset
         success
       else
@@ -40,6 +44,14 @@ module ApprovalRules
         ProtectedBranch
           .id_in(protected_branch_ids)
           .for_project(project)
+    end
+
+    def target_model
+      rule.project
+    end
+
+    def model
+      rule
     end
   end
 end
