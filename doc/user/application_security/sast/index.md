@@ -442,6 +442,16 @@ For full functionality this requires these images from registry.gitlab.com insid
  - registry.gitlab.com/gitlab-org/security-products/analyzers/spotbugs:2
  - registry.gitlab.com/gitlab-org/security-products/analyzers/tslint:2
 
+To save your images you can not use the common `docker pull registry.gitlab.com/[...]` followed `docker push <private_registry>` in an offline environment as there is no access to registry.gitlab.com or DockerHub inside the environment.
+
+Instead:
+
+1. `docker pull <image>` outside the airgap/internal network
+1. [`docker save`](https://docs.docker.com/engine/reference/commandline/save/) or [`docker export`](https://docs.docker.com/engine/reference/commandline/export/) image to .tgz
+1. [`docker load`](https://docs.docker.com/engine/reference/commandline/load/) or [`docker import`](https://docs.docker.com/engine/reference/commandline/import/) the docker image inside the closed network or airgap (in accordance with internal airgap/network policies)
+1. `docker tag <image>`
+1. `docker push <image>` to local/airgap registry
+
 #### Set your variables
 
 [Override the default SAST template](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/SAST.gitlab-ci.yml) to point to the Docker images hosted on your local Docker container registry.
