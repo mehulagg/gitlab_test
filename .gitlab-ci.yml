@@ -147,16 +147,6 @@ ee:sanity-framework:
     - .high-capacity
     - .ee-qa
 
-ce:custom-parallel:
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .rspec-report-opts
-    - .echo-custom-variables-before-calling-gitlab-qa
-  allow_failure: true
-  parallel: 10
-
 ee:custom-parallel:
   extends:
     - .test
