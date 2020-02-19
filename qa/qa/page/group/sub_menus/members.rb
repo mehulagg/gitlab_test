@@ -61,7 +61,7 @@ module QA
           def update_group_access_level(username, access_level)
             within_element(:group_row, text: username) do
               click_element :access_level_dropdown
-              click_element "#{access_level.downcase}_access_level_link"
+              click_element "#{access_level.downcase}_group_access_level_link"
             end
           end
 
