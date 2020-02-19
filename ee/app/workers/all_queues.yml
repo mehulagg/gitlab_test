@@ -93,6 +93,12 @@
   :latency_sensitive: 
   :resource_boundary: :unknown
   :weight: 1
+- :name: cronjob:geo_secondary_registry_consistency
+  :feature_category: :geo_replication
+  :has_external_dependencies: 
+  :latency_sensitive: 
+  :resource_boundary: :unknown
+  :weight: 1
 - :name: cronjob:geo_sidekiq_cron_config
   :feature_category: :geo_replication
   :has_external_dependencies: 
@@ -303,12 +309,6 @@
   :latency_sensitive: 
   :resource_boundary: :unknown
   :weight: 1
-- :name: incident_management:incident_management_process_alert
-  :feature_category: :incident_management
-  :has_external_dependencies: 
-  :latency_sensitive: 
-  :resource_boundary: :unknown
-  :weight: 2
 - :name: incident_management:incident_management_process_prometheus_alert
   :feature_category: :incident_management
   :has_external_dependencies: 
@@ -339,23 +339,23 @@
   :latency_sensitive: 
   :resource_boundary: :unknown
   :weight: 1
-- :name: pipeline_default:store_security_reports
-  :feature_category: :continuous_integration
+- :name: security_scans:store_security_reports
+  :feature_category: :static_application_security_testing
   :has_external_dependencies: 
   :latency_sensitive: 
   :resource_boundary: :unknown
-  :weight: 3
-- :name: pipeline_default:sync_security_reports_to_report_approval_rules
-  :feature_category: :static_application_security_testing
-  :has_external_dependencies: 
-  :latency_sensitive: true
-  :resource_boundary: :cpu
-  :weight: 3
+  :weight: 2
 - :name: security_scans:store_security_scans
   :feature_category: :static_application_security_testing
   :has_external_dependencies: 
   :latency_sensitive: 
   :resource_boundary: :unknown
+  :weight: 2
+- :name: security_scans:sync_security_reports_to_report_approval_rules
+  :feature_category: :static_application_security_testing
+  :has_external_dependencies: 
+  :latency_sensitive: true
+  :resource_boundary: :cpu
   :weight: 2
 - :name: adjourned_project_deletion
   :feature_category: :authentication_and_authorization
@@ -364,7 +364,7 @@
   :resource_boundary: :unknown
   :weight: 1
 - :name: admin_emails
-  :feature_category: :not_owned
+  :feature_category: :issue_tracking
   :has_external_dependencies: 
   :latency_sensitive: 
   :resource_boundary: :unknown

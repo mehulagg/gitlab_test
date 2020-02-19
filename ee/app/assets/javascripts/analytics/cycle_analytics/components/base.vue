@@ -68,6 +68,7 @@ export default {
       'endDate',
       'tasksByType',
       'medians',
+      'customStageFormErrors',
     ]),
     ...mapGetters([
       'hasNoAccessError',
@@ -75,6 +76,7 @@ export default {
       'durationChartPlottableData',
       'tasksByTypeChartData',
       'durationChartMedianData',
+      'activeStages',
     ]),
     shouldRenderEmptyState() {
       return !this.selectedGroup;
@@ -135,6 +137,7 @@ export default {
       'setSelectedStage',
       'hideCustomStageForm',
       'showCustomStageForm',
+      'showEditCustomStageForm',
       'setDateRange',
       'fetchTasksByTypeData',
       'updateSelectedDurationChartStages',
@@ -142,7 +145,7 @@ export default {
       'updateStage',
       'removeStage',
       'setFeatureFlags',
-      'editCustomStage',
+      'clearCustomStageFormErrors',
       'updateStage',
       'setTasksByTypeFilters',
     ]),
@@ -164,7 +167,7 @@ export default {
       this.showCustomStageForm();
     },
     onShowEditStageForm(initData = {}) {
-      this.editCustomStage(initData);
+      this.showEditCustomStageForm(initData);
     },
     initDateRange() {
       const endDate = new Date(Date.now());
@@ -269,7 +272,7 @@ export default {
             v-if="selectedStage"
             class="js-stage-table"
             :current-stage="selectedStage"
-            :stages="stages"
+            :stages="activeStages"
             :medians="medians"
             :is-loading="isLoadingStage"
             :is-empty-stage="isEmptyStage"
@@ -278,10 +281,12 @@ export default {
             :is-editing-custom-stage="isEditingCustomStage"
             :current-stage-events="currentStageEvents"
             :custom-stage-form-events="customStageFormEvents"
+            :custom-stage-form-errors="customStageFormErrors"
             :labels="labels"
             :no-data-svg-path="noDataSvgPath"
             :no-access-svg-path="noAccessSvgPath"
             :can-edit-stages="hasCustomizableCycleAnalytics"
+            @clearCustomStageFormErrors="clearCustomStageFormErrors"
             @selectStage="onStageSelect"
             @editStage="onShowEditStageForm"
             @showAddStageForm="onShowAddStageForm"

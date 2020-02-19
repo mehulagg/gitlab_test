@@ -17,29 +17,24 @@ export default {
     GlTooltip: GlTooltipDirective,
   },
   props: {
-    blob: {
-      type: Object,
-      required: true,
+    value: {
+      type: String,
+      default: SIMPLE_BLOB_VIEWER,
+      required: false,
     },
-  },
-  data() {
-    return {
-      viewer: this.blob.richViewer ? RICH_BLOB_VIEWER : SIMPLE_BLOB_VIEWER,
-    };
   },
   computed: {
     isSimpleViewer() {
-      return this.viewer === SIMPLE_BLOB_VIEWER;
+      return this.value === SIMPLE_BLOB_VIEWER;
     },
     isRichViewer() {
-      return this.viewer === RICH_BLOB_VIEWER;
+      return this.value === RICH_BLOB_VIEWER;
     },
   },
   methods: {
     switchToViewer(viewer) {
-      if (viewer !== this.viewer) {
-        this.viewer = viewer;
-        this.$emit('switch-viewer', viewer);
+      if (viewer !== this.value) {
+        this.$emit('input', viewer);
       }
     },
   },

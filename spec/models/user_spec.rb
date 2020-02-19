@@ -303,6 +303,20 @@ describe User, :do_not_mock_admin_mode do
         end
       end
 
+      context 'bad regex' do
+        before do
+          allow_any_instance_of(ApplicationSetting).to receive(:domain_whitelist).and_return(['([a-zA-Z0-9]+)+\.com'])
+        end
+
+        it 'does not hang on evil input' do
+          user = build(:user, email: 'user@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!.com')
+
+          expect do
+            Timeout.timeout(2.seconds) { user.valid? }
+          end.not_to raise_error
+        end
+      end
+
       context 'when a signup domain is whitelisted and subdomains are allowed' do
         before do
           allow_any_instance_of(ApplicationSetting).to receive(:domain_whitelist).and_return(['example.com', '*.example.com'])
@@ -354,6 +368,20 @@ describe User, :do_not_mock_admin_mode do
         before do
           allow_any_instance_of(ApplicationSetting).to receive(:domain_blacklist_enabled?).and_return(true)
           allow_any_instance_of(ApplicationSetting).to receive(:domain_blacklist).and_return(['example.com'])
+        end
+
+        context 'bad regex' do
+          before do
+            allow_any_instance_of(ApplicationSetting).to receive(:domain_blacklist).and_return(['([a-zA-Z0-9]+)+\.com'])
+          end
+
+          it 'does not hang on evil input' do
+            user = build(:user, email: 'user@aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!.com')
+
+            expect do
+              Timeout.timeout(2.seconds) { user.valid? }
+            end.not_to raise_error
+          end
         end
 
         context 'when a signup domain is blacklisted' do
@@ -4160,7 +4188,7 @@ describe User, :do_not_mock_admin_mode do
   describe '#dismissed_callout?' do
     subject(:user) { create(:user) }
 
-    let(:feature_name) { UserCallout.feature_names.keys.first }
+    let(:feature_name) { UserCallout.feature_names.each_key.first }
 
     context 'when no callout dismissal record exists' do
       it 'returns false when no ignore_dismissal_earlier_than provided' do
@@ -4198,6 +4226,19 @@ describe User, :do_not_mock_admin_mode do
 
       expect(described_class.humans).to match_array([human])
       expect(described_class.bots).to match_array([bot])
+    end
+  end
+
+  describe '#hook_attrs' do
+    it 'includes name, username, avatar_url, and email' do
+      user = create(:user)
+      user_attributes = {
+        name: user.name,
+        username: user.username,
+        avatar_url: user.avatar_url(only_path: false),
+        email: user.email
+      }
+      expect(user.hook_attrs).to eq(user_attributes)
     end
   end
 end

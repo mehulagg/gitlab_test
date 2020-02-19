@@ -17,7 +17,7 @@ const endpoints = {
   summaryData: 'analytics/value_stream_analytics/summary.json',
 };
 
-export const groupLabels = mockLabels.map(({ title, ...rest }) => ({ ...rest, name: title }));
+export const groupLabels = mockLabels;
 
 export const group = {
   id: 1,
@@ -117,6 +117,13 @@ export const labelStartEvent = customStageLabelEvents[0];
 export const labelStopEvent = customStageLabelEvents.find(
   ev => ev.identifier === labelStartEvent.allowedEndEvents[0],
 );
+
+export const rawCustomStageFormErrors = {
+  name: ['is reserved', 'cant be blank'],
+  start_event_identifier: ['cant be blank'],
+};
+
+export const customStageFormErrors = convertObjectPropsToCamelCase(rawCustomStageFormErrors);
 
 const dateRange = getDatesInRange(startDate, endDate, toYmd);
 

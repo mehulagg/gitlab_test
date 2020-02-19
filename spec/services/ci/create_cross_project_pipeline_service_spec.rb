@@ -148,6 +148,12 @@ describe Ci::CreateCrossProjectPipelineService, '#execute' do
       end
 
       context 'when "include" is provided' do
+        let(:file_content) do
+          YAML.dump(
+            rspec: { script: 'rspec' },
+            echo: { script: 'echo' })
+        end
+
         shared_examples 'creates a child pipeline' do
           it 'creates only one new pipeline' do
             expect { service.execute(bridge) }
@@ -189,9 +195,6 @@ describe Ci::CreateCrossProjectPipelineService, '#execute' do
         end
 
         before do
-          file_content = YAML.dump(
-            rspec: { script: 'rspec' },
-            echo: { script: 'echo' })
           upstream_project.repository.create_file(
             user, 'child-pipeline.yml', file_content, message: 'message', branch_name: 'master')
 
@@ -218,6 +221,29 @@ describe Ci::CreateCrossProjectPipelineService, '#execute' do
           it_behaves_like 'creates a child pipeline'
         end
 
+        context 'when the parent is a merge request pipeline' do
+          let(:merge_request) { create(:merge_request, source_project: bridge.project, target_project: bridge.project) }
+          let(:file_content) do
+            YAML.dump(
+              workflow: { rules: [{ if: '$CI_MERGE_REQUEST_ID' }] },
+              rspec: { script: 'rspec' },
+              echo: { script: 'echo' })
+          end
+
+          before do
+            bridge.pipeline.update!(source: :merge_request_event, merge_request: merge_request)
+          end
+
+          it_behaves_like 'creates a child pipeline'
+
+          it 'propagates the merge request to the child pipeline' do
+            pipeline = service.execute(bridge)
+
+            expect(pipeline.merge_request).to eq(merge_request)
+            expect(pipeline).to be_merge_request
+          end
+        end
+
         context 'when upstream pipeline is a child pipeline' do
           let!(:pipeline_source) do
             create(:ci_sources_pipeline,
@@ -238,34 +264,6 @@ describe Ci::CreateCrossProjectPipelineService, '#execute' do
             expect(bridge.failure_reason).to eq 'bridge_pipeline_is_child_pipeline'
           end
         end
-      end
-    end
-
-    context 'when downstream pipeline creation errors out' do
-      let(:stub_config) { false }
-
-      before do
-        stub_ci_pipeline_yaml_file(YAML.dump(invalid: { yaml: 'error' }))
-      end
-
-      it 'creates only one new pipeline' do
-        expect { service.execute(bridge) }
-          .to change { Ci::Pipeline.count }.by(1)
-      end
-
-      it 'creates a new pipeline in the downstream project' do
-        pipeline = service.execute(bridge)
-
-        expect(pipeline.user).to eq bridge.user
-        expect(pipeline.project).to eq downstream_project
-      end
-
-      it 'drops the bridge' do
-        pipeline = service.execute(bridge)
-
-        expect(pipeline.reload).to be_failed
-        expect(bridge.reload).to be_failed
-        expect(bridge.failure_reason).to eq('downstream_pipeline_creation_failed')
       end
     end
 
@@ -342,9 +340,7 @@ describe Ci::CreateCrossProjectPipelineService, '#execute' do
       let(:service) { described_class.new(upstream_project, upstream_project.owner) }
 
       context 'that include the bridge job' do
-        # TODO: this is skipped because `trigger` keyword does not exist yet.
-        # enabling it in the next MR: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/24393
-        xit 'creates the downstream pipeline' do
+        it 'creates the downstream pipeline' do
           expect { service.execute(bridge) }
             .to change(downstream_project.ci_pipelines, :count).by(1)
         end

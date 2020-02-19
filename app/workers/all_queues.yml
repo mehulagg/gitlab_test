@@ -58,7 +58,7 @@
   :resource_boundary: :unknown
   :weight: 1
 - :name: cronjob:admin_email
-  :feature_category: :not_owned
+  :feature_category: :source_code_management
   :has_external_dependencies: 
   :latency_sensitive: 
   :resource_boundary: :unknown
@@ -75,6 +75,12 @@
   :latency_sensitive: 
   :resource_boundary: :unknown
   :weight: 1
+- :name: cronjob:environments_auto_stop_cron
+  :feature_category: :continuous_delivery
+  :has_external_dependencies: 
+  :latency_sensitive: 
+  :resource_boundary: :unknown
+  :weight: 1
 - :name: cronjob:expire_build_artifacts
   :feature_category: :continuous_integration
   :has_external_dependencies: 
@@ -82,7 +88,7 @@
   :resource_boundary: :unknown
   :weight: 1
 - :name: cronjob:gitlab_usage_ping
-  :feature_category: :not_owned
+  :feature_category: :collection
   :has_external_dependencies: 
   :latency_sensitive: 
   :resource_boundary: :unknown
@@ -136,7 +142,7 @@
   :resource_boundary: :cpu
   :weight: 1
 - :name: cronjob:prune_old_events
-  :feature_category: :not_owned
+  :feature_category: :users
   :has_external_dependencies: 
   :latency_sensitive: 
   :resource_boundary: :unknown
@@ -218,6 +224,12 @@
   :has_external_dependencies: 
   :latency_sensitive: 
   :resource_boundary: :cpu
+  :weight: 3
+- :name: deployment:deployments_forward_deployment
+  :feature_category: :continuous_delivery
+  :has_external_dependencies: 
+  :latency_sensitive: 
+  :resource_boundary: :unknown
   :weight: 3
 - :name: deployment:deployments_success
   :feature_category: :continuous_delivery
@@ -429,6 +441,12 @@
   :latency_sensitive: 
   :resource_boundary: :unknown
   :weight: 1
+- :name: incident_management:incident_management_process_alert
+  :feature_category: :incident_management
+  :has_external_dependencies: 
+  :latency_sensitive: 
+  :resource_boundary: :unknown
+  :weight: 2
 - :name: mail_scheduler:mail_scheduler_issue_due
   :feature_category: :issue_tracking
   :has_external_dependencies: 
@@ -952,7 +970,7 @@
   :resource_boundary: :unknown
   :weight: 1
 - :name: project_export
-  :feature_category: :source_code_management
+  :feature_category: :importers
   :has_external_dependencies: 
   :latency_sensitive: 
   :resource_boundary: :memory
@@ -963,7 +981,7 @@
   :latency_sensitive: 
   :resource_boundary: :unknown
   :weight: 1
-- :name: propagate_instance_level_service
+- :name: propagate_service_template
   :feature_category: :source_code_management
   :has_external_dependencies: 
   :latency_sensitive: 

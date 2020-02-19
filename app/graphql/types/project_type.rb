@@ -185,12 +185,6 @@ module Types
           null: true,
           description: 'Boards of the project',
           resolver: Resolvers::BoardsResolver
-
-    field :board,
-          Types::BoardType,
-          null: true,
-          description: 'A single board of the project',
-          resolver: Resolvers::BoardsResolver.single
   end
 end
 

@@ -170,6 +170,9 @@ module EE
           expose :trial_ends_on, if: can_admin_namespace do |namespace, _|
             namespace.trial_ends_on
           end
+          expose :trial, if: can_admin_namespace do |namespace, _|
+            namespace.trial?
+          end
         end
       end
 
@@ -213,6 +216,9 @@ module EE
         prepended do
           expose(*EE::ApplicationSettingsHelper.repository_mirror_attributes, if: ->(_instance, _options) do
             ::License.feature_available?(:repository_mirrors)
+          end)
+          expose(*EE::ApplicationSettingsHelper.merge_request_appovers_rules_attributes, if: ->(_instance, _options) do
+            ::License.feature_available?(:admin_merge_request_approvers_rules)
           end)
           expose :email_additional_text, if: ->(_instance, _opts) { ::License.feature_available?(:email_additional_text) }
           expose :file_template_project_id, if: ->(_instance, _opts) { ::License.feature_available?(:custom_file_templates) }
@@ -910,6 +916,29 @@ module EE
 
         class PackagesVersions < Grape::Entity
           expose :versions
+        end
+
+        class SearchResultVersion < Grape::Entity
+          expose :json_url, as: :@id
+          expose :version
+          expose :downloads
+        end
+
+        class SearchResult < Grape::Entity
+          expose :type, as: :@type
+          expose :authors
+          expose :name, as: :id
+          expose :name, as: :title
+          expose :summary
+          expose :total_downloads, as: :totalDownloads
+          expose :verified
+          expose :version
+          expose :versions, using: EE::API::Entities::Nuget::SearchResultVersion
+        end
+
+        class SearchResults < Grape::Entity
+          expose :total_count, as: :totalHits
+          expose :data, using: EE::API::Entities::Nuget::SearchResult
         end
       end
 

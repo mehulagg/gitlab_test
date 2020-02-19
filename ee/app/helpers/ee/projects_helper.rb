@@ -6,7 +6,7 @@ module EE
 
     override :sidebar_projects_paths
     def sidebar_projects_paths
-      if ::Feature.enabled?(:analytics_pages_under_project_analytics_sidebar, @project)
+      if ::Feature.enabled?(:analytics_pages_under_project_analytics_sidebar, @project, default_enabled: true)
         super
       else
         super + %w[
@@ -259,23 +259,20 @@ module EE
     end
 
     def show_discover_project_security?(project)
-      !!::Feature.enabled?(:discover_security) &&
+      security_feature_available_at = DateTime.new(2020, 1, 20)
+
+      !!current_user &&
         ::Gitlab.com? &&
-        !!current_user &&
-        current_user.created_at > DateTime.new(2020, 1, 20) &&
+        current_user.created_at > security_feature_available_at &&
         !project.feature_available?(:security_dashboard) &&
-        can?(current_user, :admin_namespace, project.root_ancestor)
+        can?(current_user, :admin_namespace, project.root_ancestor) &&
+        current_user.ab_feature_enabled?(:discover_security)
     end
 
     def settings_operations_available?
       return true if super
 
       @project.feature_available?(:tracing, current_user) && can?(current_user, :read_environment, @project)
-    end
-
-    def project_incident_management_setting
-      @project_incident_management_setting ||= @project.incident_management_setting ||
-        @project.build_incident_management_setting
     end
 
     override :can_import_members?

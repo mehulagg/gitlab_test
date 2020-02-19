@@ -10,7 +10,6 @@ module Ci
     include ObjectStorage::BackgroundMove
     include Presentable
     include Importable
-    include Gitlab::Utils::StrongMemoize
     include HasRef
     include IgnorableColumns
 
@@ -115,6 +114,7 @@ module Ci
     end
 
     scope :eager_load_job_artifacts, -> { includes(:job_artifacts) }
+    scope :eager_load_job_artifacts_archive, -> { includes(:job_artifacts_archive) }
 
     scope :eager_load_everything, -> do
       includes(
@@ -819,7 +819,7 @@ module Ci
       depended_jobs = depends_on_builds
 
       # find all jobs that are needed
-      if Feature.enabled?(:ci_dag_support, project, default_enabled: true) && needs.exists?
+      if Feature.enabled?(:ci_dag_support, project, default_enabled: true) && scheduling_type_dag?
         depended_jobs = depended_jobs.where(name: needs.artifacts.select(:name))
       end
 

@@ -108,7 +108,7 @@ Reports that go over the 20 MB limit won't be loaded. Affected reports:
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/201826) in GitLab 12.8.
 
 You can set a limit on the content of text fields indexed for Global Search.
-Setting a maximum helps to reduce the load of the indexing processes.  If any
+Setting a maximum helps to reduce the load of the indexing processes. If any
 text field exceeds this limit then the text will be truncated to this number of
 characters and the rest will not be indexed and hence will not be searchable.
 
@@ -119,3 +119,7 @@ This limit can be configured for self hosted installations when [enabling
 Elasticsearch](../integration/elasticsearch.md#enabling-elasticsearch).
 
 NOTE: **Note:** Set the limit to `0` to disable it.
+
+## Wiki limits
+
+- [Length restrictions for file and directory names](../user/project/wiki/index.md#length-restrictions-for-file-and-directory-names).

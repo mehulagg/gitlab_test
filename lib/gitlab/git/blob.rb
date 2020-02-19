@@ -5,6 +5,7 @@ module Gitlab
     class Blob
       include Gitlab::BlobHelper
       include Gitlab::EncodingHelper
+      include Gitlab::Metrics::Methods
       extend Gitlab::Git::WrapsGitalyErrors
 
       # This number is the maximum amount of data that we want to display to
@@ -25,6 +26,19 @@ module Gitlab
       LFS_POINTER_MAX_SIZE = 200.bytes
 
       attr_accessor :name, :path, :size, :data, :mode, :id, :commit_id, :loaded_size, :binary
+
+      define_counter :gitlab_blob_truncated_true do
+        docstring 'blob.truncated? == true'
+      end
+
+      define_counter :gitlab_blob_truncated_false do
+        docstring 'blob.truncated? == false'
+      end
+
+      define_histogram :gitlab_blob_size do
+        docstring 'Gitlab::Git::Blob size'
+        buckets [1_000, 5_000, 10_000, 50_000, 100_000, 500_000, 1_000_000]
+      end
 
       class << self
         def find(repository, sha, path, limit: MAX_DATA_DISPLAY_SIZE)
@@ -128,7 +142,7 @@ module Gitlab
       def load_all_data!(repository)
         return if @data == '' # don't mess with submodule blobs
 
-        # Even if we return early, recalculate wether this blob is binary in
+        # Even if we return early, recalculate whether this blob is binary in
         # case a blob was initialized as text but the full data isn't
         @binary = nil
 

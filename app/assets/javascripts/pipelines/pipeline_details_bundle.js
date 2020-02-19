@@ -99,8 +99,26 @@ export default () => {
     window.gon && window.gon.features && window.gon.features.junitPipelineView;
 
   if (testReportsEnabled) {
+    const fetchReportsAction = 'fetchReports';
     testReportsStore.dispatch('setEndpoint', dataset.testReportEndpoint);
-    testReportsStore.dispatch('fetchReports');
+
+    const tabsElmement = document.querySelector('.pipelines-tabs');
+    const isTestTabActive = Boolean(
+      document.querySelector('.pipelines-tabs > li > a.test-tab.active'),
+    );
+
+    if (isTestTabActive) {
+      testReportsStore.dispatch(fetchReportsAction);
+    } else {
+      const tabClickHandler = e => {
+        if (e.target.className === 'test-tab') {
+          testReportsStore.dispatch(fetchReportsAction);
+          tabsElmement.removeEventListener('click', tabClickHandler);
+        }
+      };
+
+      tabsElmement.addEventListener('click', tabClickHandler);
+    }
 
     // eslint-disable-next-line no-new
     new Vue({
@@ -114,7 +132,7 @@ export default () => {
     });
 
     axios
-      .get(dataset.testReportEndpoint)
+      .get(dataset.testReportsCountEndpoint)
       .then(({ data }) => {
         document.querySelector('.js-test-report-badge-counter').innerHTML = data.total_count;
       })

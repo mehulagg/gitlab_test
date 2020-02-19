@@ -397,7 +397,7 @@ Before the new extended Docker configuration options, you would need to create
 your own image based on the `super/sql:latest` image, add the default command,
 and then use it in job's configuration, like:
 
-```Dockerfile
+```dockerfile
 # my-super-sql:latest image's Dockerfile
 
 FROM super/sql:latest
@@ -642,7 +642,7 @@ Specifying only `registry.example.com` will not work.
 ### Configuring a Runner
 
 If you have many pipelines that access the same registry, it'll
-probably be better to setup registry access at the runner level.  This
+probably be better to setup registry access at the runner level. This
 allows pipeline authors to have access to a private registry just by
 running a job on the appropriate runner. It also makes registry
 changes and credential rotations much simpler.
