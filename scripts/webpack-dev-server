@@ -37,7 +37,7 @@ if [[ "$DEV_SERVER_STATIC" != "false" ]]; then
   echo "Starting webserver on http://$DEV_SERVER_HOST:$DEV_SERVER_PORT"
   echo "You are starting webpack in compile-once mode"
   echo "The JavaScript assets are recompiled only if they change"
-  echo "If you change them often, you might wanna unset WEBPACK_COMPILE_ONCE"
+  echo "If you change them often, you might wanna unset DEV_SERVER_STATIC"
   echo "You can force webpack to recompile by running \`pgrep -f nodemon | xargs kill -USR2\`"
 
   # We only compile once at the start and serve the assets with a static file server
