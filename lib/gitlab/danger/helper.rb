@@ -93,7 +93,7 @@ module Gitlab
         docs: "~documentation", # Docs are reviewed along DevOps stages, so don't need roulette for now.
         none: "",
         qa: "~QA",
-        test: "~test ~Quality for `spec/features/*`",
+        test: "~test ~Quality for `spec/features/*` or `spec/frontend/*`",
         engineering_productivity: '~"Engineering Productivity" for CI, Danger'
       }.freeze
       CATEGORIES = {
@@ -140,7 +140,7 @@ module Gitlab
 
         %r{\A(ee/)?app/(?!assets|views)[^/]+} => :backend,
         %r{\A(ee/)?(bin|config|generator_templates|lib|rubocop)/} => :backend,
-        %r{\A(ee/)?spec/features/} => :test,
+        %r{\A(ee/)?spec/(features|frontend)/} => :test,
         %r{\A(ee/)?spec/(?!javascripts|frontend)[^/]+} => :backend,
         %r{\A(ee/)?vendor/(?!assets)[^/]+} => :backend,
         %r{\A(ee/)?vendor/(languages\.yml|licenses\.csv)\z} => :backend,
