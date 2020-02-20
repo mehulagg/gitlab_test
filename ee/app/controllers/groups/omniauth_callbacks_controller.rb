@@ -63,7 +63,7 @@ class Groups::OmniauthCallbacksController < OmniauthCallbacksController
   end
 
   override :prompt_for_two_factor
-  def prompt_for_two_factor(user)
+  def prompt_for_two_factor(user, admin_mode: false)
     store_active_saml_session
 
     super

@@ -51,6 +51,7 @@ module AuthenticatesWithTwoFactor
                            else
                              find_user
                            end
+
     return handle_locked_user(user) unless user.can?(:log_in)
 
     if user_params[:otp_attempt].present? && session[:otp_user_id]
