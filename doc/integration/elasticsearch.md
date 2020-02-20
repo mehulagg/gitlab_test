@@ -623,7 +623,7 @@ Here are some common pitfalls and how to overcome them:
    ```
 
    You probably have not used either `http://` or `https://` as part of your value in the **"URL"** field of the Elasticseach Integration Menu. Please make sure you are using either `http://` or `https://` in this field as the [Elasticsearch client for Go](https://github.com/olivere/elastic) that we are using [needs the prefix for the URL to be acceped as valid](https://github.com/olivere/elastic/commit/a80af35aa41856dc2c986204e2b64eab81ccac3a).
-   Once you have corrected the formatting of the URL please delete the index (via the [dedicated rake task](#gitlab-elasticsearch-rake-tasks)) and [index the content of your intance](#adding-gitlabs-data-to-the-elasticsearch-index) once more.
+   Once you have corrected the formatting of the URL please delete the index (via the [dedicated rake task](#gitlab-elasticsearch-rake-tasks)) and [index the content of your instance](#adding-gitlabs-data-to-the-elasticsearch-index) once more.
 
 ### Reverting to basic search
 
