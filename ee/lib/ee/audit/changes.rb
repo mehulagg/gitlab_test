@@ -28,7 +28,7 @@ module EE
       private
 
       def changed?(column)
-        model.previous_changes.has_key?(column)
+        model.previous_changes.has_key?(column) && !model.previous_changes.has_key?(:id)
       end
 
       def changes(column)

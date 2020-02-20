@@ -19,10 +19,22 @@ describe EE::Audit::Changes do
     end
 
     describe 'non audit changes' do
-      it 'does not call the audit event service' do
-        user.update!(name: 'new name')
+      context 'when auditted column is not changed' do
+        it 'does not call the audit event service' do
+          user.update!(name: 'new name')
 
-        expect { foo_instance.audit_changes(:email) }.not_to change { SecurityEvent.count }
+          expect { foo_instance.audit_changes(:email) }.not_to change { SecurityEvent.count }
+        end
+      end
+
+      context 'when model is newly created' do
+        let(:user) { build(:user) }
+
+        it 'does not call the audit event service' do
+          user.update!(name: 'new name')
+
+          expect { foo_instance.audit_changes(:name) }.not_to change { SecurityEvent.count }
+        end
       end
     end
 
