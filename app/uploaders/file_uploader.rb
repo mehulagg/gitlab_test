@@ -130,14 +130,6 @@ class FileUploader < GitlabUploader
     }
   end
 
-  def to_h
-    {
-      alt:      markdown_name,
-      url:      secure_url,
-      markdown: markdown_link
-    }
-  end
-
   def upload=(value)
     super
 

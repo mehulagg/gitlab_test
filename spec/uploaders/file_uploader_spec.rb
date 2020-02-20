@@ -235,18 +235,5 @@ describe FileUploader do
         expect(uploader.object_store).to eq(described_class::Store::REMOTE)
       end
     end
-
-    describe '#to_h' do
-      subject { uploader.to_h }
-
-      let(:filename) { 'my+file.txt' }
-
-      it 'generates URL using original file name instead of filename returned by object storage' do
-        # GCS returns a URL with a `+` instead of `%2B`
-        allow(uploader.file).to receive(:url).and_return('https://storage.googleapis.com/gitlab-test-uploads/@hashed/6b/86/6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b/64c5065e62100b1a12841644256a98be/my+file.txt')
-
-        expect(subject[:url]).to end_with(filename)
-      end
-    end
   end
 end
