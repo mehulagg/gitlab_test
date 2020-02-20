@@ -194,7 +194,7 @@ it increases the work of the release managers.
 
 Upcoming features must be documented by the engineer developing the feature,
 according to GitLab's [Definition of Done](../contributing/merge_request_workflow.md#definition-of-done),
-and must be reviewed by the [assigned Technical Writer](https://about.gitlab.com/handbook/engineering/ux/technical-writing/#assignments),
+and must be reviewed by the [assigned Techical Writer](https://about.gitlab.com/handbook/engineering/ux/technical-writing/#assignments),
 according to the [documentation process](workflow.md).
 
 Documentation should only exist for existing features, we **must not** document
@@ -208,7 +208,7 @@ latest MR to be merged, whenever possible. If it is not possible for technical
 or architectural reasons, the docs may be introduced in a separate MR. In this
 case, the author must set the docs MR dependent on the feature MR to guarantee
 that the MR introducing documentation is not merged ahead of the MR introducing
-the feature. The designated Techical Writer reviews the documentation changes
+the feature. The designated Technical Writer reviews the documentation changes
 and can approve the MR, but should not merge it until the MR with code gets
 merged and the feature becomes available to the users.
 
