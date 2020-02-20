@@ -36,7 +36,7 @@ module Clusters
         strong_memoize(:allowed_to_uninstall) do
           applications = nil
 
-          Clusters::Cluster::APPLICATIONS.each do |application_name, klass|
+          Clusters::Cluster.application_classes.each do |application_name, klass|
             next if application_name == 'helm'
 
             extra_apps = Clusters::Applications::Helm.where('EXISTS (?)', klass.select(1).where(cluster_id: cluster_id))

@@ -20,7 +20,7 @@ describe Clusters::Applications::Helm do
 
   describe '#can_uninstall?' do
     context "with other existing applications" do
-      Clusters::Cluster::APPLICATIONS.keys.each do |application_name|
+      Clusters::Cluster.application_classes.keys.each do |application_name|
         next if application_name == 'helm'
 
         it "is false when #{application_name} is installed" do

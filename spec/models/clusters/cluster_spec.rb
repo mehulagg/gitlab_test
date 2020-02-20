@@ -52,6 +52,18 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
     end
   end
 
+  describe '.application_classes' do
+    it 'matches application_name of each class' do
+      described_class.application_classes.each do |name, klass|
+        expect(name).to eq(klass.application_name)
+      end
+    end
+
+    it 'is frozen' do
+      expect(described_class.application_classes).to be_frozen
+    end
+  end
+
   describe '.enabled' do
     subject { described_class.enabled }
 

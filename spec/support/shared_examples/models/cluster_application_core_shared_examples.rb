@@ -17,8 +17,8 @@ RSpec.shared_examples 'cluster application core specs' do |application_name|
       expect(subject.name).to eq(described_class.application_name)
     end
 
-    it 'is recorded in Clusters::Cluster::APPLICATIONS' do
-      expect(Clusters::Cluster::APPLICATIONS[subject.name]).to eq(described_class)
+    it 'is recorded in Clusters::Cluster.application_classes' do
+      expect(Clusters::Cluster.application_classes[subject.name]).to eq(described_class)
     end
   end
 

@@ -6,7 +6,7 @@ describe Projects::Clusters::ApplicationsController do
   include AccessMatchersForController
 
   def current_application
-    Clusters::Cluster::APPLICATIONS[application]
+    Clusters::Cluster.application_classes[application]
   end
 
   shared_examples 'a secure endpoint' do

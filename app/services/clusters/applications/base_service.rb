@@ -68,7 +68,7 @@ module Clusters
       end
 
       def unknown_application?
-        Clusters::Cluster::APPLICATIONS.keys.exclude?(application_name)
+        Clusters::Cluster.application_classes.keys.exclude?(application_name)
       end
 
       def application_name
@@ -76,7 +76,7 @@ module Clusters
       end
 
       def application_class
-        Clusters::Cluster::APPLICATIONS[application_name]
+        Clusters::Cluster.application_classes[application_name]
       end
 
       def create_oauth_application(application, request)
