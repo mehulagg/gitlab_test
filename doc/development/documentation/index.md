@@ -194,7 +194,7 @@ it increases the work of the release managers.
 
 Upcoming features must be documented by the engineer developing the feature,
 according to GitLab's [Definition of Done](../contributing/merge_request_workflow.md#definition-of-done),
-and must be reviewed by the [assigned Techical Writer](https://about.gitlab.com/handbook/engineering/ux/technical-writing/#assignments),
+and must be reviewed by the [assigned Technical Writer](https://about.gitlab.com/handbook/engineering/ux/technical-writing/#assignments),
 according to the [documentation process](workflow.md).
 
 Documentation should only exist for existing features, we **must not** document
