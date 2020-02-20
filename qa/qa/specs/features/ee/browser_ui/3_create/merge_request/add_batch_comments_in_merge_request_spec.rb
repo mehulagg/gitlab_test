@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# QA file change
+
 module QA
   context 'Create' do
     describe 'batch comments in merge request' do
