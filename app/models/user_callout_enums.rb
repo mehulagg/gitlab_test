@@ -16,7 +16,8 @@ module UserCalloutEnums
       cluster_security_warning: 3,
       suggest_popover_dismissed: 9,
       tabs_position_highlight: 10,
-      webhooks_moved: 13
+      webhooks_moved: 13,
+      service_templates_deprecated: 14
     }
   end
 end
