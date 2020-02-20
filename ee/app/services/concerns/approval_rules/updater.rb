@@ -10,9 +10,9 @@ module ApprovalRules
       filter_eligible_protected_branches!
 
       if rule.update(params)
-        audit_changes(:approvals_required, as: 'no. approvals required')
-
+        log_audit_event(rule)
         rule.reset
+
         success
       else
         error(rule.errors.messages)
@@ -46,12 +46,13 @@ module ApprovalRules
           .for_project(project)
     end
 
-    def target_model
-      rule.project
-    end
-
-    def model
-      rule
+    def log_audit_event(rule)
+      audit_changes(
+        :approvals_required,
+        as: 'no. approvals required',
+        target_model: rule.project,
+        model: rule
+      )
     end
   end
 end
