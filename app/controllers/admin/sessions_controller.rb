@@ -148,7 +148,7 @@ class Admin::SessionsController < ApplicationController
   def prompt_for_two_factor(user)
     @user = user
 
-    return invalid_login_redirect(user) unless user.can?(:log_in)
+    return locked_user_redirect(user) unless user.can?(:log_in)
 
     session[:otp_user_id] = user.id
     setup_u2f_authentication(user)
