@@ -302,7 +302,7 @@ from processing any requests for the given application or environment.
 1. Unchecking the **Enable Web Application Firewall** checkbox and applying changes through the **Save changes** button. This will reinstall
 Ingress with the recent changes.
 
-![Disabling WAF](../../topics/web_application_firewall/img/guide_waf_ingress_save_changes.png)
+![Disabling WAF](../../topics/web_application_firewall/img/guide_waf_ingress_save_changes_v12_9.png)
 
 ### JupyterHub
 
