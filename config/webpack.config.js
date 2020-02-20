@@ -508,4 +508,6 @@ module.exports = {
     fs: 'empty', // sqljs requires fs
     setImmediate: false,
   },
+
+  watchOptions: { ...(IS_DEV_SERVER && { poll: 1000, ignored: ['node_modules'] }) },
 };
