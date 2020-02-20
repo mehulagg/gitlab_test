@@ -250,7 +250,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
     if omniauth_identity_matches_current_user?
       if current_user.two_factor_enabled? && !auth_user.bypass_two_factor?
-        prompt_for_two_factor_admin_mode(current_user)
+        prompt_for_two_factor(current_user, admin_mode: true)
       else
         # Can only reach here if the omniauth identity matches current user
         # and current_user is an admin that requested admin mode
@@ -269,16 +269,6 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def fail_admin_mode_invalid_credentials
     redirect_to new_admin_session_path, alert: _('Invalid login or password')
-  end
-
-  def prompt_for_two_factor_admin_mode(user)
-    @user = user
-
-    return locked_user_redirect(user) unless user.can?(:log_in)
-
-    session[:otp_user_id] = user.id
-    setup_u2f_authentication(user)
-    render 'admin/sessions/two_factor', layout: 'application'
   end
 end
 
