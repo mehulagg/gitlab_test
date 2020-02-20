@@ -47,14 +47,15 @@ updated automatically.
 
 For indexing Git repository data, GitLab uses an [indexer written in Go](https://gitlab.com/gitlab-org/gitlab-elasticsearch-indexer).
 
+### Installation
+
+**GitLab Omnibus**
 The Go indexer was included in Omnibus GitLab 11.8 as an optional replacement to a
 Ruby-based indexer. [Since GitLab v12.3](https://gitlab.com/gitlab-org/gitlab/issues/6481),
 all indexing is done by the Go indexer, and the Ruby indexer is removed.
+If you would like to use the Elasticsearch Go indexer with an older version of GitLab, please follow the instructions below.
 
-If you would like to use the Elasticsearch Go indexer with a source installation or an older version of GitLab, please follow the instructions below.
-
-### Installation
-
+**From Source**
 First, we need to install some dependencies, then we'll build and install
 the indexer itself.
 
