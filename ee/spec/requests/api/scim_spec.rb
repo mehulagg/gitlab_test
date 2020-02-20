@@ -290,18 +290,34 @@ describe API::Scim do
         end
 
         context 'Remove user' do
-          before do
-            params = { Operations: [{ 'op': 'Replace', 'path': 'active', 'value': 'False' }] }.to_query
+          shared_examples 'remove user' do
+            it 'responds with 204' do
+              expect(response).to have_gitlab_http_status(204)
+            end
 
-            patch scim_api("scim/v2/groups/#{group.full_path}/Users/#{identity.extern_uid}?#{params}")
+            it 'removes the identity link' do
+              expect { identity.reload }.to raise_error(ActiveRecord::RecordNotFound)
+            end
           end
 
-          it 'responds with 204' do
-            expect(response).to have_gitlab_http_status(204)
+          context 'when path key is present' do
+            before do
+              params = { Operations: [{ 'op': 'Replace', 'path': 'active', 'value': 'False' }] }.to_query
+
+              patch scim_api("scim/v2/groups/#{group.full_path}/Users/#{identity.extern_uid}?#{params}")
+            end
+
+            it_behaves_like 'remove user'
           end
 
-          it 'removes the identity link' do
-            expect { identity.reload }.to raise_error(ActiveRecord::RecordNotFound)
+          context 'when the path key is not present' do
+            before do
+              params = { Operations: [{ 'op': 'replace', 'value': { 'active': false } }] }.to_query
+
+              patch scim_api("scim/v2/groups/#{group.full_path}/Users/#{identity.extern_uid}?#{params}")
+            end
+
+            it_behaves_like 'remove user'
           end
         end
       end

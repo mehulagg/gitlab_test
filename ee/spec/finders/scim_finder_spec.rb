@@ -38,8 +38,14 @@ describe ScimFinder do
           expect(finder.search(filter: "externalId eq #{identity.extern_uid}").first).to eq identity
         end
 
-        it 'allows lookup by userName' do
-          expect(finder.search(filter: "userName eq \"#{identity.user.username}\"").first).to eq identity
+        context 'allows lookup by userName' do
+          it 'finds user by username' do
+            expect(finder.search(filter: "userName eq \"#{identity.user.username}\"").first).to eq identity
+          end
+
+          it 'finds user by extern_uid' do
+            expect(finder.search(filter: "userName eq \"#{identity.extern_uid}\"").first).to eq identity
+          end
         end
       end
 

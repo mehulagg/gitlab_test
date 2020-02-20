@@ -32,22 +32,56 @@ describe EE::Gitlab::Scim::ParamsParser do
   end
 
   describe '#update_params' do
-    it 'returns the correct operation attributes' do
-      operations = [{ 'op': 'Replace', 'path': 'active', 'value': 'False' }]
-
-      expect(described_class.new(Operations: operations).update_params).to eq(active: false)
+    shared_examples 'scim operation active false' do
+      it 'returns the correct operation attributes' do
+        expect(described_class.new(Operations: operations).update_params).to eq(active: false)
+      end
     end
 
-    it 'returns an empty hash for the wrong operations' do
-      operations = [{ 'op': 'Replace', 'path': 'test', 'value': 'False' }]
-
-      expect(described_class.new(Operations: operations).update_params).to eq({})
+    shared_examples 'scim operation empty' do
+      it 'returns an empty hash for the wrong operations' do
+        expect(described_class.new(Operations: operations).update_params).to eq({})
+      end
     end
 
-    it 'can update name from displayName' do
-      operations = [{ 'op': 'Replace', 'path': 'displayName', 'value': 'My Name Is' }]
+    shared_examples 'scim operation update name' do
+      it 'can update name from displayName' do
+        expect(described_class.new(Operations: operations).update_params).to include(name: 'My Name Is')
+      end
+    end
 
-      expect(described_class.new(Operations: operations).update_params).to include(name: 'My Name Is')
+    context 'when path key is present' do
+      it_behaves_like 'scim operation active false' do
+        let(:operations) { [{ 'op': 'Replace', 'path': 'active', 'value': 'False' }] }
+      end
+
+      it_behaves_like 'scim operation empty' do
+        let(:operations) { [{ 'op': 'Replace', 'path': 'test', 'value': 'False' }] }
+      end
+
+      it_behaves_like 'scim operation update name' do
+        let(:operations) { [{ 'op': 'Replace', 'path': 'displayName', 'value': 'My Name Is' }] }
+      end
+    end
+
+    context 'when path key is not present' do
+      it_behaves_like 'scim operation active false' do
+        let(:operations) { [{ 'op': 'Replace', 'value': { 'active': false } }] }
+      end
+
+      it_behaves_like 'scim operation empty' do
+        let(:operations) { [{ 'op': 'Replace', 'value': { 'test': false } }] }
+      end
+
+      it_behaves_like 'scim operation update name' do
+        let(:operations) { [{ 'op': 'Replace', 'value': { 'displayName': 'My Name Is' } }] }
+      end
+    end
+
+    context 'with lowercase op values' do
+      it_behaves_like 'scim operation active false' do
+        let(:operations) { [{ 'op': 'replace', 'path': 'active', 'value': 'False' }] }
+      end
     end
   end
 
@@ -96,6 +130,12 @@ describe EE::Gitlab::Scim::ParamsParser do
       operations = [{ 'op': 'Replace', 'path': 'active', 'value': 'True' }]
 
       expect(described_class.new(Operations: operations).deprovision_user?).to be false
+    end
+
+    it 'returns true when deprovisioning without a path key' do
+      operations = [{ 'op': 'Replace', 'value': { 'active': false } }]
+
+      expect(described_class.new(Operations: operations).deprovision_user?).to be true
     end
   end
 end

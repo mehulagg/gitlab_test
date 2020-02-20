@@ -4,7 +4,7 @@ module EE
   module Gitlab
     module Scim
       class ParamsParser
-        OPERATIONS_OPERATORS = %w[Replace Add].freeze
+        OPERATIONS_OPERATORS = %w[replace add].freeze
 
         def initialize(params)
           @params = params.with_indifferent_access
@@ -39,9 +39,13 @@ module EE
 
         def process_operations
           @params[:Operations].each_with_object({}) do |operation, hash|
-            next unless OPERATIONS_OPERATORS.include?(operation[:op])
+            next unless OPERATIONS_OPERATORS.include?(operation[:op].downcase)
 
-            hash.merge!(AttributeTransform.new(operation[:path]).map_to(operation[:value]))
+            if operation[:path]
+              hash.merge!(AttributeTransform.new(operation[:path]).map_to(operation[:value]))
+            else
+              hash.merge!(AttributeTransform.new(operation[:value].keys.first).map_to(operation[:value].values.first))
+            end
           end
         end
 
