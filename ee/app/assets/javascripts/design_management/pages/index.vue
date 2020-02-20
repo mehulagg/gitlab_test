@@ -7,6 +7,7 @@ import DeleteButton from '../components/delete_button.vue';
 import Design from '../components/list/item.vue';
 import DesignDestroyer from '../components/design_destroyer.vue';
 import DesignVersionDropdown from '../components/upload/design_version_dropdown.vue';
+import Dropzone from '../components/upload/dropzone.vue';
 import uploadDesignMutation from '../graphql/mutations/uploadDesign.mutation.graphql';
 import permissionsQuery from '../graphql/queries/permissions.query.graphql';
 import projectQuery from '../graphql/queries/project.query.graphql';
@@ -32,6 +33,7 @@ export default {
     DesignDestroyer,
     DesignVersionDropdown,
     DeleteButton,
+    Dropzone,
   },
   mixins: [allDesignsMixin],
   apollo: {
@@ -245,32 +247,40 @@ export default {
       <div v-else-if="error" class="alert alert-danger">
         {{ __('An error occurred while loading designs. Please try again.') }}
       </div>
-      <ol v-else-if="hasDesigns" class="list-unstyled row">
-        <li v-for="design in designs" :key="design.id" class="col-md-6 col-lg-4 mb-3">
-          <design v-bind="design" :is-loading="isDesignToBeSaved(design.filename)" />
-          <input
-            v-if="canSelectDesign(design.filename)"
-            :checked="isDesignSelected(design.filename)"
-            type="checkbox"
-            class="design-checkbox"
-            @change="changeSelectedDesigns(design.filename)"
-          />
-        </li>
-      </ol>
-      <gl-empty-state
-        v-else
-        :title="s__('DesignManagement|The one place for your designs')"
-        :description="
-          s__(`DesignManagement|Upload and view the latest designs for this issue.
+      <template v-else>
+        <ol class="list-unstyled row">
+          <dropzone @upload="onUploadDesign"><span>Upload here</span></dropzone>
+          <li
+            v-if="hasDesigns"
+            v-for="design in designs"
+            :key="design.id"
+            class="col-md-6 col-lg-4 mb-3"
+          >
+            <design v-bind="design" :is-loading="isDesignToBeSaved(design.filename)" />
+            <input
+              v-if="canSelectDesign(design.filename)"
+              :checked="isDesignSelected(design.filename)"
+              type="checkbox"
+              class="design-checkbox"
+              @change="changeSelectedDesigns(design.filename)"
+            />
+          </li>
+        </ol>
+        <gl-empty-state
+          v-if="!hasDesigns"
+          :title="s__('DesignManagement|The one place for your designs')"
+          :description="
+            s__(`DesignManagement|Upload and view the latest designs for this issue.
             Consistent and easy to find, so everyone is up to date.`)
-        "
-      >
-        <template #actions>
-          <div v-if="canCreateDesign" class="center">
-            <upload-button :is-saving="isSaving" @upload="onUploadDesign" />
-          </div>
-        </template>
-      </gl-empty-state>
+          "
+        >
+          <template #actions>
+            <div v-if="canCreateDesign" class="center">
+              <upload-button :is-saving="isSaving" @upload="onUploadDesign" />
+            </div>
+          </template>
+        </gl-empty-state>
+      </template>
     </div>
     <router-view />
   </div>
