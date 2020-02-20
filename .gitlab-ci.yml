@@ -168,16 +168,6 @@ ce:instance:
     - .rspec-report-opts
   parallel: 5
 
-ce:instance-quarantine:
-  script:
-    - exe/gitlab-qa Test::Instance::Image ${RELEASE:=CE} -- --tag quarantine --tag ~orchestrated $RSPEC_REPORT_OPTS
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .quarantine
-    - .rspec-report-opts
-
 ee:instance:
   script:
     - exe/gitlab-qa Test::Instance::Image ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
@@ -228,16 +218,6 @@ ce:relative_url:
     - .rspec-report-opts
   parallel: 5
 
-ce:relative_url-quarantine:
-  script:
-    - exe/gitlab-qa Test::Instance::RelativeUrl ${RELEASE:=CE} -- --tag quarantine --tag ~orchestrated $RSPEC_REPORT_OPTS
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .quarantine
-    - .rspec-report-opts
-
 ee:relative_url:
   script:
     - exe/gitlab-qa Test::Instance::RelativeUrl ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
@@ -266,16 +246,6 @@ ce:repository_storage:
     - .test
     - .high-capacity
     - .ce-qa
-    - .rspec-report-opts
-
-ce:repository_storage-quarantine:
-  script:
-    - exe/gitlab-qa Test::Instance::RepositoryStorage ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .quarantine
     - .rspec-report-opts
 
 ee:repository_storage:
@@ -322,16 +292,6 @@ ce:update:
     - .knapsack-variables
   parallel: 5
 
-ce:update-quarantine:
-  script:
-    - exe/gitlab-qa Test::Omnibus::Update ${RELEASE:=CE} ${RELEASE:=CE} -- --tag quarantine --tag ~orchestrated $RSPEC_REPORT_OPTS
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .quarantine
-    - .rspec-report-opts
-
 ee:update:
   script:
     - exe/gitlab-qa Test::Omnibus::Update ${RELEASE:=EE} ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
@@ -364,16 +324,6 @@ ce:upgrade:
     - .knapsack-variables
   parallel: 5
 
-ce:upgrade-quarantine:
-  script:
-    - exe/gitlab-qa Test::Omnibus::Upgrade CE -- --tag quarantine --tag ~orchestrated $RSPEC_REPORT_OPTS
-  extends:
-    - .test
-    - .high-capacity
-    - .only-qa
-    - .quarantine
-    - .rspec-report-opts
-
 ee-previous-to-ce:update:
   script:
     - exe/gitlab-qa Test::Omnibus::Update EE CE -- $RSPEC_REPORT_OPTS
@@ -400,16 +350,6 @@ ce:mattermost:
     - .test
     - .high-capacity
     - .ce-qa
-    - .rspec-report-opts
-
-ce:mattermost-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::Mattermost ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .quarantine
     - .rspec-report-opts
 
 ee:mattermost:
@@ -459,16 +399,6 @@ ce:ldap_no_tls:
     - .ce-qa
     - .rspec-report-opts
 
-ce:ldap_no_tls-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::LDAPNoTLS ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .quarantine
-    - .rspec-report-opts
-
 ee:ldap_no_tls:
   script:
     - exe/gitlab-qa Test::Integration::LDAPNoTLS ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
@@ -495,16 +425,6 @@ ce:ldap_tls:
     - .test
     - .high-capacity
     - .ce-qa
-    - .rspec-report-opts
-
-ce:ldap_tls-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::LDAPTLS ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .quarantine
     - .rspec-report-opts
 
 ee:ldap_tls:
@@ -554,16 +474,6 @@ ce:instance_saml:
     - .ce-qa
     - .rspec-report-opts
 
-ce:instance_saml-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::InstanceSAML ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .quarantine
-    - .rspec-report-opts
-
 ee:instance_saml:
   script:
     - exe/gitlab-qa Test::Integration::InstanceSAML ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
@@ -611,16 +521,6 @@ ce:kubernetes:
     - .ce-qa
     - .rspec-report-opts
 
-ce:kubernetes-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::Kubernetes ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .quarantine
-    - .rspec-report-opts
-
 ee:kubernetes:
   script:
     - exe/gitlab-qa Test::Integration::Kubernetes ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
@@ -649,16 +549,6 @@ ce:object_storage:
     - .ce-qa
     - .rspec-report-opts
 
-ce:object_storage-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::ObjectStorage ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .quarantine
-    - .rspec-report-opts
-
 ee:object_storage:
   script:
     - exe/gitlab-qa Test::Integration::ObjectStorage ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
@@ -685,16 +575,6 @@ ce:oauth:
     - .test
     - .high-capacity
     - .ce-qa
-    - .rspec-report-opts
-
-ce:oauth-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::OAuth ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .quarantine
     - .rspec-report-opts
 
 ee:oauth:
@@ -795,18 +675,6 @@ ee:smtp:
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
-
-# This job requires the `GITLAB_QA_ACCESS_TOKEN` and `GITLAB_QA_DEV_ACCESS_TOKEN`
-# variable to be passed when triggered.
-staging:
-  script:
-    - unset EE_LICENSE
-    - exe/gitlab-qa Test::Instance::Staging
-  extends:
-    - .test
-    - .high-capacity
-    - .only-qa
-  allow_failure: true
 
 .notify_upstream_commit:
   stage: notify
