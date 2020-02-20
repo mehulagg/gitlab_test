@@ -3,7 +3,6 @@ import { s__ } from '~/locale';
 import axios from '~/lib/utils/axios_utils';
 
 import * as epicUtils from '../utils/epic_utils';
-import * as milestoneUtils from '../utils/milestone_utils';
 import * as roadmapItemUtils from '../utils/roadmap_item_utils';
 import {
   getEpicsPathForPreset,
@@ -225,7 +224,7 @@ export const fetchGroupMilestones = (
 
       const edges = (group.milestones && group.milestones.edges) || [];
 
-      return milestoneUtils.extractGroupMilestones(edges);
+      return roadmapItemUtils.extractGroupMilestones(edges);
     });
 };
 

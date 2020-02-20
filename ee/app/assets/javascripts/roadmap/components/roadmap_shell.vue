@@ -40,8 +40,10 @@ export default {
     },
   },
   data() {
+    const milestonesInRoadmap = gon.features && gon.features.milestonesInRoadmap;
     return {
       timeframeStartOffset: 0,
+      displayMilestones: milestonesInRoadmap,
     };
   },
   computed: {
@@ -92,7 +94,7 @@ export default {
       :timeframe="timeframe"
     />
     <milestones-list-section
-      v-if="milestones.length && milestones.length !== 0"
+      v-if="displayMilestones && milestones.length && milestones.length !== 0"
       :preset-type="presetType"
       :milestones="milestones"
       :timeframe="timeframe"

@@ -12,6 +12,7 @@ module Groups
     before_action do
       push_frontend_feature_flag(:roadmap_graphql, @group)
       push_frontend_feature_flag(:roadmap_buffered_rendering, @group)
+      push_frontend_feature_flag(:milestones_in_roadmap, @group)
     end
 
     # show roadmap for a group
