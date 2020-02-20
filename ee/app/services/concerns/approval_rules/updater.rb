@@ -10,7 +10,7 @@ module ApprovalRules
       filter_eligible_protected_branches!
 
       if rule.update(params)
-        audit_changes(:approvals_required, as: 'required approvers')
+        audit_changes(:approvals_required, as: 'no. approvals required')
 
         rule.reset
         success

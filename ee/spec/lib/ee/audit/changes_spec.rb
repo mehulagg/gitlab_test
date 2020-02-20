@@ -19,7 +19,7 @@ describe EE::Audit::Changes do
     end
 
     describe 'non audit changes' do
-      context 'when auditted column is not changed' do
+      context 'when audited column does not change' do
         it 'does not call the audit event service' do
           user.update!(name: 'new name')
 

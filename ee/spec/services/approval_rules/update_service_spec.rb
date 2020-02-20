@@ -215,7 +215,7 @@ describe ApprovalRules::UpdateService do
             operation
 
             expect(AuditEvent.last).to have_attributes(
-              details: hash_including(change: 'required approvers', from: 2, to: 1)
+              details: hash_including(change: 'no. approvals required', from: 2, to: 1)
             )
           end
         end
