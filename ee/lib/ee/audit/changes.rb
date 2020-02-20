@@ -21,7 +21,7 @@ module EE
         @model = options[:model]
         # rubocop:enable Gitlab/ModuleWithInstanceVariables
 
-        return unless changed?(column)
+        return unless audit_required?(column)
 
         audit_event(parse_options(column, options))
       end
@@ -38,8 +38,16 @@ module EE
 
       private
 
+      def audit_required?(column)
+        not_recently_created? && changed?(column)
+      end
+
+      def not_recently_created?
+        !model.previous_changes.has_key?(:id)
+      end
+
       def changed?(column)
-        model.previous_changes.has_key?(column) && !model.previous_changes.has_key?(:id)
+        model.previous_changes.has_key?(column)
       end
 
       def changes(column)
