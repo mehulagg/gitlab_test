@@ -2,7 +2,7 @@
 
 module QA
   context 'Monitor' do
-    describe 'Alerts', :orchestrated, :kubernetes do
+    describe 'Alerts', :kubernetes do
       before do
         @cluster = Service::KubernetesCluster.new.create!
       end
@@ -18,7 +18,7 @@ module QA
         push_repository(project)
         wait_for_deployment
 
-        Page::Project::Operations::Metrics.perform do |metrics|
+        Page::Project::Operations::Metrics::Show.perform do |metrics|
           verify_metrics(metrics)
           verify_add_alert(metrics)
           verify_edit_alert(metrics)
@@ -42,7 +42,6 @@ module QA
           c.cluster = cluster
           c.install_helm_tiller = true
           c.install_prometheus = true
-          c.install_runner = true
         end
       end
 
@@ -53,6 +52,13 @@ module QA
             .new(__dir__)
             .join('../../../../../../fixtures/monitored_auto_devops')
           push.commit_message = 'Create Auto DevOps compatible gitlab-ci.yml'
+        end
+
+        Resource::CiVariable.fabricate_via_api! do |resource|
+          resource.project = project
+          resource.key = 'AUTO_DEVOPS_DOMAIN'
+          resource.value = 'my-fake-domain.com'
+          resource.masked = false
         end
       end
 
