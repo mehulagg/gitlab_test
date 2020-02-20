@@ -868,6 +868,11 @@ module EE
             # rubocop: enable CodeReuse/ActiveRecord
           end
         end
+
+        class GroupActivity < Grape::Entity
+          expose :issues_count
+          expose :merge_requests_count
+        end
       end
     end
   end
