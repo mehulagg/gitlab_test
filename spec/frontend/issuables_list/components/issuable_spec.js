@@ -1,5 +1,5 @@
-import { shallowMount, mount } from '@vue/test-utils';
-import { GlLabel } from '@gitlab/ui';
+import { shallowMount } from '@vue/test-utils';
+import { GlLink } from '@gitlab/ui';
 import { TEST_HOST } from 'helpers/test_constants';
 import { trimText } from 'helpers/text_helper';
 import initUserPopovers from '~/user_popovers';
@@ -47,16 +47,6 @@ describe('Issuable component', () => {
     });
   };
 
-  const factoryMount = (props = {}) => {
-    wrapper = mount(Issuable, {
-      propsData: {
-        issuable: simpleIssue,
-        baseUrl: TEST_BASE_URL,
-        ...props,
-      },
-    });
-  };
-
   beforeEach(() => {
     issuable = { ...simpleIssue };
   });
@@ -81,7 +71,7 @@ describe('Issuable component', () => {
   const findMilestoneTooltip = () => findMilestone().attributes('title');
   const findDueDate = () => wrapper.find('.js-due-date');
   const findLabelContainer = () => wrapper.find('.js-labels');
-  const findLabels = () => findLabelContainer().findAll(GlLabel);
+  const findLabelLinks = () => findLabelContainer().findAll(GlLink);
   const findWeight = () => wrapper.find('.js-weight');
   const findAssignees = () => wrapper.find(IssueAssignees);
   const findMergeRequestsCount = () => wrapper.find('.js-merge-requests');
@@ -243,27 +233,25 @@ describe('Issuable component', () => {
     beforeEach(() => {
       issuable.labels = [...testLabels];
 
-      factoryMount({ issuable });
+      factory({ issuable });
     });
 
     it('renders labels', () => {
-      findLabels().wrappers.forEach((label, index) => {
-        expect(label.find('.gl-link').attributes('href')).toEqual(
-          mergeUrlParams({ 'label_name[]': testLabels[index].name }, TEST_BASE_URL),
-        );
+      factory({ issuable });
 
-        expect(label.find('.gl-label-text').text()).toEqual(testLabels[index].name);
+      const labels = findLabelLinks().wrappers.map(label => ({
+        href: label.attributes('href'),
+        text: label.text(),
+        tooltip: label.find('span').attributes('title'),
+      }));
 
-        // Once issuable.vue has ee knowledge, scoped labels can be activated
-        // const scopedName = testLabels[index].name.split('::');
-        // if (scopedName[0] && scopedName[1]) {
-        //   const nameArray = label.findAll('.gl-label-text');
-        //   expect(nameArray.at(0).text()).toEqual(scopedName[0]);
-        //   expect(nameArray.at(1).text()).toEqual(scopedName[1]);
-        // } else {
-        //   expect(label.find('.gl-label-text').text()).toEqual(testLabels[index].name);
-        // }
-      });
+      const expected = testLabels.map(label => ({
+        href: mergeUrlParams({ 'label_name[]': label.name }, TEST_BASE_URL),
+        text: label.name,
+        tooltip: label.description,
+      }));
+
+      expect(labels).toEqual(expected);
     });
   });
 

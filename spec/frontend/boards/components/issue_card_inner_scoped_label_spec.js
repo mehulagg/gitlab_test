@@ -1,42 +1,44 @@
+<<<<<<< HEAD
 import { GlLink } from '@gitlab/ui';
+=======
+import Vue from 'vue';
+>>>>>>> Update labels in Vue with GlLabel component
 import { shallowMount } from '@vue/test-utils';
 import IssueCardInnerScopedLabel from '~/boards/components/issue_card_inner_scoped_label.vue';
+import defaultStore from '~/boards/stores';
+import { GlLabel } from '@gitlab/ui';
 
 describe('IssueCardInnerScopedLabel Component', () => {
-  let vm;
+  let wrapper;
   const Component = Vue.extend(IssueCardInnerScopedLabel);
-  const props = {
+  const propsData = {
     label: { title: 'Foo::Bar', description: 'Some Random Description', color: '#000000' },
     scopedLabelsDocumentationLink: '/docs-link',
   };
-  const createComponent = () => mountComponent(Component, { ...props });
+
+  const createComponent = (props = {}, store = defaultStore) => {
+    wrapper = shallowMount(Component, {
+      store,
+      propsData: { ...props },
+    });
+  };
 
   beforeEach(() => {
-    wrapper = shallowMount(IssueCardInnerScopedLabel, {
-      propsData: {
-        label: { title: 'Foo::Bar', description: 'Some Random Description' },
-        labelStyle: { background: 'white', color: 'black' },
-        scopedLabelsDocumentationLink: '/docs-link',
-      },
-    });
+    createComponent(propsData);
   });
 
   afterEach(() => {
     wrapper.destroy();
+    wrapper = null;
   });
 
-  it('should render label title', () => {
-    expect(vm.$el.querySelector('.gl-label-text:first-child').textContent.trim()).toContain('Foo');
-    expect(vm.$el.querySelector('.gl-label-text:last-child').textContent.trim()).toContain('Bar');
-  });
-
-  it('should render question mark symbol', () => {
-    expect(vm.$el.querySelector('.gl-icon')).not.toBeNull();
-  });
-
-  it('should render the docs link', () => {
-    expect(vm.$el.querySelector('a.gl-link.gl-label-icon').href).toContain(
-      props.scopedLabelsDocumentationLink,
-    );
+  it('should render label with proper props', () => {
+    expect(wrapper.findAll(GlLabel).length).toBe(1);
+    const label = wrapper.find(GlLabel);
+    expect(label.props('title')).toEqual('Foo::Bar');
+    expect(label.props('description')).toEqual('Some Random Description');
+    expect(label.props('scopedLabelsDocumentationLink')).toEqual('/docs-link');
+    expect(label.props('scoped')).toEqual(true);
+    expect(label.props('backgroundColor')).toEqual('#000000');
   });
 });

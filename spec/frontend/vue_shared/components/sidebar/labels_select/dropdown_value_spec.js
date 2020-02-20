@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils';
 import DropdownValueComponent from '~/vue_shared/components/sidebar/labels_select/dropdown_value.vue';
 import DropdownValueScopedLabel from '~/vue_shared/components/sidebar/labels_select/dropdown_value_scoped_label.vue';
+import DropdownValueRegularLabel from '~/vue_shared/components/sidebar/labels_select/dropdown_value_regular_label.vue';
 
 import {
   mockConfig,
@@ -16,6 +17,9 @@ const createComponent = (
       labels,
       labelFilterBasePath,
       enableScopedLabels: true,
+    },
+    stubs: {
+      GlLabel: true,
     },
   });
 
@@ -78,35 +82,10 @@ describe('DropdownValueComponent', () => {
       vmEmptyLabels.destroy();
     });
 
-    it('renders label element with filter URL', () => {
-      expect(vm.find('a').attributes('href')).toBe(
-        '/gitlab-org/my-project/issues?label_name[]=Foo%20Label',
-      );
-    });
-
-    it('renders label element', () => {
-      const labelEl = vm.find('span.gl-label');
+    it('renders DropdownValueComponent element', () => {
+      const labelEl = vm.find(DropdownValueRegularLabel);
 
       expect(labelEl.exists()).toBe(true);
-      expect(
-        labelEl
-          .find('.gl-label-text')
-          .text()
-          .trim(),
-      ).toBe(mockLabels[0].title);
-    });
-
-    describe('label is of scoped-label type', () => {
-      it('renders a gl-label-scoped span to incorporate 2 anchors', () => {
-        expect(vm.find('span.gl-label.gl-label-scoped').exists()).toBe(true);
-      });
-
-      it('renders anchor tag containing question icon', () => {
-        const anchor = vm.find('.gl-label-scoped a.gl-label-icon');
-
-        expect(anchor.exists()).toBe(true);
-        expect(anchor.find('svg.gl-icon.s12').exists()).toBe(true);
-      });
     });
   });
 });

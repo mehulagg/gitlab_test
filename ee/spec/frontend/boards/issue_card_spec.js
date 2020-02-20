@@ -1,9 +1,10 @@
-import { mount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import IssueCardWeight from 'ee/boards/components/issue_card_weight.vue';
 import ListIssueEE from 'ee/boards/models/issue';
 import ListLabel from '~/boards/models/label';
 import IssueCardInner from '~/boards/components/issue_card_inner.vue';
 import defaultStore from '~/boards/stores';
+import { GlLabel } from '@gitlab/ui';
 
 describe('Issue card component', () => {
   let wrapper;
@@ -11,7 +12,7 @@ describe('Issue card component', () => {
   let list;
 
   const createComponent = (props = {}, store = defaultStore) => {
-    wrapper = mount(IssueCardInner, {
+    wrapper = shallowMount(IssueCardInner, {
       store,
       propsData: {
         list,
@@ -86,8 +87,8 @@ describe('Issue card component', () => {
 
       createComponent({ groupId: 1 });
 
-      expect(wrapper.findAll('.gl-label').length).toBe(3);
-      expect(wrapper.text()).toContain(title);
+      expect(wrapper.findAll(GlLabel).length).toBe(3);
+      expect(wrapper.find(GlLabel).props('title')).toContain(title);
     });
 
     it('shows no labels when the isShowingLabels state is false', () => {

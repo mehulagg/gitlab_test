@@ -3,8 +3,8 @@
  * This is tightly coupled to projects/issues/_issue.html.haml,
  * any changes done to the haml need to be reflected here.
  */
-import { escape, isNumber } from 'underscore';
-import { GlLabel, GlLink } from '@gitlab/ui';
+import { escape, isNumber } from 'lodash';
+import { GlLink, GlTooltipDirective as GlTooltip } from '@gitlab/ui';
 import {
   dateInWords,
   formatDate,
@@ -24,7 +24,6 @@ export default {
     Icon,
     IssueAssignees,
     GlLink,
-    GlLabel,
   },
   directives: {
     GlTooltip,
@@ -164,6 +163,12 @@ export default {
     initUserPopovers([this.$refs.openedAgoByContainer.querySelector('a')]);
   },
   methods: {
+    labelStyle(label) {
+      return {
+        backgroundColor: label.color,
+        color: label.text_color,
+      };
+    },
     issuableLink(params) {
       return mergeUrlParams(params, this.baseUrl);
     },
@@ -252,16 +257,20 @@ export default {
           </span>
 
           <span v-if="hasLabels" class="js-labels">
-            <!-- There is currently no way of knowing if ee to display scoped labels -->
-            <gl-label
+            <gl-link
               v-for="label in issuable.labels"
               :key="label.id"
-              :target="labelHref(label)"
-              :background-color="label.color"
-              :title="label.name"
-              :description="label.description"
-              size="sm"
-            />
+              class="label-link mr-1"
+              :href="labelHref(label)"
+            >
+              <span
+                v-gl-tooltip
+                class="badge color-label"
+                :style="labelStyle(label)"
+                :title="label.description"
+                >{{ label.name }}</span
+              >
+            </gl-link>
           </span>
 
           <span

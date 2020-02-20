@@ -11,10 +11,11 @@ export const createComponentWithStore = (Component, store, propsData = {}) =>
     propsData,
   });
 
-export const mountComponentWithStore = (Component, { el, props, store }) =>
+export const mountComponentWithStore = (Component, { el, props, store, stubs }) =>
   new Component({
     store,
     propsData: props || {},
+    stubs: stubs || {},
   }).$mount(el);
 
 export const mountComponentWithSlots = (Component, { props, slots }) => {

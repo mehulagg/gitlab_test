@@ -8,6 +8,7 @@ import '~/boards/models/list';
 import IssueCardInner from '~/boards/components/issue_card_inner.vue';
 import { listObj } from '../../javascripts/boards/mock_data';
 import store from '~/boards/stores';
+import { GlLabel } from '@gitlab/ui';
 
 describe('Issue card component', () => {
   const user = new ListAssignee({
@@ -50,6 +51,9 @@ describe('Issue card component', () => {
         rootPath: '/',
       },
       store,
+      stubs: {
+        GlLabel: true,
+      },
     });
   });
 
@@ -290,15 +294,11 @@ describe('Issue card component', () => {
     });
 
     it('does not render list label but renders all other labels', () => {
-      expect(wrapper.findAll('.gl-label').length).toBe(1);
-    });
-
-    it('renders label', () => {
-      expect(wrapper.find('.gl-label .gl-label-text').text()).toContain(label1.title);
-    });
-
-    it('sets label description within label', () => {
-      expect(wrapper.find('.gl-label').text()).toContain(label1.description);
+      expect(wrapper.findAll(GlLabel).length).toBe(1);
+      const label = wrapper.find(GlLabel);
+      expect(label.props('title')).toEqual(label1.title);
+      expect(label.props('description')).toEqual(label1.description);
+      expect(label.props('backgroundColor')).toEqual(label1.color);
     });
 
     it('does not render label if label does not have an ID', done => {
@@ -311,7 +311,7 @@ describe('Issue card component', () => {
       wrapper.vm
         .$nextTick()
         .then(() => {
-          expect(wrapper.findAll('.gl-label').length).toBe(1);
+          expect(wrapper.findAll(GlLabel).length).toBe(1);
           expect(wrapper.text()).not.toContain('closed');
           done();
         })

@@ -281,9 +281,11 @@ describe 'Issue Boards', :js do
         find('.dropdown-menu-close-icon').click
 
         page.within('.value') do
-          expect(page).to have_selector('.scoped-label-wrapper', count: 2)
-          expect(page).to have_content(scoped_label_1.title)
-          expect(page).to have_content(scoped_label_2.title)
+          expect(page).to have_selector('.gl-label-scoped', count: 2)
+          expect(page).to have_content(scoped_label_1.scoped_label_key)
+          expect(page).to have_content(scoped_label_1.scoped_label_value)
+          expect(page).to have_content(scoped_label_2.scoped_label_key)
+          expect(page).to have_content(scoped_label_2.scoped_label_value)
         end
       end
     end
@@ -315,10 +317,10 @@ describe 'Issue Boards', :js do
       end
 
       expect(card1).to have_selector('.gl-label-scoped', count: 1)
-      expect(card1).not_to have_content(scoped1.first)
-      expect(card1).not_to have_content(scoped1.last)
-      expect(card1).to have_content(scoped2.first)
-      expect(card1).to have_content(scoped2.last)
+      expect(card1).not_to have_content(scoped_label_1.scoped_label_key)
+      expect(card1).not_to have_content(scoped_label_1.scoped_label_value)
+      expect(card1).to have_content(scoped_label_2.scoped_label_key)
+      expect(card1).to have_content(scoped_label_2.scoped_label_value)
     end
   end
 end
