@@ -49,6 +49,10 @@ describe GroupsHelper do
 
       expect(helper.group_sidebar_links).not_to include(:contribution_analytics, :epics)
     end
+
+    it 'shows group activity analytics link' do
+      expect(helper.group_sidebar_links).to include(:group_activity_analytics)
+    end
   end
 
   describe '#permanent_deletion_date' do

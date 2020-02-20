@@ -102,6 +102,10 @@ module EE
         links << :contribution_analytics
       end
 
+      if can?(current_user, :read_group_activity_analytics, @group)
+        links << :group_activity_analytics
+      end
+
       if can?(current_user, :read_epic, @group)
         links << :epics
       end
