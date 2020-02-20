@@ -49,7 +49,7 @@ module ApprovalRules
     def log_audit_event(rule)
       audit_changes(
         :approvals_required,
-        as: 'no. approvals required',
+        as: 'number of required approvals',
         target_model: rule.project,
         model: rule
       )
