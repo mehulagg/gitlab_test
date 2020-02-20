@@ -10,8 +10,6 @@ module RuboCop
       class AddColumnWithDefault < RuboCop::Cop::Cop
         include MigrationHelpers
 
-        WHITELISTED_TABLES = [:application_settings].freeze
-
         MSG = '`add_column_with_default` without `allow_null: true` may cause prolonged lock situations and downtime, ' \
           'see https://gitlab.com/gitlab-org/gitlab/issues/38060'.freeze
 
