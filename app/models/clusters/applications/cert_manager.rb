@@ -3,8 +3,9 @@
 module Clusters
   module Applications
     class CertManager < ApplicationRecord
-      VERSION = 'v0.9.1'
-      CRD_VERSION = '0.9'
+      VERSION = 'v0.13.1'
+      CRD_VERSION = 'v0.13.1'
+      CRD_URL = "https://raw.githubusercontent.com/jetstack/cert-manager/#{CRD_VERSION}/deploy/manifests/00-crds.yaml"
 
       self.table_name = 'clusters_applications_cert_managers'
 
@@ -55,8 +56,7 @@ module Clusters
 
       def pre_install_script
         [
-          apply_file("https://raw.githubusercontent.com/jetstack/cert-manager/release-#{CRD_VERSION}/deploy/manifests/00-crds.yaml"),
-          "kubectl label --overwrite namespace #{Gitlab::Kubernetes::Helm::NAMESPACE} certmanager.k8s.io/disable-validation=true"
+          apply_file(CRD_URL, '--validate=false')
         ]
       end
 
@@ -71,6 +71,14 @@ module Clusters
       def post_delete_script
         [
           delete_private_key,
+          # >= v0.10 CRDs
+          delete_crd('certificates.cert-manager.io'),
+          delete_crd('certificaterequests.cert-manager.io'),
+          delete_crd('challenges.acme.cert-manager.io'),
+          delete_crd('clusterissuers.cert-manager.io'),
+          delete_crd('issuers.cert-manager.io'),
+          delete_crd('orders.acme.cert-manager.io'),
+          # < v0.10 CRDs
           delete_crd('certificates.certmanager.k8s.io'),
           delete_crd('certificaterequests.certmanager.k8s.io'),
           delete_crd('challenges.certmanager.k8s.io'),
@@ -96,8 +104,8 @@ module Clusters
         Gitlab::Kubernetes::KubectlCmd.delete("crd", definition, "--ignore-not-found")
       end
 
-      def apply_file(filename)
-        Gitlab::Kubernetes::KubectlCmd.apply_file(filename)
+      def apply_file(filename, *args)
+        Gitlab::Kubernetes::KubectlCmd.apply_file(filename, *args)
       end
 
       def cluster_issuer_file

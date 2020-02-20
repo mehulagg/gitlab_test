@@ -1,0 +1,5 @@
+---
+title: Update the GitLab-managed cert-manager chart to v0.13.1 for new installations
+merge_request: 25651
+author:
+type: changed
