@@ -10,3 +10,4 @@ export const CANCELED = 'canceled';
 // ACTION STATUSES
 export const STOPPING = 'stopping';
 export const DEPLOYING = 'deploying';
+export const REDEPLOYING = 'redeploying';

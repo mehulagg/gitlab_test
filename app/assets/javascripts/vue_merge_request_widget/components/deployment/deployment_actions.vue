@@ -5,9 +5,10 @@ import createFlash from '~/flash';
 import MRWidgetService from '../../services/mr_widget_service';
 import DeploymentInfo from './deployment_info.vue';
 import DeploymentManualDeployButton from './deployment_manual_deploy_button.vue';
+import DeploymentRedeployButton from './deployment_redeploy_button.vue';
 import DeploymentStopButton from './deployment_stop_button.vue';
 import DeploymentViewButton from './deployment_view_button.vue';
-import { MANUAL_DEPLOY, RUNNING, SUCCESS, STOPPING, DEPLOYING } from './constants';
+import { MANUAL_DEPLOY, RUNNING, FAILED, SUCCESS, STOPPING, DEPLOYING, REDEPLOYING } from './constants';
 
 export default {
   // name: 'Deployment' is a false positive: https://gitlab.com/gitlab-org/frontend/eslint-plugin-i18n/issues/26#possible-false-positives
@@ -15,6 +16,7 @@ export default {
   name: 'DeploymentActions',
   components: {
     DeploymentManualDeployButton,
+    DeploymentRedeployButton,
     DeploymentStopButton,
     DeploymentViewButton,
   },
@@ -58,7 +60,10 @@ export default {
       };
     },
     canBeManuallyDeployed() {
-      return this.computedDeploymentStatus === MANUAL_DEPLOY;
+      return this.computedDeploymentStatus === MANUAL_DEPLOY && Boolean(this.playPath);
+    },
+    canBeManuallyRedeployed() {
+      return this.computedDeploymentStatus === FAILED && Boolean(this.redeployPath);
     },
     hasExternalUrls() {
       return Boolean(this.deployment.external_url && this.deployment.external_url_formatted);
@@ -71,6 +76,9 @@ export default {
     },
     playPath() {
       return this.deployment.details?.playable_build?.play_path;
+    },
+    redeployPath() {
+      return this.deployment.details?.playable_build?.retry_path;
     },
     stopUrl() {
       return this.deployment.stop_url;
@@ -87,9 +95,14 @@ export default {
       confirmMessage: __('Are you sure you want to deploy this environment?'),
       errorMessage: __('Something went wrong while deploying this environment. Please try again.'),
     },
+    [REDEPLOYING]: {
+      actionName: REDEPLOYING,
+      confirmMessage: __('Are you sure you want to re-deploy this environment?'),
+      errorMessage: __('Something went wrong while deploying this environment. Please try again.'),
+    },
   },
   methods: {
-    executeAction(endpoint, { actionName, confirmMessage, errorMessage }) {
+    executeAction(endpoint, { actionName, confirmMessage, errorMessage }, reset) {
       const isConfirmed = confirm(confirmMessage); // eslint-disable-line
 
       if (isConfirmed) {
@@ -98,6 +111,8 @@ export default {
         MRWidgetService.executeInlineAction(endpoint)
           .then(res => res.data)
           .then(data => {
+            this.actionInProgress = null;
+
             if (data.redirect_url) {
               visitUrl(data.redirect_url);
             }
@@ -114,6 +129,9 @@ export default {
     deployManually() {
       this.executeAction(this.playPath, this.$options.actionsConfiguration[DEPLOYING])
     },
+    redeploy() {
+      this.executeAction(this.redeployPath, this.$options.actionsConfiguration[REDEPLOYING])
+    },
   },
 };
 </script>
@@ -125,6 +143,12 @@ export default {
         v-if="canBeManuallyDeployed"
         :is-action-in-progress="isActionInProgress"
         :deploy-manually="deployManually"
+        :action-in-progress="actionInProgress"
+      />
+      <deployment-redeploy-button
+        v-if="canBeManuallyRedeployed"
+        :is-action-in-progress="isActionInProgress"
+        :redeploy="redeploy"
         :action-in-progress="actionInProgress"
       />
       <deployment-view-button
