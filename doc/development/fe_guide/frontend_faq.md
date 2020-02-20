@@ -151,8 +151,14 @@ export const fetchFoos = ({ state }) => {
 
 > Introduced in [GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/issues/28837)
 
-Rather than needing to explicitly add each `core-js` polyfill, we've enabled the Babel preset-env option [`useBuiltIns: 'usage'`](https://babeljs.io/docs/en/babel-preset-env#usebuiltins-usage).
+We've enabled the Babel preset-env option [`useBuiltIns: 'usage'`](https://babeljs.io/docs/en/babel-preset-env#usebuiltins-usage).
 
-This will automatically add each needed `core-js` polyfill once if our target browsers don't support JavaScript feature we're using.
+This will automatically add the appropriate `core-js` polyfills once if our target browsers don't support the JavaScript features we're using.  This means that you do not need to manually add `core-js` polyfills.
 
 Note: We still manually add non-`core-js` polyfills that extend browser features such as our SVG polyfill that lets us reference SVG by `<use xlink:href>`. These should be added to `app/assets/javascripts/commons/polyfills.js`.
+
+To see what polyfills are being used, you can check the **GitLab:assets:compile pull-cache** job on an MR. Open the job, then click **Browse** under **Job artifacts**, then **webpack-report** > **index.html**
+
+This will open up an explorer with an input where you can enter `gitlab/node_modules/core-js`, and that will show which polyfills are being loaded and where.
+
+![Image of webpack report](img/webpack_report_v12_8.png)
