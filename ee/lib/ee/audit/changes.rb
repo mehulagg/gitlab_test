@@ -49,7 +49,7 @@ module EE
 
       def audit_event(options)
         ::AuditEventService.new(@current_user, target_model, options) # rubocop:disable Gitlab/ModuleWithInstanceVariables
-          .for_changes.security_event
+          .for_changes(model).security_event
       end
     end
   end
