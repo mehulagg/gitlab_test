@@ -38,6 +38,8 @@ module Members
         end
       end
 
+      update_gitlab_subscription(source)
+
       return success unless errors.any?
 
       error(errors.to_sentence)

@@ -40,4 +40,43 @@ describe Members::UpdateService do
       let(:source) { group }
     end
   end
+
+  context 'when updating the role of the member' do
+    let!(:gitlab_subscription) { create(:gitlab_subscription, namespace: group) }
+    let(:source) { group }
+    let(:member_update) do
+      described_class.new(current_user, access_level: Gitlab::Access::GUEST).execute(member)
+    end
+
+    before do
+      allow(Gitlab::CurrentSettings.current_application_settings)
+        .to receive(:should_check_namespace_plan?) { true }
+
+      group.add_owner(current_user)
+    end
+
+    context 'to guest' do
+      context 'with a gold plan' do
+        before do
+          gitlab_subscription.update_attribute(:hosted_plan, create(:gold_plan))
+        end
+
+        it 'skips the guest member from the max_seats_used counter' do
+          expect { member_update }.to change { gitlab_subscription.reload.max_seats_used }.to(1)
+        end
+      end
+
+      context 'with other plans' do
+        [:bronze_plan, :silver_plan].each do |plan|
+          before do
+            gitlab_subscription.update_attribute(:hosted_plan, create(plan))
+          end
+
+          it 'includes the guest member in the max_seats_used counter' do
+            expect { member_update }.to change { gitlab_subscription.reload.max_seats_used }.to(2)
+          end
+        end
+      end
+    end
+  end
 end

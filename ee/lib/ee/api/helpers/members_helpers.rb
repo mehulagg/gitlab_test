@@ -13,6 +13,11 @@ module EE
           end
         end
 
+        override :after_create
+        def after_create(source)
+          ::Gitlab::Subscription::MaxSeatsUpdater.update(source)
+        end
+
         # rubocop: disable CodeReuse/ActiveRecord
         override :retrieve_members
         def retrieve_members(source, params:, deep: false)

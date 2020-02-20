@@ -8,6 +8,7 @@ module EE
       def after_execute(action:, old_access_level:, old_expiry:, member:)
         super
 
+        update_gitlab_subscription(member.source)
         log_audit_event(action: action, old_access_level: old_access_level, old_expiry: old_expiry, member: member)
       end
 

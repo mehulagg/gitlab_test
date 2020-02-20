@@ -55,5 +55,11 @@ module Members
         TodosDestroyer::EntityLeaveWorker.perform_in(Todo::WAIT_FOR_DELETE, member.user_id, member.source_id, type)
       end
     end
+
+    # Noop on FOSS
+    def update_gitlab_subscription(membershipable)
+    end
   end
 end
+
+Members::BaseService.prepend_if_ee('EE::Members::BaseService')

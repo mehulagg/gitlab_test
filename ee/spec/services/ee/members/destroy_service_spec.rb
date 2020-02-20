@@ -80,4 +80,23 @@ describe Members::DestroyService do
       end
     end
   end
+
+  context 'updating max_seats_used counter' do
+    before do
+      allow(Gitlab::CurrentSettings.current_application_settings)
+        .to receive(:should_check_namespace_plan?) { true }
+    end
+
+    let!(:gitlab_subscription) { create(:gitlab_subscription, namespace: group) }
+
+    context 'when subscription is updated for the first time' do
+      it 'calculates the new value for the max_seats_used counter' do
+        expect(gitlab_subscription.max_seats_used).to eq(0)
+
+        described_class.new(current_user).execute(member)
+
+        expect(gitlab_subscription.reload.max_seats_used).to eq(1)
+      end
+    end
+  end
 end

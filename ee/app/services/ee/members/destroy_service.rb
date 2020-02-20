@@ -12,6 +12,7 @@ module EE
           log_audit_event(member: member, author: current_user, action: :destroy)
         end
 
+        update_gitlab_subscription(member.source)
         cleanup_group_identity(member)
       end
 

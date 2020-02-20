@@ -8,6 +8,7 @@ describe Groups::GroupMembersController do
   let(:user)  { create(:user) }
   let(:group) { create(:group, :public) }
   let(:membership) { create(:group_member, group: group) }
+  let(:gitlab_subscription) { create(:gitlab_subscription, namespace: group) }
 
   before do
     group.add_owner(user)
@@ -15,12 +16,20 @@ describe Groups::GroupMembersController do
   end
 
   describe 'POST #create' do
+    let(:create_params) { { group_id: group, user_ids: user.id, access_level: Gitlab::Access::DEVELOPER } }
+
     it 'creates an audit event' do
       expect do
-        post :create, params: { group_id: group,
-                                user_ids: user.id,
-                                access_level: Gitlab::Access::GUEST }
+        post :create, params: create_params
       end.to change(AuditEvent, :count).by(1)
+    end
+
+    it 'updates the max_seats_used counter' do
+      allow(Gitlab::CurrentSettings.current_application_settings).to receive(:should_check_namespace_plan?) { true }
+
+      expect do
+        post :create, params: create_params
+      end.to change { gitlab_subscription.reload.max_seats_used }.to(1)
     end
   end
 
