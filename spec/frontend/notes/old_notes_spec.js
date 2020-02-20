@@ -28,10 +28,7 @@ window.gl = window.gl || {};
 gl.utils = gl.utils || {};
 gl.utils.disableButtonIfEmptyField = () => {};
 
-// the following test is unreliable and failing in master 2-3 times a day
-// see https://gitlab.com/gitlab-org/gitlab/issues/206906#note_290602581
-// eslint-disable-next-line jest/no-disabled-tests
-describe.skip('Old Notes (~/notes.js)', () => {
+describe('Old Notes (~/notes.js)', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     loadFixtures(fixture);
@@ -47,8 +44,8 @@ describe.skip('Old Notes (~/notes.js)', () => {
     // These jQuery+DOM tests are super flaky so increase the timeout to avoid
     // random failures.
     // It seems that running tests in parallel increases failure rate.
-    jest.setTimeout(4000);
-    setTestTimeoutOnce(4000);
+    jest.setTimeout(5000);
+    setTestTimeoutOnce(5000);
   });
 
   afterEach(() => {
