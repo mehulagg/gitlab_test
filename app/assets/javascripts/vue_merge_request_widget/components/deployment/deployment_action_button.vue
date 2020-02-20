@@ -1,64 +1,75 @@
 <script>
 import { GlTooltipDirective } from '@gitlab/ui';
 import { __, s__ } from '~/locale';
-import Icon from '~/vue_shared/components/icon.vue';
 import LoadingButton from '~/vue_shared/components/loading_button.vue';
-import { DEPLOYING } from './constants';
+import { RUNNING } from './constants';
 
 export default {
-  name: 'DeploymentManualDeployButton',
+  name: 'DeploymentActionButton',
   components: {
     LoadingButton,
-    Icon,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
   },
   props: {
+    actionsConfiguration: {
+      type: Object,
+      required: true,
+    },
     actionInProgress: {
       type: String,
       required: false,
       default: null,
     },
-    isActionInProgress: {
-      type: Boolean,
+    computedDeploymentStatus: {
+      type: String,
       required: true,
     },
-    deployManually: {
+    onClick: {
       type: Function,
       required: true,
     },
+    buttonTitle: {
+      type: String,
+      required: false,
+      default: ''
+    }
   },
   computed: {
+    isActionInProgress() {
+      return Boolean(this.computedDeploymentStatus === RUNNING || this.actionInProgress);
+    },
     actionInProgressTooltip() {
       switch (this.actionInProgress) {
-        case DEPLOYING:
-          return __('This environment is being deployed');
+        case this.actionsConfiguration.actionName:
+          return this.actionsConfiguration.busyText;
         case null:
           return '';
         default:
-          return __('Deploying this environment is currently not possible as another action is in progress');
+          return __('Another action is currently in progress');
       }
     },
     isLoading() {
-      return this.actionInProgress === DEPLOYING;
+      return this.actionInProgress === this.actionsConfiguration.actionName;
     },
   },
-  deployText: s__('MrManualDeploy|Deploy'),
 };
 </script>
 
 <template>
   <span v-gl-tooltip :title="actionInProgressTooltip" class="d-inline-block" tabindex="0">
     <loading-button
+      v-gl-tooltip
+      :title="buttonTitle"
       :loading="isLoading"
       :disabled="isActionInProgress"
       container-class="btn btn-default btn-sm inline prepend-left-4"
-      @click="deployManually"
+      @click="onClick"
     >
       <span class="d-inline-flex align-items-baseline">
-        <icon name="play" />
-        <span>{{ $options.deployText }}</span>
+        <slot>
+        </slot>
       </span>
     </loading-button>
   </span>

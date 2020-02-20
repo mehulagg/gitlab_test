@@ -4,21 +4,17 @@ import { visitUrl } from '~/lib/utils/url_utility';
 import createFlash from '~/flash';
 import MRWidgetService from '../../services/mr_widget_service';
 import DeploymentInfo from './deployment_info.vue';
-import DeploymentManualDeployButton from './deployment_manual_deploy_button.vue';
-import DeploymentRedeployButton from './deployment_redeploy_button.vue';
-import DeploymentStopButton from './deployment_stop_button.vue';
+import DeploymentActionButton from './deployment_action_button.vue';
 import DeploymentViewButton from './deployment_view_button.vue';
 import { MANUAL_DEPLOY, RUNNING, FAILED, SUCCESS, STOPPING, DEPLOYING, REDEPLOYING } from './constants';
+import Icon from '~/vue_shared/components/icon.vue';
 
 export default {
-  // name: 'Deployment' is a false positive: https://gitlab.com/gitlab-org/frontend/eslint-plugin-i18n/issues/26#possible-false-positives
-  // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
   name: 'DeploymentActions',
   components: {
-    DeploymentManualDeployButton,
-    DeploymentRedeployButton,
-    DeploymentStopButton,
+    DeploymentActionButton,
     DeploymentViewButton,
+    Icon,
   },
   props: {
     computedDeploymentStatus: {
@@ -48,6 +44,11 @@ export default {
   data() {
     return {
       actionInProgress: null,
+      constants: {
+        STOPPING: STOPPING,
+        DEPLOYING: DEPLOYING,
+        REDEPLOYING: REDEPLOYING,
+      },
     };
   },
   computed: {
@@ -71,9 +72,6 @@ export default {
     isCurrent() {
       return this.computedDeploymentStatus === SUCCESS;
     },
-    isActionInProgress() {
-      return Boolean(this.computedDeploymentStatus.status === RUNNING || this.actionInProgress);
-    },
     playPath() {
       return this.deployment.details?.playable_build?.play_path;
     },
@@ -87,16 +85,22 @@ export default {
   actionsConfiguration: {
     [STOPPING]: {
       actionName: STOPPING,
+      buttonText: s__('MrDeploymentActions|Stop environment'),
+      busyText: __('This environment is being deployed'),
       confirmMessage: __('Are you sure you want to stop this environment?'),
       errorMessage: __('Something went wrong while stopping this environment. Please try again.'),
     },
     [DEPLOYING]: {
       actionName: DEPLOYING,
+      buttonText: s__('MrDeploymentActions|Deploy'),
+      busyText: __('This environment is being deployed'),
       confirmMessage: __('Are you sure you want to deploy this environment?'),
       errorMessage: __('Something went wrong while deploying this environment. Please try again.'),
     },
     [REDEPLOYING]: {
       actionName: REDEPLOYING,
+      buttonText: s__('MrDeploymentActions|Re-deploy'),
+      busyText: __('This environment is being re-deployed'),
       confirmMessage: __('Are you sure you want to re-deploy this environment?'),
       errorMessage: __('Something went wrong while deploying this environment. Please try again.'),
     },
@@ -138,33 +142,42 @@ export default {
 
 <template>
   <div>
-    <div>
-      <deployment-manual-deploy-button
-        v-if="canBeManuallyDeployed"
-        :is-action-in-progress="isActionInProgress"
-        :deploy-manually="deployManually"
-        :action-in-progress="actionInProgress"
-      />
-      <deployment-redeploy-button
-        v-if="canBeManuallyRedeployed"
-        :is-action-in-progress="isActionInProgress"
-        :redeploy="redeploy"
-        :action-in-progress="actionInProgress"
-      />
-      <deployment-view-button
-        v-if="hasExternalUrls"
-        :app-button-text="appButtonText"
-        :deployment="deployment"
-        :show-visual-review-app="showVisualReviewApp"
-        :visual-review-app-metadata="visualReviewAppMeta"
-      />
-      <deployment-stop-button
-        v-if="stopUrl"
-        :is-action-in-progress="isActionInProgress"
-        :stop-environment="stopEnvironment"
-        :action-in-progress="actionInProgress"
-        :computed-deployment-status="computedDeploymentStatus"
-      />
-    </div>
+    <deployment-action-button
+      v-if="canBeManuallyDeployed"
+      :on-click="deployManually"
+      :action-in-progress="actionInProgress"
+      :actions-configuration="$options.actionsConfiguration[constants.DEPLOYING]"
+      :computed-deployment-status="computedDeploymentStatus"
+    >
+        <icon name="play" />
+        <span>{{ $options.actionsConfiguration[constants.DEPLOYING].buttonText }}</span>
+    </deployment-action-button>
+    <deployment-action-button
+      v-if="canBeManuallyRedeployed"
+      :on-click="redeploy"
+      :action-in-progress="actionInProgress"
+      :actions-configuration="$options.actionsConfiguration[constants.REDEPLOYING]"
+      :computed-deployment-status="computedDeploymentStatus"
+    >
+      <icon name="repeat" />
+      <span>{{ $options.actionsConfiguration[constants.REDEPLOYING].buttonText }}</span>
+    </deployment-action-button>
+    <deployment-view-button
+      v-if="hasExternalUrls"
+      :app-button-text="appButtonText"
+      :deployment="deployment"
+      :show-visual-review-app="showVisualReviewApp"
+      :visual-review-app-metadata="visualReviewAppMeta"
+    />
+    <deployment-action-button
+      v-if="stopUrl"
+      :on-click="stopEnvironment"
+      :action-in-progress="actionInProgress"
+      :computed-deployment-status="computedDeploymentStatus"
+      :actions-configuration="$options.actionsConfiguration[constants.STOPPING]"
+      :button-title="$options.actionsConfiguration[constants.STOPPING].buttonText"
+    >
+      <icon name="stop" />
+    </deployment-action-button>
   </div>
 </template>
