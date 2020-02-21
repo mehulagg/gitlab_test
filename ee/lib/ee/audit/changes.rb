@@ -6,11 +6,11 @@ module EE
       # Records an audit event in DB for model changes
       #
       # @param [Symbol] column column name to be audited
-      # @param [Hash] opts the options to create an event with
-      # @option opts [Symbol] :column column name to be audited
-      # @option opts [User, Project, Group] :target_model level the event belongs to
-      # @option opts [Object] :model object being audited
-      # @option opts [Boolean] :skip_changes whether to record from/to values
+      # @param [Hash] options the options to create an event with
+      # @option options [Symbol] :column column name to be audited
+      # @option options [User, Project, Group] :target_model scope the event belongs to
+      # @option options [Object] :model object being audited
+      # @option options [Boolean] :skip_changes whether to record from/to values
       #
       # @return [SecurityEvent, nil] the resulting object or nil if there is no
       #   change detected
