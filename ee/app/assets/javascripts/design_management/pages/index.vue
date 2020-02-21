@@ -249,20 +249,17 @@ export default {
       </div>
       <template v-else>
         <ol class="list-unstyled row">
-          <dropzone @upload="onUploadDesign" v-slot="{ dragging, isDragDataValid }">
-            <template v-if="dragging">
-              <span v-if="!isDragDataValid">You need to upload files</span>
-              <span v-else>Incoming!</span>
-            </template>
-            <span v-else>Upload here</span>
-          </dropzone>
+          <dropzone class="col-md-6 col-lg-4 mb-3" @upload="onUploadDesign" />
           <li
             v-if="hasDesigns"
             v-for="design in designs"
             :key="design.id"
             class="col-md-6 col-lg-4 mb-3"
           >
-            <design v-bind="design" :is-loading="isDesignToBeSaved(design.filename)" />
+            <dropzone @upload="onUploadDesign"
+              ><design v-bind="design" :is-loading="isDesignToBeSaved(design.filename)"
+            /></dropzone>
+
             <input
               v-if="canSelectDesign(design.filename)"
               :checked="isDesignSelected(design.filename)"

@@ -1,5 +1,6 @@
 <script>
 import uploadDesignMutation from '../../graphql/mutations/uploadDesign.mutation.graphql';
+import { GlIcon, GlLink } from '@gitlab/ui';
 
 // WARNING: replace this with something
 // more sensical as per https://gitlab.com/gitlab-org/gitlab/issues/118611
@@ -9,6 +10,10 @@ const VALID_FILE_MIMETYPE = {
 };
 
 export default {
+  components: {
+    GlIcon,
+    GlLink,
+  },
   props: {
     maxFiles: {
       type: Number,
@@ -24,16 +29,11 @@ export default {
   },
   computed: {
     dropzoneStyle() {
-      const baseStyle = {
-        width: '200px',
-        height: '200px',
-        border: '1px solid grey',
-      };
       if (this.dragging) {
-        baseStyle.border = '1px solid red';
+        return {
+          background: 'rbga(255, 255, 255, 0.5)',
+        };
       }
-
-      return baseStyle;
     },
   },
   methods: {
@@ -82,9 +82,8 @@ export default {
 </script>
 
 <template>
-  <button
+  <div
     ref="dropzone"
-    :style="dropzoneStyle"
     @drag.prevent.stop
     @dragstart.prevent.stop
     @dragend.prevent.stop="ondragleave"
@@ -92,16 +91,38 @@ export default {
     @dragover.prevent.stop="ondragenter"
     @dragenter.prevent.stop="ondragenter"
     @drop.prevent.stop="ondrop"
-    @click="openFileUpload"
   >
-    <input
-      ref="fileUpload"
-      type="file"
-      name="design_file"
-      :accept="$options.VALID_FILE_MIMETYPE.type"
-      class="hide"
-      @change="onFileUploadChange"
-    />
-    <slot v-bind="{ dragging, isDragDataValid }"></slot>
-  </button>
+    <div class="w-100 h-100 position-relative">
+      <slot v-bind="{ dragging, isDragDataValid }">
+        <div class="border-design-dropzone w-100 h-100 d-flex-center rounded-sm">
+          <div class="d-flex-center flex-column">
+            <gl-icon name="doc-new" :size="48" class="mb-4" />
+            <span>Drag and drop to upload your designs</span>
+            <span
+              >or
+              <gl-link class="h-100 w-100" @click="openFileUpload">click to upload</gl-link></span
+            >
+          </div>
+        </div>
+        <input
+          ref="fileUpload"
+          type="file"
+          name="design_file"
+          :accept="$options.VALID_FILE_MIMETYPE.type"
+          class="hide"
+          @change="onFileUploadChange"
+        />
+      </slot>
+      <div
+        class="design-dropzone--overlay border-design-dropzone position-absolute w-100 h-100 d-flex-center"
+        v-show="dragging"
+      >
+        <span v-show="!isDragDataValid">You need to upload files</span>
+        <div v-show="isDragDataValid" class="mw-50 text-center">
+          <h3>Incoming!</h3>
+          <span>Drop your designs to start your upload</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>

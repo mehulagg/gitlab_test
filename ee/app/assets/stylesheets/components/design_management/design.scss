@@ -94,3 +94,13 @@
     flex-basis: auto;
   }
 }
+
+.border-design-dropzone {
+  border: 2px dashed $gray-200;
+}
+
+.design-dropzone--overlay {
+  background: rgba(255,255,255, 0.9);
+  top: 0;
+  left: 0;
+}
