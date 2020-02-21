@@ -159,6 +159,11 @@ GitLab supports a limited set of [CI variables](../../../ci/variables/README.md)
 
 - CI_ENVIRONMENT_SLUG
 - KUBE_NAMESPACE
+- CI_PROJECT_NAME
+- CI_PROJECT_ID
+- CI_PROJECT_NAMESAPCE
+- CI_PROJECT_PATH
+- CI_ENVIRONMENT_NAME
 
 There are 2 methods to specify a variable in a query or dashboard:
 
