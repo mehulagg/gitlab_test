@@ -39,17 +39,17 @@ The following components need to be considered for a scaled or highly-available
 environment. In many cases, components can be combined on the same nodes to reduce
 complexity.
 
-- GitLab application nodes (Unicorn / Puma, Workhorse) - Web-requests (UI, API, Git over HTTP)
-- Sidekiq - Asynchronous/Background jobs
-- PostgreSQL - Database
-  - Consul - Database service discovery and health checks/failover
-  - PgBouncer - Database pool manager
-- Redis - Key/Value store (User sessions, cache, queue for Sidekiq)
+- GitLab application nodes ([Unicorn](https://docs.gitlab.com/ee/development/architecture.html#unicorn) / Puma, [Workhorse](https://docs.gitlab.com/ee/development/architecture.html#gitlab-workhorse)) - Web-requests (UI, API, Git over HTTP)
+- [Sidekiq](https://docs.gitlab.com/ee/development/architecture.html#sidekiq) - Asynchronous/Background jobs
+- [PostgreSQL](https://docs.gitlab.com/ee/development/architecture.html#postgresql) - Database
+  - [Consul](https://docs.gitlab.com/ee/development/architecture.html#consul) - Database service discovery and health checks/failover
+  - [PgBouncer](https://docs.gitlab.com/ee/development/architecture.html#pgbouncer) - Database pool manager
+- [Redis](https://docs.gitlab.com/ee/development/architecture.html#redis) - Key/Value store (User sessions, cache, queue for Sidekiq)
   - Sentinel - Redis health check/failover manager
-- Gitaly - Provides high-level storage and RPC access to Git repositories
+- [Gitaly](https://docs.gitlab.com/ee/development/architecture.html#gitaly) - Provides high-level storage and RPC access to Git repositories
 - S3 Object Storage service[^4] and / or NFS storage servers[^5] for entities such as Uploads, Artifacts, LFS Objects, etc...
 - Load Balancer[^6] - Main entry point and handles load balancing for the GitLab application nodes.
-- Monitor - Prometheus and Grafana monitoring with auto discovery.
+- Monitor - [Prometheus](https://docs.gitlab.com/ee/development/architecture.html#prometheus) and Grafana](https://docs.gitlab.com/ee/development/architecture.html#grafana) monitoring with auto discovery.
 
 ## Scalable Architecture Examples
 
@@ -200,7 +200,7 @@ with the added complexity of many more nodes to configure, manage, and monitor.
 
 ![Fully Distributed architecture diagram](img/fully-distributed.png)
 
-## Reference Architecture Recommendations
+## Reference Architectures
 
 The Support and Quality teams build, performance test, and validate Reference
 Architectures that support large numbers of users. The specifications below are
