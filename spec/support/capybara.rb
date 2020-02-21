@@ -3,6 +3,7 @@
 # rubocop:disable Style/GlobalVars
 require 'capybara/rails'
 require 'capybara/rspec'
+require 'capybara/cuprite'
 require 'capybara-screenshot/rspec'
 require 'selenium-webdriver'
 
@@ -23,45 +24,32 @@ JS_CONSOLE_FILTER = Regexp.union([
 
 CAPYBARA_WINDOW_SIZE = [1366, 768].freeze
 
-Capybara.register_driver :chrome do |app|
-  capabilities = Selenium::WebDriver::Remote::Capabilities.chrome(
-    # This enables access to logs with `page.driver.manage.get_log(:browser)`
-    loggingPrefs: {
-      browser: "ALL",
-      client: "ALL",
-      driver: "ALL",
-      server: "ALL"
-    }
-  )
+Capybara.register_driver(:cuprite) do |app|
+  options = {
+    timeout: timeout,
+    # Run headless by default unless CHROME_HEADLESS specified
+    headless: ENV['CHROME_HEADLESS'] !~ /^(false|no|0)$/i,
+    window_size: CAPYBARA_WINDOW_SIZE,
+    browser_options: {
+      # Chrome won't work properly in a Docker container in sandbox mode
+      'no-sandbox': nil,
+    }.tap do |options|
+      if ENV['CI'] || ENV['CI_SERVER']
+        options.merge!(
+          # Disable /dev/shm use in CI. See https://gitlab.com/gitlab-org/gitlab/issues/4252
+          'disable-dev-shm-usage': nil,
+          # Explicitly set user-data-dir to prevent crashes. See https://gitlab.com/gitlab-org/gitlab-foss/issues/58882#note_179811508
+          'user-data-dir': '/tmp/chrome'
+        )
+      end
+    end
+  }
 
-  options = Selenium::WebDriver::Chrome::Options.new
-  options.add_argument("window-size=#{CAPYBARA_WINDOW_SIZE.join(',')}")
-
-  # Chrome won't work properly in a Docker container in sandbox mode
-  options.add_argument("no-sandbox")
-
-  # Run headless by default unless CHROME_HEADLESS specified
-  options.add_argument("headless") unless ENV['CHROME_HEADLESS'] =~ /^(false|no|0)$/i
-
-  # Disable /dev/shm use in CI. See https://gitlab.com/gitlab-org/gitlab/issues/4252
-  options.add_argument("disable-dev-shm-usage") if ENV['CI'] || ENV['CI_SERVER']
-
-  # Explicitly set user-data-dir to prevent crashes. See https://gitlab.com/gitlab-org/gitlab-foss/issues/58882#note_179811508
-  options.add_argument("user-data-dir=/tmp/chrome") if ENV['CI'] || ENV['CI_SERVER']
-
-  # Chrome 75 defaults to W3C mode which doesn't allow console log access
-  options.add_option(:w3c, false)
-
-  Capybara::Selenium::Driver.new(
-    app,
-    browser: :chrome,
-    desired_capabilities: capabilities,
-    options: options
-  )
+  Capybara::Cuprite::Driver.new(app, options)
 end
 
 Capybara.server = :webrick
-Capybara.javascript_driver = :chrome
+Capybara.javascript_driver = :cuprite
 Capybara.default_max_wait_time = timeout
 Capybara.ignore_hidden_elements = true
 Capybara.default_normalize_ws = true
@@ -70,7 +58,7 @@ Capybara.enable_aria_label = true
 # Keep only the screenshots generated from the last failing test suite
 Capybara::Screenshot.prune_strategy = :keep_last_run
 # From https://github.com/mattheworiordan/capybara-screenshot/issues/84#issuecomment-41219326
-Capybara::Screenshot.register_driver(:chrome) do |driver, path|
+Capybara::Screenshot.register_driver(:cuprite) do |driver, path|
   driver.browser.save_screenshot(path)
 end
 
