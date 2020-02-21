@@ -271,8 +271,8 @@ describe AuditEventService do
 
   describe '#for_changes' do
     let(:author_name) { 'Administrator' }
-    let(:current_user) { instance_spy(User, name: author_name) }
-    let(:changed_model) { instance_spy(ApprovalProjectRule, id: 6, name: 'Security') }
+    let(:current_user) { User.new(name: author_name) }
+    let(:changed_model) { ApprovalProjectRule.new(id: 6, name: 'Security') }
     let(:options) { { as: 'required approvers', from: 3, to: 4 } }
 
     subject(:service) { described_class.new(current_user, project, options).for_changes(changed_model) }
@@ -284,7 +284,7 @@ describe AuditEventService do
         to: 4,
         author_name: author_name,
         target_id: 6,
-        target_type: changed_model.class.name,
+        target_type: 'ApprovalProjectRule',
         target_details: 'Security'
       )
     end
