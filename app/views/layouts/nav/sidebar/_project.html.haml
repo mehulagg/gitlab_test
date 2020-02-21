@@ -127,6 +127,11 @@
                 %span
                   = boards_link_text
 
+            = nav_link(controller: :value_vs_cost) do
+              = link_to project_value_vs_cost_index_path(@project), title: _('Value vs Cost'), class: 'qa-labels-link' do
+                %span
+                  = _('Value vs Cost')
+
             = nav_link(controller: :labels) do
               = link_to project_labels_path(@project), title: _('Labels'), class: 'qa-labels-link' do
                 %span

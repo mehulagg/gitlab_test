@@ -404,6 +404,8 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
         draw :issues
       end
 
+      resources :value_vs_cost, only: [:index]
+
       resources :notes, only: [:create, :destroy, :update], concerns: :awardable, constraints: { id: /\d+/ } do
         member do
           delete :delete_attachment
