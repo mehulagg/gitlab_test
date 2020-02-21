@@ -2,6 +2,7 @@
 
 module EE
   module Issue
+    include ::Gitlab::Utils::StrongMemoize
     extend ActiveSupport::Concern
     extend ::Gitlab::Utils::Override
 
@@ -63,6 +64,22 @@ module EE
     # override
     def allows_multiple_assignees?
       project.feature_available?(:multiple_issue_assignees)
+    end
+
+    def blocked?
+      strong_memoize(:is_blocked) do
+        ::IssueLink.blocked_issue_ids(id).any?
+      end
+    end
+
+    # Used on EE::IssueEntity to expose blocking issues URLs
+    def blocked_by_issues(user)
+      return unless blocked?
+
+      issues_ids = ::IssueLink.blocking_issues_ids_for(self)
+      issues = ::IssuesFinder.new(user).execute.where(id: issues_ids)
+
+      issues.preload(project: [:route, { namespace: [:route] }])
     end
 
     # override
