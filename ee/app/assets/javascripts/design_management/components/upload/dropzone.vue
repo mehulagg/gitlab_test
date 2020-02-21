@@ -38,7 +38,7 @@ export default {
   },
   methods: {
     validFileTypes(files) {
-      return !files.some(({ type }) => type.match(VALID_FILE_MIMETYPE.regex).length === 1);
+      return !files.some(({ type }) => type.match(VALID_FILE_MIMETYPE.regex).length !== 1);
     },
     validDragDataType(e) {
       return !e.dataTransfer.types.some(t => t !== 'Files');
@@ -47,14 +47,13 @@ export default {
       this.dragging = false;
 
       const files = Array.from(e.dataTransfer.files);
-      console.log('e.dataTransfer', e.dataTransfer.types);
 
       if (files.length > this.maxFiles) {
         console.error('too many files');
         return;
       }
 
-      if (!this.isDragDataValid || !validFileTypes(files)) {
+      if (!this.isDragDataValid || !this.validFileTypes(files)) {
         console.error('invalid drag data');
         return;
       }
@@ -75,7 +74,6 @@ export default {
       this.$emit('upload', this.$refs.fileUpload.files);
     },
   },
-  mounted() {},
   uploadDesignMutation,
   VALID_FILE_MIMETYPE,
 };
@@ -100,7 +98,7 @@ export default {
             <span>Drag and drop to upload your designs</span>
             <span
               >or
-              <gl-link class="h-100 w-100" @click="openFileUpload">click to upload</gl-link></span
+              <gl-link class="h-100 w-100" @click="openFileUpload">click to upload</gl-link>.</span
             >
           </div>
         </div>
@@ -114,13 +112,18 @@ export default {
         />
       </slot>
       <div
-        class="design-dropzone--overlay border-design-dropzone position-absolute w-100 h-100 d-flex-center"
+        class="design-dropzone--overlay border-design-dropzone w-100 h-100 position-absolute d-flex-center"
         v-show="dragging"
       >
-        <span v-show="!isDragDataValid">You need to upload files</span>
-        <div v-show="isDragDataValid" class="mw-50 text-center">
-          <h3>Incoming!</h3>
-          <span>Drop your designs to start your upload</span>
+        <div class="mw-50 text-center">
+          <template v-show="isDragDataValid">
+            <h3>Oh no!</h3>
+            <span>You can only drop image files here.</span>
+          </template>
+          <template v-show="!isDragDataValid">
+            <h3>Incoming!</h3>
+            <span>Drop your designs to start your upload.</span>
+          </template>
         </div>
       </div>
     </div>
