@@ -176,7 +176,7 @@ review-qa-smoke:
     - .review-qa-base
     - .review:rules:mr-only-manual
   script:
-    - gitlab-qa Test::Instance::Smoke "${QA_IMAGE}" "${CI_ENVIRONMENT_URL}"
+    - gitlab-qa Test::Instance::Smoke "${QA_IMAGE}" "${CI_ENVIRONMENT_URL}" -- ${QA_TESTS} ${QA_RSPEC_TAGS}
   parallel: 10
 
 review-qa-all:
