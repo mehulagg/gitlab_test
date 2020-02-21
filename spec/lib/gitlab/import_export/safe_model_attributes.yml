@@ -360,6 +360,7 @@ CommitStatus:
 - upstream_pipeline_id
 - interruptible
 - processed
+- scheduling_type
 Ci::Variable:
 - id
 - project_id
@@ -453,7 +454,7 @@ Service:
 - updated_at
 - active
 - properties
-- instance
+- template
 - push_events
 - issues_events
 - commit_events

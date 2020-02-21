@@ -111,6 +111,13 @@ describe Admin::ApplicationSettingsController do
       it_behaves_like 'settings for licensed features'
     end
 
+    context 'updating npm packages request forwarding setting' do
+      let(:settings) { { npm_package_requests_forwarding: true } }
+      let(:feature) { :packages }
+
+      it_behaves_like 'settings for licensed features'
+    end
+
     context 'project deletion adjourned period' do
       let(:settings) { { deletion_adjourned_period: 6 } }
       let(:feature) { :adjourned_deletion_for_projects_and_groups }
@@ -129,6 +136,19 @@ describe Admin::ApplicationSettingsController do
       let(:group) { create(:group) }
       let(:settings) { { custom_project_templates_group_id: group.id } }
       let(:feature) { :custom_project_templates }
+
+      it_behaves_like 'settings for licensed features'
+    end
+
+    context 'merge request approvers rules' do
+      let(:settings) do
+        {
+          disable_overriding_approvers_per_merge_request: true,
+          prevent_merge_requests_author_approval: true,
+          prevent_merge_requests_committers_approval: true
+        }
+      end
+      let(:feature) { :admin_merge_request_approvers_rules }
 
       it_behaves_like 'settings for licensed features'
     end

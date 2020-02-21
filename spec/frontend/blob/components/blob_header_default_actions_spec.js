@@ -8,7 +8,6 @@ import {
 } from '~/blob/components/constants';
 import { GlButtonGroup, GlButton } from '@gitlab/ui';
 import { Blob } from './mock_data';
-import eventHub from '~/blob/event_hub';
 
 describe('Blob Header Default Actions', () => {
   let wrapper;
@@ -16,10 +15,10 @@ describe('Blob Header Default Actions', () => {
   let buttons;
   const hrefPrefix = 'http://localhost';
 
-  function createComponent(blobProps = {}, propsData = {}) {
+  function createComponent(propsData = {}) {
     wrapper = mount(BlobHeaderActions, {
       propsData: {
-        blob: Object.assign({}, Blob, blobProps),
+        rawPath: Blob.rawPath,
         ...propsData,
       },
     });
@@ -60,24 +59,12 @@ describe('Blob Header Default Actions', () => {
     });
 
     it('renders "Copy file contents" button as disables if the viewer is Rich', () => {
-      createComponent(
-        {},
-        {
-          activeViewer: RICH_BLOB_VIEWER,
-        },
-      );
+      createComponent({
+        activeViewer: RICH_BLOB_VIEWER,
+      });
       buttons = wrapper.findAll(GlButton);
 
       expect(buttons.at(0).attributes('disabled')).toBeTruthy();
-    });
-  });
-
-  describe('functionally', () => {
-    it('emits an event when a Copy Contents button is clicked', () => {
-      jest.spyOn(eventHub, '$emit');
-      buttons.at(0).vm.$emit('click');
-
-      expect(eventHub.$emit).toHaveBeenCalledWith('copy');
     });
   });
 });

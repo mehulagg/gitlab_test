@@ -437,6 +437,19 @@ Note, at the moment this method does only return a `404` error,
 even in cases where a `409` (Conflict) would be more appropriate,
 e.g. when renaming the email address to some existing one.
 
+## Delete authentication identity from user
+
+Deletes a user's authentication identity using the provider name associated with that identity. Available only for administrators.
+
+```
+DELETE /users/:id/identities/:provider
+```
+
+Parameters:
+
+- `id` (required) - The ID of the user
+- `provider` (required) - External provider name
+
 ## User deletion
 
 Deletes a user. Available only for administrators.
@@ -1168,7 +1181,7 @@ Will return `201 OK` on success, `404 User Not Found` is user cannot be found or
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/22257) in GitLab 12.4.
 
-Deactivates the specified user.  Available only for admin.
+Deactivates the specified user. Available only for admin.
 
 ```
 POST /users/:id/deactivate
@@ -1190,7 +1203,7 @@ Returns:
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/22257) in GitLab 12.4.
 
-Activates the specified user.  Available only for admin.
+Activates the specified user. Available only for admin.
 
 ```
 POST /users/:id/activate

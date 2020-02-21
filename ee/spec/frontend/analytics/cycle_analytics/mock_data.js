@@ -118,6 +118,13 @@ export const labelStopEvent = customStageLabelEvents.find(
   ev => ev.identifier === labelStartEvent.allowedEndEvents[0],
 );
 
+export const rawCustomStageFormErrors = {
+  name: ['is reserved', 'cant be blank'],
+  start_event_identifier: ['cant be blank'],
+};
+
+export const customStageFormErrors = convertObjectPropsToCamelCase(rawCustomStageFormErrors);
+
 const dateRange = getDatesInRange(startDate, endDate, toYmd);
 
 export const tasksByTypeData = getJSONFixture('analytics/type_of_work/tasks_by_type.json').map(
@@ -195,3 +202,18 @@ export const transformedDurationMedianData = [
 ];
 
 export const durationChartPlottableMedianData = [['2018-12-31', 29], ['2019-01-01', 100]];
+
+export const selectedProjects = [
+  {
+    id: 1,
+    name: 'cool project',
+    pathWithNamespace: 'group/cool-project',
+    avatarUrl: null,
+  },
+  {
+    id: 2,
+    name: 'another cool project',
+    pathWithNamespace: 'group/another-cool-project',
+    avatarUrl: null,
+  },
+];

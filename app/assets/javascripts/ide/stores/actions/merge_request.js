@@ -2,10 +2,17 @@ import flash from '~/flash';
 import { __ } from '~/locale';
 import service from '../../services';
 import * as types from '../mutation_types';
-import { activityBarViews } from '../../constants';
+import { leftSidebarViews, PERMISSION_READ_MR } from '../../constants';
 
-export const getMergeRequestsForBranch = ({ commit, state }, { projectId, branchId } = {}) =>
-  service
+export const getMergeRequestsForBranch = (
+  { commit, state, getters },
+  { projectId, branchId } = {},
+) => {
+  if (!getters.findProjectPermissions(projectId)[PERMISSION_READ_MR]) {
+    return Promise.resolve();
+  }
+
+  return service
     .getProjectMergeRequests(`${projectId}`, {
       source_branch: branchId,
       source_project_id: state.projects[projectId].id,
@@ -36,6 +43,7 @@ export const getMergeRequestsForBranch = ({ commit, state }, { projectId, branch
       );
       throw e;
     });
+};
 
 export const getMergeRequestData = (
   { commit, dispatch, state },
@@ -179,7 +187,7 @@ export const openMergeRequest = (
     )
     .then(mrChanges => {
       if (mrChanges.changes.length) {
-        dispatch('updateActivityBarView', activityBarViews.review);
+        dispatch('updateActivityBarView', leftSidebarViews.review.name);
       }
 
       mrChanges.changes.forEach((change, ind) => {
