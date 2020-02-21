@@ -16,7 +16,7 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://docker:2375
   QA_ARTIFACTS_DIR: $CI_PROJECT_DIR
-  QA_CAN_TEST_GIT_PROTOCOL_V2: 'false'
+  QA_CAN_TEST_GIT_PROTOCOL_V2: 'true'
 
 cache:
   key: "ruby:2.6"
