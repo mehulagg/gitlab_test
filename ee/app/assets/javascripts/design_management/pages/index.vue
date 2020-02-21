@@ -249,7 +249,13 @@ export default {
       </div>
       <template v-else>
         <ol class="list-unstyled row">
-          <dropzone @upload="onUploadDesign"><span>Upload here</span></dropzone>
+          <dropzone @upload="onUploadDesign" v-slot="{ dragging, isDragDataValid }">
+            <template v-if="dragging">
+              <span v-if="!isDragDataValid">You need to upload files</span>
+              <span v-else>Incoming!</span>
+            </template>
+            <span v-else>Upload here</span>
+          </dropzone>
           <li
             v-if="hasDesigns"
             v-for="design in designs"

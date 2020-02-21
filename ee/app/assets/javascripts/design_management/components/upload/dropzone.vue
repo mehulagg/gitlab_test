@@ -1,10 +1,27 @@
 <script>
 import uploadDesignMutation from '../../graphql/mutations/uploadDesign.mutation.graphql';
 
-const MAX_FILES = 1;
+// WARNING: replace this with something
+// more sensical as per https://gitlab.com/gitlab-org/gitlab/issues/118611
+const VALID_FILE_MIMETYPE = {
+  mimetype: 'image/*',
+  regex: /image\/.+/,
+};
 
 export default {
-  props: {},
+  props: {
+    maxFiles: {
+      type: Number,
+      required: false,
+      default: 1,
+    },
+  },
+  data() {
+    return {
+      dragging: false,
+      isDragDataValid: false,
+    };
+  },
   computed: {
     dropzoneStyle() {
       const baseStyle = {
@@ -20,40 +37,71 @@ export default {
     },
   },
   methods: {
+    validFileTypes(files) {
+      return !files.some(({ type }) => type.match(VALID_FILE_MIMETYPE.regex).length === 1);
+    },
+    validDragDataType(e) {
+      return !e.dataTransfer.types.some(t => t !== 'Files');
+    },
     ondrop(e) {
       this.dragging = false;
 
       const files = Array.from(e.dataTransfer.files);
-      if (files.length > MAX_FILES) {
+      console.log('e.dataTransfer', e.dataTransfer.types);
+
+      if (files.length > this.maxFiles) {
         console.error('too many files');
+        return;
+      }
+
+      if (!this.isDragDataValid || !validFileTypes(files)) {
+        console.error('invalid drag data');
+        return;
       }
 
       this.$emit('upload', e.dataTransfer.files);
     },
-  },
-  data() {
-    return {
-      dragging: false,
-    };
+    ondragenter(e) {
+      this.dragging = true;
+      this.isDragDataValid = this.validDragDataType(e);
+    },
+    ondragleave() {
+      this.dragging = false;
+    },
+    openFileUpload() {
+      this.$refs.fileUpload.click();
+    },
+    onFileUploadChange() {
+      this.$emit('upload', this.$refs.fileUpload.files);
+    },
   },
   mounted() {},
   uploadDesignMutation,
+  VALID_FILE_MIMETYPE,
 };
 </script>
 
 <template>
-  <div
+  <button
     ref="dropzone"
     :style="dropzoneStyle"
     @drag.prevent.stop
     @dragstart.prevent.stop
-    @dragend.prevent.stop="dragging = false"
-    @dragleave.prevent.stop="dragging = false"
-    @dragover.prevent.stop="dragging = true"
-    @dragenter.prevent.stop="dragging = true"
+    @dragend.prevent.stop="ondragleave"
+    @dragleave.prevent.stop="ondragleave"
+    @dragover.prevent.stop="ondragenter"
+    @dragenter.prevent.stop="ondragenter"
     @drop.prevent.stop="ondrop"
+    @click="openFileUpload"
   >
-    <input ref="fileUpload" type="file" name="files[]" accept="image/*" class="hide" />
-    <slot></slot>
-  </div>
+    <input
+      ref="fileUpload"
+      type="file"
+      name="design_file"
+      :accept="$options.VALID_FILE_MIMETYPE.type"
+      class="hide"
+      @change="onFileUploadChange"
+    />
+    <slot v-bind="{ dragging, isDragDataValid }"></slot>
+  </button>
 </template>
