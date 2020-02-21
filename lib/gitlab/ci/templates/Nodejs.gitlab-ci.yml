@@ -1,5 +1,5 @@
 # This template assumes you have the following settings configured:
-# Personal Access Token added as an Environment Variable in order to update your package.json with the new version
+# Personal Access Token added as an Environment Variable in order to update your package.json with the new version value
 # Your package.json contains the path to your private NPM Registry on GitLab. https://docs.gitlab.com/ee/user/project/packages/npm_registry.html#uploading-packages
 
 image: node:latest
@@ -10,17 +10,21 @@ cache:
 
 build:create_npmrc:
   stage: build
+  before_script: 
+    - apt update && apt install -y jq
   script:
     - |
       if [ ! -f .npmrc ]; then echo .npmrc missing. Creating one now. Please review the following link for more information https://docs.gitlab.com/ee/user/project/packages/npm_registry.html#authenticating-with-an-oauth-token;
           export NPMRC_URL=${CI_SERVER_HOST}/api/v4
           export NPMRC_INSTALL_URL=$(echo "$NPMRC_URL/packages/npm/:_authToken=${CI_JOB_TOKEN}")
           export NPMRC_PUBLISH_URL=$(echo "$NPMRC_URL/projects/$CI_PROJECT_ID/packages/npm/:_authToken=${CI_JOB_TOKEN}")
-          export NPM_SCOPE=$(awk -F'["]' '/registry/ {print $2}' package.json)
+          # Uncomment set the scope if you plan on using the same npmrc to publish a package
+          export NPM_SCOPE=$(jq '.publishConfig | keys[]' -r package.json)
+          echo "$NPM_SCOPE=https://$NPMRC_URL/packages/npm/" >> .npmrc
           echo "//$NPMRC_INSTALL_URL" >> .npmrc
           echo "//$NPMRC_PUBLISH_URL" >> .npmrc
       fi
-    - cat .npmrc
+    - cat .npmrc  
   artifacts:
     paths:
       - .npmrc
@@ -30,19 +34,20 @@ build_package:
   before_script:
     - git config --global user.name "${GITLAB_USER_NAME}"
     - git config --global user.email "${GITLAB_USER_EMAIL}"
+    - git remote set-url origin "https://gitlab-ci-token:${PERSONAL_ACCESS_TOKEN}@$CI_SERVER_HOST/$CI_PROJECT_PATH.git"
   script:
-    # If npm is running as root, certain commands will fail since it does not have permissions on the current build directory. "unsafe-perm = true" fixes it
+   #If npm is running as root, certain commands will fail since it does not have permissions on the current build directory. "unsafe-perm = true" fixes it
     - echo "unsafe-perm = true" >> .npmrc
     - npm version minor --git-tag-version=false
     - npm publish --verbose
-    - git add package.json
+    - git add .
     # You can add a getName and getVersion key under scripts in your package.json to return the name and version of your package and add it to the commit message
     # "scripts": {
-    #     "getVersion": "echo  $npm_package_version",
-    #     "getName": "echo  $npm_package_name"
-    #  }
+    #   "getVersion": "echo  $npm_package_version",
+    #  "getName": "echo  $npm_package_name"
+    #  },
     - git commit -m "[ci skip] update $(npm run getName -s) version to $(npm run getVersion -s)"
-    - git push -o ci.skip "https://sahbabou:${PERSONAL_ACCESS_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}" "HEAD:${CI_COMMIT_BRANCH}"
+    - git push origin HEAD:$CI_COMMIT_BRANCH
 
   dependencies:
     - build:create_npmrc
