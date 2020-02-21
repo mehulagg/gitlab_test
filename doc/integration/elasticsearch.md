@@ -47,17 +47,18 @@ updated automatically.
 
 For indexing Git repository data, GitLab uses an [indexer written in Go](https://gitlab.com/gitlab-org/gitlab-elasticsearch-indexer).
 
-
 The way you install the Go indexer depends on your version of GitLab:
 
 - For GitLab Omnibus 11.8 and above, see [GitLab Omnibus](#gitlab-omnibus).
 - For older versions of GitLab, install the indexer [From Source](#from-source).
 
-#### GitLab Omnibus
+### GitLab Omnibus
+
 The Go indexer was included in Omnibus GitLab 11.8 as an optional replacement to a
 Ruby-based indexer. [Since GitLab v12.3](https://gitlab.com/gitlab-org/gitlab/issues/6481),
 
-#### From source
+### From source
+
 First, we need to install some dependencies, then we'll build and install
 the indexer itself.
 
@@ -65,7 +66,7 @@ This project relies on [ICU](http://site.icu-project.org/) for text encoding,
 therefore we need to ensure the development packages for your platform are
 installed before running `make`.
 
-##### Debian / Ubuntu
+#### Debian / Ubuntu
 
 To install on Debian or Ubuntu, run:
 
@@ -73,7 +74,7 @@ To install on Debian or Ubuntu, run:
 sudo apt install libicu-dev
 ```
 
-##### CentOS / RHEL
+#### CentOS / RHEL
 
 To install on CentOS or RHEL, run:
 
@@ -90,7 +91,7 @@ brew install icu4c
 export PKG_CONFIG_PATH="/usr/local/opt/icu4c/lib/pkgconfig:$PKG_CONFIG_PATH"
 ```
 
-#### Building and installing
+### Building and installing
 
 To build and install the indexer, run:
 
@@ -623,8 +624,7 @@ Here are some common pitfalls and how to overcome them:
    ```
 
    You probably have not used either `http://` or `https://` as part of your value in the **"URL"** field of the Elasticseach Integration Menu. Please make sure you are using either `http://` or `https://` in this field as the [Elasticsearch client for Go](https://github.com/olivere/elastic) that we are using [needs the prefix for the URL to be acceped as valid](https://github.com/olivere/elastic/commit/a80af35aa41856dc2c986204e2b64eab81ccac3a).
-   Once you have corrected the formatting of the URL, delete the index (via the [dedicated rake task](#gitlab-elasticsearch-rake-tasks)) 
-and [reindex the content of your instance](#adding-gitlabs-data-to-the-elasticsearch-index).
+   Once you have corrected the formatting of the URL, delete the index (via the [dedicated rake task](#gitlab-elasticsearch-rake-tasks)) and [reindex the content of your instance](#adding-gitlabs-data-to-the-elasticsearch-index).
 
 ### Reverting to basic search
 
