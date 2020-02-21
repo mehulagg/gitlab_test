@@ -39,6 +39,7 @@ PreCommit:
   # prettier? https://github.com/sds/overcommit/issues/614 https://github.com/sds/overcommit/issues/390#issuecomment-495703284
   RuboCop:
     enabled: true
+    command: ['bundle', 'exec', 'rubocop'] # Invoke within Bundler context
 #    on_warn: fail # Treat all warnings as failures
   ScssLint:
     enabled: true
