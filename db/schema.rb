@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_27_165129) do
+ActiveRecord::Schema.define(version: 2020_03_04_024042) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -2196,6 +2196,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.integer "duplicated_to_id"
     t.integer "promoted_to_epic_id"
     t.integer "health_status", limit: 2
+    t.bigint "sprint_id"
     t.index ["author_id"], name: "index_issues_on_author_id"
     t.index ["closed_by_id"], name: "index_issues_on_closed_by_id"
     t.index ["confidential"], name: "index_issues_on_confidential"
@@ -2215,6 +2216,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.index ["project_id", "updated_at", "id", "state_id"], name: "idx_issues_on_project_id_and_updated_at_and_id_and_state_id"
     t.index ["promoted_to_epic_id"], name: "index_issues_on_promoted_to_epic_id", where: "(promoted_to_epic_id IS NOT NULL)"
     t.index ["relative_position"], name: "index_issues_on_relative_position"
+    t.index ["sprint_id"], name: "index_issues_on_sprint_id"
     t.index ["state"], name: "index_issues_on_state"
     t.index ["state_id"], name: "idx_issues_on_state_id"
     t.index ["title"], name: "index_issues_on_title_trigram", opclass: :gin_trgm_ops, using: :gin
@@ -2613,6 +2615,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.integer "state_id", limit: 2, default: 1, null: false
     t.string "rebase_jid"
     t.binary "squash_commit_sha"
+    t.bigint "sprint_id"
     t.index ["assignee_id"], name: "index_merge_requests_on_assignee_id"
     t.index ["author_id"], name: "index_merge_requests_on_author_id"
     t.index ["created_at"], name: "index_merge_requests_on_created_at"
@@ -2628,6 +2631,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.index ["source_project_id", "source_branch"], name: "idx_merge_requests_on_source_project_and_branch_state_opened", where: "(state_id = 1)"
     t.index ["source_project_id", "source_branch"], name: "index_merge_requests_on_source_project_and_branch_state_opened", where: "((state)::text = 'opened'::text)"
     t.index ["source_project_id", "source_branch"], name: "index_merge_requests_on_source_project_id_and_source_branch"
+    t.index ["sprint_id"], name: "index_merge_requests_on_sprint_id"
     t.index ["state", "merge_status"], name: "index_merge_requests_on_state_and_merge_status", where: "(((state)::text = 'opened'::text) AND ((merge_status)::text = 'can_be_merged'::text))"
     t.index ["state_id", "merge_status"], name: "idx_merge_requests_on_state_id_and_merge_status", where: "((state_id = 1) AND ((merge_status)::text = 'can_be_merged'::text))"
     t.index ["target_branch"], name: "index_merge_requests_on_target_branch"
@@ -4000,6 +4004,28 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.boolean "recaptcha_verified", default: false, null: false
   end
 
+  create_table "sprints", force: :cascade do |t|
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.date "start_date"
+    t.date "due_date"
+    t.integer "iid"
+    t.integer "cached_markdown_version"
+    t.bigint "project_id"
+    t.bigint "group_id"
+    t.string "title", limit: 255, null: false
+    t.string "state", limit: 255
+    t.text "title_html"
+    t.text "description"
+    t.text "description_html"
+    t.index ["description"], name: "index_sprints_on_description_trigram", opclass: :gin_trgm_ops, using: :gin
+    t.index ["due_date"], name: "index_sprints_on_due_date"
+    t.index ["group_id"], name: "index_sprints_on_group_id"
+    t.index ["project_id", "iid"], name: "index_sprints_on_project_id_and_iid", unique: true
+    t.index ["title"], name: "index_sprints_on_title"
+    t.index ["title"], name: "index_sprints_on_title_trigram", opclass: :gin_trgm_ops, using: :gin
+  end
+
   create_table "subscriptions", id: :serial, force: :cascade do |t|
     t.integer "user_id"
     t.integer "subscribable_id"
@@ -4832,6 +4858,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
   add_foreign_key "issues", "issues", column: "moved_to_id", name: "fk_a194299be1", on_delete: :nullify
   add_foreign_key "issues", "milestones", name: "fk_96b1dd429c", on_delete: :nullify
   add_foreign_key "issues", "projects", name: "fk_899c8f3231", on_delete: :cascade
+  add_foreign_key "issues", "sprints", name: "fk_3b8c72ea56", on_delete: :cascade
   add_foreign_key "issues", "users", column: "author_id", name: "fk_05f1e72feb", on_delete: :nullify
   add_foreign_key "issues", "users", column: "closed_by_id", name: "fk_c63cbf6c25", on_delete: :nullify
   add_foreign_key "issues", "users", column: "updated_by_id", name: "fk_ffed080f01", on_delete: :nullify
@@ -4876,6 +4903,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
   add_foreign_key "merge_requests", "milestones", name: "fk_6a5165a692", on_delete: :nullify
   add_foreign_key "merge_requests", "projects", column: "source_project_id", name: "fk_3308fe130c", on_delete: :nullify
   add_foreign_key "merge_requests", "projects", column: "target_project_id", name: "fk_a6963e8447", on_delete: :cascade
+  add_foreign_key "merge_requests", "sprints", name: "fk_7e85395a64", on_delete: :cascade
   add_foreign_key "merge_requests", "users", column: "assignee_id", name: "fk_6149611a04", on_delete: :nullify
   add_foreign_key "merge_requests", "users", column: "author_id", name: "fk_e719a85f8a", on_delete: :nullify
   add_foreign_key "merge_requests", "users", column: "merge_user_id", name: "fk_ad525e1f87", on_delete: :nullify
@@ -5016,6 +5044,8 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
   add_foreign_key "snippets", "projects", name: "fk_be41fd4bb7", on_delete: :cascade
   add_foreign_key "software_license_policies", "projects", on_delete: :cascade
   add_foreign_key "software_license_policies", "software_licenses", on_delete: :cascade
+  add_foreign_key "sprints", "namespaces", column: "group_id", on_delete: :cascade
+  add_foreign_key "sprints", "projects", on_delete: :cascade
   add_foreign_key "subscriptions", "projects", on_delete: :cascade
   add_foreign_key "suggestions", "notes", on_delete: :cascade
   add_foreign_key "system_note_metadata", "description_versions", name: "fk_fbd87415c9", on_delete: :nullify

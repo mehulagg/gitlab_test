@@ -36,7 +36,7 @@ module Milestoneish
   def issues_visible_to_user(user)
     memoize_per_user(user, :issues_visible_to_user) do
       IssuesFinder.new(user, issues_finder_params)
-        .execute.preload(:assignees).where(milestone_id: milestoneish_id)
+        .execute.preload(:assignees).where("#{model_name.singular}_id" => timebox_id)
     end
   end
 
@@ -63,7 +63,7 @@ module Milestoneish
   def merge_requests_visible_to_user(user)
     memoize_per_user(user, :merge_requests_visible_to_user) do
       MergeRequestsFinder.new(user, issues_finder_params)
-        .execute.where(milestone_id: milestoneish_id)
+        .execute.where("#{model_name.singular}_id" => timebox_id)
     end
   end
 
