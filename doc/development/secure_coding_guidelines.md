@@ -1,13 +1,13 @@
 # Security Guidelines
 
-## Description
+### Description
 
 The repo contains descriptions and guidelines for addressing security
 vulnerabilities commonly identified in the GitLab codebase. They are intended
 to help developers identify potential security vulnerabilities early, with the
 goal of reducing the number of vulnerabilities released over time.
 
-## Contributing
+### Contributing
 
 If you would like to contribute to one of the existing documents, or add
 guidelines for a new vulnerability type, please open an MR! Please try to
@@ -15,14 +15,14 @@ include links to examples of the vulnerability found, and link to any resources
 used in defined mitigations. If you have questions or when ready for a review,
 please ping `gitlab-com/gl-security/appsec`.
 
-# Permissions
+## Permissions
 
-## Description
+### Description
 
 Application permissions are used to determine who can access what and what actions they can perform.
 For more information about the permission model at GitLab, please see [the GitLab permissions guide](https://docs.gitlab.com/ee/development/permissions.html) or the [EE docs on permissions](https://docs.gitlab.com/ee/user/permissions.html).
 
-## Impact
+### Impact
 
 Improper permission handling can have significant impacts on the security of an application.
 Some situations may reveal [sensitive data](https://gitlab.com/gitlab-com/gl-infra/production/issues/477) or allow a malicious actor to perform [harmful actions](https://gitlab.com/gitlab-org/gitlab/issues/8180).
@@ -30,11 +30,11 @@ The overall impact depends heavily on what resources can be accessed or modified
 
 A common vulnerability when permission checks are missing is called [IDOR](https://www.owasp.org/index.php/Testing_for_Insecure_Direct_Object_References_(OTG-AUTHZ-004)) for Insecure Direct Object References.
 
-## When to Consider
+### When to Consider
 
 Each time you implement a new feature/endpoint, whether it is at UI, API or GraphQL level.
 
-## Mitigations
+### Mitigations
 
 **Start by writing tests** around permissions: unit and feature specs should both include tests based around permissions
 - Fine-grained, nitty-gritty specs for permissions are good: it is ok to be verbose here
@@ -54,9 +54,9 @@ Some example of well implemented access controls and tests:
 
 **NB:** any input from development team is welcome, e.g. about rubocop rules.
 
-# Regular Expressions guidelines
+## Regular Expressions guidelines
 
-## Anchors / Multi line
+### Anchors / Multi line
 Unlike other programming languages (e.g. Perl or Python) Regular Expressions are matching multi-line by default in Ruby. Consider the following example in Python:
 
 ```python
@@ -73,10 +73,10 @@ p text.match /^bar$/
 ```
 The output of this example is `#<MatchData "bar">`, as Ruby treats the input `text` line by line. In order to match the whole __string__ the Regex anchors `\A` and `\z` should be used.https://rubular.com/
 
-### Impact
+#### Impact
 This Ruby Regex speciality can have security impact, as often regular expressions are used for validations or to impose restrictions on user-input.
 
-### Examples
+#### Examples
 GitLab specific examples can be found [here](https://gitlab.com/gitlab-org/gitlab/issues/36029#note_251262187) and [there](https://gitlab.com/gitlab-org/gitlab/issues/33569).
 
 Another example would be this fictional Ruby On Rails controller:
@@ -95,17 +95,17 @@ end
 
 Here `params[:ip]` should not contain anything else but numbers and dots. However this restriction can be easily bypassed as the Regex anchors `^` and `$` are being used. Ultimately this leads to a shell command injection in `ping -c 4 #{params[:ip]}` by using newlines in `params[:ip]`.
 
-### Mitigation
+#### Mitigation
 
 In most cases the anchors `\A` for beginning of text and `\z` for end of text should be used instead of `^` and `$`.
 
-## Further Links
+### Further Links
 
 * [Rubular](https://rubular.com/) is a nice online tool to fiddle with Ruby Regexps.
 
 # Server Side Request Forgery (SSRF)
 
-## Description
+### Description
 
 A [Server-side Request Forgery (SSRF)][1] is an attack in which an attacker
 is able coerce a application into making an outbound request to an unintended
@@ -119,7 +119,7 @@ attackers, especially for mapping internal network services as part of recon.
 
 [1]: https://www.hackerone.com/blog-How-To-Server-Side-Request-Forgery-SSRF
 
-## Impact
+### Impact
 
 The impact of an SSRF can vary, depending on what the application server
 can communicate with, how much the attacker can control of the payload, and
@@ -137,11 +137,11 @@ have been reported to GitLab include:
 - When combined with CRLF vulnerability, remote code execution.
   - https://gitlab.com/gitlab-org/gitlab-foss/issues/41293
 
-## When to Consider
+### When to Consider
 
 - When the application makes any outbound connection
 
-## Mitigations
+### Mitigations
 
 In order to mitigate SSRF vulnerabilities, it is necessary to validate the destination of the outgoing request, especially if it includes user-supplied information.
 
@@ -150,7 +150,7 @@ The preferred SSRF mitigations within GitLab are:
 2. Use the [GitLab::HTTP](#gitlab-http-library) library
 3. Implement [feature-specific mitigations](#feature-specific-mitigations)
 
-### Gitlab HTTP Library
+#### Gitlab HTTP Library
 The [Gitlab::HTTP][2] wrapper library has grown to include mitigations for all of the GitLab-known SSRF vectors. It is also configured to respect the
 `Outbound requests` options that allow instance administrators to block all internal connections, or limit the networks to which connections can be made.
 
@@ -161,7 +161,7 @@ the mitigations for a new feature.
 
 [2]: https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/http.rb
 
-### Feature-specific Mitigations
+#### Feature-specific Mitigations
 For situtions in which a whitelist or GitLab:HTTP cannot be used, it will be necessary to implement mitigations directly in the feature. It is best to validate the destination IP addresses themselves, not just domain names, as DNS can be controlled by the attacker. Below are a list of mitigations that should be implemented.
 
 **Important Note:** There are many tricks to bypass common SSRF validations. If  feature-specific mitigations are necessary, they should be reviewed by the AppSec team, or a developer who has worked on SSRF mitigations previously.
@@ -183,9 +183,9 @@ See [url_blocker_spec.rb][3] for examples of SSRF payloads
 
 [3]: https://gitlab.com/gitlab-org/gitlab/-/blob/master/spec/lib/gitlab/url_blocker_spec.rb
 
-# XSS guidelines
+## XSS guidelines
 
-## Description
+### Description
 
 Cross site scripting (XSS) is an issue where malicious JavaScript code gets injected into a trusted web application and executed in a client's browser. The input is intended to be data, but instead gets treated as code by the browser.
 
@@ -194,7 +194,7 @@ XSS issues are commonly classified in three categories, by their delivery method
 - [Reflected XSS](https://owasp.org/www-community/Types_of_Cross-Site_Scripting#reflected-xss-aka-non-persistent-or-type-ii)
 - [DOM XSS](https://owasp.org/www-community/Types_of_Cross-Site_Scripting#dom-based-xss-aka-type-0)
 
-## Impact
+### Impact
 
 The injected client-side code is executed on the victim's browser in the context of their current session. This means the attacker could perform any same action the victim would normally be able to do through a browser. The attacker would also have the ability to:
 - [log victim keystrokes](https://youtu.be/2VFavqfDS6w?t=1367)
@@ -204,24 +204,24 @@ The injected client-side code is executed on the victim's browser in the context
 
 Much of the impact is contingent upon the function of the application and the capabilities of the victim's session. For further impact possibilities, please check out [the beef project](https://beefproject.com/).
 
-## When to consider?
+### When to consider?
 
 When user submitted data is included in responses to end users, which is just about anywhere.
 
-## Mitigation
+### Mitigation
 
 In most situations, a two-step solution can be utilized: input validation and output encoding in the appropriate context.
 
 
-### Input validation
+#### Input validation
 
 - [Input Validation](https://youtu.be/2VFavqfDS6w?t=7489)
 
-#### Setting expectations
+##### Setting expectations
 
 For any and all input fields, ensure to define expectations on the type/format of input, the contents, [size limits](https://youtu.be/2VFavqfDS6w?t=7582), the context in which it will be output. It's important to work with both security and product teams to determine what is considered acceptable input.
 
-#### Validate input
+##### Validate input
 
 - Treat all user input as untrusted.
 - Based on the expectations you [defined above](#setting-expectations):
@@ -231,7 +231,7 @@ For any and all input fields, ensure to define expectations on the type/format o
 
 Note that blacklists should be avoided, as it is near impossible to block all [variations of XSS](https://www.owasp.org/index.php/XSS_Filter_Evasion_Cheat_Sheet).
 
-### Output encoding
+#### Output encoding
 
 Once you've [determined when and where](#setting-expectations) the user submitted data will be output, it's important to encode it based on the appropriate context. For example:
 
@@ -240,42 +240,42 @@ Once you've [determined when and where](#setting-expectations) the user submitte
 - Content placed inside [HTML URL GET parameters](https://youtu.be/2VFavqfDS6w?t=3494) need to be [URL-encoded](https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html#rule-5---url-escape-before-inserting-untrusted-data-into-html-url-parameter-values)
 - [Additional contexts may require context-specific encoding](https://youtu.be/2VFavqfDS6w?t=2341).
 
-## Additional info
+### Additional info
 
-### Mitigating XSS in Rails
+#### Mitigating XSS in Rails
 
 - [XSS Defense in Rails](https://youtu.be/2VFavqfDS6w?t=2442)
 - [XSS Defense with HAML](https://youtu.be/2VFavqfDS6w?t=2796)
 - [Validating Untrusted URLs in Ruby](https://youtu.be/2VFavqfDS6w?t=3936)
 - [RoR Model Validators](https://youtu.be/2VFavqfDS6w?t=7636)
 
-### GitLab specific libraries for mitigating XSS
+#### GitLab specific libraries for mitigating XSS
 
-#### Vue
+##### Vue
 
 - [isSafeURL](https://gitlab.com/gitlab-org/gitlab/-/blob/v12.7.5-ee/app/assets/javascripts/lib/utils/url_utility.js#L190-207)
 
-### Content Security Policy
+#### Content Security Policy
 
 - [Content Security Policy](https://www.youtube.com/watch?v=2VFavqfDS6w&t=12991s)
 - [Use nonce-based Content Security Policy for inline JavaScript](https://gitlab.com/gitlab-org/gitlab-foss/issues/65330)
 
-### Free form input fields
+#### Free form input fields
 
-#### Sanitization
+##### Sanitization
 
 - [HTML Sanitization](https://youtu.be/2VFavqfDS6w?t=5075)
 - [DOMPurify](https://youtu.be/2VFavqfDS6w?t=5381)
 
-#### `iframe` sandboxes
+##### `iframe` sandboxes
 
 - [iframe sandboxing](https://youtu.be/2VFavqfDS6w?t=7043)
 
-## Select examples of past XSS issues affecting GitLab
+### Select examples of past XSS issues affecting GitLab
 
 - [Stored XSS in user status](https://gitlab.com/gitlab-org/gitlab-foss/issues/55320)
 
-## Developer Training
+### Developer Training
 
 - [Introduction to XSS](https://www.youtube.com/watch?v=PXR8PTojHmc&t=7785s)
 - [Reflected XSS](https://youtu.be/2VFavqfDS6w?t=603s)
