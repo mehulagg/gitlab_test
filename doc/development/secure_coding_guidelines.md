@@ -1,13 +1,11 @@
-## Security Guidelines
-
-### Description
+# Security Guidelines
 
 The repo contains descriptions and guidelines for addressing security
 vulnerabilities commonly identified in the GitLab codebase. They are intended
 to help developers identify potential security vulnerabilities early, with the
 goal of reducing the number of vulnerabilities released over time.
 
-### Contributing
+**Contributing**
 
 If you would like to contribute to one of the existing documents, or add
 guidelines for a new vulnerability type, please open an MR! Please try to
