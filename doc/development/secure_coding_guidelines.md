@@ -1,12 +1,14 @@
 # Security Guidelines
 
 ## Description
+
 The repo contains descriptions and guidelines for addressing security
 vulnerabilities commonly identified in the GitLab codebase. They are intended
 to help developers identify potential security vulnerabilities early, with the
 goal of reducing the number of vulnerabilities released over time.
 
 ## Contributing
+
 If you would like to contribute to one of the existing documents, or add
 guidelines for a new vulnerability type, please open an MR! Please try to
 include links to examples of the vulnerability found, and link to any resources
@@ -35,20 +37,20 @@ Each time you implement a new feature/endpoint, whether it is at UI, API or Grap
 ## Mitigations
 
 **Start by writing tests** around permissions: unit and feature specs should both include tests based around permissions
-* Fine-grained, nitty-gritty specs for permissions are good: it is ok to be verbose here
-    * Make assertions based on the actors and objects involved: can a user or group or XYZ perform this action on this object?
-    * Consider defining them upfront with stakeholders, particularly for the edge cases
-* Do not forget **abuse cases**: write specs that **make sure certain things can't happen**
-    * A lot of specs are making sure things do happen and coverage percentage doesn't take into account permissions as same piece of code is used.
-    * Make assertions that certain actors cannot perform actions
-* Naming convention to ease auditability: to be defined, e.g. a subfolder containing those specific permission tests or a `#permissions` block
+- Fine-grained, nitty-gritty specs for permissions are good: it is ok to be verbose here
+  - Make assertions based on the actors and objects involved: can a user or group or XYZ perform this action on this object?
+  - Consider defining them upfront with stakeholders, particularly for the edge cases
+- Do not forget **abuse cases**: write specs that **make sure certain things can't happen**
+  - A lot of specs are making sure things do happen and coverage percentage doesn't take into account permissions as same piece of code is used.
+  - Make assertions that certain actors cannot perform actions
+- Naming convention to ease auditability: to be defined, e.g. a subfolder containing those specific permission tests or a `#permissions` block
 
 Be careful to **also test [visibility levels](https://gitlab.com/gitlab-org/gitlab-foss/-/blob/master/doc/development/permissions.md#feature-specific-permissions)** and not only project access rights.
 
 Some example of well implemented access controls and tests:
-1.  [example1](https://dev.gitlab.org/gitlab/gitlab-ee/merge_requests/710/diffs?diff_id=13750#af40ef0eaae3c1e018809e1d88086e32bccaca40_43_43)
-2.  [example2](https://dev.gitlab.org/gitlab/gitlabhq/merge_requests/2511/diffs#ed3aaab1510f43b032ce345909a887e5b167e196_142_155)
-3.  [example3](https://dev.gitlab.org/gitlab/gitlabhq/merge_requests/3170/diffs?diff_id=17494)
+1. [example1](https://dev.gitlab.org/gitlab/gitlab-ee/merge_requests/710/diffs?diff_id=13750#af40ef0eaae3c1e018809e1d88086e32bccaca40_43_43)
+2. [example2](https://dev.gitlab.org/gitlab/gitlabhq/merge_requests/2511/diffs#ed3aaab1510f43b032ce345909a887e5b167e196_142_155)
+3. [example3](https://dev.gitlab.org/gitlab/gitlabhq/merge_requests/3170/diffs?diff_id=17494)
 
 **NB:** any input from development team is welcome, e.g. about rubocop rules.
 
@@ -124,19 +126,20 @@ can communicate with, how much the attacker can control of the payload, and
 if the response is returned back to the attacker. Examples of impact that
 have been reported to GitLab include:
 
-* Network mapping of internal services
-  * This can help an attacker gather information about internal services
+- Network mapping of internal services
+  - This can help an attacker gather information about internal services
   that could be used in further attacks.
-  * https://gitlab.com/gitlab-org/gitlab-foss/issues/51327
-* Reading internal services, including cloud service metadata.
-  * The latter can be a serious problem, because an attacker can obtain keys that allow control of the victim's cloud infrastructure. (This is also a good reason
+  - https://gitlab.com/gitlab-org/gitlab-foss/issues/51327
+- Reading internal services, including cloud service metadata.
+  - The latter can be a serious problem, because an attacker can obtain keys that allow control of the victim's cloud infrastructure. (This is also a good reason
   to give only necessary privileges to the token.)
-  * https://gitlab.com/gitlab-org/gitlab-foss/issues/51490
-* When combined with CRLF vulnerability, remote code execution.
-  * https://gitlab.com/gitlab-org/gitlab-foss/issues/41293
+  - https://gitlab.com/gitlab-org/gitlab-foss/issues/51490
+- When combined with CRLF vulnerability, remote code execution.
+  - https://gitlab.com/gitlab-org/gitlab-foss/issues/41293
 
 ## When to Consider
-* When the application makes any outbound connection
+
+- When the application makes any outbound connection
 
 ## Mitigations
 
@@ -159,22 +162,22 @@ the mitigations for a new feature.
 [2]: https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/http.rb
 
 ### Feature-specific Mitigations
-For situtions in which a whitelist or Gitlab:HTTP cannot be used, it will be necessary to implement mitigations directly in the feature. It is best to validate the destination IP addresses themselves, not just domain names, as DNS can be controlled by the attacker. Below are a list of mitigations that should be implemented.
+For situtions in which a whitelist or GitLab:HTTP cannot be used, it will be necessary to implement mitigations directly in the feature. It is best to validate the destination IP addresses themselves, not just domain names, as DNS can be controlled by the attacker. Below are a list of mitigations that should be implemented.
 
 **Important Note:** There are many tricks to bypass common SSRF validations. If  feature-specific mitigations are necessary, they should be reviewed by the AppSec team, or a developer who has worked on SSRF mitigations previously.
 
-* Block connections to all localhost addresses
-  * `127.0.0.1/8` (IPv4 - note the subnet mask)
-  * `::1` (IPv6)
-* Block connections to networks with private addressing (RFC 1918)
-  * `10.0.0.0/8`
-  * `172.16.0.0/12`
-  * `192.168.0.0/24`
-* Block connections to link-local addresses (RFC 3927)
-  * `169.254.0.0/16`
-  * In particular, for GCP: `metadata.google.internal` -> `169.254.169.254`
-* For HTTP connections: Disable redirects or validate the redirect destination
-* To mitigate DNS rebinding attacks, validate and use the first IP address received
+- Block connections to all localhost addresses
+  - `127.0.0.1/8` (IPv4 - note the subnet mask)
+  - `::1` (IPv6)
+- Block connections to networks with private addressing (RFC 1918)
+  - `10.0.0.0/8`
+  - `172.16.0.0/12`
+  - `192.168.0.0/24`
+- Block connections to link-local addresses (RFC 3927)
+  - `169.254.0.0/16`
+  - In particular, for GCP: `metadata.google.internal` -> `169.254.169.254`
+- For HTTP connections: Disable redirects or validate the redirect destination
+- To mitigate DNS rebinding attacks, validate and use the first IP address received
 
 See [url_blocker_spec.rb][3] for examples of SSRF payloads
 
@@ -183,7 +186,8 @@ See [url_blocker_spec.rb][3] for examples of SSRF payloads
 # XSS guidelines
 
 ## Description
-Cross site scripting (XSS) is an issue where malicious javascript code gets injected into a trusted web application and executed in a client's browser. The input is intended to be data, but instead gets treated as code by the browser. 
+
+Cross site scripting (XSS) is an issue where malicious JavaScript code gets injected into a trusted web application and executed in a client's browser. The input is intended to be data, but instead gets treated as code by the browser.
 
 XSS issues are commonly classified in three categories, by their delivery method:
 - [Persistent XSS](https://owasp.org/www-community/Types_of_Cross-Site_Scripting#stored-xss-aka-persistent-or-type-i)
@@ -239,27 +243,32 @@ Once you've [determined when and where](#setting-expectations) the user submitte
 ## Additional info
 
 ### Mitigating XSS in Rails
+
 - [XSS Defense in Rails](https://youtu.be/2VFavqfDS6w?t=2442)
 - [XSS Defense with HAML](https://youtu.be/2VFavqfDS6w?t=2796)
 - [Validating Untrusted URLs in Ruby](https://youtu.be/2VFavqfDS6w?t=3936)
 - [RoR Model Validators](https://youtu.be/2VFavqfDS6w?t=7636)
 
-### GitLab specific libraries for mitigating XSS.
+### GitLab specific libraries for mitigating XSS
 
 #### Vue
+
 - [isSafeURL](https://gitlab.com/gitlab-org/gitlab/-/blob/v12.7.5-ee/app/assets/javascripts/lib/utils/url_utility.js#L190-207)
 
 ### Content Security Policy
+
 - [Content Security Policy](https://www.youtube.com/watch?v=2VFavqfDS6w&t=12991s)
 - [Use nonce-based Content Security Policy for inline JavaScript](https://gitlab.com/gitlab-org/gitlab-foss/issues/65330)
 
 ### Free form input fields
 
 #### Sanitization
+
 - [HTML Sanitization](https://youtu.be/2VFavqfDS6w?t=5075)
 - [DOMPurify](https://youtu.be/2VFavqfDS6w?t=5381)
 
 #### `iframe` sandboxes
+
 - [iframe sandboxing](https://youtu.be/2VFavqfDS6w?t=7043)
 
 ## Select examples of past XSS issues affecting GitLab
@@ -267,6 +276,7 @@ Once you've [determined when and where](#setting-expectations) the user submitte
 - [Stored XSS in user status](https://gitlab.com/gitlab-org/gitlab-foss/issues/55320)
 
 ## Developer Training
+
 - [Introduction to XSS](https://www.youtube.com/watch?v=PXR8PTojHmc&t=7785s)
 - [Reflected XSS](https://youtu.be/2VFavqfDS6w?t=603s)
 - [Persistent XSS](https://youtu.be/2VFavqfDS6w?t=643)
@@ -275,7 +285,7 @@ Once you've [determined when and where](#setting-expectations) the user submitte
 - [XSS Defense](https://youtu.be/2VFavqfDS6w?t=1685)
 - [XSS Defense in Rails](https://youtu.be/2VFavqfDS6w?t=2442)
 - [XSS Defense with HAML](https://youtu.be/2VFavqfDS6w?t=2796)
-- [Javascript URLs](https://youtu.be/2VFavqfDS6w?t=3274)
+- [JavaScript URLs](https://youtu.be/2VFavqfDS6w?t=3274)
 - [URL encoding context](https://youtu.be/2VFavqfDS6w?t=3494)
 - [Validating Untrusted URLs in Ruby](https://youtu.be/2VFavqfDS6w?t=3936)
 - [HTML Sanitization](https://youtu.be/2VFavqfDS6w?t=5075)
