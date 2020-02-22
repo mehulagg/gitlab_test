@@ -37,6 +37,7 @@ Each time you implement a new feature/endpoint, whether it is at UI, API or Grap
 ### Mitigations
 
 **Start by writing tests** around permissions: unit and feature specs should both include tests based around permissions
+
 - Fine-grained, nitty-gritty specs for permissions are good: it is ok to be verbose here
   - Make assertions based on the actors and objects involved: can a user or group or XYZ perform this action on this object?
   - Consider defining them upfront with stakeholders, particularly for the edge cases
@@ -48,15 +49,17 @@ Each time you implement a new feature/endpoint, whether it is at UI, API or Grap
 Be careful to **also test [visibility levels](https://gitlab.com/gitlab-org/gitlab-foss/-/blob/master/doc/development/permissions.md#feature-specific-permissions)** and not only project access rights.
 
 Some example of well implemented access controls and tests:
+
 1. [example1](https://dev.gitlab.org/gitlab/gitlab-ee/merge_requests/710/diffs?diff_id=13750#af40ef0eaae3c1e018809e1d88086e32bccaca40_43_43)
-2. [example2](https://dev.gitlab.org/gitlab/gitlabhq/merge_requests/2511/diffs#ed3aaab1510f43b032ce345909a887e5b167e196_142_155)
-3. [example3](https://dev.gitlab.org/gitlab/gitlabhq/merge_requests/3170/diffs?diff_id=17494)
+1. [example2](https://dev.gitlab.org/gitlab/gitlabhq/merge_requests/2511/diffs#ed3aaab1510f43b032ce345909a887e5b167e196_142_155)
+1. [example3](https://dev.gitlab.org/gitlab/gitlabhq/merge_requests/3170/diffs?diff_id=17494)
 
 **NB:** any input from development team is welcome, e.g. about rubocop rules.
 
 ## Regular Expressions guidelines
 
 ### Anchors / Multi line
+
 Unlike other programming languages (e.g. Perl or Python) Regular Expressions are matching multi-line by default in Ruby. Consider the following example in Python:
 
 ```python
@@ -65,18 +68,22 @@ text = "foo\nbar"
 matches = re.findall("^bar$",text)
 print(matches)
 ```
+
 The Python example will output an emtpy array (`[]`) as the matcher considers the whole string `foo\nbar` including the newline (`\n`). In contrast Ruby's Regular Expression engine acts differently:
 
 ```ruby
 text = "foo\nbar"
 p text.match /^bar$/
 ```
-The output of this example is `#<MatchData "bar">`, as Ruby treats the input `text` line by line. In order to match the whole __string__ the Regex anchors `\A` and `\z` should be used.https://rubular.com/
+
+The output of this example is `#<MatchData "bar">`, as Ruby treats the input `text` line by line. In order to match the whole __string__ the Regex anchors `\A` and `\z` should be used according to [Rubular](https://rubular.com/).
 
 #### Impact
+
 This Ruby Regex speciality can have security impact, as often regular expressions are used for validations or to impose restrictions on user-input.
 
 #### Examples
+
 GitLab specific examples can be found [here](https://gitlab.com/gitlab-org/gitlab/issues/36029#note_251262187) and [there](https://gitlab.com/gitlab-org/gitlab/issues/33569).
 
 Another example would be this fictional Ruby On Rails controller:
@@ -101,7 +108,7 @@ In most cases the anchors `\A` for beginning of text and `\z` for end of text sh
 
 ### Further Links
 
-* [Rubular](https://rubular.com/) is a nice online tool to fiddle with Ruby Regexps.
+- [Rubular](https://rubular.com/) is a nice online tool to fiddle with Ruby Regexps.
 
 # Server Side Request Forgery (SSRF)
 
@@ -128,14 +135,11 @@ have been reported to GitLab include:
 
 - Network mapping of internal services
   - This can help an attacker gather information about internal services
-  that could be used in further attacks.
-  - https://gitlab.com/gitlab-org/gitlab-foss/issues/51327
+  that could be used in further attacks. [More details](https://gitlab.com/gitlab-org/gitlab-foss/issues/51327).
 - Reading internal services, including cloud service metadata.
   - The latter can be a serious problem, because an attacker can obtain keys that allow control of the victim's cloud infrastructure. (This is also a good reason
-  to give only necessary privileges to the token.)
-  - https://gitlab.com/gitlab-org/gitlab-foss/issues/51490
-- When combined with CRLF vulnerability, remote code execution.
-  - https://gitlab.com/gitlab-org/gitlab-foss/issues/41293
+  to give only necessary privileges to the token.). [More details](https://gitlab.com/gitlab-org/gitlab-foss/issues/51490).
+- When combined with CRLF vulnerability, remote code execution. [More details](https://gitlab.com/gitlab-org/gitlab-foss/issues/41293)
 
 ### When to Consider
 
@@ -146,22 +150,26 @@ have been reported to GitLab include:
 In order to mitigate SSRF vulnerabilities, it is necessary to validate the destination of the outgoing request, especially if it includes user-supplied information.
 
 The preferred SSRF mitigations within GitLab are:
-1. Only connect to known, trusted domains/IP addresses.
-2. Use the [GitLab::HTTP](#gitlab-http-library) library
-3. Implement [feature-specific mitigations](#feature-specific-mitigations)
 
-#### Gitlab HTTP Library
-The [Gitlab::HTTP][2] wrapper library has grown to include mitigations for all of the GitLab-known SSRF vectors. It is also configured to respect the
+1. Only connect to known, trusted domains/IP addresses.
+1. Use the [GitLab::HTTP](#gitlab-http-library) library
+1. Implement [feature-specific mitigations](#feature-specific-mitigations)
+
+#### GitLab HTTP Library
+
+The [GitLab::HTTP][2] wrapper library has grown to include mitigations for all of the GitLab-known SSRF vectors. It is also configured to respect the
 `Outbound requests` options that allow instance administrators to block all internal connections, or limit the networks to which connections can be made.
 
 In some cases, it has been possible to configure GitLab::HTTP as the HTTP
 connection library for 3rd-party gems. This is preferrable over re-implementing
 the mitigations for a new feature.
-  * https://dev.gitlab.org/gitlab/gitlabhq/merge_requests/2530/diffs
+
+- [More details](https://dev.gitlab.org/gitlab/gitlabhq/merge_requests/2530/diffs)
 
 [2]: https://gitlab.com/gitlab-org/gitlab/-/blob/master/lib/gitlab/http.rb
 
 #### Feature-specific Mitigations
+
 For situtions in which a whitelist or GitLab:HTTP cannot be used, it will be necessary to implement mitigations directly in the feature. It is best to validate the destination IP addresses themselves, not just domain names, as DNS can be controlled by the attacker. Below are a list of mitigations that should be implemented.
 
 **Important Note:** There are many tricks to bypass common SSRF validations. If  feature-specific mitigations are necessary, they should be reviewed by the AppSec team, or a developer who has worked on SSRF mitigations previously.
@@ -190,6 +198,7 @@ See [url_blocker_spec.rb][3] for examples of SSRF payloads
 Cross site scripting (XSS) is an issue where malicious JavaScript code gets injected into a trusted web application and executed in a client's browser. The input is intended to be data, but instead gets treated as code by the browser.
 
 XSS issues are commonly classified in three categories, by their delivery method:
+
 - [Persistent XSS](https://owasp.org/www-community/Types_of_Cross-Site_Scripting#stored-xss-aka-persistent-or-type-i)
 - [Reflected XSS](https://owasp.org/www-community/Types_of_Cross-Site_Scripting#reflected-xss-aka-non-persistent-or-type-ii)
 - [DOM XSS](https://owasp.org/www-community/Types_of_Cross-Site_Scripting#dom-based-xss-aka-type-0)
@@ -197,6 +206,7 @@ XSS issues are commonly classified in three categories, by their delivery method
 ### Impact
 
 The injected client-side code is executed on the victim's browser in the context of their current session. This means the attacker could perform any same action the victim would normally be able to do through a browser. The attacker would also have the ability to:
+
 - [log victim keystrokes](https://youtu.be/2VFavqfDS6w?t=1367)
 - launch a network scan from the victim's browser
 - potentially [obtain the victim's session tokens](https://youtu.be/2VFavqfDS6w?t=739)
