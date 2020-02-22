@@ -1,4 +1,4 @@
-# Security Guidelines
+## Security Guidelines
 
 ### Description
 
@@ -110,7 +110,7 @@ In most cases the anchors `\A` for beginning of text and `\z` for end of text sh
 
 - [Rubular](https://rubular.com/) is a nice online tool to fiddle with Ruby Regexps.
 
-# Server Side Request Forgery (SSRF)
+## Server Side Request Forgery (SSRF)
 
 ### Description
 
@@ -221,7 +221,6 @@ When user submitted data is included in responses to end users, which is just ab
 ### Mitigation
 
 In most situations, a two-step solution can be utilized: input validation and output encoding in the appropriate context.
-
 
 #### Input validation
 
