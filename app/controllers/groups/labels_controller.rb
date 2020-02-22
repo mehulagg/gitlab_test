@@ -15,9 +15,9 @@ class Groups::LabelsController < Groups::ApplicationController
         @labels = GroupLabelsFinder
           .new(current_user, @group, params.merge(sort: sort)).execute
       end
-      format.json do
-        render json: LabelSerializer.new.represent_appearance(available_labels)
-      end
+      # format.json do
+      #   render json: LabelSerializer.new.represent_appearance(available_labels)
+      # end
     end
   end
 
@@ -38,9 +38,9 @@ class Groups::LabelsController < Groups::ApplicationController
         end
       end
 
-      format.json do
-        render json: LabelSerializer.new.represent_appearance(@label)
-      end
+      # format.json do
+      #   render json: LabelSerializer.new.represent_appearance(@label)
+      # end
     end
   end
 
