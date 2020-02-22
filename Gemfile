@@ -319,7 +319,7 @@ gem 'peek', '~> 1.1'
 gem 'snowplow-tracker', '~> 0.6.1'
 
 # Memory benchmarks
-gem 'derailed_benchmarks', require: false
+gem 'derailed_benchmarks', git: 'https://github.com/engwan/derailed_benchmarks', branch: 'fix-zeitwerk-loop', require: false # rubocop: disable Cop/GemFetcher
 
 # Metrics
 group :metrics do
