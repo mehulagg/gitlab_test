@@ -82,7 +82,7 @@ projects:
   of the Code Review Comments page on the Go wiki for more details.
 
   Most editors/IDEs will allow you to run commands before/after saving a file, you can set it
-  up to run `goimports -local` so that it's applied to every file when saving.
+  up to run `goimports -local gitlab.com/gitlab-org` so that it's applied to every file when saving.
 - Place private methods below the first caller method in the source file.
 
 ### Automatic linting
