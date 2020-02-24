@@ -6,6 +6,7 @@ describe EE::Audit::Changes do
   describe '.audit_changes' do
     let(:current_user) { create(:user, name: 'Mickey Mouse') }
     let(:user) { create(:user, name: 'Donald Duck') }
+    let(:options) { { model: user } }
 
     subject(:foo_instance) { Class.new { include EE::Audit::Changes }.new }
 
@@ -14,8 +15,6 @@ describe EE::Audit::Changes do
 
       foo_instance.instance_variable_set(:@current_user, current_user)
       foo_instance.instance_variable_set(:@user, user)
-
-      allow(foo_instance).to receive(:model).and_return(user)
     end
 
     describe 'non audit changes' do
@@ -23,7 +22,7 @@ describe EE::Audit::Changes do
         it 'does not call the audit event service' do
           user.update!(name: 'Scrooge McDuck')
 
-          expect { foo_instance.audit_changes(:email) }.not_to change { SecurityEvent.count }
+          expect { foo_instance.audit_changes(:email, options) }.not_to change { SecurityEvent.count }
         end
       end
 
@@ -33,7 +32,7 @@ describe EE::Audit::Changes do
         it 'does not call the audit event service' do
           user.update!(name: 'Scrooge McDuck')
 
-          expect { foo_instance.audit_changes(:name) }.not_to change { SecurityEvent.count }
+          expect { foo_instance.audit_changes(:name, options) }.not_to change { SecurityEvent.count }
         end
       end
     end
@@ -48,17 +47,32 @@ describe EE::Audit::Changes do
       it 'calls the audit event service' do
         user.update!(name: 'Scrooge McDuck')
 
-        foo_instance.audit_changes(:name)
+        foo_instance.audit_changes(:name, options)
 
         aggregate_failures 'audit event service interactions' do
           expect(AuditEventService).to have_received(:new)
             .with(
               current_user, user,
+              model: user,
               action: :update, column: :name,
               from: 'Donald Duck', to: 'Scrooge McDuck'
             )
           expect(audit_event_service).to have_received(:for_changes).with(user)
           expect(audit_event_service).to have_received(:security_event)
+        end
+      end
+
+      context 'when entity is provided' do
+        let(:project) { Project.new }
+        let(:options) { { model: user, entity: project } }
+
+        it 'instantiates audit event service with the given entity' do
+          user.update!(name: 'Scrooge McDuck')
+
+          foo_instance.audit_changes(:name, options)
+
+          expect(AuditEventService).to have_received(:new)
+            .with(anything, project, anything)
         end
       end
     end
