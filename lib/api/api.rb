@@ -170,6 +170,7 @@ module API
       mount ::API::ProjectSnippets
       mount ::API::ProjectStatistics
       mount ::API::ProjectTemplates
+      mount ::API::ProjectTerraformStates
       mount ::API::ProtectedBranches
       mount ::API::ProtectedTags
       mount ::API::Releases
