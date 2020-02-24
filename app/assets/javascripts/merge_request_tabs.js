@@ -373,10 +373,6 @@ export default class MergeRequestTabs {
 
         initChangesDropdown(this.stickyTop);
 
-        if (typeof gl.diffNotesCompileComponents !== 'undefined') {
-          gl.diffNotesCompileComponents();
-        }
-
         localTimeAgo($('.js-timeago', 'div#diffs'));
         syntaxHighlight($('#diffs .js-syntax-highlight'));
 
