@@ -272,4 +272,14 @@ export default {
     const url = Api.buildUrl(this.confirmOrderPath);
     return axios.post(url, params);
   },
+
+  createGeoNode(node) {
+    const url = Api.buildUrl(this.geoNodesPath);
+    return axios.post(url, node);
+  },
+
+  updateGeoNode(node) {
+    const url = Api.buildUrl(this.geoNodesPath);
+    return axios.put(`${url}/${node.id}`, node);
+  },
 };

@@ -12628,6 +12628,9 @@ msgstr ""
 msgid "Name has already been taken"
 msgstr ""
 
+msgid "Name must be between 1 and 255 characters"
+msgstr ""
+
 msgid "Name new label"
 msgstr ""
 
@@ -19615,6 +19618,9 @@ msgstr ""
 msgid "There was an error resetting user pipeline minutes."
 msgstr ""
 
+msgid "There was an error saving this Geo Node"
+msgstr ""
+
 msgid "There was an error saving your changes."
 msgstr ""
 
@@ -20721,6 +20727,9 @@ msgid "U2F only works with HTTPS-enabled websites. Contact your administrator fo
 msgstr ""
 
 msgid "URL"
+msgstr ""
+
+msgid "URL must be a valid url (ex: https://gitlab.com)"
 msgstr ""
 
 msgid "URL of the external storage that will serve the repository static objects (e.g. archives, blobs, ...)."

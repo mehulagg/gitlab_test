@@ -1,5 +1,8 @@
-import Api from '~/api';
+import PublicApi from '~/api';
+import Api from 'ee/api';
 import createFlash from '~/flash';
+import { visitUrl } from '~/lib/utils/url_utility';
+import { convertObjectPropsToSnakeCase } from '~/lib/utils/common_utils';
 import { __ } from '~/locale';
 import * as types from './mutation_types';
 
@@ -14,11 +17,33 @@ export const receiveSyncNamespacesError = ({ commit }) => {
 export const fetchSyncNamespaces = ({ dispatch }, search) => {
   dispatch('requestSyncNamespaces');
 
-  Api.groups(search)
+  PublicApi.groups(search)
     .then(res => {
       dispatch('receiveSyncNamespacesSuccess', res);
     })
     .catch(() => {
       dispatch('receiveSyncNamespacesError');
+    });
+};
+
+export const requestSaveGeoNode = ({ commit }) => commit(types.REQUEST_SAVE_GEO_NODE);
+export const receiveSaveGeoNodeSuccess = ({ commit }) => {
+  commit(types.RECEIVE_SAVE_GEO_NODE_SUCCESS);
+  visitUrl('/admin/geo/nodes');
+};
+export const receiveSaveGeoNodeError = ({ commit }) => {
+  createFlash(__(`There was an error saving this Geo Node`));
+  commit(types.RECEIVE_SAVE_GEO_NODE_ERROR);
+};
+
+export const saveGeoNode = ({ dispatch }, node) => {
+  dispatch('requestSaveGeoNode');
+  const sanitizedNode = convertObjectPropsToSnakeCase(node);
+  const saveFunc = node.id ? 'updateGeoNode' : 'createGeoNode';
+
+  Api[saveFunc](sanitizedNode)
+    .then(() => dispatch('receiveSaveGeoNodeSuccess'))
+    .catch(() => {
+      dispatch('receiveSaveGeoNodeError');
     });
 };
