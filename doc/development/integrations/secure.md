@@ -1,6 +1,5 @@
 # Security scanner integration
 
-
 Integrating a security scanner into GitLab consists of providing end users
 with a [CI job definition](/ee/ci/yaml/README.md#introduction)
 they can add to their CI configuration files, to scan their GitLab projects.
