@@ -73,6 +73,9 @@ export default {
       return this.activeViewerType === RICH_BLOB_VIEWER ? richViewer : simpleViewer;
     },
   },
+  beforeCreate() {
+    performance.mark('snippet-blob-start');
+  },
   methods: {
     switchViewer(newViewer, respectHash = false) {
       this.activeViewerType = respectHash && window.location.hash ? SIMPLE_BLOB_VIEWER : newViewer;

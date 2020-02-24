@@ -37,6 +37,12 @@ export default {
       return this.activeViewer.renderError;
     },
   },
+  mounted() {
+    this.$nextTick(() => {
+      performance.measure('blob-content', 'snippet-blob-start');
+      performance.measure('snippet-full');
+    });
+  }
 };
 </script>
 <template>

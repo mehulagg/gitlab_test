@@ -179,4 +179,28 @@ describe 'Snippet', :js do
       expect(page).not_to have_link('New snippet')
     end
   end
+
+  context 'Frontend Performance' do
+    let(:file_name) { 'popen.rb' }
+    let(:content) { project.repository.blob_at('master', 'files/ruby/popen.rb').data }
+
+    before do
+      stub_feature_flags(snippets_vue: true)
+      visit snippet_path(snippet)
+
+      wait_for_requests
+    end
+
+    it 'starts rendering snippet within 0.5 +-0.1 seconds' do
+      expect(page.evaluate_script('window.performance.getEntriesByName("snippet-blob-start")[0].startTime/1000')).to be_within(0.1).of(0.5)
+    end
+
+    it 'renders full snippet within 2 +- 0.5 seconds' do
+      expect(page.evaluate_script('window.performance.getEntriesByName("snippet-full")[0].duration/1000')).to be_within(0.5).of(2.0)
+    end
+
+    it 'renders blob content within 0.3 +- 0.1 seconds' do
+      expect(page.evaluate_script('window.performance.getEntriesByName("blob-content")[0].duration/1000')).to be_within(0.1).of(0.3)
+    end
+  end
 end
