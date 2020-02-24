@@ -3123,6 +3123,7 @@ ActiveRecord::Schema.define(version: 2020_02_26_162723) do
     t.integer "ci_active_jobs", default: 0, null: false
     t.integer "project_hooks", default: 0, null: false
     t.integer "group_hooks", default: 0, null: false
+    t.integer "ci_project_subscriptions", default: 0, null: false
     t.index ["plan_id"], name: "index_plan_limits_on_plan_id", unique: true
   end
 
