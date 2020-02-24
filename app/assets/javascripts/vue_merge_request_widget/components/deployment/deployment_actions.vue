@@ -4,11 +4,9 @@ import { __, s__ } from '~/locale';
 import createFlash from '~/flash';
 import { visitUrl } from '~/lib/utils/url_utility';
 import MRWidgetService from '../../services/mr_widget_service';
-import DeploymentInfo from './deployment_info.vue';
 import DeploymentActionButton from './deployment_action_button.vue';
 import DeploymentViewButton from './deployment_view_button.vue';
-import { MANUAL_DEPLOY, RUNNING, FAILED, SUCCESS, STOPPING, DEPLOYING, REDEPLOYING } from './constants';
-import Icon from '~/vue_shared/components/icon.vue';
+import { MANUAL_DEPLOY, FAILED, SUCCESS, STOPPING, DEPLOYING, REDEPLOYING } from './constants';
 
 export default {
   name: 'DeploymentActions',
@@ -81,7 +79,7 @@ export default {
     },
     stopUrl() {
       return this.deployment.stop_url;
-    }
+    },
   },
   actionsConfiguration: {
     [STOPPING]: {
@@ -107,8 +105,8 @@ export default {
     },
   },
   methods: {
-    executeAction(endpoint, { actionName, confirmMessage, errorMessage }, reset) {
-      const isConfirmed = confirm(confirmMessage);
+    executeAction(endpoint, { actionName, confirmMessage, errorMessage }) {
+      const isConfirmed = confirm(confirmMessage); //eslint-disable-line
 
       if (isConfirmed) {
         this.actionInProgress = actionName;
@@ -128,13 +126,13 @@ export default {
       }
     },
     stopEnvironment() {
-      this.executeAction(this.stopUrl, this.$options.actionsConfiguration[STOPPING])
+      this.executeAction(this.stopUrl, this.$options.actionsConfiguration[STOPPING]);
     },
     deployManually() {
-      this.executeAction(this.playPath, this.$options.actionsConfiguration[DEPLOYING])
+      this.executeAction(this.playPath, this.$options.actionsConfiguration[DEPLOYING]);
     },
     redeploy() {
-      this.executeAction(this.redeployPath, this.$options.actionsConfiguration[REDEPLOYING])
+      this.executeAction(this.redeployPath, this.$options.actionsConfiguration[REDEPLOYING]);
     },
   },
 };
@@ -144,20 +142,20 @@ export default {
   <div>
     <deployment-action-button
       v-if="canBeManuallyDeployed"
-      @click="deployManually"
       :action-in-progress="actionInProgress"
       :actions-configuration="$options.actionsConfiguration[constants.DEPLOYING]"
       :computed-deployment-status="computedDeploymentStatus"
+      @click="deployManually"
     >
-        <gl-icon name="play" />
-        <span>{{ $options.actionsConfiguration[constants.DEPLOYING].buttonText }}</span>
+      <gl-icon name="play" />
+      <span>{{ $options.actionsConfiguration[constants.DEPLOYING].buttonText }}</span>
     </deployment-action-button>
     <deployment-action-button
       v-if="canBeManuallyRedeployed"
-      @click="redeploy"
       :action-in-progress="actionInProgress"
       :actions-configuration="$options.actionsConfiguration[constants.REDEPLOYING]"
       :computed-deployment-status="computedDeploymentStatus"
+      @click="redeploy"
     >
       <gl-icon name="repeat" />
       <span>{{ $options.actionsConfiguration[constants.REDEPLOYING].buttonText }}</span>
@@ -171,11 +169,11 @@ export default {
     />
     <deployment-action-button
       v-if="stopUrl"
-      @click="stopEnvironment"
       :action-in-progress="actionInProgress"
       :computed-deployment-status="computedDeploymentStatus"
       :actions-configuration="$options.actionsConfiguration[constants.STOPPING]"
       :button-title="$options.actionsConfiguration[constants.STOPPING].buttonText"
+      @click="stopEnvironment"
     >
       <gl-icon name="stop" />
     </deployment-action-button>

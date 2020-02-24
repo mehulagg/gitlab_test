@@ -1,6 +1,6 @@
 <script>
 import { GlTooltipDirective } from '@gitlab/ui';
-import { __, s__ } from '~/locale';
+import { __ } from '~/locale';
 import LoadingButton from '~/vue_shared/components/loading_button.vue';
 import { RUNNING } from './constants';
 
@@ -29,8 +29,8 @@ export default {
     buttonTitle: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
   computed: {
     isActionInProgress() {
@@ -64,8 +64,7 @@ export default {
       @click="$emit('click')"
     >
       <span class="d-inline-flex align-items-baseline">
-        <slot>
-        </slot>
+        <slot> </slot>
       </span>
     </loading-button>
   </span>
