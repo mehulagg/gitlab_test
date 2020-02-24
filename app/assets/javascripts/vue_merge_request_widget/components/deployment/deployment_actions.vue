@@ -1,7 +1,8 @@
 <script>
+import { GlIcon } from '@gitlab/ui';
 import { __, s__ } from '~/locale';
-import { visitUrl } from '~/lib/utils/url_utility';
 import createFlash from '~/flash';
+import { visitUrl } from '~/lib/utils/url_utility';
 import MRWidgetService from '../../services/mr_widget_service';
 import DeploymentInfo from './deployment_info.vue';
 import DeploymentActionButton from './deployment_action_button.vue';
@@ -14,7 +15,7 @@ export default {
   components: {
     DeploymentActionButton,
     DeploymentViewButton,
-    Icon,
+    GlIcon,
   },
   props: {
     computedDeploymentStatus: {
@@ -104,30 +105,24 @@ export default {
       confirmMessage: __('Are you sure you want to re-deploy this environment?'),
       errorMessage: __('Something went wrong while deploying this environment. Please try again.'),
     },
-    constants: {
-      STOPPING,
-      DEPLOYING,
-      REDEPLOYING,
-    }
   },
   methods: {
     executeAction(endpoint, { actionName, confirmMessage, errorMessage }, reset) {
-      const isConfirmed = confirm(confirmMessage); // eslint-disable-line
+      const isConfirmed = confirm(confirmMessage);
 
       if (isConfirmed) {
         this.actionInProgress = actionName;
 
         MRWidgetService.executeInlineAction(endpoint)
-          .then(res => res.data)
-          .then(data => {
-            this.actionInProgress = null;
-
+          .then(({ data }) => {
             if (data.redirect_url) {
               visitUrl(data.redirect_url);
             }
           })
           .catch(() => {
             createFlash(errorMessage);
+          })
+          .finally(() => {
             this.actionInProgress = null;
           });
       }
@@ -149,22 +144,22 @@ export default {
   <div>
     <deployment-action-button
       v-if="canBeManuallyDeployed"
-      :on-click="deployManually"
+      @click="deployManually"
       :action-in-progress="actionInProgress"
-      :actions-configuration="$options.actionsConfiguration[$options.constants.DEPLOYING]"
+      :actions-configuration="$options.actionsConfiguration[constants.DEPLOYING]"
       :computed-deployment-status="computedDeploymentStatus"
     >
-        <icon name="play" />
-        <span>{{ $options.actionsConfiguration[$options.constants.DEPLOYING].buttonText }}</span>
+        <gl-icon name="play" />
+        <span>{{ $options.actionsConfiguration[constants.DEPLOYING].buttonText }}</span>
     </deployment-action-button>
     <deployment-action-button
       v-if="canBeManuallyRedeployed"
-      :on-click="redeploy"
+      @click="redeploy"
       :action-in-progress="actionInProgress"
       :actions-configuration="$options.actionsConfiguration[constants.REDEPLOYING]"
       :computed-deployment-status="computedDeploymentStatus"
     >
-      <icon name="repeat" />
+      <gl-icon name="repeat" />
       <span>{{ $options.actionsConfiguration[constants.REDEPLOYING].buttonText }}</span>
     </deployment-action-button>
     <deployment-view-button
@@ -176,13 +171,13 @@ export default {
     />
     <deployment-action-button
       v-if="stopUrl"
-      :on-click="stopEnvironment"
+      @click="stopEnvironment"
       :action-in-progress="actionInProgress"
       :computed-deployment-status="computedDeploymentStatus"
       :actions-configuration="$options.actionsConfiguration[constants.STOPPING]"
       :button-title="$options.actionsConfiguration[constants.STOPPING].buttonText"
     >
-      <icon name="stop" />
+      <gl-icon name="stop" />
     </deployment-action-button>
   </div>
 </template>

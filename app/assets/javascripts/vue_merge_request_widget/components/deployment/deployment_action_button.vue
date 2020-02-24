@@ -26,10 +26,6 @@ export default {
       type: String,
       required: true,
     },
-    onClick: {
-      type: Function,
-      required: true,
-    },
     buttonTitle: {
       type: String,
       required: false,
@@ -65,7 +61,7 @@ export default {
       :loading="isLoading"
       :disabled="isActionInProgress"
       container-class="btn btn-default btn-sm inline prepend-left-4"
-      @click="onClick"
+      @click="$emit('click')"
     >
       <span class="d-inline-flex align-items-baseline">
         <slot>
