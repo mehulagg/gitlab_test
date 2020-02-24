@@ -32,6 +32,14 @@ class PaginatedDiffEntity < Grape::Entity
     end
   end
 
+  expose :head_version_path do |diffs, options|
+    project = merge_request.target_project
+
+    next unless project && merge_request.diffable_merge_ref?
+
+    diffs_project_merge_request_path(project, merge_request, diff_head: true)
+  end
+
   private
 
   %i[current_page next_page total_pages].each do |method|

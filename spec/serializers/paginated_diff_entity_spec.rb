@@ -30,4 +30,29 @@ describe PaginatedDiffEntity do
       total_pages: 7
     )
   end
+
+  describe 'exposes head_version_path' do
+    before do
+      allow(merge_request).to receive(:diffable_merge_ref?)
+        .and_return(diffable_merge_ref)
+    end
+
+    context 'merge request can be merged' do
+      let(:diffable_merge_ref) { true }
+
+      it 'returns diff path with diff_head param set' do
+        expect(subject[:head_version_path]).to eq(
+          "/#{merge_request.project.full_path}/-/merge_requests/#{merge_request.iid}/diffs?diff_head=true"
+        )
+      end
+    end
+
+    context 'merge request cannot be merged' do
+      let(:diffable_merge_ref) { false }
+
+      it 'returns diff path with diff_head param set' do
+        expect(subject[:head_version_path]).to be_nil
+      end
+    end
+  end
 end
