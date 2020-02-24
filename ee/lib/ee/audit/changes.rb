@@ -8,7 +8,7 @@ module EE
       # @param [Symbol] column column name to be audited
       # @param [Hash] options the options to create an event with
       # @option options [Symbol] :column column name to be audited
-      # @option options [User, Project, Group] :target_model scope the event belongs to
+      # @option options [User, Project, Group] :entity scope the event belongs to
       # @option options [Object] :model object being audited
       # @option options [Boolean] :skip_changes whether to record from/to values
       #
@@ -17,7 +17,7 @@ module EE
       def audit_changes(column, options = {})
         column = options[:column] || column
         # rubocop:disable Gitlab/ModuleWithInstanceVariables
-        @target_model = options[:target_model]
+        @entity = options[:entity]
         @model = options[:model]
         # rubocop:enable Gitlab/ModuleWithInstanceVariables
 
@@ -28,8 +28,8 @@ module EE
 
       protected
 
-      def target_model
-        @target_model || model # rubocop:disable Gitlab/ModuleWithInstanceVariables
+      def entity
+        @entity || model # rubocop:disable Gitlab/ModuleWithInstanceVariables
       end
 
       def model
@@ -67,7 +67,7 @@ module EE
       end
 
       def audit_event(options)
-        ::AuditEventService.new(@current_user, target_model, options) # rubocop:disable Gitlab/ModuleWithInstanceVariables
+        ::AuditEventService.new(@current_user, entity, options) # rubocop:disable Gitlab/ModuleWithInstanceVariables
           .for_changes(model).security_event
       end
     end

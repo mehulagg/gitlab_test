@@ -50,7 +50,7 @@ module ApprovalRules
       audit_changes(
         :approvals_required,
         as: 'number of required approvals',
-        target_model: rule.project,
+        entity: rule.project,
         model: rule
       )
     end
