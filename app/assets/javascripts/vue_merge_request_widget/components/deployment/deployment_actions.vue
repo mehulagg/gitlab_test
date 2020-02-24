@@ -45,9 +45,9 @@ export default {
     return {
       actionInProgress: null,
       constants: {
-        STOPPING: STOPPING,
-        DEPLOYING: DEPLOYING,
-        REDEPLOYING: REDEPLOYING,
+        STOPPING,
+        DEPLOYING,
+        REDEPLOYING,
       },
     };
   },
@@ -104,6 +104,11 @@ export default {
       confirmMessage: __('Are you sure you want to re-deploy this environment?'),
       errorMessage: __('Something went wrong while deploying this environment. Please try again.'),
     },
+    constants: {
+      STOPPING,
+      DEPLOYING,
+      REDEPLOYING,
+    }
   },
   methods: {
     executeAction(endpoint, { actionName, confirmMessage, errorMessage }, reset) {
@@ -146,11 +151,11 @@ export default {
       v-if="canBeManuallyDeployed"
       :on-click="deployManually"
       :action-in-progress="actionInProgress"
-      :actions-configuration="$options.actionsConfiguration[constants.DEPLOYING]"
+      :actions-configuration="$options.actionsConfiguration[$options.constants.DEPLOYING]"
       :computed-deployment-status="computedDeploymentStatus"
     >
         <icon name="play" />
-        <span>{{ $options.actionsConfiguration[constants.DEPLOYING].buttonText }}</span>
+        <span>{{ $options.actionsConfiguration[$options.constants.DEPLOYING].buttonText }}</span>
     </deployment-action-button>
     <deployment-action-button
       v-if="canBeManuallyRedeployed"
