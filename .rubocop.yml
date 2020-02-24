@@ -357,3 +357,6 @@ Style/MultilineWhenThen:
 
 Style/FloatDivision:
   Enabled: false
+
+Style/NegatedIf:
+  EnforcedStyle: postfix
