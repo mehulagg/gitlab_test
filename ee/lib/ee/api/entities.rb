@@ -936,6 +936,10 @@ module EE
         expose :last_edited_at
         expose :resolved_at
         expose :closed_at
+
+        expose :vulnerability_path do |vulnerability|
+          ::Gitlab::Routing.url_helpers.project_security_vulnerability_path(vulnerability.project, vulnerability)
+        end
       end
 
       class VulnerabilityRelatedIssue < ::API::Entities::IssueBasic

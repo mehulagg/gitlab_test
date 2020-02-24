@@ -31,6 +31,16 @@ describe API::Vulnerabilities do
         expect(response.headers['X-Total']).to eq project.vulnerabilities.count.to_s
       end
 
+      it 'does not have N+1 queries' do
+        control_count = ActiveRecord::QueryRecorder.new do
+          get api(project_vulnerabilities_path, user)
+        end.count
+
+        # Threshold is required for the extra query performed in Security::PipelineVulnerabilitiesFinder to load
+        # the Vulnerabilities providing computed states for the associated Vulnerability::Occurrences
+        expect { get api(project_vulnerabilities_path, user) }.not_to exceed_query_limit(control_count).with_threshold(1)
+      end
+
       context 'with pagination' do
         let(:project_vulnerabilities_path) { "#{super()}?page=2&per_page=1" }
 
