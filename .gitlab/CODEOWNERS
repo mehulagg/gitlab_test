@@ -45,6 +45,7 @@ Dangerfile @gl-quality/eng-prod
 /danger/ @gl-quality/eng-prod
 /lib/gitlab/danger/ @gl-quality/eng-prod
 /scripts/ @gl-quality/eng-prod
+.editorconfig.example @gl-quality/eng-prod
 
 # Delivery owner files
 /.gitlab/ci/releases.gitlab-ci.yml @gitlab-org/delivery

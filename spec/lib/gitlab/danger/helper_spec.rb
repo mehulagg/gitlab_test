@@ -219,6 +219,7 @@ describe Gitlab::Danger::Helper do
       'lib/gitlab/danger/foo'                                 | :engineering_productivity
       'ee/lib/gitlab/danger/foo'                              | :engineering_productivity
       '.overcommit.yml.example'                               | :engineering_productivity
+      '.editorconfig.example'                                 | :engineering_productivity
       'tooling/overcommit/foo'                                | :engineering_productivity
 
       'lib/gitlab/ci/templates/Security/SAST.gitlab-ci.yml'   | :backend
