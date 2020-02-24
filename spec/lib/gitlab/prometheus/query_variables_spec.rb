@@ -12,7 +12,6 @@ describe Gitlab::Prometheus::QueryVariables do
 
     it { is_expected.to include(ci_environment_slug: slug) }
     it { is_expected.to include(ci_project_name: project.name) }
-    it { is_expected.to include(ci_project_id: project.id) }
     it { is_expected.to include(ci_project_namespace: project.namespace.name) }
     it { is_expected.to include(ci_project_path: project.full_path) }
     it { is_expected.to include(ci_environment_name: environment.name) }
