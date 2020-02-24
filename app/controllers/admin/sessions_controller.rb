@@ -65,7 +65,7 @@ class Admin::SessionsController < ApplicationController
   end
 
   def user_params
-    params.permit(:password, :otp_attempt, :device_response)
+    params.fetch(:user, {}).permit(:password, :otp_attempt, :device_response)
   end
 
   def valid_otp_attempt?(user)
