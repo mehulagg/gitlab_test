@@ -95,7 +95,6 @@ export default {
 
 <template>
   <div
-    ref="dropzone"
     class="w-100 position-relative"
     @drag.prevent.stop
     @dragstart.prevent.stop
@@ -106,7 +105,7 @@ export default {
     @drop.prevent.stop="ondrop"
   >
     <slot v-bind="{ dragging, isDragDataValid }">
-      <div class="border-design-dropzone w-100 h-100 d-flex-center rounded-sm">
+      <div class="card design-dropzone--border w-100 h-100 d-flex-center p-3">
         <div class="d-flex-center flex-column text-center">
           <gl-icon name="doc-new" :size="48" class="mb-4" />
           <p>
@@ -137,18 +136,20 @@ export default {
         @change="onFileUploadChange"
       />
     </slot>
-    <div
-      v-show="dragging"
-      class="design-dropzone--overlay border-design-dropzone w-100 h-100 position-absolute d-flex-center"
-    >
-      <div v-show="!isDragDataValid" class="mw-50 text-center">
-        <h3>{{ __('Oh no!') }}</h3>
-        <span>{{ __('You can only drop image files here.') }}</span>
+    <transition name="design-dropzone-fade">
+      <div
+        v-show="dragging"
+        class="card design-dropzone--border design-dropzone--overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
+      >
+        <div v-show="!isDragDataValid" class="mw-50 text-center">
+          <h3>{{ __('Oh no!') }}</h3>
+          <span>{{ __('You can only drop image files here.') }}</span>
+        </div>
+        <div v-show="isDragDataValid" class="mw-50 text-center">
+          <h3>{{ __('Incoming!') }}</h3>
+          <span>{{ __('Drop your designs to start your upload.') }}</span>
+        </div>
       </div>
-      <div v-show="isDragDataValid" class="mw-50 text-center">
-        <h3>{{ __('Incoming!') }}</h3>
-        <span>{{ __('Drop your designs to start your upload.') }}</span>
-      </div>
-    </div>
+    </transition>
   </div>
 </template>

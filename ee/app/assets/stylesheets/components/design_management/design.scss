@@ -95,13 +95,21 @@
   }
 }
 
-.border-design-dropzone {
+.design-dropzone--border {
   border: 2px dashed $gray-200;
 }
 
 .design-dropzone--overlay {
-  background: rgba(255,255,255, 0.9);
+  border: 2px dashed $purple;
   top: 0;
   left: 0;
   pointer-events: none;
+  opacity: 1;
+}
+
+.design-dropzone-fade-enter-active, .design-dropzone-fade-leave-active {
+  transition: opacity $general-hover-transition-duration $general-hover-transition-curve;
+}
+.design-dropzone-fade-enter, .design-dropzone-fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
 }

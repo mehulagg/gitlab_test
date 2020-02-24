@@ -1,5 +1,5 @@
 <script>
-import { GlLoadingIcon, GlEmptyState, GlButton } from '@gitlab/ui';
+import { GlLoadingIcon, GlButton } from '@gitlab/ui';
 import createFlash from '~/flash';
 import { s__, sprintf } from '~/locale';
 import UploadButton from '../components/upload/button.vue';
@@ -27,7 +27,6 @@ export default {
   components: {
     GlLoadingIcon,
     UploadButton,
-    GlEmptyState,
     GlButton,
     Design,
     DesignDestroyer,
