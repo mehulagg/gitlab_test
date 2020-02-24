@@ -1,7 +1,7 @@
 # Security scanner integration
 
 Integrating a security scanner into GitLab consists of providing end users
-with a [CI job definition](/ee/ci/yaml/README.md#introduction)
+with a [CI job definition](../ci/yaml/README.md#introduction)
 they can add to their CI configuration files, to scan their GitLab projects.
 The scanning job is usually based on a [Docker image](https://docs.docker.com/)
 that contains the scanner and all its dependencies in a self-contained environment.
