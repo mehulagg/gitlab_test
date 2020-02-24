@@ -97,11 +97,15 @@
 
 .border-design-dropzone {
   border: 2px dashed $gray-200;
+  border-radius: $border-radius-default;
+  padding: $gl-padding;
 }
 
 .design-dropzone--overlay {
-  background: rgba(255,255,255, 0.9);
+  background: rgba(255,255,255, 1);
   top: 0;
   left: 0;
+  border: 2px dashed $purple;
+  border-radius: $border-radius-default;
   pointer-events: none;
 }

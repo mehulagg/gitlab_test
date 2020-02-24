@@ -139,14 +139,14 @@ export default {
     </slot>
     <div
       v-show="dragging"
-      class="design-dropzone--overlay border-design-dropzone w-100 h-100 position-absolute d-flex-center"
+      class="design-dropzone--overlay border-design-dropzone w-100 h-100 position-absolute d-flex-center align-items-center"
     >
       <div v-show="!isDragDataValid" class="mw-50 text-center">
         <h3>{{ __('Oh no!') }}</h3>
         <span>{{ __('You can only drop image files here.') }}</span>
       </div>
       <div v-show="isDragDataValid" class="mw-50 text-center">
-        <h3>{{ __('Incoming!') }}</h3>
+        <h3 class="mt-0" >{{ __('Incoming!') }}</h3>
         <span>{{ __('Drop your designs to start your upload.') }}</span>
       </div>
     </div>
