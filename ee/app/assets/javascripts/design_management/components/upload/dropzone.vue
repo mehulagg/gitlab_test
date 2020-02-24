@@ -58,9 +58,9 @@ export default {
       }
 
       // TODO(tom) get clarification of UX
-      if (files.length > this.maxFiles) {
-        return;
-      }
+      // if (files.length > this.maxFiles) {
+      //   return;
+      // }
 
       // Do not createFlash as the user already has feedback when dropzone is active
       if (!this.isDragDataValid) {
@@ -96,6 +96,7 @@ export default {
 <template>
   <div
     ref="dropzone"
+    class="w-100 position-relative"
     @drag.prevent.stop
     @dragstart.prevent.stop
     @dragend.prevent.stop="ondragleave"
@@ -104,51 +105,49 @@ export default {
     @dragenter.prevent.stop="ondragenter"
     @drop.prevent.stop="ondrop"
   >
-    <div class="w-100 h-100 position-relative">
-      <slot v-bind="{ dragging, isDragDataValid }">
-        <div class="border-design-dropzone w-100 h-100 d-flex-center rounded-sm">
-          <div class="d-flex-center flex-column text-center">
-            <gl-icon name="doc-new" :size="48" class="mb-4" />
-            <p>
-              <gl-sprintf
-                :message="
-                  __(
-                    '%{lineOneStart}Drag and drop to upload your designs%{lineOneEnd} or %{linkStart}click to upload%{linkEnd}.',
-                  )
-                "
-              >
-                <template #lineOne="{ content }"
-                  ><span class="d-block">{{ content }}</span>
-                </template>
+    <slot v-bind="{ dragging, isDragDataValid }">
+      <div class="border-design-dropzone w-100 h-100 d-flex-center rounded-sm">
+        <div class="d-flex-center flex-column text-center">
+          <gl-icon name="doc-new" :size="48" class="mb-4" />
+          <p>
+            <gl-sprintf
+              :message="
+                __(
+                  '%{lineOneStart}Drag and drop to upload your designs%{lineOneEnd} or %{linkStart}click to upload%{linkEnd}.',
+                )
+              "
+            >
+              <template #lineOne="{ content }"
+                ><span class="d-block">{{ content }}</span>
+              </template>
 
-                <template #link="{ content }">
-                  <gl-link class="h-100 w-100" @click="openFileUpload">{{ content }}</gl-link>
-                </template>
-              </gl-sprintf>
-            </p>
-          </div>
+              <template #link="{ content }">
+                <gl-link class="h-100 w-100" @click="openFileUpload">{{ content }}</gl-link>
+              </template>
+            </gl-sprintf>
+          </p>
         </div>
-        <input
-          ref="fileUpload"
-          type="file"
-          name="design_file"
-          :accept="$options.VALID_FILE_MIMETYPE.type"
-          class="hide"
-          @change="onFileUploadChange"
-        />
-      </slot>
-      <div
-        v-show="dragging"
-        class="design-dropzone--overlay border-design-dropzone w-100 h-100 position-absolute d-flex-center"
-      >
-        <div v-show="!isDragDataValid" class="mw-50 text-center">
-          <h3>{{ __('Oh no!') }}</h3>
-          <span>{{ __('You can only drop image files here.') }}</span>
-        </div>
-        <div v-show="isDragDataValid" class="mw-50 text-center">
-          <h3>{{ __('Incoming!') }}</h3>
-          <span>{{ __('Drop your designs to start your upload.') }}</span>
-        </div>
+      </div>
+      <input
+        ref="fileUpload"
+        type="file"
+        name="design_file"
+        :accept="$options.VALID_FILE_MIMETYPE.type"
+        class="hide"
+        @change="onFileUploadChange"
+      />
+    </slot>
+    <div
+      v-show="dragging"
+      class="design-dropzone--overlay border-design-dropzone w-100 h-100 position-absolute d-flex-center"
+    >
+      <div v-show="!isDragDataValid" class="mw-50 text-center">
+        <h3>{{ __('Oh no!') }}</h3>
+        <span>{{ __('You can only drop image files here.') }}</span>
+      </div>
+      <div v-show="isDragDataValid" class="mw-50 text-center">
+        <h3>{{ __('Incoming!') }}</h3>
+        <span>{{ __('Drop your designs to start your upload.') }}</span>
       </div>
     </div>
   </div>

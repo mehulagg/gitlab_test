@@ -249,13 +249,10 @@ export default {
       </div>
       <template v-else>
         <ol class="list-unstyled row">
-          <dropzone class="col-md-6 col-lg-4 mb-3" @upload="onUploadDesign" />
-          <li
-            v-if="hasDesigns"
-            v-for="design in designs"
-            :key="design.id"
-            class="col-md-6 col-lg-4 mb-3"
-          >
+          <li class="col-md-6 col-lg-4 mb-3">
+            <dropzone class="design-list-item" @upload="onUploadDesign" />
+          </li>
+          <li v-for="design in designs" :key="design.id" class="col-md-6 col-lg-4 mb-3">
             <dropzone @upload="onUploadDesign"
               ><design v-bind="design" :is-loading="isDesignToBeSaved(design.filename)"
             /></dropzone>
@@ -269,20 +266,6 @@ export default {
             />
           </li>
         </ol>
-        <gl-empty-state
-          v-if="!hasDesigns"
-          :title="s__('DesignManagement|The one place for your designs')"
-          :description="
-            s__(`DesignManagement|Upload and view the latest designs for this issue.
-            Consistent and easy to find, so everyone is up to date.`)
-          "
-        >
-          <template #actions>
-            <div v-if="canCreateDesign" class="center">
-              <upload-button :is-saving="isSaving" @upload="onUploadDesign" />
-            </div>
-          </template>
-        </gl-empty-state>
       </template>
     </div>
     <router-view />
