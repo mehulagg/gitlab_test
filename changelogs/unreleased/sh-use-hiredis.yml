@@ -1,0 +1,5 @@
+---
+title: Use hiredis to increase performance of reading large sets
+merge_request: 25850
+author:
+type: performance

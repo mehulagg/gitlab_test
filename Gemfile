@@ -217,7 +217,8 @@ gem 'js_regex', '~> 3.1'
 gem 'device_detector'
 
 # Redis
-gem 'redis', '~> 4.0'
+gem 'hiredis', '~> 0.6'
+gem 'redis', '~> 4.0', require: ["redis", "redis/connection/hiredis"]
 gem 'connection_pool', '~> 2.0'
 
 # Redis session store
