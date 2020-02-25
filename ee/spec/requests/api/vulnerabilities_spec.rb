@@ -36,9 +36,10 @@ describe API::Vulnerabilities do
           get api(project_vulnerabilities_path, user)
         end.count
 
-        # Threshold is required for the extra query performed in Security::PipelineVulnerabilitiesFinder to load
-        # the Vulnerabilities providing computed states for the associated Vulnerability::Occurrences
-        expect { get api(project_vulnerabilities_path, user) }.not_to exceed_query_limit(control_count).with_threshold(1)
+        expect { get api(project_vulnerabilities_path, user) }.not_to exceed_query_limit(control_count)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response.headers['X-Total']).to eq project.vulnerabilities.count.to_s
       end
 
       context 'with pagination' do
