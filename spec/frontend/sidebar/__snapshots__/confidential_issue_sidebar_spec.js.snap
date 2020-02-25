@@ -78,7 +78,7 @@ exports[`Confidential Issue Sidebar Block renders for isConfidential = false and
     Confidentiality
     
     <a
-      class="float-right confidential-edit"
+      class="float-right btn-link confidential-edit"
       data-track-event="click_edit_button"
       data-track-label="right_sidebar"
       data-track-property="confidentiality"
@@ -192,7 +192,7 @@ exports[`Confidential Issue Sidebar Block renders for isConfidential = true and 
     Confidentiality
     
     <a
-      class="float-right confidential-edit"
+      class="float-right btn-link confidential-edit"
       data-track-event="click_edit_button"
       data-track-label="right_sidebar"
       data-track-property="confidentiality"

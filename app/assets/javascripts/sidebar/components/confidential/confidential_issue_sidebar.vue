@@ -89,7 +89,7 @@ export default {
       <a
         v-if="isEditable"
         ref="editLink"
-        class="float-right confidential-edit"
+        class="float-right btn-link confidential-edit"
         href="#"
         data-track-event="click_edit_button"
         data-track-label="right_sidebar"

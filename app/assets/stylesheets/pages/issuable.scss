@@ -259,6 +259,17 @@
     a.edit-link:not([href]):hover {
       color: rgba($gray-normal, 0.2);
     }
+
+    .btn-link,
+    .lock-edit, // uses same style, different js behaviour
+    .edit-link {
+      @extend .btn-link;
+      color: $gl-text-color;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
   }
 
   .cross-project-reference {
