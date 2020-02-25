@@ -191,6 +191,12 @@ module Types
           null: true,
           description: 'A single board of the project',
           resolver: Resolvers::BoardsResolver.single
+
+    field :vulnerabilities,
+          Types::VulnerabilityType.connection_type,
+          null: true,
+          description: 'Vulnerabilities reported on the project',
+          resolver: Resolvers::VulnerabilitiesResolver
   end
 end
 
