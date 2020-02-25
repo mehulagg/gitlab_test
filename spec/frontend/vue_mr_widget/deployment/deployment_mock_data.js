@@ -1,6 +1,6 @@
 import { DEPLOYING, REDEPLOYING, SUCCESS, STOPPING } from '~/vue_merge_request_widget/components/deployment/constants';
 
-export const deploymentMockData = {
+const deploymentMockData = {
   id: 15,
   name: 'review/diplo',
   url: '/root/review-apps/environments/15',
@@ -29,7 +29,7 @@ export const deploymentMockData = {
   ],
 };
 
-export const actionButtonMocks = {
+const actionButtonMocks = {
   [STOPPING]: {
     actionName: STOPPING,
     buttonText: 'Stop environment',
@@ -52,3 +52,5 @@ export const actionButtonMocks = {
     errorMessage: 'Something went wrong while deploying this environment. Please try again.',
   },
 };
+
+export { actionButtonMocks,  deploymentMockData}
