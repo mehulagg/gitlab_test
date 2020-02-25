@@ -94,10 +94,10 @@ export default {
     :title="modalActionText"
     :action-primary="primaryAction"
     :action-cancel="cancelAction"
-    @ok="updateOrAddVariable"
-    @hidden="resetModalHandler"
     static
     lazy
+    @ok="updateOrAddVariable"
+    @hidden="resetModalHandler"
   >
     <form>
       <gl-form-group label="Type" label-for="ci-variable-type">
