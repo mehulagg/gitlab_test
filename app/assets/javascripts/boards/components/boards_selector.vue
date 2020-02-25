@@ -182,9 +182,6 @@ export default {
             name: node.name,
           })),
         )
-        .catch(err => {
-          throw err;
-        })
         .catch(() => []);
     },
     showPage(page) {
@@ -204,7 +201,7 @@ export default {
              *  If user is unauthorized we'd still want to resolve the
              *  request to display all boards.
              */
-            if (err.response.status === httpStatusCodes.UNAUTHORIZED) {
+            if (err?.response?.status === httpStatusCodes.UNAUTHORIZED) {
               resolve({ data: [] }); // recent boards are empty
               return;
             }
@@ -228,14 +225,23 @@ export default {
     },
     isScrolledUp() {
       const { content } = this.$refs;
+
+      if (!content) {
+        return false;
+      }
+
       const currentPosition = this.contentClientHeight + content.scrollTop;
 
-      return content && currentPosition < this.maxPosition;
+      return currentPosition < this.maxPosition;
     },
     initScrollFade() {
-      this.scrollFadeInitialized = true;
-
       const { content } = this.$refs;
+
+      if (!content) {
+        return;
+      }
+
+      this.scrollFadeInitialized = true;
 
       this.contentClientHeight = content.clientHeight;
       this.maxPosition = content.scrollHeight;
