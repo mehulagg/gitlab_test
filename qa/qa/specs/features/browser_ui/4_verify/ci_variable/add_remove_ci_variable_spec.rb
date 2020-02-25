@@ -19,12 +19,12 @@ module QA
       it 'user adds a CI variable' do
         Page::Project::Settings::CICD.perform do |settings|
           settings.expand_ci_variables do |page|
-            expect(page).to have_field(with: 'VARIABLE_KEY')
-            expect(page).not_to have_field(with: 'some_CI_variable')
+            expect(page).to have_text('VARIABLE_KEY')
+            expect(page).not_to have_text('some_CI_variable')
 
             page.reveal_variables
 
-            expect(page).to have_field(with: 'some_CI_variable')
+            expect(page).to have_text('some_CI_variable')
           end
         end
       end
@@ -34,7 +34,7 @@ module QA
           settings.expand_ci_variables do |page|
             page.remove_variable
 
-            expect(page).not_to have_field(with: 'VARIABLE_KEY')
+            expect(page).not_to have_text('VARIABLE_KEY')
           end
         end
       end
