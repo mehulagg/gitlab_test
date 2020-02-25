@@ -4,8 +4,7 @@ class GroupActiveUsersFinder
   include Gitlab::Allowable
   OFFSET_INCREMENT = 100
 
-  def initialize(current_user, group, oldest_created_at: 90.days.ago)
-    @current_user = current_user
+  def initialize(group, oldest_created_at: 90.days.ago)
     @group = group
     @active_users = []
     @event_filter = EventFilter.new(nil)
