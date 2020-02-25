@@ -5,10 +5,12 @@ require 'spec_helper'
 describe MergeRequests::PushOptionsHandlerService do
   include ProjectForksHelper
 
-  let(:user) { create(:user) }
+  let(:user1) { create(:user) }
+  let(:user2) { create(:user) }
+  let(:user3) { create(:user) }
   let(:project) { create(:project, :public, :repository) }
-  let(:forked_project) { fork_project(project, user, repository: true) }
-  let(:service) { described_class.new(project, user, changes, push_options) }
+  let(:forked_project) { fork_project(project, user1, repository: true) }
+  let(:service) { described_class.new(project, user1, changes, push_options) }
   let(:source_branch) { 'fix' }
   let(:target_branch) { 'feature' }
   let(:title) { 'my title' }
@@ -22,7 +24,9 @@ describe MergeRequests::PushOptionsHandlerService do
   let(:default_branch_changes) { "d14d6c0abdd253381df51a723d58691b2ee1ab08 570e7b2abdd848b95f2f578043fc23bd6f6fd24d refs/heads/#{project.default_branch}" }
 
   before do
-    project.add_developer(user)
+    project.add_developer(user1)
+    project.add_developer(user2)
+    project.add_developer(user3)
   end
 
   shared_examples_for 'a service that can create a merge request' do
@@ -43,12 +47,12 @@ describe MergeRequests::PushOptionsHandlerService do
     it 'assigns the MR to the user' do
       service.execute
 
-      expect(last_mr.assignees).to contain_exactly(user)
+      expect(last_mr.assignees).to contain_exactly(user1)
     end
 
     context 'when project has been forked', :sidekiq_might_not_need_inline do
-      let(:forked_project) { fork_project(project, user, repository: true) }
-      let(:service) { described_class.new(forked_project, user, changes, push_options) }
+      let(:forked_project) { fork_project(project, user1, repository: true) }
+      let(:service) { described_class.new(forked_project, user1, changes, push_options) }
 
       before do
         allow(forked_project).to receive(:empty_repo?).and_return(false)
@@ -108,7 +112,7 @@ describe MergeRequests::PushOptionsHandlerService do
 
       expect(last_mr.auto_merge_enabled).to eq(true)
       expect(last_mr.auto_merge_strategy).to eq(AutoMergeService::STRATEGY_MERGE_WHEN_PIPELINE_SUCCEEDS)
-      expect(last_mr.merge_user).to eq(user)
+      expect(last_mr.merge_user).to eq(user1)
       expect(last_mr.merge_params['sha']).to eq(change[:newrev])
     end
   end
@@ -684,7 +688,9 @@ describe MergeRequests::PushOptionsHandlerService do
   end
 
   describe 'no user' do
-    let(:user) { nil }
+    let(:user1) { nil }
+    let(:user2) { nil }
+    let(:user3) { nil }
     let(:push_options) { { create: true } }
     let(:changes) { new_branch_changes }
 
@@ -700,7 +706,7 @@ describe MergeRequests::PushOptionsHandlerService do
     let(:changes) { new_branch_changes }
 
     it 'records an error' do
-      Members::DestroyService.new(user).execute(ProjectMember.find_by!(user_id: user.id))
+      Members::DestroyService.new(user1).execute(ProjectMember.find_by!(user_id: user1.id))
 
       service.execute
 
