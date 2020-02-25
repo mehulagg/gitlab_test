@@ -3,10 +3,6 @@
 module Gitlab
   module GroupActivityAnalytics
     class DataCollector
-      EVENT_TYPES = %i[issues_created].freeze
-
-      attr_reader :group
-
       def initialize(group)
         @group = group
       end
