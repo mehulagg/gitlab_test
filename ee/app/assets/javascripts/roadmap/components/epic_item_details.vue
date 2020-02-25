@@ -1,8 +1,8 @@
 <script>
-import { s__, sprintf } from '~/locale';
-import { dateInWords } from '~/lib/utils/datetime_utility';
+import CommonMixin from '../mixins/common_mixin';
 
 export default {
+  mixins: [CommonMixin],
   props: {
     epic: {
       type: Object,
@@ -38,35 +38,6 @@ export default {
       }
       return this.epic.endDate;
     },
-    /**
-     * Compose timeframe string to show on UI
-     * based on start and end date availability
-     */
-    timeframeString() {
-      if (this.epic.startDateUndefined) {
-        return sprintf(s__('GroupRoadmap|Until %{dateWord}'), {
-          dateWord: dateInWords(this.endDate, true),
-        });
-      } else if (this.epic.endDateUndefined) {
-        return sprintf(s__('GroupRoadmap|From %{dateWord}'), {
-          dateWord: dateInWords(this.startDate, true),
-        });
-      }
-
-      // In case both start and end date fall in same year
-      // We should hide year from start date
-      const startDateInWords = dateInWords(
-        this.startDate,
-        true,
-        this.startDate.getFullYear() === this.endDate.getFullYear(),
-      );
-
-      const endDateInWords = dateInWords(this.endDate, true);
-      return sprintf(s__('GroupRoadmap|%{startDateInWords} &ndash; %{endDateInWords}'), {
-        startDateInWords,
-        endDateInWords,
-      });
-    },
   },
 };
 </script>
@@ -80,7 +51,7 @@ export default {
       <span v-if="isEpicGroupDifferent" :title="epic.groupFullName" class="epic-group"
         >{{ epic.groupName }} &middot;</span
       >
-      <span class="epic-timeframe" v-html="timeframeString"></span>
+      <span class="epic-timeframe" v-html="timeframeString(epic)"></span>
     </div>
   </span>
 </template>

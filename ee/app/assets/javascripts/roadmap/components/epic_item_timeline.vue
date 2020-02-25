@@ -70,30 +70,6 @@ export default {
       }
       return false;
     },
-    timelineBarStyles() {
-      let barStyles = {};
-
-      if (this.hasStartDate) {
-        if (this.presetTypeQuarters) {
-          // CSS properties are a false positive: https://gitlab.com/gitlab-org/frontend/eslint-plugin-i18n/issues/24
-          // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
-          barStyles = `width: ${this.getTimelineBarWidthForQuarters(
-            this.epic,
-          )}px; ${this.getTimelineBarStartOffsetForQuarters(this.epic)}`;
-        } else if (this.presetTypeMonths) {
-          // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
-          barStyles = `width: ${this.getTimelineBarWidthForMonths()}px; ${this.getTimelineBarStartOffsetForMonths(
-            this.epic,
-          )}`;
-        } else if (this.presetTypeWeeks) {
-          // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
-          barStyles = `width: ${this.getTimelineBarWidthForWeeks()}px; ${this.getTimelineBarStartOffsetForWeeks(
-            this.epic,
-          )}`;
-        }
-      }
-      return barStyles;
-    },
   },
 };
 </script>
@@ -109,7 +85,7 @@ export default {
           'start-date-undefined': epic.startDateUndefined,
           'end-date-undefined': epic.endDateUndefined,
         }"
-        :style="timelineBarStyles"
+        :style="timelineBarStyles(epic)"
         class="timeline-bar"
       ></a>
     </div>

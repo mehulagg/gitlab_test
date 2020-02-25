@@ -343,14 +343,6 @@ html.group-epics-roadmap-html {
       background-color: transparent;
       border-right: $border-style;
 
-      .current-day-indicator {
-        top: -1px;
-        width: 2px;
-        height: calc(100% + 1px);
-        background-color: $red-500;
-        pointer-events: none;
-      }
-
       .timeline-bar-wrapper {
         position: relative;
       }
@@ -393,62 +385,36 @@ html.group-epics-roadmap-html {
   }
 }
 
+.epic-timeline-cell,
+.milestone-timeline-cell {
+  .current-day-indicator {
+    top: -1px;
+    width: 2px;
+    height: calc(100% + 1px);
+    background-color: $red-500;
+    pointer-events: none;
+  }
+}
+
 .milestones-list-section {
-  display: table;
-
   .milestones-list-items {
-    display: table-cell;
-
     .milestone-timeline-cell {
-      display: table-cell;
       width: $timeline-cell-width;
-      height: 100%;
-      background-color: transparent;
-      border-right: $border-style;
-      border-bottom: $border-style;
-      box-sizing: border-box;
-      vertical-align: top;
-      max-width: $timeline-cell-width;
-      position: relative;
-
-      .current-day-indicator {
-        top: -1px;
-        width: 2px;
-        height: calc(100% + 1px);
-        background-color: $red-500;
-        pointer-events: none;
-      }
-    }
-
-    .milestone-item-title {
-      display: block;
-      font-weight: 600;
-      max-width: 100%;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      position: relative;
     }
 
     .timeline-bar-wrapper {
-      position: relative;
-      height: 30px;
+      height: 32px;
       color: $gray-700;
+    }
 
-      .milestone-start-and-end {
-        display: none;
-        background-color: transparent;
-        pointer-events: none;
-        border-left: 2px dashed $gray-900;
-        border-right: 2px dashed $gray-900;
-        position: relative;
-        top: 5px;
-      }
+    .milestone-start-and-end {
+      display: none;
+      border-left: 2px dotted $gray-700;
+      border-right: 2px dotted $gray-700;
     }
 
     .milestone-item-details {
-      display: inline-block;
-      position: absolute;
+      z-index: 1;
 
       &:hover .milestone-start-and-end {
         display: block;
@@ -456,13 +422,12 @@ html.group-epics-roadmap-html {
     }
 
     a.milestone-url {
-      display: inline-block;
       color: inherit;
       max-width: 100%;
+      left: $details-cell-width + $grid-size;
 
       &:hover {
         color: $gray-900;
-        text-decoration: none;
         cursor: pointer;
 
         .timeline-bar {
@@ -480,49 +445,41 @@ html.group-epics-roadmap-html {
     }
 
     .timeline-bar {
-      position: absolute;
       width: 100%;
-      top: 22px;
       background-color: $gray-700;
-      // color: inherit;
       height: 2px;
-      will-change: width, left;
+      z-index: 1;
+      top: 2px;
 
-      &::before {
-        content: '';
-        position: absolute;
-        top: -3px;
-        width: 2px;
-        height: 8px;
-        background-color: $gray-700;
-      }
-
+      &::before,
       &::after {
         content: '';
         position: absolute;
         top: -3px;
-        right: -7px;
-        width: 8px;
         height: 8px;
+      }
+
+      &::before {
+        width: 2px;
+        background-color: $gray-700;
+      }
+
+      &::after {
+        right: -3px;
+        width: 8px;
         border: 2px solid $gray-700;
         border-radius: 4px;
+        background-color: $white-light;
       }
     }
   }
 
   .milestones-list-title {
-    display: table-cell;
-    vertical-align: top;
     height: 100%;
-    position: sticky;
-    position: -webkit-sticky;
     left: 0;
     width: $details-cell-width;
-    padding: $gl-padding-8 $gl-padding;
     font-size: $code-font-size;
-    font-weight: 600;
     background-color: $white-light;
-    border-bottom: $border-style;
     z-index: 2;
 
     &::after {

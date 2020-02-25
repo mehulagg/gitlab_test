@@ -9859,13 +9859,16 @@ msgstr ""
 msgid "Group: %{name}"
 msgstr ""
 
-msgid "GroupRoadmap|%{startDateInWords} &ndash; %{endDateInWords}"
+msgid "GroupRoadmap|%{dateWord} - No end date"
 msgstr ""
 
 msgid "GroupRoadmap|%{startDateInWords} - %{endDateInWords}"
 msgstr ""
 
 msgid "GroupRoadmap|From %{dateWord}"
+msgstr ""
+
+msgid "GroupRoadmap|No start date - %{dateWord}"
 msgstr ""
 
 msgid "GroupRoadmap|Something went wrong while fetching epics"

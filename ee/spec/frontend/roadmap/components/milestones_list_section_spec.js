@@ -8,7 +8,11 @@ import {
   EPIC_DETAILS_CELL_WIDTH,
   TIMELINE_CELL_MIN_WIDTH,
 } from 'ee/roadmap/constants';
-import { mockTimeframeInitialDate, mockGroupId, rawMilestones } from '../mock_data';
+import {
+  mockTimeframeInitialDate,
+  mockGroupId,
+  rawMilestones,
+} from '../../../javascripts/roadmap/mock_data';
 
 const mockTimeframeMonths = getTimeframeForMonthsView(mockTimeframeInitialDate);
 const store = createStore();
@@ -83,32 +87,6 @@ describe('MilestonesListSectionComponent', () => {
     describe('initMounted', () => {
       it('sets value of `roadmapShellEl` with root component element', () => {
         expect(wrapper.vm.roadmapShellEl instanceof HTMLElement).toBe(true);
-      });
-
-      it('calls action `setBufferSize` with value based on window.innerHeight and component element position', () => {
-        expect(wrapper.vm.bufferSize).toBe(12);
-      });
-
-      it('sets value of `offsetLeft` with parentElement.offsetLeft', done => {
-        wrapper.vm.$nextTick(() => {
-          // During tests, there's no `$el.parentElement` present
-          // hence offsetLeft is 0.
-          expect(wrapper.vm.offsetLeft).toBe(0);
-          done();
-        });
-      });
-
-      it('calls `scrollToTodayIndicator` following the component render', done => {
-        spyOn(wrapper.vm, 'scrollToTodayIndicator');
-
-        // Original method implementation waits for render cycle
-        // to complete at 2 levels before scrolling.
-        wrapper.vm.$nextTick(() => {
-          wrapper.vm.$nextTick(() => {
-            expect(wrapper.vm.scrollToTodayIndicator).toHaveBeenCalled();
-            done();
-          });
-        });
       });
     });
 

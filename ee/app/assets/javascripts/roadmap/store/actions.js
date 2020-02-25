@@ -244,6 +244,7 @@ export const receiveMilestonesSuccess = (
   { commit, state, getters },
   { rawMilestones, newMilestone }, // timeframeExtended
 ) => {
+  const milestoneIds = [];
   const milestones = rawMilestones.reduce((filteredMilestones, milestone) => {
     const formattedMilestone = roadmapItemUtils.formatRoadmapItemDetails(
       milestone,
@@ -260,11 +261,12 @@ export const receiveMilestonesSuccess = (
         newMilestone,
       });
       filteredMilestones.push(formattedMilestone);
-      commit(types.UPDATE_MILESTONE_IDS, formattedMilestone.id);
+      milestoneIds.push(formattedMilestone.id);
     }
     return filteredMilestones;
   }, []);
 
+  commit(types.UPDATE_MILESTONE_IDS, milestoneIds);
   commit(types.RECEIVE_MILESTONES_SUCCESS, milestones);
 };
 

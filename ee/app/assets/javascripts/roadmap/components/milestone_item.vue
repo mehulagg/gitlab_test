@@ -1,16 +1,10 @@
 <script>
-import { s__, sprintf } from '~/locale';
-
 import { GlPopover } from '@gitlab/ui';
-
 import CommonMixin from '../mixins/common_mixin';
 import QuartersPresetMixin from '../mixins/quarters_preset_mixin';
 import MonthsPresetMixin from '../mixins/months_preset_mixin';
 import WeeksPresetMixin from '../mixins/weeks_preset_mixin';
-
 import { TIMELINE_CELL_MIN_WIDTH, SCROLL_BAR_SIZE } from '../constants';
-
-import { dateInWords } from '~/lib/utils/datetime_utility';
 
 export default {
   cellWidth: TIMELINE_CELL_MIN_WIDTH,
@@ -74,79 +68,15 @@ export default {
       }
       return false;
     },
-    timelineBarStyles() {
-      let barStyles = {};
-
-      if (this.hasStartDate) {
-        if (this.presetTypeQuarters) {
-          // CSS properties are a false positive: https://gitlab.com/gitlab-org/frontend/eslint-plugin-i18n/issues/24
-          // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
-          barStyles = `width: ${this.getTimelineBarWidthForQuarters(
-            this.milestone,
-          )}px; ${this.getTimelineBarStartOffsetForQuarters(this.milestone)}`;
-        } else if (this.presetTypeMonths) {
-          // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
-          barStyles = `width: ${this.getTimelineBarWidthForMonths()}px; ${this.getTimelineBarStartOffsetForMonths(
-            this.milestone,
-          )}`;
-        } else if (this.presetTypeWeeks) {
-          // eslint-disable-next-line @gitlab/i18n/no-non-i18n-strings
-          barStyles = `width: ${this.getTimelineBarWidthForWeeks()}px; ${this.getTimelineBarStartOffsetForWeeks(
-            this.milestone,
-          )}`;
-        }
-      }
-      return barStyles;
-    },
-    /**
-     * In case Milestone start date is out of range
-     * we need to use original date instead of proxy date
-     */
     startDate() {
-      if (this.milestone.startDateOutOfRange) {
-        return this.milestone.originalStartDate;
-      }
-
-      return this.milestone.startDate;
+      return this.milestone.startDateOutOfRange
+        ? this.milestone.originalStartDate
+        : this.milestone.startDate;
     },
-    /**
-     * In case Milestone end date is out of range
-     * we need to use original date instead of proxy date
-     */
     endDate() {
-      if (this.milestone.endDateOutOfRange) {
-        return this.milestone.originalEndDate;
-      }
-      return this.milestone.endDate;
-    },
-    /**
-     * Compose timeframe string to show on UI
-     * based on start and end date availability
-     */
-    timeframeString() {
-      if (this.milestone.startDateUndefined) {
-        return sprintf(s__('GroupRoadmap|Until %{dateWord}'), {
-          dateWord: dateInWords(this.endDate, true),
-        });
-      } else if (this.milestone.endDateUndefined) {
-        return sprintf(s__('GroupRoadmap|From %{dateWord}'), {
-          dateWord: dateInWords(this.startDate, true),
-        });
-      }
-
-      // In case both start and end date fall in same year
-      // We should hide year from start date
-      const startDateInWords = dateInWords(
-        this.startDate,
-        true,
-        this.startDate.getFullYear() === this.endDate.getFullYear(),
-      );
-
-      const endDateInWords = dateInWords(this.endDate, true);
-      return sprintf(s__('GroupRoadmap|%{startDateInWords} - %{endDateInWords}'), {
-        startDateInWords,
-        endDateInWords,
-      });
+      return this.milestone.endDateOutOfRange
+        ? this.milestone.originalEndDate
+        : this.milestone.endDate;
     },
   },
   mounted() {
@@ -173,12 +103,16 @@ export default {
         'start-date-undefined': milestone.startDateUndefined,
         'end-date-undefined': milestone.endDateUndefined,
       }"
-      :style="timelineBarStyles"
-      class="milestone-item-details"
+      :style="timelineBarStyles(milestone)"
+      class="milestone-item-details d-inline-block position-absolute"
     >
-      <a :id="`milestone-item-${milestone.id}`" :href="milestone.webPath" class="milestone-url">
-        <span class="timeline-bar"></span>
-        <span class="milestone-item-title">{{ milestone.title }}</span>
+      <a :href="milestone.webPath" class="milestone-url position-sticky">
+        <span
+          :id="`milestone-item-${milestone.id}`"
+          class="milestone-item-title str-truncated-100 bold"
+          >{{ milestone.title }}</span
+        >
+        <span class="timeline-bar position-relative d-block"></span>
       </a>
       <div class="milestone-start-and-end" :style="hoverStyles"></div>
       <gl-popover
@@ -188,8 +122,7 @@ export default {
         triggers="hover"
         :title="milestone.title"
       >
-        <!-- TODO - Add group, subgroup or project  -->
-        {{ timeframeString }}
+        {{ timeframeString(milestone) }}
       </gl-popover>
     </span>
   </div>

@@ -80,7 +80,7 @@ describe('EpicItemDetailsComponent', () => {
       it('returns timeframe string correctly when both start and end dates are defined', () => {
         vm = createComponent(mockEpic);
 
-        expect(vm.timeframeString).toBe('Jul 10, 2017 &ndash; Jun 2, 2018');
+        expect(vm.timeframeString(mockEpic)).toBe('Jul 10, 2017 - Jun 2, 2018');
       });
 
       it('returns timeframe string correctly when only start date is defined', () => {
@@ -89,7 +89,7 @@ describe('EpicItemDetailsComponent', () => {
         });
         vm = createComponent(mockEpicItem);
 
-        expect(vm.timeframeString).toBe('From Jul 10, 2017');
+        expect(vm.timeframeString(mockEpicItem)).toBe('Jul 10, 2017 - No end date');
       });
 
       it('returns timeframe string correctly when only end date is defined', () => {
@@ -98,7 +98,7 @@ describe('EpicItemDetailsComponent', () => {
         });
         vm = createComponent(mockEpicItem);
 
-        expect(vm.timeframeString).toBe('Until Jun 2, 2018');
+        expect(vm.timeframeString(mockEpicItem)).toBe('No start date - Jun 2, 2018');
       });
 
       it('returns timeframe string with hidden year for start date when both start and end dates are from same year', () => {
@@ -108,7 +108,7 @@ describe('EpicItemDetailsComponent', () => {
         });
         vm = createComponent(mockEpicItem);
 
-        expect(vm.timeframeString).toBe('Jan 1 &ndash; Apr 1, 2018');
+        expect(vm.timeframeString(mockEpicItem)).toBe('Jan 1 - Apr 1, 2018');
       });
     });
   });
@@ -148,7 +148,7 @@ describe('EpicItemDetailsComponent', () => {
       const epicTimeframeEl = vm.$el.querySelector('.epic-group-timeframe .epic-timeframe');
 
       expect(epicTimeframeEl).not.toBeNull();
-      expect(epicTimeframeEl.innerText.trim()).toBe('Jul 10, 2017 – Jun 2, 2018');
+      expect(epicTimeframeEl.innerText.trim()).toBe('Jul 10, 2017 - Jun 2, 2018');
     });
   });
 });

@@ -1,10 +1,7 @@
 <script>
 import { mapState, mapActions } from 'vuex';
-
 import eventHub from '../event_hub';
-
 import { EPIC_DETAILS_CELL_WIDTH, EPIC_ITEM_HEIGHT, TIMELINE_CELL_MIN_WIDTH } from '../constants';
-
 import MilestoneTimeline from './milestone_timeline.vue';
 
 export default {
@@ -66,23 +63,14 @@ export default {
       this.roadmapShellEl = this.$root.$el && this.$root.$el.firstChild;
       this.setBufferSize(Math.ceil((window.innerHeight - this.$el.offsetTop) / EPIC_ITEM_HEIGHT));
 
-      // Wait for component render to complete
       this.$nextTick(() => {
         this.offsetLeft = (this.$el.parentElement && this.$el.parentElement.offsetLeft) || 0;
 
-        // We cannot scroll to the indicator immediately
-        // on render as it will trigger scroll event leading
-        // to timeline expand, so we wait for another render
-        // cycle to complete.
         this.$nextTick(() => {
           this.scrollToTodayIndicator();
         });
       });
     },
-    /**
-     * Scroll timeframe to the right of the timeline
-     * by half the column size
-     */
     scrollToTodayIndicator() {
       if (this.$el.parentElement) this.$el.parentElement.scrollBy(TIMELINE_CELL_MIN_WIDTH / 2, 0);
     },
@@ -94,9 +82,13 @@ export default {
 </script>
 
 <template>
-  <div :style="sectionContainerStyles" class="milestones-list-section">
-    <div class="milestones-list-title">{{ __('Milestones') }}</div>
-    <div class="milestones-list-items">
+  <div :style="sectionContainerStyles" class="milestones-list-section d-table">
+    <div
+      class="milestones-list-title d-table-cell bold border-bottom align-top position-sticky pt-2 pl-3"
+    >
+      {{ __('Milestones') }}
+    </div>
+    <div class="milestones-list-items d-table-cell">
       <milestone-timeline
         :preset-type="presetType"
         :timeframe="timeframe"

@@ -34,15 +34,15 @@ export default {
 <template>
   <div>
     <span
-      v-for="(timeframeItem, index) in timeframe"
-      :key="index"
-      class="milestone-timeline-cell"
+      v-for="timeframeItem in timeframe"
+      :key="timeframeItem.id"
+      class="milestone-timeline-cell d-table-cell position-relative border-right border-bottom"
       data-qa-selector="milestone_timeline_cell"
     >
       <current-day-indicator :preset-type="presetType" :timeframe-item="timeframeItem" />
       <milestone-item
-        v-for="(milestone, index2) in milestones"
-        :key="index2"
+        v-for="milestone in milestones"
+        :key="milestone.id"
         :preset-type="presetType"
         :milestone="milestone"
         :timeframe="timeframe"

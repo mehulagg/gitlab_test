@@ -54,8 +54,8 @@ export default {
   [types.SET_MILESTONES](state, milestones) {
     state.milestones = milestones;
   },
-  [types.UPDATE_MILESTONE_IDS](state, milestoneId) {
-    state.milestoneIds.push(milestoneId);
+  [types.UPDATE_MILESTONE_IDS](state, milestoneIds) {
+    state.milestoneIds.push(...milestoneIds);
   },
   [types.REQUEST_MILESTONES](state) {
     state.milestonesFetchInProgress = true;

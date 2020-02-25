@@ -7,7 +7,11 @@ import { getTimeframeForMonthsView } from 'ee/roadmap/utils/roadmap_utils';
 
 import { PRESET_TYPES } from 'ee/roadmap/constants';
 
-import { mockTimeframeInitialDate, mockMilestone2, mockGroupId } from '../mock_data';
+import {
+  mockTimeframeInitialDate,
+  mockMilestone2,
+  mockGroupId,
+} from '../../../javascripts/roadmap/mock_data';
 
 const mockTimeframeMonths = getTimeframeForMonthsView(mockTimeframeInitialDate);
 
