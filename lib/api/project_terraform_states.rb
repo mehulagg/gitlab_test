@@ -2,6 +2,14 @@
 
 module API
   class ProjectTerraformStates < Grape::API
+    helpers ::API::Helpers::PackagesManagerClientsHelpers
+
+    helpers do
+      def find_personal_access_token
+        find_personal_access_token_from_http_basic_auth
+      end
+    end
+
     before { authenticate! }
 
     params do
