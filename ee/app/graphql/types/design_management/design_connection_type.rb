@@ -4,8 +4,6 @@ module Types
   module DesignManagement
     # rubocop: disable Graphql/AuthorizeTypes
     class DesignConnectionType < GraphQL::Types::Relay::BaseConnection
-      authorize :read_design
-
       field :total_count, Integer, null: false,
             description: 'Total count of designs in design collection'
 
