@@ -91,6 +91,7 @@ describe GitlabSchema.types['DesignCollection'] do
         it 'returns new ids during pagination' do
           old_edges = subject.dig(*%w(data project issue designCollection designs edges))
           new_cursor = subject.dig(*%w(data project issue designCollection designs pageInfo endCursor))
+
           new_page = GitlabSchema.execute(
             query,
             context: { current_user: user },
