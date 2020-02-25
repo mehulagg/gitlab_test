@@ -63,7 +63,7 @@ describe GitlabSchema.types['DesignCollection'] do
     end
 
     context 'totalCount' do
-      it "returns total count" do
+      it 'returns total count' do
         path = %w(data project issue designCollection designs totalCount)
         expect(subject.dig(*path)).to eq(designs.count)
       end
