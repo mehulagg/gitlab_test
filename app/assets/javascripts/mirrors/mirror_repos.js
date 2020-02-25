@@ -12,6 +12,7 @@ export default class MirrorRepos {
     this.$form = $('.js-mirror-form', this.$container);
     this.$urlInput = $('.js-mirror-url', this.$form);
     this.$protectedBranchesInput = $('.js-mirror-protected', this.$form);
+    this.$keepDivergentRefsInput = $('.js-mirror-keep-divergent-refs', this.$form);
     this.$table = $('.js-mirrors-table-body', this.$container);
     this.mirrorEndpoint = this.$form.data('projectMirrorEndpoint');
   }
@@ -61,10 +62,18 @@ export default class MirrorRepos {
     $('.js-mirror-protected-hidden', this.$form).val(val);
   }
 
+  updateKeepDivergentRefs() {
+    const val = this.$keepDivergentRefsInput.get(0).checked
+      ? this.$keepDivergentRefsInput.val()
+      : '0';
+    $('.js-mirror-keep-divergent-refs-hidden', this.$form).val(val);
+  }
+
   registerUpdateListeners() {
     this.debouncedUpdateUrl = debounce(() => this.updateUrl(), 200);
     this.$urlInput.on('input', () => this.debouncedUpdateUrl());
     this.$protectedBranchesInput.on('change', () => this.updateProtectedBranches());
+    this.$keepDivergentRefsInput.on('change', () => this.updateKeepDivergentRefs());
     this.$table.on('click', '.js-delete-mirror', event => this.deleteMirror(event));
   }
 
