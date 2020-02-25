@@ -2,7 +2,6 @@ import { mount } from '@vue/test-utils';
 import DeploymentComponent from '~/vue_merge_request_widget/components/deployment/deployment.vue';
 import DeploymentInfo from '~/vue_merge_request_widget/components/deployment/deployment_info.vue';
 import DeploymentViewButton from '~/vue_merge_request_widget/components/deployment/deployment_view_button.vue';
-import DeploymentStopButton from '~/vue_merge_request_widget/components/deployment/deployment_stop_button.vue';
 import {
   CREATED,
   RUNNING,
@@ -10,7 +9,7 @@ import {
   FAILED,
   CANCELED,
 } from '~/vue_merge_request_widget/components/deployment/constants';
-import deploymentMockData from './deployment_mock_data';
+import { deploymentMockData } from './deployment_mock_data';
 
 const deployDetail = {
   playable_build: {
@@ -46,6 +45,7 @@ describe('Deployment component', () => {
     wrapper.destroy();
   });
 
+
   it('always renders DeploymentInfo', () => {
     expect(wrapper.find(DeploymentInfo).exists()).toBe(true);
   });
@@ -53,28 +53,30 @@ describe('Deployment component', () => {
   describe('status message and buttons', () => {
     const noActions = [];
     const noDetails = { isManual: false };
-    const deployGroup = [DeploymentViewButton, DeploymentStopButton];
+    const defaultGroup = ['.js-deploy-url', '.js-stop-env'];
+    const manualDeployGroup = ['.js-manual-deploy-action', ...defaultGroup];
+    const manualRedeployGroup = ['.js-manual-redeploy-action', ...defaultGroup];
 
     describe.each`
       status      | previous | deploymentDetails | text                             | actionButtons
-      ${CREATED}  | ${true}  | ${deployDetail}   | ${'Can be manually deployed to'} | ${deployGroup}
-      ${CREATED}  | ${true}  | ${noDetails}      | ${'Will deploy to'}              | ${deployGroup}
+      ${CREATED}  | ${true}  | ${deployDetail}   | ${'Can be manually deployed to'} | ${manualDeployGroup}
+      ${CREATED}  | ${true}  | ${noDetails}      | ${'Will deploy to'}              | ${defaultGroup}
       ${CREATED}  | ${false} | ${deployDetail}   | ${'Can be manually deployed to'} | ${noActions}
       ${CREATED}  | ${false} | ${noDetails}      | ${'Will deploy to'}              | ${noActions}
-      ${RUNNING}  | ${true}  | ${deployDetail}   | ${'Deploying to'}                | ${deployGroup}
-      ${RUNNING}  | ${true}  | ${noDetails}      | ${'Deploying to'}                | ${deployGroup}
+      ${RUNNING}  | ${true}  | ${deployDetail}   | ${'Deploying to'}                | ${defaultGroup}
+      ${RUNNING}  | ${true}  | ${noDetails}      | ${'Deploying to'}                | ${defaultGroup}
       ${RUNNING}  | ${false} | ${deployDetail}   | ${'Deploying to'}                | ${noActions}
       ${RUNNING}  | ${false} | ${noDetails}      | ${'Deploying to'}                | ${noActions}
-      ${SUCCESS}  | ${true}  | ${deployDetail}   | ${'Deployed to'}                 | ${deployGroup}
-      ${SUCCESS}  | ${true}  | ${noDetails}      | ${'Deployed to'}                 | ${deployGroup}
-      ${SUCCESS}  | ${false} | ${deployDetail}   | ${'Deployed to'}                 | ${deployGroup}
-      ${SUCCESS}  | ${false} | ${noDetails}      | ${'Deployed to'}                 | ${deployGroup}
-      ${FAILED}   | ${true}  | ${deployDetail}   | ${'Failed to deploy to'}         | ${deployGroup}
-      ${FAILED}   | ${true}  | ${noDetails}      | ${'Failed to deploy to'}         | ${deployGroup}
+      ${SUCCESS}  | ${true}  | ${deployDetail}   | ${'Deployed to'}                 | ${defaultGroup}
+      ${SUCCESS}  | ${true}  | ${noDetails}      | ${'Deployed to'}                 | ${defaultGroup}
+      ${SUCCESS}  | ${false} | ${deployDetail}   | ${'Deployed to'}                 | ${defaultGroup}
+      ${SUCCESS}  | ${false} | ${noDetails}      | ${'Deployed to'}                 | ${defaultGroup}
+      ${FAILED}   | ${true}  | ${deployDetail}   | ${'Failed to deploy to'}         | ${manualRedeployGroup}
+      ${FAILED}   | ${true}  | ${noDetails}      | ${'Failed to deploy to'}         | ${defaultGroup}
       ${FAILED}   | ${false} | ${deployDetail}   | ${'Failed to deploy to'}         | ${noActions}
       ${FAILED}   | ${false} | ${noDetails}      | ${'Failed to deploy to'}         | ${noActions}
-      ${CANCELED} | ${true}  | ${deployDetail}   | ${'Canceled deployment to'}      | ${deployGroup}
-      ${CANCELED} | ${true}  | ${noDetails}      | ${'Canceled deployment to'}      | ${deployGroup}
+      ${CANCELED} | ${true}  | ${deployDetail}   | ${'Canceled deployment to'}      | ${defaultGroup}
+      ${CANCELED} | ${true}  | ${noDetails}      | ${'Canceled deployment to'}      | ${defaultGroup}
       ${CANCELED} | ${false} | ${deployDetail}   | ${'Canceled deployment to'}      | ${noActions}
       ${CANCELED} | ${false} | ${noDetails}      | ${'Canceled deployment to'}      | ${noActions}
     `(
@@ -112,7 +114,7 @@ describe('Deployment component', () => {
         if (actionButtons.length > 0) {
           describe('renders the expected button group', () => {
             actionButtons.forEach(button => {
-              it(`renders ${button.name}`, () => {
+              it(`renders ${button}`, () => {
                 expect(wrapper.find(button).exists()).toBe(true);
               });
             });
@@ -121,8 +123,8 @@ describe('Deployment component', () => {
 
         if (actionButtons.length === 0) {
           describe('does not render the button group', () => {
-            [DeploymentViewButton, DeploymentStopButton].forEach(button => {
-              it(`does not render ${button.name}`, () => {
+            defaultGroup.forEach(button => {
+              it(`does not render ${button}`, () => {
                 expect(wrapper.find(button).exists()).toBe(false);
               });
             });
@@ -144,10 +146,6 @@ describe('Deployment component', () => {
 
   describe('hasExternalUrls', () => {
     describe('when deployment has both external_url_formatted and external_url', () => {
-      it('should return true', () => {
-        expect(wrapper.vm.hasExternalUrls).toEqual(true);
-      });
-
       it('should render the View Button', () => {
         expect(wrapper.find(DeploymentViewButton).exists()).toBe(true);
       });
@@ -163,10 +161,6 @@ describe('Deployment component', () => {
         });
       });
 
-      it('should return false', () => {
-        expect(wrapper.vm.hasExternalUrls).toEqual(false);
-      });
-
       it('should not render the View Button', () => {
         expect(wrapper.find(DeploymentViewButton).exists()).toBe(false);
       });
@@ -180,10 +174,6 @@ describe('Deployment component', () => {
             showMetrics: false,
           },
         });
-      });
-
-      it('should return false', () => {
-        expect(wrapper.vm.hasExternalUrls).toEqual(false);
       });
 
       it('should not render the View Button', () => {

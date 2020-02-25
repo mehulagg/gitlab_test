@@ -22,15 +22,20 @@ export default {
       required: false,
       default: null,
     },
-    computedDeploymentStatus: {
-      type: String,
-      required: true,
-    },
     buttonTitle: {
       type: String,
       required: false,
       default: '',
     },
+    computedDeploymentStatus: {
+      type: String,
+      required: true,
+    },
+    containerClasses: {
+      type: String,
+      required: false,
+      default: ''
+    }
   },
   computed: {
     isActionInProgress() {
@@ -60,7 +65,7 @@ export default {
       :title="buttonTitle"
       :loading="isLoading"
       :disabled="isActionInProgress"
-      container-class="btn btn-default btn-sm inline prepend-left-4"
+      :container-class="`btn btn-default btn-sm inline prepend-left-4 ${containerClasses}`"
       @click="$emit('click')"
     >
       <span class="d-inline-flex align-items-baseline">

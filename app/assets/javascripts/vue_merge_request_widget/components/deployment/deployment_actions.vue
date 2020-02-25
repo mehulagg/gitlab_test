@@ -145,6 +145,7 @@ export default {
       :action-in-progress="actionInProgress"
       :actions-configuration="$options.actionsConfiguration[constants.DEPLOYING]"
       :computed-deployment-status="computedDeploymentStatus"
+      containerClasses="js-manual-deploy-action"
       @click="deployManually"
     >
       <gl-icon name="play" />
@@ -155,6 +156,7 @@ export default {
       :action-in-progress="actionInProgress"
       :actions-configuration="$options.actionsConfiguration[constants.REDEPLOYING]"
       :computed-deployment-status="computedDeploymentStatus"
+      containerClasses="js-manual-redeploy-action"
       @click="redeploy"
     >
       <gl-icon name="repeat" />
@@ -173,6 +175,7 @@ export default {
       :computed-deployment-status="computedDeploymentStatus"
       :actions-configuration="$options.actionsConfiguration[constants.STOPPING]"
       :button-title="$options.actionsConfiguration[constants.STOPPING].buttonText"
+      containerClasses="js-stop-env"
       @click="stopEnvironment"
     >
       <gl-icon name="stop" />
