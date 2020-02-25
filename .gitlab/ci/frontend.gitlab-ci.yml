@@ -12,6 +12,8 @@
     - name: postgres:9.6
       command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
     - name: redis:alpine
+  variables:
+    POSTGRES_HOST_AUTH_METHOD: trust
 
 gitlab:assets:compile:
   <<: *assets-compile-cache
@@ -71,6 +73,7 @@ compile-assets:
   variables:
     # we override the max_old_space_size to prevent OOM errors
     NODE_OPTIONS: --max_old_space_size=3584
+    POSTGRES_HOST_AUTH_METHOD: trust
   artifacts:
     expire_in: 7d
     paths:
@@ -119,6 +122,7 @@ karma:
   variables:
     # we override the max_old_space_size to prevent OOM errors
     NODE_OPTIONS: --max_old_space_size=3584
+    POSTGRES_HOST_AUTH_METHOD: trust
   script:
     - export BABEL_ENV=coverage CHROME_LOG_FILE=chrome_debug.log
     - date

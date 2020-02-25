@@ -3,12 +3,16 @@
     - name: postgres:9.6
       command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
     - name: redis:alpine
+  variables:
+    POSTGRES_HOST_AUTH_METHOD: trust
 
 .use-pg-10: &use-pg-10
   services:
     - name: postgres:10.0
       command: ["postgres", "-c", "fsync=off", "-c", "synchronous_commit=off", "-c", "full_page_writes=off"]
     - name: redis:alpine
+  variables:
+    POSTGRES_HOST_AUTH_METHOD: trust
 
 .use-mysql: &use-mysql
   services:
@@ -79,10 +83,14 @@
   except:
     - /(^docs[\/-].*|.*-docs$)/
     - /(^qa[\/-].*|.*-qa$)/
+  variables:
+    POSTGRES_HOST_AUTH_METHOD: trust
 
 .rspec-metadata-pg: &rspec-metadata-pg
   <<: *rspec-metadata
   <<: *use-pg
+  variables:
+    POSTGRES_HOST_AUTH_METHOD: trust
 
 .rspec-metadata-pg-10: &rspec-metadata-pg-10
   <<: *rspec-metadata
@@ -304,12 +312,16 @@ coverage:
   services:
     - postgres:10.2
     - redis:alpine
+  variables:
+    POSTGRES_HOST_AUTH_METHOD: trust
 
 .use-pg-with-elasticsearch: &use-pg-with-elasticsearch
   services:
     - postgres:9.6
     - redis:alpine
     - docker.elastic.co/elasticsearch/elasticsearch:5.6.12
+  variables:
+    POSTGRES_HOST_AUTH_METHOD: trust
 
 .use-mysql-with-elasticsearch: &use-mysql-with-elasticsearch
   services:
@@ -328,10 +340,14 @@ coverage:
     - cp ${EE_KNAPSACK_RSPEC_SUITE_REPORT_PATH} ${KNAPSACK_REPORT_PATH}
     - scripts/gitaly-test-spawn
     - knapsack rspec "-Ispec --color --format documentation --format RspecJunitFormatter --out junit_rspec.xml --tag ~geo"
+  variables:
+    POSTGRES_HOST_AUTH_METHOD: trust
 
 .rspec-ee-pg: &rspec-ee-pg
   <<: *rspec-metadata-ee
   <<: *use-pg-with-elasticsearch
+  variables:
+    POSTGRES_HOST_AUTH_METHOD: trust
 
 .rspec-ee-mysql: &rspec-ee-mysql
   <<: *rspec-metadata-ee
@@ -347,6 +363,8 @@ coverage:
     - source scripts/prepare_postgres_fdw.sh
     - scripts/gitaly-test-spawn
     - bundle exec rspec --color --format documentation --format RspecJunitFormatter --out junit_rspec.xml --tag geo ee/spec/
+  variables:
+    POSTGRES_HOST_AUTH_METHOD: trust
 
 .rspec-geo-pg-10-2: &rspec-metadata-pg-geo-10-2
   <<: *rspec-metadata
@@ -358,26 +376,29 @@ coverage:
     - source scripts/prepare_postgres_fdw.sh
     - scripts/gitaly-test-spawn
     - bundle exec rspec --color --format documentation --format RspecJunitFormatter --out junit_rspec.xml --tag geo ee/spec/
+  variables:
+    POSTGRES_HOST_AUTH_METHOD: trust
 
 .migration-paths-upgrade-ce-to-ee: &migration-paths-upgrade-ce-to-ee
   extends: .dedicated-no-docs-and-no-qa-pull-cache-job
   variables:
     SETUP_DB: "false"
+    POSTGRES_HOST_AUTH_METHOD: trust
   script:
-    - ruby -r./scripts/ee_specific_check/ee_specific_check -e'EESpecificCheck.fetch_remote_ce_branch'
-    - git checkout -f FETCH_HEAD
-    - . scripts/utils.sh
-    - . scripts/prepare_build.sh
-    - date
-    - setup_db
-    - date
-    - git checkout -f $CI_COMMIT_SHA
-    - date
-    - . scripts/prepare_build.sh
-    - date
-    - bundle exec rake db:migrate
+      - ruby -r./scripts/ee_specific_check/ee_specific_check -e'EESpecificCheck.fetch_remote_ce_branch'
+      - git checkout -f FETCH_HEAD
+      - . scripts/utils.sh
+      - . scripts/prepare_build.sh
+      - date
+      - setup_db
+      - date
+      - git checkout -f $CI_COMMIT_SHA
+      - date
+      - . scripts/prepare_build.sh
+      - date
+      - bundle exec rake db:migrate
   dependencies:
-    - setup-test-env
+      - setup-test-env
 
 rspec-pg-ee:
   <<: *rspec-ee-pg
