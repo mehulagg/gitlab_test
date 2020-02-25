@@ -68,7 +68,7 @@ describe GitlabSchema.types['DesignCollection'] do
         expect(subject.dig(*path)).to eq(designs.count)
       end
 
-      it "total count does not change between pages" do
+      it 'total count does not change between pages' do
         old_count = subject.dig(*%w(data project issue designCollection designs totalCount))
         new_cursor = subject.dig(*%w(data project issue designCollection designs pageInfo endCursor))
         new_page = GitlabSchema.execute(
