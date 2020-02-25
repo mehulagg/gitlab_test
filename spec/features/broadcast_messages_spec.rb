@@ -27,4 +27,15 @@ describe 'Broadcast Messages' do
 
     expect(page).not_to have_content 'SampleMessage'
   end
+
+  it 'renders broadcast message with placeholders' do
+    create(:broadcast_message, broadcast_type: 'notification', message: 'Hi {{name}}')
+
+    user = create(:user)
+    sign_in(user)
+
+    visit root_path
+
+    expect(page).to have_content "Hi #{user.name}"
+  end
 end
