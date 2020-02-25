@@ -172,7 +172,7 @@ describe 'Git LFS API and storage' do
 
     context 'and request comes from gitlab-workhorse' do
       context 'without user being authorized' do
-        it_behaves_like 'LFS http 401 response'
+        it_behaves_like 'LFS http 404 response'
       end
 
       context 'with required headers' do
@@ -656,7 +656,7 @@ describe 'Git LFS API and storage' do
             project.lfs_objects << lfs_object
           end
 
-          it_behaves_like 'LFS http 401 response'
+          it_behaves_like 'LFS http 404 response'
         end
       end
     end

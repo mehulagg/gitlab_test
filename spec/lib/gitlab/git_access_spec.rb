@@ -610,7 +610,7 @@ describe Gitlab::GitAccess do
           it 'does not give access to download code' do
             public_project.project_feature.update_attribute(:repository_access_level, ProjectFeature::DISABLED)
 
-            expect { pull_access_check }.to raise_forbidden(described_class::ERROR_MESSAGES[:download])
+            expect { pull_access_check }.to raise_unauthorized
           end
         end
       end
@@ -1217,6 +1217,10 @@ describe Gitlab::GitAccess do
 
   def raise_not_found
     raise_error(Gitlab::GitAccess::NotFoundError, Gitlab::GitAccess::ERROR_MESSAGES[:project_not_found])
+  end
+
+  def raise_unauthorized
+    raise_error(Gitlab::GitAccess::UnauthorizedError)
   end
 
   def build_authentication_abilities

@@ -8,16 +8,7 @@ describe 'Git HTTP requests' do
   include GitHttpHelpers
   include WorkhorseHelpers
 
-  shared_examples 'pulls require Basic HTTP Authentication' do
-    context "when no credentials are provided" do
-      it "responds to downloads with status 401 Unauthorized (no project existence information leak)" do
-        download(path) do |response|
-          expect(response).to have_gitlab_http_status(:unauthorized)
-          expect(response.header['WWW-Authenticate']).to start_with('Basic ')
-        end
-      end
-    end
-
+  shared_examples 'pulls with credentials require Basic HTTP Authentication' do
     context "when only username is provided" do
       it "responds to downloads with status 401 Unauthorized" do
         download(path, user: user.username) do |response|
@@ -48,9 +39,22 @@ describe 'Git HTTP requests' do
     end
   end
 
-  shared_examples 'pushes require Basic HTTP Authentication' do
+  shared_examples 'all pulls require Basic HTTP Authentication' do
     context "when no credentials are provided" do
-      it "responds to uploads with status 401 Unauthorized (no project existence information leak)" do
+      it "responds to downloads with status 401 Unauthorized" do
+        download(path) do |response|
+          expect(response).to have_gitlab_http_status(:unauthorized)
+          expect(response.header['WWW-Authenticate']).to start_with('Basic ')
+        end
+      end
+    end
+
+    it_behaves_like 'pulls with credentials require Basic HTTP Authentication'
+  end
+
+  shared_examples 'all pushes require Basic HTTP Authentication' do
+    context "when no credentials are provided" do
+      it "responds to uploads with status 401 Unauthorized" do
         upload(path) do |response|
           expect(response).to have_gitlab_http_status(:unauthorized)
           expect(response.header['WWW-Authenticate']).to start_with('Basic ')
@@ -177,8 +181,8 @@ describe 'Git HTTP requests' do
       context "when namespace doesn't exist" do
         let(:path) { 'doesnt/exist.git' }
 
-        it_behaves_like 'pulls require Basic HTTP Authentication'
-        it_behaves_like 'pushes require Basic HTTP Authentication'
+        it_behaves_like 'all pulls require Basic HTTP Authentication'
+        it_behaves_like 'all pushes require Basic HTTP Authentication'
 
         context 'when authenticated' do
           it 'rejects downloads and uploads with 404 Not Found' do
@@ -223,7 +227,7 @@ describe 'Git HTTP requests' do
       context "when the project is public" do
         let(:project) { create(:project, :wiki_repo, :public, :wiki_enabled) }
 
-        it_behaves_like 'pushes require Basic HTTP Authentication'
+        it_behaves_like 'all pushes require Basic HTTP Authentication'
 
         context 'when unauthenticated' do
           let(:env) { {} }
@@ -271,8 +275,18 @@ describe 'Git HTTP requests' do
       context "when the project is private" do
         let(:project) { create(:project, :wiki_repo, :private, :wiki_enabled) }
 
-        it_behaves_like 'pulls require Basic HTTP Authentication'
-        it_behaves_like 'pushes require Basic HTTP Authentication'
+        context 'with pulls' do
+          context 'when no credentials are provided' do
+            it 'responds to downloads with status 404 Not Found' do
+              download(path) do |response|
+                expect(response).to have_gitlab_http_status(:not_found)
+              end
+            end
+          end
+        end
+
+        it_behaves_like 'pulls with credentials require Basic HTTP Authentication'
+        it_behaves_like 'all pushes require Basic HTTP Authentication'
 
         context 'when authenticated' do
           context 'and as a developer on the team' do
@@ -322,7 +336,7 @@ describe 'Git HTTP requests' do
       context "when the project is public" do
         let(:project) { create(:project, :repository, :public) }
 
-        it_behaves_like 'pushes require Basic HTTP Authentication'
+        it_behaves_like 'all pushes require Basic HTTP Authentication'
 
         context 'when not authenticated' do
           let(:env) { {} }
@@ -408,8 +422,8 @@ describe 'Git HTTP requests' do
             let(:path) { "#{project.full_path}.git" }
             let(:env) { {} }
 
-            it_behaves_like 'pulls require Basic HTTP Authentication'
-            it_behaves_like 'pushes require Basic HTTP Authentication'
+            it_behaves_like 'all pulls require Basic HTTP Authentication'
+            it_behaves_like 'all pushes require Basic HTTP Authentication'
           end
 
           context 'but the repo is enabled' do
@@ -423,8 +437,8 @@ describe 'Git HTTP requests' do
           context 'but only project members are allowed' do
             let(:project) { create(:project, :public, :repository, :repository_private) }
 
-            it_behaves_like 'pulls require Basic HTTP Authentication'
-            it_behaves_like 'pushes require Basic HTTP Authentication'
+            it_behaves_like 'all pulls require Basic HTTP Authentication'
+            it_behaves_like 'all pushes require Basic HTTP Authentication'
           end
         end
 
@@ -443,8 +457,19 @@ describe 'Git HTTP requests' do
       context "when the project is private" do
         let(:project) { create(:project, :repository, :private) }
 
-        it_behaves_like 'pulls require Basic HTTP Authentication'
-        it_behaves_like 'pushes require Basic HTTP Authentication'
+        context 'with pulls' do
+          context 'when no credentials are provided' do
+            it 'responds to downloads with status 404 Not Found' do
+              download(path) do |response|
+                expect(response).to have_gitlab_http_status(:not_found)
+              end
+            end
+          end
+
+          it_behaves_like 'pulls with credentials require Basic HTTP Authentication'
+        end
+
+        it_behaves_like 'all pushes require Basic HTTP Authentication'
 
         context "when username and password are provided" do
           let(:env) { { user: user.username, password: 'nope' } }
@@ -490,7 +515,7 @@ describe 'Git HTTP requests' do
                   end
                 end
 
-                it "rejects pulls with 401 Unauthorized for unknown projects (no project existence information leak)" do
+                it "rejects pulls with 401 Unauthorized for unknown projects" do
                   user.block
 
                   download('doesnt/exist.git', env) do |response|
@@ -866,8 +891,8 @@ describe 'Git HTTP requests' do
       allow_any_instance_of(Gitlab::Auth::LDAP::Authentication).to receive(:login).with(user.username, user.password).and_return(user)
     end
 
-    it_behaves_like 'pulls require Basic HTTP Authentication'
-    it_behaves_like 'pushes require Basic HTTP Authentication'
+    it_behaves_like 'all pulls require Basic HTTP Authentication'
+    it_behaves_like 'all pushes require Basic HTTP Authentication'
 
     context "when authentication succeeds" do
       context "when the project doesn't exist" do

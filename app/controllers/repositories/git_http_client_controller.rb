@@ -117,7 +117,7 @@ module Repositories
     def http_download_allowed?
       Gitlab::ProtocolAccess.allowed?('http') &&
       download_request? &&
-      project && Guest.can?(:download_code, project)
+      project
     end
   end
 end

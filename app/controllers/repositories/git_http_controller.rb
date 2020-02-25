@@ -7,6 +7,7 @@ module Repositories
     before_action :access_check
     prepend_before_action :deny_head_requests, only: [:info_refs]
 
+    rescue_from Gitlab::GitAccess::UnauthorizedError, with: :render_401_with_exception
     rescue_from Gitlab::GitAccess::ForbiddenError, with: :render_403_with_exception
     rescue_from Gitlab::GitAccess::NotFoundError, with: :render_404_with_exception
     rescue_from Gitlab::GitAccess::ProjectCreationError, with: :render_422_with_exception
@@ -57,6 +58,11 @@ module Repositories
     def render_ok
       set_workhorse_internal_api_content_type
       render json: Gitlab::Workhorse.git_http_ok(repository, repo_type, user, action_name)
+    end
+
+    def render_401_with_exception(exception)
+      send_challenges
+      render plain: exception.message, status: :unauthorized
     end
 
     def render_403_with_exception(exception)

@@ -6,6 +6,7 @@ module Gitlab
   class GitAccess
     include Gitlab::Utils::StrongMemoize
 
+    UnauthorizedError = Class.new(StandardError)
     ForbiddenError = Class.new(StandardError)
     NotFoundError = Class.new(StandardError)
     ProjectCreationError = Class.new(StandardError)
@@ -29,7 +30,8 @@ module Gitlab
       receive_pack_disabled_over_http: 'Pushing over HTTP is not allowed.',
       read_only: 'The repository is temporarily read-only. Please try again later.',
       cannot_push_to_read_only: "You can't push code to a read-only GitLab instance.",
-      push_code: 'You are not allowed to push code to this project.'
+      push_code: 'You are not allowed to push code to this project.',
+      access_denied: "HTTP Basic: Access denied\n"
     }.freeze
 
     INTERNAL_TIMEOUT = 50.seconds.freeze
@@ -255,7 +257,11 @@ module Gitlab
         guest_can_download_code?
 
       unless passed
-        raise ForbiddenError, ERROR_MESSAGES[:download]
+        if actor.nil?
+          raise UnauthorizedError, ERROR_MESSAGES[:access_denied]
+        else
+          raise ForbiddenError, ERROR_MESSAGES[:download]
+        end
       end
     end
 
