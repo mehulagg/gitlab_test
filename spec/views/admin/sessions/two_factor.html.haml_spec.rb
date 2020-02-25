@@ -25,7 +25,7 @@ describe 'admin/sessions/two_factor.html.haml' do
       render
 
       expect(rendered).to have_css('#login-pane.active')
-      expect(rendered).to have_selector('input[name="otp_attempt"]')
+      expect(rendered).to have_selector('input[name="user[otp_attempt]"]')
     end
   end
 

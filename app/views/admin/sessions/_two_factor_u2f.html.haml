@@ -4,6 +4,7 @@
 %script#js-authenticate-u2f-in-progress{ type: "text/template" }
   %p= _("Trying to communicate with your device. Plug it in (if you haven't already) and press the button on the device now.")
 
+-# haml-lint:disable NoPlainNodes
 %script#js-authenticate-u2f-error{ type: "text/template" }
   %div
     %p <%= error_message %> (#{_("error code:")} <%= error_code %>)

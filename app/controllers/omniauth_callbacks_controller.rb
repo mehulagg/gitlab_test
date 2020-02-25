@@ -248,18 +248,16 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
   def admin_mode_flow(auth_user_class)
     auth_user = build_auth_user(auth_user_class)
 
-    if omniauth_identity_matches_current_user?
-      if current_user.two_factor_enabled? && !auth_user.bypass_two_factor?
-        prompt_for_two_factor(current_user, admin_mode: true)
-      else
-        # Can only reach here if the omniauth identity matches current user
-        # and current_user is an admin that requested admin mode
-        current_user_mode.enable_admin_mode!(skip_password_validation: true)
+    fail_admin_mode_invalid_credentials unless omniauth_identity_matches_current_user?
 
-        redirect_to stored_location_for(:redirect) || admin_root_path, notice: _('Admin mode enabled')
-      end
+    if current_user.two_factor_enabled? && !auth_user.bypass_two_factor?
+      prompt_for_two_factor(current_user, admin_mode: true)
     else
-      fail_admin_mode_invalid_credentials
+      # Can only reach here if the omniauth identity matches current user
+      # and current_user is an admin that requested admin mode
+      current_user_mode.enable_admin_mode!(skip_password_validation: true)
+
+      redirect_to stored_location_for(:redirect) || admin_root_path, notice: _('Admin mode enabled')
     end
   end
 

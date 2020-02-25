@@ -21,13 +21,11 @@ class Admin::SessionsController < ApplicationController
   def create
     if two_factor_enabled_for_user?
       authenticate_with_two_factor(admin_mode: true)
+    elsif current_user_mode.enable_admin_mode!(password: user_params[:password])
+      redirect_to redirect_path, notice: _('Admin mode enabled')
     else
-      if current_user_mode.enable_admin_mode!(password: user_params[:password])
-        redirect_to redirect_path, notice: _('Admin mode enabled')
-      else
-        flash.now[:alert] = _('Invalid login or password')
-        render :new
-      end
+      flash.now[:alert] = _('Invalid login or password')
+      render :new
     end
   rescue Gitlab::Auth::CurrentUserMode::NotRequestedError
     redirect_to new_admin_session_path, alert: _('Re-authentication period expired or never requested. Please try again')
