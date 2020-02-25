@@ -21,9 +21,7 @@ describe GitlabSchema.types['DesignCollection'] do
       <<~GRAPHQL
         query project($fullPath: ID!, $iid: String!, $atVersion: ID, $first: Int, $after: String) {
           project(fullPath: $fullPath) {
-            id
             issue(iid: $iid) {
-              iid
               designCollection {
                 designs(atVersion: $atVersion, first: $first, after: $after) {
                   totalCount
