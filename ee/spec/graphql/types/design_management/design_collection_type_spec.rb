@@ -12,12 +12,12 @@ describe GitlabSchema.types['DesignCollection'] do
   end
 
   describe 'pagination and totalCount' do
-    let(:user) { create(:user) }
-    let(:namespace) { create(:namespace, owner: user) }
-    let(:project) { create(:project, :public, namespace: namespace) }
-    let!(:issue) { create(:issue, project: project) }
-    let!(:designs) { create_list(:design, 10, :with_versions, versions_count: 5, issue: issue) }
-    let(:query) do
+    let_it_be(:user) { create(:user) }
+    let_it_be(:namespace) { create(:namespace, owner: user) }
+    let_it_be(:project) { create(:project, :public, namespace: namespace) }
+    let_it_be(:issue) { create(:issue, project: project) }
+    let_it_be(:designs) { create_list(:design, 10, :with_versions, versions_count: 5, issue: issue) }
+    let_it_be(:query) do
       <<~GRAPHQL
         query project($fullPath: ID!, $iid: String!, $atVersion: ID, $first: Int, $after: String) {
           project(fullPath: $fullPath) {
