@@ -2,8 +2,6 @@ import Vue from 'vue';
 import VulnerabilitiesApp from 'ee/vulnerabilities/components/vulnerabilities_app.vue';
 import createStore from 'ee/security_dashboard/store';
 
-// TODO: Not hard-code these
-
 const el = document.getElementById('app');
 const { dashboardDocumentation, emptyStateSvgPath, vulnerabilitiesEndpoint } = el.dataset;
 const props = {

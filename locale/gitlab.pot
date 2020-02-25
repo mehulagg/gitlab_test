@@ -17635,6 +17635,9 @@ msgstr ""
 msgid "Settings to prevent self-approval across all projects in the instance. Only an administrator can modify these settings."
 msgstr ""
 
+msgid "Severity"
+msgstr ""
+
 msgid "Severity: %{severity}"
 msgstr ""
 
@@ -21827,9 +21830,6 @@ msgid "Vulnerability|Report Type"
 msgstr ""
 
 msgid "Vulnerability|Severity"
-msgstr ""
-
-msgid "Vulnerability|Status"
 msgstr ""
 
 msgid "WIP"
