@@ -69,11 +69,19 @@ module API
         forbidden! unless project.feature_available?(:feature_flags)
       end
 
+      # rubocop: disable CodeReuse/ActiveRecord
       def feature_flags
         return [] unless unleash_app_name.present?
 
-        Operations::FeatureFlagScope.for_unleash_client(project, unleash_app_name)
+        legacy_flags = Operations::FeatureFlagScope.for_unleash_client(project, unleash_app_name)
+        new_version_flags = Operations::FeatureFlag
+          .includes(strategies: :scopes)
+          .where(operations_scopes: { environment_scope: unleash_app_name })
+          .where(project: project).to_a
+
+        legacy_flags + new_version_flags
       end
+      # rubocop: enable CodeReuse/ActiveRecord
     end
   end
 end
