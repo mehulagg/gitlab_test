@@ -80,6 +80,7 @@ describe GitlabSchema.types['DesignCollection'] do
             after: new_cursor
           }
         ).to_h
+
         new_count = new_page.dig(*%w(data project issue designCollection designs totalCount))
         expect(old_count).to eq(new_count)
       end
