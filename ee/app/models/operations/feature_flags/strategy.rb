@@ -16,6 +16,9 @@ module Operations
       self.table_name = 'operations_strategies'
 
       belongs_to :feature_flag
+      has_many :scopes, class_name: 'Operations::Scope'
+
+      accepts_nested_attributes_for :scopes
 
       validates :name,
         inclusion: {
