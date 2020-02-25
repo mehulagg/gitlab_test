@@ -49,7 +49,11 @@ export default {
     primaryAction() {
       return {
         text: this.modalActionText,
-        attributes: { variant: 'success', disabled: !this.canSubmit },
+        attributes: {
+          variant: 'success',
+          disabled: !this.canSubmit,
+          'data-qa-selector': 'save_ci_variable',
+        },
       };
     },
     cancelAction() {
@@ -92,6 +96,8 @@ export default {
     :action-cancel="cancelAction"
     @ok="updateOrAddVariable"
     @hidden="resetModalHandler"
+    static
+    lazy
   >
     <form>
       <gl-form-group label="Type" label-for="ci-variable-type">
@@ -108,7 +114,7 @@ export default {
             id="ci-variable-key"
             v-model="variableData.key"
             type="text"
-            data-qa-selector="variable_key"
+            data-qa-selector="ci_variable_key"
           />
         </gl-form-group>
 
@@ -117,7 +123,7 @@ export default {
             id="ci-variable-value"
             v-model="variableData.secret_value"
             type="text"
-            data-qa-selector="variable_value"
+            data-qa-selector="ci_variable_value"
           />
         </gl-form-group>
       </div>
@@ -145,7 +151,7 @@ export default {
           ref="masked-ci-variable"
           v-model="variableData.masked"
           :disabled="!canMask"
-          data-qa-selector="variable_masked"
+          data-qa-selector="ci_variable_masked"
         >
           {{ __('Mask variable') }}
           <gl-link href="/help/ci/variables/README#masked-variables">
