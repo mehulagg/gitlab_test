@@ -61,14 +61,17 @@ describe GitlabSchema.types['DesignCollection'] do
     end
 
     context 'totalCount' do
+      let_it_be(:total_count_path) { %w(data project issue designCollection designs totalCount) }
+      let_it_be(:end_cursor) { %w(data project issue designCollection designs pageInfo endCursor) }
+      let_it_be(:designs_edges) { %w(data project issue designCollection designs edges) }
+
       it 'returns total count' do
-        path = %w(data project issue designCollection designs totalCount)
-        expect(subject.dig(*path)).to eq(designs.count)
+        expect(subject.dig(*total_count_path)).to eq(designs.count)
       end
 
       it 'total count does not change between pages' do
-        old_count = subject.dig(*%w(data project issue designCollection designs totalCount))
-        new_cursor = subject.dig(*%w(data project issue designCollection designs pageInfo endCursor))
+        old_count = subject.dig(*total_count_path)
+        new_cursor = subject.dig(*end_cursor)
 
         new_page = GitlabSchema.execute(
           query,
@@ -81,7 +84,7 @@ describe GitlabSchema.types['DesignCollection'] do
           }
         ).to_h
 
-        new_count = new_page.dig(*%w(data project issue designCollection designs totalCount))
+        new_count = new_page.dig(*total_count_path)
         expect(old_count).to eq(new_count)
       end
 
@@ -89,8 +92,8 @@ describe GitlabSchema.types['DesignCollection'] do
         let(:page_size) { 9 }
 
         it 'returns new ids during pagination' do
-          old_edges = subject.dig(*%w(data project issue designCollection designs edges))
-          new_cursor = subject.dig(*%w(data project issue designCollection designs pageInfo endCursor))
+          old_edges = subject.dig(*designs_edges)
+          new_cursor = subject.dig(*end_cursor)
 
           new_page = GitlabSchema.execute(
             query,
@@ -103,7 +106,7 @@ describe GitlabSchema.types['DesignCollection'] do
             }
           ).to_h
 
-          new_edges = new_page.dig(*%w(data project issue designCollection designs edges))
+          new_edges = new_page.dig(*designs_edges)
           expect(old_edges.count).to eq(9)
           expect(new_edges.count).to eq(1)
         end
