@@ -248,7 +248,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
   def admin_mode_flow(auth_user_class)
     auth_user = build_auth_user(auth_user_class)
 
-    fail_admin_mode_invalid_credentials unless omniauth_identity_matches_current_user?
+    return fail_admin_mode_invalid_credentials unless omniauth_identity_matches_current_user?
 
     if current_user.two_factor_enabled? && !auth_user.bypass_two_factor?
       prompt_for_two_factor(current_user, admin_mode: true)
