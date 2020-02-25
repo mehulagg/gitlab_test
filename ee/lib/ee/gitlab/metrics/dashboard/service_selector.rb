@@ -9,6 +9,7 @@ module EE
 
           EE_SERVICES = [
             ::Metrics::Dashboard::ClusterDashboardService,
+            ::Metrics::Dashboard::ClusterMetricsEmbedService,
             ::Metrics::Dashboard::GitlabAlertEmbedService
           ].freeze
 

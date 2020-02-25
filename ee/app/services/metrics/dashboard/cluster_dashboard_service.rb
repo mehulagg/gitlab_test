@@ -16,7 +16,7 @@ module Metrics
 
       class << self
         def valid_params?(params)
-          params[:cluster].present?
+          params[:cluster].present? && !(params[:embedded] == 'true')
         end
       end
 

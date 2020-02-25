@@ -688,7 +688,7 @@ Prometheus server.
 
 > [Introduced][ce-29691] in GitLab 12.2.
 
-It is possible to display metrics charts within [GitLab Flavored Markdown](../../markdown.md#gitlab-flavored-markdown-gfm). The maximum number of embeds allowed in a GitLab Flavored Markdown field is 100.
+It is possible to display metrics charts within [GitLab Flavored Markdown](../../markdown.md#gitlab-flavored-markdown-gfm) fields such as issue or merge request descriptions. The maximum number of embedded charts allowed in a GitLab Flavored Markdown field is 100.
 
 This can be useful if you are sharing an application incident or performance
 metrics to others and want to have relevant information directly available.
@@ -725,6 +725,23 @@ The following requirements must be met for the metric to unfurl:
 It is also possible to embed either the default dashboard metrics or individual metrics in issue templates. For charts to render side-by-side, links to the entire metrics dashboard or individual metrics should be separated by either a comma or a space.
 
 ![Embedded Metrics in issue templates](img/embed_metrics_issue_template.png)
+
+### Embedding Cluster Health Charts
+
+[Cluster Health Metrics](https://docs.gitlab.com/ee/user/project/clusters/#monitoring-your-kubernetes-cluster-ultimate) can also be embedded in [GitLab Flavored Markdown](../../markdown.md). [Introduced in  12.9, GitLab Ultimate Only https://about.gitlab.com/pricing/]
+
+To embed a metric chart, include a link to that chart in the form `https://<root_url>/<project>/-/cluster/<cluster_id>?<query_params>` anywhere that GitLab flavored markdown is supported. A link to the chart can be generated and copied via the dropdown to the right of the chart, as shown in the [Cluster Health Metric documentation](https://docs.gitlab.com/ee/user/project/clusters/#monitoring-your-kubernetes-cluster-ultimate).
+
+The following requirements must be met for the metric to unfurl:
+
+- The `<cluster_id>` must correspond to a real cluster.
+- Prometheus must be monitoring the cluster.
+- The user must be allowed access to the project cluster metrics.
+- The dashboards must be reporting data on the [Cluster Health Page](https://docs.gitlab.com/ee/user/project/clusters/#monitoring-your-kubernetes-cluster-ultimate)
+
+ If the above requirements are met, then the metric will unfurl as seen below:
+
+ ![Embedded Cluster Metric in issue descriptions](img/prometheus_cluster_health_embed.png)
 
 ### Embedding Grafana charts
 
