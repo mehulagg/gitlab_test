@@ -2,11 +2,7 @@ SET search_path=public;
 
 CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
 
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
-
 CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
-
-COMMENT ON EXTENSION pg_trgm IS 'text similarity measurement and index searching based on trigrams';
 
 CREATE TABLE public.abuse_reports (
     id integer NOT NULL,
@@ -11718,4 +11714,3 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200123155929'),
 ('20200124053531'),
 ('20200127090233');
-
