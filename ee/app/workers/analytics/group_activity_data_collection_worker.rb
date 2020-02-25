@@ -5,18 +5,14 @@ class GroupActivityDataCollectionWorker
 
   idempotent!
 
-  # rubocop:disable CodeReuse/ActiveRecord
   def perform(group_id)
     @group_id = group_id
-    issues
+    active_users
   end
 
   private
 
-  def issues
-    # Take all projects from the given group and it's sub-groups
-    # find all issues created in those projects
-    #
-    puts Issue.where(group: @group_id, created_at: Date.yesterday..Date.today).count.to_sql
+  def active_users
+    GroupActiveUsersFinder.new(group_id, 90.days.ago).execute.count
   end
 end
