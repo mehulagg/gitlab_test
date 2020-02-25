@@ -9,7 +9,9 @@ class Groups::GroupActivityAnalyticsController < Groups::ApplicationController
   def show
     respond_to do |format|
       format.html
-      format.json
+      format.json do
+        render json: GroupActivityAnalytics::DataCOllector.new(group).data
+      end
     end
   end
 
