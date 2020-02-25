@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class GroupActiveUsersFinder
-  include Gitlab::Allowable
+  # include Gitlab::Allowable
   OFFSET_INCREMENT = 100
 
   def initialize(group, oldest_created_at: 90.days.ago)
@@ -10,11 +10,11 @@ class GroupActiveUsersFinder
     @event_filter = EventFilter.new(nil)
   end
 
-  def execute(group)
+  def execute
     offset = 0
 
     loop do
-      events = EventCollection.new(projects: projects, limit: offset_increment, offset: offset, filter: event_filter, groups: groups).to_a
+      events = EventCollection.new(projects: projects, limit: offset_increment, offset: offset, filter: @event_filter, groups: groups).to_a
       break if events.empty?
 
       result = events.each do |event|
@@ -24,8 +24,6 @@ class GroupActiveUsersFinder
       end
 
       break if result.nil?
-
-      offset += offset_increment
     end
 
     store_active_users
@@ -37,17 +35,20 @@ class GroupActiveUsersFinder
   def groups
     return @groups if @groups
 
+    # TODO Fix query
     @groups = Group.where(parent: @group)
     @groups << @group
     @groups
   end
 
   def projects
-    Projects.where(namespace: groups)
+    # TODO Fix query
+    Project.where(namespace: groups)
   end
   # rubocop: enable CodeReuse/ActiveRecord
 
   # TODO
   def store_active_users
+    puts "Total #{@active_users.uniq.count} active users"
   end
 end

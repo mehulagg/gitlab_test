@@ -13,6 +13,6 @@ class GroupActivityDataCollectionWorker
   private
 
   def active_users
-    GroupActiveUsersFinder.new(group_id, 90.days.ago).execute.count
+    GroupActiveUsersFinder.new(group_id).execute.count
   end
 end
