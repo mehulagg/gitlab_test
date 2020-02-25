@@ -168,13 +168,7 @@ class Projects::PipelinesController < Projects::ApplicationController
       end
 
       format.json do
-        if pipeline_test_report.suite_errors.any?
-          render json: { status: :error_parsing_report }
-        else
-          render json: TestReportSerializer
-            .new(current_user: @current_user)
-            .represent(pipeline_test_report)
-        end
+        render json: TestReportSerializer.new(current_user: @current_user).represent(pipeline_test_report)
       end
     end
   end
@@ -182,11 +176,7 @@ class Projects::PipelinesController < Projects::ApplicationController
   def test_reports_count
     return unless Feature.enabled?(:junit_pipeline_view, project)
 
-    begin
-      render json: { total_count: pipeline.test_reports_count }.to_json
-    rescue Gitlab::Ci::Parsers::ParserError
-      render json: { total_count: 0 }.to_json
-    end
+    render json: { total_count: pipeline.test_reports_count }.to_json
   end
 
   private

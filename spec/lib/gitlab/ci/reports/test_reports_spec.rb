@@ -128,7 +128,7 @@ describe Gitlab::Ci::Reports::TestReports do
         test_reports.get_suite('junit').set_suite_error('Existential parsing error')
       end
 
-      it { is_expected.to eq(['Existential parsing error']) }
+      it { is_expected.to eq({ 'junit' => 'Existential parsing error' }) }
     end
   end
 
