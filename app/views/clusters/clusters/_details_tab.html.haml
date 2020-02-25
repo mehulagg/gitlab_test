@@ -1,0 +1,5 @@
+- active = params[:tab] == 'details'
+
+%li.nav-item{ role: 'presentation' }
+  %a.nav-link{ class: active_when(active), href: clusterable.cluster_path(@cluster.id, params: {tab: 'details'}), id: 'cluster-details-tab' }
+    %span= _('Details')

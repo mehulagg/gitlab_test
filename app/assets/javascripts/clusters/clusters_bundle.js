@@ -489,7 +489,7 @@ export default class Clusters {
   }
 
   toggleIngressDomainHelpText({ externalIp }, { externalIp: newExternalIp }) {
-    if (externalIp !== newExternalIp) {
+    if (this.ingressDomainHelpText && externalIp !== newExternalIp) {
       this.ingressDomainHelpText.classList.toggle('hide', !newExternalIp);
       this.ingressDomainSnippet.textContent = `${newExternalIp}${INGRESS_DOMAIN_SUFFIX}`;
     }
