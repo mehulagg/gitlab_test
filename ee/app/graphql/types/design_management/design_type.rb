@@ -9,6 +9,8 @@ module Types
       authorize :read_design
 
       alias_method :design, :object
+      
+      connection_type_class(Types::DesignManagement::DesignConnectionType)
 
       implements(Types::Notes::NoteableType)
       implements(Types::DesignManagement::DesignFields)
