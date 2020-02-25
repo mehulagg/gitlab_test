@@ -340,15 +340,15 @@ ActiveRecord::Schema.define(version: 2020_02_24_124004) do
     t.string "encrypted_slack_app_secret_iv", limit: 255
     t.text "encrypted_slack_app_verification_token"
     t.string "encrypted_slack_app_verification_token_iv", limit: 255
+    t.boolean "force_pages_access_control", default: false, null: false
     t.boolean "updating_name_disabled_for_users", default: false, null: false
     t.integer "instance_administrators_group_id"
-    t.boolean "force_pages_access_control", default: false, null: false
     t.integer "elasticsearch_indexed_field_length_limit", default: 0, null: false
+    t.integer "elasticsearch_max_bulk_size_mb", limit: 2, default: 10, null: false
+    t.integer "elasticsearch_max_bulk_concurrency", limit: 2, default: 10, null: false
     t.boolean "disable_overriding_approvers_per_merge_request", default: false, null: false
     t.boolean "prevent_merge_requests_author_approval", default: false, null: false
     t.boolean "prevent_merge_requests_committers_approval", default: false, null: false
-    t.integer "elasticsearch_max_bulk_size_mb", limit: 2, default: 10, null: false
-    t.integer "elasticsearch_max_bulk_concurrency", limit: 2, default: 10, null: false
     t.boolean "email_restrictions_enabled", default: false, null: false
     t.text "email_restrictions"
     t.boolean "npm_package_requests_forwarding", default: true, null: false
@@ -587,6 +587,7 @@ ActiveRecord::Schema.define(version: 2020_02_24_124004) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["service_id", "team_id", "chat_id"], name: "index_chat_names_on_service_id_and_team_id_and_chat_id", unique: true
+    t.index ["service_id"], name: "index_chat_names_on_service_id"
     t.index ["user_id", "service_id"], name: "index_chat_names_on_user_id_and_service_id", unique: true
   end
 
@@ -2438,36 +2439,34 @@ ActiveRecord::Schema.define(version: 2020_02_24_124004) do
   end
 
   create_table "merge_request_context_commit_diff_files", id: false, force: :cascade do |t|
-    t.bigint "merge_request_context_commit_id"
     t.binary "sha", null: false
     t.integer "relative_order", null: false
-    t.string "a_mode", limit: 255, null: false
-    t.string "b_mode", limit: 255, null: false
     t.boolean "new_file", null: false
     t.boolean "renamed_file", null: false
     t.boolean "deleted_file", null: false
     t.boolean "too_large", null: false
-    t.boolean "binary"
+    t.string "a_mode", limit: 255, null: false
+    t.string "b_mode", limit: 255, null: false
     t.text "new_path", null: false
     t.text "old_path", null: false
     t.text "diff"
+    t.boolean "binary"
+    t.bigint "merge_request_context_commit_id"
     t.index ["merge_request_context_commit_id", "sha"], name: "idx_mr_cc_diff_files_on_mr_cc_id_and_sha"
-    t.index ["merge_request_context_commit_id"], name: "idx_mr_cc_diff_files_on_mr_cc_id"
   end
 
   create_table "merge_request_context_commits", force: :cascade do |t|
-    t.bigint "merge_request_id"
     t.datetime_with_timezone "authored_date"
     t.datetime_with_timezone "committed_date"
-    t.binary "sha", null: false
     t.integer "relative_order", null: false
+    t.binary "sha", null: false
     t.text "author_name"
     t.text "author_email"
     t.text "committer_name"
     t.text "committer_email"
     t.text "message"
+    t.bigint "merge_request_id"
     t.index ["merge_request_id", "sha"], name: "index_mr_context_commits_on_merge_request_id_and_sha", unique: true
-    t.index ["merge_request_id"], name: "index_merge_request_context_commits_on_merge_request_id"
   end
 
   create_table "merge_request_diff_commits", id: false, force: :cascade do |t|
@@ -3649,6 +3648,7 @@ ActiveRecord::Schema.define(version: 2020_02_24_124004) do
     t.string "name", null: false
     t.datetime_with_timezone "created_at", null: false
     t.datetime_with_timezone "updated_at", null: false
+    t.string "filepath", limit: 128
     t.index ["release_id", "name"], name: "index_release_links_on_release_id_and_name", unique: true
     t.index ["release_id", "url"], name: "index_release_links_on_release_id_and_url", unique: true
   end
@@ -4623,6 +4623,7 @@ ActiveRecord::Schema.define(version: 2020_02_24_124004) do
   add_foreign_key "board_project_recent_visits", "users", on_delete: :cascade
   add_foreign_key "boards", "namespaces", column: "group_id", name: "fk_1e9a074a35", on_delete: :cascade
   add_foreign_key "boards", "projects", name: "fk_f15266b5f9", on_delete: :cascade
+  add_foreign_key "chat_names", "services", name: "fk_00797a2bf9", on_delete: :cascade
   add_foreign_key "chat_teams", "namespaces", on_delete: :cascade
   add_foreign_key "ci_build_needs", "ci_builds", column: "build_id", on_delete: :cascade
   add_foreign_key "ci_build_trace_chunks", "ci_builds", column: "build_id", on_delete: :cascade

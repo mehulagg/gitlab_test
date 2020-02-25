@@ -2,7 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rails', '6.0.2'
 
-gem 'bootsnap', '~> 1.4'
+gem 'bootsnap', '~> 1.4.6'
 
 # Improves copy-on-write performance for MRI
 gem 'nakayoshi_fork', '~> 0.0.4'
@@ -159,7 +159,7 @@ gem 'escape_utils', '~> 1.1'
 gem 'icalendar'
 
 # Diffs
-gem 'diffy', '~> 3.1.0'
+gem 'diffy', '~> 3.3'
 gem 'diff_match_patch', '~> 0.1.0'
 
 # Application server
@@ -375,7 +375,7 @@ group :development, :test do
   gem 'scss_lint', '~> 0.56.0', require: false
   gem 'haml_lint', '~> 0.34.0', require: false
   gem 'simplecov', '~> 0.16.1', require: false
-  gem 'bundler-audit', '~> 0.5.0', require: false
+  gem 'bundler-audit', '~> 0.6.1', require: false
 
   gem 'benchmark-ips', '~> 2.3.0', require: false
 
