@@ -102,6 +102,7 @@ describe GitlabSchema.types['DesignCollection'] do
               after: new_cursor
             }
           ).to_h
+
           new_edges = new_page.dig(*%w(data project issue designCollection designs edges))
           expect(old_edges.count).to eq(9)
           expect(new_edges.count).to eq(1)
