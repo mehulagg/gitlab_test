@@ -66,9 +66,9 @@ describe('Mutations Registry Store', () => {
         perPage: 2,
         page: 1,
         total: 10,
-        totalPages: NaN,
-        nextPage: NaN,
-        previousPage: NaN,
+        totalPages: 0,
+        nextPage: 0,
+        previousPage: 0,
       });
     });
   });

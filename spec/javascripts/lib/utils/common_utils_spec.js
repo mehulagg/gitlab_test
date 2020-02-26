@@ -340,15 +340,28 @@ describe('common_utils', () => {
       };
 
       const expectedPagination = {
-        perPage: 10,
+        nextPage: 3,
         page: 2,
+        perPage: 10,
+        previousPage: 1,
         total: 30,
         totalPages: 3,
-        nextPage: 3,
-        previousPage: 1,
       };
 
       expect(commonUtils.parseIntPagination(pagination)).toEqual(expectedPagination);
+    });
+
+    it('should return 0 is no pagination is passed', () => {
+      const expectedPagination = {
+        nextPage: 0,
+        page: 0,
+        perPage: 0,
+        previousPage: 0,
+        total: 0,
+        totalPages: 0,
+      };
+
+      expect(commonUtils.parseIntPagination()).toEqual(expectedPagination);
     });
   });
 

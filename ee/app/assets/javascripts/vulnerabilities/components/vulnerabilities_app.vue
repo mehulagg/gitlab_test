@@ -79,6 +79,7 @@ export default {
       </template>
     </vulnerability-list>
     <gl-pagination
+      v-if="pageInfo.total > 1"
       class="justify-content-center prepend-top-default"
       :per-page="pageInfo.perPage"
       :total-items="pageInfo.total"

@@ -5,18 +5,17 @@
 .issue-details.issuable-details
   %h2.title= _("Vulnerabilities")
 
-  -# TODO: properly set the vulnerabilities endpoint
   -# I've set this to the loading animation so there's something on screen whilst the js is loading
-  #app{:data => {empty_state_svg_path: image_path('illustrations/security-dashboard_empty.svg'),
-    vulnerabilities_endpoint: '/api/v4/projects/29/vulnerabilities',
-    dashboard_documentation: help_page_path('user/application_security/security_dashboard/index')}}
+  #app{ :data => { empty_state_svg_path: image_path('illustrations/security-dashboard_empty.svg'),
+    vulnerabilities_endpoint: expose_path(api_v4_projects_vulnerabilities_path(id: @project.id)),
+    dashboard_documentation: help_page_path('user/application_security/security_dashboard/index') } }
     %table.table.gl-table
       %thead
         %tr
           %th.animation-container
             .skeleton-line-1
       %tbody
-        -10.times do |n|
+        - 10.times do |n|
           %tr
             %td.animation-container
               .skeleton-line-1
