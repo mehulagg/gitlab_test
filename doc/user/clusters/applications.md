@@ -741,7 +741,7 @@ agent:
 [Hashicorp Vault](https://vaultproject.io/) is a secrets management solution which
 can be used to safely manage and store passwords, credentials, certificates and more.
 
-Enable Vault in the `.gitlab/managed-apps/config.yaml` file to install it:
+To install Vault, enable it in the `.gitlab/managed-apps/config.yaml` file:
 
 ```yaml
 vault:
