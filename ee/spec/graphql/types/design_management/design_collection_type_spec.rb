@@ -60,6 +60,16 @@ describe GitlabSchema.types['DesignCollection'] do
       ).to_h
     end
 
+    context 'when user does not have the permission' do
+      before do
+        allow(Ability).to receive(:allowed?).and_return(true)
+      end
+
+      it 'returns total count as 0' do
+        expect(subject.dig(*total_count_path)).to eq(0)
+      end
+    end
+
     context 'totalCount' do
       let_it_be(:total_count_path) { %w(data project issue designCollection designs totalCount) }
       let_it_be(:end_cursor) { %w(data project issue designCollection designs pageInfo endCursor) }
