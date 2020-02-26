@@ -9,7 +9,7 @@ module QA
             module Show
               def self.prepended(page)
                 page.module_eval do
-                  view 'ee/app/views/projects/clusters/_prometheus_graphs.html.haml' do
+                  view 'ee/app/views/clusters/clusters/_health.html.haml' do
                     element :cluster_health_section
                   end
                 end
