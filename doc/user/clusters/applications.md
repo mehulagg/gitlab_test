@@ -749,9 +749,9 @@ vault:
 ```
 
 By default you will get a basic Vault setup with no high availability nor any scalable
-storage backend. It is advised to read through the Vault Helm chart [values.yaml](https://github.com/hashicorp/vault-helm/blob/v0.3.3/values.yaml)
-As well as read the Vault documentation [here](https://www.vaultproject.io/docs/internals/)
-to get a good understanding of the internals of Vault and how to configure it correctly.
+storage backend. To get a good understanding of the internals of Vault and how to configure it,
+read the Vault Helm chart [values.yaml file](https://github.com/hashicorp/vault-helm/blob/v0.3.3/values.yaml)
+as well as [the Vault documentation](https://www.vaultproject.io/docs/internals/).
 
 At a minimum you will likely set up:
 
