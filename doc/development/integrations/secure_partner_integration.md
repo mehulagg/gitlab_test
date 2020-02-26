@@ -25,9 +25,9 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
 1. Read about our [partnerships](https://about.gitlab.com/partners/integrate/)
    1. [Create an issue](https://gitlab.com/gitlab-com/alliances/alliances/issues/new?issuable_template=new_partner)
    1. Get Test account - [GitLab.com Gold Subscription Sandbox Request](https://about.gitlab.com/partners/integrate/#gitlabcom-gold-subscription-sandbox-request) or [EE Developer License](https://about.gitlab.com/partners/integrate/#requesting-ee-dev-license-for-rd)
-1. Pipeline job(s)
+1. Provide a pipeline job definition
    1. You need to integrate into CI using [pipeline jobs](https://docs.gitlab.com/ee/development/pipelines.html)
-1. Your job must be configured to generate a report artifact
+1. Produce a report artifact with your pipeline job
    1. About [job report artifact](https://docs.gitlab.com/ee/ci/yaml/README.html#artifactsreports)
    1. About [job artifacts](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html) in general.
    1. Your report artifact must be in the correct format as specified for each scanner (below).
@@ -47,9 +47,9 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
       1. [Browse Artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html#browsing-artifacts)
       1. In [Security Dashboard](https://docs.gitlab.com/ee/user/application_security/security_dashboard/)
          1. [Dashboard data flow](https://gitlab.com/snippets/1910005#project-and-group-dashboards) *can we improve on this, where should it live?*
-1. Optional: Auto Remediation
-   1. If you specified a `remediations` in your artifact, it will be proposed through [auto remediation](https://docs.gitlab.com/ee/user/application_security/index.html#solutions-for-vulnerabilities-auto-remediation)
-   1. Example on how to populate that field *this needs to be improved to include full example <https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#reports-json-format> and if all fields are optional or required*
+# 1. Optional: Auto Remediation
+#    1. If you specified a `remediations` in your artifact, it will be proposed through [auto remediation](https://docs.gitlab.com/ee/user/application_security/index.html#solutions-for-vulnerabilities-auto-remediation)
+#    1. Example on how to populate that field *this needs to be improved to include full example <https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#reports-json-format> and if all fields are optional or required*
 1. Optional: Interacting with vulnerabilities
    1. Users will be able to interact with the findings from your artifact within their workflow. They will be able to dismiss, or accept and create a backlog issue.
    1. If you wish to automatically create Issues without user interaction you may use the [issue API](https://docs.gitlab.com/ee/api/issues.html)
