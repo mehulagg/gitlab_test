@@ -1933,9 +1933,9 @@ type Epic implements Noteable {
   hasIssues: Boolean!
 
   """
-  Current health status. Available only when feature flag save_issuable_health_status is enabled.
+  Current health status of the epic
   """
-  healthStatus: HealthStatus
+  healthStatus: EpicHealthStatus
 
   """
   ID of the epic
@@ -2191,6 +2191,26 @@ type EpicEdge {
   The item at the end of the edge.
   """
   node: Epic
+}
+
+"""
+Health status of child issues
+"""
+type EpicHealthStatus {
+  """
+  Number of issues at risk
+  """
+  issuesAtRisk: Int
+
+  """
+  Number of issues that need attention
+  """
+  issuesNeedsAttention: Int
+
+  """
+  Number of issues on track
+  """
+  issuesOnTrack: Int
 }
 
 """

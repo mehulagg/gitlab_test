@@ -126,10 +126,10 @@ module Types
         Epics::DescendantCountService.new(epic, ctx[:current_user])
       end
 
-    field :health_status,
-      ::Types::HealthStatusEnum,
-      null: true,
-      description: 'Current health status',
-      feature_flag: :save_issuable_health_status
+    field :health_status, Types::EpicHealthStatusType, null: true, complexity: 10,
+      description: 'Current health status of the epic',
+      resolve: -> (epic, args, ctx) do
+        Epics::DescendantCountService.new(epic, ctx[:current_user])
+      end
   end
 end
