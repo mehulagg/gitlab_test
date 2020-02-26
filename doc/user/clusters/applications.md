@@ -796,7 +796,7 @@ Once you have successfully installed Vault, you will need to [initialize the Vau
 and obtain the initial root token. This is done by using kubectl to connect to the Vault pod in
 your cluster and running the `vault operator init` command.
 
-```
+```shell
 kubectl -n gitlab-managed-apps exec -it vault-0 sh
 / $ vault operator init
 ```
