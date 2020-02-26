@@ -14,7 +14,7 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
 - Results will also show in the [security dashboard](https://docs.gitlab.com/ee/user/application_security/security_dashboard/#gitlab-security-dashboard-ultimate).
 - Users can see summary information in the dashboard, view the vulnerability summary (same data as in the pipeline report) and take action as needed (see below).
 - Developer Action: However the user arrives at the Vulnerability details, they are presented with additional information and choices on next steps:
-    1. Links This is where we expect partners to link out to their own sites or sources for users to get more data around the findings
+    1. Links - This is where we expect partners to link out to their own sites or sources for users to get more data around the findings
     1. Create Issue (Confirm finding) - creates an issue to be prioritized into the normal development workflow
     1. Add Comment and Dismiss - The comments are where a users can denote items that they have mitigated, accepted, or that are a false positives when they dismiss a finding.
     1. Auto-Remediation / Create Merge request - This is offered if a potential solution is offered in the artifact allowing an easy and boring solution for the user to try and continue on. Partners, it is preferable to offer this where possible
