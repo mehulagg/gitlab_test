@@ -1751,12 +1751,14 @@ describe API::Projects do
     end
 
     describe 'repository_storage attribute' do
+      before do
+        get api("/projects/#{project.id}", user)
+      end
+
       context 'when authenticated as an admin' do
-        let(:admin) { create(:admin) }
+        let(:user) { create(:admin) }
 
         it 'returns repository_storage attribute' do
-          get api("/projects/#{project.id}", admin)
-
           expect(response).to have_gitlab_http_status(200)
           expect(json_response['repository_storage']).to eq(project.repository_storage)
         end
@@ -1764,8 +1766,6 @@ describe API::Projects do
 
       context 'when authenticated as a regular user' do
         it 'does not return repository_storage attribute' do
-          get api("/projects/#{project.id}", user)
-
           expect(json_response).not_to have_key('repository_storage')
         end
       end
@@ -2453,11 +2453,12 @@ describe API::Projects do
         end
 
         it 'returns 200 when repository storage has changed' do
-          stub_storage_settings('extra' => { 'path' => 'tmp/tests/extra_storage' })
+          # TODO: stubbing should be unnecessary because of SetupHelper.gitaly_configuration_toml
+          stub_storage_settings('test_second_storage' => { 'path' => 'tmp/tests/second_storage' })
 
           expect do
             Sidekiq::Testing.fake! do
-              put(api("/projects/#{new_project.id}", admin), params: { repository_storage: 'extra' })
+              put(api("/projects/#{new_project.id}", admin), params: { repository_storage: 'test_second_storage' })
             end
           end.to change(ProjectUpdateRepositoryStorageWorker.jobs, :size).by(1)
 

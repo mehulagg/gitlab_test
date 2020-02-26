@@ -2805,19 +2805,15 @@ describe Project do
     let(:read_only_project) { create(:project, :repository, repository_read_only: true) }
 
     before do
-      FileUtils.mkdir('tmp/tests/extra_storage')
-      stub_storage_settings('extra' => { 'path' => 'tmp/tests/extra_storage' })
+      # TODO: stubbing should be unnecessary because of SetupHelper.gitaly_configuration_toml
+      stub_storage_settings('test_second_storage' => { 'path' => 'tmp/tests/extra_storage' })
     end
 
-    after do
-      FileUtils.rm_rf('tmp/tests/extra_storage')
-    end
+    it 'schedules the transfer of the repository to the new storage and locks the project' do
+      expect(ProjectUpdateRepositoryStorageWorker).to receive(:perform_async).with(project.id, 'test_second_storage')
 
-    it 'schedule the transfer of the repository to the new storage and locks the project' do
-      expect(ProjectUpdateRepositoryStorageWorker).to receive(:perform_async).with(project.id, 'extra')
-
-      project.change_repository_storage('extra')
-      project.save
+      project.change_repository_storage('test_second_storage')
+      project.save!
 
       expect(project).to be_repository_read_only
     end
@@ -2825,15 +2821,15 @@ describe Project do
     it "doesn't schedule the transfer if the repository is already read-only" do
       expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
 
-      read_only_project.change_repository_storage('extra')
-      read_only_project.save
+      read_only_project.change_repository_storage('test_second_storage')
+      read_only_project.save!
     end
 
     it "doesn't lock or schedule the transfer if the storage hasn't changed" do
       expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
 
       project.change_repository_storage(project.repository_storage)
-      project.save
+      project.save!
 
       expect(project).not_to be_repository_read_only
     end
@@ -2842,7 +2838,6 @@ describe Project do
       expect { project.change_repository_storage('unknown') }.to raise_error(ArgumentError)
     end
   end
-
 
   describe '#pushes_since_gc' do
     let(:project) { create(:project) }

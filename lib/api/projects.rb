@@ -25,13 +25,7 @@ module API
       end
 
       def verify_update_project_attrs!(project, attrs)
-        verify_storage_attrs!(attrs)
-      end
-
-      def verify_storage_attrs!(attrs)
-        unless current_user.admin?
-          attrs.delete(:repository_storage)
-        end
+        attrs.delete(:repository_storage) unless can?(current_user, :change_repository_storage, project)
       end
 
       def delete_project(user_project)

@@ -614,29 +614,15 @@ describe Projects::UpdateService do
   end
 
   describe 'repository_storage' do
-    let(:admin_user) { create(:user, admin: true) }
+    let(:admin) { create(:admin) }
     let(:user) { create(:user) }
     let(:project) { create(:project, :repository) }
-    let(:opts) { { repository_storage: 'b' } }
-
-    before do
-      FileUtils.mkdir('tmp/tests/storage_b')
-
-      storages = {
-          'default' => Gitlab.config.repositories.storages.default,
-          'b' => { 'path' => 'tmp/tests/storage_b' }
-      }
-      stub_storage_settings(storages)
-    end
-
-    after do
-      FileUtils.rm_rf('tmp/tests/storage_b')
-    end
+    let(:opts) { { repository_storage: 'test_second_storage' } }
 
     it 'calls the change repository storage method if the storage changed' do
-      expect(project).to receive(:change_repository_storage).with('b')
+      expect(project).to receive(:change_repository_storage).with('test_second_storage')
 
-      update_project(project, admin_user, opts).inspect
+      update_project(project, admin, opts).inspect
     end
 
     it "doesn't call the change repository storage for non-admin users" do
