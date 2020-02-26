@@ -60,4 +60,3 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
    1. Example: Co-branded whitepaper
 1. Troubleshooting
    1. Create an issue to discuss with us further if you have any issues.
-
