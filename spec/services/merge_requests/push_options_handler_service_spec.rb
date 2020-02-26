@@ -137,6 +137,16 @@ describe MergeRequests::PushOptionsHandlerService do
     end
   end
 
+  shared_examples_for 'a service that can change assignees of a merge request' do |count|
+    subject(:last_mr) { MergeRequest.last }
+
+    it 'changes assignee count' do
+      service.execute
+
+      expect(last_mr.assignees.count).to eq(count)
+    end
+  end
+
   shared_examples_for 'a service that does not create a merge request' do
     it do
       expect { service.execute }.not_to change { MergeRequest.count }
@@ -636,6 +646,72 @@ describe MergeRequests::PushOptionsHandlerService do
 
       it_behaves_like 'a service that does not create a merge request'
       it_behaves_like 'a service that can change labels of a merge request', 1
+    end
+
+    context 'with a deleted branch' do
+      let(:changes) { deleted_branch_changes }
+
+      it_behaves_like 'a service that does nothing'
+    end
+
+    context 'with the project default branch' do
+      let(:changes) { default_branch_changes }
+
+      it_behaves_like 'a service that does nothing'
+    end
+  end
+
+  describe '`assign` push option' do
+    let(:push_options) { { assign: { user2 => 1, user3 => 1 } } }
+
+    context 'with a new branch' do
+      let(:changes) { new_branch_changes }
+
+      it_behaves_like 'a service that does not create a merge request'
+
+      it 'adds an error to the service' do
+        error = "A merge_request.create push option is required to create a merge request for branch #{source_branch}"
+
+        service.execute
+
+        expect(service.errors).to include(error)
+      end
+
+      context 'when coupled with the `create` push option' do
+        let(:push_options) { { create: true, assign: { user2 => 1, user3 => 1 } } }
+
+        it_behaves_like 'a service that can create a merge request'
+        it_behaves_like 'a service that can change assignees of a merge request', 3
+      end
+    end
+
+    context 'with an existing branch but no open MR' do
+      let(:changes) { existing_branch_changes }
+
+      it_behaves_like 'a service that does not create a merge request'
+
+      it 'adds an error to the service' do
+        error = "A merge_request.create push option is required to create a merge request for branch #{source_branch}"
+
+        service.execute
+
+        expect(service.errors).to include(error)
+      end
+
+      context 'when coupled with the `create` push option' do
+        let(:push_options) { { create: true, assign: { user2 => 1, user3 => 1 } } }
+
+        it_behaves_like 'a service that can create a merge request'
+        it_behaves_like 'a service that can change assignees of a merge request', 3
+      end
+    end
+
+    context 'with an existing branch that has a merge request open' do
+      let(:changes) { existing_branch_changes }
+      let!(:merge_request) { create(:merge_request, source_project: project, source_branch: source_branch)}
+
+      it_behaves_like 'a service that does not create a merge request'
+      it_behaves_like 'a service that can change assignees of a merge request', 3
     end
 
     context 'with a deleted branch' do
