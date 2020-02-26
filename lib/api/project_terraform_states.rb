@@ -6,7 +6,7 @@ module API
 
     helpers do
       def find_personal_access_token
-        find_personal_access_token_from_http_basic_auth
+        super || find_personal_access_token_from_http_basic_auth
       end
     end
 
