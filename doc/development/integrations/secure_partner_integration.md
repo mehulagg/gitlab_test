@@ -27,6 +27,7 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
 1. Provide a pipeline job to integrate into GitLab
    1. You need to integrate into CI using [pipeline jobs](https://docs.gitlab.com/ee/development/pipelines.html)
 1. Create a report artifact with your pipeline jobs
+   1. Detailed [technical directions](secure.md) for this step.
    1. About [job report artifacts](https://docs.gitlab.com/ee/ci/yaml/README.html#artifactsreports)
    1. About [job artifacts](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html) in general.
    1. Your report artifact must be in one of our currently supported formats. General documentation about the reports is available in the [Secure Reports](https://docs.gitlab.com/ee/development/integrations/secure/#report) page.
