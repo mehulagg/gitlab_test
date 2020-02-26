@@ -18,6 +18,7 @@ module Ci
         variables.concat(deployment_variables(environment: environment))
         variables.concat(yaml_variables)
         variables.concat(user_variables)
+        variables.concat(dotenv_variables)
         variables.concat(secret_group_variables)
         variables.concat(secret_project_variables(environment: environment))
         variables.concat(trigger_request.user_variables) if trigger_request

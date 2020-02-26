@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_26_162723) do
+ActiveRecord::Schema.define(version: 2020_02_26_145304) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -597,6 +597,15 @@ ActiveRecord::Schema.define(version: 2020_02_26_162723) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["namespace_id"], name: "index_chat_teams_on_namespace_id", unique: true
+  end
+
+  create_table "ci_build_dotenv_variables", force: :cascade do |t|
+    t.string "key", limit: 255, null: false
+    t.text "encrypted_value"
+    t.string "encrypted_value_iv", limit: 255
+    t.datetime_with_timezone "created_at", null: false
+    t.bigint "build_id", null: false
+    t.index ["build_id", "key"], name: "index_ci_build_dotenv_variables_on_build_id_and_key", unique: true
   end
 
   create_table "ci_build_needs", id: :serial, force: :cascade do |t|
@@ -4635,6 +4644,7 @@ ActiveRecord::Schema.define(version: 2020_02_26_162723) do
   add_foreign_key "boards", "namespaces", column: "group_id", name: "fk_1e9a074a35", on_delete: :cascade
   add_foreign_key "boards", "projects", name: "fk_f15266b5f9", on_delete: :cascade
   add_foreign_key "chat_teams", "namespaces", on_delete: :cascade
+  add_foreign_key "ci_build_dotenv_variables", "ci_builds", column: "build_id", on_delete: :cascade
   add_foreign_key "ci_build_needs", "ci_builds", column: "build_id", on_delete: :cascade
   add_foreign_key "ci_build_trace_chunks", "ci_builds", column: "build_id", on_delete: :cascade
   add_foreign_key "ci_build_trace_section_names", "projects", on_delete: :cascade

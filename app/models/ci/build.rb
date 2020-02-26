@@ -40,6 +40,7 @@ module Ci
 
     has_many :job_artifacts, class_name: 'Ci::JobArtifact', foreign_key: :job_id, dependent: :destroy, inverse_of: :job # rubocop:disable Cop/ActiveRecordDependent
     has_many :job_variables, class_name: 'Ci::JobVariable', foreign_key: :job_id
+    has_many :dotenv_variables, class_name: 'Ci::Builds::Dotenv::Variables', foreign_key: :build_id, inverse_of: :build
     has_many :sourced_pipelines, class_name: 'Ci::Sources::Pipeline', foreign_key: :source_job_id
 
     Ci::JobArtifact.file_types.each do |key, value|
