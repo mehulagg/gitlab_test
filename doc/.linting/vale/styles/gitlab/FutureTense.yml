@@ -1,0 +1,22 @@
+---
+extends: existence
+message: "Avoid using future tense: %s"
+ignorecase: true
+level: warning
+link: https://docs.gitlab.com/ee/development/documentation/styleguide.html#language
+tokens:
+# - '[\w][ll]' (example: "we'll") is an elegant approach, but the splitting 
+#   apart of the words at the apostrophe boundary results in an awkward user 
+#   message: "Avoid using future tense: ll"
+#   If desired, a regex-based test should be split apart from this test.
+  - going to be
+  - going to
+  - he'll
+  - she'll
+  - they'll
+  - we'll
+  - will be
+  - will have
+  - will # Leave this word after the two-word 'will' variants as a catchall
+  - won't
+  - you'll
