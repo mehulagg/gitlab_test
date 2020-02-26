@@ -1,5 +1,9 @@
 import { uniqueId } from 'underscore';
 
+// WARNING: replace this with something
+// more sensical as per https://gitlab.com/gitlab-org/gitlab/issues/118611
+export const VALID_DESIGN_FILE_MIMETYPE = 'image/*';
+
 /**
  * Returns formatted array that doesn't contain
  * `edges`->`node` nesting
