@@ -50,6 +50,12 @@ module Operations
       def preload_relations
         preload(:scopes)
       end
+
+      def for_unleash_client(project, environment)
+        includes(strategies: :scopes)
+          .where(operations_scopes: { environment_scope: environment })
+          .where(project: project)
+      end
     end
 
     private
