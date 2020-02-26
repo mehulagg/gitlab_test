@@ -81,6 +81,8 @@ RSpec.configure do |config|
 
     match = location.match(%r{/spec/([^/]+)/})
     metadata[:type] = match[1].singularize.to_sym if match
+
+    metadata[:aggregate_failures] = true
   end
 
   config.include LicenseHelpers
