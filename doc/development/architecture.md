@@ -261,9 +261,9 @@ You can use it either for personal or business websites, such as portfolios, doc
 - Configuration: [Omnibus][runner-omnibus], [Charts][runner-charts], [Source][runner-source], [GDK][runner-gdk]
 - Layer: Core Service (Processor)
 
-GitLab Runner runs tests and sends the results to GitLab.
+GitLab Runner runs jobs and sends the results to GitLab.
 
-GitLab CI is the open-source continuous integration service included with GitLab that coordinates the testing. The old name of this project was GitLab CI Multi Runner but please use "GitLab Runner" (without CI) from now on.
+GitLab CI is the open-source continuous integration service included with GitLab that coordinates the jobs. The old name of this project was GitLab CI Multi Runner but please use "GitLab Runner" (without CI) from now on.
 
 #### GitLab Shell
 
