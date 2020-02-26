@@ -751,6 +751,28 @@ agent:
     enabled: false
 ```
 
+The [Hubble](https://github.com/cilium/hubble) monitoring daemon is
+enabled by default and it's set to collect per namespace flow
+metrics. This metrics are accessible on the [Threat Monitoring](../application_security/threat_monitoring/index.md)
+dashboard. You can disable Hubble by adding the following to
+`.gitlab/managed-apps/config.yaml`:
+
+```yaml
+cilium:
+  installed: true
+  hubble:
+    installed: false
+```
+
+You can also adjust Helm values for Hubble via
+`.gitlab/managed-apps/cilium/hubble-values.yaml`:
+
+```yaml
+metrics:
+  enabled:
+    - 'flow:sourceContext=namespace;destinationContext=namespace'
+```
+
 ### Install JupyterHub using GitLab CI
 
 > [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/40) in GitLab 12.8.
