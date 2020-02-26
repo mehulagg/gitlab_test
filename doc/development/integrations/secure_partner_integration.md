@@ -59,6 +59,8 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
 1. Troubleshooting
    1. TBD
 
-# 1. Optional: Auto Remediation
-#    1. If you specified a `remediations` in your artifact, it will be proposed through [auto remediation](https://docs.gitlab.com/ee/user/application_security/index.html#solutions-for-vulnerabilities-auto-remediation)
-#    1. Example on how to populate that field *this needs to be improved to include full example <https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#reports-json-format> and if all fields are optional or required*
+<!--
+1. Optional: Auto Remediation
+  1. If you specified a `remediations` in your artifact, it will be proposed through [auto remediation](https://docs.gitlab.com/ee/user/application_security/index.html#solutions-for-vulnerabilities-auto-remediation)
+  1. Example on how to populate that field *this needs to be improved to include full example <https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#reports-json-format> and if all fields are optional or required*
+-->
