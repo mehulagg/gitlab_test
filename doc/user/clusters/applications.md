@@ -759,8 +759,8 @@ At a minimum you will likely set up:
 of the master key
 - A [storage backend](https://www.vaultproject.io/docs/configuration/storage/) that is
 suitable for environment and storage security requirements
-- Enabling [HA Mode](https://www.vaultproject.io/docs/concepts/ha/)
-- Enabling the [Vault UI](https://www.vaultproject.io/docs/configuration/ui/)
+- [HA Mode](https://www.vaultproject.io/docs/concepts/ha/)
+- [The Vault UI](https://www.vaultproject.io/docs/configuration/ui/)
 
 The following is an example values file (`.gitlab/managed-apps/vault/values.yaml`)
 that configures GKMS for auto-unseal, using a Google Cloud Storage backend, enabling
