@@ -40,7 +40,7 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
       1. We are working to define and add an area to make it more clear what software identified findings in [issue 36147](https://gitlab.com/gitlab-org/gitlab/issues/36147) if you would like to comment.
    1. Once the job is completed (which generates the artifact in the working directory of the job) the data can now be seen:
       1. In ther [Merge Request Security Report](https://docs.gitlab.com/ee/user/project/merge_requests/#security-reports-ultimate)
-         1. [MR Security Report data flow](https://gitlab.com/snippets/1910005#merge-request-view) *can we improve on this, where should it live?*
+         1. [MR Security Report data flow](https://gitlab.com/snippets/1910005#merge-request-view)
       1. While [browsing Job Artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html#browsing-artifacts)
       1. In the [Security Dashboard](https://docs.gitlab.com/ee/user/application_security/security_dashboard/)
          1. [Dashboard data flow](https://gitlab.com/snippets/1910005#project-and-group-dashboards)
