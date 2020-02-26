@@ -1,15 +1,9 @@
 <script>
+import { GlIcon, GlLink, GlSprintf } from '@gitlab/ui';
 import createFlash from '~/flash';
 import uploadDesignMutation from '../../graphql/mutations/uploadDesign.mutation.graphql';
 import { UPLOAD_DESIGN_INVALID_FILETYPE_ERROR } from '../../utils/error_messages';
-import { GlIcon, GlLink, GlSprintf } from '@gitlab/ui';
-
-// WARNING: replace this with something
-// more sensical as per https://gitlab.com/gitlab-org/gitlab/issues/118611
-const VALID_FILE_MIMETYPE = {
-  mimetype: 'image/*',
-  regex: /image\/.+/,
-};
+import { isValidDesignFile, VALID_DESIGN_FILE_MIMETYPE } from '../../utils/design_management_utils';
 
 // https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer/types
 const VALID_DATA_TRANSFER_TYPE = 'Files';
@@ -43,31 +37,24 @@ export default {
     },
   },
   methods: {
-    validFileTypes(files) {
-      return !files.some(({ type }) => (type.match(VALID_FILE_MIMETYPE.regex) || []).length === 0);
+    isValidUpload(files) {
+      return !files.some(file => !isValidDesignFile(file));
     },
-    validDragDataType(e) {
+    isValidDragDataType(e) {
       return !e.dataTransfer.types.some(t => t !== VALID_DATA_TRANSFER_TYPE);
     },
     ondrop(e) {
       this.dragging = false;
-      const files = Array.from(e.dataTransfer.files);
 
+      const files = Array.from(e.dataTransfer.files);
       if (!files) {
         return;
       }
-
-      // TODO(tom) get clarification of UX
-      // if (files.length > this.maxFiles) {
-      //   return;
-      // }
-
-      // Do not createFlash as the user already has feedback when dropzone is active
+      // Do not createFlash, as the user already has feedback when dropzone is active
       if (!this.isDragDataValid) {
         return;
       }
-
-      if (!this.validFileTypes(files)) {
+      if (!this.isValidUpload(files)) {
         createFlash(UPLOAD_DESIGN_INVALID_FILETYPE_ERROR);
         return;
       }
@@ -76,7 +63,7 @@ export default {
     },
     ondragenter(e) {
       this.dragging = true;
-      this.isDragDataValid = this.validDragDataType(e);
+      this.isDragDataValid = this.isValidDragDataType(e);
     },
     ondragleave() {
       this.dragging = false;
@@ -89,7 +76,7 @@ export default {
     },
   },
   uploadDesignMutation,
-  VALID_FILE_MIMETYPE,
+  VALID_DESIGN_FILE_MIMETYPE,
 };
 </script>
 
@@ -131,7 +118,7 @@ export default {
         ref="fileUpload"
         type="file"
         name="design_file"
-        :accept="$options.VALID_FILE_MIMETYPE.type"
+        :accept="$options.VALID_DESIGN_FILE_MIMETYPE.mimetype"
         class="hide"
         @change="onFileUploadChange"
       />

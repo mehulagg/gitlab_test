@@ -7,7 +7,7 @@ import DeleteButton from '../components/delete_button.vue';
 import Design from '../components/list/item.vue';
 import DesignDestroyer from '../components/design_destroyer.vue';
 import DesignVersionDropdown from '../components/upload/design_version_dropdown.vue';
-import Dropzone from '../components/upload/dropzone.vue';
+import DesignDropzone from '../components/upload/design_dropzone.vue';
 import uploadDesignMutation from '../graphql/mutations/uploadDesign.mutation.graphql';
 import permissionsQuery from '../graphql/queries/permissions.query.graphql';
 import projectQuery from '../graphql/queries/project.query.graphql';
@@ -32,7 +32,7 @@ export default {
     DesignDestroyer,
     DesignVersionDropdown,
     DeleteButton,
-    Dropzone,
+    DesignDropzone,
   },
   mixins: [allDesignsMixin],
   apollo: {
@@ -249,12 +249,10 @@ export default {
       <template v-else>
         <ol class="list-unstyled row">
           <li class="col-md-6 col-lg-4 mb-3">
-            <dropzone class="design-list-item" @upload="onUploadDesign" />
+            <design-dropzone class="design-list-item" @upload="onUploadDesign" />
           </li>
           <li v-for="design in designs" :key="design.id" class="col-md-6 col-lg-4 mb-3">
-            <dropzone @upload="onUploadDesign"
-              ><design v-bind="design" :is-loading="isDesignToBeSaved(design.filename)"
-            /></dropzone>
+            <design v-bind="design" :is-loading="isDesignToBeSaved(design.filename)" />
 
             <input
               v-if="canSelectDesign(design.filename)"
