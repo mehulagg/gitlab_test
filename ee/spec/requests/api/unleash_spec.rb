@@ -474,6 +474,26 @@ describe API::Unleash do
             }]
           }])
         end
+
+        it 'returns a disabled flag with a matching scope' do
+          feature_flag = create(:operations_feature_flag, project: project,
+                                name: 'myfeature', active: false, version: 2)
+          strategy = create(:operations_strategy, feature_flag: feature_flag,
+                            name: 'default', parameters: {})
+          create(:operations_scope, strategy: strategy, environment_scope: 'production')
+
+          get api(features_url), headers: { 'UNLEASH-INSTANCEID' => client.token, 'UNLEASH-APPNAME' => 'production' }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['features']).to eq([{
+            'name' => 'myfeature',
+            'enabled' => false,
+            'strategies' => [{
+              'name' => 'default',
+              'parameters' => {}
+            }]
+          }])
+        end
       end
 
       context 'when mixing version 1 and version 2 feature flags' do
