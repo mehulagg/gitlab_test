@@ -49,7 +49,7 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
    1. If you wish to automatically create Issues without user interaction you may use the [issue API](https://docs.gitlab.com/ee/api/issues.html)
       1. This will be replaced by [Standalone Vulnerabilities](https://gitlab.com/groups/gitlab-org/-/epics/634) in the future
 1. Optional: Provide Auto Remediation steps
-  1. If you specified `remediations` in your artifact, it will be proposed through [auto remediation](https://docs.gitlab.com/ee/user/application_security/index.html#solutions-for-vulnerabilities-auto-remediation)
+   1. If you specified `remediations` in your artifact, it will be proposed through [auto remediation](https://docs.gitlab.com/ee/user/application_security/index.html#solutions-for-vulnerabilities-auto-remediation)
 1. Demo the integration to GitLab
    1. After you have tested and are ready to demo your integration please [reach out](https://about.gitlab.com/partners/integrate/). If you skip this step you won’t be able to do supported marketing.
 1. Begin doing supported marketing
@@ -59,5 +59,5 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
    1. Example: Co-branded webinar
    1. Example: Co-branded whitepaper
 1. Troubleshooting
-   1. Create an issue to discuss with us further if you have any issues
+   1. Create an issue to discuss with us further if you have any issues.
 
