@@ -439,10 +439,6 @@ class Repository
   # Runs code after a repository has been forked/imported.
   def after_import
     expire_content_cache
-
-    return unless repo_type.project?
-
-    DetectRepositoryLanguagesWorker.perform_async(project.id)
   end
 
   # Runs code after a new commit has been pushed.

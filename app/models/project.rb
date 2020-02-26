@@ -1413,7 +1413,7 @@ class Project < ApplicationRecord
   # Expires various caches before a project is renamed.
   def expire_caches_before_rename(old_path)
     repo = Gitlab::Repository::ProjectSource.new(old_path, self, shard: repository_storage)
-    wiki = Gitlab::Repository::ProjectSource.new("#{old_path}.wiki", self, shard: repository_storage)
+    wiki = Gitlab::Repository::ProjectWiki.new("#{old_path}.wiki", self, shard: repository_storage)
 
     if repo.exists?
       repo.before_delete

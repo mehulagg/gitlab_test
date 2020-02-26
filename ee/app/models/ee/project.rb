@@ -665,7 +665,7 @@ module EE
       super
 
       # TODO: we should handle this use-case by passing the old_path to a CacheManager sort of object
-      design = ::Gitlab::Repository::DesignManagement.new(self, full_path: "#{old_path}#{EE::Gitlab::GlRepository::DESIGN.path_suffix}")
+      design = ::Gitlab::Repository::DesignManagement.new(self, full_path: "#{old_path}#{EE::Gitlab::GlRepository::DESIGN.path_suffix}", shard: repository_storage)
 
       if design.exists?
         design.before_delete

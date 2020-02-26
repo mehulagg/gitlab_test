@@ -1818,14 +1818,14 @@ describe Project do
 
     it 'expires the caches of the repository and wiki' do
       # In EE, there are design repositories as well
-      allow(Repository).to receive(:new).and_call_original
+      allow(Gitlab::Repository::ProjectSource).to receive(:new).and_call_original
 
-      allow(Repository).to receive(:new)
+      allow(Gitlab::Repository::ProjectSource).to receive(:new)
         .with('foo', project, shard: project.repository_storage)
         .and_return(repo)
 
-      allow(Repository).to receive(:new)
-        .with('foo.wiki', project, shard: project.repository_storage, repo_type: Gitlab::GlRepository::WIKI)
+      allow(Gitlab::Repository::ProjectWiki).to receive(:new)
+        .with('foo.wiki', project, shard: project.repository_storage)
         .and_return(wiki)
 
       expect(repo).to receive(:before_delete)
