@@ -5,6 +5,5 @@ FactoryBot.define do
     sequence(:name) { |n| "feature_flag_#{n}" }
     project
     active { true }
-    version { 1 }
   end
 end
