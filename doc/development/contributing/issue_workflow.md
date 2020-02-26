@@ -286,7 +286,7 @@ This label documents the planned timeline & urgency which is used to measure aga
 Severity labels help us clearly communicate the impact of a ~bug on users.
 There can be multiple facets of the impact. The below is a guideline.
 
-| Label | Meaning           | Functionality                                         | Affected Users                   | GitLab.com Availability                            | Performance Degradation                               | Response time             |
+| Label | Meaning           | Functionality                                         | Affected Users                   | GitLab.com Availability                            | Performance Degradation                               | Response time[^1]         |
 |-------|-------------------|-------------------------------------------------------|----------------------------------|----------------------------------------------------|-------------------------------------------------------|---------------------------|
 | ~S1   | Blocker           | Unusable feature with no workaround, user is blocked  | Impacts 50% or more of users     | Outage, Significant impact on all of GitLab.com    |                                                       | Above 4000ms              |
 | ~S2   | Critical Severity | Broken Feature, workaround too complex & unacceptable | Impacts between 25%-50% of users | Significant impact on large portions of GitLab.com | Degradation is guaranteed to occur in the near future | Between 2000ms and 4000ms |
@@ -502,3 +502,8 @@ to be involved in some capacity when work begins on the follow-up issue.
 ---
 
 [Return to Contributing documentation](index.md)
+
+[^1]: Our current response time standard is based on the results of GitLab
+      Performance Tool (GPT) being run against the 10k-user reference
+      environment. This run happens nightly and results are outputted to the 
+      [wiki on the GPT project.](https://gitlab.com/gitlab-org/quality/performance/-/wikis/Benchmarks/Latest/10k)
