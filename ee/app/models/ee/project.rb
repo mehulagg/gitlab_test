@@ -656,7 +656,7 @@ module EE
 
     def design_repository
       strong_memoize(:design_repository) do
-        DesignManagement::Repository.new(self)
+        ::Gitlab::Repository::DesignManagement.new(self)
       end
     end
 
@@ -664,7 +664,8 @@ module EE
     def expire_caches_before_rename(old_path)
       super
 
-      design = ::Repository.new("#{old_path}#{::EE::Gitlab::GlRepository::DESIGN.path_suffix}", self, shard: repository_storage, repo_type: ::EE::Gitlab::GlRepository::DESIGN)
+      # TODO: we should handle this use-case by passing the old_path to a CacheManager sort of object
+      design = ::Gitlab::Repository::DesignManagement.new(self, full_path: "#{old_path}#{EE::Gitlab::GlRepository::DESIGN.path_suffix}")
 
       if design.exists?
         design.before_delete

@@ -33,7 +33,10 @@ module Elastic
     private
 
     def get_data_class(klass)
-      klass < ActiveRecord::Base ? klass.base_class : klass
+      return klass.base_class if klass < ActiveRecord::Base
+      return ::Repository if klass < ::Repository
+
+      klass
     end
 
     # Handles which method calls should be forwarded to all targets,

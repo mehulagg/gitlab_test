@@ -22,7 +22,7 @@ class Repository
 
   include Gitlab::RepositoryCacheAdapter
 
-  attr_accessor :full_path, :shard, :disk_path, :container, :repo_type
+  attr_accessor :full_path, :shard, :disk_path, :container
 
   delegate :ref_name_for_sha, to: :raw_repository
   delegate :bundle_to_disk, to: :raw_repository
@@ -65,13 +65,12 @@ class Repository
     xcode_config: :xcode_project?
   }.freeze
 
-  def initialize(full_path, container, shard:, disk_path: nil, repo_type: Gitlab::GlRepository::PROJECT)
+  def initialize(full_path, container, shard:, disk_path: nil)
     @full_path = full_path
     @shard = shard
     @disk_path = disk_path || full_path
     @container = container
     @commit_cache = {}
-    @repo_type = repo_type
   end
 
   def ==(other)
@@ -1125,11 +1124,11 @@ class Repository
   end
 
   def project
-    if repo_type.snippet?
-      container.project
-    else
-      container
-    end
+    container
+  end
+
+  def repo_type
+    raise NotImplementedError, "Don't use this base class directly. Use the correctly one from Gitlab::Repository namespace"
   end
 
   private

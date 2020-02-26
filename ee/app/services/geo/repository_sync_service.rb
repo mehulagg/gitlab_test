@@ -58,5 +58,9 @@ module Geo
     def execute_housekeeping
       Geo::ProjectHousekeepingService.new(project, new_repository: new_repository?).execute
     end
+
+    def temp_repo
+      @temp_repo ||= Gitlab::Repository::ProjectSource.new(repository.full_path, repository.project, shard: repository.shard, disk_path: disk_path_temp)
+    end
   end
 end

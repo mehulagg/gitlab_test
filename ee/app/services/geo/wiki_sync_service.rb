@@ -43,5 +43,9 @@ module Geo
       log_info('Expiring caches')
       repository.after_sync
     end
+
+    def temp_repo
+      @temp_repo ||= Gitlab::Repository::ProjectWiki.new(repository.full_path, repository.container, shard: repository.shard, disk_path: disk_path_temp)
+    end
   end
 end

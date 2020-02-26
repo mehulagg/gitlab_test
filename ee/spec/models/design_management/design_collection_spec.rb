@@ -51,7 +51,7 @@ describe DesignManagement::DesignCollection do
 
   describe "#repository" do
     it "builds a design repository" do
-      expect(collection.repository).to be_a(DesignManagement::Repository)
+      expect(collection.repository).to be_a(::Gitlab::Repository::DesignManagement)
     end
   end
 

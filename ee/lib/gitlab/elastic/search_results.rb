@@ -234,7 +234,7 @@ module Gitlab
             additional_filter: repository_filter(limit_project_ids)
           )
 
-          Repository.__elasticsearch__.elastic_search_as_found_blob(
+          ::Repository.__elasticsearch__.elastic_search_as_found_blob(
             query,
             page: (page || 1).to_i,
             per: per_page,
@@ -274,7 +274,7 @@ module Gitlab
             additional_filter: repository_filter(limit_project_ids)
           )
 
-          Repository.find_commits_by_message_with_elastic(
+          ::Repository.find_commits_by_message_with_elastic(
             query,
             page: (page || 1).to_i,
             per_page: per_page,

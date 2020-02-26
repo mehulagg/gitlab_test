@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe DesignManagement::Repository do
+describe Gitlab::Repository::DesignManagement do
   let(:project) { create(:project) }
   let(:repository) { described_class.new(project) }
 

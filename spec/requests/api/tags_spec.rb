@@ -328,7 +328,7 @@ describe API::Tags do
     let(:route) { "/projects/#{project_id}/repository/tags/#{tag_name}" }
 
     before do
-      allow_next_instance_of(Repository) do |instance|
+      allow_next_instance_of(::Gitlab::Repository::ProjectSource) do |instance|
         allow(instance).to receive(:rm_tag).and_return(true)
       end
     end

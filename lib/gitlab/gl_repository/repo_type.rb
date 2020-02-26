@@ -39,16 +39,19 @@ module Gitlab
         container_resolver.call(id)
       end
 
+      # @deprecated
       def wiki?
-        self == WIKI
+        self.name == WIKI.name
       end
 
+      # @deprecated
       def project?
-        self == PROJECT
+        self.name == PROJECT.name
       end
 
+      # @deprecated
       def snippet?
-        self == SNIPPET
+        self.name == SNIPPET.name
       end
 
       def path_suffix

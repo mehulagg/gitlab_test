@@ -81,5 +81,9 @@ module Geo
     def redownload?
       registry.should_be_redownloaded?
     end
+
+    def temp_repo
+      @temp_repo ||= Gitlab::Repository::DesignManagement.new(project, shard: repository.shard, disk_path: disk_path_temp)
+    end
   end
 end

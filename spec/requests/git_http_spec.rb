@@ -829,8 +829,8 @@ describe 'Git HTTP requests' do
         context "when the file exists" do
           before do
             # Provide a dummy file in its place
-            allow_any_instance_of(Repository).to receive(:blob_at).and_call_original
-            allow_any_instance_of(Repository).to receive(:blob_at).with('b83d6e391c22777fca1ed3012fce84f633d7fed0', 'info/refs') do
+            allow_any_instance_of(::Gitlab::Repository::ProjectSource).to receive(:blob_at).and_call_original
+            allow_any_instance_of(::Gitlab::Repository::ProjectSource).to receive(:blob_at).with('b83d6e391c22777fca1ed3012fce84f633d7fed0', 'info/refs') do
               Blob.decorate(Gitlab::Git::Blob.find(project.repository, 'master', 'bar/branch-test.txt'), project)
             end
 

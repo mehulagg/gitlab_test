@@ -41,7 +41,7 @@ module EE
           return if project.nil? || project.pending_delete?
 
           # We need a full Repository instance to perform Gitaly calls.
-          repository = ::DesignManagement::Repository.new(project)
+          repository = ::Gitlab::Repository::DesignManagement.new(project)
           versions = Version.backfillable_for_issue(issue_id)
           commits = commits_for_versions(versions, repository)
 

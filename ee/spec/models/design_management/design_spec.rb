@@ -376,7 +376,7 @@ describe DesignManagement::Design do
     it 'is a design repository' do
       design = build(:design)
 
-      expect(design.repository).to be_a(DesignManagement::Repository)
+      expect(design.repository).to be_a(::Gitlab::Repository::DesignManagement)
     end
   end
 

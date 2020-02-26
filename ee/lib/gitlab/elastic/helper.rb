@@ -16,7 +16,7 @@ module Gitlab
           Note,
           Milestone,
           ProjectWiki,
-          Repository
+          ::Repository
         ].each do |klass|
           settings.deep_merge!(klass.__elasticsearch__.settings.to_hash)
           mappings.deep_merge!(klass.__elasticsearch__.mappings.to_hash)

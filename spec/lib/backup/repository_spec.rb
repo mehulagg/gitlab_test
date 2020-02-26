@@ -94,7 +94,7 @@ describe Backup::Repository do
         allow(project_wiki).to receive(:repository).and_return(wiki_repository_spy)
       end
 
-      expect_next_instance_of(Repository) do |repo|
+      expect_next_instance_of(::Gitlab::Repository::ProjectSource) do |repo|
         expect(repo).to receive(:remove)
       end
 

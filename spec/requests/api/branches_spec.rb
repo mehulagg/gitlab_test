@@ -628,12 +628,6 @@ describe API::Branches do
   end
 
   describe 'DELETE /projects/:id/repository/branches/:branch' do
-    before do
-      allow_next_instance_of(Repository) do |instance|
-        allow(instance).to receive(:rm_branch).and_return(true)
-      end
-    end
-
     it 'removes branch' do
       delete api("/projects/#{project.id}/repository/branches/#{branch_name}", user)
 
@@ -668,7 +662,7 @@ describe API::Branches do
 
   describe 'DELETE /projects/:id/repository/merged_branches' do
     before do
-      allow_next_instance_of(Repository) do |instance|
+      allow_next_instance_of(::Gitlab::Repository::ProjectSource) do |instance|
         allow(instance).to receive(:rm_branch).and_return(true)
       end
     end

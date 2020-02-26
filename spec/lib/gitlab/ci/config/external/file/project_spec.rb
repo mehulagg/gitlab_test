@@ -159,7 +159,7 @@ describe Gitlab::Ci::Config::External::File::Project do
   private
 
   def stub_project_blob(ref, path)
-    allow_next_instance_of(Repository) do |instance|
+    allow_next_instance_of(::Gitlab::Repository::ProjectSource) do |instance|
       allow(instance).to receive(:blob_data_at).with(ref, path) { yield }
     end
   end

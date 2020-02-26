@@ -23,7 +23,7 @@ describe Lfs::FileTransformer do
     end
 
     context 'when repository is a design repository' do
-      let(:file_path) { "/#{DesignManagement.designs_directory}/test_file.lfs" }
+      let(:file_path) { "/#{::DesignManagement.designs_directory}/test_file.lfs" }
       let(:file) { Tempfile.new(file_path) }
       let(:repository) { project.design_repository }
 

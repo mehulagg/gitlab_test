@@ -11,9 +11,9 @@ module Geo
     DESIGN     = 2
 
     REPOSITORY_TYPE_MAP = {
-      ::Gitlab::GlRepository::PROJECT => REPOSITORY,
-      ::Gitlab::GlRepository::WIKI => WIKI,
-      ::Gitlab::GlRepository::DESIGN => DESIGN
+      ::Gitlab::GlRepository::PROJECT.name => REPOSITORY,
+      ::Gitlab::GlRepository::WIKI.name => WIKI,
+      ::Gitlab::GlRepository::DESIGN.name => DESIGN
     }.freeze
 
     belongs_to :project
@@ -23,7 +23,7 @@ module Geo
     validates :project, presence: true
 
     def self.source_for(repository)
-      REPOSITORY_TYPE_MAP[repository.repo_type]
+      REPOSITORY_TYPE_MAP[repository.repo_type.name]
     end
 
     override :consumer_klass_name
