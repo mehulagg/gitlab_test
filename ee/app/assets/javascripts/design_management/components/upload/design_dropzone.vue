@@ -14,27 +14,11 @@ export default {
     GlLink,
     GlSprintf,
   },
-  props: {
-    maxFiles: {
-      type: Number,
-      required: false,
-      default: 1,
-    },
-  },
   data() {
     return {
       dragging: false,
       isDragDataValid: false,
     };
-  },
-  computed: {
-    dropzoneStyle() {
-      return this.dragging
-        ? {
-            background: 'rbga(255, 255, 255, 0.5)',
-          }
-        : {};
-    },
   },
   methods: {
     isValidUpload(files) {
@@ -91,7 +75,7 @@ export default {
     @dragenter.prevent.stop="ondragenter"
     @drop.prevent.stop="ondrop"
   >
-    <slot v-bind="{ dragging, isDragDataValid }">
+    <slot>
       <div class="card design-dropzone--border w-100 h-100 d-flex-center p-3">
         <div class="d-flex-center flex-column text-center">
           <gl-icon name="doc-new" :size="48" class="mb-4" />
