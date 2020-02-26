@@ -53,8 +53,9 @@ module Operations
 
       def for_unleash_client(project, environment)
         includes(strategies: :scopes)
-          .where(operations_scopes: { environment_scope: environment })
+          .where("? LIKE #{::Gitlab::SQL::Glob.to_like('operations_scopes.environment_scope')}", environment)
           .where(project: project)
+          .references(:operations_scopes)
       end
     end
 

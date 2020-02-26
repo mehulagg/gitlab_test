@@ -253,4 +253,32 @@ describe Operations::FeatureFlag do
       end
     end
   end
+
+  describe '.for_unleash_client' do
+    it 'matches wild cards in the scope' do
+      project = create(:project)
+      feature_flag = create(:operations_feature_flag, project: project,
+                            name: 'feature1', active: true, version: 2)
+      strategy = create(:operations_strategy, feature_flag: feature_flag,
+                        name: 'default', parameters: {})
+      create(:operations_scope, strategy: strategy, environment_scope: 'review/*')
+
+      flags = described_class.for_unleash_client(project, 'review/feature-branch')
+
+      expect(flags).to eq([feature_flag])
+    end
+
+    it 'matches wild cards case sensitively' do
+      project = create(:project)
+      feature_flag = create(:operations_feature_flag, project: project,
+                            name: 'feature1', active: true, version: 2)
+      strategy = create(:operations_strategy, feature_flag: feature_flag,
+                        name: 'default', parameters: {})
+      create(:operations_scope, strategy: strategy, environment_scope: 'Staging/*')
+
+      flags = described_class.for_unleash_client(project, 'staging/feature')
+
+      expect(flags).to eq([])
+    end
+  end
 end
