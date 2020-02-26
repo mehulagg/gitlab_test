@@ -54,7 +54,7 @@ more information, you can read this
 We'll focus on ED25519 and RSA here.
 
 NOTE: **Note:**
-As an admin, you can [restrict which keys should be permitted and their minimum length](../security/ssh_keys_restrictions.md).
+As an admin, you can [restrict which keys should be permitted and their minimum length](ssh_keys_restrictions.md).
 By default, all keys are permitted, which is also the case for
 [GitLab.com](../user/gitlab_com/index.md#ssh-host-keys-fingerprints).
 

@@ -622,7 +622,7 @@ programming languages. Visit the [GitLab website](https://about.gitlab.com/partn
 ## Rate limits
 
 For administrator documentation on rate limit settings, see
-[Rate limits](../security/rate_limits.md). To find the settings that are
+[Rate limits](rate_limits.md). To find the settings that are
 specifically used by GitLab.com, see
 [GitLab.com-specific rate limits](../user/gitlab_com/index.md#gitlabcom-specific-rate-limits).
 

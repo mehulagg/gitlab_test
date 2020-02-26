@@ -4,7 +4,7 @@ type: reference
 
 # GitLab CI/CD Pipeline Configuration Reference
 
-GitLab CI/CD [pipelines](../pipelines.md) are configured using a YAML file called `.gitlab-ci.yml` within each project.
+GitLab CI/CD [pipelines](pipelines.md) are configured using a YAML file called `.gitlab-ci.yml` within each project.
 
 The `.gitlab-ci.yml` file defines the structure and order of the pipelines and determines:
 
