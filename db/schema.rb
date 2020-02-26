@@ -4354,6 +4354,20 @@ ActiveRecord::Schema.define(version: 2020_02_26_162723) do
     t.index ["user_id", "project_id"], name: "index_users_star_projects_on_user_id_and_project_id", unique: true
   end
 
+  create_table "users_statistics", force: :cascade do |t|
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.datetime_with_timezone "as_at", null: false
+    t.integer "without_groups_and_projects", default: 0, null: false
+    t.integer "highest_role_is_10", default: 0, null: false
+    t.integer "highest_role_is_20", default: 0, null: false
+    t.integer "highest_role_is_30", default: 0, null: false
+    t.integer "highest_role_is_40", default: 0, null: false
+    t.integer "highest_role_is_50", default: 0, null: false
+    t.integer "bots", default: 0, null: false
+    t.integer "blocked", default: 0, null: false
+  end
+
   create_table "vulnerabilities", force: :cascade do |t|
     t.bigint "milestone_id"
     t.bigint "epic_id"
