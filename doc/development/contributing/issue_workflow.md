@@ -503,7 +503,7 @@ to be involved in some capacity when work begins on the follow-up issue.
 
 [Return to Contributing documentation](index.md)
 
-[^1]: Our current response time standard is based on the results of GitLab
-      Performance Tool (GPT) being run against the 10k-user reference
-      environment. This run happens nightly and results are outputted to the 
+[^1]: Our current response time standard is based on the TTFB P90 results of the
+      GitLab Performance Tool (GPT) being run against the 10k-user reference
+      environment. This run happens nightly and results are outputted to the
       [wiki on the GPT project.](https://gitlab.com/gitlab-org/quality/performance/-/wikis/Benchmarks/Latest/10k)
