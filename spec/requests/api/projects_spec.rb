@@ -1749,6 +1749,27 @@ describe API::Projects do
 
       subject { get api("/projects/#{project.id}", user) }
     end
+
+    describe 'repository_storage attribute' do
+      context 'when authenticated as an admin' do
+        let(:admin) { create(:admin) }
+
+        it 'returns repository_storage attribute' do
+          get api("/projects/#{project.id}", admin)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response['repository_storage']).to eq(project.repository_storage)
+        end
+      end
+
+      context 'when authenticated as a regular user' do
+        it 'does not return repository_storage attribute' do
+          get api("/projects/#{project.id}", user)
+
+          expect(json_response).not_to have_key('repository_storage')
+        end
+      end
+    end
   end
 
   describe 'GET /projects/:id/users' do
@@ -2398,6 +2419,50 @@ describe API::Projects do
                           request_access_enabled: true }
         put api("/projects/#{project.id}", user3), params: project_param
         expect(response).to have_gitlab_http_status(403)
+      end
+    end
+
+    context 'when updating repository storage' do
+      let(:unknown_storage) { 'new-storage' }
+      let(:new_project) { create(:project, :repository, namespace: user.namespace) }
+
+      context 'as a user' do
+        it 'returns 200 but does not change repository_storage' do
+          expect do
+            Sidekiq::Testing.fake! do
+              put(api("/projects/#{new_project.id}", user), params: { repository_storage: unknown_storage, issues_enabled: false })
+            end
+          end.not_to change(ProjectUpdateRepositoryStorageWorker.jobs, :size)
+
+          expect(response).to have_gitlab_http_status(200)
+          expect(json_response['issues_enabled']).to eq(false)
+          expect(new_project.reload.repository.storage).to eq('default')
+        end
+      end
+
+      context 'as an admin' do
+        include_context 'custom session'
+
+        let(:admin) { create(:admin) }
+
+        it 'returns 500 when repository storage is unknown' do
+          put(api("/projects/#{new_project.id}", admin), params: { repository_storage: unknown_storage })
+
+          expect(response).to have_gitlab_http_status(500)
+          expect(json_response['message']).to match('ArgumentError')
+        end
+
+        it 'returns 200 when repository storage has changed' do
+          stub_storage_settings('extra' => { 'path' => 'tmp/tests/extra_storage' })
+
+          expect do
+            Sidekiq::Testing.fake! do
+              put(api("/projects/#{new_project.id}", admin), params: { repository_storage: 'extra' })
+            end
+          end.to change(ProjectUpdateRepositoryStorageWorker.jobs, :size).by(1)
+
+          expect(response).to have_gitlab_http_status(200)
+        end
       end
     end
   end

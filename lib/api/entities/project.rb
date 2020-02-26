@@ -106,6 +106,7 @@ module API
         project.auto_devops.nil? ? 'continuous' : project.auto_devops.deploy_strategy
       end
       expose :autoclose_referenced_issues
+      expose :repository_storage, if: ->(_project, options) { options[:current_user].try(:admin?) }
 
       # rubocop: disable CodeReuse/ActiveRecord
       def self.preload_relation(projects_relation, options = {})
