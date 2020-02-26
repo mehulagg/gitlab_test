@@ -162,6 +162,10 @@ module Ci
       end
     end
 
+    def dotenv_variables
+      Ci::Builds::DotenvVariable.none
+    end
+
     private
 
     def cross_project_params

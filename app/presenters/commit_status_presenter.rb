@@ -19,7 +19,8 @@ class CommitStatusPresenter < Gitlab::View::Presenter::Delegated
     downstream_bridge_project_not_found: 'This job could not be executed because downstream bridge project could not be found',
     insufficient_bridge_permissions: 'This job could not be executed because of insufficient permissions to create a downstream pipeline',
     bridge_pipeline_is_child_pipeline: 'This job belongs to a child pipeline and cannot create further child pipelines',
-    downstream_pipeline_creation_failed: 'The downstream pipeline could not be created'
+    downstream_pipeline_creation_failed: 'The downstream pipeline could not be created',
+    dotenv_artifact_parse_failure: 'The dotenv artifact could not be parsed, please check if it is formatted correctly'
   }.freeze
 
   private_constant :CALLOUT_FAILURE_MESSAGES

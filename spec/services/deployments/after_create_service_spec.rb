@@ -177,6 +177,26 @@ describe Deployments::AfterCreateService do
       it { is_expected.to eq('http://review/host') }
     end
 
+    context 'when dotenv variables are attached to the build' do
+      let(:job) do
+        create(:ci_build,
+               :with_deployment,
+               pipeline: pipeline,
+               environment: 'review/$CI_COMMIT_REF_NAME',
+               project: project,
+               dotenv_variables: [dotenv_variable],
+               options: { environment: { name: 'review/$CI_COMMIT_REF_NAME', url: 'http://$DYNAMIC_ENV_URL' } })
+      end
+
+      let(:dotenv_variable) do
+        build(:ci_build_dotenv_variable, key: 'DYNAMIC_ENV_URL', value: 'abc.test.com')
+      end
+
+      it 'expands the environment URL from the dynamic variable' do
+        is_expected.to eq('http://abc.test.com')
+      end
+    end
+
     context 'when yaml environment does not have url' do
       let(:job) { create(:ci_build, :with_deployment, pipeline: pipeline, environment: 'staging', project: project) }
 

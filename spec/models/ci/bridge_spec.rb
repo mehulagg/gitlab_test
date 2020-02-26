@@ -300,4 +300,10 @@ describe Ci::Bridge do
       end
     end
   end
+
+  describe '#dotenv_variables' do
+    subject { bridge.dotenv_variables }
+
+    it { is_expected.to eq(Ci::Builds::DotenvVariable.none) }
+  end
 end

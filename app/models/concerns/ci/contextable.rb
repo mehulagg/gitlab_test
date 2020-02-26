@@ -23,6 +23,7 @@ module Ci
         variables.concat(trigger_request.user_variables) if trigger_request
         variables.concat(pipeline.variables)
         variables.concat(pipeline.pipeline_schedule.job_variables) if pipeline.pipeline_schedule
+        variables.concat(dotenv_variables)
       end
     end
 

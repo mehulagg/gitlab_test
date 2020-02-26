@@ -286,6 +286,12 @@ module API
         result = Ci::CreateJobArtifactsService.new(job.project).execute(job, artifacts, params, metadata_file: metadata)
 
         if result[:status] == :success
+          # NOTE: The scraped data is ensured to exist before the build status
+          # becomes a complete state (`success/failed`).
+          if params['artifact_type'] == 'dotenv'
+            Ci::ParseDotenvArtifactService.new(job.project, nil).execute(job)
+          end
+
           status :created
         else
           render_api_error!(result[:message], result[:http_status])

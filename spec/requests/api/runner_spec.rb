@@ -1937,6 +1937,40 @@ describe API::Runner, :clean_gitlab_redis_shared_state do
               end
             end
           end
+
+          context 'when artifact_type is dotenv' do
+            context 'when artifact_format is gzip' do
+              let(:file_upload) { fixture_file_upload('spec/fixtures/build.env.gz') }
+              let(:params) { { artifact_type: :dotenv, artifact_format: :gzip } }
+
+              it 'stores dotenv file' do
+                upload_artifacts(file_upload, headers_with_token, params)
+
+                expect(response).to have_gitlab_http_status(:created)
+                expect(job.reload.job_artifacts_dotenv).not_to be_nil
+              end
+
+              it 'parses dotenv file' do
+                expect_next_instance_of(Ci::ParseDotenvArtifactService) do |service|
+                  expect(service).to receive(:execute).with(job)
+                end
+
+                upload_artifacts(file_upload, headers_with_token, params)
+              end
+            end
+
+            context 'when artifact_format is raw' do
+              let(:file_upload) { fixture_file_upload('spec/fixtures/build.env.gz') }
+              let(:params) { { artifact_type: :dotenv, artifact_format: :raw } }
+
+              it 'returns an error' do
+                upload_artifacts(file_upload, headers_with_token, params)
+
+                expect(response).to have_gitlab_http_status(:bad_request)
+                expect(job.reload.job_artifacts_dotenv).to be_nil
+              end
+            end
+          end
         end
 
         context 'when artifacts already exist for the job' do

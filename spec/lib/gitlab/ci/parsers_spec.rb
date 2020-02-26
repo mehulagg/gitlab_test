@@ -14,6 +14,14 @@ describe Gitlab::Ci::Parsers do
       end
     end
 
+    context 'when file_type dotenv' do
+      let(:file_type) { 'dotenv' }
+
+      it 'fabricates the class' do
+        is_expected.to be_a(described_class::DotenvVariable)
+      end
+    end
+
     context 'when file_type does not exist' do
       let(:file_type) { 'undefined' }
 

@@ -36,7 +36,7 @@ describe Ci::RetryBuildService do
        job_artifacts_performance job_artifacts_lsif
        job_artifacts_codequality job_artifacts_metrics scheduled_at
        job_variables waiting_for_resource_at job_artifacts_metrics_referee
-       job_artifacts_network_referee needs].freeze
+       job_artifacts_network_referee job_artifacts_dotenv dotenv_variables needs].freeze
 
   IGNORE_ACCESSORS =
     %i[type lock_version target_url base_tags trace_sections
@@ -74,6 +74,7 @@ describe Ci::RetryBuildService do
       end
 
       create(:ci_job_variable, job: build)
+      create(:ci_build_dotenv_variable, build: build)
       create(:ci_build_need, build: build)
 
       build.reload
