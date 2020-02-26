@@ -736,6 +736,8 @@ agent:
 
 ### Install Vault using GitLab CI
 
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/9982) in GitLab 12.9.
+
 [Hashicorp Vault](https://vaultproject.io/) is a secrets management solution which
 can be used to safely manage and store passwords, credentials, certificates and more.
 
