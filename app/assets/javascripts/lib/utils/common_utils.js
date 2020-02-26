@@ -394,10 +394,10 @@ export const nodeMatchesSelector = (node, selector) => {
   this will take in the headers from an API response and normalize them
   this way we don't run into production issues when nginx gives us lowercased header keys
 */
-export const normalizeHeaders = headers => {
+export const normalizeHeaders = (headers = {}) => {
   const upperCaseHeaders = {};
 
-  Object.keys(headers || {}).forEach(e => {
+  Object.keys(headers).forEach(e => {
     upperCaseHeaders[e.toUpperCase()] = headers[e];
   });
 
@@ -428,14 +428,27 @@ export const normalizeCRLFHeaders = headers => {
  * @param {Object} paginationInformation
  * @returns {Object}
  */
-export const parseIntPagination = paginationInformation => ({
-  perPage: parseInt(paginationInformation['X-PER-PAGE'], 10),
-  page: parseInt(paginationInformation['X-PAGE'], 10),
-  total: parseInt(paginationInformation['X-TOTAL'], 10),
-  totalPages: parseInt(paginationInformation['X-TOTAL-PAGES'], 10),
-  nextPage: parseInt(paginationInformation['X-NEXT-PAGE'], 10),
-  previousPage: parseInt(paginationInformation['X-PREV-PAGE'], 10),
-});
+export const parseIntPagination = paginationInformation => {
+  const defaultValues = {
+    'X-NEXT-PAGE': 0,
+    'X-PAGE': 0,
+    'X-PER-PAGE': 0,
+    'X-PREV-PAGE': 0,
+    'X-TOTAL': 0,
+    'X-TOTAL-PAGES': 0,
+  };
+
+  const sanitizedPagination = Object.assign(defaultValues, paginationInformation);
+
+  return {
+    nextPage: parseInt(sanitizedPagination['X-NEXT-PAGE'], 10),
+    page: parseInt(sanitizedPagination['X-PAGE'], 10),
+    perPage: parseInt(sanitizedPagination['X-PER-PAGE'], 10),
+    previousPage: parseInt(sanitizedPagination['X-PREV-PAGE'], 10),
+    total: parseInt(sanitizedPagination['X-TOTAL'], 10),
+    totalPages: parseInt(sanitizedPagination['X-TOTAL-PAGES'], 10),
+  };
+};
 
 /**
  * Given a string of query parameters creates an object.

@@ -6880,10 +6880,16 @@ msgstr ""
 msgid "Domain"
 msgstr ""
 
+msgid "Domain cannot be deleted while associated to one or more clusters."
+msgstr ""
+
 msgid "Domain verification is an essential security measure for public GitLab sites. Users are required to demonstrate they control a domain before it is enabled"
 msgstr ""
 
 msgid "Domain was successfully created."
+msgstr ""
+
+msgid "Domain was successfully deleted."
 msgstr ""
 
 msgid "Domain was successfully updated."
@@ -11966,6 +11972,9 @@ msgstr ""
 msgid "Maximum number of comments exceeded"
 msgstr ""
 
+msgid "Maximum number of group hooks (%{count}) exceeded"
+msgstr ""
+
 msgid "Maximum number of mirrors that can be synchronizing at the same time."
 msgstr ""
 
@@ -13475,6 +13484,9 @@ msgstr ""
 msgid "Owner"
 msgstr ""
 
+msgid "Package Registry"
+msgstr ""
+
 msgid "Package deleted successfully"
 msgstr ""
 
@@ -13646,16 +13658,10 @@ msgstr ""
 msgid "Pagination|Next"
 msgstr ""
 
-msgid "Pagination|Next ›"
-msgstr ""
-
 msgid "Pagination|Prev"
 msgstr ""
 
 msgid "Pagination|« First"
-msgstr ""
-
-msgid "Pagination|‹ Prev"
 msgstr ""
 
 msgid "Parameter"
@@ -17623,7 +17629,13 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
+msgid "Settings related to the use and experience of using GitLab's Package Registry."
+msgstr ""
+
 msgid "Settings to prevent self-approval across all projects in the instance. Only an administrator can modify these settings."
+msgstr ""
+
+msgid "Severity"
 msgstr ""
 
 msgid "Severity: %{severity}"
@@ -17841,7 +17853,25 @@ msgstr ""
 msgid "Slack application"
 msgstr ""
 
+msgid "Slack channels (e.g. general, development)"
+msgstr ""
+
 msgid "Slack integration allows you to interact with GitLab via slash commands in a chat window."
+msgstr ""
+
+msgid "SlackIntegration|%{webhooks_link_start}Add an incoming webhook%{webhooks_link_end} in your Slack team. The default channel can be overridden for each event."
+msgstr ""
+
+msgid "SlackIntegration|<strong>Note:</strong> Usernames and private channels are not supported."
+msgstr ""
+
+msgid "SlackIntegration|Paste the <strong>Webhook URL</strong> into the field below."
+msgstr ""
+
+msgid "SlackIntegration|Select events below to enable notifications. The <strong>Slack channel names</strong> and <strong>Slack username</strong> fields are optional."
+msgstr ""
+
+msgid "SlackIntegration|This service send notifications about projects' events to Slack channels. To set up this service:"
 msgstr ""
 
 msgid "SlackService|2. Paste the <strong>Token</strong> into the field below"
@@ -18580,6 +18610,9 @@ msgid "Subscription"
 msgstr ""
 
 msgid "Subscription deletion failed."
+msgstr ""
+
+msgid "Subscription successfully applied to \"%{group_name}\""
 msgstr ""
 
 msgid "Subscription successfully created."
@@ -19598,6 +19631,12 @@ msgid "There was an error syncing the Design Repositories."
 msgstr ""
 
 msgid "There was an error trying to validate your query"
+msgstr ""
+
+msgid "There was an error updating the dashboard, branch name is invalid."
+msgstr ""
+
+msgid "There was an error updating the dashboard, branch named: %{branch} already exists."
 msgstr ""
 
 msgid "There was an error when reseting email token."
@@ -21793,9 +21832,6 @@ msgstr ""
 msgid "Vulnerability|Severity"
 msgstr ""
 
-msgid "Vulnerability|Status"
-msgstr ""
-
 msgid "WIP"
 msgstr ""
 
@@ -21920,6 +21956,9 @@ msgid "When a runner is locked, it cannot be assigned to other projects"
 msgstr ""
 
 msgid "When enabled, any user visiting %{host} will be able to create an account."
+msgstr ""
+
+msgid "When enabled, if an NPM package isn't found in the GitLab Registry, we will attempt to pull from the global NPM registry."
 msgstr ""
 
 msgid "When enabled, users cannot use GitLab until the terms have been accepted."
@@ -22654,6 +22693,9 @@ msgid "Your custom stage '%{title}' was created"
 msgstr ""
 
 msgid "Your dashboard has been copied. You can %{web_ide_link_start}edit it here%{web_ide_link_end}."
+msgstr ""
+
+msgid "Your dashboard has been updated. You can %{web_ide_link_start}edit it here%{web_ide_link_end}."
 msgstr ""
 
 msgid "Your deployment services will be broken, you will need to manually fix the services after renaming."
