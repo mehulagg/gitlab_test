@@ -726,11 +726,13 @@ It is also possible to embed either the default dashboard metrics or individual 
 
 ![Embedded Metrics in issue templates](img/embed_metrics_issue_template.png)
 
-### Embedding Cluster Health Charts
+### Embedding Cluster Health Charts **(ULTIMATE)**
 
-[Cluster Health Metrics](https://docs.gitlab.com/ee/user/project/clusters/#monitoring-your-kubernetes-cluster-ultimate) can also be embedded in [GitLab Flavored Markdown](../../markdown.md). [Introduced in  12.9, GitLab Ultimate Only https://about.gitlab.com/pricing/]
+> [Introduced](<https://gitlab.com/gitlab-org/gitlab/issues/40997>) in 12.9, in [GitLab Ultimate](https://about.gitlab.com/pricing/).
 
-To embed a metric chart, include a link to that chart in the form `https://<root_url>/<project>/-/cluster/<cluster_id>?<query_params>` anywhere that GitLab flavored markdown is supported. A link to the chart can be generated and copied via the dropdown to the right of the chart, as shown in the [Cluster Health Metric documentation](https://docs.gitlab.com/ee/user/project/clusters/#monitoring-your-kubernetes-cluster-ultimate).
+[Cluster Health Metrics](../clusters/index.md#monitoring-your-kubernetes-cluster-ultimate) can also be embedded in [GitLab-flavored Markdown](../../markdown.md).
+
+To embed a metric chart, include a link to that chart in the form `https://<root_url>/<project>/-/cluster/<cluster_id>?<query_params>` anywhere that GitLab-flavored Markdown is supported. To generate and copy a link to the chart, click the **{ellipsis_v}** **More actions** menu to the right of the chart, as shown in the [Cluster Health Metric documentation](https://docs.gitlab.com/ee/user/project/clusters/#monitoring-your-kubernetes-cluster-ultimate).
 
 The following requirements must be met for the metric to unfurl:
 
@@ -741,7 +743,7 @@ The following requirements must be met for the metric to unfurl:
 
  If the above requirements are met, then the metric will unfurl as seen below:
 
- ![Embedded Cluster Metric in issue descriptions](img/prometheus_cluster_health_embed.png)
+ ![Embedded Cluster Metric in issue descriptions](img/prometheus_cluster_health_embed_v12_9.png)
 
 ### Embedding Grafana charts
 
