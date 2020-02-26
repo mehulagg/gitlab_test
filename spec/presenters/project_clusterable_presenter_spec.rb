@@ -67,6 +67,12 @@ describe ProjectClusterablePresenter do
     it { is_expected.to eq(cluster_status_project_cluster_path(project, cluster)) }
   end
 
+  describe '#metrics_cluster_path' do
+    subject { presenter.metrics_cluster_path(cluster) }
+
+    it { is_expected.to eq(metrics_project_cluster_path(project, cluster)) }
+  end
+
   describe '#install_applications_cluster_path' do
     let(:application) { :helm }
 

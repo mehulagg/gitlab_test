@@ -29,6 +29,11 @@ class ProjectClusterablePresenter < ClusterablePresenter
     project_cluster_path(clusterable, cluster, params)
   end
 
+  override :metrics_cluster_path
+  def metrics_cluster_path(cluster, params = {})
+    metrics_project_cluster_path(clusterable, cluster, params)
+  end
+
   override :sidebar_text
   def sidebar_text
     s_('ClusterIntegration|With a Kubernetes cluster associated to this project, you can use review apps, deploy your applications, run your pipelines, and much more in an easy way.')

@@ -29,6 +29,11 @@ class GroupClusterablePresenter < ClusterablePresenter
     group_cluster_path(clusterable, cluster, params)
   end
 
+  override :metrics_cluster_path
+  def metrics_cluster_path(cluster, params = {})
+    metrics_group_cluster_path(clusterable, cluster, params)
+  end
+
   override :empty_state_help_text
   def empty_state_help_text
     s_('ClusterIntegration|Adding an integration to your group will share the cluster across all your projects.')

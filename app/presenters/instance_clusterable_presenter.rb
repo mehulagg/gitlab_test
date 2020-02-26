@@ -67,6 +67,11 @@ class InstanceClusterablePresenter < ClusterablePresenter
     authorize_aws_role_admin_clusters_path
   end
 
+  override :metrics_cluster_path
+  def metrics_cluster_path(cluster, params = {})
+    metrics_admin_cluster_path(cluster, params)
+  end
+
   override :empty_state_help_text
   def empty_state_help_text
     s_('ClusterIntegration|Adding an integration will share the cluster across all projects.')

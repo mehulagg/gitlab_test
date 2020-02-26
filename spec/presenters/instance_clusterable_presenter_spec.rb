@@ -26,4 +26,10 @@ describe InstanceClusterablePresenter do
 
     it { is_expected.to eq(clear_cache_admin_cluster_path(cluster)) }
   end
+
+  describe '#metrics_cluster_path' do
+    subject { presenter.metrics_cluster_path(cluster) }
+
+    it { is_expected.to eq(metrics_admin_cluster_path(cluster)) }
+  end
 end

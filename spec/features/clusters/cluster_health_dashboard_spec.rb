@@ -12,8 +12,6 @@ describe 'Cluster Health board', :js, :use_clean_rails_memory_store_caching, :si
   let_it_be(:cluster_path) { project_cluster_path(clusterable, cluster) }
 
   before do
-    stub_licensed_features(cluster_health: true)
-
     clusterable.add_maintainer(current_user)
 
     sign_in(current_user)
