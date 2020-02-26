@@ -16,52 +16,34 @@ export default {
     GlSprintf,
     DesignInput,
   },
-  props: {
-    maxFiles: {
-      type: Number,
-      required: false,
-      default: 1,
-    },
-  },
   data() {
     return {
       dragging: false,
       isDragDataValid: false,
     };
   },
-  computed: {
-    dropzoneStyle() {
-      return this.dragging
-        ? {
-            background: 'rbga(255, 255, 255, 0.5)',
-          }
-        : {};
-    },
-  },
   methods: {
     isValidUpload(files) {
       return !files.some(file => !isValidDesignFile(file));
     },
-    isValidDragDataType(e) {
-      return !e.dataTransfer.types.some(t => t !== VALID_DATA_TRANSFER_TYPE);
+    isValidDragDataType({ dataTransfer }) {
+      return Boolean(dataTransfer && !dataTransfer.types.some(t => t !== VALID_DATA_TRANSFER_TYPE));
     },
-    ondrop(e) {
+    ondrop({ dataTransfer }) {
       this.dragging = false;
 
-      const files = Array.from(e.dataTransfer.files);
-      if (!files) {
-        return;
-      }
-      // Do not createFlash, as the user already has feedback when dropzone is active
+      // User already had feedback when dropzone was active, so bail here
       if (!this.isDragDataValid) {
         return;
       }
-      if (!this.isValidUpload(files)) {
+
+      const { files } = dataTransfer;
+      if (!this.isValidUpload(Array.from(files))) {
         createFlash(UPLOAD_DESIGN_INVALID_FILETYPE_ERROR);
         return;
       }
 
-      this.$emit('upload', e.dataTransfer.files);
+      this.$emit('upload', files);
     },
     ondragenter(e) {
       this.dragging = true;
