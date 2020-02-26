@@ -763,7 +763,7 @@ suitable for environment and storage security requirements
 - [The Vault UI](https://www.vaultproject.io/docs/configuration/ui/)
 
 The following is an example values file (`.gitlab/managed-apps/vault/values.yaml`)
-that configures GKMS for auto-unseal, using a Google Cloud Storage backend, enabling
+that configures Google Key Management Service for auto-unseal, using a Google Cloud Storage backend, enabling
 the Vault UI, and enabling HA with 3 pod replicas.
 
 ```yaml
