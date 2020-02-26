@@ -1,17 +1,23 @@
 <script>
-import { mapActions, mapState } from 'vuex';
+import { ApolloQuery } from 'vue-apollo';
 import { GlAlert, GlEmptyState, GlPagination } from '@gitlab/ui';
 
 import VulnerabilityList from 'ee/vulnerabilities/components/vulnerability_list.vue';
+import vulnerabilitiesQuery from '../graphgql/vulnerabilities.gql';
 
 export default {
   name: 'VulnerabilitiesApp',
   components: {
+    ApolloQuery,
     GlAlert,
     GlEmptyState,
     GlPagination,
     VulnerabilityList,
   },
+  data: () => ({
+    pageInfo: {},
+    vulnerabilities: [],
+  }),
   props: {
     vulnerabilitiesEndpoint: {
       type: String,
@@ -26,23 +32,29 @@ export default {
       required: true,
     },
   },
+  apollo: {
+    vulnerabilities: {
+      query: vulnerabilitiesQuery,
+      variables() {
+        return {
+          fullPath: 'root/yarn-autoremediation-test',
+        };
+      },
+      update: data => data.project.vulnerabilities.nodes,
+    },
+  },
   computed: {
-    ...mapState('vulnerabilities', [
-      'errorLoadingVulnerabilities',
-      'isLoadingVulnerabilities',
-      'pageInfo',
-      'vulnerabilities',
-    ]),
-    ...mapState('filters', ['activeFilters']),
+    // vulnerabilitiesQueryBody() {
+    //   return {
+    //     query: vulnerabilitiesQuery,
+    //     variables: { fullPath: 'root/yarn-autoremediation-test' },
+    //   };
+    // },
   },
-  created() {
-    this.setVulnerabilitiesEndpoint(this.vulnerabilitiesEndpoint);
-    this.fetchVulnerabilities();
-  },
+  created() {},
   methods: {
-    ...mapActions('vulnerabilities', ['setVulnerabilitiesEndpoint', 'fetchVulnerabilities']),
     fetchPage(page) {
-      this.fetchVulnerabilities({ ...this.activeFilters, page });
+      // this.fetchVulnerabilities({ ...this.activeFilters, page });
     },
   },
 };
@@ -50,16 +62,17 @@ export default {
 
 <template>
   <div>
-    <gl-alert v-if="errorLoadingVulnerabilities" :dismissible="false" variant="danger">
-      {{
-        s__(
-          'Security Dashboard|Error fetching the vulnerability list. Please check your network connection and try again.',
-        )
-      }}
-    </gl-alert>
+    <!-- <apollo-query :query="vulnerabilitiesQueryBody"> -->
+    <!-- <template slot-scope="{ result: { data, loading } }"> -->
+    <!-- <gl-alert v-if="errorLoadingVulnerabilities" :dismissible="false" variant="danger">
+          {{
+            s__(
+              'Security Dashboard|Error fetching the vulnerability list. Please check your network connection and try again.',
+            )
+          }}
+        </gl-alert> -->
     <vulnerability-list
-      v-else
-      :is-loading="isLoadingVulnerabilities"
+      :is-loading="false"
       :dashboard-documentation="dashboardDocumentation"
       :empty-state-svg-path="emptyStateSvgPath"
       :vulnerabilities="vulnerabilities"
@@ -86,5 +99,7 @@ export default {
       :value="pageInfo.page"
       @input="fetchPage"
     />
+    <!-- </template> -->
+    <!-- </apollo-query> -->
   </div>
 </template>

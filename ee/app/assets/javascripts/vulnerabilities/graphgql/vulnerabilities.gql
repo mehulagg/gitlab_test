@@ -1,0 +1,14 @@
+query project($fullPath: ID!) {
+  project(fullPath: $fullPath) {
+    vulnerabilities{
+      nodes{
+      	id
+        title
+        description
+        state
+      	severity
+        vulnerabilityPath
+      }
+    }
+  }
+}

@@ -1,6 +1,9 @@
 import Vue from 'vue';
 import VulnerabilitiesApp from 'ee/vulnerabilities/components/vulnerabilities_app.vue';
-import createStore from 'ee/security_dashboard/store';
+import createDefaultClient from '~/lib/graphql';
+import VueApollo from 'vue-apollo';
+
+Vue.use(VueApollo);
 
 const el = document.getElementById('app');
 const { dashboardDocumentation, emptyStateSvgPath, vulnerabilitiesEndpoint } = el.dataset;
@@ -9,6 +12,9 @@ const props = {
   dashboardDocumentation,
   vulnerabilitiesEndpoint,
 };
+const apolloProvider = new VueApollo({
+  defaultClient: createDefaultClient(),
+});
 
 function render() {
   if (!el) {
@@ -17,7 +23,7 @@ function render() {
 
   return new Vue({
     el,
-    store: createStore(),
+    apolloProvider,
     components: {
       VulnerabilitiesApp,
     },
