@@ -10,7 +10,7 @@ export default {
   <input
     type="file"
     name="design_file"
-    :accept="$options.VALID_DESIGN_FILE_MIMETYPE"
+    :accept="$options.VALID_DESIGN_FILE_MIMETYPE.mimetype"
     class="hide"
     multiple
     @change="$emit('change', $event)"
