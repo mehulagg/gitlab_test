@@ -4,7 +4,11 @@ module Resolvers
   class VulnerabilitiesResolver < BaseResolver
     type Types::VulnerabilityType, null: true
 
-    def resolve
+    argument :severities, Types::VulnerabilitySeverityEnum,
+             required: false,
+             description: 'Only return vulnerabilities with these severities'
+
+    def resolve(**args)
       # The project or group could have been loaded in batch by `BatchLoader`.
       # At this point we need the `id` of the project/group to query for boards, so
       # make sure it's loaded and not `nil` before continuing.
@@ -12,7 +16,11 @@ module Resolvers
 
       return Vulnerability.none unless parent
 
-      parent.vulnerabilities
+      if args[:severities]
+        parent.vulnerabilities.where(severity: args[:severities])
+      else
+        parent.vulnerabilities
+      end
     end
   end
 end
