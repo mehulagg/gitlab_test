@@ -425,6 +425,55 @@ describe API::Unleash do
             }]
           }])
         end
+
+        it 'returns all strategies with a matching scope' do
+          feature_flag = create(:operations_feature_flag, project: project,
+                                name: 'feature1', active: true, version: 2)
+          strategy_a = create(:operations_strategy, feature_flag: feature_flag,
+                              name: 'userWithId', parameters: { userIds: 'user2,user8,user4' })
+          create(:operations_scope, strategy: strategy_a, environment_scope: '*')
+          strategy_b = create(:operations_strategy, feature_flag: feature_flag,
+                              name: 'default', parameters: {})
+          create(:operations_scope, strategy: strategy_b, environment_scope: 'review/*')
+          strategy_c = create(:operations_strategy, feature_flag: feature_flag,
+                              name: 'gradualRolloutUserId', parameters: { groupId: 'default', percentage: '15' })
+          create(:operations_scope, strategy: strategy_c, environment_scope: 'review/patch-1')
+
+          get api(features_url), headers: { 'UNLEASH-INSTANCEID' => client.token, 'UNLEASH-APPNAME' => 'review/patch-1' }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['features'].first['strategies'].sort_by { |s| s['name'] }).to eq([{
+            'name' => 'default',
+            'parameters' => {}
+          }, {
+            'name' => 'gradualRolloutUserId',
+            'parameters' => { 'groupId' => 'default', 'percentage' => '15' }
+          }, {
+            'name' => 'userWithId',
+            'parameters' => { 'userIds' => 'user2,user8,user4' }
+          }])
+        end
+
+        it 'returns a strategy with more than one matching scope' do
+          feature_flag = create(:operations_feature_flag, project: project,
+                                name: 'feature1', active: true, version: 2)
+          strategy = create(:operations_strategy, feature_flag: feature_flag,
+                            name: 'default', parameters: {})
+          create(:operations_scope, strategy: strategy, environment_scope: 'production')
+          create(:operations_scope, strategy: strategy, environment_scope: '*')
+
+          get api(features_url), headers: { 'UNLEASH-INSTANCEID' => client.token, 'UNLEASH-APPNAME' => 'production' }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['features']).to eq([{
+            'name' => 'feature1',
+            'enabled' => true,
+            'strategies' => [{
+              'name' => 'default',
+              'parameters' => {}
+            }]
+          }])
+        end
       end
 
       context 'when mixing version 1 and version 2 feature flags' do
