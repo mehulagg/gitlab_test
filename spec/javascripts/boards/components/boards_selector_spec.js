@@ -108,12 +108,12 @@ describe('BoardsSelector', () => {
     });
 
     describe('filtering', () => {
+      const numberOfDropdownItems = () => vm.$el.querySelectorAll('.js-dropdown-item').length;
+
       it('shows all boards without filtering', done => {
         vm.$nextTick()
           .then(() => {
-            const dropdownItem = vm.$el.querySelectorAll('.js-dropdown-item');
-
-            expect(dropdownItem.length).toBe(boards.length + recentBoards.length);
+            expect(numberOfDropdownItems()).toBe(boards.length + recentBoards.length);
           })
           .then(done)
           .catch(done.fail);
@@ -127,9 +127,7 @@ describe('BoardsSelector', () => {
 
         vm.$nextTick()
           .then(() => {
-            const dropdownItems = vm.$el.querySelectorAll('.js-dropdown-item');
-
-            expect(dropdownItems.length).toBe(expectedCount);
+            expect(numberOfDropdownItems()).toBe(expectedCount);
           })
           .then(done)
           .catch(done.fail);
@@ -140,9 +138,7 @@ describe('BoardsSelector', () => {
 
         vm.$nextTick()
           .then(() => {
-            const dropdownItems = vm.$el.querySelectorAll('.js-dropdown-item');
-
-            expect(dropdownItems.length).toBe(0);
+            expect(numberOfDropdownItems()).toBe(0);
             expect(vm.$el).toContainText('No matching boards found');
           })
           .then(done)
