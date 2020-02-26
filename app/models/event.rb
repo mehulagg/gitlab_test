@@ -155,6 +155,8 @@ class Event < ApplicationRecord
       Ability.allowed?(user, :read_snippet, note_target)
     elsif milestone?
       Ability.allowed?(user, :read_milestone, project)
+    elsif wiki_page?
+      Ability.allowed?(user, :read_wiki, project)
     else
       false # No other event types are visible
     end
