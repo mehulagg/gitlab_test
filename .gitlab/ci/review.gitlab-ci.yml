@@ -248,7 +248,7 @@ danger-review:
     - .review:rules:danger
   image: registry.gitlab.com/gitlab-org/gitlab-build-images:danger
   stage: test
-  dependencies: []
+  needs: []
   script:
     - git version
     - node --version

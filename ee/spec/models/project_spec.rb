@@ -9,10 +9,6 @@ describe Project do
 
   let(:project) { create(:project) }
 
-  it_behaves_like Vulnerable do
-    let(:vulnerable) { project }
-  end
-
   describe 'associations' do
     it { is_expected.to delegate_method(:shared_runners_minutes).to(:statistics) }
     it { is_expected.to delegate_method(:shared_runners_seconds).to(:statistics) }
@@ -2641,6 +2637,24 @@ describe Project do
 
       it 'returns true' do
         expect(project_template.template_source?).to be_truthy
+      end
+    end
+  end
+
+  describe '#jira_subscription_exists?' do
+    subject { project.jira_subscription_exists? }
+
+    context 'jira connect subscription exists' do
+      let!(:jira_connect_subscription) { create(:jira_connect_subscription, namespace: project.namespace) }
+
+      it { is_expected.to eq(false) }
+
+      context 'dev panel integration is available' do
+        before do
+          stub_licensed_features(jira_dev_panel_integration: true)
+        end
+
+        it { is_expected.to eq(true) }
       end
     end
   end

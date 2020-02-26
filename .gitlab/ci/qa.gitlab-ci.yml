@@ -3,7 +3,7 @@
     - .default-tags
     - .default-retry
   stage: test
-  dependencies: []
+  needs: []
   cache:
     key: "qa-framework-jobs:v1"
     paths:

@@ -123,14 +123,6 @@ export default {
         board.name.toLowerCase().includes(this.filterTerm.toLowerCase()),
       );
     },
-    reload: {
-      get() {
-        return this.state.reload;
-      },
-      set(newValue) {
-        this.state.reload = newValue;
-      },
-    },
     board() {
       return this.state.currentBoard;
     },
@@ -154,16 +146,6 @@ export default {
     filteredBoards() {
       this.scrollFadeInitialized = false;
       this.$nextTick(this.setScrollFade);
-    },
-    reload() {
-      if (this.reload) {
-        this.boards = [];
-        this.recentBoards = [];
-        this.loading = true;
-        this.reload = false;
-
-        this.loadBoards(false);
-      }
     },
   },
   created() {

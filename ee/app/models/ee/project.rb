@@ -20,7 +20,6 @@ module EE
       include EE::DeploymentPlatform # rubocop: disable Cop/InjectEnterpriseEditionModule
       include EachBatch
       include InsightsFeature
-      include Vulnerable
       include DeprecatedApprovalsBeforeMerge
       include UsageStatistics
 
@@ -747,6 +746,10 @@ module EE
       return true if namespace_id == ::Gitlab::CurrentSettings.current_application_settings.custom_project_templates_group_id
 
       ::Project.with_groups_level_repos_templates.exists?(id)
+    end
+
+    def jira_subscription_exists?
+      feature_available?(:jira_dev_panel_integration) && JiraConnectSubscription.for_project(self).exists?
     end
 
     private

@@ -1,3 +1,5 @@
+import * as commonUtils from '~/lib/utils/common_utils';
+import * as urlUtils from '~/lib/utils/url_utility';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import testAction from 'helpers/vuex_action_helper';
@@ -7,6 +9,7 @@ import * as types from 'ee/analytics/cycle_analytics/store/mutation_types';
 import { TASKS_BY_TYPE_FILTERS } from 'ee/analytics/cycle_analytics/constants';
 import createFlash from '~/flash';
 import httpStatusCodes from '~/lib/utils/http_status';
+import { toYmd } from 'ee/analytics/shared/utils';
 import {
   group,
   summaryData,
@@ -19,6 +22,7 @@ import {
   rawDurationMedianData,
   transformedDurationData,
   transformedDurationMedianData,
+  endpoints,
 } from '../mock_data';
 
 const stageData = { events: [] };
@@ -27,14 +31,6 @@ const flashErrorMessage = 'There was an error while fetching value stream analyt
 const selectedGroup = { fullPath: group.path };
 const [selectedStage] = stages;
 const selectedStageSlug = selectedStage.slug;
-const endpoints = {
-  groupLabels: `/groups/${group.path}/-/labels`,
-  summaryData: '/analytics/value_stream_analytics/summary',
-  durationData: /analytics\/value_stream_analytics\/stages\/\d+\/duration_chart/,
-  stageData: /analytics\/value_stream_analytics\/stages\/\d+\/records/,
-  stageMedian: /analytics\/value_stream_analytics\/stages\/\d+\/median/,
-  baseStagesEndpoint: '/analytics/value_stream_analytics/stages',
-};
 
 const stageEndpoint = ({ stageId }) => `/-/analytics/value_stream_analytics/stages/${stageId}`;
 
@@ -46,7 +42,24 @@ describe('Cycle analytics actions', () => {
     expect(document.querySelector('.flash-container .flash-text').innerText.trim()).toBe(msg);
   }
 
+  function shouldSetUrlParams({ action, payload, result }) {
+    const store = {
+      state,
+      getters,
+      commit: jest.fn(),
+      dispatch: jest.fn(() => Promise.resolve()),
+    };
+
+    return actions[action](store, payload).then(() => {
+      expect(urlUtils.setUrlParams).toHaveBeenCalledWith(result, window.location.href, true);
+      expect(commonUtils.historyPushState).toHaveBeenCalled();
+    });
+  }
+
   beforeEach(() => {
+    commonUtils.historyPushState = jest.fn();
+    urlUtils.setUrlParams = jest.fn();
+
     state = {
       startDate,
       endDate,
@@ -86,16 +99,82 @@ describe('Cycle analytics actions', () => {
     );
   });
 
+  describe('setSelectedGroup', () => {
+    const payload = { full_path: 'someNewGroup' };
+    it('calls setUrlParams with the group params', () => {
+      actions.setSelectedGroup(
+        {
+          state,
+          getters: {
+            currentGroupPath: 'someNewGroup',
+            selectedProjectIds: [],
+          },
+          commit: jest.fn(),
+        },
+        payload,
+      );
+
+      expect(urlUtils.setUrlParams).toHaveBeenCalledWith(
+        {
+          group_id: 'someNewGroup',
+          'project_ids[]': [],
+        },
+        window.location.href,
+        true,
+      );
+      expect(commonUtils.historyPushState).toHaveBeenCalled();
+    });
+  });
+
+  describe('setSelectedProjects', () => {
+    const payload = [1, 2];
+    it('calls setUrlParams with the date params', () => {
+      actions.setSelectedProjects(
+        {
+          state,
+          getters: {
+            currentGroupPath: 'test-group',
+            selectedProjectIds: payload,
+          },
+          commit: jest.fn(),
+        },
+        payload,
+      );
+
+      expect(urlUtils.setUrlParams).toHaveBeenCalledWith(
+        { 'project_ids[]': payload, group_id: 'test-group' },
+        window.location.href,
+        true,
+      );
+      expect(commonUtils.historyPushState).toHaveBeenCalled();
+    });
+  });
+
   describe('setDateRange', () => {
+    const payload = { startDate, endDate };
+
     it('sets the dates as expected and dispatches fetchCycleAnalyticsData', done => {
       testAction(
         actions.setDateRange,
-        { startDate, endDate },
+        payload,
         state,
         [{ type: types.SET_DATE_RANGE, payload: { startDate, endDate } }],
         [{ type: 'fetchCycleAnalyticsData' }],
         done,
       );
+    });
+
+    it('calls setUrlParams with the date params', () => {
+      shouldSetUrlParams({
+        action: 'setDateRange',
+        payload,
+        result: {
+          group_id: getters.currentGroupPath,
+          'project_ids[]': getters.selectedProjectIds,
+          created_after: toYmd(payload.startDate),
+          created_before: toYmd(payload.endDate),
+        },
+      });
     });
   });
 
@@ -167,8 +246,8 @@ describe('Cycle analytics actions', () => {
     beforeEach(() => {
       setFixtures('<div class="flash-container"></div>');
     });
-    it(`commits the ${types.RECEIVE_STAGE_DATA_ERROR} mutation`, done => {
-      testAction(
+    it(`commits the ${types.RECEIVE_STAGE_DATA_ERROR} mutation`, () => {
+      return testAction(
         actions.receiveStageDataError,
         null,
         state,
@@ -178,7 +257,6 @@ describe('Cycle analytics actions', () => {
           },
         ],
         [],
-        done,
       );
     });
 
@@ -192,49 +270,58 @@ describe('Cycle analytics actions', () => {
   });
 
   describe('fetchGroupLabels', () => {
-    beforeEach(() => {
-      state = { ...state, selectedGroup };
-      mock.onGet(endpoints.groupLabels).replyOnce(200, groupLabels);
+    describe('succeeds', () => {
+      beforeEach(() => {
+        gon.api_version = 'v4';
+        state = { selectedGroup };
+        mock.onGet(endpoints.groupLabels).replyOnce(200, groupLabels);
+      });
+
+      it('dispatches receiveGroupLabels if the request succeeds', () => {
+        return testAction(
+          actions.fetchGroupLabels,
+          null,
+          state,
+          [],
+          [
+            { type: 'requestGroupLabels' },
+            {
+              type: 'receiveGroupLabelsSuccess',
+              payload: groupLabels,
+            },
+          ],
+        );
+      });
     });
 
-    it('dispatches receiveGroupLabels if the request succeeds', done => {
-      testAction(
-        actions.fetchGroupLabels,
-        null,
-        state,
-        [],
-        [
-          { type: 'requestGroupLabels' },
-          {
-            type: 'receiveGroupLabelsSuccess',
-            payload: groupLabels,
-          },
-        ],
-        done,
-      );
-    });
+    describe('with an error', () => {
+      beforeEach(() => {
+        state = { selectedGroup };
+        mock.onGet(endpoints.groupLabels).replyOnce(404);
+      });
 
-    it('dispatches receiveGroupLabelsError if the request fails', done => {
-      testAction(
-        actions.fetchGroupLabels,
-        null,
-        { ...state, selectedGroup: { fullPath: null } },
-        [],
-        [
-          { type: 'requestGroupLabels' },
-          {
-            type: 'receiveGroupLabelsError',
-            payload: error,
-          },
-        ],
-        done,
-      );
+      it('dispatches receiveGroupLabelsError if the request fails', () => {
+        return testAction(
+          actions.fetchGroupLabels,
+          null,
+          state,
+          [],
+          [
+            { type: 'requestGroupLabels' },
+            {
+              type: 'receiveGroupLabelsError',
+              payload: error,
+            },
+          ],
+        );
+      });
     });
 
     describe('receiveGroupLabelsError', () => {
       beforeEach(() => {
         setFixtures('<div class="flash-container"></div>');
       });
+
       it('flashes an error message if the request fails', () => {
         actions.receiveGroupLabelsError({
           commit: () => {},
@@ -1442,6 +1529,67 @@ describe('Cycle analytics actions', () => {
     });
   });
 
+  describe('initializeCycleAnalytics', () => {
+    let mockDispatch;
+    let mockCommit;
+    let store;
+
+    const initialData = {
+      group: selectedGroup,
+      projectIds: [1, 2],
+    };
+
+    beforeEach(() => {
+      commonUtils.historyPushState = jest.fn();
+      urlUtils.setUrlParams = jest.fn();
+      mockDispatch = jest.fn(() => Promise.resolve());
+      mockCommit = jest.fn();
+      store = {
+        state,
+        getters,
+        commit: mockCommit,
+        dispatch: mockDispatch,
+      };
+    });
+
+    describe('with no initialData', () => {
+      it('commits "INITIALIZE_CYCLE_ANALYTICS"', () =>
+        actions.initializeCycleAnalytics(store).then(() => {
+          expect(mockCommit).toHaveBeenCalledWith('INITIALIZE_CYCLE_ANALYTICS', {});
+        }));
+
+      it('dispatches "initializeCycleAnalyticsSuccess"', () =>
+        actions.initializeCycleAnalytics(store).then(() => {
+          expect(mockDispatch).not.toHaveBeenCalledWith('fetchCycleAnalyticsData');
+          expect(mockDispatch).toHaveBeenCalledWith('initializeCycleAnalyticsSuccess');
+        }));
+    });
+
+    describe('with initialData', () => {
+      it('dispatches "fetchCycleAnalyticsData" and "initializeCycleAnalyticsSuccess"', () =>
+        actions.initializeCycleAnalytics(store, initialData).then(() => {
+          expect(mockDispatch).toHaveBeenCalledWith('fetchCycleAnalyticsData');
+          expect(mockDispatch).toHaveBeenCalledWith('initializeCycleAnalyticsSuccess');
+        }));
+
+      it('commits "INITIALIZE_CYCLE_ANALYTICS"', () =>
+        actions.initializeCycleAnalytics(store, initialData).then(() => {
+          expect(mockCommit).toHaveBeenCalledWith('INITIALIZE_CYCLE_ANALYTICS', initialData);
+        }));
+    });
+  });
+
+  describe('initializeCycleAnalyticsSuccess', () => {
+    it(`commits the ${types.INITIALIZE_CYCLE_ANALYTICS_SUCCESS} mutation`, () =>
+      testAction(
+        actions.initializeCycleAnalyticsSuccess,
+        null,
+        state,
+        [{ type: types.INITIALIZE_CYCLE_ANALYTICS_SUCCESS }],
+        [],
+      ));
+  });
+
   describe('receiveCreateCustomStageSuccess', () => {
     const response = {
       data: {
@@ -1462,6 +1610,7 @@ describe('Cycle analytics actions', () => {
       beforeEach(() => {
         setFixtures('<div class="flash-container"></div>');
       });
+
       it('will flash an error message', () =>
         actions
           .receiveCreateCustomStageSuccess(

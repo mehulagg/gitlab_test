@@ -45,9 +45,9 @@ They are available **per project** for GitLab Community Edition,
 and **per project and per group** for **GitLab Enterprise Edition**.
 
 Navigate to the webhooks page by going to your project's
-**Settings ➔ Integrations**.
+**Settings ➔ Webhooks**.
 
-## Maximum number of webhooks (per tier)
+## Maximum number of project webhooks (per tier)
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/20730) in GitLab 12.6.
 
@@ -60,6 +60,20 @@ tier](https://about.gitlab.com/pricing/), as shown in the following table:
 | Bronze   | 100                            |
 | Silver   | 100                            |
 | Gold     | 100                            |
+
+## Maximum number of group webhooks (per tier)
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/25129) in GitLab 12.9.
+
+A maximum number of group webhooks applies to each [GitLab.com
+tier](https://about.gitlab.com/pricing/), as shown in the following table:
+
+| Tier     | Number of webhooks per group   |
+|----------|--------------------------------|
+| Free     | feature not available          |
+| Bronze   | 50                             |
+| Silver   | 50                             |
+| Gold     | 50                             |
 
 ## Use-cases
 
@@ -174,7 +188,8 @@ X-Gitlab-Event: Push Hook
   "commits": [
     {
       "id": "b6568db1bc1dcd7f8b4d5a946b0b91f9dacd7327",
-      "message": "Update Catalan translation to e38cb41.",
+      "message": "Update Catalan translation to e38cb41.\n\nSee https://gitlab.com/gitlab-org/gitlab for more information",
+      "title": "Update Catalan translation to e38cb41.",
       "timestamp": "2011-12-12T14:27:31+02:00",
       "url": "http://example.com/mike/diaspora/commit/b6568db1bc1dcd7f8b4d5a946b0b91f9dacd7327",
       "author": {
@@ -188,6 +203,7 @@ X-Gitlab-Event: Push Hook
     {
       "id": "da1560886d4f094c3e6c9ef40349f7d38b5d27d7",
       "message": "fixed readme",
+      "title": "fixed readme",
       "timestamp": "2012-01-03T23:36:29+02:00",
       "url": "http://example.com/mike/diaspora/commit/da1560886d4f094c3e6c9ef40349f7d38b5d27d7",
       "author": {

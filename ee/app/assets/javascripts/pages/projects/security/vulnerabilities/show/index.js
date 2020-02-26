@@ -1,8 +1,9 @@
 import Vue from 'vue';
 import { parseBoolean } from '~/lib/utils/common_utils';
 import SolutionCard from 'ee/vue_shared/security_reports/components/solution_card.vue';
+import HeaderApp from 'ee/vulnerabilities/components/app.vue';
 
-window.addEventListener('DOMContentLoaded', () => {
+function createSolutionCardApp() {
   const el = document.getElementById('js-vulnerability-solution');
 
   if (!el) {
@@ -33,4 +34,29 @@ window.addEventListener('DOMContentLoaded', () => {
         props,
       }),
   });
+}
+
+function createHeaderApp() {
+  const el = document.getElementById('js-vulnerability-show-header');
+  const { createIssueUrl } = el.dataset;
+  const vulnerability = JSON.parse(el.dataset.vulnerability);
+  const finding = JSON.parse(el.dataset.finding);
+
+  return new Vue({
+    el,
+
+    render: h =>
+      h(HeaderApp, {
+        props: {
+          vulnerability,
+          finding,
+          createIssueUrl,
+        },
+      }),
+  });
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  createHeaderApp();
+  createSolutionCardApp();
 });

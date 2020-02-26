@@ -540,6 +540,10 @@ Keep heading titles clear and direct. Make every word count. To accommodate sear
 | GitLab Release and Maintenance Policy | This section covers GitLab's Release and Maintenance Policy |
 | Backport to older releases | Backporting to older releases |
 
+NOTE: **Note:**
+If you change an existing title, be careful. Any such changes may affect not only [links](#anchor-links)
+within the page, but may also affect links from GitLab itself, as well as external links, to GitLab documentation.
+
 ### Anchor links
 
 Headings generate anchor links automatically when rendered. `## This is an example`
@@ -576,21 +580,15 @@ do not use this option until further notice.
 
 ### Links to internal documentation
 
-- To link to internal documentation, use relative links, not full URLs.
+- To link to internal documentation, use relative links, not absolute URLs.
   Use `../` to navigate to high-level directories. Links should not refer to root.
 
   Don't:
 
-  ```md
-  [Geo Troubleshooting](https://docs.gitlab.com/ee/administration/geo/replication/troubleshooting.html)
-  [Geo Troubleshooting](/ee/administration/geo/replication/troubleshooting.md)
-  ```
+  - `https://docs.gitlab.com/ee/administration/geo/replication/troubleshooting.html`
+  - `/ee/administration/geo/replication/troubleshooting.md`
 
-  Do:
-
-  ```md
-  [Geo Troubleshooting](../../geo/replication/troubleshooting.md)
-  ```
+  Do: `../../geo/replication/troubleshooting.md`
 
 - Always add the file name `file.md` at the end of the link with the `.md` extension, not `.html`.
 
