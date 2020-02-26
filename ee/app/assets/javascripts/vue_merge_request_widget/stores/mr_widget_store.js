@@ -2,6 +2,7 @@ import CEMergeRequestStore from '~/vue_merge_request_widget/stores/mr_widget_sto
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import { mapApprovalsResponse, mapApprovalRulesResponse } from '../mappers';
 import CodeQualityComparisonWorker from '../workers/code_quality_comparison_worker';
+import { totalScoreMetricName } from './constants';
 
 export default class MergeRequestStore extends CEMergeRequestStore {
   constructor(data) {
@@ -93,6 +94,8 @@ export default class MergeRequestStore extends CEMergeRequestStore {
     this.performanceMetrics = {
       improved: [],
       degraded: [],
+      degradationThreshold: 0,
+      degradedBeyondThreshold: false,
     };
   }
 
@@ -125,6 +128,7 @@ export default class MergeRequestStore extends CEMergeRequestStore {
   comparePerformanceMetrics(headMetrics, baseMetrics, degradationThreshold = 0) {
     const headMetricsIndexed = MergeRequestStore.normalizePerformanceMetrics(headMetrics);
     const baseMetricsIndexed = MergeRequestStore.normalizePerformanceMetrics(baseMetrics);
+    let degradedBeyondThreshold = false;
 
     const improved = [];
     const degraded = [];
@@ -143,16 +147,19 @@ export default class MergeRequestStore extends CEMergeRequestStore {
             delta: headMetricData.value - baseMetricData.value,
           };
 
+          if (metric === totalScoreMetricName && degradationThreshold + metricData.delta <= 0) {
+            degradedBeyondThreshold = true;
+          }
+
           if (metricData.delta !== 0) {
             const isImproved =
               headMetricData.desiredSize === 'smaller'
                 ? metricData.delta < 0
                 : metricData.delta > 0;
-            const isDeltaOverThreshold = Math.abs(metricData.delta) >= degradationThreshold;
 
             if (isImproved) {
               improved.push(metricData);
-            } else if (isDeltaOverThreshold) {
+            } else {
               degraded.push(metricData);
             }
           }
@@ -160,7 +167,7 @@ export default class MergeRequestStore extends CEMergeRequestStore {
       });
     });
 
-    this.performanceMetrics = { improved, degraded };
+    this.performanceMetrics = { improved, degraded, degradationThreshold, degradedBeyondThreshold };
   }
 
   // normalize performance metrics by indexing on performance subject and metric name

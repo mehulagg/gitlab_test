@@ -66,8 +66,16 @@ export default {
       );
     },
     shouldRenderPerformance() {
-      const { performance } = this.mr || {};
-      return performance && performance.head_path && performance.base_path;
+      const { performance, performanceMetrics } = this.mr || {};
+      const { degradationThreshold, degradedBeyondThreshold } = performanceMetrics || {};
+      const hideDegradationBelowThreshold =
+        degradationThreshold && degradationThreshold !== 0 && !degradedBeyondThreshold;
+      return (
+        performance &&
+        performance.head_path &&
+        performance.base_path &&
+        !hideDegradationBelowThreshold
+      );
     },
     shouldRenderSecurityReport() {
       const { enabledReports } = this.mr;
