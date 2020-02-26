@@ -20,23 +20,20 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
 1. Add Comment and Dismiss - The comments are where a users can denote items that they have mitigated, accepted, or that are a false positives when they dismiss a finding.
 1. Auto-Remediation / Create Merge request - This is offered if a potential solution is offered in the artifact allowing an easy and boring solution for the user to try and continue on. Partners, it is preferable to offer this where possible
 
-## What are the (technical) steps to onboard?
+## What are the steps to onboard?
 
-1. Read about our [partnerships](https://about.gitlab.com/partners/integrate/)
+1. Read about our [partnerships](https://about.gitlab.com/partners/integrate/).
    1. [Create an issue](https://gitlab.com/gitlab-com/alliances/alliances/issues/new?issuable_template=new_partner)
-   1. Get Test account - [GitLab.com Gold Subscription Sandbox Request](https://about.gitlab.com/partners/integrate/#gitlabcom-gold-subscription-sandbox-request) or [EE Developer License](https://about.gitlab.com/partners/integrate/#requesting-ee-dev-license-for-rd)
-1. Provide a pipeline job definition
+   1. Get a test account - [GitLab.com Gold Subscription Sandbox Request](https://about.gitlab.com/partners/integrate/#gitlabcom-gold-subscription-sandbox-request) or [EE Developer License](https://about.gitlab.com/partners/integrate/#requesting-ee-dev-license-for-rd)
+1. Provide a pipeline job to integrate into GitLab
    1. You need to integrate into CI using [pipeline jobs](https://docs.gitlab.com/ee/development/pipelines.html)
-1. Produce a report artifact with your pipeline job
+1. Create a report artifact with your pipeline jobs
    1. About [job report artifact](https://docs.gitlab.com/ee/ci/yaml/README.html#artifactsreports)
    1. About [job artifacts](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html) in general.
-   1. Your report artifact must be in the correct format as specified for each scanner (below).
+   1. Your report artifact must be in one of our currently supported formats. General documentation about the reports is available in the [Secure Reports](https://docs.gitlab.com/ee/development/integrations/secure/#report) page.
       1. [SAST report](https://docs.gitlab.com/ee/user/application_security/sast/#reports-json-format)
-      1. Secret Detection report - link or issue needed
-      1. DAST report - link or issue needed
       1. [Dependency Scanning report](https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#reports-json-format)
-      1. License Compliance Report - link or issue needed
-      1. Container Scanning report - link or issue needed
+      1. [Container Scanning](https://docs.gitlab.com/ee/user/application_security/container_scanning/index.html#reports-json-format)
       1. [Example secure job definition that also defines the artifact created](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/Container-Scanning.gitlab-ci.yml)
       1. Did you need a new kind of scan/report? [Create an issue here](https://gitlab.com/gitlab-org/gitlab/issues/new#) and add label `devops::secure`
    1. Additional fields in secure reports
