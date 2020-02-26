@@ -39,25 +39,25 @@ If you are looking to integrate into the [Secure Stage](https://about.gitlab.com
    1. Additional fields in secure reports
       1. We are working to define and add an area to make it more clear what software identified findings in [issue 36147](https://gitlab.com/gitlab-org/gitlab/issues/36147) if you would like to comment.
    1. Once the job is completed (which generates the artifact in the working directory of the job) the data can now be seen:
-      1. In [Merge Request Security Report](https://docs.gitlab.com/ee/user/project/merge_requests/#security-reports-ultimate)
+      1. In ther [Merge Request Security Report](https://docs.gitlab.com/ee/user/project/merge_requests/#security-reports-ultimate)
          1. [MR Security Report data flow](https://gitlab.com/snippets/1910005#merge-request-view) *can we improve on this, where should it live?*
-      1. [Browse Artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html#browsing-artifacts)
-      1. In [Security Dashboard](https://docs.gitlab.com/ee/user/application_security/security_dashboard/)
-         1. [Dashboard data flow](https://gitlab.com/snippets/1910005#project-and-group-dashboards) *can we improve on this, where should it live?*
-1. Optional: Interacting with vulnerabilities
-   1. Users will be able to interact with the findings from your artifact within their workflow. They will be able to dismiss, or accept and create a backlog issue.
+      1. While [browsing Job Artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html#browsing-artifacts)
+      1. In the [Security Dashboard](https://docs.gitlab.com/ee/user/application_security/security_dashboard/)
+         1. [Dashboard data flow](https://gitlab.com/snippets/1910005#project-and-group-dashboards)
+1. Optional: Provide a way to interact with results as Vulnerabilities
+   1. Users will be able to interact with the findings from your artifact within their workflow. They will be able to dismiss them or accept and create a backlog issue.
    1. If you wish to automatically create Issues without user interaction you may use the [issue API](https://docs.gitlab.com/ee/api/issues.html)
       1. This will be replaced by [Standalone Vulnerabilities](https://gitlab.com/groups/gitlab-org/-/epics/634) in the future
 1. Demo the integration to GitLab
    1. After you have tested and are ready to demo your integration please [reach out](https://about.gitlab.com/partners/integrate/). If you skip this step you won’t be able to do supported marketing.
-1. Supported marketing
+1. Begin doing supported marketing
    1. Work with our [partner team](https://about.gitlab.com/partners/integrate/) to support your go to market as appropriate
    1. Example: Get linked on our Security [Partner page](https://about.gitlab.com/partners/#security)
    1. Example: [Unfiltered blog post](https://about.gitlab.com/handbook/marketing/blog/unfiltered/)
    1. Example: Co-branded webinar
    1. Example: Co-branded whitepaper
 1. Troubleshooting
-   1. TBD
+   1. Create an issue to discuss with us further if you have any issues
 
 <!--
 1. Optional: Auto Remediation
