@@ -5,10 +5,11 @@ require 'spec_helper'
 describe WikiPages::CreateService do
   let(:project) { create(:project, :wiki_repo) }
   let(:user) { create(:user) }
+  let(:page_title) { 'Title' }
 
   let(:opts) do
     {
-      title: 'Title',
+      title: page_title,
       content: 'Content for wiki page',
       format: 'markdown'
     }
@@ -45,6 +46,29 @@ describe WikiPages::CreateService do
       counter = Gitlab::UsageDataCounters::WikiPageCounter
 
       expect { service.execute }.to change { counter.read(:create) }.by 1
+    end
+
+    shared_examples 'correct event created' do
+      it 'creates appropriate events' do
+        expect { service.execute }.to change { Event.count }.by 1
+
+        expect(Event.recent.first).to have_attributes(
+          action: Event::CREATED,
+          target: have_attributes(canonical_slug: page_title)
+        )
+      end
+    end
+
+    context 'The new page is at the top level' do
+      let(:page_title) { 'root-level-page' }
+
+      include_examples 'correct event created'
+    end
+
+    context 'The new page is in a subsection ' do
+      let(:page_title) { 'subsection/page' }
+
+      include_examples 'correct event created'
     end
 
     context 'when the options are bad' do

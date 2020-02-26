@@ -27,6 +27,15 @@ describe WikiPages::DestroyService do
       expect { service.execute(page) }.to change { counter.read(:delete) }.by 1
     end
 
+    it 'creates a new wiki page deletion event' do
+      expect { service.execute(page) }.to change { Event.count }.by 1
+
+      expect(Event.recent.first).to have_attributes(
+        action: Event::DESTROYED,
+        target: have_attributes(canonical_slug: page.slug)
+      )
+    end
+
     it 'does not increment the delete count if the deletion failed' do
       counter = Gitlab::UsageDataCounters::WikiPageCounter
 
