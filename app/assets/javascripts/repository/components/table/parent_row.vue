@@ -31,24 +31,19 @@ export default {
       return { path: `/-/tree/${escape(this.commitRef)}/${escape(this.parentPath)}` };
     },
   },
-  methods: {
-    clickRow() {
-      this.$router.push(this.parentRoute);
-    },
-  },
 };
 </script>
 
 <template>
   <tr class="tree-item">
-    <td colspan="3" class="tree-item-file-name" @click.self="clickRow">
+    <td colspan="3" class="tree-item-file-name cursor-default">
       <gl-loading-icon
         v-if="parentPath === loadingPath"
         size="sm"
         inline
         class="d-inline-block align-text-bottom"
       />
-      <router-link v-else :to="parentRoute" :aria-label="__('Go to parent')">
+      <router-link v-else :to="parentRoute" :aria-label="__('Go to parent')" class="px-2">
         ..
       </router-link>
     </td>

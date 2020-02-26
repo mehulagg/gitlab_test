@@ -5,7 +5,7 @@ exports[`Repository table row component renders table row 1`] = `
   class="tree-item file_1"
 >
   <td
-    class="tree-item-file-name"
+    class="tree-item-file-name cursor-default"
   >
     <i
       aria-label="file"
@@ -31,7 +31,7 @@ exports[`Repository table row component renders table row 1`] = `
   </td>
    
   <td
-    class="d-none d-sm-table-cell tree-commit"
+    class="d-none d-sm-table-cell tree-commit cursor-default"
   >
     <gl-skeleton-loading-stub
       class="h-auto"
@@ -40,7 +40,7 @@ exports[`Repository table row component renders table row 1`] = `
   </td>
    
   <td
-    class="tree-time-ago text-right"
+    class="tree-time-ago text-right cursor-default"
   >
     <gl-skeleton-loading-stub
       class="ml-auto h-auto w-50"
@@ -55,7 +55,7 @@ exports[`Repository table row component renders table row for path with special 
   class="tree-item file_1"
 >
   <td
-    class="tree-item-file-name"
+    class="tree-item-file-name cursor-default"
   >
     <i
       aria-label="file"
@@ -81,7 +81,7 @@ exports[`Repository table row component renders table row for path with special 
   </td>
    
   <td
-    class="d-none d-sm-table-cell tree-commit"
+    class="d-none d-sm-table-cell tree-commit cursor-default"
   >
     <gl-skeleton-loading-stub
       class="h-auto"
@@ -90,7 +90,7 @@ exports[`Repository table row component renders table row for path with special 
   </td>
    
   <td
-    class="tree-time-ago text-right"
+    class="tree-time-ago text-right cursor-default"
   >
     <gl-skeleton-loading-stub
       class="ml-auto h-auto w-50"
