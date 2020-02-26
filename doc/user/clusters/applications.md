@@ -766,7 +766,7 @@ The following is an example values file (`.gitlab/managed-apps/vault/values.yaml
 that configures GKMS for auto-unseal, using a Google Cloud Storage backend, enabling
 the vault UI, and enabling HA with 3 pod replicas.
 
-```yml
+```yaml
 ui:
   enabled: true
 server:
