@@ -330,7 +330,7 @@ describe API::Unleash do
           strategy_a = create(:operations_strategy, feature_flag: feature_flag,
                             name: 'userWithId', parameters: { userIds: 'user_a,user_b' })
           strategy_b = create(:operations_strategy, feature_flag: feature_flag,
-                            name: 'gradualRolloutUserId', parameters: { percentage: '45' })
+                            name: 'gradualRolloutUserId', parameters: { groupId: 'default', percentage: '45' })
           create(:operations_scope, strategy: strategy_a, environment_scope: 'production')
           create(:operations_scope, strategy: strategy_b, environment_scope: 'production')
 
@@ -342,7 +342,7 @@ describe API::Unleash do
           expect(feature_json['enabled']).to eq(true)
           expect(feature_json['strategies'].sort_by {|s| s['name']}).to eq([{
             'name' => 'gradualRolloutUserId',
-            'parameters' => { 'percentage' => '45' }
+            'parameters' => { 'groupId' => 'default', 'percentage' => '45' }
           }, {
             'name' => 'userWithId',
             'parameters' => { 'userIds' => 'user_a,user_b' }
