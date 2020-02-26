@@ -286,12 +286,12 @@ This label documents the planned timeline & urgency which is used to measure aga
 Severity labels help us clearly communicate the impact of a ~bug on users.
 There can be multiple facets of the impact. The below is a guideline.
 
-| Label | Meaning           | Functionality                                         | Affected Users                   | GitLab.com Availability                            | Performance Degradation      |
-|-------|-------------------|-------------------------------------------------------|----------------------------------|----------------------------------------------------|------------------------------|
-| ~S1   | Blocker           | Unusable feature with no workaround, user is blocked  | Impacts 50% or more of users     | Outage, Significant impact on all of GitLab.com    |                                                       |
-| ~S2   | Critical Severity | Broken Feature, workaround too complex & unacceptable | Impacts between 25%-50% of users | Significant impact on large portions of GitLab.com | Degradation is guaranteed to occur in the near future |
-| ~S3   | Major Severity    | Broken feature with an acceptable workaround          | Impacts up to 25% of users       | Limited impact on important portions of GitLab.com | Degradation is likely to occur in the near future     |
-| ~S4   | Low Severity      | Functionality inconvenience or cosmetic issue         | Impacts less than 5% of users    | Minor impact on GitLab.com                         | Degradation _may_ occur but it's not likely           |
+| Label | Meaning           | Functionality                                         | Affected Users                   | GitLab.com Availability                            | Performance Degradation                               | Response time             |
+|-------|-------------------|-------------------------------------------------------|----------------------------------|----------------------------------------------------|-------------------------------------------------------|---------------------------|
+| ~S1   | Blocker           | Unusable feature with no workaround, user is blocked  | Impacts 50% or more of users     | Outage, Significant impact on all of GitLab.com    |                                                       | Above 4000ms              |
+| ~S2   | Critical Severity | Broken Feature, workaround too complex & unacceptable | Impacts between 25%-50% of users | Significant impact on large portions of GitLab.com | Degradation is guaranteed to occur in the near future | Between 2000ms and 4000ms |
+| ~S3   | Major Severity    | Broken feature with an acceptable workaround          | Impacts up to 25% of users       | Limited impact on important portions of GitLab.com | Degradation is likely to occur in the near future     | Between 1000ms and 2000ms |
+| ~S4   | Low Severity      | Functionality inconvenience or cosmetic issue         | Impacts less than 5% of users    | Minor impact on GitLab.com                         | Degradation _may_ occur but it's not likely           | Between 500ms and 1000ms  |
 
 If a bug seems to fall between two severity labels, assign it to the higher-severity label.
 
