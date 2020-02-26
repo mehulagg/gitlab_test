@@ -1,9 +1,10 @@
 <script>
 import { GlIcon, GlLink, GlSprintf } from '@gitlab/ui';
 import createFlash from '~/flash';
+import DesignInput from './design_input.vue';
 import uploadDesignMutation from '../../graphql/mutations/uploadDesign.mutation.graphql';
 import { UPLOAD_DESIGN_INVALID_FILETYPE_ERROR } from '../../utils/error_messages';
-import { isValidDesignFile, VALID_DESIGN_FILE_MIMETYPE } from '../../utils/design_management_utils';
+import { isValidDesignFile } from '../../utils/design_management_utils';
 
 // https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer/types
 const VALID_DATA_TRANSFER_TYPE = 'Files';
@@ -13,6 +14,7 @@ export default {
     GlIcon,
     GlLink,
     GlSprintf,
+    DesignInput,
   },
   data() {
     return {
@@ -53,14 +55,13 @@ export default {
       this.dragging = false;
     },
     openFileUpload() {
-      this.$refs.fileUpload.click();
+      this.$refs.fileUpload.$el.click();
     },
-    onFileUploadChange() {
-      this.$emit('upload', this.$refs.fileUpload.files);
+    onDesignInputChange(e) {
+      this.$emit('upload', e.target.files);
     },
   },
   uploadDesignMutation,
-  VALID_DESIGN_FILE_MIMETYPE,
 };
 </script>
 
@@ -98,14 +99,8 @@ export default {
           </p>
         </div>
       </div>
-      <input
-        ref="fileUpload"
-        type="file"
-        name="design_file"
-        :accept="$options.VALID_DESIGN_FILE_MIMETYPE.mimetype"
-        class="hide"
-        @change="onFileUploadChange"
-      />
+
+      <design-input ref="fileUpload" @change="onDesignInputChange" />
     </slot>
     <transition name="design-dropzone-fade">
       <div
