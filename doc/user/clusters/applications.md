@@ -753,7 +753,7 @@ storage backend. It is advised to read through the Vault Helm chart [values.yaml
 As well as read the Vault documentation [here](https://www.vaultproject.io/docs/internals/)
 to get a good understanding of the internals of Vault and how to configure it correctly.
 
-At a minimum you will likely be looking to setup
+At a minimum you will likely set up:
 
 - A [seal](https://www.vaultproject.io/docs/configuration/seal/) for extra encryption
 of the master key
