@@ -1,8 +1,13 @@
-import { shallowMount, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { GlIcon, GlLoadingIcon } from '@gitlab/ui';
 import LoadingButton from '~/vue_shared/components/loading_button.vue';
-import deploymentActionButton from '~/vue_merge_request_widget/components/deployment/deployment_action_button.vue';
-import { CREATED, RUNNING, DEPLOYING, REDEPLOYING } from '~/vue_merge_request_widget/components/deployment/constants';
+import DeploymentActionButton from '~/vue_merge_request_widget/components/deployment/deployment_action_button.vue';
+import {
+  CREATED,
+  RUNNING,
+  DEPLOYING,
+  REDEPLOYING,
+} from '~/vue_merge_request_widget/components/deployment/constants';
 import { actionButtonMocks } from './deployment_mock_data';
 
 const baseProps = {
@@ -12,11 +17,10 @@ const baseProps = {
 };
 
 describe('Deployment action button', () => {
-
   let wrapper;
 
   const factory = (options = {}) => {
-    wrapper = mount(deploymentActionButton, {
+    wrapper = mount(DeploymentActionButton, {
       ...options,
     });
   };
@@ -26,11 +30,10 @@ describe('Deployment action button', () => {
   });
 
   describe('when passed only icon', () => {
-
     beforeEach(() => {
       factory({
         propsData: baseProps,
-        slots: { default: ['<gl-icon name="stop" />']},
+        slots: { default: ['<gl-icon name="stop" />'] },
         stubs: {
           'gl-icon': GlIcon,
         },
@@ -43,11 +46,12 @@ describe('Deployment action button', () => {
   });
 
   describe('when passed multiple items', () => {
-
     beforeEach(() => {
       factory({
         propsData: baseProps,
-        slots: { default: ['<gl-icon name="play" />', `<span>${actionButtonMocks[DEPLOYING]}</span>`]},
+        slots: {
+          default: ['<gl-icon name="play" />', `<span>${actionButtonMocks[DEPLOYING]}</span>`],
+        },
         stubs: {
           'gl-icon': GlIcon,
         },
@@ -59,7 +63,7 @@ describe('Deployment action button', () => {
       expect(wrapper.text()).toContain(actionButtonMocks[DEPLOYING]);
     });
   });
-  
+
   describe('when its action is in progress', () => {
     beforeEach(() => {
       factory({

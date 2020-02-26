@@ -34,8 +34,8 @@ export default {
     containerClasses: {
       type: String,
       required: false,
-      default: ''
-    }
+      default: '',
+    },
   },
   computed: {
     isActionInProgress() {

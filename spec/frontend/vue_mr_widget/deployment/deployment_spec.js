@@ -9,15 +9,7 @@ import {
   FAILED,
   CANCELED,
 } from '~/vue_merge_request_widget/components/deployment/constants';
-import { deploymentMockData } from './deployment_mock_data';
-
-const deployDetail = {
-  playable_build: {
-    retry_path: '/root/test-deployments/-/jobs/1131/retry',
-    play_path: '/root/test-deployments/-/jobs/1131/play',
-  },
-  isManual: true,
-};
+import { deploymentMockData, playDetails, retryDetails } from './deployment_mock_data';
 
 describe('Deployment component', () => {
   let wrapper;
@@ -45,7 +37,6 @@ describe('Deployment component', () => {
     wrapper.destroy();
   });
 
-
   it('always renders DeploymentInfo', () => {
     expect(wrapper.find(DeploymentInfo).exists()).toBe(true);
   });
@@ -53,6 +44,15 @@ describe('Deployment component', () => {
   describe('status message and buttons', () => {
     const noActions = [];
     const noDetails = { isManual: false };
+    const deployDetail = {
+      ...playDetails,
+      isManual: true,
+    };
+
+    const retryDetail = {
+      ...retryDetails,
+      isManual: true,
+    };
     const defaultGroup = ['.js-deploy-url', '.js-stop-env'];
     const manualDeployGroup = ['.js-manual-deploy-action', ...defaultGroup];
     const manualRedeployGroup = ['.js-manual-redeploy-action', ...defaultGroup];
@@ -71,9 +71,9 @@ describe('Deployment component', () => {
       ${SUCCESS}  | ${true}  | ${noDetails}      | ${'Deployed to'}                 | ${defaultGroup}
       ${SUCCESS}  | ${false} | ${deployDetail}   | ${'Deployed to'}                 | ${defaultGroup}
       ${SUCCESS}  | ${false} | ${noDetails}      | ${'Deployed to'}                 | ${defaultGroup}
-      ${FAILED}   | ${true}  | ${deployDetail}   | ${'Failed to deploy to'}         | ${manualRedeployGroup}
+      ${FAILED}   | ${true}  | ${retryDetail}    | ${'Failed to deploy to'}         | ${manualRedeployGroup}
       ${FAILED}   | ${true}  | ${noDetails}      | ${'Failed to deploy to'}         | ${defaultGroup}
-      ${FAILED}   | ${false} | ${deployDetail}   | ${'Failed to deploy to'}         | ${noActions}
+      ${FAILED}   | ${false} | ${retryDetail}    | ${'Failed to deploy to'}         | ${noActions}
       ${FAILED}   | ${false} | ${noDetails}      | ${'Failed to deploy to'}         | ${noActions}
       ${CANCELED} | ${true}  | ${deployDetail}   | ${'Canceled deployment to'}      | ${defaultGroup}
       ${CANCELED} | ${true}  | ${noDetails}      | ${'Canceled deployment to'}      | ${defaultGroup}
