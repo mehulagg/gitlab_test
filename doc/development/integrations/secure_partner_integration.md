@@ -1,6 +1,6 @@
 # Secure Partner Integration - Onboarding Process
 
-If you want to integrate with the [Secure Stage](https://about.gitlab.com/direction/secure/) (which
+If you want to integrate with the [Secure Stage](https://about.gitlab.com/direction/secure) (which
 is integrated with the [GitLab CI/CD Section](https://about.gitlab.com/handbook/product/categories/#cicd-section)),
 this page helps you understand the desired developer workflow and helps you find the correct
 resources for the technical work associated with [onboarding as a partner](https://about.gitlab.com/partners/integrate/).
@@ -44,13 +44,13 @@ resources for the technical work associated with [onboarding as a partner](https
    1. [Create an issue](https://gitlab.com/gitlab-com/alliances/alliances/issues/new?issuable_template=new_partner)
    1. Get a test account - [GitLab.com Gold Subscription Sandbox Request](https://about.gitlab.com/partners/integrate/#gitlabcom-gold-subscription-sandbox-request) or [EE Developer License](https://about.gitlab.com/partners/integrate/#requesting-ee-dev-license-for-rd)
 1. Provide a pipeline job to integrate into GitLab
-   1. You need to integrate into CI using [pipeline jobs](../..//development/pipelines.html)
+   1. You need to integrate into CI using [pipeline jobs](../../development/pipelines.html)
 1. Create a report artifact with your pipeline jobs
    1. Detailed [technical directions](secure.md) for this step.
    1. About [job report artifacts](../../ci/yaml/README.html#artifactsreports)
    1. About [job artifacts](../../user/project/pipelines/job_artifacts.html) in general.
-   1. Your report artifact must be in one of our currently supported formats. General documentation about the reports is available in the [Secure Reports](../../development/integrations/secure/#report) page.
-      1. [SAST report](ee/user/application_security/sast/#reports-json-format)
+   1. Your report artifact must be in one of our currently supported formats. General documentation about the reports is available in the [Secure Reports](../../development/integrations/secure#report) page.
+      1. [SAST report](../../user/application_security/sast#reports-json-format)
       1. [Dependency Scanning report](../../user/application_security/dependency_scanning/#reports-json-format)
       1. [Container Scanning](../../user/application_security/container_scanning/index.html#reports-json-format)
       1. [Example secure job definition that also defines the artifact created](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/ci/templates/Security/Container-Scanning.gitlab-ci.yml)
