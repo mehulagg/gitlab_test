@@ -6,8 +6,6 @@ module Metrics
       # What is usually handled by a sequence is handled in the ClusterDashboardService
       # which is called when getting base_dashboard via Gitlab::Metrics::Dashboard::Finder
       # Endpoint insert is Handled by base_dashboard finder
-      SEQUENCE = [].freeze
-
       class << self
         def valid_params?(params)
           [
@@ -22,22 +20,19 @@ module Metrics
 
       private
 
-      def base_dashboard
-        strong_memoize(:base_dashboard) do
-          cluster_dashboard_params = params.slice(:cluster, :cluster_type)
-          Gitlab::Metrics::Dashboard::Finder.find(
-            project, nil, cluster_dashboard_params
-          )[:dashboard].deep_stringify_keys
-        end
-      end
-
       # Permissions are handled at the controller level
       def allowed?
         true
       end
 
+      def dashboard_path
+        ::Metrics::Dashboard::ClusterDashboardService::DASHBOARD_PATH
+      end
+
       def sequence
-        SEQUENCE
+        [
+          STAGES::ClusterEndpointInserter
+        ]
       end
     end
   end

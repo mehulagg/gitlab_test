@@ -15,7 +15,7 @@ describe Banzai::Filter::InlineClusterMetricsFilter do
     urls.metrics_dashboard_namespace_project_cluster_url(
       *params,
       **{
-        embedded: true,
+        embedded: 'true',
         cluster_type: 'project',
         format: :json
       }.merge(query_params)

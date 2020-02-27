@@ -4,6 +4,7 @@ require 'spec_helper'
 
 describe Metrics::Dashboard::ClusterMetricsEmbedService, :use_clean_rails_memory_store_caching do
   include MetricsDashboardHelpers
+  using RSpec::Parameterized::TableSyntax
 
   let_it_be(:user) { create(:user) }
   let_it_be(:cluster_project) { create(:cluster_project) }
@@ -15,16 +16,24 @@ describe Metrics::Dashboard::ClusterMetricsEmbedService, :use_clean_rails_memory
   end
 
   describe '.valid_params?' do
-    let(:params) { { cluster: cluster, embedded: 'true', group: 'hello', title: 'world', y_label: 'countries' } }
+    let(:valid_params) { { cluster: 1, embedded: 'true', group: 'hello', title: 'world', y_label: 'countries' } }
 
-    subject { described_class.valid_params?(params) }
+    subject { described_class }
 
-    it { is_expected.to be_truthy }
+    it { expect(subject.valid_params?(valid_params)).to be_truthy }
 
-    context 'missing cluster' do
+    context 'missing all params' do
       let(:params) { {} }
 
-      it { is_expected.to be_falsey }
+      it { expect(subject.valid_params?(params)).to be_falsy }
+    end
+
+    [:cluster, :embedded, :group, :title, :y_label].each do |param_key|
+      it 'returns false with missing param' do
+        params = valid_params.except(param_key)
+
+        expect(subject.valid_params?(params)).to be_falsy
+      end
     end
   end
 
