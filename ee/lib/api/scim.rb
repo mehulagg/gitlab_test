@@ -2,6 +2,8 @@
 
 module API
   class Scim < Grape::API
+    include ::Gitlab::Utils::StrongMemoize
+
     prefix 'api/scim'
     version 'v2'
     content_type :json, 'application/scim+json'
@@ -19,8 +21,18 @@ module API
           API.logger
         end
 
-        def destroy_identity(identity)
-          GroupSaml::Identity::DestroyService.new(identity).execute(transactional: true)
+        def scim_identities_enabled?(group)
+          strong_memoize(:scim_identities_enabled) do
+            ::Feature.enabled?(:scim_identities, group)
+          end
+        end
+
+        def deprovision(identity)
+          if scim_identities_enabled?(identity.group)
+            EE::Gitlab::Scim::DeprovisionService.new(identity).execute
+          else
+            GroupSaml::Identity::DestroyService.new(identity).execute(transactional: true)
+          end
 
           true
         rescue => e
@@ -66,8 +78,11 @@ module API
           parser = EE::Gitlab::Scim::ParamsParser.new(params)
           parsed_hash = parser.update_params
 
-          if parser.deprovision_user?
-            destroy_identity(identity)
+          if identity.active && parser.deprovision_user?
+            deprovision(identity)
+          elsif !identity.active && parser.activate_user?
+            # Reprovisioning service - set active true *and* add member again
+            # identity.update(active: true)
           elsif parsed_hash[:extern_uid]
             identity.update(parsed_hash.slice(:extern_uid))
           else
@@ -85,6 +100,16 @@ module API
           return unless email
 
           User.by_any_email(email.downcase).where.not(id: identity.user.id).exists?
+        end
+
+        def find_user_identity(group, extern_uid)
+          return unless group.saml_provider
+
+          if scim_identities_enabled?(group)
+            group.scim_identities.with_extern_uid(extern_uid).first
+          else
+            GroupSamlIdentityFinder.find_by_group_and_uid(group: group, uid: extern_uid)
+          end
         end
       end
 
@@ -116,7 +141,7 @@ module API
         get ':id', requirements: USER_ID_REQUIREMENTS do
           group = find_and_authenticate_group!(params[:group])
 
-          identity = GroupSamlIdentityFinder.find_by_group_and_uid(group: group, uid: params[:id])
+          identity = find_user_identity(group, params[:id])
 
           scim_not_found!(message: "Resource #{params[:id]} not found") unless identity
 
@@ -152,7 +177,7 @@ module API
           scim_error!(message: 'Missing ID') unless params[:id]
 
           group = find_and_authenticate_group!(params[:group])
-          identity = GroupSamlIdentityFinder.find_by_group_and_uid(group: group, uid: params[:id])
+          identity = find_user_identity(group, params[:id])
 
           scim_not_found!(message: "Resource #{params[:id]} not found") unless identity
 
@@ -172,7 +197,7 @@ module API
           scim_error!(message: 'Missing ID') unless params[:id]
 
           group = find_and_authenticate_group!(params[:group])
-          identity = GroupSamlIdentityFinder.find_by_group_and_uid(group: group, uid: params[:id])
+          identity = find_user_identity(group, params[:id])
 
           scim_not_found!(message: "Resource #{params[:id]} not found") unless identity
 

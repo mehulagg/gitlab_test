@@ -48,7 +48,18 @@ module EE
 
       override :identity_attributes
       def identity_attributes
-        super.push(:saml_provider_id)
+        super.push(:saml_provider_id, :group_id)
+      end
+
+      override :build_identity
+      def build_identity(user, params)
+        binding.pry
+        if params[:provider] == 'group_scim' && params[:group_id].present?
+          user.scim_identities.build(group_id: params[:group_id], extern_uid: params[:extern_uid], active: true)
+        else
+          params.delete(:group_id)
+          super
+        end
       end
 
       override :identity_params

@@ -23,7 +23,7 @@ class ScimFinder
 
   def scim_identities_enabled?
     strong_memoize(:scim_identities_enabled) do
-      Feature.enabled?(:scim_identities, group)
+      ::Feature.enabled?(:scim_identities, group)
     end
   end
 
@@ -69,8 +69,8 @@ class ScimFinder
     parser.filter_operator == :eq && parser.filter_params[:username].present?
   end
 
-  def by_username(parser)
-    user = User.find_by_username(parser.filter_params[:username])
+  def by_username(username)
+    user = User.find_by_username(username) || User.find_by_any_email(username)
 
     return group.scim_identities.for_user(user) if scim_identities_enabled?
 

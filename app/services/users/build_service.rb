@@ -29,7 +29,7 @@ module Users
       end
 
       unless identity_params.empty?
-        user.identities.build(identity_params)
+        build_identity(user, identity_params)
       end
 
       user
@@ -39,6 +39,10 @@ module Users
 
     def identity_attributes
       [:extern_uid, :provider]
+    end
+
+    def build_identity(user, params)
+      user.identities.build(params)
     end
 
     def can_create_user?

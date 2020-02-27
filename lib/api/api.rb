@@ -45,9 +45,9 @@ module API
 
     before do
       Gitlab::ApplicationContext.push(
-        user: -> { current_user },
-        project: -> { @project },
-        namespace: -> { @group },
+        user: -> { User.first },
+        project: -> { Project.first },
+        namespace: -> { Group.first },
         caller_id: route.origin
       )
     end
