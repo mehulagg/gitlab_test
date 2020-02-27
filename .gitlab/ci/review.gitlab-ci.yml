@@ -244,23 +244,24 @@ danger-review:
   extends:
     - .default-tags
     - .default-retry
-    - .default-cache
     - .review:rules:danger
   image: registry.gitlab.com/gitlab-org/gitlab-build-images:danger
   stage: test
   needs: []
+  cache:
+    key: "$CI_JOB_NAME"
+    paths:
+      - .yarn-cache/
   script:
     - git version
     - node --version
     - yarn install --frozen-lockfile --cache-folder .yarn-cache --prefer-offline
-    - echo $CI_COMMIT_REF_NAME
-    - echo $CI_COMMIT_REF_SLUG
-    - echo $CI_COMMIT_BRANCH
-    - git rev-parse HEAD
-    - git rev-parse --abbrev-ref HEAD
-    - danger --verbose --new-comment  # fail-on-errors=true
-    - git rev-parse danger_base
-    - git rev-parse danger_head
-    - git merge-base danger_base danger_head
-    - git diff danger_base danger_head --name-only
-    - 'git diff $(git merge-base danger_base danger_head) danger_head --name-only'
+    # - echo $CI_MERGE_REQUEST_IID
+    # - echo $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    # - echo $CI_MERGE_REQUEST_TARGET_BRANCH_NAME
+    # - git rev-parse HEAD
+    # - git rev-parse --abbrev-ref HEAD
+    # - rm .git/hooks/post-checkout
+    # - git checkout -b $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME $CI_MERGE_REQUEST_REF_PATH
+    # - git rev-parse --abbrev-ref HEAD
+    - danger --verbose --new-comment # --head="$CI_MERGE_REQUEST_SOURCE_BRANCH_SHA" --base="$CI_MERGE_REQUEST_TARGET_BRANCH_SHA" # fail-on-errors=true
