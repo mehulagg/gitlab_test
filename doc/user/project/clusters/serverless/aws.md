@@ -338,7 +338,7 @@ Push this project to a new project in GitLab.
 
 ### Crafting the `.gitlab-ci.yml` file
 
-GitLab CI/CD pipelines are configured using a YAML file called `.gitlab-ci.yml` within each project. The[`.gitlab-ci.yml`](https://docs.gitlab.com/ee/ci/yaml/) file defines the structure and order of the pipelines.
+GitLab CI/CD pipelines are configured using a YAML file called `.gitlab-ci.yml` within each project. The[`.gitlab-ci.yml`](../ci/yaml/) file defines the structure and order of the pipelines.
 
 In a `.gitlab-ci.yml` file in the root of your project, place the following code and replace the #S3Bucket# with an S3 bucket name where you would like to place your package:
 
@@ -378,7 +378,7 @@ Let’s examine the config file more closely:
 
 ### Setting up your AWS credentials with your GitLab account
 
-In order to interact with your AWS account, the GitLab CI/CD pipelines require both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to be defined in your GitLab settings under **Settings > CI/CD > Variables**. For more information please see  [link](https://docs.gitlab.com/ee/ci/variables/README.html#via-the-ui) Please ensure you mask the credentials so they do not show in logs.
+In order to interact with your AWS account, the GitLab CI/CD pipelines require both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to be defined in your GitLab settings under **Settings > CI/CD > Variables**. For more information please see  [link](../ci/variables/README.html#via-the-ui) Please ensure you mask the credentials so they do not show in logs.
 
 **Note:** The AWS credentials you provide must include IAM policies that provision correct access control to AWS Lambda, API Gateway, CloudFormation, and IAM resources.
 
