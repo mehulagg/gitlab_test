@@ -1,9 +1,13 @@
 <script>
+// TODO: Handle erors
+// TODO: Clean out the crap
+// TODO: hook up the pagination component
+
 import { ApolloQuery } from 'vue-apollo';
 import { GlAlert, GlEmptyState, GlPagination } from '@gitlab/ui';
 
 import VulnerabilityList from 'ee/vulnerabilities/components/vulnerability_list.vue';
-import vulnerabilitiesQuery from '../graphgql/vulnerabilities.gql';
+import vulnerabilitiesQuery from '../graphql/vulnerabilities.gql';
 
 export default {
   name: 'VulnerabilitiesApp',
@@ -37,24 +41,38 @@ export default {
       query: vulnerabilitiesQuery,
       variables() {
         return {
-          fullPath: 'root/yarn-autoremediation-test',
+          fullPath: 'twitter/secure-it-reports',
+          first: this.$options.PAGE_SIZE,
         };
       },
       update: data => data.project.vulnerabilities.nodes,
+      result(res) {
+        this.pageInfo = res.data.project.vulnerabilities.pageInfo;
+      },
     },
   },
-  computed: {
-    // vulnerabilitiesQueryBody() {
-    //   return {
-    //     query: vulnerabilitiesQuery,
-    //     variables: { fullPath: 'root/yarn-autoremediation-test' },
-    //   };
-    // },
-  },
-  created() {},
+  PAGE_SIZE: 10,
   methods: {
-    fetchPage(page) {
-      // this.fetchVulnerabilities({ ...this.activeFilters, page });
+    nextPage() {
+      if (this.pageInfo.hasNextPage) {
+        this.$apollo.queries.vulnerabilities.fetchMore({
+          variables: {
+            first: this.$options.PAGE_SIZE,
+            after: this.pageInfo.endCursor,
+          },
+          updateQuery: (_, { fetchMoreResult }) => fetchMoreResult,
+        });
+      }
+    },
+    previousPage() {
+      this.$apollo.queries.vulnerabilities.fetchMore({
+        variables: {
+          last: this.$options.PAGE_SIZE,
+          first: null,
+          before: this.pageInfo.startCursor,
+        },
+        updateQuery: (_, { fetchMoreResult }) => fetchMoreResult,
+      });
     },
   },
 };
@@ -62,8 +80,6 @@ export default {
 
 <template>
   <div>
-    <!-- <apollo-query :query="vulnerabilitiesQueryBody"> -->
-    <!-- <template slot-scope="{ result: { data, loading } }"> -->
     <!-- <gl-alert v-if="errorLoadingVulnerabilities" :dismissible="false" variant="danger">
           {{
             s__(
@@ -72,7 +88,7 @@ export default {
           }}
         </gl-alert> -->
     <vulnerability-list
-      :is-loading="false"
+      :is-loading="this.$apollo.queries.vulnerabilities.loading"
       :dashboard-documentation="dashboardDocumentation"
       :empty-state-svg-path="emptyStateSvgPath"
       :vulnerabilities="vulnerabilities"
@@ -91,15 +107,15 @@ export default {
         />
       </template>
     </vulnerability-list>
+    <button @click="previousPage">Previous Page</button>
+    <button @click="nextPage">Next Page</button>
     <gl-pagination
-      v-if="pageInfo.total > 1"
+      v-if="false"
       class="justify-content-center prepend-top-default"
-      :per-page="pageInfo.perPage"
-      :total-items="pageInfo.total"
-      :value="pageInfo.page"
+      :per-page="$options.PAGE_SIZE"
+      :total-items="30"
+      :value="1"
       @input="fetchPage"
     />
-    <!-- </template> -->
-    <!-- </apollo-query> -->
   </div>
 </template>
