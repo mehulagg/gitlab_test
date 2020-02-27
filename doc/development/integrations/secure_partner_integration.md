@@ -38,7 +38,7 @@ resources for the technical work associated with [onboarding as a partner](https
        allowing an easy and boring solution for the user. It is preferable to offer this where
        possible.
 
-## What are the steps to onboard?
+## How to onboard
 
 1. Read about our [partnerships](https://about.gitlab.com/partners/integrate/).
    1. [Create an issue](https://gitlab.com/gitlab-com/alliances/alliances/issues/new?issuable_template=new_partner)
