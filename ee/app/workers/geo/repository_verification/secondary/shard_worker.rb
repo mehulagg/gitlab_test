@@ -37,10 +37,12 @@ module Geo
         end
 
         def load_pending_resources
-          Geo::ProjectRegistryPendingVerificationFinder
-            .new(current_node: current_node, shard_name: shard_name, batch_size: db_retrieve_batch_size)
-            .execute
-            .pluck_primary_key
+          Gitlab::Database.geo_uncached_queries do
+            Geo::ProjectRegistryPendingVerificationFinder
+              .new(current_node: current_node, shard_name: shard_name, batch_size: db_retrieve_batch_size)
+              .execute
+              .pluck_primary_key
+          end
         end
 
         def schedule_job(registry_id)

@@ -61,13 +61,15 @@ module Geo
     end
 
     def load_pending_resources
-      resources = find_project_ids_not_synced(batch_size: db_retrieve_batch_size)
-      remaining_capacity = db_retrieve_batch_size - resources.size
+      Gitlab::Database.geo_uncached_queries do
+        resources = find_project_ids_not_synced(batch_size: db_retrieve_batch_size)
+        remaining_capacity = db_retrieve_batch_size - resources.size
 
-      if remaining_capacity.zero?
-        resources
-      else
-        resources + find_project_ids_updated_recently(batch_size: remaining_capacity)
+        if remaining_capacity.zero?
+          resources
+        else
+          resources + find_project_ids_updated_recently(batch_size: remaining_capacity)
+        end
       end
     end
 

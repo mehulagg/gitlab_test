@@ -33,13 +33,15 @@ module Geo
     #
     # @return [Array] resources to be transferred
     def load_pending_resources
-      resources = find_unsynced_jobs(batch_size: db_retrieve_batch_size)
-      remaining_capacity = db_retrieve_batch_size - resources.count
+      Gitlab::Database.geo_uncached_queries do
+        resources = find_unsynced_jobs(batch_size: db_retrieve_batch_size)
+        remaining_capacity = db_retrieve_batch_size - resources.count
 
-      if remaining_capacity.zero?
-        resources
-      else
-        resources + find_low_priority_jobs(batch_size: remaining_capacity)
+        if remaining_capacity.zero?
+          resources
+        else
+          resources + find_low_priority_jobs(batch_size: remaining_capacity)
+        end
       end
     end
 

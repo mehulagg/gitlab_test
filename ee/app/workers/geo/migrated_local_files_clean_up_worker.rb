@@ -33,7 +33,9 @@ module Geo
     end
 
     def load_pending_resources
-      find_migrated_local_objects(batch_size: db_retrieve_batch_size)
+      Gitlab::Database.geo_uncached_queries do
+        find_migrated_local_objects(batch_size: db_retrieve_batch_size)
+      end
     end
 
     def find_migrated_local_objects(batch_size:)
