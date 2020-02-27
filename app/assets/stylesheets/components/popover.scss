@@ -138,3 +138,23 @@
     max-width: 40%;
   }
 }
+
+.js-suggest-gitlab-ci-yml,
+.js-suggest-commit-changes {
+  margin-top: -1em;
+  margin-left: 1.5em;
+
+  .popover-header {
+    padding: $gl-padding;
+
+    .ic-close {
+      margin-top: -1em;
+    }
+  }
+
+  .popover-body {
+    .footer-text {
+      margin-top: 1em;
+    }
+  }
+}
