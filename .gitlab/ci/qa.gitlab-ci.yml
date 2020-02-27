@@ -42,6 +42,15 @@ qa:selectors-as-if-foss:
     - .qa:rules:ee-only
     - .as-if-foss
 
+printenv:
+  image: ruby:2.6-alpine
+  stage: prepare
+  dependencies: []
+  extends:
+    - .qa:rules:package-and-qa
+  script:
+    - printenv
+
 .package-and-qa-base:
   image: ruby:2.6-alpine
   stage: qa
