@@ -15,6 +15,7 @@ import { getDefaultAdapter } from '~/lib/utils/axios_utils';
 import { FIXTURES_PATH, TEST_HOST } from './test_constants';
 
 import customMatchers from './matchers';
+import VueDestroyerPlugin from './helpers/vue_destroyer_plugin';
 
 // Tech debt issue TBD
 testUtilsConfig.logModifiedComponents = false;
@@ -46,6 +47,15 @@ Vue.config.errorHandler = function(err) {
 };
 
 Vue.use(Translate);
+
+// clean up Vue zombie components
+const destroyerPlugin = new VueDestroyerPlugin();
+
+Vue.use(destroyerPlugin);
+
+afterEach(() => {
+  destroyerPlugin.destroyAll();
+});
 
 // enable test fixtures
 jasmine.getFixtures().fixturesPath = FIXTURES_PATH;
