@@ -9,14 +9,25 @@
 
 module Security
   class VulnerabilitiesFinder
-    attr_reader :project
-
-    def initialize(project)
-      @project = project
+    def initialize(project, filters = {})
+      @filters = filters
+      @vulnerabilities = project.vulnerabilities
     end
 
     def execute
-      project.vulnerabilities
+      filter_by_severities
+
+      vulnerabilities
+    end
+
+    private
+
+    attr_reader :project, :filters, :vulnerabilities
+
+    def filter_by_severities
+      if filters[:severities].present?
+        @vulnerabilities = vulnerabilities.with_severities(filters[:severities])
+      end
     end
   end
 end
