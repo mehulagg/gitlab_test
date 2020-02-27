@@ -100,8 +100,7 @@ describe('security reports mutations', () => {
       expect(stateCopy.modal.vulnerability.isDismissed).toEqual(false);
       expect(stateCopy.modal.vulnerability.hasIssue).toEqual(false);
 
-      expect(stateCopy.modal.isCreatingNewIssue).toEqual(false);
-      expect(stateCopy.modal.isDismissingVulnerability).toEqual(false);
+      expect(stateCopy.isDismissingVulnerability).toEqual(false);
 
       expect(stateCopy.modal.title).toEqual(null);
       expect(stateCopy.modal.learnMoreUrl).toEqual(null);
@@ -164,7 +163,7 @@ describe('security reports mutations', () => {
     it('sets isDismissingVulnerability prop to true and resets error', () => {
       mutations[types.REQUEST_DISMISS_VULNERABILITY](stateCopy);
 
-      expect(stateCopy.modal.isDismissingVulnerability).toEqual(true);
+      expect(stateCopy.isDismissingVulnerability).toEqual(true);
       expect(stateCopy.modal.error).toBeNull();
     });
   });
@@ -173,7 +172,7 @@ describe('security reports mutations', () => {
     it('sets isDismissingVulnerability prop to false', () => {
       mutations[types.RECEIVE_DISMISS_VULNERABILITY_SUCCESS](stateCopy);
 
-      expect(stateCopy.modal.isDismissingVulnerability).toEqual(false);
+      expect(stateCopy.isDismissingVulnerability).toEqual(false);
     });
   });
 
@@ -181,7 +180,7 @@ describe('security reports mutations', () => {
     it('sets isDismissingVulnerability prop to false and sets error', () => {
       mutations[types.RECEIVE_DISMISS_VULNERABILITY_ERROR](stateCopy, 'error');
 
-      expect(stateCopy.modal.isDismissingVulnerability).toEqual(false);
+      expect(stateCopy.isDismissingVulnerability).toEqual(false);
       expect(stateCopy.modal.error).toEqual('error');
     });
   });
@@ -193,10 +192,6 @@ describe('security reports mutations', () => {
 
     it('should set isDismissingVulnerability to true', () => {
       expect(stateCopy.isDismissingVulnerability).toBe(true);
-    });
-
-    it('should set isDismissingVulnerability in the modal data to true', () => {
-      expect(stateCopy.modal.isDismissingVulnerability).toBe(true);
     });
 
     it('should nullify the error state on the modal', () => {
@@ -220,10 +215,6 @@ describe('security reports mutations', () => {
       expect(stateCopy.isDismissingVulnerability).toBe(false);
     });
 
-    it('should set isDismissingVulnerability on the modal to false', () => {
-      expect(stateCopy.modal.isDismissingVulnerability).toBe(false);
-    });
-
     it('shoulfd set isDissmissed on the modal vulnerability to be true', () => {
       expect(stateCopy.modal.vulnerability.isDismissed).toBe(true);
     });
@@ -240,10 +231,6 @@ describe('security reports mutations', () => {
       expect(stateCopy.isDismissingVulnerability).toBe(false);
     });
 
-    it('should set isDismissingVulnerability in the modal data to false', () => {
-      expect(stateCopy.modal.isDismissingVulnerability).toBe(false);
-    });
-
     it('should set the error state on the modal', () => {
       expect(stateCopy.modal.error).toEqual(error);
     });
@@ -256,10 +243,6 @@ describe('security reports mutations', () => {
 
     it('should set isDismissingVulnerability to true', () => {
       expect(stateCopy.isDismissingVulnerability).toBe(true);
-    });
-
-    it('should set isDismissingVulnerability in the modal data to true', () => {
-      expect(stateCopy.modal.isDismissingVulnerability).toBe(true);
     });
 
     it('should nullify the error state on the modal', () => {
@@ -283,10 +266,6 @@ describe('security reports mutations', () => {
       expect(stateCopy.isDismissingVulnerability).toBe(false);
     });
 
-    it('should set isDismissingVulnerability on the modal to false', () => {
-      expect(stateCopy.modal.isDismissingVulnerability).toBe(false);
-    });
-
     it('shoulfd set isDissmissed on the modal vulnerability to be true', () => {
       expect(stateCopy.modal.vulnerability.isDismissed).toBe(true);
     });
@@ -301,10 +280,6 @@ describe('security reports mutations', () => {
 
     it('should set isDismissingVulnerability to false', () => {
       expect(stateCopy.isDismissingVulnerability).toBe(false);
-    });
-
-    it('should set isDismissingVulnerability in the modal data to false', () => {
-      expect(stateCopy.modal.isDismissingVulnerability).toBe(false);
     });
 
     it('should set the error state on the modal', () => {
@@ -357,27 +332,27 @@ describe('security reports mutations', () => {
   });
 
   describe('REQUEST_CREATE_ISSUE', () => {
-    it('sets isCreatingNewIssue prop to true and resets error', () => {
+    it('sets isCreatingIssue prop to true and resets error', () => {
       mutations[types.REQUEST_CREATE_ISSUE](stateCopy);
 
-      expect(stateCopy.modal.isCreatingNewIssue).toEqual(true);
+      expect(stateCopy.isCreatingIssue).toEqual(true);
       expect(stateCopy.modal.error).toBeNull();
     });
   });
 
   describe('RECEIVE_CREATE_ISSUE_SUCCESS', () => {
-    it('sets isCreatingNewIssue prop to false', () => {
+    it('sets isCreatingIssue prop to false', () => {
       mutations[types.RECEIVE_CREATE_ISSUE_SUCCESS](stateCopy);
 
-      expect(stateCopy.modal.isCreatingNewIssue).toEqual(false);
+      expect(stateCopy.isCreatingIssue).toEqual(false);
     });
   });
 
   describe('RECEIVE_CREATE_ISSUE_ERROR', () => {
-    it('sets isCreatingNewIssue prop to false and sets error', () => {
+    it('sets isCreatingIssue prop to false and sets error', () => {
       mutations[types.RECEIVE_CREATE_ISSUE_ERROR](stateCopy, 'error');
 
-      expect(stateCopy.modal.isCreatingNewIssue).toEqual(false);
+      expect(stateCopy.isCreatingIssue).toEqual(false);
       expect(stateCopy.modal.error).toEqual('error');
     });
   });
@@ -386,7 +361,7 @@ describe('security reports mutations', () => {
     it('sets isCreatingMergeRequest prop to true and resets error', () => {
       mutations[types.REQUEST_CREATE_MERGE_REQUEST](stateCopy);
 
-      expect(stateCopy.modal.isCreatingMergeRequest).toEqual(true);
+      expect(stateCopy.isCreatingMergeRequest).toEqual(true);
       expect(stateCopy.modal.error).toBeNull();
     });
   });
@@ -404,7 +379,7 @@ describe('security reports mutations', () => {
     it('sets isCreatingMergeRequest prop to false and sets error', () => {
       mutations[types.RECEIVE_CREATE_MERGE_REQUEST_ERROR](stateCopy, 'error');
 
-      expect(stateCopy.modal.isCreatingMergeRequest).toEqual(false);
+      expect(stateCopy.isCreatingMergeRequest).toEqual(false);
       expect(stateCopy.modal.error).toEqual('error');
     });
   });

@@ -47,6 +47,16 @@ export default {
       required: false,
       default: false,
     },
+    isCreatingIssue: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
+    isDismissingVulnerability: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
   },
   data: () => ({
     localDismissalComment: '',
@@ -251,6 +261,7 @@ export default {
         v-if="modal.isCommentingOnDismissal"
         :is-dismissed="vulnerability.isDismissed"
         :is-editing-existing-feedback="isEditingExistingFeedback"
+        :is-dismissing-vulnerability="isDismissingVulnerability"
         @addCommentAndDismiss="addCommentAndDismiss"
         @addDismissalComment="addDismissalComment"
         @cancel="$emit('closeDismissalCommentBox')"
@@ -266,6 +277,8 @@ export default {
         :can-download-patch="canDownloadPatchForThisVulnerability"
         :can-dismiss-vulnerability="canDismissThisVulnerability"
         :is-dismissed="vulnerability.isDismissed"
+        :is-creating-issue="isCreatingIssue"
+        :is-dismissing-vulnerability="isDismissingVulnerability"
         @createMergeRequest="$emit('createMergeRequest')"
         @createNewIssue="$emit('createNewIssue')"
         @dismissVulnerability="$emit('dismissVulnerability')"

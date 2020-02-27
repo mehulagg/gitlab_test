@@ -304,8 +304,8 @@ describe('vulnerabilities module mutations', () => {
       expect(state.isCreatingIssue).toBe(true);
     });
 
-    it('should set isCreatingNewIssue in the modal data to true', () => {
-      expect(state.modal.isCreatingNewIssue).toBe(true);
+    it('should set isCreatingIssue in the modal data to true', () => {
+      expect(state.isCreatingIssue).toBe(true);
     });
 
     it('should nullify the error state on the modal', () => {
@@ -332,8 +332,8 @@ describe('vulnerabilities module mutations', () => {
       expect(state.isCreatingIssue).toBe(false);
     });
 
-    it('should set isCreatingNewIssue in the modal data to false', () => {
-      expect(state.modal.isCreatingNewIssue).toBe(false);
+    it('should set isCreatingIssue in the modal data to false', () => {
+      expect(state.isCreatingIssue).toBe(false);
     });
 
     it('should set the error state on the modal', () => {
@@ -348,10 +348,6 @@ describe('vulnerabilities module mutations', () => {
 
     it('should set isCreatingMergeRequest to true', () => {
       expect(state.isCreatingMergeRequest).toBe(true);
-    });
-
-    it('should set isCreatingMergeRequest in the modal data to true', () => {
-      expect(state.modal.isCreatingMergeRequest).toBe(true);
     });
 
     it('should nullify the error state on the modal', () => {
@@ -378,10 +374,6 @@ describe('vulnerabilities module mutations', () => {
       expect(state.isCreatingMergeRequest).toBe(false);
     });
 
-    it('should set isCreatingMergeRequest in the modal data to false', () => {
-      expect(state.modal.isCreatingMergeRequest).toBe(false);
-    });
-
     it('should set the error state on the modal', () => {
       expect(state.modal.error).toBe('There was an error creating the merge request');
     });
@@ -394,10 +386,6 @@ describe('vulnerabilities module mutations', () => {
 
     it('should set isDismissingVulnerability to true', () => {
       expect(state.isDismissingVulnerability).toBe(true);
-    });
-
-    it('should set isDismissingVulnerability in the modal data to true', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(true);
     });
 
     it('should nullify the error state on the modal', () => {
@@ -426,10 +414,6 @@ describe('vulnerabilities module mutations', () => {
       expect(state.isDismissingVulnerability).toBe(false);
     });
 
-    it('should set isDismissingVulnerability on the modal to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
-    });
-
     it('shoulfd set isDissmissed on the modal vulnerability to be true', () => {
       expect(state.modal.vulnerability.isDismissed).toBe(true);
     });
@@ -442,10 +426,6 @@ describe('vulnerabilities module mutations', () => {
 
     it('should set isDismissingVulnerability to false', () => {
       expect(state.isDismissingVulnerability).toBe(false);
-    });
-
-    it('should set isDismissingVulnerability in the modal data to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
     });
 
     it('should set the error state on the modal', () => {
@@ -561,10 +541,6 @@ describe('vulnerabilities module mutations', () => {
       expect(state.isDismissingVulnerability).toBe(true);
     });
 
-    it('should set isDismissingVulnerability in the modal data to true', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(true);
-    });
-
     it('should nullify the error state on the modal', () => {
       expect(state.modal.error).toBeNull();
     });
@@ -591,10 +567,6 @@ describe('vulnerabilities module mutations', () => {
       expect(state.isDismissingVulnerability).toBe(false);
     });
 
-    it('should set isDismissingVulnerability on the modal to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
-    });
-
     it('should set isDissmissed on the modal vulnerability to be true', () => {
       expect(state.modal.vulnerability.isDismissed).toBe(true);
     });
@@ -607,10 +579,6 @@ describe('vulnerabilities module mutations', () => {
 
     it('should set isDismissingVulnerability to false', () => {
       expect(state.isDismissingVulnerability).toBe(false);
-    });
-
-    it('should set isDismissingVulnerability in the modal data to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
     });
 
     it('should set the error state on the modal', () => {
@@ -647,10 +615,6 @@ describe('vulnerabilities module mutations', () => {
       expect(state.isDismissingVulnerability).toBe(true);
     });
 
-    it('should set isDismissingVulnerability in the modal data to true', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(true);
-    });
-
     it('should nullify the error state on the modal', () => {
       expect(state.modal.error).toBeNull();
     });
@@ -677,10 +641,6 @@ describe('vulnerabilities module mutations', () => {
       expect(state.isDismissingVulnerability).toBe(false);
     });
 
-    it('should set isDismissingVulnerability on the modal to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
-    });
-
     it('should set isDissmissed on the modal vulnerability to be true', () => {
       expect(state.modal.vulnerability.isDismissed).toBe(true);
     });
@@ -695,10 +655,6 @@ describe('vulnerabilities module mutations', () => {
       expect(state.isDismissingVulnerability).toBe(false);
     });
 
-    it('should set isDismissingVulnerability in the modal data to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
-    });
-
     it('should set the error state on the modal', () => {
       expect(state.modal.error).toBe('There was an error adding the comment.');
     });
@@ -711,10 +667,6 @@ describe('vulnerabilities module mutations', () => {
 
     it('should set isDismissingVulnerability to true', () => {
       expect(state.isDismissingVulnerability).toBe(true);
-    });
-
-    it('should set isDismissingVulnerability in the modal data to true', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(true);
     });
 
     it('should nullify the error state on the modal', () => {
@@ -741,10 +693,6 @@ describe('vulnerabilities module mutations', () => {
       expect(state.isDismissingVulnerability).toBe(false);
     });
 
-    it('should set isDismissingVulnerability on the modal to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
-    });
-
     it('should set isDissmissed on the modal vulnerability to be false', () => {
       expect(state.modal.vulnerability.isDismissed).toBe(false);
     });
@@ -757,10 +705,6 @@ describe('vulnerabilities module mutations', () => {
 
     it('should set isDismissingVulnerability to false', () => {
       expect(state.isDismissingVulnerability).toBe(false);
-    });
-
-    it('should set isDismissingVulnerability in the modal data to false', () => {
-      expect(state.modal.isDismissingVulnerability).toBe(false);
     });
 
     it('should set the error state on the modal', () => {
