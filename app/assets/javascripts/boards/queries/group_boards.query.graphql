@@ -1,4 +1,4 @@
-#import "./boards.fragment.graphql"
+#import "ee_else_ce/boards/queries/boards.fragment.graphql"
 
 query group_boards($fullPath: ID!) {
   group(fullPath: $fullPath) {

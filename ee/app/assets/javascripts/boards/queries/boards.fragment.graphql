@@ -1,5 +1,6 @@
 fragment board on Board {
   id,
-  name
+  name,
+  weight
 }
 
