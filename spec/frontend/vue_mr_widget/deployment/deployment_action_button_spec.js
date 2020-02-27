@@ -1,6 +1,5 @@
 import { mount } from '@vue/test-utils';
-import { GlIcon, GlLoadingIcon } from '@gitlab/ui';
-import LoadingButton from '~/vue_shared/components/loading_button.vue';
+import { GlIcon, GlLoadingIcon, GlButton } from '@gitlab/ui';
 import DeploymentActionButton from '~/vue_merge_request_widget/components/deployment/deployment_action_button.vue';
 import {
   CREATED,
@@ -76,7 +75,7 @@ describe('Deployment action button', () => {
 
     it('is disabled and shows the loading icon', () => {
       expect(wrapper.find(GlLoadingIcon).exists()).toBe(true);
-      expect(wrapper.find(LoadingButton).props('disabled')).toBe(true);
+      expect(wrapper.find(GlButton).props('disabled')).toBe(true);
     });
   });
 
@@ -91,7 +90,7 @@ describe('Deployment action button', () => {
     });
     it('is disabled and does not show the loading icon', () => {
       expect(wrapper.find(GlLoadingIcon).exists()).toBe(false);
-      expect(wrapper.find(LoadingButton).props('disabled')).toBe(true);
+      expect(wrapper.find(GlButton).props('disabled')).toBe(true);
     });
   });
 
@@ -107,7 +106,7 @@ describe('Deployment action button', () => {
     });
     it('is disabled and does not show the loading icon', () => {
       expect(wrapper.find(GlLoadingIcon).exists()).toBe(false);
-      expect(wrapper.find(LoadingButton).props('disabled')).toBe(true);
+      expect(wrapper.find(GlButton).props('disabled')).toBe(true);
     });
   });
 
@@ -119,7 +118,7 @@ describe('Deployment action button', () => {
     });
     it('is not disabled nor does it show the loading icon', () => {
       expect(wrapper.find(GlLoadingIcon).exists()).toBe(false);
-      expect(wrapper.find(LoadingButton).props('disabled')).toBe(false);
+      expect(wrapper.find(GlButton).props('disabled')).toBe(false);
     });
   });
 });

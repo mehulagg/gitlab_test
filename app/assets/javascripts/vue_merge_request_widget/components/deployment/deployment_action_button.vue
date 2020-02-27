@@ -1,13 +1,12 @@
 <script>
-import { GlTooltipDirective } from '@gitlab/ui';
+import { GlTooltipDirective, GlButton } from '@gitlab/ui';
 import { __ } from '~/locale';
-import LoadingButton from '~/vue_shared/components/loading_button.vue';
 import { RUNNING } from './constants';
 
 export default {
   name: 'DeploymentActionButton',
   components: {
-    LoadingButton,
+    GlButton,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -60,17 +59,17 @@ export default {
 
 <template>
   <span v-gl-tooltip :title="actionInProgressTooltip" class="d-inline-block" tabindex="0">
-    <loading-button
+    <gl-button
       v-gl-tooltip
       :title="buttonTitle"
       :loading="isLoading"
       :disabled="isActionInProgress"
-      :container-class="`btn btn-default btn-sm inline prepend-left-4 ${containerClasses}`"
+      :class="`btn btn-default btn-sm inline prepend-left-4 ${containerClasses}`"
       @click="$emit('click')"
     >
       <span class="d-inline-flex align-items-baseline">
         <slot> </slot>
       </span>
-    </loading-button>
+    </gl-button>
   </span>
 </template>
