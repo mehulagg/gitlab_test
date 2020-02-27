@@ -1,0 +1,19 @@
+# frozen_string_literal: true
+
+ADD_LABEL_MESSAGE = <<~MSG
+It looks like this code may make changes to a feature flag, or includes work that is potentially behind a feature flag.
+
+If this is the case, please add the "feature flag" label to this Merge Request according to [the documentation](https://docs.gitlab.com/ee/development/feature_flags/process.html#feature-flags-in-gitlab-development). Disregard this message if it is not applicable.
+MSG
+
+feature_flag = false
+
+helper.all_changed_files.each do |file|
+  if feature_flag == false && git.diff_for_file(file).patch.scan(/Feature/).any?
+    feature_flag = true
+  end
+end
+
+if feature_flag
+  warn ADD_LABEL_MESSAGE
+end

@@ -10,6 +10,7 @@ class GitlabDanger
     eslint
     database
     commit_messages
+    feature_flags
   ].freeze
 
   CI_ONLY_RULES ||= %w[
