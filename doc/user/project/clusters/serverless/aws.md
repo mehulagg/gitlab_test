@@ -291,7 +291,7 @@ You can also use a [template](../../../../gitlab-basics/create-project.md#projec
 (based on the version with tests and secret variables) from within the GitLab UI (see
 the `Serverless Framework/JS` template).
 
-## AWS Serverless Application Model 
+## AWS Serverless Application Model
 
 ### Deploying AWS Lambda function using AWS SAM and GitLab CI/CD
 
@@ -300,7 +300,7 @@ GitLab allows developers to build and deploy serverless applications using the c
 - [AWS Serverless Application Model (AWS SAM)](https://aws.amazon.com/serverless/sam/)
 - GitLab CI/CD
 
-AWS Serverless Application Model is an open source framework for building serverless applications. It makes it easier to build and deploy serverless applications. For more details please take a look at AWS documentation on  [AWS Serverless Application Model](https://aws.amazon.com/serverless/sam/) 
+AWS Serverless Application Model is an open source framework for building serverless applications. It makes it easier to build and deploy serverless applications. For more details please take a look at AWS documentation on  [AWS Serverless Application Model](https://aws.amazon.com/serverless/sam/)
 
 ### Example
 
@@ -338,9 +338,9 @@ Push this project to a new project in GitLab.
 
 ### Crafting the .gitlab-ci.yml file
 
-GitLab CI/CD pipelines are configured using a YAML file called .gitlab-ci.yml within each project. The [.gitlab-ci.yml](https://docs.gitlab.com/ee/ci/yaml/) file defines the structure and order of the pipelines.
+GitLab CI/CD pipelines are configured using a YAML file called ".gitlab-ci.yml" within each project. The[".gitlab-ci.yml"](https://docs.gitlab.com/ee/ci/yaml/) file defines the structure and order of the pipelines.
 
-In a .gitlab-ci.yml file in the root of your project, place the following code and replace the #S3Bucket# with an S3 bucket name where you would like to place your package:
+In a ".gitlab-ci.yml" file in the root of your project, place the following code and replace the #S3Bucket# with an S3 bucket name where you would like to place your package:
 
 ```yaml
 image: python:latest
@@ -372,7 +372,7 @@ production:
 
 Let’s examine the config file more closely:
 
-1. Image specifies the docker image to use for this build. The latest python image since the sample application is written in python
+1. Image specifies the docker image to use for this build. The latest python image since the sample application is written in Python
 1. AWS CLI and AWS SAM CLI are installed in before script section.
 1. SAM build, package and deploy commands are used to build, package and deploy the application. More details on SAM can be found [here](https://aws.amazon.com/serverless/sam/).
 
@@ -396,15 +396,15 @@ If your build fails please take a look at the build log to see why the build fai
 
 To test the application you deployed, please go to the build log and follow the following steps:
 
-1. Click on “Show complete raw” on the upper righthand corner
+- Click on “Show complete raw” on the upper righthand corner
 
 ![sam-complete-raw](img/sam-complete-raw.png)
 
-2. Look for HelloWorldApi – API Gateway endpoint similar to shown below
+- Look for HelloWorldApi – API Gateway endpoint similar to shown below
 
 ![sam-api-endpoint](img/sam-api-endpoint.png)
 
-3. Use curl to test the API
+- Use curl to test the API
 
 `curl https://py4rg7qtlg.execute-api.us-east-1.amazonaws.com/Prod/hello/`
 
@@ -416,10 +416,9 @@ Output should be:
 
 ### Testing Locally
 
-AWS SAM provides functionality to test your applications locally. As mentioned earlier, you must have AWS SAM CLI installed locally for you to test locally. 
+AWS SAM provides functionality to test your applications locally. As mentioned earlier, you must have AWS SAM CLI installed locally for you to test locally.
 
-
-First, test the function. SAM provides a default event in events/event.json that includes a message body of {\“message\”: \“hello world\”}. If you pass that event into the HelloWorldFunction, it should respond with the same body. 
+First, test the function. SAM provides a default event in events/event.json that includes a message body of {\“message\”: \“hello world\”}. If you pass that event into the HelloWorldFunction, it should respond with the same body.
 
 `sam local invoke HelloWorldFunction -e events/event.json`
 
