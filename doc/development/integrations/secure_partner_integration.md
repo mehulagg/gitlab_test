@@ -49,7 +49,7 @@ resources for the technical work associated with [onboarding as a partner](https
    1. Detailed [technical directions](secure.md) for this step.
    1. About [job report artifacts](../../ci/yaml/README.html#artifactsreports)
    1. About [job artifacts](../../user/project/pipelines/job_artifacts.html) in general.
-   1. Your report artifact must be in one of our currently supported formats. General documentation about the reports is available in the [Secure Reports](../../development/integrations/secure#report) page.
+   1. Your report artifact must be in one of our currently supported formats. General documentation about the reports is available in the [Secure Reports](../../development/integrations/secure/#report) page.
       1. [SAST report](../../user/application_security/sast#reports-json-format)
       1. [Dependency Scanning report](../../user/application_security/dependency_scanning/#reports-json-format)
       1. [Container Scanning](../../user/application_security/container_scanning/index.html#reports-json-format)
