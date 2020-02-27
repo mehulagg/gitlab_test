@@ -7,20 +7,36 @@ resources for the technical work associated with [onboarding as a partner](https
 
 ## What is the Desired Developer Workflow?
 
-- Developers want to write their code, and not need to leave context to consume feedback and critical data about the item they are working on.
-- During the GitLab CI/CD step Developers submit changes via a branch which triggers a pipeline and associated jobs on the updated code. Then the developer creates a merge request (MR) where these changes and corresponding security analysis can be reviewed.
-- Jobs serve a variety of purposes, for this feature we are concerned with ones that have Security, Policy, or Compliance implications. The job will report back on its status, and create a [job artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html) as a result.
-- Feedback about the findings are shown in the [Merge Request Security Widget](https://docs.gitlab.com/ee/user/project/merge_requests/#security-reports-ultimate)
-- A developer may expand and review a summary of the findings in the MR report, and then view more information as needed.
-- If the developer needs more information they can click to get more information about the findings. They can then act as needed.
-- If certain policies, such as [merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/merge_request_approvals.html), are put in place for a project, specific findings will require the developer to resolve the finding or get an approval form a specific list of people in order to proceed past this step.
-- Results will also show in the [security dashboard](https://docs.gitlab.com/ee/user/application_security/security_dashboard/#gitlab-security-dashboard-ultimate).
-- Users can see summary information in the dashboard, view the vulnerability summary (same data as in the pipeline report) and take action as needed (see below).
-- Developer Action: However the user arrives at the Vulnerability details, they are presented with additional information and choices on next steps:
-    1. Links - This is where we expect partners to link out to their own sites or sources for users to get more data around the findings
-    1. Create Issue (Confirm finding) - creates an issue to be prioritized into the normal development workflow
-    1. Add Comment and Dismiss - The comments are where a users can denote items that they have mitigated, accepted, or that are a false positives when they dismiss a finding.
-    1. Auto-Remediation / Create Merge request - This is offered if a potential solution is offered in the artifact allowing an easy and boring solution for the user to try and continue on. Partners, it is preferable to offer this where possible
+- Developers want to write code without leaving that context to consume feedback and critical data
+  about the item they are working on.
+- During the GitLab CI/CD step, developers submit changes via a branch which triggers a pipeline and
+  associated jobs on the updated code. Then the developer creates a merge request (MR) where these
+  changes and corresponding security analysis can be reviewed.
+- Jobs serve a variety of purposes. For this feature, we are concerned with ones that have security,
+  policy, or compliance implications. The job reports back on its status and creates a
+  [job artifact](https://docs.gitlab.com/ee/user/project/pipelines/job_artifacts.html) as a result.
+- The [Merge Request Security Widget](https://docs.gitlab.com/ee/user/project/merge_requests/#security-reports-ultimate) displays feedback on the findings.
+- A developer may expand and review a summary of the findings in the MR report, and then view more
+  information as needed.
+- A developer can click to get more information about the findings, and then act as needed.
+- If certain policies (such as [merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/merge_request_approvals.html))
+  are in place for a project, developers must resolve specific findings or get an approval from a
+  specific list of people.
+- The [security dashboard](https://docs.gitlab.com/ee/user/application_security/security_dashboard/#gitlab-security-dashboard-ultimate)
+  also shows results.
+- Users can see summary information in the dashboard, view the vulnerability summary (the same data
+  as in the pipeline report), and take action as needed (see below).
+- However the developer arrives at the vulnerability details, they are presented with additional
+  information and choices on next steps:
+    1. Links: Partners can link out to their own sites or sources for users to get more data around
+       the findings.
+    1. Create Issue (Confirm finding): Creates an issue to be prioritized in the normal development
+       workflow.
+    1. Add Comment and Dismiss: When dismissing a finding, users can comment to note items that they
+       have mitigated or accepted, or that are false positives.
+    1. Auto-Remediation / Create Merge Request: A potential solution is offered in the artifact,
+       allowing an easy and boring solution for the user. It is preferable to offer this where
+       possible.
 
 ## What are the steps to onboard?
 
