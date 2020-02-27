@@ -1,0 +1,5 @@
+---
+title: Change Jira service to create comments first
+merge_request: 26052
+author:
+type: fixed

@@ -280,8 +280,8 @@ class JiraService < IssueTrackerService
     return unless client_url.present?
 
     jira_request do
-      create_issue_link(issue, remote_link_props)
       create_issue_comment(issue, message)
+      create_issue_link(issue, remote_link_props)
 
       log_info("Successfully posted", client_url: client_url)
       "SUCCESS: Successfully posted to #{client_url}."
