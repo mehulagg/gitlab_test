@@ -293,19 +293,16 @@ the `Serverless Framework/JS` template).
 
 ## AWS Serverless Application Model 
 
-
 ### Deploying AWS Lambda function using AWS SAM and GitLab CI/CD
 
 GitLab allows developers to build and deploy serverless applications using the combination of:
-
 
 - [AWS Serverless Application Model (AWS SAM)](https://aws.amazon.com/serverless/sam/)
 - GitLab CI/CD
 
 AWS Serverless Application Model is an open source framework for building serverless applications. It makes it easier to build and deploy serverless applications. For more details please take a look at AWS documentation on  [AWS Serverless Application Model](https://aws.amazon.com/serverless/sam/) 
 
-
-### Example:
+### Example
 
 In the following example, you will:
 
@@ -313,7 +310,7 @@ In the following example, you will:
 1. Create a sample SAM application including a Lambda function and API Gateway
 1. Build and deploy the application to your AWS account using GitLab CI/CD
 
-### Steps:
+### Steps
 
 The example consists of the following steps:
 
@@ -324,26 +321,22 @@ The example consists of the following steps:
 1. Deploying your application
 1. Testing the deployed function
 
-### Installing SAM CLI:
+### Installing SAM CLI
 
-AWS SAM provides a CLI called, AWS SAM CLI, to make it easier to create and manage applications. Some steps in this documentation uses SAM CLI. Please follow the instructions on [installing SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) page install and configure SAM CLI. 
+AWS SAM provides a CLI called, AWS SAM CLI, to make it easier to create and manage applications. Some steps in this documentation uses SAM CLI. Please follow the instructions on [installing SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) page install and configure SAM CLI. If you use [AWS Cloud9](https://aws.amazon.com/cloud9/) as your integrated development environment (IDE), the [AWS Command Line Interface](https://docs.aws.amazon.com/en_pv/cli/latest/userguide/cli-chap-install.html) (CLI), [SAM CLI](https://docs.aws.amazon.com/en_pv/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html), [Docker](https://docs.docker.com/install/), and necessary Docker images are installed for you.
 
-If you use [AWS Cloud9](https://aws.amazon.com/cloud9/) as your integrated development environment (IDE), the [AWS Command Line Interface](https://docs.aws.amazon.com/en_pv/cli/latest/userguide/cli-chap-install.html) (CLI), [SAM CLI](https://docs.aws.amazon.com/en_pv/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html), [Docker](https://docs.docker.com/install/), and necessary Docker images are installed for you.
-
-### Creating an AWS SAM application using SAM CLI:
+### Creating an AWS SAM application using SAM CLI
 
 To create a SAM app from the CLI, open a terminal and enter the following text:
 
 `sam init -r python3.8 -n gitlabpoc --app-template "hello-world"`
 
-This creates a SAM app named gitlabpoc using the default configuration, a single Python3.8 function invoked by an [Amazon API Gateway](https://aws.amazon.com/api-gateway/) endpoint. 
-
-To see additional runtimes supported by SAM and options for sam init, enter:
+This creates a SAM app named gitlabpoc using the default configuration, a single Python3.8 function invoked by an [Amazon API Gateway](https://aws.amazon.com/api-gateway/) endpoint. To see additional runtimes supported by SAM and options for sam init, enter:
 `sam init -h`
 
 Push this project to a new project in GitLab.
 
-### Crafting the .gitlab-ci.yml file:
+### Crafting the .gitlab-ci.yml file
 
 GitLab CI/CD pipelines are configured using a YAML file called .gitlab-ci.yml within each project. The [.gitlab-ci.yml](https://docs.gitlab.com/ee/ci/yaml/) file defines the structure and order of the pipelines.
 
@@ -395,7 +388,7 @@ Push changes to your GitLab repository and the GitLab build pipeline will automa
 
 If your build fails please take a look at the build log to see why the build failed. Some common reasons the build might fail are:
 
-1. In-compatible versions of software (e.g. Python run time version might be different from the python on the build machine). Please address this by installing the proper versions of the software.
+1. In-compatible versions of software (e.g. Python run time version might be different from the Python on the build machine). Please address this by installing the proper versions of the software.
 1. You may not be able to access your AWS account from GitLab. Please, go back and check the environment variables you setup with AWS credentials.
 1. You may not have permission to do deploy a serverless application. Please make sure you provide all required permissions to deploy a serverless application.
 
@@ -421,9 +414,10 @@ Output should be:
 {"message": "hello world"}
 ```
 
-### Testing Locally:
+### Testing Locally
 
 AWS SAM provides functionality to test your applications locally. As mentioned earlier, you must have AWS SAM CLI installed locally for you to test locally. 
+
 
 First, test the function. SAM provides a default event in events/event.json that includes a message body of {\“message\”: \“hello world\”}. If you pass that event into the HelloWorldFunction, it should respond with the same body. 
 
