@@ -338,7 +338,7 @@ Push this project to a new project in GitLab.
 
 ### Crafting the `.gitlab-ci.yml` file
 
-GitLab CI/CD pipelines are configured using a YAML file called `.gitlab-ci.yml` within each project. The[".gitlab-ci.yml"](https://docs.gitlab.com/ee/ci/yaml/) file defines the structure and order of the pipelines.
+GitLab CI/CD pipelines are configured using a YAML file called `.gitlab-ci.yml` within each project. The[`.gitlab-ci.yml`](https://docs.gitlab.com/ee/ci/yaml/) file defines the structure and order of the pipelines.
 
 In a `.gitlab-ci.yml` file in the root of your project, place the following code and replace the #S3Bucket# with an S3 bucket name where you would like to place your package:
 
