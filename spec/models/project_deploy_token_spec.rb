@@ -14,11 +14,4 @@ RSpec.describe ProjectDeployToken, type: :model do
   it { is_expected.to validate_presence_of :deploy_token }
   it { is_expected.to validate_presence_of :project }
   it { is_expected.to validate_uniqueness_of(:deploy_token_id).scoped_to(:project_id) }
-
-  describe '#find_by_deploy_token' do
-    it 'finds a deploy token by deploy_token_id' do
-      expect(described_class.all.find_by_deploy_token(project_deploy_token.id))
-        .to eq project_deploy_token
-    end
-  end
 end

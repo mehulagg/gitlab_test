@@ -3,9 +3,9 @@
 require 'spec_helper'
 
 describe API::DeployTokens do
-  let(:user)          { create(:user) }
-  let(:creator)       { create(:user) }
-  let(:project)       { create(:project, creator_id: creator.id) }
+  let_it_be(:user)          { create(:user) }
+  let_it_be(:creator)       { create(:user) }
+  let_it_be(:project)       { create(:project, creator_id: creator.id) }
   let!(:deploy_token) { create(:deploy_token, projects: [project]) }
 
   describe 'GET /deploy_tokens' do
@@ -85,49 +85,47 @@ describe API::DeployTokens do
     end
   end
 
-  context 'projects' do
-    describe 'DELETE /projects/:id/deploy_tokens/:token_id' do
-      subject do
-        delete api("/projects/#{project.id}/deploy_tokens/#{deploy_token.id}", user)
-        response
+  describe 'DELETE /projects/:id/deploy_tokens/:token_id' do
+    subject do
+      delete api("/projects/#{project.id}/deploy_tokens/#{deploy_token.id}", user)
+      response
+    end
+
+    context 'when unauthenticated' do
+      let(:user) { nil }
+
+      it { is_expected.to have_gitlab_http_status(:not_found) }
+    end
+
+    context 'when authenticated as non-admin user' do
+      before do
+        project.add_developer(user)
       end
 
-      context 'when unauthenticated' do
-        let(:user) { nil }
+      it { is_expected.to have_gitlab_http_status(:forbidden) }
+    end
 
-        it { is_expected.to have_gitlab_http_status(:not_found) }
+    context 'when authenticated as maintainer' do
+      before do
+        project.add_maintainer(user)
       end
 
-      context 'when authenticated as non-admin user' do
-        before do
-          project.add_developer(user)
-        end
+      it { is_expected.to have_gitlab_http_status(:no_content) }
 
-        it { is_expected.to have_gitlab_http_status(:forbidden) }
+      it 'deletes the deploy token' do
+        expect { subject }.to change { project.deploy_tokens.count }.by(-1)
       end
 
-      context 'when authenticated as maintainer' do
-        before do
-          project.add_maintainer(user)
-        end
+      it 'returns not_found with invalid project id' do
+        delete api("/projects/abc123/deploy_tokens/#{deploy_token.id}", user)
 
-        it { is_expected.to have_gitlab_http_status(:no_content) }
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
 
-        it 'deletes the deploy token' do
-          expect { subject }.to change { project.deploy_tokens.count }.by(-1)
-        end
+      it 'returns bad_request with invalid token id' do
+        delete api("/projects/#{project.id}/deploy_tokens/123abc", user)
 
-        it 'with invalid project id' do
-          delete api("/projects/abc123/deploy_tokens/#{deploy_token.id}", user)
-
-          expect(response).to have_gitlab_http_status(:bad_request)
-        end
-
-        it 'with invalid token id' do
-          delete api("/projects/#{project.id}/deploy_tokens/123abc", user)
-
-          expect(response).to have_gitlab_http_status(:not_found)
-        end
+        expect(response).to have_gitlab_http_status(:bad_request)
       end
     end
   end

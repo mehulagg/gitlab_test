@@ -74,10 +74,6 @@ Example response:
 ]
 ```
 
-## Project deploy tokens
-
-These endpoints require project maintainer access or higher.
-
 ### Delete a project deploy token
 
 Removes a deploy token from the project.

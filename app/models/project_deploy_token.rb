@@ -8,10 +8,6 @@ class ProjectDeployToken < ApplicationRecord
   validates :project, presence: true
   validates :deploy_token_id, uniqueness: { scope: [:project_id] }
 
-  def self.find_by_deploy_token(token_id)
-    find_by(deploy_token_id: token_id)
-  end
-
   def has_access_to?(requested_project)
     requested_project == project
   end
