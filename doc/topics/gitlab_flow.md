@@ -6,7 +6,7 @@ disqus_identifier: 'https://docs.gitlab.com/ee/workflow/gitlab_flow.html'
 
 ![GitLab Flow](img/gitlab_flow.png)
 
-Git allows a wide variety of branching strategies and workflows.
+Git allows a wide variety of branching strategies and workflows.  A meaningless change.
 Because of this, many organizations end up with workflows that are too complicated, not clearly defined, or not integrated with issue tracking systems.
 Therefore, we propose GitLab flow as a clearly defined set of best practices.
 It combines [feature-driven development](https://en.wikipedia.org/wiki/Feature-driven_development) and [feature branches](https://martinfowler.com/bliki/FeatureBranch.html) with issue tracking.
