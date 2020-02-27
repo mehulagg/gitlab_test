@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_24_163804) do
+ActiveRecord::Schema.define(version: 2020_02_27_160721) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1489,6 +1489,11 @@ ActiveRecord::Schema.define(version: 2020_02_24_163804) do
     t.index ["confirmation_token"], name: "index_emails_on_confirmation_token", unique: true
     t.index ["email"], name: "index_emails_on_email", unique: true
     t.index ["user_id"], name: "index_emails_on_user_id"
+  end
+
+  create_table "encrypted_files", force: :cascade do |t|
+    t.string "file"
+    t.text "key_ciphertext"
   end
 
   create_table "environments", id: :serial, force: :cascade do |t|
