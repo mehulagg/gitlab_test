@@ -12,6 +12,9 @@ module Metrics
           throw(:error, error(_(%q(You are not allowed to push into this branch. Create another branch or open a merge request.)), :forbidden)) unless push_authorized?
 
           result = ::Files::UpdateService.new(project, current_user, dashboard_attrs).execute
+
+          # create a new MR if branch params present
+
           throw(:error, result.merge(http_status: :bad_request)) unless result[:status] == :success
 
           success(result.merge(http_status: :created, dashboard: dashboard_details))
