@@ -159,4 +159,11 @@ def fail_message(intro)
   MARKDOWN
 end
 
+puts git.commits.inspect
+puts git.modified_files.inspect
+puts git.added_files.inspect
+puts helper.all_changed_files.inspect
+puts git.instance_variable_get(:@git).log.inspect
+puts git.instance_variable_get(:@git).diff.inspect
+
 lint_commits(git.commits)
