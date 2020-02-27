@@ -264,4 +264,6 @@ danger-review:
     # - rm .git/hooks/post-checkout
     # - git checkout -b $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME $CI_MERGE_REQUEST_REF_PATH
     # - git rev-parse --abbrev-ref HEAD
+    - gem install specific_install
+    - gem specific_install -l https://github.com/rymai/danger.git -b gitlab-mr-fix
     - danger --verbose --new-comment # --head="$CI_MERGE_REQUEST_SOURCE_BRANCH_SHA" --base="$CI_MERGE_REQUEST_TARGET_BRANCH_SHA" # fail-on-errors=true
