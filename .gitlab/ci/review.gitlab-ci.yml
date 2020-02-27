@@ -253,4 +253,14 @@ danger-review:
     - git version
     - node --version
     - yarn install --frozen-lockfile --cache-folder .yarn-cache --prefer-offline
+    - echo $CI_COMMIT_REF_NAME
+    - echo $CI_COMMIT_REF_SLUG
+    - echo $CI_COMMIT_BRANCH
+    - git rev-parse HEAD
+    - git rev-parse --abbrev-ref HEAD
     - danger --verbose --new-comment  # fail-on-errors=true
+    - git rev-parse danger_base
+    - git rev-parse danger_head
+    - git merge-base danger_base danger_head
+    - git diff danger_base danger_head --name-only
+    - 'git diff $(git merge-base danger_base danger_head) danger_head --name-only'
