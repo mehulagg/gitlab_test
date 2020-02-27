@@ -9,19 +9,19 @@ module QA
           # sandbox. To use a different Sandbox, we have to specifically use Resource::Sandbox.
           # This is our top-level group. By default, it creates a 'Sandbox' group
           @Parent_Group_A = QA::Resource::Group.fabricate_via_api! do |group|
-            group.path = "Parent-group-a-Vitor-#{SecureRandom.hex(8)}"
+            group.path = "Parent-group-a-#{SecureRandom.hex(8)}"
           end
 
           # This is for Group_A, it creates a sub-group of the sandbox group (used as our top-level group)
           @Group_A = Resource::Group.fabricate_via_api! do |group|
             group.sandbox = @Parent_Group_A
-            group.path = "Sub-group-a-#{SecureRandom.hex(8)}"
+            group.path = "Group-a-#{SecureRandom.hex(8)}"
           end
 
           # Same as for Group_A, it creates a nested group
           @Child_Group_A = Resource::Group.fabricate_via_api! do |group|
             group.sandbox = @Group_A
-            group.path = "Sub-sub-group-a-#{SecureRandom.hex(8)}"
+            group.path = "Sub-group-a-#{SecureRandom.hex(8)}"
           end
 
           @Project_A = Resource::Project.fabricate! do |project|
@@ -38,12 +38,12 @@ module QA
 
           @Group_B = Resource::Group.fabricate_via_api! do |group|
             group.sandbox = @Parent_Group_B
-            group.path = "Sub-group-b-#{SecureRandom.hex(8)}"
+            group.path = "Group-b-#{SecureRandom.hex(8)}"
           end
 
           @Child_Group_B = Resource::Group.fabricate_via_api! do |group|
             group.sandbox = @Group_B
-            group.path = "Sub-sub-group-b-#{SecureRandom.hex(8)}"
+            group.path = "Sub-group-b-#{SecureRandom.hex(8)}"
           end
 
           @Parent_User_A = Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_1, Runtime::Env.gitlab_qa_password_1)
