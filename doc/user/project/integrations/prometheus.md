@@ -732,7 +732,7 @@ It is also possible to embed either the default dashboard metrics or individual 
 
 [Cluster Health Metrics](../clusters/index.md#monitoring-your-kubernetes-cluster-ultimate) can also be embedded in [GitLab-flavored Markdown](../../markdown.md).
 
-To embed a metric chart, include a link to that chart in the form `https://<root_url>/<project>/-/cluster/<cluster_id>?<query_params>` anywhere that GitLab-flavored Markdown is supported. To generate and copy a link to the chart, click the **{ellipsis_v}** **More actions** menu to the right of the chart, as shown in the [Cluster Health Metric documentation](https://docs.gitlab.com/ee/user/project/clusters/#monitoring-your-kubernetes-cluster-ultimate).
+To embed a metric chart, include a link to that chart in the form `https://<root_url>/<project>/-/cluster/<cluster_id>?<query_params>` anywhere that GitLab-flavored Markdown is supported. To generate and copy a link to the chart, follow the instructions in the [Cluster Health Metric documentation](<link>).
 
 The following requirements must be met for the metric to unfurl:
 
