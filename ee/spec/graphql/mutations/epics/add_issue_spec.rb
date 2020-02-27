@@ -3,17 +3,16 @@
 require 'spec_helper'
 
 describe Mutations::Epics::AddIssue do
-  let(:group) { create(:group) }
+  let(:group)   { create(:group) }
   let(:project) { create(:project, namespace: group) }
-  let(:issue) { create(:issue, project: project) }
-  let(:epic) { create(:epic, group: group) }
-  let(:user) { issue.author }
+  let(:issue)   { create(:issue, project: project) }
+  let(:epic)    { create(:epic, group: group) }
+  let(:user)    { issue.author }
 
-  subject(:mutation) { described_class.new(object: nil, context: { current_user: user }) }
+  subject(:mutation) { described_class.new(object: group, context: { current_user: user }) }
 
   describe '#resolve' do
-    let(:mutated_issue) { subject[:issue] }
-    let(:mutated_epic)  { subject[:epic] }
+    let(:epic_issue) { subject[:epic_issue] }
 
     subject do
       mutation.resolve(
@@ -35,9 +34,9 @@ describe Mutations::Epics::AddIssue do
       end
 
       it 'adds the issue to the epic' do
-        expect(mutated_issue).to eq(issue)
-        expect(mutated_epic).to eq(epic)
-        expect(mutated_issue.epic).to eq(epic)
+        expect(epic_issue.issue).to eq(issue)
+        expect(epic_issue.epic).to eq(epic)
+        expect(issue.reload.epic).to eq(epic)
         expect(subject[:errors]).to be_empty
       end
     end

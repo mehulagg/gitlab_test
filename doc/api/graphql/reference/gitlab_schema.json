@@ -25260,20 +25260,6 @@
               },
               "isDeprecated": false,
               "deprecationReason": null
-            },
-            {
-              "name": "issue",
-              "description": "The issue after mutation",
-              "args": [
-
-              ],
-              "type": {
-                "kind": "OBJECT",
-                "name": "Issue",
-                "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
             }
           ],
           "inputFields": null,
@@ -25290,8 +25276,22 @@
           "fields": null,
           "inputFields": [
             {
+              "name": "iid",
+              "description": "The iid of the epic to mutate",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
               "name": "groupPath",
-              "description": "The group the epic is in",
+              "description": "The group the epic to mutate belongs to",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -25305,27 +25305,13 @@
             },
             {
               "name": "projectPath",
-              "description": "The project that the issue belongs to",
+              "description": "The project the issue belongs to",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
                 "ofType": {
                   "kind": "SCALAR",
                   "name": "ID",
-                  "ofType": null
-                }
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "iid",
-              "description": "The iid of the epic",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
                   "ofType": null
                 }
               },

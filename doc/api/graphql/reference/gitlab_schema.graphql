@@ -2229,14 +2229,14 @@ input EpicAddIssueInput {
   clientMutationId: String
 
   """
-  The group the epic is in
+  The group the epic to mutate belongs to
   """
   groupPath: ID!
 
   """
-  The iid of the epic
+  The iid of the epic to mutate
   """
-  iid: String!
+  iid: ID!
 
   """
   The iid of the issue to be added
@@ -2244,7 +2244,7 @@ input EpicAddIssueInput {
   issueIid: String!
 
   """
-  The project that the issue belongs to
+  The project the issue belongs to
   """
   projectPath: ID!
 }
@@ -2272,11 +2272,6 @@ type EpicAddIssuePayload {
   Reasons why the mutation failed.
   """
   errors: [String!]!
-
-  """
-  The issue after mutation
-  """
-  issue: Issue
 }
 
 """

@@ -26,7 +26,7 @@ describe 'Add an issue to an Epic' do
                     errors: ['The resource that you are attempting to access does not exist '\
                'or you don\'t have permission to perform this action']
 
-    it 'does not subscribe user to the epic' do
+    it 'does not add issue to the epic' do
       post_graphql_mutation(mutation, current_user: current_user)
 
       expect(issue.epic).to be_nil
@@ -42,7 +42,7 @@ describe 'Add an issue to an Epic' do
     it 'adds the issue to the epic' do
       post_graphql_mutation(mutation, current_user: current_user)
 
-      expect(issue.epic).to eq(epic)
+      expect(issue.reload.epic).to eq(epic)
       expect(graphql_errors).to be_nil
     end
   end
