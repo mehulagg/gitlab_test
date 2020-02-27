@@ -9,6 +9,7 @@ GitLab supports deployment of functions to AWS Lambda using a combination of:
 - GitLab CI/CD
 
 ## Serverless Framework
+
 The [Serverless Framework can deploy to AWS](https://serverless.com/framework/docs/providers/aws/)
 
 We have prepared an example with a step-by-step guide to create a simple function and deploy it on AWS.
@@ -290,9 +291,6 @@ You can also use a [template](../../../../gitlab-basics/create-project.md#projec
 (based on the version with tests and secret variables) from within the GitLab UI (see
 the `Serverless Framework/JS` template).
 
-
-
-----
 ## AWS Serverless Application Model 
 
 
@@ -311,18 +309,13 @@ AWS Serverless Application Model is an open source framework for building server
 
 In the following example, you will:
 
-
-
 1. Install SAM CLI
 1. Create a sample SAM application including a Lambda function and API Gateway
 1. Build and deploy the application to your AWS account using GitLab CI/CD
 
-
 ### Steps:
 
 The example consists of the following steps:
-
-
 
 1. Install SAM CLI
 1. Creating an AWS SAM application using SAM CLI
@@ -331,13 +324,11 @@ The example consists of the following steps:
 1. Deploying your application
 1. Testing the deployed function
 
-
 ### Installing SAM CLI:
 
 AWS SAM provides a CLI called, AWS SAM CLI, to make it easier to create and manage applications. Some steps in this documentation uses SAM CLI. Please follow the instructions on [installing SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) page install and configure SAM CLI. 
 
 If you use [AWS Cloud9](https://aws.amazon.com/cloud9/) as your integrated development environment (IDE), the [AWS Command Line Interface](https://docs.aws.amazon.com/en_pv/cli/latest/userguide/cli-chap-install.html) (CLI), [SAM CLI](https://docs.aws.amazon.com/en_pv/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html), [Docker](https://docs.docker.com/install/), and necessary Docker images are installed for you.
-
 
 ### Creating an AWS SAM application using SAM CLI:
 
@@ -388,19 +379,15 @@ production:
 
 Let’s examine the config file more closely:
 
-
 1. Image specifies the docker image to use for this build. The latest python image since the sample application is written in python
 1. AWS CLI and AWS SAM CLI are installed in before script section.
 1. SAM build, package and deploy commands are used to build, package and deploy the application. More details on SAM can be found [here](https://aws.amazon.com/serverless/sam/).
-
 
 ### Setting up your AWS credentials with your GitLab account:
 
 In order to interact with your AWS account, the GitLab CI/CD pipelines require both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to be defined in your GitLab settings under **Settings > CI/CD > Variables**. For more information please see  [link](https://docs.gitlab.com/ee/ci/variables/README.html#via-the-ui) Please ensure you mask the credentials so they do not show in logs.
 
-
 **Note:** The AWS credentials you provide must include IAM policies that provision correct access control to AWS Lambda, API Gateway, CloudFormation, and IAM resources. 
-
 
 ### Deploying your application:
 
@@ -408,31 +395,21 @@ Push changes to your GitLab repository and the GitLab build pipeline will automa
 
 If your build fails please take a look at the build log to see why the build failed. Some common reasons the build might fail are:
 
-
-
 1. In-compatible versions of software (e.g. Python run time version might be different from the python on the build machine). Please address this by installing the proper versions of the software.
 1. You may not be able to access your AWS account from GitLab. Please, go back and check the environment variables you setup with AWS credentials.
 1. You may not have permission to do deploy a serverless application. Please make sure you provide all required permissions to deploy a serverless application.
-
 
 ### Testing the deployed application:
 
 To test the application you deployed, please go to the build log and follow the following steps:
 
-
-
 1. Click on “Show complete raw” on the upper righthand corner
-
 
 ![sam-complete-raw](img/sam-complete-raw.png)
 
-
 2. Look for HelloWorldApi – API Gateway endpoint similar to shown below
 
-
 ![sam-api-endpoint](img/sam-api-endpoint.png)
-
-
 
 3. Use curl to test the API
 
@@ -443,7 +420,6 @@ Output should be:
 ```json
 {"message": "hello world"}
 ```
-
 
 ### Testing Locally:
 
@@ -465,11 +441,9 @@ Start the API locally:
 
 `sam local start-api`
 
-
 SAM again launches a Docker container, this time with a mocked Amazon API Gateway listening on localhost:3000. Now you can call the hello API as follows:
 
 `curl http://127.0.0.1:3000/hello`
-
 
 Output again should be:
 
