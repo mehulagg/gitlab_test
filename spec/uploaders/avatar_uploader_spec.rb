@@ -55,17 +55,15 @@ describe AvatarUploader do
     where(:mime_type) { described_class::MIME_WHITELIST }
 
     with_them do
-      before do
-        allow_any_instance_of(described_class).to receive(:extension_whitelist).and_return(nil)
-        allow_any_instance_of(MimeMagic).to receive(:type).and_return(mime_type)
-      end
+      include_context 'remove extension whitelist'
+      include_context 'stubbed content type detection'
 
       it_behaves_like 'accepted carrierwave upload'
     end
   end
 
   context 'upload non-whitelisted file content type' do
-    let(:path) { File.join('spec', 'fixtures', 'sanitized.svg') }
+    let_it_be(:path) { File.join('spec', 'fixtures', 'sanitized.svg') }
 
     it_behaves_like 'denied carrierwave upload'
   end
