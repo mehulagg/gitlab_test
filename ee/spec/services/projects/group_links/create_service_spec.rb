@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 describe Projects::GroupLinks::CreateService, '#execute' do
+  include ProjectForksHelper
+
   let(:user) { create :user }
   let(:project) { create :project }
   let(:group) { create(:group, visibility_level: 0) }
@@ -40,6 +42,8 @@ describe Projects::GroupLinks::CreateService, '#execute' do
   context 'when project is in sso enforced group' do
     let(:saml_provider) { create(:saml_provider, enforced_sso: true) }
     let(:root_group) { saml_provider.group }
+    let(:identity) { create(:group_saml_identity, saml_provider: saml_provider) }
+    let(:user) { identity.user }
     let(:project) { create(:project, :private, group: root_group) }
     let(:subject) { described_class.new(project, user, opts) }
 
@@ -79,6 +83,59 @@ describe Projects::GroupLinks::CreateService, '#execute' do
 
         it 'does not add group to project' do
           expect { subject.execute(group_to_invite) }.not_to change { project.project_group_links.count }
+        end
+      end
+    end
+
+    context 'when project is forked from group with enforced sso' do
+      let(:forked_project) { create(:project) }
+
+      before do
+        saml_provider.update!(prohibited_outer_forks: true)
+        root_group.add_developer(user)
+
+        fork_project(project, user, target_project: forked_project)
+      end
+
+      context 'when invited group is outside top group' do
+        let(:group_to_invite) { create(:group) }
+
+        it 'does not add group to project' do
+          expect { described_class.new(forked_project, user, opts).execute(group_to_invite) }.not_to change { forked_project.project_group_links.count }
+        end
+      end
+
+      context 'when invited group is in the top group' do
+        let(:group_to_invite) { create(:group, parent: root_group) }
+
+        it 'adds group to project' do
+          expect { described_class.new(forked_project, user, opts).execute(group_to_invite) }.to change { forked_project.project_group_links.count }.from(0).to(1)
+        end
+      end
+    end
+
+    context 'when project is forked to group with enforced sso' do
+      let(:source_project) { create(:project) }
+
+      before do
+        source_project.add_developer(user)
+
+        fork_project(source_project, user, target_project: project)
+      end
+
+      context 'when invited group is outside top group' do
+        let(:group_to_invite) { create(:group) }
+
+        it 'does not add group to project' do
+          expect { subject.execute(group_to_invite) }.not_to change { project.project_group_links.count }
+        end
+      end
+
+      context 'when invited group is in the top group' do
+        let(:group_to_invite) { create(:group, parent: root_group) }
+
+        it 'adds group to project' do
+          expect { subject.execute(group_to_invite) }.to change { project.project_group_links.count }.from(0).to(1)
         end
       end
     end
