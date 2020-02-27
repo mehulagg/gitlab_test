@@ -6,6 +6,7 @@ import { approximateDuration } from '~/lib/utils/datetime_utility';
 describe('StageNavItem', () => {
   const title = 'Rad stage';
   const median = 50;
+  const stageId = 1;
 
   const $sel = {
     title: '.stage-name',
@@ -15,6 +16,7 @@ describe('StageNavItem', () => {
   function createComponent(props) {
     return shallowMount(StageNavItem, {
       propsData: {
+        stageId,
         title,
         value: median,
         ...props,

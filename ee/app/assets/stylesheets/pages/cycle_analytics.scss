@@ -27,3 +27,10 @@
     }
   }
 }
+
+.sortable-drag {
+  border-radius: .25rem;
+  background-color: $white;
+  box-shadow: 0 0 .25rem $gl-btn-active-background,
+              0 .25rem .75rem $gl-btn-active-background;
+}

@@ -36,6 +36,10 @@ export default {
       default: false,
       required: false,
     },
+    stageId: {
+      type: [String, Number],
+      required: true,
+    },
   },
   data() {
     return {
@@ -72,7 +76,12 @@ export default {
 </script>
 
 <template>
-  <li @click="handleSelectStage" @mouseover="handleHover(true)" @mouseleave="handleHover()">
+  <li
+    :data-stage-id="stageId"
+    @click="handleSelectStage"
+    @mouseover="handleHover(true)"
+    @mouseleave="handleHover()"
+  >
     <stage-card-list-item :is-active="isActive" :can-edit="editable">
       <div class="stage-nav-item-cell stage-name p-0" :class="{ 'font-weight-bold': isActive }">
         {{ title }}

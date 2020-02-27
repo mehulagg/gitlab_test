@@ -72,6 +72,7 @@ export default {
       'tasksByType',
       'medians',
       'customStageFormErrors',
+      'errorSavingStageOrder',
     ]),
     ...mapGetters([
       'hasNoAccessError',
@@ -81,6 +82,7 @@ export default {
       'durationChartMedianData',
       'activeStages',
       'selectedProjectIds',
+      'enableCustomerOrdering',
     ]),
     shouldRenderEmptyState() {
       return !this.selectedGroup;
@@ -151,6 +153,7 @@ export default {
       'clearCustomStageFormErrors',
       'updateStage',
       'setTasksByTypeFilters',
+      'reorderStage',
     ]),
     onGroupSelect(group) {
       this.setSelectedGroup(group);
@@ -182,6 +185,9 @@ export default {
     },
     onDurationStageSelect(stages) {
       this.updateSelectedDurationChartStages(stages);
+    },
+    onStageReorder(data) {
+      this.reorderStage(data);
     },
   },
   multiProjectSelect: true,
@@ -287,6 +293,8 @@ export default {
             :no-data-svg-path="noDataSvgPath"
             :no-access-svg-path="noAccessSvgPath"
             :can-edit-stages="hasCustomizableCycleAnalytics"
+            :custom-ordering="enableCustomerOrdering"
+            :error-saving-stage-order="errorSavingStageOrder"
             @clearCustomStageFormErrors="clearCustomStageFormErrors"
             @selectStage="onStageSelect"
             @editStage="onShowEditStageForm"
@@ -295,6 +303,7 @@ export default {
             @removeStage="onRemoveStage"
             @createStage="onCreateCustomStage"
             @updateStage="onUpdateCustomStage"
+            @reorderStage="onStageReorder"
           />
         </div>
       </div>

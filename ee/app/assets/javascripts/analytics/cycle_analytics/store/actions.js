@@ -598,3 +598,28 @@ export const initializeCycleAnalytics = ({ dispatch, commit }, initialData = {})
 
   return dispatch('initializeCycleAnalyticsSuccess');
 };
+
+export const requestReorderStage = ({ commit }) => commit(types.REQUEST_REORDER_STAGE);
+
+export const receiveReorderStageSuccess = ({ commit }) =>
+  commit(types.RECEIVE_REORDER_STAGE_SUCCESS);
+
+export const receiveReorderStageError = ({ commit }) => commit(types.RECEIVE_REORDER_STAGE_ERROR);
+
+export const reorderStage = ({ dispatch, state }, initialData) => {
+  dispatch('requestReorderStage');
+
+  const {
+    selectedGroup: { fullPath },
+  } = state;
+  const { stageId, afterId, beforeId } = initialData;
+
+  return Api.cycleAnalyticsUpdateStage(stageId, fullPath, {
+    move_before_id: beforeId,
+    move_after_id: afterId,
+  })
+    .then(({ data }) => dispatch('receiveReorderStageSuccess', data))
+    .catch(({ response: { status = 400, data: responseData } = {} }) =>
+      dispatch('receiveReorderStageError', { status, responseData }),
+    );
+};
