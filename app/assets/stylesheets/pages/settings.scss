@@ -376,8 +376,15 @@
 }
 
 .ci-variable-table {
-  table tr th {
-    background-color: transparent;
-    border: 0;
+  table {
+    thead {
+      border-bottom: 1px solid $white-normal;
+    }
+
+    tr th {
+      background-color: transparent;
+      font-weight: 600;
+      border: 0;
+    }
   }
 }

@@ -1,5 +1,5 @@
 <script>
-import { GlTable, GlButton, GlModalDirective, GlIcon } from '@gitlab/ui';
+import { GlTable, GlButton, GlModalDirective, GlIcon, GlPopover } from '@gitlab/ui';
 import { s__, __ } from '~/locale';
 import { mapState, mapActions } from 'vuex';
 import { ADD_CI_VARIABLE_MODAL_ID } from '../constants';
@@ -14,6 +14,7 @@ export default {
     {
       key: 'key',
       label: s__('CiVariables|Key'),
+      sortable: true,
     },
     {
       key: 'value',
@@ -30,7 +31,7 @@ export default {
     },
     {
       key: 'environment_scope',
-      label: s__('CiVariables|Environment Scope'),
+      label: s__('CiVariables|Environments'),
     },
     {
       key: 'actions',
@@ -41,6 +42,7 @@ export default {
     GlTable,
     GlButton,
     GlIcon,
+    GlPopover,
   },
   directives: {
     GlModalDirective,
@@ -64,7 +66,26 @@ export default {
     this.fetchVariables();
   },
   methods: {
-    ...mapActions(['fetchVariables', 'deleteVariable', 'toggleValues', 'editVariable']),
+    ...mapActions(['fetchVariables', 'toggleValues', 'editVariable']),
+    colWidths(key) {
+      if (key === 'variable_type') {
+        return { width: '70px' };
+      }
+
+      if (key === 'protected' || key === 'masked') {
+        return { width: '100px' };
+      }
+
+      if (key === 'environment_scope') {
+        return { width: '20%' };
+      }
+
+      if (key === 'actions') {
+        return { width: '50px' };
+      }
+
+      return { width: '40%' };
+    },
   },
 };
 </script>
@@ -74,13 +95,60 @@ export default {
     <gl-table
       :fields="fields"
       :items="variables"
-      responsive
-      show-empty
       tbody-tr-class="js-ci-variable-row"
+      sort-by="key"
+      sort-direction="asc"
+      stacked="lg"
+      fixed
+      show-empty
     >
+      <template #table-colgroup="scope">
+        <col v-for="field in scope.fields" :key="field.key" :style="colWidths(field.key)" />
+      </template>
+      <template #cell(key)="data">
+        <span :id="`ci-variable-key-${data.item.id}`" class="d-inline-block mw-100 text-truncate">{{
+          data.item.key
+        }}</span>
+        <gl-popover :target="`ci-variable-key-${data.item.id}`" triggers="hover" placement="top">
+          {{ data.item.key }}
+          <gl-button class="btn-transparent btn-clipboard" :data-clipboard-text="data.item.key">
+            <gl-icon name="copy-to-clipboard" />
+          </gl-button>
+        </gl-popover>
+      </template>
       <template #cell(value)="data">
-        <span v-if="valuesHidden">*****************</span>
-        <span v-else>{{ data.value }}</span>
+        <span v-if="valuesHidden">*********************</span>
+        <div v-else>
+          <span
+            :id="`ci-variable-value-${data.item.id}`"
+            class="d-inline-block mw-100 text-truncate"
+            >{{ data.value }}</span
+          >
+          <gl-popover
+            :target="`ci-variable-value-${data.item.id}`"
+            triggers="hover"
+            placement="top"
+          >
+            {{ data.item.value }}
+            <gl-button class="btn-transparent btn-clipboard" :data-clipboard-text="data.item.value">
+              <gl-icon name="copy-to-clipboard" />
+            </gl-button>
+          </gl-popover>
+        </div>
+      </template>
+      <template #cell(environment_scope)="data">
+        <span :id="`ci-variable-env-${data.item.id}`" class="d-inline-block mw-100 text-truncate">{{
+          data.item.environment_scope
+        }}</span>
+        <gl-popover :target="`ci-variable-env-${data.item.id}`" triggers="hover" placement="top">
+          {{ data.item.environment_scope }}
+          <gl-button
+            class="btn-transparent btn-clipboard"
+            :data-clipboard-text="data.item.environment_scope"
+          >
+            <gl-icon name="copy-to-clipboard" />
+          </gl-button>
+        </gl-popover>
       </template>
       <template #cell(actions)="data">
         <gl-button
@@ -88,28 +156,19 @@ export default {
           v-gl-modal-directive="$options.modalId"
           @click="editVariable(data.item)"
         >
-          <gl-icon name="pencil" />
-        </gl-button>
-        <gl-button
-          ref="delete-ci-variable"
-          category="secondary"
-          variant="danger"
-          @click="deleteVariable(data.item)"
-        >
-          <gl-icon name="remove" />
+          <gl-icon :size="12" name="pencil" />
         </gl-button>
       </template>
       <template #empty>
-        <p ref="empty-variables" class="settings-message text-center empty-variables">
-          {{
-            __(
-              'There are currently no variables, add a variable with the Add Variable button below.',
-            )
-          }}
+        <p ref="empty-variables" class="text-center empty-variables">
+          {{ __('There are no variables yet.') }}
         </p>
       </template>
     </gl-table>
-    <div class="ci-variable-actions d-flex justify-content-end">
+    <div
+      class="ci-variable-actions d-flex justify-content-end"
+      :class="{ 'justify-content-center': !tableIsNotEmpty }"
+    >
       <gl-button
         v-if="tableIsNotEmpty"
         ref="secret-value-reveal-button"

@@ -557,9 +557,6 @@ msgstr ""
 msgid "(removed)"
 msgstr ""
 
-msgid "*"
-msgstr ""
-
 msgid "+ %{amount} more"
 msgstr ""
 
@@ -1589,9 +1586,6 @@ msgid "All default stages are currently visible"
 msgstr ""
 
 msgid "All email addresses will be used to identify your commits."
-msgstr ""
-
-msgid "All environments"
 msgstr ""
 
 msgid "All features are enabled for blank projects, from templates, or when importing, but you can disable them afterward in the project settings."
@@ -3775,7 +3769,7 @@ msgstr ""
 msgid "CiVariables|Cannot use Masked Variable with current value"
 msgstr ""
 
-msgid "CiVariables|Environment Scope"
+msgid "CiVariables|Environments"
 msgstr ""
 
 msgid "CiVariables|Input variable key"
@@ -6266,6 +6260,9 @@ msgid "Delete Package"
 msgstr ""
 
 msgid "Delete Snippet"
+msgstr ""
+
+msgid "Delete Variable"
 msgstr ""
 
 msgid "Delete artifacts"
@@ -19633,9 +19630,6 @@ msgstr ""
 msgid "The value lying at the midpoint of a series of observed values. E.g., between 3, 5, 9, the median is 5. Between 3, 5, 7, 8, the median is (5+7)/2 = 6."
 msgstr ""
 
-msgid "There are currently no variables, add a variable with the Add Variable button below."
-msgstr ""
-
 msgid "There are no GPG keys associated with this account."
 msgstr ""
 
@@ -19691,6 +19685,9 @@ msgid "There are no staged changes"
 msgstr ""
 
 msgid "There are no unstaged changes"
+msgstr ""
+
+msgid "There are no variables yet."
 msgstr ""
 
 msgid "There is a limit of 100 subscriptions from or to a project."
@@ -20201,6 +20198,9 @@ msgid "This user will be the author of all events in the activity feed that are 
 msgstr ""
 
 msgid "This user will be the author of all events in the activity feed that are the result of an update, like new branches being created or new commits being pushed to existing branches. Upon creation or when reassigning you can only assign yourself to be the mirror user."
+msgstr ""
+
+msgid "This variable can not be masked"
 msgstr ""
 
 msgid "This will help us personalize your onboarding experience."
@@ -21749,7 +21749,7 @@ msgstr ""
 msgid "Value Stream Analytics gives an overview of how much time it takes to go from idea to production in your project."
 msgstr ""
 
-msgid "Variable"
+msgid "Var"
 msgstr ""
 
 msgid "Variables"

@@ -89,5 +89,10 @@ describe('Ci variable modal', () => {
       findModal().vm.$emit('hidden');
       expect(store.dispatch).toHaveBeenCalledWith('resetEditing');
     });
+
+    it('dispatches deleteVariable with correct variable to delete', () => {
+      findModal().vm.$emit('secondary');
+      expect(store.dispatch).toHaveBeenCalledWith('deleteVariable', mockData.mockVariables[0]);
+    });
   });
 });
