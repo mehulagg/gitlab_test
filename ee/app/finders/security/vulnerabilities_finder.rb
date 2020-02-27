@@ -15,8 +15,9 @@ module Security
     end
 
     def execute
-      filter_by_severities
       filter_by_report_types
+      filter_by_severities
+      filter_by_states
 
       vulnerabilities
     end
@@ -25,15 +26,21 @@ module Security
 
     attr_reader :filters, :vulnerabilities
 
+    def filter_by_report_types
+      if filters[:report_types].present?
+        @vulnerabilities = vulnerabilities.with_report_types(filters[:report_types])
+      end
+    end
+
     def filter_by_severities
       if filters[:severities].present?
         @vulnerabilities = vulnerabilities.with_severities(filters[:severities])
       end
     end
 
-    def filter_by_report_types
-      if filters[:report_types].present?
-        @vulnerabilities = vulnerabilities.with_report_types(filters[:report_types])
+    def filter_by_states
+      if filters[:states].present?
+        @vulnerabilities = vulnerabilities.with_states(filters[:states])
       end
     end
   end
