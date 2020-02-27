@@ -316,7 +316,7 @@ The example consists of the following steps:
 
 1. Install SAM CLI
 1. Creating an AWS SAM application using SAM CLI
-1. Crafting the .gitlab-ci.yml file
+1. Crafting the `.gitlab-ci.yml` file
 1. Setting up your AWS credentials with your GitLab account
 1. Deploying your application
 1. Testing the deployed function
@@ -336,11 +336,11 @@ This creates a SAM app named gitlabpoc using the default configuration, a single
 
 Push this project to a new project in GitLab.
 
-### Crafting the .gitlab-ci.yml file
+### Crafting the `.gitlab-ci.yml` file
 
-GitLab CI/CD pipelines are configured using a YAML file called ".gitlab-ci.yml" within each project. The[".gitlab-ci.yml"](https://docs.gitlab.com/ee/ci/yaml/) file defines the structure and order of the pipelines.
+GitLab CI/CD pipelines are configured using a YAML file called `.gitlab-ci.yml` within each project. The[".gitlab-ci.yml"](https://docs.gitlab.com/ee/ci/yaml/) file defines the structure and order of the pipelines.
 
-In a ".gitlab-ci.yml" file in the root of your project, place the following code and replace the #S3Bucket# with an S3 bucket name where you would like to place your package:
+In a `.gitlab-ci.yml` file in the root of your project, place the following code and replace the #S3Bucket# with an S3 bucket name where you would like to place your package:
 
 ```yaml
 image: python:latest
@@ -372,19 +372,19 @@ production:
 
 Let’s examine the config file more closely:
 
-1. Image specifies the docker image to use for this build. The latest python image since the sample application is written in Python
+1. Image specifies the docker image to use for this build. The latest Python image since the sample application is written in Python
 1. AWS CLI and AWS SAM CLI are installed in before script section.
 1. SAM build, package and deploy commands are used to build, package and deploy the application. More details on SAM can be found [here](https://aws.amazon.com/serverless/sam/).
 
-### Setting up your AWS credentials with your GitLab account:
+### Setting up your AWS credentials with your GitLab account
 
 In order to interact with your AWS account, the GitLab CI/CD pipelines require both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to be defined in your GitLab settings under **Settings > CI/CD > Variables**. For more information please see  [link](https://docs.gitlab.com/ee/ci/variables/README.html#via-the-ui) Please ensure you mask the credentials so they do not show in logs.
 
-**Note:** The AWS credentials you provide must include IAM policies that provision correct access control to AWS Lambda, API Gateway, CloudFormation, and IAM resources. 
+**Note:** The AWS credentials you provide must include IAM policies that provision correct access control to AWS Lambda, API Gateway, CloudFormation, and IAM resources.
 
-### Deploying your application:
+### Deploying your application
 
-Push changes to your GitLab repository and the GitLab build pipeline will automatically deploy your application.  If your build and deploy are successful, please go to the next step to test your deployed application. 
+Push changes to your GitLab repository and the GitLab build pipeline will automatically deploy your application.  If your build and deploy are successful, please go to the next step to test your deployed application.
 
 If your build fails please take a look at the build log to see why the build failed. Some common reasons the build might fail are:
 
@@ -392,7 +392,7 @@ If your build fails please take a look at the build log to see why the build fai
 1. You may not be able to access your AWS account from GitLab. Please, go back and check the environment variables you setup with AWS credentials.
 1. You may not have permission to do deploy a serverless application. Please make sure you provide all required permissions to deploy a serverless application.
 
-### Testing the deployed application:
+### Testing the deployed application
 
 To test the application you deployed, please go to the build log and follow the following steps:
 
