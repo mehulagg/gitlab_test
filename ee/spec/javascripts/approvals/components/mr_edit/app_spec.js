@@ -31,6 +31,10 @@ describe('EE Approvals MREditApp', () => {
 
   describe('with empty rules', () => {
     beforeEach(() => {
+      const div = document.createElement('div');
+      div.id = 'merge_request_target_branch';
+      document.body.appendChild(div);
+
       store.modules.approvals.state.rules = [];
       factory();
     });

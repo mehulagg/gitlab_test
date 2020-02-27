@@ -7,6 +7,8 @@ import RuleControls from '../rule_controls.vue';
 import EmptyRule from './empty_rule.vue';
 import RuleInput from './rule_input.vue';
 
+let targetBranchMutationObserver;
+
 export default {
   components: {
     UserAvatarList,
@@ -14,6 +16,11 @@ export default {
     RuleControls,
     EmptyRule,
     RuleInput,
+  },
+  data() {
+    return {
+      targetBranch: '',
+    };
   },
   computed: {
     ...mapState(['settings']),
@@ -50,8 +57,29 @@ export default {
       immediate: true,
     },
   },
+  mounted() {
+    targetBranchMutationObserver = new MutationObserver(this.onTargetBranchMutation);
+    targetBranchMutationObserver.observe(document.querySelector('#merge_request_target_branch'), {
+      attributes: true,
+      childList: false,
+      subtree: false,
+      attributeFilter: ['value'],
+    });
+  },
+  beforeDestroy() {
+    if (targetBranchMutationObserver) {
+      targetBranchMutationObserver.disconnect();
+    }
+  },
   methods: {
     ...mapActions(['setEmptyRule', 'addEmptyRule']),
+    onTargetBranchMutation(mutations) {
+      if (mutations.length) {
+        mutations.forEach(mutation => {
+          this.targetBranch = mutation.target.value;
+        });
+      }
+    },
   },
 };
 </script>

@@ -26,6 +26,7 @@ describe('EE Approvals MRRules', () => {
     wrapper = mount(localVue.extend(MRRules), {
       localVue,
       store: new Vuex.Store(store),
+      // attachToDocument: true,
     });
   };
 
@@ -56,6 +57,10 @@ describe('EE Approvals MRRules', () => {
 
   describe('when allow multiple rules', () => {
     beforeEach(() => {
+      const div = document.createElement('div');
+      div.id = 'merge_request_target_branch';
+      document.body.appendChild(div);
+
       store.state.settings.allowMultiRule = true;
       store.state.settings.eligibleApproversDocsPath = 'some/path';
     });
