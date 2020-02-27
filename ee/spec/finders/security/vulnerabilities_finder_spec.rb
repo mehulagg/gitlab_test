@@ -18,8 +18,9 @@ describe Security::VulnerabilitiesFinder do
   end
 
   let(:filters) { {} }
+  let(:vulnerable) { project }
 
-  subject { described_class.new(project, filters).execute }
+  subject { described_class.new(vulnerable, filters).execute }
 
   it 'returns vulnerabilities of a project' do
     expect(subject).to match_array(project.vulnerabilities)
@@ -54,6 +55,22 @@ describe Security::VulnerabilitiesFinder do
 
     it 'only returns vulnerabilities matching the given states' do
       is_expected.to contain_exactly(vulnerability1, vulnerability3)
+    end
+  end
+
+  context 'when filtered by project' do
+    let(:group) { create(:group) }
+    let(:another_project) { create(:project, namespace: group) }
+    let!(:another_vulnerability) { create(:vulnerability, project: another_project) }
+    let(:filters) { { project_ids: [another_project.id] } }
+    let(:vulnerable) { group }
+
+    before do
+      project.update(namespace: group)
+    end
+
+    it 'only returns vulnerabilities matching the given projects' do
+      is_expected.to contain_exactly(another_vulnerability)
     end
   end
 

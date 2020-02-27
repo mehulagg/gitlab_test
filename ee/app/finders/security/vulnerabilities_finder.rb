@@ -9,12 +9,13 @@
 
 module Security
   class VulnerabilitiesFinder
-    def initialize(project, filters = {})
+    def initialize(vulnerable, filters = {})
       @filters = filters
-      @vulnerabilities = project.vulnerabilities
+      @vulnerabilities = vulnerable.vulnerabilities
     end
 
     def execute
+      filter_by_projects
       filter_by_report_types
       filter_by_severities
       filter_by_states
@@ -25,6 +26,12 @@ module Security
     private
 
     attr_reader :filters, :vulnerabilities
+
+    def filter_by_projects
+      if filters[:project_ids].present?
+        @vulnerabilities = vulnerabilities.for_projects(filters[:project_ids])
+      end
+    end
 
     def filter_by_report_types
       if filters[:report_types].present?
