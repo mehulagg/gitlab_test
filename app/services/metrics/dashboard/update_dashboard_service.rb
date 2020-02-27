@@ -13,9 +13,7 @@ module Metrics
 
           result = ::Files::UpdateService.new(project, current_user, dashboard_attrs).execute
 
-          # create a new MR if branch params present
-          merge_request_params = { namespace_id: project.namespace.to_param, project_id: project.id, merge_request: { source_branch: project.default_branch, target_branch: branch } } if branch != project.default_branch
-          ::MergeRequests::CreateService.new(project, current_user, merge_request_params).execute
+          create_merge_request if new_branch?
 
           throw(:error, result.merge(http_status: :bad_request)) unless result[:status] == :success
 
@@ -88,6 +86,15 @@ module Metrics
 
       def repository
         @repository ||= project.repository
+      end
+
+      def new_branch?
+        !repository.branch_exists?(params[:branch])
+      end
+
+      def create_merge_request
+        merge_request_params = { namespace_id: project.namespace.to_param, project_id: project.id, merge_request: { source_branch: project.default_branch, target_branch: branch } } if branch != project.default_branch
+        ::MergeRequests::CreateService.new(project, current_user, merge_request_params).execute
       end
     end
   end
