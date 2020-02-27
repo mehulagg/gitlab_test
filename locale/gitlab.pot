@@ -20373,7 +20373,7 @@ msgstr ""
 msgid "Title:"
 msgstr ""
 
-msgid "Titles and Filenames"
+msgid "Titles, Descriptions and Filenames"
 msgstr ""
 
 msgid "To"
