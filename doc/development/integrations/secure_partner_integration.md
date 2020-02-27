@@ -1,6 +1,9 @@
 # Secure Partner Integration - Onboarding Process
 
-If you are looking to integrate into the [Secure Stage](https://about.gitlab.com/direction/secure/), which is integrated into the [GitLab CI/CD Section](https://about.gitlab.com/handbook/product/categories/#cicd-section) of GitLab this page will help you understand how we want the developer experience to flow and also help you to find the correct resources for the technical work associated with [onboarding as a partner](https://about.gitlab.com/partners/integrate/).
+If you want to integrate with the [Secure Stage](https://about.gitlab.com/direction/secure/) (which
+is integrated with the [GitLab CI/CD Section](https://about.gitlab.com/handbook/product/categories/#cicd-section)),
+this page helps you understand the desired developer workflow and helps you find the correct
+resources for the technical work associated with [onboarding as a partner](https://about.gitlab.com/partners/integrate/).
 
 ## What is the Desired Developer Workflow?
 
