@@ -8,8 +8,6 @@ namespace :gitlab do
         yarn:check
         gettext:po_to_json
         rake:assets:precompile
-        webpack:compile
-        gitlab:assets:fix_urls
       ].each(&Gitlab::TaskHelpers.method(:invoke_and_time_task))
     end
 
