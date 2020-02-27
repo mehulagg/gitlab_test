@@ -167,6 +167,7 @@ Git operations in GitLab will result in an API error.
    unicorn['enable'] = false
    sidekiq['enable'] = false
    gitlab_workhorse['enable'] = false
+   prometheus['monitor_kubernetes'] = false
 
    # If you don't want to run monitoring services uncomment the following (not recommended)
    # alertmanager['enable'] = false
