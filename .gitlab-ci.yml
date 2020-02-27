@@ -15,7 +15,7 @@ stages:
 workflow:
   rules:
     # we always run MR pipelines
-    - if: '$CI_MERGE_REQUEST_ID'
+    - if: '$CI_MERGE_REQUEST_IID'
     # everything else can be run only in context of `gitlab/-org` namespace
     - if: '$CI_PROJECT_NAMESPACE !~ /^gitlab(-org)?($|\/)/'
       when: never
