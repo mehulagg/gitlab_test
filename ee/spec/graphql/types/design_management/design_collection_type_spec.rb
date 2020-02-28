@@ -114,9 +114,8 @@ describe GitlabSchema.types['DesignCollection'] do
               first: page_size,
               after: new_cursor
             }
-          ).to_h
+          ).to_h.dig(*designs_edges)
 
-          new_edges = new_page.dig(*designs_edges)
           expect(old_edges.count).to eq(9)
           expect(new_edges.count).to eq(1)
         end
