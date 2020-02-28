@@ -153,7 +153,9 @@ export const fetchFoos = ({ state }) => {
 
 We've enabled the Babel preset-env option [`useBuiltIns: 'usage'`](https://babeljs.io/docs/en/babel-preset-env#usebuiltins-usage).
 
-This will automatically add the appropriate `core-js` polyfills once if our target browsers don't support the JavaScript features we're using.  This means that you do not need to manually add `core-js` polyfills.
+This will automatically add the appropriate `core-js` polyfills if our target browsers
+don't support the JavaScript features we're using.  This means that you do not need to
+manually add `core-js` polyfills.
 
 Note: We still manually add non-`core-js` polyfills that extend browser features such as our SVG polyfill that lets us reference SVG by `<use xlink:href>`. These should be added to `app/assets/javascripts/commons/polyfills.js`.
 
