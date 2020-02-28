@@ -5577,7 +5577,7 @@ msgstr ""
 msgid "Could not save prometheus manual configuration"
 msgstr ""
 
-msgid "Could not upload designs. Make sure your files are of a supported type."
+msgid "Could not upload designs. Your upload contained a file whose file type is not supported."
 msgstr ""
 
 msgid "Country"
@@ -22432,9 +22432,6 @@ msgstr ""
 msgid "You can only add files when you are on a branch"
 msgstr ""
 
-msgid "You can only drop image files here."
-msgstr ""
-
 msgid "You can only edit files when you are on a branch"
 msgstr ""
 
@@ -22631,6 +22628,9 @@ msgid "You tried to fork %{link_to_the_project} but it failed for the following 
 msgstr ""
 
 msgid "You will be removed from existing projects/groups"
+msgstr ""
+
+msgid "You tried uploading something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc."
 msgstr ""
 
 msgid "You will lose all changes you've made to this file. This action cannot be undone."

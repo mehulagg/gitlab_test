@@ -99,6 +99,13 @@
   border: 2px dashed $gray-200;
 }
 
+.design-dropzone--card {
+  &:focus {
+    outline: none;
+    border: 2px dashed $purple;
+  }
+}
+
 .design-dropzone--overlay {
   border: 2px dashed $purple;
   top: 0;
@@ -107,9 +114,12 @@
   opacity: 1;
 }
 
-.design-dropzone-fade-enter-active, .design-dropzone-fade-leave-active {
+.design-dropzone-fade-enter-active,
+.design-dropzone-fade-leave-active {
   transition: opacity $general-hover-transition-duration $general-hover-transition-curve;
 }
-.design-dropzone-fade-enter, .design-dropzone-fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+
+.design-dropzone-fade-enter,
+.design-dropzone-fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
 }

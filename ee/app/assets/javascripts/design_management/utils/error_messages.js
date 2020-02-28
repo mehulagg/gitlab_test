@@ -17,7 +17,7 @@ export const UPLOAD_DESIGN_ERROR = s__(
 );
 
 export const UPLOAD_DESIGN_INVALID_FILETYPE_ERROR = __(
-  'Could not upload designs. Make sure your files are of a supported type.',
+  'Could not upload designs. Your upload contained a file whose file type is not supported.',
 );
 
 export const DESIGN_NOT_FOUND_ERROR = __('Could not find design');

@@ -92,8 +92,11 @@ export default {
     @dragenter.prevent.stop="ondragenter"
     @drop.prevent.stop="ondrop"
   >
-    <slot v-bind="{ dragging, isDragDataValid }">
-      <div class="card design-dropzone--border w-100 h-100 d-flex-center p-3">
+    <slot>
+      <button
+        class="card design-dropzone--card design-dropzone--border w-100 h-100 d-flex-center p-3"
+        @click="openFileUpload"
+      >
         <div class="d-flex-center flex-column text-center">
           <gl-icon name="doc-new" :size="48" class="mb-4" />
           <p>
@@ -109,12 +112,12 @@ export default {
               </template>
 
               <template #link="{ content }">
-                <gl-link class="h-100 w-100" @click="openFileUpload">{{ content }}</gl-link>
+                <gl-link class="h-100 w-100" @click.stop="openFileUpload">{{ content }}</gl-link>
               </template>
             </gl-sprintf>
           </p>
         </div>
-      </div>
+      </button>
 
       <design-input ref="fileUpload" @change="onDesignInputChange" />
     </slot>
@@ -125,7 +128,11 @@ export default {
       >
         <div v-show="!isDragDataValid" class="mw-50 text-center">
           <h3>{{ __('Oh no!') }}</h3>
-          <span>{{ __('You can only drop image files here.') }}</span>
+          <span>{{
+            __(
+              'You tried uploading something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.',
+            )
+          }}</span>
         </div>
         <div v-show="isDragDataValid" class="mw-50 text-center">
           <h3>{{ __('Incoming!') }}</h3>
