@@ -1,11 +1,11 @@
-#import "./boards.fragment.graphql"
+#import "ee_else_ce/boards/queries/board.fragment.graphql"
 
 query project_boards($fullPath: ID!) {
   project(fullPath: $fullPath) {
     boards {
       edges {
         node {
-          ...board
+          ...BoardFragment
         }
       }
     }

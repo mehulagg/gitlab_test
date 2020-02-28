@@ -1,11 +1,11 @@
-#import "ee_else_ce/boards/queries/boards.fragment.graphql"
+#import "ee_else_ce/boards/queries/board.fragment.graphql"
 
 query group_boards($fullPath: ID!) {
   group(fullPath: $fullPath) {
     boards {
       edges {
         node {
-          ...board
+          ...BoardFragment
         }
       }
     }
