@@ -47,6 +47,9 @@ module EE
       validates :weight, allow_nil: true, numericality: { greater_than_or_equal_to: 0 }
 
       after_create :update_generic_alert_title, if: :generic_alert_with_default_title?
+
+      # TODO Can we hook into an existing issue service instead?
+      after_commit :update_status_page
     end
 
     class_methods do
@@ -204,6 +207,11 @@ module EE
       title == ::Gitlab::Alerting::NotificationPayloadParser::DEFAULT_TITLE &&
         project.alerts_service_activated? &&
         author == ::User.alert_bot
+    end
+
+    def update_status_page
+      # TODO spawn a worker
+      StatusPage::PublishIncidentService.new(issue: self).execute
     end
   end
 end
