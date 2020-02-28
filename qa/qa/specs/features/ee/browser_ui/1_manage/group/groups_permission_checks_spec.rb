@@ -738,7 +738,6 @@ module QA
         it 'ChildGroupUserA invites members of the Parent_Group_B with a role of "Developer" within B group to be part of Child_Group_A as "Guest"' do
           user_B_access_level = "Developer"
           max_access_level = "Guest"
-
           sign_out_and_sign_in_as_admin()
           # We setup users related to B
           add_user_to_group(@Child_Group_User_B.username, "Guest", @Child_Group_B)
@@ -783,7 +782,6 @@ module QA
          it 'Child_Group_A invites members of the Group_B with a role of "Developer" within B group to be part of Child_Group_A as "Guest"' do
            user_B_access_level = "Developer"
            max_access_level = "Guest"
-
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
            add_user_to_group(@Child_Group_User_B.username, "Guest", @Child_Group_B)
@@ -831,7 +829,6 @@ module QA
          it 'Child_Group_A invites members of the Child_Group_B with a role of "Developer" within B group to be part of Parent_Group_A as "Guest"' do
            user_B_access_level = "Developer"
            max_access_level = "Guest"
-
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
            add_user_to_group(@Child_Group_User_B.username, user_B_access_level, @Child_Group_B)
@@ -879,7 +876,6 @@ module QA
          it 'Parent_Group_A invites members of the Group_B with a role of "Maintainer" within B group to be part of Parent_Group_A as "Guest"' do
            user_B_access_level = "Maintainer"
            max_access_level = "Guest"
-
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
            add_user_to_group(@Child_Group_User_B.username, "Guest", @Child_Group_B)
@@ -927,7 +923,6 @@ module QA
          it 'Parent_Group_A invites members of the Child_Group_B with a role of "Maintainer" within B group to be part of Parent_Group_A as "Guest"' do
            user_B_access_level = "Maintainer"
            max_access_level = "Guest"
-
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
            add_user_to_group(@Child_Group_User_B.username, user_B_access_level, @Child_Group_B)
@@ -976,7 +971,6 @@ module QA
          it 'Child_Group_A invites members of the Group_B with a role of "Maintainer" within B group to be part of Parent_Group_A as "Guest"' do
            user_B_access_level = "Maintainer"
            max_access_level = "Guest"
-
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
            add_user_to_group(@Child_Group_User_B.username, "Guest", @Child_Group_B)
@@ -1025,7 +1019,6 @@ module QA
          it 'Child_Group_A invites members of the Child_Group_B with a role of "Maintainer" within B group to be part of Parent_Group_A as "Guest"' do
            user_B_access_level = "Maintainer"
            max_access_level = "Guest"
-
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
            add_user_to_group(@Child_Group_User_B.username, user_B_access_level, @Child_Group_B)
@@ -1073,7 +1066,6 @@ module QA
          it 'Parent_Group_A invites members of the Group_B with a role of "Owner" within B group to be part of Parent_Group_A as "Guest"' do
            user_B_access_level = "Developer"
            max_access_level = "Guest"
-
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
            add_user_to_group(@Child_Group_User_B.username, "Guest", @Child_Group_B)
@@ -1122,7 +1114,6 @@ module QA
          it 'Parent_Group_A invites members of the Child_Group_B with a role of "Owner" within B group to be part of Child_Group_A as "Guest"' do
            user_B_access_level = "Developer"
            max_access_level = "Guest"
-
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
            add_user_to_group(@Child_Group_User_B.username, user_B_access_level, @Child_Group_B)
@@ -1172,7 +1163,6 @@ module QA
          it 'Child_Group_A invites members of the Group_B with a role of "Owner" within B group to be part of Child_Group_A as "Guest"' do
            user_B_access_level = "Developer"
            max_access_level = "Guest"
-
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
            add_user_to_group(@Child_Group_User_B.username, "Guest", @Child_Group_B)
@@ -1220,7 +1210,6 @@ module QA
          it 'Child_Group_A invites members of the Child_Group_B with a role of "Owner" within B group to be part of Child_Group_A as "Guest"' do
            user_B_access_level = "Developer"
            max_access_level = "Guest"
-
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
            add_user_to_group(@Child_Group_User_B.username, user_B_access_level, @Child_Group_B)
