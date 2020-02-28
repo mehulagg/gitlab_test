@@ -12,6 +12,8 @@ class ProcessGithubPullRequestEventService < ::BaseService
 
   def execute(webhook_params)
     return unless project.mirror?
+    return unless project.feature_available?(:ci_cd_projects, current_user)
+    return unless project.feature_available?(:github_project_service_integration, current_user)
 
     params = params_from_webhook(webhook_params)
     return unless params[:status]

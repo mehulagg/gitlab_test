@@ -282,6 +282,12 @@ class License < ApplicationRecord
     def trial_ends_on
       Gitlab::CurrentSettings.license_trial_ends_on
     end
+
+    def trial_feature_available?(feature)
+      return false unless ::Feature.enabled?(:free_period_for_pull_mirroring, default_enabled: true)
+
+      ANY_PLAN_FEATURES.include?(feature)
+    end
   end
 
   def data_filename

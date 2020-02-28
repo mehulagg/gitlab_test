@@ -31,4 +31,27 @@ describe StartPullMirroringService do
       expect(subject.execute[:status]).to eq(:success)
     end
   end
+
+  context 'when repository_mirrors feature is not available' do
+    before do
+      stub_licensed_features(repository_mirrors: false)
+    end
+
+    it 'does not start pull mirroring' do
+      expect(UpdateAllMirrorsWorker).not_to receive(:perform_async)
+      expect(subject.execute[:status]).to eq(:error)
+    end
+  end
+
+  context 'when repository_mirrors feature is available' do
+    before do
+      stub_licensed_features(repository_mirrors: true)
+      import_state
+    end
+
+    it 'starts pull mirroring' do
+      expect(UpdateAllMirrorsWorker).to receive(:perform_async)
+      expect(subject.execute[:status]).to eq(:success)
+    end
+  end
 end
