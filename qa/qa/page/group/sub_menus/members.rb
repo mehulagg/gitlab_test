@@ -27,6 +27,7 @@ module QA
           #? for what is this needed ?
           view 'app/views/shared/members/_invite_group.html.haml' do
             element :group_select_field
+            element :group_access_field
             element :invite_group_button
           end
 
@@ -68,6 +69,13 @@ module QA
           def invite_group(group_name)
             click_element :invite_group_tab
             select_group(group_name)
+            click_element :invite_group_button
+          end
+
+          def invite_group(group_name, access_level)
+            click_element :invite_group_tab
+            select_group(group_name)
+            select_element(:group_access_field, access_level)
             click_element :invite_group_button
           end
 
