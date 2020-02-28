@@ -6,7 +6,6 @@ import { __ } from '~/locale';
 
 import tooltip from '~/vue_shared/directives/tooltip';
 import Icon from '~/vue_shared/components/icon.vue';
-import LoadingButton from '~/vue_shared/components/loading_button.vue';
 import UserAvatarLink from '~/vue_shared/components/user_avatar/user_avatar_link.vue';
 import TimeagoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 
@@ -20,7 +19,6 @@ export default {
   components: {
     Icon,
     GlButton,
-    LoadingButton,
     UserAvatarLink,
     TimeagoTooltip,
   },
@@ -102,12 +100,13 @@ export default {
       </div>
     </div>
     <div v-if="canUpdate" class="detail-page-header-actions js-issuable-actions">
-      <loading-button
-        :label="actionButtonText"
+      <gl-button
         :loading="epicStatusChangeInProgress"
-        :container-class="actionButtonClass"
+        :class="actionButtonClass"
         @click="toggleEpicStatus(isEpicOpen)"
-      />
+      >
+        {{ actionButtonText }}
+      </gl-button>
     </div>
     <gl-button
       :aria-label="__('Toggle sidebar')"
