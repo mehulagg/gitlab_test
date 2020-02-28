@@ -252,9 +252,6 @@ danger-review:
   before_script:
     # Run danger against the merge request commit,
     # not merged result
-    - curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
-    - apt-get install git-lfs
-    - git lfs install
     - git reset $CI_MERGE_REQUEST_SOURCE_BRANCH_SHA --hard
   script:
     - git version
