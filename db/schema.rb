@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_26_162723) do
+ActiveRecord::Schema.define(version: 2020_02_28_160542) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -961,6 +961,13 @@ ActiveRecord::Schema.define(version: 2020_02_26_162723) do
     t.index ["source_job_id"], name: "index_ci_sources_pipelines_on_source_job_id"
     t.index ["source_pipeline_id"], name: "index_ci_sources_pipelines_on_source_pipeline_id"
     t.index ["source_project_id"], name: "index_ci_sources_pipelines_on_source_project_id"
+  end
+
+  create_table "ci_sources_projects", force: :cascade do |t|
+    t.bigint "pipeline_id", null: false
+    t.bigint "source_project_id", null: false
+    t.index ["pipeline_id"], name: "index_ci_sources_projects_on_pipeline_id"
+    t.index ["source_project_id"], name: "index_ci_sources_projects_on_source_project_id"
   end
 
   create_table "ci_stages", id: :serial, force: :cascade do |t|
@@ -4676,6 +4683,8 @@ ActiveRecord::Schema.define(version: 2020_02_26_162723) do
   add_foreign_key "ci_sources_pipelines", "ci_pipelines", column: "source_pipeline_id", name: "fk_d4e29af7d7", on_delete: :cascade
   add_foreign_key "ci_sources_pipelines", "projects", column: "source_project_id", name: "fk_acd9737679", on_delete: :cascade
   add_foreign_key "ci_sources_pipelines", "projects", name: "fk_1e53c97c0a", on_delete: :cascade
+  add_foreign_key "ci_sources_projects", "ci_pipelines", column: "pipeline_id", on_delete: :cascade
+  add_foreign_key "ci_sources_projects", "projects", column: "source_project_id", on_delete: :cascade
   add_foreign_key "ci_stages", "ci_pipelines", column: "pipeline_id", name: "fk_fb57e6cc56", on_delete: :cascade
   add_foreign_key "ci_stages", "projects", name: "fk_2360681d1d", on_delete: :cascade
   add_foreign_key "ci_subscriptions_projects", "projects", column: "downstream_project_id", on_delete: :cascade
