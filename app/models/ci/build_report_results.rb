@@ -4,34 +4,29 @@ module Ci
   class BuildReportResults < ApplicationRecord
     extend Gitlab::Ci::Model
 
-    REPORT_TYPES = {
-      junit: 0,
-      codequality: 1,
-      sast: 2,
-      dast: 3,
-      dependency_scanning: 4,
-      container_scanning: 5
-    }
+    FILE_TYPES = Ci::JobArtifact.file_types.keys
 
-    REPORT_PARAMS = {
-      success: 0,
-      failed: 1,
-      skipped: 2,
-      error: 3,
-      undefined: 4,
-      info: 5,
-      unknown: 6,
-      low: 7,
-      medium: 8,
-      high: 9,
-      critical: 10
-    }
+    REPORT_PARAMS = %w(
+      success
+      failed
+      skipped
+      error
+      undefined
+      info
+      unknown
+      low
+      medium
+      high
+      critical
+    )
 
     belongs_to :build, class_name: "Ci::Build", inverse_of: :build_report_results
 
-    validates :report_type, :report_param, presence: true
+    validates :file_type, :report_param, presence: true
+    validates :file_type, inclusion: { in: FILE_TYPES }
+    validates :report_param, inclusion: { in: REPORT_PARAMS }
 
-    enum report_type: REPORT_TYPES
+    enum file_type: FILE_TYPES
     enum report_param: REPORT_PARAMS
   end
 end

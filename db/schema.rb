@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_26_162723) do
+ActiveRecord::Schema.define(version: 2020_02_28_201126) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -608,10 +608,10 @@ ActiveRecord::Schema.define(version: 2020_02_26_162723) do
 
   create_table "ci_build_report_results", force: :cascade do |t|
     t.bigint "build_id", null: false
-    t.integer "report_type", limit: 2
+    t.integer "file_type", limit: 2
     t.integer "report_param", limit: 2
     t.bigint "value"
-    t.index ["build_id", "report_type", "report_param"], name: "idx_ci_build_report_results_on_build_and_report", unique: true
+    t.index ["build_id", "file_type", "report_param"], name: "index_ci_build_report_results_on_build_and_file_type_and_report", unique: true
   end
 
   create_table "ci_build_trace_chunks", force: :cascade do |t|
