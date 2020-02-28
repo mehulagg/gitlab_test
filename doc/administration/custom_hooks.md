@@ -27,7 +27,7 @@ Custom hooks are implemented differently, but the behavior is exactly the same
 once the hook is created.
 
 NOTE: **Note:**
-If you are using [hashed storage](repository_storage_types.html#hashed-storage), the project's
+If you are using [hashed storage](repository_storage_types.md#hashed-storage), the project's
 repository directory might not exactly match the instructions below. In this case, to find the
 repository directory for a project, open the Admin panel on your instance, go to **Projects**, and
 select the project for which you would like to add a hook. You can find the path to the project's
