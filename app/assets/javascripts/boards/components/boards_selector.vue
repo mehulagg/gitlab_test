@@ -11,20 +11,12 @@ import {
 
 import httpStatusCodes from '~/lib/utils/http_status';
 
-import createGqlClient, { fetchPolicies } from '~/lib/graphql';
 import { getIdFromGraphQLId } from '~/graphql_shared/utils';
 import projectQuery from '../queries/project_boards.query.graphql';
 import groupQuery from '../queries/group_boards.query.graphql';
 
 import boardsStore from '../stores/boards_store';
 import BoardForm from './board_form.vue';
-
-export const gqlClient = createGqlClient(
-  {},
-  {
-    fetchPolicy: fetchPolicies.NO_CACHE,
-  },
-);
 
 const MIN_BOARDS_TO_VIEW_RECENT = 10;
 
@@ -99,55 +91,11 @@ export default {
       default: '#',
     },
   },
-  apollo: {
-    boards: {
-      variables() {
-        return { fullPath: this.state.endpoints.fullPath };
-      },
-      query() {
-        return this.groupId ? groupQuery : projectQuery;
-      },
-      loadingKey: 'loading',
-      update(data) {
-        const parentType = this.groupId ? 'group' : 'project';
-        return data[parentType].boards.edges.map(({ node }) => ({
-          id: getIdFromGraphQLId(node.id),
-          name: node.name,
-        }));
-      },
-      result ({ data, loading, networkStatus }) {
-        boardsStore.recentBoards().then(res => {
-          this.recentBoards = res.data;
-        })
-        .catch(err => {
-          /**
-           *  If user is unauthorized we'd still want to resolve the
-           *  request to display all boards.
-           */
-          if (err?.response?.status === httpStatusCodes.UNAUTHORIZED) {
-            this.recentBoards = []; // recent boards are empty
-            return;
-          }
-          throw err;
-        })
-        .then(() => this.$nextTick()) // Wait for boards list in DOM
-        .then(() => {
-          this.setScrollFade();
-        })
-        .catch(() => {
-          this.loading = 0;
-        });
-      },
-      skip() {
-        return !this.dropdownOpen;
-      },
-    }
-  },
   data() {
     return {
-      dropdownOpen: false,
-      loading: 0,
       hasScrollFade: false,
+      loadingBoards: 0,
+      loadingRecentBoards: true,
       scrollFadeInitialized: false,
       boards: [],
       recentBoards: [],
@@ -160,6 +108,9 @@ export default {
     };
   },
   computed: {
+    loading() {
+      return this.loadingRecentBoards && this.loadingBoards;
+    },
     currentPage() {
       return this.state.currentPage;
     },
@@ -204,7 +155,46 @@ export default {
       if (toggleDropdown && this.boards.length > 0) {
         return;
       }
-      this.dropdownOpen = true;
+      
+      this.$apollo.addSmartQuery('boards', {
+        variables() {
+          return { fullPath: this.state.endpoints.fullPath };
+        },
+        query() {
+          return this.groupId ? groupQuery : projectQuery;
+        },
+        loadingKey: 'loadingBoards',
+        update(data) {
+          const parentType = this.groupId ? 'group' : 'project';
+          return data[parentType].boards.edges.map(({ node }) => ({
+            id: getIdFromGraphQLId(node.id),
+            name: node.name,
+          }));
+        },
+      });
+
+      boardsStore.recentBoards().then(res => {
+          this.recentBoards = res.data;
+        })
+        .catch(err => {
+          /**
+           *  If user is unauthorized we'd still want to resolve the
+           *  request to display all boards.
+           */
+          if (err?.response?.status === httpStatusCodes.UNAUTHORIZED) {
+            this.recentBoards = []; // recent boards are empty
+            return;
+          }
+          throw err;
+        })
+        .then(() => this.$nextTick()) // Wait for boards list in DOM
+        .then(() => {
+          this.setScrollFade();
+        })
+        .catch(() => {})
+        .finally(() => {
+          this.loadingRecentBoards = false;
+        });
     },
     isScrolledUp() {
       const { content } = this.$refs;
