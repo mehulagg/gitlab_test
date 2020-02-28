@@ -56,9 +56,7 @@ module Gitlab
               per: per_page
             )
           else
-            Kaminari.paginate_array(
-              Gitlab::FileFinder.new(project, repository_ref).find(query)
-            )
+            Kaminari.paginate_array([])
           end
         end
       end
