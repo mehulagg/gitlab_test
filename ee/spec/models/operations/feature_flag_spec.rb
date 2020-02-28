@@ -58,46 +58,6 @@ describe Operations::FeatureFlag do
       end
     end
 
-    context 'a version 1 feature flag' do
-      it 'is valid if associated with Operations::FeatureFlagScope models' do
-        project = create(:project)
-        feature_flag = described_class.create({ name: 'test', project: project, version: 1,
-                                 scopes_attributes: [{ environment_scope: '*', active: false }] })
-
-        expect(feature_flag).to be_valid
-      end
-
-      it 'is invalid if associated with Operations::FeatureFlags::Strategy models' do
-        project = create(:project)
-        feature_flag = described_class.create({ name: 'test', project: project, version: 1,
-                                 strategies_attributes: [{ name: 'default', parameters: {} }] })
-
-        expect(feature_flag.errors.messages).to eq({
-          version_associations: ["version 1 feature flags may not have strategies"]
-        })
-      end
-    end
-
-    context 'a version 2 feature flag' do
-      it 'is invalid if associated with Operations::FeatureFlagScope models' do
-        project = create(:project)
-        feature_flag = described_class.create({ name: 'test', project: project, version: 2,
-                                 scopes_attributes: [{ environment_scope: '*', active: false }] })
-
-        expect(feature_flag.errors.messages).to eq({
-          version_associations: ["version 2 feature flags may not have scopes"]
-        })
-      end
-
-      it 'is valid if associated with Operations::FeatureFlags::Strategy models' do
-        project = create(:project)
-        feature_flag = described_class.create({ name: 'test', project: project, version: 2,
-                                                strategies_attributes: [{ name: 'default', parameters: {} }] })
-
-        expect(feature_flag).to be_valid
-      end
-    end
-
     it_behaves_like 'AtomicInternalId', validate_presence: false do
       let(:internal_id_attribute) { :iid }
       let(:instance) { build(:operations_feature_flag) }
