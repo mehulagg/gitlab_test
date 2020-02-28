@@ -536,7 +536,7 @@ describe API::Unleash do
           }])
         end
 
-        it 'returns both types of flags' do
+        it 'returns both types of flags when both match' do
           feature_flag_a = create(:operations_feature_flag, project: project,
                                   name: 'feature_a', active: true, version: 2)
           strategy = create(:operations_strategy, feature_flag: feature_flag_a,
@@ -558,6 +558,30 @@ describe API::Unleash do
               'parameters' => { 'userIds' => 'user8' }
             }]
           }, {
+            'name' => 'feature_b',
+            'enabled' => true,
+            'strategies' => [{
+              'name' => 'default',
+              'parameters' => {}
+            }]
+          }])
+        end
+
+        it 'returns legacy flags when only legacy flags match' do
+          feature_flag_a = create(:operations_feature_flag, project: project,
+                                  name: 'feature_a', active: true, version: 2)
+          strategy = create(:operations_strategy, feature_flag: feature_flag_a,
+                            name: 'userWithId', parameters: { userIds: 'user8' })
+          create(:operations_scope, strategy: strategy, environment_scope: 'production')
+          feature_flag_b = create(:operations_feature_flag, project: project,
+                                  name: 'feature_b', active: true, version: 1)
+          create(:operations_feature_flag_scope, feature_flag: feature_flag_b,
+                 active: true, strategies: [{ name: 'default', parameters: {} }], environment_scope: 'staging')
+
+          get api(features_url), headers: { 'UNLEASH-INSTANCEID' => client.token, 'UNLEASH-APPNAME' => 'staging' }
+
+          expect(response).to have_gitlab_http_status(:ok)
+          expect(json_response['features']).to eq([{
             'name' => 'feature_b',
             'enabled' => true,
             'strategies' => [{
