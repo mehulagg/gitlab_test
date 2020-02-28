@@ -205,7 +205,7 @@ export default {
       return `/${this.projectPath}/-/error_tracking/${errorId}.json`;
     },
     filterErrors(status, label) {
-      this.filterValue =  label;
+      this.filterValue = label;
       return this.searchByFilter(status);
     },
     updateIssueStatus(errorId, status) {
@@ -278,11 +278,12 @@ export default {
           class="mr-2"
           menu-class="dropdown"
           :disabled="loading"
-          >
+        >
           <gl-dropdown-item
             v-for="(label, status) in $options.statusFilters"
             :key="status"
-            @click="filterErrors(status, label)">
+            @click="filterErrors(status, label)"
+          >
             <span class="d-flex">
               <icon
                 class="flex-shrink-0 append-right-4"
