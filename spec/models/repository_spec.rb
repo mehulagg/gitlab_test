@@ -1381,6 +1381,24 @@ describe Repository do
 
       is_expected.to eq(true)
     end
+
+    it 'memoizes the existence of a branch', :request_store do
+      expect(repository).to receive(:branch_names_include?).with(branch).exactly.once.and_call_original
+
+      2.times do
+        expect(repository.branch_exists?(branch)).to eq(true)
+      end
+    end
+
+    it 'memoizes a missing branch', :request_store do
+      bad_branch = 'non-existent-branch'
+
+      expect(repository).to receive(:branch_names_include?).with(bad_tag).exactly.once.and_call_original
+
+      2.times do
+        expect(repository.branch_exists?(bad_branch)).to eq(false)
+      end
+    end
   end
 
   describe '#tag_exists?' do
@@ -1404,6 +1422,24 @@ describe Repository do
         .and_call_original
 
       is_expected.to eq(true)
+    end
+
+    it 'memoizes the existence of a tag', :request_store do
+      expect(repository).to receive(:tag_names_include?).with(tag).exactly.once.and_call_original
+
+      2.times do
+        expect(repository.tag_exists?(tag)).to eq(true)
+      end
+    end
+
+    it 'memoizes a missing tag', :request_store do
+      bad_tag = 'non-existent-tag'
+
+      expect(repository).to receive(:tag_names_include?).with(bad_tag).exactly.once.and_call_original
+
+      2.times do
+        expect(repository.tag_exists?(bad_tag)).to eq(false)
+      end
     end
   end
 

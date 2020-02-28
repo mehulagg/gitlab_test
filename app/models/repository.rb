@@ -244,13 +244,17 @@ class Repository
   def branch_exists?(branch_name)
     return false unless raw_repository
 
-    branch_names_include?(branch_name)
+    key = "repo:#{project.id}:branch_exists?:#{tag_name}"
+
+    ::Gitlab::SafeRequestStore.fetch(key) { branch_names_include?(branch_name) }
   end
 
   def tag_exists?(tag_name)
     return false unless raw_repository
 
-    tag_names_include?(tag_name)
+    key = "repo:#{project.id}:tag_exists?:#{tag_name}"
+
+    ::Gitlab::SafeRequestStore.fetch(key) { tag_names_include?(tag_name) }
   end
 
   def ref_exists?(ref)
