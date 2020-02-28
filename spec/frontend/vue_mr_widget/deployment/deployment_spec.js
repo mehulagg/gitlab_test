@@ -21,6 +21,7 @@ describe('Deployment component', () => {
     }
     wrapper = mount(DeploymentComponent, {
       ...options,
+      provide: { glFeatures: { deployFromFooter: true } },
     });
   };
 

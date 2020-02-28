@@ -3,6 +3,7 @@ import { GlIcon } from '@gitlab/ui';
 import { __, s__ } from '~/locale';
 import createFlash from '~/flash';
 import { visitUrl } from '~/lib/utils/url_utility';
+import glFeatureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import MRWidgetService from '../../services/mr_widget_service';
 import DeploymentActionButton from './deployment_action_button.vue';
 import DeploymentViewButton from './deployment_view_button.vue';
@@ -15,6 +16,7 @@ export default {
     DeploymentViewButton,
     GlIcon,
   },
+  mixins: [glFeatureFlagsMixin()],
   props: {
     computedDeploymentStatus: {
       type: String,
@@ -64,6 +66,9 @@ export default {
     },
     canBeManuallyRedeployed() {
       return this.computedDeploymentStatus === FAILED && Boolean(this.redeployPath);
+    },
+    shouldShowManualButtons() {
+      return this.glFeatures.deployFromFooter;
     },
     hasExternalUrls() {
       return Boolean(this.deployment.external_url && this.deployment.external_url_formatted);
@@ -141,7 +146,7 @@ export default {
 <template>
   <div>
     <deployment-action-button
-      v-if="canBeManuallyDeployed"
+      v-if="shouldShowManualButtons && canBeManuallyDeployed"
       :action-in-progress="actionInProgress"
       :actions-configuration="$options.actionsConfiguration[constants.DEPLOYING]"
       :computed-deployment-status="computedDeploymentStatus"
@@ -152,7 +157,7 @@ export default {
       <span>{{ $options.actionsConfiguration[constants.DEPLOYING].buttonText }}</span>
     </deployment-action-button>
     <deployment-action-button
-      v-if="canBeManuallyRedeployed"
+      v-if="shouldShowManualButtons && canBeManuallyRedeployed"
       :action-in-progress="actionInProgress"
       :actions-configuration="$options.actionsConfiguration[constants.REDEPLOYING]"
       :computed-deployment-status="computedDeploymentStatus"
