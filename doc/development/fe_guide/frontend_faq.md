@@ -161,6 +161,7 @@ Note: We still manually add non-`core-js` polyfills that extend browser features
 
 To see what polyfills are being used, you can check the **GitLab:assets:compile pull-cache** job on an MR. Open the job, then click **Browse** under **Job artifacts**, then **webpack-report** > **index.html**
 
-This will open up an explorer with an input where you can enter `gitlab/node_modules/core-js`, and that will show which polyfills are being loaded and where.
+This will open up an explorer with an input box called **Search modules** where you
+can enter `gitlab/node_modules/core-js` to see which polyfills are being loaded and where.
 
 ![Image of webpack report](img/webpack_report_v12_8.png)
