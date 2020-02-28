@@ -112,6 +112,9 @@ steps with additional Jira DVCS accounts.
 
 ### GitLab.com
 
+<i class="fa fa-youtube-play youtube" aria-hidden="true"></i>
+Watch the video [Configure GitLab Jira Integration using Marketplace App](https://youtu.be/SwR-g1s1zTo) on YouTube for a walkthrough of the integration with GitLab for Jira.
+
 The Jira development panel integration for GitLab.com and Jira Cloud can be setup using the "GitLab for Jira" App in the [Atlassian Marketplace](https://marketplace.atlassian.com/apps/1221011/gitlab-for-jira).
 
 1. Go to "Jira Settings > Apps > Find new apps", then search for GitLab.
