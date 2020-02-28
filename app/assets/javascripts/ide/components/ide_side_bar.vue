@@ -43,13 +43,13 @@ export default {
       return [this.isActiveTab(tab) ? 'active' : '', ...(tab.buttonClasses || [])];
     },
     clickTab(e, tab) {
-      e.target.blur();
-
-      this.updateActivityBarView(tab.views[0].name);
-
-      // TODO: Can we avoid using JQuery?
+      // TODO: These do not work, you must use JQuery and currentTarget
+      // e.target.blur();
+      // e.target.tooltip('hide');
       $(e.currentTarget).tooltip('hide');
       $(e.currentTarget).blur();
+
+      this.updateActivityBarView(tab.views[0].name);
     },
     isActiveTab(tab) {
       return tab.views.some(view => this.isActiveView(view.name));
@@ -66,16 +66,16 @@ export default {
 <template>
   <div
     data-qa-selector="ide_left_sidebar"
-    class="multi-file-commit-panel ide-sidebar ide-left-sidebar flex-row-reverse h-100 min-height-0"
+    class="multi-file-commit-panel ide-sidebar ide-left-sidebar flex-row-reverse h-100 w-100 min-height-0"
   >
-    <div class="multi-file-commit-panel-inner">
-      <div class="d-flex flex-column align-items-stretch h-100 min-height-0">
+    <div class="multi-file-commit-panel-inner h-100 w-100 min-height-0">
+      <div class="d-flex flex-column align-items-stretch h-100 w-100 min-height-0">
         <div
           v-for="tabView in shownTabViews"
           v-show="isActiveView(tabView.name)"
           :key="tabView.name"
           :class="{ 'd-flex': isActiveView(tabView.name) }"
-          class="js-tab-view h-100"
+          class="js-tab-view h-100 w-100 min-height-0"
         >
           <slot :component="tabView.component">
             <component :is="tabView.component" />

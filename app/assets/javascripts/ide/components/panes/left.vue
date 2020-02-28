@@ -49,6 +49,22 @@ export default {
       ];
     },
   },
+  // watch: {
+  //   hasChanges(newVal) {
+  //     if (!newVal) {
+  //       this.openEditView();
+  //     }
+  //   },
+  // },
+  // mounted() {
+  //   this.openEditView();
+  // },
+  // methods: {
+  //   ...mapActions(['updateActivityBarView']),
+  //   openEditView() {
+  //     this.updateActivityBarView(this.tabs[0].views[0].name);
+  //   },
+  // },
 };
 </script>
 
@@ -69,9 +85,9 @@ export default {
     </template>
     <template v-else>
       <ide-project-header :project="currentProject" />
-      <ide-side-bar :tabs="tabs" :side="'left'">
+      <ide-side-bar :tabs="tabs" :side="'left'" class="h-100 w-100">
         <template v-slot="{ component }">
-          <div class="multi-file-commit-panel-inner-content">
+          <div class="multi-file-commit-panel-inner-content h-100 w-100 min-height-0">
             <component :is="component" />
           </div>
         </template>
