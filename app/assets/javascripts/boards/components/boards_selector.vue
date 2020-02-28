@@ -115,8 +115,27 @@ export default {
         }));
       },
       result ({ data, loading, networkStatus }) {
-        this.recentBoards = this.boards
-        return [];
+        boardsStore.recentBoards().then(res => {
+          this.recentBoards = res.data;
+        })
+        .catch(err => {
+          /**
+           *  If user is unauthorized we'd still want to resolve the
+           *  request to display all boards.
+           */
+          if (err?.response?.status === httpStatusCodes.UNAUTHORIZED) {
+            this.recentBoards = []; // recent boards are empty
+            return;
+          }
+          throw err;
+        })
+        .then(() => this.$nextTick()) // Wait for boards list in DOM
+        .then(() => {
+          this.setScrollFade();
+        })
+        .catch(() => {
+          this.loading = false;
+        });
       },
     }
   },
@@ -180,37 +199,6 @@ export default {
       if (toggleDropdown && this.boards.length > 0) {
         return;
       }
-
-      const recentBoardsPromise = new Promise((resolve, reject) =>
-        boardsStore
-          .recentBoards()
-          .then(resolve)
-          .catch(err => {
-            /**
-             *  If user is unauthorized we'd still want to resolve the
-             *  request to display all boards.
-             */
-            if (err?.response?.status === httpStatusCodes.UNAUTHORIZED) {
-              resolve({ data: [] }); // recent boards are empty
-              return;
-            }
-            reject(err);
-          }),
-      );
-
-      Promise.all([recentBoardsPromise])
-        .then(([recentBoards]) => {
-          this.loading = false;
-          // this.boards = allBoards;
-          this.recentBoards = recentBoards.data;
-        })
-        .then(() => this.$nextTick()) // Wait for boards list in DOM
-        .then(() => {
-          this.setScrollFade();
-        })
-        .catch(() => {
-          this.loading = false;
-        });
     },
     isScrolledUp() {
       const { content } = this.$refs;
