@@ -732,18 +732,18 @@ It is also possible to embed either the default dashboard metrics or individual 
 
 [Cluster Health Metrics](../clusters/index.md#monitoring-your-kubernetes-cluster-ultimate) can also be embedded in [GitLab-flavored Markdown](../../markdown.md).
 
-To embed a metric chart, include a link to that chart in the form `https://<root_url>/<project>/-/cluster/<cluster_id>?<query_params>` anywhere that GitLab-flavored Markdown is supported. To generate and copy a link to the chart, follow the instructions in the [Cluster Health Metric documentation](<link>).
+To embed a metric chart, include a link to that chart in the form `https://<root_url>/<project>/-/cluster/<cluster_id>?<query_params>` anywhere that GitLab-flavored Markdown is supported. To generate and copy a link to the chart, follow the instructions in the [Cluster Health Metric documentation](../clusters/index.md#monitoring-your-kubernetes-cluster-ultimate).
 
 The following requirements must be met for the metric to unfurl:
 
 - The `<cluster_id>` must correspond to a real cluster.
 - Prometheus must be monitoring the cluster.
 - The user must be allowed access to the project cluster metrics.
-- The dashboards must be reporting data on the [Cluster Health Page](https://docs.gitlab.com/ee/user/project/clusters/#monitoring-your-kubernetes-cluster-ultimate)
+- The dashboards must be reporting data on the [Cluster Health Page](../clusters/index.md#monitoring-your-kubernetes-cluster-ultimate)
 
  If the above requirements are met, then the metric will unfurl as seen below:
 
- ![Embedded Cluster Metric in issue descriptions](img/prometheus_cluster_health_embed_v12_9.png)
+![Embedded Cluster Metric in issue descriptions](img/prometheus_cluster_health_embed_v12_9.png)
 
 ### Embedding Grafana charts
 

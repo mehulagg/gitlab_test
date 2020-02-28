@@ -19,7 +19,9 @@ describe 'Metrics rendering', :js, :use_clean_rails_memory_store_caching, :sidek
       .to receive(:url)
       .and_return(urls.root_url.chomp('/'))
 
+    # Stub Licensed Features outside of relevant context to ease move to core
     stub_licensed_features(prometheus_alerts: true)
+    stub_licensed_features(cluster_health: true)
 
     project.add_maintainer(user)
     sign_in(user)
@@ -61,11 +63,10 @@ describe 'Metrics rendering', :js, :use_clean_rails_memory_store_caching, :sidek
 
   context 'for GitLab embedded cluster health metrics' do
     before do
-      stub_any_prometheus_request_with_response
-      stub_licensed_features(cluster_health: true)
       create(:clusters_applications_prometheus, :installed, cluster: cluster)
       stub_kubeclient_discover(cluster.platform.api_url)
-      stub_connected
+      stub_prometheus_request(/prometheus-prometheus-server/, body: prometheus_values_body)
+      stub_prometheus_request(/prometheus\/api\/v1/, body: prometheus_values_body)
     end
 
     let_it_be(:cluster) { create(:cluster, :provided_by_gcp, :project, projects: [project], user: user) }
@@ -86,10 +87,5 @@ describe 'Metrics rendering', :js, :use_clean_rails_memory_store_caching, :sidek
 
   def import_common_metrics
     ::Gitlab::DatabaseImporters::CommonMetrics::Importer.new.execute
-  end
-
-  def stub_connected
-    stub_prometheus_request(/prometheus-prometheus-server/, body: prometheus_values_body)
-    stub_prometheus_request(/prometheus\/api\/v1/, body: prometheus_values_body)
   end
 end

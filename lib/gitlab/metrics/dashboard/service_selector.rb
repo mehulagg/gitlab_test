@@ -3,7 +3,7 @@
 # Responsible for determining which dashboard service should
 # be used to fetch or generate a dashboard hash.
 # The services can be considered in two categories - embeds
-# and dashboards. Embed hashes are identical to dashboards hash except
+# and dashboards. Embed hashes are identical to dashboard hashes except
 # that they contain a subset of panels.
 module Gitlab
   module Metrics

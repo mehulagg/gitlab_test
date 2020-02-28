@@ -3,9 +3,6 @@
 module Metrics
   module Dashboard
     class ClusterMetricsEmbedService < Metrics::Dashboard::DynamicEmbedService
-      # What is usually handled by a sequence is handled in the ClusterDashboardService
-      # which is called when getting base_dashboard via Gitlab::Metrics::Dashboard::Finder
-      # Endpoint insert is Handled by base_dashboard finder
       class << self
         def valid_params?(params)
           [
