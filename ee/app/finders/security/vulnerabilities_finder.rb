@@ -5,7 +5,13 @@
 # Used to filter Vulnerability records for Vulnerabilities API
 #
 # Arguments:
-#   project: a Project to query for Vulnerabilities
+#   vulnerable: any object that has a #vulnerabilities method that returns a collection of `Vulnerability`s
+#   filters: optional! a hash with one or more of the following:
+#     project_ids: if `vulnerable` includes multiple projects (like a Group), this filter will restrict
+#                   the vulnerabilities returned to those in the group's projects that also match these IDs
+#     report_types: only return vulnerabilities from these report types
+#     severities: only return vulnerabilities with these severities
+#     states: only return vulnerabilities in these states
 
 module Security
   class VulnerabilitiesFinder
