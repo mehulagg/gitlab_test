@@ -199,6 +199,7 @@ An approval is optional when a license report:
 - Contains only new licenses that are `approved` or unknown.
 
 ## Working in an offline environment
+
 We have described how to operate Secure scanners in an offline environment
 in a [standalone page](offline_deployments/index.md).
 
