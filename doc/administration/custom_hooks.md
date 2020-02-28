@@ -51,7 +51,7 @@ repository:
    type. For example, if the script is in Ruby the shebang will probably be
    `#!/usr/bin/env ruby`.
 
-That's it! Assuming the hook code is properly implemented, the hook will run
+Assuming the hook code is properly implemented, the hook will run
 as appropriate.
 
 ## Set a global Git hook for all repositories
