@@ -1,6 +1,6 @@
-query project($fullPath: ID!, $first: Int, $last: Int, $before: String, $after: String) {
+query project($fullPath: ID!, $after: String, $first: Int) {
   project(fullPath: $fullPath) {
-    vulnerabilities(before:$before, after:$after, first:$first, last: $last){
+    vulnerabilities(after:$after, first:$first){
       nodes{
       	id
         title

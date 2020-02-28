@@ -3,19 +3,19 @@
 // TODO: Clean out the crap
 // TODO: hook up the pagination component
 
-import { ApolloQuery } from 'vue-apollo';
-import { GlAlert, GlEmptyState, GlPagination } from '@gitlab/ui';
+import { GlAlert, GlButton, GlEmptyState } from '@gitlab/ui';
 
 import VulnerabilityList from 'ee/vulnerabilities/components/vulnerability_list.vue';
 import vulnerabilitiesQuery from '../graphql/vulnerabilities.gql';
+import Observer from './observer.vue';
 
 export default {
   name: 'VulnerabilitiesApp',
   components: {
-    ApolloQuery,
     GlAlert,
+    GlButton,
     GlEmptyState,
-    GlPagination,
+    Observer,
     VulnerabilityList,
   },
   data: () => ({
@@ -60,19 +60,16 @@ export default {
             first: this.$options.PAGE_SIZE,
             after: this.pageInfo.endCursor,
           },
-          updateQuery: (_, { fetchMoreResult }) => fetchMoreResult,
+          updateQuery: (prev, { fetchMoreResult }) => {
+            const result = { ...fetchMoreResult };
+            result.project.vulnerabilities.nodes = [
+              ...prev.project.vulnerabilities.nodes,
+              ...fetchMoreResult.project.vulnerabilities.nodes,
+            ];
+            return result;
+          },
         });
       }
-    },
-    previousPage() {
-      this.$apollo.queries.vulnerabilities.fetchMore({
-        variables: {
-          last: this.$options.PAGE_SIZE,
-          first: null,
-          before: this.pageInfo.startCursor,
-        },
-        updateQuery: (_, { fetchMoreResult }) => fetchMoreResult,
-      });
     },
   },
 };
@@ -86,9 +83,10 @@ export default {
               'Security Dashboard|Error fetching the vulnerability list. Please check your network connection and try again.',
             )
           }}
+          this.$apollo.queries.vulnerabilities.loading
         </gl-alert> -->
     <vulnerability-list
-      :is-loading="this.$apollo.queries.vulnerabilities.loading"
+      :is-loading="false"
       :dashboard-documentation="dashboardDocumentation"
       :empty-state-svg-path="emptyStateSvgPath"
       :vulnerabilities="vulnerabilities"
@@ -107,15 +105,8 @@ export default {
         />
       </template>
     </vulnerability-list>
-    <button @click="previousPage">Previous Page</button>
-    <button @click="nextPage">Next Page</button>
-    <gl-pagination
-      v-if="false"
-      class="justify-content-center prepend-top-default"
-      :per-page="$options.PAGE_SIZE"
-      :total-items="30"
-      :value="1"
-      @input="fetchPage"
-    />
+    <observer v-if="pageInfo.hasNextPage" class="text-center" @intersect="nextPage">
+      <gl-button @click="nextPage">{{ __('Load more vulnerabilities') }}</gl-button>
+    </observer>
   </div>
 </template>
