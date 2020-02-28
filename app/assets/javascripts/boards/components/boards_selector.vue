@@ -107,6 +107,7 @@ export default {
       query() {
         return this.groupId ? groupQuery : projectQuery;
       },
+      loadingKey: 'loading',
       update(data) {
         const parentType = this.groupId ? 'group' : 'project';
         return data[parentType].boards.edges.map(({ node }) => ({
@@ -134,14 +135,18 @@ export default {
           this.setScrollFade();
         })
         .catch(() => {
-          this.loading = false;
+          this.loading = 0;
         });
+      },
+      skip() {
+        return !this.dropdownOpen;
       },
     }
   },
   data() {
     return {
-      loading: false,
+      dropdownOpen: false,
+      loading: 0,
       hasScrollFade: false,
       scrollFadeInitialized: false,
       boards: [],
@@ -199,6 +204,7 @@ export default {
       if (toggleDropdown && this.boards.length > 0) {
         return;
       }
+      this.dropdownOpen = true;
     },
     isScrolledUp() {
       const { content } = this.$refs;
