@@ -149,7 +149,7 @@ export const fetchFoos = ({ state }) => {
 
 ### 7. Babel polyfills
 
-> Introduced in [GitLab 12.8](https://gitlab.com/gitlab-org/gitlab/issues/28837)
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/28837) in GitLab 12.8.
 
 We've enabled the Babel preset-env option [`useBuiltIns: 'usage'`](https://babeljs.io/docs/en/babel-preset-env#usebuiltins-usage).
 
