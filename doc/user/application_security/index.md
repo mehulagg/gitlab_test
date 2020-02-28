@@ -198,6 +198,10 @@ An approval is optional when a license report:
 - Contains no software license violations.
 - Contains only new licenses that are `approved` or unknown.
 
+## Working in an offline environment
+We have described how to operate Secure scanners in an offline environment
+in a [standalone page](offline_deployments/index.md).
+
 ## Troubleshooting
 
 ### Getting error message `sast job: stage parameter should be [some stage name here]`
