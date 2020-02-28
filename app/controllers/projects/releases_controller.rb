@@ -75,9 +75,11 @@ class Projects::ReleasesController < Projects::ApplicationController
     @release ||= project.releases.find_by_tag!(sanitized_tag_name)
   end
 
+  # rubocop: disable CodeReuse/ActiveRecord
   def link
     release.links.find_by(filepath: CGI.unescape(params[:filepath]))
   end
+  # rubocop: enable CodeReuse/ActiveRecord
 
   def sanitized_tag_name
     CGI.unescape(params[:tag])
