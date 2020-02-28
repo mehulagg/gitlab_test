@@ -92,29 +92,31 @@ describe MergeRequest do
     end
   end
 
-  describe '#participant_approvers' do
-    let(:approvers) { create_list(:user, 2) }
-    let(:code_owners) { create_list(:user, 2) }
-
-    let!(:regular_rule) { create(:approval_merge_request_rule, merge_request: merge_request, users: approvers) }
-    let!(:code_owner_rule) { create(:code_owner_rule, merge_request: merge_request, users: code_owners) }
-
-    let!(:approval) { create(:approval, merge_request: merge_request, user: approvers.last) }
+  describe '#participants' do
+    let(:project) { create(:project, :repository) }
+    let!(:approver) { create(:approver, target: project) }
+    let!(:second_approver) { create(:approver, target: project) }
+    let!(:approval_rule) { create(:approval_merge_request_rule, merge_request: merge_request, users: [approver.user, second_approver.user]) }
+    let!(:code_owners) { [double(:code_owner)] }
 
     before do
       allow(subject).to receive(:code_owners).and_return(code_owners)
     end
 
-    it 'returns empty array if approval not needed' do
-      allow(subject).to receive(:approval_needed?).and_return(false)
+    context 'when approval is not needed' do
+      it 'returns only the author as a participant' do
+        allow(subject).to receive(:approval_needed?).and_return(false)
 
-      expect(subject.participant_approvers).to be_empty
+        expect(subject.participants).to contain_exactly(subject.author)
+      end
     end
 
-    it 'returns approvers if approval is needed, excluding code owners' do
-      allow(subject).to receive(:approval_needed?).and_return(true)
+    context 'when approval is needed' do
+      it 'returns only the author as a participant' do
+        allow(subject).to receive(:approval_needed?).and_return(false)
 
-      expect(subject.participant_approvers).to contain_exactly(approvers.first)
+        expect(subject.participants).to contain_exactly(subject.author)
+      end
     end
   end
 
@@ -149,27 +151,6 @@ describe MergeRequest do
 
         it { is_expected.to be_falsy }
       end
-    end
-  end
-
-  describe '#participant_approvers with approval_rules disabled' do
-    let!(:approver) { create(:approver, target: project) }
-    let(:code_owners) { [double(:code_owner)] }
-
-    before do
-      allow(subject).to receive(:code_owners).and_return(code_owners)
-    end
-
-    it 'returns empty array if approval not needed' do
-      allow(subject).to receive(:approval_needed?).and_return(false)
-
-      expect(subject.participant_approvers).to eq([])
-    end
-
-    it 'returns approvers if approval is needed, excluding code owners' do
-      allow(subject).to receive(:approval_needed?).and_return(true)
-
-      expect(subject.participant_approvers).to eq([approver.user])
     end
   end
 
