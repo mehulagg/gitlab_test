@@ -27,21 +27,9 @@ export default {
       type: Object,
       required: true,
     },
-    finding: {
-      type: Object,
-      required: true,
-    },
     pipeline: {
       type: Object,
-      default: () => ({}),
-    },
-    pipelineUrl: {
-      type: String,
-      default: '',
-    },
-    createIssueUrl: {
-      type: String,
-      required: true,
+      default: undefined,
     },
   },
 
@@ -80,11 +68,11 @@ export default {
     createIssue() {
       this.isCreatingIssue = true;
       axios
-        .post(this.createIssueUrl, {
+        .post(this.vulnerability.create_issue_url, {
           vulnerability_feedback: {
             feedback_type: 'issue',
             category: this.vulnerability.report_type,
-            project_fingerprint: this.finding.project_fingerprint,
+            project_fingerprint: this.vulnerability.project_fingerprint,
             vulnerability_data: { ...this.vulnerability, category: this.vulnerability.report_type },
           },
         })
@@ -112,8 +100,8 @@ export default {
         <template #timeago>
           <time-ago-tooltip :time="pipeline.created_at" />
         </template>
-        <template v-if="pipelineUrl" #pipelineLink>
-          <gl-link :href="pipelineUrl" target="_blank">{{ pipeline.id }}</gl-link>
+        <template v-if="pipeline" #pipelineLink>
+          <gl-link :href="pipeline.url" target="_blank">{{ pipeline.id }}</gl-link>
         </template>
       </gl-sprintf>
     </span>

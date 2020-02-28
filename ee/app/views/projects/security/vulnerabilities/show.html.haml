@@ -4,11 +4,8 @@
 - page_title @vulnerability.title
 - page_description @vulnerability.description
 
-#js-vulnerability-management-app{ data: { vulnerability: @vulnerability.to_json,
-  finding: @vulnerability.finding.to_json,
-  pipeline: @pipeline.to_json,
-  create_issue_url: create_vulnerability_feedback_issue_path(@vulnerability.finding.project),
-  pipeline_url: @pipeline ? pipeline_url(@pipeline) : nil } }
+#js-vulnerability-management-app{ data: { vulnerability: vulnerability_data(@vulnerability).to_json,
+  pipeline: vulnerability_pipeline_data(@pipeline).to_json } }
 
 .issue-details.issuable-details
   .detail-page-description.content-block

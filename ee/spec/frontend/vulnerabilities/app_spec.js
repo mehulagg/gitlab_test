@@ -21,27 +21,21 @@ describe('Vulnerability management app', () => {
     id: 1,
     report_type: 'sast',
     created_at: new Date().toISOString(),
-  };
-  const finding = {
+    create_issue_url: 'create_issue_url',
     project_fingerprint: 'abc123',
-    report_type: 'sast',
   };
+
   const pipeline = {
     created_at: new Date().toISOString(),
   };
-  const createIssueUrl = 'create_issue_path';
 
   const findCreateIssueButton = () => wrapper.find({ ref: 'create-issue-btn' });
 
   const createWrapper = (state = 'detected') => {
     wrapper = shallowMount(App, {
       propsData: {
-        vulnerability: Object.assign({ state }, vulnerability),
+        vulnerability: { state, ...vulnerability },
         pipeline,
-        finding,
-        vulnerabilityUrl: '',
-        pipelineUrl: '',
-        createIssueUrl,
       },
     });
   };
@@ -91,19 +85,19 @@ describe('Vulnerability management app', () => {
     it('calls create issue endpoint on click and redirects to new issue', () => {
       const issueUrl = '/group/project/issues/123';
       const spy = jest.spyOn(urlUtility, 'redirectTo');
-      mockAxios.onPost(createIssueUrl).reply(200, {
+      mockAxios.onPost(vulnerability.create_issue_url).reply(200, {
         issue_url: issueUrl,
       });
       findCreateIssueButton().vm.$emit('click');
       return waitForPromises().then(() => {
         expect(mockAxios.history.post).toHaveLength(1);
         const [postRequest] = mockAxios.history.post;
-        expect(postRequest.url).toBe(createIssueUrl);
+        expect(postRequest.url).toBe(vulnerability.create_issue_url);
         expect(JSON.parse(postRequest.data)).toMatchObject({
           vulnerability_feedback: {
             feedback_type: 'issue',
             category: vulnerability.report_type,
-            project_fingerprint: finding.project_fingerprint,
+            project_fingerprint: vulnerability.project_fingerprint,
             vulnerability_data: { ...vulnerability, category: vulnerability.report_type },
           },
         });
@@ -112,7 +106,7 @@ describe('Vulnerability management app', () => {
     });
 
     it('shows an error message when issue creation fails', () => {
-      mockAxios.onPost(createIssueUrl).reply(500);
+      mockAxios.onPost(vulnerability.create_issue_url).reply(500);
       findCreateIssueButton().vm.$emit('click');
       return waitForPromises().then(() => {
         expect(mockAxios.history.post).toHaveLength(1);
@@ -130,6 +124,7 @@ describe('Vulnerability management app', () => {
       const badge = wrapper.find(GlBadge);
 
       expect(badge.attributes('variant')).toBe(stateObject.variant);
+      expect(badge.text()).toBe(stateString);
     },
   );
 });
