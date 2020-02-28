@@ -94,9 +94,6 @@ sast:
     reports:
       sast: gl-sast-report.json
   dependencies: []
-  only:
-    variables:
-      - $GITLAB_FEATURES =~ /\bsast\b/
   except:
     variables:
       - $SAST_DISABLED
