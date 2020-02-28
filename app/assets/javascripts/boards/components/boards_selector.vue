@@ -99,9 +99,30 @@ export default {
       default: '#',
     },
   },
+  apollo: {
+    boards: {
+      variables() {
+        return { fullPath: this.state.endpoints.fullPath };
+      },
+      query() {
+        return this.groupId ? groupQuery : projectQuery;
+      },
+      update(data) {
+        const parentType = this.groupId ? 'group' : 'project';
+        return data[parentType].boards.edges.map(({ node }) => ({
+          id: getIdFromGraphQLId(node.id),
+          name: node.name,
+        }));
+      },
+      result ({ data, loading, networkStatus }) {
+        this.recentBoards = this.boards
+        return [];
+      },
+    }
+  },
   data() {
     return {
-      loading: true,
+      loading: false,
       hasScrollFade: false,
       scrollFadeInitialized: false,
       boards: [],
@@ -152,20 +173,6 @@ export default {
     boardsStore.setCurrentBoard(this.currentBoard);
   },
   methods: {
-    allBoards() {
-      const variables = { fullPath: this.state.endpoints.fullPath };
-      const parent = this.groupId ? 'group' : 'project';
-      const query = this.groupId ? groupQuery : projectQuery;
-      return gqlClient
-        .query({ query, variables })
-        .then(({ data }) =>
-          data[parent].boards.edges.map(({ node }) => ({
-            id: getIdFromGraphQLId(node.id),
-            name: node.name,
-          })),
-        )
-        .catch(() => []);
-    },
     showPage(page) {
       boardsStore.showPage(page);
     },
@@ -191,10 +198,10 @@ export default {
           }),
       );
 
-      Promise.all([this.allBoards(), recentBoardsPromise])
-        .then(([allBoards, recentBoards]) => {
+      Promise.all([recentBoardsPromise])
+        .then(([recentBoards]) => {
           this.loading = false;
-          this.boards = allBoards;
+          // this.boards = allBoards;
           this.recentBoards = recentBoards.data;
         })
         .then(() => this.$nextTick()) // Wait for boards list in DOM
