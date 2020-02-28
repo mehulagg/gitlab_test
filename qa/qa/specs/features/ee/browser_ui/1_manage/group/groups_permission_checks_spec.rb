@@ -111,7 +111,7 @@ module QA
 
         # Line 6
         #! Duplicates: 21
-        it 'ParentUserA invites members of the Group_B with a role of "Guest" within B group to be part of Parent_Group_A as "Guest"' do
+        it 'ParentGroupA invites members of the Group_B with a role of "Guest" within B group to be part of Parent_Group_A as "Guest"' do
           user_B_access_level = "Guest"
           max_access_level = "Guest"
           sign_out_and_sign_in_as_admin()
@@ -155,7 +155,7 @@ module QA
 
         # Line 11
         #! Duplicates: 26
-        it 'ParentUserA invites members of the Child_Group_B with a role of "Guest" within B group to be part of Parent_Group_A as "Guest"' do
+        it 'ParentGroupA invites members of the Child_Group_B with a role of "Guest" within B group to be part of Parent_Group_A as "Guest"' do
           user_B_access_level = "Guest"
           max_access_level = "Guest"
           sign_out_and_sign_in_as_admin()
@@ -199,7 +199,7 @@ module QA
 
         # Line 31
         #! Duplicates: none
-        it 'ChildGroupUserA invites members of the Parent_Group_B with a role of "Guest" within B group to be part of Child_Group_A as "Guest"' do
+        it 'ChildGroupA invites members of the Parent_Group_B with a role of "Guest" within B group to be part of Child_Group_A as "Guest"' do
           user_B_access_level = "Guest"
           max_access_level = "Guest"
           sign_out_and_sign_in_as_admin()
@@ -243,7 +243,7 @@ module QA
         end
         # Line 36
         #! Duplicates: none
-        it 'ChildGroupUserA invites members of the Group_B with a role of "Guest" within B group to be part of Child_Group_A as "Guest"' do
+        it 'ChildGroupA invites members of the Group_B with a role of "Guest" within B group to be part of Child_Group_A as "Guest"' do
           user_B_access_level = "Guest"
           max_access_level = "Guest"
           sign_out_and_sign_in_as_admin()
@@ -287,7 +287,7 @@ module QA
 
         # Line 41
         #! Duplicates: none
-        it 'ChildGroupUserA invites members of the Child_Group_B with a role of "Guest" within B group to be part of Child_Group_A as "Guest"' do
+        it 'ChildGroupA invites members of the Child_Group_B with a role of "Guest" within B group to be part of Child_Group_A as "Guest"' do
           user_B_access_level = "Guest"
           max_access_level = "Guest"
           sign_out_and_sign_in_as_admin()
@@ -331,7 +331,7 @@ module QA
 
         # Line 61
         #! Duplicates: line 76
-        it 'ParentGroupUserA invites members of the Parent_Group_B with a role of "Reporter" within B group to be part of Parent_Group_A as "Guest"' do
+        it 'ParentGroupA invites members of the Parent_Group_B with a role of "Reporter" within B group to be part of Parent_Group_A as "Guest"' do
           user_B_access_level = "Reporter"
           max_access_level = "Guest"
           sign_out_and_sign_in_as_admin()
@@ -777,6 +777,490 @@ module QA
 
           Page::Main::Menu.perform(&:sign_out)
         end
+
+        # Line 156
+        #! Duplicates: none
+         it 'Child_Group_A invites members of the Group_B with a role of "Developer" within B group to be part of Child_Group_A as "Guest"' do
+           user_B_access_level = "Developer"
+           max_access_level = "Guest"
+
+           sign_out_and_sign_in_as_admin()
+        #   # We setup users related to B
+           add_user_to_group(@Child_Group_User_B.username, "Guest", @Child_Group_B)
+           add_user_to_group(@Group_User_B.username, user_B_access_level, @Group_B)
+           add_user_to_group(@Parent_User_B.username, "Guest", @Parent_Group_B)
+
+           
+           add_group_to_group(@Group_B.path, max_access_level, @Child_Group_A)
+
+        #    # We perform the tests      
+           sign_out_and_sign_in_as_another_user(@Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text(@Project_A.name)
+           page.go_back
+           @Child_Group_A.visit!
+           Page::Group::Menu.perform(&:click_group_members_item)
+           expect(page).to have_text(max_access_level)
+           page.go_back 
+                                     
+
+           sign_out_and_sign_in_as_another_user(@Parent_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back  
+           
+           sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back               
+          
+          
+        #   # We cleanup the setup part
+           sign_out_and_sign_in_as_admin()
+           remove_group_from_group(@Group_B.path, @Child_Parent_Group_A)
+          
+           remove_user_from_group(@Child_Group_User_B.username, @Child_Group_B)
+           remove_user_from_group(@Group_User_B.username, @Group_B)
+           remove_user_from_group(@Parent_User_B.username, @Parent_Group_B)
+
+           Page::Main::Menu.perform(&:sign_out)
+         end
+
+        # Line 161
+        #! Duplicates: none
+         it 'Child_Group_A invites members of the Child_Group_B with a role of "Developer" within B group to be part of Parent_Group_A as "Guest"' do
+           user_B_access_level = "Developer"
+           max_access_level = "Guest"
+
+           sign_out_and_sign_in_as_admin()
+        #   # We setup users related to B
+           add_user_to_group(@Child_Group_User_B.username, user_B_access_level, @Child_Group_B)
+           add_user_to_group(@Group_User_B.username, "Guest", @Group_B)
+           add_user_to_group(@Parent_User_B.username, "Guest", @Parent_Group_B)
+
+           
+           add_group_to_group(@Child_Group_B.path, max_access_level, @Child_Group_A)
+
+        #   # We perform the tests      
+           sign_out_and_sign_in_as_another_user(@Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back
+                           
+
+           sign_out_and_sign_in_as_another_user(@Parent_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back  
+           
+           sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text(@Project_A.name)
+           page.go_back
+           @Child_Group_A.visit!
+           Page::Group::Menu.perform(&:click_group_members_item)
+           expect(page).to have_text(max_access_level)
+           page.go_back                 
+          
+          
+        #   # We cleanup the setup part
+           sign_out_and_sign_in_as_admin()
+           remove_group_from_group(@Child_Group_B.path, @Child_Parent_Group_A)
+          
+           remove_user_from_group(@Child_Group_User_B.username, @Child_Group_B)
+           remove_user_from_group(@Group_User_B.username, @Group_B)
+           remove_user_from_group(@Parent_User_B.username, @Parent_Group_B)
+
+           Page::Main::Menu.perform(&:sign_out)
+         end
+
+         # Line 201
+        #! Duplicates: 186
+         it 'Parent_Group_A invites members of the Group_B with a role of "Maintainer" within B group to be part of Parent_Group_A as "Guest"' do
+           user_B_access_level = "Maintainer"
+           max_access_level = "Guest"
+
+           sign_out_and_sign_in_as_admin()
+        #   # We setup users related to B
+           add_user_to_group(@Child_Group_User_B.username, "Guest", @Child_Group_B)
+           add_user_to_group(@Group_User_B.username, user_B_access_level, @Group_B)
+           add_user_to_group(@Parent_User_B.username, "Guest", @Parent_Group_B)
+
+           
+           add_group_to_group(@Group_B.path, max_access_level, @Parent_Group_A)
+
+        #   # We perform the tests      
+           sign_out_and_sign_in_as_another_user(@Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text(@Project_A.name)
+           page.go_back
+           @Child_Group_A.visit!
+           Page::Group::Menu.perform(&:click_group_members_item)
+           expect(page).to have_text(max_access_level)
+           page.go_back 
+                                     
+
+           sign_out_and_sign_in_as_another_user(@Parent_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back  
+           
+           sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back                   
+          
+          
+        #   # We cleanup the setup part
+           sign_out_and_sign_in_as_admin()
+           remove_group_from_group(@Group_B.path, @Parent_Group_A)
+          
+           remove_user_from_group(@Child_Group_User_B.username, @Child_Group_B)
+           remove_user_from_group(@Group_User_B.username, @Group_B)
+           remove_user_from_group(@Parent_User_B.username, @Parent_Group_B)
+
+           Page::Main::Menu.perform(&:sign_out)
+         end
+         
+        # Line 206
+        #! Duplicates: 191
+         it 'Parent_Group_A invites members of the Child_Group_B with a role of "Maintainer" within B group to be part of Parent_Group_A as "Guest"' do
+           user_B_access_level = "Maintainer"
+           max_access_level = "Guest"
+
+           sign_out_and_sign_in_as_admin()
+        #   # We setup users related to B
+           add_user_to_group(@Child_Group_User_B.username, user_B_access_level, @Child_Group_B)
+           add_user_to_group(@Group_User_B.username, "Guest", @Group_B)
+           add_user_to_group(@Parent_User_B.username, "Guest", @Parent_Group_B)
+
+           
+           add_group_to_group(@Child_Group_B.path, max_access_level, @Parent_Group_A)
+
+        #   # We perform the tests      
+           sign_out_and_sign_in_as_another_user(@Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back
+                           
+
+           sign_out_and_sign_in_as_another_user(@Parent_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back  
+           
+           sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text(@Project_A.name)
+           page.go_back
+           @Child_Group_A.visit!
+           Page::Group::Menu.perform(&:click_group_members_item)
+           expect(page).to have_text(max_access_level)
+           page.go_back                   
+          
+          
+        #   # We cleanup the setup part
+           sign_out_and_sign_in_as_admin()
+           remove_group_from_group(@Child_Group_B.path, @Parent_Group_A)
+          
+           remove_user_from_group(@Child_Group_User_B.username, @Child_Group_B)
+           remove_user_from_group(@Group_User_B.username, @Group_B)
+           remove_user_from_group(@Parent_User_B.username, @Parent_Group_B)
+
+           Page::Main::Menu.perform(&:sign_out)
+         end
+
+         
+        # Line 216
+        #! Duplicates: None
+         it 'Child_Group_A invites members of the Group_B with a role of "Maintainer" within B group to be part of Parent_Group_A as "Guest"' do
+           user_B_access_level = "Maintainer"
+           max_access_level = "Guest"
+
+           sign_out_and_sign_in_as_admin()
+        #   # We setup users related to B
+           add_user_to_group(@Child_Group_User_B.username, "Guest", @Child_Group_B)
+           add_user_to_group(@Group_User_B.username, user_B_access_level, @Group_B)
+           add_user_to_group(@Parent_User_B.username, "Guest", @Parent_Group_B)
+
+           
+           add_group_to_group(@Group_B.path, max_access_level, @Child_Group_A)
+
+        #   # We perform the tests      
+           sign_out_and_sign_in_as_another_user(@Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text(@Project_A.name)
+           page.go_back
+           @Child_Group_A.visit!
+           Page::Group::Menu.perform(&:click_group_members_item)
+           expect(page).to have_text(max_access_level)
+           page.go_back 
+                                     
+
+           sign_out_and_sign_in_as_another_user(@Parent_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back  
+           
+           sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back
+                    
+          
+          
+        #   # We cleanup the setup part
+           sign_out_and_sign_in_as_admin()
+           remove_group_from_group(@Group_B.path, @Child_Group_A)
+          
+           remove_user_from_group(@Child_Group_User_B.username, @Child_Group_B)
+           remove_user_from_group(@Group_User_B.username, @Group_B)
+           remove_user_from_group(@Parent_User_B.username, @Parent_Group_B)
+
+           Page::Main::Menu.perform(&:sign_out)
+         end
+
+         # Line 221
+        #! Duplicates: None
+         it 'Child_Group_A invites members of the Child_Group_B with a role of "Maintainer" within B group to be part of Parent_Group_A as "Guest"' do
+           user_B_access_level = "Maintainer"
+           max_access_level = "Guest"
+
+           sign_out_and_sign_in_as_admin()
+        #   # We setup users related to B
+           add_user_to_group(@Child_Group_User_B.username, user_B_access_level, @Child_Group_B)
+           add_user_to_group(@Group_User_B.username, "Guest", @Group_B)
+           add_user_to_group(@Parent_User_B.username, "Guest", @Parent_Group_B)
+
+           
+           add_group_to_group(@Child_Group_B.path, max_access_level, @Child_Group_A)
+
+        #   # We perform the tests      
+           sign_out_and_sign_in_as_another_user(@Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back
+                           
+
+           sign_out_and_sign_in_as_another_user(@Parent_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back  
+           
+           sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text(@Project_A.name)
+           page.go_back
+           @Child_Group_A.visit!
+           Page::Group::Menu.perform(&:click_group_members_item)
+           expect(page).to have_text(max_access_level)
+           page.go_back          
+          
+          
+        #   # We cleanup the setup part
+           sign_out_and_sign_in_as_admin()
+           remove_group_from_group(@Child_Group_B.path, @Child_Group_A)
+          
+           remove_user_from_group(@Child_Group_User_B.username, @Child_Group_B)
+           remove_user_from_group(@Group_User_B.username, @Group_B)
+           remove_user_from_group(@Parent_User_B.username, @Parent_Group_B)
+
+           Page::Main::Menu.perform(&:sign_out)
+         end
+
+         # Line 261
+        #! Duplicates: 246
+         it 'Parent_Group_A invites members of the Group_B with a role of "Owner" within B group to be part of Parent_Group_A as "Guest"' do
+           user_B_access_level = "Developer"
+           max_access_level = "Guest"
+
+           sign_out_and_sign_in_as_admin()
+        #   # We setup users related to B
+           add_user_to_group(@Child_Group_User_B.username, "Guest", @Child_Group_B)
+           add_user_to_group(@Group_User_B.username, user_B_access_level, @Group_B)
+           add_user_to_group(@Parent_User_B.username, "Guest", @Parent_Group_B)
+
+           
+           add_group_to_group(@Group_B.path, max_access_level, @Parent_Group_A)
+
+        #   # We perform the tests      
+           sign_out_and_sign_in_as_another_user(@Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text(@Project_A.name)
+           page.go_back
+           @Child_Group_A.visit!
+           Page::Group::Menu.perform(&:click_group_members_item)
+           expect(page).to have_text(max_access_level)
+           page.go_back
+                 
+
+           sign_out_and_sign_in_as_another_user(@Parent_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back  
+           
+           sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back
+           
+          
+          
+        #   # We cleanup the setup part
+           sign_out_and_sign_in_as_admin()
+           remove_group_from_group(@Group_B.path, @Parent_Group_A)
+          
+           remove_user_from_group(@Child_Group_User_B.username, @Child_Group_B)
+           remove_user_from_group(@Group_User_B.username, @Group_B)
+           remove_user_from_group(@Parent_User_B.username, @Parent_Group_B)
+
+           Page::Main::Menu.perform(&:sign_out)
+         end
+
+        # Line 266
+        #! Duplicates: 251
+         it 'Parent_Group_A invites members of the Child_Group_B with a role of "Owner" within B group to be part of Child_Group_A as "Guest"' do
+           user_B_access_level = "Developer"
+           max_access_level = "Guest"
+
+           sign_out_and_sign_in_as_admin()
+        #   # We setup users related to B
+           add_user_to_group(@Child_Group_User_B.username, user_B_access_level, @Child_Group_B)
+           add_user_to_group(@Group_User_B.username, "Guest", @Group_B)
+           add_user_to_group(@Parent_User_B.username, "Guest", @Parent_Group_B)
+
+           
+           add_group_to_group(@Child_Group_B.path, max_access_level, @Parent_Group_A)
+
+        #   # We perform the tests      
+           sign_out_and_sign_in_as_another_user(@Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back
+       
+
+           sign_out_and_sign_in_as_another_user(@Parent_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back  
+           
+           sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text(@Project_A.name)
+           page.go_back
+           @Child_Group_A.visit!
+           Page::Group::Menu.perform(&:click_group_members_item)
+           expect(page).to have_text(max_access_level)
+           page.go_back
+           
+                     
+        #   # We cleanup the setup part
+           sign_out_and_sign_in_as_admin()
+           remove_group_from_group(@Child_Group_B.path, @Parent_Group_A)
+          
+           remove_user_from_group(@Child_Group_User_B.username, @Child_Group_B)
+           remove_user_from_group(@Group_User_B.username, @Group_B)
+           remove_user_from_group(@Parent_User_B.username, @Parent_Group_B)
+
+           Page::Main::Menu.perform(&:sign_out)
+         end
+
+
+
+        # Line 276
+        #! Duplicates: none
+         it 'Child_Group_A invites members of the Group_B with a role of "Owner" within B group to be part of Child_Group_A as "Guest"' do
+           user_B_access_level = "Developer"
+           max_access_level = "Guest"
+
+           sign_out_and_sign_in_as_admin()
+        #   # We setup users related to B
+           add_user_to_group(@Child_Group_User_B.username, "Guest", @Child_Group_B)
+           add_user_to_group(@Group_User_B.username, user_B_access_level, @Group_B)
+           add_user_to_group(@Parent_User_B.username, "Guest", @Parent_Group_B)
+
+           
+           add_group_to_group(@Group_B.path, max_access_level, @Child_Group_A)
+
+        #   # We perform the tests      
+           sign_out_and_sign_in_as_another_user(@Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text(@Project_A.name)
+           page.go_back
+           @Child_Group_A.visit!
+           Page::Group::Menu.perform(&:click_group_members_item)
+           expect(page).to have_text(max_access_level)
+           page.go_back
+
+           sign_out_and_sign_in_as_another_user(@Parent_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back  
+           
+           sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back
+           
+
+          
+        #   # We cleanup the setup part
+           sign_out_and_sign_in_as_admin()
+           remove_group_from_group(@Group_B.path, @Child_Group_A)
+          
+           remove_user_from_group(@Child_Group_User_B.username, @Child_Group_B)
+           remove_user_from_group(@Group_User_B.username, @Group_B)
+           remove_user_from_group(@Parent_User_B.username, @Parent_Group_B)
+
+           Page::Main::Menu.perform(&:sign_out)
+         end
+
+        # Line 281
+        #! Duplicates: none
+         it 'Child_Group_A invites members of the Child_Group_B with a role of "Owner" within B group to be part of Child_Group_A as "Guest"' do
+           user_B_access_level = "Developer"
+           max_access_level = "Guest"
+
+           sign_out_and_sign_in_as_admin()
+        #   # We setup users related to B
+           add_user_to_group(@Child_Group_User_B.username, user_B_access_level, @Child_Group_B)
+           add_user_to_group(@Group_User_B.username, "Guest", @Group_B)
+           add_user_to_group(@Parent_User_B.username, "Guest", @Parent_Group_B)
+
+           
+           add_group_to_group(@Child_Group_B.path, max_access_level, @Child_Group_A)
+
+        #   # We perform the tests      
+           sign_out_and_sign_in_as_another_user(@Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back
+
+           sign_out_and_sign_in_as_another_user(@Parent_User_B)
+           @Project_A.visit!
+           expect(page).to have_text('Page Not Found')
+           page.go_back  
+           
+           sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
+           @Project_A.visit!
+           expect(page).to have_text(@Project_A.name)
+           page.go_back
+           @Child_Group_A.visit!
+           Page::Group::Menu.perform(&:click_group_members_item)
+           expect(page).to have_text(max_access_level)
+           page.go_back
+
+          
+        #   # We cleanup the setup part
+           sign_out_and_sign_in_as_admin()
+           remove_group_from_group(@Child_Group_B.path, @Child_Group_A)
+          
+           remove_user_from_group(@Child_Group_User_B.username, @Child_Group_B)
+           remove_user_from_group(@Group_User_B.username, @Group_B)
+           remove_user_from_group(@Parent_User_B.username, @Parent_Group_B)
+
+           Page::Main::Menu.perform(&:sign_out)
+         end
 
         def sign_out_and_sign_in_as_admin()
           if Page::Main::Menu.perform(&:signed_in?)
