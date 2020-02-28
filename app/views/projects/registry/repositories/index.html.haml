@@ -6,6 +6,8 @@
     .col-12
       - if Feature.enabled?(:vue_container_registry_explorer, @project.group)
         #js-container-registry{ data: { endpoint: project_container_registry_index_path(@project),
+          settings_path: project_settings_ci_cd_path(@project),
+          project_id: @project.id,
           "help_page_path" => help_page_path('user/packages/container_registry/index'),
           "two_factor_auth_help_link" => help_page_path('user/profile/account/two_factor_authentication'),
           "personal_access_tokens_help_link" => help_page_path('user/profile/personal_access_tokens'),
