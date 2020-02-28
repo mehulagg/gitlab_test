@@ -23,8 +23,8 @@ export default {
 </script>
 
 <template>
-  <div class="h-100">
-    <div v-if="isShowSplash" class="h-100 d-flex flex-column justify-content-center">
+  <div class="h-100 w-100">
+    <div v-if="isShowSplash" class="h-100 w-100 d-flex flex-column justify-content-center">
       <empty-state
         :is-loading="allCheck.isLoading"
         :is-valid="allCheck.isValid"

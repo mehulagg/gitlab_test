@@ -55,7 +55,7 @@ export default {
 </script>
 
 <template>
-  <div class="ide-pipeline">
+  <div class="ide-pipeline d-flex flex-fill">
     <gl-loading-icon v-if="showLoadingIcon" :size="2" class="prepend-top-default" />
     <template v-else-if="hasLoadedPipeline">
       <header v-if="latestPipeline" class="ide-tree-header ide-pipeline-header">

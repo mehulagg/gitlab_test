@@ -2,7 +2,7 @@
 
 exports[`IDE pipelines list when loaded renders empty state when no latestPipeline 1`] = `
 <div
-  class="ide-pipeline"
+  class="ide-pipeline d-flex flex-fill"
 >
   <!---->
    

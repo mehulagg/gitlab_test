@@ -3,8 +3,8 @@ import { mapActions, mapState } from 'vuex';
 import _ from 'underscore';
 import tooltip from '~/vue_shared/directives/tooltip';
 import Icon from '~/vue_shared/components/icon.vue';
-import ResizablePanel from '../resizable_panel.vue';
 import { GlSkeletonLoading } from '@gitlab/ui';
+import $ from 'jquery';
 
 export default {
   name: 'CollapsibleSidebar',
@@ -13,7 +13,6 @@ export default {
   },
   components: {
     Icon,
-    ResizablePanel,
     GlSkeletonLoading,
   },
   props: {
@@ -24,10 +23,6 @@ export default {
     },
     side: {
       type: String,
-      required: true,
-    },
-    width: {
-      type: Number,
       required: true,
     },
   },
@@ -74,7 +69,11 @@ export default {
       },
     }),
     clickTab(e, tab) {
-      e.target.blur();
+      // TODO: These do not work, you must use JQuery and currentTarget
+      // e.target.blur();
+      // e.target.tooltip('hide');
+      $(e.currentTarget).tooltip('hide');
+      $(e.currentTarget).blur();
 
       if (this.isActiveTab(tab)) {
         this.toggleOpen();
@@ -100,35 +99,30 @@ export default {
   <div
     :class="`ide-${side}-sidebar`"
     :data-qa-selector="`ide_${side}_sidebar`"
-    class="multi-file-commit-panel ide-sidebar"
+    class="multi-file-commit-panel ide-sidebar h-100 w-100 min-height-0"
   >
-    <resizable-panel
+    <div
       v-show="isOpen"
-      :collapsible="false"
-      :initial-width="width"
-      :min-size="width"
       :class="`ide-${side}-sidebar-${currentView}`"
-      :side="side"
-      class="multi-file-commit-panel-inner"
+      class="multi-file-commit-panel-inner h-100 w-100 min-height-0"
     >
-      <div class="h-100 d-flex flex-column align-items-stretch">
-        <slot v-if="isOpen" name="header"></slot>
+      <div class="d-flex flex-column align-items-stretch h-100 w-100 min-height-0">
         <div
           v-for="tabView in aliveTabViews"
           v-show="isActiveView(tabView.name)"
           :key="tabView.name"
-          class="flex-fill js-tab-view"
+          :class="{ 'd-flex': isActiveView(tabView.name) }"
+          class="js-tab-view h-100 w-100 min-height-0"
         >
-          <component :is="tabView.component" />
+          <slot :component="tabView.component">
+            <component :is="tabView.component" />
+          </slot>
         </div>
-        <slot name="footer"></slot>
       </div>
-    </resizable-panel>
+      <slot></slot>
+    </div>
     <nav class="ide-activity-bar">
       <ul class="list-unstyled">
-        <li>
-          <slot name="header-icon"></slot>
-        </li>
         <li v-for="tab of tabs" :key="tab.title">
           <button
             v-tooltip
@@ -140,7 +134,7 @@ export default {
             :data-qa-selector="`${tab.title.toLowerCase()}_tab_button`"
             class="ide-sidebar-link"
             type="button"
-            @click="clickTab($event, tab)"
+            @click.prevent="clickTab($event, tab)"
           >
             <icon :size="16" :name="tab.icon" />
           </button>
