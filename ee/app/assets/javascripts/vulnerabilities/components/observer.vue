@@ -5,6 +5,7 @@ export default {
       type: Object,
       required: false,
       default: () => ({
+        rootMargin: '25% 0px',
         threshold: 0.1,
       }),
     },

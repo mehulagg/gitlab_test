@@ -22,6 +22,11 @@ export default {
     pageInfo: {},
     vulnerabilities: [],
   }),
+  computed: {
+    isLoadingVulnerabilities() {
+      return this.$apollo.queries.vulnerabilities.loading;
+    },
+  },
   props: {
     vulnerabilitiesEndpoint: {
       type: String,
@@ -106,7 +111,12 @@ export default {
       </template>
     </vulnerability-list>
     <observer v-if="pageInfo.hasNextPage" class="text-center" @intersect="nextPage">
-      <gl-button @click="nextPage">{{ __('Load more vulnerabilities') }}</gl-button>
+      <gl-button
+        :loading="isLoadingVulnerabilities"
+        :disabled="isLoadingVulnerabilities"
+        @click="nextPage"
+        >{{ __('Load more vulnerabilities') }}</gl-button
+      >
     </observer>
   </div>
 </template>
