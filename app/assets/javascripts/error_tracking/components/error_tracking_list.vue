@@ -67,6 +67,11 @@ export default {
       thClass: 'invisible w-0',
     },
   ],
+  statusFilters: {
+    unresolved: __('Unresolved'),
+    ignored: __('Ignored'),
+    resolved: __('Resolved'),
+  },
   sortFields: {
     last_seen: __('Last Seen'),
     first_seen: __('First Seen'),
@@ -136,6 +141,7 @@ export default {
       'sortField',
       'recentSearches',
       'pagination',
+      'statusFilter',
       'cursor',
     ]),
     paginationRequired() {
@@ -169,6 +175,7 @@ export default {
       'fetchPaginatedResults',
       'updateStatus',
       'removeIgnoredResolvedErrors',
+      'searchByFilter',
     ]),
     setSearchText(text) {
       this.errorSearchQuery = text;
@@ -191,8 +198,15 @@ export default {
     isCurrentSortField(field) {
       return field === this.sortField;
     },
+    isCurrentStatusFilter(filter) {
+      return filter === this.statusFilter;
+    },
     getIssueUpdatePath(errorId) {
       return `/${this.projectPath}/-/error_tracking/${errorId}.json`;
+    },
+    filterErrors(status, label) {
+      this.filterValue =  label;
+      return this.searchByFilter(status);
     },
     updateIssueStatus(errorId, status) {
       this.updateStatus({
@@ -260,11 +274,32 @@ export default {
         </div>
 
         <gl-dropdown
+          :text="$options.statusFilters[statusFilter]"
+          class="mr-2"
+          menu-class="dropdown"
+          :disabled="loading"
+          >
+          <gl-dropdown-item
+            v-for="(label, status) in $options.statusFilters"
+            :key="status"
+            @click="filterErrors(status, label)">
+            <span class="d-flex">
+              <icon
+                class="flex-shrink-0 append-right-4"
+                :class="{ invisible: !isCurrentStatusFilter(status) }"
+                name="mobile-issue-close"
+              />
+              {{ label }}
+            </span>
+          </gl-dropdown-item>
+        </gl-dropdown>
+
+        <gl-dropdown
           class="sort-control"
           :text="$options.sortFields[sortField]"
           left
           :disabled="loading"
-          menu-class="sort-dropdown"
+          menu-class="dropdown"
         >
           <gl-dropdown-item
             v-for="(label, field) in $options.sortFields"
