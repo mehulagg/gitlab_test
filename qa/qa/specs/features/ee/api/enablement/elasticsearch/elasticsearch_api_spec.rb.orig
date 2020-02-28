@@ -3,9 +3,14 @@
 require 'securerandom'
 
 module QA
+<<<<<<< Updated upstream
+  context 'Enablement - Search' do
+    describe 'When using elasticsearch API to search for a known blob', :orchestrated, :elasticsearch, :requires_admin, quarantine: { type: :new } do
+=======
   context 'Enablement:Search' do
     include Support::Api
-    describe 'When using elasticsearch API to search for a known blob', :orchestrated, :elasticsearch, :requires_admin, quarantine: { type: :new } do
+    describe 'When using elasticsearch API to search for a known blob', :orchestrated, :elasticsearch, :requires_admin do
+>>>>>>> Stashed changes
       before(:all) do
         @api_client = Runtime::API::Client.new(:gitlab)
         @project_file_content = "elasticsearch: #{SecureRandom.hex(8)}"
@@ -24,8 +29,14 @@ module QA
       end
 
       after(:all) do
+<<<<<<< Updated upstream
+        if !@elasticsearch_original_state_on && !@api_client.nil?
+          disable_elasticsearch_request = Runtime::API::Request.new(@api_client, '/application/settings')
+          put disable_elasticsearch_request.url, elasticsearch_search: false, elasticsearch_indexing: false
+=======
         unless @elasticsearch_original_state_on
           disable_elasticsearch(@api_client)
+>>>>>>> Stashed changes
         end
       end
 
@@ -39,10 +50,17 @@ module QA
         end
 
         it 'finds a blob as an authorized user' do
+<<<<<<< Updated upstream
+          sucessful_search(@api_client)
+        end
+
+        it 'does not find a blob as an unauthorized user' do
+=======
           successful_search(@api_client)
         end
 
         it 'does not find a blob as an non-member user' do
+>>>>>>> Stashed changes
           QA::Support::Retrier.retry_on_exception(max_attempts: 10, sleep_interval: 3) do
             get create_search_request(@non_member_api_client, 'blobs', @project_file_content).url
             expect_status(QA::Support::Api::HTTP_STATUS_OK)
@@ -52,8 +70,33 @@ module QA
       end
 
       private
+<<<<<<< Updated upstream
+
+      def create_project
+        project = Resource::Project.fabricate_via_api! do |project|
+          project.name = @project_name
+          project.api_client = @api_client
+        end
+
+        Resource::Repository::ProjectPush.fabricate! do |push|
+          push.project = project
+          push.file_name = 'README.md'
+          push.file_content = @project_file_content
+          push.commit_message = 'Add README.md'
+        end
+
+        project
+      end
+
+      def create_search_request(api_client)
+        Runtime::API::Request.new(api_client, '/search', scope: 'blobs', search: "#{@project_file_content}")
+      end
+
+      def sucessful_search(api_client)
+=======
 
       def successful_search(api_client)
+>>>>>>> Stashed changes
         QA::Support::Retrier.retry_on_exception(max_attempts: 10, sleep_interval: 3) do
           get create_search_request(api_client, 'blobs', @project_file_content).url
           expect_status(QA::Support::Api::HTTP_STATUS_OK)
