@@ -12,7 +12,7 @@ module Resolvers
 
       return Vulnerability.none unless parent
 
-      parent.vulnerabilities
+      parent.vulnerabilities.with_findings
     end
   end
 end
