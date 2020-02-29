@@ -39,6 +39,8 @@ module MergeRequests
       # of the removal.
       params[:label_ids] = process_label_ids(params, extra_label_ids: merge_request.label_ids.to_a)
 
+      params[:assignee_ids] = process_assignee_ids(params, extra_assignee_ids: merge_request.assignee_ids.to_a)
+
       merge_request.assign_attributes(params.to_h.compact)
 
       merge_request.compare_commits = []
