@@ -48,18 +48,10 @@ code_quality:
 # to GitLab.com, we should be able to use the template and set SAST_DISABLE_DIND: "true".
 sast:
   extends:
-    - .default-retry
     - .reports:rules:sast
   stage: test
   allow_failure: true
   needs: []
-  artifacts:
-    paths:
-      - gl-sast-report.json  # GitLab-specific
-    reports:
-      sast: gl-sast-report.json
-    expire_in: 1 week  # GitLab-specific
-  image: docker:stable
   variables:
     DOCKER_DRIVER: overlay2
     DOCKER_TLS_CERTDIR: ""
@@ -74,6 +66,12 @@ sast:
 
 .sast-analyzer:
   extends: sast
+  artifacts:
+    paths:
+      - gl-sast-report.json  # GitLab-specific
+    reports:
+      sast: gl-sast-report.json
+    expire_in: 1 week  # GitLab-specific
   services: []
   except:
     variables:
