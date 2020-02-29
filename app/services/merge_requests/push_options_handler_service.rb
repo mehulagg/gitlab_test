@@ -139,6 +139,9 @@ module MergeRequests
       params[:add_labels] = params.delete(:label).keys if params.has_key?(:label)
       params[:remove_labels] = params.delete(:unlabel).keys if params.has_key?(:unlabel)
 
+      params[:add_assignees] = params.delete(:assign).keys if params.has_key?(:assign)
+      params[:remove_assignees] = params.delete(:unassign).keys if params.has_key?(:unassign)
+
       params
     end
 
