@@ -40,8 +40,6 @@ describe('Vulnerability management app', () => {
     });
   };
 
-  beforeEach(createWrapper);
-
   afterEach(() => {
     wrapper.destroy();
     mockAxios.reset();
@@ -49,6 +47,8 @@ describe('Vulnerability management app', () => {
   });
 
   describe('state dropdown', () => {
+    beforeEach(createWrapper);
+
     it('the vulnerability state dropdown is rendered', () => {
       expect(wrapper.find(VulnerabilityStateDropdown).exists()).toBe(true);
     });
@@ -78,6 +78,8 @@ describe('Vulnerability management app', () => {
   });
 
   describe('create issue button', () => {
+    beforeEach(createWrapper);
+
     it('renders properly', () => {
       expect(findCreateIssueButton().exists()).toBe(true);
     });
@@ -117,14 +119,16 @@ describe('Vulnerability management app', () => {
     });
   });
 
-  test.each(vulnerabilityStateEntries)(
-    'the vulnerability state badge has the correct variant for the %s state',
-    (stateString, stateObject) => {
-      createWrapper(stateString);
-      const badge = wrapper.find(GlBadge);
+  describe('state badge', () => {
+    test.each(vulnerabilityStateEntries)(
+      'the vulnerability state badge has the correct variant for the %s state',
+      (stateString, stateObject) => {
+        createWrapper(stateString);
+        const badge = wrapper.find(GlBadge);
 
-      expect(badge.attributes('variant')).toBe(stateObject.variant);
-      expect(badge.text()).toBe(stateString);
-    },
-  );
+        expect(badge.attributes('variant')).toBe(stateObject.variant);
+        expect(badge.text()).toBe(stateString);
+      },
+    );
+  });
 });

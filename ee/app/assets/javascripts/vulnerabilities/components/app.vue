@@ -27,17 +27,15 @@ export default {
       type: Object,
       required: true,
     },
-    pipeline: {
-      type: Object,
-      default: undefined,
-    },
   },
 
-  data: () => ({
-    isLoadingVulnerability: false,
-    isCreatingIssue: false,
-    state: this.vulnerability.state,
-  }),
+  data() {
+    return {
+      isLoadingVulnerability: false,
+      isCreatingIssue: false,
+      state: this.vulnerability.state,
+    };
+  },
 
   computed: {
     variant() {
@@ -95,13 +93,15 @@ export default {
     <gl-loading-icon v-if="isLoadingVulnerability" />
     <gl-badge v-else ref="badge" class="text-capitalize" :variant="variant">{{ state }}</gl-badge>
 
-    <span v-if="pipeline" class="ml-2">
+    <span v-if="vulnerability.pipeline" class="ml-2">
       <gl-sprintf :message="__('Detected %{timeago} in pipeline %{pipelineLink}')">
         <template #timeago>
-          <time-ago-tooltip :time="pipeline.created_at" />
+          <time-ago-tooltip :time="vulnerability.pipeline.created_at" />
         </template>
-        <template v-if="pipeline" #pipelineLink>
-          <gl-link :href="pipeline.url" target="_blank">{{ pipeline.id }}</gl-link>
+        <template v-if="vulnerability.pipeline" #pipelineLink>
+          <gl-link :href="vulnerability.pipeline.url" target="_blank">
+            {{ vulnerability.pipeline.id }}
+          </gl-link>
         </template>
       </gl-sprintf>
     </span>
@@ -109,7 +109,7 @@ export default {
     <time-ago-tooltip v-else class="ml-2" :time="vulnerability.created_at" />
 
     <label class="mb-0 ml-auto mr-2">{{ __('Status') }}</label>
-    <gl-loading-icon v-if="isLoading" />
+    <gl-loading-icon v-if="isLoadingVulnerability" />
     <vulnerability-state-dropdown
       v-else
       :initial-state="state"
@@ -117,7 +117,7 @@ export default {
     />
     <loading-button
       ref="create-issue-btn"
-      class="align-items-center d-inline-flex align-self-stretch ml-2"
+      class="align-items-center d-inline-flex ml-2"
       :loading="isCreatingIssue"
       :label="s__('VulnerabilityManagement|Create issue')"
       container-class="btn btn-success btn-inverted"

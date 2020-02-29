@@ -2,7 +2,7 @@
 
 module EE
   module VulnerabilitiesHelper
-    def vulnerability_data(vulnerability)
+    def vulnerability_data(vulnerability, pipeline)
       return unless vulnerability
 
       {
@@ -11,7 +11,8 @@ module EE
         created_at: vulnerability.created_at,
         report_type: vulnerability.report_type,
         project_fingerprint: vulnerability.finding.project_fingerprint,
-        create_issue_url: create_vulnerability_feedback_issue_path(@vulnerability.finding.project)
+        create_issue_url: create_vulnerability_feedback_issue_path(vulnerability.finding.project),
+        pipeline: vulnerability_pipeline_data(pipeline)
       }
     end
 
