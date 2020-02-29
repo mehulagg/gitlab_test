@@ -164,6 +164,7 @@ class IssuableBaseService < BaseService
     params.delete(:state_event)
     params[:author] ||= current_user
     params[:label_ids] = process_label_ids(params, extra_label_ids: issuable.label_ids.to_a)
+    params[:assignee_ids] = process_assignee_ids(params, extra_assignee_ids: issuable.assignee_ids.to_a)
 
     issuable.assign_attributes(params)
 
@@ -212,6 +213,12 @@ class IssuableBaseService < BaseService
     label_ids = process_label_ids(params, existing_label_ids: issuable.label_ids)
     if array_changing?(issuable.label_ids, label_ids)
       params[:label_ids] = label_ids
+      issuable.touch
+    end
+
+    assignee_ids = process_assignee_ids(params, existing_assignee_ids: issuable.assignee_ids)
+    if array_changing?(issuable.assignee_ids, assignee_ids)
+      params[:assignee_ids] = assignee_ids
       issuable.touch
     end
 
