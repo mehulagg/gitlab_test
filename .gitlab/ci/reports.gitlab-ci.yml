@@ -48,86 +48,39 @@ code_quality:
 # to GitLab.com, we should be able to use the template and set SAST_DISABLE_DIND: "true".
 sast:
   extends:
+    - .default-retry
     - .reports:rules:sast
   stage: test
   allow_failure: true
   needs: []
-  variables:
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
-    SAST_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
-    SAST_ANALYZER_IMAGE_TAG: 2
-    SAST_DEFAULT_ANALYZERS: "bandit, brakeman, gosec, spotbugs, flawfinder, phpcs-security-audit, security-code-scan, nodejs-scan, eslint, tslint, secrets, sobelow, pmd-apex, kubesec"
-    SAST_BRAKEMAN_LEVEL: 2  # GitLab-specific
-    SAST_EXCLUDED_PATHS: qa,spec,doc,ee/spec  # GitLab-specific
-    SAST_DISABLE_DIND: "true"
-    SCAN_KUBERNETES_MANIFESTS: "true"
-  allow_failure: true
-
-.sast-analyzer:
-  extends: sast
   artifacts:
     paths:
       - gl-sast-report.json  # GitLab-specific
     reports:
       sast: gl-sast-report.json
     expire_in: 1 week  # GitLab-specific
-  services: []
-  except:
-    variables:
-      - $SAST_DISABLED
-      - $SAST_DISABLE_DIND == 'false'
+  image: docker:stable
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    SAST_BRAKEMAN_LEVEL: 2  # GitLab-specific
+    SAST_EXCLUDED_PATHS: qa,spec,doc,ee/spec  # GitLab-specific
+  services:
+    - docker:stable-dind
   script:
-    - /analyzer run
-
-brakeman-sast:
-  extends: .sast-analyzer
-  image:
-    name: "$SAST_ANALYZER_IMAGE_PREFIX/brakeman:$SAST_ANALYZER_IMAGE_TAG"
-  only:
-    variables:
-      - $GITLAB_FEATURES =~ /\bsast\b/ &&
-          $SAST_DEFAULT_ANALYZERS =~ /brakeman/ &&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /ruby/
-
-eslint-sast:
-  extends: .sast-analyzer
-  image:
-    name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
-  only:
-    variables:
-      - $GITLAB_FEATURES =~ /\bsast\b/ &&
-          $SAST_DEFAULT_ANALYZERS =~ /eslint/ &&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /javascript/
-
-kubesec-sast:
-  extends: .sast-analyzer
-  image:
-    name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
-  only:
-    variables:
-      - $GITLAB_FEATURES =~ /\bsast\b/ &&
-          $SAST_DEFAULT_ANALYZERS =~ /kubesec/ &&
-          $SCAN_KUBERNETES_MANIFESTS == 'true'
-
-nodejs-scan-sast:
-  extends: .sast-analyzer
-  image:
-    name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
-  only:
-    variables:
-      - $GITLAB_FEATURES =~ /\bsast\b/ &&
-          $SAST_DEFAULT_ANALYZERS =~ /nodejs-scan/ &&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /javascript/
-
-secrets-sast:
-  extends: .sast-analyzer
-  image:
-    name: "$SAST_ANALYZER_IMAGE_PREFIX/secrets:$SAST_ANALYZER_IMAGE_TAG"
-  only:
-    variables:
-      - $GITLAB_FEATURES =~ /\bsast\b/ &&
-          $SAST_DEFAULT_ANALYZERS =~ /secrets/
+    - export SAST_VERSION=${SP_VERSION:-$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')}
+    - |
+      if ! docker info &>/dev/null; then
+        if [ -z "$DOCKER_HOST" -a "$KUBERNETES_PORT" ]; then
+          export DOCKER_HOST='tcp://localhost:2375'
+        fi
+      fi
+    - |
+      ENVS=`printenv | grep -vE '^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME)' | sed -n '/^[^\t]/s/=.*//p' | sed '/^$/d' | sed 's/^/-e /g' | tr '\n' ' '`
+      docker run "$ENVS" \
+        --volume "$PWD:/code" \
+        --volume /var/run/docker.sock:/var/run/docker.sock \
+        "registry.gitlab.com/gitlab-org/security-products/sast:$SAST_VERSION" /app/bin/run /code
 
 # We need to duplicate this job's definition because it seems it's impossible to
 # override an included `only.refs`.
@@ -237,3 +190,4 @@ dast:
 #     - .reports:schedule-dast
 #   variables:
 #     DAST_FULL_SCAN_ENABLED: "true"
+
