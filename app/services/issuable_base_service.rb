@@ -26,32 +26,39 @@ class IssuableBaseService < BaseService
       params.delete(:label_ids)
       params.delete(:assignee_ids)
       params.delete(:assignee_id)
+      params.delete(:add_assignee_ids)
+      params.delete(:remove_assignee_ids)
       params.delete(:due_date)
       params.delete(:canonical_issue_id)
       params.delete(:project)
       params.delete(:discussion_locked)
     end
 
-    filter_assignee(issuable)
+    filter_assignees(issuable)
     filter_milestone
     filter_labels
   end
 
-  def filter_assignee(issuable)
-    return if params[:assignee_ids].blank?
+  def filter_assignees(issuable)
+    filter_assignees_with_key(issuable, :assignee_ids)
+    filter_assignees_with_key(issuable, :add_assignee_ids)
+  end
+
+  def filter_assignees_with_key(issuable, key)
+    return if params[key].blank?
 
     unless issuable.allows_multiple_assignees?
-      params[:assignee_ids] = params[:assignee_ids].first(1)
+      params[key] = params[key].first(1)
     end
 
-    assignee_ids = params[:assignee_ids].select { |assignee_id| assignee_can_read?(issuable, assignee_id) }
+    assignee_ids = params[key].select { |assignee_id| assignee_can_read?(issuable, assignee_id) }
 
-    if params[:assignee_ids].map(&:to_s) == [IssuableFinder::NONE]
-      params[:assignee_ids] = []
+    if params[key].map(&:to_s) == [IssuableFinder::NONE]
+      params[key] = []
     elsif assignee_ids.any?
-      params[:assignee_ids] = assignee_ids
+      params[key] = assignee_ids
     else
-      params.delete(:assignee_ids)
+      params.delete(key)
     end
   end
 
