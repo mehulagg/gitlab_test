@@ -122,6 +122,24 @@ class IssuableBaseService < BaseService
     new_label_ids.uniq
   end
 
+  def process_assignee_ids(attributes, existing_assignee_ids: nil, extra_assignee_ids: [])
+    assignee_ids = attributes.delete(:assignee_ids)
+    add_assignee_ids = attributes.delete(:add_assignee_ids)
+    remove_assignee_ids = attributes.delete(:remove_assignee_ids)
+
+    new_assignee_ids = existing_assignee_ids || assignee_ids || []
+    new_assignee_ids |= extra_assignee_ids
+
+    if add_assignee_ids.blank? && remove_assignee_ids.blank?
+      new_assignee_ids = assignee_ids if assignee_ids
+    else
+      new_assignee_ids |= add_assignee_ids if add_assignee_ids
+      new_assignee_ids -= remove_assignee_ids if remove_assignee_ids
+    end
+
+    new_assignee_ids.uniq
+  end
+
   def handle_quick_actions_on_create(issuable)
     merge_quick_actions_into_params!(issuable)
   end
