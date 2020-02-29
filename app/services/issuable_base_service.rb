@@ -40,25 +40,36 @@ class IssuableBaseService < BaseService
   end
 
   def filter_assignees(issuable)
-    filter_assignees_with_key(issuable, :assignee_ids)
-    filter_assignees_with_key(issuable, :add_assignee_ids)
+    filter_assignees_with_key(issuable, :assignee_ids, :assignees, true)
+    filter_assignees_with_key(issuable, :add_assignee_ids, :add_assignees, true)
+    filter_assignees_with_key(issuable, :remove_assignee_ids, :remove_assignees, true)
   end
 
-  def filter_assignees_with_key(issuable, key)
-    return if params[key].blank?
-
-    unless issuable.allows_multiple_assignees?
-      params[key] = params[key].first(1)
+  def filter_assignees_with_key(issuable, id_key, key, check)
+    if params[key] and not params[id_key]
+      params[id_key] = params[key].map(&:id)
     end
 
-    assignee_ids = params[key].select { |assignee_id| assignee_can_read?(issuable, assignee_id) }
+    return if params[id_key].blank?
 
-    if params[key].map(&:to_s) == [IssuableFinder::NONE]
-      params[key] = []
+    if check
+      filter_assignees_using_checks(issuable, id_key)
+    end
+  end
+
+  def filter_assignees_using_checks(issuable, id_key)
+    unless issuable.allows_multiple_assignees?
+      params[id_key] = params[id_key].first(1)
+    end
+
+    assignee_ids = params[id_key].select { |assignee_id| assignee_can_read?(issuable, assignee_id) }
+
+    if params[id_key].map(&:to_s) == [IssuableFinder::NONE]
+      params[id_key] = []
     elsif assignee_ids.any?
-      params[key] = assignee_ids
+      params[id_key] = assignee_ids
     else
-      params.delete(key)
+      params.delete(id_key)
     end
   end
 
