@@ -192,7 +192,7 @@ class IssuableBaseService < BaseService
     old_associations = associations_before_update(issuable)
 
     label_ids = process_label_ids(params, existing_label_ids: issuable.label_ids)
-    if labels_changing?(issuable.label_ids, label_ids)
+    if array_changing?(issuable.label_ids, label_ids)
       params[:label_ids] = label_ids
       issuable.touch
     end
@@ -296,8 +296,8 @@ class IssuableBaseService < BaseService
     update_task(issuable)
   end
 
-  def labels_changing?(old_label_ids, new_label_ids)
-    old_label_ids.sort != new_label_ids.sort
+  def array_changing?(old_array, new_array)
+    old_array.sort != new_array.sort
   end
 
   def has_title_or_description_changed?(issuable)
