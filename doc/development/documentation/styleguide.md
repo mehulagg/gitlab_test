@@ -242,12 +242,37 @@ Do not include the same information in multiple places. [Link to a SSOT instead.
 
 ## Language
 
-- Use inclusive language and avoid jargon, as well as uncommon
-  words. The docs should be clear and easy to understand.
-- Do not write in the first person singular. Instead of "I" or "me," use "we," "you," "us," or "one."
-- Be clear, concise, and stick to the goal of the doc.
-- Write in US English with US grammar.
+GitLab documentation should be clear and easy to understand.
+
+- Be clear, concise, and stick to the goal of the documentation.
+
+Write in US English with US grammar.
+
+- Use inclusive language.
+- Avoid jargon.
+- Avoid uncommon words.
+- Don't write in the first person singular.
+  - Instead of "I" or "me," use "we," "you," "us," or "one."
+
+### Point of view
+
+In most cases, it’s appropriate to use the second-person (you, yours) point of view,
+because it’s friendly and easy to understand.
+
+<!-- How do we harmonize the second person in Pajamas with our first person plural in our doc guide? -->
+
+### Capitalization
+
 - Capitalize "G" and "L" in GitLab.
+- Use sentence case for:
+  - Titles.
+  - Labels.
+  - Menu items.
+  - Buttons.
+  - Headings. Don't capitalize other words in the title, unless
+    it refers to a product feature. For example:
+    - Capitalizing "issues" is acceptable in
+    `## What you can do with GitLab Issues`, but not in `## Closing multiple issues`.
 - Use title case when referring to:
   - [GitLab Features](https://about.gitlab.com/features/). For example, Issue Board,
     Geo, and Runner.
@@ -261,13 +286,15 @@ Do not include the same information in multiple places. [Link to a SSOT instead.
     Some features are also objects. For example, "GitLab's Merge Requests support X" and
     "Create a new merge request for Z."
 
+### Contractions
+
 - Use common contractions when it helps create a friendly and informal tone, especially in tutorials and [UIs](https://design.gitlab.com/content/punctuation/#contractions).
   - Do use contractions like: _it's_, _can't_, _wouldn't_, _you're_, _you've_, _haven't_, don't, _we're_, _that's_, and _won't_. Contractions in instructional documentation such as tutorials can help create a friendly and informal tone.
   - Avoid less common contractions such as: _he'd_, _it'll_, _should've_, and _there'd_.
-  - Do not use contractions in reference documentation. Examples:
-    - You cannot set a limit higher than 1000.
+  - Don't use contractions in reference documentation. Examples:
+    - You can't set a limit higher than 1000.
     - For `parameter1`, the default is 10.
-  - Do not use contractions with a proper noun and a verb, such as _GitLab's creating X_.
+  - Don't use contractions with a proper noun and a verb, such as _GitLab's creating X_.
   - Avoid using contractions when you need to emphasize a negative, such as "Do **not** install X with Y."
 
 - Avoid use of the future tense:
@@ -291,7 +318,6 @@ as even native users of English might misunderstand them.
 - [Write in Markdown](#markdown).
 - Splitting long lines (preferably up to 100 characters) can make it easier to provide feedback on small chunks of text.
 - Insert an empty line for new paragraphs.
-- Use sentence case for titles, headings, labels, menu items, and buttons.
 - Insert an empty line between different markups (e.g., after every paragraph, header, list, etc). Example:
 
   ```md
@@ -527,13 +553,11 @@ For other punctuation rules, please refer to the
 - Leave exactly one blank line before and after a heading.
 - Do not use links in headings.
 - Add the corresponding [product badge](#product-badges) according to the tier the feature belongs.
-- Use sentence case in headings. Do not capitalize the words of the title, unless
-  it refers to a product feature. For example, capitalizing "issues" is acceptable in
-  `## What you can do with GitLab Issues`, but not in `## Closing multiple issues`.
 - Our docs site search engine prioritizes headings, therefore, make sure to write
   headings that contextualize the subject and help to take the user to the right
   document. For example, `## Examples` is a bad heading; `## GitLab Pages examples`
   is a better one. It's not an exact science, but please consider this carefully.
+- See [Capitalization](#capitalization) for guidelines on capitalizing headings.
 
 ### Heading titles
 
