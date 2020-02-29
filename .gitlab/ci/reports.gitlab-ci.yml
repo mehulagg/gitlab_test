@@ -71,33 +71,6 @@ sast:
     SAST_DISABLE_DIND: "true"
     SCAN_KUBERNETES_MANIFESTS: "true"
   allow_failure: true
-  services:
-    - docker:stable-dind
-  script:
-    - export SAST_VERSION=${SP_VERSION:-$(echo "$CI_SERVER_VERSION" | sed 's/^\([0-9]*\)\.\([0-9]*\).*/\1-\2-stable/')}
-    - |
-      if ! docker info &>/dev/null; then
-        if [ -z "$DOCKER_HOST" -a "$KUBERNETES_PORT" ]; then
-          export DOCKER_HOST='tcp://localhost:2375'
-        fi
-      fi
-    - |
-      ENVS=`printenv | grep -vE '^(DOCKER_|CI|GITLAB_|FF_|HOME|PWD|OLDPWD|PATH|SHLVL|HOSTNAME)' | sed -n '/^[^\t]/s/=.*//p' | sed '/^$/d' | sed 's/^/-e /g' | tr '\n' ' '`
-      docker run "$ENVS" \
-        --volume "$PWD:/code" \
-        --volume /var/run/docker.sock:/var/run/docker.sock \
-        "registry.gitlab.com/gitlab-org/security-products/sast:$SAST_VERSION" /app/bin/run /code
-  artifacts:
-    expire_in: 7 days
-    paths:
-      - gl-sast-report.json
-    reports:
-      sast: gl-sast-report.json
-  dependencies: []
-  except:
-    variables:
-      - $SAST_DISABLED
-      - $SAST_DISABLE_DIND == 'true'
 
 .sast-analyzer:
   extends: sast
