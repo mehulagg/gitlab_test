@@ -103,4 +103,4 @@ describe Gitlab::BackgroundMigration::BackfillProjectRepositories do
     end
   end
 end
-# rubocop:enable RSpec/FactoriesInMigrationSpecs
+# rubocop:disable RSpec/FactoriesInMigrationSpecs
