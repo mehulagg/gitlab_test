@@ -6,15 +6,21 @@ describe Resolvers::VulnerabilitiesResolver do
   include GraphqlHelpers
 
   describe '#resolve' do
-    context 'when given a project' do
-      let(:project) { create(:project) }
-      let!(:vulnerability) { create(:vulnerability, project: project) }
+    let(:project) { create(:project) }
+    let!(:low_vulnerability) { create(:vulnerability, project: project, severity: :low) }
+    let!(:critical_vulnerability) { create(:vulnerability, project: project, severity: :critical) }
+    let!(:high_vulnerability) { create(:vulnerability, project: project, severity: :high) }
 
-      subject { resolve(described_class, obj: project) }
+    subject { resolve(described_class, obj: project) }
 
-      it "returns the project's vulnerabilities" do
-        is_expected.to contain_exactly(vulnerability)
-      end
+    it "returns the project's vulnerabilities" do
+      is_expected.to contain_exactly(critical_vulnerability, high_vulnerability, low_vulnerability)
+    end
+
+    it 'orders results by severity' do
+      expect(subject.first).to eq(critical_vulnerability)
+      expect(subject.second).to eq(high_vulnerability)
+      expect(subject.third).to eq(low_vulnerability)
     end
   end
 end
