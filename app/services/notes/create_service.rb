@@ -18,37 +18,40 @@ module Notes
       # **before** we save the note because if the note consists of commands
       # only, there is no need be create a note!
 
-      if quick_actions_service.supported?(note)
-        content, update_params, message = quick_actions_service.execute(note, quick_action_options)
+      execute_quick_actions(note) do |only_commands|
+        note.run_after_commit do
+          # Finish the harder work in the background
+          NewNoteWorker.perform_async(note.id)
+        end
 
-        only_commands = content.empty?
+        note_saved = note.with_transaction_returning_status do
+          !only_commands && note.save
+        end
 
-        note.note = content
+        when_saved(note) if note_saved
       end
-
-      note.run_after_commit do
-        # Finish the harder work in the background
-        NewNoteWorker.perform_async(note.id)
-      end
-
-      note_saved = note.with_transaction_returning_status do
-        !only_commands && note.save
-      end
-
-      when_saved(note) if note_saved
-
-      do_commands(quick_actions_service, note, update_params, message, only_commands)
 
       note
     end
 
     private
 
+    def execute_quick_actions(note, &blk)
+      return blk.call(false) unless quick_actions_service.supported?(note)
+
+      content, update_params, message = quick_actions_service.execute(note, quick_action_options)
+      only_commands = content.empty?
+      note.note = content
+
+      blk.call(only_commands)
+
+      do_commands(note, update_params, message, only_commands)
+    end
+
     def quick_actions_service
       @quick_actions_service ||= QuickActionsService.new(project, current_user)
     end
 
-    # Moved out of #execute to avoid method size limits
     def when_saved(note)
       if note.part_of_discussion? && note.discussion.can_convert_to_discussion?
         note.discussion.convert_to_discussion!(save: true)
@@ -65,7 +68,7 @@ module Notes
     end
 
     # Moved out of #execute to avoid method size limits
-    def do_commands(quick_actions_service, note, update_params, message, only_commands)
+    def do_commands(note, update_params, message, only_commands)
       return if quick_actions_service.commands_executed_count.to_i.zero?
 
       if update_params.present?
