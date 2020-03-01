@@ -5,6 +5,7 @@ THROUGHPUT_LABELS = [
   'security',
   'bug',
   'feature',
+  'docs-only',
   'backstage'
 ].freeze
 
