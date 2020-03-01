@@ -1,29 +1,35 @@
 <script>
-import { mapState } from 'vuex';
 import { GlSingleStat } from '@gitlab/ui/dist/charts';
 import { engineeringNotation } from '@gitlab/ui/src/utils/number_utils';
 
-import { ANOMALOUS_REQUESTS, TOTAL_REQUESTS } from './constants';
-
 export default {
-  name: 'WafStatisticsSummary',
+  name: 'StatisticsSummary',
   components: {
     GlSingleStat,
   },
+  props: {
+    data: {
+      type: Object,
+      required: true,
+      validator: ({ anomalous, nominal }) =>
+        Boolean(anomalous && anomalous.title && anomalous.value) &&
+        Boolean(nominal && nominal.title && nominal.value),
+    },
+  },
   computed: {
-    ...mapState('threatMonitoring', ['wafStatistics']),
     statistics() {
+      const { anomalous, nominal } = this.data;
       return [
         {
           key: 'anomalousTraffic',
-          title: ANOMALOUS_REQUESTS,
-          value: `${Math.round(this.wafStatistics.anomalousTraffic * 100)}%`,
+          title: anomalous.title,
+          value: `${Math.round(anomalous.value * 100)}%`,
           variant: 'warning',
         },
         {
           key: 'totalTraffic',
-          title: TOTAL_REQUESTS,
-          value: engineeringNotation(this.wafStatistics.totalTraffic),
+          title: nominal.title,
+          value: engineeringNotation(nominal.value),
           variant: 'secondary',
         },
       ];

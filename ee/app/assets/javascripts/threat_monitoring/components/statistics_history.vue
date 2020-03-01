@@ -1,26 +1,31 @@
 <script>
 import _ from 'underscore';
 import dateFormat from 'dateformat';
-import { mapState } from 'vuex';
 import { GlResizeObserverDirective } from '@gitlab/ui';
 import { GlAreaChart } from '@gitlab/ui/dist/charts';
 
-import {
-  ANOMALOUS_REQUESTS,
-  COLORS,
-  DATE_FORMATS,
-  REQUESTS,
-  TIME,
-  TOTAL_REQUESTS,
-} from './constants';
+import { COLORS, DATE_FORMATS, TIME } from './constants';
 
 export default {
-  name: 'WafStatisticsHistoryChart',
+  name: 'StatisticsHistoryChart',
   components: {
     GlAreaChart,
   },
   directives: {
     GlResizeObserverDirective,
+  },
+  props: {
+    data: {
+      type: Object,
+      required: true,
+      validator: ({ anomalous, nominal }) =>
+        Boolean(anomalous && anomalous.title && anomalous.values) &&
+        Boolean(nominal && nominal.title && nominal.values),
+    },
+    yLegend: {
+      type: String,
+      required: true,
+    },
   },
   data() {
     return {
@@ -30,40 +35,41 @@ export default {
     };
   },
   computed: {
-    ...mapState('threatMonitoring', ['wafStatistics']),
     chartData() {
-      const { anomalous, nominal } = this.wafStatistics.history;
+      const { anomalous, nominal } = this.data;
       const anomalousStyle = { color: COLORS.anomalous };
       const nominalStyle = { color: COLORS.nominal };
 
       return [
         {
-          name: ANOMALOUS_REQUESTS,
-          data: anomalous,
+          name: anomalous.title,
+          data: anomalous.values,
           areaStyle: anomalousStyle,
           lineStyle: anomalousStyle,
           itemStyle: anomalousStyle,
         },
         {
-          name: TOTAL_REQUESTS,
-          data: nominal,
+          name: nominal.title,
+          data: nominal.values,
           areaStyle: nominalStyle,
           lineStyle: nominalStyle,
           itemStyle: nominalStyle,
         },
       ];
     },
-  },
-  chartOptions: {
-    xAxis: {
-      name: TIME,
-      type: 'time',
-      axisLabel: {
-        formatter: value => dateFormat(value, DATE_FORMATS.defaultDate),
-      },
-    },
-    yAxis: {
-      name: REQUESTS,
+    chartOptions() {
+      return {
+        xAxis: {
+          name: TIME,
+          type: 'time',
+          axisLabel: {
+            formatter: value => dateFormat(value, DATE_FORMATS.defaultDate),
+          },
+        },
+        yAxis: {
+          name: this.yLegend,
+        },
+      };
     },
   },
   methods: {
@@ -88,13 +94,13 @@ export default {
   <gl-area-chart
     v-gl-resize-observer-directive="onResize"
     :data="chartData"
-    :option="$options.chartOptions"
+    :option="chartOptions"
     :include-legend-avg-max="false"
     :format-tooltip-text="formatTooltipText"
     @created="onChartCreated"
   >
     <template #tooltipTitle>
-      <div>{{ tooltipTitle }} ({{ $options.chartOptions.xAxis.name }})</div>
+      <div>{{ tooltipTitle }} ({{ chartOptions.xAxis.name }})</div>
     </template>
 
     <template #tooltipContent>

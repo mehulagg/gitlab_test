@@ -15,11 +15,21 @@ export const mockEnvironmentsResponse = {
   stopped_count: 5,
 };
 
+export const mockNominalHistory = [
+  ['2019-12-04T00:00:00.000Z', 56],
+  ['2019-12-05T00:00:00.000Z', 2647],
+];
+
+export const mockAnomalousHistory = [
+  ['2019-12-04T00:00:00.000Z', 1],
+  ['2019-12-05T00:00:00.000Z', 83],
+];
+
 export const mockWafStatisticsResponse = {
   total_traffic: 2703,
   anomalous_traffic: 0.03,
   history: {
-    nominal: [['2019-12-04T00:00:00.000Z', 56], ['2019-12-05T00:00:00.000Z', 2647]],
-    anomalous: [['2019-12-04T00:00:00.000Z', 1], ['2019-12-05T00:00:00.000Z', 83]],
+    nominal: mockNominalHistory,
+    anomalous: mockAnomalousHistory,
   },
 };
