@@ -171,7 +171,7 @@ the following preparations into account.
   - General guideline is for queries to come in below 100ms execution time
   - If queries rely on prior migrations that are not present yet on production
     (eg indexes, columns), you can use a [one-off instance from the restore
-    pipeline](https://ops.gitlab.net/gitlab-com/gl-infra/gitlab-restore/postgres-gprd)
+    pipeline](https://gitlab.com/gitlab-com/gl-infra/gitlab-restore/postgres-gprd)
     in order to establish a proper testing environment.
   - Avoid N+1 problems and minimalize the [query count](merge_request_performance_guidelines.md#query-counts).
 
