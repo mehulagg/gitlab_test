@@ -31,7 +31,7 @@ describe Git::BranchPushService do
       let(:newrev) { blankrev }
 
       it 'handles when remote branch exists' do
-        expect(project.repository).to receive(:commit).with("refs/remotes/upstream/master").and_return(sample_commit)
+        expect(project.repository).not_to receive(:commit).with("refs/remotes/upstream/master")
 
         subject.execute
       end
