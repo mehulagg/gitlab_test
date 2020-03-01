@@ -1,7 +1,4 @@
-import {
-  getTimeWindowConfig,
-  getTimeWindowParams,
-} from 'ee/threat_monitoring/store/modules/threat_monitoring/utils';
+import { getTimeWindowConfig, getTimeWindowParams } from 'ee/threat_monitoring/store/utils';
 import { DEFAULT_TIME_WINDOW, TIME_WINDOWS } from 'ee/threat_monitoring/constants';
 
 describe('threatMonitoring module utils', () => {
