@@ -16,7 +16,7 @@ On the epic bars, its description, progress, and completed weight percentage are
 When you hover over an epic bar, a popover appears with its description, start and due dates,
 and weight completed.
 
-![roadmap view](img/roadmap_view_v12_7.png)
+![roadmap view](img/roadmap_view_v12_8.png)
 
 A dropdown allows you to show only open or closed epics. By default, all epics are shown.
 
