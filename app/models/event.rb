@@ -6,6 +6,7 @@ class Event < ApplicationRecord
   include Presentable
   include DeleteWithLimit
   include CreatedAtFilterable
+  include Gitlab::Utils::StrongMemoize
 
   default_scope { reorder(nil) }
 
@@ -42,7 +43,8 @@ class Event < ApplicationRecord
     note:           Note,
     project:        Project,
     snippet:        Snippet,
-    user:           User
+    user:           User,
+    wiki:           WikiPageMeta
   ).freeze
 
   RESET_PROJECT_ACTIVITY_INTERVAL = 1.hour
@@ -79,6 +81,7 @@ class Event < ApplicationRecord
   scope :recent, -> { reorder(id: :desc) }
   scope :code_push, -> { where(action: PUSHED) }
   scope :merged, -> { where(action: MERGED) }
+  scope :for_wiki_page, -> { where(target_type: 'WikiPageMeta') }
 
   scope :with_associations, -> do
     # We're using preload for "push_event_payload" as otherwise the association
@@ -235,6 +238,10 @@ class Event < ApplicationRecord
     target_type == "MergeRequest"
   end
 
+  def wiki_page?
+    target_type == "WikiPageMeta"
+  end
+
   def milestone
     target if milestone?
   end
@@ -245,6 +252,14 @@ class Event < ApplicationRecord
 
   def merge_request
     target if merge_request?
+  end
+
+  def wiki_page
+    strong_memoize(:wiki_page) do
+      next unless wiki_page?
+
+      ProjectWiki.new(project, author).find_page(target.canonical_slug)
+    end
   end
 
   def note
