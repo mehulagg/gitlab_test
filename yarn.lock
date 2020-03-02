@@ -801,9 +801,9 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.104.0.tgz#ebbf99788d74b7224f116f1c0040fa0c90034d99"
   integrity sha512-lWg/EzxFdbx4YIdDWB2p5ag6Cna78AYGET8nXQYXYwd21/U3wKXKL7vsGR4kOxe1goA9ZAYG9eY+MK7cf+X2cA==
 
-"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/456284076/artifacts/raw/gitlab-ui.pick-published-files.tgz":
+"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/456375577/artifacts/raw/gitlab-ui.pick-published-files.tgz":
   version "9.20.0"
-  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/456284076/artifacts/raw/gitlab-ui.pick-published-files.tgz#9febe3cec9e73f37626c1e026d936e4a6c9f7d2a"
+  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/456375577/artifacts/raw/gitlab-ui.pick-published-files.tgz#ed32ce74e20b8ca980165b4a1aa5164bd4e49ad3"
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
