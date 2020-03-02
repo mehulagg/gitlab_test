@@ -21,7 +21,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(['entries', 'promotionSvgPath', 'links']),
+    ...mapState(['entries', 'promotionSvgPath', 'links', 'codesandboxBundlerUrl']),
     ...mapGetters(['packageJson', 'currentProject']),
     hasManager() {
       return this.manager && !_.isEmpty(this.manager);
@@ -110,16 +110,19 @@ export default {
 
       this.pingUsage();
 
+      const { codesandboxBundlerUrl: bundlerURL } = this;
+      const settings = {
+        fileResolver: {
+          isFile: p => Promise.resolve(Boolean(this.entries[createPathWithExt(p)])),
+          readFile: p => this.loadFileContent(createPathWithExt(p)).then(content => content),
+        },
+        ...(bundlerURL ? { bundlerURL } : {}),
+      };
+
       return this.loadFileContent(this.mainEntry)
         .then(() => this.$nextTick())
         .then(() => {
-          this.initManager('#ide-preview', this.sandboxOpts, {
-            fileResolver: {
-              isFile: p => Promise.resolve(Boolean(this.entries[createPathWithExt(p)])),
-              readFile: p => this.loadFileContent(createPathWithExt(p)).then(content => content),
-            },
-            bundlerURL: 'https://sandbox-prod.gitlab-static.net',
-          });
+          this.initManager('#ide-preview', this.sandboxOpts, settings);
 
           this.listener = listen(e => {
             switch (e.type) {
