@@ -18,12 +18,12 @@ module PodLogs
     private
 
     def valid_params
-      %w(pod_name container_name search start end)
+      %w(pod_name container_name search start_time end_time)
     end
 
     def check_times(result)
-      result[:start] = params['start'] if params.key?('start') && Time.iso8601(params['start'])
-      result[:end] = params['end'] if params.key?('end') && Time.iso8601(params['end'])
+      result[:start_time] = params['start_time'] if params.key?('start_time') && Time.iso8601(params['start_time'])
+      result[:end_time] = params['end_time'] if params.key?('end_time') && Time.iso8601(params['end_time'])
 
       success(result)
     rescue ArgumentError
@@ -45,8 +45,8 @@ module PodLogs
         result[:pod_name],
         result[:container_name],
         result[:search],
-        result[:start],
-        result[:end]
+        result[:start_time],
+        result[:end_time]
       )
 
       success(result)
