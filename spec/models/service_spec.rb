@@ -17,6 +17,14 @@ describe Service do
       expect(build(:service, project_id: nil, template: true)).to be_valid
       expect(build(:service, project_id: nil, template: false)).to be_invalid
     end
+
+    it 'validates uniqueness of type and project_id on create' do
+      project = create(:project)
+
+      expect(create(:service, project: project, type: 'Service')).to be_valid
+      expect(build(:service, project: project, type: 'Service').valid?(:create)).to eq(false)
+      expect(build(:service, project: project, type: 'Service').valid?(:update)).to eq(true)
+    end
   end
 
   describe 'Scopes' do
