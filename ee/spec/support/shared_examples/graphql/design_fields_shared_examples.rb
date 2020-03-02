@@ -21,7 +21,7 @@ RSpec.shared_examples 'a GraphQL type with design fields' do
       notes_count
     ] + extra_design_fields
 
-    is_expected.to have_graphql_fields(*expected_fields).only
+    expect(described_class).to have_graphql_fields(*expected_fields).only
   end
 
   describe '#image' do

@@ -11,7 +11,7 @@ describe GitlabSchema.types['Namespace'] do
       lfs_enabled request_access_enabled projects root_storage_statistics
     ]
 
-    is_expected.to have_graphql_fields(*expected_fields)
+    expect(described_class).to have_graphql_fields(*expected_fields)
   end
 
   it { expect(described_class).to require_graphql_authorizations(:read_namespace) }
