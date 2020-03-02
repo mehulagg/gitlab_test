@@ -795,7 +795,6 @@ module QA
            sign_out_and_sign_in_as_another_user(@Group_User_B)
            @Project_A.visit!
            expect(page).to have_text(@Project_A.name)
-           page.go_back
            @Child_Group_A.visit!
            Page::Group::Menu.perform(&:click_group_members_item)
            expect(page).to have_text(max_access_level)
@@ -853,7 +852,6 @@ module QA
            sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
            @Project_A.visit!
            expect(page).to have_text(@Project_A.name)
-           page.go_back
            @Child_Group_A.visit!
            Page::Group::Menu.perform(&:click_group_members_item)
            expect(page).to have_text(max_access_level)
@@ -889,8 +887,7 @@ module QA
            sign_out_and_sign_in_as_another_user(@Group_User_B)
            @Project_A.visit!
            expect(page).to have_text(@Project_A.name)
-           page.go_back
-           @Child_Group_A.visit!
+           @Parent_Group_A.visit!
            Page::Group::Menu.perform(&:click_group_members_item)
            expect(page).to have_text(max_access_level)
            page.go_back 
@@ -947,8 +944,7 @@ module QA
            sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
            @Project_A.visit!
            expect(page).to have_text(@Project_A.name)
-           page.go_back
-           @Child_Group_A.visit!
+           @Parent_Group_A.visit!
            Page::Group::Menu.perform(&:click_group_members_item)
            expect(page).to have_text(max_access_level)
            page.go_back                   
@@ -984,7 +980,6 @@ module QA
            sign_out_and_sign_in_as_another_user(@Group_User_B)
            @Project_A.visit!
            expect(page).to have_text(@Project_A.name)
-           page.go_back
            @Child_Group_A.visit!
            Page::Group::Menu.perform(&:click_group_members_item)
            expect(page).to have_text(max_access_level)
@@ -1043,7 +1038,6 @@ module QA
            sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
            @Project_A.visit!
            expect(page).to have_text(@Project_A.name)
-           page.go_back
            @Child_Group_A.visit!
            Page::Group::Menu.perform(&:click_group_members_item)
            expect(page).to have_text(max_access_level)
@@ -1064,7 +1058,7 @@ module QA
          # Line 261
         #! Duplicates: 246
          it 'Parent_Group_A invites members of the Group_B with a role of "Owner" within B group to be part of Parent_Group_A as "Guest"' do
-           user_B_access_level = "Developer"
+           user_B_access_level = "Owner"
            max_access_level = "Guest"
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
@@ -1079,8 +1073,7 @@ module QA
            sign_out_and_sign_in_as_another_user(@Group_User_B)
            @Project_A.visit!
            expect(page).to have_text(@Project_A.name)
-           page.go_back
-           @Child_Group_A.visit!
+           @Parent_Group_A.visit!
            Page::Group::Menu.perform(&:click_group_members_item)
            expect(page).to have_text(max_access_level)
            page.go_back
@@ -1112,7 +1105,7 @@ module QA
         # Line 266
         #! Duplicates: 251
          it 'Parent_Group_A invites members of the Child_Group_B with a role of "Owner" within B group to be part of Child_Group_A as "Guest"' do
-           user_B_access_level = "Developer"
+           user_B_access_level = "Owner"
            max_access_level = "Guest"
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
@@ -1138,8 +1131,7 @@ module QA
            sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
            @Project_A.visit!
            expect(page).to have_text(@Project_A.name)
-           page.go_back
-           @Child_Group_A.visit!
+           @Parent_Group_A.visit!
            Page::Group::Menu.perform(&:click_group_members_item)
            expect(page).to have_text(max_access_level)
            page.go_back
@@ -1161,7 +1153,7 @@ module QA
         # Line 276
         #! Duplicates: none
          it 'Child_Group_A invites members of the Group_B with a role of "Owner" within B group to be part of Child_Group_A as "Guest"' do
-           user_B_access_level = "Developer"
+           user_B_access_level = "Ower"
            max_access_level = "Guest"
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
@@ -1176,7 +1168,6 @@ module QA
            sign_out_and_sign_in_as_another_user(@Group_User_B)
            @Project_A.visit!
            expect(page).to have_text(@Project_A.name)
-           page.go_back
            @Child_Group_A.visit!
            Page::Group::Menu.perform(&:click_group_members_item)
            expect(page).to have_text(max_access_level)
@@ -1208,7 +1199,7 @@ module QA
         # Line 281
         #! Duplicates: none
          it 'Child_Group_A invites members of the Child_Group_B with a role of "Owner" within B group to be part of Child_Group_A as "Guest"' do
-           user_B_access_level = "Developer"
+           user_B_access_level = "Owner"
            max_access_level = "Guest"
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
@@ -1233,7 +1224,6 @@ module QA
            sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
            @Project_A.visit!
            expect(page).to have_text(@Project_A.name)
-           page.go_back
            @Child_Group_A.visit!
            Page::Group::Menu.perform(&:click_group_members_item)
            expect(page).to have_text(max_access_level)
