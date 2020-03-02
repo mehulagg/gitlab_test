@@ -88,6 +88,20 @@ describe('error tracking actions', () => {
     });
   });
 
+  describe('searchByStatus', () => {
+    it('should search errors by status', () => {
+      const status = 'ignored';
+
+      testAction(
+        actions.searchByStatus,
+        status,
+        {},
+        [{ type: types.SET_STATUS_FILTER, payload: status }],
+        [{ type: 'startPolling' }],
+      );
+    });
+  });
+
   describe('sortByField', () => {
     it('should search by query', () => {
       const field = 'frequency';

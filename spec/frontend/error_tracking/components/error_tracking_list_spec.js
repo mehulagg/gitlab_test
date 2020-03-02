@@ -15,7 +15,7 @@ describe('ErrorTrackingList', () => {
 
   const findErrorListTable = () => wrapper.find('table');
   const findErrorListRows = () => wrapper.findAll('tbody tr');
-  const findSortDropdown = () => wrapper.find('.sort-dropdown');
+  const findSortDropdown = () => wrapper.find('.sort-control');
   const findRecentSearchesDropdown = () =>
     wrapper.find('.filtered-search-history-dropdown-wrapper');
   const findLoadingIcon = () => wrapper.find(GlLoadingIcon);
@@ -60,6 +60,7 @@ describe('ErrorTrackingList', () => {
       fetchPaginatedResults: jest.fn(),
       updateStatus: jest.fn(),
       removeIgnoredResolvedErrors: jest.fn(),
+      searchByStatus: jest.fn(),
     };
 
     const state = {
@@ -167,9 +168,15 @@ describe('ErrorTrackingList', () => {
       });
 
       it('it sorts by fields', () => {
-        const findSortItem = () => wrapper.find('.dropdown-item');
+        const findSortItem = () => wrapper.find('.sort-control .dropdown-item');
         findSortItem().trigger('click');
         expect(actions.sortByField).toHaveBeenCalled();
+      });
+
+      it('it filters by status', () => {
+        const findSortItem = () => wrapper.find('.status-dropdown .dropdown-item');
+        findSortItem().trigger('click');
+        expect(actions.searchByStatus).toHaveBeenCalled();
       });
     });
   });

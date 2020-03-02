@@ -275,7 +275,7 @@ export default {
 
         <gl-dropdown
           :text="$options.statusFilters[statusFilter]"
-          class="mr-2"
+          class="status-dropdown mr-2"
           menu-class="dropdown"
           :disabled="loading"
         >
