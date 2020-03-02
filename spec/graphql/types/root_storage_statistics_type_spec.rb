@@ -10,5 +10,5 @@ describe GitlabSchema.types['RootStorageStatistics'] do
                                        :build_artifacts_size, :packages_size, :wiki_size)
   end
 
-  it { is_expected.to require_graphql_authorizations(:read_statistics) }
+  it { expect(described_class).to require_graphql_authorizations(:read_statistics) }
 end
