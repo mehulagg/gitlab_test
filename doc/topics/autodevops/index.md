@@ -641,6 +641,10 @@ as it will be attempting to fetch the image using
 
 > [Introduced](https://gitlab.com/gitlab-org/charts/auto-deploy-app/-/merge_requests/51) in GitLab 12.8.
 
+> Support for deploying a PostgreSQL that supports Kubernetes 1.16+ was
+> [introduced](https://gitlab.com/gitlab-org/cluster-integration/auto-deploy-image/-/merge_requests/49)
+> in GitLab 12.9.
+
 CAUTION: **Deprecation**
 The default value of `extensions/v1beta1` for the `deploymentApiVersion` setting is
 deprecated, and is scheduled to be changed to a new default of `apps/v1` in
@@ -657,9 +661,10 @@ To use Auto Deploy on a Kubernetes 1.16+ cluster, you must:
    deploymentApiVersion: apps/v1
    ```
 
-1. Set the `POSTGRES_ENABLED` variable to `false`. This will disable Auto Deploy's deployment of PostgreSQL.
-Support for enabling Auto Deploy's deployment of PostgreSQL in a Kubernetes 1.16+ cluster
-is [planned](https://gitlab.com/gitlab-org/charts/auto-deploy-app/issues/28).
+1. Set the `AUTO_DEVOPS_POSTGRES_CHANNEL` variable to `2`, and the
+`POSTGRES_VERSION` variable to `9.6.16` (or higher). This will opt-in
+to using a version of the PostgreSQL chart that supports Kubernetes
+1.16.
 
 #### Migrations
 
