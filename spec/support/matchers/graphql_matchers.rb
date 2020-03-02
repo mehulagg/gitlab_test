@@ -2,7 +2,7 @@
 
 RSpec::Matchers.define :require_graphql_authorizations do |*expected|
   match do |field|
-    expect(field.metadata[:authorize]).to eq(*expected)
+    expect(field.to_graphql.metadata[:authorize]).to eq(*expected)
   end
 end
 
