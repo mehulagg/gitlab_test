@@ -4,10 +4,10 @@ class AuditEventPresenter < Gitlab::View::Presenter::Simple
   presents :audit_event
 
   def author_name
-    user = audit_event.user
+    author = audit_event.lazy_author
 
-    if user
-      link_to(user.name, user_path(user))
+    if author
+      link_to(author.name, user_path(author))
     else
       audit_event.author_name
     end

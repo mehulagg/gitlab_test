@@ -15,7 +15,7 @@ module EE
 
     override :author_name
     def author_name
-      if (author_name = details[:author_name].presence || user&.name)
+      if (author_name = details[:author_name].presence || super)
         author_name
       elsif authored_by_unauth_user?
         UNAUTH_USER_AUTHOR_NAME

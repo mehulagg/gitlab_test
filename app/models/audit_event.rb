@@ -23,11 +23,19 @@ class AuditEvent < ApplicationRecord
   end
 
   def author_name
-    self.user.name
+    lazy_author.name
   end
 
   def formatted_details
     details.merge(details.slice(:from, :to).transform_values(&:to_s))
+  end
+
+  def lazy_author
+    BatchLoader.for(author_id).batch do |author_ids, loader|
+      User.where(id: author_ids).find_each do |user|
+        loader.call(user.id, user)
+      end
+    end
   end
 end
 
