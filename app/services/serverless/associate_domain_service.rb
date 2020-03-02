@@ -16,7 +16,8 @@ module Serverless
       knative.hostname ||= PLACEHOLDER_HOSTNAME
 
       knative.pages_domain = knative.find_available_domain(pages_domain_id)
-      knative.serverless_domain_cluster.update(creator: creator) if knative.pages_domain
+
+      knative.serverless_domain_cluster.update!(creator: creator, configuring: true) if knative.pages_domain
     end
 
     private

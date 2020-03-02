@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_26_162723) do
+ActiveRecord::Schema.define(version: 2020_03_02_203158) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -3857,6 +3857,7 @@ ActiveRecord::Schema.define(version: 2020_02_26_162723) do
     t.text "encrypted_key"
     t.string "encrypted_key_iv", limit: 255
     t.text "certificate"
+    t.boolean "configuring", default: false, null: false
     t.index ["clusters_applications_knative_id"], name: "idx_serverless_domain_cluster_on_clusters_applications_knative", unique: true
     t.index ["creator_id"], name: "index_serverless_domain_cluster_on_creator_id"
     t.index ["pages_domain_id"], name: "index_serverless_domain_cluster_on_pages_domain_id"

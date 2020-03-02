@@ -105,7 +105,7 @@ describe Clusters::Kubernetes::ConfigureIstioIngressService, '#execute' do
   end
 
   context 'with a serverless_domain_cluster' do
-    let(:serverless_domain_cluster) { create(:serverless_domain_cluster) }
+    let(:serverless_domain_cluster) { create(:serverless_domain_cluster, configuring: true) }
     let(:certificate) { OpenSSL::X509::Certificate.new(serverless_domain_cluster.certificate) }
 
     before do
@@ -192,6 +192,10 @@ describe Clusters::Kubernetes::ConfigureIstioIngressService, '#execute' do
           }
         }
       )
+    end
+
+    it 'marks the serverless_domain_cluster as configured' do
+      expect { subject }.to change { serverless_domain_cluster.reload.configuring }.from(true).to(false)
     end
   end
 

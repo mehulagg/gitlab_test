@@ -44,6 +44,7 @@ module Clusters
       def configure_certificates
         create_or_update_istio_cert_and_key
         set_gateway_wildcard_https(MTLS_RESOURCE)
+        serverless_domain_cluster&.update!(configuring: false)
       end
 
       def create_or_update_istio_cert_and_key

@@ -42,6 +42,10 @@ describe Serverless::AssociateDomainService do
     it 'updates creator' do
       expect { subject.execute }.to change { sdc.reload.creator }.from(sdc.creator).to(creator)
     end
+
+    it 'marks the serverless_domain_cluster as configuring' do
+      expect { subject.execute }.to change { sdc.reload.configuring }.from(false).to(true)
+    end
   end
 
   context 'when knative is not authorized to use the pages domain' do
