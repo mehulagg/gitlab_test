@@ -29,7 +29,7 @@ describe 'User views releases', :js do
       visit project_releases_path(project)
 
       page.within('.js-assets-list') do
-        expect(page).to have_link release_link.name, href: release_link.url
+        expect(page).to have_link release_link.name, href: release_link.direct_asset_url
         expect(page).not_to have_content('(external source)')
       end
     end
