@@ -10,7 +10,7 @@ An Epic within a group containing **Start date** and/or **Due date**
 can be visualized in a form of a timeline (e.g. a Gantt chart). The Epics Roadmap page
 shows such a visualization for all the epics which are under a group and/or its subgroups.
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5164) in GitLab 12.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/5164) in GitLab 12.9.
 
 On the epic bars, its description, progress, and completed weight percentage are shown.
 When you hover over an epic bar, a popover appears with its description, start and due dates,
