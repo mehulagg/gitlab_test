@@ -1,0 +1,8 @@
+{
+  "type": "object",
+  "required": ["environment_scope"],
+  "properties": {
+    "environment_scope": { "type": "string" }
+  },
+  "additionalProperties": false
+}

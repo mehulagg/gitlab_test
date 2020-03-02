@@ -59,6 +59,14 @@ describe API::FeatureFlags do
         expect(json_response.second['name']).to eq(feature_flag_2.name)
       end
 
+      it 'returns the legacy flag version' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flags', dir: 'ee')
+        expect(json_response.map { |f| f['version'] }).to eq(%w[legacy_flag legacy_flag])
+      end
+
       it 'does not have N+1 problem' do
         control_count = ActiveRecord::QueryRecorder.new { subject }
 
@@ -70,9 +78,150 @@ describe API::FeatureFlags do
 
       it_behaves_like 'check user permission'
     end
+
+    context 'with version 2 feature flags' do
+      let!(:feature_flag) do
+        create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
+      end
+      let!(:strategy) do
+        create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+      end
+      let!(:scope) do
+        create(:operations_scope, strategy: strategy, environment_scope: 'production')
+      end
+
+      it 'returns the feature flags' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flags', dir: 'ee')
+        expect(json_response).to eq([{
+          'name' => 'feature1',
+          'description' => nil,
+          'version' => 'new_version_flag',
+          'updated_at' => feature_flag.updated_at.as_json,
+          'created_at' => feature_flag.created_at.as_json,
+          'scopes' => [],
+          'strategies' => [{
+            'name' => 'default',
+            'parameters' => {},
+            'scopes' => [{
+              'environment_scope' => 'production'
+            }]
+          }]
+        }])
+      end
+
+      it 'does not return a version 2 flag when the feature flag is disabled' do
+        stub_feature_flags(feature_flags_new_version: false)
+
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flags', dir: 'ee')
+        expect(json_response).to eq([])
+      end
+    end
+
+    context 'with version 1 and 2 feature flags' do
+      it 'returns both versions of flags ordered by name' do
+        create(:operations_feature_flag, project: project, name: 'legacy_flag')
+        feature_flag = create(:operations_feature_flag, project: project, name: 'new_version_flag', version: 2)
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        create(:operations_scope, strategy: strategy, environment_scope: 'production')
+
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flags', dir: 'ee')
+        expect(json_response.map { |f| f['name'] }).to eq(%w[legacy_flag new_version_flag])
+      end
+
+      it 'returns only version 1 flags when the feature flag is disabled' do
+        stub_feature_flags(feature_flags_new_version: false)
+        create(:operations_feature_flag, project: project, name: 'legacy_flag')
+        feature_flag = create(:operations_feature_flag, project: project, name: 'new_version_flag', version: 2)
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        create(:operations_scope, strategy: strategy, environment_scope: 'production')
+
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flags', dir: 'ee')
+        expect(json_response.map { |f| f['name'] }).to eq(['legacy_flag'])
+      end
+    end
+  end
+
+  describe 'GET /projects/:id/feature_flags/:name' do
+    subject { get api("/projects/#{project.id}/feature_flags/#{feature_flag.name}", user) }
+
+    context 'when there is a feature flag' do
+      let!(:feature_flag) { create_flag(project, 'awesome-feature') }
+
+      it 'returns a feature flag entry' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        expect(json_response['name']).to eq(feature_flag.name)
+        expect(json_response['description']).to eq(feature_flag.description)
+        expect(json_response['version']).to eq('legacy_flag')
+      end
+
+      it_behaves_like 'check user permission'
+    end
+
+    context 'with a version 2 feature_flag' do
+      it 'returns the feature flag' do
+        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        create(:operations_scope, strategy: strategy, environment_scope: 'production')
+
+        get api("/projects/#{project.id}/feature_flags/feature1", user)
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        expect(json_response).to eq({
+          'name' => 'feature1',
+          'description' => nil,
+          'version' => 'new_version_flag',
+          'updated_at' => feature_flag.updated_at.as_json,
+          'created_at' => feature_flag.created_at.as_json,
+          'scopes' => [],
+          'strategies' => [{
+            'name' => 'default',
+            'parameters' => {},
+            'scopes' => [{
+              'environment_scope' => 'production'
+            }]
+          }]
+        })
+      end
+
+      it 'returns a 404 when the feature is disabled' do
+        stub_feature_flags(feature_flags_new_version: false)
+        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        create(:operations_scope, strategy: strategy, environment_scope: 'production')
+
+        get api("/projects/#{project.id}/feature_flags/feature1", user)
+
+        expect(response).to have_gitlab_http_status(:not_found)
+        expect(json_response).to eq({ 'message' => '404 Not found' })
+      end
+    end
   end
 
   describe 'POST /projects/:id/feature_flags' do
+    def default_scope
+      {
+        environment_scope: '*',
+        active: false,
+        strategies: [{ name: 'default', parameters: {} }].to_json
+      }
+    end
+
     subject do
       post api("/projects/#{project.id}/feature_flags", user), params: params
     end
@@ -93,6 +242,16 @@ describe API::FeatureFlags do
       feature_flag = project.operations_feature_flags.last
       expect(feature_flag.name).to eq(params[:name])
       expect(feature_flag.description).to eq(params[:description])
+    end
+
+    it 'defaults to a version 1 (legacy) feature flag' do
+      subject
+
+      expect(response).to have_gitlab_http_status(:created)
+      expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+
+      feature_flag = project.operations_feature_flags.last
+      expect(feature_flag.version).to eq('legacy_flag')
     end
 
     it_behaves_like 'check user permission'
@@ -158,31 +317,90 @@ describe API::FeatureFlags do
       end
     end
 
-    def default_scope
-      {
-        environment_scope: '*',
-        active: false,
-        strategies: [{ name: 'default', parameters: {} }].to_json
-      }
-    end
-  end
+    context 'when creating a version 2 feature flag' do
+      it 'creates a new feature flag' do
+        params = {
+          name: 'new-feature',
+          version: 'new_version_flag'
+        }
 
-  describe 'GET /projects/:id/feature_flags/:name' do
-    subject { get api("/projects/#{project.id}/feature_flags/#{feature_flag.name}", user) }
+        post api("/projects/#{project.id}/feature_flags", user), params: params
 
-    context 'when there is a feature flag' do
-      let!(:feature_flag) { create_flag(project, 'awesome-feature') }
-
-      it 'returns a feature flag entry' do
-        subject
-
-        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to have_gitlab_http_status(:created)
         expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
-        expect(json_response['name']).to eq(feature_flag.name)
-        expect(json_response['description']).to eq(feature_flag.description)
+
+        feature_flag = project.operations_feature_flags.last
+        expect(feature_flag.name).to eq(params[:name])
+        expect(feature_flag.version).to eq('new_version_flag')
       end
 
-      it_behaves_like 'check user permission'
+      it 'creates a new feature flag with strategies' do
+        params = {
+          name: 'new-feature',
+          version: 'new_version_flag',
+          strategies: [{
+            name: 'userWithId',
+            parameters: { 'userIds': 'user1' }
+          }]
+        }
+
+        post api("/projects/#{project.id}/feature_flags", user), params: params
+
+        expect(response).to have_gitlab_http_status(:created)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+
+        feature_flag = project.operations_feature_flags.last
+        expect(feature_flag.name).to eq(params[:name])
+        expect(feature_flag.version).to eq('new_version_flag')
+        expect(feature_flag.strategies.map { |s| s.slice(:name, :parameters).deep_symbolize_keys }).to eq([{
+          name: 'userWithId',
+          parameters: { userIds: 'user1' }
+        }])
+      end
+
+      it 'creates a new feature flag with strategies with scopes' do
+        params = {
+          name: 'new-feature',
+          version: 'new_version_flag',
+          strategies: [{
+            name: 'gradualRolloutUserId',
+            parameters: { groupId: 'default', percentage: '50' },
+            scopes: [{
+              environment_scope: 'staging'
+            }]
+          }]
+        }
+
+        post api("/projects/#{project.id}/feature_flags", user), params: params
+
+        expect(response).to have_gitlab_http_status(:created)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+
+        feature_flag = project.operations_feature_flags.last
+        expect(feature_flag.name).to eq(params[:name])
+        expect(feature_flag.version).to eq('new_version_flag')
+        expect(feature_flag.strategies.map { |s| s.slice(:name, :parameters).deep_symbolize_keys }).to eq([{
+          name: 'gradualRolloutUserId',
+          parameters: { groupId: 'default', percentage: '50' }
+        }])
+        expect(feature_flag.strategies.first.scopes.map { |s| s.slice(:environment_scope).deep_symbolize_keys }).to eq([{
+          environment_scope: 'staging'
+        }])
+      end
+
+      it 'returns a 422 when the feature flag is disabled' do
+        stub_feature_flags(feature_flags_new_version: false)
+        params = {
+          name: 'new-feature',
+          version: 'new_version_flag'
+        }
+
+        post api("/projects/#{project.id}/feature_flags", user), params: params
+
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
+        expect(json_response).to eq({ 'message' => 'Version 2 flags are not enabled for this project' })
+        expect(project.operations_feature_flags.count).to eq(0)
+      end
     end
   end
 
@@ -339,6 +557,225 @@ describe API::FeatureFlags do
     end
   end
 
+  describe 'PUT /projects/:id/feature_flags/:name' do
+    context 'with a legacy feature flag' do
+      let!(:feature_flag) do
+        create(:operations_feature_flag, project: project,
+               name: 'feature1', version: 1, description: 'old description')
+      end
+
+      it 'returns a 404 if the feature is disabled' do
+        stub_feature_flags(feature_flags_new_version: false)
+        params = { description: 'new description' }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:not_found)
+        expect(feature_flag.reload.description).to eq('old description')
+      end
+
+      it 'returns a 422' do
+        params = { description: 'new description' }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
+        expect(json_response).to eq({ 'message' => 'PUT operations are not supported for legacy feature flags' })
+        expect(feature_flag.reload.description).to eq('old description')
+      end
+    end
+
+    context 'with a version 2 feature flag' do
+      let!(:feature_flag) do
+        create(:operations_feature_flag, project: project,
+               name: 'feature1', version: 2, description: 'old description')
+      end
+
+      it 'returns a 404 if the feature is disabled' do
+        stub_feature_flags(feature_flags_new_version: false)
+        params = { description: 'new description' }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:not_found)
+        expect(feature_flag.reload.description).to eq('old description')
+      end
+
+      it 'returns a 404 if the feature flag does not exist' do
+        params = { description: 'new description' }
+
+        put api("/projects/#{project.id}/feature_flags/other_flag_name", user), params: params
+
+        expect(response).to have_gitlab_http_status(:not_found)
+        expect(feature_flag.reload.description).to eq('old description')
+      end
+
+      it 'forbids a request for a reporter' do
+        params = { description: 'new description' }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", reporter), params: params
+
+        expect(response).to have_gitlab_http_status(:forbidden)
+        expect(feature_flag.reload.description).to eq('old description')
+      end
+
+      it 'returns an error for an invalid update' do
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        params = {
+          strategies: [{
+            id: strategy.id,
+            name: 'gradualRolloutUserId',
+            parameters: { bad: 'params' }
+          }]
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['message']).not_to be_nil
+        result = feature_flag.reload.strategies.map { |s| s.slice(:id, :name, :parameters).deep_symbolize_keys }
+        expect(result).to eq([{
+          id: strategy.id,
+          name: 'default',
+          parameters: {}
+        }])
+      end
+
+      it 'updates the feature flag' do
+        params = { description: 'new description' }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        expect(feature_flag.reload.description).to eq('new description')
+      end
+
+      it 'updates an existing feature flag strategy' do
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        params = {
+          strategies: [{
+            id: strategy.id,
+            name: 'gradualRolloutUserId',
+            parameters: { groupId: 'default', percentage: '10' }
+          }]
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        result = feature_flag.reload.strategies.map { |s| s.slice(:id, :name, :parameters).deep_symbolize_keys }
+        expect(result).to eq([{
+          id: strategy.id,
+          name: 'gradualRolloutUserId',
+          parameters: { groupId: 'default', percentage: '10' }
+        }])
+      end
+
+      it 'creates a new feature flag strategy' do
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        params = {
+          strategies: [{
+            name: 'gradualRolloutUserId',
+            parameters: { groupId: 'default', percentage: '10' }
+          }]
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        result = feature_flag.reload.strategies
+          .map { |s| s.slice(:id, :name, :parameters).deep_symbolize_keys }
+          .sort_by { |s| s[:name] }
+        expect(result.first[:id]).to eq(strategy.id)
+        expect(result.map { |s| s.slice(:name, :parameters) }).to eq([{
+          name: 'default',
+          parameters: {}
+        }, {
+          name: 'gradualRolloutUserId',
+          parameters: { groupId: 'default', percentage: '10' }
+        }])
+      end
+
+      it 'deletes a feature flag strategy' do
+        strategy_a = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        strategy_b = create(:operations_strategy, feature_flag: feature_flag,
+                          name: 'userWithId', parameters: { userIds: 'userA,userB' })
+        params = {
+          strategies: [{
+            id: strategy_a.id,
+            name: 'default',
+            parameters: {},
+            _destroy: true
+          }, {
+            id: strategy_b.id,
+            name: 'userWithId',
+            parameters: { userIds: 'userB' }
+          }]
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        result = feature_flag.reload.strategies
+          .map { |s| s.slice(:id, :name, :parameters).deep_symbolize_keys }
+          .sort_by { |s| s[:name] }
+        expect(result).to eq([{
+          id: strategy_b.id,
+          name: 'userWithId',
+          parameters: { userIds: 'userB' }
+        }])
+      end
+
+      it 'updates an existing feature flag scope' do
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        scope = create(:operations_scope, strategy: strategy, environment_scope: '*')
+        params = {
+          strategies: [{
+            id: strategy.id,
+            scopes: [{
+              id: scope.id,
+              environment_scope: 'production'
+            }]
+          }]
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        result = feature_flag.reload.strategies.first.scopes.map { |s| s.slice(:id, :environment_scope).deep_symbolize_keys }
+        expect(result).to eq([{
+          id: scope.id,
+          environment_scope: 'production'
+        }])
+      end
+
+      it 'deletes an existing feature flag scope' do
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        scope = create(:operations_scope, strategy: strategy, environment_scope: '*')
+        params = {
+          strategies: [{
+            id: strategy.id,
+            scopes: [{
+              id: scope.id,
+              _destroy: true
+            }]
+          }]
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        expect(feature_flag.reload.strategies.first.scopes.count).to eq(0)
+      end
+    end
+  end
+
   describe 'DELETE /projects/:id/feature_flags/:name' do
     subject do
       delete api("/projects/#{project.id}/feature_flags/#{feature_flag.name}", user),
@@ -352,6 +789,24 @@ describe API::FeatureFlags do
       expect { subject }.to change { Operations::FeatureFlag.count }.by(-1)
 
       expect(response).to have_gitlab_http_status(:ok)
+    end
+
+    context 'with a version 2 feature flag' do
+      let!(:feature_flag) { create(:operations_feature_flag, project: project, version: 2) }
+
+      it 'destroys the flag' do
+        expect { subject }.to change { Operations::FeatureFlag.count }.by(-1)
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+
+      it 'returns a 404 if the feature is disabled' do
+        stub_feature_flags(feature_flags_new_version: false)
+
+        expect { subject }.not_to change { Operations::FeatureFlag.count }
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
     end
   end
 end

@@ -40,20 +40,35 @@ module API
         params do
           requires :name, type: String, desc: 'The name of feature flag'
           optional :description, type: String, desc: 'The description of the feature flag'
+          optional :version, type: String, desc: 'The version of the feature flag'
           optional :scopes, type: Array do
             requires :environment_scope, type: String, desc: 'The environment scope of the scope'
             requires :active, type: Boolean, desc: 'Active/inactive of the scope'
             requires :strategies, type: JSON, desc: 'The strategies of the scope'
           end
+          optional :strategies, type: Array do
+            requires :name, type: String, desc: 'The strategy type'
+            requires :parameters, type: JSON, desc: 'The strategy parameters'
+            optional :scopes, type: Array do
+              requires :environment_scope, type: String, desc: 'The environment scope of the scope'
+            end
+          end
         end
         post do
           authorize_create_feature_flag!
 
-          param = declared_params(include_missing: false)
-          param[:scopes_attributes] = param.delete(:scopes) if param.key?(:scopes)
+          attrs = declared_params(include_missing: false)
+
+          ensure_post_version_2_flags_enabled! if attrs[:version] == 'new_version_flag'
+
+          rename_key(attrs, :scopes, :scopes_attributes)
+          rename_key(attrs, :strategies, :strategies_attributes)
+          update_value(attrs, :strategies_attributes) do |strategies|
+            strategies.map { |s| rename_key(s, :scopes, :scopes_attributes) }
+          end
 
           result = ::FeatureFlags::CreateService
-            .new(user_project, current_user, param)
+            .new(user_project, current_user, attrs)
             .execute
 
           if result[:status] == :success
@@ -122,6 +137,47 @@ module API
           end
         end
 
+        desc 'Update a feature flag' do
+          detail 'This feature will be introduced in GitLab 13.1 if feature_flags_new_version feature flag is removed'
+          success EE::API::Entities::FeatureFlag
+        end
+        params do
+          optional :description, type: String, desc: 'The description of the feature flag'
+          optional :strategies, type: Array do
+            optional :id, type: Integer, desc: 'The strategy id'
+            optional :name, type: String, desc: 'The strategy type'
+            optional :parameters, type: JSON, desc: 'The strategy parameters'
+            optional :_destroy, type: Boolean, desc: 'Delete the strategy when true'
+            optional :scopes, type: Array do
+              optional :id, type: Integer, desc: 'The environment scope id'
+              optional :environment_scope, type: String, desc: 'The environment scope of the scope'
+              optional :_destroy, type: Boolean, desc: 'Delete the scope when true'
+            end
+          end
+        end
+        put do
+          not_found! unless Feature.enabled?(:feature_flags_new_version, user_project)
+          authorize_update_feature_flag!
+          render_api_error!('PUT operations are not supported for legacy feature flags', 422) if feature_flag.legacy_flag?
+
+          attrs = declared_params(include_missing: false)
+
+          rename_key(attrs, :strategies, :strategies_attributes)
+          update_value(attrs, :strategies_attributes) do |strategies|
+            strategies.map { |s| rename_key(s, :scopes, :scopes_attributes) }
+          end
+
+          result = ::FeatureFlags::UpdateService
+            .new(user_project, current_user, attrs)
+            .execute(feature_flag)
+
+          if result[:status] == :success
+            present result[:feature_flag], with: EE::API::Entities::FeatureFlag
+          else
+            render_api_error!(result[:message], result[:http_status])
+          end
+        end
+
         desc 'Delete a feature flag' do
           detail 'This feature was introduced in GitLab 12.5'
           success EE::API::Entities::FeatureFlag
@@ -155,13 +211,36 @@ module API
         authorize! :create_feature_flag, user_project
       end
 
+      def authorize_update_feature_flag!
+        authorize! :update_feature_flag, feature_flag
+      end
+
       def authorize_destroy_feature_flag!
         authorize! :destroy_feature_flag, feature_flag
       end
 
+      def ensure_post_version_2_flags_enabled!
+        unless Feature.enabled?(:feature_flags_new_version, user_project)
+          render_api_error!('Version 2 flags are not enabled for this project', 422)
+        end
+      end
+
       def feature_flag
-        @feature_flag ||=
-          user_project.operations_feature_flags.find_by_name!(params[:name])
+        @feature_flag ||= if Feature.enabled?(:feature_flags_new_version, user_project)
+                            user_project.operations_feature_flags.find_by_name!(params[:name])
+                          else
+                            user_project.operations_feature_flags.legacy_flag.find_by_name!(params[:name])
+                          end
+      end
+
+      def rename_key(hash, old_key, new_key)
+        hash[new_key] = hash.delete(old_key) if hash.key?(old_key)
+        hash
+      end
+
+      def update_value(hash, key)
+        hash[key] = yield(hash[key]) if hash.key?(key)
+        hash
       end
     end
   end
