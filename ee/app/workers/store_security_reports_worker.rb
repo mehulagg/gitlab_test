@@ -6,6 +6,8 @@ class StoreSecurityReportsWorker # rubocop:disable Scalability/IdempotentWorker
   include ApplicationWorker
   include SecurityScansQueue
 
+  feature_category :static_application_security_testing
+
   def perform(pipeline_id)
     Ci::Pipeline.find(pipeline_id).try do |pipeline|
       break unless pipeline.project.can_store_security_reports?
@@ -14,3 +16,4 @@ class StoreSecurityReportsWorker # rubocop:disable Scalability/IdempotentWorker
     end
   end
 end
+
