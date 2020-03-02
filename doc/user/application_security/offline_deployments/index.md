@@ -46,4 +46,3 @@ above. You can find more info at each of the pages below.
 - [Dependency scanning offline directions]()
 - [SAST offline directions]()
 - [DAST offline directions]()
-- [License scanning offline directions]()
