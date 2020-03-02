@@ -1,34 +1,48 @@
 <script>
-import { GlAlert, GlSprintf, GlLink } from '@gitlab/ui';
+import { GlAlert, GlSprintf, GlLink, GlSkeletonLoading } from '@gitlab/ui';
 import { mapState } from 'vuex';
-import Api from '~/api';
-import { formatDate, getDayDifference } from '~/lib/utils/datetime_utility';
+import { approximateDuration, calculateRemainingMilliseconds } from '~/lib/utils/datetime_utility';
+import {
+  EXPIRATION_POLICY_ALERT_TITLE,
+  EXPIRATION_POLICY_ALERT_PRIMARY_BUTTON,
+  EXPIRATION_POLICY_ALERT_FULL_MESSAGE,
+  EXPIRATION_POLICY_ALERT_SHORT_MESSAGE,
+} from '../constants';
 
 export default {
   components: {
     GlAlert,
     GlSprintf,
     GlLink,
+    GlSkeletonLoading,
   },
-  data() {
-    return {
-      policy: null,
-    };
-  },
+
   computed: {
-    ...mapState(['config']),
+    ...mapState(['config', 'images', 'isLoading']),
+    isEmpty() {
+      return !this.images || this.images.length === 0;
+    },
     showAlert() {
-      return this.policy?.enabled;
+      return this.config.expirationPolicy?.enabled;
     },
-    time() {
-      console.log(getDayDifference(new Date(this.policy?.next_run_at), new Date()));
-      return formatDate(this.policy?.next_run_at, 'mmm d, yyyy h:MMtt');
+    timeTillRun() {
+      const difference = calculateRemainingMilliseconds(this.config.expirationPolicy?.next_run_at);
+      return approximateDuration(difference / 1000);
     },
-  },
-  mounted() {
-    return Api.project(this.config.projectId).then(({ data }) => {
-      this.policy = data?.container_expiration_policy;
-    });
+    alertConfiguration() {
+      if (this.isEmpty || this.isLoading) {
+        return {
+          title: null,
+          primaryButton: null,
+          message: EXPIRATION_POLICY_ALERT_SHORT_MESSAGE,
+        };
+      }
+      return {
+        title: EXPIRATION_POLICY_ALERT_TITLE,
+        primaryButton: EXPIRATION_POLICY_ALERT_PRIMARY_BUTTON,
+        message: EXPIRATION_POLICY_ALERT_FULL_MESSAGE,
+      };
+    },
   },
 };
 </script>
@@ -37,28 +51,30 @@ export default {
   <gl-alert
     v-if="showAlert"
     :dismissible="false"
-    :primary-button-text="__('Edit Settings')"
+    :primary-button-text="alertConfiguration.primaryButton"
     :primary-button-link="config.settingsPath"
-    :title="s__('ContainerRegistry|Retention policy has been Enabled')"
+    :title="alertConfiguration.title"
     class="my-2"
   >
-    <gl-sprintf
-      :message="
-        s__(
-          'ContainerRegistry|The retention and expiration policy for this container registry has been enabled and will run in %{time} for more infomration visit the %{linkStart}documentation%{linkEnd}',
-        )
-      "
-    >
-      <template #time>
-        <strong>
-          <time>{{ time }}</time>
-        </strong>
-      </template>
-      <template #link="{content}">
-        <gl-link :href="config.helpPagePath" target="_blank">
-          {{ content }}
-        </gl-link>
-      </template>
-    </gl-sprintf>
+    <template v-if="isLoading">
+      <gl-skeleton-loading :lines="3" />
+    </template>
+
+    <template v-else>
+      <gl-sprintf :message="alertConfiguration.message">
+        <template #days>
+          <strong>{{ timeTillRun }}</strong>
+        </template>
+        <template #link="{content}">
+          <gl-link
+            ref="documentationLink"
+            :href="config.expirationPolicyHelpPagePath"
+            target="_blank"
+          >
+            {{ content }}
+          </gl-link>
+        </template>
+      </gl-sprintf>
+    </template>
   </gl-alert>
 </template>
