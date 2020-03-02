@@ -108,6 +108,9 @@ export default {
     };
   },
   computed: {
+    parentType() {
+      return this.groupId ? 'group' : 'project';
+    },
     loading() {
       return this.loadingRecentBoards && this.loadingBoards;
     },
@@ -155,7 +158,7 @@ export default {
       if (toggleDropdown && this.boards.length > 0) {
         return;
       }
-      
+
       this.$apollo.addSmartQuery('boards', {
         variables() {
           return { fullPath: this.state.endpoints.fullPath };
@@ -165,15 +168,16 @@ export default {
         },
         loadingKey: 'loadingBoards',
         update(data) {
-          const parentType = this.groupId ? 'group' : 'project';
-          return data[parentType].boards.edges.map(({ node }) => ({
+          return data[this.parentType].boards.edges.map(({ node }) => ({
             id: getIdFromGraphQLId(node.id),
             name: node.name,
           }));
         },
       });
 
-      boardsStore.recentBoards().then(res => {
+      boardsStore
+        .recentBoards()
+        .then(res => {
           this.recentBoards = res.data;
         })
         .catch(err => {

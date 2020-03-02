@@ -1,7 +1,7 @@
 import Vue from 'vue';
 import mountComponent from 'spec/helpers/vue_mount_component_helper';
 import { TEST_HOST } from 'spec/test_constants';
-import BoardsSelector, { gqlClient } from '~/boards/components/boards_selector.vue';
+import BoardsSelector from '~/boards/components/boards_selector.vue';
 import boardsStore from '~/boards/stores/boards_store';
 
 const throttleDuration = 1;
@@ -20,6 +20,7 @@ function boardGenerator(n) {
 
 describe('BoardsSelector', () => {
   let vm;
+  let $apollo;
   let allBoardsResponse;
   let recentBoardsResponse;
   const boards = boardGenerator(20);
@@ -34,9 +35,9 @@ describe('BoardsSelector', () => {
 
   const createComponent = () => {
     const Component = Vue.extend(BoardsSelector);
-    vm = mountComponent(
-      Component,
-      {
+    vm = new Component({
+      mocks: { $apollo },
+      propsData: {
         throttleDuration,
         currentBoard: {
           id: 1,
@@ -57,8 +58,9 @@ describe('BoardsSelector', () => {
         scopedIssueBoardFeatureEnabled: true,
         weights: [],
       },
-      document.querySelector('.js-boards-selector'),
-    );
+    }).$mount('.js-boards-selector');
+
+    // spyOn(vm.$apollo, 'addSmartQuery').and.stub();
 
     // Emits gl-dropdown show event to simulate the dropdown is opened at initialization time
     vm.$children[0].$emit('show');
@@ -75,6 +77,14 @@ describe('BoardsSelector', () => {
       bulkUpdatePath: '',
       boardId: '',
     });
+
+    $apollo = {
+      queries: {
+        boards: {
+          loading: false,
+        },
+      },
+    };
   });
 
   afterEach(() => {
@@ -97,7 +107,6 @@ describe('BoardsSelector', () => {
       });
 
       spyOn(boardsStore, 'recentBoards').and.returnValue(recentBoardsResponse);
-      spyOn(gqlClient, 'query').and.returnValue(allBoardsResponse);
 
       createComponent();
 
@@ -218,7 +227,7 @@ describe('BoardsSelector', () => {
       });
 
       spyOn(boardsStore, 'recentBoards').and.returnValue(recentBoardsResponse);
-      spyOn(gqlClient, 'query').and.returnValue(Promise.reject());
+      // spyOn(gqlClient, 'query').and.returnValue(Promise.reject());
 
       createComponent();
 
