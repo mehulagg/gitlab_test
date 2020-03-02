@@ -3,12 +3,11 @@
 module Ci
   module Subscriptions
     class Project < ApplicationRecord
-      include_if_ee('::EE::Limitable') # rubocop: disable Cop/InjectEnterpriseEditionModule
-
-      self.table_name = "ci_subscriptions_projects"
+      include Limitable
 
       self.limit_name = 'ci_project_subscriptions'
       self.limit_scope = :upstream_project
+      self.table_name = 'ci_subscriptions_projects'
 
       belongs_to :downstream_project, class_name: '::Project', optional: false
       belongs_to :upstream_project, class_name: '::Project', optional: false
