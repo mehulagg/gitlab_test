@@ -7,13 +7,9 @@
       #signin-container
         = render 'admin/sessions/tabs_normal', tab_title: _('Enter Admin Mode')
         .tab-content
-          - if current_user.two_factor_otp_enabled?
-            .login-box.tab-pane.active{ id: 'login-pane', role: 'tabpanel' }
-              .login-body
+          .login-box.tab-pane.active{ id: 'login-pane', role: 'tabpanel' }
+            .login-body
+              - if current_user.two_factor_otp_enabled?
                 = render 'admin/sessions/two_factor_otp'
-
-          - if current_user.two_factor_u2f_enabled?
-            .clearfix
-            .login-box.tab-pane.active{ id: 'login-pane', role: 'tabpanel' }
-              .login-body
+              - if current_user.two_factor_u2f_enabled?
                 = render 'admin/sessions/two_factor_u2f'
