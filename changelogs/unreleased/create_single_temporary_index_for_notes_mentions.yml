@@ -1,0 +1,5 @@
+---
+title: Replace several temparary indexes with a single one to save on mentions migrations
+merge_request:
+author:
+type: performance
