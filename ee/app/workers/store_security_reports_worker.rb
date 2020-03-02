@@ -16,4 +16,3 @@ class StoreSecurityReportsWorker # rubocop:disable Scalability/IdempotentWorker
     end
   end
 end
-
