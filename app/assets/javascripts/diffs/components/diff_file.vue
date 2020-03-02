@@ -92,6 +92,17 @@ export default {
   created() {
     eventHub.$on(`loadCollapsedDiff/${this.file.file_hash}`, this.handleLoadCollapsedDiff);
   },
+  mounted() {
+    this.observer = new IntersectionObserver(([entry]) => {
+      if (entry && entry.isIntersecting) {
+        this.preloadDiff();
+      }
+    }, {});
+    this.observer.observe(this.$refs.expandLink);
+  },
+  destroyed() {
+    this.observer.disconnect();
+  },
   methods: {
     ...mapActions('diffs', [
       'loadCollapsedDiff',
@@ -100,18 +111,23 @@ export default {
       'setFileCollapsed',
     ]),
     handleToggle() {
-      if (!this.hasDiff) {
+      if (!this.hasDiff && !this.diffRequested) {
         this.handleLoadCollapsedDiff();
       } else {
+        if (this.diffRequested) {
+          this.isLoadingCollapsedDiff = true;
+        }
         this.isCollapsed = !this.isCollapsed;
         this.setRenderIt(this.file);
       }
     },
     handleLoadCollapsedDiff() {
+      this.diffRequested = true;
       this.isLoadingCollapsedDiff = true;
 
       this.loadCollapsedDiff(this.file)
         .then(() => {
+          this.diffRequested = false;
           this.isLoadingCollapsedDiff = false;
           this.isCollapsed = false;
           this.setRenderIt(this.file);
@@ -128,6 +144,21 @@ export default {
           this.isLoadingCollapsedDiff = false;
           createFlash(__('Something went wrong on our end. Please try again!'));
         });
+    },
+    preloadDiff() {
+      if (!this.hasDiff && !this.diffRequested) {
+        this.diffRequested = true;
+        this.loadCollapsedDiff(this.file)
+          .then(() => {
+            if (!this.isLoadingCollapsedDiff) this.isCollapsed = true;
+            this.diffRequested = false;
+            this.isLoadingCollapsedDiff = false;
+          })
+          .catch(() => {
+            this.diffRequested = false;
+            createFlash(__('Something went wrong on our end. Please try again!'));
+          });
+      }
     },
     showForkMessage() {
       this.forkMessageVisible = true;
@@ -181,9 +212,13 @@ export default {
         </div>
         <div v-else-if="isCollapsed" class="nothing-here-block diff-collapsed">
           {{ __('This diff is collapsed.') }}
-          <a class="click-to-expand js-click-to-expand" href="#" @click.prevent="handleToggle">{{
-            __('Click to expand it.')
-          }}</a>
+          <a
+            ref="expandLink"
+            class="click-to-expand js-click-to-expand"
+            href="#"
+            @click.prevent="handleToggle"
+            >{{ __('Click to expand it.') }}</a
+          >
         </div>
         <diff-content
           v-else
