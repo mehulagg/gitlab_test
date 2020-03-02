@@ -124,16 +124,16 @@ The Jira development panel integration for GitLab.com and Jira Cloud can be setu
 1. After installing, click "Get started" to go to the configurations page. This page is always available under "Jira Settings > Apps > Manage apps".
 
    ![Start GitLab App configuration on Jira](img/jira_dev_panel_setup_com_2.png)
-1. Add a group or personal namespace by typing in the input box and clicking add. Make sure you are logged in on GitLab.com and the namespace has a Silver or above license. The user must also have "Maintainer" access to the namespace.
+1. Add a group or personal namespace by typing in the input box and clicking "Link namespace to Jira". Make sure you are logged in on GitLab.com and the namespace has a Silver or above license. The user must also have "Maintainer" access to the namespace.
 
    ![Confure namespace on GitLab Jira App](img/jira_dev_panel_setup_com_3.png)
 
-After a namespace is added, all future commits / branches / MRs of all projects under that namespace will be synced to Jira. Past data can not be syncet at the moment.
-It is possible to use the DVCS connector like described in the self-hostet section but the [GitLab for Jira App](https://marketplace.atlassian.com/apps/1221011/gitlab-for-jira) is the prefered method because it synchronizes data in real time while the DVCS connector pulls data just once per hour.
+After a namespace is added, all future commits / branches / MRs of all projects under that namespace will be synced to Jira. Past data can not be synced at the moment.
+It is possible to use the DVCS connector like described in the self-hostet section but the [GitLab for Jira App](https://marketplace.atlassian.com/apps/1221011/gitlab-for-jira) is the preferred method because it synchronizes data in real time while the DVCS connector pulls data just once per hour.
 
 ## Usage
 
-Once the integration is set up on GitLab and Jira you may refer any Jira issue by its ID in branch names, commit messages and  merge request names on GitLab's side,
+Once the integration is set up on GitLab and Jira you may refer any Jira issue by its ID in branch names, commit messages and  merge request titles on GitLab's side,
 and you will be able to see the linked `branches`, `commits`, and `merge requests` when entering a Jira issue
 (inside the Jira issue, merge requests will be called "pull requests").
 
