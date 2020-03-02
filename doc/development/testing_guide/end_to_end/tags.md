@@ -1,4 +1,4 @@
-# RSpec metadata/tags used in end-to-end tests
+# RSpec metadata for end-to-end tests
 
 This is a partial list of the [RSpec metadata](https://relishapp.com/rspec/rspec-core/docs/metadata/user-defined-metadata)
 (a.k.a. tags) that are used in our end-to-end tests.
