@@ -4048,8 +4048,9 @@ ActiveRecord::Schema.define(version: 2020_02_24_163804) do
   end
 
   create_table "terraform_states", force: :cascade do |t|
-    t.string "name"
+    t.string "name", null: false
     t.text "value"
+    t.text "lock_info"
     t.bigint "project_id"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
