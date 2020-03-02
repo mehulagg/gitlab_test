@@ -194,6 +194,37 @@ module API
       # rubocop: enable CodeReuse/ActiveRecord
     end
 
+    params do
+      requires :id, type: String, desc: 'The ID of a group'
+    end
+    resource :groups, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
+      # before { authorize_admin_project }
+
+      desc 'Get runners available for project' do
+        success Entities::Runner
+      end
+      params do
+        optional :scope, type: String, values: Ci::Runner::AVAILABLE_SCOPES,
+                 desc: 'The scope of specific runners to show'
+        optional :type, type: String, values: Ci::Runner::AVAILABLE_TYPES,
+                 desc: 'The type of the runners to show'
+        optional :status, type: String, values: Ci::Runner::AVAILABLE_STATUSES,
+                 desc: 'The status of the runners to show'
+        optional :tag_list, type: Array[String], desc: 'The tags of the runners to show'
+        use :pagination
+      end
+      get ':id/runners' do
+        # authorize! :read_group, user_group
+        runners = Ci::Runner.belonging_to_group(user_group.id)
+        # runners = filter_runners(runners, params[:scope])
+        # runners = filter_runners(runners, params[:type], allowed_scopes: Ci::Runner::AVAILABLE_TYPES)
+        # runners = filter_runners(runners, params[:status], allowed_scopes: Ci::Runner::AVAILABLE_STATUSES)
+        # runners = runners.tagged_with(params[:tag_list]) if params[:tag_list]
+
+        present paginate(runners), with: Entities::Runner
+      end
+    end
+
     helpers do
       def filter_runners(runners, scope, allowed_scopes: ::Ci::Runner::AVAILABLE_SCOPES)
         return runners unless scope.present?
