@@ -45,5 +45,5 @@ export const EXPIRATION_POLICY_ALERT_FULL_MESSAGE = s__(
   'ContainerRegistry|The retention and expiration policy for this Container Registry has been enabled and will run in %{days}. For more information visit the %{linkStart}documentation%{linkEnd}',
 );
 export const EXPIRATION_POLICY_ALERT_SHORT_MESSAGE = s__(
-  'ContainerRegistry|The retention and expiration policy for this container registry has been enabled. For more information visit the %{linkStart}documentation%{linkEnd}',
+  'ContainerRegistry|The retention and expiration policy for this Container Registry has been enabled. For more information visit the %{linkStart}documentation%{linkEnd}',
 );
