@@ -309,6 +309,7 @@ Example Responses:
   "trial": true
 }
 ```
+
 NOTE: **Note:** The `plan` and `trial` parameters are only available on EE.`
 
 Users on GitLab [Starter, Bronze, or higher](https://about.gitlab.com/pricing/) will also see
