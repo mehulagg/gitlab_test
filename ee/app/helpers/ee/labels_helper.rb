@@ -11,14 +11,13 @@ module EE
     def render_colored_label(label, suffix: '')
       return super unless label.scoped_label?
 
-      scope_name, label_name = label.name.split(Label::SCOPED_LABEL_SEPARATOR)
-
       render_label_text(
-        scope_name,
+        label.scoped_label_key,
         css_class: text_color_class_for_bg(label.color),
         bg_color: label.color
       ) + render_label_text(
-        label_name,
+        label.scoped_label_value,
+        css_class: ('gl-label-text-dark' if light_color?(label.color)),
         suffix: suffix
       )
     end
@@ -46,7 +45,7 @@ module EE
     def label_dropdown_data(edit_context, opts = {})
       scoped_labels_fields = {
         scoped_labels: edit_context&.feature_available?(:scoped_labels)&.to_s,
-        scoped_labels_documentation_link: help_page_path('user/project/labels.md', anchor: 'scoped-labels')
+        scoped_labels_documentation_link: help_page_path('user/project/labels.md', anchor: 'scoped-labels-premium')
       }
 
       return super.merge(scoped_labels_fields) unless edit_context.is_a?(Group)
@@ -75,7 +74,7 @@ module EE
     private
 
     def scoped_labels_doc_link
-      help_url = ::Gitlab::Routing.url_helpers.help_page_path('user/project/labels.md', anchor: 'scoped-labels')
+      help_url = ::Gitlab::Routing.url_helpers.help_page_path('user/project/labels.md', anchor: 'scoped-labels-premium')
 
       %(<a href="#{help_url}" class="gl-link gl-label-icon" target="_blank" rel="noopener"><i class="fa fa-question-circle"></i></a>).html_safe
     end

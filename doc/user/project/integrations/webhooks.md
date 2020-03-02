@@ -47,19 +47,8 @@ and **per project and per group** for **GitLab Enterprise Edition**.
 Navigate to the webhooks page by going to your project's
 **Settings ➔ Webhooks**.
 
-## Maximum number of webhooks (per tier)
-
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/20730) in GitLab 12.6.
-
-A maximum number of project webhooks applies to each [GitLab.com
-tier](https://about.gitlab.com/pricing/), as shown in the following table:
-
-| Tier     | Number of webhooks per project |
-|----------|--------------------------------|
-| Free     | 100                            |
-| Bronze   | 100                            |
-| Silver   | 100                            |
-| Gold     | 100                            |
+NOTE: **Note:**
+On GitLab.com, the [maximum number of webhooks](../../../user/gitlab_com/index.md#maximum-number-of-webhooks) per project, and per group, is limited.
 
 ## Use-cases
 
@@ -1303,7 +1292,7 @@ Markdown features, like link labels.
 
 ## Testing webhooks
 
-You can trigger the webhook manually. Sample data from the project will be used. Sample data will take from the project.
+You can trigger the webhook manually. Sample data from the project will be used.
 > For example: for triggering `Push Events` your project should have at least one commit.
 
 ![Webhook testing](img/webhook_testing.png)

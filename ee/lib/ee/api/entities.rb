@@ -265,42 +265,6 @@ module EE
         end
       end
 
-      class EpicIssueLink < Grape::Entity
-        expose :id
-        expose :relative_position
-        expose :epic do |epic_issue_link, _options|
-          ::EE::API::Entities::Epic.represent(epic_issue_link.epic, with_reference: true)
-        end
-        expose :issue, using: ::API::Entities::IssueBasic
-      end
-
-      class IssueLink < Grape::Entity
-        expose :source, as: :source_issue, using: ::API::Entities::IssueBasic
-        expose :target, as: :target_issue, using: ::API::Entities::IssueBasic
-        expose :link_type
-      end
-
-      class SpecialBoardFilter < Grape::Entity
-        expose :title
-      end
-
-      class ApprovalRuleShort < Grape::Entity
-        expose :id, :name, :rule_type
-      end
-
-      class ApprovalRule < ApprovalRuleShort
-        def initialize(object, options = {})
-          presenter = ::ApprovalRulePresenter.new(object, current_user: options[:current_user])
-          super(presenter, options)
-        end
-
-        expose :approvers, as: :eligible_approvers, using: ::API::Entities::UserBasic
-        expose :approvals_required
-        expose :users, using: ::API::Entities::UserBasic
-        expose :groups, using: ::API::Entities::Group
-        expose :contains_hidden_groups?, as: :contains_hidden_groups
-      end
-
       class ProjectApprovalRule < ApprovalRule
         expose :protected_branches, using: ::API::Entities::ProtectedBranch, if: -> (rule, _) { rule.project.multiple_approval_rules_available? }
       end
@@ -926,7 +890,7 @@ module EE
         expose :updated_by_id
         expose :last_edited_by_id
         expose :resolved_by_id
-        expose :closed_by_id
+        expose :dismissed_by_id
 
         expose :start_date
         expose :due_date
@@ -935,7 +899,7 @@ module EE
         expose :updated_at
         expose :last_edited_at
         expose :resolved_at
-        expose :closed_at
+        expose :dismissed_at
       end
 
       class VulnerabilityRelatedIssue < ::API::Entities::IssueBasic

@@ -72,6 +72,7 @@ describe Project do
     it { is_expected.to have_one(:project_setting) }
     it { is_expected.to have_many(:commit_statuses) }
     it { is_expected.to have_many(:ci_pipelines) }
+    it { is_expected.to have_many(:ci_refs) }
     it { is_expected.to have_many(:builds) }
     it { is_expected.to have_many(:build_trace_section_names)}
     it { is_expected.to have_many(:runner_projects) }
@@ -1791,20 +1792,18 @@ describe Project do
     let(:project) { create(:project, :repository) }
     let(:repo)    { double(:repo, exists?: true) }
     let(:wiki)    { double(:wiki, exists?: true) }
-    let(:design)  { double(:wiki, exists?: false) }
 
     it 'expires the caches of the repository and wiki' do
+      # In EE, there are design repositories as well
+      allow(Repository).to receive(:new).and_call_original
+
       allow(Repository).to receive(:new)
-        .with('foo', project)
+        .with('foo', project, shard: project.repository_storage)
         .and_return(repo)
 
       allow(Repository).to receive(:new)
-        .with('foo.wiki', project)
+        .with('foo.wiki', project, shard: project.repository_storage, repo_type: Gitlab::GlRepository::WIKI)
         .and_return(wiki)
-
-      allow(Repository).to receive(:new)
-        .with('foo.design', project)
-        .and_return(design)
 
       expect(repo).to receive(:before_delete)
       expect(wiki).to receive(:before_delete)
@@ -2928,6 +2927,19 @@ describe Project do
     shared_examples 'ref is protected' do
       it 'contains all the variables' do
         is_expected.to contain_exactly(ci_variable, protected_variable)
+      end
+    end
+
+    it 'memoizes the result by ref and environment', :request_store do
+      scoped_variable = create(:ci_variable, value: 'secret', project: project, environment_scope: 'scoped')
+
+      expect(project).to receive(:protected_for?).with('ref').once.and_return(true)
+      expect(project).to receive(:protected_for?).with('other').twice.and_return(false)
+
+      2.times do
+        expect(project.reload.ci_variables_for(ref: 'ref', environment: 'production')).to contain_exactly(ci_variable, protected_variable)
+        expect(project.reload.ci_variables_for(ref: 'other')).to contain_exactly(ci_variable)
+        expect(project.reload.ci_variables_for(ref: 'other', environment: 'scoped')).to contain_exactly(ci_variable, scoped_variable)
       end
     end
 

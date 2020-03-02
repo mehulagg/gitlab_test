@@ -191,7 +191,7 @@ For example:
            metrics:
              - id: metric_of_ages
                query_range: 'http_requests_total'
-               label: "Metric of Ages"
+               label: "Instance: {{instance}}, method: {{method}}"
                unit: "count"
    ```
 
@@ -267,9 +267,55 @@ The following tables outline the details of expected properties.
 | ------ | ------ | ------ | ------ |
 | `id` | string | no | Used for associating dashboard metrics with database records. Must be unique across dashboard configuration files. Required for [alerting](#setting-up-alerts-for-prometheus-metrics-ultimate) (support not yet enabled, see [relevant issue](https://gitlab.com/gitlab-org/gitlab-foss/issues/60319)). |
 | `unit` | string | yes | Defines the unit of the query's return data. |
-| `label` | string | no, but highly encouraged | Defines the legend-label for the query. Should be unique within the panel's metrics. |
+| `label` | string | no, but highly encouraged | Defines the legend-label for the query. Should be unique within the panel's metrics. Can contain time series labels as interpolated variables. |
 | `query` | string | yes if `query_range` is not defined | Defines the Prometheus query to be used to populate the chart/panel. If defined, the `query` endpoint of the [Prometheus API](https://prometheus.io/docs/prometheus/latest/querying/api/) will be utilized. |
 | `query_range` | string | yes if `query` is not defined | Defines the Prometheus query to be used to populate the chart/panel. If defined, the `query_range` endpoint of the [Prometheus API](https://prometheus.io/docs/prometheus/latest/querying/api/) will be utilized. |
+
+##### Dynamic labels
+
+Dynamic labels are useful when multiple time series are returned from a Prometheus query.
+
+When a static label is used and a query returns multiple time series, then all the legend items will be labeled the same, which makes identifying each time series difficult:
+
+```yaml
+metrics:
+  - id: metric_of_ages
+    query_range: 'http_requests_total'
+    label: "Time Series"
+    unit: "count"
+```
+
+This may render a legend like this:
+
+![repeated legend label chart](img/prometheus_dashboard_repeated_label.png)
+
+For labels to be more explicit, using variables that reflect time series labels is a good practice. The variables will be replaced by the values of the time series labels when the legend is rendered:
+
+```yaml
+metrics:
+  - id: metric_of_ages
+    query_range: 'http_requests_total'
+    label: "Instance: {{instance}}, method: {{method}}"
+    unit: "count"
+```
+
+The resulting rendered legend will look like this:
+
+![legend with label variables](img/prometheus_dashboard_label_variables.png)
+
+There is also a shorthand value for dynamic dashboard labels that make use of only one time series label:
+
+```yaml
+metrics:
+  - id: metric_of_ages
+    query_range: 'http_requests_total'
+    label: "Method"
+    unit: "count"
+```
+
+This will render into:
+
+![legend with label shorthand variable](img/prometheus_dashboard_label_variable_shorthand.png)
 
 #### Panel types for dashboards
 
@@ -290,7 +336,7 @@ panel_groups:
         metrics:
           - id: area_http_requests_total
             query_range: 'http_requests_total'
-            label: "Metric of Ages"
+            label: "Instance: {{instance}}, Method: {{method}}"
             unit: "count"
 ```
 
@@ -671,7 +717,7 @@ The sharing dialog within Grafana provides the link, as highlighted below.
 ![Grafana Direct Linked Rendered Image](img/grafana_live_embed.png)
 
 NOTE: **Note:**
-For this embed to display correctly, the Grafana instance must be available to the target user, either as a public dashboard or on the same network.
+For this embed to display correctly, the Grafana instance must be available to the target user, either as a public dashboard, or on the same network.
 
 Copy the link and add an image tag as [inline HTML](../../markdown.md#inline-html) in your Markdown. You may tweak the query parameters as required. For instance, removing the `&from=` and `&to=` parameters will give you a live chart. Here is example markup for a live chart from GitLab's public dashboard:
 

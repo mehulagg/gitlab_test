@@ -17,7 +17,7 @@ class Snippet < ApplicationRecord
   include HasRepository
   extend ::Gitlab::Utils::Override
 
-  ignore_column :repository_storage, remove_with: '12.10', remove_after: '2020-04-22'
+  ignore_column :repository_storage, remove_with: '12.10', remove_after: '2020-03-22'
 
   cache_markdown_field :title, pipeline: :single_line
   cache_markdown_field :description
@@ -261,7 +261,7 @@ class Snippet < ApplicationRecord
   end
 
   def repository
-    @repository ||= Repository.new(full_path, self, disk_path: disk_path, repo_type: Gitlab::GlRepository::SNIPPET)
+    @repository ||= Repository.new(full_path, self, shard: repository_storage, disk_path: disk_path, repo_type: Gitlab::GlRepository::SNIPPET)
   end
 
   def storage
@@ -299,6 +299,10 @@ class Snippet < ApplicationRecord
   def track_snippet_repository
     repository = snippet_repository || build_snippet_repository
     repository.update!(shard_name: repository_storage, disk_path: disk_path)
+  end
+
+  def can_cache_field?(field)
+    field != :content || MarkupHelper.gitlab_markdown?(file_name)
   end
 
   class << self

@@ -9,8 +9,20 @@ description: 'Learn how to contribute to GitLab.'
 
 - Set up GitLab's development environment with [GitLab Development Kit (GDK)](https://gitlab.com/gitlab-org/gitlab-development-kit/blob/master/doc/howto/README.md)
 - [GitLab contributing guide](contributing/index.md)
-  - [Issues workflow](contributing/issue_workflow.md) (issue tracker guidelines, triaging, labels, feature proposals, issue weight, regression issues, technical and UX debt)
-  - [Merge requests workflow](contributing/merge_request_workflow.md) (merge request guidelines, contribution acceptance criteria, definition of done, dependencies)
+  - [Issues workflow](contributing/issue_workflow.md). For information on:
+    - Issue tracker guidelines.
+    - Triaging.
+    - Labels.
+    - Feature proposals.
+    - Issue weight.
+    - Regression issues.
+    - Technical or UX debt.
+  - [Merge requests workflow](contributing/merge_request_workflow.md). For
+    information on:
+    - Merge request guidelines.
+    - Contribution acceptance criteria.
+    - Definition of done.
+    - Dependencies.
   - [Style guides](contributing/style_guides.md)
   - [Implement design & UI elements](contributing/design.md)
 - [GitLab Architecture Overview](architecture.md)
@@ -22,7 +34,7 @@ description: 'Learn how to contribute to GitLab.'
 
 - [Code review guidelines](code_review.md) for reviewing code and having code reviewed
 - [Database review guidelines](database_review.md) for reviewing database-related changes and complex SQL queries, and having them reviewed
-- [Secure coding guidlines](https://gitlab.com/gitlab-com/gl-security/security-guidelines)
+- [Secure coding guidelines](https://gitlab.com/gitlab-com/gl-security/security-guidelines)
 - [Pipelines for the GitLab project](pipelines.md)
 
 Complementary reads:
@@ -200,6 +212,7 @@ Complementary reads:
 ## Other Development guides
 
 - [Defining relations between files using projections](projections.md)
+- [Reference processing](./reference_processing.md)
 
 ## Other GitLab Development Kit (GDK) guides
 

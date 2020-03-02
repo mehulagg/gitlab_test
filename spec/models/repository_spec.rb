@@ -320,6 +320,21 @@ describe Repository do
       end
     end
 
+    context "when 'author' is set" do
+      it "returns commits from that author" do
+        commit = repository.commits(nil, limit: 1).first
+        known_author = "#{commit.author_name} <#{commit.author_email}>"
+
+        expect(repository.commits(nil, author: known_author, limit: 1)).not_to be_empty
+      end
+
+      it "doesn't returns commits from an unknown author" do
+        unknown_author = "The Man With No Name <zapp@brannigan.com>"
+
+        expect(repository.commits(nil, author: unknown_author, limit: 1)).to be_empty
+      end
+    end
+
     context "when 'all' flag is set" do
       it 'returns every commit from the repository' do
         expect(repository.commits(nil, all: true, limit: 60).size).to eq(60)
@@ -2366,7 +2381,7 @@ describe Repository do
     end
   end
 
-  describe '#tree' do
+  shared_examples '#tree' do
     context 'using a non-existing repository' do
       before do
         allow(repository).to receive(:head_commit).and_return(nil)
@@ -2384,8 +2399,15 @@ describe Repository do
     context 'using an existing repository' do
       it 'returns a Tree' do
         expect(repository.tree(:head)).to be_an_instance_of(Tree)
+        expect(repository.tree('v1.1.1')).to be_an_instance_of(Tree)
       end
     end
+  end
+
+  it_behaves_like '#tree'
+
+  describe '#tree? with Rugged enabled', :enable_rugged do
+    it_behaves_like '#tree'
   end
 
   describe '#size' do

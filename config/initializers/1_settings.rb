@@ -245,6 +245,12 @@ Settings['incoming_email'] ||= Settingslogic.new({})
 Settings.incoming_email['enabled'] = false if Settings.incoming_email['enabled'].nil?
 
 #
+# Service desk email
+#
+Settings['service_desk_email'] ||= Settingslogic.new({})
+Settings.service_desk_email['enabled'] = false if Settings.service_desk_email['enabled'].nil?
+
+#
 # Build Artifacts
 #
 Settings['artifacts'] ||= Settingslogic.new({})
@@ -531,6 +537,9 @@ Gitlab.ee do
   Settings.cron_jobs['update_max_seats_used_for_gitlab_com_subscriptions_worker'] ||= Settingslogic.new({})
   Settings.cron_jobs['update_max_seats_used_for_gitlab_com_subscriptions_worker']['cron'] ||= '0 12 * * *'
   Settings.cron_jobs['update_max_seats_used_for_gitlab_com_subscriptions_worker']['job_class'] = 'UpdateMaxSeatsUsedForGitlabComSubscriptionsWorker'
+  Settings.cron_jobs['elastic_index_bulk_cron_worker'] ||= Settingslogic.new({})
+  Settings.cron_jobs['elastic_index_bulk_cron_worker']['cron'] ||= '*/1 * * * *'
+  Settings.cron_jobs['elastic_index_bulk_cron_worker']['job_class'] ||= 'ElasticIndexBulkCronWorker'
 end
 
 #

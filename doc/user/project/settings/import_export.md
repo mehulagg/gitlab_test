@@ -12,6 +12,7 @@ See also:
 
 - [Project import/export API](../../../api/project_import_export.md)
 - [Project import/export administration rake tasks](../../../administration/raketasks/project_import_export.md) **(CORE ONLY)**
+- [Group import/export API](../../../api/group_import_export.md)
 
 To set up a project import/export:
 
@@ -89,7 +90,7 @@ The following items will NOT be exported:
 
 NOTE: **Note:**
 For more details on the specific data persisted in a project export, see the
-[`import_export.yml`](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/import_export/import_export.yml) file.
+[`import_export.yml`](https://gitlab.com/gitlab-org/gitlab/blob/master/lib/gitlab/import_export/project/import_export.yml) file.
 
 ## Exporting a project and its data
 

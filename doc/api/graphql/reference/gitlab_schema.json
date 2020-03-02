@@ -750,6 +750,40 @@
                   "defaultValue": null
                 },
                 {
+                  "name": "milestoneTitle",
+                  "description": "Milestones applied to this issue",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "assigneeUsername",
+                  "description": "Username of a user assigned to the issues",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "assigneeId",
+                  "description": "ID of a user assigned to the issues, \"none\" and \"any\" values supported",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
                   "name": "createdBefore",
                   "description": "Issues created before this date",
                   "type": {
@@ -891,6 +925,40 @@
                       "name": "String",
                       "ofType": null
                     }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "milestoneTitle",
+                  "description": "Milestones applied to this issue",
+                  "type": {
+                    "kind": "LIST",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "String",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "assigneeUsername",
+                  "description": "Username of a user assigned to the issues",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "assigneeId",
+                  "description": "ID of a user assigned to the issues, \"none\" and \"any\" values supported",
+                  "type": {
+                    "kind": "SCALAR",
+                    "name": "String",
+                    "ofType": null
                   },
                   "defaultValue": null
                 },
@@ -24342,6 +24410,20 @@
           "fields": null,
           "inputFields": [
             {
+              "name": "iid",
+              "description": "The iid of the epic to mutate",
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "ID",
+                  "ofType": null
+                }
+              },
+              "defaultValue": null
+            },
+            {
               "name": "groupPath",
               "description": "The group the epic to mutate is in",
               "type": {
@@ -24447,20 +24529,6 @@
                     "name": "ID",
                     "ofType": null
                   }
-                }
-              },
-              "defaultValue": null
-            },
-            {
-              "name": "iid",
-              "description": "The iid of the epic to mutate",
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "String",
-                  "ofType": null
                 }
               },
               "defaultValue": null
@@ -24795,8 +24863,8 @@
           "fields": null,
           "inputFields": [
             {
-              "name": "groupPath",
-              "description": "The group the epic to (un)subscribe is in",
+              "name": "iid",
+              "description": "The iid of the epic to mutate",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -24809,8 +24877,8 @@
               "defaultValue": null
             },
             {
-              "name": "iid",
-              "description": "The iid of the epic to (un)subscribe",
+              "name": "groupPath",
+              "description": "The group the epic to mutate is in",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,

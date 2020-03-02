@@ -162,7 +162,7 @@ module EE
       validates :repository_size_limit,
         numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true }
       validates :max_pages_size,
-        numericality: { only_integer: true, greater_than: 0, allow_nil: true,
+        numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true,
                         less_than: ::Gitlab::Pages::MAX_SIZE / 1.megabyte }
 
       validates :approvals_before_merge, numericality: true, allow_blank: true
@@ -674,7 +674,7 @@ module EE
     def expire_caches_before_rename(old_path)
       super
 
-      design = ::Repository.new("#{old_path}#{EE::Gitlab::GlRepository::DESIGN.path_suffix}", self)
+      design = ::Repository.new("#{old_path}#{::EE::Gitlab::GlRepository::DESIGN.path_suffix}", self, shard: repository_storage, repo_type: ::EE::Gitlab::GlRepository::DESIGN)
 
       if design.exists?
         design.before_delete

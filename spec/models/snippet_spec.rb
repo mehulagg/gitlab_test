@@ -536,7 +536,7 @@ describe Snippet do
   end
 
   describe '#track_snippet_repository' do
-    let(:snippet) { create(:snippet, :repository) }
+    let(:snippet) { create(:snippet) }
 
     context 'when a snippet repository entry does not exist' do
       it 'creates a new entry' do
@@ -554,7 +554,8 @@ describe Snippet do
     end
 
     context 'when a tracking entry exists' do
-      let!(:snippet_repository) { create(:snippet_repository, snippet: snippet) }
+      let!(:snippet) { create(:snippet, :repository) }
+      let(:snippet_repository) { snippet.snippet_repository }
       let!(:shard) { create(:shard, name: 'foo') }
 
       it 'does not create a new entry in the database' do
@@ -592,7 +593,7 @@ describe Snippet do
     end
 
     context 'when repository exists' do
-      let(:snippet) { create(:snippet, :repository) }
+      let!(:snippet) { create(:snippet, :repository) }
 
       it 'does not try to create repository' do
         expect(snippet.repository).not_to receive(:after_create)
@@ -629,6 +630,28 @@ describe Snippet do
 
         expect(snippet.repository_storage).to eq 'foo'
       end
+    end
+  end
+
+  describe '#can_cache_field?' do
+    using RSpec::Parameterized::TableSyntax
+
+    let(:snippet) { create(:snippet, file_name: file_name) }
+
+    subject { snippet.can_cache_field?(field) }
+
+    where(:field, :file_name, :result) do
+      :title       | nil           | true
+      :title       | 'foo.bar'     | true
+      :description | nil           | true
+      :description | 'foo.bar'     | true
+      :content     | nil           | false
+      :content     | 'bar.foo'     | false
+      :content     | 'markdown.md' | true
+    end
+
+    with_them do
+      it { is_expected.to eq result }
     end
   end
 end

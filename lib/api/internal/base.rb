@@ -49,7 +49,11 @@ module API
                            result = access_checker.check(params[:action], params[:changes])
                            @project ||= access_checker.project
                            result
-                         rescue Gitlab::GitAccess::UnauthorizedError => e
+                         rescue Gitlab::GitAccess::ForbiddenError => e
+                           # The return code needs to be 401. If we return 403
+                           # the custom message we return won't be shown to the user
+                           # and, instead, the default message 'GitLab: API is not accessible'
+                           # will be displayed
                            return response_with_status(code: 401, success: false, message: e.message)
                          rescue Gitlab::GitAccess::TimeoutError => e
                            return response_with_status(code: 503, success: false, message: e.message)

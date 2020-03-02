@@ -118,7 +118,7 @@ NOTE: **Note:**
 The `environment` keyword defines where the app is deployed.
 The environment `name` and `url` is exposed in various places
 within GitLab. Each time a job that has an environment specified
-succeeds, a deployment is recorded, along with the Git SHA and environment name.
+succeeds, a deployment is recorded, along with the Git SHA, and environment name.
 
 CAUTION: **Caution**:
 Some characters are not allowed in environment names. Use only letters,
@@ -339,6 +339,12 @@ deploy:
   only:
   - master
 ```
+
+When deploying to a Kubernetes cluster using GitLab's Kubernetes integration,
+information about the cluster and namespace will be displayed above the job
+trace on the deployment job page:
+
+![Deployment cluster information](img/environments_deployment_cluster_v12_8.png)
 
 NOTE: **Note:**
 Kubernetes configuration is not supported for Kubernetes clusters

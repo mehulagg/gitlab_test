@@ -196,6 +196,11 @@ msgid_plural "%d unstaged changes"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "%d vulnerability dismissed"
+msgid_plural "%d vulnerabilities dismissed"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "%s additional commit has been omitted to prevent performance issues."
 msgid_plural "%s additional commits have been omitted to prevent performance issues."
 msgstr[0] ""
@@ -1286,6 +1291,15 @@ msgid "AdminArea|Stop jobs"
 msgstr ""
 
 msgid "AdminArea|Stopping jobs failed"
+msgstr ""
+
+msgid "AdminArea|Users statistics"
+msgstr ""
+
+msgid "AdminArea|Users total"
+msgstr ""
+
+msgid "AdminArea|Users with highest role"
 msgstr ""
 
 msgid "AdminArea|You’re about to stop all jobs.This will halt all current jobs that are running."
@@ -3930,6 +3944,9 @@ msgstr ""
 msgid "Cluster cache cleared."
 msgstr ""
 
+msgid "Cluster does not exist"
+msgstr ""
+
 msgid "ClusterIntegration| %{custom_domain_start}More information%{custom_domain_end}."
 msgstr ""
 
@@ -4810,6 +4827,9 @@ msgid "Code Owners to the merge request changes."
 msgstr ""
 
 msgid "Code Review"
+msgstr ""
+
+msgid "Code Review Analytics displays a table of open merge requests considered to be in code review. There are currently no merge requests in review for this project and/or filters."
 msgstr ""
 
 msgid "Code owner approval is required"
@@ -5716,12 +5736,6 @@ msgstr ""
 msgid "Created a branch and a merge request to resolve this issue."
 msgstr ""
 
-msgid "Created after"
-msgstr ""
-
-msgid "Created before"
-msgstr ""
-
 msgid "Created branch '%{branch_name}' and a merge request to resolve this issue."
 msgstr ""
 
@@ -6252,6 +6266,9 @@ msgstr ""
 msgid "DeleteProject|Failed to remove project repository. Please try again or contact administrator."
 msgstr ""
 
+msgid "DeleteProject|Failed to remove project snippets. Please try again or contact administrator."
+msgstr ""
+
 msgid "DeleteProject|Failed to remove some tags in project container registry. Please try again or contact administrator."
 msgstr ""
 
@@ -6490,6 +6507,9 @@ msgstr ""
 msgid "DeployTokens|Expires"
 msgstr ""
 
+msgid "DeployTokens|Group deploy tokens allow read-only access to the repositories and registry images within the group."
+msgstr ""
+
 msgid "DeployTokens|Name"
 msgstr ""
 
@@ -6499,16 +6519,19 @@ msgstr ""
 msgid "DeployTokens|Revoke"
 msgstr ""
 
+msgid "DeployTokens|Revoke %{b_start}%{name}%{b_end}?"
+msgstr ""
+
 msgid "DeployTokens|Revoke %{name}"
 msgstr ""
 
 msgid "DeployTokens|Scopes"
 msgstr ""
 
-msgid "DeployTokens|This action cannot be undone."
+msgid "DeployTokens|This %{entity_type} has no active Deploy Tokens."
 msgstr ""
 
-msgid "DeployTokens|This project has no active Deploy Tokens."
+msgid "DeployTokens|This action cannot be undone."
 msgstr ""
 
 msgid "DeployTokens|Use this token as a password. Make sure you save it - you won't be able to access it again."
@@ -6520,10 +6543,13 @@ msgstr ""
 msgid "DeployTokens|Username"
 msgstr ""
 
-msgid "DeployTokens|You are about to revoke"
+msgid "DeployTokens|You are about to revoke %{b_start}%{name}%{b_end}."
 msgstr ""
 
 msgid "DeployTokens|Your New Deploy Token"
+msgstr ""
+
+msgid "DeployTokens|Your new group deploy token has been created."
 msgstr ""
 
 msgid "DeployTokens|Your new project deploy token has been created."
@@ -6661,6 +6687,9 @@ msgstr ""
 msgid "DesignManagement|The one place for your designs"
 msgstr ""
 
+msgid "DesignManagement|To enable design management, you'll need to  %{requirements_link_start}meet the requirements%{requirements_link_end}. If you need help, reach out to our %{support_link_start}support team%{support_link_end} for assistance."
+msgstr ""
+
 msgid "DesignManagement|Upload and view the latest designs for this issue. Consistent and easy to find, so everyone is up to date."
 msgstr ""
 
@@ -6698,6 +6727,9 @@ msgid "Diff limits"
 msgstr ""
 
 msgid "Difference between start date and now"
+msgstr ""
+
+msgid "DiffsCompareBaseBranch|(HEAD)"
 msgstr ""
 
 msgid "DiffsCompareBaseBranch|(base)"
@@ -6823,10 +6855,18 @@ msgstr ""
 msgid "Dismiss"
 msgstr ""
 
+msgid "Dismiss %d selected vulnerability as"
+msgid_plural "Dismiss %d selected vulnerabilities as"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "Dismiss DevOps Score introduction"
 msgstr ""
 
 msgid "Dismiss Merge Request promotion"
+msgstr ""
+
+msgid "Dismiss Selected"
 msgstr ""
 
 msgid "Dismiss Value Stream Analytics introduction box"
@@ -7394,6 +7434,9 @@ msgid "Enter zen mode"
 msgstr ""
 
 msgid "Environment"
+msgstr ""
+
+msgid "Environment does not have deployments"
 msgstr ""
 
 msgid "Environment variables are applied to environments via the runner. They can be protected by only exposing them to protected branches or tags. Additionally, they can be masked so they are hidden in job logs, though they must match certain regexp requirements to do so. You can use environment variables for passwords, secret keys, or whatever you want."
@@ -8291,6 +8334,9 @@ msgid "Failed to verify domain ownership"
 msgstr ""
 
 msgid "Failure"
+msgstr ""
+
+msgid "False positive"
 msgstr ""
 
 msgid "Fast-forward merge is not possible. Rebase the source branch onto the target branch or merge target branch into source branch to allow this merge request to be merged."
@@ -11576,6 +11622,9 @@ msgstr[1] ""
 msgid "Line changes"
 msgstr ""
 
+msgid "Link Prometheus monitoring to GitLab."
+msgstr ""
+
 msgid "Link copied"
 msgstr ""
 
@@ -11970,6 +12019,9 @@ msgid "Maximum number of %{name} (%{count}) exceeded"
 msgstr ""
 
 msgid "Maximum number of comments exceeded"
+msgstr ""
+
+msgid "Maximum number of group hooks (%{count}) exceeded"
 msgstr ""
 
 msgid "Maximum number of mirrors that can be synchronizing at the same time."
@@ -12634,6 +12686,9 @@ msgstr ""
 msgid "Name:"
 msgstr ""
 
+msgid "Namespace is empty"
+msgstr ""
+
 msgid "Namespace: %{namespace}"
 msgstr ""
 
@@ -12891,9 +12946,6 @@ msgstr ""
 msgid "No data to display"
 msgstr ""
 
-msgid "No deployment platform available"
-msgstr ""
-
 msgid "No deployments found"
 msgstr ""
 
@@ -13141,6 +13193,9 @@ msgid "NotificationEvent|Close merge request"
 msgstr ""
 
 msgid "NotificationEvent|Failed pipeline"
+msgstr ""
+
+msgid "NotificationEvent|Fixed pipeline"
 msgstr ""
 
 msgid "NotificationEvent|Merge merge request"
@@ -13481,6 +13536,9 @@ msgstr ""
 msgid "Owner"
 msgstr ""
 
+msgid "Package Registry"
+msgstr ""
+
 msgid "Package deleted successfully"
 msgstr ""
 
@@ -13568,6 +13626,12 @@ msgstr ""
 msgid "PackageRegistry|NuGet Command"
 msgstr ""
 
+msgid "PackageRegistry|Pipeline %{linkStart}%{linkEnd} triggered %{timestamp} by %{author}"
+msgstr ""
+
+msgid "PackageRegistry|Published to the repository at %{timestamp}"
+msgstr ""
+
 msgid "PackageRegistry|Registry Setup"
 msgstr ""
 
@@ -13578,12 +13642,6 @@ msgid "PackageRegistry|There are no packages yet"
 msgstr ""
 
 msgid "PackageRegistry|There was a problem fetching the details for this package."
-msgstr ""
-
-msgid "PackageRegistry|There was an error fetching the pipeline information."
-msgstr ""
-
-msgid "PackageRegistry|Unable to fetch pipeline information"
 msgstr ""
 
 msgid "PackageRegistry|Unable to load package"
@@ -13652,16 +13710,10 @@ msgstr ""
 msgid "Pagination|Next"
 msgstr ""
 
-msgid "Pagination|Next ›"
-msgstr ""
-
 msgid "Pagination|Prev"
 msgstr ""
 
 msgid "Pagination|« First"
-msgstr ""
-
-msgid "Pagination|‹ Prev"
 msgstr ""
 
 msgid "Parameter"
@@ -14393,7 +14445,7 @@ msgstr ""
 msgid "Private"
 msgstr ""
 
-msgid "Private - Project access must be granted explicitly to each user."
+msgid "Private - Project access must be granted explicitly to each user. If this project is part of a group, access will be granted to members of the group."
 msgstr ""
 
 msgid "Private - The group and its projects can only be viewed by members."
@@ -14831,7 +14883,7 @@ msgstr ""
 msgid "Project URL"
 msgstr ""
 
-msgid "Project access must be granted explicitly to each user."
+msgid "Project access must be granted explicitly to each user. If this project is part of a group, access will be granted to members of the group."
 msgstr ""
 
 msgid "Project already deleted"
@@ -15374,6 +15426,9 @@ msgstr ""
 msgid "ProjectsNew|Want to house several dependent projects under the same namespace? %{link_start}Create a group.%{link_end}"
 msgstr ""
 
+msgid "Prometheus"
+msgstr ""
+
 msgid "PrometheusAlerts|%{count} alerts applied"
 msgstr ""
 
@@ -15689,10 +15744,7 @@ msgstr ""
 msgid "Pull"
 msgstr ""
 
-msgid "Puma is running with a thread count above 1 and the rugged service is enabled. This may decrease performance in some environments. See our %{link_start}documentation%{link_end} for details of this issue."
-msgstr ""
-
-msgid "Puma is running with a thread count above 1. Information on deprecated GitLab features in this configuration is available in the %{link_start}documentation%{link_end}."
+msgid "Puma is running with a thread count above 1 and the Rugged service is enabled. This may decrease performance in some environments. See our %{link_start}documentation%{link_end} for details of this issue."
 msgstr ""
 
 msgid "Purchase more minutes"
@@ -17050,6 +17102,9 @@ msgstr ""
 msgid "Security Reports|There was an error deleting the comment."
 msgstr ""
 
+msgid "Security Reports|There was an error dismissing the vulnerabilities."
+msgstr ""
+
 msgid "Security Reports|There was an error dismissing the vulnerability."
 msgstr ""
 
@@ -17204,6 +17259,9 @@ msgid "Select a project"
 msgstr ""
 
 msgid "Select a project to read Insights configuration file"
+msgstr ""
+
+msgid "Select a reason"
 msgstr ""
 
 msgid "Select a repository"
@@ -17629,6 +17687,9 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
+msgid "Settings related to the use and experience of using GitLab's Package Registry."
+msgstr ""
+
 msgid "Settings to prevent self-approval across all projects in the instance. Only an administrator can modify these settings."
 msgstr ""
 
@@ -17847,7 +17908,25 @@ msgstr ""
 msgid "Slack application"
 msgstr ""
 
+msgid "Slack channels (e.g. general, development)"
+msgstr ""
+
 msgid "Slack integration allows you to interact with GitLab via slash commands in a chat window."
+msgstr ""
+
+msgid "SlackIntegration|%{webhooks_link_start}Add an incoming webhook%{webhooks_link_end} in your Slack team. The default channel can be overridden for each event."
+msgstr ""
+
+msgid "SlackIntegration|<strong>Note:</strong> Usernames and private channels are not supported."
+msgstr ""
+
+msgid "SlackIntegration|Paste the <strong>Webhook URL</strong> into the field below."
+msgstr ""
+
+msgid "SlackIntegration|Select events below to enable notifications. The <strong>Slack channel names</strong> and <strong>Slack username</strong> fields are optional."
+msgstr ""
+
+msgid "SlackIntegration|This service send notifications about projects' events to Slack channels. To set up this service:"
 msgstr ""
 
 msgid "SlackService|2. Paste the <strong>Token</strong> into the field below"
@@ -18588,6 +18667,9 @@ msgstr ""
 msgid "Subscription deletion failed."
 msgstr ""
 
+msgid "Subscription successfully applied to \"%{group_name}\""
+msgstr ""
+
 msgid "Subscription successfully created."
 msgstr ""
 
@@ -19294,6 +19376,9 @@ msgstr ""
 msgid "The number of times an upload record could not find its file"
 msgstr ""
 
+msgid "The one place for your designs"
+msgstr ""
+
 msgid "The passphrase required to decrypt the private key. This is optional and the value is encrypted at rest."
 msgstr ""
 
@@ -19604,6 +19689,12 @@ msgid "There was an error syncing the Design Repositories."
 msgstr ""
 
 msgid "There was an error trying to validate your query"
+msgstr ""
+
+msgid "There was an error updating the dashboard, branch name is invalid."
+msgstr ""
+
+msgid "There was an error updating the dashboard, branch named: %{branch} already exists."
 msgstr ""
 
 msgid "There was an error when reseting email token."
@@ -20720,6 +20811,9 @@ msgstr ""
 msgid "Unable to connect to server: %{error}"
 msgstr ""
 
+msgid "Unable to fetch unscanned projects"
+msgstr ""
+
 msgid "Unable to fetch vulnerable projects"
 msgstr ""
 
@@ -20832,6 +20926,18 @@ msgid "Unresolve"
 msgstr ""
 
 msgid "Unresolve thread"
+msgstr ""
+
+msgid "UnscannedProjects|15 or more days"
+msgstr ""
+
+msgid "UnscannedProjects|30 or more days"
+msgstr ""
+
+msgid "UnscannedProjects|5 or more days"
+msgstr ""
+
+msgid "UnscannedProjects|60 or more days"
 msgstr ""
 
 msgid "UnscannedProjects|Default branch scanning by project"
@@ -21787,6 +21893,9 @@ msgstr ""
 msgid "Vulnerability|Links"
 msgstr ""
 
+msgid "Vulnerability|Method"
+msgstr ""
+
 msgid "Vulnerability|Namespace"
 msgstr ""
 
@@ -21926,6 +22035,9 @@ msgid "When a runner is locked, it cannot be assigned to other projects"
 msgstr ""
 
 msgid "When enabled, any user visiting %{host} will be able to create an account."
+msgstr ""
+
+msgid "When enabled, if an NPM package isn't found in the GitLab Registry, we will attempt to pull from the global NPM registry."
 msgstr ""
 
 msgid "When enabled, users cannot use GitLab until the terms have been accepted."
@@ -22131,6 +22243,9 @@ msgstr ""
 msgid "Withdraw Access Request"
 msgstr ""
 
+msgid "Won't fix / Accept risk"
+msgstr ""
+
 msgid "Work in progress Limit"
 msgstr ""
 
@@ -22213,9 +22328,6 @@ msgid "You are on a read-only GitLab instance."
 msgstr ""
 
 msgid "You are receiving this message because you are a GitLab administrator for %{url}."
-msgstr ""
-
-msgid "You are running Puma, which is currently experimental. More information is available in our %{link_start}documentation%{link_end}."
 msgstr ""
 
 msgid "You can %{linkStart}view the blob%{linkEnd} instead."
@@ -22375,6 +22487,9 @@ msgid "You don't have any authorized applications"
 msgstr ""
 
 msgid "You don't have any deployments right now."
+msgstr ""
+
+msgid "You don't have any open merge requests"
 msgstr ""
 
 msgid "You don't have any projects available."
@@ -22662,6 +22777,9 @@ msgstr ""
 msgid "Your dashboard has been copied. You can %{web_ide_link_start}edit it here%{web_ide_link_end}."
 msgstr ""
 
+msgid "Your dashboard has been updated. You can %{web_ide_link_start}edit it here%{web_ide_link_end}."
+msgstr ""
+
 msgid "Your deployment services will be broken, you will need to manually fix the services after renaming."
 msgstr ""
 
@@ -22714,6 +22832,9 @@ msgid "Zoom meeting added"
 msgstr ""
 
 msgid "Zoom meeting removed"
+msgstr ""
+
+msgid "[No reason]"
 msgstr ""
 
 msgid "a deleted user"
@@ -22899,9 +23020,6 @@ msgstr ""
 msgid "ciReport|Base pipeline codequality artifact not found"
 msgstr ""
 
-msgid "ciReport|Class"
-msgstr ""
-
 msgid "ciReport|Code quality"
 msgstr ""
 
@@ -22932,9 +23050,6 @@ msgstr ""
 msgid "ciReport|Dependency scanning"
 msgstr ""
 
-msgid "ciReport|Description"
-msgstr ""
-
 msgid "ciReport|Download patch to resolve"
 msgstr ""
 
@@ -22947,19 +23062,7 @@ msgstr ""
 msgid "ciReport|Failed to load %{reportName} report"
 msgstr ""
 
-msgid "ciReport|File"
-msgstr ""
-
 msgid "ciReport|Fixed:"
-msgstr ""
-
-msgid "ciReport|Identifiers"
-msgstr ""
-
-msgid "ciReport|Image"
-msgstr ""
-
-msgid "ciReport|Instances"
 msgstr ""
 
 msgid "ciReport|Investigate this vulnerability by creating an issue"
@@ -22968,19 +23071,10 @@ msgstr ""
 msgid "ciReport|Learn more about interacting with security reports"
 msgstr ""
 
-msgid "ciReport|Links"
-msgstr ""
-
 msgid "ciReport|Loading %{reportName} report"
 msgstr ""
 
 msgid "ciReport|Manage licenses"
-msgstr ""
-
-msgid "ciReport|Method"
-msgstr ""
-
-msgid "ciReport|Namespace"
 msgstr ""
 
 msgid "ciReport|No changes to code quality"
@@ -23002,9 +23096,6 @@ msgid "ciReport|Security scanning"
 msgstr ""
 
 msgid "ciReport|Security scanning failed loading any results"
-msgstr ""
-
-msgid "ciReport|Severity"
 msgstr ""
 
 msgid "ciReport|Solution"

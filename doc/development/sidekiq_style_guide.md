@@ -64,6 +64,63 @@ the extra jobs will take resources away from jobs from workers that were already
 there, if the resources available to the Sidekiq process handling the namespace
 are not adjusted appropriately.
 
+## Idempotent Jobs
+
+It's known that a job can fail for multiple reasons. For example, network outages or bugs.
+In order to address this, Sidekiq has a built-in retry mechanism that is
+used by default by most workers within GitLab.
+
+It's expected that a job can run again after a failure without major side-effects for the
+application or users, which is why Sidekiq encourages
+jobs to be [idempotent and transactional](https://github.com/mperham/sidekiq/wiki/Best-Practices#2-make-your-job-idempotent-and-transactional).
+
+As a general rule, a worker can be considered idempotent if:
+
+- It can safely run multiple times with the same arguments.
+- Application side-effects are expected to happen only once
+  (or side-effects of a second run are not impactful).
+
+A good example of that would be a cache expiration worker.
+
+### Ensuring a worker is idempotent
+
+Make sure the worker tests pass using the following shared example:
+
+```ruby
+include_examples 'an idempotent worker' do
+  it 'marks the MR as merged' do
+    # Using subject inside this block will process the job multiple times
+    subject
+
+    expect(merge_request.state).to eq('merged')
+  end
+end
+```
+
+Use the `perform_multiple` method directly instead of `job.perform` (this
+helper method is automatically included for workers).
+
+### Declaring a worker as idempotent
+
+```ruby
+class IdempotentWorker
+  include ApplicationWorker
+
+  # Declares a worker is idempotent and can
+  # safely run multiple times.
+  idempotent!
+
+  # ...
+end
+```
+
+It's encouraged to only have the `idempotent!` call in the top-most worker class, even if
+the `perform` method is defined in another class or module.
+
+NOTE: **Note:**
+Note that a cop will fail if the worker class is not marked as idempotent.
+Consider skipping the cop if you're not confident your job can safely run multiple times.
+
 ## Latency Sensitive Jobs
 
 If a large number of background jobs get scheduled at once, queueing of jobs may
@@ -121,7 +178,7 @@ end
 ## Jobs with External Dependencies
 
 Most background jobs in the GitLab application communicate with other GitLab
-services, eg Postgres, Redis, Gitaly and Object Storage. These are considered
+services. For example, Postgres, Redis, Gitaly, and Object Storage. These are considered
 to be "internal" dependencies for a job.
 
 However, some jobs will be dependent on external services in order to complete
@@ -331,7 +388,7 @@ requests. We do this to avoid incorrect metadata when other jobs are
 scheduled from the cron-worker.
 
 Cron-Workers themselves run instance wide, so they aren't scoped to
-users, namespaces, projects or other resources that should be added to
+users, namespaces, projects, or other resources that should be added to
 the context.
 
 However, they often schedule other jobs that _do_ require context.

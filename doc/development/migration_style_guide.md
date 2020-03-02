@@ -89,6 +89,21 @@ be possible to downgrade in case of a vulnerability or bugs.
 In your migration, add a comment describing how the reversibility of the
 migration was tested.
 
+Some migrations cannot be reversed. For example, some data migrations can't be
+reversed because we lose information about the state of the database before the migration.
+You should still create a `down` method with a comment, explaining why
+the changes performed by the `up` method can't be reversed, so that the
+migration itself can be reversed, even if the changes performed during the migration
+can't be reversed:
+
+```ruby
+def down
+  # no-op
+
+  # comment explaining why changes performed by `up` cannot be reversed.
+end
+```
+
 ## Atomicity
 
 By default, migrations are single transaction. That is, a transaction is opened
@@ -383,6 +398,8 @@ instead of `add_reference`.
 For an empty table (such as a fresh one), it is recommended to use
 `add_reference` in a single-transaction migration, combining it with other
 operations that don't require `disable_ddl_transaction!`.
+
+You can read more about adding [foreign key constraints to an existing column](database/add_foreign_key_to_existing_column.md).
 
 ## Adding Columns With Default Values
 

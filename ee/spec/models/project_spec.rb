@@ -206,8 +206,8 @@ describe Project do
         it { expect(project).to be_valid }
       end
 
-      it do
-        is_expected.to validate_numericality_of(:max_pages_size).only_integer.is_greater_than(0)
+      it "ensures max_pages_size is an integer greater than 0 (or equal to 0 to indicate unlimited/maximum)" do
+        is_expected.to validate_numericality_of(:max_pages_size).only_integer.is_greater_than_or_equal_to(0)
                          .is_less_than(::Gitlab::Pages::MAX_SIZE / 1.megabyte)
       end
     end
@@ -2592,15 +2592,15 @@ describe Project do
 
     it 'expires the caches of the design repository' do
       allow(Repository).to receive(:new)
-        .with('foo', project)
+        .with('foo', project, shard: project.repository_storage)
         .and_return(repo)
 
       allow(Repository).to receive(:new)
-        .with('foo.wiki', project)
+        .with('foo.wiki', project, shard: project.repository_storage, repo_type: Gitlab::GlRepository::WIKI)
         .and_return(wiki)
 
       allow(Repository).to receive(:new)
-        .with('foo.design', project)
+        .with('foo.design', project, shard: project.repository_storage, repo_type: ::EE::Gitlab::GlRepository::DESIGN)
         .and_return(design)
 
       expect(design).to receive(:before_delete)
