@@ -56,7 +56,7 @@ We need to make Docker Registry send notification events to the
      }
    ]
    ```
-   
+
    NOTE: **Note:**
    Replace `<replace_with_a_secret_token>` with a case sensitive alphanumeric string
    that starts with a letter. You can generate one with `< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c 32 | sed "s/^[0-9]*//"; echo`
