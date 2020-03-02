@@ -303,7 +303,7 @@ module Issuable
       if use_cte
         [arel_table[:state]] + attribute_names.map { |attr| arel_table[attr.to_sym] }
       else
-        arel_table[:id]
+        [arel_table[:namespace_id], arel_table[:id]]
       end
     end
 

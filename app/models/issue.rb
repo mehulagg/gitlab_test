@@ -27,6 +27,8 @@ class Issue < ApplicationRecord
 
   SORTING_PREFERENCE_FIELD = :issues_sort
 
+  multi_tenant :namespace
+
   belongs_to :project
   belongs_to :moved_to, class_name: 'Issue'
   belongs_to :duplicated_to, class_name: 'Issue'

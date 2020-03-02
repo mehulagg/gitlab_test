@@ -53,6 +53,9 @@ GEM
     activerecord-explain-analyze (0.1.0)
       activerecord (>= 4)
       pg
+    activerecord-multi-tenant (1.0.4)
+      rails (>= 4.2)
+      request_store (>= 1.0.5)
     activestorage (6.0.2)
       actionpack (= 6.0.2)
       activejob (= 6.0.2)
@@ -1151,6 +1154,7 @@ DEPENDENCIES
   ace-rails-ap (~> 4.1.0)
   acme-client (~> 2.0.5)
   activerecord-explain-analyze (~> 0.1)
+  activerecord-multi-tenant
   acts-as-taggable-on (~> 6.0)
   addressable (~> 2.7)
   akismet (~> 3.0)

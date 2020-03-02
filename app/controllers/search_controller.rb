@@ -7,6 +7,23 @@ class SearchController < ApplicationController
 
   around_action :allow_gitaly_ref_name_caching
 
+  set_current_tenant_through_filter
+  before_action :set_namespace_as_tenant
+
+  def set_namespace_as_tenant
+    search_scope = if params[:project_id].present?
+      Project.find_by(id: params[:project_id])
+    elsif params[:group_id].present?
+      Group.find_by(id: params[:group_id])
+    end
+
+    if search_scope.nil? || search_scope.root_ancestor.nil?
+      logger.warn "Unable to set partition key in because the ancestor chain was nil"
+    else
+      set_current_tenant(root_object.path)
+    end
+  end
+
   skip_before_action :authenticate_user!
   requires_cross_project_access if: -> do
     search_term_present = params[:search].present? || params[:term].present?

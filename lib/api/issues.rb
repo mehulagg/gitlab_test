@@ -123,18 +123,20 @@ module API
         optional :non_archived, type: Boolean, desc: 'Return issues from non archived projects', default: true
       end
       get ":id/issues" do
-        issues = paginate(find_issues(group_id: user_group.id, include_subgroups: true))
+        MultiTenant.with(user_group.root_ancestor.path) do
+          issues = paginate(find_issues(group_id: user_group.id, include_subgroups: true))
 
-        options = {
-          with: Entities::Issue,
-          with_labels_details: declared_params[:with_labels_details],
-          current_user: current_user,
-          issuable_metadata: issuable_meta_data(issues, 'Issue', current_user),
-          include_subscribed: false,
-          group: user_group
-        }
+          options = {
+            with: Entities::Issue,
+            with_labels_details: declared_params[:with_labels_details],
+            current_user: current_user,
+            issuable_metadata: issuable_meta_data(issues, 'Issue', current_user),
+            include_subscribed: false,
+            group: user_group
+          }
 
-        present issues, options
+          present issues, options
+        end
       end
 
       desc 'Get statistics for the list of group issues'
@@ -159,18 +161,20 @@ module API
         use :issues_params
       end
       get ":id/issues" do
-        issues = paginate(find_issues(project_id: user_project.id))
+        MultiTenant.with(user_project.root_namespace.path) do
+          issues = paginate(find_issues(project_id: user_project.id))
 
-        options = {
-          with: Entities::Issue,
-          with_labels_details: declared_params[:with_labels_details],
-          current_user: current_user,
-          project: user_project,
-          issuable_metadata: issuable_meta_data(issues, 'Issue', current_user),
-          include_subscribed: false
-        }
+          options = {
+            with: Entities::Issue,
+            with_labels_details: declared_params[:with_labels_details],
+            current_user: current_user,
+            project: user_project,
+            issuable_metadata: issuable_meta_data(issues, 'Issue', current_user),
+            include_subscribed: false
+          }
 
-        present issues, options
+          present issues, options
+        end
       end
 
       desc 'Get statistics for the list of project issues'
@@ -222,18 +226,20 @@ module API
         issue_params = convert_parameters_from_legacy_format(issue_params)
 
         begin
-          issue = ::Issues::CreateService.new(user_project,
-                                              current_user,
-                                              issue_params.merge(request: request, api: true)).execute
+          MultiTenant.with(user_project.root_namespace.path) do
+            issue = ::Issues::CreateService.new(user_project,
+                                                current_user,
+                                                issue_params.merge(request: request, api: true)).execute
 
-          if issue.spam?
-            render_api_error!({ error: 'Spam detected' }, 400)
-          end
+            if issue.spam?
+              render_api_error!({ error: 'Spam detected' }, 400)
+            end
 
-          if issue.valid?
-            present issue, with: Entities::Issue, current_user: current_user, project: user_project
-          else
-            render_validation_error!(issue)
+            if issue.valid?
+              present issue, with: Entities::Issue, current_user: current_user, project: user_project
+            else
+              render_validation_error!(issue)
+            end
           end
         rescue ::ActiveRecord::RecordNotUnique
           render_api_error!('Duplicated issue', 409)

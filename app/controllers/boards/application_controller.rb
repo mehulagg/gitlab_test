@@ -6,6 +6,17 @@ module Boards
 
     rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
+    set_current_tenant_through_filter
+    before_action :set_namespace_as_tenant
+
+    def set_namespace_as_tenant
+      if board_parent.nil? || board_parent.root_ancestor.nil?
+        logger.warn "Unable to set partition key in because the ancestor chain was nil"
+      else
+        set_current_tenant(board_parent.root_ancestor.path)
+      end
+    end
+
     private
 
     def board

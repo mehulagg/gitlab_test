@@ -10,11 +10,22 @@ class Projects::ApplicationController < ApplicationController
   before_action :repository
   layout 'project'
 
+  set_current_tenant_through_filter
+  before_action :set_namespace_as_tenant
+
   helper_method :repository, :can_collaborate_with_project?, :user_access
 
   rescue_from Gitlab::Template::Finders::RepoTemplateFinder::FileNotFoundError do |exception|
     log_exception(exception)
     render_404
+  end
+
+  def set_namespace_as_tenant
+    if project.nil? || project.root_namespace.nil?
+      logger.warn "Unable to set partition key in because the ancestor chain was nil"
+    else
+      set_current_tenant(project.root_namespace.path)
+    end
   end
 
   private

@@ -10,6 +10,17 @@ class Groups::ApplicationController < ApplicationController
   before_action :group
   requires_cross_project_access
 
+  set_current_tenant_through_filter
+  before_action :set_namespace_as_tenant
+
+  def set_namespace_as_tenant
+    if group.nil? || group.root_ancestor.nil?
+      logger.warn "Unable to set partition key because the ancestor chain was nil"
+    else
+      set_current_tenant(group.root_ancestor.path)
+    end
+  end
+
   private
 
   def group
