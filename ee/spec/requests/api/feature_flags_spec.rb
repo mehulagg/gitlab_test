@@ -96,6 +96,48 @@ describe API::FeatureFlags do
           }]
         }])
       end
+
+      it 'does not return a version 2 flag when the feature flag is disabled' do
+        stub_feature_flags(feature_flags_new_version: false)
+        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        create(:operations_scope, strategy: strategy, environment_scope: 'production')
+
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flags', dir: 'ee')
+        expect(json_response).to eq([])
+      end
+    end
+
+    context 'with version 1 and 2 feature flags' do
+      it 'returns both versions of flags ordered by name' do
+        create(:operations_feature_flag, project: project, name: 'legacy_flag')
+        feature_flag = create(:operations_feature_flag, project: project, name: 'new_version_flag', version: 2)
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        create(:operations_scope, strategy: strategy, environment_scope: 'production')
+
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flags', dir: 'ee')
+        expect(json_response.map { |f| f['name'] }).to eq(%w[legacy_flag new_version_flag])
+      end
+
+      it 'returns only version 1 flags when the feature flag is disabled' do
+        stub_feature_flags(feature_flags_new_version: false)
+        create(:operations_feature_flag, project: project, name: 'legacy_flag')
+        feature_flag = create(:operations_feature_flag, project: project, name: 'new_version_flag', version: 2)
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        create(:operations_scope, strategy: strategy, environment_scope: 'production')
+
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flags', dir: 'ee')
+        expect(json_response.map { |f| f['name'] }).to eq(['legacy_flag'])
+      end
     end
   end
 
