@@ -70,6 +70,52 @@ describe API::FeatureFlags do
 
       it_behaves_like 'check user permission'
     end
+
+    context 'with version 2 feature flags' do
+      it 'returns the feature flags' do
+        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        create(:operations_scope, strategy: strategy, environment_scope: 'production')
+
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flags', dir: 'ee')
+        expect(json_response).to eq([{
+          'name' => 'feature1',
+          'description' => nil,
+          'updated_at' => feature_flag.updated_at.as_json,
+          'created_at' => feature_flag.created_at.as_json,
+          'scopes' => [],
+          'strategies' => [{
+            'name' => 'default',
+            'parameters' => {},
+            'scopes' => [{
+              'environment_scope' => 'production'
+            }]
+          }]
+        }])
+      end
+    end
+  end
+
+  describe 'GET /projects/:id/feature_flags/:name' do
+    subject { get api("/projects/#{project.id}/feature_flags/#{feature_flag.name}", user) }
+
+    context 'when there is a feature flag' do
+      let!(:feature_flag) { create_flag(project, 'awesome-feature') }
+
+      it 'returns a feature flag entry' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        expect(json_response['name']).to eq(feature_flag.name)
+        expect(json_response['description']).to eq(feature_flag.description)
+      end
+
+      it_behaves_like 'check user permission'
+    end
   end
 
   describe 'POST /projects/:id/feature_flags' do
@@ -164,25 +210,6 @@ describe API::FeatureFlags do
         active: false,
         strategies: [{ name: 'default', parameters: {} }].to_json
       }
-    end
-  end
-
-  describe 'GET /projects/:id/feature_flags/:name' do
-    subject { get api("/projects/#{project.id}/feature_flags/#{feature_flag.name}", user) }
-
-    context 'when there is a feature flag' do
-      let!(:feature_flag) { create_flag(project, 'awesome-feature') }
-
-      it 'returns a feature flag entry' do
-        subject
-
-        expect(response).to have_gitlab_http_status(:ok)
-        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
-        expect(json_response['name']).to eq(feature_flag.name)
-        expect(json_response['description']).to eq(feature_flag.description)
-      end
-
-      it_behaves_like 'check user permission'
     end
   end
 
