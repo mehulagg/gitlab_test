@@ -160,8 +160,11 @@ module API
       end
 
       def feature_flag
-        @feature_flag ||=
-          user_project.operations_feature_flags.find_by_name!(params[:name])
+        @feature_flag ||= if Feature.enabled?(:feature_flags_new_version, user_project)
+                            user_project.operations_feature_flags.find_by_name!(params[:name])
+                          else
+                            user_project.operations_feature_flags.legacy_flag.find_by_name!(params[:name])
+                          end
       end
     end
   end
