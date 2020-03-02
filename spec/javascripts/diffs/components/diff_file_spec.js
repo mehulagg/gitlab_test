@@ -10,8 +10,14 @@ import diffFileMockDataUnreadable from '../mock_data/diff_file_unreadable';
 describe('DiffFile', () => {
   let vm;
   let trackingSpy;
+  const observeMock = {
+    observe: () => null,
+    disconnect: () => null, // maybe not needed
+  };
 
   beforeEach(() => {
+    window.origIntersectionObserver = window.IntersectionObserver;
+    window.IntersectionObserver = () => observeMock;
     vm = createComponentWithStore(Vue.extend(DiffFileComponent), createStore(), {
       file: JSON.parse(JSON.stringify(diffFileMockDataReadable)),
       canCurrentUserFork: false,
@@ -21,6 +27,8 @@ describe('DiffFile', () => {
 
   afterEach(() => {
     vm.$destroy();
+    window.IntersectionObserver = window.origIntersectionObserver;
+    delete window.origIntersectionObserver;
   });
 
   describe('template', () => {
