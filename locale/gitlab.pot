@@ -7570,6 +7570,9 @@ msgstr ""
 msgid "Environments|Commit"
 msgstr ""
 
+msgid "Environments|Currently showing %{fetched} out of %{total} results."
+msgstr ""
+
 msgid "Environments|Deploy to..."
 msgstr ""
 
@@ -7601,6 +7604,9 @@ msgid "Environments|Learn more about stopping environments"
 msgstr ""
 
 msgid "Environments|Logs from"
+msgstr ""
+
+msgid "Environments|Logs from %{start} to %{end}."
 msgstr ""
 
 msgid "Environments|New environment"
