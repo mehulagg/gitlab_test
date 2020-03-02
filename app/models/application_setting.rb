@@ -363,6 +363,12 @@ class ApplicationSetting < ApplicationRecord
     !!(sourcegraph_url =~ /\Ahttps:\/\/(www\.)?sourcegraph\.com/)
   end
 
+  # This will eventually be configruable
+  # https://gitlab.com/gitlab-org/gitlab/issues/208161
+  def web_ide_clientside_preview_bundler_url
+    'https://sandbox-prod.gitlab-static.net'
+  end
+
   def self.create_from_defaults
     transaction(requires_new: true) do
       super
