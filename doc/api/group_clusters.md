@@ -1,6 +1,6 @@
 # Group clusters API
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/30213)
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/30213)
 in GitLab 12.1.
 
 NOTE: **Note:**
@@ -10,7 +10,7 @@ User will need at least maintainer access for the group to use these endpoints.
 
 Returns a list of group clusters.
 
-```
+```plaintext
 GET /groups/:id/clusters
 ```
 
@@ -22,7 +22,7 @@ Parameters:
 
 Example request:
 
-```bash
+```shell
 curl --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/groups/26/clusters
 ```
 
@@ -77,7 +77,7 @@ Example response:
 
 Gets a single group cluster.
 
-```
+```plaintext
 GET /groups/:id/clusters/:cluster_id
 ```
 
@@ -90,7 +90,7 @@ Parameters:
 
 Example request:
 
-```bash
+```shell
 curl --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/groups/26/clusters/18
 ```
 
@@ -144,7 +144,7 @@ Example response:
 
 Adds an existing Kubernetes cluster to the group.
 
-```
+```plaintext
 POST /groups/:id/clusters/user
 ```
 
@@ -166,7 +166,7 @@ Parameters:
 
 Example request:
 
-```bash
+```shell
 curl --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/groups/26/clusters/user \
 -H "Accept: application/json" \
 -H "Content-Type:application/json" \
@@ -213,7 +213,7 @@ Example response:
 
 Updates an existing group cluster.
 
-```
+```plaintext
 PUT /groups/:id/clusters/:cluster_id
 ```
 
@@ -237,7 +237,7 @@ through the ["Add existing cluster to group"](#add-existing-cluster-to-group) en
 
 Example request:
 
-```bash
+```shell
 curl --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/groups/26/clusters/24 \
 -H "Content-Type:application/json" \
 --request PUT --data '{"name":"new-cluster-name","domain":"new-domain.com","api_url":"https://new-api-url.com"}'
@@ -287,14 +287,13 @@ Example response:
     "web_url":"https://gitlab.example.com/group-with-clusters-api"
   }
 }
-
 ```
 
 ## Delete group cluster
 
 Deletes an existing group cluster.
 
-```
+```plaintext
 DELETE /groups/:id/clusters/:cluster_id
 ```
 
@@ -307,6 +306,6 @@ Parameters:
 
 Example request:
 
-```bash
+```shell
 curl --request DELETE --header 'Private-Token: <your_access_token>' https://gitlab.example.com/api/v4/groups/26/clusters/23
 ```

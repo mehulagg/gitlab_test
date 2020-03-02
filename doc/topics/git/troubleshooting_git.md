@@ -30,7 +30,7 @@ Example of an error during a clone:
 
 Open a terminal and enter:
 
-```sh
+```shell
 git config http.postBuffer 52428800
 ```
 
@@ -78,7 +78,7 @@ ClientAliveCountMax 5
 **If 'pack-objects' type errors are also being displayed**, you can try to
 run a `git repack` before attempting to push to the remote repository again:
 
-```sh
+```shell
 git repack
 git push
 ```
@@ -101,19 +101,38 @@ ssh_exchange_identification: read: Connection reset by peer
 fatal: Could not read from remote repository.
 ```
 
+or
+
+```text
+ssh_exchange_identification: Connection closed by remote host
+fatal: The remote end hung up unexpectedly
+```
+
 This error usually indicates that SSH daemon's `MaxStartups` value is throttling
-SSH connections. This setting specifies the maximum number of unauthenticated
+SSH connections. This setting specifies the maximum number of concurrent, unauthenticated
 connections to the SSH daemon. This affects users with proper authentication
 credentials (SSH keys) because every connection is 'unauthenticated' in the
 beginning. The default value is `10`.
 
-Increase `MaxStartups` by adding or modifying the value in `/etc/ssh/sshd_config`:
+Increase `MaxStartups` on the GitLab server
+by adding or modifying the value in `/etc/ssh/sshd_config`:
 
 ```text
-MaxStartups 100
+MaxStartups 100:30:200
 ```
 
-Restart SSHD for the change to take effect.
+`100:30:200` means up to 100 SSH sessions are allowed without restriction,
+after which 30% of connections will be dropped until reaching an absolute maximum of 200.
+
+Once configured, restart the SSH daemon for the change to take effect.
+
+```shell
+# Debian/Ubuntu
+sudo systemctl restart ssh
+
+# CentOS/RHEL
+sudo service sshd restart
+```
 
 ## Timeout during `git push` / `git pull`
 
@@ -146,7 +165,7 @@ This can be fixed by increasing the existing `http.postBuffer` value to one grea
 NOTE: **Note:**
 The default value of `http.postBuffer`, 1 MiB, is applied if the setting is not configured.
 
-```sh
+```shell
 git config http.postBuffer 524288000
 ```
 

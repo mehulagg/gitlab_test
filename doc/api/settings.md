@@ -1,8 +1,8 @@
-# Application settings API
+# Application settings API **(CORE ONLY)**
 
 These API calls allow you to read and modify GitLab instance
 [application settings](#list-of-settings-that-can-be-accessed-via-api-calls)
-as appear in `/admin/application_settings`. You have to be an
+as appear in `/admin/application_settings/general`. You have to be an
 administrator in order to perform this action.
 
 ## Get current application settings
@@ -10,11 +10,11 @@ administrator in order to perform this action.
 List the current [application settings](#list-of-settings-that-can-be-accessed-via-api-calls)
 of the GitLab instance.
 
-```
+```plaintext
 GET /application/settings
 ```
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/application/settings
 ```
 
@@ -90,11 +90,11 @@ the `file_template_project_id`, `deletion_adjourned_period`, or the `geo_node_al
 Use an API call to modify GitLab instance
 [application settings](#list-of-settings-that-can-be-accessed-via-api-calls).
 
-```
+```plaintext
 PUT /application/settings
 ```
 
-```bash
+```shell
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/application/settings?signup_enabled=false&default_project_visibility=internal
 ```
 
@@ -201,7 +201,7 @@ are listed in the descriptions of the relevant settings.
 | `commit_email_hostname`                  | string           | no                                   | Custom hostname (for private commit emails). |
 | `container_registry_token_expire_delay`  | integer          | no                                   | Container Registry token duration in minutes. |
 | `default_artifacts_expire_in`            | string           | no                                   | Set the default expiration time for each job's artifacts. |
-| `default_branch_protection`              | integer          | no                                   | Determine if developers can push to master. Can take: `0` _(not protected, both developers and maintainers can push new commits, force push, or delete the branch)_, `1` _(partially protected, developers and maintainers can push new commits, but cannot force push or delete the branch)_ or `2` _(fully protected, developers cannot push new commits, but maintainers can; no-one can force push or delete the branch)_ as a parameter. Default is `2`. |
+| `default_branch_protection`              | integer          | no                                   | Determine if developers can push to master. Can take: `0` _(not protected, both developers and maintainers can push new commits, force push, or delete the branch)_, `1` _(partially protected, developers and maintainers can push new commits, but cannot force push, or delete, the branch)_ or `2` _(fully protected, developers cannot push new commits, but maintainers can; no-one can force push or delete the branch)_ as a parameter. Default is `2`. |
 | `default_ci_config_path`                 | string           | no                                   | Default CI configuration path for new projects (`.gitlab-ci.yml` if not set). |
 | `default_group_visibility`               | string           | no                                   | What visibility level new groups receive. Can take `private`, `internal` and `public` as a parameter. Default is `private`. |
 | `default_project_creation`               | integer          | no                                   | Default project creation protection. Can take: `0` _(No one)_, `1` _(Maintainers)_ or `2` _(Developers + Maintainers)_|
@@ -230,7 +230,7 @@ are listed in the descriptions of the relevant settings.
 | `elasticsearch_namespace_ids`            | array of integers | no                                  | **(PREMIUM)** The namespaces to index via Elasticsearch if `elasticsearch_limit_indexing` is enabled. |
 | `elasticsearch_project_ids`              | array of integers | no                                  | **(PREMIUM)** The projects to index via Elasticsearch if `elasticsearch_limit_indexing` is enabled. |
 | `elasticsearch_search`                   | boolean          | no                                   | **(PREMIUM)** Enable Elasticsearch search |
-| `elasticsearch_url`                      | string           | no                                   | **(PREMIUM)** The url to use for connecting to Elasticsearch. Use a comma-separated list to support cluster (e.g., `http://localhost:9200, http://localhost:9201"`). If your Elasticsearch instance is password protected, pass the `username:password` in the URL (e.g., `http://<username>:<password>@<elastic_host>:9200/`). |
+| `elasticsearch_url`                      | string           | no                                   | **(PREMIUM)** The url to use for connecting to Elasticsearch. Use a comma-separated list to support cluster (for example, `http://localhost:9200, http://localhost:9201"`). If your Elasticsearch instance is password protected, pass the `username:password` in the URL (for example, `http://<username>:<password>@<elastic_host>:9200/`). |
 | `email_additional_text`                  | string           | no                                   | **(PREMIUM)** Additional text added to the bottom of every email for legal/auditing/compliance reasons |
 | `email_author_in_body`                   | boolean          | no                                   | Some email servers do not support overriding the email sender name. Enable this option to include the name of the author of the issue, merge request or comment in the email body instead. |
 | `enabled_git_access_protocol`            | string           | no                                   | Enabled protocols for Git access. Allowed values are: `ssh`, `http`, and `nil` to allow both protocols. |
@@ -275,7 +275,7 @@ are listed in the descriptions of the relevant settings.
 | `metrics_enabled`                        | boolean          | no                                   | (**If enabled, requires:** `metrics_host`, `metrics_method_call_threshold`, `metrics_packet_size`, `metrics_pool_size`, `metrics_port`, `metrics_sample_interval` and `metrics_timeout`) Enable influxDB metrics. |
 | `metrics_host`                           | string           | required by: `metrics_enabled`       | InfluxDB host. |
 | `metrics_method_call_threshold`          | integer          | required by: `metrics_enabled`       | A method call is only tracked when it takes longer than the given amount of milliseconds. |
-| `metrics_packet_size`                    | integer          | required by: `metrics_enabled`       | The amount of datapoints to send in a single UDP packet. |
+| `metrics_packet_size`                    | integer          | required by: `metrics_enabled`       | The amount of data points to send in a single UDP packet. |
 | `metrics_pool_size`                      | integer          | required by: `metrics_enabled`       | The amount of InfluxDB connections to keep open. |
 | `metrics_port`                           | integer          | required by: `metrics_enabled`       | The UDP port to use for connecting to InfluxDB. |
 | `metrics_sample_interval`                | integer          | required by: `metrics_enabled`       | The sampling interval in seconds. |
@@ -323,29 +323,29 @@ are listed in the descriptions of the relevant settings.
 | `slack_app_id`                           | string           | required by: `slack_app_enabled`      | **(PREMIUM)** The app id of the Slack-app. |
 | `slack_app_secret`                       | string           | required by: `slack_app_enabled`      | **(PREMIUM)** The app secret of the Slack-app. |
 | `slack_app_verification_token`           | string           | required by: `slack_app_enabled`      | **(PREMIUM)** The verification token of the Slack-app. |
-| `snowplow_collector_hostname`            | string           | required by: `snowplow_enabled`      | The Snowplow collector hostname. (e.g. `snowplow.trx.gitlab.net`) |
-| `snowplow_cookie_domain`                 | string           | no                                   | The Snowplow cookie domain. (e.g. `.gitlab.com`) |
+| `snowplow_collector_hostname`            | string           | required by: `snowplow_enabled`      | The Snowplow collector hostname. (for example, `snowplow.trx.gitlab.net`) |
+| `snowplow_cookie_domain`                 | string           | no                                   | The Snowplow cookie domain. (for example, `.gitlab.com`) |
 | `snowplow_enabled`                       | boolean          | no                                   | Enable snowplow tracking. |
-| `snowplow_app_id`                        | string           | no                                   | The Snowplow site name / application id. (e.g. `gitlab`) |
+| `snowplow_app_id`                        | string           | no                                   | The Snowplow site name / application id. (for example, `gitlab`) |
 | `snowplow_iglu_registry_url`             | string           | no                                   | The Snowplow base Iglu Schema Registry URL to use for custom context and self describing events'|
 | `sourcegraph_enabled`                    | boolean          | no                                    | Enables Sourcegraph integration. Default is `false`. **If enabled, requires** `sourcegraph_url`. |
 | `sourcegraph_url`                        | string           | required by: `sourcegraph_enabled`    | The Sourcegraph instance URL for integration. |
-| `sourcegraph_public_only`                | boolean          | no                                   | Blocks Sourcegraph from being loaded on private and internal projects. Defaul is `true`. |
+| `sourcegraph_public_only`                | boolean          | no                                   | Blocks Sourcegraph from being loaded on private and internal projects. Default is `true`. |
 | `terminal_max_session_time`              | integer          | no                                   | Maximum time for web terminal websocket connection (in seconds). Set to `0` for unlimited time. |
 | `terms`                                  | text             | required by: `enforce_terms`         | (**Required by:** `enforce_terms`) Markdown content for the ToS. |
-| `throttle_authenticated_api_enabled`     | boolean          | no                                   | (**If enabled, requires:** `throttle_authenticated_api_period_in_seconds` and `throttle_authenticated_api_requests_per_period`) Enable authenticated API request rate limit. Helps reduce request volume (e.g. from crawlers or abusive bots). |
+| `throttle_authenticated_api_enabled`     | boolean          | no                                   | (**If enabled, requires:** `throttle_authenticated_api_period_in_seconds` and `throttle_authenticated_api_requests_per_period`) Enable authenticated API request rate limit. Helps reduce request volume (for example, from crawlers or abusive bots). |
 | `throttle_authenticated_api_period_in_seconds` | integer    | required by: `throttle_authenticated_api_enabled` | Rate limit period in seconds.  |
 | `throttle_authenticated_api_requests_per_period` | integer  | required by: `throttle_authenticated_api_enabled` | Max requests per period per user. |
-| `throttle_authenticated_web_enabled`     | boolean          | no                                   | (**If enabled, requires:** `throttle_authenticated_web_period_in_seconds` and `throttle_authenticated_web_requests_per_period`) Enable authenticated web request rate limit. Helps reduce request volume (e.g. from crawlers or abusive bots). |
+| `throttle_authenticated_web_enabled`     | boolean          | no                                   | (**If enabled, requires:** `throttle_authenticated_web_period_in_seconds` and `throttle_authenticated_web_requests_per_period`) Enable authenticated web request rate limit. Helps reduce request volume (for example, from crawlers or abusive bots). |
 | `throttle_authenticated_web_period_in_seconds` | integer    | required by: `throttle_authenticated_web_enabled` | Rate limit period in seconds. |
 | `throttle_authenticated_web_requests_per_period` | integer  | required by: `throttle_authenticated_web_enabled` | Max requests per period per user. |
-| `throttle_unauthenticated_enabled`       | boolean          | no                                   | (**If enabled, requires:** `throttle_unauthenticated_period_in_seconds` and `throttle_unauthenticated_requests_per_period`) Enable unauthenticated request rate limit. Helps reduce request volume (e.g. from crawlers or abusive bots). |
+| `throttle_unauthenticated_enabled`       | boolean          | no                                   | (**If enabled, requires:** `throttle_unauthenticated_period_in_seconds` and `throttle_unauthenticated_requests_per_period`) Enable unauthenticated request rate limit. Helps reduce request volume (for example, from crawlers or abusive bots). |
 | `throttle_unauthenticated_period_in_seconds` | integer      | required by: `throttle_unauthenticated_enabled` | Rate limit period in seconds.  |
 | `throttle_unauthenticated_requests_per_period` | integer    | required by: `throttle_unauthenticated_enabled` | Max requests per period per IP. |
 | `time_tracking_limit_to_hours`           | boolean          | no                                   | Limit display of time tracking units to hours. Default is `false`. |
 | `two_factor_grace_period`                | integer          | required by: `require_two_factor_authentication` | Amount of time (in hours) that users are allowed to skip forced configuration of two-factor authentication. |
 | `unique_ips_limit_enabled`               | boolean          | no                                   | (**If enabled, requires:** `unique_ips_limit_per_user` and `unique_ips_limit_time_window`) Limit sign in from multiple ips. |
-| `unique_ips_limit_per_user`              | integer          | required by: `unique_ips_limit_enabled` | Maximum number of ips per user. |
+| `unique_ips_limit_per_user`              | integer          | required by: `unique_ips_limit_enabled` | Maximum number of IPs per user. |
 | `unique_ips_limit_time_window`           | integer          | required by: `unique_ips_limit_enabled` | How many seconds an IP will be counted towards the limit. |
 | `usage_ping_enabled`                     | boolean          | no                                   | Every week GitLab will report license usage back to GitLab, Inc. |
 | `user_default_external`                  | boolean          | no                                   | Newly registered users will be external by default. |

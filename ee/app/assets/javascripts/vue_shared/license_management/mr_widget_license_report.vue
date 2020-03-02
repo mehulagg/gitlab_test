@@ -7,6 +7,8 @@ import { componentNames } from 'ee/reports/components/issue_body';
 import Icon from '~/vue_shared/components/icon.vue';
 import ReportSection from '~/reports/components/report_section.vue';
 
+import { LICENSE_MANAGEMENT } from 'ee/vue_shared/license_management/store/constants';
+
 import createStore from './store';
 
 const store = createStore();
@@ -23,15 +25,6 @@ export default {
   },
   mixins: [reportsMixin],
   props: {
-    headPath: {
-      type: String,
-      required: true,
-    },
-    basePath: {
-      type: String,
-      required: false,
-      default: null,
-    },
     fullReportPath: {
       type: String,
       required: false,
@@ -72,8 +65,8 @@ export default {
     },
   },
   computed: {
-    ...mapState(['loadLicenseReportError']),
-    ...mapGetters([
+    ...mapState(LICENSE_MANAGEMENT, ['loadLicenseReportError']),
+    ...mapGetters(LICENSE_MANAGEMENT, [
       'licenseReport',
       'isLoading',
       'licenseSummaryText',
@@ -96,30 +89,18 @@ export default {
     },
   },
   mounted() {
-    const { headPath, basePath, apiUrl, canManageLicenses, licensesApiPath } = this;
+    const { apiUrl, canManageLicenses, licensesApiPath } = this;
 
     this.setAPISettings({
       apiUrlManageLicenses: apiUrl,
-      headPath,
-      basePath,
       canManageLicenses,
       licensesApiPath,
     });
 
-    if (gon.features && gon.features.parsedLicenseReport) {
-      this.loadParsedLicenseReport();
-    } else {
-      this.loadLicenseReport();
-      this.loadManagedLicenses();
-    }
+    this.fetchParsedLicenseReport();
   },
   methods: {
-    ...mapActions([
-      'setAPISettings',
-      'loadManagedLicenses',
-      'loadLicenseReport',
-      'loadParsedLicenseReport',
-    ]),
+    ...mapActions(LICENSE_MANAGEMENT, ['setAPISettings', 'fetchParsedLicenseReport']),
   },
 };
 </script>

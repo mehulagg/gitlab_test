@@ -33,8 +33,16 @@ Follow these steps to filter the **Issues** and **Merge Requests** list pages wi
 groups:
 
 1. Click in the field **Search or filter results...**.
-1. In the dropdown menu that appears, select the attribute you wish to filter by (for example,
-   author, assignee, milestone, and so on).
+1. In the dropdown menu that appears, select the attribute you wish to filter by:
+   - Author
+   - Assignee
+   - [Milestone](../project/milestones/index.md)
+   - Release
+   - [Label](../project/labels.md)
+   - My-reaction
+   - Confidential
+   - Epic ([Introduced](https://gitlab.com/gitlab-org/gitlab/issues/195704) in GitLab 12.9)
+   - Search for this text
 1. Select or type the operator to use for filtering the attribute. The following operators are
    available:
    - `=`: Is
@@ -75,7 +83,7 @@ You can filter issues and merge requests by specific terms included in titles or
 
 ### Filtering merge requests by approvers **(STARTER)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/9468) in [GitLab Starter](https://about.gitlab.com/pricing/) 11.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/9468) in [GitLab Starter](https://about.gitlab.com/pricing/) 11.9.
 
 To filter merge requests by an individual approver, you can type (or select from
 the dropdown) `approver` and select the user.
@@ -111,7 +119,7 @@ Your [To-Do List](../todos.md#gitlab-to-do-list) can be searched by "to do" and 
 You can [filter](../todos.md#filtering-your-to-do-list) them per project,
 author, type, and action. Also, you can sort them by
 [**Label priority**](../../user/project/labels.md#label-priority),
-**Last created** and **Oldest created**.
+**Last created**, and **Oldest created**.
 
 ## Projects
 

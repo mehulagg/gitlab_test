@@ -45,21 +45,10 @@ They are available **per project** for GitLab Community Edition,
 and **per project and per group** for **GitLab Enterprise Edition**.
 
 Navigate to the webhooks page by going to your project's
-**Settings ➔ Integrations**.
+**Settings ➔ Webhooks**.
 
-## Maximum number of webhooks (per tier)
-
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/20730) in GitLab 12.6.
-
-A maximum number of project webhooks applies to each [GitLab.com
-tier](https://about.gitlab.com/pricing/), as shown in the following table:
-
-| Tier     | Number of webhooks per project |
-|----------|--------------------------------|
-| Free     | 100                            |
-| Bronze   | 100                            |
-| Silver   | 100                            |
-| Gold     | 100                            |
+NOTE: **Note:**
+On GitLab.com, the [maximum number of webhooks](../../../user/gitlab_com/index.md#maximum-number-of-webhooks) per project, and per group, is limited.
 
 ## Use-cases
 
@@ -126,7 +115,7 @@ Also, if a single push includes changes for more than three (by default, dependi
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Push Hook
 ```
 
@@ -174,7 +163,8 @@ X-Gitlab-Event: Push Hook
   "commits": [
     {
       "id": "b6568db1bc1dcd7f8b4d5a946b0b91f9dacd7327",
-      "message": "Update Catalan translation to e38cb41.",
+      "message": "Update Catalan translation to e38cb41.\n\nSee https://gitlab.com/gitlab-org/gitlab for more information",
+      "title": "Update Catalan translation to e38cb41.",
       "timestamp": "2011-12-12T14:27:31+02:00",
       "url": "http://example.com/mike/diaspora/commit/b6568db1bc1dcd7f8b4d5a946b0b91f9dacd7327",
       "author": {
@@ -188,6 +178,7 @@ X-Gitlab-Event: Push Hook
     {
       "id": "da1560886d4f094c3e6c9ef40349f7d38b5d27d7",
       "message": "fixed readme",
+      "title": "fixed readme",
       "timestamp": "2012-01-03T23:36:29+02:00",
       "url": "http://example.com/mike/diaspora/commit/da1560886d4f094c3e6c9ef40349f7d38b5d27d7",
       "author": {
@@ -213,7 +204,7 @@ If a single push includes changes for more than three (by default, depending on
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Tag Push Hook
 ```
 
@@ -267,7 +258,7 @@ Triggered when a new issue is created or an existing issue was updated/closed/re
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Issue Hook
 ```
 
@@ -402,7 +393,7 @@ Valid target types:
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Note Hook
 ```
 
@@ -482,7 +473,7 @@ X-Gitlab-Event: Note Hook
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Note Hook
 ```
 
@@ -609,7 +600,7 @@ X-Gitlab-Event: Note Hook
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Note Hook
 ```
 
@@ -714,7 +705,7 @@ X-Gitlab-Event: Note Hook
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Note Hook
 ```
 
@@ -790,7 +781,7 @@ Triggered when a new merge request is created, an existing merge request was upd
 
 **Request header**:
 
-```
+```plaintext
 X-Gitlab-Event: Merge Request Hook
 ```
 
@@ -951,7 +942,7 @@ Triggered when a wiki page is created, updated or deleted.
 
 **Request Header**:
 
-```
+```plaintext
 X-Gitlab-Event: Wiki Page Hook
 ```
 
@@ -1007,7 +998,7 @@ Triggered on status change of Pipeline.
 
 **Request Header**:
 
-```
+```plaintext
 X-Gitlab-Event: Pipeline Hook
 ```
 
@@ -1054,7 +1045,8 @@ X-Gitlab-Event: Pipeline Hook
    "user":{
       "name": "Administrator",
       "username": "root",
-      "avatar_url": "http://www.gravatar.com/avatar/e32bd13e2add097461cb96824b7a829c?s=80\u0026d=identicon"
+      "avatar_url": "http://www.gravatar.com/avatar/e32bd13e2add097461cb96824b7a829c?s=80\u0026d=identicon",
+      "email": "user_email@gitlab.com"
    },
    "project":{
       "id": 1,
@@ -1215,7 +1207,7 @@ Triggered on status change of a job.
 
 **Request Header**:
 
-```
+```plaintext
 X-Gitlab-Event: Job Hook
 ```
 
@@ -1243,7 +1235,8 @@ X-Gitlab-Event: Job Hook
   "user": {
     "id": 3,
     "name": "User",
-    "email": "user@gitlab.com"
+    "email": "user@gitlab.com",
+    "avatar_url": "http://www.gravatar.com/avatar/e32bd13e2add097461cb96824b7a829c?s=80\u0026d=identicon"
   },
   "commit": {
     "id": 2366,
@@ -1299,7 +1292,7 @@ Markdown features, like link labels.
 
 ## Testing webhooks
 
-You can trigger the webhook manually. Sample data from the project will be used. Sample data will take from the project.
+You can trigger the webhook manually. Sample data from the project will be used.
 > For example: for triggering `Push Events` your project should have at least one commit.
 
 ![Webhook testing](img/webhook_testing.png)
@@ -1328,7 +1321,7 @@ If the endpoint doesn't send its HTTP response within those 10 seconds, GitLab m
 If you are receiving multiple requests, you can try increasing the default value to wait for the HTTP response after sending the webhook
 by uncommenting or adding the following setting to your `/etc/gitlab/gitlab.rb`:
 
-```
+```ruby
 gitlab_rails['webhook_timeout'] = 10
 ```
 
@@ -1364,13 +1357,13 @@ server.start
 ```
 
 Pick an unused port (e.g. 8000) and start the script: `ruby print_http_body.rb
-8000`.  Then add your server as a webhook receiver in GitLab as
+8000`. Then add your server as a webhook receiver in GitLab as
 `http://my.host:8000/`.
 
 When you press 'Test' in GitLab, you should see something like this in the
 console:
 
-```
+```plaintext
 {"before":"077a85dd266e6f3573ef7e9ef8ce3343ad659c4e","after":"95cd4a99e93bc4bbabacfa2cd10e6725b1403c60",<SNIP>}
 example.com - - [14/May/2014:07:45:26 EDT] "POST / HTTP/1.1" 200 0
 - -> /

@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe 'Updating an Epic' do
+describe Mutations::Epics::Update do
   include GraphqlHelpers
 
   let_it_be(:current_user) { create(:user) }

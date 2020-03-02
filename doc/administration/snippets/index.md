@@ -35,12 +35,12 @@ The steps to configure this setting through the Rails console are:
 
 1. Start the Rails console:
 
-   ```bash
+   ```shell
    # For Omnibus installations
    sudo gitlab-rails console
 
    # For installations from source
-   sudo -u git -H bundle exec rails console production
+   sudo -u git -H bundle exec rails console -e production
    ```
 
 1. Update the snippets maximum file size:
@@ -60,12 +60,12 @@ To retrieve the current value, start the Rails console and run:
 The process to set the snippets size limit through the Application Settings API is
 exactly the same as you would do to [update any other setting](../../api/settings.md#change-application-settings).
 
-```bash
+```shell
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/application/settings?snippet_size_limit=52428800
 ```
 
 You can also use the API to [retrieve the current value](../../api/settings.md#get-current-application-settings).
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/application/settings
 ```

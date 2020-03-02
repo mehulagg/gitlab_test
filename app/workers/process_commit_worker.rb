@@ -7,11 +7,11 @@
 # result of this the workload of this worker should be kept to a bare minimum.
 # Consider using an extra worker if you need to add any extra (and potentially
 # slow) processing of commits.
-class ProcessCommitWorker
+class ProcessCommitWorker # rubocop:disable Scalability/IdempotentWorker
   include ApplicationWorker
 
   feature_category :source_code_management
-  latency_sensitive_worker!
+  urgency :high
   weight 3
 
   # project_id - The ID of the project this commit belongs to.

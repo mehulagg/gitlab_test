@@ -46,7 +46,15 @@ describe Types::BaseField do
       expect(field.to_graphql.complexity).to eq 12
     end
 
-    context 'when field has a resolver proc' do
+    context 'when field has a resolver' do
+      context 'when a valid complexity is already set' do
+        let(:field) { described_class.new(name: 'test', type: GraphQL::STRING_TYPE.connection_type, resolver_class: resolver, complexity: 2, max_page_size: 100, null: true) }
+
+        it 'uses this complexity' do
+          expect(field.to_graphql.complexity).to eq 2
+        end
+      end
+
       context 'and is a connection' do
         let(:field) { described_class.new(name: 'test', type: GraphQL::STRING_TYPE.connection_type, resolver_class: resolver, max_page_size: 100, null: true) }
 
@@ -58,6 +66,17 @@ describe Types::BaseField do
         it 'sets complexity depending on number load limits for resolvers' do
           expect(field.to_graphql.complexity.call({}, { first: 1 }, 2)).to eq 2
           expect(field.to_graphql.complexity.call({}, { first: 1, foo: true }, 2)).to eq 4
+        end
+
+        context 'when graphql_resolver_complexity is disabled' do
+          before do
+            stub_feature_flags(graphql_resolver_complexity: false)
+          end
+
+          it 'sets default field complexity' do
+            expect(field.to_graphql.complexity.call({}, {}, 2)).to eq 1
+            expect(field.to_graphql.complexity.call({}, { first: 50 }, 2)).to eq 1
+          end
         end
       end
 
@@ -108,6 +127,71 @@ describe Types::BaseField do
           field = described_class.new(name: 'test', type: GraphQL::STRING_TYPE, null: true, complexity: 12)
 
           expect(field.to_graphql.complexity).to eq 12
+        end
+      end
+    end
+
+    describe '#visible?' do
+      context 'and has a feature_flag' do
+        let(:flag) { :test_feature }
+        let(:field) { described_class.new(name: 'test', type: GraphQL::STRING_TYPE, feature_flag: flag, null: false) }
+        let(:context) { {} }
+
+        it 'returns false if the feature is not enabled' do
+          stub_feature_flags(flag => false)
+
+          expect(field.visible?(context)).to eq(false)
+        end
+
+        it 'returns true if the feature is enabled' do
+          expect(field.visible?(context)).to eq(true)
+        end
+
+        context 'falsey feature_flag values' do
+          using RSpec::Parameterized::TableSyntax
+
+          where(:flag, :feature_value, :visible) do
+            ''  | false | true
+            ''  | true  | true
+            nil | false | true
+            nil | true  | true
+          end
+
+          with_them do
+            it 'returns the correct value' do
+              stub_feature_flags(flag => feature_value)
+
+              expect(field.visible?(context)).to eq(visible)
+            end
+          end
+        end
+      end
+    end
+
+    describe '#description' do
+      context 'feature flag given' do
+        let(:field) { described_class.new(name: 'test', type: GraphQL::STRING_TYPE, feature_flag: flag, null: false, description: 'Test description') }
+        let(:flag) { :test_flag }
+
+        it 'prepends the description' do
+          expect(field.description). to eq 'Test description. Available only when feature flag test_flag is enabled.'
+        end
+
+        context 'falsey feature_flag values' do
+          using RSpec::Parameterized::TableSyntax
+
+          where(:flag, :feature_value) do
+            ''  | false
+            ''  | true
+            nil | false
+            nil | true
+          end
+
+          with_them do
+            it 'returns the correct description' do
+              expect(field.description).to eq('Test description')
+            end
+          end
         end
       end
     end

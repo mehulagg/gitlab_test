@@ -16,7 +16,7 @@ like:
 - Working with secrets.
 - Setting up CORS.
 
-Alternatively, you can quickly [create a new project with a template](https://docs.gitlab.com/ee/gitlab-basics/create-project.html#project-templates). The [`Serverless Framework/JS` template](https://gitlab.com/gitlab-org/project-templates/serverless-framework/) already includes all parts described below.
+Alternatively, you can quickly [create a new project with a template](../../../../gitlab-basics/create-project.md#project-templates). The [`Serverless Framework/JS` template](https://gitlab.com/gitlab-org/project-templates/serverless-framework/) already includes all parts described below.
 
 ## Example
 
@@ -149,7 +149,7 @@ Running the following `curl` command should trigger your function.
 NOTE: **Note:**
   Your url should be the one retrieved from the GitLab deploy stage log.
 
-```sh
+```shell
 curl https://u768nzby1j.execute-api.us-east-1.amazonaws.com/production/hello
 ```
 
@@ -192,7 +192,7 @@ The `serverless-offline` plugin allows to run your code locally. To run your cod
 
 Running the following `curl` command should trigger your function.
 
-```sh
+```shell
 curl http://localhost:3000/hello
 ```
 
@@ -282,6 +282,6 @@ The example code is available:
 - As a [cloneable repository](https://gitlab.com/gitlab-org/serverless/examples/serverless-framework-js).
 - In a version with [tests and secret variables](https://gitlab.com/gitlab-org/project-templates/serverless-framework/).
 
-You can also use a [template](https://docs.gitlab.com/ee/gitlab-basics/create-project.html#project-templates)
+You can also use a [template](../../../../gitlab-basics/create-project.md#project-templates)
 (based on the version with tests and secret variables) from within the GitLab UI (see
 the `Serverless Framework/JS` template).

@@ -23,7 +23,7 @@ and tag all tooling images locally:
 1. Make sure you're on the `dockerfiles/` directory of the `gitlab-docs` repo.
 1. Build the images:
 
-   ```sh
+   ```shell
    docker build -t registry.gitlab.com/gitlab-org/gitlab-docs:bootstrap -f Dockerfile.bootstrap ../
    docker build -t registry.gitlab.com/gitlab-org/gitlab-docs:builder-onbuild -f Dockerfile.builder.onbuild ../
    docker build -t registry.gitlab.com/gitlab-org/gitlab-docs:nginx-onbuild -f Dockerfile.nginx.onbuild ../
@@ -64,13 +64,13 @@ this needs to happen when the stable branches for all products have been created
 1. Make sure you're on the root path of the `gitlab-docs` repo.
 1. Make sure your `master` is updated:
 
-   ```sh
+   ```shell
    git pull origin master
    ```
 
 1. Run the raketask to create the single version:
 
-    ```sh
+    ```shell
     ./bin/rake "release:single[12.0]"
     ```
 
@@ -96,7 +96,7 @@ this needs to happen when the stable branches for all products have been created
 
 Optionally, you can test locally by building the image and running it:
 
-```sh
+```shell
 docker build -t docs:12.0 -f Dockerfile.12.0 .
 docker run -it --rm -p 4000:4000 docs:12.0
 ```
@@ -111,7 +111,7 @@ version and rotates the old one:
 1. Make sure you're on the root path of the `gitlab-docs` repo.
 1. Create a branch `release-X-Y`:
 
-   ```sh
+   ```shell
    git checkout master
    git checkout -b release-12-0
    ```
@@ -128,16 +128,6 @@ version and rotates the old one:
    - `online`: The 3 latest stable versions.
    - `offline`: All the previous versions offered as an offline archive.
 
-1. **Add the new offline version in the 404 page redirect script:**
-
-   Since we're deprecating the oldest version each month, we need to redirect
-   those URLs in order not to create [404 entries](https://gitlab.com/gitlab-org/gitlab-docs/issues/221).
-   There's a temporary hack for now:
-
-   1. Edit `content/404.html`, making sure all offline versions under
-      `content/_data/versions.yaml` are in the JavaScript snippet at the end of
-      the document.
-
 1. **Update the `:latest` and `:archives` Docker images:**
 
    The following two Dockerfiles need to be updated:
@@ -150,7 +140,7 @@ version and rotates the old one:
 1. In the end, there should be four files in total that have changed.
    Commit and push to create the merge request using the "Release" template:
 
-   ```sh
+   ```shell
    git add content/ Dockerfile.master dockerfiles/Dockerfile.archives
    git commit -m "Release 12.0"
    git push origin release-12-0
@@ -172,11 +162,11 @@ versions:
    pipelines succeed. The `release-X-Y` branch needs to be present locally,
    otherwise the raketask will fail:
 
-   ```sh
+   ```shell
    ./bin/rake release:dropdowns
    ```
 
-1. [Visit the merge requests page](https://gitlab.com/gitlab-org/gitlab-docs/merge_requests?label_name%5B%5D=release>)
+1. [Visit the merge requests page](https://gitlab.com/gitlab-org/gitlab-docs/-/merge_requests?label_name%5B%5D=release)
    to check that their pipelines pass, and once all are merged, proceed to the
    following and final step.
 
@@ -218,7 +208,7 @@ from time to time.
 
 If this is not possible or there are many changes, merge master into them:
 
-```sh
+```shell
 git branch 12.0
 git fetch origin master
 git merge origin/master
@@ -240,7 +230,7 @@ dropdown MRs are created have a caveat, and that is that the tests run by
 pulling the master branches of all products, instead of the respective stable
 ones.
 
-In a real world scenario, the [Update 12.2 dropdown to match that of 12.4](https://gitlab.com/gitlab-org/gitlab-docs/merge_requests/604)
+In a real world scenario, the [Update 12.2 dropdown to match that of 12.4](https://gitlab.com/gitlab-org/gitlab-docs/-/merge_requests/604)
 merge request failed because of the [`test_internal_links_and_anchors` test](https://gitlab.com/gitlab-org/gitlab-docs/-/jobs/328042431).
 
 This happened because there has been a rename of a product (`gitlab-monitor` to `gitlab-exporter`)

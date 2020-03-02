@@ -8,8 +8,12 @@ module Types
       description 'Represents the snippet blob'
       present_using SnippetBlobPresenter
 
-      field :highlighted_data, GraphQL::STRING_TYPE,
+      field :rich_data, GraphQL::STRING_TYPE,
             description: 'Blob highlighted data',
+            null: true
+
+      field :plain_data, GraphQL::STRING_TYPE,
+            description: 'Blob plain highlighted data',
             null: true
 
       field :raw_path, GraphQL::STRING_TYPE,
@@ -39,6 +43,10 @@ module Types
 
       field :rich_viewer, type: Types::Snippets::BlobViewerType,
             description: 'Blob content rich viewer',
+            null: true
+
+      field :mode, type: GraphQL::STRING_TYPE,
+            description: 'Blob mode',
             null: true
     end
     # rubocop: enable Graphql/AuthorizeTypes

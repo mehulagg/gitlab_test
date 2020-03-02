@@ -8,7 +8,7 @@ To retrieve audit events using the API, you must [authenticate yourself](README.
 
 ### Retrieve all instance audit events
 
-```
+```plaintext
 GET /audit_events
 ```
 
@@ -24,7 +24,7 @@ are paginated.
 
 Read more on [pagination](README.md#pagination).
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://primary.example.com/api/v4/audit_events
 ```
 
@@ -87,11 +87,11 @@ Example response:
 
 ### Retrieve single instance audit event
 
-```
+```plaintext
 GET /audit_events/:id
 ```
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://primary.example.com/api/v4/audit_events/1
 ```
 
@@ -126,7 +126,7 @@ To retrieve group audit events using the API, you must [authenticate yourself](R
 
 ### Retrieve all group audit events
 
-```
+```plaintext
 GET /groups/:id/audit_events
 ```
 
@@ -141,7 +141,7 @@ are paginated.
 
 Read more on [pagination](README.md#pagination).
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://primary.example.com/api/v4/groups/60/audit_events
 ```
 
@@ -188,7 +188,7 @@ Example response:
 
 Only available to group owners and administrators.
 
-```
+```plaintext
 GET /groups/:id/audit_events/:audit_event_id
 ```
 
@@ -197,7 +197,7 @@ GET /groups/:id/audit_events/:audit_event_id
 | `id` | integer/string | yes | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) |
 | `audit_event_id` | integer | yes | ID of the audit event |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://primary.example.com/api/v4/groups/60/audit_events/2
 ```
 

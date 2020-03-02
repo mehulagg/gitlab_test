@@ -1,4 +1,4 @@
-import _ from 'underscore';
+import { flattenDeep } from 'lodash';
 import * as constants from '../constants';
 import { collapseSystemNotes } from './collapse_utils';
 
@@ -28,6 +28,8 @@ export const getUserData = state => state.userData || {};
 
 export const getUserDataByProp = state => prop => state.userData && state.userData[prop];
 
+export const descriptionVersion = state => state.descriptionVersion;
+
 export const notesById = state =>
   state.discussions.reduce((acc, note) => {
     note.notes.every(n => Object.assign(acc, { [n.id]: n }));
@@ -50,7 +52,7 @@ const isLastNote = (note, state) =>
   !note.system && state.userData && note.author && note.author.id === state.userData.id;
 
 export const getCurrentUserLastNote = state =>
-  _.flatten(reverseNotes(state.discussions).map(note => reverseNotes(note.notes))).find(el =>
+  flattenDeep(reverseNotes(state.discussions).map(note => reverseNotes(note.notes))).find(el =>
     isLastNote(el, state),
   );
 
@@ -59,7 +61,6 @@ export const getDiscussionLastNote = state => discussion =>
 
 export const unresolvedDiscussionsCount = state => state.unresolvedDiscussionsCount;
 export const resolvableDiscussionsCount = state => state.resolvableDiscussionsCount;
-export const hasUnresolvedDiscussions = state => state.hasUnresolvedDiscussions;
 
 export const showJumpToNextDiscussion = (state, getters) => (mode = 'discussion') => {
   const orderedDiffs =

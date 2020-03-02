@@ -9,7 +9,7 @@
 
 Paginated list of Releases, sorted by `released_at`.
 
-```
+```plaintext
 GET /projects/:id/releases
 ```
 
@@ -19,7 +19,7 @@ GET /projects/:id/releases
 
 Example request:
 
-```sh
+```shell
 curl --header "PRIVATE-TOKEN: gDybLx3yrUK_HLp3qPjS" "https://gitlab.example.com/api/v4/projects/24/releases"
 ```
 
@@ -191,7 +191,7 @@ Example response:
 
 Get a Release for the given tag.
 
-```
+```plaintext
 GET /projects/:id/releases/:tag_name
 ```
 
@@ -202,7 +202,7 @@ GET /projects/:id/releases/:tag_name
 
 Example request:
 
-```sh
+```shell
 curl --header "PRIVATE-TOKEN: gDybLx3yrUK_HLp3qPjS" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1"
 ```
 
@@ -303,7 +303,7 @@ Example response:
 
 Create a Release. You need push access to the repository to create a Release.
 
-```
+```plaintext
 POST /projects/:id/releases
 ```
 
@@ -322,7 +322,7 @@ POST /projects/:id/releases
 
 Example request:
 
-```sh
+```shell
 curl --header 'Content-Type: application/json' --header "PRIVATE-TOKEN: gDybLx3yrUK_HLp3qPjS" \
      --data '{ "name": "New release", "tag_name": "v0.3", "description": "Super nice release", "milestones": ["v1.0", "v1.0-rc"], "assets": { "links": [{ "name": "hoge", "url": "https://google.com" }] } }' \
      --request POST https://gitlab.example.com/api/v4/projects/24/releases
@@ -430,7 +430,7 @@ Example response:
 
 Update a Release.
 
-```
+```plaintext
 PUT /projects/:id/releases/:tag_name
 ```
 
@@ -445,7 +445,7 @@ PUT /projects/:id/releases/:tag_name
 
 Example request:
 
-```sh
+```shell
 curl --header 'Content-Type: application/json' --request PUT --data '{"name": "new name", "milestones": ["v1.2"]}' --header "PRIVATE-TOKEN: gDybLx3yrUK_HLp3qPjS" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1"
 ```
 
@@ -533,7 +533,7 @@ Example response:
 
 Delete a Release. Deleting a Release will not delete the associated tag.
 
-```
+```plaintext
 DELETE /projects/:id/releases/:tag_name
 ```
 
@@ -544,7 +544,7 @@ DELETE /projects/:id/releases/:tag_name
 
 Example request:
 
-```sh
+```shell
 curl --request DELETE --header "PRIVATE-TOKEN: gDybLx3yrUK_HLp3qPjS" "https://gitlab.example.com/api/v4/projects/24/releases/v0.1"
 ```
 

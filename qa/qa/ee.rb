@@ -128,6 +128,10 @@ module QA
           module Kubernetes
             autoload :Show, 'qa/ee/page/project/operations/kubernetes/show'
           end
+
+          module Metrics
+            autoload :Show, 'qa/ee/page/project/operations/metrics/show'
+          end
         end
 
         module Packages
@@ -191,6 +195,7 @@ module QA
 
           module Project
             autoload :BaseBoardList, 'qa/ee/resource/board/board_list/project/base_board_list'
+            autoload :AssigneeBoardList, 'qa/ee/resource/board/board_list/project/assignee_board_list'
             autoload :LabelBoardList, 'qa/ee/resource/board/board_list/project/label_board_list'
             autoload :MilestoneBoardList, 'qa/ee/resource/board/board_list/project/milestone_board_list'
           end

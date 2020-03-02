@@ -166,16 +166,19 @@ praefect['auth_token'] = 'PRAEFECT_EXTERNAL_TOKEN'
 praefect['virtual_storages'] = {
   'praefect' => {
     'gitaly-1' => {
-      'address' => 'tcp://gitaly-1.internal:8075',
+      # Replace GITALY_URL_OR_IP below with the real address to connect to.
+      'address' => 'tcp://GITALY_URL_OR_IP:8075',
       'token'   => 'PRAEFECT_INTERNAL_TOKEN',
       'primary' => true
     },
     'gitaly-2' => {
-      'address' => 'tcp://gitaly-2.internal:8075',
+      # Replace GITALY_URL_OR_IP below with the real address to connect to.
+      'address' => 'tcp://GITALY_URL_OR_IP:8075',
       'token'   => 'PRAEFECT_INTERNAL_TOKEN'
     },
     'gitaly-3' => {
-      'address' => 'tcp://gitaly-3.internal:8075',
+      # Replace GITALY_URL_OR_IP below with the real address to connect to.
+      'address' => 'tcp://GITALY_URL_OR_IP:8075',
       'token'   => 'PRAEFECT_INTERNAL_TOKEN'
     }
   }
@@ -206,7 +209,11 @@ praefect['database_dbname'] = 'praefect_production'
 Replace `POSTGRESQL_SERVER_ADDRESS`, `PRAEFECT_EXTERNAL_TOKEN`, `PRAEFECT_INTERNAL_TOKEN`,
 and `PRAEFECT_SQL_PASSWORD` with their respective values.
 
-Save the file and [reconfigure Praefect](../restart_gitlab.md#omnibus-gitlab-reconfigure).
+Save the file and reconfigure Praefect:
+
+```shell
+sudo gitlab-ctl reconfigure
+```
 
 After you reconfigure, verify that Praefect can reach PostgreSQL:
 
@@ -220,7 +227,7 @@ remember to run `sudo gitlab-ctl reconfigure` again before trying the
 
 #### Gitaly
 
-Next we will configure each Gitaly server assigned to Praefect.  Configuration for these
+Next we will configure each Gitaly server assigned to Praefect. Configuration for these
 is the same as a normal standalone Gitaly server, except that we use storage names and
 auth tokens from Praefect instead of GitLab.
 
@@ -254,7 +261,10 @@ gitlab_shell['secret_token'] = 'GITLAB_SHELL_SECRET_TOKEN'
 # Configure the gitlab-shell API callback URL. Without this, `git push` will
 # fail. This can be your 'front door' GitLab URL or an internal load
 # balancer.
-gitlab_rails['internal_api_url'] = 'https://gitlab.example.com'
+# Possible values could be: 'http://10.23.101.53', 'https://gitlab.example.com',
+# etc. Please replace GITLAB_SERVER_ADDRESS with proper value and change schema
+# to 'https' in case you use encrypted connection.
+gitlab_rails['internal_api_url'] = 'http://GITLAB_SERVER_ADDRESS'
 
 # Replace PRAEFECT_INTERNAL_TOKEN below with a real secret.
 gitaly['auth_token'] = 'PRAEFECT_INTERNAL_TOKEN'
@@ -265,6 +275,8 @@ gitaly['auth_token'] = 'PRAEFECT_INTERNAL_TOKEN'
 gitaly['listen_addr'] = "0.0.0.0:8075"
 
 git_data_dirs({
+  # Update this to the name of this Gitaly server which will be later
+  # exposed in the UI under "Admin area > Gitaly"
   "gitaly-1" => {
     "path" => "/var/opt/gitlab/git-data"
   }
@@ -301,19 +313,26 @@ is present, there should be two storages available to GitLab:
 ```ruby
 # /etc/gitlab/gitlab.rb on gitlab server
 
+# Replace PRAEFECT_URL_OR_IP below with real address Praefect can be accessed at.
 # Replace PRAEFECT_EXTERNAL_TOKEN below with real secret.
 git_data_dirs({
   "default" => {
     "path" => "/var/opt/gitlab/git-data"
   },
   "praefect" => {
-    "gitaly_address" => "tcp://praefect.internal:2305",
+    "gitaly_address" => "tcp://PRAEFECT_URL_OR_IP:2305",
     "gitaly_token" => 'PRAEFECT_EXTERNAL_TOKEN'
   }
 })
 
 # Replace GITLAB_SHELL_SECRET_TOKEN below with real secret
 gitlab_shell['secret_token'] = 'GITLAB_SHELL_SECRET_TOKEN'
+
+# Possible values could be: 'http://10.23.101.53', 'https://gitlab.example.com',
+# etc. Please replace GITLAB_SERVER_ADDRESS with proper value and change schema
+# to 'https' in case you use encrypted connection. For more info please refer
+# to https://docs.gitlab.com/omnibus/settings/configuration.html#configuring-the-external-url-for-gitlab
+external_url "http://<GITLAB_SERVER_ADDRESS>"
 ```
 
 Replace `GITLAB_SHELL_SECRET_TOKEN` and `PRAEFECT_EXTERNAL_TOKEN`
@@ -322,9 +341,13 @@ with their respective values.
 Note that the storage name used is the same as the `praefect['virtual_storage_name']` set
 on the Praefect node.
 
-Save your changes and [reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure).
+Save your changes and reconfigure GitLab:
 
-Run `gitlab-rake gitlab:gitaly:check` to confirm that GitLab can reach Praefect.
+```shell
+sudo gitlab-ctl reconfigure
+```
+
+Run `sudo gitlab-rake gitlab:gitaly:check` to confirm that GitLab can reach Praefect.
 
 ### Testing Praefect
 

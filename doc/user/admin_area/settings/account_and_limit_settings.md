@@ -15,9 +15,9 @@ If you choose a size larger than what is currently configured for the web server
 you will likely get errors. See the [troubleshooting section](#troubleshooting) for more
 details.
 
-## Repository size limit **(STARTER)**
+## Repository size limit **(STARTER ONLY)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/740) in [GitLab Enterprise Edition 8.12](https://about.gitlab.com/blog/2016/09/22/gitlab-8-12-released/#limit-project-size-ee).
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/740) in [GitLab Enterprise Edition 8.12](https://about.gitlab.com/blog/2016/09/22/gitlab-8-12-released/#limit-project-size-ee).
 > Available in [GitLab Starter](https://about.gitlab.com/pricing/).
 
 Repositories within your GitLab instance can grow quickly, especially if you are
@@ -81,7 +81,7 @@ If you wanted to increase the max attachment size to 200m in a GitLab
 [Omnibus](https://docs.gitlab.com/omnibus/) install, for example, you might need to
 add the line below to `/etc/gitlab/gitlab.rb` before increasing the max attachment size:
 
-```
+```ruby
 nginx['client_max_body_size'] = "200m"
 ```
 

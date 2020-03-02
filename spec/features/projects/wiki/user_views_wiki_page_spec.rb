@@ -19,9 +19,12 @@ describe 'User views a wiki page' do
     sign_in(user)
   end
 
-  context 'when wiki is empty' do
+  context 'when wiki is empty', :js do
     before do
-      visit(project_wikis_path(project))
+      visit project_wikis_path(project)
+
+      wait_for_svg_to_be_loaded
+
       click_link "Create your first page"
 
       fill_in(:wiki_title, with: 'one/two/three-test')
@@ -32,7 +35,7 @@ describe 'User views a wiki page' do
       end
     end
 
-    it 'shows the history of a page that has a path', :js do
+    it 'shows the history of a page that has a path' do
       expect(current_path).to include('one/two/three-test')
 
       first(:link, text: 'three').click
@@ -45,7 +48,7 @@ describe 'User views a wiki page' do
       end
     end
 
-    it 'shows an old version of a page', :js do
+    it 'shows an old version of a page' do
       expect(current_path).to include('one/two/three-test')
       expect(find('.wiki-pages')).to have_content('three')
 
@@ -129,6 +132,18 @@ describe 'User views a wiki page' do
     end
   end
 
+  context 'when a page has XSS in its message' do
+    before do
+      wiki_page.update(message: '<script>alert(true)<script>', content: 'XSS update')
+    end
+
+    it 'safely displays the message' do
+      visit(project_wiki_history_path(project, wiki_page))
+
+      expect(page).to have_content('<script>alert(true)<script>')
+    end
+  end
+
   context 'when page has invalid content encoding' do
     let(:content) { (+'whatever').force_encoding('ISO-8859-1') }
 
@@ -150,9 +165,12 @@ describe 'User views a wiki page' do
   end
 
   it 'opens a default wiki page', :js do
-    visit(project_path(project))
+    visit project_path(project)
 
     find('.shortcuts-wiki').click
+
+    wait_for_svg_to_be_loaded
+
     click_link "Create your first page"
 
     expect(page).to have_content('Create New Page')

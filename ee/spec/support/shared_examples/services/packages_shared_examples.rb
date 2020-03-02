@@ -68,6 +68,32 @@ RSpec.shared_examples 'returns packages with subgroups' do |container_type, user
   end
 end
 
+RSpec.shared_examples 'package sorting' do |order_by|
+  subject { get api(url), params: { sort: sort, order_by: order_by } }
+
+  context "sorting by #{order_by}" do
+    context 'ascending order' do
+      let(:sort) { 'asc' }
+
+      it 'returns the sorted packages' do
+        subject
+
+        expect(json_response.map { |package| package['id'] }).to eq(packages.map(&:id))
+      end
+    end
+
+    context 'descending order' do
+      let(:sort) { 'desc' }
+
+      it 'returns the sorted packages' do
+        subject
+
+        expect(json_response.map { |package| package['id'] }).to eq(packages.reverse.map(&:id))
+      end
+    end
+  end
+end
+
 RSpec.shared_examples 'rejects packages access' do |container_type, user_type, status|
   context "for #{user_type}" do
     before do
@@ -110,6 +136,20 @@ RSpec.shared_examples 'background upload schedules a file migration' do
 
     it 'schedules migration of file to object storage' do
       expect(ObjectStorage::BackgroundMoveWorker).to receive(:perform_async).with('Packages::PackageFileUploader', 'Packages::PackageFile', :file, kind_of(Numeric))
+
+      subject
+    end
+  end
+end
+
+shared_examples 'package workhorse uploads' do
+  context 'without a workhorse header' do
+    let(:workhorse_token) { JWT.encode({ 'iss' => 'invalid header' }, Gitlab::Workhorse.secret, 'HS256') }
+
+    it_behaves_like 'returning response status', :forbidden
+
+    it 'logs an error' do
+      expect(Gitlab::ErrorTracking).to receive(:track_exception).once
 
       subject
     end

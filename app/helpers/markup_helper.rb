@@ -4,7 +4,7 @@ require 'nokogiri'
 
 module MarkupHelper
   include ActionView::Helpers::TextHelper
-  include ::Gitlab::ActionViewOutput::Context
+  include ActionView::Context
 
   def plain?(filename)
     Gitlab::MarkupHelper.plain?(filename)
@@ -153,7 +153,7 @@ module MarkupHelper
       other_markup_unsafe(file_name, text, context)
     end
   rescue StandardError => e
-    Gitlab::ErrorTracking.track_exception(e, project_id: @project&.id, file_name: file_name, context: context)
+    Gitlab::ErrorTracking.track_exception(e, project_id: @project&.id, file_name: file_name)
 
     simple_format(text)
   end

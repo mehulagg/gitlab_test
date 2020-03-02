@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe Projects::Operations::UpdateService do
   let_it_be(:user) { create(:user) }
-  let_it_be(:project, reload: true) { create(:project) }
+  let_it_be(:project, refind: true) { create(:project) }
 
   let(:result) { subject.execute }
 
@@ -145,6 +145,48 @@ describe Projects::Operations::UpdateService do
         end
       end
 
+      context 'partial_update' do
+        let(:params) do
+          {
+            error_tracking_setting_attributes: {
+              enabled: true
+            }
+          }
+        end
+
+        context 'with setting' do
+          before do
+            create(:project_error_tracking_setting, :disabled, project: project)
+          end
+
+          it 'service succeeds' do
+            expect(result[:status]).to eq(:success)
+          end
+
+          it 'updates attributes' do
+            expect { result }
+              .to change { project.reload.error_tracking_setting.enabled }
+              .from(false)
+              .to(true)
+          end
+
+          it 'only updates enabled attribute' do
+            result
+
+            expect(project.error_tracking_setting.previous_changes.keys)
+              .to contain_exactly('enabled')
+          end
+        end
+
+        context 'without setting' do
+          it 'does not create a setting' do
+            expect(result[:status]).to eq(:error)
+
+            expect(project.reload.error_tracking_setting).to be_nil
+          end
+        end
+      end
+
       context 'with masked param token' do
         let(:params) do
           {
@@ -210,7 +252,7 @@ describe Projects::Operations::UpdateService do
           integration = project.reload.grafana_integration
 
           expect(integration.grafana_url).to eq(expected_attrs[:grafana_url])
-          expect(integration.token).to eq(expected_attrs[:token])
+          expect(integration.send(:token)).to eq(expected_attrs[:token])
         end
       end
 
@@ -226,7 +268,7 @@ describe Projects::Operations::UpdateService do
           integration = project.reload.grafana_integration
 
           expect(integration.grafana_url).to eq(expected_attrs[:grafana_url])
-          expect(integration.token).to eq(expected_attrs[:token])
+          expect(integration.send(:token)).to eq(expected_attrs[:token])
         end
 
         context 'with all grafana attributes blank in params' do
@@ -244,6 +286,60 @@ describe Projects::Operations::UpdateService do
 
             expect(project.reload.grafana_integration).to be_nil
           end
+        end
+      end
+    end
+
+    context 'prometheus integration' do
+      context 'prometheus params were passed into service' do
+        let(:prometheus_service) do
+          build_stubbed(:prometheus_service, project: project, properties: {
+            api_url: "http://example.prometheus.com",
+            manual_configuration: "0"
+          })
+        end
+        let(:params) do
+          {
+            prometheus_integration_attributes: {
+              'api_url' => 'http://new.prometheus.com',
+              'manual_configuration' => '1'
+            }
+          }
+        end
+
+        it 'uses Project#find_or_initialize_service to include instance defined defaults and pass them to Projects::UpdateService', :aggregate_failures do
+          project_update_service = double(Projects::UpdateService)
+
+          expect(project)
+            .to receive(:find_or_initialize_service)
+            .with('prometheus')
+            .and_return(prometheus_service)
+          expect(Projects::UpdateService).to receive(:new) do |project_arg, user_arg, update_params_hash|
+            expect(project_arg).to eq project
+            expect(user_arg).to eq user
+            expect(update_params_hash[:prometheus_service_attributes]).to include('properties' => { 'api_url' => 'http://new.prometheus.com', 'manual_configuration' => '1' })
+            expect(update_params_hash[:prometheus_service_attributes]).not_to include(*%w(id project_id created_at updated_at))
+          end.and_return(project_update_service)
+          expect(project_update_service).to receive(:execute)
+
+          subject.execute
+        end
+      end
+
+      context 'prometheus params were not passed into service' do
+        let(:params) { { something: :else } }
+
+        it 'does not pass any prometheus params into Projects::UpdateService', :aggregate_failures do
+          project_update_service = double(Projects::UpdateService)
+
+          expect(project).not_to receive(:find_or_initialize_service)
+          expect(Projects::UpdateService)
+            .to receive(:new)
+            .with(project, user, {})
+            .and_return(project_update_service)
+          expect(project_update_service).to receive(:execute)
+
+          subject.execute
         end
       end
     end

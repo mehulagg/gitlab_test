@@ -1,4 +1,4 @@
-import { isString, isNumber } from 'underscore';
+import { isNumber } from 'underscore';
 import dateFormat from 'dateformat';
 import { convertObjectPropsToCamelCase } from '~/lib/utils/common_utils';
 import { convertToSnakeCase } from '~/lib/utils/text_utility';
@@ -45,7 +45,7 @@ export const getLabelEventsIdentifiers = (events = []) =>
 /**
  * Checks if the specified stage is in memory or persisted to storage based on the id
  *
- * Default cycle analytics stages are initially stored in memory, when they are first
+ * Default value stream analytics stages are initially stored in memory, when they are first
  * created the id for the stage is the name of the stage in lowercase. This string id
  * is used to fetch stage data (events, median calculation)
  *
@@ -89,14 +89,6 @@ export const transformRawStages = (stages = []) =>
 export const transformRawTasksByTypeData = (data = []) => {
   if (!data.length) return [];
   return data.map(d => convertObjectPropsToCamelCase(d, { deep: true }));
-};
-
-export const nestQueryStringKeys = (obj = null, targetKey = '') => {
-  if (!obj || !isString(targetKey) || !targetKey.length) return {};
-  return Object.entries(obj).reduce((prev, [key, value]) => {
-    const customKey = `${targetKey}[${key}]`;
-    return { ...prev, [customKey]: value };
-  }, {});
 };
 
 /**

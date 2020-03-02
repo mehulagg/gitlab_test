@@ -4,7 +4,7 @@ require 'spec_helper'
 
 # Based on spec/requests/api/groups_spec.rb
 # Should follow closely in order to ensure all situations are covered
-describe 'getting group information' do
+describe 'getting group information', :do_not_mock_admin_mode do
   include GraphqlHelpers
   include UploadHelpers
 
@@ -55,7 +55,7 @@ describe 'getting group information' do
 
         post_graphql(group_query(group1), current_user: user1)
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(graphql_data['group']['id']).to eq(group1.to_global_id.to_s)
         expect(graphql_data['group']['name']).to eq(group1.name)
         expect(graphql_data['group']['path']).to eq(group1.path)

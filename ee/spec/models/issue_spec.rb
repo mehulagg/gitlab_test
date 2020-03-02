@@ -9,7 +9,7 @@ describe Issue do
 
   context 'callbacks' do
     describe '.after_create' do
-      set(:project) { create(:project) }
+      let_it_be(:project) { create(:project) }
       let(:author) { User.alert_bot }
 
       context 'when issue title is "New: Incident"' do
@@ -127,8 +127,6 @@ describe Issue do
     it { is_expected.to have_many(:related_vulnerabilities).through(:vulnerability_links).source(:vulnerability) }
     it { is_expected.to belong_to(:promoted_to_epic).class_name('Epic') }
     it { is_expected.to have_many(:resource_weight_events) }
-    it { is_expected.to have_many(:blocked_by_issue_links) }
-    it { is_expected.to have_many(:blocked_by_issues).through(:blocked_by_issue_links).source(:source) }
 
     describe 'versions.most_recent' do
       it 'returns the most recent version' do
@@ -207,6 +205,17 @@ describe Issue do
       issue = build(:issue)
 
       expect(issue.allows_multiple_assignees?).to be_truthy
+    end
+  end
+
+  describe '.simple_sorts' do
+    it 'includes weight with other base keys' do
+      expect(Issue.simple_sorts.keys).to match_array(
+        %w(created_asc created_at_asc created_date created_desc created_at_desc
+           closest_future_date closest_future_date_asc due_date due_date_asc due_date_desc
+           id_asc id_desc relative_position relative_position_asc
+           updated_desc updated_asc updated_at_asc updated_at_desc
+           weight weight_asc weight_desc))
     end
   end
 
@@ -291,6 +300,49 @@ describe Issue do
       let(:issue) { create(:issue, promoted_to_epic: promoted_to_epic) }
 
       it { is_expected.to be_truthy }
+    end
+  end
+
+  context 'ES related specs', :elastic do
+    before do
+      stub_ee_application_setting(elasticsearch_indexing: true)
+    end
+
+    context 'when updating an Issue' do
+      let(:project) { create(:project, :public) }
+      let(:issue) { create(:issue, project: project, confidential: true) }
+
+      before do
+        Sidekiq::Testing.disable! do
+          create(:note, note: 'the_normal_note', noteable: issue, project: project)
+        end
+        Sidekiq::Testing.inline! do
+          project.maintain_elasticsearch_update
+
+          issue.update!(update_field => update_value)
+          ensure_elasticsearch_index!
+        end
+      end
+
+      context 'when changing the confidential value' do
+        let(:update_field) { :confidential }
+        let(:update_value) { false }
+
+        it 'updates issue notes excluding system notes' do
+          expect(issue.elasticsearch_issue_notes_need_updating?).to eq(true)
+          expect(Note.elastic_search('the_normal_note', options: { project_ids: [issue.project.id] }).present?).to eq(true)
+        end
+      end
+
+      context 'when changing the title' do
+        let(:update_field) { :title }
+        let(:update_value) { 'abc' }
+
+        it 'does not update issue notes' do
+          expect(issue.elasticsearch_issue_notes_need_updating?).to eq(false)
+          expect(Note.elastic_search('the_normal_note', options: { project_ids: [issue.project.id] }).present?).to eq(false)
+        end
+      end
     end
   end
 
@@ -559,6 +611,24 @@ describe Issue do
       end
 
       it { is_expected.to eq(expected) }
+    end
+  end
+
+  it_behaves_like 'having health status'
+
+  describe '#service_desk?' do
+    subject { issue.from_service_desk? }
+
+    context 'when issue author is support bot' do
+      let(:issue) { create(:issue, author: ::User.support_bot) }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when issue author is not support bot' do
+      let(:issue) { create(:issue) }
+
+      it { is_expected.to be_falsey }
     end
   end
 end

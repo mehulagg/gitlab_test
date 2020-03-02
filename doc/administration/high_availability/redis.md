@@ -8,8 +8,10 @@ type: reference
 
 The following are the requirements for providing your own Redis instance:
 
-- Redis version 2.8 or higher. Version 3.2 or higher is recommend as this is
-  what ships with the GitLab Omnibus package.
+- GitLab 12.0 and later requires Redis version 3.2 or higher. Version 3.2 or higher is recommend as this is
+  what ships with the GitLab Omnibus package. Older Redis versions do not
+  support an optional count argument to SPOP which is now required for
+  [Merge Trains](../../ci/merge_request_pipelines/pipelines_for_merged_results/merge_trains/index.md).
 - Standalone Redis or Redis high availability with Sentinel are supported. Redis
   Cluster is not supported.
 - Managed Redis from cloud providers such as AWS Elasticache will work. If these
@@ -18,11 +20,9 @@ The following are the requirements for providing your own Redis instance:
 Note the Redis node's IP address or hostname, port, and password (if required).
 These will be necessary when configuring the GitLab application servers later.
 
-## Redis in a Scaled Environment
+## Redis in a Scaled and Highly Available Environment
 
-This section is relevant for [Scaled Architecture](README.md#scalable-architecture-examples)
-environments including [Basic Scaling](README.md#basic-scaling) and
-[Full Scaling](README.md#full-scaling).
+This section is relevant for [Scalable and Highly Available Setups](README.md).
 
 ### Provide your own Redis instance **(CORE ONLY)**
 
@@ -83,22 +83,8 @@ Omnibus:
 Advanced configuration options are supported and can be added if
 needed.
 
-Continue configuration of other components by going
-[back to Scaled Architectures](README.md#scalable-architecture-examples)
-
-## Redis with High Availability
-
-This section is relevant for [High Availability Architecture](README.md#high-availability-architecture-examples)
-environments including [Horizontal](README.md#horizontal),
-[Hybrid](README.md#hybrid), and
-[Fully Distributed](README.md#fully-distributed).
-
-### Provide your own Redis instance **(CORE ONLY)**
-
-If you want to use your own deployed Redis instance(s),
-see [Provide your own Redis instance](#provide-your-own-redis-instance-core-only)
-for more details. However, you can use the GitLab Omnibus package to easily
-deploy the bundled Redis.
+Continue configuration of other components by going back to the
+[Scaling and High Availability](README.md#gitlab-components-and-configuration-instructions) page.
 
 ### High Availability with GitLab Omnibus **(PREMIUM ONLY)**
 
@@ -964,7 +950,7 @@ To make sure your configuration is correct:
    sudo gitlab-rails console
 
    # For source installations
-   sudo -u git rails console production
+   sudo -u git rails console -e production
    ```
 
 1. Run in the console:
@@ -978,7 +964,7 @@ To make sure your configuration is correct:
 
 1. To simulate a failover on master Redis, SSH into the Redis server and run:
 
-   ```bash
+   ```shell
    # port must match your master redis port, and the sleep time must be a few seconds bigger than defined one
     redis-cli -h localhost -p 6379 DEBUG sleep 20
    ```
@@ -1016,7 +1002,7 @@ Read more on High Availability:
 1. [Configure the GitLab application servers](gitlab.md)
 1. [Configure the load balancers](load_balancer.md)
 
-[ce-1877]: https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/1877
+[ce-1877]: https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/1877
 [restart]: ../restart_gitlab.md#installations-from-source
 [reconfigure]: ../restart_gitlab.md#omnibus-gitlab-reconfigure
 [gh-531]: https://github.com/redis/redis-rb/issues/531

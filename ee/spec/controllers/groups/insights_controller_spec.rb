@@ -23,7 +23,7 @@ describe Groups::InsightsController do
     it 'returns 404 status' do
       subject
 
-      expect(response).to have_gitlab_http_status(404)
+      expect(response).to have_gitlab_http_status(:not_found)
     end
   end
 
@@ -31,7 +31,7 @@ describe Groups::InsightsController do
     it 'returns 200 status' do
       subject
 
-      expect(response).to have_gitlab_http_status(200)
+      expect(response).to have_gitlab_http_status(:ok)
     end
   end
 
@@ -79,7 +79,7 @@ describe Groups::InsightsController do
         it 'does return the default config' do
           subject
 
-          expect(response.parsed_body).to eq(parent_group.default_insights_config.to_json)
+          expect(response.parsed_body).to eq(parent_group.default_insights_config.as_json)
         end
       end
 

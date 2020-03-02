@@ -38,6 +38,10 @@ describe 'Gcp Cluster', :js, :do_not_mock_admin_mode do
         click_link 'Google GKE'
       end
 
+      it 'highlights Google GKE logo' do
+        expect(page).to have_css('.js-create-gcp-cluster-button.active')
+      end
+
       context 'when user filled form with valid parameters' do
         subject { submit_form }
 
@@ -196,7 +200,7 @@ describe 'Gcp Cluster', :js, :do_not_mock_admin_mode do
     end
   end
 
-  context 'when third party offers are disabled' do
+  context 'when third party offers are disabled', :clean_gitlab_redis_shared_state do
     let(:admin) { create(:admin) }
 
     before do

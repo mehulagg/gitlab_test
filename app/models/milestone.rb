@@ -3,7 +3,13 @@
 class Milestone < ApplicationRecord
   # Represents a "No Milestone" state used for filtering Issues and Merge
   # Requests that have no milestone assigned.
-  MilestoneStruct = Struct.new(:title, :name, :id)
+  MilestoneStruct = Struct.new(:title, :name, :id) do
+    # Ensure these models match the interface required for exporting
+    def serializable_hash(_opts = {})
+      { title: title, name: name, id: id }
+    end
+  end
+
   None = MilestoneStruct.new('No Milestone', 'No Milestone', 0)
   Any = MilestoneStruct.new('Any Milestone', '', -1)
   Upcoming = MilestoneStruct.new('Upcoming', '#upcoming', -2)
@@ -39,9 +45,6 @@ class Milestone < ApplicationRecord
   has_many :merge_requests
   has_many :events, as: :target, dependent: :delete_all # rubocop:disable Cop/ActiveRecordDependent
 
-  has_many :issue_milestones
-  has_many :merge_request_milestones
-
   scope :of_projects, ->(ids) { where(project_id: ids) }
   scope :of_groups, ->(ids) { where(group_id: ids) }
   scope :active, -> { with_state(:active) }
@@ -57,6 +60,12 @@ class Milestone < ApplicationRecord
     groups = [] if groups.nil?
 
     where(project_id: projects).or(where(group_id: groups))
+  end
+
+  scope :within_timeframe, -> (start_date, end_date) do
+    where('start_date is not NULL or due_date is not NULL')
+      .where('start_date is NULL or start_date <= ?', end_date)
+      .where('due_date is NULL or due_date >= ?', start_date)
   end
 
   scope :order_by_name_asc, -> { order(Arel::Nodes::Ascending.new(arel_table[:title].lower)) }
@@ -125,11 +134,12 @@ class Milestone < ApplicationRecord
       reorder(nil).group(:state).count
     end
 
+    def predefined_id?(id)
+      [Any.id, None.id, Upcoming.id, Started.id].include?(id)
+    end
+
     def predefined?(milestone)
-      milestone == Any ||
-        milestone == None ||
-        milestone == Upcoming ||
-        milestone == Started
+      predefined_id?(milestone&.id)
     end
   end
 

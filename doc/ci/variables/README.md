@@ -74,7 +74,7 @@ file path as a command line argument or an environment variable. In the past, th
 common pattern was to read the value of a CI variable, save it in a file, and then
 use the newly created file in your script:
 
-```bash
+```shell
 # Read certificate stored in $KUBE_CA_PEM variable and save it in a new file
 echo "$KUBE_CA_PEM" > "$(pwd)/kube.ca.pem"
 # Pass the newly created file to kubectl
@@ -90,7 +90,7 @@ it directly. For example, let's say we have the following variables:
 
 We can then call them from `.gitlab-ci.yml` like this:
 
-```bash
+```shell
 kubectl config set-cluster e2e --server="$KUBE_URL" --certificate-authority="$KUBE_CA_PEM"
 ```
 
@@ -167,6 +167,9 @@ let's say you want to output `HELLO WORLD` for a `TEST` variable.
 
 You can either set the variable directly in the `.gitlab-ci.yml`
 file or through the UI.
+
+NOTE: **Note:**
+It is possible to [specify variables when running manual jobs](../pipelines.md#specifying-variables-when-running-manual-jobs).
 
 #### Via `.gitlab-ci.yml`
 
@@ -259,7 +262,7 @@ job_name:
 
 Example values:
 
-```bash
+```shell
 export CI_JOB_ID="50"
 export CI_COMMIT_SHA="1ecfd275763eff1d6b4844ea3168962458c9f27a"
 export CI_COMMIT_SHORT_SHA="1ecfd275"
@@ -568,14 +571,17 @@ Below you can find supported syntax reference:
    - `$VARIABLE =~ /^content.*/`
    - `$VARIABLE_1 !~ /^content.*/` (introduced in GitLab 11.11)
 
-   It is possible perform pattern matching against a variable and regular
-   expression. Expression like this evaluates to truth if matches are found
-   when using `=~`. It evaluates to truth if matches are not found when `!~` is used.
+   Variable pattern matching with regular expressions uses the
+   [RE2 regular expression syntax](https://github.com/google/re2/wiki/Syntax).
+   Expressions evaluate as `true` if:
+
+   - Matches are found when using `=~`.
+   - Matches are *not* found when using `!~`.
 
    Pattern matching is case-sensitive by default. Use `i` flag modifier, like
    `/pattern/i` to make a pattern case-insensitive.
 
-1. Conjunction / Disjunction ([introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/27925) in GitLab 12.0)
+1. Conjunction / Disjunction ([introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/27925) in GitLab 12.0)
 
    Examples:
 
@@ -623,7 +629,7 @@ job_name:
 
 Example truncated output with `CI_DEBUG_TRACE` set to `true`:
 
-```bash
+```shell
 ...
 
 export CI_SERVER_TLS_CA_FILE="/builds/gitlab-examples/ci-debug-trace.tmp/CI_SERVER_TLS_CA_FILE"

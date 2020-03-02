@@ -4,7 +4,7 @@ type: reference, concepts
 
 # Merge request approvals **(STARTER)**
 
-> Introduced in [GitLab Enterprise Edition 7.12](https://about.gitlab.com/blog/2015/06/22/gitlab-7-12-released/#merge-request-approvers-ee-only).
+> Introduced in [GitLab Enterprise Edition 7.12](https://about.gitlab.com/releases/2015/06/22/gitlab-7-12-released/#merge-request-approvers-ee-only).
 
 Merge request approvals enable enforced code review by requiring specified people
 to approve a merge request before it can be merged.
@@ -13,7 +13,7 @@ Merge request approvals enable multiple use cases:
 
 - Enforcing review of all code that gets merged into a repository.
 - Specifying reviewers for a given proposed code change, as well as a minimum number
-  of reviewers, through [Approval rules](#approval-rules)
+  of reviewers, through [Approval rules](#approval-rules).
 - Specifying categories of reviewers, such as backend, frontend, quality assurance,
   database, etc., for all proposed code changes.
 - Automatically designating [Code Owners as eligible approvers](#code-owners-as-eligible-approvers),
@@ -24,10 +24,10 @@ Merge request approvals enable multiple use cases:
 ## Approval rules
 
 Approval rules define how many approvals a merge request must receive before it can
-be merged, and optionally which users should do the approving. This can be defined:
+be merged, and optionally which users should do the approving. Approvals can be defined:
 
-- [As project defaults](#adding--editing-a-default-approval-rule)
-- [Per merge request](#editing--overriding-approval-rules-per-merge-request)
+- [As project defaults](#adding--editing-a-default-approval-rule).
+- [Per merge request](#editing--overriding-approval-rules-per-merge-request).
 
 If no approval rules are defined, any user can approve a merge request, though the default
 minimum number of required approvers can still be set in the [project settings for merge request approvals](#merge-request-approvals-project-settings).
@@ -64,7 +64,7 @@ were not explicitly listed in the approval rules.
 
 #### Code Owners as eligible approvers
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/7933) in [GitLab Starter](https://about.gitlab.com/pricing/) 11.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/7933) in [GitLab Starter](https://about.gitlab.com/pricing/) 11.5.
 
 If you add [Code Owners](../code_owners.md) to your repository, the owners to the
 corresponding files will become eligible approvers, together with members with Developer
@@ -74,9 +74,9 @@ To enable this merge request approval rule:
 
 1. Navigate to your project's **Settings > General** and expand
    **Merge request approvals**.
-1. Locate **All members with Developer role or higher and code owners (if any)** and click **Edit** to choose the number of approvals required.
+1. Locate **Any eligible user** and choose the number of approvals required.
 
-![MR approvals by Code Owners](img/mr_approvals_by_code_owners_v12_4.png)
+![MR approvals by Code Owners](img/mr_approvals_by_code_owners_v12_7.png)
 
 Once set, merge requests can only be merged once approved by the
 number of approvals you've set. GitLab will accept approvals from
@@ -90,7 +90,7 @@ Alternatively, you can **require**
 
 To add or edit the default merge request approval rule:
 
-1. Navigate to your project's **Settings > General** and expand **Merge request approvals**.
+1. Navigate to your project's **{settings}** **Settings > General** and expand **Merge request approvals**.
 
 1. Click **Add approval rule**, or **Edit**.
    - Add or change the **Rule name**.
@@ -99,7 +99,7 @@ To add or edit the default merge request approval rule:
      merge requests and click the **Add** button to add them as approvers. Before typing
      in the search field, approvers will be suggested based on the previous authors of
      the files being changed by the merge request.
-   - (Optional) Click the **"trashcan"** button next to a group or user to delete it from
+   - (Optional) Click the **{remove}** **Remove** button next to a group or user to delete it from
      the rule.
 1. Click **Add approval rule** or **Update approval rule**.
 
@@ -145,7 +145,23 @@ a rule is already defined.
 When an [eligible approver](#eligible-approvers) approves a merge request, it will
 reduce the number of approvals left for all rules that the approver belongs to.
 
-![Approvals premium merge request widget](img/approvals_premium_mr_widget.png)
+![Approvals premium merge request widget](img/approvals_premium_mr_widget_v12_7.png)
+
+### Scoped to Protected Branch **(PREMIUM)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/460) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.8.
+
+Approval rules are often only relevant to specific branches, like `master`.
+When configuring [**Default Approval Rules**](#adding--editing-a-default-approval-rule)
+these can be scoped to all the protected branches at once by navigating to your project's
+**Settings**, expanding **Merge request approvals**, and selecting **Any branch** from
+the **Target branch** dropdown.
+
+Alternatively, you can select a very specific protected branch from the **Target branch** dropdown:
+
+![Scoped to Protected Branch](img/scoped_to_protected_branch_v12_8.png)
+
+To enable this configuration, see [Code Owner’s approvals for protected branches](../protected_branches.md#protected-branches-approval-by-code-owners-premium).
 
 ## Adding or removing an approval
 
@@ -179,7 +195,7 @@ or a [failed CI/CD pipeline](merge_when_pipeline_succeeds.md).
 ## Merge request approvals project settings
 
 The project settings for Merge request approvals are found by going to
-**Settings > General** and expanding **Merge request approvals**.
+**{settings}** **Settings > General** and expanding **Merge request approvals**.
 
 ### Prevent overriding default approvals
 
@@ -188,7 +204,7 @@ the approval rules for all new merge requests will be determined by the
 [default approval rules](#adding--editing-a-default-approval-rule). To disable this feature:
 
 1. Uncheck the **Can override approvers and approvals required per merge request** checkbox.
-1. Click **Save changes**
+1. Click **Save changes**.
 
 ### Resetting approvals on push
 
@@ -198,7 +214,7 @@ even if there are changes added to the merge request. To enable this feature:
 
 1. Check the **Remove all approvals in a merge request when new commits are pushed to its source branch**
    checkbox.
-1. Click **Save changes**
+1. Click **Save changes**.
 
 NOTE: **Note:**
 Approvals do not get reset when [rebasing a merge request](fast_forward_merge.md)

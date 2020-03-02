@@ -17,7 +17,7 @@ integrated [Container Registry](../../packages/container_registry.md#container-r
 
 You can enable a storage-agnostic replication so it
 can be used for cloud or local storages. Whenever a new image is pushed to the
-primary node, each **secondary** node will pull it to its own container
+**primary** node, each **secondary** node will pull it to its own container
 repository.
 
 To configure Docker Registry replication:
@@ -36,7 +36,7 @@ We need to make Docker Registry send notification events to the
 
 1. SSH into your GitLab **primary** server and login as root:
 
-   ```sh
+   ```shell
    sudo -i
    ```
 
@@ -70,7 +70,7 @@ We need to make Docker Registry send notification events to the
 
 1. Reconfigure the **primary** node for the change to take effect:
 
-   ```sh
+   ```shell
    gitlab-ctl reconfigure
    ```
 
@@ -90,7 +90,7 @@ generate a short-lived JWT that is pull-only-capable to access the
 
 1. SSH into the **secondary** node and login as the `root` user:
 
-   ```sh
+   ```shell
    sudo -i
    ```
 
@@ -105,12 +105,13 @@ generate a short-lived JWT that is pull-only-capable to access the
 
 1. Reconfigure the **secondary** node for the change to take effect:
 
-   ```sh
+   ```shell
    gitlab-ctl reconfigure
    ```
 
 ### Verify replication
 
-To verify Container Registry replication is working, go to **Admin Area > Geo** (`/admin/geo/nodes`) on the **secondary** node.
+To verify Container Registry replication is working, go to **{admin}** **Admin Area >** **{location-dot}** **Geo**
+(`/admin/geo/nodes`) on the **secondary** node.
 The initial replication, or "backfill", will probably still be in progress.
 You can monitor the synchronization process on each Geo node from the **primary** node's **Geo Nodes** dashboard in your browser.

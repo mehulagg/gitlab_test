@@ -3,9 +3,12 @@ import JumpToNextDiscussionButton from '~/notes/components/discussion_jump_to_ne
 
 describe('JumpToNextDiscussionButton', () => {
   let wrapper;
+  const fromDiscussionId = 'abc123';
 
   beforeEach(() => {
-    wrapper = shallowMount(JumpToNextDiscussionButton);
+    wrapper = shallowMount(JumpToNextDiscussionButton, {
+      propsData: { fromDiscussionId },
+    });
   });
 
   afterEach(() => {
@@ -16,14 +19,10 @@ describe('JumpToNextDiscussionButton', () => {
     expect(wrapper.vm.$el).toMatchSnapshot();
   });
 
-  it('emits onClick event on button click', () => {
-    const button = wrapper.find({ ref: 'button' });
-
-    button.trigger('click');
-
-    return wrapper.vm.$nextTick().then(() => {
-      expect(wrapper.emitted().onClick).toBeTruthy();
-      expect(wrapper.emitted().onClick.length).toBe(1);
-    });
+  it('calls jumpToNextRelativeDiscussion when clicked', () => {
+    const jumpToNextRelativeDiscussion = jest.fn();
+    wrapper.setMethods({ jumpToNextRelativeDiscussion });
+    wrapper.find({ ref: 'button' }).trigger('click');
+    expect(jumpToNextRelativeDiscussion).toHaveBeenCalledWith(fromDiscussionId);
   });
 });

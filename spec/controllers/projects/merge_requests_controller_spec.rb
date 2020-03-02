@@ -77,6 +77,18 @@ describe Projects::MergeRequestsController do
         end
       end
 
+      context 'when diff is missing' do
+        render_views
+
+        it 'renders merge request page' do
+          merge_request.merge_request_diff.destroy
+
+          go(format: :html)
+
+          expect(response).to be_successful
+        end
+      end
+
       it "renders merge request page" do
         expect(::Gitlab::GitalyClient).to receive(:allow_ref_name_caching).and_call_original
 
@@ -788,6 +800,21 @@ describe Projects::MergeRequestsController do
           end
         end
       end
+    end
+  end
+
+  describe 'GET context commits' do
+    it 'returns the commits for context commits' do
+      get :context_commits,
+        params: {
+          namespace_id: project.namespace.to_param,
+          project_id: project,
+          id: merge_request.iid
+        },
+        format: 'json'
+
+      expect(response).to have_gitlab_http_status(:success)
+      expect(json_response).to be_an Array
     end
   end
 

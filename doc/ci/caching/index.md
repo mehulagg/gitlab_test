@@ -197,19 +197,20 @@ For more fine tuning, read also about the
 
 The most common use case of cache is to preserve contents between subsequent
 runs of jobs for things like dependencies and commonly used libraries
-(Nodejs packages, PHP packages, rubygems, Python libraries, etc.),
+(Node.js packages, PHP packages, rubygems, Python libraries, etc.),
 so they don't have to be re-fetched from the public internet.
 
 NOTE: **Note:**
 For more examples, check out our [GitLab CI/CD
 templates](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/lib/gitlab/ci/templates).
 
-### Caching Nodejs dependencies
+### Caching Node.js dependencies
 
-Assuming your project is using [npm](https://www.npmjs.com/) or
-[Yarn](https://yarnpkg.com/en/) to install the Nodejs dependencies, the
-following example defines `cache` globally so that all jobs inherit it.
-Nodejs modules are installed in `node_modules/` and are cached per-branch:
+Assuming your project is using [npm](https://www.npmjs.com/) to install the Node.js
+dependencies, the following example defines `cache` globally so that all jobs inherit it.
+By default, npm stores cache data in the home folder `~/.npm` but since
+[you can't cache things outside of the project directory](../yaml/README.md#cachepaths),
+we tell npm to use `./.npm` instead, and it is cached per-branch:
 
 ```yaml
 #
@@ -221,10 +222,10 @@ image: node:latest
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
-  - node_modules/
+  - .npm/
 
 before_script:
-  - npm install
+  - npm ci --cache .npm --prefer-offline
 
 test_async:
   script:

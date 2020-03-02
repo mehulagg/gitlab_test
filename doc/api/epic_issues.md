@@ -10,7 +10,7 @@ Epics are available only in Ultimate. If epics feature is not available a `403` 
 
 Gets all issues that are assigned to an epic and the authenticated user has  access to.
 
-```
+```plaintext
 GET /groups/:id/epics/:epic_iid/issues
 ```
 
@@ -19,7 +19,7 @@ GET /groups/:id/epics/:epic_iid/issues
 | `id`                | integer/string   | yes        | The ID or [URL-encoded path of the group](README.md#namespaced-path-encoding) owned by the authenticated user                |
 | `epic_iid`          | integer/string   | yes        | The internal ID  of the epic.  |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5/issues/
 ```
 
@@ -106,7 +106,7 @@ Example response:
 
 Creates an epic - issue association. If the issue in question belongs to another epic it is unassigned from that epic.
 
-```
+```plaintext
 POST /groups/:id/epics/:epic_iid/issues/:issue_id
 ```
 
@@ -116,7 +116,7 @@ POST /groups/:id/epics/:epic_iid/issues/:issue_id
 | `epic_iid`          | integer/string   | yes        | The internal ID  of the epic.  |
 | `issue_id`          | integer/string   | yes        | The ID  of the issue.          |
 
-```bash
+```shell
 curl --header POST "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5/issues/55
 ```
 
@@ -212,7 +212,7 @@ Example response:
 
 Removes an epic - issue association.
 
-```
+```plaintext
 DELETE /groups/:id/epics/:epic_iid/issues/:epic_issue_id
 ```
 
@@ -222,7 +222,7 @@ DELETE /groups/:id/epics/:epic_iid/issues/:epic_issue_id
 | `epic_iid`          | integer/string   | yes        | The internal ID  of the epic.                |
 | `epic_issue_id`     | integer/string   | yes        | The ID  of the issue - epic association.     |
 
-```bash
+```shell
 curl --header DELETE "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5/issues/11
 ```
 
@@ -318,7 +318,7 @@ Example response:
 
 Updates an epic - issue association.
 
-```
+```plaintext
 PUT /groups/:id/epics/:epic_iid/issues/:epic_issue_id
 ```
 
@@ -330,7 +330,7 @@ PUT /groups/:id/epics/:epic_iid/issues/:epic_issue_id
 | `move_before_id`    | integer/string   | no         | The ID of the issue - epic association that should be placed before the link in the question.     |
 | `move_after_id`     | integer/string   | no         | The ID of the issue - epic association that should be placed after the link in the question.     |
 
-```bash
+```shell
 curl --header PUT "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/groups/1/epics/5/issues/11?move_before_id=20
 ```
 

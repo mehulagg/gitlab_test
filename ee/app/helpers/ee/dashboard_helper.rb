@@ -32,7 +32,7 @@ module EE
     end
 
     def analytics_nav_url
-      if ::Gitlab::Analytics.any_features_enabled?
+      if ::Feature.disabled?(:group_level_cycle_analytics) && ::Gitlab::Analytics.any_features_enabled?
         return analytics_root_path
       end
 
@@ -48,7 +48,7 @@ module EE
     override :get_dashboard_nav_links
     def get_dashboard_nav_links
       super.tap do |links|
-        links << :analytics if ::Gitlab::Analytics.any_features_enabled?
+        links << :analytics if ::Feature.disabled?(:group_level_cycle_analytics) && ::Gitlab::Analytics.any_features_enabled?
 
         if can?(current_user, :read_operations_dashboard)
           links << :environments if ::Feature.enabled?(:environments_dashboard, current_user, default_enabled: true)
@@ -62,11 +62,11 @@ module EE
     end
 
     def security_dashboard_available?
-      app_instance = ApplicationInstance.new
+      security_dashboard = InstanceSecurityDashboard.new(current_user)
 
-      ::Feature.enabled?(:security_dashboard, default_enabled: true) &&
-        app_instance.feature_available?(:security_dashboard) &&
-        can?(current_user, :read_application_instance_security_dashboard, app_instance)
+      ::Feature.enabled?(:instance_security_dashboard, default_enabled: true) &&
+        security_dashboard.feature_available?(:security_dashboard) &&
+        can?(current_user, :read_instance_security_dashboard, security_dashboard)
     end
   end
 end

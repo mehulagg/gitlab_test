@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Plan' do
+  context 'Plan', :reliable do
     describe 'Epics milestone dates API' do
       before(:context) do
         @api_client = Runtime::API::Client.new(:gitlab)
@@ -13,7 +13,7 @@ module QA
         @fixed_due_date = (Date.today.to_date + 90).strftime("%Y-%m-%d")
       end
 
-      it 'Updating milestones changes epic dates' do
+      it 'changes epic dates when updating milestones' do
         epic_iid, milestone_id = create_epic_issue_milestone
         milestone_start_date = Date.today.to_date.strftime("%Y-%m-%d")
         milestone_due_date = (Date.today.to_date + 30).strftime("%Y-%m-%d")
@@ -34,7 +34,7 @@ module QA
         expect_json('due_date', milestone_due_date)
       end
 
-      it 'Adding another issue updates epic dates' do
+      it 'updates epic dates when adding another issue' do
         epic_iid = create_epic_issue_milestone[0]
         milestone_start_date = Date.today.to_date.strftime("%Y-%m-%d")
         milestone_due_date = (Date.today.to_date + 150).strftime("%Y-%m-%d")
@@ -57,7 +57,7 @@ module QA
         expect_json('due_date', milestone_due_date)
       end
 
-      it 'Removing issue updates epic dates' do
+      it 'updates epic dates when removing issue' do
         epic_iid = create_epic_issue_milestone[0]
 
         # Get epic_issue_id
@@ -82,7 +82,7 @@ module QA
         expect_json('due_date', nil)
       end
 
-      it 'Deleting milestones updates epic dates' do
+      it 'updates epic dates when deleting milestones' do
         epic_iid, milestone_id = create_epic_issue_milestone
 
         # Delete Milestone

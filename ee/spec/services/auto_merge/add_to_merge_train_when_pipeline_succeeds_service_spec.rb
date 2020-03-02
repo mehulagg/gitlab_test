@@ -3,8 +3,8 @@
 require 'spec_helper'
 
 describe AutoMerge::AddToMergeTrainWhenPipelineSucceedsService do
-  set(:project) { create(:project, :repository) }
-  set(:user) { create(:user) }
+  let_it_be(:project, reload: true) { create(:project, :repository) }
+  let_it_be(:user) { create(:user) }
   let(:service) { described_class.new(project, user) }
 
   let(:merge_request) do
@@ -16,6 +16,7 @@ describe AutoMerge::AddToMergeTrainWhenPipelineSucceedsService do
   let(:pipeline) { merge_request.reload.all_pipelines.first }
 
   before do
+    stub_feature_flags(disable_merge_trains: false)
     stub_licensed_features(merge_trains: true, merge_pipelines: true)
     project.add_maintainer(user)
     project.update!(merge_pipelines_enabled: true)

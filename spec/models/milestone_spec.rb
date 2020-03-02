@@ -3,6 +3,18 @@
 require 'spec_helper'
 
 describe Milestone do
+  describe 'MilestoneStruct#serializable_hash' do
+    let(:predefined_milestone) { described_class::MilestoneStruct.new('Test Milestone', '#test', 1) }
+
+    it 'presents the predefined milestone as a hash' do
+      expect(predefined_milestone.serializable_hash).to eq(
+        title: predefined_milestone.title,
+        name: predefined_milestone.name,
+        id: predefined_milestone.id
+      )
+    end
+  end
+
   describe 'modules' do
     context 'with a project' do
       it_behaves_like 'AtomicInternalId' do
@@ -179,6 +191,16 @@ describe Milestone do
     end
   end
 
+  describe '.predefined_id?' do
+    it 'returns true for a predefined Milestone ID' do
+      expect(Milestone.predefined_id?(described_class::Upcoming.id)).to be true
+    end
+
+    it 'returns false for a Milestone ID that is not predefined' do
+      expect(Milestone.predefined_id?(milestone.id)).to be false
+    end
+  end
+
   describe '.order_by_name_asc' do
     it 'sorts by name ascending' do
       milestone1 = create(:milestone, title: 'Foo')
@@ -195,6 +217,15 @@ describe Milestone do
 
       expect(described_class.reorder_by_due_date_asc).to eq([milestone1, milestone2])
     end
+  end
+
+  it_behaves_like 'within_timeframe scope' do
+    let_it_be(:now) { Time.now }
+    let_it_be(:project) { create(:project, :empty_repo) }
+    let_it_be(:resource_1) { create(:milestone, project: project, start_date: now - 1.day, due_date: now + 1.day) }
+    let_it_be(:resource_2) { create(:milestone, project: project, start_date: now + 2.days, due_date: now + 3.days) }
+    let_it_be(:resource_3) { create(:milestone, project: project, due_date: now) }
+    let_it_be(:resource_4) { create(:milestone, project: project, start_date: now) }
   end
 
   describe "#percent_complete" do
@@ -517,9 +548,9 @@ describe Milestone do
   end
 
   describe '.sort_by_attribute' do
-    set(:milestone_1) { create(:milestone, title: 'Foo') }
-    set(:milestone_2) { create(:milestone, title: 'Bar') }
-    set(:milestone_3) { create(:milestone, title: 'Zoo') }
+    let_it_be(:milestone_1) { create(:milestone, title: 'Foo') }
+    let_it_be(:milestone_2) { create(:milestone, title: 'Bar') }
+    let_it_be(:milestone_3) { create(:milestone, title: 'Zoo') }
 
     context 'ordering by name ascending' do
       it 'sorts by title ascending' do
@@ -555,7 +586,7 @@ describe Milestone do
       end
 
       it 'returns the quantity of milestones in each possible state' do
-        expected_count = { opened: 5, closed: 6, all: 11 }
+        expected_count = { opened: 2, closed: 6, all: 8 }
 
         count = described_class.states_count(Project.all, Group.all)
         expect(count).to eq(expected_count)

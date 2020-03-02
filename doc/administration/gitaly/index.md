@@ -6,9 +6,9 @@ components can read or write Git data. GitLab components that access Git
 repositories (GitLab Rails, GitLab Shell, GitLab Workhorse, etc.) act as clients
 to Gitaly. End users do not have direct access to Gitaly.
 
-In the rest of this page, Gitaly server is referred to the standalone node that
-only runs Gitaly, and Gitaly client to the GitLab Rails node that runs all other
-processes except Gitaly.
+On this page, *Gitaly server* refers to a standalone node that only runs Gitaly
+and *Gitaly client* is a GitLab Rails app node that runs all other processes
+except Gitaly.
 
 ## Architecture
 
@@ -20,7 +20,7 @@ Here's a high-level architecture overview of how Gitaly is used.
 
 The Gitaly service itself is configured via a [TOML configuration file](reference.md).
 
-In case you want to change some of its settings:
+If you want to change any of its settings:
 
 **For Omnibus GitLab**
 
@@ -53,10 +53,6 @@ a Gitaly setup that isn't utilising NFS. In order to use Elasticsearch in this
 scenario, the [new repository indexer](../../integration/elasticsearch.md#elasticsearch-repository-indexer)
 needs to be enabled in your GitLab configuration. [Since GitLab v12.3](https://gitlab.com/gitlab-org/gitlab/issues/6481),
 the new indexer becomes the default and no configuration is required.
-
-NOTE: **Note:** While Gitaly can be used as a replacement for NFS, it's not recommended
-to use EFS as it may impact GitLab's performance. Review the [relevant documentation](../high_availability/nfs.md#avoid-using-awss-elastic-file-system-efs)
-for more details.
 
 ### Network architecture
 
@@ -309,7 +305,7 @@ can read and write to `/mnt/gitlab/storage2`.
 1. Save the file and [reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure).
 1. Tail the logs to see the requests:
 
-   ```sh
+   ```shell
    sudo gitlab-ctl tail gitaly
    ```
 
@@ -343,7 +339,7 @@ can read and write to `/mnt/gitlab/storage2`.
 1. Save the file and [restart GitLab](../restart_gitlab.md#installations-from-source).
 1. Tail the logs to see the requests:
 
-   ```sh
+   ```shell
    tail -f /home/git/gitlab/log/gitaly.log
    ```
 
@@ -390,7 +386,7 @@ To disable Gitaly on a client node:
 
 ## TLS support
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/22602) in GitLab 11.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/22602) in GitLab 11.8.
 
 Gitaly supports TLS encryption. To be able to communicate
 with a Gitaly instance that listens for secure connections you will need to use `tls://` URL
@@ -435,7 +431,7 @@ To configure Gitaly with TLS:
 1. Save the file and [reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) on client node(s).
 1. On the Gitaly server, create the `/etc/gitlab/ssl` directory and copy your key and certificate there:
 
-   ```sh
+   ```shell
    sudo mkdir -p /etc/gitlab/ssl
    sudo chmod 755 /etc/gitlab/ssl
    sudo cp key.pem cert.pem /etc/gitlab/ssl/
@@ -491,7 +487,7 @@ To configure Gitaly with TLS:
 1. Save the file and [restart GitLab](../restart_gitlab.md#installations-from-source) on client node(s).
 1. Create the `/etc/gitlab/ssl` directory and copy your key and certificate there:
 
-   ```sh
+   ```shell
    sudo mkdir -p /etc/gitlab/ssl
    sudo chmod 700 /etc/gitlab/ssl
    sudo cp key.pem cert.pem /etc/gitlab/ssl/
@@ -567,29 +563,6 @@ server with the following settings.
    ```
 
 1. Save the file and [restart GitLab](../restart_gitlab.md#installations-from-source).
-
-## Eliminating NFS altogether
-
-If you are planning to use Gitaly without NFS for your storage needs
-and want to eliminate NFS from your environment altogether, there are
-a few things that you need to do:
-
-1. Make sure the [`git` user home directory](https://docs.gitlab.com/omnibus/settings/configuration.html#moving-the-home-directory-for-a-user) is on local disk.
-1. Configure [database lookup of SSH keys](../operations/fast_ssh_key_lookup.md)
-   to eliminate the need for a shared `authorized_keys` file.
-1. Configure [object storage for job artifacts](../job_artifacts.md#using-object-storage)
-   including [incremental logging](../job_logs.md#new-incremental-logging-architecture).
-1. Configure [object storage for LFS objects](../lfs/lfs_administration.md#storing-lfs-objects-in-remote-object-storage).
-1. Configure [object storage for uploads](../uploads.md#using-object-storage-core-only).
-1. Configure [object storage for merge request diffs](../merge_request_diffs.md#using-object-storage).
-1. Configure [object storage for packages](../packages/index.md#using-object-storage) (optional feature).
-1. Configure [object storage for dependency proxy](../packages/dependency_proxy.md#using-object-storage) (optional feature).
-
-NOTE: **Note:**
-One current feature of GitLab that still requires a shared directory (NFS) is
-[GitLab Pages](../../user/project/pages/index.md).
-There is [work in progress](https://gitlab.com/gitlab-org/gitlab-pages/issues/196)
-to eliminate the need for NFS to support GitLab Pages.
 
 ## Limiting RPC concurrency
 
@@ -856,7 +829,7 @@ your GitLab / Gitaly server already at `/opt/gitlab/embedded/bin/gitaly-debug`.
 If you're investigating an older GitLab version you can compile this
 tool offline and copy the executable to your server:
 
-```sh
+```shell
 git clone https://gitlab.com/gitlab-org/gitaly.git
 cd cmd/gitaly-debug
 GOOS=linux GOARCH=amd64 go build -o gitaly-debug
@@ -864,7 +837,7 @@ GOOS=linux GOARCH=amd64 go build -o gitaly-debug
 
 To see the help page of `gitaly-debug` for a list of supported sub-commands, run:
 
-```sh
+```shell
 gitaly-debug -h
 ```
 
@@ -887,7 +860,7 @@ default level is `WARN`.
 
 You can run a GRPC trace with:
 
-```sh
+```shell
 GRPC_TRACE=all GRPC_VERBOSITY=DEBUG sudo gitlab-rake gitlab:gitaly:check
 ```
 
@@ -925,7 +898,7 @@ Confirm the following are all true:
 - When any user performs a `git push` to any repository on this Gitaly node, it
   fails with the following error (note the `401 Unauthorized`):
 
-  ```sh
+  ```shell
   remote: GitLab: 401 Unauthorized
   To <REMOTE_URL>
   ! [remote rejected] branch-name -> branch-name (pre-receive hook declined)
@@ -939,7 +912,7 @@ Confirm the following are all true:
 - When [tailing the logs](https://docs.gitlab.com/omnibus/settings/logs.html#tail-logs-in-a-console-on-the-server) on an app node and reproducing the error, you get `401` errors
   when reaching the `/api/v4/internal/allowed` endpoint:
 
-  ```sh
+  ```shell
   # api_json.log
   {
     "time": "2019-07-18T00:30:14.967Z",
@@ -1009,7 +982,7 @@ If you are having trouble connecting to a Gitaly node with command line (CLI) to
 
 Verify that you can reach Gitaly via TCP:
 
-```bash
+```shell
 sudo gitlab-rake gitlab:tcp_check[GITALY_SERVER_IP,GITALY_LISTEN_PORT]
 ```
 
@@ -1019,7 +992,7 @@ If you use proxy servers in your command line environment, such as Bash, these c
 
 If you use Bash or a compatible command line environment, run the following commands to determine whether you have proxy servers configured:
 
-```bash
+```shell
 echo $http_proxy
 echo $https_proxy
 ```
@@ -1028,7 +1001,7 @@ If either of these variables have a value, your Gitaly CLI connections may be ge
 
 To remove the proxy setting, run the following commands (depending on which variables had values):
 
-```bash
+```shell
 unset http_proxy
 unset https_proxy
 ```

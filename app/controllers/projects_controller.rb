@@ -50,7 +50,7 @@ class ProjectsController < Projects::ApplicationController
   # rubocop: enable CodeReuse/ActiveRecord
 
   def edit
-    @badge_api_endpoint = expose_url(api_v4_projects_badges_path(id: @project.id))
+    @badge_api_endpoint = expose_path(api_v4_projects_badges_path(id: @project.id))
     render_edit
   end
 
@@ -118,7 +118,7 @@ class ProjectsController < Projects::ApplicationController
       format.html
       format.json do
         load_events
-        pager_json('events/_events', @events.count)
+        pager_json('events/_events', @events.count { |event| event.visible_to_user?(current_user) })
       end
     end
   end
@@ -296,7 +296,7 @@ class ProjectsController < Projects::ApplicationController
   private
 
   def show_blob_ids?
-    repo_exists? && project_view_files? && Feature.disabled?(:vue_file_list, @project)
+    repo_exists? && project_view_files? && Feature.disabled?(:vue_file_list, @project, default_enabled: true)
   end
 
   # Render project landing depending of which features are available
@@ -343,6 +343,7 @@ class ProjectsController < Projects::ApplicationController
     @events = EventCollection
       .new(projects, offset: params[:offset].to_i, filter: event_filter)
       .to_a
+      .map(&:present)
 
     Events::RenderService.new(current_user).execute(@events, atom_request: request.format.atom?)
   end

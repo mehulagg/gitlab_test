@@ -21,7 +21,7 @@ just as it works in the current state. However, instead of queuing and waiting,
 each item takes the completed state of the previous (pending) merge ref, adds its own changes,
 and starts the pipeline immediately in parallel under the assumption that everything is going to pass.
 
-In this way, if all the pipelines in the train merge successfully, no pipeline time is wasted either queuing or retrying.
+This means that if all the pipelines in the train merge successfully, no pipeline time is wasted either queuing or retrying.
 If the button is subsequently pressed in a different MR, instead of creating a new pipeline for the target branch,
 it creates a new pipeline targeting the merge result of the previous MR plus the target branch.
 Pipelines invalidated through failures are immediately canceled and requeued.
@@ -30,6 +30,7 @@ Pipelines invalidated through failures are immediately canceled and requeued.
 
 Merge trains have the following requirements and limitations:
 
+- GitLab 12.0 and later requires [Redis](https://redis.io/) 3.2 or higher to run Merge Trains.
 - This feature requires that
   [pipelines for merged results](../index.md#pipelines-for-merged-results-premium) are
   **configured properly**.
@@ -82,7 +83,7 @@ button while the latest pipeline is running.
 
 ## Immediately merge a merge request with a merge train
 
-In case, you have a high-priority merge request (e.g. critical patch) to be merged urgently,
+In the case where you have a high-priority merge request (for example, a critical patch) to be merged urgently,
 you can use **Merge Immediately** option for bypassing the merge train.
 This is the fastest option to get the change merged into the target branch.
 

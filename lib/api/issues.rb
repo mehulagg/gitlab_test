@@ -120,6 +120,7 @@ module API
       end
       params do
         use :issues_params
+        optional :non_archived, type: Boolean, desc: 'Return issues from non archived projects', default: true
       end
       get ":id/issues" do
         issues = paginate(find_issues(group_id: user_group.id, include_subgroups: true))
@@ -246,6 +247,7 @@ module API
         requires :issue_iid, type: Integer, desc: 'The internal ID of a project issue'
         optional :title, type: String, desc: 'The title of an issue'
         optional :updated_at, type: DateTime,
+                              allow_blank: false,
                               desc: 'Date time when the issue was updated. Available only for admins and project owners.'
         optional :state_event, type: String, values: %w[reopen close], desc: 'State of the issue'
         use :issue_params

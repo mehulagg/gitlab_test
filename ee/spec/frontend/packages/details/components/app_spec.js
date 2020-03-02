@@ -1,16 +1,25 @@
 import Vuex from 'vuex';
 import { mount, createLocalVue } from '@vue/test-utils';
-import { GlModal } from '@gitlab/ui';
+import { GlEmptyState, GlModal } from '@gitlab/ui';
 import Tracking from '~/tracking';
 import PackagesApp from 'ee/packages/details/components/app.vue';
+import PackageTitle from 'ee/packages/details/components/package_title.vue';
 import PackageInformation from 'ee/packages/details/components/information.vue';
 import NpmInstallation from 'ee/packages/details/components/npm_installation.vue';
 import MavenInstallation from 'ee/packages/details/components/maven_installation.vue';
-import PackageTags from 'ee/packages/details/components/package_tags.vue';
 import * as SharedUtils from 'ee/packages/shared/utils';
 import { TrackingActions } from 'ee/packages/shared/constants';
 import ConanInstallation from 'ee/packages/details/components/conan_installation.vue';
-import { conanPackage, mavenPackage, mavenFiles, npmPackage, npmFiles } from '../../mock_data';
+import NugetInstallation from 'ee/packages/details/components/nuget_installation.vue';
+import {
+  conanPackage,
+  mavenPackage,
+  mavenFiles,
+  npmPackage,
+  npmFiles,
+  nugetPackage,
+} from '../../mock_data';
+import stubChildren from 'helpers/stub_children';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -19,66 +28,55 @@ describe('PackagesApp', () => {
   let wrapper;
   let store;
 
-  const defaultProps = {
-    canDelete: true,
-    destroyPath: 'destroy-package-path',
-    emptySvgPath: 'empty-illustration',
-    npmPath: 'foo',
-    npmHelpPath: 'foo',
-    mavenPath: 'foo',
-    mavenHelpPath: 'foo',
-    conanPath: 'foo',
-    conanHelpPath: 'foo',
-  };
-
   function createComponent(packageEntity = mavenPackage, packageFiles = mavenFiles) {
-    const propsData = {
-      ...defaultProps,
-    };
-
     store = new Vuex.Store({
       state: {
         isLoading: false,
         packageEntity,
         packageFiles,
-        pipelineInfo: {},
-        pipelineError: null,
-      },
-      getters: {
-        packageHasPipeline: () => packageEntity.build_info && packageEntity.build_info.pipeline_id,
+        canDelete: true,
+        destroyPath: 'destroy-package-path',
+        emptySvgPath: 'empty-illustration',
+        npmPath: 'foo',
+        npmHelpPath: 'foo',
       },
     });
 
     wrapper = mount(PackagesApp, {
       localVue,
-      propsData,
       store,
+      stubs: {
+        ...stubChildren(PackagesApp),
+        GlButton: false,
+        GlLink: false,
+        GlModal: false,
+        GlTable: false,
+      },
     });
   }
 
-  const versionTitle = () => wrapper.find('.js-version-title');
-  const emptyState = () => wrapper.find('.js-package-empty-state');
+  const packageTitle = () => wrapper.find(PackageTitle);
+  const emptyState = () => wrapper.find(GlEmptyState);
   const allPackageInformation = () => wrapper.findAll(PackageInformation);
   const packageInformation = index => allPackageInformation().at(index);
   const npmInstallation = () => wrapper.find(NpmInstallation);
   const mavenInstallation = () => wrapper.find(MavenInstallation);
   const conanInstallation = () => wrapper.find(ConanInstallation);
+  const nugetInstallation = () => wrapper.find(NugetInstallation);
   const allFileRows = () => wrapper.findAll('.js-file-row');
   const firstFileDownloadLink = () => wrapper.find('.js-file-download');
   const deleteButton = () => wrapper.find('.js-delete-button');
   const deleteModal = () => wrapper.find(GlModal);
   const modalDeleteButton = () => wrapper.find({ ref: 'modal-delete-button' });
-  const packageTags = () => wrapper.find(PackageTags);
 
   afterEach(() => {
     wrapper.destroy();
   });
 
-  it('renders the app and displays the package version as the title', () => {
+  it('renders the app and displays the package title', () => {
     createComponent();
 
-    expect(versionTitle()).toExist();
-    expect(versionTitle().text()).toBe(mavenPackage.version);
+    expect(packageTitle()).toExist();
   });
 
   it('renders an empty state component when no an invalid package is passed as a prop', () => {
@@ -153,23 +151,6 @@ describe('PackagesApp', () => {
     });
   });
 
-  describe('package tags', () => {
-    it('displays the package-tags component when the package has tags', () => {
-      createComponent({
-        ...npmPackage,
-        tags: [{ name: 'foo' }],
-      });
-
-      expect(packageTags().exists()).toBe(true);
-    });
-
-    it('does not display the package-tags component when there are no tags', () => {
-      createComponent();
-
-      expect(packageTags().exists()).toBe(false);
-    });
-  });
-
   describe('tracking', () => {
     let eventSpy;
     let utilSpy;
@@ -216,5 +197,13 @@ describe('PackagesApp', () => {
     });
 
     expect(conanInstallation()).toExist();
+  });
+
+  it('renders package installation instructions for nuget packages', () => {
+    createComponent({
+      packageEntity: nugetPackage,
+    });
+
+    expect(nugetInstallation()).toExist();
   });
 });

@@ -35,6 +35,12 @@ module Clusters
             application.oauth_application = create_oauth_application(application, request)
           end
 
+          if application.instance_of?(Knative)
+            Serverless::AssociateDomainService
+              .new(application, pages_domain_id: params[:pages_domain_id], creator: current_user)
+              .execute
+          end
+
           worker = worker_class(application)
 
           application.make_scheduled!
@@ -58,17 +64,13 @@ module Clusters
       end
 
       def instantiate_application
-        raise_invalid_application_error if invalid_application?
+        raise_invalid_application_error if unknown_application?
 
         builder || raise(InvalidApplicationError, "invalid application: #{application_name}")
       end
 
       def raise_invalid_application_error
         raise(InvalidApplicationError, "invalid application: #{application_name}")
-      end
-
-      def invalid_application?
-        unknown_application? || (application_name == Applications::ElasticStack.application_name && !Feature.enabled?(:enable_cluster_application_elastic_stack))
       end
 
       def unknown_application?

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ContainerExpirationPolicyWorker
+class ContainerExpirationPolicyWorker # rubocop:disable Scalability/IdempotentWorker
   include ApplicationWorker
   include CronjobQueue
 
@@ -8,9 +8,11 @@ class ContainerExpirationPolicyWorker
 
   def perform
     ContainerExpirationPolicy.runnable_schedules.preloaded.find_each do |container_expiration_policy|
-      ContainerExpirationPolicyService.new(
-        container_expiration_policy.project, container_expiration_policy.project.owner
-      ).execute(container_expiration_policy)
+      with_context(project: container_expiration_policy.project,
+                   user: container_expiration_policy.project.owner) do |project:, user:|
+        ContainerExpirationPolicyService.new(project, user)
+          .execute(container_expiration_policy)
+      end
     end
   end
 end

@@ -46,7 +46,7 @@ module Gitlab
       end
 
       def found_vulnerabilities
-        ::Security::VulnerabilityFindingsFinder.new(vulnerable, params: filters).execute
+        ::Security::VulnerabilityFindingsFinder.new(pipeline_ids, params: filters).execute
       end
 
       def use_vulnerability_cache?
@@ -60,11 +60,17 @@ module Gitlab
       end
 
       def project_ids_to_fetch
-        project_ids = vulnerable.is_a?(Project) ? [vulnerable.id] : []
+        return [vulnerable.id] if vulnerable.is_a?(Project)
 
-        return filters[:project_id] + project_ids if filters.key?('project_id')
+        if filters.key?('project_id')
+          vulnerable.project_ids_with_security_reports & filters[:project_id].map(&:to_i)
+        else
+          vulnerable.project_ids_with_security_reports
+        end
+      end
 
-        vulnerable.is_a?(Group) ? vulnerable.project_ids_with_security_reports : project_ids
+      def pipeline_ids
+        vulnerable.all_pipelines.with_vulnerabilities.latest_successful_ids_per_project
       end
     end
   end

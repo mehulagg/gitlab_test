@@ -38,7 +38,7 @@ Note that these options are downcased.
 
 Dates for the `before` and `after` parameters should be supplied in the following format:
 
-```
+```plaintext
 YYYY-MM-DD
 ```
 
@@ -54,7 +54,7 @@ GitLab removes events older than 2 years from the events table for performance r
 
 Get a list of events for the authenticated user. Scope `read_user` or `api` is required.
 
-```
+```plaintext
 GET /events
 ```
 
@@ -71,7 +71,7 @@ Parameters:
 
 Example request:
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/events?target_type=issue&action=created&after=2017-01-31&before=2017-03-01&scope=all
 ```
 
@@ -128,7 +128,7 @@ Example response:
 
 Get the contribution events for the specified user, sorted from newest to oldest. Scope `read_user` or `api` is required.
 
-```
+```plaintext
 GET /users/:id/events
 ```
 
@@ -143,7 +143,7 @@ Parameters:
 | `after` | date | no |  Include only events created after a particular date. Please see [here for the supported format][date-formatting]  |
 | `sort` | string | no | Sort events in `asc` or `desc` order by `created_at`. Default is `desc` |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/users/:id/events
 ```
 
@@ -259,7 +259,7 @@ Example response:
 
 Get a list of visible events for a particular project.
 
-```
+```plaintext
 GET /projects/:project_id/events
 ```
 
@@ -276,7 +276,7 @@ Parameters:
 
 Example request:
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/:project_id/events?target_type=issue&action=created&after=2017-01-31&before=2017-03-01
 ```
 

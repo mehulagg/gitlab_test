@@ -1,7 +1,9 @@
 require_relative 'boot'
 
-# Based on https://github.com/rails/rails/blob/v5.2.3/railties/lib/rails/all.rb
+# Based on https://github.com/rails/rails/blob/v6.0.1/railties/lib/rails/all.rb
 # Only load the railties we need instead of loading everything
+require 'rails'
+
 require 'active_record/railtie'
 require 'action_controller/railtie'
 require 'action_view/railtie'
@@ -52,6 +54,8 @@ module Gitlab
         ee_path = config.root.join('ee', Pathname.new(path).relative_path_from(config.root))
         memo << ee_path.to_s
       end
+
+      ee_paths << "#{config.root}/ee/app/replicators"
 
       # Eager load should load CE first
       config.eager_load_paths.push(*ee_paths)
@@ -279,6 +283,20 @@ module Gitlab
 
     config.generators do |g|
       g.factory_bot false
+    end
+
+    # This empty initializer forces the :let_zeitwerk_take_over initializer to run before we load
+    # initializers in config/initializers. This is done because autoloading before Zeitwerk takes
+    # over is deprecated but our initializers do a lot of autoloading.
+    # See https://gitlab.com/gitlab-org/gitlab/issues/197346 for more details
+    initializer :move_initializers, before: :load_config_initializers, after: :let_zeitwerk_take_over do
+    end
+
+    # We need this for initializers that need to be run before Zeitwerk is loaded
+    initializer :before_zeitwerk, before: :let_zeitwerk_take_over, after: :prepend_helpers_path do
+      Dir[Rails.root.join('config/initializers_before_autoloader/*.rb')].sort.each do |initializer|
+        load_config_initializer(initializer)
+      end
     end
 
     config.after_initialize do

@@ -1,5 +1,6 @@
-import _ from 'underscore';
+import { take } from 'lodash';
 import { GlBreakpointInstance as bp } from '@gitlab/ui/dist/utils';
+import sanitize from 'sanitize-html';
 import { FREQUENT_ITEMS, HOUR_IN_MS } from './constants';
 
 export const isMobile = () => ['md', 'sm', 'xs'].includes(bp.getBreakpointSize());
@@ -30,7 +31,7 @@ export const getTopFrequentItems = items => {
     return 0;
   });
 
-  return _.first(frequentItems, frequentItemsCount);
+  return take(frequentItems, frequentItemsCount);
 };
 
 export const updateExistingFrequentItem = (frequentItem, item) => {
@@ -43,3 +44,9 @@ export const updateExistingFrequentItem = (frequentItem, item) => {
     lastAccessedOn: accessedOverHourAgo ? Date.now() : frequentItem.lastAccessedOn,
   };
 };
+
+export const sanitizeItem = item => ({
+  ...item,
+  name: sanitize(item.name.toString(), { allowedTags: [] }),
+  namespace: sanitize(item.namespace.toString(), { allowedTags: [] }),
+});

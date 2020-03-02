@@ -77,7 +77,7 @@ _The artifacts are stored by default in
 
 ### Using object storage
 
-> - [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/1762) in
+> - [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/1762) in
 >   [GitLab Premium](https://about.gitlab.com/pricing/) 9.4.
 > - Since version 9.5, artifacts are [browsable](../user/project/pipelines/job_artifacts.md#browsing-artifacts),
 >   when object storage is enabled. 9.4 lacks this feature.
@@ -156,9 +156,14 @@ _The artifacts are stored by default in
 1. Save the file and [reconfigure GitLab][] for the changes to take effect.
 1. Migrate any existing local artifacts to the object storage:
 
-   ```bash
+   ```shell
    gitlab-rake gitlab:artifacts:migrate
    ```
+
+CAUTION: **CAUTION:**
+JUnit test report artifact (`junit.xml.gz`) migration
+[is not supported](https://gitlab.com/gitlab-org/gitlab/issues/27698)
+by the `gitlab:artifacts:migrate` script.
 
 **In installations from source:**
 
@@ -184,17 +189,29 @@ _The artifacts are stored by default in
 1. Save the file and [restart GitLab][] for the changes to take effect.
 1. Migrate any existing local artifacts to the object storage:
 
-   ```bash
+   ```shell
    sudo -u git -H bundle exec rake gitlab:artifacts:migrate RAILS_ENV=production
    ```
 
+CAUTION: **CAUTION:**
+JUnit test report artifact (`junit.xml.gz`) migration
+[is not supported](https://gitlab.com/gitlab-org/gitlab/issues/27698)
+by the `gitlab:artifacts:migrate` script.
+
 ### Migrating from object storage to local storage
+
+**In Omnibus installations:**
 
 In order to migrate back to local storage:
 
-1. Set both `direct_upload` and `background_upload` to false under the artifacts object storage settings. Don't forget to restart GitLab.
-1. Run `rake gitlab:artifacts:migrate_to_local` on your console.
-1. Disable `object_storage` for artifacts in `gitlab.rb`. Remember to restart GitLab afterwards.
+1. Set both `direct_upload` and `background_upload` to false in `gitlab.rb`, under the artifacts object storage settings.
+1. [reconfigure GitLab][].
+1. Run `gitlab-rake gitlab:artifacts:migrate_to_local`.
+1. Disable object_storage for artifacts in `gitlab.rb`:
+   - Set `gitlab_rails['artifacts_object_store_enabled'] = false`.
+   - Comment out all other `artifacts_object_store` settings, including the entire
+     `artifacts_object_store_connection` section, including the closing `}`.
+1. [reconfigure GitLab][].
 
 ## Expiring artifacts
 
@@ -239,7 +256,7 @@ you can flip the feature flag from a Rails console.
 
 1. Enter the Rails console:
 
-   ```sh
+   ```shell
    sudo gitlab-rails console
    ```
 
@@ -253,7 +270,7 @@ you can flip the feature flag from a Rails console.
 
 1. Enter the Rails console:
 
-   ```sh
+   ```shell
    cd /home/git/gitlab
    RAILS_ENV=production sudo -u git -H bundle exec rails console
    ```

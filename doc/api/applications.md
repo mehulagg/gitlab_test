@@ -1,6 +1,6 @@
 # Applications API
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/8160) in GitLab 10.5.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/8160) in GitLab 10.5.
 
 Applications API operates on OAuth applications for:
 
@@ -31,7 +31,7 @@ Parameters:
 
 Example request:
 
-```sh
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" --data "name=MyApplication&redirect_uri=http://redirect.uri&scopes=" https://gitlab.example.com/api/v4/applications
 ```
 
@@ -58,8 +58,8 @@ GET /applications
 
 Example request:
 
-```sh
-curl --request GET --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/applications
+```shell
+curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/applications
 ```
 
 Example response:
@@ -97,6 +97,6 @@ Parameters:
 
 Example request:
 
-```sh
+```shell
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/applications/:id
 ```

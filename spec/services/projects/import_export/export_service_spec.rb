@@ -10,6 +10,10 @@ describe Projects::ImportExport::ExportService do
     let(:service) { described_class.new(project, user) }
     let!(:after_export_strategy) { Gitlab::ImportExport::AfterExportStrategies::DownloadNotificationStrategy.new }
 
+    before do
+      project.add_maintainer(user)
+    end
+
     it 'saves the version' do
       expect(Gitlab::ImportExport::VersionSaver).to receive(:new).and_call_original
 
@@ -23,7 +27,7 @@ describe Projects::ImportExport::ExportService do
     end
 
     it 'saves the models' do
-      expect(Gitlab::ImportExport::ProjectTreeSaver).to receive(:new).and_call_original
+      expect(Gitlab::ImportExport::Project::TreeSaver).to receive(:new).and_call_original
 
       service.execute
     end
@@ -87,10 +91,10 @@ describe Projects::ImportExport::ExportService do
         end
 
         it 'removes the remaining exported data' do
-          allow(shared).to receive(:export_path).and_return('whatever')
+          allow(shared).to receive(:archive_path).and_return('whatever')
           allow(FileUtils).to receive(:rm_rf)
 
-          expect(FileUtils).to receive(:rm_rf).with(shared.export_path)
+          expect(FileUtils).to receive(:rm_rf).with(shared.archive_path)
         end
 
         it 'notifies the user' do
@@ -117,10 +121,10 @@ describe Projects::ImportExport::ExportService do
       end
 
       it 'removes the remaining exported data' do
-        allow(shared).to receive(:export_path).and_return('whatever')
+        allow(shared).to receive(:archive_path).and_return('whatever')
         allow(FileUtils).to receive(:rm_rf)
 
-        expect(FileUtils).to receive(:rm_rf).with(shared.export_path)
+        expect(FileUtils).to receive(:rm_rf).with(shared.archive_path)
       end
 
       it 'notifies the user' do
@@ -135,6 +139,34 @@ describe Projects::ImportExport::ExportService do
 
       it 'does not call the export strategy' do
         expect(service).not_to receive(:execute_after_export_action)
+      end
+    end
+
+    context 'when one of the savers fail unexpectedly' do
+      let(:archive_path) { shared.archive_path }
+
+      before do
+        allow(service).to receive_message_chain(:uploads_saver, :save).and_return(false)
+      end
+
+      it 'removes the remaining exported data' do
+        expect { service.execute }.to raise_error(Gitlab::ImportExport::Error)
+
+        expect(project.import_export_upload).to be_nil
+        expect(File.exist?(shared.archive_path)).to eq(false)
+      end
+    end
+
+    context 'when user does not have admin_project permission' do
+      let!(:another_user) { create(:user) }
+
+      subject(:service) { described_class.new(project, another_user) }
+
+      it 'fails' do
+        expected_message =
+          "User with ID: %s does not have permission to Project %s with ID: %s." %
+            [another_user.id, project.name, project.id]
+        expect { service.execute }.to raise_error(Gitlab::ImportExport::Error).with_message(expected_message)
       end
     end
   end

@@ -3,9 +3,11 @@
 require 'spec_helper'
 
 describe Projects::SnippetsController do
+  include Gitlab::Routing
+
+  let_it_be(:user) { create(:user) }
+  let_it_be(:user2) { create(:user) }
   let(:project) { create(:project_empty_repo, :public) }
-  let(:user)    { create(:user) }
-  let(:user2)   { create(:user) }
 
   before do
     project.add_maintainer(user)
@@ -25,6 +27,15 @@ describe Projects::SnippetsController do
       before do
         create(:project_snippet, :public, project: project, author: user)
       end
+    end
+
+    it 'fetches snippet counts via the snippet count service' do
+      service = double(:count_service, execute: {})
+      expect(Snippets::CountService)
+        .to receive(:new).with(nil, project: project)
+        .and_return(service)
+
+      get :index, params: { namespace_id: project.namespace, project_id: project }
     end
 
     context 'when the project snippet is private' do
@@ -92,7 +103,7 @@ describe Projects::SnippetsController do
 
     context 'when the snippet is spam' do
       before do
-        allow_next_instance_of(AkismetService) do |instance|
+        allow_next_instance_of(Spam::AkismetService) do |instance|
           allow(instance).to receive(:spam?).and_return(true)
         end
       end
@@ -172,7 +183,7 @@ describe Projects::SnippetsController do
 
     context 'when the snippet is spam' do
       before do
-        allow_next_instance_of(AkismetService) do |instance|
+        allow_next_instance_of(Spam::AkismetService) do |instance|
           allow(instance).to receive(:spam?).and_return(true)
         end
       end
@@ -282,7 +293,7 @@ describe Projects::SnippetsController do
     let(:snippet) { create(:project_snippet, :private, project: project, author: user) }
 
     before do
-      allow_next_instance_of(AkismetService) do |instance|
+      allow_next_instance_of(Spam::AkismetService) do |instance|
         allow(instance).to receive_messages(submit_spam: true)
       end
       stub_application_setting(akismet_enabled: true)
@@ -309,14 +320,45 @@ describe Projects::SnippetsController do
     end
   end
 
+  shared_examples 'successful response' do
+    it 'renders the snippet' do
+      subject
+
+      expect(assigns(:snippet)).to eq(project_snippet)
+      expect(response).to have_gitlab_http_status(:ok)
+    end
+
+    it 'renders the blob from the repository' do
+      subject
+
+      expect(assigns(:blob)).to eq(project_snippet.blobs.first)
+    end
+
+    context 'when feature flag version_snippets is disabled' do
+      before do
+        stub_feature_flags(version_snippets: false)
+      end
+
+      it 'returns the snippet database content' do
+        subject
+
+        blob = assigns(:blob)
+
+        expect(blob.data).to eq(project_snippet.content)
+      end
+    end
+  end
+
   %w[show raw].each do |action|
     describe "GET ##{action}" do
       context 'when the project snippet is private' do
-        let(:project_snippet) { create(:project_snippet, :private, project: project, author: user) }
+        let(:project_snippet) { create(:project_snippet, :private, :repository, project: project, author: user) }
+
+        subject { get action, params: { namespace_id: project.namespace, project_id: project, id: project_snippet.to_param } }
 
         context 'when anonymous' do
           it 'responds with status 404' do
-            get action, params: { namespace_id: project.namespace, project_id: project, id: project_snippet.to_param }
+            subject
 
             expect(response).to have_gitlab_http_status(:not_found)
           end
@@ -327,12 +369,7 @@ describe Projects::SnippetsController do
             sign_in(user)
           end
 
-          it 'renders the snippet' do
-            get action, params: { namespace_id: project.namespace, project_id: project, id: project_snippet.to_param }
-
-            expect(assigns(:snippet)).to eq(project_snippet)
-            expect(response).to have_gitlab_http_status(:ok)
-          end
+          it_behaves_like 'successful response'
         end
 
         context 'when signed in as a project member' do
@@ -340,19 +377,16 @@ describe Projects::SnippetsController do
             sign_in(user2)
           end
 
-          it 'renders the snippet' do
-            get action, params: { namespace_id: project.namespace, project_id: project, id: project_snippet.to_param }
-
-            expect(assigns(:snippet)).to eq(project_snippet)
-            expect(response).to have_gitlab_http_status(:ok)
-          end
+          it_behaves_like 'successful response'
         end
       end
 
       context 'when the project snippet does not exist' do
+        subject { get action, params: { namespace_id: project.namespace, project_id: project, id: 42 } }
+
         context 'when anonymous' do
           it 'responds with status 404' do
-            get action, params: { namespace_id: project.namespace, project_id: project, id: 42 }
+            subject
 
             expect(response).to have_gitlab_http_status(:not_found)
           end
@@ -364,7 +398,7 @@ describe Projects::SnippetsController do
           end
 
           it 'responds with status 404' do
-            get action, params: { namespace_id: project.namespace, project_id: project, id: 42 }
+            subject
 
             expect(response).to have_gitlab_http_status(:not_found)
           end
@@ -374,18 +408,20 @@ describe Projects::SnippetsController do
   end
 
   describe "GET #show for embeddable content" do
-    let(:project_snippet) { create(:project_snippet, snippet_permission, project: project, author: user) }
+    let(:project_snippet) { create(:project_snippet, :repository, snippet_permission, project: project, author: user) }
 
     before do
       sign_in(user)
-
-      get :show, params: { namespace_id: project.namespace, project_id: project, id: project_snippet.to_param }, format: :js
     end
+
+    subject { get :show, params: { namespace_id: project.namespace, project_id: project, id: project_snippet.to_param }, format: :js }
 
     context 'when snippet is private' do
       let(:snippet_permission) { :private }
 
       it 'responds with status 404' do
+        subject
+
         expect(response).to have_gitlab_http_status(:not_found)
       end
     end
@@ -393,10 +429,7 @@ describe Projects::SnippetsController do
     context 'when snippet is public' do
       let(:snippet_permission) { :public }
 
-      it 'responds with status 200' do
-        expect(assigns(:snippet)).to eq(project_snippet)
-        expect(response).to have_gitlab_http_status(:ok)
-      end
+      it_behaves_like 'successful response'
     end
 
     context 'when the project is private' do
@@ -406,6 +439,8 @@ describe Projects::SnippetsController do
         let(:project_snippet) { create(:project_snippet, :public, project: project, author: user) }
 
         it 'responds with status 404' do
+          subject
+
           expect(assigns(:snippet)).to eq(project_snippet)
           expect(response).to have_gitlab_http_status(:not_found)
         end
@@ -414,14 +449,17 @@ describe Projects::SnippetsController do
   end
 
   describe 'GET #raw' do
+    let(:content) { "first line\r\nsecond line\r\nthird line" }
+    let(:formatted_content) { content.gsub(/\r\n/, "\n") }
     let(:project_snippet) do
       create(
-        :project_snippet, :public,
+        :project_snippet, :public, :repository,
         project: project,
         author: user,
-        content: "first line\r\nsecond line\r\nthird line"
+        content: content
       )
     end
+    let(:blob) { project_snippet.blobs.first }
 
     context 'CRLF line ending' do
       let(:params) do
@@ -432,16 +470,22 @@ describe Projects::SnippetsController do
         }
       end
 
+      before do
+        allow_next_instance_of(Blob) do |instance|
+          allow(instance).to receive(:data).and_return(content)
+        end
+      end
+
       it 'returns LF line endings by default' do
         get :raw, params: params
 
-        expect(response.body).to eq("first line\nsecond line\nthird line")
+        expect(response.body).to eq(formatted_content)
       end
 
       it 'does not convert line endings when parameter present' do
         get :raw, params: params.merge(line_ending: :raw)
 
-        expect(response.body).to eq("first line\r\nsecond line\r\nthird line")
+        expect(response.body).to eq(content)
       end
     end
   end

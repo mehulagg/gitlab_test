@@ -24,9 +24,9 @@ describe API::AuditEvents do
       end
 
       context 'audit events feature is available' do
-        set(:user_audit_event) { create(:user_audit_event, created_at: Date.new(2000, 1, 10)) }
-        set(:project_audit_event) { create(:project_audit_event, created_at: Date.new(2000, 1, 15)) }
-        set(:group_audit_event) { create(:group_audit_event, created_at: Date.new(2000, 1, 20)) }
+        let_it_be(:user_audit_event) { create(:user_audit_event, created_at: Date.new(2000, 1, 10)) }
+        let_it_be(:project_audit_event) { create(:project_audit_event, created_at: Date.new(2000, 1, 15)) }
+        let_it_be(:group_audit_event) { create(:group_audit_event, created_at: Date.new(2000, 1, 20)) }
 
         before do
           stub_licensed_features(admin_audit_log: true)
@@ -35,7 +35,7 @@ describe API::AuditEvents do
         it 'returns 200 response' do
           get api(url, admin)
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
         end
 
         it 'includes the correct pagination headers' do
@@ -118,7 +118,7 @@ describe API::AuditEvents do
   end
 
   describe 'GET /audit_events/:id' do
-    set(:user_audit_event) { create(:user_audit_event, created_at: Date.new(2000, 1, 10)) }
+    let_it_be(:user_audit_event) { create(:user_audit_event, created_at: Date.new(2000, 1, 10)) }
     let(:url) { "/audit_events/#{user_audit_event.id}" }
 
     context 'when authenticated, as a user' do
@@ -147,7 +147,7 @@ describe API::AuditEvents do
           it 'returns 200 response' do
             get api(url, admin)
 
-            expect(response).to have_gitlab_http_status(200)
+            expect(response).to have_gitlab_http_status(:ok)
           end
 
           context 'attributes' do

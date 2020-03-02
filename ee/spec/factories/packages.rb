@@ -4,7 +4,7 @@ FactoryBot.define do
     project
     name { 'my/company/app/my-app' }
     sequence(:version) { |n| "1.#{n}-SNAPSHOT" }
-    package_type { 'maven' }
+    package_type { :maven }
 
     factory :maven_package do
       maven_metadatum
@@ -23,7 +23,7 @@ FactoryBot.define do
     factory :npm_package do
       sequence(:name) { |n| "@#{project.root_namespace.path}/package-#{n}"}
       version { '1.0.0' }
-      package_type { 'npm' }
+      package_type { :npm }
 
       after :create do |package|
         create :package_file, :npm, package: package
@@ -31,18 +31,21 @@ FactoryBot.define do
 
       trait :with_build do
         after :create do |package|
-          create :package_build_info, package: package, pipeline: create(:ci_build, user: package.project.creator).pipeline
+          user = package.project.creator
+          pipeline = create(:ci_pipeline, user: user)
+          create(:ci_build, user: user, pipeline: pipeline)
+          create :package_build_info, package: package, pipeline: pipeline
         end
       end
     end
 
     factory :nuget_package do
       sequence(:name) { |n| "NugetPackage#{n}"}
-      version { '1.0.0' }
+      sequence(:version) { |n| "1.0.#{n}" }
       package_type { :nuget }
 
       after :create do |package|
-        create :package_file, :nuget, package: package
+        create :package_file, :nuget, package: package, file_name: "#{package.name}.#{package.version}.nupkg"
       end
     end
 
@@ -57,7 +60,7 @@ FactoryBot.define do
 
       sequence(:name) { |n| "package-#{n}" }
       version { '1.0.0' }
-      package_type { 'conan' }
+      package_type { :conan }
 
       after :create do |package|
         create :conan_package_file, :conan_recipe_file, package: package
@@ -65,6 +68,10 @@ FactoryBot.define do
         create :conan_package_file, :conan_package_info, package: package
         create :conan_package_file, :conan_package_manifest, package: package
         create :conan_package_file, :conan_package, package: package
+      end
+
+      trait(:without_loaded_metadatum) do
+        conan_metadatum { build(:conan_metadatum, package: nil) }
       end
     end
   end
@@ -85,7 +92,6 @@ FactoryBot.define do
         file_name { 'conanfile.py' }
         file_sha1 { 'be93151dc23ac34a82752444556fe79b32c7a1ad' }
         file_md5 { '12345abcde' }
-        file_type { 'py' }
         size { 400.kilobytes }
       end
 
@@ -98,7 +104,6 @@ FactoryBot.define do
         file_name { 'conanmanifest.txt' }
         file_sha1 { 'be93151dc23ac34a82752444556fe79b32c7a1ad' }
         file_md5 { '12345abcde' }
-        file_type { 'txt' }
         size { 400.kilobytes }
       end
 
@@ -111,7 +116,6 @@ FactoryBot.define do
         file_name { 'conanmanifest.txt' }
         file_sha1 { 'be93151dc23ac34a82752444556fe79b32c7a1ad' }
         file_md5 { '12345abcde' }
-        file_type { 'txt' }
         size { 400.kilobytes }
       end
 
@@ -124,7 +128,6 @@ FactoryBot.define do
         file_name { 'conaninfo.txt' }
         file_sha1 { 'be93151dc23ac34a82752444556fe79b32c7a1ad' }
         file_md5 { '12345abcde' }
-        file_type { 'txt' }
         size { 400.kilobytes }
       end
 
@@ -137,7 +140,6 @@ FactoryBot.define do
         file_name { 'conan_package.tgz' }
         file_sha1 { 'be93151dc23ac34a82752444556fe79b32c7a1ad' }
         file_md5 { '12345abcde' }
-        file_type { 'tgz' }
         size { 400.kilobytes }
       end
     end
@@ -146,7 +148,6 @@ FactoryBot.define do
       file { fixture_file_upload('ee/spec/fixtures/maven/my-app-1.0-20180724.124855-1.jar') }
       file_name { 'my-app-1.0-20180724.124855-1.jar' }
       file_sha1 { '4f0bfa298744d505383fbb57c554d4f5c12d88b3' }
-      file_type { 'jar' }
       size { 100.kilobytes }
     end
 
@@ -154,7 +155,6 @@ FactoryBot.define do
       file { fixture_file_upload('ee/spec/fixtures/maven/my-app-1.0-20180724.124855-1.pom') }
       file_name { 'my-app-1.0-20180724.124855-1.pom' }
       file_sha1 { '19c975abd49e5102ca6c74a619f21e0cf0351c57' }
-      file_type { 'pom' }
       size { 200.kilobytes }
     end
 
@@ -162,7 +162,6 @@ FactoryBot.define do
       file { fixture_file_upload('ee/spec/fixtures/maven/maven-metadata.xml') }
       file_name { 'maven-metadata.xml' }
       file_sha1 { '42b1bdc80de64953b6876f5a8c644f20204011b0' }
-      file_type { 'xml' }
       size { 300.kilobytes }
     end
 
@@ -170,7 +169,6 @@ FactoryBot.define do
       file { fixture_file_upload('ee/spec/fixtures/npm/foo-1.0.1.tgz') }
       file_name { 'foo-1.0.1.tgz' }
       file_sha1 { 'be93151dc23ac34a82752444556fe79b32c7a1ad' }
-      file_type { 'tgz' }
       size { 400.kilobytes }
     end
 
@@ -179,7 +177,6 @@ FactoryBot.define do
       file { fixture_file_upload('ee/spec/fixtures/nuget/package.nupkg') }
       file_name { 'package.nupkg' }
       file_sha1 { '5fe852b2a6abd96c22c11fa1ff2fb19d9ce58b57' }
-      file_type { 0 }
       size { 300.kilobytes }
     end
 
@@ -189,7 +186,7 @@ FactoryBot.define do
   end
 
   factory :maven_metadatum, class: 'Packages::MavenMetadatum' do
-    package
+    association :package, package_type: :maven
     path { 'my/company/app/my-app/1.0-SNAPSHOT' }
     app_group { 'my.company.app' }
     app_name { 'my-app' }
@@ -197,7 +194,7 @@ FactoryBot.define do
   end
 
   factory :conan_metadatum, class: 'Packages::ConanMetadatum' do
-    package
+    association :package, factory: [:conan_package, :without_loaded_metadatum]
     package_username { 'username' }
     package_channel { 'stable' }
   end

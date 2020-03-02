@@ -13,7 +13,7 @@ As developers, we should attempt to add tracking and instrumentation where possi
 - Usage patterns.
 - Other metrics that can potentially be improved on.
 
-To maintain consistency, and not adversely effect performance, we have some basic tracking functionality exposed at both the frontend and backend layers that can be utilized while building new features or updating existing features.
+To maintain consistency and not adversely effect performance, we have some basic tracking functionality exposed at both the frontend and backend layers that can be utilized while building new features or updating existing features.
 
 We also encourage users to enable tracking, and we embrace full transparency with our tracking approach so it can be easily understood and trusted. By enabling tracking, users can:
 
@@ -43,6 +43,8 @@ See [Frontend tracking guide](frontend.md).
 From the backend, the events that are tracked will likely consist of things like the creation or deletion of records and other events that might be triggered from layers that aren't necessarily only available in the interface.
 
 See [Backend tracking guide](backend.md).
+
+Also, see [Instrumenting Ruby code](../instrumentation.md) if you are instrumenting application performance metrics for Ruby code.
 
 ## Enabling tracking
 

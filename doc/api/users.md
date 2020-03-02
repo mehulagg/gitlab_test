@@ -10,7 +10,7 @@ This function takes pagination parameters `page` and `per_page` to restrict the 
 
 ### For normal users
 
-```
+```plaintext
 GET /users
 ```
 
@@ -39,13 +39,13 @@ You can also search for users by name or primary email using `?search=`. For exa
 
 In addition, you can lookup users by username:
 
-```
+```plaintext
 GET /users?username=:username
 ```
 
 For example:
 
-```
+```plaintext
 GET /users?username=jack_smith
 ```
 
@@ -53,11 +53,11 @@ In addition, you can filter users based on states eg. `blocked`, `active`
 This works only to filter users who are `blocked` or `active`.
 It does not support `active=false` or `blocked=false`.
 
-```
+```plaintext
 GET /users?active=true
 ```
 
-```
+```plaintext
 GET /users?blocked=true
 ```
 
@@ -66,7 +66,7 @@ Username search is case insensitive.
 
 ### For admins
 
-```
+```plaintext
 GET /users
 ```
 
@@ -160,7 +160,7 @@ Users on GitLab [Starter, Bronze, or higher](https://about.gitlab.com/pricing/) 
     ...
     "shared_runners_minutes_limit": 133,
     "extra_shared_runners_minutes_limit": 133,
-    "note": "DMCA Request: 2018-11-05 | DMCA Violation | Abuse | https://gitlab.zendesk.com/agent/tickets/123"
+    "note": "DMCA Request: 2018-11-05 | DMCA Violation | Abuse | https://gitlab.zendesk.com/agent/tickets/123",
     ...
   }
 ]
@@ -187,13 +187,13 @@ the `group_saml` provider option:
 
 You can lookup users by external UID and provider:
 
-```
+```plaintext
 GET /users?extern_uid=:extern_uid&provider=:provider
 ```
 
 For example:
 
-```
+```plaintext
 GET /users?extern_uid=1234567&provider=github
 ```
 
@@ -201,19 +201,19 @@ You can search for users who are external with: `/users?external=true`
 
 You can search users by creation date time range with:
 
-```
+```plaintext
 GET /users?created_before=2001-01-02T00:00:00.060Z&created_after=1999-01-02T00:00:00.060
 ```
 
 You can filter by [custom attributes](custom_attributes.md) with:
 
-```
+```plaintext
 GET /users?custom_attributes[key]=value&custom_attributes[other_key]=other_value
 ```
 
 You can include the users' [custom attributes](custom_attributes.md) in the response with:
 
-```
+```plaintext
 GET /users?with_custom_attributes=true
 ```
 
@@ -223,7 +223,7 @@ Get a single user.
 
 ### For user
 
-```
+```plaintext
 GET /users/:id
 ```
 
@@ -253,7 +253,7 @@ Parameters:
 
 ### For admin
 
-```
+```plaintext
 GET /users/:id
 ```
 
@@ -313,7 +313,7 @@ the `shared_runners_minutes_limit`, `extra_shared_runners_minutes_limit`, and `n
   "username": "john_smith",
   "shared_runners_minutes_limit": 133,
   "extra_shared_runners_minutes_limit": 133,
-  "note": "DMCA Request: 2018-11-05 | DMCA Violation | Abuse | https://gitlab.zendesk.com/agent/tickets/123"
+  "note": "DMCA Request: 2018-11-05 | DMCA Violation | Abuse | https://gitlab.zendesk.com/agent/tickets/123",
   ...
 }
 ```
@@ -327,7 +327,7 @@ see the `group_saml` option:
   "username": "john_smith",
   "shared_runners_minutes_limit": 133,
   "extra_shared_runners_minutes_limit": 133,
-  "note": "DMCA Request: 2018-11-05 | DMCA Violation | Abuse | https://gitlab.zendesk.com/agent/tickets/123"
+  "note": "DMCA Request: 2018-11-05 | DMCA Violation | Abuse | https://gitlab.zendesk.com/agent/tickets/123",
   "identities": [
     {"provider": "github", "extern_uid": "2435223452345"},
     {"provider": "bitbucket", "extern_uid": "john.smith"},
@@ -340,7 +340,7 @@ see the `group_saml` option:
 
 You can include the user's [custom attributes](custom_attributes.md) in the response with:
 
-```
+```plaintext
 GET /users/:id?with_custom_attributes=true
 ```
 
@@ -356,89 +356,110 @@ over `password`. In addition, `reset_password` and
 `force_random_password` can be used together.
 
 NOTE: **Note:**
-From [GitLab 12.1](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/29888/), `private_profile` will default to `false`.
+From [GitLab 12.1](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/29888/), `private_profile` will default to `false`.
 
-```
+```plaintext
 POST /users
 ```
 
 Parameters:
 
-- `email` (required)             - Email
-- `password` (optional)          - Password
-- `reset_password` (optional)    - Send user password reset link - true or false(default)
-- `username` (required)          - Username
-- `name` (required)              - Name
-- `skype` (optional)             - Skype ID
-- `linkedin` (optional)          - LinkedIn
-- `twitter` (optional)           - Twitter account
-- `website_url` (optional)       - Website URL
-- `organization` (optional)      - Organization name
-- `projects_limit` (optional)    - Number of projects user can create
-- `extern_uid` (optional)        - External UID
-- `provider` (optional)          - External provider name
-- `bio` (optional)               - User's biography
-- `location` (optional)          - User's location
-- `public_email` (optional)      - The public email of the user
-- `admin` (optional)             - User is admin - true or false (default)
-- `can_create_group` (optional)  - User can create groups - true or false
-- `skip_confirmation` (optional) - Skip confirmation - true or false (default)
-- `external` (optional)          - Flags the user as external - true or false (default)
-- `avatar` (optional)            - Image file for user's avatar
-- `private_profile` (optional)   - User's profile is private - true or false (default)
-- `shared_runners_minutes_limit` (optional)       - Pipeline minutes quota for this user **(STARTER)**
-- `extra_shared_runners_minutes_limit` (optional) - Extra pipeline minutes quota for this user **(STARTER)**
+| Attribute                            | Required | Description                                                                                                                                             |
+|:-------------------------------------|:---------|:--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `admin`                              | No       | User is admin - true or false (default)                                                                                                                 |
+| `avatar`                             | No       | Image file for user's avatar                                                                                                                            |
+| `bio`                                | No       | User's biography                                                                                                                                        |
+| `can_create_group`                   | No       | User can create groups - true or false                                                                                                                  |
+| `color_scheme_id`                    | No       | User's color scheme for the file viewer (see [the user preference docs](../user/profile/preferences.md#syntax-highlighting-theme) for more information) |
+| `email`                              | Yes      | Email                                                                                                                                                   |
+| `extern_uid`                         | No       | External UID                                                                                                                                            |
+| `external`                           | No       | Flags the user as external - true or false (default)                                                                                                    |
+| `extra_shared_runners_minutes_limit` | No       | Extra pipeline minutes quota for this user **(STARTER)**                                                                                                |
+| `force_random_password`              | No       | Set user password to a random value - true or false (default)                                                                                           |
+| `group_id_for_saml`                  | No       | ID of group where SAML has been configured                                                                                                              |
+| `linkedin`                           | No       | LinkedIn                                                                                                                                                |
+| `location`                           | No       | User's location                                                                                                                                         |
+| `name`                               | No       | Name                                                                                                                                                    |
+| `organization`                       | No       | Organization name                                                                                                                                       |
+| `password`                           | No       | Password                                                                                                                                                |
+| `private_profile`                    | No       | User's profile is private - true, false (default), or null (will be converted to false)                                                                 |
+| `projects_limit`                     | No       | Number of projects user can create                                                                                                                      |
+| `provider`                           | No       | External provider name                                                                                                                                  |
+| `public_email`                       | No       | The public email of the user                                                                                                                            |
+| `reset_password`                     | No       | Send user password reset link - true or false(default)                                                                                                  |
+| `shared_runners_minutes_limit`       | No       | Pipeline minutes quota for this user **(STARTER)**                                                                                                      |
+| `skip_confirmation`                  | No       | Skip confirmation - true or false (default)                                                                                                             |
+| `skype`                              | No       | Skype ID                                                                                                                                                |
+| `theme_id`                           | No       | The GitLab theme for the user (see [the user preference docs](../user/profile/preferences.md#navigation-theme) for more information)                    |
+| `twitter`                            | No       | Twitter account                                                                                                                                         |
+| `username`                           | Yes      | Username                                                                                                                                                |
+| `website_url`                        | No       | Website URL                                                                                                                                             |
 
 ## User modification
 
 Modifies an existing user. Only administrators can change attributes of a user.
 
-```
+```plaintext
 PUT /users/:id
 ```
 
 Parameters:
 
-- `id` (required)                  - The ID of the user
-- `email` (optional)               - Email
-- `username` (optional)            - Username
-- `name` (optional)                - Name
-- `password` (optional)            - Password
-- `skype` (optional)               - Skype ID
-- `linkedin` (optional)            - LinkedIn
-- `twitter` (optional)             - Twitter account
-- `website_url` (optional)         - Website URL
-- `organization` (optional)        - Organization name
-- `projects_limit` (optional)      - Limit projects each user can create
-- `extern_uid` (optional)          - External UID
-- `provider` (optional)            - External provider name
-- `group_id_for_saml` (optional)   - ID of group where SAML has been configured
-- `bio` (optional)                 - User's biography
-- `location` (optional)            - User's location
-- `public_email` (optional)        - The public email of the user
-- `admin` (optional)               - User is admin - true or false (default)
-- `can_create_group` (optional)    - User can create groups - true or false
-- `skip_reconfirmation` (optional) - Skip reconfirmation - true or false (default)
-- `external` (optional)            - Flags the user as external - true or false (default)
-- `shared_runners_minutes_limit` (optional) - Pipeline minutes quota for this user
-- `extra_shared_runners_minutes_limit` (optional) - Extra pipeline minutes quota for this user
-- `avatar` (optional)              - Image file for user's avatar
-- `private_profile` (optional)     - User's profile is private - true or false (default)
-- `shared_runners_minutes_limit` (optional)       - Pipeline minutes quota for this user **(STARTER)**
-- `extra_shared_runners_minutes_limit` (optional) - Extra pipeline minutes quota for this user **(STARTER)**
-- `note` (optional)                - Admin notes for this user **(STARTER)**
+| Attribute                            | Required | Description                                                                                                                                             |
+|:-------------------------------------|:---------|:--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `admin`                              | No       | User is admin - true or false (default)                                                                                                                 |
+| `avatar`                             | No       | Image file for user's avatar                                                                                                                            |
+| `bio`                                | No       | User's biography                                                                                                                                        |
+| `can_create_group`                   | No       | User can create groups - true or false                                                                                                                  |
+| `color_scheme_id`                    | No       | User's color scheme for the file viewer (see [the user preference docs](../user/profile/preferences.md#syntax-highlighting-theme) for more information) |
+| `email`                              | No       | Email                                                                                                                                                   |
+| `extern_uid`                         | No       | External UID                                                                                                                                            |
+| `external`                           | No       | Flags the user as external - true or false (default)                                                                                                    |
+| `extra_shared_runners_minutes_limit` | No       | Extra pipeline minutes quota for this user **(STARTER)**                                                                                                |
+| `group_id_for_saml`                  | No       | ID of group where SAML has been configured                                                                                                              |
+| `id`                                 | Yes      | The ID of the user                                                                                                                                      |
+| `linkedin`                           | No       | LinkedIn                                                                                                                                                |
+| `location`                           | No       | User's location                                                                                                                                         |
+| `name`                               | No       | Name                                                                                                                                                    |
+| `note`                               | No       | Admin notes for this user **(STARTER)**                                                                                                                 |
+| `organization`                       | No       | Organization name                                                                                                                                       |
+| `password`                           | No       | Password                                                                                                                                                |
+| `private_profile`                    | No       | User's profile is private - true, false (default), or null (will be converted to false)                                                                 |
+| `projects_limit`                     | No       | Limit projects each user can create                                                                                                                     |
+| `provider`                           | No       | External provider name                                                                                                                                  |
+| `public_email`                       | No       | The public email of the user                                                                                                                            |
+| `shared_runners_minutes_limit`       | No       | Pipeline minutes quota for this user **(STARTER)**                                                                                                      |
+| `skip_reconfirmation`                | No       | Skip reconfirmation - true or false (default)                                                                                                           |
+| `skype`                              | No       | Skype ID                                                                                                                                                |
+| `theme_id`                           | No       | The GitLab theme for the user (see [the user preference docs](../user/profile/preferences.md#navigation-theme) for more information)                    |
+| `twitter`                            | No       | Twitter account                                                                                                                                         |
+| `username`                           | No       | Username                                                                                                                                                |
+| `website_url`                        | No       | Website URL                                                                                                                                             |
 
 On password update, user will be forced to change it upon next login.
 Note, at the moment this method does only return a `404` error,
-even in cases where a `409` (Conflict) would be more appropriate,
-e.g. when renaming the email address to some existing one.
+even in cases where a `409` (Conflict) would be more appropriate.
+For example, when renaming the email address to some existing one.
+
+## Delete authentication identity from user
+
+Deletes a user's authentication identity using the provider name associated with that identity. Available only for administrators.
+
+```plaintext
+DELETE /users/:id/identities/:provider
+```
+
+Parameters:
+
+- `id` (required) - The ID of the user
+- `provider` (required) - External provider name
 
 ## User deletion
 
 Deletes a user. Available only for administrators.
 This returns a `204 No Content` status code if the operation was successfully, `404` if the resource was not found or `409` if the user cannot be soft deleted.
 
-```
+```plaintext
 DELETE /users/:id
 ```
 
@@ -453,7 +474,7 @@ Parameters:
 
 Gets currently authenticated user.
 
-```
+```plaintext
 GET /user
 ```
 
@@ -501,7 +522,7 @@ Parameters:
 
 - `sudo` (optional) - the ID of a user to make the call in their place
 
-```
+```plaintext
 GET /user
 ```
 
@@ -550,11 +571,11 @@ GET /user
 
 Get the status of the currently signed in user.
 
-```
+```plaintext
 GET /user/status
 ```
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/user/status"
 ```
 
@@ -572,7 +593,7 @@ Example response:
 
 Get the status of a user.
 
-```
+```plaintext
 GET /users/:id_or_username/status
 ```
 
@@ -580,7 +601,7 @@ GET /users/:id_or_username/status
 | ---------------- | ------ | -------- | ----------- |
 | `id_or_username` | string | yes      | The id or username of the user to get a status of |
 
-```bash
+```shell
 curl "https://gitlab.example.com/users/janedoe/status"
 ```
 
@@ -598,7 +619,7 @@ Example response:
 
 Set the status of the current user.
 
-```
+```plaintext
 PUT /user/status
 ```
 
@@ -609,7 +630,7 @@ PUT /user/status
 
 When both parameters `emoji` and `message` are empty, the status will be cleared.
 
-```bash
+```shell
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" --data "emoji=coffee" --data "message=I crave coffee" https://gitlab.example.com/api/v4/user/status
 ```
 
@@ -631,11 +652,11 @@ Get the counts (same as in top right menu) of the currently signed in user.
 | --------- | ---- | ----------- |
 | `merge_requests`   | number | Merge requests that are active and assigned to current user. |
 
-```
+```plaintext
 GET /user_counts
 ```
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/user_counts"
 ```
 
@@ -655,7 +676,7 @@ Please refer to the [List of user projects](projects.md#list-user-projects).
 
 Get a list of currently authenticated user's SSH keys.
 
-```
+```plaintext
 GET /user/keys
 ```
 
@@ -684,7 +705,7 @@ Parameters:
 
 Get a list of a specified user's SSH keys.
 
-```
+```plaintext
 GET /users/:id_or_username/keys
 ```
 
@@ -696,7 +717,7 @@ GET /users/:id_or_username/keys
 
 Get a single key.
 
-```
+```plaintext
 GET /user/keys/:key_id
 ```
 
@@ -717,7 +738,7 @@ Parameters:
 
 Creates a new key owned by the currently authenticated user.
 
-```
+```plaintext
 POST /user/keys
 ```
 
@@ -755,7 +776,7 @@ error occurs a `400 Bad Request` is returned with a message explaining the error
 
 Create new key owned by specified user. Available only for admin
 
-```
+```plaintext
 POST /users/:id/keys
 ```
 
@@ -770,7 +791,7 @@ Parameters:
 Deletes key owned by currently authenticated user.
 This returns a `204 No Content` status code if the operation was successfully or `404` if the resource was not found.
 
-```
+```plaintext
 DELETE /user/keys/:key_id
 ```
 
@@ -782,7 +803,7 @@ Parameters:
 
 Deletes key owned by a specified user. Available only for admin.
 
-```
+```plaintext
 DELETE /users/:id/keys/:key_id
 ```
 
@@ -795,11 +816,11 @@ Parameters:
 
 Get a list of currently authenticated user's GPG keys.
 
-```
+```plaintext
 GET /user/gpg_keys
 ```
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/user/gpg_keys
 ```
 
@@ -819,7 +840,7 @@ Example response:
 
 Get a specific GPG key of currently authenticated user.
 
-```
+```plaintext
 GET /user/gpg_keys/:key_id
 ```
 
@@ -829,7 +850,7 @@ Parameters:
 | --------- | ------- | -------- | ----------- |
 | `key_id`  | integer | yes      | The ID of the GPG key |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/user/gpg_keys/1
 ```
 
@@ -847,7 +868,7 @@ Example response:
 
 Creates a new GPG key owned by the currently authenticated user.
 
-```
+```plaintext
 POST /user/gpg_keys
 ```
 
@@ -857,7 +878,7 @@ Parameters:
 | --------- | ------ | -------- | ----------- |
 | key       | string | yes      | The new GPG key |
 
-```bash
+```shell
 curl --data "key=-----BEGIN PGP PUBLIC KEY BLOCK-----\r\n\r\nxsBNBFV..."  --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/user/gpg_keys
 ```
 
@@ -877,7 +898,7 @@ Example response:
 
 Delete a GPG key owned by currently authenticated user.
 
-```
+```plaintext
 DELETE /user/gpg_keys/:key_id
 ```
 
@@ -887,7 +908,7 @@ Parameters:
 | --------- | ------- | -------- | ----------- |
 | `key_id`  | integer | yes      | The ID of the GPG key |
 
-```bash
+```shell
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/user/gpg_keys/1
 ```
 
@@ -897,7 +918,7 @@ Returns `204 No Content` on success, or `404 Not found` if the key cannot be fou
 
 Get a list of a specified user's GPG keys. Available only for admins.
 
-```
+```plaintext
 GET /users/:id/gpg_keys
 ```
 
@@ -907,7 +928,7 @@ Parameters:
 | --------- | ------- | -------- | ----------- |
 | `id`      | integer | yes      | The ID of the user |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/users/2/gpg_keys
 ```
 
@@ -927,7 +948,7 @@ Example response:
 
 Get a specific GPG key for a given user. Available only for admins.
 
-```
+```plaintext
 GET /users/:id/gpg_keys/:key_id
 ```
 
@@ -938,7 +959,7 @@ Parameters:
 | `id`      | integer | yes      | The ID of the user |
 | `key_id`  | integer | yes      | The ID of the GPG key |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/users/2/gpg_keys/1
 ```
 
@@ -956,7 +977,7 @@ Example response:
 
 Create new GPG key owned by the specified user. Available only for admins.
 
-```
+```plaintext
 POST /users/:id/gpg_keys
 ```
 
@@ -967,7 +988,7 @@ Parameters:
 | `id`      | integer | yes      | The ID of the user |
 | `key_id`  | integer | yes      | The ID of the GPG key |
 
-```bash
+```shell
 curl --data "key=-----BEGIN PGP PUBLIC KEY BLOCK-----\r\n\r\nxsBNBFV..."  --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/users/2/gpg_keys
 ```
 
@@ -987,7 +1008,7 @@ Example response:
 
 Delete a GPG key owned by a specified user. Available only for admins.
 
-```
+```plaintext
 DELETE /users/:id/gpg_keys/:key_id
 ```
 
@@ -998,7 +1019,7 @@ Parameters:
 | `id`      | integer | yes      | The ID of the user |
 | `key_id`  | integer | yes      | The ID of the GPG key |
 
-```bash
+```shell
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/users/2/gpg_keys/1
 ```
 
@@ -1006,7 +1027,7 @@ curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitl
 
 Get a list of currently authenticated user's emails.
 
-```
+```plaintext
 GET /user/emails
 ```
 
@@ -1031,7 +1052,7 @@ Parameters:
 
 Get a list of a specified user's emails. Available only for admin
 
-```
+```plaintext
 GET /users/:id/emails
 ```
 
@@ -1043,7 +1064,7 @@ Parameters:
 
 Get a single email.
 
-```
+```plaintext
 GET /user/emails/:email_id
 ```
 
@@ -1062,7 +1083,7 @@ Parameters:
 
 Creates a new email owned by the currently authenticated user.
 
-```
+```plaintext
 POST /user/emails
 ```
 
@@ -1094,7 +1115,7 @@ error occurs a `400 Bad Request` is returned with a message explaining the error
 
 Create new email owned by specified user. Available only for admin
 
-```
+```plaintext
 POST /users/:id/emails
 ```
 
@@ -1109,7 +1130,7 @@ Parameters:
 Deletes email owned by currently authenticated user.
 This returns a `204 No Content` status code if the operation was successfully or `404` if the resource was not found.
 
-```
+```plaintext
 DELETE /user/emails/:email_id
 ```
 
@@ -1121,7 +1142,7 @@ Parameters:
 
 Deletes email owned by a specified user. Available only for admin.
 
-```
+```plaintext
 DELETE /users/:id/emails/:email_id
 ```
 
@@ -1134,7 +1155,7 @@ Parameters:
 
 Blocks the specified user. Available only for admin.
 
-```
+```plaintext
 POST /users/:id/block
 ```
 
@@ -1149,7 +1170,7 @@ Will return `201 OK` on success, `404 User Not Found` is user cannot be found or
 
 Unblocks the specified user. Available only for admin.
 
-```
+```plaintext
 POST /users/:id/unblock
 ```
 
@@ -1162,11 +1183,11 @@ Will return `201 OK` on success, `404 User Not Found` is user cannot be found or
 
 ## Deactivate user
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/63921) in GitLab 12.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/22257) in GitLab 12.4.
 
-Deactivates the specified user.  Available only for admin.
+Deactivates the specified user. Available only for admin.
 
-```
+```plaintext
 POST /users/:id/deactivate
 ```
 
@@ -1184,11 +1205,11 @@ Returns:
 
 ## Activate user
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-ce/issues/63921) in GitLab 12.4.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/22257) in GitLab 12.4.
 
-Activates the specified user.  Available only for admin.
+Activates the specified user. Available only for admin.
 
-```
+```plaintext
 POST /users/:id/activate
 ```
 
@@ -1213,7 +1234,7 @@ Please refer to the [Events API documentation](events.md#get-user-contribution-e
 It retrieves every impersonation token of the user. Use the pagination
 parameters `page` and `per_page` to restrict the list of impersonation tokens.
 
-```
+```plaintext
 GET /users/:user_id/impersonation_tokens
 ```
 
@@ -1224,7 +1245,7 @@ Parameters:
 | `user_id` | integer | yes      | The ID of the user                                         |
 | `state`   | string  | no       | filter tokens based on state (`all`, `active`, `inactive`) |
 
-```
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/users/42/impersonation_tokens
 ```
 
@@ -1265,7 +1286,7 @@ Example response:
 
 It shows a user's impersonation token.
 
-```
+```plaintext
 GET /users/:user_id/impersonation_tokens/:impersonation_token_id
 ```
 
@@ -1276,7 +1297,7 @@ Parameters:
 | `user_id`                | integer | yes      | The ID of the user                |
 | `impersonation_token_id` | integer | yes      | The ID of the impersonation token |
 
-```
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/users/42/impersonation_tokens/2
 ```
 
@@ -1307,7 +1328,7 @@ You are only able to create impersonation tokens to impersonate the user and per
 both API calls and Git reads and writes. The user will not see these tokens in their profile
 settings page.
 
-```
+```plaintext
 POST /users/:user_id/impersonation_tokens
 ```
 
@@ -1318,7 +1339,7 @@ POST /users/:user_id/impersonation_tokens
 | `expires_at` | date    | no       | The expiration date of the impersonation token in ISO format (`YYYY-MM-DD`)|
 | `scopes`     | array   | yes      | The array of scopes of the impersonation token (`api`, `read_user`) |
 
-```
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" --data "name=mytoken" --data "expires_at=2017-04-04" --data "scopes[]=api" https://gitlab.example.com/api/v4/users/42/impersonation_tokens
 ```
 
@@ -1346,11 +1367,11 @@ Example response:
 
 It revokes an impersonation token.
 
-```
+```plaintext
 DELETE /users/:user_id/impersonation_tokens/:impersonation_token_id
 ```
 
-```
+```shell
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/users/42/impersonation_tokens/1
 ```
 
@@ -1371,12 +1392,13 @@ The activities that update the timestamp are:
 
 - Git HTTP/SSH activities (such as clone, push)
 - User logging in into GitLab
-- User visiting pages related to Dashboards, Projects, Issues and Merge Requests ([introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/54947) in GitLab 11.8)
+- User visiting pages related to Dashboards, Projects, Issues, and Merge Requests ([introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/54947) in GitLab 11.8)
+- User using the API
 
 By default, it shows the activity for all users in the last 6 months, but this can be
 amended by using the `from` parameter.
 
-```
+```plaintext
 GET /user/activities
 ```
 
@@ -1384,9 +1406,9 @@ Parameters:
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
-| `from` | string | no | Date string in the format YEAR-MONTH-DAY, e.g. `2016-03-11`. Defaults to 6 months ago. |
+| `from` | string | no | Date string in the format YEAR-MONTH-DAY. For example, `2016-03-11`. Defaults to 6 months ago. |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/user/activities
 ```
 
@@ -1416,14 +1438,14 @@ Please note that `last_activity_at` is deprecated, please use `last_activity_on`
 
 ## User memberships (admin only)
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/22518) in GitLab 12.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/20532) in GitLab 12.8.
 
 Lists all projects and groups a user is a member of. This endpoint is available for admins only.
 It returns the `source_id`, `source_name`, `source_type` and `access_level` of a membership.
-Source can be of type `Namespace` (representing a group) or `Project`. The response represents only direct memberships. Inherited memberships, for example in subgroups, will not be included.
-Access levels will be represented by an integer value. Read more about the meaning of access level values [here](access_requests.md#valid-access-levels).
+Source can be of type `Namespace` (representing a group) or `Project`. The response represents only direct memberships. Inherited memberships, for example in subgroups, are not included.
+Access levels are represented by an integer value. For more details, read about the meaning of [access level values](access_requests.md#valid-access-levels).
 
-```
+```plaintext
 GET /users/:id/memberships
 ```
 
@@ -1437,11 +1459,11 @@ Parameters:
 Returns:
 
 - `200 OK` on success.
-- `404 User Not Found` if user cannot be found.
+- `404 User Not Found` if user can't be found.
 - `403 Forbidden` when not requested by an admin.
 - `400 Bad Request` when requested type is not supported.
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/users/<user_id>/memberships
 ```
 

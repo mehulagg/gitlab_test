@@ -5,6 +5,7 @@ require 'fogbugz'
 
 class ApplicationController < ActionController::Base
   include Gitlab::GonHelper
+  include Gitlab::NoCacheHeaders
   include GitlabRoutingHelper
   include PageLayoutHelper
   include SafeParamsHelper
@@ -33,9 +34,11 @@ class ApplicationController < ActionController::Base
   before_action :check_impersonation_availability
   before_action :required_signup_info
 
+  around_action :sessionless_bypass_admin_mode!, if: :sessionless_user?
   around_action :set_current_context
   around_action :set_locale
   around_action :set_session_storage
+  around_action :set_current_admin
 
   after_action :set_page_title_header, if: :json_request?
   after_action :limit_session_time, if: -> { !current_user }
@@ -55,7 +58,6 @@ class ApplicationController < ActionController::Base
   # Adds `no-store` to the DEFAULT_CACHE_CONTROL, to prevent security
   # concerns due to caching private data.
   DEFAULT_GITLAB_CACHE_CONTROL = "#{ActionDispatch::Http::Cache::Response::DEFAULT_CACHE_CONTROL}, no-store"
-  DEFAULT_GITLAB_CONTROL_NO_CACHE = "#{DEFAULT_GITLAB_CACHE_CONTROL}, no-cache"
 
   rescue_from Encoding::CompatibilityError do |exception|
     log_exception(exception)
@@ -120,7 +122,7 @@ class ApplicationController < ActionController::Base
   def render(*args)
     super.tap do
       # Set a header for custom error pages to prevent them from being intercepted by gitlab-workhorse
-      if (400..599).cover?(response.status) && workhorse_excluded_content_types.include?(response.content_type)
+      if (400..599).cover?(response.status) && workhorse_excluded_content_types.include?(response.media_type)
         response.headers['X-GitLab-Custom-Error'] = '1'
       end
     end
@@ -247,9 +249,9 @@ class ApplicationController < ActionController::Base
   end
 
   def no_cache_headers
-    headers['Cache-Control'] = DEFAULT_GITLAB_CONTROL_NO_CACHE
-    headers['Pragma'] = 'no-cache' # HTTP 1.0 compatibility
-    headers['Expires'] = 'Fri, 01 Jan 1990 00:00:00 GMT'
+    DEFAULT_GITLAB_NO_CACHE_HEADERS.each do |k, v|
+      headers[k] = v
+    end
   end
 
   def default_headers
@@ -471,6 +473,13 @@ class ApplicationController < ActionController::Base
   def set_page_title_header
     # Per https://tools.ietf.org/html/rfc5987, headers need to be ISO-8859-1, not UTF-8
     response.headers['Page-Title'] = URI.escape(page_title('GitLab'))
+  end
+
+  def set_current_admin(&block)
+    return yield unless Feature.enabled?(:user_mode_in_session)
+    return yield unless current_user
+
+    Gitlab::Auth::CurrentUserMode.with_current_admin(current_user, &block)
   end
 
   def html_request?

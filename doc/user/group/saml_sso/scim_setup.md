@@ -4,7 +4,7 @@ type: howto, reference
 
 # SCIM provisioning using SAML SSO for GitLab.com groups **(SILVER ONLY)**
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/9388) in [GitLab.com Silver](https://about.gitlab.com/pricing/) 11.10.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/9388) in [GitLab.com Silver](https://about.gitlab.com/pricing/) 11.10.
 
 System for Cross-domain Identity Management (SCIM), is an open standard that enables the
 automation of user provisioning. When SCIM is provisioned for a GitLab group, membership of
@@ -189,7 +189,7 @@ Alternatively, the [SCIM API](../../../api/scim.md#get-a-list-of-saml-users) can
 
 For example:
 
-```sh
+```shell
 curl 'https://example.gitlab.com/api/scim/v2/groups/GROUP_NAME/Users?startIndex=1"' --header "Authorization: Bearer <your_scim_token>" --header "Content-Type: application/scim+json"
 ```
 
@@ -207,7 +207,7 @@ The [SCIM API](../../../api/scim.md#update-a-single-saml-user) can be used to ma
 
 It is then possible to issue a manual SCIM#update request, for example:
 
-```sh
+```shell
 curl --verbose --request PATCH 'https://gitlab.com/api/scim/v2/groups/YOUR_GROUP/Users/OLD_EXTERNAL_UID' --data '{ "Operations": [{"op":"Replace","path":"externalId","value":"NEW_EXTERNAL_UID"}] }' --header "Authorization: Bearer <your_scim_token>" --header "Content-Type: application/scim+json"
 ```
 

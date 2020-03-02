@@ -9,8 +9,8 @@ describe Repository do
 
   TestBlob = Struct.new(:path)
 
-  set(:primary_node)   { create(:geo_node, :primary) }
-  set(:secondary_node) { create(:geo_node) }
+  let_it_be(:primary_node)   { create(:geo_node, :primary) }
+  let_it_be(:secondary_node) { create(:geo_node) }
 
   let(:project) { create(:project, :repository) }
   let(:repository) { project.repository }
@@ -90,7 +90,7 @@ describe Repository do
         project.repository.index_commits_and_blobs
         project1.repository.index_commits_and_blobs
 
-        Gitlab::Elastic::Helper.refresh_index
+        ensure_elasticsearch_index!
 
         expect(described_class.find_commits_by_message_with_elastic('initial').first).to be_a(Commit)
         expect(described_class.find_commits_by_message_with_elastic('initial').count).to eq(2)
@@ -103,7 +103,7 @@ describe Repository do
         project = create :project, :repository
 
         project.repository.index_commits_and_blobs
-        Gitlab::Elastic::Helper.refresh_index
+        ensure_elasticsearch_index!
 
         expect(project.repository.find_commits_by_message_with_elastic('initial').first).to be_a(Commit)
         expect(project.repository.find_commits_by_message_with_elastic('initial').count).to eq(1)

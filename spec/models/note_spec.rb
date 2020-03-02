@@ -285,28 +285,37 @@ describe Note do
     end
   end
 
-  describe "#visible_for?" do
-    using RSpec::Parameterized::TableSyntax
+  describe "#system_note_with_references_visible_for?" do
+    let(:project) { create(:project, :public) }
+    let(:user) { create(:user) }
+    let(:guest) { create(:project_member, :guest, project: project, user: create(:user)).user }
+    let(:reporter) { create(:project_member, :reporter, project: project, user: create(:user)).user }
+    let(:maintainer) { create(:project_member, :maintainer, project: project, user: create(:user)).user }
+    let(:non_member) { create(:user) }
 
-    let_it_be(:note) { create(:note) }
-    let_it_be(:user) { create(:user) }
+    let(:note) { create(:note, project: project) }
 
-    where(:cross_reference_visible, :system_note_viewable, :result) do
-      true  | true  | false
-      false | true  | true
-      false | false | false
+    context 'when project is public' do
+      it_behaves_like 'users with note access' do
+        let(:users) { [reporter, maintainer, guest, non_member, nil] }
+      end
     end
 
-    with_them do
-      it "returns expected result" do
-        expect(note).to receive(:cross_reference_not_visible_for?).and_return(cross_reference_visible)
+    context 'when group is private' do
+      let(:project) { create(:project, :private) }
 
-        unless cross_reference_visible
-          expect(note).to receive(:system_note_viewable_by?)
-            .with(user).and_return(system_note_viewable)
-        end
+      it_behaves_like 'users with note access' do
+        let(:users) { [reporter, maintainer, guest] }
+      end
 
-        expect(note.visible_for?(user)).to eq result
+      it 'returns visible but not readable for non-member user' do
+        expect(note.system_note_with_references_visible_for?(non_member)).to be_truthy
+        expect(note.readable_by?(non_member)).to be_falsy
+      end
+
+      it 'returns visible but not readable for a nil user' do
+        expect(note.system_note_with_references_visible_for?(nil)).to be_truthy
+        expect(note.readable_by?(nil)).to be_falsy
       end
     end
   end
@@ -349,21 +358,21 @@ describe Note do
     end
   end
 
-  describe "cross_reference_not_visible_for?" do
-    let(:private_user)    { create(:user) }
-    let(:private_project) { create(:project, namespace: private_user.namespace) { |p| p.add_maintainer(private_user) } }
-    let(:private_issue)   { create(:issue, project: private_project) }
+  describe "system_note_with_references_visible_for?" do
+    let_it_be(:private_user)    { create(:user) }
+    let_it_be(:private_project) { create(:project, namespace: private_user.namespace) { |p| p.add_maintainer(private_user) } }
+    let_it_be(:private_issue)   { create(:issue, project: private_project) }
 
-    let(:ext_proj)  { create(:project, :public) }
-    let(:ext_issue) { create(:issue, project: ext_proj) }
+    let_it_be(:ext_proj)  { create(:project, :public) }
+    let_it_be(:ext_issue) { create(:issue, project: ext_proj) }
 
     shared_examples "checks references" do
       it "returns true" do
-        expect(note.cross_reference_not_visible_for?(ext_issue.author)).to be_truthy
+        expect(note.system_note_with_references_visible_for?(ext_issue.author)).to be_falsy
       end
 
       it "returns false" do
-        expect(note.cross_reference_not_visible_for?(private_user)).to be_falsy
+        expect(note.system_note_with_references_visible_for?(private_user)).to be_truthy
       end
 
       it "returns false if user visible reference count set" do
@@ -371,14 +380,14 @@ describe Note do
         note.total_reference_count = 1
 
         expect(note).not_to receive(:reference_mentionables)
-        expect(note.cross_reference_not_visible_for?(ext_issue.author)).to be_falsy
+        expect(note.system_note_with_references_visible_for?(ext_issue.author)).to be_truthy
       end
 
       it "returns true if ref count is 0" do
         note.user_visible_reference_count = 0
 
         expect(note).not_to receive(:reference_mentionables)
-        expect(note.cross_reference_not_visible_for?(ext_issue.author)).to be_truthy
+        expect(note.system_note_with_references_visible_for?(ext_issue.author)).to be_falsy
       end
     end
 
@@ -393,10 +402,24 @@ describe Note do
       it_behaves_like "checks references"
     end
 
-    context "when there are two references in note" do
+    context "when there is a reference to a label" do
+      let_it_be(:private_label) { create(:label, project: private_project) }
       let(:note) do
         create :note,
           noteable: ext_issue, project: ext_proj,
+          note: "added label #{private_label.to_reference(ext_proj)}",
+          system: true
+      end
+      let!(:system_note_metadata) { create(:system_note_metadata, note: note, action: :label) }
+
+      it_behaves_like "checks references"
+    end
+
+    context "when there are two references in note" do
+      let_it_be(:ext_issue2) { create(:issue, project: ext_proj) }
+      let(:note) do
+        create :note,
+          noteable: ext_issue2, project: ext_proj,
           note: "mentioned in issue #{private_issue.to_reference(ext_proj)} and " \
                 "public issue #{ext_issue.to_reference(ext_proj)}",
           system: true
@@ -409,16 +432,16 @@ describe Note do
         note.total_reference_count = 2
 
         expect(note).not_to receive(:reference_mentionables)
-        expect(note.cross_reference_not_visible_for?(ext_issue.author)).to be_truthy
+        expect(note.system_note_with_references_visible_for?(ext_issue.author)).to be_falsy
       end
     end
   end
 
-  describe '#cross_reference?' do
+  describe '#system_note_with_references?' do
     it 'falsey for user-generated notes' do
       note = create(:note, system: false)
 
-      expect(note.cross_reference?).to be_falsy
+      expect(note.system_note_with_references?).to be_falsy
     end
 
     context 'when the note might contain cross references' do
@@ -429,7 +452,7 @@ describe Note do
         it 'delegates to the cross-reference regex' do
           expect(note).to receive(:matches_cross_reference_regex?).and_return(false)
 
-          note.cross_reference?
+          note.system_note_with_references?
         end
       end
     end
@@ -439,8 +462,8 @@ describe Note do
       let(:label_note) { build(:note, note: 'added ~2323232323', system: true) }
 
       it 'scan for a `mentioned in` prefix' do
-        expect(commit_note.cross_reference?).to be_truthy
-        expect(label_note.cross_reference?).to be_falsy
+        expect(commit_note.system_note_with_references?).to be_truthy
+        expect(label_note.system_note_with_references?).to be_falsy
       end
     end
 
@@ -454,7 +477,7 @@ describe Note do
       it 'delegates to the system note service' do
         expect(SystemNotes::IssuablesService).to receive(:cross_reference?).with(note.note)
 
-        note.cross_reference?
+        note.system_note_with_references?
       end
     end
 
@@ -466,7 +489,7 @@ describe Note do
         it 'delegates to the cross-reference regex' do
           expect(note).to receive(:matches_cross_reference_regex?)
 
-          note.cross_reference?
+          note.system_note_with_references?
         end
       end
 
@@ -475,13 +498,13 @@ describe Note do
 
         it_behaves_like 'system_note_metadata includes note action'
 
-        it { expect(note.cross_reference?).to be_falsy }
+        it { expect(note.system_note_with_references?).to be_falsy }
 
         context 'with cross reference label note' do
           let(:label) { create(:label, project: issue.project)}
           let(:note) { create(:system_note, note: "added #{label.to_reference} label", noteable: issue, project: issue.project) }
 
-          it { expect(note.cross_reference?).to be_truthy }
+          it { expect(note.system_note_with_references?).to be_truthy }
         end
       end
 
@@ -490,13 +513,13 @@ describe Note do
 
         it_behaves_like 'system_note_metadata includes note action'
 
-        it { expect(note.cross_reference?).to be_falsy }
+        it { expect(note.system_note_with_references?).to be_falsy }
 
         context 'with cross reference milestone note' do
           let(:milestone) { create(:milestone, project: issue.project)}
           let(:note) { create(:system_note, note: "added #{milestone.to_reference} milestone", noteable: issue, project: issue.project) }
 
-          it { expect(note.cross_reference?).to be_truthy }
+          it { expect(note.system_note_with_references?).to be_truthy }
         end
       end
     end

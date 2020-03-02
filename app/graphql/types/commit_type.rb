@@ -26,6 +26,11 @@ module Types
           description: 'Rendered HTML of the commit signature'
     field :author_name, type: GraphQL::STRING_TYPE, null: true,
           description: 'Commit authors name'
+    field :author_gravatar, type: GraphQL::STRING_TYPE, null: true,
+          description: 'Commit authors gravatar',
+          resolve: -> (commit, args, context) do
+            GravatarService.new.execute(commit.author_email, 40)
+          end
 
     # models/commit lazy loads the author by email
     field :author, type: Types::UserType, null: true,
@@ -40,7 +45,7 @@ module Types
           type: Types::Ci::PipelineType,
           null: true,
           description: "Latest pipeline of the commit",
-          deprecation_reason: 'use pipelines',
+          deprecation_reason: 'Use pipelines',
           resolver: Resolvers::CommitPipelinesResolver.last
   end
 end

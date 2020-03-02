@@ -30,6 +30,10 @@ class Projects::SnippetsController < Projects::ApplicationController
   respond_to :html
 
   def index
+    @snippet_counts = Snippets::CountService
+      .new(current_user, project: @project)
+      .execute
+
     @snippets = SnippetsFinder.new(current_user, project: @project, scope: params[:scope])
       .execute
       .page(params[:page])
@@ -62,7 +66,6 @@ class Projects::SnippetsController < Projects::ApplicationController
   end
 
   def show
-    blob = @snippet.blob
     conditionally_expand_blob(blob)
 
     respond_to do |format|
@@ -110,6 +113,16 @@ class Projects::SnippetsController < Projects::ApplicationController
   end
   alias_method :awardable, :snippet
   alias_method :spammable, :snippet
+
+  def blob
+    return unless snippet
+
+    @blob ||= if Feature.enabled?(:version_snippets, current_user) && !snippet.repository.empty?
+                snippet.blobs.first
+              else
+                snippet.blob
+              end
+  end
 
   def spammable_path
     project_snippet_path(@project, @snippet)

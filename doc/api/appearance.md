@@ -9,11 +9,11 @@ Appearance API allows you to maintain GitLab's appearance as if using the GitLab
 
 List the current appearance configuration of the GitLab instance.
 
-```
+```plaintext
 GET /application/appearance
 ```
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/application/appearance
 ```
 
@@ -39,7 +39,7 @@ Example response:
 
 Use an API call to modify GitLab instance appearance configuration.
 
-```
+```plaintext
 PUT /application/appearance
 ```
 
@@ -57,7 +57,7 @@ PUT /application/appearance
 | `message_font_color`              | string  | no       | Font color for the system header / footer bar
 | `email_header_and_footer_enabled` | boolean | no       | Add header and footer to all outgoing emails if enabled
 
-```bash
+```shell
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/application/appearance?email_header_and_footer_enabled=true&header_message=test
 ```
 

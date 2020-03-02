@@ -4,7 +4,7 @@
 
 Get a list of deployments in a project.
 
-```
+```plaintext
 GET /projects/:id/deployments
 ```
 
@@ -26,7 +26,7 @@ The status attribute can be one of the following values:
 - failed
 - canceled
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/1/deployments"
 ```
 
@@ -177,7 +177,7 @@ Example of response
 
 ## Get a specific deployment
 
-```
+```plaintext
 GET /projects/:id/deployments/:deployment_id
 ```
 
@@ -186,7 +186,7 @@ GET /projects/:id/deployments/:deployment_id
 | `id`      | integer/string | yes      | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
 | `deployment_id` | integer | yes      | The ID of the deployment |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/1/deployments/1"
 ```
 
@@ -265,7 +265,7 @@ Example of response
 
 ## Create a deployment
 
-```
+```plaintext
 POST /projects/:id/deployments
 ```
 
@@ -286,7 +286,7 @@ The status can be one of the following values:
 - failed
 - canceled
 
-```bash
+```shell
 curl --data "environment=production&sha=a91957a858320c0e17f3a0eca7cfacbff50ea29a&ref=master&tag=false&status=success" --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/1/deployments"
 ```
 
@@ -319,7 +319,7 @@ Example of a response:
 
 ## Updating a deployment
 
-```
+```plaintext
 PUT /projects/:id/deployments/:deployment_id
 ```
 
@@ -329,7 +329,7 @@ PUT /projects/:id/deployments/:deployment_id
 | `deployment_id`  | integer        | yes      | The ID of the deployment to update |
 | `status`         | string         | yes      | The new status of the deployment |
 
-```bash
+```shell
 curl --request PUT --data "status=success" --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/1/deployments/42"
 ```
 
@@ -366,12 +366,12 @@ Example of a response:
 
 This API retrieves the list of merge requests shipped with a given deployment:
 
-```
+```plaintext
 GET /projects/:id/deployments/:deployment_id/merge_requests
 ```
 
 It supports the same parameters as the [Merge Requests API](./merge_requests.md#list-merge-requests) and will return a response using the same format:
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/1/deployments/42"
 ```

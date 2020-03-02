@@ -40,7 +40,7 @@ repositories are also processed with CommonMark. As of 11.8, the [Redcarpet Ruby
 has been removed and all issues and comments, including those from pre-11.1, are now processed
 using the [CommonMark Ruby Library](https://github.com/gjtorikian/commonmarker).
 
-The documentation website had its [Markdown engine migrated from Redcarpet to Kramdown](https://gitlab.com/gitlab-org/gitlab-docs/merge_requests/108)
+The documentation website had its [Markdown engine migrated from Redcarpet to Kramdown](https://gitlab.com/gitlab-org/gitlab-docs/-/merge_requests/108)
 in October 2018.
 
 You may have older issues, merge requests, or Markdown documents in your
@@ -97,6 +97,7 @@ not found in standard Markdown:
 - [Math equations and symbols written in LaTeX](#math)
 - [Special GitLab references](#special-gitlab-references)
 - [Task Lists](#task-lists)
+- [Table of Contents](#table-of-contents)
 - [Wiki specific Markdown](#wiki-specific-markdown)
 
 It also has [extended Markdown features](#standard-markdown-and-extensions-in-gitlab), without
@@ -130,26 +131,26 @@ Supported formats (named colors are not supported):
 Color written inside backticks will be followed by a color "chip":
 
 ```markdown
-`#F00`  
-`#F00A`  
-`#FF0000`  
-`#FF0000AA`  
-`RGB(0,255,0)`  
-`RGB(0%,100%,0%)`  
-`RGBA(0,255,0,0.3)`  
-`HSL(540,70%,50%)`  
-`HSLA(540,70%,50%,0.3)`  
+- `#F00`
+- `#F00A`
+- `#FF0000`
+- `#FF0000AA`
+- `RGB(0,255,0)`
+- `RGB(0%,100%,0%)`
+- `RGBA(0,255,0,0.3)`
+- `HSL(540,70%,50%)`
+- `HSLA(540,70%,50%,0.3)`
 ```
 
-`#F00`  
-`#F00A`  
-`#FF0000`  
-`#FF0000AA`  
-`RGB(0,255,0)`  
-`RGB(0%,100%,0%)`  
-`RGBA(0,255,0,0.3)`  
-`HSL(540,70%,50%)`  
-`HSLA(540,70%,50%,0.3)`  
+- `#F00`
+- `#F00A`
+- `#FF0000`
+- `#FF0000AA`
+- `RGB(0,255,0)`
+- `RGB(0%,100%,0%)`
+- `RGBA(0,255,0,0.3)`
+- `HSL(540,70%,50%)`
+- `HSLA(540,70%,50%,0.3)`
 
 ### Diagrams and flowcharts
 
@@ -157,7 +158,7 @@ It is possible to generate diagrams and flowcharts from text in GitLab using [Me
 
 #### Mermaid
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/15107) in
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/15107) in
 GitLab 10.3.
 
 Visit the [official page](https://mermaidjs.github.io/) for more details. If you are new to using Mermaid or need help identifying issues in your Mermaid code, the [Mermaid Live Editor](https://mermaid-js.github.io/mermaid-live-editor/) is a helpful tool for creating and resolving issues within Mermaid diagrams.
@@ -261,7 +262,7 @@ this font installed by default.
 
 ### Front matter
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/23331) in GitLab 11.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/23331) in GitLab 11.6.
 
 Front matter is metadata included at the beginning of a Markdown document, preceding
 its content. This data can be used by static site generators such as [Jekyll](https://jekyllrb.com/docs/front-matter/),
@@ -389,7 +390,7 @@ the [asciidoctor user manual](https://asciidoctor.org/docs/user-manual/#activati
 ### Special GitLab references
 
 GFM recognizes special GitLab related references. For example, you can easily reference
-an issue, a commit, a team member or even the whole team within a project. GFM will turn
+an issue, a commit, a team member, or even the whole team within a project. GFM will turn
 that reference into a link so you can navigate between them easily.
 
 Additionally, GFM recognizes certain cross-project references, and also has a shorthand
@@ -455,6 +456,17 @@ unordered or ordered lists:
 1. [ ] Incomplete task
    1. [ ] Sub-task 1
    1. [x] Sub-task 2
+
+### Table of Contents
+
+A table of contents can be added to a Markdown file, issue or merge request
+description, or a wiki page, by adding the tag `[[_TOC_]]` on its own line.
+It will be replaced with an unordered list that links to the various
+headers.
+
+```markdown
+[[_TOC_]]
+```
 
 ### Wiki-specific Markdown
 
@@ -569,7 +581,7 @@ Quote break.
 GFM extends the standard Markdown standard by also supporting multiline blockquotes
 fenced by `>>>`:
 
-```
+```markdown
 >>>
 If you paste a message from somewhere else
 
@@ -618,7 +630,7 @@ def function():
     3-backtick fences.
 ~~~
 
-```
+```plaintext
 ~~~
 Tildes are OK too.
 ~~~
@@ -626,20 +638,20 @@ Tildes are OK too.
 
 The three examples above render as:
 
-```
+```python
 def function():
     #indenting works just fine in the fenced code block
     s = "Python code"
     print s
 ```
 
-```
+```plaintext
 Using 4 spaces
 is like using
 3-backtick fences.
 ```
 
-~~~
+~~~plaintext
 Tildes are OK too.
 ~~~
 
@@ -656,7 +668,7 @@ code when it is inline.
 Blocks of code are fenced by lines with three back-ticks ```` ``` ```` or three tildes `~~~`, and have
 the language identified at the end of the first fence:
 
-~~~
+~~~markdown
 ```javascript
 var s = "JavaScript syntax highlighting";
 alert(s);
@@ -702,7 +714,7 @@ markdown = Redcarpet.new("Hello World!")
 puts markdown.to_html
 ```
 
-```
+```plaintext
 No language indicated, so no syntax highlighting.
 s = "There is no highlighting for this."
 But let's throw in a <b>tag</b>.
@@ -744,7 +756,7 @@ dealing with code and names that often appear with multiple underscores. As a re
 GFM extends the standard Markdown standard by ignoring multiple underlines in words,
 to allow better rendering of Markdown documents discussing code:
 
-```md
+```markdown
 perform_complicated_task
 
 do_this_and_do_that_and_another_thing
@@ -840,7 +852,7 @@ The IDs are generated from the content of the header according to the following 
 
 Example:
 
-```
+```markdown
 # This header has spaces in it
 ## This header has a :thumbsup: in it
 # This header has Unicode in it: 한글
@@ -896,6 +908,11 @@ Reference-style (hover to see title text):
 [logo]: img/markdown_logo.png "Title Text"
 ```
 
+<!--
+DO NOT change the name of markdown_logo.png. This is used for a test
+in spec/controllers/help_controller_spec.rb.
+-->
+
 Inline-style (hover to see title text):
 
 ![alt text](img/markdown_logo.png "Title Text")
@@ -947,7 +964,7 @@ Here's a sample audio clip:
 You can also use raw HTML in your Markdown, and it'll usually work pretty well.
 
 See the documentation for HTML::Pipeline's [SanitizationFilter](https://www.rubydoc.info/gems/html-pipeline/1.11.0/HTML/Pipeline/SanitizationFilter#WHITELIST-constant)
-class for the list of allowed HTML tags and attributes.  In addition to the default
+class for the list of allowed HTML tags and attributes. In addition to the default
 `SanitizationFilter` whitelist, GitLab allows `span`, `abbr`, `details` and `summary` elements.
 
 ```html
@@ -956,7 +973,7 @@ class for the list of allowed HTML tags and attributes.  In addition to the defa
   <dd>Is something people use sometimes.</dd>
 
   <dt>Markdown in HTML</dt>
-  <dd>Does *not* work **very** well. HTML <em>tags</em> will <b>always</b> work.</dd>
+  <dd>Does *not* work **very** well. HTML <em>tags</em> will <b>work</b>, in most cases.</dd>
 </dl>
 ```
 
@@ -965,7 +982,7 @@ class for the list of allowed HTML tags and attributes.  In addition to the defa
   <dd>Is something people use sometimes.</dd>
 
   <dt>Markdown in HTML</dt>
-  <dd>Does *not* work **very** well. HTML <em>tags</em> will <b>always</b> work.</dd>
+  <dd>Does *not* work **very** well. HTML <em>tags</em> will <b>work</b>, in most cases.</dd>
 </dl>
 
 ---
@@ -976,12 +993,12 @@ are separated into their own lines:
 ```html
 <dl>
   <dt>Markdown in HTML</dt>
-  <dd>Does *not* work **very** well. HTML tags will always work.</dd>
+  <dd>Does *not* work **very** well. HTML tags will work, in most cases.</dd>
 
   <dt>Markdown in HTML</dt>
   <dd>
 
-  Does *not* work **very** well. HTML tags will always work.
+  Does *not* work **very** well. HTML tags will work, in most cases.
 
   </dd>
 </dl>
@@ -991,12 +1008,12 @@ are separated into their own lines:
 
 <dl>
   <dt>Markdown in HTML</dt>
-  <dd>Does *not* work **very** well. HTML tags will always work.</dd>
+  <dd>Does *not* work **very** well. HTML tags will work, in most cases.</dd>
 
   <dt>Markdown in HTML</dt>
   <dd>
 
-  Does <em>not</em> work <b>very</b> well. HTML tags will always work.
+  Does <em>not</em> work <b>very</b> well. HTML tags will work, in most cases.
 
   </dd>
 </dl>
@@ -1131,7 +1148,7 @@ A new line due to the previous backslash.
 
 There are two ways to create links, inline-style and reference-style:
 
-```md
+```markdown
 - This is an [inline-style link](https://www.google.com)
 - This is a [link to a repository file in the same directory](index.md)
 - This is a [relative link to a readme one directory higher](../README.md)
@@ -1302,7 +1319,7 @@ the paragraph will appear outside the list, instead of properly indented under t
 
 Example:
 
-```
+```markdown
 1. First ordered list item
 
   Paragraph of first item.

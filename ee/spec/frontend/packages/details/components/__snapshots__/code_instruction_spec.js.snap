@@ -30,12 +30,13 @@ exports[`Package code instruction single line to match the default snapshot 1`] 
       title="Copy npm install command"
       type="button"
     >
+      <!---->
+       
       <svg
-        aria-hidden="true"
-        class="s16 ic-duplicate"
+        class="gl-icon s16"
       >
         <use
-          xlink:href="#duplicate"
+          href="#copy-to-clipboard"
         />
       </svg>
     </button>

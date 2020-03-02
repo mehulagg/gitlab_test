@@ -16,7 +16,7 @@ describe Projects::Settings::CiCdController do
     it 'renders show with 200 status code' do
       get :show, params: { namespace_id: project.namespace, project_id: project }
 
-      expect(response).to have_gitlab_http_status(200)
+      expect(response).to have_gitlab_http_status(:ok)
       expect(response).to render_template(:show)
     end
 
@@ -106,7 +106,7 @@ describe Projects::Settings::CiCdController do
     it 'redirects to the settings page' do
       subject
 
-      expect(response).to have_gitlab_http_status(302)
+      expect(response).to have_gitlab_http_status(:found)
       expect(flash[:toast]).to eq("Pipelines settings for '#{project.name}' were successfully updated.")
     end
 
@@ -245,6 +245,14 @@ describe Projects::Settings::CiCdController do
           end
         end
       end
+    end
+  end
+
+  describe 'POST create_deploy_token' do
+    it_behaves_like 'a created deploy token' do
+      let(:entity) { project }
+      let(:create_entity_params) { { namespace_id: project.namespace, project_id: project } }
+      let(:deploy_token_type) { DeployToken.deploy_token_types[:project_type] }
     end
   end
 end

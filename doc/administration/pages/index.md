@@ -83,7 +83,7 @@ GitLab Pages expect to run on their own virtual host. In your DNS server/provide
 you need to add a [wildcard DNS A record][wiki-wildcard-dns] pointing to the
 host that GitLab runs. For example, an entry would look like this:
 
-```
+```plaintext
 *.example.io. 1800 IN A    192.0.2.1
 *.example.io. 1800 IN AAAA 2001::1
 ```
@@ -360,14 +360,14 @@ that method from working. Use the following workaround:
 
 1. Append your GitLab server TLS/SSL certficate to `/opt/gitlab/embedded/ssl/certs/cacert.pem` where `gitlab-domain-example.com` is your GitLab application URL
 
-    ```bash
+    ```shell
     printf "\ngitlab-domain-example.com\n===========================\n" | sudo tee --append /opt/gitlab/embedded/ssl/certs/cacert.pem
     echo -n | openssl s_client -connect gitlab-domain-example.com:443  | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee --append /opt/gitlab/embedded/ssl/certs/cacert.pem
     ```
 
 1. [Restart](../restart_gitlab.md) the GitLab Pages Daemon. For GitLab Omnibus instances:
 
-    ```bash
+    ```shell
     sudo gitlab-ctl restart gitlab-pages
     ```
 
@@ -376,7 +376,7 @@ Some GitLab Omnibus upgrades will revert this workaround and you'll need to appl
 
 ## Activate verbose logging for daemon
 
-Verbose logging was [introduced](https://gitlab.com/gitlab-org/omnibus-gitlab/merge_requests/2533) in
+Verbose logging was [introduced](https://gitlab.com/gitlab-org/omnibus-gitlab/-/merge_requests/2533) in
 Omnibus GitLab 11.1.
 
 Follow the steps below to configure verbose logging of GitLab Pages daemon.
@@ -408,7 +408,7 @@ are stored.
 
 ## Configure listener for reverse proxy requests
 
-Follow the steps below to configure the proxy listener of GitLab Pages. [Introduced](https://gitlab.com/gitlab-org/omnibus-gitlab/merge_requests/2533) in
+Follow the steps below to configure the proxy listener of GitLab Pages. [Introduced](https://gitlab.com/gitlab-org/omnibus-gitlab/-/merge_requests/2533) in
 Omnibus GitLab 11.1.
 
 1. By default the listener is configured to listen for requests on `localhost:8090`.
@@ -568,8 +568,8 @@ than GitLab to prevent XSS attacks.
 
 [backup]: ../../raketasks/backup_restore.md
 [ce-14605]: https://gitlab.com/gitlab-org/gitlab-foss/issues/14605
-[ee-80]: https://gitlab.com/gitlab-org/gitlab/merge_requests/80
-[ee-173]: https://gitlab.com/gitlab-org/gitlab/merge_requests/173
+[ee-80]: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/80
+[ee-173]: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/173
 [gitlab pages daemon]: https://gitlab.com/gitlab-org/gitlab-pages
 [NGINX configs]: https://gitlab.com/gitlab-org/gitlab/tree/8-5-stable-ee/lib/support/nginx
 [pages-readme]: https://gitlab.com/gitlab-org/gitlab-pages/blob/master/README.md

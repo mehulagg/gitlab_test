@@ -377,7 +377,12 @@ x6zG6WoibsbsJMj70nwseUnPTBQNDP+j61RJjC/r
 
     trait :instance_serverless do
       wildcard { true }
-      domain_type { :instance }
+      scope { :instance }
+      usage { :serverless }
+    end
+
+    trait :with_project do
+      association :project
     end
   end
 end

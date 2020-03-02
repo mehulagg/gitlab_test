@@ -67,7 +67,7 @@ module EE
       validate :validate_shared_runner_minutes_support
 
       validates :max_pages_size,
-                numericality: { only_integer: true, greater_than: 0, allow_nil: true,
+                numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true,
                                 less_than: ::Gitlab::Pages::MAX_SIZE / 1.megabyte }
 
       delegate :trial?, :trial_ends_on, :trial_starts_on, :upgradable?, to: :gitlab_subscription, allow_nil: true
@@ -79,8 +79,69 @@ module EE
     end
 
     class_methods do
+      extend ::Gitlab::Utils::Override
+
+      NamespaceStatisticsNotResetError = Class.new(StandardError)
+
       def plans_with_feature(feature)
         LICENSE_PLANS_TO_NAMESPACE_PLANS.values_at(*License.plans_with_feature(feature))
+      end
+
+      def reset_ci_minutes_in_batches!
+        each_batch do |namespaces|
+          namespace_ids = namespaces.pluck(:id)
+          reset_ci_minutes!(namespace_ids)
+        end
+      end
+
+      # ensure that recalculation of extra shared runners minutes occurs in the same
+      # transaction as the reset of the namespace statistics. If the transaction fails
+      # none of the changes apply but the numbers still remain consistent with each other.
+      override :reset_ci_minutes!
+      def reset_ci_minutes!(namespace_ids)
+        transaction do
+          recalculate_extra_shared_runners_minutes_limits!(namespace_ids)
+          reset_shared_runners_seconds!(namespace_ids)
+          reset_ci_minutes_notifications!(namespace_ids)
+        end
+        true
+      rescue ActiveRecord::ActiveRecordError
+        # We don't need to print thousands of namespace_ids
+        # in the message if all batches failed.
+        # A small batch would be sufficient for investigation.
+        failed_namespace_ids = namespace_ids.first(10)
+
+        raise EE::Namespace::NamespaceStatisticsNotResetError,
+          "#{namespace_ids.count} namespace shared runner minutes were not reset and the transaction was rolled back. Namespace Ids: #{failed_namespace_ids}"
+      end
+
+      def extra_minutes_left_sql
+        "GREATEST((namespaces.shared_runners_minutes_limit + namespaces.extra_shared_runners_minutes_limit) - ROUND(namespace_statistics.shared_runners_seconds / 60.0), 0)"
+      end
+
+      def recalculate_extra_shared_runners_minutes_limits!(namespace_ids)
+        where(id: namespace_ids)
+          .with_shared_runners_minutes_limit
+          .with_extra_shared_runners_minutes_limit
+          .with_shared_runners_minutes_exceeding_default_limit
+          .update_all("extra_shared_runners_minutes_limit = #{extra_minutes_left_sql} FROM namespace_statistics")
+      end
+
+      def reset_shared_runners_seconds!(namespace_ids)
+        NamespaceStatistics
+          .where(namespace: namespace_ids)
+          .where.not(shared_runners_seconds: 0)
+          .update_all(shared_runners_seconds: 0, shared_runners_seconds_last_reset: Time.current)
+
+        ::ProjectStatistics
+          .where(namespace: namespace_ids)
+          .where.not(shared_runners_seconds: 0)
+          .update_all(shared_runners_seconds: 0, shared_runners_seconds_last_reset: Time.current)
+      end
+
+      def reset_ci_minutes_notifications!(namespace_ids)
+        where(id: namespace_ids)
+          .update_all(last_ci_minutes_notification_at: nil, last_ci_minutes_usage_notification_level: nil)
       end
     end
 
@@ -263,6 +324,14 @@ module EE
     # for Group namespaces.
     def billable_members_count(_requested_hosted_plan = nil)
       1
+    end
+
+    # When a purchasing a GL.com plan for a User namespace
+    # we only charge for a single user.
+    # This method is overwritten in Group where we made the calculation
+    # for Group namespaces.
+    def billed_user_ids(_requested_hosted_plan = nil)
+      [owner_id]
     end
 
     def eligible_for_trial?

@@ -79,7 +79,7 @@ export default {
       return this.$apollo.queries.commit.loading;
     },
     showCommitId() {
-      return this.commit.sha.substr(0, 8);
+      return this.commit?.sha?.substr(0, 8);
     },
   },
   watch: {
@@ -108,7 +108,12 @@ export default {
         class="avatar-cell"
       />
       <span v-else class="avatar-cell user-avatar-link">
-        <img :src="$options.defaultAvatarUrl" width="40" height="40" class="avatar s40" />
+        <img
+          :src="commit.authorGravatar || $options.defaultAvatarUrl"
+          width="40"
+          height="40"
+          class="avatar s40"
+        />
       </span>
       <div class="commit-detail flex-list">
         <div class="commit-content qa-commit-content">
@@ -146,9 +151,8 @@ export default {
             v-if="commit.description"
             :class="{ 'd-block': showDescription }"
             class="commit-row-description append-bottom-8"
+            >{{ commit.description }}</pre
           >
-            {{ commit.description }}
-          </pre>
         </div>
         <div class="commit-actions flex-row">
           <div v-if="commit.signatureHtml" v-html="commit.signatureHtml"></div>

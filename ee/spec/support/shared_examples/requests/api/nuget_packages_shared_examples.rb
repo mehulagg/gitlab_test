@@ -18,6 +18,16 @@ RSpec.shared_examples 'rejects nuget packages access' do |user_type, status, add
   end
 end
 
+RSpec.shared_examples 'rejects nuget packages access with packages features disabled' do
+  context 'with packages features disabled' do
+    before do
+      stub_licensed_features(packages: false)
+    end
+
+    it_behaves_like 'rejects nuget packages access', :anonymous, :forbidden
+  end
+end
+
 RSpec.shared_examples 'process nuget service index request' do |user_type, status, add_member = true|
   context "for user type #{user_type}" do
     before do
@@ -29,20 +39,77 @@ RSpec.shared_examples 'process nuget service index request' do |user_type, statu
     it 'returns a valid json response' do
       subject
 
-      expect(response.content_type.to_s).to eq('application/json')
-      expect(json_response).to be_a(Hash)
-    end
-
-    it 'returns a valid nuget service index json' do
-      subject
-
+      expect(response.media_type).to eq('application/json')
       expect(json_response).to match_schema('public_api/v4/packages/nuget/service_index', dir: 'ee')
+      expect(json_response).to be_a(Hash)
     end
 
     context 'with invalid format' do
       let(:url) { "/projects/#{project.id}/packages/nuget/index.xls" }
 
       it_behaves_like 'rejects nuget packages access', :anonymous, :not_found
+    end
+  end
+end
+
+RSpec.shared_examples 'returning nuget metadata json response with json schema' do |json_schema|
+  it 'returns a valid json response' do
+    subject
+
+    expect(response.media_type).to eq('application/json')
+    expect(json_response).to match_schema(json_schema, dir: 'ee')
+    expect(json_response).to be_a(Hash)
+  end
+end
+
+RSpec.shared_examples 'process nuget metadata request at package name level' do |user_type, status, add_member = true|
+  context "for user type #{user_type}" do
+    before do
+      project.send("add_#{user_type}", user) if add_member && user_type != :anonymous
+    end
+
+    it_behaves_like 'returning response status', status
+
+    it_behaves_like 'returning nuget metadata json response with json schema', 'public_api/v4/packages/nuget/packages_metadata'
+
+    context 'with invalid format' do
+      let(:url) { "/projects/#{project.id}/packages/nuget/metadata/#{package_name}/index.xls" }
+
+      it_behaves_like 'rejects nuget packages access', :anonymous, :not_found
+    end
+
+    context 'with lower case package name' do
+      let_it_be(:package_name) { 'dummy.package' }
+
+      it_behaves_like 'returning response status', status
+
+      it_behaves_like 'returning nuget metadata json response with json schema', 'public_api/v4/packages/nuget/packages_metadata'
+    end
+  end
+end
+
+RSpec.shared_examples 'process nuget metadata request at package name and package version level' do |user_type, status, add_member = true|
+  context "for user type #{user_type}" do
+    before do
+      project.send("add_#{user_type}", user) if add_member && user_type != :anonymous
+    end
+
+    it_behaves_like 'returning response status', status
+
+    it_behaves_like 'returning nuget metadata json response with json schema', 'public_api/v4/packages/nuget/package_metadata'
+
+    context 'with invalid format' do
+      let(:url) { "/projects/#{project.id}/packages/nuget/metadata/#{package_name}/#{package.version}.xls" }
+
+      it_behaves_like 'rejects nuget packages access', :anonymous, :not_found
+    end
+
+    context 'with lower case package name' do
+      let_it_be(:package_name) { 'dummy.package' }
+
+      it_behaves_like 'returning response status', status
+
+      it_behaves_like 'returning nuget metadata json response with json schema', 'public_api/v4/packages/nuget/package_metadata'
     end
   end
 end
@@ -58,7 +125,7 @@ RSpec.shared_examples 'process nuget workhorse authorization' do |user_type, sta
     it 'has the proper content type' do
       subject
 
-      expect(response.content_type.to_s).to eq(Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE)
+      expect(response.media_type).to eq(Gitlab::Workhorse::INTERNAL_API_CONTENT_TYPE)
     end
 
     context 'with a request that bypassed gitlab-workhorse' do
@@ -72,13 +139,13 @@ RSpec.shared_examples 'process nuget workhorse authorization' do |user_type, sta
         project.add_maintainer(user)
       end
 
-      it_behaves_like 'returning response status', :error
+      it_behaves_like 'returning response status', :forbidden
     end
   end
 end
 
 RSpec.shared_examples 'process nuget upload' do |user_type, status, add_member = true|
-  shared_examples 'creates nuget package files' do
+  RSpec.shared_examples 'creates nuget package files' do
     it 'creates package files' do
       expect(::Packages::Nuget::ExtractionWorker).to receive(:perform_async).once
       expect { subject }
@@ -88,7 +155,6 @@ RSpec.shared_examples 'process nuget upload' do |user_type, status, add_member =
 
       package_file = project.packages.last.package_files.reload.last
       expect(package_file.file_name).to eq('package.nupkg')
-      expect(package_file.file_type).to eq(0)
     end
   end
 
@@ -105,6 +171,7 @@ RSpec.shared_examples 'process nuget upload' do |user_type, status, add_member =
       end
 
       context 'with correct params' do
+        it_behaves_like 'package workhorse uploads'
         it_behaves_like 'creates nuget package files'
         it_behaves_like 'a gitlab tracking event', described_class.name, 'push_package'
       end
@@ -141,6 +208,131 @@ RSpec.shared_examples 'process nuget upload' do |user_type, status, add_member =
       end
 
       it_behaves_like 'background upload schedules a file migration'
+    end
+  end
+end
+
+RSpec.shared_examples 'process nuget download versions request' do |user_type, status, add_member = true|
+  RSpec.shared_examples 'returns a valid nuget download versions json response' do
+    it 'returns a valid json response' do
+      subject
+
+      expect(response.media_type).to eq('application/json')
+      expect(json_response).to match_schema('public_api/v4/packages/nuget/download_versions', dir: 'ee')
+      expect(json_response).to be_a(Hash)
+      expect(json_response['versions']).to match_array(packages.map(&:version).sort)
+    end
+  end
+
+  context "for user type #{user_type}" do
+    before do
+      project.send("add_#{user_type}", user) if add_member && user_type != :anonymous
+    end
+
+    it_behaves_like 'returning response status', status
+
+    it_behaves_like 'returns a valid nuget download versions json response'
+
+    context 'with invalid format' do
+      let(:url) { "/projects/#{project.id}/packages/nuget/download/#{package_name}/index.xls" }
+
+      it_behaves_like 'rejects nuget packages access', :anonymous, :not_found
+    end
+
+    context 'with lower case package name' do
+      let_it_be(:package_name) { 'dummy.package' }
+
+      it_behaves_like 'returning response status', status
+
+      it_behaves_like 'returns a valid nuget download versions json response'
+    end
+  end
+end
+
+RSpec.shared_examples 'process nuget download content request' do |user_type, status, add_member = true|
+  context "for user type #{user_type}" do
+    before do
+      project.send("add_#{user_type}", user) if add_member && user_type != :anonymous
+    end
+
+    it_behaves_like 'returning response status', status
+
+    it 'returns a valid package archive' do
+      subject
+
+      expect(response.media_type).to eq('application/octet-stream')
+    end
+
+    context 'with invalid format' do
+      let(:url) { "/projects/#{project.id}/packages/nuget/download/#{package.name}/#{package.version}/#{package.name}.#{package.version}.xls" }
+
+      it_behaves_like 'rejects nuget packages access', :anonymous, :not_found
+    end
+
+    context 'with lower case package name' do
+      let_it_be(:package_name) { 'dummy.package' }
+
+      it_behaves_like 'returning response status', status
+
+      it 'returns a valid package archive' do
+        subject
+
+        expect(response.media_type).to eq('application/octet-stream')
+      end
+    end
+  end
+end
+
+RSpec.shared_examples 'process nuget search request' do |user_type, status, add_member = true|
+  RSpec.shared_examples 'returns a valid json search response' do |status, total_hits, versions|
+    it_behaves_like 'returning response status', status
+
+    it 'returns a valid json response' do
+      subject
+
+      expect(response.media_type).to eq('application/json')
+      expect(json_response).to be_a(Hash)
+      expect(json_response).to match_schema('public_api/v4/packages/nuget/search', dir: 'ee')
+      expect(json_response['totalHits']).to eq total_hits
+      expect(json_response['data'].map { |e| e['versions'].size }).to match_array(versions)
+    end
+  end
+
+  context "for user type #{user_type}" do
+    before do
+      project.send("add_#{user_type}", user) if add_member && user_type != :anonymous
+    end
+
+    it_behaves_like 'returns a valid json search response', status, 4, [1, 5, 5, 1]
+
+    context 'with skip set to 2' do
+      let(:skip) { 2 }
+
+      it_behaves_like 'returns a valid json search response', status, 4, [5, 1]
+    end
+
+    context 'with take set to 2' do
+      let(:take) { 2 }
+
+      it_behaves_like 'returns a valid json search response', status, 4, [1, 5]
+    end
+
+    context 'without prereleases' do
+      let(:include_prereleases) { false }
+
+      it_behaves_like 'returns a valid json search response', status, 3, [1, 5, 5]
+    end
+
+    context 'with empty search term' do
+      let(:search_term) { '' }
+
+      it_behaves_like 'returns a valid json search response', status, 5, [1, 5, 5, 1, 1]
+    end
+
+    context 'with nil search term' do
+      let(:search_term) { nil }
+
+      it_behaves_like 'returns a valid json search response', status, 5, [1, 5, 5, 1, 1]
     end
   end
 end

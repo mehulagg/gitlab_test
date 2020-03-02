@@ -3,14 +3,13 @@
 require 'spec_helper'
 
 describe API::MergeRequestApprovals do
-  set(:user)          { create(:user) }
-  set(:user2)         { create(:user) }
-  set(:admin)         { create(:user, :admin) }
-  set(:project)       { create(:project, :public, :repository, creator: user, namespace: user.namespace, only_allow_merge_if_pipeline_succeeds: false) }
+  let_it_be(:user) { create(:user) }
+  let_it_be(:user2) { create(:user) }
+  let_it_be(:admin) { create(:user, :admin) }
+  let_it_be(:project, reload: true) { create(:project, :public, :repository, creator: user, namespace: user.namespace, only_allow_merge_if_pipeline_succeeds: false) }
+  let_it_be(:approver) { create :user }
+  let_it_be(:group) { create :group }
   let(:merge_request) { create(:merge_request, :simple, author: user, assignees: [user], source_project: project, target_project: project, title: "Test", created_at: Time.now) }
-
-  set(:approver) { create :user }
-  set(:group) { create :group }
 
   shared_examples_for 'an API endpoint for getting merge request approval state' do
     context 'when source rule is present' do
@@ -67,7 +66,7 @@ describe API::MergeRequestApprovals do
 
       get api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", user)
 
-      expect(response).to have_gitlab_http_status(200)
+      expect(response).to have_gitlab_http_status(:ok)
       expect(json_response['approvals_required']).to eq 2
       expect(json_response['approvals_left']).to eq 1
       expect(json_response['approval_rules_left']).to be_empty
@@ -87,7 +86,7 @@ describe API::MergeRequestApprovals do
 
       get api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", approver)
 
-      expect(response).to have_gitlab_http_status(200)
+      expect(response).to have_gitlab_http_status(:ok)
       expect(json_response['approvals_required']).to eq 2
       expect(json_response['approvals_left']).to eq 2
 
@@ -112,7 +111,7 @@ describe API::MergeRequestApprovals do
       it 'hides private group' do
         get api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", user)
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['approver_groups'].size).to eq(0)
       end
 
@@ -120,7 +119,7 @@ describe API::MergeRequestApprovals do
         it 'shows all approver groups' do
           get api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", admin)
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
           expect(json_response['approver_groups'].size).to eq(1)
         end
       end
@@ -133,7 +132,7 @@ describe API::MergeRequestApprovals do
       end
 
       it 'returns a 200' do
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['approved']).to be true
         expect(json_response['message']).to eq(nil)
       end
@@ -155,7 +154,7 @@ describe API::MergeRequestApprovals do
     it 'retrieves the approval rules details' do
       get api(url, user)
 
-      expect(response).to have_gitlab_http_status(200)
+      expect(response).to have_gitlab_http_status(:ok)
       expect(json_response['rules'].size).to eq(1)
 
       rule_response = json_response['rules'].first
@@ -183,7 +182,7 @@ describe API::MergeRequestApprovals do
     it 'retrieves the approval state details' do
       get api(url, user)
 
-      expect(response).to have_gitlab_http_status(200)
+      expect(response).to have_gitlab_http_status(:ok)
       expect(json_response['rules'].size).to eq(1)
 
       rule_response = json_response['rules'].first
@@ -208,7 +207,7 @@ describe API::MergeRequestApprovals do
             post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", current_user), params: { approvals_required: 5 }
           end.to change { merge_request.reload.approvals_before_merge }.from(nil).to(5)
 
-          expect(response).to have_gitlab_http_status(201)
+          expect(response).to have_gitlab_http_status(:created)
           expect(json_response['approvals_required']).to eq(5)
         end
       end
@@ -223,7 +222,7 @@ describe API::MergeRequestApprovals do
             post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", current_user), params: { approvals_required: 5 }
           end.not_to change { merge_request.reload.approvals_before_merge }
 
-          expect(response).to have_gitlab_http_status(422)
+          expect(response).to have_gitlab_http_status(:unprocessable_entity)
         end
       end
     end
@@ -252,7 +251,7 @@ describe API::MergeRequestApprovals do
           post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvals", user2), params: { approvals_required: 5 }
         end.not_to change { merge_request.reload.approvals_before_merge }
 
-        expect(response).to have_gitlab_http_status(403)
+        expect(response).to have_gitlab_http_status(:forbidden)
       end
     end
   end
@@ -286,7 +285,7 @@ describe API::MergeRequestApprovals do
           end.to change { merge_request.approvers.count }.from(0).to(1)
             .and change { merge_request.approver_groups.count }.from(0).to(1)
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
           expect(json_response['approvers'][0]['user']['username']).to eq(approver.username)
           expect(json_response['approver_groups'][0]['group']['name']).to eq(group.name)
         end
@@ -301,7 +300,7 @@ describe API::MergeRequestApprovals do
           end.to change { merge_request.approvers.count }.from(1).to(0)
             .and change { merge_request.approver_groups.count }.from(1).to(0)
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
           expect(json_response['approvers']).to eq([])
         end
 
@@ -316,7 +315,7 @@ describe API::MergeRequestApprovals do
             end.to change { merge_request.approvers.count }.from(1).to(0)
               .and change { merge_request.approver_groups.count }.from(1).to(0)
 
-            expect(response).to have_gitlab_http_status(200)
+            expect(response).to have_gitlab_http_status(:ok)
             expect(json_response['approvers']).to eq([])
           end
         end
@@ -329,7 +328,7 @@ describe API::MergeRequestApprovals do
         put api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/approvers", current_user),
           params: { approver_ids: [approver.id], approver_group_ids: [private_group.id, group.id] }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['approver_groups'].size).to eq(expected_group_size)
       end
     end
@@ -359,7 +358,7 @@ describe API::MergeRequestApprovals do
             params: { approver_ids: [approver.id], approver_group_ids: [group.id] }
         end.to not_change { merge_request.approvers.count }.and not_change { merge_request.approver_groups.count }
 
-        expect(response).to have_gitlab_http_status(403)
+        expect(response).to have_gitlab_http_status(:forbidden)
       end
     end
   end
@@ -373,12 +372,12 @@ describe API::MergeRequestApprovals do
       end
 
       it 'returns a 401' do
-        expect(response).to have_gitlab_http_status(401)
+        expect(response).to have_gitlab_http_status(:unauthorized)
       end
     end
 
     context 'as a valid approver' do
-      set(:approver) { create(:user) }
+      let_it_be(:approver) { create(:user) }
 
       before do
         project.add_developer(approver)
@@ -396,7 +395,7 @@ describe API::MergeRequestApprovals do
         end
 
         it 'approves the merge request' do
-          expect(response).to have_gitlab_http_status(201)
+          expect(response).to have_gitlab_http_status(:created)
           expect(json_response['approvals_left']).to eq(1)
           expect(json_response['approved_by'][0]['user']['username']).to eq(approver.username)
           expect(json_response['user_has_approved']).to be true
@@ -410,7 +409,7 @@ describe API::MergeRequestApprovals do
         end
 
         it 'approves the merge request' do
-          expect(response).to have_gitlab_http_status(201)
+          expect(response).to have_gitlab_http_status(:created)
           expect(json_response['approvals_left']).to eq(1)
           expect(json_response['approved_by'][0]['user']['username']).to eq(approver.username)
           expect(json_response['user_has_approved']).to be true
@@ -424,7 +423,7 @@ describe API::MergeRequestApprovals do
         end
 
         it 'returns a 409' do
-          expect(response).to have_gitlab_http_status(409)
+          expect(response).to have_gitlab_http_status(:conflict)
         end
 
         it 'does not approve the merge request' do
@@ -440,7 +439,7 @@ describe API::MergeRequestApprovals do
 
         it 'returns a 401 with no password' do
           approve
-          expect(response).to have_gitlab_http_status(401)
+          expect(response).to have_gitlab_http_status(:unauthorized)
         end
 
         it 'does not approve the merge request with no password' do
@@ -450,7 +449,7 @@ describe API::MergeRequestApprovals do
 
         it 'returns a 401 with incorrect password' do
           approve
-          expect(response).to have_gitlab_http_status(401)
+          expect(response).to have_gitlab_http_status(:unauthorized)
         end
 
         it 'does not approve the merge request with incorrect password' do
@@ -460,7 +459,7 @@ describe API::MergeRequestApprovals do
 
         it 'approves the merge request with correct password' do
           approve(approval_password: 'password')
-          expect(response).to have_gitlab_http_status(201)
+          expect(response).to have_gitlab_http_status(:created)
           expect(merge_request.reload.approvals_left).to eq(1)
         end
       end
@@ -471,7 +470,7 @@ describe API::MergeRequestApprovals do
 
         approve
 
-        expect(response).to have_gitlab_http_status(201)
+        expect(response).to have_gitlab_http_status(:created)
         expect(json_response['approver_groups'].size).to eq(0)
       end
     end
@@ -481,8 +480,8 @@ describe API::MergeRequestApprovals do
     let!(:rule) { create(:approval_merge_request_rule, merge_request: merge_request, approvals_required: 2, name: 'foo') }
 
     context 'as a user who has approved the merge request' do
-      set(:approver) { create(:user) }
-      set(:unapprover) { create(:user) }
+      let_it_be(:approver) { create(:user) }
+      let_it_be(:unapprover) { create(:user) }
 
       before do
         project.add_developer(approver)
@@ -496,7 +495,7 @@ describe API::MergeRequestApprovals do
       it 'unapproves the merge request' do
         post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/unapprove", unapprover)
 
-        expect(response).to have_gitlab_http_status(201)
+        expect(response).to have_gitlab_http_status(:created)
         expect(json_response['approvals_left']).to eq(1)
         usernames = json_response['approved_by'].map { |u| u['user']['username'] }
         expect(usernames).not_to include(unapprover.username)
@@ -513,7 +512,7 @@ describe API::MergeRequestApprovals do
 
         post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/unapprove", unapprover)
 
-        expect(response).to have_gitlab_http_status(201)
+        expect(response).to have_gitlab_http_status(:created)
         expect(json_response['approver_groups'].size).to eq(0)
       end
     end

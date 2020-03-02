@@ -24,7 +24,7 @@ There is also the option of [connecting your external repository to get CI/CD be
 
 ## Migrating from self-hosted GitLab to GitLab.com
 
-If you only need to migrate Git repos, you can [import each project by URL](repo_by_url.md), but issues and merge requests can't be imported.
+If you only need to migrate Git repos, you can [import each project by URL](repo_by_url.md). Issues and merge requests can't be imported.
 
 If you want to retain all metadata like issues and merge requests, you can use
 the [import/export feature](../settings/import_export.md) to export projects from self-hosted GitLab and import those projects into GitLab.com.
@@ -49,9 +49,9 @@ Docker pulls and pushes and re-run any CI pipelines to retrieve any build artifa
 
 ## Migrating between two self-hosted GitLab instances
 
-The best method for migrating a project from one GitLab instance to another,
+The best method for migrating from one GitLab instance to another,
 perhaps from an old server to a new server for example, is to
-[back up the project](../../../raketasks/backup_restore.md),
+[back up the instance](../../../raketasks/backup_restore.md),
 then restore it on the new server.
 
 In the event of merging two GitLab instances together (for example, both instances have existing data on them and one can't be wiped),

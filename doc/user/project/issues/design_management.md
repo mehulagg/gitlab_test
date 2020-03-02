@@ -37,6 +37,8 @@ Design Management requires that projects are using
 [hashed storage](../../../administration/repository_storage_types.md#hashed-storage)
 (the default storage type since v10.0).
 
+If the requirements are not met, the **Designs** tab displays a message to the user.
+
 ### Feature Flags
 
 - Reference Parsing
@@ -74,6 +76,12 @@ of the design, and will replace the previous version.
 
 Designs cannot be added if the issue has been moved, or its
 [discussion is locked](../../discussions/#lock-discussions).
+
+### Skipped designs
+
+Designs with the same filename as an existing uploaded design _and_ whose content has not changed will be skipped.
+This means that no new version of the design will be created. When designs are skipped, you will be made aware via a warning
+message on the Issue.
 
 ## Viewing designs
 
@@ -124,7 +132,7 @@ Once selected, click the **Delete selected** button to confirm the deletion:
 
 ![Delete multiple designs](img/delete_multiple_designs_v12_4.png)
 
-NOTE: **Note:**
+**Note:**
 Only the latest version of the designs can be deleted.
 Deleted designs are not permanently lost; they can be
 viewed by browsing previous versions.
@@ -137,6 +145,11 @@ A badge is added to the image identifying the annotation, from
 which you can start a new discussion:
 
 ![Starting a new discussion on design](img/adding_note_to_design_1.png)
+
+[Introduced](https://gitlab.com/gitlab-org/gitlab/issues/34353) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.8,
+you can adjust the badge's position by dragging it around the image. This is useful
+for when your design layout has changed between revisions, or if you need to move an
+existing badge to add a new one in its place.
 
 Different discussions have different badge numbers:
 

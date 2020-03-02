@@ -9,7 +9,7 @@ request on that project will result to a `404` status code.
 
 Lists Issue Boards in the given project.
 
-```
+```plaintext
 GET /projects/:id/boards
 ```
 
@@ -17,7 +17,7 @@ GET /projects/:id/boards
 | --------- | ---- | -------- | ----------- |
 | `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/boards
 ```
 
@@ -83,7 +83,7 @@ Example response:
 
 Get a single board.
 
-```
+```plaintext
 GET /projects/:id/boards/:board_id
 ```
 
@@ -92,7 +92,7 @@ GET /projects/:id/boards/:board_id
 | `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
 | `board_id` | integer | yes | The ID of a board |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/boards/1
 ```
 
@@ -157,7 +157,7 @@ Example response:
 
 Creates a board.
 
-```
+```plaintext
 POST /projects/:id/boards
 ```
 
@@ -166,7 +166,7 @@ POST /projects/:id/boards
 | `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
 | `name` | string | yes | The name of the new board |
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/boards?name=newboard
 ```
 
@@ -233,7 +233,7 @@ Example response:
 
 Updates a board.
 
-```
+```plaintext
 PUT /projects/:id/boards/:board_id
 ```
 
@@ -247,7 +247,7 @@ PUT /projects/:id/boards/:board_id
 | `labels`            | string         | no       | Comma-separated list of label names which the board should be scoped to |
 | `weight`            | integer        | no       | The weight range from 0 to 9, to which the board should be scoped to |
 
-```bash
+```shell
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/boards/1?name=new_name&milestone_id=43&assignee_id=1&labels=Doing&weight=4
 ```
 
@@ -312,7 +312,7 @@ Example response:
 
 Deletes a board.
 
-```
+```plaintext
 DELETE /projects/:id/boards/:board_id
 ```
 
@@ -321,7 +321,7 @@ DELETE /projects/:id/boards/:board_id
 | `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
 | `board_id` | integer | yes | The ID of a board |
 
-```bash
+```shell
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/boards/1
 ```
 
@@ -330,7 +330,7 @@ curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitl
 Get a list of the board's lists.
 Does not include `open` and `closed` lists
 
-```
+```plaintext
 GET /projects/:id/boards/:board_id/lists
 ```
 
@@ -339,7 +339,7 @@ GET /projects/:id/boards/:board_id/lists
 | `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) owned by the authenticated user |
 | `board_id` | integer | yes | The ID of a board |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/boards/1/lists
 ```
 
@@ -387,7 +387,7 @@ Example response:
 
 Get a single board list.
 
-```
+```plaintext
 GET /projects/:id/boards/:board_id/lists/:list_id
 ```
 
@@ -397,7 +397,7 @@ GET /projects/:id/boards/:board_id/lists/:list_id
 | `board_id` | integer | yes | The ID of a board |
 | `list_id`| integer | yes | The ID of a board's list |
 
-```bash
+```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/boards/1/lists/1
 ```
 
@@ -421,7 +421,7 @@ Example response:
 
 Creates a new Issue Board list.
 
-```
+```plaintext
 POST /projects/:id/boards/:board_id/lists
 ```
 
@@ -439,7 +439,7 @@ that is, only one of them are accepted in a request.
 Check the [Issue Board docs](../user/project/issue_board.md#summary-of-features-per-tier)
 for more information regarding the required license for each list type.
 
-```bash
+```shell
 curl --request POST --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/boards/1/lists?label_id=5
 ```
 
@@ -463,7 +463,7 @@ Example response:
 
 Updates an existing Issue Board list. This call is used to change list position.
 
-```
+```plaintext
 PUT /projects/:id/boards/:board_id/lists/:list_id
 ```
 
@@ -474,7 +474,7 @@ PUT /projects/:id/boards/:board_id/lists/:list_id
 | `list_id` | integer | yes | The ID of a board's list |
 | `position` | integer | yes | The position of the list |
 
-```bash
+```shell
 curl --request PUT --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/boards/1/lists/1?position=2
 ```
 
@@ -498,7 +498,7 @@ Example response:
 
 Only for admins and project owners. Deletes the board list in question.
 
-```
+```plaintext
 DELETE /projects/:id/boards/:board_id/lists/:list_id
 ```
 
@@ -508,8 +508,8 @@ DELETE /projects/:id/boards/:board_id/lists/:list_id
 | `board_id` | integer | yes | The ID of a board |
 | `list_id` | integer | yes | The ID of a board's list |
 
-```bash
+```shell
 curl --request DELETE --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/projects/5/boards/1/lists/1
 ```
 
-[ee-5954]: https://gitlab.com/gitlab-org/gitlab/merge_requests/5954
+[ee-5954]: https://gitlab.com/gitlab-org/gitlab/-/merge_requests/5954

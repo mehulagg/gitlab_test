@@ -12,11 +12,11 @@ information on Dockerfiles, see the
 
 Get all Dockerfile templates.
 
-```
+```plaintext
 GET /templates/dockerfiles
 ```
 
-```bash
+```shell
 curl https://gitlab.example.com/api/v4/templates/dockerfiles
 ```
 
@@ -99,7 +99,7 @@ Example response:
 
 Get a single Dockerfile template.
 
-```
+```plaintext
 GET /templates/dockerfiles/:key
 ```
 
@@ -107,7 +107,7 @@ GET /templates/dockerfiles/:key
 | ---------- | ------ | -------- | ----------- |
 | `key`      | string | yes      | The key of the Dockerfile template |
 
-```bash
+```shell
 curl https://gitlab.example.com/api/v4/templates/dockerfiles/Binary
 ```
 

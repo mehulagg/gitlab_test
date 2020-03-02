@@ -72,7 +72,6 @@ For source installations, make sure the `kerberos` gem group
 1. Edit `/etc/gitlab/gitlab.rb`:
 
    ```ruby
-   gitlab_rails['omniauth_enabled'] = true
    gitlab_rails['omniauth_allow_single_sign_on'] = ['kerberos']
 
    gitlab_rails['kerberos_enabled'] = true
@@ -275,7 +274,7 @@ authenticate to other Kerberos services.
 
 ### HTTP Basic: Access denied when cloning
 
-```sh
+```shell
 remote: HTTP Basic: Access denied
 fatal: Authentication failed for '<KRB5 path>'
 ```

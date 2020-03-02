@@ -10,14 +10,14 @@ an SMTP server, but you're not seeing mail delivered. Here's how to check the se
 
 1. Run a Rails console:
 
-   ```sh
-   sudo gitlab-rails console production
+   ```shell
+   sudo gitlab-rails console -e production
    ```
 
    or for source installs:
 
-   ```sh
-   bundle exec rails console production
+   ```shell
+   bundle exec rails console -e production
    ```
 
 1. Look at the ActionMailer `delivery_method` to make sure it matches what you

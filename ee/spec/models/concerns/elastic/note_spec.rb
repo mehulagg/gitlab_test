@@ -8,14 +8,14 @@ describe Note, :elastic do
   end
 
   it_behaves_like 'limited indexing is enabled' do
-    set(:object) { create :note, project: project }
-    set(:group) { create(:group) }
+    let_it_be(:object) { create :note, project: project }
+    let_it_be(:group) { create(:group) }
     let(:group_object) do
       project = create :project, name: 'test1', group: group
       create :note, project: project
     end
 
-    context '#searchable?' do
+    describe '#searchable?' do
       before do
         create :elasticsearch_indexed_project, project: project
       end
@@ -46,7 +46,7 @@ describe Note, :elastic do
     # The note in the project you have no access to except as an administrator
     outside_note = create :note, note: 'bla-bla term2'
 
-    Gitlab::Elastic::Helper.refresh_index
+    ensure_elasticsearch_index!
 
     options = { project_ids: [issue.project.id] }
 
@@ -68,7 +68,7 @@ describe Note, :elastic do
         note.project.update!(visibility: Gitlab::VisibilityLevel::PUBLIC)
       end
 
-      Gitlab::Elastic::Helper.refresh_index
+      ensure_elasticsearch_index!
     end
 
     project_ids = notes.map { |note| note.noteable.project.id }
@@ -107,13 +107,25 @@ describe Note, :elastic do
   end
 
   it "does not create ElasticIndexerWorker job for system messages" do
+    stub_feature_flags(elastic_bulk_incremental_updates: false)
+
     project = create :project, :repository
     # We have to set one minute delay because of https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/15682
     issue = create :issue, project: project, updated_at: 1.minute.ago
 
     # Only issue should be updated
-    expect(ElasticIndexerWorker).to receive(:perform_async).with(:update, 'Issue', anything, anything, anything)
+    expect(ElasticIndexerWorker).to receive(:perform_async).with(:update, 'Issue', anything, anything)
     create :note, :system, project: project, noteable: issue
+  end
+
+  it 'does not track system note updates via the bulk updater' do
+    stub_feature_flags(elastic_bulk_incremental_updates: true)
+
+    note = create(:note, :system)
+
+    expect(Elastic::ProcessBookkeepingService).not_to receive(:track!)
+
+    note.update!(note: 'some other text here')
   end
 
   it 'uses same index for Note subclasses' do
@@ -130,7 +142,7 @@ describe Note, :elastic do
 
       Sidekiq::Testing.inline! do
         create_notes_for(issue, 'bla-bla term')
-        Gitlab::Elastic::Helper.refresh_index
+        ensure_elasticsearch_index!
       end
 
       options = { project_ids: [issue.project.id] }
@@ -145,7 +157,7 @@ describe Note, :elastic do
 
       Sidekiq::Testing.inline! do
         create_notes_for(issue, 'bla-bla term')
-        Gitlab::Elastic::Helper.refresh_index
+        ensure_elasticsearch_index!
       end
 
       options = { project_ids: [issue.project.id], current_user: user }
@@ -160,7 +172,7 @@ describe Note, :elastic do
 
         Sidekiq::Testing.inline! do
           create_notes_for(issue, 'bla-bla term')
-          Gitlab::Elastic::Helper.refresh_index
+          ensure_elasticsearch_index!
         end
 
         options = { project_ids: [issue.project.id], current_user: superuser }
@@ -178,7 +190,7 @@ describe Note, :elastic do
 
       Sidekiq::Testing.inline! do
         create_notes_for(issue, 'bla-bla term')
-        Gitlab::Elastic::Helper.refresh_index
+        ensure_elasticsearch_index!
       end
 
       options = { project_ids: [issue.project.id], current_user: member }
@@ -195,7 +207,7 @@ describe Note, :elastic do
 
       Sidekiq::Testing.inline! do
         create_notes_for(issue, 'bla-bla term')
-        Gitlab::Elastic::Helper.refresh_index
+        ensure_elasticsearch_index!
       end
 
       options = { project_ids: [issue.project.id], current_user: member }

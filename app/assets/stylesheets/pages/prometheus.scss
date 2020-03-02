@@ -47,7 +47,13 @@
 }
 
 .prometheus-graphs-header {
-  .monitor-environment-dropdown-menu {
+  .monitor-environment-dropdown-header header,
+  .monitor-dashboard-dropdown-header header {
+    font-size: $gl-font-size;
+  }
+
+  .monitor-environment-dropdown-menu,
+  .monitor-dashboard-dropdown-menu {
     &.show {
       display: flex;
       flex-direction: column;
@@ -83,10 +89,6 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: $gl-padding-8;
-}
-
-.prometheus-graph-title {
-  font-size: $gl-font-size-large;
 }
 
 .alert-current-setting {

@@ -13,19 +13,24 @@ import {
   GlDropdownDivider,
   GlTooltipDirective,
   GlPagination,
+  GlButtonGroup,
 } from '@gitlab/ui';
 import AccessorUtils from '~/lib/utils/accessor';
 import Icon from '~/vue_shared/components/icon.vue';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
 import { __ } from '~/locale';
-import _ from 'underscore';
+import { isEmpty } from 'lodash';
 
-export const tableDataClass = 'table-col d-flex d-sm-table-cell';
+export const tableDataClass = 'table-col d-flex d-sm-table-cell align-items-center';
 
 export default {
   FIRST_PAGE: 1,
   PREV_PAGE: 1,
   NEXT_PAGE: 2,
+  statusButtons: [
+    { status: 'ignored', icon: 'eye-slash', title: __('Ignore') },
+    { status: 'resolved', icon: 'check-circle', title: __('Resolve') },
+  ],
   fields: [
     {
       key: 'error',
@@ -48,20 +53,13 @@ export default {
     {
       key: 'lastSeen',
       label: __('Last seen'),
-      thClass: '',
+      thClass: 'w-15p',
       tdClass: `${tableDataClass}`,
     },
     {
-      key: 'ignore',
+      key: 'status',
       label: '',
-      thClass: 'w-3rem',
-      tdClass: `${tableDataClass} pl-0`,
-    },
-    {
-      key: 'resolved',
-      label: '',
-      thClass: 'w-3rem',
-      tdClass: `${tableDataClass} pl-0`,
+      tdClass: `${tableDataClass} text-right`,
     },
     {
       key: 'details',
@@ -88,6 +86,7 @@ export default {
     Icon,
     GlPagination,
     TimeAgo,
+    GlButtonGroup,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -140,7 +139,7 @@ export default {
       'cursor',
     ]),
     paginationRequired() {
-      return !_.isEmpty(this.pagination);
+      return !isEmpty(this.pagination);
     },
   },
   watch: {
@@ -169,6 +168,7 @@ export default {
       'setIndexPath',
       'fetchPaginatedResults',
       'updateStatus',
+      'removeIgnoredResolvedErrors',
     ]),
     setSearchText(text) {
       this.errorSearchQuery = text;
@@ -197,9 +197,9 @@ export default {
     updateIssueStatus(errorId, status) {
       this.updateStatus({
         endpoint: this.getIssueUpdatePath(errorId),
-        redirectUrl: this.listPath,
         status,
       });
+      this.removeIgnoredResolvedErrors(errorId);
     },
   },
 };
@@ -236,7 +236,6 @@ export default {
             </gl-dropdown>
             <div class="filtered-search-input-container flex-fill">
               <gl-form-input
-                v-model="errorSearchQuery"
                 class="pl-2 filtered-search"
                 :disabled="loading"
                 :placeholder="__('Search or filter results…')"
@@ -332,25 +331,19 @@ export default {
               <time-ago :time="errors.item.lastSeen" class="text-secondary" />
             </div>
           </template>
-          <template #cell(ignore)="errors">
-            <gl-button
-              ref="ignoreError"
-              v-gl-tooltip.hover
-              :title="__('Ignore')"
-              @click="updateIssueStatus(errors.item.id, 'ignored')"
-            >
-              <gl-icon name="eye-slash" :size="12" />
-            </gl-button>
-          </template>
-          <template #cell(resolved)="errors">
-            <gl-button
-              ref="resolveError"
-              v-gl-tooltip
-              :title="__('Resolve')"
-              @click="updateIssueStatus(errors.item.id, 'resolved')"
-            >
-              <gl-icon name="check-circle" :size="12" />
-            </gl-button>
+          <template #cell(status)="errors">
+            <gl-button-group>
+              <gl-button
+                v-for="button in $options.statusButtons"
+                :key="button.status"
+                :ref="button.title.toLowerCase() + 'Error'"
+                v-gl-tooltip.hover
+                :title="button.title"
+                @click="updateIssueStatus(errors.item.id, button.status)"
+              >
+                <gl-icon :name="button.icon" :size="12" />
+              </gl-button>
+            </gl-button-group>
           </template>
           <template #cell(details)="errors">
             <gl-button

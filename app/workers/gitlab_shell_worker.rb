@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
-class GitlabShellWorker
+class GitlabShellWorker # rubocop:disable Scalability/IdempotentWorker
   include ApplicationWorker
   include Gitlab::ShellAdapter
 
   feature_category :source_code_management
-  latency_sensitive_worker!
+  urgency :high
   weight 2
 
   def perform(action, *arg)

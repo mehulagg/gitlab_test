@@ -23,7 +23,10 @@ module EE
           lambda do |paths|
             loader = ::Gitlab::CodeOwners::Loader.new(project, branch_name, paths)
 
-            assemble_error_msg_for_codeowner_matches(loader) if loader.entries.any?
+            return if loader.entries.blank?
+            return if loader.members.include?(change_access.user_access.user)
+
+            assemble_error_msg_for_codeowner_matches(loader)
           end
         end
 
@@ -80,7 +83,7 @@ module EE
               "File name #{diff.new_path} was blacklisted by the pattern #{blacklisted_regex}."
             end
           rescue ::PushRule::MatchError => e
-            raise ::Gitlab::GitAccess::UnauthorizedError, e.message
+            raise ::Gitlab::GitAccess::ForbiddenError, e.message
           end
         end
       end

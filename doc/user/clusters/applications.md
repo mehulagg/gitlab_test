@@ -22,8 +22,9 @@ This namespace:
 To see a list of available applications to install. For a:
 
 - [Project-level cluster](../project/clusters/index.md), navigate to your project's
-  **Operations > Kubernetes**.
-- [Group-level cluster](../group/clusters/index.md), navigate to your group's **Kubernetes** page.
+  **{cloud-gear}** **Operations > Kubernetes**.
+- [Group-level cluster](../group/clusters/index.md), navigate to your group's
+  **{cloud-gear}** **Kubernetes** page.
 
 Install Helm first as it's used to install other applications.
 
@@ -113,7 +114,7 @@ service included with GitLab that coordinates the jobs.
 
 If the project is on GitLab.com, shared Runners are available
 (the first 2000 minutes are free, you can
-[buy more later](../../subscriptions/index.md#extra-shared-runners-pipeline-minutes))
+[buy more later](../../subscriptions/index.md#purchasing-additional-ci-minutes))
 and you do not have to deploy one if they are enough for your needs. If a
 project-specific Runner is desired, or there are no shared Runners, it is easy
 to deploy one.
@@ -135,10 +136,12 @@ file. Customizing installation by modifying this file is not supported.
 > - Introduced in GitLab 10.2 for project-level clusters.
 > - Introduced in GitLab 11.6 for group-level clusters.
 
-[Ingress](https://kubernetes.github.io/ingress-nginx/) can provide load
-balancing, SSL termination, and name-based virtual hosting. It acts as a
-web proxy for your applications and is useful if you want to use [Auto
-DevOps](../../topics/autodevops/index.md) or deploy your own web apps.
+[Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/) provides load balancing, SSL termination, and name-based virtual hosting
+out of the box. It acts as a web proxy for your applications and is useful
+if you want to use [Auto DevOps](../../topics/autodevops/index.md) or deploy your own web apps.
+
+The Ingress Controller installed is [Ingress-NGINX](https://kubernetes.io/docs/concepts/services-networking/ingress/),
+which is supported by the Kubernetes community.
 
 NOTE: **Note:**
 With the following procedure, a load balancer must be installed in your cluster
@@ -153,7 +156,7 @@ to determine the external endpoint and it should be available within a few minut
 
 #### Determining the external endpoint automatically
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/17052) in GitLab 10.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/17052) in GitLab 10.6.
 
 After you install Ingress, the external endpoint should be available within a few minutes.
 
@@ -196,25 +199,25 @@ rules that allow external access to your deployed applications.
 
 If you installed Ingress via the **Applications**, run the following command:
 
-```bash
+```shell
 kubectl get service --namespace=gitlab-managed-apps ingress-nginx-ingress-controller -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
 ```
 
 Some Kubernetes clusters return a hostname instead, like [Amazon EKS](https://aws.amazon.com/eks/). For these platforms, run:
 
-```bash
+```shell
 kubectl get service --namespace=gitlab-managed-apps ingress-nginx-ingress-controller -o jsonpath='{.status.loadBalancer.ingress[0].hostname}'
 ```
 
 For Istio/Knative, the command will be different:
 
-```bash
+```shell
 kubectl get svc --namespace=istio-system knative-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip} '
 ```
 
 Otherwise, you can list the IP addresses of all load balancers:
 
-```bash
+```shell
 kubectl get svc --all-namespaces -o jsonpath='{range.items[?(@.status.loadBalancer.ingress)]}{.status.loadBalancer.ingress[*].ip} '
 ```
 
@@ -249,14 +252,22 @@ use an A record. If your external endpoint is a hostname, use a CNAME record.
 
 #### Web Application Firewall (ModSecurity)
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/21966) in GitLab 12.7.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/21966) in GitLab 12.7.
 
-Out of the box, GitLab provides you real-time security monitoring with
-[ModSecurity](https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/annotations/#modsecurity).
+A Web Application Firewall (WAF) examines traffic being sent or received,
+and can block malicious traffic before it reaches your application. The benefits
+of a WAF are:
 
-Modsecurity is a toolkit for real-time web application monitoring, logging,
-and access control. With GitLab's offering, the [OWASP's Core Rule Set](https://www.modsecurity.org/CRS/Documentation/), which provides generic attack detection capabilities,
-is automatically applied.
+- Real-time security monitoring for your application
+- Logging of all your HTTP traffic to the application
+- Access control for your application
+- Highly configurable logging and blocking rules
+
+Out of the box, GitLab provides you with a WAF known as [`ModSecurity`](https://www.modsecurity.org/).
+
+ModSecurity is a toolkit for real-time web application monitoring, logging,
+and access control. With GitLab's offering, the [OWASP's Core Rule Set](https://www.modsecurity.org/CRS/Documentation/),
+which provides generic attack detection capabilities, is automatically applied.
 
 This feature:
 
@@ -264,12 +275,15 @@ This feature:
 - Is viewable by checking your Ingress controller's `modsec` log for rule violations.
   For example:
 
-  ```sh
+  ```shell
   kubectl logs -n gitlab-managed-apps $(kubectl get pod -n gitlab-managed-apps -l app=nginx-ingress,component=controller --no-headers=true -o custom-columns=:metadata.name) modsecurity-log -f
   ```
 
 To enable ModSecurity, check the **Enable Web Application Firewall** checkbox
 when installing your [Ingress application](#ingress).
+
+If this is your first time using GitLab's WAF, we recommend you follow the
+[quick start guide](../../topics/web_application_firewall/quick_start_guide.md).
 
 There is a small performance overhead by enabling ModSecurity. If this is
 considered significant for your application, you can disable ModSecurity's
@@ -316,8 +330,8 @@ file.
 
 #### Jupyter Git Integration
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/28783) in GitLab 12.0 for project-level clusters.
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/32512) in GitLab 12.3 for group and instance-level clusters.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/28783) in GitLab 12.0 for project-level clusters.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/32512) in GitLab 12.3 for group and instance-level clusters.
 
 When installing JupyterHub onto your Kubernetes cluster, [JupyterLab's Git extension](https://github.com/jupyterlab/jupyterlab-git)
 is automatically provisioned and configured using the authenticated user's:
@@ -433,20 +447,9 @@ Filebeat will run as a DaemonSet on each node in your cluster, and it will ship 
 GitLab will then connect to Elasticsearch for logs instead of the Kubernetes API,
 and you will have access to more advanced querying capabilities.
 
-Log data is automatically deleted after 15 days using [Curator](https://www.elastic.co/guide/en/elasticsearch/client/curator/5.5/about.html).
+Log data is automatically deleted after 30 days using [Curator](https://www.elastic.co/guide/en/elasticsearch/client/curator/5.5/about.html).
 
-This is a preliminary release of Elastic Stack as a GitLab-managed application. By default,
-the ability to install it is disabled.
-
-To allow installation of Elastic Stack as a GitLab-managed application, ask a GitLab
-administrator to run following command within a Rails console:
-
-```ruby
-Feature.enable(:enable_cluster_application_elastic_stack)
-```
-
-Once the feature flag is set, to enable log shipping, install Elastic Stack into the cluster with the
-**Install** button.
+To enable log shipping, install Elastic Stack into the cluster with the **Install** button.
 
 NOTE: **Note:**
 The [`stable/elastic-stack`](https://github.com/helm/charts/tree/master/stable/elastic-stack)
@@ -455,13 +458,19 @@ chart is used to install this application with a
 file.
 
 NOTE: **Note:**
-The chart will deploy 4 Elasticsearch nodes: 2 masters, 1 data and 1 client node,
-with resource requests totalling 0.1 CPU and 3GB RAM. Each data node requests 1.5GB of memory,
+The chart will deploy 5 Elasticsearch nodes: 2 masters, 2 data and 1 client node,
+with resource requests totalling 0.125 CPU and 4.5GB RAM. Each data node requests 1.5GB of memory,
 which makes it incompatible with clusters of `f1-micro` and `g1-small` instance types.
+
+### Future apps
+
+Interested in contributing a new GitLab managed app? Visit the
+[development guidelines page](../../development/kubernetes.md#gitlab-managed-apps)
+to get started.
 
 ## Install using GitLab CI (alpha)
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/merge_requests/20822) in GitLab 12.6.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/20822) in GitLab 12.6.
 
 CAUTION: **Warning:**
 This is an _alpha_ feature, and it is subject to change at any time without
@@ -478,6 +487,8 @@ Supported applications:
 - [Sentry](#install-sentry-using-gitlab-ci)
 - [GitLab Runner](#install-gitlab-runner-using-gitlab-ci)
 - [Cilium](#install-cilium-using-gitlab-ci)
+- [JupyterHub](#install-jupyterhub-using-gitlab-ci)
+- [Elastic Stack](#install-elastic-stack-using-gitlab-ci)
 
 ### Usage
 
@@ -647,7 +658,7 @@ GitLab Runner is installed into the `gitlab-managed-apps` namespace of your clus
 
 In order for GitLab Runner to function, you **must** specify the following:
 
-- `gitlabUrl` - the GitLab server full URL (e.g., `https://example.gitlab.com`) to register the Runner against.
+- `gitlabUrl` - the GitLab server full URL (for example, `https://example.gitlab.com`) to register the Runner against.
 - `runnerRegistrationToken` - The registration token for adding new Runners to GitLab. This must be
   [retrieved from your GitLab instance](../../ci/runners/README.md).
 
@@ -664,7 +675,7 @@ available configuration options.
 
 ### Install Cilium using GitLab CI
 
-> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/merge_requests/22) in GitLab 12.8.
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/22) in GitLab 12.8.
 
 [Cilium](https://cilium.io/) is a networking plugin for Kubernetes
 that you can use to implement support for
@@ -682,7 +693,7 @@ cilium:
 ```
 
 The `clusterType` variable enables the recommended Helm variables for
-a corresponding cluster type, the default value is blank. You can
+a corresponding cluster type. The default value is blank. You can
 check the recommended variables for each cluster type in the official
 documentation:
 
@@ -706,24 +717,119 @@ Major upgrades might require additional setup steps, please consult
 the official [upgrade guide](https://docs.cilium.io/en/stable/install/upgrade/) for more
 information.
 
-By default, the drop log for traffic is logged out by the
-`cilium-monitor` sidecar container. You can check these logs via:
+By default, Cilium will drop all non-whitelisted packets upon policy
+deployment. The audit mode is scheduled for release in
+[Cilium 1.8](https://github.com/cilium/cilium/pull/9970). In the audit
+mode, non-whitelisted packets will not be dropped, and audit
+notifications will be generated instead. GitLab provides alternative Docker
+images for Cilium with the audit patch included. You can switch to the
+custom build and enable the audit mode by adding the following to
+`.gitlab/managed-apps/cilium/values.yaml`:
 
-```bash
+```yaml
+global:
+  registry: registry.gitlab.com/gitlab-org/defend/cilium
+  policyAuditMode: true
+
+agent:
+  monitor:
+    eventTypes: ["drop", "audit"]
+```
+
+The Cilium monitor log for traffic is logged out by the
+`cilium-monitor` sidecar container. You can check these logs with the following command:
+
+```shell
 kubectl -n gitlab-managed-apps logs cilium-XXXX cilium-monitor
 ```
 
-Drop logging can be disabled via `.gitlab/managed-apps/cilium/values.yaml`:
+You can disable the monitor log in `.gitlab/managed-apps/cilium/values.yaml`:
 
-```yml
+```yaml
 agent:
   monitor:
     enabled: false
 ```
 
+### Install JupyterHub using GitLab CI
+
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/40) in GitLab 12.8.
+
+JupyterHub is installed using GitLab CI by defining configuration in
+`.gitlab/managed-apps/config.yaml` as follows:
+
+```yaml
+jupyterhub:
+  installed: true
+  gitlabProjectIdWhitelist: []
+  gitlabGroupWhitelist: []
+```
+
+In the configuration:
+
+- `gitlabProjectIdWhitelist` restricts GitLab authentication to only members of the specified projects.
+- `gitlabGroupWhitelist` restricts GitLab authentication to only members of the specified groups.
+- Specifying an empty array for both will allow any user on the GitLab instance to sign in.
+
+JupyterHub is installed into the `gitlab-managed-apps` namespace of your cluster.
+
+For JupyterHub to function, you must set up an [OAuth Application](../../integration/oauth_provider.md).
+Set:
+
+- "Redirect URI" to `http://<JupyterHub Host>/hub/oauth_callback`.
+- "Scope" to `api read_repository write_repository`.
+
+In addition, the following variables must be specified using [CI variables](../../ci/variables/README.md):
+
+| CI Variable                            | Description                                                                                                                                                         |
+|:---------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `JUPYTERHUB_PROXY_SECRET_TOKEN`        | Sets [`proxy.secretToken`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#proxy-secrettoken). Generate using `openssl rand -hex 32`.             |
+| `JUPYTERHUB_COOKIE_SECRET`             | Sets [`hub.cookieSecret`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#hub-cookiesecret). Generate using `openssl rand -hex 32`.               |
+| `JUPYTERHUB_HOST`                      | Hostname used for the installation. For example, `jupyter.gitlab.example.com`.                                                                                      |
+| `JUPYTERHUB_GITLAB_HOST`               | Hostname of the GitLab instance used for authentication. For example, `gitlab.example.com`.                                                                         |
+| `JUPYTERHUB_AUTH_CRYPTO_KEY`           | Sets [`auth.state.cryptoKey`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#auth-state-cryptokey). Generate using `openssl rand -hex 32`. |
+| `JUPYTERHUB_AUTH_GITLAB_CLIENT_ID`     | "Application ID" for the OAuth Application.                                                                                                                         |
+| `JUPYTERHUB_AUTH_GITLAB_CLIENT_SECRET` | "Secret" for the OAuth Application.                                                                                                                                 |
+
+By default, JupyterHub will be installed using a
+[default values file](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/blob/master/src/default-data/jupyterhub/values.yaml.gotmpl).
+You can customize the installation of JupyterHub by defining a
+`.gitlab/managed-apps/jupyterhub/values.yaml` file in your cluster management project.
+
+Refer to the
+[chart reference](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html) for the
+available configuration options.
+
+### Install Elastic Stack using GitLab CI
+
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/45) in GitLab 12.8.
+
+Elastic Stack is installed using GitLab CI by defining configuration in
+`.gitlab/managed-apps/config.yaml`.
+
+The following configuration is required to install Elastic Stack using GitLab CI:
+
+```yaml
+elasticStack:
+  installed: true
+```
+
+Elastic Stack is installed into the `gitlab-managed-apps` namespace of your cluster.
+
+You can check the default [values.yaml](https://gitlab.com/gitlab-org/gitlab/-/blob/master/vendor/elastic_stack/values.yaml) we set for this chart.
+
+You can customize the installation of Elastic Stack by defining
+`.gitlab/managed-apps/elastic-stack/values.yaml` file in your cluster
+management project. Refer to the
+[chart](https://github.com/helm/charts/blob/master/stable/elastic-stack/values.yaml) for the
+available configuration options.
+
+NOTE: **Note:**
+In this alpha implementation of installing Elastic Stack through CI, reading the environment pod logs through Elasticsearch is unsupported. This is supported if [installed via the UI](#elastic-stack).
+
 ## Upgrading applications
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/24789) in GitLab 11.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/24789) in GitLab 11.8.
 
 The applications below can be upgraded.
 
@@ -795,7 +901,7 @@ To avoid installation errors:
 
   You can confirm that the certificates match via `kubectl`:
 
-  ```sh
+  ```shell
   kubectl get configmaps/values-content-configuration-ingress -n gitlab-managed-apps -o \
   "jsonpath={.data['cert\.pem']}" | base64 -d > a.pem
   kubectl get secrets/tiller-secret -n gitlab-managed-apps -o "jsonpath={.data['ca\.crt']}" | base64 -d > b.pem

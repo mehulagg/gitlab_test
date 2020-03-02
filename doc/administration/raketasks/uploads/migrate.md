@@ -17,13 +17,13 @@ described in the next section.
 
 **Omnibus Installation**
 
-```bash
+```shell
 gitlab-rake "gitlab:uploads:migrate:all"
 ```
 
 **Source Installation**
 
-```bash
+```shell
 sudo RAILS_ENV=production -u git -H bundle exec rake gitlab:uploads:migrate:all
 ```
 
@@ -52,7 +52,7 @@ Variable | Type | Description
 
 **Omnibus Installation**
 
-```bash
+```shell
 # gitlab-rake gitlab:uploads:migrate[uploader_class, model_class, mount_point]
 
 # Avatars
@@ -73,6 +73,9 @@ gitlab-rake "gitlab:uploads:migrate[FileUploader, Project]"
 gitlab-rake "gitlab:uploads:migrate[PersonalFileUploader, Snippet]"
 gitlab-rake "gitlab:uploads:migrate[NamespaceFileUploader, Snippet]"
 gitlab-rake "gitlab:uploads:migrate[FileUploader, MergeRequest]"
+
+# Design Management design thumbnails (EE)
+gitlab-rake "gitlab:uploads:migrate[DesignManagement::DesignV432x230Uploader, DesignManagement::Action, :image_v432x230]"
 ```
 
 **Source Installation**
@@ -80,7 +83,7 @@ gitlab-rake "gitlab:uploads:migrate[FileUploader, MergeRequest]"
 >**Note:**
 Use `RAILS_ENV=production` for every task.
 
-```bash
+```shell
 # sudo -u git -H bundle exec rake gitlab:uploads:migrate
 
 # Avatars
@@ -102,6 +105,8 @@ sudo -u git -H bundle exec rake "gitlab:uploads:migrate[PersonalFileUploader, Sn
 sudo -u git -H bundle exec rake "gitlab:uploads:migrate[NamespaceFileUploader, Snippet]"
 sudo -u git -H bundle exec rake "gitlab:uploads:migrate[FileUploader, MergeRequest]"
 
+# Design Management design thumbnails (EE)
+sudo -u git -H bundle exec rake "gitlab:uploads:migrate[DesignManagement::DesignV432x230Uploader, DesignManagement::Action]"
 ```
 
 ## Migrate legacy uploads out of deprecated paths
@@ -112,13 +117,13 @@ To migrate all uploads created by legacy uploaders, run:
 
 **Omnibus Installation**
 
-```bash
+```shell
 gitlab-rake gitlab:uploads:legacy:migrate
 ```
 
 **Source Installation**
 
-```bash
+```shell
 bundle exec rake gitlab:uploads:legacy:migrate
 ```
 
@@ -145,13 +150,13 @@ keeping in mind the task name in this case is `gitlab:uploads:migrate_to_local`.
 
 **Omnibus Installation**
 
-```bash
+```shell
 gitlab-rake "gitlab:uploads:migrate_to_local:all"
 ```
 
 **Source Installation**
 
-```bash
+```shell
 sudo RAILS_ENV=production -u git -H bundle exec rake gitlab:uploads:migrate_to_local:all
 ```
 

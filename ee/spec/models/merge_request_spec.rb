@@ -121,19 +121,21 @@ describe MergeRequest do
   describe '#enabled_reports' do
     let(:project) { create(:project, :repository) }
 
-    where(:report_type, :with_reports) do
-      :sast | :with_sast_reports
-      :container_scanning | :with_container_scanning_reports
-      :dast | :with_dast_reports
-      :dependency_scanning | :with_dependency_scanning_reports
-      :license_management | :with_license_management_reports
+    where(:report_type, :with_reports, :feature) do
+      :sast                | :with_sast_reports                | :sast
+      :container_scanning  | :with_container_scanning_reports  | :container_scanning
+      :dast                | :with_dast_reports                | :dast
+      :dependency_scanning | :with_dependency_scanning_reports | :dependency_scanning
+      :license_management  | :with_license_management_reports  | :license_management
+      :license_management  | :with_license_scanning_reports    | :license_management
+      :license_scanning    | :with_license_scanning_reports    | :license_management
     end
 
     with_them do
       subject { merge_request.enabled_reports[report_type] }
 
       before do
-        stub_licensed_features({ report_type => true })
+        stub_licensed_features({ feature => true })
       end
 
       context "when head pipeline has reports" do
@@ -683,30 +685,6 @@ describe MergeRequest do
     end
   end
 
-  describe '#approvals_required' do
-    where(:license_value, :db_value, :project_db_value, :expected) do
-      true  | 5   | 6   | 6
-      true  | 6   | 5   | 6
-      true  | nil | 5   | 5
-      false | 5   | 6   | 0
-      false | nil | 5   | 0
-    end
-
-    with_them do
-      let(:merge_request) { build(:merge_request, approvals_before_merge: db_value) }
-
-      subject { merge_request.approvals_required }
-
-      before do
-        stub_licensed_features(merge_request_approvers: license_value)
-
-        merge_request.target_project.approvals_before_merge = project_db_value
-      end
-
-      it { is_expected.to eq(expected) }
-    end
-  end
-
   describe '#mergeable?' do
     let(:project) { create(:project) }
 
@@ -747,7 +725,9 @@ describe MergeRequest do
 
     context 'when the merge request was on a merge train' do
       let(:merge_request) do
-        create(:merge_request, :on_train, status: 'merged', source_project: project, target_project: project)
+        create(:merge_request, :on_train,
+          status: MergeTrain.state_machines[:status].states[:merged].value,
+          source_project: project, target_project: project)
       end
 
       it { is_expected.to be_falsy }
@@ -759,34 +739,6 @@ describe MergeRequest do
       end
 
       it { is_expected.to be_falsy }
-    end
-  end
-
-  describe 'state machine' do
-    context 'when the merge request is on a merge train' do
-      let(:merge_request) do
-        create(:merge_request, :on_train, source_project: project, target_project: project)
-      end
-
-      context 'when the merge request is merged' do
-        it 'ensures to finish merge train' do
-          expect(merge_request.merge_train).to receive(:merged!)
-
-          merge_request.mark_as_merged!
-        end
-      end
-    end
-
-    context 'when the merge request is not on a merge train' do
-      let(:merge_request) do
-        create(:merge_request, source_project: project, target_project: project)
-      end
-
-      context 'when the merge request is merged' do
-        it 'does not raise error' do
-          expect { merge_request.mark_as_merged! }.not_to raise_error
-        end
-      end
     end
   end
 

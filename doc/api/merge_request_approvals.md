@@ -11,7 +11,7 @@ Configuration for approvals on all Merge Requests (MR) in the project. Must be a
 You can request information about a project's approval configuration using the
 following endpoint:
 
-```
+```plaintext
 GET /projects/:id/approvals
 ```
 
@@ -25,7 +25,10 @@ GET /projects/:id/approvals
 {
   "approvals_before_merge": 2,
   "reset_approvals_on_push": true,
-  "disable_overriding_approvers_per_merge_request": false
+  "disable_overriding_approvers_per_merge_request": false,
+  "merge_requests_author_approval": true,
+  "merge_requests_disable_committers_approval": false,
+  "require_password_to_approve": true
 }
 ```
 
@@ -36,7 +39,7 @@ GET /projects/:id/approvals
 If you are allowed to, you can change approval configuration using the following
 endpoint:
 
-```
+```plaintext
 POST /projects/:id/approvals
 ```
 
@@ -50,6 +53,7 @@ POST /projects/:id/approvals
 | `disable_overriding_approvers_per_merge_request` | boolean | no       | Allow/Disallow overriding approvers per MR                                                          |
 | `merge_requests_author_approval`                 | boolean | no       | Allow/Disallow authors from self approving merge requests; `true` means authors cannot self approve |
 | `merge_requests_disable_committers_approval`     | boolean | no       | Allow/Disallow committers from self approving merge requests                                        |
+| `require_password_to_approve`                    | boolean | no       | Require approver to enter a password in order to authenticate before adding the approval         |
 
 ```json
 {
@@ -57,7 +61,8 @@ POST /projects/:id/approvals
   "reset_approvals_on_push": true,
   "disable_overriding_approvers_per_merge_request": false,
   "merge_requests_author_approval": false,
-  "merge_requests_disable_committers_approval": false
+  "merge_requests_disable_committers_approval": false,
+  "require_password_to_approve": true
 }
 ```
 
@@ -68,7 +73,7 @@ POST /projects/:id/approvals
 
 You can request information about a project's approval rules using the following endpoint:
 
-```
+```plaintext
 GET /projects/:id/approval_rules
 ```
 
@@ -167,7 +172,7 @@ GET /projects/:id/approval_rules
 
 You can create project approval rules using the following endpoint:
 
-```
+```plaintext
 POST /projects/:id/approval_rules
 ```
 
@@ -269,7 +274,7 @@ POST /projects/:id/approval_rules
 
 You can update project approval rules using the following endpoint:
 
-```
+```plaintext
 PUT /projects/:id/approval_rules/:approval_rule_id
 ```
 
@@ -374,7 +379,7 @@ PUT /projects/:id/approval_rules/:approval_rule_id
 
 You can delete project approval rules using the following endpoint:
 
-```
+```plaintext
 DELETE /projects/:id/approval_rules/:approval_rule_id
 ```
 
@@ -393,7 +398,7 @@ DELETE /projects/:id/approval_rules/:approval_rule_id
 If you are allowed to, you can change approvers and approver groups using
 the following endpoint:
 
-```
+```plaintext
 PUT /projects/:id/approvers
 ```
 
@@ -441,7 +446,10 @@ PUT /projects/:id/approvers
   ],
   "approvals_before_merge": 2,
   "reset_approvals_on_push": true,
-  "disable_overriding_approvers_per_merge_request": false
+  "disable_overriding_approvers_per_merge_request": false,
+  "merge_requests_author_approval": true,
+  "merge_requests_disable_committers_approval": false,
+  "require_password_to_approve": true
 }
 ```
 
@@ -456,7 +464,7 @@ Configuration for approvals on a specific Merge Request. Must be authenticated f
 You can request information about a merge request's approval status using the
 following endpoint:
 
-```
+```plaintext
 GET /projects/:id/merge_requests/:merge_request_iid/approvals
 ```
 
@@ -502,7 +510,7 @@ GET /projects/:id/merge_requests/:merge_request_iid/approvals
 If you are allowed to, you can change `approvals_required` using the following
 endpoint:
 
-```
+```plaintext
 POST /projects/:id/merge_requests/:merge_request_iid/approvals
 ```
 
@@ -539,7 +547,7 @@ POST /projects/:id/merge_requests/:merge_request_iid/approvals
 If you are allowed to, you can change approvers and approver groups using
 the following endpoint:
 
-```
+```plaintext
 PUT /projects/:id/merge_requests/:merge_request_iid/approvers
 ```
 
@@ -609,7 +617,7 @@ PUT /projects/:id/merge_requests/:merge_request_iid/approvers
 
 You can request information about a merge request's approval state by using the following endpoint:
 
-```
+```plaintext
 GET /projects/:id/merge_requests/:merge_request_iid/approval_state
 ```
 
@@ -680,7 +688,7 @@ This includes additional information about the users who have already approved
 
 You can request information about a merge request's approval rules using the following endpoint:
 
-```
+```plaintext
 GET /projects/:id/merge_requests/:merge_request_iid/approval_rules
 ```
 
@@ -756,7 +764,7 @@ GET /projects/:id/merge_requests/:merge_request_iid/approval_rules
 
 You can create merge request approval rules using the following endpoint:
 
-```
+```plaintext
 POST /projects/:id/merge_requests/:merge_request_iid/approval_rules
 ```
 
@@ -839,7 +847,7 @@ will be used.
 
 You can update merge request approval rules using the following endpoint:
 
-```
+```plaintext
 PUT /projects/:id/merge_requests/:merge_request_iid/approval_rules/:approval_rule_id
 ```
 
@@ -923,7 +931,7 @@ These are system generated rules.
 
 You can delete merge request approval rules using the following endpoint:
 
-```
+```plaintext
 DELETE /projects/:id/merge_requests/:merge_request_iid/approval_rules/:approval_rule_id
 ```
 
@@ -945,7 +953,7 @@ These are system generated rules.
 If you are allowed to, you can approve a merge request using the following
 endpoint:
 
-```
+```plaintext
 POST /projects/:id/merge_requests/:merge_request_iid/approve
 ```
 
@@ -1008,7 +1016,7 @@ does not match, the response code will be `409`.
 If you did approve a merge request, you can unapprove it using the following
 endpoint:
 
-```
+```plaintext
 POST /projects/:id/merge_requests/:merge_request_iid/unapprove
 ```
 

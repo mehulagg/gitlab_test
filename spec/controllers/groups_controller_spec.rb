@@ -47,7 +47,7 @@ describe GroupsController do
 
       it 'assigns events for all the projects in the group', :sidekiq_might_not_need_inline do
         subject
-        expect(assigns(:events)).to contain_exactly(event)
+        expect(assigns(:events).map(&:id)).to contain_exactly(event.id)
       end
     end
   end
@@ -96,7 +96,7 @@ describe GroupsController do
             User.where(id: [admin, owner, maintainer, developer, guest]).update_all(can_create_group: can_create_group_status)
           end
 
-          [:admin, :owner].each do |member_type|
+          [:admin, :owner, :maintainer].each do |member_type|
             context "and logged in as #{member_type.capitalize}" do
               it_behaves_like 'member with ability to create subgroups' do
                 let(:member) { send(member_type) }
@@ -104,7 +104,7 @@ describe GroupsController do
             end
           end
 
-          [:guest, :developer, :maintainer].each do |member_type|
+          [:guest, :developer].each do |member_type|
             context "and logged in as #{member_type.capitalize}" do
               it_behaves_like 'member without ability to create subgroups' do
                 let(:member) { send(member_type) }
@@ -119,12 +119,12 @@ describe GroupsController do
   describe 'GET #activity' do
     render_views
 
-    before do
-      sign_in(user)
-      project
-    end
-
     context 'as json' do
+      before do
+        sign_in(user)
+        project
+      end
+
       it 'includes events from all projects in group and subgroups', :sidekiq_might_not_need_inline do
         2.times do
           project = create(:project, group: group)
@@ -139,6 +139,31 @@ describe GroupsController do
         expect(response).to have_gitlab_http_status(:ok)
         expect(json_response['count']).to eq(3)
         expect(assigns(:projects).limit_value).to be_nil
+      end
+    end
+
+    context 'when user has no permission to see the event' do
+      let(:user) { create(:user) }
+      let(:group) { create(:group) }
+      let(:project) { create(:project, group: group) }
+
+      let(:project_with_restricted_access) do
+        create(:project, :public, issues_access_level: ProjectFeature::PRIVATE, group: group)
+      end
+
+      before do
+        create(:event, project: project)
+        create(:event, :created, project: project_with_restricted_access, target: create(:issue))
+
+        group.add_guest(user)
+
+        sign_in(user)
+      end
+
+      it 'filters out invisible event' do
+        get :activity, params: { id: group.to_param }, format: :json
+
+        expect(json_response['count']).to eq(1)
       end
     end
   end
@@ -384,6 +409,13 @@ describe GroupsController do
 
       expect(response).to have_gitlab_http_status(:found)
       expect(group.reload.project_creation_level).to eq(::Gitlab::Access::MAINTAINER_PROJECT_ACCESS)
+    end
+
+    it 'updates the default_branch_protection successfully' do
+      post :update, params: { id: group.to_param, group: { default_branch_protection: ::Gitlab::Access::PROTECTION_DEV_CAN_MERGE } }
+
+      expect(response).to have_gitlab_http_status(:found)
+      expect(group.reload.default_branch_protection).to eq(::Gitlab::Access::PROTECTION_DEV_CAN_MERGE)
     end
 
     context 'when a project inside the group has container repositories' do
