@@ -43,30 +43,22 @@ you can find a more complete list of supported languages in the
 NOTE: **Note:**
 Single file editing is based on the [Ace Editor](https://ace.c9.io).
 
-## Stage and commit changes
+## Commit changes
 
 After making your changes, click the **Commit** button in the bottom left to
-review the list of changed files. If you're using GitLab 12.6 or older versions,
-click on each file to review the changes and tick the item to stage a file.
-
-From [GitLab 12.7 onward](https://gitlab.com/gitlab-org/gitlab/issues/33441),
-all your files will be automatically staged. You still have the option to unstage
-changes in case you want to submit them in multiple smaller commits. To unstage
-a change, simply click the **Unstage** button when a staged file is open, or click
-the undo icon next to **Staged changes** to unstage all changes.
+review the list of changed files.
 
 Once you have finalized your changes, you can add a commit message, commit the
-staged changes and directly create a merge request. In case you don't have write
+changes and directly create a merge request. In case you don't have write
 access to the selected branch, you will see a warning, but still be able to create
 a new branch and start a merge request.
 
-![Commit changes](img/commit_changes_v12_3.png)
+![Commit changes](img/commit_changes.png)
 
 ## Reviewing changes
 
 Before you commit your changes, you can compare them with the previous commit
-by switching to the review mode or selecting the file from the staged files
-list.
+by switching to the review mode or selecting the file from the list of changes.
 
 An additional review mode is available when you open a merge request, which
 shows you a preview of the merge request diff if you commit your changes.
