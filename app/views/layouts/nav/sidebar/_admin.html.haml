@@ -152,6 +152,22 @@
               = link_to admin_clusters_path do
                 %strong.fly-out-top-item-name
                   = _('Kubernetes')
+      - if Feature.enabled?(:serverless_domain)
+        = nav_link(controller: %w(admin/serverless/domains)) do
+          = link_to admin_serverless_domains_path do
+            .nav-icon-container
+              = sprite_icon('cloud-gear')
+            %span.nav-item-name
+              #{ _('Operations') }
+          %ul.sidebar-sub-level-items
+            = nav_link(controller: 'admin/serverless_domains', html_options: { class: "fly-out-top-item" } ) do
+              = link_to admin_serverless_domains_path do
+                %strong.fly-out-top-item-name
+                  #{ _('Operations') }
+            = nav_link(path: 'admin/serverless/domains#index') do
+              = link_to admin_serverless_domains_path, title: 'Serverless Domain' do
+                %span
+                  = _('Serverless Domain')
 
       - if akismet_enabled?
         = nav_link(controller: :spam_logs) do
@@ -254,11 +270,6 @@
               = link_to ci_cd_admin_application_settings_path, title: _('CI/CD') do
                 %span
                   = _('CI/CD')
-            - if Feature.enabled?(:serverless_domain)
-              = nav_link(path: 'application_settings#operations') do
-                = link_to admin_serverless_domains_path, title: _('Operations') do
-                  %span
-                    = _('Operations')
             = nav_link(path: 'application_settings#reporting') do
               = link_to reporting_admin_application_settings_path, title: _('Reporting') do
                 %span
