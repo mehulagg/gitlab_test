@@ -150,10 +150,7 @@ module API
       end
       get ':id/runners' do
         runners = Ci::Runner.owned_or_instance_wide(user_project.id)
-        runners = filter_runners(runners, params[:scope])
-        runners = filter_runners(runners, params[:type], allowed_scopes: Ci::Runner::AVAILABLE_TYPES)
-        runners = filter_runners(runners, params[:status], allowed_scopes: Ci::Runner::AVAILABLE_STATUSES)
-        runners = runners.tagged_with(params[:tag_list]) if params[:tag_list]
+        runners = apply_filter(runners, params)
 
         present paginate(runners), with: Entities::Runner
       end
@@ -198,9 +195,9 @@ module API
       requires :id, type: String, desc: 'The ID of a group'
     end
     resource :groups, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
-      # before { authorize_admin_project }
+      before { authorize_admin_group }
 
-      desc 'Get runners available for project' do
+      desc 'Get runners available for group' do
         success Entities::Runner
       end
       params do
@@ -214,12 +211,8 @@ module API
         use :pagination
       end
       get ':id/runners' do
-        # authorize! :read_group, user_group
-        runners = Ci::Runner.belonging_to_group(user_group.id)
-        # runners = filter_runners(runners, params[:scope])
-        # runners = filter_runners(runners, params[:type], allowed_scopes: Ci::Runner::AVAILABLE_TYPES)
-        # runners = filter_runners(runners, params[:status], allowed_scopes: Ci::Runner::AVAILABLE_STATUSES)
-        # runners = runners.tagged_with(params[:tag_list]) if params[:tag_list]
+        runners = Ci::Runner.belonging_to_group(user_group.id, true)
+        runners = apply_filter(runners, params)
 
         present paginate(runners), with: Entities::Runner
       end
@@ -239,6 +232,15 @@ module API
         end
 
         runners.public_send(scope) # rubocop:disable GitlabSecurity/PublicSend
+      end
+
+      def apply_filter(runners, params)
+        runners = filter_runners(runners, params[:scope])
+        runners = filter_runners(runners, params[:type], allowed_scopes: Ci::Runner::AVAILABLE_TYPES)
+        runners = filter_runners(runners, params[:status], allowed_scopes: Ci::Runner::AVAILABLE_STATUSES)
+        runners.tagged_with(params[:tag_list]) if params[:tag_list]
+
+        runners
       end
 
       def get_runner(id)
