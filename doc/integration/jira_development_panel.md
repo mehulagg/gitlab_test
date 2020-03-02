@@ -131,6 +131,13 @@ The Jira development panel integration for GitLab.com and Jira Cloud can be setu
 After a namespace is added, all future commits / branches / MRs of all projects under that namespace will be synced to Jira. Past data can not be synced at the moment.
 It is possible to use the DVCS connector like described in the self-hostet section but the [GitLab for Jira App](https://marketplace.atlassian.com/apps/1221011/gitlab-for-jira) is the preferred method because it synchronizes data in real time while the DVCS connector pulls data just once per hour.
 
+#### Troubleshooting GitLab for Jira
+
+The GitLab for Jira App uses an iframe to add namespaces on the settings page. Some browsers block cross-site cookies which can lead to a message saying that the user needs to log in on GitLab.com even though the user is already logged in.
+> "You need to sign in or sign up before continuing."
+
+In this case, try to allow cross-site cookies in your browser.
+
 ## Usage
 
 Once the integration is set up on GitLab and Jira you may refer any Jira issue by its ID in branch names, commit messages and  merge request titles on GitLab's side,
