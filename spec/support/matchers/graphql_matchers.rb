@@ -87,13 +87,13 @@ end
 
 RSpec::Matchers.define :have_graphql_type do |expected|
   match do |field|
-    expect(field.type).to eq(expected.to_graphql)
+    expect(field.type).to eq(expected)
   end
 end
 
 RSpec::Matchers.define :have_non_null_graphql_type do |expected|
   match do |field|
-    expect(field.type).to eq(!expected.to_graphql)
+    expect(field.type).to eq(!expected)
   end
 end
 
@@ -101,9 +101,9 @@ RSpec::Matchers.define :have_graphql_resolver do |expected|
   match do |field|
     case expected
     when Method
-      expect(field.metadata[:type_class].resolve_proc).to eq(expected)
+      expect(field.to_graphql.metadata[:type_class].resolve_proc).to eq(expected)
     else
-      expect(field.metadata[:type_class].resolver).to eq(expected)
+      expect(field.to_graphql.metadata[:type_class].resolver).to eq(expected)
     end
   end
 end
