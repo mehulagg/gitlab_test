@@ -64,7 +64,7 @@ responsible for:
 - Requesting technical reviews from other developers within their group.
 - Requesting documentation review from the Technical Writer
   (who is [assigned to the DevOps stage group](https://about.gitlab.com/handbook/product/technical-writing/index.html#assignments)
-delivering the new feature or enhancement) by assigning the MR to them.
+  delivering the new feature or enhancement) by assigning the MR to them.
    - Respecting release deadlines and expecting a three-business-day turnaround time for documentation reviews.
    - Informing the Technical Writer immediately on Slack if more immediate attention is requested.
 
