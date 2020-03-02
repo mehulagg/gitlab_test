@@ -196,42 +196,46 @@ describe Projects::ReleasesController do
 
       it_behaves_like 'not found'
     end
+  end
 
-    context 'assets direct links' do
-     subject do
-       get :downloads, params: { namespace_id: project.namespace, project_id: project, tag: tag, filepath: filepath }
-     end
+  context 'GET #downloads' do
+    subject do
+      get :downloads, params: { namespace_id: project.namespace, project_id: project, tag: tag, filepath: filepath }
+    end
 
-     let(:release) { create(:release, project: project, tag: tag ) }
-     let!(:link) { create(:release_link, release: release, name: 'linux-amd64 binaries', filepath: '/binaries/linux-amd64', url: 'https://downloads.example.com/bin/gitlab-linux-amd64') }
-     let(:tag) { 'v11.9.0-rc2' }
+    before do
+      sign_in(user)
+    end
 
-     context 'valid filepath' do
-       let(:filepath) { CGI.escape('/binaries/linux-amd64') }
+    let(:release) { create(:release, project: project, tag: tag ) }
+    let!(:link) { create(:release_link, release: release, name: 'linux-amd64 binaries', filepath: '/binaries/linux-amd64', url: 'https://downloads.example.com/bin/gitlab-linux-amd64') }
+    let(:tag) { 'v11.9.0-rc2' }
 
-       it 'redirects to the asset direct link' do
-         subject
+    context 'valid filepath' do
+      let(:filepath) { CGI.escape('/binaries/linux-amd64') }
 
-         expect(response).to redirect_to('https://downloads.example.com/bin/gitlab-linux-amd64')
-       end
+      it 'redirects to the asset direct link' do
+        subject
 
-       it 'redirects with a status of 302' do
-         subject
+        expect(response).to redirect_to('https://downloads.example.com/bin/gitlab-linux-amd64')
+      end
 
-         expect(response).to have_gitlab_http_status(:redirect)
-       end
-     end
+      it 'redirects with a status of 302' do
+        subject
 
-     context 'invalid filepath' do
-       let(:filepath) { CGI.escape('/binaries/win32') }
+        expect(response).to have_gitlab_http_status(:redirect)
+      end
+    end
 
-       it 'is not found' do
-         subject
+    context 'invalid filepath' do
+      let(:filepath) { CGI.escape('/binaries/win32') }
 
-         expect(response).to have_gitlab_http_status(:not_found)
-       end
-     end
-   end
+      it 'is not found' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
   end
 
   describe 'GET #evidence' do
