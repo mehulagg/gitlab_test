@@ -118,7 +118,7 @@ export default {
               isFile: p => Promise.resolve(Boolean(this.entries[createPathWithExt(p)])),
               readFile: p => this.loadFileContent(createPathWithExt(p)).then(content => content),
             },
-            bundlerURL: 'http://sandpack.local:8000',
+            bundlerURL: 'https://sandbox-prod.gitlab-static.net',
           });
 
           this.listener = listen(e => {
