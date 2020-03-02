@@ -42,6 +42,8 @@ Continue configuration of other components by going back to the
    }
 
    # Set the network addresses that the exporters will listen on
+   gitlab_exporter['listen_address'] = '0.0.0.0'
+   gitlab_exporter['listen_port'] = '9168'
    node_exporter['listen_address'] = '0.0.0.0:9100'
    gitaly['prometheus_listen_addr'] = "0.0.0.0:9236"
    ```
