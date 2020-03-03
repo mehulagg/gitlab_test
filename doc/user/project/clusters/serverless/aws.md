@@ -357,7 +357,9 @@ Push this project to a new project in GitLab.
 
 ### Crafting the `.gitlab-ci.yml` file
 
-In a `.gitlab-ci.yml` file in the root of your project, place the following code and replace the #S3Bucket# with an S3 bucket name where you would like to place your package:
+In a [`.gitlab-ci.yml`](../../../../ci/yaml/README.md) file in the root of your project,
+add the following and replace <S3_bucket_name> with an S3 bucket name where you want to
+store your package:
 
 ```yaml
 image: python:latest
