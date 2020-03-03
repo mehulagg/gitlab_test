@@ -472,5 +472,23 @@ describe API::FeatureFlags do
 
       expect(response).to have_gitlab_http_status(:ok)
     end
+
+    context 'with a version 2 feature flag' do
+      let!(:feature_flag) { create(:operations_feature_flag, project: project, version: 2) }
+
+      it 'destroys the flag' do
+        expect { subject }.to change { Operations::FeatureFlag.count }.by(-1)
+
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+
+      it 'returns a 404 if the feature is disabled' do
+        stub_feature_flags(feature_flags_new_version: false)
+
+        expect { subject }.not_to change { Operations::FeatureFlag.count }
+
+        expect(response).to have_gitlab_http_status(:not_found)
+      end
+    end
   end
 end
