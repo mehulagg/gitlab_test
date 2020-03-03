@@ -20,6 +20,8 @@ describe Gitlab::SidekiqMiddleware::ServerMetrics do
         let(:queue_duration_seconds) { double('queue duration seconds metric') }
         let(:completion_seconds_metric) { double('completion seconds metric') }
         let(:user_execution_seconds_metric) { double('user execution seconds metric') }
+        let(:db_seconds_metric) { double('db seconds metric') }
+        let(:gitaly_seconds_metric) { double('gitaly seconds metric') }
         let(:failed_total_metric) { double('failed total metric') }
         let(:retried_total_metric) { double('retried total metric') }
         let(:running_jobs_metric) { double('running jobs metric') }
@@ -28,6 +30,8 @@ describe Gitlab::SidekiqMiddleware::ServerMetrics do
           allow(Gitlab::Metrics).to receive(:histogram).with(:sidekiq_jobs_queue_duration_seconds, anything, anything, anything).and_return(queue_duration_seconds)
           allow(Gitlab::Metrics).to receive(:histogram).with(:sidekiq_jobs_completion_seconds, anything, anything, anything).and_return(completion_seconds_metric)
           allow(Gitlab::Metrics).to receive(:histogram).with(:sidekiq_jobs_cpu_seconds, anything, anything, anything).and_return(user_execution_seconds_metric)
+          allow(Gitlab::Metrics).to receive(:histogram).with(:sidekiq_jobs_db_seconds, anything, anything, anything).and_return(db_seconds_metric)
+          allow(Gitlab::Metrics).to receive(:histogram).with(:sidekiq_jobs_gitaly_seconds, anything, anything, anything).and_return(gitaly_seconds_metric)
           allow(Gitlab::Metrics).to receive(:counter).with(:sidekiq_jobs_failed_total, anything).and_return(failed_total_metric)
           allow(Gitlab::Metrics).to receive(:counter).with(:sidekiq_jobs_retried_total, anything).and_return(retried_total_metric)
           allow(Gitlab::Metrics).to receive(:gauge).with(:sidekiq_running_jobs, anything, {}, :all).and_return(running_jobs_metric)
@@ -65,6 +69,8 @@ describe Gitlab::SidekiqMiddleware::ServerMetrics do
 
             expect(queue_duration_seconds).to receive(:observe).with(labels, queue_duration_for_job) if queue_duration_for_job
             expect(user_execution_seconds_metric).to receive(:observe).with(labels_with_job_status, thread_cputime_duration)
+            expect(db_seconds_metric).to receive(:observe).with(labels_with_job_status, anything)
+            expect(gitaly_seconds_metric).to receive(:observe).with(labels_with_job_status, anything)
             expect(completion_seconds_metric).to receive(:observe).with(labels_with_job_status, monotonic_time_duration)
           end
 
