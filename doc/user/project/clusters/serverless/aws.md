@@ -382,7 +382,7 @@ production:
 
     - sam build
 
-    - sam package --output-template-file packaged.yaml --s3-bucket #S3Bucket#
+    - sam package --output-template-file packaged.yaml --s3-bucket <S3_bucket_name>
 
     - sam deploy --template-file packaged.yaml --stack-name gitlabpoc  --s3-bucket <S3_bucket_name> --capabilities CAPABILITY_IAM --region us-east-1
 
