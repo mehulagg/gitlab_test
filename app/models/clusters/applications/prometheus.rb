@@ -15,6 +15,11 @@ module Clusters
       include ::Clusters::Concerns::ApplicationData
       include AfterCommitQueue
 
+      attr_encrypted :alert_manager_token,
+        mode: :per_attribute_iv,
+        key: Settings.attr_encrypted_db_key_base_truncated,
+        algorithm: 'aes-256-gcm'
+
       default_value_for :version, VERSION
 
       after_destroy do
@@ -103,7 +108,17 @@ module Clusters
         false
       end
 
+      def generate_alert_manager_token!
+        unless alert_manager_token.present?
+          update!(alert_manager_token: generate_token)
+        end
+      end
+
       private
+
+      def generate_token
+        SecureRandom.hex
+      end
 
       def disable_prometheus_integration
         ::Clusters::Applications::DeactivateServiceWorker

@@ -46,7 +46,6 @@ module EE
 
       has_one :service_desk_setting, class_name: 'ServiceDeskSetting'
       has_one :tracing_setting, class_name: 'ProjectTracingSetting'
-      has_one :alerting_setting, inverse_of: :project, class_name: 'Alerting::ProjectAlertingSetting'
       has_one :feature_usage, class_name: 'ProjectFeatureUsage'
       has_one :status_page_setting, inverse_of: :project
 
@@ -80,9 +79,6 @@ module EE
       has_many :merge_trains, foreign_key: 'target_project_id', inverse_of: :target_project
 
       has_many :webide_pipelines, -> { webide_source }, class_name: 'Ci::Pipeline', inverse_of: :project
-
-      has_many :prometheus_alert_events, inverse_of: :project
-      has_many :self_managed_prometheus_alert_events, inverse_of: :project
 
       has_many :operations_feature_flags, class_name: 'Operations::FeatureFlag'
       has_one :operations_feature_flags_client, class_name: 'Operations::FeatureFlagsClient'
@@ -179,7 +175,6 @@ module EE
       default_value_for :packages_enabled, true
 
       accepts_nested_attributes_for :tracing_setting, update_only: true, allow_destroy: true
-      accepts_nested_attributes_for :alerting_setting, update_only: true
       accepts_nested_attributes_for :status_page_setting, update_only: true, allow_destroy: true
 
       alias_attribute :fallback_approvals_required, :approvals_before_merge

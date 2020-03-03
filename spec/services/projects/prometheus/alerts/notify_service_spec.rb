@@ -233,8 +233,6 @@ describe Projects::Prometheus::Alerts::NotifyService do
         it_behaves_like 'persists events'
 
         it 'does not send notification email', :sidekiq_might_not_need_inline do
-          expect(project.feature_available?(:incident_management)).to eq(true)
-
           expect_any_instance_of(NotificationService)
             .not_to receive(:async)
 
@@ -258,7 +256,6 @@ describe Projects::Prometheus::Alerts::NotifyService do
         it_behaves_like 'persists events'
 
         it 'does not send notification' do
-          expect(project.feature_available?(:incident_management)).to eq(true)
           expect(NotificationService).not_to receive(:new)
 
           expect(subject).to eq(true)
