@@ -339,7 +339,7 @@ environment (IDE), the following are installed for you:
 
 ### Creating an AWS SAM application using SAM CLI
 
-Create a new project on GitLab. Once created, 'git clone' the project into your local development environment. 
+Create a new project on GitLab. Once created, `git clone` the project into your local development environment.
 
 Change to the newly cloned repo and create a new SAM app using the following command:
 
@@ -356,7 +356,6 @@ sam init -h
 ```
 
 Push this project to a new project in GitLab.
-
 
 ### Setting up your AWS credentials with your GitLab account
 
@@ -407,7 +406,6 @@ Let’s examine the config file more closely:
 - AWS CLI and AWS SAM CLI are installed in the `before_script` section.
 - SAM build, package, and deploy commands are used to build, package, and deploy the
   application.
-
 
 ### Deploying your application
 
