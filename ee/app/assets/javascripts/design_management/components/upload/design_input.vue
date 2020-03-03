@@ -1,5 +1,5 @@
 <script>
-import { VALID_DESIGN_FILE_MIMETYPE } from '../../utils/design_management_utils';
+import VALID_DESIGN_FILE_MIMETYPE from '../../constants';
 
 export default {
   VALID_DESIGN_FILE_MIMETYPE,
