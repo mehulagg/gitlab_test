@@ -280,23 +280,26 @@ class JiraService < IssueTrackerService
     return unless client_url.present?
 
     jira_request do
-      create_issue_comment(issue, message)
-      create_issue_link(issue, remote_link_props)
+      remote_link = find_remote_link(issue, remote_link_props[:object][:url])
+
+      if remote_link
+        save_issue_link(remote_link, remote_link_props)
+      elsif create_issue_comment(issue, message)
+        remote_link = issue.remotelink.build
+        save_issue_link(remote_link, remote_link_props)
+      end
 
       log_info("Successfully posted", client_url: client_url)
       "SUCCESS: Successfully posted to #{client_url}."
     end
   end
 
-  def create_issue_link(issue, remote_link_props)
-    remote_link = find_remote_link(issue, remote_link_props[:object][:url])
-    remote_link ||= issue.remotelink.build
-
+  def save_issue_link(remote_link, remote_link_props)
     remote_link.save!(remote_link_props)
   end
 
   def create_issue_comment(issue, message)
-    return unless comment_on_event_enabled
+    return true unless comment_on_event_enabled
 
     issue.comments.build.save!(body: message)
   end
