@@ -24,6 +24,10 @@ class InstanceSecurityDashboard
     Project.where(id: visible_users_security_dashboard_projects)
   end
 
+  def vulnerabilities
+    Vulnerability.where(project: projects)
+  end
+
   private
 
   attr_reader :project_ids, :user
