@@ -5,11 +5,14 @@ require 'ostruct'
 FactoryBot.define do
   factory :wiki_page do
     transient do
+      title { 'Title.with.dot' }
+      content { 'Content for wiki page' }
+      format { 'markdown' }
       attrs do
         {
-          title: 'Title.with.dot',
-          content: 'Content for wiki page',
-          format: 'markdown'
+          title: title,
+          content: content,
+          format: format
         }
       end
     end
