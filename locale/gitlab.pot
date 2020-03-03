@@ -5342,10 +5342,10 @@ msgstr ""
 msgid "ContainerRegistry|The last tag related to this image was recently removed. This empty image and any associated data will be automatically removed as part of the regular Garbage Collection process. If you have any questions, contact your administrator."
 msgstr ""
 
-msgid "ContainerRegistry|The retention and expiration policy for this container registry has been enabled and will run in %{days}. For more information visit the %{linkStart}documentation%{linkEnd}"
+msgid "ContainerRegistry|The retention and expiration policy for this Container Registry has been enabled and will run in %{days}. For more information visit the %{linkStart}documentation%{linkEnd}"
 msgstr ""
 
-msgid "ContainerRegistry|The retention and expiration policy for this container registry has been enabled. For more information visit the %{linkStart}documentation%{linkEnd}"
+msgid "ContainerRegistry|The retention and expiration policy for this Container Registry has been enabled. For more information visit the %{linkStart}documentation%{linkEnd}"
 msgstr ""
 
 msgid "ContainerRegistry|The value of this input should be less than 255 characters"

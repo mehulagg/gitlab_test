@@ -1,5 +1,5 @@
 <script>
-import { GlAlert, GlSprintf, GlLink, GlSkeletonLoading } from '@gitlab/ui';
+import { GlAlert, GlSprintf, GlLink } from '@gitlab/ui';
 import { mapState } from 'vuex';
 import { approximateDuration, calculateRemainingMilliseconds } from '~/lib/utils/datetime_utility';
 import {
@@ -14,7 +14,6 @@ export default {
     GlAlert,
     GlSprintf,
     GlLink,
-    GlSkeletonLoading,
   },
 
   computed: {
@@ -56,25 +55,19 @@ export default {
     :title="alertConfiguration.title"
     class="my-2"
   >
-    <template v-if="isLoading">
-      <gl-skeleton-loading :lines="3" />
-    </template>
-
-    <template v-else>
-      <gl-sprintf :message="alertConfiguration.message">
-        <template #days>
-          <strong>{{ timeTillRun }}</strong>
-        </template>
-        <template #link="{content}">
-          <gl-link
-            ref="documentationLink"
-            :href="config.expirationPolicyHelpPagePath"
-            target="_blank"
-          >
-            {{ content }}
-          </gl-link>
-        </template>
-      </gl-sprintf>
-    </template>
+    <gl-sprintf :message="alertConfiguration.message">
+      <template #days>
+        <strong>{{ timeTillRun }}</strong>
+      </template>
+      <template #link="{content}">
+        <gl-link
+          ref="documentationLink"
+          :href="config.expirationPolicyHelpPagePath"
+          target="_blank"
+        >
+          {{ content }}
+        </gl-link>
+      </template>
+    </gl-sprintf>
   </gl-alert>
 </template>
