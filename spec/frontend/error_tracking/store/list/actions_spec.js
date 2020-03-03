@@ -88,7 +88,7 @@ describe('error tracking actions', () => {
     });
   });
 
-  describe('searchByStatus', () => {
+  describe('filterByStatus', () => {
     it('should search errors by status', () => {
       const status = 'ignored';
 
@@ -97,7 +97,7 @@ describe('error tracking actions', () => {
         status,
         {},
         [{ type: types.SET_STATUS_FILTER, payload: status }],
-        [{ type: 'startPolling' }],
+        [{ type: 'stopPolling' }, { type: 'startPolling' }],
       );
     });
   });

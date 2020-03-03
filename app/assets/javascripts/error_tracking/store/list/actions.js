@@ -84,8 +84,9 @@ export const searchByQuery = ({ commit, dispatch }, query) => {
   dispatch('startPolling');
 };
 
-export const searchByFilter = ({ commit, dispatch }, status) => {
+export const filterByStatus = ({ commit, dispatch }, status) => {
   commit(types.SET_STATUS_FILTER, status);
+  dispatch('stopPolling');
   dispatch('startPolling');
 };
 

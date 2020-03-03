@@ -60,7 +60,7 @@ describe('ErrorTrackingList', () => {
       fetchPaginatedResults: jest.fn(),
       updateStatus: jest.fn(),
       removeIgnoredResolvedErrors: jest.fn(),
-      searchByStatus: jest.fn(),
+      filterByStatus: jest.fn(),
     };
 
     const state = {
@@ -176,7 +176,7 @@ describe('ErrorTrackingList', () => {
       it('it filters by status', () => {
         const findSortItem = () => wrapper.find('.status-dropdown .dropdown-item');
         findSortItem().trigger('click');
-        expect(actions.searchByStatus).toHaveBeenCalled();
+        expect(actions.filterByStatus).toHaveBeenCalled();
       });
     });
   });

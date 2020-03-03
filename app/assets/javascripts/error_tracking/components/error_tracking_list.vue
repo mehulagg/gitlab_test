@@ -175,7 +175,7 @@ export default {
       'fetchPaginatedResults',
       'updateStatus',
       'removeIgnoredResolvedErrors',
-      'searchByFilter',
+      'filterByStatus',
     ]),
     setSearchText(text) {
       this.errorSearchQuery = text;
@@ -206,7 +206,7 @@ export default {
     },
     filterErrors(status, label) {
       this.filterValue = label;
-      return this.searchByFilter(status);
+      return this.filterByStatus(status);
     },
     updateIssueStatus(errorId, status) {
       this.updateStatus({
