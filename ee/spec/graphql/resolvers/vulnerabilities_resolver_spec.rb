@@ -6,10 +6,10 @@ describe Resolvers::VulnerabilitiesResolver do
   include GraphqlHelpers
 
   describe '#resolve' do
-    let(:project) { create(:project) }
-    let!(:low_vulnerability) { create(:vulnerability, project: project, severity: :low) }
-    let!(:critical_vulnerability) { create(:vulnerability, project: project, severity: :critical) }
-    let!(:high_vulnerability) { create(:vulnerability, project: project, severity: :high) }
+    let_it_be(:project) { create(:project) }
+    let_it_be(:low_vulnerability) { create(:vulnerability, project: project, severity: :low) }
+    let_it_be(:critical_vulnerability) { create(:vulnerability, project: project, severity: :critical) }
+    let_it_be(:high_vulnerability) { create(:vulnerability, project: project, severity: :high) }
 
     subject { resolve(described_class, obj: project) }
 
