@@ -439,11 +439,7 @@ describe('Settings Panel', () => {
       ({ pagesAvailable, pagesAccessControlEnabled, visibility }) => {
         wrapper = mountComponent({ pagesAvailable, pagesAccessControlEnabled });
 
-        if (visibility === 'show') {
-          expect(wrapper.find({ ref: 'pages-settings' }).exists()).toBe(true);
-        } else {
-          expect(wrapper.find({ ref: 'pages-settings' }).exists()).toBe(false);
-        }
+        expect(wrapper.find({ ref: 'pages-settings' }).exists()).toBe(visibility === 'show');
       },
     );
 
