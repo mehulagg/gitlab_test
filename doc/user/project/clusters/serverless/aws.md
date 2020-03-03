@@ -300,7 +300,7 @@ GitLab allows developers to build and deploy serverless applications using the c
 - [AWS Serverless Application Model (AWS SAM)](https://aws.amazon.com/serverless/sam/)
 - GitLab CI/CD
 
-AWS Serverless Application Model is an open source framework for building serverless applications. It makes it easier to build and deploy serverless applications. For more details please take a look at AWS documentation on  [AWS Serverless Application Model](https://aws.amazon.com/serverless/sam/)
+AWS Serverless Application Model is an open source framework for building serverless applications. It makes it easier to build and deploy serverless applications. For more details, refer to AWS documentation on [AWS Serverless Application Model](https://aws.amazon.com/serverless/sam/).
 
 ### Example
 
