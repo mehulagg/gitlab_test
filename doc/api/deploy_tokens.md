@@ -1,8 +1,8 @@
 # Deploy Tokens API
 
->[Introduced](https://gitlab.com/gitlab-org/gitlab/issues/21811) in GitLab 12.9
-
 ## List all deploy tokens
+
+>[Introduced](https://gitlab.com/gitlab-org/gitlab/issues/21811) in GitLab 12.9
 
 Get a list of all deploy tokens across the GitLab instance. This endpoint requires admin access.
 
@@ -38,6 +38,8 @@ Example response:
 Project deploy token API endpoints require project maintainer access or higher.
 
 ### List project deploy tokens
+
+>[Introduced](https://gitlab.com/gitlab-org/gitlab/issues/21811) in GitLab 12.9
 
 Get a list of a project's deploy tokens.
 
@@ -75,6 +77,8 @@ Example response:
 ```
 
 ### Delete a project deploy token
+
+>[Introduced](https://gitlab.com/gitlab-org/gitlab/issues/21811) in GitLab 12.9
 
 Removes a deploy token from the project.
 
