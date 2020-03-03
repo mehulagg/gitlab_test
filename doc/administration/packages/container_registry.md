@@ -431,8 +431,8 @@ Currently, the number of images that can be stored is not limited, which means a
 infinite amount of Docker images with arbitrary sizes. This setting will be
 configurable in future releases.
 
-There is however a limitation with lifecycle policies being applied to s3 buckets that are being used for a registry. 
-If a lifecycle policy is applied, some items are aged into unsupported storage, which can cause pipelines to start 
+There is however a limitation with lifecycle policies being applied to s3 buckets that are being used for a registry.
+If a lifecycle policy is applied, some items are aged into unsupported storage, which can cause pipelines to start
 breaking.
 
 ## Change the registry's internal port
