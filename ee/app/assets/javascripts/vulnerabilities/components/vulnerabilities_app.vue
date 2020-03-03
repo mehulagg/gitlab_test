@@ -21,6 +21,8 @@ export default {
   data: () => ({
     pageInfo: {},
     vulnerabilities: [],
+    initialVulnerabilitiesLoad: false,
+    errorLoadingVulnerabilities: false,
   }),
   computed: {
     isLoadingVulnerabilities() {
@@ -50,9 +52,13 @@ export default {
           first: this.$options.PAGE_SIZE,
         };
       },
-      update: data => data.project.vulnerabilities.nodes,
+      update: data => data?.project?.vulnerabilities?.nodes || [],
       result(res) {
-        this.pageInfo = res.data.project.vulnerabilities.pageInfo;
+        this.initialVulnerabilitiesLoad = true;
+        this.pageInfo = res?.data?.project?.vulnerabilities?.pageInfo || {};
+      },
+      error() {
+        this.errorLoadingVulnerabilities = true;
       },
     },
   },
@@ -77,21 +83,23 @@ export default {
       }
     },
   },
+  observer: {
+    rootMargin: '0% 0% 100px 0%',
+  },
 };
 </script>
 
 <template>
   <div>
-    <!-- <gl-alert v-if="errorLoadingVulnerabilities" :dismissible="false" variant="danger">
-          {{
-            s__(
-              'Security Dashboard|Error fetching the vulnerability list. Please check your network connection and try again.',
-            )
-          }}
-          this.$apollo.queries.vulnerabilities.loading
-        </gl-alert> -->
+    <gl-alert v-if="errorLoadingVulnerabilities" :dismissible="false" variant="danger">
+      {{
+        s__(
+          'Security Dashboard|Error fetching the vulnerability list. Please check your network connection and try again.',
+        )
+      }}
+    </gl-alert>
     <vulnerability-list
-      :is-loading="false"
+      :is-loading="!initialVulnerabilitiesLoad"
       :dashboard-documentation="dashboardDocumentation"
       :empty-state-svg-path="emptyStateSvgPath"
       :vulnerabilities="vulnerabilities"
@@ -110,7 +118,12 @@ export default {
         />
       </template>
     </vulnerability-list>
-    <observer v-if="pageInfo.hasNextPage" class="text-center" @intersect="nextPage">
+    <observer
+      v-if="pageInfo.hasNextPage"
+      class="text-center"
+      :options="$options.observer"
+      @intersect="nextPage"
+    >
       <gl-button
         :loading="isLoadingVulnerabilities"
         :disabled="isLoadingVulnerabilities"
