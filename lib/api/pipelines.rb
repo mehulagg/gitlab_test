@@ -118,7 +118,7 @@ module API
       get ':id/pipelines/:pipeline_id/test_report' do
         not_found! unless Feature.enabled?(:junit_pipeline_view, user_project)
 
-        authorize! :read_pipeline, pipeline
+        authorize! :read_build, pipeline
 
         if pipeline_test_report == :error
           present :status, :error_parsing_report
