@@ -151,6 +151,22 @@ describe EventsHelper do
     end
   end
 
+  describe '#event_wiki_title_html' do
+    let(:event) { create(:wiki_page_event) }
+
+    it 'produces a suitable title chunk' do
+      url = helper.event_wiki_page_target_url(event)
+      html = [
+        "<span class=\"event-target-type append-right-4\">wiki page</span>",
+        "<a title=\"Title.with.dot\" class=\"has-tooltip event-target-link append-right-4\" href=\"#{url}\">",
+        event.target.title,
+        "</a>"
+      ].join
+
+      expect(helper.event_wiki_title_html(event)).to eq(html)
+    end
+  end
+
   describe '#event_note_target_url' do
     let(:project) { create(:project, :public, :repository) }
     let(:event) { create(:event, project: project) }
