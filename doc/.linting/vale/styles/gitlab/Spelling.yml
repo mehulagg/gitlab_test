@@ -1,5 +1,5 @@
 extends: spelling
 message: "Spelling check: '%s'?"
-level: error
+level: warning
 ignore:
   - gitlab/spelling-exceptions.txt
