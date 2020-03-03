@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_26_162723) do
+ActiveRecord::Schema.define(version: 2020_03_03_181648) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1216,6 +1216,8 @@ ActiveRecord::Schema.define(version: 2020_02_26_162723) do
     t.datetime_with_timezone "last_update_started_at"
     t.string "encrypted_alert_manager_token"
     t.string "encrypted_alert_manager_token_iv"
+    t.boolean "healthy", default: true, null: false
+    t.boolean "ready", default: true, null: false
     t.index ["cluster_id"], name: "index_clusters_applications_prometheus_on_cluster_id", unique: true
   end
 
