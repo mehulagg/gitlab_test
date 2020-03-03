@@ -156,6 +156,24 @@ describe Admin::SessionsController, :do_not_mock_admin_mode do
           expect(response).to render_template('admin/sessions/two_factor')
           expect(controller.current_user_mode.admin_mode?).to be(false)
         end
+
+        context 'with password authentication disabled' do
+          before do
+            stub_application_setting(password_authentication_enabled_for_web: false)
+          end
+
+          it 'allows 2FA stage of non-password login' do
+            expect(controller.current_user_mode.admin_mode?).to be(false)
+
+            controller.store_location_for(:redirect, admin_root_path)
+            controller.current_user_mode.request_admin_mode!
+
+            authenticate_2fa(otp_attempt: user.current_otp)
+
+            expect(response).to redirect_to admin_root_path
+            expect(controller.current_user_mode.admin_mode?).to be(true)
+          end
+        end
       end
 
       context 'when using two-factor authentication via U2F' do
