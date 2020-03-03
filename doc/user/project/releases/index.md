@@ -268,6 +268,43 @@ background job.
 
 If a past `released_at` is used, no Evidence is collected for the Release.
 
+## Direct Asset links
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/27300) in GitLab 12.9.
+
+When Assets are associated with a Release, it is possible to present the link with
+a permanent URL. When this URL is followed, GitLab will redirect to the actual Asset
+location. This allows assets to be moved to different locations, while preserving
+the same URL.
+
+Each Asset is described with a name, and the URL of the actual Asset location. An
+optional parameter of `filepath` may also be specified, and if used, an URL pointing
+to the Release will be constructed. The format for the URL is:
+
+```
+https://host/namespace/project/releases/:release/downloads/:filepath
+```
+
+For example, when defining an Asset for the `v11.9.0-rc2` Release in the `gitlab-org`
+namespace and `gitlab-runner` project on `gitlab.com`, we define it as:
+
+```json
+{
+  "name": "linux amd64",
+  "filepath": "/binaries/gitlab-runner-linux-amd64",
+  "url": "https://gitlab-runner-downloads.s3.amazonaws.com/v11.9.0-rc2/binaries/gitlab-runner-linux-amd64"
+}
+```
+
+This Asset is then presented using a Direct Link as:
+
+```
+https://gitlab.com/gitlab-org/gitlab-runner/v11.9.0-rc2/downloads/binaries/gitlab-runner-linux-amd64
+```
+
+We can now change the physical location of the Asset at any time, and the Direct Link will
+be unchanged.
+
 <!-- ## Troubleshooting
 
 Include any troubleshooting steps that you can foresee. If you know beforehand what issues
