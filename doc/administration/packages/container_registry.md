@@ -427,7 +427,7 @@ NOTE: **Note:**
 
 ### Storage limitations
 
-Currently, there is no limitation of images that can be stored, which means a user can upload an
+Currently, the number of images that can be stored is not limited, which means a user can upload an
 infinite amount of Docker images with arbitrary sizes. This setting will be
 configurable in future releases.
 
