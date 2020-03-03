@@ -14,7 +14,8 @@ describe 'admin/sessions/two_factor.html.haml' do
     it 'shows tab' do
       render
 
-      expect(rendered).not_to have_css('.login-box')
+      expect(rendered).to have_no_field('user[otp_attempt]')
+      expect(rendered).to have_no_field('user[device_response]')
     end
   end
 
@@ -25,7 +26,7 @@ describe 'admin/sessions/two_factor.html.haml' do
       render
 
       expect(rendered).to have_css('#login-pane.active')
-      expect(rendered).to have_selector('input[name="user[otp_attempt]"]')
+      expect(rendered).to have_field('user[otp_attempt]')
     end
   end
 
