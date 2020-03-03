@@ -418,6 +418,17 @@ Relationship between an epic and an issue
 | `webUrl` | String! | Web URL of the issue |
 | `weight` | Int | Weight of the issue |
 
+## EpicIssueLink
+
+Relationship between an epic and an issue
+
+| Name  | Type  | Description |
+| ---   |  ---- | ----------  |
+| `epic` | Epic | The epic that belongs to the relation |
+| `id` | ID! | ID of the epic-issue relation |
+| `issue` | Issue | The issue that belongs to the relation |
+| `relativePosition` | String | Position of the issue in the list of issues linked to the epic |
+
 ## EpicPermissions
 
 Check permissions for the current user on an epic

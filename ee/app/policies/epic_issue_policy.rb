@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 class EpicIssuePolicy < BasePolicy
-  delegate { @subject.epic }
+  delegate { @subject.epic.group }
 end

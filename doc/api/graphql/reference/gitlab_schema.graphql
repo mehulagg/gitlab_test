@@ -2690,6 +2690,31 @@ type EpicIssueEdge {
 }
 
 """
+Relationship between an epic and an issue
+"""
+type EpicIssueLink {
+  """
+  The epic that belongs to the relation
+  """
+  epic: Epic
+
+  """
+  ID of the epic-issue relation
+  """
+  id: ID!
+
+  """
+  The issue that belongs to the relation
+  """
+  issue: Issue
+
+  """
+  Position of the issue in the list of issues linked to the epic
+  """
+  relativePosition: String
+}
+
+"""
 Check permissions for the current user on an epic
 """
 type EpicPermissions {
