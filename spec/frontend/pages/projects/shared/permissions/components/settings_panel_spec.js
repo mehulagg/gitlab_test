@@ -7,7 +7,7 @@ import {
   visibilityOptions,
 } from '~/pages/projects/shared/permissions/constants';
 
-const defaultSettings = {
+const defaultProps = {
   currentSettings: {
     visibilityLevel: 10,
     requestAccessEnabled: true,
@@ -41,19 +41,30 @@ const defaultSettings = {
 };
 
 describe('Settings Panel', () => {
+  let wrapper;
+
+  const mountComponent = customProps => {
+    const propsData = { ...defaultProps, ...customProps };
+    return shallowMount(settingsPanel, { propsData });
+  };
+
+  beforeEach(() => {
+    wrapper = mountComponent();
+  });
+
+  afterEach(() => {
+    wrapper.destroy();
+  });
+
   describe('Project Visibility', () => {
     it('should set the project visibility help path', () => {
-      const wrapper = shallowMount(settingsPanel, { propsData: defaultSettings });
-
       expect(wrapper.find({ ref: 'project-visibility-settings' }).props().helpPath).toBe(
-        defaultSettings.visibilityHelpPath,
+        defaultProps.visibilityHelpPath,
       );
     });
 
     it('should not disable the visibility level dropdown', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: { ...defaultSettings, canChangeVisibilityLevel: true },
-      });
+      wrapper = mountComponent({ canChangeVisibilityLevel: true });
 
       expect(
         wrapper.find('[name="project[visibility_level]"]').attributes().disabled,
@@ -61,9 +72,7 @@ describe('Settings Panel', () => {
     });
 
     it('should disable the visibility level dropdown', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: { ...defaultSettings, canChangeVisibilityLevel: false },
-      });
+      wrapper = mountComponent({ canChangeVisibilityLevel: false });
 
       expect(wrapper.find('[name="project[visibility_level]"]').attributes().disabled).toBe(
         'disabled',
@@ -81,9 +90,8 @@ describe('Settings Panel', () => {
     `(
       'sets disabled to $disabled for the visibility option $option when given $allowedOptions',
       ({ option, allowedOptions, disabled }) => {
-        const wrapper = shallowMount(settingsPanel, {
-          propsData: { ...defaultSettings, allowedVisibilityOptions: allowedOptions },
-        });
+        wrapper = mountComponent({ allowedVisibilityOptions: allowedOptions });
+
         const attributeValue = wrapper
           .find(`[name="project[visibility_level]"] option[value="${option}"]`)
           .attributes().disabled;
@@ -97,10 +105,6 @@ describe('Settings Panel', () => {
     );
 
     it('should set the visibility level description based upon the selected visibility level', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: { ...defaultSettings },
-      });
-
       wrapper.find('[name="project[visibility_level]"]').setValue(visibilityOptions.INTERNAL);
 
       expect(wrapper.find({ ref: 'project-visibility-settings' }).text()).toContain(
@@ -109,13 +113,10 @@ describe('Settings Panel', () => {
     });
 
     it('should show the request access checkbox if the visibility level is not private', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            visibilityLevel: visibilityOptions.INTERNAL,
-          },
+      wrapper = mountComponent({
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          visibilityLevel: visibilityOptions.INTERNAL,
         },
       });
 
@@ -123,13 +124,10 @@ describe('Settings Panel', () => {
     });
 
     it('should not show the request access checkbox if the visibility level is private', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            visibilityLevel: visibilityOptions.PRIVATE,
-          },
+      wrapper = mountComponent({
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          visibilityLevel: visibilityOptions.PRIVATE,
         },
       });
 
@@ -139,13 +137,10 @@ describe('Settings Panel', () => {
 
   describe('Repository', () => {
     it('should set the repository help text when the visibility level is set to private', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            visibilityLevel: visibilityOptions.PRIVATE,
-          },
+      wrapper = mountComponent({
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          visibilityLevel: visibilityOptions.PRIVATE,
         },
       });
 
@@ -155,13 +150,10 @@ describe('Settings Panel', () => {
     });
 
     it('should set the repository help text with a read access warning when the visibility level is set to non-private', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            visibilityLevel: visibilityOptions.PUBLIC,
-          },
+      wrapper = mountComponent({
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          visibilityLevel: visibilityOptions.PUBLIC,
         },
       });
 
@@ -173,13 +165,10 @@ describe('Settings Panel', () => {
 
   describe('Merge requests', () => {
     it('should enable the merge requests access level input when the repository is enabled', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            repositoryAccessLevel: featureAccessLevel.EVERYONE,
-          },
+      wrapper = mountComponent({
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          repositoryAccessLevel: featureAccessLevel.EVERYONE,
         },
       });
 
@@ -191,13 +180,10 @@ describe('Settings Panel', () => {
     });
 
     it('should disable the merge requests access level input when the repository is disabled', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            repositoryAccessLevel: featureAccessLevel.NOT_ENABLED,
-          },
+      wrapper = mountComponent({
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          repositoryAccessLevel: featureAccessLevel.NOT_ENABLED,
         },
       });
 
@@ -211,13 +197,10 @@ describe('Settings Panel', () => {
 
   describe('Forks', () => {
     it('should enable the forking access level input when the repository is enabled', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            repositoryAccessLevel: featureAccessLevel.EVERYONE,
-          },
+      wrapper = mountComponent({
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          repositoryAccessLevel: featureAccessLevel.EVERYONE,
         },
       });
 
@@ -228,13 +211,10 @@ describe('Settings Panel', () => {
     });
 
     it('should disable the forking access level input when the repository is disabled', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            repositoryAccessLevel: featureAccessLevel.NOT_ENABLED,
-          },
+      wrapper = mountComponent({
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          repositoryAccessLevel: featureAccessLevel.NOT_ENABLED,
         },
       });
 
@@ -247,13 +227,10 @@ describe('Settings Panel', () => {
 
   describe('Pipelines', () => {
     it('should enable the builds access level input when the repository is enabled', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            repositoryAccessLevel: featureAccessLevel.EVERYONE,
-          },
+      wrapper = mountComponent({
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          repositoryAccessLevel: featureAccessLevel.EVERYONE,
         },
       });
 
@@ -264,13 +241,10 @@ describe('Settings Panel', () => {
     });
 
     it('should disable the builds access level input when the repository is disabled', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            repositoryAccessLevel: featureAccessLevel.NOT_ENABLED,
-          },
+      wrapper = mountComponent({
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          repositoryAccessLevel: featureAccessLevel.NOT_ENABLED,
         },
       });
 
@@ -283,49 +257,31 @@ describe('Settings Panel', () => {
 
   describe('Container registry', () => {
     it('should show the container registry settings if the registry is available', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          registryAvailable: true,
-        },
-      });
+      wrapper = mountComponent({ registryAvailable: true });
 
       expect(wrapper.find({ ref: 'container-registry-settings' }).exists()).toBe(true);
     });
 
     it('should hide the container registry settings if the registry is not available', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          registryAvailable: false,
-        },
-      });
+      wrapper = mountComponent({ registryAvailable: false });
 
       expect(wrapper.find({ ref: 'container-registry-settings' }).exists()).toBe(false);
     });
 
     it('should set the container registry settings help path', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          registryAvailable: true,
-        },
-      });
+      wrapper = mountComponent({ registryAvailable: true });
 
       expect(wrapper.find({ ref: 'container-registry-settings' }).props().helpPath).toBe(
-        defaultSettings.registryHelpPath,
+        defaultProps.registryHelpPath,
       );
     });
 
     it('should show the container registry public note if the visibility level is public and the registry is available', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          registryAvailable: true,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            visibilityLevel: visibilityOptions.PUBLIC,
-          },
+      wrapper = mountComponent({
+        registryAvailable: true,
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          visibilityLevel: visibilityOptions.PUBLIC,
         },
       });
 
@@ -335,14 +291,11 @@ describe('Settings Panel', () => {
     });
 
     it('should hide the container registry public note if the visibility level is private and the registry is available', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          registryAvailable: true,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            visibilityLevel: visibilityOptions.PRIVATE,
-          },
+      wrapper = mountComponent({
+        registryAvailable: true,
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          visibilityLevel: visibilityOptions.PRIVATE,
         },
       });
 
@@ -352,14 +305,11 @@ describe('Settings Panel', () => {
     });
 
     it('should enable the container registry input when the repository is enabled', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          registryAvailable: true,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            repositoryAccessLevel: featureAccessLevel.EVERYONE,
-          },
+      wrapper = mountComponent({
+        registryAvailable: true,
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          repositoryAccessLevel: featureAccessLevel.EVERYONE,
         },
       });
 
@@ -369,14 +319,11 @@ describe('Settings Panel', () => {
     });
 
     it('should disable the container registry input when the repository is disabled', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          registryAvailable: true,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            repositoryAccessLevel: featureAccessLevel.NOT_ENABLED,
-          },
+      wrapper = mountComponent({
+        registryAvailable: true,
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          repositoryAccessLevel: featureAccessLevel.NOT_ENABLED,
         },
       });
 
@@ -388,44 +335,29 @@ describe('Settings Panel', () => {
 
   describe('Git Large File Storage', () => {
     it('should show the LFS settings if LFS is available', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          lfsAvailable: true,
-        },
-      });
+      wrapper = mountComponent({ lfsAvailable: true });
 
       expect(wrapper.find({ ref: 'git-lfs-settings' }).exists()).toEqual(true);
     });
 
     it('should hide the LFS settings if LFS is not available', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          lfsAvailable: false,
-        },
-      });
+      wrapper = mountComponent({ lfsAvailable: false });
 
       expect(wrapper.find({ ref: 'git-lfs-settings' }).exists()).toEqual(false);
     });
 
     it('should set the LFS settings help path', () => {
-      const wrapper = shallowMount(settingsPanel, { propsData: defaultSettings });
-
       expect(wrapper.find({ ref: 'git-lfs-settings' }).props().helpPath).toBe(
-        defaultSettings.lfsHelpPath,
+        defaultProps.lfsHelpPath,
       );
     });
 
     it('should enable the LFS input when the repository is enabled', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          lfsAvailable: true,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            repositoryAccessLevel: featureAccessLevel.EVERYONE,
-          },
+      wrapper = mountComponent({
+        lfsAvailable: true,
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          repositoryAccessLevel: featureAccessLevel.EVERYONE,
         },
       });
 
@@ -433,14 +365,11 @@ describe('Settings Panel', () => {
     });
 
     it('should disable the LFS input when the repository is disabled', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          lfsAvailable: true,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            repositoryAccessLevel: featureAccessLevel.NOT_ENABLED,
-          },
+      wrapper = mountComponent({
+        lfsAvailable: true,
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          repositoryAccessLevel: featureAccessLevel.NOT_ENABLED,
         },
       });
 
@@ -450,49 +379,31 @@ describe('Settings Panel', () => {
 
   describe('Packages', () => {
     it('should show the packages settings if packages are available', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          packagesAvailable: true,
-        },
-      });
+      wrapper = mountComponent({ packagesAvailable: true });
 
       expect(wrapper.find({ ref: 'package-settings' }).exists()).toEqual(true);
     });
 
     it('should hide the packages settings if packages are not available', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          packagesAvailable: false,
-        },
-      });
+      wrapper = mountComponent({ packagesAvailable: false });
 
       expect(wrapper.find({ ref: 'package-settings' }).exists()).toEqual(false);
     });
 
     it('should set the package settings help path', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          packagesAvailable: true,
-        },
-      });
+      wrapper = mountComponent({ packagesAvailable: true });
 
       expect(wrapper.find({ ref: 'package-settings' }).props().helpPath).toBe(
-        defaultSettings.packagesHelpPath,
+        defaultProps.packagesHelpPath,
       );
     });
 
     it('should enable the packages input when the repository is enabled', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          packagesAvailable: true,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            repositoryAccessLevel: featureAccessLevel.EVERYONE,
-          },
+      wrapper = mountComponent({
+        packagesAvailable: true,
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          repositoryAccessLevel: featureAccessLevel.EVERYONE,
         },
       });
 
@@ -502,14 +413,11 @@ describe('Settings Panel', () => {
     });
 
     it('should disable the packages input when the repository is disabled', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          packagesAvailable: true,
-          currentSettings: {
-            ...defaultSettings.currentSettings,
-            repositoryAccessLevel: featureAccessLevel.NOT_ENABLED,
-          },
+      wrapper = mountComponent({
+        packagesAvailable: true,
+        currentSettings: {
+          ...defaultProps.currentSettings,
+          repositoryAccessLevel: featureAccessLevel.NOT_ENABLED,
         },
       });
 
@@ -529,9 +437,7 @@ describe('Settings Panel', () => {
     `(
       'should $visibility the page settings if pagesAvailable is $pagesAvailable and pagesAccessControlEnabled is $pagesAccessControlEnabled',
       ({ pagesAvailable, pagesAccessControlEnabled, visibility }) => {
-        const wrapper = shallowMount(settingsPanel, {
-          propsData: { ...defaultSettings, pagesAvailable, pagesAccessControlEnabled },
-        });
+        wrapper = mountComponent({ pagesAvailable, pagesAccessControlEnabled });
 
         if (visibility === 'show') {
           expect(wrapper.find({ ref: 'pages-settings' }).exists()).toBe(true);
@@ -542,39 +448,23 @@ describe('Settings Panel', () => {
     );
 
     it('should set the pages settings help path', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          pagesAvailable: true,
-          pagesAccessControlEnabled: true,
-        },
-      });
+      wrapper = mountComponent({ pagesAvailable: true, pagesAccessControlEnabled: true });
 
       expect(wrapper.find({ ref: 'pages-settings' }).props().helpPath).toBe(
-        defaultSettings.pagesHelpPath,
+        defaultProps.pagesHelpPath,
       );
     });
   });
 
   describe('Email notifications', () => {
     it('should show the disable email notifications input if emails an be disabled', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          canDisableEmails: true,
-        },
-      });
+      wrapper = mountComponent({ canDisableEmails: true });
 
       expect(wrapper.find({ ref: 'email-settings' }).exists()).toBe(true);
     });
 
     it('should hide the disable email notifications input if emails cannot be disabled', () => {
-      const wrapper = shallowMount(settingsPanel, {
-        propsData: {
-          ...defaultSettings,
-          canDisableEmails: false,
-        },
-      });
+      wrapper = mountComponent({ canDisableEmails: false });
 
       expect(wrapper.find({ ref: 'email-settings' }).exists()).toBe(false);
     });

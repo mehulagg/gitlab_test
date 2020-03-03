@@ -10,18 +10,28 @@ describe('Project Feature Settings', () => {
     value: 1,
     disabledInput: false,
   };
+  let wrapper;
+
+  const mountComponent = customProps => {
+    const propsData = { ...defaultProps, ...customProps };
+    return shallowMount(projectFeatureSetting, { propsData });
+  };
+
+  beforeEach(() => {
+    wrapper = mountComponent();
+  });
+
+  afterEach(() => {
+    wrapper.destroy();
+  });
 
   describe('Hidden name input', () => {
     it('should set the hidden name input if the name exists', () => {
-      const wrapper = shallowMount(projectFeatureSetting, { propsData: defaultProps });
-
       expect(wrapper.find({ name: 'Test' }).props().value).toBe(1);
     });
 
     it('should not set the hidden name input if the name does not exist', () => {
-      const wrapper = shallowMount(projectFeatureSetting, {
-        propsData: { ...defaultProps, name: null },
-      });
+      wrapper = mountComponent({ name: null });
 
       expect(wrapper.find({ name: 'Test' }).exists()).toBe(false);
     });
@@ -29,37 +39,30 @@ describe('Project Feature Settings', () => {
 
   describe('Feature toggle', () => {
     it('should enable the feature toggle if the value is not 0', () => {
-      const wrapper = shallowMount(projectFeatureSetting, { propsData: defaultProps });
-
       expect(wrapper.find(projectFeatureToggle).props().value).toBe(true);
     });
 
     it('should enable the feature toggle if the value is less than 0', () => {
-      const wrapper = shallowMount(projectFeatureSetting, {
-        propsData: { ...defaultProps, value: -1 },
-      });
+      wrapper = mountComponent({ value: -1 });
 
       expect(wrapper.find(projectFeatureToggle).props().value).toBe(true);
     });
 
     it('should disable the feature toggle if the value is 0', () => {
-      const wrapper = shallowMount(projectFeatureSetting, {
-        propsData: { ...defaultProps, value: 0 },
-      });
+      wrapper = mountComponent({ value: 0 });
 
       expect(wrapper.find(projectFeatureToggle).props().value).toBe(false);
     });
 
     it('should disable the feature toggle if disabledInput is set', () => {
-      const wrapper = shallowMount(projectFeatureSetting, {
-        propsData: { ...defaultProps, disabledInput: true },
-      });
+      wrapper = mountComponent({ disabledInput: true });
 
       expect(wrapper.find(projectFeatureToggle).props().disabledInput).toBe(true);
     });
 
     it('should emit a change event when the feature toggle changes', () => {
-      const wrapper = mount(projectFeatureSetting, { propsData: defaultProps });
+      // Needs to be fully mounted to be able to trigger the click event on the internal button
+      wrapper = mount(projectFeatureSetting, { propsData: defaultProps });
 
       expect(wrapper.emitted().change).toBeUndefined();
       wrapper
@@ -85,9 +88,7 @@ describe('Project Feature Settings', () => {
     `(
       'should set disabled to $isDisabled when disabledInput is $disabledInput, the value is $value and options are $options',
       ({ disabledInput, value, options, isDisabled }) => {
-        const wrapper = shallowMount(projectFeatureSetting, {
-          propsData: { ...defaultProps, disabledInput, value, options },
-        });
+        wrapper = mountComponent({ disabledInput, value, options });
 
         if (isDisabled) {
           expect(wrapper.find('select').attributes().disabled).toEqual('disabled');
@@ -98,8 +99,6 @@ describe('Project Feature Settings', () => {
     );
 
     it('should emit the change when a new option is selected', () => {
-      const wrapper = shallowMount(projectFeatureSetting, { propsData: defaultProps });
-
       expect(wrapper.emitted().change).toBeUndefined();
       wrapper
         .findAll('option')
