@@ -120,11 +120,7 @@ module API
 
         authorize! :read_build, pipeline
 
-        if pipeline_test_report == :error
-          present :status, :error_parsing_report
-        else
-          present pipeline_test_report, with: TestReportEntity
-        end
+        present pipeline_test_report, with: TestReportEntity
       end
 
       desc 'Deletes a pipeline' do

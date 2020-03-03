@@ -746,11 +746,11 @@ describe API::Pipelines do
             create(:ci_job_artifact, :junit_with_corrupted_data, job: job, project: project)
           end
 
-          it 'returns an error status' do
+          it 'returns a suite_error' do
             subject
 
             expect(response).to have_gitlab_http_status(:ok)
-            expect(json_response['status']).to eq('error_parsing_report')
+            expect(json_response['test_suites'].first['suite_error']).to eq('Syntax error: Failed to parse JUnit XML data')
           end
         end
       end
