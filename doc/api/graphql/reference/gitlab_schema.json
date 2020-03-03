@@ -19048,7 +19048,7 @@
               ],
               "type": {
                 "kind": "SCALAR",
-                "name": "String",
+                "name": "JSON",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -19111,24 +19111,6 @@
               "deprecationReason": null
             },
             {
-              "name": "userPermissions",
-              "description": "Permissions for the current user on the resource",
-              "args": [
-
-              ],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "OBJECT",
-                  "name": "VulnerabilityPermissions",
-                  "ofType": null
-                }
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            },
-            {
               "name": "vulnerabilityPath",
               "description": "URL to the vulnerability's details page",
               "args": [
@@ -19138,37 +19120,6 @@
                 "kind": "SCALAR",
                 "name": "String",
                 "ofType": null
-              },
-              "isDeprecated": false,
-              "deprecationReason": null
-            }
-          ],
-          "inputFields": null,
-          "interfaces": [
-
-          ],
-          "enumValues": null,
-          "possibleTypes": null
-        },
-        {
-          "kind": "OBJECT",
-          "name": "VulnerabilityPermissions",
-          "description": "Check permissions for the current user on a vulnerability",
-          "fields": [
-            {
-              "name": "readVulnerability",
-              "description": "Indicates the user can perform `read_vulnerability` on this resource",
-              "args": [
-
-              ],
-              "type": {
-                "kind": "NON_NULL",
-                "name": null,
-                "ofType": {
-                  "kind": "SCALAR",
-                  "name": "Boolean",
-                  "ofType": null
-                }
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -19302,6 +19253,16 @@
               "deprecationReason": null
             }
           ],
+          "possibleTypes": null
+        },
+        {
+          "kind": "SCALAR",
+          "name": "JSON",
+          "description": "Represents untyped JSON",
+          "fields": null,
+          "inputFields": null,
+          "interfaces": null,
+          "enumValues": null,
           "possibleTypes": null
         },
         {

@@ -3759,6 +3759,11 @@ enum IssueState {
   opened
 }
 
+"""
+Represents untyped JSON
+"""
+scalar JSON
+
 type Label {
   """
   Background color of the label
@@ -8289,7 +8294,7 @@ type Vulnerability {
   The JSON location metadata for the vulnerability. Its format depends on the
   type of the security scan that found the vulnerability
   """
-  location: String
+  location: JSON
 
   """
   Type of the security report that found the vulnerability (SAST, DEPENDENCY_SCANNING, CONTAINER_SCANNING, DAST)
@@ -8310,11 +8315,6 @@ type Vulnerability {
   Title of the vulnerability
   """
   title: String
-
-  """
-  Permissions for the current user on the resource
-  """
-  userPermissions: VulnerabilityPermissions!
 
   """
   URL to the vulnerability's details page
@@ -8355,16 +8355,6 @@ type VulnerabilityEdge {
   The item at the end of the edge.
   """
   node: Vulnerability
-}
-
-"""
-Check permissions for the current user on a vulnerability
-"""
-type VulnerabilityPermissions {
-  """
-  Indicates the user can perform `read_vulnerability` on this resource
-  """
-  readVulnerability: Boolean!
 }
 
 """

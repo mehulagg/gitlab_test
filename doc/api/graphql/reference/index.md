@@ -1321,18 +1321,9 @@ Represents a vulnerability.
 | ---   |  ---- | ----------  |
 | `description` | String | Description of the vulnerability |
 | `id` | ID! | GraphQL ID of the vulnerability |
-| `location` | String | The JSON location metadata for the vulnerability. Its format depends on the type of the security scan that found the vulnerability |
+| `location` | JSON | The JSON location metadata for the vulnerability. Its format depends on the type of the security scan that found the vulnerability |
 | `reportType` | VulnerabilityReportType | Type of the security report that found the vulnerability (SAST, DEPENDENCY_SCANNING, CONTAINER_SCANNING, DAST) |
 | `severity` | VulnerabilitySeverity | Severity of the vulnerability (UNDEFINED, INFO, UNKNOWN, LOW, MEDIUM, HIGH, CRITICAL) |
 | `state` | VulnerabilityState | State of the vulnerability (DETECTED, DISMISSED, RESOLVED, CONFIRMED) |
 | `title` | String | Title of the vulnerability |
-| `userPermissions` | VulnerabilityPermissions! | Permissions for the current user on the resource |
 | `vulnerabilityPath` | String | URL to the vulnerability's details page |
-
-## VulnerabilityPermissions
-
-Check permissions for the current user on a vulnerability
-
-| Name  | Type  | Description |
-| ---   |  ---- | ----------  |
-| `readVulnerability` | Boolean! | Indicates the user can perform `read_vulnerability` on this resource |
