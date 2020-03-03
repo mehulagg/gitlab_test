@@ -397,7 +397,12 @@ Let’s examine the config file more closely:
 
 ### Setting up your AWS credentials with your GitLab account
 
-In order to interact with your AWS account, the GitLab CI/CD pipelines require both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to be defined in your GitLab settings under **Settings > CI/CD > Variables**. For more information please see  [link](../../../../ci/variables/README.html#via-the-ui) Please ensure you mask the credentials so they do not show in logs.
+To interact with your AWS account, the GitLab CI/CD pipelines require both 
+`AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` to be defined in your GitLab settings.
+
+They are [defined](../../../../ci/variables/README.md#via-the-ui) under your GitLab
+project's **Settings > CI/CD > Variables**. Ensure you mask the credentials so they do
+not show in logs.
 
 **Note:** The AWS credentials you provide must include IAM policies that provision correct access control to AWS Lambda, API Gateway, CloudFormation, and IAM resources.
 
