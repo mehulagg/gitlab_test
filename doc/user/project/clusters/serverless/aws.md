@@ -302,8 +302,6 @@ GitLab allows developers to build and deploy serverless applications using the c
 - [AWS Serverless Application Model (AWS SAM)](https://aws.amazon.com/serverless/sam/)
 - GitLab CI/CD
 
-AWS Serverless Application Model is an open source framework for building serverless applications. It makes it easier to build and deploy serverless applications. For more details, refer to AWS documentation on [AWS Serverless Application Model](https://aws.amazon.com/serverless/sam/).
-
 ### Example
 
 In the following example, you will:
@@ -341,7 +339,9 @@ environment (IDE), the following are installed for you:
 
 ### Creating an AWS SAM application using SAM CLI
 
-To create a SAM app from the CLI, run the following:
+Create a new project on GitLab. Once created, 'git clone' the project into your local development environment. 
+
+Change to the newly cloned repo and create a new SAM app using the following command:
 
 ```shell
 sam init -r python3.8 -n gitlabpoc --app-template "hello-world"
@@ -356,6 +356,15 @@ sam init -h
 ```
 
 Push this project to a new project in GitLab.
+
+
+### Setting up your AWS credentials with your GitLab account
+
+In order to interact with your AWS account, the GitLab CI/CD pipelines require both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to be defined in your GitLab settings under **Settings > CI/CD > Variables**. For more information please see  [link](../../../../ci/variables/README.html#via-the-ui) Please ensure you mask the credentials so they do not show in logs.
+
+**Note:**
+The AWS credentials you provide must include IAM policies that provision correct access
+control to AWS Lambda, API Gateway, CloudFormation, and IAM resources.
 
 ### Crafting the `.gitlab-ci.yml` file
 
@@ -399,13 +408,6 @@ Let’s examine the config file more closely:
 - SAM build, package, and deploy commands are used to build, package, and deploy the
   application.
 
-### Setting up your AWS credentials with your GitLab account
-
-In order to interact with your AWS account, the GitLab CI/CD pipelines require both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY to be defined in your GitLab settings under **Settings > CI/CD > Variables**. For more information please see  [link](../../../../ci/variables/README.html#via-the-ui) Please ensure you mask the credentials so they do not show in logs.
-
-NOTE: **Note:**
-The AWS credentials you provide must include IAM policies that provision correct access
-control to AWS Lambda, API Gateway, CloudFormation, and IAM resources.
 
 ### Deploying your application
 
