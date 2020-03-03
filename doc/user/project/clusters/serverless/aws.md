@@ -323,7 +323,19 @@ The example consists of the following steps:
 
 ### Installing SAM CLI
 
-AWS SAM provides a CLI called, AWS SAM CLI, to make it easier to create and manage applications. Some steps in this documentation uses SAM CLI. Please follow the instructions on [installing SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html) page install and configure SAM CLI. If you use [AWS Cloud9](https://aws.amazon.com/cloud9/) as your integrated development environment (IDE), the [AWS Command Line Interface](https://docs.aws.amazon.com/en_pv/cli/latest/userguide/cli-chap-install.html) (CLI), [SAM CLI](https://docs.aws.amazon.com/en_pv/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html), [Docker](https://docs.docker.com/install/), and necessary Docker images are installed for you.
+AWS SAM provides a CLI called AWS SAM CLI to make it easier to create and manage
+applications.
+
+Some steps in this documentation use SAM CLI. Follow the instructions for
+[installing SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
+to install and configure SAM CLI.
+
+If you use [AWS Cloud9](https://aws.amazon.com/cloud9/) as your integrated development
+environment (IDE), the following are installed for you:
+
+- [AWS Command Line Interface](https://docs.aws.amazon.com/en_pv/cli/latest/userguide/cli-chap-install.html)
+- [SAM CLI](https://docs.aws.amazon.com/en_pv/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
+- [Docker](https://docs.docker.com/install/) and necessary Docker images.
 
 ### Creating an AWS SAM application using SAM CLI
 
