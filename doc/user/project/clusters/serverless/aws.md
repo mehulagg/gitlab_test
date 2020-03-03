@@ -444,7 +444,8 @@ Output should be:
 
 ### Testing Locally
 
-AWS SAM provides functionality to test your applications locally. As mentioned earlier, you must have AWS SAM CLI installed locally for you to test locally.
+AWS SAM provides functionality to test your applications locally. You must have AWS SAM
+CLI installed locally for you to test locally.
 
 First, test the function.
 
