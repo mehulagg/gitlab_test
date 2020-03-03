@@ -42,6 +42,10 @@ describe('Release block', () => {
     return wrapper.vm.$nextTick();
   };
 
+  it('fails!', () => {
+    expect(1).toBe(2);
+  });
+
   const milestoneListLabel = () => wrapper.find('.js-milestone-list-label');
   const editButton = () => wrapper.find('.js-edit-button');
 
