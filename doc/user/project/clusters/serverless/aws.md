@@ -306,9 +306,9 @@ AWS Serverless Application Model is an open source framework for building server
 
 In the following example, you will:
 
-1. Install SAM CLI
-1. Create a sample SAM application including a Lambda function and API Gateway
-1. Build and deploy the application to your AWS account using GitLab CI/CD
+- Install SAM CLI.
+- Create a sample SAM application including a Lambda function and API Gateway.
+- Build and deploy the application to your AWS account using GitLab CI/CD.
 
 ### Steps
 
