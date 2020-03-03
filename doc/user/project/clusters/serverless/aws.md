@@ -474,7 +474,8 @@ Output should be:
 {"message": "hello world"}
 ```
 
-After you confirm that Lambda Function is working as expected, you can test the API Gateway using following steps:
+After you confirm that Lambda function is working as expected, test the API Gateway
+using following steps.
 
 Start the API locally:
 
