@@ -6,7 +6,7 @@ describe 'When a user filters Sentry errors by status', :js, :use_clean_rails_me
   include_context 'sentry error tracking context feature'
 
   let_it_be(:issues_response_body) { fixture_file('sentry/issues_sample_response.json') }
-  let_it_be(:error_search_response_body) { fixture_file('sentry/error_list_search_response.json') }
+  let_it_be(:filtered_errors_by_status_response) { fixture_file('sentry/filtered_errors_by_status_response.json') }
   let(:issues_api_url) { "#{sentry_api_urls.issues_url}?limit=20&query=is:unresolved" }
   let(:issues_api_url_filter) { "#{sentry_api_urls.issues_url}?limit=20&query=is:ignored" }
 
@@ -17,26 +17,24 @@ describe 'When a user filters Sentry errors by status', :js, :use_clean_rails_me
 
     stub_request(:get, issues_api_url_filter).with(
       headers: { 'Authorization' => 'Bearer access_token_123', 'Content-Type' => 'application/json' }
-    ).to_return(status: 200, body: error_search_response_body, headers: { 'Content-Type' => 'application/json' })
+    ).to_return(status: 200, body: filtered_errors_by_status_response, headers: { 'Content-Type' => 'application/json' })
   end
 
   it 'displays the results' do
     sign_in(project.owner)
     visit project_error_tracking_index_path(project)
-
     page.within(find('.gl-table')) do
       results = page.all('.table-row')
       expect(results.count).to be(2)
     end
 
-    find('.gl-form-input').set('NotFound').native.send_keys(:return)
-
-    wait_for_requests
+    find('.status-dropdown .dropdown-toggle').click
+    find('.dropdown-item', text: 'Ignored').click
 
     page.within(find('.gl-table')) do
       results = page.all('.table-row')
       expect(results.count).to be(1)
-      expect(results.first).to have_content('ignored')
+      expect(results.first).to have_content('Service unknown')
     end
   end
 end
