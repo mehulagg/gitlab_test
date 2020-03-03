@@ -8,7 +8,8 @@ module EE
         expose :description
         expose :created_at
         expose :updated_at
-        expose :scopes, using: FeatureFlag::Scope
+        expose :scopes, using: FeatureFlag::LegacyScope
+        expose :strategies, using: FeatureFlag::Strategy
       end
     end
   end

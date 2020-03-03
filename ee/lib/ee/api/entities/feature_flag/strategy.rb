@@ -4,8 +4,10 @@ module EE
   module API
     module Entities
       class FeatureFlag < Grape::Entity
-        class DetailedScope < LegacyScope
+        class Strategy < Grape::Entity
           expose :name
+          expose :parameters
+          expose :scopes, using: FeatureFlag::Scope
         end
       end
     end
