@@ -261,7 +261,7 @@ class Snippet < ApplicationRecord
   end
 
   def repository
-    @repository ||= Gitlab::Repository::Snippets.new(full_path, self, shard: repository_storage, disk_path: disk_path)
+    @repository ||= Gitlab::Repository::Snippet.new(full_path, self, shard: repository_storage, disk_path: disk_path)
   end
 
   def storage

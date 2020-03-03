@@ -2,7 +2,7 @@
 
 module Gitlab
   module Repository
-    # Git repository adapter for project source-code
+    # Git repository adapter for project wiki content
     class ProjectWiki < ::Repository
       # temporary
       def repo_type
