@@ -32,7 +32,7 @@ export default {
       return this.isCollapsed ? 'chevron-right' : 'chevron-down';
     },
     bodyClass() {
-      return ['border-top', 'pl-3', 'pt-3', { 'd-none': isCollapsed }];
+      return ['border-top', 'pl-3', 'pt-3', { 'd-none': this.isCollapsed }];
     },
     buttonLabel() {
       return this.isCollapsed ? __('View charts') : __('Hide charts');
@@ -41,7 +41,7 @@ export default {
       return { 'd-none': this.numCharts === 0 };
     },
     containerClass() {
-      return isSingleChart ? 'col-lg-12' : 'col-lg-6';
+      return this.isSingleChart ? 'col-lg-12' : 'col-lg-6';
     },
     numCharts() {
       if (this.metricsWithData === null) {
