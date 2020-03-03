@@ -173,6 +173,18 @@ Example commit message template that can be used on your machine that embodies t
 # --------------------
 ```
 
+## Branch naming
+
+| Use Case | Branch Name | Example |
+|----------|-------------|---------|
+| Addressing an existing issue | `<issue_id>-some-meaningful-short-branch-name` | `12345-add-amazing-new-feature` |
+| Documentation only | See [documentation branch naming](/ee/development/documentation/#branch-naming) | See [documentation branch naming](/ee/development/documentation/#branch-naming) |
+| Security fix | `security-some-meaningful-short-branch-name` - see [security releases](https://gitlab.com/gitlab-org/release/docs/blob/master/general/security/developer.md#branches) for more information | `security-fix-xss-vulnerability` |
+| None of the above | `<gitlab username>-some-meaningful-short-branch-name` | `sytses-migrate-karma-tests-to-jest` |
+
+TIP: **Tip:**
+When viewing an issue, the "Create merge request" button will auto-generate a branch name for you.
+
 ## Contribution acceptance criteria
 
 To make sure that your merge request can be approved, please ensure that it meets
