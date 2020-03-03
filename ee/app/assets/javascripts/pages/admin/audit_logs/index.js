@@ -1,9 +1,9 @@
 import AuditLogs from './audit_logs';
 import Vue from 'vue';
-import AuditLogFilter from './audit_log_filter.vue'
+import AuditLogFilter from './audit_log_filter.vue';
 
 document.addEventListener('DOMContentLoaded', () => {
-  new AuditLogs()
+  new AuditLogs();
 
   const el = document.querySelector('#js-audit-log-app');
 
@@ -21,4 +21,3 @@ document.addEventListener('DOMContentLoaded', () => {
       }),
   });
 });
-

@@ -29,7 +29,7 @@ class AuditLogs {
     const dropdownOptions = {
       fieldName,
       selectable: true,
-      filterable: searchFields ? true : false,
+      filterable: !!searchFields,
       search: { fields: searchFields },
       data: $dropdown.data('data'),
       clicked: () => $dropdown.closest('form.filter-form').submit(),

@@ -28,8 +28,12 @@ export default {
   computed: {
     selectedUser() {
       const { value } = this;
-      if (!value) return {};
-      return this.suggestions.find(user => user.username === value) || {};
+
+      if (!value) {
+        return {};
+      }
+
+      return this.suggestions.find(user => user.id === parseInt(value, 10)) || {};
     },
   },
   methods: {
@@ -48,15 +52,14 @@ export default {
       };
       return axios
         .get(path, { params })
-        .then(res => this.suggestions = this.transformUsers(res.data))
+        .then(res => (this.suggestions = this.transformUsers(res.data)))
         .catch(() => createFlash(`Failed to find ${this.type}. Please try again.`))
-        .finally(() => this.loadingSuggestions = false);
+        .finally(() => (this.loadingSuggestions = false));
     },
   },
   watch: {
     value(search) {
-      const username = !!search && search[0] === '@' ? search.substring(1) : search;
-      this.loadSuggestions(username);
+      this.loadSuggestions(search);
     },
   },
   mounted() {
@@ -70,7 +73,14 @@ export default {
     <template #view>
       <gl-loading-icon size="sm" v-if="loadingView" class="gl-mr-2" />
       <template v-else-if="value && selectedUser.id">
-        <gl-avatar :size="16" :src="selectedUser.avatar_url" :entity-id="selectedUser.id" :entity-name="selectedUser.name" shape="circle" class="mr-1"/>
+        <gl-avatar
+          :size="16"
+          :src="selectedUser.avatar_url"
+          :entity-id="selectedUser.id"
+          :entity-name="selectedUser.name"
+          shape="circle"
+          class="mr-1"
+        />
         <span>{{ selectedUser.name }}</span>
       </template>
       <span v-else>
@@ -82,17 +92,16 @@ export default {
         <gl-loading-icon />
       </template>
       <template v-else>
-        <template v-if="value.length === 0">
-          <gl-filtered-search-suggestion value="Any">Any</gl-filtered-search-suggestion>
-          <gl-dropdown-divider v-if="suggestions.length" />
-        </template>
-        <li class="gl-new-dropdown-item dropdown-item gl-filtered-search-suggestion" v-if="value && suggestions.length === 0">
+        <li
+          class="gl-new-dropdown-item dropdown-item gl-filtered-search-suggestion"
+          v-if="value && suggestions.length === 0"
+        >
           <span class="dropdown-item">No results found</span>
         </li>
         <gl-filtered-search-suggestion
           v-for="(user, idx) in suggestions"
           :key="idx"
-          :value="user.username"
+          :value="user.id.toString()"
         >
           <div class="avatar-container s40">
             <gl-avatar
@@ -102,7 +111,8 @@ export default {
               :entity-name="user.name"
               :alt="`${user.name}'s avatar`"
               shape="circle"
-              class="w-100 h-100 lazy"/>
+              class="w-100 h-100 lazy"
+            />
           </div>
           <div class="d-flex flex-column">
             <span>{{ user.name }}</span>

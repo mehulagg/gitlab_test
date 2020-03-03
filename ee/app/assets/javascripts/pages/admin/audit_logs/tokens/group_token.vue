@@ -28,7 +28,7 @@ export default {
   computed: {
     selectedGroup() {
       const { value } = this;
-      return !!value ? this.suggestions.find(group => group.id == value) : {};
+      return !!value ? this.suggestions.find(group => group.id === parseInt(value, 10)) : {};
     },
   },
   methods: {
@@ -41,9 +41,13 @@ export default {
       };
       return axios
         .get(path, { params })
-        .then(res => this.suggestions = res.data)
+        .then(res => {
+          this.suggestions = res.data;
+        })
         .catch(() => createFlash(`Failed to find ${this.type}. Please try again.`))
-        .finally(() => this.loadingSuggestions = false);
+        .finally(() => {
+          this.loadingSuggestions = false;
+        });
     },
   },
   watch: {
@@ -62,7 +66,14 @@ export default {
     <template #view>
       <gl-loading-icon size="sm" v-if="loadingView" class="mr-1" />
       <template v-else-if="value && selectedGroup.id">
-        <gl-avatar :size="16" :src="selectedGroup.avatar_url" :entity-id="selectedGroup.id" :entity-name="selectedGroup.name" shape="circle" class="mr-1"/>
+        <gl-avatar
+          :size="16"
+          :src="selectedGroup.avatar_url"
+          :entity-id="selectedGroup.id"
+          :entity-name="selectedGroup.name"
+          shape="circle"
+          class="mr-1"
+        />
         <span>{{ selectedGroup.name }}</span>
       </template>
       <span v-else>
@@ -74,11 +85,10 @@ export default {
         <gl-loading-icon />
       </template>
       <template v-else>
-        <template v-if="value.length === 0">
-          <gl-filtered-search-suggestion value="Any">Any</gl-filtered-search-suggestion>
-          <gl-dropdown-divider v-if="suggestions.length" />
-        </template>
-        <li class="gl-new-dropdown-item dropdown-item gl-filtered-search-suggestion" v-if="value && suggestions.length === 0">
+        <li
+          class="gl-new-dropdown-item dropdown-item gl-filtered-search-suggestion"
+          v-if="value && suggestions.length === 0"
+        >
           <span class="dropdown-item">No results found</span>
         </li>
         <gl-filtered-search-suggestion
@@ -94,7 +104,8 @@ export default {
               :entity-name="group.name"
               :alt="`${group.name}'s avatar`"
               shape="circle"
-              class="w-100 h-100 lazy"/>
+              class="w-100 h-100 lazy"
+            />
           </div>
           <div class="d-flex flex-column">
             <span>{{ group.full_name }}</span>

@@ -1,12 +1,10 @@
 <script>
-import {
-  GlFilteredSearch,
-} from '@gitlab/ui';
+import { GlFilteredSearch } from '@gitlab/ui';
 import { objectToQuery, visitUrl, mergeUrlParams } from '~/lib/utils/url_utility';
 
-import UserToken from './tokens/user_token.vue'
-import GroupToken from './tokens/group_token.vue'
-import ProjectToken from './tokens/project_token.vue'
+import UserToken from './tokens/user_token.vue';
+import GroupToken from './tokens/group_token.vue';
+import ProjectToken from './tokens/project_token.vue';
 
 const apiConfig = {
   all: {
@@ -35,7 +33,7 @@ const apiConfig = {
       page: 1,
       all_available: true,
     },
-  }
+  },
 };
 
 export default {
@@ -49,13 +47,11 @@ export default {
   data() {
     return {
       searchTerms: [],
-    }
+    };
   },
   methods: {
     parseSearchTerms(terms) {
-      return terms
-        .filter(({value}) => !!value)
-        .map(({value, type}) => ({ [type]: value }))
+      return terms.filter(({ value }) => !!value).map(({ value, type }) => ({ [type]: value }));
     },
     allowedTokens(tokens) {
       return tokens;
@@ -66,25 +62,34 @@ export default {
       // )
     },
     parseFormData(terms) {
-      return this.parseSearchTerms(terms)
-        .map(e => {
-          if ('username' in e && e.username[0] === '@') {
-            return { 'username': e.username.substring(1) }
-          }
-          return e;
-        })
+      // ?sort=created_desc&entity_type=User&entity_id=1&created_after=2020-03-02&created_before=2020-03-03
+      return this.parseSearchTerms(terms).map(e => {
+        if ('user_id' in e) {
+          return { entity_id: e.user_id, entity_type: 'User' };
+        }
+
+        if ('group_id' in e) {
+          return { entity_id: e.group_id, entity_type: 'Group' };
+        }
+
+        if ('project_id' in e) {
+          return { entity_id: e.project_id, entity_type: 'Project' };
+        }
+      });
     },
     handleSubmit(formData) {
+      console.log(formData);
       const data = this.parseFormData(formData);
+      console.log(data);
       const query = data.map(e => objectToQuery(e).toString()).join('&');
       const merged = Object.assign(...data);
 
-      visitUrl(mergeUrlParams(merged, window.location.href));
-    }
+      //visitUrl(mergeUrlParams(merged, window.location.href));
+    },
   },
   filterTokens: [
-    { 
-      type: 'username',
+    {
+      type: 'user_id',
       icon: 'user',
       hint: 'User Events',
       title: 'User Events',
@@ -92,7 +97,7 @@ export default {
       config: apiConfig.users,
       hidden: false,
     },
-    { 
+    {
       type: 'group_id',
       icon: 'group',
       hint: 'Group Events',
@@ -109,10 +114,13 @@ export default {
       config: apiConfig.projects,
     },
   ],
-  
 };
 </script>
 
 <template>
-  <gl-filtered-search @submit="handleSubmit" :available-tokens="allowedTokens($options.filterTokens)" v-model="searchTerms" />
+  <gl-filtered-search
+    @submit="handleSubmit"
+    :available-tokens="allowedTokens($options.filterTokens)"
+    v-model="searchTerms"
+  />
 </template>
