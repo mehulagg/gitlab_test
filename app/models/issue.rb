@@ -16,6 +16,7 @@ class Issue < ApplicationRecord
   include LabelEventable
   include IgnorableColumns
   include MilestoneEventable
+  include WhereComposite
 
   DueDateStruct                   = Struct.new(:title, :name).freeze
   NoDueDate                       = DueDateStruct.new('No Due Date', '0').freeze
@@ -77,6 +78,26 @@ class Issue < ApplicationRecord
   scope :counts_by_state, -> { reorder(nil).group(:state_id).count }
 
   ignore_column :state, remove_with: '12.7', remove_after: '2019-12-22'
+
+  # An issue can be uniquely identified by project_id and iid
+  # Takes one or more sets of composite IDs, expressed as hash-like records of
+  # `{project_id: x, iid: y}`.
+  #
+  # @see WhereComposite::where_composite
+  #
+  # e.g:
+  #
+  #   .by_project_id_and_iid({project_id: 1, iid: 2})
+  #   .by_project_id_and_iid([]) # returns ActiveRecord::NullRelation
+  #   .by_project_id_and_iid([
+  #     {project_id: 1, iid: 1},
+  #     {project_id: 2, iid: 1},
+  #     {project_id: 1, iid: 2}
+  #   ])
+  #
+  scope :by_project_id_and_iid, ->(composites) do
+    where_composite(%i[project_id iid], composites)
+  end
 
   after_commit :expire_etag_cache, unless: :importing?
   after_save :ensure_metrics, unless: :importing?
