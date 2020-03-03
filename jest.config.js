@@ -35,10 +35,11 @@ const moduleNameMapper = {
   '^ee_else_ce(/.*)$': '<rootDir>/app/assets/javascripts$1',
   '^helpers(/.*)$': '<rootDir>/spec/frontend/helpers$1',
   '^vendor(/.*)$': '<rootDir>/vendor/assets/javascripts$1',
-  '\\.(jpg|jpeg|png|svg)$': '<rootDir>/spec/frontend/__mocks__/file_mock.js',
+  '\\.(jpg|jpeg|png|svg|css)$': '<rootDir>/spec/frontend/__mocks__/file_mock.js',
   'emojis(/.*).json': '<rootDir>/fixtures/emojis$1.json',
   '^spec/test_constants$': '<rootDir>/spec/frontend/helpers/test_constants',
   '^jest/(.*)$': '<rootDir>/spec/frontend/$1',
+  '^monaco-editor$': '<rootDir>/node_modules/monaco-editor/esm/vs/editor/editor.main.js',
 };
 
 const collectCoverageFrom = ['<rootDir>/app/assets/javascripts/**/*.{js,vue}'];
@@ -82,7 +83,7 @@ module.exports = {
     '^.+\\.js$': 'babel-jest',
     '^.+\\.vue$': 'vue-jest',
   },
-  transformIgnorePatterns: ['node_modules/(?!(@gitlab/ui|bootstrap-vue)/)'],
+  transformIgnorePatterns: ['node_modules/(?!(@gitlab/ui|bootstrap-vue|monaco-editor)/)'],
   timers: 'fake',
   testEnvironment: '<rootDir>/spec/frontend/environment.js',
   testEnvironmentOptions: {
