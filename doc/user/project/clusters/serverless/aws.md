@@ -462,9 +462,14 @@ Start the API locally:
 
 `sam local start-api`
 
-SAM again launches a Docker container, this time with a mocked Amazon API Gateway listening on localhost:3000. Now you can call the hello API as follows:
+SAM again launches a Docker container, this time with a mocked Amazon API Gateway
+listening on `localhost:3000`.
 
-`curl http://127.0.0.1:3000/hello`
+Call the `hello` API by running:
+
+```shell
+curl http://127.0.0.1:3000/hello
+```
 
 Output again should be:
 
