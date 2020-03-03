@@ -772,7 +772,7 @@ describe API::Pipelines do
       it 'does not return project pipelines' do
         get api("/projects/#{project.id}/pipelines/#{pipeline.id}/test_report", non_member)
 
-        expect(response).to have_gitlab_http_status(404)
+        expect(response).to have_gitlab_http_status(:not_found)
         expect(json_response['message']).to eq '404 Project Not Found'
       end
     end
