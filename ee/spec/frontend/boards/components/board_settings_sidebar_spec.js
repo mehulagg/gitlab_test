@@ -325,6 +325,22 @@ describe('BoardSettingsSideBar', () => {
         expect(wrapper.vm.currentWipLimit).toBe(4);
       });
     });
+
+    it('passes `trim` prop to gl-form-input', () => {
+      wrapper.find('.js-edit-button').vm.$emit('click');
+
+      return wrapper.vm.$nextTick().then(() => {
+        expect(wrapper.find(GlFormInput).attributes().trim).toBeDefined();
+      });
+    });
+
+    it('passes `number` prop to gl-form-input', () => {
+      wrapper.find('.js-edit-button').vm.$emit('click');
+
+      return wrapper.vm.$nextTick().then(() => {
+        expect(wrapper.find(GlFormInput).attributes().number).toBeDefined();
+      });
+    });
   });
 
   describe('remove limit', () => {
