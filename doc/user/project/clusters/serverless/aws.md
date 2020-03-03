@@ -477,9 +477,11 @@ Output should be:
 After you confirm that Lambda function is working as expected, test the API Gateway
 using following steps.
 
-Start the API locally:
+Start the API locally by running:
 
-`sam local start-api`
+```shell
+sam local start-api
+```
 
 SAM again launches a Docker container, this time with a mocked Amazon API Gateway
 listening on `localhost:3000`.
