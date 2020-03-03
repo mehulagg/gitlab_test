@@ -26,9 +26,11 @@ FactoryBot.define do
     factory :wiki_page_event do
       action { Event::CREATED }
 
+      transient do
+        wiki_page { create(:wiki_page, wiki: create(:project_wiki, project: project)) }
+      end
+
       target do
-        wiki = create(:project_wiki, project: project)
-        wiki_page = create(:wiki_page, wiki: wiki)
         WikiPageMeta.for_wiki_page(wiki_page.slug, wiki_page.title, project)
       end
     end
