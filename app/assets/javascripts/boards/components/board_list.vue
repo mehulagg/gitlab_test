@@ -1,7 +1,7 @@
 <script>
 import { Sortable, MultiDrag } from 'sortablejs';
 import { GlLoadingIcon } from '@gitlab/ui';
-import _ from 'underscore';
+import { compact } from 'lodash';
 import boardNewIssue from './board_new_issue.vue';
 import boardCard from './board_card.vue';
 import eventHub from '../eventhub';
@@ -270,7 +270,7 @@ export default {
         if (toList && !isSameList && boardsStore.shouldRemoveIssue(this.list, toList)) {
           const issues = items.map(item => this.list.findIssue(Number(item.dataset.issueId)));
 
-          if (_.compact(issues).length && !boardsStore.issuesAreContiguous(this.list, issues)) {
+          if (compact(issues).length && !boardsStore.issuesAreContiguous(this.list, issues)) {
             const indexes = [];
             const ids = this.list.issues.map(i => i.id);
             issues.forEach(issue => {

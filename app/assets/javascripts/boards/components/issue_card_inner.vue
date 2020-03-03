@@ -1,5 +1,5 @@
 <script>
-import _ from 'underscore';
+import { flow, filter, sortBy } from 'lodash';
 import { mapState } from 'vuex';
 import { GlTooltipDirective } from '@gitlab/ui';
 import issueCardInner from 'ee_else_ce/boards/mixins/issue_card_inner';
@@ -101,10 +101,10 @@ export default {
       return !groupId ? referencePath.split('#')[0] : null;
     },
     orderedLabels() {
-      return _.chain(this.issue.labels)
-        .filter(this.isNonListLabel)
-        .sortBy('title')
-        .value();
+      return flow(
+        filter(this.isNonListLabel),
+        sortBy('title'),
+      )(this.issue.labels);
     },
     helpLink() {
       return boardsStore.scopedLabels.helpLink;
@@ -141,9 +141,9 @@ export default {
     filterByLabel(label) {
       if (!this.updateFilters) return;
       const labelTitle = encodeURIComponent(label.title);
-      const filter = `label_name[]=${labelTitle}`;
+      const labelFilter = `label_name[]=${labelTitle}`;
 
-      boardsStore.toggleFilter(filter);
+      boardsStore.toggleFilter(labelFilter);
     },
     labelStyle(label) {
       return {
