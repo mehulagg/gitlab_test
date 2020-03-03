@@ -1665,7 +1665,7 @@ type DiffRefs {
   """
   Merge base of the branch the comment was made on
   """
-  baseSha: String
+  baseSha: String!
 
   """
   SHA of the HEAD at the time the comment was made
@@ -1946,12 +1946,6 @@ type Epic implements Noteable {
   Number of open and closed descendant epics and issues
   """
   descendantCounts: EpicDescendantCount
-
-  """
-  Total weight of open and closed descendant epic's issues. Available only when
-  feature flag `unfiltered_epic_aggregates` is enabled.
-  """
-  descendantWeightSum: EpicDescendantWeights
 
   """
   Description of the epic
@@ -2265,21 +2259,6 @@ type EpicDescendantCount {
 }
 
 """
-Total weight of open and closed descendant issues
-"""
-type EpicDescendantWeights {
-  """
-  Total weight of completed (closed) issues in this epic, including epic descendants
-  """
-  closedIssues: Int
-
-  """
-  Total weight of opened issues in this epic, including epic descendants
-  """
-  openedIssues: Int
-}
-
-"""
 An edge in a connection.
 """
 type EpicEdge {
@@ -2412,11 +2391,6 @@ type EpicIssue implements Noteable {
   ID of the epic-issue relation
   """
   epicIssueId: ID!
-
-  """
-  Current health status. Available only when feature flag `save_issuable_health_status` is enabled.
-  """
-  healthStatus: HealthStatus
 
   """
   Global ID of the epic-issue relation
@@ -3403,11 +3377,6 @@ type Issue implements Noteable {
   Epic to which this issue belongs
   """
   epic: Epic
-
-  """
-  Current health status. Available only when feature flag `save_issuable_health_status` is enabled.
-  """
-  healthStatus: HealthStatus
 
   """
   Internal ID of the issue
@@ -8011,7 +7980,7 @@ input UpdateIssueInput {
   """
   Indicates the issue is confidential
   """
-  confidential: Boolean
+  confidential: Boolean!
 
   """
   Description of the issue
@@ -8021,7 +7990,7 @@ input UpdateIssueInput {
   """
   Due date of the issue
   """
-  dueDate: Time
+  dueDate: Time!
 
   """
   The desired health status
