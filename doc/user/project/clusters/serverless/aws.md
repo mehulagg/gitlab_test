@@ -391,9 +391,11 @@ production:
 
 Let’s examine the config file more closely:
 
-1. Image specifies the docker image to use for this build. The latest Python image since the sample application is written in Python
-1. AWS CLI and AWS SAM CLI are installed in before script section.
-1. SAM build, package and deploy commands are used to build, package and deploy the application. More details on SAM can be found [here](https://aws.amazon.com/serverless/sam/).
+- `image` specifies the Docker image to use for this build. This is the latest Python
+  image since the sample application is written in Python.
+- AWS CLI and AWS SAM CLI are installed in the `before_script` section.
+- SAM build, package, and deploy commands are used to build, package, and deploy the
+  application.
 
 ### Setting up your AWS credentials with your GitLab account
 
