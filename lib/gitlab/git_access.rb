@@ -119,8 +119,20 @@ module Gitlab
       nil
     end
 
-    def check_for_console_messages(cmd)
+    def check_for_console_messages
+      return expired_key_message if key_expired?
+
       []
+    end
+
+    def expired_key_message
+      <<~STR.split("\n")
+        INFO: Your SSH key has expired. Please generate a new key.
+      STR
+    end
+
+    def key_expired?
+      actor.is_a?(Key) && actor.expired?
     end
 
     def check_valid_actor!
@@ -375,7 +387,7 @@ module Gitlab
     protected
 
     def success_result(cmd)
-      ::Gitlab::GitAccessResult::Success.new(console_messages: check_for_console_messages(cmd))
+      ::Gitlab::GitAccessResult::Success.new(console_messages: check_for_console_messages)
     end
 
     def changes_list
