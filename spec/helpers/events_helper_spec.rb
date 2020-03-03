@@ -88,6 +88,57 @@ describe EventsHelper do
     end
   end
 
+  describe '#event_preposition' do
+    context 'for wiki page events' do
+      let(:event) { create(:wiki_page_event) }
+
+      it 'returns a suitable phrase' do
+        expect(helper.event_preposition(event)).to eq('Events|in the wiki for')
+      end
+    end
+
+    context 'for push action events' do
+      let(:event) { create(:push_event) }
+
+      it 'returns a suitable phrase' do
+        expect(helper.event_preposition(event)).to eq('at')
+      end
+    end
+
+    context 'for commented actions' do
+      let(:event) { create(:event, :commented) }
+
+      it 'returns a suitable phrase' do
+        expect(helper.event_preposition(event)).to eq('at')
+      end
+    end
+
+    context 'for any event with a target' do
+      let(:event) { create(:event, target: create(:issue)) }
+
+      it 'returns a suitable phrase' do
+        expect(helper.event_preposition(event)).to eq('at')
+      end
+    end
+
+    # This branch appears to be unreachable
+    context 'for milestone events', :pending do
+      let(:event) { create(:event, target: create(:milestone)) }
+
+      it 'returns a suitable phrase' do
+        expect(helper.event_preposition(event)).to eq('in')
+      end
+    end
+
+    context 'for non-matching events' do
+      let(:event) { create(:event, :created) }
+
+      it 'returns no preposition' do
+        expect(helper.event_preposition(event)).to be_nil
+      end
+    end
+  end
+
   describe '#event_note_target_url' do
     let(:project) { create(:project, :public, :repository) }
     let(:event) { create(:event, project: project) }
