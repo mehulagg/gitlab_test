@@ -1,5 +1,8 @@
 <script>
 import ItemButton from './button.vue';
+import { languages } from 'monaco-editor';
+
+const monacoLanguages = languages.getLanguages();
 
 export default {
   components: {
@@ -23,29 +26,34 @@ export default {
     },
   },
   methods: {
-    isText(content, fileType) {
+    isText(content, fileType, fileName) {
       const knownBinaryFileTypes = ['image/'];
-      const knownTextFileTypes = ['text/'];
       const isKnownBinaryFileType = knownBinaryFileTypes.find(type => fileType.includes(type));
+      if (isKnownBinaryFileType) return false;
+
+      const knownTextFileTypes = ['text/'];
       const isKnownTextFileType = knownTextFileTypes.find(type => fileType.includes(type));
+      if (isKnownTextFileType) return true;
+
+      // If Monaco supports syntax highlighting for this file, it is a text file for sure
+      const fileExtension = `.${fileName.split('.').pop()}`;
+      const isSupportedByMonaco = monacoLanguages.some(
+        lang =>
+          lang.extensions?.some(extension => extension === fileExtension) ||
+          lang.mimetypes?.some(type => type === fileType),
+      );
+      if (isSupportedByMonaco) return true;
+
       const asciiRegex = /^[ -~\t\n\r]+$/; // tests whether a string contains ascii characters only (ranges from space to tilde, tabs and new lines)
-
-      if (isKnownBinaryFileType) {
-        return false;
-      }
-
-      if (isKnownTextFileType) {
-        return true;
-      }
-
-      // if it's not a known file type, determine the type by evaluating the file contents
+      // finally, determine the type by evaluating the file contents
       return asciiRegex.test(content);
     },
+
     createFile(target, file) {
       const { name } = file;
       const encodedContent = target.result.split('base64,')[1];
       const rawContent = encodedContent ? atob(encodedContent) : '';
-      const isText = this.isText(rawContent, file.type);
+      const isText = this.isText(rawContent, file.type, name);
 
       const emitCreateEvent = content =>
         this.$emit('create', {

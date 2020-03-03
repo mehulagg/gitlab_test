@@ -21,6 +21,31 @@ describe('new dropdown upload', () => {
     vm.$destroy();
   });
 
+  describe('isText', () => {
+    it('returns false for known binary types', () => {
+      expect(vm.isText('file content', 'image/png', 'my.png')).toBeFalsy();
+    });
+
+    it('returns true for known text types', () => {
+      expect(vm.isText('file content', 'text/plain', 'my.txt')).toBeTruthy();
+    });
+
+    it('returns true for file extensions that Monaco supports syntax highlighting for', () => {
+      // test based on both MIME and extension
+      expect(vm.isText('{"éêė":"value"}', 'application/json', 'my.json')).toBeTruthy();
+      expect(vm.isText('{"éêė":"value"}', 'application/json', '.tsconfig')).toBeTruthy();
+      expect(vm.isText('SELECT "éêė" from tablename', 'application/sql', 'my.sql')).toBeTruthy();
+    });
+
+    it('returns true for ASCII only content for unknown types', () => {
+      expect(vm.isText('plain text', 'application/x-new-type', 'hello.mytype')).toBeTruthy();
+    });
+
+    it('returns false for non-ASCII content for unknown types', () => {
+      expect(vm.isText('{"éêė":"value"}', 'application/x-octet-stream', 'my.random')).toBeFalsy();
+    });
+  });
+
   describe('openFile', () => {
     it('calls for each file', () => {
       const files = ['test', 'test2', 'test3'];
