@@ -87,10 +87,6 @@ module EE
         @subject.feature_available?(:security_dashboard)
       end
 
-      condition(:prometheus_alerts_enabled) do
-        @subject.feature_available?(:prometheus_alerts, @user)
-      end
-
       with_scope :subject
       condition(:license_scanning_enabled) do
         @subject.feature_available?(:license_scanning) || @subject.feature_available?(:license_management)
@@ -231,7 +227,6 @@ module EE
       rule { license_scanning_enabled & can?(:maintainer_access) }.enable :admin_software_license_policy
 
       rule { pod_logs_enabled & can?(:maintainer_access) }.enable :read_pod_logs
-      rule { prometheus_alerts_enabled & can?(:maintainer_access) }.enable :read_prometheus_alerts
 
       rule { auditor }.policy do
         enable :public_user_access
