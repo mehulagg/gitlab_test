@@ -424,17 +424,19 @@ deploy your application. If your:
 
 To test the application you deployed, please go to the build log and follow the following steps:
 
-- Click on “Show complete raw” on the upper righthand corner
+1. Click on “Show complete raw” on the upper right-hand corner:
 
-![sam-complete-raw](img/sam-complete-raw.png)
+   ![sam-complete-raw](img/sam-complete-raw.png)
 
-- Look for HelloWorldApi – API Gateway endpoint similar to shown below
+1. Look for HelloWorldApi – API Gateway endpoint similar to shown below:
 
-![sam-api-endpoint](img/sam-api-endpoint.png)
+   ![sam-api-endpoint](img/sam-api-endpoint.png)
 
-- Use curl to test the API
+1. Use curl to test the API. For example:
 
-`curl https://py4rg7qtlg.execute-api.us-east-1.amazonaws.com/Prod/hello/`
+   ```shell
+   curl https://py4rg7qtlg.execute-api.us-east-1.amazonaws.com/Prod/hello/
+   ```
 
 Output should be:
 
