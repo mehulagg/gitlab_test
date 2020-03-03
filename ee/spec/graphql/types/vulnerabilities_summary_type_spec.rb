@@ -7,7 +7,7 @@ describe GitlabSchema.types['VulnerabilitySummary'] do
   let_it_be(:user) { create(:user) }
 
   let(:fields) do
-    ::Vulnerabilities::Occurrence::SEVERITY_LEVELS.keys + %i[user_permissions]
+    ::Vulnerabilities::Occurrence::SEVERITY_LEVELS.keys
   end
 
   let(:query) do
@@ -30,7 +30,6 @@ describe GitlabSchema.types['VulnerabilitySummary'] do
 
   subject { GitlabSchema.execute(query, context: { current_user: user }).as_json }
 
-  it { expect(described_class.graphql_name).to eq('VulnerabilitySummary') }
   it { expect(described_class).to have_graphql_fields(fields) }
 
   it 'defaults all fields to 0 if the field is null' do
