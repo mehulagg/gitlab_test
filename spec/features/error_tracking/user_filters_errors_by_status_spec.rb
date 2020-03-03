@@ -6,18 +6,18 @@ describe 'When a user filters Sentry errors by status', :js, :use_clean_rails_me
   include_context 'sentry error tracking context feature'
 
   let_it_be(:issues_response_body) { fixture_file('sentry/issues_sample_response.json') }
-  let_it_be(:filtered_errors_by_status_response) { fixture_file('sentry/filtered_errors_by_status_response.json') }
+  let_it_be(:filtered_errors_by_status_response) { JSON.parse(issues_response_body).filter { |error| error['status'] == 'ignored' }.to_json }
   let(:issues_api_url) { "#{sentry_api_urls.issues_url}?limit=20&query=is:unresolved" }
   let(:issues_api_url_filter) { "#{sentry_api_urls.issues_url}?limit=20&query=is:ignored" }
+  let(:auth_token) {{ 'Authorization' => 'Bearer access_token_123' }}
+  let(:return_header) {{ 'Content-Type' => 'application/json' }}
 
   before do
-    stub_request(:get, issues_api_url).with(
-      headers: { 'Authorization' => 'Bearer access_token_123' }
-    ).to_return(status: 200, body: issues_response_body, headers: { 'Content-Type' => 'application/json' })
+    stub_request(:get, issues_api_url).with(headers: auth_token)
+      .to_return(status: 200, body: issues_response_body, headers: return_header)
 
-    stub_request(:get, issues_api_url_filter).with(
-      headers: { 'Authorization' => 'Bearer access_token_123', 'Content-Type' => 'application/json' }
-    ).to_return(status: 200, body: filtered_errors_by_status_response, headers: { 'Content-Type' => 'application/json' })
+    stub_request(:get, issues_api_url_filter).with(headers: auth_token)
+    .to_return(status: 200, body: filtered_errors_by_status_response, headers: return_header)
   end
 
   it 'displays the results' do
@@ -25,7 +25,7 @@ describe 'When a user filters Sentry errors by status', :js, :use_clean_rails_me
     visit project_error_tracking_index_path(project)
     page.within(find('.gl-table')) do
       results = page.all('.table-row')
-      expect(results.count).to be(2)
+      expect(results.count).to be(3)
     end
 
     find('.status-dropdown .dropdown-toggle').click
@@ -34,7 +34,7 @@ describe 'When a user filters Sentry errors by status', :js, :use_clean_rails_me
     page.within(find('.gl-table')) do
       results = page.all('.table-row')
       expect(results.count).to be(1)
-      expect(results.first).to have_content('Service unknown')
+      expect(results.first).to have_content(filtered_errors_by_status_response[0]['title'])
     end
   end
 end

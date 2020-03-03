@@ -59,7 +59,7 @@ export default {
     {
       key: 'status',
       label: '',
-      tdClass: `${tableDataClass} text-right`,
+      tdClass: `${tableDataClass} text-center`,
     },
     {
       key: 'details',
@@ -296,7 +296,6 @@ export default {
         </gl-dropdown>
 
         <gl-dropdown
-          class="sort-control"
           :text="$options.sortFields[sortField]"
           left
           :disabled="loading"

@@ -93,7 +93,7 @@ describe('error tracking actions', () => {
       const status = 'ignored';
 
       testAction(
-        actions.searchByStatus,
+        actions.filterByStatus,
         status,
         {},
         [{ type: types.SET_STATUS_FILTER, payload: status }],
