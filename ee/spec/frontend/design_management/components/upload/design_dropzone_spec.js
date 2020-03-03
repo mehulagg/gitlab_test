@@ -107,9 +107,11 @@ describe('Design management dropzone component', () => {
   });
 
   describe('ondrop', () => {
+    const mockData = { dragCounter: 1, isDragDataValid: true };
+
     describe('when drag data is valid', () => {
       it('emits upload event for valid files', () => {
-        createComponent({ data: { isDragDataValid: true } });
+        createComponent({ data: mockData });
 
         const mockFile = { type: 'image/jpg' };
         const mockEvent = mockDragEvent({ files: [mockFile] });
@@ -119,7 +121,7 @@ describe('Design management dropzone component', () => {
       });
 
       it('calls createFlash when files are invalid', () => {
-        createComponent({ data: { isDragDataValid: true } });
+        createComponent({ data: mockData });
 
         const mockEvent = mockDragEvent({ files: [{ type: 'audio/midi' }] });
 

@@ -100,9 +100,15 @@
 }
 
 .design-dropzone--card {
+  transition: border $general-hover-transition-duration $general-hover-transition-curve;
+
   &:focus {
     outline: none;
     border: 2px dashed $purple;
+  }
+
+  &:hover {
+    border-color: $gray-500;
   }
 }
 

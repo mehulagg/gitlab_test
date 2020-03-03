@@ -18,9 +18,14 @@ export default {
   },
   data() {
     return {
-      dragging: false,
+      dragCounter: 0,
       isDragDataValid: false,
     };
+  },
+  computed: {
+    dragging() {
+      return this.dragCounter !== 0;
+    },
   },
   methods: {
     isValidUpload(files) {
@@ -30,8 +35,7 @@ export default {
       return Boolean(dataTransfer && !dataTransfer.types.some(t => t !== VALID_DATA_TRANSFER_TYPE));
     },
     ondrop({ dataTransfer }) {
-      this.dragging = false;
-
+      this.dragCounter = 0;
       // User already had feedback when dropzone was active, so bail here
       if (!this.isDragDataValid) {
         return;
@@ -46,11 +50,14 @@ export default {
       this.$emit('upload', files);
     },
     ondragenter(e) {
-      this.dragging = true;
+      this.dragCounter += 1;
       this.isDragDataValid = this.isValidDragDataType(e);
     },
     ondragleave() {
-      this.dragging = false;
+      this.dragCounter -= 1;
+    },
+    ondragover() {
+      this.dragging = true;
     },
     openFileUpload() {
       this.$refs.fileUpload.$el.click();
@@ -66,12 +73,11 @@ export default {
 <template>
   <div
     class="w-100 position-relative"
-    @drag.prevent.stop
     @dragstart.prevent.stop
-    @dragend.prevent.stop="ondragleave"
-    @dragleave.prevent.stop="ondragleave"
-    @dragover.prevent.stop="ondragenter"
+    @dragend.prevent.stop
+    @dragover.prevent.stop
     @dragenter.prevent.stop="ondragenter"
+    @dragleave.prevent.stop="ondragleave"
     @drop.prevent.stop="ondrop"
   >
     <slot>
