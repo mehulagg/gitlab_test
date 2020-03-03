@@ -37,6 +37,9 @@ will take the place of all references to the missing user(s).
 If you need to migrate all data over, you can leverage our [API](../../../api/README.md) to migrate from self-hosted to GitLab.com.
 The order of assets to migrate from a self-hosted instance to GitLab is the following:
 
+NOTE: **Note:**
+When migrating to GitLab.com, users would need to be manually created unless [SCIM](../../../user/group/saml_sso/scim_setup.md) is going to be used. Creating users with the API is limited to self-hosted instances as it requires administrator access.
+
 1. [Users](../../../api/users.md)
 1. [Groups](../../../api/groups.md)
 1. [Projects](../../../api/projects.md)
