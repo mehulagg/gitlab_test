@@ -339,9 +339,11 @@ environment (IDE), the following are installed for you:
 
 ### Creating an AWS SAM application using SAM CLI
 
-To create a SAM app from the CLI, open a terminal and enter the following text:
+To create a SAM app from the CLI, run the following:
 
-`sam init -r python3.8 -n gitlabpoc --app-template "hello-world"`
+```shell
+sam init -r python3.8 -n gitlabpoc --app-template "hello-world"
+```
 
 This creates a SAM app named gitlabpoc using the default configuration, a single Python3.8 function invoked by an [Amazon API Gateway](https://aws.amazon.com/api-gateway/) endpoint. To see additional runtimes supported by SAM and options for sam init, enter:
 `sam init -h`
