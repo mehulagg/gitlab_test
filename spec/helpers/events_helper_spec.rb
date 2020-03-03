@@ -139,6 +139,18 @@ describe EventsHelper do
     end
   end
 
+  describe 'event_wiki_page_target_url' do
+    let(:project) { create(:project) }
+    let(:wiki_page) { create(:wiki_page, wiki: create(:project_wiki, project: project)) }
+    let(:event) { create(:wiki_page_event, project: project, wiki_page: wiki_page) }
+
+    it 'links to the wiki page' do
+      url = helper.project_wiki_url(project, wiki_page.slug)
+
+      expect(helper.event_wiki_page_target_url(event)).to eq(url)
+    end
+  end
+
   describe '#event_note_target_url' do
     let(:project) { create(:project, :public, :repository) }
     let(:event) { create(:event, project: project) }
