@@ -5,25 +5,55 @@ class SmartcardController < ApplicationController
   skip_before_action :verify_authenticity_token
 
   before_action :check_feature_availability
-  before_action :check_certificate_headers
+  before_action :check_certificate_headers, only: :extract_certificate
 
   def auth
-    certificate = Gitlab::Auth::Smartcard::Certificate.new(certificate_header)
-    sign_in_with(certificate)
+    redirect_to smartcard_extract_certificate_url(extract_certificate_url_options)
   end
 
-  def ldap_auth
-    certificate = Gitlab::Auth::Smartcard::LDAPCertificate.new(params[:provider], certificate_header)
-    sign_in_with(certificate)
+  def extract_certificate
+    redirect_to smartcard_verify_certificate_url(verify_certificate_url_options)
+  end
+
+  def verify_certificate
+    sign_in_with(client_certificate)
   end
 
   private
+
+  def extract_certificate_url_options
+    {
+      host: ::Gitlab.config.smartcard.client_certificate_required_host,
+      port: ::Gitlab.config.smartcard.client_certificate_required_port,
+      provider: params[:provider]
+    }.compact
+  end
+
+  def verify_certificate_url_options
+    {
+      host: Gitlab.config.gitlab.host,
+      port: Gitlab.config.gitlab.port,
+      client_certificate: request.headers['HTTP_X_SSL_CLIENT_CERTIFICATE']
+    }.compact
+  end
+
+  def client_certificate
+    if ldap_provider?
+      Gitlab::Auth::Smartcard::LDAPCertificate.new(params[:provider], certificate_header)
+    else
+      Gitlab::Auth::Smartcard::Certificate.new(certificate_header)
+    end
+  end
+
+  def ldap_provider?
+    params[:provider].present?
+  end
 
   def sign_in_with(certificate)
     user = certificate.find_or_create_user
     unless user&.persisted?
       flash[:alert] = _('Failed to signing using smartcard authentication')
-      redirect_to new_user_session_path(port: Gitlab.config.gitlab.port)
+      redirect_to new_user_session_path
 
       return
     end
@@ -31,6 +61,20 @@ class SmartcardController < ApplicationController
     store_active_session
     log_audit_event(user, with: certificate.auth_method)
     sign_in_and_redirect(user)
+  end
+
+  def certificate_header
+    header = request.headers['HTTP_X_SSL_CLIENT_CERTIFICATE'] || params[:client_certificate]
+    return unless header
+
+    unescaped_header = CGI.unescape(header)
+    if unescaped_header.include?("\n")
+      # NGINX forwarding the $ssl_client_escaped_cert variable
+      unescaped_header
+    else
+      # older version of NGINX forwarding the now deprecated $ssl_client_cert variable
+      header.gsub(/ (?!CERTIFICATE)/, "\n")
+    end
   end
 
   def check_feature_availability
@@ -50,20 +94,6 @@ class SmartcardController < ApplicationController
 
   def log_audit_event(user, options = {})
     AuditEventService.new(user, user, options).for_authentication.security_event
-  end
-
-  def certificate_header
-    header = request.headers['HTTP_X_SSL_CLIENT_CERTIFICATE']
-    return unless header
-
-    unescaped_header = CGI.unescape(header)
-    if unescaped_header.include?("\n")
-      # NGINX forwarding the $ssl_client_escaped_cert variable
-      unescaped_header
-    else
-      # older version of NGINX forwarding the now deprecated $ssl_client_cert variable
-      header.gsub(/ (?!CERTIFICATE)/, "\n")
-    end
   end
 
   def after_sign_in_path_for(resource)

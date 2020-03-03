@@ -1,4 +1,5 @@
 # frozen_string_literal: true
 
 post 'smartcard/auth' => 'smartcard#auth'
-post 'smartcard/ldap_auth' => 'smartcard#ldap_auth'
+get 'smartcard/extract_certificate' => 'smartcard#extract_certificate'
+get 'smartcard/verify_certificate' => 'smartcard#verify_certificate'
