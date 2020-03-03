@@ -6,6 +6,7 @@ module EE
       class FeatureFlag < Grape::Entity
         expose :name
         expose :description
+        expose :version
         expose :created_at
         expose :updated_at
         expose :scopes, using: FeatureFlag::LegacyScope

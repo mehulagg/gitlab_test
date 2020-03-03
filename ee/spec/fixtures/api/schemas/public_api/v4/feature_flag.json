@@ -4,6 +4,7 @@
   "properties": {
     "name": { "type": "string" },
     "description": { "type": ["string", "null"] },
+    "version": { "type": "string" },
     "created_at": { "type": "date" },
     "updated_at": { "type": "date" },
     "scopes": { "type": "array", "items": { "$ref": "feature_flag_scope.json" } },

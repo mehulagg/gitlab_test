@@ -59,6 +59,14 @@ describe API::FeatureFlags do
         expect(json_response.second['name']).to eq(feature_flag_2.name)
       end
 
+      it 'returns the legacy flag version' do
+        subject
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flags', dir: 'ee')
+        expect(json_response.map { |f| f['version'] }).to eq(%w[legacy_flag legacy_flag])
+      end
+
       it 'does not have N+1 problem' do
         control_count = ActiveRecord::QueryRecorder.new { subject }
 
@@ -84,6 +92,7 @@ describe API::FeatureFlags do
         expect(json_response).to eq([{
           'name' => 'feature1',
           'description' => nil,
+          'version' => 'new_version_flag',
           'updated_at' => feature_flag.updated_at.as_json,
           'created_at' => feature_flag.created_at.as_json,
           'scopes' => [],
@@ -154,6 +163,7 @@ describe API::FeatureFlags do
         expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
         expect(json_response['name']).to eq(feature_flag.name)
         expect(json_response['description']).to eq(feature_flag.description)
+        expect(json_response['version']).to eq('legacy_flag')
       end
 
       it_behaves_like 'check user permission'
@@ -172,6 +182,7 @@ describe API::FeatureFlags do
         expect(json_response).to eq({
           'name' => 'feature1',
           'description' => nil,
+          'version' => 'new_version_flag',
           'updated_at' => feature_flag.updated_at.as_json,
           'created_at' => feature_flag.created_at.as_json,
           'scopes' => [],
