@@ -1,0 +1,2 @@
+- if search_service.use_elasticsearch?
+  = search_filter_link 'snippet_blobs', _("Snippet Contents"), search: { snippets: true, group_id: nil, project_id: nil }

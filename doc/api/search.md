@@ -255,6 +255,8 @@ Example response:
 
 ### Scope: snippet_blobs
 
+For GitLab 13.0 and higher, this scope is available only if [Elasticsearch](../integration/elasticsearch.md) is enabled.
+
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" https://gitlab.example.com/api/v4/search?scope=snippet_blobs&search=test
 ```

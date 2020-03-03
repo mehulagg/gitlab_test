@@ -1,0 +1,5 @@
+---
+title: Allow web snippet content search only when Elasticsearch is enabled
+merge_request: 26359
+author:
+type: removed
