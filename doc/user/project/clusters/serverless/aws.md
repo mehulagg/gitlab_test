@@ -34,12 +34,12 @@ In the following example, you will:
 
 The example consists of the following steps:
 
-1. Creating a Lambda handler function
-1. Creating a `serverless.yml` file
-1. Crafting the `.gitlab-ci.yml` file
-1. Setting up your AWS credentials with your GitLab account
-1. Deploying your function
-1. Testing the deployed function
+1. Creating a Lambda handler function.
+1. Creating a `serverless.yml` file.
+1. Crafting the `.gitlab-ci.yml` file.
+1. Setting up your AWS credentials with your GitLab account.
+1. Deploying your function.
+1. Testing the deployed function.
 
 Lets take it step by step.
 
@@ -314,12 +314,12 @@ In the following example, you will:
 
 The example consists of the following steps:
 
-1. Install SAM CLI
-1. Creating an AWS SAM application using SAM CLI
-1. Crafting the `.gitlab-ci.yml` file
-1. Setting up your AWS credentials with your GitLab account
-1. Deploying your application
-1. Testing the deployed function
+1. Install SAM CLI.
+1. Creating an AWS SAM application using SAM CLI.
+1. Crafting the `.gitlab-ci.yml` file.
+1. Setting up your AWS credentials with your GitLab account.
+1. Deploying your application.
+1. Testing the deployed function.
 
 ### Installing SAM CLI
 
