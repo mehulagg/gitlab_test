@@ -8,6 +8,7 @@ class Packages::PackageFile < ApplicationRecord
 
   delegate :project, :project_id, to: :package
   delegate :conan_file_type, to: :conan_file_metadatum
+  delegate :conan_package_reference, to: :conan_file_metadatum
 
   belongs_to :package
 
@@ -28,6 +29,11 @@ class Packages::PackageFile < ApplicationRecord
   scope :with_conan_file_type, ->(file_type) do
     joins(:conan_file_metadatum)
       .where(packages_conan_file_metadata: { conan_file_type: ::Packages::ConanFileMetadatum.conan_file_types[file_type] })
+  end
+
+  scope :with_conan_package_reference, ->(conan_package_reference) do
+    joins(:conan_file_metadatum)
+      .where(packages_conan_file_metadata: { conan_package_reference: conan_package_reference })
   end
 
   mount_uploader :file, Packages::PackageFileUploader

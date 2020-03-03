@@ -23,6 +23,7 @@ class Packages::PackageFileFinder
 
     files = by_file_name(files)
     files = by_conan_file_type(files)
+    files = by_conan_package_reference(files)
 
     files
   end
@@ -39,5 +40,11 @@ class Packages::PackageFileFinder
     return files unless params[:conan_file_type]
 
     files.with_conan_file_type(params[:conan_file_type])
+  end
+
+  def by_conan_package_reference(files)
+    return files unless params[:conan_package_reference]
+
+    files.with_conan_package_reference(params[:conan_package_reference])
   end
 end

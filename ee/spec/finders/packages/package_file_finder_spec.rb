@@ -19,6 +19,16 @@ describe Packages::PackageFileFinder do
       it { expect(subject.conan_file_type).to eq('recipe_file') }
     end
 
+    context 'with conan_package_reference' do
+      let!(:other_package) { create(:conan_package) }
+      let_it_be(:package) { create(:conan_package) }
+      let(:package_file_name) { 'conan_package.tgz' }
+      let(:reference) { package.package_files.find_by(file_name: 'conan_package.tgz').conan_package_reference }
+      let(:params) { { conan_package_reference: reference } }
+
+      it { expect(subject.conan_package_reference).to eq(reference) }
+    end
+
     context 'with file_name_like' do
       let(:package_file_name) { package_file.file_name.upcase }
       let(:params) { { with_file_name_like: true } }

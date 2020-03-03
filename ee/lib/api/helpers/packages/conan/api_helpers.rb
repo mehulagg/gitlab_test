@@ -93,7 +93,12 @@ module API
             authorize!(:read_package, project)
 
             package_file = ::Packages::PackageFileFinder
-              .new(package, "#{params[:file_name]}", conan_file_type: file_type).execute!
+              .new(
+                package,
+                "#{params[:file_name]}",
+                conan_file_type: file_type,
+                conan_package_reference: params[:conan_package_reference]
+              ).execute!
 
             track_event('pull_package') if params[:file_name] == ::Packages::ConanFileMetadatum::PACKAGE_BINARY
 
