@@ -6,6 +6,8 @@ module EE
       extend ActiveSupport::Concern
 
       prepended do
+        VULNERABILITY_SEVERITIES = ::Vulnerabilities::Occurrence::SEVERITY_LEVELS.keys.freeze
+
         field :service_desk_enabled, GraphQL::BOOLEAN_TYPE, null: true,
           description: 'Indicates if the project has service desk enabled.'
 
@@ -18,6 +20,10 @@ module EE
               description: 'Vulnerabilities reported on the project',
               resolver: Resolvers::VulnerabilitiesResolver,
               feature_flag: :first_class_vulnerabilities
+
+        field :vulnerabilities_summary, ::Types::VulnerabilitiesSummaryType, null: true,
+               description: "Counts for each severity of vulnerability #{VULNERABILITY_SEVERITIES.join(', ').upcase}",
+               resolve: -> (obj, _args, _ctx) { obj.vulnerabilities.counted_by_severity }
       end
     end
   end
