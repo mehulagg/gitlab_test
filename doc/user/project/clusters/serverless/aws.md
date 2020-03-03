@@ -14,8 +14,7 @@ The [Serverless Framework can deploy to AWS](https://serverless.com/framework/do
 
 We have prepared an example with a step-by-step guide to create a simple function and deploy it on AWS.
 
-Additionally, in the [How To section](#how-to), you can read about different use cases,
-like:
+Additionally, in the [How To section](#how-to), you can read about different use cases like:
 
 - Running a function locally.
 - Working with secrets.
