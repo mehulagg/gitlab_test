@@ -198,6 +198,22 @@ An approval is optional when a license report:
 - Contains no software license violations.
 - Contains only new licenses that are `approved` or unknown.
 
+## Outdated Security Reports
+
+When Security Report generated for an MR becomes outdated, the Merge Request shows a warning message within the security widget and prompt user to take an appropriate action. This can happen in two scenarios:
+
+### Source branch is behind the target branch
+
+This means the most recent common ancestor commit between the target branch and the source branch is not the most recent commit on the target branch. This is by far the most common situation and user must rebase/merge to incorporate the changes from the target branch.
+
+![Incorporate target branch changes](img/outdated_report_branch.png)
+
+### Target branch security report is out-of-date
+
+This can happen due to many reasons (including failed jobs or some new advisories came in). When the MR shows that the Security Report is out of date, the user simply needs to run a new Pipeline on the target branch. This can be quickly done by following the hyperlink given to run a new pipeline.
+
+![Run a new pipeline](img/outdated_report_pipeline.png)
+
 ## Troubleshooting
 
 ### Getting error message `sast job: stage parameter should be [some stage name here]`
