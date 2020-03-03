@@ -1,7 +1,6 @@
 import { mount } from '@vue/test-utils';
 import DropdownValueComponent from '~/vue_shared/components/sidebar/labels_select/dropdown_value.vue';
-import DropdownValueScopedLabel from '~/vue_shared/components/sidebar/labels_select/dropdown_value_scoped_label.vue';
-import DropdownValueRegularLabel from '~/vue_shared/components/sidebar/labels_select/dropdown_value_regular_label.vue';
+import { GlLabel } from '@gitlab/ui';
 
 import {
   mockConfig,
@@ -52,15 +51,17 @@ describe('DropdownValueComponent', () => {
   describe('methods', () => {
     describe('labelFilterUrl', () => {
       it('returns URL string starting with labelFilterBasePath and encoded label.title', () => {
-        expect(vm.find(DropdownValueScopedLabel).props('labelFilterUrl')).toBe(
-          '/gitlab-org/my-project/issues?label_name[]=Foo%3A%3ABar',
+        expect(vm.find(GlLabel).props('target')).toBe(
+          '/gitlab-org/my-project/issues?label_name[]=Foo%20Label',
         );
       });
     });
 
     describe('showScopedLabels', () => {
       it('returns true if the label is scoped label', () => {
-        expect(vm.findAll(DropdownValueScopedLabel).length).toEqual(1);
+        const labels = vm.findAll(GlLabel);
+        expect(labels.length).toEqual(2);
+        expect(labels.at(1).props('scoped')).toBe(true);
       });
     });
   });
@@ -83,7 +84,7 @@ describe('DropdownValueComponent', () => {
     });
 
     it('renders DropdownValueComponent element', () => {
-      const labelEl = vm.find(DropdownValueRegularLabel);
+      const labelEl = vm.find(GlLabel);
 
       expect(labelEl.exists()).toBe(true);
     });

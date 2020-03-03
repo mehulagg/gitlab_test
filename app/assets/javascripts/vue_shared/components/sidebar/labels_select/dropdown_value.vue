@@ -1,12 +1,10 @@
 <script>
-import DropdownValueScopedLabel from './dropdown_value_scoped_label.vue';
-import DropdownValueRegularLabel from './dropdown_value_regular_label.vue';
+import { GlLabel } from '@gitlab/ui';
 import { isScopedLabel } from '~/lib/utils/common_utils';
 
 export default {
   components: {
-    DropdownValueScopedLabel,
-    DropdownValueRegularLabel,
+    GlLabel,
   },
   props: {
     labels: {
@@ -59,19 +57,14 @@ export default {
     </span>
 
     <template v-for="label in labels" v-else>
-      <dropdown-value-scoped-label
-        v-if="showScopedLabels(label)"
+      <gl-label
         :key="label.id"
-        :label="label"
-        :label-filter-url="labelFilterUrl(label)"
+        :target="labelFilterUrl(label)"
+        :background-color="label.color"
+        :title="label.title"
+        :description="label.description"
+        :scoped="showScopedLabels(label)"
         :scoped-labels-documentation-link="scopedLabelsDocumentationLink"
-      />
-
-      <dropdown-value-regular-label
-        v-else
-        :key="label.id"
-        :label="label"
-        :label-filter-url="labelFilterUrl(label)"
       />
     </template>
   </div>

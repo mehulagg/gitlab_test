@@ -10,7 +10,6 @@ import UserAvatarLink from '../../vue_shared/components/user_avatar/user_avatar_
 import IssueDueDate from './issue_due_date.vue';
 import IssueTimeEstimate from './issue_time_estimate.vue';
 import boardsStore from '../stores/boards_store';
-import IssueCardInnerScopedLabel from './issue_card_inner_scoped_label.vue';
 import { isScopedLabel } from '~/lib/utils/common_utils';
 
 export default {
@@ -22,7 +21,6 @@ export default {
     IssueDueDate,
     IssueTimeEstimate,
     IssueCardWeight: () => import('ee_component/boards/components/issue_card_weight.vue'),
-    IssueCardInnerScopedLabel,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -179,21 +177,14 @@ export default {
     </div>
     <div v-if="showLabelFooter" class="board-card-labels prepend-top-4 d-flex flex-wrap">
       <template v-for="label in orderedLabels">
-        <issue-card-inner-scoped-label
-          v-if="showScopedLabel(label)"
-          :key="label.id"
-          :label="label"
-          :scoped-labels-documentation-link="helpLink"
-          @scoped-label-click="filterByLabel($event)"
-        />
-
         <gl-label
-          v-else
           :key="label.id"
           :background-color="label.color"
           :title="label.title"
           :description="label.description"
           size="sm"
+          :scoped="showScopedLabel(label)"
+          :scoped-labels-documentation-link="helpLink"
           @click="filterByLabel(label)"
         />
       </template>
