@@ -405,13 +405,20 @@ control to AWS Lambda, API Gateway, CloudFormation, and IAM resources.
 
 ### Deploying your application
 
-Push changes to your GitLab repository and the GitLab build pipeline will automatically deploy your application.  If your build and deploy are successful, please go to the next step to test your deployed application.
+Push changes to your GitLab repository and the GitLab build pipeline will automatically
+deploy your application. If your:
 
-If your build fails please take a look at the build log to see why the build failed. Some common reasons the build might fail are:
+- Build and deploy are successful, [test your deployed application](#testing-the-deployed-application).
+- Build fails, look at the build log to see why the build failed. Some common reasons
+  the build might fail are:
 
-1. In-compatible versions of software (e.g. Python run time version might be different from the Python on the build machine). Please address this by installing the proper versions of the software.
-1. You may not be able to access your AWS account from GitLab. Please, go back and check the environment variables you setup with AWS credentials.
-1. You may not have permission to do deploy a serverless application. Please make sure you provide all required permissions to deploy a serverless application.
+  - Incompatible versions of software. For example, Python runtime version might be
+    different from the Python on the build machine. Address this by installing the
+    required versions of the software.
+  - You may not be able to access your AWS account from GitLab. Check the environment
+    variables you set up with AWS credentials.
+  - You may not have permission to deploy a serverless application. Make sure you
+    provide all required permissions to deploy a serverless application.
 
 ### Testing the deployed application
 
