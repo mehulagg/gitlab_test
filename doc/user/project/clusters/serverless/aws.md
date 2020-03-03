@@ -293,6 +293,8 @@ the `Serverless Framework/JS` template).
 
 ## AWS Serverless Application Model
 
+AWS Serverless Application Model is an open source framework for building serverless applications. It makes it easier to build and deploy serverless applications. For more details please take a look at AWS documentation on  AWS Serverless Application Model
+
 ### Deploying AWS Lambda function using AWS SAM and GitLab CI/CD
 
 GitLab allows developers to build and deploy serverless applications using the combination of:
