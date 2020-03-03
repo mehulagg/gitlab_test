@@ -25147,7 +25147,7 @@
             },
             {
               "name": "groupPath",
-              "description": "The group the epic to mutate is in",
+              "description": "The group the epic to mutate belongs to",
               "type": {
                 "kind": "NON_NULL",
                 "name": null,
@@ -25223,13 +25223,13 @@
             },
             {
               "name": "epicIssue",
-              "description": "The epic issue relation",
+              "description": "The epic-issue relation",
               "args": [
 
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "EpicIssue",
+                "name": "EpicIssueLink",
                 "ofType": null
               },
               "isDeprecated": false,

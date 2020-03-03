@@ -2264,9 +2264,9 @@ type EpicAddIssuePayload {
   epic: Epic
 
   """
-  The epic issue relation
+  The epic-issue relation
   """
-  epicIssue: EpicIssue
+  epicIssue: EpicIssueLink
 
   """
   Reasons why the mutation failed.
@@ -2769,7 +2769,7 @@ input EpicSetSubscriptionInput {
   clientMutationId: String
 
   """
-  The group the epic to mutate is in
+  The group the epic to mutate belongs to
   """
   groupPath: ID!
 

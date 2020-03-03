@@ -18,9 +18,9 @@ module Mutations
                description: 'The iid of the issue to be added'
 
       field :epic_issue,
-            Types::EpicIssueType,
+            Types::EpicIssueLinkType,
             null: true,
-            description: 'The epic issue relation'
+            description: 'The epic-issue relation'
 
       def resolve(group_path:, iid:, project_path:, issue_iid:)
         epic = authorized_find!(group_path: group_path, iid: iid)

@@ -17,14 +17,10 @@ describe 'Add an issue to an Epic' do
     graphql_mutation(:epic_add_issue, params)
   end
 
-  def mutation_response
-    graphql_mutation_response(:epic_add_issue)
-  end
-
-  context 'when epics feature is disabled' do
+  shared_examples 'mutation without access' do
     it_behaves_like 'a mutation that returns top-level errors',
-                    errors: ['The resource that you are attempting to access does not exist '\
-               'or you don\'t have permission to perform this action']
+      errors: ['The resource that you are attempting to access does not exist '\
+        'or you don\'t have permission to perform this action']
 
     it 'does not add issue to the epic' do
       post_graphql_mutation(mutation, current_user: current_user)
@@ -33,17 +29,33 @@ describe 'Add an issue to an Epic' do
     end
   end
 
+  context 'when epics feature is disabled' do
+    it_behaves_like 'mutation without access'
+  end
+
   context 'when epics feature is enabled' do
     before do
       stub_licensed_features(epics: true)
-      group.add_developer(current_user)
     end
 
-    it 'adds the issue to the epic' do
-      post_graphql_mutation(mutation, current_user: current_user)
+    context 'when the user is a group member' do
+      before do
+        group.add_developer(current_user)
+      end
 
-      expect(issue.reload.epic).to eq(epic)
-      expect(graphql_errors).to be_nil
+      it 'adds the issue to the epic' do
+        post_graphql_mutation(mutation, current_user: current_user)
+        response = graphql_mutation_response(:epic_add_issue)
+
+        expect(response['errors']).to be_empty
+        expect(response['epicIssue']['epic']['iid']).to eq(epic.iid.to_s)
+        expect(response['epicIssue']['issue']['iid']).to eq(issue.iid.to_s)
+        expect(issue.epic).to eq(epic)
+      end
+    end
+
+    context 'when the user is not a group member' do
+      it_behaves_like 'mutation without access'
     end
   end
 end
