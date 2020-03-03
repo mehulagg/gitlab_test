@@ -9,6 +9,10 @@
 
   #js-languages-chart{ data: { chart_data: @languages.to_json.html_safe } }
 
+.repo-chart
+  #js-code-coverage-chart{ data: {chartData: @code_coverage.to_json.html_safe, languages: @languages.to_json.html_safe  } }
+
+
 .repo-charts
   .sub-header-block.border-top
 

@@ -1,10 +1,12 @@
 import Vue from 'vue';
 import { __ } from '~/locale';
 import { GlColumnChart } from '@gitlab/ui/dist/charts';
+import CodeCoverage from "../components/code_coverage.vue"
 import SeriesDataMixin from './series_data_mixin';
 
 document.addEventListener('DOMContentLoaded', () => {
   const languagesContainer = document.getElementById('js-languages-chart');
+  const codeCoverageContainer = document.getElementById('js-code-coverage-chart');
   const monthContainer = document.getElementById('js-month-chart');
   const weekdayContainer = document.getElementById('js-weekday-chart');
   const hourContainer = document.getElementById('js-hour-chart');
@@ -56,6 +58,17 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     },
   });
+
+  new Vue({
+    el: codeCoverageContainer,
+    render(createElement) {
+      return createElement(CodeCoverage, {
+        props: {
+          languages: JSON.parse(codeCoverageContainer.dataset.languages)
+        }
+      });
+    },
+  })
 
   // eslint-disable-next-line no-new
   new Vue({
