@@ -22,8 +22,12 @@ module EE
               feature_flag: :first_class_vulnerabilities
 
         field :vulnerabilities_summary, ::Types::VulnerabilitiesSummaryType, null: true,
-               description: "Counts for each severity of vulnerability #{VULNERABILITY_SEVERITIES.join(', ').upcase}",
-               resolve: -> (obj, _args, _ctx) { obj.vulnerabilities.counted_by_severity }
+               description: "Counts for each severity of vulnerability (#{VULNERABILITY_SEVERITIES.join(', ').upcase})",
+               resolve: -> (obj, _args, ctx) do
+                 VulnerabilitiesSummary.new(
+                   obj.vulnerabilities.counted_by_severity.merge(vulnerable: obj)
+                 )
+               end
       end
     end
   end
