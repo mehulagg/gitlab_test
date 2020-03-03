@@ -756,7 +756,7 @@ as well as [the Vault documentation](https://www.vaultproject.io/docs/internals/
 At a minimum you will likely set up:
 
 - A [seal](https://www.vaultproject.io/docs/configuration/seal/) for extra encryption
-of the master key
+  of the master key.
 - A [storage backend](https://www.vaultproject.io/docs/configuration/storage/) that is
 suitable for environment and storage security requirements
 - [HA Mode](https://www.vaultproject.io/docs/concepts/ha/)
