@@ -1323,7 +1323,13 @@ msgstr ""
 msgid "AdminProjects|Delete project"
 msgstr ""
 
+msgid "AdminSettings|Apply integration settings to all Projects"
+msgstr ""
+
 msgid "AdminSettings|Auto DevOps domain"
+msgstr ""
+
+msgid "AdminSettings|Elasticsearch, PlantUML, Slack application, Third party offers, Snowplow, Amazon EKS have moved to Settings > General."
 msgstr ""
 
 msgid "AdminSettings|Enable shared runners for new projects"
@@ -1332,7 +1338,16 @@ msgstr ""
 msgid "AdminSettings|Environment variables are protected by default"
 msgstr ""
 
+msgid "AdminSettings|Go to Settings"
+msgstr ""
+
+msgid "AdminSettings|Integrations configured here will automatically apply to all projects on this instance."
+msgstr ""
+
 msgid "AdminSettings|No required pipeline"
+msgstr ""
+
+msgid "AdminSettings|Not finding all your integrations?"
 msgstr ""
 
 msgid "AdminSettings|Required pipeline configuration"
@@ -10690,6 +10705,9 @@ msgid "Instance does not support multiple Kubernetes clusters"
 msgstr ""
 
 msgid "Instance license"
+msgstr ""
+
+msgid "Integration"
 msgstr ""
 
 msgid "Integration Settings"

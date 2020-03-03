@@ -31,7 +31,7 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
     perform_update if submitted?
 
     # TODO: Update this with actual integrations
-    @integrations = Project.first.find_or_initialize_services.sort_by(&:title)
+    @integrations = Project.first&.find_or_initialize_services&.sort_by(&:title)
   end
 
   def update
