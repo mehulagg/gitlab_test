@@ -10,6 +10,7 @@ import { __ } from './locale';
 
 export default class Issue {
   constructor() {
+    console.log('here')
     if ($('a.btn-close').length) this.initIssueBtnEventListeners();
 
     Issue.$btnNewBranch = $('#new-branch');

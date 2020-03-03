@@ -46,13 +46,15 @@ export const setNotesFetchedState = ({ commit }, state) =>
 
 export const toggleDiscussion = ({ commit }, data) => commit(types.TOGGLE_DISCUSSION, data);
 
-export const fetchDiscussions = ({ commit, dispatch }, { path, filter, persistFilter }) => {
+export const fetchDiscussions = ({ commit, dispatch }, { path, filter, persistFilter, sort = 'desc' }) => {
   const config =
     filter !== undefined
-      ? { params: { notes_filter: filter, persist_filter: persistFilter } }
+      ? { params: { notes_filter: filter, persist_filter: persistFilter, sort } }
       : null;
 
-  return axios.get(path, config).then(({ data }) => {
+  // const config = { params: { sort } };
+  console.log(filter, path)
+  return axios.get(path, { ...config, sort }).then(({ data }) => {
     commit(types.SET_INITIAL_DISCUSSIONS, data);
     dispatch('updateResolvableDiscussionsCounts');
   });

@@ -215,6 +215,7 @@ export default {
         .then(() => eventHub.$emit('startReplying', discussionId));
     },
     getFetchDiscussionsConfig() {
+      // here for filter
       const defaultConfig = { path: this.getNotesDataByProp('discussionsPath') };
 
       if (doesHashExistInUrl(constants.NOTE_UNDERSCORE)) {
