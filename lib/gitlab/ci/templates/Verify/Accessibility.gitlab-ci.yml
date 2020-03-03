@@ -25,3 +25,13 @@ a11y:
     paths: ['accessibility.html']
   rules:
     - if: $a11y_urls
+
+a11y-json:
+  stage: accessibility
+  image: "registry.gitlab.com/gitlab-org/ci-cd/accessibility:latest"
+  script: ./node_modules/.bin/pa11y-ci --json $a11y_urls > accessibility.json
+  allow_failure: true
+  artifacts:
+    when: always
+    expose_as: 'accessibility-json'
+    paths: ['accessibility.json']
