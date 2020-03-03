@@ -446,9 +446,22 @@ Output should be:
 
 AWS SAM provides functionality to test your applications locally. As mentioned earlier, you must have AWS SAM CLI installed locally for you to test locally.
 
-First, test the function. SAM provides a default event in events/event.json that includes a message body of {\“message\”: \“hello world\”}. If you pass that event into the HelloWorldFunction, it should respond with the same body.
+First, test the function.
 
-`sam local invoke HelloWorldFunction -e events/event.json`
+SAM provides a default event in `events/event.json` that includes a message body of:
+
+```json
+{\“message\”: \“hello world\”}
+```
+
+If you pass that event into the `HelloWorldFunction`, it should respond with the same
+body.
+
+Invoke the function by running:
+
+```shell
+sam local invoke HelloWorldFunction -e events/event.json
+```
 
 Output should be:
 
