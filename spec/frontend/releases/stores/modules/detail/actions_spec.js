@@ -36,16 +36,6 @@ describe('Release detail actions', () => {
     mock.restore();
   });
 
-  describe('setInitialState', () => {
-    it(`commits ${types.SET_INITIAL_STATE} with the provided object`, () => {
-      const initialState = {};
-
-      return testAction(actions.setInitialState, initialState, state, [
-        { type: types.SET_INITIAL_STATE, payload: initialState },
-      ]);
-    });
-  });
-
   describe('requestRelease', () => {
     it(`commits ${types.REQUEST_RELEASE}`, () =>
       testAction(actions.requestRelease, undefined, state, [{ type: types.REQUEST_RELEASE }]));

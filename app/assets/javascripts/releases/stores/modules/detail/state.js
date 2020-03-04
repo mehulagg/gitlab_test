@@ -1,4 +1,4 @@
-export default () => ({
+export default initialState => ({
   projectId: null,
   tagName: null,
   releasesPagePath: null,
@@ -13,4 +13,6 @@ export default () => ({
 
   isUpdatingRelease: false,
   updateError: null,
+
+  ...initialState,
 });

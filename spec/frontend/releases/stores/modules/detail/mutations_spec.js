@@ -19,22 +19,6 @@ describe('Release detail mutations', () => {
     releaseClone = JSON.parse(JSON.stringify(release));
   });
 
-  describe(types.SET_INITIAL_STATE, () => {
-    it('populates the state with initial values', () => {
-      const initialState = {
-        projectId: '18',
-        tagName: 'v1.3',
-        releasesPagePath: 'path/to/releases/page',
-        markdownDocsPath: 'path/to/markdown/docs',
-        markdownPreviewPath: 'path/to/markdown/preview',
-      };
-
-      mutations[types.SET_INITIAL_STATE](stateClone, initialState);
-
-      expect(stateClone).toEqual(expect.objectContaining(initialState));
-    });
-  });
-
   describe(types.REQUEST_RELEASE, () => {
     it('set state.isFetchingRelease to true', () => {
       mutations[types.REQUEST_RELEASE](stateClone);
