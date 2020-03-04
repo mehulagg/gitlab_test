@@ -216,7 +216,7 @@ In this case you must rebase or merge to incorporate the changes from the target
 
 ![Incorporate target branch changes](img/outdated_report_branch.png)
 
-### Target branch security report is out-of-date
+### Target branch security report is out of date
 
 This can happen due to many reasons (including failed jobs or some new advisories came in). When the MR shows that the Security Report is out of date, the user simply needs to run a new Pipeline on the target branch. This can be quickly done by following the hyperlink given to run a new pipeline.
 
