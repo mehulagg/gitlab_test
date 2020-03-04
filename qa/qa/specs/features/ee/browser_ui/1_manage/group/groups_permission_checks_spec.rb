@@ -219,7 +219,7 @@ module QA
           sign_out_and_sign_in_as_another_user(@Parent_User_B)
           @Project_A.visit!
           expect(page).to have_text(@Project_A.name)
-          page.go_back
+          #page.go_back
           @Child_Group_A.visit!
           Page::Group::Menu.perform(&:click_group_members_item)
           expect(page).to have_text(max_access_level)
@@ -312,7 +312,7 @@ module QA
           sign_out_and_sign_in_as_another_user(@Child_Group_User_B)
           @Project_A.visit!
           expect(page).to have_text(@Project_A.name)
-          page.go_back
+          #page.go_back
           @Child_Group_A.visit!
           Page::Group::Menu.perform(&:click_group_members_item)
           expect(page).to have_text(max_access_level)
@@ -860,7 +860,7 @@ module QA
           
         #   # We cleanup the setup part
            sign_out_and_sign_in_as_admin()
-           remove_group_from_group(@Child_Group_B.path, @Child_Parent_Group_A)
+           remove_group_from_group(@Child_Group_B.path, @Child_Group_A)
           
            remove_user_from_group(@Child_Group_User_B.username, @Child_Group_B)
            remove_user_from_group(@Group_User_B.username, @Group_B)
