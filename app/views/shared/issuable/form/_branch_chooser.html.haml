@@ -10,7 +10,7 @@
   .align-self-center
     %span= s_('From %{source_title} into').html_safe % { source_title: "<code>#{source_title}</code>".html_safe }
     - if issuable.new_record?
-      %code= target_title
+      %code.target-branch= target_title
       &nbsp;
       = link_to _('Change branches'), mr_change_branches_path(issuable)
     - elsif issuable.for_fork?

@@ -40,6 +40,9 @@ export default {
     canEdit() {
       return this.settings.canEdit;
     },
+    isEditPath() {
+      return this.settings.mrSettingsPath;
+    },
   },
   watch: {
     rules: {
@@ -57,27 +60,43 @@ export default {
       immediate: true,
     },
   },
+  created() {
+    // if (this.settings.allowMultiRule) {
+
+    // }
+    if (this.isEditPath) {
+      this.targetBranch = document.querySelector('#merge_request_target_branch').value;
+    } else {
+      this.targetBranch = document.querySelector('.target-branch').innerText;
+    }
+    this.fetchRules(this.targetBranch);
+  },
   mounted() {
-    targetBranchMutationObserver = new MutationObserver(this.onTargetBranchMutation);
-    targetBranchMutationObserver.observe(document.querySelector('#merge_request_target_branch'), {
-      attributes: true,
-      childList: false,
-      subtree: false,
-      attributeFilter: ['value'],
-    });
+    // if (this.settings.allowMultiRule && this.isEditPath) {
+    if (this.isEditPath) {
+      targetBranchMutationObserver = new MutationObserver(this.onTargetBranchMutation);
+      targetBranchMutationObserver.observe(document.querySelector('#merge_request_target_branch'), {
+        attributes: true,
+        childList: false,
+        subtree: false,
+        attributeFilter: ['value'],
+      });
+    }
   },
   beforeDestroy() {
-    if (targetBranchMutationObserver) {
+    // if (this.settings.allowMultiRule && this.isEditPath && targetBranchMutationObserver) {
+    if (this.isEditPath && targetBranchMutationObserver) {
       targetBranchMutationObserver.disconnect();
     }
   },
   methods: {
-    ...mapActions(['setEmptyRule', 'addEmptyRule']),
+    ...mapActions(['setEmptyRule', 'addEmptyRule', 'fetchRules']),
     onTargetBranchMutation(mutations) {
       if (mutations.length) {
         mutations.forEach(mutation => {
           this.targetBranch = mutation.target.value;
         });
+        this.fetchRules(this.targetBranch);
       }
     },
   },

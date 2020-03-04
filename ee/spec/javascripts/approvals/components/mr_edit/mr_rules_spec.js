@@ -56,13 +56,24 @@ describe('EE Approvals MRRules', () => {
   });
 
   describe('when allow multiple rules', () => {
+    describe('when creating a MR', () => {});
+
+    describe('when editing a MR', () => {});
+
     beforeEach(() => {
+      // CREATING MR
+      // const div = document.createElement('div');
+      // div.id = 'merge_request_target_branch';
+      // document.body.appendChild(div);
+
+      // EDITING MR
       const div = document.createElement('div');
-      div.id = 'merge_request_target_branch';
+      div.className = 'target-branch';
       document.body.appendChild(div);
 
       store.state.settings.allowMultiRule = true;
       store.state.settings.eligibleApproversDocsPath = 'some/path';
+      // store.state.settings.mrSettingsPath = 'some/path';
     });
 
     it('should always have any_approver rule', () => {
