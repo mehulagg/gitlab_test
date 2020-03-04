@@ -186,8 +186,6 @@ module API
       def pipeline_test_report
         strong_memoize(:pipeline_test_report) do
           pipeline.test_reports
-        rescue Gitlab::Ci::Parsers::ParserError
-          :error
         end
       end
     end
