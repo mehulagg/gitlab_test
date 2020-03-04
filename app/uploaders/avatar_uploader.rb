@@ -5,9 +5,6 @@ class AvatarUploader < GitlabUploader
   include RecordsUploads::Concern
   include ObjectStorage::Concern
   prepend ObjectStorage::Extension::RecordsUploads
-  include UploadTypeCheck::Concern
-
-  check_upload_type extensions: AvatarUploader::SAFE_IMAGE_EXT
 
   def exists?
     model.avatar.file && model.avatar.file.present?
