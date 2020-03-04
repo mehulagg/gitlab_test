@@ -10,17 +10,17 @@ a11y:
   stage: accessibility
   image: "registry.gitlab.com/gitlab-org/ci-cd/accessibility:latest"
   script:
-    - mkdir reports
+    - mkdir /reports
     - pwd
     - ls
     - cat /pa11y.json
-    - for url in $a11y_urls; do filename=$(echo $url | sed -E 's/https?:\/\///' | sed -E 's/\//-/'); /node_modules/.bin/pa11y --config /pa11y.json $url | tee reports/$filename-accessibility.html > /dev/null; done
+    - for url in $a11y_urls; do filename=$(echo $url | sed -E 's/https?:\/\///' | sed -E 's/\//-/'); /node_modules/.bin/pa11y --config /pa11y.json $url | tee /reports/$filename-accessibility.html > /dev/null; done
     - ls reports
     - ls reports/*-accessibility.html
   allow_failure: true
-  # artifacts:
-  #   when: always
-  #   paths:
-  #     - /reports/*-accessibility.html
+  artifacts:
+    when: always
+    paths:
+      - /reports/*-accessibility.html
   rules:
     - if: $a11y_urls
