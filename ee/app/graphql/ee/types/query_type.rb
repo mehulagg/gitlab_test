@@ -13,6 +13,12 @@ module EE
               null: false,
               description: 'Fields related to design management'
 
+        field :instance_security_dashboard, ::Types::InstanceSecurityDashboardType,
+              null: true,
+              resolve: -> (_obj, _args, context) { InstanceSecurityDashboard.new(context[:current_user]) },
+              description: 'Find an instance security dashboard',
+              feature_flag: :instance_security_dashboard
+
         def design_management
           DesignManagementObject.new(nil)
         end

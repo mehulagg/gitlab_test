@@ -35,11 +35,6 @@ module Types
           resolver: Resolvers::SnippetsResolver,
           description: 'Find Snippets visible to the current user'
 
-    field :instance_security_dashboard, Types::InstanceSecurityDashboardType,
-          null: true,
-          resolve: -> (_obj, _args, context) { InstanceSecurityDashboard.new(context[:current_user]) },
-          description: 'Find an instance security dashboard'
-
     field :echo, GraphQL::STRING_TYPE, null: false,
           description: 'Text to echo back',
           resolver: Resolvers::EchoResolver
