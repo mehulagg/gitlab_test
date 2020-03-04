@@ -260,7 +260,13 @@ export default {
       </gl-sorting>
     </div>
 
-    <gl-table :items="tags" :fields="fields" :stacked="!isDesktop" show-empty :busy="isLoading">
+    <gl-table
+      :items="tags"
+      :fields="fields"
+      :stacked="!isDesktop"
+      :show-empty="!isLoading"
+      :busy="isLoading"
+    >
       <template v-if="isDesktop" #head(checkbox)>
         <gl-form-checkbox
           ref="mainCheckbox"
@@ -330,12 +336,11 @@ export default {
         </tag-details>
       </template>
 
-      <template #cell(actions)="{index, item}">
+      <template #cell(actions)="{index}">
         <gl-button
           ref="singleDeleteButton"
           :title="s__('ContainerRegistry|Remove tag')"
           :aria-label="s__('ContainerRegistry|Remove tag')"
-          :disabled="!item.destroy_path"
           variant="danger"
           class="js-delete-registry float-right btn-inverted btn-border-color btn-icon"
           @click="deleteSingleItem(index)"

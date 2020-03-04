@@ -22,6 +22,7 @@ export const setPage = ({ commit, state }, page) =>
 export const setTagsSearch = ({ commit }, searchString) => {
   commit(types.SET_TAGS_SEARCH, searchString);
   commit(types.SET_TAGS_PAGINATION, {
+    perPage: 10,
     page: 1,
   });
 };
@@ -87,7 +88,7 @@ export const requestTagDetails = ({ commit, dispatch, state }, name) => {
     return state.tagsRequests[name];
   }
 
-  const url = `/api/v4/projects/${state.config.projectId}/registry/repositories/${state.imageDetails.id}/tags/${name}`;
+  const url = `/api/v4/projects/${state.imageDetails.project_id}/registry/repositories/${state.imageDetails.id}/tags/${name}`;
 
   const promise = axios
     .get(url)
@@ -104,16 +105,19 @@ export const requestTagDetails = ({ commit, dispatch, state }, name) => {
   return promise;
 };
 
-export const requestDeleteTag = ({ commit }, { tag }) => {
+export const requestDeleteTag = ({ commit, state }, { tag }) => {
   commit(types.SET_MAIN_LOADING, true);
+  const url = `/api/v4/projects/${state.imageDetails.project_id}/registry/repositories/${state.imageDetails.id}/tags/${tag.name}`;
   return axios
-    .delete(tag.destroy_path)
+    .delete(url)
     .then(() => {
       createFlash(DELETE_TAG_SUCCESS_MESSAGE, 'success');
-      // return dispatch('requestTagsList', { pagination: state.tagsPagination, params });
+      commit(types.SET_TAGS_LIST_SUCCESS, state.tags.filter(t => t.name !== tag.name));
     })
     .catch(() => {
       createFlash(DELETE_TAG_ERROR_MESSAGE);
+    })
+    .finally(() => {
       commit(types.SET_MAIN_LOADING, false);
     });
 };
