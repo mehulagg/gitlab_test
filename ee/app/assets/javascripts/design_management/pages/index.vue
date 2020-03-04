@@ -14,6 +14,8 @@ import projectQuery from '../graphql/queries/project.query.graphql';
 import allDesignsMixin from '../mixins/all_designs';
 import {
   UPLOAD_DESIGN_ERROR,
+  EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE,
+  EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE,
   designUploadSkippedWarning,
   designDeletionError,
 } from '../utils/error_messages';
@@ -197,6 +199,21 @@ export default {
       const errorMessage = designDeletionError({ singular: this.selectedDesigns.length === 1 });
       createFlash(errorMessage);
     },
+    validateExistingDesignDrop(designFilename) {
+      return ({ dataTransfer }) => {
+        const files = Array.from(dataTransfer.files);
+
+        if (files.length > 1) {
+          return EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE;
+        }
+
+        if (!files.some(({ name }) => designFilename === name)) {
+          return EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE;
+        }
+
+        return false;
+      };
+    },
   },
   beforeRouteUpdate(to, from, next) {
     this.selectedDesigns = [];
@@ -252,7 +269,11 @@ export default {
             <design-dropzone class="design-list-item" @upload="onUploadDesign" />
           </li>
           <li v-for="design in designs" :key="design.id" class="col-md-6 col-lg-4 mb-3">
-            <design v-bind="design" :is-loading="isDesignToBeSaved(design.filename)" />
+            <design-dropzone
+              :validate-upload="validateExistingDesignDrop(design.filename)"
+              @upload="onUploadDesign"
+              ><design v-bind="design" :is-loading="isDesignToBeSaved(design.filename)"
+            /></design-dropzone>
 
             <input
               v-if="canSelectDesign(design.filename)"
