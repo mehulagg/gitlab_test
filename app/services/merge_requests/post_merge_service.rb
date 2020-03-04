@@ -7,30 +7,41 @@ module MergeRequests
   # and execute all hooks and notifications
   #
   class PostMergeService < MergeRequests::BaseService
+    # def execute(merge_request)
+    #   merge_request.mark_as_merged
+    #   close_issues(merge_request)
+    #   todo_service.merge_merge_request(merge_request, current_user)
+    #   create_event(merge_request)
+    #   create_note(merge_request)
+    #   notification_service.merge_mr(merge_request, current_user)
+    #   execute_hooks(merge_request, 'merge')
+    #   invalidate_cache_counts(merge_request, users: merge_request.assignees)
+    #   merge_request.update_project_counter_caches
+    #   delete_non_latest_diffs(merge_request)
+    #   cleanup_environments(merge_request)
+    # end
+
     def execute(merge_request)
       return if merge_request.merged? # nothing to do, this worker has already run at least once
-
-      # These operations are idempotent so can be safely run multiple times
-      delete_non_latest_diffs(merge_request)
-      cleanup_environments(merge_request)
-
-      # These operations send notifications, which can't be run inside a
-      # transaction.
-      create_event(merge_request)
-      create_note(merge_request)
-      close_issues(merge_request)
-      todo_service.merge_merge_request(merge_request, current_user)
-      notification_service.merge_mr(merge_request, current_user)
-
-      # These operations are causing issues in the pipeline environment
-      # when wrapped in a transaction
-      merge_request.update_project_counter_caches
-      invalidate_cache_counts(merge_request, users: merge_request.assignees)
 
       # These operations need to happen transactionally
       ActiveRecord::Base.transaction do
         merge_request.mark_as_merged
+        close_issues(merge_request)
+        todo_service.merge_merge_request(merge_request, current_user)
+        create_event(merge_request)
+        create_note(merge_request)
+        notification_service.merge_mr(merge_request, current_user)
+
+        # TODO: check if these are affected by merged/not merged state.
+        # If not, they can be moved to the "idempotent" block.
+        merge_request.update_project_counter_caches
+        invalidate_cache_counts(merge_request, users: merge_request.assignees)
       end
+
+      # These operations are idempotent so can be safely run multiple times
+      delete_non_latest_diffs(merge_request)
+      cleanup_environments(merge_request)
 
       # Anything after this point will be executed at-most-once. Less important activity only
       # TODO: make all the work in here a separate sidekiq job so it can go in the transaction
