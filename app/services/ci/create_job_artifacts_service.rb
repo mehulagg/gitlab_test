@@ -31,7 +31,7 @@ module Ci
           expire_in: expire_in)
       end
 
-      if job.update(artifacts_expire_in: expire_in)
+      if job.save
         success
       else
         error(job.errors.messages, :bad_request)

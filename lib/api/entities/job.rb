@@ -7,7 +7,9 @@ module API
       expose :artifacts_file, using: Entities::JobArtifactFile, if: -> (job, opts) { job.artifacts? }
       expose :job_artifacts, as: :artifacts, using: Entities::JobArtifact
       expose :runner, with: Entities::Runner
-      expose :artifacts_expire_at
+      expose :artifacts_expire_at do |job|
+        job.job_artifacts_archive&.expire_at
+      end
     end
   end
 end

@@ -9,7 +9,10 @@ class BuildArtifactEntity < Grape::Entity
   end
 
   expose :artifacts_expired?, as: :expired
-  expose :artifacts_expire_at, as: :expire_at
+
+  expse :artifacts_expire_at, as: :expire_at do
+    job.job_artifacts_archive&.expire_at
+  end
 
   expose :path do |job|
     fast_download_project_job_artifacts_path(project, job)

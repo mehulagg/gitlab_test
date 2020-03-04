@@ -97,6 +97,7 @@ module Ci
     end
 
     scope :expired, -> (limit) { where('expire_at < ?', Time.now).limit(limit) }
+    scope :not_expired, -> { where('expire_at >= ?', Time.now) }
 
     scope :scoped_project, -> { where('ci_job_artifacts.project_id = projects.id') }
 
@@ -199,6 +200,14 @@ module Ci
 
     def self.archived_trace_exists_for?(job_id)
       where(job_id: job_id).trace.take&.file&.file&.exists?
+    end
+
+    def expired?
+      expire_at && expire_at < Time.now
+    end
+
+    def will_expire?
+      expire_at? && expire_at > Time.now
     end
 
     private

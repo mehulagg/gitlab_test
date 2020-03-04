@@ -41,11 +41,11 @@ class BuildDetailsEntity < JobEntity
       keep_project_job_artifacts_path(project, build)
     end
 
-    expose :expire_at, if: -> (*) { build.artifacts_expire_at.present? } do |build|
+    expose :expire_at, if: -> (*) { build.job_artifacts_archive&.expire_at? } do |build|
       build.artifacts_expire_at
     end
 
-    expose :expired, if: -> (*) { build.artifacts_expire_at.present? } do |build|
+    expose :expired, if: -> (*) { build.job_artifacts_archive&.expire_at? } do |build|
       build.artifacts_expired?
     end
   end

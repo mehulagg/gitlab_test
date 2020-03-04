@@ -788,7 +788,7 @@ builds_with_artifacts = Ci::Build.with_artifacts_archive
 # Note that this will also erase artifacts that developers marked to "Keep"
 builds_to_clear = builds_with_artifacts.where("finished_at < ?", 1.week.ago)
 builds_to_clear.each do |build|
-  build.artifacts_expire_at = Time.now
+  build.artifacts_expire_at = Time.now # TODO:
   build.erase_erasable_artifacts!
 end
 ```

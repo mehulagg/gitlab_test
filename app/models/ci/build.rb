@@ -16,6 +16,7 @@ module Ci
     BuildArchivedError = Class.new(StandardError)
 
     ignore_columns :artifacts_file, :artifacts_file_store, :artifacts_metadata, :artifacts_metadata_store, :artifacts_size, :commands, remove_after: '2019-12-15', remove_with: '12.7'
+    ignore_columns :artifacts_expire_at, remove_after: '2020-04-15', remove_with: '12.10'
 
     belongs_to :project, inverse_of: :builds
     belongs_to :runner
@@ -131,8 +132,8 @@ module Ci
         .includes(:metadata, :job_artifacts_metadata)
     end
 
-    scope :with_artifacts_not_expired, ->() { with_artifacts_archive.where('artifacts_expire_at IS NULL OR artifacts_expire_at > ?', Time.now) }
-    scope :with_expired_artifacts, ->() { with_artifacts_archive.where('artifacts_expire_at < ?', Time.now) }
+    scope :with_artifacts_not_expired, ->() { with_existing_job_artifacts(Ci::JobArtifact.archive.expired(nil)) }
+    scope :with_expired_artifacts, ->() { with_existing_job_artifacts(Ci::JobArtifact.archive.not_expired) }
     scope :last_month, ->() { where('created_at > ?', Date.today - 1.month) }
     scope :manual_actions, ->() { where(when: :manual, status: COMPLETED_STATUSES + %i[manual]) }
     scope :scheduled_actions, ->() { where(when: :delayed, status: COMPLETED_STATUSES + %i[scheduled]) }
@@ -765,26 +766,14 @@ module Ci
     end
 
     def artifacts_expired?
-      artifacts_expire_at && artifacts_expire_at < Time.now
-    end
-
-    def artifacts_expire_in
-      artifacts_expire_at - Time.now if artifacts_expire_at
-    end
-
-    def artifacts_expire_in=(value)
-      self.artifacts_expire_at =
-        if value
-          ChronicDuration.parse(value)&.seconds&.from_now
-        end
+      job_artifacts_archive&.expired?
     end
 
     def has_expiring_archive_artifacts?
-      has_expiring_artifacts? && job_artifacts_archive.present?
+      job_artifacts_archive&.will_expire?
     end
 
     def keep_artifacts!
-      self.update(artifacts_expire_at: nil)
       self.job_artifacts.update_all(expire_at: nil)
     end
 
@@ -972,7 +961,7 @@ module Ci
     end
 
     def update_erased!(user = nil)
-      self.update(erased_by: user, erased_at: Time.now, artifacts_expire_at: nil)
+      self.update(erased_by: user, erased_at: Time.now)
     end
 
     def unscoped_project
@@ -1002,10 +991,6 @@ module Ci
         value = value.is_a?(Integer) ? { max: value } : value.to_h
         value.with_indifferent_access
       end
-    end
-
-    def has_expiring_artifacts?
-      artifacts_expire_at.present? && artifacts_expire_at > Time.now
     end
   end
 end
