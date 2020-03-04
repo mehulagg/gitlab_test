@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_27_165129) do
+ActiveRecord::Schema.define(version: 2020_03_04_103716) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -2747,7 +2747,6 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.boolean "require_two_factor_authentication", default: false, null: false
     t.integer "two_factor_grace_period", default: 48, null: false
     t.integer "cached_markdown_version"
-    t.integer "plan_id"
     t.integer "project_creation_level"
     t.string "runners_token"
     t.datetime_with_timezone "trial_ends_on"
@@ -2776,7 +2775,6 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.index ["parent_id", "id"], name: "index_namespaces_on_parent_id_and_id", unique: true
     t.index ["path"], name: "index_namespaces_on_path"
     t.index ["path"], name: "index_namespaces_on_path_trigram", opclass: :gin_trgm_ops, using: :gin
-    t.index ["plan_id"], name: "index_namespaces_on_plan_id"
     t.index ["require_two_factor_authentication"], name: "index_namespaces_on_require_two_factor_authentication"
     t.index ["runners_token"], name: "index_namespaces_on_runners_token", unique: true
     t.index ["runners_token_encrypted"], name: "index_namespaces_on_runners_token_encrypted", unique: true
@@ -4908,7 +4906,6 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
   add_foreign_key "namespace_root_storage_statistics", "namespaces", on_delete: :cascade
   add_foreign_key "namespace_statistics", "namespaces", on_delete: :cascade
   add_foreign_key "namespaces", "namespaces", column: "custom_project_templates_group_id", name: "fk_e7a0b20a6b", on_delete: :nullify
-  add_foreign_key "namespaces", "plans", name: "fk_fdd12e5b80", on_delete: :nullify
   add_foreign_key "namespaces", "projects", column: "file_template_project_id", name: "fk_319256d87a", on_delete: :nullify
   add_foreign_key "note_diff_files", "notes", column: "diff_note_id", on_delete: :cascade
   add_foreign_key "notes", "projects", name: "fk_99e097b079", on_delete: :cascade
