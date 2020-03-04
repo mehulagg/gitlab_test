@@ -17,17 +17,18 @@ latest sets of signatures, rules, and patches. When internet access is not
 available, a few extra steps are necessary to configure the tools to not do
 this and to still function properly.
 
-### Container registries and images
+### Container registries and package repositories
 
 At a high-level, each of the security analyzers are delivered as Docker
-containers. When you run a job on an internet-connected GitLab installation,
-GitLab checks the GitLab.com-hosted container registry to ensure that you have
+containers and reference various pacakage repositories. When you run a job on
+an internet-connected GitLab installation, GitLab checks the GitLab.com-hosted
+container registry and package repositories to ensure that you have
 the latest versions.
 
 In an air-gapped environment, this must be disabled so that GitLab.com is not
-queried. Because the GitLab.com registry is not avaialable, you must update
-each of the scanners to either reference a different, internally-hosted registry
-or provide access to the individual scanner images.
+queried. Because the GitLab.com registry and repositories are not available,
+you must update each of the scanners to either reference a different,
+internally-hosted registry or provide access to the individual scanner images.
 
 ### Scanner signature and rule updates
 
