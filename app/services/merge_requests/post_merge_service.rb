@@ -19,15 +19,12 @@ module MergeRequests
       create_event(merge_request)
       create_note(merge_request)
       close_issues(merge_request)
+      todo_service.merge_merge_request(merge_request, current_user)
+      notification_service.merge_mr(merge_request, current_user)
 
       # These operations need to happen transactionally
       ActiveRecord::Base.transaction do
         merge_request.mark_as_merged
-
-        # TODO: Make sure these are async operations. If not, move them earlier
-        # Better to have duplicate notifications than no notifications.
-        todo_service.merge_merge_request(merge_request, current_user)
-        notification_service.merge_mr(merge_request, current_user)
 
         # TODO: check if these are affected by merged/not merged state.
         # If not, they can be moved to the "idempotent" block.
