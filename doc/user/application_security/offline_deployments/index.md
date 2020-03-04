@@ -32,7 +32,7 @@ or provide access to the individual scanner images.
 ### Scanner signature and rule updates
 
 When connected to the internet, some scanners will reference public databases
-for the latest sets of signatures and rules to check against. In an air-gap,
+for the latest sets of signatures and rules to check against. Without connectivity,
 this is not possible. Depending on the scanner, you must therefore disable
 these automatic update checks and either use the databases that they came
 with or manually update those databases.
