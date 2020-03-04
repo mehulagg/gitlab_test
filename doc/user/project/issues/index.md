@@ -164,17 +164,33 @@ requires [GraphQL](../../../api/graphql/index.md) to be enabled.
 
 ![Similar issues](img/similar_issues.png)
 
-### Health Status **(ULTIMATE)**
+### Health status **(ULTIMATE)**
+
+<!-- This is the SSOT and will be linked to from other places. -->
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/36427) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.9.
 
-<!-- This is the SSOT and will be linked to from other places.
+To help you report on and quickly respond to the health of individual issues and epics, GitLab shows
+a red, amber, or green health status on your Epic Tree.
 
-TODO:
+Assign an issue a health status of `On track` (green), `Needs attention` (amber), or `At risk` (red)
+and see an aggregate report of health at the Epic level.
 
-- PM copy
-- What it does
-- How to enable it -->
+<!-- TODO screenshot: health status on an issue -->
+
+<!-- TODO screenshot: epic view -->
+
+#### Enabling the feature
+
+<!-- TODO: update with the feature flag name -->
+
+This feature comes with the `:feature_flag` feature flag disabled by default. However, in some cases
+this feature is incompatible with old configuration. To turn on the feature while configuration is
+migrated, ask a GitLab administrator with Rails console access to run the following command:
+
+```ruby
+Feature.disable(:feature_flag)
+```
 
 ## Other Issue actions
 
