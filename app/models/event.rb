@@ -220,6 +220,14 @@ class Event < ApplicationRecord
     created_action? && !target && target_type.nil?
   end
 
+  def created_wiki_page?
+    wiki_page? && action == CREATED
+  end
+
+  def updated_wiki_page?
+    wiki_page? && action == UPDATED
+  end
+
   def created_target?
     created_action? && target
   end
@@ -285,6 +293,10 @@ class Event < ApplicationRecord
       'destroyed'
     elsif commented_action?
       "commented on"
+    elsif created_wiki_page?
+      'created'
+    elsif updated_wiki_page?
+      'updated'
     elsif created_project_action?
       created_project_action_name
     else
