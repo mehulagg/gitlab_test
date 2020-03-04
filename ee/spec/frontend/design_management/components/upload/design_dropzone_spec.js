@@ -62,10 +62,10 @@ describe('Design management dropzone component', () => {
       ${'contains text'}           | ${mockDragEvent({ types: ['text'] })}
       ${'contains files and text'} | ${mockDragEvent({ types: ['Files', 'text'] })}
       ${'contains files'}          | ${mockDragEvent({ types: ['Files'] })}
-    `('renders correct template when drag event $description', ({ event }) => {
+    `('renders correct template when drag event $description', ({ eventPayload }) => {
       createComponent();
 
-      wrapper.trigger('dragenter', event);
+      wrapper.trigger('dragenter', eventPayload);
       return wrapper.vm.$nextTick().then(() => {
         expect(wrapper.element).toMatchSnapshot();
       });

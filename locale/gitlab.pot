@@ -6696,13 +6696,7 @@ msgstr ""
 msgid "DesignManagement|The maximum number of designs allowed to be uploaded is %{upload_limit}. Please try again."
 msgstr ""
 
-msgid "DesignManagement|The one place for your designs"
-msgstr ""
-
 msgid "DesignManagement|To enable design management, you'll need to  %{requirements_link_start}meet the requirements%{requirements_link_end}. If you need help, reach out to our %{support_link_start}support team%{support_link_end} for assistance."
-msgstr ""
-
-msgid "DesignManagement|Upload and view the latest designs for this issue. Consistent and easy to find, so everyone is up to date."
 msgstr ""
 
 msgid "DesignManagement|Upload skipped."
@@ -22360,6 +22354,9 @@ msgstr ""
 msgid "You are receiving this message because you are a GitLab administrator for %{url}."
 msgstr ""
 
+msgid "You are trying to upload something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc."
+msgstr ""
+
 msgid "You can %{linkStart}view the blob%{linkEnd} instead."
 msgstr ""
 
@@ -22628,9 +22625,6 @@ msgid "You tried to fork %{link_to_the_project} but it failed for the following 
 msgstr ""
 
 msgid "You will be removed from existing projects/groups"
-msgstr ""
-
-msgid "You tried uploading something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc."
 msgstr ""
 
 msgid "You will lose all changes you've made to this file. This action cannot be undone."

@@ -32,7 +32,7 @@ export default {
       return !files.some(file => !isValidDesignFile(file));
     },
     isValidDragDataType({ dataTransfer }) {
-      return Boolean(dataTransfer && !dataTransfer.types.some(t => t !== VALID_DATA_TRANSFER_TYPE));
+      return Boolean(dataTransfer && dataTransfer.types.some(t => t === VALID_DATA_TRANSFER_TYPE));
     },
     ondrop({ dataTransfer }) {
       this.dragCounter = 0;
@@ -55,9 +55,6 @@ export default {
     },
     ondragleave() {
       this.dragCounter -= 1;
-    },
-    ondragover() {
-      this.dragging = true;
     },
     openFileUpload() {
       this.$refs.fileUpload.$el.click();
@@ -112,13 +109,13 @@ export default {
     <transition name="design-dropzone-fade">
       <div
         v-show="dragging"
-        class="card design-dropzone--border design-dropzone--overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
+        class="card design-dropzone--border design-dropzone-overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
       >
         <div v-show="!isDragDataValid" class="mw-50 text-center">
           <h3>{{ __('Oh no!') }}</h3>
           <span>{{
             __(
-              'You tried uploading something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.',
+              'You are trying to upload something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.',
             )
           }}</span>
         </div>

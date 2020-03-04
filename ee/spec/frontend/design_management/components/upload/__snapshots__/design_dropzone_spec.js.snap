@@ -30,24 +30,25 @@ exports[`Design management dropzone component when dragging renders correct temp
     name="design-dropzone-fade"
   >
     <div
-      class="card design-dropzone--border design-dropzone--overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
+      class="card design-dropzone--border design-dropzone-overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
       style=""
     >
       <div
         class="mw-50 text-center"
+        style="display: none;"
       >
         <h3>
           Oh no!
         </h3>
          
         <span>
-          You tried uploading something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.
+          You are trying to upload something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.
         </span>
       </div>
        
       <div
         class="mw-50 text-center"
-        style="display: none;"
+        style=""
       >
         <h3>
           Incoming!
@@ -92,24 +93,25 @@ exports[`Design management dropzone component when dragging renders correct temp
     name="design-dropzone-fade"
   >
     <div
-      class="card design-dropzone--border design-dropzone--overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
+      class="card design-dropzone--border design-dropzone-overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
       style=""
     >
       <div
         class="mw-50 text-center"
+        style="display: none;"
       >
         <h3>
           Oh no!
         </h3>
          
         <span>
-          You tried uploading something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.
+          You are trying to upload something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.
         </span>
       </div>
        
       <div
         class="mw-50 text-center"
-        style="display: none;"
+        style=""
       >
         <h3>
           Incoming!
@@ -154,7 +156,7 @@ exports[`Design management dropzone component when dragging renders correct temp
     name="design-dropzone-fade"
   >
     <div
-      class="card design-dropzone--border design-dropzone--overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
+      class="card design-dropzone--border design-dropzone-overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
       style=""
     >
       <div
@@ -165,7 +167,7 @@ exports[`Design management dropzone component when dragging renders correct temp
         </h3>
          
         <span>
-          You tried uploading something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.
+          You are trying to upload something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.
         </span>
       </div>
        
@@ -216,7 +218,7 @@ exports[`Design management dropzone component when dragging renders correct temp
     name="design-dropzone-fade"
   >
     <div
-      class="card design-dropzone--border design-dropzone--overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
+      class="card design-dropzone--border design-dropzone-overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
       style=""
     >
       <div
@@ -227,7 +229,7 @@ exports[`Design management dropzone component when dragging renders correct temp
         </h3>
          
         <span>
-          You tried uploading something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.
+          You are trying to upload something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.
         </span>
       </div>
        
@@ -278,7 +280,7 @@ exports[`Design management dropzone component when dragging renders correct temp
     name="design-dropzone-fade"
   >
     <div
-      class="card design-dropzone--border design-dropzone--overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
+      class="card design-dropzone--border design-dropzone-overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
       style="display: none;"
     >
       <div
@@ -289,7 +291,7 @@ exports[`Design management dropzone component when dragging renders correct temp
         </h3>
          
         <span>
-          You tried uploading something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.
+          You are trying to upload something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.
         </span>
       </div>
        
@@ -340,7 +342,7 @@ exports[`Design management dropzone component when no slot provided renders defa
     name="design-dropzone-fade"
   >
     <div
-      class="card design-dropzone--border design-dropzone--overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
+      class="card design-dropzone--border design-dropzone-overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
       style="display: none;"
     >
       <div
@@ -351,7 +353,7 @@ exports[`Design management dropzone component when no slot provided renders defa
         </h3>
          
         <span>
-          You tried uploading something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.
+          You are trying to upload something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.
         </span>
       </div>
        
@@ -384,7 +386,7 @@ exports[`Design management dropzone component when slot provided renders dropzon
     name="design-dropzone-fade"
   >
     <div
-      class="card design-dropzone--border design-dropzone--overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
+      class="card design-dropzone--border design-dropzone-overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
       style="display: none;"
     >
       <div
@@ -395,7 +397,7 @@ exports[`Design management dropzone component when slot provided renders dropzon
         </h3>
          
         <span>
-          You tried uploading something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.
+          You are trying to upload something other than an image. Please upload a .png, .jpg, .jpeg, .gif, etc.
         </span>
       </div>
        

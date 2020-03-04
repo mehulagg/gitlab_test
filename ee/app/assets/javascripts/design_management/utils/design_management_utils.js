@@ -1,11 +1,5 @@
 import { uniqueId } from 'underscore';
-
-// WARNING: replace this with something
-// more sensical as per https://gitlab.com/gitlab-org/gitlab/issues/118611
-export const VALID_DESIGN_FILE_MIMETYPE = {
-  mimetype: 'image/*',
-  regex: /image\/.+/,
-};
+import VALID_DESIGN_FILE_MIMETYPE from '../constants';
 
 export const isValidDesignFile = ({ type }) =>
   (type.match(VALID_DESIGN_FILE_MIMETYPE.regex) || []).length > 0;

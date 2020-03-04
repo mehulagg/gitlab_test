@@ -95,16 +95,18 @@
   }
 }
 
-.design-dropzone--border {
+.design-dropzone-border {
   border: 2px dashed $gray-200;
 }
 
-.design-dropzone--card {
+.design-dropzone-card {
   transition: border $general-hover-transition-duration $general-hover-transition-curve;
 
-  &:focus {
+  &:focus,
+  &:active {
     outline: none;
     border: 2px dashed $purple;
+    color: $gl-text-color;
   }
 
   &:hover {
@@ -112,7 +114,7 @@
   }
 }
 
-.design-dropzone--overlay {
+.design-dropzone-overlay {
   border: 2px dashed $purple;
   top: 0;
   left: 0;

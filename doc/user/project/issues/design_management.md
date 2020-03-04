@@ -77,6 +77,11 @@ of the design, and will replace the previous version.
 Designs cannot be added if the issue has been moved, or its
 [discussion is locked](../../discussions/#lock-discussions).
 
+[Introduced](https://gitlab.com/gitlab-org/gitlab/issues/34353) in [GitLab Premium](https://about.gitlab.com/pricing/) 12.9,
+you can drag and drop designs onto the dedicated dropzone to upload them.
+
+![Drag and drop design uploads](img/design_drag_and_drop_uploads_v12_9.png)
+
 ### Skipped designs
 
 Designs with the same filename as an existing uploaded design _and_ whose content has not changed will be skipped.
