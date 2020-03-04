@@ -120,6 +120,9 @@ export default {
         !this.isPanelType('stacked-column')
       );
     },
+    editCustomMetricLink() {
+      return this.graphData.metrics[0].edit_path;
+    },
   },
   mounted() {
     this.refreshTitleTooltip();
@@ -195,7 +198,13 @@ export default {
             <template slot="button-content">
               <icon name="ellipsis_v" class="text-secondary" />
             </template>
-
+            <gl-dropdown-item
+              v-if="editCustomMetricLink"
+              ref="editMetricLink"
+              :href="editCustomMetricLink"
+            >
+              {{ s__('Metrics|Edit metric') }}
+            </gl-dropdown-item>
             <gl-dropdown-item
               v-if="logsPathWithTimeRange"
               ref="viewLogsLink"
