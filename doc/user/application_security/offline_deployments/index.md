@@ -4,7 +4,7 @@ type: reference, howto
 
 # Offline deployments
 
-This file is intended to describe air-gap deployments.
+This file is intended to describe how to operate Secure scanners offline.
 
 ## Overview
 
