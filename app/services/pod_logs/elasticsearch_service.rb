@@ -18,7 +18,11 @@ module PodLogs
     private
 
     def valid_params
-      %w(pod_name container_name search start end)
+      %w(pod_name container_name search start end cursor)
+    end
+
+    def success_return_keys
+      %i(status logs pod_name container_name pods cursor)
     end
 
     def check_times(result)
@@ -36,18 +40,28 @@ module PodLogs
       success(result)
     end
 
+    def check_cursor(result)
+      result[:cursor] = params['cursor'] if params.key?('cursor')
+
+      success(result)
+    end
+
     def pod_logs(result)
       client = cluster&.application_elastic_stack&.elasticsearch_client
       return error(_('Unable to connect to Elasticsearch')) unless client
 
-      result[:logs] = ::Gitlab::Elasticsearch::Logs.new(client).pod_logs(
+      response = ::Gitlab::Elasticsearch::Logs.new(client).pod_logs(
         namespace,
         result[:pod_name],
-        result[:container_name],
-        result[:search],
-        result[:start],
-        result[:end]
+        container_name: result[:container_name],
+        search: result[:search],
+        start_time: result[:start],
+        end_time: result[:end],
+        cursor: result[:cursor]
       )
+
+      result[:logs] = response[:logs]
+      result[:cursor] = response[:cursor]
 
       success(result)
     rescue Elasticsearch::Transport::Transport::ServerError => e

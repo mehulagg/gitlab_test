@@ -10,7 +10,7 @@ module Gitlab
         @client = client
       end
 
-      def pod_logs(namespace, pod_name, container_name = nil, search = nil, start_time = nil, end_time = nil)
+      def pod_logs(namespace, pod_name, container_name: nil, search: nil, start_time: nil, end_time: nil, cursor: nil)
         query = { bool: { must: [] } }.tap do |q|
           filter_pod_name(q, pod_name)
           filter_namespace(q, namespace)
@@ -19,7 +19,7 @@ module Gitlab
           filter_times(q, start_time, end_time)
         end
 
-        body = build_body(query)
+        body = build_body(query, cursor)
         response = @client.search body: body
 
         format_response(response)
@@ -27,8 +27,8 @@ module Gitlab
 
       private
 
-      def build_body(query)
-        {
+      def build_body(query, cursor = nil)
+        q = {
           query: query,
           # reverse order so we can query N-most recent records
           sort: [
@@ -40,6 +40,12 @@ module Gitlab
           # fixed limit for now, we should support paginated queries
           size: ::Gitlab::Elasticsearch::Logs::LOGS_LIMIT
         }
+
+        unless cursor.nil?
+          q[:search_after] = decode_cursor(cursor)
+        end
+
+        q
       end
 
       def filter_pod_name(query, pod_name)
@@ -100,7 +106,9 @@ module Gitlab
       end
 
       def format_response(response)
-        result = response.fetch("hits", {}).fetch("hits", []).map do |hit|
+        results = response.fetch("hits", {}).fetch("hits", [])
+        last_result = results.last
+        results = results.map do |hit|
           {
             timestamp: hit["_source"]["@timestamp"],
             message: hit["_source"]["message"]
@@ -108,7 +116,29 @@ module Gitlab
         end
 
         # we queried for the N-most recent records but we want them ordered oldest to newest
-        result.reverse
+        {
+          logs: results.reverse,
+          cursor: last_result.nil? ? nil : encode_cursor(last_result["sort"])
+        }
+      end
+
+      # we want to hide the implementation details of the search_after parameter from the frontend
+      # behind a single easily transmitted value
+      def encode_cursor(obj)
+        Base64.urlsafe_encode64(obj.to_json)
+      end
+
+      def decode_cursor(obj)
+        cursor = JSON.parse(Base64.urlsafe_decode64(obj))
+
+        if !cursor.instance_of?(Array) || cursor.length != 2 || !cursor.map {|i| i.instance_of?(Integer)}.reduce(:&)
+          raise "invalid cursor format"
+        end
+
+        cursor
+
+      rescue ArgumentError, JSON::ParserError => e # catches base64 decoder and json parser errors
+        raise "invalid cursor #{e}"
       end
     end
   end
