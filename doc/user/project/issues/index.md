@@ -166,8 +166,6 @@ requires [GraphQL](../../../api/graphql/index.md) to be enabled.
 
 ### Health status **(ULTIMATE)**
 
-<!-- This is the SSOT and will be linked to from other places. -->
-
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/36427) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.9.
 
 To help you report on and quickly respond to the health of individual issues and epics, GitLab shows
