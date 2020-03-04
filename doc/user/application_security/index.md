@@ -200,7 +200,12 @@ An approval is optional when a license report:
 
 ## Outdated Security Reports
 
-When Security Report generated for an MR becomes outdated, the Merge Request shows a warning message within the security widget and prompt user to take an appropriate action. This can happen in two scenarios:
+When a security report generated for a merge request becomes outdated, the MR shows a warning
+message in the security widget and prompts you to take an appropriate action.
+
+This can happen in two scenarios: your
+[source branch is behind the target branch](#source-branch-is-behind-the-target-branch), or the
+[target branch security report is out of date](#target-branch-security-report-is-out-of-date).
 
 ### Source branch is behind the target branch
 
