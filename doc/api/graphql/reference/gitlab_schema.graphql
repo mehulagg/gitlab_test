@@ -5914,6 +5914,13 @@ type Project {
   ): VulnerabilityConnection
 
   """
+  Counts for each severity of vulnerability (UNDEFINED, INFO, UNKNOWN, LOW,
+  MEDIUM, HIGH, CRITICAL). Available only when feature flag
+  first_class_vulnerabilities is enabled.
+  """
+  vulnerabilitiesSummary: VulnerabilitiesSummary
+
+  """
   Web URL of the project
   """
   webUrl: String
@@ -8274,6 +8281,46 @@ enum VisibilityScopesEnum {
   internal
   private
   public
+}
+
+"""
+Represents vulnerability counts by severity
+"""
+type VulnerabilitiesSummary {
+  """
+  The number of vulnerabilities of CRITICAL severity
+  """
+  critical: Int
+
+  """
+  The number of vulnerabilities of HIGH severity
+  """
+  high: Int
+
+  """
+  The number of vulnerabilities of INFO severity
+  """
+  info: Int
+
+  """
+  The number of vulnerabilities of LOW severity
+  """
+  low: Int
+
+  """
+  The number of vulnerabilities of MEDIUM severity
+  """
+  medium: Int
+
+  """
+  The number of vulnerabilities of UNDEFINED severity
+  """
+  undefined: Int
+
+  """
+  The number of vulnerabilities of UNKNOWN severity
+  """
+  unknown: Int
 }
 
 """

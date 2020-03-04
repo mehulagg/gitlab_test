@@ -2,7 +2,7 @@
 
 module Types
   class VulnerabilitiesSummaryType < BaseObject
-    graphql_name 'VulnerabilitySummary'
+    graphql_name 'VulnerabilitiesSummary'
     description 'Represents vulnerability counts by severity'
 
     authorize :read_vulnerability
@@ -13,7 +13,7 @@ module Types
     VULNERABILITY_SEVERITIES.each do |severity|
       field severity, GraphQL::INT_TYPE, null: true,
             description: "The number of vulnerabilities of #{severity.upcase} severity",
-            resolve: -> (obj, _args, _ctx) { obj.public_send(severity) || 0 }
+            resolve: -> (obj, _args, _ctx) { obj.public_send(severity) || 0 } # rubocop: disable GitlabSecurity/PublicSend. See https://gitlab.com/gitlab-org/gitlab/issues/208837
     end
   end
 end
