@@ -29,6 +29,12 @@ module Clusters
         end
       end
 
+      def helmfile_configuration
+        {
+          name => { 'installed' => true }
+        }
+      end
+
       private
 
       def use_tiller_ssl?

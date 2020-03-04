@@ -28,6 +28,10 @@ module Clusters
           true
         end
 
+        def helmfile_install_supported?
+          false
+        end
+
         def self.application_name
           self.to_s.demodulize.underscore
         end
