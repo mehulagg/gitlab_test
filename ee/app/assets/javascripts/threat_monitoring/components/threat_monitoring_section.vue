@@ -37,6 +37,10 @@ export default {
       type: String,
       required: true,
     },
+    chartEmptyStateTitle: {
+      type: String,
+      required: true,
+    },
     chartEmptyStateText: {
       type: String,
       required: true,
@@ -46,6 +50,10 @@ export default {
       required: true,
     },
     documentationPath: {
+      type: String,
+      required: true,
+    },
+    documentationAnchor: {
       type: String,
       required: true,
     },
@@ -78,6 +86,9 @@ export default {
         nominal: { title: this.nominalTitle, values: nominal },
       };
     },
+    documentationFullPath() {
+      return `${this.documentationPath}#${this.documentationAnchor}`;
+    },
   },
 };
 </script>
@@ -97,11 +108,12 @@ export default {
     <gl-empty-state
       v-else
       ref="chartEmptyState"
-      :title="s__('ThreatMonitoring|No traffic to display')"
+      :title="chartEmptyStateTitle"
       :description="chartEmptyStateText"
       :svg-path="chartEmptyStateSvgPath"
-      :primary-button-link="documentationPath"
+      :primary-button-link="documentationFullPath"
       :primary-button-text="__('Learn More')"
+      :compact="true"
     />
   </div>
 </template>
