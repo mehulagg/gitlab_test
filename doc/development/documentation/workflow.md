@@ -248,30 +248,30 @@ The following details should be included:
 - Include suggested titles of any pages or subsection headings, if applicable.
 - List any documentation that should be cross-linked, if applicable.
 
-### Optional Docs-with-code workflow
+### Keeping docs with code
 
 Currently, the Technical Writing team strongly encourages including documentation in
 the same merge request as the code that it relates to, but this is not strictly mandatory.
-It is still common for documentation to be added in an MR separate from the feature MR.
+It's still common for documentation to be added in an MR separate from the feature MR.
 
-Engineering teams may elect to adopt a **mandatory** "docs-with-code" workflow as part
-of their [definition of done](../contributing/merge_request_workflow.md#definition-of-done).
-When using this workflow, a team's engineers must include their docs in the **same**
+Engineering teams may elect to adopt a workflow where it is **mandatory** that docs
+are included in the code MR, as part of their [definition of done](../contributing/merge_request_workflow.md#definition-of-done).
+When a team adopts this workflow, that team's engineers must include their docs in the **same**
 MR as their feature code, at all times.
 
-#### Downsides of separate docs merge requests
+#### Downsides of separate docs MRs
 
 A workflow that has documentation separated into its own MR has many downsides:
 
 - If the documentation merges *before* the feature:
   - GitLab.com users might try to use the feature before it's released, driving support tickets.
   - If the feature is delayed, the documentation might not be pulled/reverted in time
-    and could be accidentally included in the self-hosted package for that release.
+    and could be accidentally included in the self-managed package for that release.
 - If the documentation merges *after* the feature:
-  - The feature might be included in the self-hosted package, but without any documentation
+  - The feature might be included in the self-managed package, but without any documentation
     if the docs MR misses the cutoff.
   - A feature might show up in the GitLab.com UI before any documentation exists for it.
-    Users surprised by this feature will search for documentation and will not find it,
+    Users surprised by this feature will search for documentation and won't find it,
     possibly driving support tickets.
 - Having two separate MRs means:
   - Two different people might be responsible for merging one feature, which is not workable
@@ -313,10 +313,10 @@ Including docs with code (and doing it early in the development process) has man
   as they will need to think about what examples a user will want, and will need to
   make sure the code they write implements that example properly.
 
-#### Docs-with-code workflow implementation
+#### Docs with code as a workflow
 
-In order to have docs-with-code as a mandatory workflow, some changes might need to
-happen to a team's current workflow:
+In order to have docs included with code as a mandatory workflow, some changes might
+need to happen to a team's current workflow:
 
 - The engineers must strive to include the docs early in the development process,
   to give ample time for review, not just from the technical writer, but also the
