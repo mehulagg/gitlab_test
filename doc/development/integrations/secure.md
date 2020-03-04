@@ -191,9 +191,8 @@ then `artifacts:reports:dependency_scanning` must be set to `depscan.json`.
 Following the POSIX exit code standard, the scanner will exit with 0 for success and any number from 1 to 255 for anything else.
 Success also includes the case when vulnerabilities are found.
 
-When executing a scanning job using the 
-[the Docker-in-Docker privileged mode](https://docs.gitlab.com/ee/user/application_security/sast/index.html#requirements),
-We reserve the following standard exit codes:
+When executing a scanning job using the [Docker-in-Docker privileged mode](https://docs.gitlab.com/ee/user/application_security/sast/index.html#requirements),
+we reserve the following standard exit codes:
 
 | Orchestrator Exit Code | Description                      |
 |------------------------|----------------------------------|
