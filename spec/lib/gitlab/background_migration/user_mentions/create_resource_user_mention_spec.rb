@@ -62,7 +62,7 @@ describe Gitlab::BackgroundMigration::UserMentions::CreateResourceUserMention, s
         # this not does not have actual mentions
         let!(:note4) { notes.create!(noteable_id: snippet1.id, noteable_type: 'Snippet', project_id: project.id, author_id: author.id, note: 'note3 for an email@somesite.com and some other rando @ ref' ) }
         # this note points to an innexistent noteable record in snippets table
-        let!(:note5) { notes.create!(noteable_id: snippets.maximum(:id) + 10, noteable_type: 'Snippet', project_id: project.id, author_id: author.id, note: description_mentions) }
+        let!(:note5) { notes.create!(noteable_id: non_existing_record_id, noteable_type: 'Snippet', project_id: project.id, author_id: author.id, note: description_mentions) }
 
         it_behaves_like 'resource notes mentions migration', MigrateSnippetNotesMentionsToDb, Snippet
       end

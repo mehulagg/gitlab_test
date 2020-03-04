@@ -25,7 +25,7 @@ describe MigrateSnippetNotesMentionsToDb, :migration, :sidekiq do
   let!(:resource4) { notes.create!(note: 'note for @root to check', noteable_id: snippet.id, noteable_type: 'Snippet') }
   let!(:user_mention) { snippet_user_mentions.create!(snippet_id: snippet.id, note_id: resource4.id, mentioned_users_ids: [1]) }
   # this note points to an innexistent noteable record
-  let!(:resource5) { notes.create!(note: 'note for @root to check', noteable_id: snippets.maximum(:id) + 10, noteable_type: 'Snippet') }
+  let!(:resource5) { notes.create!(note: 'note for @root to check', noteable_id: non_existing_record_id, noteable_type: 'Snippet') }
 
   it_behaves_like 'schedules resource mentions migration', Snippet, true
 end

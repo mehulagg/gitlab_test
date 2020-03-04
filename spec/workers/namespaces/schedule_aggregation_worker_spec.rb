@@ -50,7 +50,7 @@ describe Namespaces::ScheduleAggregationWorker, '#perform', :clean_gitlab_redis_
     it 'logs the error' do
       expect(Gitlab::SidekiqLogger).to receive(:error).once
 
-      worker.perform(12345)
+      worker.perform(non_existing_record_id)
     end
   end
 

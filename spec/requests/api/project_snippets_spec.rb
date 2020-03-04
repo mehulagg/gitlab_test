@@ -98,7 +98,7 @@ describe API::ProjectSnippets do
     end
 
     it 'returns 404 for invalid snippet id' do
-      get api("/projects/#{project.id}/snippets/1234", user)
+      get api("/projects/#{project.id}/snippets/#{non_existing_record_id}", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
       expect(json_response['message']).to eq('404 Not found')
@@ -306,21 +306,21 @@ describe API::ProjectSnippets do
     end
 
     it 'returns 400 when both code and content parameters specified' do
-      put api("/projects/#{snippet.project.id}/snippets/1234", admin), params: { code: 'some content', content: 'other content' }
+      put api("/projects/#{snippet.project.id}/snippets/#{non_existing_record_id}", admin), params: { code: 'some content', content: 'other content' }
 
       expect(response).to have_gitlab_http_status(:bad_request)
       expect(json_response['error']).to eq('code, content are mutually exclusive')
     end
 
     it 'returns 404 for invalid snippet id' do
-      put api("/projects/#{snippet.project.id}/snippets/1234", admin), params: { title: 'foo' }
+      put api("/projects/#{snippet.project.id}/snippets/#{non_existing_record_id}", admin), params: { title: 'foo' }
 
       expect(response).to have_gitlab_http_status(:not_found)
       expect(json_response['message']).to eq('404 Snippet Not Found')
     end
 
     it 'returns 400 for missing parameters' do
-      put api("/projects/#{project.id}/snippets/1234", admin)
+      put api("/projects/#{project.id}/snippets/#{non_existing_record_id}", admin)
 
       expect(response).to have_gitlab_http_status(:bad_request)
     end
@@ -402,7 +402,7 @@ describe API::ProjectSnippets do
     end
 
     it 'returns 404 for invalid snippet id' do
-      delete api("/projects/#{snippet.project.id}/snippets/1234", admin)
+      delete api("/projects/#{snippet.project.id}/snippets/#{non_existing_record_id}", admin)
 
       expect(response).to have_gitlab_http_status(:not_found)
       expect(json_response['message']).to eq('404 Snippet Not Found')
@@ -431,7 +431,7 @@ describe API::ProjectSnippets do
     end
 
     it 'returns 404 for invalid snippet id' do
-      get api("/projects/#{snippet.project.id}/snippets/1234/raw", admin)
+      get api("/projects/#{snippet.project.id}/snippets/#{non_existing_record_id}/raw", admin)
 
       expect(response).to have_gitlab_http_status(:not_found)
       expect(json_response['message']).to eq('404 Snippet Not Found')

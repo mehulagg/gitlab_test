@@ -21,8 +21,8 @@ describe ProjectExportWorker do
       it 'raises an exception when params are invalid' do
         expect_any_instance_of(::Projects::ImportExport::ExportService).not_to receive(:execute)
 
-        expect { subject.perform(1234, project.id, {}) }.to raise_exception(ActiveRecord::RecordNotFound)
-        expect { subject.perform(user.id, 1234, {}) }.to raise_exception(ActiveRecord::RecordNotFound)
+        expect { subject.perform(non_existing_record_id, project.id, {}) }.to raise_exception(ActiveRecord::RecordNotFound)
+        expect { subject.perform(user.id, non_existing_record_id, {}) }.to raise_exception(ActiveRecord::RecordNotFound)
         expect { subject.perform(user.id, project.id, { 'klass' => 'Whatever' }) }.to raise_exception(Gitlab::ImportExport::AfterExportStrategyBuilder::StrategyNotFoundError)
       end
     end

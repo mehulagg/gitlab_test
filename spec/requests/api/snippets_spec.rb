@@ -332,7 +332,7 @@ describe API::Snippets do
     it_behaves_like 'snippet updates'
 
     it 'returns 404 for invalid snippet id' do
-      put api("/snippets/1234", user), params: { title: 'foo' }
+      put api("/snippets/#{non_existing_record_id}", user), params: { title: 'foo' }
 
       expect(response).to have_gitlab_http_status(:not_found)
       expect(json_response['message']).to eq('404 Snippet Not Found')
@@ -346,7 +346,7 @@ describe API::Snippets do
     end
 
     it 'returns 400 for missing parameters' do
-      put api("/snippets/1234", user)
+      put api("/snippets/#{non_existing_record_id}", user)
 
       expect(response).to have_gitlab_http_status(:bad_request)
     end
@@ -415,7 +415,7 @@ describe API::Snippets do
     end
 
     it 'returns 404 for invalid snippet id' do
-      delete api("/snippets/1234", user)
+      delete api("/snippets/#{non_existing_record_id}", user)
 
       expect(response).to have_gitlab_http_status(:not_found)
       expect(json_response['message']).to eq('404 Snippet Not Found')
