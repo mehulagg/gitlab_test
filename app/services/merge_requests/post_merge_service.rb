@@ -22,14 +22,14 @@ module MergeRequests
       todo_service.merge_merge_request(merge_request, current_user)
       notification_service.merge_mr(merge_request, current_user)
 
+      # These operations are causing issues in the pipeline environment
+      # when wrapped in a transaction
+      merge_request.update_project_counter_caches
+      invalidate_cache_counts(merge_request, users: merge_request.assignees)
+
       # These operations need to happen transactionally
       ActiveRecord::Base.transaction do
         merge_request.mark_as_merged
-
-        # TODO: check if these are affected by merged/not merged state.
-        # If not, they can be moved to the "idempotent" block.
-        merge_request.update_project_counter_caches
-        invalidate_cache_counts(merge_request, users: merge_request.assignees)
       end
 
       # Anything after this point will be executed at-most-once. Less important activity only
