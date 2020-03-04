@@ -118,6 +118,60 @@ describe Boards::ListsController do
       end
     end
 
+    context 'with limit metric' do
+      let(:label) { create(:group_label, group: group, name: 'Development') }
+
+      shared_examples 'a limit metric response' do
+        it 'returns the created list with expected limit_metric' do
+          create_board_list user: user, board: board, label_id: label.id, params: { limit_metric: limit_metric }
+
+          expect(response).to match_response_schema('list', dir: 'ee')
+          expect(json_response).to include('limit_metric' => limit_metric.to_s)
+        end
+      end
+
+      context 'with licensed wip limits' do
+        it_behaves_like 'a limit metric response' do
+          let(:limit_metric) { :issue_weights }
+        end
+
+        it_behaves_like 'a limit metric response' do
+          let(:limit_metric) { :issue_count }
+        end
+
+        it_behaves_like 'a limit metric response' do
+          let(:limit_metric) { :all_metrics }
+        end
+
+        it_behaves_like 'a limit metric response' do
+          let(:limit_metric) { '' }
+        end
+
+        it_behaves_like 'a limit metric response' do
+          let(:limit_metric) { nil }
+        end
+
+        it 'fails with an unknown limit metric' do
+          create_board_list user: user, board: board, label_id: label.id, params: { limit_metric: 'foo' }
+
+          expect(response).to have_gitlab_http_status(:unprocessable_entity)
+        end
+      end
+
+      context 'without licensed wip limits' do
+        before do
+          stub_feature_flags(wip_limits: false)
+        end
+
+        it 'ignores limit metric setting' do
+          create_board_list user: user, board: board, label_id: label.id, params: { limit_metric: 'weight' }
+
+          expect(response).to match_response_schema('list', dir: 'ee')
+          expect(json_response).not_to include('limit_metric')
+        end
+      end
+    end
+
     context 'with invalid params' do
       context 'when label is nil' do
         it 'returns a not found 404 response' do
