@@ -521,6 +521,13 @@
   :resource_boundary: :unknown
   :weight: 2
   :idempotent: 
+- :name: jira_importer:jira_import_importer
+  :feature_category: :importers
+  :has_external_dependencies: true
+  :urgency: :default
+  :resource_boundary: :unknown
+  :weight: 1
+  :idempotent: 
 - :name: mail_scheduler:mail_scheduler_issue_due
   :feature_category: :issue_tracking
   :has_external_dependencies: 

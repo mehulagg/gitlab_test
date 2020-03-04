@@ -859,6 +859,8 @@ class Project < ApplicationRecord
       elsif gitlab_project_import?
         # Do not retry on Import/Export until https://gitlab.com/gitlab-org/gitlab-foss/issues/26189 is solved.
         RepositoryImportWorker.set(retry: false).perform_async(self.id)
+      elsif jira_import?
+        ::Gitlab::JiraImport::ImporterWorker.set(retry: false).perform_async(self.id)
       else
         RepositoryImportWorker.perform_async(self.id)
       end
@@ -938,7 +940,7 @@ class Project < ApplicationRecord
   end
 
   def import?
-    external_import? || forked? || gitlab_project_import? || bare_repository_import?
+    external_import? || forked? || gitlab_project_import? || jira_import? || bare_repository_import?
   end
 
   def external_import?
@@ -951,6 +953,10 @@ class Project < ApplicationRecord
 
   def bare_repository_import?
     import_type == 'bare_repository'
+  end
+
+  def jira_import?
+    import_type == 'jira'
   end
 
   def gitlab_project_import?

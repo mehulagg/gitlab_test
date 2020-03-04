@@ -340,7 +340,7 @@ module EE
     def add_import_job
       return if gitlab_custom_project_template_import?
 
-      if import? && !repository_exists?
+      if import? && !repository_exists? || jira_import?
         super
       elsif mirror?
         ::Gitlab::Metrics.add_event(:mirrors_scheduled)
