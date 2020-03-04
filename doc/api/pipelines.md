@@ -134,7 +134,7 @@ Example of response
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/24648) in GitLab 12.9.
 
-```
+```plaintext
 GET /projects/:id/pipelines/:pipeline_id/test_report
 ```
 
