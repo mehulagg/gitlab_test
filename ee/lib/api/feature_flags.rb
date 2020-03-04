@@ -58,6 +58,10 @@ module API
           authorize_create_feature_flag!
 
           param = declared_params(include_missing: false)
+
+          render_api_error!('Version 2 flags are not enabled for this project', 422) if Feature.disabled?(:feature_flags_new_version, user_project) &&
+            param[:version] == Operations::FeatureFlag.versions[:new_version_flag]
+
           param[:scopes_attributes] = param.delete(:scopes) if param.key?(:scopes)
           if param.key?(:strategies)
             param[:strategies_attributes] = param.delete(:strategies).map do |strategy|

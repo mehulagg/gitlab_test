@@ -384,6 +384,20 @@ describe API::FeatureFlags do
           environment_scope: 'staging'
         }])
       end
+
+      it 'returns a 422 when the feature flag is disabled' do
+        stub_feature_flags(feature_flags_new_version: false)
+        params = {
+          name: 'new-feature',
+          version: 2
+        }
+
+        post api("/projects/#{project.id}/feature_flags", user), params: params
+
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
+        expect(json_response).to eq({ 'message' => 'Version 2 flags are not enabled for this project' })
+        expect(project.operations_feature_flags.count).to eq(0)
+      end
     end
   end
 
