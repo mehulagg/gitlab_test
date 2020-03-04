@@ -74,7 +74,7 @@ export default {
     };
   },
   computed: {
-    ...mapGetters(['tags']),
+    ...mapGetters(['tags', 'filteredTags']),
     ...mapState([
       'tagsPagination',
       'isLoading',
@@ -345,9 +345,7 @@ export default {
       </template>
 
       <template #empty>
-        <template v-if="isLoading"> </template>
         <gl-empty-state
-          v-else
           :title="s__('ContainerRegistry|This image has no active tags')"
           :svg-path="config.noContainersImage"
           :description="
@@ -383,7 +381,7 @@ export default {
       ref="pagination"
       v-model="currentPage"
       :per-page="tagsPagination.perPage"
-      :total-items="tagsPagination.total"
+      :total-items="filteredTags.length"
       align="center"
       class="w-100"
     />

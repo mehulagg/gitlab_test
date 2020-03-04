@@ -33,8 +33,8 @@ export default {
     state.tagsPagination = pagination;
   },
 
-  [types.ADD_AJAX_REQUEST](state, { name, promise }) {
-    state.tagsRequests = { ...state.tagsRequests, [name]: promise };
+  [types.SET_AJAX_REQUESTS](state, tagsRequests) {
+    state.tagsRequests = tagsRequests;
   },
 
   [types.SET_TAGS_SEARCH](state, tagsSearch) {

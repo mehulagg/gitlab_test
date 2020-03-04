@@ -3,7 +3,6 @@ import VueRouter from 'vue-router';
 import { s__ } from '~/locale';
 import List from './pages/list.vue';
 import Details from './pages/details.vue';
-import { decodeAndParse } from './utils';
 
 Vue.use(VueRouter);
 
@@ -30,8 +29,9 @@ export default function createRouter(base, store) {
         path: '/:id',
         component: Details,
         meta: {
-          // nameGenerator: route => decodeAndParse(route.params.id).name,
-          nameGenerator: () => 'empty',
+          nameGenerator: state => {
+            return state?.imageDetails?.path;
+          },
         },
         beforeEnter: (to, from, next) => {
           store.dispatch('requestImageDetails', to.params.id);

@@ -28,7 +28,7 @@ export default {
       return {
         tagName,
         classList: [...classList],
-        text: this.$route.meta.nameGenerator(this.$route),
+        text: this.$route.meta.nameGenerator(this.$store.state),
         path: { to: this.$route.name },
       };
     },

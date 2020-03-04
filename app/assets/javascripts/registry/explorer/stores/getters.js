@@ -1,10 +1,15 @@
 import { orderBy } from 'lodash';
-// eslint-disable-next-line import/prefer-default-export
-export const tags = state => {
+
+export const filteredTags = state => {
+  return state.tagsSearch ? state.tags.filter(t => t.name.includes(state.tagsSearch)) : state.tags;
+};
+
+export const tags = (state, getters) => {
   const { page, perPage } = state.tagsPagination;
-  const filtered = state.tagsSearch
-    ? state.tags.filter(t => t.name.includes(state.tagsSearch))
-    : state.tags;
-  const sorted = orderBy(filtered, [state.tagsSorting.field], [state.tagsSorting.order]);
+  const sorted = orderBy(
+    getters.filteredTags,
+    [state.tagsSorting.field],
+    [state.tagsSorting.order],
+  );
   return sorted.slice((page - 1) * perPage, page * perPage);
 };
