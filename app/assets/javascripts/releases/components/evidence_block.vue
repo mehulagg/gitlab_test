@@ -23,18 +23,18 @@ export default {
       required: true,
     },
   },
-  computed: {
-    evidenceTitle() {
-      return sprintf(__('%{tag}-evidence.json'), { tag: this.release.tagName });
+  methods: {
+    evidenceTitle(index) {
+      return sprintf(__(`%{tag}-evidence-${index}.json`), { tag: this.release.tagName });
     },
-    evidenceUrl() {
-      return this.release.assets && this.release.assets.evidenceFilePath;
+    evidenceUrl(index) {
+      return this.release.assets.evidence[index].file_path;
     },
-    shortSha() {
-      return truncateSha(this.sha);
+    sha(index) {
+      return this.release.assets.evidence[index].evidence_sha;
     },
-    sha() {
-      return this.release.evidenceSha;
+    shortSha(index) {
+      return truncateSha(this.release.assets.evidence[index].evidence_sha);
     },
   },
 };
@@ -47,15 +47,21 @@ export default {
         {{ __('Evidence collection') }}
       </b>
     </div>
-    <div class="d-flex align-items-baseline">
+    <div
+      v-for="(evidence, index) in this.release.assets.evidence"
+      v-bind:key="index"
+      class="d-flex align-items-baseline"
+    >
       <gl-link
         v-gl-tooltip
         class="monospace"
         :title="__('Download evidence JSON')"
-        :download="evidenceTitle"
-        :href="evidenceUrl"
+        :download="evidenceTitle(index)"
+        :href="evidenceUrl(index)"
       >
-        <icon name="review-list" class="align-top append-right-4" /><span>{{ evidenceTitle }}</span>
+        <icon name="review-list" class="align-top append-right-4" /><span>
+          {{ evidenceTitle(index) }}
+        </span>
       </gl-link>
 
       <expand-button>

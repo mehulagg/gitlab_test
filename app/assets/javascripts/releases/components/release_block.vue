@@ -44,7 +44,9 @@ export default {
       return this.release.assets || {};
     },
     hasEvidence() {
-      return Boolean(this.release.evidenceSha);
+      return Boolean(
+        this.assets() && this.assets().evidence && this.assets().evidence[0].evidence_sha,
+      );
     },
     milestones() {
       return this.release.milestones || [];
