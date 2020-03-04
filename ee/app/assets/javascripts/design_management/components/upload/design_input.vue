@@ -8,7 +8,6 @@ export default {
 
 <template>
   <input
-    ref="designInput"
     type="file"
     name="design_file"
     :accept="$options.VALID_DESIGN_FILE_MIMETYPE"
