@@ -211,6 +211,14 @@ describe API::FeatureFlags do
   end
 
   describe 'POST /projects/:id/feature_flags' do
+    def default_scope
+      {
+        environment_scope: '*',
+        active: false,
+        strategies: [{ name: 'default', parameters: {} }].to_json
+      }
+    end
+
     subject do
       post api("/projects/#{project.id}/feature_flags", user), params: params
     end
@@ -304,14 +312,6 @@ describe API::FeatureFlags do
           expect(scope.strategies).to eq(JSON.parse(params[:scopes][index][:strategies]))
         end
       end
-    end
-
-    def default_scope
-      {
-        environment_scope: '*',
-        active: false,
-        strategies: [{ name: 'default', parameters: {} }].to_json
-      }
     end
   end
 
