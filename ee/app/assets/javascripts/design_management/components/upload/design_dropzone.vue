@@ -14,6 +14,16 @@ export default {
     GlSprintf,
     DesignInput,
   },
+  props: {
+    /**
+     * Return error message when invalid. If valid, return falsy value
+     */
+    validateUpload: {
+      required: false,
+      type: Function,
+      default: () => undefined,
+    },
+  },
   data() {
     return {
       dragCounter: 0,
@@ -32,16 +42,22 @@ export default {
     isValidDragDataType({ dataTransfer }) {
       return Boolean(dataTransfer && dataTransfer.types.some(t => t === VALID_DATA_TRANSFER_TYPE));
     },
-    ondrop({ dataTransfer }) {
+    ondrop(e) {
       this.dragCounter = 0;
       // User already had feedback when dropzone was active, so bail here
       if (!this.isDragDataValid) {
         return;
       }
 
-      const { files } = dataTransfer;
+      const { files } = e.dataTransfer || {};
       if (!this.isValidUpload(Array.from(files))) {
         createFlash(UPLOAD_DESIGN_INVALID_FILETYPE_ERROR);
+        return;
+      }
+
+      const invalidUploadMessage = this.validateUpload(e);
+      if (invalidUploadMessage) {
+        createFlash(invalidUploadMessage);
         return;
       }
 
