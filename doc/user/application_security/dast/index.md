@@ -363,8 +363,10 @@ Not all ZAProxy addons, for example the AJAX Spider, support running in an offli
 
 DAST can be executed on an offline air-gapped GitLab Ultimate installation using the following process:
 
-1. Host the DAST image `registry.gitlab.com/gitlab-org/security-products/dast:latest` in your local Docker container registry
-1. Add the following configuration to your `.gitlab-ci.yml` file. You will need to replace `image` to refer to the DAST Docker image hosted on your local Docker container registry:
+1. Host the DAST image `registry.gitlab.com/gitlab-org/security-products/dast:latest` in your local
+   Docker container registry.
+1. Add the following configuration to your `.gitlab-ci.yml` file. You must replace `image` to refer
+   to the DAST Docker image hosted on your local Docker container registry:
 
    ```yaml
    include:
