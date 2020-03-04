@@ -132,7 +132,7 @@ Example of response
 
 ### Get a pipeline's test report
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/24648) in GitLab 12.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/24648) in GitLab 12.9.
 
 ```
 GET /projects/:id/pipelines/:pipeline_id/test_report
