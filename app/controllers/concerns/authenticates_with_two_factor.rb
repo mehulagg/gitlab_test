@@ -23,7 +23,6 @@ module AuthenticatesWithTwoFactor
 
     session[:otp_user_id] = user.id
     setup_u2f_authentication(user)
-
     render 'devise/sessions/two_factor'
   end
 
@@ -41,7 +40,6 @@ module AuthenticatesWithTwoFactor
 
   def authenticate_with_two_factor
     user = self.resource = find_user
-
     return handle_locked_user(user) unless user.can?(:log_in)
 
     if user_params[:otp_attempt].present? && session[:otp_user_id]
@@ -70,13 +68,11 @@ module AuthenticatesWithTwoFactor
 
       remember_me(user) if user_params[:remember_me] == '1'
       user.save!
-
       sign_in(user, message: :two_factor_authenticated, event: :authentication)
     else
       user.increment_failed_attempts!
       Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=OTP")
       flash.now[:alert] = _('Invalid two-factor code.')
-
       prompt_for_two_factor(user)
     end
   end
@@ -89,13 +85,11 @@ module AuthenticatesWithTwoFactor
       session.delete(:challenge)
 
       remember_me(user) if user_params[:remember_me] == '1'
-
       sign_in(user, message: :two_factor_authenticated, event: :authentication)
     else
       user.increment_failed_attempts!
       Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=U2F")
       flash.now[:alert] = _('Authentication via U2F device failed.')
-
       prompt_for_two_factor(user)
     end
   end
@@ -115,9 +109,4 @@ module AuthenticatesWithTwoFactor
     end
   end
   # rubocop: enable CodeReuse/ActiveRecord
-
-  def invalid_login_redirect
-    flash.now[:alert] = _('Invalid login or password')
-    render :new
-  end
 end

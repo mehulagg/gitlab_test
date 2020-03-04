@@ -31,7 +31,7 @@ module Authenticates2FAForAdminMode
     elsif user && user.valid_password?(user_params[:password])
       admin_mode_prompt_for_two_factor(user)
     else
-      invalid_login_redirect
+      admin_mode_invalid_login_redirect
     end
   end
 
@@ -42,7 +42,7 @@ module Authenticates2FAForAdminMode
 
       user.save!
 
-      authenticate_with_two_factor_admin_mode
+      admin_mode_enable_skip_password
     else
       user.increment_failed_attempts!
       Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=OTP")
@@ -58,7 +58,7 @@ module Authenticates2FAForAdminMode
       session.delete(:otp_user_id)
       session.delete(:challenge)
 
-      authenticate_with_two_factor_admin_mode
+      admin_mode_enable_skip_password
     else
       user.increment_failed_attempts!
       Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=U2F")
@@ -70,11 +70,16 @@ module Authenticates2FAForAdminMode
 
   private
 
-  def authenticate_with_two_factor_admin_mode
+  def admin_mode_enable_skip_password
     if current_user_mode.enable_admin_mode!(skip_password_validation: true)
       redirect_to redirect_path, notice: _('Admin mode enabled')
     else
-      invalid_login_redirect
+      admin_mode_invalid_login_redirect
     end
+  end
+
+  def admin_mode_invalid_login_redirect
+    flash.now[:alert] = _('Invalid login or password')
+    render :new
   end
 end
