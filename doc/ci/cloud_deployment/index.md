@@ -61,3 +61,58 @@ To do so, please make sure to [push your image into your ECR
 repository](https://docs.aws.amazon.com/AmazonECR/latest/userguide/docker-push-ecr-image.html)
 before referencing it in your `.gitlab-ci.yml` file and replace the `image`
 path to point to your ECR.
+
+### Deployment to AWS ECS
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/207962) in GitLab 12.9.
+
+GitLab provides a series of [CI templates that you can include in your project](../yaml/README.md#include).
+As of GitLab 12.9, you can include the `Deploy-ECS.gitlab-ci.yml` template into
+your `.gitlab-ci.yml` file to automate deployments of your application to your
+[Amazon Elastic Container Service](https://aws.amazon.com/ecs/) (AWS ECS) cluster.
+
+Before getting started with this process, you need to have a cluster created on
+AWS ECS as well as all components (such as ECS service, ECS task
+definition, a database on AWS RDS, etc.) tied to it, depending of the
+characteristic your application stack. More information can be found
+[here](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html).
+
+Once you're all set up on AWS ECS, follow the next steps:
+1. Make sure your AWS credentials are set up as environment variables for your
+   project. You can follow [these steps above](#aws) to complete this setup.
+1. Set up the `build` and `review` stages in your project's `.gitlab-ci.yml`
+   file, such as:
+   ```yml
+   stages:
+     - build
+     - review
+
+   variables:
+     CI_AWS_ECS_CLUSTER: my-cluster
+     CI_AWS_ECS_SERVICE: my-service
+     CI_AWS_ECS_TASK_DEFINITION: my-task-definition
+
+   include:
+     - template: Jobs/Deploy-ECS.gitlab-ci.yml
+   ```
+   Three variables are defined in this snippet:
+     * `CI_AWS_ECS_CLUSTER`: this is the name of your AWS ECS cluster that you're
+      targeting for your deployments.
+     * `CI_AWS_ECS_SERVICE`: this is the name of the targeted service tied to
+      your AWS ECS cluster.
+     * `CI_AWS_ECS_TASK_DEFINITION`: this is the name of the task definition tied
+      to the service mentioned above.
+
+     You can find these names after selecting the targeted cluster on your [AWS ECS dashboard](https://console.aws.amazon.com/ecs/home):
+
+     ![AWS ECS dashboard](../img/ecs_dashboard_v12_9.png)
+
+1. Commit and push your updated `.gitlab-ci.yml` to your project's repository, and you're done!
+
+   Your application Docker image will be rebuild and be pushed to the GitLab registry.
+   Then the targeted task definition will be updated with the location of the new
+   Docker image, and a new revision will be created in ECS as result.
+
+   Finally, your AWS ECS service will be updated with the new revision of the
+   task definition, making the cluster to pull the newest version of your
+   application.
