@@ -14,7 +14,7 @@ a11y:
     - pwd
     - ls
     - cat /pa11y.json
-    - for url in $a11y_urls; do filename=$(echo $url | sed -E 's/https?:\/\///'); /node_modules/.bin/pa11y --config /pa11y.json $url; done
+    - for url in $a11y_urls; do filename=$(echo $url | sed -E 's/https?:\/\///' | sed -E 's/\//-/'); /node_modules/.bin/pa11y --config /pa11y.json $url | tee reports/$filename-accessibility.html > /dev/null; done
     - ls reports
     - ls reports/*-accessibility.html
   allow_failure: true
