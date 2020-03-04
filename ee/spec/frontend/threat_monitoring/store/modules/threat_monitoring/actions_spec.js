@@ -200,14 +200,14 @@ describe('Threat Monitoring actions', () => {
   });
 
   describe('setCurrentTimeWindow', () => {
-    const timeWindow = 'foo';
+    const timeWindow = { name: 'foo' };
 
     it('commits the SET_CURRENT_TIME_WINDOW mutation and dispatches fetchWafStatistics', () =>
       testAction(
         actions.setCurrentTimeWindow,
         timeWindow,
         state,
-        [{ type: types.SET_CURRENT_TIME_WINDOW, payload: timeWindow }],
+        [{ type: types.SET_CURRENT_TIME_WINDOW, payload: timeWindow.name }],
         [{ type: 'fetchWafStatistics' }],
       ));
   });
@@ -282,9 +282,9 @@ describe('Threat Monitoring actions', () => {
           .onGet(wafStatisticsEndpoint, {
             params: {
               environment_id: currentEnvironmentId,
-              from: '2019-01-01T00:00:00.000Z',
+              from: '2019-01-30T16:00:00.000Z',
               to: '2019-01-31T00:00:00.000Z',
-              interval: 'day',
+              interval: 'hour',
             },
           })
           .replyOnce(httpStatus.OK, mockWafStatisticsResponse);

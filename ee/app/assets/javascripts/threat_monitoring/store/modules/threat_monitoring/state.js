@@ -1,4 +1,4 @@
-import { DEFAULT_TIME_WINDOW } from '../../../constants';
+import { defaultTimeRange } from '~/vue_shared/constants';
 
 export default () => ({
   environmentsEndpoint: '',
@@ -6,7 +6,7 @@ export default () => ({
   isLoadingEnvironments: false,
   errorLoadingEnvironments: false,
   currentEnvironmentId: -1,
-  currentTimeWindow: DEFAULT_TIME_WINDOW,
+  currentTimeWindow: defaultTimeRange.name,
   wafStatisticsEndpoint: '',
   wafStatistics: {
     totalTraffic: 0,

@@ -5,7 +5,7 @@ import DateTimePicker from '~/vue_shared/components/date_time_picker/date_time_p
 import { scrollDown } from '~/lib/utils/scroll_utils';
 import LogControlButtons from './log_control_buttons.vue';
 
-import { timeRanges, defaultTimeRange } from '~/monitoring/constants';
+import { timeRanges, defaultTimeRange } from '~/vue_shared/constants';
 import { timeRangeFromUrl } from '~/monitoring/utils';
 
 export default {

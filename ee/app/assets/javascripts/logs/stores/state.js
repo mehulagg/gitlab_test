@@ -1,4 +1,4 @@
-import { timeRanges, defaultTimeRange } from '~/monitoring/constants';
+import { timeRanges, defaultTimeRange } from '~/vue_shared/constants';
 
 export default () => ({
   /**
