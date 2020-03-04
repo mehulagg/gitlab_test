@@ -334,6 +334,8 @@ git remote set-url origin git@<user_1.gitlab.com>:gitlab-org/gitlab.git
 
 ## Deploy keys
 
+> [Moved](https://gitlab.com/gitlab-org/gitlab/issues/199370) from **Settings > Repository** in GitLab 12.9.
+
 ### Per-repository deploy keys
 
 Deploy keys allow read-only or read-write (if enabled) access to one or
