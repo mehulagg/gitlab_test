@@ -70,6 +70,8 @@ class Packages::Package < ApplicationRecord
   scope :order_type_desc, -> { reorder('package_type DESC') }
   scope :order_project_name, -> { joins(:project).reorder('projects.name ASC') }
   scope :order_project_name_desc, -> { joins(:project).reorder('projects.name DESC') }
+  scope :order_project_path, -> { joins(:project).reorder('projects.path ASC, id ASC') }
+  scope :order_project_path_desc, -> { joins(:project).reorder('projects.path DESC, id DESC') }
 
   def self.for_projects(projects)
     return none unless projects.any?
@@ -107,6 +109,8 @@ class Packages::Package < ApplicationRecord
     when 'type_desc' then order_type_desc
     when 'project_name_asc' then order_project_name
     when 'project_name_desc' then order_project_name_desc
+    when 'project_path_asc' then order_project_path
+    when 'project_path_desc' then order_project_path_desc
     else
       order_created_desc
     end
@@ -125,7 +129,7 @@ class Packages::Package < ApplicationRecord
                            .id_not_in(id)
                            .exists?
 
-    errors.add(:base, 'Package recipe already exists') if recipe_exists
+    errors.add(:base, _('Package recipe already exists')) if recipe_exists
   end
 
   def valid_npm_package_name
@@ -140,7 +144,7 @@ class Packages::Package < ApplicationRecord
     return unless project
 
     if project.package_already_taken?(name)
-      errors.add(:base, 'Package already exists')
+      errors.add(:base, _('Package already exists'))
     end
   end
 end

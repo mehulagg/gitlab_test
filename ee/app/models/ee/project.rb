@@ -162,7 +162,7 @@ module EE
       validates :repository_size_limit,
         numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true }
       validates :max_pages_size,
-        numericality: { only_integer: true, greater_than: 0, allow_nil: true,
+        numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true,
                         less_than: ::Gitlab::Pages::MAX_SIZE / 1.megabyte }
 
       validates :approvals_before_merge, numericality: true, allow_blank: true
@@ -491,16 +491,6 @@ module EE
       username_only_import_url
     end
 
-    def change_repository_storage(new_repository_storage_key)
-      return if repository_read_only?
-      return if repository_storage == new_repository_storage_key
-
-      raise ArgumentError unless ::Gitlab.config.repositories.storages.key?(new_repository_storage_key)
-
-      run_after_commit { ProjectUpdateRepositoryStorageWorker.perform_async(id, new_repository_storage_key) }
-      self.repository_read_only = true
-    end
-
     def repository_and_lfs_size
       statistics.total_repository_size
     end
@@ -674,7 +664,7 @@ module EE
     def expire_caches_before_rename(old_path)
       super
 
-      design = ::Repository.new("#{old_path}#{EE::Gitlab::GlRepository::DESIGN.path_suffix}", self)
+      design = ::Repository.new("#{old_path}#{::EE::Gitlab::GlRepository::DESIGN.path_suffix}", self, shard: repository_storage, repo_type: ::EE::Gitlab::GlRepository::DESIGN)
 
       if design.exists?
         design.before_delete

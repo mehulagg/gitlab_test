@@ -89,6 +89,21 @@ be possible to downgrade in case of a vulnerability or bugs.
 In your migration, add a comment describing how the reversibility of the
 migration was tested.
 
+Some migrations cannot be reversed. For example, some data migrations can't be
+reversed because we lose information about the state of the database before the migration.
+You should still create a `down` method with a comment, explaining why
+the changes performed by the `up` method can't be reversed, so that the
+migration itself can be reversed, even if the changes performed during the migration
+can't be reversed:
+
+```ruby
+def down
+  # no-op
+
+  # comment explaining why changes performed by `up` cannot be reversed.
+end
+```
+
 ## Atomicity
 
 By default, migrations are single transaction. That is, a transaction is opened
@@ -384,6 +399,8 @@ For an empty table (such as a fresh one), it is recommended to use
 `add_reference` in a single-transaction migration, combining it with other
 operations that don't require `disable_ddl_transaction!`.
 
+You can read more about adding [foreign key constraints to an existing column](database/add_foreign_key_to_existing_column.md).
+
 ## Adding Columns With Default Values
 
 When adding columns with default values to non-empty tables, you must use
@@ -414,10 +431,6 @@ larger installations (e.g. GitLab.com). As a result, you should only add
 default values if absolutely necessary. There is a RuboCop cop that will fail if
 this method is used on some tables that are very large on GitLab.com, which
 would cause other issues.
-
-For a small table (such as an empty one or one with less than `1,000` records),
-use `add_column` and `change_column_default` in a single-transaction migration,
-combining it with other operations that don't require `disable_ddl_transaction!`.
 
 ## Changing the column default
 

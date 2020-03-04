@@ -102,15 +102,26 @@ Installing and configuring Prometheus to monitor applications is fairly straight
 #### Configuration in GitLab
 
 The actual configuration of Prometheus integration within GitLab is very simple.
-All you will need is the DNS or IP address of the Prometheus server you'd like
+All you will need is the domain name or IP address of the Prometheus server you'd like
 to integrate with.
 
-1. Navigate to the [Integrations page](project_services.md#accessing-the-project-services)
-1. Click the **Prometheus** service
-1. Provide the base URL of your server, for example `http://prometheus.example.com/`
-1. Click **Save changes**
+1. Navigate to the [Integrations page](project_services.md#accessing-the-project-services).
+1. Click the **Prometheus** service.
+1. Provide the domain name or IP address of your server, for example `http://prometheus.example.com/` or `http://192.0.2.1/`.
+1. Click **Save changes**.
 
 ![Configure Prometheus Service](img/prometheus_service_configuration.png)
+
+#### Thanos configuration in GitLab
+
+You can configure [Thanos](https://thanos.io/) as a drop-in replacement for Prometheus
+with GitLab. You will need the domain name or IP address of the Thanos server you'd like
+to integrate with.
+
+1. Navigate to the [Integrations page](project_services.md#accessing-the-project-services).
+1. Click the **Prometheus** service.
+1. Provide the domain name or IP address of your server, for example `http://thanos.example.com/` or `http://192.0.2.1/`.
+1. Click **Save changes**.
 
 ## Monitoring CI/CD Environments
 
@@ -191,7 +202,7 @@ For example:
            metrics:
              - id: metric_of_ages
                query_range: 'http_requests_total'
-               label: "Metric of Ages"
+               label: "Instance: {{instance}}, method: {{method}}"
                unit: "count"
    ```
 
@@ -267,9 +278,55 @@ The following tables outline the details of expected properties.
 | ------ | ------ | ------ | ------ |
 | `id` | string | no | Used for associating dashboard metrics with database records. Must be unique across dashboard configuration files. Required for [alerting](#setting-up-alerts-for-prometheus-metrics-ultimate) (support not yet enabled, see [relevant issue](https://gitlab.com/gitlab-org/gitlab-foss/issues/60319)). |
 | `unit` | string | yes | Defines the unit of the query's return data. |
-| `label` | string | no, but highly encouraged | Defines the legend-label for the query. Should be unique within the panel's metrics. |
+| `label` | string | no, but highly encouraged | Defines the legend-label for the query. Should be unique within the panel's metrics. Can contain time series labels as interpolated variables. |
 | `query` | string | yes if `query_range` is not defined | Defines the Prometheus query to be used to populate the chart/panel. If defined, the `query` endpoint of the [Prometheus API](https://prometheus.io/docs/prometheus/latest/querying/api/) will be utilized. |
 | `query_range` | string | yes if `query` is not defined | Defines the Prometheus query to be used to populate the chart/panel. If defined, the `query_range` endpoint of the [Prometheus API](https://prometheus.io/docs/prometheus/latest/querying/api/) will be utilized. |
+
+##### Dynamic labels
+
+Dynamic labels are useful when multiple time series are returned from a Prometheus query.
+
+When a static label is used and a query returns multiple time series, then all the legend items will be labeled the same, which makes identifying each time series difficult:
+
+```yaml
+metrics:
+  - id: metric_of_ages
+    query_range: 'http_requests_total'
+    label: "Time Series"
+    unit: "count"
+```
+
+This may render a legend like this:
+
+![repeated legend label chart](img/prometheus_dashboard_repeated_label.png)
+
+For labels to be more explicit, using variables that reflect time series labels is a good practice. The variables will be replaced by the values of the time series labels when the legend is rendered:
+
+```yaml
+metrics:
+  - id: metric_of_ages
+    query_range: 'http_requests_total'
+    label: "Instance: {{instance}}, method: {{method}}"
+    unit: "count"
+```
+
+The resulting rendered legend will look like this:
+
+![legend with label variables](img/prometheus_dashboard_label_variables.png)
+
+There is also a shorthand value for dynamic dashboard labels that make use of only one time series label:
+
+```yaml
+metrics:
+  - id: metric_of_ages
+    query_range: 'http_requests_total'
+    label: "Method"
+    unit: "count"
+```
+
+This will render into:
+
+![legend with label shorthand variable](img/prometheus_dashboard_label_variable_shorthand.png)
 
 #### Panel types for dashboards
 
@@ -290,7 +347,7 @@ panel_groups:
         metrics:
           - id: area_http_requests_total
             query_range: 'http_requests_total'
-            label: "Metric of Ages"
+            label: "Instance: {{instance}}, Method: {{method}}"
             unit: "count"
 ```
 
@@ -515,7 +572,9 @@ The options are:
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/122013) in GitLab 12.8.
 
-If you have [Kubernetes Pod Logs](../clusters/kubernetes_pod_logs.md) enabled, you can navigate from the charts in the dashboard to view Pod Logs by clicking on the context menu in the upper-right corner.
+If you have [Pod Logs](../clusters/kubernetes_pod_logs.md) enabled,
+you can navigate from the charts in the dashboard to view Pod Logs by
+clicking on the context menu in the upper-right corner.
 
 If you use the **Timeline zoom** function at the bottom of the chart, logs will narrow down to the time range you selected.
 
@@ -631,10 +690,19 @@ Prometheus server.
 
 It is possible to display metrics charts within [GitLab Flavored Markdown](../../markdown.md#gitlab-flavored-markdown-gfm). The maximum number of embeds allowed in a GitLab Flavored Markdown field is 100.
 
+This can be useful if you are sharing an application incident or performance
+metrics to others and want to have relevant information directly available.
+
 NOTE: **Note:**
 Requires [Kubernetes](prometheus_library/kubernetes.md) metrics.
 
-To display a metric chart, include a link of the form `https://<root_url>/<project>/-/environments/<environment_id>/metrics`.
+To display metric charts, include a link of the form `https://<root_url>/<project>/-/environments/<environment_id>/metrics`:
+
+![Embedded Metrics Markdown](img/embedded_metrics_markdown_v12_8.png)
+
+GitLab unfurls the link as an embedded metrics panel:
+
+![Embedded Metrics Rendered](img/embedded_metrics_rendered_v12_8.png)
 
 A single chart may also be embedded. You can generate a link to the chart via the dropdown located on the right side of the chart:
 
@@ -671,7 +739,7 @@ The sharing dialog within Grafana provides the link, as highlighted below.
 ![Grafana Direct Linked Rendered Image](img/grafana_live_embed.png)
 
 NOTE: **Note:**
-For this embed to display correctly, the Grafana instance must be available to the target user, either as a public dashboard or on the same network.
+For this embed to display correctly, the Grafana instance must be available to the target user, either as a public dashboard, or on the same network.
 
 Copy the link and add an image tag as [inline HTML](../../markdown.md#inline-html) in your Markdown. You may tweak the query parameters as required. For instance, removing the `&from=` and `&to=` parameters will give you a live chart. Here is example markup for a live chart from GitLab's public dashboard:
 
@@ -712,7 +780,7 @@ Prerequisites for embedding from a Grafana instance:
 1. In the upper-left corner of the page, select a specific value for each variable required for the queries in the chart.
    ![Select Query Variables](img/select_query_variables_v12_5.png)
 1. In Grafana, click on a panel's title, then click **Share** to open the panel's sharing dialog to the **Link** tab.
-1. If your Prometheus queries use Grafana's custom template variables, ensure that "Template variables" and "Current time range" options are toggled to **On**. Of Grafana global template variables, only `$__interval`, `$__from`, and `$__to` are currently supported.
+1. If your Prometheus queries use Grafana's custom template variables, ensure that "Template variables" option is toggled to **On**. Of Grafana global template variables, only `$__interval`, `$__from`, and `$__to` are currently supported. Toggle **On** the "Current time range" option to specify the time range of the chart. Otherwise, the default range will be the last 8 hours.
    ![Grafana Sharing Dialog](img/grafana_sharing_dialog_v12_5.png)
 1. Click **Copy** to copy the URL to the clipboard.
 1. In GitLab, paste the URL into a Markdown field and save. The chart will take a few moments to render.

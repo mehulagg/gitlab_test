@@ -32,6 +32,10 @@ module Resolvers
              required: false,
              description: 'Filter epics by labels'
 
+    argument :iid_starts_with, GraphQL::STRING_TYPE,
+             required: false,
+             description: 'Filter epics by iid for autocomplete'
+
     type Types::EpicType, null: true
 
     def resolve(**args)
@@ -41,6 +45,7 @@ module Resolvers
       return [] unless epic_feature_enabled?
 
       validate_timeframe_params!(args)
+      validate_iid_starts_with_query!(args)
 
       find_epics(transform_args(args))
     end
@@ -58,10 +63,10 @@ module Resolvers
     end
 
     def transform_args(args)
-      transformed             = args.dup
-      transformed[:group_id]  = group.id
-      transformed[:parent_id] = parent.id if parent
-      transformed[:iids]    ||= [args[:iid]].compact
+      transformed               = args.dup
+      transformed[:group_id]    = group.id
+      transformed[:parent_id]   = parent.id if parent
+      transformed[:iids]      ||= [args[:iid]].compact
 
       transformed
     end
@@ -81,6 +86,16 @@ module Resolvers
       parent.group
     end
 
+    def validate_iid_starts_with_query!(args)
+      return unless args[:iid_starts_with].present?
+
+      iid_starts_with_query = args[:iid_starts_with]
+
+      unless EpicsFinder.valid_iid_query?(iid_starts_with_query)
+        raise Gitlab::Graphql::Errors::ArgumentError, "#{iid_starts_with_query} is not a valid iid search term"
+      end
+    end
+
     # If we're querying for multiple iids and selecting issues, then ideally
     # we want to batch the epic and issue queries into one to reduce N+1 and memory.
     # https://gitlab.com/gitlab-org/gitlab/issues/11841
@@ -91,6 +106,11 @@ module Resolvers
       complexity += (args[:iids].count - 1) * child_complexity if args[:iids]
 
       complexity
+    end
+
+    # https://gitlab.com/gitlab-org/gitlab/issues/205312
+    def self.complexity_multiplier(args)
+      0.001
     end
   end
 end

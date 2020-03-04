@@ -17,7 +17,7 @@ describe API::Projects do
 
       get api('/projects', user)
 
-      expect(response).to have_gitlab_http_status(200)
+      expect(response).to have_gitlab_http_status(:ok)
     end
 
     context 'filters by verification flags' do
@@ -29,7 +29,7 @@ describe API::Projects do
 
         get api('/projects', user), params: { repository_checksum_failed: true }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(response).to include_pagination_headers
         expect(json_response).to be_an Array
         expect(json_response.length).to eq(1)
@@ -42,7 +42,7 @@ describe API::Projects do
 
         get api('/projects', user), params: { wiki_checksum_failed: true }
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(response).to include_pagination_headers
         expect(json_response).to be_an Array
         expect(json_response.length).to eq(1)
@@ -71,7 +71,7 @@ describe API::Projects do
         it 'includes the label in the response' do
           get api("/projects/#{project.id}", user)
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
           expect(json_response['external_authorization_classification_label']).to eq('the-label')
         end
       end
@@ -84,7 +84,7 @@ describe API::Projects do
         it 'returns a 404' do
           get api("/projects/#{project.id}", user)
 
-          expect(response).to have_gitlab_http_status(404)
+          expect(response).to have_gitlab_http_status(:not_found)
         end
       end
 
@@ -96,7 +96,7 @@ describe API::Projects do
         it 'does not include the label in the response' do
           get api("/projects/#{project.id}", user)
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
           expect(json_response['external_authorization_classification_label']).to be_nil
         end
       end
@@ -118,7 +118,7 @@ describe API::Projects do
           it 'returns 200' do
             get api("/projects/#{project.id}", user)
 
-            expect(response).to have_gitlab_http_status(200)
+            expect(response).to have_gitlab_http_status(:ok)
           end
         end
 
@@ -130,13 +130,13 @@ describe API::Projects do
           it 'returns 404 for request from ip not in the range' do
             get api("/projects/#{project.id}", user)
 
-            expect(response).to have_gitlab_http_status(404)
+            expect(response).to have_gitlab_http_status(:not_found)
           end
 
           it 'returns 200 for request from ip in the range' do
             get api("/projects/#{project.id}", user), headers: { 'REMOTE_ADDR' => '192.168.0.0' }
 
-            expect(response).to have_gitlab_http_status(200)
+            expect(response).to have_gitlab_http_status(:ok)
           end
         end
       end
@@ -197,27 +197,6 @@ describe API::Projects do
         expect(json_response).not_to have_key 'marked_for_deletion_at'
       end
     end
-
-    describe 'repository_storage attribute' do
-      context 'when authenticated as an admin' do
-        let(:admin) { create(:admin) }
-
-        it 'returns repository_storage attribute' do
-          get api("/projects/#{project.id}", admin)
-
-          expect(response).to have_gitlab_http_status(200)
-          expect(json_response['repository_storage']).to eq(project.repository_storage)
-        end
-      end
-
-      context 'when authenticated as a regular user' do
-        it 'does not return repository_storage attribute' do
-          get api("/projects/#{project.id}", user)
-
-          expect(json_response).not_to have_key('repository_storage')
-        end
-      end
-    end
   end
 
   # Assumes the following variables are defined:
@@ -239,7 +218,7 @@ describe API::Projects do
         expect { api_call }.to change { Project.count }.by(1)
       end
 
-      expect(response).to have_gitlab_http_status(201)
+      expect(response).to have_gitlab_http_status(:created)
 
       project = Project.find(json_response['id'])
       expect(project.name).to eq(new_project_name)
@@ -251,7 +230,7 @@ describe API::Projects do
 
       expect { api_call }.not_to change { Project.count }
 
-      expect(response).to have_gitlab_http_status(400)
+      expect(response).to have_gitlab_http_status(:bad_request)
       expect(json_response['message']['template_name']).to eq(["'bogus-template' is unknown or invalid"])
     end
 
@@ -262,7 +241,7 @@ describe API::Projects do
 
       expect { api_call }.not_to change { Project.count }
 
-      expect(response).to have_gitlab_http_status(400)
+      expect(response).to have_gitlab_http_status(:bad_request)
       expect(json_response['message']['template_project_id']).to eq(["#{new_project.id} is unknown or invalid"])
     end
   end
@@ -397,7 +376,7 @@ describe API::Projects do
       it 'creates new project with pull mirroring set up' do
         post api('/projects', user), params: mirror_params
 
-        expect(response).to have_gitlab_http_status(201)
+        expect(response).to have_gitlab_http_status(:created)
         expect(Project.first).to have_attributes(
           mirror: true,
           import_url: import_url,
@@ -412,7 +391,7 @@ describe API::Projects do
         expect { post api('/projects', user), params: mirror_params }
           .to change { Project.count }.by(1)
 
-        expect(response).to have_gitlab_http_status(201)
+        expect(response).to have_gitlab_http_status(:created)
         expect(Project.first).to have_attributes(
           mirror: false,
           import_url: import_url,
@@ -429,7 +408,7 @@ describe API::Projects do
         it 'ignores the mirroring options' do
           post api('/projects', user), params: mirror_params
 
-          expect(response).to have_gitlab_http_status(201)
+          expect(response).to have_gitlab_http_status(:created)
           expect(Project.first.mirror?).to be false
         end
 
@@ -438,7 +417,7 @@ describe API::Projects do
 
           post api('/projects', admin), params: mirror_params
 
-          expect(response).to have_gitlab_http_status(201)
+          expect(response).to have_gitlab_http_status(:created)
           expect(Project.first).to have_attributes(
             mirror: true,
             import_url: import_url,
@@ -462,7 +441,7 @@ describe API::Projects do
       it 'updates the classification label' do
         put(api("/projects/#{project.id}", user), params: { external_authorization_classification_label: 'new label' })
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(project.reload.external_authorization_classification_label).to eq('new label')
       end
     end
@@ -480,55 +459,11 @@ describe API::Projects do
       it 'returns 200' do
         subject
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
       end
 
       it 'enables the service_desk' do
         expect { subject }.to change { project.reload.service_desk_enabled }.to(true)
-      end
-    end
-
-    context 'when updating repository storage' do
-      let(:unknown_storage) { 'new-storage' }
-      let(:new_project) { create(:project, :repository, namespace: user.namespace) }
-
-      context 'as a user' do
-        it 'returns 200 but does not change repository_storage' do
-          expect do
-            Sidekiq::Testing.fake! do
-              put(api("/projects/#{new_project.id}", user), params: { repository_storage: unknown_storage, issues_enabled: false })
-            end
-          end.not_to change(ProjectUpdateRepositoryStorageWorker.jobs, :size)
-
-          expect(response).to have_gitlab_http_status(200)
-          expect(json_response['issues_enabled']).to eq(false)
-          expect(new_project.reload.repository.storage).to eq('default')
-        end
-      end
-
-      context 'as an admin' do
-        include_context 'custom session'
-
-        let(:admin) { create(:admin) }
-
-        it 'returns 500 when repository storage is unknown' do
-          put(api("/projects/#{new_project.id}", admin), params: { repository_storage: unknown_storage })
-
-          expect(response).to have_gitlab_http_status(500)
-          expect(json_response['message']).to match('ArgumentError')
-        end
-
-        it 'returns 200 when repository storage has changed' do
-          stub_storage_settings('extra' => { 'path' => 'tmp/tests/extra_storage' })
-
-          expect do
-            Sidekiq::Testing.fake! do
-              put(api("/projects/#{new_project.id}", admin), params: { repository_storage: 'extra' })
-            end
-          end.to change(ProjectUpdateRepositoryStorageWorker.jobs, :size).by(1)
-
-          expect(response).to have_gitlab_http_status(200)
-        end
       end
     end
 
@@ -553,7 +488,7 @@ describe API::Projects do
         it 'does not update mirror related attributes' do
           put(api("/projects/#{project.id}", user), params: mirror_params)
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
           expect(project.reload.mirror).to be false
         end
 
@@ -566,7 +501,7 @@ describe API::Projects do
 
           put(api("/projects/#{project.id}", admin), params: mirror_params)
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
           expect(project.reload).to have_attributes(
             mirror: true,
             import_url: import_url,
@@ -583,7 +518,7 @@ describe API::Projects do
 
         put(api("/projects/#{project.id}", user), params: mirror_params)
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(project.reload).to have_attributes(
           mirror: true,
           import_url: import_url,
@@ -599,7 +534,7 @@ describe API::Projects do
 
         put(api("/projects/#{project.id}", user), params: mirror_params)
 
-        expect(response).to have_gitlab_http_status(200)
+        expect(response).to have_gitlab_http_status(:ok)
         expect(project.reload.mirror).to be false
       end
 
@@ -610,7 +545,7 @@ describe API::Projects do
 
         put(api("/projects/#{project.id}", user), params: mirror_params)
 
-        expect(response).to have_gitlab_http_status(400)
+        expect(response).to have_gitlab_http_status(:bad_request)
         expect(json_response["message"]["mirror_user_id"].first).to eq("is invalid")
       end
 
@@ -637,7 +572,7 @@ describe API::Projects do
         it 'disables project packages feature' do
           put(api("/projects/#{project.id}", user), params: { packages_enabled: false })
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
           expect(project.reload.packages_enabled).to be false
           expect(json_response['packages_enabled']).to eq(false)
         end
@@ -651,7 +586,7 @@ describe API::Projects do
         it 'disables project packages feature but does not return packages_enabled attribute' do
           put(api("/projects/#{project.id}", user), params: { packages_enabled: false })
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
           expect(project.reload.packages_enabled).to be false
           expect(json_response['packages_enabled']).to be_nil
         end
@@ -665,7 +600,7 @@ describe API::Projects do
 
           put api("/projects/#{project.id}", user), params: project_param
 
-          expect(response).to have_gitlab_http_status(200)
+          expect(response).to have_gitlab_http_status(:ok)
           expect(json_response['approvals_before_merge']).to eq(3)
         end
       end
@@ -683,7 +618,7 @@ describe API::Projects do
 
         post api("/projects/#{project.id}/restore", user)
 
-        expect(response).to have_gitlab_http_status(201)
+        expect(response).to have_gitlab_http_status(:created)
         expect(json_response['archived']).to be_falsey
         expect(json_response['marked_for_deletion_at']).to be_falsey
       end
@@ -694,7 +629,7 @@ describe API::Projects do
 
         post api("/projects/#{project.id}/restore", user)
 
-        expect(response).to have_gitlab_http_status(400)
+        expect(response).to have_gitlab_http_status(:bad_request)
         expect(json_response["message"]).to eq(message)
       end
     end
@@ -707,7 +642,7 @@ describe API::Projects do
       it 'returns error' do
         post api("/projects/#{project.id}/restore", user)
 
-        expect(response).to have_gitlab_http_status(404)
+        expect(response).to have_gitlab_http_status(:not_found)
       end
     end
   end
@@ -721,7 +656,7 @@ describe API::Projects do
       it 'marks project for deletion' do
         delete api("/projects/#{project.id}", user)
 
-        expect(response).to have_gitlab_http_status(202)
+        expect(response).to have_gitlab_http_status(:accepted)
         expect(project.reload.marked_for_deletion?).to be_truthy
       end
 
@@ -731,7 +666,7 @@ describe API::Projects do
 
         delete api("/projects/#{project.id}", user)
 
-        expect(response).to have_gitlab_http_status(400)
+        expect(response).to have_gitlab_http_status(:bad_request)
         expect(json_response["message"]).to eq(message)
       end
 
@@ -740,7 +675,7 @@ describe API::Projects do
           allow(Gitlab::CurrentSettings).to receive(:deletion_adjourned_period).and_return(0)
           delete api("/projects/#{project.id}", user)
 
-          expect(response).to have_gitlab_http_status(202)
+          expect(response).to have_gitlab_http_status(:accepted)
           expect(project.reload.pending_delete).to eq(true)
         end
       end
@@ -754,7 +689,7 @@ describe API::Projects do
       it 'deletes project' do
         delete api("/projects/#{project.id}", user)
 
-        expect(response).to have_gitlab_http_status(202)
+        expect(response).to have_gitlab_http_status(:accepted)
         expect(project.reload.pending_delete).to eq(true)
       end
     end

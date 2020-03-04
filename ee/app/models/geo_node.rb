@@ -221,7 +221,20 @@ class GeoNode < ApplicationRecord
   def job_artifacts
     return Ci::JobArtifact.all unless selective_sync?
 
-    Ci::JobArtifact.project_id_in(projects)
+    query = Ci::JobArtifact.project_id_in(projects).select(:id)
+    cte = Gitlab::SQL::CTE.new(:restricted_job_artifacts, query)
+    job_artifact_table = Ci::JobArtifact.arel_table
+
+    inner_join_restricted_job_artifacts =
+      cte.table
+        .join(job_artifact_table, Arel::Nodes::InnerJoin)
+        .on(cte.table[:id].eq(job_artifact_table[:id]))
+        .join_sources
+
+    Ci::JobArtifact
+      .with(cte.to_arel)
+      .from(cte.table)
+      .joins(inner_join_restricted_job_artifacts)
   end
 
   def container_repositories
@@ -330,14 +343,14 @@ class GeoNode < ApplicationRecord
   # Prevent locking yourself out
   def require_current_node_to_be_primary
     if name == self.class.current_node_name
-      errors.add(:base, 'Current node must be the primary node or you will be locking yourself out')
+      errors.add(:base, _('Current node must be the primary node or you will be locking yourself out'))
     end
   end
 
   # Prevent creating a Geo Node unless Hashed Storage is enabled
   def require_hashed_storage
     unless Gitlab::CurrentSettings.hashed_storage_enabled?
-      errors.add(:base, 'Hashed Storage must be enabled to use Geo')
+      errors.add(:base, _('Hashed Storage must be enabled to use Geo'))
     end
   end
 

@@ -36,21 +36,35 @@ describe Gitlab::Checks::DiffCheck do
       end
 
       before do
-        project.add_developer(code_owner)
         allow(project.repository).to receive(:code_owners_blob)
           .with(ref: codeowner_lookup_ref)
           .and_return(codeowner_blob)
       end
 
       context "the MR contains a matching file path" do
-        it "return an error message" do
-          expect(subject.send(:validate_code_owners)
-            .call(["docs/CODEOWNERS", "README"])).not_to be_nil
+        let(:validation_result) do
+          subject.send(:validate_code_owners).call(["docs/CODEOWNERS", "README"])
+        end
+
+        context "and the user is not listed as a code owner" do
+          it "returns an error message" do
+            expect(validation_result).to include("Pushes to protected branches")
+          end
+        end
+
+        context "and the user is listed as a code owner" do
+          # `user` is set as the owner of the incoming change by the shared
+          #   context found in 'push rules checks context'
+          let(:codeowner_content) { "* @#{user.username}" }
+
+          it "returns nil" do
+            expect(validation_result).to be_nil
+          end
         end
       end
 
       context "the MR doesn't contain a matching file path" do
-        it "doesn't raise an exception" do
+        it "returns nil" do
           expect(subject.send(:validate_code_owners)
             .call(["docs/SAFE_FILE_NAME", "README"])).to be_nil
         end
@@ -108,13 +122,13 @@ describe Gitlab::Checks::DiffCheck do
         it_behaves_like 'check ignored when push rule unlicensed'
 
         it "returns an error if a new or renamed filed doesn't match the file name regex" do
-          expect { subject.validate! }.to raise_error(Gitlab::GitAccess::UnauthorizedError, "File name README was blacklisted by the pattern READ*.")
+          expect { subject.validate! }.to raise_error(Gitlab::GitAccess::ForbiddenError, "File name README was blacklisted by the pattern READ*.")
         end
 
         it 'returns an error if the regex is invalid' do
           push_rule.file_name_regex = '+'
 
-          expect { subject.validate! }.to raise_error(Gitlab::GitAccess::UnauthorizedError, /\ARegular expression '\+' is invalid/)
+          expect { subject.validate! }.to raise_error(Gitlab::GitAccess::ForbiddenError, /\ARegular expression '\+' is invalid/)
         end
       end
 
@@ -164,7 +178,7 @@ describe Gitlab::Checks::DiffCheck do
               project.repository.commits_between(old_rev, new_rev)
             )
 
-            expect { subject.validate! }.to raise_error(Gitlab::GitAccess::UnauthorizedError, /File name #{file_path} was blacklisted by the pattern/)
+            expect { subject.validate! }.to raise_error(Gitlab::GitAccess::ForbiddenError, /File name #{file_path} was blacklisted by the pattern/)
           end
         end
       end
@@ -177,7 +191,7 @@ describe Gitlab::Checks::DiffCheck do
       it 'returns an error if the changes update a path locked by another user' do
         path_lock
 
-        expect { subject.validate! }.to raise_error(Gitlab::GitAccess::UnauthorizedError, "The path 'README' is locked by #{path_lock.user.name}")
+        expect { subject.validate! }.to raise_error(Gitlab::GitAccess::ForbiddenError, "The path 'README' is locked by #{path_lock.user.name}")
       end
 
       it 'memoizes the validate_path_locks? call' do

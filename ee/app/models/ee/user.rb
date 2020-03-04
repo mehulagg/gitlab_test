@@ -131,7 +131,7 @@ module EE
 
     def cannot_be_admin_and_auditor
       if admin? && auditor?
-        errors.add(:admin, "user cannot also be an Auditor.")
+        errors.add(:admin, 'user cannot also be an Auditor.')
       end
     end
 
@@ -262,15 +262,11 @@ module EE
     end
 
     def using_gitlab_com_seat?(namespace)
-      return false unless ::Gitlab.com?
-      return false unless namespace.present?
-      return false if namespace.free_plan?
-
-      if namespace.gold_plan?
-        highest_role > ::Gitlab::Access::GUEST
-      else
-        true
-      end
+      ::Gitlab.com? &&
+      namespace.present? &&
+      active? &&
+      !namespace.root_ancestor.free_plan? &&
+      namespace.root_ancestor.billed_user_ids.include?(self.id)
     end
 
     def group_sso?(group)

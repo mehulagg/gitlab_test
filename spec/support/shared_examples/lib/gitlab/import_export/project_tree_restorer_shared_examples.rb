@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# Shared examples for ProjectTreeRestorer (shared to allow the testing
+# Shared examples for Project::TreeRestorer (shared to allow the testing
 # of EE-specific features)
 RSpec.shared_examples 'restores project successfully' do |**results|
   it 'restores the project' do
@@ -28,6 +28,14 @@ RSpec.shared_examples 'restores project successfully' do |**results|
 
   it 'has issues' do
     expect(project.issues.size).to eq(results.fetch(:issues, 0))
+  end
+
+  it 'has ci pipelines' do
+    expect(project.ci_pipelines.size).to eq(results.fetch(:ci_pipelines, 0))
+  end
+
+  it 'has external pull requests' do
+    expect(project.external_pull_requests.size).to eq(results.fetch(:external_pull_requests, 0))
   end
 
   # This test is quarantined because the use of magic number 999 causes failure on CI

@@ -9,7 +9,7 @@ User will need at least maintainer access to use these endpoints.
 
 Returns a list of project clusters.
 
-```
+```plaintext
 GET /projects/:id/clusters
 ```
 
@@ -179,8 +179,8 @@ Parameters:
 | `id` | integer | yes | The ID of the project owned by the authenticated user |
 | `name` | String | yes | The name of the cluster |
 | `domain` | String | no | The [base domain](../user/project/clusters/index.md#base-domain) of the cluster |
-| `enabled` | Boolean | no | Determines if cluster is active or not, defaults to true |
-| `managed` | Boolean | no | Determines if GitLab will manage namespaces and service accounts for this cluster, defaults to true |
+| `enabled` | boolean | no | Determines if cluster is active or not, defaults to true |
+| `managed` | boolean | no | Determines if GitLab will manage namespaces and service accounts for this cluster, defaults to true |
 | `platform_kubernetes_attributes[api_url]` | String | yes | The URL to access the Kubernetes API |
 | `platform_kubernetes_attributes[token]` | String | yes | The token to authenticate against Kubernetes |
 | `platform_kubernetes_attributes[ca_cert]` | String | no | TLS certificate (needed if API is using a self-signed TLS certificate |
@@ -368,7 +368,7 @@ Example response:
 
 Deletes an existing project cluster.
 
-```
+```plaintext
 DELETE /projects/:id/clusters/:cluster_id
 ```
 

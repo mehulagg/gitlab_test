@@ -25,6 +25,7 @@ module API
       end
 
       def verify_update_project_attrs!(project, attrs)
+        attrs.delete(:repository_storage) unless can?(current_user, :change_repository_storage, project)
       end
 
       def delete_project(user_project)
@@ -494,7 +495,9 @@ module API
         requires :file, type: File, desc: 'The file to be uploaded' # rubocop:disable Scalability/FileUploads
       end
       post ":id/uploads" do
-        UploadService.new(user_project, params[:file]).execute.to_h
+        upload = UploadService.new(user_project, params[:file]).execute
+
+        present upload, with: Entities::ProjectUpload
       end
 
       desc 'Get the users list of a project' do

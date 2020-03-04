@@ -8,7 +8,7 @@ Every API call to search must be authenticated.
 
 Search globally across the GitLab instance.
 
-```
+```plaintext
 GET /search
 ```
 
@@ -410,7 +410,7 @@ Search within the specified group.
 
 If a user is not a member of a group and the group is private, a `GET` request on that group will result to a `404` status code.
 
-```
+```plaintext
 GET /groups/:id/search
 ```
 
@@ -751,7 +751,7 @@ Search within the specified project.
 
 If a user is not a member of a project and the project is private, a `GET` request on that project will result to a `404` status code.
 
-```
+```plaintext
 GET /projects/:id/search
 ```
 

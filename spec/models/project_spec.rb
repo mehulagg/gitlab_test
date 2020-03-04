@@ -72,6 +72,7 @@ describe Project do
     it { is_expected.to have_one(:project_setting) }
     it { is_expected.to have_many(:commit_statuses) }
     it { is_expected.to have_many(:ci_pipelines) }
+    it { is_expected.to have_many(:ci_refs) }
     it { is_expected.to have_many(:builds) }
     it { is_expected.to have_many(:build_trace_section_names)}
     it { is_expected.to have_many(:runner_projects) }
@@ -1622,6 +1623,29 @@ describe Project do
     end
   end
 
+  describe '#default_branch_protected?' do
+    using RSpec::Parameterized::TableSyntax
+
+    let_it_be(:project) { create(:project) }
+
+    subject { project.default_branch_protected? }
+
+    where(:default_branch_protection_level, :result) do
+      Gitlab::Access::PROTECTION_NONE           | false
+      Gitlab::Access::PROTECTION_DEV_CAN_PUSH   | false
+      Gitlab::Access::PROTECTION_DEV_CAN_MERGE  | true
+      Gitlab::Access::PROTECTION_FULL           | true
+    end
+
+    with_them do
+      before do
+        expect(project.namespace).to receive(:default_branch_protection).and_return(default_branch_protection_level)
+      end
+
+      it { is_expected.to eq(result) }
+    end
+  end
+
   describe '#pages_url' do
     let(:group) { create(:group, name: group_name) }
     let(:project) { create(:project, namespace: group, name: project_name) }
@@ -1791,20 +1815,18 @@ describe Project do
     let(:project) { create(:project, :repository) }
     let(:repo)    { double(:repo, exists?: true) }
     let(:wiki)    { double(:wiki, exists?: true) }
-    let(:design)  { double(:wiki, exists?: false) }
 
     it 'expires the caches of the repository and wiki' do
+      # In EE, there are design repositories as well
+      allow(Repository).to receive(:new).and_call_original
+
       allow(Repository).to receive(:new)
-        .with('foo', project)
+        .with('foo', project, shard: project.repository_storage)
         .and_return(repo)
 
       allow(Repository).to receive(:new)
-        .with('foo.wiki', project)
+        .with('foo.wiki', project, shard: project.repository_storage, repo_type: Gitlab::GlRepository::WIKI)
         .and_return(wiki)
-
-      allow(Repository).to receive(:new)
-        .with('foo.design', project)
-        .and_return(design)
 
       expect(repo).to receive(:before_delete)
       expect(wiki).to receive(:before_delete)
@@ -2800,6 +2822,44 @@ describe Project do
     end
   end
 
+  describe '#change_repository_storage' do
+    let(:project) { create(:project, :repository) }
+    let(:read_only_project) { create(:project, :repository, repository_read_only: true) }
+
+    before do
+      stub_storage_settings('test_second_storage' => { 'path' => 'tmp/tests/extra_storage' })
+    end
+
+    it 'schedules the transfer of the repository to the new storage and locks the project' do
+      expect(ProjectUpdateRepositoryStorageWorker).to receive(:perform_async).with(project.id, 'test_second_storage')
+
+      project.change_repository_storage('test_second_storage')
+      project.save!
+
+      expect(project).to be_repository_read_only
+    end
+
+    it "doesn't schedule the transfer if the repository is already read-only" do
+      expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
+
+      read_only_project.change_repository_storage('test_second_storage')
+      read_only_project.save!
+    end
+
+    it "doesn't lock or schedule the transfer if the storage hasn't changed" do
+      expect(ProjectUpdateRepositoryStorageWorker).not_to receive(:perform_async)
+
+      project.change_repository_storage(project.repository_storage)
+      project.save!
+
+      expect(project).not_to be_repository_read_only
+    end
+
+    it 'throws an error if an invalid repository storage is provided' do
+      expect { project.change_repository_storage('unknown') }.to raise_error(ArgumentError)
+    end
+  end
+
   describe '#pushes_since_gc' do
     let(:project) { create(:project) }
 
@@ -2928,6 +2988,19 @@ describe Project do
     shared_examples 'ref is protected' do
       it 'contains all the variables' do
         is_expected.to contain_exactly(ci_variable, protected_variable)
+      end
+    end
+
+    it 'memoizes the result by ref and environment', :request_store do
+      scoped_variable = create(:ci_variable, value: 'secret', project: project, environment_scope: 'scoped')
+
+      expect(project).to receive(:protected_for?).with('ref').once.and_return(true)
+      expect(project).to receive(:protected_for?).with('other').twice.and_return(false)
+
+      2.times do
+        expect(project.reload.ci_variables_for(ref: 'ref', environment: 'production')).to contain_exactly(ci_variable, protected_variable)
+        expect(project.reload.ci_variables_for(ref: 'other')).to contain_exactly(ci_variable)
+        expect(project.reload.ci_variables_for(ref: 'other', environment: 'scoped')).to contain_exactly(ci_variable, scoped_variable)
       end
     end
 
@@ -4564,7 +4637,7 @@ describe Project do
       end
 
       it 'does not protect when branch protection is disabled' do
-        stub_application_setting(default_branch_protection: Gitlab::Access::PROTECTION_NONE)
+        expect(project.namespace).to receive(:default_branch_protection).and_return(Gitlab::Access::PROTECTION_NONE)
 
         project.after_import
 
@@ -4572,7 +4645,7 @@ describe Project do
       end
 
       it "gives developer access to push when branch protection is set to 'developers can push'" do
-        stub_application_setting(default_branch_protection: Gitlab::Access::PROTECTION_DEV_CAN_PUSH)
+        expect(project.namespace).to receive(:default_branch_protection).and_return(Gitlab::Access::PROTECTION_DEV_CAN_PUSH)
 
         project.after_import
 
@@ -4582,7 +4655,7 @@ describe Project do
       end
 
       it "gives developer access to merge when branch protection is set to 'developers can merge'" do
-        stub_application_setting(default_branch_protection: Gitlab::Access::PROTECTION_DEV_CAN_MERGE)
+        expect(project.namespace).to receive(:default_branch_protection).and_return(Gitlab::Access::PROTECTION_DEV_CAN_MERGE)
 
         project.after_import
 

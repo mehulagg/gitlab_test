@@ -9,10 +9,6 @@ and [deployments](../../ci/environments.md) when using [Auto DevOps](../../topic
 You can install them after you
 [create a cluster](../project/clusters/add_remove_clusters.md).
 
-Interested in contributing a new GitLab managed app? Visit the
-[development guidelines page](../../development/kubernetes.md#gitlab-managed-apps)
-to get started.
-
 ## Installing applications
 
 Applications managed by GitLab will be installed onto the `gitlab-managed-apps` namespace.
@@ -26,8 +22,9 @@ This namespace:
 To see a list of available applications to install. For a:
 
 - [Project-level cluster](../project/clusters/index.md), navigate to your project's
-  **Operations > Kubernetes**.
-- [Group-level cluster](../group/clusters/index.md), navigate to your group's **Kubernetes** page.
+  **{cloud-gear}** **Operations > Kubernetes**.
+- [Group-level cluster](../group/clusters/index.md), navigate to your group's
+  **{cloud-gear}** **Kubernetes** page.
 
 Install Helm first as it's used to install other applications.
 
@@ -117,7 +114,7 @@ service included with GitLab that coordinates the jobs.
 
 If the project is on GitLab.com, shared Runners are available
 (the first 2000 minutes are free, you can
-[buy more later](../../subscriptions/index.md#extra-shared-runners-pipeline-minutes))
+[buy more later](../../subscriptions/index.md#purchasing-additional-ci-minutes))
 and you do not have to deploy one if they are enough for your needs. If a
 project-specific Runner is desired, or there are no shared Runners, it is easy
 to deploy one.
@@ -257,7 +254,7 @@ use an A record. If your external endpoint is a hostname, use a CNAME record.
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/-/merge_requests/21966) in GitLab 12.7.
 
-A Web Application Firewall (WAF) is able to examine traffic being sent/received
+A Web Application Firewall (WAF) examines traffic being sent or received,
 and can block malicious traffic before it reaches your application. The benefits
 of a WAF are:
 
@@ -266,7 +263,7 @@ of a WAF are:
 - Access control for your application
 - Highly configurable logging and blocking rules
 
-Out of the box, GitLab provides you with a WAF known as [`ModSecurity`](https://www.modsecurity.org/)
+Out of the box, GitLab provides you with a WAF known as [`ModSecurity`](https://www.modsecurity.org/).
 
 ModSecurity is a toolkit for real-time web application monitoring, logging,
 and access control. With GitLab's offering, the [OWASP's Core Rule Set](https://www.modsecurity.org/CRS/Documentation/),
@@ -287,9 +284,6 @@ when installing your [Ingress application](#ingress).
 
 If this is your first time using GitLab's WAF, we recommend you follow the
 [quick start guide](../../topics/web_application_firewall/quick_start_guide.md).
-
-There is a small performance overhead by enabling ModSecurity. However,
-if this is considered significant for your application, you can disable it.
 
 There is a small performance overhead by enabling ModSecurity. If this is
 considered significant for your application, you can disable ModSecurity's
@@ -467,6 +461,12 @@ NOTE: **Note:**
 The chart will deploy 5 Elasticsearch nodes: 2 masters, 2 data and 1 client node,
 with resource requests totalling 0.125 CPU and 4.5GB RAM. Each data node requests 1.5GB of memory,
 which makes it incompatible with clusters of `f1-micro` and `g1-small` instance types.
+
+### Future apps
+
+Interested in contributing a new GitLab managed app? Visit the
+[development guidelines page](../../development/kubernetes.md#gitlab-managed-apps)
+to get started.
 
 ## Install using GitLab CI (alpha)
 
@@ -658,7 +658,7 @@ GitLab Runner is installed into the `gitlab-managed-apps` namespace of your clus
 
 In order for GitLab Runner to function, you **must** specify the following:
 
-- `gitlabUrl` - the GitLab server full URL (e.g., `https://example.gitlab.com`) to register the Runner against.
+- `gitlabUrl` - the GitLab server full URL (for example, `https://example.gitlab.com`) to register the Runner against.
 - `runnerRegistrationToken` - The registration token for adding new Runners to GitLab. This must be
   [retrieved from your GitLab instance](../../ci/runners/README.md).
 
@@ -693,7 +693,7 @@ cilium:
 ```
 
 The `clusterType` variable enables the recommended Helm variables for
-a corresponding cluster type, the default value is blank. You can
+a corresponding cluster type. The default value is blank. You can
 check the recommended variables for each cluster type in the official
 documentation:
 
@@ -720,13 +720,13 @@ information.
 By default, Cilium will drop all non-whitelisted packets upon policy
 deployment. The audit mode is scheduled for release in
 [Cilium 1.8](https://github.com/cilium/cilium/pull/9970). In the audit
-mode non-whitelisted packets will not be dropped, instead audit
-notifications will be generated. GitLab provides alternative Docker
+mode, non-whitelisted packets will not be dropped, and audit
+notifications will be generated instead. GitLab provides alternative Docker
 images for Cilium with the audit patch included. You can switch to the
 custom build and enable the audit mode by adding the following to
 `.gitlab/managed-apps/cilium/values.yaml`:
 
-```yml
+```yaml
 global:
   registry: registry.gitlab.com/gitlab-org/defend/cilium
   policyAuditMode: true
@@ -737,15 +737,15 @@ agent:
 ```
 
 The Cilium monitor log for traffic is logged out by the
-`cilium-monitor` sidecar container. You can check these logs via:
+`cilium-monitor` sidecar container. You can check these logs with the following command:
 
 ```shell
 kubectl -n gitlab-managed-apps logs cilium-XXXX cilium-monitor
 ```
 
-You can disable the monitor log via `.gitlab/managed-apps/cilium/values.yaml`:
+You can disable the monitor log in `.gitlab/managed-apps/cilium/values.yaml`:
 
-```yml
+```yaml
 agent:
   monitor:
     enabled: false
@@ -755,7 +755,8 @@ agent:
 
 > [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/40) in GitLab 12.8.
 
-Enable JupyterHub in the `.gitlab/managed-apps/config.yaml` file to install it:
+JupyterHub is installed using GitLab CI by defining configuration in
+`.gitlab/managed-apps/config.yaml` as follows:
 
 ```yaml
 jupyterhub:
@@ -764,33 +765,40 @@ jupyterhub:
   gitlabGroupWhitelist: []
 ```
 
-`gitlabProjectIdWhitelist` restricts GitLab authentication to only members of the specified projects. `gitlabGroupWhitelist` restricts GitLab authentication to only members of the specified groups. Specifying an empty array for both will allow any user on the GitLab instance to log in.
+In the configuration:
 
-JupyterHub is installed into the `gitlab-managed-apps` namespace of your
-cluster.
+- `gitlabProjectIdWhitelist` restricts GitLab authentication to only members of the specified projects.
+- `gitlabGroupWhitelist` restricts GitLab authentication to only members of the specified groups.
+- Specifying an empty array for both will allow any user on the GitLab instance to sign in.
 
-In order for JupyterHub to function, you must setup an [OAuth Application](../../integration/oauth_provider.md). Using the following values:
+JupyterHub is installed into the `gitlab-managed-apps` namespace of your cluster.
 
-- "Redirect URI" to `http://<JupyterHub Host>/hub/oauth_callback`
-- "Scope" to `api read_repository write_repository`
+For JupyterHub to function, you must set up an [OAuth Application](../../integration/oauth_provider.md).
+Set:
 
-In addition the following variables must be specified using [CI variables](../../ci/variables/README.md):
+- "Redirect URI" to `http://<JupyterHub Host>/hub/oauth_callback`.
+- "Scope" to `api read_repository write_repository`.
 
-- `JUPYTERHUB_PROXY_SECRET_TOKEN` will set [`proxy.secretToken`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#proxy-secrettoken). Generate this using `openssl rand -hex 32`.
-- `JUPYTERHUB_COOKIE_SECRET` will set [`hub.cookieSecret`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#hub-cookiesecret). Generate this using `openssl rand -hex 32`.
-- `JUPYTERHUB_HOST` is the hostname used for the installation (e.g., `jupyter.example.gitlab.com`).
-- `JUPYTERHUB_GITLAB_HOST` is the hostname of the GitLab instance used for authentication (e.g., `example.gitlab.com`).
-- `JUPYTERHUB_AUTH_CRYPTO_KEY` will set [`auth.state.cryptoKey`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#auth-state-cryptokey). Generate this using `openssl rand -hex 32`.
-- `JUPYTERHUB_AUTH_GITLAB_CLIENT_ID` the "Application ID" for the OAuth Application.
-- `JUPYTERHUB_AUTH_GITLAB_CLIENT_SECRET` the "Secret" for the OAuth Application.
+In addition, the following variables must be specified using [CI variables](../../ci/variables/README.md):
 
-By default JupyterHub will be installed using a
+| CI Variable                            | Description                                                                                                                                                         |
+|:---------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `JUPYTERHUB_PROXY_SECRET_TOKEN`        | Sets [`proxy.secretToken`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#proxy-secrettoken). Generate using `openssl rand -hex 32`.             |
+| `JUPYTERHUB_COOKIE_SECRET`             | Sets [`hub.cookieSecret`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#hub-cookiesecret). Generate using `openssl rand -hex 32`.               |
+| `JUPYTERHUB_HOST`                      | Hostname used for the installation. For example, `jupyter.gitlab.example.com`.                                                                                      |
+| `JUPYTERHUB_GITLAB_HOST`               | Hostname of the GitLab instance used for authentication. For example, `gitlab.example.com`.                                                                         |
+| `JUPYTERHUB_AUTH_CRYPTO_KEY`           | Sets [`auth.state.cryptoKey`](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html#auth-state-cryptokey). Generate using `openssl rand -hex 32`. |
+| `JUPYTERHUB_AUTH_GITLAB_CLIENT_ID`     | "Application ID" for the OAuth Application.                                                                                                                         |
+| `JUPYTERHUB_AUTH_GITLAB_CLIENT_SECRET` | "Secret" for the OAuth Application.                                                                                                                                 |
+
+By default, JupyterHub will be installed using a
 [default values file](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/blob/master/src/default-data/jupyterhub/values.yaml.gotmpl).
-You can customize the installation of JupyterHub by defining
-`.gitlab/managed-apps/jupyterhub/values.yaml` file in your cluster management
-project. Refer to the
-[chart reference](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html)
-for the available configuration options.
+You can customize the installation of JupyterHub by defining a
+`.gitlab/managed-apps/jupyterhub/values.yaml` file in your cluster management project.
+
+Refer to the
+[chart reference](https://zero-to-jupyterhub.readthedocs.io/en/stable/reference.html) for the
+available configuration options.
 
 ### Install Elastic Stack using GitLab CI
 

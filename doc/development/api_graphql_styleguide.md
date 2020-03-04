@@ -76,6 +76,28 @@ a new presenter specifically for GraphQL.
 The presenter is initialized using the object resolved by a field, and
 the context.
 
+### Nullable fields
+
+GraphQL allows fields to be be "nullable" or "non-nullable". The former means
+that `null` may be returned instead of a value of the specified type. **In
+general**, you should prefer using nullable fields to non-nullable ones, for
+the following reasons:
+
+- It's common for data to switch from required to not-required, and back again
+- Even when there is no prospect of a field becoming optional, it may not be **available** at query time
+  - For instance, the `content` of a blob may need to be looked up from Gitaly
+  - If the `content` is nullable, we can return a **partial** response, instead of failing the whole query
+- Changing from a non-nullable field to a nullable field is difficult with a versionless schema
+
+Non-nullable fields should only be used when a field is required, very unlikely
+to become optional in the future, and very easy to calculate. An example would
+be `id` fields.
+
+Further reading:
+
+- [GraphQL Best Practices Guide](https://graphql.org/learn/best-practices/#nullability)
+- [Using nullability in GraphQL](https://blog.apollographql.com/using-nullability-in-graphql-2254f84c4ed7)
+
 ### Exposing Global IDs
 
 When exposing an `ID` field on a type, we will by default try to
@@ -239,7 +261,7 @@ the field depending on if the feature has been enabled or not.
 
 GraphQL feature flags use the common
 [GitLab feature flag](../development/feature_flags.md) system, and can be added to a
-field using the `feature_key` property.
+field using the `feature_flag` property.
 
 For example:
 
@@ -247,11 +269,11 @@ For example:
 field :test_field, type: GraphQL::STRING_TYPE,
       null: false,
       description: 'Some test field',
-      feature_key: :some_feature_key
+      feature_flag: :some_feature_flag
 ```
 
 In the above example, the `test_field` field will only be returned if
-the `some_feature_key` feature flag is enabled.
+the `some_feature_flag` feature flag is enabled.
 
 If the feature flag is not enabled, an error will be returned saying the field does not exist.
 

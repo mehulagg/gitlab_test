@@ -62,6 +62,10 @@ module Ci
       end
     end
 
+    def has_downstream_pipeline?
+      sourced_pipelines.exists?
+    end
+
     def downstream_pipeline_params
       return child_params if triggers_child_pipeline?
       return cross_project_params if downstream_project.present?
@@ -167,7 +171,10 @@ module Ci
         target_revision: {
           ref: target_ref || downstream_project.default_branch
         },
-        execute_params: { ignore_skip_ci: true }
+        execute_params: {
+          ignore_skip_ci: true,
+          bridge: self
+        }
       }
     end
 

@@ -2,6 +2,7 @@
 import { GlDaterangePicker, GlSprintf, GlIcon, GlTooltipDirective } from '@gitlab/ui';
 import { getDayDifference } from '~/lib/utils/datetime_utility';
 import { __, sprintf } from '~/locale';
+import { OFFSET_DATE_BY_ONE } from '../constants';
 
 export default {
   components: {
@@ -33,10 +34,22 @@ export default {
       rerquired: false,
       default: null,
     },
+    maxDate: {
+      type: Date,
+      required: false,
+      default() {
+        return new Date();
+      },
+    },
     maxDateRange: {
       type: Number,
       required: false,
       default: 0,
+    },
+    includeSelectedDate: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   data() {
@@ -56,7 +69,8 @@ export default {
       },
     },
     numberOfDays() {
-      return getDayDifference(this.startDate, this.endDate);
+      const dayDifference = getDayDifference(this.startDate, this.endDate);
+      return this.includeSelectedDate ? dayDifference + OFFSET_DATE_BY_ONE : dayDifference;
     },
   },
 };
@@ -73,6 +87,7 @@ export default {
       :default-end-date="endDate"
       :default-min-date="minDate"
       :max-date-range="maxDateRange"
+      :default-max-date="maxDate"
       theme="animate-picker"
       start-picker-class="js-daterange-picker-from d-flex flex-column flex-lg-row align-items-lg-center mr-lg-2 mb-2 mb-md-0"
       end-picker-class="js-daterange-picker-to d-flex flex-column flex-lg-row align-items-lg-center"

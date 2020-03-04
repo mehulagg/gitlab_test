@@ -65,7 +65,7 @@ To enable Container Scanning in your pipeline, you need:
     services:
       - docker:19.03.1-dind
     variables:
-      IMAGE_TAG: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_REF_SHA
+      IMAGE_TAG: $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA
     script:
       - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
       - docker build -t $IMAGE_TAG .
@@ -103,7 +103,7 @@ artifact available. Behind the scenes, the
 [GitLab Klar analyzer](https://gitlab.com/gitlab-org/security-products/analyzers/klar/)
 is used and runs the scans.
 
-## Example
+### Example
 
 The following is a sample `.gitlab-ci.yml` that will build your Docker Image, push it to the container registry and run Container Scanning.
 
@@ -133,7 +133,7 @@ build:
     - docker push $IMAGE
 ```
 
-## Vulnerability Whitelisting
+### Vulnerability Whitelisting
 
 If you want to whitelist specific vulnerabilities, you'll need to:
 
@@ -214,7 +214,7 @@ Container Scanning can be executed on an offline air-gapped GitLab Ultimate inst
 
 1. Host the following Docker images on a [local Docker container registry](../../packages/container_registry/index.md):
    - [arminc/clair-db vulnerabilities database](https://hub.docker.com/r/arminc/clair-db)
-   - [GitLab klar analyzer](https://gitlab.com/gitlab-org/security-products/analyzers/klar)
+   - GitLab klar analyzer: `registry.gitlab.com/gitlab-org/security-products/analyzers/klar`
 1. [Override the container scanning template](#overriding-the-container-scanning-template) in your `.gitlab-ci.yml` file to refer to the Docker images hosted on your local Docker container registry:
 
    ```yaml

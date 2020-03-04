@@ -188,14 +188,6 @@ class Snippet < ApplicationRecord
     end
   end
 
-  def self.content_types
-    [
-      ".rb", ".py", ".pl", ".scala", ".c", ".cpp", ".java",
-      ".haml", ".html", ".sass", ".scss", ".xml", ".php", ".erb",
-      ".js", ".sh", ".coffee", ".yml", ".md"
-    ]
-  end
-
   def blob
     @blob ||= Blob.decorate(SnippetBlob.new(self), self)
   end
@@ -261,7 +253,7 @@ class Snippet < ApplicationRecord
   end
 
   def repository
-    @repository ||= Repository.new(full_path, self, disk_path: disk_path, repo_type: Gitlab::GlRepository::SNIPPET)
+    @repository ||= Repository.new(full_path, self, shard: repository_storage, disk_path: disk_path, repo_type: Gitlab::GlRepository::SNIPPET)
   end
 
   def storage
@@ -299,6 +291,10 @@ class Snippet < ApplicationRecord
   def track_snippet_repository
     repository = snippet_repository || build_snippet_repository
     repository.update!(shard_name: repository_storage, disk_path: disk_path)
+  end
+
+  def can_cache_field?(field)
+    field != :content || MarkupHelper.gitlab_markdown?(file_name)
   end
 
   class << self

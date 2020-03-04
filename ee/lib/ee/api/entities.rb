@@ -38,7 +38,6 @@ module EE
         extend ActiveSupport::Concern
 
         prepended do
-          expose :repository_storage, if: ->(_project, options) { options[:current_user].try(:admin?) }
           expose :approvals_before_merge, if: ->(project, _) { project.feature_available?(:merge_request_approvers) }
           expose :mirror, if: ->(project, _) { project.feature_available?(:repository_mirrors) }
           expose :mirror_user_id, if: ->(project, _) { project.mirror? }
@@ -263,42 +262,6 @@ module EE
             ::Gitlab::UrlBuilder.build(design)
           end
         end
-      end
-
-      class EpicIssueLink < Grape::Entity
-        expose :id
-        expose :relative_position
-        expose :epic do |epic_issue_link, _options|
-          ::EE::API::Entities::Epic.represent(epic_issue_link.epic, with_reference: true)
-        end
-        expose :issue, using: ::API::Entities::IssueBasic
-      end
-
-      class IssueLink < Grape::Entity
-        expose :source, as: :source_issue, using: ::API::Entities::IssueBasic
-        expose :target, as: :target_issue, using: ::API::Entities::IssueBasic
-        expose :link_type
-      end
-
-      class SpecialBoardFilter < Grape::Entity
-        expose :title
-      end
-
-      class ApprovalRuleShort < Grape::Entity
-        expose :id, :name, :rule_type
-      end
-
-      class ApprovalRule < ApprovalRuleShort
-        def initialize(object, options = {})
-          presenter = ::ApprovalRulePresenter.new(object, current_user: options[:current_user])
-          super(presenter, options)
-        end
-
-        expose :approvers, as: :eligible_approvers, using: ::API::Entities::UserBasic
-        expose :approvals_required
-        expose :users, using: ::API::Entities::UserBasic
-        expose :groups, using: ::API::Entities::Group
-        expose :contains_hidden_groups?, as: :contains_hidden_groups
       end
 
       class ProjectApprovalRule < ApprovalRule
@@ -869,89 +832,6 @@ module EE
         expose :id, :project_id, :name
       end
 
-      class Dependency < Grape::Entity
-        class Vulnerability < Grape::Entity
-          expose :name, :severity
-        end
-
-        expose :name, :version, :package_manager, :dependency_file_path
-        expose :dependency_file_path do |dependency|
-          dependency[:location][:path]
-        end
-        expose :vulnerabilities, using: Vulnerability, if: ->(_, opts) { can_read_vulnerabilities?(opts[:user], opts[:project]) }
-
-        private
-
-        def can_read_vulnerabilities?(user, project)
-          Ability.allowed?(user, :read_vulnerability, project)
-        end
-      end
-
-      class FeatureFlag < Grape::Entity
-        class Scope < Grape::Entity
-          expose :id
-          expose :active
-          expose :environment_scope
-          expose :strategies
-          expose :created_at
-          expose :updated_at
-        end
-
-        class DetailedScope < Scope
-          expose :name
-        end
-
-        expose :name
-        expose :description
-        expose :created_at
-        expose :updated_at
-        expose :scopes, using: Scope
-      end
-
-      class Vulnerability < Grape::Entity
-        expose :id
-        expose :title
-        expose :description
-
-        expose :state
-        expose :severity
-        expose :confidence
-        expose :report_type
-
-        expose :project, using: ::API::Entities::ProjectIdentity
-
-        expose :finding
-
-        expose :author_id
-        expose :updated_by_id
-        expose :last_edited_by_id
-        expose :resolved_by_id
-        expose :closed_by_id
-
-        expose :start_date
-        expose :due_date
-
-        expose :created_at
-        expose :updated_at
-        expose :last_edited_at
-        expose :resolved_at
-        expose :closed_at
-      end
-
-      class VulnerabilityRelatedIssue < ::API::Entities::IssueBasic
-        # vulnerability_link_* attributes come from joined Vulnerabilities::IssueLink record
-        expose :vulnerability_link_id
-        expose :vulnerability_link_type do |related_issue|
-          ::Vulnerabilities::IssueLink.link_types.key(related_issue.vulnerability_link_type)
-        end
-      end
-
-      class VulnerabilityIssueLink < Grape::Entity
-        expose :vulnerability, using: ::EE::API::Entities::Vulnerability
-        expose :issue, using: ::API::Entities::IssueBasic
-        expose :link_type
-      end
-
       module Analytics
         module CodeReview
           class MergeRequest < ::API::Entities::MergeRequestSimple
@@ -967,11 +847,11 @@ module EE
               end
             end
             expose :review_time do |mr|
-              next unless mr.metrics.first_comment_at
+              time = mr.metrics.review_time
 
-              review_time = (mr.metrics.merged_at || Time.now) - mr.metrics.first_comment_at
+              next unless time
 
-              (review_time / ActiveSupport::Duration::SECONDS_PER_HOUR).floor
+              (time / ActiveSupport::Duration::SECONDS_PER_HOUR).floor
             end
             expose :diff_stats
 

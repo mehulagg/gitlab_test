@@ -55,6 +55,14 @@ if (IS_EE) {
   collectCoverageFrom.push(rootDirEE.replace('$1', '/**/*.{js,vue}'));
 }
 
+const coverageDirectory = () => {
+  if (process.env.CI_NODE_INDEX && process.env.CI_NODE_TOTAL) {
+    return `<rootDir>/coverage-frontend/jest-${process.env.CI_NODE_INDEX}-${process.env.CI_NODE_TOTAL}`;
+  }
+
+  return '<rootDir>/coverage-frontend/';
+};
+
 // eslint-disable-next-line import/no-commonjs
 module.exports = {
   clearMocks: true,
@@ -62,7 +70,7 @@ module.exports = {
   moduleFileExtensions: ['js', 'json', 'vue'],
   moduleNameMapper,
   collectCoverageFrom,
-  coverageDirectory: '<rootDir>/coverage-frontend/',
+  coverageDirectory: coverageDirectory(),
   coverageReporters: ['json', 'lcov', 'text-summary', 'clover'],
   cacheDirectory: '<rootDir>/tmp/cache/jest',
   modulePathIgnorePatterns: ['<rootDir>/.yarn-cache/'],
@@ -74,7 +82,7 @@ module.exports = {
     '^.+\\.js$': 'babel-jest',
     '^.+\\.vue$': 'vue-jest',
   },
-  transformIgnorePatterns: ['node_modules/(?!(@gitlab/ui)/)'],
+  transformIgnorePatterns: ['node_modules/(?!(@gitlab/ui|bootstrap-vue)/)'],
   timers: 'fake',
   testEnvironment: '<rootDir>/spec/frontend/environment.js',
   testEnvironmentOptions: {

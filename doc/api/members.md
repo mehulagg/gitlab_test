@@ -4,7 +4,7 @@
 
 The access levels are defined in the `Gitlab::Access` module. Currently, these levels are recognized:
 
-```
+```plaintext
 10 => Guest access
 20 => Reporter access
 30 => Developer access
@@ -17,7 +17,9 @@ The access levels are defined in the `Gitlab::Access` module. Currently, these l
 Gets a list of group or project members viewable by the authenticated user.
 Returns only direct members and not inherited members through ancestors groups.
 
-```
+This function takes pagination parameters `page` and `per_page` to restrict the list of users.
+
+```plaintext
 GET /groups/:id/members
 GET /projects/:id/members
 ```
@@ -72,7 +74,9 @@ Gets a list of group or project members viewable by the authenticated user, incl
 When a user is a member of the project/group and of one or more ancestor groups the user is returned only once with the project `access_level` (if exists)
 or the `access_level` for the user in the first group which they belong to in the project groups ancestors chain.
 
-```
+This function takes pagination parameters `page` and `per_page` to restrict the list of users.
+
+```plaintext
 GET /groups/:id/members/all
 GET /projects/:id/members/all
 ```
@@ -136,7 +140,7 @@ Example response:
 
 Gets a member of a group or project. Returns only direct members and not inherited members through ancestor groups.
 
-```
+```plaintext
 GET /groups/:id/members/:user_id
 GET /projects/:id/members/:user_id
 ```
@@ -173,7 +177,7 @@ Example response:
 
 Gets a member of a group or project, including members inherited through ancestor groups. See the corresponding [endpoint to list all inherited members](#list-all-members-of-a-group-or-project-including-inherited-members) for details.
 
-```
+```plaintext
 GET /groups/:id/members/all/:user_id
 GET /projects/:id/members/all/:user_id
 ```
@@ -208,7 +212,7 @@ Example response:
 
 Adds a member to a group or project.
 
-```
+```plaintext
 POST /groups/:id/members
 POST /projects/:id/members
 ```
@@ -245,7 +249,7 @@ Example response:
 
 Updates a member of a group or project.
 
-```
+```plaintext
 PUT /groups/:id/members/:user_id
 PUT /projects/:id/members/:user_id
 ```
@@ -282,7 +286,7 @@ Example response:
 
 Removes a user from a group or project.
 
-```
+```plaintext
 DELETE /groups/:id/members/:user_id
 DELETE /projects/:id/members/:user_id
 ```

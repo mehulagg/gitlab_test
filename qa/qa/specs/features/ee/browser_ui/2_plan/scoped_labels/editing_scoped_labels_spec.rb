@@ -44,13 +44,13 @@ module QA
 
           show.select_all_activities_filter
 
-          expect(show.text_of_labels_block).to have_content(new_label_same_scope)
-          expect(show.text_of_labels_block).to have_content(new_label_different_scope)
-          expect(show.text_of_labels_block).to have_content(new_label_same_scope_multi_colon)
-          expect(show.text_of_labels_block).to have_content(new_label_different_scope_multi_colon)
+          expect(show.text_of_labels_block).to have_content(new_label_same_scope.gsub('::', ' '))
+          expect(show.text_of_labels_block).to have_content(new_label_different_scope.gsub('::', ' '))
+          expect(show.text_of_labels_block).to have_content('group::car porsche')
+          expect(show.text_of_labels_block).to have_content('group::truck mercedes-bens')
 
-          expect(show.text_of_labels_block).not_to have_content(initial_label)
-          expect(show.text_of_labels_block).not_to have_content(initial_label_multi_colon)
+          expect(show.text_of_labels_block).not_to have_content(initial_label.gsub('::', ' '))
+          expect(show.text_of_labels_block).not_to have_content('group::car ferrari')
         end
       end
     end
