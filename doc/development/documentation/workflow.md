@@ -263,28 +263,29 @@ MR as their feature code, at all times.
 
 A workflow that has documentation separated into its own MR has many downsides:
 
-- The docs and code will be merged at different times, which has caused many problems in the past:
-  - If the documentation merges *before* the feature:
-    - GitLab.com users might try to use the feature before it's released, driving support tickets.
-    - If the feature is delayed, the documentation might not be pulled/reverted in time
-      and could be accidentally included in the self-hosted package for that release.
-  - If the documentation merges *after* the feature:
-    - The feature might be included in the self-hosted package, but without any documentation
-      if the docs MR misses the cutoff.
-    - A feature might show up in the GitLab.com UI before any documentation exists for it.
-      Users surprised by this feature will search for documentation and will not find it,
-      possibly driving support tickets.
-- Having two separate MRs means two separate people will be responsible for merging one
-  feature, which is not workable with an asynchronous work style. The feature might
-  merge while the technical writer is asleep.
-- Alternatively, if the docs MR is assigned to the code maintainer for the feature MR, they will
-  have to review and juggle two MRs instead of dealing with just one.
-- Having docs in a separate MR will mean far fewer people will see and verify them,
-  and reduces the quality of the docs themselves.
-- In a "split" workflow, engineers might only create the documentation MR once the feature MR
-  is ready, or almost ready. This gives the technical writer little time to review, and
-  increases pressure on them to review and merge faster than desired, letting problems
-  slip in due to haste.
+- If the documentation merges *before* the feature:
+  - GitLab.com users might try to use the feature before it's released, driving support tickets.
+  - If the feature is delayed, the documentation might not be pulled/reverted in time
+    and could be accidentally included in the self-hosted package for that release.
+- If the documentation merges *after* the feature:
+  - The feature might be included in the self-hosted package, but without any documentation
+    if the docs MR misses the cutoff.
+  - A feature might show up in the GitLab.com UI before any documentation exists for it.
+    Users surprised by this feature will search for documentation and will not find it,
+    possibly driving support tickets.
+- Having two separate MRs means:
+  - Two different people might be responsible for merging one feature, which is not workable
+    with an asynchronous work style. The feature might merge while the technical writer is asleep,
+    creating a potentially lengthy delay between the two merges.
+  - If the docs MR is assigned to the same maintainer as responsible for the feature
+    code MR, they will have to review and juggle two MRs instead of dealing with just one.
+- Documentation quality might be lower because:
+  - Having docs in a separate MR will mean far fewer people will see and verify them,
+    increasing the likelyhood that issues will be missed.
+  - In a "split" workflow, engineers might only create the documentation MR once the
+    feature MR is ready, or almost ready. This gives the technical writer little time
+    to learn about the feature in order to do a good review. It also increases pressure
+    on them to review and merge faster than desired, letting problems slip in due to haste.
 
 #### Benefits of always including docs with code
 
@@ -300,14 +301,14 @@ Including docs with code (and doing it early in the development process) has man
   and will be better able to verify the content of the docs, and perhaps even test
   the feature when possible. They will also be able to offer advice for improving the
   UI text, offer alternative use cases, or explain how well the feature worked in testing.
-- The documentation will have increased visibility, as everyone involved in the merge
-  request will see them. This could include product managers, multiple engineers with
-  deep domain knowledge, as well as the code reviewers and maintainer. They will be
-  more likely to catch issues with examples, as well as background or concepts that
-  the technical writer may not be aware of.
-- Increasing visibility of the documentation also has the side effect of improving
-  *other* engineers' documentation. By reviewing each others' MRs, each engineer's
-  own documentation skills will improve.
+- The documentation will have increased visibility:
+  - Everyone involved in the merge request will see the docs. This could include product
+    managers, multiple engineers with deep domain knowledge, as well as the code reviewers
+    and maintainer. They will be more likely to catch issues with examples, as well
+    as background or concepts that the technical writer may not be aware of.
+  - Increasing visibility of the documentation also has the side effect of improving
+    *other* engineers' documentation. By reviewing each others' MRs, each engineer's
+    own documentation skills will improve.
 - Thinking about the documentation early can help engineers generate better examples,
   as they will need to think about what examples a user will want, and will need to
   make sure the code they write implements that example properly.
