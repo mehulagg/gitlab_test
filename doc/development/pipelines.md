@@ -335,9 +335,8 @@ Consult the [Review Apps](testing_guide/review_apps.md) dedicated page for more 
 
 ## Pre-clone step
 
-The `gitlab-org/gitlab` project on GitLab.com uses a [pre-clone
-step](https://gitlab.com/gitlab-org/gitlab/issues/39134) to seed the
-project with a recent archive of the repository. This is done for
+The `gitlab-org/gitlab` project on GitLab.com uses a [pre-clone step](https://gitlab.com/gitlab-org/gitlab/issues/39134)
+to seed the project with a recent archive of the repository. This is done for
 several reasons:
 
 1. It speeds up builds. A 800 MB download only takes seconds as opposed
