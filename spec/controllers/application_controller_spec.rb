@@ -532,21 +532,30 @@ describe ApplicationController do
     end
 
     context '422 errors' do
-      it 'logs a response with a string' do
+      it 'logs a response with a string as json' do
         response = spy(ActionDispatch::Response, status: 422, body: 'Hello world', content_type: 'application/json', cookies: {})
         allow(controller).to receive(:response).and_return(response)
         get :index
 
-        expect(controller.last_payload[:response]).to eq('Hello world')
+        expect(controller.last_payload[:response]).to eq('"Hello world"')
       end
 
-      it 'logs a response with an array' do
+      it 'logs a response with an array as json' do
         body = ['I want', 'my hat back']
         response = spy(ActionDispatch::Response, status: 422, body: body, content_type: 'application/json', cookies: {})
         allow(controller).to receive(:response).and_return(response)
         get :index
 
-        expect(controller.last_payload[:response]).to eq(body)
+        expect(controller.last_payload[:response]).to eq('["I want","my hat back"]')
+      end
+
+      it 'logs a response with a hash as json' do
+        body = { "foo" => "bar" }
+        response = spy(ActionDispatch::Response, status: 422, body: body, content_type: 'application/json', cookies: {})
+        allow(controller).to receive(:response).and_return(response)
+        get :index
+
+        expect(controller.last_payload[:response]).to eq('{"foo":"bar"}')
       end
 
       it 'does not log a string with an empty body' do
