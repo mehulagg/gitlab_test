@@ -58,16 +58,21 @@ MyModel.bulk_insert!(records, validate: false)
 
 ### Batch size configuration
 
-In those cases where the `records` collection is very large, it will be broken down into
-several smaller batches for you. You can control the size of each batch that is generated
-via the `:batch_size` option:
+In those cases where the number of `records` is above a given threshold, insertions will
+occur in multiple batches. The default batch size is defined in
+[`BulkInsertSafe::DEFAULT_BATCH_SIZE`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app/models/concerns/bulk_insert_safe.rb).
+Assuming a default threshold of 500, inserting 950 records
+would result in two batches being written sequentially (of size 500 and 450 respectively.)
+You can override the default batch size via the `:batch_size` option:
 
 ```ruby
 MyModel.bulk_insert!(records, batch_size: 100)
 ```
 
-Since this will affect the number of `INSERT`s that will occur, make sure you measure the
-performance impact this might have on your code.
+Assuming the same number of 950 records, this would result in 10 batches being written instead.
+Since this will also affect the number of `INSERT`s that occur, make sure you measure the
+performance impact this might have on your code. There is a trade-off between the number of
+`INSERT` statements the database has to process and the size and cost of each `INSERT`.
 
 ### Requirements for safe bulk insertions
 
@@ -77,7 +82,8 @@ These callbacks cannot be used with bulk insertions, since they are meant to be 
 every instance that is saved or created. Since these events do not fire when
 records are inserted in bulk, we currently disallow their use.
 
-The specifics around which callbacks are disallowed are defined in `BulkInsertSafe`.
+The specifics around which callbacks are disallowed are defined in
+[`BulkInsertSafe`](https://gitlab.com/gitlab-org/gitlab/-/blob/master/app/models/concerns/bulk_insert_safe.rb).
 Consult the module source code for details. If your class uses any of the blacklisted
 functionality, and you `include BulkInsertSafe`, the application will fail with an error.
 
