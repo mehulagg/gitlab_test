@@ -233,7 +233,7 @@ describe Groups::EpicIssuesController do
 
       context 'when the epic_issue record does not exists' do
         it 'returns status 404' do
-          delete :destroy, params: { group_id: group, epic_id: epic.to_param, id: 9999 }
+          delete :destroy, params: { group_id: group, epic_id: epic.to_param, id: non_existing_record_id }
 
           expect(response.status).to eq(403)
         end

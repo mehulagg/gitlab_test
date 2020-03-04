@@ -94,7 +94,7 @@ describe Geo::FileDownloadDispatchWorker, :geo, :geo_fdw do
     end
 
     context 'with a failed file' do
-      let(:failed_registry) { create(:geo_upload_registry, :avatar, :failed, file_id: 999) }
+      let(:failed_registry) { create(:geo_upload_registry, :avatar, :failed, file_id: non_existing_record_id) }
 
       it 'does not stall backfill' do
         unsynced = create(:upload)
@@ -114,7 +114,7 @@ describe Geo::FileDownloadDispatchWorker, :geo, :geo_fdw do
       end
 
       it 'does not retry failed files when retry_at is tomorrow' do
-        failed_registry = create(:geo_upload_registry, :avatar, :failed, file_id: 999, retry_at: Date.tomorrow)
+        failed_registry = create(:geo_upload_registry, :avatar, :failed, file_id: non_existing_record_id, retry_at: Date.tomorrow)
 
         expect(Geo::FileDownloadWorker).not_to receive(:perform_async).with('avatar', failed_registry.file_id)
 
@@ -122,7 +122,7 @@ describe Geo::FileDownloadDispatchWorker, :geo, :geo_fdw do
       end
 
       it 'retries failed files when retry_at is in the past' do
-        failed_registry = create(:geo_upload_registry, :avatar, :failed, file_id: 999, retry_at: Date.yesterday)
+        failed_registry = create(:geo_upload_registry, :avatar, :failed, file_id: non_existing_record_id, retry_at: Date.yesterday)
 
         expect(Geo::FileDownloadWorker).to receive(:perform_async).with('avatar', failed_registry.file_id)
 

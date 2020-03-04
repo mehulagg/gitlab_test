@@ -153,7 +153,7 @@ describe API::Todos do
       end
 
       it 'returns 404 if the epic is not found' do
-        post api("/groups/#{group.id}/epics/9999/todo", user)
+        post api("/groups/#{group.id}/epics/#{non_existing_record_id}/todo", user)
 
         expect(response.status).to eq(403)
       end

@@ -66,7 +66,7 @@ describe Banzai::Filter::EpicReferenceFilter do
     end
 
     it 'ignores invalid epic IDs' do
-      text = "Check &9999"
+      text = "Check &#{non_existing_record_id}"
 
       expect(doc(text).to_s).to eq(ERB::Util.html_escape_once(text))
     end
@@ -101,7 +101,7 @@ describe Banzai::Filter::EpicReferenceFilter do
     end
 
     it 'ignores invalid epic IDs' do
-      text = "Check &amp;9999"
+      text = "Check &amp;#{non_existing_record_id}"
 
       expect(doc(text).to_s).to eq(ERB::Util.html_escape_once(text))
     end
