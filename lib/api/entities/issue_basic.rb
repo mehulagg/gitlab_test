@@ -14,7 +14,7 @@ module API
         end
       end
 
-      expose :milestone, using: Entities::Milestone
+      expose :milestone, using: Entities::MilestoneBasic
       expose :assignees, :author, using: Entities::UserBasic
 
       expose :assignee, using: ::API::Entities::UserBasic do |issue|

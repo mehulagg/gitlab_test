@@ -43,7 +43,7 @@ module API
         end
       end
       expose :work_in_progress?, as: :work_in_progress
-      expose :milestone, using: Entities::Milestone
+      expose :milestone, using: Entities::MilestoneBasic
       expose :merge_when_pipeline_succeeds
 
       # Ideally we should deprecate `MergeRequest#merge_status` exposure and

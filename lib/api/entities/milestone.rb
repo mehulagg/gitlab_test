@@ -2,22 +2,10 @@
 
 module API
   module Entities
-    class Milestone < Grape::Entity
-      expose :id, :iid
-      expose :project_id, if: -> (entity, options) { entity&.project_id }
-      expose :group_id, if: -> (entity, options) { entity&.group_id }
-      expose :title, :description
-      expose :state, :created_at, :updated_at
-      expose :due_date
-      expose :start_date
-
-      expose :web_url do |milestone, _options|
-        Gitlab::UrlBuilder.build(milestone)
-      end
-
+    class Milestone < MilestoneBasic
       expose :issue_stats do
-        expose :total_issues_count, as: :total
-        expose :closed_issues_count, as: :closed
+        expose(:total)  { |milestone, options| milestone.total_issue_count(options[:current_user]) }
+        expose(:closed) { |milestone, options| milestone.closed_issue_count(options[:current_user]) }
       end
     end
   end
