@@ -17,7 +17,7 @@ module Metrics
         def valid_params?(params)
           # support selecting this service by cluster id via .find
           # Use super to support selecting this service by dashboard_path via .find_raw
-          (params[:cluster].present? && !(params[:embedded] == 'true')) || super
+          (params[:cluster].present? && params[:embedded] != 'true') || super
         end
       end
 

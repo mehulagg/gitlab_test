@@ -19,7 +19,7 @@ describe 'Metrics rendering', :js, :use_clean_rails_memory_store_caching, :sidek
       .to receive(:url)
       .and_return(urls.root_url.chomp('/'))
 
-    stub_licensed_features(prometheus_alerts: true)
+    stub_licensed_features(prometheus_alerts: true, cluster_health: true)
 
     project.add_maintainer(user)
     sign_in(user)
@@ -61,7 +61,6 @@ describe 'Metrics rendering', :js, :use_clean_rails_memory_store_caching, :sidek
 
   context 'for GitLab embedded cluster health metrics' do
     before do
-      stub_licensed_features(cluster_health: true)
       create(:clusters_applications_prometheus, :installed, cluster: cluster)
       stub_kubeclient_discover(cluster.platform.api_url)
       stub_prometheus_request(/prometheus-prometheus-server/, body: prometheus_values_body)
