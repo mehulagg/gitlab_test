@@ -59,7 +59,7 @@ export default {
     <gl-loading-icon v-if="showLoadingIcon" :size="2" class="prepend-top-default" />
     <template v-else-if="hasLoadedPipeline">
       <header v-if="latestPipeline" class="ide-tree-header ide-pipeline-header">
-        <ci-icon :status="latestPipeline.details.status" :size="24" />
+        <ci-icon :status="latestPipeline.details.status" :size="24" class="d-flex" />
         <span class="prepend-left-8">
           <strong> {{ __('Pipeline') }} </strong>
           <a
@@ -73,6 +73,7 @@ export default {
       </header>
       <empty-state
         v-if="!latestPipeline"
+        class="mt-auto mb-auto"
         :help-page-path="links.ciHelpPagePath"
         :empty-state-svg-path="pipelinesEmptyStateSvgPath"
         :can-set-ci="true"
