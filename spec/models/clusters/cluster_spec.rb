@@ -573,17 +573,17 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
   end
 
   describe '#allow_user_defined_namespace?' do
-    let(:cluster) { create(:cluster, :provided_by_gcp) }
-
     subject { cluster.allow_user_defined_namespace? }
 
     context 'project type cluster' do
       context 'gitlab managed' do
+        let(:cluster) { build(:cluster, :provided_by_gcp) }
+
         it { is_expected.to be_truthy }
       end
 
       context 'not managed' do
-        let(:cluster) { create(:cluster, :provided_by_gcp, managed: false) }
+        let(:cluster) { build(:cluster, :provided_by_gcp, managed: false) }
 
         it { is_expected.to be_truthy }
       end
@@ -591,13 +591,13 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
 
     context 'group type cluster' do
       context 'gitlab managed' do
-        let(:cluster) { create(:cluster, :provided_by_gcp, :group) }
+        let(:cluster) { build(:cluster, :provided_by_gcp, :group) }
 
         it { is_expected.to be_falsey }
       end
 
       context 'not managed' do
-        let(:cluster) { create(:cluster, :provided_by_gcp, :group, managed: false) }
+        let(:cluster) { build(:cluster, :provided_by_gcp, :group, managed: false) }
 
         it { is_expected.to be_truthy }
       end
@@ -605,13 +605,13 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
 
     context 'instance type cluster' do
       context 'gitlab managed' do
-        let(:cluster) { create(:cluster, :provided_by_gcp, :instance) }
+        let(:cluster) { build(:cluster, :provided_by_gcp, :instance) }
 
         it { is_expected.to be_falsey }
       end
 
       context 'not managed' do
-        let(:cluster) { create(:cluster, :provided_by_gcp, :instance, managed: false) }
+        let(:cluster) { build(:cluster, :provided_by_gcp, :instance, managed: false) }
 
         it { is_expected.to be_truthy }
       end
@@ -660,7 +660,7 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
     end
 
     context 'with no domain on cluster' do
-      let(:cluster) { create(:cluster, :project, :provided_by_gcp) }
+      let(:cluster) { build(:cluster, :project, :provided_by_gcp) }
       let(:project) { cluster.project }
 
       context 'with domain set at instance level' do
@@ -674,9 +674,10 @@ describe Clusters::Cluster, :use_clean_rails_memory_store_caching do
   end
 
   describe '#kubernetes_namespace_for' do
-    let(:cluster) { create(:cluster, :group) }
+    let_it_be(:cluster) { create(:cluster, :group) }
     let(:environment) { create(:environment, last_deployable: build) }
-    let(:build) { create(:ci_build) }
+
+    let_it_be(:build) { create(:ci_build) }
 
     subject { cluster.kubernetes_namespace_for(environment) }
 
