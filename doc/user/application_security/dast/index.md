@@ -377,7 +377,7 @@ DAST can be executed on an offline air-gapped GitLab Ultimate installation using
         - /analyze -t $DAST_WEBSITE --auto-update-addons false -z"-silent"
    ```
 
-`--auto-update-addons false` instructs ZAP not to update add-ons.
+The option `--auto-update-addons false` instructs ZAP not to update add-ons.
 
 `-z` passes the quoted `-silent` parameter to ZAP. The `-silent` parameter ensures ZAP does not make any unsolicited requests including checking for updates.
 
