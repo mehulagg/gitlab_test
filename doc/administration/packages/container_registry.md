@@ -1132,7 +1132,7 @@ If registry was ever configured with `http_secret`, `internal_certificate`, or `
 Error response from daemon: login attempt to http://registry:5050/v2/ failed with status: 401 Unauthorized
 ```
 
-You can purge (Create a backup copy) the registry section and `gitlab-ctl reconfigure` `gitlab-ctl restart` to repopulate.
+You can purge (be sure to create a backup!) the registry section and `gitlab-ctl reconfigure` `gitlab-ctl restart` to repopulate.
 
 ```
 "registry": {
