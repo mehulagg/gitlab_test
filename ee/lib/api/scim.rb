@@ -7,6 +7,16 @@ module API
     content_type :json, 'application/scim+json'
     USER_ID_REQUIREMENTS = { id: /.+/ }.freeze
 
+    before do
+      Gitlab::ApplicationContext.push(
+        # The SCIM API has no user. The SCIM API Token is specific to the group.
+        # Override the Application context with nil user.
+        user: -> { nil },
+        namespace: -> { @group },
+        caller_id: route.origin
+      )
+    end
+
     namespace 'groups/:group' do
       params do
         requires :group, type: String
@@ -52,13 +62,13 @@ module API
         end
 
         def find_and_authenticate_group!(group_path)
-          group = find_group(group_path)
+          @group = find_group(group_path)
 
-          scim_not_found!(message: "Group #{group_path} not found") unless group
+          scim_not_found!(message: "Group #{group_path} not found") unless @group
 
-          check_access_to_group!(group)
+          check_access_to_group!(@group)
 
-          group
+          @group
         end
 
         # rubocop: disable CodeReuse/ActiveRecord
