@@ -8,10 +8,10 @@
 
 module Gitlab
   module Auth
-    module LDAP
+    module Ldap
       class Authentication < Gitlab::Auth::OAuth::Authentication
         def self.login(login, password)
-          return unless Gitlab::Auth::LDAP::Config.enabled?
+          return unless Gitlab::Auth::Ldap::Config.enabled?
           return unless login.present? && password.present?
 
           # return found user that was authenticated by first provider for given login credentials
@@ -22,7 +22,7 @@ module Gitlab
         end
 
         def self.providers
-          Gitlab::Auth::LDAP::Config.providers
+          Gitlab::Auth::Ldap::Config.providers
         end
 
         def login(login, password)
@@ -33,15 +33,15 @@ module Gitlab
           )
           return unless result
 
-          @user = Gitlab::Auth::LDAP::User.find_by_uid_and_provider(result.dn, provider)
+          @user = Gitlab::Auth::Ldap::User.find_by_uid_and_provider(result.dn, provider)
         end
 
         def adapter
-          OmniAuth::LDAP::Adaptor.new(config.omniauth_options)
+          OmniAuth::Ldap::Adaptor.new(config.omniauth_options)
         end
 
         def config
-          Gitlab::Auth::LDAP::Config.new(provider)
+          Gitlab::Auth::Ldap::Config.new(provider)
         end
 
         def user_filter(login)
