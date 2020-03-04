@@ -121,17 +121,27 @@ module Gitlab
 
     def check_for_console_messages
       console_messages = []
-      console_messages.push(expired_key_message) if key_expired?
+
+      console_messages.push(key_expired_message) if key_expired?
+      console_messages.push(key_expires_soon_message) if key_expires_soon?
 
       console_messages
     end
 
-    def expired_key_message
+    def key_expired_message
       'INFO: Your SSH key has expired. Please generate a new key.'
+    end
+
+    def key_expires_soon_message
+      'INFO: Your SSH key is expiring soon. Please generate a new key.'
     end
 
     def key_expired?
       actor.is_a?(Key) && actor.expired?
+    end
+
+    def key_expires_soon?
+      actor.is_a?(Key) && actor.expires_soon?
     end
 
     def check_valid_actor!
