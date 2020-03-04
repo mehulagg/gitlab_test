@@ -1,0 +1,5 @@
+---
+title: Add lock_membership_to_ldap boolean to Groups
+merge_request: 26474
+author:
+type: added
