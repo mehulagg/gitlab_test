@@ -2,6 +2,7 @@
 
 class OmniauthCallbacksController < Devise::OmniauthCallbacksController
   include AuthenticatesWithTwoFactor
+  include Authenticates2FAForAdminMode
   include Devise::Controllers::Rememberable
   include AuthHelper
   include InitializesCurrentUserMode
@@ -251,7 +252,7 @@ class OmniauthCallbacksController < Devise::OmniauthCallbacksController
     return fail_admin_mode_invalid_credentials unless omniauth_identity_matches_current_user?
 
     if current_user.two_factor_enabled? && !auth_user.bypass_two_factor?
-      prompt_for_two_factor(current_user, admin_mode: true)
+      admin_mode_prompt_for_two_factor(current_user)
     else
       # Can only reach here if the omniauth identity matches current user
       # and current_user is an admin that requested admin mode

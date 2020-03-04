@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class Admin::SessionsController < ApplicationController
-  include AuthenticatesWithTwoFactor
+  include Authenticates2FAForAdminMode
   include InternalRedirect
 
   before_action :user_is_admin!
@@ -20,7 +20,7 @@ class Admin::SessionsController < ApplicationController
 
   def create
     if two_factor_enabled_for_user?
-      authenticate_with_two_factor(admin_mode: true)
+      admin_mode_authenticate_with_two_factor
     elsif current_user_mode.enable_admin_mode!(password: user_params[:password])
       redirect_to redirect_path, notice: _('Admin mode enabled')
     else
