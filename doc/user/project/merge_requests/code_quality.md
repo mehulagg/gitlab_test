@@ -20,7 +20,7 @@ Code Quality:
 - Can make use of a [template](#example-configuration).
 - Is available with [Auto
   DevOps](../../../topics/autodevops/index.md#auto-code-quality-starter).
-- Can be extended through [Analysis Plugins](https://docs.codeclimate.com/docs/list-of-engines) or a [custom tool](https://docs.gitlab.com/ee/user/project/merge_requests/code_quality.html#implementing-a-custom-tool).
+- Can be extended through [Analysis Plugins](https://docs.codeclimate.com/docs/list-of-engines) or a [custom tool](#implementing-a-custom-tool).
 
 Going a step further, GitLab can show the Code Quality report right
 in the merge request widget area:
