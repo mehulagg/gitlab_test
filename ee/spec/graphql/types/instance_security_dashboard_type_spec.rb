@@ -31,7 +31,7 @@ describe GitlabSchema.types['InstanceSecurityDashboard'] do
       user.security_dashboard_projects << project
     end
 
-    subject { GitlabSchema.execute(query, context: { current_user: user }).as_json }
+    subject { execute_query }
 
     context 'when first_class_vulnerabilities is disabled' do
       before do
@@ -56,6 +56,21 @@ describe GitlabSchema.types['InstanceSecurityDashboard'] do
 
         expect(vulnerabilities.count).to be(1)
       end
+
+      context 'and the current user has multiple projects on their dashboard' do
+        it 'does not use an N+1 query' do
+          control = ActiveRecord::QueryRecorder.new { execute_query }
+
+          project2 = create(:project)
+          create_list(:vulnerability, 2, project: project2)
+
+          expect { execute_query }.not_to exceed_query_limit(control)
+        end
+      end
     end
+  end
+
+  def execute_query
+    GitlabSchema.execute(query, context: { current_user: user }).as_json
   end
 end
