@@ -36,11 +36,20 @@ export default {
       'maskableRegex',
     ]),
     canSubmit() {
+      if (this.variableData.masked && this.maskedState === false) {
+        return false;
+      }
       return this.variableData.key !== '' && this.variableData.secret_value !== '';
     },
     canMask() {
       const regex = RegExp(this.maskableRegex);
       return regex.test(this.variableData.secret_value);
+    },
+    maskedState() {
+      if (!this.canMask && this.variableData.masked) {
+        return false;
+      }
+      return null;
     },
     variableData() {
       return this.variableBeingEdited || this.variable;
@@ -121,23 +130,11 @@ export default {
       </gl-form-group>
 
       <gl-form-group
-        v-if="variableData.masked"
         label="Value"
         label-for="ci-variable-value"
-        :state="canMask"
+        :state="maskedState"
         :invalid-feedback="maskedFeedback"
       >
-        <gl-form-textarea
-          id="ci-variable-value"
-          v-model="variableData.secret_value"
-          rows="3"
-          max-rows="6"
-          type="text"
-          data-qa-selector="variable_value"
-        />
-      </gl-form-group>
-
-      <gl-form-group v-else label="Value" label-for="ci-variable-value">
         <gl-form-textarea
           id="ci-variable-value"
           v-model="variableData.secret_value"
@@ -190,19 +187,21 @@ export default {
         <gl-form-checkbox
           ref="masked-ci-variable"
           v-model="variableData.masked"
-          :disabled="!canMask"
           data-qa-selector="variable_masked"
         >
           {{ __('Mask variable') }}
           <gl-link href="/help/ci/variables/README#masked-variables">
             <gl-icon name="question" :size="12" />
           </gl-link>
-          <p class="prepend-top-4 append-bottom-0" :class="{ clgray: canMask, bold: !canMask }">
-            {{
-              __(
-                'Variables will be masked in job logs. Requires values to meet regular expression requirements.',
-              )
-            }}
+          <p class="prepend-top-4 append-bottom-0 clgray">
+            {{ __('Variables will be masked in job logs.') }}
+            <span
+              :class="{
+                'bold text-plain': !canMask && variableData.masked,
+              }"
+            >
+              {{ __('Requires values to meet regular expression requirements.') }}</span
+            >
             <gl-link href="/help/ci/variables/README#masked-variables">{{
               __('More information')
             }}</gl-link>

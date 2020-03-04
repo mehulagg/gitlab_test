@@ -16519,6 +16519,9 @@ msgid_plural "Requires %d more approvals."
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "Requires values to meet regular expression requirements."
+msgstr ""
+
 msgid "Resend confirmation email"
 msgstr ""
 
@@ -21755,7 +21758,7 @@ msgstr ""
 msgid "Variables"
 msgstr ""
 
-msgid "Variables will be masked in job logs. Requires values to meet regular expression requirements."
+msgid "Variables will be masked in job logs."
 msgstr ""
 
 msgid "Various container registry settings."
