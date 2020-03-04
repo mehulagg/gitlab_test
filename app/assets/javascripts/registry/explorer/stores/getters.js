@@ -1,6 +1,10 @@
+import { orderBy } from 'lodash';
 // eslint-disable-next-line import/prefer-default-export
 export const tags = state => {
-  // to show the loader inside the table we need to pass an empty array to gl-table whenever the table is loading
-  // this is to take in account isLoading = true and state.tags =[1,2,3] during pagination and delete
-  return state.isLoading ? [] : state.tags;
+  const { page, perPage } = state.tagsPagination;
+  const filtered = state.tagsSearch
+    ? state.tags.filter(t => t.name.includes(state.tagsSearch))
+    : state.tags;
+  const sorted = orderBy(filtered, [state.tagsSorting.field], [state.tagsSorting.order]);
+  return sorted.slice((page - 1) * perPage, page * perPage);
 };

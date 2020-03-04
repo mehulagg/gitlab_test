@@ -75,8 +75,9 @@ export default {
       this.itemToDelete = {};
     },
     encodeListItem(item) {
-      const params = JSON.stringify({ name: item.path, tags_path: item.tags_path, id: item.id });
-      return window.btoa(params);
+      // const params = JSON.stringify({ name: item.path, tags_path: item.tags_path, id: item.id });
+      // return window.btoa(params);
+      return item.id;
     },
   },
 };

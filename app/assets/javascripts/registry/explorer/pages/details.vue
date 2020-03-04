@@ -9,6 +9,9 @@ import {
   GlPagination,
   GlModal,
   GlSprintf,
+  GlFormInput,
+  GlSorting,
+  GlSortingItem,
   GlEmptyState,
   GlResizeObserverDirective,
   GlSkeletonLoader,
@@ -19,7 +22,7 @@ import ClipboardButton from '~/vue_shared/components/clipboard_button.vue';
 import { numberToHumanSize } from '~/lib/utils/number_utils';
 import timeagoMixin from '~/vue_shared/mixins/timeago';
 import Tracking from '~/tracking';
-import { decodeAndParse } from '../utils';
+// import { decodeAndParse } from '../utils';
 import {
   LIST_KEY_TAG,
   LIST_KEY_IMAGE_ID,
@@ -32,12 +35,16 @@ import {
   LIST_LABEL_SIZE,
   LIST_LABEL_LAST_UPDATED,
 } from '../constants';
+import TagDetails from '../components/tag_details.vue';
 
 export default {
   components: {
     GlTable,
     GlFormCheckbox,
     GlButton,
+    GlFormInput,
+    GlSorting,
+    GlSortingItem,
     GlIcon,
     ClipboardButton,
     GlPagination,
@@ -45,6 +52,7 @@ export default {
     GlSkeletonLoader,
     GlSprintf,
     GlEmptyState,
+    TagDetails,
   },
   directives: {
     GlTooltip: GlTooltipDirective,
@@ -67,10 +75,19 @@ export default {
   },
   computed: {
     ...mapGetters(['tags']),
-    ...mapState(['tagsPagination', 'isLoading', 'config']),
+    ...mapState([
+      'tagsPagination',
+      'isLoading',
+      'config',
+      'imageDetails',
+      'tagsSearch',
+      'tagsSorting',
+    ]),
+    isSortAscending() {
+      return this.tagsSorting.order === 'asc';
+    },
     imageName() {
-      const { name } = decodeAndParse(this.$route.params.id);
-      return name;
+      return this.imageDetails?.path;
     },
     fields() {
       return [
@@ -97,17 +114,31 @@ export default {
         this.isMultiDelete ? this.itemsToBeDeleted.length : 1,
       );
     },
+    search: {
+      get() {
+        return this.tagsSearch;
+      },
+      set(value) {
+        this.setTagsSearch(value);
+      },
+    },
     currentPage: {
       get() {
         return this.tagsPagination.page;
       },
       set(page) {
-        this.requestTagsList({ pagination: { page }, id: this.$route.params.id });
+        this.setPage(page);
       },
     },
   },
   methods: {
-    ...mapActions(['requestTagsList', 'requestDeleteTag', 'requestDeleteTags']),
+    ...mapActions([
+      'setPage',
+      'requestDeleteTag',
+      'requestDeleteTags',
+      'setTagsSearch',
+      'setTagsSorting',
+    ]),
     setModalDescription(itemIndex = -1) {
       if (itemIndex === -1) {
         this.modalDescription = {
@@ -216,7 +247,20 @@ export default {
       </h4>
     </div>
 
-    <gl-table :items="tags" :fields="fields" :stacked="!isDesktop" show-empty>
+    <div class="my-3 d-flex justify-content-end">
+      <gl-form-input v-model="search" :placeholder="__(`Filter by tag name`)" class="w-25 mx-2" />
+      <gl-sorting
+        :text="tagsSorting.field"
+        :is-ascending="isSortAscending"
+        @sortDirectionChange="setTagsSorting({ order: isSortAscending ? 'desc' : 'asc' })"
+      >
+        <gl-sorting-item @click="setTagsSorting({ field: 'name' })">{{
+          __('name')
+        }}</gl-sorting-item>
+      </gl-sorting>
+    </div>
+
+    <gl-table :items="tags" :fields="fields" :stacked="!isDesktop" show-empty :busy="isLoading">
       <template v-if="isDesktop" #head(checkbox)>
         <gl-form-checkbox
           ref="mainCheckbox"
@@ -259,25 +303,33 @@ export default {
           css-class="btn-default btn-transparent btn-clipboard"
         />
       </template>
-      <template #cell(short_revision)="{value}">
-        <span ref="rowShortRevision">
-          {{ value }}
-        </span>
+
+      <template #cell(short_revision)="{item}">
+        <tag-details :key="item.name" :tag-id="item.name">
+          <span ref="rowShortRevision">
+            {{ item.short_revision }}
+          </span>
+        </tag-details>
       </template>
       <template #cell(total_size)="{item}">
-        <span ref="rowSize">
-          {{ formatSize(item.total_size) }}
-          <template v-if="item.total_size && item.layers">
-            &middot;
-          </template>
-          {{ layers(item.layers) }}
-        </span>
+        <tag-details :key="item.name" :tag-id="item.name">
+          <span ref="rowSize">
+            {{ formatSize(item.total_size) }}
+            <template v-if="item.total_size && item.layers">
+              &middot;
+            </template>
+            {{ layers(item.layers) }}
+          </span>
+        </tag-details>
       </template>
-      <template #cell(created_at)="{value}">
-        <span ref="rowTime">
-          {{ timeFormatted(value) }}
-        </span>
+      <template #cell(created_at)="{item}">
+        <tag-details :key="item.name" :tag-id="item.name">
+          <span ref="rowTime">
+            {{ timeFormatted(item.created_at) }}
+          </span>
+        </tag-details>
       </template>
+
       <template #cell(actions)="{index, item}">
         <gl-button
           ref="singleDeleteButton"
@@ -293,23 +345,7 @@ export default {
       </template>
 
       <template #empty>
-        <template v-if="isLoading">
-          <gl-skeleton-loader
-            v-for="index in $options.loader.repeat"
-            :key="index"
-            :width="$options.loader.width"
-            :height="$options.loader.height"
-            preserve-aspect-ratio="xMinYMax meet"
-          >
-            <rect width="15" x="0" y="12.5" height="15" rx="4" />
-            <rect width="250" x="25" y="10" height="20" rx="4" />
-            <circle cx="290" cy="20" r="10" />
-            <rect width="100" x="315" y="10" height="20" rx="4" />
-            <rect width="100" x="500" y="10" height="20" rx="4" />
-            <rect width="100" x="630" y="10" height="20" rx="4" />
-            <rect x="960" y="0" width="40" height="40" rx="4" />
-          </gl-skeleton-loader>
-        </template>
+        <template v-if="isLoading"> </template>
         <gl-empty-state
           v-else
           :title="s__('ContainerRegistry|This image has no active tags')"
@@ -323,6 +359,23 @@ export default {
           "
           class="mx-auto my-0"
         />
+      </template>
+      <template #busy>
+        <gl-skeleton-loader
+          v-for="index in $options.loader.repeat"
+          :key="index"
+          :width="$options.loader.width"
+          :height="$options.loader.height"
+          preserve-aspect-ratio="xMinYMax meet"
+        >
+          <rect width="15" x="0" y="12.5" height="15" rx="4" />
+          <rect width="250" x="25" y="10" height="20" rx="4" />
+          <circle cx="290" cy="20" r="10" />
+          <rect width="100" x="315" y="10" height="20" rx="4" />
+          <rect width="100" x="500" y="10" height="20" rx="4" />
+          <rect width="100" x="630" y="10" height="20" rx="4" />
+          <rect x="960" y="0" width="40" height="40" rx="4" />
+        </gl-skeleton-loader>
       </template>
     </gl-table>
 

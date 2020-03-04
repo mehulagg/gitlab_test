@@ -16,10 +16,34 @@ import {
 import { decodeAndParse } from '../utils';
 
 export const setInitialState = ({ commit }, data) => commit(types.SET_INITIAL_STATE, data);
+export const setPage = ({ commit, state }, page) =>
+  commit(types.SET_TAGS_PAGINATION, { ...state.tagsPagination, page });
+
+export const setTagsSearch = ({ commit }, searchString) =>
+  commit(types.SET_TAGS_SEARCH, searchString);
 
 export const receiveImagesListSuccess = ({ commit }, { data, headers }) => {
   commit(types.SET_IMAGES_LIST_SUCCESS, data);
   commit(types.SET_PAGINATION, headers);
+};
+
+export const receiveImageDetailsSuccess = ({ commit }, data) => {
+  commit(types.SET_TAGS_LIST_SUCCESS, data.tags);
+  commit(types.SET_IMAGE_DETAILS, { ...data, tags: undefined });
+  commit(types.SET_TAGS_PAGINATION, {
+    perPage: 10,
+    total: data.tags.length,
+    page: 1,
+  });
+};
+
+export const receiveTagDetailsSuccess = ({ commit, state }, data) => {
+  const tags = state.tags.map(t => (t.path === data.path ? data : t));
+  commit(types.SET_TAGS_LIST_SUCCESS, tags);
+};
+
+export const setTagsSorting = ({ commit, state }, data) => {
+  commit(types.SET_TAGS_SORTING, { ...state.tagsSorting, ...data });
 };
 
 export const receiveTagsListSuccess = ({ commit }, { data, headers }) => {
@@ -44,6 +68,21 @@ export const requestImagesList = ({ commit, dispatch, state }, pagination = {}) 
     });
 };
 
+export const requestImageDetails = ({ commit, dispatch, state }, id) => {
+  commit(types.SET_MAIN_LOADING, true);
+  return axios
+    .get(`/api/v4/projects/${state.config.projectId}/registry/repositories/${id}`)
+    .then(({ data }) => {
+      dispatch('receiveImageDetailsSuccess', data);
+    })
+    .catch(() => {
+      createFlash(FETCH_TAGS_LIST_ERROR_MESSAGE);
+    })
+    .finally(() => {
+      commit(types.SET_MAIN_LOADING, false);
+    });
+};
+
 export const requestTagsList = ({ commit, dispatch }, { pagination = {}, params }) => {
   commit(types.SET_MAIN_LOADING, true);
   const { tags_path } = decodeAndParse(params);
@@ -60,6 +99,28 @@ export const requestTagsList = ({ commit, dispatch }, { pagination = {}, params 
     .finally(() => {
       commit(types.SET_MAIN_LOADING, false);
     });
+};
+
+export const requestTagDetails = ({ commit, dispatch, state }, name) => {
+  if (state.tagsRequests[name]) {
+    return state.tagsRequests[name];
+  }
+
+  const url = `/api/v4/projects/${state.config.projectId}/registry/repositories/${state.imageDetails.id}/tags/${name}`;
+
+  const promise = axios
+    .get(url)
+    .then(({ data }) => {
+      dispatch('receiveTagDetailsSuccess', data);
+    })
+    .catch(() => {
+      createFlash(FETCH_TAGS_LIST_ERROR_MESSAGE);
+    })
+    .finally(() => {
+      commit(types.SET_MAIN_LOADING, false);
+    });
+  commit(types.ADD_AJAX_REQUEST, { name, promise });
+  return promise;
 };
 
 export const requestDeleteTag = ({ commit, dispatch, state }, { tag, params }) => {

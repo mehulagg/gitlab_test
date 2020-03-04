@@ -32,6 +32,17 @@ module API
         present paginate(repositories), with: Entities::ContainerRegistry::Repository, tags: params[:tags]
       end
 
+      desc 'Get repository details' do
+        detail 'This feature was introduced in GitLab 12.9.'
+        success Entities::ContainerRegistry::Repository
+      end
+      params do
+        requires :repository_id, type: Integer, desc: 'The ID of the repository'
+      end
+      get ':id/registry/repositories/:repository_id' do
+        present repository, with: Entities::ContainerRegistry::Repository, tags: true
+      end
+
       desc 'Delete repository' do
         detail 'This feature was introduced in GitLab 11.8.'
       end

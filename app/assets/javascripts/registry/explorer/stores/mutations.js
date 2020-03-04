@@ -16,6 +16,9 @@ export default {
   [types.SET_TAGS_LIST_SUCCESS](state, tags) {
     state.tags = tags;
   },
+  [types.SET_IMAGE_DETAILS](state, details) {
+    state.imageDetails = details;
+  },
 
   [types.SET_MAIN_LOADING](state, isLoading) {
     state.isLoading = isLoading;
@@ -26,8 +29,19 @@ export default {
     state.pagination = parseIntPagination(normalizedHeaders);
   },
 
-  [types.SET_TAGS_PAGINATION](state, headers) {
-    const normalizedHeaders = normalizeHeaders(headers);
-    state.tagsPagination = parseIntPagination(normalizedHeaders);
+  [types.SET_TAGS_PAGINATION](state, pagination) {
+    state.tagsPagination = pagination;
+  },
+
+  [types.ADD_AJAX_REQUEST](state, { name, promise }) {
+    state.tagsRequests = { ...state.tagsRequests, [name]: promise };
+  },
+
+  [types.SET_TAGS_SEARCH](state, tagsSearch) {
+    state.tagsSearch = tagsSearch;
+  },
+
+  [types.SET_TAGS_SORTING](state, sorting) {
+    state.tagsSorting = sorting;
   },
 };

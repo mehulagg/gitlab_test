@@ -30,10 +30,11 @@ export default function createRouter(base, store) {
         path: '/:id',
         component: Details,
         meta: {
-          nameGenerator: route => decodeAndParse(route.params.id).name,
+          // nameGenerator: route => decodeAndParse(route.params.id).name,
+          nameGenerator: () => 'empty',
         },
         beforeEnter: (to, from, next) => {
-          store.dispatch('requestTagsList', { params: to.params.id });
+          store.dispatch('requestImageDetails', to.params.id);
           next();
         },
       },
