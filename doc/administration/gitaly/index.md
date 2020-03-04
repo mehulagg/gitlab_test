@@ -1006,7 +1006,7 @@ unset http_proxy
 unset https_proxy
 ```
 
-### Gitaly not listening on new address after a gitlab-ctl reconfigure
+### Gitaly not listening on new address after reconfiguring
 
 When updating the `gitaly['listen_addr']` or `gitaly['prometheus_listen_addr']` values, Gitaly may continue to listen on the old address after a `sudo gitlab-ctl reconfigure`.
 
