@@ -11,6 +11,9 @@ class UpdateOccurrenceSeverityColumn < ActiveRecord::Migration[6.0]
 
   # 23_044 records to be updated on GitLab.com,
   def up
+    # create temporary index for undefined vulnerabilities
+    add_concurrent_index(:vulnerability_occurrences, :id, where: 'severity = 0', name: 'undefined_vulnerabilities')
+
     return unless Gitlab.ee?
 
     migration = Gitlab::BackgroundMigration::RemoveUndefinedOccurrenceSeverityLevel
@@ -24,6 +27,7 @@ class UpdateOccurrenceSeverityColumn < ActiveRecord::Migration[6.0]
 
   def down
     # no-op
+    # temporary index is to be dropped in a different migration in an upcoming release
     # This migration can not be reversed because we can not know which records had undefined severity
   end
 end
