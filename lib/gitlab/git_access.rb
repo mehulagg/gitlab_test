@@ -120,15 +120,14 @@ module Gitlab
     end
 
     def check_for_console_messages
-      return expired_key_message if key_expired?
+      console_messages = []
+      console_messages.push(expired_key_message) if key_expired?
 
-      []
+      console_messages
     end
 
     def expired_key_message
-      <<~STR.split("\n")
-        INFO: Your SSH key has expired. Please generate a new key.
-      STR
+      'INFO: Your SSH key has expired. Please generate a new key.'
     end
 
     def key_expired?

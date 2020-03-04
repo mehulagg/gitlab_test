@@ -563,7 +563,6 @@ describe API::Internal::Base do
           it "has the correct payload" do
             expect_next_instance_of(Gitlab::GitAccess) do |access|
               expect(access).to receive(:check_for_console_messages)
-                                  .with('git-upload-pack')
                                   .and_return(console_messages)
             end
 
