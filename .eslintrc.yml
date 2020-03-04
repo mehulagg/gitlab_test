@@ -19,6 +19,7 @@ rules:
   "@gitlab/i18n/no-non-i18n-strings": error
   "@gitlab/vue-i18n/no-bare-strings": error
   "@gitlab/vue-i18n/no-bare-attribute-strings": error
+  no-restricted-imports: ["error", { "name": "underscore", "message": "Consider using vanilla JS or lodash instead." }]
   import/no-commonjs: error
   no-underscore-dangle:
     - error
