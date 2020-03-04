@@ -11,7 +11,7 @@ a11y:
   image: "registry.gitlab.com/gitlab-org/ci-cd/accessibility:latest"
   script:
     - mkdir reports
-    - for url in $a11y_urls; do filename=$(echo $url | sed -E 's/https:\/\///'); ./node_modules/.bin/pa11y $url > reports/$filename-accessibility.html; done
+    - for url in $a11y_urls; do filename=$(echo $url | sed -E 's/https?:\/\///'); ./node_modules/.bin/pa11y $url > reports/$filename-accessibility.html; done
   allow_failure: true
   artifacts:
     when: always
