@@ -26,6 +26,8 @@ module Operations
 
       validate :parameters_validations, if: -> { errors[:name].blank? }
 
+      accepts_nested_attributes_for :scopes
+
       private
 
       def parameters_validations

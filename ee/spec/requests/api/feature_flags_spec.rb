@@ -313,6 +313,78 @@ describe API::FeatureFlags do
         end
       end
     end
+
+    context 'when creating a version 2 feature flag' do
+      it 'creates a new feature flag' do
+        params = {
+          name: 'new-feature',
+          version: 2
+        }
+
+        post api("/projects/#{project.id}/feature_flags", user), params: params
+
+        expect(response).to have_gitlab_http_status(:created)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+
+        feature_flag = project.operations_feature_flags.last
+        expect(feature_flag.name).to eq(params[:name])
+        expect(feature_flag.version).to eq('new_version_flag')
+      end
+
+      it 'creates a new feature flag with strategies' do
+        params = {
+          name: 'new-feature',
+          version: 2,
+          strategies: [{
+            name: 'userWithId',
+            parameters: { 'userIds': 'user1' }
+          }]
+        }
+
+        post api("/projects/#{project.id}/feature_flags", user), params: params
+
+        expect(response).to have_gitlab_http_status(:created)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+
+        feature_flag = project.operations_feature_flags.last
+        expect(feature_flag.name).to eq(params[:name])
+        expect(feature_flag.version).to eq('new_version_flag')
+        expect(feature_flag.strategies.map { |s| s.slice(:name, :parameters).deep_symbolize_keys }).to eq([{
+          name: 'userWithId',
+          parameters: { userIds: 'user1' }
+        }])
+      end
+
+      it 'creates a new feature flag with strategies with scopes' do
+        params = {
+          name: 'new-feature',
+          version: 2,
+          strategies: [{
+            name: 'gradualRolloutUserId',
+            parameters: { groupId: 'default', percentage: '50' },
+            scopes: [{
+              environment_scope: 'staging'
+            }]
+          }]
+        }
+
+        post api("/projects/#{project.id}/feature_flags", user), params: params
+
+        expect(response).to have_gitlab_http_status(:created)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+
+        feature_flag = project.operations_feature_flags.last
+        expect(feature_flag.name).to eq(params[:name])
+        expect(feature_flag.version).to eq('new_version_flag')
+        expect(feature_flag.strategies.map { |s| s.slice(:name, :parameters).deep_symbolize_keys }).to eq([{
+          name: 'gradualRolloutUserId',
+          parameters: { groupId: 'default', percentage: '50' }
+        }])
+        expect(feature_flag.strategies.first.scopes.map { |s| s.slice(:environment_scope).deep_symbolize_keys }).to eq([{
+          environment_scope: 'staging'
+        }])
+      end
+    end
   end
 
   describe 'POST /projects/:id/feature_flags/:name/enable' do
