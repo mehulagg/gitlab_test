@@ -1,11 +1,15 @@
 import { shallowMount } from '@vue/test-utils';
-import { GlButton } from '@gitlab/ui';
 import StatusPageSettingsForm from 'ee/status_page_settings/components/settings_form.vue';
 import createStore from 'ee/status_page_settings/store';
 
 describe('Status Page settings form', () => {
   let wrapper;
   const store = createStore();
+
+  const findForm = () => wrapper.find({ ref: 'settingsForm' });
+  const findToggleButton = () => wrapper.find({ ref: 'toggleBtn' });
+  const findSectionHeader = () => wrapper.find({ ref: 'sectionHeader' });
+  const findSectionSubHeader = () => wrapper.find({ ref: 'sectionSubHeader' });
 
   beforeEach(() => {
     wrapper = shallowMount(StatusPageSettingsForm, { store });
@@ -24,18 +28,18 @@ describe('Status Page settings form', () => {
   });
 
   it('renders header text', () => {
-    expect(wrapper.find('.js-section-header').text()).toBe('Status Page');
+    expect(findSectionHeader().text()).toBe('Status page');
   });
 
   describe('expand/collapse button', () => {
     it('renders as an expand button by default', () => {
-      expect(wrapper.find('.js-settings-toggle').text()).toBe('Expand');
+      expect(findToggleButton().text()).toBe('Expand');
     });
   });
 
   describe('sub-header', () => {
     it('renders descriptive text', () => {
-      expect(wrapper.find('.js-section-sub-header').text()).toContain(
+      expect(findSectionSubHeader().text()).toContain(
         'Configure file storage settings to link issues in this project to an external status page.',
       );
     });
@@ -47,10 +51,8 @@ describe('Status Page settings form', () => {
     });
 
     describe('submit button', () => {
-      const findSubmitButton = () => wrapper.find('.settings-content form').find(GlButton);
-
       it('submits form on click', () => {
-        findSubmitButton(wrapper).vm.$emit('click');
+        findForm().trigger('submit');
         expect(wrapper.vm.updateStatusPageSettings).toHaveBeenCalled();
       });
     });

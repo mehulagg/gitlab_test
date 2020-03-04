@@ -18651,16 +18651,16 @@ msgstr ""
 msgid "Status:"
 msgstr ""
 
-msgid "StatusPage|AWS Access Key ID"
-msgstr ""
-
-msgid "StatusPage|AWS Region"
-msgstr ""
-
 msgid "StatusPage|AWS Secret access key"
 msgstr ""
 
-msgid "StatusPage|AWS documentation."
+msgid "StatusPage|AWS access key ID"
+msgstr ""
+
+msgid "StatusPage|AWS documentation"
+msgstr ""
+
+msgid "StatusPage|AWS region"
 msgstr ""
 
 msgid "StatusPage|Active"
@@ -18672,22 +18672,22 @@ msgstr ""
 msgid "StatusPage|Configure file storage settings to link issues in this project to an external status page."
 msgstr ""
 
-msgid "StatusPage|For help with this configuration, visit %{docsLink}"
+msgid "StatusPage|For help with configuration, visit %{docsLink}"
 msgstr ""
 
 msgid "StatusPage|S3 Bucket name"
 msgstr ""
 
-msgid "StatusPage|Status Page"
+msgid "StatusPage|Status page"
 msgstr ""
 
-msgid "StatusPage|Status Page frontend."
+msgid "StatusPage|Status page frontend."
 msgstr ""
 
 msgid "StatusPage|To publish incidents to an external status page, GitLab will store a JSON file in your Amazon S3 account in a location accessible to your external status page service. Make sure to also set up %{docsLink}"
 msgstr ""
 
-msgid "StatusPage|configuration documentation."
+msgid "StatusPage|configuration documentation"
 msgstr ""
 
 msgid "Stay updated about the performance and health of your environment by configuring Prometheus to monitor your deployments."

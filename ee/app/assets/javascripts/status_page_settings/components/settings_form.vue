@@ -1,21 +1,60 @@
 <script>
 import { mapActions, mapState } from 'vuex';
-import { GlButton, GlSprintf, GlLink, GlFormInput, GlIcon } from '@gitlab/ui';
+import { mapComputed } from '~/vuex_shared/bindings';
+import {
+  GlButton,
+  GlSprintf,
+  GlLink,
+  GlIcon,
+  GlFormGroup,
+  GlFormInput,
+  GlFormCheckbox,
+} from '@gitlab/ui';
+import { __, s__ } from '~/locale';
 
 export default {
-  components: { GlButton, GlSprintf, GlLink, GlFormInput, GlIcon },
+  components: { GlButton, GlSprintf, GlLink, GlFormGroup, GlFormInput, GlIcon, GlFormCheckbox },
+  i18n: {
+    headerText: s__('StatusPage|Status page'),
+    expandBtnLabel: __('Expand'),
+    saveBtnLabel: __('Save changes'),
+    subHeaderText: s__(
+      'StatusPage|Configure file storage settings to link issues in this project to an external status page.',
+    ),
+    introText: s__(
+      'StatusPage|To publish incidents to an external status page, GitLab will store a JSON file in your Amazon S3 account in a location accessible to your external status page service. Make sure to also set up %{docsLink}',
+    ),
+    introLinkText: s__('StatusPage|Status page frontend.'),
+    activeLabel: s__('StatusPage|Active'),
+    bucket: {
+      label: s__('StatusPage|S3 Bucket name'),
+      helpText: s__('StatusPage|Bucket %{docsLink}'),
+      linkText: s__('StatusPage|configuration documentation'),
+    },
+    region: {
+      label: s__('StatusPage|AWS region'),
+      helpText: s__('StatusPage|For help with configuration, visit %{docsLink}'),
+      linkText: s__('StatusPage|AWS documentation'),
+    },
+    accessKey: {
+      label: s__('StatusPage|AWS access key ID'),
+    },
+    secretAccessKey: {
+      label: s__('StatusPage|AWS Secret access key'),
+    },
+  },
   computed: {
-    ...mapState(['enabled', 'bucketName', 'region', 'awsSecretKey', 'awsAccessKey', 'loading']),
+    ...mapState(['loading']),
+    ...mapComputed([
+      { key: 'enabled', updateFn: 'setStatusPageEnabled' },
+      { key: 'bucketName', updateFn: 'setStatusPageBucketName' },
+      { key: 'region', updateFn: 'setStatusPageRegion' },
+      { key: 'awsAccessKey', updateFn: 'setStatusPageAccessKey' },
+      { key: 'awsSecretKey', updateFn: 'setStatusPageSecretAccessKey' },
+    ]),
   },
   methods: {
-    ...mapActions([
-      'setStatusPageEnabled',
-      'setStatusPageBucketName',
-      'setStatusPageRegion',
-      'setStatusPageAccessKey',
-      'setStatusPageSecretAccessKey',
-      'updateStatusPageSettings',
-    ]),
+    ...mapActions(['updateStatusPageSettings']),
     handleSubmit() {
       this.updateStatusPageSettings();
     },
@@ -26,138 +65,99 @@ export default {
 <template>
   <section id="status-page" class="settings no-animate js-status-page-settings">
     <div class="settings-header">
-      <h3 class="js-section-header h4">
-        {{ s__('StatusPage|Status Page') }}
+      <h3 class="js-section-header h4" ref="sectionHeader">
+        {{ $options.i18n.headerText }}
       </h3>
-      <gl-button class="js-settings-toggle">{{ __('Expand') }}</gl-button>
-      <p class="js-section-sub-header">
-        {{
-          s__(
-            'StatusPage|Configure file storage settings to link issues in this project to an external status page.',
-          )
-        }}
-        <gl-link>{{ __('More information') }}</gl-link>
+      <gl-button class="js-settings-toggle" ref="toggleBtn">{{
+        $options.i18n.expandBtnLabel
+      }}</gl-button>
+      <p class="js-section-sub-header" ref="sectionSubHeader">
+        {{ $options.i18n.subHeaderText }}
       </p>
     </div>
 
     <div class="settings-content">
       <!-- eslint-disable @gitlab/vue-i18n/no-bare-attribute-strings -->
       <p>
-        <gl-sprintf
-          :message="
-            s__(
-              'StatusPage|To publish incidents to an external status page, GitLab will store a JSON file in your Amazon S3 account in a location accessible to your external status page service. Make sure to also set up %{docsLink}',
-            )
-          "
-        >
+        <gl-sprintf :message="$options.i18n.introText">
           <template #docsLink>
             <gl-link href="#">
-              <span>{{ s__('StatusPage|Status Page frontend.') }}</span>
+              <span>{{ $options.i18n.introLinkText }}</span>
             </gl-link>
           </template>
         </gl-sprintf>
       </p>
-      <form>
-        <div class="form-check form-group">
-          <input
-            id="status-page-activated"
-            :checked="enabled"
-            class="form-check-input"
-            type="checkbox"
-            @change="setStatusPageEnabled($event.target.checked)"
-          />
-          <label class="form-check-label" for="status-page-activated">{{
-            s__('StatusPage|Active')
-          }}</label>
-        </div>
+      <form @submit.prevent="handleSubmit" ref="settingsForm">
+        <gl-form-group class="gl-pl-0 mb-3">
+          <gl-form-checkbox v-model="enabled">
+            <span class="bold">{{ $options.i18n.activeLabel }}</span></gl-form-checkbox
+          >
+        </gl-form-group>
 
-        <div class="form-group">
-          <label class="label-bold" for="status-page-s3-bucket-name ">{{
-            s__('StatusPage|S3 Bucket name')
-          }}</label>
-          <div class="row">
-            <div class="col-8 col-md-9 gl-pr-0">
-              <gl-form-input
-                id="status-page-s3-bucket-name "
-                :value="bucketName"
-                @input="setStatusPageBucketName"
-              />
-              <p class="form-text text-muted">
-                <gl-sprintf :message="s__('StatusPage|Bucket %{docsLink}')">
-                  <template #docsLink>
-                    <gl-link
-                      href="https://docs.aws.amazon.com/AmazonS3/latest/dev/HostingWebsiteOnS3Setup.html"
-                    >
-                      <span>{{ s__('StatusPage|configuration documentation.') }}</span>
-                      <gl-icon name="external-link" class="vertical-align-middle" />
-                    </gl-link>
-                  </template>
-                </gl-sprintf>
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label class="label-bold" for="status-page-aws-region">{{
-            s__('StatusPage|AWS Region')
-          }}</label>
-          <div class="row">
-            <div class="col-8 col-md-9 gl-pr-0">
-              <gl-form-input
-                id="status-page-aws-region"
-                :value="region"
-                placeholder="example: us-west-2"
-                @input="setStatusPageRegion"
-              />
-              <p class="form-text text-muted">
-                <gl-sprintf
-                  :message="s__('StatusPage|For help with this configuration, visit %{docsLink}')"
+        <gl-form-group
+          :label="$options.i18n.bucket.label"
+          label-size="sm"
+          label-for="status-page-s3-bucket-name"
+          class="col-8 col-md-9 gl-pl-0 mb-3"
+        >
+          <gl-form-input id="status-page-s3-bucket-name" v-model="bucketName" />
+          <p class="form-text text-muted">
+            <gl-sprintf :message="$options.i18n.bucket.helpText">
+              <template #docsLink>
+                <gl-link
+                  href="https://docs.aws.amazon.com/AmazonS3/latest/dev/HostingWebsiteOnS3Setup.html"
                 >
-                  <template #docsLink>
-                    <gl-link href="https://github.com/aws/aws-sdk-ruby#configuration">
-                      <span>{{ s__('StatusPage|AWS documentation.') }}</span>
-                      <gl-icon name="external-link" class="vertical-align-middle" />
-                    </gl-link>
-                  </template>
-                </gl-sprintf>
-              </p>
-            </div>
-          </div>
-        </div>
+                  <span>{{ $options.i18n.bucket.linkText }}</span>
+                  <gl-icon name="external-link" class="vertical-align-middle" />
+                </gl-link>
+              </template>
+            </gl-sprintf>
+          </p>
+        </gl-form-group>
 
-        <div class="form-group">
-          <label class="label-bold" for="status-page-aws-access-key-id">{{
-            s__('StatusPage|AWS Access Key ID')
-          }}</label>
-          <div class="row">
-            <div class="col-8 col-md-9 gl-pr-0">
-              <gl-form-input
-                id="status-page-aws-access-key "
-                :value="awsAccessKey"
-                @input="setStatusPageAccessKey"
-              />
-            </div>
-          </div>
-        </div>
+        <gl-form-group
+          :label="$options.i18n.region.label"
+          label-size="sm"
+          label-for="status-page-aws-region"
+          class="col-8 col-md-9 gl-pl-0 mb-3"
+        >
+          <gl-form-input
+            id="status-page-aws-region"
+            v-model="region"
+            placeholder="example: us-west-2"
+          />
+          <p class="form-text text-muted">
+            <gl-sprintf :message="$options.i18n.region.helpText">
+              <template #docsLink>
+                <gl-link href="https://github.com/aws/aws-sdk-ruby#configuration">
+                  <span>{{ $options.i18n.region.linkText }}</span>
+                  <gl-icon name="external-link" class="vertical-align-middle" />
+                </gl-link>
+              </template>
+            </gl-sprintf>
+          </p>
+        </gl-form-group>
 
-        <div class="form-group">
-          <label class="label-bold" for="status-page-aws-secret-access-key ">{{
-            s__('StatusPage|AWS Secret access key')
-          }}</label>
-          <div class="row">
-            <div class="col-8 col-md-9 gl-pr-0">
-              <gl-form-input
-                id="status-page-aws-secret-access-key "
-                :value="awsSecretKey"
-                @input="setStatusPageSecretAccessKey"
-              />
-            </div>
-          </div>
-        </div>
+        <gl-form-group
+          :label="$options.i18n.accessKey.label"
+          label-size="sm"
+          label-for="status-page-aws-access-key-id"
+          class="col-8 col-md-9 gl-pl-0 mb-3"
+        >
+          <gl-form-input id="status-page-aws-access-key " v-model="awsAccessKey" />
+        </gl-form-group>
 
-        <gl-button :disabled="loading" variant="success" @click="handleSubmit">
-          {{ __('Save changes') }}
+        <gl-form-group
+          :label="$options.i18n.secretAccessKey.label"
+          label-size="sm"
+          label-for="status-page-aws-secret-access-key"
+          class="col-8 col-md-9 gl-pl-0 mb-3"
+        >
+          <gl-form-input id="status-page-aws-secret-access-key " v-model="awsSecretKey" />
+        </gl-form-group>
+
+        <gl-button :disabled="loading" variant="success" type="submit" ref="submitBtn">
+          {{ $options.i18n.saveBtnLabel }}
         </gl-button>
       </form>
     </div>

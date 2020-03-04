@@ -28,16 +28,16 @@ describe('Status Page actions', () => {
   };
 
   it.each`
-    mutation                         | action                            | value
-    ${types.SET_STATUS_PAGE_ENABLED} | ${'setStatusPageEnabled'}         | ${true}
-    ${types.SET_BUCKET_NAME}         | ${'setStatusPageBucketName'}      | ${'my-bucket'}
-    ${types.SET_REGION}              | ${'setStatusPageRegion'}          | ${'us-west'}
-    ${types.SET_ACCESS_KEY_ID}       | ${'setStatusPageAccessKey'}       | ${'key-id'}
-    ${types.SET_SECRET_ACCESS_KEY}   | ${'setStatusPageSecretAccessKey'} | ${'secret'}
-  `('$action will commit $mutation with $value', ({ mutation, action, value }) => {
+    mutation                         | action                            | value          | key
+    ${types.SET_STATUS_PAGE_ENABLED} | ${'setStatusPageEnabled'}         | ${true}        | ${'enabled'}
+    ${types.SET_BUCKET_NAME}         | ${'setStatusPageBucketName'}      | ${'my-bucket'} | ${'bucketName'}
+    ${types.SET_REGION}              | ${'setStatusPageRegion'}          | ${'us-west'}   | ${'region'}
+    ${types.SET_ACCESS_KEY_ID}       | ${'setStatusPageAccessKey'}       | ${'key-id'}    | ${'awsAccessKey'}
+    ${types.SET_SECRET_ACCESS_KEY}   | ${'setStatusPageSecretAccessKey'} | ${'secret'}    | ${'awsSecretKey'}
+  `('$action will commit $mutation with $value', ({ mutation, action, value, key }) => {
     testAction(
       actions[action],
-      value,
+      { [key]: value },
       null,
       [
         {
@@ -59,11 +59,11 @@ describe('Status Page actions', () => {
         [
           {
             payload: true,
-            type: types.SETTINGS_LOADING,
+            type: types.LOADING,
           },
           {
             payload: false,
-            type: types.SETTINGS_LOADING,
+            type: types.LOADING,
           },
         ],
         [{ type: 'receiveStatusPageSettingsUpdateSuccess' }],
@@ -79,11 +79,11 @@ describe('Status Page actions', () => {
         [
           {
             payload: true,
-            type: types.SETTINGS_LOADING,
+            type: types.LOADING,
           },
           {
             payload: false,
-            type: types.SETTINGS_LOADING,
+            type: types.LOADING,
           },
         ],
         [

@@ -4,15 +4,16 @@ import createFlash from '~/flash';
 import { refreshCurrentPage } from '~/lib/utils/url_utility';
 import * as mutationTypes from './mutation_types';
 
-export const setStatusPageEnabled = ({ commit }, enabled) =>
+export const setStatusPageEnabled = ({ commit }, { enabled }) =>
   commit(mutationTypes.SET_STATUS_PAGE_ENABLED, enabled);
-export const setStatusPageBucketName = ({ commit }, bucketName) =>
+export const setStatusPageBucketName = ({ commit }, { bucketName }) =>
   commit(mutationTypes.SET_BUCKET_NAME, bucketName);
-export const setStatusPageRegion = ({ commit }, region) => commit(mutationTypes.SET_REGION, region);
-export const setStatusPageAccessKey = ({ commit }, accessKeyId) =>
-  commit(mutationTypes.SET_ACCESS_KEY_ID, accessKeyId);
-export const setStatusPageSecretAccessKey = ({ commit }, secretAccessKey) =>
-  commit(mutationTypes.SET_SECRET_ACCESS_KEY, secretAccessKey);
+export const setStatusPageRegion = ({ commit }, { region }) =>
+  commit(mutationTypes.SET_REGION, region);
+export const setStatusPageAccessKey = ({ commit }, { awsAccessKey }) =>
+  commit(mutationTypes.SET_ACCESS_KEY_ID, awsAccessKey);
+export const setStatusPageSecretAccessKey = ({ commit }, { awsSecretKey }) =>
+  commit(mutationTypes.SET_SECRET_ACCESS_KEY, awsSecretKey);
 
 export const updateStatusPageSettings = ({ state, dispatch, commit }) => {
   commit(mutationTypes.LOADING, true);
