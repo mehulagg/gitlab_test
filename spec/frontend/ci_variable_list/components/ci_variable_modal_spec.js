@@ -35,10 +35,6 @@ describe('Ci variable modal', () => {
     expect(findModal().props('actionPrimary').attributes.disabled).toBeTruthy();
   });
 
-  it('masked checkbox is disabled when value does not meet regex requirements', () => {
-    expect(wrapper.find({ ref: 'masked-ci-variable' }).attributes('disabled')).toBeTruthy();
-  });
-
   describe('Adding a new variable', () => {
     beforeEach(() => {
       const [variable] = mockData.mockVariables;
@@ -47,13 +43,6 @@ describe('Ci variable modal', () => {
 
     it('button is enabled when key/value pair are present', () => {
       expect(findModal().props('actionPrimary').attributes.disabled).toBeFalsy();
-    });
-
-    it('masked checkbox is enabled when value meets regex requirements', () => {
-      store.state.maskableRegex = '^[a-zA-Z0-9_+=/@:-]{8,}$';
-      return wrapper.vm.$nextTick(() => {
-        expect(wrapper.find({ ref: 'masked-ci-variable' }).attributes('disabled')).toBeFalsy();
-      });
     });
 
     it('Add variable button dispatches addVariable action', () => {
