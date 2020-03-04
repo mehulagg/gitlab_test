@@ -18,9 +18,9 @@ a11y:
     - ls /reports
     - ls /reports/*-accessibility.html
   allow_failure: true
-  artifacts:
-    when: always
-    paths:
-      - /reports/*-accessibility.html
+  # artifacts:
+  #   when: always
+  #   paths:
+  #     - /reports/*-accessibility.html
   rules:
     - if: $a11y_urls
