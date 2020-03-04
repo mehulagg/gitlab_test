@@ -50,7 +50,8 @@ must be set.
             </ul>
             <li>State</li>
             <ul>
-                <li>Status (open/closed)</li>
+                <li>Status (open or closed)</li>
+                <li>Health Status (On track, Needs attention, or At risk)</li>
                 <li>Confidentiality</li>
                 <li>Tasks (completed vs. outstanding)</li>
             </ul>
@@ -157,11 +158,23 @@ To prevent duplication of issues for the same topic, GitLab searches for similar
 when new issues are being created.
 
 When typing in the title in the **New Issue** page, GitLab searches titles and descriptions
-across all issues the user has access to in the current project. Up 5 similar issues,
+across all issues the user has access to in the current project. Up to five similar issues,
 sorted by most recently updated, are displayed below the title box. Note that this feature
 requires [GraphQL](../../../api/graphql/index.md) to be enabled.
 
 ![Similar issues](img/similar_issues.png)
+
+### Health Status **(ULTIMATE)**
+
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/36427) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.9.
+
+<!-- This is the SSOT and will be linked to from other places.
+
+TODO:
+
+- PM copy
+- What it does
+- How to enable it -->
 
 ## Other Issue actions
 
