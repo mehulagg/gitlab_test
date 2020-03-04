@@ -7,6 +7,8 @@ import {
   GlSearchBoxByType,
 } from '@gitlab/ui';
 import { s__, sprintf } from '~/locale';
+import createFlash from '~/flash';
+import { removeFlash } from '../utils';
 import {
   TASKS_BY_TYPE_FILTERS,
   TASKS_BY_TYPE_SUBJECT_ISSUE,
@@ -24,11 +26,15 @@ export default {
     GlSearchBoxByType,
   },
   props: {
+    warningMessageThreshold: {
+      type: Number,
+      required: false,
+      default: 10,
+    },
     maxLabels: {
       type: Number,
       required: false,
-      // default: TASKS_BY_TYPE_MAX_LABELS,
-      default: 2,
+      default: TASKS_BY_TYPE_MAX_LABELS,
     },
     labels: {
       type: Array,
@@ -87,6 +93,9 @@ export default {
     maxLabelsSelected() {
       return this.selectedLabelIds.length >= this.maxLabels;
     },
+    displaySelectedLabelLimit() {
+      return this.selectedLabelIds.length >= this.warningMessageThreshold;
+    },
   },
   methods: {
     canUpdateLabelFilters(value) {
@@ -97,10 +106,16 @@ export default {
       return this.selectedLabelIds.includes(id);
     },
     handleLabelSelected(value) {
-      console.log('handleLabelSelected', value);
-      // e.preventDefault();
+      removeFlash('notice');
       if (this.canUpdateLabelFilters(value)) {
         this.$emit('updateFilter', { filter: TASKS_BY_TYPE_FILTERS.LABEL, value });
+      } else {
+        const { maxLabels } = this;
+        const message = sprintf(
+          s__('CycleAnalytics|Only %{maxLabels} labels can be selected at this time'),
+          { maxLabels },
+        );
+        createFlash(message, 'notice');
       }
     },
   },
@@ -138,7 +153,8 @@ export default {
         <div ref="labelsFilter" class="js-tasks-by-type-chart-filters-labels mb-3 px-3">
           <p class="font-weight-bold text-left my-2">
             {{ s__('CycleAnalytics|Select labels') }}
-            <br />
+          </p>
+          <p v-if="displaySelectedLabelLimit">
             <small>{{ selectedLabelLimitText }}</small>
           </p>
           <gl-search-box-by-type
