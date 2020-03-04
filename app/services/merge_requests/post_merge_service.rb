@@ -14,12 +14,15 @@ module MergeRequests
       delete_non_latest_diffs(merge_request)
       cleanup_environments(merge_request)
 
+      # These operations send notifications, which can't be run inside a
+      # transaction.
+      create_event(merge_request)
+      create_note(merge_request)
+      close_issues(merge_request)
+
       # These operations need to happen transactionally
       ActiveRecord::Base.transaction do
         merge_request.mark_as_merged
-        create_event(merge_request)
-        create_note(merge_request)
-        close_issues(merge_request)
 
         # TODO: Make sure these are async operations. If not, move them earlier
         # Better to have duplicate notifications than no notifications.
