@@ -214,7 +214,7 @@ not the most recent commit on the target branch. This is by far the most common 
 
 In this case you must rebase or merge to incorporate the changes from the target branch.
 
-![Incorporate target branch changes](img/outdated_report_branch.png)
+![Incorporate target branch changes](img/outdated_report_branch_v12_9.png)
 
 ### Target branch security report is out of date
 
@@ -222,7 +222,7 @@ This can happen for many reasons, including failed jobs or new advisories. When 
 security report is out of date, you must run a new pipeline on the target branch.
 You can do it quickly by following the hyperlink given to run a new pipeline.
 
-![Run a new pipeline](img/outdated_report_pipeline.png)
+![Run a new pipeline](img/outdated_report_pipeline_v12_9.png)
 
 ## Troubleshooting
 
