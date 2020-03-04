@@ -27,7 +27,7 @@ the latest versions.
 In an air-gapped environment, this must be disabled so that GitLab.com is not
 queried. Because the GitLab.com registry is not avaialable, you must update
 each of the scanners to either reference a different, internally-hosted registry
-or provide access to the individual scanner images somehow.
+or provide access to the individual scanner images.
 
 ### Scanner signature and rule updates
 
