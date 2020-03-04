@@ -18,12 +18,49 @@ describe EventCollection do
         end
 
         create(:closed_issue_event, project: project, author: user)
+        create(:wiki_page_event, project: project)
       end
 
       it 'returns an Array of events' do
         events = described_class.new(projects).to_a
 
         expect(events).to be_an_instance_of(Array)
+      end
+
+      context 'the wiki_events feature flag is disabled' do
+        before do
+          stub_feature_flags(wiki_events: false)
+        end
+
+        it 'omits the wiki page events when using to_a' do
+          events = described_class.new(projects).to_a
+
+          expect(events.select(&:wiki_page?)).to be_empty
+        end
+
+        it 'omits the wiki page events when using all_project_events' do
+          events = described_class.new(projects).all_project_events
+
+          expect(events.select(&:wiki_page?)).to be_empty
+        end
+      end
+
+      context 'the wiki_events feature flag is enabled' do
+        before do
+          stub_feature_flags(wiki_events: true)
+        end
+
+        it 'includes the wiki page events when using to_a' do
+          events = described_class.new(projects).to_a
+
+          expect(events.select(&:wiki_page?)).to contain_exactly(Event)
+        end
+
+        it 'includes the wiki page events when using all_project_events' do
+          events = described_class.new(projects).all_project_events
+
+          expect(events.select(&:wiki_page?)).to contain_exactly(Event)
+        end
       end
 
       it 'applies a limit to the number of events' do
@@ -35,7 +72,7 @@ describe EventCollection do
       it 'can paginate through events' do
         events = described_class.new(projects, offset: 20).to_a
 
-        expect(events.length).to eq(1)
+        expect(events.length).to eq(2)
       end
 
       it 'returns an empty Array when crossing the maximum page number' do
