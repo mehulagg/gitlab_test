@@ -13,7 +13,6 @@ describe('Security Configuration App', () => {
         latestPipelinePath: 'http://latestPipelinePath',
         autoDevopsHelpPagePath: 'http://autoDevopsHelpPagePath',
         helpPagePath: 'http://helpPagePath',
-        pipelinesHelpPagePath: 'http://pipelineHelpPagePath',
         ...props,
       },
     });
@@ -49,7 +48,6 @@ describe('Security Configuration App', () => {
       autoDevopsEnabled | latestPipelinePath         | expectedUrl
       ${true}           | ${'http://latestPipeline'} | ${'http://autoDevopsHelpPagePath'}
       ${false}          | ${'http://latestPipeline'} | ${'http://latestPipeline'}
-      ${false}          | ${undefined}               | ${'http://pipelineHelpPagePath'}
     `(
       'displays a link to "$expectedUrl" when autoDevops is "$autoDevopsEnabled" and pipelinesPath is $latestPipelinePath',
       ({ autoDevopsEnabled, latestPipelinePath, expectedUrl }) => {
