@@ -209,7 +209,10 @@ This can happen in two scenarios: your
 
 ### Source branch is behind the target branch
 
-This means the most recent common ancestor commit between the target branch and the source branch is not the most recent commit on the target branch. This is by far the most common situation and user must rebase/merge to incorporate the changes from the target branch.
+This means the most recent common ancestor commit between the target branch and the source branch is
+not the most recent commit on the target branch. This is by far the most common situation.
+
+In this case you must rebase or merge to incorporate the changes from the target branch.
 
 ![Incorporate target branch changes](img/outdated_report_branch.png)
 
