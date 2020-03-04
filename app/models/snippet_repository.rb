@@ -4,7 +4,7 @@ class SnippetRepository < ApplicationRecord
   include Shardable
 
   DEFAULT_EMPTY_FILE_NAME = 'snippetfile'
-  EMPTY_FILE_PATTERN = /^#{DEFAULT_EMPTY_FILE_NAME}(\d)\.txt$/.freeze
+  EMPTY_FILE_PATTERN = /^#{DEFAULT_EMPTY_FILE_NAME}(\d+)\.txt$/.freeze
 
   CommitError = Class.new(StandardError)
 
@@ -65,9 +65,9 @@ class SnippetRepository < ApplicationRecord
 
   def get_last_empty_file_index
     last_file = repository.ls_files(nil)
-                          .map! { |file| file.match(EMPTY_FILE_PATTERN) }
+                          .map { |file| file.match(EMPTY_FILE_PATTERN) }
                           .compact
-                          .max_by { |element| element[1] }
+                          .max_by { |element| element[1].to_i }
 
     last_file ? (last_file[1].to_i + 1) : 1
   end
