@@ -8,7 +8,8 @@ import boardsStore from '~/boards/stores/boards_store';
 const throttleDuration = 1;
 
 function boardGenerator(n) {
-  return new Array(n).fill().map((board, id) => {
+  return new Array(n).fill().map((board, index) => {
+    const id = `${index}`;
     const name = `board${id}`;
 
     return {
@@ -36,6 +37,14 @@ describe('BoardsSelector', () => {
   const getDropdownHeaders = () => wrapper.findAll('.dropdown-bold-header');
 
   beforeEach(() => {
+    const $apollo = {
+      queries: {
+        boards: {
+          loading: false,
+        },
+      },
+    };
+
     boardsStore.setEndpoints({
       boardsEndpoint: '',
       recentBoardsEndpoint: '',
@@ -45,7 +54,13 @@ describe('BoardsSelector', () => {
     });
 
     allBoardsResponse = Promise.resolve({
-      data: boards,
+      data: {
+        group: {
+          boards: {
+            edges: boards.map(board => ({ node: board })),
+          },
+        },
+      },
     });
     recentBoardsResponse = Promise.resolve({
       data: recentBoards,
@@ -77,8 +92,11 @@ describe('BoardsSelector', () => {
         scopedIssueBoardFeatureEnabled: true,
         weights: [],
       },
+      mocks: { $apollo },
       attachToDocument: true,
     });
+
+    wrapper.vm.$apollo.addSmartQuery = jest.fn();
 
     // Emits gl-dropdown show event to simulate the dropdown is opened at initialization time
     wrapper.find(GlDropdown).vm.$emit('show');
@@ -92,6 +110,14 @@ describe('BoardsSelector', () => {
   });
 
   describe('filtering', () => {
+    beforeEach(() => {
+      wrapper.setData({
+        boards,
+      });
+
+      return Vue.nextTick();
+    });
+
     it('shows all boards without filtering', () => {
       expect(getDropdownItems().length).toBe(boards.length + recentBoards.length);
     });
@@ -119,9 +145,13 @@ describe('BoardsSelector', () => {
 
   describe('recent boards section', () => {
     it('shows only when boards are greater than 10', () => {
-      const expectedCount = 2; // Recent + All
+      wrapper.setData({
+        boards,
+      });
 
-      expect(getDropdownHeaders().length).toBe(expectedCount);
+      return Vue.nextTick().then(() => {
+        expect(getDropdownHeaders().length).toBe(2);
+      });
     });
 
     it('does not show when boards are less than 10', () => {
