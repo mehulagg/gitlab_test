@@ -131,6 +131,7 @@ module EE
 
       rule { admin | (can_owners_manage_ldap & owner) }.enable :admin_ldap_group_links
 
+      rule { admin | (can_owners_manage_ldap & owner) }.enable :admin_ldap_group_settings
 
       rule { ldap_synced & ~owners_bypass_ldap_lock }.prevent :admin_group_member
 
