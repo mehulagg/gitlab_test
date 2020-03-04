@@ -351,7 +351,7 @@ runners](../user/gitlab_com/index.md#pre-clone-script).
 The `CI_PRE_CLONE_SCRIPT` is currently defined as a project CI/CD
 variable:
 
-```sh
+```shell
 echo "Downloading archived master..."
 wget -O /tmp/gitlab.tar.gz https://storage.googleapis.com/gitlab-ci-git-repo-cache/project-278964/gitlab-master.tar.gz
 
