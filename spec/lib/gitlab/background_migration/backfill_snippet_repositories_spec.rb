@@ -34,7 +34,7 @@ describe Gitlab::BackgroundMigration::BackfillSnippetRepositories, :migration, s
   end
 
   describe '#perform' do
-    it 'logs successful migrations' do
+    it 'logs successful migrated snippets' do
       expect_next_instance_of(Gitlab::BackgroundMigration::Logger) do |instance|
         expect(instance).to receive(:info).exactly(3).times
       end

@@ -65,16 +65,3 @@ module Gitlab
     end
   end
 end
-
-
-
-# Migration
-# INTERVAL = 5.minutes.to_i
-# BATCH_SIZE = 100
-# MIGRATION = 'BackfillSnippetRepositories'
-
-# Snippet.where.not(id: SnippetRepository.select(:snippet_id)).each_batch(of: BATCH_SIZE) do |batch, index|
-#   range = batch.pluck('MIN(id)', 'MAX(id)').first
-#   delay = index * INTERVAL
-#   BackgroundMigrationWorker.perform_in(delay, MIGRATION, *range)
-# end
