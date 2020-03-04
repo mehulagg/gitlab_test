@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 
+class Gitlab::Graphql::Docs::Renderer
+end
+
 return if Rails.env.production?
 
 module Gitlab
