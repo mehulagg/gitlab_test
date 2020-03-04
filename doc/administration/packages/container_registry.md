@@ -433,7 +433,7 @@ configurable in future releases.
 
 ## Change the registry's public port
 
-The port used by Gitlab to expose the registry is managed via NGINX/`registry_external_url`.
+The port used by GitLab to expose the registry is managed via NGINX/`registry_external_url`.
 
 NOTE: **Note:**
 This cannot be set to `5000` as it will conflict with the actual internal registry listening port.
@@ -441,7 +441,6 @@ This cannot be set to `5000` as it will conflict with the actual internal regist
 ```
 registry_external_url 'https://gitlab.example.com:6789'
 ```
-
 
 ## Change the registry's internal port
 
@@ -1126,15 +1125,15 @@ Once the right permissions were set, the error will go away.
 
 #### 401 Unauthorized with valid credentials
 
-If registry was ever configured with `http_secret`, `internal_certificate`, or `internal_key` these will be preserved in 
+If registry was ever configured with `http_secret`, `internal_certificate`, or `internal_key` these will be preserved in
 `/etc/gitlab/gitlab-secrets.json`. Even after removal these invalid secrets will be used in attempting to authorize requests causing all requests to fail.
-
 
 ```
 Error response from daemon: login attempt to http://registry:5050/v2/ failed with status: 401 Unauthorized
 ```
 
 You can purge (Create a backup copy) the registry section and `gitlab-ctl reconfigure` `gitlab-ctl restart` to repopulate.
+
 ```
 "registry": {
     "http_secret": "",
