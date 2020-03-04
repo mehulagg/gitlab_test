@@ -149,7 +149,7 @@ Sample request:
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/1/pipelines/46/test_report"
 ```
 
-Example of response
+Sample response:
 
 ```json
 {
