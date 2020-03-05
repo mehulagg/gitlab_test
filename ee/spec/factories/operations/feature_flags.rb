@@ -7,11 +7,11 @@ FactoryBot.define do
     active { true }
 
     trait :legacy_flag do
-      version { 1 }
+      version { Operations::FeatureFlag.versions['legacy_flag'] }
     end
 
     trait :new_version_flag do
-      version { 2 }
+      version { Operations::FeatureFlag.versions['new_version_flag'] }
     end
   end
 end
