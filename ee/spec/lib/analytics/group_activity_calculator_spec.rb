@@ -9,6 +9,7 @@ describe Analytics::GroupActivityCalculator do
   set(:current_user) { create(:user) }
   set(:project) { create(:project, group: group) }
   set(:secret_project) { create(:project, group: group) }
+  set(:secret_subgroup) { create(:group, parent: group) }
 
   before do
     group.add_developer(current_user)
@@ -42,6 +43,22 @@ describe Analytics::GroupActivityCalculator do
     it 'only returns the count of recent, user accessible merge requests' do
       expect(subject.merge_requests_count).to eq 1
       expect(subject.issues_count).to eq 0
+    end
+  end
+
+  context 'with members' do
+    let(:recently_added_member) { create(:group_member, group: group) }
+    let(:old_member) { create(:group_member, group: group) }
+    let(:secret_member) { create(:group_member, group: secret_subgroup) }
+
+    before do
+      old_member.update!(created_at: 100.days.ago)
+    end
+
+    it 'only returns the count of recently added, user accessible members' do
+      expect(subject.new_members_count).to eq 1
+      expect(subject.issues_count).to eq 1
+      expect(subject.merge_requests_count).to eq 0
     end
   end
 end

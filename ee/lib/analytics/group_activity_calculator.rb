@@ -34,5 +34,16 @@ module Analytics
         ).execute
           .count
     end
+
+    def new_members_count
+      @new_members_count ||=
+        GroupMembersFinder.new(
+          @current_user,
+          group_path: @group.id,
+          include_subgroups: true,
+          created_at: "> #{DURATION.ago}"
+        ).execute
+          .count
+    end
   end
 end
