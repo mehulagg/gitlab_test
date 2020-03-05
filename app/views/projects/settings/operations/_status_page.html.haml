@@ -1,4 +1,5 @@
-- return unless can?(current_user, :read_environment, @project)
+- return unless @project.feature_available?(:status_page, current_user)
+
 - setting = status_page_settings_data(@project.status_page_setting)
 
 .js-status-page-settings{ data: { operations_settings_endpoint: project_settings_operations_path(@project),
