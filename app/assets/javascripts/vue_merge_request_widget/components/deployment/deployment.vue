@@ -94,7 +94,7 @@ export default {
               :app-button-text="appButtonText"
               :deployment="deployment"
               :show-visual-review-app="showVisualReviewApp"
-              :visual-review-app-metadata="visualReviewAppMeta"
+              :visual-review-app-meta="visualReviewAppMeta"
             />
             <!-- if it is stoppable, show stop -->
             <deployment-stop-button

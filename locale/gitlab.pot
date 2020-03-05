@@ -13204,6 +13204,9 @@ msgstr ""
 msgid "Notes|This comment has changed since you started editing, please review the %{open_link}updated comment%{close_link} to ensure information is not lost"
 msgstr ""
 
+msgid "Nothing found..."
+msgstr ""
+
 msgid "Nothing found…"
 msgstr ""
 
@@ -21905,7 +21908,7 @@ msgstr ""
 msgid "VisualReviewApp|Review"
 msgstr ""
 
-msgid "VisualReviewApp|Steps 1 and 2 (and sometimes 3) are performed once by the developer before requesting feedback. Steps 3 (if necessary), 4, and 5 are performed by the reviewer each time they perform a review."
+msgid "VisualReviewApp|Steps 1 and 2 (and sometimes 3) are performed once by the developer before requesting feedback. Steps 3 (if necessary), 4 is performed by the reviewer each time they perform a review."
 msgstr ""
 
 msgid "Vulnerabilities"
