@@ -8,9 +8,6 @@ module Authenticates2FAForAdminMode
   end
 
   def admin_mode_prompt_for_two_factor(user)
-    # Set @user for Devise views
-    @user = user # rubocop:disable Gitlab/ModuleWithInstanceVariables
-
     return handle_locked_user(user) unless user.can?(:log_in)
 
     session[:otp_user_id] = user.id
@@ -20,7 +17,7 @@ module Authenticates2FAForAdminMode
   end
 
   def admin_mode_authenticate_with_two_factor
-    user = self.resource = current_user
+    user = current_user
 
     return handle_locked_user(user) unless user.can?(:log_in)
 

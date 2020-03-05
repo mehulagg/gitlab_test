@@ -6,9 +6,6 @@ class Admin::SessionsController < ApplicationController
 
   before_action :user_is_admin!
 
-  # Mimic Devise resource attribute for some views (e.g. u2f auth)
-  attr_accessor :resource
-
   def new
     if current_user_mode.admin_mode?
       redirect_to redirect_path, notice: _('Admin mode already enabled')

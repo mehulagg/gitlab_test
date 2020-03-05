@@ -5,7 +5,6 @@ require 'spec_helper'
 describe 'admin/sessions/two_factor.html.haml' do
   before do
     allow(view).to receive(:current_user).and_return(user)
-    allow(view).to receive(:resource).and_return(user)
   end
 
   context 'user has no two factor auth' do
