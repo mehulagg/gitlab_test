@@ -16,7 +16,6 @@ import {
   GlButtonGroup,
 } from '@gitlab/ui';
 import AccessorUtils from '~/lib/utils/accessor';
-import Icon from '~/vue_shared/components/icon.vue';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
 import { __ } from '~/locale';
 import { isEmpty } from 'lodash';
@@ -88,7 +87,6 @@ export default {
     GlLoadingIcon,
     GlTable,
     GlFormInput,
-    Icon,
     GlPagination,
     TimeAgo,
     GlButtonGroup,
@@ -285,7 +283,7 @@ export default {
             @click="filterErrors(status, label)"
           >
             <span class="d-flex">
-              <icon
+              <gl-icon
                 class="flex-shrink-0 append-right-4"
                 :class="{ invisible: !isCurrentStatusFilter(status) }"
                 name="mobile-issue-close"
@@ -307,7 +305,7 @@ export default {
             @click="sortByField(field)"
           >
             <span class="d-flex">
-              <icon
+              <gl-icon
                 class="flex-shrink-0 append-right-4"
                 :class="{ invisible: !isCurrentSortField(field) }"
                 name="mobile-issue-close"
