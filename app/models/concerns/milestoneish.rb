@@ -123,10 +123,6 @@ module Milestoneish
     Gitlab::TimeTrackingFormatter.output(total_issue_time_estimate)
   end
 
-  def count_issues_by_state
-    @count_issues_by_state ||= issues.reorder(nil).group(:state_id).count
-  end
-
   private
 
   def memoize_per_user(user, method_name)
