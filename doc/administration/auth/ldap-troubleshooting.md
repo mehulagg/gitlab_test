@@ -10,29 +10,28 @@ debugging problems with LDAP.
 
 - Can GitLab connect to LDAP?
 
+  - Run the [LDAP rake task](#ldap-check) to check whether a connection to LDAP can
+    be established. If not, [review what to check](#ldap-check).
   - Reproduce the problem and [review the logs](#gitlab-logs) for
     [errors or other messages](#connection).
-  - Run the [LDAP rake task](#ldap-check) to check whether a connection to LDAP can
-    be established. If not, use [`ldapsearch`](#ldapsearch) to debug it.
 
 - Does logging in with LDAP fail for everyone?
 
-  - Review the [logs](#gitlab-logs) for [error messages](#user-logins).
   - Run the [LDAP rake task](#ldap-check) to check whether users are returned in
-    the output. If none are, [see what to check](#no-users-are-found).
-  - Use the [rails console](#rails-console) to [manually sync all
-    users](#sync-all-users-starter-only), paying attention to [the
-    output](#example-log-output-after-a-user-sync-starter-only).
+    the output. Review [this section](#no-users-are-found) if none are.
+  - Reproduce a failed login and [review the logs](#gitlab-logs) for
+    [error messages](#user-logins).
 
-- Can some users login but others can't?
+- Can some users login with LDAP but others can't?
 
-  - Review the [logs](#gitlab-logs) for [error messages](#user-logins).
+  - Reproduce the failed login and review the [logs](#gitlab-logs) for
+    [error messages](#user-logins).
   - Barring anything useful in the logs, go to
     [users cannot login](#users-cannot-login) for more debugging steps.
 
 - Do group memberships for one or more users fail to sync with LDAP?
 
-  - See [what to check when memberships aren't granted).
+  - See [what to check when memberships aren't granted](#memberships-not-granted-starter-only).
 
 - Do some users fail to be made admins?
 
@@ -129,9 +128,15 @@ The [rake task to check LDAP][ldap-check] is a valuable tool
 to help determine whether GitLab can successfully establish a connection to
 LDAP and can get so far as to even read users.
 
-If a connection can't be established, it is likely either because of your
-configuration or the connection itself. Re-visit your LDAP configuration and
-use [`ldapsearch`](#ldapsearch) to debug where it could be failing.
+If a connection can't be established, it is likely either because of a problem
+with your configuration or a firewall blocking the connection.
+
+- Ensure you don't have a firewall blocking the
+connection, and that the LDAP server is accessible to the GitLab host.
+- Look for an error message in the rake check output, which may lead to your LDAP configuration to
+confirm that the configuration values (specifically `host`, `port`, `bind_dn`, and
+`password`) are correct.
+- Look for [errors](#connection) in [the logs](#gitlab-logs) to further debug connection failures.
 
 If GitLab can successfully connect to LDAP but doesn't return any
 users, [see what to do when no users are found](#no-users-are-found).
@@ -447,7 +452,7 @@ No `admin_group` configured for 'ldapmain' provider. Skipping
 
 #### Connection refused
 
-If you are getting 'Connection Refused' errors when trying to connect to the
+If you are getting `Connection Refused` errors when trying to connect to the
 LDAP server please double-check the LDAP `port` and `encryption` settings used by
 GitLab. Common combinations are `encryption: 'plain'` and `port: 389`, OR
 `encryption: 'simple_tls'` and `port: 636`.
