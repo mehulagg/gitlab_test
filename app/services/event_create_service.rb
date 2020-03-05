@@ -81,13 +81,15 @@ class EventCreateService
   end
 
   def wiki_event(wiki_page, action, old_slug)
-    project = wiki_page.wiki.project
-    slug = old_slug.presence || wiki_page.slug
-    wiki_page_meta = WikiPageMeta.for_wiki_page(slug, wiki_page.title, project)
+    Event.transaction do
+      project = wiki_page.wiki.project
+      slug = old_slug.presence || wiki_page.slug
+      wiki_page_meta = WikiPageMeta.for_wiki_page(slug, wiki_page.title, project)
 
-    wiki_page_meta.update_slug(wiki_page.slug)
+      wiki_page_meta.update_slug(wiki_page.slug)
 
-    create_record_event(wiki_page_meta, wiki_page.wiki.user, action)
+      create_record_event(wiki_page_meta, wiki_page.wiki.user, action)
+    end
   end
 
   private
