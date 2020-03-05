@@ -40,7 +40,7 @@ module API
         params do
           requires :name, type: String, desc: 'The name of feature flag'
           optional :description, type: String, desc: 'The description of the feature flag'
-          optional :version, type: Integer, desc: 'The version of the feature flag'
+          optional :version, type: String, desc: 'The version of the feature flag'
           optional :scopes, type: Array do
             requires :environment_scope, type: String, desc: 'The environment scope of the scope'
             requires :active, type: Boolean, desc: 'Active/inactive of the scope'
@@ -59,7 +59,7 @@ module API
 
           attrs = declared_params(include_missing: false)
 
-          ensure_post_version_2_flags_enabled! if attrs[:version] == Operations::FeatureFlag.versions[:new_version_flag]
+          ensure_post_version_2_flags_enabled! if attrs[:version] == 'new_version_flag'
 
           rename_key(attrs, :scopes, :scopes_attributes)
           rename_key(attrs, :strategies, :strategies_attributes)

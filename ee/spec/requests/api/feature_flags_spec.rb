@@ -318,7 +318,7 @@ describe API::FeatureFlags do
       it 'creates a new feature flag' do
         params = {
           name: 'new-feature',
-          version: 2
+          version: 'new_version_flag'
         }
 
         post api("/projects/#{project.id}/feature_flags", user), params: params
@@ -334,7 +334,7 @@ describe API::FeatureFlags do
       it 'creates a new feature flag with strategies' do
         params = {
           name: 'new-feature',
-          version: 2,
+          version: 'new_version_flag',
           strategies: [{
             name: 'userWithId',
             parameters: { 'userIds': 'user1' }
@@ -358,7 +358,7 @@ describe API::FeatureFlags do
       it 'creates a new feature flag with strategies with scopes' do
         params = {
           name: 'new-feature',
-          version: 2,
+          version: 'new_version_flag',
           strategies: [{
             name: 'gradualRolloutUserId',
             parameters: { groupId: 'default', percentage: '50' },
@@ -389,7 +389,7 @@ describe API::FeatureFlags do
         stub_feature_flags(feature_flags_new_version: false)
         params = {
           name: 'new-feature',
-          version: 2
+          version: 'new_version_flag'
         }
 
         post api("/projects/#{project.id}/feature_flags", user), params: params
