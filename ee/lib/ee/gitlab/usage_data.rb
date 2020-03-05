@@ -42,7 +42,7 @@ module EE
           # self hosted instances, prevent them from running on GitLab.com and allow instance maintainers
           # to disable them via a feature flag.
           return super if (::Feature.disabled?(:usage_ping_batch_counter) && ::Gitlab.com?) ||
-                          ::Feature.disabled?(:usage_activity_by_stage, default_enabled: true)
+            ::Feature.disabled?(:usage_activity_by_stage, default_enabled: true)
 
           if ::Feature.disabled?(:usage_activity_by_stage_monthly)
             super.merge(usage_activity_by_stage)
