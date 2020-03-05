@@ -8,96 +8,118 @@ import TemplateSelectorMediator from '../blob/file_template_mediator';
 import getModeByFileExtension from '~/lib/utils/ace_utils';
 import { addEditorMarkdownListeners } from '~/lib/utils/text_markdown';
 
-export default class EditBlob {
-  // The options object has:
-  // assetsPath, filePath, currentAction, projectId, isMarkdown
-  constructor(options) {
-    this.options = options;
-    this.configureAceEditor();
-    this.initModePanesAndLinks();
-    this.initSoftWrap();
-    this.initFileSelectors();
+function configureAceEditor(options) {
+  const { filePath, assetsPath, isMarkdown } = options;
+  ace.config.set('modePath', `${assetsPath}/ace`);
+  ace.config.loadModule('ace/ext/searchbox');
+  ace.config.loadModule('ace/ext/modelist');
+
+  const editor = ace.edit('editor');
+
+  if (isMarkdown) {
+    addEditorMarkdownListeners(editor);
   }
 
-  configureAceEditor() {
-    const { filePath, assetsPath, isMarkdown } = this.options;
-    ace.config.set('modePath', `${assetsPath}/ace`);
-    ace.config.loadModule('ace/ext/searchbox');
-    ace.config.loadModule('ace/ext/modelist');
+  // This prevents warnings re: automatic scrolling being logged
+  editor.$blockScrolling = Infinity;
 
-    this.editor = ace.edit('editor');
+  editor.focus();
 
-    if (isMarkdown) {
-      addEditorMarkdownListeners(this.editor);
-    }
-
-    // This prevents warnings re: automatic scrolling being logged
-    this.editor.$blockScrolling = Infinity;
-
-    this.editor.focus();
-
-    if (filePath) {
-      this.editor.getSession().setMode(getModeByFileExtension(filePath));
-    }
+  if (filePath) {
+    editor.getSession().setMode(getModeByFileExtension(filePath));
   }
 
-  initFileSelectors() {
-    const { currentAction, projectId } = this.options;
-    this.fileTemplateMediator = new TemplateSelectorMediator({
-      currentAction,
-      editor: this.editor,
-      projectId,
-    });
+  return editor;
+}
+
+function editModeLinkClickHandler(editor, e) {
+  e.preventDefault();
+
+  const editModePanes = $('.js-edit-mode-pane');
+  const editModeLinks = $('.js-edit-mode a');
+
+  const currentLink = $(e.target);
+  const paneId = currentLink.attr('href');
+  const currentPane = editModePanes.filter(paneId);
+  const toggleButton = $('.soft-wrap-toggle');
+
+  editModeLinks.parent().removeClass('active hover');
+
+  currentLink.parent().addClass('active hover');
+
+  editModePanes.hide();
+
+  currentPane.fadeIn(200);
+
+  if (paneId === '#preview') {
+    toggleButton.hide();
+    axios
+      .post(currentLink.data('previewUrl'), {
+        content: editor.getValue(),
+      })
+      .then(({ data }) => {
+        currentPane.empty().append(data);
+        currentPane.renderGFM();
+      })
+      .catch(() => createFlash(__('An error occurred previewing the blob')));
   }
 
-  initModePanesAndLinks() {
-    this.$editModePanes = $('.js-edit-mode-pane');
-    this.$editModeLinks = $('.js-edit-mode a');
-    this.$editModeLinks.on('click', e => this.editModeLinkClickHandler(e));
-  }
+  toggleButton.show();
 
-  editModeLinkClickHandler(e) {
-    e.preventDefault();
+  return editor.focus();
+}
 
-    const currentLink = $(e.target);
-    const paneId = currentLink.attr('href');
-    const currentPane = this.$editModePanes.filter(paneId);
 
-    this.$editModeLinks.parent().removeClass('active hover');
+function initModePanesAndLinks(editor) {
+  const editModeLinks = $('.js-edit-mode a');
 
-    currentLink.parent().addClass('active hover');
+  editModeLinks.on('click', e => editModeLinkClickHandler(editor, e));
+}
 
-    this.$editModePanes.hide();
+function toggleSoftWrap(toggleButton, editor, isSoftWrapped) {
+  toggleButton.toggleClass('soft-wrap-active', !isSoftWrapped);
+  editor.getSession().setUseWrapMode(!isSoftWrapped);
+}
 
-    currentPane.fadeIn(200);
+function initSoftWrap(editor) {
+  const toggleButton = $('.soft-wrap-toggle');
+  const isSoftWrapped = toggleButton.hasClass('soft-wrap-active');
 
-    if (paneId === '#preview') {
-      this.$toggleButton.hide();
-      axios
-        .post(currentLink.data('previewUrl'), {
-          content: this.editor.getValue(),
-        })
-        .then(({ data }) => {
-          currentPane.empty().append(data);
-          currentPane.renderGFM();
-        })
-        .catch(() => createFlash(__('An error occurred previewing the blob')));
-    }
+  toggleButton.on('click', () => toggleSoftWrap(toggleButton, editor, isSoftWrapped));
+}
 
-    this.$toggleButton.show();
+function initFileSelectors(editor, options) {
+  const { currentAction, projectId } = options;
 
-    return this.editor.focus();
-  }
+  const templateSelectorMediator = new TemplateSelectorMediator({
+    currentAction,
+    editor,
+    projectId,
+  });
 
-  initSoftWrap() {
-    this.isSoftWrapped = false;
-    this.$toggleButton = $('.soft-wrap-toggle');
-    this.$toggleButton.on('click', () => this.toggleSoftWrap());
-  }
+  templateSelectorMediator.initTemplateSelectorMediators();
+}
 
-  toggleSoftWrap() {
-    this.isSoftWrapped = !this.isSoftWrapped;
-    this.$toggleButton.toggleClass('soft-wrap-active', this.isSoftWrapped);
-    this.editor.getSession().setUseWrapMode(this.isSoftWrapped);
-  }
+export default function initEditBlob(editBlobForm) {
+  const urlRoot = editBlobForm.data('relativeUrlRoot');
+  const assetsPrefix = editBlobForm.data('assetsPrefix');
+  const assetsPath = `${urlRoot}${assetsPrefix}`;
+  const filePath = `${editBlobForm.data('blobFilename')}`;
+  const currentAction = $('.js-file-title').data('currentAction');
+  const projectId = editBlobForm.data('project-id');
+  const isMarkdown = editBlobForm.data('is-markdown');
+
+  const editBlobOptions = {
+    assetsPath,
+    filePath,
+    currentAction,
+    projectId,
+    isMarkdown,
+  };
+
+  const editor = configureAceEditor(editBlobOptions);
+
+  initModePanesAndLinks(editor);
+  initSoftWrap(editor, editBlobOptions);
+  initFileSelectors(editor, editBlobOptions);
 }

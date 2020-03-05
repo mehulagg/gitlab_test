@@ -15,7 +15,9 @@ export default class FileTemplateMediator {
     this.editor = editor;
     this.currentAction = currentAction;
     this.projectId = projectId;
+  }
 
+  initTemplateSelectorMediators() {
     this.initTemplateSelectors();
     this.initTemplateTypeSelector();
     this.initDomElements();
