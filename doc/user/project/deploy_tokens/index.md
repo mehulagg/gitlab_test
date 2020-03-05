@@ -1,6 +1,7 @@
 # Deploy Tokens
 
-> [Introduced][ce-17894] in GitLab 10.7.
+> - [Introduced][ce-17894] in GitLab 10.7.
+> - [Moved](https://gitlab.com/gitlab-org/gitlab/issues/199370) from **Settings > Repository** in GitLab 12.9.
 
 Deploy tokens allow to download (through `git clone`), or read the container registry images of a project without the need of having a user and a password.
 
