@@ -28,13 +28,13 @@ export default {
       return sprintf(__(`%{tag}-evidence-${index}.json`), { tag: this.release.tagName });
     },
     evidenceUrl(index) {
-      return this.release.assets.evidence[index].file_path;
+      return this.release.evidence[index].file_path;
     },
     sha(index) {
-      return this.release.assets.evidence[index].evidence_sha;
+      return this.release.evidence[index].sha;
     },
     shortSha(index) {
-      return truncateSha(this.release.assets.evidence[index].evidence_sha);
+      return truncateSha(this.release.evidence[index].sha);
     },
   },
 };
