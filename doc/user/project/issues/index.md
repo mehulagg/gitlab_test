@@ -182,12 +182,12 @@ and see an aggregate report of health at the Epic level.
 
 <!-- TODO: update with the feature flag name -->
 
-This feature comes with the `:feature_flag` feature flag disabled by default. However, in some cases
+This feature comes with the `:save_issuable_health_status` feature flag disabled by default. However, in some cases
 this feature is incompatible with old configuration. To turn on the feature while configuration is
 migrated, ask a GitLab administrator with Rails console access to run the following command:
 
 ```ruby
-Feature.disable(:feature_flag)
+Feature.enable(:save_issuable_health_status)
 ```
 
 ## Other Issue actions
