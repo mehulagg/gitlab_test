@@ -166,11 +166,12 @@ export default {
             v-for="label in availableLabels"
             :key="label.id"
             :is-checked="isLabelSelected(label.id)"
+            container-classes="d-flex flex-row"
             @click="() => handleLabelSelected(label.id)"
-          >
+          >                      
             <span
               :style="{ 'background-color': label.color }"
-              class="d-inline-block dropdown-label-box"
+              class="d-inline-flex dropdown-label-box"
             ></span>
             {{ label.name }}
           </gl-new-dropdown-item>
