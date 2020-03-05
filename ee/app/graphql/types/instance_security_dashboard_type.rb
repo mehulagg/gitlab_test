@@ -11,7 +11,6 @@ module Types
           ::Types::VulnerabilityType.connection_type,
           null: true,
           description: 'Vulnerabilities reported for projects on this instance security dashboard',
-          resolver: Resolvers::VulnerabilitiesResolver,
           feature_flag: :first_class_vulnerabilities
   end
 end
