@@ -28,7 +28,16 @@ module Gitlab
               end
             end
 
+            def matching?
+              super &&
+                Feature.enabled?(:ci_dynamic_child_pipeline, project)
+            end
+
             private
+
+            def project
+              context&.parent_pipeline&.project
+            end
 
             def validate_content!
               return unless ensure_preconditions_satisfied!
