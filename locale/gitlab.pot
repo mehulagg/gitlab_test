@@ -8143,9 +8143,6 @@ msgstr ""
 msgid "Expires in %{expires_at}"
 msgstr ""
 
-msgid "Expires on:"
-msgstr ""
-
 msgid "Expires:"
 msgstr ""
 

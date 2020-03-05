@@ -38,8 +38,8 @@ describe Gitlab::Auth::KeyStatusChecker do
     end
   end
 
-  describe '#status_message?' do
-    subject { key_status_checker.status_message }
+  describe '#message' do
+    subject { key_status_checker.message }
 
     context 'for an expired key' do
       let(:key) { expired_key }

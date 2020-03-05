@@ -81,7 +81,7 @@ module Gitlab
         check_push_access!
       end
 
-      success_result(cmd)
+      success_result
     end
 
     def guest_can_download_code?
@@ -122,13 +122,15 @@ module Gitlab
     def check_for_console_messages
       return console_messages unless key?
 
-      key_status = Gitlab::Auth::KeyStatusChecker.new(actor)
-
       if key_status.active?
         console_messages
       else
-        console_messages.push(key_status.status_message)
+        console_messages.push(key_status.message)
       end
+    end
+
+    def key_status
+      Gitlab::Auth::KeyStatusChecker.new(actor)
     end
 
     def console_messages
@@ -390,7 +392,7 @@ module Gitlab
 
     protected
 
-    def success_result(cmd)
+    def success_result
       ::Gitlab::GitAccessResult::Success.new(console_messages: check_for_console_messages)
     end
 

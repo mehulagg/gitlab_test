@@ -12,7 +12,7 @@
           %span.light= _('Created on:')
           %strong= @key.created_at.to_s(:medium)
         %li
-          %span.light= _('Expires on:')
+          %span.light= _('Expires:')
           %strong= @key.expires_at.try(:to_s, :medium) || _('Never')
         %li
           %span.light= _('Last used on:')

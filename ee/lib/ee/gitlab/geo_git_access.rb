@@ -41,11 +41,11 @@ module EE
 
       def messages
         messages = proxying_to_primary_message
-        console_messages = check_for_console_messages
+        lag_message = current_replication_lag_message
 
-        return messages unless console_messages
+        return messages unless lag_message
 
-        messages + ['', *console_messages]
+        messages + ['', lag_message]
       end
 
       def push_to_read_only_message

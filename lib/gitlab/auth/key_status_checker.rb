@@ -13,7 +13,7 @@ module Gitlab
         key_status == :active
       end
 
-      def status_message
+      def message
         case key_status
         when :expired
           _('INFO: Your SSH key has expired. Please generate a new key.')
