@@ -556,10 +556,13 @@ describe API::FeatureFlags do
 
   describe 'PUT /projects/:id/feature_flags/:name' do
     context 'with a legacy feature flag' do
+      let!(:feature_flag) do
+        create(:operations_feature_flag, project: project,
+               name: 'feature1', version: 1, description: 'old description')
+      end
+
       it 'returns a 404 if the feature is disabled' do
         stub_feature_flags(feature_flags_new_version: false)
-        feature_flag = create(:operations_feature_flag, project: project,
-                              name: 'feature1', version: 1, description: 'old description')
         params = { description: 'new description' }
 
         put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
@@ -569,8 +572,6 @@ describe API::FeatureFlags do
       end
 
       it 'returns a 422' do
-        feature_flag = create(:operations_feature_flag, project: project,
-                              name: 'feature1', version: 1, description: 'old description')
         params = { description: 'new description' }
 
         put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
@@ -582,10 +583,13 @@ describe API::FeatureFlags do
     end
 
     context 'with a version 2 feature flag' do
+      let!(:feature_flag) do
+        create(:operations_feature_flag, project: project,
+               name: 'feature1', version: 2, description: 'old description')
+      end
+
       it 'returns a 404 if the feature is disabled' do
         stub_feature_flags(feature_flags_new_version: false)
-        feature_flag = create(:operations_feature_flag, project: project,
-                              name: 'feature1', version: 2, description: 'old description')
         params = { description: 'new description' }
 
         put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
@@ -595,8 +599,6 @@ describe API::FeatureFlags do
       end
 
       it 'returns a 404 if the feature flag does not exist' do
-        feature_flag = create(:operations_feature_flag, project: project,
-                              name: 'feature1', version: 2, description: 'old description')
         params = { description: 'new description' }
 
         put api("/projects/#{project.id}/feature_flags/other_flag_name", user), params: params
@@ -606,8 +608,6 @@ describe API::FeatureFlags do
       end
 
       it 'forbids a request for a reporter' do
-        feature_flag = create(:operations_feature_flag, project: project,
-                              name: 'feature1', version: 2, description: 'old description')
         params = { description: 'new description' }
 
         put api("/projects/#{project.id}/feature_flags/feature1", reporter), params: params
@@ -617,20 +617,16 @@ describe API::FeatureFlags do
       end
 
       it 'updates the feature flag' do
-        feature_flag = create(:operations_feature_flag, project: project,
-                              name: 'feature1', version: 2, description: 'old description')
         params = { description: 'new description' }
 
         put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
 
         expect(response).to have_gitlab_http_status(:ok)
         expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
-        feature_flag.reload
-        expect(feature_flag.description).to eq('new description')
+        expect(feature_flag.reload.description).to eq('new description')
       end
 
       it 'updates an existing feature flag strategy' do
-        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
         strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
         params = {
           strategies: [{
@@ -653,7 +649,6 @@ describe API::FeatureFlags do
       end
 
       it 'creates a new feature flag strategy' do
-        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
         strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
         params = {
           strategies: [{
@@ -680,7 +675,6 @@ describe API::FeatureFlags do
       end
 
       it 'deletes a feature flag strategy' do
-        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
         strategy_a = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
         strategy_b = create(:operations_strategy, feature_flag: feature_flag,
                           name: 'userWithId', parameters: { userIds: 'userA,userB' })
@@ -712,7 +706,6 @@ describe API::FeatureFlags do
       end
 
       it 'updates an existing feature flag scope' do
-        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
         strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
         scope = create(:operations_scope, strategy: strategy, environment_scope: '*')
         params = {
@@ -737,7 +730,6 @@ describe API::FeatureFlags do
       end
 
       it 'deletes an existing feature flag scope' do
-        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
         strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
         scope = create(:operations_scope, strategy: strategy, environment_scope: '*')
         params = {
