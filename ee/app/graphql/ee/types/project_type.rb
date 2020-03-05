@@ -24,7 +24,7 @@ module EE
                feature_flag: :first_class_vulnerabilities,
                resolve: -> (obj, _args, ctx) do
                  VulnerabilitiesSummary.new(
-                   obj.vulnerabilities.counted_by_severity.merge(vulnerable: obj)
+                   obj.vulnerabilities.counts_by_severity.merge(vulnerable: obj)
                  )
                end
       end
