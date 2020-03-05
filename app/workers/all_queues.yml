@@ -521,9 +521,9 @@
   :resource_boundary: :unknown
   :weight: 2
   :idempotent: 
-- :name: jira_importer:jira_import_importer
+- :name: jira_importer:jira_import_import_issues
   :feature_category: :importers
-  :has_external_dependencies: true
+  :has_external_dependencies: 
   :urgency: :default
   :resource_boundary: :unknown
   :weight: 1

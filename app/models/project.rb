@@ -860,7 +860,7 @@ class Project < ApplicationRecord
         # Do not retry on Import/Export until https://gitlab.com/gitlab-org/gitlab-foss/issues/26189 is solved.
         RepositoryImportWorker.set(retry: false).perform_async(self.id)
       elsif jira_import?
-        ::Gitlab::JiraImport::ImporterWorker.perform_async(self.id)
+        ::Gitlab::JiraImport::ImportIssuesWorker.perform_async(self.id)
       else
         RepositoryImportWorker.perform_async(self.id)
       end

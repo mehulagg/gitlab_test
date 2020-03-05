@@ -1,23 +1,19 @@
 # frozen_string_literal: true
 
 module Gitlab
-  module Jira
-    class Importer
-      include ApplicationWorker
-      include ExceptionBacktrace
-      include ProjectStartImport
-      include ProjectImportOptions
-
-      BATCH = 1000
-
+  module JiraImport
+    class BaseImporter
+      ITEMS_PER_PAGE = 1000
       attr_reader :project, :import_data
 
-      def initialize(project_id)
-        @project = Project.find(project_id)
+      def initialize(project)
         @jira_project_key = project.import_data.data.dig("jira", "jira_project_key")
 
-        raise Projects::ImportService::Error, "Unable to find jira project to import data from." unless @jira_project_key.present?
+        unless @jira_project_key.present?
+          raise Projects::ImportService::Error, "Unable to find jira project to import data from."
+        end
 
+        @project = project
         @formatter = Gitlab::ImportFormatter.new
         @client = project.jira_service.client
       end
@@ -25,7 +21,6 @@ module Gitlab
       def execute
         import
 
-        # if this is last job and there are no failed jobs only then run after_import.
         project.after_import
       end
 
@@ -34,7 +29,7 @@ module Gitlab
       def import
         start_at = 0
 
-        while start_at % BATCH == 0
+        while start_at % ITEMS_PER_PAGE == 0
           issues = fetch_issues(start_at)
           import_issues(issues)
           start_at += issues.size
@@ -43,8 +38,8 @@ module Gitlab
 
       def fetch_issues(start_at)
         @client.Issue.jql("PROJECT='#{@jira_project_key}' ORDER BY created ASC", {
-          fields: %w(summary description status reporter assignee updated comment labels),
-          max_results: BATCH, start_at: start_at
+          fields: %w(summary description status reporter assignee updated created comment labels),
+          max_results: ITEMS_PER_PAGE, start_at: start_at
         })
       end
 
@@ -61,6 +56,7 @@ module Gitlab
             title: summary,
             state: get_status(jira_issue.status.statusCategory),
             updated_at: jira_issue.updated,
+            created_at: jira_issue.created,
             author_id: project.creator_id # todo: map actual author
           )
 
