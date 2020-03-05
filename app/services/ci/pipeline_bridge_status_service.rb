@@ -4,6 +4,7 @@ module Ci
   class PipelineBridgeStatusService < ::BaseService
     def execute(pipeline)
       return unless pipeline.bridge_triggered?
+      return unless pipeline.bridge_waiting?
 
       pipeline.source_bridge.inherit_status_from_downstream!(pipeline)
     end

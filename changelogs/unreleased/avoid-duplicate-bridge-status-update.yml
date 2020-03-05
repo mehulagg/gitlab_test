@@ -1,0 +1,5 @@
+---
+title: Avoid updating bridge status if it does not use use `strategy:depend`
+merge_request: 26567
+author:
+type: fixed
