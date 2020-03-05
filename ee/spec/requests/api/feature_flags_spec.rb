@@ -556,6 +556,20 @@ describe API::FeatureFlags do
 
   describe 'PUT /projects/:id/feature_flags/:name' do
     context 'with a legacy feature flag' do
+      it 'returns a 404 if the feature is disabled' do
+        stub_feature_flags(feature_flags_new_version: false)
+        feature_flag = create(:operations_feature_flag, project: project,
+                              name: 'feature1', version: 1, description: 'old description')
+        params = {
+          description: 'new description'
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:not_found)
+        expect(feature_flag.reload.description).to eq('old description')
+      end
+
       it 'returns a 422' do
         feature_flag = create(:operations_feature_flag, project: project,
                               name: 'feature1', version: 1, description: 'old description')
@@ -572,6 +586,46 @@ describe API::FeatureFlags do
     end
 
     context 'with a version 2 feature flag' do
+      it 'returns a 404 if the feature is disabled' do
+        stub_feature_flags(feature_flags_new_version: false)
+        feature_flag = create(:operations_feature_flag, project: project,
+                              name: 'feature1', version: 2, description: 'old description')
+        params = {
+          description: 'new description'
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:not_found)
+        expect(feature_flag.reload.description).to eq('old description')
+      end
+
+      it 'returns a 404 if the feature flag does not exist' do
+        feature_flag = create(:operations_feature_flag, project: project,
+                              name: 'feature1', version: 2, description: 'old description')
+        params = {
+          description: 'new description'
+        }
+
+        put api("/projects/#{project.id}/feature_flags/other_flag_name", user), params: params
+
+        expect(response).to have_gitlab_http_status(:not_found)
+        expect(feature_flag.reload.description).to eq('old description')
+      end
+
+      it 'forbids a request for a reporter' do
+        feature_flag = create(:operations_feature_flag, project: project,
+                              name: 'feature1', version: 2, description: 'old description')
+        params = {
+          description: 'new description'
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", reporter), params: params
+
+        expect(response).to have_gitlab_http_status(:forbidden)
+        expect(feature_flag.reload.description).to eq('old description')
+      end
+
       it 'updates the feature flag' do
         feature_flag = create(:operations_feature_flag, project: project,
                               name: 'feature1', version: 2, description: 'old description')

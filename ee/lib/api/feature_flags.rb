@@ -159,7 +159,10 @@ module API
           end
         end
         put do
+          not_found! unless Feature.enabled?(:feature_flags_new_version, user_project)
           render_api_error!('PUT operations are not supported for legacy feature flags', 422) if feature_flag.legacy_flag?
+
+          params = declared_params(include_missing: false)
 
           if params.key?(:strategies)
             params[:strategies_attributes] = params.delete(:strategies).map do |strategy|
