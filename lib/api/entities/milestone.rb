@@ -4,8 +4,10 @@ module API
   module Entities
     class Milestone < MilestoneBasic
       expose :issue_stats do
-        expose(:total)  { |milestone, options| milestone.total_issue_count(options[:current_user]) }
-        expose(:closed) { |milestone, options| milestone.closed_issue_count(options[:current_user]) }
+        # TODO: remove nil and change to `expose :as`
+        # after https://gitlab.com/gitlab-org/gitlab/-/merge_requests/21554 is merged
+        expose(:total)  { |milestone, options| milestone.total_issues_count(nil) }
+        expose(:closed) { |milestone, options| milestone.closed_issues_count(nil) }
       end
     end
   end
