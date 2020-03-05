@@ -109,17 +109,17 @@ minio:
       memory: 280M
 nginx-ingress:
   controller:
+    image:
+      tag: 0.30.0
     config:
       ssl-ciphers: ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4
-    replicaCount: 2
     resources:
       requests:
-        cpu: 100m
-        memory: 450M
-      limits:
         cpu: 200m
-        memory: 675M
-    minAvailable: 1
+        memory: 650M
+      limits:
+        cpu: 300m
+        memory: 975M
     service:
       enableHttp: false
     livenessProbe:
@@ -134,7 +134,6 @@ nginx-ingress:
       limits:
         cpu: 10m
         memory: 24M
-    replicaCount: 1
 postgresql:
   metrics:
     enabled: false
