@@ -20,11 +20,16 @@ describe Service do
 
     context 'with an existing service template' do
       before do
-        create(:service, type: 'Service', template: true)
+        create(:service, :template, type: 'Service')
       end
 
       it 'validates only one service template per type' do
         expect(build(:service, type: 'Service', template: true)).to be_invalid
+      end
+
+      it 'validates absence of project_id if template', :aggregate_failures do
+        expect(build(:service, template: true)).to validate_absence_of(:project_id)
+        expect(build(:service, template: false)).not_to validate_absence_of(:project_id)
       end
     end
   end
@@ -168,7 +173,7 @@ describe Service do
 
         context 'when data are stored in separated fields' do
           let(:template) do
-            create(:jira_service, data_params.merge(properties: {}, title: title, description: description, template: true))
+            create(:jira_service, :template, data_params.merge(properties: {}, title: title, description: description))
           end
 
           it_behaves_like 'service creation from a template'
@@ -407,7 +412,7 @@ describe Service do
   end
 
   describe '.find_by_template' do
-    let!(:service) { create(:service, template: true) }
+    let!(:service) { create(:service, :template) }
 
     it 'returns service template' do
       expect(described_class.find_by_template).to eq(service)

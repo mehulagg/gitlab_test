@@ -4,6 +4,11 @@ FactoryBot.define do
   factory :service do
     project
     type { 'Service' }
+
+    trait :template do
+      project { nil }
+      template { true }
+    end
   end
 
   factory :custom_issue_tracker_service, class: 'CustomIssueTrackerService' do
@@ -64,6 +69,11 @@ FactoryBot.define do
   factory :jira_service do
     project
     active { true }
+
+    trait :template do
+      project { nil }
+      template { true }
+    end
 
     transient do
       create_data { true }
