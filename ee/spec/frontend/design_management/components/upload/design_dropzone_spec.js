@@ -12,7 +12,7 @@ describe('Design management dropzone component', () => {
     return { dataTransfer: { types, files } };
   };
 
-  const findDropzoneCard = () => wrapper.find('.design-dropzone--card');
+  const findDropzoneCard = () => wrapper.find('.design-dropzone-card');
 
   function createComponent({ slots = {}, data = {} } = {}) {
     wrapper = shallowMount(DesignDropzone, {

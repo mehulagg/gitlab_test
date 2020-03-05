@@ -5,9 +5,7 @@ import DesignInput from './design_input.vue';
 import uploadDesignMutation from '../../graphql/mutations/uploadDesign.mutation.graphql';
 import { UPLOAD_DESIGN_INVALID_FILETYPE_ERROR } from '../../utils/error_messages';
 import { isValidDesignFile } from '../../utils/design_management_utils';
-
-// https://developer.mozilla.org/en-US/docs/Web/API/DataTransfer/types
-const VALID_DATA_TRANSFER_TYPE = 'Files';
+import { VALID_DATA_TRANSFER_TYPE } from '../../constants';
 
 export default {
   components: {
@@ -29,7 +27,7 @@ export default {
   },
   methods: {
     isValidUpload(files) {
-      return !files.some(file => !isValidDesignFile(file));
+      return files.every(isValidDesignFile);
     },
     isValidDragDataType({ dataTransfer }) {
       return Boolean(dataTransfer && dataTransfer.types.some(t => t === VALID_DATA_TRANSFER_TYPE));
@@ -79,7 +77,7 @@ export default {
   >
     <slot>
       <button
-        class="card design-dropzone--card design-dropzone--border w-100 h-100 d-flex-center p-3"
+        class="card design-dropzone-card design-dropzone-border w-100 h-100 d-flex-center p-3"
         @click="openFileUpload"
       >
         <div class="d-flex-center flex-column text-center">
@@ -109,7 +107,7 @@ export default {
     <transition name="design-dropzone-fade">
       <div
         v-show="dragging"
-        class="card design-dropzone--border design-dropzone-overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
+        class="card design-dropzone-border design-dropzone-overlay w-100 h-100 position-absolute d-flex-center p-3 bg-white"
       >
         <div v-show="!isDragDataValid" class="mw-50 text-center">
           <h3>{{ __('Oh no!') }}</h3>
