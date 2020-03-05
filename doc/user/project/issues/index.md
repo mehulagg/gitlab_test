@@ -168,19 +168,14 @@ requires [GraphQL](../../../api/graphql/index.md) to be enabled.
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/36427) in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.9.
 
-To help you report on and quickly respond to the health of individual issues and epics, GitLab shows
-a red, amber, or green health status on your Epic Tree.
+To help you track where an issue is in relation to your plan, you can set a red, amber, or green
+health status on each issue.
 
-Assign an issue a health status of `On track` (green), `Needs attention` (amber), or `At risk` (red)
-and see an aggregate report of health at the Epic level.
+Assign a health status of `On track` (green), `Needs attention` (amber), or `At risk` (red).
 
 <!-- TODO screenshot: health status on an issue -->
 
-<!-- TODO screenshot: epic view -->
-
-#### Enabling the feature
-
-<!-- TODO: update with the feature flag name -->
+#### Enabling issue health status
 
 This feature comes with the `:save_issuable_health_status` feature flag disabled by default. However, in some cases
 this feature is incompatible with old configuration. To turn on the feature while configuration is
