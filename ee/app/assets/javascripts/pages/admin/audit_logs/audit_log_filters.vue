@@ -100,7 +100,7 @@ export default {
 <template>
   <div class="d-flex justify-content-between">
     <gl-filtered-search
-      class="audit-controls__search"
+      class="w-auto flex-grow-1 mr-2"
       v-model="searchTerms"
       :available-tokens="$options.filterTokens"
       @submit="handleSearchSubmit"
@@ -110,7 +110,7 @@ export default {
       <gl-daterange-picker class="d-flex" @input="handleDateRange" />
 
       <input type="hidden" name="sort" :value="sortOrder" />
-      <div class="btn-toolbar audit-controls__sorting">
+      <div class="btn-toolbar ml-1">
         <div class="btn-group">
           <gl-sorting
             :text="selectedSortOrder"
