@@ -27,6 +27,7 @@ module MergeRequests
       # These operations are idempotent so can be safely run multiple times
       delete_non_latest_diffs(merge_request)
       cleanup_environments(merge_request)
+      merge_request.mark_as_merged
 
       # These operations need to happen transactionally
       ActiveRecord::Base.transaction do
@@ -35,7 +36,6 @@ module MergeRequests
         todo_service.merge_merge_request(merge_request, current_user)
         notification_service.merge_mr(merge_request, current_user)
 
-        merge_request.mark_as_merged
         create_event(merge_request)
         create_note(merge_request)
         close_issues(merge_request)
