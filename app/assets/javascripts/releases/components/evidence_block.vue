@@ -25,16 +25,17 @@ export default {
   },
   methods: {
     evidenceTitle(index) {
-      return sprintf(__(`%{tag}-evidence-${index}.json`), { tag: this.release.tagName });
+      const [tag, filename] = this.release.evidences[index].file_path.split('/').slice(-2);
+      return sprintf(__(`${tag}-${filename}`));
     },
     evidenceUrl(index) {
-      return this.release.evidence[index].file_path;
+      return this.release.evidences[index].file_path;
     },
     sha(index) {
-      return this.release.evidence[index].sha;
+      return this.release.evidences[index].sha;
     },
     shortSha(index) {
-      return truncateSha(this.release.evidence[index].sha);
+      return truncateSha(this.release.evidences[index].sha);
     },
   },
 };
@@ -48,7 +49,7 @@ export default {
       </b>
     </div>
     <div
-      v-for="(evidence, index) in this.release.assets.evidence"
+      v-for="(evidence, index) in this.release.evidences"
       v-bind:key="index"
       class="d-flex align-items-baseline"
     >
