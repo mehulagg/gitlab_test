@@ -78,14 +78,17 @@ characteristic your application stack. More information can be found
 [here](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/Welcome.html).
 
 Once you're all set up on AWS ECS, follow the next steps:
+
 1. Make sure your AWS credentials are set up as environment variables for your
    project. You can follow [these steps above](#aws) to complete this setup.
-1. Set up the `build` and `review` stages in your project's `.gitlab-ci.yml`
+1. Set up the `build`, `review` and `production` stages in your project's `.gitlab-ci.yml`
    file, such as:
+
    ```yml
    stages:
      - build
      - review
+     - production
 
    variables:
      CI_AWS_ECS_CLUSTER: my-cluster
@@ -93,14 +96,15 @@ Once you're all set up on AWS ECS, follow the next steps:
      CI_AWS_ECS_TASK_DEFINITION: my-task-definition
 
    include:
-     - template: Jobs/Deploy-ECS.gitlab-ci.yml
+     - template: Deploy-ECS.gitlab-ci.yml
    ```
+
    Three variables are defined in this snippet:
-     * `CI_AWS_ECS_CLUSTER`: this is the name of your AWS ECS cluster that you're
+     - `CI_AWS_ECS_CLUSTER`: this is the name of your AWS ECS cluster that you're
       targeting for your deployments.
-     * `CI_AWS_ECS_SERVICE`: this is the name of the targeted service tied to
+     - `CI_AWS_ECS_SERVICE`: this is the name of the targeted service tied to
       your AWS ECS cluster.
-     * `CI_AWS_ECS_TASK_DEFINITION`: this is the name of the task definition tied
+     - `CI_AWS_ECS_TASK_DEFINITION`: this is the name of the task definition tied
       to the service mentioned above.
 
      You can find these names after selecting the targeted cluster on your [AWS ECS dashboard](https://console.aws.amazon.com/ecs/home):
