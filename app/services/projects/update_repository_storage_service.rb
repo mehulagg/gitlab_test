@@ -56,7 +56,7 @@ module Projects
                                                    raw_repository.gl_repository,
                                                    full_path)
 
-      new_repository.fetch_repository_as_mirror(raw_repository)
+      new_repository.replicate(raw_repository)
     end
 
     def mark_old_paths_for_archive

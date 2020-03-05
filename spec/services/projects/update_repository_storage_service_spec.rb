@@ -23,7 +23,7 @@ describe Projects::UpdateRepositoryStorageService do
             project.repository.path_to_repo
           end
 
-          expect_any_instance_of(Gitlab::Git::Repository).to receive(:fetch_repository_as_mirror)
+          expect_any_instance_of(Gitlab::Git::Repository).to receive(:replicate)
             .with(project.repository.raw).and_return(true)
 
           subject.execute('test_second_storage')
@@ -44,7 +44,7 @@ describe Projects::UpdateRepositoryStorageService do
 
       context 'when the move fails' do
         it 'unmarks the repository as read-only without updating the repository storage' do
-          expect_any_instance_of(Gitlab::Git::Repository).to receive(:fetch_repository_as_mirror)
+          expect_any_instance_of(Gitlab::Git::Repository).to receive(:replicate)
             .with(project.repository.raw).and_return(false)
           expect(GitlabShellWorker).not_to receive(:perform_async)
 
@@ -72,7 +72,7 @@ describe Projects::UpdateRepositoryStorageService do
       let(:pool) { create(:pool_repository, :ready, source_project: project) }
 
       it 'leaves the pool' do
-        allow_any_instance_of(Gitlab::Git::Repository).to receive(:fetch_repository_as_mirror).and_return(true)
+        allow_any_instance_of(Gitlab::Git::Repository).to receive(:replicate).and_return(true)
 
         subject.execute('test_second_storage')
 

@@ -20,12 +20,12 @@ RSpec.shared_examples 'moves repository to another storage' do |repository_type|
   context 'when the move succeeds', :clean_gitlab_redis_shared_state do
     before do
       allow(project_repository_double)
-        .to receive(:fetch_repository_as_mirror)
+        .to receive(:replicate)
         .with(project.repository.raw)
         .and_return(true)
 
       allow(repository_double)
-        .to receive(:fetch_repository_as_mirror)
+        .to receive(:replicate)
         .with(repository.raw)
         .and_return(true)
     end
@@ -85,9 +85,9 @@ RSpec.shared_examples 'moves repository to another storage' do |repository_type|
 
   context "when the move of the #{repository_type} repository fails" do
     it 'unmarks the repository as read-only without updating the repository storage' do
-      allow(project_repository_double).to receive(:fetch_repository_as_mirror)
+      allow(project_repository_double).to receive(:replicate)
         .with(project.repository.raw).and_return(true)
-      allow(repository_double).to receive(:fetch_repository_as_mirror)
+      allow(repository_double).to receive(:replicate)
         .with(repository.raw).and_return(false)
 
       expect(GitlabShellWorker).not_to receive(:perform_async)
