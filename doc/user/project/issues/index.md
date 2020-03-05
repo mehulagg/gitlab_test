@@ -171,7 +171,7 @@ requires [GraphQL](../../../api/graphql/index.md) to be enabled.
 To help you track where an issue is in relation to your plan, you can set a red, amber, or green
 health status on each issue.
 
-Assign a health status of `On track` (green), `Needs attention` (amber), or `At risk` (red).
+Assign a health status of `On track` (<a style="color: green;">green</a>), `Needs attention` (<a style="color: #ffbf00;">amber</a>), or `At risk` (<a style="color: red;">red</a>).
 
 <!-- TODO screenshot: health status on an issue -->
 
