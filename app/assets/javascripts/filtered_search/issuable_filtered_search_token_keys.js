@@ -1,4 +1,4 @@
-import { flatten } from 'underscore';
+import { flatten } from 'lodash';
 import FilteredSearchTokenKeys from './filtered_search_token_keys';
 import { __ } from '~/locale';
 
