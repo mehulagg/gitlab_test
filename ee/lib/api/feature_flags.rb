@@ -57,10 +57,9 @@ module API
         post do
           authorize_create_feature_flag!
 
-          attrs= declared_params(include_missing: false)
+          attrs = declared_params(include_missing: false)
 
-          render_api_error!('Version 2 flags are not enabled for this project', 422) if Feature.disabled?(:feature_flags_new_version, user_project) &&
-            attrs[:version] == Operations::FeatureFlag.versions[:new_version_flag]
+          ensure_post_version_2_flags_enabled! if attrs[:version] == Operations::FeatureFlag.versions[:new_version_flag]
 
           rename_key(attrs, :scopes, :scopes_attributes)
           rename_key(attrs, :strategies, :strategies_attributes)
@@ -171,8 +170,11 @@ module API
             .new(user_project, current_user, attrs)
             .execute(feature_flag)
 
-          status :ok
-          present result[:feature_flag], with: EE::API::Entities::FeatureFlag
+          if result[:status] == :success
+            present result[:feature_flag], with: EE::API::Entities::FeatureFlag
+          else
+            render_api_error!(result[:message], result[:http_status])
+          end
         end
 
         desc 'Delete a feature flag' do
@@ -210,6 +212,12 @@ module API
 
       def authorize_destroy_feature_flag!
         authorize! :destroy_feature_flag, feature_flag
+      end
+
+      def ensure_post_version_2_flags_enabled!
+        unless Feature.enabled?(:feature_flags_new_version, user_project)
+          render_api_error!('Version 2 flags are not enabled for this project', 422)
+        end
       end
 
       def feature_flag

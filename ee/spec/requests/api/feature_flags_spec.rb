@@ -616,6 +616,28 @@ describe API::FeatureFlags do
         expect(feature_flag.reload.description).to eq('old description')
       end
 
+      it 'returns an error for an invalid update' do
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        params = {
+          strategies: [{
+            id: strategy.id,
+            name: 'gradualRolloutUserId',
+            parameters: { bad: 'params' }
+          }]
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:bad_request)
+        expect(json_response['message']).not_to be_nil
+        result = feature_flag.reload.strategies.map { |s| s.slice(:id, :name, :parameters).deep_symbolize_keys }
+        expect(result).to eq([{
+          id: strategy.id,
+          name: 'default',
+          parameters: {}
+        }])
+      end
+
       it 'updates the feature flag' do
         params = { description: 'new description' }
 
