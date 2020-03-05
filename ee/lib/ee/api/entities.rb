@@ -872,6 +872,7 @@ module EE
         class GroupActivity < Grape::Entity
           expose :issues_count
           expose :merge_requests_count
+          expose :new_members_count
         end
       end
     end

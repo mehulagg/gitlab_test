@@ -4,7 +4,13 @@ require 'spec_helper'
 
 describe EE::API::Entities::Analytics::GroupActivity do
   let(:count) { 10 }
-  let(:data) { { issues_count: count, merge_requests_count: count } }
+  let(:data) do
+    {
+      issues_count: count,
+      merge_requests_count: count,
+      new_members_count: count
+    }
+  end
 
   subject(:entity_representation) { described_class.new(data).as_json }
 
@@ -12,7 +18,8 @@ describe EE::API::Entities::Analytics::GroupActivity do
     expect(entity_representation).to include(
       {
         issues_count: count,
-        merge_requests_count: count
+        merge_requests_count: count,
+        new_members_count: count
       }
     )
   end
