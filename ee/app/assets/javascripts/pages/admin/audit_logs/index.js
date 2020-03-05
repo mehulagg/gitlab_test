@@ -1,9 +1,9 @@
 import AuditLogs from './audit_logs';
 import Vue from 'vue';
-import AuditLogFilter from './audit_log_filter.vue';
+import AuditLogFilters from './audit_log_filters.vue';
 
 document.addEventListener('DOMContentLoaded', () => {
-  new AuditLogs();
+  // new AuditLogs();
 
   const el = document.querySelector('#js-audit-log-app');
 
@@ -11,10 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     el,
     name: 'AuditLogApp',
     components: {
-      AuditLogFilter,
+      AuditLogFilters,
     },
     render: createElement =>
-      createElement(AuditLogFilter, {
+      createElement(AuditLogFilters, {
         props: {
           ...el.dataset,
         },

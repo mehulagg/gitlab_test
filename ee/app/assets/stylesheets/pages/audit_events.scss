@@ -5,4 +5,22 @@
       width: 100%;
     }
   }
+
+  &__search {
+    flex-grow: 1;
+    margin-right: 8px;
+    width: auto;
+  }
+
+  &__sorting {
+    margin-left: 0.25rem;
+  }
+
+  .gl-datepicker-theme.pika-single {
+    position: absolute !important;
+  }
+
+  .gl-datepicker {
+    margin-right: 0.25rem;
+  }
 }

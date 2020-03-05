@@ -2,7 +2,6 @@
 import {
   GlFilteredSearchBinaryToken,
   GlFilteredSearchSuggestion,
-  GlDropdownDivider,
   GlLoadingIcon,
   GlAvatar,
 } from '@gitlab/ui';
@@ -13,11 +12,32 @@ export default {
   components: {
     GlFilteredSearchBinaryToken,
     GlFilteredSearchSuggestion,
-    GlDropdownDivider,
     GlLoadingIcon,
     GlAvatar,
   },
-  props: ['value', 'active', 'title', 'config', 'type'],
+  props: {
+    active: {
+      type: Boolean,
+      required: false,
+    },
+    config: {
+      type: Object,
+      required: true,
+    },
+    title: {
+      type: String,
+      required: true,
+    },
+    type: {
+      type: String,
+      required: true,
+    },
+    value: {
+      type: String,
+      required: false,
+      default: '',
+    },
+  },
   data() {
     return {
       loadingView: false,
@@ -36,6 +56,14 @@ export default {
       return this.suggestions.find(user => user.id === parseInt(value, 10)) || {};
     },
   },
+  watch: {
+    value(search) {
+      this.loadSuggestions(search);
+    },
+  },
+  mounted() {
+    this.loadSuggestions();
+  },
   methods: {
     transformUsers(users) {
       return users.map(user => ({
@@ -50,20 +78,21 @@ export default {
         ...defaultPrams,
         search,
       };
+
+      if (this.suggestions.length > 0) {
+        return this.suggestions;
+      }
+
       return axios
         .get(path, { params })
-        .then(res => (this.suggestions = this.transformUsers(res.data)))
+        .then(res => {
+          this.suggestions = this.transformUsers(res.data);
+        })
         .catch(() => createFlash(`Failed to find ${this.type}. Please try again.`))
-        .finally(() => (this.loadingSuggestions = false));
+        .finally(() => {
+          this.loadingSuggestions = false;
+        });
     },
-  },
-  watch: {
-    value(search) {
-      this.loadSuggestions(search);
-    },
-  },
-  mounted() {
-    this.loadSuggestions();
   },
 };
 </script>
@@ -71,7 +100,7 @@ export default {
 <template>
   <gl-filtered-search-binary-token :title="title" :active="active" :value="value" v-on="$listeners">
     <template #view>
-      <gl-loading-icon size="sm" v-if="loadingView" class="gl-mr-2" />
+      <gl-loading-icon v-if="loadingView" size="sm" class="gl-mr-2" />
       <template v-else-if="value && selectedUser.id">
         <gl-avatar
           :size="16"
@@ -93,8 +122,8 @@ export default {
       </template>
       <template v-else>
         <li
-          class="gl-new-dropdown-item dropdown-item gl-filtered-search-suggestion"
           v-if="value && suggestions.length === 0"
+          class="gl-new-dropdown-item dropdown-item gl-filtered-search-suggestion"
         >
           <span class="dropdown-item">No results found</span>
         </li>
