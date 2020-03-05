@@ -156,6 +156,7 @@ module API
           end
         end
         put do
+          authorize_update_feature_flag!
           not_found! unless Feature.enabled?(:feature_flags_new_version, user_project)
           render_api_error!('PUT operations are not supported for legacy feature flags', 422) if feature_flag.legacy_flag?
 
@@ -208,6 +209,10 @@ module API
 
       def authorize_create_feature_flag!
         authorize! :create_feature_flag, user_project
+      end
+
+      def authorize_update_feature_flag!
+        authorize! :update_feature_flag, feature_flag
       end
 
       def authorize_destroy_feature_flag!
