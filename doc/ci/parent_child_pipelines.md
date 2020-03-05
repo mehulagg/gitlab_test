@@ -128,7 +128,7 @@ microservice_a:
 
 ## Dynamic child pipelines
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/35632) in GitLab 12.8.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/35632) in GitLab 12.9.
 
 Instead of running a child pipeline from a static YAML file, you can define a job that runs
 your own script to generate a YAML file, which is then [used to trigger a child pipeline](yaml/README.md#trigger-child-pipeline-with-generated-configuration-file).
