@@ -20,10 +20,10 @@
     .key-list-item-dates
       %span.last-used-at.append-right-10
         = _('Last used:')
-        = key.last_used_at ? time_ago_with_tooltip(key.last_used_at) : 'n/a'
+        = key.last_used_at ? time_ago_with_tooltip(key.last_used_at) : _('Never')
       %span.expires.append-right-10
         = _('Expires:')
-        = key.expires_at ? key.expires_at : 'n/a'
+        = key.expires_at ? key.expires_at : _('Never')
       %span.key-created-at
         = s_('Profiles|Created %{time_ago}'.html_safe) % { time_ago:time_ago_with_tooltip(key.created_at)}
         - if key.can_delete?

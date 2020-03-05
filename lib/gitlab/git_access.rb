@@ -120,32 +120,23 @@ module Gitlab
     end
 
     def check_for_console_messages
-      console_messages = []
+      return console_messages unless key?
 
-      console_messages.push(key_expired_message) if key_expired?
-      console_messages.push(key_expires_soon_message) if key_expires_soon?
+      key_status = Gitlab::Auth::KeyStatusChecker.new(actor)
 
-      console_messages
+      if key_status.active?
+        console_messages
+      else
+        console_messages.push(key_status.status_message)
+      end
     end
 
-    def key_expired_message
-      'INFO: Your SSH key has expired. Please generate a new key.'
-    end
-
-    def key_expires_soon_message
-      'INFO: Your SSH key is expiring soon. Please generate a new key.'
-    end
-
-    def key_expired?
-      actor.is_a?(Key) && actor.expired?
-    end
-
-    def key_expires_soon?
-      actor.is_a?(Key) && actor.expires_soon?
+    def console_messages
+      []
     end
 
     def check_valid_actor!
-      return unless actor.is_a?(Key)
+      return unless key?
 
       unless actor.valid?
         raise ForbiddenError, "Your SSH key #{actor.errors[:key].first}."
@@ -359,6 +350,10 @@ module Gitlab
 
     def ci?
       actor == :ci
+    end
+
+    def key?
+      actor.is_a?(Key)
     end
 
     def can_read_project?
