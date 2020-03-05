@@ -51,8 +51,10 @@ docs lint:
   script:
     - scripts/lint-doc.sh
     # Lint Markdown
+    - markdownlint --version
     - markdownlint --config .markdownlint.json 'doc/**/*.md'
     # Lint content (error-level text-scoped rules only)
+    - vale --version
     - vale --minAlertLevel error --ignore-syntax doc
     # Prepare docs for build
     - mv doc/ /tmp/gitlab-docs/content/$DOCS_GITLAB_REPO_SUFFIX
