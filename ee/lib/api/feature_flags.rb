@@ -62,12 +62,10 @@ module API
           render_api_error!('Version 2 flags are not enabled for this project', 422) if Feature.disabled?(:feature_flags_new_version, user_project) &&
             param[:version] == Operations::FeatureFlag.versions[:new_version_flag]
 
-          param[:scopes_attributes] = param.delete(:scopes) if param.key?(:scopes)
-          if param.key?(:strategies)
-            param[:strategies_attributes] = param.delete(:strategies).map do |strategy|
-              strategy[:scopes_attributes] = strategy.delete(:scopes) if strategy.key?(:scopes)
-              strategy
-            end
+          rename_key(param, :scopes, :scopes_attributes)
+          rename_key(param, :strategies, :strategies_attributes)
+          update_value(param, :strategies_attributes) do |strategies|
+            strategies.map { |s| rename_key(s, :scopes, :scopes_attributes) }
           end
 
           result = ::FeatureFlags::CreateService
@@ -164,11 +162,9 @@ module API
 
           params = declared_params(include_missing: false)
 
-          if params.key?(:strategies)
-            params[:strategies_attributes] = params.delete(:strategies).map do |strategy|
-              strategy[:scopes_attributes] = strategy.delete(:scopes) if strategy.key?(:scopes)
-              strategy
-            end
+          rename_key(params, :strategies, :strategies_attributes)
+          update_value(params, :strategies_attributes) do |strategies|
+            strategies.map { |s| rename_key(s, :scopes, :scopes_attributes) }
           end
 
           result = ::FeatureFlags::UpdateService
@@ -222,6 +218,16 @@ module API
                           else
                             user_project.operations_feature_flags.legacy_flag.find_by_name!(params[:name])
                           end
+      end
+
+      def rename_key(hash, old_key, new_key)
+        hash[new_key] = hash.delete(old_key) if hash.key?(old_key)
+        hash
+      end
+
+      def update_value(hash, key)
+        hash[key] = yield(hash[key]) if hash.key?(key)
+        hash
       end
     end
   end
