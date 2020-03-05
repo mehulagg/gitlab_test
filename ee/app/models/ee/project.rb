@@ -396,10 +396,8 @@ module EE
       super
     end
 
-    def visible_approval_rules
-      strong_memoize(:visible_approval_rules) do
-        visible_user_defined_rules + approval_rules.report_approver
-      end
+    def visible_approval_rules(target_branch: nil)
+      visible_user_defined_rules(branch: target_branch) + approval_rules.report_approver
     end
 
     def visible_user_defined_rules(branch: nil)
