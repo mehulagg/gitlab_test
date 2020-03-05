@@ -188,7 +188,7 @@ const boardsStore = {
     const issueTo = issues.map(issue => listTo.findIssue(issue.id));
     const issueLists = issues.map(issue => issue.getLists()).reduce((x, y) => x.concat(y), []);
     const listLabels = issueLists.map(list => list.label);
-    const hasMoveableIssues = issueTo.filter(issue => Boolean(issue)).length > 0;
+    const hasMoveableIssues = issueTo.filter(Boolean).length > 0;
 
     if (!hasMoveableIssues) {
       // Check if target list assignee is already present in this issue
