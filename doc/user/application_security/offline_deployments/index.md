@@ -43,7 +43,7 @@ with or manually update those databases.
 Each individual scanner may be slightly different than the steps described
 above. You can find more info at each of the pages below.
 
-- [Container scanning offline directions](container_scanning/#running-container-scanning-in-an-offline-air-gapped-installation)
+- [Container scanning offline directions](../container_scanning#running-container-scanning-in-an-offline-air-gapped-installation)
 - [Dependency scanning offline directions]()
-- [SAST offline directions]()
+- [SAST offline directions](../sast#gitlab-sast-in-an-offline-air-gapped-installation)
 - [DAST offline directions]()
