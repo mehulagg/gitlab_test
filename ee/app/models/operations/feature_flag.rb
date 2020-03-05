@@ -52,15 +52,9 @@ module Operations
       end
 
       def for_unleash_client(project, environment)
-        sql = <<~SQL
-          operations_scopes.environment_scope IN ('*', :environment)
-          OR
-          :environment LIKE #{::Gitlab::SQL::Glob.to_like('operations_scopes.environment_scope')}
-        SQL
-
         includes(strategies: :scopes)
           .where(project: project)
-          .where(sql, { environment: environment })
+          .merge(Operations::FeatureFlags::Scope.on_environment(environment))
           .references(:operations_scopes)
       end
     end
