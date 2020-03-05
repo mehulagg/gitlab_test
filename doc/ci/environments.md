@@ -707,7 +707,7 @@ The second way is to access the **Delete** button by viewing the details for a
 stopped environment.
 
   1. Navigate to **Operations > Environments**.
-  1. Click on the name of an environment within the **Stopped** enfironments list.
+  1. Click on the name of an environment within the **Stopped** environments list.
   1. Click on the **Delete** button that appears at the top for all stopped environments.
   1. Finally, confirm your chosen environment in the modal that appears to delete it.
 
