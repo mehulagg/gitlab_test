@@ -8,9 +8,9 @@ describe API::Entities::Release do
   let(:user) { create(:user) }
   let(:entity) { described_class.new(release, current_user: user) }
 
-  subject { entity.as_json }
-
   describe 'evidence' do
+    subject { entity.as_json }
+
     context 'when the current user can download code' do
       it 'exposes the evidence sha and the json path' do
         allow(Ability).to receive(:allowed?).and_call_original
@@ -34,6 +34,38 @@ describe API::Entities::Release do
 
         expect(subject.keys).not_to include(:evidence_sha)
         expect(subject[:assets].keys).not_to include(:evidence_file_path)
+      end
+    end
+  end
+
+  describe 'description_html' do
+    let(:issue) { create(:issue, :confidential, project: project) }
+    let(:issue_path) { Gitlab::Routing.url_helpers.project_issue_path(project, issue) }
+    let(:issue_title) { 'title="%s"' % issue.title }
+
+    before do
+      release.update!(description: "Now shipping #{issue.to_reference}")
+    end
+
+    subject(:description_html) { entity.as_json[:description_html] }
+
+    context 'when current user has access' do
+      let(:user) { project.owner }
+
+      it 'renders special references' do
+        expect(description_html).to include(issue_path)
+        expect(description_html).to include(issue_title)
+      end
+    end
+
+    context 'when current user has no access' do
+      before do
+        project.add_reporter(user)
+      end
+
+      it 'does not render special references' do
+        expect(description_html).not_to include(issue_path)
+        expect(description_html).not_to include(issue_title)
       end
     end
   end
