@@ -501,7 +501,7 @@ Particular attention should be shown to:
        'job_name' => 'praefect',
        'static_configs' => [
          'targets' => [
-           'PRAEFECT_HOST:9652'
+           'PRAEFECT_HOST:9652' # praefect
          ]
        ]
      },
