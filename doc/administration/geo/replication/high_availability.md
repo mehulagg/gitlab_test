@@ -25,22 +25,35 @@ The **primary** and **secondary** Geo deployments must be able to communicate to
 
 ## Redis and PostgreSQL High Availability
 
-The **primary** and **secondary** Redis and PostgreSQL should be configured
-for high availability. Because of the additional complexity involved
-in setting up this configuration for PostgreSQL and Redis,
-it is not covered by this Geo HA documentation.
+The **primary** Redis and PostgreSQL should be configured for high
+availability. The **secondary** Redis should also be configured for high
+availability. Because of the additional complexity involved in setting up this
+configuration for PostgreSQL and Redis, it is not covered by this Geo HA
+documentation.
 
 For more information about setting up a highly available PostgreSQL cluster and Redis cluster using the omnibus package see the high availability documentation for
 [PostgreSQL](../../high_availability/database.md) and
 [Redis](../../high_availability/redis.md), respectively.
 
 NOTE: **Note:**
+PostgreSQL HA in the **secondary** node is not currently supported. See
+[Geo: Secondary nodes should support PostgreSQL HA](https://gitlab.com/groups/gitlab-org/-/epics/2536)
+for more details.
+
+NOTE: **Note:**
 It is possible to use cloud hosted services for PostgreSQL and Redis, but this is beyond the scope of this document.
 
-## Prerequisites: A working GitLab HA cluster
+## Prerequisites: Two working GitLab HA clusters
 
-This cluster will serve as the **primary** node. Use the
+One cluster will serve as the **primary** node. Use the
+[GitLab HA documentation](../../high_availability/README.md) to set this up. If
+you already have a working GitLab instance that is in-use, it can be used as a
+**primary**.
+
+The second cluster will serve as the **secondary** node. Again, use the
 [GitLab HA documentation](../../high_availability/README.md) to set this up.
+It's a good idea to log into it and test it, however, note that its data will
+be wiped out as part of the process of replicating the **primary**.
 
 ## Configure the GitLab cluster to be the **primary** node
 
@@ -99,7 +112,11 @@ major differences:
   various resources.
 
 Therefore, we will set up the HA components one-by-one, and include deviations
-from the normal HA setup.
+from the normal HA setup. However, we highly recommend first configuring a
+brand-new cluster as if it were not part of a Geo setup so that it can be
+tested and verified as a working cluster. And only then should it be modified
+for use as a Geo **secondary**. This helps to isolate problems that are and are
+not related to Geo setup.
 
 ### Step 1: Configure the Redis and Gitaly services on the **secondary** node
 
@@ -118,7 +135,10 @@ recommended.
 ### Step 2: Configure the main read-only replica PostgreSQL database on the **secondary** node
 
 NOTE: **Note:** The following documentation assumes the database will be run on
-a single node only, rather than as a PostgreSQL cluster.
+a single node only. PostgreSQL HA in the **secondary** node is not currently
+supported. See
+[Geo: Secondary nodes should support PostgreSQL HA](https://gitlab.com/groups/gitlab-org/-/epics/2536)
+for more details.
 
 Configure the [**secondary** database](database.md) as a read-only replica of
 the **primary** database. Use the following as a guide.
@@ -167,6 +187,11 @@ the **primary** database. Use the following as a guide.
    ## the tracking database IP is in postgresql['md5_auth_cidr_addresses'] above.
    ##
    geo_postgresql['enable'] = false
+
+   ##
+   ## Disable `geo_logcursor` service so Rails doesn't get configured here
+   ##
+   geo_logcursor['enable'] = false
    ```
 
 After making these changes, [reconfigure GitLab][gitlab-reconfigure] so the changes take effect.
@@ -334,6 +359,13 @@ On the secondary the following GitLab frontend services will be enabled:
 
 Verify these services by running `sudo gitlab-ctl status` on the frontend
 application servers.
+
+You may wish to run backend application services on backend-specific servers.
+For example, you can disable `geo-logcursor` with
+`geo_logcursor['enable'] = false` and run it on application servers not
+attached to the load balancer. On those backend application servers, you would
+disable with `unicorn['enable'] = false`. The same goes for the `sidekiq`
+service.
 
 ### Step 5: Set up the LoadBalancer for the **secondary** node
 
