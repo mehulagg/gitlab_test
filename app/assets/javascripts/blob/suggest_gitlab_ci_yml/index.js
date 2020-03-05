@@ -8,8 +8,9 @@ export default el =>
       return createElement(Popover, {
         props: {
           target: el.dataset.target,
-          cssClass: el.dataset.cssClass,
+          trackLabel: el.dataset.trackLabel,
           dismissKey: el.dataset.dismissKey,
+          humanAccess: el.dataset.humanAccess,
         },
       });
     },
