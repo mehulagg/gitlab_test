@@ -71,9 +71,7 @@ export default {
         </p>
       </gl-alert>
       <gl-alert v-else-if="fetchSettingsError" variant="warning" :dismissible="false">
-        <p>
-          <gl-sprintf :message="$options.i18n.fetchSettingsErrorText" />
-        </p>
+        <gl-sprintf :message="$options.i18n.fetchSettingsErrorText" />
       </gl-alert>
     </template>
   </div>
