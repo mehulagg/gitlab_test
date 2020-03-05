@@ -28,6 +28,7 @@ class UpdateOccurrenceSeverityColumn < ActiveRecord::Migration[6.0]
   def down
     # no-op
     # temporary index is to be dropped in a different migration in an upcoming release
+    remove_concurrent_index(:vulnerability_occurrences, :id, where: 'severity = 0', name: 'undefined_vulnerabilities')
     # This migration can not be reversed because we can not know which records had undefined severity
   end
 end
