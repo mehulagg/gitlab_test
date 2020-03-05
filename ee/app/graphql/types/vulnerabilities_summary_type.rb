@@ -12,7 +12,7 @@ module Types
 
     VULNERABILITY_SEVERITIES.each do |severity|
       field severity, GraphQL::INT_TYPE, null: true,
-            description: "The number of vulnerabilities of #{severity.upcase} severity",
+            description: "Number of vulnerabilities of #{severity.upcase} severity of the project",
             resolve: -> (obj, _args, _ctx) { obj.public_send(severity) || 0 } # rubocop: disable GitlabSecurity/PublicSend. See https://gitlab.com/gitlab-org/gitlab/issues/208837
     end
   end
