@@ -181,7 +181,13 @@ module Gitlab
 
       # rubocop: disable CodeReuse/ActiveRecord
       def services_usage
-        service_counts = count(Service.active.where(template: false).where.not(type: 'JiraService').group(:type), fallback: Hash.new(-1), batch: false)
+        service_counts = count(
+          Service.active.where(template: false, instance: false)
+            .where.not(type: 'JiraService')
+            .group(:type),
+          fallback: Hash.new(-1),
+          batch: false
+        )
 
         results = Service.available_services_names.each_with_object({}) do |service_name, response|
           response["projects_#{service_name}_active".to_sym] = service_counts["#{service_name}_service".camelize] || 0
