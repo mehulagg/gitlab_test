@@ -268,7 +268,7 @@ export default {
         if (toList && !isSameList && boardsStore.shouldRemoveIssue(this.list, toList)) {
           const issues = items.map(item => this.list.findIssue(Number(item.dataset.issueId)));
           if (
-            issues.filter(issue => Boolean(issue)).length &&
+            issues.filter(Boolean).length &&
             !boardsStore.issuesAreContiguous(this.list, issues)
           ) {
             const indexes = [];
