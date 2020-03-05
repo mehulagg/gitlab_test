@@ -47,6 +47,17 @@ export default class SidebarService {
     return axios.put(this.endpoint, { [key]: data });
   }
 
+  updateWithGraphQl(mutation, variables) {
+    return gqClient.mutate({
+      mutation,
+      variables: {
+        ...variables,
+        projectPath: this.fullPath,
+        iid: this.id.toString(),
+      },
+    });
+  }
+
   getProjectsAutocomplete(searchTerm) {
     return axios.get(this.projectsAutocompleteEndpoint, {
       params: {
