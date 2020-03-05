@@ -59,13 +59,13 @@ source projects, GitLab grants access to **Gold** features for all GitLab.com
 
 #### Self-managed
 
-A self-managed subscription uses a hybrid model. You pay for a subscription according to the maximum number of users enabled during the subscription period. At the end of the subscription period, the maximum number of simultaneous users in the self-managed installation is checked. If the number of users is higher than your subscription, you are billed for the extra users. The maximum number of simultaneous users is also used to calculate the cost of subscription renewal.
+A self-managed subscription uses a hybrid model. You pay for a subscription according to the maximum number of users enabled during the subscription period. On a quarterly basis, the maximum number of simultaneous users in the self-managed installation is checked via [Seat Link](https://docs.gitlab.com/ee/subscriptions/#seat-link). If the number of users is higher than your subscription, you are billed for the extra users. The maximum number of simultaneous users is also used to calculate the cost of subscription renewal.
 
 Every occupied seat, whether by person, job, or bot is counted in the subscription, with the following exceptions:
 
 - Blocked users who are blocked prior to the renewal of a subscription won't be counted as active users for the renewal subscription. They may count as active users in the subscription period in which they were originally added.
 - Members with Guest permissions on an Ultimate subscription.
-- Special internal GitLab accounts: `Ghost User` and `Support Bot`.
+- GitLab created service accounts: `Ghost User` and `Support Bot`.
 
 NOTE: **Note:**
 If you have LDAP integration enabled, anyone in the configured domain can sign up for a GitLab account. This can result in an unexpected bill at time of renewal. Consider [disabling new signups](../user/admin_area/settings/sign_up_restrictions.md) and managing new users manually instead.
@@ -231,6 +231,23 @@ The following will be emailed to you:
 
 - A payment receipt. You can also access this information in the Customers Portal under **Payment History**.
 - A new license. [Upload this license](../user/admin_area/license.md#uploading-your-license) to your instance to use it.
+
+### Seat Link
+[Introduced](tbd) in GitLab 12.9.
+
+Seat Link allows us to provide our self-managed customers with prorated charges for user growth throughout the year via a quarterly reconciliation process. 
+
+Each day, Seat Link will send user count information from connected self-managed instances so that we have the information we need to automate prorated reconciliations. The data will be sent securely through an encrypted  HTTPS connection.
+
+Since we need the user count data on our side to enable proration, Seat Link will be a non-configurable feature. Seat Link will provide the following information: 
+
+    * Historical max user count 
+    * Licensed user count
+    * License key
+    * Subscription id 
+
+For air-gapped or closed network customers, we’ll continue with the existing [true-up model](https://docs.gitlab.com/ee/subscriptions/##users-over-license), since we are lacking the seat information on our side. 
+
 
 ### Renew or change a GitLab.com subscription
 
