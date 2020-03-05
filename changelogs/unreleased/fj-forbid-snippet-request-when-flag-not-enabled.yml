@@ -1,0 +1,5 @@
+---
+title: Move snippet feature flag check from git access class to controllers
+merge_request: 26583
+author:
+type: changed

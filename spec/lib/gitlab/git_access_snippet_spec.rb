@@ -30,16 +30,6 @@ describe Gitlab::GitAccessSnippet do
     end
   end
 
-  describe 'when feature flag :version_snippets is disabled' do
-    before do
-      stub_feature_flags(version_snippets: false)
-    end
-
-    it 'does not allow push and pull access' do
-      expect { pull_access_check }.to raise_project_not_found
-    end
-  end
-
   describe '#check_snippet_accessibility!' do
     context 'when the snippet exists' do
       it 'allows access' do
