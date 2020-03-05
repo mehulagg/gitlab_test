@@ -1,0 +1,19 @@
+#js-authenticate-webauthn
+%a.btn.btn-block.btn-info#js-login-2fa-device{ href: '#' }= _("Sign in via 2FA code")
+
+-# haml-lint:disable InlineJavaScript
+%script#js-authenticate-webauthn-in-progress{ type: "text/template" }
+  %p= _("Trying to communicate with your device. Plug it in (if you haven't already) and press the button on the device now.")
+
+%script#js-authenticate-webauthn-error{ type: "text/template" }
+  %div
+    %p <%= error_message %> (<%= error_name %>)
+    %a.btn.btn-block.btn-warning.js-webauthn-try-again= _("Try again?")
+
+%script#js-authenticate-webauthn-authenticated{ type: "text/template" }
+  %div
+    %p= _("We heard back from your WebAuthn device. You have been authenticated.")
+    = form_tag(new_user_session_path, method: :post, id: 'js-login-webauthn-form') do |f|
+      - resource_params = params[resource_name].presence || params
+      = hidden_field_tag 'user[remember_me]', resource_params.fetch(:remember_me, 0)
+      = hidden_field_tag 'user[device_response]', nil, class: 'form-control', required: true, id: "js-device-response"

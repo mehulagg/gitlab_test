@@ -1,5 +1,6 @@
 import $ from 'jquery';
 import U2FRegister from '~/u2f/register';
+import WebAuthnRegister from '~/webauthn/register';
 import { parseBoolean } from '~/lib/utils/common_utils';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12,6 +13,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (flashAlert) flashAlert.insertAdjacentHTML('beforeend', button);
   }
 
-  const u2fRegister = new U2FRegister($('#js-register-u2f'), gon.u2f);
-  u2fRegister.start();
+  if (gon.features && gon.features.webauthn) {
+    const webauthnRegister = new WebAuthnRegister($('#js-register-webauthn'), gon.webauthn);
+    webauthnRegister.start();
+  } else {
+    const u2fRegister = new U2FRegister($('#js-register-u2f'), gon.u2f);
+    u2fRegister.start();
+  }
 });

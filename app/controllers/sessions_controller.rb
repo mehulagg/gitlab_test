@@ -25,6 +25,9 @@ class SessionsController < Devise::SessionsController
   before_action :save_failed_login, if: :action_new_and_failed_login?
   before_action :load_recaptcha
   before_action :frontend_tracking_data, only: [:new]
+  before_action do
+    push_frontend_feature_flag(:webauthn)
+  end
 
   after_action :log_failed_login, if: :action_new_and_failed_login?
 
@@ -294,7 +297,9 @@ class SessionsController < Devise::SessionsController
   def authentication_method
     if user_params[:otp_attempt]
       "two-factor"
-    elsif user_params[:device_response]
+    elsif user_params[:device_response] and Feature.enabled?(:webauthn, current_user)
+      "two-factor-via-webauthn-device"
+    elsif user_params[:device_response] and !Feature.enabled?(:webauthn, current_user)
       "two-factor-via-u2f-device"
     else
       "standard"

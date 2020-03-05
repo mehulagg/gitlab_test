@@ -104,6 +104,7 @@ class User < ApplicationRecord
   has_many :personal_access_tokens, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_many :identities, dependent: :destroy, autosave: true # rubocop:disable Cop/ActiveRecordDependent
   has_many :u2f_registrations, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
+  has_many :webauthn_registrations
   has_many :chat_names, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
   has_one :user_synced_attributes_metadata, autosave: true
   has_one :aws_role, class_name: 'Aws::Role'
@@ -408,14 +409,21 @@ class User < ApplicationRecord
         FROM u2f_registrations AS u2f
         WHERE u2f.user_id = users.id
       ) OR users.otp_required_for_login = ?
+      OR
+      EXISTS (
+        SELECT *
+        FROM webauthn_registrations AS webauthn
+        WHERE webauthn.user_id = users.id
+      )
     SQL
 
     where(with_u2f_registrations, true)
   end
 
   def self.without_two_factor
-    joins("LEFT OUTER JOIN u2f_registrations AS u2f ON u2f.user_id = users.id")
-      .where("u2f.id IS NULL AND users.otp_required_for_login = ?", false)
+    joins("LEFT OUTER JOIN u2f_registrations AS u2f ON u2f.user_id = users.id
+           LEFT OUTER JOIN webauthn_registrations AS webauthn ON webauthn.user_id = users.id")
+      .where("u2f.id IS NULL AND webauthn.id IS NULL AND users.otp_required_for_login = ?", false)
   end
 
   #
@@ -735,11 +743,12 @@ class User < ApplicationRecord
         otp_backup_codes:            nil
       )
       self.u2f_registrations.destroy_all # rubocop: disable DestroyAll
+      self.webauthn_registrations.destroy_all # rubocop: disable DestroyAll
     end
   end
 
   def two_factor_enabled?
-    two_factor_otp_enabled? || two_factor_u2f_enabled?
+    two_factor_otp_enabled? || two_factor_webauthn_u2f_enabled?
   end
 
   def two_factor_otp_enabled?
@@ -751,6 +760,35 @@ class User < ApplicationRecord
       u2f_registrations.any?
     else
       u2f_registrations.exists?
+    end
+  end
+
+  def two_factor_webauthn_u2f_enabled?
+    two_factor_u2f_enabled? || two_factor_webauthn_enabled?
+  end
+
+  def two_factor_webauthn_enabled?
+    Feature.enabled?(:webauthn, self) && ((webauthn_registrations.loaded? && webauthn_registrations.any?) || (!webauthn_registrations.loaded? && webauthn_registrations.exists?))
+  end
+
+  # converts U2F registrations to WebAuthn registrations in-memory
+  # no changes are persisted to the database
+  def converted_webauthn_registrations
+    u2f_registrations.map do |u2f_registration|
+      converted_credential = WebAuthn::U2fMigrator.new(
+        app_id: Gitlab.config.gitlab.url,
+        certificate: u2f_registration.certificate,
+        key_handle: u2f_registration.key_handle,
+        public_key: u2f_registration.public_key,
+        counter: u2f_registration.counter
+      ).credential
+
+      WebauthnRegistration.new(external_id: Base64.strict_encode64(converted_credential.id),
+                               public_key: Base64.strict_encode64(converted_credential.public_key),
+                               counter: u2f_registration.counter,
+                               name: u2f_registration.name,
+                               user_id: u2f_registration.user_id,
+                               created_at: u2f_registration.created_at)
     end
   end
 

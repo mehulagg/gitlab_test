@@ -1,0 +1,40 @@
+#js-register-webauthn
+
+-# haml-lint:disable InlineJavaScript
+%script#js-register-webauthn-not-supported{ type: "text/template" }
+  %p= _("Your browser doesn't support WebAuthn. Please use a supported browser, e.g. Chrome (67+) or Firefox (60+).")
+
+%script#js-register-webauthn-setup{ type: "text/template" }
+  - if current_user.two_factor_otp_enabled?
+    .row.append-bottom-10
+      .col-md-5
+        %button#js-setup-webauthn-device.btn.btn-info= _("Set up new WebAuthn device")
+      .col-md-7
+        %p= _("Your WebAuthn device needs to be set up. Plug it in (if needed) and click the button on the left.")
+  - else
+    .row.append-bottom-10
+      .col-md-4
+        %button#js-setup-webauthn-device.btn.btn-info.btn-block{ disabled: true }= _("Set up new WebAuthn device")
+      .col-md-8
+        %p= _("You need to register a two-factor authentication app before you can set up a WebAuthn device.")
+
+%script#js-register-webauthn-in-progress{ type: "text/template" }
+  %p= _("Trying to communicate with your device. Plug it in (if needed) and press the button on the device now.")
+
+%script#js-register-webauthn-error{ type: "text/template" }
+  %div
+    %p
+      %span <%= error_message %> (<%= error_name %>)
+    %a.btn.btn-warning.js-webauthn-try-again= _("Try again?")
+
+%script#js-register-webauthn-registered{ type: "text/template" }
+  .row.append-bottom-10
+    .col-md-12
+      %p= _("Your device was successfully set up! Give it a name and register it with the GitLab server.")
+      = form_tag(create_webauthn_profile_two_factor_auth_path, method: :post) do
+        .row.append-bottom-10
+          .col-md-3
+            = text_field_tag 'webauthn_registration[name]', nil, class: 'form-control', placeholder: _("Pick a name")
+          .col-md-3
+            = hidden_field_tag 'webauthn_registration[device_response]', nil, class: 'form-control', required: true, id: "js-device-response"
+            = submit_tag _("Register WebAuthn device"), class: "btn btn-success"

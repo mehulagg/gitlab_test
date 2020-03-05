@@ -63,9 +63,16 @@ resource :profile, only: [:show, :update] do
         post :create_u2f
         post :codes
         patch :skip
+        if Feature.enabled?(:webauthn)
+          post :create_webauthn
+        end
       end
     end
 
     resources :u2f_registrations, only: [:destroy]
+
+    if Feature.enabled?(:webauthn)
+      resources :webauthn_registrations, only: [:destroy]
+    end
   end
 end

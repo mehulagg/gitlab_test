@@ -2,6 +2,9 @@
 
 class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
   skip_before_action :check_two_factor_requirement
+  before_action do
+    push_frontend_feature_flag(:webauthn, current_user)
+  end
 
   def show
     unless current_user.otp_secret
@@ -33,7 +36,11 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
 
     @qr_code = build_qr_code
     @account_string = account_string
-    setup_u2f_registration
+    if Feature.enabled?(:webauthn, current_user)
+      setup_webauthn_registration
+    else
+      setup_u2f_registration
+    end
   end
 
   def create
@@ -46,7 +53,13 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
     else
       @error = _('Invalid pin code')
       @qr_code = build_qr_code
-      setup_u2f_registration
+
+      if Feature.enabled?(:webauthn, current_user)
+        setup_webauthn_registration
+      else
+        setup_u2f_registration
+      end
+
       render 'show'
     end
   end
@@ -62,6 +75,19 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
     else
       @qr_code = build_qr_code
       setup_u2f_registration
+      render :show
+    end
+  end
+
+  def create_webauthn
+    WebAuthn.configuration.origin = u2f_app_id
+    @webauthn_registration = Webauthn::RegisterService.new(current_user, webauthn_registration_params, session[:challenge]).execute
+    if @webauthn_registration.persisted?
+      session.delete(:challenge)
+      redirect_to profile_two_factor_auth_path, notice: s_("Your WebAuthn device was registered!")
+    else
+      @qr_code = build_qr_code
+      setup_webauthn_registration
       render :show
     end
   end
@@ -122,11 +148,36 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
     params.require(:u2f_registration).permit(:device_response, :name)
   end
 
+  def setup_webauthn_registration
+    @u2f_registrations = current_user.u2f_registrations
+    @webauthn_registration ||= WebauthnRegistration.new
+    @webauthn_registrations = current_user.webauthn_registrations
+
+    unless current_user.webauthn_id
+      current_user.update!(webauthn_id: WebAuthn.generate_user_id)
+    end
+
+    webauth_options = WebAuthn::Credential.options_for_create(
+      user: { id: current_user.webauthn_id, name: current_user.username },
+      exclude: current_user.webauthn_registrations.map { |c| c.external_id },
+      authenticator_selection: { user_verification: 'discouraged' },
+      rp: { name: 'GitLab' }
+    )
+
+    session[:challenge] = webauth_options.challenge
+
+    gon.push(webauthn: { options: webauth_options, app_id: u2f_app_id })
+  end
+
+  def webauthn_registration_params
+    params.require(:webauthn_registration).permit(:device_response, :name)
+  end
+
   def groups_notification(groups)
     group_links = groups.map { |group| view_context.link_to group.full_name, group_path(group) }.to_sentence
-    leave_group_links = groups.map { |group| view_context.link_to (s_("leave %{group_name}") % { group_name: group.full_name }), leave_group_members_path(group), remote: false, method: :delete}.to_sentence
+    leave_group_links = groups.map { |group| view_context.link_to (s_("leave %{group_name}") % { group_name: group.full_name }), leave_group_members_path(group), remote: false, method: :delete }.to_sentence
 
     s_(%{The group settings for %{group_links} require you to enable Two-Factor Authentication for your account. You can %{leave_group_links}.})
-      .html_safe % { group_links: group_links.html_safe, leave_group_links: leave_group_links.html_safe }
+        .html_safe % { group_links: group_links.html_safe, leave_group_links: leave_group_links.html_safe }
   end
 end

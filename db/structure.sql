@@ -6531,7 +6531,8 @@ CREATE TABLE public.users (
     last_name character varying(255),
     static_object_token character varying(255),
     role smallint,
-    user_type smallint
+    user_type smallint,
+    webauthn_id character varying(86)
 );
 
 CREATE SEQUENCE public.users_id_seq
@@ -6894,6 +6895,26 @@ CREATE SEQUENCE public.web_hooks_id_seq
     CACHE 1;
 
 ALTER SEQUENCE public.web_hooks_id_seq OWNED BY public.web_hooks.id;
+
+CREATE TABLE public.webauthn_registrations (
+    id bigint NOT NULL,
+    user_id integer,
+    counter bigint DEFAULT 0 NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    external_id character varying(255) NOT NULL,
+    name character varying(255) NOT NULL,
+    public_key text NOT NULL
+);
+
+CREATE SEQUENCE public.webauthn_registrations_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.webauthn_registrations_id_seq OWNED BY public.webauthn_registrations.id;
 
 CREATE TABLE public.wiki_page_meta (
     id integer NOT NULL,
@@ -7602,6 +7623,8 @@ ALTER TABLE ONLY public.vulnerability_user_mentions ALTER COLUMN id SET DEFAULT 
 ALTER TABLE ONLY public.web_hook_logs ALTER COLUMN id SET DEFAULT nextval('public.web_hook_logs_id_seq'::regclass);
 
 ALTER TABLE ONLY public.web_hooks ALTER COLUMN id SET DEFAULT nextval('public.web_hooks_id_seq'::regclass);
+
+ALTER TABLE ONLY public.webauthn_registrations ALTER COLUMN id SET DEFAULT nextval('public.webauthn_registrations_id_seq'::regclass);
 
 ALTER TABLE ONLY public.wiki_page_meta ALTER COLUMN id SET DEFAULT nextval('public.wiki_page_meta_id_seq'::regclass);
 
@@ -8562,6 +8585,9 @@ ALTER TABLE ONLY public.web_hook_logs
 
 ALTER TABLE ONLY public.web_hooks
     ADD CONSTRAINT web_hooks_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.webauthn_registrations
+    ADD CONSTRAINT webauthn_registrations_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.wiki_page_meta
     ADD CONSTRAINT wiki_page_meta_pkey PRIMARY KEY (id);
@@ -10489,6 +10515,10 @@ CREATE INDEX index_web_hooks_on_project_id ON public.web_hooks USING btree (proj
 
 CREATE INDEX index_web_hooks_on_type ON public.web_hooks USING btree (type);
 
+CREATE UNIQUE INDEX index_webauthn_registrations_on_external_id ON public.webauthn_registrations USING btree (external_id);
+
+CREATE INDEX index_webauthn_registrations_on_user_id ON public.webauthn_registrations USING btree (user_id);
+
 CREATE INDEX index_wiki_page_meta_on_project_id ON public.wiki_page_meta USING btree (project_id);
 
 CREATE UNIQUE INDEX index_wiki_page_slugs_on_slug_and_wiki_page_meta_id ON public.wiki_page_slugs USING btree (slug, wiki_page_meta_id);
@@ -11840,6 +11870,9 @@ ALTER TABLE ONLY public.pool_repositories
 
 ALTER TABLE ONLY public.resource_label_events
     ADD CONSTRAINT fk_rails_b126799f57 FOREIGN KEY (label_id) REFERENCES public.labels(id) ON DELETE SET NULL;
+
+ALTER TABLE ONLY public.webauthn_registrations
+    ADD CONSTRAINT fk_rails_b15c016782 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.packages_build_infos
     ADD CONSTRAINT fk_rails_b18868292d FOREIGN KEY (package_id) REFERENCES public.packages_packages(id) ON DELETE CASCADE;

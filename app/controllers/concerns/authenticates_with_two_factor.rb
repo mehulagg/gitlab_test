@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'webauthn/u2f_migrator'
 
 # == AuthenticatesWithTwoFactor
 #
@@ -22,7 +23,13 @@ module AuthenticatesWithTwoFactor
     return handle_locked_user(user) unless user.can?(:log_in)
 
     session[:otp_user_id] = user.id
-    setup_u2f_authentication(user)
+    push_frontend_feature_flag(:webauthn, user)
+
+    if Feature.enabled?(:webauthn, user)
+      setup_webauthn_authentication(user)
+    else
+      setup_u2f_authentication(user)
+    end
     render 'devise/sessions/two_factor'
   end
 
@@ -45,7 +52,11 @@ module AuthenticatesWithTwoFactor
     if user_params[:otp_attempt].present? && session[:otp_user_id]
       authenticate_with_two_factor_via_otp(user)
     elsif user_params[:device_response].present? && session[:otp_user_id]
-      authenticate_with_two_factor_via_u2f(user)
+      if Feature.enabled?(:webauthn, user)
+        authenticate_with_two_factor_via_webauthn(user)
+      else
+        authenticate_with_two_factor_via_u2f(user)
+      end
     elsif user && user.valid_password?(user_params[:password])
       prompt_for_two_factor(user)
     end
@@ -80,16 +91,22 @@ module AuthenticatesWithTwoFactor
   # Authenticate using the response from a U2F (universal 2nd factor) device
   def authenticate_with_two_factor_via_u2f(user)
     if U2fRegistration.authenticate(user, u2f_app_id, user_params[:device_response], session[:challenge])
-      # Remove any lingering user data from login
-      session.delete(:otp_user_id)
-      session.delete(:challenge)
-
-      remember_me(user) if user_params[:remember_me] == '1'
-      sign_in(user, message: :two_factor_authenticated, event: :authentication)
+      handle_two_factor_success(user)
     else
       user.increment_failed_attempts!
       Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=U2F")
       flash.now[:alert] = _('Authentication via U2F device failed.')
+      prompt_for_two_factor(user)
+    end
+  end
+
+  def authenticate_with_two_factor_via_webauthn(user)
+    if Webauthn::AuthenticateService.new(user, user_params[:device_response], session[:challenge], u2f_app_id).execute
+      handle_two_factor_success(user)
+    else
+      user.increment_failed_attempts!
+      Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=WebAuthn")
+      flash.now[:alert] = _('Authentication via WebAuthn device failed.')
       prompt_for_two_factor(user)
     end
   end
@@ -108,5 +125,33 @@ module AuthenticatesWithTwoFactor
                       sign_requests: sign_requests })
     end
   end
+
+  def setup_webauthn_authentication(user)
+    if user.u2f_registrations.present? || user.webauthn_registrations.present?
+
+      all_webauthn_registration_ids = user.webauthn_registrations.pluck(:external_id) +
+          user.converted_webauthn_registrations.pluck(:external_id)
+
+      get_options = WebAuthn::Credential.options_for_get(allow: all_webauthn_registration_ids,
+                                                         user_verification: 'discouraged',
+                                                         extensions: { appid: u2f_app_id })
+
+      session[:credentialRequestOptions] = get_options
+      session[:challenge] = get_options.challenge
+      gon.push(webauthn: { options: get_options.to_json })
+    end
+  end
+
   # rubocop: enable CodeReuse/ActiveRecord
+
+  private
+
+  def handle_two_factor_success(user)
+    # Remove any lingering user data from login
+    session.delete(:otp_user_id)
+    session.delete(:challenge)
+
+    remember_me(user) if user_params[:remember_me] == '1'
+    sign_in(user, message: :two_factor_authenticated, event: :authentication)
+  end
 end
