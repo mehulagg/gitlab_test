@@ -1,6 +1,5 @@
 ---
-title: Always include confidential issues into account when showing milestone progress
-  and issue counters to allow future caching
+title: Cache milestone issue counters and make them independent of user permissions
 merge_request: 21554
 author:
-type: changed
+type: performance
