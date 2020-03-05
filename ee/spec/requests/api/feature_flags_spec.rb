@@ -214,14 +214,6 @@ describe API::FeatureFlags do
   end
 
   describe 'POST /projects/:id/feature_flags' do
-    def default_scope
-      {
-        environment_scope: '*',
-        active: false,
-        strategies: [{ name: 'default', parameters: {} }].to_json
-      }
-    end
-
     subject do
       post api("/projects/#{project.id}/feature_flags", user), params: params
     end
@@ -242,16 +234,6 @@ describe API::FeatureFlags do
       feature_flag = project.operations_feature_flags.last
       expect(feature_flag.name).to eq(params[:name])
       expect(feature_flag.description).to eq(params[:description])
-    end
-
-    it 'defaults to a version 1 (legacy) feature flag' do
-      subject
-
-      expect(response).to have_gitlab_http_status(:created)
-      expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
-
-      feature_flag = project.operations_feature_flags.last
-      expect(feature_flag.version).to eq('legacy_flag')
     end
 
     it_behaves_like 'check user permission'
@@ -315,6 +297,14 @@ describe API::FeatureFlags do
           expect(scope.strategies).to eq(JSON.parse(params[:scopes][index][:strategies]))
         end
       end
+    end
+
+    def default_scope
+      {
+        environment_scope: '*',
+        active: false,
+        strategies: [{ name: 'default', parameters: {} }].to_json
+      }
     end
   end
 

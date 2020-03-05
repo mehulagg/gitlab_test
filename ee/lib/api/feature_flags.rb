@@ -155,10 +155,6 @@ module API
         authorize! :create_feature_flag, user_project
       end
 
-      def authorize_update_feature_flag!
-        authorize! :update_feature_flag, feature_flag
-      end
-
       def authorize_destroy_feature_flag!
         authorize! :destroy_feature_flag, feature_flag
       end
