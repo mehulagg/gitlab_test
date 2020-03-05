@@ -365,6 +365,17 @@ describe API::Releases do
             expect(json_response['milestones'].first['title']).to eq(milestone.title)
           end
 
+          it 'returns issue stats for milestone' do
+            create_list(:issue, 2, milestone: milestone, project: project)
+            create_list(:issue, 3, :closed, milestone: milestone, project: project)
+
+            get api("/projects/#{project.id}/releases/v0.1", non_project_member)
+
+            issue_stats = json_response['milestones'].first["issue_stats"]
+            expect(issue_stats["total"]).to eq(5)
+            expect(issue_stats["closed"]).to eq(3)
+          end
+
           context 'when project restricts visibility of issues and merge requests' do
             let!(:project) { create(:project, :repository, :public, :issues_private, :merge_requests_private) }
 

@@ -113,6 +113,17 @@ RSpec.shared_examples 'group and project milestones' do |route_definition|
       expect(json_response['iid']).to eq(milestone.iid)
     end
 
+    it 'returns issue stats' do
+      create_list(:issue, 2, milestone: milestone, project: project)
+      create_list(:issue, 3, :closed, milestone: milestone, project: project)
+
+      get api(resource_route, user)
+
+      issue_stats = json_response["issue_stats"]
+      expect(issue_stats["total"]).to eq(5)
+      expect(issue_stats["closed"]).to eq(3)
+    end
+
     it 'returns 401 error if user not authenticated' do
       get api(resource_route)
 
