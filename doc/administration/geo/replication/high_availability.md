@@ -53,7 +53,7 @@ you already have a working GitLab instance that is in-use, it can be used as a
 The second cluster will serve as the **secondary** node. Again, use the
 [GitLab HA documentation](../../high_availability/README.md) to set this up.
 It's a good idea to log into it and test it, however, note that its data will
-be wiped out as part of the process of replicating the **primary**.
+be wiped out as part of the process of replicating from the **primary**.
 
 ## Configure the GitLab cluster to be the **primary** node
 
