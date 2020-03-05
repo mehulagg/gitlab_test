@@ -560,9 +560,7 @@ describe API::FeatureFlags do
         stub_feature_flags(feature_flags_new_version: false)
         feature_flag = create(:operations_feature_flag, project: project,
                               name: 'feature1', version: 1, description: 'old description')
-        params = {
-          description: 'new description'
-        }
+        params = { description: 'new description' }
 
         put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
 
@@ -573,9 +571,7 @@ describe API::FeatureFlags do
       it 'returns a 422' do
         feature_flag = create(:operations_feature_flag, project: project,
                               name: 'feature1', version: 1, description: 'old description')
-        params = {
-          description: 'new description'
-        }
+        params = { description: 'new description' }
 
         put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
 
@@ -590,9 +586,7 @@ describe API::FeatureFlags do
         stub_feature_flags(feature_flags_new_version: false)
         feature_flag = create(:operations_feature_flag, project: project,
                               name: 'feature1', version: 2, description: 'old description')
-        params = {
-          description: 'new description'
-        }
+        params = { description: 'new description' }
 
         put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
 
@@ -603,9 +597,7 @@ describe API::FeatureFlags do
       it 'returns a 404 if the feature flag does not exist' do
         feature_flag = create(:operations_feature_flag, project: project,
                               name: 'feature1', version: 2, description: 'old description')
-        params = {
-          description: 'new description'
-        }
+        params = { description: 'new description' }
 
         put api("/projects/#{project.id}/feature_flags/other_flag_name", user), params: params
 
@@ -616,9 +608,7 @@ describe API::FeatureFlags do
       it 'forbids a request for a reporter' do
         feature_flag = create(:operations_feature_flag, project: project,
                               name: 'feature1', version: 2, description: 'old description')
-        params = {
-          description: 'new description'
-        }
+        params = { description: 'new description' }
 
         put api("/projects/#{project.id}/feature_flags/feature1", reporter), params: params
 
@@ -629,9 +619,7 @@ describe API::FeatureFlags do
       it 'updates the feature flag' do
         feature_flag = create(:operations_feature_flag, project: project,
                               name: 'feature1', version: 2, description: 'old description')
-        params = {
-          description: 'new description'
-        }
+        params = { description: 'new description' }
 
         put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
 
