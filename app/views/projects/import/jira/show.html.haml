@@ -5,7 +5,7 @@
 
 = render 'import/shared/errors'
 
-- unless @project.import_state.in_progress?
+- unless @project.import_state&.in_progress?
   %h3.page-title
     = icon 'issues', text: _('Import Issues From Jira')
 

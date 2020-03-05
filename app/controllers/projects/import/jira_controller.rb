@@ -3,12 +3,13 @@
 module Projects
   module Import
     class JiraController < Projects::ApplicationController
-      before_action :authorize_admin_operations!
+      before_action :jira_import_enabled?
+      before_action :jira_integration_configured?
 
       def show
-        if @project.import_state && @project.import_state.in_progress?
-          @jira_projects = []
-        else
+        @jira_projects = []
+
+        unless @project.import_state&.in_progress?
           jira_client = @project.jira_service.client
           @jira_projects = jira_client.Project.all.map { |p| ["#{p.name}(#{p.key})", p.key] }
         end
@@ -40,6 +41,19 @@ module Projects
         end
 
         redirect_to project_import_jira_path(@project)
+      end
+
+      private
+
+      def jira_integration_configured?
+        unless @project.jira_service
+          flash[:notice] = _("Configure Jira Integration first at Settings > Integrations > Jira")
+          redirect_to project_issues_path(@project)
+        end
+      end
+
+      def jira_import_enabled?
+        redirect_to project_issues_path(@project) unless Feature.enabled?(:jira_issue_import, @project)
       end
     end
   end
