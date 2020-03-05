@@ -5,6 +5,7 @@
     "parameters"
   ],
   "properties": {
+    "id": { "type": "integer" },
     "name": { "type": "string" },
     "parameters": { "type": "object" },
     "scopes": { "type": "array", "items": { "$ref": "scope.json" } }

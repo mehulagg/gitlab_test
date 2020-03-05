@@ -103,9 +103,11 @@ describe API::FeatureFlags do
           'created_at' => feature_flag.created_at.as_json,
           'scopes' => [],
           'strategies' => [{
+            'id' => strategy.id,
             'name' => 'default',
             'parameters' => {},
             'scopes' => [{
+              'id' => scope.id,
               'environment_scope' => 'production'
             }]
           }]
@@ -176,7 +178,7 @@ describe API::FeatureFlags do
       it 'returns the feature flag' do
         feature_flag = create(:operations_feature_flag, :new_version_flag, project: project, name: 'feature1')
         strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
-        create(:operations_scope, strategy: strategy, environment_scope: 'production')
+        scope = create(:operations_scope, strategy: strategy, environment_scope: 'production')
 
         get api("/projects/#{project.id}/feature_flags/feature1", user)
 
@@ -190,9 +192,11 @@ describe API::FeatureFlags do
           'created_at' => feature_flag.created_at.as_json,
           'scopes' => [],
           'strategies' => [{
+            'id' => strategy.id,
             'name' => 'default',
             'parameters' => {},
             'scopes' => [{
+              'id' => scope.id,
               'environment_scope' => 'production'
             }]
           }]

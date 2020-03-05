@@ -5,6 +5,7 @@ module EE
     module Entities
       class FeatureFlag < Grape::Entity
         class Strategy < Grape::Entity
+          expose :id
           expose :name
           expose :parameters
           expose :scopes, using: FeatureFlag::Scope

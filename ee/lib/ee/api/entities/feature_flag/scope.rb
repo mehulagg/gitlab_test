@@ -5,6 +5,7 @@ module EE
     module Entities
       class FeatureFlag < Grape::Entity
         class Scope < Grape::Entity
+          expose :id
           expose :environment_scope
         end
       end
