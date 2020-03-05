@@ -199,20 +199,20 @@ export default {
       const errorMessage = designDeletionError({ singular: this.selectedDesigns.length === 1 });
       createFlash(errorMessage);
     },
-    validateExistingDesignDrop(designFilename) {
-      return ({ dataTransfer }) => {
-        const files = Array.from(dataTransfer.files);
+    validateExistingDesignDrop(files, designFilename) {
+      const filesArr = Array.from(files);
 
-        if (files.length > 1) {
-          return EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE;
-        }
-
-        if (!files.some(({ name }) => designFilename === name)) {
-          return EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE;
-        }
-
+      if (filesArr.length > 1) {
+        createFlash(EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE);
         return false;
-      };
+      }
+
+      if (!filesArr.some(({ name }) => designFilename === name)) {
+        createFlash(EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE);
+        return false;
+      }
+
+      return true;
     },
   },
   beforeRouteUpdate(to, from, next) {
@@ -270,8 +270,9 @@ export default {
           </li>
           <li v-for="design in designs" :key="design.id" class="col-md-6 col-lg-4 mb-3">
             <design-dropzone
-              :validate-upload="validateExistingDesignDrop(design.filename)"
-              @upload="onUploadDesign"
+              @upload="
+                validateExistingDesignDrop($event, design.filename) && onUploadDesign($event)
+              "
               ><design v-bind="design" :is-loading="isDesignToBeSaved(design.filename)"
             /></design-dropzone>
 

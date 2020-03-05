@@ -14,16 +14,6 @@ export default {
     GlSprintf,
     DesignInput,
   },
-  props: {
-    /**
-     * Return error message when invalid. If valid, return falsy value
-     */
-    validateUpload: {
-      required: false,
-      type: Function,
-      default: () => undefined,
-    },
-  },
   data() {
     return {
       dragCounter: 0,
@@ -52,12 +42,6 @@ export default {
       const { files } = e.dataTransfer || {};
       if (!this.isValidUpload(Array.from(files))) {
         createFlash(UPLOAD_DESIGN_INVALID_FILETYPE_ERROR);
-        return;
-      }
-
-      const invalidUploadMessage = this.validateUpload(e);
-      if (invalidUploadMessage) {
-        createFlash(invalidUploadMessage);
         return;
       }
 

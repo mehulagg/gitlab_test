@@ -15,34 +15,13 @@ exports[`Design management index page designs does not render toolbar when there
       >
         <design-dropzone-stub
           class="design-list-item"
-          validateupload="function _default() {
-        return undefined;
-      }"
         />
       </li>
        
       <li
         class="col-md-6 col-lg-4 mb-3"
       >
-        <design-dropzone-stub
-          validateupload="function (_ref2) {
-        var dataTransfer = _ref2.dataTransfer;
-        var files = Array.from(dataTransfer.files);
-
-        if (files.length > 1) {
-          return _error_messages.EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE;
-        }
-
-        if (!files.some(function (_ref3) {
-          var name = _ref3.name;
-          return designFilename === name;
-        })) {
-          return _error_messages.EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE;
-        }
-
-        return false;
-      }"
-        >
+        <design-dropzone-stub>
           <design-stub
             event="NONE"
             filename="design-1-name"
@@ -57,25 +36,7 @@ exports[`Design management index page designs does not render toolbar when there
       <li
         class="col-md-6 col-lg-4 mb-3"
       >
-        <design-dropzone-stub
-          validateupload="function (_ref2) {
-        var dataTransfer = _ref2.dataTransfer;
-        var files = Array.from(dataTransfer.files);
-
-        if (files.length > 1) {
-          return _error_messages.EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE;
-        }
-
-        if (!files.some(function (_ref3) {
-          var name = _ref3.name;
-          return designFilename === name;
-        })) {
-          return _error_messages.EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE;
-        }
-
-        return false;
-      }"
-        >
+        <design-dropzone-stub>
           <design-stub
             event="NONE"
             filename="design-2-name"
@@ -90,25 +51,7 @@ exports[`Design management index page designs does not render toolbar when there
       <li
         class="col-md-6 col-lg-4 mb-3"
       >
-        <design-dropzone-stub
-          validateupload="function (_ref2) {
-        var dataTransfer = _ref2.dataTransfer;
-        var files = Array.from(dataTransfer.files);
-
-        if (files.length > 1) {
-          return _error_messages.EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE;
-        }
-
-        if (!files.some(function (_ref3) {
-          var name = _ref3.name;
-          return designFilename === name;
-        })) {
-          return _error_messages.EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE;
-        }
-
-        return false;
-      }"
-        >
+        <design-dropzone-stub>
           <design-stub
             event="NONE"
             filename="design-3-name"
@@ -178,34 +121,13 @@ exports[`Design management index page designs renders designs list and header wi
       >
         <design-dropzone-stub
           class="design-list-item"
-          validateupload="function _default() {
-        return undefined;
-      }"
         />
       </li>
        
       <li
         class="col-md-6 col-lg-4 mb-3"
       >
-        <design-dropzone-stub
-          validateupload="function (_ref2) {
-        var dataTransfer = _ref2.dataTransfer;
-        var files = Array.from(dataTransfer.files);
-
-        if (files.length > 1) {
-          return _error_messages.EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE;
-        }
-
-        if (!files.some(function (_ref3) {
-          var name = _ref3.name;
-          return designFilename === name;
-        })) {
-          return _error_messages.EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE;
-        }
-
-        return false;
-      }"
-        >
+        <design-dropzone-stub>
           <design-stub
             event="NONE"
             filename="design-1-name"
@@ -223,25 +145,7 @@ exports[`Design management index page designs renders designs list and header wi
       <li
         class="col-md-6 col-lg-4 mb-3"
       >
-        <design-dropzone-stub
-          validateupload="function (_ref2) {
-        var dataTransfer = _ref2.dataTransfer;
-        var files = Array.from(dataTransfer.files);
-
-        if (files.length > 1) {
-          return _error_messages.EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE;
-        }
-
-        if (!files.some(function (_ref3) {
-          var name = _ref3.name;
-          return designFilename === name;
-        })) {
-          return _error_messages.EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE;
-        }
-
-        return false;
-      }"
-        >
+        <design-dropzone-stub>
           <design-stub
             event="NONE"
             filename="design-2-name"
@@ -259,25 +163,7 @@ exports[`Design management index page designs renders designs list and header wi
       <li
         class="col-md-6 col-lg-4 mb-3"
       >
-        <design-dropzone-stub
-          validateupload="function (_ref2) {
-        var dataTransfer = _ref2.dataTransfer;
-        var files = Array.from(dataTransfer.files);
-
-        if (files.length > 1) {
-          return _error_messages.EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE;
-        }
-
-        if (!files.some(function (_ref3) {
-          var name = _ref3.name;
-          return designFilename === name;
-        })) {
-          return _error_messages.EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE;
-        }
-
-        return false;
-      }"
-        >
+        <design-dropzone-stub>
           <design-stub
             event="NONE"
             filename="design-3-name"
@@ -358,9 +244,6 @@ exports[`Design management index page when has no designs renders empty text 1`]
       >
         <design-dropzone-stub
           class="design-list-item"
-          validateupload="function _default() {
-        return undefined;
-      }"
         />
       </li>
        
