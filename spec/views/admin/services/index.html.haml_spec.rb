@@ -13,7 +13,7 @@ describe 'admin/services/index.html.haml' do
 
       render
 
-      expect(rendered).to have_content('Service templates will be deprecated')
+      expect(rendered).to have_content('Service Templates will be deprecated!')
     end
   end
 
@@ -23,7 +23,7 @@ describe 'admin/services/index.html.haml' do
 
       render
 
-      expect(rendered).not_to have_content('Service templates will be deprecated')
+      expect(rendered).not_to have_content('Service Templates will be deprecated!')
     end
   end
 end
