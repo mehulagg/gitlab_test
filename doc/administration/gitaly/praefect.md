@@ -555,7 +555,7 @@ Particular attention should be shown to:
    `gitlab_build_info` to verify that you are getting metrics from all your
    machines.
 
-Congratulations! You have configured a highly available Praefect cluster, and
+Congratulations! You have configured a highly available Praefect cluster.
 
 ## Migrating existing repositories to Praefect
 
