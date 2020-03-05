@@ -37,8 +37,6 @@ module Mutations
       private
 
       def create_epic_issue(epic, issue)
-        return unless epic.present? && issue.present?
-
         ::EpicIssues::CreateService.new(epic, current_user, { target_issuable: issue }).execute
       end
 

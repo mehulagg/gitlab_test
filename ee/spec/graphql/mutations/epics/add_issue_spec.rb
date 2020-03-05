@@ -39,6 +39,18 @@ describe Mutations::Epics::AddIssue do
         expect(issue.reload.epic).to eq(epic)
         expect(subject[:errors]).to be_empty
       end
+
+      it 'returns error if the issue is already assigned to the epic' do
+        issue.update!(epic: epic)
+
+        expect(subject[:errors]).to eq('Issue(s) already assigned')
+      end
+
+      it 'returns error if issue is not found' do
+        issue.update!(project: create(:project))
+
+        expect(subject[:errors]).to eq('No Issue found for given params')
+      end
     end
   end
 end
