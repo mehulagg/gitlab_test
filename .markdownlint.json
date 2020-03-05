@@ -90,6 +90,7 @@
       "OAuth",
       "OAuth 2",
       "OmniAuth",
+      "omniauth-saml",
       "Omnibus GitLab",
       "OpenID",
       "OpenShift",
