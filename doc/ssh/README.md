@@ -334,7 +334,7 @@ git remote set-url origin git@<user_1.gitlab.com>:gitlab-org/gitlab.git
 
 ## Deploy keys
 
-> [Moved](https://gitlab.com/gitlab-org/gitlab/issues/199370) from **Settings > Repository** in GitLab 12.9.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/199370) in GitLab 12.9, settings moved from **Settings > Repository**.
 
 ### Per-repository deploy keys
 
