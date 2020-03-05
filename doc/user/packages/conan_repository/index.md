@@ -190,7 +190,7 @@ an empty file named `conanfile.txt` in the root of your project.
 
 Add the Conan recipe to the `[requires]` section of the file:
 
-```ini
+```plaintext
  [requires]
  Hello/0.1@my-group+my-project/beta
 
