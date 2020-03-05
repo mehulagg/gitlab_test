@@ -65,13 +65,13 @@ export default {
 <template>
   <section id="status-page" class="settings no-animate js-status-page-settings">
     <div class="settings-header">
-      <h3 class="js-section-header h4" ref="sectionHeader">
+      <h3 ref="sectionHeader" class="js-section-header h4">
         {{ $options.i18n.headerText }}
       </h3>
-      <gl-button class="js-settings-toggle" ref="toggleBtn">{{
+      <gl-button ref="toggleBtn" class="js-settings-toggle">{{
         $options.i18n.expandBtnLabel
       }}</gl-button>
-      <p class="js-section-sub-header" ref="sectionSubHeader">
+      <p ref="sectionSubHeader" class="js-section-sub-header">
         {{ $options.i18n.subHeaderText }}
       </p>
     </div>
@@ -87,7 +87,7 @@ export default {
           </template>
         </gl-sprintf>
       </p>
-      <form @submit.prevent="handleSubmit" ref="settingsForm">
+      <form ref="settingsForm" @submit.prevent="handleSubmit">
         <gl-form-group class="gl-pl-0 mb-3">
           <gl-form-checkbox v-model="enabled">
             <span class="bold">{{ $options.i18n.activeLabel }}</span></gl-form-checkbox
@@ -156,7 +156,7 @@ export default {
           <gl-form-input id="status-page-aws-secret-access-key " v-model="awsSecretKey" />
         </gl-form-group>
 
-        <gl-button :disabled="loading" variant="success" type="submit" ref="submitBtn">
+        <gl-button ref="submitBtn" :disabled="loading" variant="success" type="submit" class="js-no-auto-disable">
           {{ $options.i18n.saveBtnLabel }}
         </gl-button>
       </form>
