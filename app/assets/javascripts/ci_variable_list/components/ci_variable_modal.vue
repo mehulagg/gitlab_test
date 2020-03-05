@@ -45,8 +45,11 @@ export default {
       const regex = RegExp(this.maskableRegex);
       return regex.test(this.variableData.secret_value);
     },
+    displayMaskedError() {
+      return !this.canMask && this.variableData.masked && this.variableData.secret_value !== '';
+    },
     maskedState() {
-      if (!this.canMask && this.variableData.masked) {
+      if (this.displayMaskedError) {
         return false;
       }
       return null;
@@ -55,7 +58,7 @@ export default {
       return this.variableBeingEdited || this.variable;
     },
     modalActionText() {
-      return this.variableBeingEdited ? __('Update Variable') : __('Add variable');
+      return this.variableBeingEdited ? __('Update variable') : __('Add variable');
     },
     primaryAction() {
       return {
@@ -66,7 +69,7 @@ export default {
     deleteAction() {
       if (this.variableBeingEdited) {
         return {
-          text: __('Delete Variable'),
+          text: __('Delete variable'),
           attributes: { variant: 'danger', category: 'secondary' },
         };
       }
@@ -179,7 +182,7 @@ export default {
           <gl-link href="/help/ci/variables/README#protected-environment-variables">
             <gl-icon name="question" :size="12" />
           </gl-link>
-          <p class="prepend-top-4 clgray">
+          <p class="prepend-top-4 text-secondary">
             {{ __('Allow variables to run on protected branches and tags.') }}
           </p>
         </gl-form-checkbox>
@@ -193,11 +196,11 @@ export default {
           <gl-link href="/help/ci/variables/README#masked-variables">
             <gl-icon name="question" :size="12" />
           </gl-link>
-          <p class="prepend-top-4 append-bottom-0 clgray">
+          <p class="prepend-top-4 append-bottom-0 text-secondary">
             {{ __('Variables will be masked in job logs.') }}
             <span
               :class="{
-                'bold text-plain': !canMask && variableData.masked,
+                'bold text-plain': displayMaskedError,
               }"
             >
               {{ __('Requires values to meet regular expression requirements.') }}</span
