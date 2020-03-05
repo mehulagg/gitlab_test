@@ -24,31 +24,17 @@ module MergeRequests
     def execute(merge_request)
       return if merge_request.merged? # nothing to do, this worker has already run at least once
 
-      # These operations are idempotent so can be safely run multiple times
+      merge_request.mark_as_merged
+      close_issues(merge_request)
+      todo_service.merge_merge_request(merge_request, current_user)
+      create_event(merge_request)
+      create_note(merge_request)
+      notification_service.merge_mr(merge_request, current_user)
+      execute_hooks(merge_request, 'merge')
+      invalidate_cache_counts(merge_request, users: merge_request.assignees)
+      merge_request.update_project_counter_caches
       delete_non_latest_diffs(merge_request)
       cleanup_environments(merge_request)
-      merge_request.mark_as_merged
-
-      # These operations need to happen transactionally
-      ActiveRecord::Base.transaction do
-        # TODO: Make sure these are async operations. If not, move them earlier
-        # Better to have duplicate notifications than no notifications.
-        todo_service.merge_merge_request(merge_request, current_user)
-        notification_service.merge_mr(merge_request, current_user)
-
-        create_event(merge_request)
-        create_note(merge_request)
-        close_issues(merge_request)
-
-        # TODO: check if these are affected by merged/not merged state.
-        # If not, they can be moved to the "idempotent" block.
-        merge_request.update_project_counter_caches
-        invalidate_cache_counts(merge_request, users: merge_request.assignees)
-      end
-
-      # Anything after this point will be executed at-most-once. Less important activity only
-      # TODO: make all the work in here a separate sidekiq job so it can go in the transaction
-      execute_hooks(merge_request, 'merge')
     end
 
     private
