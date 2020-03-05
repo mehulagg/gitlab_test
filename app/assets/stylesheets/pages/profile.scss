@@ -118,30 +118,11 @@
   }
 }
 
-.ssh-keys .key-list-item {
-  align-content: flex-start;
-  display: flex;
-  justify-content: flex-start;
-
-  .key-list-item-info {
-    float: unset;
-    width: 100%;
-  }
-
-  .key-list-item-dates {
-    align-items: flex-start;
-    display: flex;
-    justify-content: space-between;
-  }
-
+.ssh-keys-list {
   .last-used-at,
   .expires,
   .key-created-at {
     line-height: 32px;
-  }
-
-  .key-delete-btn {
-    vertical-align: baseline;
   }
 }
 
