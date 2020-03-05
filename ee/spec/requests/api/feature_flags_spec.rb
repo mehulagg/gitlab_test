@@ -81,7 +81,7 @@ describe API::FeatureFlags do
 
     context 'with version 2 feature flags' do
       let!(:feature_flag) do
-        create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
+        create(:operations_feature_flag, :new_version_flag, project: project, name: 'feature1')
       end
       let!(:strategy) do
         create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
@@ -126,7 +126,7 @@ describe API::FeatureFlags do
     context 'with version 1 and 2 feature flags' do
       it 'returns both versions of flags ordered by name' do
         create(:operations_feature_flag, project: project, name: 'legacy_flag')
-        feature_flag = create(:operations_feature_flag, project: project, name: 'new_version_flag', version: 2)
+        feature_flag = create(:operations_feature_flag, :new_version_flag, project: project, name: 'new_version_flag')
         strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
         create(:operations_scope, strategy: strategy, environment_scope: 'production')
 
@@ -140,7 +140,7 @@ describe API::FeatureFlags do
       it 'returns only version 1 flags when the feature flag is disabled' do
         stub_feature_flags(feature_flags_new_version: false)
         create(:operations_feature_flag, project: project, name: 'legacy_flag')
-        feature_flag = create(:operations_feature_flag, project: project, name: 'new_version_flag', version: 2)
+        feature_flag = create(:operations_feature_flag, :new_version_flag, project: project, name: 'new_version_flag')
         strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
         create(:operations_scope, strategy: strategy, environment_scope: 'production')
 
@@ -174,7 +174,7 @@ describe API::FeatureFlags do
 
     context 'with a version 2 feature_flag' do
       it 'returns the feature flag' do
-        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
+        feature_flag = create(:operations_feature_flag, :new_version_flag, project: project, name: 'feature1')
         strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
         create(:operations_scope, strategy: strategy, environment_scope: 'production')
 
@@ -201,7 +201,7 @@ describe API::FeatureFlags do
 
       it 'returns a 404 when the feature is disabled' do
         stub_feature_flags(feature_flags_new_version: false)
-        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
+        feature_flag = create(:operations_feature_flag, :new_version_flag, project: project, name: 'feature1')
         strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
         create(:operations_scope, strategy: strategy, environment_scope: 'production')
 
