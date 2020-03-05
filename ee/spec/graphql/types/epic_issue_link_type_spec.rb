@@ -5,7 +5,7 @@ require 'spec_helper'
 describe GitlabSchema.types['EpicIssueLink'] do
   it { expect(described_class.graphql_name).to eq('EpicIssueLink') }
 
-  it { expect(described_class).to require_graphql_authorizations(:read_epic_issue) }
+  it { expect(described_class).to require_graphql_authorizations(:read_epic) }
 
   it 'has specific fields' do
     %i[id epic issue relative_position].each do |field_name|
