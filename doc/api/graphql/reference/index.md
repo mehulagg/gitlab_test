@@ -859,7 +859,7 @@ Information about pagination in a connection.
 | `tagList` | String | List of project tags |
 | `userPermissions` | ProjectPermissions! | Permissions for the current user on the resource |
 | `visibility` | String | Visibility of the project |
-| `vulnerabilitiesSummary` | VulnerabilitiesSummary | Counts for each severity of vulnerability (UNDEFINED, INFO, UNKNOWN, LOW, MEDIUM, HIGH, CRITICAL). Available only when feature flag first_class_vulnerabilities is enabled. |
+| `vulnerabilitiesSummary` | VulnerabilitiesSummary | Counts for each severity of vulnerability of the project. Available only when feature flag first_class_vulnerabilities is enabled. |
 | `webUrl` | String | Web URL of the project |
 | `wikiEnabled` | Boolean | (deprecated) Does this project have wiki enabled?. Use `wiki_access_level` instead |
 
@@ -1320,13 +1320,13 @@ Represents vulnerability counts by severity
 
 | Name  | Type  | Description |
 | ---   |  ---- | ----------  |
-| `critical` | Int | The number of vulnerabilities of CRITICAL severity |
-| `high` | Int | The number of vulnerabilities of HIGH severity |
-| `info` | Int | The number of vulnerabilities of INFO severity |
-| `low` | Int | The number of vulnerabilities of LOW severity |
-| `medium` | Int | The number of vulnerabilities of MEDIUM severity |
-| `undefined` | Int | The number of vulnerabilities of UNDEFINED severity |
-| `unknown` | Int | The number of vulnerabilities of UNKNOWN severity |
+| `critical` | Int | Number of vulnerabilities of CRITICAL severity of the project |
+| `high` | Int | Number of vulnerabilities of HIGH severity of the project |
+| `info` | Int | Number of vulnerabilities of INFO severity of the project |
+| `low` | Int | Number of vulnerabilities of LOW severity of the project |
+| `medium` | Int | Number of vulnerabilities of MEDIUM severity of the project |
+| `undefined` | Int | Number of vulnerabilities of UNDEFINED severity of the project |
+| `unknown` | Int | Number of vulnerabilities of UNKNOWN severity of the project |
 
 ## Vulnerability
 
