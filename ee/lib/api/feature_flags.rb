@@ -140,6 +140,42 @@ module API
           end
         end
 
+        desc 'Update a feature flag' do
+          detail 'This feature will be introduced in GitLab 13.1 if feature_flags_new_version feature flag is removed'
+          success EE::API::Entities::FeatureFlag
+        end
+        params do
+          optional :description, type: String, desc: 'The description of the feature flag'
+          optional :strategies, type: Array do
+            optional :id, type: Integer, desc: 'The strategy id'
+            optional :name, type: String, desc: 'The strategy type'
+            optional :parameters, type: JSON, desc: 'The strategy parameters'
+            optional :_destroy, type: Boolean, desc: 'Delete the strategy when true'
+            optional :scopes, type: Array do
+              optional :id, type: Integer, desc: 'The environment scope id'
+              optional :environment_scope, type: String, desc: 'The environment scope of the scope'
+              optional :_destroy, type: Boolean, desc: 'Delete the scope when true'
+            end
+          end
+        end
+        put do
+          render_api_error!('PUT operations are not supported for legacy feature flags', 422) if feature_flag.legacy_flag?
+
+          if params.key?(:strategies)
+            params[:strategies_attributes] = params.delete(:strategies).map do |strategy|
+              strategy[:scopes_attributes] = strategy.delete(:scopes) if strategy.key?(:scopes)
+              strategy
+            end
+          end
+
+          result = ::FeatureFlags::UpdateService
+            .new(user_project, current_user, params)
+            .execute(feature_flag)
+
+          status :ok
+          present result[:feature_flag], with: EE::API::Entities::FeatureFlag
+        end
+
         desc 'Delete a feature flag' do
           detail 'This feature was introduced in GitLab 12.5'
           success EE::API::Entities::FeatureFlag

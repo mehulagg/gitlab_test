@@ -554,6 +554,169 @@ describe API::FeatureFlags do
     end
   end
 
+  describe 'PUT /projects/:id/feature_flags/:name' do
+    context 'with a legacy feature flag' do
+      it 'returns a 422' do
+        feature_flag = create(:operations_feature_flag, project: project,
+                              name: 'feature1', version: 1, description: 'old description')
+        params = {
+          description: 'new description'
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:unprocessable_entity)
+        expect(json_response).to eq({ 'message' => 'PUT operations are not supported for legacy feature flags' })
+        expect(feature_flag.reload.description).to eq('old description')
+      end
+    end
+
+    context 'with a version 2 feature flag' do
+      it 'updates the feature flag' do
+        feature_flag = create(:operations_feature_flag, project: project,
+                              name: 'feature1', version: 2, description: 'old description')
+        params = {
+          description: 'new description'
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        feature_flag.reload
+        expect(feature_flag.description).to eq('new description')
+      end
+
+      it 'updates an existing feature flag strategy' do
+        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        params = {
+          strategies: [{
+            id: strategy.id,
+            name: 'gradualRolloutUserId',
+            parameters: { groupId: 'default', percentage: '10' }
+          }]
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        result = feature_flag.reload.strategies.map { |s| s.slice(:id, :name, :parameters).deep_symbolize_keys }
+        expect(result).to eq([{
+          id: strategy.id,
+          name: 'gradualRolloutUserId',
+          parameters: { groupId: 'default', percentage: '10' }
+        }])
+      end
+
+      it 'creates a new feature flag strategy' do
+        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        params = {
+          strategies: [{
+            name: 'gradualRolloutUserId',
+            parameters: { groupId: 'default', percentage: '10' }
+          }]
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        result = feature_flag.reload.strategies
+          .map { |s| s.slice(:id, :name, :parameters).deep_symbolize_keys }
+          .sort_by { |s| s[:name] }
+        expect(result.first[:id]).to eq(strategy.id)
+        expect(result.map { |s| s.slice(:name, :parameters) }).to eq([{
+          name: 'default',
+          parameters: {}
+        }, {
+          name: 'gradualRolloutUserId',
+          parameters: { groupId: 'default', percentage: '10' }
+        }])
+      end
+
+      it 'deletes a feature flag strategy' do
+        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
+        strategy_a = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        strategy_b = create(:operations_strategy, feature_flag: feature_flag,
+                          name: 'userWithId', parameters: { userIds: 'userA,userB' })
+        params = {
+          strategies: [{
+            id: strategy_a.id,
+            name: 'default',
+            parameters: {},
+            _destroy: true
+          }, {
+            id: strategy_b.id,
+            name: 'userWithId',
+            parameters: { userIds: 'userB' }
+          }]
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        result = feature_flag.reload.strategies
+          .map { |s| s.slice(:id, :name, :parameters).deep_symbolize_keys }
+          .sort_by { |s| s[:name] }
+        expect(result).to eq([{
+          id: strategy_b.id,
+          name: 'userWithId',
+          parameters: { userIds: 'userB' }
+        }])
+      end
+
+      it 'updates an existing feature flag scope' do
+        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        scope = create(:operations_scope, strategy: strategy, environment_scope: '*')
+        params = {
+          strategies: [{
+            id: strategy.id,
+            scopes: [{
+              id: scope.id,
+              environment_scope: 'production'
+            }]
+          }]
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        result = feature_flag.reload.strategies.first.scopes.map { |s| s.slice(:id, :environment_scope).deep_symbolize_keys }
+        expect(result).to eq([{
+          id: scope.id,
+          environment_scope: 'production'
+        }])
+      end
+
+      it 'deletes an existing feature flag scope' do
+        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
+        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+        scope = create(:operations_scope, strategy: strategy, environment_scope: '*')
+        params = {
+          strategies: [{
+            id: strategy.id,
+            scopes: [{
+              id: scope.id,
+              _destroy: true
+            }]
+          }]
+        }
+
+        put api("/projects/#{project.id}/feature_flags/feature1", user), params: params
+
+        expect(response).to have_gitlab_http_status(:ok)
+        expect(response).to match_response_schema('public_api/v4/feature_flag', dir: 'ee')
+        expect(feature_flag.reload.strategies.first.scopes.count).to eq(0)
+      end
+    end
+  end
+
   describe 'DELETE /projects/:id/feature_flags/:name' do
     subject do
       delete api("/projects/#{project.id}/feature_flags/#{feature_flag.name}", user),
