@@ -170,9 +170,9 @@ constraints(::Constraints::ProjectUrlConstrainer.new) do
 
         resources :releases, only: [:index, :show, :edit], param: :tag, constraints: { tag: %r{[^/]+} } do
           member do
-            get :evidence
             get :downloads, path: 'downloads/*filepath', format: false
           end
+          resources :evidence, only: [:show]
         end
 
         resources :starrers, only: [:index]
