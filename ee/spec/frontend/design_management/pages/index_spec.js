@@ -9,6 +9,10 @@ import DesignDestroyer from 'ee/design_management/components/design_destroyer.vu
 import DesignDropzone from 'ee/design_management/components/upload/design_dropzone.vue';
 import DeleteButton from 'ee/design_management/components/delete_button.vue';
 import { DESIGNS_ROUTE_NAME } from 'ee/design_management/router/constants';
+import {
+  EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE,
+  EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE,
+} from 'ee/design_management/utils/error_messages';
 import createFlash from '~/flash';
 
 const localVue = createLocalVue();
@@ -63,7 +67,8 @@ describe('Design management index page', () => {
   const findSelectAllButton = () => wrapper.find('.js-select-all');
   const findToolbar = () => wrapper.find('.qa-selector-toolbar');
   const findDeleteButton = () => wrapper.find(DeleteButton);
-  const findDropzone = () => wrapper.find(DesignDropzone);
+  const findDropzone = () => wrapper.findAll(DesignDropzone).at(0);
+  const findFirstDropzoneWithDesign = () => wrapper.findAll(DesignDropzone).at(1);
 
   function createComponent({
     loading = false,
@@ -326,6 +331,42 @@ describe('Design management index page', () => {
           'Upload skipped. test.jpg did not change.',
           'warning',
         );
+      });
+    });
+
+    describe('dragging onto an existing design', () => {
+      beforeEach(() => {
+        createComponent({ designs: mockDesigns, allVersions: [mockVersion] });
+      });
+
+      it('calls onUploadDesign with valid upload', () => {
+        wrapper.setMethods({
+          onUploadDesign: jest.fn(),
+        });
+
+        const mockUploadPayload = [
+          {
+            name: mockDesigns[0].filename,
+          },
+        ];
+
+        const designDropzone = findFirstDropzoneWithDesign();
+        designDropzone.vm.$emit('upload', mockUploadPayload);
+
+        expect(wrapper.vm.onUploadDesign).toHaveBeenCalledTimes(1);
+        expect(wrapper.vm.onUploadDesign).toHaveBeenCalledWith(mockUploadPayload);
+      });
+
+      it.each`
+        description                 | eventPayload                              | message
+        ${'has > 1 file'}           | ${[{ name: 'test' }, { name: 'test-2' }]} | ${EXISTING_DESIGN_DROP_MANY_FILES_MESSAGE}
+        ${'has different filename'} | ${[{ name: 'wrong-name' }]}               | ${EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE}
+      `('calls createFlash when upload $description', ({ eventPayload, message }) => {
+        const designDropzone = findFirstDropzoneWithDesign();
+        designDropzone.vm.$emit('upload', eventPayload);
+
+        expect(createFlash).toHaveBeenCalledTimes(1);
+        expect(createFlash).toHaveBeenCalledWith(message);
       });
     });
   });

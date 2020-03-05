@@ -199,7 +199,7 @@ export default {
       const errorMessage = designDeletionError({ singular: this.selectedDesigns.length === 1 });
       createFlash(errorMessage);
     },
-    validateExistingDesignDrop(files, designFilename) {
+    validateExistingDesignDrop(files, existingDesignFilename) {
       const filesArr = Array.from(files);
 
       if (filesArr.length > 1) {
@@ -207,7 +207,7 @@ export default {
         return false;
       }
 
-      if (!filesArr.some(({ name }) => designFilename === name)) {
+      if (!filesArr.some(({ name }) => existingDesignFilename === name)) {
         createFlash(EXISTING_DESIGN_DROP_INVALID_FILENAME_MESSAGE);
         return false;
       }

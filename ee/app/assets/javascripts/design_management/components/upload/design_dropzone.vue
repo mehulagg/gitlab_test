@@ -32,14 +32,14 @@ export default {
     isValidDragDataType({ dataTransfer }) {
       return Boolean(dataTransfer && dataTransfer.types.some(t => t === VALID_DATA_TRANSFER_TYPE));
     },
-    ondrop(e) {
+    ondrop({ dataTransfer = {} }) {
       this.dragCounter = 0;
       // User already had feedback when dropzone was active, so bail here
       if (!this.isDragDataValid) {
         return;
       }
 
-      const { files } = e.dataTransfer || {};
+      const { files } = dataTransfer;
       if (!this.isValidUpload(Array.from(files))) {
         createFlash(UPLOAD_DESIGN_INVALID_FILETYPE_ERROR);
         return;
