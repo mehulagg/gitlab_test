@@ -267,6 +267,9 @@ Do not include the same information in multiple places. [Link to a SSOT instead.
   - Do not use contractions in reference documentation. Examples:
     - You cannot set a limit higher than 1000.
     - For `parameter1`, the default is 10.
+  - Avoid contractions in error messages. Examples:
+    - Requests to localhost are not allowed
+    - Specified URL cannot be used
   - Do not use contractions with a proper noun and a verb, such as _GitLab's creating X_.
   - Avoid using contractions when you need to emphasize a negative, such as "Do **not** install X with Y."
 
