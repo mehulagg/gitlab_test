@@ -57,19 +57,19 @@ module API
         post do
           authorize_create_feature_flag!
 
-          param = declared_params(include_missing: false)
+          attrs= declared_params(include_missing: false)
 
           render_api_error!('Version 2 flags are not enabled for this project', 422) if Feature.disabled?(:feature_flags_new_version, user_project) &&
-            param[:version] == Operations::FeatureFlag.versions[:new_version_flag]
+            attrs[:version] == Operations::FeatureFlag.versions[:new_version_flag]
 
-          rename_key(param, :scopes, :scopes_attributes)
-          rename_key(param, :strategies, :strategies_attributes)
-          update_value(param, :strategies_attributes) do |strategies|
+          rename_key(attrs, :scopes, :scopes_attributes)
+          rename_key(attrs, :strategies, :strategies_attributes)
+          update_value(attrs, :strategies_attributes) do |strategies|
             strategies.map { |s| rename_key(s, :scopes, :scopes_attributes) }
           end
 
           result = ::FeatureFlags::CreateService
-            .new(user_project, current_user, param)
+            .new(user_project, current_user, attrs)
             .execute
 
           if result[:status] == :success
@@ -160,15 +160,15 @@ module API
           not_found! unless Feature.enabled?(:feature_flags_new_version, user_project)
           render_api_error!('PUT operations are not supported for legacy feature flags', 422) if feature_flag.legacy_flag?
 
-          params = declared_params(include_missing: false)
+          attrs = declared_params(include_missing: false)
 
-          rename_key(params, :strategies, :strategies_attributes)
-          update_value(params, :strategies_attributes) do |strategies|
+          rename_key(attrs, :strategies, :strategies_attributes)
+          update_value(attrs, :strategies_attributes) do |strategies|
             strategies.map { |s| rename_key(s, :scopes, :scopes_attributes) }
           end
 
           result = ::FeatureFlags::UpdateService
-            .new(user_project, current_user, params)
+            .new(user_project, current_user, attrs)
             .execute(feature_flag)
 
           status :ok
