@@ -61,8 +61,10 @@ class Projects::SnippetsController < Projects::ApplicationController
 
     service_response = Snippets::UpdateService.new(project, current_user, update_params).execute(@snippet)
     @snippet = service_response.payload[:snippet]
+    repository_error = @snippet.errors.delete(:repository)
 
-    recaptcha_check_with_fallback { render :edit }
+    flash.now[:alert] = repository_error if repository_error
+    recaptcha_check_with_fallback(repository_error.nil?) { render :edit }
   end
 
   def show
