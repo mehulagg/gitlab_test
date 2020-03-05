@@ -68,7 +68,7 @@ export const release = {
   commit_path: '/root/release-test/commit/c22b0728d1b465f82898c884d32b01aa642f96c1',
   upcoming_release: false,
   milestones,
-  evidence: [
+  evidences: [
     {
       file_path:
         'https://20592.qa-tunnel.gitlab.info/root/test-deployments/-/releases/v1.1.2/evidence-1.json',
