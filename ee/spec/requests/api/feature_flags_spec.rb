@@ -80,11 +80,17 @@ describe API::FeatureFlags do
     end
 
     context 'with version 2 feature flags' do
-      it 'returns the feature flags' do
-        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
-        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+      let!(:feature_flag) do
+        create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
+      end
+      let!(:strategy) do
+        create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
+      end
+      let!(:scope) do
         create(:operations_scope, strategy: strategy, environment_scope: 'production')
+      end
 
+      it 'returns the feature flags' do
         subject
 
         expect(response).to have_gitlab_http_status(:ok)
@@ -108,9 +114,6 @@ describe API::FeatureFlags do
 
       it 'does not return a version 2 flag when the feature flag is disabled' do
         stub_feature_flags(feature_flags_new_version: false)
-        feature_flag = create(:operations_feature_flag, project: project, name: 'feature1', version: 2)
-        strategy = create(:operations_strategy, feature_flag: feature_flag, name: 'default', parameters: {})
-        create(:operations_scope, strategy: strategy, environment_scope: 'production')
 
         subject
 
