@@ -4866,6 +4866,38 @@ describe Project do
     end
   end
 
+  context 'with cross internal project merge requests' do
+    let(:project) { create(:project, :repository, :internal) }
+    let(:forked_project) { fork_project(project, nil, repository: true) }
+    let(:user) { double(:user) }
+
+    it "does not endlessly loop for internal projects with MRs to each other", :sidekiq_inline do
+      allow(user).to receive(:can?).and_return(true, false, true)
+      allow(user).to receive(:id).and_return(1)
+
+      create(
+        :merge_request,
+        target_project: project,
+        target_branch: 'merge-test',
+        source_project: forked_project,
+        source_branch: 'merge-test',
+        allow_collaboration: true
+      )
+
+      create(
+        :merge_request,
+        target_project: forked_project,
+        target_branch: 'merge-test',
+        source_project: project,
+        source_branch: 'merge-test',
+        allow_collaboration: true
+      )
+
+      expect(user).to receive(:can?).at_most(5).times
+      project.branch_allows_collaboration?(user, "merge-test")
+    end
+  end
+
   context 'with cross project merge requests' do
     let(:user) { create(:user) }
     let(:target_project) { create(:project, :repository) }
@@ -5660,6 +5692,53 @@ describe Project do
     end
   end
 
+  describe '#all_lfs_objects_oids' do
+    let(:project) { create(:project) }
+    let(:lfs_object) { create(:lfs_object) }
+    let(:another_lfs_object) { create(:lfs_object) }
+
+    subject { project.all_lfs_objects_oids }
+
+    context 'when project has associated LFS objects' do
+      before do
+        create(:lfs_objects_project, lfs_object: lfs_object, project: project)
+        create(:lfs_objects_project, lfs_object: another_lfs_object, project: project)
+      end
+
+      it 'returns OIDs of LFS objects' do
+        expect(subject).to match_array([lfs_object.oid, another_lfs_object.oid])
+      end
+
+      context 'and there are specified oids' do
+        subject { project.all_lfs_objects_oids(oids: [lfs_object.oid]) }
+
+        it 'returns OIDs of LFS objects that match specified oids' do
+          expect(subject).to eq([lfs_object.oid])
+        end
+      end
+    end
+
+    context 'when fork has associated LFS objects to itself and source' do
+      let(:source) { create(:project) }
+      let(:project) { fork_project(source) }
+
+      before do
+        create(:lfs_objects_project, lfs_object: lfs_object, project: source)
+        create(:lfs_objects_project, lfs_object: another_lfs_object, project: project)
+      end
+
+      it 'returns OIDs of LFS objects' do
+        expect(subject).to match_array([lfs_object.oid, another_lfs_object.oid])
+      end
+    end
+
+    context 'when project has no associated LFS objects' do
+      it 'returns empty array' do
+        expect(subject).to be_empty
+      end
+    end
+  end
+
   describe '#lfs_objects_oids' do
     let(:project) { create(:project) }
     let(:lfs_object) { create(:lfs_object) }
@@ -5675,6 +5754,14 @@ describe Project do
 
       it 'returns OIDs of LFS objects' do
         expect(subject).to match_array([lfs_object.oid, another_lfs_object.oid])
+      end
+
+      context 'and there are specified oids' do
+        subject { project.lfs_objects_oids(oids: [lfs_object.oid]) }
+
+        it 'returns OIDs of LFS objects that match specified oids' do
+          expect(subject).to eq([lfs_object.oid])
+        end
       end
     end
 

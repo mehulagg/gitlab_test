@@ -48,6 +48,7 @@ module EE
       has_one :tracing_setting, class_name: 'ProjectTracingSetting'
       has_one :alerting_setting, inverse_of: :project, class_name: 'Alerting::ProjectAlertingSetting'
       has_one :feature_usage, class_name: 'ProjectFeatureUsage'
+      has_one :status_page_setting, inverse_of: :project
 
       has_many :reviews, inverse_of: :project
       has_many :approvers, as: :target, dependent: :destroy # rubocop:disable Cop/ActiveRecordDependent
@@ -58,6 +59,7 @@ module EE
       has_many :audit_events, as: :entity
       has_many :designs, inverse_of: :project, class_name: 'DesignManagement::Design'
       has_many :path_locks
+      has_many :requirements
 
       # the rationale behind vulnerabilities and vulnerability_findings can be found here:
       # https://gitlab.com/gitlab-org/gitlab/issues/10252#terminology
@@ -92,6 +94,8 @@ module EE
       has_many :upstream_projects, class_name: 'Project', through: :upstream_project_subscriptions, source: :upstream_project
       has_many :downstream_project_subscriptions, class_name: 'Ci::Subscriptions::Project', foreign_key: :upstream_project_id, inverse_of: :upstream_project
       has_many :downstream_projects, class_name: 'Project', through: :downstream_project_subscriptions, source: :downstream_project
+
+      has_many :sourced_pipelines, class_name: 'Ci::Sources::Project', foreign_key: :source_project_id
 
       scope :with_shared_runners_limit_enabled, -> { with_shared_runners.non_public_only }
 
@@ -179,6 +183,7 @@ module EE
 
       accepts_nested_attributes_for :tracing_setting, update_only: true, allow_destroy: true
       accepts_nested_attributes_for :alerting_setting, update_only: true
+      accepts_nested_attributes_for :status_page_setting, update_only: true, allow_destroy: true
 
       alias_attribute :fallback_approvals_required, :approvals_before_merge
     end

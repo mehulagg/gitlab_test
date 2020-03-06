@@ -25,7 +25,7 @@
   :weight: 1
   :idempotent: 
 - :name: cronjob:elastic_index_bulk_cron
-  :feature_category: :search
+  :feature_category: :global_search
   :has_external_dependencies: 
   :urgency: :default
   :resource_boundary: :unknown
@@ -402,6 +402,13 @@
   :resource_boundary: :unknown
   :weight: 1
   :idempotent: 
+- :name: pipeline_default:ci_trigger_downstream_subscriptions
+  :feature_category: :continuous_integration
+  :has_external_dependencies: 
+  :urgency: :default
+  :resource_boundary: :cpu
+  :weight: 3
+  :idempotent: 
 - :name: security_scans:store_security_reports
   :feature_category: :static_application_security_testing
   :has_external_dependencies: 
@@ -459,42 +466,42 @@
   :weight: 1
   :idempotent: 
 - :name: elastic_batch_project_indexer
-  :feature_category: :search
+  :feature_category: :global_search
   :has_external_dependencies: 
   :urgency: :default
   :resource_boundary: :unknown
   :weight: 1
   :idempotent: 
 - :name: elastic_commit_indexer
-  :feature_category: :search
+  :feature_category: :global_search
   :has_external_dependencies: 
   :urgency: :default
   :resource_boundary: :unknown
   :weight: 1
   :idempotent: 
 - :name: elastic_full_index
-  :feature_category: :search
+  :feature_category: :global_search
   :has_external_dependencies: 
   :urgency: :default
   :resource_boundary: :unknown
   :weight: 1
   :idempotent: 
 - :name: elastic_indexer
-  :feature_category: :search
+  :feature_category: :global_search
   :has_external_dependencies: 
   :urgency: :default
   :resource_boundary: :unknown
   :weight: 1
   :idempotent: 
 - :name: elastic_namespace_indexer
-  :feature_category: :search
+  :feature_category: :global_search
   :has_external_dependencies: 
   :urgency: :default
   :resource_boundary: :unknown
   :weight: 1
   :idempotent: 
 - :name: elastic_namespace_rollout
-  :feature_category: :search
+  :feature_category: :global_search
   :has_external_dependencies: 
   :urgency: :default
   :resource_boundary: :unknown

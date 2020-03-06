@@ -15,6 +15,8 @@ module Gitlab
       CommandError = Class.new(StandardError)
 
       def initialize(log_output = STDERR)
+        require_relative '../../../../lib/gitlab/sidekiq_logging/json_formatter'
+
         # As recommended by https://github.com/mperham/sidekiq/wiki/Advanced-Options#concurrency
         @max_concurrency = 50
         @min_concurrency = 0
@@ -24,13 +26,9 @@ module Gitlab
         @alive = true
         @processes = []
         @logger = Logger.new(log_output)
+        @logger.formatter = ::Gitlab::SidekiqLogging::JSONFormatter.new
         @rails_path = Dir.pwd
         @dryrun = false
-
-        # Use a log format similar to Sidekiq to make parsing/grepping easier.
-        @logger.formatter = proc do |level, date, program, message|
-          "#{date.utc.iso8601(3)} #{Process.pid} TID-#{Thread.current.object_id.to_s(36)} #{level}: #{message}\n"
-        end
       end
 
       def run(argv = ARGV)

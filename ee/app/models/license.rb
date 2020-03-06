@@ -17,6 +17,7 @@ class License < ApplicationRecord
     description_diffs
     elastic_search
     export_issues
+    group_activity_analytics
     group_bulk_edit
     group_burndown_charts
     group_webhooks
@@ -126,6 +127,7 @@ class License < ApplicationRecord
     report_approver_rules
     sast
     security_dashboard
+    status_page
     subepics
     threat_monitoring
     tracing

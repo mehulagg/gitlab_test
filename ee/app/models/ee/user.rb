@@ -32,6 +32,7 @@ module EE
 
       has_many :reviews,                  foreign_key: :author_id, inverse_of: :author
       has_many :epics,                    foreign_key: :author_id
+      has_many :requirements,             foreign_key: :author_id
       has_many :assigned_epics,           foreign_key: :assignee_id, class_name: "Epic"
       has_many :path_locks,               dependent: :destroy # rubocop: disable Cop/ActiveRecordDependent
       has_many :vulnerability_feedback, foreign_key: :author_id, class_name: 'Vulnerabilities::Feedback'
@@ -53,6 +54,7 @@ module EE
       has_many :protected_branch_unprotect_access_levels, dependent: :destroy, class_name: "::ProtectedBranch::UnprotectAccessLevel" # rubocop:disable Cop/ActiveRecordDependent
 
       has_many :smartcard_identities
+      has_many :scim_identities
 
       belongs_to :managing_group, class_name: 'Group', optional: true, inverse_of: :managed_users
 
@@ -250,15 +252,10 @@ module EE
     end
 
     def using_license_seat?
-      return false unless active?
-      return false if internal?
-      return false unless License.current
-
-      if License.current.exclude_guests_from_active_count?
-        highest_role > ::Gitlab::Access::GUEST
-      else
-        true
-      end
+      active? &&
+      !internal? &&
+      has_current_license? &&
+      paid_in_current_license?
     end
 
     def using_gitlab_com_seat?(namespace)
@@ -352,6 +349,12 @@ module EE
         ::Namespace.select(select).where(type: nil, owner: self),
         reporter_developer_maintainer_owned_groups.select(select).where(parent_id: nil)
       ]).to_sql
+    end
+
+    def paid_in_current_license?
+      return true unless License.current.exclude_guests_from_active_count?
+
+      highest_role > ::Gitlab::Access::GUEST
     end
   end
 end

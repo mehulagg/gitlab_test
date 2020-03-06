@@ -259,7 +259,6 @@ Alternatively, you can [lock the sharing with group feature](#share-with-group-l
 ## Sharing a group with another group **(CORE ONLY)**
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/18328) in GitLab 12.7.
-> This feature has been [disabled on GitLab.com](https://gitlab.com/gitlab-com/gl-infra/production/issues/1635).
 
 Similarly to [sharing a project with a group](#sharing-a-project-with-a-group),
 you can share a group with another group to give direct group members access
@@ -347,7 +346,7 @@ Changing a group's path can have unintended side effects. Read
 before proceeding.
 
 If you are vacating the path so it can be claimed by another group or user,
-you may need to rename the group, too, since both names and paths must
+you may need to rename the group too, since both names and paths must
 be unique.
 
 To change your group path:

@@ -22,22 +22,28 @@ limit values. It's recommended to create separate migration script files.
 
 1. Add new column to the `plan_limits` table with non-null default value 0, eg:
 
-    ```ruby
-    add_column(:plan_limits, :project_hooks, :integer, default: 0, null: false)
-    ```
+   ```ruby
+   add_column(:plan_limits, :project_hooks, :integer, default: 0, null: false)
+   ```
 
-    NOTE: **Note:** Plan limits entries set to `0` mean that limits are not
-    enabled.
+   NOTE: **Note:** Plan limits entries set to `0` mean that limits are not
+   enabled.
 
 1. Insert plan limits values into the database using
    `create_or_update_plan_limit` migration helper, eg:
 
-    ```ruby
-    create_or_update_plan_limit('project_hooks', 'free', 10)
-    create_or_update_plan_limit('project_hooks', 'bronze', 20)
-    create_or_update_plan_limit('project_hooks', 'silver', 30)
-    create_or_update_plan_limit('project_hooks', 'gold', 100)
-    ```
+   ```ruby
+   create_or_update_plan_limit('project_hooks', 'free', 10)
+   create_or_update_plan_limit('project_hooks', 'bronze', 20)
+   create_or_update_plan_limit('project_hooks', 'silver', 30)
+   create_or_update_plan_limit('project_hooks', 'gold', 100)
+   ```
+
+NOTE: **Note:** Some plans exist only on GitLab.com. You can check if the
+migration is running on GitLab.com with `Gitlab.com?`.
+
+NOTE: **Note:** The test environment doesn't have any plans. You can check if a
+migration is running in a test environment with `Rails.env.test?`
 
 ### Plan limits validation
 
@@ -93,3 +99,20 @@ it_behaves_like 'includes Limitable concern' do
   subject { build(:project_hook, project: create(:project)) }
 end
 ```
+
+### Subscription Plans
+
+Self-hosted:
+
+- `default` - Everyone
+
+Hosted:
+
+- `free` - Everyone
+- `bronze`- Namespaces with a Bronze subscription
+- `silver` - Namespaces with a Silver subscription
+- `gold` - Namespaces with a Gold subscription
+
+NOTE: **Note:** Hosted plans exist only on GitLab.com.
+
+NOTE: **Note:** The test environment doesn't have any plans.

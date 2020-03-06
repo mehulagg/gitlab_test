@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_02_27_165129) do
+ActiveRecord::Schema.define(version: 2020_03_04_160823) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -573,6 +573,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.integer "cached_markdown_version"
     t.string "target_path", limit: 255
     t.integer "broadcast_type", limit: 2, default: 1, null: false
+    t.boolean "dismissable"
     t.index ["ends_at", "broadcast_type", "id"], name: "index_broadcast_message_on_ends_at_and_broadcast_type_and_id"
   end
 
@@ -963,6 +964,13 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.index ["source_job_id"], name: "index_ci_sources_pipelines_on_source_job_id"
     t.index ["source_pipeline_id"], name: "index_ci_sources_pipelines_on_source_pipeline_id"
     t.index ["source_project_id"], name: "index_ci_sources_pipelines_on_source_project_id"
+  end
+
+  create_table "ci_sources_projects", force: :cascade do |t|
+    t.bigint "pipeline_id", null: false
+    t.bigint "source_project_id", null: false
+    t.index ["pipeline_id"], name: "index_ci_sources_projects_on_pipeline_id"
+    t.index ["source_project_id", "pipeline_id"], name: "index_ci_sources_projects_on_source_project_id_and_pipeline_id", unique: true
   end
 
   create_table "ci_stages", id: :serial, force: :cascade do |t|
@@ -1446,7 +1454,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
   create_table "design_management_versions", force: :cascade do |t|
     t.binary "sha", null: false
     t.bigint "issue_id"
-    t.datetime_with_timezone "created_at"
+    t.datetime_with_timezone "created_at", null: false
     t.integer "author_id"
     t.index ["author_id"], name: "index_design_management_versions_on_author_id", where: "(author_id IS NOT NULL)"
     t.index ["issue_id"], name: "index_design_management_versions_on_issue_id"
@@ -3130,6 +3138,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.integer "ci_active_jobs", default: 0, null: false
     t.integer "project_hooks", default: 0, null: false
     t.integer "group_hooks", default: 0, null: false
+    t.integer "ci_project_subscriptions", default: 0, null: false
     t.index ["plan_id"], name: "index_plan_limits_on_plan_id", unique: true
   end
 
@@ -3722,6 +3731,25 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.index ["project_id", "programming_language_id"], name: "index_repository_languages_on_project_and_languages_id", unique: true
   end
 
+  create_table "requirements", force: :cascade do |t|
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.integer "project_id", null: false
+    t.integer "author_id"
+    t.integer "iid", null: false
+    t.integer "cached_markdown_version"
+    t.integer "state", limit: 2, default: 1, null: false
+    t.string "title", limit: 255, null: false
+    t.text "title_html"
+    t.index ["author_id"], name: "index_requirements_on_author_id"
+    t.index ["created_at"], name: "index_requirements_on_created_at"
+    t.index ["project_id", "iid"], name: "index_requirements_on_project_id_and_iid", unique: true, where: "(project_id IS NOT NULL)"
+    t.index ["project_id"], name: "index_requirements_on_project_id"
+    t.index ["state"], name: "index_requirements_on_state"
+    t.index ["title"], name: "index_requirements_on_title_trigram", opclass: :gin_trgm_ops, using: :gin
+    t.index ["updated_at"], name: "index_requirements_on_updated_at"
+  end
+
   create_table "resource_label_events", force: :cascade do |t|
     t.integer "action", null: false
     t.integer "issue_id"
@@ -3797,6 +3825,18 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.boolean "enforced_group_managed_accounts", default: false, null: false
     t.boolean "prohibited_outer_forks", default: true, null: false
     t.index ["group_id"], name: "index_saml_providers_on_group_id"
+  end
+
+  create_table "scim_identities", force: :cascade do |t|
+    t.bigint "group_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.boolean "active", default: false
+    t.string "extern_uid", limit: 255, null: false
+    t.index "lower((extern_uid)::text), group_id", name: "index_scim_identities_on_lower_extern_uid_and_group_id", unique: true
+    t.index ["group_id"], name: "index_scim_identities_on_group_id"
+    t.index ["user_id", "group_id"], name: "index_scim_identities_on_user_id_and_group_id", unique: true
   end
 
   create_table "scim_oauth_access_tokens", id: :serial, force: :cascade do |t|
@@ -3897,6 +3937,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.boolean "template", default: false
     t.index ["project_id"], name: "index_services_on_project_id"
     t.index ["template"], name: "index_services_on_template"
+    t.index ["type", "template"], name: "index_services_on_type_and_template", unique: true, where: "(template IS TRUE)"
     t.index ["type"], name: "index_services_on_type"
   end
 
@@ -3964,6 +4005,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.index ["author_id"], name: "index_snippets_on_author_id"
     t.index ["content"], name: "index_snippets_on_content_trigram", opclass: :gin_trgm_ops, using: :gin
     t.index ["created_at"], name: "index_snippets_on_created_at"
+    t.index ["description"], name: "index_snippets_on_description_trigram", opclass: :gin_trgm_ops, using: :gin
     t.index ["file_name"], name: "index_snippets_on_file_name_trigram", opclass: :gin_trgm_ops, using: :gin
     t.index ["project_id", "visibility_level"], name: "index_snippets_on_project_id_and_visibility_level"
     t.index ["title"], name: "index_snippets_on_title_trigram", opclass: :gin_trgm_ops, using: :gin
@@ -4000,6 +4042,18 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.datetime "updated_at", null: false
     t.boolean "submitted_as_ham", default: false, null: false
     t.boolean "recaptcha_verified", default: false, null: false
+  end
+
+  create_table "status_page_settings", primary_key: "project_id", force: :cascade do |t|
+    t.datetime_with_timezone "created_at", null: false
+    t.datetime_with_timezone "updated_at", null: false
+    t.boolean "enabled", default: false, null: false
+    t.string "aws_s3_bucket_name", limit: 63, null: false
+    t.string "aws_region", limit: 255, null: false
+    t.string "aws_access_key", limit: 255, null: false
+    t.string "encrypted_aws_secret_key", limit: 255, null: false
+    t.string "encrypted_aws_secret_key_iv", limit: 255, null: false
+    t.index ["project_id"], name: "index_status_page_settings_on_project_id"
   end
 
   create_table "subscriptions", id: :serial, force: :cascade do |t|
@@ -4311,6 +4365,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.string "last_name", limit: 255
     t.string "static_object_token", limit: 255
     t.integer "role", limit: 2
+    t.integer "user_type", limit: 2
     t.index "lower((name)::text)", name: "index_on_users_name_lower"
     t.index ["accepted_term_id"], name: "index_users_on_accepted_term_id"
     t.index ["admin"], name: "index_users_on_admin"
@@ -4333,6 +4388,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
     t.index ["state"], name: "index_users_on_state_and_internal_ee", where: "((ghost IS NOT TRUE) AND (bot_type IS NULL))"
     t.index ["static_object_token"], name: "index_users_on_static_object_token", unique: true
     t.index ["unconfirmed_email"], name: "index_users_on_unconfirmed_email", where: "(unconfirmed_email IS NOT NULL)"
+    t.index ["user_type"], name: "index_users_on_user_type"
     t.index ["username"], name: "index_users_on_username"
     t.index ["username"], name: "index_users_on_username_trigram", opclass: :gin_trgm_ops, using: :gin
   end
@@ -4687,6 +4743,8 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
   add_foreign_key "ci_sources_pipelines", "ci_pipelines", column: "source_pipeline_id", name: "fk_d4e29af7d7", on_delete: :cascade
   add_foreign_key "ci_sources_pipelines", "projects", column: "source_project_id", name: "fk_acd9737679", on_delete: :cascade
   add_foreign_key "ci_sources_pipelines", "projects", name: "fk_1e53c97c0a", on_delete: :cascade
+  add_foreign_key "ci_sources_projects", "ci_pipelines", column: "pipeline_id", on_delete: :cascade
+  add_foreign_key "ci_sources_projects", "projects", column: "source_project_id", on_delete: :cascade
   add_foreign_key "ci_stages", "ci_pipelines", column: "pipeline_id", name: "fk_fb57e6cc56", on_delete: :cascade
   add_foreign_key "ci_stages", "projects", name: "fk_2360681d1d", on_delete: :cascade
   add_foreign_key "ci_subscriptions_projects", "projects", column: "downstream_project_id", on_delete: :cascade
@@ -4984,6 +5042,8 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
   add_foreign_key "releases", "users", column: "author_id", name: "fk_8e4456f90f", on_delete: :nullify
   add_foreign_key "remote_mirrors", "projects", name: "fk_43a9aa4ca8", on_delete: :cascade
   add_foreign_key "repository_languages", "projects", on_delete: :cascade
+  add_foreign_key "requirements", "projects", on_delete: :cascade
+  add_foreign_key "requirements", "users", column: "author_id", on_delete: :nullify
   add_foreign_key "resource_label_events", "epics", on_delete: :cascade
   add_foreign_key "resource_label_events", "issues", on_delete: :cascade
   add_foreign_key "resource_label_events", "labels", on_delete: :nullify
@@ -4999,6 +5059,8 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
   add_foreign_key "reviews", "projects", on_delete: :cascade
   add_foreign_key "reviews", "users", column: "author_id", on_delete: :nullify
   add_foreign_key "saml_providers", "namespaces", column: "group_id", on_delete: :cascade
+  add_foreign_key "scim_identities", "namespaces", column: "group_id", on_delete: :cascade
+  add_foreign_key "scim_identities", "users", on_delete: :cascade
   add_foreign_key "scim_oauth_access_tokens", "namespaces", column: "group_id", on_delete: :cascade
   add_foreign_key "security_scans", "ci_builds", column: "build_id", on_delete: :cascade
   add_foreign_key "self_managed_prometheus_alert_events", "environments", on_delete: :cascade
@@ -5018,6 +5080,7 @@ ActiveRecord::Schema.define(version: 2020_02_27_165129) do
   add_foreign_key "snippets", "projects", name: "fk_be41fd4bb7", on_delete: :cascade
   add_foreign_key "software_license_policies", "projects", on_delete: :cascade
   add_foreign_key "software_license_policies", "software_licenses", on_delete: :cascade
+  add_foreign_key "status_page_settings", "projects", on_delete: :cascade
   add_foreign_key "subscriptions", "projects", on_delete: :cascade
   add_foreign_key "suggestions", "notes", on_delete: :cascade
   add_foreign_key "system_note_metadata", "description_versions", name: "fk_fbd87415c9", on_delete: :nullify
