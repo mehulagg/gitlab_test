@@ -51,6 +51,8 @@ describe 'Environment > Pod Logs', :js do
 
       wait_for_requests
 
+      expect(page).to have_content("Dec 13 14:04:22.123Z | Log 1 Dec 13 14:04:23.123Z | Log 2 Dec 13 14:04:24.123Z | Log 3")
+
       page.within('.js-pods-dropdown') do
         find(".dropdown-menu-toggle:not([disabled])").click
 
@@ -61,7 +63,6 @@ describe 'Environment > Pod Logs', :js do
           expect(item.text).to eq(pod_names[i])
         end
       end
-      expect(page).to have_content("Dec 13 14:04:22.123Z | Log 1 Dec 13 14:04:23.123Z | Log 2 Dec 13 14:04:24.123Z | Log 3")
     end
   end
 

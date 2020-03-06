@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import { GlDropdown, GlDropdownItem, GlSearchBoxByClick } from '@gitlab/ui';
+import { GlIcon, GlDropdown, GlDropdownItem, GlSearchBoxByClick } from '@gitlab/ui';
 import { shallowMount } from '@vue/test-utils';
 import DateTimePicker from '~/vue_shared/components/date_time_picker/date_time_picker.vue';
 import EnvironmentLogs from 'ee/logs/components/environment_logs.vue';
@@ -44,6 +44,10 @@ describe('EnvironmentLogs', () => {
 
   const findEnvironmentsDropdown = () => wrapper.find('.js-environments-dropdown');
   const findPodsDropdown = () => wrapper.find('.js-pods-dropdown');
+  const findPodsDropdownItems = () =>
+    findPodsDropdown()
+      .findAll(GlDropdownItem)
+      .filter(itm => !itm.attributes('disabled'));
   const findSearchBar = () => wrapper.find('.js-logs-search');
   const findTimeRangePicker = () => wrapper.find({ ref: 'dateTimePicker' });
   const findInfoAlert = () => wrapper.find('.js-elasticsearch-alert');
@@ -167,7 +171,7 @@ describe('EnvironmentLogs', () => {
 
     it('displays a disabled pods dropdown', () => {
       expect(findPodsDropdown().attributes('disabled')).toBe('true');
-      expect(findPodsDropdown().findAll(GlDropdownItem).length).toBe(0);
+      expect(findPodsDropdownItems().length).toBe(0);
     });
 
     it('displays a disabled search bar', () => {
@@ -271,14 +275,42 @@ describe('EnvironmentLogs', () => {
       });
     });
 
+    it('dropdown has one environment selected', () => {
+      const items = findEnvironmentsDropdown().findAll(GlDropdownItem);
+      mockEnvironments.forEach((env, i) => {
+        const item = items.at(i);
+        const iconClass = item.find(GlIcon).attributes('class');
+        if (item.text() !== mockEnvName) {
+          expect(iconClass).toMatch('invisible');
+        } else {
+          // selected
+          expect(iconClass).not.toMatch('invisible');
+        }
+      });
+    });
+
     it('populates pods dropdown', () => {
-      const items = findPodsDropdown().findAll(GlDropdownItem);
+      const items = findPodsDropdownItems();
 
       expect(findPodsDropdown().props('text')).toBe(mockPodName);
       expect(items.length).toBe(mockPods.length);
       mockPods.forEach((pod, i) => {
         const item = items.at(i);
         expect(item.text()).toBe(pod);
+      });
+    });
+
+    it('dropdownhas one pod selected', () => {
+      const items = findPodsDropdownItems();
+      mockPods.forEach((pod, i) => {
+        const item = items.at(i);
+        const iconClass = item.find(GlIcon).attributes('class');
+        if (item.text() !== mockPodName) {
+          expect(iconClass).toMatch('invisible');
+        } else {
+          // selected
+          expect(iconClass).not.toMatch('invisible');
+        }
       });
     });
 
@@ -310,7 +342,7 @@ describe('EnvironmentLogs', () => {
       });
 
       it('pod name, trace is refreshed', () => {
-        const items = findPodsDropdown().findAll(GlDropdownItem);
+        const items = findPodsDropdownItems();
         const index = 2; // any pod
 
         expect(actionMocks.showPodLogs).toHaveBeenCalledTimes(0);
