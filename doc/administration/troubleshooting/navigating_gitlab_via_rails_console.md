@@ -323,12 +323,30 @@ to a good state is direct manipulation via Rails console.
 
 ### Commonly used Active Record models and how to look up objects
 
-**Get a user by email or username:**
+**Get a user by primary email address or username:**
 
 ```ruby
 User.find_by(email: 'admin@example.com')
 User.find_by(username: 'root')
 ```
+
+**Get a user by primary OR secondary email address:**
+
+```ruby
+User.find_by_any_email('user@example.com')
+```
+
+Note: `find_by_any_email` is a custom method added by GitLab developers rather
+than a Rails-provided default method.
+
+**Get a collection of admin users:**
+
+```ruby
+User.admins
+```
+
+Note: `admins` is a [scope convenience method](https://guides.rubyonrails.org/active_record_querying.html#scopes)
+which does `where(admin: true)` under the hood.
 
 **Get a project by its path:**
 
