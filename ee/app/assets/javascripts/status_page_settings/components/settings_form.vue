@@ -24,7 +24,7 @@ export default {
     introText: s__(
       'StatusPage|To publish incidents to an external status page, GitLab will store a JSON file in your Amazon S3 account in a location accessible to your external status page service. Make sure to also set up %{docsLink}',
     ),
-    introLinkText: s__('StatusPage|Status page frontend.'),
+    introLinkText: s__('StatusPage|your status page frontend.'),
     activeLabel: s__('StatusPage|Active'),
     bucket: {
       label: s__('StatusPage|S3 Bucket name'),
@@ -105,6 +105,7 @@ export default {
             <gl-sprintf :message="$options.i18n.bucket.helpText">
               <template #docsLink>
                 <gl-link
+                  target="_blank"
                   href="https://docs.aws.amazon.com/AmazonS3/latest/dev/HostingWebsiteOnS3Setup.html"
                 >
                   <span>{{ $options.i18n.bucket.linkText }}</span>
@@ -129,7 +130,7 @@ export default {
           <p class="form-text text-muted">
             <gl-sprintf :message="$options.i18n.region.helpText">
               <template #docsLink>
-                <gl-link href="https://github.com/aws/aws-sdk-ruby#configuration">
+                <gl-link href="https://github.com/aws/aws-sdk-ruby#configuration" target="_blank">
                   <span>{{ $options.i18n.region.linkText }}</span>
                   <gl-icon name="external-link" class="vertical-align-middle" />
                 </gl-link>
@@ -156,7 +157,13 @@ export default {
           <gl-form-input id="status-page-aws-secret-access-key " v-model="awsSecretKey" />
         </gl-form-group>
 
-        <gl-button ref="submitBtn" :disabled="loading" variant="success" type="submit" class="js-no-auto-disable">
+        <gl-button
+          ref="submitBtn"
+          :disabled="loading"
+          variant="success"
+          type="submit"
+          class="js-no-auto-disable"
+        >
           {{ $options.i18n.saveBtnLabel }}
         </gl-button>
       </form>
