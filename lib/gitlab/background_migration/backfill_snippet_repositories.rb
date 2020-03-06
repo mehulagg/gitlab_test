@@ -8,30 +8,37 @@ module Gitlab
       MAX_RETRIES = 2
 
       def perform(start_id, stop_id)
-        retry_index = 0
-
         Snippet.where(id: start_id..stop_id).find_each do |snippet|
-          create_repository_and_files(snippet, retry_index)
-
           retry_index = 0
+
+          begin
+            create_repository_and_files(snippet)
+
+            logger.info(message: 'Snippet Migration: repository created and migrated', snippet: snippet.id)
+          rescue => e
+            retry_index += 1
+
+            retry if retry_index < MAX_RETRIES
+
+            clean_snippet(snippet)
+
+            logger.error(message: "Snippet Migration: error migrating snippet. Reason: #{e.message}", snippet: snippet.id)
+          end
         end
       end
 
       private
 
-      def create_repository_and_files(snippet, retry_index)
-        Snippet.transaction do
-          snippet.create_repository
-          create_commit(snippet)
+      def create_repository_and_files(snippet)
+        snippet.create_repository
+        create_commit(snippet)
+      end
 
-          logger.info(message: 'Snippet Migration: repository created and migrated', snippet: snippet.id)
-        end
-      rescue => e
-        retry_index += 1
-
-        retry if retry_index < MAX_RETRIES
-
-        logger.error(message: "Snippet Migration: error migrating snippet. Reason: #{e.message}", snippet: snippet.id)
+      def clean_snippet(snippet)
+        # Removing the repository in disk
+        snippet.snippet_repository&.destroy
+        # Removing the db record
+        snippet.repository.remove if snippet.repository_exists?
       end
 
       def logger
