@@ -162,6 +162,9 @@ production: &base
     ## Disable jQuery and CSS animations
     # disable_animations: true
 
+    ## Allow creating a session via GET request
+    enable_qa_sessions_controller: false
+
   ## Reply by email
   # Allow users to comment on issues and merge requests by replying to notification emails.
   # For documentation on how to set this up, see http://doc.gitlab.com/ce/administration/reply_by_email.html
