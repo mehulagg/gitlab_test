@@ -405,7 +405,7 @@
 
 @mixin middle-dot-divider {
   &::after {
-    content: '\00B7'; // Middle Dot
+    content: '\00B7' / ''; // Middle Dot
     padding: 0 6px;
     font-weight: $gl-font-weight-bold;
   }
