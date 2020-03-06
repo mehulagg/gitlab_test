@@ -1,0 +1,5 @@
+---
+title: Fix broken spec covering non-tar backups
+merge_request: 26651
+author:
+type: fixed
