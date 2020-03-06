@@ -1,5 +1,5 @@
-import { GlSkeletonLoading } from '@gitlab/ui';
-import { mount } from '@vue/test-utils';
+import { GlSkeletonLoading, GlSprintf } from '@gitlab/ui';
+import { shallowMount } from '@vue/test-utils';
 import UserPopover from '~/vue_shared/components/user_popover/user_popover.vue';
 import Icon from '~/vue_shared/components/icon.vue';
 
@@ -34,13 +34,15 @@ describe('User Popover Component', () => {
   const findTarget = () => document.querySelector('.js-user-link');
 
   const createWrapper = (props = {}, options = {}) => {
-    wrapper = mount(UserPopover, {
+    wrapper = shallowMount(UserPopover, {
       propsData: {
         ...DEFAULT_PROPS,
         target: findTarget(),
         ...props,
       },
-      stubs: ['gl-popover'],
+      stubs: {
+        'gl-sprintf': GlSprintf,
+      },
       ...options,
     });
   };
