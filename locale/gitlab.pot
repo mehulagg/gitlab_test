@@ -12930,6 +12930,9 @@ msgstr ""
 msgid "New project"
 msgstr ""
 
+msgid "New release"
+msgstr ""
+
 msgid "New runners registration token has been generated!"
 msgstr ""
 
@@ -13512,9 +13515,6 @@ msgid "Oops, are you sure?"
 msgstr ""
 
 msgid "Open"
-msgstr ""
-
-msgid "Open Documentation"
 msgstr ""
 
 msgid "Open Selection"
@@ -19143,7 +19143,7 @@ msgstr ""
 msgid "TagsPage|Optionally, add a message to the tag. Leaving this blank creates a %{link_start}lightweight tag.%{link_end}"
 msgstr ""
 
-msgid "TagsPage|Optionally, add release notes to the tag. They will be stored in the GitLab database and displayed on the tags page."
+msgid "TagsPage|Optionally, create a public release of your project based on a Git tag. By adding release notes to the tag, the information will be stored in the GitLab database and displayed on the %{releases_page_link_start}Releases%{link_end} page. %{docs_link_start}More information%{link_end}"
 msgstr ""
 
 msgid "TagsPage|Release notes"

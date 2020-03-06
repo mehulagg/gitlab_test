@@ -1,6 +1,6 @@
 <script>
 import { mapState, mapActions } from 'vuex';
-import { GlSkeletonLoading, GlEmptyState } from '@gitlab/ui';
+import { GlSkeletonLoading, GlEmptyState, GlLink } from '@gitlab/ui';
 import {
   getParameterByName,
   historyPushState,
@@ -16,19 +16,25 @@ export default {
     GlEmptyState,
     ReleaseBlock,
     TablePagination,
+    GlLink,
   },
   props: {
     projectId: {
       type: String,
       required: true,
     },
-    documentationLink: {
+    documentationPath: {
       type: String,
       required: true,
     },
     illustrationPath: {
       type: String,
       required: true,
+    },
+    newReleasePath: {
+      type: String,
+      required: false,
+      default: null,
     },
   },
   computed: {
@@ -56,7 +62,15 @@ export default {
 };
 </script>
 <template>
-  <div class="prepend-top-default">
+  <div class="flex flex-column mt-2">
+    <gl-link
+      v-if="newReleasePath"
+      :href="newReleasePath"
+      class="btn btn-success align-self-end mb-2 js-new-release-btn"
+    >
+      {{ __('New release') }}
+    </gl-link>
+
     <gl-skeleton-loading v-if="isLoading" class="js-loading" />
 
     <gl-empty-state
@@ -64,14 +78,18 @@ export default {
       class="js-empty-state"
       :title="__('Getting started with releases')"
       :svg-path="illustrationPath"
-      :description="
-        __(
-          'Releases are based on Git tags and mark specific points in a project\'s development history. They can contain information about the type of changes and can also deliver binaries, like compiled versions of your software.',
-        )
-      "
-      :primary-button-link="documentationLink"
-      :primary-button-text="__('Open Documentation')"
-    />
+    >
+      <template #description>
+        {{
+          __(
+            "Releases are based on Git tags and mark specific points in a project's development history. They can contain information about the type of changes and can also deliver binaries, like compiled versions of your software.",
+          )
+        }}
+        <gl-link :href="documentationPath" target="_blank" rel="noopener noreferrer">
+          {{ __('Read more') }}
+        </gl-link>
+      </template>
+    </gl-empty-state>
 
     <div v-else-if="shouldRenderSuccessState" class="js-success-state">
       <release-block

@@ -18,16 +18,48 @@ describe ReleasesHelper do
   context 'url helpers' do
     let(:project) { build(:project, namespace: create(:group)) }
     let(:release) { create(:release, project: project) }
+    let(:user) { create(:user) }
 
     before do
       helper.instance_variable_set(:@project, project)
       helper.instance_variable_set(:@release, release)
+      allow(helper).to receive(:current_user).and_return(user)
+      allow(helper).to receive(:can?)
+                    .with(user, :create_release, project)
+                    .and_return(false)
     end
 
     describe '#data_for_releases_page' do
-      it 'has the needed data to display release blocks' do
-        keys = %i(project_id illustration_path documentation_path)
-        expect(helper.data_for_releases_page.keys).to eq(keys)
+      shared_examples 'includes all required keys' do
+        it 'includes the required data for displaying release blocks' do
+          expect(helper.data_for_releases_page.keys).to include(
+            :project_id,
+            :illustration_path,
+            :documentation_path
+          )
+        end
+      end
+
+      context 'when the user is not allowed to create a new release' do
+        it_behaves_like 'includes all required keys'
+
+        it 'does not include new_release_path' do
+          expect(helper.data_for_releases_page).not_to include(:new_release_path)
+        end
+      end
+
+      context 'when the user is allowed to create a new release' do
+        before do
+          allow(helper).to receive(:can?)
+                       .with(user, :create_release, project)
+                       .and_return(true)
+        end
+
+        it_behaves_like 'includes all required keys'
+
+        it 'includes new_release_path' do
+          expect(helper.data_for_releases_page[:new_release_path]).to eq(new_project_tag_path(project))
+        end
       end
     end
 

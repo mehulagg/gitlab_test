@@ -22,7 +22,7 @@ describe('Releases App ', () => {
 
   const props = {
     projectId: 'gitlab-ce',
-    documentationLink: 'help/releases',
+    documentationPath: 'help/releases',
     illustrationPath: 'illustration/path',
   };
 
@@ -112,6 +112,44 @@ describe('Releases App ', () => {
 
         done();
       }, 0);
+    });
+  });
+
+  describe('"New release" button', () => {
+    const factory = (additionalProps = {}) => {
+      vm = mountComponentWithStore(Component, {
+        props: {
+          ...props,
+          ...additionalProps,
+        },
+        store,
+      });
+    };
+
+    const findNewReleaseButton = () => vm.$el.querySelector('.js-new-release-btn');
+
+    describe('when the user is allowed to create a new Release', () => {
+      const newReleasePath = 'path/to/new/release';
+
+      beforeEach(() => {
+        factory({ newReleasePath });
+      });
+
+      it('renders the "New release" button', () => {
+        expect(findNewReleaseButton()).not.toBeNull();
+      });
+
+      it('renders the "New release" button with the correct href', () => {
+        expect(findNewReleaseButton().getAttribute('href')).toBe(newReleasePath);
+      });
+    });
+
+    describe('when the user is not allowed to create a new Release', () => {
+      beforeEach(factory);
+
+      it('does not render the "New release" button', () => {
+        expect(findNewReleaseButton()).toBeNull();
+      });
     });
   });
 });
