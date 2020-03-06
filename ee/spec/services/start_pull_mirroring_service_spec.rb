@@ -40,6 +40,7 @@ describe StartPullMirroringService do
     it 'does not start pull mirroring' do
       expect(UpdateAllMirrorsWorker).not_to receive(:perform_async)
       expect(subject.execute[:status]).to eq(:error)
+      expect(subject.execute[:message]).to eq('Feature not available')
     end
   end
 
