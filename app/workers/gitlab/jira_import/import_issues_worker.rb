@@ -27,7 +27,7 @@ module Gitlab
       def start_import
         return true if start(project.import_state)
 
-        Gitlab::AppLogger.info("Project #{project.full_path} was in inconsistent state (#{project.import_status}) while importing.") # rubocop:disable Gitlab/RailsLogger
+        Gitlab::AppLogger.info("Project #{project.full_path} was in inconsistent state (#{project.import_status}) while importing.")
         false
       end
     end
