@@ -1,0 +1,12 @@
+---
+# Checks that internal links have .md extenstion and not .html extension.
+#
+# Requires --ignore-syntax CLI flag to matches (assumes Markdown formatting)
+#
+# For a list of all options, see https://errata-ai.github.io/vale/styles/
+extends: existence
+message: URL `%s` must use the .md file extension.
+link: https://docs.gitlab.com/ee/development/documentation/styleguide.html#links-to-internal-documentation
+level: error
+raw:
+  - '\[.+\]\(.{4,5}[^:][^/][^/].+\.html\)'
