@@ -168,6 +168,9 @@ export default {
         },
         loadingKey: 'loadingBoards',
         update(data) {
+          if (!data?.[this.parentType]) {
+            return [];
+          }
           return data[this.parentType].boards.edges.map(({ node }) => ({
             id: getIdFromGraphQLId(node.id),
             name: node.name,
@@ -175,6 +178,7 @@ export default {
         },
       });
 
+      this.loadingRecentBoards = true;
       boardsStore
         .recentBoards()
         .then(res => {
