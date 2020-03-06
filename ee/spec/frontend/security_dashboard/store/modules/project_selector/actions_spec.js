@@ -508,14 +508,15 @@ describe('EE projectSelector actions', () => {
         actions.fetchSearchResults,
         null,
         state,
-        [],
+        [
+          {
+            type: types.RECEIVE_SEARCH_RESULTS_SUCCESS,
+            payload: { data: projects, headers: responseHeaders, pageInfo },
+          },
+        ],
         [
           {
             type: 'requestSearchResults',
-          },
-          {
-            type: 'receiveSearchResultsSuccess',
-            payload: { data: projects, headers: responseHeaders, pageInfo },
           },
         ],
       );
@@ -558,25 +559,6 @@ describe('EE projectSelector actions', () => {
       ));
   });
 
-  describe('receiveSearchResultsSuccess', () => {
-    it('commits the RECEIVE_SEARCH_RESULTS_SUCCESS mutation', () => {
-      const mockProjects = [{ id: 0, name: 'mock-project1' }];
-
-      return testAction(
-        actions.receiveSearchResultsSuccess,
-        mockProjects,
-        state,
-        [
-          {
-            type: types.RECEIVE_SEARCH_RESULTS_SUCCESS,
-            payload: mockProjects,
-          },
-        ],
-        [],
-      );
-    });
-  });
-
   describe('receiveSearchResultsError', () => {
     it('commits the RECEIVE_SEARCH_RESULTS_ERROR mutation', () =>
       testAction(
@@ -608,13 +590,13 @@ describe('EE projectSelector actions', () => {
           actions.fetchSearchResultsNextPage,
           null,
           state,
-          [],
           [
             {
-              type: 'receiveNextPageSuccess',
+              type: types.RECEIVE_SEARCH_RESULTS_SUCCESS,
               payload: { data: projects, headers: responseHeaders, pageInfo },
             },
           ],
+          [],
         );
       });
 
@@ -642,18 +624,6 @@ describe('EE projectSelector actions', () => {
 
         return testAction(actions.fetchSearchResultsNextPage, [], state);
       });
-    });
-  });
-
-  describe('receiveNextPageSuccess', () => {
-    it('commits the RECEIVE_NEXT_PAGE_SUCCESS mutation', () => {
-      const payload = { data: [], pageInfo: {} };
-      return testAction(actions.receiveNextPageSuccess, payload, state, [
-        {
-          type: types.RECEIVE_NEXT_PAGE_SUCCESS,
-          payload,
-        },
-      ]);
     });
   });
 

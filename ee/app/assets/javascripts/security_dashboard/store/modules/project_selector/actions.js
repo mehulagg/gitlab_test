@@ -145,7 +145,7 @@ export const receiveRemoveProjectError = ({ commit }) => {
   createFlash(__('Something went wrong, unable to remove project'));
 };
 
-export const fetchSearchResults = ({ state, dispatch }) => {
+export const fetchSearchResults = ({ state, dispatch, commit }) => {
   const { searchQuery } = state;
   dispatch('requestSearchResults');
 
@@ -154,13 +154,11 @@ export const fetchSearchResults = ({ state, dispatch }) => {
   }
 
   return searchProjects(searchQuery)
-    .then(payload => {
-      dispatch('receiveSearchResultsSuccess', payload);
-    })
+    .then(payload => commit(types.RECEIVE_SEARCH_RESULTS_SUCCESS, payload))
     .catch(() => dispatch('receiveSearchResultsError'));
 };
 
-export const fetchSearchResultsNextPage = ({ state, dispatch }) => {
+export const fetchSearchResultsNextPage = ({ state, dispatch, commit }) => {
   const {
     searchQuery,
     pageInfo: { totalPages, page, nextPage },
@@ -173,16 +171,12 @@ export const fetchSearchResultsNextPage = ({ state, dispatch }) => {
   const searchOptions = { page: nextPage };
 
   return searchProjects(searchQuery, searchOptions)
-    .then(payload => dispatch('receiveNextPageSuccess', payload))
+    .then(payload => commit(types.RECEIVE_SEARCH_RESULTS_SUCCESS, payload))
     .catch(() => dispatch('receiveSearchResultsError'));
 };
 
 export const requestSearchResults = ({ commit }) => {
   commit(types.REQUEST_SEARCH_RESULTS);
-};
-
-export const receiveSearchResultsSuccess = ({ commit }, payload) => {
-  commit(types.RECEIVE_SEARCH_RESULTS_SUCCESS, payload);
 };
 
 export const receiveSearchResultsError = ({ commit }) => {
@@ -191,10 +185,6 @@ export const receiveSearchResultsError = ({ commit }) => {
 
 export const setMinimumQueryMessage = ({ commit }) => {
   commit(types.SET_MINIMUM_QUERY_MESSAGE);
-};
-
-export const receiveNextPageSuccess = ({ commit }, payload) => {
-  commit(types.RECEIVE_NEXT_PAGE_SUCCESS, payload);
 };
 
 // prevent babel-plugin-rewire from generating an invalid default during karma tests
