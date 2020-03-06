@@ -1,0 +1,15 @@
+.jenkins_job:
+  before_script:
+    - export JENKINS_BUILD_DIR="/tmp/jenkinsfileRunner.tmp/${CI_JOB_ID}"
+    - mkdir -p "${JENKINS_BUILD_DIR}"
+    - mkdir -p "artifacts/"
+  script:
+    - jenkinsfile-runner --jenkins-war "/app/jenkins" --plugins "/app/jenkins_home/plugins/" --file "./Jenkinsfile" --runHome "${JENKINS_BUILD_DIR}"
+  after_script:
+    - cd "${JENKINS_BUILD_DIR}/workspace/job"
+    - git ls-files --others -z | xargs -0 -n 1 -I {} cp --parents {} "${CI_PROJECT_DIR}/artifacts/"
+    - rm -rf "${JENKINS_BUILD_DIR}"
+    - ls -lahR "${CI_PROJECT_DIR}/artifacts/"
+  artifacts:
+    paths:
+      - artifacts/
