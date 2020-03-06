@@ -1,4 +1,4 @@
-import { addPageInfo } from 'ee/security_dashboard/store/modules/project_selector/utils';
+import addPageInfo from 'ee/security_dashboard/store/modules/project_selector/utils/add_page_info';
 
 describe('EE Project Selector store utils', () => {
   describe('addPageInfo', () => {

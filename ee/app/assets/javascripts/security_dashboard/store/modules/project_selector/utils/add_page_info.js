@@ -41,6 +41,6 @@ const pageInfo = flow(
  * @param {Object} res
  * @return {Object}
  */
-export const addPageInfo = res => (res?.headers ? { ...res, ...pageInfo(res) } : res);
+const addPageInfo = res => (res?.headers ? { ...res, ...pageInfo(res) } : res);
 
-export default {};
+export default addPageInfo;
