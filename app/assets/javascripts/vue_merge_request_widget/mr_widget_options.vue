@@ -146,6 +146,18 @@ export default {
     },
   },
   mounted() {
+    this.hasFocus = true;
+
+    this.onWindowFocus = () => {
+      this.hasFocus = true;
+    };
+    this.onWindowBlur = () => {
+      this.hasFocus = false;
+    };
+
+    window.addEventListener('focus', this.onWindowFocus);
+    window.addEventListener('blur', this.onWindowBlur);
+
     MRWidgetService.fetchInitialData()
       .then(({ data }) => this.initWidget(data))
       .catch(() =>
@@ -165,6 +177,9 @@ export default {
     if (this.postMergeDeploymentsInterval) {
       this.postMergeDeploymentsInterval.destroy();
     }
+
+    window.removeEventListener(this.onWindowFocus);
+    window.removeEventListener(this.onWindowBlur);
   },
   methods: {
     initWidget(data = {}) {
@@ -212,6 +227,8 @@ export default {
       return new MRWidgetService(this.getServiceEndpoints(store));
     },
     checkStatus(cb, isRebased) {
+      if (!this.hasFocus) return Promise.resolve();
+
       return this.service
         .checkStatus()
         .then(({ data }) => {
