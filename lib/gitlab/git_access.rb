@@ -122,15 +122,13 @@ module Gitlab
     def check_for_console_messages
       return console_messages unless key?
 
-      if key_status.active?
-        console_messages
-      else
-        console_messages.push(key_status.message)
-      end
-    end
+      key_status = Gitlab::Auth::KeyStatusChecker.new(actor)
 
-    def key_status
-      Gitlab::Auth::KeyStatusChecker.new(actor)
+      if key_status.show_console_message?
+        console_messages.push(key_status.console_message)
+      else
+        console_messages
+      end
     end
 
     def console_messages

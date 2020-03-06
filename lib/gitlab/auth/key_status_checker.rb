@@ -9,18 +9,17 @@ module Gitlab
         @key = key
       end
 
-      def active?
-        key_status == :active
+      def show_console_message?
+        key_status == :expired ||
+          key_status == :expires_soon
       end
 
-      def message
+      def console_message
         case key_status
         when :expired
           _('INFO: Your SSH key has expired. Please generate a new key.')
-        when :expiring_soon
+        when :expires_soon
           _('INFO: Your SSH key is expiring soon. Please generate a new key.')
-        when :active
-          _('INFO: Your SSH key is currently active.')
         end
       end
 
@@ -33,9 +32,7 @@ module Gitlab
           if key.expired?
             :expired
           elsif key.expires_soon?
-            :expiring_soon
-          else
-            :active
+            :expires_soon
           end
         end
       end
