@@ -297,9 +297,9 @@ class SessionsController < Devise::SessionsController
   def authentication_method
     if user_params[:otp_attempt]
       "two-factor"
-    elsif user_params[:device_response] and Feature.enabled?(:webauthn, current_user)
+    elsif user_params[:device_response] && Feature.enabled?(:webauthn, current_user)
       "two-factor-via-webauthn-device"
-    elsif user_params[:device_response] and !Feature.enabled?(:webauthn, current_user)
+    elsif user_params[:device_response] && !Feature.enabled?(:webauthn, current_user)
       "two-factor-via-u2f-device"
     else
       "standard"

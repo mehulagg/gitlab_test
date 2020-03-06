@@ -30,6 +30,7 @@ module AuthenticatesWithTwoFactor
     else
       setup_u2f_authentication(user)
     end
+
     render 'devise/sessions/two_factor'
   end
 
@@ -143,8 +144,6 @@ module AuthenticatesWithTwoFactor
   end
 
   # rubocop: enable CodeReuse/ActiveRecord
-
-  private
 
   def handle_two_factor_success(user)
     # Remove any lingering user data from login

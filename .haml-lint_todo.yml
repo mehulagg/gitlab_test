@@ -346,6 +346,8 @@ linters:
       - 'app/views/u2f/_authenticate.html.haml'
       - 'app/views/u2f/_register.html.haml'
       - 'app/views/users/_deletion_guidance.html.haml'
+      - 'app/views/webauthn/_authenticate.html.haml'
+      - 'app/views/webauthn/_register.html.haml'
       - 'ee/app/views/admin/_namespace_plan_info.html.haml'
       - 'ee/app/views/admin/application_settings/_templates.html.haml'
       - 'ee/app/views/admin/audit_logs/index.html.haml'
