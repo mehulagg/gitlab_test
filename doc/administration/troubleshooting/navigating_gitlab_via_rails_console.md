@@ -36,11 +36,15 @@ sudo -u git -H bundle exec rails console RAILS_ENV=production
 Further code examples will all take place inside the Rails console and also
 assume an Omnibus GitLab installation.
 
-## Looking up database-persisted objects
+## Active Record objects
+
+### Looking up database-persisted objects
 
 Under the hood, Rails uses [Active Record](https://guides.rubyonrails.org/active_record_basics.html),
 an object-relational mapping system, to read, write and map application objects
-to the PostgreSQL database.
+to the PostgreSQL database. These mappings are handled by Active Record models,
+which are Ruby classes defined in a Rails app. For GitLab, the model classes
+can be found at `/opt/gitlab/embedded/service/gitlab-rails/app/models`.
 
 Let's enable debug logging for Active Record so we can see the underlying
 database queries made:
@@ -61,9 +65,9 @@ We can see that we've queried the `users` table in the database for a row whose
 `id` column has the value `1`, and Active Record has translated that database
 record into a Ruby object that we can interact with. Try some of the following:
 
-*  `user.username`
-*  `user.created_at`
-*  `user.admin`
+* `user.username`
+* `user.created_at`
+* `user.admin`
 
 By convention, column names are directly translated into Ruby object attributes,
 so you should be able to do `user.<column_name>` to view the attribute's value.
@@ -80,9 +84,9 @@ D, [2020-03-05T17:03:24.696493 #910] DEBUG -- :   User Load (2.1ms)  SELECT "use
 
 Give the following a try:
 
-*  `User.find_by(email: 'admin@example.com')`
-*  `User.where.not(admin: true)` 
-*  `User.where('created_at < ?', 7.days.ago)`
+* `User.find_by(email: 'admin@example.com')`
+* `User.where.not(admin: true)` 
+* `User.where('created_at < ?', 7.days.ago)`
 
 Did you notice that the last two commands returned an `ActiveRecord::Relation`
 object that appeared to contain multiple `User` objects?
@@ -101,9 +105,9 @@ D, [2020-03-05T17:11:16.845387 #910] DEBUG -- :   User Load (2.8ms)  SELECT "use
 
 Now, try the following:
 
-*  `users.count`
-*  `users.order(created_at: :desc)`
-*  `users.where(username: 'support-bot')`
+* `users.count`
+* `users.order(created_at: :desc)`
+* `users.where(username: 'support-bot')`
 
 In the last command, we see that we can chain `.where` statements to generate
 more complex queries. Notice that while the collection contains only a single
@@ -128,7 +132,7 @@ D, [2020-03-05T17:18:30.406047 #910] DEBUG -- :   User Load (2.6ms)  SELECT "use
 For more on different ways to retrieve data from the database using Active
 Record, please see the [Active Record Query Interface documentation](https://guides.rubyonrails.org/active_record_querying.html).
 
-## Modifying Active Record objects
+### Modifying Active Record objects
 
 In the previous section, we learned about retrieving database records using
 Active Record. Now, we'll learn how to write changes to the database.
@@ -163,11 +167,15 @@ will not trigger these callbacks.
 
 It's also possible to update attributes in a single line:
 
-*  `user.update(password: 'password')`
+```
+user.update(password: 'password')
+```
 
 Or update multiple attributes at once:
 
-*  `user.update(password: 'password', email: 'hunter2@example.com')`
+```
+user.update(password: 'password', email: 'hunter2@example.com')
+```
 
 Now, let's try something different:
 
@@ -196,7 +204,9 @@ helpful messages letting you know how to fix the problem inputs.
 
 We can also add the bang (Ruby speak for `!`) to `.update`:
 
-*  `user.update!(password: 'password', password_confirmation: 'hunter2')`
+```
+user.update!(password: 'password', password_confirmation: 'hunter2')
+```
 
 We can also skip validations entirely:
 
@@ -216,7 +226,7 @@ the database. We'll see a little of this in the next section. If you're getting
 a mysterious red banner in the GitLab UI when trying to save a setting, this
 can often be the fastest way to get to the root of the problem. 
 
-== Interacting with Active Record objects
+### Interacting with Active Record objects
 
 At the end of the day, Active Record objects are just normal Ruby objects. As
 such, we can define methods on them which perform arbitrary actions.
@@ -302,8 +312,57 @@ Traceback (most recent call last):
 StateMachines::InvalidTransition (Cannot transition state via :block from :active (Reason(s): Password confirmation doesn't match Password))
 ```
 
-We see that the validation error comes back to haunt us. In practical terms, we
-sometimes see this happen with GitLab admin settings -- validations are
-sometimes added in a GitLab update, resulting in previously saved settings now
-failing validation and preventing other seemingly unrelated settings from being
-saved.
+We see that the validation error in what feels like a completely separate
+attribute comes back to haunt us when we try to update the user in any way.
+
+In practical terms, we sometimes see this happen with GitLab admin settings --
+validations are sometimes added or changed in a GitLab update, resulting in
+previously saved settings now failing validation. Because you can only update
+a subset of settings at once through the UI, sometimes the only way to get back
+to a good state is direct manipulation via Rails console.
+
+### Commonly used Active Record models and how to look up objects
+
+**Get a user by email or username:**
+
+```ruby
+User.find_by(email: 'admin@example.com')
+User.find_by(username: 'root')
+```
+
+**Get a project by its path:**
+
+```ruby
+Project.find_by_full_path('group/subgroup/project')
+```
+
+Note: `find_by_full_path` is a custom method added by GitLab developers rather
+than a Rails-provided default method.
+
+**Get a project's issue or merge request by its numeric ID:**
+
+```ruby
+project = Project.find_by_full_path('group/subgroup/project')
+project.issues.find_by(iid: 42)
+project.merge_requests.find_by(iid: 42)
+```
+
+Note: `iid` means "internal ID" and is how we keep issue and merge request IDs
+scoped to each GitLab project.
+
+**Get CI pipeline or builds:**
+
+```ruby
+Ci::Pipeline.find(4151)
+Ci::Build.find(66124)
+```
+
+Note: The pipeline and job #ID numbers increment globally across your GitLab
+instance, so there's no need to use an internal ID attribute to look them up,
+unlike with issues or merge requests.
+
+**Get the current application settings object:**
+
+```ruby
+ApplicationSetting.current
+```
