@@ -45,7 +45,7 @@ class Service < ApplicationRecord
   scope :active, -> { where(active: true) }
   scope :without_defaults, -> { where(default: false) }
   scope :by_type, -> (type) { where(type: type) }
-
+  scope :for_projects, -> { where.not(project: nil) }
   scope :push_hooks, -> { where(push_events: true, active: true) }
   scope :tag_push_hooks, -> { where(tag_push_events: true, active: true) }
   scope :issue_hooks, -> { where(issues_events: true, active: true) }

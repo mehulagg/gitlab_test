@@ -9,6 +9,11 @@ FactoryBot.define do
       project { nil }
       instance { true }
     end
+
+    trait :template do
+      project { nil }
+      template { true }
+    end
   end
 
   factory :custom_issue_tracker_service, class: 'CustomIssueTrackerService' do
