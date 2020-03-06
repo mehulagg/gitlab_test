@@ -6,6 +6,11 @@ type: index, reference
 
 Access to GitLab features is provided on a subscription basis. A subscription entitles users to the features of a specific GitLab tier. Each tier provides a set of features. A subscription is valid for 12 months.
 
+GitLab provides special subscriptions to participants in the GitLab Education Program and GitLab Open Source Program. For details on obtaining and renewing these subscriptions, see:
+
+- GitLab Education Program
+- GitLab Open Source Program
+
 ## Choosing a GitLab subscription
 
 When choosing a subscription, consider the following factors:
@@ -352,6 +357,20 @@ Learn more about:
 
 - The tiers of [GitLab Support](https://about.gitlab.com/support/).
 - [Submit a request via the Support Portal](https://support.gitlab.com/hc/en-us/requests/new).
+
+## GitLab Education Program
+
+To renew a GitLab Education Program subscription, send an email to `education@gitlab.com` with the following information:
+
+1. Indicate the number of seats for the renewal. Seats can be added at this time if needed.
+1. Describe the use case for the license. Specifically, we need verification that the use meets the conditions of the [End User License Agreement](https://about.gitlab.com/terms/#edu-oss). Note that university infrastructure operations and information technology operations don't fall within the stated terms of the Education Program. For details, see the [Education FAQ](https://about.gitlab.com/solutions/education/#FAQ).
+1. Include the full name, email address, and phone number of the primary contact who will be signing the renewal quote. Only signatures by faculty or staff with proper signing authority on the behalf of the University will be accepted.
+
+Once we receive the above information, we will process the request and return a renewal quote for signature. Please allow a minimum of 2 business days for return. Email us at `education@gitlab.com` with any questions.
+
+## GitLab Open Source Program
+
+All requests for our GitLab Open Source program, including renewals, must be made via the [Open Source Program](https://about.gitlab.com/solutions/open-source/program/) application process. If you have any questions, send an email to `opensource@gitlab.com` for assistance.
 
 <!-- ## Troubleshooting
 
