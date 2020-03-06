@@ -1,6 +1,6 @@
 import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import { GlSprintf, GlAlert } from '@gitlab/ui';
+import { GlSprintf, GlAlert, GlLink } from '@gitlab/ui';
 import * as dateTimeUtils from '~/lib/utils/datetime_utility';
 import component from '~/registry/explorer/components/project_policy_alert.vue';
 import {
@@ -28,7 +28,7 @@ describe('Project Policy Alert', () => {
   };
 
   const findAlert = () => wrapper.find(GlAlert);
-  const findLink = () => wrapper.find({ ref: 'documentationLink' });
+  const findLink = () => wrapper.find(GlLink);
 
   const createComponent = (state = defaultState) => {
     store = new Vuex.Store({
@@ -39,7 +39,6 @@ describe('Project Policy Alert', () => {
       store,
       stubs: {
         GlSprintf,
-        GlAlert,
       },
     });
   };

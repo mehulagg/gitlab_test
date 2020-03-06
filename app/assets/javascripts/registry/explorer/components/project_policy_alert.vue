@@ -60,11 +60,7 @@ export default {
         <strong>{{ timeTillRun }}</strong>
       </template>
       <template #link="{content}">
-        <gl-link
-          ref="documentationLink"
-          :href="config.expirationPolicyHelpPagePath"
-          target="_blank"
-        >
+        <gl-link :href="config.expirationPolicyHelpPagePath" target="_blank">
           {{ content }}
         </gl-link>
       </template>
