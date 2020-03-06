@@ -2,6 +2,8 @@
 
 module API
   class ProjectTerraformStates < Grape::API
+    LockConflictError = Class.new(StandardError)
+
     rescue_from LockConflictError do |e|
       error!(e, 409)
     end
@@ -13,7 +15,7 @@ module API
         super || find_personal_access_token_from_http_basic_auth
       end
 
-      def check_lock!(locker_id)
+      def check_lock!(state, locker_id)
         if state.locked?
           lock_owner = JSON.parse(state.lock_info)["ID"]
           raise LockConflictError.new unless locker_id == lock_owner
@@ -49,11 +51,14 @@ module API
       post ":id/terraform_states/:name" do
         state = user_project.terraform_states.find_by(name: params[:name])
         value = request.body.string
-        check_lock!(params[:ID])
+        # check if person that wants to update the state is the same person that has locked it
+        # when locking is used and update is called, the ID if locker is passed in query string params
 
         if state.present?
+          check_lock!(state, params[:ID])
           state.update!(value: value)
         else
+          # ??should we put lock first, before creating new state??
           state = user_project.terraform_states.create!(name: params[:name], value: value)
         end
 
@@ -63,13 +68,16 @@ module API
 
       delete ":id/terraform_states/:name" do
         state = user_project.terraform_states.find_by!(name: params[:name])
-        check_lock!(params[:ID])
+        # check if person that wants to update the state is the same person that has locked it
+        # when locking is used and delete is called, the ID if locker is passed in query string params
+        check_lock!(state, params[:ID])
         state.delete
         content_type 'text/plain'
         body ""
       end
 
       post ":id/terraform_states/:name/lock" do
+        # lock should not break even if state is not created yet
         state = user_project.terraform_states.find_or_create_by(name: params[:name])
         value = request.body.string
 
@@ -95,8 +103,5 @@ module API
         body ""
       end
     end
-  end
-
-  class LockConflictError < StandardError
   end
 end
