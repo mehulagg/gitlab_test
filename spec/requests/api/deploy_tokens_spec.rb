@@ -3,10 +3,10 @@
 require 'spec_helper'
 
 describe API::DeployTokens do
-  let(:user)          { create(:user) }
-  let(:creator)       { create(:user) }
-  let(:project)       { create(:project, creator_id: creator.id) }
-  let(:group)         { create(:group) }
+  let_it_be(:user)          { create(:user) }
+  let_it_be(:creator)       { create(:user) }
+  let_it_be(:project)       { create(:project, creator_id: creator.id) }
+  let_it_be(:group)         { create(:group) }
   let!(:deploy_token) { create(:deploy_token, projects: [project]) }
   let!(:group_deploy_token) { create(:deploy_token, :group, groups: [group]) }
 
@@ -115,7 +115,24 @@ describe API::DeployTokens do
       it 'deletes the deploy token' do
         expect { subject }.to change { group.deploy_tokens.count }.by(-1)
 
-        expect(response).to have_gitlab_http_status(:no_content)
+        expect(group.deploy_tokens).to be_empty
+      end
+
+      context 'invalid request' do
+        it 'returns bad request with invalid group id' do
+          delete api("/groups/bad_id/deploy_tokens/#{group_deploy_token.id}", user)
+
+          expect(response).to have_gitlab_http_status(:bad_request)
+        end
+
+        it 'returns not found with invalid deploy token id' do
+          delete api("/groups/#{group.id}/deploy_tokens/bad_id", user)
+
+          expect(response).to have_gitlab_http_status(:not_found)
+          expect(json_response).to eq(
+            'message' => '404 Deploy Token Not Found'
+          )
+        end
       end
     end
   end

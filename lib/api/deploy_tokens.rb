@@ -50,7 +50,7 @@ module API
 
         not_found!('Deploy Token') unless deploy_token
 
-        deploy_token.destroy
+        deploy_token.destroy!
         no_content!
       end
     end
