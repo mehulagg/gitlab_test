@@ -65,9 +65,9 @@ We can see that we've queried the `users` table in the database for a row whose
 `id` column has the value `1`, and Active Record has translated that database
 record into a Ruby object that we can interact with. Try some of the following:
 
-* `user.username`
-* `user.created_at`
-* `user.admin`
+- `user.username`
+- `user.created_at`
+- `user.admin`
 
 By convention, column names are directly translated into Ruby object attributes,
 so you should be able to do `user.<column_name>` to view the attribute's value.
@@ -84,9 +84,9 @@ D, [2020-03-05T17:03:24.696493 #910] DEBUG -- :   User Load (2.1ms)  SELECT "use
 
 Give the following a try:
 
-* `User.find_by(email: 'admin@example.com')`
-* `User.where.not(admin: true)` 
-* `User.where('created_at < ?', 7.days.ago)`
+- `User.find_by(email: 'admin@example.com')`
+- `User.where.not(admin: true)`
+- `User.where('created_at < ?', 7.days.ago)`
 
 Did you notice that the last two commands returned an `ActiveRecord::Relation`
 object that appeared to contain multiple `User` objects?
@@ -105,9 +105,9 @@ D, [2020-03-05T17:11:16.845387 #910] DEBUG -- :   User Load (2.8ms)  SELECT "use
 
 Now, try the following:
 
-* `users.count`
-* `users.order(created_at: :desc)`
-* `users.where(username: 'support-bot')`
+- `users.count`
+- `users.order(created_at: :desc)`
+- `users.where(username: 'support-bot')`
 
 In the last command, we see that we can chain `.where` statements to generate
 more complex queries. Notice that while the collection contains only a single
@@ -180,7 +180,7 @@ user.update(password: 'password', email: 'hunter2@example.com')
 Now, let's try something different:
 
 ```ruby
-# Retrieve the object again so we get its latest state 
+# Retrieve the object again so we get its latest state
 user = User.find_by(username: 'root')
 user.password = 'password'
 user.password_confirmation = 'hunter2'
@@ -211,7 +211,7 @@ user.update!(password: 'password', password_confirmation: 'hunter2')
 We can also skip validations entirely:
 
 ```ruby
-# Retrieve the object again so we get its latest state 
+# Retrieve the object again so we get its latest state
 user = User.find_by(username: 'root')
 user.password = 'password'
 user.password_confirmation = 'hunter2'
@@ -224,7 +224,7 @@ reason.
 Note that a validation error will prevent the entire object from being saved to
 the database. We'll see a little of this in the next section. If you're getting
 a mysterious red banner in the GitLab UI when trying to save a setting, this
-can often be the fastest way to get to the root of the problem. 
+can often be the fastest way to get to the root of the problem.
 
 ### Interacting with Active Record objects
 
@@ -253,6 +253,7 @@ def two_factor_enabled?
   two_factor_otp_enabled? || two_factor_u2f_enabled?
 end
 ```
+
 (See: `/opt/gitlab/embedded/service/gitlab-rails/app/models/user.rb`)
 
 We can then use these methods on any user object:
@@ -301,9 +302,9 @@ user.password_confirmation = 'hunter2'
 user.block
 ```
 
-We get `false` returned! Let's find out what happened by adding a bang (a 
+We get `false` returned! Let's find out what happened by adding a bang (a
 common Ruby convention is to provide a bang method that doesn't silently fail
-when some data is changed):
+and raises an exception when some data is changed):
 
 ```ruby
 irb(main):085:0> user.block!
