@@ -409,8 +409,9 @@ html.group-epics-roadmap-html {
 
     .milestone-start-and-end {
       display: none;
-      border-left: 2px dotted $gray-700;
-      border-right: 2px dotted $gray-700;
+      border-left: 2px dotted $gray-900;
+      border-right: 2px dotted $gray-900;
+      opacity: 0.5;
     }
 
     .milestone-item-details {
@@ -441,6 +442,32 @@ html.group-epics-roadmap-html {
             border-color: $gray-900;
           }
         }
+      }
+    }
+
+    .milestone-small,
+    .milestone-minimum {
+      .milestone-item-title {
+        text-indent: -9999px;
+      }
+    }
+
+    .milestone-small {
+      .milestone-item-title::after {
+        content: '...';
+        text-indent: 0;
+        position: absolute;
+        left: 0;
+      }
+    }
+
+    .milestone-minimum {
+      .timeline-bar::before {
+        display: none;
+      }
+
+      .milestone-start-and-end {
+        border-left: 0;
       }
     }
 

@@ -78,6 +78,25 @@ export default {
         ? this.milestone.originalEndDate
         : this.milestone.endDate;
     },
+    smallClass() {
+      const smallStyleClass = 'milestone-small';
+      const minimumStyleClass = 'milestone-minimum';
+      if (this.presetTypeQuarters) {
+        const width = this.getTimelineBarWidthForQuarters(this.milestone);
+        if (width < 9) {
+          return minimumStyleClass;
+        }
+        if (width < 12) {
+          return smallStyleClass;
+        }
+      } else if (this.presetTypeMonths) {
+        const width = this.getTimelineBarWidthForMonths();
+        if (width < 12) {
+          return smallStyleClass;
+        }
+      }
+      return '';
+    },
   },
   mounted() {
     this.$nextTick(() => {
@@ -99,10 +118,13 @@ export default {
   <div class="timeline-bar-wrapper">
     <span
       v-if="hasStartDate"
-      :class="{
-        'start-date-undefined': milestone.startDateUndefined,
-        'end-date-undefined': milestone.endDateUndefined,
-      }"
+      :class="[
+        {
+          'start-date-undefined': milestone.startDateUndefined,
+          'end-date-undefined': milestone.endDateUndefined,
+        },
+        smallClass,
+      ]"
       :style="timelineBarStyles(milestone)"
       class="milestone-item-details d-inline-block position-absolute"
     >
