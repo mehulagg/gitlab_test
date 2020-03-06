@@ -95,7 +95,7 @@ export default {
     return {
       hasScrollFade: false,
       loadingBoards: 0,
-      loadingRecentBoards: true,
+      loadingRecentBoards: false,
       scrollFadeInitialized: false,
       boards: [],
       recentBoards: [],
