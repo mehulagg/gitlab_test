@@ -19,6 +19,10 @@ describe 'Using U2F (Universal 2nd Factor) Devices for Authentication', :js do
     u2f_device
   end
 
+  before do
+    stub_feature_flags(webauthn: false)
+  end
+
   describe "registration" do
     let(:user) { create(:user) }
 
