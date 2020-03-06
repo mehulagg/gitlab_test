@@ -7,11 +7,9 @@ import * as types from './mutation_types';
 
 const API_MINIMUM_QUERY_LENGTH = 3;
 
-// helpers
 const searchProjects = (searchQuery, searchOptions) =>
   Api.projects(searchQuery, searchOptions).then(addPageInfo);
 
-// actions
 export const toggleSelectedProject = ({ commit, state }, project) => {
   const isProject = ({ id }) => id === project.id;
 
