@@ -185,14 +185,45 @@ describe 'Group Packages' do
     end
   end
 
-  context 'wtih vue_package_list feature flag enabled' do
+  context 'wtih vue_package_list feature flag enabled', :js do
     before do
-      stub_feature_flags(vue_package_list: true)
       visit_group_packages
     end
 
-    it 'load an empty placeholder' do
-      expect(page.has_selector?('#js-vue-packages-list')).to be_truthy
+    context 'when there are packages' do
+      let_it_be(:second_project) { create(:project, name: 'second-project', group: group) }
+      let_it_be(:conan_package) { create(:conan_package, project: project) }
+      let_it_be(:maven_package) { create(:maven_package, project: second_project) }
+
+      it 'shows a list of packages and includes the project' do
+        expect(page).to have_content(conan_package.name)
+        expect(page).to have_content(conan_package.project.name)
+        expect(page).to have_content(maven_package.name)
+        expect(page).to have_content(maven_package.project.name)
+      end
+
+      it 'allows you to navigate to the package details' do
+        click_link conan_package.name
+
+        expect(page).to have_current_path(project_package_path(project, conan_package))
+        expect(page).to have_content(conan_package.name)
+        expect(page).to have_content('Installation')
+        expect(page).to have_content('Registry Setup')
+        expect(page).to have_content('Activity')
+      end
+
+      it 'allows you to navigate to the project page' do
+        click_link project.name
+
+        expect(page).to have_current_path(project_path(project))
+        expect(page).to have_content(project.name)
+      end
+    end
+
+    context 'when there are no packages' do
+      it 'displays the empty message' do
+        expect(page).to have_content('There are no packages yet')
+      end
     end
   end
 
