@@ -9,6 +9,8 @@ module Gitlab
 
       def perform(start_id, stop_id)
         Snippet.where(id: start_id..stop_id).find_each do |snippet|
+          next if repository_exists?(snippet)
+
           retry_index = 0
 
           begin
@@ -29,6 +31,10 @@ module Gitlab
 
       private
 
+      def repository_exists?(snippet)
+        snippet.snippet_repository && !snippet.repository.empty?
+      end
+
       def create_repository_and_files(snippet)
         snippet.create_repository
         create_commit(snippet)
@@ -46,11 +52,9 @@ module Gitlab
       end
 
       def snippet_action(snippet)
-        file_path = filename(snippet)
-        blob = snippet.repository.blob_at('master', file_path)
-
-        [{ previous_path: blob&.path,
-           file_path: file_path,
+        # We don't need the previous_path param
+        # Because we're not updating any existing file
+        [{ file_path: filename(snippet),
            content: snippet.content }]
       end
 

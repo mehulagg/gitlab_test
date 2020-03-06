@@ -60,33 +60,11 @@ describe Gitlab::BackgroundMigration::BackfillSnippetRepositories, :migration, s
       subject
     end
 
-    context 'when snippet has repository' do
-      it 'creates the file if it does not exist' do
-        count = ls_files(snippet_with_repo).count
-
-        expect(blob_at(snippet_with_repo, file_name)).to be_nil
+    context 'when snippet has a non empty repository' do
+      it 'does not perform any action' do
+        expect(service).not_to receive(:create_repository_and_files).with(snippet_with_repo)
 
         subject
-
-        blob = blob_at(snippet_with_repo, file_name)
-
-        aggregate_failures do
-          expect(blob).not_to be_nil
-          expect(blob.data).to eq content
-          expect(ls_files(snippet_with_repo).count).to eq count + 1
-        end
-      end
-
-      context 'when the file exists' do
-        let(:file_name) { 'CHANGELOG' }
-
-        it 'overrides the content' do
-          expect(blob_at(snippet_with_repo, file_name)).not_to be_nil
-
-          subject
-
-          expect(blob_at(snippet_with_repo, file_name).data).to eq content
-        end
       end
     end
 
