@@ -1,11 +1,13 @@
 stages:
   - build
+  - test
   - review
-  - production
+  - deploy
 
-# build stage
+# build and test stages
 include:
   - template: Jobs/Build.gitlab-ci.yml
+  - template: Jobs/Test.gitlab-ci.yml
 
 # review stage
 .deploy_to_ecs:
@@ -22,10 +24,10 @@ deploy review app:
       - branches
       - tags
 
-# production stage
-production:
+# deploy stage
+deploy:
   extends: .deploy_to_ecs
-  stage: production
+  stage: deploy
   only:
     refs:
       - master
