@@ -1,0 +1,5 @@
+---
+title: Fix imported from GitHub empty discussion threads on merge requests
+merge_request: 26688
+author:
+type: fixed
