@@ -199,7 +199,7 @@ describe UsersHelper do
     end
 
     context 'when only job_title is present' do
-      let(:user) { create(:user, job_title: 'Frontend Engineer') } 
+      let(:user) { create(:user, job_title: 'Frontend Engineer') }
 
       it 'returns job title' do
         is_expected.to eq('Frontend Engineer')
