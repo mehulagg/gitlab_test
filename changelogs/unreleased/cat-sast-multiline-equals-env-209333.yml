@@ -1,0 +1,5 @@
+---
+title: Fix multi-line CI/CD variables with equals sign and quotes from breaking SAST
+merge_request: 26722
+author:
+type: fixed
