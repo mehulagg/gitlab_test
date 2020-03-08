@@ -1,0 +1,7 @@
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: <%= ENV["GITLAB_MIGRATION_HELPERS_TEST_DATABASE"] || "gitlab_migration_helpers_test" %>
+  host: <%= ENV["GITLAB_MIGRATION_HELPERS_TEST_HOST"] || "127.0.0.1" %>
+  port: <%= ENV["GITLAB_MIGRATION_HELPERS_TEST_PORT"] || "5432" %>
+  pool: 10

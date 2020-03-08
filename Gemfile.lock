@@ -1,3 +1,10 @@
+PATH
+  remote: vendor/gitlab-migration_helpers
+  specs:
+    gitlab-migration_helpers (0.1.0)
+      activerecord (~> 6.0.2)
+      pg (~> 1.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -1236,6 +1243,7 @@ DEPENDENCIES
   gitlab-license (~> 1.0)
   gitlab-mail_room (~> 0.0.3)
   gitlab-markup (~> 1.7.0)
+  gitlab-migration_helpers!
   gitlab-net-dns (~> 0.9.1)
   gitlab-puma (~> 4.3.3.gitlab.2)
   gitlab-puma_worker_killer (~> 0.1.1.gitlab.1)
