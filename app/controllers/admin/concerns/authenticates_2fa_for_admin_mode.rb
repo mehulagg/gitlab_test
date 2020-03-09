@@ -28,7 +28,7 @@ module Authenticates2FAForAdminMode
     elsif user && user.valid_password?(user_params[:password])
       admin_mode_prompt_for_two_factor(user)
     else
-      admin_mode_invalid_login_redirect
+      invalid_login_redirect
     end
   end
 
@@ -39,10 +39,11 @@ module Authenticates2FAForAdminMode
 
       user.save!
 
-      admin_mode_enable_skip_password
+      # The admin user has successfully passed 2fa, enable admin mode ignoring password
+      enable_admin_mode
     else
       user.increment_failed_attempts!
-      Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=OTP")
+      Gitlab::AppLogger.info("Failed Admin Mode Login: user=#{user.username} ip=#{request.remote_ip} method=OTP")
       flash.now[:alert] = _('Invalid two-factor code.')
 
       admin_mode_prompt_for_two_factor(user)
@@ -55,10 +56,11 @@ module Authenticates2FAForAdminMode
       session.delete(:otp_user_id)
       session.delete(:challenge)
 
-      admin_mode_enable_skip_password
+      # The admin user has successfully passed 2fa, enable admin mode ignoring password
+      enable_admin_mode
     else
       user.increment_failed_attempts!
-      Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=U2F")
+      Gitlab::AppLogger.info("Failed Admin Mode Login: user=#{user.username} ip=#{request.remote_ip} method=U2F")
       flash.now[:alert] = _('Authentication via U2F device failed.')
 
       admin_mode_prompt_for_two_factor(user)
@@ -67,15 +69,15 @@ module Authenticates2FAForAdminMode
 
   private
 
-  def admin_mode_enable_skip_password
+  def enable_admin_mode
     if current_user_mode.enable_admin_mode!(skip_password_validation: true)
       redirect_to redirect_path, notice: _('Admin mode enabled')
     else
-      admin_mode_invalid_login_redirect
+      invalid_login_redirect
     end
   end
 
-  def admin_mode_invalid_login_redirect
+  def invalid_login_redirect
     flash.now[:alert] = _('Invalid login or password')
     render :new
   end
