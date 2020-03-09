@@ -1,5 +1,5 @@
 import MockAdapter from 'axios-mock-adapter';
-import PrometheusMetrics from 'ee/prometheus_metrics/prometheus_metrics';
+import PrometheusMetrics from '~/prometheus_metrics/prometheus_metrics';
 import axios from '~/lib/utils/axios_utils';
 import PANEL_STATE from '~/prometheus_metrics/constants';
 import metrics from './mock_data';
