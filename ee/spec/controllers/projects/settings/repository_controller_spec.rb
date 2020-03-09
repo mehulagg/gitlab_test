@@ -21,6 +21,12 @@ describe Projects::Settings::RepositoryController do
         is_expected.to be_persisted
       end
 
+      it 'project_push_rule is created' do
+        get :show, params: { namespace_id: project.namespace, project_id: project }
+
+        expect(project.project_push_rule).to be_persisted
+      end
+
       context 'unlicensed' do
         before do
           stub_licensed_features(push_rules: false)

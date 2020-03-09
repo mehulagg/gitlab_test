@@ -8,6 +8,7 @@ FactoryBot.define do
     deny_delete_tag { false }
     delete_branch_regex { 'bug\/.*' }
     project
+    target_type { :project }
 
     trait :commit_message do
       commit_message_regex { "(f|F)ixes #\d+.*" }
@@ -19,6 +20,7 @@ FactoryBot.define do
 
     factory :push_rule_sample do
       is_sample { true }
+      target_type { :instance }
     end
   end
 end

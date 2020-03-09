@@ -47,19 +47,29 @@ module EE
       def after_create_actions
         super
 
+        return unless project.feature_available?(:push_rules)
+
         create_predefined_push_rule
+        create_project_push_rule
       end
 
       # rubocop: disable CodeReuse/ActiveRecord
       def create_predefined_push_rule
-        return unless project.feature_available?(:push_rules)
-
         predefined_push_rule = PushRule.find_by(is_sample: true)
 
         if predefined_push_rule
-          push_rule = predefined_push_rule.dup.tap { |gh| gh.is_sample = false }
+          push_rule = predefined_push_rule.dup.tap do |pr|
+            pr.is_sample = false
+            pr.target_type = :project
+          end
           project.push_rule = push_rule
         end
+      end
+
+      def create_project_push_rule
+        return unless project.push_rule
+
+        project.create_project_push_rule(push_rule: project.push_rule)
       end
 
       # When using a project template from a Group, the new project can only be created

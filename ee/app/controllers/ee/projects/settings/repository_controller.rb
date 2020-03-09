@@ -17,7 +17,7 @@ module EE
         def push_rule
           return unless project.feature_available?(:push_rules)
 
-          project.create_push_rule unless project.push_rule
+          create_push_rule
           @push_rule = project.push_rule # rubocop:disable Gitlab/ModuleWithInstanceVariables
         end
 
@@ -46,6 +46,13 @@ module EE
           remote_mirror
 
           render 'show'
+        end
+
+        def create_push_rule
+          unless project.push_rule
+            project.create_push_rule(target_type: :project)
+            project.create_project_push_rule(push_rule: project.push_rule)
+          end
         end
       end
     end

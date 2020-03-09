@@ -187,26 +187,46 @@ describe Projects::CreateService, '#execute' do
   end
 
   context 'git hook sample' do
-    let!(:sample) { create(:push_rule_sample) }
+    context 'with sample rule available' do
+      let!(:sample) { create(:push_rule_sample) }
 
-    subject(:push_rule) { create_project(user, opts).push_rule }
+      subject(:push_rule) { create_project(user, opts).push_rule }
 
-    it 'creates git hook from sample' do
-      is_expected.to have_attributes(
-        force_push_regex: sample.force_push_regex,
-        deny_delete_tag: sample.deny_delete_tag,
-        delete_branch_regex: sample.delete_branch_regex,
-        commit_message_regex: sample.commit_message_regex
-      )
-    end
-
-    context 'push rules unlicensed' do
-      before do
-        stub_licensed_features(push_rules: false)
+      it 'creates git hook from sample' do
+        is_expected.to have_attributes(
+          force_push_regex: sample.force_push_regex,
+          deny_delete_tag: sample.deny_delete_tag,
+          delete_branch_regex: sample.delete_branch_regex,
+          commit_message_regex: sample.commit_message_regex
+        )
       end
 
-      it 'ignores the push rule sample' do
-        is_expected.to be_nil
+      it 'creates project_push_rule' do
+        stub_licensed_features(push_rules: true)
+        project = create_project(user, opts)
+
+        expect(project.project_push_rule).to be_persisted
+        expect(project.project_push_rule.push_rule_id).to eq(project.push_rule.id)
+      end
+
+      context 'push rules unlicensed' do
+        before do
+          stub_licensed_features(push_rules: false)
+        end
+
+        it 'ignores the push rule sample' do
+          is_expected.to be_nil
+        end
+      end
+    end
+
+    context 'with sample rule unavailable' do
+      it 'does not create project_push_rule or push_rule' do
+        stub_licensed_features(push_rules: true)
+        project = create_project(user, opts)
+
+        expect(project.project_push_rule).to be_nil
+        expect(project.push_rule).to be_nil
       end
     end
   end

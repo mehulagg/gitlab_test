@@ -1,0 +1,5 @@
+---
+title: Refactor push rules and add project_push_rule model
+merge_request: 26990
+author:
+type: added
