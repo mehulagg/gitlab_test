@@ -1,0 +1,5 @@
+---
+title: "Support sending traffic to redis-cache read replica"
+merge_request: 26801
+author: Igor Wiedler
+type: added

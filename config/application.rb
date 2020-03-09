@@ -18,6 +18,7 @@ module Gitlab
     require_dependency Rails.root.join('lib/gitlab/utils')
     require_dependency Rails.root.join('lib/gitlab/redis/wrapper')
     require_dependency Rails.root.join('lib/gitlab/redis/cache')
+    require_dependency Rails.root.join('lib/gitlab/redis/cache/store')
     require_dependency Rails.root.join('lib/gitlab/redis/queues')
     require_dependency Rails.root.join('lib/gitlab/redis/shared_state')
     require_dependency Rails.root.join('lib/gitlab/current_settings')
@@ -270,7 +271,14 @@ module Gitlab
     # This makes the default value the same with Gitlab::Redis::Cache
     caching_config_hash[:reconnect_attempts] ||= ::Redis::Client::DEFAULTS[:reconnect_attempts]
 
-    config.cache_store = :redis_cache_store, caching_config_hash
+    config.cache_store = if Gitlab::Utils.to_boolean(ENV['GITLAB_REDIS_CACHE_READ_REPLICA_ENABLED'])
+                           Gitlab::Redis::Cache::Store.new(
+                             primary: ActiveSupport::Cache.lookup_store(:redis_cache_store, caching_config_hash),
+                             read_replica: ActiveSupport::Cache.lookup_store(:redis_cache_store, caching_config_hash.merge(role: :slave))
+                           )
+                         else
+                           config.cache_store = :redis_cache_store, caching_config_hash
+                         end
 
     config.active_job.queue_adapter = :sidekiq
 

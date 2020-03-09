@@ -126,7 +126,7 @@ describe CacheableAttributes do
     context 'redis unavailable' do
       before do
         allow(MinimalTestClass).to receive(:last).and_return(:last)
-        expect(Rails.cache).to receive(:read).with(MinimalTestClass.cache_key).and_raise(Redis::BaseError)
+        expect(Rails.cache).to receive(:read).with(MinimalTestClass.cache_key, {}).and_raise(Redis::BaseError)
       end
 
       context 'in production environment' do
@@ -210,9 +210,18 @@ describe CacheableAttributes do
       create(:application_setting).cache!
 
       expect(ApplicationSetting.cache_backend).to eq(Gitlab::ThreadMemoryCache.cache_backend)
-      expect(ApplicationSetting.cache_backend).to receive(:read).with(ApplicationSetting.cache_key).once.and_call_original
+      expect(ApplicationSetting.cache_backend).to receive(:read).with(ApplicationSetting.cache_key, {}).once.and_call_original
 
       2.times { ApplicationSetting.current }
+    end
+
+    it 'passes cache_stale_ok? to cache backend', :request_store do
+      # Warm up the cache
+      create(:appearance).cache!
+
+      expect(Appearance.cache_backend).to receive(:read).with(Appearance.cache_key, stale_ok: true).once.and_call_original
+
+      Appearance.current
     end
   end
 

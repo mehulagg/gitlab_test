@@ -36,6 +36,11 @@ class Appearance < ApplicationRecord
     first
   end
 
+  # Overrides CacheableAttributes.cache_stale_ok?
+  def self.cache_stale_ok?
+    true
+  end
+
   def single_appearance_row
     if self.class.any?
       errors.add(:base, _('Only 1 appearances row can exist'))

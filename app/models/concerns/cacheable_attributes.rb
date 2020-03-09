@@ -24,6 +24,11 @@ module CacheableAttributes
       {}
     end
 
+    # Can be overridden
+    def cache_stale_ok?
+      false
+    end
+
     def build_from_defaults(attributes = {})
       final_attributes = defaults
         .merge(attributes)
@@ -42,7 +47,10 @@ module CacheableAttributes
     end
 
     def retrieve_from_cache
-      record = cache_backend.read(cache_key)
+      options = {}
+      options[:stale_ok] = true if cache_stale_ok?
+
+      record = cache_backend.read(cache_key, options)
       ensure_cache_setup if record.present?
 
       record
