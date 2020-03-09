@@ -8,7 +8,7 @@
 - Existing projects will be skipped
 - Projects in hashed storage may be skipped (see [Importing bare repositories from hashed storage](#importing-bare-repositories-from-hashed-storage))
 - The existing Git repos will be moved from disk (removed from the original path)
-- All MRs or Issues associated with your repository won't be included in the import.
+- No MRs or Issues associated with your repository will be included in the import.
 
 ## How to use
 
