@@ -175,12 +175,17 @@ Example commit message template that can be used on your machine that embodies t
 
 ## Branch naming
 
+
+
 | Use Case | Branch Name | Example |
 |----------|-------------|---------|
-| Addressing an existing issue | `<issue_id>-some-meaningful-short-branch-name` | `12345-add-amazing-new-feature` |
-| Documentation only | See [documentation branch naming](/ee/development/documentation/#branch-naming) | See [documentation branch naming](/ee/development/documentation/#branch-naming) |
-| Security fix | `security-some-meaningful-short-branch-name` - see [security releases](https://gitlab.com/gitlab-org/release/docs/blob/master/general/security/developer.md#branches) for more information | `security-fix-xss-vulnerability` |
-| None of the above | `<gitlab username>-some-meaningful-short-branch-name` | `sytses-migrate-karma-tests-to-jest` |
+| Addressing an existing issue<sup>†</sup> | `<issue_id>-some-meaningful-short-branch-name` | `12345-add-amazing-new-feature` |
+| Documentation only<sup>†</sup> | See [documentation branch naming](/ee/development/documentation/#branch-naming) | See [documentation branch naming](/ee/development/documentation/#branch-naming) |
+| Security fix<sup>*</sup> | `security-some-meaningful-short-branch-name` - see [security releases](https://gitlab.com/gitlab-org/release/docs/blob/master/general/security/developer.md#branches) for more information | `security-fix-xss-vulnerability` |
+| None of the above<sup>†</sup> | `<gitlab username>-some-meaningful-short-branch-name` | `sytses-migrate-karma-tests-to-jest` |
+
+<sup>†</sup> Recommended  
+<sup>*</sup> Required - security fix branch names are **required** to start with `security-`  
 
 TIP: **Tip:**
 When viewing an issue, the "Create merge request" button will auto-generate a branch name for you.
