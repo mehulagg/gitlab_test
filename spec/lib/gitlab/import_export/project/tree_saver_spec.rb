@@ -341,6 +341,6 @@ describe Gitlab::ImportExport::Project::TreeSaver do
   end
 
   def project_json(filename)
-    JSON.parse(IO.read(filename))
+    ::JSON.parse(IO.read(filename))
   end
 end
