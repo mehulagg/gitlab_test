@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe DeploymentClusterEntity do
   describe '#as_json' do
-    subject { described_class.new(deployment, request: request).as_json }
+    subject { described_class.new(deployment_cluster, request: request).as_json }
 
     let(:maintainer) { create(:user) }
     let(:developer) { create(:user) }
@@ -12,8 +12,7 @@ describe DeploymentClusterEntity do
     let(:request) { double(:request, current_user: current_user) }
     let(:project) { create(:project) }
     let(:cluster) { create(:cluster, name: 'the-cluster', projects: [project]) }
-    let(:deployment) { create(:deployment, cluster: cluster) }
-    let!(:deployment_cluster) { create(:deployment_cluster, cluster: cluster, deployment: deployment) }
+    let!(:deployment_cluster) { create(:deployment_cluster, cluster: cluster) }
 
     before do
       project.add_maintainer(maintainer)

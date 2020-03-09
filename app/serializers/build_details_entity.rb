@@ -22,10 +22,8 @@ class BuildDetailsEntity < JobEntity
     end
   end
 
-  expose :deployment_cluster, if: -> (build) { build&.deployment&.cluster } do |build, options|
-    # Until data is copied over from deployments.cluster_id, this entity must represent Deployment instead of DeploymentCluster
-    # https://gitlab.com/gitlab-org/gitlab/issues/202628
-    DeploymentClusterEntity.represent(build.deployment, options)
+  expose :deployment_cluster, if: -> (build) { build&.deployment&.deployment_cluster } do |build, options|
+    DeploymentClusterEntity.represent(build.deployment.deployment_cluster, options)
   end
 
   expose :artifact, if: -> (*) { can?(current_user, :read_build, build) } do

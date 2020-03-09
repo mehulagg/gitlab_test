@@ -11,20 +11,27 @@ module EE
       scope :deployed_to_cluster, -> (cluster) do
         environments = model.arel_table
         deployments = ::Deployment.arel_table
+        deployment_clusters = ::DeploymentCluster.arel_table
         later_deployments = ::Deployment.arel_table.alias('latest_deployments')
-        join_conditions = later_deployments[:environment_id]
-          .eq(deployments[:environment_id])
-          .and(deployments[:id].lt(later_deployments[:id]))
 
-        join = deployments
+        later_deployment_join_conditions = later_deployments[:environment_id]
+           .eq(deployments[:environment_id])
+           .and(deployments[:id].lt(later_deployments[:id]))
+
+        later_deployment_join = deployments
           .join(later_deployments, Arel::Nodes::OuterJoin)
-          .on(join_conditions)
+          .on(later_deployment_join_conditions)
+
+        cluster_join = deployments
+          .join(deployment_clusters, Arel::Nodes::OuterJoin)
+          .on(deployments[:id].eq(deployment_clusters[:deployment_id]))
 
         model
           .joins(:successful_deployments)
-          .joins(join.join_sources)
+          .joins(later_deployment_join.join_sources)
+          .joins(cluster_join.join_sources)
           .where(later_deployments[:id].eq(nil))
-          .where(deployments[:cluster_id].eq(cluster.id))
+          .where(deployment_clusters[:cluster_id].eq(cluster.id))
           .where(deployments[:project_id].eq(environments[:project_id]))
       end
 

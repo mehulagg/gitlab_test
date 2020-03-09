@@ -8,10 +8,10 @@ class Deployment < ApplicationRecord
   include Importable
   include Gitlab::Utils::StrongMemoize
   include FastDestroyAll
+  include IgnorableColumns
 
   belongs_to :project, required: true
   belongs_to :environment, required: true
-  belongs_to :cluster, class_name: 'Clusters::Cluster', optional: true
   belongs_to :user
   belongs_to :deployable, polymorphic: true, optional: true # rubocop:disable Cop/PolymorphicAssociations
   has_many :deployment_merge_requests
@@ -20,6 +20,9 @@ class Deployment < ApplicationRecord
     through: :deployment_merge_requests
 
   has_one :deployment_cluster
+  has_one :cluster, class_name: 'Clusters::Cluster', through: :deployment_cluster
+
+  ignore_column :cluster_id, remove_with: '13.0', remove_after: '2020-05-22'
 
   has_internal_id :iid, scope: :project, track_if: -> { !importing? }, init: ->(s) do
     Deployment.where(project: s.project).maximum(:iid) if s&.project

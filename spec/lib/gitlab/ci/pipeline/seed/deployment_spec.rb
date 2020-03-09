@@ -43,8 +43,7 @@ describe Gitlab::Ci::Pipeline::Seed::Deployment do
         let!(:cluster) { create(:cluster, :provided_by_gcp, projects: [project], managed: managed_cluster) }
         let(:managed_cluster) { true }
 
-        it 'sets the cluster and deployment_cluster' do
-          expect(subject.cluster).to eq(cluster) # until we stop double writing in 12.9: https://gitlab.com/gitlab-org/gitlab/issues/202628
+        it 'sets the deployment_cluster' do
           expect(subject.deployment_cluster.cluster).to eq(cluster)
         end
 

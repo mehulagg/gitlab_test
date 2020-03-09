@@ -42,9 +42,7 @@ class DeploymentEntity < Grape::Entity
   end
 
   expose :cluster do |deployment, options|
-    # Until data is copied over from deployments.cluster_id, this entity must represent Deployment instead of DeploymentCluster
-    # https://gitlab.com/gitlab-org/gitlab/issues/202628
-    DeploymentClusterEntity.represent(deployment, options) unless deployment.cluster.nil?
+    DeploymentClusterEntity.represent(deployment.deployment_cluster, options) unless deployment.deployment_cluster.nil?
   end
 
   private
