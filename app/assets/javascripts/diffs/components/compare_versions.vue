@@ -37,6 +37,11 @@ export default {
       required: false,
       default: null,
     },
+    targetHeadBranch: {
+      type: Object,
+      required: false,
+      default: null,
+    },
     isLimitedContainer: {
       type: Boolean,
       required: false,
@@ -68,6 +73,9 @@ export default {
     },
     baseVersionPath() {
       return this.mergeRequestDiff.base_version_path;
+    },
+    headVersionPath() {
+      return this.mergeRequestDiff.head_version_path;
     },
   },
   created() {
@@ -124,8 +132,10 @@ export default {
           <compare-versions-dropdown
             :other-versions="comparableDiffs"
             :base-version-path="baseVersionPath"
+            :head-version-path="headVersionPath"
             :start-version="startVersion"
             :target-branch="targetBranch"
+            :target-head-branch="targetHeadBranch"
             class="mr-version-compare-dropdown"
           />
         </template>

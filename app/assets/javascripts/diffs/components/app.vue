@@ -130,6 +130,13 @@ export default {
         path: '',
       };
     },
+    targetHeadBranch() {
+      return {
+        branchName: this.targetBranchName,
+        versionIndex: -2,
+        path: '',
+      };
+    },
     canCurrentUserFork() {
       return this.currentUser.can_fork === true && this.currentUser.can_create_merge_request;
     },
@@ -371,6 +378,7 @@ export default {
         :merge-request-diffs="mergeRequestDiffs"
         :merge-request-diff="mergeRequestDiff"
         :target-branch="targetBranch"
+        :target-head-branch="targetHeadBranch"
         :is-limited-container="isLimitedContainer"
         :diff-files-length="diffFilesLength"
       />

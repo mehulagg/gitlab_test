@@ -30,6 +30,11 @@ export default {
       required: false,
       default: null,
     },
+    targetHeadBranch: {
+      type: Object,
+      required: false,
+      default: null,
+    },
     showCommitCount: {
       type: Boolean,
       required: false,
@@ -40,13 +45,25 @@ export default {
       required: false,
       default: null,
     },
+    headVersionPath: {
+      type: String,
+      required: false,
+      default: null,
+    }
   },
   computed: {
     targetVersions() {
       if (this.mergeRequestVersion) {
         return this.otherVersions;
       }
-      return [...this.otherVersions, this.targetBranch];
+
+      const versions = [...this.otherVersions, this.targetBranch];
+
+      if (this.headVersionPath) {
+        return [...versions, this.targetHeadBranch];
+      } else {
+        return versions;
+      }
     },
     selectedVersionName() {
       const selectedVersion = this.startVersion || this.targetBranch || this.mergeRequestVersion;
@@ -58,6 +75,9 @@ export default {
       return n__(`%d commit,`, `%d commits,`, version.commits_count);
     },
     href(version) {
+      if (this.isHead(version)) {
+        return this.headVersionPath;
+      }
       if (this.isBase(version)) {
         return this.baseVersionPath;
       }
@@ -73,11 +93,24 @@ export default {
       if (this.targetBranch && (this.isBase(version) || !version)) {
         return this.targetBranch.branchName;
       }
+      if (this.targetHeadBranch && (this.isHead(version) || !version)) {
+        return this.targetHeadBranch.branchName;
+      }
       return sprintf(__(`version %{versionIndex}`), { versionIndex: version.version_index });
     },
     isActive(version) {
       if (!version) {
         return false;
+      }
+
+      const diffHead = parseBoolean(getParameterByName('diff_head'))
+
+      if (this.targetHeadBranch) {
+        return (
+          (this.isBase(version) && !this.startVersion && !diffHead) ||
+          (this.startVersion && this.startVersion.version_index === version.version_index) ||
+          (this.isHead(version) && diffHead)
+        );
       }
 
       if (this.targetBranch) {
@@ -95,8 +128,11 @@ export default {
       }
       return version.versionIndex === -1;
     },
-    isHead() {
-      return parseBoolean(getParameterByName('diff_head'));
+    isHead(version) {
+      if (!version || !this.targetHeadBranch) {
+        return false;
+      }
+      return version.versionIndex === -2;
     },
     isLatest(version) {
       return (
@@ -125,7 +161,7 @@ export default {
               <div>
                 <strong>
                   {{ versionName(version) }}
-                  <template v-if="isHead()">{{ s__('DiffsCompareBaseBranch|(HEAD)') }}</template>
+                  <template v-if="isHead(version)">{{ s__('DiffsCompareBaseBranch|(HEAD)') }}</template>
                   <template v-else-if="isBase(version)">{{
                     s__('DiffsCompareBaseBranch|(base)')
                   }}</template>
