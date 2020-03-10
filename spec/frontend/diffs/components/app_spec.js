@@ -88,8 +88,9 @@ describe('diffs/components/app', () => {
     beforeEach(done => {
       const fetchResolver = () => {
         store.state.diffs.retrievingBatches = false;
+        store.state.diffs.diffFilesLength = 100;
         store.state.notes.discussions = 'test';
-        return Promise.resolve({ real_size: 100 });
+        return Promise.resolve();
       };
       jest.spyOn(window, 'requestIdleCallback').mockImplementation(fn => fn());
       createComponent();

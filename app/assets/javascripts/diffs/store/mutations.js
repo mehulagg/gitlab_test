@@ -91,6 +91,10 @@ export default {
     Object.assign(state, { diffViewType });
   },
 
+  [types.SET_DIFF_FILES_LENGTH](state, diffFilesLength) {
+    Object.assign(state, { diffRealSize: parseInt(diffFilesLength, 0) });
+  },
+
   [types.TOGGLE_LINE_HAS_FORM](state, { lineCode, fileHash, hasForm }) {
     const diffFile = state.diffFiles.find(f => f.file_hash === fileHash);
 

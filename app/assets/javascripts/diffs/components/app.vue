@@ -100,7 +100,6 @@ export default {
 
     return {
       treeWidth,
-      diffFilesLength: 0,
     };
   },
   computed: {
@@ -119,6 +118,7 @@ export default {
       plainDiffPath: state => state.diffs.plainDiffPath,
       emailPatchPath: state => state.diffs.emailPatchPath,
       retrievingBatches: state => state.diffs.retrievingBatches,
+      diffFilesLength: state => state.diffs.diffFilesLength,
     }),
     ...mapState('diffs', ['showTreeList', 'isLoading', 'startVersion']),
     ...mapGetters('diffs', ['isParallelView', 'currentDiffIndex']),
@@ -256,8 +256,7 @@ export default {
     fetchData(toggleTree = true) {
       if (this.glFeatures.diffsBatchLoad) {
         this.fetchDiffFilesMeta()
-          .then(({ real_size }) => {
-            this.diffFilesLength = parseInt(real_size, 10);
+          .then(() => {
             if (toggleTree) this.hideTreeListIfJustOneFile();
 
             this.startDiffRendering();
@@ -280,8 +279,7 @@ export default {
           });
       } else {
         this.fetchDiffFiles()
-          .then(({ real_size }) => {
-            this.diffFilesLength = parseInt(real_size, 10);
+          .then(() => {
             if (toggleTree) {
               this.hideTreeListIfJustOneFile();
             }

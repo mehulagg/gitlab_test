@@ -142,7 +142,14 @@ describe('DiffsStoreActions', () => {
     it('should fetch diff files', done => {
       const endpoint = '/fetch/diff/files?view=inline&w=1';
       const mock = new MockAdapter(axios);
-      const res = { diff_files: 1, merge_request_diffs: [] };
+      const realSize = 1;
+      const mergeRequestDiffs = [];
+      const diffFiles = 1;
+      const res = {
+        diff_files: diffFiles,
+        merge_request_diffs: mergeRequestDiffs,
+        real_size: realSize,
+      };
       mock.onGet(endpoint).reply(200, res);
 
       testAction(
@@ -152,8 +159,9 @@ describe('DiffsStoreActions', () => {
         [
           { type: types.SET_LOADING, payload: true },
           { type: types.SET_LOADING, payload: false },
-          { type: types.SET_MERGE_REQUEST_DIFFS, payload: res.merge_request_diffs },
-          { type: types.SET_DIFF_DATA, payload: res },
+          { type: types.SET_MERGE_REQUEST_DIFFS, payload: mergeRequestDiffs },
+          { type: types.SET_DIFF_DATA, payload: { diff_files: diffFiles } },
+          { type: types.SET_DIFF_FILES_LENGTH, payload: realSize },
         ],
         [],
         () => {
@@ -161,13 +169,6 @@ describe('DiffsStoreActions', () => {
           done();
         },
       );
-
-      fetchDiffFiles({ state: { endpoint }, commit: () => null })
-        .then(data => {
-          expect(data).toEqual(res);
-          done();
-        })
-        .catch(done.fail);
     });
   });
 
@@ -214,7 +215,7 @@ describe('DiffsStoreActions', () => {
       const endpointMetadata = '/fetch/diffs_meta?view=inline';
       const mock = new MockAdapter(axios);
       const data = { diff_files: [] };
-      const res = { data };
+      const res = { data, real_size: 1 };
       mock.onGet(endpointMetadata).reply(200, res);
 
       testAction(
@@ -226,6 +227,7 @@ describe('DiffsStoreActions', () => {
           { type: types.SET_LOADING, payload: false },
           { type: types.SET_MERGE_REQUEST_DIFFS, payload: [] },
           { type: types.SET_DIFF_DATA, payload: { data } },
+          { type: types.SET_DIFF_FILES_LENGTH, payload: res.real_size },
         ],
         [],
         () => {
@@ -241,7 +243,14 @@ describe('DiffsStoreActions', () => {
       it('should fetch diff files', done => {
         const endpoint = '/fetch/diff/files?w=1';
         const mock = new MockAdapter(axios);
-        const res = { diff_files: 1, merge_request_diffs: [] };
+        const realSize = 1;
+        const mergeRequestDiffs = [];
+        const diffFiles = 1;
+        const res = {
+          diff_files: diffFiles,
+          merge_request_diffs: mergeRequestDiffs,
+          real_size: realSize,
+        };
         mock.onGet(endpoint).reply(200, res);
 
         testAction(
@@ -257,8 +266,9 @@ describe('DiffsStoreActions', () => {
           [
             { type: types.SET_LOADING, payload: true },
             { type: types.SET_LOADING, payload: false },
-            { type: types.SET_MERGE_REQUEST_DIFFS, payload: res.merge_request_diffs },
-            { type: types.SET_DIFF_DATA, payload: res },
+            { type: types.SET_MERGE_REQUEST_DIFFS, payload: mergeRequestDiffs },
+            { type: types.SET_DIFF_DATA, payload: { diff_files: diffFiles } },
+            { type: types.SET_DIFF_FILES_LENGTH, payload: realSize },
           ],
           [],
           () => {
@@ -266,13 +276,6 @@ describe('DiffsStoreActions', () => {
             done();
           },
         );
-
-        fetchDiffFiles({ state: { endpoint }, commit: () => null })
-          .then(data => {
-            expect(data).toEqual(res);
-            done();
-          })
-          .catch(done.fail);
       });
     });
 
@@ -315,7 +318,7 @@ describe('DiffsStoreActions', () => {
         const endpointMetadata = '/fetch/diffs_meta?';
         const mock = new MockAdapter(axios);
         const data = { diff_files: [] };
-        const res = { data };
+        const res = { data, real_size: 1 };
         mock.onGet(endpointMetadata).reply(200, res);
 
         testAction(
@@ -327,6 +330,7 @@ describe('DiffsStoreActions', () => {
             { type: types.SET_LOADING, payload: false },
             { type: types.SET_MERGE_REQUEST_DIFFS, payload: [] },
             { type: types.SET_DIFF_DATA, payload: { data } },
+            { type: types.SET_DIFF_FILES_LENGTH, payload: res.real_size },
           ],
           [],
           () => {

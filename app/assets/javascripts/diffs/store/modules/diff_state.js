@@ -35,4 +35,5 @@ export default () => ({
   dismissEndpoint: '',
   showSuggestPopover: true,
   useSingleDiffStyle: false,
+  diffFilesLength: 0,
 });
