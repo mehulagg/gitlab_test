@@ -30,32 +30,28 @@ module API
     end
 
     resource :projects, requirements: API::NAMESPACE_OR_PROJECT_REQUIREMENTS do
-      desc 'Get a statefile by its name'
-
+      desc 'Get a terraform state by its name'
       params do
-        requires :name, type: String, desc: 'The name of the statefile'
+        requires :name, type: String, desc: 'The name of a terraform state'
       end
-
       get ':id/terraform_states/:name' do
         state = user_project.terraform_states.find_by!(name: params[:name])
         content_type 'text/plain'
         body state.value
       end
 
-      desc 'Add or update state for the project'
-
+      desc 'Add a new terraform state or update an existing one'
       params do
-        requires :name, type: String, desc: 'The name of the statefile'
+        requires :name, type: String, desc: 'The name of a terraform state'
       end
-
-      post ":id/terraform_states/:name" do
+      post ':id/terraform_states/:name' do
         state = user_project.terraform_states.find_by(name: params[:name])
         value = request.body.string
+
         # check if person that wants to update the state is the same person that has locked it
         # when locking is used and update is called, the ID if locker is passed in query string params
-
         if state.present?
-          check_lock!(state, params[:ID])
+          # check_lock!(state, params[:ID])
           state.update!(value: value)
         else
           # ??should we put lock first, before creating new state??
@@ -66,17 +62,21 @@ module API
         body state.value
       end
 
-      delete ":id/terraform_states/:name" do
+      desc 'Delete a terraform state of certain name'
+      params do
+        requires :name, type: String, desc: 'The name of a terraform state'
+      end
+      delete ':id/terraform_states/:name' do
         state = user_project.terraform_states.find_by!(name: params[:name])
         # check if person that wants to update the state is the same person that has locked it
         # when locking is used and delete is called, the ID if locker is passed in query string params
-        check_lock!(state, params[:ID])
-        state.delete
+        # check_lock!(state, params[:ID])
+        state.destroy
         content_type 'text/plain'
-        body ""
+        body state
       end
 
-      post ":id/terraform_states/:name/lock" do
+      post ':id/terraform_states/:name/lock' do
         # lock should not break even if state is not created yet
         state = user_project.terraform_states.find_or_create_by(name: params[:name])
         value = request.body.string
@@ -93,14 +93,14 @@ module API
         end
       end
 
-      delete ":id/terraform_states/:name/lock" do
+      delete ':id/terraform_states/:name/lock' do
         state = user_project.terraform_states.find_by!(name: params[:name])
 
         state.unlock!
 
         status 200
         content_type 'text/plain'
-        body ""
+        body ''
       end
     end
   end
