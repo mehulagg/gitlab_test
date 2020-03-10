@@ -381,6 +381,7 @@ Parameters:
 | `extra_shared_runners_minutes_limit` | No       | Extra pipeline minutes quota for this user **(STARTER)**                                                                                                |
 | `force_random_password`              | No       | Set user password to a random value - true or false (default)                                                                                           |
 | `group_id_for_saml`                  | No       | ID of group where SAML has been configured                                                                                                              |
+| `job_title`                          | No       | Job title                                                                                                                                               |
 | `linkedin`                           | No       | LinkedIn                                                                                                                                                |
 | `location`                           | No       | User's location                                                                                                                                         |
 | `name`                               | No       | Name                                                                                                                                                    |
@@ -422,6 +423,7 @@ Parameters:
 | `extra_shared_runners_minutes_limit` | No       | Extra pipeline minutes quota for this user **(STARTER)**                                                                                                |
 | `group_id_for_saml`                  | No       | ID of group where SAML has been configured                                                                                                              |
 | `id`                                 | Yes      | The ID of the user                                                                                                                                      |
+| `job_title`                          | No       | Job Title                                                                                                                                               |
 | `linkedin`                           | No       | LinkedIn                                                                                                                                                |
 | `location`                           | No       | User's location                                                                                                                                         |
 | `name`                               | No       | Name                                                                                                                                                    |
