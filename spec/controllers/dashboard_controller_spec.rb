@@ -4,8 +4,8 @@ require 'spec_helper'
 
 describe DashboardController do
   context 'signed in' do
-    let(:user) { create(:user) }
-    let(:project) { create(:project) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:project) { create(:project) }
 
     before do
       project.add_maintainer(user)
@@ -26,11 +26,12 @@ describe DashboardController do
   describe "GET activity as JSON" do
     render_views
 
-    let(:user) { create(:user) }
+    let_it_be(:user) { create(:user) }
+    let_it_be(:issue) { create(:issue) }
     let(:project) { create(:project, :public, issues_access_level: ProjectFeature::PRIVATE) }
 
     before do
-      create(:event, :created, project: project, target: create(:issue))
+      create(:event, :created, project: project, target: issue)
 
       sign_in(user)
 
@@ -68,7 +69,7 @@ describe DashboardController do
   it_behaves_like 'authenticates sessionless user', :issues_calendar, :ics
 
   describe "#check_filters_presence!" do
-    let(:user) { create(:user) }
+    let_it_be(:user) { create(:user) }
 
     before do
       sign_in(user)
