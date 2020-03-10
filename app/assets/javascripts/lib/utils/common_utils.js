@@ -506,6 +506,18 @@ export const historyReplaceState = newUrl => {
  */
 export const parseBoolean = value => (value && value.toString()) === 'true';
 
+const mapObject = (obj, fn) => Object.fromEntries(Object.entries(obj).map(fn));
+
+const parseProp = ([propName, value]) => {
+  try {
+    return [propName, JSON.parse(value)];
+  } catch(e) {
+    return [propName, value];
+  }
+};
+
+export const propsFromDataset = dataset => mapObject(dataset, parseProp);
+
 export const BACKOFF_TIMEOUT = 'BACKOFF_TIMEOUT';
 
 /**

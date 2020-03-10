@@ -36,7 +36,7 @@ import BoardAddIssuesModal from '~/boards/components/modal/index.vue';
 import {
   NavigationType,
   convertObjectPropsToCamelCase,
-  parseBoolean,
+  propsFromDataset,
 } from '~/lib/utils/common_utils';
 import mountMultipleBoardsSwitcher from './mount_multiple_boards_switcher';
 
@@ -73,18 +73,11 @@ export default () => {
     },
     store,
     data: {
+      ...propsFromDataset($boardApp.dataset),
+      boardId: $boardApp.dataset.boardId,
       state: boardsStore.state,
       loading: true,
-      boardsEndpoint: $boardApp.dataset.boardsEndpoint,
-      recentBoardsEndpoint: $boardApp.dataset.recentBoardsEndpoint,
-      listsEndpoint: $boardApp.dataset.listsEndpoint,
-      boardId: $boardApp.dataset.boardId,
-      disabled: parseBoolean($boardApp.dataset.disabled),
-      issueLinkBase: $boardApp.dataset.issueLinkBase,
-      rootPath: $boardApp.dataset.rootPath,
-      bulkUpdatePath: $boardApp.dataset.bulkUpdatePath,
       detailIssue: boardsStore.detail,
-      defaultAvatar: $boardApp.dataset.defaultAvatar,
     },
     computed: {
       detailIssueVisible() {
