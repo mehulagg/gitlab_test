@@ -30,8 +30,6 @@ After your merge request has being approved according to our [approval guideline
    * You can use the script `bin/secpick` instead of the following steps, to help you cherry-picking. See the [secpick documentation]
 - [ ] Create each MR targeting the stable branch `X-Y-stable`, using the [Security Release merge request template].
    * Every merge request will have its own set of TODOs, so make sure to complete those.
-- [ ] On the "Related merge requests" section, ensure all MRs are linked to this issue.
-   * This section should only list the merge requests created for this issue: One targeting `master` and the 3 backports.
 
 ## Documentation and final details
 
