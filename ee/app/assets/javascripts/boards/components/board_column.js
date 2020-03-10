@@ -1,11 +1,11 @@
 import { mapActions } from 'vuex';
 import boardPromotionState from 'ee/boards/components/board_promotion_state';
 import { GlTooltip } from '@gitlab/ui';
-import Board from '~/boards/components/board';
+import BoardColumn from '~/boards/components/board_column';
 import { __, sprintf, s__ } from '~/locale';
 import boardsStore from '~/boards/stores/boards_store';
 
-export default Board.extend({
+export default BoardColumn.extend({
   data() {
     return {
       weightFeatureAvailable: boardsStore.weightFeatureAvailable,
@@ -27,7 +27,7 @@ export default Board.extend({
       }
 
       // TODO: Remove this pattern.
-      return Board.options.computed.issuesTooltip.call(this);
+      return BoardColumn.options.computed.issuesTooltip.call(this);
     },
     weightCountToolTip() {
       const { totalWeight } = this.list;

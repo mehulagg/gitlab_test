@@ -71,7 +71,7 @@
   }
 }
 
-.board {
+.board-column {
   // the next line cannot be replaced with .d-inline-block because it breaks display: none of SortableJS
   // see https://gitlab.com/gitlab-org/gitlab-foss/issues/64828
   display: inline-block;
@@ -152,7 +152,7 @@
   }
 }
 
-.board-inner {
+.board-column-inner {
   font-size: $issue-boards-font-size;
   background: $gray-light;
   border: 1px solid $border-color;

@@ -1,5 +1,5 @@
 import Vue from 'vue';
-import Board from '~/boards/components/board';
+import BoardColumn from '~/boards/components/board_column';
 import List from '~/boards/models/list';
 
 describe('Board component', () => {
@@ -14,7 +14,7 @@ describe('Board component', () => {
     const el = document.createElement('div');
     document.body.appendChild(el);
 
-    vm = new Board({
+    vm = new BoardColumn({
       propsData: {
         boardId: '1',
         disabled: false,

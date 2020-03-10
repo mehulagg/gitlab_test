@@ -40,7 +40,7 @@ module QA
               element :boards_list
             end
 
-            view 'app/views/shared/boards/components/_board.html.haml' do
+            view 'app/views/shared/boards/components/_column.html.haml' do
               element :board_list
               element :board_list_header
             end

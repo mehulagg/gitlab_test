@@ -3,7 +3,7 @@ import Vue from 'vue';
 
 import 'ee_else_ce/boards/models/issue';
 import 'ee_else_ce/boards/models/list';
-import Board from 'ee_else_ce/boards/components/board';
+import BoardColumn from 'ee_else_ce/boards/components/board_column';
 import BoardSidebar from 'ee_else_ce/boards/components/board_sidebar';
 import initNewListDropdown from 'ee_else_ce/boards/components/new_list_dropdown';
 import boardConfigToggle from 'ee_else_ce/boards/config_toggle';
@@ -65,7 +65,7 @@ export default () => {
   issueBoardsApp = new Vue({
     el: $boardApp,
     components: {
-      Board,
+      BoardColumn,
       BoardSidebar,
       BoardAddIssuesModal,
       BoardSettingsSidebar: () =>

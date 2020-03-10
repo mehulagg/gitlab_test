@@ -307,7 +307,7 @@ linters:
       - 'app/views/shared/_no_ssh.html.haml'
       - 'app/views/shared/_ping_consent.html.haml'
       - 'app/views/shared/_project_limit.html.haml'
-      - 'app/views/shared/boards/components/_board.html.haml'
+      - 'app/views/shared/boards/components/_column.html.haml'
       - 'app/views/shared/boards/components/_sidebar.html.haml'
       - 'app/views/shared/boards/components/sidebar/_due_date.html.haml'
       - 'app/views/shared/boards/components/sidebar/_labels.html.haml'
