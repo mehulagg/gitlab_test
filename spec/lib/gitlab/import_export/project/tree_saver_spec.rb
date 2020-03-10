@@ -147,8 +147,8 @@ describe Gitlab::ImportExport::Project::TreeSaver do
 
       it 'has pipeline builds' do
         builds_count = saved_project_json
-                         .dig('ci_pipelines', 0, 'stages', 0, 'statuses')
-                         .count { |hash| hash['type'] == 'Ci::Build' }
+          .dig('ci_pipelines', 0, 'stages', 0, 'statuses')
+          .count { |hash| hash['type'] == 'Ci::Build' }
 
         expect(builds_count).to eq(1)
       end
