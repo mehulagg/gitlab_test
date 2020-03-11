@@ -1,10 +1,10 @@
+# frozen_string_literal: true
+
 module Gitlab
   module ImportExport
     module JSON
       class NdjsonWriter
         include Gitlab::ImportExport::CommandLineUtil
-
-        attr_reader :dir_path
 
         def initialize(dir_path, root)
           @dir_path = dir_path

@@ -26,6 +26,25 @@ module ImportExport
       "tmp/tests/gitlab-test/import_export"
     end
 
+    def ndjson_relations(dir_path, key)
+      path = File.join(dir_path, "#{key.to_s}.ndjson")
+      return unless File.exist?(path)
+
+      relations = []
+
+      File.foreach(path) do |line|
+        json = ActiveSupport::JSON.decode(line)
+
+        relations << json
+      end
+
+      relations.flatten
+    end
+
+    def project_json(filename)
+      ::JSON.parse(IO.read(filename))
+    end
+
     def restore_then_save_project(project, import_path:, export_path:)
       project_restorer = get_project_restorer(project, import_path)
       project_saver = get_project_saver(project, export_path)

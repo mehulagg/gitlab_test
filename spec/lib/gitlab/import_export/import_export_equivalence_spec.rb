@@ -20,6 +20,10 @@ describe Gitlab::ImportExport do
 
   let(:json_fixture) { 'complex' }
 
+  before do
+    stub_feature_flags(ndjson_import_export: false)
+  end
+
   it 'yields the initial tree when importing and exporting it again' do
     project = create(:project, creator: create(:user, :admin))
 

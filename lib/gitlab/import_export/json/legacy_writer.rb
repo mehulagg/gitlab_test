@@ -6,8 +6,6 @@ module Gitlab
       class LegacyWriter
         include Gitlab::ImportExport::CommandLineUtil
 
-        attr_reader :path
-
         def initialize(path)
           @path = path
           @last_array = nil
