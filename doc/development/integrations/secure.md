@@ -191,7 +191,7 @@ then `artifacts:reports:dependency_scanning` must be set to `depscan.json`.
 Following the POSIX exit code standard, the scanner will exit with 0 for success and any number from 1 to 255 for anything else.
 Success also includes the case when vulnerabilities are found.
 
-When executing a scanning job using the [Docker-in-Docker privileged mode](../../user/application_security/sast/index.md#requirements),
+When executing a scanning job using the [Docker-in-Docker privileged mode](../../../user/application_security/sast/index.md#requirements),
 we reserve the following standard exit codes.
 
 | Orchestrator Exit Code | Description                      |
@@ -217,18 +217,18 @@ The report is a JSON document that combines vulnerabilities with possible remedi
 This documentation gives an overview of the report JSON format,
 as well as recommendations and examples to help integrators set its fields.
 The format is extensively described in the documentation of
-[SAST](../../user/application_security/sast/index.md#reports-json-format),
-[Dependency Scanning](../../user/application_security/dependency_scanning/index.md#reports-json-format),
-and [Container Scanning](../../user/application_security/container_scanning/index.md#reports-json-format).
+[SAST](../../../user/application_security/sast/index.md#reports-json-format),
+[Dependency Scanning](../../../user/application_security/dependency_scanning/index.md#reports-json-format),
+and [Container Scanning](../../../user/application_security/container_scanning/index.md#reports-json-format).
 
 The DAST variant of the report JSON format is not documented at the moment.
 
 ### Version
 
 The documentation of
-[SAST](../../user/application_security/sast/index.md#reports-json-format),
-[Dependency Scanning](../../user/application_security/dependency_scanning/index.md#reports-json-format),
-and [Container Scanning](../../user/application_security/container_scanning/index.md#reports-json-format)
+[SAST](../../../user/application_security/sast/index.md#reports-json-format),
+[Dependency Scanning](../../../user/application_security/dependency_scanning/index.md#reports-json-format),
+and [Container Scanning](../../../user/application_security/container_scanning/index.md#reports-json-format)
 describes the Secure report format version.
 
 ### Vulnerabilities
