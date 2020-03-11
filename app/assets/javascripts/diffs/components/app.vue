@@ -22,6 +22,8 @@ import {
   TREE_HIDE_STATS_WIDTH,
   MR_TREE_SHOW_KEY,
   CENTERED_LIMITED_CONTAINER_CLASSES,
+  DIFF_HEAD_INDEX,
+  DIFF_BASE_INDEX,
 } from '../constants';
 
 export default {
@@ -126,14 +128,14 @@ export default {
     targetBranch() {
       return {
         branchName: this.targetBranchName,
-        versionIndex: -1,
+        versionIndex: DIFF_HEAD_INDEX,
         path: '',
       };
     },
     targetHeadBranch() {
       return {
         branchName: this.targetBranchName,
-        versionIndex: -2,
+        versionIndex: DIFF_BASE_INDEX,
         path: '',
       };
     },

@@ -1,0 +1,5 @@
+---
+title: Display master(HEAD) in compare versions dropdown
+merge_request: 26918
+author:
+type: fixed

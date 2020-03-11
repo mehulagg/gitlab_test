@@ -1,11 +1,17 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 import CompareVersionsDropdown from '~/diffs/components/compare_versions_dropdown.vue';
+import { DIFF_BASE_INDEX, DIFF_HEAD_INDEX } from '~/diffs/constants';
 import diffsMockData from '../mock_data/merge_request_diffs';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
 import { TEST_HOST } from 'helpers/test_constants';
 
 const localVue = createLocalVue();
-const targetBranch = { branchName: 'tmp-wine-dev', versionIndex: -1 };
+const targetBranch = { branchName: 'tmp-wine-dev', versionIndex: DIFF_BASE_INDEX };
+const targetHeadBranch = {
+  branchName: 'tmp-wine-head',
+  versionIndex: DIFF_HEAD_INDEX,
+  head_version_path: '/gnuwget/wget2/merge_requests/6/diffs?diff_head=true',
+};
 const startVersion = { version_index: 4 };
 const mergeRequestVersion = {
   version_path: '123',
@@ -110,7 +116,6 @@ describe('CompareVersionsDropdown', () => {
 
       expect(findLastLink().attributes('href')).toEqual(baseVersionPath);
       expect(findLastLink().text()).toContain('(base)');
-      expect(findLastLink().text()).not.toContain('(HEAD)');
     });
 
     it('should render a correct head version link', () => {
@@ -120,13 +125,13 @@ describe('CompareVersionsDropdown', () => {
       });
 
       createComponent({
-        baseVersionPath,
         otherVersions: diffsMockData.slice(1),
         targetBranch,
+        targetHeadBranch,
+        headVersionPath: targetHeadBranch.head_version_path,
       });
 
-      expect(findLastLink().attributes('href')).toEqual(baseVersionPath);
-      expect(findLastLink().text()).not.toContain('(base)');
+      expect(findLastLink().attributes('href')).toEqual(targetHeadBranch.head_version_path);
       expect(findLastLink().text()).toContain('(HEAD)');
     });
 

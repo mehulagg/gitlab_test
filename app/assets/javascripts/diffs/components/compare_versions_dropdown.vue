@@ -3,6 +3,7 @@ import Icon from '~/vue_shared/components/icon.vue';
 import { n__, __, sprintf } from '~/locale';
 import { getParameterByName, parseBoolean } from '~/lib/utils/common_utils';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
+import { DIFF_BASE_INDEX, DIFF_HEAD_INDEX } from '../constants';
 
 export default {
   components: {
@@ -49,7 +50,7 @@ export default {
       type: String,
       required: false,
       default: null,
-    }
+    },
   },
   computed: {
     targetVersions() {
@@ -61,9 +62,8 @@ export default {
 
       if (this.headVersionPath) {
         return [...versions, this.targetHeadBranch];
-      } else {
-        return versions;
       }
+      return versions;
     },
     selectedVersionName() {
       const selectedVersion = this.startVersion || this.targetBranch || this.mergeRequestVersion;
@@ -103,7 +103,7 @@ export default {
         return false;
       }
 
-      const diffHead = parseBoolean(getParameterByName('diff_head'))
+      const diffHead = parseBoolean(getParameterByName('diff_head'));
 
       if (this.targetHeadBranch) {
         return (
@@ -126,13 +126,13 @@ export default {
       if (!version || !this.targetBranch) {
         return false;
       }
-      return version.versionIndex === -1;
+      return version.versionIndex === DIFF_BASE_INDEX;
     },
     isHead(version) {
       if (!version || !this.targetHeadBranch) {
         return false;
       }
-      return version.versionIndex === -2;
+      return version.versionIndex === DIFF_HEAD_INDEX;
     },
     isLatest(version) {
       return (
@@ -161,7 +161,9 @@ export default {
               <div>
                 <strong>
                   {{ versionName(version) }}
-                  <template v-if="isHead(version)">{{ s__('DiffsCompareBaseBranch|(HEAD)') }}</template>
+                  <template v-if="isHead(version)">{{
+                    s__('DiffsCompareBaseBranch|(HEAD)')
+                  }}</template>
                   <template v-else-if="isBase(version)">{{
                     s__('DiffsCompareBaseBranch|(base)')
                   }}</template>

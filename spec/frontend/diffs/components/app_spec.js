@@ -11,7 +11,12 @@ import CompareVersions from '~/diffs/components/compare_versions.vue';
 import HiddenFilesWarning from '~/diffs/components/hidden_files_warning.vue';
 import CommitWidget from '~/diffs/components/commit_widget.vue';
 import TreeList from '~/diffs/components/tree_list.vue';
-import { INLINE_DIFF_VIEW_TYPE, PARALLEL_DIFF_VIEW_TYPE } from '~/diffs/constants';
+import {
+  INLINE_DIFF_VIEW_TYPE,
+  PARALLEL_DIFF_VIEW_TYPE,
+  DIFF_BASE_INDEX,
+  DIFF_HEAD_INDEX,
+} from '~/diffs/constants';
 import createDiffsStore from '../create_diffs_store';
 import axios from '~/lib/utils/axios_utils';
 import diffsMockData from '../mock_data/merge_request_diffs';
@@ -615,7 +620,12 @@ describe('diffs/components/app', () => {
         expect.objectContaining({
           targetBranch: {
             branchName: 'target-branch',
-            versionIndex: -1,
+            versionIndex: DIFF_HEAD_INDEX,
+            path: '',
+          },
+          targetHeadBranch: {
+            branchName: 'target-branch',
+            versionIndex: DIFF_BASE_INDEX,
             path: '',
           },
           mergeRequestDiffs: diffsMockData,
