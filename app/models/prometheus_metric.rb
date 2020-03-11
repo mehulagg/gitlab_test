@@ -24,15 +24,15 @@ class PrometheusMetric < ApplicationRecord
   scope :ordered, -> { reorder(created_at: :asc) }
 
   def priority
-    group_details(group).fetch(:priority)
+    group_details(group)&.fetch(:priority, nil)
   end
 
   def group_title
-    group_details(group).fetch(:group_title)
+    group_details(group)&.fetch(:group_title, nil)
   end
 
   def required_metrics
-    group_details(group).fetch(:required_metrics, []).map(&:to_s)
+    group_details(group)&.fetch(:required_metrics, [])&.map(&:to_s)
   end
 
   def to_query_metric
@@ -71,6 +71,6 @@ class PrometheusMetric < ApplicationRecord
   private
 
   def group_details(group)
-    PrometheusMetricEnums.group_details.fetch(group.to_sym)
+    PrometheusMetricEnums.group_details.fetch(group.to_sym, nil)
   end
 end
