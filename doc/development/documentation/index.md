@@ -3,11 +3,9 @@ description: Learn how to contribute to GitLab Documentation.
 ---
 
 # GitLab Documentation guidelines
-
 GitLab's documentation is [intended as the single source of truth (SSOT)](https://about.gitlab.com/handbook/documentation/) for information about how to configure, use, and troubleshoot GitLab. The documentation contains use cases and usage instructions for every GitLab feature, organized by product area and subject. This includes topics and workflows that span multiple GitLab features, and the use of GitLab with other applications.
 
 In addition to this page, the following resources can help you craft and contribute documentation:
-
 - [Style Guide](styleguide.md) - What belongs in the docs, language guidelines, Markdown standards to follow, and more.
 - [Structure and template](structure.md) - Learn the typical parts of a doc page and how to write each one.
 - [Documentation process](workflow.md).
@@ -16,7 +14,7 @@ In addition to this page, the following resources can help you craft and contrib
 
 ## Source files and rendered web locations
 
-Documentation for GitLab, GitLab Runner, Omnibus GitLab, and Charts is published to <https://docs.gitlab.com>. Documentation for GitLab is also published within the application at `/help` on the domain of the GitLab instance.
+Documentation for Gitlab, gitLab Runner, omnibus gitlab, and Charts is published to <https://docs.gitlab.com>. Documentation for GitLab is also published within the application at `/help` on the domain of the GitLab instance.
 At `/help`, only help for your current edition and version is included. Help for other versions is available at <https://docs.gitlab.com/archives/>.
 
 The source of the documentation exists within the codebase of each GitLab application in the following repository locations:
@@ -88,13 +86,11 @@ For example, if you move `doc/workflow/lfs/lfs_administration.md` to
 `doc/administration/lfs.md`, then the steps would be:
 
 1. Copy `doc/workflow/lfs/lfs_administration.md` to `doc/administration/lfs.md`
-1. Replace the contents of `doc/workflow/lfs/lfs_administration.md` with:
-
+2. Replace the contents of `doc/workflow/lfs/lfs_administration.md` with:
    ```md
    This document was moved to [another location](../../administration/lfs.md).
    ```
-
-1. Find and replace any occurrences of the old location with the new one.
+3. Find and replace any occurrences of the old location with the new one.
    A quick way to find them is to use `git grep`. First go to the root directory
    where you cloned the `gitlab` repository and then do:
 
