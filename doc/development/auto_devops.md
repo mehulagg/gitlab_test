@@ -36,6 +36,18 @@ DevOps is enabled that are not present in a normal CI job. These can be
 found in
 [`ProjectAutoDevops`](https://gitlab.com/gitlab-org/gitlab/blob/bf69484afa94e091c3e1383945f60dbe4e8681af/app/models/project_auto_devops.rb).
 
+## High-level flow of Auto DevOps
+
+- Start from source of the application (a project on GitLab)
+- If source has `.gitlab-ci.yml` file, GitLab CI will use that
+- If not, then Auto DevOps CI template gets used instead (`GitLab` main project)
+- If source has `Dockerfile` file, Auto DevOps will use that `Dockerfile` to build (this logic is contained in the `auto-build-image` project)
+  - If not, use Herokuish to detect the language and framework, and Herokuish will find the buildpack to build a docker image from source.
+  - Push the built docker image to GitLab container registry.
+- Tests, license scanning, code quality, etc
+- If there's a Kubernetes cluster attached to the project, then we deploy (the logic for deploying is contained in `auto-deploy-image` project).
+- We use the `auto-deploy-app` chart project to deploy the image to Kubernetes. Users can also customize to use their own chart.
+
 ## Development environment
 
 Configuring [GDK for Auto
