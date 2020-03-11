@@ -736,9 +736,14 @@ type Design implements DesignFields & Noteable {
   id: ID!
 
   """
-  The URL of the image
+  The URL of the full-sized image
   """
   image: String!
+
+  """
+  The URL of the design resized to fit within the bounds of 432x230. This will be `null` if the image has not been generated
+  """
+  imageV432x230: String
 
   """
   The issue the design belongs to
@@ -851,9 +856,14 @@ type DesignAtVersion implements DesignFields {
   id: ID!
 
   """
-  The URL of the image
+  The URL of the full-sized image
   """
   image: String!
+
+  """
+  The URL of the design resized to fit within the bounds of 432x230. This will be `null` if the image has not been generated
+  """
+  imageV432x230: String
 
   """
   The issue the design belongs to
@@ -1104,9 +1114,14 @@ interface DesignFields {
   id: ID!
 
   """
-  The URL of the image
+  The URL of the full-sized image
   """
   image: String!
+
+  """
+  The URL of the design resized to fit within the bounds of 432x230. This will be `null` if the image has not been generated
+  """
+  imageV432x230: String
 
   """
   The issue the design belongs to
