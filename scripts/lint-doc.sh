@@ -76,8 +76,10 @@ function run_locally_or_in_docker() {
   fi
 }
 
+echo ${MD_DOC_PATH}
 echo '=> Linting markdown style...'
 run_locally_or_in_docker 'markdownlint' "--config .markdownlint.json ${MD_DOC_PATH}"
+
 
 echo '=> Linting prose...'
 run_locally_or_in_docker 'vale' "--minAlertLevel error --ignore-syntax ${MD_DOC_PATH}"

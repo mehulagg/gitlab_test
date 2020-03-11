@@ -6,7 +6,7 @@ description: Learn how to contribute to GitLab Documentation.
 GitLab's documentation is [intended as the single source of truth (SSOT)](https://about.gitlab.com/handbook/documentation/) for information about how to configure, use, and troubleshoot GitLab. The documentation contains use cases and usage instructions for every GitLab feature, organized by product area and subject. This includes topics and workflows that span multiple GitLab features, and the use of GitLab with other applications.
 
 In addition to this page, the following resources can help you craft and contribute documentation:
-- [Style Guide](styleguide.md) - What belongs in the docs, language guidelines, Markdown standards to follow, and more.
+- [Style Guide](https://docs.gitlab.com/ee/development/documentation/styleguide.html#links-to-internal-documentation) - What belongs in the docs, language guidelines, Markdown standards to follow, and more.
 - [Structure and template](structure.md) - Learn the typical parts of a doc page and how to write each one.
 - [Documentation process](workflow.md).
 - [Markdown Guide](../../user/markdown.md) - A reference for all Markdown syntax supported by GitLab.
