@@ -11,7 +11,7 @@ module PrometheusMetricEnums
       kubernetes: -5,
       nginx_ingress: -6,
       cluster_health: -100
-    }.merge(custom_groups).freeze
+    }.merge(custom_groups).merge(project_groups).freeze
   end
 
   # custom/user groups
@@ -19,7 +19,13 @@ module PrometheusMetricEnums
     {
       business: 0,
       response: 1,
-      system: 2
+      system: 2,
+    }.freeze
+  end
+
+  def self.project_groups
+    {
+      project_dashboard: 3
     }.freeze
   end
 
