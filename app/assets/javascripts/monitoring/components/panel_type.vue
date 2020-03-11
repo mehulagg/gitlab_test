@@ -1,6 +1,7 @@
 <script>
 import { mapState } from 'vuex';
 import { pickBy } from 'lodash';
+import Mousetrap from 'mousetrap';
 import invalidUrl from '~/lib/utils/invalid_url';
 import {
   GlResizeObserverDirective,
@@ -13,6 +14,7 @@ import {
 } from '@gitlab/ui';
 import { __ } from '~/locale';
 import Icon from '~/vue_shared/components/icon.vue';
+import { visitUrl } from '~/lib/utils/url_utility';
 import MonitorTimeSeriesChart from './charts/time_series.vue';
 import MonitorAnomalyChart from './charts/anomaly.vue';
 import MonitorSingleStatChart from './charts/single_stat.vue';
@@ -123,6 +125,36 @@ export default {
   },
   mounted() {
     this.refreshTitleTooltip();
+
+    // Generate link to chart
+    Mousetrap.bind('p+l', e => {
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+
+      this.generateLinkToChartOptions(this.clipboardText);
+    });
+
+    // Download CSV
+    Mousetrap.bind('p+d', e => {
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+
+      this.downloadCSVOptions(this.title);
+      this.downloadCsv();
+    });
+
+    // View logs
+    Mousetrap.bind('p+a', e => {
+      if (e.preventDefault) {
+        e.preventDefault();
+      }
+
+      if (this.logsPathWithTimeRange) {
+        visitUrl(this.logsPathWithTimeRange);
+      }
+    });
   },
   methods: {
     getGraphAlerts(queries) {
