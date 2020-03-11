@@ -2131,7 +2131,7 @@
             },
             {
               "name": "image",
-              "description": "The URL of the image",
+              "description": "The URL of the full-sized image",
               "args": [
 
               ],
@@ -2143,6 +2143,20 @@
                   "name": "String",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "imageV432x230",
+              "description": "The URL of the design resized to fit within the bounds of 432x230. This will be `null` if the image has not been generated",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -2467,7 +2481,7 @@
             },
             {
               "name": "image",
-              "description": "The URL of the image",
+              "description": "The URL of the full-sized image",
               "args": [
 
               ],
@@ -2479,6 +2493,20 @@
                   "name": "String",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "imageV432x230",
+              "description": "The URL of the design resized to fit within the bounds of 432x230. This will be `null` if the image has not been generated",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
@@ -3210,7 +3238,7 @@
             },
             {
               "name": "image",
-              "description": "The URL of the image",
+              "description": "The URL of the full-sized image",
               "args": [
 
               ],
@@ -3222,6 +3250,20 @@
                   "name": "String",
                   "ofType": null
                 }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "imageV432x230",
+              "description": "The URL of the design resized to fit within the bounds of 432x230. This will be `null` if the image has not been generated",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "String",
+                "ofType": null
               },
               "isDeprecated": false,
               "deprecationReason": null
