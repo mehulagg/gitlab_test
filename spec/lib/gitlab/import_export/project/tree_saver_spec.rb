@@ -28,7 +28,12 @@ describe Gitlab::ImportExport::Project::TreeSaver do
     context 'JSON' do
       let(:saved_project_json) do
         project_tree_saver.save
-        project_json(project_tree_saver.full_path)
+        full_path = File.join(shared.export_path, Gitlab::ImportExport.project_filename)
+        project_json(full_path)
+      end
+
+      before do
+        stub_feature_flags(ndjson_import_export: false)
       end
 
       # It is not duplicated in
@@ -280,6 +285,267 @@ describe Gitlab::ImportExport::Project::TreeSaver do
         expect(saved_project_json['boards'].first['lists']).not_to be_empty
       end
     end
+
+    context 'NDJSON' do
+      let(:ndjson_path) do
+        project_tree_saver.save
+        File.join(shared.export_path, 'tree')
+      end
+
+      before do
+        stub_feature_flags(ndjson_import_export: true)
+      end
+
+      # It is not duplicated in
+      # `spec/lib/gitlab/import_export/fast_hash_serializer_spec.rb`
+      context 'with description override' do
+        let(:params) { { description: 'Foo Bar' } }
+        let(:project_tree_saver) { described_class.new(project: project, current_user: user, shared: shared, params: params) }
+
+        it 'overrides the project description' do
+          expect(ndjson_relations(ndjson_path, :project).first).to include({ 'description' => params[:description] })
+        end
+      end
+
+      it 'saves the correct json' do
+        expect(ndjson_relations(ndjson_path, :project).first).to include({ 'description' => 'description', 'visibility_level' => 20 })
+      end
+
+      it 'has approvals_before_merge set' do
+        expect(ndjson_relations(ndjson_path, :project).first['approvals_before_merge']).to eq(1)
+      end
+
+      it 'has milestones' do
+        expect(ndjson_relations(ndjson_path, :milestones)).not_to be_empty
+      end
+
+      it 'has merge requests' do
+        ndjson_relations(ndjson_path, :merge_requests)
+        expect(ndjson_relations(ndjson_path, :merge_requests)).not_to be_empty
+      end
+
+      it 'has merge request\'s milestones' do
+        expect(ndjson_relations(ndjson_path, :merge_requests).first['milestone']).not_to be_empty
+      end
+
+      it 'has merge request\'s source branch SHA' do
+        expect(ndjson_relations(ndjson_path, :merge_requests).first['source_branch_sha']).to eq('ABCD')
+      end
+
+      it 'has merge request\'s target branch SHA' do
+        expect(ndjson_relations(ndjson_path, :merge_requests).first['target_branch_sha']).to eq('DCBA')
+      end
+
+      it 'has events' do
+        expect(ndjson_relations(ndjson_path, :merge_requests).first['milestone']['events']).not_to be_empty
+      end
+
+      it 'has snippets' do
+        expect(ndjson_relations(ndjson_path, :snippets)).not_to be_empty
+      end
+
+      it 'has snippet notes' do
+        expect(ndjson_relations(ndjson_path, :snippets).first['notes']).not_to be_empty
+      end
+
+      it 'has releases' do
+        expect(ndjson_relations(ndjson_path, :releases)).not_to be_empty
+      end
+
+      it 'has no author on releases' do
+        expect(ndjson_relations(ndjson_path, :releases).first['author']).to be_nil
+      end
+
+      it 'has the author ID on releases' do
+        expect(ndjson_relations(ndjson_path, :releases).first['author_id']).not_to be_nil
+      end
+
+      it 'has issues' do
+        expect(ndjson_relations(ndjson_path, :issues)).not_to be_empty
+      end
+
+      it 'has issue comments' do
+        notes = ndjson_relations(ndjson_path, :issues).first['notes']
+
+        expect(notes).not_to be_empty
+        expect(notes.first['type']).to eq('DiscussionNote')
+      end
+
+      it 'has issue assignees' do
+        expect(ndjson_relations(ndjson_path, :issues).first['issue_assignees']).not_to be_empty
+      end
+
+      it 'has author on issue comments' do
+        expect(ndjson_relations(ndjson_path, :issues).first['notes'].first['author']).not_to be_empty
+      end
+
+      it 'has project members' do
+        expect(ndjson_relations(ndjson_path, :project_members)).not_to be_empty
+      end
+
+      it 'has merge requests diffs' do
+        expect(ndjson_relations(ndjson_path, :merge_requests).first['merge_request_diff']).not_to be_empty
+      end
+
+      it 'has merge request diff files' do
+        expect(ndjson_relations(ndjson_path, :merge_requests).first['merge_request_diff']['merge_request_diff_files']).not_to be_empty
+      end
+
+      it 'has merge request diff commits' do
+        expect(ndjson_relations(ndjson_path, :merge_requests).first['merge_request_diff']['merge_request_diff_commits']).not_to be_empty
+      end
+
+      it 'has merge requests comments' do
+        expect(ndjson_relations(ndjson_path, :merge_requests).first['notes']).not_to be_empty
+      end
+
+      it 'has author on merge requests comments' do
+        expect(ndjson_relations(ndjson_path, :merge_requests).first['notes'].first['author']).not_to be_empty
+      end
+
+      it 'has pipeline stages' do
+        expect(ndjson_relations(ndjson_path, :ci_pipelines).dig(0, 'stages')).not_to be_empty
+      end
+
+      it 'has pipeline statuses' do
+        expect(ndjson_relations(ndjson_path, :ci_pipelines).dig(0, 'stages', 0, 'statuses')).not_to be_empty
+      end
+
+      it 'has pipeline builds' do
+        builds_count = ndjson_relations(ndjson_path, :ci_pipelines).dig(0, 'stages', 0, 'statuses')
+                         .count { |hash| hash['type'] == 'Ci::Build' }
+
+        expect(builds_count).to eq(1)
+      end
+
+      it 'has no when YML attributes but only the DB column' do
+        expect_any_instance_of(Gitlab::Ci::YamlProcessor).not_to receive(:build_attributes)
+
+        project_tree_saver.save
+      end
+
+      it 'has pipeline commits' do
+        expect(ndjson_relations(ndjson_path, :ci_pipelines)).not_to be_empty
+      end
+
+      it 'has ci pipeline notes' do
+        expect(ndjson_relations(ndjson_path, :ci_pipelines).first['notes']).not_to be_empty
+      end
+
+      it 'has labels with no associations' do
+        expect(ndjson_relations(ndjson_path, :labels)).not_to be_empty
+      end
+
+      it 'has labels associated to records' do
+        expect(ndjson_relations(ndjson_path, :issues).first['label_links'].first['label']).not_to be_empty
+      end
+
+      it 'has project and group labels' do
+        label_types = ndjson_relations(ndjson_path, :issues).first['label_links'].map { |link| link['label']['type'] }
+
+        expect(label_types).to match_array(%w(ProjectLabel GroupLabel))
+      end
+
+      it 'has priorities associated to labels' do
+        priorities = ndjson_relations(ndjson_path, :issues).first['label_links'].flat_map { |link| link['label']['priorities'] }
+
+        expect(priorities).not_to be_empty
+      end
+
+      it 'has issue resource label events' do
+        expect(ndjson_relations(ndjson_path, :issues).first['resource_label_events']).not_to be_empty
+      end
+
+      it 'has merge request resource label events' do
+        expect(ndjson_relations(ndjson_path, :merge_requests).first['resource_label_events']).not_to be_empty
+      end
+
+      it 'saves the correct service type' do
+        expect(ndjson_relations(ndjson_path, :services).first['type']).to eq('CustomIssueTrackerService')
+      end
+
+      it 'saves the properties for a service' do
+        expect(ndjson_relations(ndjson_path, :services).first['properties']).to eq('one' => 'value')
+      end
+
+      it 'has project feature' do
+        project_feature = ndjson_relations(ndjson_path, :project_feature)
+        expect(project_feature).not_to be_empty
+        expect(project_feature.first["issues_access_level"]).to eq(ProjectFeature::DISABLED)
+        expect(project_feature.first["wiki_access_level"]).to eq(ProjectFeature::ENABLED)
+        expect(project_feature.first["builds_access_level"]).to eq(ProjectFeature::PRIVATE)
+      end
+
+      it 'has custom attributes' do
+        expect(ndjson_relations(ndjson_path, :custom_attributes).count).to eq(2)
+      end
+
+      it 'has badges' do
+        expect(ndjson_relations(ndjson_path, :project_badges).count).to eq(2)
+      end
+
+      it 'does not complain about non UTF-8 characters in MR diff files' do
+        ActiveRecord::Base.connection.execute("UPDATE merge_request_diff_files SET diff = '---\n- :diff: !binary |-\n    LS0tIC9kZXYvbnVsbAorKysgYi9pbWFnZXMvbnVjb3IucGRmCkBAIC0wLDAg\n    KzEsMTY3OSBAQAorJVBERi0xLjUNJeLjz9MNCisxIDAgb2JqDTw8L01ldGFk\n    YXR'")
+
+        expect(project_tree_saver.save).to be true
+      end
+
+      context 'group members' do
+        let(:user2) { create(:user, email: 'group@member.com') }
+        let(:member_emails) do
+          emails = ndjson_relations(ndjson_path, :project_members).first.map do |pm|
+            pm['user']['email']
+          end
+          emails
+        end
+
+        before do
+          Group.first.add_developer(user2)
+        end
+
+        it 'does not export group members if it has no permission' do
+          Group.first.add_developer(user)
+
+          expect(member_emails).not_to include('group@member.com')
+        end
+
+        it 'does not export group members as maintainer' do
+          Group.first.add_maintainer(user)
+
+          expect(member_emails).not_to include('group@member.com')
+        end
+
+        it 'exports group members as group owner' do
+          Group.first.add_owner(user)
+
+          expect(member_emails).to include('group@member.com')
+        end
+
+        context 'as admin' do
+          let(:user) { create(:admin) }
+
+          it 'exports group members as admin' do
+            expect(member_emails).to include('group@member.com')
+          end
+
+          it 'exports group members as project members' do
+            member_types = ndjson_relations(ndjson_path, :project_members).map { |pm| pm.first['source_type'] }
+
+            expect(member_types).to all(eq('Project'))
+          end
+        end
+      end
+
+      context 'project attributes' do
+        it 'does not contain the runners token' do
+          expect(ndjson_relations(ndjson_path, :project)).not_to include("runners_token" => 'token')
+        end
+      end
+
+      it 'has a board and a list' do
+        expect(ndjson_relations(ndjson_path, :boards).first['lists']).not_to be_empty
+      end
+    end
   end
 
   def setup_project
@@ -343,4 +609,19 @@ describe Gitlab::ImportExport::Project::TreeSaver do
   def project_json(filename)
     ::JSON.parse(IO.read(filename))
   end
+
+  def ndjson_relations(dir_path, key)
+    path = File.join(dir_path, "#{key.to_s}.ndjson")
+    return unless File.exist?(path)
+
+    relations = []
+
+    File.foreach(path) do |line|
+      json = ActiveSupport::JSON.decode(line)
+      relations << json
+    end
+
+    relations
+  end
+
 end
