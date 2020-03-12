@@ -14,7 +14,7 @@ module Gitlab
       end
 
       def replicas
-        request = Gitaly::RepositoryReplicas.new(repository: @gitaly_repo)
+        request = Gitaly::RepositoryReplicasRequest.new(repository: @gitaly_repo)
 
         GitalyClient.call(@storage, :praefect_info_service, :repository_replicas, request, timeout: GitalyClient.fast_timeout)
       end

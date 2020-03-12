@@ -11,11 +11,15 @@ describe Gitlab::GitalyClient::PraefectInfoService do
     let(:repository_client) { Gitlab::GitalyClient::RepositoryService.new(praefect_repository) }
 
     it 'gets the replicas' do
-      byebug
-      resp = repository_client.create_repository
-      byebug
-      resp = client.replicas
-      byebug
+      repository_client.create_repository
+      checksum_resp = repository_client.calculate_checksum
+
+      replicas_resp = client.replicas
+      primary = replicas_resp.primary
+      secondaries = replicas_resp.replicas
+
+      expect(primary.checksum).to eq(checksum_resp)
+      expect(secondaries).to be_empty
     end
   end
 end
