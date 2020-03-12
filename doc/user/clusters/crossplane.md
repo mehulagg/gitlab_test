@@ -35,13 +35,11 @@ export REGION=us-central1 # the GCP region where the GKE cluster is provisioned.
 
 ## Configure RBAC permissions
 
-- For a non-GitLab managed cluster(s), ensure that the service account for the token provided can manage resources in the `database.crossplane.io` API group.
-Manually grant GitLab's service account the ability to manage resources in the
-`database.crossplane.io` API group. The Aggregated ClusterRole allows us to do that.
-​
 NOTE: **Note:**
-For a non-GitLab managed cluster, ensure that the service account for the token provided can manage resources in the `database.crossplane.io` API group.
-​1. Save the following YAML as `crossplane-database-role.yaml`:
+For non-GitLab managed clusters, ensure that the service account for the token provided can manage resources in the `database.crossplane.io` API group. Manually grant GitLab's service account the ability to manage resources in the
+`database.crossplane.io` API group. The Aggregated ClusterRole allows us to do that.
+
+Save the following YAML as `crossplane-database-role.yaml`:
 
 ```shell
 cat > crossplane-database-role.yaml <<EOF
