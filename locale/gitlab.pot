@@ -23718,9 +23718,6 @@ msgstr ""
 msgid "is not in the group enforcing Group Managed Account"
 msgstr ""
 
-msgid "is too long (%{current_value}). The maximum size is %{max_size}."
-msgstr ""
-
 msgid "is too long (maximum is 100 entries)"
 msgstr ""
 
