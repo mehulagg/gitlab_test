@@ -17,3 +17,15 @@ a11y:
     paths: ['reports/']
   rules:
     - if: $a11y_urls
+
+a11y-changed-pages:
+  stage: accessibility
+  image: registry.gitlab.com/gitlab-org/ci-cd/accessibility:5.3.0-gitlab.2
+  script: /gitlab-accessibility.sh $(echo $CI_MERGE_REQUEST_CHANGED_PAGE_URLS | sed 's/,/ /g')
+  allow_failure: true
+  artifacts:
+    when: always
+    expose_as: 'Accessibility Reports'
+    paths: ['reports/']
+  rules:
+    - if: $CI_MERGE_REQUEST_CHANGED_PAGE_URLS
