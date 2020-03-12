@@ -12,6 +12,7 @@ module Gitlab
           'QA_REMOTE_GRID_ACCESS_KEY' => :remote_grid_access_key,
           'QA_REMOTE_GRID_PROTOCOL' => :remote_grid_protocol,
           'QA_BROWSER' => :browser,
+          'GITLAB_API_BASE' => :api_base,
           'GITLAB_ADMIN_USERNAME' => :admin_username,
           'GITLAB_ADMIN_PASSWORD' => :admin_password,
           'GITLAB_USERNAME' => :user_username,
@@ -22,7 +23,6 @@ module Gitlab
           'GITLAB_FORKER_PASSWORD' => :forker_password,
           'GITLAB_USER_TYPE' => :user_type,
           'GITLAB_SANDBOX_NAME' => :gitlab_sandbox_name,
-          'GITLAB_QA_ACCESS_TOKEN' => :qa_access_token,
           'GITLAB_QA_ADMIN_ACCESS_TOKEN' => :qa_admin_access_token,
           'GITHUB_ACCESS_TOKEN' => :github_access_token,
           'GITLAB_URL' => :gitlab_url,
@@ -76,6 +76,22 @@ module Gitlab
 
         ENV_VARIABLES.each_value do |accessor|
           send(:attr_accessor, accessor) # rubocop:disable GitlabSecurity/PublicSend
+        end
+
+        def gitlab_api_base
+          ENV['GITLAB_API_BASE'] || 'https://gitlab.com/api/v4'
+        end
+
+        def ci_job_name
+          ENV['CI_JOB_NAME']
+        end
+
+        def ci_job_url
+          ENV['CI_JOB_URL']
+        end
+
+        def ci_project_name
+          ENV['CI_PROJECT_NAME']
         end
 
         def run_id

@@ -211,24 +211,6 @@ ee:instance-quarantine:
     - .quarantine
     - .rspec-report-opts
 
-ce:docker:
-  script:
-    - exe/gitlab-qa Test::Instance::Image ${RELEASE:=CE} -- --tag docker $RSPEC_REPORT_OPTS
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .rspec-report-opts
-
-ee:docker:
-  script:
-    - exe/gitlab-qa Test::Instance::Image ${RELEASE:=EE} -- --tag docker $RSPEC_REPORT_OPTS
-  extends:
-    - .test
-    - .high-capacity
-    - .ee-qa
-    - .rspec-report-opts
-
 ce:relative_url:
   script:
     - exe/gitlab-qa Test::Instance::RelativeUrl ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS

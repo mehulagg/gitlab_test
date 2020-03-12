@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+lib = File.expand_path('../lib', __dir__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
+require 'gitlab/qa'
+
+Gitlab::QA::Reporter.invoke(ARGV)
