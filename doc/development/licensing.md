@@ -57,6 +57,9 @@ Libraries with the following licenses are acceptable for use:
 - [Creative Commons Zero (CC0)][CC0]: A public domain dedication, recommended as a way to disclaim copyright on your work to the maximum extent possible.
 - [Unlicense][UNLICENSE]: Another public domain dedication.
 - [OWFa 1.0][OWFa1]: An open-source license and patent grant designed for specifications.
+- [Boost Software License 1.0 (BSL-1.0)](https://opensource.org/licenses/BSL-1.0): A permissive open-source license.
+- [Creative Commons Attribution 3.0 Unported (CC-BY-3.0)](https://spdx.org/licenses/CC-BY-3.0.html): A permissive open-source license.
+- [Microsoft Public License (MS-PL)](https://opensource.org/licenses/MS-PL): A permissive open-source license.
 
 ## Unacceptable Licenses
 
