@@ -2,6 +2,7 @@ require 'optparse'
 
 module Gitlab
   module QA
+    # rubocop:disable Metrics/AbcSize
     class Runner
       # These options are implemented in the QA framework (i.e., in the CE/EE codebase)
       # They're included here so that gitlab-qa treats them as valid options
@@ -13,20 +14,12 @@ module Gitlab
         ['--loop', 'Execute tests in a loop']
       ].freeze
 
-      # rubocop:disable Metrics/AbcSize
       def self.run(args)
-        report_options = {}
-
         options = OptionParser.new do |opts|
           opts.banner = 'Usage: gitlab-qa [options] Scenario URL [[--] path] [rspec_options]'
 
           PASS_THROUGH_OPTS.each do |opt|
             opts.on(*opt)
-          end
-
-          opts.on('--prepare-stage-reports FILES', 'Prepare separate reports for each Stage from the provided JUnit XML files') do |files|
-            report_options[:prepare_stage_reports] = true
-            report_options[:input_files] = files if files
           end
 
           opts.on_tail('-v', '--version', 'Show the version') do
@@ -44,13 +37,6 @@ module Gitlab
         end
 
         if args.size >= 1
-          if report_options[:prepare_stage_reports]
-            report_options.delete(:prepare_stage_reports)
-            Gitlab::QA::Report::PrepareStageReports.new(**report_options).invoke!
-
-            exit
-          end
-
           Scenario
             .const_get(args.shift)
             .perform(*args)

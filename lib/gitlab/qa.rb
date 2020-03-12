@@ -1,10 +1,12 @@
 module Gitlab
   module QA
     autoload :Release, 'gitlab/qa/release'
+    autoload :Reporter, 'gitlab/qa/reporter'
     autoload :Runner, 'gitlab/qa/runner'
 
     module Runtime
       autoload :Env, 'gitlab/qa/runtime/env'
+      autoload :TokenFinder, 'gitlab/qa/runtime/token_finder'
     end
 
     module Scenario
@@ -86,6 +88,7 @@ module Gitlab
 
     module Report
       autoload :PrepareStageReports, 'gitlab/qa/report/prepare_stage_reports'
+      autoload :ResultsInIssues, 'gitlab/qa/report/results_in_issues'
     end
   end
 end
