@@ -17,8 +17,11 @@ module API
 
       def check_lock!(state, locker_id)
         if state.locked?
-          lock_owner = JSON.parse(state.lock_info)["ID"]
-          raise LockConflictError.new unless locker_id == lock_owner
+          # problem: lock_info when locking with cURL becomes empty string, so checking for lock_owner will error
+          unless state.lock_info.blank?
+            lock_owner = JSON.parse(state.lock_info)["ID"]
+            raise LockConflictError.new unless locker_id == lock_owner
+          end
         end
       end
     end
@@ -49,10 +52,12 @@ module API
         value = request.body.string
 
         # check if person that wants to update the state is the same person that has locked it
-        # when locking is used and update is called, the ID if locker is passed in query string params
+        # when locking is used and update is called, the ID of locker is passed in query string params
         if state.present?
-          # check_lock!(state, params[:ID])
-          state.update!(value: value)
+          ActiveRecord::Base.transaction do
+            check_lock!(state, params[:ID])
+            state.update!(value: value)
+          end
         else
           # ??should we put lock first, before creating new state??
           state = user_project.terraform_states.create!(name: params[:name], value: value)
@@ -68,10 +73,12 @@ module API
       end
       delete ':id/terraform_states/:name' do
         state = user_project.terraform_states.find_by!(name: params[:name])
-        # check if person that wants to update the state is the same person that has locked it
-        # when locking is used and delete is called, the ID if locker is passed in query string params
-        # check_lock!(state, params[:ID])
-        state.destroy
+        # check if person that wants to delete the state is the same person that has locked it
+        # when locking is used and delete is called, the ID of locker is passed in query string params
+        ActiveRecord::Base.transaction do
+          check_lock!(state, params[:ID])
+          state.destroy
+        end
         content_type 'text/plain'
         body state
       end
