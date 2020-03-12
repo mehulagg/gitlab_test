@@ -1,9 +1,8 @@
 # frozen_string_literal: true
 
-# Gitlab::DatabaseImporters::ProjectDashboard::Importer.import_dashboards!(Project.find(135))
 module Gitlab
   module DatabaseImporters
-    module ProjectDashboard
+    module CustomDashboard
       class Importer
         MissingQueryId = Class.new(StandardError)
 
@@ -25,7 +24,7 @@ module Gitlab
         end
 
         def execute
-          ProjectDashboard::PrometheusMetric.reset_column_information
+          CustomDashboard::PrometheusMetric.reset_column_information
 
           process_content do |id, attributes|
             find_or_build_metric!(id)
@@ -71,8 +70,8 @@ module Gitlab
         def find_or_build_metric!(id)
           raise MissingQueryId unless id
 
-          ProjectDashboard::PrometheusMetric.find_by(project_id: project.id, identifier: id) ||
-            ProjectDashboard::PrometheusMetric.new(project_id: project.id, identifier: id)
+          CustomDashboard::PrometheusMetric.find_by(project_id: project.id, identifier: id) ||
+            CustomDashboard::PrometheusMetric.new(project_id: project.id, identifier: id)
         end
       end
     end

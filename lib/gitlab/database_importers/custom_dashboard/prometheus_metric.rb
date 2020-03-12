@@ -2,7 +2,7 @@
 
 module Gitlab
   module DatabaseImporters
-    module ProjectDashboard
+    module CustomDashboard
       class PrometheusMetric < ApplicationRecord
       end
     end

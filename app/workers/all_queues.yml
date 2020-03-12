@@ -1095,6 +1095,13 @@
   :resource_boundary: :cpu
   :weight: 2
   :idempotent: 
+- :name: incident_management_ingest_custom_dashboards
+  :feature_category: :incident_management
+  :has_external_dependencies: 
+  :urgency: :default
+  :resource_boundary: :unknown
+  :weight: 1
+  :idempotent: 
 - :name: invalid_gpg_signature_update
   :feature_category: :source_code_management
   :has_external_dependencies: 
