@@ -58,7 +58,7 @@ understand which changes are being added and which already exist in the
 target branch.
 
 In GitLab 12.9, we added an **experimental** comparison mode, which
-will show a diff calculated by simulating a merge - a more accurate
+shows a diff calculated by simulating how it would look like once merged - a more accurate
 representation of the change than using the merge base of the two
 branches. The new mode is available from the comparison target drop down
 by selecting **master (HEAD)**. In the future it will
