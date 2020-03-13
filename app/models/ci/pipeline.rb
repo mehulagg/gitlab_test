@@ -218,7 +218,18 @@ module Ci
       end
 
       after_transition any => ::Ci::Pipeline.completed_statuses do |pipeline|
-        next unless pipeline.bridge_triggered?
+        next if Feature.enabled?(:ci_update_bridge_status_once, pipeline.project, default_enabled: true)
+        next unless pipeline.bridge_waiting?
+
+        pipeline.run_after_commit do
+          ::Ci::PipelineBridgeStatusWorker.perform_async(pipeline.id)
+        end
+      end
+
+      # Transition of downstream pipelines from created -> failed is handled
+      # in Ci::CreateCrossProjectPipelineService
+      after_transition any - [:created] => ::Ci::Pipeline.completed_statuses - [:failed] do |pipeline|
+        next unless Feature.enabled?(:ci_update_bridge_status_once, pipeline.project, default_enabled: true)
         next unless pipeline.bridge_waiting?
 
         pipeline.run_after_commit do
