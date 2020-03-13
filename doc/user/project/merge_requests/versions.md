@@ -59,7 +59,7 @@ target branch.
 
 In GitLab 12.9, we added an **experimental** comparison mode, which
 shows a diff calculated by simulating how it would look like once merged - a more accurate
-representation of the change than using the merge base of the two
+representation of the changes rather than using the base of the two
 branches. The new mode is available from the comparison target drop down
 by selecting **master (HEAD)**. In the future it will
 [replace](https://gitlab.com/gitlab-org/gitlab/issues/198458) the
