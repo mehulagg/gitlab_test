@@ -8,6 +8,6 @@ describe UserHighestRole do
   end
 
   describe 'validations' do
-    it { is_expected.to validate_inclusion_of(:highest_access_level).in_array([nil, *Gitlab::Access.all_values]) }
+    it { is_expected.to validate_inclusion_of(:highest_access_level).in_array([nil, *::Gitlab::Access.all_values]) }
   end
 end
