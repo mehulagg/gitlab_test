@@ -7,8 +7,8 @@ describe AnalyticsSummarySerializer do
     described_class.new.represent(resource)
   end
 
-  let(:project) { create(:project) }
-  let(:user) { create(:user) }
+  let(:project) { build(:project) }
+  let(:user) { build(:user) }
 
   let(:resource) do
     Gitlab::CycleAnalytics::Summary::Issue

@@ -9,8 +9,8 @@ describe AnalyticsIssueSerializer do
       .represent(resource)
   end
 
-  let(:user) { create(:user) }
-  let(:project) { create(:project, name: 'my project') }
+  let(:user) { build(:user) }
+  let(:project) { build(:project, name: 'my project') }
   let(:resource) do
     {
       total_time: "172802.724419",
