@@ -18,7 +18,8 @@ variables:
   DOCKER_DRIVER: overlay2
   DOCKER_HOST: tcp://docker:2375
   QA_ARTIFACTS_DIR: $CI_PROJECT_DIR
-  QA_CAN_TEST_GIT_PROTOCOL_V2: 'true'
+  QA_CAN_TEST_GIT_PROTOCOL_V2: "true"
+  QA_TESTCASES_REPORTING_PROJECT: "gitlab-org/quality/testcases"
 
 cache:
   key: "ruby:2.6"
@@ -73,6 +74,12 @@ release:
       - ./gitlab-qa-run-*
     reports:
       junit: gitlab-qa-run-*/**/rspec-*.xml
+  script:
+    - 'echo "Running: exe/gitlab-qa ${QA_SCENARIO:=Test::Instance::Image} ${RELEASE:=$DEFAULT_RELEASE} -- $QA_TESTS $QA_RSPEC_TAGS $RSPEC_REPORT_OPTS"'
+    - exe/gitlab-qa ${QA_SCENARIO:=Test::Instance::Image} ${RELEASE:=$DEFAULT_RELEASE} -- $QA_TESTS $QA_RSPEC_TAGS $RSPEC_REPORT_OPTS || test_run_exit_code=$?
+    - export GITLAB_QA_ACCESS_TOKEN="$GITLAB_QA_PRODUCTION_ACCESS_TOKEN"
+    - if [ "$TOP_UPSTREAM_SOURCE_REF" == "master" ]; then exe/gitlab-qa-report --report-in-issues "gitlab-qa-run-*/**/rspec-*.xml" --project "$QA_TESTCASES_REPORTING_PROJECT"; fi
+    - exit $test_run_exit_code
 
 .ce-qa:
   variables:
@@ -124,14 +131,8 @@ release:
 
 .quarantine:
   allow_failure: true
-
-.echo-custom-variables-before-calling-gitlab-qa:
-  script:
-    - echo "${QA_SCENARIO:=Test::Instance::Image}"
-    - echo "${QA_TESTS}"
-    - echo "${QA_RSPEC_TAGS}"
-    - echo "${RELEASE:=$DEFAULT_RELEASE}"
-    - exe/gitlab-qa ${QA_SCENARIO} ${RELEASE} -- ${QA_TESTS} ${QA_RSPEC_TAGS} $RSPEC_REPORT_OPTS
+  variables:
+    QA_RSPEC_TAGS: "--tag quarantine"
 
 ce:sanity-framework:
   script:
@@ -149,29 +150,32 @@ ee:sanity-framework:
     - .high-capacity
     - .ee-qa
 
+# The custom jobs are for manually running specific/alternative tests in MRs, so we don't report them in issues
 ce:custom-parallel:
+  script:
+    - 'echo "Running: exe/gitlab-qa ${QA_SCENARIO:=Test::Instance::Image} ${RELEASE:=$DEFAULT_RELEASE} -- $QA_TESTS $QA_RSPEC_TAGS $RSPEC_REPORT_OPTS"'
+    - exe/gitlab-qa ${QA_SCENARIO:=Test::Instance::Image} ${RELEASE:=$DEFAULT_RELEASE} -- $QA_TESTS $QA_RSPEC_TAGS $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .rspec-report-opts
-    - .echo-custom-variables-before-calling-gitlab-qa
   allow_failure: true
   parallel: 10
 
 ee:custom-parallel:
+  script:
+    - 'echo "Running: exe/gitlab-qa ${QA_SCENARIO:=Test::Instance::Image} ${RELEASE:=$DEFAULT_RELEASE} -- $QA_TESTS $QA_RSPEC_TAGS $RSPEC_REPORT_OPTS"'
+    - exe/gitlab-qa ${QA_SCENARIO:=Test::Instance::Image} ${RELEASE:=$DEFAULT_RELEASE} -- $QA_TESTS $QA_RSPEC_TAGS $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
-    - .echo-custom-variables-before-calling-gitlab-qa
   allow_failure: true
   parallel: 10
 
 ce:instance:
-  script:
-    - exe/gitlab-qa Test::Instance::Image ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
@@ -181,18 +185,16 @@ ce:instance:
   parallel: 5
 
 ce:instance-quarantine:
-  script:
-    - exe/gitlab-qa Test::Instance::Image ${RELEASE:=CE} -- --tag quarantine --tag ~orchestrated $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_RSPEC_TAGS: "--tag quarantine --tag ~orchestrated"
 
 ee:instance:
-  script:
-    - exe/gitlab-qa Test::Instance::Image ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
@@ -202,18 +204,16 @@ ee:instance:
   parallel: 5
 
 ee:instance-quarantine:
-  script:
-    - exe/gitlab-qa Test::Instance::Image ${RELEASE:=EE} -- --tag quarantine --tag ~orchestrated $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_RSPEC_TAGS: "--tag quarantine --tag ~orchestrated"
 
 ce:relative_url:
-  script:
-    - exe/gitlab-qa Test::Instance::RelativeUrl ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
@@ -221,20 +221,21 @@ ce:relative_url:
     - .knapsack-variables
     - .rspec-report-opts
   parallel: 5
+  variables:
+    QA_SCENARIO: "Test::Instance::RelativeUrl"
 
 ce:relative_url-quarantine:
-  script:
-    - exe/gitlab-qa Test::Instance::RelativeUrl ${RELEASE:=CE} -- --tag quarantine --tag ~orchestrated $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Instance::RelativeUrl"
+    QA_RSPEC_TAGS: "--tag quarantine --tag ~orchestrated"
 
 ee:relative_url:
-  script:
-    - exe/gitlab-qa Test::Instance::RelativeUrl ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
@@ -242,55 +243,59 @@ ee:relative_url:
     - .knapsack-variables
     - .rspec-report-opts
   parallel: 5
+  variables:
+    QA_SCENARIO: "Test::Instance::RelativeUrl"
 
 ee:relative_url-quarantine:
-  script:
-    - exe/gitlab-qa Test::Instance::RelativeUrl ${RELEASE:=EE} -- --tag quarantine --tag ~orchestrated $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Instance::RelativeUrl"
+    QA_RSPEC_TAGS: "--tag quarantine --tag ~orchestrated"
 
 ce:repository_storage:
-  script:
-    - exe/gitlab-qa Test::Instance::RepositoryStorage ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Instance::RepositoryStorage"
 
 ce:repository_storage-quarantine:
-  script:
-    - exe/gitlab-qa Test::Instance::RepositoryStorage ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Instance::RepositoryStorage"
 
 ee:repository_storage:
-  script:
-    - exe/gitlab-qa Test::Instance::RepositoryStorage ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Instance::RepositoryStorage"
 
 ee:repository_storage-quarantine:
-  script:
-    - exe/gitlab-qa Test::Instance::RepositoryStorage ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Instance::RepositoryStorage"
 
+# The Test::Omnibus::Image scenarios don't run the E2E tests so they don't need to report test results
 ce:image:
   script:
     - exe/gitlab-qa Test::Omnibus::Image ${RELEASE:=CE}
@@ -305,9 +310,14 @@ ee:image:
     - .test
     - .ee-qa
 
+# The Test::Omnibus::Update scenarios require the release to be specified twice, which can't be done dynamically using the `variables` parameter
+# So instead we include the script here again, with two release variables
 ce:update:
   script:
-    - exe/gitlab-qa Test::Omnibus::Update ${RELEASE:=CE} ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
+    - exe/gitlab-qa Test::Omnibus::Update ${RELEASE:=CE} ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS || test_run_exit_code=$?
+    - export GITLAB_QA_ACCESS_TOKEN="$GITLAB_QA_PRODUCTION_ACCESS_TOKEN"
+    - if [ "$TOP_UPSTREAM_SOURCE_REF" == "master" ]; then exe/gitlab-qa-report --report-in-issues "gitlab-qa-run-*/**/rspec-*.xml" --project "$QA_TESTCASES_REPORTING_PROJECT"; fi
+    - exit $test_run_exit_code
   extends:
     - .test
     - .high-capacity
@@ -318,7 +328,10 @@ ce:update:
 
 ce:update-quarantine:
   script:
-    - exe/gitlab-qa Test::Omnibus::Update ${RELEASE:=CE} ${RELEASE:=CE} -- --tag quarantine --tag ~orchestrated $RSPEC_REPORT_OPTS
+    - exe/gitlab-qa Test::Omnibus::Update ${RELEASE:=CE} ${RELEASE:=CE} -- --tag quarantine --tag ~orchestrated $RSPEC_REPORT_OPTS || test_run_exit_code=$?
+    - export GITLAB_QA_ACCESS_TOKEN="$GITLAB_QA_PRODUCTION_ACCESS_TOKEN"
+    - if [ "$TOP_UPSTREAM_SOURCE_REF" == "master" ]; then exe/gitlab-qa-report --report-in-issues "gitlab-qa-run-*/**/rspec-*.xml" --project "$QA_TESTCASES_REPORTING_PROJECT"; fi
+    - exit $test_run_exit_code
   extends:
     - .test
     - .high-capacity
@@ -328,7 +341,10 @@ ce:update-quarantine:
 
 ee:update:
   script:
-    - exe/gitlab-qa Test::Omnibus::Update ${RELEASE:=EE} ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
+    - exe/gitlab-qa Test::Omnibus::Update ${RELEASE:=EE} ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS || test_run_exit_code=$?
+    - export GITLAB_QA_ACCESS_TOKEN="$GITLAB_QA_PRODUCTION_ACCESS_TOKEN"
+    - if [ "$TOP_UPSTREAM_SOURCE_REF" == "master" ]; then exe/gitlab-qa-report --report-in-issues "gitlab-qa-run-*/**/rspec-*.xml" --project "$QA_TESTCASES_REPORTING_PROJECT"; fi
+    - exit $test_run_exit_code
   extends:
     - .test
     - .high-capacity
@@ -339,7 +355,10 @@ ee:update:
 
 ee:update-quarantine:
   script:
-    - exe/gitlab-qa Test::Omnibus::Update ${RELEASE:=EE} ${RELEASE:=EE} -- --tag quarantine --tag ~orchestrated $RSPEC_REPORT_OPTS
+    - exe/gitlab-qa Test::Omnibus::Update ${RELEASE:=EE} ${RELEASE:=EE} -- --tag quarantine --tag ~orchestrated $RSPEC_REPORT_OPTS || test_run_exit_code=$?
+    - export GITLAB_QA_ACCESS_TOKEN="$GITLAB_QA_PRODUCTION_ACCESS_TOKEN"
+    - if [ "$TOP_UPSTREAM_SOURCE_REF" == "master" ]; then exe/gitlab-qa-report --report-in-issues "gitlab-qa-run-*/**/rspec-*.xml" --project "$QA_TESTCASES_REPORTING_PROJECT"; fi
+    - exit $test_run_exit_code
   extends:
     - .test
     - .high-capacity
@@ -347,6 +366,7 @@ ee:update-quarantine:
     - .quarantine
     - .rspec-report-opts
 
+# The Test::Omnibus::Upgrade scenario isn't run on master (because it always uses the latest CE/EE image) so we don't report the test results in issues
 ce:upgrade:
   script:
     - exe/gitlab-qa Test::Omnibus::Upgrade CE -- $RSPEC_REPORT_OPTS
@@ -388,369 +408,367 @@ ee-previous-to-ce:update-quarantine:
     - .rspec-report-opts
 
 ce:mattermost:
-  script:
-    - exe/gitlab-qa Test::Integration::Mattermost ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::Mattermost"
 
 ce:mattermost-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::Mattermost ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::Mattermost"
 
 ee:mattermost:
-  script:
-    - exe/gitlab-qa Test::Integration::Mattermost ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::Mattermost"
 
 ee:mattermost-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::Mattermost ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::Mattermost"
 
 ee:geo:
-  script:
-    - exe/gitlab-qa Test::Integration::Geo ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::Geo"
 
 ee:geo-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::Geo ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::Geo"
 
 ce:ldap_no_tls:
-  script:
-    - exe/gitlab-qa Test::Integration::LDAPNoTLS ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::LDAPNoTLS"
 
 ce:ldap_no_tls-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::LDAPNoTLS ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::LDAPNoTLS"
 
 ee:ldap_no_tls:
-  script:
-    - exe/gitlab-qa Test::Integration::LDAPNoTLS ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::LDAPNoTLS"
 
 ee:ldap_no_tls-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::LDAPNoTLS ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::LDAPNoTLS"
 
 ce:ldap_tls:
-  script:
-    - exe/gitlab-qa Test::Integration::LDAPTLS ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::LDAPTLS"
 
 ce:ldap_tls-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::LDAPTLS ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::LDAPTLS"
 
 ee:ldap_tls:
-  script:
-    - exe/gitlab-qa Test::Integration::LDAPTLS ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::LDAPTLS"
 
 ee:ldap_tls-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::LDAPTLS ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::LDAPTLS"
 
 ee:ldap_no_server:
-  script:
-    - exe/gitlab-qa Test::Integration::LDAPNoServer ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::LDAPNoServer"
 
 ee:ldap_no_server-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::LDAPNoServer ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::LDAPNoServer"
 
 ce:instance_saml:
-  script:
-    - exe/gitlab-qa Test::Integration::InstanceSAML ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::InstanceSAML"
 
 ce:instance_saml-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::InstanceSAML ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::InstanceSAML"
 
 ee:instance_saml:
-  script:
-    - exe/gitlab-qa Test::Integration::InstanceSAML ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::InstanceSAML"
 
 ee:instance_saml-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::InstanceSAML ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::InstanceSAML"
 
 ee:group_saml:
-  script:
-    - exe/gitlab-qa Test::Integration::GroupSAML ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::GroupSAML"
 
 ee:group_saml-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::GroupSAML ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::GroupSAML"
 
 ce:kubernetes:
-  script:
-    - exe/gitlab-qa Test::Integration::Kubernetes ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::Kubernetes"
 
 ce:kubernetes-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::Kubernetes ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::Kubernetes"
 
 ee:kubernetes:
-  script:
-    - exe/gitlab-qa Test::Integration::Kubernetes ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::Kubernetes"
 
 ee:kubernetes-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::Kubernetes ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::Kubernetes"
 
 ce:object_storage:
-  script:
-    - exe/gitlab-qa Test::Integration::ObjectStorage ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::ObjectStorage"
 
 ce:object_storage-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::ObjectStorage ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::ObjectStorage"
 
 ee:object_storage:
-  script:
-    - exe/gitlab-qa Test::Integration::ObjectStorage ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::ObjectStorage"
 
 ee:object_storage-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::ObjectStorage ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::ObjectStorage"
 
 ce:oauth:
-  script:
-    - exe/gitlab-qa Test::Integration::OAuth ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::OAuth"
 
 ce:oauth-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::OAuth ${RELEASE:=CE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::OAuth"
 
 ee:oauth:
-  script:
-    - exe/gitlab-qa Test::Integration::OAuth ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::OAuth"
 
 ee:oauth-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::OAuth ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::OAuth"
 
 ee:packages:
-  script:
-    - exe/gitlab-qa Test::Integration::Packages ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::Packages"
 
 ee:packages-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::Packages ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::Packages"
 
 ee:elasticsearch:
-  script:
-    - exe/gitlab-qa Test::Integration::Elasticsearch ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::Elasticsearch"
 
 ee:elasticsearch-quarantine:
-  script:
-    - exe/gitlab-qa Test::Integration::Elasticsearch ${RELEASE:=EE} -- --tag quarantine $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .quarantine
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::Elasticsearch"
 
 ce:praefect:
-  script:
-    - exe/gitlab-qa Test::Integration::Praefect ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
@@ -758,11 +776,10 @@ ce:praefect:
     - .knapsack-variables
     - .rspec-report-opts
   parallel: 5
-  allow_failure: true
+  variables:
+    QA_SCENARIO: "Test::Integration::Praefect"
 
 ee:praefect:
-  script:
-    - exe/gitlab-qa Test::Integration::Praefect ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
@@ -770,25 +787,26 @@ ee:praefect:
     - .knapsack-variables
     - .rspec-report-opts
   parallel: 5
-  allow_failure: true
+  variables:
+    QA_SCENARIO: "Test::Integration::Praefect"
 
 ce:smtp:
-  script:
-    - exe/gitlab-qa Test::Integration::SMTP ${RELEASE:=CE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ce-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::SMTP"
 
 ee:smtp:
-  script:
-    - exe/gitlab-qa Test::Integration::SMTP ${RELEASE:=EE} -- $RSPEC_REPORT_OPTS
   extends:
     - .test
     - .high-capacity
     - .ee-qa
     - .rspec-report-opts
+  variables:
+    QA_SCENARIO: "Test::Integration::SMTP"
 
 # This job requires the `GITLAB_QA_ACCESS_TOKEN` and `GITLAB_QA_DEV_ACCESS_TOKEN`
 # variable to be passed when triggered.
