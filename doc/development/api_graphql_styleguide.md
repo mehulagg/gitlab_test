@@ -21,6 +21,12 @@ and in [PDF](https://gitlab.com/gitlab-org/create-stage/uploads/8e78ea7f326b2ef6
 Everything covered in this deep dive was accurate as of GitLab 11.9, and while specific
 details may have changed since then, it should still serve as a good introduction.
 
+## GraphiQL
+
+GraphiQL is an interactive GraphQL API explorer where you can play around with existing queries.
+You can access it in any GitLab environment on `https://<your-gitlab-site.com>/-/graphql-explorer`.
+For example, the one for [GitLab.com](https://gitlab.com/-/graphql-explorer).
+
 ## Authentication
 
 Authentication happens through the `GraphqlController`, right now this
@@ -335,7 +341,7 @@ field :id, GraphQL::ID_TYPE, description: 'ID of the resource'
 
 Descriptions of fields and arguments are viewable to users through:
 
-- The [GraphiQL explorer](../api/graphql/#graphiql).
+- The [GraphiQL explorer](#graphiql).
 - The [static GraphQL API reference](../api/graphql/#reference).
 
 ### Description styleguide
@@ -635,6 +641,37 @@ When a user is not allowed to perform the action, or an object is not
 found, we should raise a
 `Gitlab::Graphql::Errors::ResourceNotAvailable` error. Which will be
 correctly rendered to the clients.
+
+## Validating arguments
+
+For validations of single arguments, use the
+[`prepare` option](https://github.com/rmosolgo/graphql-ruby/blob/master/guides/fields/arguments.md)
+as normal.
+
+Sometimes a mutation or resolver may accept a number of optional
+arguments, but still want to validate that at least one of the optional
+arguments were given. In this situation, consider using the `#ready?`
+method within your mutation or resolver to provide the validation. The
+`#ready?` method will be called before any work is done within the
+`#resolve` method.
+
+Example:
+
+```ruby
+def ready?(**args)
+  if args.values_at(:body, :position).compact.blank?
+    raise Gitlab::Graphql::Errors::ArgumentError,
+          'body or position arguments are required'
+  end
+
+  # Always remember to call `#super`
+  super(args)
+end
+```
+
+In the future this may be able to be done using `InputUnions` if
+[this RFC](https://github.com/graphql/graphql-spec/blob/master/rfcs/InputUnion.md)
+is merged.
 
 ## GitLab's custom scalars
 

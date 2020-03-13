@@ -4,7 +4,7 @@ type: reference
 
 # GitLab CI/CD Pipeline Configuration Reference
 
-GitLab CI/CD [pipelines](../pipelines.md) are configured using a YAML file called `.gitlab-ci.yml` within each project.
+GitLab CI/CD [pipelines](../pipelines/index.md) are configured using a YAML file called `.gitlab-ci.yml` within each project.
 
 The `.gitlab-ci.yml` file defines the structure and order of the pipelines and determines:
 
@@ -867,6 +867,10 @@ CAUTION: **Warning:**
 There are some points to be aware of when
 [using this feature with new branches or tags *without* pipelines for merge requests](#using-onlychanges-without-pipelines-for-merge-requests).
 
+CAUTION: **Warning:**
+There are some points to be aware of when
+[using this feature with scheduled pipelines](#using-onlychanges-with-scheduled-pipelines).
+
 ##### Using `only:changes` with pipelines for merge requests
 
 With [pipelines for merge requests](../merge_request_pipelines/index.md),
@@ -931,12 +935,21 @@ This could result in some unexpected behavior, including:
 - When pushing a new commit, the changed files are calculated using the previous commit
   as the base SHA.
 
+##### Using `only:changes` with scheduled pipelines
+
+`only:changes` always evaluates as "true" in [Scheduled pipelines](../pipelines/schedules.md).
+All files are considered to have "changed" when a scheduled pipeline
+runs.
+
 ### `rules`
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/29011) in GitLab 12.3.
 
 `rules` allows for a list of individual rule objects to be evaluated
 *in order*, until one matches and dynamically provides attributes to the job.
+Note that `rules` cannot be used in combination with `only/except` since it is intended
+to replace that functionality. If you attempt to do this the linter will return a
+`key may not be used with rules` error.
 
 Available rule clauses include:
 
@@ -2722,7 +2735,7 @@ test:
 ```
 
 The job-level timeout can exceed the
-[project-level timeout](../../user/project/pipelines/settings.md#timeout) but can not
+[project-level timeout](../pipelines/settings.md#timeout) but can not
 exceed the Runner-specific timeout.
 
 ### `parallel`
@@ -2893,7 +2906,7 @@ starting, at the cost of reduced parallelization.
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/23464) in GitLab 12.3.
 
 `interruptible` is used to indicate that a job should be canceled if made redundant by a newer pipeline run. Defaults to `false`.
-This value will only be used if the [automatic cancellation of redundant pipelines feature](../../user/project/pipelines/settings.md#auto-cancel-pending-pipelines)
+This value will only be used if the [automatic cancellation of redundant pipelines feature](../pipelines/settings.md#auto-cancel-pending-pipelines)
 is enabled.
 
 When enabled, a pipeline on the same branch will be canceled when:
@@ -3039,7 +3052,7 @@ include:
 > [Introduced](https://gitlab.com/gitlab-org/gitlab-foss/issues/53903) in GitLab 11.7.
 
 To include files from another private project under the same GitLab instance,
-use `include:file`. This file is referenced using full  paths relative to the
+use `include:file`. This file is referenced using full paths relative to the
 root directory (`/`). For example:
 
 ```yaml

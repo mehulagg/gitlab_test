@@ -13,6 +13,35 @@ information provided, you can immediately begin risk analysis and remediation.
 For an overview of application security with GitLab, see
 [Security Deep Dive](https://www.youtube.com/watch?v=k4vEJnGYy84).
 
+## Quick start
+
+Get started quickly with Dependency Scanning, License Scanning, and Static Application Security
+Testing (SAST) by adding the following to your `.gitlab-ci.yml`:
+
+```yaml
+include:
+  - template: Dependency-Scanning.gitlab-ci.yml
+  - template: License-Scanning.gitlab-ci.yml
+  - template: SAST.gitlab-ci.yml
+```
+
+To add Dynamic Application Security Testing (DAST) scanning, add the following to your
+`.gitlab-ci.yml` and replace `https://staging.example.com` with a staging server's web address:
+
+```yaml
+include:
+  - template: DAST.gitlab-ci.yml
+
+variables:
+  DAST_WEBSITE: https://staging.example.com
+```
+
+To ensure the DAST scanner runs *after* deploying the application to the staging server, review the [DAST full documentation](dast/index.md).
+
+To add Container Scanning, follow the steps listed in the [Container Scanning documentation](container_scanning/index.md#requirements).
+
+To further configure any of the other scanners, refer to each scanner's documentation.
+
 ## Security scanning tools
 
 GitLab uses the following tools to scan and report known vulnerabilities found in your project.
@@ -83,6 +112,19 @@ Once added, you can edit or delete it. This allows you to add and update
 context for a vulnerability as you learn more over time.
 
 ![Dismissed vulnerability comment](img/dismissed_info_v12_3.png)
+
+#### Dismissing multiple vulnerabilities
+
+> Introduced in [GitLab Ultimate](https://about.gitlab.com/pricing/) 12.9.
+
+You can dismiss multiple vulnerabilities at once, providing an optional reason.
+Selecting the checkboxes on the side of each vulnerability in the list will select that individual vulnerability.
+Alternatively, you can select all the vulnerabilities in the list by selecting the checkbox in the table header.
+Deselecting the checkbox in the header will deselect all the vulnerabilities in the list.
+Once you have selected some vulnerabilities, a menu appears at the top of the table that allows you to select a dismissal reason.
+Pressing the "Dismiss Selected" button will dismiss all the selected vulnerabilities at once, with the reason you chose.
+
+![Multiple vulnerability dismissal](img/multi_select_v12_9.png)
 
 ### Creating an issue for a vulnerability
 

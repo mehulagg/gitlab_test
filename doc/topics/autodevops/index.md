@@ -666,7 +666,7 @@ To use Auto Deploy on a Kubernetes 1.16+ cluster, you must:
    This will opt-in to using a version of the PostgreSQL chart that supports Kubernetes
    1.16 and higher.
 
-CAUTION: **Caution:** Opting into `AUTO_DEVOPS_POSTGRES_CHANNEL` version `2` will delete
+DANGER: **Danger:** Opting into `AUTO_DEVOPS_POSTGRES_CHANNEL` version `2` will delete
 the version `1` PostgreSQL database. Please backup the contents of the PostgreSQL database
 first before opting into version `2`, so that you can restore into the version `2` database.
 
@@ -1375,7 +1375,7 @@ increasing the rollout up to 100%.
 
 If `INCREMENTAL_ROLLOUT_MODE` is set to `manual` in your project, then instead
 of the standard `production` job, 4 different
-[manual jobs](../../ci/pipelines.md#manual-actions-from-pipeline-graphs)
+[manual jobs](../../ci/pipelines/index.md#manual-actions-from-pipeline-graphs)
 will be created:
 
 1. `rollout 10%`

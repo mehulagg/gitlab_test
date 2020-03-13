@@ -462,6 +462,11 @@ The chart will deploy 5 Elasticsearch nodes: 2 masters, 2 data and 1 client node
 with resource requests totalling 0.125 CPU and 4.5GB RAM. Each data node requests 1.5GB of memory,
 which makes it incompatible with clusters of `f1-micro` and `g1-small` instance types.
 
+NOTE: **Note:**
+The Elastic Stack cluster application is intended as a log aggregation solution and is not related to our
+[Advanced Global Search](../search/advanced_global_search.md) functionality, which uses a separate
+Elasticsearch cluster.
+
 ### Future apps
 
 Interested in contributing a new GitLab managed app? Visit the
@@ -489,6 +494,7 @@ Supported applications:
 - [Cilium](#install-cilium-using-gitlab-ci)
 - [JupyterHub](#install-jupyterhub-using-gitlab-ci)
 - [Elastic Stack](#install-elastic-stack-using-gitlab-ci)
+- [Crossplane](#install-crossplane-using-gitlab-ci)
 
 ### Usage
 
@@ -826,6 +832,30 @@ available configuration options.
 
 NOTE: **Note:**
 In this alpha implementation of installing Elastic Stack through CI, reading the environment logs through Elasticsearch is unsupported. This is supported if [installed via the UI](#elastic-stack).
+
+### Install Crossplane using GitLab CI
+
+> [Introduced](https://gitlab.com/gitlab-org/cluster-integration/cluster-applications/-/merge_requests/68) in GitLab 12.9.
+
+Crossplane is installed using GitLab CI by defining configuration in
+`.gitlab/managed-apps/config.yaml`.
+
+The following configuration is required to install Crossplane using GitLab CI:
+
+```yaml
+Crossplane:
+  installed: true
+```
+
+Crossplane is installed into the `gitlab-managed-apps` namespace of your cluster.
+
+You can check the default [values.yaml](https://github.com/crossplane/crossplane/blob/master/cluster/charts/crossplane/values.yaml.tmpl) we set for this chart.
+
+You can customize the installation of Crossplane by defining
+`.gitlab/managed-apps/crossplane/values.yaml` file in your cluster
+management project. Refer to the
+[chart](https://github.com/crossplane/crossplane/tree/master/cluster/charts/crossplane#configuration) for the
+available configuration options. Note that this link points to the docs for the current development release, which may differ from the version you have installed. You can check out a specific version in the branch/tag switcher.
 
 ## Upgrading applications
 

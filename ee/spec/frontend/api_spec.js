@@ -90,11 +90,45 @@ describe('Api', () => {
   describe('groupEpics', () => {
     it('calls `axios.get` using param `groupId`', done => {
       const groupId = 2;
-      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/groups/${groupId}/epics?include_ancestor_groups=false&include_descendant_groups=true`;
+      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/groups/${groupId}/epics`;
 
-      mock.onGet(expectedUrl).reply(200, mockEpics);
+      mock
+        .onGet(expectedUrl, {
+          params: {
+            include_ancestor_groups: false,
+            include_descendant_groups: true,
+          },
+        })
+        .reply(200, mockEpics);
 
       Api.groupEpics({ groupId })
+        .then(({ data }) => {
+          data.forEach((epic, index) => {
+            expect(epic.id).toBe(mockEpics[index].id);
+            expect(epic.iid).toBe(mockEpics[index].iid);
+            expect(epic.group_id).toBe(mockEpics[index].group_id);
+            expect(epic.title).toBe(mockEpics[index].title);
+          });
+        })
+        .then(done)
+        .catch(done.fail);
+    });
+
+    it('calls `axios.get` using param `search` when it is provided', done => {
+      const groupId = 2;
+      const expectedUrl = `${dummyUrlRoot}/api/${dummyApiVersion}/groups/${groupId}/epics`;
+
+      mock
+        .onGet(expectedUrl, {
+          params: {
+            include_ancestor_groups: false,
+            include_descendant_groups: true,
+            search: 'foo',
+          },
+        })
+        .reply(200, mockEpics);
+
+      Api.groupEpics({ groupId, search: 'foo' })
         .then(({ data }) => {
           data.forEach((epic, index) => {
             expect(epic.id).toBe(mockEpics[index].id);
@@ -159,77 +193,6 @@ describe('Api', () => {
           expect(data.id).toBe(expectedRes.id);
           expect(data.epic).toEqual(expect.objectContaining({ ...expectedRes.epic }));
           expect(data.issue).toEqual(expect.objectContaining({ ...expectedRes.issue }));
-        })
-        .then(done)
-        .catch(done.fail);
-    });
-  });
-
-  describe('getPodLogs', () => {
-    const projectPath = '/root/test-project';
-    const podName = 'pod';
-    const containerName = 'container';
-    const search = 'foo +bar';
-    const expectedUrl = '/gitlab/dummy_api_path.json';
-    const environment = {
-      enable_advanced_logs_querying: false,
-      project_path: projectPath,
-      logs_api_path: '/dummy_api_path.json',
-    };
-
-    const getRequest = () => mock.history.get[0];
-
-    beforeEach(() => {
-      mock.onAny().reply(200);
-    });
-
-    afterEach(() => {
-      mock.reset();
-    });
-
-    it('calls `axios.get` with pod_name and container_name', done => {
-      Api.getPodLogs({ environment, podName, containerName })
-        .then(() => {
-          expect(getRequest().url).toBe(expectedUrl);
-          expect(getRequest().params).toEqual({
-            pod_name: podName,
-            container_name: containerName,
-          });
-        })
-        .then(done)
-        .catch(done.fail);
-    });
-
-    it('calls `axios.get` without pod_name and container_name', done => {
-      Api.getPodLogs({ environment })
-        .then(() => {
-          expect(getRequest().url).toBe(expectedUrl);
-          expect(getRequest().params).toEqual({});
-        })
-        .then(done)
-        .catch(done.fail);
-    });
-
-    it('calls `axios.get` with pod_name', done => {
-      Api.getPodLogs({ environment, podName })
-        .then(() => {
-          expect(getRequest().url).toBe(expectedUrl);
-          expect(getRequest().params).toEqual({
-            pod_name: podName,
-          });
-        })
-        .then(done)
-        .catch(done.fail);
-    });
-
-    it('calls `axios.get` with pod_name and search', done => {
-      Api.getPodLogs({ environment, podName, search })
-        .then(() => {
-          expect(getRequest().url).toBe(expectedUrl);
-          expect(getRequest().params).toEqual({
-            pod_name: podName,
-            search,
-          });
         })
         .then(done)
         .catch(done.fail);
