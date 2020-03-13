@@ -65,7 +65,7 @@ by selecting **master (HEAD)**. In the future it will
 [replace](https://gitlab.com/gitlab-org/gitlab/issues/198458) the
 current default comparison.
 
-![Merge request versions compare HEAD](img/versions_compare_head.png)
+![Merge request versions compare HEAD](img/versions_compare_head_v12_9.png)
 
 <!-- ## Troubleshooting
 
