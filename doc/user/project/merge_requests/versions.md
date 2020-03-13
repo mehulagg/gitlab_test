@@ -46,7 +46,7 @@ This only applies to commits that are in the most recent version of a merge
 request - if a commit was in a merge request, then rebased out of that merge
 request, they will not be linked.
 
-## (HEAD) comparison mode for Merge Requests
+## `HEAD` comparison mode for Merge Requests
 
 > [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/27008) in GitLab 12.9.
 
