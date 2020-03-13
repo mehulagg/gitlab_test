@@ -10,11 +10,10 @@ describe Gitlab::Auth::Saml::OriginValidator do
   describe '#store_origin' do
     it 'stores the SAML request ID' do
       request_id = double
-      authn_request = instance_double(OneLogin::RubySaml::Authrequest, uuid: request_id)
 
       expect(session).to receive(:[]=).with('last_authn_request_id', request_id)
 
-      subject.store_origin(authn_request)
+      subject.store_origin(request_id)
     end
   end
 

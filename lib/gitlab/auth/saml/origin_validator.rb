@@ -10,8 +10,8 @@ module Gitlab
           @session = session || {}
         end
 
-        def store_origin(authn_request)
-          session[AUTH_REQUEST_SESSION_KEY] = authn_request.uuid
+        def store_origin(uuid)
+          session[AUTH_REQUEST_SESSION_KEY] = uuid
         end
 
         def gitlab_initiated?(saml_response)

@@ -75,8 +75,17 @@ module Gitlab
         { remote_sign_out_handler: authentiq_signout_handler }
       when 'shibboleth'
         { fail_with_empty_uid: true }
+      when 'saml', 'group_saml'
+        { store_request_uuid: store_saml_request_uuid_handler }
       else
         {}
+      end
+    end
+
+    def store_saml_request_uuid_handler
+      lambda do |uuid|
+        #TODO: session = somehow_get_session
+        Gitlab::Auth::Saml::OriginValidator.new(session).store_origin(uuid)
       end
     end
 

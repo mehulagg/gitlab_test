@@ -21,7 +21,7 @@ module OmniAuth
       private
 
       def store_authn_request_id(authn_request)
-        Gitlab::Auth::Saml::OriginValidator.new(session).store_origin(authn_request)
+        Gitlab::Auth::Saml::OriginValidator.new(session).store_origin(authn_request.uuid)
       end
     end
   end
