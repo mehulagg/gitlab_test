@@ -700,7 +700,7 @@ describe ApplicationController do
 
         get :index
 
-        expect(response.headers['Cache-Control']).to eq 'max-age=0, private, must-revalidate, no-store'
+        expect(response.headers['Cache-Control']).to eq 'private, no-store'
         expect(response.headers['Pragma']).to eq 'no-cache'
       end
 

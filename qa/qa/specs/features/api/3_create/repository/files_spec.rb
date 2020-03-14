@@ -75,7 +75,7 @@ module QA
         SVG
       end
 
-      it 'sets no-cache headers as expected' do
+      it 'sets no-store headers as expected' do
         create_project_request = Runtime::API::Request.new(@api_client, '/projects')
         post create_project_request.url, path: project_name, name: project_name
 
@@ -93,9 +93,7 @@ module QA
           #   should include `attachment` for all responses.
           #
           expect(response.headers[:cache_control]).to include("no-store")
-          expect(response.headers[:cache_control]).to include("no-cache")
           expect(response.headers[:pragma]).to eq("no-cache")
-          expect(response.headers[:expires]).to eq("Fri, 01 Jan 1990 00:00:00 GMT")
           expect(response.headers[:content_disposition]).to include("attachment")
           expect(response.headers[:content_disposition]).not_to include("inline")
           expect(response.headers[:content_type]).to include("image/svg+xml")

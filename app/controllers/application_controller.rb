@@ -5,7 +5,6 @@ require 'fogbugz'
 
 class ApplicationController < ActionController::Base
   include Gitlab::GonHelper
-  include Gitlab::NoCacheHeaders
   include GitlabRoutingHelper
   include PageLayoutHelper
   include SafeParamsHelper
@@ -56,10 +55,6 @@ class ApplicationController < ActionController::Base
     :google_code_import_enabled?, :fogbugz_import_enabled?,
     :git_import_enabled?, :gitlab_project_import_enabled?,
     :manifest_import_enabled?, :phabricator_import_enabled?
-
-  # Adds `no-store` to the DEFAULT_CACHE_CONTROL, to prevent security
-  # concerns due to caching private data.
-  DEFAULT_GITLAB_CACHE_CONTROL = "#{ActionDispatch::Http::Cache::Response::DEFAULT_CACHE_CONTROL}, no-store"
 
   rescue_from Encoding::CompatibilityError do |exception|
     log_exception(exception)
@@ -247,9 +242,8 @@ class ApplicationController < ActionController::Base
   end
 
   def no_cache_headers
-    DEFAULT_GITLAB_NO_CACHE_HEADERS.each do |k, v|
-      headers[k] = v
-    end
+    headers['Cache-Control'] = 'no-store'
+    headers['Pragma'] = 'no-cache' # HTTP 1.0 compatibility
   end
 
   def default_headers
@@ -260,17 +254,15 @@ class ApplicationController < ActionController::Base
   end
 
   def default_cache_headers
-    if current_user
-      headers['Cache-Control'] = default_cache_control
-      headers['Pragma'] = 'no-cache' # HTTP 1.0 compatibility
-    end
+    headers['Cache-Control'] = default_cache_control
+    headers['Pragma'] = 'no-cache' # HTTP 1.0 compatibility
   end
 
   def default_cache_control
     if request.xhr?
       ActionDispatch::Http::Cache::Response::DEFAULT_CACHE_CONTROL
     else
-      DEFAULT_GITLAB_CACHE_CONTROL
+      'no-store'
     end
   end
 

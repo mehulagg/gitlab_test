@@ -3,8 +3,6 @@
 module API
   module Helpers
     module HeadersHelpers
-      include Gitlab::NoCacheHeaders
-
       def set_http_headers(header_data)
         header_data.each do |key, value|
           if value.is_a?(Enumerable)
@@ -16,9 +14,8 @@ module API
       end
 
       def no_cache_headers
-        DEFAULT_GITLAB_NO_CACHE_HEADERS.each do |k, v|
-          header k, v
-        end
+        header 'Cache-Control', 'no-store'
+        header 'Pragma', 'no-cache' # HTTP 1.0 compatibility
       end
     end
   end
