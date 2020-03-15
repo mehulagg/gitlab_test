@@ -7,7 +7,7 @@ module QA
         Flow::Login.sign_in
 
         Page::Main::Menu.perform do |menu|
-          expect(menu).to have_personal_area
+          expect(menu).not_to have_personal_area
         end
 
         Support::Retrier.retry_until(sleep_interval: 0.5) do
