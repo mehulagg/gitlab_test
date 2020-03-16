@@ -17,7 +17,7 @@ module QA
         # rescue RestClient::ExceptionWithResponse => e
         #   return_response_or_raise(e)
         puts ">>>>>>>>> POST '#{url}&#{payload}'"
-        `curl --location --request POST '#{url}&#{payload}' --header 'Content-Type: application/json'`
+        `curl --socks5-hostname 127.0.0.1:1080 --location --request POST '#{url}&#{payload}' --header 'Content-Type: application/json'`
       end
 
       def get(url, raw_response: false)
@@ -39,7 +39,7 @@ module QA
         # rescue RestClient::ExceptionWithResponse => e
         #   return_response_or_raise(e)
         puts ">>>>>>>>> PUT '#{url}&#{payload}'"
-        `curl --location --request PUT '#{url}&#{payload}' --header 'Content-Type: application/json'`
+        `curl --socks5-hostname 127.0.0.1:1080 --location --request PUT '#{url}&#{payload}' --header 'Content-Type: application/json'`
       end
 
       def delete(url)
