@@ -11,10 +11,14 @@ module Gitlab
       end
 
       def perform(start_id, stop_id)
-        push_rules = PushRule.where(id: start_id..stop_id).where(is_sample: false)
-        attributes = push_rules.select(:id, :project_id).map { |record| { push_rule_id: record.id, project_id: record.project_id } }
+        select_from = PushRule.where(id: start_id..stop_id).where(is_sample: false).select(:id, :project_id).to_sql
 
-        Gitlab::Database.bulk_insert(:project_push_rules, attributes)
+        ActiveRecord::Base.connection_pool.with_connection do |connection|
+          connection.execute <<~SQL
+            INSERT INTO project_push_rules (push_rule_id, project_id)
+            #{select_from}
+          SQL
+        end
       end
     end
   end
