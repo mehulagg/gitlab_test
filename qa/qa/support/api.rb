@@ -9,13 +9,15 @@ module QA
       HTTP_STATUS_ACCEPTED = 202
 
       def post(url, payload)
-        RestClient::Request.execute(
-          method: :post,
-          url: url,
-          payload: payload,
-          verify_ssl: false)
-      rescue RestClient::ExceptionWithResponse => e
-        return_response_or_raise(e)
+        #   RestClient::Request.execute(
+        #     method: :post,
+        #     url: url,
+        #     payload: payload,
+        #     verify_ssl: false)
+        # rescue RestClient::ExceptionWithResponse => e
+        #   return_response_or_raise(e)
+        puts ">>>>>>>>> POST '#{url}&#{payload}'"
+        `curl --location --request POST '#{url}&#{payload}' --header 'Content-Type: application/json'`
       end
 
       def get(url, raw_response: false)
@@ -29,13 +31,15 @@ module QA
       end
 
       def put(url, payload)
-        RestClient::Request.execute(
-          method: :put,
-          url: url,
-          payload: payload,
-          verify_ssl: false)
-      rescue RestClient::ExceptionWithResponse => e
-        return_response_or_raise(e)
+        #   RestClient::Request.execute(
+        #     method: :put,
+        #     url: url,
+        #     payload: payload,
+        #     verify_ssl: false)
+        # rescue RestClient::ExceptionWithResponse => e
+        #   return_response_or_raise(e)
+        puts ">>>>>>>>> PUT '#{url}&#{payload}'"
+        `curl --location --request PUT '#{url}&#{payload}' --header 'Content-Type: application/json'`
       end
 
       def delete(url)
@@ -68,3 +72,12 @@ module QA
     end
   end
 end
+
+# data = {path: "shl_test_group1", name: "shl_test_group1",visibility: "public"}
+#
+# `curl --socks5-hostname 127.0.0.1:1080 --location --request POST 'https://migration-test.githost.io/api/v4/groups?private_token=HrhkN5RUbBwkfp6ftBEF&name=gitlab-qa-perf-sandbox-baaade9fa61c3afe&path=gitlab-qa-perf-sandbox-baaade9fa61c3afe&visibility=public' --header 'Content-Type: application/json'`
+#
+#
+# `curl --socks5-hostname 127.0.0.1:1080 --location --request GET 'https://migration-test.githost.io/api/v4/groups?private_token=HrhkN5RUbBwkfp6ftBEF' --header 'Private-Token: swAcuWQFr9yv2rHxnkpT'`
+#
+#

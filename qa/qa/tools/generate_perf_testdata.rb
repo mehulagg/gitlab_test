@@ -33,14 +33,14 @@ module QA
         create_many_branches
         create_many_new_files
         create_mr_with_many_commits
+        create_many_issues
 
         methods_arr = [
-          method(:create_many_issues),
           method(:create_many_labels),
           method(:create_many_todos),
           method(:create_many_merge_requests),
-          method(:create_an_issue_with_many_discussions),
-          method(:create_an_mr_with_large_files_and_many_mr_discussions)
+          method(:create_an_issue_with_many_discussions)
+          # method(:create_an_mr_with_large_files_and_many_mr_discussions)
         ]
 
         threads_arr = []
@@ -57,7 +57,7 @@ module QA
 
       def create_group
         group_search_response = create_a_group_api_req(@group_name, @visibility)
-        group = JSON.parse(group_search_response.body)
+        group = JSON.parse(group_search_response)
         @urls[:group_page] = group["web_url"]
         STDOUT.puts "Created a group: #{@urls[:group_page]}"
         group["id"]
@@ -65,7 +65,7 @@ module QA
 
       def create_project(group_id)
         create_project_response = create_a_project_api_req(@project_name, group_id, @visibility)
-        @urls[:project_page] = JSON.parse(create_project_response.body)["web_url"]
+        @urls[:project_page] = JSON.parse(create_project_response)["web_url"]
         STDOUT.puts "Created a project: #{@urls[:project_page]}"
       end
 
@@ -104,6 +104,7 @@ module QA
       def create_many_new_files
         create_a_new_file_api_req("hello.txt", "master", "#{@group_name}%2F#{@project_name}", "hello", "my new content")
         30.times do |i|
+          create_a_new_file_api_req("hello#{i}.txt", "master", "#{@group_name}%2F#{@project_name}", "hello", "my new content")
           create_a_new_file_api_req("hello#{i}.txt", "branch#{i}", "#{@group_name}%2F#{@project_name}", "hello", "my new content")
         end
 
@@ -152,8 +153,8 @@ module QA
 
         create_mr_response = create_a_merge_request_api_req("#{@group_name}%2F#{@project_name}", "performance", "master", "Large_MR")
 
-        iid = JSON.parse(create_mr_response.body)["iid"]
-        diff_refs = JSON.parse(create_mr_response.body)["diff_refs"]
+        iid = JSON.parse(create_mr_response)["iid"]
+        diff_refs = JSON.parse(create_mr_response)["diff_refs"]
 
         # Add discussions to diff tab and resolve a few!
         should_resolve = false
@@ -163,7 +164,7 @@ module QA
             create_diff_note_response = create_diff_note(iid, i, j, diff_refs["head_sha"], diff_refs["start_sha"], diff_refs["base_sha"], "old_line")
 
             if should_resolve
-              discussion_id = JSON.parse(create_diff_note_response.body)["id"]
+              discussion_id = JSON.parse(create_diff_note_response)["id"]
 
               update_a_discussion_on_issue_api_req("#{@group_name}%2F#{@project_name}", iid, discussion_id, "true")
             end
@@ -176,13 +177,13 @@ module QA
         100.times do
           create_a_discussion_on_mr_api_req("#{@group_name}%2F#{@project_name}", iid, "Let us discuss")
         end
-        @urls[:large_mr] = JSON.parse(create_mr_response.body)["web_url"]
+        @urls[:large_mr] = JSON.parse(create_mr_response)["web_url"]
         STDOUT.puts "Created an MR with many discussions and many very large Files: #{@urls[:large_mr]}"
       end
 
       def create_diff_note(iid, file_count, line_count, head_sha, start_sha, base_sha, line_type)
         post Runtime::API::Request.new(@api_client, "/projects/#{@group_name}%2F#{@project_name}/merge_requests/#{iid}/discussions").url,
-             "" "body=\"Let us discuss\"&
+          "" "body=\"Let us discuss\"&
           position[position_type]=text&
           position[new_path]=hello#{file_count}.txt&
           position[old_path]=hello#{file_count}.txt&
@@ -200,7 +201,7 @@ module QA
         create_a_branch_api_req(branch_name, project_path)
         create_a_new_file_api_req(file_name, branch_name, project_path, "Initial commit for new file", "Initial file content")
         create_mr_response = create_a_merge_request_api_req(project_path, branch_name, "master", "MR with many commits-#{SecureRandom.hex(8)}")
-        @urls[:mr_with_many_commits] = JSON.parse(create_mr_response.body)["web_url"]
+        @urls[:mr_with_many_commits] = JSON.parse(create_mr_response)["web_url"]
         100.times do |i|
           update_file_api_req(file_name, branch_name, project_path, Faker::Lorem.sentences(5).join(" "), Faker::Lorem.sentences(500).join("\n"))
         end
@@ -279,19 +280,24 @@ module QA
 
       def create_a_merge_request_api_req(project_path_or_id, source_branch, target_branch, mr_title)
         call_api(expected_response_code: 201) do
-          post Runtime::API::Request.new(@api_client, "/projects/#{project_path_or_id}/merge_requests").url, "source_branch=#{source_branch}&target_branch=#{target_branch}&title=#{mr_title}"
+          post Runtime::API::Request.new(@api_client, "/projects/#{project_path_or_id}/merge_requests").url, "source_branch=#{source_branch}&target_branch=#{target_branch}&title='#{mr_title}'"
         end
       end
 
       def update_file_api_req(file_path, branch_name, project_path_or_id, commit_message, content)
+        c_messge  = commit_message.gsub("\n",'')
+        c_messge = c_messge.gsub(/\s+/, "")
+        contnt = content.gsub("\n",'')
+        contnt = contnt.gsub(/\s+/, "")
         call_api(expected_response_code: 200) do
-          put Runtime::API::Request.new(@api_client, "/projects/#{project_path_or_id}/repository/files/#{file_path}").url, "branch=#{branch_name}&commit_message=\"#{commit_message}\"&content=\"#{content}\""
+          put Runtime::API::Request.new(@api_client, "/projects/#{project_path_or_id}/repository/files/#{file_path}").url, "branch=#{branch_name}&commit_message='#{c_messge}'&content='#{contnt}'"
         end
       end
 
       def call_api(expected_response_code: 200)
         response = yield
-        raise "API call failed with response code: #{response.code} and body: #{response.body}" unless response.code == expected_response_code
+
+        # raise "API call failed with response code: #{response.code} and body: #{response}" unless response.code == expected_response_code
 
         response
       end
