@@ -1,6 +1,6 @@
 <script>
 import Icon from '~/vue_shared/components/icon.vue';
-import { n__, __, sprintf } from '~/locale';
+import { n__, __, sprintf, s__ } from '~/locale';
 import { getParameterByName, parseBoolean } from '~/lib/utils/common_utils';
 import TimeAgo from '~/vue_shared/components/time_ago_tooltip.vue';
 import { DIFF_BASE_INDEX, DIFF_HEAD_INDEX } from '../constants';
@@ -31,11 +31,6 @@ export default {
       required: false,
       default: null,
     },
-    targetHeadBranch: {
-      type: Object,
-      required: false,
-      default: null,
-    },
     showCommitCount: {
       type: Boolean,
       required: false,
@@ -53,20 +48,56 @@ export default {
     },
   },
   computed: {
-    targetVersions() {
+    targetBranchVersions() {
       if (this.mergeRequestVersion) {
-        return this.otherVersions;
+        return [];
       }
 
-      const versions = [...this.otherVersions, this.targetBranch];
+      const versions = [
+        {
+          ...this.targetBranch,
+          id: '_target_base',
+          version_index: DIFF_BASE_INDEX,
+          targetHref: this.baseVersionPath,
+          targetName: sprintf(s__('DiffsCompareBaseBranch|%{branchName} (base)'), {
+            branchName: this.targetBranch.branchName,
+          }),
+        },
+      ];
 
       if (this.headVersionPath) {
-        return [...versions, this.targetHeadBranch];
+        versions.push({
+          ...this.targetBranch,
+          id: '_target_head',
+          version_index: DIFF_HEAD_INDEX,
+          targetHref: this.headVersionPath,
+          targetName: sprintf(s__('DiffsCompareBaseBranch|%{branchName} (HEAD)'), {
+            branchName: this.targetBranch.branchName,
+          }),
+        });
       }
+
       return versions;
     },
+    targetVersions() {
+      return [...this.otherVersions, ...this.targetBranchVersions];
+    },
+    selectedVersionIndex() {
+      if (this.mergeRequestVersion) {
+        return this.mergeRequestVersion.version_index;
+      }
+
+      if (this.startVersion) {
+        return this.startVersion.version_index;
+      }
+
+      const diffHead = parseBoolean(getParameterByName('diff_head'));
+
+      return diffHead ? DIFF_HEAD_INDEX : DIFF_BASE_INDEX;
+    },
     selectedVersionName() {
-      const selectedVersion = this.startVersion || this.targetBranch || this.mergeRequestVersion;
+      const selectedVersion = this.targetVersions.find(x => this.isActive(x));
+
       return this.versionName(selectedVersion);
     },
   },
@@ -75,11 +106,8 @@ export default {
       return n__(`%d commit,`, `%d commits,`, version.commits_count);
     },
     href(version) {
-      if (this.isHead(version)) {
-        return this.headVersionPath;
-      }
-      if (this.isBase(version)) {
-        return this.baseVersionPath;
+      if (version.targetHref) {
+        return version.targetHref;
       }
       if (this.showCommitCount) {
         return version.version_path;
@@ -87,15 +115,14 @@ export default {
       return version.compare_path;
     },
     versionName(version) {
-      if (this.isLatest(version)) {
+      if (!version) {
+        return '';
+      } else if (this.isLatest(version)) {
         return __('latest version');
+      } else if (version.targetName) {
+        return version.targetName;
       }
-      if (this.targetBranch && (this.isBase(version) || !version)) {
-        return this.targetBranch.branchName;
-      }
-      if (this.targetHeadBranch && (this.isHead(version) || !version)) {
-        return this.targetHeadBranch.branchName;
-      }
+
       return sprintf(__(`version %{versionIndex}`), { versionIndex: version.version_index });
     },
     isActive(version) {
@@ -103,36 +130,7 @@ export default {
         return false;
       }
 
-      const diffHead = parseBoolean(getParameterByName('diff_head'));
-
-      if (this.targetHeadBranch) {
-        return (
-          (this.isBase(version) && !this.startVersion && !diffHead) ||
-          (this.startVersion && this.startVersion.version_index === version.version_index) ||
-          (this.isHead(version) && diffHead)
-        );
-      }
-
-      if (this.targetBranch) {
-        return (
-          (this.isBase(version) && !this.startVersion) ||
-          (this.startVersion && this.startVersion.version_index === version.version_index)
-        );
-      }
-
-      return version.version_index === this.mergeRequestVersion.version_index;
-    },
-    isBase(version) {
-      if (!version || !this.targetBranch) {
-        return false;
-      }
-      return version.versionIndex === DIFF_BASE_INDEX;
-    },
-    isHead(version) {
-      if (!version || !this.targetHeadBranch) {
-        return false;
-      }
-      return version.versionIndex === DIFF_HEAD_INDEX;
+      return version.version_index === this.selectedVersionIndex;
     },
     isLatest(version) {
       return (
@@ -161,12 +159,6 @@ export default {
               <div>
                 <strong>
                   {{ versionName(version) }}
-                  <template v-if="isHead(version)">{{
-                    s__('DiffsCompareBaseBranch|(HEAD)')
-                  }}</template>
-                  <template v-else-if="isBase(version)">{{
-                    s__('DiffsCompareBaseBranch|(base)')
-                  }}</template>
                 </strong>
               </div>
               <div>

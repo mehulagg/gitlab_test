@@ -37,11 +37,6 @@ export default {
       required: false,
       default: null,
     },
-    targetHeadBranch: {
-      type: Object,
-      required: false,
-      default: null,
-    },
     isLimitedContainer: {
       type: Boolean,
       required: false,
@@ -135,7 +130,6 @@ export default {
             :head-version-path="headVersionPath"
             :start-version="startVersion"
             :target-branch="targetBranch"
-            :target-head-branch="targetHeadBranch"
             class="mr-version-compare-dropdown"
           />
         </template>
