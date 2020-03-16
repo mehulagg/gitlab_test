@@ -113,7 +113,7 @@ export default {
       commit: state => state.diffs.commit,
       targetBranchName: state => state.diffs.targetBranchName,
       renderOverflowWarning: state => state.diffs.renderOverflowWarning,
-      numTotalFiles: state => state.diffs.realSize,
+      numTotalFiles: state => state.diffs.diffFilesLength,
       numVisibleFiles: state => state.diffs.size,
       plainDiffPath: state => state.diffs.plainDiffPath,
       emailPatchPath: state => state.diffs.emailPatchPath,

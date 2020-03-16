@@ -92,7 +92,7 @@ export default {
   },
 
   [types.SET_DIFF_FILES_LENGTH](state, diffFilesLength) {
-    Object.assign(state, { diffRealSize: parseInt(diffFilesLength, 0) });
+    Object.assign(state, { diffFilesLength: parseInt(diffFilesLength, 0) });
   },
 
   [types.TOGGLE_LINE_HAS_FORM](state, { lineCode, fileHash, hasForm }) {
