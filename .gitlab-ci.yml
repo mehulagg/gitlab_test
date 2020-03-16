@@ -87,11 +87,11 @@ release:
   rules:
     - if: '$CI_COMMIT_TAG || $RELEASE =~ /gitlab-ee/'
       when: never
-    - if: '$RELEASE == null && $CI_JOB_NAME =~ /quarantine|praefect|custom/'
+    - if: '$RELEASE == null && $CI_JOB_NAME =~ /quarantine|custom/'
       when: manual
-    - if: '$RELEASE =~ /gitlab-ce/ && $CI_JOB_NAME =~ /quarantine|praefect|custom/'
+    - if: '$RELEASE =~ /gitlab-ce/ && $CI_JOB_NAME =~ /quarantine|custom/'
       when: manual
-    - if: '$CI_MERGE_REQUEST_ID && $CI_JOB_NAME =~ /quarantine|praefect|custom/'
+    - if: '$CI_MERGE_REQUEST_ID && $CI_JOB_NAME =~ /quarantine|custom/'
       when: manual
     - if: '$RELEASE == null || $RELEASE =~ /gitlab-ce/ || $CI_MERGE_REQUEST_ID || $CI_COMMIT_REF_NAME == "master"'
 
@@ -101,11 +101,11 @@ release:
   rules:
     - if: '$CI_COMMIT_TAG || $RELEASE =~ /gitlab-ce/'
       when: never
-    - if: '$RELEASE == null && $CI_JOB_NAME =~ /quarantine|praefect|custom/'
+    - if: '$RELEASE == null && $CI_JOB_NAME =~ /quarantine|custom/'
       when: manual
-    - if: '$RELEASE =~ /gitlab-ee/ && $CI_JOB_NAME =~ /quarantine|praefect|custom/'
+    - if: '$RELEASE =~ /gitlab-ee/ && $CI_JOB_NAME =~ /quarantine|custom/'
       when: manual
-    - if: '$CI_MERGE_REQUEST_ID && $CI_JOB_NAME =~ /quarantine|praefect|custom/'
+    - if: '$CI_MERGE_REQUEST_ID && $CI_JOB_NAME =~ /quarantine|custom/'
       when: manual
     - if: '$RELEASE == null || $RELEASE =~ /gitlab-ee/ || $CI_MERGE_REQUEST_ID || $CI_COMMIT_REF_NAME == "master"'
 
