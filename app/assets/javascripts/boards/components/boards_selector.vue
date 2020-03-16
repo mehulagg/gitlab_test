@@ -93,6 +93,7 @@ export default {
   },
   data() {
     return {
+      endCursor: '',
       hasScrollFade: false,
       loadingBoards: 0,
       loadingRecentBoards: false,
@@ -154,28 +155,37 @@ export default {
     showPage(page) {
       boardsStore.showPage(page);
     },
-    loadBoards(toggleDropdown = true) {
-      if (toggleDropdown && this.boards.length > 0) {
-        return;
-      }
+    loadBoards() {
+      const query = this.groupId ? groupQuery : projectQuery;
 
-      this.$apollo.addSmartQuery('boards', {
-        variables() {
-          return { fullPath: this.state.endpoints.fullPath };
-        },
-        query() {
-          return this.groupId ? groupQuery : projectQuery;
+      this.$apollo.query({
+        variables: {
+          fullPath: this.state.endpoints.fullPath,
+          after: this.endCursor,
         },
         loadingKey: 'loadingBoards',
-        update(data) {
-          if (!data?.[this.parentType]) {
-            return [];
-          }
-          return data[this.parentType].boards.edges.map(({ node }) => ({
-            id: getIdFromGraphQLId(node.id),
-            name: node.name,
-          }));
-        },
+        query,
+      })
+      .then(({ data }) => {
+        const { pageInfo, edges } = data[this.parentType].boards || {};
+
+        if (!edges) {
+          this.boards = this.boards || [];
+        }
+
+        this.boards = this.boards.concat(edges.map(({ node }) => ({
+          id: getIdFromGraphQLId(node.id),
+          name: node.name,
+        })));
+
+        if (pageInfo?.hasNextPage) {
+          this.endCursor = data[this.parentType].boards?.pageInfo?.endCursor;
+          this.loadBoards();
+        }
+      })
+      .catch(error => {
+        // TODO: set error state
+        throw error;
       });
 
       this.loadingRecentBoards = true;

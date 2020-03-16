@@ -1,12 +1,17 @@
+#import "~/graphql_shared/fragments/pageInfo.fragment.graphql"
 #import "ee_else_ce/boards/queries/board.fragment.graphql"
 
-query group_boards($fullPath: ID!) {
+query group_boards($fullPath: ID!, $after: String) {
   group(fullPath: $fullPath) {
-    boards {
+    boards(after: $after) {
       edges {
         node {
-          ...BoardFragment
+          ...BoardFragment,
+          cursor
         }
+      }
+      pageInfo {
+        ...PageInfo
       }
     }
   }
