@@ -45,7 +45,23 @@ class Projects::FeatureFlagsController < Projects::ApplicationController
   end
 
   def create
-    result = FeatureFlags::CreateService.new(project, current_user, create_params).execute
+    result = if create_params[:version] == 'new_version_flag' && !new_version_feature_flags_enabled?
+               {
+                 status: :error,
+                 message: 'New version flags are not enabled for this project'
+               }
+             else
+               {}
+             end
+
+    result = if result[:status] != :error && valid_version?(create_params)
+               FeatureFlags::CreateService.new(project, current_user, create_params).execute
+             else
+               {
+                 status: :error,
+                 message: 'Version is invalid'
+               }
+             end
 
     if result[:status] == :success
       respond_to do |format|
@@ -94,14 +110,27 @@ class Projects::FeatureFlagsController < Projects::ApplicationController
   protected
 
   def feature_flag
-    @feature_flag ||= project.operations_feature_flags.find(params[:id])
+    @feature_flag ||= if new_version_feature_flags_enabled?
+                        project.operations_feature_flags.find(params[:id])
+                      else
+                        project.operations_feature_flags.legacy_flag.find(params[:id])
+                      end
+  end
+
+  def valid_version?(params)
+    !params.key?(:version) || Operations::FeatureFlag.versions.key?(params[:version])
+  end
+
+  def new_version_feature_flags_enabled?
+    ::Feature.enabled?(:feature_flags_new_version, project)
   end
 
   def create_params
     params.require(:operations_feature_flag)
-      .permit(:name, :description, :active,
+      .permit(:name, :description, :active, :version,
               scopes_attributes: [:environment_scope, :active,
-                                  strategies: [:name, parameters: [:groupId, :percentage, :userIds]]])
+                                  strategies: [:name, parameters: [:groupId, :percentage, :userIds]]],
+             strategies_attributes: [:name, parameters: [:groupId, :percentage, :userIds], scopes_attributes: [:environment_scope]])
   end
 
   def update_params
