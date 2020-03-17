@@ -6,7 +6,7 @@ module Gitlab
       module Stages
         # Acts on metrics which have been ingested from
         # source-controlled dashboards
-        class ProjectDashboardMetricsInserter < BaseStage
+        class CustomDashboardMetricsInserter < BaseStage
           # For each metric in the dashboard config, attempts to
           # find a corresponding database record. If found,
           # includes the record's id in the dashboard config.

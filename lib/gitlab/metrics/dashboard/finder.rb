@@ -65,8 +65,7 @@ module Gitlab
           # Summary of all known dashboards. Used to populate repo cache.
           # Prefer #find_all_paths.
           def find_all_paths_from_source(project)
-            Gitlab::Metrics::Dashboard::Cache.delete_all!
-            ::IncidentManagement::IngestCustomDashboardsWorker.perform_async(project.id)
+            reset_dashboards
 
             default_dashboard_path(project)
             .+ project_service.all_dashboard_paths(project)
@@ -96,6 +95,12 @@ module Gitlab
 
           def service_for(options)
             Gitlab::Metrics::Dashboard::ServiceSelector.call(options)
+          end
+
+          def reset_dashboards
+            ::Gitlab::Metrics::Dashboard::Cache.delete_all!
+
+            ::IncidentManagement::IngestCustomDashboardsWorker.perform_async(project.id)
           end
         end
       end
