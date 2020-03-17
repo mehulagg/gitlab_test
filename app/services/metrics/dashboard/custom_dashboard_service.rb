@@ -51,7 +51,7 @@ module Metrics
 
       def sequence
         [
-          ::Gitlab::Metrics::Dashboard::Stages::ProjectDashboardMetricsInserter
+          ::Gitlab::Metrics::Dashboard::Stages::CustomDashboardMetricsInserter
         ] + super
       end
     end
