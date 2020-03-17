@@ -41,7 +41,7 @@ module QA
       ]
 
       templates.each do |template|
-        it "user adds #{template[:file_name]} via file template #{template[:name]}" do
+        it "user adds #{template[:file_name]} via file template #{template[:name]}", quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/-/issues/211514', type: :bug } do
           content = fetch_template_from_api(template[:api_path], template[:api_key])
 
           Flow::Login.sign_in
