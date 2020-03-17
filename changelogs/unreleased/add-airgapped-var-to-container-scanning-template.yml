@@ -1,0 +1,5 @@
+---
+title: Use SECURITY_SCANNER_IMAGE_PREFIX in Container Scanning template
+merge_request: 27379
+author:
+type: changed
