@@ -114,8 +114,8 @@ describe Gitlab::QA::Report::ResultsInIssues do
           issue = Struct.new(:web_url, :state, :title).new('http://existing-issue.url', 'opened', 'Results for test-file | test-name ')
           search_response = Struct.new(:auto_paginate).new([issue])
 
-          expect(::Gitlab).to receive(:search_in_project)
-            .with(anything, 'issues', %("test-file" "test-name"))
+          expect(::Gitlab).to receive(:issues)
+            .with(anything, { search: %("test-file" "test-name") })
             .and_return(search_response)
           expect(subject).to receive(:update_labels)
           expect(subject).to receive(:note_status)
@@ -131,8 +131,8 @@ describe Gitlab::QA::Report::ResultsInIssues do
             issue = Struct.new(:web_url, :state, :title).new('http://existing-issue.url', 'opened', "Results for test-file | #{'x' * 228}...")
             search_response = Struct.new(:auto_paginate).new([issue])
 
-            expect(::Gitlab).to receive(:search_in_project)
-              .with(anything, 'issues', %("test-file" "#{test_name}"))
+            expect(::Gitlab).to receive(:issues)
+              .with(anything, { search: %("test-file" "#{test_name}") })
               .and_return(search_response)
             expect(subject).to receive(:update_labels)
             expect(subject).to receive(:note_status)

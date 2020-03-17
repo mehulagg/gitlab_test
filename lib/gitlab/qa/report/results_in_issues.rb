@@ -113,7 +113,7 @@ module Gitlab
         end
 
         def find_issue(test)
-          issues = Gitlab.search_in_project(project, 'issues', search_term(test))
+          issues = Gitlab.issues(project, { search: search_term(test) })
             .auto_paginate
             .select { |issue| issue.state == 'opened' && issue.title.strip == title_from_test(test) }
 
