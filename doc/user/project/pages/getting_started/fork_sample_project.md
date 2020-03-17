@@ -40,22 +40,19 @@ forking (copying) a [sample project from the most popular Static Site Generators
 1. From the left sidebar, navigate to your project's **CI/CD > Pipelines**
    and click **Run pipeline** to trigger GitLab CI/CD to build and deploy your
    site to the server.
-1. Once the pipeline has finished successfully, find the link to visit your
+1. When the pipeline finishes successfully, find the link to visit your
    website from your project's **Settings > Pages**. It can take approximately
    30 minutes to be deployed.
 
-You can also take some **optional** further steps:
+If your project is on gitlab.com, the URL will be
+`https://<user-or-group-name>.gitlab.io/<project-name>`.
 
-- _Remove the fork relationship._ The fork relationship is necessary to contribute back to the project you originally forked from. If you don't have any intentions to do so, you can remove it. To do so, navigate to your project's **Settings**, expand **Advanced settings**, and scroll down to **Remove fork relationship**:
+If your project is on a self-managed instance, the URL will be
+`https://<user-or-group-name>.<your-domain>/<project-name>`.
 
-  ![remove fork relationship](../img/remove_fork_relationship.png)
+[Learn more about how the domain names are determined](../getting_started_part_one.md#gitlab-pages-default-domain-names).
 
-- _Make it a user or group website._ To turn a **project website** forked
-  from the Pages group into a **user/group** website, you'll need to:
-  - Rename it to `namespace.gitlab.io`: go to your project's
-    **Settings > General** and expand **Advanced**. Scroll down to
-    **Rename repository** and change the path to `namespace.gitlab.io`.
-  - Adjust your SSG's [base URL](../getting_started_part_one.md#urls-and-baseurls) from `"project-name"` to
-    `""`. This setting will be at a different place for each SSG, as each of them
-    have their own structure and file tree. Most likely, it will be in the SSG's
-    config file.
+If you don't intend to contribute to the project you forked, remove the fork
+relationship by navigating to your project's **Settings > General**, expanding **Advanced settings**, and scrolling down to **Remove fork relationship**:
+
+![remove fork relationship](../img/remove_fork_relationship.png)
