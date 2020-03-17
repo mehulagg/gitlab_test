@@ -60,7 +60,7 @@ module EE
         if predefined_push_rule
           push_rule = predefined_push_rule.dup.tap do |pr|
             pr.is_sample = false
-            pr.target_type = :project
+            pr.target_type = ::PushRule::RULES_TYPES[:project]
           end
           project.push_rule = push_rule
         end

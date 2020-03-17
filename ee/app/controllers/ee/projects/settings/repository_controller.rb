@@ -50,7 +50,10 @@ module EE
 
         def create_push_rule
           unless project.push_rule
-            project.create_push_rule(target_type: :project)
+            project.create_push_rule(target_type: PushRule::RULES_TYPES[:project])
+          end
+
+          unless project.project_push_rule
             project.create_project_push_rule(push_rule: project.push_rule)
           end
         end

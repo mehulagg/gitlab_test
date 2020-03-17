@@ -27,6 +27,14 @@ describe Projects::Settings::RepositoryController do
         expect(project.project_push_rule).to be_persisted
       end
 
+      it 'if project project_push_rule exists, it is not created' do
+        rule = project.create_project_push_rule(push_rule: create(:push_rule))
+
+        get :show, params: { namespace_id: project.namespace, project_id: project }
+
+        expect(project.project_push_rule).to eq(rule)
+      end
+
       context 'unlicensed' do
         before do
           stub_licensed_features(push_rules: false)

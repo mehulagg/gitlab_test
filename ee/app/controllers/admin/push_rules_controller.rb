@@ -11,7 +11,7 @@ class Admin::PushRulesController < Admin::ApplicationController
   end
 
   def update
-    @push_rule.update(push_rule_params.merge(target_type: :instance))
+    @push_rule.update(push_rule_params.merge(target_type: ::PushRule::RULES_TYPES[:instance]))
 
     if @push_rule.valid?
       redirect_to admin_push_rule_path, notice: _('Push Rule updated successfully.')

@@ -3,6 +3,8 @@
 class MigratePushRules < ActiveRecord::Migration[6.0]
   include Gitlab::Database::MigrationHelpers
 
+  disable_ddl_transaction!
+
   MIGRATION = 'MigratePushRules'.freeze
   BATCH_SIZE = 10_000
 

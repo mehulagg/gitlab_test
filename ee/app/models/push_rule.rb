@@ -3,13 +3,13 @@
 class PushRule < ApplicationRecord
   extend Gitlab::Cache::RequestCache
 
-  PUSH_RULES_TYPES = { instance: 0, project: 1 }.freeze
+  RULES_TYPES = { instance: 0, project: 1 }.freeze
 
   request_cache_key do
     [self.id]
   end
 
-  enum target_type: PUSH_RULES_TYPES
+  enum target_type: RULES_TYPES
 
   MatchError = Class.new(StandardError)
 

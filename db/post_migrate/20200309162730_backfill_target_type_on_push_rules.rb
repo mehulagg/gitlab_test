@@ -1,10 +1,13 @@
 # frozen_string_literal: true
 
-class BackfillPushRules < ActiveRecord::Migration[6.0]
+class BackfillTargetTypeOnPushRules < ActiveRecord::Migration[6.0]
   include Gitlab::Database::MigrationHelpers
 
-  MIGRATION = 'BackfillPushRules'.freeze
+  disable_ddl_transaction!
+
+  MIGRATION = 'BackfillTargetTypeOnPushRules'.freeze
   BATCH_SIZE = 10_000
+  INSTANCE_TYPE = 0
 
   class PushRules < ActiveRecord::Base
     include EachBatch
@@ -14,7 +17,9 @@ class BackfillPushRules < ActiveRecord::Migration[6.0]
   end
 
   def up
-    queue_background_migration_jobs_by_range_at_intervals(MigratePushRules::PushRules,
+    BackfillTargetTypeOnPushRules::PushRules.where(is_sample: true).update_all(target_type: INSTANCE_TYPE)
+
+    queue_background_migration_jobs_by_range_at_intervals(BackfillTargetTypeOnPushRules::PushRules,
                                                           MIGRATION,
                                                           5.minutes,
                                                           batch_size: BATCH_SIZE)
