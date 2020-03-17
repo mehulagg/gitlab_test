@@ -1,6 +1,7 @@
 <script>
 import { isNumber, isString } from 'lodash';
 import GroupedSecurityReportsApp from 'ee/vue_shared/security_reports/grouped_security_reports_app.vue';
+import GroupedTestReportsApp from '~/reports/components/grouped_test_reports_app.vue';
 import GroupedMetricsReportsApp from 'ee/vue_shared/metrics_reports/grouped_metrics_reports_app.vue';
 import reportsMixin from 'ee/vue_shared/security_reports/mixins/reports_mixin';
 import { componentNames } from 'ee/reports/components/issue_body';
@@ -23,6 +24,7 @@ export default {
     MrWidgetGeoSecondaryNode,
     BlockingMergeRequestsReport,
     GroupedSecurityReportsApp,
+    GroupedTestReportsApp,
     GroupedMetricsReportsApp,
     ReportSection,
   },
@@ -297,6 +299,14 @@ export default {
         :has-issues="hasPerformanceMetrics"
         :component="$options.componentNames.PerformanceIssueBody"
         class="js-performance-widget mr-widget-border-top mr-report"
+      />
+      <grouped-test-reports-app
+        v-if="mr.accessibilityReportsPath"
+        :endpoint="mr.accessibilityReportsPath"
+        :isLoadingMessage="s__('Reports|Accessibility scanning results are being parsed')"
+        :hasErrorMessage="s__('Reports|Accessibility scanning failed loading results')"
+        :defaultMessage="s__('Reports|Accessibility scanning')"
+        class="js-accessibility-reports-container"
       />
       <grouped-metrics-reports-app
         v-if="mr.metricsReportsPath"

@@ -16801,6 +16801,15 @@ msgstr ""
 msgid "Reports|%{combinedString} and %{resolvedString}"
 msgstr ""
 
+msgid "Reports|Accessibility scanning"
+msgstr ""
+
+msgid "Reports|Accessibility scanning failed loading results"
+msgstr ""
+
+msgid "Reports|Accessibility scanning results are being parsed"
+msgstr ""
+
 msgid "Reports|Actions"
 msgstr ""
 

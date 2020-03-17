@@ -23,6 +23,21 @@ export default {
       type: String,
       required: true,
     },
+    isLoadingMessage: {
+      type: String,
+      required: false,
+      default: () => s__('Reports|Test summary results are being parsed'),
+    },
+    hasErrorMessage: {
+      type: String,
+      required: false,
+      default: () => s__('Reports|Test summary failed loading results'),
+    },
+    defaultMessage: {
+      type: String,
+      required: false,
+      default: () => s__('Reports|Test summary'),
+    },
   },
   componentNames,
   computed: {
@@ -34,14 +49,14 @@ export default {
     ...mapGetters(['summaryStatus']),
     groupedSummaryText() {
       if (this.isLoading) {
-        return s__('Reports|Test summary results are being parsed');
+        return this.isLoadingMessage;
       }
 
       if (this.hasError) {
-        return s__('Reports|Test summary failed loading results');
+        return this.hasErrorMessage;
       }
 
-      return summaryTextBuilder(s__('Reports|Test summary'), this.summary);
+      return summaryTextBuilder(this.defaultMessage, this.summary);
     },
   },
   created() {
