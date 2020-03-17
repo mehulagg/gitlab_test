@@ -179,6 +179,7 @@ using environment variables.
 | `CLAIR_DB_IMAGE`               | The Docker image name and tag for the [Postgres server hosting the vulnerabilities definitions](https://hub.docker.com/r/arminc/clair-db). It can be useful to override this value with a specific version, for example, to provide a consistent set of vulnerabilities for integration testing purposes, or to refer to a locally hosted vulnerabilities database for an on-premise air-gapped installation.                                                                                                                                                                                                                                                                                                                                                                      | `arminc/clair-db:latest`                                                                                        |
 | `CLAIR_DB_IMAGE_TAG`           | (**DEPRECATED - use `CLAIR_DB_IMAGE` instead**) The Docker image tag for the [Postgres server hosting the vulnerabilities definitions](https://hub.docker.com/r/arminc/clair-db). It can be useful to override this value with a specific version, for example, to provide a consistent set of vulnerabilities for integration testing purposes.                                                                                                                                                                                                                                                                                                                                                                                                                                   | `latest`                                                                                                        |
 | `DOCKERFILE_PATH`              | The path to the `Dockerfile` to be used for generating remediations. By default, the scanner will look for a file named `Dockerfile` in the root directory of the project, so this variable should only be configured if your `Dockerfile` is in a non-standard location, such as a subdirectory. See [Solutions for vulnerabilities](#solutions-for-vulnerabilities-auto-remediation) for more details.                                                                                                                                                                                                                                                                                                                                                                          | `Dockerfile`                                                                                                    |
+| `SECURITY_SCANNER_IMAGE_PREFIX` | The URI for the Docker registry where the `klar` Docker image is hosted. This variable can be overridden to refer to an internally accessible Docker registry to facilitate an on-premise air-gapped installation.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | `registry.gitlab.com/gitlab-org/security-products/analyzers`                                                   |
 
 ### Overriding the Container Scanning template
 
@@ -215,14 +216,18 @@ Container Scanning can be executed on an offline air-gapped GitLab Ultimate inst
 1. [Override the container scanning template](#overriding-the-container-scanning-template) in your `.gitlab-ci.yml` file to refer to the Docker images hosted on your local Docker container registry:
 
    ```yaml
+   variables:
+     SECURITY_SCANNER_IMAGE_PREFIX: "$CI_REGISTRY/namespace"
+
    include:
      - template: Container-Scanning.gitlab-ci.yml
 
    container_scanning:
-     image: $CI_REGISTRY/namespace/gitlab-klar-analyzer
      variables:
        CLAIR_DB_IMAGE: $CI_REGISTRY/namespace/clair-vulnerabilities-db
    ```
+
+1. Ensure that the `GitLab klar analyzer` Docker image hosted on the local Docker container registry is accessible via the `SECURITY_SCANNER_IMAGE_PREFIX` environment variable. Using the the above `.gitlab-ci.yml` file as an example, this means that the `GitLab klar analyzer` Docker image should be pushed to the following location: `$CI_REGISTRY/namespace/klar`
 
 1. If your local Docker container registry is running securely over `HTTPS`, but you're using a
    self-signed certificate, then you must set `DOCKER_INSECURE: true` in the above
