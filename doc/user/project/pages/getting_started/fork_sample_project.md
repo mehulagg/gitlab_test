@@ -44,7 +44,7 @@ forking (copying) a [sample project from the most popular Static Site Generators
    website from your project's **Settings > Pages**. It can take approximately
    30 minutes to be deployed.
 
-If your project is on gitlab.com, the URL will be
+If your project is on GitLab.com, the URL will be
 `https://<user-or-group-name>.gitlab.io/<project-name>`.
 
 If your project is on a self-managed instance, the URL will be
