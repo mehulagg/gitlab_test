@@ -162,18 +162,20 @@ class Projects::PipelinesController < Projects::ApplicationController
   def test_report
     return unless Feature.enabled?(:junit_pipeline_view, project)
 
+    finder = Ci::PipelineTestReportsFinder.new(pipeline).execute(scope: params[:scope])
+
     respond_to do |format|
       format.html do
         render 'show'
       end
 
       format.json do
-        if pipeline_test_report == :error
+        if finder == :error
           render json: { status: :error_parsing_report }
         else
           render json: TestReportSerializer
             .new(current_user: @current_user)
-            .represent(pipeline_test_report)
+            .represent(finder)
         end
       end
     end
@@ -254,14 +256,6 @@ class Projects::PipelinesController < Projects::ApplicationController
     finder = Ci::PipelinesFinder.new(project, current_user, scope: scope)
 
     view_context.limited_counter_with_delimiter(finder.execute)
-  end
-
-  def pipeline_test_report
-    strong_memoize(:pipeline_test_report) do
-      @pipeline.test_reports
-    rescue Gitlab::Ci::Parsers::ParserError
-      :error
-    end
   end
 end
 
