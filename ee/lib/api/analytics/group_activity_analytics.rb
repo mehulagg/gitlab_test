@@ -9,7 +9,7 @@ module API
 
       before do
         authenticate!
-        not_found! unless Feature.enabled?(:group_activity_analytics)
+        not_found! unless Feature.enabled?(:group_activity_analytics, default_enabled: true)
       end
 
       helpers do
