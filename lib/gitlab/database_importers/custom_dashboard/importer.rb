@@ -9,6 +9,7 @@ module Gitlab
         PROJECT_DASHBOARD_KEY = 3
 
         attr_reader :content, :project
+        attr_accessor :identifiers
 
         def self.import_dashboards!(project)
           ::Metrics::Dashboard::ProjectDashboardService
@@ -21,6 +22,7 @@ module Gitlab
           @content = ::Metrics::Dashboard::ProjectDashboardService
                        .new(project, nil, dashboard_path: filename)
                        .raw_dashboard
+          @identifiers = []
         end
 
         def execute
@@ -30,6 +32,8 @@ module Gitlab
             find_or_build_metric!(id)
               .update!(**attributes)
           end
+
+          cleanup_unidentified_metrics
         end
 
         private
@@ -69,9 +73,17 @@ module Gitlab
 
         def find_or_build_metric!(id)
           raise MissingQueryId unless id
+          identifiers << id
 
           CustomDashboard::PrometheusMetric.find_by(project_id: project.id, identifier: id) ||
             CustomDashboard::PrometheusMetric.new(project_id: project.id, identifier: id)
+        end
+
+        def cleanup_unidentified_metrics
+          CustomDashboard::PrometheusMetric
+            .where(project_id: project.id, group: PROJECT_DASHBOARD_KEY)
+            .where.not(identifier: identifiers)
+            .destroy_all
         end
       end
     end
