@@ -45,22 +45,10 @@ class Projects::FeatureFlagsController < Projects::ApplicationController
   end
 
   def create
-    result = if create_params[:version] == 'new_version_flag' && !new_version_feature_flags_enabled?
-               {
-                 status: :error,
-                 message: 'New version flags are not enabled for this project'
-               }
-             else
-               {}
-             end
-
-    result = if result[:status] != :error && valid_version?(create_params)
+    result = if valid_version?(create_params)
                FeatureFlags::CreateService.new(project, current_user, create_params).execute
              else
-               {
-                 status: :error,
-                 message: 'Version is invalid'
-               }
+               invalid_version_result(create_params)
              end
 
     if result[:status] == :success
@@ -118,7 +106,23 @@ class Projects::FeatureFlagsController < Projects::ApplicationController
   end
 
   def valid_version?(params)
-    !params.key?(:version) || Operations::FeatureFlag.versions.key?(params[:version])
+    !params.key?(:version) ||
+      params[:version] == 'legacy_flag' ||
+      (params[:version] == 'new_version_flag' && new_version_feature_flags_enabled?)
+  end
+
+  def invalid_version_result(params)
+    if params[:version] == 'new_version_flag'
+      {
+        status: :error,
+        message: 'New version flags are not enabled for this project'
+      }
+    else
+      {
+        status: :error,
+        message: 'Version is invalid'
+      }
+    end
   end
 
   def new_version_feature_flags_enabled?
