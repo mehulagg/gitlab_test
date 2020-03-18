@@ -75,6 +75,7 @@ module Gitlab
 
     module Support
       autoload :GetRequest, 'gitlab/qa/support/get_request'
+      autoload :HttpRequest, 'gitlab/qa/support/http_request'
       autoload :DevEEQAImage, 'gitlab/qa/support/dev_ee_qa_image'
       autoload :InvalidResponseError, 'gitlab/qa/support/invalid_response_error'
     end
@@ -89,6 +90,11 @@ module Gitlab
     module Report
       autoload :PrepareStageReports, 'gitlab/qa/report/prepare_stage_reports'
       autoload :ResultsInIssues, 'gitlab/qa/report/results_in_issues'
+      autoload :SummaryTable, 'gitlab/qa/report/summary_table'
+    end
+
+    module Slack
+      autoload :PostToSlack, 'gitlab/qa/slack/post_to_slack'
     end
   end
 end
