@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.shared_examples 'saves project tree successfully' do |ndjson_enabled|
   include ImportExport::CommonUtil
 
@@ -272,7 +274,7 @@ RSpec.shared_examples 'saves project tree successfully' do |ndjson_enabled|
       json = json.first if %i(project project_feature).include?(key)
     else
       json = project_json(path)
-      json = json[key.to_s] unless key == :projec
+      json = json[key.to_s] unless key == :project
     end
 
     json

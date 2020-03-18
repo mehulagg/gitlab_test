@@ -20,11 +20,11 @@ describe Gitlab::ImportExport::Project::TreeSaver do
     FileUtils.rm_rf(export_path)
   end
 
-  context 'JSON' do
+  context 'with JSON' do
     it_behaves_like "saves project tree successfully", false
   end
 
-  context 'NDJSON' do
+  context 'with NDJSON' do
     it_behaves_like "saves project tree successfully", true
   end
 
@@ -85,5 +85,4 @@ describe Gitlab::ImportExport::Project::TreeSaver do
 
     project
   end
-
 end
