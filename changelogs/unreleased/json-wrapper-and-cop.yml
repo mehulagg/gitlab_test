@@ -1,0 +1,5 @@
+---
+title: Introduce Gitlab::Json wrapper
+merge_request: 29038
+author:
+type: added
