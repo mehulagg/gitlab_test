@@ -6,7 +6,7 @@ module Gitlab
       def parse(*args)
         data = adapter.parse(*args)
 
-        raise JSON::ParserError if data.is_a?(String)
+        raise parser_error if [String, TrueClass, FalseClass].any? { |type| data.is_a?(type) }
 
         data
       end
@@ -22,7 +22,11 @@ module Gitlab
       private
 
       def adapter
-        @adapter ||= ::JSON
+        ::JSON
+      end
+
+      def parser_error
+        ::JSON::ParserError
       end
     end
   end
