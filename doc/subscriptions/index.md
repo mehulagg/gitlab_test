@@ -249,6 +249,7 @@ Seat Link is mandatory because we need the user count data to enable prorated bi
 
 - Date
 - Historical maximum user count
+- Active users count
 - License key
 
 Here is an example of the POST request:
