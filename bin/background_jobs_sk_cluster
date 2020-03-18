@@ -50,9 +50,12 @@ start_sidekiq()
   fi
 
   # sidekiq-cluster expects '*' '*' arguments (one wildcard for each process).
-  for (( i=1; i<=$SIDEKIQ_WORKERS; i++ ))
+  i=0
+  # POSIX-compliant loop.
+  while [ "$i" -ne $SIDEKIQ_WORKERS ]
   do
     processes_args+=("*")
+    i=$((i + 1))
   done
 
   ${cmd} bin/sidekiq-cluster "${processes_args[@]}" -P $sidekiq_pidfile -e $RAILS_ENV
