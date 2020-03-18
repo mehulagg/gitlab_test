@@ -71,7 +71,9 @@ module Gitlab
           'GITLAB_QA_1P_GITHUB_UUID' => :gitlab_qa_1p_github_uuid,
           'GITLAB_QA_LOOP_RUNNER_MINUTES' => :gitlab_qa_loop_runner_minutes,
           'QA_CAN_TEST_ADMIN_FEATURES' => :qa_can_test_admin_features,
-          'MAILHOG_HOSTNAME' => :mailhog_hostname
+          'MAILHOG_HOSTNAME' => :mailhog_hostname,
+          'SLACK_QA_CHANNEL' => :slack_qa_channel,
+          'SLACK_QA_BOT_TOKEN' => :slack_qa_bot_token
         }.freeze
 
         ENV_VARIABLES.each_value do |accessor|
@@ -155,6 +157,18 @@ module Gitlab
           %w[GITHUB_OAUTH_APP_ID GITHUB_OAUTH_APP_SECRET GITHUB_USERNAME GITHUB_PASSWORD GITLAB_QA_1P_EMAIL GITLAB_QA_1P_PASSWORD GITLAB_QA_1P_SECRET GITLAB_QA_1P_GITHUB_UUID].each do |env_key|
             raise ArgumentError, "Environment variable #{env_key} must be set to run OAuth specs" unless ENV.key?(env_key)
           end
+        end
+
+        def require_slack_qa_channel!
+          return unless ENV['SLACK_QA_CHANNEL'].to_s.strip.empty?
+
+          raise ArgumentError, "Please provide SLACK_QA_CHANNEL"
+        end
+
+        def require_slack_qa_bot_token!
+          return unless ENV['SLACK_QA_BOT_TOKEN'].to_s.strip.empty?
+
+          raise ArgumentError, "Please provide SLACK_QA_BOT_TOKEN"
         end
 
         def require_kubernetes_environment!

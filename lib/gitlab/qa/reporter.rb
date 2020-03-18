@@ -6,6 +6,7 @@ module Gitlab
       # rubocop:disable Metrics/AbcSize
       def self.invoke(args)
         report_options = {}
+        slack_options = {}
 
         options = OptionParser.new do |opts|
           opts.banner = 'Usage: gitlab-qa-reporter [options]'
@@ -26,6 +27,17 @@ module Gitlab
 
           opts.on('-t', '--token ACCESS_TOKEN', String, 'A valid access token. Used by --report-in-issues') do |value|
             report_options[:token] = value
+          end
+
+          opts.on('--post-to-slack MSG', 'Post message to slack') do |msg|
+            slack_options[:post_to_slack] = true
+            slack_options[:message] = msg
+          end
+
+          opts.on('--include-summary-table FILES', 'Create a results summary table to post to slack. To be used with --post-to-slack.') do |files|
+            raise 'This option should be used with --post-to-slack.' unless slack_options[:post_to_slack]
+
+            slack_options[:message] = slack_options[:message] + "\n\n" + Gitlab::QA::Report::SummaryTable.create(input_files: files)
           end
 
           opts.on_tail('-v', '--version', 'Show the version') do
@@ -54,6 +66,13 @@ module Gitlab
             report_options.delete(:report_in_issues)
             report_options[:token] = Runtime::TokenFinder.find_token!(report_options[:token])
             Gitlab::QA::Report::ResultsInIssues.new(**report_options).invoke!
+
+            exit
+          end
+
+          if slack_options[:post_to_slack]
+            slack_options.delete(:post_to_slack)
+            Gitlab::QA::Slack::PostToSlack.new(**slack_options).invoke!
 
             exit
           end

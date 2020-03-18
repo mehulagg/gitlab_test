@@ -29,5 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'webmock', '3.7.0'
   spec.add_runtime_dependency 'activesupport', '~>  6.0.2'
   spec.add_runtime_dependency 'gitlab', '~>  4.11.0'
+  spec.add_runtime_dependency 'http', '4.3.0'
   spec.add_runtime_dependency 'nokogiri', '~> 1.10'
+  spec.add_runtime_dependency 'table_print', '1.5.6'
 end
