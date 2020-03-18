@@ -1,0 +1,5 @@
+---
+title: Bump json gem version and wrap legacy usage
+merge_request: 27517
+author:
+type: changed

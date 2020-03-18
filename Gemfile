@@ -273,6 +273,9 @@ gem 'mimemagic', '~> 0.3.2'
 # Faster blank
 gem 'fast_blank'
 
+# JSON
+gem 'json', '~> 2.3.0'
+
 # Parse time & duration
 gem 'gitlab-chronic', '~> 0.10.5'
 gem 'gitlab_chronic_duration', '~> 0.10.6.2'
