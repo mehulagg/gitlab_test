@@ -270,13 +270,11 @@ RSpec.shared_examples 'saves project tree successfully' do |ndjson_enabled|
     if ndjson_enabled == true
       json = ndjson_relations(path, key)
       json = json.first if %i(project project_feature).include?(key)
-
-      json
     else
       json = project_json(path)
-      json = json[key.to_s] unless key == :project
-
-      json
+      json = json[key.to_s] unless key == :projec
     end
+
+    json
   end
 end

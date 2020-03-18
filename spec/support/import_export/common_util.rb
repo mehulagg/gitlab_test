@@ -27,7 +27,7 @@ module ImportExport
     end
 
     def ndjson_relations(dir_path, key)
-      path = File.join(dir_path, "#{key.to_s}.ndjson")
+      path = File.join(dir_path, "#{key}.ndjson")
       return unless File.exist?(path)
 
       relations = []

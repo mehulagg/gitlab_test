@@ -25,7 +25,7 @@ describe Gitlab::ImportExport::JSON::NdjsonWriter do
   end
 
   describe "#append" do
-    let (:values) { [{ "key" => "value_1", "key_1" => "value_1" }, { "key" => "value_2", "key_1" => "value_2" }] }
+    let(:values) { [{ "key" => "value_1", "key_1" => "value_1" }, { "key" => "value_2", "key_1" => "value_2" }] }
 
     context "when multiple values are appended to same relation" do
       it "appends json in correct file " do
