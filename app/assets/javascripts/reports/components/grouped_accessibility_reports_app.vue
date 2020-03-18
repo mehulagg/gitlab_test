@@ -9,6 +9,12 @@ import Modal from './modal.vue';
 import createStore from '../store';
 import { summaryTextBuilder, reportTextBuilder, statusIcon } from '../store/utils';
 
+/*
+- Move this file to EE
+- Make store based on this file
+- This file is used for multiple test reports, we want just a single report
+*/
+
 export default {
   name: 'GroupedTestReportsApp',
   store: createStore(),
@@ -34,14 +40,14 @@ export default {
     ...mapGetters(['summaryStatus']),
     groupedSummaryText() {
       if (this.isLoading) {
-        return s__('Reports|Test summary results are being parsed');
+        return s__('Reports|Accessibility scanning results are being parsed');
       }
 
       if (this.hasError) {
-        return s__('Reports|Test summary failed loading results');
+        return s__('Reports|Accessibility scanning failed loading results');
       }
 
-      return summaryTextBuilder(s__('Reports|Test summary'), this.summary);
+      return summaryTextBuilder(() => s__('Reports|Accessibility scanning'), this.summary);
     },
   },
   created() {
@@ -60,22 +66,25 @@ export default {
     },
     shouldRenderIssuesList(report) {
       return (
-        report.existing_failures.length > 0 ||
-        report.new_failures.length > 0 ||
-        report.resolved_failures.length > 0 ||
+        report.existing_warnings.length > 0 ||
+        report.new_warnings.length > 0 ||
+        report.resolved_warnings.length > 0 ||
         report.existing_errors.length > 0 ||
         report.new_errors.length > 0 ||
-        report.resolved_errors.length > 0
+        report.resolved_errors.length > 0 ||
+        report.existing_notes.length > 0 ||
+        report.new_notes.length > 0 ||
+        report.resolved_notes.length > 0
       );
     },
     unresolvedIssues(report) {
-      return report.existing_failures.concat(report.existing_errors);
+      return report.existing_warnings.concat(report.existing_errors).concat(report.existing_notes);
     },
     newIssues(report) {
-      return report.new_failures.concat(report.new_errors);
+      return report.new_warnings.concat(report.new_errors).concat(report.new_notes);
     },
     resolvedIssues(report) {
-      return report.resolved_failures.concat(report.resolved_errors);
+      return report.resolved_warnings.concat(report.resolved_errors).concat(report.resolved_notes);
     },
   },
 };
