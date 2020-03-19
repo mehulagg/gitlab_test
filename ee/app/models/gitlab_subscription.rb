@@ -18,7 +18,7 @@ class GitlabSubscription < ApplicationRecord
   end
 
   scope :with_a_paid_hosted_plan, -> do
-    with_hosted_plan(Plan::PAID_HOSTED_PLANS)
+    with_hosted_plan(Plan::PAID_HOSTED_PLAN_NAMES)
   end
 
   def seats_in_use
@@ -39,7 +39,22 @@ class GitlabSubscription < ApplicationRecord
     !trial? &&
       hosted? &&
       seats > 0 &&
-      Plan::PAID_HOSTED_PLANS.include?(plan_name)
+      plan.is_paid? &&
+      plan.is_hosted?
+  end
+
+  def trial_active?
+    trial? && trial_ends_on.present? && trial_ends_on >= Date.today
+  end
+
+  def never_had_trial?
+    trial_ends_on.nil?
+  end
+
+  def trial_expired?
+    trial_ends_on.present? &&
+      trial_ends_on < Date.today &&
+      plan.free_level?
   end
 
   def expired?
@@ -51,13 +66,11 @@ class GitlabSubscription < ApplicationRecord
   def upgradable?
     has_a_paid_hosted_plan? &&
       !expired? &&
-      plan_name != Plan::PAID_HOSTED_PLANS[-1]
+      !is_highest_tier?
   end
 
   def plan_code=(code)
-    code ||= Plan::FREE
-
-    self.hosted_plan = Plan.find_by(name: code)
+    self.hosted_plan = Plan.find_by(name: code) || Plan.free
   end
 
   private

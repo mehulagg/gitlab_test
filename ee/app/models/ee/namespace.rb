@@ -10,16 +10,6 @@ module EE
     extend ::Gitlab::Utils::Override
     include ::Gitlab::Utils::StrongMemoize
 
-    NAMESPACE_PLANS_TO_LICENSE_PLANS = {
-      Plan::BRONZE        => License::STARTER_PLAN,
-      Plan::SILVER        => License::PREMIUM_PLAN,
-      Plan::GOLD          => License::ULTIMATE_PLAN,
-      Plan::EARLY_ADOPTER => License::EARLY_ADOPTER_PLAN
-    }.freeze
-
-    LICENSE_PLANS_TO_NAMESPACE_PLANS = NAMESPACE_PLANS_TO_LICENSE_PLANS.invert.freeze
-    PLANS = (NAMESPACE_PLANS_TO_LICENSE_PLANS.keys + [Plan::FREE]).freeze
-
     CI_USAGE_ALERT_LEVELS = [30, 5].freeze
 
     prepended do
@@ -49,8 +39,7 @@ module EE
       end
 
       scope :with_feature_available_in_plan, -> (feature) do
-        plans = plans_with_feature(feature)
-        matcher = Plan.where(name: plans)
+        matcher = Plan.with_feature(feature)
           .joins(:hosted_subscriptions)
           .where("gitlab_subscriptions.namespace_id = namespaces.id")
           .select('1')
@@ -70,7 +59,8 @@ module EE
                 numericality: { only_integer: true, greater_than_or_equal_to: 0, allow_nil: true,
                                 less_than: ::Gitlab::Pages::MAX_SIZE / 1.megabyte }
 
-      delegate :trial?, :trial_ends_on, :trial_starts_on, :upgradable?, to: :gitlab_subscription, allow_nil: true
+      delegate :trial?, :trial_active?, :never_had_trial?, :trial_expired?, :trial_ends_on, :trial_starts_on, :upgradable?,
+        to: :gitlab_subscription, allow_nil: true
 
       before_create :sync_membership_lock_with_parent
 
@@ -82,10 +72,6 @@ module EE
       extend ::Gitlab::Utils::Override
 
       NamespaceStatisticsNotResetError = Class.new(StandardError)
-
-      def plans_with_feature(feature)
-        LICENSE_PLANS_TO_NAMESPACE_PLANS.values_at(*License.plans_with_feature(feature))
-      end
 
       def reset_ci_minutes_in_batches!
         each_batch do |namespaces|
@@ -203,7 +189,7 @@ module EE
 
       available_features = strong_memoize(:features_available_in_plan) do
         Hash.new do |h, f|
-          h[f] = (plans.map(&:name) & self.class.plans_with_feature(f)).any?
+          h[f] = (plans.map(&:name) & Plan.plans_with_feature(f)).any?
         end
       end
 
@@ -216,7 +202,7 @@ module EE
           root_ancestor.actual_plan
         else
           subscription = find_or_create_subscription
-          subscription&.hosted_plan || Plan.free || Plan.default
+          subscription&.hosted_plan || Plan.free_or_default
         end
       end
     end
@@ -229,10 +215,12 @@ module EE
     end
 
     def actual_plan_name
-      actual_plan&.name || Plan::FREE
+      actual_plan.name
     end
 
     def plan_name_for_upgrading
+      # We return free, as a way to fake to `customers.gitlab.com`
+      # that we can upgrade from `trial` to a paid plan
       return Plan::FREE if trial_active?
 
       actual_plan_name
@@ -298,9 +286,9 @@ module EE
     def plan=(plan_name)
       if plan_name.is_a?(String)
         @plan_name = plan_name # rubocop:disable Gitlab/ModuleWithInstanceVariables
-
         super(Plan.find_by(name: @plan_name)) # rubocop:disable Gitlab/ModuleWithInstanceVariables
       else
+        @plan_name = nil
         super
       end
     end
@@ -338,21 +326,7 @@ module EE
       ::Gitlab.com? &&
         parent_id.nil? &&
         trial_ends_on.blank? &&
-        [Plan::EARLY_ADOPTER, Plan::FREE].include?(actual_plan_name)
-    end
-
-    def trial_active?
-      trial? && trial_ends_on.present? && trial_ends_on >= Date.today
-    end
-
-    def never_had_trial?
-      trial_ends_on.nil?
-    end
-
-    def trial_expired?
-      trial_ends_on.present? &&
-        trial_ends_on < Date.today &&
-        actual_plan_name == Plan::FREE
+        actual_plan.is_free?
     end
 
     # A namespace may not have a file template project
@@ -371,26 +345,6 @@ module EE
       feature_available?(:dast)
     end
 
-    def free_plan?
-      actual_plan_name == Plan::FREE
-    end
-
-    def early_adopter_plan?
-      actual_plan_name == Plan::EARLY_ADOPTER
-    end
-
-    def bronze_plan?
-      actual_plan_name == Plan::BRONZE
-    end
-
-    def silver_plan?
-      actual_plan_name == Plan::SILVER
-    end
-
-    def gold_plan?
-      actual_plan_name == Plan::GOLD
-    end
-
     def use_elasticsearch?
       ::Gitlab::CurrentSettings.elasticsearch_indexes_namespace?(self)
     end
@@ -398,7 +352,7 @@ module EE
     private
 
     def validate_plan_name
-      if defined?(@plan_name) && @plan_name.present? && PLANS.exclude?(@plan_name) # rubocop:disable Gitlab/ModuleWithInstanceVariables
+      if @plan_name.present? && !Plan::PLANS[@plan_name] # rubocop:disable Gitlab/ModuleWithInstanceVariables
         errors.add(:plan, 'is not included in the list')
       end
     end

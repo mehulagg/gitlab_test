@@ -61,7 +61,7 @@ module BillingPlansHelper
   end
 
   def show_plans?(namespace)
-    namespace.trial_active? || !namespace.gold_plan?
+    namespace.trial_active? || !namespace.actual_plan.gold_level?
   end
 
   def show_trial_banner?(namespace)

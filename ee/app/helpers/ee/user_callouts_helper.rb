@@ -67,11 +67,11 @@ module EE
     end
 
     def render_billings_gold_trial(user, namespace)
-      return if namespace.gold_plan?
+      return if namespace.actual_plan.gold_level?
       return unless namespace.never_had_trial?
       return unless show_gold_trial?(user, GOLD_TRIAL_BILLINGS)
 
-      render 'shared/gold_trial_callout_content', is_dismissable: !namespace.free_plan?, callout: GOLD_TRIAL_BILLINGS
+      render 'shared/gold_trial_callout_content', is_dismissable: !namespace.actual_plan.free_level?, callout: GOLD_TRIAL_BILLINGS
     end
 
     def show_threat_monitoring_info?

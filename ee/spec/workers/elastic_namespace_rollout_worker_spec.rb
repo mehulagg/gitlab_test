@@ -6,13 +6,13 @@ describe ElasticNamespaceRolloutWorker do
   ROLLOUT = described_class::ROLLOUT
   ROLLBACK = described_class::ROLLBACK
 
-  Plan::PAID_HOSTED_PLANS.each do |plan|
+  Plan::HOSTED_PLAN_NAMES.each do |plan|
     plan_factory = "#{plan}_plan"
     let_it_be(plan_factory) { create(plan_factory) }
   end
 
   before_all do
-    Plan::PAID_HOSTED_PLANS.each do |plan|
+    Plan::HOSTED_PLAN_NAMES.each do |plan|
       create_list(:gitlab_subscription, 4, hosted_plan: public_send("#{plan}_plan"))
     end
   end

@@ -26,7 +26,7 @@ describe 'Billing plan pages', :feature do
   end
 
   def external_upgrade_url(namespace, plan)
-    if Plan::PAID_HOSTED_PLANS.include?(plan.name)
+    if plan.paid? && plan.hosted?
       "#{EE::SUBSCRIPTIONS_URL}/gitlab/namespaces/#{namespace.id}/upgrade/#{plan.name}-external-id"
     end
   end

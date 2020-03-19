@@ -232,7 +232,7 @@ module EE
     def has_paid_namespace?
       ::Namespace
         .from("(#{namespace_union_for_reporter_developer_maintainer_owned(:plan_id)}) #{::Namespace.table_name}")
-        .where(plan_id: Plan.where(name: Plan::PAID_HOSTED_PLANS).select(:id))
+        .where(plan_id: Plan.with_paid_plans)
         .any?
     end
 
@@ -267,7 +267,7 @@ module EE
       ::Gitlab.com? &&
       namespace.present? &&
       active? &&
-      !namespace.root_ancestor.free_plan? &&
+      !namespace.root_ancestor.actual_plan.free_plan? &&
       namespace.root_ancestor.billed_user_ids.include?(self.id)
     end
 
