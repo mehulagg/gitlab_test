@@ -316,6 +316,29 @@ describe Gitlab::QA::Report::ResultsInIssues do
                 end
               end
             end
+
+            context 'when the test is quarantined' do
+              let(:failure_summary) { ":x: ~\"staging::failed\" ~\"quarantine\" in job `test-job-quarantine` in http://job_url" }
+
+              around do |example|
+                ClimateControl.modify(
+                  CI_JOB_URL: 'http://job_url',
+                  CI_JOB_NAME: 'test-job-quarantine'
+                ) { example.run }
+              end
+
+              it 'includes a quarantine label in the summary' do
+                allow(subject).to receive(:update_labels).and_call_original
+
+                expect(subject).to receive(:pipeline).and_return('staging').twice
+                expect(::Gitlab).to receive(:edit_issue).with(anything, anything, labels: %w[staging::failed quarantine])
+                expect(::Gitlab).to receive(:issue_discussions).and_return([])
+                expect(::Gitlab).to receive(:create_issue_note)
+                  .with(anything, anything, note_content)
+
+                expect { subject.invoke! }.to output.to_stdout
+              end
+            end
           end
         end
       end
