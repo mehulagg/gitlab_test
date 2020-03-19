@@ -192,6 +192,20 @@ module Types
           null: true,
           description: 'A single board of the project',
           resolver: Resolvers::BoardsResolver.single
+
+    field :releases,
+          Types::ReleaseType.connection_type,
+          null: true,
+          description: 'Releases of the project',
+          resolver: Resolvers::ReleasesResolver,
+          feature_flag: :graphql_release_data
+
+    field :release,
+          Types::ReleaseType,
+          null: true,
+          description: 'A single release of the project',
+          resolver: Resolvers::ReleasesResolver.single,
+          feature_flag: :graphql_release_data
   end
 end
 
