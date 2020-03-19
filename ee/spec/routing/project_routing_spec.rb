@@ -3,8 +3,11 @@
 require "spec_helper"
 
 describe 'EE-specific project routing' do
+  let_it_be(:public_project) { create(:project, :public) }
+
   before do
     allow(Project).to receive(:find_by_full_path).with('gitlab/gitlabhq', any_args).and_return(true)
+    allow(Project).to receive(:find_by_full_path).with(public_project.full_path, any_args).and_return(public_project)
   end
 
   describe Projects::RequirementsController, 'routing', type: :routing do
@@ -38,6 +41,34 @@ describe 'EE-specific project routing' do
   describe Projects::PipelinesController, 'routing' do
     it 'to #security' do
       expect(get('/gitlab/gitlabhq/pipelines/12/security')).to route_to('projects/pipelines#security', namespace_id: 'gitlab', project_id: 'gitlabhq', id: '12')
+    end
+  end
+
+  describe Projects::IssuesController, 'routing' do
+    def route_correctly
+      route_to('projects/issues#designs',
+               namespace_id: public_project.namespace.to_param,
+               project_id: public_project.to_param,
+               id: iid,
+               vueroute: 'Wiki editing.png')
+    end
+
+    let_it_be(:issue) { create(:issue, project: public_project) }
+    let(:project_path) { public_project.full_path }
+    let(:iid) { issue.iid.to_s }
+    let(:new_url) { "/#{project_path}/-/issues/#{iid}/designs/Wiki%20editing.png" }
+    let(:old_url) { "/#{project_path}/issues/#{iid}/designs/Wiki%20editing.png" }
+
+    it 'to #designs' do
+      expect(get(new_url)).to route_correctly
+    end
+
+    context 'the URL is in the old format' do
+      include RSpec::Rails::RequestExampleGroup
+
+      it 'redirects to new_url' do
+        expect(get(old_url)).to redirect_to(new_url)
+      end
     end
   end
 
