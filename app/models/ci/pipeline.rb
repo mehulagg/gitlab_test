@@ -208,17 +208,12 @@ module Ci
 
       after_transition any => ::Ci::Pipeline.completed_statuses do |pipeline|
         pipeline.run_after_commit do
-          pipeline.persistent_ref.delete
-
-          pipeline.all_merge_requests.each do |merge_request|
-            next unless merge_request.auto_merge_enabled?
-
-            AutoMergeProcessWorker.perform_async(merge_request.id)
-          end
-
-          if pipeline.auto_devops_source?
-            self.class.auto_devops_pipelines_completed_total.increment(status: pipeline.status)
-          end
+          # When publishing an event it's best whenever possible to pass all the data
+          # that listeners need so that they don't couple themselves with pipeline methods.
+          # However, that may not always be the case.
+          Gitlab::EventPublisher.publish_event(
+            Ci::PipelineCompletedEvent,
+            pipeline_id: pipeline.id, status: pipeline.status, is_auto_devops: pipeline.auto_devops_source?)
         end
       end
 
@@ -363,10 +358,6 @@ module Ci
 
     def self.bridgeable_statuses
       ::Ci::Pipeline::AVAILABLE_STATUSES - %w[created waiting_for_resource preparing pending]
-    end
-
-    def self.auto_devops_pipelines_completed_total
-      @auto_devops_pipelines_completed_total ||= Gitlab::Metrics.counter(:auto_devops_pipelines_completed_total, 'Number of completed auto devops pipelines')
     end
 
     def stages_count

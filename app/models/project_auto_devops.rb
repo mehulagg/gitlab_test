@@ -14,6 +14,14 @@ class ProjectAutoDevops < ApplicationRecord
 
   after_save :create_gitlab_deploy_token, if: :needs_to_create_deploy_token?
 
+  def self.handle_event(event, data)
+    return unless event.is_a?(Ci::PipelineCompletedEvent)
+    return unless data.fetch(:is_auto_devops)
+
+    counter = Gitlab::Metrics.counter(:auto_devops_pipelines_completed_total, 'Number of completed auto devops pipelines')
+    counter.increment(status: data.fetch(:status))
+  end
+
   def predefined_variables
     Gitlab::Ci::Variables::Collection.new.tap do |variables|
       variables.append(key: 'AUTO_DEVOPS_EXPLICITLY_ENABLED', value: '1') if enabled?
