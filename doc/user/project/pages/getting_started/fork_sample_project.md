@@ -48,7 +48,7 @@ If your project is on GitLab.com, the URL will be
 `https://<user-or-group-name>.gitlab.io/<project-name>`.
 
 If your project is on a self-managed instance, the URL will be
-`https://<user-or-group-name>.<your-domain>/<project-name>`.
+`https://<user-or-group-name>.<your-instance-domain>/<project-name>`.
 
 [Learn more about how the domain names are determined](../getting_started_part_one.md#gitlab-pages-default-domain-names).
 
