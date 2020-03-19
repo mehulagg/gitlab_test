@@ -21,18 +21,18 @@ to configure the tools to not do this and to still function properly.
 
 ### Container registries and package repositories
 
-At a high-level, each of the security analyzers are delivered as Docker
-containers and reference various package repositories. When you run a job on
+At a high-level, the security analyzers are delivered as Docker images and
+may leverage various package repositories. When you run a job on
 an internet-connected GitLab installation, GitLab checks the GitLab.com-hosted
-container registry and package repositories to ensure that you have
-the latest versions.
+container registry to check that you have the latest versions of these docker images
+and possibly connect to package repositories to install necessary dependencies.
 
 In an air-gapped environment, this must be disabled so that GitLab.com is not
 queried. Because the GitLab.com registry and repositories are not available,
 you must update each of the scanners to either reference a different,
 internally-hosted registry or provide access to the individual scanner images.
 
-You must also ensure that your app has access to common package repos
+You must also ensure that your app has access to common package repositories
 that are not hosted on GitLab.com, such as npm, yarn, or rubygems. Packages
 from these repos can be obtained by temporarily connecting to a network or by
 mirroring the packages inside your own offline network.
@@ -43,7 +43,8 @@ When connected to the internet, some scanners will reference public databases
 for the latest sets of signatures and rules to check against. Without connectivity,
 this is not possible. Depending on the scanner, you must therefore disable
 these automatic update checks and either use the databases that they came
-with or manually update those databases.
+with and manually update those databases or provide access to your own copies
+hosted within your network.
 
 ## Specific scanner instructions
 
