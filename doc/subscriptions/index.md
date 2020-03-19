@@ -291,8 +291,10 @@ TjJ4eVlVUkdkWEJtDQpkSHByYWpreVJrcG9UVlo0Y0hKSU9URndiV2RzVFdO
 VlhHNXRhVmszTkV0SVEzcEpNMWRyZEVoRU4ydHINCmRIRnFRVTlCVUVVM1pV
 SlRORE4xUjFaYVJGb3JlWGM5UFZ4dUlpd2lhWFlpt2lKV00yRnNVbk5RTjJk
 Sg0KU1hNMGExaE9SVGR2V2pKQlBUMWNiaUo5DQo=',
-  max_historical_user_count: 10
+  max_historical_user_count: 10,
+  active_users: 6 
 }
+
 ```
 
 For air-gapped or closed network customers, the existing [true-up model](#users-over-license) will be used. Prorated charges are not possible without user count data.
