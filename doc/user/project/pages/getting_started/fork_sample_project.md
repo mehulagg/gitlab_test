@@ -50,6 +50,15 @@ If your project is on GitLab.com, the URL will be
 If your project is on a self-managed instance, the URL will be
 `https://<user-or-group-name>.<your-instance-domain>/<project-name>`.
 
+If your site is hosted on GitLab.com and you want the URL to be
+available from a specific `gitlab.io` URL, you can do this by changing
+the project path to match the namespace. Go to **Settings > General**,
+expand **Advanced**, and change the path. In this example, 
+`gitlab-tests` is the name of the group, and the resulting URL for
+Pages will be `gitlab-tests.gitlab.io`.
+
+![change path](../img/change_path_12.10.png)
+
 [Learn more about how the domain names are determined](../getting_started_part_one.md#gitlab-pages-default-domain-names).
 
 If you don't intend to contribute to the project you forked, remove the fork
