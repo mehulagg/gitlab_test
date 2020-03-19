@@ -1,11 +1,20 @@
 import { LOADING, ERROR, SUCCESS, STATUS_FAILED } from '~/reports/constants';
-import { s__ } from '~/locale';
-import { summaryTextBuilder, reportTextBuilder, statusIcon } from '~/reports/store/utils';
+import { s__, n__, __ } from '~/locale';
 
-/*
-TODO
-- make sure utils are shareable
-*/
+import { sprintf, n__, s__, __ } from '~/locale';
+
+const textBuilder = ({ errors, warnings }) => {
+  const numberOfResults = errors + warnings;
+  if (numberOfResults === 0) {
+    return __('no issues for the source branch only');
+  }
+  return n__('%d issues for the source branch only', numberOfResults);
+};
+
+const reportTextBuilder = (name = '', report = {}) => {
+  const summary = textBuilder(report);
+  return sprintf(__('%{name} detected %{resultsString}'), { name, summary });
+};
 
 export const summaryStatus = state => {
   if (state.isLoading) {
@@ -28,7 +37,7 @@ export const groupedSummaryText = state => {
     return s__('Reports|Accessibility scanning failed loading results');
   }
 
-  return summaryTextBuilder(() => s__('Reports|Accessibility scanning'), state.report.summary);
+  return reportTextBuilder(s__('Reports|Accessibility scanning'), state.report);
 };
 
 export const hasIssues = state => {
@@ -47,14 +56,6 @@ export const shouldRenderIssuesList = state => {
     state.report.new_warnings.length > 0 ||
     state.report.new_notes.length > 0
   );
-};
-
-export const reportStatusIcon = state => {
-  return statusIcon(state.report.status);
-};
-
-export const reportText = state => {
-  return reportTextBuilder(state.report.name, state.report.summary);
 };
 
 export const unresolvedIssues = state => {
@@ -76,6 +77,3 @@ export const resolvedIssues = state => {
 export const newIssues = state => {
   return [...state.report.new_errors, ...state.report.new_warnings, ...state.report.new_notes];
 };
-
-// prevent babel-plugin-rewire from generating an invalid default during karma tests
-export default () => {};

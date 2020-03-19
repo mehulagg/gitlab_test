@@ -13,7 +13,7 @@ export default () => ({
    *   name: {String},
    *   summary: {
    *     total: {Number},
-   *     resolved: {Number},
+   *     notes: {Number},
    *     warnings: {Number},
    *     errors: {Number},
    *   },

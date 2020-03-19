@@ -2,7 +2,6 @@
 import { mapActions, mapGetters, mapState } from 'vuex';
 import { componentNames } from '~/reports/components/issue_body.js';
 import ReportSection from '~/reports/components/report_section.vue';
-import SummaryRow from '~/reports/components/summary_row.vue';
 import IssuesList from '~/reports/components/issues_list.vue';
 import createStore from './store';
 
@@ -27,8 +26,6 @@ export default {
       'groupedSummaryText',
       'hasIssues',
       'shouldRenderIssuesList',
-      'reportStatusIcon',
-      'reportText',
       'unresolvedIssues',
       'resolvedIssues',
       'newIssues',
@@ -54,7 +51,6 @@ export default {
     class="mr-widget-section grouped-security-reports mr-report"
   >
     <div slot="body" class="mr-widget-grouped-section report-block">
-      <summary-row :summary="reportText" :status-icon="reportStatusIcon" />
       <issues-list
         v-if="shouldRenderIssuesList"
         :unresolved-issues="unresolvedIssues"
