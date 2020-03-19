@@ -793,10 +793,10 @@ module QA
 
         #    # We perform the tests      
            sign_out_and_sign_in_as_another_user(@Group_User_B)
-           Runtime::Logger.debug("@Group User B visiting Project A")
+           #Runtime::Logger.debug("@Group User B visiting Project A")
            @Project_A.visit!
            expect(page).to have_text(@Project_A.name)
-           Runtime::Logger.debug("@Group User B visiting Child Group A")
+           #Runtime::Logger.debug("@Group User B visiting Child Group A")
            @Child_Group_A.visit!
            Page::Group::Menu.perform(&:click_group_members_item)
            expect(page).to have_text(max_access_level)
