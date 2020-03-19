@@ -793,8 +793,10 @@ module QA
 
         #    # We perform the tests      
            sign_out_and_sign_in_as_another_user(@Group_User_B)
+           Runtime::Logger.debug("@Group User B visiting Project A")
            @Project_A.visit!
            expect(page).to have_text(@Project_A.name)
+           Runtime::Logger.debug("@Group User B visiting Child Group A")
            @Child_Group_A.visit!
            Page::Group::Menu.perform(&:click_group_members_item)
            expect(page).to have_text(max_access_level)
@@ -814,7 +816,7 @@ module QA
           
         #   # We cleanup the setup part
            sign_out_and_sign_in_as_admin()
-           remove_group_from_group(@Group_B.path, @Child_Parent_Group_A)
+           remove_group_from_group(@Group_B.path, @Child_Group_A)
           
            remove_user_from_group(@Child_Group_User_B.username, @Child_Group_B)
            remove_user_from_group(@Group_User_B.username, @Group_B)
@@ -1153,7 +1155,7 @@ module QA
         # Line 276
         #! Duplicates: none
          it 'Child_Group_A invites members of the Group_B with a role of "Owner" within B group to be part of Child_Group_A as "Guest"' do
-           user_B_access_level = "Ower"
+           user_B_access_level = "Owner"
            max_access_level = "Guest"
            sign_out_and_sign_in_as_admin()
         #   # We setup users related to B
