@@ -203,7 +203,7 @@ module IssuablesHelper
       author_output
     end
 
-    if issuable.author.gitlab_employee?
+    if Feature.enabled?(:gitlab_employee_badge) && issuable.author.gitlab_employee?
       output << content_tag(:span, id: 'js-employee-badge', class: 'gl-text-gray-700 text-nowrap') do
         employee_badge = sprite_icon('work', size: 16, css_class: 'align-middle mr-1')
         employee_badge << content_tag(:span, 'GitLab', class: 'align-middle')
