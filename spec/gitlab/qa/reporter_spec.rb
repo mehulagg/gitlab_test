@@ -61,14 +61,14 @@ describe Gitlab::QA::Reporter do
 
       context 'with --include-summary-table' do
         it 'requires FILES to be specified' do
-          ClimateControl.modify(SLACK_QA_CHANNEL: 'abc', SLACK_QA_BOT_TOKEN: 'def') do
+          ClimateControl.modify(SLACK_QA_CHANNEL: 'abc', CI_SLACK_WEBHOOK_URL: 'def') do
             expect { described_class.invoke(%w[--post-to-slack message --include-summary-table]) }
               .to raise_error(OptionParser::MissingArgument, 'missing argument: --include-summary-table')
           end
         end
 
         it 'accepts FILES argument' do
-          ClimateControl.modify(SLACK_QA_CHANNEL: 'abc', SLACK_QA_BOT_TOKEN: 'def') do
+          ClimateControl.modify(SLACK_QA_CHANNEL: 'abc', CI_SLACK_WEBHOOK_URL: 'def') do
             allow(Gitlab::QA::Support::HttpRequest).to receive(:make_http_request)
 
             expect(Gitlab::QA::Report::SummaryTable).to receive(:create)

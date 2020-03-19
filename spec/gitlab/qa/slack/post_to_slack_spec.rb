@@ -10,16 +10,16 @@ describe Gitlab::QA::Slack::PostToSlack do
       expect { subject.invoke! }.to raise_error(ArgumentError, 'Please provide SLACK_QA_CHANNEL')
     end
 
-    it 'requires SLACK_QA_BOT_TOKEN env variable to be set' do
-      ClimateControl.modify(SLACK_QA_CHANNEL: 'abc') do
+    it 'requires CI_SLACK_WEBHOOK_URL env variable to be set' do
+      ClimateControl.modify(SLACK_QA_CHANNEL: 'abc', CI_SLACK_WEBHOOK_URL: '') do
         subject = described_class.new(message: 'message')
 
-        expect { subject.invoke! }.to raise_error(ArgumentError, 'Please provide SLACK_QA_BOT_TOKEN')
+        expect { subject.invoke! }.to raise_error(ArgumentError, 'Please provide CI_SLACK_WEBHOOK_URL')
       end
     end
 
     it 'accepts a message' do
-      ClimateControl.modify(SLACK_QA_CHANNEL: 'abc', SLACK_QA_BOT_TOKEN: 'def') do
+      ClimateControl.modify(SLACK_QA_CHANNEL: 'abc', CI_SLACK_WEBHOOK_URL: 'def') do
         subject = described_class.new(message: 'message')
 
         allow(Gitlab::QA::Support::HttpRequest).to receive(:make_http_request)
