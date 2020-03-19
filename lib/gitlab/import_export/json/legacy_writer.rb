@@ -12,7 +12,7 @@ module Gitlab
           @keys = Set.new
 
           mkdir_p(File.dirname(@path))
-          file.write('{}')
+          file.write('[{}]')
         end
 
         def close
@@ -21,22 +21,24 @@ module Gitlab
         end
 
         def set(hash)
-          hash.each do |key, value|
-            write(key, value)
+          with_root do
+            hash.each do |key, value|
+              write(key, value)
+            end
           end
         end
 
         def write(key, value)
           raise ArgumentError, "key '#{key}' already written" if @keys.include?(key)
 
-          # rewind by one byte, to overwrite '}'
-          file.pos = file.size - 1
+          # rewind by one byte, to overwrite '}]'
+          file.pos = file.size - 2
 
           file.write(',') if @keys.any?
           file.write(key.to_json)
           file.write(':')
           file.write(value.to_json)
-          file.write('}')
+          file.write('}]')
 
           @keys.add(key)
           @last_array = nil
@@ -51,16 +53,33 @@ module Gitlab
             @last_array_count = 0
           end
 
-          # rewind by two bytes, to overwrite ']}'
-          file.pos = file.size - 2
+          # rewind by two bytes, to overwrite ']}]'
+          file.pos = file.size - 3
 
           file.write(',') if @last_array_count > 0
           file.write(value.to_json)
-          file.write(']}')
+          file.write(']}]')
           @last_array_count += 1
         end
 
         private
+
+        def with_root
+          clear
+
+          if file.size > 4
+            file.pos = file.size - 1 # ']'
+            file.write(',{}]')
+          end
+
+          yield
+        end
+
+        def clear
+          @keys.clear
+          @last_array = nil
+          @last_array_count = nil
+        end
 
         def file
           @file ||= File.open(@path, "wb")

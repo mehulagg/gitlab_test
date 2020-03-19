@@ -91,6 +91,10 @@ module Gitlab
     def group_config_file
       Rails.root.join('lib/gitlab/import_export/group/import_export.yml')
     end
+
+    def group_config_flat_file
+      Rails.root.join('lib/gitlab/import_export/group/import_export_flat.yml')
+    end
   end
 end
 
