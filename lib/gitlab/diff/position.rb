@@ -14,6 +14,10 @@ module Gitlab
                :head_sha,
                :old_line,
                :new_line,
+               :old_start_line,
+               :new_start_line,
+               :old_end_line,
+               :new_end_line,
                :width,
                :height,
                :x,
@@ -171,6 +175,8 @@ module Gitlab
         case type
         when 'image'
           Gitlab::Diff::Formatters::ImageFormatter
+        when 'multi_text'
+          Gitlab::Diff::Formatters::MultiTextFormatter
         else
           Gitlab::Diff::Formatters::TextFormatter
         end
