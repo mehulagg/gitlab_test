@@ -73,7 +73,8 @@ module Gitlab
           'QA_CAN_TEST_ADMIN_FEATURES' => :qa_can_test_admin_features,
           'MAILHOG_HOSTNAME' => :mailhog_hostname,
           'SLACK_QA_CHANNEL' => :slack_qa_channel,
-          'SLACK_QA_BOT_TOKEN' => :slack_qa_bot_token
+          'CI_SLACK_WEBHOOK_URL' => :ci_slack_webhook_url,
+          'SLACK_ICON_EMOJI' => :slack_icon_emoji
         }.freeze
 
         ENV_VARIABLES.each_value do |accessor|
@@ -94,6 +95,18 @@ module Gitlab
 
         def ci_project_name
           ENV['CI_PROJECT_NAME']
+        end
+
+        def ci_slack_webhook_url
+          ENV['CI_SLACK_WEBHOOK_URL']
+        end
+
+        def slack_qa_channel
+          ENV['SLACK_QA_CHANNEL']
+        end
+
+        def slack_icon_emoji
+          ENV['SLACK_ICON_EMOJI']
         end
 
         def run_id
@@ -165,10 +178,10 @@ module Gitlab
           raise ArgumentError, "Please provide SLACK_QA_CHANNEL"
         end
 
-        def require_slack_qa_bot_token!
-          return unless ENV['SLACK_QA_BOT_TOKEN'].to_s.strip.empty?
+        def require_ci_slack_webhook_url!
+          return unless ENV['CI_SLACK_WEBHOOK_URL'].to_s.strip.empty?
 
-          raise ArgumentError, "Please provide SLACK_QA_BOT_TOKEN"
+          raise ArgumentError, "Please provide CI_SLACK_WEBHOOK_URL"
         end
 
         def require_kubernetes_environment!

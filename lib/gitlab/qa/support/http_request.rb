@@ -9,7 +9,7 @@ module Gitlab
         def self.make_http_request(method: 'get', url: nil, params: {}, headers: {}, show_response: false, fail_on_error: true)
           raise "URL not defined for making request. Exiting..." unless url
 
-          res = HTTP.follow.method(method).call(url, form: params, headers: headers)
+          res = HTTP.follow.method(method).call(url, json: params, headers: headers)
 
           if show_response
             if res.content_type.mime_type == "application/json"
