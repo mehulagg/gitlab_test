@@ -144,6 +144,12 @@ module Types
           description: 'Environments of the project',
           resolver: Resolvers::EnvironmentsResolver
 
+    field :environment,
+          Types::EnvironmentType,
+          null: true,
+          description: 'A single environment of the project',
+          resolver: Resolvers::EnvironmentsResolver.single
+
     field :issue,
           Types::IssueType,
           null: true,
