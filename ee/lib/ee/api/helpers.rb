@@ -30,7 +30,7 @@ module EE
           user = super
 
           if user
-            ::Gitlab::Database::LoadBalancing::RackMiddleware
+            ::GitlabUtils::Database::LoadBalancing::RackMiddleware
               .stick_or_unstick(env, :user, user.id)
           end
 

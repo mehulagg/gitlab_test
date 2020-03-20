@@ -2,7 +2,7 @@
 
 # rubocop:disable GitlabSecurity/PublicSend
 
-module Gitlab
+module GitlabUtils
   module Database
     module LoadBalancing
       # Redirecting of ActiveRecord connections.

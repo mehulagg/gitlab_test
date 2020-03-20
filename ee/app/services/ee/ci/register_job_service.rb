@@ -10,7 +10,7 @@ module EE
       extend ActiveSupport::Concern
 
       def execute(params = {})
-        db_all_caught_up = ::Gitlab::Database::LoadBalancing::Sticking.all_caught_up?(:runner, runner.id)
+        db_all_caught_up = ::GitlabUtils::Database::LoadBalancing::Sticking.all_caught_up?(:runner, runner.id)
 
         super.tap do |result|
           # Since we execute this query against replica it might lead to false-positive

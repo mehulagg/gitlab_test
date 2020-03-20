@@ -6,7 +6,7 @@ module EE
       result = super
 
       @user_ids.each do |id| # rubocop:disable Gitlab/ModuleWithInstanceVariables
-        ::Gitlab::Database::LoadBalancing::Sticking.stick(:user, id)
+        ::GitlabUtils::Database::LoadBalancing::Sticking.stick(:user, id)
       end
 
       result

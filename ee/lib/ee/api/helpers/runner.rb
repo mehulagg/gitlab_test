@@ -11,7 +11,7 @@ module EE
           id = params[:id]
 
           if id
-            ::Gitlab::Database::LoadBalancing::RackMiddleware
+            ::GitlabUtils::Database::LoadBalancing::RackMiddleware
               .stick_or_unstick(env, :build, id)
           end
 
@@ -23,7 +23,7 @@ module EE
           token = params[:token]
 
           if token
-            ::Gitlab::Database::LoadBalancing::RackMiddleware
+            ::GitlabUtils::Database::LoadBalancing::RackMiddleware
               .stick_or_unstick(env, :runner, token)
           end
 

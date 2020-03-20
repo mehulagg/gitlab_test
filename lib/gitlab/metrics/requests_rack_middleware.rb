@@ -44,16 +44,16 @@ module Gitlab
         method = env['REQUEST_METHOD'].downcase
         started = Time.now.to_f
         begin
-          RequestsRackMiddleware.http_request_total.increment(method: method)
+          self.class.http_request_total.increment(method: method)
 
           status, headers, body = @app.call(env)
 
           elapsed = Time.now.to_f - started
-          RequestsRackMiddleware.http_request_duration_seconds.observe({ method: method, status: status.to_s }, elapsed)
+          self.class.http_request_duration_seconds.observe({ method: method, status: status.to_s }, elapsed)
 
           [status, headers, body]
         rescue
-          RequestsRackMiddleware.rack_uncaught_errors_count.increment
+          self.class.rack_uncaught_errors_count.increment
           raise
         end
       end

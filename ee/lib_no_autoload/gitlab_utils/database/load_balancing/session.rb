@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Gitlab
+module GitlabUtils
   module Database
     module LoadBalancing
       # Tracking of load balancing state per user session.

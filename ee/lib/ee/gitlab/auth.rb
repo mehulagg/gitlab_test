@@ -17,7 +17,7 @@ module EE
 
       override :find_build_by_token
       def find_build_by_token(token)
-        ::Gitlab::Database::LoadBalancing::Session.current.use_primary do
+        ::GitlabUtils::Database::LoadBalancing::Session.current.use_primary do
           super
         end
       end

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Gitlab
+module GitlabUtils
   module Database
     module LoadBalancing
       # Rack middleware to handle sticking when serving Rails requests. Grape

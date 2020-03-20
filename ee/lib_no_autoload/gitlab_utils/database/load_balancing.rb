@@ -1,6 +1,19 @@
 # frozen_string_literal: true
 
-module Gitlab
+require 'gitlab_utils/database/load_balancing/active_record_proxy'
+require 'gitlab_utils/database/load_balancing/connection_proxy'
+require 'gitlab_utils/database/load_balancing/host_list'
+require 'gitlab_utils/database/load_balancing/host'
+require 'gitlab_utils/database/load_balancing/load_balancer'
+require 'gitlab_utils/database/load_balancing/logger'
+require 'gitlab_utils/database/load_balancing/rack_middleware'
+require 'gitlab_utils/database/load_balancing/resolver'
+require 'gitlab_utils/database/load_balancing/service_discovery'
+require 'gitlab_utils/database/load_balancing/session'
+require 'gitlab_utils/database/load_balancing/srv_resolver'
+require 'gitlab_utils/database/load_balancing/sticking'
+
+module GitlabUtils
   module Database
     module LoadBalancing
       # The exceptions raised for connection errors.

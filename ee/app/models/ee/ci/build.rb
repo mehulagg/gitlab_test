@@ -43,7 +43,7 @@ module EE
         return unless saved_change_to_status?
         return unless running?
 
-        ::Gitlab::Database::LoadBalancing::Sticking.stick(:build, id)
+        ::GitlabUtils::Database::LoadBalancing::Sticking.stick(:build, id)
       end
 
       def log_geo_deleted_event

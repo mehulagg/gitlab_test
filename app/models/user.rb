@@ -23,7 +23,6 @@ class User < ApplicationRecord
   include BatchDestroyDependentAssociations
   include HasUniqueInternalUsers
   include IgnorableColumns
-
   DEFAULT_NOTIFICATION_LEVEL = :participating
 
   add_authentication_token_field :incoming_email_token, token_generator: -> { SecureRandom.hex.to_i(16).to_s(36) }

@@ -3,7 +3,7 @@
 require 'net/dns'
 require 'resolv'
 
-module Gitlab
+module GitlabUtils
   module Database
     module LoadBalancing
       # Service discovery of secondary database hosts.

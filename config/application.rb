@@ -15,6 +15,8 @@ Bundler.require(*Rails.groups)
 
 module Gitlab
   class Application < Rails::Application
+    $:.unshift Rails.root.join('lib_no_autoload')
+
     require_dependency Rails.root.join('lib/gitlab')
     require_dependency Rails.root.join('lib/gitlab/utils')
     require_dependency Rails.root.join('lib/gitlab/redis/wrapper')
@@ -53,6 +55,8 @@ module Gitlab
     config.generators.templates.push("#{config.root}/generator_templates")
 
     if Gitlab.ee?
+      $:.unshift Rails.root.join('ee/lib_no_autoload')
+
       ee_paths = config.eager_load_paths.each_with_object([]) do |path, memo|
         ee_path = config.root.join('ee', Pathname.new(path).relative_path_from(config.root))
         memo << ee_path.to_s
