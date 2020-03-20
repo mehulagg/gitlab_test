@@ -70,3 +70,7 @@ export const stickyMonitor = (el, stickyTop, insertPlaceholder = true) => {
 export const polyfillSticky = el => {
   StickyFill.add(el);
 };
+
+export const removeSticky = el => {
+  StickyFill.removeOne(el);
+};

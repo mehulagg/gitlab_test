@@ -9,8 +9,10 @@ import { truncateSha } from '~/lib/utils/text_utility';
 import { diffViewerModes } from '~/ide/constants';
 import { __, sprintf } from '~/locale';
 import { scrollToElement } from '~/lib/utils/common_utils';
+import { polyfillSticky, removeSticky } from '~/lib/utils/sticky';
 
 jest.mock('~/lib/utils/common_utils');
+jest.mock('~/lib/utils/sticky');
 
 const diffFile = Object.freeze(
   Object.assign(diffDiscussionsMockData.diff_file, {
@@ -477,5 +479,13 @@ describe('DiffFileHeader component', () => {
       });
       expect(findReplacedFileButton().exists()).toBe(true);
     });
+  });
+
+  it('adds and removes polyfillSticky', () => {
+    createComponent();
+    expect(polyfillSticky).toHaveBeenCalled();
+
+    wrapper.destroy();
+    expect(removeSticky).toHaveBeenCalled();
   });
 });
