@@ -23,6 +23,7 @@ are very appreciative of the work done by translators and proofreaders!
   - Weizhe Ding - [GitLab](https://gitlab.com/d.weizhe), [Crowdin](https://crowdin.com/profile/d.weizhe)
   - Yi-Jyun Pan - [GitLab](https://gitlab.com/pan93412), [Crowdin](https://crowdin.com/profile/pan93412)
   - Victor Wu - [GitLab](https://gitlab.com/victorwuky), [Crowdin](https://crowdin.com/profile/victorwu)
+  - Aletha Alfarania - [Gitlab](https://gitlab.com/aalfarania), [Crowdin](https://crowdin.com/profile/Aalfarania)
 - Chinese Traditional, Hong Kong 繁體中文 (香港)
   - Victor Wu - [GitLab](https://gitlab.com/victorwuky), [Crowdin](https://crowdin.com/profile/victorwu)
   - Ivan Ip - [GitLab](https://gitlab.com/lifehome), [Crowdin](https://crowdin.com/profile/lifehome)
@@ -55,6 +56,7 @@ are very appreciative of the work done by translators and proofreaders!
 - Indonesian
   - Adi Ferdian - [GitLab](https://gitlab.com/adiferd), [Crowdin](https://crowdin.com/profile/adiferd)
   - Ahmad Naufal Mukhtar - [GitLab](https://gitlab.com/anaufalm), [Crowdin](https://crowdin.com/profile/anaufalm)
+  - Aletha Alfarania - [Gitlab](https://gitlab.com/aalfarania), [Crowdin](https://crowdin.com/profile/Aalfarania)
 - Italian
   - Massimiliano Cuttini - [GitLab](https://gitlab.com/maxcuttins), [Crowdin](https://crowdin.com/profile/maxcuttins)
   - Paolo Falomo - [GitLab](https://gitlab.com/paolofalomo), [Crowdin](https://crowdin.com/profile/paolo.falomo)
