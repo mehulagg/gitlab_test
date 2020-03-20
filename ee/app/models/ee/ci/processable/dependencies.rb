@@ -7,13 +7,18 @@ module EE
         extend ActiveSupport::Concern
         extend ::Gitlab::Utils::Override
 
-        # Dependencies can only be of Ci::Build type because only builds
-        # can create artifacts
-        DEPENDENCY = ::Ci::Build
         LIMIT = ::Gitlab::Ci::Config::Entry::Needs::NEEDS_CROSS_DEPENDENCIES_LIMIT
 
         override :cross_pipeline
         def cross_pipeline
+          strong_memoize(:cross_pipeline) do
+            fetch_cross_pipeline
+          end
+        end
+
+        private
+
+        def fetch_cross_pipeline
           return [] unless processable.user_id
           return [] unless project.feature_available?(:cross_project_pipelines)
 
@@ -21,8 +26,6 @@ module EE
             .preload(project: [:project_feature])
             .select { |job| user.can?(:read_build, job) }
         end
-
-        private
 
         def cross_dependencies_relationship
           deps = Array(processable.options[:cross_dependencies])

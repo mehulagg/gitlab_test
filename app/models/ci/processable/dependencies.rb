@@ -5,6 +5,10 @@ module Ci
     class Dependencies
       include Gitlab::Utils::StrongMemoize
 
+      # Dependencies can only be of Ci::Build type because only builds
+      # can create artifacts
+      DEPENDENCY = ::Ci::Build
+
       attr_reader :processable
 
       def initialize(processable)
@@ -17,12 +21,13 @@ module Ci
 
       # Dependencies local to the given pipeline
       def local
-        return [] if no_dependencies_specified?
+        return [] if no_local_dependencies_specified?
 
-        depended_jobs = jobs_from_previous_stages
-        depended_jobs = jobs_from_needs(depended_jobs)
-        depended_jobs = jobs_from_dependencies(depended_jobs)
-        depended_jobs
+        deps = DEPENDENCY.where(pipeline_id: processable.pipeline_id).latest
+        deps = from_previous_stages(deps)
+        deps = from_needs(deps)
+        deps = from_dependencies(deps)
+        deps
       end
 
       # Dependencies that are defined in other pipelines
@@ -48,17 +53,15 @@ module Ci
         end
       end
 
-      def no_dependencies_specified?
+      def no_local_dependencies_specified?
         processable.options[:dependencies]&.empty?
       end
 
-      def jobs_from_previous_stages
-        processable.pipeline.builds
-          .latest
-          .before_stage(processable.stage_idx)
+      def from_previous_stages(scope)
+        scope.before_stage(processable.stage_idx)
       end
 
-      def jobs_from_needs(scope)
+      def from_needs(scope)
         return scope unless Feature.enabled?(:ci_dag_support, project, default_enabled: true)
         return scope unless processable.scheduling_type_dag?
 
@@ -66,7 +69,7 @@ module Ci
         scope.where(name: needs_names)
       end
 
-      def jobs_from_dependencies(scope)
+      def from_dependencies(scope)
         return scope unless processable.options[:dependencies].present?
 
         scope.where(name: processable.options[:dependencies])
