@@ -7,7 +7,7 @@ module Ci
 
       # Dependencies can only be of Ci::Build type because only builds
       # can create artifacts
-      DEPENDENCY = ::Ci::Build
+      MODEL = ::Ci::Build
 
       attr_reader :processable
 
@@ -23,7 +23,7 @@ module Ci
       def local
         return [] if no_local_dependencies_specified?
 
-        deps = DEPENDENCY.where(pipeline_id: processable.pipeline_id).latest
+        deps = MODEL.where(pipeline_id: processable.pipeline_id).latest
         deps = from_previous_stages(deps)
         deps = from_needs(deps)
         deps = from_dependencies(deps)

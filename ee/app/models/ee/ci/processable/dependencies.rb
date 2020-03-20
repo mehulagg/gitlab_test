@@ -34,14 +34,16 @@ module EE
 
         def cross_dependencies_relationship
           deps = specified_cross_pipeline_dependencies
-          return DEPENDENCY.none unless deps.any?
+          return model_class.none unless deps.any?
 
-          relationship_fragments = build_cross_dependencies_fragments(deps, DEPENDENCY.latest.success)
-          return DEPENDENCY.none unless relationship_fragments.any?
+          relationship_fragments = build_cross_dependencies_fragments(deps, model_class.latest.success)
+          return model_class.none unless relationship_fragments.any?
 
-          DEPENDENCY
-            .from_union(relationship_fragments)
-            .limit(LIMIT)
+          model_class.from_union(relationship_fragments).limit(LIMIT)
+        end
+
+        def model_class
+          ::Ci::Processable::Dependencies::MODEL
         end
 
         def build_cross_dependencies_fragments(deps, search_scope)
@@ -56,7 +58,7 @@ module EE
           args = dependency.values_at(:job, :ref, :project)
           dep_id = search_scope.max_build_id_by(*args)
 
-          DEPENDENCY.id_in(dep_id)
+          model_class.id_in(dep_id)
         end
 
         def user
