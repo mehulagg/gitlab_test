@@ -628,7 +628,7 @@ describe('diffs/components/app', () => {
     it('should render hidden files warning if render overflow warning is present', () => {
       createComponent({}, ({ state }) => {
         state.diffs.renderOverflowWarning = true;
-        state.diffs.realSize = '5';
+        state.diffs.diffFilesLength = 5;
         state.diffs.plainDiffPath = 'plain diff path';
         state.diffs.emailPatchPath = 'email patch path';
         state.diffs.size = 1;
@@ -637,7 +637,7 @@ describe('diffs/components/app', () => {
       expect(wrapper.contains(HiddenFilesWarning)).toBe(true);
       expect(wrapper.find(HiddenFilesWarning).props()).toEqual(
         expect.objectContaining({
-          total: '5',
+          total: '5+',
           plainDiffPath: 'plain diff path',
           emailPatchPath: 'email patch path',
           visible: 1,
