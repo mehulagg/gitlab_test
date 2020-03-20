@@ -51,6 +51,14 @@ module QA
             end
           end
 
+          Vendor::Jenkins::Page::JobConsole.perform do |job_console|
+            job_console.job_name = project_name
+
+            job_console.visit!
+
+            raise 'Jenkins failed to update Gitlab commit status' if job_console.failed_status_update?
+          end
+
           project.visit!
 
           Page::Project::Menu.perform(&:click_ci_cd_pipelines)
