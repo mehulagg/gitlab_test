@@ -1,10 +1,6 @@
 {
   "type": "object",
-  "required": [
-    "title",
-    "y_label",
-    "metrics"
-  ],
+  "required": ["title", "y_label", "metrics"],
   "properties": {
     "title": { "type": "string" },
     "type": { "type": "string" },

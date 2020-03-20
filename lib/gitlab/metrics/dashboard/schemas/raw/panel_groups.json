@@ -1,9 +1,6 @@
 {
   "type": "object",
-  "required": [
-    "group",
-    "panels"
-  ],
+  "required": ["group", "panels"],
   "properties": {
     "group": { "type": "string" },
     "priority": { "type": "number" },
@@ -13,5 +10,5 @@
     },
     "has_custom_metrics": { "type": "boolean" }
   },
-  "additionalProperties": false
+  "additionalProperties": true
 }
