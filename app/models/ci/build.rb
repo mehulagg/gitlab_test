@@ -818,14 +818,10 @@ module Ci
       dependencies.all
     end
 
-    # TODO: this is used in RegisterJobService#assign_runner! but it seems to only
-    # use local dependencies. Should this be extended to all_dependencies?
     def has_valid_build_dependencies?
-      dependencies.valid_local?
+      dependencies.valid?
     end
 
-    # TODO: this is used in BuildDetailsEntity for the callout message on missing dependencies.
-    # Should this use all_dependencies rather than only returning local ones?
     def invalid_dependencies
       dependencies.invalid_local
     end

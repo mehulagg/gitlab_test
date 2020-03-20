@@ -18,6 +18,11 @@ module EE
 
         private
 
+        override :valid_cross_pipeline?
+        def valid_cross_pipeline?
+          cross_pipeline.size == specified_cross_pipeline_dependencies.size
+        end
+
         def fetch_cross_pipeline
           return [] unless processable.user_id
           return [] unless project.feature_available?(:cross_project_pipelines)
@@ -28,7 +33,7 @@ module EE
         end
 
         def cross_dependencies_relationship
-          deps = Array(processable.options[:cross_dependencies])
+          deps = specified_cross_pipeline_dependencies
           return DEPENDENCY.none unless deps.any?
 
           relationship_fragments = build_cross_dependencies_fragments(deps, DEPENDENCY.latest.success)
@@ -58,6 +63,10 @@ module EE
           strong_memoize(:user) do
             processable.user
           end
+        end
+
+        def specified_cross_pipeline_dependencies
+          Array(processable.options[:cross_dependencies])
         end
       end
     end

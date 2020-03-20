@@ -39,13 +39,21 @@ module Ci
         local.reject(&:valid_dependency?)
       end
 
+      def valid?
+        valid_local? && valid_cross_pipeline?
+      end
+
+      private
+
       def valid_local?
         return true if Feature.enabled?('ci_disable_validates_dependencies')
 
         local.all?(&:valid_dependency?)
       end
 
-      private
+      def valid_cross_pipeline?
+        true
+      end
 
       def project
         strong_memoize(:project) do
