@@ -251,6 +251,67 @@ describe Projects::BlobController do
     end
   end
 
+  describe 'GET edit_markdown' do
+    let(:default_params) do
+      {
+        namespace_id: project.namespace,
+        project_id: project,
+        id: 'master/README.md'
+      }
+    end
+
+    context 'anonymous' do
+      before do
+        get :edit_markdown, params: default_params
+      end
+
+      it 'redirects to sign in and returns' do
+        expect(response).to redirect_to(new_user_session_path)
+      end
+    end
+
+    context 'as guest' do
+      let(:guest) { create(:user) }
+
+      before do
+        sign_in(guest)
+        get :edit_markdown, params: default_params
+      end
+
+      it 'redirects to blob show' do
+        expect(response).to redirect_to(project_blob_path(project, 'master/CHANGELOG'))
+      end
+    end
+
+    context 'as developer' do
+      let(:developer) { create(:user) }
+
+      before do
+        project.add_developer(developer)
+        sign_in(developer)
+        get :edit_markdown, params: default_params
+      end
+
+      it 'returns the content to edit' do
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+    end
+
+    context 'as maintainer' do
+      let(:maintainer) { create(:user) }
+
+      before do
+        project.add_maintainer(maintainer)
+        sign_in(maintainer)
+        get :edit_markdown, params: default_params
+      end
+
+      it 'returns the content to edit' do
+        expect(response).to have_gitlab_http_status(:ok)
+      end
+    end
+  end
+
   describe 'PUT update' do
     let(:user) { create(:user) }
     let(:default_params) do

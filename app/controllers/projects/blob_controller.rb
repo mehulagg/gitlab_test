@@ -69,6 +69,16 @@ class Projects::BlobController < Projects::ApplicationController
     end
   end
 
+  def edit_markdown
+    if can_collaborate_with_project?(project, ref: @ref)
+      blob.load_all_data!
+
+      render json: { data: blob.data }
+    else
+      redirect_to action: 'show'
+    end
+  end
+
   def update
     @path = params[:file_path] if params[:file_path].present?
     create_commit(Files::UpdateService, success_path: -> { after_edit_path },

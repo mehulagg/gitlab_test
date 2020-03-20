@@ -55,6 +55,7 @@ scope format: false do
       get '/new/*id', action: :new, as: :new_blob
       post '/create/*id', action: :create, as: :create_blob
       get '/edit/*id', action: :edit, as: :edit_blob
+      get '/edit_markdown/*id', action: :edit_markdown, as: :edit_markdown_blob
       put '/update/*id', action: :update, as: :update_blob
       post '/preview/*id', action: :preview, as: :preview_blob
 
