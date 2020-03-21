@@ -636,19 +636,22 @@ module Gitlab
           when :up
             column_data = column_for(table, old_column)
 
+            rename_column(table, old_column, new_column)
+
             execute("ALTER TABLE #{table} RENAME TO #{table}_column_rename")
             execute("CREATE TABLE #{table} (LIKE #{table}_column_rename INCLUDING DEFAULTS)");
 
             # add a virtual column that contains the same "defaults"
-            add_column(table, new_column, column_data.type, limit: column_data.limit, precision: column_data.precision, scale: column_data.scale)
-            change_column_default(table, new_column, column_data.default) unless column_data.default.nil?
-            change_column_null(table, new_column, false) unless column_data.null
+            add_column(table, old_column, column_data.type, limit: column_data.limit, precision: column_data.precision, scale: column_data.scale)
+            change_column_default(table, old_column, column_data.default) unless column_data.default.nil?
+            change_column_null(table, old_column, false) unless column_data.null
 
             # this converts a table into a view
-            execute("CREATE RULE \"_RETURN\" AS ON SELECT TO #{table} DO INSTEAD SELECT *, #{old_column} AS #{new_column} FROM #{table}_column_rename")
+            execute("CREATE RULE \"_RETURN\" AS ON SELECT TO #{table} DO INSTEAD SELECT *, #{new_column} AS #{old_column} FROM #{table}_column_rename")
           when :down
             execute("DROP VIEW #{table}")
             execute("ALTER TABLE #{table}_column_rename RENAME TO #{table}")
+            rename_column(table, new_column, old_column)
           else
             raise ArgumentError, "Direction needs to be :up/:down"
           end
@@ -661,12 +664,10 @@ module Gitlab
         transaction do
           case direction
           when :up
-            # we undo the changes, to make the final rename
-            column_rename_v2(:down, table, old_column, new_column)
-            rename_column(table, old_column, new_column)
+            execute("DROP VIEW #{table}")
+            execute("ALTER TABLE #{table}_column_rename RENAME TO #{table}")
           when :down
             # we redo the changes, to go back to previous state
-            rename_column(table, new_column, old_column)
             column_rename_v2(:up, table, old_column, new_column)
           else
             raise ArgumentError, "Direction needs to be :up/:down"
