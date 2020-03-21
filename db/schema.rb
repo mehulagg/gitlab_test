@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_19_203901) do
+ActiveRecord::Schema.define(version: 2020_03_21_113705) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
@@ -1013,8 +1013,8 @@ ActiveRecord::Schema.define(version: 2020_03_19_203901) do
     t.text "variables"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.integer "commit_id"
-    t.index ["commit_id"], name: "index_ci_trigger_requests_on_commit_id"
+    t.integer "pipeline_id"
+    t.index ["pipeline_id"], name: "index_ci_trigger_requests_on_pipeline_id"
     t.index ["trigger_id", "id"], name: "index_ci_trigger_requests_on_trigger_id_and_id", order: { id: :desc }
   end
 

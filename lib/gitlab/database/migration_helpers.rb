@@ -628,6 +628,42 @@ module Gitlab
         install_rename_triggers(table, old, new)
       end
 
+      def column_rename_v2(direction, table, old_column, new_column)
+        # We use ALTER TABLE, instead of rename_table
+        # as we do not want to touch indexes
+        transaction do
+          case direction
+          when :up
+            execute("ALTER TABLE #{table} RENAME TO #{table}_column_rename")
+            execute("CREATE VIEW #{table} AS SELECT *, #{old_column} AS #{new_column} FROM #{table}_column_rename")
+          when :down
+            execute("DROP VIEW #{table}")
+            execute("ALTER TABLE #{table}_column_rename RENAME TO #{table}")
+          else
+            raise ArgumentError, "Direction needs to be :up/:down"
+          end
+        end
+      end
+
+      def cleanup_column_rename_v2(direction, table, old_column, new_column)
+        # We use ALTER TABLE, instead of rename_table
+        # as we do not want to touch indexes
+        transaction do
+          case direction
+          when :up
+            # we undo the changes, to make the final rename
+            column_rename_v2(:down, table, old_column, new_column)
+            rename_column(table, old_column, new_column)
+          when :down
+            # we redo the changes, to go back to previous state
+            rename_column(table, new_column, old_column)
+            column_rename_v2(:up, table, old_column, new_column)
+          else
+            raise ArgumentError, "Direction needs to be :up/:down"
+          end
+        end
+      end
+
       # Changes the column type of a table using a background migration.
       #
       # Because this method uses a background migration it's more suitable for
