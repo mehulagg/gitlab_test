@@ -164,6 +164,9 @@
   - ".dockerignore"
   - "qa/**/*"
 
+.rb-only-patterns: &rb-only-patterns
+  - ".gitlab/ci/rules.gitlab-ci.yml"
+
 ####################
 # Cache repo rules #
 ####################
@@ -269,6 +272,9 @@
 
 .frontend:rules:default-frontend-jobs:
   rules:
+    - <<: *if-dot-com-gitlab-org-merge-request
+      changes: *rb-only-patterns
+      when: manual
     - <<: *if-default-refs
       changes: *code-backstage-patterns
       when: on_success
@@ -277,6 +283,9 @@
   rules:
     - <<: *if-not-ee
       when: never
+    - <<: *if-dot-com-gitlab-org-merge-request
+      changes: *rb-only-patterns
+      when: manual
     - <<: *if-default-refs
       changes: *code-backstage-patterns
       when: on_success
