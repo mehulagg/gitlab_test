@@ -1,0 +1,27 @@
+<%= render "links" %>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.6.0/echarts-en.min.js"></script>
+<p>
+<p>
+Showing graphs based on events of the last <%= @timerange -%> days.
+<p>
+<% @graphs.each do |g| %>
+  <div id="<%= g[:id] -%>" style="width: 500px; height: 350px;"></div>
+  <script>
+    var chart = document.getElementById('<%= g[:id] -%>');
+    var myChart = echarts.init(chart);
+    var option = {
+      title: { text: '<%= g[:id] -%>' },
+      tooltip: { },
+      legend: { data: [ '<%= g[:id] -%>' ] },
+      xAxis: { data: <%= g[:keys].to_json.html_safe -%> },
+      yAxis: { },
+      series: [{
+        name: 'Platform usage',
+        type: 'bar',
+        data: <%= g[:values].to_json.html_safe -%>
+      }]
+    };
+    myChart.setOption(option);
+  </script>
+<% end %>
