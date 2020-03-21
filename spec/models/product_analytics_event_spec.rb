@@ -4,6 +4,8 @@ require 'spec_helper'
 RSpec.describe ProductAnalyticsEvent, type: :model do
   it { is_expected.to belong_to(:project) }
   it { expect(described_class).to respond_to(:order_by_time) }
+  it { expect(described_class).to respond_to(:count_by_graph) }
+  it { expect(described_class).to respond_to(:count_by_day_and_graph) }
 
   describe '.timerange' do
     let_it_be(:event_1) { create(:product_analytics_event, collector_tstamp: Time.zone.now - 1.day) }

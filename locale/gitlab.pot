@@ -3591,6 +3591,9 @@ msgstr ""
 msgid "Beta"
 msgstr ""
 
+msgid "Between 2.5 and 2.10 Snowplow goes from GET to POST requests."
+msgstr ""
+
 msgid "Bi-weekly code coverage"
 msgstr ""
 
@@ -6588,6 +6591,9 @@ msgid "Copy reference"
 msgstr ""
 
 msgid "Copy secret"
+msgstr ""
+
+msgid "Copy the code below to implement tracking in your application:"
 msgstr ""
 
 msgid "Copy token"
@@ -13275,6 +13281,9 @@ msgstr ""
 msgid "Last edited by %{name}"
 msgstr ""
 
+msgid "Last item before this page loaded in your browser:"
+msgstr ""
+
 msgid "Last name"
 msgstr ""
 
@@ -15802,6 +15811,12 @@ msgstr ""
 msgid "Number of employees"
 msgstr ""
 
+msgid "Number of events"
+msgstr ""
+
+msgid "Number of events for this project: %{count}"
+msgstr ""
+
 msgid "Number of files touched"
 msgstr ""
 
@@ -17245,6 +17260,9 @@ msgid "Private projects can be created in your personal namespace with:"
 msgstr ""
 
 msgid "Proceed"
+msgstr ""
+
+msgid "Product Analytics"
 msgstr ""
 
 msgid "Productivity"
@@ -21225,6 +21243,9 @@ msgstr ""
 msgid "Showing all issues"
 msgstr ""
 
+msgid "Showing graphs based on events of the last %{timerange} days."
+msgstr ""
+
 msgid "Showing last %{size} of log -"
 msgstr ""
 
@@ -23789,6 +23810,9 @@ msgid "This option is only available on GitLab.com"
 msgstr ""
 
 msgid "This page is unavailable because you are not allowed to read information across multiple projects."
+msgstr ""
+
+msgid "This page sends a payload."
 msgstr ""
 
 msgid "This page will be removed in a future release."
@@ -26646,6 +26670,9 @@ msgid "You need permission."
 msgstr ""
 
 msgid "You need to be logged in."
+msgstr ""
+
+msgid "You need to initialize the tracker and track an event to trigger a request."
 msgstr ""
 
 msgid "You need to register a two-factor authentication app before you can set up a U2F device."

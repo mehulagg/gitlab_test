@@ -17,4 +17,14 @@ class ProductAnalyticsEvent < ApplicationRecord
   scope :timerange, ->(duration, today = Time.zone.today) {
     where('collector_tstamp BETWEEN ? AND ? ', today - duration + 1, today + 1)
   }
+
+  class << self
+    def count_by_graph(graph, days)
+      group(graph).timerange(days).count
+    end
+
+    def count_by_day_and_graph(graph, days)
+      group("DATE_TRUNC('day', #{graph})").timerange(days).count
+    end
+  end
 end

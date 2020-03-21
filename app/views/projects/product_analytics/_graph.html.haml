@@ -1,0 +1,6 @@
+- g = local_assigns.fetch(:graph)
+
+%h3
+  = g[:id]
+
+.js-project-analytics-chart{ "data-chart-data": g.to_json, "data-chart-id": g[:id] }
