@@ -634,8 +634,18 @@ module Gitlab
         transaction do
           case direction
           when :up
+            column_data = column_for(table, old_column)
+
             execute("ALTER TABLE #{table} RENAME TO #{table}_column_rename")
-            execute("CREATE VIEW #{table} AS SELECT *, #{old_column} AS #{new_column} FROM #{table}_column_rename")
+            execute("CREATE TABLE #{table} (LIKE #{table}_column_rename INCLUDING DEFAULTS)");
+
+            # add a virtual column that contains the same "defaults"
+            add_column(table, new_column, column_data.type, limit: column_data.limit, precision: column_data.precision, scale: column_data.scale)
+            change_column_default(table, new_column, column_data.default) unless column_data.default.nil?
+            change_column_null(table, new_column, false) unless column_data.null
+
+            # this converts a table into a view
+            execute("CREATE RULE \"_RETURN\" AS ON SELECT TO #{table} DO INSTEAD SELECT *, #{old_column} AS #{new_column} FROM #{table}_column_rename")
           when :down
             execute("DROP VIEW #{table}")
             execute("ALTER TABLE #{table}_column_rename RENAME TO #{table}")

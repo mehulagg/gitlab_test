@@ -3,9 +3,12 @@
 module Ci
   class TriggerRequest < ApplicationRecord
     extend Gitlab::Ci::Model
+    include IgnorableColumns
+
+    ignore_column :commit_id, remove_after: '2020-04-22', remove_with: '13.0'
 
     belongs_to :trigger
-    belongs_to :pipeline, foreign_key: :commit_id
+    belongs_to :pipeline, foreign_key: :pipeline_id
     has_many :builds
 
     delegate :short_token, to: :trigger, prefix: true, allow_nil: true
