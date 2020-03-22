@@ -139,3 +139,13 @@ retire-js-dependency_scanning:
       - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
         $DS_DEFAULT_ANALYZERS =~ /retire.js/ &&
         $CI_PROJECT_REPOSITORY_LANGUAGES =~ /javascript/
+
+npm-audit-dependency_scanning:
+  extends: .ds-analyzer
+  image:
+    name: "$DS_ANALYZER_IMAGE_PREFIX/npm-audit:$DS_MAJOR_VERSION"
+  only:
+    variables:
+      - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
+        $DS_DEFAULT_ANALYZERS =~ /npm-audit/ &&
+        $CI_PROJECT_REPOSITORY_LANGUAGES =~ /javascript/
