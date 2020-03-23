@@ -46,6 +46,7 @@ module Gitlab
                     specs.release = gitlab.release
                     specs.network = gitlab.network
                     specs.args = [gitlab.address, *rspec_args]
+                    specs.env = { QA_PRAEFECT_REPOSITORY_STORAGE: 'default' }
                   end
                 end
               end

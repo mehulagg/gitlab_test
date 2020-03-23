@@ -62,11 +62,13 @@ For more details on the internals, please read the
 * `DOCKER_HOST` - Docker host to run tests against (default: `http://localhost`)
 * `CHROME_HEADLESS` - when running locally, set to `false` to allow Chrome tests to be visible - watch your tests being run
 * `QA_ADDITIONAL_REPOSITORY_STORAGE` - the name of additional, non-default storage to be used with tests tagged `repository_storage`, run via the `Test::Instance::RepositoryStorage` scenario
+* `QA_PRAEFECT_REPOSITORY_STORAGE` - the name of repository storage using Praefect.
 * `QA_COOKIES` - optionally set to "cookie1=value;cookie2=value" in order to add a cookie to every request. This can be used to set the canary cookie by setting it to "gitlab_canary=true"
 * `QA_DEBUG` - set to `true` to verbosely log page object actions. Note: if enabled be aware that sensitive data might be logged. If an input element has a QA selector with `password` in the name, data entered into the input element will be masked. If the element doesn't have `password` in its name it won't be masked.
 * `QA_LOG_PATH` - path to output debug logging to. If not set logging will be output to STDOUT
 * `QA_CAN_TEST_GIT_PROTOCOL_V2` - set to `false` to skip tests that require Git protocol v2 if your environment doesn't support it.
 * `QA_CAN_TEST_ADMIN_FEATURES` - set to `false` to skip tests that require admin access.
+* `QA_CAN_TEST_PRAEFECT` - set to `false` to skip tests that require Praefect to be running.
 * `QA_DISABLE_RSPEC_RETRY` - set to `true` to turn off retrying tests on failure.
 * `QA_SIMULATE_SLOW_CONNECTION` - set to `true` to configure Chrome's network settings to simulate a slow connection.
 * `QA_SLOW_CONNECTION_LATENCY_MS` - the additional latency (in ms) of the simulated slow connection (default 2000 ms).

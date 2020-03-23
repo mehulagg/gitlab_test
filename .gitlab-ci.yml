@@ -19,6 +19,7 @@ variables:
   DOCKER_HOST: tcp://docker:2375
   QA_ARTIFACTS_DIR: $CI_PROJECT_DIR
   QA_CAN_TEST_GIT_PROTOCOL_V2: "true"
+  QA_CAN_TEST_PRAEFECT: "false"
   QA_TESTCASES_REPORTING_PROJECT: "gitlab-org/quality/testcases"
 
 cache:
@@ -778,6 +779,20 @@ ce:praefect:
   parallel: 5
   variables:
     QA_SCENARIO: "Test::Integration::Praefect"
+    QA_CAN_TEST_PRAEFECT: "true"
+
+ce:praefect-quarantine:
+  extends:
+    - .test
+    - .high-capacity
+    - .ce-qa
+    - .quarantine
+    - .knapsack-variables
+    - .rspec-report-opts
+  parallel: 5
+  variables:
+    QA_SCENARIO: "Test::Integration::Praefect"
+    QA_CAN_TEST_PRAEFECT: "true"
 
 ee:praefect:
   extends:
@@ -789,6 +804,20 @@ ee:praefect:
   parallel: 5
   variables:
     QA_SCENARIO: "Test::Integration::Praefect"
+    QA_CAN_TEST_PRAEFECT: "true"
+
+ee:praefect-quarantine:
+  extends:
+    - .test
+    - .high-capacity
+    - .ee-qa
+    - .knapsack-variables
+    - .quarantine
+    - .rspec-report-opts
+  parallel: 5
+  variables:
+    QA_SCENARIO: "Test::Integration::Praefect"
+    QA_CAN_TEST_PRAEFECT: "true"
 
 ce:smtp:
   extends:
