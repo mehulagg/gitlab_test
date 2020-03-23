@@ -620,12 +620,6 @@ describe('diffs/components/app', () => {
         expect.objectContaining({
           targetBranch: {
             branchName: 'target-branch',
-            versionIndex: DIFF_HEAD_INDEX,
-            path: '',
-          },
-          targetHeadBranch: {
-            branchName: 'target-branch',
-            versionIndex: DIFF_BASE_INDEX,
             path: '',
           },
           mergeRequestDiffs: diffsMockData,

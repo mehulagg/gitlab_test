@@ -13,9 +13,7 @@ const targetHeadBranch = {
   head_version_path: '/gnuwget/wget2/merge_requests/6/diffs?diff_head=true',
 };
 const startVersion = { version_index: 4 };
-const mergeRequestVersion = {
-  version_path: '123',
-};
+const mergeRequestVersion = diffsMockData[0];
 const baseVersionPath = '/gnuwget/wget2/-/merge_requests/6/diffs?diff_id=37';
 
 describe('CompareVersionsDropdown', () => {
@@ -63,6 +61,7 @@ describe('CompareVersionsDropdown', () => {
       createComponent({
         startVersion,
         targetBranch,
+        otherVersions: diffsMockData,
       });
 
       expect(findSelectedVersion().text()).toBe(`version ${startVersion.version_index}`);
