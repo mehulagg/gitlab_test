@@ -6901,10 +6901,10 @@ msgstr ""
 msgid "Difference between start date and now"
 msgstr ""
 
-msgid "DiffsCompareBaseBranch|(HEAD)"
+msgid "DiffsCompareBaseBranch|%{branchName} (HEAD)"
 msgstr ""
 
-msgid "DiffsCompareBaseBranch|(base)"
+msgid "DiffsCompareBaseBranch|%{branchName} (base)"
 msgstr ""
 
 msgid "Diffs|No file name available"
