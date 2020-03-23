@@ -1,5 +1,3 @@
-import { clone } from 'underscore';
-
 export function supported() {
   return Boolean(
     navigator.credentials &&
@@ -54,13 +52,17 @@ export function convertGetParams(webauthnParams) {
 }
 
 export function convertGetResponse(webauthnResponse) {
-  const convertedResponse = clone(webauthnResponse);
-  convertedResponse.rawId = bufferToBase64Url(webauthnResponse.rawId);
-  convertedResponse.response = {};
+  const convertedResponse = {
+    id: webauthnResponse.id,
+    type: webauthnResponse.type,
+    rawId: bufferToBase64Url(webauthnResponse.rawId),
+    response: {},
+    clientExtensionResults: webauthnResponse.getClientExtensionResults()
+  };
+
   ['clientDataJSON', 'authenticatorData', 'signature', 'userHandle'].forEach(property => {
     convertedResponse.response[property] = bufferToBase64Url(webauthnResponse.response[property]);
   });
-  convertedResponse.clientExtensionResults = webauthnResponse.getClientExtensionResults();
 
   return convertedResponse;
 }
@@ -84,10 +86,13 @@ export function convertCreateParams(webauthnParams) {
 }
 
 export function convertCreateResponse(webauthnResponse) {
-  const convertedResponse = clone(webauthnResponse);
-  convertedResponse.rawId = bufferToBase64Url(webauthnResponse.rawId);
-  convertedResponse.response = {};
-  convertedResponse.clientExtensionResults = webauthnResponse.getClientExtensionResults();
+  const convertedResponse = {
+    id: webauthnResponse.id,
+    rawId: bufferToBase64Url(webauthnResponse.rawId),
+    response: {},
+    clientExtensionResults: webauthnResponse.getClientExtensionResults(),
+    type: webauthnResponse.type
+  };
 
   ['clientDataJSON', 'attestationObject'].forEach(property => {
     convertedResponse.response[property] = bufferToBase64Url(webauthnResponse.response[property]);

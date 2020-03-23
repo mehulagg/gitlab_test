@@ -1,8 +1,3 @@
-import initU2F from '../../../shared/sessions/u2f';
-import initWebauthn from '~/shared/sessions/webauthn';
+import initSessions from '~/shared/sessions';
 
-if (gon.features && gon.features.webauthn) {
-  document.addEventListener('DOMContentLoaded', initWebauthn);
-} else {
-  document.addEventListener('DOMContentLoaded', initU2F);
-}
+document.addEventListener('DOMContentLoaded', initSessions);

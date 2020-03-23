@@ -13,7 +13,7 @@
             .prepend-top-20
               = f.submit "Verify code", class: "btn btn-success"
 
-      - if @user.two_factor_webauthn_u2f_enabled? and Feature.enabled?(:webauthn, @user)
+      - if @user.two_factor_webauthn_u2f_enabled? && Feature.enabled?(:webauthn, @user)
         = render "webauthn/authenticate", locals: { params: params, resource: resource, resource_name: resource_name }
-      - if @user.two_factor_u2f_enabled? and !Feature.enabled?(:webauthn, @user)
+      - elsif @user.two_factor_u2f_enabled?
         = render "u2f/authenticate", locals: { params: params, resource: resource, resource_name: resource_name }

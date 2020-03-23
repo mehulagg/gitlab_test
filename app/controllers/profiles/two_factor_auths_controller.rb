@@ -132,11 +132,11 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
   # Actual communication is performed using a Javascript API
   def setup_u2f_registration
     @u2f_registration ||= U2fRegistration.new
-    @u2f_registrations = current_user.u2f_registrations
+    @registrations = u2f_registrations_vm
     u2f = U2F::U2F.new(u2f_app_id)
 
     registration_requests = u2f.registration_requests
-    sign_requests = u2f.authentication_requests(@u2f_registrations.map(&:key_handle))
+    sign_requests = u2f.authentication_requests(current_user.u2f_registrations.map(&:key_handle))
     session[:challenges] = registration_requests.map(&:challenge)
 
     gon.push(u2f: { challenges: session[:challenges], app_id: u2f_app_id,
@@ -149,9 +149,17 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
   end
 
   def setup_webauthn_registration
-    @u2f_registrations = current_user.u2f_registrations
+    u2f_registrations = u2f_registrations_vm
+    webauthn_registrations = current_user.webauthn_registrations.map do |webauthn_registration|
+      {
+          type: 'WebAuthn',
+          name: webauthn_registration.name,
+          created_at: webauthn_registration.created_at,
+          delete_path: profile_webauthn_registration_path(webauthn_registration)
+      }
+    end
+    @registrations = u2f_registrations + webauthn_registrations
     @webauthn_registration ||= WebauthnRegistration.new
-    @webauthn_registrations = current_user.webauthn_registrations
 
     unless current_user.webauthn_id
       current_user.update!(webauthn_id: WebAuthn.generate_user_id)
@@ -171,6 +179,20 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
 
   def webauthn_registration_params
     params.require(:webauthn_registration).permit(:device_response, :name)
+  end
+
+  # vm = viewmodel
+  # Adds type and delete path to u2f registrations
+  # to reduce logic in view template
+  def u2f_registrations_vm
+    current_user.u2f_registrations.map do |u2f_registration|
+      {
+          type: 'U2F',
+          name: u2f_registration.name,
+          created_at: u2f_registration.created_at,
+          delete_path: profile_u2f_registration_path(u2f_registration)
+      }
+    end
   end
 
   def groups_notification(groups)
