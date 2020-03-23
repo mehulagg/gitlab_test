@@ -22,9 +22,9 @@ to configure the tools to not do this and to still function properly.
 ### Container registries and package repositories
 
 At a high-level, the security analyzers are delivered as Docker images and
-might leverage various package repositories. When you run a job on
+may leverage various package repositories. When you run a job on
 an internet-connected GitLab installation, GitLab checks the GitLab.com-hosted
-container registry to check that you have the latest versions of these docker images
+container registry to check that you have the latest versions of these Docker images
 and possibly connect to package repositories to install necessary dependencies.
 
 In an air-gapped environment, this must be disabled so that GitLab.com is not
