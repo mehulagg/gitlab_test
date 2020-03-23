@@ -4831,6 +4831,21 @@ CREATE TABLE public.project_pages_metadata (
     deployed boolean DEFAULT false NOT NULL
 );
 
+CREATE TABLE public.project_push_rules (
+    id bigint NOT NULL,
+    project_id bigint NOT NULL,
+    push_rule_id bigint NOT NULL
+);
+
+CREATE SEQUENCE public.project_push_rules_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.project_push_rules_id_seq OWNED BY public.project_push_rules.id;
+
 CREATE TABLE public.project_repositories (
     id bigint NOT NULL,
     shard_id integer NOT NULL,
@@ -5251,7 +5266,8 @@ CREATE TABLE public.push_rules (
     reject_unsigned_commits boolean,
     commit_committer_check boolean,
     regexp_uses_re2 boolean DEFAULT true,
-    commit_message_negative_regex character varying
+    commit_message_negative_regex character varying,
+    target_type smallint
 );
 
 CREATE SEQUENCE public.push_rules_id_seq
@@ -7187,6 +7203,8 @@ ALTER TABLE ONLY public.project_incident_management_settings ALTER COLUMN projec
 
 ALTER TABLE ONLY public.project_mirror_data ALTER COLUMN id SET DEFAULT nextval('public.project_mirror_data_id_seq'::regclass);
 
+ALTER TABLE ONLY public.project_push_rules ALTER COLUMN id SET DEFAULT nextval('public.project_push_rules_id_seq'::regclass);
+
 ALTER TABLE ONLY public.project_repositories ALTER COLUMN id SET DEFAULT nextval('public.project_repositories_id_seq'::regclass);
 
 ALTER TABLE ONLY public.project_repository_states ALTER COLUMN id SET DEFAULT nextval('public.project_repository_states_id_seq'::regclass);
@@ -8018,6 +8036,9 @@ ALTER TABLE ONLY public.project_metrics_settings
 
 ALTER TABLE ONLY public.project_mirror_data
     ADD CONSTRAINT project_mirror_data_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.project_push_rules
+    ADD CONSTRAINT project_push_rules_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.project_repositories
     ADD CONSTRAINT project_repositories_pkey PRIMARY KEY (id);
@@ -9586,6 +9607,12 @@ CREATE UNIQUE INDEX index_project_pages_metadata_on_project_id ON public.project
 
 CREATE INDEX index_project_pages_metadata_on_project_id_and_deployed_is_true ON public.project_pages_metadata USING btree (project_id) WHERE (deployed = true);
 
+CREATE UNIQUE INDEX index_project_push_rules_on_project_id ON public.project_push_rules USING btree (project_id);
+
+CREATE UNIQUE INDEX index_project_push_rules_on_project_id_and_push_rule_id ON public.project_push_rules USING btree (project_id, push_rule_id);
+
+CREATE UNIQUE INDEX index_project_push_rules_on_push_rule_id ON public.project_push_rules USING btree (push_rule_id);
+
 CREATE UNIQUE INDEX index_project_repositories_on_disk_path ON public.project_repositories USING btree (disk_path);
 
 CREATE UNIQUE INDEX index_project_repositories_on_project_id ON public.project_repositories USING btree (project_id);
@@ -10716,6 +10743,9 @@ ALTER TABLE ONLY public.approval_merge_request_rules
 ALTER TABLE ONLY public.namespace_statistics
     ADD CONSTRAINT fk_rails_0062050394 FOREIGN KEY (namespace_id) REFERENCES public.namespaces(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.project_push_rules
+    ADD CONSTRAINT fk_rails_023437c6af FOREIGN KEY (push_rule_id) REFERENCES public.push_rules(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.clusters_applications_elastic_stacks
     ADD CONSTRAINT fk_rails_026f219f46 FOREIGN KEY (cluster_id) REFERENCES public.clusters(id) ON DELETE CASCADE;
 
@@ -11336,6 +11366,9 @@ ALTER TABLE ONLY public.badges
 
 ALTER TABLE ONLY public.clusters_applications_cert_managers
     ADD CONSTRAINT fk_rails_9e4f2cb4b2 FOREIGN KEY (cluster_id) REFERENCES public.clusters(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.project_push_rules
+    ADD CONSTRAINT fk_rails_9ed8a48c44 FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY public.resource_milestone_events
     ADD CONSTRAINT fk_rails_a006df5590 FOREIGN KEY (merge_request_id) REFERENCES public.merge_requests(id) ON DELETE CASCADE;
@@ -12667,6 +12700,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200305121159'),
 ('20200305151736'),
 ('20200306095654'),
+('20200306135532'),
+('20200306135533'),
 ('20200306160521'),
 ('20200306170211'),
 ('20200306170321'),
@@ -12675,6 +12710,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200306193236'),
 ('20200309140540'),
 ('20200309162244'),
+('20200309162723'),
+('20200309162730'),
 ('20200309195209'),
 ('20200309195710'),
 ('20200310075115'),
