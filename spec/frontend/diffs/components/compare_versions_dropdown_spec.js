@@ -56,7 +56,7 @@ describe('CompareVersionsDropdown', () => {
         targetBranch,
       });
 
-      expect(findSelectedVersion().text()).toBe('tmp-wine-dev');
+      expect(findSelectedVersion().text()).toBe('tmp-wine-dev (base)');
     });
 
     it('shows correct version for non-base and non-latest branches', () => {
