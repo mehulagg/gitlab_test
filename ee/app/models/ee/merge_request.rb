@@ -73,6 +73,10 @@ module EE
     end
 
     class_methods do
+      def find_by_target_project_and_iid(project, iid)
+        find_by(target_project: project, iid: iid)
+      end
+
       def select_from_union(relations)
         where(id: from_union(relations))
       end

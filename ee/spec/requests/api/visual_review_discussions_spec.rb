@@ -3,19 +3,17 @@
 require 'spec_helper'
 
 describe API::VisualReviewDiscussions do
-  let(:user)     { create(:user) }
-  let!(:project) { create(:project, :public, :repository, namespace: user.namespace) }
-
-  context 'when sending merge request feedback from a visual review app without authentication' do
+  shared_examples_for 'sending merge request feedback without authentication' do
     let!(:merge_request) do
-      create(:merge_request_with_diffs, source_project: project, target_project: project, author: user)
+      create(:merge_request_with_diffs, source_project: project, target_project: project)
     end
+    let(:project_id) { project.id }
 
     let(:request) do
-      post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/visual_review_discussions"), params: note_params
+      post api("/projects/#{project_id}/merge_requests/#{merge_request.iid}/visual_review_discussions"), params: note_params
     end
 
-    let(:note_params)   { { body: 'hi!' } }
+    let(:note_params) { { body: 'hi!', created_at: 2.weeks.ago } }
     let(:response_note) { json_response['notes'].first }
 
     it 'creates a new note' do
@@ -64,6 +62,10 @@ describe API::VisualReviewDiscussions do
       it 'returns the id of the merge request as the parent noteable_id' do
         expect(response_note['noteable_id']).to eq(merge_request.id)
       end
+
+      it 'returns a current time stamp instead of the provided one' do
+        expect(Time.parse(response_note['created_at']) > 1.day.ago).to eq(true)
+      end
     end
 
     context 'with no message body' do
@@ -76,10 +78,26 @@ describe API::VisualReviewDiscussions do
       end
     end
 
+    context 'with an invalid project ID' do
+      let(:project_id) { project.id + 1 }
+
+      it 'does not create a new note' do
+        expect { request }.not_to change(Note, :count)
+      end
+
+      describe 'the API response' do
+        it 'responds with a status 404' do
+          request
+
+          expect(response).to have_gitlab_http_status(:not_found)
+        end
+      end
+    end
+
     context 'with an invalid merge request IID' do
       let(:merge_request) { double(iid: 546574823564) }
 
-      it 'creates a new note' do
+      it 'does not create a new note' do
         expect { request }.not_to change(Note, :count)
       end
 
@@ -115,43 +133,23 @@ describe API::VisualReviewDiscussions do
         end
       end
     end
+  end
 
-    context 'when an admin or owner makes an authenticated request' do
-      let(:request) do
-        post api("/projects/#{project.id}/merge_requests/#{merge_request.iid}/visual_review_discussions", project.owner), params: note_params
-      end
+  context 'when project is public' do
+    let!(:project) { create(:project, :public, :repository) }
 
-      let(:note_params) { { body: 'hi!', created_at: 2.weeks.ago } }
+    it_behaves_like 'sending merge request feedback without authentication'
+  end
 
-      it 'creates a new note' do
-        expect { request }.to change(merge_request.notes, :count).by(1)
-      end
+  context 'when project is private' do
+    let!(:project) { create(:project, :private, :repository) }
 
-      describe 'the API response' do
-        before do
-          request
-        end
+    it_behaves_like 'sending merge request feedback without authentication'
+  end
 
-        it 'responds with a status 201 Created' do
-          expect(response).to have_gitlab_http_status(:created)
-        end
+  context 'when project is internal' do
+    let!(:project) { create(:project, :internal, :repository) }
 
-        it 'returns the persisted note body' do
-          expect(response_note['body']).to eq('hi!')
-        end
-
-        it 'returns the name of the Visual Review Bot assigned as the author' do
-          expect(response_note['author']['username']).to eq(User.visual_review_bot.username)
-        end
-
-        it 'returns the id of the merge request as the parent noteable_id' do
-          expect(response_note['noteable_id']).to eq(merge_request.id)
-        end
-
-        it 'returns a current time stamp instead of the provided one' do
-          expect(Time.parse(response_note['created_at']) > 1.day.ago).to eq(true)
-        end
-      end
-    end
+    it_behaves_like 'sending merge request feedback without authentication'
   end
 end

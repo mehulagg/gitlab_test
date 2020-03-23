@@ -36,15 +36,19 @@ module API
           forbidden!('Anonymous visual review feedback is disabled')
         end
 
-        merge_request = find_merge_request_without_permissions_check(params[:merge_request_iid])
+        project = find_project(params[:id])
+        merge_request = find_merge_request_without_permissions_check(project, params[:merge_request_iid])
 
-        note = create_visual_review_note(merge_request, {
-          note: params[:body],
-          type: 'DiscussionNote',
-          noteable_type: 'MergeRequest',
-          position: params[:position],
-          noteable_id: merge_request.id
-        })
+        note = create_visual_review_note(
+          project,
+          {
+            note: params[:body],
+            type: 'DiscussionNote',
+            noteable_type: 'MergeRequest',
+            position: params[:position],
+            noteable_id: merge_request.id
+          }
+        )
 
         if note.valid?
           present note.discussion, with: Entities::Discussion
