@@ -88,6 +88,19 @@ module Gitlab
           .find { |line| line.old_line == pos.old_line && line.new_line == pos.new_line }
       end
 
+      def lines_for_position(pos)
+        return unless pos.position_type == 'multi_text'
+
+        diff_lines
+          .reverse_each
+          .select { |line| multi_line_match?(line, pos) }
+      end
+
+      def multi_line_match?(line, position)
+        return true if line.old_line == position.old_start_line && line.new_line == position.new_start_line
+        return true if line.old_line == position.old_end_line && line.new_line == position.new_end_line
+      end
+
       def position_for_line_code(code)
         line = line_for_line_code(code)
         position(line) if line
@@ -96,6 +109,11 @@ module Gitlab
       def line_code_for_position(pos)
         line = line_for_position(pos)
         line_code(line) if line
+      end
+
+      def line_codes_for_position(pos)
+        lines = lines_for_position(pos)
+        lines.map { |line| line_code(line) }
       end
 
       # Returns the raw diff content up to the given line index

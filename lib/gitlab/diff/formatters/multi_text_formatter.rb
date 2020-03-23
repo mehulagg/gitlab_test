@@ -27,7 +27,8 @@ module Gitlab
         end
 
         def complete?
-          old_line.present? || new_line.present?
+          (old_start_line.present? || new_start_line.present?) &&
+            (old_end_line.present? || new_end_line.present?)
         end
 
         def to_h

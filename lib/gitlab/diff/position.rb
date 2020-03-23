@@ -144,8 +144,16 @@ module Gitlab
         @diff_line ||= diff_file(repository)&.line_for_position(self)
       end
 
+      def diff_lines(repository)
+        @diff_lines ||= diff_file(repository)&.lines_for_position(self)
+      end
+
       def line_code(repository)
         @line_code ||= diff_file(repository)&.line_code_for_position(self)
+      end
+
+      def line_codes(repository)
+        @line_codes ||= diff_file(repository)&.line_codes_for_position(self)
       end
 
       def file_hash
@@ -158,6 +166,10 @@ module Gitlab
 
       def on_text?
         position_type == 'text'
+      end
+
+      def on_multi_text?
+        position_type == 'multi_text'
       end
 
       private

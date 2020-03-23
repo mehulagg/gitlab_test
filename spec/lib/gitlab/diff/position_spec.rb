@@ -35,12 +35,34 @@ describe Gitlab::Diff::Position do
     }
   end
 
+  let(:args_for_multi_text) do
+    {
+      old_path: "files/ruby/popen.rb",
+      new_path: "files/ruby/popen.rb",
+      old_start_line: nil,
+      new_start_line: 14,
+      old_end_line: nil,
+      new_end_line: 16,
+      base_sha: nil,
+      head_sha: nil,
+      start_sha: nil,
+      position_type: "multi_text"
+    }
+  end
+
   describe 'factory' do
     it 'produces a complete text position' do
       position = build(:text_diff_position)
 
       expect(position).to be_complete
       expect(position).to have_attributes(position_type: 'text')
+    end
+
+    it 'produces a complete multi_text position' do
+      position = build(:multi_text_diff_position)
+
+      expect(position).to be_complete
+      expect(position).to have_attributes(position_type: 'multi_text')
     end
 
     it 'produces a complete image position' do
@@ -98,6 +120,64 @@ describe Gitlab::Diff::Position do
     end
 
     describe "#line_code" do
+      it "returns the correct line code" do
+        line_code = Gitlab::Git.diff_line_code(subject.file_path, subject.new_line, 0)
+
+        expect(subject.line_code(project.repository)).to eq(line_code)
+      end
+    end
+  end
+
+  describe "multi-line position for an added text file" do
+    let(:commit) { project.commit("2ea1f3dec713d940208fb5ce4a38765ecb5d3f73") }
+
+    subject do
+      described_class.new(
+        old_path: "files/images/wm.svg",
+        new_path: "files/images/wm.svg",
+        old_start_line: nil,
+        new_start_line: 4,
+        old_end_line: nil,
+        new_end_line: 5,
+        diff_refs: commit.diff_refs
+      )
+    end
+
+    it { is_expected.to be_on_multi_text }
+    it { is_expected.not_to be_on_text }
+    it { is_expected.not_to be_on_image }
+
+    describe "#diff_file" do
+      it "returns the correct diff file" do
+        diff_file = subject.diff_file(project.repository)
+
+        expect(diff_file.new_file?).to be true
+        expect(diff_file.new_path).to eq(subject.new_path)
+        expect(diff_file.diff_refs).to eq(subject.diff_refs)
+      end
+    end
+
+    describe "#diff_lines" do
+      let(:diff_lines) { subject.diff_lines(project.repository) }
+
+      it "returns the correct first diff line" do
+        diff_line = diff_lines.first
+
+        expect(diff_line.added?).to be true
+        expect(diff_line.new_line).to eq(subject.new_line)
+        expect(diff_line.text).to eq("+    <title>wm</title>")
+      end
+
+      it "returns the correct second diff line" do
+        diff_line = diff_lines.last
+
+        expect(diff_line.added?).to be true
+        expect(diff_line.new_line).to eq(subject.new_line)
+        expect(diff_line.text).to eq("+    <desc>Created with Sketch.</desc>")
+      end
+    end
+
+    describe "#line_codes" do
       it "returns the correct line code" do
         line_code = Gitlab::Git.diff_line_code(subject.file_path, subject.new_line, 0)
 

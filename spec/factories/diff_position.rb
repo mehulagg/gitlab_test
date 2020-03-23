@@ -40,6 +40,19 @@ FactoryBot.define do
       end
     end
 
+    factory :multi_text_diff_position do
+      position_type { 'multi_text' }
+      old_start_line { 10 }
+      new_start_line { 10 }
+      old_end_line { 11 }
+      new_end_line { 11 }
+
+      trait :added do
+        old_start_line { nil }
+        old_end_line { nil }
+      end
+    end
+
     factory :image_diff_position do
       position_type { 'image' }
       x { 1 }
