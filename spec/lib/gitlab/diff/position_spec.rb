@@ -715,6 +715,12 @@ describe Gitlab::Diff::Position do
       it_behaves_like "diff position json"
     end
 
+    context "for multi_text position" do
+      let(:args) { args_for_multi_text }
+
+      it_behaves_like "diff position json"
+    end
+
     context "for image position" do
       let(:args) { args_for_img }
 
@@ -737,6 +743,12 @@ describe Gitlab::Diff::Position do
 
     context "for text position" do
       let(:args) { args_for_text }
+
+      it_behaves_like "diff position json"
+    end
+
+    context "for multi_text position" do
+      let(:args) { args_for_multi_text }
 
       it_behaves_like "diff position json"
     end
