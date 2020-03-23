@@ -94,11 +94,7 @@ module Gitlab
         diff_lines
           .reverse_each
           .select { |line| multi_line_match?(line, pos) }
-      end
-
-      def multi_line_match?(line, position)
-        return true if line.old_line == position.old_start_line && line.new_line == position.new_start_line
-        return true if line.old_line == position.old_end_line && line.new_line == position.new_end_line
+          .sort_by(&:new_line)
       end
 
       def position_for_line_code(code)
@@ -442,6 +438,15 @@ module Gitlab
         verify_binary = !stored_externally?
 
         classes.find { |viewer_class| viewer_class.can_render?(self, verify_binary: verify_binary) }
+      end
+
+      private
+
+      def multi_line_match?(line, position)
+        return true if line.old_line == position.old_start_line && line.new_line == position.new_start_line
+        return true if line.old_line == position.old_end_line && line.new_line == position.new_end_line
+
+        false
       end
     end
   end

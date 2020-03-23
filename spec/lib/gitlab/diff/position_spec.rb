@@ -139,7 +139,8 @@ describe Gitlab::Diff::Position do
         new_start_line: 4,
         old_end_line: nil,
         new_end_line: 5,
-        diff_refs: commit.diff_refs
+        diff_refs: commit.diff_refs,
+        position_type: "multi_text"
       )
     end
 
@@ -164,7 +165,7 @@ describe Gitlab::Diff::Position do
         diff_line = diff_lines.first
 
         expect(diff_line.added?).to be true
-        expect(diff_line.new_line).to eq(subject.new_line)
+        expect(diff_line.new_line).to eq(subject.new_start_line)
         expect(diff_line.text).to eq("+    <title>wm</title>")
       end
 
@@ -172,16 +173,24 @@ describe Gitlab::Diff::Position do
         diff_line = diff_lines.last
 
         expect(diff_line.added?).to be true
-        expect(diff_line.new_line).to eq(subject.new_line)
+        expect(diff_line.new_line).to eq(subject.new_end_line)
         expect(diff_line.text).to eq("+    <desc>Created with Sketch.</desc>")
       end
     end
 
     describe "#line_codes" do
-      it "returns the correct line code" do
-        line_code = Gitlab::Git.diff_line_code(subject.file_path, subject.new_line, 0)
+      let(:line_codes) { subject.line_codes(project.repository) }
 
-        expect(subject.line_code(project.repository)).to eq(line_code)
+      it "returns the correct first line code" do
+        line_code = Gitlab::Git.diff_line_code(subject.file_path, subject.new_start_line, 0)
+
+        expect(line_codes.first).to eq(line_code)
+      end
+
+      it "returns the correct second line code" do
+        line_code = Gitlab::Git.diff_line_code(subject.file_path, subject.new_end_line, 0)
+
+        expect(line_codes.last).to eq(line_code)
       end
     end
   end
