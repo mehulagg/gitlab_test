@@ -86,11 +86,10 @@ export const fetchDiffFiles = ({ state, commit }) => {
     .then(res => {
       commit(types.SET_LOADING, false);
 
-      const { real_size, merge_request_diffs: mergeRequestDiffs, ...strippedData } = res.data;
+      const { merge_request_diffs: mergeRequestDiffs, ...strippedData } = res.data;
 
       commit(types.SET_MERGE_REQUEST_DIFFS, mergeRequestDiffs || []);
       commit(types.SET_DIFF_DATA, strippedData);
-      commit(types.SET_DIFF_FILES_LENGTH, real_size);
 
       worker.postMessage(state.diffFiles);
 
@@ -160,13 +159,12 @@ export const fetchDiffFilesMeta = ({ commit, state }) => {
   return axios
     .get(mergeUrlParams(urlParams, state.endpointMetadata))
     .then(({ data }) => {
-      const { real_size, ...strippedData } = data;
+      const strippedData = { ...data };
 
       delete strippedData.diff_files;
       commit(types.SET_LOADING, false);
       commit(types.SET_MERGE_REQUEST_DIFFS, data.merge_request_diffs || []);
       commit(types.SET_DIFF_DATA, strippedData);
-      commit(types.SET_DIFF_FILES_LENGTH, real_size);
 
       worker.postMessage(prepareDiffData(data, state.diffFiles));
     })

@@ -161,7 +161,6 @@ describe('DiffsStoreActions', () => {
           { type: types.SET_LOADING, payload: false },
           { type: types.SET_MERGE_REQUEST_DIFFS, payload: mergeRequestDiffs },
           { type: types.SET_DIFF_DATA, payload: { diff_files: diffFiles } },
-          { type: types.SET_DIFF_FILES_LENGTH, payload: realSize },
         ],
         [],
         () => {
@@ -227,7 +226,6 @@ describe('DiffsStoreActions', () => {
           { type: types.SET_LOADING, payload: false },
           { type: types.SET_MERGE_REQUEST_DIFFS, payload: [] },
           { type: types.SET_DIFF_DATA, payload: { data } },
-          { type: types.SET_DIFF_FILES_LENGTH, payload: res.real_size },
         ],
         [],
         () => {
@@ -268,7 +266,6 @@ describe('DiffsStoreActions', () => {
             { type: types.SET_LOADING, payload: false },
             { type: types.SET_MERGE_REQUEST_DIFFS, payload: mergeRequestDiffs },
             { type: types.SET_DIFF_DATA, payload: { diff_files: diffFiles } },
-            { type: types.SET_DIFF_FILES_LENGTH, payload: realSize },
           ],
           [],
           () => {
@@ -330,7 +327,6 @@ describe('DiffsStoreActions', () => {
             { type: types.SET_LOADING, payload: false },
             { type: types.SET_MERGE_REQUEST_DIFFS, payload: [] },
             { type: types.SET_DIFF_DATA, payload: { data } },
-            { type: types.SET_DIFF_FILES_LENGTH, payload: res.real_size },
           ],
           [],
           () => {

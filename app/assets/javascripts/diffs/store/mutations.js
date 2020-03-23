@@ -59,6 +59,7 @@ export default {
     Object.assign(state, {
       ...convertObjectPropsToCamelCase(data),
       diffFiles: files,
+      diffFilesLength: parseInt(data.real_size, 10),
     });
   },
 
@@ -89,10 +90,6 @@ export default {
 
   [types.SET_DIFF_VIEW_TYPE](state, diffViewType) {
     Object.assign(state, { diffViewType });
-  },
-
-  [types.SET_DIFF_FILES_LENGTH](state, diffFilesLength) {
-    Object.assign(state, { diffFilesLength: parseInt(diffFilesLength, 0) });
   },
 
   [types.TOGGLE_LINE_HAS_FORM](state, { lineCode, fileHash, hasForm }) {
