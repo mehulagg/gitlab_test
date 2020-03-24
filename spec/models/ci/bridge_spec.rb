@@ -23,6 +23,8 @@ describe Ci::Bridge do
     expect(bridge).to have_many(:sourced_pipelines)
   end
 
+  it_behaves_like 'has build dependencies', :ci_bridge
+
   describe '#tags' do
     it 'only has a bridge tag' do
       expect(bridge.tags).to eq [:bridge]

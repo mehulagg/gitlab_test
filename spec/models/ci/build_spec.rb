@@ -39,6 +39,8 @@ describe Ci::Build do
 
   it { is_expected.to include_module(Ci::PipelineDelegator) }
 
+  it_behaves_like 'has build dependencies', :ci_build
+
   describe 'associations' do
     it 'has a bidirectional relationship with projects' do
       expect(described_class.reflect_on_association(:project).has_inverse?).to eq(:builds)
@@ -3369,94 +3371,6 @@ describe Ci::Build do
     end
   end
 
-  describe '#has_valid_build_dependencies?' do
-    shared_examples 'validation is active' do
-      context 'when depended job has not been completed yet' do
-        let!(:pre_stage_job) { create(:ci_build, :manual, pipeline: pipeline, name: 'test', stage_idx: 0) }
-
-        it { expect(job).to have_valid_build_dependencies }
-      end
-
-      context 'when artifacts of depended job has been expired' do
-        let!(:pre_stage_job) { create(:ci_build, :success, :expired, pipeline: pipeline, name: 'test', stage_idx: 0) }
-
-        it { expect(job).not_to have_valid_build_dependencies }
-      end
-
-      context 'when artifacts of depended job has been erased' do
-        let!(:pre_stage_job) { create(:ci_build, :success, pipeline: pipeline, name: 'test', stage_idx: 0, erased_at: 1.minute.ago) }
-
-        before do
-          pre_stage_job.erase
-        end
-
-        it { expect(job).not_to have_valid_build_dependencies }
-      end
-    end
-
-    shared_examples 'validation is not active' do
-      context 'when depended job has not been completed yet' do
-        let!(:pre_stage_job) { create(:ci_build, :manual, pipeline: pipeline, name: 'test', stage_idx: 0) }
-
-        it { expect(job).to have_valid_build_dependencies }
-      end
-
-      context 'when artifacts of depended job has been expired' do
-        let!(:pre_stage_job) { create(:ci_build, :success, :expired, pipeline: pipeline, name: 'test', stage_idx: 0) }
-
-        it { expect(job).to have_valid_build_dependencies }
-      end
-
-      context 'when artifacts of depended job has been erased' do
-        let!(:pre_stage_job) { create(:ci_build, :success, pipeline: pipeline, name: 'test', stage_idx: 0, erased_at: 1.minute.ago) }
-
-        before do
-          pre_stage_job.erase
-        end
-
-        it { expect(job).to have_valid_build_dependencies }
-      end
-    end
-
-    let!(:job) { create(:ci_build, :pending, pipeline: pipeline, stage_idx: 1, options: options) }
-
-    context 'when validates for dependencies is enabled' do
-      before do
-        stub_feature_flags(ci_disable_validates_dependencies: false)
-      end
-
-      let!(:pre_stage_job) { create(:ci_build, :success, pipeline: pipeline, name: 'test', stage_idx: 0) }
-
-      context 'when "dependencies" keyword is not defined' do
-        let(:options) { {} }
-
-        it { expect(job).to have_valid_build_dependencies }
-      end
-
-      context 'when "dependencies" keyword is empty' do
-        let(:options) { { dependencies: [] } }
-
-        it { expect(job).to have_valid_build_dependencies }
-      end
-
-      context 'when "dependencies" keyword is specified' do
-        let(:options) { { dependencies: ['test'] } }
-
-        it_behaves_like 'validation is active'
-      end
-    end
-
-    context 'when validates for dependencies is disabled' do
-      let(:options) { { dependencies: ['test'] } }
-
-      before do
-        stub_feature_flags(ci_disable_validates_dependencies: true)
-      end
-
-      it_behaves_like 'validation is not active'
-    end
-  end
-
   describe 'state transition when build fails' do
     let(:service) { MergeRequests::AddTodoWhenBuildFailsService.new(project, user) }
 
@@ -4210,16 +4124,6 @@ describe Ci::Build do
           expect(build.metadata.read_attribute(:config_options)).to be_nil
         end
       end
-    end
-  end
-
-  describe '#invalid_dependencies' do
-    let!(:pre_stage_job_valid) { create(:ci_build, :manual, pipeline: pipeline, name: 'test1', stage_idx: 0) }
-    let!(:pre_stage_job_invalid) { create(:ci_build, :success, :expired, pipeline: pipeline, name: 'test2', stage_idx: 1) }
-    let!(:job) { create(:ci_build, :pending, pipeline: pipeline, stage_idx: 2, options: { dependencies: %w(test1 test2) }) }
-
-    it 'returns invalid dependencies' do
-      expect(job.invalid_dependencies).to eq([pre_stage_job_invalid])
     end
   end
 

@@ -814,18 +814,6 @@ module Ci
       Gitlab::Ci::Build::Credentials::Factory.new(self).create!
     end
 
-    def all_dependencies
-      dependencies.all
-    end
-
-    def has_valid_build_dependencies?
-      dependencies.valid?
-    end
-
-    def invalid_dependencies
-      dependencies.invalid_local
-    end
-
     def valid_dependency?
       return false if artifacts_expired?
       return false if erased?
@@ -909,12 +897,6 @@ module Ci
     end
 
     private
-
-    def dependencies
-      strong_memoize(:dependencies) do
-        Ci::Processable::Dependencies.new(self)
-      end
-    end
 
     def build_data
       @build_data ||= Gitlab::DataBuilder::Build.build(self)

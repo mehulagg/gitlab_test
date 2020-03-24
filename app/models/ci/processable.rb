@@ -96,10 +96,28 @@ module Ci
       end
     end
 
+    def all_dependencies
+      dependencies.all
+    end
+
+    def has_valid_build_dependencies?
+      dependencies.valid?
+    end
+
+    def invalid_dependencies
+      dependencies.invalid_local
+    end
+
     private
 
     def validate_scheduling_type?
       !importing? && Feature.enabled?(:validate_scheduling_type_of_processables, project)
+    end
+
+    def dependencies
+      strong_memoize(:dependencies) do
+        Ci::Processable::Dependencies.new(self)
+      end
     end
   end
 end
