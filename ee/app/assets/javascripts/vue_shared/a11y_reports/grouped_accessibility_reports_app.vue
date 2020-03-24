@@ -1,16 +1,15 @@
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex';
-import { componentNames } from '~/reports/components/issue_body.js';
+import { mapActions, mapGetters } from 'vuex';
+import { componentNames } from 'ee/reports/components/issue_body';
 import ReportSection from '~/reports/components/report_section.vue';
 import IssuesList from '~/reports/components/issues_list.vue';
 import createStore from './store';
 
 export default {
-  name: 'GroupedTestReportsApp',
+  name: 'GroupedAccessibilityReportsApp',
   store: createStore(),
   components: {
     ReportSection,
-    SummaryRow,
     IssuesList,
   },
   props: {
@@ -24,7 +23,6 @@ export default {
     ...mapGetters([
       'summaryStatus',
       'groupedSummaryText',
-      'hasIssues',
       'shouldRenderIssuesList',
       'unresolvedIssues',
       'resolvedIssues',
@@ -47,7 +45,7 @@ export default {
     :success-text="groupedSummaryText"
     :loading-text="groupedSummaryText"
     :error-text="groupedSummaryText"
-    :has-issues="hasIssues"
+    :has-issues="shouldRenderIssuesList"
     class="mr-widget-section grouped-security-reports mr-report"
   >
     <div slot="body" class="mr-widget-grouped-section report-block">
@@ -56,7 +54,7 @@ export default {
         :unresolved-issues="unresolvedIssues"
         :new-issues="newIssues"
         :resolved-issues="resolvedIssues"
-        :component="$options.componentNames.TestIssueBody"
+        :component="$options.componentNames.AccessibilityIssueBody"
         class="report-block-group-list"
       />
     </div>

@@ -2,7 +2,7 @@
 import { isNumber, isString } from 'lodash';
 import GroupedSecurityReportsApp from 'ee/vue_shared/security_reports/grouped_security_reports_app.vue';
 import GroupedTestReportsApp from '~/reports/components/grouped_test_reports_app.vue';
-import GroupedAccessibilityReportsApp from 'ee/vue_shared/grouped_accessibility_reports_app.vue';
+import GroupedAccessibilityReportsApp from 'ee/vue_shared/a11y_reports/grouped_accessibility_reports_app.vue';
 import GroupedMetricsReportsApp from 'ee/vue_shared/metrics_reports/grouped_metrics_reports_app.vue';
 import reportsMixin from 'ee/vue_shared/security_reports/mixins/reports_mixin';
 import { componentNames } from 'ee/reports/components/issue_body';

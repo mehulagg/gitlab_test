@@ -1,5 +1,4 @@
 import Visibility from 'visibilityjs';
-import $ from 'jquery';
 import axios from '~/lib/utils/axios_utils';
 import Poll from '~/lib/utils/poll';
 import * as types from './mutation_types';

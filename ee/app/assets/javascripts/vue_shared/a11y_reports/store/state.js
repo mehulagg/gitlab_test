@@ -1,6 +1,3 @@
-import { s__ } from '~/locale';
-import { fieldTypes } from '../constants';
-
 export default () => ({
   endpoint: null,
 
@@ -11,6 +8,7 @@ export default () => ({
    * Report will have the following format:
    * {
    *   name: {String},
+   *   status: {String},
    *   summary: {
    *     total: {Number},
    *     notes: {Number},

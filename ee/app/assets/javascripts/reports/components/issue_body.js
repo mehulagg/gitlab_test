@@ -5,6 +5,7 @@ import LicenseIssueBody from 'ee/vue_shared/license_management/components/licens
 import SastIssueBody from 'ee/vue_shared/security_reports/components/sast_issue_body.vue';
 import ContainerScanningIssueBody from 'ee/vue_shared/security_reports/components/container_scanning_issue_body.vue';
 import DastIssueBody from 'ee/vue_shared/security_reports/components/dast_issue_body.vue';
+import AccessibilityIssueBody from 'ee/vue_shared/a11y_reports/components/accessibility_issue_body.vue';
 import MetricsReportsIssueBody from 'ee/vue_shared/metrics_reports/components/metrics_reports_issue_body.vue';
 import {
   components as componentsCE,
@@ -19,6 +20,7 @@ export const components = {
   ContainerScanningIssueBody,
   SastIssueBody,
   DastIssueBody,
+  AccessibilityIssueBody,
   MetricsReportsIssueBody,
   BlockingMergeRequestsBody,
 };
@@ -31,6 +33,7 @@ export const componentNames = {
   ContainerScanningIssueBody: ContainerScanningIssueBody.name,
   SastIssueBody: SastIssueBody.name,
   DastIssueBody: DastIssueBody.name,
+  AccessibilityIssueBody: AccessibilityIssueBody.name,
   MetricsReportsIssueBody: MetricsReportsIssueBody.name,
   BlockingMergeRequestsBody: BlockingMergeRequestsBody.name,
 };

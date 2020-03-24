@@ -144,6 +144,11 @@ msgid_plural "%d issues"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "%d issue for the source branch only"
+msgid_plural "%d issues for the source branch only"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "%d issue selected"
 msgid_plural "%d issues selected"
 msgstr[0] ""
@@ -361,6 +366,9 @@ msgid "%{mrText}, this issue will be closed automatically."
 msgstr ""
 
 msgid "%{name} contained %{resultsString}"
+msgstr ""
+
+msgid "%{name} detected %{summary}"
 msgstr ""
 
 msgid "%{name} found %{resultsString}"
@@ -12628,6 +12636,9 @@ msgstr ""
 msgid "Merging immediately isn't recommended as it may negatively impact the existing merge train. Read the %{docsLinkStart}documentation%{docsLinkEnd} for more information."
 msgstr ""
 
+msgid "Message: "
+msgstr ""
+
 msgid "Messages"
 msgstr ""
 
@@ -24508,6 +24519,9 @@ msgid "new merge request"
 msgstr ""
 
 msgid "no contributions"
+msgstr ""
+
+msgid "no issues for the source branch only"
 msgstr ""
 
 msgid "no one can merge"
