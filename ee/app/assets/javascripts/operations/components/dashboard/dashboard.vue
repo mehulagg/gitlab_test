@@ -37,25 +37,26 @@ export default {
   },
   modalId: 'add-projects-modal',
   computed: {
-    ...mapState([
-      'isLoadingProjects',
+    ...mapState('projectSelector', [
+      'pageInfo',
+      'projects',
       'selectedProjects',
       'projectSearchResults',
-      'searchCount',
       'messages',
-      'pageInfo',
+      'isLoadingProjects',
     ]),
-    projects: {
-      get() {
-        return this.$store.state.projects;
-      },
-      set(projects) {
-        this.setProjects(projects);
-      },
-    },
-    isSearchingProjects() {
-      return this.searchCount > 0;
-    },
+    ...mapGetters('projectSelector', ['isSearchingProjects']),
+    // old
+    // computed: {
+    // projects() {
+    //   return [];
+    // get() {
+    //   // return this.$store.state.projects;
+    // },
+    // set(projects) {
+    //   // this.setProjects(projects);
+    // },
+    // },
     okDisabled() {
       return Object.keys(this.selectedProjects).length === 0;
     },
@@ -65,28 +66,26 @@ export default {
       list: this.listPath,
       add: this.addPath,
     });
-    this.fetchProjects();
+    this.fetchPolling();
   },
   methods: {
-    ...mapActions([
-      'fetchNextPage',
+    ...mapActions('projectSelector', [
+      'fetchSearchResultsNextPage',
       'fetchSearchResults',
-      'addProjectsToDashboard',
-      'fetchProjects',
+      'addProjects',
+      'removeProject',
       'setProjectEndpoints',
       'clearSearchResults',
       'toggleSelectedProject',
       'setSearchQuery',
-      'setProjects',
+      // 'setProjects',
     ]),
-    addProjects() {
-      this.addProjectsToDashboard();
-    },
+    ...mapActions(['fetchPolling']),
     onCancel() {
       this.clearSearchResults();
     },
     onOk() {
-      this.addProjectsToDashboard()
+      this.addProjects()
         .then(this.clearSearchResults)
         .catch(this.clearSearchResults);
     },
@@ -123,7 +122,7 @@ export default {
         :total-results="pageInfo.totalResults"
         @searched="searched"
         @projectClicked="projectClicked"
-        @bottomReached="fetchNextPage"
+        @bottomReached="fetchSearchResultsNextPage"
       />
     </gl-modal>
 

@@ -108,7 +108,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['removeProject']),
+    ...mapActions('projectSelector', ['removeProject']),
   },
 };
 </script>

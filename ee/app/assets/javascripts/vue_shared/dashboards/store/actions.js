@@ -98,15 +98,15 @@ export const receiveAddProjectsToDashboardError = ({ state }) => {
 export const fetchProjects = ({ state, dispatch }) => {
   if (eTagPoll) return;
 
-  dispatch('requestProjects');
+  dispatch('projectSelector/requestProjects');
 
   eTagPoll = new Poll({
     resource: {
       fetchProjects: () => axios.get(state.projectEndpoints.list),
     },
     method: 'fetchProjects',
-    successCallback: ({ data }) => dispatch('receiveProjectsSuccess', data),
-    errorCallback: () => dispatch('receiveProjectsError'),
+    successCallback: ({ data }) => dispatch('projectSelector/receiveProjectsSuccess', data),
+    errorCallback: () => dispatch('projectSelector/receiveProjectsError'),
   });
 
   if (!Visibility.hidden()) {

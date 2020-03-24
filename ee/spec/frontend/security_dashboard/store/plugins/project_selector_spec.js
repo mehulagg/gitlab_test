@@ -1,7 +1,7 @@
 import Vuex from 'vuex';
 import createStore from 'ee/security_dashboard/store';
 import { BASE_FILTERS } from 'ee/security_dashboard/store/modules/filters/constants';
-import projectSelectorModule from 'ee/security_dashboard/store/modules/project_selector';
+import projectSelectorModule from 'ee/vuex_shared/modules/project_selector';
 import projectSelectorPlugin from 'ee/security_dashboard/store/plugins/project_selector';
 import * as projectSelectorMutationTypes from 'ee/security_dashboard/store/modules/projects/mutation_types';
 

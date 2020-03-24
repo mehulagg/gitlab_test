@@ -1,7 +1,7 @@
 import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
 
-import createDefaultState from 'ee/security_dashboard/store/modules/project_selector/state';
+import createDefaultState from 'ee/vuex_shared/modules/project_selector/state';
 
 import { GlDeprecatedButton } from '@gitlab/ui';
 

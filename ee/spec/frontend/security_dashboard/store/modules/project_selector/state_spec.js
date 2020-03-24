@@ -1,4 +1,4 @@
-import createState from 'ee/security_dashboard/store/modules/project_selector/state';
+import createState from 'ee/vuex_shared/modules/project_selector/state';
 
 describe('projectsSelector default state', () => {
   const state = createState();
