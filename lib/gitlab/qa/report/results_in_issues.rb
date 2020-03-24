@@ -5,10 +5,18 @@ require 'gitlab'
 require 'active_support/core_ext/enumerable'
 
 module Gitlab
-  # Monkey patch the Gitlab client to use the correct API path
+  # Monkey patch the Gitlab client to use the correct API path and add required methods
   class Client
     def team_member(project, id)
-      get("/projects/#{url_encode project}/members/all/#{id}")
+      get("/projects/#{url_encode(project)}/members/all/#{id}")
+    end
+
+    def issue_discussions(project, issue_id, options = {})
+      get("/projects/#{url_encode(project)}/issues/#{issue_id}/discussions", query: options)
+    end
+
+    def add_note_to_issue_discussion_as_thread(project, issue_id, discussion_id, options = {})
+      post("/projects/#{url_encode(project)}/issues/#{issue_id}/discussions/#{discussion_id}/notes", query: options)
     end
   end
 
@@ -141,6 +149,16 @@ module Gitlab
         def note_status(issue, test)
           return if failures(test).empty?
 
+          note = note_content(test)
+
+          Gitlab.issue_discussions(project, issue.iid, order_by: 'created_at', sort: 'asc').each do |discussion|
+            return add_note_to_discussion(issue.iid, discussion.id) if new_note_matches_discussion?(note, discussion)
+          end
+
+          Gitlab.create_issue_note(project, issue.iid, note)
+        end
+
+        def note_content(test)
           errors = failures(test).each_with_object([]) do |failure, text|
             text << <<~TEXT
               Error:
@@ -155,7 +173,23 @@ module Gitlab
             TEXT
           end.join("\n\n")
 
-          Gitlab.create_issue_note(project, issue.iid, ":x: ~\"#{pipeline}::failed\" in job `#{Runtime::Env.ci_job_name}` in #{Runtime::Env.ci_job_url}\n\n#{errors}")
+          "#{failure_summary}\n\n#{errors}"
+        end
+
+        def failure_summary
+          ":x: ~\"#{pipeline}::failed\" in job `#{Runtime::Env.ci_job_name}` in #{Runtime::Env.ci_job_url}"
+        end
+
+        def new_note_matches_discussion?(note, discussion)
+          error_and_stack_trace(note) == error_and_stack_trace(discussion.notes.first['body'])
+        end
+
+        def error_and_stack_trace(text)
+          text.strip[/Error:(.*)/, 1]
+        end
+
+        def add_note_to_discussion(issue_iid, discussion_id)
+          Gitlab.add_note_to_issue_discussion_as_thread(project, issue_iid, discussion_id, body: failure_summary)
         end
 
         def update_labels(issue, test)
