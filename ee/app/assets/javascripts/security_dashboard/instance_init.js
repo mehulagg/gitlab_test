@@ -25,6 +25,8 @@ export default () => {
     plugins: [projectSelector, syncWithRouter(router)],
   });
 
+  debugger;
+
   return new Vue({
     el,
     router,

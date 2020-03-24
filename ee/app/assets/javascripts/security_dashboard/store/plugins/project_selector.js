@@ -5,8 +5,8 @@ import * as projectSelectorMutationTypes from '../modules/project_selector/mutat
 import { BASE_FILTERS } from '../modules/filters/constants';
 
 export default store => {
-  store.registerModule('projectSearch', projectSearchModule());
   store.registerModule('projectSelector', projectSelectorModule());
+  store.registerModule(['projectSelector', 'search'], projectSearchModule());
 
   store.subscribe(({ type, payload }) => {
     if (type === `projectSelector/${projectSelectorMutationTypes.RECEIVE_PROJECTS_SUCCESS}`) {

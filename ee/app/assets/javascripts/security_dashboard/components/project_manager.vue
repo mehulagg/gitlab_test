@@ -11,30 +11,14 @@ export default {
     ProjectSelector,
   },
   computed: {
-    ...mapState('projectSelector', [
-      'projects',
-      'selectedProjects',
-    ]),
-    ...mapState('projectSearch', [
-      'pageInfo',
-      'projectSearchResults',
-      'messages',
-    ]),
-    ...mapGetters('projectSearch', [
-      'isSearchingProjects',
-    ]),
-    ...mapGetters('projectSelector', [
-      'canAddProjects',
-      'isUpdatingProjects',
-    ]),
+    ...mapState('projectSelector', ['projects', 'selectedProjects']),
+    ...mapState('projectSelector/search', ['pageInfo', 'projectSearchResults', 'messages']),
+    ...mapGetters('projectSelector/search', ['isSearchingProjects']),
+    ...mapGetters('projectSelector', ['canAddProjects', 'isUpdatingProjects']),
   },
   methods: {
-    ...mapActions('projectSelector', [
-      'addProjects',
-      'toggleSelectedProject',
-      'removeProject',
-    ]),
-    ...mapActions('projectSearch', [
+    ...mapActions('projectSelector', ['addProjects', 'toggleSelectedProject', 'removeProject']),
+    ...mapActions('projectSelector/search', [
       'fetchSearchResults',
       'fetchSearchResultsNextPage',
       'clearSearchResults',
@@ -43,6 +27,10 @@ export default {
     searched(query) {
       this.setSearchQuery(query);
       this.fetchSearchResults();
+    },
+    addProjectsClicked(projects) {
+      this.addProjects(projects);
+      this.clearSearchResults();
     },
     projectClicked(project) {
       this.toggleSelectedProject(project);
@@ -76,13 +64,9 @@ export default {
             @bottomReached="fetchSearchResultsNextPage"
           />
           <div class="mb-3">
-            <gl-deprecated-button
-              :disabled="!canAddProjects"
-              variant="success"
-              @click="addProjects"
-            >
-              {{ s__('SecurityReports|Add projects') }}
-            </gl-deprecated-button>
+            <gl-button :disabled="!canAddProjects" variant="success" @click="addProjectsClicked">
+              {{ s__('SecurityDashboard|Add projects') }}
+            </gl-button>
           </div>
         </div>
       </div>
