@@ -22053,9 +22053,6 @@ msgstr ""
 msgid "Type/State"
 msgstr ""
 
-msgid "U2F"
-msgstr ""
-
 msgid "U2F Devices (%{length})"
 msgstr ""
 
@@ -23366,9 +23363,6 @@ msgid "Web Terminal"
 msgstr ""
 
 msgid "Web terminal"
-msgstr ""
-
-msgid "WebAuthn"
 msgstr ""
 
 msgid "WebAuthn / U2F Devices (%{length})"

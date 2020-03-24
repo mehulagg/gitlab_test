@@ -57,7 +57,7 @@ export function convertGetResponse(webauthnResponse) {
     type: webauthnResponse.type,
     rawId: bufferToBase64Url(webauthnResponse.rawId),
     response: {},
-    clientExtensionResults: webauthnResponse.getClientExtensionResults()
+    clientExtensionResults: webauthnResponse.getClientExtensionResults(),
   };
 
   ['clientDataJSON', 'authenticatorData', 'signature', 'userHandle'].forEach(property => {
@@ -91,7 +91,7 @@ export function convertCreateResponse(webauthnResponse) {
     rawId: bufferToBase64Url(webauthnResponse.rawId),
     response: {},
     clientExtensionResults: webauthnResponse.getClientExtensionResults(),
-    type: webauthnResponse.type
+    type: webauthnResponse.type,
   };
 
   ['clientDataJSON', 'attestationObject'].forEach(property => {
