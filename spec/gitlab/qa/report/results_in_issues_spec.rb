@@ -262,6 +262,14 @@ describe Gitlab::QA::Report::ResultsInIssues do
           end
 
           context 'when reporting a specific job' do
+            let(:failure_summary) { ":x: ~\"staging::failed\" in job `test-job` in http://job_url" }
+            let(:note_content) {  "#{failure_summary}\n\nError:\n```\nAn Error Here\n```\n\nStacktrace:\n```\nTest Stacktrace\n```\n" }
+
+            before do
+              allow(subject).to receive(:update_labels)
+              allow(subject).to receive(:note_status).and_call_original
+            end
+
             around do |example|
               ClimateControl.modify(
                 CI_JOB_URL: 'http://job_url',
@@ -270,14 +278,43 @@ describe Gitlab::QA::Report::ResultsInIssues do
             end
 
             it 'adds a note that the test failed and a stack trace' do
-              allow(subject).to receive(:update_labels)
-
-              expect(subject).to receive(:note_status).and_call_original
               expect(subject).to receive(:pipeline).and_return('staging')
+              expect(::Gitlab).to receive(:issue_discussions).and_return([])
               expect(::Gitlab).to receive(:create_issue_note)
-                .with(anything, anything, ":x: ~\"staging::failed\" in job `test-job` in http://job_url\n\nError:\n```\nAn Error Here\n```\n\nStacktrace:\n```\nTest Stacktrace\n```\n")
+                .with(anything, anything, note_content)
 
               expect { subject.invoke! }.to output.to_stdout
+            end
+
+            context 'with an existing discussion' do
+              let(:existing_discussion) { Struct.new(:notes, :id).new(['body' => note_content], 0) }
+
+              it 'adds a note to the discussion with no stack trace' do
+                expect(subject).to receive(:pipeline).and_return('staging').twice
+                expect(::Gitlab).to receive(:issue_discussions).and_return([existing_discussion])
+                expect(::Gitlab).to receive(:add_note_to_issue_discussion_as_thread)
+                  .with('valid-project', 0, 0, body: failure_summary)
+
+                expect { subject.invoke! }.to output.to_stdout
+              end
+
+              context 'with a different job name and environment' do
+                around do |example|
+                  ClimateControl.modify(
+                    CI_JOB_URL: 'http://job_url',
+                    CI_JOB_NAME: 'different-test-job'
+                  ) { example.run }
+                end
+
+                it 'still matches the error and stack trace' do
+                  expect(subject).to receive(:pipeline).and_return('production').twice
+                  expect(::Gitlab).to receive(:issue_discussions).and_return([existing_discussion])
+                  expect(::Gitlab).to receive(:add_note_to_issue_discussion_as_thread)
+                    .with('valid-project', 0, 0, body: ":x: ~\"production::failed\" in job `different-test-job` in http://job_url")
+
+                  expect { subject.invoke! }.to output.to_stdout
+                end
+              end
             end
           end
         end
