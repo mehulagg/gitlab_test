@@ -53,8 +53,8 @@ export function convertGetParams(webauthnParams) {
 
 export function convertGetResponse(webauthnResponse) {
   const convertedResponse = {
-    id: webauthnResponse.id,
     type: webauthnResponse.type,
+    id: webauthnResponse.id,
     rawId: bufferToBase64Url(webauthnResponse.rawId),
     response: {},
     clientExtensionResults: webauthnResponse.getClientExtensionResults(),
@@ -87,11 +87,11 @@ export function convertCreateParams(webauthnParams) {
 
 export function convertCreateResponse(webauthnResponse) {
   const convertedResponse = {
+    type: webauthnResponse.type,
     id: webauthnResponse.id,
     rawId: bufferToBase64Url(webauthnResponse.rawId),
     response: {},
     clientExtensionResults: webauthnResponse.getClientExtensionResults(),
-    type: webauthnResponse.type,
   };
 
   ['clientDataJSON', 'attestationObject'].forEach(property => {
