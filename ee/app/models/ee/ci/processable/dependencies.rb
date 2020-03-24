@@ -6,6 +6,7 @@ module EE
       module Dependencies
         extend ActiveSupport::Concern
         extend ::Gitlab::Utils::Override
+        include ::Gitlab::Utils::StrongMemoize
 
         LIMIT = ::Gitlab::Ci::Config::Entry::Needs::NEEDS_CROSS_DEPENDENCIES_LIMIT
 
@@ -42,10 +43,6 @@ module EE
           model_class.from_union(relationship_fragments).limit(LIMIT)
         end
 
-        def model_class
-          ::Ci::Processable::Dependencies::MODEL
-        end
-
         def build_cross_dependencies_fragments(deps, search_scope)
           deps.inject([]) do |fragments, dep|
             next fragments unless dep[:artifacts]
@@ -62,9 +59,7 @@ module EE
         end
 
         def user
-          strong_memoize(:user) do
-            processable.user
-          end
+          processable.user
         end
 
         def specified_cross_pipeline_dependencies

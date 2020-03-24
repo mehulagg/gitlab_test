@@ -3,12 +3,6 @@
 module Ci
   class Processable
     class Dependencies
-      include Gitlab::Utils::StrongMemoize
-
-      # Dependencies can only be of Ci::Build type because only builds
-      # can create artifacts
-      MODEL = ::Ci::Build
-
       attr_reader :processable
 
       def initialize(processable)
@@ -23,7 +17,7 @@ module Ci
       def local
         return [] if no_local_dependencies_specified?
 
-        deps = MODEL.where(pipeline_id: processable.pipeline_id).latest
+        deps = model_class.where(pipeline_id: processable.pipeline_id).latest
         deps = from_previous_stages(deps)
         deps = from_needs(deps)
         deps = from_dependencies(deps)
@@ -45,6 +39,12 @@ module Ci
 
       private
 
+      # Dependencies can only be of Ci::Build type because only builds
+      # can create artifacts
+      def model_class
+        ::Ci::Build
+      end
+
       def valid_local?
         return true if Feature.enabled?('ci_disable_validates_dependencies')
 
@@ -56,9 +56,7 @@ module Ci
       end
 
       def project
-        strong_memoize(:project) do
-          processable.project
-        end
+        processable.project
       end
 
       def no_local_dependencies_specified?
