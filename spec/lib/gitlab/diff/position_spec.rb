@@ -368,6 +368,173 @@ describe Gitlab::Diff::Position do
     end
   end
 
+  describe "multi-line position for a changed file" do
+    let(:commit) { project.commit("570e7b2abdd848b95f2f578043fc23bd6f6fd24d") }
+
+    describe "position for an added line" do
+      subject do
+        described_class.new(
+          old_path: "files/ruby/popen.rb",
+          new_path: "files/ruby/popen.rb",
+          old_start_line: nil,
+          new_start_line: 14,
+          old_end_line: nil,
+          new_end_line: 15,
+          diff_refs: commit.diff_refs,
+          position_type: "multi_text"
+        )
+      end
+
+      describe "#diff_file" do
+        it "returns the correct diff file" do
+          diff_file = subject.diff_file(project.repository)
+
+          expect(diff_file.old_path).to eq(subject.old_path)
+          expect(diff_file.new_path).to eq(subject.new_path)
+          expect(diff_file.diff_refs).to eq(subject.diff_refs)
+        end
+
+        context 'different folded positions in the same diff file' do
+          def diff_file(args = {})
+            described_class
+              .new(args_for_multi_text.merge(args))
+              .diff_file(project.repository)
+          end
+
+          it 'expands the diff file', :request_store do
+            expect_any_instance_of(Gitlab::Diff::File)
+              .to receive(:unfold_diff_lines).and_call_original
+
+            diff_file(old_line: 1, new_line: 1, diff_refs: commit.diff_refs)
+
+            expect_any_instance_of(Gitlab::Diff::File)
+              .to receive(:unfold_diff_lines).and_call_original
+
+            diff_file(old_line: 5, new_line: 5, diff_refs: commit.diff_refs)
+          end
+        end
+      end
+
+      describe "#diff_lines" do
+        let(:diff_lines) { subject.diff_lines(project.repository) }
+
+        it "returns the correct first diff line" do
+          diff_line = diff_lines.first
+
+          expect(diff_line.added?).to be true
+          expect(diff_line.new_line).to eq(subject.new_start_line)
+          expect(diff_line.text).to eq("+    vars = {")
+        end
+
+        it "returns the correct second diff line" do
+          diff_line = diff_lines.last
+
+          expect(diff_line.added?).to be true
+          expect(diff_line.new_line).to eq(subject.new_end_line)
+          expect(diff_line.text).to eq('+      "PWD" => path')
+        end
+      end
+
+      describe "#line_codes" do
+        let(:line_codes) { subject.line_codes(project.repository) }
+
+        it "returns the correct first line code" do
+          line_code = Gitlab::Git.diff_line_code(subject.file_path, subject.new_start_line, 15) #FIXME: Why is this 15?
+
+          expect(line_codes.first).to eq(line_code)
+        end
+
+        it "returns the correct second line code" do
+          line_code = Gitlab::Git.diff_line_code(subject.file_path, subject.new_end_line, 15)
+
+          expect(line_codes.last).to eq(line_code)
+        end
+      end
+    end
+
+    describe "position for an unchanged line" do
+      subject do
+        described_class.new(
+          old_path: "files/ruby/popen.rb",
+          new_path: "files/ruby/popen.rb",
+          old_line: 16,
+          new_line: 22,
+          diff_refs: commit.diff_refs
+        )
+      end
+
+      describe "#diff_file" do
+        it "returns the correct diff file" do
+          diff_file = subject.diff_file(project.repository)
+
+          expect(diff_file.old_path).to eq(subject.old_path)
+          expect(diff_file.new_path).to eq(subject.new_path)
+          expect(diff_file.diff_refs).to eq(subject.diff_refs)
+        end
+      end
+
+      describe "#diff_line" do
+        it "returns the correct diff line" do
+          diff_line = subject.diff_line(project.repository)
+
+          expect(diff_line.unchanged?).to be true
+          expect(diff_line.old_line).to eq(subject.old_line)
+          expect(diff_line.new_line).to eq(subject.new_line)
+          expect(diff_line.text).to eq("     unless File.directory?(path)")
+        end
+      end
+
+      describe "#line_code" do
+        it "returns the correct line code" do
+          line_code = Gitlab::Git.diff_line_code(subject.file_path, subject.new_line, subject.old_line)
+
+          expect(subject.line_code(project.repository)).to eq(line_code)
+        end
+      end
+    end
+
+    describe "position for a removed line" do
+      subject do
+        described_class.new(
+          old_path: "files/ruby/popen.rb",
+          new_path: "files/ruby/popen.rb",
+          old_line: 14,
+          new_line: nil,
+          diff_refs: commit.diff_refs
+        )
+      end
+
+      describe "#diff_file" do
+        it "returns the correct diff file" do
+          diff_file = subject.diff_file(project.repository)
+
+          expect(diff_file.old_path).to eq(subject.old_path)
+          expect(diff_file.new_path).to eq(subject.new_path)
+          expect(diff_file.diff_refs).to eq(subject.diff_refs)
+        end
+      end
+
+      describe "#diff_line" do
+        it "returns the correct diff line" do
+          diff_line = subject.diff_line(project.repository)
+
+          expect(diff_line.removed?).to be true
+          expect(diff_line.old_line).to eq(subject.old_line)
+          expect(diff_line.text).to eq("-    options = { chdir: path }")
+        end
+      end
+
+      describe "#line_code" do
+        it "returns the correct line code" do
+          line_code = Gitlab::Git.diff_line_code(subject.file_path, 13, subject.old_line)
+
+          expect(subject.line_code(project.repository)).to eq(line_code)
+        end
+      end
+    end
+  end
+
+
   describe "position for a renamed file" do
     let(:commit) { project.commit("6907208d755b60ebeacb2e9dfea74c92c3449a1f") }
 
