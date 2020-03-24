@@ -10,9 +10,6 @@ limits that will be set for the different GitLab tiers. You also need to
 coordinate with others to [document](../administration/instance_limits.md)
 and communicate those limits.
 
-There is a guide about [introducing application
-limits](https://about.gitlab.com/handbook/product/#introducing-application-limits).
-
 ## Development
 
 ### Insert database plan limits
