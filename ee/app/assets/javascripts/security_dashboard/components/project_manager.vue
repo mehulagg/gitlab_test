@@ -12,27 +12,33 @@ export default {
   },
   computed: {
     ...mapState('projectSelector', [
-      'pageInfo',
       'projects',
       'selectedProjects',
+    ]),
+    ...mapState('projectSearch', [
+      'pageInfo',
       'projectSearchResults',
       'messages',
     ]),
+    ...mapGetters('projectSearch', [
+      'isSearchingProjects',
+    ]),
     ...mapGetters('projectSelector', [
       'canAddProjects',
-      'isSearchingProjects',
       'isUpdatingProjects',
     ]),
   },
   methods: {
     ...mapActions('projectSelector', [
+      'addProjects',
+      'toggleSelectedProject',
+      'removeProject',
+    ]),
+    ...mapActions('projectSearch', [
       'fetchSearchResults',
       'fetchSearchResultsNextPage',
-      'addProjects',
       'clearSearchResults',
-      'toggleSelectedProject',
       'setSearchQuery',
-      'removeProject',
     ]),
     searched(query) {
       this.setSearchQuery(query);

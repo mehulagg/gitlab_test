@@ -60,6 +60,3 @@ export const setMinimumQueryMessage = ({ commit }) => {
 };
 
 export default () => {};
-
-
-export default () => {};
