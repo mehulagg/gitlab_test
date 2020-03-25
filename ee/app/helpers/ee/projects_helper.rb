@@ -184,6 +184,21 @@ module EE
       ::Gitlab::RepositorySizeError.new(@project).above_size_limit_message
     end
 
+    def subscription_message
+      return unless ::Gitlab.com?
+
+      ::Gitlab::ExpiringSubscriptionMessage.new(
+        subscribable: decorated_subscription,
+        signed_in: signed_in?,
+        is_admin: can?(current_user, :developer_access, @project),
+        namespace: @project.namespace
+      ).message
+    end
+
+    def decorated_subscription
+      SubscriptionPresenter.new(@project.gitlab_subscription)
+    end
+
     override :membership_locked?
     def membership_locked?
       group = @project.group
