@@ -5,6 +5,8 @@ import { __ } from '~/locale';
 import { polyfillSticky } from '~/lib/utils/sticky';
 import Icon from '~/vue_shared/components/icon.vue';
 import CompareVersionsDropdown from './compare_versions_dropdown.vue';
+import CompareSourceDropdown from './compare_source_dropdown.vue';
+import CompareTargetDropdown from './compare_target_dropdown.vue';
 import SettingsDropdown from './settings_dropdown.vue';
 import DiffStats from './diff_stats.vue';
 import { CENTERED_LIMITED_CONTAINER_CLASSES } from '../constants';
@@ -12,6 +14,8 @@ import { CENTERED_LIMITED_CONTAINER_CLASSES } from '../constants';
 export default {
   components: {
     CompareVersionsDropdown,
+    CompareSourceDropdown,
+    CompareTargetDropdown,
     Icon,
     GlLink,
     GlButton,
@@ -116,16 +120,29 @@ export default {
         :message="s__('MergeRequest|Compare %{source} and %{target}')"
       >
         <template #source>
-          <compare-versions-dropdown
+          <!-- <compare-versions-dropdown
             :other-versions="mergeRequestDiffs"
             :merge-request-version="mergeRequestDiff"
             :show-commit-count="true"
             class="mr-version-dropdown"
+          /> -->
+          <compare-source-dropdown
+            :versions="mergeRequestDiffs"
+            :merge-request-version="mergeRequestDiff"
+            class="mr-version-dropdown"
           />
         </template>
         <template #target>
-          <compare-versions-dropdown
+          <!-- <compare-versions-dropdown
             :other-versions="comparableDiffs"
+            :base-version-path="baseVersionPath"
+            :head-version-path="headVersionPath"
+            :start-version="startVersion"
+            :target-branch="targetBranch"
+            class="mr-version-compare-dropdown"
+          /> -->
+          <compare-target-dropdown
+            :versions="comparableDiffs"
             :base-version-path="baseVersionPath"
             :head-version-path="headVersionPath"
             :start-version="startVersion"
