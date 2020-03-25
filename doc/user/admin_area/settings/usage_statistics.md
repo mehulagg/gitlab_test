@@ -125,6 +125,29 @@ production: &base
     usage_ping_enabled: false
 ```
 
+## Seat Link **(STARTER ONLY)**
+
+To provide our self-managed customers with prorated charges for user growth throughout the year,
+[Seat Link](../../../subscriptions/index.md#seat-link) regularly sends user count data to GitLab.
+
+To disable Seat Link:
+
+- Go to **{admin}** **Admin Area > Settings > Metrics and profiling**.
+- Expand the **Usage statistics** section.
+- Clear the **Seat Link** checkbox.
+
+To enable Seat Link:
+
+- Go to **{admin}** **Admin Area > Settings > Metrics and profiling**.
+- Expand the **Usage statistics** section.
+- Check the **Seat Link** checkbox.
+
+To view the data being sent to GitLab:
+
+- Go to **{admin}** **Admin Area > Settings > Metrics and profiling**.
+- Expand the **Usage statistics** section.
+- Click **Preview Payload**.
+
 ## Instance statistics visibility **(CORE ONLY)**
 
 Once usage ping is enabled, GitLab will gather data from other instances and
