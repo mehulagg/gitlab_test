@@ -298,6 +298,10 @@ module QA
         ENV['MAILHOG_HOSTNAME']
       end
 
+      def execute_test_via_api?
+        enabled?(ENV['EXECUTE_TEST_VIA_API'], default: true)
+      end
+
       private
 
       def remote_grid_credentials
