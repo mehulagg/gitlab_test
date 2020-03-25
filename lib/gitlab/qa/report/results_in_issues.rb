@@ -177,7 +177,14 @@ module Gitlab
         end
 
         def failure_summary
-          ":x: ~\"#{pipeline}::failed\" in job `#{Runtime::Env.ci_job_name}` in #{Runtime::Env.ci_job_url}"
+          summary = [":x: ~\"#{pipeline}::failed\""]
+          summary << "~\"quarantine\"" if quarantine_job?
+          summary << "in job `#{Runtime::Env.ci_job_name}` in #{Runtime::Env.ci_job_url}"
+          summary.join(' ')
+        end
+
+        def quarantine_job?
+          Runtime::Env.ci_job_name&.include?('quarantine')
         end
 
         def new_note_matches_discussion?(note, discussion)
@@ -196,6 +203,7 @@ module Gitlab
           labels = issue.labels
           labels.delete_if { |label| label.start_with?("#{pipeline}::") }
           labels << (failures(test).empty? ? "#{pipeline}::passed" : "#{pipeline}::failed")
+          quarantine_job? ? labels << "quarantine" : labels.delete("quarantine")
 
           Gitlab.edit_issue(project, issue.iid, labels: labels)
         end
