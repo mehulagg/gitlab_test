@@ -241,11 +241,7 @@ module Ci
 
       after_transition any => [:success, :failed] do |pipeline|
         pipeline.run_after_commit do
-          if Feature.enabled?(:ci_pipeline_fixed_notifications)
-            PipelineUpdateCiRefStatusWorker.perform_async(pipeline.id)
-          else
-            PipelineNotificationWorker.perform_async(pipeline.id)
-          end
+          PipelineNotificationWorker.perform_async(pipeline.id)
         end
       end
 
@@ -954,7 +950,31 @@ module Ci
       end
     end
 
+    def status_transition_on_same_context
+      return unless complete?
+
+      previous_pipeline = all_pipelines_on_same_context.finished.where('id < ?', id).first
+
+      return unless previous_pipeline
+
+      if status == previous_pipeline.status
+        :not_changed
+      elsif success? && previous_pipeline.failed?
+        :fixed
+      else
+        :unknown_transition
+      end
+    end
+
     private
+
+    def all_pipelines_on_same_context
+      if merge_request?
+        merge_request.all_pipelines
+      else
+        project.ci_pipelines.where(ref: ref, tag: tag).order(id: :desc)
+      end
+    end
 
     def pipeline_data
       Gitlab::DataBuilder::Pipeline.build(self)

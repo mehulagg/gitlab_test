@@ -21,6 +21,12 @@ class PipelineNotificationWorker # rubocop:disable Scalability/IdempotentWorker
     pipeline = Ci::Pipeline.find_by(id: pipeline_id)
     return unless pipeline
 
+    ref_status =
+      if Feature.enabled?(:ci_pipeline_fixed_notifications)
+        status_transition = pipeline.status_transition_on_same_context
+        status_transition if status_transition == :fixed
+      end
+
     NotificationService.new.pipeline_finished(pipeline, ref_status: ref_status, recipients: recipients)
   end
   # rubocop: enable CodeReuse/ActiveRecord
