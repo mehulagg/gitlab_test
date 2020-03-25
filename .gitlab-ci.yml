@@ -693,44 +693,6 @@ ee:object_storage-quarantine:
   variables:
     QA_SCENARIO: "Test::Integration::ObjectStorage"
 
-ce:oauth:
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .rspec-report-opts
-  variables:
-    QA_SCENARIO: "Test::Integration::OAuth"
-
-ce:oauth-quarantine:
-  extends:
-    - .test
-    - .high-capacity
-    - .ce-qa
-    - .quarantine
-    - .rspec-report-opts
-  variables:
-    QA_SCENARIO: "Test::Integration::OAuth"
-
-ee:oauth:
-  extends:
-    - .test
-    - .high-capacity
-    - .ee-qa
-    - .rspec-report-opts
-  variables:
-    QA_SCENARIO: "Test::Integration::OAuth"
-
-ee:oauth-quarantine:
-  extends:
-    - .test
-    - .high-capacity
-    - .ee-qa
-    - .quarantine
-    - .rspec-report-opts
-  variables:
-    QA_SCENARIO: "Test::Integration::OAuth"
-
 ee:packages:
   extends:
     - .test

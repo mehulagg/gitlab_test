@@ -74,14 +74,8 @@ For more details on the internals, please read the
 * `QA_SLOW_CONNECTION_LATENCY_MS` - the additional latency (in ms) of the simulated slow connection (default 2000 ms).
 * `QA_SLOW_CONNECTION_THROUGHPUT_KBPS` - the maximum throughput (in kbps) of the simulated slow connection (default 32 kbps).
 * `QA_SKIP_PULL` - set to `true` to skip pulling docker images (e.g., to use one you built locally).
-* `GITHUB_OAUTH_APP_ID` - Client ID for GitHub OAuth app. See https://docs.gitlab.com/ce/integration/github.html for steps to generate this token.
-* `GITHUB_OAUTH_APP_SECRET` - Client Secret for GitHub OAuth app. See https://docs.gitlab.com/ce/integration/github.html for steps to generate this token.
 * `GITHUB_USERNAME` - Username for authenticating with GitHub.
 * `GITHUB_PASSWORD` - Password for authenticating with GitHub.
-* `GITLAB_QA_1P_EMAIL` - Email address for authenticating into 1Password
-* `GITLAB_QA_1P_PASSWORD` - Password for authenticating into 1Password.
-* `GITLAB_QA_1P_SECRET` - Secret for authenticating into 1Password.
-* `GITLAB_QA_1P_GITHUB_UUID` - UUID for GitHub item in GitLab-QA 1Password vault.
 * `GITLAB_QA_LOOP_RUNNER_MINUTES` - Minutes to run and repeat a spec while using the '--loop' option; default value is 1 minute.
 * `CI_SERVER_PERSONAL_ACCESS_TOKEN` - Personal access token of the server that is running the CI pipeline. This is used for pulling CI_RUNNER information in certain tests.
 
@@ -385,49 +379,6 @@ $ gitlab-qa Test::Integration::InstanceSAML CE
 $ export EE_LICENSE=$(cat /path/to/Geo.gitlab_license)
 
 $ gitlab-qa Test::Integration::InstanceSAML EE
-```
-
-### `Test::Integration::OAuth CE|EE|<full image address>`
-
-This tests that users can sign in to GitLab instance using external OAuth services.
-
-The tests currently integrate with the following OAuth service providers:
-* GitHub
-
-To run tests against the GitLab containers, a GitLab QA (`gitlab/gitlab-qa`)
-container is spun up and tests are run from it by running the
-`Test::Integration::OAuth` scenario (located under [`gitlab-org/gitlab-ce@qa/qa/scenario/test/integration/oauth.rb`](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/qa/qa/scenario/test/integration/oauth.rb) in the GitLab CE project).
-
-**Required environment variables:**
-
-- [For EE only] `EE_LICENSE`: A valid EE license.
-- `GITHUB_OAUTH_APP_ID`: Client ID for GitHub OAuth app. This can be found in the shared 1Password vault.
-- `GITHUB_OAUTH_APP_SECRET`: Client Secret for GitHub OAuth app. This can be found in the shared 1Password vault.
-- `GITHUB_USERNAME`: Username for authenticating with GitHub. This can be found in the shared 1Password vault.
-- `GITHUB_PASSWORD`: Password for authenticating with GitHub. This can be found in the shared 1Password vault.
-- `GITLAB_QA_1P_EMAIL`: Email address for authenticating into 1Password for GitLab-QA vault. This can be found in the shared 1Password vault.
-- `GITLAB_QA_1P_PASSWORD`: Password for authenticating into 1Password for GitLab-QA vault. This can be found in the shared 1Password vault.
-- `GITLAB_QA_1P_SECRET`: Secret for authenticating into 1Password. This can be found in the GitLab-QA 1Password vault.
-- `GITLAB_QA_1P_GITHUB_UUID`: UUID for GitHub item in GitLab-QA 1Password vault. This can be found in the GitLab-QA 1Password vault.
-
-Example:
-
-```
-$ export GITHUB_OAUTH_APP_ID=your_github_oauth_client_id
-$ export GITHUB_OAUTH_APP_SECRET=your_github_oauth_client_secret
-$ export GITHUB_USERNAME=your_github_username
-$ export GITHUB_PASSWORD=your_github_password
-$ export GITLAB_QA_1P_EMAIL=1password_email
-$ export GITLAB_QA_1P_PASSWORD=1password_password
-$ export GITLAB_QA_1P_SECRET=1password_secret
-$ export GITLAB_QA_1P_GITHUB_UUID=1password_gihub_item_uuid
-
-$ gitlab-qa Test::Integration::OAuth CE
-
-# For EE
-$ export EE_LICENSE=$(cat /path/to/gitlab_license)
-
-$ gitlab-qa Test::Integration::OAuth EE
 ```
 
 ### `Test::Integration::Mattermost CE|EE|<full image address>`
