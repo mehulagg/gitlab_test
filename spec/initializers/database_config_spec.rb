@@ -7,52 +7,58 @@ describe 'Database config initializer' do
     load Rails.root.join('config/initializers/database_config.rb')
   end
 
+  let(:max_threads) { 8 }
+
   before do
     allow(ActiveRecord::Base).to receive(:establish_connection)
+    allow(Gitlab::Runtime).to receive(:max_threads).and_return(max_threads)
   end
 
-  context "when using multi-threaded runtime" do
-    let(:max_threads) { 8 }
+  context "when configuring the connection pool size" do
+    context "and no pool size has been configured" do
+      context "and the number of threads plus headroom does not exceed the maximum pool size" do
+        it "sets it to the number of threads plus headroom" do
+          stub_database_config(pool_size: nil)
 
-    before do
-      allow(Gitlab::Runtime).to receive(:multi_threaded?).and_return(true)
-      allow(Gitlab::Runtime).to receive(:max_threads).and_return(max_threads)
-    end
-
-    context "and no existing pool size is set" do
-      before do
-        stub_database_config(pool_size: nil)
+          expect { subject }.to change { Gitlab::Database.config['pool'] }
+            .from(nil).to(max_threads + Gitlab::Database::POOL_HEADROOM)
+        end
       end
 
-      it "sets it to the max number of worker threads" do
-        expect { subject }.to change { Gitlab::Database.config['pool'] }.from(nil).to(max_threads)
-      end
-    end
+      context "and the number of threads plus headroom exceed the maximum pool size" do
+        it "sets it to the maximum pool size" do
+          stub_database_config(pool_size: nil)
+          stub_const('Gitlab::Database::MAX_POOL_SIZE', max_threads + Gitlab::Database::POOL_HEADROOM - 1)
 
-    context "and the existing pool size is smaller than the max number of worker threads" do
-      before do
-        stub_database_config(pool_size: max_threads - 1)
-      end
-
-      it "sets it to the max number of worker threads" do
-        expect { subject }.to change { Gitlab::Database.config['pool'] }.by(1)
+          expect { subject }.to change { Gitlab::Database.config['pool'] }.from(nil).to(Gitlab::Database::MAX_POOL_SIZE)
+        end
       end
     end
 
-    context "and the existing pool size is larger than the max number of worker threads" do
-      before do
-        stub_database_config(pool_size: max_threads + 1)
+    context "and a pool size has been configured" do
+      context "and it is smaller than the number of threads plus headroom" do
+        it "sets it to the number of threads plus headroom" do
+          stub_database_config(pool_size: max_threads + Gitlab::Database::POOL_HEADROOM - 1)
+
+          expect { subject }.to change { Gitlab::Database.config['pool'] }.to(max_threads + Gitlab::Database::POOL_HEADROOM)
+        end
       end
 
-      it "keeps the configured pool size" do
-        expect { subject }.not_to change { Gitlab::Database.config['pool'] }
-      end
-    end
-  end
+      context "and it is greater than or equal to the number of threads plus headroom" do
+        it "uses the configured pool size" do
+          stub_database_config(pool_size: max_threads + Gitlab::Database::POOL_HEADROOM + 1)
 
-  context "when using single-threaded runtime" do
-    it "does nothing" do
-      expect { subject }.not_to change { Gitlab::Database.config['pool'] }
+          expect { subject }.not_to change { Gitlab::Database.config['pool'] }
+        end
+      end
+
+      context "and it is greater than the maximum pool size" do
+        it "sets it to the maximum pool size" do
+          stub_database_config(pool_size: Gitlab::Database::MAX_POOL_SIZE + 1)
+
+          expect { subject }.to change { Gitlab::Database.config['pool'] }.to(Gitlab::Database::MAX_POOL_SIZE)
+        end
+      end
     end
   end
 
