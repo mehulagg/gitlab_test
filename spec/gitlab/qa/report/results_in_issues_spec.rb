@@ -327,12 +327,28 @@ describe Gitlab::QA::Report::ResultsInIssues do
                 ) { example.run }
               end
 
-              it 'includes a quarantine label in the summary' do
+              it 'applies a quarantine label and includes the same in the summary' do
                 allow(subject).to receive(:update_labels).and_call_original
+                allow(subject).to receive(:pipeline).and_return('staging').twice
+                allow(::Gitlab).to receive(:issue_discussions).and_return([])
 
-                expect(subject).to receive(:pipeline).and_return('staging').twice
                 expect(::Gitlab).to receive(:edit_issue).with(anything, anything, labels: %w[staging::failed quarantine])
-                expect(::Gitlab).to receive(:issue_discussions).and_return([])
+                expect(::Gitlab).to receive(:create_issue_note)
+                  .with(anything, anything, note_content)
+
+                expect { subject.invoke! }.to output.to_stdout
+              end
+            end
+
+            context 'when a quarantined test is dequarantined' do
+              let(:labels) { %w[quarantine] }
+
+              it 'removes the quarantine label' do
+                allow(subject).to receive(:update_labels).and_call_original
+                allow(subject).to receive(:pipeline).and_return('staging').exactly(3).times
+                allow(::Gitlab).to receive(:issue_discussions).and_return([])
+
+                expect(::Gitlab).to receive(:edit_issue).with(anything, anything, labels: %w[staging::failed])
                 expect(::Gitlab).to receive(:create_issue_note)
                   .with(anything, anything, note_content)
 

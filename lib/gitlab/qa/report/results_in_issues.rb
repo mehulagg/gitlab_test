@@ -203,7 +203,7 @@ module Gitlab
           labels = issue.labels
           labels.delete_if { |label| label.start_with?("#{pipeline}::") }
           labels << (failures(test).empty? ? "#{pipeline}::passed" : "#{pipeline}::failed")
-          labels << "quarantine" if quarantine_job?
+          quarantine_job? ? labels << "quarantine" : labels.delete("quarantine")
 
           Gitlab.edit_issue(project, issue.iid, labels: labels)
         end
