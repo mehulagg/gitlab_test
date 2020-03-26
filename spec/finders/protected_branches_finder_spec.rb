@@ -25,12 +25,12 @@ describe ProtectedBranchesFinder do
     end
 
     context 'when there are more protected branches than the limit' do
-      before do
-        stub_const("#{described_class}::LIMIT", 1)
-      end
+      let(:limit) { 1 }
 
       it 'returns limited protected branches of project' do
-        expect(subject).to eq([another_protected_branch])
+        stub_const("#{described_class}::LIMIT", limit)
+
+        expect(subject.size).to eq(limit)
       end
     end
   end
