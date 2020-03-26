@@ -9,7 +9,8 @@ describe Gitlab::Diff::Formatters::MultiTextFormatter do
       start_sha: 456,
       head_sha: 789,
       old_path: "old_path.txt",
-      new_path: "new_path.txt"
+      new_path: "new_path.txt",
+      position_type: "multi_text"
     }
   end
 
@@ -19,8 +20,11 @@ describe Gitlab::Diff::Formatters::MultiTextFormatter do
 
   it_behaves_like "position formatter" do
     let(:base_attrs) { base }
-
     let(:attrs) { complete }
+
+    let(:key) do
+      [123, 456, 789, Digest::SHA1.hexdigest(formatter.old_path), Digest::SHA1.hexdigest(formatter.new_path), 1, 2, 2, 4]
+    end
   end
 
   # Specific text formatter examples
