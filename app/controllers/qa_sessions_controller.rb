@@ -13,8 +13,13 @@ class QaSessionsController < Devise::SessionsController
     end
   end
 
+  private
+
   def ensure_qa_running!
-    return head :forbidden unless ENV['GITLAB_QA_TOKEN'].present?
-    return head :forbidden unless params[:gitlab_qa_token] == ENV['GITLAB_QA_TOKEN']
+    return head :forbidden unless gitlab_qa_token_valid?
+  end
+
+  def gitlab_qa_token_valid?
+    ENV['GITLAB_QA_TOKEN'].present? && params[:gitlab_qa_token] == ENV['GITLAB_QA_TOKEN']
   end
 end
