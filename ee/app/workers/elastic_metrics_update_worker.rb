@@ -9,6 +9,7 @@ class ElasticMetricsUpdateWorker
   # rubocop:enable Scalability/CronWorkerContext
 
   feature_category :global_search
+  urgency :throttled
   idempotent!
 
   LEASE_TIMEOUT = 5.minutes

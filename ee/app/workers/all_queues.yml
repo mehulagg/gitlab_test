@@ -34,7 +34,7 @@
 - :name: cronjob:elastic_metrics_update
   :feature_category: :global_search
   :has_external_dependencies: 
-  :urgency: :low
+  :urgency: :throttled
   :resource_boundary: :unknown
   :weight: 1
   :idempotent: true
