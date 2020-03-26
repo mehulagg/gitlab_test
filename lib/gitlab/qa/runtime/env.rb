@@ -51,8 +51,6 @@ module Gitlab
           'GITLAB_QA_PASSWORD_1' => :gitlab_qa_password_1,
           'GITLAB_QA_USERNAME_2' => :gitlab_qa_username_2,
           'GITLAB_QA_PASSWORD_2' => :gitlab_qa_password_2,
-          'GITHUB_OAUTH_APP_ID' => :github_oauth_app_id,
-          'GITHUB_OAUTH_APP_SECRET' => :github_oauth_app_secret,
           'GITHUB_USERNAME' => :github_username,
           'GITHUB_PASSWORD' => :github_password,
           'KNAPSACK_GENERATE_REPORT' => :knapsack_generate_report,
@@ -68,10 +66,6 @@ module Gitlab
           'GITLAB_CI' => :gitlab_ci,
           'QA_SKIP_PULL' => :qa_skip_pull,
           'ELASTIC_URL' => :elastic_url,
-          'GITLAB_QA_1P_EMAIL' => :gitlab_qa_1p_email,
-          'GITLAB_QA_1P_PASSWORD' => :gitlab_qa_1p_password,
-          'GITLAB_QA_1P_SECRET' => :gitlab_qa_1p_secret,
-          'GITLAB_QA_1P_GITHUB_UUID' => :gitlab_qa_1p_github_uuid,
           'GITLAB_QA_LOOP_RUNNER_MINUTES' => :gitlab_qa_loop_runner_minutes,
           'MAILHOG_HOSTNAME' => :mailhog_hostname,
           'SLACK_QA_CHANNEL' => :slack_qa_channel,
@@ -166,12 +160,6 @@ module Gitlab
           return unless ENV['GITLAB_QA_DEV_ACCESS_TOKEN'].to_s.strip.empty?
 
           raise ArgumentError, "Please provide GITLAB_QA_DEV_ACCESS_TOKEN"
-        end
-
-        def require_oauth_environment!
-          %w[GITHUB_OAUTH_APP_ID GITHUB_OAUTH_APP_SECRET GITHUB_USERNAME GITHUB_PASSWORD GITLAB_QA_1P_EMAIL GITLAB_QA_1P_PASSWORD GITLAB_QA_1P_SECRET GITLAB_QA_1P_GITHUB_UUID].each do |env_key|
-            raise ArgumentError, "Environment variable #{env_key} must be set to run OAuth specs" unless ENV.key?(env_key)
-          end
         end
 
         def require_slack_qa_channel!

@@ -46,7 +46,6 @@ module Gitlab
           autoload :Mattermost, 'gitlab/qa/scenario/test/integration/mattermost'
           autoload :Kubernetes, 'gitlab/qa/scenario/test/integration/kubernetes'
           autoload :ObjectStorage, 'gitlab/qa/scenario/test/integration/object_storage'
-          autoload :OAuth, 'gitlab/qa/scenario/test/integration/oauth'
           autoload :Packages, 'gitlab/qa/scenario/test/integration/packages'
           autoload :Praefect, 'gitlab/qa/scenario/test/integration/praefect'
           autoload :Elasticsearch, 'gitlab/qa/scenario/test/integration/elasticsearch'
