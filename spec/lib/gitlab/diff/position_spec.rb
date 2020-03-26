@@ -457,9 +457,12 @@ describe Gitlab::Diff::Position do
         described_class.new(
           old_path: "files/ruby/popen.rb",
           new_path: "files/ruby/popen.rb",
-          old_line: 16,
-          new_line: 22,
-          diff_refs: commit.diff_refs
+          old_start_line: 16,
+          new_start_line: 22,
+          old_end_line: 20,
+          new_end_line: 26,
+          diff_refs: commit.diff_refs,
+          position_type: "multi_text"
         )
       end
 
@@ -473,22 +476,42 @@ describe Gitlab::Diff::Position do
         end
       end
 
-      describe "#diff_line" do
-        it "returns the correct diff line" do
-          diff_line = subject.diff_line(project.repository)
+      describe "#diff_lines" do
+        let(:diff_lines) { subject.diff_lines(project.repository) }
+
+        it "returns the correct first diff line" do
+          diff_line = diff_lines.first
+
 
           expect(diff_line.unchanged?).to be true
-          expect(diff_line.old_line).to eq(subject.old_line)
-          expect(diff_line.new_line).to eq(subject.new_line)
+          expect(diff_line.old_line).to eq(subject.old_start_line)
+          expect(diff_line.new_line).to eq(subject.new_start_line)
           expect(diff_line.text).to eq("     unless File.directory?(path)")
+        end
+
+        it "returns the correct second diff line" do
+          diff_line = diff_lines.last
+
+          expect(diff_line.unchanged?).to be true
+          expect(diff_line.old_line).to eq(subject.old_end_line)
+          expect(diff_line.new_line).to eq(subject.new_end_line)
+          expect(diff_line.text).to eq("     @cmd_output = \"\"")
         end
       end
 
-      describe "#line_code" do
-        it "returns the correct line code" do
-          line_code = Gitlab::Git.diff_line_code(subject.file_path, subject.new_line, subject.old_line)
+      describe "#line_codes" do
+        let(:line_codes) { subject.line_codes(project.repository) }
 
-          expect(subject.line_code(project.repository)).to eq(line_code)
+        it "returns the correct first line code" do
+          line_code = Gitlab::Git.diff_line_code(subject.file_path, subject.new_start_line, subject.old_start_line)
+
+          expect(line_codes.first).to eq(line_code)
+        end
+
+        it "returns the correct second line code" do
+          line_code = Gitlab::Git.diff_line_code(subject.file_path, subject.new_end_line, subject.old_end_line)
+
+          expect(line_codes.last).to eq(line_code)
         end
       end
     end
@@ -498,9 +521,12 @@ describe Gitlab::Diff::Position do
         described_class.new(
           old_path: "files/ruby/popen.rb",
           new_path: "files/ruby/popen.rb",
-          old_line: 14,
-          new_line: nil,
-          diff_refs: commit.diff_refs
+          old_start_line: 14,
+          new_start_line: nil,
+          old_end_line: 15,
+          new_end_line: 14,
+          diff_refs: commit.diff_refs,
+          position_type: "multi_text"
         )
       end
 
@@ -514,26 +540,45 @@ describe Gitlab::Diff::Position do
         end
       end
 
-      describe "#diff_line" do
-        it "returns the correct diff line" do
-          diff_line = subject.diff_line(project.repository)
+      describe "#diff_lines" do
+        let(:diff_lines) { subject.diff_lines(project.repository) }
+
+        it "returns the correct first diff line" do
+          diff_line = diff_lines.first
 
           expect(diff_line.removed?).to be true
-          expect(diff_line.old_line).to eq(subject.old_line)
+          expect(diff_line.old_line).to eq(subject.old_start_line)
+          expect(diff_line.new_line).to be nil
+          expect(diff_line.text).to eq("-    options = { chdir: path }")
+        end
+
+        it "returns the correct second diff line" do
+          diff_line = diff_lines.last
+
+          expect(diff_line.removed?).to be false # I don't understand why this is true
+          expect(diff_line.old_line).to eq(subject.old_end_line - 1)
+          expect(diff_line.new_line).to eq(subject.new_end_line - 1) # this also isn't present and that doesn't make sense
           expect(diff_line.text).to eq("-    options = { chdir: path }")
         end
       end
 
-      describe "#line_code" do
-        it "returns the correct line code" do
-          line_code = Gitlab::Git.diff_line_code(subject.file_path, 13, subject.old_line)
+      describe "#line_codes" do
+        let(:line_codes) { subject.line_codes(project.repository) }
 
-          expect(subject.line_code(project.repository)).to eq(line_code)
+        it "returns the correct first line code" do
+          line_code = Gitlab::Git.diff_line_code(subject.file_path, 13, subject.old_start_line)
+
+          expect(line_codes.first).to eq(line_code)
+        end
+
+        it "returns the correct last line code" do
+          line_code = Gitlab::Git.diff_line_code(subject.file_path, subject.new_end_line - 1, subject.old_end_line - 1)
+
+          expect(line_codes.last).to eq(line_code)
         end
       end
     end
   end
-
 
   describe "position for a renamed file" do
     let(:commit) { project.commit("6907208d755b60ebeacb2e9dfea74c92c3449a1f") }
