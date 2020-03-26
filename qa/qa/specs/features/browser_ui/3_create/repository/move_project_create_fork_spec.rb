@@ -2,7 +2,7 @@
 
 module QA
   context 'Create' do
-    describe 'Gitaly repository storage', :orchestrated, :repository_storage, :requires_admin, quarantine: { type: :new } do
+    describe 'Gitaly repository storage', :orchestrated, :repository_storage, :requires_admin do
       let(:user) { Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_1, Runtime::Env.gitlab_qa_password_1) }
       let(:parent_project) do
         Resource::Project.fabricate_via_api! do |project|
