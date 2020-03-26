@@ -28,5 +28,7 @@ Project-level Value Stream Analytics are still available at a project's **Projec
 
 In addition to the tools available in the Analytics workspace, GitLab provides:
 
+- [CI/CD analytics](../../ci/pipelines/index.md#pipeline-success-and-duration-charts).
 - [Contribution analytics](../group/contribution_analytics/index.md). **(STARTER)**
+- [Insights analytics](../group/insights/index.md). **(ULTIMATE)**
 - [Issue analytics](../group/issues_analytics/index.md). **(PREMIUM)**
