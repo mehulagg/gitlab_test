@@ -5,6 +5,8 @@ module Security
   # Queries ES and retrieves both total nginx requests & modsec violations
   #
   class WafAnomalySummaryService < ::BaseService
+    DOCUMENT_SIZE = 1000
+
     def initialize(environment:, interval: 'day', from: 30.days.ago.iso8601, to: Time.zone.now.iso8601)
       @environment = environment
       @interval = interval
@@ -19,14 +21,21 @@ module Security
       # Use multi-search with single query as we'll be adding nginx later
       # with https://gitlab.com/gitlab-org/gitlab/issues/14707
       aggregate_results = elasticsearch_client.msearch(body: body)
-      nginx_results, modsec_results = aggregate_results['responses']
+      nginx_results, modsec_results, modsec_logs_results = aggregate_results['responses']
 
       nginx_total_requests = nginx_results.dig('hits', 'total').to_f
       modsec_total_requests = modsec_results.dig('hits', 'total').to_f
 
+      modsec_logs = modsec_logs_results.dig('hits','hits')&.map do |hit|
+        hit.
+          dig('_source','transaction')&.
+          slice('time_stamp', 'messages')
+      end
+
       anomalous_traffic_count = nginx_total_requests.zero? ? 0 : (modsec_total_requests / nginx_total_requests).round(2)
 
       {
+        anomalous_log: modsec_logs,
         total_traffic: nginx_total_requests,
         anomalous_traffic: anomalous_traffic_count,
         history: {
@@ -59,6 +68,11 @@ module Security
           query: modsec_requests_query,
           aggs: aggregations(@interval),
           size: 0 # no docs needed, only counts
+        },
+        { index: indices },
+        {
+          query: modsec_requests_query,
+          size: DOCUMENT_SIZE # for WAF Logs
         }
       ]
     end

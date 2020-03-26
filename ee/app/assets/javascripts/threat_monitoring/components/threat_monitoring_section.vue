@@ -1,13 +1,15 @@
 <script>
 import { mapState } from 'vuex';
-import { GlEmptyState } from '@gitlab/ui';
+import { GlEmptyState, GlInfiniteScroll } from '@gitlab/ui';
 import LoadingSkeleton from './loading_skeleton.vue';
 import StatisticsSummary from './statistics_summary.vue';
 import StatisticsHistory from './statistics_history.vue';
 
 export default {
+  traceHeight: 600,
   components: {
     GlEmptyState,
+    GlInfiniteScroll,
     LoadingSkeleton,
     StatisticsSummary,
     StatisticsHistory,
@@ -83,6 +85,17 @@ export default {
         to: this.timeRange.to,
       };
     },
+    log() {
+      return this.statistics.anomalousLog;
+    },
+    hasLog() {
+      return this.log !== null && this.log.length > 0;
+    }
+  },
+  methods: {
+    fromUTCToLocal(time){
+      return new Date(time + " UTC");
+    },
   },
 };
 </script>
@@ -97,6 +110,25 @@ export default {
     <template v-else-if="hasHistory">
       <statistics-summary class="mt-3" :data="summary" />
       <statistics-history class="mt-3" :data="chart" :y-legend="yLegend" />
+      <div :v-if="hasLog" class="environment-logs-viewer mt-3">
+        <h5 class="h5">{{ __('Logs') }}</h5>
+        <gl-infinite-scroll
+          ref="infiniteScroll"
+          class="build-trace"
+          :style="{ height: `${$options.traceHeight}px`, whiteSpace: 'normal'}"
+          :max-list-height="$options.traceHeight"
+          :fetched-items="log.length"
+        >
+          <template #items>
+            <p v-for="(item, index) in log" :key="index">
+              {{fromUTCToLocal(item.time_stamp)}} : {{item.messages}}
+            </p>
+          </template>
+          <template #default>
+            <div></div>
+          </template>
+        </gl-infinite-scroll>
+      </div>
     </template>
 
     <gl-empty-state

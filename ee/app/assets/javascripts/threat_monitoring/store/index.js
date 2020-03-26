@@ -11,8 +11,8 @@ export default () =>
     modules: {
       threatMonitoring: threatMonitoring(),
       threatMonitoringWaf: threatMonitoringStatistics(payload => {
-        const { totalTraffic, anomalousTraffic, history } = convertObjectPropsToCamelCase(payload);
-        return { total: totalTraffic, anomalous: anomalousTraffic, history };
+        const { totalTraffic, anomalousTraffic, history, anomalousLog } = convertObjectPropsToCamelCase(payload);
+        return { total: totalTraffic, anomalous: anomalousTraffic, history, anomalousLog: anomalousLog };
       }),
       threatMonitoringNetworkPolicy: threatMonitoringStatistics(payload => {
         const {
