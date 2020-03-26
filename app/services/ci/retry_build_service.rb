@@ -32,6 +32,7 @@ module Ci
 
       attributes[:user] = current_user
       attributes[:scheduling_type] ||= build.find_legacy_scheduling_type
+      attributes[:options].delete(:dependency_ids)
 
       Ci::Build.transaction do
         # mark all other builds of that name as retried

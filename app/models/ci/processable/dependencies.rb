@@ -37,6 +37,23 @@ module Ci
         valid_local? && valid_cross_pipeline?
       end
 
+      def cache!
+        processable.options[:dependency_ids] = all.map(&:id)
+        processable.save!
+      end
+
+      def cached?
+        !processable.options[:dependency_ids].nil?
+      end
+
+      def all_from_cache
+        @cached_dependencies ||= model_class.id_in(processable.options[:dependency_ids])
+      end
+
+      def valid_cached?
+        all_from_cache.all?(&:valid_dependency?)
+      end
+
       private
 
       # Dependencies can only be of Ci::Build type because only builds
