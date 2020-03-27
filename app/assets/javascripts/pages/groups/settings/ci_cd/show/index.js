@@ -1,10 +1,12 @@
 import initSettingsPanels from '~/settings_panels';
 import AjaxVariableList from '~/ci_variable_list/ajax_variable_list';
 import initVariableList from '~/ci_variable_list';
+import initDeployTokens from '~/deploy_tokens';
 
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize expandable settings panels
   initSettingsPanels();
+  initDeployTokens();
 
   if (gon.features.newVariablesUi) {
     initVariableList();

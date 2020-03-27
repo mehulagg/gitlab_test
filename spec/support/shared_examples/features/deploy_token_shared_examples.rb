@@ -9,13 +9,13 @@ RSpec.shared_examples 'a deploy token in settings' do
     end
   end
 
-  it 'add a new deploy token' do
-    fill_in 'deploy_token_name', with: 'new_deploy_key'
-    fill_in 'deploy_token_expires_at', with: (Date.today + 1.month).to_s
-    fill_in 'deploy_token_username', with: 'deployer'
-    check 'deploy_token_read_repository'
-    check 'deploy_token_read_registry'
-    click_button 'Create deploy token'
+  it 'add a new deploy token', :js do
+      fill_in 'Name', with: 'new_deploy_key'
+      fill_in 'Expires at', with: (Date.today + 1.month).to_s
+      fill_in 'Username', with: 'deployer'
+      find('#deploy-token-read-repository').check
+      find('#deploy-token-read-registry').check
+      click_button 'Create deploy token'
 
     expect(page).to have_content("Your new #{entity_type} deploy token has been created")
 
