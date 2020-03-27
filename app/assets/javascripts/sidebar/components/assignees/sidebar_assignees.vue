@@ -59,8 +59,11 @@ export default {
     this.removeAssignee = this.store.removeAssignee.bind(this.store);
     this.addAssignee = this.store.addAssignee.bind(this.store);
     this.removeAllAssignees = this.store.removeAllAssignees.bind(this.store);
-
-    if (gon.features.projectIssueRealTimePoc) {
+  console.log(this.store)
+    // move actioncable package from heinrichs MR to this one
+    // @rails/actionable is the updated - should match the current rails version.
+    // add action_cable_meta_tag to mr
+    if (gon.features.realTimeIssueSidebar) {
       this.$apollo.addSmartQuery('project', {
         query,
         variables() {
@@ -70,8 +73,8 @@ export default {
           };
         },
         result({ data, loading }) {
-          console.log('updated data', data, data.project.issue.assignees.nodes);
           const nodes = [...data.project.issue.assignees.nodes];
+          console.log('updating......', nodes)
 
           const assignees = nodes.map(n => ({
             ...n,
@@ -101,7 +104,7 @@ export default {
   },
   watch: {
     pollState(val) {
-      if (this.pollState && gon.features.projectIssueRealTimePoc) {
+      if (this.pollState && gon.features.realTimeIssueSidebar) {
         this.$apollo.queries.project.refetch();
       }
 
