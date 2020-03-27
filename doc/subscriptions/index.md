@@ -245,7 +245,7 @@ Seat Link allows us to provide our self-managed customers with prorated charges 
 
 Seat Link sends to GitLab daily a count of all users in connected self-managed instances. That information is used to automate prorated reconciliations. The data is sent securely through an encrypted HTTPS connection.
 
-Seat Link is mandatory because we need the user count data to enable prorated billing. Seat Link provides **only** the following information to GitLab:
+Seat Link provides **only** the following information to GitLab:
 
 - Date
 - License key
@@ -298,6 +298,8 @@ Sg0KU1hNMGExaE9SVGR2V2pKQlBUMWNiaUo5DQo=',
 </code></pre>
 
 </details>
+
+
 
 ### Renew or change a GitLab.com subscription
 
