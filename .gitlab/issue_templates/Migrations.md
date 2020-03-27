@@ -1,6 +1,8 @@
 ## Background
 
---> Please add information here about why you're planning on migrating and any initial announcements that have been made about the decision or status <---
+<!-- 
+Please add information here about why you're planning on migrating and any initial announcements that have been made about the decision or status
+-->
 
 ### Goals
 
