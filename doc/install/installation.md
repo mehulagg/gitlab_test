@@ -302,12 +302,14 @@ use of extensions and concurrent index removal, you need at least PostgreSQL 9.2
    ```shell
    sudo apt-get install -y postgresql postgresql-client libpq-dev postgresql-contrib
    ```
+
 1. Start the postgre service and confirm that the database service is up and running:
-   
+
    ```shell
    sudo service postgresql start
    sudo service postgresql status
    ```
+
 1. Create a database user for GitLab:
 
    ```shell
