@@ -18,6 +18,18 @@ Please add information here about why you're planning on migrating and any initi
 
 ## Current Tooling and Replacements
 
+<!-- 
+Please fill in the table so that we have a better overview of the current tooling to  
+
+- Tool: which tool or platform you are currently using
+- Feature: which particular feature on that tool or platform you are using
+- GitLab feature: equivalent GitLab feature (the GitLab team can help fill in this and the next columns)
+- GitLab edition: in which GitLab edition (CE or EE) is this feature available 
+
+Here's an example of a replacements overview from one of the projects which migrated to GitLab:  https://gitlab.com/gitlab-org/gitlab/-/issues/25657#gitlab-replacements
+
+-->
+
 | Tool | Feature | GitLab feature | GitLab edition |
 | --- | --- | --- | --- |
 |  |  |  |  |
