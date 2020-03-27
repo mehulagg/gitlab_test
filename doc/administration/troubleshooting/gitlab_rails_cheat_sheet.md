@@ -498,6 +498,12 @@ group = Group.find_by_full_path 'group'
 user.max_member_access_for_group group.id
 ```
 
+### Restrict new and existing users from creating groups
+
+```ruby
+User.update_all can_create_group:false
+```
+
 ## Groups
 
 ### Count unique users in a group and sub-groups
