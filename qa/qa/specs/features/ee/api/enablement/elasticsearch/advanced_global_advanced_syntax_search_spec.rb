@@ -17,10 +17,10 @@ module QA
         end
       end
 
-      before(:all) do
-        @elasticsearch_original_state_on = Runtime::Search.elasticsearch_on?(api_client)
+      let(:elasticsearch_original_state_on) { Runtime::Search.elasticsearch_on?(api_client) }
 
-        unless @elasticsearch_original_state_on
+      before do
+        unless elasticsearch_original_state_on
           QA::EE::Resource::Settings::Elasticsearch.fabricate_via_api!
           sleep(60)
           # wait for the change to propagate before inserting records or else
@@ -30,14 +30,11 @@ module QA
           # as per this issue https://gitlab.com/gitlab-org/quality/team-tasks/issues/395
         end
 
-        @project = Runtime::Project.create_project("es-adv-global-search-#{project_name_suffix}",
-                   api_client,
-                   "This is a unique project description #{project_name_suffix}")
-        Runtime::Project.push_file_to_project(project, 'elasticsearch.rb', "elasticsearch: #{SecureRandom.hex(8)}")
+        Flow::Project.push_file_to_project(project, 'elasticsearch.rb', "elasticsearch: #{SecureRandom.hex(8)}")
       end
 
-      after(:all) do
-        if !@elasticsearch_original_state_on && !api_client.nil?
+      after do
+        if !elasticsearch_original_state_on && !api_client.nil?
           Runtime::Search.disable_elasticsearch(api_client)
         end
       end
