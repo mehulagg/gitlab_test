@@ -151,7 +151,7 @@ module AuthenticatesWithTwoFactor
   def handle_two_factor_failure(user, method)
     user.increment_failed_attempts!
     Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=#{method}")
-    flash.now[:alert] = _('Authentication via %{method} device failed.') % { method: method}
+    flash.now[:alert] = _('Authentication via %{method} device failed.') % { method: method }
     prompt_for_two_factor(user)
   end
 end
