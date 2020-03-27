@@ -4,10 +4,14 @@ require 'spec_helper'
 
 describe RunPipelineScheduleWorker do
   describe '#perform' do
-    let_it_be(:project) { create(:project) }
+    let_it_be(:project) { create(:project, :repository) }
     let_it_be(:user) { create(:user) }
     let_it_be(:pipeline_schedule) { create(:ci_pipeline_schedule, :nightly, project: project ) }
     let(:worker) { described_class.new }
+
+    before(:all) do
+      project.add_developer(user)
+    end
 
     context 'when a project not found' do
       it 'does not call the Service' do
@@ -35,6 +39,17 @@ describe RunPipelineScheduleWorker do
         expect(create_pipeline_service).to receive(:execute!).with(:schedule, ignore_skip_ci: true, save_on_errors: false, schedule: pipeline_schedule)
 
         worker.perform(pipeline_schedule.id, user.id)
+      end
+
+      xit 'creates a pipeline with a valid yaml file', :sidekiq_inline do
+        stub_ci_pipeline_yaml_file(YAML.dump({
+          test: {
+            stage: 'test',
+            script: 'echo "test"'
+          }
+        }))
+
+        expect { worker.perform(pipeline_schedule.id, user.id) }.to change { Ci::Pipeline.count }.by(1)
       end
     end
 
