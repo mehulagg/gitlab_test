@@ -25,7 +25,7 @@ Please add information here about why you're planning on migrating and any initi
 
 ## Collaborators
 
----> Please add names of collaborators in the format Name, Title, Role (what will you be helping to do, or how should you be involved), GitLab username <---
+<!-- Please add names of collaborators in the format Name, Title, Role (what will you be helping to do, or how should you be involved), GitLab username -->
 
 
 /label ~Open-Source ~movingtogitlab
