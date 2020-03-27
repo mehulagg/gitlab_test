@@ -66,6 +66,7 @@ eslint-report.html
 /spec/examples.txt
 /rails_best_practices_output.html
 /tags
+/.tags
 /vendor/bundle/*
 /vendor/gitaly-ruby
 /builds*
