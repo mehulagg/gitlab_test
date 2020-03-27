@@ -20,8 +20,7 @@ Please add information here about why you're planning on migrating and any initi
 
 | Tool | Feature | GitLab feature | GitLab edition |
 | --- | --- | --- | --- |
-| --- | --- | --- | --- |
-| --- | --- | --- | --- |
+|  |  |  |  |
 
 ## Collaborators
 
