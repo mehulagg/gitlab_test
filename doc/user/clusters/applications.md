@@ -423,6 +423,9 @@ chart is used to install this application with a
 [`values.yaml`](https://gitlab.com/gitlab-org/gitlab/blob/master/vendor/prometheus/values.yaml)
 file.
 
+NOTE: **Note:**
+Installing Prometheus is dependent on installing [`cert-manager`](https://docs.gitlab.com/ee/user/clusters/applications.html#cert-manager) first.
+
 ### Crossplane
 
 > - [Introduced](https://gitlab.com/gitlab-org/gitlab/issues/34702) in GitLab 12.5 for project-level clusters.
