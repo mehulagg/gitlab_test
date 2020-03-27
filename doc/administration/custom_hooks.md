@@ -27,11 +27,10 @@ Custom hooks are implemented differently, but the behavior is exactly the same
 once the hook is created.
 
 NOTE: **Note:**
-If you are using [hashed storage](repository_storage_types.md#hashed-storage), the project's
-repository directory might not exactly match the instructions below. In this case, to find the
-repository directory for a project, open the Admin panel on your instance, go to **Projects**, and
-select the project for which you would like to add a hook. You can find the path to the project's
-repository under **Gitaly relative path** on that page.
+If you are not using [hashed storage](repository_storage_types.md#hashed-storage), the project's
+repository directory might not exactly match the instructions below. In that case,
+for an installation from source the path is usually `/home/git/repositories/<group>/<project>.git`.
+For Omnibus installs the path is usually `/var/opt/gitlab/git-data/repositories/<group>/<project>.git`.
 
 Follow the steps below to set up a custom hook for a
 repository:
