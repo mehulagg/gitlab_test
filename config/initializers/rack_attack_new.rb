@@ -111,7 +111,31 @@ class Rack::Attack
     end
   end
 
+  throttle('throttle_unauthenticated_protected_paths_get', Gitlab::Throttle.protected_paths_options) do |req|
+    if req.get? &&
+        !req.should_be_skipped? &&
+        req.api_request? &&
+        req.protected_path_get? &&
+        Gitlab::Throttle.protected_paths_enabled? &&
+        req.unauthenticated?
+      req.ip
+    end
+  end
+
+  throttle('throttle_authenticated_protected_paths_get', Gitlab::Throttle.protected_paths_options) do |req|
+    if req.get? &&
+        req.api_request? &&
+        req.protected_path_get? &&
+        Gitlab::Throttle.protected_paths_enabled?
+      req.authenticated_user_id([:api])
+    end
+  end
+
   class Request
+    PROTECTED_PATHS_GET = [
+      %r{/api/v4/groups/[0-9]+/projects}
+    ].freeze
+
     def unauthenticated?
       !(authenticated_user_id([:api, :rss, :ics]) || authenticated_runner_id)
     end
@@ -150,6 +174,10 @@ class Rack::Attack
 
     def protected_path_regex
       path =~ protected_paths_regex
+    end
+
+    def protected_path_get?
+      path =~ Regexp.union(PROTECTED_PATHS_GET)
     end
 
     private
