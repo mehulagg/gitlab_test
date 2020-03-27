@@ -303,7 +303,7 @@ use of extensions and concurrent index removal, you need at least PostgreSQL 9.2
    sudo apt-get install -y postgresql postgresql-client libpq-dev postgresql-contrib
    ```
 
-1. Start the postgre service and confirm that the service is up and running:
+1. Start the postgre service and confirm that the service is running:
 
    ```shell
    sudo service postgresql start
