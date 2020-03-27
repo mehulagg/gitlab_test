@@ -289,6 +289,20 @@ regardless of the number of queues.
 When `min_concurrency` is greater than `max_concurrency`, it is treated as
 being equal to `max_concurrency`.
 
+## Managing termination time of Sidekiq processes
+
+Omnibus by default will wait for 4 seconds to gracefully terminate all Sidekiq
+processes managed by the cluster using a `TERM` signal, within this time, Sidekiq
+will stop picking up any jobs for processing. If the processes are
+still alive afterwards, the cluster will wait for extra 5 seconds,
+then force a shutdown (`KILL` signal) for all running Sidekiq processes.
+
+This graceful termination time can be configured at Omnibus through:
+
+```ruby
+   sidekiq_cluster['shutdown_timeout'] = 25
+```
+
 ## Modifying the check interval
 
 To modify the check interval for the additional Sidekiq processes:
