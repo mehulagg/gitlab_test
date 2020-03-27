@@ -11,12 +11,19 @@ Though these instructions use [AWS Route53](https://aws.amazon.com/route53/),
 other services such as [Cloudflare](https://www.cloudflare.com/) could be used
 as well.
 
-NOTE: The UI writes (MRs, Issues, etc.) need to go directly to the `external_url` of the primary, but the primary can be included in the location-aware load balancer for git operations and read-only requests. User access for ssh/http will be redirected to the closest geo node (either primary or secondaries). User accessing the UI via `external_url` will be accessing the primary, as this is its unique name.
-
 You can also use a load balancer to distribute web UI or API traffic to
 [multiple Geo **secondary** nodes](../../../user/admin_area/geo_nodes.md#multiple-secondary-nodes-behind-a-load-balancer).
 Importantly, the **primary** node cannot yet be included. See the feature request
 [Support putting the **primary** behind a Geo node load balancer](https://gitlab.com/gitlab-org/gitlab/issues/10888).
+
+##Expected Traffic Behavior
+
+Please note that when you set the `external_url` of the Geo **primary** node, this is what will be used for all 
+UI interactions. While all write activity ends up going to the external_url, the **primary** can still be included in 
+the location-aware load balancer for Git operations and read-only requests. Once included in the location-aware load 
+balancer, requests will be redirected to the closest Geo node (either Geo **primary** or Geo **secondary** node). 
+
+**If you add the Geo **primary** node to the location-aware balancer, it will be balanced only for Git operations.**  
 
 ## Prerequisites
 
