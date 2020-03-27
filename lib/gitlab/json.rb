@@ -1,12 +1,12 @@
 # frozen_string_literal: true
 
 module Gitlab
-  module LegacyJson
+  module Json
     class << self
-      def parse(*args)
+      def parse(*args, legacy_mode: true)
         data = adapter.parse(*args)
 
-        raise parser_error if [String, TrueClass, FalseClass].any? { |type| data.is_a?(type) }
+        raise parser_error if legacy_mode && [String, TrueClass, FalseClass].any? { |type| data.is_a?(type) }
 
         data
       end
