@@ -1,6 +1,6 @@
 import Vuex from 'vuex';
 import { shallowMount, createLocalVue } from '@vue/test-utils';
-import { GlEmptyState, GlTab, GlTabs } from '@gitlab/ui';
+import { GlEmptyState, GlTab } from '@gitlab/ui';
 import PackageListApp from 'ee/packages/list/components/packages_list_app.vue';
 
 const localVue = createLocalVue();
@@ -28,8 +28,6 @@ describe('packages_list_app', () => {
         GlEmptyState,
         GlLoadingIcon,
         PackageList,
-        GlTab,
-        GlTabs,
       },
     });
   };

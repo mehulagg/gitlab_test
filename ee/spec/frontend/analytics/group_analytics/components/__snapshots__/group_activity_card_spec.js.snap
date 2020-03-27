@@ -17,7 +17,6 @@ exports[`GroupActivity component matches the snapshot 1`] = `
   >
     <!---->
     <!---->
-     
     <div
       class="d-flex"
     >
@@ -52,7 +51,6 @@ exports[`GroupActivity component matches the snapshot 1`] = `
         </p>
       </div>
     </div>
-     
   </div>
   <!---->
   <!---->
