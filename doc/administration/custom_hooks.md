@@ -35,11 +35,10 @@ For Omnibus installs the path is usually `/var/opt/gitlab/git-data/repositories/
 Follow the steps below to set up a custom hook for a
 repository:
 
-1. Pick a project that needs a custom Git hook.
-1. On the GitLab server, navigate to the project's repository directory.
-   For an installation from source the path is usually
-   `/home/git/repositories/<group>/<project>.git`. For Omnibus installs the path is
-   usually `/var/opt/gitlab/git-data/repositories/<group>/<project>.git`.
+1. Find that project's path on the GitLab server, by navigating to the
+   ** Admin area > Projects**. From there, select the project for which you
+   would like to add a hook. You can find the path to the project's repository
+   under **Gitaly relative path** on that page.
 1. Create a new directory in this location called `custom_hooks`.
 1. Inside the new `custom_hooks` directory, create a file with a name matching
    the hook type. For a pre-receive hook the file name should be `pre-receive`
