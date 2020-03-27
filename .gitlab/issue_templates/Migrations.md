@@ -10,7 +10,7 @@ Please add information here about why you're planning on migrating and any initi
 
 ## Quick Facts
 
----> Please fill out as you can of the items in this list. If not sure yet, add "TBD" (To be Decided) <---
+<!-- Please fill out as you can of the items in this list. If not sure yet, add "TBD" (To be Decided) -->
 
  * **Timeline.** - 
  * **Product.** - GitLab Gold/Ultimate or Commnunity Edition
