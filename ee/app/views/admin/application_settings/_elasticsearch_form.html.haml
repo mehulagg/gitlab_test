@@ -67,6 +67,9 @@
 
           .form-group
             = f.label :elasticsearch_max_bulk_size_mb, _('Maximum bulk request size (MiB)'), class: 'label-bold'
+            - if Rails.cache.read(Gitlab::Elastic::Indexer::ALERT_CACHE_KEY)
+              .form-text.text-danger
+                = _('Please consider lowering this setting to prevent Error 413 (Request Entity Too Large)')
             = f.number_field :elasticsearch_max_bulk_size_mb, value: @application_setting.elasticsearch_max_bulk_size_mb, class: 'form-control'
             .form-text.text-muted
               = _('Maximum size of Elasticsearch bulk indexing requests.')

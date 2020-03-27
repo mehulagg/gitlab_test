@@ -8,6 +8,8 @@ module Gitlab
     class Indexer
       include Gitlab::Utils::StrongMemoize
 
+      ALERT_CACHE_KEY = [:gitlab, :elastic, :indexer, :request_entity_too_large].freeze
+
       Error = Class.new(StandardError)
 
       class << self
@@ -42,6 +44,9 @@ module Gitlab
         update_index_status(to_sha)
 
         true
+      rescue Gitlab::Elastic::Indexer::Error => err
+        set_alert_flag if err.message =~ /Request Entity Too Large/
+        raise err
       end
 
       private
@@ -52,6 +57,10 @@ module Gitlab
 
       def repository
         wiki? ? project.wiki.repository : project.repository
+      end
+
+      def set_alert_flag
+        Rails.cache.write(ALERT_CACHE_KEY, true, expires_in: 10.minutes)
       end
 
       def run_indexer!(to_sha, target)
