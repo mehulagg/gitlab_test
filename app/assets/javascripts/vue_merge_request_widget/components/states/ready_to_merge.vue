@@ -156,14 +156,14 @@ export default {
         .merge(options)
         .then(res => res.data)
         .then(data => {
-          const hasError = data.status === 'failed' || data.status === 'hook_validation_error';
+          const hasError = data.status !== 'success';
 
-          if (AUTO_MERGE_STRATEGIES.includes(data.status)) {
-            eventHub.$emit('MRWidgetUpdateRequested');
-          } else if (data.status === 'success') {
-            this.initiateMergePolling();
-          } else if (hasError) {
+          if (hasError) {
             eventHub.$emit('FailedToMerge', data.merge_error);
+          } else if (AUTO_MERGE_STRATEGIES.includes(data.strategy)) {
+            eventHub.$emit('MRWidgetUpdateRequested');
+          } else if (data.strategy === 'merge') {
+            this.initiateMergePolling();
           }
         })
         .catch(() => {

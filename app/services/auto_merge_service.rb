@@ -16,18 +16,17 @@ class AutoMergeService < BaseService
     end
   end
 
-  def execute(merge_request, strategy)
+  def execute(merge_request)
+    return update(merge_request) if merge_request.auto_merge_enabled?
+
+    strategy = strategy_for(merge_request)
     service = get_service_instance(strategy)
 
-    return :failed unless service&.available_for?(merge_request)
+    unless service&.available_for?(merge_request)
+      return error("The specified strategy '#{strategy}' is not available for the merge request")
+    end
 
     service.execute(merge_request)
-  end
-
-  def update(merge_request)
-    return :failed unless merge_request.auto_merge_enabled?
-
-    get_service_instance(merge_request.auto_merge_strategy).update(merge_request)
   end
 
   def process(merge_request)
@@ -54,10 +53,22 @@ class AutoMergeService < BaseService
     end
   end
 
+  def preferred_strategy(merge_request)
+    available_strategies(merge_request).first
+  end
+
   private
+
+  def update(merge_request)
+    get_service_instance(merge_request.auto_merge_strategy).update(merge_request)
+  end
 
   def get_service_instance(strategy)
     self.class.get_service_class(strategy)&.new(project, current_user, params)
+  end
+
+  def strategy_for(merge_request)
+    params[:auto_merge_strategy] || preferred_strategy(merge_request)
   end
 end
 

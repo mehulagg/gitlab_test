@@ -11,22 +11,26 @@ module AutoMerge
       merge_request.auto_merge_enabled = true
       merge_request.merge_user = current_user
 
-      return :failed unless merge_request.save
+      unless merge_request.save
+        return error('Failed to activate auto merge for the merge request')
+      end
 
       yield if block_given?
 
       # Notify the event that auto merge is enabled or merge param is updated
       AutoMergeProcessWorker.perform_async(merge_request.id)
 
-      strategy.to_sym
+      success(strategy: strategy.to_sym)
     end
 
     def update(merge_request)
       assign_allowed_merge_params(merge_request, params.merge(auto_merge_strategy: strategy))
 
-      return :failed unless merge_request.save
+      unless merge_request.save
+        return error('Failed to update merge params for the merge request')
+      end
 
-      strategy.to_sym
+      success(strategy: strategy.to_sym)
     end
 
     def cancel(merge_request)
