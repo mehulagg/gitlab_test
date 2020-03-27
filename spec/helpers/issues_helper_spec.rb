@@ -11,11 +11,12 @@ describe IssuesHelper do
     let(:issues_url) { ext_project.external_issue_tracker.issues_url}
     let(:ext_expected) { issues_url.gsub(':id', issue.iid.to_s).gsub(':project_id', ext_project.id.to_s) }
     let(:int_expected) { polymorphic_path([@project.namespace, @project, issue]) }
+    let!(:external_issue_tracker) { create(:jira_service, project: project) }
 
     it "returns internal path if used internal tracker" do
       @project = project
 
-      expect(url_for_issue(issue.iid)).to match(int_expected)
+      expect(url_for_issue(issue.iid, project, internal: true)).to match(int_expected)
     end
 
     it "returns path to external tracker" do
@@ -37,13 +38,13 @@ describe IssuesHelper do
     end
 
     it 'returns an empty string if issue_url is invalid' do
-      expect(project).to receive_message_chain('issues_tracker.issue_url') { 'javascript:alert("foo");' }
+      expect(project.external_issue_tracker).to receive(:issue_url) { 'javascript:alert("foo");' }
 
       expect(url_for_issue(issue.iid, project)).to eq ''
     end
 
     it 'returns an empty string if issue_path is invalid' do
-      expect(project).to receive_message_chain('issues_tracker.issue_path') { 'javascript:alert("foo");' }
+      expect(project.external_issue_tracker).to receive(:issue_path) { 'javascript:alert("foo");' }
 
       expect(url_for_issue(issue.iid, project, only_path: true)).to eq ''
     end

@@ -21,10 +21,6 @@ module Banzai
         IssuesHelper.url_for_issue(issue.iid, project, only_path: context[:only_path], internal: true)
       end
 
-      def projects_relation_for_paths(paths)
-        super(paths).includes(:gitlab_issue_tracker_service)
-      end
-
       def parent_records(parent, ids)
         parent.issues.where(iid: ids.to_a)
       end

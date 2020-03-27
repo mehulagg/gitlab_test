@@ -82,10 +82,6 @@ module Banzai
         end
       end
 
-      def url_for_issue(*args)
-        IssuesHelper.url_for_issue(*args)
-      end
-
       def default_issues_tracker?
         external_issues_cached(:default_issues_tracker?)
       end
@@ -95,6 +91,10 @@ module Banzai
       end
 
       private
+
+      def url_for_issue(*args)
+        IssuesHelper.url_for_issue(*args)
+      end
 
       def external_issues_cached(attribute)
         cached_attributes = Gitlab::SafeRequestStore[:banzai_external_issues_tracker_attributes] ||= Hash.new { |h, k| h[k] = {} }

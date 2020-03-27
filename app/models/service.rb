@@ -51,7 +51,6 @@ class Service < ApplicationRecord
   validates :instance, uniqueness: { scope: :type }, if: -> { instance? }
   validate :validate_is_instance_or_template
 
-  scope :visible, -> { where.not(type: 'GitlabIssueTrackerService') }
   scope :issue_trackers, -> { where(category: 'issue_tracker') }
   scope :external_wikis, -> { where(type: 'ExternalWikiService').active }
   scope :active, -> { where(active: true) }

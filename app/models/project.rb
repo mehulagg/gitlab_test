@@ -167,7 +167,6 @@ class Project < ApplicationRecord
   has_one :youtrack_service
   has_one :custom_issue_tracker_service
   has_one :bugzilla_service
-  has_one :gitlab_issue_tracker_service, inverse_of: :project
   has_one :external_wiki_service
   has_one :prometheus_service, inverse_of: :project
   has_one :mock_ci_service
@@ -1187,14 +1186,6 @@ class Project < ApplicationRecord
 
   def issue_exists?(issue_id)
     get_issue(issue_id)
-  end
-
-  def default_issue_tracker
-    gitlab_issue_tracker_service || create_gitlab_issue_tracker_service
-  end
-
-  def issues_tracker
-    external_issue_tracker || default_issue_tracker
   end
 
   def external_issue_reference_pattern

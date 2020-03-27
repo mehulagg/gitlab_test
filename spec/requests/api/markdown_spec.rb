@@ -88,7 +88,7 @@ describe API::Markdown do
                                         .and include('data-name="tada"')
                                         .and include('data-name="100"')
                                         .and include("#1")
-                                        .and exclude("<a href=\"#{IssuesHelper.url_for_issue(issue.iid, project)}\"")
+                                        .and exclude("<a href=\"#{IssuesHelper.url_for_issue(issue.iid, project, internal: true)}\"")
                                         .and exclude("#1</a>")
           end
         end
@@ -104,7 +104,7 @@ describe API::Markdown do
             expect(json_response["html"]).to include("Hello world!")
                                         .and include('data-name="tada"')
                                         .and include('data-name="100"')
-                                        .and include("<a href=\"#{IssuesHelper.url_for_issue(issue.iid, project)}\"")
+                                        .and include("<a href=\"#{IssuesHelper.url_for_issue(issue.iid, project, internal: true)}\"")
                                         .and include("#1</a>")
           end
         end
@@ -149,7 +149,7 @@ describe API::Markdown do
               expect(json_response["html"]).to include('Hello world!')
                                           .and include('data-name="tada"')
                                           .and include('data-name="100"')
-                                          .and include("<a href=\"#{IssuesHelper.url_for_issue(confidential_issue.iid, public_project)}\"")
+                                          .and include("<a href=\"#{IssuesHelper.url_for_issue(confidential_issue.iid, public_project, internal: true)}\"")
                                           .and include("#1</a>")
             end
           end

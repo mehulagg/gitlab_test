@@ -11882,9 +11882,6 @@ msgstr ""
 msgid "IssueTracker|Custom issue tracker"
 msgstr ""
 
-msgid "IssueTracker|GitLab issue tracker"
-msgstr ""
-
 msgid "IssueTracker|Redmine issue tracker"
 msgstr ""
 

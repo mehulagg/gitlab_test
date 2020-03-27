@@ -16,7 +16,7 @@ module IssuesHelper
       if options[:internal]
         url_for_internal_issue(issue_iid, project, options)
       else
-        url_for_tracker_issue(issue_iid, project, options)
+        url_for_external_issue(issue_iid, project, options)
       end
 
     # Ensure we return a valid URL to prevent possible XSS.
@@ -25,11 +25,11 @@ module IssuesHelper
     ''
   end
 
-  def url_for_tracker_issue(issue_iid, project, options)
+  def url_for_external_issue(issue_iid, project, options)
     if options[:only_path]
-      project.issues_tracker.issue_path(issue_iid)
+      project.external_issue_tracker.issue_path(issue_iid)
     else
-      project.issues_tracker.issue_url(issue_iid)
+      project.external_issue_tracker.issue_url(issue_iid)
     end
   end
 
@@ -172,7 +172,7 @@ module IssuesHelper
   # Required for Banzai::Filter::IssueReferenceFilter
   module_function :url_for_issue
   module_function :url_for_internal_issue
-  module_function :url_for_tracker_issue
+  module_function :url_for_external_issue
 end
 
 IssuesHelper.prepend_if_ee('EE::IssuesHelper')
