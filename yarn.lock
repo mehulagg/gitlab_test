@@ -786,10 +786,9 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.115.0.tgz#2762ad045d5a2bd728f74fcb4c00caa9bd6dbc22"
   integrity sha512-jlmNGqCTpSiPFrNbLaW6GGXNbvIShLdrpeYTtSEz/yFJMClQfPjHc8Zm9bl/PqAM5d/yGQqk8e+rBc4LeAhEfg==
 
-"@gitlab/ui@^10.0.1":
+"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/488275548/artifacts/raw/gitlab-ui.557-migrate-to-v-slot-syntax.tgz":
   version "10.0.1"
-  resolved "https://registry.yarnpkg.com/@gitlab/ui/-/ui-10.0.1.tgz#65deee8ded3b8d003dfd74cd93c7eb0549e11b37"
-  integrity sha512-RMOJjpZjmWJnu0ebfGJsPOn6/ko+HlfHYbBXBImpTIk6Xsr5AaRjT4yCYEoefZ55jK/SJ2nxHytqrMe26wjfDA==
+  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/488275548/artifacts/raw/gitlab-ui.557-migrate-to-v-slot-syntax.tgz#89e118d02fcf05898df7c8a07bf26bb5d073de68"
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
