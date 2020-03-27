@@ -76,4 +76,7 @@ Rails.application.configure do
   config.eager_load = true
 
   config.allow_concurrency = Gitlab::Runtime.multi_threaded?
+
+  # Reason: pg_dump might have some permission problems
+  config.active_record.dump_schema_after_migration = false
 end
