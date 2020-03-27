@@ -50,15 +50,23 @@ module Webauthn
     #
     # duplicated from WebAuthn::PublicKeyCredential#verify
     # which can't be used here as we need to call WebAuthn::AuthenticatorAssertionResponse#verify instead
+    # (which is done in #verify_webauthn_credential)
     def validate_webauthn_credential(webauthn_credential)
-      webauthn_credential.type == WebAuthn::TYPE_PUBLIC_KEY && webauthn_credential.raw_id && webauthn_credential.id && webauthn_credential.raw_id == WebAuthn.standard_encoder.decode(webauthn_credential.id)
+      webauthn_credential.type == WebAuthn::TYPE_PUBLIC_KEY &&
+          webauthn_credential.raw_id && webauthn_credential.id &&
+          webauthn_credential.raw_id == WebAuthn.standard_encoder.decode(webauthn_credential.id)
     end
 
     ##
     # Verifies that webauthn_credential matches stored_credential with the given challenge
     #
     def verify_webauthn_credential(webauthn_credential, stored_credential, challenge, encoder, rp_id, app_id)
-      webauthn_credential.response.verify(encoder.decode(challenge), app_id, public_key: encoder.decode(stored_credential.public_key), sign_count: stored_credential.counter, rp_id: rp_id)
+      webauthn_credential.response.verify(
+        encoder.decode(challenge),
+          app_id,
+          public_key: encoder.decode(stored_credential.public_key),
+          sign_count: stored_credential.counter,
+          rp_id: rp_id)
     end
   end
 end

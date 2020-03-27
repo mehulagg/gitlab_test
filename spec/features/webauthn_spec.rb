@@ -3,21 +3,9 @@
 require 'spec_helper'
 
 describe 'Using WebAuthn Devices for Authentication', :js do
-  def manage_two_factor_authentication
-    click_on 'Manage two-factor authentication'
-    expect(page).to have_content('Set up new WebAuthn device')
-    wait_for_requests
-  end
+  include Spec::Support::Helpers::Features::TwoFactorHelpers
 
-  def register_webauthn_device(webauthn_device = nil, name: 'My device')
-    webauthn_device ||= FakeWebauthnDevice.new(page, name)
-    webauthn_device.respond_to_webauthn_registration
-    click_on 'Set up new WebAuthn device'
-    expect(page).to have_content('Your device was successfully set up')
-    fill_in 'Pick a name', with: name
-    click_on 'Register WebAuthn device'
-    webauthn_device
-  end
+  it_behaves_like 'hardware device for 2fa', 'WebAuthn'
 
   describe 'registration' do
     let(:user) { create(:user) }
@@ -27,36 +15,12 @@ describe 'Using WebAuthn Devices for Authentication', :js do
       user.update_attribute(:otp_required_for_login, true)
     end
 
-    describe 'when 2FA via OTP is disabled' do
-      before do
-        user.update_attribute(:otp_required_for_login, false)
-      end
-
-      it 'does not allow registering a new device' do
-        visit profile_account_path
-        click_on 'Enable two-factor authentication'
-
-        expect(page).to have_button('Set up new WebAuthn device', disabled: true)
-      end
-    end
-
     describe 'when 2FA via OTP is enabled' do
-      it 'allows registering a new device with a name' do
-        visit profile_account_path
-        manage_two_factor_authentication
-        expect(page).to have_content('You\'ve already enabled two-factor authentication using one time password authenticators')
-
-        webauthn_device = register_webauthn_device
-
-        expect(page).to have_content(webauthn_device.name)
-        expect(page).to have_content('Your WebAuthn device was registered')
-      end
-
       it 'allows registering more than one device' do
         visit profile_account_path
 
         # First device
-        manage_two_factor_authentication
+        manage_two_factor_authentication('WebAuthn')
         first_device = register_webauthn_device
         expect(page).to have_content('Your WebAuthn device was registered')
 
@@ -68,30 +32,12 @@ describe 'Using WebAuthn Devices for Authentication', :js do
         expect(page).to have_content(second_device.name)
         expect(WebauthnRegistration.count).to eq(2)
       end
-
-      it 'allows deleting a device' do
-        visit profile_account_path
-        manage_two_factor_authentication
-        expect(page).to have_content('You\'ve already enabled two-factor authentication using one time password authenticators')
-
-        first_webauthn_device = register_webauthn_device
-        second_webauthn_device = register_webauthn_device(name: 'My other device')
-
-        expect(page).to have_content(first_webauthn_device.name)
-        expect(page).to have_content(second_webauthn_device.name)
-
-        accept_confirm { click_on 'Delete', match: :first }
-
-        expect(page).to have_content('Successfully deleted')
-        expect(page.body).to have_content(first_webauthn_device.name)
-        expect(page.body).not_to have_content(second_webauthn_device.name)
-      end
     end
 
     it 'allows the same device to be registered for multiple users' do
       # First user
       visit profile_account_path
-      manage_two_factor_authentication
+      manage_two_factor_authentication('WebAuthn')
       webauthn_device = register_webauthn_device
       expect(page).to have_content('Your WebAuthn device was registered')
       gitlab_sign_out
@@ -100,7 +46,7 @@ describe 'Using WebAuthn Devices for Authentication', :js do
       user = gitlab_sign_in(:user)
       user.update_attribute(:otp_required_for_login, true)
       visit profile_account_path
-      manage_two_factor_authentication
+      manage_two_factor_authentication('WebAuthn')
       register_webauthn_device(webauthn_device, name: 'My other device')
       expect(page).to have_content('Your WebAuthn device was registered')
 
@@ -124,7 +70,7 @@ describe 'Using WebAuthn Devices for Authentication', :js do
 
       it 'doesn\'t register the device if there are errors' do
         visit profile_account_path
-        manage_two_factor_authentication
+        manage_two_factor_authentication('WebAuthn')
 
         # Have the "webauthn device" respond with bad data
         page.execute_script(mock_register_js)
@@ -139,7 +85,7 @@ describe 'Using WebAuthn Devices for Authentication', :js do
 
       it 'allows retrying registration' do
         visit profile_account_path
-        manage_two_factor_authentication
+        manage_two_factor_authentication('WebAuthn')
 
         # Failed registration
         page.execute_script(mock_register_js)
@@ -165,7 +111,7 @@ describe 'Using WebAuthn Devices for Authentication', :js do
       gitlab_sign_in(user)
       user.update_attribute(:otp_required_for_login, true)
       visit profile_account_path
-      manage_two_factor_authentication
+      manage_two_factor_authentication('WebAuthn')
       @webauthn_device = register_webauthn_device
       gitlab_sign_out
     end
@@ -199,7 +145,7 @@ describe 'Using WebAuthn Devices for Authentication', :js do
           current_user = gitlab_sign_in(:user)
           current_user.update_attribute(:otp_required_for_login, true)
           visit profile_account_path
-          manage_two_factor_authentication
+          manage_two_factor_authentication('WebAuthn')
           register_webauthn_device(name: 'My other device')
           gitlab_sign_out
 
@@ -222,7 +168,7 @@ describe 'Using WebAuthn Devices for Authentication', :js do
           current_user = gitlab_sign_in(:user)
           current_user.update_attribute(:otp_required_for_login, true)
           visit profile_account_path
-          manage_two_factor_authentication
+          manage_two_factor_authentication('WebAuthn')
           register_webauthn_device(@webauthn_device)
           gitlab_sign_out
 
@@ -282,7 +228,7 @@ describe 'Using WebAuthn Devices for Authentication', :js do
       gitlab_sign_in(user)
       user.update_attribute(:otp_required_for_login, true)
       visit profile_account_path
-      manage_two_factor_authentication
+      manage_two_factor_authentication('WebAuthn')
 
       app_id = page.evaluate_script('gon.webauthn.app_id')
       @u2f_device = U2F::FakeU2F.new(app_id)
@@ -312,52 +258,6 @@ describe 'Using WebAuthn Devices for Authentication', :js do
 
       expect(page).to have_css('.sign-out-link', visible: false)
       expect(user.webauthn_registrations.length).to be(0)
-    end
-  end
-
-  describe 'fallback code authentication' do
-    let(:user) { create(:user) }
-
-    def assert_fallback_ui(page)
-      expect(page).to have_button('Verify code')
-      expect(page).to have_css('#user_otp_attempt')
-      expect(page).not_to have_link('Sign in via 2FA code')
-      expect(page).not_to have_css('#js-authenticate-webauthn')
-    end
-
-    before do
-      # Register and logout
-      gitlab_sign_in(user)
-      user.update_attribute(:otp_required_for_login, true)
-      visit profile_account_path
-    end
-
-    describe 'when no webauthn device is registered' do
-      before do
-        gitlab_sign_out
-        gitlab_sign_in(user)
-      end
-
-      it 'shows the fallback otp code UI' do
-        assert_fallback_ui(page)
-      end
-    end
-
-    describe 'when a webauthn device is registered' do
-      before do
-        manage_two_factor_authentication
-        @webauthn_device = register_webauthn_device
-        gitlab_sign_out
-        gitlab_sign_in(user)
-      end
-
-      it 'provides a button that shows the fallback otp code UI' do
-        expect(page).to have_link('Sign in via 2FA code')
-
-        click_link('Sign in via 2FA code')
-
-        assert_fallback_ui(page)
-      end
     end
   end
 end

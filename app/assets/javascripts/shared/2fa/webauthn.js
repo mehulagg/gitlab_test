@@ -12,6 +12,6 @@ export default () => {
     document.querySelector('.js-2fa-form'),
   );
   webauthnAuthenticate.start();
-  // needed in rspec
+  // needed in rspec (FakeWebauthnDevice) to fake authentication
   gl.webauthnAuthenticate = webauthnAuthenticate;
 };

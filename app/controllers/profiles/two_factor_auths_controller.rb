@@ -36,6 +36,7 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
 
     @qr_code = build_qr_code
     @account_string = account_string
+
     if Feature.enabled?(:webauthn, current_user)
       setup_webauthn_registration
     else
@@ -84,6 +85,7 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
     @webauthn_registration = Webauthn::RegisterService.new(current_user, webauthn_registration_params, session[:challenge]).execute
     if @webauthn_registration.persisted?
       session.delete(:challenge)
+
       redirect_to profile_two_factor_auth_path, notice: s_("Your WebAuthn device was registered!")
     else
       @qr_code = build_qr_code
@@ -132,7 +134,7 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
   # Actual communication is performed using a Javascript API
   def setup_u2f_registration
     @u2f_registration ||= U2fRegistration.new
-    @registrations = u2f_registrations_vm
+    @registrations = u2f_registrations
     u2f = U2F::U2F.new(u2f_app_id)
 
     registration_requests = u2f.registration_requests
@@ -149,15 +151,6 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
   end
 
   def setup_webauthn_registration
-    u2f_registrations = u2f_registrations_vm
-    webauthn_registrations = current_user.webauthn_registrations.map do |webauthn_registration|
-      {
-          type: 'WebAuthn',
-          name: webauthn_registration.name,
-          created_at: webauthn_registration.created_at,
-          delete_path: profile_webauthn_registration_path(webauthn_registration)
-      }
-    end
     @registrations = u2f_registrations + webauthn_registrations
     @webauthn_registration ||= WebauthnRegistration.new
 
@@ -165,26 +158,19 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
       current_user.update!(webauthn_id: WebAuthn.generate_user_id)
     end
 
-    webauth_options = WebAuthn::Credential.options_for_create(
-      user: { id: current_user.webauthn_id, name: current_user.username },
-      exclude: current_user.webauthn_registrations.map { |c| c.external_id },
-      authenticator_selection: { user_verification: 'discouraged' },
-      rp: { name: 'GitLab' }
-    )
+    options = webauthn_options
+    session[:challenge] = options.challenge
 
-    session[:challenge] = webauth_options.challenge
-
-    gon.push(webauthn: { options: webauth_options, app_id: u2f_app_id })
+    gon.push(webauthn: { options: options, app_id: u2f_app_id })
   end
 
   def webauthn_registration_params
     params.require(:webauthn_registration).permit(:device_response, :name)
   end
 
-  # vm = viewmodel
   # Adds type and delete path to u2f registrations
   # to reduce logic in view template
-  def u2f_registrations_vm
+  def u2f_registrations
     current_user.u2f_registrations.map do |u2f_registration|
       {
           type: 'U2F',
@@ -193,6 +179,26 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
           delete_path: profile_u2f_registration_path(u2f_registration)
       }
     end
+  end
+
+  def webauthn_registrations
+    current_user.webauthn_registrations.map do |webauthn_registration|
+      {
+          type: 'WebAuthn',
+          name: webauthn_registration.name,
+          created_at: webauthn_registration.created_at,
+          delete_path: profile_webauthn_registration_path(webauthn_registration)
+      }
+    end
+  end
+
+  def webauthn_options
+    WebAuthn::Credential.options_for_create(
+      user: { id: current_user.webauthn_id, name: current_user.username },
+      exclude: current_user.webauthn_registrations.map { |c| c.external_id },
+      authenticator_selection: { user_verification: 'discouraged' },
+      rp: { name: 'GitLab' }
+    )
   end
 
   def groups_notification(groups)

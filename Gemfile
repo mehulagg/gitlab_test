@@ -496,4 +496,4 @@ gem 'mail', '= 2.7.1'
 # File encryption
 gem 'lockbox', '~> 0.3.3'
 
-gem "webauthn", "~> 2.1"
+gem 'webauthn', '~> 2.1'

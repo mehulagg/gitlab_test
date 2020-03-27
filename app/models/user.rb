@@ -768,7 +768,9 @@ class User < ApplicationRecord
   end
 
   def two_factor_webauthn_enabled?
-    Feature.enabled?(:webauthn, self) && ((webauthn_registrations.loaded? && webauthn_registrations.any?) || (!webauthn_registrations.loaded? && webauthn_registrations.exists?))
+    return false unless Feature.enabled?(:webauthn, self)
+
+    (webauthn_registrations.loaded? && webauthn_registrations.any?) || (!webauthn_registrations.loaded? && webauthn_registrations.exists?)
   end
 
   # converts U2F registrations to WebAuthn registrations in-memory

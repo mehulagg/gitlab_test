@@ -12,6 +12,6 @@ export default () => {
     document.querySelector('.js-2fa-form'),
   );
   u2fAuthenticate.start();
-  // needed in rspec
+  // needed in rspec (FakeU2fDevice)
   gl.u2fAuthenticate = u2fAuthenticate;
 };

@@ -8,12 +8,4 @@ class WebauthnRegistration < ApplicationRecord
   validates :external_id, :public_key, :name, :counter, presence: true
   validates :counter,
             numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 2**32 - 1 }
-
-  def webauthn_id
-    external_id
-  end
-
-  def self.find_by_external_id(external_id)
-    find_by(external_id: external_id)
-  end
 end

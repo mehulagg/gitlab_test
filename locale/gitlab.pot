@@ -2706,10 +2706,10 @@ msgstr ""
 msgid "Authentication method updated"
 msgstr ""
 
-msgid "Authentication via U2F device failed."
+msgid "Authentication via %{method} device failed."
 msgstr ""
 
-msgid "Authentication via WebAuthn device failed."
+msgid "Authentication via U2F device failed."
 msgstr ""
 
 msgid "Author"

@@ -94,10 +94,7 @@ module AuthenticatesWithTwoFactor
     if U2fRegistration.authenticate(user, u2f_app_id, user_params[:device_response], session[:challenge])
       handle_two_factor_success(user)
     else
-      user.increment_failed_attempts!
-      Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=U2F")
-      flash.now[:alert] = _('Authentication via U2F device failed.')
-      prompt_for_two_factor(user)
+      handle_two_factor_failure(user, 'U2F')
     end
   end
 
@@ -105,10 +102,7 @@ module AuthenticatesWithTwoFactor
     if Webauthn::AuthenticateService.new(user, user_params[:device_response], session[:challenge], u2f_app_id).execute
       handle_two_factor_success(user)
     else
-      user.increment_failed_attempts!
-      Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=WebAuthn")
-      flash.now[:alert] = _('Authentication via WebAuthn device failed.')
-      prompt_for_two_factor(user)
+      handle_two_factor_failure(user, 'WebAuthn')
     end
   end
 
@@ -152,5 +146,12 @@ module AuthenticatesWithTwoFactor
 
     remember_me(user) if user_params[:remember_me] == '1'
     sign_in(user, message: :two_factor_authenticated, event: :authentication)
+  end
+
+  def handle_two_factor_failure(user, method)
+    user.increment_failed_attempts!
+    Gitlab::AppLogger.info("Failed Login: user=#{user.username} ip=#{request.remote_ip} method=#{method}")
+    flash.now[:alert] = _('Authentication via %{method} device failed.') % { method: method}
+    prompt_for_two_factor(user)
   end
 end
