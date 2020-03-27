@@ -424,7 +424,7 @@ chart is used to install this application with a
 file.
 
 NOTE: **Note:**
-Installing Prometheus is dependent on installing [`cert-manager`](https://docs.gitlab.com/ee/user/clusters/applications.html#cert-manager) first.
+Installing Prometheus is dependent on installing [`cert-manager`](#cert-manager) first.
 
 ### Crossplane
 
