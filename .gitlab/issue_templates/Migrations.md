@@ -1,3 +1,6 @@
+# Project Name | Migration Tracker
+<!-- Please edit this header with your project / organization's name. -->
+
 ## Background
 
 <!-- 
@@ -38,6 +41,24 @@ Here's an example of a replacements overview from one of the projects which migr
 
 <!-- Please add names of collaborators in the format: Name, Title, Role (what will you be helping to do, or how should you be involved), GitLab username -->
 
+## Related Issues
+
+<!-- Add any related issues that are important for your project by adding the title of the issue and a link to it (preferably as an embedded link). You will probably keep editing this section as the migration progresses, so don't worry if it's mostly blank for now. -->
+
+### Blockers
+ * [ ] 
+
+### Urgent
+ * [ ] 
+
+### Important but not urgent
+ * [ ] 
+
+### Nice to have
+ * [ ] 
+
+ 
+------
 
 /label ~Open-Source ~movingtogitlab
 /cc @nuritzi
