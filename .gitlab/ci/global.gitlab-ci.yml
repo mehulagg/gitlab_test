@@ -87,3 +87,17 @@
 .as-if-foss:
   variables:
     FOSS_ONLY: '1'
+
+.use-docker-in-docker:
+  image: docker:${DOCKER_VERSION}
+  services:
+    - docker:${DOCKER_VERSION}-dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  tags:
+    # Using only `docker` without `gitlab-org` so the Docker-in-Docker jobs will
+    # work properly fork community forks on GitLab.com where there is no shared
+    # runner suitable for DinD that would have the `gitlab-org` tag
+    - docker
