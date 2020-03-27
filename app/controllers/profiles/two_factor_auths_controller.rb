@@ -89,7 +89,9 @@ class Profiles::TwoFactorAuthsController < Profiles::ApplicationController
       redirect_to profile_two_factor_auth_path, notice: s_("Your WebAuthn device was registered!")
     else
       @qr_code = build_qr_code
+
       setup_webauthn_registration
+
       render :show
     end
   end
