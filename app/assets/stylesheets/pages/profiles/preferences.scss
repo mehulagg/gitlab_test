@@ -66,6 +66,10 @@
     &.ui-light {
       background-color: $gray-200;
     }
+
+    &.gl-dark {
+      background-color: $black;
+    }
   }
 
   .preview-row {
