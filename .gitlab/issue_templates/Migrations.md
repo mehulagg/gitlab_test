@@ -6,7 +6,7 @@ Please add information here about why you're planning on migrating and any initi
 
 ### Goals
 
----> What are some of your goals of your migration to GitLab? Delete this section if you don't want to enumerate goals. <---
+<!-- What are some of your goals of your migration to GitLab? Delete this section if you don't want to enumerate goals. -->
 
 ## Quick Facts
 
