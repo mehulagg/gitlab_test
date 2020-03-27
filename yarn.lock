@@ -786,9 +786,9 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.115.0.tgz#2762ad045d5a2bd728f74fcb4c00caa9bd6dbc22"
   integrity sha512-jlmNGqCTpSiPFrNbLaW6GGXNbvIShLdrpeYTtSEz/yFJMClQfPjHc8Zm9bl/PqAM5d/yGQqk8e+rBc4LeAhEfg==
 
-"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/488216308/artifacts/raw/gitlab-ui.feat-default-color-variables.tgz":
+"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/488314227/artifacts/raw/gitlab-ui.feat-default-color-variables.tgz":
   version "10.0.1"
-  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/488216308/artifacts/raw/gitlab-ui.feat-default-color-variables.tgz#15e1f7f2b4155379ed604a340cc2f7761d6e2c40"
+  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/488314227/artifacts/raw/gitlab-ui.feat-default-color-variables.tgz#a36e7c542729f4c70e3a766f62e4f5d2665188fc"
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
