@@ -157,6 +157,17 @@ describe Projects::Settings::CiCdController do
 
             subject
           end
+
+          xit 'creates a pipeline with a valid yaml file', :sidekiq_inline do
+            stub_ci_pipeline_yaml_file(YAML.dump({
+              test: {
+                stage: 'test',
+                script: 'echo'
+              }
+            }))
+
+            expect { subject }.to change { Ci::Pipeline.count }.by(1)
+          end
         end
       end
 
