@@ -15,19 +15,34 @@ RSpec.shared_examples 'diff discussions API' do |parent_type, noteable_type, id_
   end
 
   describe "GET /#{parent_type}/:id/#{noteable_type}/:noteable_id/discussions/:discussion_id" do
-    it "returns a discussion by id" do
+    before do
       get api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions/#{diff_note.discussion_id}", user)
+    end
 
+    it "is successful" do
       expect(response).to have_gitlab_http_status(:ok)
+    end
+
+    it "returns a discussion by id" do
       expect(json_response['id']).to eq(diff_note.discussion_id)
+    end
+
+    it "returns the note body" do
       expect(json_response['notes'].first['body']).to eq(diff_note.note)
+    end
+
+    it "returns the note position" do
       expect(json_response['notes'].first['position']).to eq(diff_note.position.to_h.stringify_keys)
+    end
+
+    it "returns the note position additional_lines attribute" do
+      expect(json_response['notes'].first['position']['additional_lines']).to eq(0)
     end
   end
 
   describe "POST /#{parent_type}/:id/#{noteable_type}/:noteable_id/discussions" do
     it "creates a new diff note" do
-      position = diff_note.position.to_h
+      position = diff_note.position.to_h.merge({ additional_lines: -5 })
 
       post api("/#{parent_type}/#{parent.id}/#{noteable_type}/#{noteable[id_name]}/discussions", user),
         params: { body: 'hi!', position: position }
