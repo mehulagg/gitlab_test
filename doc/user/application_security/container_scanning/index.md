@@ -209,9 +209,9 @@ If you want to whitelist specific vulnerabilities, you'll need to:
    in the [whitelist example file](https://github.com/arminc/clair-scanner/blob/v12/example-whitelist.yaml).
 1. Add the `clair-whitelist.yml` file to the Git repository of your project.
 
-### Running Container Scanning in an offline, air-gapped installation
+### Running Container Scanning in an offline environment deployment
 
-Container Scanning can be executed on an offline air-gapped GitLab Ultimate installation using the following process:
+Container Scanning can be executed on an offline Ultimate installation using the following process:
 
 1. Host the following Docker images on a [local Docker container registry](../../packages/container_registry/index.md):
    - [arminc/clair-db vulnerabilities database](https://hub.docker.com/r/arminc/clair-db)
