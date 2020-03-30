@@ -152,6 +152,8 @@ Complementary reads:
 - [Database Debugging and Troubleshooting](database_debugging.md)
 - [Query Count Limits](query_count_limits.md)
 - [Creating enums](creating_enums.md)
+- [Renaming features](renaming_features.md)
+- [Avoid entity-attribute-value model](avoid_entity_attribute_value_model.md)
 
 ### Case studies
 
