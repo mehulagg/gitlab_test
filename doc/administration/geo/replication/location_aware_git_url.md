@@ -20,7 +20,7 @@ Importantly, the **primary** node cannot yet be included. See the feature reques
 
 Please note that when you set the `external_url` of the Geo **primary** node, this is what will be used for all 
 UI interactions. While all write activity ends up going to the external_url, the **primary** can still be included in 
-the location-aware load balancer for Git operations and read-only requests. Once included in the location-aware load 
+the location-aware load balancer for Git operations and read-only requests. Once the **primary** is included in the location-aware load 
 balancer, requests will be redirected to the closest Geo node (either Geo **primary** or Geo **secondary** node). 
 
 **If you add the Geo **primary** node to the location-aware balancer, it will be balanced only for Git operations.**  
