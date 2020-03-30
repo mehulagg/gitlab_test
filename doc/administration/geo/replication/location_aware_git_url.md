@@ -16,7 +16,7 @@ You can also use a load balancer to distribute web UI or API traffic to
 Importantly, the **primary** node cannot yet be included. See the feature request
 [Support putting the **primary** behind a Geo node load balancer](https://gitlab.com/gitlab-org/gitlab/issues/10888).
 
-##Expected Traffic Behavior
+## Expected Traffic Behavior
 
 Please note that when you set the `external_url` of the Geo **primary** node, this is what will be used for all 
 UI interactions. While all write activity ends up going to the external_url, the **primary** can still be included in 
