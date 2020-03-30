@@ -9,10 +9,10 @@ connected to the internet.
 
 This document describes how to operate Secure scanners in an air-gapped or offline envionment. These instructions also apply to
 self-managed installations that are secured, have security policies (e.g., firewall policies), or otherwise restricted from
-accessing the full internet. GitLab refers to these deployments as offline environment deployments however other common names 
-include air-gapped environments, limited connectivity environments, local area network (LAN) environments, or intranet 
-environments. These environments have physical barriers preventing internet access or potentially have security 
-policies (e.g., firewalls) which limit access.  These instructions are designed for physically disconnected networks, but can 
+accessing the full internet. GitLab refers to these deployments as offline environment deployments however other common names
+include air-gapped environments, limited connectivity environments, local area network (LAN) environments, or intranet
+environments. These environments have physical barriers preventing internet access or potentially have security
+policies (e.g., firewalls) which limit access.  These instructions are designed for physically disconnected networks, but can
 also be followed in these other use cases.
 
 ## Offline environments
@@ -70,5 +70,3 @@ above. You can find more info at each of the pages below:
 - [Container scanning offline directions](../container_scanning/index.md#running-container-scanning-in-an-offline-environment-deployment)
 - [SAST offline directions](../sast/index.md#gitlab-sast-in-an-offline-environment-deployment)
 - [DAST offline directions](../dast/index.md#running-dast-in-an-offline-environment-deployment)
- 
-
