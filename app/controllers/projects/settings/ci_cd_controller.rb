@@ -87,6 +87,7 @@ module Projects
         end
 
         # rubocop:disable CodeReuse/Worker
+        # save_on_errors needs to be changed here
         CreatePipelineWorker.perform_async(project.id, current_user.id, project.default_branch, :web, ignore_skip_ci: true, save_on_errors: false)
         # rubocop:enable CodeReuse/Worker
 
