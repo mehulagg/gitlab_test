@@ -7,7 +7,7 @@ type: reference, howto
 It is possible to run most of the GitLab security scanners when not
 connected to the internet.
 
-This document describes how to operate Secure scanners in an air-gapped or offline envionment. These instructions also apply to
+This document describes how to operate Secure Categories (e.g., scanner types) in an offline envionment. These instructions also apply to
 self-managed installations that are secured, have security policies (e.g., firewall policies), or otherwise restricted from
 accessing the full internet. GitLab refers to these deployments as offline environment deployments however other common names
 include air-gapped environments, limited connectivity environments, local area network (LAN) environments, or intranet
