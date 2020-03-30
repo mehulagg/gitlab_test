@@ -12,7 +12,7 @@ self-managed installations that are secured, have security policies (e.g., firew
 accessing the full internet. GitLab refers to these deployments as offline environment deployments however other common names
 include air-gapped environments, limited connectivity environments, local area network (LAN) environments, or intranet
 environments. These environments have physical barriers preventing internet access or potentially have security
-policies (e.g., firewalls) which limit access.  These instructions are designed for physically disconnected networks, but can
+policies (e.g., firewalls) which limit access. These instructions are designed for physically disconnected networks, but can
 also be followed in these other use cases.
 
 ## Offline environments
