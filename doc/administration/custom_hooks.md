@@ -36,7 +36,7 @@ Follow the steps below to set up a custom hook for a
 repository:
 
 1. Find that project's path on the GitLab server, by navigating to the
-   ** Admin area > Projects**. From there, select the project for which you
+   **Admin area > Projects**. From there, select the project for which you
    would like to add a hook. You can find the path to the project's repository
    under **Gitaly relative path** on that page.
 1. Create a new directory in this location called `custom_hooks`.
