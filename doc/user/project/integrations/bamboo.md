@@ -6,7 +6,10 @@ Merge requests will also display CI status showing whether the build is pending,
 failed, or completed successfully. It also provides a link to the Bamboo build
 page for more information.
 
-Bamboo doesn't quite provide the same features as a traditional build system when
+It should be noted that the GitLab UI behavior with Bamboo will be limited to features that work with GitLab. Some 
+features that Bamboo customers use with their other Atlassian developer tools will not work with GitLab. 
+
+Moreover, Bamboo doesn't quite provide the same features as a traditional build system when
 it comes to accepting webhooks and commit data. There are a few things that
 need to be configured in a Bamboo build plan before GitLab can integrate.
 
