@@ -75,3 +75,6 @@ export const resolvedIssues = state => {
 export const newIssues = state => {
   return [...state.report.new_errors, ...state.report.new_warnings, ...state.report.new_notes];
 };
+
+// prevent babel-plugin-rewire from generating an invalid default during karma tests
+export default () => {};
