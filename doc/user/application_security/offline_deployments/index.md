@@ -70,3 +70,5 @@ above. You can find more info at each of the pages below:
 - [Container scanning offline directions](../container_scanning/index.md#running-container-scanning-in-an-offline-environment-deployment)
 - [SAST offline directions](../sast/index.md#gitlab-sast-in-an-offline-environment-deployment)
 - [DAST offline directions](../dast/index.md#running-dast-in-an-offline-environment-deployment)
+ 
+
