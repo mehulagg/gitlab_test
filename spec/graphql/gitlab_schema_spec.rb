@@ -46,10 +46,10 @@ describe GitlabSchema do
     expect(connection).to eq(Gitlab::Graphql::Connections::ExternallyPaginatedArrayConnection)
   end
 
-  it 'paginates FilterableArray using `Connections::FilterableArrayConnection`' do
+  it 'paginates FilterableArray using `Pagination::FilterableArrayConnection`' do
     connection = implementations[Gitlab::Graphql::FilterableArray.name]
 
-    expect(connection).to eq(Gitlab::Graphql::Connections::FilterableArrayConnection)
+    expect(connection).to eq(Gitlab::Graphql::Pagination::FilterableArrayConnection)
   end
 
   describe '.execute' do

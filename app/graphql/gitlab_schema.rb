@@ -10,6 +10,7 @@ class GitlabSchema < GraphQL::Schema
   DEFAULT_MAX_DEPTH = 15
   AUTHENTICATED_MAX_DEPTH = 20
 
+  use GraphQL::Pagination::Connections
   use BatchLoader::GraphQL
   use Gitlab::Graphql::Authorize
   use Gitlab::Graphql::Present

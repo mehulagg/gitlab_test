@@ -378,6 +378,7 @@ module GraphqlHelpers
 
   def execute_query(query_type)
     schema = Class.new(GraphQL::Schema) do
+      use GraphQL::Pagination::Connections
       use Gitlab::Graphql::Authorize
       use Gitlab::Graphql::Connections
 
