@@ -67,6 +67,7 @@ describe DiscussionEntity do
 
   context 'when diff file is present' do
     let(:note) { create(:diff_note_on_merge_request) }
+    let!(:diff_note_position) { create(:diff_note_position, note: note) }
 
     it 'exposes diff file attributes' do
       expect(subject.keys.sort).to include(
@@ -74,8 +75,12 @@ describe DiscussionEntity do
         :truncated_diff_lines,
         :position,
         :line_code,
+        :line_codes,
+        :positions,
         :active
       )
+      expect(subject[:line_codes]).to eq([note.line_code, diff_note_position.line_code])
+      expect(subject[:positions]).to eq([note.position, diff_note_position.position])
     end
   end
 end

@@ -11,6 +11,7 @@ class DiffDiscussion < Discussion
   end
 
   delegate  :position,
+            :diff_note_positions,
             :original_position,
             :change_position,
             :on_text?,

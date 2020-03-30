@@ -12,6 +12,14 @@ class DiscussionEntity < Grape::Entity
   expose :active?, as: :active, if: -> (d, _) { d.diff_discussion? }
   expose :project_id
 
+  expose :positions, if: -> (d, _) { d.diff_discussion? && !d.legacy_diff_discussion? } do |discussion|
+    discussion.diff_note_positions.map(&:position)
+  end
+
+  expose :line_codes, if: -> (d, _) { d.diff_discussion? && !d.legacy_diff_discussion? } do |discussion|
+    discussion.diff_note_positions.map(&:line_code)
+  end
+
   expose :notes do |discussion, opts|
     request.note_entity.represent(discussion.notes, opts)
   end
