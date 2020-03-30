@@ -70,6 +70,7 @@ module API
             optional :new_line, type: Integer, desc: 'Line number after change'
             optional :old_path, type: String, desc: 'File path before change'
             optional :old_line, type: Integer, desc: 'Line number before change'
+            optional :additional_lines, type: Integer, desc: 'Number of lines to include before/after the line number'
             optional :width, type: Integer, desc: 'Width of the image'
             optional :height, type: Integer, desc: 'Height of the image'
             optional :x, type: Integer, desc: 'X coordinate in the image'

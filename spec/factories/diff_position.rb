@@ -34,9 +34,14 @@ FactoryBot.define do
       position_type { 'text' }
       old_line { 10 }
       new_line { 10 }
+      additional_lines { 0 }
 
       trait :added do
         old_line { nil }
+      end
+
+      trait :multi_line do
+        additional_lines { 1 }
       end
     end
 
