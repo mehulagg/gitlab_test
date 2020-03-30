@@ -158,7 +158,8 @@ describe Projects::Settings::CiCdController do
             subject
           end
 
-          xit 'creates a pipeline with a valid yaml file', :sidekiq_inline do
+          # This spec fails and catches the error
+          it 'creates a pipeline with a valid yaml file', :sidekiq_inline do
             stub_ci_pipeline_yaml_file(YAML.dump({
               test: {
                 stage: 'test',

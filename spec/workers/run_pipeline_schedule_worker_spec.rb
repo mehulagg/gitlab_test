@@ -40,17 +40,6 @@ describe RunPipelineScheduleWorker do
 
         worker.perform(pipeline_schedule.id, user.id)
       end
-
-      xit 'creates a pipeline with a valid yaml file', :sidekiq_inline do
-        stub_ci_pipeline_yaml_file(YAML.dump({
-          test: {
-            stage: 'test',
-            script: 'echo "test"'
-          }
-        }))
-
-        expect { worker.perform(pipeline_schedule.id, user.id) }.to change { Ci::Pipeline.count }.by(1)
-      end
     end
 
     context 'when database statement timeout happens' do
