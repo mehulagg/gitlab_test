@@ -99,6 +99,7 @@ module Gitlab
       preview
       raw
       refs
+      sse
       tree
       update
       wikis

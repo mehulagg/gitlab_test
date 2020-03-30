@@ -1,0 +1,17 @@
+- page_title 'Static Site Editor'
+
+%h1
+  = _('Static Site Editor edit page')
+
+%ul
+  %li
+    = _('Branch:')
+    = @ref
+
+  %li
+    = _('Path to source:')
+    = @path
+
+  %li
+    = _('Commit hash:')
+    = @commit.id
