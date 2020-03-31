@@ -13,8 +13,16 @@ module EE
         override :cross_pipeline
         def cross_pipeline
           strong_memoize(:cross_pipeline) do
-            fetch_cross_pipeline
+            if cached?
+              cached_cross_pipeline
+            else
+              fetch_and_cache_cross_pipeline
+            end
           end
+        end
+
+        def cached?
+          !processable.cross_dependencies_ids.nil?
         end
 
         private
@@ -22,6 +30,16 @@ module EE
         override :valid_cross_pipeline?
         def valid_cross_pipeline?
           cross_pipeline.size == specified_cross_pipeline_dependencies.size
+        end
+
+        def cached_cross_pipeline
+          model_class.id_in(processable.cross_dependencies_ids)
+        end
+
+        def fetch_and_cache_cross_pipeline
+          deps = fetch_cross_pipeline
+          processable.update!(cross_dependencies_ids: deps.map(&:id))
+          deps
         end
 
         def fetch_cross_pipeline

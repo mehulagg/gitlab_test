@@ -8,10 +8,7 @@ module Gitlab
           attr_reader :build
 
           def self.prerequisites
-            [
-              KubernetesNamespace,
-              Dependencies
-            ]
+            [KubernetesNamespace]
           end
 
           def initialize(build)
@@ -34,3 +31,5 @@ module Gitlab
     end
   end
 end
+
+::Gitlab::Ci::Build::Prerequisite::Factory.prepend_if_ee('EE::Gitlab::Ci::Build::Prerequisite::Factory')

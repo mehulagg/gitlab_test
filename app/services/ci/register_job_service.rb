@@ -100,7 +100,7 @@ module Ci
 
       # Artifacts could be erased in the time between preparing and picking up
       # so we need to double check.
-      unless build.has_valid_cached_build_dependencies?
+      unless build.has_valid_build_dependencies?
         build.drop!(:missing_dependency_failure)
         return false
       end

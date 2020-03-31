@@ -933,6 +933,8 @@ CREATE TABLE public.ci_builds (
     waiting_for_resource_at timestamp with time zone,
     processed boolean,
     scheduling_type smallint
+    scheduling_type smallint,
+    cross_dependencies_ids text[]
 );
 
 CREATE SEQUENCE public.ci_builds_id_seq
@@ -12854,5 +12856,6 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200325152327
 20200325160952
 20200325183636
+20200330121728
 \.
 

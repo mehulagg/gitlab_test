@@ -27,7 +27,7 @@ module API
         expose :artifacts, using: Entities::JobRequest::Artifacts
         expose :cache, using: Entities::JobRequest::Cache
         expose :credentials, using: Entities::JobRequest::Credentials
-        expose :dependencies_from_cache, as: :dependencies, using: Entities::JobRequest::Dependency
+        expose :all_dependencies, as: :dependencies, using: Entities::JobRequest::Dependency
         expose :features
       end
     end
