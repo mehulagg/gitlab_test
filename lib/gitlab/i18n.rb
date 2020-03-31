@@ -5,6 +5,7 @@ module Gitlab
     extend self
 
     AVAILABLE_LANGUAGES = {
+      'ca' => 'Català',
       'en' => 'English',
       'es' => 'Español',
       'gl_ES' => 'Galego',
