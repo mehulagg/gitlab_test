@@ -51,7 +51,7 @@ default value of `60000` (60 seconds) is used.
 
 **For installations from source**
 
-Follow the [Configure GitLab DB Settings](../install/installation.html#configure-gitlab-db-settings) section in the
+Follow the [Configure GitLab DB Settings](../../install/installation.md#configure-gitlab-db-settings) section in the
 installation from source documentation.
 
 ### Verify server SSL certificate against CA bundle
@@ -80,7 +80,7 @@ certificate against a CA bundle to prevent spoofing.
    article on AWS.
 
 1. Save the file and [reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure)
-   GitLab to apply the configuration changes.   
+   GitLab to apply the configuration changes.
 
 1. Restart PostgreSQL for the changes to take effect:
 

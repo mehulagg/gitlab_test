@@ -8,8 +8,7 @@ GitLab supports only the use of PostgreSQL as its database.
 
 NOTE: **Note:**
 Prior to GitLab 12.1, MySQL was supported for Enterprise Edition licensed
-instances. If you're using MySQL, you need to
-[migrate to PostgreSQL](../../update/mysql_to_postgresql.html)
+instances. If you're using MySQL, you need to [migrate to PostgreSQL](../../update/mysql_to_postgresql.md)
 before upgrade to 12.1 and beyond.
 
 ## Application services client configuration
@@ -18,7 +17,7 @@ Application services client database connection options can be found
 in the [application services database client configuration](app_configuration.md)
 documentation.
 
-## Omnibus GitLab-bundled PostgreSQL service configuration
+## Omnibus-bundled PostgreSQL configuration
 
 ### Store PostgreSQL data in a different directory
 
@@ -27,10 +26,10 @@ This is an intrusive operation. It cannot be done without downtime on an
 existing installation.
 
 By default, Omnibus GitLab stores PostgreSQL-related data in the
-`/var/opt/gitlab/postgresql` directory.  To change it:
+`/var/opt/gitlab/postgresql` directory. To change it:
 
-1. Stop GitLab: 
-   
+1. Stop GitLab:
+
    ```shell
    sudo gitlab-ctl stop
    ```
@@ -45,7 +44,7 @@ By default, Omnibus GitLab stores PostgreSQL-related data in the
    ```
 
 1. Save the file and [reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure)
-   GitLab for the changes to take effect.   
+   GitLab for the changes to take effect.
 
 1. Start GitLab:
 
@@ -75,7 +74,7 @@ and may misbehave. To enable it:
 
    ```ruby
    postgresql['listen_address'] = '0.0.0.0'
-   postgresql['port'] = 5432 
+   postgresql['port'] = 5432
 
    # Configure the username and MD5 username-password hash used to access the
    # GitLab database
@@ -93,7 +92,7 @@ and may misbehave. To enable it:
    ```
 
 1. Save the file and [reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure)
-   GitLab for the changes to take effect.   
+   GitLab for the changes to take effect.
 
 ### Configure PostgreSQL SSL mode
 
@@ -109,7 +108,7 @@ that the PostgreSQL service runs in. To set this:
    ```
 
 1. Save the file and [reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure)
-   GitLab to apply the configuration changes.   
+   GitLab to apply the configuration changes.
 
 1. Restart PostgreSQL for the changes to take effect:
 
@@ -180,8 +179,7 @@ You can use the GitLab Omnibus package to easily deploy the bundled PostgreSQL.
 1. Note the PostgreSQL node's IP address or hostname, port, and
    plain text password. These will be necessary when configuring the GitLab
    application servers later.
-1. [Enable monitoring](#enable-monitoring)
+1. [Enable monitoring]
 
 Advanced configuration options are supported and can be added if
 needed.
-
