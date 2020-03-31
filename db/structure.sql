@@ -932,7 +932,6 @@ CREATE TABLE public.ci_builds (
     resource_group_id bigint,
     waiting_for_resource_at timestamp with time zone,
     processed boolean,
-    scheduling_type smallint
     scheduling_type smallint,
     cross_dependencies_ids text[]
 );
