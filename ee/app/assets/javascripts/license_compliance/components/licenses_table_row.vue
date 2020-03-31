@@ -64,8 +64,7 @@ export default {
         <div class="table-mobile-content d-md-flex justify-content-between align-items-center">
           <license-component-links :components="license.components" :title="license.name" />
           <div v-if="isDenied" class="d-inline-block">
-            <!-- This badge usage will be simplified in https://gitlab.com/gitlab-org/gitlab/-/issues/213789 -->
-            <gl-badge variant="warning" class="gl-alert-warning d-flex align-items-center">
+            <gl-badge variant="warning">
               <gl-icon name="warning" :size="16" class="pr-1" />
               <span>{{ s__('Licenses|Policy violation: denied') }}</span>
             </gl-badge>

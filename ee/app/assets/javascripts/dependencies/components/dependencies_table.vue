@@ -138,16 +138,13 @@ export default {
     </template>
 
     <template #cell(isVulnerable)="{ item, toggleDetails }">
-      <!-- This badge usage will be simplified by
-        https://gitlab.com/gitlab-org/gitlab/-/merge_requests/28356 -->
       <gl-badge
         v-if="item.vulnerabilities.length"
         variant="warning"
         href="#"
-        class="d-inline-flex align-items-center bg-warning-100 text-warning-700 bold"
         @click.native="toggleDetails"
       >
-        <gl-icon name="warning" class="text-warning-500 mr-1" />
+        <gl-icon name="warning" class="mr-1" />
         {{
           n__(
             'Dependencies|%d vulnerability detected',

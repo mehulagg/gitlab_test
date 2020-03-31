@@ -148,7 +148,7 @@ export default {
             >
               {{ buildName }}
             </gl-link>
-            <gl-badge v-else v-gl-tooltip="jobTooltip" variant="primary">{{ buildName }}</gl-badge>
+            <gl-badge v-else v-gl-tooltip="jobTooltip" variant="info">{{ buildName }}</gl-badge>
           </div>
           <commit
             :tag="lastDeployment.tag"

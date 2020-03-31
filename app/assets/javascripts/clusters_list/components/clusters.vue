@@ -91,7 +91,7 @@ export default {
       </div>
     </template>
     <template #cell(clusterType)="{value}">
-      <gl-badge variant="light">
+      <gl-badge variant="muted">
         {{ value }}
       </gl-badge>
     </template>

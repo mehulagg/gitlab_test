@@ -124,7 +124,7 @@ export default {
         <gl-tab>
           <template #title>
             {{ s__('Licenses|Detected in Project') }}
-            <gl-badge pill>{{ licenseCount }}</gl-badge>
+            <gl-badge>{{ licenseCount }}</gl-badge>
           </template>
 
           <detected-licenses-table />
@@ -133,7 +133,7 @@ export default {
         <gl-tab>
           <template #title>
             {{ s__('Licenses|Policies') }}
-            <gl-badge pill>{{ policyCount }}</gl-badge>
+            <gl-badge>{{ policyCount }}</gl-badge>
           </template>
 
           <license-management />

@@ -64,7 +64,7 @@ export default {
         <gl-tab ref="outdatedProjectsTab" title-item-class="ml-3">
           <template #title>
             {{ s__('UnscannedProjects|Out of date') }}
-            <gl-badge v-if="!isLoading" ref="outdatedProjectsCount" pill>{{
+            <gl-badge v-if="!isLoading" ref="outdatedProjectsCount">{{
               outdatedProjectsCount
             }}</gl-badge>
           </template>
@@ -84,7 +84,7 @@ export default {
         <gl-tab ref="untestedProjectsTab" title-item-class="ml-3">
           <template #title>
             {{ s__('UnscannedProjects|Untested') }}
-            <gl-badge v-if="!isLoading" ref="untestedProjectsCount" pill>{{
+            <gl-badge v-if="!isLoading" ref="untestedProjectsCount">{{
               untestedProjectsCount
             }}</gl-badge>
           </template>

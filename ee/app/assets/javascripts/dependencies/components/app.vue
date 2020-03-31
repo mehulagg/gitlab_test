@@ -207,7 +207,7 @@ export default {
       >
         <template #title>
           {{ listType.label }}
-          <gl-badge pill :data-qa-selector="qaCountSelector(listType.label)">
+          <gl-badge :data-qa-selector="qaCountSelector(listType.label)">
             {{ totals[listType.namespace] }}
           </gl-badge>
         </template>
