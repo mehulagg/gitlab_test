@@ -3,4 +3,18 @@
 %h1
   = _('Static Site Editor edit page')
 
-#static-site-editor{ data: { branch: @ref, path: @path, commit: @commit.id, project: @project.path, namespace: @project.namespace.path } }
+// Special div to initialize frontend component with required data
+// TODO: Feel free to change the name or structure
+#static-site-editor{ data: @data }
+
+.d-block.d-sm-flex.flex-wrap.align-items-start.gl-children-ml-sm-3<
+  = link_to 'Configure your project', project_path(@project), class: 'btn btn-default'
+
+- if @errors
+  %h2
+    List of errors
+  %ul
+    - @errors.each do |attribute, error|
+      %li
+        = attribute
+        = error

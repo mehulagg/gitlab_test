@@ -50,6 +50,8 @@ describe Projects::StaticSiteEditorController do
         it 'renders the edit page' do
           expect(response).to have_gitlab_http_status(:ok)
         end
+
+        it { expect(assigns(:errors)).to be_nil }
       end
 
       context 'as maintainer' do
@@ -64,6 +66,8 @@ describe Projects::StaticSiteEditorController do
         it 'renders the edit page' do
           expect(response).to have_gitlab_http_status(:ok)
         end
+
+        it { expect(assigns(:errors)).to be_nil }
       end
     end
 
@@ -80,7 +84,19 @@ describe Projects::StaticSiteEditorController do
           get :edit, params: default_params.merge(id: 'my-branch/README.md')
         end
 
-        it { expect(response).to have_gitlab_http_status(:not_found) }
+        it { expect(response).to have_gitlab_http_status(:ok) }
+        it { expect(assigns(:errors)).to have_key(:branch) }
+      end
+
+      context 'when repository is empty' do
+        let(:project) { create(:project_empty_repo) }
+
+        before do
+          get :edit, params: default_params
+        end
+
+        it { expect(response).to have_gitlab_http_status(:ok) }
+        it { expect(assigns(:errors)).to have_key(:commit) }
       end
 
       context 'when file does not exist' do
@@ -88,7 +104,8 @@ describe Projects::StaticSiteEditorController do
           get :edit, params: default_params.merge(id: 'master/UNKNOWN.md')
         end
 
-        it { expect(response).to have_gitlab_http_status(:not_found) }
+        it { expect(response).to have_gitlab_http_status(:ok) }
+        it { expect(assigns(:errors)).to have_key(:file) }
       end
 
       context 'when file does have .md extension' do
@@ -96,7 +113,8 @@ describe Projects::StaticSiteEditorController do
           get :edit, params: default_params.merge(id: 'master/CHANGELOG')
         end
 
-        it { expect(response).to have_gitlab_http_status(:not_found) }
+        it { expect(response).to have_gitlab_http_status(:ok) }
+        it { expect(assigns(:errors)).to have_key(:extension) }
       end
     end
   end
