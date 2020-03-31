@@ -1,8 +1,14 @@
+import { UNINITIALIZED } from '../constants';
+
 const createState = (initialState = {}) => ({
-  isLoadingContent: false,
-  isContentLoaded: false,
+  projectId: null,
+  sourcePath: null,
+
+  status: UNINITIALIZED,
 
   content: '',
+  title: '',
+
   ...initialState,
 });
 
