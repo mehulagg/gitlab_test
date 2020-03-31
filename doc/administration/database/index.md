@@ -22,8 +22,21 @@ documentation.
 
 ### Store PostgreSQL data in a different directory
 
+CAUTION: **Caution:**
+This is an intrusive operation. It cannot be done without downtime on an
+existing installation.
+
 By default, Omnibus GitLab stores PostgreSQL-related data in the
 `/var/opt/gitlab/postgresql` directory.  To change it:
+
+1. Stop GitLab: 
+   
+   ```shell
+   sudo gitlab-ctl stop
+   ```
+
+1. If you have existing PostgreSQL data, copy them from the old location to the
+   new location.
 
 1. Edit `/etc/gitlab/gitlab.rb`:
 
@@ -33,6 +46,12 @@ By default, Omnibus GitLab stores PostgreSQL-related data in the
 
 1. Save the file and [reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure)
    GitLab for the changes to take effect.   
+
+1. Start GitLab:
+
+   ```shell
+   sudo gitlab-ctl start
+   ```
 
 Note that changing the setting affects the following items:
 
@@ -46,7 +65,7 @@ Note that changing the setting affects the following items:
   directory. This can be configured separately with the `postgresql['home']`
   configuration directive.
 
-### Enable PostgreSQL service to listen over TCP/IP
+### Allow PostgreSQL service to listen over TCP/IP
 
 The packaged PostgreSQL server can be configured to listen for TCP/IP
 connections, with the caveat that some non-critical scripts expect UNIX sockets
@@ -76,7 +95,7 @@ and may misbehave. To enable it:
 1. Save the file and [reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure)
    GitLab for the changes to take effect.   
 
-### Configure SSL mode
+### Configure PostgreSQL SSL mode
 
 Omnibus GitLab automatically enables SSL on the PostgreSQL service, but will
 accept both encrypted and unencrypted connections by default. This behavior can
@@ -101,16 +120,13 @@ that the PostgreSQL service runs in. To set this:
 If PostgreSQL fails to start, check the logs at `/var/log/gitlab/postgresql/current`
 for more details.
 
-#### 
-
 ## Provide your own PostgreSQL instance **(CORE ONLY)**
 
 It is possible to use GitLab with an [external PostgreSQL service](external_database.md).
 
 ## Standalone PostgreSQL server using Omnibus GitLab **(CORE ONLY)**
 
-You can use the GitLab Omnibus package to easily
-deploy the bundled PostgreSQL.
+You can use the GitLab Omnibus package to easily deploy the bundled PostgreSQL.
 
 1. SSH into the PostgreSQL server.
 1. [Download/install](https://about.gitlab.com/install/) the Omnibus GitLab
