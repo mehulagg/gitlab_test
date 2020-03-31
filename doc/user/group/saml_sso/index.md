@@ -88,6 +88,13 @@ Since use of the group-managed account requires the use of SSO, users of group-m
 - The user will be unable to access the group (their credentials will no longer work on the identity provider when prompted to SSO).
 - Contributions in the group (e.g. issues, merge requests) will remain intact.
 
+##### Path to general availability
+
+Note that group-managed accounts is in Beta and may not consistently [work as expected](https://docs.gitlab.com/charts/releases/beta.html#known-issues-and-limitations). Our goals:
+* Address known issues:
+  * [Removing a user from a GMA group should not prevent the user from rejoining](https://gitlab.com/gitlab-org/gitlab/issues/209081).
+* Improve the user experience for group owners and other users in the group.
+
 ##### Feature flag
 
 Currently the group-managed accounts feature is behind a feature flag: `group_managed_accounts`. The flag is disabled by default.
