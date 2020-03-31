@@ -408,7 +408,7 @@ Alternatively, an admin of your Identity Provider can use the [SCIM API](../../.
 
 ### Message: "SAML authentication failed: Email has already been taken"
 
-Same as ["SAML authentication failed: User has already been taken"](#message-saml-authentication-failed-user-has-already-been-taken).
+An error message is expected in the case where a user account with the email address already exists in GitLab, but the user does not have the SAML identity tied to their account. The user will [link their account](#user-access-and-management).
 
 ### Message: "SAML authentication failed: Extern uid has already been taken, User has already been taken"
 
