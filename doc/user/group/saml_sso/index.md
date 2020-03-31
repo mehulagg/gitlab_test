@@ -64,7 +64,7 @@ We intend to add a similar SSO requirement for [Git and API activity](https://gi
 
 When SSO enforcement is enabled for a group, users cannot share a project in the group outside the top-level group, even if the project is forked.
 
-#### Group-managed accounts
+#### Group-managed accounts (Beta)
 
 > [Introduced](https://gitlab.com/groups/gitlab-org/-/epics/709) in GitLab 12.1.
 
