@@ -12,32 +12,9 @@ instances. If you're using MySQL, you need to
 [migrate to PostgreSQL](../../update/mysql_to_postgresql.html)
 before upgrade to 12.1 and beyond.
 
-## Requirements
-
-Omnibus GitLab comes packaged with PostgreSQL configured with the appropriate
-extensions and ready to go out of the box.
-
-If you are [installing GitLab from source](../../install/installation.html)
-or choose to provide your own database, PostgreSQL requirements can be found in
-GitLab [system requirements documentation](../../install/requirements.html#postgresql-requirements).
-
 ## Provide your own PostgreSQL instance **(CORE ONLY)**
 
-If you're hosting GitLab on a cloud provider, you can optionally use a
-managed service for PostgreSQL. For example, AWS offers a managed Relational
-Database Service (RDS) that runs PostgreSQL.
-
-Alternatively, you may opt to manage your own PostgreSQL instance or cluster
-separate from the GitLab Omnibus package.
-
-If you use a cloud-managed service, or provide your own PostgreSQL:
-
-1. Set up PostgreSQL according to the
-   [database requirements document](../../install/requirements.md#database).
-1. Set up a `gitlab` username with a password of your choice. The `gitlab` user
-   needs privileges to create the `gitlabhq_production` database.
-1. Configure the GitLab application servers with the appropriate details.
-   This step is covered in [Configuring GitLab for HA](gitlab.md).
+It is possible to use GitLab with an [external PostgreSQL service](external_database.md).
 
 ## Standalone PostgreSQL server using Omnibus GitLab **(CORE ONLY)**
 
