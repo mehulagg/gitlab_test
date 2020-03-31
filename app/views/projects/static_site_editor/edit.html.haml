@@ -3,23 +3,4 @@
 %h1
   = _('Static Site Editor edit page')
 
-%ul
-  %li
-    = _('Branch:')
-    = @ref
-
-  %li
-    = _('Path to source:')
-    = @path
-
-  %li
-    = _('Commit hash:')
-    = @commit.id
-
-  %li
-    = _('Project:')
-    = @project.path
-
-  %li
-    = _('Namespace:')
-    = @project.namespace.path
+#static-site-editor{ data: { branch: @ref, path: @path, commit: @commit.id, project: @project.path, namespace: @project.namespace.path } }
