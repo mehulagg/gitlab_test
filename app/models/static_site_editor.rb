@@ -19,6 +19,7 @@ class StaticSiteEditor
       branch: ref,
       path: path,
       commit: commit.id,
+      project_id: project.id,
       project: project.path,
       namespace: project.namespace.path
     }
