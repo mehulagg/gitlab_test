@@ -23,6 +23,14 @@ retrieve-tests-metadata:
   cache:
     policy: pull
   script:
+    - echo $DEPENDENCY_SCANNING_DISABLED
+    - echo $DS_DISABLE_DIND
+    - echo $GITLAB_FEATURES
+    - echo $DS_DEFAULT_ANALYZERS
+    - echo $CI_PROJECT_REPOSITORY_LANGUAGES
+    - echo $SAST_DISABLED
+    - echo $SAST_DISABLE_DIND
+    - echo $SAST_DEFAULT_ANALYZERS
     - source scripts/rspec_helpers.sh
     - retrieve_tests_metadata
 
