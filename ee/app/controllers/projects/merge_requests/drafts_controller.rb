@@ -43,6 +43,10 @@ class Projects::MergeRequests::DraftsController < Projects::MergeRequests::Appli
   def publish
     result = DraftNotes::PublishService.new(merge_request, current_user).execute(draft_note(allow_nil: true))
 
+    if publish_note_params[:note]
+      Notes::CreateService.new(project, current_user, publish_note_params).execute
+    end
+
     if result[:status] == :success
       head :ok
     else
@@ -136,5 +140,9 @@ class Projects::MergeRequests::DraftsController < Projects::MergeRequests::Appli
     return if draft_notes_available?
 
     access_denied!('Draft Notes are not available with your current License')
+  end
+
+  def publish_note_params
+    params.fetch(:note, {}).permit(:note, :noteable_type, :noteable_id)
   end
 end

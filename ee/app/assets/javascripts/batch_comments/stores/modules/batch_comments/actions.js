@@ -61,11 +61,21 @@ export const publishSingleDraft = ({ commit, dispatch, getters }, draftId) => {
     .catch(() => commit(types.RECEIVE_PUBLISH_DRAFT_ERROR, draftId));
 };
 
-export const publishReview = ({ commit, dispatch, getters }) => {
+export const publishReview = ({ commit, dispatch, getters, rootGetters }, note) => {
+  const noteData = {};
+
   commit(types.REQUEST_PUBLISH_REVIEW);
 
+  if (note) {
+    noteData.note = {
+      noteable_type: rootGetters.getNoteableData.noteableType,
+      noteable_id: rootGetters.getNoteableData.id,
+      note,
+    };
+  }
+
   return service
-    .publish(getters.getNotesData.draftsPublishPath)
+    .publish(getters.getNotesData.draftsPublishPath, noteData)
     .then(() => dispatch('updateDiscussionsAfterPublish'))
     .then(() => commit(types.RECEIVE_PUBLISH_REVIEW_SUCCESS))
     .catch(() => commit(types.RECEIVE_PUBLISH_REVIEW_ERROR));

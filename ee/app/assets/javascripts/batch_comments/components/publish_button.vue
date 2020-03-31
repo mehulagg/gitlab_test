@@ -24,6 +24,11 @@ export default {
       type: Boolean,
       required: true,
     },
+    note: {
+      type: String,
+      required: false,
+      default: null,
+    },
   },
   computed: {
     ...mapState('batchComments', ['isPublishing']),
@@ -32,7 +37,7 @@ export default {
     ...mapActions('batchComments', ['publishReview', 'toggleReviewDropdown']),
     onClick() {
       if (this.shouldPublish) {
-        this.publishReview();
+        this.publishReview(this.note);
       } else {
         this.toggleReviewDropdown();
       }

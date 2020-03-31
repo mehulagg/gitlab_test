@@ -1,7 +1,10 @@
 <script>
+import $ from 'jquery';
 import { mapActions, mapGetters, mapState } from 'vuex';
 import { GlLoadingIcon } from '@gitlab/ui';
 import { sprintf, n__ } from '~/locale';
+import GLForm from '~/gl_form';
+import { defaultAutocompleteConfig } from '~/gfm_auto_complete';
 import Icon from '~/vue_shared/components/icon.vue';
 import DraftsCount from './drafts_count.vue';
 import PublishButton from './publish_button.vue';
@@ -14,6 +17,11 @@ export default {
     DraftsCount,
     PublishButton,
     PreviewItem,
+  },
+  data() {
+    return {
+      note: null,
+    };
   },
   computed: {
     ...mapGetters(['isNotesFetched']),
@@ -29,7 +37,10 @@ export default {
   watch: {
     showPreviewDropdown() {
       if (this.showPreviewDropdown && this.$refs.dropdown) {
-        this.$nextTick(() => this.$refs.dropdown.focus());
+        this.$nextTick(() => {
+          this.glForm = new GLForm($(this.$el), defaultAutocompleteConfig);
+          this.$refs.dropdown.focus();
+        });
       }
     },
   },
@@ -99,13 +110,29 @@ export default {
         <gl-loading-icon v-else :size="2" class="prepend-top-default append-bottom-default" />
       </div>
       <div class="dropdown-footer">
+        <div class="d-flex px-2 mb-2 flex-column">
+          <textarea
+            v-model="note"
+            :placeholder="__('Add a comment (optional)')"
+            class="form-control js-gfm-input"
+            data-supports-quick-actions="true"
+          ></textarea>
+          <small class="text-secondary mt-1">{{ __('Supports quick actions') }}</small>
+        </div>
         <publish-button
           :show-count="false"
           :should-publish="true"
           :label="__('Submit review')"
+          :note="note"
           class="float-right append-right-8"
         />
       </div>
     </div>
   </div>
 </template>
+
+<style>
+.review-preview-dropdown .div-dropzone {
+  width: 100%;
+}
+</style>
