@@ -42,6 +42,10 @@ default value of `60000` (60 seconds) is used.
    gitlab_rails['db_password'] = 'database_password'
    ```
 
+   NOTE: **Note:**
+   `/etc/gitlab/gitlab.rb` should have file permissions `0600` because it contains
+   plain-text passwords.
+
 1. Save the file and [reconfigure](../restart_gitlab.md#omnibus-gitlab-reconfigure)
    GitLab for the changes to take effect.
 
