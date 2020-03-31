@@ -98,8 +98,6 @@ module Ci
       build.runner_id = runner.id
       build.runner_session_attributes = params[:session] if params[:session].present?
 
-      # Artifacts could be erased in the time between preparing and picking up
-      # so we need to double check.
       unless build.has_valid_build_dependencies?
         build.drop!(:missing_dependency_failure)
         return false

@@ -816,28 +816,12 @@ module Ci
       Gitlab::Ci::Build::Credentials::Factory.new(self).create!
     end
 
-    def cached_dependencies?
-      dependencies.cached?
-    end
-
-    def dependencies_from_cache
-      dependencies.all_from_cache
-    end
-
-    def resolve_and_cache_dependencies!
-      dependencies.cache!
-    end
-
     def all_dependencies
       dependencies.all
     end
 
     def has_valid_build_dependencies?
       dependencies.valid?
-    end
-
-    def has_valid_cached_build_dependencies?
-      dependencies.valid_cached?
     end
 
     def invalid_dependencies
