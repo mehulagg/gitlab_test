@@ -5,6 +5,8 @@ module Clusters
     class CreateProjectService
       CreateError = Class.new(StandardError)
 
+      PROJECT_TEMPLATE_NAME = 'cluster_management'
+
       attr_reader :cluster, :current_user
 
       def initialize(cluster, current_user:)
@@ -33,6 +35,7 @@ module Clusters
           name: project_name,
           description: project_description,
           namespace_id: namespace.id,
+          template_name: PROJECT_TEMPLATE_NAME,
           visibility_level: Gitlab::VisibilityLevel::PRIVATE
         }
       end

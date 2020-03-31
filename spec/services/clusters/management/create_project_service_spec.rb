@@ -34,11 +34,16 @@ describe Clusters::Management::CreateProjectService do
         name: "#{cluster.name} Cluster Management",
         description: 'This project is automatically generated and will be used to manage your Kubernetes cluster. [More information](/help/user/clusters/management_project)',
         namespace_id: namespace&.id,
+        template_name: 'cluster_management',
         visibility_level: Gitlab::VisibilityLevel::PRIVATE
       }
     end
 
     it 'creates a management project' do
+      # Projects::CreateService calls itself when creating from a template
+      allow(Projects::CreateService).to receive(:new)
+        .and_call_original
+
       expect(Projects::CreateService).to receive(:new)
         .with(current_user, project_params)
         .and_call_original
