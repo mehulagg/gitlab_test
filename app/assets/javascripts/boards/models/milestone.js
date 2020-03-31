@@ -4,8 +4,6 @@ export default class ListMilestone {
     this.title = obj.title;
 
     if (IS_EE) {
-      this.path = obj.path;
-      this.state = obj.state;
       this.webUrl = obj.web_url || obj.webUrl;
       this.description = obj.description;
     }

@@ -4,8 +4,6 @@ export default class ListAssignee {
     this.name = obj.name;
     this.username = obj.username;
     this.avatar = obj.avatar_url || obj.avatar || gon.default_avatar_url;
-    this.path = obj.path;
-    this.state = obj.state;
     this.webUrl = obj.web_url || obj.webUrl;
   }
 }

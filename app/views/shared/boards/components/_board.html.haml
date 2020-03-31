@@ -14,7 +14,7 @@
           %i.fa.fa-fw{ ":class": '{ "fa-caret-right": list.isExpanded, "fa-caret-down": !list.isExpanded }' }
         = render_if_exists "shared/boards/components/list_milestone"
 
-        %a.user-avatar-link.js-no-trigger{ "v-if": "list.type === \"assignee\"", ":href": "list.assignee.path" }
+        %a.user-avatar-link.js-no-trigger{ "v-if": "list.type === \"assignee\"", ":href": "list.assignee.webUrl" }
           -# haml-lint:disable AltText
           %img.avatar.s20.has-tooltip{ height: "20", width: "20", ":src": "list.assignee.avatar", ":alt": "list.assignee.name" }
 
