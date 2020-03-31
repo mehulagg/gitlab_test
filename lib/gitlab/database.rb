@@ -23,7 +23,7 @@ module Gitlab
     MIN_SCHEMA_GITLAB_VERSION = '11.11.0'
 
     POOL_HEADROOM = 10
-    MAX_POOL_SIZE = 100
+    MAX_POOL_SIZE = 20
 
     define_histogram :gitlab_database_transaction_seconds do
       docstring "Time spent in database transactions, in seconds"
