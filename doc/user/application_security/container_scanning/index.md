@@ -254,6 +254,25 @@ build_latest_vulnerabilities:
 
 The above template will work for a GitLab Docker registry running on a local installation, however, if you're using a non-GitLab Docker registry, you'll need to change the `$CI_REGISTRY` value and the `docker login` credentials to match the details of your local registry.
 
+### Configuring `allow_failure`
+
+By default, the [`allow_failure`](https://docs.gitlab.com/ee/ci/yaml/#allow_failure) configuration option for Container Scanning is set to [true](https://gitlab.com/gitlab-org/gitlab/-/blob/35092f2bf68bdfbc8a87ff95b4ad26351c3506d6/lib/gitlab/ci/templates/Security/Container-Scanning.gitlab-ci.yml#L18). This means that if the Container Scanning job fails, the pipeline will continue executing.
+
+This value can be changed by [overriding the container scanning template](#overriding-the-container-scanning-template) and setting `allow_failure: false`. Please note that setting `allow_failure: false` _will not_ halt a pipeline if vulnerabilities are found, since the Container Scanning tool follows the exit code conventions defined in the [security scanner integration docs](https://docs.gitlab.com/ee/development/integrations/secure/#exit-code) and will return with a `0` status code regardless of whether vulnerabilties are found or not.
+
+If you'd prefer that the pipeline fail when vulnerabilities have been found, then the `script` section of the `container_scanning` job will need to be overridden to explicitly check for the presence of vulnerabilities in the `gl-container-scanning-report.json` file as follows:
+
+```yaml
+include:
+  template: Container-Scanning.gitlab-ci.yml
+
+container_scanning:
+  script:
+    - apk add jq
+    - /analyzer run
+    - [ `jq '.vulnerabilities | length' gl-container-scanning-report.json` -eq 0 ]
+```
+
 ## Running the standalone Container Scanning Tool
 
 It's possible to run the [GitLab Container Scanning Tool](https://gitlab.com/gitlab-org/security-products/analyzers/klar)
