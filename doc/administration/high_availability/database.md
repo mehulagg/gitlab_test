@@ -7,9 +7,17 @@ type: reference
 In this section, you'll be guided through configuring a PostgreSQL database
 to be used with GitLab in a highly available environment.
 
+## Provide your own PostgreSQL instance **(CORE ONLY)**
+
+This content has been moved to the [database administration page](../database/index.md).
+
 ## PostgreSQL in a Scaled and Highly Available Environment
 
 This section is relevant for [Scalable and Highly Available Setups](README.md).
+
+### Standalone PostgreSQL using GitLab Omnibus **(CORE ONLY)**
+
+This content has been moved to the [database administration page](../database/index.md).
 
 ### High Availability with GitLab Omnibus **(PREMIUM ONLY)**
 
