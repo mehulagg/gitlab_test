@@ -33,7 +33,7 @@ export default {
 <template>
   <div class="report-block-list-issue-description prepend-top-5 append-bottom-5">
     <div class="report-block-list-issue-description-text">
-      <div v-if="isNew" class="badge badge-danger append-right-5">{{ __('New') }}</div>
+      <div v-if="isNew" ref="accessibility-issue-is-new-badge" class="badge badge-danger append-right-5">{{ __('New') }}</div>
       {{ issue.name }}
       <a :href="learnMoreUrl">{{ __('Learn More') }}</a>
       {{ __('Message: ') }}
