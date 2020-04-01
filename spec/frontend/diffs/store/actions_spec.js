@@ -466,6 +466,7 @@ describe('DiffsStoreActions', () => {
                   old_path: 'file2',
                   line_code: 'ABC_1_1',
                   position_type: 'text',
+                  additional_lines: 0,
                 },
               },
               hash: 'ABC_123',
