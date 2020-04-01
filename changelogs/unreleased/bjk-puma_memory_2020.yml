@@ -1,0 +1,5 @@
+---
+title: Update default Puma worker killer memory limit
+merge_request: 28529
+author:
+type: changed
