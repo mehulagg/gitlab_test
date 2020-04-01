@@ -1,18 +1,43 @@
+stages:
+  - check
+  - release
+  - test
+  - notify
+
+default:
+  image: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-qa-ruby-2.6
+  tags:
+    - gitlab-org
+  cache:
+    key:
+      files:
+        - Gemfile
+        - gitlab-qa.gemspec
+    paths:
+      - vendor/ruby
+  before_script:
+    - bundle version
+    - bundle install --clean --jobs=$(nproc) --path=vendor --retry=3 --quiet && bundle check
+    - if [ -n "$TRIGGERED_USER" ] && [ -n "$TRIGGER_SOURCE" ]; then
+        echo "Pipeline triggered by $TRIGGERED_USER at $TRIGGER_SOURCE";
+      fi
+    - export LANG=C.UTF-8
+
+workflow:
+  rules:
+    # For merge requests, create a pipeline.
+    - if: '$CI_MERGE_REQUEST_IID'
+    # For `master` branch, create a pipeline (this includes on schedules, pushes, merges, etc.).
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    # For tags, create a pipeline.
+    - if: '$CI_COMMIT_TAG'
+
 .default-rules:
   rules:
     - if: '$CI_COMMIT_TAG || $RELEASE'
       when: never
     - if: '$RELEASE == null && $CI_JOB_NAME =~ /staging/'
       when: manual
-    - if: '$CI_MERGE_REQUEST_ID || $CI_COMMIT_REF_NAME == "master"'
-
-image: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-qa-ruby-2.6
-
-stages:
-  - check
-  - release
-  - test
-  - notify
 
 variables:
   DOCKER_DRIVER: overlay2
@@ -22,21 +47,7 @@ variables:
   QA_CAN_TEST_PRAEFECT: "false"
   QA_TESTCASES_REPORTING_PROJECT: "gitlab-org/quality/testcases"
 
-cache:
-  key: "ruby:2.6"
-  paths:
-    - vendor/ruby
-
-before_script:
-  - bundle version
-  - bundle install --clean --jobs=$(nproc) --path=vendor --retry=3 --quiet && bundle check
-  - if [ -n "$TRIGGERED_USER" ] && [ -n "$TRIGGER_SOURCE" ]; then
-      echo "Pipeline triggered by $TRIGGERED_USER at $TRIGGER_SOURCE";
-    fi
-  - export LANG=C.UTF-8
-
 .check-base:
-  extends: .default-rules
   stage: check
   script:
     - bundle exec $CI_JOB_NAME
@@ -67,6 +78,7 @@ release:
   services:
     - docker:19.03.0-dind
   tags:
+    - gitlab-org
     - docker
   artifacts:
     when: always
