@@ -75,9 +75,11 @@ describe 'gitlab:elastic namespace rake tasks', :elastic do
 
   describe 'reindex_to_another_cluster' do
     it 'calls reindex_to_another_cluster' do
-      expect(Gitlab::Elastic::Helper).to receive(:reindex_to_another_cluster).with('http://oldcluster.example.com:9300/', 'http://newcluster.example.com:9300/')
+      expect(Gitlab::Elastic::Helper)
+        .to receive(:reindex_to_another_cluster)
+        .with('http://oldcluster.example.com:9300/', 'http://newcluster.example.com:9300/', 300)
 
-      run_rake_task 'gitlab:elastic:reindex_to_another_cluster', 'http://oldcluster.example.com:9300/', 'http://newcluster.example.com:9300/'
+      run_rake_task 'gitlab:elastic:reindex_to_another_cluster', 'http://oldcluster.example.com:9300/', 'http://newcluster.example.com:9300/', '300'
     end
   end
 end

@@ -28,7 +28,7 @@ describe Gitlab::Elastic::Helper do
         .to_return(status: 200, body: +'')
 
       optimize_settings_for_write_request = stub_request(:put, 'http://newcluster.example.com:9200/gitlab-test/_settings')
-        .with(body: { index: { number_of_replicas: 0, refresh_interval: "-1" } })
+        .with(body: { index: { number_of_replicas: 0, refresh_interval: "-1", translog: { durability: 'async' } } })
         .to_return(status: 200, body: +'')
 
       reindex_request = stub_request(:post, 'http://newcluster.example.com:9200/_reindex?wait_for_completion=false')
@@ -40,7 +40,8 @@ describe Gitlab::Elastic::Helper do
                 username: 'olduser',
                 password: 'oldpass'
               },
-              index: 'gitlab-test'
+              index: 'gitlab-test',
+              size: 300
             },
             dest: {
               index: 'gitlab-test'
@@ -52,7 +53,7 @@ describe Gitlab::Elastic::Helper do
       source_url = 'http://olduser:oldpass@oldcluster.example.com:9200/'
       dest_url = 'http://newcluster.example.com:9200/'
 
-      task = Gitlab::Elastic::Helper.reindex_to_another_cluster(source_url, dest_url)
+      task = Gitlab::Elastic::Helper.reindex_to_another_cluster(source_url, dest_url, 300)
       expect(task).to eq('abc123')
 
       assert_requested create_cluster_request

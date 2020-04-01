@@ -426,7 +426,7 @@ There are several Rake tasks available to you via the command line:
   - Performs an Elasticsearch import that indexes the snippets data.
 - [`sudo gitlab-rake gitlab:elastic:projects_not_indexed`](https://gitlab.com/gitlab-org/gitlab/blob/master/ee/lib/tasks/gitlab/elastic.rake)
   - Displays which projects are not indexed.
-- [`sudo gitlab-rake gitlab:elastic:reindex_to_another_cluster[<SOURCE_CLUSTER_URL>,<DESTINATION_CLUSTER_URL>]`](https://gitlab.com/gitlab-org/gitlab/blob/master/ee/lib/tasks/gitlab/elastic.rake)
+- [`sudo gitlab-rake gitlab:elastic:reindex_to_another_cluster[<SOURCE_CLUSTER_URL>,<DESTINATION_CLUSTER_URL>,<BATCH_SIZE>]`](https://gitlab.com/gitlab-org/gitlab/blob/master/ee/lib/tasks/gitlab/elastic.rake)
   - Creates a new index in the destination cluster and triggers a [reindex from
    remote](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html#reindex-from-remote)
    such that the index is fully copied from the source index. This can be
@@ -435,6 +435,9 @@ There are several Rake tasks available to you via the command line:
    reindex requires your source cluster to be whitelisted in your destination
    cluster in Elasticsearch settings as per [the
    documentation](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html#reindex-from-remote).
+   The BATCH_SIZE is used to control how many documents are sent in each batch
+   per the [`size` configuration
+   option](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-reindex.html#docs-reindex-api-request-body).
 
 ### Environment Variables
 

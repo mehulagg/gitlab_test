@@ -52,7 +52,7 @@ module Gitlab
       end
       # rubocop: enable CodeReuse/ActiveRecord
 
-      def self.reindex_to_another_cluster(source_cluster_url, destination_cluster_url, version = ::Elastic::MultiVersionUtil::TARGET_VERSION)
+      def self.reindex_to_another_cluster(source_cluster_url, destination_cluster_url, batch_size, version = ::Elastic::MultiVersionUtil::TARGET_VERSION)
         proxy = Project.__elasticsearch__.version(version)
         index_name = proxy.index_name
 
@@ -60,7 +60,7 @@ module Gitlab
 
         create_empty_index(version, destination_client)
 
-        optimize_for_write_settings = { index: { number_of_replicas: 0, refresh_interval: "-1" } }
+        optimize_for_write_settings = { index: { number_of_replicas: 0, refresh_interval: "-1", translog: { durability: 'async' } } }
         destination_client.indices.put_settings(index: index_name, body: optimize_for_write_settings)
 
         source_addressable = Addressable::URI.parse(source_cluster_url)
@@ -72,7 +72,8 @@ module Gitlab
               username: source_addressable.user,
               password: source_addressable.password
             },
-            index: index_name
+            index: index_name,
+            size: batch_size
           },
           dest: {
             index: index_name

@@ -91,8 +91,8 @@ namespace :gitlab do
     end
 
     desc "GitLab | Elasticsearch | Reindex to another cluster"
-    task :reindex_to_another_cluster, [:source_cluster_url, :dest_cluster_url] => :environment do |_, args|
-      task_id = Gitlab::Elastic::Helper.reindex_to_another_cluster(args.source_cluster_url, args.dest_cluster_url)
+    task :reindex_to_another_cluster, [:source_cluster_url, :dest_cluster_url, :batch_size] => :environment do |_, args|
+      task_id = Gitlab::Elastic::Helper.reindex_to_another_cluster(args.source_cluster_url, args.dest_cluster_url, args.batch_size.to_i)
       puts "Reindexing to another cluster started with task id: #{task_id}".color(:green)
     end
 
