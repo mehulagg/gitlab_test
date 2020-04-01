@@ -526,7 +526,7 @@
       when: on_success
     - <<: *if-auto-deploy-branches
       when: on_success
-    - when: manual
+    - when: on_success
 
 .setup:rules:gitlab_git_test:
   rules:
