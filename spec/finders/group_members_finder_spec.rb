@@ -57,6 +57,18 @@ describe GroupMembersFinder, '#execute' do
     expect(result.to_a).to match_array([member1])
   end
 
+  it 'returns only direct members for nested group if nested group has inheritance disabled' do
+    group.add_maintainer(user1)
+    group.add_developer(user2)
+    member2 = nested_group.add_maintainer(user2)
+    member3 = nested_group.add_maintainer(user3)
+    nested_group.update!(inheritance_disabled: true)
+
+    result = described_class.new(nested_group).execute
+
+    expect(result.to_a).to match_array([member2, member3])
+  end
+
   it 'does not return nil if `inherited only` relation is requested on root group' do
     group.add_developer(user2)
 

@@ -313,7 +313,7 @@ class Group < Namespace
   # rubocop: enable CodeReuse/ServiceClass
 
   def user_ids_for_project_authorizations
-    members_with_parents.pluck(:user_id)
+    members_with_parents(ignore_parents: false).pluck(:user_id)
   end
 
   def self_and_ancestors_ids
@@ -322,10 +322,10 @@ class Group < Namespace
     end
   end
 
-  def members_with_parents
+  def members_with_parents(ignore_parents: inheritance_disabled?)
     # Avoids an unnecessary SELECT when the group has no parents
     source_ids =
-      if parent_id
+      if parent_id && ignore_parents == false
         self_and_ancestors.reorder(nil).select(:id)
       else
         id

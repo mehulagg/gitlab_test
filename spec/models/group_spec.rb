@@ -712,6 +712,29 @@ describe Group do
     end
   end
 
+  describe '#members_with_parents' do
+    let!(:group) { create(:group, :nested) }
+    let!(:maintainer) { group.parent.add_user(create(:user), GroupMember::MAINTAINER) }
+    let!(:developer) { group.add_user(create(:user), GroupMember::DEVELOPER) }
+    let!(:other_developer) { group.add_user(create(:user), GroupMember::DEVELOPER) }
+
+    it 'returns parents members' do
+      expect(group.members_with_parents).to include(developer)
+      expect(group.members_with_parents).to include(maintainer)
+    end
+
+    context 'when group has inheritance disabled' do
+      before do
+        group.update!(inheritance_disabled: true)
+      end
+
+      it ' does not return parents members' do
+        expect(group.members_with_parents).to include(developer)
+        expect(group.members_with_parents).not_to include(maintainer)
+      end
+    end
+  end
+
   describe '#users_with_descendants' do
     let(:user_a) { create(:user) }
     let(:user_b) { create(:user) }
@@ -794,6 +817,23 @@ describe Group do
 
       expect(group.user_ids_for_project_authorizations)
         .to include(maintainer.id, developer.id)
+    end
+
+    context 'when group has inheritance disabled' do
+      it 'returns the user IDs for which to refresh authorizations for group members and members of parent group' do
+        maintainer = create(:user)
+        developer = create(:user)
+        new_developer = create(:user)
+        subgroup = create(:group, :nested, parent: group)
+
+        group.add_user(maintainer, GroupMember::MAINTAINER)
+        group.add_user(developer, GroupMember::DEVELOPER)
+        subgroup.add_user(new_developer, GroupMember::DEVELOPER)
+        subgroup.update!(inheritance_disabled: true)
+
+        expect(subgroup.user_ids_for_project_authorizations)
+          .to include(maintainer.id, developer.id, new_developer.id)
+      end
     end
   end
 

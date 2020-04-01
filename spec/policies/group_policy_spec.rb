@@ -620,6 +620,36 @@ describe GroupPolicy do
         it { is_expected.to be_allowed(:create_subgroup) }
       end
     end
+
+    context 'when group has inheritance disabled' do
+      before_all do
+        group.update(inheritance_disabled: true)
+      end
+
+      context 'reporter' do
+        let(:current_user) { reporter }
+
+        it { is_expected.to be_disallowed(:create_subgroup) }
+      end
+
+      context 'developer' do
+        let(:current_user) { developer }
+
+        it { is_expected.to be_disallowed(:create_subgroup) }
+      end
+
+      context 'maintainer' do
+        let(:current_user) { maintainer }
+
+        it { is_expected.to be_disallowed(:create_subgroup) }
+      end
+
+      context 'owner' do
+        let(:current_user) { owner }
+
+        it { is_expected.to be_disallowed(:create_subgroup) }
+      end
+    end
   end
 
   it_behaves_like 'clusterable policies' do

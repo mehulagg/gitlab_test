@@ -82,6 +82,7 @@ module Gitlab
           namespaces[:id],
           greatest(members[:access_level], cte.table[:access_level], 'access_level')
         ])
+        .where(namespaces[:inheritance_disabled].eq(false))
         .joins(join_cte(cte))
         .joins(join_members_on_namespaces)
         .except(:order)

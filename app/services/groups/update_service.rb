@@ -57,6 +57,10 @@ module Groups
         # don't enqueue immediately to prevent todos removal in case of a mistake
         TodosDestroyer::GroupPrivateWorker.perform_in(Todo::WAIT_FOR_DELETE, group.id)
       end
+
+      if group.previous_changes.include?(:inheritance_disabled)
+        group.refresh_members_authorized_projects(blocking: false)
+      end
     end
 
     def reject_parent_id!
@@ -67,6 +71,7 @@ module Groups
     def remove_unallowed_params
       params.delete(:emails_disabled) unless can?(current_user, :set_emails_disabled, group)
       params.delete(:default_branch_protection) unless can?(current_user, :update_default_branch_protection, group)
+      params.delete(:inheritance_disabled) unless Feature.enabled?(:disabling_inheritance, group)
     end
 
     def valid_share_with_group_lock_change?

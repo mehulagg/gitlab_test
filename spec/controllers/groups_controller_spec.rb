@@ -481,6 +481,24 @@ describe GroupsController do
       end
     end
 
+    context 'changing inheritance_disabled' do
+      it 'updates the inheritance_disabled successfully when feature flag is on' do
+        post :update, params: { id: group.to_param, group: { inheritance_disabled: true } }
+
+        expect(response).to have_gitlab_http_status(:found)
+        expect(group.reload.inheritance_disabled).to eq(true)
+      end
+
+      it 'does not update inheritance_disabled successfully when feature flag is off' do
+        stub_feature_flags(disabling_inheritance: false)
+
+        post :update, params: { id: group.to_param, group: { inheritance_disabled: true } }
+
+        expect(response).to have_gitlab_http_status(:found)
+        expect(group.reload.inheritance_disabled).to eq(false)
+      end
+    end
+
     context 'when a project inside the group has container repositories' do
       before do
         stub_container_registry_config(enabled: true)

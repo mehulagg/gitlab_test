@@ -22,7 +22,7 @@ class GroupMembersFinder < UnionFinder
     group_members = group.members
     relations = []
 
-    return group_members if include_relations == [:direct]
+    return group_members if include_relations == [:direct] || group.inheritance_disabled
 
     relations << group_members if include_relations.include?(:direct)
 

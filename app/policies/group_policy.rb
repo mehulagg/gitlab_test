@@ -20,6 +20,7 @@ class GroupPolicy < BasePolicy
 
   condition(:has_parent, scope: :subject) { @subject.has_parent? }
   condition(:share_with_group_locked, scope: :subject) { @subject.share_with_group_lock? }
+  condition(:inheritance_disabled) { @subject.inheritance_disabled? }
   condition(:parent_share_with_group_locked, scope: :subject) { @subject.parent&.share_with_group_lock? }
   condition(:can_change_parent_share_with_group_lock) { can?(:change_share_with_group_lock, @subject.parent) }
 
@@ -129,6 +130,7 @@ class GroupPolicy < BasePolicy
 
   rule { owner }.enable :create_subgroup
   rule { maintainer & maintainer_can_create_group }.enable :create_subgroup
+  rule { inheritance_disabled }.prevent :create_subgroup
 
   rule { public_group | logged_in_viewable }.enable :view_globally
 

@@ -10943,6 +10943,9 @@ msgstr ""
 msgid "GroupSettings|Disable group mentions"
 msgstr ""
 
+msgid "GroupSettings|Disable inheritance"
+msgstr ""
+
 msgid "GroupSettings|Export group"
 msgstr ""
 
@@ -10995,6 +10998,9 @@ msgid "GroupSettings|This setting will be applied to all subgroups unless overri
 msgstr ""
 
 msgid "GroupSettings|This setting will override user notification preferences for all members of the group, subgroups, and projects."
+msgstr ""
+
+msgid "GroupSettings|This setting will prevent group members from being inherited from parents groups. Only members added explicitly will be in this group."
 msgstr ""
 
 msgid "GroupSettings|This setting will prevent group members from being notified if the group is mentioned."

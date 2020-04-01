@@ -200,7 +200,7 @@ describe Groups::UpdateService do
       end
 
       it "hasn't changed the path" do
-        expect { service.execute}.not_to change { internal_group.reload.path}
+        expect { service.execute }.not_to change { internal_group.reload.path}
       end
     end
   end
@@ -235,6 +235,36 @@ describe Groups::UpdateService do
           expect(subgroup.errors.full_messages.first).to match(/cannot be disabled when the parent group "Share with group lock" is enabled, except by the owner of the parent group/)
           expect(subgroup.reload.share_with_group_lock).to be_truthy
         end
+      end
+    end
+  end
+
+  context 'when updating #inheritance_disabled' do
+    let(:service) { described_class.new(private_group, user, inheritance_disabled: true) }
+
+    before do
+      private_group.add_user(user, Gitlab::Access::OWNER)
+    end
+
+    context 'with feature flag switched on' do
+      before do
+        stub_feature_flags(disabling_inheritance: true)
+      end
+
+      it 'schedules recount of project authorizations' do
+        expect(private_group).to receive(:refresh_members_authorized_projects)
+        expect { service.execute }.to change { private_group.reload.inheritance_disabled }
+      end
+    end
+
+    context 'with feature flag switched off' do
+      before do
+        stub_feature_flags(disabling_inheritance: false)
+      end
+
+      it 'does not schedule recount of project authorizations' do
+        expect { service.execute }.not_to change { private_group.reload.inheritance_disabled }
+        expect(private_group).not_to receive(:refresh_members_authorized_projects)
       end
     end
   end

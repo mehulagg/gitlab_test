@@ -142,6 +142,28 @@ describe Gitlab::ProjectAuthorizations do
 
       expect(mapping[nested_project.id]).to eq(Gitlab::Access::MAINTAINER)
     end
+
+    context 'when nested group has members inheritance disabled' do
+      let_it_be(:user2) { create(:user) }
+
+      before do
+        nested_group.update!(inheritance_disabled: true)
+      end
+
+      it 'when a user is not a member of a nested group they do not have access to the projects' do
+        mapping = map_access_levels(authorizations)
+
+        expect(mapping[nested_project.id]).to be_nil
+      end
+
+      it 'when a user is a member of a nested group they have access to the projects' do
+        nested_group.add_maintainer(user2)
+
+        mapping = map_access_levels(described_class.new(user2).calculate)
+
+        expect(mapping[nested_project.id]).to eq(Gitlab::Access::MAINTAINER)
+      end
+    end
   end
 
   context 'with shared groups' do
