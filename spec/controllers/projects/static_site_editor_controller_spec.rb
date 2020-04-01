@@ -79,42 +79,13 @@ describe Projects::StaticSiteEditorController do
         sign_in(maintainer)
       end
 
-      context 'when branch is not a master' do
+      context 'when there is a validation error' do
         before do
-          get :edit, params: default_params.merge(id: 'my-branch/README.md')
-        end
-
-        it { expect(response).to have_gitlab_http_status(:ok) }
-        it { expect(assigns(:errors)).to have_key(:branch) }
-      end
-
-      context 'when repository is empty' do
-        let(:project) { create(:project_empty_repo) }
-
-        before do
-          get :edit, params: default_params
-        end
-
-        it { expect(response).to have_gitlab_http_status(:ok) }
-        it { expect(assigns(:errors)).to have_key(:commit) }
-      end
-
-      context 'when file does not exist' do
-        before do
-          get :edit, params: default_params.merge(id: 'master/UNKNOWN.md')
+          get :edit, params: default_params.merge(id: 'master/UNKNOWN')
         end
 
         it { expect(response).to have_gitlab_http_status(:ok) }
         it { expect(assigns(:errors)).to have_key(:file) }
-      end
-
-      context 'when file does have .md extension' do
-        before do
-          get :edit, params: default_params.merge(id: 'master/CHANGELOG')
-        end
-
-        it { expect(response).to have_gitlab_http_status(:ok) }
-        it { expect(assigns(:errors)).to have_key(:extension) }
       end
     end
   end
