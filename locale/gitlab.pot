@@ -17169,6 +17169,9 @@ msgstr ""
 msgid "ProjectSettings|Pipelines need to be configured to enable this feature."
 msgstr ""
 
+msgid "ProjectSettings|Prevent changes to your Git repository"
+msgstr ""
+
 msgid "ProjectSettings|Private"
 msgstr ""
 
@@ -17176,6 +17179,9 @@ msgid "ProjectSettings|Project visibility"
 msgstr ""
 
 msgid "ProjectSettings|Public"
+msgstr ""
+
+msgid "ProjectSettings|Read-only Git repository"
 msgstr ""
 
 msgid "ProjectSettings|Repository"

@@ -131,6 +131,7 @@ export default {
       metricsDashboardAccessLevel: featureAccessLevel.PROJECT_MEMBERS,
       containerRegistryEnabled: true,
       lfsEnabled: true,
+      repositoryReadOnly: true,
       requestAccessEnabled: true,
       highlightChangesClass: false,
       emailsDisabled: false,
@@ -330,6 +331,17 @@ export default {
         />
       </project-setting-row>
       <div class="project-feature-setting-group">
+        <project-setting-row
+          ref="repository-read-only-settings"
+          :label="s__('ProjectSettings|Read-only Git repository')"
+          :help-text="s__('ProjectSettings|Prevent changes to your Git repository')"
+        >
+          <project-feature-toggle
+            v-model="repositoryReadOnly"
+            :disabled-input="!repositoryEnabled"
+            name="project[repository_read_only]"
+          />
+        </project-setting-row>
         <project-setting-row
           ref="merge-request-settings"
           :label="s__('ProjectSettings|Merge requests')"
