@@ -3,7 +3,7 @@
 constraints(::Constraints::ProjectUrlConstrainer.new) do
   scope(path: '*namespace_id',
         as: :namespace,
-        namespace_id: Gitlab::PathRegex.full_namespace_route_regex) do
+        namespace_id: Gitlab::PathRegex.full_namespace_route_experimental_regex) do
     scope(path: ':project_id',
           constraints: { project_id: Gitlab::PathRegex.project_route_regex },
           module: :projects,

@@ -444,4 +444,16 @@ describe Gitlab::PathRegex do
 
     it_behaves_like 'invalid snippet routes'
   end
+
+  describe '.full_namespace_route_experimental_regex' do
+    subject { %r{\A#{described_class.full_namespace_route_experimental_regex}\z} }
+
+    it { is_expected.to match('gitlab-org') }
+    it { is_expected.to match('gitlab-org/gitlab') }
+    it { is_expected.to match('admin/gitlab') }
+    it { is_expected.not_to match('-/gitlab') }
+    it { is_expected.not_to match('gitlab/-') }
+    it { is_expected.not_to match('-') }
+    it { is_expected.not_to match('root/-/') }
+  end
 end

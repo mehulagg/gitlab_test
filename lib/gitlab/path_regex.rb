@@ -144,12 +144,42 @@ module Gitlab
       end
     end
 
+    # Experimental regex to increase routing performance
+    # for project routes. Issue https://gitlab.com/gitlab-org/gitlab/-/issues/28803#note_303142967
+    def root_namespace_route_experimental_regex
+      @root_namespace_route_experimental_regex ||= begin
+        illegal_words = Regexp.new(Regexp.union(GROUP_ROUTES).source, Regexp::IGNORECASE)
+
+        single_line_regexp %r{
+          (?!(#{illegal_words})/)
+          #{NAMESPACE_FORMAT_REGEX}
+        }x
+      end
+    end
+
     def full_namespace_route_regex
       @full_namespace_route_regex ||= begin
         illegal_words = Regexp.new(Regexp.union(ILLEGAL_GROUP_PATH_WORDS).source, Regexp::IGNORECASE)
 
         single_line_regexp %r{
           #{root_namespace_route_regex}
+          (?:
+            /
+            (?!#{illegal_words}/)
+            #{NAMESPACE_FORMAT_REGEX}
+          )*
+        }x
+      end
+    end
+
+    # Experimental regex to increase routing performance
+    # for project routes. Issue https://gitlab.com/gitlab-org/gitlab/-/issues/28803#note_303142967
+    def full_namespace_route_experimental_regex
+      @full_namespace_route_experimental_regex ||= begin
+        illegal_words = Regexp.new(Regexp.union(GROUP_ROUTES).source, Regexp::IGNORECASE)
+
+        single_line_regexp %r{
+          #{root_namespace_route_experimental_regex}
           (?:
             /
             (?!#{illegal_words}/)
