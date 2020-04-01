@@ -58,6 +58,8 @@ module DiscussionOnDiff
     end
 
     prev_lines
+  rescue
+    lines
   end
 
   def diff_file
