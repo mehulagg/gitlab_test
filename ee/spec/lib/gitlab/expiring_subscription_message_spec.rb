@@ -38,7 +38,7 @@ describe Gitlab::ExpiringSubscriptionMessage do
           let(:is_admin) { true }
 
           context 'subscribable expired' do
-            let(:expired_date) { Time.utc(2020, 3, 9).to_date }
+            let(:expired_date) { Time.utc(2020, 3, 1, 10).to_date }
 
             before do
               allow(subscribable).to receive(:expired?).and_return(true)
@@ -59,7 +59,9 @@ describe Gitlab::ExpiringSubscriptionMessage do
                 it 'has a nice subject' do
                   allow(subscribable).to receive(:will_block_changes?).and_return(false)
 
-                  expect(subject).to include('Your subscription has been downgraded')
+                  Timecop.freeze(today) do
+                    expect(subject).to include('Your subscription has been downgraded')
+                  end
                 end
 
                 context 'no namespace' do
@@ -89,11 +91,13 @@ describe Gitlab::ExpiringSubscriptionMessage do
                 it 'has a nice subject' do
                   allow(subscribable).to receive(:will_block_changes?).and_return(false)
 
-                  expect(subject).to include('Your subscription expired!')
+                  Timecop.freeze(today) do
+                    expect(subject).to include('Your subscription expired!')
+                  end
                 end
 
                 it 'has an expiration blocking message' do
-                  allow(subscribable).to receive(:block_changes_at).and_return(expired_date)
+                  allow(subscribable).to receive(:block_changes_at).and_return(Time.utc(2020, 3, 9, 10).to_date)
 
                   Timecop.freeze(today) do
                     expect(subject).to include('No worries, you can still use all the Ultimate features for now. You have 2 days to renew your subscription.')
@@ -112,7 +116,9 @@ describe Gitlab::ExpiringSubscriptionMessage do
             end
 
             it 'has a nice subject' do
-              expect(subject).to include('Your subscription will expire in 4 days')
+              Timecop.freeze(today) do
+                expect(subject).to include('Your subscription will expire in 4 days')
+              end
             end
 
             context 'without namespace' do

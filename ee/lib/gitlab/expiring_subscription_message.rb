@@ -16,6 +16,11 @@ module Gitlab
       return unless @signed_in
       return unless (@is_admin && @subscribable.notify_admins?) || @subscribable.notify_users?
 
+      if @subscribable.expired?
+        expired_at = @subscribable.expires_at
+        return unless (expired_at..(expired_at + 30.days)).cover?(Date.today)
+      end
+
       message = []
 
       message << license_message_subject
