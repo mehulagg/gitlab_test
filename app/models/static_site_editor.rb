@@ -38,7 +38,7 @@ class StaticSiteEditor
   def only_master_branch
     return if ref == 'master'
 
-    errors.add(:branch, 'Branch must be a master')
+    errors.add(:branch, 'Branch must be master')
   end
 
   def only_markdown
