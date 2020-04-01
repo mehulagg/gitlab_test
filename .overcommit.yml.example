@@ -21,17 +21,25 @@ gemfile: 'tooling/overcommit/Gemfile'
 PostCheckout:
   BundleInstall:
     enabled: true
+  YarnInstall:
+    enabled: true
 
 PreCommit:
   AuthorName:
     enabled: false
+  BundleCheck:
+    enabled: true
   EsLint:
     enabled: true
     # https://github.com/sds/overcommit/issues/338
     required_executable: 'yarn'
     command: ['yarn', 'eslint']
     flags: []
+  ExecutePermissions:
+    enabled: true
   HamlLint:
+    enabled: true
+  JsonSyntax:
     enabled: true
   MergeConflicts:
     enabled: true
@@ -39,10 +47,18 @@ PreCommit:
       - '**/conflict/file_spec.rb'
       - '**/git/conflict/parser_spec.rb'
   # prettier? https://github.com/sds/overcommit/issues/614 https://github.com/sds/overcommit/issues/390#issuecomment-495703284
+  RailsSchemaUpToDate:
+    enabled: true
   RuboCop:
     enabled: true
 #    on_warn: fail # Treat all warnings as failures
   ScssLint:
+    enabled: true
+  TrailingWhitespace:
+    enabled: true
+  YamlSyntax:
+    enabled: true
+  YarnCheck:
     enabled: true
 
 CommitMsg:
