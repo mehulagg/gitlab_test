@@ -12,11 +12,11 @@ describe('Accessibility Reports mutations', () => {
 
   describe('SET_ENDPOINT', () => {
     it('sets the given endpoint', () => {
-      const endpoint = "/test-endpoint";
+      const endpoint = '/test-endpoint';
       mutations.SET_ENDPOINT(localState, endpoint);
 
       expect(localState.endpoint).toEqual(endpoint);
-    })
+    });
   });
 
   describe('REQUEST_REPORT', () => {
@@ -41,10 +41,10 @@ describe('Accessibility Reports mutations', () => {
     });
 
     it('sets report to response report', () => {
-      const response = { report: "testing" };
+      const response = { data: { report: 'testing' } };
       mutations.RECEIVE_REPORT_SUCCESS(localState, response);
 
-      expect(localState.report).toEqual(response.report);
+      expect(localState.report).toEqual(response.data.report);
     });
   });
 
@@ -61,4 +61,4 @@ describe('Accessibility Reports mutations', () => {
       expect(localState.hasError).toEqual(true);
     });
   });
-})
+});

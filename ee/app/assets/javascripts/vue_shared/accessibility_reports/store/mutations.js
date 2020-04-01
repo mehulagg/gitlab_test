@@ -44,7 +44,7 @@ export default {
   [types.RECEIVE_REPORT_SUCCESS](state, response) {
     state.hasError = false;
     state.isLoading = false;
-    state.report = response.report || mockData;
+    state.report = response?.data?.report || mockData;
   },
   [types.RECEIVE_REPORT_ERROR](state) {
     state.isLoading = false;
