@@ -2,7 +2,7 @@
 type: howto
 ---
 
-# Installing GitLab HA on Amazon Web Services (AWS)
+# Installing GitLab HA on Amazon Web Services (AWS) **(PREMIUM)** **(ULTIMATE)**
 
 DANGER: **Danger:** This guide is under review and the steps below will be revised and updated in due time. For more detail, please see [this epic](https://gitlab.com/groups/gitlab-org/-/epics/912).
 
