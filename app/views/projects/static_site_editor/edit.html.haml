@@ -8,7 +8,7 @@
 #static-site-editor{ data: @data }
 
 .d-block.d-sm-flex.flex-wrap.align-items-start.gl-children-ml-sm-3<
-  = link_to 'Configure your project', project_path(@project), class: 'btn btn-default'
+  = link_to _('Configure your project'), project_path(@project), class: 'btn btn-default'
 
 - if @errors
   %h2
