@@ -53,6 +53,12 @@ describe ApplicationSetting do
     it { is_expected.not_to allow_value(1.1).for(:elasticsearch_max_bulk_size_mb) }
     it { is_expected.not_to allow_value(-1).for(:elasticsearch_max_bulk_size_mb) }
 
+    it { is_expected.to allow_value(25).for(:elasticsearch_max_bulk_size_count) }
+    it { is_expected.not_to allow_value(nil).for(:elasticsearch_max_bulk_size_count) }
+    it { is_expected.not_to allow_value(0).for(:elasticsearch_max_bulk_size_count) }
+    it { is_expected.not_to allow_value(1.1).for(:elasticsearch_max_bulk_size_count) }
+    it { is_expected.not_to allow_value(-1).for(:elasticsearch_max_bulk_size_count) }
+
     it { is_expected.to allow_value(2).for(:elasticsearch_max_bulk_concurrency) }
     it { is_expected.not_to allow_value(nil).for(:elasticsearch_max_bulk_concurrency) }
     it { is_expected.not_to allow_value(0).for(:elasticsearch_max_bulk_concurrency) }

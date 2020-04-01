@@ -52,6 +52,10 @@ module EE
                 presence: true,
                 numericality: { only_integer: true, greater_than: 0 }
 
+      validates :elasticsearch_max_bulk_size_count,
+                presence: true,
+                numericality: { only_integer: true, greater_than: 0 }
+
       validates :elasticsearch_max_bulk_concurrency,
                 presence: true,
                 numericality: { only_integer: true, greater_than: 0 }

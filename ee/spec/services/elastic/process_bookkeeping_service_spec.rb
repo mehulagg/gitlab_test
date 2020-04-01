@@ -81,7 +81,7 @@ describe Elastic::ProcessBookkeepingService, :clean_gitlab_redis_shared_state do
     let(:limit) { 5 }
 
     before do
-      stub_const('Elastic::ProcessBookkeepingService::LIMIT', limit)
+      stub_ee_application_setting(elasticsearch_max_bulk_size_count: limit)
     end
 
     it 'submits a batch of documents' do

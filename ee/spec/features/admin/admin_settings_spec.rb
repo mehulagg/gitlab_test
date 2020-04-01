@@ -72,6 +72,7 @@ describe 'Admin updates EE-only settings' do
         fill_in 'Number of Elasticsearch replicas', with: '2'
         fill_in 'Maximum field length', with: '100000'
         fill_in 'Maximum bulk request size (MiB)', with: '17'
+        fill_in 'Maximum bulk request size (number of records being indexed)', with: '150'
         fill_in 'Bulk request concurrency', with: '23'
 
         click_button 'Save changes'
@@ -84,6 +85,7 @@ describe 'Admin updates EE-only settings' do
         expect(current_settings.elasticsearch_replicas).to eq(2)
         expect(current_settings.elasticsearch_indexed_field_length_limit).to eq(100000)
         expect(current_settings.elasticsearch_max_bulk_size_mb).to eq(17)
+        expect(current_settings.elasticsearch_max_bulk_size_count).to eq(150)
         expect(current_settings.elasticsearch_max_bulk_concurrency).to eq(23)
         expect(page).to have_content 'Application settings saved successfully'
       end
