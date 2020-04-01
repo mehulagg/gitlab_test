@@ -16,13 +16,11 @@ class License < ApplicationRecord
     contribution_analytics
     description_diffs
     elastic_search
-    export_issues
     group_activity_analytics
     group_bulk_edit
     group_burndown_charts
     group_webhooks
     issuable_default_templates
-    issue_board_focus_mode
     issue_weights
     jenkins_integration
     ldap_group_sync
@@ -64,14 +62,11 @@ class License < ApplicationRecord
     db_load_balancing
     default_project_deletion_protection
     dependency_proxy
-    deploy_board
-    design_management
     disable_name_update_for_users
     email_additional_text
     epics
     extended_audit_events
     external_authorization_service_api_management
-    feature_flags
     file_locks
     geo
     github_project_service_integration
@@ -87,7 +82,6 @@ class License < ApplicationRecord
     merge_trains
     metrics_reports
     multiple_approval_rules
-    multiple_clusters
     multiple_group_issue_boards
     object_storage
     operations_dashboard
@@ -132,7 +126,6 @@ class License < ApplicationRecord
     subepics
     threat_monitoring
     tracing
-    web_ide_terminal
   ]
   EEU_FEATURES.freeze
 
@@ -147,8 +140,6 @@ class License < ApplicationRecord
     burndown_charts
     contribution_analytics
     cross_project_pipelines
-    deploy_board
-    export_issues
     file_locks
     group_webhooks
     issuable_default_templates
@@ -219,6 +210,13 @@ class License < ApplicationRecord
     required_ci_templates
     seat_link
     usage_quotas
+    issue_board_focus_mode
+    web_ide_terminal
+    design_management
+    feature_flags
+    deploy_board
+    export_issues
+    multiple_clusters
   ].freeze
 
   validate :valid_license
