@@ -29177,8 +29177,27 @@
               "deprecationReason": null
             },
             {
+<<<<<<< HEAD
               "name": "clientMutationId",
               "description": "A unique identifier for the client performing the mutation.",
+=======
+              "name": "repositoryReadOnly",
+              "description": "Indicates if the Git repository has been put into a read-only state",
+              "args": [
+
+              ],
+              "type": {
+                "kind": "SCALAR",
+                "name": "Boolean",
+                "ofType": null
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "requestAccessEnabled",
+              "description": "Indicates if users can request member access to the project",
+>>>>>>> 81666909c3e... Add GraphQL field
               "args": [
 
               ],

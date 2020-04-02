@@ -59,7 +59,8 @@ module Types
           description: 'Indicates if the project has Large File Storage (LFS) enabled'
     field :merge_requests_ff_only_enabled, GraphQL::BOOLEAN_TYPE, null: true,
           description: 'Indicates if no merge commits should be created and all merges should instead be fast-forwarded, which means that merging is only allowed if the branch could be fast-forwarded.'
-
+    field :repository_read_only, GraphQL::BOOLEAN_TYPE, null: true,
+          description: 'Indicates if the Git repository has been put into a read-only state'
     field :avatar_url, GraphQL::STRING_TYPE, null: true, calls_gitaly: true,
           description: 'URL to avatar image file of the project',
           resolve: -> (project, args, ctx) do

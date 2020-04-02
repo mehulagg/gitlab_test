@@ -1247,6 +1247,7 @@ Information about pagination in a connection.
 | `release` | Release | A single release of the project. Available only when feature flag `graphql_release_data` is enabled |
 | `removeSourceBranchAfterMerge` | Boolean | Indicates if `Delete source branch` option should be enabled by default for all new merge requests of the project |
 | `repository` | Repository | Git repository of the project |
+| `repositoryReadOnly` | Boolean | Indicates if the Git repository has been put into a read-only state |
 | `requestAccessEnabled` | Boolean | Indicates if users can request member access to the project |
 | `requirement` | Requirement | Find a single requirement. Available only when feature flag `requirements_management` is enabled. |
 | `requirementStatesCount` | RequirementStatesCount | Number of requirements for the project by their state |
