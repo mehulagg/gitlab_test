@@ -6016,7 +6016,8 @@ CREATE TABLE public.terraform_states (
     created_at timestamp with time zone NOT NULL,
     updated_at timestamp with time zone NOT NULL,
     file_store smallint,
-    file character varying(255)
+    file character varying(255),
+    name character varying(255)
 );
 
 CREATE SEQUENCE public.terraform_states_id_seq
@@ -10050,6 +10051,8 @@ CREATE INDEX index_term_agreements_on_term_id ON public.term_agreements USING bt
 
 CREATE INDEX index_term_agreements_on_user_id ON public.term_agreements USING btree (user_id);
 
+CREATE INDEX index_terraform_states_on_name ON public.terraform_states USING btree (name);
+
 CREATE INDEX index_terraform_states_on_project_id ON public.terraform_states USING btree (project_id);
 
 CREATE INDEX index_timelogs_on_issue_id ON public.timelogs USING btree (issue_id);
@@ -12916,5 +12919,6 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200326144443
 20200326145443
 20200330074719
+20200331202922
 \.
 

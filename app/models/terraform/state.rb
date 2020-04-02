@@ -6,6 +6,8 @@ module Terraform
 
     validates :project_id, presence: true
 
+    validates :name, presence: true, length: { maximum: 255 }, allow_blank: false
+
     after_save :update_file_store, if: :saved_change_to_file?
 
     mount_uploader :file, StateUploader
