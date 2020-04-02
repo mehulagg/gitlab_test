@@ -501,6 +501,12 @@ user.max_member_access_for_group group.id
 ### Restrict new and existing users from creating groups
 
 ```ruby
+# To prevent restrict new users, in /etc/gitlab/gitlab.rb, set this and reconfigure (sudo gitlab-ctl reconfigure):
+
+gitlab_rails['gitlab_default_can_create_group'] = false
+
+# For existing users, run this in the GitLab Rails console (sudo gitlab-rails console):
+
 User.update_all can_create_group:false
 ```
 
