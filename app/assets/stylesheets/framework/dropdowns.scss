@@ -244,7 +244,7 @@
   }
 }
 
-.dropdown-menu,
+.dropdown:not(.gl-new-dropdown) .dropdown-menu,
 .dropdown-menu-nav {
   display: none;
   position: absolute;
