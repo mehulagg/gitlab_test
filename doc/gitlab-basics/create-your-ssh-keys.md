@@ -18,7 +18,7 @@ In order to use SSH, you will need to:
 ## Adding your SSH public key to GitLab
 
 To add the SSH public key to GitLab, see
-[Adding an SSH key to your gitLab.com account](../ssh/README.md#adding-an-ssh-key-to-your-gitlab-account).
+[Adding an SSH key to your gitlab.com account](../ssh/README.md#adding-an-ssh-key-to-your-gitlab-account).
 
 NOTE: **Note:**
 Once you add a key, you cannot edit it. If it didn't paste properly, it
