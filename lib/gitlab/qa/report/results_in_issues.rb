@@ -188,11 +188,20 @@ module Gitlab
         end
 
         def new_note_matches_discussion?(note, discussion)
-          error_and_stack_trace(note) == error_and_stack_trace(discussion.notes.first['body'])
+          note_error = error_and_stack_trace(note)
+          discussion_error = error_and_stack_trace(discussion.notes.first['body'])
+
+          return false if note_error.empty? || discussion_error.empty?
+
+          note_error == discussion_error
         end
 
         def error_and_stack_trace(text)
-          text.strip[/Error:(.*)/, 1]
+          result = text.strip[/Error:(.*)/m, 1].to_s
+
+          warn "Could not find `Error:` in text: #{text}" if result.empty?
+
+          result
         end
 
         def add_note_to_discussion(issue_iid, discussion_id)

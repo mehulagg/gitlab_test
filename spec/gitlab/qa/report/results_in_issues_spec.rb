@@ -12,7 +12,7 @@ describe Gitlab::QA::Report::ResultsInIssues do
       subject = described_class.new(token: 'token', input_files: 'file')
 
       expect { subject.invoke! }
-        .to output("Please provide a valid project ID or path with the `-p/--project` option!\n").to_stderr
+        .to output(%r{Please provide a valid project ID or path with the `-p/--project` option!}).to_stderr
         .and raise_error(SystemExit)
     end
 
@@ -20,7 +20,7 @@ describe Gitlab::QA::Report::ResultsInIssues do
       subject = described_class.new(token: 'token', input_files: 'no-file', project: project)
 
       expect { subject.invoke! }
-        .to output("Please provide valid JUnit report files. No files were found matching `no-file`\n").to_stderr
+        .to output(/Please provide valid JUnit report files. No files were found matching `no-file`/).to_stderr
         .and raise_error(SystemExit)
     end
 
@@ -263,7 +263,7 @@ describe Gitlab::QA::Report::ResultsInIssues do
 
           context 'when reporting a specific job' do
             let(:failure_summary) { ":x: ~\"staging::failed\" in job `test-job` in http://job_url" }
-            let(:note_content) {  "#{failure_summary}\n\nError:\n```\nAn Error Here\n```\n\nStacktrace:\n```\nTest Stacktrace\n```\n" }
+            let(:note_content) { "#{failure_summary}\n\nError:\n```\nAn Error Here\n```\n\nStacktrace:\n```\nTest Stacktrace\n```\n" }
 
             before do
               allow(subject).to receive(:update_labels)
@@ -296,6 +296,24 @@ describe Gitlab::QA::Report::ResultsInIssues do
                   .with('valid-project', 0, 0, body: failure_summary)
 
                 expect { subject.invoke! }.to output.to_stdout
+              end
+
+              context 'when the error or stack trace do not match' do
+                let(:existing_discussion) do
+                  Struct.new(:notes, :id)
+                        .new(['body' => "#{failure_summary}\n\nError:\n```\nThis time it's different\n```\n\nStacktrace:\n```\nAlso different\n```\n"], 0)
+                end
+
+                it 'adds a note as a new discussion' do
+                  expect(subject).to receive(:pipeline).and_return('staging')
+                  expect(::Gitlab).to receive(:issue_discussions).and_return([existing_discussion])
+                  expect(::Gitlab).not_to receive(:add_note_to_issue_discussion_as_thread)
+                    .with('valid-project', 0, 0, body: ":x: ~\"production::failed\" in job `different-test-job` in http://job_url")
+                  expect(::Gitlab).to receive(:create_issue_note)
+                    .with(anything, anything, note_content)
+
+                  expect { subject.invoke! }.to output.to_stdout
+                end
               end
 
               context 'with a different job name and environment' do
