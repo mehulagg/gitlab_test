@@ -25,7 +25,7 @@ module Mutations
       def resolve(project_path:, jira_project_key:)
         project = find_project!(project_path: project_path)
 
-        raise_resource_not_available_error! unless project
+        raise_resource_not_available_error! unless project || Feature.enabled?(:jira_issue_import, project)
 
         service_response = ::JiraImport::StartImportService
                              .new(context[:current_user], project, jira_project_key)

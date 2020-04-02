@@ -8,6 +8,7 @@ module Resolvers
       alias_method :project, :object
 
       def resolve(**args)
+        raise_resource_not_available_error! unless project || Feature.enabled?(:jira_issue_import, project)
         return JiraImportData.none unless project&.import_data.present?
 
         authorize!(project)
