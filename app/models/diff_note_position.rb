@@ -3,6 +3,8 @@
 class DiffNotePosition < ApplicationRecord
   belongs_to :note
 
+  self.inheritance_column = :_type_disabled
+
   enum position_type: {
     text: 0,
     image: 1
@@ -29,5 +31,15 @@ class DiffNotePosition < ApplicationRecord
 
   def position=(position)
     assign_attributes(position.to_h)
+  end
+
+  def self.create_or_update_by(type, params)
+    safe_ensure_unique do
+      diff_note_position = find_or_initialize_by(type: type)
+
+      diff_note_position.assign_attributes(params)
+
+      diff_note_position.save!
+    end
   end
 end

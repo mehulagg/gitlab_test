@@ -100,17 +100,19 @@ module MergeRequests
     end
 
     def merge_ref_head_payload
-      commit = merge_request.merge_ref_head
+      strong_memoize(:merge_ref_head_payload) do
+        commit = merge_request.merge_ref_head
 
-      return unless commit
+        next unless commit
 
-      target_id, source_id = commit.parent_ids
+        target_id, source_id = commit.parent_ids
 
-      {
-        commit_id: commit.id,
-        source_id: source_id,
-        target_id: target_id
-      }
+        {
+          commit_id: commit.id,
+          source_id: source_id,
+          target_id: target_id
+        }
+      end
     end
 
     def update_merge_status
@@ -118,9 +120,14 @@ module MergeRequests
 
       if can_git_merge? && merge_to_ref
         merge_request.mark_as_mergeable
+        update_diff_discussion_positions!
       else
         merge_request.mark_as_unmergeable
       end
+    end
+
+    def update_diff_discussion_positions!
+      Discussions::CaptureDiffPositionsService.new(project).execute(merge_request, merge_ref_head_payload)
     end
 
     def recheck!
