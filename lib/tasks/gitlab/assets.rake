@@ -78,7 +78,7 @@ namespace :gitlab do
 
       public_assets_webpack_dir_exists = Dir.exist?(Tasks::Gitlab::Assets::PUBLIC_ASSETS_WEBPACK_DIR)
 
-      if head_assets_md5 != master_assets_md5 || !public_assets_webpack_dir_exists
+      if true # head_assets_md5 != master_assets_md5 || !public_assets_webpack_dir_exists
         FileUtils.rm_r(Tasks::Gitlab::Assets::PUBLIC_ASSETS_WEBPACK_DIR) if public_assets_webpack_dir_exists
         Rake::Task['webpack:compile'].invoke
       end

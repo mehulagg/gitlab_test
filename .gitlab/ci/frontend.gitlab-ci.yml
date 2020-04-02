@@ -54,7 +54,8 @@
     - scripts/clean-old-cached-assets
     - rm -f /etc/apt/sources.list.d/google*.list  # We don't need to update Chrome here
   tags:
-    - rymai-runner-experiment-c2-standard-16
+    - gitlab-org
+    - docker
 
 gitlab:assets:compile pull-push-cache:
   extends:
@@ -96,8 +97,6 @@ gitlab:assets:compile pull-cache:
       - public/assets
       - assets-compile.log
     when: always
-  tags:
-    - rymai-runner-experiment-c2-standard-16
 
 compile-assets pull-push-cache:
   extends:
