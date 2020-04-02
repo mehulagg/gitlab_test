@@ -234,7 +234,7 @@ module Gitlab
           # because the other pipelines will be monitored by the author of the MR that triggered them.
           # So we assume that we're reporting a master pipeline if the project name is 'gitlab-qa'.
 
-          Runtime::Env.ci_project_name == 'gitlab-qa' ? 'master' : Runtime::Env.ci_project_name
+          Runtime::Env.ci_project_name.to_s.start_with?('gitlab-qa') ? 'master' : Runtime::Env.ci_project_name
         end
       end
     end
