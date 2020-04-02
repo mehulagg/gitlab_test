@@ -12,21 +12,58 @@ export const makeDataSeries = (queryResults, defaultConfig) =>
       if (!data.length) {
         return null;
       }
-      const relevantMetric = defaultConfig.name.toLowerCase().replace(' ', '_');
-      const name = result.metric[relevantMetric];
       const series = { data };
-      if (name) {
-        series.name = `${defaultConfig.name}: ${name}`;
-      } else {
-        series.name = defaultConfig.name;
-        Object.keys(result.metric).forEach(templateVar => {
-          const value = result.metric[templateVar];
-          const regex = new RegExp(`{{\\s*${templateVar}\\s*}}`, 'g');
-
-          series.name = series.name.replace(regex, value);
-        });
-      }
-
-      return { ...defaultConfig, ...series };
+      return {
+        ...defaultConfig,
+        ...series,
+        name: getSeriesLabel(defaultConfig.name, result.metric),
+      };
     })
     .filter(series => series !== null);
+
+const getSeriesLabel = (queryLabel, metricAttributes) => {
+  return (
+    singleAttributeLabel(queryLabel, metricAttributes) ||
+    templatedLabel(queryLabel, metricAttributes) ||
+    multiMetricLabel(metricAttributes) ||
+    `${queryLabel}`
+  );
+};
+
+const singleAttributeLabel = (queryLabel, metricAttributes) => {
+  if (!queryLabel) return;
+
+  const relevantAttribute = queryLabel.toLowerCase().replace(' ', '_');
+  const value = metricAttributes[relevantAttribute];
+
+  if (!value) return;
+
+  return `${queryLabel}: ${value}`;
+};
+
+const templatedLabel = (queryLabel, metricAttributes) => {
+  if (!queryLabel) return;
+
+  Object.keys(metricAttributes).forEach(templateVar => {
+    const value = metricAttributes[templateVar];
+    const regex = new RegExp(`{{\\s*${templateVar}\\s*}}`, 'g');
+
+    queryLabel = queryLabel.replace(regex, value);
+  });
+
+  return queryLabel;
+};
+
+const multiMetricLabel = metricAttributes => {
+  if (!Object.keys(metricAttributes).length) return;
+
+  const attributePairs = [];
+
+  Object.keys(metricAttributes).forEach(templateVar => {
+    const value = metricAttributes[templateVar];
+
+    attributePairs.push(`${templateVar}: ${value}`);
+  });
+
+  return attributePairs.join(', ');
+};
