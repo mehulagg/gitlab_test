@@ -33,44 +33,41 @@ exports[`Dashboard template matches the default snapshot 1`] = `
         label-for="monitor-environments-dropdown"
         label-size="sm"
       >
-        <gl-dropdown-stub
+        <gl-new-dropdown-stub
+          category="tertiary"
           class="mb-0 d-flex"
           data-qa-selector="environments_dropdown"
+          headertext=""
           id="monitor-environments-dropdown"
           menu-class="monitor-environment-dropdown-menu"
+          size="medium"
           text="production"
-          toggle-class="dropdown-menu-toggle"
+          variant="default"
         >
-          <div
-            class="d-flex flex-column overflow-hidden"
-          >
-            <gl-dropdown-header-stub
-              class="monitor-environment-dropdown-header text-center"
+          <gl-new-dropdown-header-stub>
+            <span
+              class="d-flex justify-content-center"
             >
               Environment
-            </gl-dropdown-header-stub>
-             
-            <gl-dropdown-divider-stub />
-             
-            <gl-search-box-by-type-stub
-              class="m-2"
-              clearbuttontitle="Clear"
-              value=""
-            />
-             
-            <div
-              class="flex-fill overflow-auto"
-            />
-             
-            <div
-              class="text-secondary no-matches-message"
-            >
-              
-              No matching results
+            </span>
+          </gl-new-dropdown-header-stub>
+           
+          <gl-new-dropdown-divider-stub />
+           
+          <gl-search-box-by-type-stub
+            class="m-2"
+            clearbuttontitle="Clear"
+            value=""
+          />
             
-            </div>
+          <div
+            class="text-secondary no-matches-message"
+          >
+            
+            No matching results
+          
           </div>
-        </gl-dropdown-stub>
+        </gl-new-dropdown-stub>
       </gl-form-group-stub>
        
       <gl-form-group-stub

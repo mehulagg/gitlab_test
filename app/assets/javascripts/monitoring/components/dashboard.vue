@@ -4,10 +4,10 @@ import { mapActions, mapState, mapGetters } from 'vuex';
 import VueDraggable from 'vuedraggable';
 import {
   GlDeprecatedButton,
-  GlDropdown,
-  GlDropdownItem,
-  GlDropdownHeader,
-  GlDropdownDivider,
+  GlNewDropdown,
+  GlNewDropdownItem,
+  GlNewDropdownDivider,
+  GlNewDropdownHeader,
   GlFormGroup,
   GlModal,
   GlLoadingIcon,
@@ -45,11 +45,11 @@ export default {
     PanelType,
     Icon,
     GlDeprecatedButton,
-    GlDropdown,
     GlLoadingIcon,
-    GlDropdownItem,
-    GlDropdownHeader,
-    GlDropdownDivider,
+    GlNewDropdown,
+    GlNewDropdownItem,
+    GlNewDropdownDivider,
+    GlNewDropdownHeader,
     GlSearchBoxByType,
     GlFormGroup,
     GlModal,
@@ -409,49 +409,45 @@ export default {
           label-for="monitor-environments-dropdown"
           class="col-sm-6 col-md-6 col-lg-2"
         >
-          <gl-dropdown
+          <gl-new-dropdown
             id="monitor-environments-dropdown"
             ref="monitorEnvironmentsDropdown"
             data-qa-selector="environments_dropdown"
             class="mb-0 d-flex"
-            toggle-class="dropdown-menu-toggle"
             menu-class="monitor-environment-dropdown-menu"
             :text="currentEnvironmentName"
           >
-            <div class="d-flex flex-column overflow-hidden">
-              <gl-dropdown-header class="monitor-environment-dropdown-header text-center">{{
-                __('Environment')
-              }}</gl-dropdown-header>
-              <gl-dropdown-divider />
-              <gl-search-box-by-type
-                ref="monitorEnvironmentsDropdownSearch"
-                class="m-2"
-                @input="debouncedEnvironmentsSearch"
-              />
-              <gl-loading-icon
-                v-if="environmentsLoading"
-                ref="monitorEnvironmentsDropdownLoading"
-                :inline="true"
-              />
-              <div v-else class="flex-fill overflow-auto">
-                <gl-dropdown-item
-                  v-for="environment in filteredEnvironments"
-                  :key="environment.id"
-                  :active="environment.name === currentEnvironmentName"
-                  active-class="is-active"
-                  :href="environment.metrics_path"
-                  >{{ environment.name }}</gl-dropdown-item
-                >
-              </div>
-              <div
-                v-show="shouldShowEnvironmentsDropdownNoMatchedMsg"
-                ref="monitorEnvironmentsDropdownMsg"
-                class="text-secondary no-matches-message"
-              >
-                {{ __('No matching results') }}
-              </div>
+            <gl-new-dropdown-header>
+              <span class="d-flex justify-content-center">{{ __('Environment') }}</span>
+            </gl-new-dropdown-header>
+            <gl-new-dropdown-divider />
+            <gl-search-box-by-type
+              ref="monitorEnvironmentsDropdownSearch"
+              class="m-2"
+              @input="debouncedEnvironmentsSearch"
+            />
+            <gl-loading-icon
+              v-if="environmentsLoading"
+              ref="monitorEnvironmentsDropdownLoading"
+              :inline="true"
+            />
+            <gl-new-dropdown-item
+              v-for="environment in filteredEnvironments"
+              v-else
+              :key="environment.id"
+              class="d-flex"
+              :is-check-item="environment.name === currentEnvironmentName"
+              :href="environment.metrics_path"
+              >{{ environment.name }}</gl-new-dropdown-item
+            >
+            <div
+              v-show="shouldShowEnvironmentsDropdownNoMatchedMsg"
+              ref="monitorEnvironmentsDropdownMsg"
+              class="text-secondary no-matches-message"
+            >
+              {{ __('No matching results') }}
             </div>
-          </gl-dropdown>
+          </gl-new-dropdown>
         </gl-form-group>
 
         <gl-form-group

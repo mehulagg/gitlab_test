@@ -47,12 +47,10 @@
 }
 
 .prometheus-graphs-header {
-  .monitor-environment-dropdown-header header,
   .monitor-dashboard-dropdown-header header {
     font-size: $gl-font-size;
   }
 
-  .monitor-environment-dropdown-menu,
   .monitor-dashboard-dropdown-menu {
     &.show {
       display: flex;

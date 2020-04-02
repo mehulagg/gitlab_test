@@ -1,0 +1,5 @@
+---
+title: Change GlDropdown component to fix missing tick mark in monitoring
+merge_request: 28725
+author:
+type: fixed
