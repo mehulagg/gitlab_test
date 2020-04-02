@@ -56,6 +56,7 @@ module API
         optional :auto_devops_enabled, type: Boolean, desc: 'Flag indication if Auto DevOps is enabled'
         optional :auto_devops_deploy_strategy, type: String, values: %w(continuous manual timed_incremental), desc: 'Auto Deploy strategy'
         optional :autoclose_referenced_issues, type: Boolean, desc: 'Flag indication if referenced issues auto-closing is enabled'
+        optional :repository_read_only, type: Boolean, desc: 'Indicates if the Git repository has been put into a read-only state'
         optional :repository_storage, type: String, desc: 'Which storage shard the repository is on. Available only to admins'
       end
 
@@ -130,6 +131,7 @@ module API
           :wiki_access_level,
           :avatar,
           :suggestion_commit_message,
+          :repository_read_only,
           :repository_storage,
           :compliance_framework_setting,
 
