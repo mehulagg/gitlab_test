@@ -1,12 +1,18 @@
 # frozen_string_literal: true
 
 class ServiceResponse
+  class Success < ServiceResponse
+  end
+
+  class Error < ServiceResponse
+  end
+
   def self.success(message: nil, payload: {}, http_status: :ok)
-    new(status: :success, message: message, payload: payload, http_status: http_status)
+    self::Success.new(status: :success, message: message, payload: payload, http_status: http_status)
   end
 
   def self.error(message:, payload: {}, http_status: nil)
-    new(status: :error, message: message, payload: payload, http_status: http_status)
+    self::Error.new(status: :error, message: message, payload: payload, http_status: http_status)
   end
 
   attr_reader :status, :message, :http_status, :payload
@@ -24,6 +30,14 @@ class ServiceResponse
 
   def error?
     status == :error
+  end
+
+  def to_h
+    { status: status, message: message, http_status: http_status, payload: payload }
+  end
+
+  def deconstruct_keys(keys)
+    keys ? to_h.slice(*keys) : to_h
   end
 
   private
