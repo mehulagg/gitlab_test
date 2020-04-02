@@ -10,7 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (prometheusSettingsWrapper) {
     const prometheusMetrics = new PrometheusMetrics('.js-prometheus-metrics-monitoring');
-    prometheusMetrics.loadActiveMetrics();
+    if (prometheusMetrics.isServiceActive) {
+      prometheusMetrics.loadActiveCustomMetrics();
+    } else {
+      prometheusMetrics.setNoIntegrationActiveState();
+    }
   }
 
   PrometheusAlerts();
