@@ -67,7 +67,9 @@ scope format: false do
       end
     end
 
-    get '/sse/*id', to: 'static_site_editor#edit', as: :sse
+    scope controller: :static_site_editor do
+      get '/sse/*id', action: :show, as: :show_sse
+    end
 
     get '/tree/*id', to: 'tree#show', as: :tree
     get '/raw/*id', to: 'raw#show', as: :raw

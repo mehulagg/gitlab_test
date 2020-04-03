@@ -5,7 +5,7 @@ require 'spec_helper'
 describe Projects::StaticSiteEditorController do
   let(:project) { create(:project, :public, :repository) }
 
-  describe 'GET edit' do
+  describe 'GET show' do
     let(:default_params) do
       {
         namespace_id: project.namespace,
@@ -17,7 +17,7 @@ describe Projects::StaticSiteEditorController do
     context 'User roles' do
       context 'anonymous' do
         before do
-          get :edit, params: default_params
+          get :show, params: default_params
         end
 
         it 'redirects to sign in and returns' do
@@ -30,11 +30,11 @@ describe Projects::StaticSiteEditorController do
 
         before do
           sign_in(guest)
-          get :edit, params: default_params
+          get :show, params: default_params
         end
 
         it 'renders the edit page' do
-          expect(response).to render_template(:edit)
+          expect(response).to render_template(:show)
         end
       end
 
@@ -44,11 +44,11 @@ describe Projects::StaticSiteEditorController do
         before do
           project.add_developer(developer)
           sign_in(developer)
-          get :edit, params: default_params
+          get :show, params: default_params
         end
 
         it 'renders the edit page' do
-          expect(response).to render_template(:edit)
+          expect(response).to render_template(:show)
         end
       end
 
@@ -58,11 +58,11 @@ describe Projects::StaticSiteEditorController do
         before do
           project.add_maintainer(maintainer)
           sign_in(maintainer)
-          get :edit, params: default_params
+          get :show, params: default_params
         end
 
         it 'renders the edit page' do
-          expect(response).to render_template(:edit)
+          expect(response).to render_template(:show)
         end
       end
     end

@@ -3,8 +3,8 @@
 class Projects::StaticSiteEditorController < Projects::ApplicationController
   layout 'fullscreen'
 
-  prepend_before_action :authenticate_user!, only: [:edit]
+  prepend_before_action :authenticate_user!, only: [:show]
 
-  def edit
+  def show
   end
 end
