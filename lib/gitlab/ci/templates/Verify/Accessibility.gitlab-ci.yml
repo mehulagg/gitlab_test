@@ -15,5 +15,9 @@ a11y:
     when: always
     expose_as: 'Accessibility Reports'
     paths: ['reports/']
+    reports:
+      pa11y: reports/accessibility.json
   rules:
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+    - if: $CI_MERGE_REQUEST_ID
     - if: $a11y_urls

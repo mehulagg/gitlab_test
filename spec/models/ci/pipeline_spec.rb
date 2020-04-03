@@ -364,6 +364,16 @@ describe Ci::Pipeline, :mailer do
       end
     end
 
+    context 'when pipeline has an accessibility report' do
+      subject { described_class.with_reports(Ci::JobArtifact.accessibility_reports) }
+
+      let(:pipeline_with_report) { create(:ci_pipeline, :with_accessibility_reports) }
+
+      it 'selects the pipeline' do
+        is_expected.to eq([pipeline_with_report])
+      end
+    end
+
     context 'when pipeline does not have metrics reports' do
       subject { described_class.with_reports(Ci::JobArtifact.test_reports) }
 
@@ -2788,6 +2798,42 @@ describe Ci::Pipeline, :mailer do
     context 'when pipeline does not have any builds with coverage reports' do
       it 'returns empty coverage reports' do
         expect(subject.files).to eql({})
+      end
+    end
+  end
+
+  describe '#accessibility_reports' do
+    subject { pipeline.accessibility_reports }
+
+    context 'when pipeline has multiple builds with accessibility reports' do
+      let(:build_rspec) { create(:ci_build, :success, name: 'rspec', pipeline: pipeline, project: project) }
+      let(:build_golang) { create(:ci_build, :success, name: 'golang', pipeline: pipeline, project: project) }
+
+      before do
+        create(:ci_job_artifact, :pa11y_with_errors, job: build_rspec, project: project)
+        create(:ci_job_artifact, :pa11y_without_errors, job: build_golang, project: project)
+      end
+
+      it 'returns coverage reports with collected data' do
+        expect(subject.urls.keys).to match_array([
+          "http://pa11y.org/",
+          "https://www.google.com/"
+        ])
+      end
+
+      context 'when builds are retried' do
+        let(:build_rspec) { create(:ci_build, :retried, :success, name: 'rspec', pipeline: pipeline, project: project) }
+        let(:build_golang) { create(:ci_build, :retried, :success, name: 'golang', pipeline: pipeline, project: project) }
+
+        it 'returns empty urls for accessibility reports' do
+          expect(subject.urls).to eql({})
+        end
+      end
+    end
+
+    context 'when pipeline does not have any builds with accessibility reports' do
+      it 'returns empty urls for accessibility reports' do
+        expect(subject.urls).to eql({})
       end
     end
   end

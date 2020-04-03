@@ -12,6 +12,7 @@ module Ci
 
     TEST_REPORT_FILE_TYPES = %w[junit].freeze
     COVERAGE_REPORT_FILE_TYPES = %w[cobertura].freeze
+    ACCESSIBILITY_REPORT_FILE_TYPES = %w[pa11y].freeze
     NON_ERASABLE_FILE_TYPES = %w[trace].freeze
     DEFAULT_FILE_NAMES = {
       archive: nil,
@@ -28,6 +29,7 @@ module Ci
       license_management: 'gl-license-management-report.json',
       license_scanning: 'gl-license-scanning-report.json',
       performance: 'performance.json',
+      pa11y: 'accessibility.json',
       metrics: 'metrics.txt',
       lsif: 'lsif.json',
       dotenv: '.env',
@@ -49,10 +51,10 @@ module Ci
       lsif: :gzip,
       dotenv: :gzip,
       cobertura: :gzip,
-
       # All these file formats use `raw` as we need to store them uncompressed
       # for Frontend to fetch the files and do analysis
       # When they will be only used by backend, they can be `gzipped`.
+      pa11y: :raw,
       codequality: :raw,
       sast: :raw,
       dependency_scanning: :raw,
@@ -104,6 +106,10 @@ module Ci
       with_file_types(COVERAGE_REPORT_FILE_TYPES)
     end
 
+    scope :accessibility_reports, -> do
+      with_file_types(ACCESSIBILITY_REPORT_FILE_TYPES)
+    end
+
     scope :erasable, -> do
       types = self.file_types.reject { |file_type| NON_ERASABLE_FILE_TYPES.include?(file_type) }.values
 
@@ -135,7 +141,8 @@ module Ci
       lsif: 15, # LSIF data for code navigation
       dotenv: 16,
       cobertura: 17,
-      terraform: 18 # Transformed json
+      terraform: 18, # Transformed json
+      pa11y: 19
     }
 
     enum file_format: {

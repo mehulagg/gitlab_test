@@ -817,6 +817,14 @@ module Ci
       end
     end
 
+    def accessibility_reports
+      Gitlab::Ci::Reports::AccessibilityReports.new.tap do |accessibility_reports|
+        builds.latest.with_reports(Ci::JobArtifact.accessibility_reports).each do |build|
+          build.collect_accessibility_reports!(accessibility_reports)
+        end
+      end
+    end
+
     def has_exposed_artifacts?
       complete? && builds.latest.with_exposed_artifacts.exists?
     end

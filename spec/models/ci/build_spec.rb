@@ -3852,6 +3852,46 @@ describe Ci::Build do
     end
   end
 
+  describe '#collect_accessibility_reports!' do
+    subject { build.collect_accessibility_reports!(accessibility_report) }
+
+    let(:accessibility_report) { Gitlab::Ci::Reports::AccessibilityReports.new }
+
+    it { expect(accessibility_report.url).to eq({}) }
+
+    context 'when build has an accessibility report' do
+      context 'when there is an accessibility report from pa11y with errors' do
+        before do
+          create(:ci_job_artifact, :accessibility_with_errors, job: build, project: build.project)
+        end
+
+        it 'parses blobs and add the results to the accessibility report' do
+          expect { subject }.not_to raise_error
+
+          expect(accessibility_report.urls.keys).to match_array(['https://www.google.com/'])
+          expect(accessibility_report.errors).to eq(3)
+          expect(accessibility_report.total).to eq(1)
+          expect(accessibility_report.passes).to eq(0)
+        end
+      end
+
+      context 'when there is an accessibility report from pa11y without errors' do
+        before do
+          create(:ci_job_artifact, :accessibility_without_errors, job: build, project: build.project)
+        end
+
+        it 'parses blobs and add the results to the accessibility report' do
+          expect { subject }.not_to raise_error
+
+          expect(accessibility_report.urls.keys).to match_array(['http://pa11y.org/'])
+          expect(accessibility_report.errors).to eq(0)
+          expect(accessibility_report.total).to eq(1)
+          expect(accessibility_report.passes).to eq(1)
+        end
+      end
+    end
+  end
+
   describe '#report_artifacts' do
     subject { build.report_artifacts }
 

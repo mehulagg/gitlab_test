@@ -1317,6 +1317,12 @@ class MergeRequest < ApplicationRecord
     actual_head_pipeline&.has_reports?(Ci::JobArtifact.coverage_reports)
   end
 
+  def has_accessibility_reports?
+    return false unless Feature.enabled?(:accessibility_report_view, project)
+
+    actual_head_pipeline&.has_reports?(Ci::JobArtifact.accessibility_reports)
+  end
+
   # TODO: this method and compare_test_reports use the same
   # result type, which is handled by the controller's #reports_response.
   # we should minimize mistakes by isolating the common parts.
@@ -1327,6 +1333,14 @@ class MergeRequest < ApplicationRecord
     end
 
     compare_reports(Ci::GenerateCoverageReportsService)
+  end
+
+  def find_accessbility_reports
+    unless has_accessibility_reports?
+      return { status: :error, status_reason: 'This merge request does not have accessibility reports' }
+    end
+
+    compare_reports(Ci::GenerateAccessibilityReportsService)
   end
 
   def has_exposed_artifacts?

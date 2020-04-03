@@ -22,6 +22,14 @@ describe Gitlab::Ci::Parsers do
       end
     end
 
+    context 'when file_type is pa11y' do
+      let(:file_type) { 'pa11y' }
+
+      it 'fabricates the class' do
+        is_expected.to be_a(described_class::Accessibility::Pa11y)
+      end
+    end
+
     context 'when file_type does not exist' do
       let(:file_type) { 'undefined' }
 

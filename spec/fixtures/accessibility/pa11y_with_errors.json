@@ -1,0 +1,39 @@
+{
+  "total": 1,
+  "passes": 0,
+  "errors": 3,
+  "results": {
+    "https://www.google.com/": [
+      {
+        "code": "WCAG2AA.Principle1.Guideline1_3.1_3_1.H49.Center",
+        "type": "error",
+        "typeCode": 1,
+        "message": "Presentational markup used that has become obsolete in HTML5.",
+        "context": "<center><br clear=\"all\" id=\"lgpd\"><div ...</center>",
+        "selector": "html > body > center",
+        "runner": "htmlcs",
+        "runnerExtras": {}
+      },
+      {
+        "code": "WCAG2AA.Principle1.Guideline1_3.1_3_1.H49.AlignAttr",
+        "type": "error",
+        "typeCode": 1,
+        "message": "Align attributes .",
+        "context": "<td align=\"center\" nowrap=\"\"><input name=\"ie\" value=\"ISO-885...</td>",
+        "selector": "html > body > center > form > table > tbody > tr > td:nth-child(2)",
+        "runner": "htmlcs",
+        "runnerExtras": {}
+      },
+      {
+        "code": "WCAG2AA.Principle1.Guideline1_3.1_3_1.H49.AlignAttr",
+        "type": "error",
+        "typeCode": 1,
+        "message": "Align attributes .",
+        "context": "<td class=\"fl sblc\" align=\"left\" nowrap=\"\" width=\"25%\"><a href=\"/advanced_search?hl=en...</td>",
+        "selector": "html > body > center > form > table > tbody > tr > td:nth-child(3)",
+        "runner": "htmlcs",
+        "runnerExtras": {}
+      }
+    ]
+  }
+}

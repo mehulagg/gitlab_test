@@ -1628,6 +1628,24 @@ describe MergeRequest do
     end
   end
 
+  describe '#has_accessibility_reports?' do
+    subject { merge_request.has_accessibility_reports? }
+
+    let(:project) { create(:project, :repository) }
+
+    context 'when head pipeline has an accessibility reports' do
+      let(:merge_request) { create(:merge_request, :with_accessibility_reports, source_project: project) }
+
+      it { is_expected.to be_truthy }
+    end
+
+    context 'when head pipeline does not have accessibility reports' do
+      let(:merge_request) { create(:merge_request, source_project: project) }
+
+      it { is_expected.to be_falsey }
+    end
+  end
+
   describe '#calculate_reactive_cache' do
     let(:project) { create(:project, :repository) }
     let(:merge_request) { create(:merge_request, source_project: project) }

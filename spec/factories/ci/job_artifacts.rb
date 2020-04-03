@@ -169,6 +169,26 @@ FactoryBot.define do
       end
     end
 
+    trait :pa11y_with_errors do
+      file_type { :pa11y }
+      file_format { :raw }
+
+      after(:build) do |artifact, _evaluator|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('spec/fixtures/accessibility/pa11y_with_errors.json'), 'application/json')
+      end
+    end
+
+    trait :pa11y_without_errors do
+      file_type { :pa11y }
+      file_format { :raw }
+
+      after(:build) do |artifact, _evaluator|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('spec/fixtures/accessibility/pa11y_without_errors.json'), 'application/json')
+      end
+    end
+
     trait :codequality do
       file_type { :codequality }
       file_format { :raw }

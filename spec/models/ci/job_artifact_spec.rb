@@ -86,6 +86,22 @@ describe Ci::JobArtifact do
     end
   end
 
+  describe '.accessibility_reports' do
+    subject { described_class.accessibility_reports }
+
+    context 'when there is a coverage report' do
+      let(:artifact) { create(:ci_job_artifact, :pa11y_with_errors) }
+
+      it { is_expected.to eq([artifact]) }
+    end
+
+    context 'when there are no coverage reports' do
+      let(:artifact) { create(:ci_job_artifact, :archive) }
+
+      it { is_expected.to be_empty }
+    end
+  end
+
   describe '.erasable' do
     subject { described_class.erasable }
 
