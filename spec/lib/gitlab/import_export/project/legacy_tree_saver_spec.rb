@@ -347,6 +347,6 @@ describe Gitlab::ImportExport::Project::LegacyTreeSaver do
   end
 
   def project_json(filename)
-    ::JSON.parse(IO.read(filename))
+    ::Gitlab::Json.parse(IO.read(filename))
   end
 end

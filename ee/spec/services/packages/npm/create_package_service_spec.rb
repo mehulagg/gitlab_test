@@ -8,7 +8,7 @@ describe Packages::Npm::CreatePackageService do
   let(:version) { '1.0.1' }
 
   let(:params) do
-    JSON.parse(
+    Gitlab::Json.parse(
       fixture_file('npm/payload.json', dir: 'ee')
         .gsub('@root/npm-test', package_name)
         .gsub('1.0.1', version)

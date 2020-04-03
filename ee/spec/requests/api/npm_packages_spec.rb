@@ -395,7 +395,7 @@ describe API::NpmPackages do
     end
 
     def upload_params(package_name:, package_version: '1.0.1', file: 'npm/payload.json')
-      JSON.parse(
+      Gitlab::Json.parse(
         fixture_file(file, dir: 'ee')
           .gsub('@root/npm-test', package_name)
           .gsub('1.0.1', package_version))

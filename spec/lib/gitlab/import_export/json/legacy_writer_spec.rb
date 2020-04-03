@@ -96,6 +96,6 @@ describe Gitlab::ImportExport::JSON::LegacyWriter do
   def subject_json
     subject.close
 
-    ::JSON.parse(IO.read(subject.path))
+    ::Gitlab::Json.parse(IO.read(subject.path))
   end
 end

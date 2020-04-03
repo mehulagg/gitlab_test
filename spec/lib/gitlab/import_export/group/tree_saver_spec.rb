@@ -153,6 +153,6 @@ describe Gitlab::ImportExport::Group::TreeSaver do
   end
 
   def group_json(filename)
-    ::JSON.parse(IO.read(filename))
+    ::Gitlab::Json.parse(IO.read(filename))
   end
 end

@@ -25,7 +25,7 @@ describe Gitlab::SidekiqLogging::JSONFormatter do
     it 'properly formats timestamps into ISO 8601 form' do
       result = subject.call('INFO', now, 'my program', hash_input)
 
-      data = JSON.parse(result)
+      data = Gitlab::Json.parse(result)
       expected_output = hash_input.stringify_keys.merge!(
         {
           'severity' => 'INFO',
@@ -46,7 +46,7 @@ describe Gitlab::SidekiqLogging::JSONFormatter do
   it 'wraps a String' do
     result = subject.call('DEBUG', now, 'my string', message)
 
-    data = JSON.parse(result)
+    data = Gitlab::Json.parse(result)
     expected_output = {
       severity: 'DEBUG',
       time: timestamp_iso8601,
