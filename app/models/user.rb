@@ -209,6 +209,7 @@ class User < ApplicationRecord
   before_validation :set_notification_email, if: :new_record?
   before_validation :set_public_email, if: :public_email_changed?
   before_validation :set_commit_email, if: :commit_email_changed?
+  before_save :set_organization_for_gitlab_employee
   before_save :default_private_profile_to_false
   before_save :set_public_email, if: :public_email_changed? # in case validation is skipped
   before_save :set_commit_email, if: :commit_email_changed? # in case validation is skipped
@@ -1750,6 +1751,10 @@ class User < ApplicationRecord
   end
 
   private
+
+  def set_organization_for_gitlab_employee
+    self.organization = 'GitLab' if gitlab_employee?
+  end
 
   def default_private_profile_to_false
     return unless private_profile_changed? && private_profile.nil?

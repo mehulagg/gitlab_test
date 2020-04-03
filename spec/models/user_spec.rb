@@ -838,6 +838,24 @@ describe User, :do_not_mock_admin_mode do
   end
 
   describe 'before save hook' do
+    describe '#set_organization_for_gitlab_employee' do
+      let(:user) { create(:user, organization: nil) }
+
+      it 'sets the organization of GitLab employees to GitLab' do
+        allow(user).to receive(:gitlab_employee?).and_return(true)
+
+        user.save!
+        expect(user.organization).to eq('GitLab')
+      end
+
+      it 'leaves the organization of non GitLab employees as is' do
+        allow(user).to receive(:gitlab_employee?).and_return(false)
+
+        user.save!
+        expect(user.organization).to be_nil
+      end
+    end
+
     describe '#default_private_profile_to_false' do
       let(:user) { create(:user, private_profile: true) }
 

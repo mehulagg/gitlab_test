@@ -27,9 +27,8 @@ describe 'profiles/show' do
 
     context 'when `:gitlab_employee_badge` feature flag is enabled' do
       context 'and when user has an `@gitlab.com` email address' do
-        let(:user) { create(:user, email: 'test@gitlab.com') }
-
         it 'displays the organization field as `readonly` with a `value` of `GitLab`' do
+          allow(user).to receive(:gitlab_employee?).and_return(true)
           render
 
           expect(rendered).to have_selector('#user_organization[readonly][value="GitLab"]')

@@ -17,7 +17,7 @@ describe EE::SystemHooksService do
     context 'event data' do
       context 'for GitLab.com' do
         before do
-          expect(Gitlab).to receive(:com?).and_return(true)
+          allow(Gitlab).to receive(:com?).and_return(true)
         end
 
         it { expect(event_data(user, :create)).to include(:event_name, :name, :created_at, :updated_at, :email, :user_id, :username, :email_opted_in, :email_opted_in_ip, :email_opted_in_source, :email_opted_in_at) }
@@ -26,7 +26,7 @@ describe EE::SystemHooksService do
 
       context 'for non-GitLab.com' do
         before do
-          expect(Gitlab).to receive(:com?).and_return(false)
+          allow(Gitlab).to receive(:com?).and_return(false)
         end
 
         it { expect(event_data(user, :create)).to include(:event_name, :name, :created_at, :updated_at, :email, :user_id, :username) }
