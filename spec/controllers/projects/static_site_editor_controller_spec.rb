@@ -34,7 +34,7 @@ describe Projects::StaticSiteEditorController do
         end
 
         it 'renders the edit page' do
-          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to render_template(:edit)
         end
       end
 
@@ -48,7 +48,7 @@ describe Projects::StaticSiteEditorController do
         end
 
         it 'renders the edit page' do
-          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to render_template(:edit)
         end
       end
 
@@ -62,7 +62,7 @@ describe Projects::StaticSiteEditorController do
         end
 
         it 'renders the edit page' do
-          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to render_template(:edit)
         end
       end
     end
