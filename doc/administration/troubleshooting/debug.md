@@ -88,7 +88,7 @@ sudo -u git -H bundle exec rails runner -e production "user = User.first; puts u
 A common problem is that mails are not being sent for some reason. Suppose you configured
 an SMTP server, but you're not seeing mail delivered. Here's how to check the settings:
 
-1. Run a [Rails console.](#starting-a-rails-console)
+1. Run a [Rails console](#starting-a-rails-console-session).
 
 1. Look at the ActionMailer `delivery_method` to make sure it matches what you
    intended. If you configured SMTP, it should say `:smtp`. If you're using
@@ -230,7 +230,7 @@ separate Rails process to debug the issue:
 1. Log in to your GitLab account.
 1. Copy the URL that is causing problems (e.g. `https://gitlab.com/ABC`).
 1. Create a Personal Access Token for your user (Profile Settings -> Access Tokens).
-1. Bring up the [GitLab Rails console.](#starting-a-rails-console)
+1. Bring up the [GitLab Rails console.](#starting-a-rails-console-session)
 1. At the Rails console, run:
 
    ```ruby
