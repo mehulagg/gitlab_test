@@ -43,7 +43,10 @@ Here's an example of a replacements overview from one of the projects which migr
 
 ## Related Issues
 
-<!-- Add any related issues that are important for your project by adding the title of the issue and a link to it (preferably as an embedded link). You will probably keep editing this section as the migration progresses, so don't worry if it's mostly blank for now. -->
+<!-- Add any related issues that are important for your project by adding the title of the issue and a link to it (preferably as an embedded link). You will probably keep editing this section as the migration progresses, so don't worry if it's mostly blank for now. 
+
+Here is an example of what this list might look like once populated: https://gitlab.com/gitlab-org/gitlab-foss/-/issues/55039#outstanding-issues
+-->
 
 ### Blockers
  * [ ] ADD_LINK_TO_ISSUE_HERE
@@ -61,4 +64,4 @@ Here's an example of a replacements overview from one of the projects which migr
 ------
 
 /label ~Open-Source ~movingtogitlab
-/cc @nuritzi
+/cc @nuritzi 
