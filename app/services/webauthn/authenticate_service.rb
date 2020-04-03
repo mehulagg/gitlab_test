@@ -13,7 +13,12 @@ module Webauthn
       parsed_device_response = JSON.parse(@device_response)
 
       # appid is set for legacy U2F devices
-      rp_id = parsed_device_response['clientExtensionResults'] && parsed_device_response['clientExtensionResults']['appid'] ? @app_id : URI(@app_id).host
+
+      rp_id = @app_id
+
+      unless parsed_device_response['clientExtensionResults'] && parsed_device_response['clientExtensionResults']['appid']
+        rp_id = URI(@app_id).host
+      end
 
       webauthn_credential = WebAuthn::Credential.from_get(parsed_device_response)
       encoded_raw_id = Base64.strict_encode64(webauthn_credential.raw_id)
