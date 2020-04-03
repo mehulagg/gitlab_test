@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_dependency 'ee/api/validations/validators/check_assignees_count' if Gitlab.ee?
+
 module API
   module Validations
     module Validators
