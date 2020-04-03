@@ -68,6 +68,11 @@ export default {
       required: false,
       default: null,
     },
+    relativePath: {
+      type: String,
+      required: false,
+      default: null,
+    },
     lfsOid: {
       type: String,
       required: false,
@@ -133,7 +138,7 @@ export default {
         :is="linkComponent"
         ref="link"
         :to="routerLinkTo"
-        :href="url"
+        :href="relativePath || url"
         :class="{
           'is-submodule': isSubmodule,
         }"

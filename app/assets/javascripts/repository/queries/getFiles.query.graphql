@@ -47,6 +47,7 @@ query getFiles(
             node {
               ...TreeEntry
               webUrl
+              relativePath
               lfsOid @include(if: $vueLfsEnabled)
             }
           }
