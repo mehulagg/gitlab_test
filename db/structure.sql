@@ -6536,7 +6536,8 @@ CREATE TABLE public.vulnerability_feedback (
     merge_request_id integer,
     comment_author_id integer,
     comment text,
-    comment_timestamp timestamp with time zone
+    comment_timestamp timestamp with time zone,
+    feedback_fingerprint bytea
 );
 
 CREATE SEQUENCE public.vulnerability_feedback_id_seq
@@ -6637,7 +6638,8 @@ CREATE TABLE public.vulnerability_occurrences (
     name character varying NOT NULL,
     metadata_version character varying NOT NULL,
     raw_metadata text NOT NULL,
-    vulnerability_id bigint
+    vulnerability_id bigint,
+    feedback_fingerprint bytea
 );
 
 CREATE SEQUENCE public.vulnerability_occurrences_id_seq
@@ -12927,5 +12929,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200330074719
 20200330132913
 20200331220930
+20200403115923
+20200403121657
 \.
 
