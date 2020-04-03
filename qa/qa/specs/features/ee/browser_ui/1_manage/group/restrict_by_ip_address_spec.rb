@@ -59,6 +59,8 @@ module QA
         end
       end
 
+      private
+
       def set_ip_address_restriction_to(ip_address)
         Flow::Login.while_signed_in_as_admin do
           @group.sandbox.visit!

@@ -7,7 +7,7 @@ module QA
         module Groups
           class Index < QA::Page::Base
             view 'app/views/admin/groups/index.html.haml' do
-              element :group_search_field
+              element :group_search_field, required: true
             end
 
             view 'app/views/admin/groups/_group.html.haml' do
