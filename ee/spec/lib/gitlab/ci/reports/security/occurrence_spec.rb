@@ -6,10 +6,10 @@ describe Gitlab::Ci::Reports::Security::Occurrence do
   describe '#initialize' do
     subject { described_class.new(**params) }
 
-    let(:primary_identifier) { create(:ci_reports_security_identifier) }
-    let(:other_identifier) { create(:ci_reports_security_identifier) }
-    let(:scanner) { create(:ci_reports_security_scanner) }
-    let(:location) { create(:ci_reports_security_locations_sast) }
+    let_it_be(:primary_identifier) { create(:ci_reports_security_identifier) }
+    let_it_be(:other_identifier) { create(:ci_reports_security_identifier, external_id: 'Gemnasium-06565b6', external_type: 'gemnasium') }
+    let_it_be(:scanner) { create(:ci_reports_security_scanner) }
+    let_it_be(:location) { create(:ci_reports_security_locations_sast) }
 
     let(:params) do
       {
@@ -25,6 +25,22 @@ describe Gitlab::Ci::Reports::Security::Occurrence do
         severity: :high,
         uuid: 'cadf8cf0a8228fa92a0f4897a0314083bb38'
       }
+    end
+
+    context 'calculate feedback fingerprint' do
+      it 'calculates fingerprint correctly' do
+        expect(subject.feedback_fingerprint).to eq('59c0c0638356d6ec8219f614354e02f8b5eb8d5e425d5ffc98111460fd05af75')
+      end
+
+      it 'calculates same fingerprint when identifer orders change' do
+        params[:identifiers] = [other_identifier, primary_identifier]
+        expect(subject.feedback_fingerprint).to eq('59c0c0638356d6ec8219f614354e02f8b5eb8d5e425d5ffc98111460fd05af75')
+      end
+
+      it 'omits missing fields' do
+        params[:location] = nil
+        expect(subject.feedback_fingerprint).to eq('7b1268c7bc420e6ae4521c3af8122e58e7f4e4ba25195b73da4594f23702436b')
+      end
     end
 
     context 'when both all params are given' do
@@ -85,6 +101,7 @@ describe Gitlab::Ci::Reports::Security::Occurrence do
         metadata_version: occurrence.metadata_version,
         name: occurrence.name,
         project_fingerprint: occurrence.project_fingerprint,
+        feedback_fingerprint: occurrence.feedback_fingerprint,
         raw_metadata: occurrence.raw_metadata,
         report_type: occurrence.report_type,
         scanner: occurrence.scanner,
