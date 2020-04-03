@@ -94,7 +94,8 @@ export const fetchDashboard = ({ state, commit, dispatch }) => {
     params.dashboard = state.currentDashboard;
   }
 
-  return backOffRequest(() => axios.get(state.dashboardEndpoint, { params }))
+  return axios
+    .get(state.dashboardEndpoint, { params })
     .then(resp => resp.data)
     .then(response => dispatch('receiveMetricsDashboardSuccess', { response, params }))
     .catch(error => {
