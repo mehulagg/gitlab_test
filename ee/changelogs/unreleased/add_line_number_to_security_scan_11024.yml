@@ -1,0 +1,5 @@
+---
+title: Store in SecurityScan the line number of the CI Job log that contains URLs scanned by DAST
+merge_request: 28849
+author:
+type: added

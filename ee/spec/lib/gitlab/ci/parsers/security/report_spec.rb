@@ -2,7 +2,7 @@
 
 require 'spec_helper'
 
-describe Gitlab::Ci::Parsers::Security::ScannedResources do
+describe Gitlab::Ci::Parsers::Security::Report do
   describe '#scanned_resources_count' do
     let(:parser) { described_class.new }
 

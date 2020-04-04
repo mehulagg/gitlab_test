@@ -10,6 +10,7 @@ describe Security::StoreScansService do
   context 'build has security reports' do
     before do
       create(:ee_ci_job_artifact, :dast, job: build)
+      create(:ee_ci_job_artifact, :dast_trace, job: build)
       create(:ee_ci_job_artifact, :sast, job: build)
       create(:ee_ci_job_artifact, :codequality, job: build)
     end
@@ -31,6 +32,16 @@ describe Security::StoreScansService do
 
       dast_scan = Security::Scan.dast.find_by(build: build)
       expect(dast_scan.scanned_resources_count).to be(6)
+    end
+
+    it 'stores the scanned resources line number on the scan' do
+      subject
+
+      sast_scan = Security::Scan.sast.find_by(build: build)
+      expect(sast_scan.raw_metadata).to eq({})
+
+      dast_scan = Security::Scan.dast.find_by(build: build)
+      expect(dast_scan.raw_metadata['scanned_resources']['trace_line_number']).to be(350)
     end
   end
 

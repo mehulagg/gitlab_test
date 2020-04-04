@@ -5672,7 +5672,8 @@ CREATE TABLE public.security_scans (
     updated_at timestamp with time zone NOT NULL,
     build_id bigint NOT NULL,
     scan_type smallint NOT NULL,
-    scanned_resources_count integer
+    scanned_resources_count integer,
+    raw_metadata jsonb
 );
 
 CREATE SEQUENCE public.security_scans_id_seq
@@ -13086,6 +13087,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200403184110
 20200403185127
 20200403185422
+20200404013927
 20200406135648
 20200407094005
 20200407094923

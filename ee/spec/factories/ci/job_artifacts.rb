@@ -109,6 +109,16 @@ FactoryBot.define do
       end
     end
 
+    trait :dast_trace do
+      file_type { :trace }
+      file_format { :raw }
+
+      after(:build) do |artifact, _|
+        artifact.file = fixture_file_upload(
+          Rails.root.join('spec/fixtures/trace/dast_trace'), 'text/plain')
+      end
+    end
+
     trait :sast_feature_branch do
       file_format { :raw }
       file_type { :sast }
