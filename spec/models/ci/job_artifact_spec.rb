@@ -215,22 +215,22 @@ describe Ci::JobArtifact do
   describe 'validates file format' do
     subject { artifact }
 
-    described_class::TYPE_AND_FORMAT_PAIRS.except(:trace).each do |file_type, file_format|
-      context "when #{file_type} type with #{file_format} format" do
-        let(:artifact) { build(:ci_job_artifact, file_type: file_type, file_format: file_format) }
+    described_class::FileType.all.reject { |type| type.name == :trace }.each do |type|
+      context "when #{type.name} type with #{type.format} format" do
+        let(:artifact) { build(:ci_job_artifact, file_type: type.name, file_format: type.format) }
 
         it { is_expected.to be_valid }
       end
 
-      context "when #{file_type} type without format specification" do
-        let(:artifact) { build(:ci_job_artifact, file_type: file_type, file_format: nil) }
+      context "when #{type.name} type without format specification" do
+        let(:artifact) { build(:ci_job_artifact, file_type: type.name, file_format: nil) }
 
         it { is_expected.not_to be_valid }
       end
 
-      context "when #{file_type} type with other formats" do
-        described_class.file_formats.except(file_format).values.each do |other_format|
-          let(:artifact) { build(:ci_job_artifact, file_type: file_type, file_format: other_format) }
+      context "when #{type.name} type with other formats" do
+        described_class.file_formats.except(type.format).values.each do |other_format|
+          let(:artifact) { build(:ci_job_artifact, file_type: type.name, file_format: other_format) }
 
           it { is_expected.not_to be_valid }
         end
@@ -238,18 +238,11 @@ describe Ci::JobArtifact do
     end
   end
 
-  describe 'validates DEFAULT_FILE_NAMES' do
-    subject { described_class::DEFAULT_FILE_NAMES }
-
-    described_class.file_types.each do |file_type, _|
-      it "expects #{file_type} to be included" do
-        is_expected.to include(file_type.to_sym)
-      end
-    end
-  end
-
-  describe 'validates TYPE_AND_FORMAT_PAIRS' do
-    subject { described_class::TYPE_AND_FORMAT_PAIRS }
+  # TODO: I think this could be removed or changed entirely
+  # We should validate that new entries in FileType have the correct format
+  # based on the file_formats enum.
+  describe 'validates file_formats' do
+    subject { described_class::FileType.all.map(&:format).uniq }
 
     described_class.file_types.each do |file_type, _|
       it "expects #{file_type} to be included" do

@@ -41,7 +41,7 @@ describe Ci::BuildRunnerPresenter do
     end
 
     context "with reports" do
-      Ci::JobArtifact::DEFAULT_FILE_NAMES.each do |file_type, filename|
+      Ci::JobArtifact::FileType.each do |file_type|
         context file_type.to_s do
           let(:report) { { "#{file_type}": [filename] } }
           let(:build) { create(:ci_build, options: { artifacts: { reports: report } } ) }
@@ -50,7 +50,7 @@ describe Ci::BuildRunnerPresenter do
             {
               name: filename,
               artifact_type: :"#{file_type}",
-              artifact_format: Ci::JobArtifact::TYPE_AND_FORMAT_PAIRS.fetch(file_type),
+              artifact_format: Ci::JobArtifact.format_for_type(file_type),
               paths: [filename],
               when: 'always'
             }

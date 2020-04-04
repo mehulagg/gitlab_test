@@ -1422,7 +1422,7 @@ describe Ci::Build do
 
     before do
       Ci::JobArtifact.file_types.keys.each do |file_type|
-        create(:ci_job_artifact, job: build, file_type: file_type, file_format: Ci::JobArtifact::TYPE_AND_FORMAT_PAIRS[file_type.to_sym])
+        create(:ci_job_artifact, job: build, file_type: file_type, file_format: Ci::JobArtifact.format_for_type(file_type)
       end
     end
 

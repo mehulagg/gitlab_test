@@ -70,9 +70,9 @@ describe Ci::RetryBuildService do
 
       # Make sure we have one instance for every possible job_artifact_X
       # associations to check they are correctly rejected on build duplication.
-      Ci::JobArtifact::TYPE_AND_FORMAT_PAIRS.each do |file_type, file_format|
-        create(:ci_job_artifact, file_format,
-               file_type: file_type, job: build, expire_at: build.artifacts_expire_at)
+      Ci::JobArtifact::FileType.all.each do |type|
+        create(:ci_job_artifact, type.format,
+               file_type: type.name, job: build, expire_at: build.artifacts_expire_at)
       end
 
       create(:ci_job_variable, job: build)

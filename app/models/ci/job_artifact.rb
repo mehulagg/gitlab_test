@@ -10,61 +10,82 @@ module Ci
 
     NotSupportedAdapterError = Class.new(StandardError)
 
+    class FileType
+      attr_reader :name, :value, :format, :report, :default_file_name
+      alias_method :report?, :report
+
+      def initialize(name, value, format, report, default_file_name)
+        @name = name
+        @value = value
+        @format = format
+        @report = report
+        @default_file_name = default_file_name
+      end
+
+      # TODO: remove this method while refactoring
+      def [](param)
+        public_send(param)
+      end
+
+      __ = nil # rubocop: disable Lint/UnderscorePrefixedVariableName
+      # All the file types that use `raw` are needed to be stored uncompressed
+      # for Frontend to fetch the files and do analysis.
+      # When they will be only used by backend, they can be `gzipped`.
+
+      # TODO: maybe make this constant private
+      ALL = [
+        FileType.new(:archive,             1,   :zip,  __,    __),
+        FileType.new(:metadata,            2,   :gzip, __,    __),
+        FileType.new(:trace,               3,   :raw,  __,    __),
+        FileType.new(:junit,               4,   :gzip, true, 'junit.xml'),
+        FileType.new(:sast,                5,   :raw,  true, 'gl-sast-report.json'),
+        FileType.new(:dependency_scanning, 6,   :raw,  true, 'gl-dependency-scanning-report.json'),
+        FileType.new(:container_scanning,  7,   :raw,  true, 'gl-container-scanning-report.json'),
+        FileType.new(:dast,                8,   :raw,  true, 'gl-dast-report.json'),
+        FileType.new(:codequality,         9,   :raw,  true, 'gl-code-quality-report.json'),
+        FileType.new(:license_management,  10,  :raw,  true, 'gl-license-management-report.json'),
+        FileType.new(:license_scanning,    101, :raw,  true, 'gl-license-scanning-report.json'),
+        FileType.new(:performance,         11,  :raw,  true, 'performance.json'),
+        FileType.new(:metrics,             12,  :gzip, true, 'metrics.txt'),
+        FileType.new(:metrics_referee,     13,  :gzip, true, __),
+        FileType.new(:network_referee,     14,  :gzip, true, __),
+        FileType.new(:lsif,                15,  :gzip, true, 'lsif.json'),
+        FileType.new(:dotenv,              16,  :gzip, true, '.env'),
+        FileType.new(:cobertura,           17,  :gzip, true, 'cobertura-coverage.xml'),
+        FileType.new(:terraform,           18,  :raw,  true, 'tfplan.json')
+      ].freeze
+
+      class << self
+        def all
+          ALL
+        end
+
+        def names_and_values
+          all.map { |t| [t.name, t.value] }.to_h
+        end
+
+        def default_file_name_for(type_name)
+          find_file_type(type_name)&.default_file_name
+        end
+
+        def format_for(type_name)
+          find_file_type(type_name)&.format
+        end
+
+        def report_names
+          all.select(&:report?).map(&:name)
+        end
+
+        def find_file_type(type_name)
+          all.find { |type| type.name == type_name.to_sym }
+        end
+      end
+    end
+
+    # TODO: refactor these
     TEST_REPORT_FILE_TYPES = %w[junit].freeze
     COVERAGE_REPORT_FILE_TYPES = %w[cobertura].freeze
     NON_ERASABLE_FILE_TYPES = %w[trace].freeze
-    DEFAULT_FILE_NAMES = {
-      archive: nil,
-      metadata: nil,
-      trace: nil,
-      metrics_referee: nil,
-      network_referee: nil,
-      junit: 'junit.xml',
-      codequality: 'gl-code-quality-report.json',
-      sast: 'gl-sast-report.json',
-      dependency_scanning: 'gl-dependency-scanning-report.json',
-      container_scanning: 'gl-container-scanning-report.json',
-      dast: 'gl-dast-report.json',
-      license_management: 'gl-license-management-report.json',
-      license_scanning: 'gl-license-scanning-report.json',
-      performance: 'performance.json',
-      metrics: 'metrics.txt',
-      lsif: 'lsif.json',
-      dotenv: '.env',
-      cobertura: 'cobertura-coverage.xml',
-      terraform: 'tfplan.json'
-    }.freeze
-
-    INTERNAL_TYPES = {
-      archive: :zip,
-      metadata: :gzip,
-      trace: :raw
-    }.freeze
-
-    REPORT_TYPES = {
-      junit: :gzip,
-      metrics: :gzip,
-      metrics_referee: :gzip,
-      network_referee: :gzip,
-      lsif: :gzip,
-      dotenv: :gzip,
-      cobertura: :gzip,
-
-      # All these file formats use `raw` as we need to store them uncompressed
-      # for Frontend to fetch the files and do analysis
-      # When they will be only used by backend, they can be `gzipped`.
-      codequality: :raw,
-      sast: :raw,
-      dependency_scanning: :raw,
-      container_scanning: :raw,
-      dast: :raw,
-      license_management: :raw,
-      license_scanning: :raw,
-      performance: :raw,
-      terraform: :raw
-    }.freeze
-
-    TYPE_AND_FORMAT_PAIRS = INTERNAL_TYPES.merge(REPORT_TYPES).freeze
 
     belongs_to :project
     belongs_to :job, class_name: "Ci::Build", foreign_key: :job_id
@@ -91,7 +112,7 @@ module Ci
     end
 
     scope :with_reports, -> do
-      with_file_types(REPORT_TYPES.keys.map(&:to_s))
+      with_file_types(FileType.report_names.map(&:to_s))
     end
 
     scope :test_reports, -> do
@@ -114,28 +135,9 @@ module Ci
 
     delegate :filename, :exists?, :open, to: :file
 
-    enum file_type: {
-      archive: 1,
-      metadata: 2,
-      trace: 3,
-      junit: 4,
-      sast: 5, ## EE-specific
-      dependency_scanning: 6, ## EE-specific
-      container_scanning: 7, ## EE-specific
-      dast: 8, ## EE-specific
-      codequality: 9, ## EE-specific
-      license_management: 10, ## EE-specific
-      license_scanning: 101, ## EE-specific till 13.0
-      performance: 11, ## EE-specific
-      metrics: 12, ## EE-specific
-      metrics_referee: 13, ## runner referees
-      network_referee: 14, ## runner referees
-      lsif: 15, # LSIF data for code navigation
-      dotenv: 16,
-      cobertura: 17,
-      terraform: 18 # Transformed json
-    }
+    enum file_type: FileType.names_and_values.freeze
 
+    # TODO: use values from FileType
     enum file_format: {
       raw: 1,
       zip: 2,
@@ -156,13 +158,14 @@ module Ci
       hashed_path: 2
     }
 
+    # TODO: could be part of FileType class
     FILE_FORMAT_ADAPTERS = {
       gzip: Gitlab::Ci::Build::Artifacts::Adapters::GzipStream,
       raw: Gitlab::Ci::Build::Artifacts::Adapters::RawStream
     }.freeze
 
     def valid_file_format?
-      unless TYPE_AND_FORMAT_PAIRS[self.file_type&.to_sym] == self.file_format&.to_sym
+      unless self.file_format&.to_sym == registered_file_type&.format
         errors.add(:base, _('Invalid file format with specified file type'))
       end
     end
@@ -171,6 +174,14 @@ module Ci
       # The file.object_store is set during `uploader.store!`
       # which happens after object is inserted/updated
       self.update_column(:file_store, file.object_store)
+    end
+
+    def self.default_file_name_for_type(file_type)
+      Ci::JobArtifact::FileType.default_file_name_for(file_type)
+    end
+
+    def self.format_for_type(file_type)
+      Ci::JobArtifact::FileType.format_for(file_type)
     end
 
     def self.total_size
@@ -217,6 +228,10 @@ module Ci
     end
 
     private
+
+    def registered_file_type
+      FileType.find_file_type(self.file_type)
+    end
 
     def file_format_adapter_class
       FILE_FORMAT_ADAPTERS[file_format.to_sym]

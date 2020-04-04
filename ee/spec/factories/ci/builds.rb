@@ -15,7 +15,7 @@ FactoryBot.define do
         options do
           {
             artifacts: {
-              paths: [Ci::JobArtifact::DEFAULT_FILE_NAMES[report_type]]
+              paths: [Ci::JobArtifact.default_file_name_for_type(report_type)]
             }
           }
         end
