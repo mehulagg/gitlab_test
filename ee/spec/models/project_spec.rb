@@ -2048,27 +2048,14 @@ describe Project do
   describe '#design_management_enabled?' do
     let(:project) { build(:project) }
 
-    where(:lfs_enabled, :hashed_storage_enabled, :hash_storage_required, :expectation) do
-      false | false | false | false
-      false | true  | true  | false
-      false | true  | false | false
-      false | false | true  | false
-      true  | false | false | true
-      true  | true  | true  | true
-      true  | true  | false | true
-      true  | false | true  | false
+    it 'is enabled when project has LFS enabled' do
+      expect(project).to receive(:lfs_enabled?).and_return(true)
+      expect(project.design_management_enabled?).to be(true)
     end
 
-    with_them do
-      before do
-        stub_feature_flags(design_management_require_hashed_storage: hash_storage_required)
-        expect(project).to receive(:lfs_enabled?).and_return(lfs_enabled)
-        allow(project).to receive(:hashed_storage?).with(:repository).and_return(hashed_storage_enabled)
-      end
-
-      it do
-        expect(project.design_management_enabled?).to be(expectation)
-      end
+    it 'is disabled when project does not have LFS enabled' do
+      expect(project).to receive(:lfs_enabled?).and_return(false)
+      expect(project.design_management_enabled?).to be(false)
     end
   end
 

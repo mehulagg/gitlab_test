@@ -643,14 +643,9 @@ module EE
       super.presence || build_feature_usage
     end
 
-    # LFS and hashed repository storage are required for using Design Management.
+    # LFS is required for using Design Management.
     def design_management_enabled?
-      lfs_enabled? &&
-        # We will allow the hashed storage requirement to be disabled for
-        # a few releases until we are able to understand the impact of the
-        # hashed storage requirement for existing design management projects.
-        # See https://gitlab.com/gitlab-org/gitlab/issues/13428#note_238729038
-        (hashed_storage?(:repository) || ::Feature.disabled?(:design_management_require_hashed_storage, self, default_enabled: true))
+      lfs_enabled?
     end
 
     def design_repository
