@@ -34,6 +34,10 @@ module QA
       def sign_in_unless_signed_in(as: nil, address: :gitlab)
         sign_in(as: as, address: address) unless Page::Main::Menu.perform(&:signed_in?)
       end
+
+      def formless_login
+        Runtime::Browser.visit(:gitlab, Page::Main::FormlessLogin)
+      end
     end
   end
 end
