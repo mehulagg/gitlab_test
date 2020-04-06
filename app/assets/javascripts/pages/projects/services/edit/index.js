@@ -1,6 +1,6 @@
+import IntegrationSettingsForm from '~/integrations/integration_settings_form';
 import PrometheusMetrics from '~/prometheus_metrics/custom_metrics';
 import PrometheusAlerts from '~/prometheus_alerts';
-import IntegrationSettingsForm from '~/integrations/integration_settings_form';
 import initAlertsSettings from '~/alerts_service_settings';
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   integrationSettingsForm.init();
 
   const prometheusSettingsWrapper = document.querySelector('.js-prometheus-metrics-monitoring');
+
   if (prometheusSettingsWrapper) {
     const prometheusMetrics = new PrometheusMetrics('.js-prometheus-metrics-monitoring');
     if (prometheusMetrics.isServiceActive) {
