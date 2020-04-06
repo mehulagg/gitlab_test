@@ -74,7 +74,7 @@ You can then test the connection by clicking on **Test Connection**. If the conn
 1. Create a new mapping:
    1. Click **Add New Mapping**.
    1. Set:
-      - **Source attribute** to the unique identifier determined above.
+      - **Source attribute** to the unique identifier determined above, typically `objectId`.
       - **Target attribute** to `externalId`.
       - **Match objects using this attribute** to `Yes`.
       - **Matching precedence** to `1`.
