@@ -15,7 +15,6 @@ module Vulnerabilities
       csv: 0
     }
 
-    validates :project, presence: true
     validates :status, presence: true
     validates :format, presence: true
     validates :file, presence: true, if: :finished?
