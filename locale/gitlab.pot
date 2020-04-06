@@ -794,6 +794,9 @@ msgstr ""
 msgid "<no scopes selected>"
 msgstr ""
 
+msgid "<project name / alias>"
+msgstr ""
+
 msgid "<strong>%{group_name}</strong> group members"
 msgstr ""
 
