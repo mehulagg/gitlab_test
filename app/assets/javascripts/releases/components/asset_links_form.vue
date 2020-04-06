@@ -1,10 +1,10 @@
 <script>
-import { mapState, mapActions } from 'vuex';
+import { mapState, mapActions, mapGetters } from 'vuex';
 import {
   GlSprintf,
   GlLink,
   GlFormGroup,
-  GlDeprecatedButton,
+  GlNewButton,
   GlIcon,
   GlTooltipDirective,
   GlFormInput,
@@ -12,10 +12,11 @@ import {
 
 export default {
   name: 'AssetLinksForm',
-  components: { GlSprintf, GlLink, GlFormGroup, GlDeprecatedButton, GlIcon, GlFormInput },
+  components: { GlSprintf, GlLink, GlFormGroup, GlNewButton, GlIcon, GlFormInput },
   directives: { GlTooltip: GlTooltipDirective },
   computed: {
     ...mapState('detail', ['release', 'releaseAssetsDocsPath']),
+    ...mapGetters('detail', ['validationErrors']),
   },
   created() {
     this.addEmptyAssetLink();
@@ -38,6 +39,27 @@ export default {
     },
     onLinkTitleInput(linkIdToUpdate, newName) {
       this.updateAssetLinkName({ linkIdToUpdate, newName });
+    },
+    hasDuplicateUrl(link) {
+      return Boolean(this.getLinkErrors(link).isDuplicate);
+    },
+    hasBadFormat(link) {
+      return Boolean(this.getLinkErrors(link).isBadFormat);
+    },
+    hasEmptyUrl(link) {
+      return Boolean(this.getLinkErrors(link).isUrlEmpty);
+    },
+    hasEmptyName(link) {
+      return Boolean(this.getLinkErrors(link).isNameEmpty);
+    },
+    getLinkErrors(link) {
+      return this.validationErrors.assets.links[link.id] || {};
+    },
+    isUrlValid(link) {
+      return !this.hasDuplicateUrl(link) && !this.hasBadFormat(link) && !this.hasEmptyUrl(link);
+    },
+    isNameValid(link) {
+      return !this.hasEmptyName(link);
     },
   },
 };
@@ -76,53 +98,86 @@ export default {
     <div
       v-for="(link, index) in release.assets.links"
       :key="link.id"
-      class="d-flex flex-column flex-sm-row align-items-stretch align-items-sm-end"
+      class="row flex-column flex-sm-row align-items-stretch align-items-sm-start"
     >
       <gl-form-group
-        class="url-field form-group flex-grow-1 mr-sm-4"
+        class="url-field form-group col"
         :label="__('URL')"
         :label-for="`asset-url-${index}`"
       >
         <gl-form-input
           :id="`asset-url-${index}`"
+          ref="urlInput"
           :value="link.url"
           type="text"
           class="form-control"
+          :state="isUrlValid(link)"
           @change="onUrlInput(link.id, $event)"
         />
+        <template v-slot:invalid-feedback>
+          <span v-if="hasEmptyUrl(link)" class="invalid-feedback d-inline">
+            {{ __('URL is required') }}
+          </span>
+          <span v-else-if="hasBadFormat(link)" class="invalid-feedback d-inline">
+            <gl-sprintf
+              :message="
+                __(
+                  'URL must start with %{codeStart}http://%{codeEnd}, %{codeStart}https://%{codeEnd}, or %{codeStart}ftp://%{codeEnd}',
+                )
+              "
+            >
+              <template #code="{ content }">
+                <code>{{ content }}</code>
+              </template>
+            </gl-sprintf>
+          </span>
+          <span v-else-if="hasDuplicateUrl(link)" class="invalid-feedback d-inline">
+            {{ __('This URL is already used for another link; duplicate URLs are not allowed') }}
+          </span>
+        </template>
       </gl-form-group>
 
       <gl-form-group
-        class="link-title-field flex-grow-1 mr-sm-4"
+        class="link-title-field col"
         :label="__('Link title')"
         :label-for="`asset-link-name-${index}`"
       >
         <gl-form-input
           :id="`asset-link-name-${index}`"
+          ref="nameInput"
           :value="link.name"
           type="text"
           class="form-control"
+          :state="isNameValid(link)"
           @change="onLinkTitleInput(link.id, $event)"
         />
+        <template v-slot:invalid-feedback>
+          <span v-if="hasEmptyName(link)" class="invalid-feedback d-inline">
+            {{ __('Link title is required') }}
+          </span>
+        </template>
       </gl-form-group>
 
-      <gl-deprecated-button
-        v-gl-tooltip
-        class="mb-5 mb-sm-3 flex-grow-0 flex-shrink-0 remove-button"
-        :aria-label="__('Remove asset link')"
-        :title="__('Remove asset link')"
-        @click="onRemoveClicked(link.id)"
-      >
-        <gl-icon class="m-0" name="remove" />
-        <span class="d-inline d-sm-none">{{ __('Remove asset link') }}</span>
-      </gl-deprecated-button>
+      <div class="mb-5 mb-sm-3 mt-sm-4 col col-sm-auto">
+        <gl-new-button
+          v-gl-tooltip
+          class="remove-button w-100"
+          :aria-label="__('Remove asset link')"
+          :title="__('Remove asset link')"
+          @click="onRemoveClicked(link.id)"
+        >
+          <gl-icon class="mr-1 mr-sm-0 mb-1" :size="16" name="remove" />
+          <span class="d-inline d-sm-none">{{ __('Remove asset link') }}</span>
+        </gl-new-button>
+      </div>
     </div>
-    <gl-deprecated-button
+    <gl-new-button
+      ref="addAnotherLinkButton"
       variant="link"
       class="align-self-end mb-5 mb-sm-0"
       @click="onAddAnotherClicked"
     >
       {{ __('Add another link') }}
-    </gl-deprecated-button>
+    </gl-new-button>
   </div>
 </template>
