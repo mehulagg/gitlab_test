@@ -162,6 +162,7 @@ module Gitlab
     config.assets.paths << Gemojione.images_path
     config.assets.paths << "#{config.root}/vendor/assets/fonts"
 
+    config.assets.precompile << "gitlab_ui.css"
     config.assets.precompile << "print.css"
     config.assets.precompile << "mailer.css"
     config.assets.precompile << "mailer_client_specific.css"
