@@ -14,11 +14,11 @@ RSpec.configure do |config|
   # Use :elastic when you need a real ES index.
   config.before(:each, :elastic) do
     Elastic::ProcessBookkeepingService.clear_tracking!
-    Gitlab::Elastic::Helper.create_empty_index
+    Gitlab::Elastic::Helper.create_empty_index(current_es_index)
   end
 
   config.after(:each, :elastic) do
-    Gitlab::Elastic::Helper.delete_index
+    Gitlab::Elastic::Helper.delete_index(current_es_index)
     Elastic::ProcessBookkeepingService.clear_tracking!
   end
 
