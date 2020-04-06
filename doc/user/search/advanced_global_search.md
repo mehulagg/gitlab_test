@@ -16,7 +16,7 @@ The Advanced Global Search in GitLab is a powerful search service that saves
 you time. Instead of creating duplicate code and wasting time, you can
 now search for code within other teams that can help your own project.
 
-GitLab leverages the search capabilities of [Elasticsearch](https://www.elastic.co/products/elasticsearch) and enables it when
+GitLab leverages the search capabilities of [Elasticsearch](https://www.elastic.co/elasticsearch/) and enables it when
 searching in:
 
 - GitLab application
