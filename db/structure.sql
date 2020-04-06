@@ -397,7 +397,8 @@ CREATE TABLE public.application_settings (
     email_restrictions text,
     npm_package_requests_forwarding boolean DEFAULT true NOT NULL,
     namespace_storage_size_limit bigint DEFAULT 0 NOT NULL,
-    seat_link_enabled boolean DEFAULT true NOT NULL
+    seat_link_enabled boolean DEFAULT true NOT NULL,
+    elasticsearch_read_index_id bigint
 );
 
 CREATE SEQUENCE public.application_settings_id_seq
@@ -2147,6 +2148,32 @@ CREATE TABLE public.elasticsearch_indexed_projects (
     project_id integer
 );
 
+CREATE TABLE public.elasticsearch_indices (
+    id bigint NOT NULL,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    shards integer DEFAULT 5 NOT NULL,
+    replicas integer DEFAULT 1 NOT NULL,
+    aws boolean DEFAULT false NOT NULL,
+    name character varying(255) NOT NULL,
+    friendly_name character varying(255) NOT NULL,
+    version character varying(255) NOT NULL,
+    urls character varying[] DEFAULT '{}'::character varying[] NOT NULL,
+    aws_region character varying,
+    aws_access_key character varying,
+    encrypted_aws_secret_access_key character varying,
+    encrypted_aws_secret_access_key_iv character varying(255)
+);
+
+CREATE SEQUENCE public.elasticsearch_indices_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.elasticsearch_indices_id_seq OWNED BY public.elasticsearch_indices.id;
+
 CREATE TABLE public.emails (
     id integer NOT NULL,
     user_id integer NOT NULL,
@@ -2271,8 +2298,8 @@ CREATE TABLE public.epics (
     state_id smallint DEFAULT 1 NOT NULL,
     start_date_sourcing_epic_id integer,
     due_date_sourcing_epic_id integer,
-    confidential boolean DEFAULT false NOT NULL,
-    external_key character varying(255)
+    external_key character varying(255),
+    confidential boolean DEFAULT false NOT NULL
 );
 
 CREATE SEQUENCE public.epics_id_seq
@@ -3072,7 +3099,8 @@ CREATE TABLE public.index_statuses (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     last_wiki_commit bytea,
-    wiki_indexed_at timestamp with time zone
+    wiki_indexed_at timestamp with time zone,
+    elasticsearch_index_id integer NOT NULL
 );
 
 CREATE SEQUENCE public.index_statuses_id_seq
@@ -4392,12 +4420,12 @@ CREATE TABLE public.packages_package_files (
     file_sha1 bytea,
     file_name character varying NOT NULL,
     file text NOT NULL,
-    file_sha256 bytea,
     verification_retry_at timestamp with time zone,
     verified_at timestamp with time zone,
     verification_checksum character varying(255),
     verification_failure character varying(255),
-    verification_retry_count integer
+    verification_retry_count integer,
+    file_sha256 bytea
 );
 
 CREATE SEQUENCE public.packages_package_files_id_seq
@@ -7037,6 +7065,8 @@ ALTER TABLE ONLY public.design_user_mentions ALTER COLUMN id SET DEFAULT nextval
 
 ALTER TABLE ONLY public.draft_notes ALTER COLUMN id SET DEFAULT nextval('public.draft_notes_id_seq'::regclass);
 
+ALTER TABLE ONLY public.elasticsearch_indices ALTER COLUMN id SET DEFAULT nextval('public.elasticsearch_indices_id_seq'::regclass);
+
 ALTER TABLE ONLY public.emails ALTER COLUMN id SET DEFAULT nextval('public.emails_id_seq'::regclass);
 
 ALTER TABLE ONLY public.environments ALTER COLUMN id SET DEFAULT nextval('public.environments_id_seq'::regclass);
@@ -7733,6 +7763,9 @@ ALTER TABLE ONLY public.design_user_mentions
 
 ALTER TABLE ONLY public.draft_notes
     ADD CONSTRAINT draft_notes_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.elasticsearch_indices
+    ADD CONSTRAINT elasticsearch_indices_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.emails
     ADD CONSTRAINT emails_pkey PRIMARY KEY (id);
@@ -8524,6 +8557,8 @@ CREATE INDEX index_analytics_cycle_analytics_group_stages_custom_only ON public.
 
 CREATE INDEX index_application_settings_on_custom_project_templates_group_id ON public.application_settings USING btree (custom_project_templates_group_id);
 
+CREATE INDEX index_application_settings_on_elasticsearch_read_index_id ON public.application_settings USING btree (elasticsearch_read_index_id);
+
 CREATE INDEX index_application_settings_on_file_template_project_id ON public.application_settings USING btree (file_template_project_id);
 
 CREATE INDEX index_application_settings_on_instance_administrators_group_id ON public.application_settings USING btree (instance_administrators_group_id);
@@ -8986,6 +9021,10 @@ CREATE UNIQUE INDEX index_elasticsearch_indexed_namespaces_on_namespace_id ON pu
 
 CREATE UNIQUE INDEX index_elasticsearch_indexed_projects_on_project_id ON public.elasticsearch_indexed_projects USING btree (project_id);
 
+CREATE UNIQUE INDEX index_elasticsearch_indices_on_friendly_name ON public.elasticsearch_indices USING btree (friendly_name);
+
+CREATE UNIQUE INDEX index_elasticsearch_indices_on_name ON public.elasticsearch_indices USING btree (name);
+
 CREATE UNIQUE INDEX index_emails_on_confirmation_token ON public.emails USING btree (confirmation_token);
 
 CREATE UNIQUE INDEX index_emails_on_email ON public.emails USING btree (email);
@@ -9212,7 +9251,11 @@ CREATE INDEX index_import_failures_on_group_id_not_null ON public.import_failure
 
 CREATE INDEX index_import_failures_on_project_id_not_null ON public.import_failures USING btree (project_id) WHERE (project_id IS NOT NULL);
 
-CREATE UNIQUE INDEX index_index_statuses_on_project_id ON public.index_statuses USING btree (project_id);
+CREATE INDEX index_index_statuses_on_elasticsearch_index_id ON public.index_statuses USING btree (elasticsearch_index_id);
+
+CREATE INDEX index_index_statuses_on_project_id ON public.index_statuses USING btree (project_id);
+
+CREATE UNIQUE INDEX index_index_statuses_on_project_id_and_elasticsearch_index_id ON public.index_statuses USING btree (project_id, elasticsearch_index_id);
 
 CREATE INDEX index_insights_on_namespace_id ON public.insights USING btree (namespace_id);
 
@@ -10571,6 +10614,9 @@ ALTER TABLE ONLY public.vulnerabilities
 ALTER TABLE ONLY public.vulnerabilities
     ADD CONSTRAINT fk_7c5bb22a22 FOREIGN KEY (due_date_sourcing_milestone_id) REFERENCES public.milestones(id) ON DELETE SET NULL;
 
+ALTER TABLE ONLY public.index_statuses
+    ADD CONSTRAINT fk_7d96272479 FOREIGN KEY (elasticsearch_index_id) REFERENCES public.elasticsearch_indices(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.labels
     ADD CONSTRAINT fk_7de4989a69 FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
@@ -11374,6 +11420,9 @@ ALTER TABLE ONLY public.ci_subscriptions_projects
 
 ALTER TABLE ONLY public.terraform_states
     ADD CONSTRAINT fk_rails_78f54ca485 FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.application_settings
+    ADD CONSTRAINT fk_rails_79550d3442 FOREIGN KEY (elasticsearch_read_index_id) REFERENCES public.elasticsearch_indices(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY public.software_license_policies
     ADD CONSTRAINT fk_rails_7a7a2a92de FOREIGN KEY (software_license_id) REFERENCES public.software_licenses(id) ON DELETE CASCADE;
@@ -12432,6 +12481,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20190913174707
 20190913175827
 20190914223900
+20190916000000
 20190917173107
 20190918025618
 20190918102042
@@ -12591,6 +12641,9 @@ COPY "schema_migrations" (version) FROM STDIN;
 20191119231621
 20191120084627
 20191120115530
+20191120115531
+20191120155750
+20191120155751
 20191120200015
 20191121111621
 20191121121947

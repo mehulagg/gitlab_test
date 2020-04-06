@@ -24,7 +24,6 @@ module EE
         :elasticsearch_indexing,
         :elasticsearch_max_bulk_concurrency,
         :elasticsearch_max_bulk_size_mb,
-        :elasticsearch_replicas,
         :elasticsearch_indexed_field_length_limit,
         :elasticsearch_search,
         :elasticsearch_limit_indexing,

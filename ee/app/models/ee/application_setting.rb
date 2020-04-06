@@ -41,10 +41,6 @@ module EE
                 presence: true,
                 numericality: { only_integer: true, greater_than_or_equal_to: 0, less_than_or_equal_to: 90 }
 
-      validates :elasticsearch_replicas,
-                presence: true,
-                numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-
       validates :elasticsearch_max_bulk_size_mb,
                 presence: true,
                 numericality: { only_integer: true, greater_than: 0 }
@@ -56,8 +52,6 @@ module EE
       validates :elasticsearch_url,
                 presence: { message: "can't be blank when indexing is enabled" },
                 if: ->(setting) { setting.elasticsearch_indexing? }
-
-      validate :check_elasticsearch_url_scheme, if: :elasticsearch_url_changed?
 
       validates :elasticsearch_aws_region,
                 presence: { message: "can't be blank when using aws hosted elasticsearch" },
@@ -98,8 +92,6 @@ module EE
           default_project_deletion_protection: false,
           elasticsearch_aws: false,
           elasticsearch_aws_region: ENV['ELASTIC_REGION'] || 'us-east-1',
-          elasticsearch_replicas: 1,
-          elasticsearch_shards: 5,
           elasticsearch_indexed_field_length_limit: 0,
           elasticsearch_max_bulk_size_bytes: 10.megabytes,
           elasticsearch_max_bulk_concurrency: 10,
@@ -306,19 +298,6 @@ module EE
       ::Gitlab::CIDR.new(geo_node_allowed_ips)
     rescue ::Gitlab::CIDR::ValidationError => e
       errors.add(:geo_node_allowed_ips, e.message)
-    end
-
-    def check_elasticsearch_url_scheme
-      # ElasticSearch only exposes a RESTful API, hence we need
-      # to use the HTTP protocol on all URLs.
-      elasticsearch_url.each do |str|
-        ::Gitlab::UrlBlocker.validate!(str,
-                                       schemes: %w[http https],
-                                       allow_localhost: true,
-                                       dns_rebind_protection: false)
-      end
-    rescue ::Gitlab::UrlBlocker::BlockedUrlError
-      errors.add(:elasticsearch_url, "only supports valid HTTP(S) URLs.")
     end
   end
 end
