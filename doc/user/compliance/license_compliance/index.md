@@ -194,7 +194,7 @@ If you still need to run tests during `mvn install`, add `-DskipTests=false` to
 If you have a private Maven repository which requires login credentials,
 you can use the `MAVEN_CLI_OPTS` environment variable.
 
-Read more on [how to use private Maven repos](../index.md#using-private-maven-repos).
+Read more on [how to use private Maven repos](../../application_security/index.md#using-private-maven-repos).
 
 ### Selecting the version of Python
 
