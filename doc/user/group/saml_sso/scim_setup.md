@@ -87,7 +87,7 @@ You can then test the connection by clicking on **Test Connection**. If the conn
 
 1. Below the mapping list click on **Show advanced options > Edit attribute list for AppName**.
 
-1. Ensure the `externalId` is the primary and only required field.
+1. Ensure the `id` is the primary and required, and `externalId` is also required.
 
    NOTE: **Note:**
    `username` should neither be primary nor required as we don't support
