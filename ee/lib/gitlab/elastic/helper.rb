@@ -81,7 +81,7 @@ module Gitlab
         client = proxy.client
         index_name = proxy.index_name
 
-        client.indices.exists? index: index_name # rubocop:disable CodeReuse/ActiveRecord
+        client.indices.exists? index: index_name
       end
 
       # Calls Elasticsearch refresh API to ensure data is searchable
