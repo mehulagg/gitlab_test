@@ -81,7 +81,7 @@ You can then test the connection by clicking on **Test Connection**. If the conn
 
 1. Click the `userPrincipalName` mapping and change **Match objects using this attribute** to `No`.
 
-1. Save your changes. For reference, you can view [an example configuration in the troubleshooting reference](../../administration/troubleshooting/group_saml_scim.md#azure-active-directory).
+1. Save your changes. For reference, you can view [an example configuration in the troubleshooting reference](../../../administration/troubleshooting/group_saml_scim.md#azure-active-directory).
 
    NOTE: **Note:** If you used a unique identifier **other than** `objectId`, be sure to map it to `externalId`.
 
