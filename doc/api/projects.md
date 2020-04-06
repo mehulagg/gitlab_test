@@ -162,6 +162,8 @@ When the user is authenticated and `simple` is not set this returns something li
     "merge_method": "merge",
     "autoclose_referenced_issues": true,
     "suggestion_commit_message": null,
+    "marked_for_deletion_at": "2020-04-03",
+    "marked_for_deletion_on": "2020-04-03",
     "statistics": {
       "commit_count": 37,
       "storage_size": 1038090,
@@ -406,6 +408,8 @@ This endpoint supports [keyset pagination](README.md#keyset-based-pagination) fo
     "merge_method": "merge",
     "autoclose_referenced_issues": true,
     "suggestion_commit_message": null,
+    "marked_for_deletion_at": "2020-04-03",
+    "marked_for_deletion_on": "2020-04-03",
     "statistics": {
       "commit_count": 37,
       "storage_size": 1038090,
@@ -870,6 +874,8 @@ GET /projects/:id
   "service_desk_address": null,
   "autoclose_referenced_issues": true,
   "suggestion_commit_message": null,
+  "marked_for_deletion_at": "2020-04-03",
+  "marked_for_deletion_on": "2020-04-03",
   "statistics": {
     "commit_count": 37,
     "storage_size": 1038090,
@@ -964,6 +970,7 @@ GET /projects/:id/users
 
 | Attribute    | Type          | Required | Description |
 | ------------ | ------------- | -------- | ----------- |
+| `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) |
 | `search`     | string        | no       | Search for specific users |
 | `skip_users` | integer array | no       | Filter out users with the specified IDs |
 
@@ -1509,6 +1516,7 @@ GET /projects/:id/starrers
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
+| `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) |
 | `search` | string | no | Search for specific users. |
 
 ```shell
@@ -1551,6 +1559,10 @@ Get languages used in a project with percentage value.
 ```plaintext
 GET /projects/:id/languages
 ```
+
+| Attribute | Type | Required | Description |
+| --------- | ---- | -------- | ----------- |
+| `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) |
 
 ```shell
 curl --header "PRIVATE-TOKEN: <your_access_token>" "https://gitlab.example.com/api/v4/projects/5/languages"
@@ -2177,6 +2189,7 @@ PUT /projects/:id/transfer
 
 | Attribute | Type | Required | Description |
 | --------- | ---- | -------- | ----------- |
+| `id` | integer/string | yes | The ID or [URL-encoded path of the project](README.md#namespaced-path-encoding) |
 | `namespace` | integer/string | yes | The ID or path of the namespace to transfer to project to |
 
 ## Branches

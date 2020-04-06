@@ -22,7 +22,6 @@ class License < ApplicationRecord
     group_burndown_charts
     group_webhooks
     issuable_default_templates
-    issue_board_focus_mode
     issue_weights
     jenkins_integration
     ldap_group_sync
@@ -64,7 +63,6 @@ class License < ApplicationRecord
     default_project_deletion_protection
     dependency_proxy
     deploy_board
-    design_management
     disable_name_update_for_users
     email_additional_text
     epics
@@ -151,7 +149,6 @@ class License < ApplicationRecord
     file_locks
     group_webhooks
     issuable_default_templates
-    issue_board_focus_mode
     issue_weights
     jenkins_integration
     merge_request_approvers

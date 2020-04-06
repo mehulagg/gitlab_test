@@ -1,6 +1,6 @@
 <script>
 import { s__ } from '~/locale';
-import { GlAlert, GlButton, GlEmptyState, GlIntersectionObserver } from '@gitlab/ui';
+import { GlAlert, GlDeprecatedButton, GlEmptyState, GlIntersectionObserver } from '@gitlab/ui';
 import VulnerabilityList from 'ee/vulnerabilities/components/vulnerability_list.vue';
 import vulnerabilitiesQuery from '../graphql/project_vulnerabilities.graphql';
 import { VULNERABILITIES_PER_PAGE } from '../constants';
@@ -9,7 +9,7 @@ export default {
   name: 'ProjectVulnerabilitiesApp',
   components: {
     GlAlert,
-    GlButton,
+    GlDeprecatedButton,
     GlEmptyState,
     GlIntersectionObserver,
     VulnerabilityList,
@@ -27,6 +27,11 @@ export default {
       type: String,
       required: true,
     },
+    filters: {
+      type: Object,
+      required: false,
+      default: () => ({}),
+    },
   },
   data() {
     return {
@@ -42,6 +47,7 @@ export default {
         return {
           fullPath: this.projectFullPath,
           first: VULNERABILITIES_PER_PAGE,
+          ...this.filters,
         };
       },
       update: ({ project }) => project.vulnerabilities.nodes,
@@ -115,11 +121,11 @@ export default {
       class="text-center"
       @appear="fetchNextPage"
     >
-      <gl-button
+      <gl-deprecated-button
         :loading="isLoadingVulnerabilities"
         :disabled="isLoadingVulnerabilities"
         @click="fetchNextPage"
-        >{{ __('Load more vulnerabilities') }}</gl-button
+        >{{ __('Load more vulnerabilities') }}</gl-deprecated-button
       >
     </gl-intersection-observer>
   </div>

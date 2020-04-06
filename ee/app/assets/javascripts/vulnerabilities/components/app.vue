@@ -1,5 +1,5 @@
 <script>
-import { GlButton, GlLoadingIcon } from '@gitlab/ui';
+import { GlDeprecatedButton, GlLoadingIcon } from '@gitlab/ui';
 import Api from 'ee/api';
 import axios from '~/lib/utils/axios_utils';
 import { redirectTo } from '~/lib/utils/url_utility';
@@ -9,12 +9,12 @@ import UsersCache from '~/lib/utils/users_cache';
 import ResolutionAlert from './resolution_alert.vue';
 import VulnerabilityStateDropdown from './vulnerability_state_dropdown.vue';
 import StatusDescription from './status_description.vue';
-import { VULNERABILITY_STATES } from '../constants';
+import { VULNERABILITY_STATE_OBJECTS } from '../constants';
 
 export default {
   name: 'VulnerabilityManagementApp',
   components: {
-    GlButton,
+    GlDeprecatedButton,
     GlLoadingIcon,
     ResolutionAlert,
     VulnerabilityStateDropdown,
@@ -53,7 +53,7 @@ export default {
   computed: {
     statusBoxStyle() {
       // Get the badge variant based on the vulnerability state, defaulting to 'expired'.
-      return VULNERABILITY_STATES[this.vulnerability.state]?.statusBoxStyle || 'expired';
+      return VULNERABILITY_STATE_OBJECTS[this.vulnerability.state]?.statusBoxStyle || 'expired';
     },
     showResolutionAlert() {
       return (
@@ -171,7 +171,7 @@ export default {
           :initial-state="vulnerability.state"
           @change="changeVulnerabilityState"
         />
-        <gl-button
+        <gl-deprecated-button
           ref="create-issue-btn"
           class="ml-2"
           variant="success"
@@ -180,7 +180,7 @@ export default {
           @click="createIssue"
         >
           {{ s__('VulnerabilityManagement|Create issue') }}
-        </gl-button>
+        </gl-deprecated-button>
       </div>
     </div>
   </div>
