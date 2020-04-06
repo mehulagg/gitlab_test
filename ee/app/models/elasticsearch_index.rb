@@ -9,7 +9,7 @@ class ElasticsearchIndex < ApplicationRecord
 
   validates :name, :friendly_name, :version, :shards, :replicas, presence: true
   validates :name, :friendly_name, uniqueness: { case_sensitive: false }
-  validates :shards, :replicas, numericality: { only_integer: true, greater_than: 0 }
+  validates :shards, :replicas, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
 
   validates :urls, length: { minimum: 1, message: :blank }
   validates :urls, length: { maximum: 1000, message: _('is too long (maximum is 1000 entries)') }

@@ -333,7 +333,7 @@ export default {
               v-model="replicas"
               type="number"
               class="col-md-1"
-              min="1"
+              min="0"
               aria-describedby="eplicas-help"
               :disabled="Boolean(indexid)"
               :class="Boolean(indexid) ? 'gl-cursor-not-allowed' : undefined"
