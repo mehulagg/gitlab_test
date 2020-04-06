@@ -167,11 +167,13 @@ export const fetchDashboardData = ({ state, dispatch, getters }) => {
   state.dashboard.panelGroups.forEach(group => {
     group.panels.forEach(panel => {
       panel.metrics.forEach(metric => {
-        promises.push(dispatch('fetchPrometheusMetric', { metric, defaultQueryParams }));
+        // console.log(`group:`, group, `panel:`, panel, `metric:`, metric, `defaultQueryParams:`, defaultQueryParams);
+        // promises.push(dispatch('fetchPrometheusMetric', { metric, defaultQueryParams }));
       });
     });
   });
 
+  // Figure out way to restore this functionality
   return Promise.all(promises)
     .then(() => {
       const dashboardType = state.currentDashboard === '' ? 'default' : 'custom';
@@ -191,8 +193,11 @@ export const fetchDashboardData = ({ state, dispatch, getters }) => {
  *
  * @param {metric} metric
  */
-export const fetchPrometheusMetric = ({ commit }, { metric, defaultQueryParams }) => {
-  const queryParams = { ...defaultQueryParams };
+export const fetchPrometheusMetric = ({ state, commit }, { metric, defaultQueryParams }) => {
+  // const queryParams = { ...defaultQueryParams };
+  console.log(state.timeRange);
+  const queryParams = prometheusMetricQueryParams(state.timeRange);
+  console.log(queryParams);
   if (metric.step) {
     queryParams.step = metric.step;
   }

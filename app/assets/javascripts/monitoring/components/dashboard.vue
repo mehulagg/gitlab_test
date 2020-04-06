@@ -9,10 +9,11 @@ import {
   GlDropdownHeader,
   GlDropdownDivider,
   GlFormGroup,
-  GlModal,
+  GlIntersectionObserver,
   GlLoadingIcon,
-  GlSearchBoxByType,
+  GlModal,
   GlModalDirective,
+  GlSearchBoxByType,
   GlTooltipDirective,
 } from '@gitlab/ui';
 import PanelType from 'ee_else_ce/monitoring/components/panel_type.vue';
@@ -48,6 +49,7 @@ export default {
     GlSearchBoxByType,
     GlFormGroup,
     GlModal,
+    GlIntersectionObserver,
 
     DateTimePicker,
     GraphGroup,
@@ -203,6 +205,7 @@ export default {
       hasValidDates: true,
       timeRanges,
       isRearrangingPanels: false,
+      fetchedMetrics: {},
     };
   },
   computed: {
@@ -242,6 +245,11 @@ export default {
     shouldShowEnvironmentsDropdownNoMatchedMsg() {
       return !this.environmentsLoading && this.filteredEnvironments.length === 0;
     },
+    hasPanelGroups() {
+      const hasPanelGroups = this.dashboard.panelGroups.length > 0;
+      console.log('hasPanelGroups:', hasPanelGroups);
+      return hasPanelGroups;
+    },
   },
   created() {
     this.setInitialState({
@@ -272,6 +280,7 @@ export default {
       'setInitialState',
       'setPanelGroupMetrics',
       'filterEnvironments',
+      'fetchPrometheusMetric',
     ]),
     updatePanels(key, panels) {
       this.setPanelGroupMetrics({
@@ -343,7 +352,9 @@ export default {
      */
     collapseGroup(groupKey) {
       // Collapse group if no data is available
-      return !this.getMetricStates(groupKey).includes(metricStates.OK);
+      console.log(this.getMetricStates(groupKey));
+      // return !this.getMetricStates(groupKey).includes(metricStates.OK);
+      return false;
     },
     getAddMetricTrackingOptions,
 
@@ -364,6 +375,19 @@ export default {
         title: document.title,
       });
       this.selectedTimeRange = { start, end };
+    },
+    handleIntersection(panel) {
+      console.log(`intersection detected`);
+      panel.metrics.forEach(metric => {
+        const { metricId } = metric;
+        if (!this.fetchedMetrics[metricId]) {
+          console.log('fetching', metricId);
+          this.fetchPrometheusMetric({ metric });
+          this.fetchedMetrics[metricId] = true;
+        } else {
+          console.log(`already fetched`);
+        }
+      });
     },
   },
   addMetric: {
@@ -552,7 +576,7 @@ export default {
       </div>
     </div>
 
-    <div v-if="!showEmptyState">
+    <div v-if="hasPanelGroups">
       <graph-group
         v-for="(groupData, index) in dashboard.panelGroups"
         :key="`${groupData.group}.${groupData.priority}`"
@@ -573,6 +597,7 @@ export default {
             :key="`panel-type-${graphIndex}`"
             class="col-12 col-lg-6 px-2 mb-2 draggable"
             :class="{ 'draggable-enabled': isRearrangingPanels }"
+            @click="handleIntersection"
           >
             <div class="position-relative draggable-panel js-draggable-panel">
               <div
@@ -584,15 +609,18 @@ export default {
                   <icon name="close" />
                 </a>
               </div>
-
-              <panel-type
-                :clipboard-text="generateLink(groupData.group, graphData.title, graphData.y_label)"
-                :graph-data="graphData"
-                :alerts-endpoint="alertsEndpoint"
-                :prometheus-alerts-available="prometheusAlertsAvailable"
-                :index="`${index}-${graphIndex}`"
-                @timerangezoom="onTimeRangeZoom"
-              />
+              <gl-intersection-observer @appear="handleIntersection(graphData)">
+                <panel-type
+                  :clipboard-text="
+                    generateLink(groupData.group, graphData.title, graphData.y_label)
+                  "
+                  :graph-data="graphData"
+                  :alerts-endpoint="alertsEndpoint"
+                  :prometheus-alerts-available="prometheusAlertsAvailable"
+                  :index="`${index}-${graphIndex}`"
+                  @timerangezoom="onTimeRangeZoom"
+                />
+              </gl-intersection-observer>
             </div>
           </div>
         </vue-draggable>
