@@ -1,0 +1,20 @@
+- size_checker = namespace.root_namespace_size_checker
+- title = size_checker.error_message.statistics_message
+- message = size_checker.error_message.info_message
+- alert_level = size_checker.error_message.alert_level
+- alert_class = alert_class(size_checker.error_message.alert_level)
+- alert_icon = alert_icon(size_checker.error_message.alert_level)
+- btn_class = "btn-#{alert_level.to_s}"
+
+- if title.present?
+  %div{ class: ["pt-3", (classes if defined? classes)] }
+    %div{class: ["gl-alert", alert_class] }
+      = sprite_icon(alert_icon, size: 16, css_class: "gl-icon gl-alert-icon")
+      %button.js-close.gl-alert-dismiss{ type: 'button', 'aria-label' => _('Dismiss') }
+        = sprite_icon('close', size: 16, css_class: 'gl-icon')
+      .gl-alert-body
+        %h4.gl-alert-title= title
+        = message
+      .gl-alert-actions
+        = link_to _('View storage usage'), admin_application_settings_path, class: "btn gl-alert-action #{btn_class}"
+

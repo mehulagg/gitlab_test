@@ -343,6 +343,17 @@ class Namespace < ApplicationRecord
       .try(name)
   end
 
+  def root_namespace_size_checker
+    strong_memoize(:root_namespace_storage_size_checker) do
+      ::Gitlab::NamespaceSizeChecker.new(
+        current_size_proc: -> { root_ancestor.root_storage_statistics&.storage_size || 0 },
+        limit: Gitlab::CurrentSettings.namespace_storage_size_limit.megabytes,
+        enabled: Feature.enabled?(:namespace_storage_limit) && Gitlab::CurrentSettings.namespace_storage_size_limit != 0,
+        namespace: root_ancestor
+      )
+    end
+  end
+
   private
 
   def all_projects_with_pages
