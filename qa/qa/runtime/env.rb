@@ -306,6 +306,10 @@ module QA
         ENV['MAILHOG_HOSTNAME']
       end
 
+      def gitlab_qa_token
+        ENV['GITLAB_QA_TOKEN']
+      end
+
       private
 
       def remote_grid_credentials

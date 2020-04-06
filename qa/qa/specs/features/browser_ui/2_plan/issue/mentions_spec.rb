@@ -4,7 +4,7 @@ module QA
   context 'Plan', :smoke, :reliable do
     describe 'mention' do
       before do
-        Flow::Login.sign_in
+        Flow::Login.formless_login
 
         @user = Resource::User.fabricate_or_use(Runtime::Env.gitlab_qa_username_1, Runtime::Env.gitlab_qa_password_1)
 
