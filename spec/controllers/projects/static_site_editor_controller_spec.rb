@@ -38,31 +38,19 @@ describe Projects::StaticSiteEditorController do
         end
       end
 
-      context 'as developer' do
-        let(:developer) { create(:user) }
+      %w[developer maintainer].each do |role|
+        context "as #{role}" do
+          let(:user) { create(:user) }
 
-        before do
-          project.add_developer(developer)
-          sign_in(developer)
-          get :show, params: default_params
-        end
+          before do
+            project.add_role(user, role)
+            sign_in(user)
+            get :show, params: default_params
+          end
 
-        it 'renders the edit page' do
-          expect(response).to render_template(:show)
-        end
-      end
-
-      context 'as maintainer' do
-        let(:maintainer) { create(:user) }
-
-        before do
-          project.add_maintainer(maintainer)
-          sign_in(maintainer)
-          get :show, params: default_params
-        end
-
-        it 'renders the edit page' do
-          expect(response).to render_template(:show)
+          it 'renders the edit page' do
+            expect(response).to render_template(:show)
+          end
         end
       end
     end
