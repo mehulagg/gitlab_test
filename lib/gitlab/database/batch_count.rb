@@ -19,8 +19,8 @@
 module Gitlab
   module Database
     module BatchCount
-      def batch_count(relation, column = nil, batch_size: nil)
-        BatchCounter.new(relation, column: column).count(batch_size: batch_size)
+      def batch_count(relation, column = nil, batch_size: nil, start: nil, finish: nil)
+        BatchCounter.new(relation, column: column).count(batch_size: batch_size, start: start, finish: finish)
       end
 
       def batch_distinct_count(relation, column = nil, batch_size: nil, start: nil, finish: nil)
@@ -39,8 +39,8 @@ module Gitlab
       SLEEP_TIME_IN_SECONDS = 0.01 # 10 msec sleep
 
       # Each query should take < 500ms https://gitlab.com/gitlab-org/gitlab/-/merge_requests/22705
-      DEFAULT_DISTINCT_BATCH_SIZE = 100_000
-      DEFAULT_BATCH_SIZE = 10_000
+      DEFAULT_DISTINCT_BATCH_SIZE = 10_000
+      DEFAULT_BATCH_SIZE = 100_000
 
       def initialize(relation, column: nil)
         @relation = relation

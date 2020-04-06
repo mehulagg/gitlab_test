@@ -157,6 +157,14 @@ describe Projects::Settings::CiCdController do
 
             subject
           end
+
+          it 'creates a pipeline', :sidekiq_inline do
+            project.repository.create_file(user, 'Gemfile', 'Gemfile contents',
+                                           message: 'Add Gemfile',
+                                           branch_name: 'master')
+
+            expect { subject }.to change { Ci::Pipeline.count }.by(1)
+          end
         end
       end
 
@@ -300,7 +308,7 @@ describe Projects::Settings::CiCdController do
         it 'creates the deploy token' do
           subject
 
-          expect(response).to have_gitlab_http_status(:ok)
+          expect(response).to have_gitlab_http_status(:created)
           expect(response).to match_response_schema('public_api/v4/deploy_token')
           expect(json_response).to match(expected_response)
         end

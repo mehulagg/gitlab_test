@@ -3353,6 +3353,15 @@ msgstr ""
 msgid "Cannot create the abuse report. This user has been blocked."
 msgstr ""
 
+msgid "Cannot have multiple Jira imports running at the same time"
+msgstr ""
+
+msgid "Cannot make epic confidential if it contains not-confidential issues"
+msgstr ""
+
+msgid "Cannot make epic confidential if it contains not-confidential sub-epics"
+msgstr ""
+
 msgid "Cannot merge"
 msgstr ""
 
@@ -3369,6 +3378,9 @@ msgid "Cannot promote issue due to insufficient permissions."
 msgstr ""
 
 msgid "Cannot refer to a group milestone by an internal id!"
+msgstr ""
+
+msgid "Cannot set confidential epic for not-confidential issue"
 msgstr ""
 
 msgid "Cannot show preview. For previews on sketch files, they must have the file format introduced by Sketch version 43 and above."
@@ -4023,6 +4035,9 @@ msgid "Clone repository"
 msgstr ""
 
 msgid "Clone with %{http_label}"
+msgstr ""
+
+msgid "Clone with %{protocol}"
 msgstr ""
 
 msgid "Clone with KRB5"
@@ -4682,6 +4697,9 @@ msgstr ""
 msgid "ClusterIntegration|Search VPCs"
 msgstr ""
 
+msgid "ClusterIntegration|Search domains"
+msgstr ""
+
 msgid "ClusterIntegration|Search instance types"
 msgstr ""
 
@@ -4737,6 +4755,9 @@ msgid "ClusterIntegration|Select a stack to install Crossplane."
 msgstr ""
 
 msgid "ClusterIntegration|Select a zone to choose a network"
+msgstr ""
+
+msgid "ClusterIntegration|Select existing domain or use new"
 msgstr ""
 
 msgid "ClusterIntegration|Select machine type"
@@ -4857,6 +4878,9 @@ msgid "ClusterIntegration|Uninstall %{appTitle}"
 msgstr ""
 
 msgid "ClusterIntegration|Update failed. Please check the logs and try again."
+msgstr ""
+
+msgid "ClusterIntegration|Use %{query}"
 msgstr ""
 
 msgid "ClusterIntegration|Uses the Cloud Run, Istio, and HTTP Load Balancing addons for this cluster."
@@ -5760,6 +5784,9 @@ msgstr ""
 msgid "Could not save prometheus manual configuration"
 msgstr ""
 
+msgid "Could not update the LDAP settings"
+msgstr ""
+
 msgid "Could not upload your designs as one or more files uploaded are not supported."
 msgstr ""
 
@@ -6555,6 +6582,9 @@ msgstr ""
 msgid "Dependencies|All"
 msgstr ""
 
+msgid "Dependencies|Based on the %{linkStart}latest successful%{linkEnd} scan"
+msgstr ""
+
 msgid "Dependencies|Component"
 msgstr ""
 
@@ -7110,9 +7140,6 @@ msgid "Display rendered file"
 msgstr ""
 
 msgid "Display source"
-msgstr ""
-
-msgid "Displays dependencies and known vulnerabilities, based on the %{linkStart}latest successful%{linkEnd} scan"
 msgstr ""
 
 msgid "Do not display offers from third parties within GitLab"
@@ -10803,9 +10830,6 @@ msgstr ""
 msgid "Import CSV"
 msgstr ""
 
-msgid "Import Jira issues"
-msgstr ""
-
 msgid "Import Projects from Gitea"
 msgstr ""
 
@@ -10819,6 +10843,9 @@ msgid "Import all repositories"
 msgstr ""
 
 msgid "Import an exported GitLab project"
+msgstr ""
+
+msgid "Import from Jira"
 msgstr ""
 
 msgid "Import in progress"
@@ -11216,9 +11243,6 @@ msgstr ""
 msgid "Issue already promoted to epic."
 msgstr ""
 
-msgid "Issue board focus mode"
-msgstr ""
-
 msgid "Issue cannot be found."
 msgstr ""
 
@@ -11585,6 +11609,9 @@ msgstr ""
 msgid "LDAP settings"
 msgstr ""
 
+msgid "LDAP settings updated"
+msgstr ""
+
 msgid "LDAP sync in progress. This could take a few minutes. Refresh the page to see the changes."
 msgstr ""
 
@@ -11878,13 +11905,13 @@ msgstr ""
 msgid "LicenseCompliance|License Compliance"
 msgstr ""
 
-msgid "LicenseCompliance|License Compliance detected %d license for the source branch only"
-msgid_plural "LicenseCompliance|License Compliance detected %d licenses for the source branch only"
+msgid "LicenseCompliance|License Compliance detected %d license and policy violation for the source branch only; approval required"
+msgid_plural "LicenseCompliance|License Compliance detected %d licenses and policy violations for the source branch only; approval required"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "LicenseCompliance|License Compliance detected %d license for the source branch only; approval required"
-msgid_plural "LicenseCompliance|License Compliance detected %d licenses for the source branch only; approval required"
+msgid "LicenseCompliance|License Compliance detected %d license for the source branch only"
+msgid_plural "LicenseCompliance|License Compliance detected %d licenses for the source branch only"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -11893,8 +11920,8 @@ msgid_plural "LicenseCompliance|License Compliance detected %d new licenses"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "LicenseCompliance|License Compliance detected %d new license; approval required"
-msgid_plural "LicenseCompliance|License Compliance detected %d new licenses; approval required"
+msgid "LicenseCompliance|License Compliance detected %d new license and policy violation; approval required"
+msgid_plural "LicenseCompliance|License Compliance detected %d new licenses and policy violations; approval required"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -12185,13 +12212,13 @@ msgstr ""
 msgid "MR widget|The pipeline will now run automatically every time you commit code. Pipelines are useful for deploying static web pages, detecting vulnerabilities in dependencies, static or dynamic application security testing (SAST and DAST), and so much more!"
 msgstr ""
 
+msgid "MRApprovals|Approvals"
+msgstr ""
+
 msgid "MRApprovals|Approved by"
 msgstr ""
 
 msgid "MRApprovals|Approvers"
-msgstr ""
-
-msgid "MRApprovals|Pending approvals"
 msgstr ""
 
 msgid "MRDiff|Show changes only"
@@ -13596,6 +13623,9 @@ msgid "Not ready yet. Try again later."
 msgstr ""
 
 msgid "Not started"
+msgstr ""
+
+msgid "Not-confidential epic cannot be assigned to a confidential parent epic"
 msgstr ""
 
 msgid "Note"
@@ -17646,9 +17676,6 @@ msgstr ""
 msgid "Security Dashboard"
 msgstr ""
 
-msgid "Security Dashboard|Error fetching the dashboard data. Please check your network connection and try again."
-msgstr ""
-
 msgid "Security Dashboard|Error fetching the vulnerability counts. Please check your network connection and try again."
 msgstr ""
 
@@ -17814,6 +17841,9 @@ msgstr ""
 msgid "SecurityDashboard|Severity"
 msgstr ""
 
+msgid "SecurityDashboard|Status"
+msgstr ""
+
 msgid "SecurityDashboard|The security dashboard displays the latest security findings for projects you wish to monitor. Select \"Edit dashboard\" to add and remove projects."
 msgstr ""
 
@@ -17940,7 +17970,7 @@ msgstr ""
 msgid "Select the branch you want to set as the default for this project. All merge requests and commits will automatically be made against this branch unless you specify a different one."
 msgstr ""
 
-msgid "Select the configured storaged available for new projects to be placed on."
+msgid "Select the configured storage available for new repositories to be placed on."
 msgstr ""
 
 msgid "Select the custom project template source group."
@@ -18340,6 +18370,9 @@ msgid "Sherlock Transactions"
 msgstr ""
 
 msgid "Should you ever lose your phone or access to your one time password secret, each of these recovery codes can be used one time each to regain access to your account. Please save them in a safe place, or you %{b_start}will%{b_end} lose access to your account."
+msgstr ""
+
+msgid "Show all %{issuable_type}."
 msgstr ""
 
 msgid "Show all activity"
@@ -19223,7 +19256,7 @@ msgstr ""
 msgid "Storage"
 msgstr ""
 
-msgid "Storage nodes for new projects"
+msgid "Storage nodes for new repositories"
 msgstr ""
 
 msgid "Storage:"
@@ -21966,7 +21999,7 @@ msgstr ""
 msgid "Use hashed storage"
 msgstr ""
 
-msgid "Use hashed storage paths for newly created and renamed projects. Enable immutable, hash-based paths and repository names to store repositories on disk. This prevents repositories from having to be moved or renamed when the Project URL changes and may improve disk I/O performance."
+msgid "Use hashed storage paths for newly created and renamed repositories. Enable immutable, hash-based paths and repository names to store repositories on disk. This prevents repositories from having to be moved or renamed when the Repository URL changes and may improve disk I/O performance."
 msgstr ""
 
 msgid "Use one line per URI"
@@ -22666,10 +22699,28 @@ msgstr ""
 msgid "VulnerabilityManagement|Will not fix or a false-positive"
 msgstr ""
 
+msgid "VulnerabilityStatusTypes|All"
+msgstr ""
+
+msgid "VulnerabilityStatusTypes|Confirmed"
+msgstr ""
+
+msgid "VulnerabilityStatusTypes|Detected"
+msgstr ""
+
+msgid "VulnerabilityStatusTypes|Dismissed"
+msgstr ""
+
+msgid "VulnerabilityStatusTypes|Resolved"
+msgstr ""
+
 msgid "Vulnerability|Class"
 msgstr ""
 
 msgid "Vulnerability|Description"
+msgstr ""
+
+msgid "Vulnerability|Evidence"
 msgstr ""
 
 msgid "Vulnerability|File"
@@ -24767,9 +24818,6 @@ msgid "severity|Medium"
 msgstr ""
 
 msgid "severity|None"
-msgstr ""
-
-msgid "severity|Undefined"
 msgstr ""
 
 msgid "severity|Unknown"
