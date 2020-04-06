@@ -10,16 +10,18 @@ module Ci
 
     NotSupportedAdapterError = Class.new(StandardError)
 
+    # TODO: move to Ci::Artifacts::FileType
     class FileType
-      attr_reader :name, :value, :format, :report, :default_file_name
+      attr_reader :name, :value, :format, :report, :default_file_name, :categories
       alias_method :report?, :report
 
-      def initialize(name, value, format, report, default_file_name)
+      def initialize(name, value, format, report, default_file_name, categories = [])
         @name = name
         @value = value
         @format = format
         @report = report
         @default_file_name = default_file_name
+        @categories = categories
       end
 
       # TODO: remove this method while refactoring
@@ -27,32 +29,31 @@ module Ci
         public_send(param)
       end
 
-      __ = nil # rubocop: disable Lint/UnderscorePrefixedVariableName
       # All the file types that use `raw` are needed to be stored uncompressed
       # for Frontend to fetch the files and do analysis.
       # When they will be only used by backend, they can be `gzipped`.
 
       # TODO: maybe make this constant private
       ALL = [
-        FileType.new(:archive,             1,   :zip,  __,    __),
-        FileType.new(:metadata,            2,   :gzip, __,    __),
-        FileType.new(:trace,               3,   :raw,  __,    __),
-        FileType.new(:junit,               4,   :gzip, true, 'junit.xml'),
-        FileType.new(:sast,                5,   :raw,  true, 'gl-sast-report.json'),
-        FileType.new(:dependency_scanning, 6,   :raw,  true, 'gl-dependency-scanning-report.json'),
-        FileType.new(:container_scanning,  7,   :raw,  true, 'gl-container-scanning-report.json'),
-        FileType.new(:dast,                8,   :raw,  true, 'gl-dast-report.json'),
-        FileType.new(:codequality,         9,   :raw,  true, 'gl-code-quality-report.json'),
-        FileType.new(:license_management,  10,  :raw,  true, 'gl-license-management-report.json'),
-        FileType.new(:license_scanning,    101, :raw,  true, 'gl-license-scanning-report.json'),
-        FileType.new(:performance,         11,  :raw,  true, 'performance.json'),
-        FileType.new(:metrics,             12,  :gzip, true, 'metrics.txt'),
-        FileType.new(:metrics_referee,     13,  :gzip, true, __),
-        FileType.new(:network_referee,     14,  :gzip, true, __),
-        FileType.new(:lsif,                15,  :gzip, true, 'lsif.json'),
-        FileType.new(:dotenv,              16,  :gzip, true, '.env'),
-        FileType.new(:cobertura,           17,  :gzip, true, 'cobertura-coverage.xml'),
-        FileType.new(:terraform,           18,  :raw,  true, 'tfplan.json')
+        FileType.new(:archive,             1,   :zip,  false, nil),
+        FileType.new(:metadata,            2,   :gzip, false, nil),
+        FileType.new(:trace,               3,   :raw,  false, nil, %i[non_erasable]),
+        FileType.new(:junit,               4,   :gzip, true,  'junit.xml', %i[test]),
+        FileType.new(:sast,                5,   :raw,  true,  'gl-sast-report.json'),
+        FileType.new(:dependency_scanning, 6,   :raw,  true,  'gl-dependency-scanning-report.json'),
+        FileType.new(:container_scanning,  7,   :raw,  true,  'gl-container-scanning-report.json'),
+        FileType.new(:dast,                8,   :raw,  true,  'gl-dast-report.json'),
+        FileType.new(:codequality,         9,   :raw,  true,  'gl-code-quality-report.json'),
+        FileType.new(:license_management,  10,  :raw,  true,  'gl-license-management-report.json'),
+        FileType.new(:license_scanning,    101, :raw,  true,  'gl-license-scanning-report.json'),
+        FileType.new(:performance,         11,  :raw,  true,  'performance.json'),
+        FileType.new(:metrics,             12,  :gzip, true,  'metrics.txt'),
+        FileType.new(:metrics_referee,     13,  :gzip, true,  nil),
+        FileType.new(:network_referee,     14,  :gzip, true,  nil),
+        FileType.new(:lsif,                15,  :gzip, true,  'lsif.json'),
+        FileType.new(:dotenv,              16,  :gzip, true,  '.env'),
+        FileType.new(:cobertura,           17,  :gzip, true,  'cobertura-coverage.xml', %i[coverage]),
+        FileType.new(:terraform,           18,  :raw,  true,  'tfplan.json')
       ].freeze
 
       class << self
@@ -61,7 +62,15 @@ module Ci
         end
 
         def names_and_values
-          all.map { |t| [t.name, t.value] }.to_h
+          all.map { |type| [type.name, type.value] }.to_h
+        end
+
+        def names_for_category(category)
+          with_category(category).map(&:name)
+        end
+
+        def names_erasable
+          without_category(:non_erasable).map(&:name)
         end
 
         def default_file_name_for(type_name)
@@ -79,13 +88,24 @@ module Ci
         def find_file_type(type_name)
           all.find { |type| type.name == type_name.to_sym }
         end
+
+        private
+
+        def with_category(category)
+          all.select { |type| type.categories.include?(category.to_sym) }
+        end
+
+        def without_category(category)
+          all.reject { |type| type.categories.include?(category.to_sym) }
+        end
       end
     end
 
-    # TODO: refactor these
-    TEST_REPORT_FILE_TYPES = %w[junit].freeze
-    COVERAGE_REPORT_FILE_TYPES = %w[cobertura].freeze
-    NON_ERASABLE_FILE_TYPES = %w[trace].freeze
+    # TODO: deprecate these constants in favour of using `reports(category)` scope.
+    # This means that we don't need to add new scopes any time we add new file types.
+    TEST_REPORT_FILE_TYPES = FileType.names_for_category(:test).map(&:to_s).freeze
+    COVERAGE_REPORT_FILE_TYPES = FileType.names_for_category(:coverage).map(&:to_s).freeze
+    NON_ERASABLE_FILE_TYPES = FileType.names_for_category(:non_erasable).map(&:to_s).freeze
 
     belongs_to :project
     belongs_to :job, class_name: "Ci::Build", foreign_key: :job_id
@@ -115,18 +135,22 @@ module Ci
       with_file_types(FileType.report_names.map(&:to_s))
     end
 
-    scope :test_reports, -> do
-      with_file_types(TEST_REPORT_FILE_TYPES)
+    scope :reports, ->(category) do
+      with_file_types(FileType.names_for_category(category))
     end
 
+    # TODO: deprecate this in favour of using `reports`
+    scope :test_reports, -> do
+      reports(:test_report)
+    end
+
+    # TODO: deprecate this in favour of using `reports`
     scope :coverage_reports, -> do
-      with_file_types(COVERAGE_REPORT_FILE_TYPES)
+      reports(:coverage)
     end
 
     scope :erasable, -> do
-      types = self.file_types.reject { |file_type| NON_ERASABLE_FILE_TYPES.include?(file_type) }.values
-
-      where(file_type: types)
+      where(file_type: FileType.names_erasable)
     end
 
     scope :expired, -> (limit) { where('expire_at < ?', Time.now).limit(limit) }
