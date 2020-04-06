@@ -23,7 +23,7 @@ describe API::ElasticsearchIndices do
     it 'returns all indices' do
       get api('/elasticsearch_indices', admin)
 
-      expect(response).to have_gitlab_http_status(200)
+      expect(response).to have_gitlab_http_status(:ok)
       expect(json_response).to be_an Array
       expect(json_response.size).to be(2)
 
@@ -50,7 +50,7 @@ describe API::ElasticsearchIndices do
     it 'returns a single index' do
       get api("/elasticsearch_indices/#{active_index.id}", admin)
 
-      expect(response).to have_gitlab_http_status(200)
+      expect(response).to have_gitlab_http_status(:ok)
       expect(json_response).to be_a Hash
       expect(json_response['id']).to eq(active_index.id)
       expect(json_response['active_search_source']).to be(true)
@@ -220,7 +220,7 @@ describe API::ElasticsearchIndices do
 
       post api('/elasticsearch_indices/reindex', admin)
 
-      expect(response).to have_gitlab_http_status(204)
+      expect(response).to have_gitlab_http_status(:no_content)
     end
 
     it 'enables indexing if it was disabled' do
@@ -232,7 +232,7 @@ describe API::ElasticsearchIndices do
 
       post api('/elasticsearch_indices/reindex', admin)
 
-      expect(response).to have_gitlab_http_status(204)
+      expect(response).to have_gitlab_http_status(:no_content)
       expect(current_settings.reload.elasticsearch_indexing).to be(true)
     end
 

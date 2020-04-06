@@ -29,19 +29,6 @@ describe ApplicationSetting do
     it { is_expected.not_to allow_value(subject.mirror_max_capacity + 1).for(:mirror_capacity_threshold) }
     it { is_expected.to allow_value(nil).for(:custom_project_templates_group_id) }
 
-<<<<<<< HEAD
-    it { is_expected.to allow_value(10).for(:elasticsearch_shards) }
-    it { is_expected.not_to allow_value(nil).for(:elasticsearch_shards) }
-    it { is_expected.not_to allow_value(0).for(:elasticsearch_shards) }
-    it { is_expected.not_to allow_value(1.1).for(:elasticsearch_shards) }
-    it { is_expected.not_to allow_value(-1).for(:elasticsearch_shards) }
-
-    it { is_expected.to allow_value(10).for(:elasticsearch_replicas) }
-    it { is_expected.to allow_value(0).for(:elasticsearch_replicas) }
-    it { is_expected.not_to allow_value(nil).for(:elasticsearch_replicas) }
-    it { is_expected.not_to allow_value(1.1).for(:elasticsearch_replicas) }
-    it { is_expected.not_to allow_value(-1).for(:elasticsearch_replicas) }
-
     it { is_expected.to allow_value(10).for(:elasticsearch_indexed_field_length_limit) }
     it { is_expected.to allow_value(0).for(:elasticsearch_indexed_field_length_limit) }
     it { is_expected.not_to allow_value(nil).for(:elasticsearch_indexed_field_length_limit) }
@@ -60,8 +47,6 @@ describe ApplicationSetting do
     it { is_expected.not_to allow_value(1.1).for(:elasticsearch_max_bulk_concurrency) }
     it { is_expected.not_to allow_value(-1).for(:elasticsearch_max_bulk_concurrency) }
 
-=======
->>>>>>> fa578168d86... Use ES indices from database in version proxies
     it { is_expected.to allow_value(nil).for(:required_instance_ci_template) }
     it { is_expected.not_to allow_value("").for(:required_instance_ci_template) }
     it { is_expected.not_to allow_value("  ").for(:required_instance_ci_template) }
@@ -275,18 +260,10 @@ describe ApplicationSetting do
 
         child_namespace_indexed_through_parent = create(:namespace, parent: namespaces.last)
 
-<<<<<<< HEAD
-          expect(setting.elasticsearch_limited_namespaces).to match_array(
-            [namespaces.last, child_namespace, child_namespace_indexed_through_parent])
-          expect(setting.elasticsearch_limited_namespaces(ignore_descendants: true)).to match_array(
-            [namespaces.last, child_namespace])
-        end
-=======
         expect(setting.elasticsearch_limited_namespaces).to match_array(
           [namespaces.last, child_namespace, child_namespace_indexed_through_parent])
-        expect(setting.elasticsearch_limited_namespaces(true)).to match_array(
+        expect(setting.elasticsearch_limited_namespaces(ignore_descendants: true)).to match_array(
           [namespaces.last, child_namespace])
->>>>>>> fa578168d86... Use ES indices from database in version proxies
       end
     end
 
