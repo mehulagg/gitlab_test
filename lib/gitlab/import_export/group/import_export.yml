@@ -38,6 +38,9 @@ excluded_attributes:
     - :visibility_level
   epics:
     - :state_id
+  award_emoji:
+    - :id
+    - :awardable_id
 
 methods:
   labels:

@@ -211,6 +211,7 @@ excluded_attributes:
     - :head_pipeline_id
     - :state_id
   award_emoji:
+    - :id
     - :awardable_id
   statuses:
     - :trace

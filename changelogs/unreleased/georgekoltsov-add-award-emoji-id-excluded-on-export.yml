@@ -1,0 +1,5 @@
+---
+title: Add award_emoji.id to list of excluded attributes on Group/Project Export to avoid unique violation on the database
+merge_request: 28917
+author:
+type: fixed

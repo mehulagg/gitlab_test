@@ -269,7 +269,6 @@
           },
           "award_emoji": [
             {
-              "id": 12,
               "name": "drum",
               "user_id": 1,
               "awardable_type": "Note",
@@ -282,7 +281,6 @@
       ],
       "award_emoji": [
         {
-          "id": 12,
           "name": "thumbsup",
           "user_id": 1,
           "awardable_type": "Epic",

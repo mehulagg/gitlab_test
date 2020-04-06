@@ -135,6 +135,14 @@ describe Gitlab::ImportExport::Project::TreeSaver do
           expect(notes.first['type']).to eq('DiscussionNote')
         end
 
+        it 'has issue comment award emoji' do
+          notes = subject.first['notes']
+          award_emoji = notes.first['award_emoji'].first
+
+          expect(award_emoji['id']).to be_nil
+          expect(award_emoji['name']).to eq('thumbsup')
+        end
+
         it 'has issue assignees' do
           expect(subject.first['issue_assignees']).not_to be_empty
         end
@@ -417,6 +425,8 @@ describe Gitlab::ImportExport::Project::TreeSaver do
       author: user,
       project: project,
       commit_id: ci_build.pipeline.sha)
+
+    create(:award_emoji, name: 'thumbsup', awardable: discussion_note, user: user)
 
     create(:system_note_metadata, action: 'description', note: discussion_note)
     create(:system_note_metadata, commit_count: 1, action: 'commit', note: mr_note)

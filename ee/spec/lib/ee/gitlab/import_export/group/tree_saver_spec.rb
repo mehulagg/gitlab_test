@@ -90,6 +90,7 @@ describe Gitlab::ImportExport::Group::TreeSaver do
         expect_successful_save(group_tree_saver)
 
         award_emoji = epic_json['award_emoji'].first
+        expect(award_emoji['id']).to be_nil
         expect(award_emoji['name']).to eq(epic_emoji.name)
       end
 
@@ -97,6 +98,7 @@ describe Gitlab::ImportExport::Group::TreeSaver do
         expect_successful_save(group_tree_saver)
 
         award_emoji = epic_json['notes'].first['award_emoji'].first
+        expect(award_emoji['id']).to be_nil
         expect(award_emoji['name']).to eq(epic_note_emoji.name)
       end
     end
