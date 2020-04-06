@@ -461,7 +461,7 @@ describe Gitlab::QA::Report::ResultsInIssues do
           end
 
           context 'when a timeout error occurs' do
-            it 'retries up to 5 times before letting the error fail the job' do
+            it 'retries up to 3 times before letting the error fail the job' do
               stub_const("Gitlab::RETRY_BACK_OFF_DELAY", 0.000001)
 
               allow(::Gitlab).to receive(:send).and_raise(Errno::ETIMEDOUT)
