@@ -25,20 +25,7 @@ describe Projects::StaticSiteEditorController do
         end
       end
 
-      context 'as guest' do
-        let(:guest) { create(:user) }
-
-        before do
-          sign_in(guest)
-          get :show, params: default_params
-        end
-
-        it 'renders the edit page' do
-          expect(response).to render_template(:show)
-        end
-      end
-
-      %w[developer maintainer].each do |role|
+      %w[guest developer maintainer].each do |role|
         context "as #{role}" do
           let(:user) { create(:user) }
 
