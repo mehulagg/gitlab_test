@@ -5,6 +5,11 @@ require 'gitlab'
 require 'active_support/core_ext/enumerable'
 
 module Gitlab
+  RETRY_BACK_OFF_DELAY = 60
+  MAX_RETRY_ATTEMPTS = 3
+
+  @retry_backoff = 0
+
   # Monkey patch the Gitlab client to use the correct API path and add required methods
   class Client
     def team_member(project, id)
@@ -18,6 +23,50 @@ module Gitlab
     def add_note_to_issue_discussion_as_thread(project, issue_id, discussion_id, options = {})
       post("/projects/#{url_encode(project)}/issues/#{issue_id}/discussions/#{discussion_id}/notes", query: options)
     end
+  end
+
+  # This is the original upstream implementation, with rescue blocks
+  # that let us handle errors in any GitLab client call
+  def self.method_missing(method, *args, &block) # rubocop:disable Style/MethodMissing, Metrics/AbcSize
+    return super unless client.respond_to?(method)
+
+    client.send(method, *args, &block) # rubocop:disable GitlabSecurity/PublicSend
+  rescue Gitlab::Error::NotFound
+    # This error could be raised in assert_user_permission!
+    # If so, we want it to terminate at that point
+    raise
+  rescue Errno::ETIMEDOUT, OpenSSL::SSL::SSLError, Net::ReadTimeout => e
+    @retry_backoff += RETRY_BACK_OFF_DELAY
+
+    raise if @retry_backoff > RETRY_BACK_OFF_DELAY * MAX_RETRY_ATTEMPTS
+
+    warn_exception(e)
+    warn("Sleeping for #{@retry_backoff} seconds before retrying...")
+    sleep @retry_backoff
+
+    retry
+  rescue StandardError => e
+    pipeline = QA::Runtime::Env.pipeline_from_project_name
+    channel = pipeline == "canary" ? "qa-production" : "qa-#{pipeline}"
+    error_msg = warn_exception(e)
+    slack_options = {
+      channel: channel,
+      icon_emoji: ':ci_failing:',
+      message: <<~MSG
+        An unexpected error occurred while reporting test results in issues.
+        The error occurred in job: #{QA::Runtime::Env.ci_job_url}
+        `#{error_msg}`
+      MSG
+    }
+    puts "Posting Slack message to channel: #{channel}"
+
+    Gitlab::QA::Slack::PostToSlack.new(**slack_options).invoke!
+  end
+
+  def self.warn_exception(error)
+    error_msg = "#{error.class.name} #{error.message}"
+    warn(error_msg)
+    error_msg
   end
 
   module QA
@@ -234,7 +283,7 @@ module Gitlab
           # because the other pipelines will be monitored by the author of the MR that triggered them.
           # So we assume that we're reporting a master pipeline if the project name is 'gitlab-qa'.
 
-          Runtime::Env.ci_project_name.to_s.start_with?('gitlab-qa') ? 'master' : Runtime::Env.ci_project_name
+          Runtime::Env.pipeline_from_project_name
         end
       end
     end

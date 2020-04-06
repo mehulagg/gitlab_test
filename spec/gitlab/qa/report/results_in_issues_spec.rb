@@ -390,6 +390,90 @@ describe Gitlab::QA::Report::ResultsInIssues do
             end
           end
         end
+
+        context 'when an error occurs' do
+          let(:post_to_slack) { double('Gitlab::QA::Slack::PostToSlack') }
+
+          before do
+            allow(post_to_slack).to receive(:invoke!)
+          end
+
+          around do |example|
+            ClimateControl.modify(CI_SLACK_WEBHOOK_URL: 'http://webhook_url') { example.run }
+          end
+
+          %w[staging production preprod nightly].each do |pipeline|
+            context "with a #{pipeline} pipeline" do
+              around do |example|
+                ClimateControl.modify(CI_PROJECT_NAME: pipeline) { example.run }
+              end
+
+              it "posts a Slack message to qa-#{pipeline}" do
+                allow(::Gitlab).to receive(:send).and_raise(StandardError)
+
+                expect(Gitlab::QA::Slack::PostToSlack).to receive(:new).with(hash_including(channel: "qa-#{pipeline}")).and_return(post_to_slack)
+                expect { subject.invoke! }.to output.to_stdout
+              end
+            end
+          end
+
+          %w[gitlab-qa gitlab-qa-mirror].each do |pipeline|
+            context "with a #{pipeline} pipeline" do
+              around do |example|
+                ClimateControl.modify(CI_PROJECT_NAME: pipeline) { example.run }
+              end
+
+              it "posts a Slack message to qa-master" do
+                allow(::Gitlab).to receive(:send).and_raise(StandardError)
+
+                expect(Gitlab::QA::Slack::PostToSlack).to receive(:new).with(hash_including(channel: "qa-master")).and_return(post_to_slack)
+                expect { subject.invoke! }.to output.to_stdout
+              end
+            end
+          end
+
+          context 'with a canary pipeline' do
+            around do |example|
+              ClimateControl.modify(CI_PROJECT_NAME: 'canary') { example.run }
+            end
+
+            it 'posts a Slack message to qa-production' do
+              allow(::Gitlab).to receive(:send).and_raise(StandardError)
+
+              expect(Gitlab::QA::Slack::PostToSlack).to receive(:new).with(hash_including(channel: "qa-production")).and_return(post_to_slack)
+              expect { subject.invoke! }.to output.to_stdout
+            end
+          end
+
+          context 'when a user permission error occurs' do
+            it 'reports the error and terminates without posting to Slack' do
+              stub_const("Gitlab::Error::NotFound", RuntimeError)
+
+              allow(subject).to receive(:assert_user_permission!).and_call_original
+              allow(::Gitlab).to receive(:user).and_raise(Gitlab::Error::NotFound)
+
+              expect(subject).not_to receive(:report_test)
+              expect(Gitlab::QA::Slack::PostToSlack).not_to receive(:new)
+              expect { subject.invoke! }
+                .to output("You must have at least Maintainer access to the project to use this feature.\n").to_stderr
+                .and raise_error(SystemExit)
+            end
+          end
+
+          context 'when a timeout error occurs' do
+            it 'retries up to 5 times before letting the error fail the job' do
+              stub_const("Gitlab::RETRY_BACK_OFF_DELAY", 0.000001)
+
+              allow(::Gitlab).to receive(:send).and_raise(Errno::ETIMEDOUT)
+
+              expect(Gitlab::QA::Slack::PostToSlack).not_to receive(:new)
+
+              expect { subject.invoke! }
+                .to output(/Sleeping for .* seconds before retrying.../).to_stderr
+                .and raise_error(Errno::ETIMEDOUT)
+            end
+          end
+        end
       end
     end
   end
