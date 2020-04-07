@@ -38,8 +38,6 @@ module Projects
         @alert = create_service.execute
 
         if @alert.persisted?
-          schedule_prometheus_update!
-
           render json: serialize_as_json(@alert)
         else
           head :no_content
@@ -48,8 +46,6 @@ module Projects
 
       def update
         if update_service.execute(alert)
-          schedule_prometheus_update!
-
           render json: serialize_as_json(alert)
         else
           head :no_content
@@ -58,8 +54,6 @@ module Projects
 
       def destroy
         if destroy_service.execute(alert)
-          schedule_prometheus_update!
-
           head :ok
         else
           head :no_content
@@ -92,10 +86,6 @@ module Projects
           .new(project, current_user, nil)
       end
 
-      def schedule_prometheus_update!
-        ::Clusters::Applications::ScheduleUpdateService.new(application, project).execute
-      end
-
       def serialize_as_json(alert_obj)
         serializer.represent(alert_obj)
       end
@@ -118,10 +108,6 @@ module Projects
           project: project,
           environment: params[:environment_id]
         }.reverse_merge(opts))
-      end
-
-      def application
-        @application ||= alert.environment.cluster_prometheus_adapter
       end
 
       def extract_alert_manager_token(request)

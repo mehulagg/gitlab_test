@@ -19,6 +19,7 @@ class PrometheusAlert < ApplicationRecord
 
   after_save :clear_prometheus_adapter_cache!
   after_destroy :clear_prometheus_adapter_cache!
+  after_commit :schedule_prometheus_update!
 
   validates :environment, :project, :prometheus_metric, presence: true
   validate :require_valid_environment_project!
@@ -65,6 +66,13 @@ class PrometheusAlert < ApplicationRecord
 
   def clear_prometheus_adapter_cache!
     environment.clear_prometheus_reactive_cache!(:additional_metrics_environment)
+  end
+
+  def schedule_prometheus_update!
+    ::Clusters::Applications::ScheduleUpdateService.new(
+      environment.cluster_prometheus_adapter,
+      project
+    ).execute
   end
 
   def require_valid_environment_project!

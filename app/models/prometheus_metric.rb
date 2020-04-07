@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class PrometheusMetric < ApplicationRecord
-  belongs_to :project, validate: true, inverse_of: :prometheus_metrics
+  belongs_to :project, validate: true, inverse_of: :prometheus_metrics, dependent: :destroy
   has_many :prometheus_alerts, inverse_of: :prometheus_metric
 
   enum group: PrometheusMetricEnums.groups
