@@ -44,7 +44,7 @@ module API
       def parse_env
         return {} if params[:env].blank?
 
-        JSON.parse(params[:env])
+        Gitlab::Json.parse(params[:env])
       rescue JSON::ParserError
         {}
       end

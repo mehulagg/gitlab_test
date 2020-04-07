@@ -63,7 +63,7 @@ describe 'getting an issue list for a project' do
 
             cursored_query = query("sort: WEIGHT_ASC, after: \"#{end_cursor}\"")
             post_graphql(cursored_query, current_user: current_user)
-            response_data = JSON.parse(response.body)['data']['project']['issues']['edges']
+            response_data = Gitlab::Json.parse(response.body)['data']['project']['issues']['edges']
 
             expect(grab_iids(response_data)).to eq [weight_issue1.iid, weight_issue4.iid, weight_issue2.iid]
           end
@@ -85,7 +85,7 @@ describe 'getting an issue list for a project' do
 
             cursored_query = query("sort: WEIGHT_DESC, after: \"#{end_cursor}\"")
             post_graphql(cursored_query, current_user: current_user)
-            response_data = JSON.parse(response.body)['data']['project']['issues']['edges']
+            response_data = Gitlab::Json.parse(response.body)['data']['project']['issues']['edges']
 
             expect(grab_iids(response_data)).to eq [weight_issue3.iid, weight_issue4.iid, weight_issue2.iid]
           end

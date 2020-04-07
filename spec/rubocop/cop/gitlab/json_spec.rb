@@ -5,7 +5,7 @@ require 'rubocop'
 require 'rubocop/rspec/support'
 require_relative '../../../../rubocop/cop/gitlab/json'
 
-describe RuboCop::Cop::Gitlab::Json do # rubocop:disable RSpec/FilePath
+describe RuboCop::Cop::Gitlab::Json do
   include CopHelper
 
   subject(:cop) { described_class.new }

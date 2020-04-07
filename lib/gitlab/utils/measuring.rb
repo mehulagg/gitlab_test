@@ -49,7 +49,7 @@ module Gitlab
           [key, before: before_value, after: after_value, diff: after_value - before_value]
         end.to_h
         logger.info "GC stats:"
-        logger.info JSON.pretty_generate(stats_diff)
+        logger.info Gitlab::Json.pretty_generate(stats_diff)
       end
 
       def with_measure_time

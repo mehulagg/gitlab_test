@@ -64,7 +64,7 @@ module Quality
         %(--tiller-namespace "#{tiller_namespace}" --output json),
         *args
       ]
-      json = JSON.parse(run_command(command))
+      json = Gitlab::Json.parse(run_command(command))
 
       releases = json['Releases'].map do |json_release|
         Release.new(*json_release.values_at(*RELEASE_JSON_ATTRIBUTES))

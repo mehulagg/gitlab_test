@@ -13,7 +13,7 @@ describe ::PodLogs::BaseService do
   let(:container_name) { 'container-0' }
   let(:params) { {} }
   let(:raw_pods) do
-    JSON.parse([
+    Gitlab::Json.parse([
       kube_pod(name: pod_name),
       kube_pod(name: pod_name_2)
     ].to_json, object_class: OpenStruct)

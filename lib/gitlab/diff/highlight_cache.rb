@@ -152,7 +152,7 @@ module Gitlab
         end
 
         results.map! do |result|
-          JSON.parse(result, symbolize_names: true) unless result.nil?
+          Gitlab::Json.parse(result, symbolize_names: true) unless result.nil?
         end
 
         file_paths.zip(results).to_h

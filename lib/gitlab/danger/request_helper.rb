@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'net/http'
-require 'json'
+require_relative '../json'
 
 module Gitlab
   module Danger
@@ -16,7 +16,7 @@ module Gitlab
           raise HTTPError, "Failed to read #{url}: #{rsp.code} #{rsp.message}"
         end
 
-        JSON.parse(rsp.body)
+        Gitlab::Json.parse(rsp.body)
       end
     end
   end
