@@ -97,6 +97,10 @@ module Gitlab
           ENV['CI_SLACK_WEBHOOK_URL']
         end
 
+        def pipeline_from_project_name
+          ci_project_name.to_s.start_with?('gitlab-qa') ? 'master' : ci_project_name
+        end
+
         def slack_qa_channel
           ENV['SLACK_QA_CHANNEL']
         end

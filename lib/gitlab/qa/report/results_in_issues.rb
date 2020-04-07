@@ -27,11 +27,14 @@ module Gitlab
       class ResultsInIssues
         MAINTAINER_ACCESS_LEVEL = 40
         MAX_TITLE_LENGTH = 255
+        RETRY_BACK_OFF_DELAY = 60
+        MAX_RETRY_ATTEMPTS = 3
 
         def initialize(token:, input_files:, project: nil)
           @token = token
           @files = Array(input_files)
           @project = project
+          @retry_backoff = 0
         end
 
         def invoke!
@@ -72,10 +75,12 @@ module Gitlab
         end
 
         def assert_user_permission!
-          user = Gitlab.user
-          member = Gitlab.team_member(project, user.id)
+          handle_gitlab_client_exceptions do
+            user = Gitlab.user
+            member = Gitlab.team_member(project, user.id)
 
-          abort_not_permitted if member.access_level < MAINTAINER_ACCESS_LEVEL
+            abort_not_permitted if member.access_level < MAINTAINER_ACCESS_LEVEL
+          end
         rescue Gitlab::Error::NotFound
           abort_not_permitted
         end
@@ -85,9 +90,11 @@ module Gitlab
         end
 
         def configure_gitlab_client
-          Gitlab.configure do |config|
-            config.endpoint = Runtime::Env.gitlab_api_base
-            config.private_token = token
+          handle_gitlab_client_exceptions do
+            Gitlab.configure do |config|
+              config.endpoint = Runtime::Env.gitlab_api_base
+              config.private_token = token
+            end
           end
         end
 
@@ -113,21 +120,25 @@ module Gitlab
         def create_issue(test)
           puts "Creating issue for file: #{test['file']} | name: #{test['name']}"
 
-          Gitlab.create_issue(
-            project,
-            title_from_test(test),
-            { description: "### Full description\n\n#{search_safe(test['name'])}\n\n### File path\n\n#{test['file']}", labels: 'status::automated' }
-          )
+          handle_gitlab_client_exceptions do
+            Gitlab.create_issue(
+              project,
+              title_from_test(test),
+              { description: "### Full description\n\n#{search_safe(test['name'])}\n\n### File path\n\n#{test['file']}", labels: 'status::automated' }
+            )
+          end
         end
 
         def find_issue(test)
-          issues = Gitlab.issues(project, { search: search_term(test) })
-            .auto_paginate
-            .select { |issue| issue.state == 'opened' && issue.title.strip == title_from_test(test) }
+          handle_gitlab_client_exceptions do
+            issues = Gitlab.issues(project, { search: search_term(test) })
+              .auto_paginate
+              .select { |issue| issue.state == 'opened' && issue.title.strip == title_from_test(test) }
 
-          warn(%(Too many issues found with the file path "#{test['file']}" and name "#{test['name']}")) if issues.many?
+            warn(%(Too many issues found with the file path "#{test['file']}" and name "#{test['name']}")) if issues.many?
 
-          issues.first
+            issues.first
+          end
         end
 
         def search_term(test)
@@ -151,11 +162,13 @@ module Gitlab
 
           note = note_content(test)
 
-          Gitlab.issue_discussions(project, issue.iid, order_by: 'created_at', sort: 'asc').each do |discussion|
-            return add_note_to_discussion(issue.iid, discussion.id) if new_note_matches_discussion?(note, discussion)
-          end
+          handle_gitlab_client_exceptions do
+            Gitlab.issue_discussions(project, issue.iid, order_by: 'created_at', sort: 'asc').each do |discussion|
+              return add_note_to_discussion(issue.iid, discussion.id) if new_note_matches_discussion?(note, discussion)
+            end
 
-          Gitlab.create_issue_note(project, issue.iid, note)
+            Gitlab.create_issue_note(project, issue.iid, note)
+          end
         end
 
         def note_content(test)
@@ -205,7 +218,9 @@ module Gitlab
         end
 
         def add_note_to_discussion(issue_iid, discussion_id)
-          Gitlab.add_note_to_issue_discussion_as_thread(project, issue_iid, discussion_id, body: failure_summary)
+          handle_gitlab_client_exceptions do
+            Gitlab.add_note_to_issue_discussion_as_thread(project, issue_iid, discussion_id, body: failure_summary)
+          end
         end
 
         def update_labels(issue, test)
@@ -214,7 +229,9 @@ module Gitlab
           labels << (failures(test).empty? ? "#{pipeline}::passed" : "#{pipeline}::failed")
           quarantine_job? ? labels << "quarantine" : labels.delete("quarantine")
 
-          Gitlab.edit_issue(project, issue.iid, labels: labels)
+          handle_gitlab_client_exceptions do
+            Gitlab.edit_issue(project, issue.iid, labels: labels)
+          end
         end
 
         def failures(test)
@@ -234,7 +251,47 @@ module Gitlab
           # because the other pipelines will be monitored by the author of the MR that triggered them.
           # So we assume that we're reporting a master pipeline if the project name is 'gitlab-qa'.
 
-          Runtime::Env.ci_project_name.to_s.start_with?('gitlab-qa') ? 'master' : Runtime::Env.ci_project_name
+          Runtime::Env.pipeline_from_project_name
+        end
+
+        def handle_gitlab_client_exceptions
+          yield
+        rescue Gitlab::Error::NotFound
+          # This error could be raised in assert_user_permission!
+          # If so, we want it to terminate at that point
+          raise
+        rescue Errno::ETIMEDOUT, OpenSSL::SSL::SSLError, Net::ReadTimeout => e
+          @retry_backoff += RETRY_BACK_OFF_DELAY
+
+          raise if @retry_backoff > RETRY_BACK_OFF_DELAY * MAX_RETRY_ATTEMPTS
+
+          warn_exception(e)
+          warn("Sleeping for #{@retry_backoff} seconds before retrying...")
+          sleep @retry_backoff
+
+          retry
+        rescue StandardError => e
+          pipeline = QA::Runtime::Env.pipeline_from_project_name
+          channel = pipeline == "canary" ? "qa-production" : "qa-#{pipeline}"
+          error_msg = warn_exception(e)
+          slack_options = {
+            channel: channel,
+            icon_emoji: ':ci_failing:',
+            message: <<~MSG
+              An unexpected error occurred while reporting test results in issues.
+              The error occurred in job: #{QA::Runtime::Env.ci_job_url}
+              `#{error_msg}`
+            MSG
+          }
+          puts "Posting Slack message to channel: #{channel}"
+
+          Gitlab::QA::Slack::PostToSlack.new(**slack_options).invoke!
+        end
+
+        def warn_exception(error)
+          error_msg = "#{error.class.name} #{error.message}"
+          warn(error_msg)
+          error_msg
         end
       end
     end
