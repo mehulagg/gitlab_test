@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe PostReceive do
+  include AfterNextHelpers
+
   let(:changes) { "123456 789012 refs/heads/tést\n654321 210987 refs/tags/tag" }
   let(:wrongly_encoded_changes) { changes.encode("ISO-8859-1").force_encoding("UTF-8") }
   let(:base64_changes) { Base64.encode64(wrongly_encoded_changes) }
@@ -42,9 +44,7 @@ RSpec.describe PostReceive do
       it 'does not log an error' do
         expect(Gitlab::GitLogger).not_to receive(:error)
         expect(Gitlab::GitPostReceive).to receive(:new).and_call_original
-        expect_any_instance_of(described_class) do |instance|
-          expect(instance).to receive(:process_snippet_changes)
-        end
+        expect_next(described_class, to_receive: :process_snippet_changes)
 
         perform
       end
@@ -67,7 +67,7 @@ RSpec.describe PostReceive do
       let(:changes) { "123456 789012 refs/heads/tést1\n" }
 
       before do
-        allow_any_instance_of(Gitlab::GitPostReceive).to receive(:identify).and_return(empty_project.owner)
+        allow_next(Gitlab::GitPostReceive, to_receive: :identify, returning: empty_project.owner)
         # Need to mock here so we can expect calls on project
         allow(Gitlab::GlRepository).to receive(:parse).and_return([empty_project, empty_project, Gitlab::GlRepository::PROJECT])
       end
@@ -99,7 +99,7 @@ RSpec.describe PostReceive do
     context 'empty changes' do
       it "does not call any PushService but runs after project hooks" do
         expect(Git::ProcessRefChangesService).not_to receive(:new)
-        expect_next_instance_of(SystemHooksService) { |service| expect(service).to receive(:execute_hooks) }
+        expect_next(SystemHooksService, to_receive: :execute_hooks)
 
         perform(changes: "")
       end
@@ -121,7 +121,7 @@ RSpec.describe PostReceive do
       let(:push_service) { double(execute: true) }
 
       before do
-        allow_any_instance_of(Gitlab::GitPostReceive).to receive(:identify).and_return(project.owner)
+        allow_next(Gitlab::GitPostReceive, to_receive: :identify, returning: project.owner)
         allow(Gitlab::GlRepository).to receive(:parse).and_return([project, project, Gitlab::GlRepository::PROJECT])
       end
 
@@ -157,9 +157,7 @@ RSpec.describe PostReceive do
         end
 
         it 'calls Git::ProcessRefChangesService' do
-          expect_next_instance_of(Git::ProcessRefChangesService) do |service|
-            expect(service).to receive(:execute).and_return(true)
-          end
+          expect_service(Git::ProcessRefChangesService)
 
           perform
         end
@@ -219,9 +217,7 @@ RSpec.describe PostReceive do
         end
 
         it 'calls Git::ProcessRefChangesService' do
-          expect_next_instance_of(Git::ProcessRefChangesService) do |service|
-            expect(service).to receive(:execute).and_return(true)
-          end
+          expect_service(Git::ProcessRefChangesService)
 
           perform
         end
@@ -250,19 +246,18 @@ RSpec.describe PostReceive do
 
       context 'after project changes hooks' do
         let(:changes) { '123456 789012 refs/heads/tést' }
-        let(:fake_hook_data) { Hash.new(event_name: 'repository_update') }
+        let(:fake_hook_data) { { event_name: 'repository_update' } }
 
         before do
-          allow_any_instance_of(Gitlab::DataBuilder::Repository).to receive(:update).and_return(fake_hook_data)
+          allow(Gitlab::DataBuilder::Repository).to receive(:update).and_return(fake_hook_data)
           # silence hooks so we can isolate
-          allow_any_instance_of(Key).to receive(:post_create_hook).and_return(true)
-          expect_next_instance_of(Git::ProcessRefChangesService) do |service|
-            expect(service).to receive(:execute).and_return(true)
-          end
+          allow_next(Key, to_receive: :post_create_hook, returning: true)
+          expect_service(Git::ProcessRefChangesService)
         end
 
         it 'calls SystemHooksService' do
-          expect_any_instance_of(SystemHooksService).to receive(:execute_hooks).with(fake_hook_data, :repository_update_hooks).and_return(true)
+          expect_next(SystemHooksService, to_receive: :execute_hooks,
+                      with: [fake_hook_data, :repository_update_hooks], returning: true)
 
           perform
         end
@@ -313,12 +308,7 @@ RSpec.describe PostReceive do
       let(:raw_repo) { double('RawRepo') }
 
       it 'processes the changes on the master branch' do
-        expect_next_instance_of(Git::WikiPushService) do |service|
-          expect(service).to receive(:process_changes).and_call_original
-        end
-        expect(project.wiki).to receive(:default_branch).twice.and_return(default_branch)
-        expect(project.wiki.repository).to receive(:raw).and_return(raw_repo)
-        expect(raw_repo).to receive(:raw_changes_between).once.with(oldrev, newrev).and_return([])
+        expect_next(Git::WikiPushService, to_receive: :process_changes)
 
         perform
       end
@@ -333,9 +323,7 @@ RSpec.describe PostReceive do
       end
 
       before do
-        allow_next_instance_of(Git::WikiPushService) do |service|
-          allow(service).to receive(:process_changes)
-        end
+        allow_next(Git::WikiPushService, to_receive: :process_changes)
       end
 
       it 'expires the branches cache' do
@@ -361,10 +349,7 @@ RSpec.describe PostReceive do
     end
 
     it "does not run if the author is not in the project" do
-      allow_any_instance_of(Gitlab::GitPostReceive)
-        .to receive(:identify_using_ssh_key)
-        .and_return(nil)
-
+      allow_next(Gitlab::GitPostReceive, to_receive: :identify_using_ssh_key, returning: nil)
       expect(project).not_to receive(:execute_hooks)
 
       expect(perform).to be_falsey

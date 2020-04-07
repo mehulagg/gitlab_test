@@ -3,6 +3,8 @@
 require 'spec_helper'
 
 RSpec.describe PostReceive do
+  include AfterNextHelpers
+
   let(:changes) { "123456 789012 refs/heads/tést\n654321 210987 refs/tags/tag" }
   let(:changes_with_master) { "#{changes}\n423423 797823 refs/heads/master" }
   let(:wrongly_encoded_changes) { changes.encode("ISO-8859-1").force_encoding("UTF-8") }
@@ -15,7 +17,7 @@ RSpec.describe PostReceive do
 
   describe "#process_project_changes" do
     before do
-      allow_any_instance_of(Gitlab::GitPostReceive).to receive(:identify).and_return(project.owner)
+      allow_next(Gitlab::GitPostReceive, to_receive: :identify, returning: project.owner)
     end
 
     context 'after project changes hooks' do
@@ -23,17 +25,13 @@ RSpec.describe PostReceive do
 
       before do
         allow(RepositoryPushAuditEventWorker).to receive(:perform_async)
-        allow_any_instance_of(Gitlab::DataBuilder::Repository).to receive(:update).and_return(fake_hook_data)
+        allow_next(Gitlab::DataBuilder::Repository, to_receive: :update, returning: fake_hook_data)
+
         # silence hooks so we can isolate
-        allow_any_instance_of(Key).to receive(:post_create_hook).and_return(true)
+        allow_next(Key, to_receive: :post_create_hook, returning: true)
 
-        expect_next_instance_of(Git::TagPushService) do |service|
-          expect(service).to receive(:execute).and_return(true)
-        end
-
-        expect_next_instance_of(Git::BranchPushService) do |service|
-          expect(service).to receive(:execute).and_return(true)
-        end
+        expect_service(Git::TagPushService)
+        expect_service(Git::BranchPushService)
       end
 
       context 'when DB is readonly' do
@@ -81,7 +79,7 @@ RSpec.describe PostReceive do
       it 'calls Geo::RepositoryUpdatedService when running on a Geo primary node' do
         allow(Gitlab::Geo).to receive(:primary?) { true }
 
-        expect_any_instance_of(::Geo::RepositoryUpdatedService).to receive(:execute)
+        expect_service(::Geo::RepositoryUpdatedService)
 
         described_class.new.perform(gl_repository, key_id, base64_changes)
       end
@@ -89,7 +87,7 @@ RSpec.describe PostReceive do
       it 'does not call Geo::RepositoryUpdatedService when not running on a Geo primary node' do
         allow(Gitlab::Geo).to receive(:primary?) { false }
 
-        expect_any_instance_of(::Geo::RepositoryUpdatedService).not_to receive(:execute)
+        expect(::Geo::RepositoryUpdatedService).not_to receive(:new)
 
         described_class.new.perform(gl_repository, key_id, base64_changes)
       end
@@ -100,20 +98,20 @@ RSpec.describe PostReceive do
     let(:gl_repository) { "wiki-#{project.id}" }
 
     it 'calls Git::WikiPushService#process_changes' do
-      expect_any_instance_of(::Git::WikiPushService).to receive(:process_changes)
+      expect_next(::Git::WikiPushService, to_receive: :process_changes)
 
       described_class.new.perform(gl_repository, key_id, base64_changes)
     end
 
     context 'assuming calls to process_changes are successful' do
       before do
-        allow_any_instance_of(Git::WikiPushService).to receive(:process_changes)
+        allow_next(Git::WikiPushService, to_receive: :process_changes)
       end
 
       it 'calls Geo::RepositoryUpdatedService when running on a Geo primary node' do
         allow(Gitlab::Geo).to receive(:primary?) { true }
 
-        expect_any_instance_of(::Geo::RepositoryUpdatedService).to receive(:execute)
+        expect_service(::Geo::RepositoryUpdatedService)
 
         described_class.new.perform(gl_repository, key_id, base64_changes)
       end
@@ -121,7 +119,7 @@ RSpec.describe PostReceive do
       it 'does not call Geo::RepositoryUpdatedService when not running on a Geo primary node' do
         allow(Gitlab::Geo).to receive(:primary?) { false }
 
-        expect_any_instance_of(::Geo::RepositoryUpdatedService).not_to receive(:execute)
+        expect_next(::Geo::RepositoryUpdatedService, not_to_receive: :execute)
 
         described_class.new.perform(gl_repository, key_id, base64_changes)
       end
@@ -129,7 +127,8 @@ RSpec.describe PostReceive do
       it 'triggers wiki index update when ElasticSearch is enabled and pushed to master', :elastic do
         stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
 
-        expect_any_instance_of(ProjectWiki).to receive(:index_wiki_blobs)
+        project.wiki # force evaluation so that the expectation below works
+        expect_next(ProjectWiki, to_receive: :index_wiki_blobs)
 
         described_class.new.perform(gl_repository, key_id, base64_changes_with_master)
       end
@@ -137,7 +136,7 @@ RSpec.describe PostReceive do
       it 'does not trigger wiki index update when Elasticsearch is enabled and not pushed to master', :elastic do
         stub_ee_application_setting(elasticsearch_search: true, elasticsearch_indexing: true)
 
-        expect_any_instance_of(ProjectWiki).not_to receive(:index_wiki_blobs)
+        expect(project.wiki).not_to receive(:index_wiki_blobs)
 
         described_class.new.perform(gl_repository, key_id, base64_changes)
       end
@@ -153,7 +152,7 @@ RSpec.describe PostReceive do
 
         context 'when the project is not enabled specifically' do
           it 'does not trigger wiki index update' do
-            expect_any_instance_of(ProjectWiki).not_to receive(:index_wiki_blobs)
+            expect_next(ProjectWiki, not_to_receive: :index_wiki_blobs)
 
             described_class.new.perform(gl_repository, key_id, base64_changes_with_master)
           end
@@ -165,7 +164,8 @@ RSpec.describe PostReceive do
           end
 
           it 'triggers wiki index update' do
-            expect_any_instance_of(ProjectWiki).to receive(:index_wiki_blobs)
+            project.wiki
+            expect_next(ProjectWiki, to_receive: :index_wiki_blobs)
 
             described_class.new.perform(gl_repository, key_id, base64_changes_with_master)
           end
@@ -183,7 +183,8 @@ RSpec.describe PostReceive do
           end
 
           it 'triggers wiki index update' do
-            expect_any_instance_of(ProjectWiki).to receive(:index_wiki_blobs)
+            project.wiki
+            expect_next(ProjectWiki, to_receive: :index_wiki_blobs)
 
             described_class.new.perform(gl_repository, key_id, base64_changes_with_master)
           end
