@@ -16,7 +16,7 @@ module QA
       def set_application_settings(**application_settings)
         QA::Runtime::Logger.info("Setting application settings: #{application_settings}")
         r = put(Runtime::API::Request.new(api_client, APPLICATION_SETTINGS_PATH).url, **application_settings)
-        raise "Couldn't set application settings #{application_settings.inspect}" unless r.code == QA::Support::Api::HTTP_STATUS_OK
+        raise "Couldn't set application settings #{application_settings.inspect} - API call failed with #{r.code}: #{r}" unless r.code == QA::Support::Api::HTTP_STATUS_OK
       end
 
       def get_application_settings
