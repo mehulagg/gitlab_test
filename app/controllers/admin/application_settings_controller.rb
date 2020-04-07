@@ -29,7 +29,7 @@ class Admin::ApplicationSettingsController < Admin::ApplicationController
 
   def integrations
     if Feature.enabled?(:instance_level_integrations)
-      @integrations = Service.find_or_initialize_instances.sort_by(&:title)
+      @integrations = Service.find_or_initialize_instances.sort_by(&:title).select { |service| service.type == 'JiraService' }
     else
       set_application_setting
       perform_update if submitted?

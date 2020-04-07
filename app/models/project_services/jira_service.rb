@@ -222,6 +222,12 @@ class JiraService < IssueTrackerService
 
   private
 
+  def inherit?
+    return false if instance? || template?
+
+    !!instance_level_service
+  end
+
   def test_settings
     return unless client_url.present?
 
