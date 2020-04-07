@@ -79,7 +79,7 @@ module API
         use :pagination
       end
       # rubocop: disable CodeReuse/ActiveRecord
-      get ':id/pipelines/:pipeline_id/jobs' do
+      get ':id/pipelines/:pipeline_id/bridges' do
         authorize!(:read_pipeline, user_project)
         pipeline = user_project.ci_pipelines.find(params[:pipeline_id])
         authorize!(:read_build, pipeline)
