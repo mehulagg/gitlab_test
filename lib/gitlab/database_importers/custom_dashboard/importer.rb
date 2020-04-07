@@ -1,26 +1,37 @@
 # frozen_string_literal: true
 
-# TODO: Do we move this out of :development? Is there a better way to do this?
-require 'json-schema'
-
 module Gitlab
   module DatabaseImporters
     module CustomDashboard
       # Imports source-controlled project dashboards into the DB.
-      # Skips any metrics without an 'id' defined & aren't line graphs.
+      #
+      # Skips any metrics without an 'id' defined or aren't
+      # currently supported panel types.
+      #
+      # If a failure should occur partway, a partial import will occur.
       class Importer
-        InvalidDashboardError = Class.new(StandardError)
-
-        PROJECT_DASHBOARD_KEY = 3
-        DASHBOARD_SCHEMA_PATH = 'lib/gitlab/metrics/dashboard/schemas/raw/dashboard.json'.freeze
+        PROJECT_DASHBOARD_GROUP = 3
+        SUPPORTED_PANEL_TYPES = {
+          'area-chart' => CustomDashboard::PanelType::TimeSeries,
+          'line-chart' => CustomDashboard::PanelType::TimeSeries
+        }.freeze
 
         attr_reader :content, :project
-        attr_accessor :identifiers
 
+        # Imports all custom dashboards for a project, removing
+        # any custom dashboard metrics (and corresponding alerts)
+        # from the DB which are not present in the current dashboards.
+        #
+        # Does not impact common metrics or custom metrics
+        # added through the UI.
+        #
+        # @param project [Project]
         def self.import_dashboards!(project)
-          ::Metrics::Dashboard::ProjectDashboardService
-            .all_dashboard_paths(project)
-            .map { |attributes| new(project, attributes[:path]).execute }
+          all_identifiers = ::Metrics::Dashboard::ProjectDashboardService
+                              .all_dashboard_paths(project)
+                              .flat_map { |attributes| new(project, attributes[:path]).execute }
+
+          CustomDashboard::Reconciler.new(project, all_identifiers).execute
         end
 
         def initialize(project, filename)
@@ -33,15 +44,14 @@ module Gitlab
 
         def execute
           CustomDashboard::PrometheusMetric.reset_column_information
-
-          validate_dashboard!
+          CustomDashboard::Validator.new(content).execute
 
           process_content do |id, attributes|
             find_or_build_metric!(id)
               .update!(**attributes)
           end
 
-          cleanup_unidentified_metrics
+          identifiers
         end
 
         private
@@ -53,7 +63,7 @@ module Gitlab
         end
 
         def process_group(group, &blk)
-          attributes = { group: PROJECT_DASHBOARD_KEY }
+          attributes = { group: PROJECT_DASHBOARD_GROUP }
 
           group['panels'].map do |panel|
             process_panel(panel, attributes, &blk)
@@ -61,49 +71,34 @@ module Gitlab
         end
 
         def process_panel(panel, attributes, &blk)
-          return unless %w(area-chart line-chart).include?(panel['type'])
+          panel_config = SUPPORTED_PANEL_TYPES[panel['type']]
+          return unless panel_config
 
-          attributes = attributes.merge(
-            title: panel['title'],
-            y_label: panel['y_label'])
+          panel_attributes = panel_config.get_panel_attributes(panel)
+          attributes = attributes.merge(panel_attributes)
 
           panel['metrics'].map do |metric_details|
-            process_metric_details(metric_details, attributes, &blk)
+            process_metric(panel_config, metric_details, attributes, &blk)
           end
         end
 
-
-        def process_metric_details(metric_details, attributes, &blk)
-          attributes = attributes.merge(
-            legend: metric_details['label'],
-            query: metric_details['query_range'] || metric_details['query'],
-            unit: metric_details['unit'])
+        def process_metric(panel_config, metric_details, attributes, &blk)
+          metric_attributes = panel_config.get_metric_attributes(metric_details)
+          attributes = attributes.merge(metric_attributes)
 
           yield(metric_details['id'], attributes)
         end
 
         def find_or_build_metric!(id)
           return unless id
-          identifiers << id
+          add_identifier(id)
 
           CustomDashboard::PrometheusMetric.find_by(project_id: project.id, identifier: id) ||
             CustomDashboard::PrometheusMetric.new(project_id: project.id, identifier: id)
         end
 
-        def cleanup_unidentified_metrics
-          CustomDashboard::PrometheusMetric
-            .where(project_id: project.id, group: PROJECT_DASHBOARD_KEY)
-            .where.not(identifier: identifiers)
-            .destroy_all
-        end
-
-        def validate_dashboard!
-          raw_schema = File.read(Rails.root.join(DASHBOARD_SCHEMA_PATH))
-          schema = JSON.parse(raw_schema)
-
-          errors = JSON::Validator.fully_validate(schema, content)
-
-          raise InvalidDashboardError.new(errors) unless errors.empty?
+        def add_identifier(id)
+          @identifiers << id
         end
       end
     end
