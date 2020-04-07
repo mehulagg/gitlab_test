@@ -8,6 +8,7 @@ describe Metrics::Dashboard::Annotations::CreateService do
   let(:dashboard_path) { 'config/prometheus/common_metrics.yml' }
   let(:starting_at) { 15.minutes.ago }
   let(:ending_at) { nil }
+  let(:panel_xid) { 'panel_xid' }
   let(:service_instance) { described_class.new(user, annotation_params) }
   let(:annotation_params) do
     {
@@ -16,7 +17,8 @@ describe Metrics::Dashboard::Annotations::CreateService do
       description: description,
       dashboard_path: dashboard_path,
       starting_at: starting_at,
-      ending_at: ending_at
+      ending_at: ending_at,
+      panel_xid: panel_xid
     }
   end
 

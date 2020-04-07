@@ -54,7 +54,7 @@ module Metrics
         end
 
         def create(options)
-          annotation = Annotation.new(options.slice(:environment, :cluster, :dashboard_path).merge(params.slice(:description, :starting_at, :ending_at)))
+          annotation = Annotation.new(options.slice(:environment, :cluster, :dashboard_path).merge(params.slice(:description, :starting_at, :ending_at, :panel_xid)))
 
           if annotation.save
             success(annotation: annotation)
