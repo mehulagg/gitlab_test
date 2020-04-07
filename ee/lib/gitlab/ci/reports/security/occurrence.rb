@@ -13,6 +13,7 @@ module Gitlab
           attr_reader :name
           attr_reader :old_location
           attr_reader :project_fingerprint
+          attr_reader :feedback_fingerprint
           attr_reader :raw_metadata
           attr_reader :report_type
           attr_reader :scanner
@@ -35,6 +36,7 @@ module Gitlab
             @uuid = uuid
 
             @project_fingerprint = generate_project_fingerprint
+            @feedback_fingerprint = generate_feedback_fingerprint
           end
 
           def to_hash
@@ -46,6 +48,7 @@ module Gitlab
               metadata_version
               name
               project_fingerprint
+              feedback_fingerprint
               raw_metadata
               report_type
               scanner
@@ -66,6 +69,10 @@ module Gitlab
           end
 
           private
+
+          def generate_feedback_fingerprint
+            [primary_identifier&.fingerprint, location&.fingerprint, report_type.to_s].compact.join("")
+          end
 
           def generate_project_fingerprint
             Digest::SHA1.hexdigest(compare_key)

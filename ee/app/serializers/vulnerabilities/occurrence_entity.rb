@@ -8,6 +8,7 @@ class Vulnerabilities::OccurrenceEntity < Grape::Entity
   expose :scanner, using: Vulnerabilities::ScannerEntity
   expose :identifiers, using: Vulnerabilities::IdentifierEntity
   expose :project_fingerprint
+  expose :feeback_fingerprint, safe: true
   expose :create_vulnerability_feedback_issue_path do |occurrence|
     create_vulnerability_feedback_issue_path(occurrence.project)
   end

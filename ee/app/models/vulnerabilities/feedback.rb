@@ -44,7 +44,12 @@ module Vulnerabilities
     def self.find_or_init_for(feedback_params)
       validate_enums(feedback_params)
 
-      record = find_or_initialize_by(feedback_params.slice(:category, :feedback_type, :project_fingerprint))
+      record = find_or_initialize_by({
+          category: feedback_params.dig(:category),
+          feedback_type: feedback_params.dig(:feedback_type),
+          project_fingerprint: feedback_params.dig(:project_fingerprint),
+          feedback_fingerprint: feedback_params.dig(:vulnerability_data, :feedback_fingerprint)
+        })
       record.assign_attributes(feedback_params)
       record
     end

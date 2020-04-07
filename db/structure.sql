@@ -387,12 +387,12 @@ CREATE TABLE public.application_settings (
     force_pages_access_control boolean DEFAULT false NOT NULL,
     updating_name_disabled_for_users boolean DEFAULT false NOT NULL,
     instance_administrators_group_id integer,
-    elasticsearch_indexed_field_length_limit integer DEFAULT 0 NOT NULL,
-    elasticsearch_max_bulk_size_mb smallint DEFAULT 10 NOT NULL,
-    elasticsearch_max_bulk_concurrency smallint DEFAULT 10 NOT NULL,
     disable_overriding_approvers_per_merge_request boolean DEFAULT false NOT NULL,
     prevent_merge_requests_author_approval boolean DEFAULT false NOT NULL,
     prevent_merge_requests_committers_approval boolean DEFAULT false NOT NULL,
+    elasticsearch_indexed_field_length_limit integer DEFAULT 0 NOT NULL,
+    elasticsearch_max_bulk_size_mb smallint DEFAULT 10 NOT NULL,
+    elasticsearch_max_bulk_concurrency smallint DEFAULT 10 NOT NULL,
     email_restrictions_enabled boolean DEFAULT false NOT NULL,
     email_restrictions text,
     npm_package_requests_forwarding boolean DEFAULT true NOT NULL,
@@ -600,8 +600,8 @@ ALTER SEQUENCE public.approvers_id_seq OWNED BY public.approvers.id;
 CREATE TABLE public.ar_internal_metadata (
     key character varying NOT NULL,
     value character varying,
-    created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 CREATE TABLE public.audit_events (
@@ -2062,11 +2062,11 @@ CREATE SEQUENCE public.design_management_designs_id_seq
 ALTER SEQUENCE public.design_management_designs_id_seq OWNED BY public.design_management_designs.id;
 
 CREATE TABLE public.design_management_designs_versions (
-    id bigint NOT NULL,
     design_id bigint NOT NULL,
     version_id bigint NOT NULL,
     event smallint DEFAULT 0 NOT NULL,
-    image_v432x230 character varying(255)
+    image_v432x230 character varying(255),
+    id bigint NOT NULL
 );
 
 CREATE SEQUENCE public.design_management_designs_versions_id_seq
@@ -3634,33 +3634,33 @@ CREATE SEQUENCE public.merge_request_blocks_id_seq
 ALTER SEQUENCE public.merge_request_blocks_id_seq OWNED BY public.merge_request_blocks.id;
 
 CREATE TABLE public.merge_request_context_commit_diff_files (
+    merge_request_context_commit_id bigint,
     sha bytea NOT NULL,
     relative_order integer NOT NULL,
+    a_mode character varying(255) NOT NULL,
+    b_mode character varying(255) NOT NULL,
     new_file boolean NOT NULL,
     renamed_file boolean NOT NULL,
     deleted_file boolean NOT NULL,
     too_large boolean NOT NULL,
-    a_mode character varying(255) NOT NULL,
-    b_mode character varying(255) NOT NULL,
+    "binary" boolean,
     new_path text NOT NULL,
     old_path text NOT NULL,
-    diff text,
-    "binary" boolean,
-    merge_request_context_commit_id bigint
+    diff text
 );
 
 CREATE TABLE public.merge_request_context_commits (
     id bigint NOT NULL,
+    merge_request_id bigint,
     authored_date timestamp with time zone,
     committed_date timestamp with time zone,
-    relative_order integer NOT NULL,
     sha bytea NOT NULL,
+    relative_order integer NOT NULL,
     author_name text,
     author_email text,
     committer_name text,
     committer_email text,
-    message text,
-    merge_request_id bigint
+    message text
 );
 
 CREATE SEQUENCE public.merge_request_context_commits_id_seq
@@ -4072,8 +4072,8 @@ CREATE TABLE public.notification_settings (
     issue_due boolean,
     new_epic boolean,
     notification_email character varying,
-    fixed_pipeline boolean,
-    new_release boolean
+    new_release boolean,
+    fixed_pipeline boolean
 );
 
 CREATE SEQUENCE public.notification_settings_id_seq
@@ -4910,9 +4910,9 @@ CREATE SEQUENCE public.project_repository_states_id_seq
 ALTER SEQUENCE public.project_repository_states_id_seq OWNED BY public.project_repository_states.id;
 
 CREATE TABLE public.project_settings (
-    project_id integer NOT NULL,
     created_at timestamp with time zone NOT NULL,
-    updated_at timestamp with time zone NOT NULL
+    updated_at timestamp with time zone NOT NULL,
+    project_id integer NOT NULL
 );
 
 CREATE TABLE public.project_statistics (
@@ -5684,6 +5684,7 @@ CREATE TABLE public.services (
     updated_at timestamp without time zone,
     active boolean DEFAULT false NOT NULL,
     properties text,
+    template boolean DEFAULT false,
     push_events boolean DEFAULT true,
     issues_events boolean DEFAULT true,
     merge_requests_events boolean DEFAULT true,
@@ -5700,7 +5701,6 @@ CREATE TABLE public.services (
     deployment_events boolean DEFAULT false NOT NULL,
     description character varying(500),
     comment_on_event_enabled boolean DEFAULT true NOT NULL,
-    template boolean DEFAULT false,
     instance boolean DEFAULT false NOT NULL
 );
 
@@ -5764,8 +5764,8 @@ CREATE SEQUENCE public.smartcard_identities_id_seq
 ALTER SEQUENCE public.smartcard_identities_id_seq OWNED BY public.smartcard_identities.id;
 
 CREATE TABLE public.snippet_repositories (
-    snippet_id bigint NOT NULL,
     shard_id bigint NOT NULL,
+    snippet_id bigint NOT NULL,
     disk_path character varying(80) NOT NULL
 );
 
@@ -6217,8 +6217,8 @@ CREATE SEQUENCE public.user_details_user_id_seq
 ALTER SEQUENCE public.user_details_user_id_seq OWNED BY public.user_details.user_id;
 
 CREATE TABLE public.user_highest_roles (
-    user_id bigint NOT NULL,
     updated_at timestamp with time zone NOT NULL,
+    user_id bigint NOT NULL,
     highest_access_level integer
 );
 
@@ -8459,6 +8459,8 @@ CREATE INDEX idx_merge_requests_on_state_id_and_merge_status ON public.merge_req
 
 CREATE INDEX idx_merge_requests_on_target_project_id_and_iid_opened ON public.merge_requests USING btree (target_project_id, iid) WHERE (state_id = 1);
 
+CREATE INDEX idx_mr_cc_diff_files_on_mr_cc_id ON public.merge_request_context_commit_diff_files USING btree (merge_request_context_commit_id);
+
 CREATE INDEX idx_mr_cc_diff_files_on_mr_cc_id_and_sha ON public.merge_request_context_commit_diff_files USING btree (merge_request_context_commit_id, sha);
 
 CREATE INDEX idx_packages_packages_on_project_id_name_version_package_type ON public.packages_packages USING btree (project_id, name, version, package_type);
@@ -8993,8 +8995,6 @@ CREATE UNIQUE INDEX index_emails_on_email ON public.emails USING btree (email);
 
 CREATE INDEX index_emails_on_user_id ON public.emails USING btree (user_id);
 
-CREATE INDEX index_environments_on_auto_stop_at ON public.environments USING btree (auto_stop_at) WHERE (auto_stop_at IS NOT NULL);
-
 CREATE INDEX index_environments_on_name_varchar_pattern_ops ON public.environments USING btree (name varchar_pattern_ops);
 
 CREATE UNIQUE INDEX index_environments_on_project_id_and_name ON public.environments USING btree (project_id, name);
@@ -9379,6 +9379,8 @@ CREATE INDEX index_merge_request_assignees_on_user_id ON public.merge_request_as
 
 CREATE INDEX index_merge_request_blocks_on_blocked_merge_request_id ON public.merge_request_blocks USING btree (blocked_merge_request_id);
 
+CREATE INDEX index_merge_request_context_commits_on_merge_request_id ON public.merge_request_context_commits USING btree (merge_request_id);
+
 CREATE UNIQUE INDEX index_merge_request_diff_commits_on_mr_diff_id_and_order ON public.merge_request_diff_commits USING btree (merge_request_diff_id, relative_order);
 
 CREATE INDEX index_merge_request_diff_commits_on_sha ON public.merge_request_diff_commits USING btree (sha);
@@ -9758,8 +9760,6 @@ CREATE INDEX index_projects_api_vis20_path ON public.projects USING btree (path,
 CREATE INDEX index_projects_api_vis20_updated_at ON public.projects USING btree (updated_at, id) WHERE (visibility_level = 20);
 
 CREATE INDEX index_projects_on_created_at_and_id ON public.projects USING btree (created_at, id);
-
-CREATE INDEX index_projects_on_creator_id_and_created_at ON public.projects USING btree (creator_id, created_at);
 
 CREATE INDEX index_projects_on_description_trigram ON public.projects USING gin (description public.gin_trgm_ops);
 
@@ -10314,6 +10314,8 @@ CREATE INDEX partial_index_ci_builds_on_scheduled_at_with_scheduled_jobs ON publ
 CREATE INDEX partial_index_deployments_for_legacy_successful_deployments ON public.deployments USING btree (id) WHERE ((finished_at IS NULL) AND (status = 2));
 
 CREATE INDEX partial_index_deployments_for_project_id_and_tag ON public.deployments USING btree (project_id) WHERE (tag IS TRUE);
+
+CREATE INDEX snippet_mentions_temp_index ON public.notes USING btree (id) WHERE ((note ~~ '%@%'::text) AND ((noteable_type)::text = 'Snippet'::text));
 
 CREATE UNIQUE INDEX snippet_user_mentions_on_snippet_id_and_note_id_index ON public.snippet_user_mentions USING btree (snippet_id, note_id);
 
@@ -12723,6 +12725,10 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200124143014
 20200127090233
 20200127111840
+20200127111953
+20200127131953
+20200127141953
+20200127151953
 20200128105731
 20200128132510
 20200128133510
@@ -12794,6 +12800,9 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200214025454
 20200214034836
 20200214085940
+20200214173000
+20200214174519
+20200214174607
 20200214214934
 20200215222507
 20200215225103
@@ -12858,6 +12867,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200306170531
 20200306192548
 20200306193236
+20200309105539
 20200309140540
 20200309162244
 20200309195209

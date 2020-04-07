@@ -168,6 +168,7 @@ describe Vulnerabilities::Feedback do
           priority: 'Low', line: '41',
           file: 'subdir/src/main/java/com/gitlab/security_products/tests/App.java',
           cve: '818bf5dacb291e15d9e6dc3c5ac32178:PREDICTABLE_RANDOM',
+          feedback_fingerprint: '624d026dc13e1e189f9ea4ca66a065466d3f438dd94250ee8bc45ab57566374esast',
           name: 'Predictable pseudorandom number generator',
           description: 'Description of Predictable pseudorandom number generator',
           tool: 'find_sec_bugs'
