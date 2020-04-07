@@ -14,18 +14,14 @@ module Notes
 
       return note unless note_valid
 
-      # We execute commands (extracted from `params[:note]`) on the noteable
-      # **before** we save the note because if the note consists of commands
-      # only, there is no need be create a note!
-
-      execute_quick_actions(note) do |only_commands|
+      execute_quick_actions(note) do |should_save|
         note.run_after_commit do
           # Finish the harder work in the background
           NewNoteWorker.perform_async(note.id)
         end
 
         note_saved = note.with_transaction_returning_status do
-          !only_commands && note.save
+          should_save && note.save
         end
 
         when_saved(note) if note_saved
@@ -37,15 +33,15 @@ module Notes
     private
 
     def execute_quick_actions(note)
-      return yield(false) unless quick_actions_service.supported?(note)
+      return yield(true) unless quick_actions_service.supported?(note)
 
-      content, update_params, message = quick_actions_service.execute(note, quick_action_options)
-      only_commands = content.empty?
-      note.note = content
+      response = quick_actions_service.execute(note, quick_action_options)
+      note.note = response.content
 
-      yield(only_commands)
+      yield(!response.only_commands?)
 
-      do_commands(note, update_params, message, only_commands)
+      do_commands(note, response)
+      report_command_messages(note, response) if response.only_commands?
     end
 
     def quick_actions_service
@@ -71,21 +67,20 @@ module Notes
       end
     end
 
-    def do_commands(note, update_params, message, only_commands)
-      return if quick_actions_service.commands_executed_count.to_i.zero?
+    def do_commands(note, execution_response)
+      return if execution_response.count.zero? || execution_response.updates.empty?
 
-      if update_params.present?
-        quick_actions_service.apply_updates(update_params, note)
-        note.commands_changes = update_params
-      end
+      quick_actions_service.apply_updates(execution_response.updates, note)
+      note.commands_changes = execution_response.updates
+    end
 
-      # We must add the error after we call #save because errors are reset
-      # when #save is called
-      if only_commands
-        note.errors.add(:commands_only, message.presence || _('Failed to apply commands.'))
-        # Allow consumers to detect problems applying commands
-        note.errors.add(:commands, _('Failed to apply commands.')) unless message.present?
-      end
+    # Execution messages are reported in a side channel in the errors messages
+    def report_command_messages(note, execution_response)
+      warnings = execution_response.warnings
+      message = execution_response.messages
+
+      note.errors.add(:commands, warnings) if warnings.present?
+      note.errors.add(:commands_only, message.presence || _('Failed to apply commands.'))
     end
 
     def quick_action_options

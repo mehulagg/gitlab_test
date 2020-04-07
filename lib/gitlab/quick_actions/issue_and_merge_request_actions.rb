@@ -14,7 +14,7 @@ module Gitlab
         end
         execution_message do |users = nil|
           if users.blank?
-            _("Failed to assign a user because no user was found.")
+            warn _("Failed to assign a user because no user was found.")
           else
             users = [users.first] unless quick_action_target.allows_multiple_assignees?
 
@@ -100,6 +100,7 @@ module Gitlab
         end
         command :milestone do |milestone|
           @updates[:milestone_id] = milestone.id if milestone
+          warn _('Could not find milestone') unless milestone
         end
 
         desc _('Remove milestone')
@@ -137,7 +138,7 @@ module Gitlab
             @updates[:add_label_ids] = source_issuable.labels.map(&:id)
             @updates[:milestone_id] = source_issuable.milestone.id if source_issuable.milestone
 
-            @execution_message[:copy_metadata] = _("Copied labels and milestone from %{source_issuable_reference}.") % { source_issuable_reference: source_issuable.to_reference }
+            info _("Copied labels and milestone from %{source_issuable_reference}.") % { source_issuable_reference: source_issuable.to_reference }
           end
         end
 

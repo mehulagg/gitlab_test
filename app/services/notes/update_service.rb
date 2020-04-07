@@ -13,33 +13,25 @@ module Notes
         note.save
       end
 
-      only_commands = false
+      quick_actions_service = QuickActionsService.new(project, note, current_user)
+      response = quick_actions_service.execute(note)
 
-      quick_actions_service = QuickActionsService.new(project, current_user)
-      if quick_actions_service.supported?(note)
-        content, update_params, message = quick_actions_service.execute(note, {})
+      note.note = response.content
 
-        only_commands = content.empty?
-
-        note.note = content
-      end
-
-      unless only_commands
+      unless response.only_commands?
         note.create_new_cross_references!(current_user)
-
         update_todos(note, old_mentioned_users)
-
         update_suggestions(note)
       end
 
-      if quick_actions_service.commands_executed_count.to_i > 0
-        if update_params.present?
-          quick_actions_service.apply_updates(update_params, note)
+      if response.count > 0
+        if response.updates.present?
+          quick_actions_service.apply_updates(response.updates, note)
           note.commands_changes = update_params
         end
 
         if only_commands
-          delete_note(note, message)
+          delete_note(note, response.messages, response.warnings)
           note = nil
         else
           note.save
@@ -51,12 +43,12 @@ module Notes
 
     private
 
-    def delete_note(note, message)
+    def delete_note(note, message, warnings)
       # We must add the error after we call #save because errors are reset
       # when #save is called
       note.errors.add(:commands_only, message.presence || _('Commands did not apply'))
       # Allow consumers to detect problems applying commands
-      note.errors.add(:commands, _('Commands did not apply')) unless message.present?
+      note.errors.add(:commands, warnings) if warnings.present?
 
       Notes::DestroyService.new(project, current_user).execute(note)
     end

@@ -11,18 +11,32 @@ module QuickActions
     include Gitlab::QuickActions::CommitActions
     include Gitlab::QuickActions::CommonActions
 
-    attr_reader :quick_action_target
+    ExecutionResponse = Struct.new(:content, :updates, :messages, :warnings, :count, :only_commands?)
+
+    attr_reader :quick_action_target, :content
 
     # Counts how many commands have been executed.
     # Used to display relevant feedback on UI when a note
     # with only commands has been processed.
-    attr_accessor :commands_executed_count
+    attr_reader :commands_executed_count
+
+    def initialize(project, target, user = nil, content = nil, params = {})
+      super(project, user, params)
+      @quick_action_target = target
+      @content = content
+      @updates = {}
+      @execution_message = {}
+      @execution_warning = {}
+      @commands_executed_count = 0
+    end
+
+    def self.null_explanation(content)
+      ExplainResponse.new(content, [])
+    end
 
     # Takes an quick_action_target and returns an array of all the available commands
     # represented with .to_h
-    def available_commands(quick_action_target)
-      @quick_action_target = quick_action_target
-
+    def available_commands
       self.class.command_definitions.map do |definition|
         next unless definition.available?(self)
 
@@ -31,37 +45,59 @@ module QuickActions
     end
 
     # Takes a text and interprets the commands that are extracted from it.
-    # Returns the content without commands, a hash of changes to be applied to a record
-    # and a string containing the execution_message to show to the user.
-    def execute(content, quick_action_target, only: nil)
-      return [content, {}, ''] unless current_user.can?(:use_quick_actions)
+    # Returns an ExecutionResponse
+    def execute(only: nil)
+      return null_response unless current_user.can?(:use_quick_actions)
 
-      @quick_action_target = quick_action_target
-      @updates = {}
-      @execution_message = {}
+      trimmed_content, commands = extractor.extract_commands(content, only: only)
+      run_definitions(commands)
 
-      content, commands = extractor.extract_commands(content, only: only)
-      extract_updates(commands)
-
-      [content, @updates, execution_messages_for(commands)]
+      ExecutionResponse.new(trimmed_content, @updates,
+                            execution_messages_for(commands),
+                            execution_warnings_for(commands),
+                            commands_executed_count,
+                            trimmed_content.empty?)
     end
+
+    def null_response
+      ExecutionResponse.new(content, {}, '', '', 0, false)
+    end
+
+    ExplainResponse = Struct.new(:content, :messages)
 
     # Takes a text and interprets the commands that are extracted from it.
     # Returns the content without commands, and array of changes explained.
-    def explain(content, quick_action_target)
-      return [content, []] unless current_user.can?(:use_quick_actions)
+    def explain
+      return ExplainResponse.new(content, []) unless current_user.can?(:use_quick_actions)
 
-      @quick_action_target = quick_action_target
+      trimmed_content, commands = extractor.extract_commands(content)
+      ExplainResponse.new(trimmed_content, explain_commands(commands))
+    end
 
-      content, commands = extractor.extract_commands(content)
-      commands = explain_commands(commands)
-      [content, commands]
+    # Available to commands
+    def record_command_execution
+      self.commands_executed_count += 1
+    end
+
+    def warn(message)
+      @execution_warning[@current_name] = message
+      nil
+    end
+
+    def info(message)
+      if @execution_message[@current_name]
+        @execution_message[@current_name] << " #{message}"
+      else
+        @execution_message[@current_name] = message
+      end
     end
 
     private
 
+    attr_writer :commands_executed_count
+
     def extractor
-      Gitlab::QuickActions::Extractor.new(self.class.command_definitions)
+      @extractor ||= Gitlab::QuickActions::Extractor.new(self.class.command_definitions)
     end
 
     # rubocop: disable CodeReuse/ActiveRecord
@@ -140,7 +176,11 @@ module QuickActions
     end
 
     def execution_messages_for(commands)
-      map_commands(commands, :execute_message).join(' ')
+      map_commands(commands, :execute_message).uniq.join(' ')
+    end
+
+    def execution_warnings_for(commands)
+      map_commands(commands, :execution_warning).join(' ')
     end
 
     def map_commands(commands, method)
@@ -150,20 +190,31 @@ module QuickActions
 
         case method
         when :explain
-          definition.explain(self, arg)
+          with_name(name) { definition.explain(self, arg) }
         when :execute_message
           @execution_message[name.to_sym] || definition.execute_message(self, arg)
+        when :execution_warning
+          # run execution message block to capture warnings
+          with_name(name) { definition.execute_message(self, arg) }
+          @execution_warning[name.to_sym]
         end
       end.compact
     end
 
-    def extract_updates(commands)
+    def run_definitions(commands)
       commands.each do |name, arg|
         definition = self.class.definition_by_name(name)
         next unless definition
 
-        definition.execute(self, arg)
+        with_name(name) { definition.execute(self, arg) }
       end
+    end
+
+    def with_name(name)
+      @current_name = name.to_sym
+      ret = yield
+      @current_name = nil
+      ret
     end
 
     # rubocop: disable CodeReuse/ActiveRecord

@@ -37,11 +37,12 @@ module Notes
     end
 
     def execute(note, options = {})
-      return [note.note, {}] unless supported?(note)
-
-      @interpret_service = QuickActions::InterpretService.new(project, current_user, options)
-
-      @interpret_service.execute(note.note, note.noteable)
+      @interpret_service = QuickActions::InterpretService.new(project, note.noteable, current_user, note.note, options)
+      if supported?(note)
+        @interpret_service.execute
+      else
+        @interpret_service.null_response
+      end
     end
 
     # Applies updates extracted to note#noteable

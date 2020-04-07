@@ -18,6 +18,8 @@ module EE
             if quick_action_target.can_approve?(current_user)
               ::MergeRequests::ApprovalService.new(quick_action_target.project, current_user).execute(quick_action_target)
               @execution_message[:approve] = _('Approved the current merge request.')
+            else
+              warn _('You cannot approve this merge request')
             end
           end
         end

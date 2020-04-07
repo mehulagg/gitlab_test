@@ -28,7 +28,7 @@ module Gitlab
           if due_date
             @updates[:due_date] = due_date
           else
-            @execution_message[:due] = _('Failed to set due date because the date format is invalid.')
+            warn _('Failed to set due date because the date format is invalid.')
           end
         end
 
@@ -62,9 +62,9 @@ module Gitlab
           label_ids = labels.map(&:id)
 
           if label_ids.size > 1
-            message = _('Failed to move this issue because only a single label can be provided.')
+            warn _('Failed to move this issue because only a single label can be provided.')
           elsif !Label.on_project_board?(quick_action_target.project_id, label_ids.first)
-            message = _('Failed to move this issue because label was not found.')
+            warn _('Failed to move this issue because label was not found.')
           else
             label_id = label_ids.first
 
@@ -72,10 +72,8 @@ module Gitlab
               quick_action_target.labels.on_project_boards(quick_action_target.project_id).where.not(id: label_id).pluck(:id) # rubocop: disable CodeReuse/ActiveRecord
             @updates[:add_label_ids] = [label_id]
 
-            message = _("Moved issue to %{label} column in the board.") % { label: labels_to_reference(labels).first }
+            info _("Moved issue to %{label} column in the board.") % { label: labels_to_reference(labels).first }
           end
-
-          @execution_message[:board_move] = message
         end
 
         desc _('Mark this issue as a duplicate of another issue')
@@ -94,12 +92,10 @@ module Gitlab
           if canonical_issue.present?
             @updates[:canonical_issue_id] = canonical_issue.id
 
-            message = _("Marked this issue as a duplicate of %{duplicate_param}.") % { duplicate_param: duplicate_param }
+            info _("Marked this issue as a duplicate of %{duplicate_param}.") % { duplicate_param: duplicate_param }
           else
-            message = _('Failed to mark this issue as a duplicate because referenced issue was not found.')
+            warn _('Failed to mark this issue as a duplicate because referenced issue was not found.')
           end
-
-          @execution_message[:duplicate] = message
         end
 
         desc _('Move this issue to another project.')
@@ -118,12 +114,10 @@ module Gitlab
           if target_project.present?
             @updates[:target_project] = target_project
 
-            message = _("Moved this issue to %{path_to_project}.") % { path_to_project: target_project_path }
+            info _("Moved this issue to %{path_to_project}.") % { path_to_project: target_project_path }
           else
-            message = _("Failed to move this issue because target project doesn't exist.")
+            warn _("Failed to move this issue because target project doesn't exist.")
           end
-
-          @execution_message[:move] = message
         end
 
         desc _('Make issue confidential')

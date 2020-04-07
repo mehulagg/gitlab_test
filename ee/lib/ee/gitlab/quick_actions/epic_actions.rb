@@ -7,6 +7,8 @@ module EE
         extend ActiveSupport::Concern
         include ::Gitlab::QuickActions::Dsl
 
+        ExecutionError = Class.new(StandardError)
+
         included do
           desc _('Add child epic to an epic')
           explanation do |epic_param|
@@ -20,7 +22,9 @@ module EE
           command :child_epic do |epic_param|
             child_epic = extract_epic(epic_param)
 
-            @execution_message[:child_epic] = add_child_epic(quick_action_target, child_epic)
+            info add_child_epic(quick_action_target, child_epic)
+          rescue ExecutionError => e
+            warn e.message
           end
 
           desc _('Remove child epic from an epic')
@@ -35,14 +39,13 @@ module EE
           command :remove_child_epic do |epic_param|
             child_epic = extract_epic(epic_param)
 
-            @execution_message[:remove_child_epic] =
-              if child_epic && quick_action_target.child?(child_epic.id)
-                EpicLinks::DestroyService.new(child_epic, current_user).execute
+            if child_epic && quick_action_target.child?(child_epic.id)
+              EpicLinks::DestroyService.new(child_epic, current_user).execute
 
-                _("Removed %{epic_ref} from child epics.") % { epic_ref: child_epic.to_reference(quick_action_target) }
-              else
-                _("Child epic does not exist.")
-              end
+              info _("Removed %{epic_ref} from child epics.") % { epic_ref: child_epic.to_reference(quick_action_target) }
+            else
+              warn _("Child epic does not exist.")
+            end
           end
 
           desc _('Set parent epic to an epic')
@@ -57,7 +60,9 @@ module EE
           command :parent_epic do |epic_param|
             parent_epic = extract_epic(epic_param)
 
-            @execution_message[:parent_epic] = set_parent_epic(quick_action_target, parent_epic)
+            info set_parent_epic(quick_action_target, parent_epic)
+          rescue ExecutionError => e
+            warn e.message
           end
 
           desc _('Remove parent epic from an epic')
@@ -71,14 +76,13 @@ module EE
           command :remove_parent_epic do
             parent_epic = quick_action_target.parent
 
-            @execution_message[:remove_parent_epic] =
-              if parent_epic
-                EpicLinks::DestroyService.new(quick_action_target, current_user).execute
+            if parent_epic
+              EpicLinks::DestroyService.new(quick_action_target, current_user).execute
 
-                _('Removed parent epic %{epic_ref}.') % { epic_ref: parent_epic.to_reference(quick_action_target) }
-              else
-                _("Parent epic is not present.")
-              end
+              info _('Removed parent epic %{epic_ref}.') % { epic_ref: parent_epic.to_reference(quick_action_target) }
+            else
+              warn _("Parent epic is not present.")
+            end
           end
 
           private
@@ -99,9 +103,9 @@ module EE
           end
 
           def add_child_epic(target_epic, child_epic)
-            return child_error_message(:not_present) unless child_epic.present?
-            return child_error_message(:already_related) if epics_related?(child_epic, target_epic)
-            return child_error_message(:no_permission) unless current_user.can?(:read_epic, child_epic)
+            raise ExecutionError, child_error_message(:not_present) unless child_epic.present?
+            raise ExecutionError, child_error_message(:already_related) if epics_related?(child_epic, target_epic)
+            raise ExecutionError, child_error_message(:no_permission) unless current_user.can?(:read_epic, child_epic)
 
             EpicLinks::CreateService.new(target_epic, current_user, { target_issuable: child_epic }).execute
 
@@ -109,9 +113,9 @@ module EE
           end
 
           def set_parent_epic(target_epic, parent_epic)
-            return parent_error_message(:not_present) unless parent_epic.present?
-            return parent_error_message(:already_related) if epics_related?(parent_epic, target_epic)
-            return parent_error_message(:no_permission) unless current_user.can?(:read_epic, parent_epic)
+            raise ExecutionError, parent_error_message(:not_present) unless parent_epic.present?
+            raise ExecutionError, parent_error_message(:already_related) if epics_related?(parent_epic, target_epic)
+            raise ExecutionError, parent_error_message(:no_permission) unless current_user.can?(:read_epic, parent_epic)
 
             EpicLinks::CreateService.new(parent_epic, current_user, { target_issuable: target_epic }).execute
 

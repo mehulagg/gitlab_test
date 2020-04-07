@@ -26,7 +26,7 @@ module Projects
     def commands(noteable, type)
       return [] unless noteable
 
-      QuickActions::InterpretService.new(project, current_user).available_commands(noteable)
+      QuickActions::InterpretService.new(project, noteable, current_user).available_commands
     end
 
     def snippets

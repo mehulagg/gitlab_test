@@ -21,10 +21,9 @@ class PreviewMarkdownService < BaseService
   end
 
   def explain_quick_actions(text)
-    return text, [] unless quick_action_types.include?(target_type)
+    return QuickActions::InterpretService.null_explanation(text) unless quick_action_types.include?(target_type)
 
-    quick_actions_service = QuickActions::InterpretService.new(project, current_user)
-    quick_actions_service.explain(text, find_commands_target)
+    QuickActions::InterpretService.new(project, find_commands_target, current_user, text).explain
   end
 
   def find_user_references(text)

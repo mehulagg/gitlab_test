@@ -88,7 +88,6 @@ module API
           elsif note.valid?
             present note, with: Entities.const_get(note.class.name, false)
           else
-            note.errors.delete(:commands_only) if note.errors.has_key?(:commands)
             bad_request!("Note #{note.errors.messages}")
           end
         end

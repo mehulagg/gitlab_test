@@ -126,7 +126,7 @@ module Gitlab
             label_references = []
           end
 
-          @execution_message[:unlabel] = remove_label_message(label_references)
+          info remove_label_message(label_references)
         end
 
         desc _('Replace all label(s)')
