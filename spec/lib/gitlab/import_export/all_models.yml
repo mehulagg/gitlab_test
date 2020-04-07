@@ -174,6 +174,7 @@ ci_pipelines:
 - statuses
 - latest_statuses_ordered_by_stage
 - builds
+- bridges
 - processables
 - trigger_requests
 - variables
