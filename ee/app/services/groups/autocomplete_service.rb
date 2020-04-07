@@ -51,7 +51,7 @@ module Groups
     def commands(noteable)
       return [] unless noteable
 
-      QuickActions::InterpretService.new(nil, current_user).available_commands(noteable)
+      QuickActions::InterpretService.new(nil, noteable, current_user).available_commands
     end
   end
 end

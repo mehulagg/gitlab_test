@@ -39,7 +39,7 @@ module EE
           command :weight do |weight|
             if weight
               @updates[:weight] = weight
-              @execution_message[:weight] = _("Set weight to %{weight}.") % { weight: weight }
+              info _("Set weight to %{weight}.") % { weight: weight }
             end
           end
 

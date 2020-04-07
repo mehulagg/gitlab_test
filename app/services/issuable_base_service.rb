@@ -122,14 +122,16 @@ class IssuableBaseService < BaseService
   def merge_quick_actions_into_params!(issuable, only: nil)
     original_description = params.fetch(:description, issuable.description)
 
-    description, command_params =
-      QuickActions::InterpretService.new(project, current_user, quick_action_options)
-        .execute(original_description, issuable, only: only)
+    execution_response = QuickActions::InterpretService
+        .new(project, issuable, current_user, original_description)
+        .execute(only: only)
+
+    description = execution_response.content
 
     # Avoid a description already set on an issuable to be overwritten by a nil
     params[:description] = description if description && description != original_description
 
-    params.merge!(command_params)
+    params.merge!(execution_response.updates)
   end
 
   def quick_action_options

@@ -20,20 +20,17 @@ module EE
             epic = extract_epic(epic_param)
             issue = quick_action_target
 
-            message =
-              if epic && current_user.can?(:read_epic, epic)
-                if issue&.epic == epic
-                  _('Issue %{issue_reference} has already been added to epic %{epic_reference}.') %
-                    { issue_reference: issue.to_reference, epic_reference: epic.to_reference }
-                else
-                  @updates[:epic] = epic
-                  _('Added an issue to an epic.')
-                end
+            if epic && current_user.can?(:read_epic, epic)
+              if issue&.epic == epic
+                warn(_('Issue %{issue_reference} has already been added to epic %{epic_reference}.') %
+                  { issue_reference: issue.to_reference, epic_reference: epic.to_reference })
               else
-                _("This epic does not exist or you don't have sufficient permission.")
+                @updates[:epic] = epic
+                info _('Added an issue to an epic.')
               end
-
-            @execution_message[:epic] = message
+            else
+              warn _("This epic does not exist or you don't have sufficient permission.")
+            end
           end
 
           desc _('Remove from epic')

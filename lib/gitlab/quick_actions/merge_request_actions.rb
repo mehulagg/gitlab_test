@@ -89,7 +89,9 @@ module Gitlab
           _('Sets target branch to %{branch_name}.') % { branch_name: branch_name }
         end
         execution_message do |branch_name|
-          _('Set target branch to %{branch_name}.') % { branch_name: branch_name }
+          if project.repository.branch_exists?(branch_name)
+            _('Set target branch to %{branch_name}.') % { branch_name: branch_name }
+          end
         end
         params '<Local branch name>'
         types MergeRequest
@@ -102,7 +104,11 @@ module Gitlab
           target_branch_param.strip
         end
         command :target_branch do |branch_name|
-          @updates[:target_branch] = branch_name if project.repository.branch_exists?(branch_name)
+          if project.repository.branch_exists?(branch_name)
+            @updates[:target_branch] = branch_name
+          else
+            warn _('No branch named %{branch_name}.') % { branch_name: branch_name }
+          end
         end
 
         desc _('Submit a review')
@@ -115,11 +121,11 @@ module Gitlab
           next if params[:review_id]
 
           result = DraftNotes::PublishService.new(quick_action_target, current_user).execute
-          @execution_message[:submit_review] = if result[:status] == :success
-                                                 _('Submitted the current review.')
-                                               else
-                                                 result[:message]
-                                               end
+          if result[:status] == :success
+            info _('Submitted the current review.')
+          else
+            warn result[:message]
+          end
         end
       end
 

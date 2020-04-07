@@ -307,16 +307,34 @@ RSpec.describe Notes::CreateService do
         end
       end
 
-      context 'when note only have commands' do
-        it 'adds commands applied message to note errors' do
-          note_text = %(/close)
-          service = double(:service)
+      context 'when the note only has commands' do
+        let(:note_text) { '/close' }
+        let(:service) { double(:service) }
+
+        before do
           allow(Issues::UpdateService).to receive(:new).and_return(service)
-          expect(service).to receive(:execute)
+          allow(service).to receive(:execute)
+        end
 
-          note = described_class.new(project, user, opts.merge(note: note_text)).execute
+        let(:note) do
+          described_class.new(project, user, opts.merge(note: note_text)).execute
+        end
 
-          expect(note.errors[:commands_only]).to be_present
+        it 'adds commands applied message to note errors' do
+          expect(note.errors.messages).to eq(commands_only: ['Closed this issue.'])
+        end
+
+        context 'there was a problem applying a command' do
+          before do
+            issue.close
+          end
+
+          it 'reports the warning' do
+            expect(note.errors.messages).to include(
+              commands: ['Cannot call close.'],
+              commands_only: ['Failed to apply commands.']
+            )
+          end
         end
       end
     end
