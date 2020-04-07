@@ -98,6 +98,13 @@
   cache:
     key: "debian-stretch-ruby-2.6.5-pg11-node-12.x"
 
+.use-kaniko:
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+
 .as-if-foss:
   variables:
     FOSS_ONLY: '1'
