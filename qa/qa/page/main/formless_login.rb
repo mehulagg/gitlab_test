@@ -4,6 +4,13 @@ module QA
   module Page
     module Main
       class FormlessLogin < Page::Base
+        # The below code is a workaround to avoid a failure in the
+        # qa:selectors job on CI.
+        # The point is that the element defined but not used.
+        view 'app/views/layouts/devise.html.haml' do
+          element :login_page
+        end
+
         def self.path
           user = Runtime::User
 
