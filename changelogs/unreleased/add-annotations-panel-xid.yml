@@ -1,0 +1,5 @@
+---
+title: Persist panel_xid attribute when creating an Annotation
+merge_request: 29090
+author:
+type: fixed
