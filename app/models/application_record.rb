@@ -37,9 +37,12 @@ class ApplicationRecord < ActiveRecord::Base
   end
 
   def self.safe_find_or_create_by(*args)
-    safe_ensure_unique(retries: 1) do
-      find_or_create_by(*args)
-    end
+    # we look for object first, as `create_or_find_by`
+    # will open a new transaction and always call primary database
+    record = find_by(*args)
+    return record if record
+
+    create_or_find_by(*args)
   end
 
   def self.underscore

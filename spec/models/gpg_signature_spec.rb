@@ -52,13 +52,6 @@ RSpec.describe GpgSignature do
       expect(signature.commit_sha).to eq(commit_sha)
       expect(signature.gpg_key_primary_keyid).to eq(gpg_key.keyid)
     end
-
-    it 'does not raise an error in case of a race condition' do
-      expect(described_class).to receive(:find_or_create_by).and_raise(ActiveRecord::RecordNotUnique)
-      allow(described_class).to receive(:find_or_create_by).and_call_original
-
-      described_class.safe_create!(attributes)
-    end
   end
 
   describe '.by_commit_sha scope' do

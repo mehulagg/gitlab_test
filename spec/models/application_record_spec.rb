@@ -31,25 +31,44 @@ describe ApplicationRecord do
   end
 
   describe '.safe_find_or_create_by' do
-    it 'creates the user avoiding race conditions' do
-      expect(Suggestion).to receive(:find_or_create_by).and_raise(ActiveRecord::RecordNotUnique)
-      allow(Suggestion).to receive(:find_or_create_by).and_call_original
+    let!(:suggestion) { build(:suggestion) }
+    let!(:attributes) { suggestion.attributes.except('id') }
 
-      expect { Suggestion.safe_find_or_create_by(build(:suggestion).attributes) }
+    it 'returns an existing object' do
+      suggestion.save!
+
+      expect(Suggestion.safe_find_or_create_by(attributes))
+        .to be_present
+    end
+
+    it 'creates a new object' do
+      expect { Suggestion.safe_find_or_create_by(attributes) }
+        .to change { Suggestion.count }.by(1)
+    end
+
+    it 'properly handles concurrent object creation' do
+      expect(Suggestion).to receive(:create_or_find_by).and_wrap_original do |m, *args, &blk|
+        # we save an existing object before the current one
+        suggestion.save!
+
+        m.call(*args, &blk)
+      end
+
+      expect { Suggestion.safe_find_or_create_by(attributes) }
         .to change { Suggestion.count }.by(1)
     end
   end
 
   describe '.safe_find_or_create_by!' do
     it 'creates a record using safe_find_or_create_by' do
-      expect(Suggestion).to receive(:find_or_create_by).and_call_original
+      expect(Suggestion).to receive(:create).and_call_original
 
       expect(Suggestion.safe_find_or_create_by!(build(:suggestion).attributes))
         .to be_a(Suggestion)
     end
 
     it 'raises a validation error if the record was not persisted' do
-      expect { Suggestion.find_or_create_by!(note: nil) }.to raise_error(ActiveRecord::RecordInvalid)
+      expect { Suggestion.safe_find_or_create_by!(note: nil) }.to raise_error(ActiveRecord::RecordInvalid)
     end
   end
 
