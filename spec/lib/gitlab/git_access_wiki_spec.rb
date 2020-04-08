@@ -62,10 +62,8 @@ RSpec.describe Gitlab::GitAccessWiki do
         end
       end
 
-      context 'when the repository does not exist' do
-        before do
-          allow(project.wiki).to receive(:repository).and_return(double('Repository', exists?: false))
-        end
+      context 'when the wiki repository does not exist' do
+        let(:project) { create(:project, :broken_wiki_repo) }
 
         it_behaves_like 'not-found git access' do
           let(:message) { include('for this wiki') }
