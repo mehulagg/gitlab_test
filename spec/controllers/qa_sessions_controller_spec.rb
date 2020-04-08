@@ -16,12 +16,12 @@ describe QaSessionsController do
 
     let!(:user) { create(:user, username: 'qa_user', password: 'qa_password', password_confirmation: 'qa_password') }
 
-    let(:params) { { user: { login: login, password: password }, gitlab_qa_token: qa_token } }
+    let(:params) { { user: { login: login, password: password }, gitlab_qa_formless_login_token: qa_token } }
 
     subject { post(:create, params: params) }
 
     before do
-      stub_env('GITLAB_QA_TOKEN', 'super-secret-token')
+      stub_env('GITLAB_QA_FORMLESS_LOGIN_TOKEN', 'super-secret-token')
     end
 
     context 'with incorrect or blank parameters' do

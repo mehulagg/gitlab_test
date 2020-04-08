@@ -20,6 +20,6 @@ class QaSessionsController < Devise::SessionsController
   end
 
   def gitlab_qa_token_valid?
-    ENV['GITLAB_QA_TOKEN'].present? && params[:gitlab_qa_token] == ENV['GITLAB_QA_TOKEN']
+    ENV['GITLAB_QA_FORMLESS_LOGIN_TOKEN'].present? && params[:gitlab_qa_formless_login_token] == ENV['GITLAB_QA_FORMLESS_LOGIN_TOKEN']
   end
 end
