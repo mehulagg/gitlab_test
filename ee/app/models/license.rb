@@ -131,7 +131,6 @@ class License < ApplicationRecord
     subepics
     threat_monitoring
     tracing
-    web_ide_terminal
   ]
   EEU_FEATURES.freeze
 
@@ -218,6 +217,7 @@ class License < ApplicationRecord
     required_ci_templates
     seat_link
     usage_quotas
+    web_ide_terminal    
   ].freeze
 
   validate :valid_license

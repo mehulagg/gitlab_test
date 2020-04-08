@@ -47,7 +47,6 @@ describe Ci::BuildPolicy do
     let(:build) { create(:ci_build, pipeline: pipeline) }
 
     before do
-      stub_licensed_features(web_ide_terminal: true)
       allow(build).to receive(:has_terminal?).and_return(true)
 
       project.add_maintainer(maintainer)
@@ -57,18 +56,6 @@ describe Ci::BuildPolicy do
     end
 
     subject { described_class.new(current_user, build) }
-
-    context 'when create_web_ide_terminal access disabled' do
-      let(:current_user) { admin }
-
-      before do
-        stub_licensed_features(web_ide_terminal: false)
-
-        expect(current_user.can?(:create_web_ide_terminal, project)).to eq false
-      end
-
-      it { expect_disallowed(*build_permissions) }
-    end
 
     context 'when create_web_ide_terminal access enabled' do
       context 'with admin' do

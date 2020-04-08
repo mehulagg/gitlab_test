@@ -16,7 +16,6 @@ describe Projects::JobsController do
   let(:extra_params) { { id: job.id } }
 
   before do
-    stub_licensed_features(web_ide_terminal: true)
     stub_feature_flags(build_service_proxy: true)
     allow(job).to receive(:has_terminal?).and_return(true)
 

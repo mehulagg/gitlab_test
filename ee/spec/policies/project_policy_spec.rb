@@ -790,20 +790,6 @@ describe ProjectPolicy do
   end
 
   describe 'create_web_ide_terminal' do
-    before do
-      stub_licensed_features(web_ide_terminal: true)
-    end
-
-    context 'without ide terminal feature available' do
-      before do
-        stub_licensed_features(web_ide_terminal: false)
-      end
-
-      let(:current_user) { admin }
-
-      it { is_expected.to be_disallowed(:create_web_ide_terminal) }
-    end
-
     context 'with admin' do
       let(:current_user) { admin }
 
