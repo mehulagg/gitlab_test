@@ -11,7 +11,7 @@ describe API::FeatureFlags do
   let(:non_project_member) { create(:user) }
 
   before do
-    stub_licensed_features(feature_flags: true)
+    # stub_licensed_features(feature_flags: true)
 
     project.add_developer(developer)
     project.add_reporter(reporter)

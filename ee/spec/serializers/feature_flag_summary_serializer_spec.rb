@@ -9,7 +9,7 @@ describe FeatureFlagSummarySerializer do
   let!(:feature_flags) { create(:operations_feature_flag, project: project) }
 
   before do
-    stub_licensed_features(feature_flags: true)
+    # stub_licensed_features(feature_flags: true)
     project.add_developer(user)
   end
 

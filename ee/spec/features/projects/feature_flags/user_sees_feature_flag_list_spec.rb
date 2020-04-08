@@ -10,7 +10,7 @@ describe 'User sees feature flag list', :js do
 
   before do
     project.add_developer(user)
-    stub_licensed_features(feature_flags: true)
+    # stub_licensed_features(feature_flags: true)
     sign_in(user)
   end
 

@@ -8,7 +8,7 @@ describe FeatureFlagsClientSerializer do
   let(:serializer) { described_class.new }
 
   before do
-    stub_licensed_features(feature_flags: true)
+    # stub_licensed_features(feature_flags: true)
   end
 
   describe '#represent_token' do

@@ -11,9 +11,9 @@ describe API::Unleash do
   let(:params) { }
   let(:headers) { }
 
-  before do
-    stub_licensed_features(feature_flags: feature_enabled)
-  end
+  # before do
+  #   stub_licensed_features(feature_flags: feature_enabled)
+  # end
 
   shared_examples 'authenticated request' do
     context 'when using instance id' do

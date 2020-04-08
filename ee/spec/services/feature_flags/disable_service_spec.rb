@@ -11,7 +11,7 @@ describe FeatureFlags::DisableService do
   let(:params) { {} }
 
   before do
-    stub_licensed_features(feature_flags: true)
+    # stub_licensed_features(feature_flags: true)
     project.add_developer(user)
   end
 

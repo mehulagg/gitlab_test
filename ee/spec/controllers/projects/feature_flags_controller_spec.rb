@@ -17,7 +17,7 @@ describe Projects::FeatureFlagsController do
     project.add_reporter(reporter)
 
     sign_in(user)
-    stub_licensed_features(feature_flags: feature_enabled)
+    # stub_licensed_features(feature_flags: feature_enabled)
   end
 
   describe 'GET index' do

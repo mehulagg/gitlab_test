@@ -569,18 +569,6 @@ describe ProjectPolicy do
         it { is_expected.to be_disallowed(:read_feature_flag) }
       end
     end
-
-    context 'with developer' do
-      let(:current_user) { developer }
-
-      context 'when feature flags features is not available' do
-        before do
-          stub_licensed_features(feature_flags: false)
-        end
-
-        it { is_expected.to be_disallowed(:read_feature_flag) }
-      end
-    end
   end
 
   describe 'admin_license_management' do
