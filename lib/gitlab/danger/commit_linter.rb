@@ -19,7 +19,6 @@ module Gitlab
         subject_too_short: "The %s must contain at least #{MIN_SUBJECT_WORDS_COUNT} words",
         subject_too_long: "The %s may not be longer than #{MAX_LINE_LENGTH} characters",
         subject_above_warning: "The %s length is acceptable, but please try to [reduce it to #{WARN_SUBJECT_LENGTH} characters](#{URL_LIMIT_SUBJECT}).",
-        subject_starts_with_lowercase: "The %s must start with a capital letter",
         subject_ends_with_a_period: "The %s must not end with a period",
         separator_missing: "The commit subject and body must be separated by a blank line",
         details_too_many_changes: "Commits that change #{MAX_CHANGED_LINES_IN_COMMIT} or more lines across " \
@@ -90,10 +89,6 @@ module Gitlab
           add_problem(:subject_too_long, subject_description)
         elsif subject_above_warning?
           add_problem(:subject_above_warning, subject_description)
-        end
-
-        if subject_starts_with_lowercase?
-          add_problem(:subject_starts_with_lowercase, subject_description)
         end
 
         if subject_ends_with_a_period?
@@ -197,14 +192,6 @@ module Gitlab
 
       def subject_above_warning?
         subject.length > WARN_SUBJECT_LENGTH
-      end
-
-      def subject_starts_with_lowercase?
-        first_char = subject.sub(/\A\[.+\]\s/, '')[0]
-        first_char_downcased = first_char.downcase
-        return true unless ('a'..'z').cover?(first_char_downcased)
-
-        first_char.downcase == first_char
       end
 
       def subject_ends_with_a_period?
