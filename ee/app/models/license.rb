@@ -68,7 +68,6 @@ class License < ApplicationRecord
     epics
     extended_audit_events
     external_authorization_service_api_management
-    feature_flags
     file_locks
     geo
     github_project_service_integration
@@ -218,6 +217,7 @@ class License < ApplicationRecord
     required_ci_templates
     seat_link
     usage_quotas
+    feature_flags
   ].freeze
 
   validate :valid_license
