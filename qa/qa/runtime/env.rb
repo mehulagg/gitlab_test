@@ -307,7 +307,7 @@ module QA
       end
 
       def gitlab_qa_token
-        ENV['GITLAB_QA_TOKEN']
+        ENV['GITLAB_QA_FORMLESS_LOGIN_TOKEN']
       end
 
       private
