@@ -7,11 +7,8 @@ module QA
     include Support::Api
     describe 'When using elasticsearch API to search for a known blob', :orchestrated, :elasticsearch, :requires_admin, quarantine: { type: :new } do
       let(:project_file_content) { "elasticsearch: #{SecureRandom.hex(8)}" }
-
       let(:non_member_user) { Resource::User.fabricate_or_use('non_member_user', 'non_member_user_password') }
-
       let(:api_client) { Runtime::API::Client.new(:gitlab) }
-
       let(:non_member_api_client) { Runtime::API::Client.new(user: non_member_user) }
 
       let(:project) do
@@ -20,10 +17,10 @@ module QA
         end
       end
 
-      let(:elasticsearch_original_state_on) { Runtime::Search.elasticsearch_on?(api_client) }
+      let(:elasticsearch_original_state_on?) { Runtime::Search.elasticsearch_on?(api_client) }
 
       before do
-        unless elasticsearch_original_state_on
+        unless elasticsearch_original_state_on?
           QA::EE::Resource::Settings::Elasticsearch.fabricate_via_api!
           sleep(60)
           # wait for the change to propagate before inserting records or else
@@ -33,15 +30,16 @@ module QA
           # as per this issue https://gitlab.com/gitlab-org/quality/team-tasks/issues/395
         end
 
-        Resource::Repository::ProjectPush.fabricate! do |push|
-          push.project = project
-          push.file_name = 'README.md'
-          push.file_content = project_file_content
+        Resource::Repository::Commit.fabricate_via_api! do |commit|
+          commit.project = project
+          commit.add_files([
+            { file_path: 'README.md', content: project_file_content }
+          ])
         end
       end
 
       after do
-        if !elasticsearch_original_state_on && !api_client.nil?
+        if !elasticsearch_original_state_on? && !api_client.nil?
           Runtime::Search.disable_elasticsearch(api_client)
         end
       end
