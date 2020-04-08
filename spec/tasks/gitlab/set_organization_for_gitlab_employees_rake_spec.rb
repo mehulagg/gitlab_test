@@ -13,15 +13,16 @@ describe 'gitlab:set_organization_for_gitlab_employees rake task' do
     user5 = create(:user, email: 'wolf@gitlab.com', confirmed_at: DateTime.now)
 
     # Set the organization bypassing the ActiveRecord callback
-    user4.update_attribute(:organization, nil)
-    user5.update_attribute(:organization, 'Something')
+    user4.update_column(:organization, nil)
+    user5.update_column(:organization, 'Something')
 
-    run_rake_task('gitlab:set_organization_for_gitlab_employees')
+    expect do
+      run_rake_task('gitlab:set_organization_for_gitlab_employees')
+    end.to change { user4.reload[:organization] }.from(nil).to('GitLab')
+      .and change { user5.reload[:organization] }.from('Something').to('GitLab')
 
-    expect(user1.reload.organization).to eq('GitLab')
-    expect(user2.reload.organization).to be_nil
-    expect(user3.reload.organization).to be_nil
-    expect(user4.reload.organization).to eq('GitLab')
-    expect(user5.reload.organization).to eq('GitLab')
+    expect(user1.reload[:organization]).to eq('GitLab')
+    expect(user2.reload[:organization]).to be_nil
+    expect(user3.reload[:organization]).to be_nil
   end
 end

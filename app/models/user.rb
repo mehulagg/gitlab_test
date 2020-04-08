@@ -209,7 +209,7 @@ class User < ApplicationRecord
   before_validation :set_notification_email, if: :new_record?
   before_validation :set_public_email, if: :public_email_changed?
   before_validation :set_commit_email, if: :commit_email_changed?
-  before_save :set_organization_for_gitlab_employee
+  before_save :set_organization_for_gitlab_employee, if: ->(user) { user.new_record? || user.email_changed? || user.confirmed_at_changed? || user.organization_changed? }
   before_save :default_private_profile_to_false
   before_save :set_public_email, if: :public_email_changed? # in case validation is skipped
   before_save :set_commit_email, if: :commit_email_changed? # in case validation is skipped
