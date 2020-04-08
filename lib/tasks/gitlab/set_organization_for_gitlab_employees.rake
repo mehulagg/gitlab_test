@@ -3,7 +3,7 @@
 namespace :gitlab do
   desc "GitLab | Set Organization to GitLab for GitLab employees"
   task set_organization_for_gitlab_employees: :gitlab_environment do
-    User.where("email LIKE '%@gitlab.com'").where("organization != 'GitLab' OR organization IS NULL").where.not(confirmed_at: nil).find_each do |user|
+    User.where("email LIKE '%@gitlab.com'").where("organization != 'GitLab' OR organization IS NULL").confirmed.find_each do |user|
       if user.update(organization: 'GitLab')
         puts "Updated organization of user #{user.email} to #{user.organization}"
       else
