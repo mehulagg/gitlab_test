@@ -16,7 +16,7 @@ RSpec.describe BlobViewer::RouteMap do
 
   let(:blob) { fake_blob(path: '.gitlab/route-map.yml', data: data) }
 
-  subject { described_class.new(blob) }
+  subject { described_class.new(project, blob) }
 
   describe '#validation_message' do
     it 'calls prepare! on the viewer' do

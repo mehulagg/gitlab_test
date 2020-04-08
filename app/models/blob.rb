@@ -69,28 +69,25 @@ class Blob < SimpleDelegator
     BlobViewer::YarnLock
   ].freeze
 
-  attr_reader :container
-
-  delegate :repository, to: :container, allow_nil: true
-  delegate :project, to: :repository, allow_nil: true
+  attr_reader :repository
 
   # Wrap a Gitlab::Git::Blob object, or return nil when given nil
   #
   # This method prevents the decorated object from evaluating to "truthy" when
   # given a nil value. For example:
   #
-  #     blob = Blob.new(nil)
+  #     blob = Blob.new(nil, repository: repository)
   #     puts "truthy" if blob # => "truthy"
   #
-  #     blob = Blob.decorate(nil)
+  #     blob = Blob.decorate(nil, repository: repository)
   #     puts "truthy" if blob # No output
-  def self.decorate(blob, container = nil)
+  def self.decorate(blob, repository:)
     return if blob.nil?
 
-    new(blob, container)
+    new(blob, repository: repository)
   end
 
-  def self.lazy(repository, commit_id, path, blob_size_limit: Gitlab::Git::Blob::MAX_DATA_DISPLAY_SIZE)
+  def self.lazy(commit_id, path, repository:, blob_size_limit: Gitlab::Git::Blob::MAX_DATA_DISPLAY_SIZE)
     BatchLoader.for([commit_id, path]).batch(key: repository) do |items, loader, args|
       args[:key].blobs_at(items, blob_size_limit: blob_size_limit).each do |blob|
         loader.call([blob.commit_id, blob.path], blob) if blob
@@ -98,8 +95,8 @@ class Blob < SimpleDelegator
     end
   end
 
-  def initialize(blob, container = nil)
-    @container = container
+  def initialize(blob, repository:)
+    @repository = repository
 
     super(blob)
   end
@@ -123,7 +120,7 @@ class Blob < SimpleDelegator
   def load_all_data!
     # Endpoint needed: https://gitlab.com/gitlab-org/gitaly/issues/756
     Gitlab::GitalyClient.allow_n_plus_1_calls do
-      super(repository) if container
+      super(repository) if repository
     end
   end
 
@@ -199,19 +196,19 @@ class Blob < SimpleDelegator
   end
 
   def simple_viewer
-    @simple_viewer ||= simple_viewer_class.new(self)
+    @simple_viewer ||= simple_viewer_class.new(viewer_project, self)
   end
 
   def rich_viewer
     return @rich_viewer if defined?(@rich_viewer)
 
-    @rich_viewer = rich_viewer_class&.new(self)
+    @rich_viewer = rich_viewer_class&.new(viewer_project, self)
   end
 
   def auxiliary_viewer
     return @auxiliary_viewer if defined?(@auxiliary_viewer)
 
-    @auxiliary_viewer = auxiliary_viewer_class&.new(self)
+    @auxiliary_viewer = auxiliary_viewer_class&.new(viewer_project, self)
   end
 
   def rendered_as_text?(ignore_errors: true)
@@ -231,6 +228,15 @@ class Blob < SimpleDelegator
   end
 
   private
+
+  # FIXME: users of Blob should not rely on it having a project. Group wikis,
+  # personal snippets, and other repositories a blob can come from, lack one.
+  # This is a temporary hack to avoid refactoring all users of the blob viewers.
+  #
+  # https://gitlab.com/gitlab-org/gitlab/-/issues/201886
+  def viewer_project
+    repository.project
+  end
 
   def simple_viewer_class
     if empty?

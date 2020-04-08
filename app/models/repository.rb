@@ -504,7 +504,7 @@ class Repository
   end
 
   def blob_at(sha, path)
-    blob = Blob.decorate(raw_repository.blob_at(sha, path), container)
+    blob = Blob.decorate(raw_repository.blob_at(sha, path), repository: self)
 
     # Don't attempt to return a special result if there is no blob at all
     return unless blob
@@ -514,7 +514,7 @@ class Repository
 
     case path
     when head_tree&.readme_path
-      ReadmeBlob.new(blob, self)
+      ReadmeBlob.new(blob, repository: self)
     else
       blob
     end
@@ -527,7 +527,7 @@ class Repository
     return [] unless exists?
 
     raw_repository.batch_blobs(items, blob_size_limit: blob_size_limit).map do |blob|
-      Blob.decorate(blob, container)
+      Blob.decorate(blob, repository: self)
     end
   end
 
@@ -1135,7 +1135,9 @@ class Repository
   def blobs_metadata(paths, ref = 'HEAD')
     references = Array.wrap(paths).map { |path| [ref, path] }
 
-    Gitlab::Git::Blob.batch_metadata(raw, references).map { |raw_blob| Blob.decorate(raw_blob) }
+    Gitlab::Git::Blob.batch_metadata(raw, references).map do |raw_blob|
+      Blob.decorate(raw_blob, repository: self)
+    end
   end
 
   def project

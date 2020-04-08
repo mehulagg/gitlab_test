@@ -41,8 +41,9 @@ module FakeBlobHelpers
   end
 
   def fake_blob(**kwargs)
-    container = kwargs.delete(:container) || project
+    project = kwargs.delete(:project) || project
+    repository = kwargs.delete(:repository) || repository || project&.repository
 
-    Blob.decorate(FakeBlob.new(**kwargs), container)
+    Blob.decorate(FakeBlob.new(**kwargs), repository: repository)
   end
 end

@@ -12,7 +12,7 @@ RSpec.describe BlobViewer::GitlabCiYml do
   let(:blob) { fake_blob(path: '.gitlab-ci.yml', data: data) }
   let(:sha) { sample_commit.id }
 
-  subject { described_class.new(blob) }
+  subject { described_class.new(project, blob) }
 
   describe '#validation_message' do
     it 'calls prepare! on the viewer' do

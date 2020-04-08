@@ -825,14 +825,18 @@ RSpec.describe 'Git HTTP requests' do
 
       context "retrieving an info/refs file" do
         let(:project) { create(:project, :repository, :public) }
+        let(:repository) { project.repository }
 
         context "when the file exists" do
           before do
             # Provide a dummy file in its place
+            raw_blob = Gitlab::Git::Blob.find(repository, 'master', 'bar/branch-test.txt')
+
             allow_any_instance_of(Repository).to receive(:blob_at).and_call_original
-            allow_any_instance_of(Repository).to receive(:blob_at).with('b83d6e391c22777fca1ed3012fce84f633d7fed0', 'info/refs') do
-              Blob.decorate(Gitlab::Git::Blob.find(project.repository, 'master', 'bar/branch-test.txt'), project)
-            end
+            allow_any_instance_of(Repository)
+              .to receive(:blob_at)
+              .with('b83d6e391c22777fca1ed3012fce84f633d7fed0', 'info/refs')
+              .and_return(Blob.decorate(raw_blob, repository: repository))
 
             get "/#{project.full_path}/-/blob/master/info/refs"
           end

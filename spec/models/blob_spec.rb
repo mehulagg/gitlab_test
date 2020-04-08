@@ -20,7 +20,7 @@ RSpec.describe Blob do
 
   describe '.decorate' do
     it 'returns NilClass when given nil' do
-      expect(described_class.decorate(nil)).to be_nil
+      expect(described_class.decorate(nil, repository: repository)).to be_nil
     end
   end
 
@@ -30,21 +30,24 @@ RSpec.describe Blob do
 
     shared_examples '.lazy checks' do
       it 'does not fetch blobs when none are accessed' do
-        expect(container.repository).not_to receive(:blobs_at)
+        expect(repository).not_to receive(:blobs_at)
 
-        described_class.lazy(container.repository, commit_id, 'CHANGELOG')
+        described_class.lazy(commit_id, 'CHANGELOG', repository: repository)
       end
 
       it 'fetches all blobs for the same repository when one is accessed' do
-        expect(container.repository).to receive(:blobs_at)
-          .with([[commit_id, 'CHANGELOG'], [commit_id, 'CONTRIBUTING.md']], blob_size_limit: blob_size_limit)
-          .once.and_call_original
-        expect(other_container.repository).not_to receive(:blobs_at)
+        specs = [[commit_id, 'CHANGELOG'], [commit_id, 'CONTRIBUTING.md']]
+        expect(repository).to receive(:blobs_at)
+          .with(specs, blob_size_limit: blob_size_limit)
+          .once
+          .and_call_original
 
-        changelog = described_class.lazy(container.repository, commit_id, 'CHANGELOG')
-        contributing = described_class.lazy(same_container.repository, commit_id, 'CONTRIBUTING.md')
+        expect(other_repository).not_to receive(:blobs_at)
 
-        described_class.lazy(other_container.repository, commit_id, 'CHANGELOG')
+        changelog = described_class.lazy(commit_id, 'CHANGELOG', repository: repository)
+        contributing = described_class.lazy(commit_id, 'CONTRIBUTING.md', repository: same_repository)
+
+        described_class.lazy(commit_id, 'CHANGELOG', repository: other_repository)
 
         # Access property so the values are loaded
         changelog.id
@@ -52,42 +55,53 @@ RSpec.describe Blob do
       end
 
       it 'does not include blobs from previous requests in later requests' do
-        changelog = described_class.lazy(container.repository, commit_id, 'CHANGELOG')
-        contributing = described_class.lazy(same_container.repository, commit_id, 'CONTRIBUTING.md')
+        changelog = described_class.lazy(commit_id, 'CHANGELOG', repository: repository)
+        contributing = described_class.lazy(commit_id, 'CONTRIBUTING.md', repository: same_repository)
 
         # Access property so the values are loaded
         changelog.id
         contributing.id
 
-        readme = described_class.lazy(container.repository, commit_id, 'README.md')
+        readme = described_class.lazy(commit_id, 'README.md', repository: repository)
 
-        expect(container.repository).to receive(:blobs_at)
-          .with([[commit_id, 'README.md']], blob_size_limit: blob_size_limit).once.and_call_original
+        expect(repository).to receive(:blobs_at)
+          .with([[commit_id, 'README.md']], blob_size_limit: blob_size_limit)
+          .once
+          .and_call_original
 
         readme.id
       end
     end
 
     context 'with project' do
-      let(:container) { create(:project, :repository) }
-      let(:same_container) { Project.find(container.id) }
-      let(:other_container) { create(:project, :repository) }
+      let_it_be(:project) { create(:project, :repository) }
+      let_it_be(:other_project) { create(:project, :repository) }
+
+      let(:repository) { project.repository }
+      let(:same_repository) { Project.find(project.id).repository }
+      let(:other_repository) { other_project.repository }
 
       it_behaves_like '.lazy checks'
     end
 
     context 'with personal snippet' do
-      let(:container) { create(:personal_snippet, :repository) }
-      let(:same_container) { PersonalSnippet.find(container.id) }
-      let(:other_container) { create(:personal_snippet, :repository) }
+      let_it_be(:snippet) { create(:personal_snippet) }
+      let_it_be(:other_snippet) { create(:personal_snippet) }
+
+      let(:repository) { snippet.repository }
+      let(:same_repository) { PersonalSnippet.find(snippet.id).repository }
+      let(:other_repository) { other_snippet.repository }
 
       it_behaves_like '.lazy checks'
     end
 
     context 'with project snippet' do
-      let(:container) { create(:project_snippet, :repository) }
-      let(:same_container) { ProjectSnippet.find(container.id) }
-      let(:other_container) { create(:project_snippet, :repository) }
+      let_it_be(:snippet) { create(:project_snippet) }
+      let_it_be(:other_snippet) { create(:project_snippet) }
+
+      let(:repository) { snippet.repository }
+      let(:same_repository) { ProjectSnippet.find(snippet.id).repository }
+      let(:other_repository) { other_snippet.repository }
 
       it_behaves_like '.lazy checks'
     end
@@ -98,7 +112,7 @@ RSpec.describe Blob do
       context 'using a binary blob' do
         it 'returns the data as-is' do
           data = "\n\xFF\xB9\xC3"
-          blob = fake_blob(binary: true, data: data, container: container)
+          blob = fake_blob(binary: true, data: data)
 
           expect(blob.data).to eq(data)
         end
@@ -106,7 +120,7 @@ RSpec.describe Blob do
 
       context 'using a text blob' do
         it 'converts the data to UTF-8' do
-          blob = fake_blob(binary: false, data: "\n\xFF\xB9\xC3", container: container)
+          blob = fake_blob(binary: false, data: "\n\xFF\xB9\xC3")
 
           expect(blob.data).to eq("\n���")
         end
@@ -114,19 +128,19 @@ RSpec.describe Blob do
     end
 
     context 'with project' do
-      let(:container) { project }
+      let(:repository) { project.repository }
 
       it_behaves_like '#data checks'
     end
 
     context 'with personal snippet' do
-      let(:container) { personal_snippet }
+      let(:repository) { personal_snippet.repository }
 
       it_behaves_like '#data checks'
     end
 
     context 'with project snippet' do
-      let(:container) { project_snippet }
+      let(:repository) { project_snippet.repository }
 
       it_behaves_like '#data checks'
     end
@@ -136,7 +150,7 @@ RSpec.describe Blob do
     subject { blob.external_storage_error? }
 
     context 'if the blob is stored in LFS' do
-      let(:blob) { fake_blob(path: 'file.pdf', lfs: true) }
+      let(:blob) { fake_blob(path: 'file.pdf', lfs: true, repository: repository) }
 
       context 'when LFS is enabled' do
         let(:lfs_enabled) { true }
@@ -152,7 +166,7 @@ RSpec.describe Blob do
     end
 
     context 'if the blob is not stored in LFS' do
-      let(:blob) { fake_blob(path: 'file.md') }
+      let(:blob) { fake_blob(path: 'file.md', repository: repository) }
 
       it { is_expected.to be_falsy }
     end
@@ -162,7 +176,7 @@ RSpec.describe Blob do
     subject { blob.stored_externally? }
 
     context 'if the blob is stored in LFS' do
-      let(:blob) { fake_blob(path: 'file.pdf', lfs: true) }
+      let(:blob) { fake_blob(path: 'file.pdf', lfs: true, repository: repository) }
 
       context 'when LFS is enabled' do
         let(:lfs_enabled) { true }
@@ -178,7 +192,7 @@ RSpec.describe Blob do
     end
 
     context 'if the blob is not stored in LFS' do
-      let(:blob) { fake_blob(path: 'file.md') }
+      let(:blob) { fake_blob(path: 'file.md', repository: repository) }
 
       it { is_expected.to be_falsy }
     end
@@ -198,14 +212,14 @@ RSpec.describe Blob do
       end
 
       with_them do
-        let(:blob) { fake_blob(path: filename, lfs: true, container: project) }
+        let(:blob) { fake_blob(path: filename, lfs: true, repository: repository) }
 
         it { expect(blob.binary?).to eq(is_binary) }
       end
     end
 
     context 'a non-lfs object' do
-      let(:blob) { fake_blob(path: 'anything', container: project) }
+      let(:blob) { fake_blob(path: 'anything', repository: repository) }
 
       it 'delegates to binary_in_repo?' do
         expect(blob).to receive(:binary_in_repo?) { :result }
@@ -217,7 +231,7 @@ RSpec.describe Blob do
 
   describe '#extension' do
     it 'returns the extension' do
-      blob = fake_blob(path: 'file.md')
+      blob = fake_blob(path: 'file.md', repository: repository)
 
       expect(blob.extension).to eq('md')
     end
@@ -225,7 +239,7 @@ RSpec.describe Blob do
 
   describe '#file_type' do
     it 'returns the file type' do
-      blob = fake_blob(path: 'README.md')
+      blob = fake_blob(path: 'README.md', repository: repository)
 
       expect(blob.file_type).to eq(:readme)
     end
@@ -234,7 +248,7 @@ RSpec.describe Blob do
   describe '#simple_viewer' do
     context 'when the blob is empty' do
       it 'returns an empty viewer' do
-        blob = fake_blob(data: '', size: 0)
+        blob = fake_blob(data: '', size: 0, repository: repository)
 
         expect(blob.simple_viewer).to be_a(BlobViewer::Empty)
       end
@@ -242,7 +256,7 @@ RSpec.describe Blob do
 
     context 'when the file represented by the blob is binary' do
       it 'returns a download viewer' do
-        blob = fake_blob(binary: true)
+        blob = fake_blob(binary: true, repository: repository)
 
         expect(blob.simple_viewer).to be_a(BlobViewer::Download)
       end
@@ -250,7 +264,7 @@ RSpec.describe Blob do
 
     context 'when the file represented by the blob is text-based' do
       it 'returns a text viewer' do
-        blob = fake_blob
+        blob = fake_blob(repository: repository)
 
         expect(blob.simple_viewer).to be_a(BlobViewer::Text)
       end
@@ -262,7 +276,7 @@ RSpec.describe Blob do
       let(:lfs_enabled) { false }
 
       it 'returns nil' do
-        blob = fake_blob(path: 'file.pdf', lfs: true)
+        blob = fake_blob(path: 'file.pdf', lfs: true, repository: repository)
 
         expect(blob.rich_viewer).to be_nil
       end
@@ -270,7 +284,7 @@ RSpec.describe Blob do
 
     context 'when the blob is empty' do
       it 'returns nil' do
-        blob = fake_blob(data: '')
+        blob = fake_blob(data: '', repository: repository)
 
         expect(blob.rich_viewer).to be_nil
       end
@@ -278,7 +292,7 @@ RSpec.describe Blob do
 
     context 'when the blob is stored externally' do
       it 'returns a matching viewer' do
-        blob = fake_blob(path: 'file.pdf', lfs: true)
+        blob = fake_blob(path: 'file.pdf', lfs: true, repository: repository)
 
         expect(blob.rich_viewer).to be_a(BlobViewer::PDF)
       end
@@ -286,7 +300,7 @@ RSpec.describe Blob do
 
     context 'when the blob is binary' do
       it 'returns a matching binary viewer' do
-        blob = fake_blob(path: 'file.pdf', binary: true)
+        blob = fake_blob(path: 'file.pdf', binary: true, repository: repository)
 
         expect(blob.rich_viewer).to be_a(BlobViewer::PDF)
       end
@@ -294,7 +308,7 @@ RSpec.describe Blob do
 
     context 'when the blob is text-based' do
       it 'returns a matching text-based viewer' do
-        blob = fake_blob(path: 'file.md')
+        blob = fake_blob(path: 'file.md', repository: repository)
 
         expect(blob.rich_viewer).to be_a(BlobViewer::Markup)
       end
@@ -302,7 +316,7 @@ RSpec.describe Blob do
 
     context 'when the blob is video' do
       it 'returns a video viewer' do
-        blob = fake_blob(path: 'file.mp4', binary: true)
+        blob = fake_blob(path: 'file.mp4', binary: true, repository: repository)
 
         expect(blob.rich_viewer).to be_a(BlobViewer::Video)
       end
@@ -310,7 +324,7 @@ RSpec.describe Blob do
 
     context 'when the blob is audio' do
       it 'returns an audio viewer' do
-        blob = fake_blob(path: 'file.wav', binary: true)
+        blob = fake_blob(path: 'file.wav', binary: true, repository: repository)
 
         expect(blob.rich_viewer).to be_a(BlobViewer::Audio)
       end
@@ -322,7 +336,7 @@ RSpec.describe Blob do
       let(:lfs_enabled) { false }
 
       it 'returns nil' do
-        blob = fake_blob(path: 'LICENSE', lfs: true)
+        blob = fake_blob(path: 'LICENSE', lfs: true, repository: repository)
 
         expect(blob.auxiliary_viewer).to be_nil
       end
@@ -338,7 +352,7 @@ RSpec.describe Blob do
 
     context 'when the blob is stored externally' do
       it 'returns a matching viewer' do
-        blob = fake_blob(path: 'LICENSE', lfs: true)
+        blob = fake_blob(path: 'LICENSE', lfs: true, repository: repository)
 
         expect(blob.auxiliary_viewer).to be_a(BlobViewer::License)
       end
@@ -346,7 +360,7 @@ RSpec.describe Blob do
 
     context 'when the blob is binary' do
       it 'returns nil' do
-        blob = fake_blob(path: 'LICENSE', binary: true)
+        blob = fake_blob(path: 'LICENSE', binary: true, repository: repository)
 
         expect(blob.auxiliary_viewer).to be_nil
       end
@@ -354,7 +368,7 @@ RSpec.describe Blob do
 
     context 'when the blob is text-based' do
       it 'returns a matching text-based viewer' do
-        blob = fake_blob(path: 'LICENSE')
+        blob = fake_blob(path: 'LICENSE', repository: repository)
 
         expect(blob.auxiliary_viewer).to be_a(BlobViewer::License)
       end
@@ -368,13 +382,13 @@ RSpec.describe Blob do
       let(:ignore_errors) { true }
 
       context 'when the simple viewer is text-based' do
-        let(:blob) { fake_blob(path: 'file.md', size: 100.megabytes) }
+        let(:blob) { fake_blob(path: 'file.md', size: 100.megabytes, repository: repository) }
 
         it { is_expected.to be_truthy }
       end
 
       context 'when the simple viewer is binary' do
-        let(:blob) { fake_blob(path: 'file.pdf', binary: true, size: 100.megabytes) }
+        let(:blob) { fake_blob(path: 'file.pdf', binary: true, size: 100.megabytes, repository: repository) }
 
         it { is_expected.to be_falsy }
       end
@@ -384,33 +398,15 @@ RSpec.describe Blob do
       let(:ignore_errors) { false }
 
       context 'when the viewer has render errors' do
-        let(:blob) { fake_blob(path: 'file.md', size: 100.megabytes) }
+        let(:blob) { fake_blob(path: 'file.md', size: 100.megabytes, repository: repository) }
 
         it { is_expected.to be_falsy }
       end
 
       context "when the viewer doesn't have render errors" do
-        let(:blob) { fake_blob(path: 'file.md') }
+        let(:blob) { fake_blob(path: 'file.md', repository: repository) }
 
         it { is_expected.to be_truthy }
-      end
-    end
-  end
-
-  describe 'policy' do
-    let(:project) { build(:project) }
-
-    subject { described_class.new(fake_blob(path: 'foo'), project) }
-
-    it 'works with policy' do
-      expect(Ability.allowed?(project.creator, :read_blob, subject)).to be_truthy
-    end
-
-    context 'when project is nil' do
-      subject { described_class.new(fake_blob(path: 'foo')) }
-
-      it 'does not err' do
-        expect(Ability.allowed?(project.creator, :read_blob, subject)).to be_falsey
       end
     end
   end

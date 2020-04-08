@@ -8,7 +8,7 @@ RSpec.describe BlobViewer::Changelog do
   let(:project) { create(:project, :repository) }
   let(:blob) { fake_blob(path: 'CHANGELOG') }
 
-  subject { described_class.new(blob) }
+  subject { described_class.new(project, blob) }
 
   describe '#render_error' do
     context 'when there are no tags' do

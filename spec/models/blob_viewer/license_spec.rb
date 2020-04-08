@@ -8,7 +8,7 @@ RSpec.describe BlobViewer::License do
   let(:project) { create(:project, :repository) }
   let(:blob) { fake_blob(path: 'LICENSE') }
 
-  subject { described_class.new(blob) }
+  subject { described_class.new(project, blob) }
 
   describe '#license' do
     it 'returns the blob project repository license' do

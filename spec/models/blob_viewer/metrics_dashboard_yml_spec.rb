@@ -10,7 +10,7 @@ RSpec.describe BlobViewer::MetricsDashboardYml do
   let(:blob) { fake_blob(path: '.gitlab/dashboards/custom-dashboard.yml', data: data) }
   let(:sha) { sample_commit.id }
 
-  subject(:viewer) { described_class.new(blob) }
+  subject(:viewer) { described_class.new(project, blob) }
 
   context 'when the definition is valid' do
     let(:data) { File.read(Rails.root.join('config/prometheus/common_metrics.yml')) }

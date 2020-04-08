@@ -64,7 +64,7 @@ module Banzai
 
         get_blob_types(paths).each do |name, type|
           if type == :blob
-            blob = ::Blob.decorate(Gitlab::Git::Blob.new(name: name), project)
+            blob = ::Blob.decorate(Gitlab::Git::Blob.new(name: name), repository: repository)
             uri_types[name] = blob.image? || blob.video? || blob.audio? ? :raw : :blob
           else
             uri_types[name] = type

@@ -13,7 +13,7 @@ RSpec.describe BlobViewer::ServerSide do
     end
   end
 
-  subject { viewer_class.new(blob) }
+  subject { viewer_class.new(project, blob) }
 
   describe '#prepare!' do
     let(:blob) { fake_blob(path: 'file.txt') }
@@ -28,6 +28,7 @@ RSpec.describe BlobViewer::ServerSide do
   describe '#render_error' do
     context 'when the blob is stored externally' do
       let(:project) { build(:project, lfs_enabled: true) }
+      let(:repository) { project.repository }
 
       let(:blob) { fake_blob(path: 'file.pdf', lfs: true) }
 

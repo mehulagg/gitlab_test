@@ -10,11 +10,10 @@ module BlobViewer
 
     delegate :partial_path, :loading_partial_path, :rich?, :simple?, :load_async?, :text?, :binary?, to: :class
 
-    attr_reader :blob
+    attr_reader :project, :blob
 
-    delegate :project, to: :blob
-
-    def initialize(blob)
+    def initialize(project, blob)
+      @project = project
       @blob = blob
       @initially_binary = blob.binary_in_repo?
     end

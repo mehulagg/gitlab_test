@@ -431,7 +431,7 @@ class Commit
     return unless entry
 
     if entry[:type] == :blob
-      blob = ::Blob.decorate(Gitlab::Git::Blob.new(name: entry[:name]), container)
+      blob = ::Blob.decorate(Gitlab::Git::Blob.new(name: entry[:name]), repository: repository)
       blob.image? || blob.video? || blob.audio? ? :raw : :blob
     else
       entry[:type]

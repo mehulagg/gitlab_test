@@ -36,7 +36,7 @@ module Gitlab
             def blob
               return unless file?
 
-              @blob ||= Blob.decorate(::Ci::ArtifactBlob.new(self), nil)
+              @blob ||= Blob.decorate(::Ci::ArtifactBlob.new(self), repository: nil)
             end
 
             def has_parent?

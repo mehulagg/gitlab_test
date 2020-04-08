@@ -17,7 +17,7 @@ RSpec.describe BlobViewer::PodspecJson do
 
   let(:blob) { fake_blob(path: 'AFNetworking.podspec.json', data: data) }
 
-  subject { described_class.new(blob) }
+  subject { described_class.new(project, blob) }
 
   describe '#package_name' do
     it 'returns the package name' do

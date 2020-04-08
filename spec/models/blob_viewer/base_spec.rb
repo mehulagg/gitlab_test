@@ -18,7 +18,7 @@ RSpec.describe BlobViewer::Base do
     end
   end
 
-  let(:viewer) { viewer_class.new(blob) }
+  let(:viewer) { viewer_class.new(project, blob) }
 
   describe '.can_render?' do
     context 'when the extension is supported' do

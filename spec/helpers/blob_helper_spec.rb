@@ -120,13 +120,14 @@ RSpec.describe BlobHelper do
       end
     end
 
-    let(:viewer) { viewer_class.new(blob) }
-    let(:blob) { fake_blob }
+    let(:viewer) { viewer_class.new(project, blob) }
+    let(:blob_args) { {} }
+    let(:blob) { fake_blob(blob_args.merge(project: project)) }
 
     describe '#blob_render_error_reason' do
       context 'for error :too_large' do
         context 'when the blob size is larger than the absolute size limit' do
-          let(:blob) { fake_blob(size: 10.megabytes) }
+          let(:blob_args) { { size: 10.megabytes } }
 
           it 'returns an error message' do
             expect(helper.blob_render_error_reason(viewer)).to eq('it is larger than 5 MB')
@@ -134,7 +135,7 @@ RSpec.describe BlobHelper do
         end
 
         context 'when the blob size is larger than the size limit' do
-          let(:blob) { fake_blob(size: 2.megabytes) }
+          let(:blob_args) { { size: 2.megabytes } }
 
           it 'returns an error message' do
             expect(helper.blob_render_error_reason(viewer)).to eq('it is larger than 1 MB')
@@ -143,7 +144,7 @@ RSpec.describe BlobHelper do
       end
 
       context 'for error :server_side_but_stored_externally' do
-        let(:blob) { fake_blob(lfs: true) }
+        let(:blob_args) { { lfs: true } }
 
         it 'returns an error message' do
           expect(helper.blob_render_error_reason(viewer)).to eq('it is stored in LFS')
@@ -165,7 +166,7 @@ RSpec.describe BlobHelper do
       end
 
       context 'for error :collapsed' do
-        let(:blob) { fake_blob(size: 2.megabytes) }
+        let(:blob_args) { { size: 2.megabytes } }
 
         it 'includes a "load it anyway" link' do
           expect(helper.blob_render_error_options(viewer)).to include(/load it anyway/)
@@ -173,7 +174,7 @@ RSpec.describe BlobHelper do
       end
 
       context 'for error :too_large' do
-        let(:blob) { fake_blob(size: 10.megabytes) }
+        let(:blob_args) { { size: 10.megabytes } }
 
         it 'does not include a "load it anyway" link' do
           expect(helper.blob_render_error_options(viewer)).not_to include(/load it anyway/)
@@ -181,7 +182,7 @@ RSpec.describe BlobHelper do
 
         context 'when the viewer is rich' do
           context 'the blob is rendered as text' do
-            let(:blob) { fake_blob(path: 'file.md', size: 2.megabytes) }
+            let(:blob_args) { { path: 'file.md', size: 2.megabytes } }
 
             it 'includes a "view the source" link' do
               expect(helper.blob_render_error_options(viewer)).to include(/view the source/)
@@ -189,7 +190,7 @@ RSpec.describe BlobHelper do
           end
 
           context 'the blob is not rendered as text' do
-            let(:blob) { fake_blob(path: 'file.pdf', binary: true, size: 2.megabytes) }
+            let(:blob_args) { { path: 'file.pdf', binary: true, size: 2.megabytes } }
 
             it 'does not include a "view the source" link' do
               expect(helper.blob_render_error_options(viewer)).not_to include(/view the source/)
@@ -202,7 +203,7 @@ RSpec.describe BlobHelper do
             viewer_class.type = :simple
           end
 
-          let(:blob) { fake_blob(path: 'file.md', size: 2.megabytes) }
+          let(:blob_args) { { path: 'file.md', size: 2.megabytes } }
 
           it 'does not include a "view the source" link' do
             expect(helper.blob_render_error_options(viewer)).not_to include(/view the source/)
@@ -215,7 +216,7 @@ RSpec.describe BlobHelper do
       end
 
       context 'for error :server_side_but_stored_externally' do
-        let(:blob) { fake_blob(path: 'file.md', lfs: true) }
+        let(:blob_args) { { path: 'file.md', lfs: true } }
 
         it 'does not include a "load it anyway" link' do
           expect(helper.blob_render_error_options(viewer)).not_to include(/load it anyway/)
@@ -244,7 +245,7 @@ RSpec.describe BlobHelper do
 
       context 'when file is a pipeline config file' do
         let(:data) { File.read(Rails.root.join('spec/support/gitlab_stubs/gitlab_ci.yml')) }
-        let(:blob) { fake_blob(path: Gitlab::FileDetector::PATTERNS[:gitlab_ci], data: data) }
+        let(:blob_args) { { path: Gitlab::FileDetector::PATTERNS[:gitlab_ci], data: data } }
 
         context 'experiment enabled' do
           before do

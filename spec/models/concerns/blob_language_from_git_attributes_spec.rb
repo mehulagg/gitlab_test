@@ -8,7 +8,7 @@ RSpec.describe BlobLanguageFromGitAttributes do
   let(:project) { build(:project, :repository) }
 
   describe '#language_from_gitattributes' do
-    subject(:blob) { fake_blob(path: 'file.md') }
+    subject(:blob) { fake_blob(path: 'file.md', project: project) }
 
     it 'returns return value from gitattribute' do
       allow(blob.repository).to receive(:exists?).and_return(true)

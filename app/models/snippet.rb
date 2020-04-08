@@ -208,13 +208,15 @@ class Snippet < ApplicationRecord
   end
 
   def blob
-    @blob ||= Blob.decorate(SnippetBlob.new(self), self)
+    @blob ||= Blob.decorate(SnippetBlob.new(self), repository: repository)
   end
 
   def blobs
     return [] unless repository_exists?
 
-    repository.ls_files(repository.root_ref).map { |file| Blob.lazy(repository, repository.root_ref, file) }
+    repository.ls_files(repository.root_ref).map do |file|
+      Blob.lazy(repository.root_ref, file, repository: repository)
+    end
   end
 
   def hook_attrs
