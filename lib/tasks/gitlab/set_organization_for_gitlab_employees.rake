@@ -7,7 +7,7 @@ namespace :gitlab do
       if user.update(organization: 'GitLab')
         puts "Updated organization of user #{user.email} to #{user.organization}"
       else
-        puts "User #{user.id} with email #{user.email} could not be saved, beacause of: #{user.errors.full_messages.join(', ')}"
+        puts "User #{user.id} with email #{user.email} could not be saved, because of: #{user.errors.full_messages.join(', ')}"
       end
     end
   end
