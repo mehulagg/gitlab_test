@@ -14,7 +14,7 @@ module QA
         def self.path
           user = Runtime::User
 
-          "/users/qa_sign_in?user[login]=#{user.username}&user[password]=#{user.password}&gitlab_qa_token=#{Runtime::Env.gitlab_qa_token}"
+          "/users/qa_sign_in?user[login]=#{user.username}&user[password]=#{user.password}&gitlab_qa_formless_login_token=#{Runtime::Env.gitlab_qa_token}"
         end
       end
     end
