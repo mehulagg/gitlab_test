@@ -30,7 +30,11 @@ module QA
           # as per this issue https://gitlab.com/gitlab-org/quality/team-tasks/issues/395
         end
 
-        Flow::Project.push_file_to_project(project, 'elasticsearch.rb', "elasticsearch: #{SecureRandom.hex(8)}")
+        Resource::Repository::ProjectPush.fabricate! do |push|
+          push.project = project
+          push.file_name = 'elasticsearch.rb'
+          push.file_content = "elasticsearch: #{SecureRandom.hex(8)}"
+        end
       end
 
       after do

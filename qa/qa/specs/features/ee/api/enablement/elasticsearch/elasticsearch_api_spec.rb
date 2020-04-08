@@ -33,7 +33,11 @@ module QA
           # as per this issue https://gitlab.com/gitlab-org/quality/team-tasks/issues/395
         end
 
-        Flow::Project.push_file_to_project(project, 'README.md', project_file_content)
+        Resource::Repository::ProjectPush.fabricate! do |push|
+          push.project = project
+          push.file_name = 'README.md'
+          push.file_content = project_file_content
+        end
       end
 
       after do
@@ -48,7 +52,7 @@ module QA
 
       describe 'When searching a private repository' do
         before do
-          Flow::Project.set_project_visibility(api_client, project.id, 'private')
+          project.set_visibility(:private)
         end
 
         it 'finds a blob as an authorized user' do

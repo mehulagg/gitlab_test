@@ -87,6 +87,7 @@ module QA
     autoload :Tag, 'qa/resource/tag'
     autoload :ProjectMember, 'qa/resource/project_member'
     autoload :UserGPG, 'qa/resource/user_gpg'
+    autoload :Visibility, 'qa/resource/visibility'
 
     module Events
       autoload :Base, 'qa/resource/events/base'
