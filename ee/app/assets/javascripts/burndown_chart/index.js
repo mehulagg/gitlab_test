@@ -30,6 +30,8 @@ export default () => {
         const burndownEvents = response.data;
         const chartData = new BurndownChartData(burndownEvents, startDate, dueDate).generate();
 
+        console.log(chartData)
+
         const openIssuesCount = chartData.map(d => [d[0], d[1]]);
         const openIssuesWeight = chartData.map(d => [d[0], d[2]]);
 

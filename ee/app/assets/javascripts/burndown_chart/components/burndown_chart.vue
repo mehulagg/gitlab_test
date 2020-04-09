@@ -85,6 +85,8 @@ export default {
         xAxis: {
           name: '',
           type: 'time',
+          min: this.startDate,
+          max: this.dueDate,
           axisLine: {
             show: true,
           },

@@ -5,18 +5,28 @@ export default class BurndownChartData {
     this.dateFormatMask = 'yyyy-mm-dd';
     this.startDate = startDate;
     this.dueDate = dueDate;
-    this.burndownEvents = this.processRawEvents(burndownEvents);
+
+    console.log('burndown eventes', this.burndownEvents)
 
     // determine when to stop burndown chart
     const today = dateFormat(Date.now(), this.dateFormatMask);
     this.endDate = today < this.dueDate ? today : this.dueDate;
 
+    
+
     // Make sure we get the burndown chart local start and end dates! new Date()
     // and dateFormat() both convert the date at midnight UTC to the browser's
     // timezone, leading to incorrect chart start and end points. Using
     // new Date('YYYY-MM-DDTHH:MM:SS') gets the user's local date at midnight.
+    
     this.localStartDate = new Date(`${this.startDate}T00:00:00`);
     this.localEndDate = new Date(`${this.endDate}T00:00:00`);
+
+    console.log(this.startDate, 'GREAT', this.localStartDate)
+    console.log(this.endDate, 'END', this.localEndDate)
+
+    this.burndownEvents = this.processRawEvents(burndownEvents);
+    console.dir(this)
   }
 
   generate() {
