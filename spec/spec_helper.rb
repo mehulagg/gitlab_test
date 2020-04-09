@@ -172,6 +172,7 @@ RSpec.configure do |config|
   config.before do |example|
     # Enable all features by default for testing
     allow(Feature).to receive(:enabled?) { true }
+    allow(Gitlab::Unleash).to receive(:enabled?) { true }
 
     enabled = example.metadata[:enable_rugged].present?
 
