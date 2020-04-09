@@ -12,6 +12,7 @@ FactoryBot.define do
     project_fingerprint { generate(:project_fingerprint) }
     primary_identifier factory: :vulnerabilities_identifier
     location_fingerprint { '4e5b6966dd100170b4b1ad599c7058cce91b57b4' }
+    feedback_fingerprint {'d4667a67e71436947c7ff89f31379aeb82d2044f74dbad776941fcd91585e318sast'}
     report_type { :sast }
     severity { :high }
     confidence { :medium }

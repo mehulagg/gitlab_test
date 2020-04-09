@@ -47,7 +47,7 @@ class Vulnerabilities::FeedbackEntity < Grape::Entity
     feedback&.pipeline&.ref
   end
   expose :project_fingerprint
-  expose :feedback_fingerprint, safe: true
+  expose :feedback_fingerprint
 
   alias_method :feedback, :object
 

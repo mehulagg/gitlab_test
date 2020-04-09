@@ -16,6 +16,7 @@ FactoryBot.define do
     feedback_type { 'dismissal' }
     category { 'sast' }
     project_fingerprint { generate(:project_fingerprint) }
+    feedback_fingerprint { 'd4667a67e71436947c7ff89f31379aeb82d2044f74dbad776941fcd91585e318sast' }
     vulnerability_data { { category: 'sast' } }
 
     trait :dismissal do
