@@ -525,9 +525,15 @@ production: &base
   feature_flags:
     unleash:
       # enabled: false
-      # url: https://gitlab.com/api/v4/feature_flags/unleash/<project_id>
-      # app_name: gitlab.com # Environment name of your GitLab instance
-      # instance_id: INSTANCE_ID
+      # url: https://gitlab.com/api/v4/feature_flags/unleash/<PROJECT_ID> # API URL from your GitLab project
+      # app_name: production # Defaults to the **environment name** of your GitLab instance
+      # instance_id: INSTANCE_ID # Instance ID from your GitLab project
+      # log_level: INFO
+      # disable_metrics: true
+      # metrics_interval: 10 # seconds
+      # refresh_interval: 15 # seconds
+      # retry_limit: 1
+      # timeout: 30 # seconds
 
   #
   # 2. GitLab CI settings

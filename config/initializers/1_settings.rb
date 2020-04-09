@@ -317,6 +317,12 @@ end
 Settings['feature_flags'] ||= Settingslogic.new({})
 Settings.feature_flags['unleash'] ||= Settingslogic.new({})
 Settings.feature_flags.unleash['enabled'] = false if Settings.feature_flags.unleash['enabled'].nil?
+Settings.feature_flags.unleash['log_level'] = Logger::INFO if Settings.feature_flags.unleash['log_level'].nil?
+Settings.feature_flags.unleash['disable_metrics'] = true if Settings.feature_flags.unleash['disable_metrics'].nil?
+Settings.feature_flags.unleash['metrics_interval'] = 10 if Settings.feature_flags.unleash['metrics_interval'].nil?
+Settings.feature_flags.unleash['refresh_interval'] = 15 if Settings.feature_flags.unleash['refresh_interval'].nil?
+Settings.feature_flags.unleash['retry_limit'] = 1 if Settings.feature_flags.unleash['retry_limit'].nil?
+Settings.feature_flags.unleash['timeout'] = 30 if Settings.feature_flags.unleash['timeout'].nil?
 
 #
 # External merge request diffs
