@@ -19,7 +19,7 @@ export default {
     ...mapGetters('detail', ['validationErrors']),
   },
   created() {
-    this.addEmptyAssetLink();
+    this.ensureAtLeastOneLink();
   },
   methods: {
     ...mapActions('detail', [
@@ -33,6 +33,7 @@ export default {
     },
     onRemoveClicked(linkId) {
       this.removeAssetLink(linkId);
+      this.ensureAtLeastOneLink();
     },
     onUrlInput(linkIdToUpdate, newUrl) {
       this.updateAssetLinkUrl({ linkIdToUpdate, newUrl });
@@ -60,6 +61,16 @@ export default {
     },
     isNameValid(link) {
       return !this.hasEmptyName(link);
+    },
+
+    /**
+     * Make sure the form is never completely empty by adding an
+     * empty row if the form contains 0 links
+     */
+    ensureAtLeastOneLink() {
+      if (this.release.assets.links.length === 0) {
+        this.addEmptyAssetLink();
+      }
     },
   },
 };

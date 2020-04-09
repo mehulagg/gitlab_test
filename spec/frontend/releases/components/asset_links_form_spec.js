@@ -3,7 +3,6 @@ import { mount, createLocalVue } from '@vue/test-utils';
 import AssetLinksForm from '~/releases/components/asset_links_form.vue';
 import { release as originalRelease } from '../mock_data';
 import * as commonUtils from '~/lib/utils/common_utils';
-import { merge } from 'lodash';
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -15,9 +14,9 @@ describe('Release edit component', () => {
   let getters;
   let state;
 
-  const factory = ({ store: storeUpdates = {} } = {}) => {
+  const factory = ({ release: overriddenRelease, linkErrors } = {}) => {
     state = {
-      release,
+      release: overriddenRelease || release,
       releaseAssetsDocsPath: 'path/to/release/assets/docs',
     };
 
@@ -25,32 +24,29 @@ describe('Release edit component', () => {
       addEmptyAssetLink: jest.fn(),
       updateAssetLinkUrl: jest.fn(),
       updateAssetLinkName: jest.fn(),
-      removeAssetLink: jest.fn(),
+      removeAssetLink: jest.fn().mockImplementation((_context, linkId) => {
+        state.release.assets.links = state.release.assets.links.filter(l => l.id !== linkId);
+      }),
     };
 
     getters = {
-      validationErrors: jest.fn().mockReturnValue({
+      validationErrors: () => ({
         assets: {
-          links: [],
+          links: linkErrors || {},
         },
       }),
     };
 
-    const store = new Vuex.Store(
-      merge(
-        {
-          modules: {
-            detail: {
-              namespaced: true,
-              actions,
-              state,
-              getters,
-            },
-          },
+    const store = new Vuex.Store({
+      modules: {
+        detail: {
+          namespaced: true,
+          actions,
+          state,
+          getters,
         },
-        storeUpdates,
-      ),
-    );
+      },
+    });
 
     wrapper = mount(AssetLinksForm, {
       localVue,
@@ -72,16 +68,12 @@ describe('Release edit component', () => {
       factory();
     });
 
-    it('adds a new, empty item to the list of release links when the component is created', () => {
-      expect(actions.addEmptyAssetLink).toHaveBeenCalledTimes(1);
-    });
-
     it('calls the "addEmptyAssetLink" store method when the "Add another link" button is clicked', () => {
-      expect(actions.addEmptyAssetLink).toHaveBeenCalledTimes(1);
+      expect(actions.addEmptyAssetLink).not.toHaveBeenCalled();
 
       wrapper.find({ ref: 'addAnotherLinkButton' }).vm.$emit('click');
 
-      expect(actions.addEmptyAssetLink).toHaveBeenCalledTimes(2);
+      expect(actions.addEmptyAssetLink).toHaveBeenCalledTimes(1);
     });
 
     it('calls the "removeAssetLinks" store method when the remove button is clicked', () => {
@@ -134,46 +126,38 @@ describe('Release edit component', () => {
   describe('validation', () => {
     let linkId;
 
+    beforeEach(() => {
+      linkId = release.assets.links[0].id;
+    });
+
     const findUrlValidationMessage = () => wrapper.find('.url-field .invalid-feedback');
     const findNameValidationMessage = () => wrapper.find('.link-title-field .invalid-feedback');
 
-    const validationFactory = (linkErrors = {}) => {
-      linkId = release.assets.links[0].id;
-
-      factory({
-        store: {
-          modules: {
-            detail: {
-              getters: {
-                validationErrors: () => ({
-                  assets: {
-                    links: {
-                      [linkId]: linkErrors,
-                    },
-                  },
-                }),
-              },
-            },
-          },
-        },
-      });
-    };
-
     it('does not show any validation messages if there are no validation errors', () => {
-      validationFactory();
+      factory();
 
       expect(findUrlValidationMessage().exists()).toBe(false);
       expect(findNameValidationMessage().exists()).toBe(false);
     });
 
     it('shows a validation error message when two links have the same URLs', () => {
-      validationFactory({ isDuplicate: true });
+      factory({
+        linkErrors: {
+          [linkId]: { isDuplicate: true },
+        },
+      });
 
-      expect(findUrlValidationMessage().text()).toBe('Duplicate URL');
+      expect(findUrlValidationMessage().text()).toBe(
+        'This URL is already used for another link; duplicate URLs are not allowed',
+      );
     });
 
     it('shows a validation error message when a URL has a bad format', () => {
-      validationFactory({ isBadFormat: true });
+      factory({
+        linkErrors: {
+          [linkId]: { isBadFormat: true },
+        },
+      });
 
       expect(findUrlValidationMessage().text()).toBe(
         'URL must start with http://, https://, or ftp://',
@@ -181,15 +165,65 @@ describe('Release edit component', () => {
     });
 
     it('shows a validation error message when the URL is empty (and the title is not empty)', () => {
-      validationFactory({ isUrlEmpty: true });
+      factory({
+        linkErrors: {
+          [linkId]: { isUrlEmpty: true },
+        },
+      });
 
       expect(findUrlValidationMessage().text()).toBe('URL is required');
     });
 
     it('shows a validation error message when the title is empty (and the URL is not empty)', () => {
-      validationFactory({ isNameEmpty: true });
+      factory({
+        linkErrors: {
+          [linkId]: { isNameEmpty: true },
+        },
+      });
 
       expect(findNameValidationMessage().text()).toBe('Link title is required');
+    });
+  });
+
+  describe('empty state', () => {
+    describe('when the release fetched from the API has no links', () => {
+      beforeEach(() => {
+        factory({
+          release: {
+            ...release,
+            assets: {
+              links: [],
+            },
+          },
+        });
+      });
+
+      it('calls the addEmptyAssetLink store method when the component is created', () => {
+        expect(actions.addEmptyAssetLink).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('when the release fetched from the API has one link', () => {
+      beforeEach(() => {
+        factory({
+          release: {
+            ...release,
+            assets: {
+              links: release.assets.links.slice(0, 1),
+            },
+          },
+        });
+      });
+
+      it('does not call the addEmptyAssetLink store method when the component is created', () => {
+        expect(actions.addEmptyAssetLink).not.toHaveBeenCalled();
+      });
+
+      it('calls addEmptyAssetLink when the final link is deleted by the user', () => {
+        wrapper.find('.remove-button').vm.$emit('click');
+
+        expect(actions.addEmptyAssetLink).toHaveBeenCalledTimes(1);
+      });
     });
   });
 });
