@@ -20,6 +20,11 @@ class QaSessionsController < Devise::SessionsController
   end
 
   def gitlab_qa_token_valid?
+    Gitlab::AppLogger.info(">>>>>>>>> ENV['GITLAB_QA_FORMLESS_LOGIN_TOKEN'].present?: #{ENV['GITLAB_QA_FORMLESS_LOGIN_TOKEN'].present?}")
+    Gitlab::AppLogger.info(">>>>>>>>> ENV['GITLAB_QA_FORMLESS_LOGIN_TOKEN']: #{ENV['GITLAB_QA_FORMLESS_LOGIN_TOKEN']}")
+    Gitlab::AppLogger.info(">>>>>>>>> params[:gitlab_qa_formless_login_token]: #{params[:gitlab_qa_formless_login_token]}")
+    Gitlab::AppLogger.info(">>>>>>>>> params[:gitlab_qa_formless_login_token] == ENV['GITLAB_QA_FORMLESS_LOGIN_TOKEN']: #{params[:gitlab_qa_formless_login_token] == ENV['GITLAB_QA_FORMLESS_LOGIN_TOKEN']}")
+    Gitlab::AppLogger.info(">>>>>>>>> params: #{params}")
     ENV['GITLAB_QA_FORMLESS_LOGIN_TOKEN'].present? && params[:gitlab_qa_formless_login_token] == ENV['GITLAB_QA_FORMLESS_LOGIN_TOKEN']
   end
 end
