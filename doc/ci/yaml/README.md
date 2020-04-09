@@ -541,7 +541,7 @@ In addition, `only` and `except` allow the use of special keywords:
 | `tags`           | When a Git reference of a pipeline is a tag.  |
 | `api`            | When pipeline has been triggered by a second pipelines API (not triggers API).  |
 | `external`       | When using CI services other than GitLab. |
-| `pipelines`      | For multi-project triggers, created using the API with `CI_JOB_TOKEN`. |
+| `pipelines`      | For multi-project triggers using a [bridge job](https://docs.gitlab.com/ee/ci/multi_project_pipelines.html#triggering-a-downstream-pipeline-using-a-bridge-job) or created using the API with `CI_JOB_TOKEN`. |
 | `pushes`         | Pipeline is triggered by a `git push` by the user. |
 | `schedules`      | For [scheduled pipelines](../pipelines/schedules.md). |
 | `triggers`       | For pipelines created using a trigger token. |
