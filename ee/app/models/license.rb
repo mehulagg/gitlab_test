@@ -216,7 +216,6 @@ class License < ApplicationRecord
     required_ci_templates
     seat_link
     usage_quotas
-    export_issues    
   ].freeze
 
   validate :valid_license
