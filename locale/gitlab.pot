@@ -1024,6 +1024,15 @@ msgstr ""
 msgid "AccessTokens|reset it"
 msgstr ""
 
+msgid "AccessibilityReport|Learn More"
+msgstr ""
+
+msgid "AccessibilityReport|Message: %{message}"
+msgstr ""
+
+msgid "AccessibilityReport|New"
+msgstr ""
+
 msgid "Account"
 msgstr ""
 
@@ -2091,6 +2100,9 @@ msgid "An error occurred. Please try again."
 msgstr ""
 
 msgid "An error ocurred while loading your content. Please try again."
+msgstr ""
+
+msgid "An example project for managing Kubernetes clusters integrated with GitLab."
 msgstr ""
 
 msgid "An instance-level serverless domain already exists."
@@ -10310,6 +10322,9 @@ msgstr ""
 msgid "GroupSAML|should be a random persistent ID, emails are discouraged"
 msgstr ""
 
+msgid "GroupSettings|Apply integration settings to all Projects"
+msgstr ""
+
 msgid "GroupSettings|Auto DevOps pipeline was updated for the group"
 msgstr ""
 
@@ -10344,6 +10359,9 @@ msgid "GroupSettings|Disable group mentions"
 msgstr ""
 
 msgid "GroupSettings|If the parent group's visibility is lower than the group current visibility, visibility levels for subgroups and projects will be changed to match the new parent group's visibility."
+msgstr ""
+
+msgid "GroupSettings|Integrations configured here will automatically apply to all projects in this group."
 msgstr ""
 
 msgid "GroupSettings|Learn more about badges."
@@ -15878,6 +15896,9 @@ msgid "ProjectTemplates|.NET Core"
 msgstr ""
 
 msgid "ProjectTemplates|Android"
+msgstr ""
+
+msgid "ProjectTemplates|GitLab Cluster Management"
 msgstr ""
 
 msgid "ProjectTemplates|Go Micro"
@@ -23394,6 +23415,9 @@ msgstr ""
 msgid "You could not create a new trigger."
 msgstr ""
 
+msgid "You didn't renew your %{strong}%{plan_name}%{strong_close} subscription for %{strong}%{namespace_name}%{strong_close} so it was downgraded to the free plan."
+msgstr ""
+
 msgid "You didn't renew your %{strong}%{plan_name}%{strong_close} subscription so it was downgraded to the GitLab Core Plan."
 msgstr ""
 
@@ -23622,6 +23646,9 @@ msgstr ""
 msgid "YouTube"
 msgstr ""
 
+msgid "Your %{strong}%{plan_name}%{strong_close} subscription for %{strong}%{namespace_name}%{strong_close} will expire on %{strong}%{expires_on}%{strong_close}. After that, you will not to be able to create issues or merge requests as well as many other features."
+msgstr ""
+
 msgid "Your %{strong}%{plan_name}%{strong_close} subscription will expire on %{strong}%{expires_on}%{strong_close}. After that, you will not to be able to create issues or merge requests as well as many other features."
 msgstr ""
 
@@ -23844,6 +23871,9 @@ msgid "archived"
 msgstr ""
 
 msgid "assign yourself"
+msgstr ""
+
+msgid "at risk"
 msgstr ""
 
 msgid "attach a new file"
@@ -24349,6 +24379,15 @@ msgstr ""
 msgid "issue"
 msgstr ""
 
+msgid "issues at risk"
+msgstr ""
+
+msgid "issues need attention"
+msgstr ""
+
+msgid "issues on track"
+msgstr ""
+
 msgid "it is stored externally"
 msgstr ""
 
@@ -24729,6 +24768,9 @@ msgstr ""
 msgid "n/a"
 msgstr ""
 
+msgid "need attention"
+msgstr ""
+
 msgid "needs to be between 10 minutes and 1 month"
 msgstr ""
 
@@ -24760,6 +24802,9 @@ msgid "nounSeries|%{item}, %{nextItem}"
 msgstr ""
 
 msgid "nounSeries|%{item}, and %{lastItem}"
+msgstr ""
+
+msgid "on track"
 msgstr ""
 
 msgid "opened %{timeAgoString} by %{user}"

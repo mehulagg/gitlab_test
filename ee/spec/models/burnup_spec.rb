@@ -26,36 +26,36 @@ describe Burnup do
     let!(:event1) { create(:resource_milestone_event, issue: issue1, action: :add, milestone: milestone1, created_at: start_date) }
     let!(:event2) { create(:resource_milestone_event, issue: issue2, action: :add, milestone: milestone1, created_at: start_date) }
     let!(:event3) { create(:resource_milestone_event, issue: issue3, action: :add, milestone: milestone1, created_at: start_date) }
-    let!(:event4) { create(:resource_milestone_event, issue: issue3, action: :remove, milestone: milestone2, created_at: start_date + 2.hours) }
-
-    let!(:closed_issue_event) { create(:event, project: project, author: user, target: issue2, action: Event::CLOSED, created_at: start_date + 1.minute) }
-    let!(:other_event) { create(:event, target: issue1, created_at: start_date + 2.hours + 1.minute, action: Event::REOPENED) }
+    let!(:event4) { create(:resource_milestone_event, issue: issue3, action: :remove, milestone: nil, created_at: start_date + 2.hours) }
 
     it 'returns the expected data points' do
-      # These events should be ignored
-      create(:event, target: issue1, created_at: start_date.beginning_of_day - 1.minute, action: Event::CLOSED)
-      create(:event, target: issue3, created_at: due_date.end_of_day + 1.minute, action: Event::REOPENED)
+      # These events are ignored
+      create(:resource_milestone_event, issue: other_issue, action: :remove, milestone: milestone2, created_at: start_date.beginning_of_day - 1.second)
+      create(:resource_milestone_event, issue: issue1, action: :add, milestone: milestone2, created_at: start_date.beginning_of_day - 1.second)
+      create(:resource_milestone_event, issue: issue3, action: :remove, milestone: nil, created_at: due_date.end_of_day + 1.second)
 
-      data = described_class.new(milestone1).burnup_data
+      data = described_class.new(milestone1, visible_issues: [issue1, issue2, issue3]).burnup_data
 
-      expect(data.size).to eq(6)
+      expect(data.size).to eq(4)
 
       expect_milestone_event(data[0], action: 'add', issue_id: issue1.id, milestone_id: milestone1.id, created_at: start_date)
       expect_milestone_event(data[1], action: 'add', issue_id: issue2.id, milestone_id: milestone1.id, created_at: start_date)
       expect_milestone_event(data[2], action: 'add', issue_id: issue3.id, milestone_id: milestone1.id, created_at: start_date)
-      expect_event(data[3], issue_id: issue2.id, action: Event::CLOSED, created_at: start_date + 1.minute)
-      expect_milestone_event(data[4], action: 'remove', issue_id: issue3.id, created_at: start_date + 2.hours)
-      expect_event(data[5], issue_id: issue1.id, action: Event::REOPENED, created_at: start_date + 2.hours + 1.minute)
+      expect_milestone_event(data[3], action: 'remove', issue_id: issue3.id, created_at: start_date + 2.hours)
+    end
+
+    it 'excludes issues which are not in the visible list' do
+      data = described_class.new(milestone1, visible_issues: [issue2]).burnup_data
+
+      expect(data.size).to eq(1)
+
+      expect_milestone_event(data[0], action: 'add', issue_id: issue2.id, milestone_id: milestone1.id, created_at: start_date)
     end
 
     def expect_milestone_event(event, with_properties)
       expect(event[:event_type]).to eq('milestone')
 
       expect_to_match_each_property(event, with_properties)
-    end
-
-    def expect_event(event, with_properties)
-      expect(event[:event_type]).to eq('event')
     end
 
     def expect_to_match_each_property(event, properties)

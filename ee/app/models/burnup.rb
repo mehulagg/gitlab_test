@@ -3,9 +3,10 @@
 class Burnup
   include Gitlab::Utils::StrongMemoize
 
-  attr_reader :milestone, :start_date, :due_date, :end_date
+  attr_reader :milestone, :start_date, :due_date, :end_date, :visible_issue_ids
 
-  def initialize(milestone)
+  def initialize(milestone, visible_issues:)
+    @visible_issue_ids = visible_issues
     @milestone = milestone
     @start_date = milestone.start_date
     @due_date = milestone.due_date
@@ -17,7 +18,7 @@ class Burnup
   end
 
   def burnup_data
-    milestone_events.map do |event|
+    resource_milestone_events.map do |event|
       {
           created_at: event.created_at,
           event_type: event_type_of(event),
@@ -54,43 +55,25 @@ class Burnup
 
     strong_memoize(:resource_milestone_events) do
       ResourceMilestoneEvent
-          .where(issue_id: relevant_issues.map(&:id))
+          .where(issue_id: relevant_issue_ids)
           .where(created_at: start_time..end_time)
-          .order(:created_at)
+          .order(:id) # alternative to ordering by created_at
     end
   end
 
-  def relevant_issues
+  def relevant_issue_ids
     # We are using all resource milestone events where the
     # milestone in question was added to identify the relevant
     # issues.
 
-    strong_memoize(:relevant_issues) do
-      Issue
-          .joins(:resource_milestone_events)
-          .where('resource_milestone_events.issue_id = issues.id AND ' \
-                     'resource_milestone_events.action = ? AND ' \
-                     'resource_milestone_events.milestone_id = ? AND ' \
-                     'resource_milestone_events.created_at BETWEEN ? AND ?',
-                 ResourceMilestoneEvent.actions['add'],
-                 milestone.id,
-                 start_time, end_time)
-    end
-  end
-
-  def milestone_events
-    # Get a merged event series of resource milestone events and events
-    strong_memoize(:milestone_events) do
-      (resource_milestone_events.to_a + relevant_issue_events.to_a).sort_by(&:created_at)
-    end
-  end
-
-  def relevant_issue_events
-    strong_memoize(:relevant_issue_events) do
-      Event
-          .where(target_type: 'Issue', target: relevant_issues, action: [Event::CLOSED, Event::REOPENED])
+    strong_memoize(:relevant_issue_ids) do
+      ResourceMilestoneEvent
+          .select(:issue_id)
+          .where(milestone_id: milestone.id)
+          .where(action: :add)
           .where(created_at: start_time..end_time)
-          .order(:created_at)
+          .where(issue_id: visible_issue_ids)
+          .distinct
     end
   end
 
@@ -100,13 +83,5 @@ class Burnup
 
   def end_time
     @end_time ||= @end_date.end_of_day.to_time
-  end
-
-  def count_open(events)
-    events.select(&:open?).count
-  end
-
-  def count_closed(events)
-    events.select(&:closed?).count
   end
 end
