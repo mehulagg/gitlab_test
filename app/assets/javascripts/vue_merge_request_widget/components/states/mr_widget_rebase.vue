@@ -1,6 +1,6 @@
 <script>
 import { GlLoadingIcon } from '@gitlab/ui';
-import { escape } from 'lodash';
+import { escape as esc } from 'lodash';
 import simplePoll from '../../../lib/utils/simple_poll';
 import eventHub from '../../event_hub';
 import statusIcon from '../mr_widget_status_icon.vue';
@@ -48,7 +48,7 @@ export default {
           'Fast-forward merge is not possible. Rebase the source branch onto %{targetBranch} to allow this merge request to be merged.',
         ),
         {
-          targetBranch: `<span class="label-branch">${escape(this.mr.targetBranch)}</span>`,
+          targetBranch: `<span class="label-branch">${esc(this.mr.targetBranch)}</span>`,
         },
         false,
       );

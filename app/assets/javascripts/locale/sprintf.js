@@ -1,4 +1,4 @@
-import { escape } from 'lodash';
+import { escape as esc } from 'lodash';
 
 /**
   Very limited implementation of sprintf supporting only named parameters.
@@ -17,7 +17,7 @@ export default (input, parameters, escapeParameters = true) => {
   if (parameters) {
     Object.keys(parameters).forEach(parameterName => {
       const parameterValue = parameters[parameterName];
-      const escapedParameterValue = escapeParameters ? escape(parameterValue) : parameterValue;
+      const escapedParameterValue = escapeParameters ? esc(parameterValue) : parameterValue;
       output = output.replace(new RegExp(`%{${parameterName}}`, 'g'), escapedParameterValue);
     });
   }

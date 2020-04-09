@@ -1,4 +1,4 @@
-import { escape } from 'lodash';
+import { escape as esc } from 'lodash';
 import { getFirstCharacterCapitalized } from '~/lib/utils/text_utility';
 
 export const DEFAULT_SIZE_CLASS = 's40';
@@ -19,9 +19,7 @@ export function renderIdenticon(entity, options = {}) {
   const bgClass = getIdenticonBackgroundClass(entity.id);
   const title = getIdenticonTitle(entity.name);
 
-  return `<div class="avatar identicon ${escape(sizeClass)} ${escape(bgClass)}">${escape(
-    title,
-  )}</div>`;
+  return `<div class="avatar identicon ${esc(sizeClass)} ${esc(bgClass)}">${esc(title)}</div>`;
 }
 
 export function renderAvatar(entity, options = {}) {
@@ -31,5 +29,5 @@ export function renderAvatar(entity, options = {}) {
 
   const { sizeClass = DEFAULT_SIZE_CLASS } = options;
 
-  return `<img src="${escape(entity.avatar_url)}" class="avatar ${escape(sizeClass)}" />`;
+  return `<img src="${esc(entity.avatar_url)}" class="avatar ${esc(sizeClass)}" />`;
 }

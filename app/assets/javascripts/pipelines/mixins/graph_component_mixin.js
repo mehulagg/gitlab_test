@@ -1,4 +1,4 @@
-import { escape } from 'lodash';
+import { escape as esc } from 'lodash';
 
 export default {
   props: {
@@ -18,7 +18,7 @@ export default {
   },
   methods: {
     capitalizeStageName(name) {
-      const escapedName = escape(name);
+      const escapedName = esc(name);
       return escapedName.charAt(0).toUpperCase() + escapedName.slice(1);
     },
     isFirstColumn(index) {

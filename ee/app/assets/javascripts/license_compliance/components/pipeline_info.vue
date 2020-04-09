@@ -1,5 +1,5 @@
 <script>
-import { escape } from 'lodash';
+import { escape as esc } from 'lodash';
 import { s__, sprintf } from '~/locale';
 import TimeAgoTooltip from '~/vue_shared/components/time_ago_tooltip.vue';
 
@@ -26,7 +26,7 @@ export default {
       );
 
       const linkStart = path
-        ? `<a href="${escape(path)}" target="_blank" rel="noopener noreferrer">`
+        ? `<a href="${esc(path)}" target="_blank" rel="noopener noreferrer">`
         : '';
       const linkEnd = path ? '</a>' : '';
 

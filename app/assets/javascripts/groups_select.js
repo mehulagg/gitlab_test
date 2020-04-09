@@ -1,7 +1,7 @@
 import $ from 'jquery';
 import axios from './lib/utils/axios_utils';
 import Api from './api';
-import { escape } from 'lodash';
+import { escape as esc } from 'lodash';
 import { normalizeHeaders } from './lib/utils/common_utils';
 import { __ } from '~/locale';
 
@@ -76,12 +76,12 @@ const groupsSelect = () => {
         }
       },
       formatResult(object) {
-        return `<div class='group-result'> <div class='group-name'>${escape(
+        return `<div class='group-result'> <div class='group-name'>${esc(
           object.full_name,
         )}</div> <div class='group-path'>${object.full_path}</div> </div>`;
       },
       formatSelection(object) {
-        return escape(object.full_name);
+        return esc(object.full_name);
       },
       dropdownCssClass: 'ajax-groups-dropdown select2-infinite',
       // we do not want to escape markup since we are displaying html in results

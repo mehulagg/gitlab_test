@@ -11,7 +11,7 @@ old_notes_spec.js is the spec for the legacy, jQuery notes application. It has n
  */
 
 import $ from 'jquery';
-import { escape, uniqueId } from 'lodash';
+import { escape as esc, uniqueId } from 'lodash';
 import Cookies from 'js-cookie';
 import Autosize from 'autosize';
 import 'jquery.caret'; // required by at.js
@@ -964,11 +964,11 @@ export default class Notes {
 
     form
       .prepend(
-        `<div class="avatar-note-form-holder"><div class="content"><a href="${escape(
+        `<div class="avatar-note-form-holder"><div class="content"><a href="${esc(
           gon.current_username,
         )}" class="user-avatar-link d-none d-sm-block"><img class="avatar s40" src="${encodeURI(
           gon.current_user_avatar_url,
-        )}" alt="${escape(gon.current_user_fullname)}" /></a></div></div>`,
+        )}" alt="${esc(gon.current_user_fullname)}" /></a></div></div>`,
       )
       .append('</div>')
       .find('.js-close-discussion-note-form')
@@ -1449,7 +1449,7 @@ export default class Notes {
     return {
       // eslint-disable-next-line no-jquery/no-serialize
       formData: $form.serialize(),
-      formContent: escape(content),
+      formContent: esc(content),
       formAction: $form.attr('action'),
       formContentOriginal: content,
     };
@@ -1516,16 +1516,16 @@ export default class Notes {
       `<li id="${uniqueId}" class="note being-posted fade-in-half timeline-entry">
          <div class="timeline-entry-inner">
             <div class="timeline-icon">
-               <a href="/${escape(currentUsername)}">
+               <a href="/${esc(currentUsername)}">
                  <img class="avatar s40" src="${currentUserAvatar}" />
                </a>
             </div>
             <div class="timeline-content ${discussionClass}">
                <div class="note-header">
                   <div class="note-header-info">
-                     <a href="/${escape(currentUsername)}">
-                       <span class="d-none d-sm-inline-block bold">${escape(currentUsername)}</span>
-                       <span class="note-headline-light">${escape(currentUsername)}</span>
+                     <a href="/${esc(currentUsername)}">
+                       <span class="d-none d-sm-inline-block bold">${esc(currentUsername)}</span>
+                       <span class="note-headline-light">${esc(currentUsername)}</span>
                      </a>
                   </div>
                </div>
@@ -1539,8 +1539,8 @@ export default class Notes {
       </li>`,
     );
 
-    $tempNote.find('.d-none.d-sm-inline-block').text(escape(currentUserFullname));
-    $tempNote.find('.note-headline-light').text(`@${escape(currentUsername)}`);
+    $tempNote.find('.d-none.d-sm-inline-block').text(esc(currentUserFullname));
+    $tempNote.find('.note-headline-light').text(`@${esc(currentUsername)}`);
 
     return $tempNote;
   }
@@ -1819,7 +1819,7 @@ export default class Notes {
       })
       .catch(() => {
         // Submission failed, revert back to original note
-        $noteBodyText.html(escape(cachedNoteBodyText));
+        $noteBodyText.html(esc(cachedNoteBodyText));
         $editingNote.removeClass('being-posted fade-in');
         $editingNote.find('.spinner').remove();
 

@@ -3,7 +3,7 @@
  * This is tightly coupled to projects/issues/_issue.html.haml,
  * any changes done to the haml need to be reflected here.
  */
-import { escape, isNumber } from 'lodash';
+import { escape as esc, isNumber } from 'lodash';
 import { GlLink, GlTooltipDirective as GlTooltip } from '@gitlab/ui';
 import {
   dateInWords,
@@ -104,13 +104,13 @@ export default {
       return sprintf(
         __('opened %{timeAgoString} by %{user}'),
         {
-          timeAgoString: escape(getTimeago().format(created_at)),
-          user: `<a href="${escape(author.web_url)}"
-            data-user-id=${escape(author.id)}
-            data-username=${escape(author.username)}
-            data-name=${escape(author.name)}
-            data-avatar-url="${escape(author.avatar_url)}">
-            ${escape(author.name)}
+          timeAgoString: esc(getTimeago().format(created_at)),
+          user: `<a href="${esc(author.web_url)}"
+            data-user-id=${esc(author.id)}
+            data-username=${esc(author.username)}
+            data-name=${esc(author.name)}
+            data-avatar-url="${esc(author.avatar_url)}">
+            ${esc(author.name)}
           </a>`,
         },
         false,
@@ -125,7 +125,7 @@ export default {
     updatedDateAgo() {
       // snake_case because it's the same i18n string as the HAML view
       return sprintf(__('updated %{time_ago}'), {
-        time_ago: escape(getTimeago().format(this.issuable.updated_at)),
+        time_ago: esc(getTimeago().format(this.issuable.updated_at)),
       });
     },
     userNotesCount() {

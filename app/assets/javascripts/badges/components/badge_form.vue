@@ -1,5 +1,5 @@
 <script>
-import { escape, debounce } from 'lodash';
+import { escape as esc, debounce } from 'lodash';
 import { mapActions, mapState } from 'vuex';
 import { GlLoadingIcon, GlFormInput, GlFormGroup } from '@gitlab/ui';
 import createFlash from '~/flash';

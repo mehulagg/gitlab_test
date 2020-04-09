@@ -1,6 +1,6 @@
 <script>
 import $ from 'jquery';
-import { escape } from 'lodash';
+import { escape as esc } from 'lodash';
 import { GlLoadingIcon } from '@gitlab/ui';
 import Icon from '~/vue_shared/components/icon.vue';
 import { __ } from '~/locale';
@@ -84,7 +84,7 @@ export default {
               }" data-project-name="${project.name}" data-project-name-with-namespace="${
           project.name_with_namespace
         }">
-                ${escape(project.name_with_namespace)}
+                ${esc(project.name_with_namespace)}
               </a>
             </li>
           `;

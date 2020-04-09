@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import { escape, sortBy } from 'lodash';
+import { escape as esc, sortBy } from 'lodash';
 import PrometheusMetrics from '~/prometheus_metrics/prometheus_metrics';
 import PANEL_STATE from './constants';
 import axios from '~/lib/utils/axios_utils';
@@ -154,8 +154,8 @@ export default class EEPrometheusMetrics extends PrometheusMetrics {
   static customMetricTemplate(metric) {
     return `
     <li class="custom-metric">
-      <a href="${escape(metric.edit_path)}" class="custom-metric-link-bold">
-        ${escape(metric.group)} / ${escape(metric.title)} (${escape(metric.unit)})
+      <a href="${esc(metric.edit_path)}" class="custom-metric-link-bold">
+        ${esc(metric.group)} / ${esc(metric.title)} (${esc(metric.unit)})
       </a>
     </li>
   `;

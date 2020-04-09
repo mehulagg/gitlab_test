@@ -1,7 +1,7 @@
 <script>
 import $ from 'jquery';
 import { mapGetters, mapActions } from 'vuex';
-import { escape } from 'lodash';
+import { escape as esc } from 'lodash';
 import draftMixin from 'ee_else_ce/notes/mixins/draft';
 import { truncateSha } from '~/lib/utils/text_utility';
 import TimelineEntryItem from '~/vue_shared/components/notes/timeline_entry_item.vue';
@@ -100,7 +100,7 @@ export default {
       // language to the next. See:
       // https://gitlab.com/gitlab-org/gitlab-foss/merge_requests/24427#note_133713771
       const { id, url } = this.commit;
-      const commitLink = `<a class="commit-sha monospace" href="${escape(url)}">${truncateSha(
+      const commitLink = `<a class="commit-sha monospace" href="${esc(url)}">${truncateSha(
         id,
       )}</a>`;
       return sprintf(s__('MergeRequests|commented on commit %{commitLink}'), { commitLink }, false);
@@ -185,7 +185,7 @@ export default {
       };
       this.isRequesting = true;
       this.oldContent = this.note.note_html;
-      this.note.note_html = escape(noteText);
+      this.note.note_html = esc(noteText);
 
       this.updateNote(data)
         .then(() => {
