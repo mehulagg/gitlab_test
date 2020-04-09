@@ -467,7 +467,7 @@ gem 'toml-rb', '~> 1.0.0'
 gem 'flipper', '~> 0.17.1'
 gem 'flipper-active_record', '~> 0.17.1'
 gem 'flipper-active_support_cache_store', '~> 0.17.1'
-gem 'unleash', '~> 0.1.5'
+gem 'unleash', '~> 3.2.1'
 
 # Structured logging
 gem 'lograge', '~> 0.5'
