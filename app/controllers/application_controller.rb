@@ -34,6 +34,7 @@ class ApplicationController < ActionController::Base
   before_action :set_usage_stats_consent_flag
   before_action :check_impersonation_availability
   before_action :required_signup_info
+  before_action :set_unleash_context
 
   prepend_around_action :set_current_context
 
@@ -580,6 +581,18 @@ class ApplicationController < ActionController::Base
     store_location_for :user, request.fullpath
 
     redirect_to users_sign_up_welcome_path
+  end
+
+  def set_unleash_context
+    @unleash_context = Unleash::Context.new(
+      # IMPORTANT: Don't set session_id, it's a security risk as it can
+      #            be sent in the clear to the remote Unleash server,
+      #            and can appear in plaintext in logs.
+      #            It is only used for GradualRolloutSessionIdStrategy.
+      # session_id: sessionless_user? ? nil : session.id,
+      remote_address: request.remote_ip,
+      user_id: current_user ? current_user.username : nil
+    )
   end
 end
 
