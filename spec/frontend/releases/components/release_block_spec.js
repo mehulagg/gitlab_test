@@ -1,6 +1,6 @@
 import $ from 'jquery';
 import { mount } from '@vue/test-utils';
-import { first } from 'underscore';
+import { head } from 'lodash';
 import EvidenceBlock from '~/releases/components/evidence_block.vue';
 import ReleaseBlock from '~/releases/components/release_block.vue';
 import ReleaseBlockFooter from '~/releases/components/release_block_footer.vue';
@@ -80,11 +80,11 @@ describe('Release block', () => {
       );
 
       expect(wrapper.find('.js-sources-dropdown li a').attributes().href).toEqual(
-        first(release.assets.sources).url,
+        head(release.assets.sources).url,
       );
 
       expect(wrapper.find('.js-sources-dropdown li a').text()).toContain(
-        first(release.assets.sources).format,
+        head(release.assets.sources).format,
       );
     });
 
@@ -92,11 +92,11 @@ describe('Release block', () => {
       expect(wrapper.findAll('.js-assets-list li').length).toEqual(release.assets.links.length);
 
       expect(wrapper.find('.js-assets-list li a').attributes().href).toEqual(
-        first(release.assets.links).directAssetUrl,
+        head(release.assets.links).directAssetUrl,
       );
 
       expect(wrapper.find('.js-assets-list li a').text()).toContain(
-        first(release.assets.links).name,
+        head(release.assets.links).name,
       );
     });
 
@@ -264,7 +264,7 @@ describe('Release block', () => {
       });
 
       it('renders a link to the milestone with a tooltip', () => {
-        const milestone = first(release.milestones);
+        const milestone = head(release.milestones);
         const milestoneLink = wrapper.find('.js-milestone-link');
 
         expect(milestoneLink.exists()).toBe(true);

@@ -1,10 +1,11 @@
 /* eslint-disable max-classes-per-file, one-var, consistent-return */
 
 import $ from 'jquery';
-import _ from 'underscore';
+import { escape as esc, isString, isFunction, isObject as isObj } from 'lodash';
 import fuzzaldrinPlus from 'fuzzaldrin-plus';
 import axios from './lib/utils/axios_utils';
 import { visitUrl } from './lib/utils/url_utility';
+// TODO: replace isObject with lodash
 import { isObject } from './lib/utils/type_utility';
 import renderItem from './gl_dropdown/render';
 
@@ -145,7 +146,7 @@ class GitLabDropdownFilter {
         //   { prop: 'foo' },
         //   { prop: 'baz' }
         // ]
-        if (_.isArray(data)) {
+        if (Array.isArray(data)) {
           results = fuzzaldrinPlus.filter(data, searchText, {
             key: this.options.keys,
           });
@@ -261,14 +262,14 @@ class GitLabDropdown {
     // If no input is passed create a default one
     self = this;
     // If selector was passed
-    if (_.isString(this.filterInput)) {
+    if (isString(this.filterInput)) {
       this.filterInput = this.getElement(this.filterInput);
     }
     const searchFields = this.options.search ? this.options.search.fields : [];
     if (this.options.data) {
       // If we provided data
       // data could be an array of objects or a group of arrays
-      if (_.isObject(this.options.data) && !_.isFunction(this.options.data)) {
+      if (isObj(this.options.data) && !isFunction(this.options.data)) {
         this.fullData = this.options.data;
         currentIndex = -1;
         this.parseData(this.options.data);
@@ -610,7 +611,7 @@ class GitLabDropdown {
 
   // eslint-disable-next-line class-methods-use-this
   highlightTemplate(text, template) {
-    return `"<b>${_.escape(text)}</b>" ${template}`;
+    return `"<b>${esc(text)}</b>" ${template}`;
   }
 
   // eslint-disable-next-line class-methods-use-this
