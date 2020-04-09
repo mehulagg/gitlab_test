@@ -29,7 +29,10 @@ describe Gitlab::ImportExport::Project::TreeRestorer do
           stub_feature_flags(project_import_ndjson: ndjson_enabled)
 
           setup_import_export_config('complex')
-          setup_reader(reader)
+
+          # FIXME: Disabling `setup_reader` temporarily to always fallback to legacy_relation_reader.
+          # See https://gitlab.com/gitlab-org/gitlab/-/issues/213793#note_320801541
+          # setup_reader(reader)
 
           allow_any_instance_of(Repository).to receive(:fetch_source_branch!).and_return(true)
           allow_any_instance_of(Gitlab::Git::Repository).to receive(:branch_exists?).and_return(false)
