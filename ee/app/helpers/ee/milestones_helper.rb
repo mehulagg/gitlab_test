@@ -9,6 +9,12 @@ module EE
       end
     end
 
+    def burnup_chart(milestone)
+      if milestone.supports_burndown_charts?
+        Burnup.new(milestone: milestone, user: current_user)
+      end
+    end
+
     def can_generate_chart?(milestone, burndown)
       return false unless milestone.supports_burndown_charts?
 
