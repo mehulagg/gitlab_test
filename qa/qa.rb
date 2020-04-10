@@ -322,6 +322,10 @@ module QA
       autoload :TwoFactorAuth, 'qa/page/profile/two_factor_auth'
     end
 
+    module Snippet
+      autoload :Show, 'qa/page/snippet/show'
+    end
+
     module Issuable
       autoload :Sidebar, 'qa/page/issuable/sidebar'
     end
