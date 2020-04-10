@@ -16,10 +16,6 @@ export default {
     GlFormSelect,
   },
   props: {
-    refetchVulnerabilities: {
-      type: Function,
-      required: true,
-    },
     deselectAllVulnerabilities: {
       type: Function,
       required: true,
@@ -78,9 +74,6 @@ export default {
             s__('Security Reports|There was an error dismissing the vulnerabilities.'),
             'alert',
           );
-        })
-        .finally(() => {
-          this.refetchVulnerabilities();
         });
     },
   },

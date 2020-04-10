@@ -83,9 +83,6 @@ export default {
         });
       }
     },
-    refetchVulnerabilities() {
-      this.$apollo.queries.vulnerabilities.refetch();
-    },
   },
   emptyStateDescription: s__(
     `While it's rare to have no vulnerabilities for your project, it can happen. In any event, we ask that you double check your settings to make sure you've set up your dashboard correctly.`,
@@ -107,7 +104,7 @@ export default {
       :is-loading="isLoadingFirstVulnerabilities"
       :dashboard-documentation="dashboardDocumentation"
       :empty-state-svg-path="emptyStateSvgPath"
-      :refetch-vulnerabilities="refetchVulnerabilities"
+      should-show-selection
       :vulnerabilities="vulnerabilities"
     >
       <template #emptyState>
