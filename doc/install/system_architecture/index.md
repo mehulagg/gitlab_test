@@ -128,7 +128,7 @@ By adding automatic failover for database systems, we can enable higher uptime
 with an additional layer of complexity.
 
 - For PostgreSQL, we provide repmgr for server cluster management and failover
-  and a combination of [PgBouncer](PgBouncer.md) and [Consul](consul.md) for
+  and a combination of [PgBouncer](pgbouncer.md) and [Consul](consul.md) for
   database client cutover.
 - For Redis, we use [Redis Sentinel](redis.md) for server failover and client
   cutover.
