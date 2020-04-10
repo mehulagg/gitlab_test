@@ -8,7 +8,7 @@ module QA
 
         Page::Main::Menu.perform(&:go_to_snippets)
 
-        Resource::Snippet.fabricate_via_browser_ui! do |snippet|
+        Resource::PersonalSnippet.fabricate_via_browser_ui! do |snippet|
           snippet.title = 'Snippet title'
           snippet.description = 'Snippet description'
           snippet.visibility = 'Private'

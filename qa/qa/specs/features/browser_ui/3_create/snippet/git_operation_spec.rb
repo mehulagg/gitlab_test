@@ -5,28 +5,34 @@ module QA
     describe 'Snippet git operation' do
       let(:file_name) { 'foo.txt' }
 
-      it 'handles personal snippet' do
+      it 'allows cloning and pushing' do
         Flow::Login.sign_in
 
         clone_and_push_snippet(personal_snippet(visibility: 'Public'))
         clone_and_push_snippet(personal_snippet(visibility: 'Internal'))
+        clone_and_push_snippet(project_snippet(visibility: 'Public'))
+        clone_and_push_snippet(project_snippet(visibility: 'Internal'))
       end
 
       private
 
       def personal_snippet(visibility:)
-        Resource::Snippet.fabricate! do |snippet|
+        Resource::PersonalSnippet.fabricate! do |snippet|
+          snippet.visibility = visibility
+          snippet.file_name = file_name
+        end
+      end
+
+      def project_snippet(visibility:)
+        Resource::ProjectSnippet.fabricate! do |snippet|
           snippet.visibility = visibility
           snippet.file_name = file_name
         end
       end
 
       def clone_and_push_snippet(snippet)
-        # TODO: fetch git path when UI provides them
-        clone_url = "#{snippet.web_url}.git"
-
         Git::Repository.perform do |repository|
-          repository.uri = clone_url
+          repository.uri = snippet.git_web_uri
           repository.use_default_credentials
 
           repository.clone

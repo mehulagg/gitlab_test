@@ -84,7 +84,9 @@ module QA
     autoload :File, 'qa/resource/file'
     autoload :Fork, 'qa/resource/fork'
     autoload :SSHKey, 'qa/resource/ssh_key'
-    autoload :Snippet, 'qa/resource/snippet'
+    autoload :BaseSnippet, 'qa/resource/base_snippet'
+    autoload :PersonalSnippet, 'qa/resource/personal_snippet'
+    autoload :ProjectSnippet, 'qa/resource/project_snippet'
     autoload :Tag, 'qa/resource/tag'
     autoload :ProjectMember, 'qa/resource/project_member'
     autoload :UserGPG, 'qa/resource/user_gpg'
@@ -320,10 +322,6 @@ module QA
       autoload :Emails, 'qa/page/profile/emails'
       autoload :Password, 'qa/page/profile/password'
       autoload :TwoFactorAuth, 'qa/page/profile/two_factor_auth'
-    end
-
-    module Snippet
-      autoload :Show, 'qa/page/snippet/show'
     end
 
     module Issuable
