@@ -52,7 +52,7 @@ earlier, they are presented in the typical order you would configure them.
 |---------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------|---------------------------------------------------------------|
 | [Consul](../../development/architecture.md#consul)[^3]                                                              | Service discovery and health checks/failover                        | [Consul HA configuration](consul.md) **(PREMIUM ONLY)**       |
 | [PostgreSQL](../../development/architecture.md#postgresql)                                                          | Database                                                            | [Database configuration](https://docs.gitlab.com/omnibus/settings/database.html) - [Database HA configuration](database.md)                      |
-| [PgBouncer](../../development/architecture.md#pgbouncer)                                                            | Database Pool Manager                                               | [PgBouncer configuration](pgbouncer.md#running-pgbouncer-as-part-of-a-non-ha-gitlab-installation) - PgBouncer HA configuration](pgbouncer.md) **(PREMIUM ONLY)** |
+| [PgBouncer](../../development/architecture.md#pgbouncer)                                                            | Database Pool Manager                                               | [PgBouncer configuration](PgBouncer.md#running-PgBouncer-as-part-of-a-non-ha-gitlab-installation) - PgBouncer HA configuration](PgBouncer.md) **(PREMIUM ONLY)** |
 | [Redis](../../development/architecture.md#redis)[^3] with Redis Sentinel                                            | Key/Value store for fast data lookup and caching             | [Redis configuration](redis.md)                            |
 | [Gitaly](../../development/architecture.md#gitaly)[^2] [^5] [^7]                                                    | Recommended high-level storage for Git repository data              | [Gitaly configuration](gitaly.md) - [Gitaly HA configuration](../../administration/gitaly/index.md#running-gitaly-on-its-own-server)                         |
 | [Sidekiq](../../development/architecture.md#sidekiq)                                                                | Asynchronous/Background jobs                                        | [Sidekiq configuration](sidekiq.md)                           |
@@ -128,7 +128,7 @@ By adding automatic failover for database systems, we can enable higher uptime
 with an additional layer of complexity.
 
 - For PostgreSQL, we provide repmgr for server cluster management and failover
-  and a combination of [PgBouncer](pgbouncer.md) and [Consul](consul.md) for
+  and a combination of [PgBouncer](PgBouncer.md) and [Consul](consul.md) for
   database client cutover.
 - For Redis, we use [Redis Sentinel](redis.md) for server failover and client
   cutover.
@@ -296,7 +296,6 @@ On different cloud vendors a best effort like for like can be used.
 
 Once you've decided on your system architecture, you're ready to
 [install GitLab](../README.md#installing-gitlab-using-the-omnibus-gitlab-package-recommended).
-
 
 [^1]: In our architectures we run each GitLab Rails node using the Puma webserver
       and have its number of workers set to 90% of available CPUs along with 4 threads.
