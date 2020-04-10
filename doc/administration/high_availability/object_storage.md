@@ -1,5 +1,5 @@
 ---
-redirect_to: '../object_storage.md'
+redirect_to: '../../install/system_architecture/object_storage.md'
 ---
 
-This document was moved to [another location](../object_storage.md).
+This document was moved to [another location](../../install/system_architecture/object_storage.md).

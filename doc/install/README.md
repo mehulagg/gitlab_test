@@ -26,6 +26,15 @@ The Omnibus GitLab packages are mature, scalable, support
 today on GitLab.com. The Helm charts are recommended for those who are familiar
 with Kubernetes.
 
+## System Architecture
+
+Before you install GitLab, you should
+[define your target architecture](system_architecture/index.md). To decide on a
+system architecture that suits your needs, you'll need to take into account the
+number of users you will support and your availability requirements. Though
+scaling and availability are related concepts, a configuration can successfully
+scale without the complexity and costs of full HA (high availability).
+
 ## Requirements
 
 Before installing GitLab, it is of critical importance to review the system [requirements](requirements.md). The system requirements include details on the minimum hardware, software, database, and additional requirements to support GitLab.
