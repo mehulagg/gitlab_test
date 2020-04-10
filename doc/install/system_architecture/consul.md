@@ -50,7 +50,7 @@ On each Consul node perform the following:
 
    > `consul_role` was introduced with GitLab 10.3
 
-1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes
+1. [Reconfigure GitLab](../../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes
    to take effect.
 
 ### Consul checkpoint

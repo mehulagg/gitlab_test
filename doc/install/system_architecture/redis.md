@@ -22,7 +22,7 @@ These will be necessary when configuring the GitLab application servers later.
 
 ## Redis in a Scaled and Highly Available Environment
 
-This section is relevant for [Scalable and Highly Available Setups](../scaling/index.md).
+This section is relevant for [Scalable or Highly Available Setups](index.md).
 
 ### Provide your own Redis instance **(CORE ONLY)**
 
@@ -38,8 +38,8 @@ In this configuration Redis is not highly available, and represents a single
 point of failure. However, in a scaled environment the objective is to allow
 the environment to handle more users or to increase throughput. Redis itself
 is generally stable and can handle many requests so it is an acceptable
-trade off to have only a single instance. See [High Availability](../availability/index.md)
-for an overview of GitLab scaling and high availability options.
+trade off to have only a single instance. See the [System Architecture](index.md)
+page for an overview of GitLab scaling and high availability options.
 
 The steps below are the minimum necessary to configure a Redis server with
 Omnibus:
@@ -74,7 +74,7 @@ Omnibus:
    gitlab_rails['enable'] = false
    ```
 
-1. [Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
+1. [Reconfigure Omnibus GitLab](../../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 1. Note the Redis node's IP address or hostname, port, and
    Redis password. These will be necessary when configuring the GitLab
    application servers later.
@@ -84,7 +84,7 @@ Advanced configuration options are supported and can be added if
 needed.
 
 Continue configuration of other components by going back to the
-[High Availability](../availability/index.md#gitlab-components-and-configuration-instructions) page.
+[System Architecture](index.md#gitlab-components-and-configuration-instructions) page.
 
 ### High Availability with GitLab Omnibus **(PREMIUM ONLY)**
 
@@ -381,7 +381,7 @@ The prerequisites for a HA Redis setup are the following:
    gitlab_rails['auto_migrate'] = false
    ```
 
-1. [Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
+1. [Reconfigure Omnibus GitLab](../../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 > Note: You can specify multiple roles like sentinel and Redis as:
 > `roles ['redis_sentinel_role', 'redis_master_role']`. Read more about high
@@ -429,7 +429,7 @@ The prerequisites for a HA Redis setup are the following:
    sudo touch /etc/gitlab/skip-auto-reconfigure
    ```
 
-1. [Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
+1. [Reconfigure Omnibus GitLab](../../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 1. Go through the steps again for all the other slave nodes.
 
 > Note: You can specify multiple roles like sentinel and Redis as:
@@ -561,7 +561,7 @@ multiple machines with the Sentinel daemon.
 
    Only the primary GitLab application server should handle migrations.
 
-1. [Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
+1. [Reconfigure Omnibus GitLab](../../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 1. Go through the steps again for all the other Sentinel nodes.
 
 ### Step 4. Configuring the GitLab application
@@ -598,7 +598,7 @@ which ideally should not have Redis or Sentinels on it for a HA setup.
    ]
    ```
 
-1. [Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
+1. [Reconfigure Omnibus GitLab](../../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 ## Switching from an existing single-machine installation to Redis HA
 
@@ -677,7 +677,7 @@ sentinel['quorum'] = 2
 # sentinel['failover_timeout'] = 60000
 ```
 
-[Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
+[Reconfigure Omnibus GitLab](../../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 ### Example configuration for Redis slave 1 and Sentinel 2
 
@@ -699,7 +699,7 @@ sentinel['quorum'] = 2
 # sentinel['failover_timeout'] = 60000
 ```
 
-[Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
+[Reconfigure Omnibus GitLab](../../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 ### Example configuration for Redis slave 2 and Sentinel 3
 
@@ -721,7 +721,7 @@ sentinel['quorum'] = 2
 # sentinel['failover_timeout'] = 60000
 ```
 
-[Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
+[Reconfigure Omnibus GitLab](../../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 ### Example configuration for the GitLab application
 
@@ -737,7 +737,7 @@ gitlab_rails['redis_sentinels'] = [
 ]
 ```
 
-[Reconfigure Omnibus GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
+[Reconfigure Omnibus GitLab](../../administration/restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 ## Enable Monitoring
 
@@ -996,7 +996,7 @@ Changes to Redis HA over time.
 
 Read more on High Availability:
 
-1. [High Availability Overview](README.md)
+1. [High Availability Overview](index.md#high-availability)
 1. [Configure the database](database.md)
 1. [Configure NFS](nfs.md)
 1. [Configure the GitLab application servers](gitlab.md)

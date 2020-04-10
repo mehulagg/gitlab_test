@@ -201,7 +201,7 @@ setup:
          port: 26379 # point to sentinel, not to redis port
    ```
 
-1. [Restart GitLab](../restart_gitlab.md#installations-from-source) for the changes to take effect.
+1. [Restart GitLab](../../administration/restart_gitlab.md#installations-from-source) for the changes to take effect.
 
 ## Example of minimal configuration with 1 master, 2 slaves and 3 Sentinels
 
@@ -326,7 +326,7 @@ or a failover promotes a different **Master** node.
          port: 26379 # point to sentinel, not to redis port
    ```
 
-1. [Restart GitLab](../restart_gitlab.md#installations-from-source) for the changes to take effect.
+1. [Restart GitLab](../../administration/restart_gitlab.md#installations-from-source) for the changes to take effect.
 
 ## Troubleshooting
 

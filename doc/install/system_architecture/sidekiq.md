@@ -182,5 +182,5 @@ gitlab_rails['monitoring_whitelist'] = ['10.10.1.42', '127.0.0.1']
 
 Related Sidekiq configuration:
 
-1. [Extra Sidekiq processes](../operations/extra_sidekiq_processes.md)
+1. [Extra Sidekiq processes](../../administration/operations/extra_sidekiq_processes.md)
 1. [Using the GitLab-Sidekiq chart](https://docs.gitlab.com/charts/charts/gitlab/sidekiq/)

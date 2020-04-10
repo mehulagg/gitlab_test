@@ -39,9 +39,9 @@ organization's needs. These should be configured first, before the
 
 | Component | Description | Configuration instructions |
 |-----------|-------------|----------------------------|
-| [Load Balancer(s)](../high_availability/load_balancer.md)[^6]  | Handles load balancing for the GitLab nodes where required  | [Load balancer configuration](load_balancer.md)  |
-| [Cloud Object Storage service](../high_availability/object_storage.md)[^4]  | Recommended store for shared data objects  | [Cloud Object Storage configuration](object_storage.md)  |
-| [NFS](../high_availability/nfs.md)[^5] [^7]  | Shared disk storage service. Can be used as an alternative for Gitaly or Object Storage. Required for GitLab Pages  | [NFS configuration](nfs.md)  |
+| [Load Balancer(s)](load_balancer.md)[^6]  | Handles load balancing for the GitLab nodes where required  | [Load balancer configuration](load_balancer.md)  |
+| [Cloud Object Storage service](object_storage.md)[^4]  | Recommended store for shared data objects  | [Cloud Object Storage configuration](object_storage.md)  |
+| [NFS](nfs.md)[^5] [^7]  | Shared disk storage service. Can be used as an alternative for Gitaly or Object Storage. Required for GitLab Pages  | [NFS configuration](nfs.md)  |
 
 ### GitLab components
 
@@ -98,8 +98,8 @@ multiple application nodes also enables [zero-downtime updates](https://docs.git
 
 References:
 
-- [Configure your load balancer for GitLab](../high_availability/load_balancer.md)
-- [Configure your NFS server to work with GitLab](../high_availability/nfs.md)
+- [Configure your load balancer for GitLab](load_balancer.md)
+- [Configure your NFS server to work with GitLab](nfs.md)
 - [Configure packaged PostgreSQL server to listen on TCP/IP](https://docs.gitlab.com/omnibus/settings/database.html#configure-packaged-postgresql-server-to-listen-on-tcpip)
 - [Setting up a Redis-only server](https://docs.gitlab.com/omnibus/settings/redis.html#setting-up-a-redis-only-server)
 
@@ -136,7 +136,7 @@ with an additional layer of complexity.
 You can also optionally run
 [additional Sidekiq processes on dedicated hardware](sidekiq.md) and configure
 individual Sidekiq processes to
-[process specific background job queues](../../adminstration/operations/extra_sidekiq_processes.md)
+[process specific background job queues](../../administration/operations/extra_sidekiq_processes.md)
 if you need to scale out background job processing.
 
 ### GitLab Geo
@@ -150,8 +150,8 @@ This configuration is supported in
 
 References:
 
-- [Geo Documentation](../../adminstration/geo/replication/index.md)
-- [GitLab Geo with a highly available configuration](../../adminstration/geo/replication/high_availability.md)
+- [Geo Documentation](../../administration/geo/replication/index.md)
+- [GitLab Geo with a highly available configuration](../../administration/geo/replication/high_availability.md)
 
 ## Reference Architectures
 
@@ -304,7 +304,7 @@ Once you've decided on your system architecture, you're ready to
       projects and their sizes. We recommend 2 nodes as an absolute minimum for HA environments
       and at least 4 nodes should be used when supporting 50,000 or more users.
       We also recommend that each Gitaly node should store no more than 5TB of data
-      and have the number of [`gitaly-ruby` workers](../gitaly/index.md#gitaly-ruby)
+      and have the number of [`gitaly-ruby` workers](../../administration/gitaly/index.md#gitaly-ruby)
       set to 20% of available CPUs. Additional nodes should be considered in conjunction
       with a review of expected data size and spread based on the recommendations above.
 
@@ -312,11 +312,11 @@ Once you've decided on your system architecture, you're ready to
       For smaller architectures (up to 5,000 users) we suggest one Redis cluster for all
       classes and that Redis Sentinel is hosted alongside Consul.
       For larger architectures (10,000 users or more) we suggest running a separate
-      [Redis Cluster](../high_availability/redis.md#running-multiple-redis-clusters) for the Cache class
+      [Redis Cluster](redis.md#running-multiple-redis-clusters) for the Cache class
       and another for the Queues and Shared State classes respectively. We also recommend
       that you run the Redis Sentinel clusters separately as well for each Redis Cluster.
 
-[^4]: For data objects such as LFS, Uploads, Artifacts, etc. We recommend a [Cloud Object Storage service](../object_storage.md)
+[^4]: For data objects such as LFS, Uploads, Artifacts, etc. We recommend a [Cloud Object Storage service](object_storage.md)
       over NFS where possible, due to better performance and availability.
 
 [^5]: NFS can be used as an alternative for both repository data (replacing Gitaly) and
