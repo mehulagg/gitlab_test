@@ -3,9 +3,7 @@
 module QA
   module Resource
     module Visibility
-      attr_writer :visibility
-
-      def set_visibility(visibility = VisibilityLevel::PUBLIC)
+      def set_visibility(visibility)
         put Runtime::API::Request.new(api_client, api_visibility_path).url, { visibility: visibility }
       end
 

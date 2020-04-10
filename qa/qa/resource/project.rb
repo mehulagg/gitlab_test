@@ -19,6 +19,7 @@ module QA
       attribute :description
       attribute :standalone
       attribute :runners_token
+      attribute :visibility
 
       attribute :group do
         Group.fabricate!
