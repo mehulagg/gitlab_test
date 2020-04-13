@@ -1,0 +1,3 @@
+mutation RemoveDismissedVulnerabilities($ids: [ID]!) {
+  removeDismissedVulnerabilities @client(ids: $ids)
+}

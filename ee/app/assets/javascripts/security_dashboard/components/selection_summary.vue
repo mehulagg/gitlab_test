@@ -4,6 +4,7 @@ import { GlDeprecatedButton, GlFormSelect } from '@gitlab/ui';
 import toast from '~/vue_shared/plugins/global_toast';
 import createFlash from '~/flash';
 import dismissVulnerability from '../graphql/dismissVulnerability.graphql';
+import removeDismissedVulnerabilities from '../graphql/removeFilteredVulnerabilities.mutation.graphql';
 
 const REASON_NONE = __('[No reason]');
 const REASON_WONT_FIX = __("Won't fix / Accept risk");
@@ -67,14 +68,25 @@ export default {
       Promise.all(promises)
         .then(() => {
           toast(this.dismissalSuccessMessage());
-          this.deselectAllVulnerabilities();
+          this.$apollo.mutate({
+            mutation: removeDismissedVulnerabilities,
+            variables() {
+              return {
+                ids: this.selectedVulnerabilities.map(vulnerability => vulnerability.id),
+              }
+            },
+          });
+          // this.deselectAllVulnerabilities();
         })
         .catch(() => {
           createFlash(
             s__('Security Reports|There was an error dismissing the vulnerabilities.'),
             'alert',
           );
-        });
+        })
+        // .finally(() => {
+        //   this.$apollo.queries.vulnerabilities.refetch();
+        // });
     },
   },
   dismissalReasons: [

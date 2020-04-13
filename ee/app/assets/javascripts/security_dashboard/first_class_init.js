@@ -21,8 +21,16 @@ export default (
 ) => {
   Vue.use(VueApollo);
 
+  const resolvers = {
+    Mutation: {
+      removeDismissedVulnerabilities(_, { ids }, { cache }) {
+        console.log('Hello!')
+      }
+    }
+  }
+
   const apolloProvider = new VueApollo({
-    defaultClient: createDefaultClient(),
+    defaultClient: createDefaultClient(resolvers),
   });
   const {
     dashboardDocumentation,
