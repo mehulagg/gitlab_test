@@ -13842,6 +13842,137 @@ CREATE SEQUENCE public.pool_repositories_id_seq
 
 ALTER SEQUENCE public.pool_repositories_id_seq OWNED BY public.pool_repositories.id;
 
+CREATE TABLE public.product_analytics_events (
+    app_id character varying(255),
+    platform character varying(255),
+    etl_tstamp timestamp without time zone,
+    collector_tstamp timestamp without time zone NOT NULL,
+    dvce_created_tstamp timestamp without time zone,
+    event character varying(128),
+    event_id character(36) NOT NULL,
+    txn_id integer,
+    name_tracker character varying(128),
+    v_tracker character varying(100),
+    v_collector character varying(100) NOT NULL,
+    v_etl character varying(100) NOT NULL,
+    user_id character varying(255),
+    user_ipaddress character varying(45),
+    user_fingerprint character varying(50),
+    domain_userid character varying(36),
+    domain_sessionidx smallint,
+    network_userid character varying(38),
+    geo_country character(2),
+    geo_region character(3),
+    geo_city character varying(75),
+    geo_zipcode character varying(15),
+    geo_latitude double precision,
+    geo_longitude double precision,
+    geo_region_name character varying(100),
+    ip_isp character varying(100),
+    ip_organization character varying(100),
+    ip_domain character varying(100),
+    ip_netspeed character varying(100),
+    page_url text,
+    page_title character varying(2000),
+    page_referrer text,
+    page_urlscheme character varying(16),
+    page_urlhost character varying(255),
+    page_urlport integer,
+    page_urlpath character varying(3000),
+    page_urlquery character varying(6000),
+    page_urlfragment character varying(3000),
+    refr_urlscheme character varying(16),
+    refr_urlhost character varying(255),
+    refr_urlport integer,
+    refr_urlpath character varying(6000),
+    refr_urlquery character varying(6000),
+    refr_urlfragment character varying(3000),
+    refr_medium character varying(25),
+    refr_source character varying(50),
+    refr_term character varying(255),
+    mkt_medium character varying(255),
+    mkt_source character varying(255),
+    mkt_term character varying(255),
+    mkt_content character varying(500),
+    mkt_campaign character varying(255),
+    se_category character varying(1000),
+    se_action character varying(1000),
+    se_label character varying(1000),
+    se_property character varying(1000),
+    se_value double precision,
+    tr_orderid character varying(255),
+    tr_affiliation character varying(255),
+    tr_total numeric(18,2),
+    tr_tax numeric(18,2),
+    tr_shipping numeric(18,2),
+    tr_city character varying(255),
+    tr_state character varying(255),
+    tr_country character varying(255),
+    ti_orderid character varying(255),
+    ti_sku character varying(255),
+    ti_name character varying(255),
+    ti_category character varying(255),
+    ti_price numeric(18,2),
+    ti_quantity integer,
+    pp_xoffset_min integer,
+    pp_xoffset_max integer,
+    pp_yoffset_min integer,
+    pp_yoffset_max integer,
+    useragent character varying(1000),
+    br_name character varying(50),
+    br_family character varying(50),
+    br_version character varying(50),
+    br_type character varying(50),
+    br_renderengine character varying(50),
+    br_lang character varying(255),
+    br_features_pdf boolean,
+    br_features_flash boolean,
+    br_features_java boolean,
+    br_features_director boolean,
+    br_features_quicktime boolean,
+    br_features_realplayer boolean,
+    br_features_windowsmedia boolean,
+    br_features_gears boolean,
+    br_features_silverlight boolean,
+    br_cookies boolean,
+    br_colordepth character varying(12),
+    br_viewwidth integer,
+    br_viewheight integer,
+    os_name character varying(50),
+    os_family character varying(50),
+    os_manufacturer character varying(50),
+    os_timezone character varying(50),
+    dvce_type character varying(50),
+    dvce_ismobile boolean,
+    dvce_screenwidth integer,
+    dvce_screenheight integer,
+    doc_charset character varying(128),
+    doc_width integer,
+    doc_height integer,
+    tr_currency character(3),
+    tr_total_base numeric(18,2),
+    tr_tax_base numeric(18,2),
+    tr_shipping_base numeric(18,2),
+    ti_currency character(3),
+    ti_price_base numeric(18,2),
+    base_currency character(3),
+    geo_timezone character varying(64),
+    mkt_clickid character varying(128),
+    mkt_network character varying(64),
+    etl_tags character varying(500),
+    dvce_sent_tstamp timestamp without time zone,
+    refr_domain_userid character varying(36),
+    refr_dvce_tstamp timestamp without time zone,
+    domain_sessionid character(36),
+    derived_tstamp timestamp without time zone,
+    event_vendor character varying(1000),
+    event_name character varying(1000),
+    event_format character varying(128),
+    event_version character varying(128),
+    event_fingerprint character varying(128),
+    true_tstamp timestamp without time zone
+);
+
 CREATE TABLE public.programming_languages (
     id integer NOT NULL,
     name character varying NOT NULL,
@@ -19103,6 +19234,8 @@ CREATE UNIQUE INDEX index_feature_gates_on_feature_key_and_key_and_value ON publ
 
 CREATE UNIQUE INDEX index_features_on_key ON public.features USING btree (key);
 
+CREATE INDEX index_for_migrating_user_highest_roles_table ON public.users USING btree (id) WHERE (((state)::text = 'active'::text) AND (user_type IS NULL) AND (bot_type IS NULL) AND (ghost IS NOT TRUE));
+
 CREATE INDEX index_for_resource_group ON public.ci_builds USING btree (resource_group_id, id) WHERE (resource_group_id IS NOT NULL);
 
 CREATE INDEX index_for_status_per_branch_per_project ON public.merge_trains USING btree (target_project_id, target_branch, status);
@@ -19742,6 +19875,10 @@ CREATE UNIQUE INDEX index_pool_repositories_on_disk_path ON public.pool_reposito
 CREATE INDEX index_pool_repositories_on_shard_id ON public.pool_repositories USING btree (shard_id);
 
 CREATE UNIQUE INDEX index_pool_repositories_on_source_project_id_and_shard_id ON public.pool_repositories USING btree (source_project_id, shard_id);
+
+CREATE INDEX index_product_analytics_events_on_app_id ON public.product_analytics_events USING btree (app_id);
+
+CREATE INDEX index_product_analytics_events_on_collector_tstamp ON public.product_analytics_events USING btree (collector_tstamp);
 
 CREATE UNIQUE INDEX index_programming_languages_on_name ON public.programming_languages USING btree (name);
 
@@ -23296,6 +23433,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200326135443
 20200326144443
 20200326145443
+20200327181936
 20200330074719
 20200330121000
 20200330123739
@@ -23362,6 +23500,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200410232012
 20200411125656
 20200413072059
+20200413142027
 20200413230056
 20200414112444
 20200414114611
