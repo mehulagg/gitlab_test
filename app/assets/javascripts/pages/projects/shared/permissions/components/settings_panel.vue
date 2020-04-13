@@ -131,7 +131,7 @@ export default {
       metricsDashboardAccessLevel: featureAccessLevel.PROJECT_MEMBERS,
       containerRegistryEnabled: true,
       lfsEnabled: true,
-      repositoryReadOnly: true,
+      repositoryReadOnly: false,
       requestAccessEnabled: true,
       highlightChangesClass: false,
       emailsDisabled: false,

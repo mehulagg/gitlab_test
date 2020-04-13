@@ -168,6 +168,24 @@ describe('Settings Panel', () => {
     });
   });
 
+  describe('Read-only Git repository', () => {
+    it('should enable the read-only git repository input when the repository is enabled', () => {
+      wrapper = overrideCurrentSettings({ repositoryAccessLevel: featureAccessLevel.EVERYONE });
+
+      expect(wrapper.find('[name="project[repository_read_only]"]').props().disabledInput).toEqual(
+        false,
+      );
+    });
+
+    it('should disable the read-only git repository input when the repository is disabled', () => {
+      wrapper = overrideCurrentSettings({ repositoryAccessLevel: featureAccessLevel.NOT_ENABLED });
+
+      expect(wrapper.find('[name="project[repository_read_only]"]').props().disabledInput).toEqual(
+        true,
+      );
+    });
+  });
+
   describe('Merge requests', () => {
     it('should enable the merge requests access level input when the repository is enabled', () => {
       wrapper = overrideCurrentSettings({ repositoryAccessLevel: featureAccessLevel.EVERYONE });
