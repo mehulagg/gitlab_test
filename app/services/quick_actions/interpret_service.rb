@@ -2,32 +2,41 @@
 
 module QuickActions
   class InterpretService < BaseService
-    include Gitlab::Utils::StrongMemoize
-    include Gitlab::QuickActions::Dsl
-    include Gitlab::QuickActions::IssueActions
-    include Gitlab::QuickActions::IssuableActions
-    include Gitlab::QuickActions::IssueAndMergeRequestActions
-    include Gitlab::QuickActions::MergeRequestActions
-    include Gitlab::QuickActions::CommitActions
-    include Gitlab::QuickActions::CommonActions
-
     ExecutionResponse = Struct.new(:content, :updates, :messages, :warnings, :count, :only_commands?)
 
-    attr_reader :quick_action_target, :content
+    attr_reader :quick_action_target, :content, :current_command
 
-    # Counts how many commands have been executed.
-    # Used to display relevant feedback on UI when a note
-    # with only commands has been processed.
-    attr_reader :commands_executed_count
+    COMMAND_MODULES = [
+      Gitlab::QuickActions::IssueActions,
+      Gitlab::QuickActions::IssuableActions,
+      Gitlab::QuickActions::IssueAndMergeRequestActions,
+      Gitlab::QuickActions::MergeRequestActions,
+      Gitlab::QuickActions::CommitActions,
+      Gitlab::QuickActions::CommonActions
+    ].freeze
+
+    def self.command_modules
+      COMMAND_MODULES
+    end
+
+    def self.command_store
+      @command_store ||= ::QuickActions::CommandStore.new(command_modules)
+    end
 
     def initialize(project, target, user = nil, content = nil, params = {})
       super(project, user, params)
       @quick_action_target = target
       @content = content
-      @updates = {}
       @execution_message = {}
       @execution_warning = {}
-      @commands_executed_count = 0
+      @commands_executed = []
+    end
+
+    # Counts how many commands have been executed.
+    # Used to display relevant feedback on UI when a note
+    # with only commands has been processed.
+    def commands_executed_count
+      @commands_executed.size
     end
 
     def self.null_explanation(content)
@@ -37,8 +46,9 @@ module QuickActions
     # Takes an quick_action_target and returns an array of all the available commands
     # represented with .to_h
     def available_commands
-      self.class.command_definitions.map do |definition|
-        next unless definition.available?(self)
+      ctx = create_context
+      self.class.command_store.command_definitions.map do |definition|
+        next unless definition.available?(ctx)
 
         definition.to_h(self)
       end.compact
@@ -50,17 +60,14 @@ module QuickActions
       return null_response unless current_user.can?(:use_quick_actions)
 
       trimmed_content, commands = extractor.extract_commands(content, only: only)
-      run_definitions(commands)
+      context = create_context
+      run_definitions(commands, context)
 
-      ExecutionResponse.new(trimmed_content, @updates,
-                            execution_messages_for(commands),
-                            execution_warnings_for(commands),
+      ExecutionResponse.new(trimmed_content, context.updates,
+                            execution_messages_for(commands, context),
+                            execution_warnings_for(commands, context),
                             commands_executed_count,
                             trimmed_content.empty?)
-    end
-
-    def null_response
-      ExecutionResponse.new(content, {}, '', '', 0, false)
     end
 
     ExplainResponse = Struct.new(:content, :messages)
@@ -71,163 +78,70 @@ module QuickActions
       return ExplainResponse.new(content, []) unless current_user.can?(:use_quick_actions)
 
       trimmed_content, commands = extractor.extract_commands(content)
-      ExplainResponse.new(trimmed_content, explain_commands(commands))
+      ExplainResponse.new(trimmed_content, explain_commands(commands, create_context))
     end
 
-    # Available to commands
-    def record_command_execution
-      self.commands_executed_count += 1
-    end
-
-    def warn(message)
-      @execution_warning[@current_name] = message
-      nil
-    end
-
-    def info(message)
-      if @execution_message[@current_name]
-        @execution_message[@current_name] << " #{message}"
-      else
-        @execution_message[@current_name] = message
-      end
+    def null_response
+      ExecutionResponse.new(content, {}, '', '', 0, false)
     end
 
     private
 
-    attr_writer :commands_executed_count
+    def create_context
+      ::QuickActions::ExecutionContext.new(self,
+                                           @execution_message, @execution_warning,
+                                           @commands_executed)
+    end
 
     def extractor
-      @extractor ||= Gitlab::QuickActions::Extractor.new(self.class.command_definitions)
+      @extractor ||= Gitlab::QuickActions::Extractor.new(self.class.command_store.command_definitions)
     end
 
-    # rubocop: disable CodeReuse/ActiveRecord
-    def extract_users(params)
-      return [] if params.nil?
-
-      users = extract_references(params, :user)
-
-      if users.empty?
-        users =
-          if params.strip == 'me'
-            [current_user]
-          else
-            User.where(username: params.split(' ').map(&:strip))
-          end
-      end
-
-      users
-    end
-    # rubocop: enable CodeReuse/ActiveRecord
-
-    def find_milestones(project, params = {})
-      group_ids = project.group.self_and_ancestors.select(:id) if project.group
-
-      MilestonesFinder.new(params.merge(project_ids: [project.id], group_ids: group_ids)).execute
+    def explain_commands(commands, context)
+      map_commands(commands, :explain, context)
     end
 
-    def parent
-      project || group
+    def execution_messages_for(commands, context)
+      map_commands(commands, :execute_message, context).uniq.join(' ')
     end
 
-    def group
-      strong_memoize(:group) do
-        quick_action_target.group if quick_action_target.respond_to?(:group)
-      end
+    def execution_warnings_for(commands, context)
+      map_commands(commands, :execution_warning, context).join(' ')
     end
 
-    def find_labels(labels_params = nil)
-      extract_references(labels_params, :label) | find_labels_by_name_no_tilde(labels_params)
-    end
-
-    def find_labels_by_name_no_tilde(labels_params)
-      return Label.none if label_with_tilde?(labels_params)
-
-      finder_params = { include_ancestor_groups: true }
-      finder_params[:project_id] = project.id if project
-      finder_params[:group_id] = group.id if group
-      finder_params[:name] = extract_label_names(labels_params) if labels_params
-
-      LabelsFinder.new(current_user, finder_params).execute
-    end
-
-    def label_with_tilde?(labels_params)
-      labels_params&.include?('~')
-    end
-
-    def extract_label_names(labels_params)
-      # '"A" "A B C" A B' => ["A", "A B C", "A", "B"]
-      labels_params.scan(/"([^"]+)"|([^ ]+)/).flatten.compact
-    end
-
-    def find_label_references(labels_param, format = :id)
-      labels_to_reference(find_labels(labels_param), format)
-    end
-
-    def labels_to_reference(labels, format = :id)
-      labels.map { |l| l.to_reference(format: format) }
-    end
-
-    def find_label_ids(labels_param)
-      find_labels(labels_param).map(&:id)
-    end
-
-    def explain_commands(commands)
-      map_commands(commands, :explain)
-    end
-
-    def execution_messages_for(commands)
-      map_commands(commands, :execute_message).uniq.join(' ')
-    end
-
-    def execution_warnings_for(commands)
-      map_commands(commands, :execution_warning).join(' ')
-    end
-
-    def map_commands(commands, method)
+    def map_commands(commands, method, context)
       commands.map do |name, arg|
-        definition = self.class.definition_by_name(name)
+        definition = self.class.command_store.definition_by_name(name)
         next unless definition
 
         case method
         when :explain
-          with_name(name) { definition.explain(self, arg) }
+          with_name(name) { definition.explain(context, arg) }
         when :execute_message
-          @execution_message[name.to_sym] || definition.execute_message(self, arg)
+          @execution_message[name.to_sym] || definition.execute_message(context, arg)
         when :execution_warning
           # run execution message block to capture warnings
-          with_name(name) { definition.execute_message(self, arg) }
+          with_name(name) { definition.execute_message(context, arg) }
           @execution_warning[name.to_sym]
         end
       end.compact
     end
 
-    def run_definitions(commands)
+    def run_definitions(commands, context)
       commands.each do |name, arg|
-        definition = self.class.definition_by_name(name)
+        definition = self.class.command_store.definition_by_name(name)
         next unless definition
 
-        with_name(name) { definition.execute(self, arg) }
+        with_name(name) { definition.execute(context, arg) }
       end
     end
 
     def with_name(name)
-      @current_name = name.to_sym
+      @current_command = name.to_sym
       ret = yield
-      @current_name = nil
+      @current_command = nil
       ret
     end
-
-    # rubocop: disable CodeReuse/ActiveRecord
-    def extract_references(arg, type)
-      return [] unless arg
-
-      ext = Gitlab::ReferenceExtractor.new(project, current_user)
-
-      ext.analyze(arg, author: current_user, group: group)
-
-      ext.references(type)
-    end
-    # rubocop: enable CodeReuse/ActiveRecord
   end
 end
 

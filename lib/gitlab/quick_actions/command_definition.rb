@@ -20,6 +20,7 @@ module Gitlab
         @parse_params_block = attributes[:parse_params_block]
         @action_block = attributes[:action_block]
         @types = attributes[:types] || []
+        @helpers = attributes[:helpers] || []
       end
 
       def all_names
@@ -34,7 +35,7 @@ module Gitlab
         return false unless valid_type?(context)
         return true unless condition_block
 
-        context.instance_exec(&condition_block)
+        helper_proxy.new(context).instance_exec(&condition_block)
       end
 
       def explain(context, arg)
@@ -74,19 +75,20 @@ module Gitlab
       end
 
       def to_h(context)
+        ctx = helper_proxy.new(context)
         desc = description
         if desc.respond_to?(:call)
-          desc = context.instance_exec(&desc) rescue ''
+          desc = ctx.instance_exec(&desc) rescue ''
         end
 
         warn = warning
         if warn.respond_to?(:call)
-          warn = context.instance_exec(&warn) rescue ''
+          warn = ctx.instance_exec(&warn) rescue ''
         end
 
         prms = params
         if prms.respond_to?(:call)
-          prms = Array(context.instance_exec(&prms)) rescue params
+          prms = Array(ctx.instance_exec(&prms)) rescue params
         end
 
         {
@@ -106,11 +108,13 @@ module Gitlab
       end
 
       def execute_block(block, context, arg)
+        ctx = helper_proxy.new(context)
+
         if arg.present?
-          parsed = parse_params(arg, context)
-          context.instance_exec(parsed, &block)
+          parsed = parse_params(arg, ctx)
+          ctx.instance_exec(parsed, &block)
         elsif block.arity == 0
-          context.instance_exec(&block)
+          ctx.instance_exec(&block)
         end
       end
 
@@ -122,6 +126,13 @@ module Gitlab
 
       def valid_type?(context)
         types.blank? || types.any? { |type| context.quick_action_target.is_a?(type) }
+      end
+
+      def helper_proxy
+        @helper_proxy ||= begin
+                            mods = @helpers
+                            Class.new(SimpleDelegator) { mods.each { |m| include(m) } }
+                          end
       end
     end
   end

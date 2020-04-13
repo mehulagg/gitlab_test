@@ -182,8 +182,16 @@ module Gitlab
           define_command(SubstitutionDefinition, *substitution_names, &block)
         end
 
-        def definition_by_name(name)
-          command_definitions_by_name[name.to_sym]
+        def helpers(&block)
+          @helper_modules ||= []
+          helper = Module.new
+          helper.module_exec(&block)
+          @helper_modules << helper
+
+          # Update any previously defined modules
+          command_definitions.each do |definition|
+            definition.instance_variable_set(:@helpers, @helper_modules)
+          end
         end
 
         private
@@ -203,7 +211,8 @@ module Gitlab
             condition_block: @condition_block,
             parse_params_block: @parse_params_block,
             action_block: block,
-            types: @types
+            types: @types,
+            helpers: @helper_modules
           )
 
           self.command_definitions << definition
@@ -213,12 +222,12 @@ module Gitlab
           end
 
           @description = nil
+          @warning = nil
+          @icon = nil
           @explanation = nil
           @execution_message = nil
           @params = nil
           @condition_block = nil
-          @warning = nil
-          @icon = nil
           @parse_params_block = nil
           @types = nil
         end

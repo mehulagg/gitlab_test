@@ -4,16 +4,19 @@ module EE
   module QuickActions
     module InterpretService
       extend ActiveSupport::Concern
-      # We use "prepended" here instead of including Gitlab::QuickActions::Dsl,
-      # as doing so would clear any existing command definitions.
+
+      EE_COMMAND_MODULES = [
+        EE::Gitlab::QuickActions::EpicActions,
+        EE::Gitlab::QuickActions::IssueActions,
+        EE::Gitlab::QuickActions::MergeRequestActions,
+        EE::Gitlab::QuickActions::IssueAndMergeRequestActions,
+        EE::Gitlab::QuickActions::RelateActions
+      ].freeze
+
       prepended do
-        # rubocop: disable Cop/InjectEnterpriseEditionModule
-        include EE::Gitlab::QuickActions::EpicActions
-        include EE::Gitlab::QuickActions::IssueActions
-        include EE::Gitlab::QuickActions::MergeRequestActions
-        include EE::Gitlab::QuickActions::IssueAndMergeRequestActions
-        include EE::Gitlab::QuickActions::RelateActions
-        # rubocop: enable Cop/InjectEnterpriseEditionModule
+        def self.command_modules
+          EE_COMMAND_MODULES + ::QuickActions::InterpretService::COMMAND_MODULES
+        end
       end
     end
   end

@@ -72,6 +72,9 @@ RSpec.describe QuickActions::InterpretService do
     let(:messages) { response.messages }
     let(:message) { response.messages } # sugar
 
+    let(:shrug) { Gitlab::QuickActions::IssuableActions::SHRUG }
+    let(:table_flip) { Gitlab::QuickActions::IssuableActions::TABLEFLIP }
+
     shared_examples 'reopen command' do
       before do
         issuable.close!
@@ -485,7 +488,7 @@ RSpec.describe QuickActions::InterpretService do
         expect(updates).to eq(merge: merge_request.diff_head_sha)
       end
 
-      it 'returns them merge message' do
+      it 'returns the merge message' do
         expect(message).to eq('Merged this merge request.')
       end
     end
@@ -582,20 +585,20 @@ RSpec.describe QuickActions::InterpretService do
         end
 
         it 'is not part of the available commands' do
-          expect(service.available_commands).not_to include(a_hash_including(name: :confidential))
+          expect(service.available_commands.pluck(:name)).not_to include(:confidential)
         end
       end
     end
 
     shared_examples 'shrug command' do
       it 'appends ¯\_(ツ)_/¯ to the comment' do
-        expect(response.content).to end_with(described_class::SHRUG)
+        expect(response.content).to end_with(shrug)
       end
     end
 
     shared_examples 'tableflip command' do
       it 'appends (╯°□°)╯︵ ┻━┻ to the comment' do
-        expect(response.content).to end_with(described_class::TABLEFLIP)
+        expect(response.content).to end_with(table_flip)
       end
     end
 
@@ -622,6 +625,9 @@ RSpec.describe QuickActions::InterpretService do
         expect(message).to eq("Assigned #{developer.to_reference}.")
       end
     end
+
+    #################################
+    # Here endeth the shared_examples
 
     describe '/reopen' do
       let(:content) { '/reopen' }
@@ -657,10 +663,21 @@ RSpec.describe QuickActions::InterpretService do
         it_behaves_like 'empty command'
       end
 
-      context 'can not be merged when sha does not match' do
+      context 'sha does not match' do
         let(:params) { { merge_request_diff_head_sha: 'othersha' } }
 
-        it_behaves_like 'empty command'
+        context 'merge_orchestration_service is not available' do
+          before do
+            stub_feature_flags(merge_orchestration_service: false)
+          end
+
+          it_behaves_like 'empty command'
+        end
+
+        it 'passes checks and returns merge command' do
+          expect(updates).to eq(merge: 'othersha')
+          expect(messages).to eq('Merged this merge request.')
+        end
       end
 
       context 'when sha is missing' do
@@ -845,23 +862,23 @@ RSpec.describe QuickActions::InterpretService do
     end
 
     describe '/unlabel' do
-      context 'a single argument' do
-        let(:content) { %(/unlabel ~"#{inprogress.title}") }
+      %i[unlabel remove_label].each do |cmd|
+        context "aliased as #{cmd}" do
+          for_issues_and_merge_requests do
+            context 'a single argument' do
+              let(:content) { %(/#{cmd} ~"#{inprogress.title}") }
 
-        for_issues_and_merge_requests { it_behaves_like 'unlabel command' }
-      end
+              it_behaves_like 'unlabel command'
+            end
 
-      for_issues_and_merge_requests do
-        it_behaves_like 'multiple unlabel command' do
-          let(:content) { %(/unlabel ~"#{inprogress.title}" \n/unlabel ~#{bug.title}) }
-        end
+            it_behaves_like 'multiple unlabel command' do
+              let(:content) { %(/#{cmd} ~"#{inprogress.title}" \n/#{cmd} ~#{bug.title}) }
+            end
 
-        it_behaves_like 'unlabel command with no argument' do
-          let(:content) { %(/unlabel) }
-        end
-
-        it_behaves_like 'unlabel command with no argument' do
-          let(:content) { %(/unlabel) }
+            it_behaves_like 'unlabel command with no argument' do
+              let(:content) { "/#{cmd}" }
+            end
+          end
         end
       end
     end
@@ -1393,7 +1410,7 @@ RSpec.describe QuickActions::InterpretService do
         it 'limits to commands passed ' do
           expect(service.execute(only: [:shrug])).to have_attributes(
             updates: be_empty,
-            content: eq("test #{described_class::SHRUG}\n/close")
+            content: eq("test #{shrug}\n/close")
           )
         end
       end
@@ -1464,7 +1481,6 @@ RSpec.describe QuickActions::InterpretService do
     end
 
     context 'submit_review command' do
-      using RSpec::Parameterized::TableSyntax
 
       where(:note) do
         [
@@ -1482,6 +1498,101 @@ RSpec.describe QuickActions::InterpretService do
 
           expect { draft_note.reload }.to raise_error(ActiveRecord::RecordNotFound)
           expect(message).to eq('Submitted the current review.')
+        end
+      end
+    end
+
+    describe '/zoom' do
+      let(:target) { issue }
+
+      shared_examples 'a failure to add a zoom link' do
+        it 'does not add a zoom link' do
+          expect(ZoomMeeting.canonical_meeting_url(issue)).to be_nil
+        end
+      end
+
+      shared_examples 'adding a zoom link' do
+        it 'sets the message correctly' do
+          expect(message).to eq('Zoom meeting added')
+        end
+
+        it 'does not warn' do
+          expect(response.warnings).to be_empty
+        end
+      end
+
+      context 'no parameter' do
+        let(:content) { '/zoom' }
+
+        it_behaves_like 'empty command'
+        it_behaves_like 'a failure to add a zoom link'
+      end
+
+      context 'with an invalid parameter' do
+        let(:content) { '/zoom foo' }
+
+        it_behaves_like 'empty command', 'Failed to add a Zoom meeting'
+        it_behaves_like 'a failure to add a zoom link'
+      end
+
+      context 'with a valid looking zoom link' do
+        let(:zoom_link) { 'https://zoom.us/j/123456789' }
+        let(:content) { "/zoom #{zoom_link}" }
+
+        it_behaves_like 'adding a zoom link'
+
+        it 'adds a zoom link' do
+          response
+
+          expect(ZoomMeeting.canonical_meeting_url(issue)).to eq(zoom_link)
+        end
+
+        it 'sets the updates correctly' do
+          expect(updates).to be_empty
+        end
+
+        context 'the issue is new' do
+          let(:target) { build(:issue, project: issue.project, author: issue.author) }
+
+          it_behaves_like 'adding a zoom link'
+
+          it 'sets the updates correctly' do
+            expect(updates).to match(zoom_meetings: contain_exactly(ZoomMeeting))
+          end
+        end
+
+        context 'for a merge request' do
+          let(:target) { merge_request }
+
+          it_behaves_like 'empty command'
+        end
+      end
+
+      describe '/remove_zoom' do
+        let(:target) { issue }
+        let(:content) { '/remove_zoom' }
+
+        context 'there is a meeting' do
+          let_it_be(:meeting) { create(:zoom_meeting, issue: issue) }
+
+          it 'removes the canonical meeting' do
+            response
+
+            expect(ZoomMeeting.canonical_meeting_url(issue)).to be_nil
+          end
+          it 'provides a suitable message' do
+            expect(message).to eq('Zoom meeting removed')
+          end
+        end
+
+        context 'there is no meeting' do
+          it_behaves_like 'empty command', 'Failed to apply one command.'
+        end
+
+        context 'for a merge request' do
+          let(:target) { merge_request }
+
+          it_behaves_like 'empty command'
         end
       end
     end
