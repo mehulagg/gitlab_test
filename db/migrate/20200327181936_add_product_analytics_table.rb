@@ -5,7 +5,7 @@
 
 class AddProductAnalyticsTable < ActiveRecord::Migration[6.0]
   # Uncomment the following include if you require helper functions:
-  include Gitlab::Database::MigrationHelpers
+  # include Gitlab::Database::MigrationHelpers
 
   # Set this constant to true if this migration requires downtime.
   DOWNTIME = false
@@ -193,8 +193,6 @@ class AddProductAnalyticsTable < ActiveRecord::Migration[6.0]
     )
     WITH (OIDS=FALSE)
     ;'
-    add_concurrent_index :product_analytics_events, :app_id
-    add_concurrent_index :product_analytics_events, :collector_tstamp
   end
 
   def down
