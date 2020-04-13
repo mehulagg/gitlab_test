@@ -23,14 +23,25 @@ export default () => {
     const startDate = $chartEl.data('startDate');
     const dueDate = $chartEl.data('dueDate');
     const burndownEventsPath = $chartEl.data('burndownEventsPath');
+    const burnupEventsPath = $chartEl.data('burnupEventsPath');
 
-    axios
-      .get(burndownEventsPath)
-      .then(response => {
-        const burndownEvents = response.data;
+    const fetchData = [axios.get(burndownEventsPath)];
+
+    if (gon.features.burnupCharts) {
+      fetchData.push(axios.get(burnupEventsPath));
+    }
+
+    Promise.all(fetchData)
+      .then(([burndownResponse, burnupResponse]) => {
+        const burndownEvents = burndownResponse.data;
         const chartData = new BurndownChartData(burndownEvents, startDate, dueDate).generate();
 
-        console.log(chartData)
+        const initialScope = chartData[0][1];
+        const initialWeight = chartData[0][2];
+
+        const burnupEvents = burnupResponse.data;
+
+        const { burnupScope } = new BurndownChartData(burnupEvents, startDate, dueDate).burnup(initialScope);
 
         const openIssuesCount = chartData.map(d => [d[0], d[1]]);
         const openIssuesWeight = chartData.map(d => [d[0], d[2]]);
@@ -47,6 +58,7 @@ export default () => {
                 dueDate,
                 openIssuesCount,
                 openIssuesWeight,
+                burnupScope,
               },
             });
           },

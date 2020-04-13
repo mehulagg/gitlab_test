@@ -2,6 +2,7 @@
 import { GlDeprecatedButton, GlButtonGroup } from '@gitlab/ui';
 import { __ } from '~/locale';
 import BurndownChart from './burndown_chart.vue';
+import BurnupChart from './burnup_chart.vue';
 
 export default {
   burnupChartsEnabled: gon.features.burnupCharts,
@@ -9,6 +10,7 @@ export default {
     GlDeprecatedButton,
     GlButtonGroup,
     BurndownChart,
+    BurnupChart,
   },
   props: {
     startDate: {
@@ -25,6 +27,11 @@ export default {
       default: () => [],
     },
     openIssuesWeight: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
+    burnupScope: {
       type: Array,
       required: false,
       default: () => [],
@@ -81,6 +88,13 @@ export default {
         :due-date="dueDate"
         :open-issues-count="openIssuesCount"
         :open-issues-weight="openIssuesWeight"
+        :issues-selected="issuesSelected"
+        class="col-md-6"
+      />
+      <burnup-chart
+        :start-date="startDate"
+        :due-date="dueDate"
+        :scope="burnupScope"
         :issues-selected="issuesSelected"
         class="col-md-6"
       />

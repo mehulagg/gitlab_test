@@ -10,7 +10,7 @@
 - if can_generate_chart?(milestone, burndown)
   .burndown-chart{ data: { start_date: burndown.start_date.strftime("%Y-%m-%d"),
     due_date: burndown.due_date.strftime("%Y-%m-%d"),
-    burndown_events_path: expose_url(burndown_endpoint), qa_selector: 'burndown_chart' } }
+    burndown_events_path: expose_url(burndown_endpoint), burnup_events_path: expose_url(burnup_endpoint), qa_selector: 'burndown_chart' } }
 
 - elsif show_burndown_placeholder?(milestone, warning)
   .burndown-hint.content-block.container-fluid

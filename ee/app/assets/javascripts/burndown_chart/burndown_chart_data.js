@@ -6,13 +6,9 @@ export default class BurndownChartData {
     this.startDate = startDate;
     this.dueDate = dueDate;
 
-    console.log('burndown eventes', this.burndownEvents)
-
     // determine when to stop burndown chart
     const today = dateFormat(Date.now(), this.dateFormatMask);
-    this.endDate = today < this.dueDate ? today : this.dueDate;
-
-    
+    this.endDate = today < this.dueDate ? today : this.dueDate;    
 
     // Make sure we get the burndown chart local start and end dates! new Date()
     // and dateFormat() both convert the date at midnight UTC to the browser's
@@ -22,11 +18,44 @@ export default class BurndownChartData {
     this.localStartDate = new Date(`${this.startDate}T00:00:00`);
     this.localEndDate = new Date(`${this.endDate}T00:00:00`);
 
-    console.log(this.startDate, 'GREAT', this.localStartDate)
-    console.log(this.endDate, 'END', this.localEndDate)
-
     this.burndownEvents = this.processRawEvents(burndownEvents);
-    console.dir(this)
+  }
+
+  burnup(initialScope = 0) {
+    let totalIssues = initialScope;
+    let totalWeight = 0;
+
+    const chartData = [];
+
+    for (
+      let date = this.localStartDate;
+      date <= this.localEndDate;
+      date.setDate(date.getDate() + 1)
+    ) {
+      const issues = {};
+  
+      const dateString = dateFormat(date, this.dateFormatMask);
+
+      const todaysMilestoneEvents = this.burndownEvents.filter(e => e.created_at === dateString && e.event_type === 'milestone');
+
+      todaysMilestoneEvents.forEach(event => {
+        if (event.action === 'add') {
+          issues[event.issue_id] = event.milestone_id;
+        }
+
+        if (event.action === 'remove') {
+          delete issues[event.issue_id];
+        }
+      });
+
+      totalIssues += Object.keys(issues).length;
+
+      chartData.push([dateString, totalIssues]);
+    }
+
+    return {
+      burnupScope: chartData,
+    };
   }
 
   generate() {
