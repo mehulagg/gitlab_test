@@ -25,6 +25,8 @@ export default class BurndownChartData {
     let totalIssues = initialScope;
     let totalWeight = 0;
 
+    const currentMilestoneId = 44;
+
     const chartData = [];
 
     for (
@@ -32,6 +34,7 @@ export default class BurndownChartData {
       date <= this.localEndDate;
       date.setDate(date.getDate() + 1)
     ) {
+      let todaysTotal = totalIssues;
       const issues = {};
   
       const dateString = dateFormat(date, this.dateFormatMask);
@@ -40,17 +43,25 @@ export default class BurndownChartData {
 
       todaysMilestoneEvents.forEach(event => {
         if (event.action === 'add') {
-          issues[event.issue_id] = event.milestone_id;
+          // UP TO HERE
+          // 
+          if (event.milestone_id === currentMilestoneId) {
+            todaysTotal += 1;
+          } else {
+            todaysTotal -= 1;
+          }
+          // issues[event.issue_id] = event.milestone_id;
         }
 
         if (event.action === 'remove') {
-          delete issues[event.issue_id];
+          todaysTotal -= 1;
+          // delete issues[event.issue_id];
         }
       });
 
-      totalIssues += Object.keys(issues).length;
+      // totalIssues += Object.keys(issues).length;
 
-      chartData.push([dateString, totalIssues]);
+      chartData.push([dateString, todaysTotal]);
     }
 
     return {
