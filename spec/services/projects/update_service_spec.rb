@@ -454,6 +454,19 @@ describe Projects::UpdateService do
       end
     end
 
+    context 'when updating #repository_read_only' do
+      it 'returns an error result when a git transfer is in progress' do
+        allow(project).to receive(:repo_reference_count) { 1 }
+
+        result = update_project(project, admin, { repository_read_only: true })
+
+        expect(result).to eq({
+          status: :error,
+          message: 'Repository cannot be made read-only as there is a Git transfer in progress!'
+        })
+      end
+    end
+
     context 'with external authorization enabled' do
       before do
         enable_external_authorization_service_check

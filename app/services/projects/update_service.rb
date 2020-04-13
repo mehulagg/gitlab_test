@@ -59,6 +59,10 @@ module Projects
       if changing_default_branch?
         raise ValidationError.new(s_("UpdateProject|Could not set the default branch")) unless project.change_head(params[:default_branch])
       end
+
+      if changing_repository_to_read_only? && project.git_transfer_in_progress?
+        raise ValidationError.new(s_('UpdateProject|Repository cannot be made read-only as there is a Git transfer in progress!'))
+      end
     end
 
     def remove_unallowed_params
@@ -155,6 +159,10 @@ module Projects
       new_repository_storage && project.repository.exists? &&
         project.repository_storage != new_repository_storage &&
         can?(current_user, :change_repository_storage, project)
+    end
+
+    def changing_repository_to_read_only?
+      params[:repository_read_only] && !project.repository_read_only
     end
   end
 end
