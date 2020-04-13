@@ -11,8 +11,7 @@ module EE
 
     def burnup_chart(milestone)
       if milestone.supports_burndown_charts?
-        issues = milestone.issues_visible_to_user(current_user)
-        Burnup.new(milestone, visible_issues: issues)
+        Burnup.new(milestone: milestone, user: current_user)
       end
     end
 

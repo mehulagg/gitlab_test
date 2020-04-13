@@ -3,21 +3,20 @@
 class Burnup
   include Gitlab::Utils::StrongMemoize
 
-  attr_reader :milestone, :start_date, :due_date, :end_date, :visible_issue_ids
+  attr_reader :milestone, :start_date, :due_date, :end_date, :user
 
-  def initialize(milestone, visible_issues:)
-    @visible_issue_ids = visible_issues
+  def initialize(milestone:, user:, start_date: nil, end_date: nil)
+    @user = user
     @milestone = milestone
-    @start_date = milestone.start_date
-    @due_date = milestone.due_date
-    @end_date = if due_date.blank? || due_date > Date.today
-                  Date.today
-                else
-                  due_date
-                end
+
+    if valid_time_frame?(start_date, end_date)
+      @start_date, @end_date = start_date, end_date
+    else
+      assign_dates_by_milestone
+    end
   end
 
-  def burnup_data
+  def burnup_events
     resource_milestone_events.map do |event|
       {
           created_at: event.created_at,
@@ -30,6 +29,21 @@ class Burnup
   end
 
   private
+
+  def assign_dates_by_milestone
+    @start_date = milestone.start_date
+    @due_date = milestone.due_date
+    @end_date = if due_date.blank? || due_date > Date.today
+                  Date.today
+                else
+                  due_date
+                end
+  end
+
+  def valid_time_frame?(start_date, end_date)
+    start_date.present? && end_date.present? &&
+      start_date.beginning_of_day.before?(end_date.end_of_day)
+  end
 
   def event_type_of(event)
     return 'milestone' if event.is_a?(ResourceMilestoneEvent)
@@ -57,7 +71,7 @@ class Burnup
       ResourceMilestoneEvent
           .where(issue_id: relevant_issue_ids)
           .where(created_at: start_time..end_time)
-          .order(:id) # alternative to ordering by created_at
+          .order(:created_at)
     end
   end
 
@@ -67,13 +81,15 @@ class Burnup
     # issues.
 
     strong_memoize(:relevant_issue_ids) do
-      ResourceMilestoneEvent
+      ids = ResourceMilestoneEvent
           .select(:issue_id)
           .where(milestone_id: milestone.id)
           .where(action: :add)
-          .where(created_at: start_time..end_time)
-          .where(issue_id: visible_issue_ids)
           .distinct
+
+      # We need to perform an additional check whether all these issues are visible to the given user
+      IssuesFinder.new(user)
+          .execute.preload(:assignees).select(:id).where(id: ids)
     end
   end
 
