@@ -2,7 +2,7 @@
 
 module QuickActions
   class CommandStore
-    attr_reader :command_definitions, :command_definitions_by_name
+    attr_reader :command_definitions
 
     def initialize(modules)
       @command_definitions = modules.flat_map(&:command_definitions).freeze
@@ -12,8 +12,16 @@ module QuickActions
       freeze
     end
 
-    def definition_by_name(name)
-      command_definitions_by_name[name.to_sym]
+    def [](name)
+      @command_definitions_by_name[name.to_sym]
+    end
+
+    def available_commands(context)
+      command_definitions.map do |definition|
+        next unless definition.available?(context)
+
+        definition.to_h(self)
+      end.compact
     end
   end
 end

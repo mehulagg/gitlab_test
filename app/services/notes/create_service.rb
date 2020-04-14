@@ -70,17 +70,18 @@ module Notes
     def do_commands(note, execution_response)
       return if execution_response.count.zero? || execution_response.updates.empty?
 
-      quick_actions_service.apply_updates(execution_response.updates, note)
+      ::Notes::QuickActionsService.apply_updates(execution_response.updates, note)
       note.commands_changes = execution_response.updates
     end
 
     # Execution messages are reported in a side channel in the errors messages
     def report_command_messages(note, execution_response)
       warnings = execution_response.warnings
-      message = execution_response.messages
+      messages = execution_response.messages
 
-      note.errors.add(:commands, warnings) if warnings.present?
-      note.errors.add(:commands_only, message.presence || _('Failed to apply commands.'))
+      note.errors.add(:command_warnings, warnings) if warnings.present?
+      note.errors.add(:command_messages, messages) if messages.present?
+      note.errors.add(:commands_only, _('Note only contained commands'))
     end
 
     def quick_action_options

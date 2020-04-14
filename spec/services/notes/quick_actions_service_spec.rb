@@ -30,10 +30,10 @@ RSpec.describe Notes::QuickActionsService do
         end
 
         it 'closes noteable, sets labels, assigns, and sets milestone to noteable, and leave no note' do
-          content, update_params = service.execute(note)
-          service.apply_updates(update_params, note)
+          response = service.execute(note)
+          described_class.apply_updates(response, note)
 
-          expect(content).to eq ''
+          expect(response.content).to eq ''
           expect(note.noteable).to be_closed
           expect(note.noteable.labels).to match_array(labels)
           expect(note.noteable.assignees).to eq([assignee])
@@ -49,10 +49,10 @@ RSpec.describe Notes::QuickActionsService do
         let(:note_text) { '/reopen' }
 
         it 'opens the noteable, and leave no note' do
-          content, update_params = service.execute(note)
-          service.apply_updates(update_params, note)
+          response = service.execute(note)
+          described_class.apply_updates(response, note)
 
-          expect(content).to eq ''
+          expect(response.content).to eq ''
           expect(note.noteable).to be_open
         end
       end
@@ -62,10 +62,10 @@ RSpec.describe Notes::QuickActionsService do
           let(:note_text) { '/spend 1h' }
 
           it 'adds time to noteable, adds timelog with nil note_id and has no content' do
-            content, update_params = service.execute(note)
-            service.apply_updates(update_params, note)
+            response = service.execute(note)
+            described_class.apply_updates(response, note)
 
-            expect(content).to eq ''
+            expect(response.content).to eq ''
             expect(note.noteable.time_spent).to eq(3600)
             expect(Timelog.last.note_id).to be_nil
           end
@@ -75,9 +75,9 @@ RSpec.describe Notes::QuickActionsService do
           let(:note_text) { "a note \n/spend 1h" }
 
           it 'updates the spent time and populates timelog with note_id' do
-            new_content, update_params = service.execute(note)
-            note.update!(note: new_content)
-            service.apply_updates(update_params, note)
+            response = service.execute(note)
+            note.update!(note: response.content)
+            described_class.apply_updates(response, note)
 
             expect(Timelog.last.note_id).to eq(note.id)
           end
@@ -92,10 +92,10 @@ RSpec.describe Notes::QuickActionsService do
         end
 
         it 'closes noteable, sets labels, assigns, and sets milestone to noteable' do
-          content, update_params = service.execute(note)
-          service.apply_updates(update_params, note)
+          response = service.execute(note)
+          described_class.apply_updates(response, note)
 
-          expect(content).to eq "HELLO\nWORLD"
+          expect(response.content).to eq "HELLO\nWORLD"
           expect(note.noteable).to be_closed
           expect(note.noteable.labels).to match_array(labels)
           expect(note.noteable.assignees).to eq([assignee])
@@ -111,10 +111,10 @@ RSpec.describe Notes::QuickActionsService do
         let(:note_text) { "HELLO\n/reopen\nWORLD" }
 
         it 'opens the noteable' do
-          content, update_params = service.execute(note)
-          service.apply_updates(update_params, note)
+          response = service.execute(note)
+          described_class.apply_updates(response, note)
 
-          expect(content).to eq "HELLO\nWORLD"
+          expect(response.content).to eq "HELLO\nWORLD"
           expect(note.noteable).to be_open
         end
       end
@@ -207,8 +207,8 @@ RSpec.describe Notes::QuickActionsService do
       end
 
       it 'adds only one assignee from the list' do
-        _, update_params = service.execute(note)
-        service.apply_updates(update_params, note)
+        response = service.execute(note)
+        described_class.apply_updates(response, note)
 
         expect(note.noteable.assignees.count).to eq(1)
       end
