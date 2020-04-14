@@ -4,7 +4,7 @@
 
 Instance statistics gives users or admins access to instance-wide analytics.
 They are accessible to all users by default (GitLab admins can restrict its
-visibility in the [Admin Area](../admin_area/settings/usage_statistics.md)),
+visibility in [Usage Ping](../telemetry/usage_ping.md)),
 and can be accessed via the top bar.
 
 ![Analytics button](img/instance_statistics_button_v12_6.png)

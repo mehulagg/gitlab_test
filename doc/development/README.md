@@ -188,6 +188,7 @@ Complementary reads:
 - [Introduction](../telemetry/index.md)
 - [Frontend tracking guide](../telemetry/frontend.md)
 - [Backend tracking guide](../telemetry/backend.md)
+- [Usage ping tracking guide](../telemetry/usage_ping.md)
 
 ## Experiment Guide
 
