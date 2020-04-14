@@ -63,16 +63,9 @@ Please order by _From_ date
 - Issue TBD
 
 ## Product Work
-- Backlog Grooming
-  - Review the scheduling backlog for any important features that need to be brought up.
-  - Investigation issue for RubyGems
-  - Rough plan for next several milestones, based on maturity targets
-  - Create issues based on remote/virtual repository research
 - Validation Track
-  - Document learnings from remote/virtual repository research
-- Speed-runs/demos
-  - Push an image and run it on Kubernetes
-  - PyPI Repository walk-through
-  - Nexus walk through (remote repositories)
-
+- Build Track
+- Content
+- Customers
+  
 ## Product Design Work
