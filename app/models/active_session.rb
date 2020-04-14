@@ -99,11 +99,11 @@ class ActiveSession
   end
 
   def self.key_name(user_id, session_id = '*')
-    "#{Gitlab::Redis::SharedState::USER_SESSIONS_NAMESPACE}:#{user_id}:#{session_id}"
+    "#{Gitlab::Redis::SharedState::USER_SESSIONS_NAMESPACE}:{#{user_id}}:#{session_id}"
   end
 
   def self.lookup_key_name(user_id)
-    "#{Gitlab::Redis::SharedState::USER_SESSIONS_LOOKUP_NAMESPACE}:#{user_id}"
+    "#{Gitlab::Redis::SharedState::USER_SESSIONS_LOOKUP_NAMESPACE}:{#{user_id}}"
   end
 
   def self.list_sessions(user)

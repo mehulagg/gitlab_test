@@ -97,6 +97,10 @@ module Gitlab
 
       def redis_store_options
         config = raw_config_hash
+
+        # if :cluster is set, we do not have :url
+        return config if config[:cluster]
+
         redis_url = config.delete(:url)
         redis_uri = URI.parse(redis_url)
 
