@@ -50,7 +50,7 @@ CI_RUNNER_VERSION
 CONFIG_FILE
 ```
 
-- Those derived from the shell runner's environment, such as:
+Variables derived from the shell runner's environment are also not available, such as:
 
 ```
 HOME
