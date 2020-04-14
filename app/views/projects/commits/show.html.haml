@@ -31,8 +31,6 @@
   = render_if_exists 'projects/commits/mirror_status'
 
   %div{ id: dom_id(@project) }
-    -# // Temporary solution to remove white space so "::empty" can be used on commits.scss
-    // Move "=render" on to a new line once this issue is resolved
-    // https://gitlab.com/gitlab-org/gitlab/-/issues/214044
-    %ol#commits-list.list-unstyled.content_list.sam= render 'commits', project: @project, ref: @ref
+    %ol#commits-list.list-unstyled.content_list
+      = render 'commits', project: @project, ref: @ref
   = spinner

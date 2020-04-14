@@ -107,27 +107,6 @@
   margin-right: 9px;
 }
 
-// Temporary solution to display empty state when no commits are found
-// Follow up issue to remove after a permanent solution is implemented
-// https://gitlab.com/gitlab-org/gitlab/-/issues/214044
-#commits-list:empty {
-  &::before,
-  &::after {
-    display: block;
-    text-align: center;
-  }
-
-  &::before {
-    content: 'Your search didn\'t match any commits.';
-    font-weight: bold;
-    margin-top: 30px;
-  }
-
-  &::after {
-    content: 'Try changing or removing filters.';
-  }
-}
-
 .commit-header {
   padding: 5px 10px;
   background-color: $gray-light;
