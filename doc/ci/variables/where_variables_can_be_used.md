@@ -32,7 +32,8 @@ There are two places defined variables can be used. On the:
 | `script`, `before_script`, `after_script`  | yes              | Script execution shell | The variable expansion is made by the [execution shell environment](#execution-shell-environment)                                                                                                                                                                                                                                                                                                                                 |
 | `only:variables:[]`, `except:variables:[]` | no               | n/a                    | The variable must be in the form of `$variable`. Not supported are the following:<br/><br/>- Variables that are based on the environment's name (`CI_ENVIRONMENT_NAME`, `CI_ENVIRONMENT_SLUG`).<br/>- Any other variables related to environment (currently only `CI_ENVIRONMENT_URL`).<br/>- [Persisted variables](#persisted-variables).                                                                                            |
 
-If you are using runner debugging to see what variables are created by GitLab, not all of them are available for use in `.gitlab-ci.yml`.
+Not all variables shown when using [runner debugging](https://docs.gitlab.com/runner/commands/#running-in-debug-mode)
+are available for use in `.gitlab-ci.yml`.
 
 For example: if you're using [`rules`](../yaml/README.html#rules), or [`only` / `except`](../yaml/README.html#onlyexcept-basic)
 to determine whether or not jobs are created, some of the variables in the debug output on the shell
