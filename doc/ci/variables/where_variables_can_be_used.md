@@ -36,10 +36,8 @@ Not all variables shown when using [runner debugging](https://docs.gitlab.com/ru
 are available for use in `.gitlab-ci.yml`.
 
 For example: if you're using [`rules`](../yaml/README.html#rules), or [`only` / `except`](../yaml/README.html#onlyexcept-basic)
-to determine whether or not jobs are created, some of the variables in the debug output on the shell
-runner are not available during pipeline creation.
-
-- Those created by the shell runner:
+to determine whether or not jobs are created, the debug output on the shell runner
+may show the following variables, but they are not available for use in `.gitlab-ci.yml`:
 
 ```
 CI_RUNNER_DESCRIPTION
