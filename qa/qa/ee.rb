@@ -190,6 +190,7 @@ module QA
       autoload :License, 'qa/ee/resource/license'
       autoload :Epic, 'qa/ee/resource/epic'
       autoload :GroupLabel, 'qa/ee/resource/group_label.rb'
+      autoload :ProjectImportedFromGithub, 'qa/ee/resource/project_imported_from_github'
 
       module Board
         autoload :BaseBoard, 'qa/ee/resource/board/base_board'

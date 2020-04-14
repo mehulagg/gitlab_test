@@ -9,7 +9,7 @@ module QA
 
         view 'app/views/projects/new.html.haml' do
           element :project_create_from_template_tab
-          element :import_project_tab, "Import project" # rubocop:disable QA/ElementWithPattern
+          element :import_project_tab
         end
 
         view 'app/views/projects/_new_project_fields.html.haml' do
@@ -44,7 +44,7 @@ module QA
         end
 
         def click_import_project
-          click_on 'Import project'
+          click_element :import_project_tab
         end
 
         def choose_name(name)

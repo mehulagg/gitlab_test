@@ -67,7 +67,7 @@ module QA
           end
 
           def wait_for_success
-            wait_until(max_duration: 60, sleep_interval: 1.0, reload: false) do
+            wait_until(max_duration: 60, sleep_interval: 3.0, reload: true) do
               page.has_content?('Done', wait: 1.0)
             end
           end

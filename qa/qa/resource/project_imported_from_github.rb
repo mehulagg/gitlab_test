@@ -17,7 +17,7 @@ module QA
 
         Page::Group::Show.perform(&:go_to_new_project)
 
-        Page::Project::New.perform(&:click_import_project)
+        go_to_tab
 
         Page::Project::New.perform(&:click_github_link)
 
@@ -25,6 +25,10 @@ module QA
           import_page.add_personal_access_token(@personal_access_token)
           import_page.import!(@github_repository_path, @name)
         end
+      end
+
+      def go_to_tab
+        Page::Project::New.perform(&:click_import_project)
       end
     end
   end

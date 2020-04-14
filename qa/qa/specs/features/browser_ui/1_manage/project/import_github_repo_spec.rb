@@ -2,12 +2,14 @@
 
 module QA
   context 'Manage', :github, quarantine: { issue: 'https://gitlab.com/gitlab-org/gitlab/issues/26952', type: :bug } do
+    include Support::Api
+
     describe 'Project import from GitHub' do
       let(:imported_project) do
         Resource::ProjectImportedFromGithub.fabricate! do |project|
           project.name = 'imported-project'
           project.personal_access_token = Runtime::Env.github_access_token
-          project.github_repository_path = 'gitlab-qa/test-project'
+          project.github_repository_path = 'test-project'
         end
       end
 
@@ -17,8 +19,6 @@ module QA
         api_client = Runtime::API::Client.new(:gitlab)
         delete_project_request = Runtime::API::Request.new(api_client, "/projects/#{CGI.escape("#{Runtime::Namespace.path}/#{imported_project.name}")}")
         delete delete_project_request.url
-
-        expect_status(202)
 
         Page::Main::Menu.perform(&:sign_out_if_signed_in)
       end

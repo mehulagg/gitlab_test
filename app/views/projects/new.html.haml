@@ -44,7 +44,7 @@
             %span.d-none.d-sm-block.qa-project-create-from-template-tab= s_('ProjectsNew|Create from template')
             %span.d-block.d-sm-none= s_('ProjectsNew|Template')
         %li.nav-item{ role: 'presentation' }
-          %a.nav-link{ href: '#import-project-pane', id: 'import-project-tab', data: { toggle: 'tab', experiment_track_label: 'import_project' }, role: 'tab' }
+          %a.nav-link{ href: '#import-project-pane', id: 'import-project-tab', data: { qa_selector: 'import_project_tab', toggle: 'tab', experiment_track_label: 'import_project' }, role: 'tab' }
             %span.d-none.d-sm-block= s_('ProjectsNew|Import project')
             %span.d-block.d-sm-none= s_('ProjectsNew|Import')
         = render_if_exists 'projects/new_ci_cd_only_project_tab', active_tab: active_tab

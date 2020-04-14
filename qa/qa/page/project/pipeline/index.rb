@@ -42,6 +42,10 @@ module QA
           end
         end
       end
+
+      def has_pipeline?
+        has_element? :pipeline_commit_status
+      end
     end
   end
 end

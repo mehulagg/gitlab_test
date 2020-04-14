@@ -84,10 +84,8 @@ module QA
             click_element :mirror_repository_button
           end
 
-          def update(url)
-            row_index = find_repository_row_index url
-
-            within_element_by_index(:mirrored_repository_row, row_index) do
+          def update(text: nil)
+            within_element(:mirrored_repository_row, text: text) do
               # When a repository is first mirrored, the update process might
               # already be started, so the button is already "clicked"
               click_element :update_now_button unless has_element? :updating_button
@@ -99,28 +97,16 @@ module QA
             refresh
 
             wait_until(sleep_interval: 1) do
-              within_element_by_index(:mirrored_repository_row, row_index) do
+              within_element(:mirrored_repository_row, text: text) do
                 last_update = find_element(:mirror_last_update_at_cell, wait: 0)
                 last_update.has_text?('just now') || last_update.has_text?('seconds')
               end
             end
 
             # Fail early if the page still shows that there has been no update
-            within_element_by_index(:mirrored_repository_row, row_index) do
+            within_element(:mirrored_repository_row, text: text) do
               find_element(:mirror_last_update_at_cell, wait: 0).assert_no_text('Never')
               assert_no_element(:mirror_error_badge)
-            end
-          end
-
-          private
-
-          def find_repository_row_index(target_url)
-            wait_until(max_duration: 5, reload: false) do
-              all_elements(:mirror_repository_url_cell, minimum: 1).index do |url|
-                # The url might be a sanitized url but the target_url won't be so
-                # we compare just the paths instead of the full url
-                URI.parse(url.text).path == target_url.path
-              end
             end
           end
         end
