@@ -9,19 +9,21 @@ module Gitlab
         attr_reader :base_reports, :head_reports
 
         def initialize(base_reports, head_reports)
-          @base_reports = base_reports
+          @base_reports = base_reports || AccessibilityReports.new
           @head_reports = head_reports
         end
 
         def added
           strong_memoize(:added) do
-            @head_report.errors - @base_report.errors
+            head_reports.errors - base_reports.errors
           end
         end
 
         def fixed
           strong_memoize(:fixed) do
-            @base_report.errors - @head_report.errors
+            fixed = base_reports.errors - head_reports.errors
+
+            fixed.negative? ? 0 : fixed
           end
         end
       end

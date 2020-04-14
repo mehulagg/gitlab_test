@@ -148,7 +148,7 @@ class Projects::MergeRequestsController < Projects::MergeRequests::ApplicationCo
 
   def accessibility_reports
     if @merge_request.has_accessibility_reports?
-      reports_response(@merge_request.find_accessbility_reports)
+      reports_response(@merge_request.compare_accessibility_reports)
     else
       head :no_content
     end

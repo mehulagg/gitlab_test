@@ -1335,12 +1335,16 @@ class MergeRequest < ApplicationRecord
     compare_reports(Ci::GenerateCoverageReportsService)
   end
 
-  def find_accessbility_reports
+  # TODO: this method and compare_test_reports use the same
+  # result type, which is handled by the controller's #reports_response.
+  # we should minimize mistakes by isolating the common parts.
+  # issue: https://gitlab.com/gitlab-org/gitlab/issues/34224
+  def compare_accessibility_reports
     unless has_accessibility_reports?
       return { status: :error, status_reason: 'This merge request does not have accessibility reports' }
     end
 
-    compare_reports(Ci::GenerateAccessibilityReportsService)
+    compare_reports(Ci::CompareAccessibilityReportsService)
   end
 
   def has_exposed_artifacts?

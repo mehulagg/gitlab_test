@@ -1855,6 +1855,60 @@ describe MergeRequest do
     end
   end
 
+  describe '#compare_accessibility_reports' do
+    let(:project) { create(:project, :repository) }
+    let(:merge_request) { create(:merge_request, :with_accessibility_reports, source_project: project) }
+    let(:pipeline) { merge_request.head_pipeline }
+
+    subject { merge_request.compare_accessibility_reports }
+
+    context 'when head pipeline has accessibility reports' do
+      let(:job) do
+        create(:ci_build, options: { artifacts: { reports: { pa11y: ['accessibility.json'] } } }, pipeline: pipeline)
+      end
+
+      let(:artifacts_metadata) { create(:ci_job_artifact, :metadata, job: job) }
+
+      context 'when reactive cache worker is parsing results asynchronously' do
+        it 'returns parsing status' do
+          expect(subject[:status]).to eq(:parsing)
+        end
+      end
+
+      context 'when reactive cache worker is inline' do
+        before do
+          synchronous_reactive_cache(merge_request)
+        end
+
+        it 'returns parsed status' do
+          expect(subject[:status]).to eq(:parsed)
+        end
+
+        context 'when an error occurrs' do
+          before do
+            merge_request.update!(head_pipeline: nil)
+          end
+
+          it 'returns an error status' do
+            expect(subject[:status]).to eq(:error)
+          end
+        end
+
+        context 'when cached results is not latest' do
+          before do
+            allow_next_instance_of(Ci::CompareAccessibilityReportsService) do |service|
+              allow(service).to receive(:latest?).and_return(false)
+            end
+          end
+
+          it 'raises and InvalidateReactiveCache error' do
+            expect { subject }.to raise_error(ReactiveCaching::InvalidateReactiveCache)
+          end
+        end
+      end
+    end
+  end
+
   describe '#all_commit_shas' do
     context 'when merge request is persisted' do
       let(:all_commit_shas) do
