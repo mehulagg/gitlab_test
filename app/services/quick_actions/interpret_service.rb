@@ -2,8 +2,6 @@
 
 module QuickActions
   class InterpretService < BaseService
-    ExecutionResponse = Struct.new(:content, :updates, :messages, :warnings, :count, :only_commands?)
-
     attr_reader :quick_action_target, :content, :current_command
 
     COMMAND_MODULES = [
@@ -46,12 +44,7 @@ module QuickActions
     # Takes an quick_action_target and returns an array of all the available commands
     # represented with .to_h
     def available_commands
-      ctx = create_context
-      self.class.command_store.command_definitions.map do |definition|
-        next unless definition.available?(ctx)
-
-        definition.to_h(self)
-      end.compact
+      self.class.command_store.available_commands(create_context)
     end
 
     # Takes a text and interprets the commands that are extracted from it.
@@ -63,11 +56,12 @@ module QuickActions
       context = create_context
       run_definitions(commands, context)
 
-      ExecutionResponse.new(trimmed_content, context.updates,
-                            execution_messages_for(commands, context),
-                            execution_warnings_for(commands, context),
-                            commands_executed_count,
-                            trimmed_content.empty?)
+      ExecutionResponse.new(trimmed_content, current_user,
+                            updates: context.updates,
+                            messages: execution_messages_for(commands, context),
+                            warnings: execution_warnings_for(commands, context),
+                            count: commands_executed_count,
+                            commands: commands)
     end
 
     ExplainResponse = Struct.new(:content, :messages)
@@ -82,7 +76,7 @@ module QuickActions
     end
 
     def null_response
-      ExecutionResponse.new(content, {}, '', '', 0, false)
+      ExecutionResponse.new(content, current_user)
     end
 
     private
@@ -111,7 +105,7 @@ module QuickActions
 
     def map_commands(commands, method, context)
       commands.map do |name, arg|
-        definition = self.class.command_store.definition_by_name(name)
+        definition = self.class.command_store[name]
         next unless definition
 
         case method
@@ -129,7 +123,7 @@ module QuickActions
 
     def run_definitions(commands, context)
       commands.each do |name, arg|
-        definition = self.class.command_store.definition_by_name(name)
+        definition = self.class.command_store[name]
         next unless definition
 
         with_name(name) { definition.execute(context, arg) }

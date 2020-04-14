@@ -46,12 +46,13 @@ module Notes
     end
 
     # Applies updates extracted to note#noteable
-    # The update parameters are extracted on self#execute
-    def apply_updates(update_params, note)
-      return if update_params.empty?
+    # @param [QuickActions::ExecutionResponse] execution_response
+    # @param [Note] note
+    def self.apply_updates(execution_response, note)
       return unless supported?(note)
 
-      self.class.noteable_update_service(note).new(note.resource_parent, current_user, update_params).execute(note.noteable)
+      execution_response.apply(noteable_update_service(note),
+                               note.resource_parent, note.noteable)
     end
   end
 end
