@@ -26,6 +26,7 @@ module Gitlab
           autoload :Smoke, 'gitlab/qa/scenario/test/instance/smoke'
           autoload :Preprod, 'gitlab/qa/scenario/test/instance/preprod'
           autoload :Geo, 'gitlab/qa/scenario/test/instance/geo'
+          autoload :StagingGeo, 'gitlab/qa/scenario/test/instance/staging_geo'
         end
 
         module Omnibus
