@@ -1320,7 +1320,7 @@ class MergeRequest < ApplicationRecord
   def has_accessibility_reports?
     return false unless Feature.enabled?(:accessibility_report_view, project)
 
-    actual_head_pipeline&.has_reports?(Ci::JobArtifact.accessibility_reports)
+    !!(actual_head_pipeline&.has_reports?(Ci::JobArtifact.accessibility_reports))
   end
 
   # TODO: this method and compare_test_reports use the same
