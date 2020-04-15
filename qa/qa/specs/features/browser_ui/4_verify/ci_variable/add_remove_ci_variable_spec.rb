@@ -2,7 +2,7 @@
 
 module QA
   context 'Verify' do
-    describe 'Add or Remove CI variable via UI', :smoke do
+    describe 'Add or Remove CI variable via UI', :smoke, :requires_admin do
       let!(:project) do
         Resource::Project.fabricate_via_api! do |project|
           project.name = 'project-with-ci-variables'
@@ -12,10 +12,6 @@ module QA
 
       before(:all) do
         Runtime::Feature.enable_and_verify('new_variables_ui')
-      end
-
-      after(:all) do
-        Runtime::Feature.remove('new_variables_ui')
       end
 
       before do
