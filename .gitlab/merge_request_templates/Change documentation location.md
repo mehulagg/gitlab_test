@@ -2,6 +2,8 @@
 
 <!-- Use this description template for changing documentation location. For new docs or updates to existing docs, use the "Documentation" template -->
 
+<!-- Start this MR's title with "Doc:" to skip the non-documentation CI jobs -->
+
 ## What does this MR do?
 
 <!-- Briefly describe what this MR is about -->

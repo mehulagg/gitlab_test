@@ -1,9 +1,9 @@
 <!-- Follow the documentation workflow https://docs.gitlab.com/ee/development/documentation/workflow.html -->
 <!-- Additional information is located at https://docs.gitlab.com/ee/development/documentation/ -->
 <!-- To find the designated Tech Writer for the stage/group, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers -->
-
-<!-- Mention "documentation" or "docs" in the MR title -->
 <!-- For changing documentation location use the "Change documentation location" template -->
+
+<!-- Start this MR's title with "Doc:" to skip the non-documentation CI jobs -->
 
 ## What does this MR do?
 
