@@ -191,36 +191,45 @@ of the render/template function, which represents the state at all times.
 
 Make use of the [axios mock adapter](axios.md#mock-axios-response-in-tests) to mock data returned.
 
-Here's how we would test the Todo App above:
+Here's how we would test a Todo App which fetches from a remote endpoint:
 
 ```javascript
-import Vue from 'vue';
+import { mount } from '@vue/test-utils';
 import axios from '~/lib/utils/axios_utils';
 import MockAdapter from 'axios-mock-adapter';
+import TodoApp from 'todo_app.vue';
 
-describe('Todos App', () => {
-  let vm;
+describe('TodoApp', () => {
+  let wrapper;
   let mock;
+
+  const defaultProps = {
+    endpoint: '/todos',
+  };
+
+  const createComponent = props => {
+    wrapper = mount(TodoApp, {
+      propsData: Object.assign({}, defaultProps, props),
+    });
+  };
 
   beforeEach(() => {
     // Create a mock adapter for stubbing axios API requests
     mock = new MockAdapter(axios);
 
-    const Component = Vue.extend(component);
-
     // Mount the Component
-    vm = new Component().$mount();
+    wrapper = createComponent();
   });
 
   afterEach(() => {
     // Reset the mock adapter
     mock.restore();
     // Destroy the mounted component
-    vm.$destroy();
+    if (wrapper) wrapper.destroy();
   });
 
   it('should render the loading state while the request is being made', () => {
-    expect(vm.$el.querySelector('i.fa-spin')).toBeDefined();
+    expect(wrapper.find('i.fa-spin')).toBeDefined();
   });
 
   it('should render todos returned by the endpoint', done => {
@@ -232,47 +241,32 @@ describe('Todos App', () => {
       },
     ]);
 
-    Vue.nextTick(() => {
-      const items = vm.$el.querySelectorAll('.js-todo-list div')
+    wrapper.vm.nextTick(() => {
+      const items = wrapper.findAll('.js-todo-list div');
       expect(items.length).toBe(1);
       expect(items[0].textContent).toContain('This is the text');
       done();
     });
   });
 
-  it('should add a todos on button click', (done) => {
-
+  it('should add a todos on button click', done => {
     // Mock the put request and check that the sent data object is correct
-    mock.onPut('/todos').replyOnce((req) => {
+    mock.onPut('/todos').replyOnce(req => {
       expect(req.data).toContain('text');
       expect(req.data).toContain('title');
 
       return [201, {}];
     });
 
-    vm.$el.querySelector('.js-add-todo').click();
+    wrapper.find('.js-add-todo').click();
 
     // Add a new interceptor to mock the add Todo request
-    Vue.nextTick(() => {
-      expect(vm.$el.querySelectorAll('.js-todo-list div').length).toBe(2);
+    wrapper.vm.nextTick(() => {
+      expect(wrapper.findAll('.js-todo-list div').length).toBe(2);
       done();
     });
   });
 });
-```
-
-### `mountComponent` helper
-
-There is a helper in `spec/javascripts/helpers/vue_mount_component_helper.js` that allows you to mount a component with the given props:
-
-```javascript
-import Vue from 'vue';
-import mountComponent from 'spec/helpers/vue_mount_component_helper'
-import component from 'component.vue'
-
-const Component = Vue.extend(component);
-const data = {prop: 'foo'};
-const vm = mountComponent(Component, data);
 ```
 
 ### Test the component's output
