@@ -53,4 +53,112 @@ describe Gitlab::Ci::Reports::AccessibilityReportsComparer do
       end
     end
   end
+
+  describe '#results_comparer' do
+    subject { comparer.results_comparer }
+
+    context 'when base reports have an accessibility report and head has more errors' do
+      before do
+        base_reports.urls = {
+          "https://gitlab.com" =>
+            [
+              {
+                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+                "type" => "error",
+                "typeCode" => 1,
+                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+                "context" => "<a class=\"site-title active\" rel=\"author\" href=\"/\">\n        <svg version=\"1.0\" xml...</a>",
+                "selector" => "html > body > header > div > nav > a",
+                "runner" => "htmlcs",
+                "runnerExtras" => {}
+              }
+            ]
+          }
+
+        head_reports.urls = {
+          "https://gitlab.com" =>
+            [
+              {
+                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+                "type" => "error",
+                "typeCode" => 1,
+                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+                "context" => "<a class=\"site-title active\" rel=\"author\" href=\"/\">\n        <svg version=\"1.0\" xml...</a>",
+                "selector" => "html > body > header > div > nav > a",
+                "runner" => "htmlcs",
+                "runnerExtras" => {}
+              },
+              {
+                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+                "type" => "error",
+                "typeCode" => 1,
+                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+                "context" => "<a class=\"social-icon\" target=\"_blank\" href=\"https://gitlab.com\" rel=\"nofollow noopener noreferrer\">\n        <svg xmlns=\"http://www...</a>",
+                "selector" => "html > body > header > div > nav > a",
+                "runner" => "htmlcs",
+                "runnerExtras" => {}
+              }
+            ]
+          }
+      end
+
+      it 'returns diff between base and head reports' do
+        expect(subject.size).to eq(1)
+        expect(subject["https://gitlab.com"].first["context"]).to include("nofollow noopener noreferrer")
+      end
+    end
+
+    context 'when base reports have an accessibility report and head has no errors' do
+      before do
+        base_reports.urls = {
+          "https://gitlab.com" =>
+            [
+              {
+                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+                "type" => "error",
+                "typeCode" => 1,
+                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+                "context" => "<a class=\"site-title active\" rel=\"author\" href=\"/\">\n        <svg version=\"1.0\" xml...</a>",
+                "selector" => "html > body > header > div > nav > a",
+                "runner" => "htmlcs",
+                "runnerExtras" => {}
+              }
+            ]
+          }
+
+        head_reports.urls = {
+          "https://gitlab.com" => []
+        }
+      end
+
+      it 'returns diff between base and head reports' do
+        expect(subject.size).to eq(1)
+        expect(subject["https://gitlab.com"].first["message"]).to include("no link content has been supplied")
+      end
+    end
+
+    context 'when base reports does not have an accessibility report and head has errors' do
+      before do
+        head_reports.urls = {
+          "https://gitlab.com" =>
+            [
+              {
+                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+                "type" => "error",
+                "typeCode" => 1,
+                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+                "context" => "<a class=\"site-title active\" rel=\"author\" href=\"/\">\n        <svg version=\"1.0\" xml...</a>",
+                "selector" => "html > body > header > div > nav > a",
+                "runner" => "htmlcs",
+                "runnerExtras" => {}
+              }
+            ]
+          }
+      end
+
+      it 'returns an empty diff' do
+        expect(subject).to be_empty
+      end
+    end
+  end
 end
