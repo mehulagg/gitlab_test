@@ -1,0 +1,5 @@
+---
+title: Ensure DAST does not download unwanted artifacts
+merge_request: 29564
+author:
+type: performance
