@@ -15,15 +15,9 @@ module Gitlab
 
         def added
           strong_memoize(:added) do
-            head_reports.errors - base_reports.errors
-          end
-        end
+            added = head_reports.errors - base_reports.errors
 
-        def fixed
-          strong_memoize(:fixed) do
-            fixed = base_reports.errors - head_reports.errors
-
-            fixed.negative? ? 0 : fixed
+            added.negative? ? 0 : added
           end
         end
       end

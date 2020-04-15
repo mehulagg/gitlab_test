@@ -2,7 +2,4 @@
 
 class AccessibilityReportsComparerEntity < Grape::Entity
   expose :added
-  expose :fixed
-
-  # expose :urls?
 end
