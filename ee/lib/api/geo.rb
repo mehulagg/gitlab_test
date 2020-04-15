@@ -82,6 +82,28 @@ module API
         end
       end
 
+      # Post from primary to secondary to pause pg WAL
+      # Example request:
+      #   POST /geo/pause
+      params do
+        requires :enabled, type: Boolean, desc: 'true to enable replication, false to pause'
+      end
+      post 'toggle_replication/:enabled' do
+        check_gitlab_geo_request_ip!
+        authenticate_by_gitlab_geo_node_token!
+
+        node = Gitlab::Geo.current_node
+        forbidden! if node.primary
+
+        if enabled
+          ActiveRecord::Base.connection.execute('SELECT pg_wal_replay_resume();')
+        else
+          ActiveRecord::Base.connection.execute('SELECT pg_wal_replay_pause();')
+        end
+
+        accepted!
+      end
+
       # git over SSH secondary endpoints -> primary related proxying logic
       #
       resource 'proxy_git_ssh' do

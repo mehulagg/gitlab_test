@@ -47,6 +47,8 @@ class GeoNode < ApplicationRecord
   before_validation :update_dependents_attributes
   before_validation :ensure_access_keys!
 
+  after_save :update_secondary_wal_status!, if: :saved_changes_to_enabled?
+
   alias_method :repair, :save # the `update_dependents_attributes` hook will take care of it
 
   scope :with_url_prefix, ->(prefix) { where('url LIKE ?', "#{prefix}%") }
@@ -181,6 +183,10 @@ class GeoNode < ApplicationRecord
 
   def status_url
     geo_api_url('status')
+  end
+
+  def toggle_replication_url
+    geo_api_url("toggle_replication/#{enabled}")
   end
 
   def snapshot_url(repository)
@@ -321,6 +327,10 @@ class GeoNode < ApplicationRecord
 
     self.access_key = keys[:access_key]
     self.secret_access_key = keys[:secret_access_key]
+  end
+
+  def update_secondary_wal_status!
+    ReplicationTogglePostService.new.execute(self)
   end
 
   def url_helper_args
