@@ -3,6 +3,7 @@ import { shallowMount } from '@vue/test-utils';
 import { GlPagination } from '@gitlab/ui';
 import * as Sentry from '@sentry/browser';
 import createFlash from '~/flash';
+import { visitUrl } from '~/lib/utils/url_utility';
 
 import RequirementsRoot from 'ee/requirements/components/requirements_root.vue';
 import RequirementsLoading from 'ee/requirements/components/requirements_loading.vue';
@@ -30,6 +31,14 @@ jest.mock('ee/requirements/constants', () => ({
 }));
 
 jest.mock('~/flash');
+jest.mock('~/lib/utils/url_utility', () => ({
+  ...jest.requireActual('~/lib/utils/url_utility'),
+  visitUrl: jest.fn(),
+}));
+
+const $toast = {
+  show: jest.fn(),
+};
 
 const createComponent = ({
   projectPath = 'gitlab-org/gitlab-shell',
@@ -38,6 +47,7 @@ const createComponent = ({
   showCreateRequirement = false,
   emptyStatePath = '/assets/illustrations/empty-state/requirements.svg',
   loading = false,
+  requirementsWebUrl = '/gitlab-org/gitlab-shell/-/requirements',
 } = {}) =>
   shallowMount(RequirementsRoot, {
     propsData: {
@@ -46,6 +56,7 @@ const createComponent = ({
       requirementsCount,
       showCreateRequirement,
       emptyStatePath,
+      requirementsWebUrl,
     },
     mocks: {
       $apollo: {
@@ -60,6 +71,7 @@ const createComponent = ({
         },
         mutate: jest.fn(),
       },
+      $toast,
     },
   });
 
@@ -85,9 +97,22 @@ describe('RequirementsRoot', () => {
   });
 
   describe('computed', () => {
-    describe('totalRequirements', () => {
+    describe('totalRequirementsForCurrentTab', () => {
       it('returns number representing total requirements for current tab', () => {
-        expect(wrapper.vm.totalRequirements).toBe(mockRequirementsCount.OPENED);
+        expect(wrapper.vm.totalRequirementsForCurrentTab).toBe(mockRequirementsCount.OPENED);
+      });
+
+      it('returns 0 when `openedCount` is 0 and filterBy represents opened tab', () => {
+        wrapper.setProps({
+          filterBy: FilterState.opened,
+        });
+        wrapper.setData({
+          openedCount: 0,
+        });
+
+        return wrapper.vm.$nextTick(() => {
+          expect(wrapper.vm.totalRequirementsForCurrentTab).toBe(0);
+        });
       });
     });
 
@@ -267,6 +292,34 @@ describe('RequirementsRoot', () => {
       });
     });
 
+    describe('enableOrDisableNewRequirement', () => {
+      it('disables new requirement button when called with param `{ disable: true }`', () => {
+        wrapper.vm.enableOrDisableNewRequirement({
+          disable: true,
+        });
+
+        return wrapper.vm.$nextTick(() => {
+          const newReqButton = document.querySelector('.js-new-requirement');
+
+          expect(newReqButton.getAttribute('disabled')).toBe('disabled');
+          expect(newReqButton.classList.contains('disabled')).toBe(true);
+        });
+      });
+
+      it('enables new requirement button when called with param `{ disable: false }`', () => {
+        wrapper.vm.enableOrDisableNewRequirement({
+          disable: false,
+        });
+
+        return wrapper.vm.$nextTick(() => {
+          const newReqButton = document.querySelector('.js-new-requirement');
+
+          expect(newReqButton.getAttribute('disabled')).toBeNull();
+          expect(newReqButton.classList.contains('disabled')).toBe(false);
+        });
+      });
+    });
+
     describe('handleNewRequirementClick', () => {
       it('sets `showCreateForm` prop to `true`', () => {
         wrapper.vm.handleNewRequirementClick();
@@ -288,6 +341,9 @@ describe('RequirementsRoot', () => {
         data: {
           createRequirement: {
             errors: [],
+            requirement: {
+              iid: '1',
+            },
           },
         },
       };
@@ -322,6 +378,22 @@ describe('RequirementsRoot', () => {
         );
       });
 
+      it('calls `visitUrl` when project has no requirements and request is successful', () => {
+        jest.spyOn(wrapper.vm.$apollo, 'mutate').mockResolvedValue(mockMutationResult);
+
+        wrapper.setProps({
+          requirementsCount: {
+            OPENED: 0,
+            ARCHIVED: 0,
+            ALL: 0,
+          },
+        });
+
+        return wrapper.vm.handleNewRequirementSave('foo').then(() => {
+          expect(visitUrl).toHaveBeenCalledWith('/gitlab-org/gitlab-shell/-/requirements');
+        });
+      });
+
       it('sets `showCreateForm` and `createRequirementRequestActive` props to `false` and calls `$apollo.queries.requirements.refetch()` when request is successful', () => {
         jest
           .spyOn(wrapper.vm.$apollo, 'mutate')
@@ -334,6 +406,14 @@ describe('RequirementsRoot', () => {
           expect(wrapper.vm.showCreateForm).toBe(false);
           expect(wrapper.vm.$apollo.queries.requirements.refetch).toHaveBeenCalled();
           expect(wrapper.vm.createRequirementRequestActive).toBe(false);
+        });
+      });
+
+      it('calls `$toast.show` with string "Requirement added successfully" when request is successful', () => {
+        jest.spyOn(wrapper.vm.$apollo, 'mutate').mockResolvedValue(mockMutationResult);
+
+        return wrapper.vm.handleNewRequirementSave('foo').then(() => {
+          expect(wrapper.vm.$toast.show).toHaveBeenCalledWith('Requirement REQ-1 has been added');
         });
       });
 
@@ -388,6 +468,21 @@ describe('RequirementsRoot', () => {
           .then(() => {
             expect(wrapper.vm.showUpdateFormForRequirement).toBe(0);
             expect(wrapper.vm.createRequirementRequestActive).toBe(false);
+          });
+      });
+
+      it('calls `$toast.show` with string "Requirement updated successfully" when request is successful', () => {
+        jest.spyOn(wrapper.vm, 'updateRequirement').mockResolvedValue(mockUpdateMutationResult);
+
+        return wrapper.vm
+          .handleUpdateRequirementSave({
+            iid: '1',
+            title: 'foo',
+          })
+          .then(() => {
+            expect(wrapper.vm.$toast.show).toHaveBeenCalledWith(
+              'Requirement REQ-1 has been updated',
+            );
           });
       });
 
@@ -491,6 +586,19 @@ describe('RequirementsRoot', () => {
           });
       });
 
+      it('calls `$toast.show` with string "Requirement has been reopened" when `params.state` is "OPENED" and request is successful', () => {
+        return wrapper.vm
+          .handleRequirementStateChange({
+            iid: '1',
+            state: FilterState.opened,
+          })
+          .then(() => {
+            expect(wrapper.vm.$toast.show).toHaveBeenCalledWith(
+              'Requirement REQ-1 has been reopened',
+            );
+          });
+      });
+
       it('decrements `openedCount` by 1 and increments `archivedCount` by 1 when `params.state` is "ARCHIVED"', () => {
         wrapper.setData({
           openedCount: 1,
@@ -505,6 +613,19 @@ describe('RequirementsRoot', () => {
           .then(() => {
             expect(wrapper.vm.openedCount).toBe(0);
             expect(wrapper.vm.archivedCount).toBe(2);
+          });
+      });
+
+      it('calls `$toast.show` with string "Requirement has been archived" when `params.state` is "ARCHIVED" and request is successful', () => {
+        return wrapper.vm
+          .handleRequirementStateChange({
+            iid: '1',
+            state: FilterState.archived,
+          })
+          .then(() => {
+            expect(wrapper.vm.$toast.show).toHaveBeenCalledWith(
+              'Requirement REQ-1 has been archived',
+            );
           });
       });
     });
@@ -584,6 +705,16 @@ describe('RequirementsRoot', () => {
 
       return wrapper.vm.$nextTick(() => {
         expect(wrapper.find(RequirementForm).exists()).toBe(true);
+      });
+    });
+
+    it('does not render requirement-empty-state component when `showCreateForm` prop is `true`', () => {
+      wrapper.setData({
+        showCreateForm: true,
+      });
+
+      return wrapper.vm.$nextTick(() => {
+        expect(wrapper.find(RequirementsEmptyState).exists()).toBe(false);
       });
     });
 

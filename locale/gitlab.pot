@@ -385,6 +385,11 @@ msgstr ""
 msgid "%{name}'s avatar"
 msgstr ""
 
+msgid "%{no_of_days} day"
+msgid_plural "%{no_of_days} days"
+msgstr[0] ""
+msgstr[1] ""
+
 msgid "%{number_commits_behind} commits behind %{default_branch}, %{number_commits_ahead} commits ahead"
 msgstr ""
 
@@ -783,10 +788,16 @@ msgstr ""
 msgid "<code>\"johnsmith@example.com\": \"johnsmith@example.com\"</code> will add \"By <a href=\"#\">johnsmith@example.com</a>\" to all issues and comments originally created by johnsmith@example.com. By default, the email address or username is masked to ensure the user's privacy. Use this option if you want to show the full email address."
 msgstr ""
 
+msgid "<namespace / project>"
+msgstr ""
+
 msgid "<no name set>"
 msgstr ""
 
 msgid "<no scopes selected>"
+msgstr ""
+
+msgid "<project name>"
 msgstr ""
 
 msgid "<strong>%{group_name}</strong> group members"
@@ -888,7 +899,13 @@ msgstr ""
 msgid "A subscription will trigger a new pipeline on the default branch of this project when a pipeline successfully completes for a new tag on the %{default_branch_docs} of the subscribed project."
 msgstr ""
 
+msgid "A terraform report was generated in your pipelines."
+msgstr ""
+
 msgid "A user with write access to the source branch selected this option"
+msgstr ""
+
+msgid "ACTION REQUIRED: Something went wrong while obtaining the Let's Encrypt certificate for GitLab Pages domain '%{domain}'"
 msgstr ""
 
 msgid "API Help"
@@ -1281,6 +1298,9 @@ msgid "Added an issue to an epic."
 msgstr ""
 
 msgid "Added at"
+msgstr ""
+
+msgid "Added for this merge request"
 msgstr ""
 
 msgid "Added in this version"
@@ -1849,6 +1869,9 @@ msgstr ""
 msgid "An error occurred fetching the dropdown data."
 msgstr ""
 
+msgid "An error occurred fetching the project authors."
+msgstr ""
+
 msgid "An error occurred previewing the blob"
 msgstr ""
 
@@ -2008,6 +2031,9 @@ msgstr ""
 msgid "An error occurred while loading merge requests."
 msgstr ""
 
+msgid "An error occurred while loading terraform report"
+msgstr ""
+
 msgid "An error occurred while loading the data. Please try again."
 msgstr ""
 
@@ -2162,6 +2188,9 @@ msgid "Anti-spam verification"
 msgstr ""
 
 msgid "Any"
+msgstr ""
+
+msgid "Any Author"
 msgstr ""
 
 msgid "Any Label"
@@ -3412,6 +3441,9 @@ msgstr ""
 msgid "Cannot have multiple Jira imports running at the same time"
 msgstr ""
 
+msgid "Cannot import because issues are not available in this project."
+msgstr ""
+
 msgid "Cannot make epic confidential if it contains not-confidential issues"
 msgstr ""
 
@@ -3524,6 +3556,9 @@ msgid "Changes"
 msgstr ""
 
 msgid "Changes are shown as if the <b>source</b> revision was being merged into the <b>target</b> revision."
+msgstr ""
+
+msgid "Changes are unknown"
 msgstr ""
 
 msgid "Changes suppressed. Click to show."
@@ -5325,6 +5360,9 @@ msgstr ""
 msgid "Configure existing installation"
 msgstr ""
 
+msgid "Configure limit for issues created per minute by web and API requests."
+msgstr ""
+
 msgid "Configure limits for web and API requests."
 msgstr ""
 
@@ -5427,6 +5465,9 @@ msgstr ""
 msgid "Container repositories sync capacity"
 msgstr ""
 
+msgid "ContainerRegistry| Please visit the %{linkStart}administration settings%{linkEnd} to enable this feature."
+msgstr ""
+
 msgid "ContainerRegistry|%{imageName} tags"
 msgstr ""
 
@@ -5442,6 +5483,9 @@ msgstr ""
 msgid "ContainerRegistry|Container Registry"
 msgstr ""
 
+msgid "ContainerRegistry|Container Registry tag expiration and retention policy is disabled"
+msgstr ""
+
 msgid "ContainerRegistry|Copy build command"
 msgstr ""
 
@@ -5449,9 +5493,6 @@ msgid "ContainerRegistry|Copy login command"
 msgstr ""
 
 msgid "ContainerRegistry|Copy push command"
-msgstr ""
-
-msgid "ContainerRegistry|Currently, the Container Registry tag expiration feature is not available for projects created before GitLab version 12.8. For updates and more information, visit Issue %{linkStart}#196124%{linkEnd}"
 msgstr ""
 
 msgid "ContainerRegistry|Docker connection error"
@@ -5500,6 +5541,9 @@ msgid "ContainerRegistry|Missing or insufficient permission, delete button disab
 msgstr ""
 
 msgid "ContainerRegistry|Number of tags to retain:"
+msgstr ""
+
+msgid "ContainerRegistry|Please contact your administrator."
 msgstr ""
 
 msgid "ContainerRegistry|Push an image"
@@ -5556,6 +5600,9 @@ msgid "ContainerRegistry|Tag expiration policy is designed to:"
 msgstr ""
 
 msgid "ContainerRegistry|Tags deleted successfully"
+msgstr ""
+
+msgid "ContainerRegistry|The Container Registry tag expiration and retention policies for this project have not been enabled."
 msgstr ""
 
 msgid "ContainerRegistry|The last tag related to this image was recently removed. This empty image and any associated data will be automatically removed as part of the regular Garbage Collection process. If you have any questions, contact your administrator."
@@ -6036,6 +6083,9 @@ msgid "CreateTokenToCloneLink|create a personal access token"
 msgstr ""
 
 msgid "Created"
+msgstr ""
+
+msgid "Created %{timestamp}"
 msgstr ""
 
 msgid "Created At"
@@ -6829,6 +6879,9 @@ msgstr ""
 msgid "DeployTokens|Allows read-only access to the repository"
 msgstr ""
 
+msgid "DeployTokens|Allows write access to the registry images"
+msgstr ""
+
 msgid "DeployTokens|Copy deploy token"
 msgstr ""
 
@@ -6847,7 +6900,7 @@ msgstr ""
 msgid "DeployTokens|Deploy Tokens"
 msgstr ""
 
-msgid "DeployTokens|Deploy tokens allow read-only access to your repository and registry images."
+msgid "DeployTokens|Deploy tokens allow access to your repository and registry images."
 msgstr ""
 
 msgid "DeployTokens|Expires"
@@ -6908,6 +6961,9 @@ msgid "Deployed to"
 msgstr ""
 
 msgid "Deploying to"
+msgstr ""
+
+msgid "Deployment Frequency"
 msgstr ""
 
 msgid "Deployment|API"
@@ -7863,9 +7919,6 @@ msgstr ""
 msgid "EnvironmentsDashboard|This dashboard displays a maximum of 7 projects and 3 environments per project. %{readMoreLink}"
 msgstr ""
 
-msgid "Environments|All pods"
-msgstr ""
-
 msgid "Environments|An error occurred while canceling the auto stop, please try again"
 msgstr ""
 
@@ -7932,9 +7985,6 @@ msgstr ""
 msgid "Environments|Environments are places where code gets deployed, such as staging or production."
 msgstr ""
 
-msgid "Environments|Filter by pod"
-msgstr ""
-
 msgid "Environments|Install Elastic Stack on your cluster to enable advanced querying capabilities such as full text search."
 msgstr ""
 
@@ -7974,6 +8024,9 @@ msgstr ""
 msgid "Environments|Open live environment"
 msgstr ""
 
+msgid "Environments|Pod name"
+msgstr ""
+
 msgid "Environments|Re-deploy"
 msgstr ""
 
@@ -7999,9 +8052,6 @@ msgid "Environments|Rollback environment %{environment_name}?"
 msgstr ""
 
 msgid "Environments|Rollback environment %{name}?"
-msgstr ""
-
-msgid "Environments|Search"
 msgstr ""
 
 msgid "Environments|Select environment"
@@ -8656,6 +8706,9 @@ msgid "Failed to deploy to"
 msgstr ""
 
 msgid "Failed to enqueue the rebase operation, possibly due to a long-lived transaction. Try again later."
+msgstr ""
+
+msgid "Failed to find import label for jira import."
 msgstr ""
 
 msgid "Failed to get ref."
@@ -9711,6 +9764,9 @@ msgstr ""
 msgid "Git version"
 msgstr ""
 
+msgid "GitHub API rate limit exceeded. Try again after %{reset_time}"
+msgstr ""
+
 msgid "GitHub import"
 msgstr ""
 
@@ -9783,6 +9839,9 @@ msgstr ""
 msgid "GitLab.com import"
 msgstr ""
 
+msgid "GitLabPagesDomains|Retry"
+msgstr ""
+
 msgid "GitLabPages|%{domain} is not verified. To learn how to verify ownership, visit your %{link_start}domain details%{link_end}."
 msgstr ""
 
@@ -9849,7 +9908,7 @@ msgstr ""
 msgid "GitLabPages|Save"
 msgstr ""
 
-msgid "GitLabPages|Something went wrong while obtaining Let's Encrypt certificate for %{domain}. To retry visit your %{link_start}domain details%{link_end}."
+msgid "GitLabPages|Something went wrong while obtaining the Let's Encrypt certificate for %{domain}. To retry visit your %{link_start}domain details%{link_end}."
 msgstr ""
 
 msgid "GitLabPages|Support for domains and certificates is disabled.  Ask your system's administrator to enable it."
@@ -10810,6 +10869,9 @@ msgstr ""
 msgid "If any job surpasses this timeout threshold, it will be marked as failed. Human readable time input language is accepted like \"1 hour\". Values without specification represent seconds."
 msgstr ""
 
+msgid "If blank, set allowable lifetime to %{instance_level_policy_in_words}, as defined by the instance admin. Once set, existing tokens for users in this group may be revoked."
+msgstr ""
+
 msgid "If checked, group owners can manage LDAP group links and LDAP member overrides"
 msgstr ""
 
@@ -11379,6 +11441,9 @@ msgstr ""
 msgid "Issues Analytics"
 msgstr ""
 
+msgid "Issues Rate Limits"
+msgstr ""
+
 msgid "Issues can be bugs, tasks or ideas to be discussed. Also, issues are searchable and filterable."
 msgstr ""
 
@@ -11858,6 +11923,9 @@ msgstr ""
 msgid "Learn how to %{no_packages_link_start}publish and share your packages%{no_packages_link_end} with GitLab."
 msgstr ""
 
+msgid "Learn how to enable synchronization"
+msgstr ""
+
 msgid "Learn more"
 msgstr ""
 
@@ -12064,6 +12132,9 @@ msgstr ""
 msgid "Licenses|Detected in Project"
 msgstr ""
 
+msgid "Licenses|Detected licenses that are out-of-compliance with the project's assigned policies"
+msgstr ""
+
 msgid "Licenses|Displays licenses detected in the project, based on the %{linkStart}latest successful%{linkEnd} scan"
 msgstr ""
 
@@ -12083,6 +12154,9 @@ msgid "Licenses|Policies"
 msgstr ""
 
 msgid "Licenses|Policy"
+msgstr ""
+
+msgid "Licenses|Policy violation: denied"
 msgstr ""
 
 msgid "Licenses|Specified policies in this project"
@@ -12138,6 +12212,9 @@ msgstr ""
 msgid "Link title"
 msgstr ""
 
+msgid "Link title is required"
+msgstr ""
+
 msgid "Linked emails (%{email_count})"
 msgstr ""
 
@@ -12184,9 +12261,6 @@ msgid "Load more vulnerabilities"
 msgstr ""
 
 msgid "Loading"
-msgstr ""
-
-msgid "Loading blob"
 msgstr ""
 
 msgid "Loading contribution stats for group members"
@@ -12926,7 +13000,7 @@ msgstr ""
 msgid "Metrics|Prometheus Query Documentation"
 msgstr ""
 
-msgid "Metrics|Reload this page"
+msgid "Metrics|Refresh dashboard"
 msgstr ""
 
 msgid "Metrics|Show last"
@@ -12938,7 +13012,13 @@ msgstr ""
 msgid "Metrics|There was an error creating the dashboard. %{error}"
 msgstr ""
 
+msgid "Metrics|There was an error fetching annotations. Please try again."
+msgstr ""
+
 msgid "Metrics|There was an error fetching the environments data, please try again"
+msgstr ""
+
+msgid "Metrics|There was an error getting annotations information."
 msgstr ""
 
 msgid "Metrics|There was an error getting deployment information."
@@ -13782,6 +13862,9 @@ msgstr ""
 msgid "Nothing to preview."
 msgstr ""
 
+msgid "Nothing to synchronize"
+msgstr ""
+
 msgid "Notification events"
 msgstr ""
 
@@ -14159,6 +14242,9 @@ msgstr ""
 msgid "OutdatedBrowser|You can provide feedback %{feedback_link_start}on this issue%{feedback_link_end} or via your usual support channels."
 msgstr ""
 
+msgid "Overridden"
+msgstr ""
+
 msgid "Overview"
 msgstr ""
 
@@ -14273,6 +14359,9 @@ msgstr ""
 msgid "PackageRegistry|Learn how to %{noPackagesLinkStart}publish and share your packages%{noPackagesLinkEnd} with GitLab."
 msgstr ""
 
+msgid "PackageRegistry|Manually Published"
+msgstr ""
+
 msgid "PackageRegistry|Maven"
 msgstr ""
 
@@ -14331,6 +14420,9 @@ msgid "PackageRegistry|You may also need to setup authentication using an auth t
 msgstr ""
 
 msgid "PackageRegistry|npm"
+msgstr ""
+
+msgid "PackageRegistry|published by %{author}"
 msgstr ""
 
 msgid "PackageRegistry|yarn"
@@ -14897,6 +14989,12 @@ msgstr ""
 msgid "Please fill in a descriptive name for your group."
 msgstr ""
 
+msgid "Please follow the %{link_start}Let's Encrypt troubleshooting instructions%{link_end} to re-obtain your Let's Encrypt certificate."
+msgstr ""
+
+msgid "Please follow the Let's Encrypt troubleshooting instructions to re-obtain your Let's Encrypt certificate: %{docs_url}."
+msgstr ""
+
 msgid "Please migrate all existing projects to hashed storage to avoid security issues and ensure data integrity. %{migrate_link}"
 msgstr ""
 
@@ -14972,7 +15070,7 @@ msgstr ""
 msgid "Pods in use"
 msgstr ""
 
-msgid "Point to any links you like: documentation, built binaries, or other related materials. These can be internal or external links from your GitLab instance."
+msgid "Point to any links you like: documentation, built binaries, or other related materials. These can be internal or external links from your GitLab instance. Duplicate URLs are not allowed."
 msgstr ""
 
 msgid "Preferences"
@@ -15633,6 +15731,12 @@ msgid "Project members"
 msgstr ""
 
 msgid "Project name"
+msgstr ""
+
+msgid "Project name suffix"
+msgstr ""
+
+msgid "Project name suffix is a user-defined string which will be appended to the project path, and will form the Service Desk email address."
 msgstr ""
 
 msgid "Project order will not be saved as local storage is not available."
@@ -17022,6 +17126,9 @@ msgstr ""
 msgid "Reported %{timeAgo} by %{reportedBy}"
 msgstr ""
 
+msgid "Reported Resource Changes: %{addNum} to add, %{changeNum} to change, %{deleteNum} to delete"
+msgstr ""
+
 msgid "Reporter"
 msgstr ""
 
@@ -17166,10 +17273,28 @@ msgstr ""
 msgid "Requirement"
 msgstr ""
 
+msgid "Requirement %{reference} has been added"
+msgstr ""
+
+msgid "Requirement %{reference} has been archived"
+msgstr ""
+
+msgid "Requirement %{reference} has been reopened"
+msgstr ""
+
+msgid "Requirement %{reference} has been updated"
+msgstr ""
+
 msgid "Requirement title cannot have more than %{limit} characters."
 msgstr ""
 
 msgid "Requirements"
+msgstr ""
+
+msgid "Requirements allow you to create criteria to check your products against."
+msgstr ""
+
+msgid "Requirements can be based on users, stakeholders, system, software or anything else you find important to capture."
 msgstr ""
 
 msgid "Requires approval from %{names}."
@@ -17622,6 +17747,9 @@ msgstr ""
 msgid "Search branches and tags"
 msgstr ""
 
+msgid "Search by author"
+msgstr ""
+
 msgid "Search files"
 msgstr ""
 
@@ -17782,6 +17910,9 @@ msgid_plural "SearchResults|wiki results"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid "Searching by both author and message is currently not supported."
+msgstr ""
+
 msgid "Seat Link"
 msgstr ""
 
@@ -17830,6 +17961,9 @@ msgstr ""
 msgid "Security Reports|Create issue"
 msgstr ""
 
+msgid "Security Reports|Dismiss Selected"
+msgstr ""
+
 msgid "Security Reports|Dismiss vulnerability"
 msgstr ""
 
@@ -17842,6 +17976,9 @@ msgstr ""
 msgid "Security Reports|Either you don't have permission to view this dashboard or the dashboard has not been setup. Please check your permission settings with your administrator or check your dashboard configurations to proceed."
 msgstr ""
 
+msgid "Security Reports|False positive"
+msgstr ""
+
 msgid "Security Reports|Learn more about setting up your dashboard"
 msgstr ""
 
@@ -17852,6 +17989,9 @@ msgid "Security Reports|Oops, something doesn't seem right."
 msgstr ""
 
 msgid "Security Reports|Security reports can only be accessed by authorized users."
+msgstr ""
+
+msgid "Security Reports|Select a reason"
 msgstr ""
 
 msgid "Security Reports|There was an error adding the comment."
@@ -17881,10 +18021,16 @@ msgstr ""
 msgid "Security Reports|Undo dismiss"
 msgstr ""
 
+msgid "Security Reports|Won't fix / Accept risk"
+msgstr ""
+
 msgid "Security Reports|You do not have sufficient permissions to access this report"
 msgstr ""
 
 msgid "Security Reports|You must sign in as an authorized user to see this report"
+msgstr ""
+
+msgid "Security Reports|[No reason]"
 msgstr ""
 
 msgid "Security configuration help link"
@@ -17942,6 +18088,9 @@ msgid "SecurityDashboard|Monitor vulnerabilities in your code"
 msgstr ""
 
 msgid "SecurityDashboard|More information"
+msgstr ""
+
+msgid "SecurityDashboard|No vulnerabilities found for dashboard"
 msgstr ""
 
 msgid "SecurityDashboard|Pipeline %{pipelineLink} triggered %{timeago} by %{user}"
@@ -18918,6 +19067,9 @@ msgstr ""
 msgid "Something went wrong while moving issues."
 msgstr ""
 
+msgid "Something went wrong while obtaining the Let's Encrypt certificate."
+msgstr ""
+
 msgid "Something went wrong while performing the action."
 msgstr ""
 
@@ -19347,13 +19499,22 @@ msgstr ""
 msgid "Static Application Security Testing (SAST)"
 msgstr ""
 
-msgid "StaticSiteEditor|A merge request was created:"
+msgid "StaticSiteEditor|Branch could not be created."
 msgstr ""
 
-msgid "StaticSiteEditor|A new branch was created:"
+msgid "StaticSiteEditor|Could not commit the content changes."
+msgstr ""
+
+msgid "StaticSiteEditor|Could not create merge request."
+msgstr ""
+
+msgid "StaticSiteEditor|Incompatible file content"
 msgstr ""
 
 msgid "StaticSiteEditor|Return to site"
+msgstr ""
+
+msgid "StaticSiteEditor|Static site editor"
 msgstr ""
 
 msgid "StaticSiteEditor|Success!"
@@ -19362,13 +19523,28 @@ msgstr ""
 msgid "StaticSiteEditor|Summary of changes"
 msgstr ""
 
+msgid "StaticSiteEditor|The Static Site Editor is currently configured to only edit Markdown content on pages generated from Middleman. Visit the documentation to learn more about configuring your site to use the Static Site Editor."
+msgstr ""
+
+msgid "StaticSiteEditor|Update %{sourcePath} file"
+msgstr ""
+
+msgid "StaticSiteEditor|View documentation"
+msgstr ""
+
 msgid "StaticSiteEditor|View merge request"
 msgstr ""
 
-msgid "StaticSiteEditor|Your changes have been submitted and a merge request has been created. The changes won’t be visible on the site until the merge request has been accepted."
+msgid "StaticSiteEditor|You added a commit:"
 msgstr ""
 
-msgid "StaticSiteEditor|Your changes were committed to it:"
+msgid "StaticSiteEditor|You created a merge request:"
+msgstr ""
+
+msgid "StaticSiteEditor|You created a new branch:"
+msgstr ""
+
+msgid "StaticSiteEditor|Your changes have been submitted and a merge request has been created. The changes won’t be visible on the site until the merge request has been accepted."
 msgstr ""
 
 msgid "Statistics"
@@ -19759,6 +19935,12 @@ msgid "Sync information"
 msgstr ""
 
 msgid "Synced"
+msgstr ""
+
+msgid "Synchronization disabled"
+msgstr ""
+
+msgid "Synchronization of container repositories is disabled."
 msgstr ""
 
 msgid "System"
@@ -20638,6 +20820,9 @@ msgid "This GitLab instance is licensed at the %{insufficient_license} tier. Geo
 msgstr ""
 
 msgid "This Project is currently archived and read-only. Please unarchive the project first if you want to resume Pull mirroring"
+msgstr ""
+
+msgid "This URL is already used for another link; duplicate URLs are not allowed"
 msgstr ""
 
 msgid "This action can lead to data loss. To prevent accidental actions we ask you to confirm your intention."
@@ -21736,7 +21921,13 @@ msgstr ""
 msgid "URL"
 msgstr ""
 
+msgid "URL is required"
+msgstr ""
+
 msgid "URL must be a valid url (ex: https://gitlab.com)"
+msgstr ""
+
+msgid "URL must start with %{codeStart}http://%{codeEnd}, %{codeStart}https://%{codeEnd}, or %{codeStart}ftp://%{codeEnd}"
 msgstr ""
 
 msgid "URL of the external storage that will serve the repository static objects (e.g. archives, blobs, ...)."
@@ -21779,6 +21970,9 @@ msgid "Unable to find Jira project to import data from."
 msgstr ""
 
 msgid "Unable to generate new instance ID"
+msgstr ""
+
+msgid "Unable to load the diff"
 msgstr ""
 
 msgid "Unable to load the diff. %{button_try_again}"
@@ -22694,6 +22888,9 @@ msgstr ""
 msgid "View full dashboard"
 msgstr ""
 
+msgid "View full log"
+msgstr ""
+
 msgid "View group labels"
 msgstr ""
 
@@ -22878,6 +23075,15 @@ msgid "VulnerabilityManagement|Resolved"
 msgstr ""
 
 msgid "VulnerabilityManagement|Resolved %{timeago} by %{user}"
+msgstr ""
+
+msgid "VulnerabilityManagement|Something went wrong while trying to delete the comment. Please try again later."
+msgstr ""
+
+msgid "VulnerabilityManagement|Something went wrong while trying to retrieve the vulnerability history. Please try again later."
+msgstr ""
+
+msgid "VulnerabilityManagement|Something went wrong while trying to save the comment. Please try again later."
 msgstr ""
 
 msgid "VulnerabilityManagement|Something went wrong, could not create an issue."
@@ -23524,9 +23730,6 @@ msgstr ""
 msgid "You could not create a new trigger."
 msgstr ""
 
-msgid "You didn't renew your %{strong}%{plan_name}%{strong_close} subscription for %{strong}%{namespace_name}%{strong_close} so it was downgraded to the free plan."
-msgstr ""
-
 msgid "You didn't renew your %{strong}%{plan_name}%{strong_close} subscription so it was downgraded to the GitLab Core Plan."
 msgstr ""
 
@@ -23756,9 +23959,6 @@ msgid "You've already enabled two-factor authentication using one time password 
 msgstr ""
 
 msgid "YouTube"
-msgstr ""
-
-msgid "Your %{strong}%{plan_name}%{strong_close} subscription for %{strong}%{namespace_name}%{strong_close} will expire on %{strong}%{expires_on}%{strong_close}. After that, you will not to be able to create issues or merge requests as well as many other features."
 msgstr ""
 
 msgid "Your %{strong}%{plan_name}%{strong_close} subscription will expire on %{strong}%{expires_on}%{strong_close}. After that, you will not to be able to create issues or merge requests as well as many other features."
@@ -24901,6 +25101,9 @@ msgstr ""
 msgid "no contributions"
 msgstr ""
 
+msgid "no expiration"
+msgstr ""
+
 msgid "no one can merge"
 msgstr ""
 
@@ -24951,6 +25154,9 @@ msgid "pending comment"
 msgstr ""
 
 msgid "pending removal"
+msgstr ""
+
+msgid "per day"
 msgstr ""
 
 msgid "pipeline"
@@ -25184,6 +25390,9 @@ msgid "view it on GitLab"
 msgstr ""
 
 msgid "view the blob"
+msgstr ""
+
+msgid "vulnerability|Add a comment"
 msgstr ""
 
 msgid "vulnerability|Add a comment or reason for dismissal"

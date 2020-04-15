@@ -33,7 +33,7 @@ class Packages::Package < ApplicationRecord
   validate :package_already_taken, if: :npm?
   validates :version, format: { with: Gitlab::Regex.semver_regex }, if: :npm?
 
-  enum package_type: { maven: 1, npm: 2, conan: 3, nuget: 4, pypi: 5 }
+  enum package_type: { maven: 1, npm: 2, conan: 3, nuget: 4, pypi: 5, composer: 6 }
 
   scope :with_name, ->(name) { where(name: name) }
   scope :with_name_like, ->(name) { where(arel_table[:name].matches(name)) }
@@ -90,6 +90,11 @@ class Packages::Package < ApplicationRecord
     with_name(name)
       .joins(:package_files)
       .where(packages_package_files: { file_name: file_name }).last!
+  end
+
+  def self.by_file_name_and_sha256(file_name, sha256)
+    joins(:package_files)
+      .where(packages_package_files: { file_name: file_name, file_sha256: sha256 }).last!
   end
 
   def self.pluck_names

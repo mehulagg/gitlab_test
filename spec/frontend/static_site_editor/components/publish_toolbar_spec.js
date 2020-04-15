@@ -1,7 +1,9 @@
 import { shallowMount } from '@vue/test-utils';
-import { GlNewButton, GlLoadingIcon } from '@gitlab/ui';
+import { GlButton, GlLoadingIcon } from '@gitlab/ui';
 
 import PublishToolbar from '~/static_site_editor/components/publish_toolbar.vue';
+
+import { returnUrl } from '../mock_data';
 
 describe('Static Site Editor Toolbar', () => {
   let wrapper;
@@ -15,7 +17,8 @@ describe('Static Site Editor Toolbar', () => {
     });
   };
 
-  const findSaveChangesButton = () => wrapper.find(GlNewButton);
+  const findReturnUrlLink = () => wrapper.find({ ref: 'returnUrlLink' });
+  const findSaveChangesButton = () => wrapper.find(GlButton);
   const findLoadingIndicator = () => wrapper.find(GlLoadingIcon);
 
   beforeEach(() => {
@@ -36,6 +39,17 @@ describe('Static Site Editor Toolbar', () => {
 
   it('does not display saving changes indicator', () => {
     expect(findLoadingIndicator().classes()).toContain('invisible');
+  });
+
+  it('does not render returnUrl link', () => {
+    expect(findReturnUrlLink().exists()).toBe(false);
+  });
+
+  it('renders returnUrl link when returnUrl prop exists', () => {
+    buildWrapper({ returnUrl });
+
+    expect(findReturnUrlLink().exists()).toBe(true);
+    expect(findReturnUrlLink().attributes('href')).toBe(returnUrl);
   });
 
   describe('when saveable', () => {

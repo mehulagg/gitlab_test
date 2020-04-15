@@ -194,8 +194,6 @@ application server, or a Gitaly node.
    - `PRAEFECT_HOST` with the IP address or hostname of the Praefect node
 
    ```ruby
-   # Make Praefect accept connections on all network interfaces.
-   # Use firewalls to restrict access to this address/port.
    praefect['listen_addr'] = 'PRAEFECT_HOST:2305'
 
    # Enable Prometheus metrics access to Praefect. You must use firewalls
@@ -470,12 +468,16 @@ config.
    Manual failover is possible by updating `praefect['virtual_storages']` and
    nominating a new primary node.
 
-   NOTE: **Note:**: Automatic failover is not yet supported for setups with
-   multiple Praefect nodes. There is currently no coordination between Praefect
-   nodes, which could result in two Praefect instances thinking two different
-   Gitaly nodes are the primary. Follow issue
-   [#2547](https://gitlab.com/gitlab-org/gitaly/-/issues/2547) for
-   updates.
+1. By default, Praefect will nominate a primary Gitaly node for each
+   shard and store the state of the primary in local memory. This state
+   does not persist across restarts and will cause a split brain
+   if multiple Praefect nodes are used for redundancy.
+
+   To avoid this limitation, enable the SQL election strategy:
+
+    ```ruby
+    praefect['failover_election_strategy'] = 'sql'
+    ```
 
 1. Save the changes to `/etc/gitlab/gitlab.rb` and [reconfigure
    Praefect](../restart_gitlab.md#omnibus-gitlab-reconfigure):
@@ -532,7 +534,7 @@ Particular attention should be shown to:
    `/etc/gitlab/gitlab.rb`
 
    ```ruby
-   gitaly['listen_addr'] = 'tcp://GITLAB_HOST:8075'
+   gitaly['listen_addr'] = 'GITLAB_HOST:8075'
    ```
 
 1. Configure the `gitlab_shell['secret_token']` so that callbacks from Gitaly
@@ -679,11 +681,46 @@ current primary node is found to be unhealthy.
   checks fail for the current primary backend Gitaly node, and new primary will
   be elected. **Do not use with multiple Praefect nodes!** Using with multiple
   Praefect nodes is likely to result in a split brain.
-- **PostgreSQL:** Coming soon. See isse
-  [#2547](https://gitlab.com/gitlab-org/gitaly/-/issues/2547) for updates.
+- **PostgreSQL:** Enabled by setting
+  `praefect['failover_election_strategy'] = sql`. This configuration
+  option will allow multiple Praefect nodes to coordinate via the
+  PostgreSQL database to elect a primary Gitaly node. This configuration
+  will cause Praefect nodes to elect a new primary, monitor its health,
+  and elect a new primary if the current one has not been reachable in
+  10 seconds by a majority of the Praefect nodes.
+
+NOTE: **Note:**: Praefect does not yet account for replication lag on
+the secondaries during the election process, so data loss can occur
+during a failover. Follow issue
+[#2642](https://gitlab.com/gitlab-org/gitaly/-/issues/2642) for updates.
 
 It is likely that we will implement support for Consul, and a cloud native
 strategy in the future.
+
+## Identifying Impact of a Primary Node Failure
+
+When a primary Gitaly node fails, there is a chance of dataloss. Dataloss can occur if there were outstanding replication jobs the secondaries did not manage to process before the failure. The Praefect `dataloss` subcommand helps identify these cases by counting the number of dead replication jobs for each repository within a given timeframe.
+
+```shell
+sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss -from <rfc3339-time> -to <rfc3339-time>
+```
+
+If the timeframe is not specified, dead replication jobs from the last six hours are counted:
+
+```shell
+sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss
+
+Failed replication jobs between [2020-01-02 00:00:00 +0000 UTC, 2020-01-02 06:00:00 +0000 UTC):
+example/repository-1: 1 jobs
+example/repository-2: 4 jobs
+example/repository-3: 2 jobs
+```
+
+To specify a timeframe in UTC, run:
+
+```shell
+sudo /opt/gitlab/embedded/bin/praefect -config /var/opt/gitlab/praefect/config.toml dataloss -from 2020-01-02T00:00:00+00:00 -to 2020-01-02T00:02:00+00:00
+```
 
 ## Backend Node Recovery
 

@@ -5,30 +5,52 @@ class Burnup
 
   attr_reader :milestone, :start_date, :due_date, :end_date, :user
 
-  def initialize(milestone:, user:, start_date: nil, end_date: nil)
+  def initialize(milestone:, user:)
     @user = user
     @milestone = milestone
 
-    if valid_time_frame?(start_date, end_date)
-      @start_date, @end_date = start_date, end_date
-    else
-      assign_dates_by_milestone
-    end
+    assign_dates_by_milestone
   end
 
   def burnup_events
-    resource_milestone_events.map do |event|
-      {
-          created_at: event.created_at,
-          event_type: event_type_of(event),
-          action: event.action,
-          milestone_id: milestone_id_of(event),
-          issue_id: issue_id_of(event)
-      }
+    return [] unless milestone.burnup_charts_available?
+
+    events = []
+    assigned_milestones = {}
+
+    resource_milestone_events.each do |event|
+      handle_added_milestone(event, assigned_milestones)
+
+      events << create_burnup_graph_event_by(event, assigned_milestones)
+
+      handle_removed_milestone(event, assigned_milestones)
     end
+
+    events
   end
 
   private
+
+  def handle_added_milestone(event, assigned_milestones)
+    if event.add?
+      assigned_milestones[event.issue_id] = event.milestone_id
+    end
+  end
+
+  def handle_removed_milestone(event, assigned_milestones)
+    if event.remove?
+      assigned_milestones[event.issue_id] = nil
+    end
+  end
+
+  def create_burnup_graph_event_by(event, assigned_milestones)
+    {
+      created_at: event.created_at,
+      action: event.action,
+      milestone_id: milestone_id_of(event, assigned_milestones),
+      issue_id: event.issue_id
+    }
+  end
 
   def assign_dates_by_milestone
     @start_date = milestone.start_date
@@ -40,27 +62,12 @@ class Burnup
                 end
   end
 
-  def valid_time_frame?(start_date, end_date)
-    start_date.present? && end_date.present? &&
-      start_date.beginning_of_day.before?(end_date.end_of_day)
-  end
-
-  def event_type_of(event)
-    return 'milestone' if event.is_a?(ResourceMilestoneEvent)
-
-    'event'
-  end
-
-  def milestone_id_of(event)
-    return unless event.is_a?(ResourceMilestoneEvent)
+  def milestone_id_of(event, assigned_milestones)
+    if event.remove? && event.milestone_id.nil?
+      return assigned_milestones[event.issue_id]
+    end
 
     event.milestone_id
-  end
-
-  def issue_id_of(event)
-    return event.target_id unless event.is_a?(ResourceMilestoneEvent)
-
-    event.issue_id
   end
 
   def resource_milestone_events
@@ -69,9 +76,9 @@ class Burnup
 
     strong_memoize(:resource_milestone_events) do
       ResourceMilestoneEvent
-          .where(issue_id: relevant_issue_ids)
-          .where(created_at: start_time..end_time)
-          .order(:created_at)
+        .where(issue_id: relevant_issue_ids)
+        .where('created_at <= ?', end_time)
+        .order(:created_at)
     end
   end
 
@@ -82,22 +89,19 @@ class Burnup
 
     strong_memoize(:relevant_issue_ids) do
       ids = ResourceMilestoneEvent
-          .select(:issue_id)
-          .where(milestone_id: milestone.id)
-          .where(action: :add)
-          .distinct
+              .select(:issue_id)
+              .where(milestone_id: milestone.id)
+              .where(action: :add)
+              .distinct
 
-      # We need to perform an additional check whether all these issues are visible to the given user
+      # We need to perform an additional check whether all these
+      # issues are visible to the given user
       IssuesFinder.new(user)
-          .execute.preload(:assignees).select(:id).where(id: ids)
+        .execute.select(:id).where(id: ids)
     end
   end
 
-  def start_time
-    @start_time ||= @start_date.beginning_of_day.to_time
-  end
-
   def end_time
-    @end_time ||= @end_date.end_of_day.to_time
+    @end_time ||= @end_date.end_of_day
   end
 end

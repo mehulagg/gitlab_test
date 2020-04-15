@@ -25,6 +25,7 @@ describe 'Requirements list', :js do
 
   before do
     stub_licensed_features(requirements: true)
+    stub_feature_flags(requirements_management: { enabled: true, thing: project })
     project.add_maintainer(user)
 
     sign_in(user)
@@ -66,6 +67,13 @@ describe 'Requirements list', :js do
 
         page.within('.requirements-list-container') do
           expect(page).to have_selector('.requirement-form')
+        end
+      end
+
+      it 'disables new requirement button while create form is open' do
+        page.within('.nav-controls') do
+          find('button.js-new-requirement').click
+          expect(find('button.js-new-requirement')[:disabled]).to eq "true"
         end
       end
 
