@@ -39,7 +39,7 @@ export default class BurndownChartData {
   
       const dateString = dateFormat(date, this.dateFormatMask);
 
-      const todaysMilestoneEvents = this.burndownEvents.filter(e => e.created_at === dateString && e.event_type === 'milestone');
+      const todaysMilestoneEvents = this.burndownEvents.filter(e => e.created_at === dateString);
 
       todaysMilestoneEvents.forEach(event => {
         if (event.action === 'add') {
