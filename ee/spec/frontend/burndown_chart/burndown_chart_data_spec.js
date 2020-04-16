@@ -164,37 +164,49 @@ describe('BurndownChartData', () => {
   describe('generateBurnupTimeseries', () => {
     const milestoneId = 400;
     const milestoneEvents = [
+      // day 1: add two issues to the milestone
       { created_at: '2017-03-01T00:00:00.000Z', action: 'add', milestone_id: milestoneId, issue_id: 1 },
       { created_at: '2017-03-01T00:00:00.000Z', action: 'add', milestone_id: milestoneId, issue_id: 2 },
+      // day 2: remove both issues we added yesterday, add a different issue
       { created_at: '2017-03-02T00:00:00.000Z', action: 'remove', milestone_id: milestoneId, issue_id: 2 },
       { created_at: '2017-03-02T00:00:00.000Z', action: 'add', milestone_id: milestoneId, issue_id: 3 },
       { created_at: '2017-03-02T00:00:00.000Z', action: 'remove', milestone_id: milestoneId, issue_id: 1 },
+      // day 3: remove yesterday's issue, also remove an issue that didn't have an `add` event
       { created_at: '2017-03-03T00:00:00.000Z', action: 'remove', milestone_id: milestoneId, issue_id: 2 },
       { created_at: '2017-03-03T00:00:00.000Z', action: 'remove', milestone_id: milestoneId, issue_id: 4 },
     ];
 
-    let burndownChartData;
-
-    beforeEach(() => {
-      burndownChartData = new BurndownChartData(milestoneEvents, startDate, dueDate);
-    });
+    const burndownChartData = (events = milestoneEvents) => {
+      return new BurndownChartData(events, startDate, dueDate);
+    }
 
     it('generates an array of arrays with date, issue count and weight', () => {
-      const { burnupScope } = burndownChartData.generateBurnupTimeseries({ milestoneId });
+      const { burnupScope } = burndownChartData().generateBurnupTimeseries({ milestoneId });
 
       expect(burnupScope).toEqual([
         ['2017-03-01', 2],
-        ['2017-03-02', 2],
+        ['2017-03-02', -1],
         ['2017-03-03', -2],
       ]);
     });
 
-    // it('starts from initialScope', () => {
-      
-    // });
+    it('starts from initialScope', () => {
+      const { burnupScope } = burndownChartData().generateBurnupTimeseries({ initialScope: 20, milestoneId });
 
-    // it('ignores removed from other milestones', () => {
+      expect(burnupScope[0][1]).toEqual(22);
+    });
 
-    // })
+    it('ignores removed from other milestones', () => {
+      const differentMilestoneId = 600;
+      const events = [
+        // day 1: add two issues to the milestone
+        { created_at: '2017-03-01T00:00:00.000Z', action: 'add', milestone_id: milestoneId, issue_id: 1 },
+        { created_at: '2017-03-01T00:00:00.000Z', action: 'remove', milestone_id: differentMilestoneId, issue_id: 1 },
+      ];
+
+      const { burnupScope } = burndownChartData(events).generateBurnupTimeseries({ milestoneId });
+
+      expect(burnupScope[0][1]).toEqual(0);
+    })
   });
 });
