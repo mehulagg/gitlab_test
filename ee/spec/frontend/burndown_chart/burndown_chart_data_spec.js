@@ -6,7 +6,7 @@ describe('BurndownChartData', () => {
   const startDate = '2017-03-01';
   const dueDate = '2017-03-03';
 
-  const milestoneEvents = [
+  const issueStateEvents = [
     { created_at: '2017-03-01T00:00:00.000Z', weight: 2, action: 'created' },
     { created_at: '2017-03-01T00:00:00.000Z', weight: 2, action: 'created' },
     { created_at: '2017-03-02T00:00:00.000Z', weight: 2, action: 'created' },
@@ -16,13 +16,13 @@ describe('BurndownChartData', () => {
     { created_at: '2017-03-03T00:00:00.000Z', weight: 2, action: 'reopened' },
   ];
 
-  let burndownChartData;
-
-  beforeEach(() => {
-    burndownChartData = new BurndownChartData(milestoneEvents, startDate, dueDate);
-  });
-
   describe('generate', () => {
+    let burndownChartData;
+
+    beforeEach(() => {
+      burndownChartData = new BurndownChartData(issueStateEvents, startDate, dueDate);
+    });
+
     it('generates an array of arrays with date, issue count and weight', () => {
       expect(burndownChartData.generate()).toEqual([
         ['2017-03-01', 2, 4],
@@ -51,7 +51,7 @@ describe('BurndownChartData', () => {
 
     describe('when issues are created before start date', () => {
       beforeAll(() => {
-        milestoneEvents.push({
+        issueStateEvents.push({
           created_at: '2017-02-28T00:00:00.000Z',
           weight: 2,
           action: 'created',
@@ -90,8 +90,8 @@ describe('BurndownChartData', () => {
     describe('when days in milestone have negative counts', () => {
       describe('and the first two days have a negative count', () => {
         beforeAll(() => {
-          milestoneEvents.length = 0;
-          milestoneEvents.push(
+          issueStateEvents.length = 0;
+          issueStateEvents.push(
             { created_at: '2017-03-01T00:00:00.000Z', weight: 2, action: 'closed' },
             { created_at: '2017-03-01T00:00:00.000Z', weight: 2, action: 'closed' },
             { created_at: '2017-03-02T00:00:00.000Z', weight: 2, action: 'created' },
@@ -115,8 +115,8 @@ describe('BurndownChartData', () => {
         // potential edge case.
 
         beforeAll(() => {
-          milestoneEvents.length = 0;
-          milestoneEvents.push(
+          issueStateEvents.length = 0;
+          issueStateEvents.push(
             { created_at: '2017-03-01T00:00:00.000Z', weight: 2, action: 'created' },
             { created_at: '2017-03-02T00:00:00.000Z', weight: 2, action: 'closed' },
             { created_at: '2017-03-02T00:00:00.000Z', weight: 2, action: 'closed' },
@@ -140,8 +140,8 @@ describe('BurndownChartData', () => {
         // potential edge case.
 
         beforeAll(() => {
-          milestoneEvents.length = 0;
-          milestoneEvents.push(
+          issueStateEvents.length = 0;
+          issueStateEvents.push(
             { created_at: '2017-03-01T00:00:00.000Z', weight: 2, action: 'closed' },
             { created_at: '2017-03-02T00:00:00.000Z', weight: 2, action: 'created' },
             { created_at: '2017-03-02T00:00:00.000Z', weight: 2, action: 'closed' },
@@ -159,5 +159,39 @@ describe('BurndownChartData', () => {
         });
       });
     });
+  });
+
+  describe('generateBurnupTimeseries', () => {
+    const milestoneEvents = [
+      { created_at: '2020-04-01T00:00:00.000Z', action: 'add', milestone_id: 400, issue_id: 1 },
+      { created_at: '2020-04-01T00:00:00.000Z', action: 'remove', milestone_id: 400, issue_id: 1 },
+      { created_at: '2020-04-02T00:00:00.000Z', action: 'add', milestone_id: 400, issue_id: 2 },
+      { created_at: '2020-04-02T00:00:00.000Z', action: 'add', milestone_id: 400, issue_id: 3 },
+      { created_at: '2020-04-02T00:00:00.000Z', action: 'remove', milestone_id: 400, issue_id: 1 },
+      { created_at: '2020-04-03T00:00:00.000Z', action: 'remove', milestone_id: 400, issue_id: 2 },
+      { created_at: '2020-04-03T00:00:00.000Z', action: 'remove', milestone_id: 400, issue_id: 4 },
+    ];
+
+    let burndownChartData;
+
+    beforeEach(() => {
+      burndownChartData = new BurndownChartData(milestoneEvents, startDate, dueDate);
+    });
+
+    it('generates an array of arrays with date, issue count and weight', () => {
+      expect(burndownChartData.generateBurnupTimeseries({ milestoneId: 400 })).toEqual([
+        ['2017-03-01', 2, 4],
+        ['2017-03-02', 1, 2],
+        ['2017-03-03', 3, 6],
+      ]);
+    });
+
+    it('starts from initialScope', () => {
+      
+    });
+
+    it('ignores removed from other milestones', () => {
+
+    })
   });
 });

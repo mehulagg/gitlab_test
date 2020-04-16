@@ -21,7 +21,7 @@ export default class BurndownChartData {
     this.burndownEvents = this.processRawEvents(burndownEvents);
   }
 
-  generateBurnupTimeseries({ initialScope = 0, milestoneId }) {
+  generateBurnupTimeseries({ initialScope = 0, milestoneId } = {}) {
     const chartData = [];
 
     for (
