@@ -1,4 +1,5 @@
 import createFlash from '~/flash';
+import produce from 'immer';
 import { extractCurrentDiscussion, extractDesign } from './design_management_utils';
 import {
   ADD_IMAGE_DIFF_NOTE_ERROR,
@@ -7,13 +8,20 @@ import {
   designDeletionError,
 } from './error_messages';
 
-const deleteDesignsFromStore = (store, query, selectedDesigns) => {
-  const data = store.readQuery(query);
+const designsOf = data => data.project.issue.designCollection.designs;
 
-  const changedDesigns = data.project.issue.designCollection.designs.edges.filter(
-    ({ node }) => !selectedDesigns.includes(node.filename),
-  );
-  data.project.issue.designCollection.designs.edges = [...changedDesigns];
+const isParticipating = (design, username) =>
+  design.issue.participants.edges.some(participant => participant.node.username === username);
+
+const deleteDesignsFromStore = (store, query, selectedDesigns) => {
+  const sourceData = store.readQuery(query);
+
+  const data = produce(sourceData, draftData => {
+    const changedDesigns = designsOf(sourceData).edges.filter(
+      ({ node }) => !selectedDesigns.includes(node.filename),
+    );
+    designsOf(draftData).edges = [...changedDesigns];
+  });
 
   store.writeQuery({
     ...query,
