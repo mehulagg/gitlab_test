@@ -49,7 +49,7 @@ describe 'Database schema' do
     issues: %w[last_edited_by_id state_id],
     jira_tracker_data: %w[jira_issue_transition_id],
     keys: %w[user_id],
-    label_links: %w[target_id],
+    label_links: %w[target_id label_id],
     lfs_objects_projects: %w[lfs_object_id project_id],
     ldap_group_links: %w[group_id],
     members: %w[source_id created_by_id],
