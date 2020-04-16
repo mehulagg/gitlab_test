@@ -7,6 +7,30 @@ describe Gitlab::Ci::Reports::AccessibilityReportsComparer do
   let(:base_reports) { Gitlab::Ci::Reports::AccessibilityReports.new }
   let(:head_reports) { Gitlab::Ci::Reports::AccessibilityReports.new }
 
+  describe '#status' do
+    subject { comparer.status }
+
+    context 'when head report has an error' do
+      before do
+        head_reports.errors = 1
+      end
+
+      it 'returns status failed' do
+        expect(subject).to eq(Gitlab::Ci::Reports::AccessibilityReportsComparer::STATUS_FAILED)
+      end
+    end
+
+    context 'when head reports have an accessibility report and head has no errors' do
+      before do
+        head_reports.errors = 0
+      end
+
+      it 'returns status success' do
+        expect(subject).to eq(Gitlab::Ci::Reports::AccessibilityReportsComparer::STATUS_SUCCESS)
+      end
+    end
+  end
+
   describe '#added' do
     subject { comparer.added }
 
