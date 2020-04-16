@@ -819,6 +819,10 @@ module Ci
       [parent.id] + parent.child_pipelines.pluck(:id)
     end
 
+    def self_and_descendants
+      [self.id] + child_pipelines.pluck(:id)
+    end
+
     def bridge_triggered?
       source_bridge.present?
     end
@@ -843,6 +847,16 @@ module Ci
       Gitlab::Ci::Status::Pipeline::Factory
         .new(self, current_user)
         .fabricate!
+    end
+
+    def build_in_hierarchy_with_downloadable_artifacts(name)
+      builds_in_hierarchy
+        .with_downloadable_artifacts
+        .find_by_name(name)
+    end
+
+    def builds_in_hierarchy
+      Ci::Build.latest.where(pipeline: self_and_descendants)
     end
 
     def find_job_with_archive_artifacts(name)
