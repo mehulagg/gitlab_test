@@ -6,11 +6,12 @@ describe Gitlab::Ci::Parsers::Security::ContainerScanning do
   let(:parser) { described_class.new }
   let(:project) { artifact.project }
   let(:pipeline) { artifact.job.pipeline }
+  let(:project_id) { artifact.project.id }
   let(:report) { Gitlab::Ci::Reports::Security::Report.new(artifact.file_type, pipeline.sha, 2.weeks.ago) }
 
   before do
     artifact.each_blob do |blob|
-      parser.parse!(blob, report)
+      parser.parse!(blob, report, project_id)
     end
   end
 
@@ -23,7 +24,7 @@ describe Gitlab::Ci::Parsers::Security::ContainerScanning do
     end
 
     with_them do
-      let(:artifact) { create(:ee_ci_job_artifact, report_type) }
+      let(:artifact) { build(:ee_ci_job_artifact, report_type) }
 
       it "parses all identifiers and occurrences for unapproved vulnerabilities" do
         expect(report.occurrences.length).to eq(8)

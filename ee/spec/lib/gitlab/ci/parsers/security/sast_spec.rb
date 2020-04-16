@@ -14,11 +14,12 @@ describe Gitlab::Ci::Parsers::Security::Sast do
 
       with_them do
         let(:report) { Gitlab::Ci::Reports::Security::Report.new(artifact.file_type, commit_sha, created_at) }
-        let(:artifact) { create(:ee_ci_job_artifact, report_format) }
+        let(:artifact) { build(:ee_ci_job_artifact, report_format) }
+        let(:project_id) { artifact.project.id }
 
         before do
           artifact.each_blob do |blob|
-            parser.parse!(blob, report)
+            parser.parse!(blob, report, project_id)
           end
         end
 
@@ -49,9 +50,9 @@ describe Gitlab::Ci::Parsers::Security::Sast do
 
     context "when parsing an empty report" do
       let(:report) { Gitlab::Ci::Reports::Security::Report.new('sast', commit_sha, created_at) }
-      let(:blob) { JSON.generate({}) }
+      let(:blob) { '{}' }
 
-      it { expect(parser.parse!(blob, report)).to be_empty }
+      it { expect(parser.parse!(blob, report, nil)).to be_empty }
     end
   end
 end

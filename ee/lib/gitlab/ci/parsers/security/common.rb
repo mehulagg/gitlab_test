@@ -7,12 +7,12 @@ module Gitlab
         class Common
           SecurityReportParserError = Class.new(Gitlab::Ci::Parsers::ParserError)
 
-          def parse!(json_data, report)
+          def parse!(json_data, report, project_id)
             report_data = parse_report(json_data)
             raise SecurityReportParserError, "Invalid report format" unless report_data.is_a?(Hash)
 
             collate_remediations(report_data).each do |vulnerability|
-              create_vulnerability(report, vulnerability, report_data["version"])
+              create_vulnerability(report, vulnerability, report_data["version"], project_id)
             end
           rescue JSON::ParserError
             raise SecurityReportParserError, 'JSON parsing failed'
@@ -48,13 +48,14 @@ module Gitlab
             end
           end
 
-          def create_vulnerability(report, data, version)
+          def create_vulnerability(report, data, version, project_id)
             scanner = create_scanner(report, data['scanner'] || mutate_scanner_tool(data['tool']))
             identifiers = create_identifiers(report, data['identifiers'])
             report.add_occurrence(
               ::Gitlab::Ci::Reports::Security::Occurrence.new(
                 uuid: SecureRandom.uuid,
                 report_type: report.type,
+                project_id: project_id,
                 name: data['message'],
                 compare_key: data['cve'] || '',
                 location: create_location(data['location'] || {}),

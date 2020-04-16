@@ -8,7 +8,8 @@ describe Gitlab::Ci::Parsers::Security::Dast do
   describe '#parse!' do
     let(:project) { artifact.project }
     let(:pipeline) { artifact.job.pipeline }
-    let(:artifact) { create(:ee_ci_job_artifact, :dast) }
+    let(:artifact) { build(:ee_ci_job_artifact, :dast) }
+    let(:project_id) { artifact.project.id }
     let(:report) { Gitlab::Ci::Reports::Security::Report.new(artifact.file_type, pipeline.sha, 2.weeks.ago) }
     let(:parser) { described_class.new }
 
@@ -28,11 +29,11 @@ describe Gitlab::Ci::Parsers::Security::Dast do
     end
 
     with_them do
-      let(:artifact) { create(:ee_ci_job_artifact, report_format) }
+      let(:artifact) { build(:ee_ci_job_artifact, report_format) }
 
       before do
         artifact.each_blob do |blob|
-          parser.parse!(blob, report)
+          parser.parse!(blob, report, project_id)
         end
       end
 

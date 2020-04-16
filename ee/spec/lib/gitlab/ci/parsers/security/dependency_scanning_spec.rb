@@ -8,9 +8,10 @@ describe Gitlab::Ci::Parsers::Security::DependencyScanning do
   describe '#parse!' do
     let(:project) { artifact.project }
     let(:pipeline) { artifact.job.pipeline }
-    let(:artifact) { create(:ee_ci_job_artifact, :dependency_scanning) }
+    let(:artifact) { build(:ee_ci_job_artifact, :dependency_scanning) }
     let(:report) { Gitlab::Ci::Reports::Security::Report.new(artifact.file_type, pipeline.sha, 2.weeks.ago) }
     let(:parser) { described_class.new }
+    let(:project_id) { artifact.project.id }
 
     where(:report_format, :occurrence_count, :identifier_count, :scanner_count, :file_path, :package_name, :package_version, :version) do
       :dependency_scanning             | 4 | 7 | 2 | 'app/pom.xml' | 'io.netty/netty' | '3.9.1.Final' | '1.3'
@@ -19,11 +20,11 @@ describe Gitlab::Ci::Parsers::Security::DependencyScanning do
     end
 
     with_them do
-      let(:artifact) { create(:ee_ci_job_artifact, report_format) }
+      let(:artifact) { build(:ee_ci_job_artifact, report_format) }
 
       before do
         artifact.each_blob do |blob|
-          parser.parse!(blob, report)
+          parser.parse!(blob, report, project_id)
         end
       end
 
@@ -56,7 +57,7 @@ describe Gitlab::Ci::Parsers::Security::DependencyScanning do
         report_hash[:vulnerabilities][0][:location] = nil
       end
 
-      it { expect { parser.parse!(report_hash.to_json, report) }.not_to raise_error }
+      it { expect { parser.parse!(report_hash.to_json, report, project_id) }.not_to raise_error }
     end
 
     context "when parsing a vulnerability with a missing cve" do
@@ -66,15 +67,15 @@ describe Gitlab::Ci::Parsers::Security::DependencyScanning do
         report_hash[:vulnerabilities][0][:cve] = nil
       end
 
-      it { expect { parser.parse!(report_hash.to_json, report) }.not_to raise_error }
+      it { expect { parser.parse!(report_hash.to_json, report, project_id) }.not_to raise_error }
     end
 
     context "when vulnerabilities have remediations" do
-      let(:artifact) { create(:ee_ci_job_artifact, :dependency_scanning_remediation) }
+      let(:artifact) { build(:ee_ci_job_artifact, :dependency_scanning_remediation) }
 
       before do
         artifact.each_blob do |blob|
-          parser.parse!(blob, report)
+          parser.parse!(blob, report, project_id)
         end
       end
 

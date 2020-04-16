@@ -18,10 +18,11 @@ module Gitlab
           attr_reader :scanner
           attr_reader :severity
           attr_reader :uuid
+          attr_reader :project_id
 
           delegate :file_path, :start_line, :end_line, to: :location
 
-          def initialize(compare_key:, identifiers:, location:, metadata_version:, name:, raw_metadata:, report_type:, scanner:, uuid:, confidence: nil, severity: nil) # rubocop:disable Metrics/ParameterLists
+          def initialize(compare_key:, identifiers:, location:, metadata_version:, name:, raw_metadata:, report_type:, scanner:, uuid:, project_id:, confidence: nil, severity: nil) # rubocop:disable Metrics/ParameterLists
             @compare_key = compare_key
             @confidence = confidence
             @identifiers = identifiers
@@ -33,6 +34,7 @@ module Gitlab
             @scanner = scanner
             @severity = severity
             @uuid = uuid
+            @project_id = project_id
 
             @project_fingerprint = generate_project_fingerprint
           end
@@ -45,6 +47,7 @@ module Gitlab
               location
               metadata_version
               name
+              project_id
               project_fingerprint
               raw_metadata
               report_type

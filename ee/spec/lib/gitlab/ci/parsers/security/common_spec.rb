@@ -6,6 +6,7 @@ describe Gitlab::Ci::Parsers::Security::Common do
   describe '#parse!' do
     let(:artifact) { build(:ee_ci_job_artifact, :dependency_scanning) }
     let(:report) { Gitlab::Ci::Reports::Security::Report.new(artifact.file_type, 'sha', 2.weeks.ago) }
+    let(:project_id) { artifact.project.id }
     let(:parser) { described_class.new }
 
     before do
@@ -15,7 +16,7 @@ describe Gitlab::Ci::Parsers::Security::Common do
     it 'converts undefined severity and confidence' do
       artifact.each_blob do |blob|
         blob.gsub!("Unknown", "Undefined")
-        parser.parse!(blob, report)
+        parser.parse!(blob, report, project_id)
       end
 
       expect(report.occurrences.map(&:severity)).to include("unknown")
@@ -92,7 +93,7 @@ describe Gitlab::Ci::Parsers::Security::Common do
          }
 
         raw_json[:remediations] << fix_with_cve
-        parser.parse!(raw_json.to_json, report)
+        parser.parse!(raw_json.to_json, report, project_id)
 
         vulnerability = report.occurrences.find { |x| x.compare_key == "CVE-1020" }
         expect(vulnerability.raw_metadata).to include fix_with_cve.to_json
@@ -111,7 +112,7 @@ describe Gitlab::Ci::Parsers::Security::Common do
         }
 
         raw_json[:remediations] << fix_with_id
-        parser.parse!(raw_json.to_json, report)
+        parser.parse!(raw_json.to_json, report, project_id)
 
         vulnerability = report.occurrences.find { |x| x.compare_key == "CVE-1030" }
         expect(vulnerability.raw_metadata).to include fix_with_id.to_json
@@ -139,7 +140,7 @@ describe Gitlab::Ci::Parsers::Security::Common do
         }
 
         raw_json[:remediations] << fix_with_id << fix_with_cve
-        parser.parse!(raw_json.to_json, report)
+        parser.parse!(raw_json.to_json, report, project_id)
 
         vulnerability_1030 = report.occurrences.find { |x| x.compare_key == "CVE-1030" }
         expect(vulnerability_1030.raw_metadata).to include fix_with_id.to_json
@@ -170,7 +171,7 @@ describe Gitlab::Ci::Parsers::Security::Common do
         }
 
         raw_json[:remediations] << fix_with_id << fix_with_id_2
-        parser.parse!(raw_json.to_json, report)
+        parser.parse!(raw_json.to_json, report, project_id)
 
         report.occurrences.map do |vulnerability|
           expect(vulnerability.raw_metadata).not_to include(fix_with_id.to_json)

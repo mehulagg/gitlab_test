@@ -15,6 +15,7 @@ describe Gitlab::Ci::Reports::Security::Occurrence do
       {
         compare_key: 'this_is_supposed_to_be_a_unique_value',
         confidence: :medium,
+        project_id: 3,
         identifiers: [primary_identifier, other_identifier],
         location: location,
         metadata_version: 'sast:1.0',
@@ -34,6 +35,7 @@ describe Gitlab::Ci::Reports::Security::Occurrence do
         expect(subject).to have_attributes(
           compare_key: 'this_is_supposed_to_be_a_unique_value',
           confidence: :medium,
+          project_id: 3,
           project_fingerprint: '9a73f32d58d87d94e3dc61c4c1a94803f6014258',
           identifiers: [primary_identifier, other_identifier],
           location: location,
@@ -81,6 +83,7 @@ describe Gitlab::Ci::Reports::Security::Occurrence do
         compare_key: occurrence.compare_key,
         confidence: occurrence.confidence,
         identifiers: occurrence.identifiers,
+        project_id: 3,
         location: occurrence.location,
         metadata_version: occurrence.metadata_version,
         name: occurrence.name,
