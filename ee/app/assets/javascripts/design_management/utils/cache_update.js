@@ -39,13 +39,13 @@ const deleteDesignsFromStore = (store, query, selectedDesigns) => {
 const addNewVersionToStore = (store, query, version) => {
   if (!version) return;
 
-  const data = store.readQuery(query);
-  const newEdge = { node: version, __typename: 'DesignVersionEdge' };
+  const sourceData = store.readQuery(query);
 
-  data.project.issue.designCollection.versions.edges = [
-    newEdge,
-    ...data.project.issue.designCollection.versions.edges,
-  ];
+  const newVersion = { node: version, __typename: 'DesignVersionEdge' };
+
+  const data = produce(sourceData, draftData => {
+    draftData.project.issue.designCollection.versions.edges.unshift(newVersion);
+  });
 
   store.writeQuery({
     ...query,
