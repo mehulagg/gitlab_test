@@ -56,24 +56,31 @@ describe Security::StoreReportService, '#execute' do
     end
 
     context 'invalid data' do
-      let(:artifact) { create(:ee_ci_job_artifact, :sast) }
-      let(:occurrence_without_name) { build(:ci_reports_security_occurrence, name: nil) }
+      let(:artifact) { create(:ee_ci_job_artifact, :container_scanning) }
+      let(:scanner) { Gitlab::Ci::Reports::Security::Scanner.new(external_id: 'klar', name: 'klar')}
+      let(:occurrence_without_name) do
+        Gitlab::Ci::Reports::Security::Occurrence.new( compare_key: '123',
+           identifiers: [Gitlab::Ci::Reports::Security::Identifier.new(external_id: 'klar', external_type: 'klar', name: 'klar')],
+           location: Gitlab::Ci::Reports::Security::Locations::ContainerScanning.new(image: 'd', operating_system: 'linux'),
+           metadata_version: nil,
+           name: nil,
+           raw_metadata: {},
+            report_type: 'container_scanning',
+           scanner: scanner,
+           uuid: '123'
+                                                     )
+      end
       let(:report) { Gitlab::Ci::Reports::Security::Report.new('container_scanning', nil, nil) }
+      let(:report2) { pipeline.security_reports.get_report('container_scanning', artifact) }
 
-      before do
-        allow(Gitlab::ErrorTracking).to receive(:track_and_raise_exception).and_call_original
+      subject { described_class.new(pipeline, report) }
+
+      it 'raises logs and raises error ' do
+        expect(subject).to receive(:log_error)
         report.add_occurrence(occurrence_without_name)
-      end
+        report.add_scanner(scanner)
 
-      it 'raises invalid record error' do
-        expect { subject.execute }.to raise_error(ActiveRecord::RecordInvalid)
-      end
-
-      it 'reports the error correctly' do
-        expected_params = occurrence_without_name.to_hash.dig(:raw_metadata)
-        expect { subject.execute }.to raise_error { |error|
-          expect(Gitlab::ErrorTracking).to have_received(:track_and_raise_exception).with(error, create_params: expected_params)
-        }
+        expect { subject.execute }.to raise_error
       end
     end
   end
