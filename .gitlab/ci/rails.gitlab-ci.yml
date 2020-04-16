@@ -135,14 +135,10 @@ rspec fast_spec_helper:
   stage: test
   needs: ["setup-test-env pg11"]
 
-db:migrate:reset:
-  extends: .db-job-base
-  script:
-    - bundle exec rake db:migrate:reset
-
 db:check-schema:
   extends: .db-job-base
   script:
+    - bundle exec rake db:migrate:reset
     - source scripts/schema_changed.sh
 
 db:migrate-from-v11.11.0:
