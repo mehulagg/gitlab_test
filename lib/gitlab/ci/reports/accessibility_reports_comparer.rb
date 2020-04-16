@@ -21,23 +21,9 @@ module Gitlab
           end
         end
 
-        def results_comparer
-          strong_memoize(:results_comparer) do
-            head_reports.urls.each_with_object({}) do |(head_url, head_errors), hash|
-              base_reports.urls.each do |base_url, base_errors|
-                hash[base_url] = diff_result(base_errors, head_errors)
-              end
-            end
-          end
-        end
-
-        private
-
-        def diff_result(base_reports, head_reports)
-          if base_reports.size > head_reports.size
-            base_reports - head_reports
-          else
-            head_reports - base_reports
+        def new_errors
+          strong_memoize(:new_errors) do
+            head_reports.urls.values.flatten - base_reports.urls.values.flatten
           end
         end
       end

@@ -60,6 +60,7 @@ describe AccessibilityReportsComparerEntity do
 
       it 'contains correct compared accessibility report details' do
         expect(subject[:added]).to eq(1)
+        expect(subject[:new_errors].first).to include(:code, :type, :type_code, :message, :context, :selector, :runner, :runner_extras)
       end
     end
   end

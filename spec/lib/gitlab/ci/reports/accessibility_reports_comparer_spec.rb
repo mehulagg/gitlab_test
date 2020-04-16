@@ -54,8 +54,8 @@ describe Gitlab::Ci::Reports::AccessibilityReportsComparer do
     end
   end
 
-  describe '#results_comparer' do
-    subject { comparer.results_comparer }
+  describe '#new_errors' do
+    subject { comparer.new_errors }
 
     context 'when base reports have an accessibility report and head has more errors' do
       before do
@@ -104,7 +104,7 @@ describe Gitlab::Ci::Reports::AccessibilityReportsComparer do
 
       it 'returns diff between base and head reports' do
         expect(subject.size).to eq(1)
-        expect(subject["https://gitlab.com"].first["context"]).to include("nofollow noopener noreferrer")
+        expect(subject.first["context"]).to include("nofollow noopener noreferrer")
       end
     end
 
@@ -133,7 +133,7 @@ describe Gitlab::Ci::Reports::AccessibilityReportsComparer do
 
       it 'returns diff between base and head reports' do
         expect(subject.size).to eq(1)
-        expect(subject["https://gitlab.com"].first["message"]).to include("no link content has been supplied")
+        expect(subject.first["message"]).to include("no link content has been supplied")
       end
     end
 
