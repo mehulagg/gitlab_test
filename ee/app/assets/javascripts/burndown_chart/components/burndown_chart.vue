@@ -63,13 +63,13 @@ export default {
       const series = [
         {
           name,
-          data: data.map(d => [new Date(d[0]), d[1]]),
+          data,
         },
       ];
 
       if (series[0] && series[0].data.length >= 2) {
-        const idealStart = [new Date(this.startDate), data[0][1]];
-        const idealEnd = [new Date(this.dueDate), 0];
+        const idealStart = [this.startDate, data[0][1]];
+        const idealEnd = [this.dueDate, 0];
         const idealData = [idealStart, idealEnd];
 
         series.push({
