@@ -188,6 +188,8 @@ spotbugs-sast:
 
 tslint-sast:
   extends: .sast-analyzer
+  variables:
+    SEARCH_MAX_DEPTH: 4
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/tslint:$SAST_ANALYZER_IMAGE_TAG"
   only:
