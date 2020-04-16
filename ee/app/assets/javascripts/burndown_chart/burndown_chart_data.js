@@ -8,25 +8,20 @@ export default class BurndownChartData {
 
     // determine when to stop burndown chart
     const today = dateFormat(Date.now(), this.dateFormatMask);
-    this.endDate = today < this.dueDate ? today : this.dueDate;    
+    this.endDate = today < this.dueDate ? today : this.dueDate;
 
     // Make sure we get the burndown chart local start and end dates! new Date()
     // and dateFormat() both convert the date at midnight UTC to the browser's
     // timezone, leading to incorrect chart start and end points. Using
     // new Date('YYYY-MM-DDTHH:MM:SS') gets the user's local date at midnight.
-    
+
     this.localStartDate = new Date(`${this.startDate}T00:00:00`);
     this.localEndDate = new Date(`${this.endDate}T00:00:00`);
 
     this.burndownEvents = this.processRawEvents(burndownEvents);
   }
 
-  burnup(initialScope = 0) {
-    let totalIssues = initialScope;
-    let totalWeight = 0;
-
-    const currentMilestoneId = 44;
-
+  generateBurnupTimeseries({ initialScope = 0, milestoneId }) {
     const chartData = [];
 
     for (
@@ -34,32 +29,25 @@ export default class BurndownChartData {
       date <= this.localEndDate;
       date.setDate(date.getDate() + 1)
     ) {
-      let todaysTotal = totalIssues;
-      const issues = {};
-  
+      let todaysTotal = initialScope;
+
       const dateString = dateFormat(date, this.dateFormatMask);
 
       const todaysMilestoneEvents = this.burndownEvents.filter(e => e.created_at === dateString);
 
       todaysMilestoneEvents.forEach(event => {
         if (event.action === 'add') {
-          // UP TO HERE
-          // 
-          if (event.milestone_id === currentMilestoneId) {
+          if (event.milestone_id === milestoneId) {
             todaysTotal += 1;
           } else {
             todaysTotal -= 1;
           }
-          // issues[event.issue_id] = event.milestone_id;
         }
 
         if (event.action === 'remove') {
           todaysTotal -= 1;
-          // delete issues[event.issue_id];
         }
       });
-
-      // totalIssues += Object.keys(issues).length;
 
       chartData.push([dateString, todaysTotal]);
     }

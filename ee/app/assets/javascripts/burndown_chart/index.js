@@ -22,6 +22,7 @@ export default () => {
   if ($chartEl.length) {
     const startDate = $chartEl.data('startDate');
     const dueDate = $chartEl.data('dueDate');
+    const milestoneId = $chartEl.data('milestoneId');
     const burndownEventsPath = $chartEl.data('burndownEventsPath');
     const burnupEventsPath = $chartEl.data('burnupEventsPath');
 
@@ -41,7 +42,11 @@ export default () => {
 
         const burnupEvents = burnupResponse.data;
 
-        const { burnupScope } = new BurndownChartData(burnupEvents, startDate, dueDate).burnup(initialScope);
+        const { burnupScope } = new BurndownChartData(
+          burnupEvents,
+          startDate,
+          dueDate,
+        ).generateBurnupTimeseries({ initialScope, milestoneId });
 
         const openIssuesCount = chartData.map(d => [d[0], d[1]]);
         const openIssuesWeight = chartData.map(d => [d[0], d[2]]);
