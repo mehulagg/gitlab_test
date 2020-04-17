@@ -55,7 +55,7 @@ class Service < ApplicationRecord
   scope :visible, -> { where.not(type: 'GitlabIssueTrackerService') }
   scope :issue_trackers, -> { where(category: 'issue_tracker') }
   scope :external_wikis, -> { where(type: 'ExternalWikiService').active }
-  scope :active, -> { where(active: true) }
+  scope :active, -> { where('COALESCE (active, (SELECT active FROM services s WHERE s.type = type AND instance = true)) IS TRUE') }
   scope :without_defaults, -> { where(default: false) }
   scope :by_type, -> (type) { where(type: type) }
   scope :by_active_flag, -> (flag) { where(active: flag) }
