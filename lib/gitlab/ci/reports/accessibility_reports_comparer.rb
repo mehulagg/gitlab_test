@@ -33,6 +33,12 @@ module Gitlab
             head_reports.urls.values.flatten - base_reports.urls.values.flatten
           end
         end
+
+        def resolved_errors
+          strong_memoize(:resolved_errors) do
+            base_reports.urls.values.flatten - head_reports.urls.values.flatten
+          end
+        end
       end
     end
   end

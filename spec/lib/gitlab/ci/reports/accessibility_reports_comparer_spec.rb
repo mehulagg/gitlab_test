@@ -185,4 +185,121 @@ describe Gitlab::Ci::Reports::AccessibilityReportsComparer do
       end
     end
   end
+
+  describe '#resolved_errors' do
+    subject { comparer.resolved_errors }
+
+    context 'when base report has errors and head has the same errors' do
+      before do
+        base_reports.urls = {
+          "https://gitlab.com" =>
+            [
+              {
+                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+                "type" => "error",
+                "typeCode" => 1,
+                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+                "context" => "<a class=\"site-title active\" rel=\"author\" href=\"/\">\n        <svg version=\"1.0\" xml...</a>",
+                "selector" => "html > body > header > div > nav > a",
+                "runner" => "htmlcs",
+                "runnerExtras" => {}
+              }
+            ]
+          }
+
+        head_reports.urls = {
+          "https://gitlab.com" =>
+            [
+              {
+                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+                "type" => "error",
+                "typeCode" => 1,
+                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+                "context" => "<a class=\"site-title active\" rel=\"author\" href=\"/\">\n        <svg version=\"1.0\" xml...</a>",
+                "selector" => "html > body > header > div > nav > a",
+                "runner" => "htmlcs",
+                "runnerExtras" => {}
+              },
+              {
+                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+                "type" => "error",
+                "typeCode" => 1,
+                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+                "context" => "<a class=\"social-icon\" target=\"_blank\" href=\"https://gitlab.com\" rel=\"nofollow noopener noreferrer\">\n        <svg xmlns=\"http://www...</a>",
+                "selector" => "html > body > header > div > nav > a",
+                "runner" => "htmlcs",
+                "runnerExtras" => {}
+              }
+            ]
+          }
+      end
+
+      it 'returns an empty array' do
+        expect(subject).to be_empty
+      end
+    end
+
+    context 'when base reports has an error and head has a different error' do
+      before do
+        base_reports.urls = {
+          "https://gitlab.com" =>
+            [
+              {
+                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+                "type" => "error",
+                "typeCode" => 1,
+                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+                "context" => "<a class=\"site-title active\" rel=\"author\" href=\"/\">\n        <svg version=\"1.0\" xml...</a>",
+                "selector" => "html > body > header > div > nav > a",
+                "runner" => "htmlcs",
+                "runnerExtras" => {}
+              }
+            ]
+          }
+
+        head_reports.urls = {
+          "https://gitlab.com" => [
+            {
+              "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+              "type" => "error",
+              "typeCode" => 1,
+              "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+              "context" => "<a class=\"social-icon\" target=\"_blank\" href=\"https://gitlab.com\" rel=\"nofollow noopener noreferrer\">\n        <svg xmlns=\"http://www...</a>",
+              "selector" => "html > body > header > div > nav > a",
+              "runner" => "htmlcs",
+              "runnerExtras" => {}
+            }
+          ]
+        }
+      end
+
+      it 'returns the resolved error' do
+        expect(subject.size).to eq(1)
+      end
+    end
+
+    context 'when base reports does not have errors head has errors' do
+      before do
+        head_reports.urls = {
+          "https://gitlab.com" =>
+            [
+              {
+                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+                "type" => "error",
+                "typeCode" => 1,
+                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+                "context" => "<a class=\"site-title active\" rel=\"author\" href=\"/\">\n        <svg version=\"1.0\" xml...</a>",
+                "selector" => "html > body > header > div > nav > a",
+                "runner" => "htmlcs",
+                "runnerExtras" => {}
+              }
+            ]
+          }
+      end
+
+      it 'returns an empty array' do
+        expect(subject).to be_empty
+      end
+    end
+  end
 end

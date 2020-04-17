@@ -30,20 +30,10 @@ describe AccessibilityReportsComparerEntity do
             ]
           }
 
-        head_report.errors = 2
+        head_report.errors = 1
         head_report.urls = {
           "https://gitlab.com" =>
             [
-              {
-                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
-                "type" => "error",
-                "typeCode" => 1,
-                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
-                "context" => "<a class=\"site-title active\" rel=\"author\" href=\"/\">\n        <svg version=\"1.0\" xml...</a>",
-                "selector" => "html > body > header > div > nav > a",
-                "runner" => "htmlcs",
-                "runnerExtras" => {}
-              },
               {
                 "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
                 "type" => "error",
@@ -60,8 +50,9 @@ describe AccessibilityReportsComparerEntity do
 
       it 'contains correct compared accessibility report details' do
         expect(subject[:status]).to eq(Gitlab::Ci::Reports::AccessibilityReportsComparer::STATUS_FAILED)
-        expect(subject[:added]).to eq(1)
+        expect(subject[:added]).to eq(0)
         expect(subject[:new_errors].first).to include(:code, :type, :type_code, :message, :context, :selector, :runner, :runner_extras)
+        expect(subject[:resolved_errors].first).to include(:code, :type, :type_code, :message, :context, :selector, :runner, :runner_extras)
       end
     end
   end
