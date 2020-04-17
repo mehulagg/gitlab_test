@@ -208,6 +208,25 @@ class Service < ApplicationRecord
       self.class.find_by(instance: true)
     end
   end
+
+  def self.service_accessor(*args)
+    args.each do |arg|
+      define_method(arg) do
+        return instance_level_service.public_send(arg) if inherit? # rubocop:disable GitlabSecurity/PublicSend
+
+        read_attribute(arg)
+      end
+
+      define_method("#{arg}?") do
+        return !!instance_level_service.public_send(arg) if inherit? # rubocop:disable GitlabSecurity/PublicSend
+
+        read_attribute(arg)
+      end
+    end
+  end
+
+  service_accessor :active, :commit_events, :merge_requests_events, :comment_on_event_enabled
+
   # Provide convenient accessor methods
   # for each serialized property.
   # Also keep track of updated properties in a similar way as ActiveModel::Dirty
