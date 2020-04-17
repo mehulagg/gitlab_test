@@ -216,15 +216,22 @@ class Service < ApplicationRecord
   def self.service_accessor(*args)
     args.each do |arg|
       define_method(arg) do
-        return instance_level_service.public_send(arg) if inherit? # rubocop:disable GitlabSecurity/PublicSend
+        value = read_attribute(arg)
+        return instance_level_service.public_send(arg) if value.nil? && inherit? # rubocop:disable GitlabSecurity/PublicSend
 
-        read_attribute(arg)
+        value
       end
 
       define_method("#{arg}?") do
-        return !!instance_level_service.public_send(arg) if inherit? # rubocop:disable GitlabSecurity/PublicSend
+        value = read_attribute(arg)
+        return !!instance_level_service.public_send(arg) if value.nil? && inherit? # rubocop:disable GitlabSecurity/PublicSend
 
-        read_attribute(arg)
+        !!value
+      end
+
+      define_method("#{arg}=") do |value|
+        value = nil if inherit? && value == instance_level_service.public_send(arg).to_s # rubocop:disable GitlabSecurity/PublicSend
+        write_attribute(arg, value)
       end
     end
   end
@@ -239,7 +246,10 @@ class Service < ApplicationRecord
       class_eval <<~RUBY, __FILE__, __LINE__ + 1
         unless method_defined?(arg)
           def #{arg}
-            properties['#{arg}']
+            value = properties['#{arg}']
+            return instance_level_service.properties['#{arg}'] if value.blank? && inherit?
+
+            value
           end
         end
 

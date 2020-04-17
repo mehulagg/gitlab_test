@@ -5826,7 +5826,7 @@ CREATE TABLE public.services (
     project_id integer,
     created_at timestamp without time zone,
     updated_at timestamp without time zone,
-    active boolean DEFAULT false NOT NULL,
+    active boolean DEFAULT false,
     properties text,
     push_events boolean DEFAULT true,
     issues_events boolean DEFAULT true,
@@ -5838,12 +5838,12 @@ CREATE TABLE public.services (
     wiki_page_events boolean DEFAULT true,
     pipeline_events boolean DEFAULT false NOT NULL,
     confidential_issues_events boolean DEFAULT true NOT NULL,
-    commit_events boolean DEFAULT true NOT NULL,
+    commit_events boolean DEFAULT true,
     job_events boolean DEFAULT false NOT NULL,
     confidential_note_events boolean DEFAULT true,
     deployment_events boolean DEFAULT false NOT NULL,
     description character varying(500),
-    comment_on_event_enabled boolean DEFAULT true NOT NULL,
+    comment_on_event_enabled boolean DEFAULT true,
     template boolean DEFAULT false,
     instance boolean DEFAULT false NOT NULL,
     comment_detail smallint
@@ -13253,6 +13253,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200415161021
 20200415161206
 20200415192656
+20200416105145
 20200416120128
 20200416120354
 \.
