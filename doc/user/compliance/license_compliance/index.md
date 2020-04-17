@@ -354,7 +354,7 @@ For example, this assumes a local Docker registry repository of `localhost:5000/
 include:
     - template: License-Scanning.gitlab-ci.yml
 
-    license_scanning:
+license_scanning:
     image: localhost:5000/analyzers/license-management:latest
 ```
 
