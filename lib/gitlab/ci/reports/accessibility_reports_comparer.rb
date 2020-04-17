@@ -20,14 +20,6 @@ module Gitlab
           head_reports.errors.positive? ? STATUS_FAILED : STATUS_SUCCESS
         end
 
-        def added
-          strong_memoize(:added) do
-            added = head_reports.errors - base_reports.errors
-
-            added.negative? ? 0 : added
-          end
-        end
-
         def existing_errors
           strong_memoize(:exiting_errors) do
             base_reports.urls.values.flatten
@@ -44,6 +36,22 @@ module Gitlab
           strong_memoize(:resolved_errors) do
             base_reports.urls.values.flatten - head_reports.urls.values.flatten
           end
+        end
+
+        def total_count
+          head_reports.errors
+        end
+
+        def resolved_count
+          strong_memoize(:added) do
+            added = head_reports.errors - base_reports.errors
+
+            added.negative? ? 0 : added
+          end
+        end
+
+        def error_count
+          existing_errors.size + new_errors.size
         end
       end
     end

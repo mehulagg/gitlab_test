@@ -31,8 +31,32 @@ describe Gitlab::Ci::Reports::AccessibilityReportsComparer do
     end
   end
 
-  describe '#added' do
-    subject { comparer.added }
+  describe '#total_count' do
+    subject { comparer.total_count }
+
+    context 'when head report has an error' do
+      before do
+        head_reports.errors = 1
+      end
+
+      it 'returns the number of head errors' do
+        expect(subject).to eq(1)
+      end
+    end
+
+    context 'when head reports doe not have an error' do
+      before do
+        head_reports.errors = 0
+      end
+
+      it 'returns the number of head errors' do
+        expect(subject).to eq(0)
+      end
+    end
+  end
+
+  describe '#resolved_count' do
+    subject { comparer.resolved_count }
 
     context 'when base reports have an accessibility report and head has more errors' do
       before do
@@ -74,6 +98,98 @@ describe Gitlab::Ci::Reports::AccessibilityReportsComparer do
 
       it 'returns the number of new errors' do
         expect(subject).to eq(1)
+      end
+    end
+  end
+
+  describe '#error_count' do
+    subject { comparer.error_count }
+
+    context 'when head report has an error' do
+      before do
+        head_reports.urls = {
+          "https://gitlab.com" =>
+            [
+              {
+                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+                "type" => "error",
+                "typeCode" => 1,
+                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+                "context" => "<a class=\"site-title active\" rel=\"author\" href=\"/\">\n        <svg version=\"1.0\" xml...</a>",
+                "selector" => "html > body > header > div > nav > a",
+                "runner" => "htmlcs",
+                "runnerExtras" => {}
+              }
+            ]
+          }
+      end
+
+      it 'returns the error count' do
+        expect(subject).to eq(1)
+      end
+    end
+
+    context 'when base report has an error' do
+      before do
+        base_reports.urls = {
+          "https://gitlab.com" =>
+            [
+              {
+                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+                "type" => "error",
+                "typeCode" => 1,
+                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+                "context" => "<a class=\"site-title active\" rel=\"author\" href=\"/\">\n        <svg version=\"1.0\" xml...</a>",
+                "selector" => "html > body > header > div > nav > a",
+                "runner" => "htmlcs",
+                "runnerExtras" => {}
+              }
+            ]
+          }
+      end
+
+      it 'returns the error count' do
+        expect(subject).to eq(1)
+      end
+    end
+
+    context 'when base report has errors and head report has errors' do
+      before do
+        base_reports.urls = {
+          "https://gitlab.com" =>
+            [
+              {
+                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+                "type" => "error",
+                "typeCode" => 1,
+                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+                "context" => "<a class=\"site-title active\" rel=\"author\" href=\"/\">\n        <svg version=\"1.0\" xml...</a>",
+                "selector" => "html > body > header > div > nav > a",
+                "runner" => "htmlcs",
+                "runnerExtras" => {}
+              }
+            ]
+          }
+
+        head_reports.urls = {
+          "https://gitlab.com" =>
+            [
+              {
+                "code" => "WCAG2AA.Principle4.Guideline4_1.4_1_2.H91.A.NoContent",
+                "type" => "error",
+                "typeCode" => 1,
+                "message" => "Anchor element found with a valid href attribute, but no link content has been supplied.",
+                "context" => "<a class=\"social-icon\" target=\"_blank\" href=\"https://gitlab.com\" rel=\"nofollow noopener noreferrer\">\n        <svg xmlns=\"http://www...</a>",
+                "selector" => "html > body > header > div > nav > a",
+                "runner" => "htmlcs",
+                "runnerExtras" => {}
+              }
+            ]
+          }
+      end
+
+      it 'returns the error count' do
+        expect(subject).to eq(2)
       end
     end
   end
@@ -132,7 +248,7 @@ describe Gitlab::Ci::Reports::AccessibilityReportsComparer do
       end
     end
 
-    context 'when base reports have an accessibility report and head has no errors' do
+    context 'when base reports has an error and head has no errors' do
       before do
         base_reports.urls = {
           "https://gitlab.com" =>
@@ -155,9 +271,8 @@ describe Gitlab::Ci::Reports::AccessibilityReportsComparer do
         }
       end
 
-      it 'returns diff between base and head reports' do
-        expect(subject.size).to eq(1)
-        expect(subject.first["message"]).to include("no link content has been supplied")
+      it 'returns an empty array' do
+        expect(subject).to be_empty
       end
     end
 
@@ -180,8 +295,8 @@ describe Gitlab::Ci::Reports::AccessibilityReportsComparer do
           }
       end
 
-      it 'returns an empty diff' do
-        expect(subject).to be_empty
+      it 'returns the new error' do
+        expect(subject.size).to eq(1)
       end
     end
   end
