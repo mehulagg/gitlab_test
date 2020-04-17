@@ -6,8 +6,9 @@ const yAxisBoundaryGap = [0.1, 0.1];
  * Max string length of formatted axis tick
  */
 const maxDataAxisTickLength = 8;
+
 //  Defaults
-const defaultFormat = SUPPORTED_FORMATS.engineering;
+const defaultFormat = SUPPORTED_FORMATS.number;
 
 const defaultYAxisFormat = defaultFormat;
 const defaultYAxisPrecision = 2;
@@ -25,7 +26,8 @@ const chartGridLeft = 75;
  * @param {Object} param - Dashboard .yml definition options
  */
 const getDataAxisOptions = ({ format, precision, name }) => {
-  const formatter = getFormatter(format); // default to engineeringNotation, same as gitlab-ui
+  const formatter = getFormatter(format);
+
   return {
     name,
     nameLocation: 'center', // same as gitlab-ui's default
