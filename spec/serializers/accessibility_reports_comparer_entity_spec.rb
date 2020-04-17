@@ -53,6 +53,7 @@ describe AccessibilityReportsComparerEntity do
         expect(subject[:added]).to eq(0)
         expect(subject[:new_errors].first).to include(:code, :type, :type_code, :message, :context, :selector, :runner, :runner_extras)
         expect(subject[:resolved_errors].first).to include(:code, :type, :type_code, :message, :context, :selector, :runner, :runner_extras)
+        expect(subject[:existing_errors].first).to include(:code, :type, :type_code, :message, :context, :selector, :runner, :runner_extras)
       end
     end
   end

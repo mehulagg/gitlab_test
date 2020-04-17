@@ -5,4 +5,5 @@ class AccessibilityReportsComparerEntity < Grape::Entity
   expose :added
   expose :new_errors, using: AccessibilityErrorEntity
   expose :resolved_errors, using: AccessibilityErrorEntity
+  expose :existing_errors, using: AccessibilityErrorEntity
 end

@@ -28,6 +28,12 @@ module Gitlab
           end
         end
 
+        def existing_errors
+          strong_memoize(:exiting_errors) do
+            base_reports.urls.values.flatten
+          end
+        end
+
         def new_errors
           strong_memoize(:new_errors) do
             head_reports.urls.values.flatten - base_reports.urls.values.flatten
