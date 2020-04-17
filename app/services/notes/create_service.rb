@@ -68,10 +68,9 @@ module Notes
     end
 
     def do_commands(note, execution_response)
-      return if execution_response.count.zero? || execution_response.updates.empty?
+      return if execution_response.noop?
 
-      ::Notes::QuickActionsService.apply_updates(execution_response.updates, note)
-      note.commands_changes = execution_response.updates
+      ::Notes::QuickActionsService.apply_updates(execution_response, note)
     end
 
     # Execution messages are reported in a side channel in the errors messages
@@ -81,7 +80,7 @@ module Notes
 
       note.errors.add(:command_warnings, warnings) if warnings.present?
       note.errors.add(:command_messages, messages) if messages.present?
-      note.errors.add(:commands_only, _('Note only contained commands'))
+      note.errors.add(:commands_only, _('Note only contained commands.'))
     end
 
     def quick_action_options

@@ -4,7 +4,7 @@ require 'spec_helper'
 
 RSpec.describe Notes::CreateService do
   let_it_be(:project) { create(:project, :repository) }
-  let_it_be(:issue) { create(:issue, project: project) }
+  let_it_be(:issue, reload: true) { create(:issue, project: project) }
   let_it_be(:user) { create(:user) }
   let(:opts) do
     { note: 'Awesome comment', noteable_type: 'Issue', noteable_id: issue.id }
@@ -321,7 +321,10 @@ RSpec.describe Notes::CreateService do
         end
 
         it 'adds commands applied message to note errors' do
-          expect(note.errors.messages).to eq(commands_only: ['Closed this issue.'])
+          expect(note.errors.messages).to eq(
+            commands_only: ['Note only contained commands.'],
+            command_messages: ['Closed this issue.']
+          )
         end
 
         context 'there was a problem applying a command' do
@@ -331,8 +334,34 @@ RSpec.describe Notes::CreateService do
 
           it 'reports the warning' do
             expect(note.errors.messages).to include(
-              commands: ['Cannot call close.'],
-              commands_only: ['Failed to apply commands.']
+              commands_only: ['Note only contained commands.'],
+              command_warnings: ['Failed to apply one command.']
+            )
+          end
+        end
+
+        context 'there was a problem applying a command with a specific message' do
+          let(:note_text) { '/due bad-date' }
+
+          it 'reports the warning' do
+            expect(note.errors.messages).to include(
+              commands_only: ['Note only contained commands.'],
+              command_warnings: include(a_string_matching(/due date/))
+            )
+          end
+        end
+
+        context 'there was a problem applying several commands' do
+          let(:note_text) { "/close\n/label ~missing" }
+
+          before do
+            issue.close
+          end
+
+          it 'reports the warning' do
+            expect(note.errors.messages).to include(
+              commands_only: ['Note only contained commands.'],
+              command_warnings: ['Failed to apply 2 commands.']
             )
           end
         end

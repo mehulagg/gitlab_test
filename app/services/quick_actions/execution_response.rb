@@ -2,7 +2,7 @@
 
 module QuickActions
   class ExecutionResponse
-    attr_reader :content, :updates, :messages, :warnings, :count
+    attr_reader :content, :updates, :messages, :count
 
     def initialize(content, user, updates: {}, messages: '', warnings: '', count: 0, commands: [])
       @content = content
@@ -12,6 +12,15 @@ module QuickActions
       @warnings = warnings
       @count = count
       @commands = commands.freeze
+    end
+
+    def warnings
+      if @warnings.blank? && commands.present? && commands.size != count
+        not_run = [0, commands.size - count].max
+        @warnings = n_('Failed to apply one command.', 'Failed to apply %{n} commands.', not_run) % { n: not_run }
+      else
+        @warnings
+      end
     end
 
     def only_commands?
