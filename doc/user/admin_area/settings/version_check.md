@@ -25,7 +25,7 @@ secure.
 If you disable version check, this information will not be collected. Enable or
 disable the version check in **Admin Area > Settings > Metrics and profiling > Usage statistics**.
 
-### Request flow example
+## Request flow example
 
 The following example shows a basic request/response flow between the self-managed GitLab instance
 and the GitLab Version Application:
