@@ -455,9 +455,37 @@ You can run the GitLab Pages daemon on a separate server in order to decrease th
 
 To configure GitLab Pages on a separate server:
 
+   DANGER: **Danger:**
+   The `gitlab-secrets.json` file contains secrets that control database encryption.
+   Do not edit or replace this file on the **GitLab server** or you might
+   experience permanent data loss. Make a backup copy of this file before proceeding,
+   as explained in the following steps.
+
+1. On the **GitLab server**, to enable Pages, add the following to `/etc/gitlab/gitlab.rb`:
+
+   ```ruby
+   gitlab_pages['enable'] = true
+   ```
+
+1. Optionally, to enable access control, add the following to `/etc/gitlab/gitlab.rb` :
+
+   ```ruby
+   gitlab_pages['access_control'] = true
+   ```
+
+1. [Reconfigure the **GitLab server**](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the
+   changes to take effect. The `gitlab-secrets.json` file is now updated with the
+   new configuration.
+
+1. Create a backup of the secrets file on the **GitLab server**:
+
+   ```shell
+   cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak
+   ```
+
 1. Set up a new server. This will become the **Pages server**.
 
-1. Create an NFS share on the new server and configure this share to
+1. Create an [NFS share](../high_availability/nfs_host_client_setup.md) on the new server and configure this share to
    allow access from your main **GitLab server**. For this example, we use the
    default GitLab Pages folder `/var/opt/gitlab/gitlab-rails/shared/pages`
    as the shared folder on the new server and we will mount it to `/mnt/pages`
@@ -481,6 +509,15 @@ To configure GitLab Pages on a separate server:
    gitlab_rails['auto_migrate'] = false
    ```
 
+1. Create a backup of the secrets file on the **Pages server**:
+
+   ```shell
+   cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak
+   ```
+
+1. Copy the `/etc/gitlab/gitlab-secrets.json` file from the **GitLab server**
+   to the **Pages server**.
+
 1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
 
 1. On the **GitLab server**, make the following changes to `/etc/gitlab/gitlab.rb`:
@@ -500,94 +537,34 @@ configuring a load balancer to work at the IP level, and so on. If you wish to
 set up GitLab Pages on multiple servers, perform the above procedure for each
 Pages server.
 
-### Sync secrets with GitLab server when running GitLab Pages on a seprate server
-
-If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-a-separate-server),
-and you want to enable [access-control](#access-control) or use
-[GitLab Pages API-based configuration](#gitlab-pages-api-based-configuration),
-then you must use the following procedure to sync secrets between your instances:
-
-   DANGER: **Danger:**
-   The `gitlab-secrets.json` file contains secrets that control database encryption.
-   Do not edit or replace this file on the **GitLab server** or you might
-   experience permanent data loss. Make a backup copy of this file before proceeding,
-   as explained in the following steps.
-
-1. Create a backup of the secrets file on the **GitLab server**:
-
-   ```shell
-   cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak
-   ```
-
-1. Create a backup of the secrets file on the **Pages server**:
-
-   ```shell
-   cp /etc/gitlab/gitlab-secrets.json /etc/gitlab/gitlab-secrets.json.bak
-   ```
-
-1. Open the `/etc/gitlab/gitlab-secrets.json` file on the **GitLab server**
-   and copy the value of the `gitlab_pages` section to the
-   `/etc/gitlab/gitlab-secrets.json` file on the **Pages server**
-
-1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
-
-### Access control when running GitLab Pages on a separate server
-
-If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-a-separate-server),
-then you must use the following procedure to configure [access control](#access-control):
-
-1. On the **GitLab server**, add the following to `/etc/gitlab/gitlab.rb`:
-
-   ```ruby
-   gitlab_pages['enable'] = true
-   gitlab_pages['access_control'] = true
-   ```
-
-1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the
-   changes to take effect. The `gitlab-secrets.json` file is now updated with the
-   new configuration.
-
-1. [Sync secrets with GitLab server when running GitLab Pages on a seprate server](#sync-secrets-with-gitlab-server-when-running-gitlab-pages-on-a-seprate-server)
-
-1. Disable Pages on the **GitLab server** by setting the following in
-   `/etc/gitlab/gitlab.rb`:
-
-   ```ruby
-   gitlab_pages['enable'] = false
-   ```
-
-1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
-
-1. On your **Pages server**, add the following to `/etc/gitlab/gitlab.rb`:
-
-   ```ruby
-   gitlab_pages['gitlab_server'] = "https://<your-gitlab-server-URL>"
-   gitlab_pages['access_control'] = true
-   ```
-
-1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
-
 ### GitLab Pages API-based configuration
 
-> [Introduced](https://gitlab.com/gitlab-org/gitlab-pages/issues/282) in GitLab 12.10.
+> [Introduced](https://gitlab.com/gitlab-org/gitlab-pages/issues/282) in GitLab 13.0.
 
-GitLab Pages new API-based configuration is now available in 13.0 and will replace the
-disk source configuration. You still can use the old configuration for next year,
-although we don't recommend it and new features will not be supported. In many cases,
-GitLab Pages will automatically switch to the API-based configuration without any action.
-If you host GitLab Pages on a separate server, see the
-[how to use API-Based configuration](#how-to-use-api-based-configuration) section.
-Should you encounter an issue with the new configuration, you can
-[disable it](#disable-api-based-configuration) and report an issue.
+GitLab Pages uses an API-based configuration. This replaces disk source configuration, which
+was used prior to GitLab 13.0.
 
-#### How to use API-based configuration
+If you are using disk source configuration, in most cases GitLab Pages will automatically
+switch to the API-based configuration and use disk source configuration in case of errors.
 
-If you are [running GitLab Pages on a separate server](#running-gitlab-pages-on-a-separate-server),
-you must [Sync secrets with GitLab server when running GitLab Pages on a seprate server](#sync-secrets-with-gitlab-server-when-running-gitlab-pages-on-a-seprate-server).
+NOTE: **NOTE**
+If you are [Running GitLab Pages on a separate server](#running-gitlab-pages-on-a-separate-server),
+you will need to have copied the `/etc/gitlab/gitlab-secrets.json` file
+from the **GitLab server** to the **Pages server** after upgrading to GitLab 13.0.
+
+Disk source configuration is available until the end of 2021. You should switch to the
+API-based configuration as soon as possible.
+
+If you encounter an issue, you can
+[disable the API-based configuration](#disable-api-based-configuration) and report an issue.
 
 #### Disable API-based configuration
 
-If you run into some problems with API configuration source, you can disable it by following these steps:
+CAUTION: **Warning:**
+The `disable_gitlab_config_source` configuration flag will be removed in 14.0.
+
+If you have problems with API-based source configuration,
+you can disable it by following these steps:
 
 1. On your **Pages server**, add the following to `/etc/gitlab/gitlab.rb`:
 
@@ -650,3 +627,18 @@ The fix is to correct the source file permissions and restart Pages:
 sudo chmod 644 /opt/gitlab/embedded/ssl/certs/cacert.pem
 sudo gitlab-ctl restart gitlab-pages
 ```
+
+### `GitLab API is not configured` in pages logs
+
+If you are [Running GitLab Pages on a separate server](#running-gitlab-pages-on-a-separate-server),
+and you see the following warning message
+
+```plaintext
+WARN[0000] GitLab API is not configured                  error="failed to connect to internal pages API: HTTP status: 401"
+```
+
+you will need to have copied the `/etc/gitlab/gitlab-secrets.json` file
+from the **GitLab server** to the **Pages server** after upgrading to GitLab 13.0.
+
+you need to sync `gitlab-pages.json` file from your main GitLab server to
+GitLab Pages server.
