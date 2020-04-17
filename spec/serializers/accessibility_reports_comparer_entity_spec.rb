@@ -51,7 +51,7 @@ describe AccessibilityReportsComparerEntity do
       it 'contains correct compared accessibility report details' do
         expect(subject[:status]).to eq(Gitlab::Ci::Reports::AccessibilityReportsComparer::STATUS_FAILED)
         expect(subject[:new_errors].first).to include(:code, :type, :type_code, :message, :context, :selector, :runner, :runner_extras)
-        expect(subject[:resolved_errors].first).to include(:code, :type, :type_code, :message, :context, :selector, :runner, :runner_extras)
+        expect(subject[:resolved_errors]).to be_empty
         expect(subject[:existing_errors].first).to include(:code, :type, :type_code, :message, :context, :selector, :runner, :runner_extras)
         expect(subject[:summary]).to include(:total, :resolved, :errored)
       end

@@ -34,7 +34,7 @@ module Gitlab
 
         def resolved_errors
           strong_memoize(:resolved_errors) do
-            base_reports.urls.values.flatten - head_reports.urls.values.flatten
+            base_reports.urls.values.flatten & head_reports.urls.values.flatten
           end
         end
 
@@ -43,11 +43,7 @@ module Gitlab
         end
 
         def resolved_count
-          strong_memoize(:added) do
-            added = head_reports.errors - base_reports.errors
-
-            added.negative? ? 0 : added
-          end
+          resolved_errors.size
         end
 
         def error_count
