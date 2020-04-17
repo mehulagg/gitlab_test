@@ -17,10 +17,10 @@ module QA
         end
       end
 
-      before do
-        @elasticsearch_original_state_on = Runtime::Search.elasticsearch_on?(api_client)
+      let(:elasticsearch_original_state_on?) { Runtime::Search.elasticsearch_on?(api_client) }
 
-        unless @elasticsearch_original_state_on
+      before do
+        unless elasticsearch_original_state_on?
           QA::EE::Resource::Settings::Elasticsearch.fabricate_via_api!
           sleep(60)
           # wait for the change to propagate before inserting records or else
@@ -30,11 +30,16 @@ module QA
           # as per this issue https://gitlab.com/gitlab-org/quality/team-tasks/issues/395
         end
 
-        Runtime::Project.push_file_to_project(project, 'elasticsearch.rb', "elasticsearch: #{SecureRandom.hex(8)}")
+        Resource::Repository::Commit.fabricate_via_api! do |commit|
+          commit.project = project
+          commit.add_files([
+            { file_path: 'elasticsearch.rb', content: "elasticsearch: #{SecureRandom.hex(8)}" }
+          ])
+        end
       end
 
       after do
-        if !@elasticsearch_original_state_on && !api_client.nil?
+        if !elasticsearch_original_state_on? && !api_client.nil?
           Runtime::Search.disable_elasticsearch(api_client)
         end
       end
