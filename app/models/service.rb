@@ -82,6 +82,10 @@ class Service < ApplicationRecord
     active
   end
 
+  def operating?
+    active && persisted?
+  end
+
   def show_active_box?
     true
   end
