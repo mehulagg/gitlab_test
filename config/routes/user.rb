@@ -27,7 +27,7 @@ devise_for :users, controllers: { omniauth_callbacks: :omniauth_callbacks,
 devise_scope :user do
   get '/users/auth/:provider/omniauth_error' => 'omniauth_callbacks#omniauth_error', as: :omniauth_error
   get '/users/almost_there' => 'confirmations#almost_there'
-  get '/users/qa_sign_in' => 'qa_sessions#create'
+  get '/users/qa_sign_in' => 'qa_sessions#create' if ENV['GITLAB_QA_FORMLESS_LOGIN_TOKEN'].present?
 end
 
 scope '-/users', module: :users do
