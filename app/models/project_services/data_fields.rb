@@ -11,13 +11,15 @@ module DataFields
         self.class_eval <<-RUBY, __FILE__, __LINE__ + 1
           unless method_defined?(arg)
             def #{arg}
-              return instance_level_service.public_send('#{arg}') if inherit?
+              value = data_fields.public_send('#{arg}') || (properties && properties['#{arg}'])
+              return instance_level_service.public_send('#{arg}') if value.blank? && inherit?
 
-              data_fields.public_send('#{arg}') || (properties && properties['#{arg}'])
+              value
             end
           end
 
           def #{arg}=(value)
+            value = nil if inherit? && value == instance_level_service.public_send('#{arg}')
             @old_data_fields ||= {}
             @old_data_fields['#{arg}'] ||= #{arg} # set only on the first assignment, IOW we remember the original value only
             data_fields.send('#{arg}=', value)
