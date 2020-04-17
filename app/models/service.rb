@@ -7,6 +7,7 @@ class Service < ApplicationRecord
   include Importable
   include ProjectServicesLoggable
   include DataFields
+  include Gitlab::Utils::StrongMemoize
 
   SERVICE_NAMES = %w[
     alerts asana assembla bamboo bugzilla buildkite campfire custom_issue_tracker discord
@@ -202,6 +203,11 @@ class Service < ApplicationRecord
     !instance?
   end
 
+  def instance_level_service
+    strong_memoize(:instance_level_service) do
+      self.class.find_by(instance: true)
+    end
+  end
   # Provide convenient accessor methods
   # for each serialized property.
   # Also keep track of updated properties in a similar way as ActiveModel::Dirty

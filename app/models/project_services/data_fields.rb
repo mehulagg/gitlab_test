@@ -11,7 +11,9 @@ module DataFields
         self.class_eval <<-RUBY, __FILE__, __LINE__ + 1
           unless method_defined?(arg)
             def #{arg}
-              data_fields.send('#{arg}') || (properties && properties['#{arg}'])
+              return instance_level_service.public_send('#{arg}') if inherit?
+
+              data_fields.public_send('#{arg}') || (properties && properties['#{arg}'])
             end
           end
 
