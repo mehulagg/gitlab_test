@@ -7,8 +7,10 @@ class EntityRequest
   # that is present in the controller (see  #20045).
   #
   def initialize(parameters)
-    parameters.each do |key, value|
-      define_singleton_method(key) { value }
-    end
+    @_attributes = parameters
+  end
+
+  def method_missing(key, *_)
+    @_attributes.has_key?(key) ? @_attributes[key] : super
   end
 end
