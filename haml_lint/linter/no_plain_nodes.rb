@@ -51,6 +51,7 @@ module HamlLint
         attributes = node.attributes_source.map(&:last)
         attributes.each { |attribute| text = text.gsub(attribute, '') }
 
+        text = strip_html_entities(text)
         text.strip
       end
 
@@ -77,7 +78,12 @@ module HamlLint
       def text_node?(node)
         return false unless plain_node?(node)
 
-        !node.text.empty?
+        text = strip_html_entities(node.text)
+        !text.empty?
+      end
+
+      def strip_html_entities(text)
+        text.sub("&nbsp;", "")
       end
     end
   end

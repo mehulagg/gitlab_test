@@ -53,4 +53,19 @@ describe HamlLint::Linter::NoPlainNodes do
 
     it { is_expected.to report_lint count: 3 }
   end
+
+  context 'does not report when a html entity' do
+    let(:haml) { '&nbsp;' }
+
+    it { is_expected.not_to report_lint }
+  end
+
+  context 'does not report multiline when a html entity' do
+    let(:haml) { <<-HAML }
+      %tag
+        &nbsp;
+    HAML
+
+    it { is_expected.not_to report_lint }
+  end
 end
