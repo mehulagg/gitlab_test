@@ -14,6 +14,7 @@ module Gitlab
       end
 
       def call(env)
+        stat = RubyVM.stat
         trans = Gitlab::Metrics.current_transaction
         proxy_start = env['HTTP_GITLAB_WORKHORSE_PROXY_START'].presence
         if trans && proxy_start
@@ -27,6 +28,9 @@ module Gitlab
         end
 
         @app.call(env)
+      ensure
+        diff = RubyVM.stat.merge(stat) { |_, o, n| o - n }.reject { |_, v| v == 0 }
+        puts diff if diff.any?
       end
 
       private
