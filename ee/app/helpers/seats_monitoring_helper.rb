@@ -4,7 +4,8 @@ module SeatsMonitoringHelper
   include Gitlab::Utils::StrongMemoize
 
   def display_overage_warning?
-    license_is_over_capacity?
+    current_user&.admin? &&
+      license_is_over_capacity?
   end
 
   private
