@@ -14,6 +14,7 @@ module Gitlab
               raise CannotOverrideMethodError.new("#{subject} already respond to #{key}!")
             end
 
+            p define: key
             define_singleton_method(key) { value }
           end
 

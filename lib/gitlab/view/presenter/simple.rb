@@ -9,9 +9,11 @@ module Gitlab
         def initialize(subject, **attributes)
           @subject = subject
 
-          attributes.each do |key, value|
-            define_singleton_method(key) { value }
-          end
+          @_attributes = attributes
+        end
+
+        def method_missing(key, *_)
+          @_attributes.has_key?(key) ? @_attributes[key] : super
         end
       end
     end
