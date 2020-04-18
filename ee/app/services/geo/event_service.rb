@@ -10,12 +10,12 @@ module Geo
 
     def initialize(replicable_name, event_name, payload)
       @replicable_name = replicable_name
-      @event_name = event_name
-      @payload = payload
+      @event_name = event_name.to_sym
+      @payload = payload.symbolize_keys
     end
 
     def execute
-      replicator.consume(event_name, payload)
+      replicator.consume(event_name, **payload)
     end
 
     private
