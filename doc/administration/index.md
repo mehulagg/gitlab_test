@@ -46,7 +46,7 @@ Learn how to install, configure, update, and maintain your GitLab instance.
 - [Adjust your instance's timezone](timezone.md): Customize the default time zone of GitLab.
 - [System hooks](../system_hooks/system_hooks.md): Notifications when users, projects and keys are changed.
 - [Security](../security/README.md): Learn what you can do to further secure your GitLab instance.
-- [Version check](../user/admin_area/settings/version_ping.md): Enable or disable version check.
+- [Version check](../user/admin_area/settings/version_check.md): Enable or disable version check.
 - [Usage ping](../telemetry/usage_ping.md): Enable or disable usage ping sent to GitLab, Inc.
 - [Global user settings](user_settings.md): Configure instance-wide user permissions.
 - [Polling](polling.md): Configure how often the GitLab UI polls for updates.

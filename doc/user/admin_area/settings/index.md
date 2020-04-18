@@ -79,7 +79,7 @@ Access the default page for admin area settings by navigating to
 | [Metrics - Grafana](../../../administration/monitoring/performance/grafana_configuration.md#integration-with-gitlab-ui) | Enable and configure Grafana. |
 | [Profiling - Performance bar](../../../administration/monitoring/performance/performance_bar.md#enable-the-performance-bar-via-the-admin-panel) | Enable access to the Performance Bar for a given group. |
 | [Self monitoring](../../../administration/monitoring/gitlab_self_monitoring_project/index.md#creating-the-self-monitoring-project) | Enable or disable instance self monitoring. |
-| [Version ping](version_ping.md) | Enable or disable version ping. |
+| [Version ping](version_check.md) | Enable or disable version ping. |
 | [Usage ping](../../../telemetry/usage_ping.md) | Enable or disable usage ping. |
 | [Pseudonymizer data collection](../../../administration/pseudonymizer.md) **(ULTIMATE)** | Enable or disable the Pseudonymizer data collection. |
 
