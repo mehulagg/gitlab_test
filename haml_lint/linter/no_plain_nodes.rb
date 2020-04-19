@@ -83,7 +83,7 @@ module HamlLint
       end
 
       def strip_html_entities(text)
-        text.sub("&nbsp;", "")
+        text.gsub(/&([a-z0-9]+|#[0-9]{1,6}|#x[0-9a-f]{1,6});/i, "")
       end
     end
   end
