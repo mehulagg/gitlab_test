@@ -2,15 +2,15 @@
 
 class PreviewMarkdownService < BaseService
   def execute
-    text, commands = explain_quick_actions(params[:text])
-    users = find_user_references(text)
-    suggestions = find_suggestions(text)
+    explanation = explain_quick_actions(params[:text])
+    users = find_user_references(explanation.content)
+    suggestions = find_suggestions(explanation.content)
 
     success(
-      text: text,
+      text: explanation.content,
       users: users,
       suggestions: suggestions,
-      commands: commands.join(' ')
+      commands: explanation.messages.join(' ')
     )
   end
 
