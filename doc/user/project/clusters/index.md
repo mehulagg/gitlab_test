@@ -125,14 +125,17 @@ applications running on the cluster.
 > - Became [optional](https://gitlab.com/gitlab-org/gitlab-foss/-/merge_requests/26565) in GitLab 11.11.
 
 You can choose to allow GitLab to manage your cluster for you. If your cluster is
-managed by GitLab, resources for your projects will be automatically created. See the
-[Access controls](add_remove_clusters.md#access-controls) section for details on which resources will
-be created.
+managed by GitLab, access-control resources will be automatically created for your project. See the
+[Access controls](add_remove_clusters.md#access-controls) for more details on the resources created.
 
-If you choose to manage your own cluster, project-specific resources will not be created
+Note: It is important to understand how to use service-accounts generated in a GitLab-managed
+cluster. See the [Helm in GitLab-managed clusters](./add_remove_clusters.md) section, as well as the -Kubernetes
+service-account documentation]() for more examples.
+
+If you choose to manage your own cluster, the access-control resources will not be created
 automatically. If you are using [Auto DevOps](../../../topics/autodevops/index.md), you will
 need to explicitly provide the `KUBE_NAMESPACE` [deployment variable](#deployment-variables)
-that will be used by your deployment jobs, otherwise a namespace will be created for you.
+which will be used by your deployment jobs, otherwise a namespace will be created for you.
 
 #### Important notes
 

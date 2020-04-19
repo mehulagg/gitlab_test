@@ -342,7 +342,73 @@ When removing the cluster integration, note:
 - When you remove a cluster, you only remove its relationship to GitLab, not the cluster itself. To
   remove the cluster, you can do so by visiting the GKE or EKS dashboard, or using `kubectl`.
 
-## Learn more
+## Using Helm to Deploy Applications
 
-To learn more on automatically deploying your applications,
-read about [Auto DevOps](../../../topics/autodevops/index.md).
+There are several ways of deploying your application via Helm. Depending on your needs, you can
+choose to [deploy your own Helm](https://helm.sh/docs/intro/quickstart/) or if you are resource constrained you can use the Helm
+provided by [GitLab Managed Apps](../../clusters/applications.md#helm).
+
+If Helm is installed via the [GitLab Managed Apps](../../clusters/applications.md#helm), it will be deployed with Tiller and
+TLS enabled, along with the following resources:
+
+- ServiceAccount(`tiller`): Used to run Tiller pod.
+- Deployment(`tiller-deploy`): Schedules the Tiller pod, using the Tiller service account.
+- Service(`tiller-deploy`): Exposes the Tiller pod to the cluster network.
+- Secret(`tiller-secret`): Contains the TLS certificates.
+
+NOTE: **Note:**
+GitLab will upgrade to [Helm v3](https://gitlab.com/gitlab-org/gitlab/issues/120021) in future releases
+which remove the need for Tiller.
+
+When using a GitLab-managed cluster, everything in the pipeline will be deployed in it's own namespace,
+using its own service account, therefore, the service account won't have permissions to access the Tiller secret,
+needed to extract the TLS certificates. With a priviledged account, you can extract the certificates and save them
+in your project's variables.
+
+```bash
+# grab the tls certificates from the tiller-secret and pipe to a file
+$ export TILLER_NAMESPACE=gitlab-managed-apps
+$ kubectl get secrets/tiller-secret -n "$TILLER_NAMESPACE" -o "jsonpath={.data['ca\.crt']}"
+$ kubectl get secrets/tiller-secret -n "$TILLER_NAMESPACE" -o "jsonpath={.data['tls\.crt']}"
+$ kubectl get secrets/tiller-secret -n "$TILLER_NAMESPACE" -o "jsonpath={.data['tls\.key']}"
+```
+
+Once you have obtained the certificates you must add them to your project's environment variables,
+located in `Settings > CI/CD`:
+
+![Helm TLS Environment Variables](./img/helm_tls_variables.png)
+
+NOTE: **Note:**
+These credentials are specific to the Tiller on your Kubernetes cluster, installed via
+GitLab Managed Apps. The certs should be kept secret in the settings, so that only
+priviledged users can see them.
+
+An example of a deployment using Helm to deploy your applications is as follows:
+
+```yaml
+deploy_staging:
+  # using a container image containing helm
+  image: registry.gitlab.com/gitlab-org/cluster-integration/helm-install-image/releases/2.13.1-kube-1.11.9
+  stage: deploy
+  variables:
+    TILLER_NAMESPACE: gitlab-managed-apps
+  script:
+    # save the certs
+    - echo $TILLER_CA | base64 -d > tiller-ca.crt
+    - echo $TILLER_CERT | base64 -d > tiller.crt
+    - echo $TILLER_KEY | base64 -d > tiller.key
+    # test that helm and tiller can respond
+    - helm version --tiller-connection-timeout 30 --tls --tls-ca-cert tiller-ca.crt --tls-cert tiller.crt --tls-key tiller.key --tiller-namespace $TILLER_NAMESPACE
+    # upgrade or install the image
+    - helm upgrade -f helm/values.yaml --set image=<YOUR_IMG> --install <RELEASE_NAME> <CHART_PATH> --tiller-connection-timeout 30 --tls --tls-ca-cert tiller-ca.crt --tls-cert tiller.crt --tls-key tiller.key --tiller-namespace $TILLER_NAMESPACE
+  environment:
+    name: staging
+```
+
+## Automatically Deploy Applications
+
+You can automatically deploy your applications using Auto DevOps. Auto DevOps provides
+pre-defined CI/CD configuration which allows you to automatically detect, build, test,
+deploy, and monitor your applications.
+
+See [Auto DevOps](../../../topics/autodevops/index.md) to learn more.
