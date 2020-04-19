@@ -13,7 +13,7 @@ module Notes
         note.save
       end
 
-      quick_actions_service = QuickActionsService.new(project, note, current_user)
+      quick_actions_service = QuickActionsService.new(project, current_user)
       response = quick_actions_service.execute(note)
 
       note.note = response.content
@@ -26,11 +26,11 @@ module Notes
 
       if response.count > 0
         if response.updates.present?
-          quick_actions_service.apply_updates(response.updates, note)
-          note.commands_changes = update_params
+          QuickActionsService.apply_updates(response, note)
+          note.commands_changes = response.updates
         end
 
-        if only_commands
+        if response.only_commands?
           delete_note(note, response.messages, response.warnings)
           note = nil
         else

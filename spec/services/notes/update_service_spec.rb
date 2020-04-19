@@ -27,7 +27,7 @@ RSpec.describe Notes::UpdateService do
   describe '#execute' do
     def update_note(opts)
       @note = Notes::UpdateService.new(project, user, opts).execute(note)
-      @note.reload
+      @note.reload if @note
     end
 
     it 'does not update the note when params is blank' do
@@ -56,6 +56,44 @@ RSpec.describe Notes::UpdateService do
 
         expect(note.suggestions.order(:relative_order).map(&:to_content))
           .to eq(["  foo\n", "  bar\n"])
+      end
+    end
+
+    context 'when the new note contains a new quick-action' do
+      let(:old_note) { 'some old note content' }
+      let(:note) { create(:note, project: project, noteable: issue, author: user, note: old_note) }
+
+      before do
+        update_note({ note: "#{old_note}\n/close" })
+      end
+
+      it 'applies the quick action' do
+        expect(issue).to be_closed
+      end
+
+      it 'includes the command changes on the note' do
+        expect(note.commands_changes).to eq({ state_event: 'close' })
+      end
+    end
+
+    context 'when the new note only contains a quick action' do
+      let(:old_note) { 'some old note content' }
+      let(:note) { create(:note, project: project, noteable: issue, author: user, note: old_note) }
+
+      before do
+        update_note({ note: '/close' })
+      end
+
+      it 'applies the quick action' do
+        expect(issue).to be_closed
+      end
+
+      it 'deletes the note' do
+        expect { Note.find(note.id) }.to raise_error(ActiveRecord::RecordNotFound)
+      end
+
+      it 'returns nil' do
+        expect(@note).to be_nil
       end
     end
 
