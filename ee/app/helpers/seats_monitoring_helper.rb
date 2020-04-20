@@ -8,6 +8,21 @@ module SeatsMonitoringHelper
       license_is_over_capacity?
   end
 
+  def banner_content
+    end_of_conciliation_period = current_license.current_conciliation_period&.last
+
+    return unless end_of_conciliation_period
+
+    one_week_before = end_of_conciliation_period.weeks_ago(1)
+    today = Date.today
+
+    if (one_week_before..end_of_conciliation_period).cover?(today)
+      # banner_1 content
+    elsif today > end_of_conciliation_period
+      # banner_2 content
+    end
+  end
+
   private
 
   def license_is_over_capacity?

@@ -218,6 +218,8 @@ class License < ApplicationRecord
     usage_quotas
   ].freeze
 
+  CONCILIATION_PERIOD = 3.months
+
   validate :valid_license
   validate :check_users_limit, if: :new_record?, unless: :validate_with_trueup?
   validate :check_trueup, unless: :persisted?, if: :validate_with_trueup?
@@ -404,6 +406,12 @@ class License < ApplicationRecord
     end
   end
 
+  def current_conciliation_period
+    today = Date.today
+
+    conciliation_periods.find { |period| period.cover?(today) }
+  end
+
   def validate_with_trueup?
     [restricted_attr(:trueup_quantity),
      restricted_attr(:trueup_from),
@@ -469,6 +477,22 @@ class License < ApplicationRecord
   end
 
   private
+
+  def conciliation_periods
+    start_date = expires_at.advance(years: -1, days: 1)
+    ranges = []
+
+    loop do
+      new_range = (start_date...(start_date + CONCILIATION_PERIOD))
+
+      break if new_range.cover?(expires_at)
+
+      start_date = new_range.last
+      ranges << new_range
+    end
+
+    ranges
+  end
 
   def restricted_attr(name, default = nil)
     return default unless license? && restricted?(name)
