@@ -26,8 +26,13 @@ module Gitlab
           raise NoteableNotFoundError unless noteable
           raise EmptyEmailError if message.blank?
 
+          note = create_note
+          qa_response = note.quick_action_response
+
+          raise CommandsOnlyNoteError, qa_response.warnings if qa_response&.command_failure?
+
           verify_record!(
-            record: create_note,
+            record: note,
             invalid_exception: InvalidNoteError,
             record_name: 'comment')
         end
