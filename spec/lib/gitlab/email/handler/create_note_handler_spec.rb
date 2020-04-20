@@ -61,7 +61,7 @@ RSpec.describe Gitlab::Email::Handler::CreateNoteHandler do
 
       context 'and current user cannot update noteable' do
         it 'raises a CommandsOnlyNoteError' do
-          expect { receiver.execute }.to raise_error(Gitlab::Email::InvalidNoteError)
+          expect { receiver.execute }.to raise_error(Gitlab::Email::CommandsOnlyNoteError)
         end
       end
 
