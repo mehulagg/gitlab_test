@@ -53,7 +53,6 @@ module Notes
 
       execution_response.apply(noteable_update_service(note),
                                note.resource_parent, note.noteable)
-      note.commands_changes = execution_response.updates
     end
   end
 end
