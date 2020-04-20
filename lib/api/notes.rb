@@ -82,7 +82,7 @@ module API
 
           note = create_note(noteable, opts)
 
-          if note.errors.keys == [:commands_only]
+          if note.errors.key?(:commands_only)
             status 202
             present note, with: Entities::NoteCommands
           elsif note.valid?
