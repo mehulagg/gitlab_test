@@ -39,7 +39,7 @@ RSpec.shared_examples 'hardware device for 2fa' do |device_type|
       it 'allows registering a new device with a name' do
         visit profile_account_path
         manage_two_factor_authentication(device_type)
-        expect(page).to have_content('You\'ve already enabled two-factor authentication using one time password authenticators')
+        expect(page).to have_content("You've already enabled two-factor authentication using one time password authenticators")
 
         device = register_device(device_type)
 
@@ -50,7 +50,7 @@ RSpec.shared_examples 'hardware device for 2fa' do |device_type|
       it 'allows deleting a device' do
         visit profile_account_path
         manage_two_factor_authentication(device_type)
-        expect(page).to have_content('You\'ve already enabled two-factor authentication using one time password authenticators')
+        expect(page).to have_content("You've already enabled two-factor authentication using one time password authenticators")
 
         first_device = register_device(device_type)
         second_device = register_device(device_type, name: 'My other device')

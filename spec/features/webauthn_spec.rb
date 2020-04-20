@@ -54,7 +54,8 @@ describe 'Using WebAuthn Devices for Authentication', :js do
     end
 
     context 'when there are form errors' do
-      mock_register_js = <<~JS
+      let(:mock_register_js) {
+        <<~JS
         const mockResponse = {
           type: 'public-key',
           id: '',
@@ -66,14 +67,15 @@ describe 'Using WebAuthn Devices for Authentication', :js do
           getClientExtensionResults: () => {},
         };
         navigator.credentials.create = function(_) {return Promise.resolve(mockResponse);}
-      JS
+        JS
+      }
 
-      it 'doesn\'t register the device if there are errors' do
+      it "doesn't register the device if there are errors" do
         visit profile_account_path
         manage_two_factor_authentication('WebAuthn')
 
         # Have the "webauthn device" respond with bad data
-        page.execute_script(mock_register_js)
+        page.execute_script(:mock_register_js)
         click_on 'Set up new WebAuthn device'
         expect(page).to have_content('Your device was successfully set up')
         click_on 'Register WebAuthn device'
@@ -88,7 +90,7 @@ describe 'Using WebAuthn Devices for Authentication', :js do
         manage_two_factor_authentication('WebAuthn')
 
         # Failed registration
-        page.execute_script(mock_register_js)
+        page.execute_script(:mock_register_js)
         click_on 'Set up new WebAuthn device'
         expect(page).to have_content('Your device was successfully set up')
         click_on 'Register WebAuthn device'
