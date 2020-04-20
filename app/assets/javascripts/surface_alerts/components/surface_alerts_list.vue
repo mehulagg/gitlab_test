@@ -48,7 +48,7 @@ export default {
                 'Display alerts from all your monitoring tools directly within GitLab. Streamline the investigation of your alerts and the escalation of alerts to incidents.',
               )
             }}</span>
-            <a href="/help/user/project/operations/surface_alerts.html">
+            <a href="/help/user/project/operations/alert_management.html">
               {{ __('More information') }}
             </a>
           </div>
