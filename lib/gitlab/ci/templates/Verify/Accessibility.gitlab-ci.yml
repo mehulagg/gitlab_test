@@ -17,3 +17,5 @@ a11y:
     paths: ['reports/']
   rules:
     - if: $a11y_urls
+    - if: '$CI_COMMIT_REF_NAME == "master"'
+    - if: $CI_MERGE_REQUEST_ID
