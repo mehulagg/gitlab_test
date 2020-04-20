@@ -104,22 +104,22 @@ RSpec.describe Gitlab::QuickActions::CommandDefinition do
   end
 
   describe "#execute" do
-    let(:context) { OpenStruct.new(run: false, commands_executed_count: nil) }
+    let(:context) { double('Context') }
 
     context "when the command is a noop" do
       it "doesn't execute the command" do
         expect(context).not_to receive(:instance_exec)
+        expect(context).not_to receive(:record_command_execution)
 
         subject.execute(context, nil)
-
-        expect(context.commands_executed_count).to be_nil
-        expect(context.run).to be false
       end
     end
 
     context "when the command is not a noop" do
+      let(:no_arg_action) { -> { run } }
+
       before do
-        subject.action_block = proc { self.run = true }
+        subject.action_block = no_arg_action
       end
 
       context "when the command is not available" do
@@ -128,79 +128,80 @@ RSpec.describe Gitlab::QuickActions::CommandDefinition do
         end
 
         it "doesn't execute the command" do
-          subject.execute(context, nil)
+          expect(context).not_to receive(:record_command_execution)
+          expect(context).not_to receive(:run)
 
-          expect(context.commands_executed_count).to be_nil
-          expect(context.run).to be false
+          subject.execute(context, nil)
         end
       end
 
-      context "when the command is available" do
-        context "when the commnd has no arguments" do
+      shared_examples 'an available command' do
+        before do
+          expect(context).to receive(:record_command_execution)
+        end
+
+        context "when the command has no arguments" do
           before do
-            subject.action_block = proc { self.run = true }
+            subject.action_block = no_arg_action
           end
 
           context "when the command is provided an argument" do
             it "executes the command" do
-              subject.execute(context, true)
+              expect(context).to receive(:run)
 
-              expect(context.run).to be true
-              expect(context.commands_executed_count).to eq(1)
+              subject.execute(context, true)
             end
           end
 
           context "when the command is not provided an argument" do
             it "executes the command" do
-              subject.execute(context, nil)
+              expect(context).to receive(:run)
 
-              expect(context.run).to be true
-              expect(context.commands_executed_count).to eq(1)
+              subject.execute(context, nil)
             end
           end
         end
 
         context "when the command has 1 required argument" do
           before do
-            subject.action_block = ->(arg) { self.run = arg }
+            subject.action_block = ->(arg) { run(arg) }
           end
 
           context "when the command is provided an argument" do
             it "executes the command" do
-              subject.execute(context, true)
+              expect(context).to receive(:run).with(:the_arg)
 
-              expect(context.run).to be true
-              expect(context.commands_executed_count).to eq(1)
+              subject.execute(context, :the_arg)
             end
           end
 
           context "when the command is not provided an argument" do
             it "doesn't execute the command" do
-              subject.execute(context, nil)
+              expect(context).not_to receive(:run)
 
-              expect(context.run).to be false
+              subject.execute(context, nil)
             end
           end
         end
 
         context "when the command has 1 optional argument" do
           before do
-            subject.action_block = proc { |arg = nil| self.run = arg || true }
+            subject.action_block = -> (arg = :default) { run(arg) }
           end
 
           context "when the command is provided an argument" do
             it "executes the command" do
-              subject.execute(context, true)
+              expect(context).to receive(:run).with(:provided)
 
-              expect(context.run).to be true
+              subject.execute(context, :provided)
             end
           end
 
           context "when the command is not provided an argument" do
             it "executes the command" do
-              subject.execute(context, nil)
+              expect(context).to receive(:run).with(:default)
 
-              expect(context.run).to be true
+              subject.execute(context, nil)
             end
           end
         end
@@ -208,15 +209,27 @@ RSpec.describe Gitlab::QuickActions::CommandDefinition do
         context 'when the command defines parse_params block' do
           before do
             subject.parse_params_block = ->(raw) { raw.strip }
-            subject.action_block = ->(parsed) { self.received_arg = parsed }
+            subject.action_block = ->(parsed) { run(parsed) }
           end
 
           it 'executes the command passing the parsed param' do
-            subject.execute(context, 'something   ')
+            expect(context).to receive(:run).with('something')
 
-            expect(context.received_arg).to eq('something')
+            subject.execute(context, 'something   ')
           end
         end
+      end
+
+      context 'the command is unconditionally available' do
+        it_behaves_like 'an available command'
+      end
+
+      context 'the command is conditionally available' do
+        before do
+          subject.condition_block = -> { true }
+        end
+
+        it_behaves_like 'an available command'
       end
     end
   end
