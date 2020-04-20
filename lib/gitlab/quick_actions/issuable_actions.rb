@@ -8,25 +8,21 @@ module Gitlab
       SHRUG = '¯\\＿(ツ)＿/¯'
       TABLEFLIP = '(╯°□°)╯︵ ┻━┻'
 
+      types Issuable
+
       # Issue, MergeRequest, Epic: quick actions definitions
       command :close do
         desc do
-          _('Close this %{quick_action_target}') %
-            { quick_action_target: quick_action_target.to_ability_name.humanize(capitalize: false) }
+          _('Close this %{quick_action_target}') % format_params
         end
         explanation do
-          _('Closes this %{quick_action_target}.') %
-            { quick_action_target: quick_action_target.to_ability_name.humanize(capitalize: false) }
+          _('Closes this %{quick_action_target}.') % format_params
         end
         execution_message do
-          _('Closed this %{quick_action_target}.') %
-            { quick_action_target: quick_action_target.to_ability_name.humanize(capitalize: false) }
+          _('Closed this %{quick_action_target}.') % format_params
         end
-        types Issuable
         condition do
-          quick_action_target.persisted? &&
-            quick_action_target.open? &&
-            current_user.can?(:"update_#{quick_action_target.to_ability_name}", quick_action_target)
+          updateable? && quick_action_target.open?
         end
         action do
           update(state_event: 'close')
@@ -35,24 +31,18 @@ module Gitlab
 
       command :reopen do
         desc do
-          _('Reopen this %{quick_action_target}') %
-            { quick_action_target: quick_action_target.to_ability_name.humanize(capitalize: false) }
+          _('Reopen this %{quick_action_target}') % format_params
         end
         explanation do
-          _('Reopens this %{quick_action_target}.') %
-            { quick_action_target: quick_action_target.to_ability_name.humanize(capitalize: false) }
+          _('Reopens this %{quick_action_target}.') % format_params
         end
         execution_message do
-          _('Reopened this %{quick_action_target}.') %
-            { quick_action_target: quick_action_target.to_ability_name.humanize(capitalize: false) }
+          _('Reopened this %{quick_action_target}.') % format_params
         end
-        types Issuable
         condition do
-          quick_action_target.persisted? &&
-            quick_action_target.closed? &&
-            current_user.can?(:"update_#{quick_action_target.to_ability_name}", quick_action_target)
+          updateable? && quick_action_target.closed?
         end
-        action  do
+        action do
           update(state_event: 'reopen')
         end
       end
@@ -66,11 +56,7 @@ module Gitlab
           _('Changed the title to "%{title_param}".') % { title_param: title_param }
         end
         params '<New title>'
-        types Issuable
-        condition do
-          quick_action_target.persisted? &&
-            current_user.can?(:"update_#{quick_action_target.to_ability_name}", quick_action_target)
-        end
+        condition { updateable? }
         action do |title_param|
           update(title: title_param)
         end
@@ -87,10 +73,9 @@ module Gitlab
           end
         end
         params '~label1 ~"label 2"'
-        types Issuable
         condition do
           parent &&
-            current_user.can?(:"admin_#{quick_action_target.to_ability_name}", parent) &&
+            current_user.can?(:"admin_#{ability_name}", parent) &&
             find_labels.any?
         end
         action do |labels_param|
@@ -110,11 +95,10 @@ module Gitlab
           end
         end
         params '~label1 ~"label 2"'
-        types Issuable
         condition do
           quick_action_target.persisted? &&
             quick_action_target.labels.any? &&
-            current_user.can?(:"admin_#{quick_action_target.to_ability_name}", parent)
+            current_user.can?(:"admin_#{ability_name}", parent)
         end
         action do |labels_param = nil|
           if labels_param.present?
@@ -143,11 +127,10 @@ module Gitlab
           "Replaces all labels with #{labels.join(' ')} #{'label'.pluralize(labels.count)}." if labels.any?
         end
         params '~label1 ~"label 2"'
-        types Issuable
         condition do
           quick_action_target.persisted? &&
             quick_action_target.labels.any? &&
-            current_user.can?(:"admin_#{quick_action_target.to_ability_name}", parent)
+            current_user.can?(:"admin_#{ability_name}", parent)
         end
         action do |labels_param|
           run_label_command(labels: find_labels(labels_param), command: :relabel, updates_key: :label_ids)
@@ -158,7 +141,6 @@ module Gitlab
         desc _('Add a To Do')
         explanation _('Adds a To Do.')
         execution_message _('Added a To Do.')
-        types Issuable
         condition do
           quick_action_target.persisted? &&
             !TodoService.new.todo_exist?(quick_action_target, current_user)
@@ -172,7 +154,6 @@ module Gitlab
         desc _('Mark To Do as done')
         explanation _('Marks To Do as done.')
         execution_message _('Marked To Do as done.')
-        types Issuable
         condition do
           quick_action_target.persisted? &&
             TodoService.new.todo_exist?(quick_action_target, current_user)
@@ -192,7 +173,6 @@ module Gitlab
           _('Subscribed to this %{quick_action_target}.') %
             { quick_action_target: quick_action_target.to_ability_name.humanize(capitalize: false) }
         end
-        types Issuable
         condition do
           quick_action_target.persisted? &&
             !quick_action_target.subscribed?(current_user, project)
@@ -205,14 +185,11 @@ module Gitlab
       command :unsubscribe do
         desc _('Unsubscribe')
         explanation do
-          _('Unsubscribes from this %{quick_action_target}.') %
-            { quick_action_target: quick_action_target.to_ability_name.humanize(capitalize: false) }
+          _('Unsubscribes from this %{quick_action_target}.') % format_params
         end
         execution_message do
-          _('Unsubscribed from this %{quick_action_target}.') %
-            { quick_action_target: quick_action_target.to_ability_name.humanize(capitalize: false) }
+          _('Unsubscribed from this %{quick_action_target}.') % format_params
         end
-        types Issuable
         condition do
           quick_action_target.persisted? &&
             quick_action_target.subscribed?(current_user, project)
@@ -231,25 +208,22 @@ module Gitlab
           _("Toggled :%{name}: emoji award.") % { name: name } if name
         end
         params ':emoji:'
-        types Issuable
         condition do
-          quick_action_target.persisted?
+          quick_action_target.persisted? &&
+            quick_action_target.user_can_award?(current_user)
         end
         parse_params do |emoji_param|
           match = emoji_param.match(Banzai::Filter::EmojiFilter.emoji_pattern)
           match[1] if match
         end
         action do |name|
-          if name && quick_action_target.user_can_award?(current_user)
-            update(emoji_award: name)
-          end
+          update(emoji_award: name) if name
         end
       end
 
       substitution :shrug do
         desc _("Append the comment with %{shrug}") % { shrug: SHRUG }
         params '<Comment>'
-        types Issuable
         action do |comment|
           "#{comment} #{SHRUG}"
         end
@@ -258,13 +232,25 @@ module Gitlab
       substitution :tableflip do
         desc _("Append the comment with %{tableflip}") % { tableflip: TABLEFLIP }
         params '<Comment>'
-        types Issuable
         action do |comment|
           "#{comment} #{TABLEFLIP}"
         end
       end
 
       helpers do
+        def ability_name
+          quick_action_target.to_ability_name
+        end
+
+        def format_params
+          { quick_action_target: ability_name.humanize(capitalize: false) }
+        end
+
+        def updateable?
+          quick_action_target.persisted? &&
+            current_user.can?(:"update_#{quick_action_target.to_ability_name}", quick_action_target)
+        end
+
         def run_label_command(labels:, command:, updates_key:)
           return if labels.empty?
 

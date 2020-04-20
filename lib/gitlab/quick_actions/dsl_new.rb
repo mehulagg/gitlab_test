@@ -21,8 +21,9 @@ module Gitlab
         DuplicateAttribute = Class.new(StandardError)
         NoActionError = Class.new(StandardError)
 
-        def initialize(helper_modules)
+        def initialize(helper_modules, types)
           @helper_modules = helper_modules
+          @types = types if types
         end
 
         # [required] Defines the main action
@@ -40,8 +41,8 @@ module Gitlab
 
         # Allows to give a description to the current quick action.
         # This description is shown in the autocomplete menu.
-        # It accepts a block that will be evaluated with the context given to
-        # `CommandDefintion#to_h`.
+        #
+        # See: QuickActions::ExecutionContext
         #
         # Example:
         #
@@ -67,7 +68,7 @@ module Gitlab
         # Allows to give a description to the current quick action.
         # This will be shown in the explanation in parentheses.
         # It accepts a block that will be evaluated with the context given to
-        # `CommandDefintion#to_h`.
+        # `CommandDefinition#to_h`.
         #
         # Example:
         #
@@ -296,7 +297,7 @@ module Gitlab
         #     end
         #   end
         def command(*names, &block)
-          build(CommandDefintion, names, block)
+          build(::Gitlab::QuickActions::CommandDefinition, names, block)
         end
 
         # Registers a new substitution which is recognizable from body of email or
@@ -311,7 +312,28 @@ module Gitlab
         #     end
         #   end
         def substitution(*names, &block)
-          build(SubstitutionDefinition, names, block)
+          build(::Gitlab::QuickActions::SubstitutionDefinition, names, block)
+        end
+
+        # Types that apply to all commands defined in this module
+        #
+        # Example:
+        #
+        #   types Issue
+        #
+        #   command :one do
+        #     action do
+        #       # something
+        #     end
+        #   end
+        #
+        #   command :two do
+        #     action do
+        #       # something else
+        #     end
+        #   end
+        def types(*types_list)
+          @types = types_list
         end
 
         def helpers(&block)
@@ -332,9 +354,13 @@ module Gitlab
           @helper_modules ||= []
         end
 
-        def build(klass, names, block)
-          builder = Builder.new(helper_modules)
-          builder.instance_exec(block)
+        def module_types
+          @types
+        end
+
+        def build(klass, names, define)
+          builder = Builder.new(helper_modules, module_types)
+          builder.instance_exec(&define)
           define_command(klass, names, builder.to_h)
         end
 
