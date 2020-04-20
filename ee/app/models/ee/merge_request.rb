@@ -101,6 +101,14 @@ module EE
       end
     end
 
+    override :mergeable_ci_state?
+    def mergeable_ci_state?
+      binding.pry
+      return false if project.merge_trains_enabled? && all_pipelines.none?
+
+      super
+    end
+
     override :mergeable?
     def mergeable?(skip_ci_check: false)
       return false unless approved?

@@ -652,6 +652,26 @@ describe MergeRequest do
     end
   end
 
+  describe '#mergeable_ci_state?' do
+    include MergeTrainHelpers
+
+    context 'when merge train is enabled on the project' do
+      before do
+        enable_merge_train(project)
+      end
+
+      context 'when at least one pipeline exists in the merge request' do
+        let!(:pipeline) { create(:ci_pipeline, :merged_result_pipeline, project: project,merge_request: subject) }
+
+        it { expect(subject.mergeable_ci_state?).to eq(true) }
+      end
+
+      context 'when no pipelines exists in the merge request' do
+        it { expect(subject.mergeable_ci_state?).to eq(false) }
+      end
+    end
+  end
+
   describe '#mergeable?' do
     let(:project) { create(:project) }
 
