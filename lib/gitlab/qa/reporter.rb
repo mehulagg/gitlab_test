@@ -40,6 +40,11 @@ module Gitlab
             slack_options[:message] = slack_options[:message] + "\n\n" + Gitlab::QA::Report::SummaryTable.create(input_files: files)
           end
 
+          opts.on('--update-screenshot-path FILES', "Update the path to screenshots to container's host") do |files|
+            report_options[:update_screenshot_path] = true
+            report_options[:files] = files
+          end
+
           opts.on_tail('-v', '--version', 'Show the version') do
             require 'gitlab/qa/version'
             puts "#{$PROGRAM_NAME} : #{VERSION}"
@@ -73,6 +78,14 @@ module Gitlab
           if slack_options[:post_to_slack]
             slack_options.delete(:post_to_slack)
             Gitlab::QA::Slack::PostToSlack.new(**slack_options).invoke!
+
+            exit
+          end
+
+          if report_options[:update_screenshot_path]
+            report_options.delete(:update_screenshot_path)
+
+            Gitlab::QA::Report::UpdateScreenshotPath.new(**report_options).invoke!
 
             exit
           end

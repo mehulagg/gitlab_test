@@ -90,6 +90,7 @@ module Gitlab
       autoload :PrepareStageReports, 'gitlab/qa/report/prepare_stage_reports'
       autoload :ResultsInIssues, 'gitlab/qa/report/results_in_issues'
       autoload :SummaryTable, 'gitlab/qa/report/summary_table'
+      autoload :UpdateScreenshotPath, 'gitlab/qa/report/update_screenshot_path'
     end
 
     module Slack
