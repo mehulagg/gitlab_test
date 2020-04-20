@@ -2,6 +2,7 @@
 import { GlFormInput, GlFormGroup } from '@gitlab/ui';
 
 export default {
+  inheritAttrs: false,
   components: {
     GlFormInput,
     GlFormGroup,

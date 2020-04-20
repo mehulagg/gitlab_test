@@ -173,7 +173,13 @@ export default {
       class="loading-animation prepend-top-20 append-bottom-20"
     />
     <template v-else>
-      <title-field :id="titleFieldId" v-model="snippet.title" required :autofocus="true" />
+      <title-field
+        :id="titleFieldId"
+        v-model="snippet.title"
+        required
+        :autofocus="true"
+        data-qa-selector="snippet_title"
+      />
       <snippet-description-edit
         :id="descriptionFieldId"
         v-model="snippet.description"

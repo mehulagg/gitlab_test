@@ -51,8 +51,7 @@ export default {
       >
         <textarea
           slot="textarea"
-          class="note-textarea js-gfm-input js-autosize markdown-area
-            qa-description-textarea"
+          class="note-textarea js-gfm-input js-autosize markdown-area"
           dir="auto"
           data-supports-quick-actions="false"
           :value="value"
@@ -60,6 +59,7 @@ export default {
           :placeholder="__('Write a comment or drag your files here…')"
           v-bind="$attrs"
           @input="$emit('input', $event.target.value)"
+          data-qa-selector="description_textarea"
         >
         </textarea>
       </markdown-field>
