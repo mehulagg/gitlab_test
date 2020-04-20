@@ -226,6 +226,44 @@ ee:instance-quarantine:
   variables:
     QA_RSPEC_TAGS: "--tag quarantine --tag ~orchestrated"
 
+ce:docker:
+  extends:
+    - .test
+    - .high-capacity
+    - .ce-qa
+    - .rspec-report-opts
+  variables:
+    QA_RSPEC_TAGS: "--tag docker"
+
+ce:docker-quarantine:
+  extends:
+    - .test
+    - .high-capacity
+    - .ce-qa
+    - .quarantine
+    - .rspec-report-opts
+  variables:
+    QA_RSPEC_TAGS: "--tag docker --tag quarantine"
+
+ee:docker:
+  extends:
+    - .test
+    - .high-capacity
+    - .ee-qa
+    - .rspec-report-opts
+  variables:
+    QA_RSPEC_TAGS: "--tag docker"
+
+ee:docker-quarantine:
+  extends:
+    - .test
+    - .high-capacity
+    - .ee-qa
+    - .quarantine
+    - .rspec-report-opts
+  variables:
+    QA_RSPEC_TAGS: "--tag docker --tag quarantine"
+
 ce:relative_url:
   extends:
     - .test
