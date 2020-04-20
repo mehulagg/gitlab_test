@@ -37,6 +37,10 @@ module QuickActions
       updates.empty?
     end
 
+    def command_failure?
+      only_commands? && messages.blank?
+    end
+
     private
 
     attr_reader :commands, :current_user
