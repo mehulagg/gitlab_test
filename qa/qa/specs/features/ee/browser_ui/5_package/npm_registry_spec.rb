@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Package', :docker, :orchestrated, :packages do
+  context 'Package', :docker, :orchestrated, :packages, :object_storage do
     describe 'NPM registry' do
       include Runtime::Fixtures
 
