@@ -15,7 +15,7 @@ build-qa-image:
   script:
     - '[[ ! -d "ee/" ]] || export GITLAB_EDITION="ee"'
     - export QA_IMAGE="${CI_REGISTRY}/${CI_PROJECT_PATH}/gitlab-${GITLAB_EDITION}-qa:${CI_COMMIT_REF_SLUG}"
-    - /kaniko/executor --context=${CI_PROJECT_DIR} --dockerfile=${CI_PROJECT_DIR}/qa/Dockerfile --destination=${QA_IMAGE} --cache=true
+    - time /kaniko/executor --context=${CI_PROJECT_DIR} --dockerfile=${CI_PROJECT_DIR}/qa/Dockerfile --destination=${QA_IMAGE} --cache=true
 
 .review-cleanup-base:
   extends:
