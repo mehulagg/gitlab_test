@@ -67,9 +67,6 @@ linters:
   MultilineScript:
     enabled: true
 
-  NoPlainNodes:
-    enabled: true
-
   ObjectReferenceAttributes:
     enabled: true
 

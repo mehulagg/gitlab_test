@@ -10,6 +10,7 @@ linters:
 
   # Offense count: 1552
   NoPlainNodes:
+    enabled: true
     exclude:
       - "app/views/admin/abuse_reports/_abuse_report.html.haml"
       - "app/views/admin/abuse_reports/index.html.haml"
