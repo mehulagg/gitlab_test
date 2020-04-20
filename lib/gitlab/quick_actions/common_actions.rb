@@ -3,12 +3,14 @@
 module Gitlab
   module QuickActions
     module CommonActions
-      include Gitlab::QuickActions::Dsl
+      include Gitlab::QuickActions::DslNew
 
       # This is a dummy command, so that it appears in the autocomplete commands
-      desc 'CC'
-      params '@user'
-      command :cc
+      command :cc do
+        noop
+        desc 'CC'
+        params '@user'
+      end
     end
   end
 end

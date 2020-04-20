@@ -1263,6 +1263,28 @@ RSpec.describe QuickActions::InterpretService do
       end
     end
 
+    describe '/cc' do
+      let(:content) { '/cc @foo' }
+
+      for_issues_and_merge_requests do
+        it 'does not create any updates' do
+          expect(updates).to be_empty
+        end
+
+        it 'does not change the content' do
+          expect(response.content).to eq(content)
+        end
+
+        it 'does not even count as a command' do
+          expect(response.count).to be_zero
+        end
+
+        it 'is available' do
+          expect(service.available_commands.pluck(:name)).to include(:cc)
+        end
+      end
+    end
+
     context '/tableflip command' do
       let(:issuable) { issue }
 

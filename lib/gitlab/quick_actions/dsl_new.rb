@@ -70,7 +70,7 @@ module Gitlab
         end
 
         # Mark this as a dummy command. Dummy commands do not have action blocks
-        def dummy_command
+        def noop
           set_attribute(:@action, :dummy)
         end
 
