@@ -5,6 +5,33 @@ module Gitlab
     module DslNew
       extend ActiveSupport::Concern
 
+      # Mutations to inputs are reflected in the content of the union
+      # This allows helpers to be defined after the commands and still be
+      # reflected in their set of helpers
+      class Union
+        include Enumerable
+
+        def initialize(xs, ys)
+          @xs = xs
+          @ys = ys
+        end
+
+        def each(&block)
+          @xs.each(&block)
+          @ys.each(&block)
+        end
+      end
+
+      module BuildsHelper
+        def build_helper(mod = nil, &block)
+          raise ArgumentError, 'Both module and block provided' if mod && block_given?
+          raise ArgumentError, 'mod or block must be provided' unless mod || block_given?
+          raise ArgumentError, 'mod must be a Module' if mod && !mod.is_a(Module)
+
+          block_given? ? Module.new(&block) : mod
+        end
+      end
+
       included do
         cattr_accessor :command_definitions, instance_accessor: false do
           []
@@ -18,11 +45,14 @@ module Gitlab
       # Methods of this class are available during `command` blocks, can can be
       # used to define new commands.
       class Builder
+        include BuildsHelper
+
         DuplicateAttribute = Class.new(StandardError)
         NoActionError = Class.new(StandardError)
 
         def initialize(helper_modules, types)
           @helper_modules = helper_modules
+          @my_helpers = []
           @types = types if types
         end
 
@@ -67,8 +97,8 @@ module Gitlab
 
         # Allows to give a description to the current quick action.
         # This will be shown in the explanation in parentheses.
-        # It accepts a block that will be evaluated with the context given to
-        # `CommandDefinition#to_h`.
+        #
+        # See: QuickActions::ExecutionContext
         #
         # Example:
         #
@@ -241,6 +271,11 @@ module Gitlab
           set_attribute(:@parse_params_block, block)
         end
 
+        # Add helpers that are only visible to this command
+        def helpers(mod = nil, &block)
+          @my_helpers << build_helper(mod, &block)
+        end
+
         def to_h
           raise NoActionError, 'No action block specified' unless @action
 
@@ -255,21 +290,27 @@ module Gitlab
             parse_params_block: @parse_params_block,
             action_block: @action,
             types: @types,
-            helpers: @helper_modules
+            helpers: all_helpers
           }
         end
 
         private
 
+        def all_helpers
+          Union.new(@helper_modules, @my_helpers)
+        end
+
         def set_attribute(key, value)
-          raise DuplicateAttribute, key.to_s[2..] if instance_variable_get(key)
+          raise DuplicateAttribute, key.to_s[1..] if instance_variable_get(key)
 
           instance_variable_set(key, value)
         end
       end
 
       class_methods do
-        # Registers a new command which is recognizeable from body of email or
+        include BuildsHelper
+
+        # Registers a new command which is recognizable from body of email or
         # comment.
         # It accepts aliases and takes a block.
         #
@@ -336,16 +377,9 @@ module Gitlab
           @types = types_list
         end
 
-        def helpers(&block)
+        def helpers(mod = nil, &block)
           modules = helper_modules
-          helper = Module.new
-          helper.module_exec(&block)
-          modules << helper
-
-          # Update any previously defined modules
-          command_definitions.each do |definition|
-            definition.instance_variable_set(:@helpers, modules)
-          end
+          modules << build_helper(mod, &block)
         end
 
         private

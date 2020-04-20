@@ -50,6 +50,12 @@ module QuickActions
       interpret_service.params&.dup || {}
     end
 
+    def can_ability?(ability_category, subject: quick_action_target)
+      return false unless current_user
+
+      current_user.can?(:"#{ability_category}_#{quick_action_target.to_ability_name}", subject)
+    end
+
     # rubocop: disable CodeReuse/ActiveRecord
     def extract_users(params)
       return [] if params.nil?

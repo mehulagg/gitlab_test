@@ -1425,6 +1425,73 @@ RSpec.describe QuickActions::InterpretService do
       end
     end
 
+    describe '/zoom' do
+      let(:url) { 'https://foo.zoom.us/s/a' }
+      let(:content) { "/zoom #{url}" }
+
+      context 'the url is bad' do
+        let(:url) { 'not a zoom url' }
+        let(:target) { issue }
+
+        it_behaves_like 'empty command'
+      end
+
+      context 'the issue is persisted' do
+        let(:target) { issue }
+
+        it 'does not include updates' do
+          expect(updates).to be_empty
+        end
+
+        it 'creates a zoom meeting linked to the issue' do
+          expect { response }.to change(ZoomMeeting, :count).by(1)
+
+          expect(ZoomMeeting.canonical(issue).where(url: url)).to exist
+        end
+      end
+
+      context 'the issue is new' do
+        let(:target) { build(:issue, author: current_user, project: current_project) }
+
+        it 'includes updates' do
+          meeting = have_attributes(class: ZoomMeeting,
+                                    issue_status: 'added',
+                                    issue: target,
+                                    url: url)
+
+          expect(updates).to match(a_hash_including(zoom_meetings: contain_exactly(meeting)))
+        end
+      end
+
+      context 'for a merge request' do
+        let(:target) { merge_request }
+
+        it_behaves_like 'empty command'
+      end
+    end
+
+    describe '/remove_zoom' do
+      let(:issuable) { issue }
+      let(:meeting) { create(:zoom_meeting, issue: issue) }
+      let(:content) { '/remove_zoom' }
+
+      it 'does not include updates' do
+        expect(updates).to be_empty
+      end
+
+      it 'removes the meeting' do
+        expect { response }.not_to change(ZoomMeeting, :count)
+
+        expect(ZoomMeeting.canonical(issue)).not_to exist
+      end
+
+      context 'for a merge request' do
+        let(:target) { merge_request }
+
+        it_behaves_like 'empty command'
+      end
+    end
+
     describe '/create_merge_request' do
       let(:issuable) { issue }
       let(:iid) { issue.iid }
