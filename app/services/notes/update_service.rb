@@ -18,6 +18,7 @@ module Notes
       response = quick_actions_service.execute(note)
 
       note.note = response.content
+      note.quick_action_response = response
 
       unless response.only_commands?
         note.create_new_cross_references!(current_user)
@@ -33,7 +34,7 @@ module Notes
 
         if response.only_commands?
           delete_note(note, response.messages, response.warnings)
-          note = nil
+          note = nil # TODO: return the quick_action_response somehow
         else
           note.save
         end

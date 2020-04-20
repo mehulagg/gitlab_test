@@ -37,6 +37,7 @@ module Notes
 
       response = quick_actions_service.execute(note, quick_action_options)
       note.note = response.content
+      note.quick_action_response = response
 
       yield(!response.only_commands?)
 
