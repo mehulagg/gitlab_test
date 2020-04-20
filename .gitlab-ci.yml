@@ -90,6 +90,7 @@ release:
   script:
     - 'echo "Running: exe/gitlab-qa ${QA_SCENARIO:=Test::Instance::Image} ${RELEASE:=$DEFAULT_RELEASE} -- $QA_TESTS $QA_RSPEC_TAGS $RSPEC_REPORT_OPTS"'
     - exe/gitlab-qa ${QA_SCENARIO:=Test::Instance::Image} ${RELEASE:=$DEFAULT_RELEASE} -- $QA_TESTS $QA_RSPEC_TAGS $RSPEC_REPORT_OPTS || test_run_exit_code=$?
+    - exe/gitlab-qa-report --update-screenshot-path "gitlab-qa-run-*/**/rspec-*.xml"
     - export GITLAB_QA_ACCESS_TOKEN="$GITLAB_QA_PRODUCTION_ACCESS_TOKEN"
     - if [ "$TOP_UPSTREAM_SOURCE_REF" == "master" ]; then exe/gitlab-qa-report --report-in-issues "gitlab-qa-run-*/**/rspec-*.xml" --project "$QA_TESTCASES_REPORTING_PROJECT"; fi
     - exit $test_run_exit_code

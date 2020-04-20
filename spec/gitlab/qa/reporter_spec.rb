@@ -36,6 +36,24 @@ describe Gitlab::QA::Reporter do
       end
     end
 
+    describe 'when updating screenshot path' do
+      it 'requires input files to be specified' do
+        expect { described_class.invoke('--update-screenshot-path') }
+          .to raise_error(OptionParser::MissingArgument, 'missing argument: --update-screenshot-path')
+      end
+
+      it 'accepts provided files' do
+        update_screenshot_path = double('Gitlab::QA::Report::UpdateScreenshotPath')
+        allow(update_screenshot_path).to receive(:invoke!)
+
+        expect(Gitlab::QA::Report::UpdateScreenshotPath).to receive(:new)
+                                                         .with(files: 'files')
+                                                         .and_return(update_screenshot_path)
+
+        expect { described_class.invoke(%w[--update-screenshot-path files]) }.to raise_error(SystemExit)
+      end
+    end
+
     describe 'when posting to slack' do
       context 'without --include-summary-table' do
         it 'requires message to be specified' do
