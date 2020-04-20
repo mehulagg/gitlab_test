@@ -3,111 +3,130 @@
 module Gitlab
   module QuickActions
     module MergeRequestActions
-      include Gitlab::QuickActions::Dsl
+      include Gitlab::QuickActions::DslNew
 
       helpers ::Gitlab::QuickActions::MergeRequestHelpers
 
-      # MergeRequest only quick actions definitions
-      desc do
-        if Feature.enabled?(:merge_orchestration_service, quick_action_target.project, default_enabled: true)
-          if preferred_strategy = preferred_auto_merge_strategy(quick_action_target)
-            _("Merge automatically (%{strategy})") % { strategy: preferred_strategy.humanize }
-          else
-            _("Merge immediately")
-          end
-        else
-          _('Merge (when the pipeline succeeds)')
-        end
-      end
-      explanation do
-        if Feature.enabled?(:merge_orchestration_service, quick_action_target.project, default_enabled: true)
-          if preferred_strategy = preferred_auto_merge_strategy(quick_action_target)
-            _("Schedules to merge this merge request (%{strategy}).") % { strategy: preferred_strategy.humanize }
-          else
-            _('Merges this merge request immediately.')
-          end
-        else
-          _('Merges this merge request when the pipeline succeeds.')
-        end
-      end
-      execution_message do
-        if Feature.enabled?(:merge_orchestration_service, quick_action_target.project, default_enabled: true)
-          if preferred_strategy = preferred_auto_merge_strategy(quick_action_target)
-            _("Scheduled to merge this merge request (%{strategy}).") % { strategy: preferred_strategy.humanize }
-          else
-            _('Merged this merge request.')
-          end
-        else
-          _('Scheduled to merge this merge request when the pipeline succeeds.')
-        end
-      end
       types MergeRequest
-      condition do
-        if Feature.enabled?(:merge_orchestration_service, quick_action_target.project, default_enabled: true)
-          mergeable? &&
-            merge_orchestration_service.can_merge?(quick_action_target)
-        else
-          last_diff_sha = params[:merge_request_diff_head_sha]
-          mergeable? &&
-            quick_action_target.mergeable_with_quick_action?(current_user, autocomplete_precheck: !last_diff_sha, last_diff_sha: last_diff_sha)
-        end
-      end
+
       command :merge do
-        update(merge: params[:merge_request_diff_head_sha])
-      end
+        desc do
+          if use_merge_orchestration_service?
+            preferred_strategy_message(
+              _("Merge automatically (%{strategy})"),
+              _("Merge immediately")
+            )
+          else
+            _('Merge (when the pipeline succeeds)')
+          end
+        end
+        explanation do
+          if use_merge_orchestration_service?
+            preferred_strategy_message(
+              _("Schedules to merge this merge request (%{strategy})."),
+              _('Merges this merge request immediately.')
+            )
+          else
+            _('Merges this merge request when the pipeline succeeds.')
+          end
+        end
+        execution_message do
+          if use_merge_orchestration_service?
+            preferred_strategy_message(
+              _("Scheduled to merge this merge request (%{strategy})."),
+              _('Merged this merge request.')
+            )
+          else
+            _('Scheduled to merge this merge request when the pipeline succeeds.')
+          end
+        end
+        condition do
+          if use_merge_orchestration_service?
+            mergeable? &&
+              merge_orchestration_service.can_merge?(quick_action_target)
+          else
+            mergeable? &&
+              quick_action_target.mergeable_with_quick_action?(current_user, autocomplete_precheck: !diff_head_sha, last_diff_sha: diff_head_sha)
+          end
+        end
+        action do
+          update(merge: diff_head_sha)
+        end
 
-      desc 'Toggle the Work In Progress status'
-      explanation do
-        noun = quick_action_target.to_ability_name.humanize(capitalize: false)
-        if quick_action_target.work_in_progress?
-          _("Unmarks this %{noun} as Work In Progress.")
-        else
-          _("Marks this %{noun} as Work In Progress.")
-        end % { noun: noun }
-      end
-      execution_message do
-        noun = quick_action_target.to_ability_name.humanize(capitalize: false)
-        if quick_action_target.work_in_progress?
-          _("Unmarked this %{noun} as Work In Progress.")
-        else
-          _("Marked this %{noun} as Work In Progress.")
-        end % { noun: noun }
-      end
+        helpers do
+          def diff_head_sha
+            @diff_head_sha ||= params[:merge_request_diff_head_sha]
+          end
 
-      types MergeRequest
-      condition do
-        quick_action_target.respond_to?(:work_in_progress?) &&
-          # Allow it to mark as WIP on MR creation page _or_ through MR notes.
-          (quick_action_target.new_record? || current_user.can?(:"update_#{quick_action_target.to_ability_name}", quick_action_target))
-      end
-      command :wip do
-        update(wip_event: quick_action_target.work_in_progress? ? 'unwip' : 'wip')
-      end
-
-      desc _('Set target branch')
-      explanation do |branch_name|
-        _('Sets target branch to %{branch_name}.') % { branch_name: branch_name }
-      end
-      execution_message do |branch_name|
-        if project.repository.branch_exists?(branch_name)
-          _('Set target branch to %{branch_name}.') % { branch_name: branch_name }
+          def preferred_strategy_message(with_strategy, otherwise)
+            if preferred_strategy
+              with_strategy % { strategy: preferred_strategy.humanize }
+            else
+              otherwise
+            end
+          end
         end
       end
-      params '<Local branch name>'
-      types MergeRequest
-      condition do
-        quick_action_target.respond_to?(:target_branch) &&
-          (current_user.can?(:"update_#{quick_action_target.to_ability_name}", quick_action_target) ||
-            quick_action_target.new_record?)
+
+      command :wip do
+        desc 'Toggle the Work In Progress status'
+
+        explanation do
+          message(
+            _("Unmarks this %{noun} as Work In Progress."),
+            _("Marks this %{noun} as Work In Progress.")
+          )
+        end
+        execution_message do
+          message(
+            _("Unmarked this %{noun} as Work In Progress."),
+            _("Marked this %{noun} as Work In Progress.")
+          )
+        end
+
+        condition do
+          quick_action_target.respond_to?(:work_in_progress?) &&
+            # Allow it to mark as WIP on MR creation page _or_ through MR notes.
+            (quick_action_target.new_record? || can_ability?(:update))
+        end
+
+        action { update(wip_event: wip? ? 'unwip' : 'wip') }
+
+        helpers do
+          def wip?
+            quick_action_target.work_in_progress?
+          end
+
+          def message(wip, not_wip)
+            noun = quick_action_target.to_ability_name.humanize(capitalize: false)
+            (wip? ? wip : not_wip) % { noun: noun }
+          end
+        end
       end
-      parse_params do |target_branch_param|
-        target_branch_param.strip
-      end
-      command :target_branch do |branch_name|
-        if project.repository.branch_exists?(branch_name)
-          update(target_branch: branch_name)
-        else
-          warn _('No branch named %{branch_name}.') % { branch_name: branch_name }
+
+      command :target_branch do
+        desc _('Set target branch')
+        params '<Local branch name>'
+        strips_param
+
+        explanation do |branch_name|
+          _('Sets target branch to %{branch_name}.') % { branch_name: branch_name }
+        end
+        execution_message do |branch_name|
+          if project.repository.branch_exists?(branch_name)
+            _('Set target branch to %{branch_name}.') % { branch_name: branch_name }
+          end
+        end
+        condition do
+          quick_action_target.respond_to?(:target_branch) &&
+            (can_ability?(:update) || quick_action_target.new_record?)
+        end
+        action do |branch_name|
+          if project.repository.branch_exists?(branch_name)
+            update(target_branch: branch_name)
+          else
+            warn _('No branch named %{branch_name}.') % { branch_name: branch_name }
+          end
         end
 
         desc _('Submit a review')

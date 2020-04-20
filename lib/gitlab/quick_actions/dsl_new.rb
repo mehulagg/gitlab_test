@@ -276,6 +276,15 @@ module Gitlab
           set_attribute(:@parse_params_block, block)
         end
 
+        # Convenience short-cut for:
+        #
+        #   parse_params do |param|
+        #     param.strip
+        #   end
+        def strips_param
+          set_attribute(:@parse_params_block, proc { |string| string.strip })
+        end
+
         # Add helpers that are only visible to this command
         def helpers(mod = nil, &block)
           @my_helpers << build_helper(mod, &block)

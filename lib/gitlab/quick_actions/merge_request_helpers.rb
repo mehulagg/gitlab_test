@@ -4,15 +4,23 @@ module Gitlab
   module QuickActions
     module MergeRequestHelpers
       def mergeable?
-        quick_action_target.persisted? && quick_action_target.can_be_merged_by?(current_user)
+        merge_request.persisted? && merge_request.can_be_merged_by?(current_user)
+      end
+
+      def use_merge_orchestration_service?
+        Feature.enabled?(:merge_orchestration_service, merge_request.project, default_enabled: true)
       end
 
       def merge_orchestration_service
         @merge_orchestration_service ||= MergeRequests::MergeOrchestrationService.new(project, current_user)
       end
 
-      def preferred_auto_merge_strategy(merge_request)
-        merge_orchestration_service.preferred_auto_merge_strategy(merge_request)
+      def preferred_strategy
+        @strategy ||= merge_orchestration_service.preferred_auto_merge_strategy(merge_request)
+      end
+
+      def merge_request
+        quick_action_target
       end
     end
   end
