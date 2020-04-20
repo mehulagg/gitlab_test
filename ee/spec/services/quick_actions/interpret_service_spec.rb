@@ -866,7 +866,7 @@ RSpec.describe QuickActions::InterpretService do
         end
       end
 
-      context 'when target project requires approval' do
+      shared_examples 'when target project requires approval' do
         let(:target) { merge_request }
         let(:last_diff_sha) { merge_request.diff_head_sha }
         let(:params) { { merge_request_diff_head_sha: last_diff_sha } }
@@ -889,6 +889,18 @@ RSpec.describe QuickActions::InterpretService do
             expect(updates).to eq(merge: last_diff_sha)
           end
         end
+      end
+
+      context 'merge_orchestration_service is active' do
+        it_behaves_like 'when target project requires approval'
+      end
+
+      context 'merge_orchestration_service is not active' do
+        before do
+          stub_feature_flags(merge_orchestration_service: false)
+        end
+
+        it_behaves_like 'when target project requires approval'
       end
     end
 

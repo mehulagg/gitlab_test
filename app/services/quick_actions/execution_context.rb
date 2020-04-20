@@ -27,7 +27,7 @@ module QuickActions
 
     def info(message)
       if @execution_message[current_command]
-        @execution_message[current_command] << " #{message}"
+        @execution_message[current_command] += " #{message}"
       else
         @execution_message[current_command] = message
       end

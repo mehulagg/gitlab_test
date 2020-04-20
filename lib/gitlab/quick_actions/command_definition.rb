@@ -110,35 +110,12 @@ module Gitlab
       def execute_block(block, context, arg)
         ctx = helper_proxy.new(context)
 
-        case block.arity
-        when 0 # No args
-          call_without_arg(block, ctx)
-        when -1 # Optional arg
-          if arg.present?
-            call_with_arg(block, ctx, arg)
-          else
-            call_without_arg(block, ctx)
-          end
-        when 1 # Required arg
-          call_with_arg(block, ctx, arg) if arg.present?
-        else
-          call_splat(block, ctx, arg) if arg.present?
+        if arg.present? && block.parameters.present?
+          parsed = parse_params(arg, ctx)
+          ctx.instance_exec(parsed, &block)
+        elsif block.arity == 0
+          ctx.instance_exec(&block)
         end
-      end
-
-      def call_splat(block, ctx, arg)
-        parsed = parse_params(arg, ctx)
-        if parsed && parsed.size >= block.arity
-          ctx.instance_exec(*parsed, &block)
-        end
-      end
-
-      def call_with_arg(block, ctx, arg)
-        ctx.instance_exec(parse_params(arg, ctx), &block)
-      end
-
-      def call_without_arg(block, ctx)
-        ctx.instance_exec(&block)
       end
 
       def parse_params(arg, context)

@@ -26,10 +26,7 @@ module Notes
       end
 
       if response.count > 0
-        if response.updates.present?
-          QuickActionsService.apply_updates(response, note)
-          note.commands_changes = response.updates
-        end
+        QuickActionsService.apply_updates(response, note) unless response.noop?
 
         if response.only_commands?
           delete_note(note, response.messages, response.warnings)

@@ -30,7 +30,7 @@ module QuickActions
     def apply(update_service, resource_parent, updateable)
       return if noop?
 
-      update_service.new(resource_parent, current_user, updates).execute(updateable)
+      update_service.new(resource_parent, current_user, updates.dup).execute(updateable)
     end
 
     def noop?
