@@ -18,6 +18,8 @@ module QA
             # Selenium::WebDriver::Error::JavascriptError:
             #   javascript error: this.each is not a function
             Support::Retrier.retry_on_exception(reload_page: page) do
+              logs = page.driver.browser.manage.logs.get(:browser)
+              QA::Runtime::Logger.debug "Browser console logs: #{logs}"
               page.has_text?('Finished: SUCCESS')
             end
           end
