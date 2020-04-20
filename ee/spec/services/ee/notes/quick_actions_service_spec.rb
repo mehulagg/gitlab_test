@@ -12,10 +12,10 @@ RSpec.describe Notes::QuickActionsService do
   let(:service) { described_class.new(project, user) }
 
   def execute(note)
-    content, update_params = service.execute(note)
-    service.apply_updates(update_params, note)
+    response = service.execute(note)
+    described_class.apply_updates(response, note)
 
-    content
+    response.content
   end
 
   describe '/epic' do
@@ -246,10 +246,10 @@ RSpec.describe Notes::QuickActionsService do
       let(:note) { create(:note_on_issue, note: note_text, project: project) }
 
       it 'adds multiple assignees from the list' do
-        _, update_params, message = service.execute(note)
-        service.apply_updates(update_params, note)
+        response = service.execute(note)
+        described_class.apply_updates(response, note)
 
-        expect(message).to eq("Assigned @#{assignee.username} and @#{user.username}.")
+        expect(response.messages).to eq("Assigned @#{assignee.username} and @#{user.username}.")
         expect(note.noteable.assignees.count).to eq(2)
       end
 

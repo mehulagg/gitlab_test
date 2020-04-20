@@ -5,6 +5,8 @@ module Gitlab
     module MergeRequestActions
       include Gitlab::QuickActions::Dsl
 
+      helpers ::Gitlab::QuickActions::MergeRequestHelpers
+
       # MergeRequest only quick actions definitions
       desc do
         if Feature.enabled?(:merge_orchestration_service, quick_action_target.project, default_enabled: true)
@@ -42,11 +44,11 @@ module Gitlab
       types MergeRequest
       condition do
         if Feature.enabled?(:merge_orchestration_service, quick_action_target.project, default_enabled: true)
-          quick_action_target.persisted? &&
+          mergeable? &&
             merge_orchestration_service.can_merge?(quick_action_target)
         else
           last_diff_sha = params[:merge_request_diff_head_sha]
-          quick_action_target.persisted? &&
+          mergeable? &&
             quick_action_target.mergeable_with_quick_action?(current_user, autocomplete_precheck: !last_diff_sha, last_diff_sha: last_diff_sha)
         end
       end
@@ -123,16 +125,6 @@ module Gitlab
           else
             warn result[:message]
           end
-        end
-      end
-
-      helpers do
-        def merge_orchestration_service
-          @merge_orchestration_service ||= MergeRequests::MergeOrchestrationService.new(project, current_user)
-        end
-
-        def preferred_auto_merge_strategy(merge_request)
-          merge_orchestration_service.preferred_auto_merge_strategy(merge_request)
         end
       end
     end

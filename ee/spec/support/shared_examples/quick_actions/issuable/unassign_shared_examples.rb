@@ -6,11 +6,11 @@ RSpec.shared_examples 'unassigning a not assigned user' do |is_multiline|
   end
 
   it 'adds multiple assignees from the list' do
-    _, update_params, message = service.execute(note)
+    response = service.execute(note)
 
     expected_message = is_multiline ? "Removed assignee @#{assignee.username}. Removed assignee @#{user.username}." : "Removed assignees @#{user.username} and @#{assignee.username}."
 
-    expect(message).to eq(expected_message)
-    expect { service.apply_updates(update_params, note) }.not_to raise_error
+    expect(response.messages).to eq(expected_message)
+    expect { described_class.apply_updates(response, note) }.not_to raise_error
   end
 end

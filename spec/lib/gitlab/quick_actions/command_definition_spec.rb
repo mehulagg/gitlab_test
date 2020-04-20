@@ -186,7 +186,7 @@ RSpec.describe Gitlab::QuickActions::CommandDefinition do
 
         context "when the command has 1 optional argument" do
           before do
-            subject.action_block = -> (arg = :default) { run(arg) }
+            subject.action_block = proc { |arg = :default| run(arg) }
           end
 
           context "when the command is provided an argument" do
@@ -216,6 +216,32 @@ RSpec.describe Gitlab::QuickActions::CommandDefinition do
             expect(context).to receive(:run).with('something')
 
             subject.execute(context, 'something   ')
+          end
+        end
+
+        context 'multiple arguments parsed from the parameter' do
+          before do
+            subject.parse_params_block = ->(str) { str.split(/,/) }
+            subject.action_block = proc { |a, b, c| run(a, b, c) }
+          end
+
+          it 'executes the command, binding the params to the elements' do
+            expect(context).to receive(:run).with('x', 'y', 'z')
+
+            subject.execute(context, 'x,y,z')
+          end
+        end
+
+        context 'parsing fails' do
+          before do
+            subject.parse_params_block = ->(str) { nil }
+            subject.action_block = proc { |a, b| run(a, b) }
+          end
+
+          it 'executes the command binding the params to nil' do
+            expect(context).to receive(:run).with(nil, nil)
+
+            subject.execute(context, 'x,y,z')
           end
         end
       end

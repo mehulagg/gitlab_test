@@ -182,11 +182,20 @@ module Gitlab
           define_command(SubstitutionDefinition, *substitution_names, &block)
         end
 
-        def helpers(&block)
+        def helpers(mod = nil, &block)
           @helper_modules ||= []
-          helper = Module.new
-          helper.module_exec(&block)
-          @helper_modules << helper
+          if mod
+            raise ArgumentError, 'both block and module passed' if block_given?
+            raise ArgumentError, 'mod is not a module' unless mod.is_a?(Module)
+
+            @helper_modules << mod
+          else
+            raise ArgumentError, 'no block given' unless block_given?
+
+            helper = Module.new
+            helper.module_exec(&block)
+            @helper_modules << helper
+          end
 
           # Update any previously defined modules
           command_definitions.each do |definition|

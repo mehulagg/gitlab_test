@@ -9,10 +9,6 @@
 #
 module Notes
   class QuickActionsService < BaseService
-    attr_reader :interpret_service
-
-    delegate :commands_executed_count, to: :interpret_service, allow_nil: true
-
     UPDATE_SERVICES = {
       'Issue' => Issues::UpdateService,
       'MergeRequest' => MergeRequests::UpdateService,
@@ -37,11 +33,11 @@ module Notes
     end
 
     def execute(note, options = {})
-      @interpret_service = QuickActions::InterpretService.new(project, note.noteable, current_user, note.note, options)
+      interpret_service = QuickActions::InterpretService.new(project, note.noteable, current_user, note.note, options)
       if supported?(note)
-        @interpret_service.execute
+        interpret_service.execute
       else
-        @interpret_service.null_response
+        interpret_service.null_response
       end
     end
 
