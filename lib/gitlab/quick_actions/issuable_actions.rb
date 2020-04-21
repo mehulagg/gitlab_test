@@ -247,8 +247,7 @@ module Gitlab
         end
 
         def updateable?
-          quick_action_target.persisted? &&
-            current_user.can?(:"update_#{quick_action_target.to_ability_name}", quick_action_target)
+          quick_action_target.persisted? && can_ability?(:update)
         end
 
         def run_label_command(labels:, command:, updates_key:)
