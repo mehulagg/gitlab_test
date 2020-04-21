@@ -22,7 +22,7 @@ module EE
             milestone = parent.milestones.find(params[:milestone_id])
 
             if milestone.supports_burndown_charts?
-              present Burnup.new(milestone: milestone, user: current_user).burnup_events
+              present BurnupChartService.new(milestone: milestone, user: current_user).execute
             else
               render_api_error!("Milestone does not support burnup chart", 405)
             end
