@@ -467,7 +467,7 @@ To configure GitLab Pages on a separate server:
    gitlab_pages['enable'] = true
    ```
 
-1. Optionally, to enable access control, add the following to `/etc/gitlab/gitlab.rb` :
+1. Optionally, to enable access control, add the following to `/etc/gitlab/gitlab.rb`:
 
    ```ruby
    gitlab_pages['access_control'] = true
@@ -545,7 +545,8 @@ GitLab Pages uses an API-based configuration. This replaces disk source configur
 was used prior to GitLab 13.0.
 
 If you are using disk source configuration, in most cases GitLab Pages will automatically
-switch to the API-based configuration and use disk source configuration in case of errors.
+switch to the API-based configuration after upgrading to GitLab 13.0;
+however, it will use disk source configuration in case of errors.
 
 NOTE: **NOTE**
 If you are [Running GitLab Pages on a separate server](#running-gitlab-pages-on-a-separate-server),
@@ -638,7 +639,7 @@ WARN[0000] GitLab API is not configured                  error="failed to connec
 ```
 
 you will need to have copied the `/etc/gitlab/gitlab-secrets.json` file
-from the **GitLab server** to the **Pages server** after upgrading to GitLab 13.0.
-
-you need to sync `gitlab-pages.json` file from your main GitLab server to
-GitLab Pages server.
+from the **GitLab server** to the **Pages server** after upgrading to GitLab 13.0,
+as described in the
+[Running GitLab Pages on a separate server](#running-gitlab-pages-on-a-separate-server)
+section.
