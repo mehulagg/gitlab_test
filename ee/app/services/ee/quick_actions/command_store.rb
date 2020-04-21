@@ -2,7 +2,7 @@
 
 module EE
   module QuickActions
-    module InterpretService
+    module CommandStore
       extend ActiveSupport::Concern
 
       EE_COMMAND_MODULES = [
@@ -15,7 +15,7 @@ module EE
 
       prepended do
         def self.command_modules
-          EE_COMMAND_MODULES + ::QuickActions::InterpretService::COMMAND_MODULES
+          EE_COMMAND_MODULES + ::QuickActions::CommandStore::COMMAND_MODULES
         end
       end
     end

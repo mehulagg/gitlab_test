@@ -4,23 +4,6 @@ module QuickActions
   class InterpretService < BaseService
     attr_reader :quick_action_target, :content, :current_command
 
-    COMMAND_MODULES = [
-      Gitlab::QuickActions::IssueActions,
-      Gitlab::QuickActions::IssuableActions,
-      Gitlab::QuickActions::IssueAndMergeRequestActions,
-      Gitlab::QuickActions::MergeRequestActions,
-      Gitlab::QuickActions::CommitActions,
-      Gitlab::QuickActions::CommonActions
-    ].freeze
-
-    def self.command_modules
-      COMMAND_MODULES
-    end
-
-    def self.command_store
-      @command_store ||= ::QuickActions::CommandStore.new(command_modules)
-    end
-
     def initialize(project, target, user = nil, content = nil, params = {})
       super(project, user, params)
       @quick_action_target = target
@@ -28,6 +11,10 @@ module QuickActions
       @execution_message = {}
       @execution_warning = {}
       @commands_executed = []
+    end
+
+    def command_store
+      @command_store ||= ::QuickActions::CommandStore.instance
     end
 
     # Counts how many commands have been executed.
@@ -44,7 +31,7 @@ module QuickActions
     # Takes an quick_action_target and returns an array of all the available commands
     # represented with .to_h
     def available_commands
-      self.class.command_store.available_commands(create_context)
+      command_store.available_commands(create_context)
     end
 
     # Takes a text and interprets the commands that are extracted from it.
@@ -88,7 +75,7 @@ module QuickActions
     end
 
     def extractor
-      @extractor ||= Gitlab::QuickActions::Extractor.new(self.class.command_store.command_definitions)
+      @extractor ||= command_store.extractor
     end
 
     def explain_commands(commands, context)
@@ -105,7 +92,7 @@ module QuickActions
 
     def map_commands(commands, method, context)
       commands.map do |name, arg|
-        definition = self.class.command_store[name]
+        definition = command_store[name]
         next unless definition
 
         case method
@@ -123,7 +110,7 @@ module QuickActions
 
     def run_definitions(commands, context)
       commands.each do |name, arg|
-        definition = self.class.command_store[name]
+        definition = command_store[name]
         next unless definition
 
         with_name(name) { definition.execute(context, arg) }
@@ -138,5 +125,3 @@ module QuickActions
     end
   end
 end
-
-QuickActions::InterpretService.prepend_if_ee('EE::QuickActions::InterpretService')
