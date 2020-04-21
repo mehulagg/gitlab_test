@@ -137,6 +137,8 @@ rspec fast_spec_helper:
 
 db:check-schema:
   extends: .db-job-base
+  variables:
+    SETUP_DB: "false"
   script:
     - bundle exec rake db:migrate:reset
     - source scripts/schema_changed.sh
