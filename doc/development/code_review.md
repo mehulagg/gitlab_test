@@ -468,6 +468,27 @@ When a merge request author has been blocked for longer than
 the `Review-response` SLO, they are free to remind the reviewer through Slack or assign
 another reviewer.
 
+### Review process for high priority merge requests
+
+Some merge requests may benefit from being marked as "high priority" because they are needed to meet a critical customer need.
+
+High-priority merge requests should reduce the time between iterations of feedback via employing best practices such as:
+* High-priority merge requests should be reviewed more than once per business day for new updates from the author and maintainer (vs. within 2 business days for merge requests that are not a high priority).
+* The author and maintainer should primarily coordinate via issue comments.  They are also are encouraged to coordinate via Slack and/or Zoom as needed to reduce the cycle time.  Using Slack and/or Zoom is discouraged for merge requests for not high priority, as this can be very disruptive to standard workflow and focus.
+* The author should consider finding a maintainer that they have many hours of work hour overlap.
+* The managers of the author and the maintainer should consider reducing workload and/or priorities of other work as appropriate.
+
+High-priority merge requests should *not* sacrifice quality, team stress, or other values. 
+
+#### Process for making a merge request high priority
+1. The manager of the author decides the merge request should be considered to be high priority.
+2. The manager of the author reaches out to the manager of the maintainer to discuss.
+3. If they agree, the merge request is updated to have the label "high-priority-merge-request" and the author and maintainer are informed of the decision and are reminded about the high priority merge request process.
+
+If more than 1% of merge requests in any month are deemed high priority, this indicates a systemic issue with planning, prioritization, etc.  A periscope graph (_TBD_)  will show this percentage on a monthly basis.  It will be reviewed by development directors monthly and they will act if the percentage is excessive.
+
+
+
 ## Examples
 
 How code reviews are conducted can surprise new contributors. Here are some examples of code reviews that should help to orient you as to what to expect.
