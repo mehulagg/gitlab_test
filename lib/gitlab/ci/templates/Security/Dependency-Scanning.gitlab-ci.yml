@@ -5,6 +5,7 @@
 # How to set: https://docs.gitlab.com/ee/ci/yaml/#variables
 
 variables:
+  # Deprecated, use SECURE_ANALYZERS_PREFIX instead
   DS_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
   SECURE_ANALYZERS_PREFIX: "$DS_ANALYZER_IMAGE_PREFIX"
   DS_DEFAULT_ANALYZERS: "bundler-audit, retire.js, gemnasium, gemnasium-maven, gemnasium-python"
