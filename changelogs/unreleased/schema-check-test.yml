@@ -1,5 +1,0 @@
----
-title: Check for changes in 'structure.sql' in tests
-merge_request: 29661
-author:
-type: fixed
