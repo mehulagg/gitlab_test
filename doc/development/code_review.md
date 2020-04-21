@@ -481,6 +481,7 @@ High-priority merge requests should reduce the time between iterations of feedba
 High-priority merge requests should *not* sacrifice quality, team stress, or other values. 
 
 #### Process for making a merge request high priority
+
 1. The manager of the author decides the merge request should be considered to be high priority.
 2. The manager of the author reaches out to the manager of the maintainer to discuss.
 3. If they agree, the merge request is updated to have the label "high-priority-merge-request" and the author and maintainer are informed of the decision and are reminded about the high priority merge request process.
