@@ -2,10 +2,11 @@
 
 variables:
   CS_MAJOR_VERSION: 2
+  SECURE_ANALYZERS_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
 
 container_scanning:
   stage: test
-  image: registry.gitlab.com/gitlab-org/security-products/analyzers/klar:$CS_MAJOR_VERSION
+  image: $SECURE_ANALYZERS_PREFIX/klar:$CS_MAJOR_VERSION
   variables:
     # By default, use the latest clair vulnerabilities database, however, allow it to be overridden here with a specific image
     # to enable container scanning to run offline, or to provide a consistent list of vulnerabilities for integration testing purposes

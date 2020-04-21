@@ -12,11 +12,12 @@ stages:
 
 variables:
   DAST_VERSION: 1
+  SECURE_ANALYZERS_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
 
 dast:
   stage: dast
   image:
-    name: "registry.gitlab.com/gitlab-org/security-products/dast:$DAST_VERSION"
+    name: "$SECURE_ANALYZERS_PREFIX/zaproxy:$DAST_VERSION"
   variables:
     GIT_STRATEGY: none
   allow_failure: true
