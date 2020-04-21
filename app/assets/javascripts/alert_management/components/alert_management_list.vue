@@ -1,10 +1,10 @@
 <script>
-import { GlEmptyState, GlButton, GlLoadingIcon } from '@gitlab/ui';
+import { GlEmptyState, GlDeprecatedButton, GlLoadingIcon } from '@gitlab/ui';
 
 export default {
   components: {
     GlEmptyState,
-    GlButton,
+    GlDeprecatedButton,
     GlLoadingIcon,
   },
   props: {
@@ -51,9 +51,12 @@ export default {
             </a>
           </div>
           <div class="d-block center pt-4">
-            <gl-button category="primary" variant="success" :href="enableAlertManagementPath">{{
-              __('Authorize external service')
-            }}</gl-button>
+            <gl-deprecated-button
+              category="primary"
+              variant="success"
+              :href="enableAlertManagementPath"
+              >{{ __('Authorize external service') }}</gl-deprecated-button
+            >
           </div>
         </template>
       </gl-empty-state>
