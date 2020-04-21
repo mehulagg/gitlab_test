@@ -1,15 +1,18 @@
 # Getting started with GitLab GraphQL API
 
-This guide demonstrates basic usage of GitLab's GraphQL API.
+This guide GraphQL and demonstrates basic usage of GitLab's GraphQL API.
 
 See the [GraphQL API StyleGuide](../../development/api_graphql_styleguide.md) for implementation details
 aimed at developers who wish to work on developing the API itself.
 
 ## Why GraphQL
-speed/access/bandwidth/tailored responses regardless of the DM/passing data to other systems/reduced coding time
+GraphQL is a language for APIs to abstractly access and manipulate data versus programming individual endpoints.  With a single ASK, you can retrieve data from several sources in a single  response.
+TODO:  speed/access/bandwidth/tailored responses regardless of the DM/passing data to other systems/reduced coding time
 
 ### Why GraphQL vs REST
-For over 20 years, REST has been the standard, object-based, programmatic access for data access from remote servers. TODO: challenges with multiple  queries.  GraphQL is a new framework/standard for single query, server-side access to multiple data sources.
+For over 20 years, REST has been the standard, object-based, programmatic access for data access from remote servers. 
+
+TODO: challenges with multiple  queries.  GraphQL is a new framework/standard for single query, server-side access to multiple data sources.
 
 -performance
 -value
@@ -37,6 +40,11 @@ Example:
 GRAPHQL_TOKEN=<your-token>
 curl 'https://gitlab.com/api/graphql' --header "Authorization: Bearer $GRAPHQL_TOKEN" --header "Content-Type: application/json" --request POST --data "{\"query\": \"query {currentUser {name}}\"}"
 ```
+TODO:  
+*  current helloworld
+* consuming a datafile with a lengthy query e.g. from GiQL
+* filtering and analyzing the the output from the CLI
+* adding this to automation e.g.  gitlab-ci.yml
 
 ### GraphiQL
 
