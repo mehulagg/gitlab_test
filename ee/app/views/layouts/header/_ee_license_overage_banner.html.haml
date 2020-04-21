@@ -1,10 +1,12 @@
+- remaining_days = (conciliation_date - Date.today).to_i
+
 .user-callout
   .bordered-box.content-block
     .svg-container
       = image_tag('illustrations/subscription-warning.svg')
     .user-callout-copy
       %h4
-        Quarterly seat reconciliation will occur in [N] days.
+        Quarterly seat reconciliation will occur in #{pluralize(remaining_days, 'day')}.
       %p
         Your instance is currently exceeding your subscription's user count. On
         %strong= conciliation_date
@@ -14,4 +16,4 @@
 
       %p
         = link_to _('Learn more about seat reconciliation'), '#', class: 'btn btn-primary', target: '_blank'
-        = link_to _('Contact support'), '#', class: 'btn', target: '_blank'
+        = link_to _('Contact support'), 'https://about.gitlab.com/support/#contact-support', class: 'btn', target: '_blank'
