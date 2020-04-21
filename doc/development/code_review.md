@@ -474,7 +474,7 @@ Some merge requests may benefit from being considered as "high priority" because
 
 High-priority merge requests should reduce the time between iterations of feedback via employing best practices such as:
 * High-priority merge requests should be reviewed more than once per business day for new updates from the author and maintainer (vs. within 2 business days for merge requests that are not a high priority).
-* The author and maintainer should primarily coordinate via issue comments.  They are also are encouraged to coordinate via Slack and/or Zoom as needed to reduce the cycle time.  Using Slack and/or Zoom is discouraged for merge requests for not high priority, as this can be very disruptive to standard workflow and focus.
+* The author and maintainer should primarily coordinate via issue comments.  They are also encouraged to coordinate via Slack and/or Zoom as needed to reduce the cycle time.  Using Slack and/or Zoom is discouraged for merge requests that are not high priority, as this can be very disruptive to standard workflow and focus.
 * The author should consider finding a maintainer that shares many of their same working hours.
 * The managers of the author and the maintainer should consider reducing workload and/or priorities of other work as appropriate.
 
