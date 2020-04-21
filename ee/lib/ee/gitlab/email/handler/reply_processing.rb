@@ -14,8 +14,7 @@ module EE
           def strip_quick_actions(content)
             return content unless author.support_bot?
 
-            command_definitions = ::QuickActions::InterpretService.command_definitions
-            extractor = ::Gitlab::QuickActions::Extractor.new(command_definitions)
+            extractor = ::QuickActions::CommandStore.instance.extractor
 
             extractor.redact_commands(content)
           end
