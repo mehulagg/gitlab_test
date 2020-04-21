@@ -1,0 +1,10 @@
+.gl-alert.gl-alert-warning.js-recovery-settings-callout{ role: 'alert', data: { feature_id: "account_recovery_regular_check", dismiss_endpoint: user_callouts_path, defer_links: "true" } }
+  .gl-alert-body
+    %h3 Upload your updated license to avoid additional charges
+    %p
+      GitLab has processed a quarterly seat reconciliation and generated a new license file for your instance.
+      You will need to upload this new license to avoid future charges. The subscription manager will need to log in
+      to the Customers Portal or check their email to retrieve the new license.
+    %p
+      = link_to _('Retrieve license'), '#', class: 'btn btn-danger', target: '_blank'
+      = link_to _('Contact support'), '#', class: 'btn', target: '_blank'

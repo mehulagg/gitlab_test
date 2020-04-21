@@ -3,23 +3,18 @@
 module SeatsMonitoringHelper
   include Gitlab::Utils::StrongMemoize
 
-  def display_overage_warning?
+  def display_license_overage_warning?
     current_user&.admin? &&
       license_is_over_capacity?
   end
 
-  def banner_content
+  def license_overage_banner
     end_of_conciliation_period = current_license.current_conciliation_period&.last
 
-    return unless end_of_conciliation_period
-
-    one_week_before = end_of_conciliation_period.weeks_ago(1)
-    today = Date.today
-
     if (one_week_before..end_of_conciliation_period).cover?(today)
-      # banner_1 content
-    elsif today > end_of_conciliation_period
-      # banner_2 content
+      render('layouts/header/ee_license_overage_banner.html.haml', conciliation_date: end_of_conciliation_period)
+    elsif today > end_of_conciliation_period # Check previous period
+      render('layouts/header/ee_license_overage_alert.html.haml')
     end
   end
 

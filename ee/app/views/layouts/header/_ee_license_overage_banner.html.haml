@@ -1,0 +1,17 @@
+.user-callout
+  .bordered-box.content-block
+    .svg-container
+      = image_tag('illustrations/subscription-warning.svg')
+    .user-callout-copy
+      %h4
+        Quarterly seat reconciliation will occur in [N] days.
+      %p
+        Your instance is currently exceeding your subscription's user count. On
+        %strong= conciliation_date
+        , GitLab will automatically process a quarterly seat reconciliation for your instance
+        and generate a new license. There is nothing you need to do right now. We will send
+        you the updated license via email or you can download it from the Customers Portal.
+
+      %p
+        = link_to _('Learn more about seat reconciliation'), '#', class: 'btn btn-primary', target: '_blank'
+        = link_to _('Contact support'), '#', class: 'btn', target: '_blank'
