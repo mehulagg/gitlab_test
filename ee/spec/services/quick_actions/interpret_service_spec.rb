@@ -169,6 +169,49 @@ RSpec.describe QuickActions::InterpretService do
       end
     end
 
+    describe '/close' do
+      let(:content) { '/close' }
+
+      context 'an epic' do
+        before do
+          group.add_developer(developer)
+        end
+
+        let(:target) { epic }
+
+        context 'when epics are disabled' do
+          it_behaves_like 'quick action is unavailable', :epic
+        end
+
+        context 'when the epic is closed' do
+          before do
+            stub_licensed_features(epics: true)
+            epic.close
+          end
+
+          it_behaves_like 'quick action is unavailable', :epic
+        end
+
+        context 'when epics are available' do
+          before do
+            stub_licensed_features(epics: true)
+          end
+
+          it 'sets correct updates' do
+            expect(updates).to eq(state_event: 'close')
+          end
+
+          it 'produces the correct message' do
+            expect(message).to eq('Closed this epic.')
+          end
+
+          it 'is available' do
+            expect(service.available_commands).to include(a_hash_including(name: :close, description: 'Close this epic'))
+          end
+        end
+      end
+    end
+
     describe '/unassign' do
       context 'Issue' do
         let(:target) { issue }

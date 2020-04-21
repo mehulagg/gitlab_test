@@ -4,6 +4,8 @@ module QuickActions
   class CommandStore
     include Singleton
 
+    CommandNameCollision = Class.new(ArgumentError)
+
     attr_reader :command_definitions
 
     COMMAND_MODULES = [
@@ -26,6 +28,16 @@ module QuickActions
         defs.merge!(mod.command_definitions_by_name)
       end.freeze
       freeze
+
+      collisions = @command_definitions
+        .flat_map(&:all_names)
+        .group_by(&:itself).values
+        .select { |grp| grp.size > 1 }
+        .map(&:first)
+
+      if collisions.any?
+        raise CommandNameCollision, collisions.join(', ')
+      end
     end
 
     def extractor
@@ -40,7 +52,7 @@ module QuickActions
       command_definitions.map do |definition|
         next unless definition.available?(context)
 
-        definition.to_h(self)
+        definition.to_h(context)
       end.compact
     end
   end
