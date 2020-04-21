@@ -53,6 +53,9 @@ module Gitlab
           update(merge: diff_head_sha)
         end
 
+        # Provides mergeable?
+        helpers ::Gitlab::QuickActions::MergeRequestHelpers
+
         helpers do
           def diff_head_sha
             @diff_head_sha ||= params[:merge_request_diff_head_sha]

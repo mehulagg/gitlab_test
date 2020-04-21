@@ -26,7 +26,7 @@ module Gitlab
         def build_helper(mod = nil, &block)
           raise ArgumentError, 'Both module and block provided' if mod && block_given?
           raise ArgumentError, 'mod or block must be provided' unless mod || block_given?
-          raise ArgumentError, 'mod must be a Module' if mod && !mod.is_a(Module)
+          raise ArgumentError, 'mod must be a Module' if mod && !mod.is_a?(Module)
 
           block_given? ? Module.new(&block) : mod
         end
