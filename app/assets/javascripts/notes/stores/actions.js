@@ -311,18 +311,22 @@ export const saveNote = ({ commit, dispatch }, noteData) => {
   }
 
   const processQuickActions = res => {
-    const { errors: { commands_only: message } = { commands_only: null } } = res;
+    const ifNoErr = { command_messages: null, command_warnings: null };
+    const { errors: { command_messages: message, command_warnings: warnings } = ifNoErr } = res;
     /*
      The following reply means that quick actions have been successfully applied:
 
      {"commands_changes":{},"valid":false,"errors":{"commands_only":["Commands applied"]}}
      */
-    if (hasQuickActions && message) {
+    if (hasQuickActions && (message || warnings)) {
       eTagPoll.makeRequest();
 
       $('.js-gfm-input').trigger('clear-commands-cache.atwho');
 
       Flash(message || __('Commands applied'), 'notice', noteData.flashContainer);
+      if (warnings) {
+        Flash(warnings, 'warning', noteData.flashContainer);
+      }
     }
 
     return res;
