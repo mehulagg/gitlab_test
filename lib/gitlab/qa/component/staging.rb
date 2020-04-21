@@ -7,6 +7,7 @@ module Gitlab
     module Component
       class Staging
         ADDRESS = 'https://staging.gitlab.com'.freeze
+        GEO_SECONDARY_ADDRESS = 'https://geo.staging.gitlab.com'.freeze
 
         def self.release
           Release.new(image)
