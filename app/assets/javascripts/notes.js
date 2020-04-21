@@ -402,7 +402,13 @@ export default class Notes {
         if (noteEntity.commands_changes && Object.keys(noteEntity.commands_changes).length > 0) {
           $notesList.find('.system-note.being-posted').remove();
         }
-        this.addFlash(noteEntity.errors.commands_only, 'notice', this.parentTimeline.get(0));
+        if (noteEntity.errors.command_messages) {
+          this.addFlash(noteEntity.errors.command_messages, 'notice', this.parentTimeline.get(0));
+        }
+        if (noteEntity.errors.command_warnings) {
+          this.addFlash(noteEntity.errors.command_warnings, 'warning', this.parentTimeline.get(0));
+        }
+
         this.refresh();
       }
       return;
