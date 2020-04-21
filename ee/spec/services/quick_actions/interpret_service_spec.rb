@@ -169,6 +169,38 @@ RSpec.describe QuickActions::InterpretService do
       end
     end
 
+    describe '/title on epic' do
+      let(:new_title) { 'new title' }
+      let(:content) { "/title #{new_title}" }
+      let(:target) { epic }
+
+      before do
+        group.add_developer(developer)
+      end
+
+      context 'when epics are disabled' do
+        it_behaves_like 'quick action is unavailable', :title
+      end
+
+      context 'when epics are enabled' do
+        before do
+          stub_licensed_features(epics: true)
+        end
+
+        it 'marks the title for update' do
+          expect(updates).to eq(title: new_title)
+        end
+
+        it 'has an appropriate message' do
+          expect(message).to eq(%Q(Changed the title to "#{new_title}".))
+        end
+
+        it 'is available' do
+          expect(service.available_commands).to include(a_hash_including(name: :title, description: 'Change title'))
+        end
+      end
+    end
+
     describe '/close' do
       let(:content) { '/close' }
 
@@ -180,7 +212,7 @@ RSpec.describe QuickActions::InterpretService do
         let(:target) { epic }
 
         context 'when epics are disabled' do
-          it_behaves_like 'quick action is unavailable', :epic
+          it_behaves_like 'quick action is unavailable', :close
         end
 
         context 'when the epic is closed' do
