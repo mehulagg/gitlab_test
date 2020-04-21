@@ -6662,6 +6662,9 @@ msgstr ""
 msgid "Could not find iteration"
 msgstr ""
 
+msgid "Could not find milestone"
+msgstr ""
+
 msgid "Could not remove the trigger."
 msgstr ""
 
@@ -9643,8 +9646,10 @@ msgstr ""
 msgid "Failed to add a Zoom meeting"
 msgstr ""
 
-msgid "Failed to apply commands."
-msgstr ""
+msgid "Failed to apply one command."
+msgid_plural "Failed to apply %{n} commands."
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "Failed to assign a user because no user was found."
 msgstr ""
@@ -15439,6 +15444,9 @@ msgstr ""
 msgid "No available namespaces to fork the project."
 msgstr ""
 
+msgid "No branch named %{branch_name}."
+msgstr ""
+
 msgid "No branches found"
 msgstr ""
 
@@ -15680,6 +15688,9 @@ msgid "Not-confidential epic cannot be assigned to a confidential parent epic"
 msgstr ""
 
 msgid "Note"
+msgstr ""
+
+msgid "Note only contained commands."
 msgstr ""
 
 msgid "Note parameters are invalid: %{errors}"
@@ -26580,6 +26591,9 @@ msgid "You can try again using %{begin_link}basic search%{end_link}"
 msgstr ""
 
 msgid "You cannot access the raw file. Please wait a minute."
+msgstr ""
+
+msgid "You cannot approve this merge request"
 msgstr ""
 
 msgid "You cannot impersonate a blocked user"
