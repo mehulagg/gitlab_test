@@ -470,7 +470,7 @@ another reviewer.
 
 ### Review process for high priority merge requests
 
-Some merge requests may benefit from being marked as "high priority" because they are needed to meet a critical customer need.
+Some merge requests may benefit from being considered as "high priority" because they are needed to meet a critical customer need.
 
 High-priority merge requests should reduce the time between iterations of feedback via employing best practices such as:
 * High-priority merge requests should be reviewed more than once per business day for new updates from the author and maintainer (vs. within 2 business days for merge requests that are not a high priority).
