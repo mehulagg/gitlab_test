@@ -213,14 +213,6 @@ FactoryBot.define do
     trait(:object_storage) do
       file_store { Packages::PackageFileUploader::Store::REMOTE }
     end
-
-    trait(:checksummed) do
-      verification_checksum { 'abc' }
-    end
-
-    trait(:checksum_failure) do
-      verification_failure { 'Could not calculate the checksum' }
-    end
   end
 
   factory :maven_metadatum, class: 'Packages::MavenMetadatum' do
