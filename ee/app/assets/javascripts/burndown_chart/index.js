@@ -38,7 +38,6 @@ export default () => {
         const chartData = new BurndownChartData(burndownEvents, startDate, dueDate).generate();
 
         const initialScope = chartData[0][1];
-        const initialWeight = chartData[0][2];
 
         const burnupEvents = burnupResponse.data;
 
