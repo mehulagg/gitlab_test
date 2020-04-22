@@ -44,7 +44,7 @@ module Gitlab
           relation_name.to_s.constantize
         end
 
-        def initialize(relation_sym:, relation_hash:, members_mapper:, object_builder:, user:, importable:, excluded_keys: [])
+        def initialize(relation_sym:, relation_hash:, members_mapper:, object_builder:, user:, importable:, excluded_keys: [], included_keys: [])
           @relation_name = self.class.overrides[relation_sym]&.to_sym || relation_sym
           @relation_hash = relation_hash.except('noteable_id')
           @members_mapper = members_mapper
@@ -61,6 +61,9 @@ module Gitlab
           # if we clean the excluded keys in the parsed_relation_hash, it will be removed
           # from the object attributes and the export will fail.
           @relation_hash.except!(*excluded_keys)
+
+          # Filter out relation hash to only contain permitted attributes/relations/methods
+          @relation_hash.slice!(*included_keys) if included_keys.any?
         end
 
         # Creates an object from an actual model with name "relation_sym" with params from

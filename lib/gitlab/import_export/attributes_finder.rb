@@ -3,9 +3,12 @@
 module Gitlab
   module ImportExport
     class AttributesFinder
+      attr_reader :tree, :included_attributes, :shared_included_attributes, :excluded_attributes, :methods, :preloads
+
       def initialize(config:)
         @tree = config[:tree] || {}
         @included_attributes = config[:included_attributes] || {}
+        @shared_included_attributes = config[:shared_included_attributes] || {}
         @excluded_attributes = config[:excluded_attributes] || {}
         @methods = config[:methods] || {}
         @preloads = config[:preloads] || {}
@@ -27,7 +30,7 @@ module Gitlab
 
       def find(model_key, model_tree)
         {
-          only: @included_attributes[model_key],
+          only: included_with_shared_attributes(model_key),
           except: @excluded_attributes[model_key],
           methods: @methods[model_key],
           include: resolve_model_tree(model_tree),
@@ -59,6 +62,14 @@ module Gitlab
 
       def resolve_model(model_key, model_tree)
         { model_key => find(model_key, model_tree) }
+      end
+
+      def included_with_shared_attributes(model_key)
+        included_keys = @included_attributes[model_key]
+
+        return unless included_keys
+
+        [included_keys, @shared_included_attributes].flatten.compact
       end
     end
   end

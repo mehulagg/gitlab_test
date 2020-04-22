@@ -3,12 +3,13 @@
 module Gitlab
   module ImportExport
     class Reader
-      attr_reader :tree, :attributes_finder
+      attr_reader :tree, :attributes_finder, :attributes_permitter
 
       def initialize(shared:, config: ImportExport::Config.new.to_h)
-        @shared            = shared
-        @config            = config
+        @shared = shared
+        @config = config
         @attributes_finder = Gitlab::ImportExport::AttributesFinder.new(config: @config)
+        @attributes_permitter = Gitlab::ImportExport::AttributesPermitter.new(config: @config)
       end
 
       # Outputs a hash in the format described here: http://api.rubyonrails.org/classes/ActiveModel/Serializers/JSON.html

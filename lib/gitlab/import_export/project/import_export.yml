@@ -111,6 +111,76 @@ included_attributes:
     - :name
   ci_cd_settings:
     - :group_runners_enabled
+  merge_request: &merge_request
+    - :allow_maintainer_to_push
+    - :approvals_before_merge
+    - :created_at
+    - :description
+    - :discussion_locked
+    - :iid
+    - :in_progress_merge_commit_sha
+    - :last_edited_at
+    - :lock_version
+    - :merge_commit_sha
+    - :merge_error
+    - :merge_params
+    - :merge_status
+    - :merge_when_pipeline_succeeds
+    - :position
+    - :rebase_commit_sha
+    - :source_branch
+    - :squash
+    - :squash_commit_sha
+    - :target_branch
+    - :time_estimate
+    - :title
+    - :updated_at
+  merge_requests: *merge_request
+  issue: &issue
+    - :branch_name
+    - :closed_at
+    - :confidential
+    - :created_at
+    - :description
+    - :discussion_locked
+    - :due_date
+    - :external_key
+    - :health_status
+    - :iid
+    - :last_edited_at
+    - :lock_version
+    - :position
+    - :relative_position
+    - :service_desk_reply_to
+    - :time_estimate
+    - :title
+    - :updated_at
+    - :weight
+  issues: *issue
+
+# Attributes that are allowed to be included in each model
+# If specified attributes are present in the model - they
+# will be included
+shared_included_attributes:
+  - :assignee_id
+  - :author_id
+  - :closed_by_id
+  - :commit_id
+  - :created_by_id
+  - :custom_attributes
+  - :discussion_id
+  - :group_id
+  - :last_edited_by_id
+  - :latest_closed_by_id
+  - :merge_user_id
+  - :merged_by_id
+  - :owner_id
+  - :project_id
+  - :resolved_by_id
+  - :source_project_id
+  - :target_project_id
+  - :updated_by_id
+  - :user_id
 
 # Do not include the following attributes for the models specified.
 excluded_attributes:
@@ -188,32 +258,6 @@ excluded_attributes:
     - :external_diff_offset
     - :external_diff_size
     - :merge_request_diff_id
-  issues:
-    - :milestone_id
-    - :sprint_id
-    - :moved_to_id
-    - :sent_notifications
-    - :state_id
-    - :duplicated_to_id
-    - :promoted_to_epic_id
-  merge_request:
-    - :milestone_id
-    - :sprint_id
-    - :ref_fetched
-    - :merge_jid
-    - :rebase_jid
-    - :latest_merge_request_diff_id
-    - :head_pipeline_id
-    - :state_id
-  merge_requests:
-    - :milestone_id
-    - :sprint_id
-    - :ref_fetched
-    - :merge_jid
-    - :rebase_jid
-    - :latest_merge_request_diff_id
-    - :head_pipeline_id
-    - :state_id
   award_emoji:
     - :awardable_id
   statuses:
@@ -345,11 +389,12 @@ methods:
     - :type
   merge_request_diff_files:
     - :utf8_diff
-  merge_requests:
+  merge_request: &merge_request
     - :diff_head_sha
     - :source_branch_sha
     - :target_branch_sha
     - :state
+  merge_requests: *merge_request
   events:
     - :action
   push_event_payload:
@@ -360,8 +405,9 @@ methods:
     - :list_type
   ci_pipelines:
     - :notes
-  issues:
+  issue: &issue
     - :state
+  issues: *issue
 
 preloads:
   statuses:

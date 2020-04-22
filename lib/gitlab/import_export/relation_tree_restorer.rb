@@ -199,6 +199,10 @@ module Gitlab
         @reader.attributes_finder.find_excluded_keys(relation)
       end
 
+      def included_keys_for_relation(relation)
+        @reader.attributes_permitter.permitted_attributes_for(relation)
+      end
+
       def importable_class
         @importable.class
       end
@@ -215,7 +219,8 @@ module Gitlab
           members_mapper: @members_mapper,
           object_builder: @object_builder,
           user: @user,
-          excluded_keys: excluded_keys_for_relation(relation_key)
+          excluded_keys: excluded_keys_for_relation(relation_key),
+          included_keys: included_keys_for_relation(relation_key)
         }
       end
 
