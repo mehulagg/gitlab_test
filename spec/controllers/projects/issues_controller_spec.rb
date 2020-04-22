@@ -4,6 +4,7 @@ require 'spec_helper'
 
 describe Projects::IssuesController do
   include ProjectForksHelper
+  include_context 'includes Spam constants'
 
   let(:project) { create(:project) }
   let(:user)    { create(:user) }
@@ -419,11 +420,11 @@ describe Projects::IssuesController do
         expect(issue.reload.title).to eq('New title')
       end
 
-      context 'when Akismet is enabled and the issue is identified as spam' do
+      context 'when the SpamVerdictService disallows' do
         before do
           stub_application_setting(recaptcha_enabled: true)
-          expect_next_instance_of(Spam::AkismetService) do |akismet_service|
-            expect(akismet_service).to receive_messages(spam?: true)
+          expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
+            expect(verdict_service).to receive(:execute).and_return(REQUIRE_RECAPTCHA)
           end
         end
 
@@ -716,16 +717,16 @@ describe Projects::IssuesController do
         end
       end
 
-      context 'Akismet is enabled' do
+      context 'Recaptcha is enabled' do
         before do
           project.update!(visibility_level: Gitlab::VisibilityLevel::PUBLIC)
           stub_application_setting(recaptcha_enabled: true)
         end
 
-        context 'when an issue is not identified as spam' do
+        context 'when SpamVerdictService allows the issue' do
           before do
-            expect_next_instance_of(Spam::AkismetService) do |akismet_service|
-              expect(akismet_service).to receive_messages(spam?: false)
+            expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
+              expect(verdict_service).to receive(:execute).and_return(ALLOW)
             end
           end
 
@@ -735,10 +736,10 @@ describe Projects::IssuesController do
         end
 
         context 'when an issue is identified as spam' do
-          context 'when captcha is not verified' do
+          context 'when recaptcha is not verified' do
             before do
-              expect_next_instance_of(Spam::AkismetService) do |akismet_service|
-                expect(akismet_service).to receive_messages(spam?: true)
+              expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
+                expect(verdict_service).to receive(:execute).and_return(REQUIRE_RECAPTCHA)
               end
             end
 
@@ -751,7 +752,7 @@ describe Projects::IssuesController do
                 expect { update_issue }.not_to change { issue.reload.title }
               end
 
-              it 'rejects an issue recognized as a spam when recaptcha disabled' do
+              it 'rejects an issue recognized as a spam when reCAPTCHA disabled' do
                 stub_application_setting(recaptcha_enabled: false)
 
                 expect { update_issue }.not_to change { issue.reload.title }
@@ -796,7 +797,7 @@ describe Projects::IssuesController do
             end
           end
 
-          context 'when captcha is verified' do
+          context 'when recaptcha is verified' do
             let(:spammy_title) { 'Whatever' }
             let!(:spam_logs) { create_list(:spam_log, 2, user: user, title: spammy_title) }
 
@@ -810,7 +811,7 @@ describe Projects::IssuesController do
               expect(response).to have_gitlab_http_status(:ok)
             end
 
-            it 'accepts an issue after recaptcha is verified' do
+            it 'accepts an issue after reCAPTCHA is verified' do
               expect { update_verified_issue }.to change { issue.reload.title }.to(spammy_title)
             end
 
@@ -967,17 +968,17 @@ describe Projects::IssuesController do
       end
     end
 
-    context 'Akismet is enabled' do
+    context 'Recaptcha is enabled' do
       before do
         stub_application_setting(recaptcha_enabled: true)
       end
 
-      context 'when an issue is not identified as spam' do
+      context 'when SpamVerdictService allows the issue' do
         before do
           stub_feature_flags(allow_possible_spam: false)
 
-          expect_next_instance_of(Spam::AkismetService) do |akismet_service|
-            expect(akismet_service).to receive_messages(spam?: false)
+          expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
+            expect(verdict_service).to receive(:execute).and_return(ALLOW)
           end
         end
 
@@ -986,16 +987,16 @@ describe Projects::IssuesController do
         end
       end
 
-      context 'when an issue is identified as spam' do
+      context 'when SpamVerdictService requires recaptcha' do
         context 'when captcha is not verified' do
-          def post_spam_issue
-            post_new_issue(title: 'Spam Title', description: 'Spam lives here')
+          before do
+            expect_next_instance_of(Spam::SpamVerdictService) do |verdict_service|
+              expect(verdict_service).to receive(:execute).and_return(REQUIRE_RECAPTCHA)
+            end
           end
 
-          before do
-            expect_next_instance_of(Spam::AkismetService) do |akismet_service|
-              expect(akismet_service).to receive_messages(spam?: true)
-            end
+          def post_spam_issue
+            post_new_issue(title: 'Spam Title', description: 'Spam lives here')
           end
 
           context 'when allow_possible_spam feature flag is false' do
@@ -1016,7 +1017,7 @@ describe Projects::IssuesController do
               expect { post_new_issue(title: '') }.not_to change(Issue, :count)
             end
 
-            it 'does not create an issue when recaptcha is not enabled' do
+            it 'does not create an issue when reCAPTCHA is not enabled' do
               stub_application_setting(recaptcha_enabled: false)
 
               expect { post_spam_issue }.not_to change(Issue, :count)
@@ -1039,30 +1040,31 @@ describe Projects::IssuesController do
           end
         end
 
-        context 'when captcha is verified' do
+        context 'when Recaptcha is verified' do
           let!(:spam_logs) { create_list(:spam_log, 2, user: user, title: 'Title') }
+          let!(:last_spam_log) { spam_logs.last }
 
           def post_verified_issue
-            post_new_issue({}, { spam_log_id: spam_logs.last.id, recaptcha_verification: true } )
+            post_new_issue({}, { spam_log_id: last_spam_log.id, recaptcha_verification: true } )
           end
 
           before do
             expect(controller).to receive_messages(verify_recaptcha: true)
           end
 
-          it 'accepts an issue after recaptcha is verified' do
+          it 'accepts an issue after reCAPTCHA is verified' do
             expect { post_verified_issue }.to change(Issue, :count)
           end
 
           it 'marks spam log as recaptcha_verified' do
-            expect { post_verified_issue }.to change { SpamLog.last.recaptcha_verified }.from(false).to(true)
+            expect { post_verified_issue }.to change { last_spam_log.reload.recaptcha_verified }.from(false).to(true)
           end
 
           it 'does not mark spam log as recaptcha_verified when it does not belong to current_user' do
             spam_log = create(:spam_log)
 
             expect { post_new_issue({}, { spam_log_id: spam_log.id, recaptcha_verification: true } ) }
-              .not_to change { SpamLog.last.recaptcha_verified }
+              .not_to change { last_spam_log.recaptcha_verified }
           end
         end
       end
@@ -1511,61 +1513,6 @@ describe Projects::IssuesController do
         note_json = json_response.first['notes'].first
 
         expect(note_json['author']['status_tooltip_html']).to be_present
-      end
-
-      context 'is_gitlab_employee attribute' do
-        subject { get :discussions, params: { namespace_id: project.namespace, project_id: project, id: issue.iid } }
-
-        before do
-          allow(Gitlab).to receive(:com?).and_return(true)
-          note_user = discussion.author
-          note_user.update(email: email)
-          note_user.confirm
-        end
-
-        shared_examples 'non inclusion of gitlab employee badge' do
-          it 'does not render the is_gitlab_employee attribute' do
-            subject
-
-            note_json = json_response.first['notes'].first
-
-            expect(note_json['author']['is_gitlab_employee']).to be nil
-          end
-        end
-
-        context 'when user is a gitlab employee' do
-          let(:email) { 'test@gitlab.com' }
-
-          it 'renders the is_gitlab_employee attribute' do
-            subject
-
-            note_json = json_response.first['notes'].first
-
-            expect(note_json['author']['is_gitlab_employee']).to be true
-          end
-
-          context 'when feature flag is disabled' do
-            before do
-              stub_feature_flags(gitlab_employee_badge: false)
-            end
-
-            it_behaves_like 'non inclusion of gitlab employee badge'
-          end
-        end
-
-        context 'when user is not a gitlab employee' do
-          let(:email) { 'test@example.com' }
-
-          it_behaves_like 'non inclusion of gitlab employee badge'
-
-          context 'when feature flag is disabled' do
-            before do
-              stub_feature_flags(gitlab_employee_badge: false)
-            end
-
-            it_behaves_like 'non inclusion of gitlab employee badge'
-          end
-        end
       end
 
       it 'does not cause an extra query for the status' do

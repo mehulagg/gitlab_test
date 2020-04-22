@@ -2005,7 +2005,9 @@ CREATE TABLE public.deploy_tokens (
     username character varying,
     token_encrypted character varying(255),
     deploy_token_type smallint DEFAULT 2 NOT NULL,
-    write_registry boolean DEFAULT false NOT NULL
+    write_registry boolean DEFAULT false NOT NULL,
+    read_package_registry boolean DEFAULT false NOT NULL,
+    write_package_registry boolean DEFAULT false NOT NULL
 );
 
 CREATE SEQUENCE public.deploy_tokens_id_seq
@@ -5845,7 +5847,8 @@ CREATE TABLE public.services (
     description character varying(500),
     comment_on_event_enabled boolean DEFAULT true NOT NULL,
     template boolean DEFAULT false,
-    instance boolean DEFAULT false NOT NULL
+    instance boolean DEFAULT false NOT NULL,
+    comment_detail smallint
 );
 
 CREATE SEQUENCE public.services_id_seq
@@ -9829,7 +9832,9 @@ CREATE INDEX index_pages_domain_acme_orders_on_challenge_token ON public.pages_d
 
 CREATE INDEX index_pages_domain_acme_orders_on_pages_domain_id ON public.pages_domain_acme_orders USING btree (pages_domain_id);
 
-CREATE INDEX index_pages_domains_need_auto_ssl_renewal ON public.pages_domains USING btree (certificate_source, certificate_valid_not_after) WHERE (auto_ssl_enabled = true);
+CREATE INDEX index_pages_domains_need_auto_ssl_renewal_user_provided ON public.pages_domains USING btree (id) WHERE ((auto_ssl_enabled = true) AND (auto_ssl_failed = false) AND (certificate_source = 0));
+
+CREATE INDEX index_pages_domains_need_auto_ssl_renewal_valid_not_after ON public.pages_domains USING btree (certificate_valid_not_after) WHERE ((auto_ssl_enabled = true) AND (auto_ssl_failed = false));
 
 CREATE UNIQUE INDEX index_pages_domains_on_domain_and_wildcard ON public.pages_domains USING btree (domain, wildcard);
 
@@ -9867,7 +9872,7 @@ CREATE INDEX index_personal_access_tokens_on_user_id ON public.personal_access_t
 
 CREATE UNIQUE INDEX index_plan_limits_on_plan_id ON public.plan_limits USING btree (plan_id);
 
-CREATE INDEX index_plans_on_name ON public.plans USING btree (name);
+CREATE UNIQUE INDEX index_plans_on_name ON public.plans USING btree (name);
 
 CREATE UNIQUE INDEX index_pool_repositories_on_disk_path ON public.pool_repositories USING btree (disk_path);
 
@@ -10154,6 +10159,8 @@ CREATE INDEX index_resource_milestone_events_on_merge_request_id ON public.resou
 CREATE INDEX index_resource_milestone_events_on_milestone_id ON public.resource_milestone_events USING btree (milestone_id);
 
 CREATE INDEX index_resource_milestone_events_on_user_id ON public.resource_milestone_events USING btree (user_id);
+
+CREATE INDEX index_resource_weight_events_on_issue_id_and_created_at ON public.resource_weight_events USING btree (issue_id, created_at);
 
 CREATE INDEX index_resource_weight_events_on_issue_id_and_weight ON public.resource_weight_events USING btree (issue_id, weight);
 
@@ -10540,6 +10547,10 @@ CREATE UNIQUE INDEX merge_request_user_mentions_on_mr_id_index ON public.merge_r
 CREATE INDEX note_mentions_temp_index ON public.notes USING btree (id, noteable_type) WHERE (note ~~ '%@%'::text);
 
 CREATE UNIQUE INDEX one_canonical_wiki_page_slug_per_metadata ON public.wiki_page_slugs USING btree (wiki_page_meta_id) WHERE (canonical = true);
+
+CREATE INDEX packages_packages_verification_checksum_partial ON public.packages_package_files USING btree (verification_checksum) WHERE (verification_checksum IS NOT NULL);
+
+CREATE INDEX packages_packages_verification_failure_partial ON public.packages_package_files USING btree (verification_failure) WHERE (verification_failure IS NOT NULL);
 
 CREATE INDEX partial_index_ci_builds_on_scheduled_at_with_scheduled_jobs ON public.ci_builds USING btree (scheduled_at) WHERE ((scheduled_at IS NOT NULL) AND ((type)::text = 'Ci::Build'::text) AND ((status)::text = 'scheduled'::text));
 
@@ -13062,6 +13073,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200217210353
 20200217223651
 20200217225719
+20200218113721
 20200219105209
 20200219133859
 20200219135440
@@ -13213,12 +13225,16 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200402124802
 20200402135250
 20200402185044
+20200403132349
 20200403184110
 20200403185127
 20200403185422
+20200406095930
+20200406100909
 20200406102111
 20200406102120
 20200406135648
+20200406141452
 20200406192059
 20200406193427
 20200407094005
@@ -13243,14 +13259,18 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200408212219
 20200409085956
 20200409211607
+20200410104828
 20200410232012
+20200411125656
 20200413072059
 20200413230056
 20200414144547
+20200415153154
 20200415160722
 20200415161021
 20200415161206
 20200415192656
+20200416111111
 20200416120128
 20200416120354
 \.

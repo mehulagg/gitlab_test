@@ -12,6 +12,7 @@ See also:
 
 - [Project import/export API](../../../api/project_import_export.md)
 - [Project import/export administration Rake tasks](../../../administration/raketasks/project_import_export.md) **(CORE ONLY)**
+- [Group import/export](../../group/settings/import_export.md)
 - [Group import/export API](../../../api/group_import_export.md)
 
 To set up a project import/export:
@@ -24,6 +25,8 @@ To set up a project import/export:
 
 Note the following:
 
+- Imports from a newer version of GitLab are not supported.
+  The Importing GitLab version must be greater than or equal to the Exporting GitLab version.
 - Imports will fail unless the import and export GitLab instances are
   compatible as described in the [Version history](#version-history).
 - Exports are stored in a temporary [shared directory](../../../development/shared_files.md)

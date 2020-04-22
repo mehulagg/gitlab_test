@@ -15,6 +15,7 @@ class Snippet < ApplicationRecord
   include FromUnion
   include IgnorableColumns
   include HasRepository
+  include AfterCommitQueue
   extend ::Gitlab::Utils::Override
 
   MAX_FILE_COUNT = 1
@@ -320,6 +321,12 @@ class Snippet < ApplicationRecord
 
   def versioned_enabled_for?(user)
     ::Feature.enabled?(:version_snippets, user) && repository_exists?
+  end
+
+  def file_name_on_repo
+    return if repository.empty?
+
+    repository.ls_files(repository.root_ref).first
   end
 
   class << self

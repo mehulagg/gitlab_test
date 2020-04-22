@@ -60,6 +60,11 @@ according to the type of domain you want to use with your Pages site:
 - [For subdomains](#for-subdomains), `subdomain.example.com`.
 - [For both](#for-both-root-and-subdomains).
 
+NOTE: **Note:**
+You can [configure IPv6 on self-managed instances].(../../../../administration/pages/index.md#advanced-configuration),
+but IPv6 is not currently configured for Pages on GitLab.com.
+Follow [this issue](https://gitlab.com/gitlab-org/gitlab/-/issues/214718) for details.
+
 ##### For root domains
 
 Root domains (`example.com`) require:
