@@ -998,6 +998,7 @@ Information about pagination in a connection.
 | `path` | String! | Path of the project |
 | `printingMergeRequestLinkEnabled` | Boolean | Indicates if a link to create or view a merge request should display after a push to Git repositories of the project from the command line |
 | `publicJobs` | Boolean | Indicates if there is public access to pipelines and job details of the project, including output logs and artifacts |
+| `release` | Release | A single release of the project. Available only when feature flag `graphql_release_data` is enabled. |
 | `removeSourceBranchAfterMerge` | Boolean | Indicates if `Delete source branch` option should be enabled by default for all new merge requests of the project |
 | `repository` | Repository | Git repository of the project |
 | `requestAccessEnabled` | Boolean | Indicates if users can request member access to the project |
@@ -1078,6 +1079,48 @@ Information about pagination in a connection.
 | `repositorySize` | Float! | Repository size of the project |
 | `storageSize` | Float! | Storage size of the project |
 | `wikiSize` | Float | Wiki size of the project |
+
+## Release
+
+| Name  | Type  | Description |
+| ---   |  ---- | ----------  |
+| `assets` | ReleaseAssets | Assets associated to the release |
+| `author` | User | User that created the release |
+| `commit` | Commit | The commit associated with the release |
+| `createdAt` | Time | Timestamp of when the release was created |
+| `description` | String | Description (also known as "release notes") of the release |
+| `descriptionHtml` | String | The GitLab Flavored Markdown rendering of `description` |
+| `evidenceSha` | String | SHA of the release's evidence |
+| `name` | String | Name of the release |
+| `releasedAt` | Time | Timestamp of when the release was released |
+| `tagName` | String! | Name of the tag associated with the release |
+| `tagPath` | String | Web URL to the tag associated with the release |
+| `updatedAt` | Time | Timestamp of when the release was last updated |
+
+## ReleaseAssets
+
+| Name  | Type  | Description |
+| ---   |  ---- | ----------  |
+| `assetsCount` | Int | The number of assets attached to the release |
+| `evidenceFilePath` | String | URL to the release's evidence |
+| `links` | ReleaseLink! => Array | Links associated to the release |
+| `sources` | ReleaseSource! => Array | Sources associated wih the release |
+
+## ReleaseLink
+
+| Name  | Type  | Description |
+| ---   |  ---- | ----------  |
+| `external` | Boolean | Whether or not the link points to an external resource |
+| `id` | ID! | The ID of the link |
+| `name` | String | The name of the link |
+| `url` | String | The URL of the link |
+
+## ReleaseSource
+
+| Name  | Type  | Description |
+| ---   |  ---- | ----------  |
+| `format` | String | The format of the source |
+| `url` | String | The URL that can be used to download the source |
 
 ## RemoveAwardEmojiPayload
 
