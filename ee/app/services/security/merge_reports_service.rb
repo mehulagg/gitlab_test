@@ -18,6 +18,8 @@ module Security
 
     def initialize(*source_reports)
       @source_reports = source_reports
+      # temporary sort https://gitlab.com/gitlab-org/gitlab/-/issues/213839
+      sort_by_ds_analyzers! if source_reports.all? { |x| x.type == :dependency_scanning }
       @target_report = ::Gitlab::Ci::Reports::Security::Report.new(
         @source_reports.first.type,
         @source_reports.first.commit_sha,
@@ -109,6 +111,27 @@ module Security
       sort_occurrences!
 
       @occurrences.each { |occurrence| @target_report.add_occurrence(occurrence) }
+    end
+
+    def sort_by_ds_analyzers!
+      analyzer_priorities = {
+        "bundler_audit" => 1,
+        "retire.js" =>  2,
+        "gemnasium" => 3,
+        "gemnasium-maven" => 3,
+        "gemnasium-python" => 3,
+        "unknown" => 999
+      }.freeze
+
+      @source_reports.sort! do |a, b|
+        a_scanner_id, b_scanner_id = a.scanners.values[0].external_id, b.scanners.values[0].external_id
+
+        # for custom analyzers
+        a_scanner_id = "unknown" if analyzer_priorities[a_scanner_id].nil?
+        b_scanner_id = "unknown" if analyzer_priorities[b_scanner_id].nil?
+
+        analyzer_priorities[a_scanner_id] <=> analyzer_priorities[b_scanner_id]
+      end
     end
   end
 end

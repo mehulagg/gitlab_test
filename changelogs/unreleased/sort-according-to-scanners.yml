@@ -1,0 +1,5 @@
+---
+title: Sort dependency scanning reports before merging
+merge_request: 30187
+author:
+type: fixed
