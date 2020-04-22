@@ -4,7 +4,7 @@ module Gitlab
   module QuickActions
     class CommandDefinition
       attr_accessor :name, :aliases, :description, :explanation, :execution_message,
-        :params, :condition_block, :parse_params_block, :action_block, :warning, :icon, :types
+        :params, :condition_block, :parse_params_block, :action_block, :warning, :icon, :types, :argument_alias
 
       def initialize(name, attributes = {})
         @name = name
@@ -18,6 +18,7 @@ module Gitlab
         @params = attributes[:params] || []
         @condition_block = attributes[:condition_block]
         @parse_params_block = attributes[:parse_params_block]
+        @argument_alias = attributes[:argument_alias]
         @action_block = attributes[:action_block]
         @types = attributes[:types] || []
         @helpers = attributes[:helpers] || []
@@ -35,7 +36,7 @@ module Gitlab
         return false unless valid_type?(context)
         return true unless condition_block
 
-        helper_proxy.new(context).instance_exec(&condition_block)
+        helper_proxy.new(context, self).instance_exec(&condition_block)
       end
 
       def explain(context, arg)
@@ -75,7 +76,7 @@ module Gitlab
       end
 
       def to_h(context)
-        ctx = helper_proxy.new(context)
+        ctx = helper_proxy.new(context, self)
         desc = description
         if desc.respond_to?(:call)
           desc = ctx.instance_exec(&desc) rescue ''
@@ -108,11 +109,10 @@ module Gitlab
       end
 
       def execute_block(block, context, arg)
-        ctx = helper_proxy.new(context)
+        ctx = helper_proxy.new(context, self, arg)
 
         if arg.present? && block.parameters.present?
-          parsed = parse_params(arg, ctx)
-          ctx.instance_exec(parsed, &block)
+          ctx.instance_exec(ctx.argument, &block)
         elsif block.arity == 0
           ctx.instance_exec(&block)
         end
@@ -129,10 +129,19 @@ module Gitlab
       end
 
       def helper_proxy
-        @helper_proxy ||= begin
-                            mods = @helpers
-                            Class.new(SimpleDelegator) { mods.each { |m| include(m) } }
-                          end
+        @helper_proxy ||= build_proxy
+      end
+
+      def build_proxy
+        mods = @helpers
+
+        if mods.empty?
+          CommandContext
+        else
+          Class.new(CommandContext) do
+            mods.each { |m| include(m) }
+          end
+        end
       end
     end
   end

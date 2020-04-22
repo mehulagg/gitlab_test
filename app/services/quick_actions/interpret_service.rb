@@ -97,12 +97,12 @@ module QuickActions
 
         case method
         when :explain
-          with_name(name) { definition.explain(context, arg) }
+          with_name(name, arg) { definition.explain(context, arg) }
         when :execute_message
           @execution_message[name.to_sym] || definition.execute_message(context, arg)
         when :execution_warning
           # run execution message block to capture warnings
-          with_name(name) { definition.execute_message(context, arg) }
+          with_name(name, arg) { definition.execute_message(context, arg) }
           @execution_warning[name.to_sym]
         end
       end.compact
@@ -113,11 +113,11 @@ module QuickActions
         definition = command_store[name]
         next unless definition
 
-        with_name(name) { definition.execute(context, arg) }
+        with_name(name, arg) { definition.execute(context, arg) }
       end
     end
 
-    def with_name(name)
+    def with_name(name, arg)
       @current_command = name.to_sym
       ret = yield
       @current_command = nil
