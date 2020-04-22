@@ -40,6 +40,8 @@ module Metrics
       # Determines whether users should be able to view
       # dashboards at all.
       def allowed?
+        return false unless params[:environment]
+
         project&.public_metrics_dashboard? || Ability.allowed?(current_user, :metrics_dashboard, project)
       end
 
