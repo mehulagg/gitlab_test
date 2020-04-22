@@ -17,18 +17,25 @@ module Gitlab
          deployment_frequency_stats]
       end
 
-      private
-
-      def issue_stats
-        serialize(
-          Summary::Group::Issue.new(
-            group: group, current_user: current_user, options: options)
-        )
+      def issue_summary
+        @issue_summary ||= Summary::Group::Issue.new(group: group, current_user: current_user, options: options)
       end
 
       def deployments_summary
-        @deployments_summary ||=
-          Summary::Group::Deploy.new(group: group, options: options)
+        @deployments_summary ||= Summary::Group::Deploy.new(group: group, options: options)
+      end
+
+      def deployment_frequency_summary
+        @deployment_frequency_summary ||= Summary::Group::DeploymentFrequency.new(
+          deployments: deployments_summary.value,
+          group: group,
+          options: options)
+      end
+
+      private
+
+      def issue_stats
+        serialize(issue_summary)
       end
 
       def deploy_stats
@@ -36,13 +43,7 @@ module Gitlab
       end
 
       def deployment_frequency_stats
-        serialize(
-          Summary::Group::DeploymentFrequency.new(
-            deployments: deployments_summary.value,
-            group: group,
-            options: options),
-          with_unit: true
-        )
+        serialize(deployment_frequency_summary, with_unit: true)
       end
 
       def serialize(summary_object, with_unit: false)

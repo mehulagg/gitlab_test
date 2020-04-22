@@ -32,6 +32,11 @@ module EE
               description: 'Vulnerabilities reported on the projects in the group and its subgroups',
               resolver: Resolvers::VulnerabilitiesResolver,
               feature_flag: :first_class_vulnerabilities
+        field :value_stream_summary,
+              ::Types::Analytics::CycleAnalytics::SummaryType,
+              resolver: ::Resolvers::Analytics::CycleAnalytics::SummaryResolver,
+              null: true,
+              description: 'Value Stream Analytics Summary'
       end
     end
   end
