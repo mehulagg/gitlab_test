@@ -1,6 +1,5 @@
 - milestone = local_assigns[:milestone]
 - burndown = burndown_chart(milestone)
-- burnup = burnup_chart(milestone)
 - warning = data_warning_for(burndown)
 - burndown_endpoint = milestone.group_milestone? ? api_v4_groups_milestones_burndown_events_path(id: milestone.group.id, milestone_id: milestone.id) : api_v4_projects_milestones_burndown_events_path(id: milestone.project.id, milestone_id: milestone.milestoneish_id)
 - burnup_endpoint = milestone.group_milestone? ? api_v4_groups_milestones_burnup_events_path(id: milestone.group.id, milestone_id: milestone.id) : api_v4_projects_milestones_burnup_events_path(id: milestone.project.id, milestone_id: milestone.milestoneish_id)
