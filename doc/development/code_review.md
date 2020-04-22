@@ -482,6 +482,8 @@ High-priority merge requests should *not* sacrifice quality, team stress, or oth
 
 This process focuses on the maintainer review rather than the first review, as the maintainer review is the most common bottleneck (due to the workload on the high workload maintainers).  The intent is to not change the process for the first review.
 
+This process has some similarities to the [Rapid Action Process](https://about.gitlab.com/handbook/engineering/development/#rapid-action-issue).  However, the scope of this process is smaller and it goes into more detail on that reduced scope.  This process has a focus on merge requests and the processes used by the author and maintainer.
+
 #### Process for making a merge request high priority
 
 1. The manager of the author decides the merge request should be considered to be high priority.
