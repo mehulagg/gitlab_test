@@ -486,9 +486,10 @@ This process has some similarities to the [Rapid Action Process](https://about.g
 
 #### Process for making a merge request high priority
 
-1. The manager of the author decides the merge request should be considered to be high priority.
-2. The manager of the author reaches out to the manager of the maintainer to discuss.
-3. If they agree, the merge request is updated to have the label "high-priority-merge-request" and the author and maintainer are informed of the decision and are reminded about the high priority merge request process.
+1. The manager of the author decides the merge request should be considered to be a high priority.
+2. The manager of the author reaches out to the maintainer and manager of the maintainer to discuss.  They will evaluate the request based on impact to the maintainer based on our values and impact the impact on the business of not making the merge request a high priority.  Per our values, the impact on the maintainer explictily comes first.  If the impact on the maintainer makes it not possible but they agree on the priority, they may choose to ask another maintainer to see if the impact on them would be acceptable.
+3. If the maintainer and the managers agree, the merge request is updated to have the label "high-priority-merge-request" and the author and maintainer are informed of the decision and are reminded about the high priority merge request process.
+
 
 This determination should be made as far as possible before the merge request cutoff for the release it is needed in (22nd of each month).  The closer to the cutoff the decision is made, the harder it will be to achieve and the higher stress it will be on the author and maintainer.
 
