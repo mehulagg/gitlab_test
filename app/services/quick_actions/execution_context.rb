@@ -18,6 +18,7 @@ module QuickActions
       @execution_warning = warnings
       @commands_executed = commands
       @updates = {}
+      @parameters = {}
     end
 
     def warn(message)
