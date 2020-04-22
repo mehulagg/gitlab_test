@@ -40,7 +40,7 @@ module Metrics
       # Determines whether users should be able to view
       # dashboards at all.
       def allowed?
-        project.metrics_dashboard_allowed?(current_user)
+        project&.public_metrics_dashboard? || Ability.allowed?(current_user, :metrics_dashboard, project)
       end
 
       # Returns a new dashboard Hash, supplemented with DB info
