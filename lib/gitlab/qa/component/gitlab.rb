@@ -37,6 +37,12 @@ module Gitlab
           @environment['GITLAB_OMNIBUS_CONFIG'] = config.tr("\n", ' ')
         end
 
+        def set_formless_login_token
+          return if Runtime::Env.gitlab_qa_formless_login_token.to_s.strip.empty?
+
+          @environment['GITLAB_OMNIBUS_CONFIG'] = "gitlab_rails['env'] = { 'GITLAB_QA_FORMLESS_LOGIN_TOKEN' => '#{Runtime::Env.gitlab_qa_formless_login_token}' }; #{@environment['GITLAB_OMNIBUS_CONFIG'] || ''}"
+        end
+
         def elastic_url=(url)
           @environment['ELASTIC_URL'] = url
         end
@@ -93,6 +99,7 @@ module Gitlab
 
         def prepare
           setup_disable_animations if disable_animations
+          set_formless_login_token
 
           @docker.pull(image, tag) unless Runtime::Env.skip_pull?
 

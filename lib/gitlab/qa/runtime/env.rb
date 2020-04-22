@@ -70,7 +70,8 @@ module Gitlab
           'MAILHOG_HOSTNAME' => :mailhog_hostname,
           'SLACK_QA_CHANNEL' => :slack_qa_channel,
           'CI_SLACK_WEBHOOK_URL' => :ci_slack_webhook_url,
-          'SLACK_ICON_EMOJI' => :slack_icon_emoji
+          'SLACK_ICON_EMOJI' => :slack_icon_emoji,
+          'GITLAB_QA_FORMLESS_LOGIN_TOKEN' => :gitlab_qa_formless_login_token
         }.freeze
 
         ENV_VARIABLES.each_value do |accessor|
@@ -186,6 +187,10 @@ module Gitlab
 
         def skip_pull?
           (ENV['QA_SKIP_PULL'] =~ /^(false|no|0)$/i) != 0
+        end
+
+        def gitlab_qa_formless_login_token
+          env_value_if_defined('GITLAB_QA_FORMLESS_LOGIN_TOKEN')
         end
 
         private
