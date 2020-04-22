@@ -633,48 +633,100 @@ RSpec.describe Projects::NotesController do
   end
 
   describe 'PUT update' do
-    context "should update the note with a valid issue" do
-      let(:request_params) do
-        {
-          namespace_id: project.namespace,
-          project_id: project,
-          id: note,
-          format: :json,
-          note: {
-            note: "New comment"
-          }
-        }
-      end
+    let(:new_note) { 'New comment' }
+    let(:request_params) do
+      {
+        namespace_id: project.namespace,
+        project_id: project,
+        id: note,
+        format: :json,
+        note: { note: new_note }
+      }
+    end
 
+    def request
+      put :update, params: request_params
+    end
+
+    context "the user has author access" do
       before do
         sign_in(note.author)
         project.add_developer(note.author)
       end
 
       it "updates the note" do
-        expect { put :update, params: request_params }.to change { note.reload.note }
+        expect { request }.to change { note.reload.note }.to(new_note)
+      end
+
+      shared_examples 'command examples' do |status|
+        context 'which modify the issue title' do
+          let(:command) { '/title Awesome Issue' }
+
+          it 'applies the command, and deletes the note', :aggregate_failures do
+            expect { request }.to change { issue.reload.title }.to('Awesome Issue')
+            expect(response).to have_gitlab_http_status(status)
+          end
+        end
+
+        context 'which move the issue' do
+          let(:other_project) { create(:project) }
+          let(:command) { "/move #{other_project.full_path}" }
+
+          before do
+            other_project.add_developer(note.author)
+          end
+
+          it 'applies the command, and deletes the note', :aggregate_failures do
+            request
+
+            expect(response).to have_gitlab_http_status(status)
+            expect(issue.reload).to be_closed
+            expect(other_project.issues).to contain_exactly(have_attributes(title: issue.title))
+          end
+        end
+      end
+
+      context 'the note now only contains commands' do
+        let(:new_note) { command }
+
+        include_examples 'command examples', :gone
+      end
+
+      context 'the note now also contains commands' do
+        let(:new_note) { [note.note, command].join("\n") }
+
+        include_examples 'command examples', :ok do
+          let(:command) { '/close' }
+
+          it 'does not change the note' do
+            expect { request }.not_to change { note.reload.note }
+          end
+        end
+      end
+
+      context 'the note uses commands and changes the note' do
+        let(:new_note) { ['new content', command].join("\n") }
+
+        include_examples 'command examples', :ok do
+          let(:command) { '/close' }
+
+          it 'changes the note' do
+            expect { request }.to change { note.reload.note }.to('new content')
+          end
+        end
       end
     end
-    context "doesnt update the note" do
-      let(:issue)   { create(:issue, :confidential, project: project) }
-      let(:note)    { create(:note, noteable: issue, project: project) }
+
+    context "issue is confidential, and user only has guest permissions" do
+      let(:issue)  { create(:issue, :confidential, project: project) }
 
       before do
         sign_in(user)
         project.add_guest(user)
       end
 
-      it "disallows edits when the issue is confidential and the user has guest permissions" do
-        request_params = {
-          namespace_id: project.namespace,
-          project_id: project,
-          id: note,
-          format: :json,
-          note: {
-            note: "New comment"
-          }
-        }
-        expect { put :update, params: request_params }.not_to change { note.reload.note }
+      it "disallows edits, so the note does not change" do
+        expect { request }.not_to change { note.reload.note }
         expect(response).to have_gitlab_http_status(:not_found)
       end
     end
