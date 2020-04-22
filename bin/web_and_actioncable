@@ -1,0 +1,61 @@
+#!/usr/bin/env ruby
+
+require 'puma/cli'
+
+APP_PATH = File.expand_path('../config/application', __dir__)
+require_relative '../config/boot'
+require_relative '../config/environment'
+
+# preload application
+puts "Preloading application..."
+Gitlab::Application
+
+puts "Forking processes..."
+@processes = []
+@alive = true
+
+@processes << fork do
+  # start actioncable process
+  cli = Puma::CLI.new ["puma", "-C", "config/puma_actioncable.rb"]
+  cli.run
+end
+
+@processes << fork do
+  # start web process
+  cli = Puma::CLI.new ["puma", "-C", "config/puma.rb"]
+  cli.run
+end
+
+def wait_for(duration_s)
+  start_time = Gitlab::Metrics::System.monotonic_time
+  end_time = start_time + duration_s # give 60s
+
+  while Gitlab::Metrics::System.monotonic_time < end_time
+    return true if SidekiqCluster.any_alive?(@processes)
+
+    sleep(1)
+  end
+
+  false
+end
+
+# This loop is pretty bad, but show overall idea
+
+Gitlab::SidekiqCluster.trap_terminate do |signal|
+  Gitlab::SidekiqCluster.signal_processes(@processes, signal)
+  wait_for(60) # give it some time to process terminate signal
+  @alive = false
+end
+
+Gitlab::SidekiqCluster.trap_forward do |signal|
+  Gitlab::SidekiqCluster.signal_processes(@processes, signal)
+end
+
+while @alive && Gitlab::SidekiqCluster.all_alive?(@processes)
+  sleep(1)
+end
+
+Gitlab::SidekiqCluster.signal_processes(@processes, :SIGTERM)
+wait_for(10)
+Gitlab::SidekiqCluster.signal_processes(@processes, :SIGKILL)
+
