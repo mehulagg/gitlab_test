@@ -53,9 +53,7 @@ FactoryBot.define do
     end
 
     trait :wiki_repo do
-      after(:create) do |group|
-        raise 'Failed to create wiki repository!' unless group.create_wiki
-      end
+      after(:create, &:create_wiki!)
     end
   end
 end

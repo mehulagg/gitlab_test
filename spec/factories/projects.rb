@@ -234,9 +234,7 @@ FactoryBot.define do
     end
 
     trait :wiki_repo do
-      after(:create) do |project|
-        raise 'Failed to create wiki repository!' unless project.create_wiki
-      end
+      after(:create, &:create_wiki!)
     end
 
     trait :read_only do

@@ -8762,9 +8762,6 @@ msgstr ""
 msgid "Failed to create resources"
 msgstr ""
 
-msgid "Failed to create wiki"
-msgstr ""
-
 msgid "Failed to delete board. Please try again."
 msgstr ""
 

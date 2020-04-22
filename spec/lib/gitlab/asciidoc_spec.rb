@@ -562,7 +562,7 @@ module Gitlab
           let(:include_path) { 'wiki_file.adoc' }
 
           before do
-            project.create_wiki
+            project.create_wiki!
             context.merge!(repository: wiki_repo)
           end
 

@@ -245,7 +245,7 @@ describe Gitlab::GithubImport::Importer::RepositoryImporter do
         .and_return(false)
 
       expect(project)
-        .to receive(:create_wiki)
+        .to receive(:create_wiki!)
 
       expect(importer.import_wiki_repository).to eq(false)
     end

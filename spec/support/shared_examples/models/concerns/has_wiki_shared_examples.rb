@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
 RSpec.shared_examples 'model with wiki' do
-  describe '#create_wiki' do
+  describe '#create_wiki!' do
     it 'returns true if the wiki repository already exists' do
       expect(container.wiki_repository_exists?).to be(true)
-      expect(container.create_wiki).to be(true)
+      expect(container.create_wiki!).to be(true)
     end
 
     it 'returns true if the wiki repository was created' do
       expect(container_without_wiki.wiki_repository_exists?).to be(false)
-      expect(container_without_wiki.create_wiki).to be(true)
+      expect(container_without_wiki.create_wiki!).to be(true)
       expect(container_without_wiki.wiki_repository_exists?).to be(true)
     end
 
@@ -18,9 +18,8 @@ RSpec.shared_examples 'model with wiki' do
         expect(container.wiki).to receive(:wiki) { raise Wiki::CouldNotCreateWikiError }
       end
 
-      it 'returns false and adds a validation error' do
-        expect(container.create_wiki).to be(false)
-        expect(container.errors[:base]).to contain_exactly('Failed to create wiki')
+      it 'raises an exception' do
+        expect { container.create_wiki! }.to raise_error(Wiki::CouldNotCreateWikiError)
       end
     end
   end

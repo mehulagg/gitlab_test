@@ -60,7 +60,7 @@ module RepositoryCheck
       # Historically some projects never had their wiki repos initialized;
       # this happens on project creation now. Let's initialize an empty repo
       # if it is not already there.
-      return false unless project.create_wiki
+      project.create_wiki!
 
       has_changes?(project)
     end

@@ -7,12 +7,9 @@ module HasWiki
     validate :check_wiki_path_conflict
   end
 
-  def create_wiki
+  def create_wiki!
     wiki.wiki
     true
-  rescue Wiki::CouldNotCreateWikiError
-    errors.add(:base, _('Failed to create wiki'))
-    false
   end
 
   def wiki

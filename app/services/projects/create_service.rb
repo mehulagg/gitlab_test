@@ -86,7 +86,7 @@ module Projects
 
       unless @project.gitlab_project_import?
         @project.write_repository_config
-        @project.create_wiki unless skip_wiki?
+        @project.create_wiki! unless skip_wiki?
       end
 
       @project.track_project_repository

@@ -43,7 +43,7 @@ describe RepositoryCheck::SingleRepositoryWorker do
 
   it 'fails if the wiki repository is broken' do
     project = create(:project, :repository, :wiki_enabled)
-    project.create_wiki
+    project.create_wiki!
     create_push_event(project)
 
     # Test sanity: everything should be fine before the wiki repo is broken

@@ -227,7 +227,7 @@ p = Project.find_by_full_path('<username-or-group>/<project-name>')  ### enter y
 
 GitlabShellWorker.perform_in(0, :remove_repository, p.repository_storage, p.wiki.disk_path)  ### deletes the wiki project from the filesystem
 
-p.create_wiki  ### creates the wiki project on the filesystem
+p.create_wiki!  ### creates the wiki project on the filesystem
 ```
 
 ## Imports / Exports

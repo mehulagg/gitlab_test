@@ -131,7 +131,7 @@ describe Projects::UpdateRepositoryStorageService do
         let(:repository) { project.wiki.repository }
 
         before do
-          project.create_wiki
+          project.create_wiki!
         end
       end
     end
