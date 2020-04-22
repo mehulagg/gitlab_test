@@ -480,6 +480,8 @@ High-priority merge requests should reduce the time between iterations of feedba
 
 High-priority merge requests should *not* sacrifice quality, team stress, or other values. 
 
+This process focuses on the maintainer review rather than the first review, as the maintainer review is the most common bottleneck (due to the workload on the high workload maintainers).  The intent is to not change the process for the first review.
+
 #### Process for making a merge request high priority
 
 1. The manager of the author decides the merge request should be considered to be high priority.
