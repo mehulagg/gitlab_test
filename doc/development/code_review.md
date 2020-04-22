@@ -488,6 +488,8 @@ This process focuses on the maintainer review rather than the first review, as t
 2. The manager of the author reaches out to the manager of the maintainer to discuss.
 3. If they agree, the merge request is updated to have the label "high-priority-merge-request" and the author and maintainer are informed of the decision and are reminded about the high priority merge request process.
 
+This determination should be made as far as possible before the merge request cutoff for the release it is needed in (22nd of each month).  The closer to the cutoff the decision is made, the harder it will be to achieve and the higher stress it will be on the author and maintainer.
+
 If more than 1% of merge requests in any month are deemed high priority, this indicates a systemic issue with planning, prioritization, etc.  A periscope graph (_TBD_)  will show this percentage on a monthly basis.  It will be reviewed by development directors monthly and they will act if the percentage is excessive.
 
 
