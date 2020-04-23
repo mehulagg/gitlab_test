@@ -21,6 +21,7 @@
   - ~"development guidelines" when changing docs under `doc/development/*`, `CONTRIBUTING.md`, or `README.md`.
   - ~"development guidelines" and ~"Documentation guidelines" when changing docs under `development/documentation/*`.
   - ~"development guidelines" and ~"Description templates (.gitlab/\*)" when creating/updating issue and MR description templates.
+- [ ] Add the current release milestone.
 - [ ] Assign the [designated Technical Writer](https://about.gitlab.com/handbook/engineering/ux/technical-writing/#assignments).
 
 When applicable:
