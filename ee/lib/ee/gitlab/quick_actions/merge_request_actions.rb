@@ -4,22 +4,23 @@ module EE
   module Gitlab
     module QuickActions
       module MergeRequestActions
-        include ::Gitlab::QuickActions::Dsl
+        include ::Gitlab::QuickActions::DslNew
 
-        desc _('Approve a merge request')
-        explanation _('Approve the current merge request.')
         types MergeRequest
-        condition do
-          quick_action_target.persisted? && quick_action_target.can_approve?(current_user) && !quick_action_target.project.require_password_to_approve?
-        end
+
         command :approve do
-          if quick_action_target.can_approve?(current_user)
-            ::MergeRequests::ApprovalService.new(quick_action_target.project, current_user).execute(quick_action_target)
+          desc _('Approve a merge request')
+          explanation _('Approve the current merge request.')
+          condition do
+            merge_request.persisted? && merge_request.can_approve?(current_user) && !merge_request.project.require_password_to_approve?
+          end
+          action do
+            ::MergeRequests::ApprovalService.new(merge_request.project, current_user).execute(merge_request)
             info _('Approved the current merge request.')
-          else
-            warn _('You cannot approve this merge request')
           end
         end
+
+        helpers ::Gitlab::QuickActions::MergeRequestHelpers
       end
     end
   end
