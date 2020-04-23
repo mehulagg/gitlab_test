@@ -488,6 +488,7 @@ This process has some similarities to the [Rapid Action Process](https://about.g
 
 #### Process for making a merge request high priority
 
+1. The author should make sure the merge request is as small in scope as possible to lower the risk it introduces and lower the time it takes to review.
 1. The manager of the author decides the merge request should be considered to be a high priority.
 1. The manager of the author reaches out to the product manager, author, maintainer, and manager of the maintainer to discuss. They will evaluate the request based on impact to the maintainer based on our values and impact the impact on the business of not making the merge request a high priority. Per our values, the impact on the maintainer explictily comes first. If the impact on the maintainer makes it not possible but they agree on the priority, they may choose to ask another maintainer to see if the impact on them would be acceptable. The manager of the maintainer is encouraged to reprioritize work for the maintainer as appropriate to make time available for the priority merge request.
 1. If the product manager, maintainer, and managers agree, the merge request is updated to have the label "high-priority-merge-request" and the author and maintainer are informed of the decision and are reminded about the high priority merge request process.
