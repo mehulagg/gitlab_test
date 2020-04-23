@@ -23,9 +23,7 @@ module EE
         labels: board.labels.to_json(only: [:id, :title, :color, :text_color] ),
         board_weight: board.weight,
         focus_mode_available: true,
-        weight_feature_available: current_board_parent.feature_available?(:issue_weights).to_s,
         show_promotion: show_feature_promotion,
-        scoped_labels: current_board_parent.feature_available?(:scoped_labels)&.to_s,
         scoped_labels_documentation_link: help_page_path('user/project/labels.md', anchor: 'scoped-labels-premium')
       }
 

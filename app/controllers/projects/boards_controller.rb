@@ -10,6 +10,9 @@ class Projects::BoardsController < Projects::ApplicationController
   before_action do
     push_frontend_feature_flag(:multi_select_board, default_enabled: true)
     push_frontend_feature_flag(:sfc_issue_boards, default_enabled: true)
+
+    push_frontend_licensed_feature(:scoped_labels, project, current_user)
+    push_frontend_licensed_feature(:issue_weights, project, current_user)
   end
 
   private

@@ -37,8 +37,6 @@ class BoardsStoreEE {
             boardAssigneeUsername,
             labels,
             boardWeight,
-            weightFeatureAvailable,
-            scopedLabels,
             scopedLabelsDocumentationLink,
           },
         } = this.$boardApp;
@@ -50,9 +48,9 @@ class BoardsStoreEE {
           weight: parseInt(boardWeight, 10),
         };
         this.store.cantEdit = [];
-        this.store.weightFeatureAvailable = parseBoolean(weightFeatureAvailable);
+        this.store.weightFeatureAvailable = parseBoolean(gon.licensed_features.issueWeights);
         this.store.scopedLabels = {
-          enabled: parseBoolean(scopedLabels),
+          enabled: gon.licensed_features.scopedLabels,
           helpLink: scopedLabelsDocumentationLink,
         };
         this.initBoardFilters();
