@@ -472,7 +472,7 @@ another reviewer.
 
 A merge request may benefit from being considered as "high priority" for various reasons including that it is needed to meet a critical customer need such as features that are needed by a single large customer or a large number of customers ([which in this case it is recommended to have a corresponding issue with the planning-priority label](https://about.gitlab.com/handbook/product/product-management/process/#prioritization)).
 
-High-priority merge requests should reduce the time between iterations of feedback via employing best practices such as:
+High-priority merge requests should reduce the time between iterations by:
 
 - It is recommended that high-priority merge requests are reviewed more than once per business day for new updates from the author and maintainer (vs. within 2 business days for merge requests that are not a high priority).
 - It is recommended that the author considers finding a maintainer that shares many of their same working hours.
