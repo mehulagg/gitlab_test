@@ -588,40 +588,14 @@ See the following sections for additional instructions on specific languages and
 
 #### Java (Maven) projects
 
-When using self-signed certificates, add the following job section to the `.gitlab-ci.yml`:
+When using self-signed certificates or a custom cert authority, you may need to
+configure Maven with relaxed certificate checks when pulling from remote
+repositories. Please see the 
+[Maven Wagon documentation for available options.](https://maven.apache.org/wagon/wagon-providers/wagon-http/)
 
-```yaml
-spotbugs-sast:
-  variables:
-    MAVEN_CLI_OPTS: "-s settings.xml -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
-```
-
-Additionally, add the URLs for your offline repo and plugins to the `settings.xml`:
-
-```yaml
-<settings>
-  <profiles>
-    <profile>
-      <id>custom</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <repositories>
-        <repository>
-          <id>maven-private-repo</id>
-          <url>https://example.com/mvn/</url>
-        </repository>
-      </repositories>
-      <pluginRepositories>
-        <pluginRepository>
-          <id>maven-private-repo</id>
-          <url>https://example.com/mvn/plugins/</url>
-        </pluginRepository>
-      </pluginRepositories>
-    </profile>
-  </profiles>
-</settings>
-```
+Additionally, please see the
+[Maven documentation on using internal repositories](https://maven.apache.org/guides/introduction/introduction-to-repositories.html#internal-repositories) and the
+[Maven documentation on using custom plugin repositories](http://maven.apache.org/guides/development/guide-testing-development-plugins.html).
 
 ## Troubleshooting
 
