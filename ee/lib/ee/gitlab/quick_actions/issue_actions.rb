@@ -4,80 +4,83 @@ module EE
   module Gitlab
     module QuickActions
       module IssueActions
-        include ::Gitlab::QuickActions::Dsl
+        include ::Gitlab::QuickActions::DslNew
 
-        desc _('Add to epic')
-        explanation _('Adds an issue to an epic.')
         types Issue
-        condition do
-          quick_action_target.project.group&.feature_available?(:epics) &&
-            current_user.can?(:"admin_#{quick_action_target.to_ability_name}", quick_action_target)
-        end
-        params '<&epic | group&epic | Epic URL>'
-        command :epic do |epic_param|
-          epic = extract_epic(epic_param)
-          issue = quick_action_target
 
-          if epic && current_user.can?(:read_epic, epic)
-            if issue&.epic == epic
-              warn(_('Issue %{issue_reference} has already been added to epic %{epic_reference}.') %
-                { issue_reference: issue.to_reference, epic_reference: epic.to_reference })
+        command :epic do
+          desc _('Add to epic')
+          explanation _('Adds an issue to an epic.')
+          condition do
+            epics_available? && can_ability?(:admin)
+          end
+          params '<&epic | group&epic | Epic URL>'
+          parse_params(as: :epic) { |params| extract_epic(params) }
+          action do
+            if epic && current_user.can?(:read_epic, epic)
+              if issue.epic == epic
+                warn(_('Issue %{issue_reference} has already been added to epic %{epic_reference}.') %
+                  { issue_reference: issue.to_reference, epic_reference: epic.to_reference })
+              else
+                update(epic: epic)
+                info _('Added an issue to an epic.')
+              end
             else
-              update(epic: epic)
-              info _('Added an issue to an epic.')
+              warn _("This epic does not exist or you don't have sufficient permission.")
             end
-          else
-            warn _("This epic does not exist or you don't have sufficient permission.")
           end
         end
 
-        desc _('Remove from epic')
-        explanation _('Removes an issue from an epic.')
-        execution_message _('Removed an issue from an epic.')
-        types Issue
-        condition do
-          quick_action_target.persisted? &&
-            quick_action_target.project.group&.feature_available?(:epics) &&
-            current_user.can?(:"admin_#{quick_action_target.to_ability_name}", quick_action_target)
-        end
         command :remove_epic do
-          update(epic: nil)
-        end
-
-        promote_message = _('Promote issue to an epic')
-        promote_message_confidential = _('Promote confidential issue to a non-confidential epic')
-
-        desc do
-          if quick_action_target.confidential?
-            promote_message_confidential
-          else
-            promote_message
+          desc _('Remove from epic')
+          explanation _('Removes an issue from an epic.')
+          execution_message _('Removed an issue from an epic.')
+          condition do
+            issue.persisted? && epics_available? && can_ability?(:admin)
+          end
+          action do
+            update(epic: nil)
           end
         end
-        explanation promote_message
-        warning do
-          if quick_action_target.confidential?
-            promote_message_confidential
-          end
-        end
-        icon 'confidential'
-        types Issue
-        condition do
-          quick_action_target.persisted? &&
-            !quick_action_target.promoted? &&
-            current_user.can?(:admin_issue, project) &&
-            current_user.can?(:create_epic, project.group)
-        end
+
         command :promote do
-          update(promote_to_epic: true)
+          icon 'confidential'
+          desc do
+            if issue.confidential?
+              promote_message_confidential
+            else
+              promote_message
+            end
+          end
+          explanation { promote_message }
+          warning { promote_message_confidential if quick_action_target.confidential? }
+          condition do
+            issue.persisted? &&
+              !issue.promoted? &&
+              current_user.can?(:admin_issue, project) &&
+              current_user.can?(:create_epic, project.group)
+          end
+          action do
+            update(promote_to_epic: true)
 
-          msg = if quick_action_target.confidential?
-                  _('Promoted confidential issue to a non-confidential epic. Information in this issue is no longer confidential as epics are public to group members.')
-                else
-                  _('Promoted issue to an epic.')
-                end
+            msg = if issue.confidential?
+                    _('Promoted confidential issue to a non-confidential epic. Information in this issue is no longer confidential as epics are public to group members.')
+                  else
+                    _('Promoted issue to an epic.')
+                  end
 
-          info(msg)
+            info(msg)
+          end
+
+          helpers do
+            def promote_message
+              _('Promote issue to an epic')
+            end
+
+            def promote_message_confidential
+              _('Promote confidential issue to a non-confidential epic')
+            end
+          end
         end
 
         desc _('Set iteration')
@@ -136,6 +139,14 @@ module EE
         end
 
         helpers do
+          def epics_available?
+            issue.project.group&.feature_available?(:epics)
+          end
+
+          def issue
+            quick_action_target
+          end
+
           def extract_epic(params)
             return if params.nil?
 
