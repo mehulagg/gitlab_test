@@ -800,12 +800,11 @@ ce:praefect-quarantine:
     - .high-capacity
     - .ce-qa
     - .quarantine
-    - .knapsack-variables
     - .rspec-report-opts
-  parallel: 5
   variables:
     QA_SCENARIO: "Test::Integration::Praefect"
     QA_CAN_TEST_PRAEFECT: "true"
+    QA_RSPEC_TAGS: "--tag quarantine --tag ~orchestrated"
 
 ee:praefect:
   extends:
@@ -824,13 +823,12 @@ ee:praefect-quarantine:
     - .test
     - .high-capacity
     - .ee-qa
-    - .knapsack-variables
     - .quarantine
     - .rspec-report-opts
-  parallel: 5
   variables:
     QA_SCENARIO: "Test::Integration::Praefect"
     QA_CAN_TEST_PRAEFECT: "true"
+    QA_RSPEC_TAGS: "--tag quarantine --tag ~orchestrated"
 
 ce:smtp:
   extends:
