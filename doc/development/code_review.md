@@ -470,7 +470,7 @@ another reviewer.
 
 ### Review process for high priority merge requests
 
-Some merge requests may benefit from being considered as "high priority" because they are needed to meet a critical customer need.
+A merge request may benefit from being considered as "high priority" for various reasons including that it is needed to meet a critical customer need such as features that are needed by a single large customer or a large number of customers.
 
 High-priority merge requests should reduce the time between iterations of feedback via employing best practices such as:
 
@@ -488,14 +488,13 @@ This process has some similarities to the [Rapid Action Process](https://about.g
 #### Process for making a merge request high priority
 
 1. The manager of the author decides the merge request should be considered to be a high priority.
-1. The manager of the author reaches out to the product manager, author, maintainer and manager of the maintainer to discuss. They will evaluate the request based on impact to the maintainer based on our values and impact the impact on the business of not making the merge request a high priority. Per our values, the impact on the maintainer explictily comes first. If the impact on the maintainer makes it not possible but they agree on the priority, they may choose to ask another maintainer to see if the impact on them would be acceptable.  The manager of the maintainer is encouraged to reprioritize work for the maintainer as appropriate to make time available for the priority merge request.
+1. The manager of the author reaches out to the product manager, author, maintainer and manager of the maintainer to discuss. They will evaluate the request based on impact to the maintainer based on our values and impact the impact on the business of not making the merge request a high priority. Per our values, the impact on the maintainer explictily comes first. If the impact on the maintainer makes it not possible but they agree on the priority, they may choose to ask another maintainer to see if the impact on them would be acceptable. The manager of the maintainer is encouraged to reprioritize work for the maintainer as appropriate to make time available for the priority merge request.
 1. If the product manager, maintainer, and managers agree, the merge request is updated to have the label "high-priority-merge-request" and the author and maintainer are informed of the decision and are reminded about the high priority merge request process.
 1. It is required that a retrospective is done later on any merge requests that get the "high-priority-merge-request label" so we can iteratively improve how we can reduce the need for them in the future. The manager of the author is the DRI to organize.
 
 This determination should be made as far as possible before the merge request cutoff for the release it is needed in (22nd of each month). The closer to the cutoff the decision is made, the harder it will be to achieve and the higher stress it will be on the author and maintainer.
 
 If more than 1% of merge requests in any month are deemed high priority, this indicates a systemic issue with planning, prioritization, etc. A periscope graph (_TBD_) will show this percentage on a monthly basis. It will be reviewed by development directors monthly and they will act (potentially pausing this process) if the percentage is excessive.
-
 
 ## Examples
 
