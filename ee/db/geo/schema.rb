@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_10_10_204941) do
+ActiveRecord::Schema.define(version: 2020_01_21_194300) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -89,6 +89,19 @@ ActiveRecord::Schema.define(version: 2019_10_10_204941) do
     t.index ["lfs_object_id"], name: "index_lfs_object_registry_on_lfs_object_id", unique: true
     t.index ["retry_at"], name: "index_lfs_object_registry_on_retry_at"
     t.index ["success"], name: "index_lfs_object_registry_on_success"
+  end
+
+  create_table "package_file_registry", id: :serial, force: :cascade do |t|
+    t.integer "package_file_id", null: false
+    t.integer "state", default: 0, null: false
+    t.integer "retry_count", default: 0
+    t.string "last_sync_failure", limit: 255
+    t.datetime_with_timezone "retry_at"
+    t.datetime_with_timezone "last_synced_at"
+    t.datetime_with_timezone "created_at", null: false
+    t.index ["package_file_id"], name: "index_package_file_registry_on_repository_id"
+    t.index ["retry_at"], name: "index_package_file_registry_on_retry_at"
+    t.index ["state"], name: "index_package_file_registry_on_state"
   end
 
   create_table "project_registry", id: :serial, force: :cascade do |t|
