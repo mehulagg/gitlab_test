@@ -20,6 +20,10 @@ module Gitlab
           @xs.each(&block)
           @ys.each(&block)
         end
+
+        def empty?
+          @xs.empty? && @ys.empty?
+        end
       end
 
       module BuildsHelper
