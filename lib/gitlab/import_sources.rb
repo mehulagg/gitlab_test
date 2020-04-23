@@ -25,8 +25,6 @@ module Gitlab
     ].freeze
 
     class << self
-      prepend_if_ee('EE::Gitlab::ImportSources') # rubocop: disable Cop/InjectEnterpriseEditionModule
-
       def options
         Hash[import_table.map { |importer| [importer.title, importer.name] }]
       end
@@ -53,3 +51,5 @@ module Gitlab
     end
   end
 end
+
+Gitlab::ImportSources.prepend_if_ee('EE::Gitlab::ImportSources')
