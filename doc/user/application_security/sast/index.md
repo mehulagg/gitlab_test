@@ -582,6 +582,47 @@ variables:
 The SAST job should now use local copies of the SAST analyzers to scan your code and generate
 security reports without requiring internet access.
 
+### Specific settings for languages and package managers
+
+See the following sections for additional instructions on specific languages and package managers.
+
+#### Java (Maven) projects
+
+When using self-signed certificates, add the following job section to the `.gitlab-ci.yml`:
+
+```yaml
+spotbugs-sast:
+  variables:
+    MAVEN_CLI_OPTS: "-s settings.xml -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true"
+```
+
+Additionally, add the URLs for your offline repo and plugins to the `settings.xml`:
+
+```yaml
+<settings>
+  <profiles>
+    <profile>
+      <id>custom</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <repositories>
+        <repository>
+          <id>maven-private-repo</id>
+          <url>https://example.com/mvn/</url>
+        </repository>
+      </repositories>
+      <pluginRepositories>
+        <pluginRepository>
+          <id>maven-private-repo</id>
+          <url>https://example.com/mvn/plugins/</url>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+</settings>
+```
+
 ## Troubleshooting
 
 ### Error response from daemon: error processing tar file: docker-tar: relocation error
