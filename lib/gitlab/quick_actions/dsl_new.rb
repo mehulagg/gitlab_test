@@ -66,7 +66,12 @@ module Gitlab
         #     end
         #   end
         def action(&block)
-          @action = block
+          set_attribute(:@action, block)
+        end
+
+        # Mark this as a dummy command. Dummy commands do not have action blocks
+        def dummy_command
+          set_attribute(:@action, :dummy)
         end
 
         # Allows to give a description to the current quick action.
@@ -277,7 +282,7 @@ module Gitlab
         end
 
         def to_h
-          raise NoActionError, 'No action block specified' unless @action
+          raise NoActionError, 'No action block' unless @action
 
           {
             description: @description,
@@ -288,7 +293,7 @@ module Gitlab
             params: @params,
             condition_block: @condition_block,
             parse_params_block: @parse_params_block,
-            action_block: @action,
+            action_block: @action == :dummy ? nil : @action,
             types: @types,
             helpers: all_helpers
           }
