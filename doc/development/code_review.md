@@ -476,7 +476,7 @@ High-priority merge requests should reduce the time between iterations of feedba
 
 - High-priority merge requests should be reviewed more than once per business day for new updates from the author and maintainer (vs. within 2 business days for merge requests that are not a high priority).
 - The author should consider finding a maintainer that shares many of their same working hours.
-- Those involved with the merge request can use the maintainers slack channel to ask who is available and interested in tackling a given merge request to let maintainers have the opportunity to volunteer for a specific high priority merge request.
+- Those involved with the merge request can use the maintainers Slack channel to ask who is available and interested in tackling a given merge request to let maintainers have the opportunity to volunteer for a specific high priority merge request.
 - The author and maintainer should primarily coordinate via merge request comments. They are also encouraged to coordinate via Slack and/or Zoom as needed to reduce the cycle time (and summarizing and/or linking those discussions via merge request comments). See [Efficiency](https://about.gitlab.com/company/culture/all-remote/asynchronous/#evaluating-efficiency). Using Slack and/or Zoom is discouraged for merge requests that are not high priority, as this can be very disruptive to standard workflow and focus.
 - The managers of the author and the maintainer should consider reducing workload and/or priorities of other work as appropriate.
 
