@@ -5,6 +5,8 @@ module Gitlab
     module DslNew
       extend ActiveSupport::Concern
 
+      DuplicateCommand = Class.new(ArgumentError)
+
       # Mutations to inputs are reflected in the content of the union
       # This allows helpers to be defined after the commands and still be
       # reflected in their set of helpers
@@ -426,6 +428,8 @@ module Gitlab
           self.command_definitions << definition
 
           definition.all_names.each do |name|
+            raise DuplicateCommand, name if self.command_definitions_by_name.key?(name)
+
             self.command_definitions_by_name[name] = definition
           end
         end
