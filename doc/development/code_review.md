@@ -476,7 +476,7 @@ High-priority merge requests should reduce the time between iterations of feedba
 
 - High-priority merge requests should be reviewed more than once per business day for new updates from the author and maintainer (vs. within 2 business days for merge requests that are not a high priority).
 - The author should consider finding a maintainer that shares many of their same working hours.
-- The author and maintainer should primarily coordinate via merge request comments. They are also encouraged to coordinate via Slack and/or Zoom as needed to reduce the cycle time (and summarizing and/or linking those discussions via merge request comments). Using Slack and/or Zoom is discouraged for merge requests that are not high priority, as this can be very disruptive to standard workflow and focus.
+- The author and maintainer should primarily coordinate via merge request comments. They are also encouraged to coordinate via Slack and/or Zoom as needed to reduce the cycle time (and summarizing and/or linking those discussions via merge request comments). See [Efficiency](https://about.gitlab.com/company/culture/all-remote/asynchronous/#evaluating-efficiency).  Using Slack and/or Zoom is discouraged for merge requests that are not high priority, as this can be very disruptive to standard workflow and focus.
 - The managers of the author and the maintainer should consider reducing workload and/or priorities of other work as appropriate.
 
 High-priority merge requests should *not* sacrifice quality, team stress, or other values.
@@ -494,7 +494,7 @@ This process has some similarities to the [Rapid Action Process](https://about.g
 
 This determination should be made as far as possible before the merge request cutoff for the release it is needed in (22nd of each month). The closer to the cutoff the decision is made, the harder it will be to achieve and the higher stress it will be on the author and maintainer.
 
-If more than 1% of merge requests in any month are deemed high priority, this indicates a systemic issue with planning, prioritization, etc. A periscope graph (_TBD_) will show this percentage on a monthly basis. It will be reviewed by development directors monthly and they will act (potentially pausing this process) if the percentage is excessive.
+If more than 1% of merge requests in any month are deemed high priority, this indicates a systemic challenge with planning, prioritization, etc. A periscope graph (_TBD_) will show this percentage on a monthly basis. It will be reviewed by development directors monthly and they will act (potentially pausing this process) if the percentage is excessive.
 
 ## Examples
 
