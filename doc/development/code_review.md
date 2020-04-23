@@ -480,7 +480,7 @@ High-priority merge requests should reduce the time between iterations of feedba
 - The author and maintainer should primarily coordinate via merge request comments. They are also encouraged to coordinate via Slack and/or Zoom as needed to reduce the cycle time (and summarizing and/or linking those discussions via merge request comments). See [Efficiency](https://about.gitlab.com/company/culture/all-remote/asynchronous/#evaluating-efficiency). Using Slack and/or Zoom is discouraged for merge requests that are not high priority, as this can be very disruptive to standard workflow and focus.
 - The managers of the author and the maintainer should consider reducing workload and/or priorities of other work as appropriate.
 
-High-priority merge requests should *not* sacrifice quality, team stress, or other values.
+High priority merge requests should *not* lower security, introduce data-loss risk, reduce availability, nor break existing functionality per the process for [prioritizing technical decisions](https://about.gitlab.com/handbook/engineering/#prioritizing-technical-decisions).  They should also not impinge on our values including [famaily and friends first, work second](https://about.gitlab.com/handbook/values/#family-and-friends-first-work-second).
 
 This process focuses on the maintainer review rather than the first review, as the maintainer review is the most common bottleneck (due to the workload on the high workload maintainers). The intent is to not change the process for the first review.
 
