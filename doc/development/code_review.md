@@ -493,7 +493,7 @@ This process has some similarities to the [Rapid Action Process](https://about.g
 
 This determination should be made as far as possible before the merge request cutoff for the release it is needed in (22nd of each month). The closer to the cutoff the decision is made, the harder it will be to achieve and the higher stress it will be on the author and maintainer.
 
-If more than 1% of merge requests in any month are deemed high priority, this indicates a systemic issue with planning, prioritization, etc. A periscope graph (_TBD_) will show this percentage on a monthly basis. It will be reviewed by development directors monthly and they will act if the percentage is excessive.
+If more than 1% of merge requests in any month are deemed high priority, this indicates a systemic issue with planning, prioritization, etc. A periscope graph (_TBD_) will show this percentage on a monthly basis. It will be reviewed by development directors monthly and they will act (potentially pausing this process) if the percentage is excessive.
 
 ## Examples
 
