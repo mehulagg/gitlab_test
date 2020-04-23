@@ -474,26 +474,26 @@ Some merge requests may benefit from being considered as "high priority" because
 
 High-priority merge requests should reduce the time between iterations of feedback via employing best practices such as:
 * High-priority merge requests should be reviewed more than once per business day for new updates from the author and maintainer (vs. within 2 business days for merge requests that are not a high priority).
-* The author and maintainer should primarily coordinate via issue comments.  They are also encouraged to coordinate via Slack and/or Zoom as needed to reduce the cycle time.  Using Slack and/or Zoom is discouraged for merge requests that are not high priority, as this can be very disruptive to standard workflow and focus.
+* The author and maintainer should primarily coordinate via issue comments. They are also encouraged to coordinate via Slack and/or Zoom as needed to reduce the cycle time. Using Slack and/or Zoom is discouraged for merge requests that are not high priority, as this can be very disruptive to standard workflow and focus.
 * The author should consider finding a maintainer that shares many of their same working hours.
 * The managers of the author and the maintainer should consider reducing workload and/or priorities of other work as appropriate.
 
 High-priority merge requests should *not* sacrifice quality, team stress, or other values. 
 
-This process focuses on the maintainer review rather than the first review, as the maintainer review is the most common bottleneck (due to the workload on the high workload maintainers).  The intent is to not change the process for the first review.
+This process focuses on the maintainer review rather than the first review, as the maintainer review is the most common bottleneck (due to the workload on the high workload maintainers). The intent is to not change the process for the first review.
 
-This process has some similarities to the [Rapid Action Process](https://about.gitlab.com/handbook/engineering/development/#rapid-action-issue).  However, the scope of this process is smaller and it goes into more detail on that reduced scope.  This process has a focus on merge requests and the processes used by the author and maintainer.
+This process has some similarities to the [Rapid Action Process](https://about.gitlab.com/handbook/engineering/development/#rapid-action-issue). However, the scope of this process is smaller and it goes into more detail on that reduced scope. This process has a focus on merge requests and the processes used by the author and maintainer.
 
 #### Process for making a merge request high priority
 
 1. The manager of the author decides the merge request should be considered to be a high priority.
-2. The manager of the author reaches out to the maintainer and manager of the maintainer to discuss.  They will evaluate the request based on impact to the maintainer based on our values and impact the impact on the business of not making the merge request a high priority.  Per our values, the impact on the maintainer explictily comes first.  If the impact on the maintainer makes it not possible but they agree on the priority, they may choose to ask another maintainer to see if the impact on them would be acceptable.
+2. The manager of the author reaches out to the maintainer and manager of the maintainer to discuss. They will evaluate the request based on impact to the maintainer based on our values and impact the impact on the business of not making the merge request a high priority. Per our values, the impact on the maintainer explictily comes first. If the impact on the maintainer makes it not possible but they agree on the priority, they may choose to ask another maintainer to see if the impact on them would be acceptable.
 3. If the maintainer and the managers agree, the merge request is updated to have the label "high-priority-merge-request" and the author and maintainer are informed of the decision and are reminded about the high priority merge request process.
 
 
-This determination should be made as far as possible before the merge request cutoff for the release it is needed in (22nd of each month).  The closer to the cutoff the decision is made, the harder it will be to achieve and the higher stress it will be on the author and maintainer.
+This determination should be made as far as possible before the merge request cutoff for the release it is needed in (22nd of each month). The closer to the cutoff the decision is made, the harder it will be to achieve and the higher stress it will be on the author and maintainer.
 
-If more than 1% of merge requests in any month are deemed high priority, this indicates a systemic issue with planning, prioritization, etc.  A periscope graph (_TBD_)  will show this percentage on a monthly basis.  It will be reviewed by development directors monthly and they will act if the percentage is excessive.
+If more than 1% of merge requests in any month are deemed high priority, this indicates a systemic issue with planning, prioritization, etc. A periscope graph (_TBD_) will show this percentage on a monthly basis. It will be reviewed by development directors monthly and they will act if the percentage is excessive.
 
 
 
