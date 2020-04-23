@@ -211,6 +211,10 @@ To avoid this scenario:
 
 The pending deployment jobs will be skipped.
 
+If you do not want to enable this setting, you can use the
+[`resource_group`](../yaml/README.md#resource_group) attribute in your CI
+configuration file. With this attribute, the Runner runs each job separately.
+
 ## Pipeline Badges
 
 In the pipelines settings page you can find pipeline status and test coverage
