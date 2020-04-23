@@ -276,8 +276,9 @@ module Gitlab
         #       # Awesome code block
         #     end
         #   end
-        def parse_params(&block)
+        def parse_params(as: nil, &block)
           set_attribute(:@parse_params_block, block)
+          @argument_alias = as
         end
 
         # Convenience short-cut for:
@@ -306,6 +307,7 @@ module Gitlab
             params: @params,
             condition_block: @condition_block,
             parse_params_block: @parse_params_block,
+            argument_alias: @argument_alias,
             action_block: @action == :dummy ? nil : @action,
             types: @types,
             helpers: all_helpers
