@@ -78,6 +78,8 @@ For more details on the internals, please read the
 * `GITHUB_PASSWORD` - Password for authenticating with GitHub.
 * `GITLAB_QA_LOOP_RUNNER_MINUTES` - Minutes to run and repeat a spec while using the '--loop' option; default value is 1 minute.
 * `CI_SERVER_PERSONAL_ACCESS_TOKEN` - Personal access token of the server that is running the CI pipeline. This is used for pulling CI_RUNNER information in certain tests.
+* `GEO_MAX_FILE_REPLICATION_TIME` - maximum time that a test will wait for a replicated file to appear on a Geo secondary node (default 120 seconds)
+* `GEO_MAX_DB_REPLICATION_TIME` - maximum time that a test will wait for database data to appear on a Geo secondary node (default 120 seconds)
 
 ## [Supported Remote Grid environment variables](./running_against_remote_grid.md)
 
