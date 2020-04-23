@@ -773,6 +773,31 @@ describe WikiPage do
     end
   end
 
+  describe '#reload' do
+    subject { existing_page }
+
+    it 'reloads the page from the repository' do
+      subject.attributes.merge!(
+        title: 'new title',
+        content: 'new content'
+      )
+
+      expect(subject.reload).to be(subject)
+      expect(subject.title).to eq('test page')
+      expect(subject.content).to eq('test content')
+    end
+
+    it 'raises an exception if the page does not exist' do
+      expect { new_page.reload }.to raise_error(WikiPage::PageNotFoundError)
+    end
+
+    it 'raises an exception if the page does not exist anymore' do
+      existing_page.delete
+
+      expect { existing_page.reload }.to raise_error(WikiPage::PageNotFoundError)
+    end
+  end
+
   describe '#to_partial_path' do
     it 'returns the relative path to the partial to be used' do
       expect(subject.to_partial_path).to eq('projects/wikis/wiki_page')

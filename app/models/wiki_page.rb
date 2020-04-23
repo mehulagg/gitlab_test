@@ -2,10 +2,9 @@
 
 # rubocop:disable Rails/ActiveRecordAliases
 class WikiPage
-  include Gitlab::Utils::StrongMemoize
-
   PageChangedError = Class.new(StandardError)
   PageRenameError = Class.new(StandardError)
+  PageNotFoundError = Class.new(StandardError)
   FrontMatterTooLong = Class.new(StandardError)
 
   include ActiveModel::Validations
@@ -89,13 +88,11 @@ class WikiPage
     @wiki       = wiki
     @page       = page
     @attributes = {}.with_indifferent_access
-
-    set_attributes if persisted?
   end
 
   # The escaped URL path of this page.
   def slug
-    attributes[:slug].presence || wiki.wiki.preview_slug(title, format)
+    attributes[:slug] ||= page&.url_path.presence || wiki.wiki.preview_slug(title, format)
   end
 
   alias_method :to_param, :slug
@@ -108,7 +105,7 @@ class WikiPage
 
   # The formatted title of this page.
   def title
-    attributes[:title] || ''
+    attributes[:title] ||= page&.title || ''
   end
 
   # Sets the title of this page.
@@ -127,7 +124,7 @@ class WikiPage
 
   # The markup format for the page.
   def format
-    attributes[:format] || :markdown
+    attributes[:format] ||= page&.format || :markdown
   end
 
   # The commit message for this page version.
@@ -139,13 +136,13 @@ class WikiPage
   def version
     return unless persisted?
 
-    @version ||= @page.version
+    attributes[:version] ||= page.version
   end
 
   def path
     return unless persisted?
 
-    @path ||= @page.path
+    attributes[:path] ||= page.path
   end
 
   def versions(options = {})
@@ -161,7 +158,7 @@ class WikiPage
   end
 
   def last_version
-    @last_version ||= versions(limit: 1).first
+    attributes[:last_version] ||= versions(limit: 1).first
   end
 
   def last_commit_sha
@@ -186,6 +183,13 @@ class WikiPage
   # has been fully created on disk or not.
   def persisted?
     page.present?
+  end
+
+  def reload
+    raise PageNotFoundError unless page
+
+    load_page(page.title)
+    self
   end
 
   # Creates a new Wiki Page.
@@ -286,8 +290,8 @@ class WikiPage
     update_front_matter(attrs)
 
     attrs.slice!(:content, :format, :message, :title)
-    clear_memoization(:parsed_content) if attrs.has_key?(:content)
 
+    attributes.delete(:parsed_content) if attrs.has_key?(:content)
     attributes.merge!(attrs)
   end
 
@@ -296,6 +300,13 @@ class WikiPage
   end
 
   private
+
+  def load_page(title)
+    attributes.clear
+    @page = wiki.find_page(title)&.page
+
+    raise PageNotFoundError unless page
+  end
 
   def serialize_front_matter(hash)
     return '' unless hash.present?
@@ -314,9 +325,8 @@ class WikiPage
   end
 
   def parsed_content
-    strong_memoize(:parsed_content) do
+    attributes[:parsed_content] ||=
       Gitlab::WikiPages::FrontMatterParser.new(raw_content, container).parse
-    end
   end
 
   # Process and format the title based on the user input.
@@ -342,12 +352,6 @@ class WikiPage
     File.join(components)
   end
 
-  def set_attributes
-    attributes[:slug] = @page.url_path
-    attributes[:title] = @page.title
-    attributes[:format] = @page.format
-  end
-
   def save
     return false unless valid?
 
@@ -356,9 +360,7 @@ class WikiPage
       return false
     end
 
-    @page = wiki.find_page(title).page
-    set_attributes
-
+    load_page(title)
     true
   end
 
