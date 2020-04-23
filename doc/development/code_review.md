@@ -482,7 +482,7 @@ High-priority merge requests should reduce the time between iterations by:
 
 High priority merge requests must *not* lower security, introduce data-loss risk, reduce availability, nor break existing functionality per the process for [prioritizing technical decisions](https://about.gitlab.com/handbook/engineering/#prioritizing-technical-decisions).
 They must also not impinge on our values including [famaily and friends first, work second](https://about.gitlab.com/handbook/values/#family-and-friends-first-work-second).
-They must also still meet the [definition of done](https://docs.gitlab.com/ee/development/contributing/merge_request_workflow.html#definition-of-done).
+They must also still meet the [definition of done](/ee/development/contributing/merge_request_workflow.html#definition-of-done).
 
 This process focuses on the maintainer review rather than the first review, as the maintainer review is the most common bottleneck (due to the workload on the high workload maintainers). The intent is to not change the process for the first review.
 
