@@ -349,5 +349,3 @@ module Gitlab
     end
   end
 end
-
-Gitlab::Auth.prepend_if_ee('EE::Gitlab::Auth')
