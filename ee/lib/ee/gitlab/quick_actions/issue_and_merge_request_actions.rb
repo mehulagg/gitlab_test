@@ -4,55 +4,58 @@ module EE
   module Gitlab
     module QuickActions
       module IssueAndMergeRequestActions
-        include ::Gitlab::QuickActions::Dsl
+        include ::Gitlab::QuickActions::DslNew
 
-        desc _('Change assignee(s)')
-        explanation _('Change assignee(s).')
-        execution_message _('Changed assignee(s).')
-        params '@user1 @user2'
         types Issue, MergeRequest
-        condition do
-          quick_action_target.allows_multiple_assignees? &&
-            quick_action_target.persisted? &&
-            current_user.can?(:"admin_#{quick_action_target.to_ability_name}", project)
-        end
-        command :reassign do |reassign_param|
-          update(assignee_ids: extract_users(reassign_param).map(&:id))
-        end
 
-        desc _('Set weight')
-        explanation do |weight|
-          _("Sets weight to %{weight}.") % { weight: weight } if weight
-        end
-
-        params "0, 1, 2, …"
-        types Issue, MergeRequest
-        condition do
-          quick_action_target.supports_weight? &&
-            current_user.can?(:"admin_#{quick_action_target.to_ability_name}", quick_action_target)
-        end
-        parse_params do |weight|
-          weight.to_i if weight.to_i >= 0
-        end
-        command :weight do |weight|
-          if weight
-            update(weight: weight)
-            info _("Set weight to %{weight}.") % { weight: weight }
+        command :reassign do
+          desc _('Change assignee(s)')
+          explanation _('Change assignee(s).')
+          execution_message _('Changed assignee(s).')
+          params '@user1 @user2'
+          condition do
+            quick_action_target.allows_multiple_assignees? &&
+              quick_action_target.persisted? &&
+              can_ability?(:admin, subject: project)
+          end
+          action do |reassign_param|
+            update(assignee_ids: extract_users(reassign_param).map(&:id))
           end
         end
 
-        desc _('Clear weight')
-        explanation _('Clears weight.')
-        execution_message _('Cleared weight.')
-        types Issue, MergeRequest
-        condition do
-          quick_action_target.persisted? &&
-            quick_action_target.supports_weight? &&
-            quick_action_target.weight? &&
-            current_user.can?(:"admin_#{quick_action_target.to_ability_name}", quick_action_target)
+        command :weight do
+          desc _('Set weight')
+          explanation do
+            _("Sets weight to %{weight}.") % { weight: weight } if weight
+          end
+          params "0, 1, 2, …"
+          condition do
+            quick_action_target.supports_weight? && can_ability?(:admin)
+          end
+          parse_params(as: :weight) do |param|
+            param.to_i if param.to_i >= 0
+          end
+          action do
+            if weight
+              update(weight: weight)
+              info _("Set weight to %{weight}.") % { weight: weight }
+            else
+              warn _('Numeric weight not provided')
+            end
+          end
         end
+
         command :clear_weight do
-          update(weight: nil)
+          desc _('Clear weight')
+          explanation _('Clears weight.')
+          execution_message _('Cleared weight.')
+          condition do
+            quick_action_target.persisted? &&
+              quick_action_target.supports_weight? &&
+              quick_action_target.weight? &&
+              can_ability?(:admin)
+          end
+          action { update(weight: nil) }
         end
       end
     end
