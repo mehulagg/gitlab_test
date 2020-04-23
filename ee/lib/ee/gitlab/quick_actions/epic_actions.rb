@@ -4,7 +4,7 @@ module EE
   module Gitlab
     module QuickActions
       module EpicActions
-        include ::Gitlab::QuickActions::DslNew
+        include ::Gitlab::QuickActions::Dsl
 
         types Epic
 

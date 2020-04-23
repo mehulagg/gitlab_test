@@ -4,7 +4,7 @@ module EE
   module Gitlab
     module QuickActions
       module IssueAndMergeRequestActions
-        include ::Gitlab::QuickActions::DslNew
+        include ::Gitlab::QuickActions::Dsl
 
         types Issue, MergeRequest
 

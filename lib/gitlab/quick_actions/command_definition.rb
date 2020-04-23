@@ -4,7 +4,7 @@ module Gitlab
   module QuickActions
     class CommandDefinition
       attr_accessor :name, :aliases, :description, :explanation, :execution_message,
-        :params, :condition_block, :parse_params_block, :action_block, :warning, :icon, :types, :argument_alias
+        :params, :condition_block, :parse_params_block, :action_block, :warning, :icon, :types, :argument_alias, :helpers
 
       def initialize(name, attributes = {})
         @name = name

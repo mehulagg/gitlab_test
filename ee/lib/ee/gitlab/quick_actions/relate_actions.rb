@@ -4,7 +4,7 @@ module EE
   module Gitlab
     module QuickActions
       module RelateActions
-        include ::Gitlab::QuickActions::DslNew
+        include ::Gitlab::QuickActions::Dsl
 
         command :relate do
           desc _('Mark this issue as related to another issue')

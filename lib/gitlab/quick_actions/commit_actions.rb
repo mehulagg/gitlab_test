@@ -3,7 +3,7 @@
 module Gitlab
   module QuickActions
     module CommitActions
-      include Gitlab::QuickActions::DslNew
+      include Gitlab::QuickActions::Dsl
 
       types Commit
 

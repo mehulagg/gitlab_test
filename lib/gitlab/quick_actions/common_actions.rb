@@ -3,7 +3,7 @@
 module Gitlab
   module QuickActions
     module CommonActions
-      include Gitlab::QuickActions::DslNew
+      include Gitlab::QuickActions::Dsl
 
       # This is a dummy command, so that it appears in the autocomplete commands
       command :cc do

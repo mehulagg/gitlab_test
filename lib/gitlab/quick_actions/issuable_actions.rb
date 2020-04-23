@@ -3,7 +3,7 @@
 module Gitlab
   module QuickActions
     module IssuableActions
-      include Gitlab::QuickActions::DslNew
+      include Gitlab::QuickActions::Dsl
 
       SHRUG = '¯\\＿(ツ)＿/¯'
       TABLEFLIP = '(╯°□°)╯︵ ┻━┻'

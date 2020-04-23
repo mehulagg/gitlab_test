@@ -4,17 +4,19 @@ require 'spec_helper'
 
 RSpec.describe Gitlab::QuickActions::Extractor do
   let(:definitions) do
-    Class.new do
+    Module.new do
       include Gitlab::QuickActions::Dsl
 
-      command(:reopen, :open) { }
-      command(:assign) { }
-      command(:labels) { }
-      command(:power) { }
-      command(:noop_command)
-      substitution(:substitution) { 'foo' }
-      substitution :shrug do |comment|
-        "#{comment} SHRUG"
+      command(:reopen, :open) { action { } }
+      command(:assign) { action { } }
+      command(:labels) { action { } }
+      command(:power) { action { } }
+      command(:noop_command) { noop }
+      substitution(:substitution) { action { 'foo' } }
+      substitution :shrug do
+        action do |comment|
+          "#{comment} SHRUG"
+        end
       end
     end.command_definitions
   end
