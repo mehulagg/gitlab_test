@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 class Packages::PackageFile < ApplicationRecord
   include UpdateProjectStatistics
-  include ::Gitlab::Geo::ReplicableModel
 
   delegate :project, :project_id, to: :package
   delegate :conan_file_type, to: :conan_file_metadatum
@@ -33,8 +32,6 @@ class Packages::PackageFile < ApplicationRecord
   end
 
   mount_uploader :file, Packages::PackageFileUploader
-
-  with_replicator Geo::PackageFileReplicator
 
   after_save :update_file_metadata, if: :saved_change_to_file?
 
