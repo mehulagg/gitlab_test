@@ -3472,6 +3472,45 @@ CREATE SEQUENCE public.jira_imports_id_seq
 
 ALTER SEQUENCE public.jira_imports_id_seq OWNED BY public.jira_imports.id;
 
+CREATE TABLE public.jira_settings (
+    id bigint NOT NULL,
+    project_id integer,
+    created_at timestamp with time zone NOT NULL,
+    updated_at timestamp with time zone NOT NULL,
+    encrypted_url text,
+    encrypted_url_iv text,
+    encrypted_api_url text,
+    encrypted_api_url_iv text,
+    encrypted_username text,
+    encrypted_username_iv text,
+    encrypted_password text,
+    encrypted_password_iv text,
+    jira_issue_transition_identifier text,
+    active boolean DEFAULT false,
+    merge_requests_events boolean DEFAULT true,
+    commit_events boolean DEFAULT true,
+    comment_on_event_enabled boolean DEFAULT true,
+    instance boolean DEFAULT false NOT NULL,
+    CONSTRAINT check_3dd6ee0fab CHECK ((char_length(encrypted_url_iv) <= 255)),
+    CONSTRAINT check_679d982169 CHECK ((char_length(encrypted_api_url) <= 255)),
+    CONSTRAINT check_a070a17648 CHECK ((char_length(encrypted_url) <= 255)),
+    CONSTRAINT check_a94cb25ad2 CHECK ((char_length(encrypted_password) <= 255)),
+    CONSTRAINT check_a997f4bf0e CHECK ((char_length(jira_issue_transition_identifier) <= 255)),
+    CONSTRAINT check_b1d9b56921 CHECK ((char_length(encrypted_api_url_iv) <= 255)),
+    CONSTRAINT check_bc46911a53 CHECK ((char_length(encrypted_username) <= 255)),
+    CONSTRAINT check_d124535387 CHECK ((char_length(encrypted_username_iv) <= 255)),
+    CONSTRAINT check_ffe3dde210 CHECK ((char_length(encrypted_password_iv) <= 255))
+);
+
+CREATE SEQUENCE public.jira_settings_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.jira_settings_id_seq OWNED BY public.jira_settings.id;
+
 CREATE TABLE public.jira_tracker_data (
     id bigint NOT NULL,
     service_id integer NOT NULL,
@@ -7489,6 +7528,8 @@ ALTER TABLE ONLY public.jira_connect_subscriptions ALTER COLUMN id SET DEFAULT n
 
 ALTER TABLE ONLY public.jira_imports ALTER COLUMN id SET DEFAULT nextval('public.jira_imports_id_seq'::regclass);
 
+ALTER TABLE ONLY public.jira_settings ALTER COLUMN id SET DEFAULT nextval('public.jira_settings_id_seq'::regclass);
+
 ALTER TABLE ONLY public.jira_tracker_data ALTER COLUMN id SET DEFAULT nextval('public.jira_tracker_data_id_seq'::regclass);
 
 ALTER TABLE ONLY public.keys ALTER COLUMN id SET DEFAULT nextval('public.keys_id_seq'::regclass);
@@ -8277,6 +8318,9 @@ ALTER TABLE ONLY public.jira_connect_subscriptions
 
 ALTER TABLE ONLY public.jira_imports
     ADD CONSTRAINT jira_imports_pkey PRIMARY KEY (id);
+
+ALTER TABLE ONLY public.jira_settings
+    ADD CONSTRAINT jira_settings_pkey PRIMARY KEY (id);
 
 ALTER TABLE ONLY public.jira_tracker_data
     ADD CONSTRAINT jira_tracker_data_pkey PRIMARY KEY (id);
@@ -9726,6 +9770,8 @@ CREATE INDEX index_jira_imports_on_label_id ON public.jira_imports USING btree (
 CREATE INDEX index_jira_imports_on_project_id_and_jira_project_key ON public.jira_imports USING btree (project_id, jira_project_key);
 
 CREATE INDEX index_jira_imports_on_user_id ON public.jira_imports USING btree (user_id);
+
+CREATE INDEX index_jira_settings_on_project_id ON public.jira_settings USING btree (project_id);
 
 CREATE INDEX index_jira_tracker_data_on_service_id ON public.jira_tracker_data USING btree (service_id);
 
@@ -12265,6 +12311,9 @@ ALTER TABLE ONLY public.vulnerability_occurrences
 ALTER TABLE ONLY public.project_export_jobs
     ADD CONSTRAINT fk_rails_c88d8db2e1 FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.jira_settings
+    ADD CONSTRAINT fk_rails_c916ce9654 FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
+
 ALTER TABLE ONLY public.resource_milestone_events
     ADD CONSTRAINT fk_rails_c940fb9fc5 FOREIGN KEY (milestone_id) REFERENCES public.milestones(id) ON DELETE CASCADE;
 
@@ -13635,6 +13684,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200424043515
 20200424050250
 20200424101920
+20200424125216
 20200427064130
 \.
 
