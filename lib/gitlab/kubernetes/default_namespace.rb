@@ -30,7 +30,7 @@ module Gitlab
       def reduce_to_63_characters(namespace_base)
         return namespace_base if namespace_base.length <= 63
 
-        suffix = Digest::SHA1.hexdigest(namespace_base).to_i(16).to_s(36)
+        suffix = Digest::SHA2.hexdigest(namespace_base).to_i(16).to_s(36)
         prefix_length = 63 - suffix.length
         prefix = namespace_base[0...prefix_length]
         prefix + suffix
