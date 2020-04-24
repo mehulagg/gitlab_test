@@ -94,14 +94,7 @@ export const setShowErrorBanner = ({ commit }, enabled) => {
 export const fetchData = ({ dispatch }) => {
   dispatch('fetchEnvironmentsData');
   dispatch('fetchDashboard');
-  /**
-   * Annotations data is not yet fetched. This will be
-   * ready after the BE piece is implemented.
-   * https://gitlab.com/gitlab-org/gitlab/-/issues/211330
-   */
-  if (isFeatureFlagEnabled('metricsDashboardAnnotations')) {
-    dispatch('fetchAnnotations');
-  }
+  dispatch('fetchAnnotations');
 };
 
 // Metrics dashboard
