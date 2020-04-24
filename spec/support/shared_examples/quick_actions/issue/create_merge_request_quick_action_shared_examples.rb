@@ -54,6 +54,8 @@ RSpec.shared_examples 'create_merge_request quick action' do
       branch_name = '1-feature'
       add_note("/create_merge_request #{branch_name}")
 
+      wait_for_requests
+
       expect_mr_quickaction(true, branch_name)
 
       created_mr = project.merge_requests.last
