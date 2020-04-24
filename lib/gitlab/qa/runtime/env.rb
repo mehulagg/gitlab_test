@@ -71,7 +71,9 @@ module Gitlab
           'SLACK_QA_CHANNEL' => :slack_qa_channel,
           'CI_SLACK_WEBHOOK_URL' => :ci_slack_webhook_url,
           'SLACK_ICON_EMOJI' => :slack_icon_emoji,
-          'GITLAB_QA_FORMLESS_LOGIN_TOKEN' => :gitlab_qa_formless_login_token
+          'GITLAB_QA_FORMLESS_LOGIN_TOKEN' => :gitlab_qa_formless_login_token,
+          'GEO_MAX_FILE_REPLICATION_TIME' => :geo_max_file_replication_time,
+          'GEO_MAX_DB_REPLICATION_TIME' => :geo_max_db_replication_time
         }.freeze
 
         ENV_VARIABLES.each_value do |accessor|
