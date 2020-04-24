@@ -11,6 +11,15 @@ time, take some action, or know what you need to keep an eye on without
 a huge pile of e-mail notifications. GitLab is where you do your work,
 so being able to get started quickly is important.
 
+## A new section
+It links to the [keyboard shortcuts](https://docs.gitlab.com/ee/user/gitlab_com/index.html).
+
+There is a a list
+- List item one.
+-  List item two.
+- List item three talks about raketasks.
+
+
 Your To-Do List offers a chronological list of items that are waiting for your input, all
 in a simple dashboard.
 
