@@ -32,6 +32,22 @@ describe Gitlab::Kubernetes::DefaultNamespace do
 
     subject { generator.from_environment_slug(environment.slug) }
 
+    shared_examples_for 'handles very long slugs' do
+      before do
+        allow(environment).to receive(:slug).and_return 'x' * 100
+      end
+
+      it { is_expected.to satisfy { |s| s.length <= 63 } }
+    end
+
+    shared_examples_for 'handles very long project paths' do
+      before do
+        allow(project).to receive(:path).and_return 'x' * 100
+      end
+
+      it { is_expected.to satisfy { |s| s.length <= 63 } }
+    end
+
     context 'namespace per environment is enabled' do
       context 'platform namespace is specified' do
         let(:platform_namespace) { 'platform-namespace' }
@@ -42,7 +58,11 @@ describe Gitlab::Kubernetes::DefaultNamespace do
           let(:cluster) { create(:cluster, :not_managed, platform_kubernetes: platform) }
 
           it { is_expected.to eq platform_namespace }
+
+          it_behaves_like 'handles very long slugs'
         end
+
+        it_behaves_like 'handles very long slugs'
       end
 
       context 'platform namespace is blank' do
@@ -56,6 +76,9 @@ describe Gitlab::Kubernetes::DefaultNamespace do
 
           expect(subject).to eq mock_namespace
         end
+
+        it_behaves_like 'handles very long slugs'
+        it_behaves_like 'handles very long project paths'
       end
     end
 
@@ -66,6 +89,8 @@ describe Gitlab::Kubernetes::DefaultNamespace do
         let(:platform_namespace) { 'platform-namespace' }
 
         it { is_expected.to eq platform_namespace }
+
+        it_behaves_like 'handles very long slugs'
       end
 
       context 'platform namespace is blank' do
@@ -79,6 +104,9 @@ describe Gitlab::Kubernetes::DefaultNamespace do
 
           expect(subject).to eq mock_namespace
         end
+
+        it_behaves_like 'handles very long slugs'
+        it_behaves_like 'handles very long project paths'
       end
     end
   end

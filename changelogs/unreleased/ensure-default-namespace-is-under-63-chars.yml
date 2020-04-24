@@ -1,0 +1,6 @@
+---
+title: Ensure the default Kubernetes namespace for deployment jobs is no more than
+  63 characters
+merge_request: 30384
+author:
+type: fixed
