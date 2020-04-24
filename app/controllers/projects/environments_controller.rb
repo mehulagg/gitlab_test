@@ -5,7 +5,7 @@ class Projects::EnvironmentsController < Projects::ApplicationController
 
   layout 'project'
 
-  before_action :authorize_metrics_dashboard!, only: [:metrics, :additional_metrics, :metrics_dashboard] do
+  before_action only: [:metrics, :additional_metrics, :metrics_dashboard] do
     authorize_metrics_dashboard!
 
     push_frontend_feature_flag(:prometheus_computed_alerts)

@@ -2398,10 +2398,6 @@ class Project < ApplicationRecord
     touch(:last_activity_at, :last_repository_updated_at)
   end
 
-  def public_metrics_dashboard?
-    public? && metrics_dashboard_access_level >= 20
-  end
-
   private
 
   def find_service(services, name)
