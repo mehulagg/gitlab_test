@@ -44,19 +44,25 @@ module StatusPage
       project.status_page_setting&.enabled?
     end
 
-    def upload(key, json)
+    def upload_json(key, json)
       return error_limit_exceeded(key) if limit_exceeded?(json)
 
       content = json.to_json
       storage_client.upload_object(key, content)
 
-      success(object_key: key)
+      success(json_object_key: key)
     end
 
-    def delete(key)
+    def delete_object(key)
       storage_client.delete_object(key)
 
-      success(object_key: key)
+      success(json_object_key: key)
+    end
+
+    def delete_objects_recursive(key_prefix:)
+      storage_client.recursive_delete(key_prefix)
+
+      success
     end
 
     def limit_exceeded?(json)
