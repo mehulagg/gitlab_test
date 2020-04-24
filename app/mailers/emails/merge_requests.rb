@@ -42,19 +42,20 @@ module Emails
       mail_answer_thread(@merge_request, merge_request_thread_options(updated_by_user_id, recipient_id, reason))
     end
 
-    def removed_milestone_merge_request_email(recipient_id, merge_request_id, updated_by_user_id, reason = nil)
+    def removed_timebox_merge_request_email(recipient_id, merge_request_id, timebox_type, updated_by_user_id, reason = nil)
       setup_merge_request_mail(merge_request_id, recipient_id)
 
+      @timebox_type = timebox_type.capitalize
       mail_answer_thread(@merge_request, merge_request_thread_options(updated_by_user_id, recipient_id, reason))
     end
 
-    def changed_milestone_merge_request_email(recipient_id, merge_request_id, milestone, updated_by_user_id, reason = nil)
+    def changed_timebox_merge_request_email(recipient_id, merge_request_id, timebox, updated_by_user_id, reason = nil)
       setup_merge_request_mail(merge_request_id, recipient_id)
 
-      @milestone = milestone
-      @milestone_url = milestone_url(@milestone)
+      @timebox = timebox
+      @timebox_url = timebox_url(@milestone)
       mail_answer_thread(@merge_request, merge_request_thread_options(updated_by_user_id, recipient_id, reason).merge({
-        template_name: 'changed_milestone_email'
+        template_name: 'changed_timebox_email'
       }))
     end
 

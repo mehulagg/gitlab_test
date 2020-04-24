@@ -8,15 +8,15 @@ RSpec.shared_examples 'cache counters invalidator' do
   end
 end
 
-RSpec.shared_examples 'system notes for milestones' do
+RSpec.shared_examples 'system notes for timeboxes' do |timebox_type|
   def update_issuable(opts)
     issuable = try(:issue) || try(:merge_request)
     described_class.new(project, user, opts).execute(issuable)
   end
 
-  context 'group milestones' do
+  context 'group timeboxes' do
     let(:group) { create(:group) }
-    let(:group_milestone) { create(:milestone, group: group) }
+    let(:group_timebox) { create(timebox_type, group: group) }
 
     before do
       project.update(namespace: group)
@@ -25,15 +25,15 @@ RSpec.shared_examples 'system notes for milestones' do
 
     it 'creates a system note' do
       expect do
-        update_issuable(milestone: group_milestone)
+        update_issuable(timebox_type => group_timebox)
       end.to change { Note.system.count }.by(1)
     end
   end
 
-  context 'project milestones' do
+  context 'project timeboxes' do
     it 'creates a system note' do
       expect do
-        update_issuable(milestone: create(:milestone, project: project))
+        update_issuable(timebox_type => create(timebox_type, project: project))
       end.to change { Note.system.count }.by(1)
     end
   end

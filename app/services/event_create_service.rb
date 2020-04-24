@@ -9,6 +9,7 @@
 #
 class EventCreateService
   IllegalActionError = Class.new(StandardError)
+  TIMEBOXES = %w(milestone sprint).freeze
 
   def open_issue(issue, current_user)
     create_record_event(issue, current_user, Event::CREATED)
@@ -38,20 +39,22 @@ class EventCreateService
     create_record_event(merge_request, current_user, Event::MERGED)
   end
 
-  def open_milestone(milestone, current_user)
-    create_record_event(milestone, current_user, Event::CREATED)
-  end
+  TIMEBOXES.each do |timebox_name|
+    define_method(:"open_#{timebox_name}") do |timebox, current_user|
+      create_record_event(timebox, current_user, Event::CREATED)
+    end
 
-  def close_milestone(milestone, current_user)
-    create_record_event(milestone, current_user, Event::CLOSED)
-  end
+    define_method(:"close_#{timebox_name}") do |timebox, current_user|
+      create_record_event(timebox, current_user, Event::CLOSED)
+    end
 
-  def reopen_milestone(milestone, current_user)
-    create_record_event(milestone, current_user, Event::REOPENED)
-  end
+    define_method(:"reopen_#{timebox_name}") do |timebox, current_user|
+      create_record_event(timebox, current_user, Event::REOPENED)
+    end
 
-  def destroy_milestone(milestone, current_user)
-    create_record_event(milestone, current_user, Event::DESTROYED)
+    define_method(:"destroy_#{timebox_name}") do |timebox, current_user|
+      create_record_event(timebox, current_user, Event::DESTROYED)
+    end
   end
 
   def leave_note(note, current_user)

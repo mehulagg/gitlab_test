@@ -67,6 +67,24 @@ module SystemNotes
       create_note(NoteSummary.new(noteable, project, author, body, action: 'milestone'))
     end
 
+    # Called when the sprint of a Noteable is changed
+    #
+    # sprint - Sprint being assigned, or nil
+    #
+    # Example Note text:
+    #
+    #   "removed sprint"
+    #
+    #   "changed sprint to 7.11"
+    #
+    # Returns the created Note object
+    def change_sprint(sprint)
+      format = sprint&.group_timebox? ? :name : :iid
+      body = sprint.nil? ? 'removed sprint' : "changed sprint to #{sprint.to_reference(project, format: format)}"
+
+      create_note(NoteSummary.new(noteable, project, author, body, action: 'sprint'))
+    end
+
     # Called when the title of a Noteable is changed
     #
     # old_title - Previous String title

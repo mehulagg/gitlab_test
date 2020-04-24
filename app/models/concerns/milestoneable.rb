@@ -45,6 +45,10 @@ module Milestoneable
     project_id == milestone&.project_id || project.ancestors_upto.compact.include?(milestone&.group)
   end
 
+  def sprint_available?
+    project_id == sprint&.project_id || project.ancestors_upto.compact.include?(sprint&.group)
+  end
+
   ##
   # Overridden on EE module
   #

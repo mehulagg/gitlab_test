@@ -133,7 +133,7 @@ module Issues
     end
 
     def send_milestone_change_notification(issue)
-      return if skip_milestone_email
+      return if skip_timebox_email
 
       if issue.milestone.nil?
         notification_service.async.removed_milestone_issue(issue, current_user)

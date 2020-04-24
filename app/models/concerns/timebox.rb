@@ -10,6 +10,11 @@ module Timebox
   include Referable
   include StripAttribute
 
+  def self.timeboxes
+    # We check if name is present because during testing we get a strange class without name sometimes
+    ObjectSpace.each_object(Class).select { |c| c.included_modules.include?(self) && c.name.present? }
+  end
+
   included do
     alias_method :timebox_id, :id
     # TODO: remove after all code paths use `timebox_id`

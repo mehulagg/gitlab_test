@@ -23,6 +23,7 @@ module Issuable
 
         create_due_date_note if issuable.previous_changes.include?('due_date')
         create_milestone_note if has_milestone_changes?
+        create_sprint_note if has_sprint_changes?
         create_labels_note(old_labels) if old_labels && issuable.labels != old_labels
       end
     end
@@ -31,6 +32,10 @@ module Issuable
 
     def has_milestone_changes?
       issuable.previous_changes.include?('milestone_id')
+    end
+
+    def has_sprint_changes?
+      issuable.previous_changes.include?('sprint_id')
     end
 
     def handle_time_tracking_note
@@ -105,6 +110,10 @@ module Issuable
       else
         SystemNoteService.change_milestone(issuable, issuable.project, current_user, issuable.milestone)
       end
+    end
+
+    def create_sprint_note
+      SystemNoteService.change_sprint(issuable, issuable.project, current_user, issuable.sprint)
     end
 
     def milestone_changes_tracking_enabled?

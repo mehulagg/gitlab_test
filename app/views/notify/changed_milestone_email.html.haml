@@ -1,5 +1,5 @@
 %p
-  Milestone changed to
-  %strong= link_to(@milestone.name, @milestone_url)
-  - if date_range = milestone_date_range(@milestone)
+  #{@timebox.model_name} changed to
+  %strong= link_to(@timebox.name, @timebox_url)
+  - if date_range = timebox_date_range(@timebox)
     = "(#{date_range})"

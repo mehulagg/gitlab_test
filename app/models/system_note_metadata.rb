@@ -11,13 +11,14 @@ class SystemNoteMetadata < ApplicationRecord
     close duplicate
     moved merge
     label milestone
+    sprint
   ].freeze
 
   ICON_TYPES = %w[
     commit description merge confidential visible label assignee cross_reference
     title time_tracking branch milestone discussion task moved
     opened closed merged duplicate locked unlocked outdated
-    tag due_date pinned_embed cherry_pick health_status
+    tag due_date pinned_embed cherry_pick health_status sprint
   ].freeze
 
   validates :note, presence: true

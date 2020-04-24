@@ -3,12 +3,12 @@
 class IssuableBaseService < BaseService
   private
 
-  attr_accessor :params, :skip_milestone_email
+  attr_accessor :params, :skip_timebox_email
 
   def initialize(project, user = nil, params = {})
     super
 
-    @skip_milestone_email = @params.delete(:skip_milestone_email)
+    @skip_timebox_email = @params.delete(:skip_timebox_email)
   end
 
   def can_admin_issuable?(issuable)
@@ -231,6 +231,7 @@ class IssuableBaseService < BaseService
       # the changed fields upon calling #save.
       update_project_counters = issuable.project && update_project_counter_caches?(issuable)
       ensure_milestone_available(issuable)
+      ensure_sprint_available(issuable)
 
       issuable_saved = issuable.with_transaction_returning_status do
         issuable.save(touch: should_touch)
@@ -412,6 +413,10 @@ class IssuableBaseService < BaseService
   # where private project milestone could leak without this check
   def ensure_milestone_available(issuable)
     issuable.milestone_id = nil unless issuable.milestone_available?
+  end
+
+  def ensure_sprint_available(issuable)
+    issuable.sprint_id = nil unless issuable.sprint_available?
   end
 
   def update_timestamp?(issuable)

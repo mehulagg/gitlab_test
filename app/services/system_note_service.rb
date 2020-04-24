@@ -45,6 +45,10 @@ module SystemNoteService
     ::SystemNotes::IssuablesService.new(noteable: noteable, project: project, author: author).change_milestone(milestone)
   end
 
+  def change_sprint(noteable, project, author, sprint)
+    ::SystemNotes::IssuablesService.new(noteable: noteable, project: project, author: author).change_sprint(sprint)
+  end
+
   # Called when the due_date of a Noteable is changed
   #
   # noteable  - Noteable object

@@ -1670,19 +1670,19 @@ describe NotificationService, :mailer do
       end
     end
 
-    describe '#removed_milestone_merge_request' do
+    describe '#removed_timebox_merge_request' do
       let(:milestone) { create(:milestone, project: project, merge_requests: [merge_request]) }
       let!(:subscriber_to_new_milestone) { create(:user) { |u| merge_request.toggle_subscription(u, project) } }
 
       it_behaves_like 'altered milestone notification on merge request' do
         before do
-          notification.removed_milestone_merge_request(merge_request, merge_request.author)
+          notification.removed_timebox_merge_request(merge_request, milestone, merge_request.author)
         end
       end
 
       it_behaves_like 'project emails are disabled' do
         let(:notification_target)  { merge_request }
-        let(:notification_trigger) { notification.removed_milestone_merge_request(merge_request, merge_request.author) }
+        let(:notification_trigger) { notification.removed_timebox_merge_request(merge_request, milestone, merge_request.author) }
       end
     end
 

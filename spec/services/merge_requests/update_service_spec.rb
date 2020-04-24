@@ -378,7 +378,7 @@ describe MergeRequests::UpdateService, :mailer do
         end
       end
 
-      context 'when the milestone is removed' do
+      shared_examples_for 'timebox removed' do |timebox_type|
         before do
           stub_feature_flags(track_resource_milestone_change_events: false)
         end
@@ -392,20 +392,28 @@ describe MergeRequests::UpdateService, :mailer do
           end
         end
 
-        it_behaves_like 'system notes for milestones'
+        it_behaves_like 'system notes for timeboxes', timebox_type
 
-        it 'sends notifications for subscribers of changed milestone', :sidekiq_might_not_need_inline do
-          merge_request.milestone = create(:milestone, project: project)
+        it 'sends notifications for subscribers of changed timebox', :sidekiq_might_not_need_inline do
+          merge_request.send(:"#{timebox_type}=", create(timebox_type, project: project))
 
           merge_request.save
 
           perform_enqueued_jobs do
-            update_merge_request(milestone_id: "")
+            update_merge_request("#{timebox_type}_id": "")
           end
 
           should_email(subscriber)
           should_not_email(non_subscriber)
         end
+      end
+
+      context 'when the milestone is removed' do
+        it_behaves_like 'timebox removed', :milestone
+      end
+
+      context 'when the sprint is removed' do
+        it_behaves_like 'timebox removed', :sprint
       end
 
       context 'when the milestone is changed' do
@@ -428,7 +436,7 @@ describe MergeRequests::UpdateService, :mailer do
           expect(pending_todo.reload).to be_done
         end
 
-        it_behaves_like 'system notes for milestones'
+        it_behaves_like 'system notes for timeboxes', :milestone
 
         it 'sends notifications for subscribers of changed milestone', :sidekiq_might_not_need_inline do
           perform_enqueued_jobs do

@@ -96,8 +96,8 @@ class NotifyPreview < ActionMailer::Preview
     Notify.merged_merge_request_email(user.id, merge_request.id, user.id).message
   end
 
-  def removed_milestone_merge_request_email
-    Notify.removed_milestone_merge_request_email(user.id, merge_request.id, user.id)
+  def removed_timebox_merge_request_email
+    Notify.removed_timebox_merge_request_email(user.id, merge_request.id, Timebox.timeboxes.sample.name, user.id)
   end
 
   def changed_milestone_merge_request_email

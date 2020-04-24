@@ -96,6 +96,7 @@ class Event < ApplicationRecord
   end
 
   scope :for_milestone_id, ->(milestone_id) { where(target_type: "Milestone", target_id: milestone_id) }
+  scope :for_sprint_id, ->(sprint_id) { where(target_type: "Sprint", target_id: sprint_id) }
 
   # Authors are required as they're used to display who pushed data.
   #
