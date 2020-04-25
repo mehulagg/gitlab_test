@@ -14,7 +14,7 @@ module API
       end
 
       def authorize_packages_feature!(subject = user_project)
-        forbidden! unless subject.feature_available?(:packages)
+        true
       end
 
       def authorize_read_package!(subject = user_project)

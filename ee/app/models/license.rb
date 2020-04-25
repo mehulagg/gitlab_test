@@ -91,7 +91,7 @@ class License < ApplicationRecord
     multiple_group_issue_boards
     object_storage
     operations_dashboard
-    packages
+    package_forwarding
     pages_size_limit
     productivity_analytics
     project_aliases

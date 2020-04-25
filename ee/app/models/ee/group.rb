@@ -295,7 +295,7 @@ module EE
     end
 
     def packages_feature_available?
-      ::Gitlab.config.packages.enabled && feature_available?(:packages)
+      ::Gitlab.config.packages.enabled
     end
 
     def dependency_proxy_feature_available?
