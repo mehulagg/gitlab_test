@@ -15882,6 +15882,9 @@ msgstr ""
 msgid "Number of files touched"
 msgstr ""
 
+msgid "Numeric weight not provided"
+msgstr ""
+
 msgid "OK"
 msgstr ""
 
@@ -26591,9 +26594,6 @@ msgid "You can try again using %{begin_link}basic search%{end_link}"
 msgstr ""
 
 msgid "You cannot access the raw file. Please wait a minute."
-msgstr ""
-
-msgid "You cannot approve this merge request"
 msgstr ""
 
 msgid "You cannot impersonate a blocked user"
