@@ -165,6 +165,7 @@ Complementary reads:
 - [Security Scanners](integrations/secure.md)
 - [Secure Partner Integration](integrations/secure_partner_integration.md)
 - [How to run Jenkins in development environment](integrations/jenkins.md)
+- [Sourcegraph](integrations/sourcegraph.md)
 
 ## Testing guides
 
