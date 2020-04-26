@@ -5,9 +5,9 @@
 # How to set: https://docs.gitlab.com/ee/ci/yaml/#variables
 
 variables:
+  SECURE_ANALYZERS_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
   # Deprecated, use SECURE_ANALYZERS_PREFIX instead
-  SAST_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
-  SECURE_ANALYZERS_PREFIX: "$SAST_ANALYZER_IMAGE_PREFIX"
+  SAST_ANALYZER_IMAGE_PREFIX: "$SECURE_ANALYZERS_PREFIX"
   SAST_DEFAULT_ANALYZERS: "bandit, brakeman, gosec, spotbugs, flawfinder, phpcs-security-audit, security-code-scan, nodejs-scan, eslint, tslint, secrets, sobelow, pmd-apex, kubesec"
   SAST_ANALYZER_IMAGE_TAG: 2
   SAST_DISABLE_DIND: "false"
@@ -61,7 +61,7 @@ sast:
 bandit-sast:
   extends: .sast-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/bandit:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/bandit:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
@@ -71,7 +71,7 @@ bandit-sast:
 brakeman-sast:
   extends: .sast-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/brakeman:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/brakeman:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
@@ -81,7 +81,7 @@ brakeman-sast:
 eslint-sast:
   extends: .sast-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
@@ -91,7 +91,7 @@ eslint-sast:
 flawfinder-sast:
   extends: .sast-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/flawfinder:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/flawfinder:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
@@ -101,7 +101,7 @@ flawfinder-sast:
 kubesec-sast:
   extends: .sast-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
@@ -111,7 +111,7 @@ kubesec-sast:
 gosec-sast:
   extends: .sast-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/gosec:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/gosec:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
@@ -121,7 +121,7 @@ gosec-sast:
 nodejs-scan-sast:
   extends: .sast-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
@@ -131,7 +131,7 @@ nodejs-scan-sast:
 phpcs-security-audit-sast:
   extends: .sast-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/phpcs-security-audit:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/phpcs-security-audit:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
@@ -141,7 +141,7 @@ phpcs-security-audit-sast:
 pmd-apex-sast:
   extends: .sast-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/pmd-apex:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/pmd-apex:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
@@ -151,7 +151,7 @@ pmd-apex-sast:
 secrets-sast:
   extends: .sast-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/secrets:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/secrets:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
@@ -160,7 +160,7 @@ secrets-sast:
 security-code-scan-sast:
   extends: .sast-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/security-code-scan:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/security-code-scan:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
@@ -170,7 +170,7 @@ security-code-scan-sast:
 sobelow-sast:
   extends: .sast-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/sobelow:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/sobelow:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
@@ -180,7 +180,7 @@ sobelow-sast:
 spotbugs-sast:
   extends: .sast-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/spotbugs:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/spotbugs:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
@@ -190,7 +190,7 @@ spotbugs-sast:
 tslint-sast:
   extends: .sast-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/tslint:$SAST_ANALYZER_IMAGE_TAG"
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/tslint:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&

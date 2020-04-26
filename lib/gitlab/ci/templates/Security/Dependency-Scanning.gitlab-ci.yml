@@ -5,9 +5,9 @@
 # How to set: https://docs.gitlab.com/ee/ci/yaml/#variables
 
 variables:
+  SECURE_ANALYZERS_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
   # Deprecated, use SECURE_ANALYZERS_PREFIX instead
-  DS_ANALYZER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products/analyzers"
-  SECURE_ANALYZERS_PREFIX: "$DS_ANALYZER_IMAGE_PREFIX"
+  DS_ANALYZER_IMAGE_PREFIX: "$SECURE_ANALYZERS_PREFIX"
   DS_DEFAULT_ANALYZERS: "bundler-audit, retire.js, gemnasium, gemnasium-maven, gemnasium-python"
   DS_MAJOR_VERSION: 2
   DS_DISABLE_DIND: "false"
@@ -96,7 +96,7 @@ dependency_scanning:
 gemnasium-dependency_scanning:
   extends: .ds-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/gemnasium:$DS_MAJOR_VERSION"
+    name: "$DS_ANALYZER_IMAGE_PREFIX/gemnasium:$DS_MAJOR_VERSION"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
@@ -106,7 +106,7 @@ gemnasium-dependency_scanning:
 gemnasium-maven-dependency_scanning:
   extends: .ds-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/gemnasium-maven:$DS_MAJOR_VERSION"
+    name: "$DS_ANALYZER_IMAGE_PREFIX/gemnasium-maven:$DS_MAJOR_VERSION"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
@@ -116,7 +116,7 @@ gemnasium-maven-dependency_scanning:
 gemnasium-python-dependency_scanning:
   extends: .ds-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/gemnasium-python:$DS_MAJOR_VERSION"
+    name: "$DS_ANALYZER_IMAGE_PREFIX/gemnasium-python:$DS_MAJOR_VERSION"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
@@ -126,7 +126,7 @@ gemnasium-python-dependency_scanning:
 bundler-audit-dependency_scanning:
   extends: .ds-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/bundler-audit:$DS_MAJOR_VERSION"
+    name: "$DS_ANALYZER_IMAGE_PREFIX/bundler-audit:$DS_MAJOR_VERSION"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
@@ -136,7 +136,7 @@ bundler-audit-dependency_scanning:
 retire-js-dependency_scanning:
   extends: .ds-analyzer
   image:
-    name: "$SECURE_ANALYZERS_PREFIX/retire.js:$DS_MAJOR_VERSION"
+    name: "$DS_ANALYZER_IMAGE_PREFIX/retire.js:$DS_MAJOR_VERSION"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
