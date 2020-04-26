@@ -7,6 +7,7 @@ module Gitlab
     include WebpackHelper
 
     def add_gon_variables
+      return
       gon.api_version            = 'v4'
       gon.default_avatar_url     = default_avatar_url
       gon.max_file_size          = Gitlab::CurrentSettings.max_attachment_size

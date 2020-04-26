@@ -33,6 +33,7 @@ module PageLayoutHelper
   #
   # Returns an HTML-safe String.
   def page_description(description = nil)
+    return description
     if description.present?
       @page_description = description.squish
     elsif @page_description.present?
