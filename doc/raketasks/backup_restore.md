@@ -1,4 +1,4 @@
-# Backing up and restoring GitLab **(CORE ONLY)**
+# GitLab backup and restore **(CORE ONLY)**
 
 GitLab provides Rake tasks for backing up and restoring GitLab instances.
 
@@ -137,7 +137,7 @@ Deleting tmp directories...[DONE]
 Deleting old backups... [SKIPPING]
 ```
 
-### Storing configuration files
+### Store configuration files
 
 The [backup Rake task](#back-up-gitlab) GitLab provides
 does **not** store your configuration files. The primary reason for this is that your
@@ -239,7 +239,7 @@ sudo gitlab-backup create BACKUP=dump GZIP_RSYNCABLE=yes
 NOTE: **Note**
 For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
 
-#### Excluding specific directories from the backup
+#### Exclude specific directories from the backup
 
 You can choose what should be exempt from the backup up by adding the environment variable `SKIP`.
 The available options are:
@@ -273,7 +273,7 @@ For installations from source:
 sudo -u git -H bundle exec rake gitlab:backup:create SKIP=db,uploads RAILS_ENV=production
 ```
 
-#### Skipping tar creation
+#### Skip tar creation
 
 The last part of creating a backup is generation of a `.tar` file containing
 all the parts. In some cases (for example, if the backup is picked up by other
@@ -298,7 +298,7 @@ For installations from source:
 sudo -u git -H bundle exec rake gitlab:backup:create SKIP=tar RAILS_ENV=production
 ```
 
-#### Uploading backups to a remote (cloud) storage
+#### Upload backups to a remote (cloud) storage
 
 Starting with GitLab 7.4 you can let the backup script upload the '.tar' file it creates.
 It uses the [Fog library](http://fog.io/) to perform the upload.
@@ -310,7 +310,7 @@ for AWS, Google, OpenStack Swift, Rackspace, and Aliyun as well. A local driver 
 
 [Read more about using object storage with GitLab](../administration/object_storage.md).
 
-##### Using Amazon S3
+##### Use Amazon S3
 
 For Omnibus GitLab packages:
 
@@ -445,7 +445,7 @@ with the name of your bucket:
 }
 ```
 
-##### Using Google Cloud Storage
+##### Use Google Cloud Storage
 
 If you want to use Google Cloud Storage to save backups, you'll have to create
 an access key from the Google console first:
@@ -489,7 +489,7 @@ For installations from source:
 
 1. [Restart GitLab](../administration/restart_gitlab.md#installations-from-source) for the changes to take effect
 
-##### Specifying a custom directory for backups
+##### Specify a custom directory for backups
 
 Note: This option only works for remote storage. If you want to group your backups
 you can pass a `DIRECTORY` environment variable:
@@ -502,7 +502,7 @@ sudo gitlab-backup create DIRECTORY=weekly
 NOTE: **Note**
 For GitLab 12.1 and earlier, use `gitlab-rake gitlab:backup:create`.
 
-#### Uploading to locally mounted shares
+#### Upload to locally mounted shares
 
 You may also send backups to a mounted share (for example, `NFS`,`CIFS`, or `SMB`) by
 using the Fog [`Local`](https://github.com/fog/fog-local#usage) storage provider.
@@ -582,7 +582,7 @@ For installations from source:
 
 1. [Restart GitLab](../administration/restart_gitlab.md#installations-from-source) for the changes to take effect.
 
-#### Configuring cron to make daily backups
+#### Configure cron to make daily backups
 
 CAUTION: **Warning:**
 The following cron jobs do not [backup your GitLab configuration files](#storing-configuration-files)
