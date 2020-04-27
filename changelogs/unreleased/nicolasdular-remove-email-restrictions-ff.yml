@@ -1,0 +1,5 @@
+---
+title: Add option to restrict emails that match a configured regular expression
+merge_request: 30545
+author:
+type: added
