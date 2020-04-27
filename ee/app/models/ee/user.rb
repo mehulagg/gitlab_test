@@ -138,7 +138,7 @@ module EE
       # the given SAML Provider
       def limit_to_saml_provider(saml_provider_id)
         if saml_provider_id
-          joins(:identities).where(identities: { saml_provider_id: saml_provider_id }).distinct
+          joins(:identities).where(identities: { saml_provider_id: saml_provider_id })
         else
           all
         end
