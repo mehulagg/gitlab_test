@@ -1,5 +1,4 @@
 <script>
-/* eslint-disable @gitlab/vue-require-i18n-strings */
 import { __, sprintf } from '~/locale';
 import updateMixin from '../mixins/update';
 import eventHub from '../event_hub';
@@ -71,7 +70,7 @@ export default {
       type="submit"
       @click.prevent="updateIssuable"
     >
-      Save changes
+      {{ __('Save changes') }}
       <i v-if="formState.updateLoading" class="fa fa-spinner fa-spin" aria-hidden="true"> </i>
     </button>
     <button class="btn btn-default float-right" type="button" @click="closeForm">
@@ -85,7 +84,8 @@ export default {
       type="button"
       @click="deleteIssuable"
     >
-      Delete <i v-if="deleteLoading" class="fa fa-spinner fa-spin" aria-hidden="true"> </i>
+      {{ __('Delete') }}
+      <i v-if="deleteLoading" class="fa fa-spinner fa-spin" aria-hidden="true"> </i>
     </button>
   </div>
 </template>

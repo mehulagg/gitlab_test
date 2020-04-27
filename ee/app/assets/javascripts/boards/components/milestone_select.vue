@@ -1,5 +1,4 @@
 <script>
-/* eslint-disable @gitlab/vue-require-i18n-strings */
 import { GlLoadingIcon } from '@gitlab/ui';
 import MilestoneSelect from '~/milestone_select';
 
@@ -72,7 +71,7 @@ export default {
 <template>
   <div class="block milestone">
     <div class="title append-bottom-10">
-      Milestone
+      {{ __('Milestone') }}
       <button v-if="canEdit" type="button" class="edit-link btn btn-blank float-right">
         {{ __('Edit') }}
       </button>
@@ -94,7 +93,8 @@ export default {
           data-toggle="dropdown"
           type="button"
         >
-          Milestone <i aria-hidden="true" data-hidden="true" class="fa fa-chevron-down"> </i>
+          {{ __('Milestone') }}
+          <i aria-hidden="true" data-hidden="true" class="fa fa-chevron-down"> </i>
         </button>
         <div class="dropdown-menu dropdown-select dropdown-menu-selectable">
           <div class="dropdown-input">

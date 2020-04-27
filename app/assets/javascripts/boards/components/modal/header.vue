@@ -1,5 +1,4 @@
 <script>
-/* eslint-disable @gitlab/vue-require-i18n-strings */
 import { __ } from '~/locale';
 import ModalFilters from './filters';
 import ModalTabs from './tabs.vue';
@@ -54,7 +53,7 @@ export default {
   <div>
     <header class="add-issues-header border-top-0 form-actions">
       <h2 class="m-0">
-        Add issues
+        {{ __('Add issues') }}
         <button
           type="button"
           class="close"

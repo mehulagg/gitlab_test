@@ -1,5 +1,4 @@
 <script>
-/* eslint-disable @gitlab/vue-require-i18n-strings */
 import $ from 'jquery';
 import IssuableTemplateSelectors from '../../../templates/issuable_template_selectors';
 
@@ -62,7 +61,7 @@ export default {
     </button>
     <div class="dropdown-menu dropdown-select">
       <div class="dropdown-title">
-        Choose a template
+        {{ __('Choose a template') }}
         <button
           class="dropdown-title-button dropdown-menu-close"
           :aria-label="__('Close')"
