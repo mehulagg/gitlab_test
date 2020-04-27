@@ -1,0 +1,81 @@
+# Read more about this feature here: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/
+#
+# Configure the scanning tool through the environment variables.
+# List of the variables: https://gitlab.com/gitlab-org/security-products/dependency-scanning#settings
+# How to set: https://docs.gitlab.com/ee/ci/yaml/#variables
+
+variables:
+  SECURITY_SCANNER_IMAGE_PREFIX: "registry.gitlab.com/gitlab-org/security-products"
+  DS_ANALYZER_IMAGE_PREFIX: "$SECURITY_SCANNER_IMAGE_PREFIX/analyzers"
+  DS_DEFAULT_ANALYZERS: "bundler-audit, retire.js, gemnasium, gemnasium-maven, gemnasium-python"
+  DS_MAJOR_VERSION: 2
+
+.ds-analyzer:
+  stage: test
+  image: docker:stable
+  allow_failure: true
+  script:
+    - /analyzer run
+  artifacts:
+    reports:
+      dependency_scanning: gl-dependency-scanning-report.json
+  # except:
+  #   variables:
+  #     - $DEPENDENCY_SCANNING_DISABLED
+
+gemnasium-dependency_scanning:
+  extends: .ds-analyzer
+  image:
+    name: "$DS_ANALYZER_IMAGE_PREFIX/gemnasium:$DS_MAJOR_VERSION"
+  rules:
+    - if: $DEPENDENCY_SCANNING_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
+        $DS_DEFAULT_ANALYZERS =~ /gemnasium([^-]|$)/ &&
+        $CI_PROJECT_REPOSITORY_LANGUAGES =~ /ruby|javascript|php|\bgo\b/
+
+# TODO: prefer pom.xml/Dependencies.scala instead
+gemnasium-maven-dependency_scanning:
+  extends: .ds-analyzer
+  image:
+    name: "$DS_ANALYZER_IMAGE_PREFIX/gemnasium-maven:$DS_MAJOR_VERSION"
+  rules:
+    - if: $DEPENDENCY_SCANNING_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
+        $DS_DEFAULT_ANALYZERS =~ /gemnasium-maven/
+      exists:
+        - '**/*.java'
+        - '**/*.scala'
+
+# TODO: add variations on python dependency files instead
+gemnasium-python-dependency_scanning:
+  extends: .ds-analyzer
+  image:
+    name: "$DS_ANALYZER_IMAGE_PREFIX/gemnasium-python:$DS_MAJOR_VERSION"
+  rules:
+    - if: $DEPENDENCY_SCANNING_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
+        $DS_DEFAULT_ANALYZERS =~ /gemnasium-python/
+      exists:
+        - '**/*.py'
+
+bundler-audit-dependency_scanning:
+  extends: .ds-analyzer
+  image:
+    name: "$DS_ANALYZER_IMAGE_PREFIX/bundler-audit:$DS_MAJOR_VERSION"
+  rules:
+    - if: $DEPENDENCY_SCANNING_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
+        $DS_DEFAULT_ANALYZERS =~ /bundler-audit/
+      exists:
+        - 'Gemfile'
+
+retire-js-dependency_scanning:
+  extends: .ds-analyzer
+  image:
+    name: "$DS_ANALYZER_IMAGE_PREFIX/retire.js:$DS_MAJOR_VERSION"
+  rules:
+    - if: $DEPENDENCY_SCANNING_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bdependency_scanning\b/ &&
+        $DS_DEFAULT_ANALYZERS =~ /retire.js/
+      exists:
+        - 'package.json'
