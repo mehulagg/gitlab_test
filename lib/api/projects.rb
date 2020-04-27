@@ -35,6 +35,12 @@ module API
 
         accepted!
       end
+
+      def verify_create_permission
+        return unless current_user.group_managed_account?
+
+        render_api_error!({ error: _('Permission denied') }, 403) if params[:namespace_id] != current_user.managing_group_id
+      end
     end
 
     helpers do
@@ -181,6 +187,8 @@ module API
       end
       post do
         Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab/issues/21139')
+        verify_create_permission
+
         attrs = declared_params(include_missing: false)
         attrs = translate_params_for_compatibility(attrs)
         filter_attributes_using_license!(attrs)

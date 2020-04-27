@@ -14,6 +14,7 @@ class ProjectsController < Projects::ApplicationController
   around_action :allow_gitaly_ref_name_caching, only: [:index, :show]
 
   before_action :whitelist_query_limiting, only: [:create]
+  before_action :verify_create_permission, only: [:create]
   before_action :authenticate_user!, except: [:index, :show, :activity, :refs, :resolve]
   before_action :redirect_git_extension, only: [:show]
   before_action :project, except: [:index, :new, :create, :resolve]
@@ -474,6 +475,12 @@ class ProjectsController < Projects::ApplicationController
 
   def whitelist_query_limiting
     Gitlab::QueryLimiting.whitelist('https://gitlab.com/gitlab-org/gitlab-foss/issues/42440')
+  end
+
+  def verify_create_permission
+    return unless current_user.group_managed_account?
+
+    render_403 if params[:namespace_id] != current_user.managing_group_id
   end
 
   def present_project
