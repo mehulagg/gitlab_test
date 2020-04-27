@@ -484,7 +484,7 @@ High priority merge requests must *not* lower security, introduce data-loss risk
 They must also not impinge on our values including [famaily and friends first, work second](https://about.gitlab.com/handbook/values/#family-and-friends-first-work-second).
 They must also still meet the [definition of done](/ee/development/contributing/merge_request_workflow.md#definition-of-done.md).
 
-This process focuses on the maintainer review rather than the first review, as the maintainer review is the most common bottleneck (due to the workload on the high workload maintainers). The intent is to not change the process for the first review.
+This process focuses on the maintainer review because it's the last step, and is naturally where deadline stress will be highest. By providing guidelines on where we are and aren't willing to deviate from normal process, we aim to reduce this stress and avoid mistakes.
 
 This process has some similarities to the [Rapid Action Process](https://about.gitlab.com/handbook/engineering/development/#rapid-action-issue). However, the scope of this process is smaller and it goes into more detail on that reduced scope. This process has a focus on merge requests and the processes used by the author and maintainer.
 
