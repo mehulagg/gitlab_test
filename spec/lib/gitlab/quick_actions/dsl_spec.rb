@@ -112,6 +112,15 @@ RSpec.describe Gitlab::QuickActions::Dsl do
     end
   end
 
+      command :with_named_argument do
+        argument :foo
+        action do
+          [foo, foo, foo]
+        end
+      end
+    end
+  end
+
   context 'a block calls context methods' do
     def build_module
       Module.new do
@@ -287,7 +296,7 @@ RSpec.describe Gitlab::QuickActions::Dsl do
     it 'returns an array with commands definitions', :aggregate_failures do
       no_args_def, explanation_with_aliases_def, dynamic_description_def,
       cc_def, cond_action_def, with_params_parsing_def, with_params_parsing_and_alias,
-      substitution_def, has_types, with_modules, strips_param =
+      substitution_def, has_types, with_modules, strips_param, with_named_argument =
         DummyClass.command_definitions
 
       expect(no_args_def.name).to eq(:no_args)
@@ -426,6 +435,20 @@ RSpec.describe Gitlab::QuickActions::Dsl do
       expect(strips_param.warning).to eq('')
       expect(strips_param.helpers).to be_empty
       expect(strips_param.parse_params_block.call(' ooo iii ')).to eq('ooo iii')
+
+      expect(with_named_argument.name).to eq(:with_named_argument)
+      expect(with_named_argument.aliases).to be_empty
+      expect(with_named_argument.description).to eq('')
+      expect(with_named_argument.explanation).to eq('')
+      expect(with_named_argument.execution_message).to eq('')
+      expect(with_named_argument.params).to be_empty
+      expect(with_named_argument.condition_block).to be_nil
+      expect(with_named_argument.types).to be_empty
+      expect(with_named_argument.warning).to eq('')
+      expect(with_named_argument.helpers).to be_empty
+      expect(with_named_argument.parse_params_block).to be_nil
+      expect(with_named_argument).not_to be_noop
+      expect(with_named_argument.execute(ctx, 'x')).to contain_exactly('x', 'x', 'x')
     end
   end
 end

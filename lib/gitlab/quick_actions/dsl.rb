@@ -75,7 +75,33 @@ module Gitlab
           set_attribute(:@action, block)
         end
 
-        # Mark this as a dummy command. Dummy commands do not have action blocks
+        # Name the argument
+        #
+        # This allows the name to be used in blocks used in the command
+        # defintion.
+        #
+        # Example:
+        #
+        #   command :set_title do
+        #     argument :title
+        #     action do
+        #       update(title: title)
+        #     end
+        #   end
+        def argument(name)
+          set_attribute(:@argument_alias, name)
+        end
+
+        # Mark this as a dummy command.
+        #
+        # Dummy commands do not have action blocks
+        #
+        # Example:
+        #
+        #   command :does_nothing
+        #     desc 'Takes no action'
+        #     noop
+        #   end
         def noop
           set_attribute(:@action, :dummy)
         end
@@ -264,7 +290,7 @@ module Gitlab
 
         # Allows to perform initial parsing of parameters. The result is passed
         # both to `command` and `explanation` blocks, instead of the raw
-        # parameters.
+        # parameters. Allows the parsed value to be aliased
         #
         # See: QuickActions::ExecutionContext
         #
@@ -278,9 +304,32 @@ module Gitlab
         #       # Awesome code block
         #     end
         #   end
+        #
+        #   command :with_alias do
+        #     parse_params(as: :thingy) { |param| "thingy: #{param}" }
+        #     execution_message do
+        #       "Sets #{thingy}"
+        #     end
+        #     action do
+        #       update(thing: thingy)
+        #     end
+        #   end
+        #
+        #   # the equivalent of:
+        #   command :with_alias do
+        #     argument :thingy
+        #     parse_params { |param| "thingy: #{param}" }
+        #     execution_message do
+        #       "Sets #{thingy}"
+        #     end
+        #     action do
+        #       update(thing: thingy)
+        #     end
+        #   end
+        #
         def parse_params(as: nil, &block)
           set_attribute(:@parse_params_block, block)
-          @argument_alias = as
+          set_attribute(:@argument_alias, as) if as
         end
 
         # Convenience short-cut for:
