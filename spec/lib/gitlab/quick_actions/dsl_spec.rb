@@ -1,8 +1,10 @@
 # frozen_string_literal: true
 
-require 'spec_helper'
+require 'fast_spec_helper'
 
 RSpec.describe Gitlab::QuickActions::Dsl do
+  let(:ctx) { double(:Context, record_command_execution: nil) }
+
   before :all do
     DummyClass = Struct.new(:project) do
       include Gitlab::QuickActions::Dsl
@@ -86,12 +88,19 @@ RSpec.describe Gitlab::QuickActions::Dsl do
         end
       end
 
+      helper_one = Module.new do
+        def do_something
+          :did_something
+        end
+      end
+
       command :with_modules do
-        noop
         desc 'A command with helpers'
-        helpers Module.new
+        action { [do_something, some_method] }
+        helpers helper_one
         helpers do
           def some_method
+            :called_some_method
           end
         end
       end
@@ -100,6 +109,47 @@ RSpec.describe Gitlab::QuickActions::Dsl do
         noop
         strips_param
       end
+    end
+  end
+
+  context 'a block calls context methods' do
+    def build_module
+      Module.new do
+        include Gitlab::QuickActions::Dsl
+
+        command :a do
+          action do
+            [context_method, *twice(useful_method)]
+          end
+        end
+
+        command :b do
+          action do
+            missing_method
+          end
+        end
+
+        helpers(Module.new do
+          def twice(arg)
+            [arg, arg]
+          end
+        end)
+
+        helpers do
+          def useful_method
+            :x
+          end
+        end
+      end
+    end
+
+    it 'defines commands with access to the context, and to helpers', :aggregate_failures do
+      command_a, command_b = build_module.command_definitions
+
+      expect(ctx).to receive(:context_method).and_return(:from_ctx)
+
+      expect(command_a.execute(ctx, nil)).to eq([:from_ctx, :x, :x])
+      expect { command_b.execute(ctx, nil) }.to raise_error(NameError)
     end
   end
 
@@ -358,10 +408,11 @@ RSpec.describe Gitlab::QuickActions::Dsl do
       expect(with_modules.params).to be_empty
       expect(with_modules.condition_block).to be_nil
       expect(with_modules.types).to be_empty
-      expect(with_modules).to be_noop
+      expect(with_modules).not_to be_noop
       expect(with_modules.parse_params_block).to be_nil
       expect(with_modules.warning).to eq('')
       expect(with_modules.helpers.to_a).to contain_exactly(Module, Module)
+      expect(with_modules.execute(ctx, nil)).to contain_exactly(:did_something, :called_some_method)
 
       expect(strips_param.name).to eq(:strips_param)
       expect(strips_param.aliases).to be_empty
