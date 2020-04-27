@@ -490,144 +490,184 @@ describe ProjectPolicy do
   describe 'metrics_dashboard feature' do
     subject { described_class.new(current_user, project) }
 
-    context 'public project' do
-      let(:project) { create(:project, :public) }
+    where(:project_visibility, :metrics_dashboard_visibility, :user, :result) do
+      [
+        [:public, ProjectFeature::PRIVATE, reporter, true],
+        [:public, ProjectFeature::PRIVATE, guest, false],
+        [:public, ProjectFeature::PRIVATE, nil, false],
 
-      context 'feature private' do
-        context 'with reporter' do
-          let(:current_user) { reporter }
+        [:public, ProjectFeature::ENABLED, reporter, true],
+        [:public, ProjectFeature::ENABLED, guest, true],
+        [:public, ProjectFeature::ENABLED, nil, true],
 
-          it { is_expected.to be_allowed(:metrics_dashboard) }
-        end
+        [:internal, ProjectFeature::PRIVATE, reporter, true],
+        [:internal, ProjectFeature::PRIVATE, guest, false],
+        [:internal, ProjectFeature::PRIVATE, nil, false],
 
-        context 'with guest' do
-          let(:current_user) { guest }
+        [:internal, ProjectFeature::ENABLED, reporter, true],
+        [:internal, ProjectFeature::ENABLED, guest, true],
+        [:internal, ProjectFeature::ENABLED, nil, false],
 
-          it { is_expected.to be_disallowed(:metrics_dashboard) }
-        end
+        [:private, ProjectFeature::PRIVATE, reporter, true],
+        [:private, ProjectFeature::PRIVATE, guest, false],
+        [:private, ProjectFeature::PRIVATE, nil, false],
 
-        context 'with anonymous' do
-          let(:current_user) { nil }
+        [:private, ProjectFeature::ENABLED, reporter, true],
+        [:private, ProjectFeature::ENABLED, guest, false],
+        [:private, ProjectFeature::ENABLED, nil, false]
+      ]
+    end
 
-          it { is_expected.to be_disallowed(:metrics_dashboard) }
-        end
+    with_them do
+      let(:current_user) { user }
+
+      before do
+        project.project_feature.update!(metrics_dashboard_access_level: metrics_dashboard_visibility)
       end
 
-      context 'feature enabled' do
-        before do
-          project.project_feature.update(metrics_dashboard_access_level: ProjectFeature::ENABLED)
-        end
-
-        context 'with reporter' do
-          let(:current_user) { reporter }
-
-          it { is_expected.to be_allowed(:metrics_dashboard) }
-        end
-
-        context 'with guest' do
-          let(:current_user) { guest }
-
-          it { is_expected.to be_allowed(:metrics_dashboard) }
-        end
-
-        context 'with anonymous' do
-          let(:current_user) { nil }
-
-          it { is_expected.to be_allowed(:metrics_dashboard) }
-        end
+      specify do
+        expect(subject.allowed?(:metrics_dashboard)).to eq(result)
       end
     end
 
-    context 'internal project' do
-      let(:project) { create(:project, :internal) }
+    # context 'public project' do
+    #   let(:project) { create(:project, :public) }
 
-      context 'feature private' do
-        context 'with reporter' do
-          let(:current_user) { reporter }
+    #   context 'feature private' do
+    #     context 'with reporter' do
+    #       let(:current_user) { reporter }
 
-          it { is_expected.to be_allowed(:metrics_dashboard) }
-        end
+    #       it { is_expected.to be_allowed(:metrics_dashboard) }
+    #     end
 
-        context 'with guest' do
-          let(:current_user) { guest }
+    #     context 'with guest' do
+    #       let(:current_user) { guest }
 
-          it { is_expected.to be_disallowed(:metrics_dashboard) }
-        end
+    #       it { is_expected.to be_disallowed(:metrics_dashboard) }
+    #     end
 
-        context 'with anonymous' do
-          let(:current_user) { nil }
+    #     context 'with anonymous' do
+    #       let(:current_user) { nil }
 
-          it { is_expected.to be_disallowed(:metrics_dashboard)}
-        end
-      end
+    #       it { is_expected.to be_disallowed(:metrics_dashboard) }
+    #     end
+    #   end
 
-      context 'feature enabled' do
-        before do
-          project.project_feature.update(metrics_dashboard_access_level: ProjectFeature::ENABLED)
-        end
+    #   context 'feature enabled' do
+    #     before do
+    #       project.project_feature.update(metrics_dashboard_access_level: ProjectFeature::ENABLED)
+    #     end
 
-        context 'with reporter' do
-          let(:current_user) { reporter }
+    #     context 'with reporter' do
+    #       let(:current_user) { reporter }
 
-          it { is_expected.to be_allowed(:metrics_dashboard) }
-        end
+    #       it { is_expected.to be_allowed(:metrics_dashboard) }
+    #     end
 
-        context 'with guest' do
-          let(:current_user) { guest }
+    #     context 'with guest' do
+    #       let(:current_user) { guest }
 
-          it { is_expected.to be_allowed(:metrics_dashboard) }
-        end
+    #       it { is_expected.to be_allowed(:metrics_dashboard) }
+    #     end
 
-        context 'with anonymous' do
-          let(:current_user) { nil }
+    #     context 'with anonymous' do
+    #       let(:current_user) { nil }
 
-          it { is_expected.to be_disallowed(:metrics_dashboard) }
-        end
-      end
-    end
+    #       it { is_expected.to be_allowed(:metrics_dashboard) }
+    #     end
+    #   end
+    # end
 
-    context 'private project' do
-      let(:project) { create(:project, :private) }
+    # context 'internal project' do
+    #   let(:project) { create(:project, :internal) }
 
-      context 'feature private' do
-        context 'with reporter' do
-          let(:current_user) { reporter }
+    #   context 'feature private' do
+    #     context 'with reporter' do
+    #       let(:current_user) { reporter }
 
-          it { is_expected.to be_allowed(:metrics_dashboard) }
-        end
+    #       it { is_expected.to be_allowed(:metrics_dashboard) }
+    #     end
 
-        context 'with guest' do
-          let(:current_user) { guest }
+    #     context 'with guest' do
+    #       let(:current_user) { guest }
 
-          it { is_expected.to be_disallowed(:metrics_dashboard) }
-        end
+    #       it { is_expected.to be_disallowed(:metrics_dashboard) }
+    #     end
 
-        context 'with anonymous' do
-          let(:current_user) { nil }
+    #     context 'with anonymous' do
+    #       let(:current_user) { nil }
 
-          it { is_expected.to be_disallowed(:metrics_dashboard) }
-        end
-      end
+    #       it { is_expected.to be_disallowed(:metrics_dashboard)}
+    #     end
+    #   end
 
-      context 'feature enabled' do
-        context 'with reporter' do
-          let(:current_user) { reporter }
+    #   context 'feature enabled' do
+    #     before do
+    #       project.project_feature.update(metrics_dashboard_access_level: ProjectFeature::ENABLED)
+    #     end
 
-          it { is_expected.to be_allowed(:metrics_dashboard) }
-        end
+    #     context 'with reporter' do
+    #       let(:current_user) { reporter }
 
-        context 'with guest' do
-          let(:current_user) { guest }
+    #       it { is_expected.to be_allowed(:metrics_dashboard) }
+    #     end
 
-          it { is_expected.to be_disallowed(:metrics_dashboard) }
-        end
+    #     context 'with guest' do
+    #       let(:current_user) { guest }
 
-        context 'with anonymous' do
-          let(:current_user) { nil }
+    #       it { is_expected.to be_allowed(:metrics_dashboard) }
+    #     end
 
-          it { is_expected.to be_disallowed(:metrics_dashboard) }
-        end
-      end
-    end
+    #     context 'with anonymous' do
+    #       let(:current_user) { nil }
+
+    #       it { is_expected.to be_disallowed(:metrics_dashboard) }
+    #     end
+    #   end
+    # end
+
+    # context 'private project' do
+    #   let(:project) { create(:project, :private) }
+
+    #   context 'feature private' do
+    #     context 'with reporter' do
+    #       let(:current_user) { reporter }
+
+    #       it { is_expected.to be_allowed(:metrics_dashboard) }
+    #     end
+
+    #     context 'with guest' do
+    #       let(:current_user) { guest }
+
+    #       it { is_expected.to be_disallowed(:metrics_dashboard) }
+    #     end
+
+    #     context 'with anonymous' do
+    #       let(:current_user) { nil }
+
+    #       it { is_expected.to be_disallowed(:metrics_dashboard) }
+    #     end
+    #   end
+
+    #   context 'feature enabled' do
+    #     context 'with reporter' do
+    #       let(:current_user) { reporter }
+
+    #       it { is_expected.to be_allowed(:metrics_dashboard) }
+    #     end
+
+    #     context 'with guest' do
+    #       let(:current_user) { guest }
+
+    #       it { is_expected.to be_disallowed(:metrics_dashboard) }
+    #     end
+
+    #     context 'with anonymous' do
+    #       let(:current_user) { nil }
+
+    #       it { is_expected.to be_disallowed(:metrics_dashboard) }
+    #     end
+    #   end
+    # end
   end
 end
