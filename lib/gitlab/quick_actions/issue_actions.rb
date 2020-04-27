@@ -10,19 +10,19 @@ module Gitlab
       command :due do
         desc _('Set due date')
         params '<in 2 days | this Friday | December 31st>'
-        explanation do |due_date|
+        explanation do
           format_due_date(_("Sets the due date to %{due_date}."), due_date)
         end
-        execution_message do |due_date|
+        execution_message do
           format_due_date(_("Set the due date to %{due_date}."), due_date)
         end
         condition do
           due_date? && can_ability?(:admin, subject: project)
         end
-        parse_params do |due_date_param|
+        parse_params(as: :due_date) do |due_date_param|
           Chronic.parse(due_date_param).try(:to_date)
         end
-        action do |due_date|
+        action do
           if due_date
             update(due_date: due_date)
           else

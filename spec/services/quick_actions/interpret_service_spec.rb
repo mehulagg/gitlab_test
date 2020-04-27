@@ -1007,7 +1007,7 @@ RSpec.describe QuickActions::InterpretService do
       end
     end
 
-    context '/due command' do
+    describe '/due' do
       context 'invalid date' do
         let(:content) { '/due invalid date' }
         let(:target) { build(:issue, project: project) }
@@ -1018,30 +1018,37 @@ RSpec.describe QuickActions::InterpretService do
         end
       end
 
-      it_behaves_like 'due command' do
-        let(:content) { '/due 2016-08-28' }
+      context 'on an issue' do
         let(:issuable) { issue }
+
+        it_behaves_like 'due command' do
+          let(:content) { '/due 2016-08-28' }
+        end
+
+        it_behaves_like 'due command' do
+          let(:content) { '/due tomorrow' }
+          let(:expected_date) { Date.tomorrow }
+        end
+
+        it_behaves_like 'due command' do
+          let(:content) { '/due 5 days from now' }
+          let(:expected_date) { 5.days.from_now.to_date }
+        end
+
+        it_behaves_like 'due command' do
+          let(:content) { '/due in 2 days' }
+          let(:expected_date) { 2.days.from_now.to_date }
+        end
+
+        context 'due date is in the past' do
+          let(:expected_date) { 1.year.ago.to_date }
+          let(:content) { "/due #{expected_date}" }
+
+          it_behaves_like 'due command'
+        end
       end
 
-      it_behaves_like 'due command' do
-        let(:content) { '/due tomorrow' }
-        let(:issuable) { issue }
-        let(:expected_date) { Date.tomorrow }
-      end
-
-      it_behaves_like 'due command' do
-        let(:content) { '/due 5 days from now' }
-        let(:issuable) { issue }
-        let(:expected_date) { 5.days.from_now.to_date }
-      end
-
-      it_behaves_like 'due command' do
-        let(:content) { '/due in 2 days' }
-        let(:issuable) { issue }
-        let(:expected_date) { 2.days.from_now.to_date }
-      end
-
-      context 'date is in the past' do
+      context 'on a merge request' do
         it_behaves_like 'empty command' do
           let(:content) { '/due 2016-08-28' }
           let(:issuable) { merge_request }
