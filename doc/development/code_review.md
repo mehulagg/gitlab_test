@@ -500,6 +500,8 @@ This determination must be made as far as possible before the merge request cuto
 
 If more than 1% of merge requests in any month are deemed high priority, this indicates a systemic challenge with planning, prioritization, etc. A periscope graph (_TBD_) will show this percentage on a monthly basis. It will be reviewed by development directors monthly and they will act (potentially pausing this process) if the percentage is excessive.
 
+While we aim to make the [due date](https://about.gitlab.com/handbook/values/#set-a-due-date), this process should not be used solely to push a feature in by the due date - alternatives such as cutting scope, [iterating](https://about.gitlab.com/handbook/values/#iteration) or even waiting until it is [ready](https://about.gitlab.com/handbook/engineering/#release-when-its-ready) must be considered first.
+
 ## Examples
 
 How code reviews are conducted can surprise new contributors. Here are some examples of code reviews that should help to orient you as to what to expect.
