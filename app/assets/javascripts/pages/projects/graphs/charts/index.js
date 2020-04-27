@@ -1,7 +1,11 @@
 import Vue from 'vue';
 import { __ } from '~/locale';
-import { GlColumnChart } from '@gitlab/ui/dist/charts';
 import SeriesDataMixin from './series_data_mixin';
+
+const GlColumnChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-column-chart' */ '@gitlab/ui/dist/components/charts/column/column'
+  );
 
 document.addEventListener('DOMContentLoaded', () => {
   const languagesContainer = document.getElementById('js-languages-chart');

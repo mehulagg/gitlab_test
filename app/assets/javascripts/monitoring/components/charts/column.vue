@@ -1,11 +1,15 @@
 <script>
 import { GlResizeObserverDirective } from '@gitlab/ui';
-import { GlColumnChart } from '@gitlab/ui/dist/charts';
 import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
 import { chartHeight } from '../../constants';
 import { makeDataSeries } from '~/helpers/monitor_helper';
 import { graphDataValidatorForValues } from '../../utils';
 import { getYAxisOptions, getChartGrid } from './options';
+
+const GlColumnChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-column-chart' */ '@gitlab/ui/dist/components/charts/column/column'
+  );
 
 export default {
   components: {

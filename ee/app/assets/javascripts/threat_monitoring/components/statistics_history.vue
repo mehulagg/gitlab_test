@@ -2,7 +2,10 @@
 import { isFunction } from 'lodash';
 import dateFormat from 'dateformat';
 import { GlResizeObserverDirective } from '@gitlab/ui';
-import { GlAreaChart } from '@gitlab/ui/dist/charts';
+const GlAreaChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-area-chart' */ '@gitlab/ui/dist/components/charts/area/area'
+  );
 
 import { COLORS, DATE_FORMATS, TIME } from './constants';
 

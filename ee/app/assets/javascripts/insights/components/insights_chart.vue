@@ -1,11 +1,22 @@
 <script>
-import { GlColumnChart, GlLineChart, GlStackedColumnChart } from '@gitlab/ui/dist/charts';
-
 import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
 import ResizableChartContainer from '~/vue_shared/components/resizable_chart/resizable_chart_container.vue';
 
 import InsightsChartError from './insights_chart_error.vue';
 import { CHART_TYPES } from '../constants';
+
+const GlColumnChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-column-chart' */ '@gitlab/ui/dist/components/charts/column/column'
+  );
+const GlLineChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-line-chart' */ '@gitlab/ui/dist/components/charts/line/line'
+  );
+const GlStackedColumnChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-stacked-column-chart' */ '@gitlab/ui/dist/components/charts/stacked_column/stacked_column'
+  );
 
 const CHART_HEIGHT = 300;
 

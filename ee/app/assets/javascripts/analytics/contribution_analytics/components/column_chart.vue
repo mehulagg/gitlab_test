@@ -1,7 +1,11 @@
 <script>
-import { GlColumnChart } from '@gitlab/ui/dist/charts';
 import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
 import ResizableChartContainer from '~/vue_shared/components/resizable_chart/resizable_chart_container.vue';
+
+const GlColumnChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-column-chart' */ '@gitlab/ui/dist/components/charts/column/column'
+  );
 
 const CHART_HEIGHT = 220;
 

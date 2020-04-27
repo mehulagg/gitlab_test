@@ -1,5 +1,8 @@
 <script>
-import { GlAreaChart } from '@gitlab/ui/dist/charts';
+const GlAreaChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-area-chart' */ '@gitlab/ui/dist/components/charts/area/area'
+  );
 import dateFormat from 'dateformat';
 import { debounceByAnimationFrame } from '~/lib/utils/common_utils';
 import { X_INTERVAL } from '../constants';

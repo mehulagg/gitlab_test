@@ -1,5 +1,8 @@
 <script>
-import { GlAreaChart } from '@gitlab/ui/dist/charts';
+const GlAreaChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-area-chart' */ '@gitlab/ui/dist/components/charts/area/area'
+  );
 import { s__ } from '~/locale';
 import ResizableChartContainer from '~/vue_shared/components/resizable_chart/resizable_chart_container.vue';
 import { CHART_CONTAINER_HEIGHT } from '../constants';

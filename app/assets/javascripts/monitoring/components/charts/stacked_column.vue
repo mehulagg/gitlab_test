@@ -1,9 +1,13 @@
 <script>
 import { GlResizeObserverDirective } from '@gitlab/ui';
-import { GlStackedColumnChart } from '@gitlab/ui/dist/charts';
 import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
 import { chartHeight } from '../../constants';
 import { graphDataValidatorForValues } from '../../utils';
+
+const GlStackedColumnChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-stacked-column-chart' */ '@gitlab/ui/dist/components/charts/stacked_column/stacked_column'
+  );
 
 export default {
   components: {

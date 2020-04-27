@@ -1,7 +1,6 @@
 <script>
 import dateFormat from 'dateformat';
 import { __, sprintf } from '~/locale';
-import { GlColumnChart } from '@gitlab/ui/dist/charts';
 import { getDateInPast } from '~/lib/utils/datetime_utility';
 import StatisticsList from './statistics_list.vue';
 import PipelinesAreaChart from './pipelines_area_chart.vue';
@@ -14,6 +13,11 @@ import {
   ONE_WEEK_AGO_DAYS,
   ONE_MONTH_AGO_DAYS,
 } from '../constants';
+
+const GlColumnChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-column-chart' */ '@gitlab/ui/dist/components/charts/column/column'
+  );
 
 export default {
   components: {

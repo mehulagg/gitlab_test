@@ -9,7 +9,6 @@ import {
   GlTooltipDirective,
 } from '@gitlab/ui';
 import dateFormat from 'dateformat';
-import { GlColumnChart } from '@gitlab/ui/dist/charts';
 import featureFlagsMixin from '~/vue_shared/mixins/gl_feature_flags_mixin';
 import Icon from '~/vue_shared/components/icon.vue';
 import { beginOfDayTime, endOfDayTime } from '~/lib/utils/datetime_utility';
@@ -19,6 +18,11 @@ import MergeRequestTable from './mr_table.vue';
 import { chartKeys } from '../constants';
 import { dateFormats } from '../../shared/constants';
 import urlSyncMixin from '../../shared/mixins/url_sync_mixin';
+
+const GlColumnChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-column-chart' */ '@gitlab/ui/dist/components/charts/column/column'
+  );
 
 export default {
   components: {

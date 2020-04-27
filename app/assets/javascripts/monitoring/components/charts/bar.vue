@@ -1,9 +1,11 @@
 <script>
 import { GlResizeObserverDirective } from '@gitlab/ui';
-import { GlBarChart } from '@gitlab/ui/dist/charts';
 import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
 import { chartHeight } from '../../constants';
 import { barChartsDataParser, graphDataValidatorForValues } from '../../utils';
+
+const GlBarChart = () =>
+  import(/* webpackChunkName: 'gitlab-ui-bar-chart' */ '@gitlab/ui/dist/components/charts/bar/bar');
 
 export default {
   components: {

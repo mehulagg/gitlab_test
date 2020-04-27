@@ -1,7 +1,11 @@
 <script>
 import dateFormat from 'dateformat';
-import { GlDiscreteScatterChart } from '@gitlab/ui/dist/charts';
 import { scatterChartLineProps, dateFormats } from '../constants';
+
+const GlDiscreteScatterChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-discrete-scatter-chart' */ '@gitlab/ui/dist/components/charts/discrete_scatter/discrete_scatter'
+  );
 
 export default {
   components: {

@@ -1,7 +1,11 @@
 <script>
-import { GlSingleStat } from '@gitlab/ui/dist/charts';
 import { SUPPORTED_FORMATS, getFormatter } from '~/lib/utils/unit_format';
 import { graphDataValidatorForValues } from '../../utils';
+
+const GlSingleStat = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-single-stat' */ '@gitlab/ui/dist/components/charts/single_stat/single_stat'
+  );
 
 const defaultPrecision = 2;
 

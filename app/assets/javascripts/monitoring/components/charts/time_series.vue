@@ -1,7 +1,6 @@
 <script>
 import { omit, throttle } from 'lodash';
 import { GlLink, GlDeprecatedButton, GlTooltip, GlResizeObserverDirective } from '@gitlab/ui';
-import { GlAreaChart, GlLineChart, GlChartSeriesLabel } from '@gitlab/ui/dist/charts';
 import dateFormat from 'dateformat';
 import { s__, __ } from '~/locale';
 import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
@@ -11,6 +10,19 @@ import { getYAxisOptions, getChartGrid, getTooltipFormatter } from './options';
 import { annotationsYAxis, generateAnnotationsSeries } from './annotations';
 import { makeDataSeries } from '~/helpers/monitor_helper';
 import { graphDataValidatorForValues } from '../../utils';
+
+const GlAreaChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-area-chart' */ '@gitlab/ui/dist/components/charts/area/area'
+  );
+const GlLineChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-line-chart' */ '@gitlab/ui/dist/components/charts/line/line'
+  );
+const GlChartSeriesLabel = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-chart-series-label' */ '@gitlab/ui/dist/components/charts/series_label/series_label'
+  );
 
 const THROTTLED_DATAZOOM_WAIT = 1000; // milliseconds
 const timestampToISODate = timestamp => new Date(timestamp).toISOString();

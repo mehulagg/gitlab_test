@@ -1,8 +1,10 @@
 <script>
 import { GlResizeObserverDirective } from '@gitlab/ui';
-import { GlHeatmap } from '@gitlab/ui/dist/charts';
 import dateformat from 'dateformat';
 import { graphDataValidatorForValues } from '../../utils';
+
+const GlHeatmap = () =>
+  import(/* webpackChunkName: 'gitlab-ui-heatmap' */ '@gitlab/ui/dist/components/charts/heatmap');
 
 export default {
   components: {

@@ -2,10 +2,18 @@
 import { mapGetters, mapActions, mapState } from 'vuex';
 import { engineeringNotation, sum, average } from '@gitlab/ui/src/utils/number_utils';
 import { GlLoadingIcon, GlEmptyState } from '@gitlab/ui';
-import { GlColumnChart, GlChartLegend } from '@gitlab/ui/dist/charts';
 import { s__ } from '~/locale';
 import { getMonthNames } from '~/lib/utils/datetime_utility';
 import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
+
+const GlChartLegend = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-chart-legend' */ '@gitlab/ui/dist/components/charts/legend/legend'
+  );
+const GlColumnChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-column-chart' */ '@gitlab/ui/dist/components/charts/column/column'
+  );
 
 export default {
   components: {

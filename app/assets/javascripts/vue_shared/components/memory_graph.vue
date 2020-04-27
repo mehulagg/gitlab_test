@@ -1,6 +1,10 @@
 <script>
-import { GlSparklineChart } from '@gitlab/ui/dist/charts';
 import { formatDate, secondsToMilliseconds } from '~/lib/utils/datetime_utility';
+
+const GlSparklineChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-sparkline-chart' */ '@gitlab/ui/dist/components/charts/sparkline/sparkline'
+  );
 
 export default {
   name: 'MemoryGraph',

@@ -2,12 +2,16 @@
 import { debounce, uniq } from 'lodash';
 import { mapActions, mapState, mapGetters } from 'vuex';
 import { GlLoadingIcon } from '@gitlab/ui';
-import { GlAreaChart } from '@gitlab/ui/dist/charts';
 import { __ } from '~/locale';
 import { getSvgIconPathContent } from '~/lib/utils/icon_utils';
 import { getDatesInRange } from '~/lib/utils/datetime_utility';
 import { xAxisLabelFormatter, dateFormatter } from '../utils';
 import ResizableChartContainer from '~/vue_shared/components/resizable_chart/resizable_chart_container.vue';
+
+const GlAreaChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-area-chart' */ '@gitlab/ui/dist/components/charts/area/area'
+  );
 
 export default {
   components: {

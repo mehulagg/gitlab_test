@@ -1,8 +1,12 @@
 <script>
-import { GlLineChart } from '@gitlab/ui/dist/charts';
 import dateFormat from 'dateformat';
 import ResizableChartContainer from '~/vue_shared/components/resizable_chart/resizable_chart_container.vue';
 import { s__, __, sprintf } from '~/locale';
+
+const GlLineChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-line-chart' */ '@gitlab/ui/dist/components/charts/line/line'
+  );
 
 export default {
   components: {

@@ -1,5 +1,8 @@
 <script>
-import { GlStackedColumnChart } from '@gitlab/ui/dist/charts';
+const GlStackedColumnChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-stacked-column-chart' */ '@gitlab/ui/dist/components/charts/stacked_column/stacked_column'
+  );
 
 export default {
   name: 'TasksByTypeChart',

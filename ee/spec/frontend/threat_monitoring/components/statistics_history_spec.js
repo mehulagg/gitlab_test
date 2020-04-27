@@ -1,5 +1,8 @@
 import { createLocalVue, shallowMount } from '@vue/test-utils';
-import { GlAreaChart } from '@gitlab/ui/dist/charts';
+const GlAreaChart = () =>
+  import(
+    /* webpackChunkName: 'gitlab-ui-area-chart' */ '@gitlab/ui/dist/components/charts/area/area'
+  );
 import StatisticsHistory from 'ee/threat_monitoring/components/statistics_history.vue';
 import { TOTAL_REQUESTS, ANOMALOUS_REQUESTS } from 'ee/threat_monitoring/components/constants';
 import { mockNominalHistory, mockAnomalousHistory } from '../mock_data';
