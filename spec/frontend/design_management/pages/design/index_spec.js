@@ -1,11 +1,11 @@
 import { shallowMount } from '@vue/test-utils';
 import { GlAlert } from '@gitlab/ui';
 import { ApolloMutation } from 'vue-apollo';
-import DesignIndex from 'ee/design_management/pages/design/index.vue';
-import DesignDiscussion from 'ee/design_management/components/design_notes/design_discussion.vue';
-import DesignReplyForm from 'ee/design_management/components/design_notes/design_reply_form.vue';
+import DesignIndex from '~/design_management/pages/design/index.vue';
+import DesignDiscussion from '~/design_management/components/design_notes/design_discussion.vue';
+import DesignReplyForm from '~/design_management/components/design_notes/design_reply_form.vue';
 import Participants from '~/sidebar/components/participants/participants.vue';
-import createImageDiffNoteMutation from 'ee/design_management/graphql/mutations/createImageDiffNote.mutation.graphql';
+import createImageDiffNoteMutation from '~/design_management/graphql/mutations/createImageDiffNote.mutation.graphql';
 import design from '../../mock_data/design';
 
 jest.mock('mousetrap', () => ({
