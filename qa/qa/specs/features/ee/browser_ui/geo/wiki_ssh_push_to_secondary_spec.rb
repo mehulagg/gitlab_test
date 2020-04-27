@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Geo', :orchestrated, :geo do
+  context 'Geo', :orchestrated, :geo, :geo_ssh do
     describe 'GitLab wiki SSH push to secondary' do
-      wiki_title = 'Geo Replication Wiki'
+      wiki_title = 'Geo Wiki SSH push to secondary'
       wiki_content = 'This tests replication of wikis via SSH to secondary'
       push_content = 'This is from the Geo wiki push via SSH to secondary!'
       project_name = "geo-wiki-project-#{SecureRandom.hex(8)}"
@@ -21,7 +21,7 @@ module QA
           # Create a new project and wiki
           project = Resource::Project.fabricate_via_api! do |project|
             project.name = project_name
-            project.description = 'Geo project for wiki ssh spec'
+            project.description = 'Geo wiki ssh to secondary spec'
           end
 
           wiki = Resource::Wiki.fabricate! do |wiki|

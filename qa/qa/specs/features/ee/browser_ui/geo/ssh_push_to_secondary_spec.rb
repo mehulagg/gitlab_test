@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QA
-  context 'Geo', :orchestrated, :geo do
+  context 'Geo', :orchestrated, :geo, :geo_ssh do
     describe 'GitLab SSH push to secondary' do
       let(:file_content_primary) { 'This is a Geo project! Commit from primary.' }
       let(:file_content_secondary) { 'This is a Geo project! Commit from secondary.' }
@@ -22,7 +22,7 @@ module QA
             # Create a new Project
             project = Resource::Project.fabricate_via_api! do |project|
               project.name = 'geo-project'
-              project.description = 'Geo test project'
+              project.description = 'Geo repo SSH to secondary spec'
             end
 
             # Perform a git push over SSH directly to the primary
