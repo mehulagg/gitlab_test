@@ -12,161 +12,367 @@ variables:
 
 .sast-analyzer:
   stage: test
+  image: docker:stable
   allow_failure: true
+  variables:
+    SEARCH_MAX_DEPTH: 4
+  script:
+    - /analyzer run
   artifacts:
     reports:
       sast: gl-sast-report.json
-  image: docker:stable
-  variables:
-    SEARCH_MAX_DEPTH: 4
-    DOCKER_DRIVER: overlay2
-    DOCKER_TLS_CERTDIR: ""
-  script:
-    - /analyzer run
+
+.sast-analyzer-13:
+  extends: .sast-analyzer
+  rules:
+    # TODO: `only: refs`
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $CI_SERVER_VERSION_MAJOR == 13
+  # only:
+  #   refs:
+  #     - branches
+  #   variables:
+  #     - $GITLAB_FEATURES =~ /\bsast\b/
+  # except:
+  #   variables:
+  #     - $SAST_DISABLED
+
+bandit-sast:
+  extends: .sast-analyzer-13
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/bandit:$SAST_ANALYZER_IMAGE_TAG"
+  rules:
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $SAST_DEFAULT_ANALYZERS =~ /bandit/ &&
+        $CI_SERVER_VERSION_MAJOR == '13'
+      exists:
+        - '**/*.py'
+
+# TODO: set exists to `application.rb`
+brakeman-sast:
+  extends: .sast-analyzer-13
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/brakeman:$SAST_ANALYZER_IMAGE_TAG"
+  rules:
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $SAST_DEFAULT_ANALYZERS =~ /brakeman/ &&
+        $CI_SERVER_VERSION_MAJOR == '13'
+      exists:
+        - '**/*.rb'
+
+eslint-sast:
+  extends: .sast-analyzer-13
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
+  rules:
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $SAST_DEFAULT_ANALYZERS =~ /eslint/ &&
+        $CI_SERVER_VERSION_MAJOR == '13'
+      exists:
+        - '**/*.js'
+
+flawfinder-sast:
+  extends: .sast-analyzer-13
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/flawfinder:$SAST_ANALYZER_IMAGE_TAG"
+  rules:
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $SAST_DEFAULT_ANALYZERS =~ /flawfinder/ &&
+        $CI_SERVER_VERSION_MAJOR == '13'
+      exists:
+        - '**/*.c'
+        - '**/*.cpp'
+
+kubesec-sast:
+  extends: .sast-analyzer-13
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
+  rules:
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $SAST_DEFAULT_ANALYZERS =~ /kubesec/ &&
+        $SCAN_KUBERNETES_MANIFESTS == 'true' &&
+        $CI_SERVER_VERSION_MAJOR == '13'
+
+gosec-sast:
+  extends: .sast-analyzer-13
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/gosec:$SAST_ANALYZER_IMAGE_TAG"
+  rules:
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $SAST_DEFAULT_ANALYZERS =~ /gosec/ &&
+        $CI_SERVER_VERSION_MAJOR == '13'
+      exists:
+        - '**/*.go'
+
+nodejs-scan-sast:
+  extends: .sast-analyzer-13
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
+  rules:
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $SAST_DEFAULT_ANALYZERS =~ /nodejs-scan/ &&
+        $CI_SERVER_VERSION_MAJOR == '13'
+      exists:
+        - '**/*.js'
+
+phpcs-security-audit-sast:
+  extends: .sast-analyzer-13
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/phpcs-security-audit:$SAST_ANALYZER_IMAGE_TAG"
+  rules:
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $SAST_DEFAULT_ANALYZERS =~ /phpcs-security-audit/ &&
+        $CI_SERVER_VERSION_MAJOR == '13'
+      exists:
+        - '**/*.php'
+
+# TODO: set exists to proper apex file extensions
+pmd-apex-sast:
+  extends: .sast-analyzer-13
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/pmd-apex:$SAST_ANALYZER_IMAGE_TAG"
+  rules:
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $SAST_DEFAULT_ANALYZERS =~ /pmd-apex/ &&
+        $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bapex\b/ &&
+        $CI_SERVER_VERSION_MAJOR == '13'
+
+secrets-sast:
+  extends: .sast-analyzer-13
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/secrets:$SAST_ANALYZER_IMAGE_TAG"
+  rules:
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $SAST_DEFAULT_ANALYZERS =~ /secrets/ &&
+        $CI_SERVER_VERSION_MAJOR == '13'
+
+security-code-scan-sast:
+  extends: .sast-analyzer-13
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/security-code-scan:$SAST_ANALYZER_IMAGE_TAG"
+  rules:
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $SAST_DEFAULT_ANALYZERS =~ /security-code-scan/ &&
+        $CI_SERVER_VERSION_MAJOR == '13'
+      exists:
+        - '**/*.cs'
+        - '**/*.vb'
+
+sobelow-sast:
+  extends: .sast-analyzer-13
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/sobelow:$SAST_ANALYZER_IMAGE_TAG"
+  rules:
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $SAST_DEFAULT_ANALYZERS =~ /sobelow/ &&
+        $CI_SERVER_VERSION_MAJOR == '13'
+      exists:
+        - '**/*.ex'
+        - '**/*.exs'
+
+spotbugs-sast:
+  extends: .sast-analyzer-13
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/spotbugs:$SAST_ANALYZER_IMAGE_TAG"
+  rules:
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $SAST_DEFAULT_ANALYZERS =~ /spotbugs/ &&
+        $CI_SERVER_VERSION_MAJOR == '13'
+      exists:
+        - '**/*.java'
+        - '**/*.scala'
+        - '**/*.groovy'
+
+tslint-sast:
+  extends: .sast-analyzer-13
+  image:
+    name: "$SAST_ANALYZER_IMAGE_PREFIX/tslint:$SAST_ANALYZER_IMAGE_TAG"
+  rules:
+    - if: $SAST_DISABLED == null &&
+        $GITLAB_FEATURES =~ /\bsast\b/ &&
+        $SAST_DEFAULT_ANALYZERS =~ /tslint/ &&
+        $CI_SERVER_VERSION_MAJOR == '13'
+      exists:
+        - '**/*.ts'
+        - '**/*.tsx'
+
+# ####################################################################################
+
+.sast-analyzer-12:
+  extends: .sast-analyzer
   only:
     refs:
       - branches
     variables:
-      - $GITLAB_FEATURES =~ /\bsast\b/
+      - $GITLAB_FEATURES =~ /\bsast\b/ &&
+          $CI_MAJOR_VERSION = '12'
   except:
     variables:
       - $SAST_DISABLED
 
-bandit-sast:
-  extends: .sast-analyzer
+bandit-sast-12:
+  extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/bandit:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
-          $SAST_DEFAULT_ANALYZERS =~ /bandit/&&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bpython\b/
+          $SAST_DEFAULT_ANALYZERS =~ /bandit/ &&
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bpython\b/ &&
+          $CI_MAJOR_VERSION == '12'
 
-brakeman-sast:
-  extends: .sast-analyzer
+brakeman-sast-12:
+  extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/brakeman:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
           $SAST_DEFAULT_ANALYZERS =~ /brakeman/ &&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bruby\b/
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bruby\b/ &&
+          $CI_MAJOR_VERSION == '12'
 
-eslint-sast:
-  extends: .sast-analyzer
+eslint-sast-12:
+  extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
           $SAST_DEFAULT_ANALYZERS =~ /eslint/ &&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bjavascript\b/
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bjavascript\b/ &&
+          $CI_MAJOR_VERSION == '12'
 
-flawfinder-sast:
-  extends: .sast-analyzer
+flawfinder-sast-12:
+  extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/flawfinder:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
           $SAST_DEFAULT_ANALYZERS =~ /flawfinder/ &&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /(c(\+\+)?,)|(c(\+\+)?$)/
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /(c(\+\+)?,)|(c(\+\+)?$)/ &&
+          $CI_MAJOR_VERSION == '12'
 
-kubesec-sast:
-  extends: .sast-analyzer
+kubesec-sast-12:
+  extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
           $SAST_DEFAULT_ANALYZERS =~ /kubesec/ &&
-          $SCAN_KUBERNETES_MANIFESTS == 'true'
+          $SCAN_KUBERNETES_MANIFESTS == 'true' &&
+          $CI_MAJOR_VERSION == '12'
 
-gosec-sast:
-  extends: .sast-analyzer
+gosec-sast-12:
+  extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/gosec:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
           $SAST_DEFAULT_ANALYZERS =~ /gosec/ &&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bgo\b/
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bgo\b/ &&
+          $CI_MAJOR_VERSION == '12'
 
-nodejs-scan-sast:
-  extends: .sast-analyzer
+nodejs-scan-sast-12:
+  extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
           $SAST_DEFAULT_ANALYZERS =~ /nodejs-scan/ &&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bjavascript\b/
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bjavascript\b/ &&
+          $CI_MAJOR_VERSION == '12'
 
-phpcs-security-audit-sast:
-  extends: .sast-analyzer
+phpcs-security-audit-sast-12:
+  extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/phpcs-security-audit:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
           $SAST_DEFAULT_ANALYZERS =~ /phpcs-security-audit/ &&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bphp\b/
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bphp\b/ &&
+          $CI_MAJOR_VERSION == '12'
 
-pmd-apex-sast:
-  extends: .sast-analyzer
+pmd-apex-sast-12:
+  extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/pmd-apex:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
           $SAST_DEFAULT_ANALYZERS =~ /pmd-apex/ &&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bapex\b/
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bapex\b/ &&
+          $CI_MAJOR_VERSION == '12'
 
-secrets-sast:
-  extends: .sast-analyzer
+secrets-sast-12:
+  extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/secrets:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
-          $SAST_DEFAULT_ANALYZERS =~ /secrets/
+          $SAST_DEFAULT_ANALYZERS =~ /secrets/ &&
+          $CI_MAJOR_VERSION == '12'
 
-security-code-scan-sast:
-  extends: .sast-analyzer
+security-code-scan-sast-12:
+  extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/security-code-scan:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
           $SAST_DEFAULT_ANALYZERS =~ /security-code-scan/ &&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\b(c\#|visual basic\b)/
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\b(c\#|visual basic\b)/ &&
+          $CI_MAJOR_VERSION == '12'
 
-sobelow-sast:
-  extends: .sast-analyzer
+sobelow-sast-12:
+  extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/sobelow:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
           $SAST_DEFAULT_ANALYZERS =~ /sobelow/ &&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\belixir\b/
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\belixir\b/ &&
+          $CI_MAJOR_VERSION == '12'
 
-spotbugs-sast:
-  extends: .sast-analyzer
+spotbugs-sast-12:
+  extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/spotbugs:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
           $SAST_DEFAULT_ANALYZERS =~ /spotbugs/ &&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\b(groovy|java|scala)\b/
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\b(groovy|java|scala)\b/ &&
+          $CI_MAJOR_VERSION == '12'
 
-tslint-sast:
-  extends: .sast-analyzer
+tslint-sast-12:
+  extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/tslint:$SAST_ANALYZER_IMAGE_TAG"
   only:
     variables:
       - $GITLAB_FEATURES =~ /\bsast\b/ &&
           $SAST_DEFAULT_ANALYZERS =~ /tslint/ &&
-          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\btypescript\b/
+          $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\btypescript\b/ &&
+          $CI_MAJOR_VERSION == '12'
