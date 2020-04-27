@@ -288,8 +288,10 @@ To add a Kubernetes cluster to your project, group, or instance:
 
 1. Finally, click the **Create Kubernetes cluster** button.
 
-After a couple of minutes, your cluster will be ready to go. You can now proceed
-to install some [pre-defined applications](index.md#installing-applications).
+After a couple of minutes, your cluster will be ready to go. At this point,
+[Kubernetes deployment variables](index.md#deployment-variables) are automatically
+available during CI/CD jobs, making it easy to interact with the cluster. You can
+now proceed to install some [pre-defined applications](index.md#installing-applications).
 
 #### Disable Role-Based Access Control (RBAC) (optional)
 
