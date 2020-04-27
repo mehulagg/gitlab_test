@@ -2,7 +2,7 @@
 require 'securerandom'
 
 module QA
-  context 'Create', :docker, :orchestrated, :requires_admin do
+  context 'Create', :docker, :requires_non_live_env, :requires_admin do
     describe 'Jenkins integration' do
       let(:project_name) { "project_with_jenkins_#{SecureRandom.hex(4)}" }
 

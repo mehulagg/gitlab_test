@@ -16,7 +16,8 @@ module QA
       SUPPORTED_FEATURES = {
         git_protocol_v2: 'QA_CAN_TEST_GIT_PROTOCOL_V2',
         admin: 'QA_CAN_TEST_ADMIN_FEATURES',
-        praefect: 'QA_CAN_TEST_PRAEFECT'
+        praefect: 'QA_CAN_TEST_PRAEFECT',
+        non_live_env: 'QA_CAN_TEST_NON_LIVE_ENV'
       }.freeze
 
       def supported_features
