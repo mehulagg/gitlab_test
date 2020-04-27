@@ -1,10 +1,10 @@
 import $ from 'jquery';
 import Vue from 'vue';
-import createRouter from './router';
-import App from './components/app.vue';
-import apolloProvider from './graphql';
-import projectQuery from './graphql/queries/project.query.graphql';
-import { DESIGNS_ROUTE_NAME, ROOT_ROUTE_NAME } from './router/constants';
+import createRouter from 'ee/design_management/router';
+import App from 'ee/design_management/components/app.vue';
+import apolloProvider from 'ee/design_management/graphql';
+import projectQuery from 'ee/design_management/graphql/queries/project.query.graphql';
+import { DESIGNS_ROUTE_NAME, ROOT_ROUTE_NAME } from 'ee/design_management/router/constants';
 
 export default () => {
   const el = document.getElementById('js-design-management');
