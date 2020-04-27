@@ -66,7 +66,7 @@ export function emojiImageTag(name, src) {
   return `<img class="emoji" title=":${name}:" alt=":${name}:" src="${src}" width="20" height="20" align="absmiddle" />`;
 }
 
-export function glEmojiTag(inputName, options) {
+export function glEmojiObject(inputName, options) {
   const opts = { sprite: false, forceFallback: false, ...options };
   const { name, ...emojiInfo } = getEmojiInfo(inputName);
 
@@ -78,25 +78,39 @@ export function glEmojiTag(inputName, options) {
     classList.push('emoji-icon');
     classList.push(fallbackSpriteClass);
   }
-  const classAttribute = classList.length > 0 ? `class="${classList.join(' ')}"` : '';
-  const fallbackSpriteAttribute = opts.sprite
-    ? `data-fallback-sprite-class="${fallbackSpriteClass}"`
-    : '';
   let contents = emojiInfo.moji;
   if (opts.forceFallback && !opts.sprite) {
     contents = emojiImageTag(name, fallbackImageSrc);
   }
 
+  return {
+    classList,
+    attrs: {
+      'data-name': name,
+      'data-fallback-src': fallbackImageSrc,
+      ...(opts.sprite ? { 'data-fallback-sprite-class': fallbackSpriteClass } : {}),
+      'data-unicode-version': emojiInfo.unicodeVersion,
+      title: emojiInfo.description,
+    },
+    innerHTML: contents,
+  };
+}
+
+export function glEmojiTag(inputName, options) {
+  const object = glEmojiObject(inputName, options);
+
+  const classAttribute = object.classList.length > 0 ? `class="${object.classList.join(' ')}"` : '';
+
   return `
     <gl-emoji
       ${classAttribute}
-      data-name="${name}"
-      data-fallback-src="${fallbackImageSrc}"
-      ${fallbackSpriteAttribute}
-      data-unicode-version="${emojiInfo.unicodeVersion}"
-      title="${emojiInfo.description}"
+      data-name="${object.attrs['data-name']}"
+      data-fallback-src="${object.attrs['data-fallback-src']}"
+      data-fallback-sprite-class="${object.attrs['data-fallback-sprite-class']}"
+      data-unicode-version="${object.attrs['data-unicode-version']}"
+      title="${object.attrs.title}"
     >
-      ${contents}
+      ${object.innerHTML}
     </gl-emoji>
   `;
 }

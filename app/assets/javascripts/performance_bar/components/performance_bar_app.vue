@@ -1,16 +1,16 @@
 <script>
-import { glEmojiTag } from '~/emoji';
-
 import AddRequest from './add_request.vue';
 import DetailedMetric from './detailed_metric.vue';
 import RequestSelector from './request_selector.vue';
 import { s__ } from '~/locale';
+import VueEmoji from '~/emoji/components/vue_emoji.vue';
 
 export default {
   components: {
     AddRequest,
     DetailedMetric,
     RequestSelector,
+    VueEmoji,
   },
   props: {
     store: {
@@ -79,12 +79,6 @@ export default {
     hasHost() {
       return this.currentRequest && this.currentRequest.details && this.currentRequest.details.host;
     },
-    birdEmoji() {
-      if (this.hasHost && this.currentRequest.details.host.canary) {
-        return glEmojiTag('baby_chick');
-      }
-      return '';
-    },
     downloadPath() {
       const data = JSON.stringify(this.requests);
       const blob = new Blob([data], { type: 'text/plain' });
@@ -118,7 +112,7 @@ export default {
           class="current-host"
           :class="{ canary: currentRequest.details.host.canary }"
         >
-          <span v-html="birdEmoji"></span>
+          <vue-emoji v-if="currentRequest.details.host.canary" emoji-name="baby_chick" />
           {{ currentRequest.details.host.hostname }}
         </span>
       </div>
