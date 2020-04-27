@@ -470,7 +470,7 @@ another reviewer.
 
 ### Review process for high priority merge requests
 
-A merge request may benefit from being considered as "high priority" for various reasons including that it is needed to meet a critical customer need such as features that are needed by a single large customer or a large number of customers ([which in this case it is recommended to have a corresponding issue with the planning-priority label](https://about.gitlab.com/handbook/product/product-management/process/#prioritization)).
+A merge request may benefit from being considered as "high priority" for various reasons including that it is needed to meet a critical customer need such as features that are needed by a single large customer/prospect (measured by IACV) and/or a large percentage of customers/prospects ([which in this case it is also recommended to have a corresponding issue tagged with the `planning-priority label`](https://about.gitlab.com/handbook/product/product-management/process/#prioritization)).
 
 High-priority merge requests should reduce the time between iterations by:
 
