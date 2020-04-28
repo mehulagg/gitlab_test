@@ -1,16 +1,12 @@
 <script>
-import { ApolloMutation } from 'vue-apollo';
 import ReplyPlaceholder from '~/notes/components/discussion_reply_placeholder.vue';
 import allVersionsMixin from '../../mixins/all_versions';
-import createNoteMutation from '../../graphql/mutations/createNote.mutation.graphql';
-import getDesignQuery from '../../graphql/queries/getDesign.query.graphql';
 import DesignNote from './design_note.vue';
 import DesignReplyForm from './design_reply_form.vue';
-import { updateStoreAfterAddDiscussionComment } from '../../utils/cache_update';
+import { sendCreateNoteMutation } from './test_service';
 
 export default {
   components: {
-    ApolloMutation,
     DesignNote,
     ReplyPlaceholder,
     DesignReplyForm,
@@ -43,6 +39,7 @@ export default {
     return {
       discussionComment: '',
       isFormRendered: false,
+      loading: false,
     };
   },
   computed: {
@@ -63,26 +60,17 @@ export default {
     },
   },
   methods: {
-    addDiscussionComment(
-      store,
-      {
-        data: { createNote },
-      },
-    ) {
-      updateStoreAfterAddDiscussionComment(
-        store,
-        createNote,
-        getDesignQuery,
-        this.designVariables,
-        this.discussion.id,
-      );
-    },
-    onDone() {
-      this.discussionComment = '';
-      this.hideForm();
-    },
-    onError(err) {
-      this.$emit('error', err);
+    createNote() {
+      this.loading = true;
+      sendCreateNoteMutation(this.mutationPayload, this.designVariables, this.discussion.id)
+        .then(() => {
+          this.discussionComment = '';
+          this.hideForm();
+        })
+        .catch(err => this.$emit('error', err))
+        .finally(() => {
+          this.loading = false;
+        });
     },
     hideForm() {
       this.isFormRendered = false;
@@ -92,7 +80,6 @@ export default {
       this.isFormRendered = true;
     },
   },
-  createNoteMutation,
 };
 </script>
 
@@ -111,25 +98,14 @@ export default {
           :button-text="__('Reply...')"
           @onClick="showForm"
         />
-        <apollo-mutation
+        <design-reply-form
           v-else
-          v-slot="{ mutate, loading }"
-          :mutation="$options.createNoteMutation"
-          :variables="{
-            input: mutationPayload,
-          }"
-          :update="addDiscussionComment"
-          @done="onDone"
-          @error="onError"
-        >
-          <design-reply-form
-            v-model="discussionComment"
-            :is-saving="loading"
-            :markdown-preview-path="markdownPreviewPath"
-            @submitForm="mutate"
-            @cancelForm="hideForm"
-          />
-        </apollo-mutation>
+          v-model="discussionComment"
+          :is-saving="loading"
+          :markdown-preview-path="markdownPreviewPath"
+          @submitForm="createNote"
+          @cancelForm="hideForm"
+        />
       </div>
     </div>
   </div>
