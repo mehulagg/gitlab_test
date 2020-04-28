@@ -38,7 +38,7 @@ variables:
   #   variables:
   #     - $SAST_DISABLED
 
-bandit-sast:
+bandit-sast-13:
   extends: .sast-analyzer-13
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/bandit:$SAST_ANALYZER_IMAGE_TAG"
@@ -51,7 +51,7 @@ bandit-sast:
         - '**/*.py'
 
 # TODO: set exists to `application.rb`
-brakeman-sast:
+brakeman-sast-13:
   extends: .sast-analyzer-13
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/brakeman:$SAST_ANALYZER_IMAGE_TAG"
@@ -63,7 +63,7 @@ brakeman-sast:
       exists:
         - '**/*.rb'
 
-eslint-sast:
+eslint-sast-13:
   extends: .sast-analyzer-13
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
@@ -75,7 +75,7 @@ eslint-sast:
       exists:
         - '**/*.js'
 
-flawfinder-sast:
+flawfinder-sast-13:
   extends: .sast-analyzer-13
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/flawfinder:$SAST_ANALYZER_IMAGE_TAG"
@@ -88,7 +88,7 @@ flawfinder-sast:
         - '**/*.c'
         - '**/*.cpp'
 
-kubesec-sast:
+kubesec-sast-13:
   extends: .sast-analyzer-13
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
@@ -99,7 +99,7 @@ kubesec-sast:
         $SCAN_KUBERNETES_MANIFESTS == 'true' &&
         $CI_SERVER_VERSION_MAJOR == '13'
 
-gosec-sast:
+gosec-sast-13:
   extends: .sast-analyzer-13
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/gosec:$SAST_ANALYZER_IMAGE_TAG"
@@ -111,7 +111,7 @@ gosec-sast:
       exists:
         - '**/*.go'
 
-nodejs-scan-sast:
+nodejs-scan-sast-13:
   extends: .sast-analyzer-13
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
@@ -123,7 +123,7 @@ nodejs-scan-sast:
       exists:
         - '**/*.js'
 
-phpcs-security-audit-sast:
+phpcs-security-audit-sast-13:
   extends: .sast-analyzer-13
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/phpcs-security-audit:$SAST_ANALYZER_IMAGE_TAG"
@@ -136,7 +136,7 @@ phpcs-security-audit-sast:
         - '**/*.php'
 
 # TODO: set exists to proper apex file extensions
-pmd-apex-sast:
+pmd-apex-sast-13:
   extends: .sast-analyzer-13
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/pmd-apex:$SAST_ANALYZER_IMAGE_TAG"
@@ -147,7 +147,7 @@ pmd-apex-sast:
         $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bapex\b/ &&
         $CI_SERVER_VERSION_MAJOR == '13'
 
-secrets-sast:
+secrets-sast-13:
   extends: .sast-analyzer-13
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/secrets:$SAST_ANALYZER_IMAGE_TAG"
@@ -157,7 +157,7 @@ secrets-sast:
         $SAST_DEFAULT_ANALYZERS =~ /secrets/ &&
         $CI_SERVER_VERSION_MAJOR == '13'
 
-security-code-scan-sast:
+security-code-scan-sast-13:
   extends: .sast-analyzer-13
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/security-code-scan:$SAST_ANALYZER_IMAGE_TAG"
@@ -170,7 +170,7 @@ security-code-scan-sast:
         - '**/*.cs'
         - '**/*.vb'
 
-sobelow-sast:
+sobelow-sast-13:
   extends: .sast-analyzer-13
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/sobelow:$SAST_ANALYZER_IMAGE_TAG"
@@ -183,7 +183,7 @@ sobelow-sast:
         - '**/*.ex'
         - '**/*.exs'
 
-spotbugs-sast:
+spotbugs-sast-13:
   extends: .sast-analyzer-13
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/spotbugs:$SAST_ANALYZER_IMAGE_TAG"
@@ -197,7 +197,7 @@ spotbugs-sast:
         - '**/*.scala'
         - '**/*.groovy'
 
-tslint-sast:
+tslint-sast-13:
   extends: .sast-analyzer-13
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/tslint:$SAST_ANALYZER_IMAGE_TAG"
@@ -224,7 +224,7 @@ tslint-sast:
     variables:
       - $SAST_DISABLED
 
-bandit-sast-12:
+bandit-sast:
   extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/bandit:$SAST_ANALYZER_IMAGE_TAG"
@@ -235,7 +235,7 @@ bandit-sast-12:
           $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bpython\b/ &&
           $CI_MAJOR_VERSION == '12'
 
-brakeman-sast-12:
+brakeman-sast:
   extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/brakeman:$SAST_ANALYZER_IMAGE_TAG"
@@ -246,7 +246,7 @@ brakeman-sast-12:
           $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bruby\b/ &&
           $CI_MAJOR_VERSION == '12'
 
-eslint-sast-12:
+eslint-sast:
   extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/eslint:$SAST_ANALYZER_IMAGE_TAG"
@@ -257,7 +257,7 @@ eslint-sast-12:
           $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bjavascript\b/ &&
           $CI_MAJOR_VERSION == '12'
 
-flawfinder-sast-12:
+flawfinder-sast:
   extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/flawfinder:$SAST_ANALYZER_IMAGE_TAG"
@@ -268,7 +268,7 @@ flawfinder-sast-12:
           $CI_PROJECT_REPOSITORY_LANGUAGES =~ /(c(\+\+)?,)|(c(\+\+)?$)/ &&
           $CI_MAJOR_VERSION == '12'
 
-kubesec-sast-12:
+kubesec-sast:
   extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/kubesec:$SAST_ANALYZER_IMAGE_TAG"
@@ -279,7 +279,7 @@ kubesec-sast-12:
           $SCAN_KUBERNETES_MANIFESTS == 'true' &&
           $CI_MAJOR_VERSION == '12'
 
-gosec-sast-12:
+gosec-sast:
   extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/gosec:$SAST_ANALYZER_IMAGE_TAG"
@@ -290,7 +290,7 @@ gosec-sast-12:
           $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bgo\b/ &&
           $CI_MAJOR_VERSION == '12'
 
-nodejs-scan-sast-12:
+nodejs-scan-sast:
   extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/nodejs-scan:$SAST_ANALYZER_IMAGE_TAG"
@@ -301,7 +301,7 @@ nodejs-scan-sast-12:
           $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bjavascript\b/ &&
           $CI_MAJOR_VERSION == '12'
 
-phpcs-security-audit-sast-12:
+phpcs-security-audit-sast:
   extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/phpcs-security-audit:$SAST_ANALYZER_IMAGE_TAG"
@@ -312,7 +312,7 @@ phpcs-security-audit-sast-12:
           $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bphp\b/ &&
           $CI_MAJOR_VERSION == '12'
 
-pmd-apex-sast-12:
+pmd-apex-sast:
   extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/pmd-apex:$SAST_ANALYZER_IMAGE_TAG"
@@ -323,7 +323,7 @@ pmd-apex-sast-12:
           $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\bapex\b/ &&
           $CI_MAJOR_VERSION == '12'
 
-secrets-sast-12:
+secrets-sast:
   extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/secrets:$SAST_ANALYZER_IMAGE_TAG"
@@ -333,7 +333,7 @@ secrets-sast-12:
           $SAST_DEFAULT_ANALYZERS =~ /secrets/ &&
           $CI_MAJOR_VERSION == '12'
 
-security-code-scan-sast-12:
+security-code-scan-sast:
   extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/security-code-scan:$SAST_ANALYZER_IMAGE_TAG"
@@ -344,7 +344,7 @@ security-code-scan-sast-12:
           $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\b(c\#|visual basic\b)/ &&
           $CI_MAJOR_VERSION == '12'
 
-sobelow-sast-12:
+sobelow-sast:
   extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/sobelow:$SAST_ANALYZER_IMAGE_TAG"
@@ -355,7 +355,7 @@ sobelow-sast-12:
           $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\belixir\b/ &&
           $CI_MAJOR_VERSION == '12'
 
-spotbugs-sast-12:
+spotbugs-sast:
   extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/spotbugs:$SAST_ANALYZER_IMAGE_TAG"
@@ -366,7 +366,7 @@ spotbugs-sast-12:
           $CI_PROJECT_REPOSITORY_LANGUAGES =~ /\b(groovy|java|scala)\b/ &&
           $CI_MAJOR_VERSION == '12'
 
-tslint-sast-12:
+tslint-sast:
   extends: .sast-analyzer-12
   image:
     name: "$SAST_ANALYZER_IMAGE_PREFIX/tslint:$SAST_ANALYZER_IMAGE_TAG"
