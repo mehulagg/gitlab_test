@@ -84,6 +84,7 @@ export default {
           projectPath: this.indexPath,
         };
       },
+      update: data => data.project.alertManagementAlerts.nodes,
       error() {
         this.errored = true;
       },
