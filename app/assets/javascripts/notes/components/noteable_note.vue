@@ -1,5 +1,4 @@
 <script>
-import $ from 'jquery';
 import { mapGetters, mapActions } from 'vuex';
 import { escape } from 'lodash';
 import draftMixin from 'ee_else_ce/notes/mixins/draft';
@@ -111,14 +110,14 @@ export default {
     eventHub.$on('enterEditMode', ({ noteId }) => {
       if (noteId === this.note.id) {
         this.isEditing = true;
-        this.scrollToNoteIfNeeded($(this.$el));
+        this.scrollToNoteIfNeeded(this.$el);
       }
     });
   },
 
   mounted() {
     if (this.isTarget) {
-      this.scrollToNoteIfNeeded($(this.$el));
+      this.scrollToNoteIfNeeded(this.$el);
     }
   },
 
