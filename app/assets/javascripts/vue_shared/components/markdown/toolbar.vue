@@ -1,11 +1,14 @@
 <script>
 /* eslint-disable @gitlab/vue-require-i18n-strings */
-import { GlLink, GlLoadingIcon } from '@gitlab/ui';
+import { GlLink, GlLoadingIcon, GlIcon, GlButton, GlPopover } from '@gitlab/ui';
 
 export default {
   components: {
     GlLink,
     GlLoadingIcon,
+    GlIcon,
+    GlButton,
+    GlPopover,
   },
   props: {
     markdownDocsPath: {
@@ -21,6 +24,21 @@ export default {
       type: Boolean,
       required: false,
       default: true,
+    },
+    lineContent: {
+      type: String,
+      required: false,
+      default: '',
+    },
+    canSuggest: {
+      type: Boolean,
+      required: false,
+      default: true,
+    },
+    showSuggestPopover: {
+      type: Boolean,
+      required: false,
+      default: false,
     },
   },
   computed: {
@@ -75,5 +93,36 @@ export default {
         {{ __('Cancel') }}
       </button>
     </span>
+    <template v-if="canSuggest">
+      <gl-button
+        ref="suggestButton"
+        variant="link"
+        class="link js-md float-right mr-2 toolbar-text"
+        :data-md-tag="['```suggestion:-0+0', '{text}', '```'].join('\n')"
+        data-md-cursor-offset="4"
+        :data-md-tag-content="lineContent"
+        data-md-prepend="true"
+      >
+        <gl-icon name="doc-code" :size="18" class="vertical-align-middle" />
+        {{ __('Suggest changes') }}
+      </gl-button>
+      <gl-popover
+        v-if="showSuggestPopover && $refs.suggestButton"
+        :target="$refs.suggestButton"
+        :css-classes="['diff-suggest-popover']"
+        placement="bottom"
+        :show="showSuggestPopover"
+      >
+        <strong>{{ __('New! Suggest changes directly') }}</strong>
+        <p class="mb-2">
+          {{
+            __('Suggest code changes which can be immediately applied in one click. Try it out!')
+          }}
+        </p>
+        <gl-button variant="primary" size="small" @click="() => $emit('handleSuggestDismissed')">
+          {{ __('Got it') }}
+        </gl-button>
+      </gl-popover>
+    </template>
   </div>
 </template>

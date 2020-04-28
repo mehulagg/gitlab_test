@@ -234,12 +234,8 @@ export default {
   >
     <markdown-header
       :preview-markdown="previewMarkdown"
-      :line-content="lineContent"
-      :can-suggest="canSuggest"
-      :show-suggest-popover="showSuggestPopover"
       @preview-markdown="showPreviewTab"
       @write-markdown="showWriteTab"
-      @handleSuggestDismissed="() => $emit('handleSuggestDismissed')"
     />
     <div v-show="!previewMarkdown" class="md-write-holder">
       <div class="zen-backdrop">
@@ -255,6 +251,10 @@ export default {
           :markdown-docs-path="markdownDocsPath"
           :quick-actions-docs-path="quickActionsDocsPath"
           :can-attach-file="canAttachFile"
+          :line-content="lineContent"
+          :can-suggest="canSuggest"
+          :show-suggest-popover="showSuggestPopover"
+          @handleSuggestDismissed="() => $emit('handleSuggestDismissed')"
         />
       </div>
     </div>
