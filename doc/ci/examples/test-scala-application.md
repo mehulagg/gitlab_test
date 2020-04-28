@@ -14,7 +14,7 @@ The following `.gitlab-ci.yml` should be added in the root of your
 repository to trigger CI:
 
 ``` yaml
-image: java:8
+image: maven:3-jdk-8
 
 stages:
   - test
