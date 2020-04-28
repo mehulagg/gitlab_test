@@ -1,0 +1,86 @@
+// this file contains some custom button types
+// bootstrap's default buttons (.btn class only) have transparent bg and border
+// whereas our default button has `@include btn-white` (see app/assets/stylesheets/framework/buttons.scss:148)
+
+// since we moved gitlab/ui import to the bottom of framework.scss (and it includes bootstrap)
+.btn {
+  background-color: $white;
+  border-color: $border-color;
+  text-align: left;
+}
+
+// next up we have a bunch of custom button variants
+// these need to be defined after `.btn`
+.btn-blank {
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+
+  &:hover,
+  &:active,
+  &:focus {
+    outline: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+}
+
+.btn-link {
+  padding: 0;
+  background-color: transparent;
+  color: $blue-600;
+  font-weight: normal;
+  border-radius: 0;
+  border-color: transparent;
+  border-width: 0;
+
+  &:hover,
+  &:active,
+  &:focus {
+    color: $blue-800;
+    text-decoration: underline;
+    background-color: transparent;
+    border-color: transparent;
+  }
+
+  &.btn-secondary-hover-link,
+  &.btn-default-hover-link {
+    color: $gl-text-color-secondary;
+
+    &:hover,
+    &:active,
+    &:focus {
+      color: $blue-600;
+      text-decoration: none;
+    }
+  }
+
+  &.btn-primary-hover-link {
+    color: inherit;
+
+    &:hover,
+    &:active,
+    &:focus {
+      color: $blue-600;
+      text-decoration: none;
+    }
+  }
+}
+
+.btn-missing {
+  color: $gl-text-color-secondary;
+  border: 1px dashed $border-gray-normal-dashed;
+  border-radius: $border-radius-default;
+
+  &:hover,
+  &:active,
+  &:focus {
+    color: $gl-text-color-secondary;
+    background-color: $white-normal;
+  }
+}
+
+.btn-svg svg {
+  @include btn-svg;
+}

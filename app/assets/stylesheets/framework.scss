@@ -2,7 +2,9 @@
 @import 'framework/variables_overrides';
 @import 'framework/mixins';
 
-@import '@gitlab/ui/src/scss/gitlab_ui';
+@import '@gitlab/ui/src/scss/bootstrap';
+@import '@gitlab/ui/src/scss/mixins';
+@import '@gitlab/ui/src/scss/utility-mixins/index';
 
 @import 'bootstrap_migration';
 @import 'framework/layout';
@@ -24,7 +26,7 @@
 @import 'framework/forms';
 @import 'framework/gfm';
 @import 'framework/gitlab_theme';
-@import 'framework/header';
+
 @import 'framework/highlight';
 @import 'framework/issue_box';
 @import 'framework/lists';
@@ -71,3 +73,11 @@
 @import "framework/spinner";
 @import 'framework/card';
 @import 'framework/editor-lite';
+
+@import '@gitlab/ui/src/scss/gitlab_ui';
+
+// needed for fixed-position and some padding adjustments
+@import 'framework/header';
+// this is imported once on line 10 (for the vars) then again here (for the rules)
+@import 'bootstrap_migration';
+@import 'framework/bad_time_buttons.scss';
