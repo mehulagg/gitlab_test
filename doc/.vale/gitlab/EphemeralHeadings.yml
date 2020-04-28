@@ -1,0 +1,9 @@
+---
+extends: existence
+message: "Don't use ephemeral words ('%s') in headings or subheadings."
+ignorecase: true
+scope: heading
+level: warning
+tokens:
+  - alpha
+  - beta
