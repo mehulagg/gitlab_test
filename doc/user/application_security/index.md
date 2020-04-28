@@ -338,3 +338,68 @@ To fix this issue, you can either:
 
 [Learn more on overriding the SAST template](sast/index.md#overriding-the-sast-template).
 All the security scanning tools define their stage, so this error can occur with all of them.
+
+### Getting error message `sast job: config key may not be used with 'rules': only/except`
+
+When including a security job template like [`SAST`](sast/index.md#overriding-the-sast-template),
+the following error may occur, depending on your GitLab CI/CD configuration:
+
+```plaintext
+Found errors in your .gitlab-ci.yml:
+
+    jobs:sast config key may not be used with `rules`: only/except
+```
+
+This error appears when the included job's `rules` configuration has been [overridden](sast/index.md#overriding-the-sast-template)
+with [the deprecated `only` or `except` syntax.](../../ci/yaml/README.md#onlyexcept-basic)
+To fix this issue, you must either:
+
+- Transition your only/except syntax to [`rules`](../../ci/yaml/README.md#rules).
+- (Temporarily) Pin your SAST template to the deprecated version:
+
+  ```yaml
+  include:
+    remote: 'https://gitlab.com/gitlab-org/gitlab/-/raw/12-10-stable-ee/lib/gitlab/ci/templates/Security/SAST.gitlab-ci.yml'
+  ```
+
+It is *strongly recommended* to migrate to using `rules` to ensure the latest support.
+
+[Learn more on overriding the SAST template](sast/index.md#overriding-the-sast-template).
+All the security scanning tools define their stage, so this error can occur with all of them.
+
+#### Transitioning your `only/except` syntax to `rules`
+
+When overriding the template to control job execution, previous instances of
+[`only` or `except`](../../ci/yaml/README.md#onlyexcept-basic) are no longer compatible
+and must be transitioned to [the `rules` syntax](../../ci/yaml/README.md#rules).
+
+If your override is aimed at limiting jobs to only run on master, the previous syntax
+would look similar to:
+
+```yaml
+include:
+  - template: SAST.gitlab-ci.yml
+
+# Ensure that the scanning is only executed on master or merge requests
+spotbugs-sast:
+  only:
+    refs:
+      - master
+      - merge_requests
+```
+
+To transition the above configuration to the new `rules` syntax, the override
+would be written as follows:
+
+```yaml
+include:
+  - template: SAST.gitlab-ci.yml
+
+# Ensure that the scanning is only executed on master or merge requests
+spotbugs-sast:
+  rules:
+    - if: CI_COMMIT_BRANCH == "master"
+    - if: $CI_MERGE_REQUEST_ID
+```
+
+[Learn more on the usage of `rules`](../../ci/yaml/README.md#rules).
