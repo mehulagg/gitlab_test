@@ -8,36 +8,65 @@
     %table.table.table-bordered
       %thead
         %tr
-          %th= _("Parameter")
+          %th= _("Stage")
+          %th= _("Job")
           %th= _("Value")
       %tbody
         - @stages.each do |stage|
           - @builds.select { |build| build[:stage] == stage }.each do |build|
             - job = @jobs[build[:name].to_sym]
             %tr
-              %td #{stage.capitalize} Job - #{build[:name]}
+              %td= stage.capitalize
+              %td= build[:name]
               %td
-                %pre= job[:before_script].to_a.join('\n')
-                %pre= job[:script].to_a.join('\n')
-                %pre= job[:after_script].to_a.join('\n')
+                %b= _("before_script:")
+                - before_script = job[:before_script].to_a
+                - if before_script.any?
+                  %pre= job[:before_script].to_a.join('\n')
+                - else
+                  = "None"
+                  %br
+
+                %b= _("script:")
+                - script = job[:script].to_a
+                - if script.any?
+                  %pre= job[:script].to_a.join('\n')
+                - else
+                  = "None"
+                  %br
+
+                %b= _("after_script:")
+                - after_script = job[:after_script].to_a
+                - if after_script.any?
+                  %pre= job[:after_script].to_a.join('\n')
+                - else
+                  = "None"
+                  %br
+
+                %b= _("Tag list:")
+                = build[:tag_list]
+                %br
+
+                %b= _("Rules:")
+                = job[:rules]
 
                 %br
-                %b= _("Tag list:")
-                = build[:tag_list].to_a.join(", ")
-                %br
                 %b= _("Only policy:")
-                = job[:only].to_a.join(", ")
+                = job[:only]
+
                 %br
                 %b= _("Except policy:")
-                = job[:except].to_a.join(", ")
+                = job[:except]
                 %br
+
                 %b= _("Environment:")
                 = build[:environment]
                 %br
+
                 %b= _("When:")
-                = build[:when]
-                - if build[:allow_failure]
-                  %b= _("Allowed to fail")
+                %code= build[:when]
+
+                %b= _("Allowed to fail") if build[:allow_failure]
 
 - else
   .bs-callout.bs-callout-danger
