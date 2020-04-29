@@ -141,12 +141,9 @@ export default {
       }, []);
     },
     chartOptionSeries() {
-      // After https://gitlab.com/gitlab-org/gitlab/-/issues/211330 is implemented,
-      // this method will have access to annotations data
       return (this.option.series || []).concat(
         generateAnnotationsSeries({
           deployments: this.recentDeployments,
-          annotations: this.annotations,
         }),
       );
     },
@@ -365,6 +362,7 @@ export default {
       :option="chartOptions"
       :format-tooltip-text="formatTooltipText"
       :format-annotations-tooltip-text="formatAnnotationsTooltipText"
+      :annotations="annotations"
       :thresholds="thresholds"
       :width="width"
       :height="height"

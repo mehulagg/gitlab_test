@@ -1,4 +1,4 @@
-import { graphTypes, symbolSizes, colorValues, annotationsSymbolIcon } from '../../constants';
+import { graphTypes, symbolSizes } from '../../constants';
 
 /**
  * Annotations and deployments are decoration layers on
@@ -42,42 +42,6 @@ export const annotationsYAxis = {
 };
 
 /**
- * Fetched list of annotations are parsed into a
- * format the eCharts accepts to draw markLines
- *
- * If Annotation is a single line, the `startingAt` property
- * has a value and the `endingAt` is null. Because annotations
- * only supports lines the `endingAt` value does not exist yet.
- *
- * @param {Object} annotation object
- * @returns {Object} markLine object
- */
-export const parseAnnotations = annotations =>
-  annotations.reduce(
-    (acc, annotation) => {
-      acc.lines.push({
-        xAxis: annotation.startingAt,
-        lineStyle: {
-          color: colorValues.primaryColor,
-        },
-      });
-
-      acc.points.push({
-        name: 'annotations',
-        xAxis: annotation.startingAt,
-        yAxis: annotationsYAxisCoords.min,
-        tooltipData: {
-          title: annotation.startingAt,
-          content: annotation.description,
-        },
-      });
-
-      return acc;
-    },
-    { lines: [], points: [] },
-  );
-
-/**
  * This method generates a decorative series that has
  * deployments as data points with custom icons and
  * annotations as markLines and markPoints
@@ -85,7 +49,7 @@ export const parseAnnotations = annotations =>
  * @param {Array} deployments deployments data
  * @returns {Object} annotation series object
  */
-export const generateAnnotationsSeries = ({ deployments = [], annotations = [] } = {}) => {
+export const generateAnnotationsSeries = ({ deployments = [] } = {}) => {
   // deployment data points
   const data = deployments.map(deployment => {
     return {
@@ -105,29 +69,10 @@ export const generateAnnotationsSeries = ({ deployments = [], annotations = [] }
     };
   });
 
-  const parsedAnnotations = parseAnnotations(annotations);
-
-  // markLine option draws the annotations dotted line
-  const markLine = {
-    symbol: 'none',
-    silent: true,
-    data: parsedAnnotations.lines,
-  };
-
-  // markPoints are the arrows under the annotations lines
-  const markPoint = {
-    symbol: annotationsSymbolIcon,
-    symbolSize: '8',
-    symbolOffset: [0, ' 60%'],
-    data: parsedAnnotations.points,
-  };
-
   return {
     name: 'annotations',
     type: graphTypes.annotationsData,
     yAxisIndex: 1, // annotationsYAxis index
     data,
-    markLine,
-    markPoint,
   };
 };

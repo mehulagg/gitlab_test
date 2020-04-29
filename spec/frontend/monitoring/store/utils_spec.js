@@ -385,21 +385,33 @@ describe('parseEnvironmentsResponse', () => {
 });
 
 describe('parseAnnotationsResponse', () => {
-  const parsedAnnotationResponse = [
+  const parsedAnnotationLineResponse = [
     {
-      description: 'This is a test annotation',
-      endingAt: null,
+      tooltipData: {
+        content: 'This is a test annotation line',
+      },
+      max: new Date('2020-04-12T12:51:53.000Z'),
       id: 'gid://gitlab/Metrics::Dashboard::Annotation/1',
-      panelId: null,
-      startingAt: new Date('2020-04-12T12:51:53.000Z'),
+      min: new Date('2020-04-12T12:51:53.000Z'),
+    },
+  ];
+  const parsedAnnotationRangeResponse = [
+    {
+      tooltipData: {
+        content: 'This is a test annotation range',
+      },
+      id: 'gid://gitlab/Metrics::Dashboard::Annotation/3',
+      min: new Date('2020-04-16T12:51:53.000Z'),
+      max: new Date('2020-04-17T12:51:53.000Z'),
     },
   ];
   it.each`
-    case                                               | input                   | expected
-    ${'Returns empty array for null input'}            | ${null}                 | ${[]}
-    ${'Returns empty array for undefined input'}       | ${undefined}            | ${[]}
-    ${'Returns empty array for empty input'}           | ${[]}                   | ${[]}
-    ${'Returns parsed responses for annotations data'} | ${[annotationsData[0]]} | ${parsedAnnotationResponse}
+    case                                                 | input                   | expected
+    ${'Returns empty array for null input'}              | ${null}                 | ${[]}
+    ${'Returns empty array for undefined input'}         | ${undefined}            | ${[]}
+    ${'Returns empty array for empty input'}             | ${[]}                   | ${[]}
+    ${'Returns parsed responses for annotations lines'}  | ${[annotationsData[0]]} | ${parsedAnnotationLineResponse}
+    ${'Returns parsed responses for annotations ranges'} | ${[annotationsData[2]]} | ${parsedAnnotationRangeResponse}
   `('$case', ({ input, expected }) => {
     expect(parseAnnotationsResponse(input)).toEqual(expected);
   });

@@ -260,7 +260,7 @@ describe('Monitoring store actions', () => {
                 {
                   metricsDashboard: {
                     annotations: {
-                      nodes: parsedResponse,
+                      nodes: annotationsData,
                     },
                   },
                 },

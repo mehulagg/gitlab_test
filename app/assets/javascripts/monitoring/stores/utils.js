@@ -58,12 +58,17 @@ export const parseEnvironmentsResponse = (response = [], projectPath) =>
   });
 
 /**
- * Annotation API returns time in UTC. This method
- * converts time to local time.
+ * This method parses Annotation API results.
  *
+ * The UTC times are converted to local time.
  * startingAt always exists but endingAt does not.
- * If endingAt does not exist, a threshold line is
- * drawn.
+ *
+ * If endingAt does not exist, the threshold is a
+ * line.
+ *
+ * However, the Annotations API requires startingAt
+ * and endingAt to have the same value to draw the
+ * threshold line.
  *
  * If endingAt exists, a threshold range is drawn.
  * But this is not supported as of %12.10
@@ -76,9 +81,12 @@ export const parseAnnotationsResponse = response => {
     return [];
   }
   return response.map(annotation => ({
-    ...annotation,
-    startingAt: new Date(annotation.startingAt),
-    endingAt: annotation.endingAt ? new Date(annotation.endingAt) : null,
+    id: annotation.id,
+    tooltipData: {
+      content: annotation.description,
+    },
+    min: new Date(annotation.startingAt),
+    max: annotation.endingAt ? new Date(annotation.endingAt) : new Date(annotation.startingAt),
   }));
 };
 
