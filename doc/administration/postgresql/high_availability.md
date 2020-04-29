@@ -18,36 +18,57 @@ description: ""
 >
 > This configuration is GA in EE 10.2.
 
-The recommended configuration for a PostgreSQL HA requires:
-
-- A minimum of three database nodes
-  - Each node will run the following services:
-    - `PostgreSQL` - The database itself
-    - `repmgrd` - A service to monitor, and handle failover in case of a failure
-    - `Consul` agent - Used for service discovery, to alert other nodes when failover occurs
-- A minimum of three `Consul` server nodes
-- A minimum of one `pgbouncer` service node, but it's recommended to have one per database node
-  - An internal load balancer (TCP) is required when there is more than one `pgbouncer` service node
-
-You also need to take into consideration the underlying network topology,
-making sure you have redundant connectivity between all Database and GitLab instances,
-otherwise the networks will become a single point of failure.
-
 ## Architecture
+
+The Omnibus GitLab recommended configuration for a PostgreSQL high availability
+cluster requires:
+
+- A minimum of three database nodes.
+- A minimum of three `Consul` server nodes.
+- A minimum of one `pgbouncer` service node, but it's recommended to have one
+  per database node.
+  - An internal load balancer (TCP) is required when there is more than one
+    `pgbouncer` service node.
 
 ![PG HA Architecture](img/pg_ha_architecture.png)
 
-Database nodes run two services with PostgreSQL:
+You also need to take into consideration the underlying network topology, making
+sure you have redundant connectivity between all Database and GitLab instances
+to avoid the network becoming a single point of failure.
 
-- Repmgrd. Monitors the cluster and handles failover when issues with the master occur. The failover consists of:
-  - Selecting a new master for the cluster.
-  - Promoting the new node to master.
-  - Instructing remaining servers to follow the new master node.
+### Database node
 
-  On failure, the old master node is automatically evicted from the cluster, and should be rejoined manually once recovered.
-- Consul. Monitors the status of each node in the database cluster and tracks its health in a service definition on the Consul cluster.
+Each database node runs three services:
 
-Alongside each PgBouncer, there is a Consul agent that watches the status of the PostgreSQL service. If that status changes, Consul runs a script which updates the configuration and reloads PgBouncer
+`PostgreSQL` - The database itself.
+
+`repmgrd` - Communicates with other repmgrd services in the cluster and handles
+failover when issues with the master server occurs. The failover procedure
+consists of:
+
+- Selecting a new master for the cluster.
+- Promoting the new node to master.
+- Instructing remaining servers to follow the new master node.
+- The old master node is automatically evicted from the cluster and should be
+  rejoined manually once recovered.
+
+`Consul` agent - Monitors the status of each node in the database cluster and
+tracks its health in a service definition on the Consul cluster.
+
+### Consul server node
+
+The Consul server node runs the Consul server service.
+
+### PgBouncer node
+
+Each PgBouncer node runs two services:
+
+`PgBouncer` - The database connection pooler itself.
+
+`Consul` agent - Watches the status of the PostgreSQL service definition on the
+Consul cluster. If that status changes, Consul runs a script which updates the
+PgBouncer configuration to point to the new PostgreSQL master node and reloads
+the PgBouncer service.
 
 ### Connection flow
 
