@@ -21,12 +21,12 @@ module Gitlab
       end
 
       def from_environment_slug(slug)
-        default_platform_namespace_base(slug) || default_project_namespace_base(slug)
+        default_platform_namespace(slug) || default_project_namespace(slug)
       end
 
       private
 
-      def default_platform_namespace_base(slug)
+      def default_platform_namespace(slug)
         return unless platform_kubernetes&.namespace.present?
 
         if cluster.managed? && cluster.namespace_per_environment?
@@ -36,7 +36,7 @@ module Gitlab
         end
       end
 
-      def default_project_namespace_base(environment_slug)
+      def default_project_namespace(environment_slug)
         namespace_suffix = cluster.namespace_per_environment? ? "-#{environment_slug}" : ''
         project_id_str = project.id.to_s
         project_path_slug_budget = 63 - project_id_str.length - namespace_suffix.length - 1
