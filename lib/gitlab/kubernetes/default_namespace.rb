@@ -21,20 +21,10 @@ module Gitlab
       end
 
       def from_environment_slug(slug)
-        base = default_platform_namespace_base(slug) || default_project_namespace_base(slug)
-        reduce_to_63_characters(base)
+        default_platform_namespace_base(slug) || default_project_namespace_base(slug)
       end
 
       private
-
-      def reduce_to_63_characters(namespace_base)
-        return namespace_base if namespace_base.length <= 63
-
-        suffix = Digest::SHA2.hexdigest(namespace_base).to_i(16).to_s(36)
-        prefix_length = 63 - suffix.length
-        prefix = namespace_base[0...prefix_length]
-        prefix + suffix
-      end
 
       def default_platform_namespace_base(slug)
         return unless platform_kubernetes&.namespace.present?
@@ -46,14 +36,13 @@ module Gitlab
         end
       end
 
-      def default_project_namespace_base(slug)
-        namespace_slug = "#{project.path}-#{project.id}".downcase
-
-        if cluster.namespace_per_environment?
-          namespace_slug += "-#{slug}"
-        end
-
-        Gitlab::NamespaceSanitizer.sanitize(namespace_slug)
+      def default_project_namespace_base(environment_slug)
+        namespace_suffix = cluster.namespace_per_environment? ? "-#{environment_slug}" : ''
+        project_id_str = project.id.to_s
+        project_path_slug_budget = 63 - project_id_str.length - namespace_suffix.length - 1
+        project_path_slug = Gitlab::NamespaceSanitizer.sanitize(project.path.downcase).first(project_path_slug_budget)
+        namespace_base = "#{project_path_slug}-#{project_id_str}#{namespace_suffix}"
+        Gitlab::NamespaceSanitizer.sanitize(namespace_base)
       end
 
       ##

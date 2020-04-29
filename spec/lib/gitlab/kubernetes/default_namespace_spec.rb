@@ -32,14 +32,6 @@ describe Gitlab::Kubernetes::DefaultNamespace do
 
     subject { generator.from_environment_slug(environment.slug) }
 
-    shared_examples_for 'handles very long slugs' do
-      before do
-        allow(environment).to receive(:slug).and_return 'x' * 100
-      end
-
-      it { is_expected.to satisfy { |s| s.length <= 63 } }
-    end
-
     shared_examples_for 'handles very long project paths' do
       before do
         allow(project).to receive(:path).and_return 'x' * 100
@@ -58,26 +50,16 @@ describe Gitlab::Kubernetes::DefaultNamespace do
           let(:cluster) { create(:cluster, :not_managed, platform_kubernetes: platform) }
 
           it { is_expected.to eq platform_namespace }
-
-          it_behaves_like 'handles very long slugs'
         end
-
-        it_behaves_like 'handles very long slugs'
       end
 
       context 'platform namespace is blank' do
         let(:platform_namespace) { nil }
-        let(:mock_namespace) { 'mock-namespace' }
 
-        it 'constructs a namespace from the project and environment' do
-          expect(Gitlab::NamespaceSanitizer).to receive(:sanitize)
-            .with("#{project.path}-#{project.id}-#{environment.slug}".downcase)
-            .and_return(mock_namespace)
-
-          expect(subject).to eq mock_namespace
+        it 'constructs a namespace from the project and environment slug' do
+          expect(subject).to eq "path-with-capitals-#{project.id}-#{environment.slug}"
         end
 
-        it_behaves_like 'handles very long slugs'
         it_behaves_like 'handles very long project paths'
       end
     end
@@ -89,23 +71,15 @@ describe Gitlab::Kubernetes::DefaultNamespace do
         let(:platform_namespace) { 'platform-namespace' }
 
         it { is_expected.to eq platform_namespace }
-
-        it_behaves_like 'handles very long slugs'
       end
 
       context 'platform namespace is blank' do
         let(:platform_namespace) { nil }
-        let(:mock_namespace) { 'mock-namespace' }
 
-        it 'constructs a namespace from the project and environment' do
-          expect(Gitlab::NamespaceSanitizer).to receive(:sanitize)
-            .with("#{project.path}-#{project.id}".downcase)
-            .and_return(mock_namespace)
-
-          expect(subject).to eq mock_namespace
+        it 'constructs a namespace from just the project' do
+          expect(subject).to eq "path-with-capitals-#{project.id}"
         end
 
-        it_behaves_like 'handles very long slugs'
         it_behaves_like 'handles very long project paths'
       end
     end
