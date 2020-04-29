@@ -5,7 +5,7 @@
 # for each of the retrieved lfs objects
 module Projects
   module LfsPointers
-    class LfsImportService < BaseService
+    class LfsImportService < ::ContainerBaseService
       def execute
         return success unless project&.lfs_enabled?
 

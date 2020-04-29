@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class ExtractSectionsFromBuildTraceService < BaseService
+  class ExtractSectionsFromBuildTraceService < ::ContainerBaseService
     def execute(build)
       return false unless build.trace_sections.empty?
 

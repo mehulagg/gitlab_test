@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module MergeTrains
-  class CreatePipelineService < BaseService
+  class CreatePipelineService < ::ContainerBaseService
     def execute(merge_request, previous_ref)
       validation_status = validate(merge_request)
       return validation_status unless validation_status[:status] == :success

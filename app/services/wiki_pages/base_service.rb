@@ -6,7 +6,7 @@ module WikiPages
   # - external_action: the action we report to external clients with webhooks
   # - usage_counter_action: the action that we count in out internal counters
   # - event_action: what we record as the value of `Event#action`
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     private
 
     def execute_hooks(page)

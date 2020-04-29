@@ -4,7 +4,7 @@ module Gitlab
   module DatabaseImporters
     module SelfMonitoring
       module Project
-        class CreateService < ::BaseService
+        class CreateService < ::ContainerBaseService
           include Stepable
           include SelfMonitoring::Helpers
 

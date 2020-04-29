@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class DisableDeployKeyService < BaseService
+  class DisableDeployKeyService < ::ContainerBaseService
     def execute
       # rubocop: disable CodeReuse/ActiveRecord
       deploy_key_project = project.deploy_keys_projects.find_by(deploy_key_id: params[:id])

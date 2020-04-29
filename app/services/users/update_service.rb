@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Users
-  class UpdateService < BaseService
+  class UpdateService < ::ContainerBaseService
     include NewUserNotifier
     attr_reader :user, :identity_params
 

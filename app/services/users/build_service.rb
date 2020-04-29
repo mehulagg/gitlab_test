@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Users
-  class BuildService < BaseService
+  class BuildService < ::ContainerBaseService
     delegate :user_default_internal_regex_enabled?,
              :user_default_internal_regex_instance,
              to: :'Gitlab::CurrentSettings.current_application_settings'

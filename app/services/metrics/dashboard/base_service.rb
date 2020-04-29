@@ -4,7 +4,7 @@
 # Expects any custom dashboards will be located in `.gitlab/dashboards`
 module Metrics
   module Dashboard
-    class BaseService < ::BaseService
+    class BaseService < ::ContainerBaseService
       include Gitlab::Metrics::Dashboard::Errors
 
       STAGES = ::Gitlab::Metrics::Dashboard::Stages

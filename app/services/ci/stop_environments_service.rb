@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class StopEnvironmentsService < BaseService
+  class StopEnvironmentsService < ::ContainerBaseService
     attr_reader :ref
 
     def execute(branch_name)

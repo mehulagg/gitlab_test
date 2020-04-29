@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class UpdateStatisticsService < BaseService
+  class UpdateStatisticsService < ::ContainerBaseService
     def execute
       return unless project
 

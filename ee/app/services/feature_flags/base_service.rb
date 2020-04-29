@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module FeatureFlags
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     include Gitlab::Utils::StrongMemoize
 
     AUDITABLE_ATTRIBUTES = %w(name description active).freeze

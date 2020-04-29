@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module Packages
   module Npm
-    class CreatePackageService < BaseService
+    class CreatePackageService < ::ContainerBaseService
       include Gitlab::Utils::StrongMemoize
 
       def execute

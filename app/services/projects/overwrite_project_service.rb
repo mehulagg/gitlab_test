@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class OverwriteProjectService < BaseService
+  class OverwriteProjectService < ::ContainerBaseService
     def execute(source_project)
       return unless source_project && source_project.namespace == @project.namespace
 

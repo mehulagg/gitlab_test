@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class SlackApplicationInstallService < BaseService
+  class SlackApplicationInstallService < ::ContainerBaseService
     include Gitlab::Routing
 
     SLACK_EXCHANGE_TOKEN_URL = 'https://slack.com/api/oauth.access'.freeze

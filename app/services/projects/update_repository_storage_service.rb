@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class UpdateRepositoryStorageService < BaseService
+  class UpdateRepositoryStorageService < ::ContainerBaseService
     include Gitlab::ShellAdapter
 
     Error = Class.new(StandardError)

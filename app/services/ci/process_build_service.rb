@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class ProcessBuildService < BaseService
+  class ProcessBuildService < ::ContainerBaseService
     def execute(build, current_status)
       if valid_statuses_for_build(build).include?(current_status)
         if build.schedulable?

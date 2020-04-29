@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Git
-  class TagPushService < ::BaseService
+  class TagPushService < ::ContainerBaseService
     include ChangeParams
 
     def execute

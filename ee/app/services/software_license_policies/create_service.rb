@@ -2,7 +2,7 @@
 
 # Managed license creation service. For use in the managed license controller.
 module SoftwareLicensePolicies
-  class CreateService < ::BaseService
+  class CreateService < ::ContainerBaseService
     def initialize(project, user, params)
       super(project, user, params.with_indifferent_access)
     end

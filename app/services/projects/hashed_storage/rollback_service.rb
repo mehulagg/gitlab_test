@@ -2,7 +2,7 @@
 
 module Projects
   module HashedStorage
-    class RollbackService < BaseService
+    class RollbackService < ::ContainerBaseService
       attr_reader :logger, :old_disk_path
 
       def initialize(project, old_disk_path, logger: nil)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class CreateService < BaseService
+  class CreateService < ::ContainerBaseService
     include ValidatesClassificationLabel
 
     def initialize(user, params)

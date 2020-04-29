@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class IssuableBaseService < BaseService
+class IssuableBaseService < ::ContainerBaseService
   private
 
   attr_accessor :params, :skip_milestone_email

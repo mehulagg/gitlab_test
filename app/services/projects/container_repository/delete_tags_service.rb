@@ -2,7 +2,7 @@
 
 module Projects
   module ContainerRepository
-    class DeleteTagsService < BaseService
+    class DeleteTagsService < ::ContainerBaseService
       def execute(container_repository)
         return error('access denied') unless can?(current_user, :destroy_container_image, project)
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Notes
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     def clear_noteable_diffs_cache(note)
       if note.is_a?(DiffNote) &&
           note.start_of_discussion? &&

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Notes
-  class BuildService < ::BaseService
+  class BuildService < ::ContainerBaseService
     def execute
       should_resolve = false
       in_reply_to_discussion_id = params.delete(:in_reply_to_discussion_id)

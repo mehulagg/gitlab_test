@@ -3,10 +3,10 @@
 class BaseService
   include Gitlab::Allowable
 
-  attr_accessor :project, :current_user, :params
+  attr_accessor :current_user, :params
 
-  def initialize(project, user = nil, params = {})
-    @project, @current_user, @params = project, user, params.dup
+  def initialize(user = nil, params = {})
+    @current_user, @params = user, params.dup
   end
 
   def notification_service
@@ -32,8 +32,6 @@ class BaseService
   def system_hook_service
     SystemHooksService.new
   end
-
-  delegate :repository, to: :project
 
   # Add an error to the specified model for restricted visibility levels
   def deny_visibility_level(model, denied_visibility_level = nil)

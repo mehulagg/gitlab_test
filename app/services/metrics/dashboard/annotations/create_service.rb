@@ -4,7 +4,7 @@
 module Metrics
   module Dashboard
     module Annotations
-      class CreateService < ::BaseService
+      class CreateService < ::ContainerBaseService
         include Stepable
 
         steps :authorize_environment_access,

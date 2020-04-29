@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module IncidentManagement
-  class CreateIssueService < BaseService
+  class CreateIssueService < ::ContainerBaseService
     include Gitlab::Utils::StrongMemoize
 
     INCIDENT_LABEL = {

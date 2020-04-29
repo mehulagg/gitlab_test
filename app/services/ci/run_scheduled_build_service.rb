@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class RunScheduledBuildService < ::BaseService
+  class RunScheduledBuildService < ::ContainerBaseService
     def execute(build)
       unless can?(current_user, :update_build, build)
         raise Gitlab::Access::AccessDeniedError

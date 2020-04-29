@@ -2,7 +2,7 @@
 
 module Packages
   module Conan
-    class SearchService < BaseService
+    class SearchService < ::ContainerBaseService
       include ActiveRecord::Sanitization::ClassMethods
 
       WILDCARD = '*'

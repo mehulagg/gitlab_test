@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class PreviewMarkdownService < BaseService
+class PreviewMarkdownService < ::ContainerBaseService
   def execute
     text, commands = explain_quick_actions(params[:text])
     users = find_user_references(text)

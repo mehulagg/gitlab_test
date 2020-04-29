@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Import
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     def initialize(client, user, params)
       @client = client
       @current_user = user

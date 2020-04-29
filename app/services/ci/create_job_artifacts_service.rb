@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class CreateJobArtifactsService < ::BaseService
+  class CreateJobArtifactsService < ::ContainerBaseService
     ArtifactsExistError = Class.new(StandardError)
     OBJECT_STORAGE_ERRORS = [
       Errno::EIO,

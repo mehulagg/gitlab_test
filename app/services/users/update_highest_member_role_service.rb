@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Users
-  class UpdateHighestMemberRoleService < BaseService
+  class UpdateHighestMemberRoleService < ::ContainerBaseService
     attr_reader :user
 
     def initialize(user)

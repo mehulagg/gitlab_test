@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Git
-  class BaseHooksService < ::BaseService
+  class BaseHooksService < ::ContainerBaseService
     include Gitlab::Utils::StrongMemoize
     include ChangeParams
 

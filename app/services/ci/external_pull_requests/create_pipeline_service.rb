@@ -5,7 +5,7 @@
 
 module Ci
   module ExternalPullRequests
-    class CreatePipelineService < BaseService
+    class CreatePipelineService < ::ContainerBaseService
       def execute(pull_request)
         return unless pull_request.open? && pull_request.actual_branch_head?
 

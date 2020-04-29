@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class UpdatePagesService < BaseService
+  class UpdatePagesService < ::ContainerBaseService
     InvalidStateError = Class.new(StandardError)
     FailedToExtractError = Class.new(StandardError)
 

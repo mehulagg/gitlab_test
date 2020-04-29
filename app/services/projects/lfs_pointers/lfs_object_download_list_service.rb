@@ -5,7 +5,7 @@
 # existent ones.
 module Projects
   module LfsPointers
-    class LfsObjectDownloadListService < BaseService
+    class LfsObjectDownloadListService < ::ContainerBaseService
       include Gitlab::Utils::StrongMemoize
 
       HEAD_REV = 'HEAD'

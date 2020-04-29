@@ -2,7 +2,7 @@
 
 module Projects
   module DeployTokens
-    class CreateService < BaseService
+    class CreateService < ::ContainerBaseService
       include DeployTokenMethods
 
       def execute

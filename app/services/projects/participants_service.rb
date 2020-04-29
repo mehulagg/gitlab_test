@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class ParticipantsService < BaseService
+  class ParticipantsService < ::ContainerBaseService
     include Users::ParticipableService
 
     def execute(noteable)

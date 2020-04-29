@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Releases
-  class UpdateService < BaseService
+  class UpdateService < ::ContainerBaseService
     include Releases::Concerns
 
     def execute

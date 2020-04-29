@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AwardEmojis
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     attr_accessor :awardable, :name
 
     def initialize(awardable, name, current_user)

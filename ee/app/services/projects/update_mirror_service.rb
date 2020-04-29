@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class UpdateMirrorService < BaseService
+  class UpdateMirrorService < ::ContainerBaseService
     Error = Class.new(StandardError)
     UpdateError = Class.new(Error)
 

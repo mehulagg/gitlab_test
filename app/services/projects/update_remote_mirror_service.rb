@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class UpdateRemoteMirrorService < BaseService
+  class UpdateRemoteMirrorService < ::ContainerBaseService
     MAX_TRIES = 3
 
     def execute(remote_mirror, tries)

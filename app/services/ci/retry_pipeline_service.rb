@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class RetryPipelineService < ::BaseService
+  class RetryPipelineService < ::ContainerBaseService
     include Gitlab::OptimisticLocking
 
     def execute(pipeline)

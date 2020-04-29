@@ -2,7 +2,7 @@
 
 module Ci
   module ExternalPullRequests
-    class ProcessGithubEventService < ::BaseService
+    class ProcessGithubEventService < ::ContainerBaseService
       # All possible statuses available here:
       # https://developer.github.com/v3/activity/events/types/#pullrequestevent
       GITHUB_ACTIONS_TO_STATUS = {

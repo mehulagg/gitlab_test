@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module MergeTrains
-  class CheckStatusService < BaseService
+  class CheckStatusService < ::ContainerBaseService
     def execute(target_project, target_branch, newrev)
       return unless target_project.merge_trains_enabled?
 

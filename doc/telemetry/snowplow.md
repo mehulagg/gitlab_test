@@ -187,7 +187,7 @@ Tracking can be viewed as either tracking user behavior, or can be utilized for 
 For example:
 
 ```ruby
-class Projects::CreateService < BaseService
+class Projects::CreateService < ::ContainerBaseService
   def execute
     project = Project.create(params)
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class DestroyRollbackService < BaseService
+  class DestroyRollbackService < ::ContainerBaseService
     include Gitlab::ShellAdapter
 
     def execute

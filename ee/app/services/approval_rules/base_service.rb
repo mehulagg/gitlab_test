@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ApprovalRules
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     def execute
       return error(['Prohibited'], 403) unless can_edit?
 

@@ -2,7 +2,7 @@
 
 module Projects
   module DeployTokens
-    class DestroyService < BaseService
+    class DestroyService < ::ContainerBaseService
       include DeployTokenMethods
 
       def execute

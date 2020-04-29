@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module TemplateEngines
-  class LiquidService < BaseService
+  class LiquidService < ::ContainerBaseService
     RenderError = Class.new(StandardError)
 
     DEFAULT_RENDER_SCORE_LIMIT = 1_000

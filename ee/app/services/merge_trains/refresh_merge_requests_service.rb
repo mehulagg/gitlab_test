@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module MergeTrains
-  class RefreshMergeRequestsService < BaseService
+  class RefreshMergeRequestsService < ::ContainerBaseService
     include ::Gitlab::ExclusiveLeaseHelpers
     include ::Gitlab::Utils::StrongMemoize
 

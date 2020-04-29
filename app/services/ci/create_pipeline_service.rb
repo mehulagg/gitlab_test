@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class CreatePipelineService < BaseService
+  class CreatePipelineService < ::ContainerBaseService
     attr_reader :pipeline
 
     CreateError = Class.new(StandardError)

@@ -3,7 +3,7 @@
 module Security
   # Service for storing a given security report into the database.
   #
-  class StoreReportService < ::BaseService
+  class StoreReportService < ::ContainerBaseService
     include Gitlab::Utils::StrongMemoize
 
     attr_reader :pipeline, :report, :project

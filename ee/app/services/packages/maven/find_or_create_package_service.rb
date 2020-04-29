@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module Packages
   module Maven
-    class FindOrCreatePackageService < BaseService
+    class FindOrCreatePackageService < ::ContainerBaseService
       MAVEN_METADATA_FILE = 'maven-metadata.xml'.freeze
 
       def execute

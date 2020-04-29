@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class DetectRepositoryLanguagesService < BaseService
+  class DetectRepositoryLanguagesService < ::ContainerBaseService
     attr_reader :programming_languages
 
     # rubocop: disable CodeReuse/ActiveRecord

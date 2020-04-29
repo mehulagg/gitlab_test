@@ -2,7 +2,7 @@
 
 module Projects
   module AutoDevops
-    class DisableService < BaseService
+    class DisableService < ::ContainerBaseService
       def execute
         return false unless implicitly_enabled_and_first_pipeline_failure?
 

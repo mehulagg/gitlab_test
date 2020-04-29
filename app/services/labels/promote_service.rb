@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Labels
-  class PromoteService < BaseService
+  class PromoteService < ::Labels::BaseService
     BATCH_SIZE = 1000
 
     # rubocop: disable CodeReuse/ActiveRecord

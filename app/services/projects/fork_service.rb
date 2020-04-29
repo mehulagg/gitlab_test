@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class ForkService < BaseService
+  class ForkService < ::ContainerBaseService
     def execute(fork_to_project = nil)
       forked_project = fork_to_project ? link_existing_project(fork_to_project) : fork_new_project
 

@@ -2,7 +2,7 @@
 
 module Groups
   module GroupLinks
-    class DestroyService < BaseService
+    class DestroyService < Groups::BaseService
       def execute(one_or_more_links)
         links = Array(one_or_more_links)
 

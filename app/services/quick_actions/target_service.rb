@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QuickActions
-  class TargetService < BaseService
+  class TargetService < ::ContainerBaseService
     def execute(type, type_id)
       case type&.downcase
       when 'issue'

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Auth
-  class ContainerRegistryAuthenticationService < BaseService
+  class ContainerRegistryAuthenticationService < ::ContainerBaseService
     AUDIENCE = 'container_registry'
     REGISTRY_LOGIN_ABILITIES = [
       :read_container_image,

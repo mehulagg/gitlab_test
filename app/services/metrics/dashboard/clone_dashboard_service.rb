@@ -4,7 +4,7 @@
 # .yml file inside `.gitlab/dashboards`
 module Metrics
   module Dashboard
-    class CloneDashboardService < ::BaseService
+    class CloneDashboardService < ::ContainerBaseService
       include Stepable
 
       ALLOWED_FILE_TYPE = '.yml'

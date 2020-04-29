@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module JiraConnectSubscriptions
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     attr_accessor :jira_connect_installation, :current_user, :params
 
     def initialize(jira_connect_installation, user = nil, params = {})

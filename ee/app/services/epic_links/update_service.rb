@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module EpicLinks
-  class UpdateService < BaseService
+  class UpdateService < ::ContainerBaseService
     attr_reader :epic
     private :epic
 

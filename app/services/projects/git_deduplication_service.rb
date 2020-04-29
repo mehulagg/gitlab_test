@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class GitDeduplicationService < BaseService
+  class GitDeduplicationService < ::ContainerBaseService
     include ExclusiveLeaseGuard
 
     LEASE_TIMEOUT = 86400

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Snippets
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     private
 
     def snippet_error_response(snippet, http_status)

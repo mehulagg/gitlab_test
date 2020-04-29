@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module IssuableLinks
-  class DestroyService < BaseService
+  class DestroyService < ::ContainerBaseService
     attr_reader :link, :current_user
 
     def initialize(link, user)

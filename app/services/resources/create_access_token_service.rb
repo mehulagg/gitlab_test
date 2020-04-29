@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Resources
-  class CreateAccessTokenService < BaseService
+  class CreateAccessTokenService < ::ContainerBaseService
     attr_accessor :resource_type, :resource
 
     def initialize(resource_type, resource, user, params = {})

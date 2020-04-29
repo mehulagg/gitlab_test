@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ErrorTracking
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     def execute
       return unauthorized if unauthorized
 

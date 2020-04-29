@@ -3,7 +3,7 @@
 module Security
   # Service for storing security reports into the database.
   #
-  class StoreReportsService < ::BaseService
+  class StoreReportsService < ::ContainerBaseService
     def initialize(pipeline)
       @pipeline = pipeline
     end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class SubscribeBridgeService < ::BaseService
+  class SubscribeBridgeService < ::ContainerBaseService
     include ::Gitlab::Utils::StrongMemoize
 
     def execute(bridge)

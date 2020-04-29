@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Branches
-  class DeleteMergedService < BaseService
+  class DeleteMergedService < ::ContainerBaseService
     def async_execute
       DeleteMergedBranchesWorker.perform_async(project.id, current_user.id)
     end

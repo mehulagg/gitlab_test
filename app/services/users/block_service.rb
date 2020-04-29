@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Users
-  class BlockService < BaseService
+  class BlockService < ::ContainerBaseService
     def initialize(current_user)
       @current_user = current_user
     end

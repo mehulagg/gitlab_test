@@ -4,7 +4,7 @@ module Gitlab
   module DatabaseImporters
     module SelfMonitoring
       module Project
-        class DeleteService < ::BaseService
+        class DeleteService < ::ContainerBaseService
           include Stepable
           include SelfMonitoring::Helpers
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class ParseDotenvArtifactService < ::BaseService
+  class ParseDotenvArtifactService < ::ContainerBaseService
     MAX_ACCEPTABLE_DOTENV_SIZE = 5.kilobytes
     MAX_ACCEPTABLE_VARIABLES_COUNT = 10
 

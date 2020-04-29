@@ -2,7 +2,7 @@
 
 module Ci
   # TODO: rename this (and worker) to CreateDownstreamPipelineService
-  class CreateCrossProjectPipelineService < ::BaseService
+  class CreateCrossProjectPipelineService < ::ContainerBaseService
     include Gitlab::Utils::StrongMemoize
 
     DuplicateDownstreamPipelineError = Class.new(StandardError)

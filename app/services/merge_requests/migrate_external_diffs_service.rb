@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module MergeRequests
-  class MigrateExternalDiffsService < ::BaseService
+  class MigrateExternalDiffsService < ::ContainerBaseService
     MAX_JOBS = 1000.freeze
 
     attr_reader :diff

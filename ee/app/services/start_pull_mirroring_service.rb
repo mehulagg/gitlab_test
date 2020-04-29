@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class StartPullMirroringService < BaseService
+class StartPullMirroringService < ::ContainerBaseService
   def execute
     return error('Mirroring for the project is on pause', 403) if project.import_state.hard_failed?
 

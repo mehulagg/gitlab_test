@@ -2,7 +2,7 @@
 
 module Groups
   module DeployTokens
-    class DestroyService < BaseService
+    class DestroyService < Groups::BaseService
       include DeployTokenMethods
 
       def execute

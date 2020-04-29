@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class WebIdeConfigService < ::BaseService
+  class WebIdeConfigService < ::ContainerBaseService
     include ::Gitlab::Utils::StrongMemoize
 
     ValidationError = Class.new(StandardError)

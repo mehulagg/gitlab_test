@@ -2,7 +2,7 @@
 
 module Projects
   module Licenses
-    class CreatePolicyService < ::BaseService
+    class CreatePolicyService < ::ContainerBaseService
       def execute
         policy = create_policy(find_software_license, params[:classification])
         success(software_license_policy: license_compliance.report_for(policy))

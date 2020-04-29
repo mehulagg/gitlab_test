@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ClearNamespaceSharedRunnersMinutesService < BaseService
+class ClearNamespaceSharedRunnersMinutesService < ::ContainerBaseService
   def initialize(namespace)
     @namespace = namespace
   end

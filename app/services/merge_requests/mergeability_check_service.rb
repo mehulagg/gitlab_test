@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module MergeRequests
-  class MergeabilityCheckService < ::BaseService
+  class MergeabilityCheckService < ::ContainerBaseService
     include Gitlab::Utils::StrongMemoize
     include Gitlab::ExclusiveLeaseHelpers
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module QuickActions
-  class InterpretService < BaseService
+  class InterpretService < ::ContainerBaseService
     include Gitlab::Utils::StrongMemoize
     include Gitlab::QuickActions::Dsl
     include Gitlab::QuickActions::IssueActions

@@ -2,7 +2,7 @@
 
 module Projects
   module GroupLinks
-    class CreateService < BaseService
+    class CreateService < ::ContainerBaseService
       def execute(group)
         return error('Not Found', 404) unless group && can?(current_user, :read_namespace, group)
 

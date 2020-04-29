@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class AutoMergeService < BaseService
+class AutoMergeService < ::ContainerBaseService
   include Gitlab::Utils::StrongMemoize
 
   STRATEGY_MERGE_WHEN_PIPELINE_SUCCEEDS = 'merge_when_pipeline_succeeds'

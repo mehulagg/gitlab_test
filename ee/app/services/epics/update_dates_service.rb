@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Epics
-  class UpdateDatesService < ::BaseService
+  class UpdateDatesService < ::ContainerBaseService
     BATCH_SIZE = 100
 
     STRATEGIES = [

@@ -2,7 +2,7 @@
 
 module Projects
   module HashedStorage
-    class MigrationService < BaseService
+    class MigrationService < ::ContainerBaseService
       attr_reader :logger, :old_disk_path
 
       def initialize(project, old_disk_path, logger: nil)

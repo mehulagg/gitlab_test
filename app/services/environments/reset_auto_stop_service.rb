@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Environments
-  class ResetAutoStopService < ::BaseService
+  class ResetAutoStopService < ::ContainerBaseService
     def execute(environment)
       return error(_('Failed to cancel auto stop because you do not have permission to update the environment.')) unless can_update_environment?(environment)
       return error(_('Failed to cancel auto stop because the environment is not set as auto stop.')) unless environment.auto_stop_at?

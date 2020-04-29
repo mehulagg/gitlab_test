@@ -8,7 +8,7 @@
 #   Geo::ProjectHousekeepingService.new(project).execute
 #
 module Geo
-  class ProjectHousekeepingService < BaseService
+  class ProjectHousekeepingService < ::ContainerBaseService
     LEASE_TIMEOUT = 24.hours
     attr_reader :project
     attr_reader :pool_repository

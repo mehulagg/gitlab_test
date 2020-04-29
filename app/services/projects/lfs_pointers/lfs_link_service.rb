@@ -3,7 +3,7 @@
 # Given a list of oids, this services links the existent Lfs Objects to the project
 module Projects
   module LfsPointers
-    class LfsLinkService < BaseService
+    class LfsLinkService < ::ContainerBaseService
       TooManyOidsError = Class.new(StandardError)
 
       MAX_OIDS = 100_000

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Labels
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     COLOR_NAME_TO_HEX = {
       black: '#000000',
       silver: '#C0C0C0',

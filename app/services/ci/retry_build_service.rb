@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class RetryBuildService < ::BaseService
+  class RetryBuildService < ::ContainerBaseService
     CLONE_ACCESSORS = %i[pipeline project ref tag options name
                          allow_failure stage stage_id stage_idx trigger_request
                          yaml_variables when environment coverage_regex

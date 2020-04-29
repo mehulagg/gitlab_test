@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Prometheus
-  class CreateDefaultAlertsService < BaseService
+  class CreateDefaultAlertsService < ::ContainerBaseService
     include Gitlab::Utils::StrongMemoize
 
     attr_reader :project

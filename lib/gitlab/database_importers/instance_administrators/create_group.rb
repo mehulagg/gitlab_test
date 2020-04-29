@@ -3,7 +3,7 @@
 module Gitlab
   module DatabaseImporters
     module InstanceAdministrators
-      class CreateGroup < ::BaseService
+      class CreateGroup < ::ContainerBaseService
         include Stepable
 
         VISIBILITY_LEVEL = Gitlab::VisibilityLevel::INTERNAL

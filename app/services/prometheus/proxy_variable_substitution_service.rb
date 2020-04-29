@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Prometheus
-  class ProxyVariableSubstitutionService < BaseService
+  class ProxyVariableSubstitutionService < ::ContainerBaseService
     include Stepable
 
     steps :validate_variables,

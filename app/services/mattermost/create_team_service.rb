@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Mattermost
-  class CreateTeamService < ::BaseService
+  class CreateTeamService < ::ContainerBaseService
     def initialize(group, current_user)
       @group, @current_user = group, current_user
     end

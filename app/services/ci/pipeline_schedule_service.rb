@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class PipelineScheduleService < BaseService
+  class PipelineScheduleService < ::ContainerBaseService
     def execute(schedule)
       # Ensure `next_run_at` is set properly before creating a pipeline.
       # Otherwise, multiple pipelines could be created in a short interval.

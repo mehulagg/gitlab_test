@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class ImportService < BaseService
+  class ImportService < ::ContainerBaseService
     Error = Class.new(StandardError)
 
     # Returns true if this importer is supposed to perform its work in the

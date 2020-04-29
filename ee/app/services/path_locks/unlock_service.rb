@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module PathLocks
-  class UnlockService < BaseService
+  class UnlockService < ::ContainerBaseService
     AccessDenied = Class.new(StandardError)
 
     include PathLocksHelper

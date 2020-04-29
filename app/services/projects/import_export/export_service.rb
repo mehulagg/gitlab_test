@@ -2,7 +2,7 @@
 
 module Projects
   module ImportExport
-    class ExportService < BaseService
+    class ExportService < ::ContainerBaseService
       def execute(after_export_strategy = nil, options = {})
         unless project.template_source? || can?(current_user, :admin_project, project)
           raise ::Gitlab::ImportExport::Error.permission_error(current_user, project)

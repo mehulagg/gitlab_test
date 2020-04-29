@@ -3,7 +3,7 @@
 # This service list all existent Lfs objects in a repository
 module Projects
   module LfsPointers
-    class LfsListService < BaseService
+    class LfsListService < ::ContainerBaseService
       # Retrieve all lfs blob pointers and returns a hash
       # with the structure { lfs_file_oid => lfs_file_size }
       def execute

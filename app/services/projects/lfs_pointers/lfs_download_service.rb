@@ -3,7 +3,7 @@
 # This service downloads and links lfs objects from a remote URL
 module Projects
   module LfsPointers
-    class LfsDownloadService < BaseService
+    class LfsDownloadService < ::ContainerBaseService
       SizeError = Class.new(StandardError)
       OidError = Class.new(StandardError)
 

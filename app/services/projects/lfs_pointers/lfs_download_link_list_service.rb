@@ -4,7 +4,7 @@
 # oids provided
 module Projects
   module LfsPointers
-    class LfsDownloadLinkListService < BaseService
+    class LfsDownloadLinkListService < ::ContainerBaseService
       DOWNLOAD_ACTION = 'download'
 
       # This could be different per server, but it seems like a reasonable value to start with.

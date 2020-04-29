@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Users
-  class SignupService < BaseService
+  class SignupService < ::ContainerBaseService
     def initialize(current_user, params = {})
       @user = current_user
       @params = params.dup

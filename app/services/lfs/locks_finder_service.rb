@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Lfs
-  class LocksFinderService < BaseService
+  class LocksFinderService < ::ContainerBaseService
     def execute
       success(locks: find_locks)
     rescue => ex

@@ -7,7 +7,7 @@ module Ci
   #
   # This service must be used with care.
   # Looking for exposed artifacts is very slow and should be done asynchronously.
-  class FindExposedArtifactsService < ::BaseService
+  class FindExposedArtifactsService < ::ContainerBaseService
     include Gitlab::Routing
 
     MAX_EXPOSED_ARTIFACTS = 10

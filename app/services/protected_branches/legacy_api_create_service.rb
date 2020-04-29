@@ -5,7 +5,7 @@
 # internal data model (separate access levels). The translation code is non-trivial, and so
 # lives in this service.
 module ProtectedBranches
-  class LegacyApiCreateService < BaseService
+  class LegacyApiCreateService < ::ContainerBaseService
     def execute
       push_access_level =
         if params.delete(:developers_can_push)

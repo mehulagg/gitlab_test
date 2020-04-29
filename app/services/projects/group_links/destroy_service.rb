@@ -2,7 +2,7 @@
 
 module Projects
   module GroupLinks
-    class DestroyService < BaseService
+    class DestroyService < ::ContainerBaseService
       def execute(group_link)
         return false unless group_link
 

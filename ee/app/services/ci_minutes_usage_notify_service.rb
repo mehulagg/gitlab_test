@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class CiMinutesUsageNotifyService < BaseService
+class CiMinutesUsageNotifyService < ::ContainerBaseService
   def execute
     return unless ::Gitlab.com?
     return unless namespace.shared_runners_minutes_limit_enabled?

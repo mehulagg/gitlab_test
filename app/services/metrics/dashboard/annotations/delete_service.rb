@@ -4,7 +4,7 @@
 module Metrics
   module Dashboard
     module Annotations
-      class DeleteService < ::BaseService
+      class DeleteService < ::ContainerBaseService
         include Stepable
 
         steps :authorize_action,

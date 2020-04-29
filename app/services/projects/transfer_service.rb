@@ -9,7 +9,7 @@
 #   Projects::TransferService.new(project, user, namespace_id: 17).execute
 #
 module Projects
-  class TransferService < BaseService
+  class TransferService < ::ContainerBaseService
     include Gitlab::ShellAdapter
     TransferError = Class.new(StandardError)
 

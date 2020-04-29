@@ -5,7 +5,7 @@
 # internal data model (separate access levels). The translation code is non-trivial, and so
 # lives in this service.
 module ProtectedBranches
-  class LegacyApiUpdateService < BaseService
+  class LegacyApiUpdateService < ::ContainerBaseService
     attr_reader :protected_branch, :developers_can_push, :developers_can_merge
 
     def execute(protected_branch)

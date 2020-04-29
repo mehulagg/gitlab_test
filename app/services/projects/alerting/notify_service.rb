@@ -2,7 +2,7 @@
 
 module Projects
   module Alerting
-    class NotifyService < BaseService
+    class NotifyService < ::ContainerBaseService
       include Gitlab::Utils::StrongMemoize
       include IncidentManagement::Settings
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class PipelineBridgeStatusService < ::BaseService
+  class PipelineBridgeStatusService < ::ContainerBaseService
     def execute(pipeline)
       return unless pipeline.bridge_triggered?
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DesignManagement
-  class DesignService < ::BaseService
+  class DesignService < ::ContainerBaseService
     def initialize(project, user, params = {})
       super
 

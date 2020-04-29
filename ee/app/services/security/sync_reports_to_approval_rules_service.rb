@@ -3,7 +3,7 @@
 module Security
   # Service for syncing security reports results to report_approver approval rules
   #
-  class SyncReportsToApprovalRulesService < ::BaseService
+  class SyncReportsToApprovalRulesService < ::ContainerBaseService
     def initialize(pipeline)
       @pipeline = pipeline
     end

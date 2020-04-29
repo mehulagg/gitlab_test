@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DraftNotes
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     attr_accessor :merge_request, :current_user, :params
 
     def initialize(merge_request, current_user, params = nil)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Git
-  class WikiPushService < ::BaseService
+  class WikiPushService < ::ContainerBaseService
     def execute
       # This is used in EE
     end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ServiceDeskSettings
-  class UpdateService < BaseService
+  class UpdateService < ::ContainerBaseService
     def execute
       settings = ServiceDeskSetting.safe_find_or_create_by!(project_id: project.id)
 

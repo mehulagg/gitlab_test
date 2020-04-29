@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Branches
-  class ValidateNewService < BaseService
+  class ValidateNewService < ::ContainerBaseService
     def initialize(project)
       @project = project
     end

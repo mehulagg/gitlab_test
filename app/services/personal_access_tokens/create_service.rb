@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module PersonalAccessTokens
-  class CreateService < BaseService
+  class CreateService < ::ContainerBaseService
     def initialize(current_user, params = {})
       @current_user = current_user
       @params = params.dup

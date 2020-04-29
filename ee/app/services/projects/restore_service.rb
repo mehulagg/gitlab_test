@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class RestoreService < BaseService
+  class RestoreService < ::ContainerBaseService
     def execute
       return error(_('Project already deleted')) if project.pending_delete?
 

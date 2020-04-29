@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Tags
-  class DestroyService < BaseService
+  class DestroyService < ::ContainerBaseService
     def execute(tag_name)
       repository = project.repository
       tag = repository.find_tag(tag_name)

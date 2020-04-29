@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class PipelineTriggerService < BaseService
+  class PipelineTriggerService < ::ContainerBaseService
     include Gitlab::Utils::StrongMemoize
 
     def execute

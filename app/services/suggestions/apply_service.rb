@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Suggestions
-  class ApplyService < ::BaseService
+  class ApplyService < ::ContainerBaseService
     DEFAULT_SUGGESTION_COMMIT_MESSAGE = 'Apply suggestion to %{file_path}'
 
     PLACEHOLDERS = {

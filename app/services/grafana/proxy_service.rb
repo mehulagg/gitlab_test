@@ -6,7 +6,7 @@
 # This allows us to fetch and render metrics in GitLab from a Prometheus
 # instance for which dashboards are configured in Grafana
 module Grafana
-  class ProxyService < BaseService
+  class ProxyService < ::ContainerBaseService
     include ReactiveCaching
 
     self.reactive_cache_key = ->(service) { service.cache_key }

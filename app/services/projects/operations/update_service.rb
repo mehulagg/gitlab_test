@@ -2,7 +2,7 @@
 
 module Projects
   module Operations
-    class UpdateService < BaseService
+    class UpdateService < ::ContainerBaseService
       def execute
         Projects::UpdateService
           .new(project, current_user, project_update_params)

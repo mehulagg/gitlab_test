@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class UpdateBuildMinutesService < BaseService
+class UpdateBuildMinutesService < ::ContainerBaseService
   def execute(build)
     return unless build.shared_runners_minutes_limit_enabled?
     return unless build.complete?

@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module Packages
-  class CreateDependencyService < BaseService
+  class CreateDependencyService < ::ContainerBaseService
     attr_reader :package, :dependencies
 
     def initialize(package, dependencies)

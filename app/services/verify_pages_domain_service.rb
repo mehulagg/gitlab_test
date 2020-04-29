@@ -2,7 +2,7 @@
 
 require 'resolv'
 
-class VerifyPagesDomainService < BaseService
+class VerifyPagesDomainService < ::ContainerBaseService
   # The maximum number of seconds to be spent on each DNS lookup
   RESOLVER_TIMEOUT_SECONDS = 15
 

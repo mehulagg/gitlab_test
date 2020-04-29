@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class UnlinkForkService < BaseService
+  class UnlinkForkService < ::ContainerBaseService
     # If a fork is given, it:
     #
     # - Saves LFS objects to the root project

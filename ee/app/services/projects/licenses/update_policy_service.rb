@@ -2,7 +2,7 @@
 
 module Projects
   module Licenses
-    class UpdatePolicyService < ::BaseService
+    class UpdatePolicyService < ::ContainerBaseService
       def execute(policy_id)
         return error({}, :forbidden) unless can?(current_user, :admin_software_license_policy, project)
         return classification_error unless valid_classification?

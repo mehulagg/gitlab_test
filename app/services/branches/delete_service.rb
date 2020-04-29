@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Branches
-  class DeleteService < BaseService
+  class DeleteService < ::ContainerBaseService
     def execute(branch_name)
       repository = project.repository
       branch = repository.find_branch(branch_name)

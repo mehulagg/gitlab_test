@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module CiCd
-  class SetupProject < ::BaseService
+  class SetupProject < ::ContainerBaseService
     def execute
       return if project.import_url.blank?
 

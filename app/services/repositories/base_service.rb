@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class Repositories::BaseService < BaseService
+class Repositories::BaseService < ::ContainerBaseService
   include Gitlab::ShellAdapter
 
   DELETED_FLAG = '+deleted'

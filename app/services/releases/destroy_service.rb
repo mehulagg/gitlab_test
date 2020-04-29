@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Releases
-  class DestroyService < BaseService
+  class DestroyService < ::ContainerBaseService
     include Releases::Concerns
 
     def execute

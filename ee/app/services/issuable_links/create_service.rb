@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module IssuableLinks
-  class CreateService < BaseService
+  class CreateService < ::ContainerBaseService
     attr_reader :issuable, :current_user, :params
 
     def initialize(issuable, user, params)

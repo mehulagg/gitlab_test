@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module PodLogs
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     include ReactiveCaching
     include Stepable
 

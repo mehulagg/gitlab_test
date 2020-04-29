@@ -8,7 +8,7 @@ module Ci
   # doesn't have we need to either find existing one or create a brand new
   # stage.
   #
-  class EnsureStageService < BaseService
+  class EnsureStageService < ::ContainerBaseService
     EnsureStageError = Class.new(StandardError)
 
     def execute(build)

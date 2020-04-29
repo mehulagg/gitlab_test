@@ -8,7 +8,7 @@
 #   Projects::HousekeepingService.new(project).execute
 #
 module Projects
-  class HousekeepingService < BaseService
+  class HousekeepingService < ::ContainerBaseService
     # Timeout set to 24h
     LEASE_TIMEOUT = 86400
     PACK_REFS_PERIOD = 6

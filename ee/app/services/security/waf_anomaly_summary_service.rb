@@ -4,7 +4,7 @@ module Security
   # Service for fetching summary statistics from ElasticSearch.
   # Queries ES and retrieves both total nginx requests & modsec violations
   #
-  class WafAnomalySummaryService < ::BaseService
+  class WafAnomalySummaryService < ::ContainerBaseService
     def initialize(environment:, interval: 'day', from: 30.days.ago.iso8601, to: Time.zone.now.iso8601)
       @environment = environment
       @interval = interval

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Members
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     # current_user - The user that performs the action
     # params - A hash of parameters
     def initialize(current_user = nil, params = {})

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class UpdatePagesConfigurationService < BaseService
+  class UpdatePagesConfigurationService < ::ContainerBaseService
     include Gitlab::Utils::StrongMemoize
 
     attr_reader :project

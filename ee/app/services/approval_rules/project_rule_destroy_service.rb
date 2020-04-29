@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ApprovalRules
-  class ProjectRuleDestroyService < ::BaseService
+  class ProjectRuleDestroyService < ::ContainerBaseService
     attr_reader :rule
 
     def initialize(approval_rule)

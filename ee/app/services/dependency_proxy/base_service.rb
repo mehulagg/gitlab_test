@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DependencyProxy
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     private
 
     def registry

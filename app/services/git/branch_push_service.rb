@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Git
-  class BranchPushService < ::BaseService
+  class BranchPushService < ::ContainerBaseService
     include Gitlab::Access
     include Gitlab::Utils::StrongMemoize
     include ChangeParams

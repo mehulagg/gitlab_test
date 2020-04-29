@@ -2,7 +2,7 @@
 
 module Ci
   module ResourceGroups
-    class AssignResourceFromResourceGroupService < ::BaseService
+    class AssignResourceFromResourceGroupService < ::ContainerBaseService
       # rubocop: disable CodeReuse/ActiveRecord
       def execute(resource_group)
         free_resources = resource_group.resources.free.count

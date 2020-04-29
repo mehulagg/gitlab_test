@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class DownloadService < BaseService
+  class DownloadService < ::ContainerBaseService
     WHITELIST = [
       /^[^.]+\.fogbugz.com$/
     ].freeze

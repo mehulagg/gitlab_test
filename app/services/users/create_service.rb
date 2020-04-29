@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Users
-  class CreateService < BaseService
+  class CreateService < ::ContainerBaseService
     include NewUserNotifier
 
     def initialize(current_user, params = {})

@@ -2,7 +2,7 @@
 
 module Packages
   module Nuget
-    class CreatePackageService < BaseService
+    class CreatePackageService < ::ContainerBaseService
       TEMPORARY_PACKAGE_NAME = 'NuGet.Temporary.Package'
       PACKAGE_VERSION = '0.0.0'
 

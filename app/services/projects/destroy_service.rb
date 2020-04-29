@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class DestroyService < BaseService
+  class DestroyService < ::ContainerBaseService
     include Gitlab::ShellAdapter
 
     DestroyError = Class.new(StandardError)

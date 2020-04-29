@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 module Packages
   module Maven
-    class CreatePackageService < BaseService
+    class CreatePackageService < ::ContainerBaseService
       def execute
         app_group, _, app_name = params[:name].rpartition('/')
         app_group.tr!('/', '.')

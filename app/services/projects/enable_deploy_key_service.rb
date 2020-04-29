@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class EnableDeployKeyService < BaseService
+  class EnableDeployKeyService < ::ContainerBaseService
     def execute
       key_id = params[:key_id] || params[:id]
       key = find_accessible_key(key_id)

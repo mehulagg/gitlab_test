@@ -3,7 +3,7 @@
 # Updates the content of a specified dashboard in .yml file inside `.gitlab/dashboards`
 module Metrics
   module Dashboard
-    class UpdateDashboardService < ::BaseService
+    class UpdateDashboardService < ::ContainerBaseService
       include Stepable
 
       ALLOWED_FILE_TYPE = '.yml'

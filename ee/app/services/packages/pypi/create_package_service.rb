@@ -2,7 +2,7 @@
 
 module Packages
   module Pypi
-    class CreatePackageService < BaseService
+    class CreatePackageService < ::ContainerBaseService
       include ::Gitlab::Utils::StrongMemoize
 
       def execute

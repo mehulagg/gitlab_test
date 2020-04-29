@@ -2,7 +2,7 @@
 
 module Projects
   module ContainerRepository
-    class CleanupTagsService < BaseService
+    class CleanupTagsService < ::ContainerBaseService
       def execute(container_repository)
         return error('feature disabled') unless can_use?
         return error('access denied') unless can_destroy?

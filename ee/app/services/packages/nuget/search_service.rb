@@ -2,7 +2,7 @@
 
 module Packages
   module Nuget
-    class SearchService < BaseService
+    class SearchService < ::ContainerBaseService
       include Gitlab::Utils::StrongMemoize
       include ActiveRecord::ConnectionAdapters::Quoting
 

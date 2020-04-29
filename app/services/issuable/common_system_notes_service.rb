@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Issuable
-  class CommonSystemNotesService < ::BaseService
+  class CommonSystemNotesService < ::ContainerBaseService
     attr_reader :issuable
 
     def execute(issuable, old_labels: [], is_update: true)

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module EpicIssues
-  class UpdateService < BaseService
+  class UpdateService < ::ContainerBaseService
     attr_reader :epic_issue, :current_user, :params
 
     def initialize(epic_issue, user, params)

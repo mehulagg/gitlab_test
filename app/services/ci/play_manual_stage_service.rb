@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class PlayManualStageService < BaseService
+  class PlayManualStageService < ::ContainerBaseService
     def initialize(project, current_user, params)
       super
 

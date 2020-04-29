@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module MergeRequests
-  class MergeOrchestrationService < ::BaseService
+  class MergeOrchestrationService < ::ContainerBaseService
     def execute(merge_request)
       return unless can_merge?(merge_request)
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Git
-  class ProcessRefChangesService < BaseService
+  class ProcessRefChangesService < ::ContainerBaseService
     PIPELINE_PROCESS_LIMIT = 4
 
     def execute

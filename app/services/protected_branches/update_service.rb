@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module ProtectedBranches
-  class UpdateService < BaseService
+  class UpdateService < ::ContainerBaseService
     def execute(protected_branch)
       raise Gitlab::Access::AccessDeniedError unless can?(current_user, :update_protected_branch, protected_branch)
 

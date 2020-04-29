@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Tags
-  class CreateService < BaseService
+  class CreateService < ::ContainerBaseService
     def execute(tag_name, target, message)
       valid_tag = Gitlab::GitRefValidator.validate(tag_name)
       return error('Tag name invalid', 400) unless valid_tag

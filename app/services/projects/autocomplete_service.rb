@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class AutocompleteService < BaseService
+  class AutocompleteService < ::ContainerBaseService
     include LabelsAsHash
     def issues
       IssuesFinder.new(current_user, project_id: project.id, state: 'opened').execute.select([:iid, :title])

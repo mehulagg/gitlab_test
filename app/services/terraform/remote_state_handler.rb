@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Terraform
-  class RemoteStateHandler < BaseService
+  class RemoteStateHandler < ::ContainerBaseService
     include Gitlab::OptimisticLocking
 
     StateLockedError = Class.new(StandardError)

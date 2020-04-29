@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module ProtectedEnvironments
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     include Gitlab::Utils::StrongMemoize
 
     protected

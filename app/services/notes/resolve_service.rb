@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Notes
-  class ResolveService < ::BaseService
+  class ResolveService < ::ContainerBaseService
     def execute(note)
       note.resolve!(current_user)
 

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class RepositoryLanguagesService < BaseService
+  class RepositoryLanguagesService < ::ContainerBaseService
     def execute
       perform_language_detection unless project.detected_repository_languages?
       persisted_repository_languages

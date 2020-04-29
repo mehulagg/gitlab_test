@@ -3,7 +3,7 @@
 module Projects
   module Prometheus
     module Alerts
-      class NotifyService < BaseService
+      class NotifyService < ::ContainerBaseService
         include Gitlab::Utils::StrongMemoize
         include IncidentManagement::Settings
 

@@ -2,7 +2,7 @@
 
 module Projects
   module ContainerRepository
-    class DestroyService < BaseService
+    class DestroyService < ::ContainerBaseService
       def execute(container_repository)
         return false unless can?(current_user, :update_container_image, project)
 

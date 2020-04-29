@@ -6,7 +6,7 @@ module Projects
 
     AttachmentCannotMoveError = Class.new(StandardError)
 
-    class BaseAttachmentService < BaseService
+    class BaseAttachmentService < ::ContainerBaseService
       # Returns the disk_path value before the execution
       attr_reader :old_disk_path
 

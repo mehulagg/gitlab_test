@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Discussions
-  class UpdateDiffPositionService < BaseService
+  class UpdateDiffPositionService < Discussions::BaseService
     def execute(discussion)
       old_position = discussion.position
       result = tracer.trace(old_position)

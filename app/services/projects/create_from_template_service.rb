@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class CreateFromTemplateService < BaseService
+  class CreateFromTemplateService < ::ContainerBaseService
     include Gitlab::Utils::StrongMemoize
 
     attr_reader :template_name

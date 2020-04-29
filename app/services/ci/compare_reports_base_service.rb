@@ -6,7 +6,7 @@ module Ci
   # 1. reactive caching interface (same in all cases)
   # 2. data generator (report comparison in most of the case but not always)
   # issue: https://gitlab.com/gitlab-org/gitlab/issues/34224
-  class CompareReportsBaseService < ::BaseService
+  class CompareReportsBaseService < ::ContainerBaseService
     def execute(base_pipeline, head_pipeline)
       comparer = build_comparer(base_pipeline, head_pipeline)
 

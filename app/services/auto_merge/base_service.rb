@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AutoMerge
-  class BaseService < ::BaseService
+  class BaseService < ::ContainerBaseService
     include Gitlab::Utils::StrongMemoize
     include MergeRequests::AssignsMergeParams
 

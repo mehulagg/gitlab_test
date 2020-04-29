@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Commits
-  class CreateService < ::BaseService
+  class CreateService < ::ContainerBaseService
     ValidationError = Class.new(StandardError)
     class ChangeError < StandardError
       attr_reader :error_code

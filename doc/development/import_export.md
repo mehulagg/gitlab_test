@@ -315,7 +315,7 @@ The export service, is similar to the `Importer`, restoring data instead of savi
 # ImportExport::ExportService
 module Projects
   module ImportExport
-    class ExportService < BaseService
+    class ExportService < ::ContainerBaseService
 
       def save_all!
         if save_services

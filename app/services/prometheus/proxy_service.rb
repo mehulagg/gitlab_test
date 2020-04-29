@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Prometheus
-  class ProxyService < BaseService
+  class ProxyService < ::ContainerBaseService
     include ReactiveCaching
     include Gitlab::Utils::StrongMemoize
 

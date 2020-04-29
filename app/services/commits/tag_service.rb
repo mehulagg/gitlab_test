@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Commits
-  class TagService < BaseService
+  class TagService < ::ContainerBaseService
     def execute(commit)
       unless params[:tag_name]
         return error('Missing parameter tag_name')

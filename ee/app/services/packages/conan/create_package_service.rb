@@ -2,7 +2,7 @@
 
 module Packages
   module Conan
-    class CreatePackageService < BaseService
+    class CreatePackageService < ::ContainerBaseService
       def execute
         project.packages.create!(
           name: params[:package_name],

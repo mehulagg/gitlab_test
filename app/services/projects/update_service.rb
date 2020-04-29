@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Projects
-  class UpdateService < BaseService
+  class UpdateService < ::ContainerBaseService
     include UpdateVisibilityLevel
     include ValidatesClassificationLabel
 

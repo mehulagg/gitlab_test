@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-class ContainerExpirationPolicyService < BaseService
+class ContainerExpirationPolicyService < ::ContainerBaseService
   def execute(container_expiration_policy)
     container_expiration_policy.schedule_next_run!
 

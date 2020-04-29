@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 module MergeTrains
-  class RefreshMergeRequestService < BaseService
+  class RefreshMergeRequestService < ::ContainerBaseService
     include Gitlab::Utils::StrongMemoize
 
     ProcessError = Class.new(StandardError)

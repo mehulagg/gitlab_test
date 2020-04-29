@@ -5,7 +5,7 @@ module Projects
     # Returned when repository can't be made read-only because there is already a git transfer in progress
     RepositoryInUseError = Class.new(StandardError)
 
-    class BaseRepositoryService < BaseService
+    class BaseRepositoryService < ::ContainerBaseService
       include Gitlab::ShellAdapter
 
       attr_reader :old_disk_path, :new_disk_path, :old_storage_version, :logger, :move_wiki

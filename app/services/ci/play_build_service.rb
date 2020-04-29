@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module Ci
-  class PlayBuildService < ::BaseService
+  class PlayBuildService < ::ContainerBaseService
     def execute(build, job_variables_attributes = nil)
       unless can?(current_user, :update_build, build)
         raise Gitlab::Access::AccessDeniedError

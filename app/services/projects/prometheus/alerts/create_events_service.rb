@@ -4,7 +4,7 @@ module Projects
   module Prometheus
     module Alerts
       # Persists a series of Prometheus alert events as list of PrometheusAlertEvent.
-      class CreateEventsService < BaseService
+      class CreateEventsService < ::ContainerBaseService
         def execute
           create_events_from(alerts)
         end
