@@ -2443,6 +2443,12 @@ describe MergeRequest do
 
         it { expect(subject.mergeable_ci_state?).to be_falsey }
       end
+
+      context 'when a pipeline creation is pending' do
+        it 'TODO' do
+          expect(true).to eq false
+        end
+      end
     end
 
     context 'when merges are not restricted to green builds' do

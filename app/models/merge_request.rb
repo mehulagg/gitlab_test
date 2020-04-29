@@ -1155,10 +1155,11 @@ class MergeRequest < ApplicationRecord
   end
 
   def mergeable_ci_state?
-    return true unless project.only_allow_merge_if_pipeline_succeeds?
-    return false unless actual_head_pipeline
+    if project.only_allow_merge_if_pipeline_succeeds?
+      return actual_head_pipeline&.success?
+    end
 
-    actual_head_pipeline.success?
+    false
   end
 
   def environments_for(current_user, latest: false)
