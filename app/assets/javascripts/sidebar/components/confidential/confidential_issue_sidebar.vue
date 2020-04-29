@@ -7,6 +7,7 @@ import Icon from '~/vue_shared/components/icon.vue';
 import eventHub from '~/sidebar/event_hub';
 import EditForm from './edit_form.vue';
 import recaptchaModalImplementor from '~/vue_shared/mixins/recaptcha_modal_implementor';
+import updateIssueConfidentialMutation from './queries/update_issue_confidential.mutation.graphql';
 
 export default {
   components: {
@@ -18,13 +19,16 @@ export default {
   },
   mixins: [recaptchaModalImplementor],
   props: {
+    iid: {
+      required: true,
+      type: String,
+    },
+    fullPath: {
+      required: true,
+    },
     isEditable: {
       required: true,
       type: Boolean,
-    },
-    service: {
-      required: true,
-      type: Object,
     },
   },
   data() {
@@ -52,17 +56,29 @@ export default {
       this.edit = !this.edit;
     },
     updateConfidentialAttribute(confidential) {
-      this.service
-        .update('issue', { confidential })
-        .then(({ data }) => this.checkForSpam(data))
-        .then(() => window.location.reload())
-        .catch(error => {
-          if (error.name === 'SpamError') {
-            this.openRecaptcha();
-          } else {
-            Flash(__('Something went wrong trying to change the confidentiality of this issue'));
-          }
-        });
+      this.$apollo
+        .mutate({
+          mutation: updateIssueConfidentialMutation,
+          variables: {
+            input: {
+              projectPath: this.fullPath,
+              iid: this.iid,
+              confidential,
+            },
+          },
+        })
+        .then(({ data }) => {
+          // then update vuex
+          console.log(data.issueSetConfidential.issue.confidential);
+        })
+      //   .then(({ data }) => this.checkForSpam(data)) // why is this here?
+      //   .catch(error => {
+      //     if (error.name === 'SpamError') {
+      //       this.openRecaptcha();
+      //     } else {
+      //       Flash(__('Something went wrong trying to change the confidentiality of this issue'));
+      //     }
+      //   });
     },
   },
 };

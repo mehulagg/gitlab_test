@@ -1,0 +1,8 @@
+mutation updateIssueConfidential($input: IssueSetConfidentialInput!) {
+  issueSetConfidential(input: $input) {
+    errors
+    issue {
+      confidential
+    }
+  }
+}
