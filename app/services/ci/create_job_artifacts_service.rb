@@ -33,8 +33,7 @@ module Ci
         file_type: params['artifact_type'],
         file_format: params['artifact_format'],
         file_sha256: artifacts_file.sha256,
-        expire_in: expire_in,
-        locked: true)
+        expire_in: expire_in)
 
       artifact_metadata = if metadata_file
                             Ci::JobArtifact.new(
@@ -44,8 +43,7 @@ module Ci
                               file_type: :metadata,
                               file_format: :gzip,
                               file_sha256: metadata_file.sha256,
-                              expire_in: expire_in,
-                              locked: true)
+                              expire_in: expire_in)
                           end
 
       [artifact, artifact_metadata]
@@ -66,7 +64,6 @@ module Ci
       Ci::JobArtifact.transaction do
         artifact.save!
         artifact_metadata&.save!
-        unlock_previous_artifacts!(artifact)
 
         # NOTE: The `artifacts_expire_at` column is already deprecated and to be removed in the near future.
         job.update_column(:artifacts_expire_at, artifact.expire_at)
@@ -82,10 +79,6 @@ module Ci
     rescue => error
       track_exception(error, job, params)
       error(error.message, :bad_request)
-    end
-
-    def unlock_previous_artifacts!(artifact)
-      Ci::JobArtifact.for_ref(artifact.job.ref, artifact.project_id).locked.update_all(locked: false)
     end
 
     def sha256_matches_existing_artifact?(job, artifact_type, artifacts_file)
