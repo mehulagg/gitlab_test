@@ -1,6 +1,6 @@
 <script>
 import { GlTabs, GlTab } from '@gitlab/ui';
-import { s__ } from '~/locale';
+import query from '../graphql/queries/details.query.graphql';
 
 export default {
   i18n: {
@@ -10,6 +10,44 @@ export default {
   components: {
     GlTab,
     GlTabs,
+  },
+  // props: {
+  //   alertId: {
+  //     type: String,
+  //     required: true,
+  //   },
+  //   projectPath: {
+  //     type: String,
+  //     required: true,
+  //   },
+  // },
+  apollo: {
+    alert: {
+      query,
+      variables() {
+        return {
+          // fullPath: this.projectPath,
+          fullPath: 'root/tr-dev-cluster-2',
+          // alertId: `gid://gitlab/Gitlab::AlertManagement::Alert/${this.alertId}`,
+          alertId: '1',
+        };
+      },
+      update: data => {
+        console.log(`data:`, data);
+      },
+      error: error => {
+        console.error(`error:`, error);
+      },
+      result(res) {
+        const alert = res.data.project?.alertManagementAlerts?.nodes[0];
+        console.log(alert);
+      },
+    },
+  },
+  mounted() {
+    this.$apollo.queries.alert.setOptions({
+      fetchPolicy: 'cache-and-network',
+    });
   },
 };
 </script>

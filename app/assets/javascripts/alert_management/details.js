@@ -1,10 +1,19 @@
 import Vue from 'vue';
+import VueApollo from 'vue-apollo';
+import createDefaultClient from '~/lib/graphql';
 import AlertDetails from './components/alert_details.vue';
 
+Vue.use(VueApollo);
+
 export default selector => {
+  const apolloProvider = new VueApollo({
+    defaultClient: createDefaultClient(),
+  });
+
   // eslint-disable-next-line no-new
   new Vue({
     el: selector,
+    apolloProvider,
     components: {
       AlertDetails,
     },
