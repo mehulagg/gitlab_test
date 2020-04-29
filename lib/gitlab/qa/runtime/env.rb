@@ -23,6 +23,7 @@ module Gitlab
           'GITLAB_FORKER_PASSWORD' => :forker_password,
           'GITLAB_USER_TYPE' => :user_type,
           'GITLAB_SANDBOX_NAME' => :gitlab_sandbox_name,
+          'GITLAB_QA_ACCESS_TOKEN' => :qa_access_token,
           'GITLAB_QA_ADMIN_ACCESS_TOKEN' => :qa_admin_access_token,
           'GITHUB_ACCESS_TOKEN' => :github_access_token,
           'GITLAB_URL' => :gitlab_url,
