@@ -12,25 +12,23 @@ export default {
     GlTab,
     GlTabs,
   },
-  // props: {
-  //   alertId: {
-  //     type: String,
-  //     required: true,
-  //   },
-  //   projectPath: {
-  //     type: String,
-  //     required: true,
-  //   },
-  // },
+  props: {
+    alertId: {
+      type: String,
+      required: true,
+    },
+    projectPath: {
+      type: String,
+      required: true,
+    },
+  },
   apollo: {
     alert: {
       query,
       variables() {
         return {
-          // fullPath: this.projectPath,
-          fullPath: 'root/tr-dev-cluster-2',
-          // alertId: `gid://gitlab/Gitlab::AlertManagement::Alert/${this.alertId}`,
-          alertId: '1',
+          fullPath: this.projectPath,
+          alertId: this.alertId,
         };
       },
       update: () => {
