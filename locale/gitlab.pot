@@ -1692,6 +1692,9 @@ msgstr[1] ""
 msgid "Alert Details"
 msgstr ""
 
+msgid "AlertManagement|Acknowledged"
+msgstr ""
+
 msgid "AlertManagement|Alert"
 msgstr ""
 
@@ -1704,7 +1707,16 @@ msgstr ""
 msgid "AlertManagement|End Time"
 msgstr ""
 
+msgid "AlertManagement|End time:"
+msgstr ""
+
 msgid "AlertManagement|Events"
+msgstr ""
+
+msgid "AlertManagement|Events:"
+msgstr ""
+
+msgid "AlertManagement|Ignored"
 msgstr ""
 
 msgid "AlertManagement|More information"
@@ -1722,10 +1734,16 @@ msgstr ""
 msgid "AlertManagement|Start Time"
 msgstr ""
 
+msgid "AlertManagement|Start time:"
+msgstr ""
+
 msgid "AlertManagement|Status"
 msgstr ""
 
 msgid "AlertManagement|There was an error displaying the alerts. Confirm your endpoint's configuration details to ensure alerts appear."
+msgstr ""
+
+msgid "AlertManagement|Triggered"
 msgstr ""
 
 msgid "AlertService|%{linkStart}Learn more%{linkEnd} about configuring this endpoint to receive alerts."
