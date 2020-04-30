@@ -1,5 +1,6 @@
 <script>
 import { GlTabs, GlTab } from '@gitlab/ui';
+import { s__ } from '~/locale';
 import query from '../graphql/queries/details.query.graphql';
 
 export default {
@@ -32,17 +33,21 @@ export default {
           alertId: '1',
         };
       },
-      update: data => {
-        console.log(`data:`, data);
+      update: () => {
+        // TODO: Implement this or remove
       },
-      error: error => {
-        console.error(`error:`, error);
+      error: () => {
+        // TODO: Implement this or remove
       },
       result(res) {
         const alert = res.data.project?.alertManagementAlerts?.nodes[0];
+        this.alert = alert ?? null;
         console.log(alert);
       },
     },
+  },
+  data() {
+    return { alert: null };
   },
   mounted() {
     this.$apollo.queries.alert.setOptions({
