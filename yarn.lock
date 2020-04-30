@@ -786,9 +786,9 @@
   resolved "https://registry.yarnpkg.com/@gitlab/svgs/-/svgs-1.121.0.tgz#77083a68f72e9aa0e294da7715f378eef13b839e"
   integrity sha512-scz/6Y/eED7RMFLAlhT6PwXwe0Wj8ivnRsyulk9NXKoqUmAqZliNmBmzYsHy5bFf9NB6xVV/rOk1/92nbi/Yaw==
 
-"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/522846022/artifacts/raw/gitlab-ui.remove-scoped-label-question-icon.tgz":
-  version "13.1.0"
-  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/522846022/artifacts/raw/gitlab-ui.remove-scoped-label-question-icon.tgz#01fd7ad54668254f492a9e874f66bef048d71e36"
+"@gitlab/ui@https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/533636714/artifacts/raw/gitlab-ui.remove-scoped-label-question-icon.tgz":
+  version "13.7.0"
+  resolved "https://gitlab.com/gitlab-org/gitlab-ui/-/jobs/533636714/artifacts/raw/gitlab-ui.remove-scoped-label-question-icon.tgz#68636c68dea1b11394ed0ad4a483ca3822273fb3"
   dependencies:
     "@babel/standalone" "^7.0.0"
     "@gitlab/vue-toasted" "^1.3.0"
