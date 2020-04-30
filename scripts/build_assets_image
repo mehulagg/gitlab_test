@@ -17,6 +17,7 @@ ASSETS_IMAGE_PATH=${CI_REGISTRY}/${CI_PROJECT_PATH}/${ASSETS_IMAGE_NAME}
 mkdir -p assets_container.build/public
 cp -r public/assets assets_container.build/public/
 cp Dockerfile.assets assets_container.build/
+ls -R assets_container.build/
 
 COMMIT_REF_SLUG_DESTINATION=${ASSETS_IMAGE_PATH}:${CI_COMMIT_REF_SLUG}
 COMMIT_SHA_DESTINATION=${ASSETS_IMAGE_PATH}:${CI_COMMIT_SHA}
