@@ -227,6 +227,7 @@ module Gitlab
           end
         end
 
+        # rubocop:disable Metrics/AbcSize
         def update_labels(issue, test)
           labels = issue.labels
           labels.delete_if { |label| label.start_with?("#{pipeline}::") }
@@ -238,6 +239,7 @@ module Gitlab
             Gitlab.edit_issue(project, issue.iid, labels: labels)
           end
         end
+        # rubocop:enable Metrics/AbcSize
 
         def ee_test?(test)
           test['file'] =~ %r{features/ee/(api|browser_ui)}
