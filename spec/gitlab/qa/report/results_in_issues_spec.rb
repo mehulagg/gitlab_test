@@ -7,6 +7,8 @@ describe Gitlab::QA::Report::ResultsInIssues do
 
   describe '#invoke!' do
     let(:project) { 'valid-project' }
+    let(:test_file_full) { 'qa/specs/features/browser_ui/stage/test_spec.rb' }
+    let(:test_file_partial) { 'browser_ui/stage/test_spec.rb' }
 
     it 'checks that a project was provided' do
       subject = described_class.new(token: 'token', input_files: 'file')
@@ -58,7 +60,7 @@ describe Gitlab::QA::Report::ResultsInIssues do
 
     context 'with valid input' do
       let(:gitlab_client_config) { double('GitLab client config') }
-      let(:test_xml) { '<testcase name="test-name" file="test-file"/>' }
+      let(:test_xml) { %(<testcase name="test-name" file="#{test_file_full}"/>) }
 
       subject { described_class.new(token: 'token', input_files: 'files', project: project) }
 
@@ -111,11 +113,11 @@ describe Gitlab::QA::Report::ResultsInIssues do
         end
 
         it 'finds the issue via the test file and name and updates the issue' do
-          issue = Struct.new(:web_url, :state, :title).new('http://existing-issue.url', 'opened', 'Results for test-file | test-name ')
+          issue = Struct.new(:web_url, :state, :title).new('http://existing-issue.url', 'opened', "#{test_file_partial} | test-name ")
           search_response = Struct.new(:auto_paginate).new([issue])
 
           expect(::Gitlab).to receive(:issues)
-            .with(anything, { search: %("test-file" "test-name") })
+            .with(anything, { search: %("#{test_file_full}" "test-name") })
             .and_return(search_response)
           expect(subject).to receive(:update_labels)
           expect(subject).to receive(:note_status)
@@ -123,16 +125,17 @@ describe Gitlab::QA::Report::ResultsInIssues do
           expect { subject.invoke! }.to output.to_stdout
         end
 
-        context 'when the test name is very long' do
-          let(:test_name) { 'x' * 255 }
-          let(:test_xml) { %(<testcase name="#{test_name}" file="test-file"/>) }
+        context 'when the test name makes the title longer than the maximum 255 character' do
+          let(:long_test_name) { 'x' * 255 }
+          let(:name_truncated_to_fit_title) { 'x' * 220 }
+          let(:test_xml) { %(<testcase name="#{long_test_name}" file="#{test_file_full}"/>) }
 
           it 'finds the issue with a truncated title' do
-            issue = Struct.new(:web_url, :state, :title).new('http://existing-issue.url', 'opened', "Results for test-file | #{'x' * 228}...")
+            issue = Struct.new(:web_url, :state, :title).new('http://existing-issue.url', 'opened', "#{test_file_partial} | #{name_truncated_to_fit_title}...")
             search_response = Struct.new(:auto_paginate).new([issue])
 
             expect(::Gitlab).to receive(:issues)
-              .with(anything, { search: %("test-file" "#{test_name}") })
+              .with(anything, { search: %("#{test_file_full}" "#{long_test_name}") })
               .and_return(search_response)
             expect(subject).to receive(:update_labels)
             expect(subject).to receive(:note_status)
@@ -144,6 +147,11 @@ describe Gitlab::QA::Report::ResultsInIssues do
 
       context 'when an issue does not exist for a given test' do
         before do
+          Gitlab.configure do |config|
+            config.endpoint = 'api'
+            config.private_token = 'token'
+          end
+
           allow(subject).to receive(:find_issue).and_return(nil)
           allow(subject).to receive(:update_labels)
           allow(subject).to receive(:note_status)
@@ -166,14 +174,14 @@ describe Gitlab::QA::Report::ResultsInIssues do
           end
 
           it 'includes the test name and file in the issue title' do
-            expect(::Gitlab).to receive(:create_issue).with(anything, "Results for test-file | test-name", anything).and_return(new_issue)
+            expect(::Gitlab).to receive(:create_issue).with(anything, "#{test_file_partial} | test-name", anything).and_return(new_issue)
 
             expect { subject.invoke! }.to output.to_stdout
           end
 
           it 'includes the test name and file in the issue description' do
             expect(::Gitlab).to receive(:create_issue)
-              .with(anything, anything, hash_including(description: "### Full description\n\ntest-name\n\n### File path\n\ntest-file"))
+              .with(anything, anything, hash_including(description: "### Full description\n\ntest-name\n\n### File path\n\n#{test_file_full}"))
               .and_return(new_issue)
 
             expect { subject.invoke! }.to output.to_stdout
@@ -185,6 +193,32 @@ describe Gitlab::QA::Report::ResultsInIssues do
               .and_return(new_issue)
 
             expect { subject.invoke! }.to output.to_stdout
+          end
+
+          context 'with EE tests' do
+            let(:test_file_full) { 'qa/specs/features/ee/browser_ui/stage/test_spec.rb' }
+            let(:new_issue) { Struct.new(:web_url, :labels, :iid).new('http://existing-issue.url', [], 0) }
+
+            it 'applies the ~"Enterprise Edition" label' do
+              ClimateControl.modify(CI_PROJECT_NAME: 'staging') do
+                allow(subject).to receive(:update_labels).and_call_original
+                allow(::Gitlab).to receive(:create_issue).and_return(new_issue)
+
+                expect(::Gitlab).to receive(:edit_issue).with(anything, anything, hash_including(labels: %w[staging::passed Enterprise\ Edition]))
+
+                expect { subject.invoke! }.to output.to_stdout
+              end
+            end
+
+            it 'removes ee from the path in the title but not the description' do
+              expect(::Gitlab).to receive(:create_issue)
+                .with(anything,
+                      "browser_ui/stage/test_spec.rb | test-name",
+                      hash_including(description: "### Full description\n\ntest-name\n\n### File path\n\n#{test_file_full}"))
+                .and_return(new_issue)
+
+              expect { subject.invoke! }.to output.to_stdout
+            end
           end
         end
       end
