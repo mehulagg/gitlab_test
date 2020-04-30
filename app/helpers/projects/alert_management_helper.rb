@@ -14,7 +14,7 @@ module Projects::AlertManagementHelper
   def alert_management_detail_data(project, alert_id)
     {
       'alert-id' => alert_id,
-      'project-path' => project.full_path,
+      'project-path' => project.full_path
     }
   end
 end
