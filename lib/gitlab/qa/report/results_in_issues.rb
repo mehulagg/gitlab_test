@@ -101,7 +101,7 @@ module Gitlab
         def report_test(test)
           return if test.search('skipped').any?
 
-          puts "Reporting test name: #{test['name']} | #{test['file']}"
+          puts "Reporting test: #{test['file']} | #{test['name']}"
 
           issue = find_issue(test)
           if issue
@@ -118,7 +118,7 @@ module Gitlab
         end
 
         def create_issue(test)
-          puts "Creating issue for file: #{test['file']} | name: #{test['name']}"
+          puts "Creating issue..."
 
           handle_gitlab_client_exceptions do
             Gitlab.create_issue(
@@ -146,11 +146,15 @@ module Gitlab
         end
 
         def title_from_test(test)
-          title = "Results for #{test['file']} | #{search_safe(test['name'])}".strip
+          title = "#{partial_file_path(test['file'])} | #{search_safe(test['name'])}".strip
 
           return title unless title.length > MAX_TITLE_LENGTH
 
           "#{title[0...MAX_TITLE_LENGTH - 3]}..."
+        end
+
+        def partial_file_path(path)
+          path.match(/((api|browser_ui).*)/i)[1]
         end
 
         def search_safe(value)
@@ -227,11 +231,16 @@ module Gitlab
           labels = issue.labels
           labels.delete_if { |label| label.start_with?("#{pipeline}::") }
           labels << (failures(test).empty? ? "#{pipeline}::passed" : "#{pipeline}::failed")
+          labels << "Enterprise Edition" if ee_test?(test)
           quarantine_job? ? labels << "quarantine" : labels.delete("quarantine")
 
           handle_gitlab_client_exceptions do
             Gitlab.edit_issue(project, issue.iid, labels: labels)
           end
+        end
+
+        def ee_test?(test)
+          test['file'] =~ %r{features/ee/(api|browser_ui)}
         end
 
         def failures(test)
