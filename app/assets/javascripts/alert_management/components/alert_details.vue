@@ -40,12 +40,16 @@ export default {
       result(res) {
         const alert = res.data.project?.alertManagementAlerts?.nodes[0];
         this.alert = alert ?? null;
-        console.log(alert);
       },
     },
   },
   data() {
     return { alert: null };
+  },
+  watch: {
+    alert(newAlert) {
+      console.log(newAlert);
+    },
   },
   mounted() {
     this.$apollo.queries.alert.setOptions({
