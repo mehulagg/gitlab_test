@@ -37,14 +37,19 @@ describe ElasticIndexerWorker, :elastic do
     end
 
     with_them do
-      it 'calls record indexing' do
-        object = create(type)
+      context 'index' do
+        let(:object) { create(type) }
+        let(:job_args) { ["index", name, object.id, object.es_id] }
 
-        expect_next_instance_of(Elastic::IndexRecordService) do |service|
-          expect(service).to receive(:execute).with(object, true, {}).and_return(true)
+        include_examples 'an idempotent worker' do
+          it 'calls record indexing' do
+            expect_next_instance_of(Elastic::IndexRecordService) do |service|
+              expect(service).to receive(:execute).with(object, true, {}).and_return(true)
+            end
+
+            subject
+          end
         end
-
-        subject.perform("index", name, object.id, object.es_id)
       end
 
       context 'delete' do
