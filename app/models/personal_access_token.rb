@@ -15,6 +15,11 @@ class PersonalAccessToken < ApplicationRecord
 
   belongs_to :user
 
+  has_many :project_access_tokens
+  has_many :projects, through: :project_tokens
+
+  accepts_nested_attributes_for :project_access_tokens, reject_if: proc { |attributes| attributes['project_id'].blank? }
+
   before_save :ensure_token
 
   scope :active, -> { where("revoked = false AND (expires_at >= NOW() OR expires_at IS NULL)") }
@@ -40,6 +45,10 @@ class PersonalAccessToken < ApplicationRecord
 
   def active?
     !revoked? && !expired?
+  end
+
+  def restricted_to_projects?
+    project_access_tokens.exists?
   end
 
   def self.redis_getdel(user_id)
