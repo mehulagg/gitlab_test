@@ -47,27 +47,42 @@ describe ElasticIndexerWorker, :elastic do
         subject.perform("index", name, object.id, object.es_id)
       end
 
-      it 'deletes from index when an object is deleted' do
-        object = nil
+      context 'delete' do
+        let(:object) do
+          object = nil
 
-        Sidekiq::Testing.disable! do
-          object = create(type)
+          Sidekiq::Testing.disable! do
+            object = create(type)
 
-          if type != :project
-            # You cannot find anything in the index if it's parent project is
-            # not first indexed.
-            subject.perform("index", "Project", object.project.id, object.project.es_id)
+            if type != :project
+              # You cannot find anything in the index if it's parent project is
+              # not first indexed.
+              described_class.new.perform("index", "Project", object.project.id, object.project.es_id)
+            end
+
+            described_class.new.perform("index", name, object.id, object.es_id)
+            ensure_elasticsearch_index!
+            object.destroy
           end
 
-          subject.perform("index", name, object.id, object.es_id)
-          ensure_elasticsearch_index!
-          object.destroy
+          object
+        end
+        let(:job_args) { ["delete", name, object.id, object.es_id, { 'es_parent' => object.es_parent }] }
+
+        def total_count(object)
+          object.class.elastic_search('*', search_options).total_count
         end
 
-        expect do
-          subject.perform("delete", name, object.id, object.es_id, { 'es_parent' => object.es_parent })
-          ensure_elasticsearch_index!
-        end.to change { object.class.elastic_search('*', search_options).total_count }.by(-1)
+        before { expect(total_count(object)).to eq(1) }
+
+        include_examples 'an idempotent worker' do
+          it 'deletes from index when an object is deleted' do
+            subject
+            ensure_elasticsearch_index!
+
+            expect(total_count(object)).to eq(0)
+          end
+        end
       end
     end
   end
