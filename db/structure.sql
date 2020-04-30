@@ -4942,6 +4942,21 @@ CREATE SEQUENCE public.programming_languages_id_seq
 
 ALTER SEQUENCE public.programming_languages_id_seq OWNED BY public.programming_languages.id;
 
+CREATE TABLE public.project_access_tokens (
+    id bigint NOT NULL,
+    project_id bigint,
+    personal_access_token_id bigint
+);
+
+CREATE SEQUENCE public.project_access_tokens_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+ALTER SEQUENCE public.project_access_tokens_id_seq OWNED BY public.project_access_tokens.id;
+
 CREATE TABLE public.project_alerting_settings (
     project_id integer NOT NULL,
     encrypted_token character varying NOT NULL,
@@ -7743,6 +7758,8 @@ ALTER TABLE ONLY public.pool_repositories ALTER COLUMN id SET DEFAULT nextval('p
 
 ALTER TABLE ONLY public.programming_languages ALTER COLUMN id SET DEFAULT nextval('public.programming_languages_id_seq'::regclass);
 
+ALTER TABLE ONLY public.project_access_tokens ALTER COLUMN id SET DEFAULT nextval('public.project_access_tokens_id_seq'::regclass);
+
 ALTER TABLE ONLY public.project_aliases ALTER COLUMN id SET DEFAULT nextval('public.project_aliases_id_seq'::regclass);
 
 ALTER TABLE ONLY public.project_auto_devops ALTER COLUMN id SET DEFAULT nextval('public.project_auto_devops_id_seq'::regclass);
@@ -8632,6 +8649,9 @@ ALTER TABLE ONLY public.pool_repositories
 ALTER TABLE ONLY public.programming_languages
     ADD CONSTRAINT programming_languages_pkey PRIMARY KEY (id);
 
+ALTER TABLE ONLY public.project_access_tokens
+    ADD CONSTRAINT project_access_tokens_pkey PRIMARY KEY (id);
+
 ALTER TABLE ONLY public.project_alerting_settings
     ADD CONSTRAINT project_alerting_settings_pkey PRIMARY KEY (project_id);
 
@@ -8997,8 +9017,6 @@ CREATE INDEX commit_id_and_note_id_index ON public.commit_user_mentions USING bt
 CREATE UNIQUE INDEX design_management_designs_versions_uniqueness ON public.design_management_designs_versions USING btree (design_id, version_id);
 
 CREATE INDEX design_user_mentions_on_design_id_and_note_id_index ON public.design_user_mentions USING btree (design_id, note_id);
-
-CREATE INDEX dev_index_route_on_path_trigram ON public.routes USING gin (path public.gin_trgm_ops);
 
 CREATE UNIQUE INDEX epic_user_mentions_on_epic_id_and_note_id_index ON public.epic_user_mentions USING btree (epic_id, note_id);
 
@@ -10305,6 +10323,10 @@ CREATE INDEX index_pool_repositories_on_shard_id ON public.pool_repositories USI
 CREATE UNIQUE INDEX index_pool_repositories_on_source_project_id_and_shard_id ON public.pool_repositories USING btree (source_project_id, shard_id);
 
 CREATE UNIQUE INDEX index_programming_languages_on_name ON public.programming_languages USING btree (name);
+
+CREATE INDEX index_project_access_tokens_on_personal_access_token_id ON public.project_access_tokens USING btree (personal_access_token_id);
+
+CREATE INDEX index_project_access_tokens_on_project_id ON public.project_access_tokens USING btree (project_id);
 
 CREATE UNIQUE INDEX index_project_aliases_on_name ON public.project_aliases USING btree (name);
 
@@ -12050,6 +12072,9 @@ ALTER TABLE ONLY public.epic_issues
 ALTER TABLE ONLY public.resource_weight_events
     ADD CONSTRAINT fk_rails_5eb5cb92a1 FOREIGN KEY (issue_id) REFERENCES public.issues(id) ON DELETE CASCADE;
 
+ALTER TABLE ONLY public.project_access_tokens
+    ADD CONSTRAINT fk_rails_5f7e8450e1 FOREIGN KEY (personal_access_token_id) REFERENCES public.personal_access_tokens(id);
+
 ALTER TABLE ONLY public.approval_project_rules
     ADD CONSTRAINT fk_rails_5fb4dd100b FOREIGN KEY (project_id) REFERENCES public.projects(id) ON DELETE CASCADE;
 
@@ -12394,6 +12419,9 @@ ALTER TABLE ONLY public.resource_label_events
 
 ALTER TABLE ONLY public.packages_build_infos
     ADD CONSTRAINT fk_rails_b18868292d FOREIGN KEY (package_id) REFERENCES public.packages_packages(id) ON DELETE CASCADE;
+
+ALTER TABLE ONLY public.project_access_tokens
+    ADD CONSTRAINT fk_rails_b27801bfbf FOREIGN KEY (project_id) REFERENCES public.projects(id);
 
 ALTER TABLE ONLY public.merge_trains
     ADD CONSTRAINT fk_rails_b29261ce31 FOREIGN KEY (user_id) REFERENCES public.users(id) ON DELETE CASCADE;
@@ -13903,6 +13931,7 @@ COPY "schema_migrations" (version) FROM STDIN;
 20200429181955
 20200429182245
 20200430103158
+20200430123614
 20200430130048
 20200505164958
 20200505171834
