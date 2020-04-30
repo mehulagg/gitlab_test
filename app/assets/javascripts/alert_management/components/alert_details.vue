@@ -24,6 +24,7 @@ export default {
   },
   apollo: {
     alert: {
+      fetchPolicy: 'cache-and-network',
       query,
       variables() {
         return {
@@ -31,30 +32,15 @@ export default {
           alertId: this.alertId,
         };
       },
-      update: () => {
-        // TODO: Implement this or remove
-      },
-      error: () => {
-        // TODO: Implement this or remove
-      },
-      result(res) {
-        const alert = res.data.project?.alertManagementAlerts?.nodes[0];
-        this.alert = alert ?? null;
+      update(data) {
+        return data.project?.alertManagementAlerts?.nodes[0] ?? null;
       },
     },
-  },
-  data() {
-    return { alert: null };
   },
   watch: {
     alert(newAlert) {
-      console.log(newAlert);
+      console.log('hello', newAlert);
     },
-  },
-  mounted() {
-    this.$apollo.queries.alert.setOptions({
-      fetchPolicy: 'cache-and-network',
-    });
   },
 };
 </script>
