@@ -4,13 +4,17 @@ import AlertDetails from '~/alert_management/components/alert_details.vue';
 describe('AlertDetails', () => {
   let wrapper;
 
-  function mountComponent() {
-    wrapper = shallowMount(AlertDetails);
+  function mountComponent(alert = {}) {
+    wrapper = shallowMount(AlertDetails, {
+      propsData: {
+        alertId: 'alertId',
+        projectPath: 'projectPath',
+      },
+      data() {
+        return { alert };
+      },
+    });
   }
-
-  beforeEach(() => {
-    mountComponent();
-  });
 
   afterEach(() => {
     if (wrapper) {
@@ -19,16 +23,38 @@ describe('AlertDetails', () => {
   });
 
   describe('Alert details', () => {
-    it('renders a tab with overview information', () => {
-      expect(wrapper.find('[data-testid="overviewTab"]').exists()).toBe(true);
+    describe('when alert is null', () => {
+      beforeEach(() => {
+        mountComponent(null);
+      });
+
+      describe('when alert is null', () => {
+        beforeEach(() => {
+          mountComponent(null);
+        });
+
+        it('shows an empty state', () => {
+          expect(wrapper.find({ ref: 'tabGroup' }).exists()).toBe(false);
+        });
+      });
     });
 
-    it('renders a tab with full alert information', () => {
-      expect(wrapper.find('[data-testid="fullDetailsTab"]').exists()).toBe(true);
-    });
+    describe('when alert is present', () => {
+      beforeEach(() => {
+        mountComponent();
+      });
 
-    it('renders alert details', () => {
-      expect(wrapper.find('[data-testid="startTimeItem"]').exists()).toBe(true);
+      it('renders a tab with overview information', () => {
+        expect(wrapper.find('[data-testid="overviewTab"]').exists()).toBe(true);
+      });
+
+      it('renders a tab with full alert information', () => {
+        expect(wrapper.find('[data-testid="fullDetailsTab"]').exists()).toBe(true);
+      });
+
+      it('renders alert details', () => {
+        expect(wrapper.find('[data-testid="startTimeItem"]').exists()).toBe(true);
+      });
     });
   });
 });

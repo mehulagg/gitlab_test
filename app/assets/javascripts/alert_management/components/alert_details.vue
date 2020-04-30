@@ -33,21 +33,19 @@ export default {
         };
       },
       update(data) {
-        return data.project?.alertManagementAlerts?.nodes[0] ?? null;
+        return data?.project?.alertManagementAlerts?.nodes?.[0] ?? null;
       },
     },
   },
-  watch: {
-    alert(newAlert) {
-      console.log('hello', newAlert);
-    },
+  data() {
+    return { alert: null };
   },
 };
 </script>
 <template>
   <div>
     <div class="d-flex justify-content-between">
-      <gl-tabs>
+      <gl-tabs v-if="alert" ref="tabGroup">
         <gl-tab data-testid="overviewTab" :title="$options.i18n.overviewTitle">
           <ul class="pl-3">
             <li data-testid="startTimeItem" class="font-weight-bold mb-3 mt-2">
