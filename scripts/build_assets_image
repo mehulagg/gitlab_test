@@ -32,4 +32,4 @@ fi
 
 echo "building assets image for destinations: $DESTINATIONS"
 
-/kaniko/executor --context=assets_container.build --dockerfile=assets_container.build/Dockerfile.assets $DESTINATIONS
+/kaniko/executor --verbosity=debug --context=assets_container.build --dockerfile=assets_container.build/Dockerfile.assets $DESTINATIONS
