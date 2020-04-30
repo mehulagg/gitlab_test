@@ -6,6 +6,9 @@ import AlertDetails from './components/alert_details.vue';
 Vue.use(VueApollo);
 
 export default selector => {
+  const domEl = document.querySelector(selector);
+  const { alertId, projectPath } = domEl.dataset;
+
   const apolloProvider = new VueApollo({
     defaultClient: createDefaultClient(),
   });
@@ -18,7 +21,12 @@ export default selector => {
       AlertDetails,
     },
     render(createElement) {
-      return createElement('alert-details', {});
+      return createElement('alert-details', {
+        props: {
+          alertId,
+          projectPath,
+        },
+      });
     },
   });
 };
