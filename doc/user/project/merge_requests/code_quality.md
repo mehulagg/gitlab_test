@@ -32,9 +32,9 @@ Watch a quick walkthrough of Code Quality in action:
 <div class="video-fallback">
   See the video: <a href="https://www.youtube.com/watch?v=B32LxtJKo9M">Code Quality: Speed Run</a>.
 </div>
-<figure class="video-container">
-  <iframe src="https://www.youtube.com/embed/B32LxtJKo9M" frameborder="0" allowfullscreen="true"> </iframe>
-</figure>
+
+<p align="center">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/B32LxtJKo9M" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></p>
 
 NOTE: **Note:**
 For one customer, the auditor found that having Code Quality, SAST, and Container Scanning all automated in GitLab CI/CD was almost better than a manual review! [Read more](https://about.gitlab.com/customers/bi_worldwide/).
