@@ -2,7 +2,13 @@
 @import 'framework/variables_overrides';
 @import 'framework/mixins';
 
-@import '@gitlab/ui/src/scss/gitlab_ui';
+@import '@gitlab/ui/src/scss/bootstrap';
+@import 'bootstrap-vue/src/index';
+
+@import '@gitlab/ui/src/scss/mixins';
+@import '@gitlab/ui/src/scss/functions';
+@import '@gitlab/ui/src/scss/variables';
+@import '@gitlab/ui/src/scss/utility-mixins/index';
 
 @import 'bootstrap_migration';
 @import 'framework/layout';
@@ -71,3 +77,6 @@
 @import "framework/spinner";
 @import 'framework/card';
 @import 'framework/editor-lite';
+
+@import '@gitlab/ui/src/scss/typescale/index';
+@import '@gitlab/ui/src/scss/components';
