@@ -6,8 +6,6 @@ import notesApp from '../notes/components/notes_app.vue';
 import discussionKeyboardNavigator from '../notes/components/discussion_keyboard_navigator.vue';
 import initWidget from '../vue_merge_request_widget';
 
-let test;
-
 export default () => {
   // eslint-disable-next-line no-new
   new Vue({

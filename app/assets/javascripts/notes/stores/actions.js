@@ -32,6 +32,8 @@ export const setNotesData = ({ commit }, data) => commit(types.SET_NOTES_DATA, d
 
 export const setNoteableData = ({ commit }, data) => commit(types.SET_NOTEABLE_DATA, data);
 
+export const setConfidentiality = ({ commit }, data) => commit(types.SET_ISSUE_CONFIDENTIAL, data);
+
 export const setUserData = ({ commit }, data) => commit(types.SET_USER_DATA, data);
 
 export const setLastFetchedAt = ({ commit }, data) => commit(types.SET_LAST_FETCHED_AT, data);

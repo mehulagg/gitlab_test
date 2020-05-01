@@ -117,7 +117,6 @@ export default {
     this.discussionsCount = document.querySelector('.js-discussions-count');
 
     this.setNotesData(this.notesData);
-    // setting noteable data here....
     this.setNoteableData(this.noteableData);
     this.setUserData(this.userData);
     this.setTargetNoteHash(getLocationHash());

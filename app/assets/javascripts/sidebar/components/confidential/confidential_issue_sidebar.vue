@@ -8,6 +8,7 @@ import eventHub from '~/sidebar/event_hub';
 import EditForm from './edit_form.vue';
 import recaptchaModalImplementor from '~/vue_shared/mixins/recaptcha_modal_implementor';
 import updateIssueConfidentialMutation from './queries/update_issue_confidential.mutation.graphql';
+import { mapState, mapActions } from 'vuex';
 
 export default {
   components: {
@@ -25,6 +26,7 @@ export default {
     },
     fullPath: {
       required: true,
+      type: String,
     },
     isEditable: {
       required: true,
@@ -52,10 +54,12 @@ export default {
     eventHub.$off('closeConfidentialityForm', this.toggleForm);
   },
   methods: {
+    ...mapActions(['setConfidentiality']),
     toggleForm() {
       this.edit = !this.edit;
     },
     updateConfidentialAttribute(confidential) {
+      // find a way to FF
       this.$apollo
         .mutate({
           mutation: updateIssueConfidentialMutation,
@@ -68,17 +72,15 @@ export default {
           },
         })
         .then(({ data }) => {
-          // then update vuex
-          console.log(data.issueSetConfidential.issue.confidential);
+          this.setConfidentiality(data.issueSetConfidential.issue.confidential)
         })
-      //   .then(({ data }) => this.checkForSpam(data)) // why is this here?
-      //   .catch(error => {
-      //     if (error.name === 'SpamError') {
-      //       this.openRecaptcha();
-      //     } else {
-      //       Flash(__('Something went wrong trying to change the confidentiality of this issue'));
-      //     }
-      //   });
+        .catch(error => {
+          if (error.name === 'SpamError') {
+            this.openRecaptcha();
+          } else {
+            Flash(__('Something went wrong trying to change the confidentiality of this issue'));
+          }
+        });
     },
   },
 };

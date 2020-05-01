@@ -67,6 +67,7 @@ function mountConfidentialComponent() {
   new ConfidentialComp({
     store,
     apolloProvider,
+    store,
     propsData: {
       iid: String(iid),
       fullPath,

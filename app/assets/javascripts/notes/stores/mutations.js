@@ -1,3 +1,4 @@
+import Vue from 'vue';
 import * as utils from './utils';
 import * as types from './mutation_types';
 import * as constants from '../constants';
@@ -93,6 +94,10 @@ export default {
 
   [types.SET_NOTEABLE_DATA](state, data) {
     Object.assign(state, { noteableData: data });
+  },
+
+  [types.SET_ISSUE_CONFIDENTIAL](state, data) {
+    state.noteableData.confidential = data;
   },
 
   [types.SET_USER_DATA](state, data) {
