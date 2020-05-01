@@ -23,11 +23,6 @@ export default {
       required: false,
       default: () => [],
     },
-    issuesSelected: {
-      type: Boolean,
-      required: false,
-      default: true,
-    },
   },
   data() {
     return {
@@ -60,7 +55,7 @@ export default {
           },
         },
         yAxis: {
-          name: this.issuesSelected ? __('Total issues') : __('Total weight'),
+          name: __('Total issues'),
           axisLine: {
             show: true,
           },
@@ -80,21 +75,11 @@ export default {
       const [seriesData] = params.seriesData;
       this.tooltip.title = dateFormat(params.value, 'dd mmm yyyy');
 
-      if (this.issuesSelected) {
-        this.tooltip.content = sprintf(__('%{total} open issues'), {
-          total: seriesData.value[1],
-        });
-      } else {
-        this.tooltip.content = sprintf(__('%{total} open issue weight'), {
-          total: seriesData.value[1],
-        });
-      }
-    },
-    showIssueCount() {
-      this.issuesSelected = true;
-    },
-    showIssueWeight() {
-      this.issuesSelected = false;
+      const text = __('%{total} open issues');
+      
+      this.tooltip.content = sprintf(text, {
+        total: seriesData.value[1],
+      });
     },
   },
 };
@@ -107,8 +92,6 @@ export default {
     </div>
     <resizable-chart-container class="burndown-chart">
       <gl-line-chart
-        slot-scope="{ width }"
-        :width="width"
         :data="dataSeries"
         :option="options"
         :format-tooltip-text="formatTooltipText"

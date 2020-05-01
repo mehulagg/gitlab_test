@@ -101,7 +101,6 @@ export default {
         :start-date="startDate"
         :due-date="dueDate"
         :scope="burnupScope"
-        :issues-selected="issuesSelected"
         class="col-md-6"
       />
     </div>
