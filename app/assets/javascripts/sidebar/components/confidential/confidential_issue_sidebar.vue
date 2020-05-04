@@ -36,6 +36,7 @@ export default {
   data() {
     return {
       edit: false,
+      loading: false,
     };
   },
   computed: {
@@ -58,8 +59,13 @@ export default {
     toggleForm() {
       this.edit = !this.edit;
     },
+    closeForm() {
+      this.edit = false;
+    },
     updateConfidentialAttribute(confidential) {
       // find a way to FF
+      this.loading = true;
+
       this.$apollo
         .mutate({
           mutation: updateIssueConfidentialMutation,
@@ -72,9 +78,12 @@ export default {
           },
         })
         .then(({ data }) => {
-          this.setConfidentiality(data.issueSetConfidential.issue.confidential)
+          this.loading = false;
+          this.toggleForm();
+          this.setConfidentiality(data.issueSetConfidential.issue.confidential);
         })
         .catch(error => {
+          this.loading = false;
           if (error.name === 'SpamError') {
             this.openRecaptcha();
           } else {
@@ -119,6 +128,7 @@ export default {
         v-if="edit"
         :is-confidential="confidential"
         :update-confidential-attribute="updateConfidentialAttribute"
+        :loading="loading"
       />
       <div v-if="!confidential" class="no-value sidebar-item-value">
         <icon :size="16" name="eye" aria-hidden="true" class="sidebar-item-icon inline" />

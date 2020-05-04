@@ -1,9 +1,12 @@
 <script>
-import $ from 'jquery';
+import { GlLoadingIcon } from '@gitlab/ui';
 import eventHub from '../../event_hub';
 import { __ } from '~/locale';
 
 export default {
+  components: {
+    GlLoadingIcon,
+  },
   props: {
     isConfidential: {
       required: true,
@@ -13,6 +16,10 @@ export default {
       required: true,
       type: Function,
     },
+    loading: {
+      required: true,
+      type: Boolean,
+    }
   },
   computed: {
     toggleButtonText() {
@@ -25,10 +32,8 @@ export default {
   methods: {
     closeForm() {
       eventHub.$emit('closeConfidentialityForm');
-      $(this.$el).trigger('hidden.gl.dropdown');
     },
     submitForm() {
-      this.closeForm();
       this.updateConfidentialAttribute(this.updateConfidentialBool);
     },
   },
@@ -40,7 +45,8 @@ export default {
     <button type="button" class="btn btn-default append-right-10" @click="closeForm">
       {{ __('Cancel') }}
     </button>
-    <button type="button" class="btn btn-close" @click.prevent="submitForm">
+    <button type="button" class="btn btn-close" :disabled="loading" @click.prevent="submitForm">
+      <gl-loading-icon v-if="loading" :inline="true" />
       {{ toggleButtonText }}
     </button>
   </div>

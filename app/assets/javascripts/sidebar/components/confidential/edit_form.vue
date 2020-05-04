@@ -11,10 +11,14 @@ export default {
       required: true,
       type: Boolean,
     },
-    updateConfidentialAttribute: {
+    updateConfidentialAttribute: { // use event here.
       required: true,
       type: Function,
     },
+    loading: {
+      required: true,
+      type: Boolean,
+    }
   },
   computed: {
     confidentialityOnWarning() {
@@ -40,6 +44,7 @@ export default {
         <edit-form-buttons
           :is-confidential="isConfidential"
           :update-confidential-attribute="updateConfidentialAttribute"
+          :loading="loading"
         />
       </div>
     </div>
