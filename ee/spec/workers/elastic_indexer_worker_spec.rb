@@ -92,44 +92,47 @@ describe ElasticIndexerWorker, :elastic do
     end
   end
 
-  it 'deletes a project with all nested objects' do
-    project, issue, milestone, note, merge_request = nil
+  context 'nested objects' do
+    let(:project) { create :project, :repository }
+    let(:issue) { create :issue, project: project }
+    let(:milestone) { create :milestone, project: project }
+    let(:note) { create :note, project: project }
+    let(:merge_request) { create :merge_request, target_project: project, source_project: project }
 
-    Sidekiq::Testing.disable! do
-      project = create :project, :repository
-      subject.perform("index", "Project", project.id, project.es_id)
+    let(:job_args) { ["delete", "Project", project.id, project.es_id] }
 
-      issue = create :issue, project: project
-      subject.perform("index", "Issue", issue.id, issue.es_id)
+    before do
+      Sidekiq::Testing.disable! do
+        described_class.new.perform("index", "Project", project.id, project.es_id)
+        described_class.new.perform("index", "Issue", issue.id, issue.es_id)
+        described_class.new.perform("index", "Milestone", milestone.id, milestone.es_id)
+        described_class.new.perform("index", "Note", note.id, note.es_id)
+        described_class.new.perform("index", "MergeRequest", merge_request.id, merge_request.es_id)
+      end
 
-      milestone = create :milestone, project: project
-      subject.perform("index", "Milestone", milestone.id, milestone.es_id)
+      ElasticCommitIndexerWorker.new.perform(project.id)
+      ensure_elasticsearch_index!
 
-      note = create :note, project: project
-      subject.perform("index", "Note", note.id, note.es_id)
-
-      merge_request = create :merge_request, target_project: project, source_project: project
-      subject.perform("index", "MergeRequest", merge_request.id, merge_request.es_id)
+      ## All database objects + data from repository. The absolute value does not matter
+      expect(Project.elastic_search('*', search_options).records).to include(project)
+      expect(Issue.elastic_search('*', search_options).records).to include(issue)
+      expect(Milestone.elastic_search('*', search_options).records).to include(milestone)
+      expect(Note.elastic_search('*', search_options).records).to include(note)
+      expect(MergeRequest.elastic_search('*', search_options).records).to include(merge_request)
     end
 
-    ElasticCommitIndexerWorker.new.perform(project.id)
-    ensure_elasticsearch_index!
+    include_examples 'an idempotent worker' do
+      it 'deletes a project with all nested objects' do
+        subject
+        ensure_elasticsearch_index!
 
-    ## All database objects + data from repository. The absolute value does not matter
-    expect(Project.elastic_search('*', search_options).records).to include(project)
-    expect(Issue.elastic_search('*', search_options).records).to include(issue)
-    expect(Milestone.elastic_search('*', search_options).records).to include(milestone)
-    expect(Note.elastic_search('*', search_options).records).to include(note)
-    expect(MergeRequest.elastic_search('*', search_options).records).to include(merge_request)
-
-    subject.perform("delete", "Project", project.id, project.es_id)
-    ensure_elasticsearch_index!
-
-    expect(Project.elastic_search('*', search_options).total_count).to be(0)
-    expect(Issue.elastic_search('*', search_options).total_count).to be(0)
-    expect(Milestone.elastic_search('*', search_options).total_count).to be(0)
-    expect(Note.elastic_search('*', search_options).total_count).to be(0)
-    expect(MergeRequest.elastic_search('*', search_options).total_count).to be(0)
+        expect(Project.elastic_search('*', search_options).total_count).to be(0)
+        expect(Issue.elastic_search('*', search_options).total_count).to be(0)
+        expect(Milestone.elastic_search('*', search_options).total_count).to be(0)
+        expect(Note.elastic_search('*', search_options).total_count).to be(0)
+        expect(MergeRequest.elastic_search('*', search_options).total_count).to be(0)
+      end
+    end
   end
 
   it 'retries if index raises error' do
