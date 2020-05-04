@@ -141,6 +141,8 @@ Example response:
 ]
 ```
 
+CAUTION: The `scopes` attribute in the response is deprecated. This is present on legacy feature flags. It is [scheduled for removal in GitLab 14.0](https://gitlab.com/gitlab-org/gitlab/-/issues/213369). Use new feature flags with the `strategies` attribute instead.
+
 ## New feature flag
 
 Creates a new feature flag.
@@ -214,6 +216,8 @@ Example response:
    ]
 }
 ```
+
+CAUTION: The `scopes` attribute in the response is deprecated. This is present on legacy feature flags. It is [scheduled for removal in GitLab 14.0](https://gitlab.com/gitlab-org/gitlab/-/issues/213369). Use new feature flags with the `strategies` attribute instead.
 
 ## Single feature flag
 
@@ -289,6 +293,8 @@ Example response:
    ]
 }
 ```
+
+CAUTION: The `scopes` attribute in the response is deprecated. This is present on legacy feature flags. It is [scheduled for removal in GitLab 14.0](https://gitlab.com/gitlab-org/gitlab/-/issues/213369). Use new feature flags with the `strategies` attribute instead.
 
 ## Delete feature flag
 
