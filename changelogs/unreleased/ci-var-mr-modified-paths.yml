@@ -1,0 +1,5 @@
+---
+title: Add CI_MERGE_REQUEST_MODIFIED_PATHS to predefined CI variables reference
+merge_request: 31038
+author:
+type: added
