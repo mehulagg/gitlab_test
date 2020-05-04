@@ -25,6 +25,7 @@ export default () => ({
     },
     userData: {},
     noteableData: {
+      confidential: false,
       current_user: {},
       preview_note_path: 'path/to/preview',
     },

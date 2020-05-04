@@ -4,4 +4,6 @@ import notesModule from './modules';
 
 Vue.use(Vuex);
 
-export default () => new Vuex.Store(notesModule());
+const notesStore = () => new Vuex.Store(notesModule());
+
+export default notesStore();
