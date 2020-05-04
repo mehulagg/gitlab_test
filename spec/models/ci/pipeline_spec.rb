@@ -630,6 +630,8 @@ describe Ci::Pipeline, :mailer do
       let(:labels) { create_list(:label, 2) }
 
       it 'exposes merge request pipeline variables' do
+        allow(merge_request).to receive(:modified_paths).and_return(['some.rb', 'files.md'])
+
         expect(subject.to_hash)
           .to include(
             'CI_MERGE_REQUEST_ID' => merge_request.id.to_s,
@@ -649,6 +651,7 @@ describe Ci::Pipeline, :mailer do
             'CI_MERGE_REQUEST_ASSIGNEES' => merge_request.assignee_username_list,
             'CI_MERGE_REQUEST_MILESTONE' => milestone.title,
             'CI_MERGE_REQUEST_LABELS' => labels.map(&:title).sort.join(','),
+            'CI_MERGE_REQUEST_MODIFIED_PATHS' => 'some.rb,files.md',
             'CI_MERGE_REQUEST_EVENT_TYPE' => pipeline.merge_request_event_type.to_s)
       end
 
