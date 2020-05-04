@@ -37,8 +37,9 @@ describe ElasticIndexerWorker, :elastic do
     end
 
     with_them do
+      let(:object) { create(type) }
+
       context 'index' do
-        let(:object) { create(type) }
         let(:job_args) { ["index", name, object.id, object.es_id] }
 
         include_examples 'an idempotent worker' do
@@ -53,12 +54,14 @@ describe ElasticIndexerWorker, :elastic do
       end
 
       context 'delete' do
-        let(:object) do
-          object = nil
+        let(:job_args) { ["delete", name, object.id, object.es_id, { 'es_parent' => object.es_parent }] }
 
+        def total_count(object)
+          object.class.elastic_search('*', search_options).total_count
+        end
+
+        before do
           Sidekiq::Testing.disable! do
-            object = create(type)
-
             if type != :project
               # You cannot find anything in the index if it's parent project is
               # not first indexed.
@@ -70,15 +73,8 @@ describe ElasticIndexerWorker, :elastic do
             object.destroy
           end
 
-          object
+          expect(total_count(object)).to eq(1)
         end
-        let(:job_args) { ["delete", name, object.id, object.es_id, { 'es_parent' => object.es_parent }] }
-
-        def total_count(object)
-          object.class.elastic_search('*', search_options).total_count
-        end
-
-        before { expect(total_count(object)).to eq(1) }
 
         include_examples 'an idempotent worker' do
           it 'deletes from index when an object is deleted' do
