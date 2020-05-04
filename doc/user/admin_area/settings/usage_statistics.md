@@ -350,14 +350,14 @@ but commented out to help encourage others to add to it in the future. -->
 |`elasticsearch_enabled`|||
 |`license_trial_ends_on`|||
 |`geo_enabled`|||
-|`version`|`Git`||
-|`version`|`Gitaly`||
-|`servers`|`Gitaly`||
-|`filesystems`|`Gitaly`||
+|`version`|Git||
+|`version`|Gitaly||
+|`servers`|Gitaly||
+|`filesystems`|Gitaly||
 |`enabled`|`gitlab_pages`||
 |`version`|`gitlab_pages`||
-|`adapter`|`database`||
-|`version`|`database`||
+|`adapter`|database||
+|`version`|database||
 |`average`|`avg_cycle_analytics - issue`||
 |`sd`|`avg_cycle_analytics - issue`||
 |`missing`|`avg_cycle_analytics - issue`||
