@@ -45,7 +45,7 @@ describe ElasticIndexerWorker, :elastic do
           it 'calls record indexing' do
             expect_next_instance_of(Elastic::IndexRecordService) do |service|
               expect(service).to receive(:execute).with(object, true, {}).and_return(true)
-            end
+            end.exactly(IdempotentWorkerHelper::WORKER_EXEC_TIMES).times
 
             subject
           end
