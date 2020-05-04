@@ -562,7 +562,7 @@ If you encounter an issue, you can
 #### Disable API-based configuration
 
 CAUTION: **Warning:**
-The `disable_gitlab_config_source` configuration flag will be removed in 14.0.
+The `disable_gitlab_api_config_source` configuration flag will be removed in 14.0.
 
 If you have problems with API-based source configuration,
 you can disable it by following these steps:
@@ -570,7 +570,7 @@ you can disable it by following these steps:
 1. On your **Pages server**, add the following to `/etc/gitlab/gitlab.rb`:
 
    ```ruby
-      gitlab_pages['disable_gitlab_config_source'] = true
+      gitlab_pages['disable_gitlab_api_config_source'] = true
    ```
 
 1. [Reconfigure GitLab](../restart_gitlab.md#omnibus-gitlab-reconfigure) for the changes to take effect.
