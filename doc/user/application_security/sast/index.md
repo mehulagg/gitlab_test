@@ -325,6 +325,7 @@ Some analyzers can be customized with environment variables.
 | `MAVEN_REPO_PATH`           | SpotBugs | Path to the Maven local repository (shortcut for the `maven.repo.local` property). |
 | `SBT_PATH`                  | SpotBugs | Path to the `sbt` executable. |
 | `FAIL_NEVER`                | SpotBugs | Set to `1` to ignore compilation failure. |
+| `PHPCS_SECURITY_AUDIT_PHP_EXTENSIONS` | phpcs-security-audit | Comma separated list of additional PHP Extensions. |
 | `SAST_GOSEC_CONFIG`         | Gosec    | Path to configuration for Gosec (optional). |
 
 #### Custom environment variables
