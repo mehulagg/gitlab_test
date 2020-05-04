@@ -12,21 +12,14 @@ export default {
       required: true,
       type: Boolean,
     },
-    updateConfidentialAttribute: {
-      required: true,
-      type: Function,
-    },
     loading: {
       required: true,
       type: Boolean,
-    }
+    },
   },
   computed: {
     toggleButtonText() {
       return this.isConfidential ? __('Turn Off') : __('Turn On');
-    },
-    updateConfidentialBool() {
-      return !this.isConfidential;
     },
   },
   methods: {
@@ -34,7 +27,7 @@ export default {
       eventHub.$emit('closeConfidentialityForm');
     },
     submitForm() {
-      this.updateConfidentialAttribute(this.updateConfidentialBool);
+      eventHub.$emit('updateConfidentialAttribute');
     },
   },
 };
@@ -42,9 +35,11 @@ export default {
 
 <template>
   <div class="sidebar-item-warning-message-actions">
-    <button type="button" class="btn btn-default append-right-10" @click="closeForm">
-      {{ __('Cancel') }}
-    </button>
+    <button
+      type="button"
+      class="btn btn-default append-right-10"
+      @click="closeForm"
+    >{{ __('Cancel') }}</button>
     <button type="button" class="btn btn-close" :disabled="loading" @click.prevent="submitForm">
       <gl-loading-icon v-if="loading" :inline="true" />
       {{ toggleButtonText }}

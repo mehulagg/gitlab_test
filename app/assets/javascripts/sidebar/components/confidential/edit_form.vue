@@ -11,13 +11,10 @@ export default {
       required: true,
       type: Boolean,
     },
-    updateConfidentialAttribute: { // use event here.
-      required: true,
-      type: Function,
-    },
     loading: {
-      required: true,
+      required: false,
       type: Boolean,
+      default: true,
     }
   },
   computed: {
@@ -43,7 +40,6 @@ export default {
         <p v-else v-html="confidentialityOffWarning"></p>
         <edit-form-buttons
           :is-confidential="isConfidential"
-          :update-confidential-attribute="updateConfidentialAttribute"
           :loading="loading"
         />
       </div>

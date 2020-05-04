@@ -49,9 +49,11 @@ export default {
     },
   },
   created() {
+    eventHub.$on('updateConfidentialAttribute', this.updateConfidentialAttribute)
     eventHub.$on('closeConfidentialityForm', this.toggleForm);
   },
   beforeDestroy() {
+    eventHub.$off('updateConfidentialAttribute', this.updateConfidentialAttribute)
     eventHub.$off('closeConfidentialityForm', this.toggleForm);
   },
   methods: {
@@ -62,9 +64,10 @@ export default {
     closeForm() {
       this.edit = false;
     },
-    updateConfidentialAttribute(confidential) {
+    updateConfidentialAttribute() {
       // find a way to FF
       this.loading = true;
+      const confidential = !this.confidential;
 
       this.$apollo
         .mutate({
